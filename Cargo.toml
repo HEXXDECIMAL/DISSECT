@@ -1,0 +1,46 @@
+[package]
+name = "divine"
+version = "0.1.0"
+edition = "2021"
+authors = ["Divine Team"]
+license = "Apache-2.0"
+description = "Rust port of malcontent - a malware detection tool using YARA rules"
+readme = "README.md"
+repository = "https://github.com/chainguard-dev/malcontent"
+
+[dependencies]
+# CLI and argument parsing
+clap = { version = "4.5", features = ["derive"] }
+
+# YARA integration
+yara-x = "1.6"
+
+# File handling and hashing
+sha2 = "0.10"
+hex = "0.4"
+walkdir = "2.5"
+mime_guess = "2.0"
+
+# Archive handling  
+zip = { version = "1.0", default-features = false }
+tar = "0.4"
+flate2 = "1.0"
+tempfile = "3.12"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Error handling
+thiserror = "1.0"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = "0.3"
+
+[dev-dependencies]
+tempfile = "3.12"
+
+[[bin]]
+name = "divine"
+path = "src/main.rs"
