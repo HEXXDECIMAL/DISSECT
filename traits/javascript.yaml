@@ -1,0 +1,295 @@
+# JavaScript-Specific Capabilities
+# These capabilities only apply to JavaScript/Node.js code
+
+simple_rules:
+  # Node.js specific
+  - symbol: require
+    capability: js/node/module-loading
+    description: Load Node.js modules
+    confidence: 0.6
+    file_types: [javascript]
+
+  - symbol: child_process
+    capability: js/node/exec
+    description: Execute child processes (Node.js)
+    confidence: 0.9
+    file_types: [javascript]
+
+  - symbol: fs.readFile
+    capability: js/node/fs/read
+    description: Read files (Node.js)
+    confidence: 0.7
+    file_types: [javascript]
+
+  - symbol: fs.writeFile
+    capability: js/node/fs/write
+    description: Write files (Node.js)
+    confidence: 0.8
+    file_types: [javascript]
+
+  # Browser JavaScript
+  - symbol: XMLHttpRequest
+    capability: js/browser/http
+    description: HTTP requests (browser)
+    confidence: 0.7
+    file_types: [javascript]
+
+  - symbol: fetch
+    capability: js/browser/http
+    description: HTTP requests (modern browser)
+    confidence: 0.7
+    file_types: [javascript]
+
+  - symbol: localStorage
+    capability: js/browser/storage
+    description: Browser local storage
+    confidence: 0.6
+    file_types: [javascript]
+
+  - symbol: eval
+    capability: js/eval/dynamic-code
+    description: Dynamic code evaluation
+    confidence: 0.9
+    file_types: [javascript]
+
+composite_rules:
+  # JavaScript reverse shell
+  - capability: js/reverse-shell
+    description: JavaScript reverse shell pattern
+    confidence: 0.95
+    platforms: [all]
+    file_types: [javascript]
+
+    requires_all:
+      # Network capability
+      - type: symbol_or_string
+        any:
+          - 'net.connect'
+          - 'net.Socket'
+          - 'WebSocket'
+
+      # Spawn shell
+      - type: symbol_or_string
+        any:
+          - 'child_process.spawn'
+          - 'child_process.exec'
+          - '/bin/sh'
+          - 'cmd.exe'
+
+      # Stream piping
+      - type: string
+        regex: '(pipe|stdin|stdout)'
+
+  # Obfuscated JavaScript
+  - capability: js/obfuscation/eval-heavy
+    description: Heavily obfuscated JavaScript (eval-based)
+    confidence: 0.85
+    platforms: [all]
+    file_types: [javascript]
+
+    requires_count: 2
+    conditions:
+      # Multiple eval calls
+      - type: string
+        regex: 'eval\('
+        min_count: 3
+
+      # High entropy
+      - type: structure
+        feature: entropy/high
+
+      # String concatenation obfuscation
+      - type: string
+        regex: "(\\+|concat)\\s*[\"']"
+        min_count: 10
+
+  # Cryptocurrency miner (browser)
+  - capability: js/cryptominer/browser
+    description: Browser-based cryptocurrency miner
+    confidence: 0.9
+    platforms: [all]
+    file_types: [javascript]
+
+    requires_count: 2
+    conditions:
+      # Crypto mining libraries
+      - type: string
+        regex: '(coinhive|cryptonight|webminerpool|coin-hive)'
+        case_insensitive: true
+
+      # Web Worker (for threading)
+      - type: symbol_or_string
+        any:
+          - Worker
+          - 'new Worker'
+
+      # High CPU usage patterns
+      - type: string
+        regex: '(setInterval|setTimeout|requestAnimationFrame)'
+
+  # Node.js backdoor
+  - capability: js/backdoor/node
+    description: Node.js backdoor pattern
+    confidence: 0.9
+    platforms: [all]
+    file_types: [javascript]
+
+    requires_all:
+      # Network listener
+      - type: string
+        regex: '(createServer|net\.Server|express|http\.Server)'
+
+      # Command execution
+      - type: symbol_or_string
+        any:
+          - 'child_process.exec'
+          - 'child_process.spawn'
+          - 'eval'
+
+  # Credential theft (browser)
+  - capability: js/credential/form-grabbing
+    description: Browser form credential grabbing
+    confidence: 0.85
+    platforms: [all]
+    file_types: [javascript]
+
+    requires_all:
+      # Form access
+      - type: string
+        regex: '(document\.forms|getElementsByTagName.*form|querySelector.*input)'
+        case_insensitive: true
+
+      # Password field access
+      - type: string
+        regex: "(type.*=.*[\"']password|input\\[type=password\\])"
+        case_insensitive: true
+
+      # Data exfiltration
+      - type: symbol_or_string
+        any:
+          - fetch
+          - XMLHttpRequest
+          - 'navigator.sendBeacon'
+
+  # WebSocket C2
+  - capability: js/c2/websocket
+    description: WebSocket-based C2 communication
+    confidence: 0.9
+    platforms: [all]
+    file_types: [javascript]
+
+    requires_all:
+      # WebSocket usage
+      - type: symbol_or_string
+        any:
+          - WebSocket
+          - 'new WebSocket'
+          - 'ws://'
+          - 'wss://'
+
+      # Command execution capability
+      - type: symbol_or_string
+        any:
+          - eval
+          - Function
+          - 'child_process'
+
+  # NPM package hijacking
+  - capability: js/supply-chain/postinstall
+    description: Suspicious NPM postinstall script
+    confidence: 0.8
+    platforms: [all]
+    file_types: [javascript]
+
+    requires_count: 2
+    conditions:
+      # Package.json postinstall
+      - type: string
+        exact: 'postinstall'
+
+      # Network access
+      - type: symbol_or_string
+        any:
+          - https
+          - http
+          - fetch
+          - XMLHttpRequest
+
+      # Execution or file write
+      - type: symbol_or_string
+        any:
+          - 'child_process'
+          - 'fs.writeFile'
+          - eval
+
+  # Browser fingerprinting
+  - capability: js/tracking/fingerprinting
+    description: Browser fingerprinting techniques
+    confidence: 0.75
+    platforms: [all]
+    file_types: [javascript]
+
+    requires_count: 3
+    conditions:
+      # Navigator properties
+      - type: string
+        regex: 'navigator\.(userAgent|platform|language|plugins)'
+
+      # Canvas fingerprinting
+      - type: string
+        regex: '(canvas|getContext|toDataURL)'
+
+      # WebGL fingerprinting
+      - type: string
+        regex: '(WebGLRenderingContext|getParameter|VENDOR|RENDERER)'
+
+      # Audio context fingerprinting
+      - type: string
+        regex: '(AudioContext|createOscillator|createAnalyser)'
+
+  # Keylogger (browser)
+  - capability: js/keylogger/browser
+    description: Browser-based keylogger
+    confidence: 0.9
+    platforms: [all]
+    file_types: [javascript]
+
+    requires_all:
+      # Keyboard event listeners
+      - type: string
+        regex: '(addEventListener.*keydown|addEventListener.*keypress|addEventListener.*keyup)'
+        case_insensitive: true
+
+      # Data collection
+      - type: string
+        regex: '(event\.key|event\.keyCode|event\.which)'
+
+      # Data exfiltration
+      - type: symbol_or_string
+        any:
+          - fetch
+          - XMLHttpRequest
+          - localStorage
+
+  # DOM manipulation for phishing
+  - capability: js/phishing/dom-manipulation
+    description: DOM manipulation for phishing
+    confidence: 0.8
+    platforms: [all]
+    file_types: [javascript]
+
+    requires_count: 2
+    conditions:
+      # Create fake login forms
+      - type: string
+        regex: '(createElement|innerHTML.*password|innerHTML.*login)'
+        case_insensitive: true
+
+      # Credential patterns
+      - type: string
+        regex: '(username|password|email|signin|login)'
+        case_insensitive: true
+
+      # Form submission override
+      - type: string
+        regex: '(addEventListener.*submit|onsubmit|preventDefault)'

@@ -1,9 +1,14 @@
 pub mod archive;
+pub mod c;
 pub mod elf;
+pub mod go;
+pub mod java;
 pub mod javascript;
 pub mod macho;
 pub mod pe;
 pub mod python;
+pub mod ruby;
+pub mod rust;
 pub mod shell;
 
 use crate::types::AnalysisReport;
@@ -73,6 +78,21 @@ pub fn detect_file_type(file_path: &Path) -> Result<FileType> {
         if matches!(ext_str, "js" | "mjs" | "cjs") {
             return Ok(FileType::JavaScript);
         }
+        if ext_str == "go" {
+            return Ok(FileType::Go);
+        }
+        if ext_str == "rs" {
+            return Ok(FileType::Rust);
+        }
+        if ext_str == "java" {
+            return Ok(FileType::Java);
+        }
+        if ext_str == "rb" {
+            return Ok(FileType::Ruby);
+        }
+        if ext_str == "c" || ext_str == "h" {
+            return Ok(FileType::C);
+        }
     }
 
     Ok(FileType::Unknown)
@@ -99,6 +119,11 @@ pub enum FileType {
     ShellScript,
     Python,
     JavaScript,
+    Go,
+    Rust,
+    Java,
+    Ruby,
+    C,
     Archive,
     Unknown,
 }

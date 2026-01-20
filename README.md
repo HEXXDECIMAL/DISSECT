@@ -85,6 +85,31 @@ Output: Colorful terminal report with capabilities, structure, functions, string
 dissect analyze /bin/ls -o ls_report.json
 ```
 
+### Analyze JavaScript/npm Packages
+
+```bash
+# Analyze JavaScript file
+dissect analyze malicious.js
+
+# Analyze npm package
+npm pack suspicious-package
+dissect analyze suspicious-package-1.0.0.tgz
+
+# Check package.json scripts for malicious behavior
+dissect analyze package.json
+```
+
+### Analyze Archives
+
+```bash
+# Automatically extracts and analyzes contents
+dissect analyze package.tar.gz
+dissect analyze source.zip
+dissect analyze app.tar.xz
+
+# Aggregates capabilities from all files inside
+```
+
 ### Scan Multiple Files
 
 ```bash
@@ -99,15 +124,53 @@ dissect scan /path/to/directory
 
 ### Diff Analysis (Supply Chain Attack Detection)
 
+Detect xzutils-style backdoors by comparing versions:
+
 ```bash
+# Compare directory versions
 dissect diff old_version/ new_version/
+
+# Compare individual files
+dissect diff app.py.old app.py.new
+
+# Compare npm packages
+npm pack old-package@1.0.0
+npm pack new-package@1.1.0
+dissect diff old-package-1.0.0.tgz new-package-1.1.0.tgz
 ```
 
-This compares two versions and identifies:
-- New capabilities added
-- Removed capabilities
-- Modified files with capability deltas
-- Risk increase indicators
+**What it Detects:**
+- ✅ New dangerous capabilities added (exec, eval, network)
+- ✅ Added obfuscation patterns (base64+eval, hex encoding)
+- ✅ Risk scoring (automatic "RISK INCREASED" flagging)
+- ✅ File-level changes (added/removed/modified)
+- ✅ Capability deltas (what behaviors changed)
+
+**Example Output:**
+```
+=== DISSECT Diff Analysis ===
+
+📂 Baseline: package-v1.0/
+📂 Target:   package-v1.1/
+
+⚠️  1 high-risk changes detected!
+
+🔍 Modified Files
+
+  📄 compress.py
+    ➕ New capabilities:
+       🔴 anti-analysis/obfuscation/base64
+       🔴 exec/command/shell
+       🔴 anti-analysis/obfuscation/dynamic-import
+       🔴 exec/script/eval
+    ⚠️  RISK INCREASED
+```
+
+**Use Cases:**
+- Reviewing dependency updates before merging
+- Detecting supply chain attacks (xzutils scenario)
+- Security audits of software releases
+- CI/CD pipeline integration for automatic checks
 
 ### Output Formats
 
@@ -288,9 +351,16 @@ File → Detect Type → Route to Analyzer(s) → Aggregate Features → JSON Ou
 #### Source Code (Complete)
 - ✅ **Shell scripts** - bash, sh, zsh with obfuscation detection
 - ✅ **Python** - .py files with advanced obfuscation detection (base64+eval, hex, dynamic imports)
+- ✅ **JavaScript/Node.js** - .js, .mjs, .cjs with npm package malware detection
+
+#### Archive Formats (Complete)
+- ✅ **ZIP** - .zip archives with recursive analysis
+- ✅ **TAR** - .tar, .tar.gz, .tgz, .tar.bz2, .tar.xz with automatic extraction
+
+#### Diff Analysis (Complete)
+- ✅ **Supply Chain Attack Detection** - Compare versions to detect xzutils-style backdoors
 
 #### Planned
-- ⏳ **JavaScript/TypeScript** - tree-sitter-javascript
 - ⏳ **Go** - tree-sitter-go
 - ⏳ **Rust** - tree-sitter-rust
 - ⏳ **C/C++** - tree-sitter-c, tree-sitter-cpp

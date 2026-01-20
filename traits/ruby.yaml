@@ -1,0 +1,633 @@
+# Ruby Language Traits and Capabilities
+# Detection rules for Ruby programs covering command execution, deserialization, and malicious behaviors
+
+# ============================================================================
+# TRAITS: Atomic Observations
+# ============================================================================
+
+traits:
+  # ==========================================
+  # Command Execution (High Risk in Ruby)
+  # ==========================================
+
+  - id: exec/ruby/backticks
+    description: Backtick command execution
+    capability: true
+    criticality: high
+    confidence: 0.95
+    type: symbol
+    pattern: '`'
+    platforms: [all]
+
+  - id: exec/ruby/system
+    description: system() command execution
+    capability: true
+    criticality: high
+    confidence: 0.9
+    type: symbol
+    pattern: system
+    platforms: [all]
+
+  - id: exec/ruby/exec
+    description: exec() command execution
+    capability: true
+    criticality: high
+    confidence: 0.95
+    type: symbol
+    pattern: exec
+    platforms: [all]
+
+  - id: exec/ruby/spawn
+    description: spawn() command execution
+    capability: true
+    criticality: medium
+    confidence: 0.85
+    type: symbol
+    pattern: spawn
+    platforms: [all]
+
+  - id: exec/ruby/popen
+    description: popen command execution
+    capability: true
+    criticality: high
+    confidence: 0.9
+    type: symbol
+    pattern: IO.popen
+    platforms: [all]
+
+  - id: exec/ruby/percent-x
+    description: "%x() command execution"
+    capability: true
+    criticality: high
+    confidence: 0.95
+    type: symbol
+    pattern: '%x'
+    platforms: [all]
+
+  # ==========================================
+  # Dynamic Code Execution
+  # ==========================================
+
+  - id: exec/ruby/eval
+    description: eval() dynamic code execution
+    capability: true
+    criticality: high
+    confidence: 0.95
+    type: symbol
+    pattern: eval
+    platforms: [all]
+
+  - id: exec/ruby/instance-eval
+    description: instance_eval dynamic execution
+    capability: true
+    criticality: high
+    confidence: 0.9
+    type: symbol
+    pattern: instance_eval
+    platforms: [all]
+
+  - id: exec/ruby/class-eval
+    description: class_eval dynamic execution
+    capability: true
+    criticality: high
+    confidence: 0.9
+    type: symbol
+    pattern: class_eval
+    platforms: [all]
+
+  - id: exec/ruby/module-eval
+    description: module_eval dynamic execution
+    capability: true
+    criticality: high
+    confidence: 0.9
+    type: symbol
+    pattern: module_eval
+    platforms: [all]
+
+  - id: exec/ruby/binding-eval
+    description: Binding.eval execution
+    capability: true
+    criticality: high
+    confidence: 0.9
+    type: symbol
+    pattern: Binding.eval
+    platforms: [all]
+
+  # ==========================================
+  # Deserialization (Marshal)
+  # ==========================================
+
+  - id: deserialization/ruby/marshal-load
+    description: Marshal.load deserialization
+    capability: true
+    criticality: high
+    confidence: 0.95
+    type: symbol
+    pattern: Marshal.load
+    platforms: [all]
+
+  - id: deserialization/ruby/marshal-restore
+    description: Marshal.restore deserialization
+    capability: true
+    criticality: high
+    confidence: 0.95
+    type: symbol
+    pattern: Marshal.restore
+    platforms: [all]
+
+  - id: deserialization/ruby/yaml-load
+    description: YAML.load deserialization (unsafe)
+    capability: true
+    criticality: high
+    confidence: 0.9
+    type: symbol
+    pattern: YAML.load
+    platforms: [all]
+
+  - id: deserialization/ruby/yaml-load-file
+    description: YAML.load_file deserialization
+    capability: true
+    criticality: high
+    confidence: 0.9
+    type: symbol
+    pattern: YAML.load_file
+    platforms: [all]
+
+  # ==========================================
+  # Network Operations
+  # ==========================================
+
+  - id: net/ruby/tcpsocket
+    description: TCP socket connection
+    capability: true
+    criticality: low
+    confidence: 0.9
+    type: symbol
+    pattern: TCPSocket
+    platforms: [all]
+
+  - id: net/ruby/tcpserver
+    description: TCP server
+    capability: true
+    criticality: low
+    confidence: 0.9
+    type: symbol
+    pattern: TCPServer
+    platforms: [all]
+
+  - id: net/ruby/udpsocket
+    description: UDP socket
+    capability: true
+    criticality: low
+    confidence: 0.85
+    type: symbol
+    pattern: UDPSocket
+    platforms: [all]
+
+  - id: net/ruby/net-http
+    description: HTTP client
+    capability: true
+    criticality: low
+    confidence: 0.8
+    type: symbol
+    pattern: Net::HTTP
+    platforms: [all]
+
+  - id: net/ruby/open-uri
+    description: open-uri for HTTP requests
+    capability: true
+    criticality: low
+    confidence: 0.85
+    type: symbol
+    pattern: open-uri
+    platforms: [all]
+
+  # ==========================================
+  # File Operations
+  # ==========================================
+
+  - id: fs/ruby/file-read
+    description: File reading
+    criticality: none
+    confidence: 0.7
+    type: symbol
+    pattern: File.read
+    platforms: [all]
+
+  - id: fs/ruby/file-write
+    description: File writing
+    criticality: none
+    confidence: 0.7
+    type: symbol
+    pattern: File.write
+    platforms: [all]
+
+  - id: fs/ruby/file-delete
+    description: File deletion
+    capability: true
+    criticality: low
+    confidence: 0.85
+    type: symbol
+    pattern: File.delete
+    platforms: [all]
+
+  - id: fs/ruby/fileutils-rm-rf
+    description: Recursive directory deletion
+    capability: true
+    criticality: medium
+    confidence: 0.95
+    type: symbol
+    pattern: FileUtils.rm_rf
+    platforms: [all]
+
+  - id: fs/ruby/dir-glob
+    description: Directory pattern matching
+    criticality: none
+    confidence: 0.7
+    type: symbol
+    pattern: Dir.glob
+    platforms: [all]
+
+  - id: fs/ruby/find
+    description: Directory tree traversal
+    criticality: none
+    confidence: 0.75
+    type: symbol
+    pattern: find
+    platforms: [all]
+
+  - id: fs/ruby/chmod
+    description: Change file permissions
+    capability: true
+    criticality: low
+    confidence: 0.85
+    type: symbol
+    pattern: File.chmod
+    platforms: [all]
+
+  - id: fs/ruby/chown
+    description: Change file ownership
+    capability: true
+    criticality: low
+    confidence: 0.85
+    type: symbol
+    pattern: File.chown
+    platforms: [all]
+
+  # ==========================================
+  # Cryptography
+  # ==========================================
+
+  - id: crypto/ruby/openssl-cipher
+    description: OpenSSL cipher
+    criticality: none
+    confidence: 0.85
+    type: symbol
+    pattern: OpenSSL::Cipher
+    platforms: [all]
+
+  - id: crypto/ruby/aes
+    description: AES encryption
+    criticality: none
+    confidence: 0.9
+    type: string
+    regex: 'AES-\d+-'
+    platforms: [all]
+
+  - id: crypto/ruby/digest
+    description: Digest/hashing
+    criticality: none
+    confidence: 0.75
+    type: symbol
+    pattern: digest
+    platforms: [all]
+
+  # ==========================================
+  # Process Manipulation
+  # ==========================================
+
+  - id: process/ruby/kill
+    description: Kill process
+    capability: true
+    criticality: medium
+    confidence: 0.9
+    type: symbol
+    pattern: Process.kill
+    platforms: [all]
+
+  - id: process/ruby/fork
+    description: Fork process
+    capability: true
+    criticality: low
+    confidence: 0.8
+    type: symbol
+    pattern: Process.fork
+    platforms: [unix, linux, macos]
+
+  - id: process/ruby/setuid
+    description: Set user ID
+    capability: true
+    criticality: high
+    confidence: 0.95
+    type: symbol
+    pattern: Process.setuid
+    platforms: [unix, linux, macos]
+
+  - id: process/ruby/setgid
+    description: Set group ID
+    capability: true
+    criticality: high
+    confidence: 0.95
+    type: symbol
+    pattern: Process.setgid
+    platforms: [unix, linux, macos]
+
+  # ==========================================
+  # Dynamic Loading
+  # ==========================================
+
+  - id: exec/ruby/require
+    description: Require/load library
+    criticality: none
+    confidence: 0.6
+    type: symbol
+    pattern: require
+    platforms: [all]
+
+  - id: exec/ruby/load
+    description: Load Ruby code
+    criticality: none
+    confidence: 0.7
+    type: symbol
+    pattern: load
+    platforms: [all]
+
+  - id: exec/ruby/autoload
+    description: Autoload on demand
+    criticality: none
+    confidence: 0.7
+    type: symbol
+    pattern: autoload
+    platforms: [all]
+
+  # ==========================================
+  # Reflection/Metaprogramming
+  # ==========================================
+
+  - id: reflection/ruby/send
+    description: Dynamic method invocation
+    capability: true
+    criticality: medium
+    confidence: 0.85
+    type: symbol
+    pattern: .send
+    platforms: [all]
+
+  - id: reflection/ruby/public-send
+    description: Public method invocation
+    criticality: none
+    confidence: 0.75
+    type: symbol
+    pattern: .public_send
+    platforms: [all]
+
+  - id: reflection/ruby/const-get
+    description: Dynamic constant access
+    capability: true
+    criticality: medium
+    confidence: 0.85
+    type: symbol
+    pattern: const_get
+    platforms: [all]
+
+  - id: reflection/ruby/method-missing
+    description: method_missing hook
+    capability: true
+    criticality: medium
+    confidence: 0.8
+    type: symbol
+    pattern: method_missing
+    platforms: [all]
+
+  # ==========================================
+  # Encoding/Obfuscation
+  # ==========================================
+
+  - id: encoding/ruby/base64-decode
+    description: Base64 decoding
+    criticality: none
+    confidence: 0.8
+    type: symbol
+    pattern: Base64.decode64
+    platforms: [all]
+
+  - id: encoding/ruby/base64-strict-decode
+    description: Base64 strict decoding
+    criticality: none
+    confidence: 0.8
+    type: symbol
+    pattern: Base64.strict_decode64
+    platforms: [all]
+
+  - id: encoding/ruby/unpack
+    description: Binary unpacking
+    criticality: none
+    confidence: 0.75
+    type: symbol
+    pattern: .unpack
+    platforms: [all]
+
+  # ==========================================
+  # Shell References
+  # ==========================================
+
+  - id: exec/shell/sh
+    description: References /bin/sh
+    criticality: none
+    confidence: 1.0
+    type: string
+    exact: '/bin/sh'
+    platforms: [unix, linux, macos]
+
+  - id: exec/shell/bash
+    description: References /bin/bash
+    criticality: none
+    confidence: 1.0
+    type: string
+    exact: '/bin/bash'
+    platforms: [unix, linux, macos]
+
+  - id: exec/shell/cmd
+    description: References cmd.exe
+    criticality: none
+    confidence: 1.0
+    type: string
+    exact: 'cmd.exe'
+    platforms: [windows]
+
+# ============================================================================
+# COMPOSITE CAPABILITIES: Behavioral Interpretations
+# ============================================================================
+
+capabilities:
+  # ==========================================
+  # Reverse Shell Patterns
+  # ==========================================
+
+  - id: c2/ruby/reverse-shell
+    description: Reverse shell pattern (socket + shell execution)
+    confidence: 0.98
+    criticality: high
+    platforms: [all]
+
+    requires_all:
+      - type: trait
+        id: net/ruby/tcpsocket
+      - type: trait
+        id: exec/ruby/system
+      - type: trait
+        id: exec/shell/sh
+  - id: c2/ruby/reverse-shell-exec
+    description: Reverse shell via exec
+    confidence: 0.98
+    criticality: high
+    platforms: [all]
+
+    requires_all:
+      - type: trait
+        id: net/ruby/tcpsocket
+      - type: trait
+        id: exec/ruby/exec
+      - type: trait
+        id: exec/shell/bash
+  # ==========================================
+  # Deserialization Attacks
+  # ==========================================
+
+  - id: deserialization/ruby/marshal-exec
+    description: Marshal deserialization with execution (gadget chain)
+    confidence: 0.95
+    criticality: high
+    platforms: [all]
+
+    requires_all:
+      - type: trait
+        id: deserialization/ruby/marshal-load
+      - type: trait
+        id: exec/ruby/system
+  - id: deserialization/ruby/yaml-exec
+    description: YAML deserialization with execution
+    confidence: 0.95
+    criticality: high
+    platforms: [all]
+
+    requires_all:
+      - type: trait
+        id: deserialization/ruby/yaml-load
+      - type: trait
+        id: exec/ruby/eval
+  # ==========================================
+  # Obfuscated Execution
+  # ==========================================
+
+  - id: exec/ruby/obfuscated-base64
+    description: Base64-obfuscated command execution
+    confidence: 0.95
+    criticality: high
+    platforms: [all]
+
+    requires_all:
+      - type: trait
+        id: encoding/ruby/base64-decode
+      - type: trait
+        id: exec/ruby/eval
+  - id: exec/ruby/obfuscated-base64-system
+    description: Base64-obfuscated system command
+    confidence: 0.95
+    criticality: high
+    platforms: [all]
+
+    requires_all:
+      - type: trait
+        id: encoding/ruby/base64-decode
+      - type: trait
+        id: exec/ruby/system
+  # ==========================================
+  # Ransomware Patterns
+  # ==========================================
+
+  - id: crypto/ruby/ransomware
+    description: File encryption pattern (crypto + directory walking)
+    confidence: 0.90
+    criticality: high
+    platforms: [all]
+
+    requires_all:
+      - type: trait
+        id: crypto/ruby/openssl-cipher
+      - type: trait
+        id: fs/ruby/find
+      - type: trait
+        id: fs/ruby/file-write
+  # ==========================================
+  # Data Destruction
+  # ==========================================
+
+  - id: impact/ruby/wiper
+    description: Potential wiper malware (recursive deletion)
+    confidence: 0.85
+    criticality: high
+    platforms: [all]
+
+    requires_all:
+      - type: trait
+        id: fs/ruby/find
+      - type: trait
+        id: fs/ruby/fileutils-rm-rf
+  # ==========================================
+  # Privilege Escalation
+  # ==========================================
+
+  - id: privilege/ruby/setuid-exec
+    description: Privilege escalation via setuid + execution
+    confidence: 0.95
+    criticality: high
+    platforms: [unix, linux, macos]
+
+    requires_all:
+      - type: trait
+        id: process/ruby/setuid
+      - type: trait
+        id: exec/ruby/system
+  # ==========================================
+  # Reflection-Based Execution
+  # ==========================================
+
+  - id: exec/ruby/reflection-exec
+    description: Reflection-based code execution (bypass)
+    confidence: 0.92
+    criticality: high
+    platforms: [all]
+
+    requires_all:
+      - type: trait
+        id: reflection/ruby/send
+      - type: trait
+        id: exec/ruby/eval
+  # ==========================================
+  # Network Exfiltration
+  # ==========================================
+
+  - id: c2/ruby/http-exfil
+    description: HTTP-based data exfiltration
+    confidence: 0.88
+    criticality: medium
+    platforms: [all]
+
+    requires_all:
+      - type: trait
+        id: net/ruby/net-http
+      - type: trait
+        id: fs/ruby/file-read
+      - type: trait
+        id: encoding/ruby/base64-decode

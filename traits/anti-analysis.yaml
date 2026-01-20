@@ -1,0 +1,725 @@
+# Anti-Analysis & Evasion Capabilities
+# Covers anti-debugging, anti-VM, sandbox detection, obfuscation, etc.
+# Migrated from malcontent/rules/anti-behavior
+
+simple_rules:
+  # Debugging detection symbols
+  - symbol: ptrace
+    capability: anti-analysis/debug/ptrace
+    description: ptrace system call (debugging/tracing)
+    confidence: 0.7
+    platforms: [linux, unix, macos]
+
+  - symbol: isatty
+    capability: anti-analysis/terminal/detect
+    description: Detect if running in terminal
+    confidence: 0.5
+    platforms: [all]
+
+  # Memory protection (unpacking indicator)
+  - symbol: mprotect
+    capability: memory/protection/modify
+    description: Modify memory protection flags
+    confidence: 0.7
+    platforms: [linux, macos, unix]
+
+  - symbol: VirtualProtect
+    capability: memory/protection/modify
+    description: Modify memory protection flags (Windows)
+    confidence: 0.7
+    platforms: [windows]
+    file_types: [pe, dll]
+
+composite_rules:
+  # ==========================================
+  # Anti-Debugging (converted from malcontent)
+  # ==========================================
+
+  # Windows: IsDebuggerPresent detection
+  - capability: anti-analysis/debug/win-basic
+    description: Windows debugger detection (basic)
+    confidence: 0.85
+    platforms: [windows]
+    file_types: [pe, dll]
+
+    requires_any:
+      - type: string
+        exact: 'IsDebuggerPresent'
+
+      - type: string
+        exact: 'UnhandledExceptionFilter'
+
+  # Windows: Comprehensive debugger/VM detection
+  - capability: anti-analysis/debug/win-comprehensive
+    description: Windows debugger/VM detection (multiple signals)
+    confidence: 0.9
+    platforms: [windows]
+    file_types: [pe, dll]
+
+    requires_all:
+      # At least 2 debug checks
+      - type: string
+        regex: '(IsDebuggerPresent|UnhandledExceptionFilter|QueryPerformanceCounter)'
+        min_count: 2
+
+      # CPU feature check
+      - type: string
+        exact: 'IsProcessorFeaturePresent'
+
+  # Linux: Multi-method debugger detection
+  - capability: anti-analysis/debug/linux-comprehensive
+    description: Linux debugger detection across multiple methods
+    confidence: 0.95
+    platforms: [linux]
+    file_types: [elf]
+
+    requires_count: 3
+    conditions:
+      # Dynamic linker debugging
+      - type: string
+        exact: 'LD_PROFILE'
+
+      - type: string
+        exact: 'LD_DEBUG'
+
+      # /proc filesystem inspection
+      - type: string
+        regex: '/proc/[^/]+/exe'
+
+      - type: string
+        regex: '/proc/[^/]+/status'
+
+      # System information
+      - type: string
+        exact: '/proc/sys/kernel/osrelease'
+
+      - type: string
+        exact: '/sys/devices/system/cpu'
+
+      - type: string
+        exact: '/proc/cpuinfo'
+
+  # ptrace self-attachment (anti-debugging)
+  - capability: anti-analysis/debug/ptrace-self
+    description: Anti-debugging via ptrace self-attachment
+    confidence: 0.95
+    platforms: [linux, unix]
+    file_types: [elf]
+
+    requires_all:
+      - type: symbol
+        pattern: ptrace
+
+      - type: symbol
+        pattern: getpid
+
+      - type: string
+        regex: 'PTRACE_TRACEME|PT_DENY_ATTACH'
+
+  # =======================================
+  # VM Detection (converted from malcontent)
+  # =======================================
+
+  # VM detection via vendor strings
+  - capability: anti-analysis/vm/detect-vendors
+    description: VM detection via vendor/product strings
+    confidence: 0.9
+    platforms: [all]
+
+    requires_count: 2
+    conditions:
+      # VM vendor strings
+      - type: string
+        exact: 'VMware'
+
+      - type: string
+        exact: 'QEMU Virtual CPU'
+
+      - type: string
+        exact: 'Apple Virtual Machine'
+
+      # CPU vendor strings (used for comparison)
+      - type: string
+        exact: 'GenuineIntel'
+
+      - type: string
+        exact: 'GenuineAMD'
+
+  # Comprehensive VM/hardware detection
+  - capability: anti-analysis/vm/detect
+    description: Virtual machine environment detection
+    confidence: 0.9
+    platforms: [all]
+
+    requires_count: 2
+    conditions:
+      # VM vendor strings
+      - type: string
+        regex: '(VMware|VirtualBox|VBOX|QEMU|Xen|Parallels|KVM|Hyper-V)'
+        case_insensitive: true
+
+      # VM-specific hardware
+      - type: string
+        regex: '(VMXH|VBox|QEMU|virtio|vmmouse)'
+        case_insensitive: true
+
+      # macOS VM detection
+      - type: symbol_or_string
+        any:
+          - sysctl
+          - 'hw.model'
+          - 'machdep.cpu'
+
+      # Windows VM detection
+      - type: string
+        regex: '(DeviceIoControl|HKEY_LOCAL_MACHINE.*SYSTEM)'
+
+  # ============================================
+  # Sandbox Detection (converted from malcontent)
+  # ============================================
+
+  # Hostname blocklist detection
+  - capability: anti-analysis/sandbox/hostname-blocklist
+    description: Checks for sandbox/analysis environment hostnames
+    confidence: 0.95
+    platforms: [all]
+
+    requires_count: 4
+    conditions:
+      # Common sandbox hostnames
+      - type: string
+        regex: '(DESKTOP-19OLLTD|DESKTOP-B0T93D6|DESKTOP-VRSQLAG)'
+
+      - type: string
+        regex: '(JOHN-PC|JULIA-PC|LISA-PC|LUCAS-PC|MARCI-PC)'
+
+      - type: string
+        regex: '(SERVER-PC|SERVER1|WORK)'
+
+      - type: string
+        regex: '(AIDANPC|ARCHIBALDPC|NETTYPC|ORELEEPC|RALPHS-PC|WILEYPC)'
+
+      - type: string
+        regex: 'WIN-5E07COS9ALR'
+
+      # Function to get hostname
+      - type: symbol_or_string
+        any:
+          - gethostname
+          - GetComputerName
+          - hostname
+
+  # Username blocklist detection
+  - capability: anti-analysis/sandbox/username-blocklist
+    description: Checks for sandbox/analysis environment usernames
+    confidence: 0.95
+    platforms: [all]
+
+    requires_count: 8
+    conditions:
+      # Common sandbox usernames
+      - type: string
+        regex: '(Abby|Frank|Harry Johnson|John|Julia|Lisa|Louise|Lucas)'
+
+      - type: string
+        regex: '(User01|fred|george|mike|patex|server|test)'
+
+      - type: string
+        regex: 'WDAGUtilityAccount'
+
+      # Random-looking names used in sandboxes
+      - type: string
+        regex: '(8Nl0ColNQ5bq|BvJChRPnsxn|HEUeRzl|PateX|3u2v9m8)'
+
+      # Function to get username
+      - type: symbol_or_string
+        any:
+          - getenv
+          - GetUserName
+          - getlogin
+
+  # MAC address blocklist detection
+  - capability: anti-analysis/sandbox/mac-blocklist
+    description: Checks for VM/sandbox MAC addresses
+    confidence: 0.95
+    platforms: [all]
+
+    requires_count: 3
+    conditions:
+      # Hyper-V MACs (00:15:5d)
+      - type: string
+        regex: '00:15:5d:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}'
+        case_insensitive: true
+
+      # VMware MACs (00:50:56, 00:0c:29, 00:1c:14)
+      - type: string
+        regex: '(00:50:56|00:0c:29|00:1c:14):[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}'
+        case_insensitive: true
+
+      # VirtualBox MACs (08:00:27)
+      - type: string
+        regex: '08:00:27:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}'
+        case_insensitive: true
+
+      # QEMU/KVM MACs
+      - type: string
+        regex: '(52:54:00|00:1b:21):[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}'
+        case_insensitive: true
+
+      # Function to get MAC address
+      - type: symbol_or_string
+        any:
+          - getifaddrs
+          - GetAdaptersInfo
+          - ioctl
+
+  # Generic sandbox detection
+  - capability: anti-analysis/sandbox/detect
+    description: Sandbox environment detection
+    confidence: 0.85
+    platforms: [all]
+
+    requires_count: 2
+    conditions:
+      # Sandbox artifact strings
+      - type: string
+        regex: '(sandbox|sample|malware|virus|cuckoo|joe.*sandbox|anubis)'
+        case_insensitive: true
+
+      # Check for limited user interaction
+      - type: symbol_or_string
+        any:
+          - GetForegroundWindow
+          - GetCursorPos
+          - GetLastInputInfo
+          - GetTickCount
+
+      # Sleep to evade timeout-based sandboxes
+      - type: symbol_or_string
+        any:
+          - sleep
+          - usleep
+          - nanosleep
+          - Sleep
+
+      # File system checks
+      - type: string
+        regex: '/Users/(analyst|sandbox|malware)'
+
+  # ================================================
+  # Process Monitor Detection (converted from malcontent)
+  # ================================================
+
+  # macOS Activity Monitor detection
+  - capability: anti-analysis/process/activity-monitor
+    description: Checks if macOS Activity Monitor is running
+    confidence: 0.9
+    platforms: [macos]
+    file_types: [macho]
+
+    requires_all:
+      - type: string
+        exact: 'Activity Monitor'
+
+      - type: symbol_or_string
+        any:
+          - ps
+          - pgrep
+
+  # Linux process monitor detection
+  - capability: anti-analysis/process/linux-monitors
+    description: Checks if process monitors are running (Linux)
+    confidence: 0.9
+    platforms: [linux]
+    file_types: [elf]
+
+    requires_count: 2
+    conditions:
+      # Process enumeration tools
+      - type: symbol_or_string
+        any:
+          - pgrep
+          - ps
+
+      # Specific monitors (need 3 different ones)
+      - type: string
+        regex: '(top|htop|atop|mate-system-mon|iostat|mpstat|sar|glances|dstat|nmon|vmstat)'
+        min_count: 3
+
+  # Anti-rootkit tool detection
+  - capability: anti-analysis/process/anti-rootkit
+    description: Checks for rootkit detection tools
+    confidence: 0.9
+    platforms: [linux]
+    file_types: [elf]
+
+    requires_all:
+      - type: string
+        exact: '/proc/'
+
+      - type: string
+        regex: '(chkrootkit|lsrootkit|rkhunter)'
+
+  # =====================================
+  # Dynamic Linker Detection
+  # =====================================
+
+  # LD_DEBUG environment check
+  - capability: anti-analysis/linker/ld-debug
+    description: Checks if dynamic linker debugging is enabled
+    confidence: 0.8
+    platforms: [linux]
+    file_types: [elf]
+
+    requires_all:
+      - type: string
+        exact: 'LD_DEBUG'
+
+      - type: symbol_or_string
+        any:
+          - getenv
+          - secure_getenv
+
+  # LD_PROFILE environment check
+  - capability: anti-analysis/linker/ld-profile
+    description: Checks if dynamic linker profiling is enabled
+    confidence: 0.8
+    platforms: [linux]
+    file_types: [elf]
+
+    requires_all:
+      - type: string
+        exact: 'LD_PROFILE'
+
+      - type: symbol_or_string
+        any:
+          - getenv
+          - secure_getenv
+
+  # =====================================
+  # Hardware Breakpoint Detection
+  # =====================================
+
+  - capability: anti-analysis/debug/hardware-breakpoint
+    description: Hardware breakpoint detection
+    confidence: 0.9
+    platforms: [all]
+
+    requires_any:
+      # x86 debug registers
+      - type: string
+        regex: 'DR[0-7]'
+
+      # Windows GetThreadContext
+      - type: symbol
+        pattern: GetThreadContext
+        platforms: [windows]
+
+      # Linux ptrace GETREGS
+      - type: string
+        regex: '(PTRACE_GETREGS|PTRACE_PEEKUSER)'
+        platforms: [linux]
+
+  # =====================================
+  # Exception-Based Anti-Debugging
+  # =====================================
+
+  - capability: anti-analysis/debug/exception-based
+    description: Exception-based anti-debugging
+    confidence: 0.85
+    platforms: [windows]
+    file_types: [pe, dll]
+
+    requires_count: 2
+    conditions:
+      # Exception handlers
+      - type: symbol_or_string
+        any:
+          - AddVectoredExceptionHandler
+          - SetUnhandledExceptionFilter
+          - RaiseException
+
+      # INT3 or exception triggers
+      - type: yara_match
+        namespace: anti-behavior
+
+  # =====================================
+  # Process Enumeration
+  # =====================================
+
+  - capability: anti-analysis/process/enum
+    description: Enumerate processes for analysis tools
+    confidence: 0.8
+    platforms: [all]
+
+    requires_all:
+      # Process listing capability
+      - type: symbol_or_string
+        any:
+          - CreateToolhelp32Snapshot
+          - Process32First
+          - opendir
+          - readdir
+          - '/proc'
+
+      # Analysis tool names
+      - type: string
+        regex: '(wireshark|ida|olly|x64dbg|procmon|processhacker|ghidra|radare2|hopper|binary ninja)'
+        case_insensitive: true
+
+  # =====================================
+  # Runtime Packing/Unpacking
+  # =====================================
+
+  - capability: anti-analysis/packing/runtime
+    description: Runtime unpacking detected
+    confidence: 0.9
+    platforms: [all]
+
+    requires_all:
+      # Memory allocation
+      - type: symbol_or_string
+        any:
+          - mmap
+          - VirtualAlloc
+          - malloc
+
+      # Memory protection change (W^X violation)
+      - type: symbol
+        pattern: 'mprotect|VirtualProtect'
+
+      # High entropy section (packed data)
+      - type: structure
+        feature: entropy/high
+        min_sections: 1
+
+  # =====================================
+  # Obfuscation
+  # =====================================
+
+  # String obfuscation via stack strings
+  - capability: anti-analysis/obfuscation/stack-strings
+    description: String obfuscation via stack construction
+    confidence: 0.8
+    platforms: [all]
+
+    requires_all:
+      # YARA detected stack strings
+      - type: yara_match
+        namespace: anti-static.obfuscation
+
+      # Stripped binary
+      - type: structure
+        feature: binary/stripped
+
+  # =====================================
+  # Time-Based Evasion
+  # =====================================
+
+  - capability: anti-analysis/evasion/time-based
+    description: Time-based sandbox evasion
+    confidence: 0.85
+    platforms: [all]
+
+    requires_count: 2
+    conditions:
+      # Long sleep
+      - type: symbol_or_string
+        any:
+          - sleep
+          - usleep
+          - nanosleep
+          - Sleep
+
+      # Time checks
+      - type: symbol_or_string
+        any:
+          - time
+          - gettimeofday
+          - clock_gettime
+          - GetTickCount
+          - GetSystemTime
+
+      # Suspicious sleep durations (large numbers)
+      - type: string
+        regex: '[0-9]{4,}'
+
+  # =====================================
+  # Anti-Disassembly
+  # =====================================
+
+  - capability: anti-analysis/obfuscation/anti-disassembly
+    description: Anti-disassembly techniques
+    confidence: 0.85
+    platforms: [all]
+
+    requires_count: 2
+    conditions:
+      # Junk instructions
+      - type: yara_match
+        namespace: anti-static.obfuscation
+
+      # Overlapping instructions
+      - type: yara_match
+        namespace: anti-static
+
+      # Self-modifying code
+      - type: symbol
+        pattern: 'mprotect|VirtualProtect'
+
+      # High complexity functions (obfuscation)
+      - type: structure
+        feature: binary/stripped
+
+  # =====================================
+  # DLL Injection Detection (Anti-Hooking)
+  # =====================================
+
+  - capability: anti-analysis/unhook
+    description: Unhook APIs (remove monitoring)
+    confidence: 0.9
+    platforms: [windows]
+    file_types: [pe, dll]
+
+    requires_all:
+      # Read original DLL from disk
+      - type: symbol_or_string
+        any:
+          - CreateFile
+          - ReadFile
+          - MapViewOfFile
+
+      # Write to process memory
+      - type: symbol
+        pattern: WriteProcessMemory
+
+      # Target system DLLs
+      - type: string
+        regex: '(ntdll|kernel32|kernelbase)\.dll'
+        case_insensitive: true
+
+  # =====================================
+  # Parent Process Checks
+  # =====================================
+
+  - capability: anti-analysis/parent-process/check
+    description: Check parent process for sandbox
+    confidence: 0.75
+    platforms: [all]
+
+    requires_count: 2
+    conditions:
+      # Get parent PID
+      - type: symbol_or_string
+        any:
+          - getppid
+          - NtQueryInformationProcess
+          - '/proc/self/stat'
+
+      # Process name checks
+      - type: symbol_or_string
+        any:
+          - readlink
+          - GetModuleFileName
+          - CreateToolhelp32Snapshot
+
+  # =====================================
+  # API Hashing (Hide Imports)
+  # =====================================
+
+  - capability: anti-analysis/obfuscation/api-hashing
+    description: Obfuscate API calls via hashing
+    confidence: 0.9
+    platforms: [all]
+
+    requires_all:
+      # Dynamic resolution
+      - type: symbol_or_string
+        any:
+          - GetProcAddress
+          - dlsym
+          - dlopen
+
+      # Hashing functions
+      - type: symbol_or_string
+        any:
+          - MD5
+          - SHA1
+          - crc32
+
+      # Very few imports (hidden via hashing)
+      - type: imports_count
+        max: 15
+
+  # =====================================
+  # Checking for Suspended Functions
+  # =====================================
+
+  - capability: anti-analysis/debug/timing-check
+    description: Timing-based debugger detection
+    confidence: 0.8
+    platforms: [all]
+
+    requires_count: 2
+    conditions:
+      # High-precision timing
+      - type: symbol_or_string
+        any:
+          - rdtsc
+          - QueryPerformanceCounter
+          - clock_gettime
+          - gettimeofday
+
+      # Multiple time measurements (before/after)
+      - type: symbol_or_string
+        any:
+          - sleep
+          - usleep
+          - nanosleep
+
+  # =====================================
+  # Random Number Usage (Polymorphism Indicator)
+  # =====================================
+
+  # Python setuptools with random (suspicious)
+  - capability: anti-analysis/random/python-setuptools
+    description: Python installer with random behavior
+    confidence: 0.85
+    platforms: [all]
+    file_types: [python]
+
+    requires_all:
+      - type: string
+        regex: '(from setuptools import|import setuptools)'
+
+      - type: string
+        exact: 'setup('
+
+      - type: string
+        exact: 'import random'
+
+  # Stripped binary with abnormally high complexity (backdoor indicator)
+  - capability: anti-analysis/stripped-complex
+    description: Stripped binary with suspicious complexity patterns
+    confidence: 0.85
+    platforms: [all]
+    file_types: [elf, pe, macho, so, dll, dylib]
+
+    requires_all:
+      # Binary is stripped (no debug symbols)
+      - type: structure
+        feature: binary/stripped
+
+      # Has many complex functions (indicates sophisticated code)
+      - type: structure
+        feature: function/high-complexity
+        threshold: 20
+
+      # May have anti-debugging techniques
+      - type: symbol_or_string
+        any:
+          - ptrace
+          - anti_debug
+          - debugger
+          - IsDebuggerPresent
+          - sysctl

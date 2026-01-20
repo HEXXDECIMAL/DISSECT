@@ -70,11 +70,12 @@ impl ElfAnalyzer {
 
             if let Ok(r2_strings) = self.radare2.extract_strings(file_path) {
                 for r2_str in r2_strings {
+                    let string_type = self.string_extractor.classify_string_type(&r2_str.string);
                     report.strings.push(StringInfo {
                         value: r2_str.string,
                         offset: Some(format!("{:#x}", r2_str.vaddr)),
                         encoding: "utf8".to_string(),
-                        string_type: StringType::Plain,
+                        string_type,
                         section: None,
                     });
                 }
@@ -105,7 +106,13 @@ impl ElfAnalyzer {
                                         id: cap_id,
                                         description: yara_match.description.clone(),
                                         confidence: 0.9,
+                                        criticality: Criticality::Medium,
+                                        mbc_id: None,
+                                        attack_id: None,
                                         evidence,
+                                        traits: Vec::new(),
+                                        referenced_paths: None,
+                                        referenced_directories: None,
                                     });
                                 }
                             }
@@ -117,6 +124,12 @@ impl ElfAnalyzer {
                 }
             }
         }
+
+        // Analyze paths and generate path-based traits
+        crate::path_mapper::analyze_and_link_paths(&mut report);
+
+        // Analyze environment variables and generate env-based traits
+        crate::env_mapper::analyze_and_link_env_vars(&mut report);
 
         report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;
         report.metadata.tools_used = tools_used;

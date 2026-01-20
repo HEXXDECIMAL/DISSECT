@@ -1,0 +1,712 @@
+# Command & Control (C2) and Exfiltration Capabilities
+# Migrated from malcontent/rules/c2/ and malcontent/rules/exfil/
+#
+# This file covers:
+# - C2 discovery mechanisms (DGA, DynDNS, DNS resolvers)
+# - C2 communication patterns (client IDs, beaconing)
+# - Tool transfer and download/execute
+# - Data exfiltration channels (Telegram, Discord, SMTP, HTTP)
+# - System information collection and upload
+# - Known file hosting services
+
+simple_rules: []
+
+composite_rules:
+  # ============================================================================
+  # C2 DISCOVERY
+  # ============================================================================
+
+  # Domain Generation Algorithm (DGA)
+  - capability: c2/discovery/dga
+    description: References Domain Generation Algorithm for C2 discovery
+    confidence: 0.9
+    platforms: [all]
+
+    requires_count: 1
+    conditions:
+      # Variable/field names (strings in code)
+      - type: string
+        regex: '(dgaURL|dgaUrl|dgaurl)'
+        case_insensitive: true
+
+      # Comments or strings mentioning DGA
+      - type: string
+        regex: '(DGA|domain generation)'
+        case_insensitive: true
+
+  # Dynamic DNS usage
+  - capability: c2/discovery/dyndns
+    description: Uses dynamic DNS service for C2
+    confidence: 0.85
+    platforms: [all]
+
+    requires_count: 1
+    conditions:
+      - type: string
+        regex: '(no-ip\.com|dyndns|ddns|afraid\.org|changeip\.com)'
+        case_insensitive: true
+
+  # IP lookup services
+  - capability: c2/discovery/ip-lookup
+    description: Uses public service to discover external IP address
+    confidence: 0.8
+    platforms: [all]
+
+    requires_count: 1
+    conditions:
+      # All domain names (strings)
+      - type: string
+        regex: '(ipify\.org|wtfismyip|iplogger\.org|getjsonip|ifconfig\.me|icanhazip|ident\.me|showip\.net|ifconfig\.io|ifconfig\.co|ipinfo\.io)'
+
+  # Ethereum blockchain for C2
+  - capability: c2/discovery/blockchain-ethereum
+    description: May use Ethereum blockchain for C2 discovery
+    confidence: 0.85
+    platforms: [all]
+
+    requires_all:
+      # Ethereum-related strings
+      - type: string
+        regex: '(ethereum|etherscan|web3)'
+        case_insensitive: true
+
+      # Network access (fetch is symbol, http/https are strings)
+      - type: string
+        regex: 'https{0,1}://'
+
+  # ============================================================================
+  # C2 COMMUNICATION
+  # ============================================================================
+
+  # Client ID tracking
+  - capability: c2/communication/client-id
+    description: Uses client ID for tracking/identification
+    confidence: 0.75
+    platforms: [all]
+
+    requires_count: 1
+    conditions:
+      # Field names/variable names (strings)
+      - type: string
+        regex: '(clientID|client_id|clientId|botID|bot_id)'
+
+  # Beaconing pattern
+  - capability: c2/communication/beaconing
+    description: Implements periodic beaconing to C2
+    confidence: 0.8
+    platforms: [all]
+
+    requires_all:
+      # Beaconing terminology (strings)
+      - type: string
+        regex: '(beacon|heartbeat|check-in|checkin)'
+        case_insensitive: true
+
+      # Timing functions (symbols for C, strings for JS/Python)
+      - type: symbol_or_string
+        any:
+          - setInterval
+          - setTimeout
+          - sleep
+          - time.sleep
+          - usleep
+
+  # ============================================================================
+  # TOOL TRANSFER AND DOWNLOAD/EXECUTE
+  # ============================================================================
+
+  # Downloads program from hardcoded URL
+  - capability: c2/tool-transfer/program-download
+    description: Downloads program from hardcoded URL
+    confidence: 0.85
+    platforms: [all]
+
+    requires_all:
+      # URL pattern with executable extensions (string)
+      - type: string
+        regex: 'https{0,1}://[\w\.]{1,128}/[\/\.\w]{1,128}\.(sh|gz|zip|Z|exe|bz2|py|bin|plist)'
+
+  # HTTP archive download
+  - capability: c2/tool-transfer/archive-download
+    description: Accesses hardcoded archive file endpoint
+    confidence: 0.85
+    platforms: [all]
+
+    requires_all:
+      # URL pattern with archive extensions (string)
+      - type: string
+        regex: 'https{0,1}://[\w\.]{0,160}[:\/\w\_\-\?\@=]{6,160}\.(zip|tar|tgz|gz|xz)'
+
+  # Executable URL reference
+  - capability: c2/tool-transfer/executable-url
+    description: References executable URL
+    confidence: 0.85
+    platforms: [all]
+
+    requires_count: 1
+    conditions:
+      # Variable/field names (strings)
+      - type: string
+        regex: '(xecURL|xecUrl|xecutableUrl|executableURL)'
+
+  # Download and execute pattern
+  - capability: c2/tool-transfer/download-exec
+    description: Download and execute pattern
+    confidence: 0.9
+    platforms: [all]
+
+    requires_all:
+      # Pattern identifier (string)
+      - type: string
+        regex: '(down-n-exec|download-and-execute|download_and_exec)'
+
+      # Process execution (strings)
+      - type: string
+        regex: '(process|Process|exec)'
+
+  # Known file hosting sites
+  - capability: c2/tool-transfer/file-hosting
+    description: References known file hosting site
+    confidence: 0.8
+    platforms: [all]
+
+    requires_count: 1
+    conditions:
+      # Domain patterns (strings)
+      - type: string
+        regex: '(privatebin|pastecode|paste\.[\w]{2,3}|storjshare\.io|cdn\.discordapp\.com|paste\.bingner\.com|transfer\.sh|rentry\.co|controlc\.com|anotepad\.com|privnote\.com|hushnote|000webhostapp)'
+
+  # Pastebin usage
+  - capability: c2/tool-transfer/pastebin
+    description: Uses pastebin service
+    confidence: 0.75
+    platforms: [all]
+
+    requires_count: 1
+    conditions:
+      # Pastebin domain pattern (string)
+      - type: string
+        regex: '[\w\.]{1,128}astebin[\w\.\/]{1,128}'
+
+  # Base64-encoded file hosting
+  - capability: c2/tool-transfer/file-hosting-base64
+    description: References file hosting site (base64 encoded)
+    confidence: 0.9
+    platforms: [all]
+
+    requires_count: 1
+    conditions:
+      # Domain names (strings)
+      - type: string
+        regex: '(privatebin|pastebin|api\.paste\.|cdn\.discordapp\.com|privnote\.com|hushnote|gist\.githubusercontent\.com)'
+
+  # GitHub download
+  - capability: c2/tool-transfer/github-download
+    description: Downloads tools from GitHub
+    confidence: 0.7
+    platforms: [all]
+
+    requires_all:
+      # GitHub domains (strings)
+      - type: string
+        regex: '(github\.com|githubusercontent\.com|raw\.github)'
+
+      # Download functions (symbols for curl/wget, strings for methods)
+      - type: symbol_or_string
+        any:
+          - download
+          - curl
+          - wget
+          - 'http'
+
+  # Python tool transfer
+  - capability: c2/tool-transfer/python
+    description: Python-based tool download/transfer
+    confidence: 0.8
+    platforms: [all]
+    file_types: [python]
+
+    requires_all:
+      # Python HTTP libraries (strings - import statements)
+      - type: string
+        regex: '(urllib\.request|requests\.get|http\.client)'
+
+      # File operations (symbols)
+      - type: symbol
+        pattern: open
+
+      # Execution permissions (symbol)
+      - type: symbol
+        pattern: chmod
+
+  # PowerShell tool transfer
+  - capability: c2/tool-transfer/powershell
+    description: PowerShell-based tool download
+    confidence: 0.85
+    platforms: [windows]
+
+    requires_count: 1
+    conditions:
+      # PowerShell cmdlets (strings - they appear in code as strings)
+      - type: string
+        regex: '(Invoke-WebRequest|DownloadFile|Net\.WebClient|IEX|Invoke-Expression)'
+
+  # Shell script tool transfer
+  - capability: c2/tool-transfer/shell
+    description: Shell script tool download/transfer
+    confidence: 0.8
+    platforms: [linux, unix, macos]
+
+    requires_all:
+      # Download tools (symbols)
+      - type: symbol
+        pattern: curl
+
+      # Shell execution (strings)
+      - type: string
+        regex: '(chmod \+x|/bin/sh|/bin/bash)'
+
+  # ============================================================================
+  # TELEGRAM EXFILTRATION
+  # ============================================================================
+
+  # Telegram bot API
+  - capability: c2/exfil/telegram-bot
+    description: Uses Telegram Bot API
+    confidence: 0.9
+    platforms: [all]
+
+    requires_count: 2
+    conditions:
+      # Telegram API domain (string)
+      - type: string
+        exact: 'api.telegram.org'
+
+      # Telegram API endpoints (strings)
+      - type: string
+        regex: '/(sendMessage|sendDocument|sendLocation|sendPhoto)'
+
+  # Telegram with client ID
+  - capability: c2/exfil/telegram-tracking
+    description: Telegram bot with client tracking
+    confidence: 0.95
+    platforms: [all]
+
+    requires_all:
+      # Telegram API (string)
+      - type: string
+        exact: 'api.telegram.org'
+
+      # Client tracking fields (strings)
+      - type: string
+        regex: '(clientID|client_id|botID)'
+
+  # ============================================================================
+  # DISCORD EXFILTRATION
+  # ============================================================================
+
+  # Discord webhook
+  - capability: c2/exfil/discord-webhook
+    description: Uses Discord webhooks API
+    confidence: 0.85
+    platforms: [all]
+
+    requires_count: 1
+    conditions:
+      # Discord webhook URLs (strings)
+      - type: string
+        regex: '(discordapp\.com|discord\.com)/api/webhooks'
+
+      # Discord libraries (strings - import/require statements)
+      - type: string
+        regex: '(discord\.js|discord4j|discordgo|import discord|import disnake|import hikari|import interactions|import nextcord|use Discord)'
+
+  # Discord exfiltration with IP lookup
+  - capability: c2/exfil/discord-exfil
+    description: Exfiltrates data via Discord webhook
+    confidence: 0.95
+    platforms: [all]
+
+    requires_all:
+      # Discord webhook URL (string)
+      - type: string
+        regex: '(discordapp\.com|discord\.com)/api/webhooks'
+
+      # IP lookup services (strings)
+      - type: string
+        regex: '(ipify\.org|wtfismyip|ipinfo\.io|icanhazip)'
+
+  # ============================================================================
+  # HTTP/SMTP EXFILTRATION
+  # ============================================================================
+
+  # HTTP POST exfiltration
+  - capability: c2/exfil/http-post
+    description: Exfiltrates data via HTTP POST
+    confidence: 0.8
+    platforms: [all]
+
+    requires_all:
+      # POST method (string for HTTP method, symbol_or_string for language methods)
+      - type: string
+        regex: '(POST|post|requests\.post|http\.post)'
+
+      # URL pattern (string)
+      - type: string
+        regex: 'https{0,1}://'
+
+  # cURL POST (ELF)
+  - capability: c2/exfil/curl-post
+    description: Uses cURL for HTTP POST exfiltration
+    confidence: 0.85
+    platforms: [linux, unix, macos]
+    file_types: [elf, macho]
+
+    requires_all:
+      # cURL library (symbol - linked library)
+      - type: symbol
+        pattern: libcurl
+
+      # cURL functions (symbols)
+      - type: symbol
+        pattern: curl_easy_setopt
+
+      # POST option (string constant name)
+      - type: string
+        exact: CURLOPT_POST
+
+  # SMTP exfiltration
+  - capability: c2/exfil/smtp
+    description: Exfiltrates data via SMTP/email
+    confidence: 0.85
+    platforms: [all]
+
+    requires_all:
+      # SMTP protocol/library (symbols for C, strings for scripts)
+      - type: string
+        regex: '(smtp|SMTP|smtplib)'
+
+      # Send functions (symbols or methods)
+      - type: symbol_or_string
+        any:
+          - sendmail
+          - send
+          - send_message
+
+  # OAuth token exfiltration
+  - capability: c2/exfil/oauth-token
+    description: May exfiltrate OAuth tokens
+    confidence: 0.8
+    platforms: [all]
+
+    requires_all:
+      # OAuth-related strings
+      - type: string
+        regex: '(oauth|OAuth|access_token|refresh_token)'
+
+      # Network transmission (strings)
+      - type: string
+        regex: '(http|https|post|send)'
+
+  # ============================================================================
+  # SYSTEM INFORMATION COLLECTION
+  # ============================================================================
+
+  # System info upload
+  - capability: c2/exfil/sysinfo-upload
+    description: Uploads system information
+    confidence: 0.85
+    platforms: [all]
+
+    requires_all:
+      # System info functions (symbols for C/binaries, strings for scripts)
+      - type: symbol_or_string
+        any:
+          - uname
+          - hostname
+          - getenv
+          - gethostname
+
+      # Upload/send (strings)
+      - type: string
+        regex: '(http|post|send|upload)'
+
+  # Network info upload
+  - capability: c2/exfil/netinfo-upload
+    description: Uploads network information
+    confidence: 0.85
+    platforms: [all]
+
+    requires_all:
+      # Network info commands/functions (symbols for binaries)
+      - type: symbol_or_string
+        any:
+          - ifconfig
+          - ipconfig
+          - getifaddrs
+
+      # Upload/send (strings)
+      - type: string
+        regex: '(http|post|send)'
+
+  # whoami/hostname collection
+  - capability: c2/exfil/whoami-hostname
+    description: Collects whoami and hostname information
+    confidence: 0.75
+    platforms: [all]
+
+    requires_count: 1
+    conditions:
+      # System query functions (symbols for Windows/Unix)
+      - type: symbol
+        pattern: GetUserName
+
+      - type: symbol
+        pattern: GetComputerName
+
+      - type: symbol
+        pattern: gethostname
+
+      # Commands (strings)
+      - type: string
+        regex: '(whoami|hostname)'
+
+  # System info + HTTP (high confidence)
+  - capability: c2/exfil/sysinfo-http
+    description: Collects and exfiltrates system info via HTTP
+    confidence: 0.9
+    platforms: [all]
+
+    requires_all:
+      # System info (symbol for C, string for scripts)
+      - type: symbol_or_string
+        any:
+          - uname
+          - 'os.uname'
+          - 'platform.uname'
+
+      # HTTP URL (string)
+      - type: string
+        regex: 'https{0,1}://'
+
+      # POST method (string)
+      - type: string
+        regex: '(POST|post|send)'
+
+  # ============================================================================
+  # FILE COLLECTION AND UPLOAD
+  # ============================================================================
+
+  # Upload functionality
+  - capability: c2/exfil/file-upload
+    description: File upload capability
+    confidence: 0.75
+    platforms: [all]
+
+    requires_count: 1
+    conditions:
+      # Upload-related strings
+      - type: string
+        regex: '(upload|Upload|uploadFile|multipart/form-data)'
+
+  # ZIP and upload
+  - capability: c2/exfil/zip-upload
+    description: Compresses and uploads files
+    confidence: 0.85
+    platforms: [all]
+
+    requires_all:
+      # Compression (symbols for C libraries, strings for scripts)
+      - type: symbol_or_string
+        any:
+          - ZipFile
+          - zipfile
+          - compress
+
+      # Upload (strings)
+      - type: string
+        regex: '(upload|http|post|send)'
+
+  # Office file exfiltration
+  - capability: c2/exfil/office-files
+    description: Targets Office files for exfiltration
+    confidence: 0.8
+    platforms: [all]
+
+    requires_all:
+      # Office file extensions (strings)
+      - type: string
+        regex: '\.(docx|xlsx|pptx|doc|xls|ppt|pdf)'
+
+      # Exfiltration (strings)
+      - type: string
+        regex: '(http|upload|send)'
+
+  # Base64 + zlib exfiltration
+  - capability: c2/exfil/base64-zlib
+    description: Uses base64 and zlib for data exfiltration
+    confidence: 0.85
+    platforms: [all]
+
+    requires_all:
+      # Encoding (strings for scripts, symbols for C)
+      - type: symbol_or_string
+        any:
+          - base64
+          - b64encode
+
+      # Compression (symbols for C, strings for scripts)
+      - type: symbol_or_string
+        any:
+          - zlib
+          - compress
+          - deflate
+
+      # Transmission (strings)
+      - type: string
+        regex: '(http|post|send)'
+
+  # ============================================================================
+  # PROXY AND OUT-OF-BAND
+  # ============================================================================
+
+  # HTTP proxy usage
+  - capability: c2/proxy/http
+    description: Uses HTTP proxy for communication
+    confidence: 0.75
+    platforms: [all]
+
+    requires_count: 1
+    conditions:
+      # Proxy environment variables (strings)
+      - type: string
+        regex: '(http_proxy|HTTP_PROXY|https_proxy|HTTPS_PROXY)'
+        case_insensitive: true
+
+  # SOCKS proxy
+  - capability: c2/proxy/socks
+    description: Uses SOCKS proxy for communication
+    confidence: 0.8
+    platforms: [all]
+
+    requires_count: 1
+    conditions:
+      # SOCKS protocol strings
+      - type: string
+        regex: '(socks4|socks5|SOCKS4|SOCKS5)'
+
+  # Out-of-band exfiltration
+  - capability: c2/exfil/oob
+    description: Out-of-band data exfiltration
+    confidence: 0.85
+    platforms: [all]
+
+    requires_count: 1
+    conditions:
+      # OOB terminology (strings)
+      - type: string
+        regex: '(oob|out-of-band|side-channel)'
+
+  # DNS exfiltration
+  - capability: c2/exfil/dns
+    description: DNS-based data exfiltration
+    confidence: 0.9
+    platforms: [all]
+
+    requires_all:
+      # DNS functions/commands (symbols for C, strings for scripts)
+      - type: symbol_or_string
+        any:
+          - gethostbyname
+          - getaddrinfo
+          - res_query
+          - nslookup
+          - dig
+
+      # Long encoded data (string pattern)
+      - type: string
+        regex: '[a-z0-9]{16,}'
+
+  # ============================================================================
+  # SPECIFIC EXFILTRATION PATTERNS
+  # ============================================================================
+
+  # Node.js exfiltration
+  - capability: c2/exfil/nodejs
+    description: Node.js-based exfiltration
+    confidence: 0.8
+    platforms: [all]
+    file_types: [javascript]
+
+    requires_all:
+      # Node.js require/import (strings)
+      - type: string
+        regex: "(require\\(|import )"
+
+      # HTTP modules (strings)
+      - type: string
+        regex: '(http|https|node-fetch|axios)'
+
+      # Send methods (strings)
+      - type: string
+        regex: '(post|send)'
+
+  # PHP exfiltration
+  - capability: c2/exfil/php
+    description: PHP-based exfiltration
+    confidence: 0.8
+    platforms: [all]
+    file_types: [all]  # Changed from [php] - PHP file type not yet supported
+
+    requires_all:
+      # PHP tag (string)
+      - type: string
+        exact: '<?php'
+
+      # PHP HTTP functions (strings)
+      - type: string
+        regex: '(curl_exec|file_get_contents|fopen)'
+
+      # URL (string)
+      - type: string
+        regex: 'https{0,1}://'
+
+  # Ruby exfiltration
+  - capability: c2/exfil/ruby
+    description: Ruby-based exfiltration
+    confidence: 0.8
+    platforms: [all]
+    file_types: [ruby]
+
+    requires_all:
+      # Ruby HTTP libraries (strings)
+      - type: string
+        regex: '(Net::HTTP|open-uri|HTTParty)'
+
+      # URL (string)
+      - type: string
+        regex: 'https{0,1}://'
+
+  # NPM package exfiltration
+  - capability: c2/exfil/npm-package
+    description: Suspicious NPM package with exfiltration
+    confidence: 0.9
+    platforms: [all]
+    file_types: [javascript]
+
+    requires_all:
+      # Package manifest (string)
+      - type: string
+        exact: 'package.json'
+
+      # Install hooks (strings)
+      - type: string
+        regex: '(postinstall|preinstall)'
+
+      # HTTP access (strings)
+      - type: string
+        regex: '(http|https|fetch)'
+
+      # Environment access (strings)
+      - type: string
+        regex: '(env|process\.env)'

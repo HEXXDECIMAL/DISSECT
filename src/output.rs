@@ -113,25 +113,74 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
         }
     }
 
-    // YARA matches (if present)
+    // YARA matches (if present) - grouped by severity
     if !report.yara_matches.is_empty() {
+        // Group by severity
         let critical: Vec<_> = report.yara_matches.iter()
-            .filter(|m| m.severity == "critical" || m.severity == "high")
+            .filter(|m| m.severity == "critical")
+            .collect();
+        let high: Vec<_> = report.yara_matches.iter()
+            .filter(|m| m.severity == "high")
+            .collect();
+        let medium: Vec<_> = report.yara_matches.iter()
+            .filter(|m| m.severity == "medium")
+            .collect();
+        let low: Vec<_> = report.yara_matches.iter()
+            .filter(|m| m.severity == "low")
             .collect();
 
+        output.push_str(&format!("⚠️  YARA Matches ({})\n", report.yara_matches.len()));
+
+        // Display critical
         if !critical.is_empty() {
-            output.push_str(&format!("⚠️  YARA Matches ({} critical/high)\n", critical.len()));
-            for m in critical.iter().take(5) {
-                output.push_str(&format!("  • {} [{}]\n", m.rule, m.severity.to_uppercase()));
+            output.push_str(&format!("\n  🔴 CRITICAL ({}):\n", critical.len()));
+            for m in critical.iter().take(10) {
+                output.push_str(&format!("    • {} ({})\n", m.rule, m.namespace));
                 if !m.description.is_empty() {
-                    output.push_str(&format!("    {}\n", clean_description(&m.description)));
+                    output.push_str(&format!("      {}\n", clean_description(&m.description)));
+                }
+                if !m.matched_strings.is_empty() && m.matched_strings.len() <= 3 {
+                    for ms in &m.matched_strings {
+                        output.push_str(&format!("      ↪ {} @ 0x{:x}\n", ms.identifier, ms.offset));
+                    }
                 }
             }
-            if critical.len() > 5 {
-                output.push_str(&format!("  ... and {} more\n", critical.len() - 5));
+            if critical.len() > 10 {
+                output.push_str(&format!("    ... and {} more\n", critical.len() - 10));
             }
-            output.push('\n');
         }
+
+        // Display high
+        if !high.is_empty() {
+            output.push_str(&format!("\n  🟠 HIGH ({}):\n", high.len()));
+            for m in high.iter().take(10) {
+                output.push_str(&format!("    • {} ({})\n", m.rule, m.namespace));
+                if !m.description.is_empty() {
+                    output.push_str(&format!("      {}\n", clean_description(&m.description)));
+                }
+            }
+            if high.len() > 10 {
+                output.push_str(&format!("    ... and {} more\n", high.len() - 10));
+            }
+        }
+
+        // Display medium (limited to 5)
+        if !medium.is_empty() {
+            output.push_str(&format!("\n  🟡 MEDIUM ({}):\n", medium.len()));
+            for m in medium.iter().take(5) {
+                output.push_str(&format!("    • {} ({})\n", m.rule, m.namespace));
+            }
+            if medium.len() > 5 {
+                output.push_str(&format!("    ... and {} more\n", medium.len() - 5));
+            }
+        }
+
+        // Display low (just count)
+        if !low.is_empty() {
+            output.push_str(&format!("\n  ⚪ LOW: {} matches (not shown)\n", low.len()));
+        }
+
+        output.push('\n');
     }
 
     // Entropy warnings

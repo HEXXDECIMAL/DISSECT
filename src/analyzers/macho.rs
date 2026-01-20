@@ -118,7 +118,13 @@ impl MachOAnalyzer {
                                         id: cap_id,
                                         description: yara_match.description.clone(),
                                         confidence: 0.9, // YARA matches are high confidence
+                                        criticality: crate::types::Criticality::None,
+                                        mbc_id: None,
+                                        attack_id: None,
                                         evidence,
+                                        traits: Vec::new(),
+                                        referenced_paths: None,
+                                        referenced_directories: None,
                                     });
                                 }
                             }

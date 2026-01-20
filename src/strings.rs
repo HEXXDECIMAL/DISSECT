@@ -92,6 +92,23 @@ impl StringExtractor {
         }
     }
 
+    /// Classify a string's type without creating a StringInfo object
+    pub fn classify_string_type(&self, value: &str) -> StringType {
+        if self.url_regex.is_match(value) {
+            StringType::Url
+        } else if self.ip_regex.is_match(value) {
+            StringType::Ip
+        } else if self.email_regex.is_match(value) {
+            StringType::Email
+        } else if self.is_path(value) {
+            StringType::Path
+        } else if value.len() > 20 && self.base64_regex.is_match(value) {
+            StringType::Base64
+        } else {
+            StringType::Plain
+        }
+    }
+
     /// Check if string looks like a file path
     fn is_path(&self, s: &str) -> bool {
         // Unix paths

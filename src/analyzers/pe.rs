@@ -108,7 +108,13 @@ impl PEAnalyzer {
                                         id: cap_id,
                                         description: yara_match.description.clone(),
                                         confidence: 0.9,
+                                        criticality: crate::types::Criticality::None,
+                                        mbc_id: None,
+                                        attack_id: None,
                                         evidence,
+                                        traits: Vec::new(),
+                                        referenced_paths: None,
+                                        referenced_directories: None,
                                     });
                                 }
                             }
@@ -420,12 +426,18 @@ impl PEAnalyzer {
             id: cap_id.to_string(),
             description: description.to_string(),
             confidence,
+            criticality: crate::types::Criticality::None,
+            mbc_id: None,
+            attack_id: None,
             evidence: vec![Evidence {
                 method: "symbol".to_string(),
                 source: "goblin".to_string(),
                 value: format!("{}!{}", library, symbol),
                 location: None,
             }],
+            traits: vec![],
+            referenced_paths: None,
+            referenced_directories: None,
         })
     }
 

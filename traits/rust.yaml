@@ -1,0 +1,560 @@
+# Rust Language Traits and Capabilities
+# Detection rules for Rust programs covering unsafe operations, FFI, execution, and malicious behaviors
+
+# ============================================================================
+# TRAITS: Atomic Observations
+# ============================================================================
+
+traits:
+  # ==========================================
+  # Command Execution
+  # ==========================================
+
+  - id: exec/rust/command
+    description: Uses std::process::Command for execution
+    capability: true
+    criticality: medium
+    confidence: 0.9
+    type: symbol
+    pattern: Command::new
+    platforms: [all]
+
+  - id: exec/rust/spawn
+    description: Spawns child process
+    capability: true
+    criticality: medium
+    confidence: 0.85
+    type: symbol
+    pattern: .spawn()
+    platforms: [all]
+
+  - id: exec/rust/output
+    description: Executes command and captures output
+    capability: true
+    criticality: medium
+    confidence: 0.85
+    type: symbol
+    pattern: .output()
+    platforms: [all]
+
+  # ==========================================
+  # Unsafe Operations (Critical for Rust)
+  # ==========================================
+
+  - id: unsafe/rust/block
+    description: Unsafe code block
+    capability: true
+    criticality: high
+    confidence: 1.0
+    type: symbol
+    pattern: unsafe
+    platforms: [all]
+
+  - id: unsafe/rust/raw-pointer-const
+    description: Const raw pointer
+    criticality: none
+    confidence: 0.9
+    type: symbol
+    pattern: '*const'
+    platforms: [all]
+
+  - id: unsafe/rust/raw-pointer-mut
+    description: Mutable raw pointer
+    criticality: none
+    confidence: 0.9
+    type: symbol
+    pattern: '*mut'
+    platforms: [all]
+
+  - id: unsafe/rust/deref
+    description: Raw pointer dereference
+    criticality: none
+    confidence: 0.8
+    type: symbol
+    pattern: '*ptr'
+    platforms: [all]
+
+  - id: unsafe/rust/transmute
+    description: Type transmutation (unsafe cast)
+    capability: true
+    criticality: high
+    confidence: 0.95
+    type: symbol
+    pattern: transmute
+    platforms: [all]
+
+  - id: unsafe/rust/union
+    description: Union type (unsafe)
+    capability: true
+    criticality: medium
+    confidence: 0.9
+    type: symbol
+    pattern: union
+    platforms: [all]
+
+  # ==========================================
+  # Foreign Function Interface (FFI)
+  # ==========================================
+
+  - id: ffi/rust/extern-c
+    description: C FFI declaration
+    capability: true
+    criticality: medium
+    confidence: 0.95
+    type: string
+    exact: 'extern "C"'
+    platforms: [all]
+
+  - id: ffi/rust/extern-system
+    description: System FFI declaration
+    capability: true
+    criticality: medium
+    confidence: 0.95
+    type: string
+    exact: 'extern "system"'
+    platforms: [windows]
+
+  - id: ffi/rust/link
+    description: External library linking
+    capability: true
+    criticality: low
+    confidence: 0.85
+    type: symbol
+    pattern: '#[link'
+    platforms: [all]
+
+  - id: ffi/rust/libc
+    description: libc crate usage
+    criticality: none
+    confidence: 0.9
+    type: symbol
+    pattern: libc
+    platforms: [all]
+
+  # ==========================================
+  # Network Operations
+  # ==========================================
+
+  - id: net/rust/tcp-stream
+    description: TCP connection
+    capability: true
+    criticality: low
+    confidence: 0.9
+    type: symbol
+    pattern: TcpStream::connect
+    platforms: [all]
+
+  - id: net/rust/tcp-listener
+    description: TCP server
+    capability: true
+    criticality: low
+    confidence: 0.9
+    type: symbol
+    pattern: TcpListener::bind
+    platforms: [all]
+
+  - id: net/rust/udp-socket
+    description: UDP socket
+    capability: true
+    criticality: low
+    confidence: 0.85
+    type: symbol
+    pattern: UdpSocket::bind
+    platforms: [all]
+
+  - id: net/rust/http-client
+    description: HTTP client (reqwest)
+    capability: true
+    criticality: low
+    confidence: 0.85
+    type: symbol
+    pattern: reqwest
+    platforms: [all]
+
+  - id: net/rust/tokio
+    description: Async runtime (tokio)
+    criticality: none
+    confidence: 0.8
+    type: symbol
+    pattern: tokio
+    platforms: [all]
+
+  # ==========================================
+  # File Operations
+  # ==========================================
+
+  - id: fs/rust/read
+    description: Read file
+    criticality: none
+    confidence: 0.8
+    type: symbol
+    pattern: fs::read
+    platforms: [all]
+
+  - id: fs/rust/write
+    description: Write file
+    criticality: none
+    confidence: 0.8
+    type: symbol
+    pattern: fs::write
+    platforms: [all]
+
+  - id: fs/rust/remove-file
+    description: Delete file
+    capability: true
+    criticality: low
+    confidence: 0.9
+    type: symbol
+    pattern: fs::remove_file
+    platforms: [all]
+
+  - id: fs/rust/remove-dir-all
+    description: Recursive directory deletion
+    capability: true
+    criticality: medium
+    confidence: 0.95
+    type: symbol
+    pattern: fs::remove_dir_all
+    platforms: [all]
+
+  - id: fs/rust/walk-dir
+    description: Directory tree traversal
+    criticality: none
+    confidence: 0.75
+    type: symbol
+    pattern: walkdir
+    platforms: [all]
+
+  - id: fs/rust/permissions
+    description: File permissions modification
+    capability: true
+    criticality: low
+    confidence: 0.85
+    type: symbol
+    pattern: set_permissions
+    platforms: [all]
+
+  # ==========================================
+  # Cryptography
+  # ==========================================
+
+  - id: crypto/rust/aes
+    description: AES encryption
+    criticality: none
+    confidence: 0.9
+    type: symbol_or_string
+    any:
+      - aes
+      - aes-gcm
+    platforms: [all]
+
+  - id: crypto/rust/rsa
+    description: RSA encryption
+    criticality: none
+    confidence: 0.9
+    type: symbol
+    pattern: rsa
+    platforms: [all]
+
+  - id: crypto/rust/ring
+    description: Ring cryptography library
+    criticality: none
+    confidence: 0.85
+    type: symbol
+    pattern: ring
+    platforms: [all]
+
+  - id: crypto/rust/rand
+    description: Random number generation
+    criticality: none
+    confidence: 0.7
+    type: symbol
+    pattern: rand
+    platforms: [all]
+
+  # ==========================================
+  # Inline Assembly
+  # ==========================================
+
+  - id: unsafe/rust/asm
+    description: Inline assembly
+    capability: true
+    criticality: high
+    confidence: 1.0
+    type: symbol
+    pattern: asm!
+    platforms: [all]
+
+  - id: unsafe/rust/global-asm
+    description: Global inline assembly
+    capability: true
+    criticality: high
+    confidence: 1.0
+    type: symbol
+    pattern: global_asm!
+    platforms: [all]
+
+  # ==========================================
+  # Dynamic Loading
+  # ==========================================
+
+  - id: exec/rust/libloading
+    description: Dynamic library loading
+    capability: true
+    criticality: medium
+    confidence: 0.9
+    type: symbol
+    pattern: libloading
+    platforms: [all]
+
+  - id: exec/rust/dlopen
+    description: dlopen wrapper
+    capability: true
+    criticality: medium
+    confidence: 0.9
+    type: symbol
+    pattern: dlopen
+    platforms: [all]
+
+  # ==========================================
+  # Process Manipulation
+  # ==========================================
+
+  - id: process/rust/kill
+    description: Send signal to process
+    capability: true
+    criticality: medium
+    confidence: 0.9
+    type: symbol
+    pattern: .kill()
+    platforms: [unix, linux, macos]
+
+  - id: process/rust/nix
+    description: Unix system interface (nix crate)
+    capability: true
+    criticality: low
+    confidence: 0.8
+    type: symbol
+    pattern: nix
+    platforms: [unix, linux, macos]
+
+  # ==========================================
+  # Encoding/Obfuscation
+  # ==========================================
+
+  - id: encoding/rust/base64
+    description: Base64 encoding/decoding
+    criticality: none
+    confidence: 0.8
+    type: symbol
+    pattern: base64
+    platforms: [all]
+
+  - id: encoding/rust/hex
+    description: Hex encoding/decoding
+    criticality: none
+    confidence: 0.75
+    type: symbol
+    pattern: hex
+    platforms: [all]
+
+  # ==========================================
+  # Macros (Code Generation)
+  # ==========================================
+
+  - id: meta/rust/proc-macro
+    description: Procedural macro
+    capability: true
+    criticality: medium
+    confidence: 0.9
+    type: symbol
+    pattern: proc_macro
+    platforms: [all]
+
+  - id: meta/rust/macro-rules
+    description: Declarative macro
+    criticality: none
+    confidence: 0.7
+    type: symbol
+    pattern: macro_rules!
+    platforms: [all]
+
+  # ==========================================
+  # Shell References
+  # ==========================================
+
+  - id: exec/shell/sh
+    description: References /bin/sh
+    criticality: none
+    confidence: 1.0
+    type: string
+    exact: '/bin/sh'
+    platforms: [unix, linux, macos]
+
+  - id: exec/shell/bash
+    description: References /bin/bash
+    criticality: none
+    confidence: 1.0
+    type: string
+    exact: '/bin/bash'
+    platforms: [unix, linux, macos]
+
+  - id: exec/shell/cmd
+    description: References cmd.exe
+    criticality: none
+    confidence: 1.0
+    type: string
+    exact: 'cmd.exe'
+    platforms: [windows]
+
+# ============================================================================
+# COMPOSITE CAPABILITIES: Behavioral Interpretations
+# ============================================================================
+
+capabilities:
+  # ==========================================
+  # Reverse Shell Patterns
+  # ==========================================
+
+  - id: c2/rust/reverse-shell
+    description: Reverse shell pattern (network + shell execution)
+    confidence: 0.98
+    criticality: high
+    platforms: [all]
+
+    requires_all:
+      - type: trait
+        id: net/rust/tcp-stream
+      - type: trait
+        id: exec/rust/command
+      - type: trait
+        id: exec/shell/sh
+  # ==========================================
+  # Unsafe FFI Boundary
+  # ==========================================
+
+  - id: unsafe/rust/ffi-unsafe
+    description: Unsafe FFI operations (C boundary risk)
+    confidence: 0.95
+    criticality: high
+    platforms: [all]
+
+    requires_all:
+      - type: trait
+        id: unsafe/rust/block
+      - type: trait
+        id: ffi/rust/extern-c
+  - id: unsafe/rust/raw-pointers
+    description: Unsafe raw pointer manipulation
+    confidence: 0.90
+    criticality: high
+    platforms: [all]
+
+    requires_all:
+      - type: trait
+        id: unsafe/rust/block
+      - type: trait
+        id: unsafe/rust/raw-pointer-mut
+      - type: trait
+        id: unsafe/rust/deref
+  # ==========================================
+  # Ransomware Patterns
+  # ==========================================
+
+  - id: crypto/rust/ransomware
+    description: File encryption pattern (crypto + directory walking)
+    confidence: 0.92
+    criticality: high
+    platforms: [all]
+
+    requires_all:
+      - type: trait
+        id: crypto/rust/aes
+      - type: trait
+        id: fs/rust/walk-dir
+  - id: crypto/rust/ransomware-rsa
+    description: RSA-based file encryption
+    confidence: 0.90
+    criticality: high
+    platforms: [all]
+
+    requires_all:
+      - type: trait
+        id: crypto/rust/rsa
+      - type: trait
+        id: fs/rust/walk-dir
+  # ==========================================
+  # Obfuscated Execution
+  # ==========================================
+
+  - id: exec/rust/obfuscated-base64
+    description: Base64-obfuscated command execution
+    confidence: 0.95
+    criticality: high
+    platforms: [all]
+
+    requires_all:
+      - type: trait
+        id: encoding/rust/base64
+      - type: trait
+        id: exec/rust/command
+  # ==========================================
+  # Code Injection via Assembly
+  # ==========================================
+
+  - id: exec/rust/shellcode-asm
+    description: Potential shellcode execution via inline assembly
+    confidence: 0.88
+    criticality: high
+    platforms: [all]
+
+    requires_all:
+      - type: trait
+        id: unsafe/rust/asm
+      - type: trait
+        id: unsafe/rust/raw-pointer-mut
+  # ==========================================
+  # Dynamic Library Injection
+  # ==========================================
+
+  - id: exec/rust/dylib-inject
+    description: Dynamic library injection
+    confidence: 0.90
+    criticality: high
+    platforms: [all]
+
+    requires_all:
+      - type: trait
+        id: exec/rust/libloading
+      - type: trait
+        id: unsafe/rust/block
+  # ==========================================
+  # Data Destruction
+  # ==========================================
+
+  - id: impact/rust/wiper
+    description: Potential wiper malware (recursive deletion)
+    confidence: 0.85
+    criticality: high
+    platforms: [all]
+
+    requires_all:
+      - type: trait
+        id: fs/rust/walk-dir
+      - type: trait
+        id: fs/rust/remove-dir-all
+  # ==========================================
+  # Proc Macro Supply Chain Risk
+  # ==========================================
+
+  - id: supply-chain/rust/proc-macro-exec
+    description: Procedural macro with execution capability (build-time risk)
+    confidence: 0.85
+    criticality: high
+    platforms: [all]
+
+    requires_all:
+      - type: trait
+        id: meta/rust/proc-macro
+      - type: trait
+        id: exec/rust/command

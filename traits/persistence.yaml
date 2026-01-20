@@ -1,0 +1,442 @@
+# Persistence Capabilities
+# Covers mechanisms for maintaining access across reboots
+
+simple_rules:
+  # Cron jobs (Unix)
+  - symbol: crontab
+    capability: persistence/cron
+    description: Manipulate cron jobs
+    confidence: 0.9
+    platforms: [linux, unix, macos]
+
+  # launchd (macOS)
+  - symbol: SMJobSubmit
+    capability: persistence/launchd
+    description: Submit launchd job (macOS)
+    confidence: 0.95
+    platforms: [macos]
+
+composite_rules:
+  # Cron-based persistence
+  - capability: persistence/cron/malicious
+    description: Install malicious cron job
+    confidence: 0.9
+    platforms: [linux, unix, macos]
+    file_types: [elf, shellscript]
+
+    requires_all:
+      # Cron manipulation
+      - type: symbol_or_string
+        any:
+          - crontab
+          - '/etc/crontab'
+          - '/etc/cron'
+          - '/var/spool/cron'
+
+      # Command execution
+      - type: symbol_or_string
+        any:
+          - system
+          - popen
+          - execve
+
+      # File write (to cron dir)
+      - type: symbol
+        pattern: 'fwrite|write'
+
+  # LaunchAgent/LaunchDaemon (macOS)
+  - capability: persistence/launchd/plist
+    description: Install LaunchAgent or LaunchDaemon
+    confidence: 0.9
+    platforms: [macos]
+    file_types: [macho, shellscript]
+
+    requires_count: 2
+    conditions:
+      # Launch paths
+      - type: string
+        regex: '(/Library/LaunchAgents|/Library/LaunchDaemons|~/Library/LaunchAgents)'
+
+      # Plist file
+      - type: string
+        regex: '\.plist'
+
+      # Plist keys
+      - type: string
+        regex: '(ProgramArguments|RunAtLoad|KeepAlive)'
+
+      # File write
+      - type: symbol
+        pattern: 'fwrite|write|NSFileManager'
+
+  # Login items (macOS)
+  - capability: persistence/login-items
+    description: Add login items for persistence
+    confidence: 0.85
+    platforms: [macos]
+    file_types: [macho]
+
+    requires_any:
+      # Login items API
+      - type: symbol_or_string
+        any:
+          - LSSharedFileListInsertItemURL
+          - SMLoginItemSetEnabled
+
+      # Login items plist
+      - type: string
+        regex: 'com\.apple\.loginitems'
+
+  # Windows Registry Run keys
+  - capability: persistence/registry/run-keys
+    description: Add Windows Registry Run keys
+    confidence: 0.9
+    platforms: [windows]
+    file_types: [pe, dll]
+
+    requires_all:
+      # Registry API
+      - type: symbol_or_string
+        any:
+          - RegCreateKeyEx
+          - RegSetValueEx
+          - RegOpenKeyEx
+
+      # Run key paths
+      - type: string
+        regex: 'Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\(Run|RunOnce)'
+        case_insensitive: true
+
+  # Windows Service installation
+  - capability: persistence/service/install
+    description: Install Windows service
+    confidence: 0.9
+    platforms: [windows]
+    file_types: [pe, dll]
+
+    requires_count: 2
+    conditions:
+      # Service control manager
+      - type: symbol_or_string
+        any:
+          - OpenSCManager
+          - CreateService
+          - StartService
+
+      # Service configuration
+      - type: string
+        regex: '(SERVICE_AUTO_START|SERVICE_DEMAND_START)'
+
+      # sc.exe command
+      - type: string
+        regex: 'sc\s+(create|start|config)'
+        case_insensitive: true
+
+  # systemd service (Linux)
+  - capability: persistence/systemd/service
+    description: Install systemd service
+    confidence: 0.9
+    platforms: [linux]
+    file_types: [elf, shellscript]
+
+    requires_all:
+      # systemd paths
+      - type: string
+        regex: '(/etc/systemd|/lib/systemd|\.service)'
+
+      # systemd directives
+      - type: string
+        regex: '\[(Unit|Service|Install)\]'
+
+      # File write or systemctl
+      - type: symbol_or_string
+        any:
+          - fwrite
+          - write
+          - systemctl
+
+  # Shell profile modification
+  - capability: persistence/shell/profile
+    description: Modify shell profile for persistence
+    confidence: 0.85
+    platforms: [linux, unix, macos]
+
+    requires_all:
+      # Profile files
+      - type: string
+        regex: '(\.bashrc|\.bash_profile|\.zshrc|\.profile|/etc/profile)'
+
+      # File write
+      - type: symbol
+        pattern: 'fwrite|write|fopen.*a'
+
+      # Command to execute
+      - type: symbol_or_string
+        any:
+          - system
+          - execve
+          - popen
+
+  # Browser extension installation
+  - capability: persistence/browser/extension
+    description: Install browser extension for persistence
+    confidence: 0.85
+    platforms: [all]
+
+    requires_count: 2
+    conditions:
+      # Browser paths
+      - type: string
+        regex: '(Chrome|Firefox|Safari|Edge)/(Extensions|Profiles)'
+        case_insensitive: true
+
+      # Manifest files
+      - type: string
+        regex: '(manifest\.json|extension\.json)'
+
+      # File operations
+      - type: symbol
+        pattern: 'fwrite|write|mkdir'
+
+  # WMI Event Subscription (Windows)
+  - capability: persistence/wmi/event-subscription
+    description: WMI event subscription for persistence
+    confidence: 0.95
+    platforms: [windows]
+    file_types: [pe, dll]
+
+    requires_count: 2
+    conditions:
+      # WMI APIs
+      - type: symbol_or_string
+        any:
+          - IWbemServices
+          - ConnectServer
+
+      # Event consumer
+      - type: string
+        regex: '(ActiveScriptEventConsumer|CommandLineEventConsumer)'
+
+      # WQL query
+      - type: string
+        regex: 'SELECT.*FROM.*Win32'
+
+  # Scheduled task (Windows)
+  - capability: persistence/scheduled-task
+    description: Create scheduled task for persistence
+    confidence: 0.9
+    platforms: [windows]
+    file_types: [pe, dll]
+
+    requires_any:
+      # Task Scheduler API
+      - type: symbol_or_string
+        any:
+          - ITaskScheduler
+          - ITaskService
+
+      # schtasks command
+      - type: string
+        regex: 'schtasks\s+/create'
+        case_insensitive: true
+
+      # COM interface
+      - type: symbol
+        pattern: 'CoCreateInstance'
+
+  # BITS job persistence (Windows)
+  - capability: persistence/bits/job
+    description: BITS job for persistence
+    confidence: 0.85
+    platforms: [windows]
+    file_types: [pe, dll]
+
+    requires_all:
+      # BITS API
+      - type: symbol_or_string
+        any:
+          - IBackgroundCopyManager
+          - CreateJob
+
+      # Notification command
+      - type: string
+        regex: 'SetNotifyCommandLine'
+
+  # Startup folder (Windows)
+  - capability: persistence/startup-folder
+    description: Copy to startup folder
+    confidence: 0.85
+    platforms: [windows]
+    file_types: [pe, dll]
+
+    requires_all:
+      # Startup folder paths
+      - type: string
+        regex: 'AppData\\\\Roaming\\\\Microsoft\\\\Windows\\\\Start Menu\\\\Programs\\\\Startup'
+        case_insensitive: true
+
+      # File copy
+      - type: symbol_or_string
+        any:
+          - CopyFile
+          - MoveFile
+          - CreateFile
+
+  # LD_PRELOAD hijacking (Linux)
+  - capability: persistence/ld-preload
+    description: LD_PRELOAD environment hijacking
+    confidence: 0.9
+    platforms: [linux, unix]
+    file_types: [elf, so]
+
+    requires_all:
+      # LD_PRELOAD string
+      - type: string
+        exact: 'LD_PRELOAD'
+
+      # Environment manipulation
+      - type: symbol_or_string
+        any:
+          - setenv
+          - putenv
+
+      # Shared library
+      - type: structure
+        feature: binary/format/elf
+
+  # DYLD_INSERT_LIBRARIES (macOS)
+  - capability: persistence/dyld-insert
+    description: DYLD_INSERT_LIBRARIES hijacking (macOS)
+    confidence: 0.9
+    platforms: [macos]
+    file_types: [macho, dylib]
+
+    requires_all:
+      # DYLD environment variable
+      - type: string
+        exact: 'DYLD_INSERT_LIBRARIES'
+
+      # Environment manipulation
+      - type: symbol
+        pattern: 'setenv|putenv'
+
+  # rc.local persistence (Unix)
+  - capability: persistence/rc-local
+    description: Modify rc.local for persistence
+    confidence: 0.9
+    platforms: [linux, unix]
+
+    requires_all:
+      # rc.local path
+      - type: string
+        regex: '(/etc/rc\.local|/etc/rc\.d/rc\.local)'
+
+      # File write
+      - type: symbol
+        pattern: 'fwrite|write'
+
+      # Execute permission
+      - type: symbol_or_string
+        any:
+          - chmod
+          - 'chmod.*\+x'
+
+  # SSH authorized_keys
+  - capability: persistence/ssh/authorized-keys
+    description: Add SSH authorized_keys for backdoor access
+    confidence: 0.9
+    platforms: [linux, unix, macos]
+
+    requires_all:
+      # authorized_keys path
+      - type: string
+        regex: '\.ssh/authorized_keys'
+
+      # SSH public key format
+      - type: string
+        regex: 'ssh-(rsa|ed25519|ecdsa)'
+
+      # File write
+      - type: symbol
+        pattern: 'fwrite|write|fopen.*a'
+
+  # Kernel module persistence (rootkit)
+  - capability: persistence/kernel/module
+    description: Load kernel module for persistence
+    confidence: 0.95
+    platforms: [linux]
+    file_types: [elf]
+
+    requires_any:
+      # insmod/modprobe
+      - type: symbol_or_string
+        any:
+          - insmod
+          - modprobe
+          - init_module
+          - finit_module
+
+      # Kernel module paths
+      - type: string
+        regex: '(/lib/modules|\.ko$)'
+
+  # Kext loading (macOS)
+  - capability: persistence/kernel/kext
+    description: Load kernel extension (macOS)
+    confidence: 0.95
+    platforms: [macos]
+
+    requires_any:
+      # kextload
+      - type: string
+        regex: 'kextload'
+
+      # Kext paths
+      - type: string
+        regex: '(/Library/Extensions|/System/Library/Extensions|\.kext)'
+
+  # Windows DLL hijacking preparation
+  - capability: persistence/dll-search-order
+    description: DLL search order hijacking
+    confidence: 0.85
+    platforms: [windows]
+    file_types: [pe, dll]
+
+    requires_all:
+      # Common hijackable DLLs
+      - type: string
+        regex: '(version|uxtheme|ntshrui|wlbsctrl)\.dll'
+        case_insensitive: true
+
+      # Current directory or System32 copy
+      - type: symbol_or_string
+        any:
+          - GetCurrentDirectory
+          - CopyFile
+          - GetSystemDirectory
+
+  # Time-based persistence check
+  - capability: persistence/time-trigger
+    description: Time-based execution (persistence check)
+    confidence: 0.7
+    platforms: [all]
+
+    requires_count: 2
+    conditions:
+      # Time functions
+      - type: symbol_or_string
+        any:
+          - time
+          - gettimeofday
+          - GetLocalTime
+
+      # Sleep/delay
+      - type: symbol
+        pattern: 'sleep|usleep|Sleep'
+
+      # Persistence mechanism
+      - type: symbol_or_string
+        any:
+          - crontab
+          - CreateService
+          - RegSetValueEx

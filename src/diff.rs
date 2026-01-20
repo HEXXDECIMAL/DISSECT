@@ -1,4 +1,4 @@
-use crate::analyzers::{detect_file_type, Analyzer, ArchiveAnalyzer};
+use crate::analyzers::{archive::ArchiveAnalyzer, detect_file_type, Analyzer};
 use crate::types::*;
 use anyhow::{Context, Result};
 use chrono::Utc;
