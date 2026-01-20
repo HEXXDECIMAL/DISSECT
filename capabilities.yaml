@@ -1,0 +1,582 @@
+# Symbol-to-Capability Mappings
+# Maps function symbols (from binaries, libraries) to behavioral capabilities
+#
+# Format:
+#   symbol: The function/symbol name (without leading underscores)
+#   capability: The capability ID using MBC-style taxonomy (category/subcategory/specific)
+#   description: Human-readable description of what this capability means
+#   confidence: Detection confidence (0.0-1.0)
+#     - 1.0: Definitive (the symbol directly indicates this capability)
+#     - 0.9: High confidence (strong indicator but some ambiguity)
+#     - 0.8: Moderate confidence (likely but context-dependent)
+#     - 0.7 or lower: Heuristic (weak indicator, needs corroboration)
+
+symbols:
+  # ===== Execution Capabilities =====
+  - symbol: system
+    capability: exec/command/shell
+    description: Execute shell commands via system()
+    confidence: 1.0
+
+  - symbol: popen
+    capability: exec/command/shell
+    description: Execute shell commands via popen()
+    confidence: 1.0
+
+  - symbol: execve
+    capability: exec/command/direct
+    description: Execute programs directly
+    confidence: 1.0
+
+  - symbol: execv
+    capability: exec/command/direct
+    description: Execute programs directly
+    confidence: 1.0
+
+  - symbol: execl
+    capability: exec/command/direct
+    description: Execute programs directly
+    confidence: 1.0
+
+  - symbol: execlp
+    capability: exec/command/direct
+    description: Execute programs directly
+    confidence: 1.0
+
+  - symbol: execvp
+    capability: exec/command/direct
+    description: Execute programs directly
+    confidence: 1.0
+
+  - symbol: fork
+    capability: process/spawn
+    description: Spawn child processes
+    confidence: 1.0
+
+  - symbol: vfork
+    capability: process/spawn
+    description: Spawn child processes
+    confidence: 1.0
+
+  - symbol: posix_spawn
+    capability: process/spawn
+    description: Spawn child processes
+    confidence: 1.0
+
+  - symbol: dlopen
+    capability: exec/dylib/load
+    description: Load dynamic libraries
+    confidence: 1.0
+
+  - symbol: dlsym
+    capability: exec/dylib/resolve
+    description: Resolve dynamic library symbols
+    confidence: 0.9
+
+  # ===== Network Capabilities =====
+  - symbol: socket
+    capability: net/socket/create
+    description: Create network sockets
+    confidence: 1.0
+
+  - symbol: bind
+    capability: net/socket/listen
+    description: Bind and listen on network sockets
+    confidence: 1.0
+
+  - symbol: listen
+    capability: net/socket/listen
+    description: Listen for network connections
+    confidence: 1.0
+
+  - symbol: accept
+    capability: net/socket/listen
+    description: Accept network connections
+    confidence: 1.0
+
+  - symbol: connect
+    capability: net/socket/connect
+    description: Connect to remote hosts
+    confidence: 1.0
+
+  - symbol: send
+    capability: net/socket/send
+    description: Send data over network
+    confidence: 0.9
+
+  - symbol: sendto
+    capability: net/socket/send
+    description: Send data over network
+    confidence: 0.9
+
+  - symbol: sendmsg
+    capability: net/socket/send
+    description: Send data over network
+    confidence: 0.9
+
+  - symbol: recv
+    capability: net/socket/recv
+    description: Receive data from network
+    confidence: 0.9
+
+  - symbol: recvfrom
+    capability: net/socket/recv
+    description: Receive data from network
+    confidence: 0.9
+
+  - symbol: recvmsg
+    capability: net/socket/recv
+    description: Receive data from network
+    confidence: 0.9
+
+  - symbol: gethostbyname
+    capability: net/dns/resolve
+    description: DNS lookups
+    confidence: 1.0
+
+  - symbol: getaddrinfo
+    capability: net/dns/resolve
+    description: DNS lookups
+    confidence: 1.0
+
+  - symbol: res_query
+    capability: net/dns/resolve
+    description: DNS queries
+    confidence: 1.0
+
+  - symbol: gethostname
+    capability: net/hostname
+    description: Get hostname
+    confidence: 0.7
+
+  - symbol: sethostname
+    capability: net/hostname
+    description: Set hostname
+    confidence: 1.0
+
+  # ===== Filesystem Capabilities =====
+  - symbol: open
+    capability: fs/read
+    description: Read files
+    confidence: 0.8
+
+  - symbol: fopen
+    capability: fs/read
+    description: Read files
+    confidence: 0.8
+
+  - symbol: read
+    capability: fs/read
+    description: Read files
+    confidence: 0.8
+
+  - symbol: fread
+    capability: fs/read
+    description: Read files
+    confidence: 0.8
+
+  - symbol: write
+    capability: fs/write
+    description: Write files
+    confidence: 0.8
+
+  - symbol: fwrite
+    capability: fs/write
+    description: Write files
+    confidence: 0.8
+
+  - symbol: unlink
+    capability: fs/delete
+    description: Delete files
+    confidence: 1.0
+
+  - symbol: remove
+    capability: fs/delete
+    description: Delete files
+    confidence: 1.0
+
+  - symbol: rmdir
+    capability: fs/delete
+    description: Delete directories
+    confidence: 1.0
+
+  - symbol: chmod
+    capability: fs/permissions
+    description: Change file permissions
+    confidence: 1.0
+
+  - symbol: fchmod
+    capability: fs/permissions
+    description: Change file permissions
+    confidence: 1.0
+
+  - symbol: chown
+    capability: fs/permissions
+    description: Change file ownership
+    confidence: 1.0
+
+  - symbol: fchown
+    capability: fs/permissions
+    description: Change file ownership
+    confidence: 1.0
+
+  - symbol: chflags
+    capability: fs/permissions
+    description: Change file flags
+    confidence: 1.0
+
+  - symbol: mkstemp
+    capability: fs/tmp
+    description: Create temporary files
+    confidence: 1.0
+
+  - symbol: tmpfile
+    capability: fs/tmp
+    description: Create temporary files
+    confidence: 1.0
+
+  - symbol: mkdtemp
+    capability: fs/tmp
+    description: Create temporary directories
+    confidence: 1.0
+
+  - symbol: stat
+    capability: fs/metadata
+    description: Get file metadata
+    confidence: 0.7
+
+  - symbol: lstat
+    capability: fs/metadata
+    description: Get file metadata
+    confidence: 0.7
+
+  - symbol: fstat
+    capability: fs/metadata
+    description: Get file metadata
+    confidence: 0.7
+
+  - symbol: mkdir
+    capability: fs/directory
+    description: Create directories
+    confidence: 1.0
+
+  - symbol: opendir
+    capability: fs/directory
+    description: Open directories
+    confidence: 0.8
+
+  - symbol: readdir
+    capability: fs/directory
+    description: Read directory contents
+    confidence: 0.8
+
+  # ===== Process Operations =====
+  - symbol: kill
+    capability: process/signal
+    description: Send signals to processes
+    confidence: 1.0
+
+  - symbol: raise
+    capability: process/signal
+    description: Raise signals
+    confidence: 1.0
+
+  - symbol: signal
+    capability: process/signal
+    description: Signal handling
+    confidence: 0.8
+
+  - symbol: sigaction
+    capability: process/signal
+    description: Signal handling
+    confidence: 0.8
+
+  - symbol: ptrace
+    capability: process/debug
+    description: Debug/trace processes
+    confidence: 1.0
+
+  - symbol: task_for_pid
+    capability: process/inject
+    description: Process injection (macOS)
+    confidence: 1.0
+
+  - symbol: mach_vm_write
+    capability: process/inject
+    description: Memory manipulation (macOS)
+    confidence: 1.0
+
+  - symbol: getpid
+    capability: process/info
+    description: Get process ID
+    confidence: 0.5
+
+  - symbol: getppid
+    capability: process/info
+    description: Get parent process ID
+    confidence: 0.6
+
+  - symbol: getuid
+    capability: process/info
+    description: Get user ID
+    confidence: 0.5
+
+  - symbol: geteuid
+    capability: process/info
+    description: Get effective user ID
+    confidence: 0.6
+
+  - symbol: setuid
+    capability: privilege/user
+    description: Set user ID
+    confidence: 1.0
+
+  - symbol: seteuid
+    capability: privilege/user
+    description: Set effective user ID
+    confidence: 1.0
+
+  - symbol: setgid
+    capability: privilege/user
+    description: Set group ID
+    confidence: 1.0
+
+  - symbol: setegid
+    capability: privilege/user
+    description: Set effective group ID
+    confidence: 1.0
+
+  # ===== Cryptographic Capabilities =====
+  - symbol: MD5
+    capability: crypto/hash/md5
+    description: MD5 hashing
+    confidence: 1.0
+
+  - symbol: MD5_Init
+    capability: crypto/hash/md5
+    description: MD5 hashing
+    confidence: 1.0
+
+  - symbol: CC_MD5
+    capability: crypto/hash/md5
+    description: MD5 hashing (CommonCrypto)
+    confidence: 1.0
+
+  - symbol: SHA1
+    capability: crypto/hash/sha1
+    description: SHA-1 hashing
+    confidence: 1.0
+
+  - symbol: SHA1_Init
+    capability: crypto/hash/sha1
+    description: SHA-1 hashing
+    confidence: 1.0
+
+  - symbol: CC_SHA1
+    capability: crypto/hash/sha1
+    description: SHA-1 hashing (CommonCrypto)
+    confidence: 1.0
+
+  - symbol: SHA256
+    capability: crypto/hash/sha256
+    description: SHA-256 hashing
+    confidence: 1.0
+
+  - symbol: SHA256_Init
+    capability: crypto/hash/sha256
+    description: SHA-256 hashing
+    confidence: 1.0
+
+  - symbol: CC_SHA256
+    capability: crypto/hash/sha256
+    description: SHA-256 hashing (CommonCrypto)
+    confidence: 1.0
+
+  - symbol: SHA512
+    capability: crypto/hash/sha512
+    description: SHA-512 hashing
+    confidence: 1.0
+
+  - symbol: SHA512_Init
+    capability: crypto/hash/sha512
+    description: SHA-512 hashing
+    confidence: 1.0
+
+  - symbol: CC_SHA512
+    capability: crypto/hash/sha512
+    description: SHA-512 hashing (CommonCrypto)
+    confidence: 1.0
+
+  - symbol: AES_encrypt
+    capability: crypto/encrypt/aes
+    description: AES encryption
+    confidence: 1.0
+
+  - symbol: AES_decrypt
+    capability: crypto/decrypt/aes
+    description: AES decryption
+    confidence: 1.0
+
+  - symbol: CCCrypt
+    capability: crypto/encrypt
+    description: Encryption operations (CommonCrypto)
+    confidence: 0.9
+
+  - symbol: RSA_public_encrypt
+    capability: crypto/encrypt/rsa
+    description: RSA encryption
+    confidence: 1.0
+
+  - symbol: RSA_private_decrypt
+    capability: crypto/decrypt/rsa
+    description: RSA decryption
+    confidence: 1.0
+
+  - symbol: arc4random
+    capability: crypto/random
+    description: Cryptographic random
+    confidence: 1.0
+
+  - symbol: arc4random_buf
+    capability: crypto/random
+    description: Cryptographic random
+    confidence: 1.0
+
+  - symbol: SecRandomCopyBytes
+    capability: crypto/random
+    description: Secure random (macOS)
+    confidence: 1.0
+
+  - symbol: RAND_bytes
+    capability: crypto/random
+    description: Random bytes (OpenSSL)
+    confidence: 1.0
+
+  # ===== Credential Access =====
+  - symbol: SecKeychainFindGenericPassword
+    capability: credential/keychain
+    description: macOS Keychain access
+    confidence: 1.0
+
+  - symbol: SecKeychainFindInternetPassword
+    capability: credential/keychain
+    description: macOS Keychain access
+    confidence: 1.0
+
+  - symbol: SecKeychainItemCopyContent
+    capability: credential/keychain
+    description: macOS Keychain access
+    confidence: 1.0
+
+  - symbol: getpwnam
+    capability: credential/password-file
+    description: Read password database
+    confidence: 1.0
+
+  - symbol: getpwuid
+    capability: credential/password-file
+    description: Read password database
+    confidence: 1.0
+
+  - symbol: getspnam
+    capability: credential/password-file
+    description: Read shadow password file
+    confidence: 1.0
+
+  - symbol: getenv
+    capability: credential/env-vars
+    description: Access environment variables
+    confidence: 0.6
+
+  - symbol: setenv
+    capability: credential/env-vars
+    description: Modify environment variables
+    confidence: 0.7
+
+  - symbol: putenv
+    capability: credential/env-vars
+    description: Modify environment variables
+    confidence: 0.7
+
+  # ===== Persistence Mechanisms =====
+  - symbol: crontab
+    capability: persistence/cron
+    description: Cron job management
+    confidence: 1.0
+
+  - symbol: SMJobSubmit
+    capability: persistence/service/launchd
+    description: launchd service (macOS)
+    confidence: 1.0
+
+  - symbol: launchctl
+    capability: persistence/service/launchd
+    description: launchd control (macOS)
+    confidence: 1.0
+
+  # ===== Data Operations =====
+  - symbol: compress
+    capability: data/compress
+    description: Data compression
+    confidence: 0.8
+
+  - symbol: uncompress
+    capability: data/compress
+    description: Data decompression
+    confidence: 0.8
+
+  - symbol: deflate
+    capability: data/compress
+    description: Data compression
+    confidence: 0.8
+
+  - symbol: inflate
+    capability: data/compress
+    description: Data decompression
+    confidence: 0.8
+
+  - symbol: gzopen
+    capability: data/compress
+    description: Gzip compression
+    confidence: 0.9
+
+  - symbol: BZ2_bzopen
+    capability: data/compress
+    description: Bzip2 compression
+    confidence: 0.9
+
+  # ===== Memory Operations =====
+  - symbol: mmap
+    capability: memory/map
+    description: Memory mapping
+    confidence: 0.8
+
+  - symbol: munmap
+    capability: memory/map
+    description: Unmap memory
+    confidence: 0.8
+
+  - symbol: mprotect
+    capability: memory/protect
+    description: Change memory protection
+    confidence: 0.9
+
+  - symbol: malloc
+    capability: memory/allocate
+    description: Allocate memory
+    confidence: 0.5
+
+  - symbol: calloc
+    capability: memory/allocate
+    description: Allocate memory
+    confidence: 0.5
+
+  - symbol: realloc
+    capability: memory/allocate
+    description: Reallocate memory
+    confidence: 0.5
+
+  - symbol: free
+    capability: memory/allocate
+    description: Free memory
+    confidence: 0.5

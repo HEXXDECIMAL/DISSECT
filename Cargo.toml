@@ -1,46 +1,52 @@
 [package]
-name = "divine"
+name = "dissect"
 version = "0.1.0"
 edition = "2021"
-authors = ["Divine Team"]
+authors = ["DISSECT Team"]
+description = "Deep static analysis tool for extracting features from binaries and source code"
 license = "Apache-2.0"
-description = "Rust port of malcontent - a malware detection tool using YARA rules"
-readme = "README.md"
-repository = "https://github.com/chainguard-dev/malcontent"
 
 [dependencies]
-# CLI and argument parsing
-clap = { version = "4.5", features = ["derive"] }
+# Binary parsing
+goblin = "0.8"
 
-# YARA integration
-yara-x = "1.6"
+# YARA pattern matching
+yara-x = "0.10"
 
-# File handling and hashing
-sha2 = "0.10"
-hex = "0.4"
-walkdir = "2.5"
-mime_guess = "2.0"
-
-# Archive handling  
-zip = { version = "1.0", default-features = false }
-tar = "0.4"
-flate2 = "1.0"
-tempfile = "3.12"
+# Tree-sitter parsers
+tree-sitter = "0.24"
+tree-sitter-bash = "0.23"
+tree-sitter-python = "0.23"
+tree-sitter-javascript = "0.23"
 
 # Serialization
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+serde_yaml = "0.9"
 
-# Error handling
+# CLI
+clap = { version = "4.5", features = ["derive"] }
+
+# File operations
+walkdir = "2.5"
+zip = { version = "2.2", default-features = false, features = ["deflate"] }
+tar = "0.4"
+flate2 = "1.0"
+bzip2 = "0.4"
+xz2 = "0.1"
+
+# Parallelization
+rayon = "1.10"
+
+# Utilities
+sha2 = "0.10"
+regex = "1.11"
+anyhow = "1.0"
 thiserror = "1.0"
-
-# Logging
-tracing = "0.1"
-tracing-subscriber = "0.3"
-
-[dev-dependencies]
-tempfile = "3.12"
+chrono = { version = "0.4", features = ["serde"] }
+hex = "0.4"
+tempfile = "3.13"
 
 [[bin]]
-name = "divine"
+name = "dissect"
 path = "src/main.rs"

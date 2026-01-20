@@ -1,78 +1,71 @@
-use crate::report::RiskLevel;
-use clap::{Parser, Subcommand, ValueEnum};
+use clap::{Parser, Subcommand};
 
-#[derive(Parser)]
-#[command(name = "divine")]
-#[command(about = "Rust port of malcontent - malware detection using YARA rules")]
-#[command(version = "0.1.0")]
-pub struct Cli {
+#[derive(Parser, Debug)]
+#[command(name = "dissect")]
+#[command(about = "Deep static analysis tool for extracting features from binaries and source code")]
+#[command(version)]
+pub struct Args {
     #[command(subcommand)]
-    pub command: Commands,
+    pub command: Command,
 
-    #[arg(short, long, global = true)]
-    pub verbose: bool,
-
-    #[arg(long, value_enum, default_value_t = OutputFormat::Terminal, global = true)]
+    /// Output format (json, terminal)
+    #[arg(short, long, default_value = "terminal")]
     pub format: OutputFormat,
 
-    #[arg(long, default_value_t = RiskLevel::Low, global = true)]
-    pub min_risk: RiskLevel,
-
-    #[arg(long, global = true)]
-    pub include_data_files: bool,
-
-    #[arg(short = 'j', long, default_value_t = num_cpus::get(), global = true)]
-    pub jobs: usize,
-
-    #[arg(short, long, global = true)]
+    /// Write output to file
+    #[arg(short, long)]
     pub output: Option<String>,
+
+    /// Verbose logging
+    #[arg(short, long)]
+    pub verbose: bool,
 }
 
-#[derive(Subcommand)]
-pub enum Commands {
+#[derive(Subcommand, Debug)]
+pub enum Command {
+    /// Analyze a single file in detail
+    Analyze {
+        /// Target file to analyze
+        target: String,
+
+        /// Enable YARA scanning with malcontent rules
+        #[arg(long)]
+        yara: bool,
+
+        /// Custom YARA rules directory
+        #[arg(long)]
+        yara_rules: Option<String>,
+    },
+
+    /// Scan multiple files or directories
     Scan {
-        #[arg(help = "Paths to scan")]
+        /// Paths to scan (files or directories)
+        #[arg(required = true)]
         paths: Vec<String>,
 
-        #[arg(long, help = "Rule file or directory")]
-        rules: Option<String>,
+        /// Enable YARA scanning with malcontent rules
+        #[arg(long)]
+        yara: bool,
 
-        #[arg(long, help = "Scan archive contents")]
-        archives: bool,
+        /// Custom YARA rules directory
+        #[arg(long)]
+        yara_rules: Option<String>,
     },
 
-    Analyze {
-        #[arg(help = "Path to analyze")]
-        path: String,
+    /// Compare two versions (diff mode) for supply chain attack detection
+    Diff {
+        /// Old/baseline version (file or directory)
+        old: String,
 
-        #[arg(long, help = "Rule file or directory")]
-        rules: Option<String>,
+        /// New/target version (file or directory)
+        new: String,
     },
 }
 
-#[derive(Clone, ValueEnum)]
+#[derive(Debug, Clone, clap::ValueEnum)]
 pub enum OutputFormat {
-    Terminal,
+    /// JSON output for machine consumption
     Json,
-    Brief,
-}
-
-impl std::str::FromStr for RiskLevel {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s.to_lowercase().as_str() {
-            "low" | "1" => Ok(Self::Low),
-            "medium" | "2" => Ok(Self::Medium),
-            "high" | "3" => Ok(Self::High),
-            "critical" | "4" => Ok(Self::Critical),
-            _ => Err(format!("Invalid risk level: {s}")),
-        }
-    }
-}
-
-mod num_cpus {
-    pub fn get() -> usize {
-        std::thread::available_parallelism().map(std::num::NonZero::get).unwrap_or(1)
-    }
+    /// Human-readable terminal output
+    Terminal,
 }
