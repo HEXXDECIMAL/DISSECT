@@ -1,0 +1,22 @@
+# HTTP Server Operations - Python
+# MBC: C0002 (HTTP Communication)
+# ATT&CK: T1071.001
+
+traits:
+  - id: net/http/server-python
+    description: Python HTTP server
+    criticality: notable
+    confidence: 0.66
+    mbc: "C0002"
+    attack: "T1071.001"
+    condition:
+      type: yara
+      source: |
+        rule python_http_server {
+          strings:
+            $http_server = "http.server"
+            $simple_http = "SimpleHTTPServer"
+            $flask = "Flask(__name__)"
+          condition:
+            any of them
+        }

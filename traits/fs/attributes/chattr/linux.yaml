@@ -1,0 +1,50 @@
+# Linux File Attributes (chattr)
+# MBC: F0004 (Defense Evasion)
+# ATT&CK: T1222
+
+traits:
+  - id: fs/attributes/chattr
+    description: Modify Linux file attributes
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: yara
+      source: |
+        rule chattr {
+          strings:
+            $chattr = /chattr [-\+][\w\- ]{0,32} [\w\.\/]{0,64}/
+          condition:
+            $chattr
+        }
+
+  - id: fs/attributes/chattr-immutable
+    description: Modify immutability of a file
+    criticality: suspicious
+    confidence: 0.66
+    condition:
+      type: yara
+      source: |
+        rule chattr_immutable {
+          strings:
+            $chattr = /chattr [-\+]i [\-\w\.\/]{0,64}/
+            $not_dev = "chattr -i /sys"
+          condition:
+            $chattr and none of ($not*)
+        }
+
+  - id: fs/attributes/chattr-immutable-recursive
+    description: Recursively remove immutability of a directory
+    criticality: hostile
+    confidence: 0.66
+    condition:
+      type: yara
+      source: |
+        rule chattr_immutable_recursive {
+          strings:
+            $r_i = /chattr -R -i [\-\w\.\/]{0,64}/
+            $ri = /chattr -Ri [\-\w\.\/]{0,64}/
+            $ir = /chattr -iR [\-\w\.\/]{0,64}/
+            $i_r = /chattr -i -R [\-\w\.\/]{0,64}/
+          condition:
+            filesize < 10MB and any of them
+        }

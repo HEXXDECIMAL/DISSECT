@@ -131,7 +131,7 @@ pub fn group_into_directories(paths: &[PathInfo]) -> Vec<DirectoryAccess> {
 
     // Group paths by directory
     for path_info in paths {
-        if let Some(parent) = get_parent_directory(&path_info.path) {
+        if let Some(parent) = parent_directory(&path_info.path) {
             dir_map.entry(parent).or_default().push(path_info);
         }
     }
@@ -180,7 +180,7 @@ pub fn group_into_directories(paths: &[PathInfo]) -> Vec<DirectoryAccess> {
 }
 
 /// Extract parent directory from path
-fn get_parent_directory(path: &str) -> Option<String> {
+fn parent_directory(path: &str) -> Option<String> {
     let path = path.trim_end_matches('/');
 
     if let Some(last_slash) = path.rfind('/') {
@@ -635,17 +635,14 @@ mod tests {
     }
 
     #[test]
-    fn test_get_parent_directory() {
+    fn test_parent_directory() {
+        assert_eq!(parent_directory("/etc/passwd"), Some("/etc/".to_string()));
         assert_eq!(
-            get_parent_directory("/etc/passwd"),
-            Some("/etc/".to_string())
-        );
-        assert_eq!(
-            get_parent_directory("/etc/network/interfaces"),
+            parent_directory("/etc/network/interfaces"),
             Some("/etc/network/".to_string())
         );
-        assert_eq!(get_parent_directory("/etc"), Some("/".to_string()));
-        assert_eq!(get_parent_directory("file.txt"), None);
+        assert_eq!(parent_directory("/etc"), Some("/".to_string()));
+        assert_eq!(parent_directory("file.txt"), None);
     }
 
     #[test]

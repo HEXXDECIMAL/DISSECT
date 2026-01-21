@@ -1,0 +1,25 @@
+# DDoS Detection
+# MBC: B0042 (Denial of Service)
+# ATT&CK: T1499
+
+traits:
+  - id: impact/ddos/flood
+    description: DDoS/flooding patterns
+    criticality: suspicious
+    confidence: 0.66
+    mbc: "B0042"
+    attack: "T1499"
+    condition:
+      type: yara
+      source: |
+        rule ddos {
+          strings:
+            $flood = "flood" fullword
+            $ddos = /[dD][dD][oO][sS]/
+            $syn_flood = "SYN flood"
+            $udp_flood = "UDP flood"
+            $amplification = "amplification"
+            $botnet = "botnet"
+          condition:
+            any of them
+        }

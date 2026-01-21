@@ -1,0 +1,27 @@
+# File Ownership Change - Windows
+# MBC: E1222 (File Permission Modification)
+# ATT&CK: T1222
+
+traits:
+  - id: fs/permission/chown-takeown
+    description: Take ownership of files (Windows takeown)
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "(takeown|TAKEOWN)"
+
+  - id: fs/permission/chown-takeown-force
+    description: Forcibly take ownership of files recursively
+    criticality: suspicious
+    confidence: 0.66
+    condition:
+      type: yara
+      source: |
+        rule takeown_force {
+          strings:
+            $takeown_fr = /(takeown|TAKEOWN).{1,8}\/[fF].{1,8}\/[rR] .{0,32}[yY]/
+            $takeown_rf = /(takeown|TAKEOWN).{1,8}\/[rR].{1,8}\/[fF] .{0,32}[yY]/
+          condition:
+            any of them
+        }

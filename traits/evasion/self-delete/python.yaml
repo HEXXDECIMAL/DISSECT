@@ -1,0 +1,14 @@
+# Self-Deletion Detection - Python
+# MBC: F0007 (Self Deletion)
+# ATT&CK: T1070.004
+
+traits:
+  - id: evasion/self-delete-python
+    description: Self-deleting Python script
+    criticality: suspicious
+    confidence: 0.66
+    mbc: "F0007"
+    attack: "T1070.004"
+    condition:
+      type: string
+      exact: "os.remove(__file__)"

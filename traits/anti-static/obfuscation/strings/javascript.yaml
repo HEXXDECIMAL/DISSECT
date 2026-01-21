@@ -1,0 +1,14 @@
+# String Obfuscation Detection - JavaScript
+# MBC: B0032 (Obfuscated Files or Information)
+# ATT&CK: T1027
+
+traits:
+  - id: anti-static/obfuscation/strings-fromcharcode
+    description: String obfuscation via fromCharCode
+    criticality: notable
+    confidence: 0.66
+    mbc: "B0032"
+    attack: "T1027"
+    condition:
+      type: string
+      exact: fromCharCode

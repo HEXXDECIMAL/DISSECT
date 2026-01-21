@@ -1,0 +1,36 @@
+# Extended Attributes (xattr) - Symbol-based
+# MBC: E1222 (File Permission Modification)
+# ATT&CK: T1222
+
+traits:
+  - id: fs/attributes/xattr-set
+    description: Set extended file attribute value
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: setxattr|fsetxattr|lsetxattr
+
+  - id: fs/attributes/xattr-get
+    description: Get extended file attribute value
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: getxattr|fgetxattr|lgetxattr
+
+  - id: fs/attributes/xattr-remove
+    description: Remove extended file attribute value
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: removexattr|fremovexattr|lremovexattr
+
+  - id: fs/attributes/xattr-list
+    description: List extended file attributes
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: listxattr|flistxattr|llistxattr

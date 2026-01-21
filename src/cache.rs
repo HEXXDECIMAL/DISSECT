@@ -27,8 +27,8 @@ pub fn is_developer_mode() -> bool {
     Path::new("traits").exists()
 }
 
-/// Get the most recent modification time of any YARA rule file
-pub fn get_most_recent_yara_mtime() -> Result<SystemTime> {
+/// Returns the most recent modification time of any YARA rule file
+pub fn most_recent_yara_mtime() -> Result<SystemTime> {
     let mut most_recent = SystemTime::UNIX_EPOCH;
 
     // Check traits/ directory
@@ -88,8 +88,8 @@ pub fn get_most_recent_yara_mtime() -> Result<SystemTime> {
     Ok(most_recent)
 }
 
-/// Get the modification time of the dissect binary
-pub fn get_binary_mtime() -> Result<SystemTime> {
+/// Returns the modification time of the dissect binary
+pub fn binary_mtime() -> Result<SystemTime> {
     let exe_path = std::env::current_exe().context("Failed to get current executable path")?;
 
     let metadata = fs::metadata(&exe_path).context("Failed to read binary metadata")?;
@@ -99,20 +99,20 @@ pub fn get_binary_mtime() -> Result<SystemTime> {
         .context("Failed to get binary modification time")
 }
 
-/// Get the appropriate timestamp for cache invalidation
-pub fn get_cache_timestamp() -> Result<SystemTime> {
+/// Returns the appropriate timestamp for cache invalidation
+pub fn cache_timestamp() -> Result<SystemTime> {
     if is_developer_mode() {
         // Developer mode: use most recent YARA file mtime
-        get_most_recent_yara_mtime()
+        most_recent_yara_mtime()
     } else {
         // Production mode: use binary mtime (embedded rules)
-        get_binary_mtime()
+        binary_mtime()
     }
 }
 
 /// Generate a cache key based on timestamp and third-party flag
 pub fn yara_cache_key(third_party_enabled: bool) -> Result<String> {
-    let mtime = get_cache_timestamp()?;
+    let mtime = cache_timestamp()?;
     let timestamp = mtime
         .duration_since(SystemTime::UNIX_EPOCH)
         .context("Invalid cache timestamp")?
@@ -229,12 +229,12 @@ mod tests {
     }
 
     #[test]
-    fn test_get_most_recent_yara_mtime_no_files() {
+    fn test_most_recent_yara_mtime_no_files() {
         // Create a temp directory with no YARA files
         let temp_dir = TempDir::new().unwrap();
         std::env::set_current_dir(&temp_dir).ok();
 
-        let result = get_most_recent_yara_mtime();
+        let result = most_recent_yara_mtime();
         // Should fail when no YARA files exist
         assert!(result.is_err());
     }

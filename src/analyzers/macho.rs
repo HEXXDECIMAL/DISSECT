@@ -10,6 +10,7 @@ use goblin::mach::{Mach, MachO};
 use std::fs;
 use std::path::Path;
 
+/// Analyzer for macOS Mach-O binaries (executables, dylibs, bundles)
 pub struct MachOAnalyzer {
     capability_mapper: CapabilityMapper,
     radare2: Radare2Analyzer,
@@ -18,6 +19,7 @@ pub struct MachOAnalyzer {
 }
 
 impl MachOAnalyzer {
+    /// Creates a new Mach-O analyzer with default configuration
     pub fn new() -> Self {
         Self {
             capability_mapper: CapabilityMapper::empty(),
@@ -56,7 +58,7 @@ impl MachOAnalyzer {
             file_type: "macho".to_string(),
             size_bytes: data.len() as u64,
             sha256: self.calculate_sha256(data),
-            architectures: Some(vec![self.get_arch_name(&macho)]),
+            architectures: Some(vec![self.arch_name(&macho)]),
         };
 
         let mut report = AnalysisReport::new(target);
@@ -185,7 +187,7 @@ impl MachOAnalyzer {
         });
 
         // 2. Architecture trait
-        let arch = self.get_arch_name(macho);
+        let arch = self.arch_name(macho);
         report.capabilities.push(Capability {
             id: format!("meta/arch/{}", arch),
             description: format!("{} architecture", arch),
@@ -388,7 +390,7 @@ impl MachOAnalyzer {
         });
 
         // Architecture
-        let arch = self.get_arch_name(macho);
+        let arch = self.arch_name(macho);
         report.structure.push(StructuralFeature {
             id: format!("binary/arch/{}", arch),
             description: format!("{} architecture", arch),
@@ -507,7 +509,7 @@ impl MachOAnalyzer {
         Ok(())
     }
 
-    fn get_arch_name(&self, macho: &MachO) -> String {
+    fn arch_name(&self, macho: &MachO) -> String {
         match macho.header.cputype {
             0x01000007 => "x86_64".to_string(),
             0x0100000c => "arm64".to_string(),
@@ -586,14 +588,14 @@ mod tests {
     use super::*;
     use std::path::PathBuf;
 
-    fn get_test_macho() -> PathBuf {
+    fn test_macho_path() -> PathBuf {
         PathBuf::from("tests/fixtures/test.macho")
     }
 
     #[test]
     fn test_can_analyze_macho() {
         let analyzer = MachOAnalyzer::new();
-        let test_file = get_test_macho();
+        let test_file = test_macho_path();
 
         if test_file.exists() {
             assert!(analyzer.can_analyze(&test_file));
@@ -610,7 +612,7 @@ mod tests {
     #[test]
     fn test_analyze_macho_file() {
         let analyzer = MachOAnalyzer::new();
-        let test_file = get_test_macho();
+        let test_file = test_macho_path();
 
         if !test_file.exists() {
             return;
@@ -628,7 +630,7 @@ mod tests {
     #[test]
     fn test_macho_has_structure() {
         let analyzer = MachOAnalyzer::new();
-        let test_file = get_test_macho();
+        let test_file = test_macho_path();
 
         if !test_file.exists() {
             return;
@@ -641,7 +643,7 @@ mod tests {
     #[test]
     fn test_macho_architecture_detected() {
         let analyzer = MachOAnalyzer::new();
-        let test_file = get_test_macho();
+        let test_file = test_macho_path();
 
         if !test_file.exists() {
             return;
@@ -656,7 +658,7 @@ mod tests {
     #[test]
     fn test_macho_sections_analyzed() {
         let analyzer = MachOAnalyzer::new();
-        let test_file = get_test_macho();
+        let test_file = test_macho_path();
 
         if !test_file.exists() {
             return;
@@ -669,7 +671,7 @@ mod tests {
     #[test]
     fn test_macho_has_imports() {
         let analyzer = MachOAnalyzer::new();
-        let test_file = get_test_macho();
+        let test_file = test_macho_path();
 
         if !test_file.exists() {
             return;
@@ -682,7 +684,7 @@ mod tests {
     #[test]
     fn test_macho_capabilities_detected() {
         let analyzer = MachOAnalyzer::new();
-        let test_file = get_test_macho();
+        let test_file = test_macho_path();
 
         if !test_file.exists() {
             return;
@@ -691,13 +693,13 @@ mod tests {
         let report = analyzer.analyze(&test_file).unwrap();
         // Capabilities may or may not be detected depending on the binary
         // Just verify the analysis completes successfully
-        assert!(report.capabilities.len() >= 0);
+        let _ = &report.capabilities;
     }
 
     #[test]
     fn test_macho_strings_extracted() {
         let analyzer = MachOAnalyzer::new();
-        let test_file = get_test_macho();
+        let test_file = test_macho_path();
 
         if !test_file.exists() {
             return;
@@ -710,7 +712,7 @@ mod tests {
     #[test]
     fn test_macho_tools_used() {
         let analyzer = MachOAnalyzer::new();
-        let test_file = get_test_macho();
+        let test_file = test_macho_path();
 
         if !test_file.exists() {
             return;
@@ -723,7 +725,7 @@ mod tests {
     #[test]
     fn test_macho_analysis_duration() {
         let analyzer = MachOAnalyzer::new();
-        let test_file = get_test_macho();
+        let test_file = test_macho_path();
 
         if !test_file.exists() {
             return;

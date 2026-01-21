@@ -1,0 +1,37 @@
+# Debugger Detection - Linux
+# MBC: B0001 (Debugger Detection)
+# ATT&CK: T1622
+
+traits:
+  - id: anti-analysis/debugger-ptrace
+    description: Debugger detection via ptrace
+    criticality: suspicious
+    confidence: 0.66
+    mbc: "B0001"
+    attack: "T1622"
+    condition:
+      type: string
+      exact: PTRACE_TRACEME
+
+  - id: anti-analysis/debugger-proc
+    description: Debugger detection via /proc/self/status
+    criticality: suspicious
+    confidence: 0.66
+    condition:
+      type: string
+      exact: /proc/self/status
+
+  - id: anti-analysis/debugger-gdb
+    description: References gdb debugger
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: yara
+      source: |
+        rule gdb_ref {
+          strings:
+            $gdb = "gdb" fullword
+            $lldb = "lldb" fullword
+          condition:
+            any of them
+        }

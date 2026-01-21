@@ -1,0 +1,12 @@
+# Directory Listing - Python
+# MBC: E1083 (File and Directory Discovery)
+# ATT&CK: T1083
+
+traits:
+  - id: fs/directory/readdir-python
+    description: List directory contents (Python)
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: string
+      exact: .listdir(

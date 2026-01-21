@@ -1,0 +1,12 @@
+# Log File Paths
+# MBC: E1083 (File and Directory Discovery)
+# ATT&CK: T1083
+
+traits:
+  - id: fs/path/log-var
+    description: Reference to /var/log
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "/var/log/[\\w\\.\\-/]+"

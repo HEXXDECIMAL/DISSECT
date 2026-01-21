@@ -1,0 +1,22 @@
+# Shell Execution - Unix
+# MBC: E1059 (Command and Scripting Interpreter)
+# ATT&CK: T1059.004
+
+traits:
+  - id: exec/shell
+    description: Shell command execution
+    criticality: notable
+    confidence: 0.66
+    mbc: "E1059"
+    attack: "T1059.004"
+    condition:
+      type: symbol
+      pattern: system|popen|execve|execv|execl|execlp|execvp
+
+  - id: exec/shell-bash
+    description: Bash shell execution
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "(/bin/bash|/bin/sh|/usr/bin/bash)"

@@ -1,0 +1,14 @@
+# Base64 Decode Detection - Shell
+# MBC: B0032 (Obfuscated Files or Information)
+# ATT&CK: T1140
+
+traits:
+  - id: anti-static/base64/decode-shell
+    description: Base64 decoding via shell command
+    criticality: notable
+    confidence: 0.66
+    mbc: "B0032"
+    attack: "T1140"
+    condition:
+      type: string
+      exact: "base64 -d"

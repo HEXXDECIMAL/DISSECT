@@ -1,0 +1,30 @@
+# Filesystem Hierarchy Traversal
+# MBC: E1083 (File and Directory Discovery)
+# ATT&CK: T1083
+
+traits:
+  - id: fs/directory/traverse-fts
+    description: Traverse filesystem hierarchy via fts
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: yara
+      source: |
+        rule fts_traverse {
+          strings:
+            $fts_open = "_fts_open" fullword
+            $fts_read = "_fts_read" fullword
+            $fts_children = "_fts_children" fullword
+            $fts_set = "_fts_set" fullword
+            $fts_close = "_fts_close" fullword
+          condition:
+            2 of them
+        }
+
+  - id: fs/directory/traverse-nftw
+    description: Traverse filesystem hierarchy via nftw
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: nftw|ftw

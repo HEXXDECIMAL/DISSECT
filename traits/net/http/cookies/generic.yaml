@@ -1,0 +1,12 @@
+# HTTP Cookies
+# MBC: C0002 (HTTP Communication)
+# ATT&CK: T1071.001
+
+traits:
+  - id: net/http/cookies
+    description: HTTP cookie handling
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "(Cookie:|Set-Cookie:|cookiejar|http\\.cookiejar)"

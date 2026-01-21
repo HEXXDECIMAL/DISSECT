@@ -12,6 +12,7 @@ pub struct PythonAnalyzer {
 }
 
 impl PythonAnalyzer {
+    /// Creates a new Python analyzer with tree-sitter Python parser
     pub fn new() -> Self {
         let mut parser = Parser::new();
         parser
@@ -278,26 +279,24 @@ impl PythonAnalyzer {
             ];
 
             for (module, cap_id, description, criticality) in suspicious_modules {
-                if text.contains(module) {
-                    if !report.capabilities.iter().any(|c| c.id == cap_id) {
-                        report.capabilities.push(Capability {
-                            id: cap_id.to_string(),
-                            description: description.to_string(),
-                            confidence: 0.7, // Import alone is not definitive
-                            criticality,
-                            mbc: None,
-                            attack: None,
-                            evidence: vec![Evidence {
-                                method: "import".to_string(),
-                                source: "tree-sitter-python".to_string(),
-                                value: module.to_string(),
-                                location: Some(format!("line:{}", node.start_position().row + 1)),
-                            }],
-                            traits: vec![],
-                            referenced_paths: None,
-                            referenced_directories: None,
-                        });
-                    }
+                if text.contains(module) && !report.capabilities.iter().any(|c| c.id == cap_id) {
+                    report.capabilities.push(Capability {
+                        id: cap_id.to_string(),
+                        description: description.to_string(),
+                        confidence: 0.7, // Import alone is not definitive
+                        criticality,
+                        mbc: None,
+                        attack: None,
+                        evidence: vec![Evidence {
+                            method: "import".to_string(),
+                            source: "tree-sitter-python".to_string(),
+                            value: module.to_string(),
+                            location: Some(format!("line:{}", node.start_position().row + 1)),
+                        }],
+                        traits: vec![],
+                        referenced_paths: None,
+                        referenced_directories: None,
+                    });
                 }
             }
         }
@@ -313,84 +312,82 @@ impl PythonAnalyzer {
             // Detect base64 + eval pattern (common obfuscation)
             if (text.contains("base64") || text.contains("b64decode"))
                 && (text.contains("eval") || text.contains("exec"))
-            {
-                if !report
+                && !report
                     .capabilities
                     .iter()
                     .any(|c| c.id == "anti-analysis/obfuscation/base64-eval")
-                {
-                    report.capabilities.push(Capability {
-                        id: "anti-analysis/obfuscation/base64-eval".to_string(),
-                        description: "Base64 decode followed by eval (obfuscation)".to_string(),
-                        confidence: 0.95,
-                        criticality: Criticality::Suspicious,
-                        mbc: None,
-                        attack: None,
-                        evidence: vec![Evidence {
-                            method: "pattern".to_string(),
-                            source: "tree-sitter-python".to_string(),
-                            value: "base64+eval".to_string(),
-                            location: Some(format!("line:{}", node.start_position().row + 1)),
-                        }],
-                        traits: vec![],
-                        referenced_paths: None,
-                        referenced_directories: None,
-                    });
-                }
+            {
+                report.capabilities.push(Capability {
+                    id: "anti-analysis/obfuscation/base64-eval".to_string(),
+                    description: "Base64 decode followed by eval (obfuscation)".to_string(),
+                    confidence: 0.95,
+                    criticality: Criticality::Suspicious,
+                    mbc: None,
+                    attack: None,
+                    evidence: vec![Evidence {
+                        method: "pattern".to_string(),
+                        source: "tree-sitter-python".to_string(),
+                        value: "base64+eval".to_string(),
+                        location: Some(format!("line:{}", node.start_position().row + 1)),
+                    }],
+                    traits: vec![],
+                    referenced_paths: None,
+                    referenced_directories: None,
+                });
             }
 
             // Detect hex string construction
-            if text.contains("\\x") && text.matches("\\x").count() > 5 {
-                if !report
+            if text.contains("\\x")
+                && text.matches("\\x").count() > 5
+                && !report
                     .capabilities
                     .iter()
                     .any(|c| c.id == "anti-analysis/obfuscation/hex")
-                {
-                    report.capabilities.push(Capability {
-                        id: "anti-analysis/obfuscation/hex".to_string(),
-                        description: "Hex-encoded strings".to_string(),
-                        confidence: 0.9,
-                        criticality: crate::types::Criticality::Suspicious,
-                        mbc: None,
-                        attack: None,
-                        evidence: vec![Evidence {
-                            method: "pattern".to_string(),
-                            source: "tree-sitter-python".to_string(),
-                            value: "hex_encoding".to_string(),
-                            location: Some(format!("line:{}", node.start_position().row + 1)),
-                        }],
-                        traits: vec![],
-                        referenced_paths: None,
-                        referenced_directories: None,
-                    });
-                }
+            {
+                report.capabilities.push(Capability {
+                    id: "anti-analysis/obfuscation/hex".to_string(),
+                    description: "Hex-encoded strings".to_string(),
+                    confidence: 0.9,
+                    criticality: crate::types::Criticality::Suspicious,
+                    mbc: None,
+                    attack: None,
+                    evidence: vec![Evidence {
+                        method: "pattern".to_string(),
+                        source: "tree-sitter-python".to_string(),
+                        value: "hex_encoding".to_string(),
+                        location: Some(format!("line:{}", node.start_position().row + 1)),
+                    }],
+                    traits: vec![],
+                    referenced_paths: None,
+                    referenced_directories: None,
+                });
             }
 
             // Detect string obfuscation via join
-            if text.contains(".join(") && (text.contains("chr(") || text.contains("ord(")) {
-                if !report
+            if text.contains(".join(")
+                && (text.contains("chr(") || text.contains("ord("))
+                && !report
                     .capabilities
                     .iter()
                     .any(|c| c.id == "anti-analysis/obfuscation/string-construct")
-                {
-                    report.capabilities.push(Capability {
-                        id: "anti-analysis/obfuscation/string-construct".to_string(),
-                        description: "Constructs strings via chr/ord".to_string(),
-                        confidence: 0.9,
-                        criticality: crate::types::Criticality::Suspicious,
-                        mbc: None,
-                        attack: None,
-                        evidence: vec![Evidence {
-                            method: "pattern".to_string(),
-                            source: "tree-sitter-python".to_string(),
-                            value: "chr_join_pattern".to_string(),
-                            location: Some(format!("line:{}", node.start_position().row + 1)),
-                        }],
-                        traits: vec![],
-                        referenced_paths: None,
-                        referenced_directories: None,
-                    });
-                }
+            {
+                report.capabilities.push(Capability {
+                    id: "anti-analysis/obfuscation/string-construct".to_string(),
+                    description: "Constructs strings via chr/ord".to_string(),
+                    confidence: 0.9,
+                    criticality: crate::types::Criticality::Suspicious,
+                    mbc: None,
+                    attack: None,
+                    evidence: vec![Evidence {
+                        method: "pattern".to_string(),
+                        source: "tree-sitter-python".to_string(),
+                        value: "chr_join_pattern".to_string(),
+                        location: Some(format!("line:{}", node.start_position().row + 1)),
+                    }],
+                    traits: vec![],
+                    referenced_paths: None,
+                    referenced_directories: None,
+                });
             }
         }
     }
@@ -413,11 +410,9 @@ impl PythonAnalyzer {
                     if let Some(quote_pos) = after_bracket.find(&['\'', '"'][..]) {
                         let quote_char = after_bracket.chars().nth(quote_pos).unwrap();
                         let after_quote = &after_bracket[quote_pos + 1..];
-                        if let Some(end_quote) = after_quote.find(quote_char) {
-                            Some(after_quote[..end_quote].to_string())
-                        } else {
-                            None
-                        }
+                        after_quote
+                            .find(quote_char)
+                            .map(|end_quote| after_quote[..end_quote].to_string())
                     } else {
                         None
                     }

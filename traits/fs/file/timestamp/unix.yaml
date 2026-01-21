@@ -1,0 +1,12 @@
+# File Timestamp Modification
+# MBC: F0006 (Timestomp)
+# ATT&CK: T1070.006
+
+traits:
+  - id: fs/file/timestamp
+    description: Modify file timestamps
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: utime|utimes|utimensat|futimens|lutimes

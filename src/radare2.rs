@@ -432,7 +432,7 @@ mod tests {
         assert_eq!(cf.cyclomatic_complexity, 5);
         assert_eq!(cf.max_block_size, 5); // 50 / 10
         assert_eq!(cf.avg_block_size, 5.0);
-        assert_eq!(cf.is_linear, false);
+        assert!(!cf.is_linear);
         assert_eq!(cf.loop_count, 3); // 12 - 10 + 1
         assert_eq!(cf.out_degree, 1);
 
@@ -442,10 +442,10 @@ mod tests {
         assert!((ia.instruction_density - 0.1953).abs() < 0.001); // 50 / 256
 
         let props = func.properties.unwrap();
-        assert_eq!(props.is_recursive, true);
-        assert_eq!(props.is_noreturn, false);
+        assert!(props.is_recursive);
+        assert!(!props.is_noreturn);
         assert_eq!(props.stack_frame, 64);
-        assert_eq!(props.is_leaf, false);
+        assert!(!props.is_leaf);
     }
 
     #[test]
@@ -467,7 +467,7 @@ mod tests {
 
         let func: Function = r2_func.into();
         let cf = func.control_flow.unwrap();
-        assert_eq!(cf.is_linear, true);
+        assert!(cf.is_linear);
         assert_eq!(cf.loop_count, 0);
         assert_eq!(cf.basic_blocks, 1);
         assert_eq!(cf.edges, 0);
@@ -659,7 +659,7 @@ mod tests {
 
         let func: Function = r2_func.into();
         let props = func.properties.unwrap();
-        assert_eq!(props.is_leaf, true);
+        assert!(props.is_leaf);
     }
 
     #[test]
@@ -688,7 +688,7 @@ mod tests {
 
         let func: Function = r2_func.into();
         let props = func.properties.unwrap();
-        assert_eq!(props.is_leaf, false);
+        assert!(!props.is_leaf);
         assert_eq!(func.calls.len(), 2);
         assert_eq!(func.calls[0], "callee1");
         assert_eq!(func.calls[1], "callee2");

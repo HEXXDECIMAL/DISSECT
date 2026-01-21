@@ -1,0 +1,20 @@
+# HTTP Server Operations - Generic
+# MBC: C0002 (HTTP Communication)
+# ATT&CK: T1071.001
+
+traits:
+  - id: net/http/server
+    description: Runs an HTTP server
+    criticality: notable
+    confidence: 0.66
+    mbc: "C0002"
+    attack: "T1071.001"
+    condition:
+      type: yara
+      source: |
+        rule http_server {
+          strings:
+            $httpd = "httpd" fullword
+          condition:
+            $httpd
+        }

@@ -1,0 +1,20 @@
+# User Home Directory Paths - macOS
+# MBC: E1083 (File and Directory Discovery)
+# ATT&CK: T1083
+
+traits:
+  - id: fs/path/user-users
+    description: Reference to /Users directories (macOS)
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "/Users/[\\w\\-/]+"
+
+  - id: fs/path/user-home-library
+    description: Reference to ~/Library (macOS)
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "Library/[\\w\\-\\s/]+"

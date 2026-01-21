@@ -505,44 +505,34 @@ impl GoAnalyzer {
             ];
 
             for (module, cap_id, description) in suspicious_imports {
-                if text.contains(module) {
-                    if !report.capabilities.iter().any(|c| c.id == cap_id) {
-                        // Higher confidence for dangerous imports
-                        let confidence = if cap_id.contains("exec")
-                            || cap_id.contains("syscall")
-                            || cap_id.contains("crypto/cipher")
-                        {
-                            0.85
-                        } else {
-                            0.7
-                        };
+                if text.contains(module) && !report.capabilities.iter().any(|c| c.id == cap_id) {
+                    // Higher confidence for dangerous imports
+                    let confidence = if cap_id.contains("exec")
+                        || cap_id.contains("syscall")
+                        || cap_id.contains("crypto/cipher")
+                    {
+                        0.85
+                    } else {
+                        0.7
+                    };
 
-                        let criticality = if cap_id.contains("exec") || cap_id.contains("syscall") {
-                            Criticality::Notable
-                        } else if cap_id.contains("crypto") || cap_id.contains("unsafe") {
-                            Criticality::Notable
-                        } else {
-                            Criticality::Notable
-                        };
-
-                        report.capabilities.push(Capability {
-                            id: cap_id.to_string(),
-                            description: description.to_string(),
-                            confidence,
-                            criticality,
-                            mbc: None,
-                            attack: None,
-                            evidence: vec![Evidence {
-                                method: "import".to_string(),
-                                source: "tree-sitter-go".to_string(),
-                                value: module.to_string(),
-                                location: Some(format!("line:{}", node.start_position().row + 1)),
-                            }],
-                            traits: Vec::new(),
-                            referenced_paths: None,
-                            referenced_directories: None,
-                        });
-                    }
+                    report.capabilities.push(Capability {
+                        id: cap_id.to_string(),
+                        description: description.to_string(),
+                        confidence,
+                        criticality: Criticality::Notable,
+                        mbc: None,
+                        attack: None,
+                        evidence: vec![Evidence {
+                            method: "import".to_string(),
+                            source: "tree-sitter-go".to_string(),
+                            value: module.to_string(),
+                            location: Some(format!("line:{}", node.start_position().row + 1)),
+                        }],
+                        traits: Vec::new(),
+                        referenced_paths: None,
+                        referenced_directories: None,
+                    });
                 }
             }
         }
@@ -558,84 +548,82 @@ impl GoAnalyzer {
             // Detect base64 + exec pattern (common obfuscation)
             if (text.contains("base64") || text.contains("DecodeString"))
                 && (text.contains("exec.Command") || text.contains("syscall"))
-            {
-                if !report
+                && !report
                     .capabilities
                     .iter()
                     .any(|c| c.id == "anti-analysis/obfuscation/base64-exec")
-                {
-                    report.capabilities.push(Capability {
-                        id: "anti-analysis/obfuscation/base64-exec".to_string(),
-                        description: "Base64 decode followed by exec (obfuscation)".to_string(),
-                        confidence: 0.95,
-                        criticality: Criticality::Suspicious,
-                        mbc: None,
-                        attack: None,
-                        evidence: vec![Evidence {
-                            method: "pattern".to_string(),
-                            source: "tree-sitter-go".to_string(),
-                            value: "base64+exec".to_string(),
-                            location: Some(format!("line:{}", node.start_position().row + 1)),
-                        }],
-                        traits: Vec::new(),
-                        referenced_paths: None,
-                        referenced_directories: None,
-                    });
-                }
+            {
+                report.capabilities.push(Capability {
+                    id: "anti-analysis/obfuscation/base64-exec".to_string(),
+                    description: "Base64 decode followed by exec (obfuscation)".to_string(),
+                    confidence: 0.95,
+                    criticality: Criticality::Suspicious,
+                    mbc: None,
+                    attack: None,
+                    evidence: vec![Evidence {
+                        method: "pattern".to_string(),
+                        source: "tree-sitter-go".to_string(),
+                        value: "base64+exec".to_string(),
+                        location: Some(format!("line:{}", node.start_position().row + 1)),
+                    }],
+                    traits: Vec::new(),
+                    referenced_paths: None,
+                    referenced_directories: None,
+                });
             }
 
             // Detect hex string construction (obfuscation)
-            if text.contains("\\x") && text.matches("\\x").count() > 5 {
-                if !report
+            if text.contains("\\x")
+                && text.matches("\\x").count() > 5
+                && !report
                     .capabilities
                     .iter()
                     .any(|c| c.id == "anti-analysis/obfuscation/hex-strings")
-                {
-                    report.capabilities.push(Capability {
-                        id: "anti-analysis/obfuscation/hex-strings".to_string(),
-                        description: "Hex-encoded strings".to_string(),
-                        confidence: 0.9,
-                        criticality: Criticality::Suspicious,
-                        mbc: None,
-                        attack: None,
-                        evidence: vec![Evidence {
-                            method: "pattern".to_string(),
-                            source: "tree-sitter-go".to_string(),
-                            value: "hex_encoding".to_string(),
-                            location: Some(format!("line:{}", node.start_position().row + 1)),
-                        }],
-                        traits: Vec::new(),
-                        referenced_paths: None,
-                        referenced_directories: None,
-                    });
-                }
+            {
+                report.capabilities.push(Capability {
+                    id: "anti-analysis/obfuscation/hex-strings".to_string(),
+                    description: "Hex-encoded strings".to_string(),
+                    confidence: 0.9,
+                    criticality: Criticality::Suspicious,
+                    mbc: None,
+                    attack: None,
+                    evidence: vec![Evidence {
+                        method: "pattern".to_string(),
+                        source: "tree-sitter-go".to_string(),
+                        value: "hex_encoding".to_string(),
+                        location: Some(format!("line:{}", node.start_position().row + 1)),
+                    }],
+                    traits: Vec::new(),
+                    referenced_paths: None,
+                    referenced_directories: None,
+                });
             }
 
             // Detect build tag obfuscation
-            if text.contains("// +build") && (text.contains("!") || text.contains(",")) {
-                if !report
+            if text.contains("// +build")
+                && (text.contains("!") || text.contains(","))
+                && !report
                     .capabilities
                     .iter()
                     .any(|c| c.id == "anti-analysis/build-tags")
-                {
-                    report.capabilities.push(Capability {
-                        id: "anti-analysis/build-tags".to_string(),
-                        description: "Conditional build tags (platform evasion)".to_string(),
-                        confidence: 0.75,
-                        criticality: Criticality::Notable,
-                        mbc: None,
-                        attack: None,
-                        evidence: vec![Evidence {
-                            method: "pattern".to_string(),
-                            source: "tree-sitter-go".to_string(),
-                            value: "build_tags".to_string(),
-                            location: Some(format!("line:{}", node.start_position().row + 1)),
-                        }],
-                        traits: Vec::new(),
-                        referenced_paths: None,
-                        referenced_directories: None,
-                    });
-                }
+            {
+                report.capabilities.push(Capability {
+                    id: "anti-analysis/build-tags".to_string(),
+                    description: "Conditional build tags (platform evasion)".to_string(),
+                    confidence: 0.75,
+                    criticality: Criticality::Notable,
+                    mbc: None,
+                    attack: None,
+                    evidence: vec![Evidence {
+                        method: "pattern".to_string(),
+                        source: "tree-sitter-go".to_string(),
+                        value: "build_tags".to_string(),
+                        location: Some(format!("line:{}", node.start_position().row + 1)),
+                    }],
+                    traits: Vec::new(),
+                    referenced_paths: None,
+                    referenced_directories: None,
+                });
             }
         }
     }

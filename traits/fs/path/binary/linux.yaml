@@ -1,0 +1,36 @@
+# Binary/Executable Paths
+# MBC: E1083 (File and Directory Discovery)
+# ATT&CK: T1083
+
+traits:
+  - id: fs/path/binary-usr-bin
+    description: Reference to /usr/bin binaries
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "/usr/bin/[\\w\\-]+"
+
+  - id: fs/path/binary-usr-sbin
+    description: Reference to /usr/sbin binaries
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "/usr/sbin/[\\w\\-]+"
+
+  - id: fs/path/binary-usr-local
+    description: Reference to /usr/local binaries
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "/usr/local/[\\w\\-/]+"
+
+  - id: fs/path/binary-bin-su
+    description: Reference to /bin/su
+    criticality: suspicious
+    confidence: 0.66
+    condition:
+      type: string
+      exact: /bin/su

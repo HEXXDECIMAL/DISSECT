@@ -1,0 +1,28 @@
+# Symbolic Link Operations
+# MBC: E1222 (File Permission Modification)
+# ATT&CK: T1222
+
+traits:
+  - id: fs/link/symlink-create
+    description: Create symbolic links
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: symlink|symlinkat
+
+  - id: fs/link/symlink-read
+    description: Read value of symbolic link
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: readlink|readlinkat
+
+  - id: fs/link/symlink-resolve
+    description: Resolve symbolic links to canonical path
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: realpath

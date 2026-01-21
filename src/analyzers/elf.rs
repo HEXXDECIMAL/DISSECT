@@ -10,6 +10,7 @@ use goblin::elf::Elf;
 use std::fs;
 use std::path::Path;
 
+/// Analyzer for Linux ELF binaries (executables, shared objects, kernel modules)
 pub struct ElfAnalyzer {
     capability_mapper: CapabilityMapper,
     radare2: Radare2Analyzer,
@@ -18,6 +19,7 @@ pub struct ElfAnalyzer {
 }
 
 impl ElfAnalyzer {
+    /// Creates a new ELF analyzer with default configuration
     pub fn new() -> Self {
         Self {
             capability_mapper: CapabilityMapper::empty(),
@@ -51,7 +53,7 @@ impl ElfAnalyzer {
             file_type: "elf".to_string(),
             size_bytes: data.len() as u64,
             sha256: self.calculate_sha256(data),
-            architectures: Some(vec![self.get_arch_name(&elf)]),
+            architectures: Some(vec![self.arch_name(&elf)]),
         };
 
         let mut report = AnalysisReport::new(target);
@@ -179,7 +181,7 @@ impl ElfAnalyzer {
         });
 
         // Architecture
-        let arch = self.get_arch_name(elf);
+        let arch = self.arch_name(elf);
         report.structure.push(StructuralFeature {
             id: format!("binary/arch/{}", arch),
             description: format!("{} architecture", arch),
@@ -304,7 +306,7 @@ impl ElfAnalyzer {
         Ok(())
     }
 
-    fn get_arch_name(&self, elf: &Elf) -> String {
+    fn arch_name(&self, elf: &Elf) -> String {
         match elf.header.e_machine {
             goblin::elf::header::EM_X86_64 => "x86_64".to_string(),
             goblin::elf::header::EM_386 => "i386".to_string(),
@@ -366,14 +368,14 @@ mod tests {
     use super::*;
     use std::path::PathBuf;
 
-    fn get_test_elf() -> PathBuf {
+    fn test_elf_path() -> PathBuf {
         PathBuf::from("tests/fixtures/test.elf")
     }
 
     #[test]
     fn test_can_analyze_elf() {
         let analyzer = ElfAnalyzer::new();
-        let test_file = get_test_elf();
+        let test_file = test_elf_path();
 
         if test_file.exists() {
             assert!(analyzer.can_analyze(&test_file));
@@ -390,7 +392,7 @@ mod tests {
     #[test]
     fn test_analyze_elf_file() {
         let analyzer = ElfAnalyzer::new();
-        let test_file = get_test_elf();
+        let test_file = test_elf_path();
 
         if !test_file.exists() {
             return; // Skip if fixture doesn't exist
@@ -408,7 +410,7 @@ mod tests {
     #[test]
     fn test_elf_has_structure() {
         let analyzer = ElfAnalyzer::new();
-        let test_file = get_test_elf();
+        let test_file = test_elf_path();
 
         if !test_file.exists() {
             return;
@@ -421,7 +423,7 @@ mod tests {
     #[test]
     fn test_elf_architecture_detected() {
         let analyzer = ElfAnalyzer::new();
-        let test_file = get_test_elf();
+        let test_file = test_elf_path();
 
         if !test_file.exists() {
             return;
@@ -436,7 +438,7 @@ mod tests {
     #[test]
     fn test_elf_sections_analyzed() {
         let analyzer = ElfAnalyzer::new();
-        let test_file = get_test_elf();
+        let test_file = test_elf_path();
 
         if !test_file.exists() {
             return;
@@ -449,7 +451,7 @@ mod tests {
     #[test]
     fn test_elf_has_imports() {
         let analyzer = ElfAnalyzer::new();
-        let test_file = get_test_elf();
+        let test_file = test_elf_path();
 
         if !test_file.exists() {
             return;
@@ -463,7 +465,7 @@ mod tests {
     #[test]
     fn test_elf_capabilities_detected() {
         let analyzer = ElfAnalyzer::new();
-        let test_file = get_test_elf();
+        let test_file = test_elf_path();
 
         if !test_file.exists() {
             return;
@@ -472,13 +474,13 @@ mod tests {
         let report = analyzer.analyze(&test_file).unwrap();
         // Capabilities may or may not be detected depending on the binary
         // Just verify the analysis completes successfully
-        assert!(report.capabilities.len() >= 0);
+        let _ = &report.capabilities;
     }
 
     #[test]
     fn test_elf_strings_extracted() {
         let analyzer = ElfAnalyzer::new();
-        let test_file = get_test_elf();
+        let test_file = test_elf_path();
 
         if !test_file.exists() {
             return;
@@ -491,7 +493,7 @@ mod tests {
     #[test]
     fn test_elf_tools_used() {
         let analyzer = ElfAnalyzer::new();
-        let test_file = get_test_elf();
+        let test_file = test_elf_path();
 
         if !test_file.exists() {
             return;
@@ -504,7 +506,7 @@ mod tests {
     #[test]
     fn test_elf_analysis_duration() {
         let analyzer = ElfAnalyzer::new();
-        let test_file = get_test_elf();
+        let test_file = test_elf_path();
 
         if !test_file.exists() {
             return;

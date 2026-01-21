@@ -1,0 +1,14 @@
+# Log Clearing Detection - Windows
+# MBC: F0005 (Indicator Blocking)
+# ATT&CK: T1070.001
+
+traits:
+  - id: evasion/log-clear-windows
+    description: Clear Windows event logs
+    criticality: suspicious
+    confidence: 0.66
+    mbc: "F0005"
+    attack: "T1070.001"
+    condition:
+      type: string
+      regex: "(wevtutil\\s+cl|Clear-EventLog)"

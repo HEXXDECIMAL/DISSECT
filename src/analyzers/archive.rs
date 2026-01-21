@@ -1,14 +1,19 @@
 use crate::analyzers::{detect_file_type, Analyzer};
+use crate::capabilities::CapabilityMapper;
 use crate::types::*;
+use crate::yara_engine::YaraEngine;
 use anyhow::{Context, Result};
 use std::fs::{self, File};
 use std::io::Read;
 use std::path::Path;
+use std::sync::Arc;
 
 /// Archive analyzer for .zip, .tar.gz, .tgz, etc.
 pub struct ArchiveAnalyzer {
     max_depth: usize,
     current_depth: usize,
+    capability_mapper: Option<CapabilityMapper>,
+    yara_engine: Option<Arc<YaraEngine>>,
 }
 
 impl ArchiveAnalyzer {
@@ -16,11 +21,23 @@ impl ArchiveAnalyzer {
         Self {
             max_depth: 3,
             current_depth: 0,
+            capability_mapper: None,
+            yara_engine: None,
         }
     }
 
     pub fn with_depth(mut self, depth: usize) -> Self {
         self.current_depth = depth;
+        self
+    }
+
+    pub fn with_capability_mapper(mut self, mapper: CapabilityMapper) -> Self {
+        self.capability_mapper = Some(mapper);
+        self
+    }
+
+    pub fn with_yara(mut self, engine: YaraEngine) -> Self {
+        self.yara_engine = Some(Arc::new(engine));
         self
     }
 
@@ -69,6 +86,7 @@ impl ArchiveAnalyzer {
         // Recursively analyze extracted files
         let mut files_analyzed = 0;
         let mut total_capabilities = std::collections::HashSet::new();
+        let mut total_traits = std::collections::HashSet::new();
 
         for entry in walkdir::WalkDir::new(temp_dir.path())
             .min_depth(1)
@@ -77,10 +95,49 @@ impl ArchiveAnalyzer {
             .filter_map(|e| e.ok())
         {
             if entry.file_type().is_file() {
+                let archive_location = format!(
+                    "archive:{}",
+                    entry
+                        .path()
+                        .strip_prefix(temp_dir.path())
+                        .unwrap_or(entry.path())
+                        .display()
+                );
+
+                // Run YARA scan on extracted file if engine is available
+                if let Some(ref yara_engine) = self.yara_engine {
+                    if let Ok(matches) = yara_engine.scan_file(entry.path()) {
+                        for yara_match in matches {
+                            if !report
+                                .yara_matches
+                                .iter()
+                                .any(|m| m.rule == yara_match.rule)
+                            {
+                                report.yara_matches.push(yara_match);
+                            }
+                        }
+                    }
+                }
+
                 if let Ok(file_report) = self.analyze_extracted_file(entry.path()) {
                     files_analyzed += 1;
 
-                    // Aggregate capabilities
+                    // Aggregate traits (from capability mapper)
+                    for t in &file_report.traits {
+                        total_traits.insert(t.id.clone());
+
+                        // Add to report if not already present
+                        if !report.traits.iter().any(|existing| existing.id == t.id) {
+                            let mut new_trait = t.clone();
+                            // Update evidence to show it came from within the archive
+                            for evidence in &mut new_trait.evidence {
+                                evidence.location = Some(archive_location.clone());
+                            }
+                            report.traits.push(new_trait);
+                        }
+                    }
+
+                    // Aggregate capabilities (from YARA rules)
                     for cap in &file_report.capabilities {
                         total_capabilities.insert(cap.id.clone());
 
@@ -89,16 +146,20 @@ impl ArchiveAnalyzer {
                             let mut new_cap = cap.clone();
                             // Update evidence to show it came from within the archive
                             for evidence in &mut new_cap.evidence {
-                                evidence.location = Some(format!(
-                                    "archive:{}",
-                                    entry
-                                        .path()
-                                        .strip_prefix(temp_dir.path())
-                                        .unwrap_or(entry.path())
-                                        .display()
-                                ));
+                                evidence.location = Some(archive_location.clone());
                             }
                             report.capabilities.push(new_cap);
+                        }
+                    }
+
+                    // Aggregate YARA matches from file report
+                    for yara_match in &file_report.yara_matches {
+                        if !report
+                            .yara_matches
+                            .iter()
+                            .any(|m| m.rule == yara_match.rule)
+                        {
+                            report.yara_matches.push(yara_match.clone());
                         }
                     }
 
@@ -117,8 +178,9 @@ impl ArchiveAnalyzer {
 
         // Add metadata about archive contents
         report.metadata.errors.push(format!(
-            "Archive contains {} files analyzed, {} unique capabilities detected",
+            "Archive contains {} files analyzed, {} traits and {} capabilities detected",
             files_analyzed,
+            total_traits.len(),
             total_capabilities.len()
         ));
 
@@ -137,8 +199,50 @@ impl ArchiveAnalyzer {
             "tar.gz" | "tgz" => self.extract_tar(archive_path, dest_dir, Some("gzip")),
             "tar.bz2" | "tbz" | "tbz2" => self.extract_tar(archive_path, dest_dir, Some("bzip2")),
             "tar.xz" | "txz" => self.extract_tar(archive_path, dest_dir, Some("xz")),
+            "xz" => self.extract_compressed(archive_path, dest_dir, "xz"),
+            "gz" => self.extract_compressed(archive_path, dest_dir, "gzip"),
+            "bz2" => self.extract_compressed(archive_path, dest_dir, "bzip2"),
             _ => anyhow::bail!("Unsupported archive type: {}", archive_type),
         }
+    }
+
+    fn extract_compressed(
+        &self,
+        archive_path: &Path,
+        dest_dir: &Path,
+        compression: &str,
+    ) -> Result<()> {
+        let file = File::open(archive_path)?;
+
+        // Determine output filename by stripping the compression extension
+        let stem = archive_path
+            .file_stem()
+            .and_then(|s| s.to_str())
+            .unwrap_or("extracted");
+        let output_path = dest_dir.join(stem);
+
+        let mut output_file = File::create(&output_path).context("Failed to create output file")?;
+
+        match compression {
+            "xz" => {
+                let mut decoder = xz2::read::XzDecoder::new(file);
+                std::io::copy(&mut decoder, &mut output_file)
+                    .context("Failed to decompress XZ file")?;
+            }
+            "gzip" => {
+                let mut decoder = flate2::read::GzDecoder::new(file);
+                std::io::copy(&mut decoder, &mut output_file)
+                    .context("Failed to decompress GZ file")?;
+            }
+            "bzip2" => {
+                let mut decoder = bzip2::read::BzDecoder::new(file);
+                std::io::copy(&mut decoder, &mut output_file)
+                    .context("Failed to decompress BZ2 file")?;
+            }
+            _ => anyhow::bail!("Unsupported compression: {}", compression),
+        }
+
+        Ok(())
     }
 
     fn extract_zip(&self, archive_path: &Path, dest_dir: &Path) -> Result<()> {
@@ -146,17 +250,18 @@ impl ArchiveAnalyzer {
         let mut archive = zip::ZipArchive::new(file).context("Failed to read ZIP archive")?;
 
         for i in 0..archive.len() {
-            let mut file = archive.by_index(i)?;
-            let outpath = dest_dir.join(file.name());
+            // Note: ZipArchive requires index-based access as it doesn't implement Iterator
+            let mut entry = archive.by_index(i)?;
+            let outpath = dest_dir.join(entry.name());
 
-            if file.is_dir() {
+            if entry.is_dir() {
                 fs::create_dir_all(&outpath)?;
             } else {
                 if let Some(parent) = outpath.parent() {
                     fs::create_dir_all(parent)?;
                 }
                 let mut outfile = File::create(&outpath)?;
-                std::io::copy(&mut file, &mut outfile)?;
+                std::io::copy(&mut entry, &mut outfile)?;
             }
         }
 
@@ -199,18 +304,27 @@ impl ArchiveAnalyzer {
         // Detect file type
         let file_type = detect_file_type(file_path)?;
 
-        // Route to appropriate analyzer
+        // Route to appropriate analyzer with capability mapper if available
         match file_type {
             crate::analyzers::FileType::MachO => {
-                let analyzer = crate::analyzers::macho::MachOAnalyzer::new();
+                let mut analyzer = crate::analyzers::macho::MachOAnalyzer::new();
+                if let Some(ref mapper) = self.capability_mapper {
+                    analyzer = analyzer.with_capability_mapper(mapper.clone());
+                }
                 analyzer.analyze(file_path)
             }
             crate::analyzers::FileType::Elf => {
-                let analyzer = crate::analyzers::elf::ElfAnalyzer::new();
+                let mut analyzer = crate::analyzers::elf::ElfAnalyzer::new();
+                if let Some(ref mapper) = self.capability_mapper {
+                    analyzer = analyzer.with_capability_mapper(mapper.clone());
+                }
                 analyzer.analyze(file_path)
             }
             crate::analyzers::FileType::Pe => {
-                let analyzer = crate::analyzers::pe::PEAnalyzer::new();
+                let mut analyzer = crate::analyzers::pe::PEAnalyzer::new();
+                if let Some(ref mapper) = self.capability_mapper {
+                    analyzer = analyzer.with_capability_mapper(mapper.clone());
+                }
                 analyzer.analyze(file_path)
             }
             crate::analyzers::FileType::ShellScript => {
@@ -222,7 +336,10 @@ impl ArchiveAnalyzer {
                 analyzer.analyze(file_path)
             }
             crate::analyzers::FileType::JavaScript => {
-                let analyzer = crate::analyzers::javascript::JavaScriptAnalyzer::new();
+                let mut analyzer = crate::analyzers::javascript::JavaScriptAnalyzer::new();
+                if let Some(ref mapper) = self.capability_mapper {
+                    analyzer = analyzer.with_capability_mapper(mapper.clone());
+                }
                 analyzer.analyze(file_path)
             }
             _ => {
@@ -249,8 +366,20 @@ impl ArchiveAnalyzer {
             "txz"
         } else if path_str.ends_with(".tar") {
             "tar"
-        } else if path_str.ends_with(".zip") {
+        } else if path_str.ends_with(".zip")
+            || path_str.ends_with(".jar")
+            || path_str.ends_with(".war")
+            || path_str.ends_with(".ear")
+            || path_str.ends_with(".apk")
+            || path_str.ends_with(".aar")
+        {
             "zip"
+        } else if path_str.ends_with(".xz") {
+            "xz"
+        } else if path_str.ends_with(".gz") {
+            "gz"
+        } else if path_str.ends_with(".bz2") {
+            "bz2"
         } else {
             "unknown"
         }
@@ -278,6 +407,11 @@ impl Analyzer for ArchiveAnalyzer {
     fn can_analyze(&self, file_path: &Path) -> bool {
         let path_str = file_path.to_string_lossy().to_lowercase();
         path_str.ends_with(".zip")
+            || path_str.ends_with(".jar")
+            || path_str.ends_with(".war")
+            || path_str.ends_with(".ear")
+            || path_str.ends_with(".apk")
+            || path_str.ends_with(".aar")
             || path_str.ends_with(".tar")
             || path_str.ends_with(".tar.gz")
             || path_str.ends_with(".tgz")
@@ -285,6 +419,9 @@ impl Analyzer for ArchiveAnalyzer {
             || path_str.ends_with(".tbz2")
             || path_str.ends_with(".tar.xz")
             || path_str.ends_with(".txz")
+            || (path_str.ends_with(".xz") && !path_str.ends_with(".tar.xz"))
+            || (path_str.ends_with(".gz") && !path_str.ends_with(".tar.gz"))
+            || (path_str.ends_with(".bz2") && !path_str.ends_with(".tar.bz2"))
     }
 }
 
@@ -318,6 +455,23 @@ mod tests {
         let analyzer = ArchiveAnalyzer::new();
         assert!(analyzer.can_analyze(Path::new("test.zip")));
         assert!(analyzer.can_analyze(Path::new("TEST.ZIP")));
+    }
+
+    #[test]
+    fn test_can_analyze_jar() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert!(analyzer.can_analyze(Path::new("test.jar")));
+        assert!(analyzer.can_analyze(Path::new("TEST.JAR")));
+        assert!(analyzer.can_analyze(Path::new("test.war")));
+        assert!(analyzer.can_analyze(Path::new("test.apk")));
+    }
+
+    #[test]
+    fn test_detect_archive_type_jar() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert_eq!(analyzer.detect_archive_type(Path::new("test.jar")), "zip");
+        assert_eq!(analyzer.detect_archive_type(Path::new("test.war")), "zip");
+        assert_eq!(analyzer.detect_archive_type(Path::new("test.apk")), "zip");
     }
 
     #[test]

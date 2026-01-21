@@ -1,0 +1,23 @@
+# XOR Encoding Detection
+# MBC: B0032 (Obfuscated Files or Information)
+# ATT&CK: T1027
+
+traits:
+  - id: anti-static/xor/encode
+    description: XOR encoding patterns
+    criticality: notable
+    confidence: 0.66
+    mbc: "B0032"
+    attack: "T1027"
+    condition:
+      type: yara
+      source: |
+        rule xor_encode {
+          strings:
+            $xor_key = "xor_key"
+            $xor_encrypt = "xor_encrypt"
+            $xor_decode = "xor_decode"
+            $xor_loop = /\^\s*0x[0-9a-fA-F]{2}/
+          condition:
+            any of them
+        }

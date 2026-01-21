@@ -1,0 +1,21 @@
+# Botnet Detection
+# MBC: B0030 (C2 Communication)
+# ATT&CK: T1583
+
+traits:
+  - id: impact/remote-access/botnet
+    description: Botnet-related patterns
+    criticality: hostile
+    confidence: 0.66
+    attack: "T1583"
+    condition:
+      type: string
+      regex: "(botnet|bot.?net|zombie|c2.?server|command.?and.?control)"
+
+  - id: impact/remote-access/botnet-agent
+    description: Bot agent patterns
+    criticality: suspicious
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "(bot.?agent|agent.?bot|slave|master.?node)"

@@ -10,6 +10,7 @@ use goblin::pe::PE;
 use std::fs;
 use std::path::Path;
 
+/// Analyzer for Windows PE binaries (executables, DLLs, drivers)
 pub struct PEAnalyzer {
     capability_mapper: CapabilityMapper,
     radare2: Radare2Analyzer,
@@ -18,6 +19,7 @@ pub struct PEAnalyzer {
 }
 
 impl PEAnalyzer {
+    /// Creates a new PE analyzer with default configuration
     pub fn new() -> Self {
         Self {
             capability_mapper: CapabilityMapper::empty(),
@@ -51,7 +53,7 @@ impl PEAnalyzer {
             file_type: "pe".to_string(),
             size_bytes: data.len() as u64,
             sha256: self.calculate_sha256(data),
-            architectures: Some(vec![self.get_arch_name(&pe)]),
+            architectures: Some(vec![self.arch_name(&pe)]),
         };
 
         let mut report = AnalysisReport::new(target);
@@ -150,7 +152,7 @@ impl PEAnalyzer {
             id: "pe/header".to_string(),
             description: format!(
                 "PE file (machine: {}, subsystem: {:?})",
-                self.get_arch_name(pe),
+                self.arch_name(pe),
                 pe.header
                     .optional_header
                     .as_ref()
@@ -317,7 +319,7 @@ impl PEAnalyzer {
         Ok(())
     }
 
-    fn get_arch_name(&self, pe: &PE) -> String {
+    fn arch_name(&self, pe: &PE) -> String {
         match pe.header.coff_header.machine {
             0x014c => "x86".to_string(),
             0x8664 => "x86_64".to_string(),
@@ -361,14 +363,14 @@ mod tests {
     use super::*;
     use std::path::PathBuf;
 
-    fn get_test_pe() -> PathBuf {
+    fn test_pe_path() -> PathBuf {
         PathBuf::from("tests/fixtures/test.exe")
     }
 
     #[test]
     fn test_can_analyze_pe() {
         let analyzer = PEAnalyzer::new();
-        let test_file = get_test_pe();
+        let test_file = test_pe_path();
 
         if test_file.exists() {
             assert!(analyzer.can_analyze(&test_file));
@@ -385,7 +387,7 @@ mod tests {
     #[test]
     fn test_analyze_pe_file() {
         let analyzer = PEAnalyzer::new();
-        let test_file = get_test_pe();
+        let test_file = test_pe_path();
 
         if !test_file.exists() {
             return;
@@ -403,7 +405,7 @@ mod tests {
     #[test]
     fn test_pe_has_structure() {
         let analyzer = PEAnalyzer::new();
-        let test_file = get_test_pe();
+        let test_file = test_pe_path();
 
         if !test_file.exists() {
             return;
@@ -416,7 +418,7 @@ mod tests {
     #[test]
     fn test_pe_architecture_detected() {
         let analyzer = PEAnalyzer::new();
-        let test_file = get_test_pe();
+        let test_file = test_pe_path();
 
         if !test_file.exists() {
             return;
@@ -431,7 +433,7 @@ mod tests {
     #[test]
     fn test_pe_sections_analyzed() {
         let analyzer = PEAnalyzer::new();
-        let test_file = get_test_pe();
+        let test_file = test_pe_path();
 
         if !test_file.exists() {
             return;
@@ -444,7 +446,7 @@ mod tests {
     #[test]
     fn test_pe_has_imports() {
         let analyzer = PEAnalyzer::new();
-        let test_file = get_test_pe();
+        let test_file = test_pe_path();
 
         if !test_file.exists() {
             return;
@@ -457,7 +459,7 @@ mod tests {
     #[test]
     fn test_pe_capabilities_detected() {
         let analyzer = PEAnalyzer::new();
-        let test_file = get_test_pe();
+        let test_file = test_pe_path();
 
         if !test_file.exists() {
             return;
@@ -466,13 +468,13 @@ mod tests {
         let report = analyzer.analyze(&test_file).unwrap();
         // Capabilities may or may not be detected depending on the binary
         // Just verify the analysis completes successfully
-        assert!(report.capabilities.len() >= 0);
+        let _ = &report.capabilities;
     }
 
     #[test]
     fn test_pe_strings_extracted() {
         let analyzer = PEAnalyzer::new();
-        let test_file = get_test_pe();
+        let test_file = test_pe_path();
 
         if !test_file.exists() {
             return;
@@ -485,7 +487,7 @@ mod tests {
     #[test]
     fn test_pe_tools_used() {
         let analyzer = PEAnalyzer::new();
-        let test_file = get_test_pe();
+        let test_file = test_pe_path();
 
         if !test_file.exists() {
             return;
@@ -498,7 +500,7 @@ mod tests {
     #[test]
     fn test_pe_analysis_duration() {
         let analyzer = PEAnalyzer::new();
-        let test_file = get_test_pe();
+        let test_file = test_pe_path();
 
         if !test_file.exists() {
             return;

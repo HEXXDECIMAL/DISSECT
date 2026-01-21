@@ -12,6 +12,7 @@ pub struct ShellAnalyzer {
 }
 
 impl ShellAnalyzer {
+    /// Creates a new shell script analyzer with tree-sitter bash parser
     pub fn new() -> Self {
         let mut parser = Parser::new();
         parser
@@ -212,84 +213,83 @@ impl ShellAnalyzer {
     ) {
         if let Ok(text) = node.utf8_text(source) {
             // Check for base64 encoding patterns
-            if text.contains("base64") || text.contains("b64decode") {
-                if !report
+            if (text.contains("base64") || text.contains("b64decode"))
+                && !report
                     .capabilities
                     .iter()
                     .any(|c| c.id == "anti-analysis/obfuscation/base64")
-                {
-                    report.capabilities.push(Capability {
-                        id: "anti-analysis/obfuscation/base64".to_string(),
-                        description: "Uses base64 encoding/decoding".to_string(),
-                        confidence: 0.9,
-                        criticality: Criticality::Suspicious,
-                        mbc: None,
-                        attack: None,
-                        evidence: vec![Evidence {
-                            method: "pattern".to_string(),
-                            source: "tree-sitter-bash".to_string(),
-                            value: "base64".to_string(),
-                            location: Some(format!("line:{}", node.start_position().row + 1)),
-                        }],
-                        traits: Vec::new(),
-                        referenced_paths: None,
-                        referenced_directories: None,
-                    });
-                }
+            {
+                report.capabilities.push(Capability {
+                    id: "anti-analysis/obfuscation/base64".to_string(),
+                    description: "Uses base64 encoding/decoding".to_string(),
+                    confidence: 0.9,
+                    criticality: Criticality::Suspicious,
+                    mbc: None,
+                    attack: None,
+                    evidence: vec![Evidence {
+                        method: "pattern".to_string(),
+                        source: "tree-sitter-bash".to_string(),
+                        value: "base64".to_string(),
+                        location: Some(format!("line:{}", node.start_position().row + 1)),
+                    }],
+                    traits: Vec::new(),
+                    referenced_paths: None,
+                    referenced_directories: None,
+                });
             }
 
             // Check for hex encoding
-            if text.contains("\\x") && text.matches("\\x").count() > 3 {
-                if !report
+            if text.contains("\\x")
+                && text.matches("\\x").count() > 3
+                && !report
                     .capabilities
                     .iter()
                     .any(|c| c.id == "anti-analysis/obfuscation/hex")
-                {
-                    report.capabilities.push(Capability {
-                        id: "anti-analysis/obfuscation/hex".to_string(),
-                        description: "Uses hex-encoded strings".to_string(),
-                        confidence: 0.9,
-                        criticality: Criticality::Suspicious,
-                        mbc: None,
-                        attack: None,
-                        evidence: vec![Evidence {
-                            method: "pattern".to_string(),
-                            source: "tree-sitter-bash".to_string(),
-                            value: "hex_encoding".to_string(),
-                            location: Some(format!("line:{}", node.start_position().row + 1)),
-                        }],
-                        traits: Vec::new(),
-                        referenced_paths: None,
-                        referenced_directories: None,
-                    });
-                }
+            {
+                report.capabilities.push(Capability {
+                    id: "anti-analysis/obfuscation/hex".to_string(),
+                    description: "Uses hex-encoded strings".to_string(),
+                    confidence: 0.9,
+                    criticality: Criticality::Suspicious,
+                    mbc: None,
+                    attack: None,
+                    evidence: vec![Evidence {
+                        method: "pattern".to_string(),
+                        source: "tree-sitter-bash".to_string(),
+                        value: "hex_encoding".to_string(),
+                        location: Some(format!("line:{}", node.start_position().row + 1)),
+                    }],
+                    traits: Vec::new(),
+                    referenced_paths: None,
+                    referenced_directories: None,
+                });
             }
 
             // Check for eval with variable (dynamic code execution)
-            if (text.contains("eval") || text.contains("exec")) && text.contains("$") {
-                if !report
+            if (text.contains("eval") || text.contains("exec"))
+                && text.contains("$")
+                && !report
                     .capabilities
                     .iter()
                     .any(|c| c.id == "anti-analysis/obfuscation/dynamic-eval")
-                {
-                    report.capabilities.push(Capability {
-                        id: "anti-analysis/obfuscation/dynamic-eval".to_string(),
-                        description: "Executes dynamically constructed code".to_string(),
-                        confidence: 0.95,
-                        criticality: Criticality::Suspicious,
-                        mbc: None,
-                        attack: None,
-                        evidence: vec![Evidence {
-                            method: "pattern".to_string(),
-                            source: "tree-sitter-bash".to_string(),
-                            value: "eval_with_variable".to_string(),
-                            location: Some(format!("line:{}", node.start_position().row + 1)),
-                        }],
-                        traits: Vec::new(),
-                        referenced_paths: None,
-                        referenced_directories: None,
-                    });
-                }
+            {
+                report.capabilities.push(Capability {
+                    id: "anti-analysis/obfuscation/dynamic-eval".to_string(),
+                    description: "Executes dynamically constructed code".to_string(),
+                    confidence: 0.95,
+                    criticality: Criticality::Suspicious,
+                    mbc: None,
+                    attack: None,
+                    evidence: vec![Evidence {
+                        method: "pattern".to_string(),
+                        source: "tree-sitter-bash".to_string(),
+                        value: "eval_with_variable".to_string(),
+                        location: Some(format!("line:{}", node.start_position().row + 1)),
+                    }],
+                    traits: Vec::new(),
+                    referenced_paths: None,
+                    referenced_directories: None,
+                });
             }
         }
     }

@@ -1,0 +1,26 @@
+# Sandbox Detection
+# MBC: B0007 (Sandbox Detection)
+# ATT&CK: T1497
+
+traits:
+  - id: anti-analysis/sandbox
+    description: Sandbox detection techniques
+    criticality: suspicious
+    confidence: 0.66
+    mbc: "B0007"
+    attack: "T1497"
+    condition:
+      type: yara
+      source: |
+        rule sandbox_detect {
+          strings:
+            $sandbox = "sandbox" nocase
+            $cuckoo = "cuckoo"
+            $joe = "joe sandbox"
+            $any_run = "any.run"
+            $wireshark = "wireshark"
+            $fiddler = "fiddler"
+            $procmon = "procmon"
+          condition:
+            any of them
+        }

@@ -1,0 +1,12 @@
+# Swap Disable
+# MBC: E1082 (System Information Discovery)
+# ATT&CK: T1082
+
+traits:
+  - id: fs/swap/swapoff
+    description: Stop swapping to a file/device
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: swapoff

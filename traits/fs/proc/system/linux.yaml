@@ -1,0 +1,36 @@
+# /proc System Information (Linux)
+# MBC: E1082 (System Information Discovery)
+# ATT&CK: T1082
+
+traits:
+  - id: fs/proc/system-cpuinfo
+    description: Get CPU info from /proc/cpuinfo
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: string
+      exact: /proc/cpuinfo
+
+  - id: fs/proc/system-meminfo
+    description: Get memory info from /proc/meminfo
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: string
+      exact: /proc/meminfo
+
+  - id: fs/proc/system-stat
+    description: Get system statistics from /proc/stat
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: string
+      exact: /proc/stat
+
+  - id: fs/proc/system-osrelease
+    description: Get kernel version from /proc/sys/kernel/osrelease
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: string
+      exact: /proc/sys/kernel/osrelease

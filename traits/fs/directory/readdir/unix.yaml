@@ -1,0 +1,12 @@
+# Directory Listing
+# MBC: E1083 (File and Directory Discovery)
+# ATT&CK: T1083
+
+traits:
+  - id: fs/directory/readdir
+    description: List directory contents
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: opendir|readdir|readdir64|fdopendir|closedir|rewinddir|seekdir|telldir

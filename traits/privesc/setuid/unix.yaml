@@ -1,0 +1,21 @@
+# Setuid Privilege Escalation
+# MBC: E1548 (Abuse Elevation Control Mechanism)
+# ATT&CK: T1548.001
+
+traits:
+  - id: privesc/setuid
+    description: Setuid manipulation
+    criticality: suspicious
+    confidence: 0.66
+    attack: "T1548.001"
+    condition:
+      type: symbol
+      pattern: setuid|seteuid|setreuid|setresuid
+
+  - id: privesc/setgid
+    description: Setgid manipulation
+    criticality: suspicious
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: setgid|setegid|setregid|setresgid

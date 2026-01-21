@@ -1,0 +1,29 @@
+# Application Paths (macOS)
+# MBC: E1083 (File and Directory Discovery)
+# ATT&CK: T1083
+
+traits:
+  - id: fs/path/application-macos
+    description: Reference to /Applications
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "/Applications/[\\w\\s\\.\\-]+\\.app/Contents/MacOS/[\\w\\.\\-]+"
+
+  - id: fs/path/application-browser-extensions
+    description: Reference to browser extension paths
+    criticality: suspicious
+    confidence: 0.66
+    condition:
+      type: yara
+      source: |
+        rule browser_extensions {
+          strings:
+            $firefox = "Firefox/extensions"
+            $safari = "Safari/Extensions"
+            $chrome_ext = "/Extensions"
+            $chrome_dir = "Google/Chrome"
+          condition:
+            any of ($firefox, $safari) or all of ($chrome*)
+        }

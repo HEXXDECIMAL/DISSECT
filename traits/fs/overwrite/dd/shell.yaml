@@ -1,0 +1,18 @@
+# Disk Overwrite via dd (potential wiper)
+# MBC: B0040 (Impact)
+# ATT&CK: T1561
+
+traits:
+  - id: fs/overwrite/dd-background
+    description: dd command running in background (potential wiper)
+    criticality: hostile
+    confidence: 0.66
+    condition:
+      type: yara
+      source: |
+        rule background_dd {
+          strings:
+            $dd_bg = /dd if=[\/\w\.\-\" \=]{0,64} &[^&]/
+          condition:
+            filesize < 10485760 and all of them
+        }

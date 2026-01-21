@@ -1,0 +1,12 @@
+# Directory Creation - Java
+# MBC: C0046 (Create File)
+# ATT&CK: T1083
+
+traits:
+  - id: fs/directory/mkdir-java
+    description: Create directories (Java)
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "createDirector(y|ies)"

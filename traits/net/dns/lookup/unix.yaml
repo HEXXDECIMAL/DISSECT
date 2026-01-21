@@ -1,0 +1,45 @@
+# DNS Lookup Operations
+# MBC: C0011 (DNS Communication)
+# ATT&CK: T1071.004
+
+traits:
+  - id: net/dns/lookup
+    description: Uses DNS (Domain Name Service)
+    criticality: inert
+    confidence: 0.66
+    mbc: "C0011"
+    attack: "T1071.004"
+    condition:
+      type: symbol
+      pattern: res_query|res_search|getaddrinfo|gethostbyname
+
+  - id: net/dns/lookup-resolv
+    description: Reads DNS resolver configuration
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: string
+      exact: resolv.conf
+
+  - id: net/dns/lookup-reverse
+    description: Reverse DNS lookup
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "(\\.in-addr\\.arpa|ip6\\.arpa)"
+
+  - id: net/dns/lookup-txt
+    description: DNS TXT record queries
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: yara
+      source: |
+        rule dns_txt {
+          strings:
+            $dns = "dns"
+            $txt = "TXT"
+          condition:
+            all of them
+        }

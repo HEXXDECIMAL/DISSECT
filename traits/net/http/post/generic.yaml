@@ -1,0 +1,22 @@
+# HTTP POST Operations
+# MBC: C0002 (HTTP Communication)
+# ATT&CK: T1071.001
+
+traits:
+  - id: net/http/post
+    description: Makes HTTP POST requests
+    criticality: notable
+    confidence: 0.66
+    mbc: "C0002"
+    attack: "T1071.001"
+    condition:
+      type: string
+      regex: "(POST|http\\.post|requests\\.post)"
+
+  - id: net/http/post-form
+    description: HTTP form data upload
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "(multipart/form-data|FormData|enctype)"

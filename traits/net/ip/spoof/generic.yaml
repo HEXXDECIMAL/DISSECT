@@ -1,0 +1,29 @@
+# IP Spoofing
+# MBC: C0001 (Socket Communication)
+# ATT&CK: T1071
+
+traits:
+  - id: net/ip/spoof
+    description: IP address spoofing capabilities
+    criticality: suspicious
+    confidence: 0.66
+    condition:
+      type: yara
+      source: |
+        rule ip_spoof {
+          strings:
+            $spoof = "spoof" fullword
+            $forge = "forge" fullword
+            $hdrincl = "IP_HDRINCL"
+            $raw_ip = "IPPROTO_RAW"
+          condition:
+            any of them
+        }
+
+  - id: net/ip/syncookie
+    description: SYN cookie manipulation
+    criticality: suspicious
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "(syncookie|syn.?cookie|SYN.?cookie)"

@@ -1,0 +1,12 @@
+# Device Node Creation
+# MBC: E1222 (File Permission Modification)
+# ATT&CK: T1222
+
+traits:
+  - id: fs/device/mknod
+    description: Create device files
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: mknod|mknodat

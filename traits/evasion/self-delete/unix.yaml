@@ -1,0 +1,14 @@
+# Self-Deletion Detection - Unix
+# MBC: F0007 (Self Deletion)
+# ATT&CK: T1070.004
+
+traits:
+  - id: evasion/self-delete-unlink
+    description: Self-deleting via unlink
+    criticality: suspicious
+    confidence: 0.66
+    mbc: "F0007"
+    attack: "T1070.004"
+    condition:
+      type: string
+      exact: "unlink(argv[0])"

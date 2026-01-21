@@ -78,7 +78,8 @@ function update_dep() {
 		;;
 	JPCERT)
 		rel=$(git_clone https://github.com/JPCERTCC/jpcert-yara.git "${tmpdir}")
-		find "${tmpdir}" \( -name "*.yar*" -o -name "*LICENSE*" -o -name "README*" \) -print -exec cp {} "${kind}" \;
+		# Only copy top-level files to avoid duplicates from subdirectories
+		find "${tmpdir}" -maxdepth 1 \( -name "*.yar*" -o -name "*LICENSE*" -o -name "README*" \) -print -exec cp {} "${kind}" \;
 		;;
 	TTC-CERT)
 		rel=$(git_clone https://github.com/ttc-cert/TTC-CERT-YARA-Rules.git "${tmpdir}")

@@ -1,0 +1,14 @@
+# Socket Connect Operations
+# MBC: C0001 (Socket Communication)
+# ATT&CK: T1071
+
+traits:
+  - id: net/socket/connect
+    description: Initiate a connection on a socket
+    criticality: notable
+    confidence: 0.66
+    mbc: "C0001"
+    attack: "T1071"
+    condition:
+      type: symbol
+      pattern: connect|_connect|connectx|_connectx

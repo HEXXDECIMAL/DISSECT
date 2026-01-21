@@ -1,0 +1,12 @@
+# File Read Operations - Go
+# MBC: C0051 (Read File)
+# ATT&CK: T1005
+
+traits:
+  - id: fs/file/read-go
+    description: Read files (Go)
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "(os\\.\\(\\*File\\)\\.Read|ReadFile)"

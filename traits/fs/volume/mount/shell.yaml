@@ -1,0 +1,21 @@
+# Mount Filesystem (shell command detection)
+# MBC: E1222 (File Permission Modification)
+# ATT&CK: T1222
+
+traits:
+  - id: fs/volume/mount-command
+    description: Mount file systems with command options
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: yara
+      source: |
+        rule mount_command {
+          strings:
+            $mount   = "mount" fullword
+            $mounto  = "-o" fullword
+            $fstab   = "fstab" fullword
+            $remount = "remount" fullword
+          condition:
+            $mount and 2 of them
+        }

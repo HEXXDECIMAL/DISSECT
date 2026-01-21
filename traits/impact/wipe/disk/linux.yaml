@@ -1,0 +1,30 @@
+# Disk Wiper Detection - Linux
+# MBC: E1561 (Disk Wipe)
+# ATT&CK: T1561
+
+traits:
+  - id: impact/wipe/disk
+    description: Disk wiper patterns
+    criticality: hostile
+    confidence: 0.66
+    mbc: "E1561"
+    attack: "T1561"
+    condition:
+      type: yara
+      source: |
+        rule disk_wiper {
+          strings:
+            $dd_zero = "dd if=/dev/zero"
+            $dd_random = "dd if=/dev/urandom"
+            $shred = "shred" fullword
+          condition:
+            any of them
+        }
+
+  - id: impact/wipe/disk-device
+    description: Direct disk device access
+    criticality: hostile
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "/dev/(sda|hda|nvme|vda)"

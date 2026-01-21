@@ -1,0 +1,14 @@
+# Base64 Decode Detection - PHP
+# MBC: B0032 (Obfuscated Files or Information)
+# ATT&CK: T1140
+
+traits:
+  - id: anti-static/base64/decode-php
+    description: Base64 decoding in PHP
+    criticality: notable
+    confidence: 0.66
+    mbc: "B0032"
+    attack: "T1140"
+    condition:
+      type: string
+      exact: base64_decode

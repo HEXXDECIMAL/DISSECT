@@ -1,0 +1,14 @@
+# Base64 Decode Detection - Java
+# MBC: B0032 (Obfuscated Files or Information)
+# ATT&CK: T1140
+
+traits:
+  - id: anti-static/base64/decode-java
+    description: Base64 decoding in Java
+    criticality: notable
+    confidence: 0.66
+    mbc: "B0032"
+    attack: "T1140"
+    condition:
+      type: string
+      exact: Base64.decode

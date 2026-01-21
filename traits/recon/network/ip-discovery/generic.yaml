@@ -1,0 +1,67 @@
+# IP Discovery Services - Generic
+# Detects use of public IP discovery services (reconnaissance)
+# ATT&CK: T1016 (System Network Configuration Discovery)
+
+traits:
+  - id: ipify
+    description: ipify.org IP discovery service
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1016"
+    condition:
+      type: string
+      regex: "ipify"
+
+  - id: icanhazip
+    description: icanhazip.com IP discovery service
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1016"
+    condition:
+      type: string
+      regex: "icanhazip"
+
+  - id: ifconfig-me
+    description: ifconfig.me IP discovery service
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1016"
+    condition:
+      type: string
+      exact: "ifconfig.me"
+
+  - id: checkip-aws
+    description: AWS checkip IP discovery service
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1016"
+    condition:
+      type: string
+      regex: "checkip\\.amazonaws"
+
+  - id: ipinfo
+    description: ipinfo.io IP discovery service
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1016"
+    condition:
+      type: string
+      regex: "ipinfo\\.io"
+
+  - id: whatismyip
+    description: whatismyip IP discovery service
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1016"
+    condition:
+      type: string
+      regex: "whatismyip"
+
+  - id: ip-api
+    description: ip-api.com IP geolocation service
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1016"
+    condition:
+      type: string
+      regex: "ip-api\\.com"

@@ -30,9 +30,13 @@ pub enum Command {
         /// Target file to analyze
         target: String,
 
-        /// Enable third-party YARA rules from third_party/yara (suspicious criticality)
+        /// Enable YARA rule matching (deprecated, disabled by default)
         #[arg(long)]
-        third_party_yara: bool,
+        yara: bool,
+
+        /// Disable third-party YARA rules (only built-in rules, requires --yara)
+        #[arg(long)]
+        no_third_party_yara: bool,
     },
 
     /// Scan multiple files or directories
@@ -41,9 +45,13 @@ pub enum Command {
         #[arg(required = true)]
         paths: Vec<String>,
 
-        /// Enable third-party YARA rules from third_party/yara (suspicious criticality)
+        /// Enable YARA rule matching (deprecated, disabled by default)
         #[arg(long)]
-        third_party_yara: bool,
+        yara: bool,
+
+        /// Disable third-party YARA rules (only built-in rules, requires --yara)
+        #[arg(long)]
+        no_third_party_yara: bool,
     },
 
     /// Compare two versions (diff mode) for supply chain attack detection
@@ -75,26 +83,53 @@ mod tests {
         assert!(matches!(args.command, Command::Analyze { .. }));
         if let Command::Analyze {
             target,
-            third_party_yara,
+            yara,
+            no_third_party_yara,
         } = args.command
         {
             assert_eq!(target, "file.bin");
-            assert_eq!(third_party_yara, false);
+            // YARA is disabled by default
+            assert!(!yara);
+            assert!(!no_third_party_yara);
         }
     }
 
     #[test]
-    fn test_parse_analyze_with_third_party_yara() {
-        let args =
-            Args::try_parse_from(["dissect", "analyze", "file.bin", "--third-party-yara"]).unwrap();
+    fn test_parse_analyze_with_yara() {
+        let args = Args::try_parse_from(["dissect", "analyze", "file.bin", "--yara"]).unwrap();
 
         if let Command::Analyze {
             target,
-            third_party_yara,
+            yara,
+            no_third_party_yara,
         } = args.command
         {
             assert_eq!(target, "file.bin");
-            assert_eq!(third_party_yara, true);
+            assert!(yara);
+            assert!(!no_third_party_yara); // third-party enabled by default with --yara
+        }
+    }
+
+    #[test]
+    fn test_parse_analyze_with_yara_no_third_party() {
+        let args = Args::try_parse_from([
+            "dissect",
+            "analyze",
+            "file.bin",
+            "--yara",
+            "--no-third-party-yara",
+        ])
+        .unwrap();
+
+        if let Command::Analyze {
+            target,
+            yara,
+            no_third_party_yara,
+        } = args.command
+        {
+            assert_eq!(target, "file.bin");
+            assert!(yara);
+            assert!(no_third_party_yara); // third-party disabled
         }
     }
 
@@ -105,25 +140,30 @@ mod tests {
         assert!(matches!(args.command, Command::Scan { .. }));
         if let Command::Scan {
             paths,
-            third_party_yara,
+            yara,
+            no_third_party_yara,
         } = args.command
         {
             assert_eq!(paths, vec!["dir1", "dir2"]);
-            assert_eq!(third_party_yara, false);
+            // YARA is disabled by default
+            assert!(!yara);
+            assert!(!no_third_party_yara);
         }
     }
 
     #[test]
-    fn test_parse_scan_with_third_party_yara() {
-        let args = Args::try_parse_from(["dissect", "scan", "dir1", "--third-party-yara"]).unwrap();
+    fn test_parse_scan_with_yara() {
+        let args = Args::try_parse_from(["dissect", "scan", "dir1", "--yara"]).unwrap();
 
         if let Command::Scan {
             paths,
-            third_party_yara,
+            yara,
+            no_third_party_yara,
         } = args.command
         {
             assert_eq!(paths, vec!["dir1"]);
-            assert_eq!(third_party_yara, true);
+            assert!(yara);
+            assert!(!no_third_party_yara);
         }
     }
 
@@ -167,13 +207,13 @@ mod tests {
     #[test]
     fn test_parse_verbose() {
         let args = Args::try_parse_from(["dissect", "-v", "analyze", "file.bin"]).unwrap();
-        assert_eq!(args.verbose, true);
+        assert!(args.verbose);
     }
 
     #[test]
     fn test_parse_no_verbose() {
         let args = Args::try_parse_from(["dissect", "analyze", "file.bin"]).unwrap();
-        assert_eq!(args.verbose, false);
+        assert!(!args.verbose);
     }
 
     #[test]
@@ -187,21 +227,24 @@ mod tests {
             "-v",
             "analyze",
             "malware.bin",
-            "--third-party-yara",
+            "--yara",
+            "--no-third-party-yara",
         ])
         .unwrap();
 
         assert!(matches!(args.format, OutputFormat::Json));
         assert_eq!(args.output, Some("output.json".to_string()));
-        assert_eq!(args.verbose, true);
+        assert!(args.verbose);
 
         if let Command::Analyze {
             target,
-            third_party_yara,
+            yara,
+            no_third_party_yara,
         } = args.command
         {
             assert_eq!(target, "malware.bin");
-            assert_eq!(third_party_yara, true);
+            assert!(yara);
+            assert!(no_third_party_yara);
         }
     }
 

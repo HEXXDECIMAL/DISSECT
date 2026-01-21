@@ -1,0 +1,14 @@
+# String Obfuscation Detection - PHP
+# MBC: B0032 (Obfuscated Files or Information)
+# ATT&CK: T1027
+
+traits:
+  - id: anti-static/obfuscation/strings-chr-concat
+    description: String obfuscation via chr() concatenation
+    criticality: notable
+    confidence: 0.66
+    mbc: "B0032"
+    attack: "T1027"
+    condition:
+      type: string
+      regex: "chr\\(\\d+\\)\\s*\\.\\s*chr\\(\\d+\\)"

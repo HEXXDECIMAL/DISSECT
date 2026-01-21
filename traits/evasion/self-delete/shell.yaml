@@ -1,0 +1,22 @@
+# Self-Deletion Detection - Shell
+# MBC: F0007 (Self Deletion)
+# ATT&CK: T1070.004
+
+traits:
+  - id: evasion/self-delete-shell
+    description: Self-deleting shell script
+    criticality: suspicious
+    confidence: 0.66
+    mbc: "F0007"
+    attack: "T1070.004"
+    condition:
+      type: yara
+      source: |
+        rule self_delete_shell {
+          strings:
+            $rm_self = "rm $0"
+            $rm_argv = "rm \"$0\""
+            $shred_self = "shred" fullword
+          condition:
+            any of them
+        }

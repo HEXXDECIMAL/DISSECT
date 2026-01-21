@@ -1,0 +1,84 @@
+# JavaScript Supply Chain Attack Detection
+# Composite rules combining traits to detect malicious patterns
+
+capabilities:
+  # Hidden shell execution (common in supply chain attacks)
+  - id: hidden-shell-exec
+    description: Shell execution with output suppression
+    criticality: hostile
+    confidence: 0.95
+    mbc: "B0024"
+    attack: "T1059.004"
+    file_types: [javascript]
+    requires_all:
+      - type: trait
+        id: exec/javascript/getExecOutput
+      - type: trait
+        id: exec/javascript/silent-true
+
+  # Base64 decode and execute pattern
+  - id: base64-decode-exec
+    description: Decode and execute pattern (supply chain indicator)
+    criticality: hostile
+    confidence: 0.95
+    mbc: "B0024"
+    attack: "T1059"
+    file_types: [javascript]
+    requires_all:
+      - type: trait
+        id: exec/javascript/base64-decode-cli
+      - type: trait
+        id: exec/javascript/bash-string
+
+  # Temp file dropper pattern
+  - id: tmp-dropper
+    description: Write to temp and execute
+    criticality: hostile
+    confidence: 0.98
+    mbc: "B0025"
+    attack: "T1105"
+    file_types: [javascript]
+    requires_all:
+      - type: trait
+        id: exec/javascript/tmp-write
+      - type: trait
+        id: exec/javascript/tmp-execute
+
+  # Silent error suppression (stealth)
+  - id: silent-error-suppression
+    description: Silent execution with error suppression
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "F0005"
+    file_types: [javascript]
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: exec/javascript/silent-true
+      - type: trait
+        id: exec/javascript/ignoreReturnCode
+      - type: trait
+        id: exec/javascript/stderr-capture
+
+  # Comprehensive supply chain attack pattern
+  - id: supply-chain-exec
+    description: Supply chain attack execution pattern
+    criticality: hostile
+    confidence: 0.98
+    mbc: "B0024"
+    attack: "T1195.002"
+    file_types: [javascript]
+    requires_count: 3
+    conditions:
+      - type: trait
+        id: exec/javascript/getExecOutput
+      - type: trait
+        id: exec/javascript/bash-string
+      - type: trait
+        id: exec/javascript/base64-decode-cli
+      - type: trait
+        id: exec/javascript/silent-true
+      - type: trait
+        id: exec/javascript/tmp-write
+      - type: trait
+        id: exec/javascript/echo-pipe

@@ -1,4 +1,3 @@
-use assert_cmd::Command;
 use predicates::prelude::*;
 use std::fs;
 use tempfile::TempDir;
@@ -6,8 +5,7 @@ use tempfile::TempDir;
 /// Test that the binary runs and shows help
 #[test]
 fn test_help_command() {
-    Command::cargo_bin("dissect")
-        .unwrap()
+    assert_cmd::cargo_bin_cmd!("dissect")
         .arg("--help")
         .assert()
         .success()
@@ -17,8 +15,7 @@ fn test_help_command() {
 /// Test that the binary shows version
 #[test]
 fn test_version_command() {
-    Command::cargo_bin("dissect")
-        .unwrap()
+    assert_cmd::cargo_bin_cmd!("dissect")
         .arg("--version")
         .assert()
         .success()
@@ -28,8 +25,7 @@ fn test_version_command() {
 /// Test analyze command with nonexistent file
 #[test]
 fn test_analyze_nonexistent_file() {
-    Command::cargo_bin("dissect")
-        .unwrap()
+    assert_cmd::cargo_bin_cmd!("dissect")
         .args(["analyze", "/nonexistent/file.bin"])
         .assert()
         .failure()
@@ -44,8 +40,7 @@ fn test_analyze_shell_script() {
 
     fs::write(&script_path, "#!/bin/bash\necho 'hello'\n").unwrap();
 
-    Command::cargo_bin("dissect")
-        .unwrap()
+    assert_cmd::cargo_bin_cmd!("dissect")
         .args(["analyze", script_path.to_str().unwrap()])
         .assert()
         .success()
@@ -60,8 +55,7 @@ fn test_analyze_json_output() {
 
     fs::write(&script_path, "#!/bin/bash\necho 'hello'\n").unwrap();
 
-    Command::cargo_bin("dissect")
-        .unwrap()
+    assert_cmd::cargo_bin_cmd!("dissect")
         .args(["-f", "json", "analyze", script_path.to_str().unwrap()])
         .assert()
         .success()
@@ -77,8 +71,7 @@ fn test_analyze_output_to_file() {
 
     fs::write(&script_path, "#!/bin/bash\necho 'hello'\n").unwrap();
 
-    Command::cargo_bin("dissect")
-        .unwrap()
+    assert_cmd::cargo_bin_cmd!("dissect")
         .args([
             "-f",
             "json",
@@ -86,6 +79,7 @@ fn test_analyze_output_to_file() {
             output_path.to_str().unwrap(),
             "analyze",
             script_path.to_str().unwrap(),
+            "--no-third-party-yara",
         ])
         .assert()
         .success()
@@ -101,8 +95,7 @@ fn test_analyze_output_to_file() {
 fn test_scan_empty_directory() {
     let temp_dir = TempDir::new().unwrap();
 
-    Command::cargo_bin("dissect")
-        .unwrap()
+    assert_cmd::cargo_bin_cmd!("dissect")
         .args(["scan", temp_dir.path().to_str().unwrap()])
         .assert()
         .success()
@@ -119,8 +112,7 @@ fn test_scan_multiple_files() {
     fs::write(&script1, "#!/bin/bash\necho 'test1'\n").unwrap();
     fs::write(&script2, "#!/bin/bash\necho 'test2'\n").unwrap();
 
-    Command::cargo_bin("dissect")
-        .unwrap()
+    assert_cmd::cargo_bin_cmd!("dissect")
         .args(["scan", temp_dir.path().to_str().unwrap()])
         .assert()
         .success()
@@ -130,8 +122,7 @@ fn test_scan_multiple_files() {
 /// Test diff command with nonexistent files
 #[test]
 fn test_diff_nonexistent_files() {
-    Command::cargo_bin("dissect")
-        .unwrap()
+    assert_cmd::cargo_bin_cmd!("dissect")
         .args(["diff", "/nonexistent/old.bin", "/nonexistent/new.bin"])
         .assert()
         .failure();
@@ -148,8 +139,7 @@ fn test_diff_identical_files() {
     fs::write(&file1, content).unwrap();
     fs::write(&file2, content).unwrap();
 
-    Command::cargo_bin("dissect")
-        .unwrap()
+    assert_cmd::cargo_bin_cmd!("dissect")
         .args(["diff", file1.to_str().unwrap(), file2.to_str().unwrap()])
         .assert()
         .success()
@@ -166,8 +156,7 @@ fn test_diff_different_files() {
     fs::write(&file1, "#!/bin/bash\necho 'old'\n").unwrap();
     fs::write(&file2, "#!/bin/bash\neval 'malicious'\n").unwrap();
 
-    Command::cargo_bin("dissect")
-        .unwrap()
+    assert_cmd::cargo_bin_cmd!("dissect")
         .args(["diff", file1.to_str().unwrap(), file2.to_str().unwrap()])
         .assert()
         .success();
@@ -176,8 +165,7 @@ fn test_diff_different_files() {
 /// Test that missing subcommand fails
 #[test]
 fn test_missing_subcommand() {
-    Command::cargo_bin("dissect")
-        .unwrap()
+    assert_cmd::cargo_bin_cmd!("dissect")
         .assert()
         .failure()
         .stderr(predicate::str::contains("Usage"));
@@ -190,8 +178,7 @@ fn test_invalid_format() {
     let script = temp_dir.path().join("test.sh");
     fs::write(&script, "#!/bin/bash\n").unwrap();
 
-    Command::cargo_bin("dissect")
-        .unwrap()
+    assert_cmd::cargo_bin_cmd!("dissect")
         .args(["-f", "xml", "analyze", script.to_str().unwrap()])
         .assert()
         .failure();
@@ -204,8 +191,7 @@ fn test_verbose_flag() {
     let script = temp_dir.path().join("test.sh");
     fs::write(&script, "#!/bin/bash\n").unwrap();
 
-    Command::cargo_bin("dissect")
-        .unwrap()
+    assert_cmd::cargo_bin_cmd!("dissect")
         .args(["-v", "analyze", script.to_str().unwrap()])
         .assert()
         .success();
@@ -219,8 +205,7 @@ fn test_analyze_python_file() {
 
     fs::write(&py_file, "print('hello')\n").unwrap();
 
-    Command::cargo_bin("dissect")
-        .unwrap()
+    assert_cmd::cargo_bin_cmd!("dissect")
         .args(["analyze", py_file.to_str().unwrap()])
         .assert()
         .success()
@@ -235,8 +220,7 @@ fn test_analyze_javascript_file() {
 
     fs::write(&js_file, "console.log('hello');\n").unwrap();
 
-    Command::cargo_bin("dissect")
-        .unwrap()
+    assert_cmd::cargo_bin_cmd!("dissect")
         .args(["analyze", js_file.to_str().unwrap()])
         .assert()
         .success()
@@ -250,24 +234,46 @@ fn test_scan_json_output() {
     let script = temp_dir.path().join("test.sh");
     fs::write(&script, "#!/bin/bash\n").unwrap();
 
-    Command::cargo_bin("dissect")
-        .unwrap()
+    assert_cmd::cargo_bin_cmd!("dissect")
         .args(["-f", "json", "scan", temp_dir.path().to_str().unwrap()])
         .assert()
         .success()
         .stdout(predicate::str::contains("["));
 }
 
-/// Test that third-party-yara flag is accepted
+/// Test that --yara flag enables YARA (deprecated feature, disabled by default)
+/// Ignored by default: YARA rules are slow to compile in debug builds
+/// Run with: cargo test --release test_yara_flag -- --ignored
 #[test]
-fn test_third_party_yara_flag() {
+#[ignore]
+fn test_yara_flag() {
     let temp_dir = TempDir::new().unwrap();
     let script = temp_dir.path().join("test.sh");
     fs::write(&script, "#!/bin/bash\n").unwrap();
 
-    Command::cargo_bin("dissect")
-        .unwrap()
-        .args(["analyze", script.to_str().unwrap(), "--third-party-yara"])
+    assert_cmd::cargo_bin_cmd!("dissect")
+        .args(["analyze", script.to_str().unwrap(), "--yara"])
+        .assert()
+        .success();
+}
+
+/// Test that --yara --no-third-party-yara disables third-party YARA rules
+/// Ignored by default: YARA rules are slow to compile in debug builds
+/// Run with: cargo test --release test_yara_no_third_party_flag -- --ignored
+#[test]
+#[ignore]
+fn test_yara_no_third_party_flag() {
+    let temp_dir = TempDir::new().unwrap();
+    let script = temp_dir.path().join("test.sh");
+    fs::write(&script, "#!/bin/bash\n").unwrap();
+
+    assert_cmd::cargo_bin_cmd!("dissect")
+        .args([
+            "analyze",
+            script.to_str().unwrap(),
+            "--yara",
+            "--no-third-party-yara",
+        ])
         .assert()
         .success();
 }

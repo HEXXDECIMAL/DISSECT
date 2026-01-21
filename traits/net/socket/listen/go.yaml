@@ -1,0 +1,14 @@
+# Socket Listen - Go
+# MBC: C0001 (Socket Communication)
+# ATT&CK: T1071
+
+traits:
+  - id: net/socket/listen-go
+    description: Listen on a socket (Go net.Listen)
+    criticality: notable
+    confidence: 0.66
+    mbc: "C0001"
+    attack: "T1071"
+    condition:
+      type: string
+      exact: net.Listen

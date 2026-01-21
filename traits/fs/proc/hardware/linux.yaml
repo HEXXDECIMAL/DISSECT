@@ -1,0 +1,12 @@
+# /proc Hardware Information (Linux)
+# MBC: E1082 (System Information Discovery)
+# ATT&CK: T1082
+
+traits:
+  - id: fs/proc/hardware-nvidia
+    description: Access NVIDIA GPU information via /proc
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "/proc/driver/nvidia"

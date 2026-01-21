@@ -215,32 +215,31 @@ impl TypeScriptAnalyzer {
             }
 
             // Check for eval/Function in any context
-            if text.contains("eval(") {
-                if !report
+            if text.contains("eval(")
+                && !report
                     .traits
                     .iter()
                     .any(|t| t.id == "exec/script/eval/typescript")
-                {
-                    report.traits.push(Trait {
-                        id: "exec/script/eval/typescript".to_string(),
-                        description: "Dynamic code evaluation".to_string(),
-                        confidence: 1.0,
-                        criticality: Criticality::Hostile,
-                        capability: false,
-                        mbc: None,
-                        attack: None,
-                        language: Some("typescript".to_string()),
-                        platforms: vec!["nodejs".to_string()],
-                        evidence: vec![Evidence {
-                            method: "ast".to_string(),
-                            source: "tree-sitter-typescript".to_string(),
-                            value: "eval".to_string(),
-                            location: Some(format!("line:{}", node.start_position().row + 1)),
-                        }],
-                        referenced_paths: None,
-                        referenced_directories: None,
-                    });
-                }
+            {
+                report.traits.push(Trait {
+                    id: "exec/script/eval/typescript".to_string(),
+                    description: "Dynamic code evaluation".to_string(),
+                    confidence: 1.0,
+                    criticality: Criticality::Hostile,
+                    capability: false,
+                    mbc: None,
+                    attack: None,
+                    language: Some("typescript".to_string()),
+                    platforms: vec!["nodejs".to_string()],
+                    evidence: vec![Evidence {
+                        method: "ast".to_string(),
+                        source: "tree-sitter-typescript".to_string(),
+                        value: "eval".to_string(),
+                        location: Some(format!("line:{}", node.start_position().row + 1)),
+                    }],
+                    referenced_paths: None,
+                    referenced_directories: None,
+                });
             }
         }
     }
@@ -248,32 +247,31 @@ impl TypeScriptAnalyzer {
     fn analyze_import(&self, node: &tree_sitter::Node, source: &[u8], report: &mut AnalysisReport) {
         if let Ok(text) = node.utf8_text(source) {
             // Check for dynamic imports
-            if text.contains("import(") {
-                if !report
+            if text.contains("import(")
+                && !report
                     .traits
                     .iter()
                     .any(|t| t.id == "anti-analysis/dynamic-import/typescript")
-                {
-                    report.traits.push(Trait {
-                        id: "anti-analysis/dynamic-import/typescript".to_string(),
-                        description: "Dynamic import (possible obfuscation)".to_string(),
-                        confidence: 0.7,
-                        criticality: Criticality::Suspicious,
-                        capability: false,
-                        mbc: None,
-                        attack: None,
-                        language: Some("typescript".to_string()),
-                        platforms: vec!["nodejs".to_string()],
-                        evidence: vec![Evidence {
-                            method: "ast".to_string(),
-                            source: "tree-sitter-typescript".to_string(),
-                            value: "dynamic-import".to_string(),
-                            location: Some(format!("line:{}", node.start_position().row + 1)),
-                        }],
-                        referenced_paths: None,
-                        referenced_directories: None,
-                    });
-                }
+            {
+                report.traits.push(Trait {
+                    id: "anti-analysis/dynamic-import/typescript".to_string(),
+                    description: "Dynamic import (possible obfuscation)".to_string(),
+                    confidence: 0.7,
+                    criticality: Criticality::Suspicious,
+                    capability: false,
+                    mbc: None,
+                    attack: None,
+                    language: Some("typescript".to_string()),
+                    platforms: vec!["nodejs".to_string()],
+                    evidence: vec![Evidence {
+                        method: "ast".to_string(),
+                        source: "tree-sitter-typescript".to_string(),
+                        value: "dynamic-import".to_string(),
+                        location: Some(format!("line:{}", node.start_position().row + 1)),
+                    }],
+                    referenced_paths: None,
+                    referenced_directories: None,
+                });
             }
 
             // Check for suspicious modules
@@ -326,32 +324,31 @@ impl TypeScriptAnalyzer {
     ) {
         if let Ok(text) = node.utf8_text(source) {
             // Check for prototype pollution patterns
-            if text.contains("__proto__") || text.contains("constructor.prototype") {
-                if !report
+            if (text.contains("__proto__") || text.contains("constructor.prototype"))
+                && !report
                     .traits
                     .iter()
                     .any(|t| t.id == "impact/prototype-pollution/typescript")
-                {
-                    report.traits.push(Trait {
-                        id: "impact/prototype-pollution/typescript".to_string(),
-                        description: "Prototype pollution pattern detected".to_string(),
-                        confidence: 0.8,
-                        criticality: Criticality::Hostile,
-                        capability: false,
-                        mbc: None,
-                        attack: Some("T1059".to_string()),
-                        language: Some("typescript".to_string()),
-                        platforms: vec!["nodejs".to_string()],
-                        evidence: vec![Evidence {
-                            method: "ast".to_string(),
-                            source: "tree-sitter-typescript".to_string(),
-                            value: "prototype-pollution".to_string(),
-                            location: Some(format!("line:{}", node.start_position().row + 1)),
-                        }],
-                        referenced_paths: None,
-                        referenced_directories: None,
-                    });
-                }
+            {
+                report.traits.push(Trait {
+                    id: "impact/prototype-pollution/typescript".to_string(),
+                    description: "Prototype pollution pattern detected".to_string(),
+                    confidence: 0.8,
+                    criticality: Criticality::Hostile,
+                    capability: false,
+                    mbc: None,
+                    attack: Some("T1059".to_string()),
+                    language: Some("typescript".to_string()),
+                    platforms: vec!["nodejs".to_string()],
+                    evidence: vec![Evidence {
+                        method: "ast".to_string(),
+                        source: "tree-sitter-typescript".to_string(),
+                        value: "prototype-pollution".to_string(),
+                        location: Some(format!("line:{}", node.start_position().row + 1)),
+                    }],
+                    referenced_paths: None,
+                    referenced_directories: None,
+                });
             }
         }
     }
@@ -400,32 +397,31 @@ impl TypeScriptAnalyzer {
     ) {
         if let Ok(text) = node.utf8_text(source) {
             // Check for Function constructor (code execution)
-            if text.contains("new Function") {
-                if !report
+            if text.contains("new Function")
+                && !report
                     .traits
                     .iter()
                     .any(|t| t.id == "exec/script/function-constructor/typescript")
-                {
-                    report.traits.push(Trait {
-                        id: "exec/script/function-constructor/typescript".to_string(),
-                        description: "Function constructor (dynamic code execution)".to_string(),
-                        confidence: 1.0,
-                        criticality: Criticality::Hostile,
-                        capability: false,
-                        mbc: None,
-                        attack: None,
-                        language: Some("typescript".to_string()),
-                        platforms: vec!["nodejs".to_string()],
-                        evidence: vec![Evidence {
-                            method: "ast".to_string(),
-                            source: "tree-sitter-typescript".to_string(),
-                            value: "Function constructor".to_string(),
-                            location: Some(format!("line:{}", node.start_position().row + 1)),
-                        }],
-                        referenced_paths: None,
-                        referenced_directories: None,
-                    });
-                }
+            {
+                report.traits.push(Trait {
+                    id: "exec/script/function-constructor/typescript".to_string(),
+                    description: "Function constructor (dynamic code execution)".to_string(),
+                    confidence: 1.0,
+                    criticality: Criticality::Hostile,
+                    capability: false,
+                    mbc: None,
+                    attack: None,
+                    language: Some("typescript".to_string()),
+                    platforms: vec!["nodejs".to_string()],
+                    evidence: vec![Evidence {
+                        method: "ast".to_string(),
+                        source: "tree-sitter-typescript".to_string(),
+                        value: "Function constructor".to_string(),
+                        location: Some(format!("line:{}", node.start_position().row + 1)),
+                    }],
+                    referenced_paths: None,
+                    referenced_directories: None,
+                });
             }
         }
     }
@@ -559,7 +555,7 @@ mod tests {
 
         // Dynamic import detection may vary based on tree-sitter parsing
         // Just ensure analysis completes without error
-        assert!(report.structure.len() >= 1);
+        assert!(!report.structure.is_empty());
     }
 
     #[test]
@@ -760,7 +756,6 @@ mod tests {
             .metadata
             .tools_used
             .contains(&"tree-sitter-typescript".to_string()));
-        assert!(report.metadata.analysis_duration_ms >= 0);
     }
 
     #[test]

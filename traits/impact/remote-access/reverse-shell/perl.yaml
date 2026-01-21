@@ -1,0 +1,22 @@
+# Reverse Shell Detection - Perl
+# MBC: B0033 (Adversary-in-the-Middle)
+# ATT&CK: T1059
+
+traits:
+  - id: impact/remote-access/reverse-shell-perl
+    description: Reverse shell in Perl
+    criticality: hostile
+    confidence: 0.66
+    attack: "T1059"
+    condition:
+      type: yara
+      source: |
+        rule perl_reverse_shell {
+          strings:
+            $socket = "socket("
+            $open = "open("
+            $redir = "\">&"
+            $sh_i = "sh -i"
+          condition:
+            all of them
+        }

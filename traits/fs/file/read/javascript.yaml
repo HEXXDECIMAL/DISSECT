@@ -1,0 +1,12 @@
+# File Read Operations - JavaScript/Node
+# MBC: C0051 (Read File)
+# ATT&CK: T1005
+
+traits:
+  - id: fs/file/read-node
+    description: Read files (Node.js)
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "fs\\.readFile(Sync)?"

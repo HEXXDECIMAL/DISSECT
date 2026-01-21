@@ -1,0 +1,30 @@
+# File Download Operations
+# MBC: C0002 (HTTP Communication)
+# ATT&CK: T1105
+
+traits:
+  - id: net/download/curl
+    description: Download via curl
+    criticality: notable
+    confidence: 0.66
+    attack: "T1105"
+    condition:
+      type: string
+      regex: "(curl\\s|libcurl|CURLOPT)"
+
+  - id: net/download/wget
+    description: Download via wget
+    criticality: notable
+    confidence: 0.66
+    attack: "T1105"
+    condition:
+      type: string
+      regex: "(wget\\s|/usr/bin/wget)"
+
+  - id: net/download/fetch
+    description: Download via fetch
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "(fetch\\(|urllib\\.request\\.urlretrieve)"

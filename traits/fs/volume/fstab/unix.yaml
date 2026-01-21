@@ -1,0 +1,28 @@
+# Mount Table Reading
+# MBC: E1083 (File and Directory Discovery)
+# ATT&CK: T1083
+
+traits:
+  - id: fs/volume/fstab-files
+    description: Reads mount table files (/etc/fstab, /etc/mtab)
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "/etc/(fstab|mtab)"
+
+  - id: fs/volume/fstab-mntent
+    description: Parse mount table entries via mntent API
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: setmntent|getmntent|endmntent
+
+  - id: fs/volume/fstab-mntinfo
+    description: Get information on mounted volumes (BSD)
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: getmntinfo

@@ -1,0 +1,12 @@
+# File Read Operations
+# MBC: C0051 (Read File)
+# ATT&CK: T1005
+
+traits:
+  - id: fs/file/read
+    description: Read files
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: fread|read|pread|pread64

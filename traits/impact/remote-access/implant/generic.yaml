@@ -1,0 +1,20 @@
+# Implant Detection
+# MBC: B0033 (Adversary-in-the-Middle)
+# ATT&CK: T1543
+
+traits:
+  - id: impact/remote-access/implant
+    description: References an implant
+    criticality: suspicious
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "(implant|payload|dropper|stager)"
+
+  - id: impact/remote-access/trojan
+    description: References a trojan
+    criticality: suspicious
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "[tT]rojan"

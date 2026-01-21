@@ -1,0 +1,20 @@
+# Device Control (ioctl)
+# MBC: E1082 (System Information Discovery)
+# ATT&CK: T1082
+
+traits:
+  - id: fs/device/ioctl
+    description: Manipulate device parameters of special files
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: ioctl
+
+  - id: fs/device/ioctl-iflags
+    description: ioctl operations for inode flags
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: ioctl_iflags

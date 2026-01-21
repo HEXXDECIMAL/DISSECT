@@ -1,0 +1,44 @@
+# System Paths (Linux)
+# MBC: E1083 (File and Directory Discovery)
+# ATT&CK: T1083
+
+traits:
+  - id: fs/path/system-boot
+    description: Reference to /boot
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "/boot/[\\%\\w\\.\\-/]{4,32}"
+
+  - id: fs/path/system-var
+    description: Reference to /var
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "/var/[\\w\\.\\-/]+"
+
+  - id: fs/path/system-lib64
+    description: Reference to /lib64
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "/lib64/[\\w\\.\\-/]+"
+
+  - id: fs/path/system-lib-python
+    description: Reference to Python library paths
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "/usr/lib/python[\\d\\.]+/[\\w\\.\\-/]+"
+
+  - id: fs/path/system-var-containers
+    description: Reference to container paths
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "/var/(lib/)?(docker|containers)/[\\w\\.\\-/]+"

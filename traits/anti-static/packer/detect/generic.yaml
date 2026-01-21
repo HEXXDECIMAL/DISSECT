@@ -1,0 +1,26 @@
+# Packer Detection
+# MBC: F0001 (Packing)
+# ATT&CK: T1027.002
+
+traits:
+  - id: anti-static/packer/detect
+    description: Packed/compressed executable
+    criticality: notable
+    confidence: 0.66
+    mbc: "F0001"
+    attack: "T1027.002"
+    condition:
+      type: yara
+      source: |
+        rule packer {
+          strings:
+            $upx = "UPX!"
+            $upx0 = "UPX0"
+            $upx1 = "UPX1"
+            $aspack = "aPack"
+            $petite = "petite"
+            $themida = "Themida"
+            $vmprotect = "VMProtect"
+          condition:
+            any of them
+        }

@@ -1,0 +1,14 @@
+# Timestomping Detection - Shell
+# MBC: F0006 (Timestomp)
+# ATT&CK: T1070.006
+
+traits:
+  - id: evasion/timestomp-touch
+    description: Modify timestamps via touch command
+    criticality: suspicious
+    confidence: 0.66
+    mbc: "F0006"
+    attack: "T1070.006"
+    condition:
+      type: string
+      regex: "touch\\s+-[amd]"

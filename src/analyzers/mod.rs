@@ -1,12 +1,17 @@
 pub mod archive;
 pub mod c;
+pub mod csharp;
 pub mod elf;
 pub mod go;
 pub mod java;
+pub mod java_class;
 pub mod javascript;
+pub mod lua;
 pub mod macho;
 pub mod pe;
-// pub mod php;  // TODO: Fix compilation errors
+pub mod perl;
+pub mod php;
+pub mod powershell;
 pub mod python;
 pub mod ruby;
 pub mod rust;
@@ -32,6 +37,20 @@ pub fn detect_file_type(file_path: &Path) -> Result<FileType> {
 
     if file_data.len() < 4 {
         return Ok(FileType::Unknown);
+    }
+
+    // Check for Java class files BEFORE Mach-O (both use 0xCAFEBABE)
+    if is_java_class(&file_data) {
+        return Ok(FileType::JavaClass);
+    }
+
+    // Check for JAR files (ZIP with .jar extension) - check extension first
+    let path_str = file_path.to_string_lossy().to_lowercase();
+    if path_str.ends_with(".jar") || path_str.ends_with(".war") || path_str.ends_with(".ear") {
+        // Verify it's a ZIP file (PK signature)
+        if file_data.starts_with(b"PK") {
+            return Ok(FileType::Jar);
+        }
     }
 
     // Check for Mach-O magic bytes
@@ -81,12 +100,28 @@ pub fn detect_file_type(file_path: &Path) -> Result<FileType> {
         return Ok(FileType::Ruby);
     }
 
+    // Check for Perl shebang
+    if file_data.starts_with(b"#!/usr/bin/env perl")
+        || file_data.starts_with(b"#!/usr/bin/perl")
+        || file_data.starts_with(b"#!/usr/local/bin/perl")
+    {
+        return Ok(FileType::Perl);
+    }
+
     // Check for PHP opening tag or shebang
     if file_data.starts_with(b"<?php")
         || file_data.starts_with(b"#!/usr/bin/env php")
         || file_data.starts_with(b"#!/usr/bin/php")
     {
         return Ok(FileType::Php);
+    }
+
+    // Check for Lua shebang
+    if file_data.starts_with(b"#!/usr/bin/lua")
+        || file_data.starts_with(b"#!/usr/bin/env lua")
+        || file_data.starts_with(b"#!/usr/local/bin/lua")
+    {
+        return Ok(FileType::Lua);
     }
 
     // Check for archives by file extension (need to check path, not just extension)
@@ -99,6 +134,9 @@ pub fn detect_file_type(file_path: &Path) -> Result<FileType> {
         || path_str.ends_with(".tbz2")
         || path_str.ends_with(".tar.xz")
         || path_str.ends_with(".txz")
+        || path_str.ends_with(".xz")
+        || path_str.ends_with(".gz")
+        || path_str.ends_with(".bz2")
     {
         return Ok(FileType::Archive);
     }
@@ -132,12 +170,46 @@ pub fn detect_file_type(file_path: &Path) -> Result<FileType> {
         if ext_str == "php" {
             return Ok(FileType::Php);
         }
+        if matches!(ext_str, "pl" | "pm" | "t") {
+            return Ok(FileType::Perl);
+        }
+        if matches!(ext_str, "ps1" | "psm1" | "psd1") {
+            return Ok(FileType::PowerShell);
+        }
         if ext_str == "c" || ext_str == "h" {
             return Ok(FileType::C);
+        }
+        if ext_str == "lua" {
+            return Ok(FileType::Lua);
+        }
+        if ext_str == "cs" {
+            return Ok(FileType::CSharp);
         }
     }
 
     Ok(FileType::Unknown)
+}
+
+/// Check if data is a Java class file
+/// Java class files start with 0xCAFEBABE followed by minor/major version
+fn is_java_class(data: &[u8]) -> bool {
+    if data.len() < 8 {
+        return false;
+    }
+
+    // Java class magic: CA FE BA BE
+    if data[0] != 0xCA || data[1] != 0xFE || data[2] != 0xBA || data[3] != 0xBE {
+        return false;
+    }
+
+    // Check major version (bytes 6-7, big-endian)
+    // Java 1.0 = 45, Java 1.1 = 45, Java 1.2 = 46, ... Java 21 = 65
+    // Mach-O fat binaries have nfat_arch in bytes 4-7 which is typically < 10
+    let major_version = u16::from_be_bytes([data[6], data[7]]);
+
+    // Valid Java class major versions are 45-70 (covering Java 1.0 through future versions)
+    // Mach-O fat headers have small values (number of architectures) in this position
+    (45..=70).contains(&major_version)
 }
 
 fn is_macho(data: &[u8]) -> bool {
@@ -145,12 +217,16 @@ fn is_macho(data: &[u8]) -> bool {
         return false;
     }
 
-    // Mach-O magic numbers
+    // Mach-O magic numbers (excluding 0xcafebabe which is handled by is_java_class first)
     let magic = u32::from_ne_bytes([data[0], data[1], data[2], data[3]]);
-    matches!(
-        magic,
-        0xfeedface | 0xcefaedfe | 0xfeedfacf | 0xcffaedfe | 0xcafebabe | 0xbebafeca
-    )
+
+    // For 0xcafebabe (fat binary), we only match if is_java_class returned false
+    if magic == 0xcafebabe || magic == 0xbebafeca {
+        // This is a fat binary (not a Java class since is_java_class is called first)
+        return true;
+    }
+
+    matches!(magic, 0xfeedface | 0xcefaedfe | 0xfeedfacf | 0xcffaedfe)
 }
 
 #[derive(Debug, PartialEq)]
@@ -164,9 +240,15 @@ pub enum FileType {
     TypeScript,
     Go,
     Rust,
-    Java,
+    Java,      // .java source files
+    JavaClass, // .class bytecode files
+    Jar,       // .jar/.war/.ear archives
     Ruby,
     Php,
+    Perl,
+    Lua,
+    CSharp,
+    PowerShell,
     C,
     Archive,
     Unknown,
@@ -189,8 +271,14 @@ impl FileType {
             FileType::Go => vec!["go"],
             FileType::Rust => vec!["rs"],
             FileType::Java => vec!["java"],
+            FileType::JavaClass => vec!["class", "java"],
+            FileType::Jar => vec!["jar", "war", "ear", "class", "java"],
             FileType::Ruby => vec!["rb"],
             FileType::Php => vec!["php"],
+            FileType::Perl => vec!["pl", "pm"],
+            FileType::Lua => vec!["lua"],
+            FileType::CSharp => vec!["cs", "csharp"],
+            FileType::PowerShell => vec!["ps1", "psm1", "psd1"],
             FileType::C => vec!["c", "h", "hh"],
             FileType::Archive => vec!["zip", "tar", "gz"],
             FileType::Unknown => vec![], // No filtering for unknown types

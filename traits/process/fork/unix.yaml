@@ -1,0 +1,20 @@
+# Process Forking
+# MBC: C0017 (Create Process)
+# ATT&CK: T1106
+
+traits:
+  - id: process/fork
+    description: Process forking
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: fork|vfork|clone
+
+  - id: process/daemon
+    description: Daemonize process
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: daemon|setsid

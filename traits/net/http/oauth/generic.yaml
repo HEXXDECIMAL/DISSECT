@@ -1,0 +1,28 @@
+# OAuth Operations
+# MBC: C0002 (HTTP Communication)
+# ATT&CK: T1071.001
+
+traits:
+  - id: net/http/oauth
+    description: OAuth authentication
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "(oauth|OAuth|access_token|refresh_token)"
+
+  - id: net/http/oauth-google
+    description: Google OAuth
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "(accounts\\.google\\.com|googleapis\\.com/oauth)"
+
+  - id: net/http/oauth-office365
+    description: Office365 OAuth
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "(login\\.microsoftonline\\.com|graph\\.microsoft\\.com)"

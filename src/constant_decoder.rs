@@ -416,7 +416,7 @@ mod tests {
         let instruction = "add rax, 0x1000; mov rbx, 0xdeadbeef";
         let constants = ConstantDecoder::extract_from_instruction(instruction);
 
-        assert!(constants.len() >= 1);
+        assert!(!constants.is_empty());
         assert!(constants.iter().any(|(v, _)| *v == 0xdeadbeef));
     }
 

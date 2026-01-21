@@ -1,0 +1,12 @@
+# Directory Creation
+# MBC: C0046 (Create File)
+# ATT&CK: T1083
+
+traits:
+  - id: fs/directory/mkdir
+    description: Create directories
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: mkdir|mkdirat

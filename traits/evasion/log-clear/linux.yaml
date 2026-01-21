@@ -1,0 +1,26 @@
+# Log Clearing Detection - Linux
+# MBC: F0005 (Indicator Blocking)
+# ATT&CK: T1070.001
+
+traits:
+  - id: evasion/log-clear
+    description: Clear system logs
+    criticality: suspicious
+    confidence: 0.66
+    mbc: "F0005"
+    attack: "T1070.001"
+    condition:
+      type: yara
+      source: |
+        rule log_clear {
+          strings:
+            $var_log = ">/var/log/"
+            $wtmp = "/var/log/wtmp"
+            $btmp = "/var/log/btmp"
+            $lastlog = "/var/log/lastlog"
+            $history_clear = "history -c"
+            $bash_history = ".bash_history"
+            $truncate = "truncate" fullword
+          condition:
+            any of them
+        }

@@ -1,0 +1,19 @@
+# File Delete Operations - Shell
+# MBC: C0047 (Delete File)
+# ATT&CK: T1070.004
+
+traits:
+  - id: fs/file/delete-rm-hardcoded
+    description: Delete files in tmp/var/dev directories
+    criticality: suspicious
+    confidence: 0.66
+    condition:
+      type: yara
+      source: |
+        rule rm_hardcoded_tmp {
+          strings:
+            $ref = /rm +\-[a-zA-Z]{,1}f[a-zA-Z]{,1} \/(tmp|var|dev)\/[\w\/\.\-\%]{0,64}/
+            $not_apt = "/var/lib/apt/lists"
+          condition:
+            $ref and none of ($not*)
+        }

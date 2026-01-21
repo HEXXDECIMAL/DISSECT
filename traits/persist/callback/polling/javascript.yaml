@@ -1,0 +1,32 @@
+# Persistent Polling - JavaScript/Node.js
+# Detects setInterval/setTimeout patterns used for persistent callbacks
+# ATT&CK: T1053 (Scheduled Task/Job)
+
+traits:
+  - id: setInterval-http
+    description: setInterval with HTTP calls (persistent polling)
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1053"
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "setInterval.*http|setInterval.*axios|setInterval.*fetch"
+
+  - id: setInterval-function
+    description: setInterval with function callback
+    criticality: notable
+    confidence: 0.7
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "setInterval\\s*\\(\\s*function"
+
+  - id: setTimeout-recursive
+    description: setTimeout in recursive pattern
+    criticality: notable
+    confidence: 0.7
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "setTimeout.*setTimeout"

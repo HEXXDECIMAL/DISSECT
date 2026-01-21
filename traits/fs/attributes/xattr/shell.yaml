@@ -1,0 +1,22 @@
+# Extended Attributes (xattr) - Shell command
+# MBC: E1222 (File Permission Modification)
+# ATT&CK: T1222
+
+traits:
+  - id: fs/attributes/xattr-command
+    description: Modify extended filesystem attributes using xattr command
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: yara
+      source: |
+        rule xattr_command {
+          strings:
+            $xattr_c = "xattr -c"
+            $xattr_d = "xattr -d"
+            $xattr_w = "xattr -w"
+            $not_quarantine1 = "xattr -d -r -s com.apple.quarantine"
+            $not_quarantine2 = "xattr -d -r com.apple.quarantine"
+          condition:
+            any of ($xattr*) and none of ($not*)
+        }

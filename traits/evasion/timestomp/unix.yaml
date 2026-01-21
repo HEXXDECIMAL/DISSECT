@@ -1,0 +1,14 @@
+# Timestomping Detection - Unix
+# MBC: F0006 (Timestomp)
+# ATT&CK: T1070.006
+
+traits:
+  - id: evasion/timestomp
+    description: Modify file timestamps
+    criticality: suspicious
+    confidence: 0.66
+    mbc: "F0006"
+    attack: "T1070.006"
+    condition:
+      type: symbol
+      pattern: utime|utimes|utimensat|futimens|lutimes

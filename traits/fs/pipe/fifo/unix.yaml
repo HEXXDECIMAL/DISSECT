@@ -1,0 +1,12 @@
+# FIFO (Named Pipe) Creation
+# MBC: C0046 (Create File)
+# ATT&CK: T1071
+
+traits:
+  - id: fs/pipe/fifo
+    description: Create FIFO special file (named pipe)
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: mkfifo|mkfifoat

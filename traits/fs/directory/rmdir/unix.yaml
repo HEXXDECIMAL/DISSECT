@@ -1,0 +1,12 @@
+# Directory Removal
+# MBC: C0047 (Delete File)
+# ATT&CK: T1070.004
+
+traits:
+  - id: fs/directory/rmdir
+    description: Remove directories
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: rmdir|unlinkat

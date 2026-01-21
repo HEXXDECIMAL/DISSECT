@@ -1,0 +1,12 @@
+# File Permission Modification
+# MBC: E1222 (File Permission Modification)
+# ATT&CK: T1222
+
+traits:
+  - id: fs/permission/chmod
+    description: Modify file permissions
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: chmod|fchmod|fchmodat|lchmod

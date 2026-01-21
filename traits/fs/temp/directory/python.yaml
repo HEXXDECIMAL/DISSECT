@@ -1,0 +1,12 @@
+# Temporary Directory Operations - Python
+# MBC: E1083 (File and Directory Discovery)
+# ATT&CK: T1083
+
+traits:
+  - id: fs/temp/directory-python
+    description: Look up temp directory via tempfile.gettempdir
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: string
+      exact: gettempdir

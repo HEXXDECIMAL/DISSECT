@@ -1,0 +1,36 @@
+# Configuration File Paths (Linux)
+# MBC: E1083 (File and Directory Discovery)
+# ATT&CK: T1083
+
+traits:
+  - id: fs/path/config-etc
+    description: Reference to /etc configuration files
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "/etc/[\\w\\.\\-/]{1,32}"
+
+  - id: fs/path/config-hosts
+    description: Reference to /etc/hosts
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: string
+      exact: /etc/hosts
+
+  - id: fs/path/config-resolv
+    description: Reference to /etc/resolv.conf
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: string
+      exact: /etc/resolv.conf
+
+  - id: fs/path/config-initd
+    description: Reference to /etc/init.d scripts
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "/etc/init\\.d/[\\w\\-]+"

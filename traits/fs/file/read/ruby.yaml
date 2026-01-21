@@ -1,0 +1,12 @@
+# File Read Operations - Ruby
+# MBC: C0051 (Read File)
+# ATT&CK: T1005
+
+traits:
+  - id: fs/file/read-ruby
+    description: Read files (Ruby)
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "File\\.read\\("

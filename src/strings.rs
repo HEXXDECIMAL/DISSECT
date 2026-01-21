@@ -35,11 +35,11 @@ impl StringExtractor {
                 current_string.push(byte);
             } else {
                 if current_string.len() >= self.min_length {
-                    if let Ok(s) = String::from_utf8(current_string.clone()) {
+                    if let Ok(s) = String::from_utf8(std::mem::take(&mut current_string)) {
                         let trimmed = s.trim();
                         if !trimmed.is_empty() {
                             strings.push(self.classify_string(
-                                trimmed.to_string(),
+                                trimmed.to_owned(),
                                 string_offset,
                                 section_name.clone(),
                             ));
@@ -56,7 +56,7 @@ impl StringExtractor {
                 let trimmed = s.trim();
                 if !trimmed.is_empty() {
                     strings.push(self.classify_string(
-                        trimmed.to_string(),
+                        trimmed.to_owned(),
                         string_offset,
                         section_name,
                     ));

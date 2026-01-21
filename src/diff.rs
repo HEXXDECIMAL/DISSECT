@@ -1,4 +1,5 @@
 use crate::analyzers::{archive::ArchiveAnalyzer, detect_file_type, Analyzer};
+use crate::capabilities::CapabilityMapper;
 use crate::types::*;
 use anyhow::{Context, Result};
 use chrono::Utc;
@@ -28,6 +29,7 @@ pub enum ChangeType {
 pub struct DiffAnalyzer {
     baseline_path: PathBuf,
     target_path: PathBuf,
+    capability_mapper: CapabilityMapper,
 }
 
 /// Check if a filename is a shared library based on extension and naming
@@ -216,10 +218,10 @@ fn detect_renames(removed: &[String], added: &[String]) -> Vec<FileRename> {
                     }
 
                     let score = calculate_file_similarity(removed_file, added_file);
-                    if score >= 0.9 {
-                        if best_match.is_none() || score > best_match.unwrap().1 {
-                            best_match = Some((added_file, score));
-                        }
+                    if score >= 0.9
+                        && (best_match.is_none() || score > best_match.unwrap().1)
+                    {
+                        best_match = Some((added_file, score));
                     }
                 }
 
@@ -251,6 +253,7 @@ impl DiffAnalyzer {
         Self {
             baseline_path: baseline.as_ref().to_path_buf(),
             target_path: target.as_ref().to_path_buf(),
+            capability_mapper: CapabilityMapper::new(),
         }
     }
 
@@ -295,7 +298,7 @@ impl DiffAnalyzer {
         );
 
         let mut modified_analysis = Vec::new();
-        if analysis.new_capabilities.len() > 0 || analysis.removed_capabilities.len() > 0 {
+        if !analysis.new_capabilities.is_empty() || !analysis.removed_capabilities.is_empty() {
             modified_analysis.push(analysis);
         }
 
@@ -518,15 +521,18 @@ impl DiffAnalyzer {
 
         match file_type {
             crate::analyzers::FileType::MachO => {
-                let analyzer = crate::analyzers::macho::MachOAnalyzer::new();
+                let analyzer = crate::analyzers::macho::MachOAnalyzer::new()
+                    .with_capability_mapper(self.capability_mapper.clone());
                 analyzer.analyze(path)
             }
             crate::analyzers::FileType::Elf => {
-                let analyzer = crate::analyzers::elf::ElfAnalyzer::new();
+                let analyzer = crate::analyzers::elf::ElfAnalyzer::new()
+                    .with_capability_mapper(self.capability_mapper.clone());
                 analyzer.analyze(path)
             }
             crate::analyzers::FileType::Pe => {
-                let analyzer = crate::analyzers::pe::PEAnalyzer::new();
+                let analyzer = crate::analyzers::pe::PEAnalyzer::new()
+                    .with_capability_mapper(self.capability_mapper.clone());
                 analyzer.analyze(path)
             }
             crate::analyzers::FileType::ShellScript => {
@@ -538,11 +544,13 @@ impl DiffAnalyzer {
                 analyzer.analyze(path)
             }
             crate::analyzers::FileType::JavaScript => {
-                let analyzer = crate::analyzers::javascript::JavaScriptAnalyzer::new();
+                let analyzer = crate::analyzers::javascript::JavaScriptAnalyzer::new()
+                    .with_capability_mapper(self.capability_mapper.clone());
                 analyzer.analyze(path)
             }
             crate::analyzers::FileType::Archive => {
-                let analyzer = ArchiveAnalyzer::new();
+                let analyzer = ArchiveAnalyzer::new()
+                    .with_capability_mapper(self.capability_mapper.clone());
                 analyzer.analyze(path)
             }
             _ => {
@@ -557,17 +565,32 @@ impl DiffAnalyzer {
         baseline: &AnalysisReport,
         target: &AnalysisReport,
     ) -> ModifiedFileAnalysis {
-        let baseline_caps: HashSet<String> =
+        let baseline_cap_ids: HashSet<String> =
             baseline.capabilities.iter().map(|c| c.id.clone()).collect();
 
-        let target_caps: HashSet<String> =
+        let target_cap_ids: HashSet<String> =
             target.capabilities.iter().map(|c| c.id.clone()).collect();
 
-        let new_capabilities: Vec<String> =
-            target_caps.difference(&baseline_caps).cloned().collect();
+        // Get IDs of new and removed capabilities
+        let new_cap_ids: HashSet<&String> = target_cap_ids.difference(&baseline_cap_ids).collect();
+        let removed_cap_ids: HashSet<&String> =
+            baseline_cap_ids.difference(&target_cap_ids).collect();
 
-        let removed_capabilities: Vec<String> =
-            baseline_caps.difference(&target_caps).cloned().collect();
+        // Get full capability objects for new capabilities (from target)
+        let new_capabilities: Vec<Capability> = target
+            .capabilities
+            .iter()
+            .filter(|c| new_cap_ids.contains(&c.id))
+            .cloned()
+            .collect();
+
+        // Get full capability objects for removed capabilities (from baseline)
+        let removed_capabilities: Vec<Capability> = baseline
+            .capabilities
+            .iter()
+            .filter(|c| removed_cap_ids.contains(&c.id))
+            .cloned()
+            .collect();
 
         // Risk assessment
         let risk_increase = self.assess_risk_increase(&new_capabilities, &removed_capabilities);
@@ -576,12 +599,12 @@ impl DiffAnalyzer {
             file: file_path.to_string(),
             new_capabilities,
             removed_capabilities,
-            capability_delta: target_caps.len() as i32 - baseline_caps.len() as i32,
+            capability_delta: target_cap_ids.len() as i32 - baseline_cap_ids.len() as i32,
             risk_increase,
         }
     }
 
-    fn assess_risk_increase(&self, new_caps: &[String], removed_caps: &[String]) -> bool {
+    fn assess_risk_increase(&self, new_caps: &[Capability], removed_caps: &[Capability]) -> bool {
         // High-risk capability categories
         let high_risk_prefixes = [
             "exec/",
@@ -600,7 +623,7 @@ impl DiffAnalyzer {
             .filter(|cap| {
                 high_risk_prefixes
                     .iter()
-                    .any(|prefix| cap.starts_with(prefix))
+                    .any(|prefix| cap.id.starts_with(prefix))
             })
             .count();
 
@@ -610,7 +633,7 @@ impl DiffAnalyzer {
             .filter(|cap| {
                 high_risk_prefixes
                     .iter()
-                    .any(|prefix| cap.starts_with(prefix))
+                    .any(|prefix| cap.id.starts_with(prefix))
             })
             .count();
 
@@ -655,16 +678,16 @@ pub fn format_diff_terminal(report: &DiffReport) -> String {
 
     // Compact summary line
     let mut summary_parts = Vec::new();
-    if report.changes.added.len() > 0 {
+    if !report.changes.added.is_empty() {
         summary_parts.push(format!("+{}", report.changes.added.len()));
     }
-    if report.changes.removed.len() > 0 {
+    if !report.changes.removed.is_empty() {
         summary_parts.push(format!("-{}", report.changes.removed.len()));
     }
-    if report.changes.modified.len() > 0 {
+    if !report.changes.modified.is_empty() {
         summary_parts.push(format!("~{}", report.changes.modified.len()));
     }
-    if report.changes.renamed.len() > 0 {
+    if !report.changes.renamed.is_empty() {
         summary_parts.push(format!("→{}", report.changes.renamed.len()));
     }
     output.push_str(&format!("{}\n\n", summary_parts.join(" ")));
@@ -689,7 +712,15 @@ pub fn format_diff_terminal(report: &DiffReport) -> String {
             if !high_risk_caps.is_empty() {
                 for cap in high_risk_caps {
                     let risk_marker = if is_high_risk(cap) { "🔴" } else { "🟡" };
-                    output.push_str(&format!("  + {} {}\n", risk_marker, cap));
+                    output.push_str(&format!("  + {} {}\n", risk_marker, cap.id));
+                    // Show description
+                    output.push_str(&format!("      {} — {}\n", risk_marker, cap.description));
+                    // Show evidence if available
+                    if !cap.evidence.is_empty() {
+                        for ev in &cap.evidence {
+                            output.push_str(&format!("      └─ {}\n", ev.value));
+                        }
+                    }
                 }
             } else if !analysis.new_capabilities.is_empty() {
                 // Show count of low-risk capabilities
@@ -702,7 +733,7 @@ pub fn format_diff_terminal(report: &DiffReport) -> String {
             if !analysis.removed_capabilities.is_empty() && analysis.removed_capabilities.len() <= 3
             {
                 for cap in &analysis.removed_capabilities {
-                    output.push_str(&format!("  - {}\n", cap));
+                    output.push_str(&format!("  - {}\n", cap.id));
                 }
             } else if !analysis.removed_capabilities.is_empty() {
                 output.push_str(&format!(
@@ -778,19 +809,32 @@ pub fn format_diff_terminal(report: &DiffReport) -> String {
     output
 }
 
-fn is_high_risk(capability: &str) -> bool {
-    capability.starts_with("exec/")
-        || capability.starts_with("anti-analysis/")
-        || capability.starts_with("privilege/")
-        || capability.starts_with("persistence/")
-        || capability.starts_with("injection/")
+fn is_high_risk(capability: &Capability) -> bool {
+    is_high_risk_id(&capability.id)
 }
 
-fn is_medium_risk(capability: &str) -> bool {
-    capability.starts_with("net/")
-        || capability.starts_with("credential/")
-        || capability.starts_with("registry/")
-        || capability.starts_with("service/")
+fn is_high_risk_id(id: &str) -> bool {
+    id.starts_with("exec/")
+        || id.starts_with("anti-analysis/")
+        || id.starts_with("privesc/")
+        || id.starts_with("privilege/")
+        || id.starts_with("persistence/")
+        || id.starts_with("injection/")
+        || id.starts_with("c2/")
+        || id.starts_with("exfil/")
+        || id.starts_with("data/secret")
+}
+
+fn is_medium_risk(capability: &Capability) -> bool {
+    is_medium_risk_id(&capability.id)
+}
+
+fn is_medium_risk_id(id: &str) -> bool {
+    id.starts_with("net/")
+        || id.starts_with("credential/")
+        || id.starts_with("registry/")
+        || id.starts_with("service/")
+        || id.starts_with("evasion/")
 }
 
 #[cfg(test)]
@@ -863,23 +907,23 @@ mod tests {
 
     #[test]
     fn test_is_high_risk() {
-        assert!(is_high_risk("exec/shell"));
-        assert!(is_high_risk("anti-analysis/debugger"));
-        assert!(is_high_risk("privilege/escalation"));
-        assert!(is_high_risk("persistence/registry"));
-        assert!(is_high_risk("injection/dll"));
-        assert!(!is_high_risk("net/http"));
-        assert!(!is_high_risk("fs/read"));
+        assert!(is_high_risk_id("exec/shell"));
+        assert!(is_high_risk_id("anti-analysis/debugger"));
+        assert!(is_high_risk_id("privilege/escalation"));
+        assert!(is_high_risk_id("persistence/registry"));
+        assert!(is_high_risk_id("injection/dll"));
+        assert!(!is_high_risk_id("net/http"));
+        assert!(!is_high_risk_id("fs/read"));
     }
 
     #[test]
     fn test_is_medium_risk() {
-        assert!(is_medium_risk("net/http"));
-        assert!(is_medium_risk("credential/dump"));
-        assert!(is_medium_risk("registry/read"));
-        assert!(is_medium_risk("service/query"));
-        assert!(!is_medium_risk("exec/shell"));
-        assert!(!is_medium_risk("fs/read"));
+        assert!(is_medium_risk_id("net/http"));
+        assert!(is_medium_risk_id("credential/dump"));
+        assert!(is_medium_risk_id("registry/read"));
+        assert!(is_medium_risk_id("service/query"));
+        assert!(!is_medium_risk_id("exec/shell"));
+        assert!(!is_medium_risk_id("fs/read"));
     }
 
     #[test]
@@ -893,7 +937,7 @@ mod tests {
         assert_eq!(analysis.new_capabilities.len(), 0);
         assert_eq!(analysis.removed_capabilities.len(), 0);
         assert_eq!(analysis.capability_delta, 0);
-        assert_eq!(analysis.risk_increase, false);
+        assert!(!analysis.risk_increase);
     }
 
     #[test]
@@ -904,7 +948,7 @@ mod tests {
 
         let analysis = analyzer.compare_reports("file", &baseline, &target);
         assert_eq!(analysis.new_capabilities.len(), 1);
-        assert!(analysis.new_capabilities.contains(&"fs/write".to_string()));
+        assert!(analysis.new_capabilities.iter().any(|c| c.id == "fs/write"));
         assert_eq!(analysis.capability_delta, 1);
     }
 
@@ -918,7 +962,8 @@ mod tests {
         assert_eq!(analysis.removed_capabilities.len(), 1);
         assert!(analysis
             .removed_capabilities
-            .contains(&"fs/write".to_string()));
+            .iter()
+            .any(|c| c.id == "fs/write"));
         assert_eq!(analysis.capability_delta, -1);
     }
 
@@ -932,13 +977,34 @@ mod tests {
         assert!(analysis.risk_increase);
         assert!(analysis
             .new_capabilities
-            .contains(&"exec/shell".to_string()));
+            .iter()
+            .any(|c| c.id == "exec/shell"));
+    }
+
+    fn make_test_cap(id: &str) -> Capability {
+        Capability {
+            id: id.to_string(),
+            description: format!("Test {}", id),
+            confidence: 0.9,
+            criticality: Criticality::Notable,
+            mbc: None,
+            attack: None,
+            evidence: vec![Evidence {
+                method: "test".to_string(),
+                source: "test".to_string(),
+                value: id.to_string(),
+                location: None,
+            }],
+            traits: vec![],
+            referenced_paths: None,
+            referenced_directories: None,
+        }
     }
 
     #[test]
     fn test_assess_risk_increase_new_high_risk() {
         let analyzer = DiffAnalyzer::new("/baseline", "/target");
-        let new_caps = vec!["exec/shell".to_string()];
+        let new_caps = vec![make_test_cap("exec/shell")];
         let removed_caps = vec![];
 
         assert!(analyzer.assess_risk_increase(&new_caps, &removed_caps));
@@ -947,7 +1013,7 @@ mod tests {
     #[test]
     fn test_assess_risk_increase_no_high_risk() {
         let analyzer = DiffAnalyzer::new("/baseline", "/target");
-        let new_caps = vec!["net/http".to_string()];
+        let new_caps = vec![make_test_cap("net/http")];
         let removed_caps = vec![];
 
         assert!(!analyzer.assess_risk_increase(&new_caps, &removed_caps));
@@ -956,8 +1022,8 @@ mod tests {
     #[test]
     fn test_assess_risk_increase_balanced() {
         let analyzer = DiffAnalyzer::new("/baseline", "/target");
-        let new_caps = vec!["exec/shell".to_string()];
-        let removed_caps = vec!["anti-analysis/debugger".to_string()];
+        let new_caps = vec![make_test_cap("exec/shell")];
+        let removed_caps = vec![make_test_cap("anti-analysis/debugger")];
 
         assert!(!analyzer.assess_risk_increase(&new_caps, &removed_caps));
     }
@@ -965,10 +1031,10 @@ mod tests {
     #[test]
     fn test_assess_risk_increase_more_removed_than_added() {
         let analyzer = DiffAnalyzer::new("/baseline", "/target");
-        let new_caps = vec!["exec/shell".to_string()];
+        let new_caps = vec![make_test_cap("exec/shell")];
         let removed_caps = vec![
-            "anti-analysis/debugger".to_string(),
-            "persistence/registry".to_string(),
+            make_test_cap("anti-analysis/debugger"),
+            make_test_cap("persistence/registry"),
         ];
 
         assert!(!analyzer.assess_risk_increase(&new_caps, &removed_caps));
@@ -982,7 +1048,7 @@ mod tests {
         if let Ok(files) = analyzer.collect_files(Path::new("src")) {
             if !files.is_empty() {
                 // Paths should be relative
-                for (rel_path, _abs_path) in &files {
+                for rel_path in files.keys() {
                     assert!(!rel_path.starts_with("/"));
                 }
             }
@@ -1035,7 +1101,7 @@ mod tests {
             },
             modified_analysis: vec![ModifiedFileAnalysis {
                 file: "changed_file.bin".to_string(),
-                new_capabilities: vec!["exec/shell".to_string()],
+                new_capabilities: vec![make_test_cap("exec/shell")],
                 removed_capabilities: vec![],
                 capability_delta: 1,
                 risk_increase: true,
@@ -1076,15 +1142,15 @@ mod tests {
             modified_analysis: vec![
                 ModifiedFileAnalysis {
                     file: "file1.bin".to_string(),
-                    new_capabilities: vec!["net/http".to_string()],
+                    new_capabilities: vec![make_test_cap("net/http")],
                     removed_capabilities: vec![],
                     capability_delta: 1,
                     risk_increase: false,
                 },
                 ModifiedFileAnalysis {
                     file: "file2.bin".to_string(),
-                    new_capabilities: vec!["exec/shell".to_string()],
-                    removed_capabilities: vec!["fs/read".to_string()],
+                    new_capabilities: vec![make_test_cap("exec/shell")],
+                    removed_capabilities: vec![make_test_cap("fs/read")],
                     capability_delta: 0,
                     risk_increase: true,
                 },

@@ -1,0 +1,24 @@
+# Systemd Persistence (Linux)
+# MBC: B0028 (Scheduled Task/Job)
+# ATT&CK: T1543.002
+
+traits:
+  - id: persistence/systemd
+    description: Linux systemd persistence
+    criticality: notable
+    confidence: 0.66
+    attack: "T1543.002"
+    condition:
+      type: yara
+      source: |
+        rule systemd_persistence {
+          strings:
+            $systemd = "systemd"
+            $systemctl = "systemctl"
+            $etc_systemd = "/etc/systemd"
+            $lib_systemd = "/lib/systemd"
+            $service = ".service"
+            $enable = "systemctl enable"
+          condition:
+            2 of them
+        }

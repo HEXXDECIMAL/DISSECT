@@ -1,0 +1,23 @@
+# LaunchDaemon/LaunchAgent Persistence (macOS)
+# MBC: B0028 (Scheduled Task/Job)
+# ATT&CK: T1543.004
+
+traits:
+  - id: persistence/launchd
+    description: macOS launchd persistence
+    criticality: notable
+    confidence: 0.66
+    attack: "T1543.004"
+    condition:
+      type: yara
+      source: |
+        rule launchd_persistence {
+          strings:
+            $launch_agents = "LaunchAgents"
+            $launch_daemons = "LaunchDaemons"
+            $launchctl = "launchctl"
+            $plist = ".plist"
+            $run_at_load = "RunAtLoad"
+          condition:
+            2 of them
+        }

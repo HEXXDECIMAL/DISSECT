@@ -1,0 +1,12 @@
+# Disk Quota Manipulation (Linux)
+# MBC: E1222 (File Permission Modification)
+# ATT&CK: T1222
+
+traits:
+  - id: fs/quota/quotactl
+    description: Manipulate disk quota
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: quotactl

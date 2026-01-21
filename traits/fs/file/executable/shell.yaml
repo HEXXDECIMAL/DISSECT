@@ -1,0 +1,20 @@
+# Make File Executable
+# MBC: E1222 (File Permission Modification)
+# ATT&CK: T1222
+
+traits:
+  - id: fs/file/executable
+    description: Make file executable
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: yara
+      source: |
+        rule make_executable {
+          strings:
+            $chmod_x = "chmod +x"
+            $chmod_755 = "chmod 755"
+            $chmod_0755 = "chmod 0755"
+          condition:
+            any of them
+        }

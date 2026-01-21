@@ -1,0 +1,14 @@
+# Debugger Detection - Windows
+# MBC: B0001 (Debugger Detection)
+# ATT&CK: T1622
+
+traits:
+  - id: anti-analysis/debugger-api
+    description: Debugger detection via Windows API
+    criticality: suspicious
+    confidence: 0.66
+    mbc: "B0001"
+    attack: "T1622"
+    condition:
+      type: symbol
+      pattern: IsDebuggerPresent|CheckRemoteDebuggerPresent|NtQueryInformationProcess

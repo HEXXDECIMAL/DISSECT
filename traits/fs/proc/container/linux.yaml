@@ -1,0 +1,20 @@
+# /proc Container Detection (Linux)
+# MBC: B0009 (Virtual Machine Detection)
+# ATT&CK: T1497
+
+traits:
+  - id: fs/proc/container-pid1-cgroup
+    description: Check PID 1 cgroup to detect container environment
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: string
+      exact: /proc/1/cgroup
+
+  - id: fs/proc/container-self-cgroup
+    description: Check own cgroup to detect container environment
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: string
+      exact: /proc/self/cgroup

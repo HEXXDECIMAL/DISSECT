@@ -140,7 +140,7 @@ impl CapabilityMapper {
             anyhow::bail!("No YAML files found in {}", dir_path.display());
         }
 
-        // Load all YAML files in parallel
+        // Load all YAML files in parallel, preserving path for prefix calculation
         let results: Vec<_> = yaml_files
             .par_iter()
             .map(|path| {
@@ -154,7 +154,7 @@ impl CapabilityMapper {
                 let mappings: CapabilityMappings = serde_yaml::from_str(&content)
                     .with_context(|| format!("Failed to parse YAML in {:?}", path))?;
 
-                Ok::<_, anyhow::Error>(mappings)
+                Ok::<_, anyhow::Error>((path.clone(), mappings))
             })
             .collect();
 
@@ -165,8 +165,17 @@ impl CapabilityMapper {
         let mut files_processed = 0;
 
         for result in results {
-            let mappings = result?;
+            let (path, mappings) = result?;
             files_processed += 1;
+
+            // Calculate the prefix from the directory path relative to traits/
+            // e.g., traits/credential/java/traits.yaml -> credential/java
+            let trait_prefix = path
+                .strip_prefix(dir_path)
+                .ok()
+                .and_then(|p| p.parent())
+                .map(|p| p.to_string_lossy().replace('\\', "/"))
+                .filter(|s| !s.is_empty());
 
             let before_symbols = symbol_map.len();
             let before_traits = trait_definitions.len();
@@ -203,11 +212,29 @@ impl CapabilityMapper {
                 }
             }
 
-            // Merge trait definitions
-            trait_definitions.extend(mappings.traits.clone());
+            // Merge trait definitions with auto-prefixed IDs
+            for mut trait_def in mappings.traits.clone() {
+                // Auto-prefix trait ID if it doesn't already have the path prefix
+                if let Some(ref prefix) = trait_prefix {
+                    if !trait_def.id.starts_with(prefix) && !trait_def.id.contains('/') {
+                        trait_def.id = format!("{}/{}", prefix, trait_def.id);
+                    }
+                }
+                // Validate YARA/AST conditions at load time
+                trait_def.condition.validate().with_context(|| {
+                    format!(
+                        "invalid condition in trait '{}' from {:?}",
+                        trait_def.id, path
+                    )
+                })?;
+                trait_definitions.push(trait_def);
+            }
 
             // Extract symbol mappings from trait definitions with symbol conditions
-            for trait_def in &mappings.traits {
+            for trait_def in &trait_definitions[trait_definitions
+                .len()
+                .saturating_sub(mappings.traits.len())..]
+            {
                 // Check if this trait has a symbol condition
                 if let crate::composite_rules::Condition::Symbol {
                     pattern,
@@ -231,8 +258,16 @@ impl CapabilityMapper {
                 }
             }
 
-            // Merge composite_rules
-            composite_rules.extend(mappings.composite_rules);
+            // Merge composite_rules with auto-prefixed IDs
+            for mut rule in mappings.composite_rules {
+                // Auto-prefix composite rule ID if it doesn't already have the path prefix
+                if let Some(ref prefix) = trait_prefix {
+                    if !rule.id.starts_with(prefix) && !rule.id.contains('/') {
+                        rule.id = format!("{}/{}", prefix, rule.id);
+                    }
+                }
+                composite_rules.push(rule);
+            }
 
             if debug {
                 eprintln!(
@@ -494,6 +529,12 @@ impl CapabilityMapper {
             "shellscript" | "shell" => RuleFileType::ShellScript,
             "python" => RuleFileType::Python,
             "javascript" | "js" => RuleFileType::JavaScript,
+            "c" | "h" => RuleFileType::C,
+            "rust" | "rs" => RuleFileType::Rust,
+            "go" => RuleFileType::Go,
+            "java" => RuleFileType::Java,
+            "class" => RuleFileType::Class,
+            "ruby" | "rb" => RuleFileType::Ruby,
             _ => RuleFileType::All,
         }
     }
@@ -539,6 +580,12 @@ fn simple_rule_to_composite_rule(rule: SimpleRule) -> CompositeTrait {
                 "shellscript" => Some(RuleFileType::ShellScript),
                 "python" => Some(RuleFileType::Python),
                 "javascript" => Some(RuleFileType::JavaScript),
+                "java" => Some(RuleFileType::Java),
+                "class" => Some(RuleFileType::Class),
+                "c" => Some(RuleFileType::C),
+                "rust" => Some(RuleFileType::Rust),
+                "go" => Some(RuleFileType::Go),
+                "ruby" => Some(RuleFileType::Ruby),
                 _ => None,
             })
             .collect()
@@ -597,7 +644,7 @@ mod tests {
         let count = mapper.mapping_count();
         println!("Loaded {} symbol mappings", count);
         // Test passes if mapper was created successfully
-        assert!(count >= 0);
+        let _ = count;
     }
 
     #[test]
@@ -621,7 +668,7 @@ mod tests {
         let count = mapper.mapping_count();
 
         // Mapper should be created successfully (count depends on environment)
-        assert!(count >= 0);
+        let _ = count;
     }
 
     #[test]
@@ -654,7 +701,7 @@ mod tests {
         let mapper = CapabilityMapper::new();
 
         // Should create mapper successfully (loading depends on environment)
-        assert!(mapper.mapping_count() >= 0);
+        let _ = mapper.mapping_count();
     }
 
     #[test]
@@ -663,7 +710,7 @@ mod tests {
         let count = mapper.composite_rules_count();
 
         // May or may not have composite rules depending on traits/ directory
-        assert!(count >= 0);
+        let _ = count;
     }
 
     #[test]
@@ -672,6 +719,6 @@ mod tests {
         let count = mapper.trait_definitions_count();
 
         // May or may not have trait definitions depending on traits/ directory
-        assert!(count >= 0);
+        let _ = count;
     }
 }

@@ -1,0 +1,31 @@
+# Process Injection Detection - Linux
+# MBC: B0033 (Process Injection)
+# ATT&CK: T1055
+
+traits:
+  - id: evasion/process-inject-ptrace
+    description: Process injection via ptrace
+    criticality: hostile
+    confidence: 0.66
+    mbc: "B0033"
+    attack: "T1055"
+    condition:
+      type: yara
+      source: |
+        rule ptrace_injection {
+          strings:
+            $ptrace_attach = "PTRACE_ATTACH"
+            $ptrace_poketext = "PTRACE_POKETEXT"
+            $process_vm_writev = "process_vm_writev"
+          condition:
+            any of them
+        }
+
+  - id: evasion/process-inject-preload
+    description: Process injection via LD_PRELOAD
+    criticality: hostile
+    confidence: 0.66
+    attack: "T1055"
+    condition:
+      type: string
+      exact: LD_PRELOAD

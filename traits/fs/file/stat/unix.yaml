@@ -1,0 +1,20 @@
+# File Stat Operations
+# MBC: E1083 (File and Directory Discovery)
+# ATT&CK: T1083
+
+traits:
+  - id: fs/file/stat
+    description: Get file status/metadata
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: stat|lstat|fstat|fstatat|stat64|lstat64|fstat64
+
+  - id: fs/file/stat-exists
+    description: Check if file exists
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: access|faccessat

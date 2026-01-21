@@ -1,0 +1,24 @@
+# Disk Wiper Detection - Generic
+# MBC: E1561 (Disk Wipe)
+# ATT&CK: T1561
+
+traits:
+  - id: impact/wipe/disk-terms
+    description: Disk wiper terminology
+    criticality: suspicious
+    confidence: 0.66
+    mbc: "E1561"
+    attack: "T1561"
+    condition:
+      type: yara
+      source: |
+        rule disk_wiper_terms {
+          strings:
+            $wipe = "wipe" fullword
+            $overwrite = "overwrite" fullword
+            $destroy = "destroy" fullword
+            $mbr = "MBR" fullword
+            $boot_sector = "boot sector"
+          condition:
+            any of them
+        }

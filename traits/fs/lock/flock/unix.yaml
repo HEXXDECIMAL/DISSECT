@@ -1,0 +1,12 @@
+# File Locking - Unix
+# MBC: C0046 (Create File)
+# ATT&CK: T1083
+
+traits:
+  - id: fs/lock/flock
+    description: Apply or remove advisory lock on file
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: flock|lockf

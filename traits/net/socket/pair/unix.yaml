@@ -1,0 +1,12 @@
+# Socket Pair
+# MBC: C0001 (Socket Communication)
+# ATT&CK: T1071
+
+traits:
+  - id: net/socket/pair
+    description: Create a pair of connected sockets
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: socketpair

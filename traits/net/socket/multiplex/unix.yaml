@@ -1,0 +1,12 @@
+# Socket Multiplexing
+# MBC: C0001 (Socket Communication)
+# ATT&CK: T1071
+
+traits:
+  - id: net/socket/multiplex
+    description: I/O multiplexing on sockets
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: select|poll|epoll_create|epoll_ctl|epoll_wait|kqueue|kevent

@@ -1,0 +1,37 @@
+# Reverse Shell Detection - Shell/Bash
+# MBC: B0033 (Adversary-in-the-Middle)
+# ATT&CK: T1059
+
+traits:
+  - id: impact/remote-access/reverse-shell-bash
+    description: Bash reverse shell via /dev/tcp
+    criticality: hostile
+    confidence: 0.66
+    attack: "T1059"
+    condition:
+      type: string
+      regex: "bash -i >& /dev/tcp/"
+
+  - id: impact/remote-access/reverse-shell-redirect
+    description: Shell reverse shell stdin redirect
+    criticality: hostile
+    confidence: 0.66
+    condition:
+      type: string
+      exact: "0>&1"
+
+  - id: impact/remote-access/reverse-shell-mkfifo
+    description: Reverse shell using mkfifo and netcat
+    criticality: hostile
+    confidence: 0.66
+    condition:
+      type: yara
+      source: |
+        rule mkfifo_netcat {
+          strings:
+            $mkfifo = "mkfifo" fullword
+            $sh_i = "sh -i"
+            $nc = /\| {0,2}nc /
+          condition:
+            filesize < 16384 and all of them
+        }

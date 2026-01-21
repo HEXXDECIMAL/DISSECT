@@ -1,0 +1,23 @@
+# SSH Operations
+# MBC: C0001 (Socket Communication)
+# ATT&CK: T1021.004
+
+traits:
+  - id: net/ssh/connect
+    description: SSH connection
+    criticality: notable
+    confidence: 0.66
+    attack: "T1021.004"
+    condition:
+      type: yara
+      source: |
+        rule ssh_connect {
+          strings:
+            $ssh = "ssh" fullword
+            $paramiko = "paramiko"
+            $libssh = "libssh"
+            $openssh = "OpenSSH"
+            $ssh_client = "SSHClient"
+          condition:
+            any of them
+        }

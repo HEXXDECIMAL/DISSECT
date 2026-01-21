@@ -1,0 +1,20 @@
+# /proc Mount Information (Linux)
+# MBC: E1083 (File and Directory Discovery)
+# ATT&CK: T1083
+
+traits:
+  - id: fs/proc/mounts
+    description: Parse active mounts from /proc/mounts
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: string
+      exact: /proc/mounts
+
+  - id: fs/proc/mounts-mountinfo
+    description: Read mount info from /proc/self/mountinfo
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: string
+      exact: /proc/self/mountinfo

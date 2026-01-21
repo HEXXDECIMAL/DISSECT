@@ -137,6 +137,9 @@ fn namespace_long_name(ns: &str) -> &'static str {
         "access" => "access",
         "credential" => "credential access",
         "lateral" => "lateral movement",
+        "kernel" => "kernel",
+        "reflect" => "reflection",
+        "archive" => "archive",
         _ => "other",
     }
 }
@@ -575,6 +578,8 @@ mod tests {
         assert_eq!(namespace_long_name("intel"), "discovery");
         assert_eq!(namespace_long_name("crypto"), "cryptography");
         assert_eq!(namespace_long_name("3P"), "third-party");
+        assert_eq!(namespace_long_name("credential"), "credential access");
+        assert_eq!(namespace_long_name("impact"), "impact");
         assert_eq!(namespace_long_name("unknown"), "other");
     }
 

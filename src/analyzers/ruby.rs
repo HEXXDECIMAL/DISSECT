@@ -1068,7 +1068,7 @@ Process.kill("TERM", pid)
         let report = analyze_ruby_code(code);
         // Test passes if analysis completes
         // Capability detection depends on mapper being loaded
-        assert!(report.capabilities.len() >= 0);
+        let _ = &report.capabilities;
     }
 
     #[test]

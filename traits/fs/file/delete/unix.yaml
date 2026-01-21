@@ -1,0 +1,12 @@
+# File Delete Operations
+# MBC: C0047 (Delete File)
+# ATT&CK: T1070.004
+
+traits:
+  - id: fs/file/delete
+    description: Delete files
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: unlink|unlinkat|remove

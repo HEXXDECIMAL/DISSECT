@@ -1,0 +1,38 @@
+# File Permission Modification - Shell Commands
+# MBC: E1222 (File Permission Modification)
+# ATT&CK: T1222
+
+traits:
+  - id: fs/permission/chmod-world-write
+    description: Makes file world-writable (666)
+    criticality: suspicious
+    confidence: 0.66
+    condition:
+      type: yara
+      source: |
+        rule chmod_world_write {
+          strings:
+            $ref = /chmod [\-\w ]{0,4}666[ \$\w\/\.]{0,32}/
+            $ruby = "chmod(0666)"
+          condition:
+            filesize < 50MB and any of them
+        }
+
+  - id: fs/permission/chmod-world-exec
+    description: Makes file world-writable and executable (777)
+    criticality: hostile
+    confidence: 0.66
+    condition:
+      type: yara
+      source: |
+        rule chmod_world_exec {
+          strings:
+            $ref = /chmod [\-\w ]{0,4}777[ \$\w\/\.]{0,32}/
+            $ruby = "chmod(0777)"
+            $python = /chmod\([\w, ]{1,16}777\)/
+            $not_1777 = "chmod 1777"
+            $not_01777 = "chmod 01777"
+            $not_var_tmp = "chmod 0777 /var/tmp" fullword
+          condition:
+            filesize < 50MB and any of ($ref, $ruby, $python) and none of ($not*)
+        }

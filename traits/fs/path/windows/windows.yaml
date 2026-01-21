@@ -1,0 +1,36 @@
+# Windows Paths
+# MBC: E1083 (File and Directory Discovery)
+# ATT&CK: T1083
+
+traits:
+  - id: fs/path/windows-appdata
+    description: Reference to Windows Application Data
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: yara
+      source: |
+        rule windows_appdata {
+          strings:
+            $user = /Default User.{0,32}Application Data/
+            $local = /LocalService.{0,32}Application Data/
+            $net = /NetworkService.{0,32}Application Data/
+          condition:
+            any of them
+        }
+
+  - id: fs/path/windows-root
+    description: Reference to Windows system root
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "[Cc]:\\\\Windows\\\\[\\w\\\\]+"
+
+  - id: fs/path/windows-system32
+    description: Reference to Windows System32
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "[Cc]:\\\\Windows\\\\System32\\\\[\\w\\.]+"

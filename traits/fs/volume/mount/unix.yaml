@@ -1,0 +1,12 @@
+# Mount Filesystem (symbol-based detection)
+# MBC: E1222 (File Permission Modification)
+# ATT&CK: T1222
+
+traits:
+  - id: fs/volume/mount
+    description: Mount file systems
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: _mount|mount

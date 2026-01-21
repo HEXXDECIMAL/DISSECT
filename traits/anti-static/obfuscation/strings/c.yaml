@@ -1,0 +1,22 @@
+# String Obfuscation Detection - C
+# MBC: B0032 (Obfuscated Files or Information)
+# ATT&CK: T1027
+
+traits:
+  - id: anti-static/obfuscation/strings-char-array
+    description: String obfuscation via char array
+    criticality: notable
+    confidence: 0.66
+    mbc: "B0032"
+    attack: "T1027"
+    condition:
+      type: string
+      regex: "char\\s+\\w+\\[\\]\\s*=\\s*\\{[0-9, ]+\\}"
+
+  - id: anti-static/obfuscation/strings-hex
+    description: Hex-encoded string patterns
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "\\\\x[0-9a-fA-F]{2}\\\\x[0-9a-fA-F]{2}\\\\x[0-9a-fA-F]{2}"

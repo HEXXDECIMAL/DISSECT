@@ -49,12 +49,25 @@ fn main() -> Result<()> {
     let result = match args.command {
         cli::Command::Analyze {
             target,
-            third_party_yara,
-        } => analyze_file(&target, third_party_yara, &args.format)?,
+            yara,
+            no_third_party_yara,
+        } => {
+            if yara {
+                eprintln!("⚠️  YARA support is deprecated and will be removed in a future version");
+            }
+            // --yara enables all rules; --no-third-party-yara disables third-party
+            analyze_file(&target, yara, yara && !no_third_party_yara, &args.format)?
+        }
         cli::Command::Scan {
             paths,
-            third_party_yara,
-        } => scan_paths(paths, third_party_yara, &args.format)?,
+            yara,
+            no_third_party_yara,
+        } => {
+            if yara {
+                eprintln!("⚠️  YARA support is deprecated and will be removed in a future version");
+            }
+            scan_paths(paths, yara, yara && !no_third_party_yara, &args.format)?
+        }
         cli::Command::Diff { old, new } => diff_analysis(&old, &new)?,
     };
 
@@ -73,6 +86,7 @@ fn main() -> Result<()> {
 
 fn analyze_file(
     target: &str,
+    enable_yara: bool,
     enable_third_party_yara: bool,
     format: &cli::OutputFormat,
 ) -> Result<String> {
@@ -85,7 +99,12 @@ fn analyze_file(
 
     // If target is a directory, scan it recursively
     if path.is_dir() {
-        return scan_paths(vec![target.to_string()], enable_third_party_yara, format);
+        return scan_paths(
+            vec![target.to_string()],
+            enable_yara,
+            enable_third_party_yara,
+            format,
+        );
     }
 
     // Print to stderr in JSON mode
@@ -101,38 +120,24 @@ fn analyze_file(
         cli::OutputFormat::Terminal => println!("Detected file type: {:?}", file_type),
     }
 
-    // Start loading YARA rules in background immediately (most expensive operation)
-    // Use empty mapper to avoid duplicate YAML loading - we'll inject the real one later
-    let t_yara_start = std::time::Instant::now();
-    let yara_handle = std::thread::spawn(move || {
-        let empty_mapper = crate::capabilities::CapabilityMapper::empty();
-        let mut engine = YaraEngine::new_with_mapper(empty_mapper);
-        let result = engine.load_all_rules(enable_third_party_yara);
-        (engine, result)
-    });
-
-    // While YARA loads in background, do other setup work in parallel
     // Load capability mapper
     let t1 = std::time::Instant::now();
     let capability_mapper = crate::capabilities::CapabilityMapper::new();
     eprintln!("[TIMING] CapabilityMapper::new(): {:?}", t1.elapsed());
 
-    // Wait for YARA engine to finish loading
-    let (mut yara_engine_loaded, yara_result) = yara_handle
-        .join()
-        .map_err(|_| anyhow::anyhow!("YARA loading thread panicked"))?;
-
-    let (builtin_count, third_party_count) = yara_result?;
-    eprintln!(
-        "[TIMING] YaraEngine load (parallel): {:?}",
-        t_yara_start.elapsed()
-    );
-
-    // Inject CapabilityMapper into the loaded YARA engine
-    yara_engine_loaded.set_capability_mapper(capability_mapper.clone());
-
-    let yara_engine = if builtin_count + third_party_count > 0 {
-        Some(yara_engine_loaded)
+    // Only load YARA if explicitly enabled (deprecated feature)
+    let yara_engine = if enable_yara {
+        let t_yara_start = std::time::Instant::now();
+        let empty_mapper = crate::capabilities::CapabilityMapper::empty();
+        let mut engine = YaraEngine::new_with_mapper(empty_mapper);
+        let (builtin_count, third_party_count) = engine.load_all_rules(enable_third_party_yara)?;
+        eprintln!("[TIMING] YaraEngine load: {:?}", t_yara_start.elapsed());
+        engine.set_capability_mapper(capability_mapper.clone());
+        if builtin_count + third_party_count > 0 {
+            Some(engine)
+        } else {
+            None
+        }
     } else {
         None
     };
@@ -187,17 +192,59 @@ fn analyze_file(
             let analyzer = analyzers::java::JavaAnalyzer::new();
             analyzer.analyze(path)?
         }
+        FileType::JavaClass => {
+            let analyzer = analyzers::java_class::JavaClassAnalyzer::new()
+                .with_capability_mapper(capability_mapper.clone());
+            analyzer.analyze(path)?
+        }
+        FileType::Jar => {
+            // JAR files are analyzed like archives but with Java-specific handling
+            let mut analyzer =
+                ArchiveAnalyzer::new().with_capability_mapper(capability_mapper.clone());
+            if let Some(engine) = yara_engine {
+                analyzer = analyzer.with_yara(engine);
+            }
+            analyzer.analyze(path)?
+        }
         FileType::Ruby => {
             let analyzer =
                 analyzers::ruby::RubyAnalyzer::new().with_capability_mapper(capability_mapper);
             analyzer.analyze(path)?
         }
+        FileType::TypeScript => {
+            let analyzer = analyzers::typescript::TypeScriptAnalyzer::new();
+            analyzer.analyze(path)?
+        }
+        FileType::Php => {
+            let analyzer = analyzers::php::PhpAnalyzer::new();
+            analyzer.analyze(path)?
+        }
         FileType::C => {
-            let analyzer = analyzers::c::CAnalyzer::new();
+            let analyzer = analyzers::c::CAnalyzer::new().with_capability_mapper(capability_mapper);
+            analyzer.analyze(path)?
+        }
+        FileType::Perl => {
+            let analyzer = analyzers::perl::PerlAnalyzer::new();
+            analyzer.analyze(path)?
+        }
+        FileType::Lua => {
+            let analyzer = analyzers::lua::LuaAnalyzer::new();
+            analyzer.analyze(path)?
+        }
+        FileType::PowerShell => {
+            let analyzer = analyzers::powershell::PowerShellAnalyzer::new();
+            analyzer.analyze(path)?
+        }
+        FileType::CSharp => {
+            let analyzer = analyzers::csharp::CSharpAnalyzer::new();
             analyzer.analyze(path)?
         }
         FileType::Archive => {
-            let analyzer = ArchiveAnalyzer::new();
+            let mut analyzer =
+                ArchiveAnalyzer::new().with_capability_mapper(capability_mapper.clone());
+            if let Some(engine) = yara_engine {
+                analyzer = analyzer.with_yara(engine);
+            }
             analyzer.analyze(path)?
         }
         _ => {
@@ -219,6 +266,7 @@ fn analyze_file(
 
 fn scan_paths(
     paths: Vec<String>,
+    enable_yara: bool,
     enable_third_party_yara: bool,
     format: &cli::OutputFormat,
 ) -> Result<String> {
@@ -305,8 +353,12 @@ fn scan_paths(
             ));
         }
 
-        match analyze_file_with_shared_mapper(path_str, enable_third_party_yara, &capability_mapper)
-        {
+        match analyze_file_with_shared_mapper(
+            path_str,
+            enable_yara,
+            enable_third_party_yara,
+            &capability_mapper,
+        ) {
             Ok(json) => {
                 eprintln!(
                     "DEBUG: Analyzed file {}, JSON length: {}",
@@ -395,8 +447,12 @@ fn scan_paths(
             ));
         }
 
-        match analyze_file_with_shared_mapper(path_str, enable_third_party_yara, &capability_mapper)
-        {
+        match analyze_file_with_shared_mapper(
+            path_str,
+            enable_yara,
+            enable_third_party_yara,
+            &capability_mapper,
+        ) {
             Ok(json) => {
                 // For terminal format, show immediate output above progress bar
                 if matches!(format, cli::OutputFormat::Terminal) {
@@ -479,6 +535,7 @@ fn scan_paths(
 
 fn analyze_file_with_shared_mapper(
     target: &str,
+    enable_yara: bool,
     enable_third_party_yara: bool,
     capability_mapper: &Arc<crate::capabilities::CapabilityMapper>,
 ) -> Result<String> {
@@ -488,8 +545,8 @@ fn analyze_file_with_shared_mapper(
         anyhow::bail!("File does not exist: {}", target);
     }
 
-    // Each thread creates its own YaraEngine with the shared CapabilityMapper
-    let yara_engine = {
+    // Only load YARA if explicitly enabled (deprecated feature)
+    let yara_engine = if enable_yara {
         let mut engine = YaraEngine::new_with_mapper((**capability_mapper).clone());
         let (builtin_count, third_party_count) = engine.load_all_rules(enable_third_party_yara)?;
 
@@ -498,6 +555,8 @@ fn analyze_file_with_shared_mapper(
         } else {
             None
         }
+    } else {
+        None
     };
 
     // Detect file type
@@ -554,17 +613,54 @@ fn analyze_file_with_shared_mapper(
             let analyzer = analyzers::java::JavaAnalyzer::new();
             analyzer.analyze(path)?
         }
+        FileType::JavaClass => {
+            let analyzer = analyzers::java_class::JavaClassAnalyzer::new()
+                .with_capability_mapper((**capability_mapper).clone());
+            analyzer.analyze(path)?
+        }
+        FileType::Jar => {
+            // JAR files are analyzed like archives but with Java-specific handling
+            let analyzer =
+                ArchiveAnalyzer::new().with_capability_mapper((**capability_mapper).clone());
+            analyzer.analyze(path)?
+        }
         FileType::Ruby => {
             let analyzer = analyzers::ruby::RubyAnalyzer::new()
                 .with_capability_mapper((**capability_mapper).clone());
             analyzer.analyze(path)?
         }
+        FileType::TypeScript => {
+            let analyzer = analyzers::typescript::TypeScriptAnalyzer::new();
+            analyzer.analyze(path)?
+        }
+        FileType::Php => {
+            let analyzer = analyzers::php::PhpAnalyzer::new();
+            analyzer.analyze(path)?
+        }
         FileType::C => {
-            let analyzer = analyzers::c::CAnalyzer::new();
+            let analyzer = analyzers::c::CAnalyzer::new()
+                .with_capability_mapper((**capability_mapper).clone());
+            analyzer.analyze(path)?
+        }
+        FileType::Perl => {
+            let analyzer = analyzers::perl::PerlAnalyzer::new();
+            analyzer.analyze(path)?
+        }
+        FileType::Lua => {
+            let analyzer = analyzers::lua::LuaAnalyzer::new();
+            analyzer.analyze(path)?
+        }
+        FileType::PowerShell => {
+            let analyzer = analyzers::powershell::PowerShellAnalyzer::new();
+            analyzer.analyze(path)?
+        }
+        FileType::CSharp => {
+            let analyzer = analyzers::csharp::CSharpAnalyzer::new();
             analyzer.analyze(path)?
         }
         FileType::Archive => {
-            let analyzer = ArchiveAnalyzer::new();
+            let analyzer =
+                ArchiveAnalyzer::new().with_capability_mapper((**capability_mapper).clone());
             analyzer.analyze(path)?
         }
         _ => {

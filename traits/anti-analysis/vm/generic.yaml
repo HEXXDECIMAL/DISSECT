@@ -1,0 +1,27 @@
+# Virtual Machine Detection
+# MBC: B0009 (Virtual Machine Detection)
+# ATT&CK: T1497.001
+
+traits:
+  - id: anti-analysis/vm
+    description: VM detection techniques
+    criticality: suspicious
+    confidence: 0.66
+    mbc: "B0009"
+    attack: "T1497.001"
+    condition:
+      type: yara
+      source: |
+        rule vm_detect {
+          strings:
+            $vmware = "VMware" nocase
+            $virtualbox = "VirtualBox" nocase
+            $vbox = "VBOX" nocase
+            $qemu = "QEMU" nocase
+            $xen = "Xen" nocase
+            $hyperv = "Hyper-V" nocase
+            $kvm = "KVM" nocase
+            $parallels = "Parallels" nocase
+          condition:
+            any of them
+        }

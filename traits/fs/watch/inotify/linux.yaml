@@ -1,0 +1,12 @@
+# Inotify Filesystem Monitoring (Linux-specific)
+# MBC: E1083 (File and Directory Discovery)
+# ATT&CK: T1083
+
+traits:
+  - id: fs/watch/inotify
+    description: Monitor filesystem events via inotify
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: inotify_init|inotify_init1|inotify_add_watch|inotify_rm_watch

@@ -1,0 +1,37 @@
+# HTTP Headers
+# MBC: C0002 (HTTP Communication)
+# ATT&CK: T1071.001
+
+traits:
+  - id: net/http/headers-useragent-fake
+    description: Fake or suspicious User-Agent
+    criticality: suspicious
+    confidence: 0.66
+    condition:
+      type: yara
+      source: |
+        rule fake_user_agent {
+          strings:
+            $mozilla_old = "Mozilla/4.0"
+            $curl = "curl/" fullword
+            $wget = "Wget/" fullword
+            $python_urllib = "Python-urllib"
+          condition:
+            any of them
+        }
+
+  - id: net/http/headers-auth
+    description: HTTP Authorization header
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "(Authorization:|Bearer |Basic )"
+
+  - id: net/http/headers-encoding
+    description: Accept-Encoding header
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: string
+      exact: Accept-Encoding

@@ -2,6 +2,7 @@ use crate::analyzers::Analyzer;
 use crate::capabilities::CapabilityMapper;
 use crate::types::*;
 use anyhow::{Context, Result};
+use base64::engine::general_purpose::STANDARD as BASE64_STANDARD;
 use std::cell::RefCell;
 use std::fs;
 use std::path::Path;
@@ -73,6 +74,12 @@ impl JavaScriptAnalyzer {
         // Check for cross-statement obfuscation patterns
         self.check_global_obfuscation(content, &mut report);
 
+        // Check for supply chain attack patterns
+        self.check_supply_chain_patterns(content, &mut report);
+
+        // Check for npm malware patterns (obfuscator signatures, C2, etc.)
+        self.check_npm_malware_patterns(content, &mut report);
+
         // Extract functions
         self.extract_functions(&root, content.as_bytes(), &mut report);
 
@@ -82,6 +89,21 @@ impl JavaScriptAnalyzer {
         // Add idioms to source code metrics if they exist
         if let Some(ref mut metrics) = report.source_code_metrics {
             metrics.javascript_idioms = Some(javascript_idioms);
+        }
+
+        // Evaluate YAML trait definitions
+        let (traits, trait_capabilities) = self
+            .capability_mapper
+            .evaluate_traits(&report, content.as_bytes());
+
+        // Add detected traits to report
+        report.traits.extend(traits);
+
+        // Add trait-based capabilities
+        for cap in trait_capabilities {
+            if !report.capabilities.iter().any(|c| c.id == cap.id) {
+                report.capabilities.push(cap);
+            }
         }
 
         // Evaluate composite rules
@@ -328,26 +350,24 @@ impl JavaScriptAnalyzer {
             ];
 
             for (module, cap_id, description, criticality) in suspicious_modules {
-                if text.contains(module) {
-                    if !report.capabilities.iter().any(|c| c.id == cap_id) {
-                        report.capabilities.push(Capability {
-                            id: cap_id.to_string(),
-                            description: description.to_string(),
-                            confidence: 0.7, // Import alone is not definitive
-                            criticality,
-                            mbc: None,
-                            attack: None,
-                            evidence: vec![Evidence {
-                                method: "import".to_string(),
-                                source: "tree-sitter-javascript".to_string(),
-                                value: module.to_string(),
-                                location: Some(format!("line:{}", node.start_position().row + 1)),
-                            }],
-                            traits: Vec::new(),
-                            referenced_paths: None,
-                            referenced_directories: None,
-                        });
-                    }
+                if text.contains(module) && !report.capabilities.iter().any(|c| c.id == cap_id) {
+                    report.capabilities.push(Capability {
+                        id: cap_id.to_string(),
+                        description: description.to_string(),
+                        confidence: 0.7, // Import alone is not definitive
+                        criticality,
+                        mbc: None,
+                        attack: None,
+                        evidence: vec![Evidence {
+                            method: "import".to_string(),
+                            source: "tree-sitter-javascript".to_string(),
+                            value: module.to_string(),
+                            location: Some(format!("line:{}", node.start_position().row + 1)),
+                        }],
+                        traits: Vec::new(),
+                        referenced_paths: None,
+                        referenced_directories: None,
+                    });
                 }
             }
         }
@@ -359,29 +379,297 @@ impl JavaScriptAnalyzer {
             || content.contains("atob(");
         let has_eval = content.contains("eval(") || content.contains("Function(");
 
-        if has_base64 && has_eval {
-            if !report
+        if has_base64
+            && has_eval
+            && !report
                 .capabilities
                 .iter()
                 .any(|c| c.id == "anti-analysis/obfuscation/base64-eval")
+        {
+            report.capabilities.push(Capability {
+                id: "anti-analysis/obfuscation/base64-eval".to_string(),
+                description: "Base64 decode followed by eval (obfuscation)".to_string(),
+                confidence: 0.95,
+                criticality: Criticality::Suspicious,
+                mbc: None,
+                attack: None,
+                evidence: vec![Evidence {
+                    method: "pattern".to_string(),
+                    source: "tree-sitter-javascript".to_string(),
+                    value: "base64+eval".to_string(),
+                    location: None,
+                }],
+                traits: Vec::new(),
+                referenced_paths: None,
+                referenced_directories: None,
+            });
+        }
+    }
+
+    /// Check for supply chain attack patterns (tj-actions style)
+    fn check_supply_chain_patterns(&self, content: &str, report: &mut AnalysisReport) {
+        // 1. GitHub Actions exec patterns with bash
+        if (content.contains("getExecOutput") || content.contains("exec.exec"))
+            && content.contains("bash")
+        {
+            self.add_capability_if_missing(
+                report,
+                "exec/ci-pipeline/shell",
+                "CI/CD pipeline shell execution",
+                Criticality::Suspicious,
+                "getExecOutput+bash",
+            );
+        }
+
+        // 2. Silent/stealth execution (hiding output)
+        if content.contains("silent: true") || content.contains("silent:true") {
+            self.add_capability_if_missing(
+                report,
+                "evasion/stealth-execution",
+                "Stealth execution (output hidden)",
+                Criticality::Suspicious,
+                "silent:true",
+            );
+        }
+
+        // 3. Long base64-encoded strings (potential encoded payloads)
+        // Look for strings that appear to be base64 and are suspiciously long
+        // Also decode and scan for malicious patterns
+        for line in content.lines() {
+            // Find quoted strings that look like base64 (alphanumeric + /+=)
+            if let Some(start) = line.find('"') {
+                if let Some(end) = line[start + 1..].find('"') {
+                    let potential_b64 = &line[start + 1..start + 1 + end];
+                    if potential_b64.len() > 100
+                        && potential_b64
+                            .chars()
+                            .all(|c| c.is_ascii_alphanumeric() || c == '+' || c == '/' || c == '=')
+                    {
+                        // Flag long base64 strings
+                        if potential_b64.len() > 200 {
+                            self.add_capability_if_missing(
+                                report,
+                                "anti-analysis/obfuscation/long-base64",
+                                "Long base64-encoded payload detected",
+                                Criticality::Suspicious,
+                                &format!(
+                                    "{}... ({} chars)",
+                                    &potential_b64[..50.min(potential_b64.len())],
+                                    potential_b64.len()
+                                ),
+                            );
+                        }
+
+                        // Try to decode and scan for malicious content
+                        use base64::Engine;
+                        if let Ok(decoded_bytes) = BASE64_STANDARD.decode(potential_b64) {
+                            if let Ok(decoded) = String::from_utf8(decoded_bytes) {
+                                // Scan decoded content for supply chain attack patterns
+                                self.scan_decoded_payload(&decoded, report);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // 4. Shell commands embedded in strings (supply chain indicators)
+        let shell_indicators = [
+            (
+                "curl ",
+                "net/download/curl",
+                "Curl download command in string",
+            ),
+            (
+                "wget ",
+                "net/download/wget",
+                "Wget download command in string",
+            ),
+            (
+                "sudo ",
+                "privesc/sudo",
+                "Sudo privilege escalation in string",
+            ),
+            (
+                "base64 -d",
+                "anti-analysis/decode/base64-cli",
+                "Base64 CLI decoding",
+            ),
+            (
+                "| python",
+                "exec/pipe-to-interpreter",
+                "Piping to Python interpreter",
+            ),
+            ("| bash", "exec/pipe-to-shell", "Piping to bash shell"),
+            ("| sh", "exec/pipe-to-shell", "Piping to shell"),
+        ];
+
+        for (pattern, cap_id, description) in shell_indicators {
+            if content.contains(pattern) {
+                self.add_capability_if_missing(
+                    report,
+                    cap_id,
+                    description,
+                    Criticality::Hostile,
+                    pattern,
+                );
+            }
+        }
+
+        // 5. Secret/credential access patterns in CI context
+        if content.contains("isSecret") && content.contains("true") {
+            self.add_capability_if_missing(
+                report,
+                "data/secret-access",
+                "Accessing secrets/credentials",
+                Criticality::Suspicious,
+                "isSecret:true",
+            );
+        }
+
+        // 6. External gist/pastebin downloads (common exfil/C2 pattern)
+        let external_code_hosts = [
+            "gist.githubusercontent.com",
+            "pastebin.com",
+            "paste.ee",
+            "hastebin.com",
+            "dpaste.org",
+        ];
+        for host in external_code_hosts {
+            if content.contains(host) {
+                self.add_capability_if_missing(
+                    report,
+                    "c2/external-code-host",
+                    "Downloads from external code hosting",
+                    Criticality::Hostile,
+                    host,
+                );
+            }
+        }
+    }
+
+    /// Check for npm malware patterns that can't be expressed in YAML
+    /// Counting patterns (obfuscator variables, hex literals) are now in YAML with search_raw: true
+    fn check_npm_malware_patterns(&self, content: &str, report: &mut AnalysisReport) {
+        // Hardcoded IP addresses (potential C2 servers)
+        // This requires regex with capture groups and filtering, which YAML can't express
+        let ip_pattern =
+            regex::Regex::new(r#"["']?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d+)?["']?"#).unwrap();
+        for cap in ip_pattern.captures_iter(content) {
+            let ip = &cap[1];
+            // Skip localhost and private ranges that might be benign
+            if !ip.starts_with("127.")
+                && !ip.starts_with("10.")
+                && !ip.starts_with("192.168.")
+                && !ip.starts_with("0.")
             {
-                report.capabilities.push(Capability {
-                    id: "anti-analysis/obfuscation/base64-eval".to_string(),
-                    description: "Base64 decode followed by eval (obfuscation)".to_string(),
-                    confidence: 0.95,
-                    criticality: Criticality::Suspicious,
-                    mbc: None,
-                    attack: None,
-                    evidence: vec![Evidence {
-                        method: "pattern".to_string(),
-                        source: "tree-sitter-javascript".to_string(),
-                        value: "base64+eval".to_string(),
-                        location: None,
-                    }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
-                });
+                self.add_capability_if_missing(
+                    report,
+                    "c2/hardcoded-ip",
+                    "Hardcoded IP address (potential C2 server)",
+                    Criticality::Hostile,
+                    &cap[0],
+                );
+                break; // Only report once
+            }
+        }
+    }
+
+    fn add_capability_if_missing(
+        &self,
+        report: &mut AnalysisReport,
+        cap_id: &str,
+        description: &str,
+        criticality: Criticality,
+        evidence_value: &str,
+    ) {
+        if !report.capabilities.iter().any(|c| c.id == cap_id) {
+            report.capabilities.push(Capability {
+                id: cap_id.to_string(),
+                description: description.to_string(),
+                confidence: 0.9,
+                criticality,
+                mbc: None,
+                attack: None,
+                evidence: vec![Evidence {
+                    method: "pattern".to_string(),
+                    source: "npm-malware-detector".to_string(),
+                    value: evidence_value.to_string(),
+                    location: None,
+                }],
+                traits: Vec::new(),
+                referenced_paths: None,
+                referenced_directories: None,
+            });
+        }
+    }
+
+    /// Scan decoded base64 payload for malicious patterns
+    fn scan_decoded_payload(&self, decoded: &str, report: &mut AnalysisReport) {
+        // Patterns that indicate supply chain attacks when found in decoded payloads
+        let payload_indicators = [
+            (
+                "curl ",
+                "net/download/curl-encoded",
+                "Curl command in encoded payload",
+            ),
+            (
+                "wget ",
+                "net/download/wget-encoded",
+                "Wget command in encoded payload",
+            ),
+            ("sudo ", "privesc/sudo-encoded", "Sudo in encoded payload"),
+            (
+                "python3",
+                "exec/python-encoded",
+                "Python execution in encoded payload",
+            ),
+            (
+                "python ",
+                "exec/python-encoded",
+                "Python execution in encoded payload",
+            ),
+            (
+                "gist.githubusercontent.com",
+                "c2/gist-download",
+                "Downloads from GitHub Gist",
+            ),
+            (
+                "pastebin.com",
+                "c2/pastebin-download",
+                "Downloads from Pastebin",
+            ),
+            (
+                "isSecret",
+                "data/secret-exfil",
+                "Secret extraction in encoded payload",
+            ),
+            (
+                "base64 -w 0",
+                "exfil/base64-encode",
+                "Base64 encoding for exfiltration",
+            ),
+            (
+                "/etc/passwd",
+                "recon/passwd-access",
+                "Accessing password file",
+            ),
+            (
+                "/etc/shadow",
+                "credential/shadow-access",
+                "Accessing shadow file",
+            ),
+        ];
+
+        for (pattern, cap_id, description) in payload_indicators {
+            if decoded.contains(pattern) {
+                self.add_capability_if_missing(
+                    report,
+                    cap_id,
+                    description,
+                    Criticality::Hostile,
+                    &format!("[decoded] {}", pattern),
+                );
             }
         }
     }
@@ -394,113 +682,112 @@ impl JavaScriptAnalyzer {
     ) {
         if let Ok(text) = node.utf8_text(source) {
             // Detect base64 + eval pattern
-            if (text.contains("Buffer.from") && text.contains("base64")) || text.contains("atob(") {
-                if text.contains("eval(") || text.contains("Function(") {
-                    if !report
-                        .capabilities
-                        .iter()
-                        .any(|c| c.id == "anti-analysis/obfuscation/base64-eval")
-                    {
-                        report.capabilities.push(Capability {
-                            id: "anti-analysis/obfuscation/base64-eval".to_string(),
-                            description: "Base64 decode followed by eval (obfuscation)".to_string(),
-                            confidence: 0.95,
-                            criticality: Criticality::Suspicious,
-                            mbc: None,
-                            attack: None,
-                            evidence: vec![Evidence {
-                                method: "pattern".to_string(),
-                                source: "tree-sitter-javascript".to_string(),
-                                value: "base64+eval".to_string(),
-                                location: Some(format!("line:{}", node.start_position().row + 1)),
-                            }],
-                            traits: Vec::new(),
-                            referenced_paths: None,
-                            referenced_directories: None,
-                        });
-                    }
-                }
+            if ((text.contains("Buffer.from") && text.contains("base64")) || text.contains("atob("))
+                && (text.contains("eval(") || text.contains("Function("))
+                && !report
+                    .capabilities
+                    .iter()
+                    .any(|c| c.id == "anti-analysis/obfuscation/base64-eval")
+            {
+                report.capabilities.push(Capability {
+                    id: "anti-analysis/obfuscation/base64-eval".to_string(),
+                    description: "Base64 decode followed by eval (obfuscation)".to_string(),
+                    confidence: 0.95,
+                    criticality: Criticality::Suspicious,
+                    mbc: None,
+                    attack: None,
+                    evidence: vec![Evidence {
+                        method: "pattern".to_string(),
+                        source: "tree-sitter-javascript".to_string(),
+                        value: "base64+eval".to_string(),
+                        location: Some(format!("line:{}", node.start_position().row + 1)),
+                    }],
+                    traits: Vec::new(),
+                    referenced_paths: None,
+                    referenced_directories: None,
+                });
             }
 
             // Detect hex string construction
-            if text.contains("\\x") && text.matches("\\x").count() > 5 {
-                if !report
+            if text.contains("\\x")
+                && text.matches("\\x").count() > 5
+                && !report
                     .capabilities
                     .iter()
                     .any(|c| c.id == "anti-analysis/obfuscation/hex")
-                {
-                    report.capabilities.push(Capability {
-                        id: "anti-analysis/obfuscation/hex".to_string(),
-                        description: "Hex-encoded strings".to_string(),
-                        confidence: 0.9,
-                        criticality: Criticality::Suspicious,
-                        mbc: None,
-                        attack: None,
-                        evidence: vec![Evidence {
-                            method: "pattern".to_string(),
-                            source: "tree-sitter-javascript".to_string(),
-                            value: "hex_encoding".to_string(),
-                            location: Some(format!("line:{}", node.start_position().row + 1)),
-                        }],
-                        traits: Vec::new(),
-                        referenced_paths: None,
-                        referenced_directories: None,
-                    });
-                }
+            {
+                report.capabilities.push(Capability {
+                    id: "anti-analysis/obfuscation/hex".to_string(),
+                    description: "Hex-encoded strings".to_string(),
+                    confidence: 0.9,
+                    criticality: Criticality::Suspicious,
+                    mbc: None,
+                    attack: None,
+                    evidence: vec![Evidence {
+                        method: "pattern".to_string(),
+                        source: "tree-sitter-javascript".to_string(),
+                        value: "hex_encoding".to_string(),
+                        location: Some(format!("line:{}", node.start_position().row + 1)),
+                    }],
+                    traits: Vec::new(),
+                    referenced_paths: None,
+                    referenced_directories: None,
+                });
             }
 
             // Detect string manipulation obfuscation
-            if text.contains(".split(") && text.contains(".reverse()") && text.contains(".join(") {
-                if !report
+            if text.contains(".split(")
+                && text.contains(".reverse()")
+                && text.contains(".join(")
+                && !report
                     .capabilities
                     .iter()
                     .any(|c| c.id == "anti-analysis/obfuscation/string-construct")
-                {
-                    report.capabilities.push(Capability {
-                        id: "anti-analysis/obfuscation/string-construct".to_string(),
-                        description: "String manipulation obfuscation".to_string(),
-                        confidence: 0.9,
-                        criticality: Criticality::Suspicious,
-                        mbc: None,
-                        attack: None,
-                        evidence: vec![Evidence {
-                            method: "pattern".to_string(),
-                            source: "tree-sitter-javascript".to_string(),
-                            value: "split_reverse_join".to_string(),
-                            location: Some(format!("line:{}", node.start_position().row + 1)),
-                        }],
-                        traits: Vec::new(),
-                        referenced_paths: None,
-                        referenced_directories: None,
-                    });
-                }
+            {
+                report.capabilities.push(Capability {
+                    id: "anti-analysis/obfuscation/string-construct".to_string(),
+                    description: "String manipulation obfuscation".to_string(),
+                    confidence: 0.9,
+                    criticality: Criticality::Suspicious,
+                    mbc: None,
+                    attack: None,
+                    evidence: vec![Evidence {
+                        method: "pattern".to_string(),
+                        source: "tree-sitter-javascript".to_string(),
+                        value: "split_reverse_join".to_string(),
+                        location: Some(format!("line:{}", node.start_position().row + 1)),
+                    }],
+                    traits: Vec::new(),
+                    referenced_paths: None,
+                    referenced_directories: None,
+                });
             }
 
             // Detect charAt obfuscation
-            if text.contains(".charAt(") && text.matches(".charAt(").count() > 5 {
-                if !report
+            if text.contains(".charAt(")
+                && text.matches(".charAt(").count() > 5
+                && !report
                     .capabilities
                     .iter()
                     .any(|c| c.id == "anti-analysis/obfuscation/string-construct")
-                {
-                    report.capabilities.push(Capability {
-                        id: "anti-analysis/obfuscation/string-construct".to_string(),
-                        description: "Character-by-character string construction".to_string(),
-                        confidence: 0.85,
-                        criticality: Criticality::Suspicious,
-                        mbc: None,
-                        attack: None,
-                        evidence: vec![Evidence {
-                            method: "pattern".to_string(),
-                            source: "tree-sitter-javascript".to_string(),
-                            value: "charAt_pattern".to_string(),
-                            location: Some(format!("line:{}", node.start_position().row + 1)),
-                        }],
-                        traits: Vec::new(),
-                        referenced_paths: None,
-                        referenced_directories: None,
-                    });
-                }
+            {
+                report.capabilities.push(Capability {
+                    id: "anti-analysis/obfuscation/string-construct".to_string(),
+                    description: "Character-by-character string construction".to_string(),
+                    confidence: 0.85,
+                    criticality: Criticality::Suspicious,
+                    mbc: None,
+                    attack: None,
+                    evidence: vec![Evidence {
+                        method: "pattern".to_string(),
+                        source: "tree-sitter-javascript".to_string(),
+                        value: "charAt_pattern".to_string(),
+                        location: Some(format!("line:{}", node.start_position().row + 1)),
+                    }],
+                    traits: Vec::new(),
+                    referenced_paths: None,
+                    referenced_directories: None,
+                });
             }
         }
     }
@@ -1216,7 +1503,7 @@ const goodbye = () => {
 "#;
         let report = analyze_js_code(code);
 
-        assert!(report.functions.len() >= 1);
+        assert!(!report.functions.is_empty());
         assert!(report.functions.iter().any(|f| f.name == "hello"));
     }
 

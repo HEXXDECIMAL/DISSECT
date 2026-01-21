@@ -1,0 +1,27 @@
+# Temporary Directory Operations - Unix
+# MBC: E1083 (File and Directory Discovery)
+# ATT&CK: T1083
+
+traits:
+  - id: fs/temp/directory-create
+    description: Create temporary directory
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: mkdtemp
+
+  - id: fs/temp/directory-env
+    description: Read temp directory from TMPDIR environment
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: yara
+      source: |
+        rule temp_env {
+          strings:
+            $tmpdir = "TMPDIR" fullword
+            $getenv = "getenv"
+          condition:
+            all of them
+        }

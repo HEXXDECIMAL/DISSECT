@@ -1,0 +1,44 @@
+# Dynamic Eval Execution - JavaScript/Node.js
+# Detects eval() usage patterns that indicate dynamic code execution
+# ATT&CK: T1059.007 (Command and Scripting Interpreter: JavaScript)
+
+traits:
+  - id: eval-function-reference
+    description: eval passed as function reference
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1059.007"
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "\\(eval\\s*,|,\\s*eval\\)"
+
+  - id: eval-variable
+    description: eval with variable argument
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1059.007"
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "eval\\s*\\(\\s*[a-zA-Z_$][a-zA-Z0-9_$]*\\s*\\)"
+
+  - id: Function-constructor
+    description: Function constructor (dynamic code execution)
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1059.007"
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "new\\s+Function\\s*\\(|Function\\s*\\("
+
+  - id: vm-runInContext
+    description: Node.js VM runInContext (sandboxed eval)
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1059.007"
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "vm\\.runIn|runInContext|runInNewContext"

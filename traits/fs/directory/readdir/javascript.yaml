@@ -1,0 +1,12 @@
+# Directory Listing - JavaScript/Node
+# MBC: E1083 (File and Directory Discovery)
+# ATT&CK: T1083
+
+traits:
+  - id: fs/directory/readdir-node
+    description: List directory contents (Node.js)
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "\\.readdir(Sync)?\\("

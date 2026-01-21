@@ -1,0 +1,23 @@
+# Socket Listen Operations
+# MBC: C0001 (Socket Communication)
+# ATT&CK: T1071
+
+traits:
+  - id: net/socket/listen
+    description: Listen on a socket
+    criticality: notable
+    confidence: 0.66
+    mbc: "C0001"
+    attack: "T1071"
+    condition:
+      type: yara
+      source: |
+        rule socket_listen {
+          strings:
+            $socket = "socket" fullword
+            $listen = "listen" fullword
+            $accept = "accept" fullword
+            $accept64 = "accept64" fullword
+          condition:
+            2 of them
+        }

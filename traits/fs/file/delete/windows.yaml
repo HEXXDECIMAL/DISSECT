@@ -1,0 +1,12 @@
+# File Delete Operations - Windows
+# MBC: C0047 (Delete File)
+# ATT&CK: T1070.004
+
+traits:
+  - id: fs/file/delete-win
+    description: Delete files (Windows API)
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: DeleteFile|DeleteFileA|DeleteFileW

@@ -1,0 +1,12 @@
+# File Open Operations - Python
+# MBC: C0046 (Create File)
+# ATT&CK: T1005
+
+traits:
+  - id: fs/file/open-python
+    description: Open files (Python)
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "\\sopen\\("

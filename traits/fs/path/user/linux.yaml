@@ -1,0 +1,28 @@
+# User Home Directory Paths - Linux
+# MBC: E1083 (File and Directory Discovery)
+# ATT&CK: T1083
+
+traits:
+  - id: fs/path/user-home
+    description: Reference to /home directories
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "/home/[\\w\\-/]+"
+
+  - id: fs/path/user-root
+    description: Reference to /root directory
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "/root/[\\w\\-/]+"
+
+  - id: fs/path/user-home-config
+    description: Reference to home config directories
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "\\.(config|local|cache)/[\\w\\-/]+"

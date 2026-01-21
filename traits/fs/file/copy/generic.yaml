@@ -1,0 +1,12 @@
+# File Copy Operations
+# MBC: C0046 (Create File)
+# ATT&CK: T1105
+
+traits:
+  - id: fs/file/copy
+    description: Copy files
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: copyfile|fcopyfile|CopyFile|CopyFileA|CopyFileW

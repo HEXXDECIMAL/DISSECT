@@ -1,0 +1,12 @@
+# File Open Operations
+# MBC: C0046 (Create File)
+# ATT&CK: T1005
+
+traits:
+  - id: fs/file/open
+    description: Open files
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: fopen|fopen64|fclose|open|openat

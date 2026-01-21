@@ -1,0 +1,132 @@
+# Java C2/RAT Traits
+# Detects RAT command and control patterns in Java bytecode
+# MBC: Command and Control
+# ATT&CK: T1071 (Application Layer Protocol)
+
+traits:
+  # Remote execution commands
+  - id: remote-cmd-string
+    description: Remote command execution indicator
+    criticality: hostile
+    confidence: 0.95
+    mbc: "B0024"
+    attack: "T1059"
+    file_types: [class]
+    condition:
+      type: string
+      exact: "remote-cmd"
+
+  - id: power-shell-string
+    description: PowerShell execution command
+    criticality: hostile
+    confidence: 0.95
+    mbc: "B0024"
+    attack: "T1059.001"
+    file_types: [class]
+    condition:
+      type: string
+      exact: "power-shell"
+
+  # Download and execute
+  - id: down-n-exec-string
+    description: Download and execute command
+    criticality: hostile
+    confidence: 0.98
+    mbc: "B0025"
+    attack: "T1105"
+    file_types: [class]
+    condition:
+      type: string
+      exact: "down-n-exec"
+
+  - id: up-n-exec-string
+    description: Upload and execute command
+    criticality: hostile
+    confidence: 0.98
+    mbc: "B0025"
+    attack: "T1105"
+    file_types: [class]
+    condition:
+      type: string
+      exact: "up-n-exec"
+
+  # Remote desktop/screen
+  - id: remote-screen-string
+    description: Remote screen access command
+    criticality: hostile
+    confidence: 0.95
+    mbc: "B0022"
+    attack: "T1113"
+    file_types: [class]
+    condition:
+      type: string
+      exact: "remote-screen"
+
+  - id: hrdp-new-string
+    description: Hidden RDP session command
+    criticality: hostile
+    confidence: 0.95
+    mbc: "B0022"
+    attack: "T1021.001"
+    file_types: [class]
+    condition:
+      type: string
+      exact: "hrdp-new"
+
+  - id: hrdp-res-string
+    description: Hidden RDP resume command
+    criticality: hostile
+    confidence: 0.95
+    mbc: "B0022"
+    attack: "T1021.001"
+    file_types: [class]
+    condition:
+      type: string
+      exact: "hrdp-res"
+
+  # File management
+  - id: file-manager-string
+    description: File manager command
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "E1083"
+    attack: "T1083"
+    file_types: [class]
+    condition:
+      type: string
+      exact: "file-manager"
+
+  # Proxy/tunneling
+  - id: rev-proxy-string
+    description: Reverse proxy command
+    criticality: hostile
+    confidence: 0.95
+    mbc: "B0026"
+    attack: "T1090"
+    file_types: [class]
+    condition:
+      type: string
+      exact: "rev-proxy"
+
+  # Encryption commands (ransomware indicator)
+  - id: rw-encrypt-string
+    description: Ransomware encrypt command
+    criticality: hostile
+    confidence: 0.95
+    mbc: "B0031"
+    attack: "T1486"
+    file_types: [class]
+    condition:
+      type: string
+      exact: "rw-encrypt"
+
+  - id: rw-decrypt-string
+    description: Ransomware decrypt command
+    criticality: hostile
+    confidence: 0.95
+    mbc: "B0031"
+    attack: "T1486"
+    file_types: [class]
+    condition:
+      type: string
+      exact: "rw-decrypt"

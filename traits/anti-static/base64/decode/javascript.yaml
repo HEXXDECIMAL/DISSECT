@@ -1,0 +1,22 @@
+# Base64 Decode Detection - JavaScript
+# MBC: B0032 (Obfuscated Files or Information)
+# ATT&CK: T1140
+
+traits:
+  - id: anti-static/base64/decode-js
+    description: Base64 decoding in JavaScript
+    criticality: notable
+    confidence: 0.66
+    mbc: "B0032"
+    attack: "T1140"
+    condition:
+      type: string
+      exact: "atob("
+
+  - id: anti-static/base64/decode-exec-js
+    description: Base64 decode and execute in JavaScript
+    criticality: suspicious
+    confidence: 0.66
+    condition:
+      type: string
+      exact: "eval(atob("

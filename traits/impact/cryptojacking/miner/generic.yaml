@@ -1,0 +1,44 @@
+# Cryptojacking/Miner Detection
+# MBC: B0041 (Mining)
+# ATT&CK: T1496
+
+traits:
+  - id: impact/cryptojacking/miner
+    description: Cryptocurrency mining patterns
+    criticality: suspicious
+    confidence: 0.66
+    mbc: "B0041"
+    attack: "T1496"
+    condition:
+      type: yara
+      source: |
+        rule cryptominer {
+          strings:
+            $stratum = "stratum+tcp"
+            $pool = "pool" fullword
+            $miner = "miner" fullword
+            $xmrig = "xmrig"
+            $monero = "monero"
+            $hashrate = "hashrate"
+            $wallet = "wallet" fullword
+            $coinhive = "coinhive"
+            $cryptonight = "cryptonight"
+          condition:
+            2 of them
+        }
+
+  - id: impact/cryptojacking/miner-xmrig
+    description: XMRig miner
+    criticality: hostile
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "(xmrig|XMRig)"
+
+  - id: impact/cryptojacking/miner-stratum
+    description: Stratum mining protocol
+    criticality: suspicious
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "stratum\\+tcp://"

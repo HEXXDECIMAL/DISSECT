@@ -1,0 +1,28 @@
+# Device Paths
+# MBC: E1083 (File and Directory Discovery)
+# ATT&CK: T1083
+
+traits:
+  - id: fs/path/device-dev
+    description: Reference to /dev devices (excluding /dev/null)
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: yara
+      source: |
+        rule dev_path {
+          strings:
+            $path = /\/dev\/[\w\.\-\/]{1,16}/
+            $ignore_null = "/dev/null"
+            $ignore_shm = "/dev/shm/"
+          condition:
+            $path and none of ($ignore*)
+        }
+
+  - id: fs/path/device-null
+    description: Reference to /dev/null
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: string
+      exact: /dev/null

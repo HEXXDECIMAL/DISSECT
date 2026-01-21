@@ -1,0 +1,20 @@
+# Memory-Mapped Files
+# MBC: C0046 (Create File)
+# ATT&CK: T1106
+
+traits:
+  - id: fs/memory/mmap
+    description: Map files or devices into memory
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: mmap|mmap64
+
+  - id: fs/memory/munmap
+    description: Unmap files from memory
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: munmap
