@@ -1,0 +1,15 @@
+// Migrated from malcontent: fs/path/root.yara
+
+rule root_path_val: medium {
+  meta:
+    description = "path reference within /root"
+    capability  = "true"
+    confidence  = "0.66"
+
+  strings:
+$root           = /\/root\/[%\w\.\-\/]{0,64}/
+    $root2          = "/root" fullword
+    $not_go_selinux = "SELINUXTYPE"
+  condition:
+    any of them and none of ($not*)
+}

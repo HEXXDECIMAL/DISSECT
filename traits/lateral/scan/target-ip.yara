@@ -1,0 +1,17 @@
+// Migrated from malcontent: lateral/scan/target_ip.yara
+
+rule target_ip: medium {
+  meta:
+    description = "References a target IP"
+    mbc         = "OB0013"
+    attack      = "T1046"
+    confidence  = "0.66"
+
+  strings:
+$ref  = "target ip"
+    $ref2 = "TargetIP"
+    $ref3 = "target_ip"
+    $ref4 = "target IP"
+  condition:
+    any of them
+}

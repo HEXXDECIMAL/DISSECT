@@ -166,8 +166,8 @@ impl JavaScriptAnalyzer {
                         description: description.to_string(),
                         confidence: 1.0,
                         criticality: Criticality::None,
-                        mbc_id: None,
-                        attack_id: None,
+                        mbc: None,
+                        attack: None,
                         evidence: vec![Evidence {
                             method: "ast".to_string(),
                             source: "tree-sitter-javascript".to_string(),
@@ -204,8 +204,8 @@ impl JavaScriptAnalyzer {
                             description: description.to_string(),
                             confidence: 0.7, // Import alone is not definitive
                             criticality: Criticality::None,
-                            mbc_id: None,
-                            attack_id: None,
+                            mbc: None,
+                            attack: None,
                             evidence: vec![Evidence {
                                 method: "import".to_string(),
                                 source: "tree-sitter-javascript".to_string(),
@@ -234,8 +234,8 @@ impl JavaScriptAnalyzer {
                     description: "Base64 decode followed by eval (obfuscation)".to_string(),
                     confidence: 0.95,
                     criticality: Criticality::None,
-                    mbc_id: None,
-                    attack_id: None,
+                    mbc: None,
+                    attack: None,
                     evidence: vec![Evidence {
                         method: "pattern".to_string(),
                         source: "tree-sitter-javascript".to_string(),
@@ -261,8 +261,8 @@ impl JavaScriptAnalyzer {
                             description: "Base64 decode followed by eval (obfuscation)".to_string(),
                             confidence: 0.95,
                             criticality: Criticality::None,
-                            mbc_id: None,
-                            attack_id: None,
+                            mbc: None,
+                            attack: None,
                             evidence: vec![Evidence {
                                 method: "pattern".to_string(),
                                 source: "tree-sitter-javascript".to_string(),
@@ -285,8 +285,8 @@ impl JavaScriptAnalyzer {
                         description: "Hex-encoded strings".to_string(),
                         confidence: 0.9,
                         criticality: Criticality::None,
-                        mbc_id: None,
-                        attack_id: None,
+                        mbc: None,
+                        attack: None,
                         evidence: vec![Evidence {
                             method: "pattern".to_string(),
                             source: "tree-sitter-javascript".to_string(),
@@ -308,8 +308,8 @@ impl JavaScriptAnalyzer {
                         description: "String manipulation obfuscation".to_string(),
                         confidence: 0.9,
                         criticality: Criticality::None,
-                        mbc_id: None,
-                        attack_id: None,
+                        mbc: None,
+                        attack: None,
                         evidence: vec![Evidence {
                             method: "pattern".to_string(),
                             source: "tree-sitter-javascript".to_string(),
@@ -331,8 +331,8 @@ impl JavaScriptAnalyzer {
                         description: "Character-by-character string construction".to_string(),
                         confidence: 0.85,
                         criticality: Criticality::None,
-                        mbc_id: None,
-                        attack_id: None,
+                        mbc: None,
+                        attack: None,
                         evidence: vec![Evidence {
                             method: "pattern".to_string(),
                             source: "tree-sitter-javascript".to_string(),

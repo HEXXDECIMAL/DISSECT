@@ -214,8 +214,8 @@ impl CAnalyzer {
                     description: desc.to_string(),
                     confidence: conf,
                     criticality: Criticality::None,
-                    mbc_id: None,
-                    attack_id: None,
+                    mbc: None,
+                    attack: None,
                     evidence: vec![Evidence {
                         method: "ast".to_string(),
                         source: "tree-sitter-c".to_string(),
@@ -253,8 +253,8 @@ impl CAnalyzer {
                     description: desc.to_string(),
                     confidence: conf,
                     criticality: Criticality::None,
-                    mbc_id: None,
-                    attack_id: None,
+                    mbc: None,
+                    attack: None,
                     evidence: vec![Evidence {
                         method: "include".to_string(),
                         source: "tree-sitter-c".to_string(),
@@ -277,9 +277,9 @@ impl CAnalyzer {
             confidence: 1.0,
             criticality: Criticality::None,
 
-                                mbc_id: None,
+                                mbc: None,
 
-                                attack_id: None,
+                                attack: None,
 
                                 evidence: vec![Evidence {
                 method: "ast".to_string(),

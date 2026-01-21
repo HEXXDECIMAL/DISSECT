@@ -1,0 +1,41 @@
+// Migrated from malcontent: impact/ransom/locked.yara
+
+rule lockedFiles: medium {
+  meta:
+    description = "References 'locked files'"
+    mbc         = "OB0010"
+    attack      = "T1486"
+    confidence  = "0.66"
+
+  strings:
+$ref = /[\w\/\.]{0,24}lockedFiles/
+
+    $not = "libc.lockedFiles"
+  condition:
+    filesize < 10MB and $ref and none of ($not*)
+}
+
+rule lockedFileNames: medium {
+  meta:
+    description = "References 'locked file names'"
+    confidence  = "0.66"
+
+  strings:
+$ref2 = /[\w\/\.]{0,24}lockedFileNames/
+  condition:
+    filesize < 10MB and any of them
+}
+
+rule locked: high {
+  meta:
+    description = "claims system has been locked"
+    confidence  = "0.66"
+
+  strings:
+$ = "Your system has been locked"
+    $ = /Do not try .{0,16} remove this lock/
+    $ = "PC IS LOCKED"
+    $ = /YOUR \w\{2-12\} IS LOCKED/
+  condition:
+    filesize < 10MB and any of them
+}

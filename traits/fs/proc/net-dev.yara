@@ -1,0 +1,13 @@
+// Migrated from malcontent: fs/proc/net-dev.yara
+
+rule proc_net_dev: medium {
+  meta:
+    description = "network device statistics"
+    capability  = "true"
+    confidence  = "0.66"
+
+  strings:
+$val = "/proc/net/dev"
+  condition:
+    any of them
+}

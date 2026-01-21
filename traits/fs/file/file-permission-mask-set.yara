@@ -1,0 +1,13 @@
+// Migrated from malcontent: fs/file/file-permission-mask-set.yara
+
+rule umask: harmless {
+  meta:
+    description = "set file mode creation mask"
+    capability  = "true"
+    confidence  = "0.66"
+
+  strings:
+$ref = "umask" fullword
+  condition:
+    any of them
+}

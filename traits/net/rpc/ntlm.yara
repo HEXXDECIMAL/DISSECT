@@ -1,0 +1,18 @@
+// Migrated from malcontent: net/rpc/ntlm.yara
+
+rule windows_ntlm_auth: medium {
+  meta:
+    description = "supports Windows NTLM authentication"
+    capability  = "true"
+    confidence  = "0.66"
+
+  strings:
+$s_ntlmssp   = "ntlmssp" fullword
+    $s_smbhash   = "SMBHASH"
+    $s_hash_pass = "HASH PASS"
+    $s_ntlm_hash = "LM HASH"
+    $ntlm        = "ntlm" fullword
+    $NTLM        = "NTLM" fullword
+  condition:
+    any of them
+}

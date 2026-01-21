@@ -1,0 +1,14 @@
+// Migrated from malcontent: c2/connect/curl_easy.yara
+
+rule curl_easy: medium {
+  meta:
+    description = "uses curl_easy for HTTP transfers, possibly to a C2"
+    mbc         = "OB0011"
+    attack      = "T1071"
+    confidence  = "0.66"
+
+  strings:
+$curl = "curl_easy_init" fullword
+  condition:
+    filesize < 1MB and all of them
+}

@@ -1,0 +1,15 @@
+// Migrated from malcontent: net/proxy/shadowsocks.yara
+
+rule shadowsocks: high {
+  meta:
+    description = "shadowsocks firewall bypass tool"
+    capability  = "true"
+    confidence  = "0.66"
+
+  strings:
+$shadowsocks    = "shadowsocks"
+    $shadowsocks2   = "Shadowsocks"
+    $not_pypi_index = "testpack-id-lb001"
+  condition:
+    filesize < 100MB and any of ($shadow*) and none of ($not*)
+}

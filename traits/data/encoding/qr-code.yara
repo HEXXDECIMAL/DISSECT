@@ -1,0 +1,13 @@
+// Migrated from malcontent: data/encoding/qr_code.yara
+
+rule qr_code: low {
+  meta:
+    description = "works with QR Codes"
+    capability  = "true"
+    confidence  = "0.66"
+
+  strings:
+$ref = "QR Code"
+  condition:
+    any of them
+}

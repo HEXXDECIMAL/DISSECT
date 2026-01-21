@@ -1,0 +1,16 @@
+// Migrated from malcontent: process/unshare.yara
+
+rule syscall_unshare {
+  meta:
+    description = "disassociate parts of the process execution context"
+    capability  = "true"
+    confidence  = "0.66"
+    pledge      = "exec"
+    syscall     = "unshare"
+    capabiitity = "CAP_SYS_ADMBIN"
+
+  strings:
+$ref = "unshare" fullword
+  condition:
+    any of them
+}

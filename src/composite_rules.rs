@@ -121,13 +121,13 @@ pub struct TraitDefinition {
     #[serde(default)]
     pub criticality: Criticality,
 
-    /// MBC (Malware Behavior Catalog) ID (e.g., "B0036.002", "E1082")
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub mbc_id: Option<String>,
+    /// MBC (Malware Behavior Catalog) ID - most specific available (e.g., "B0015.001")
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub mbc: Option<String>,
 
-    /// MITRE ATT&CK Technique ID (e.g., "T1082", "T1059")
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub attack_id: Option<String>,
+    /// MITRE ATT&CK Technique ID (e.g., "T1056.001")
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub attack: Option<String>,
 
     #[serde(default = "default_platforms")]
     pub platforms: Vec<Platform>,
@@ -140,7 +140,6 @@ pub struct TraitDefinition {
     pub capability: bool,
 
     // Detection condition - just one condition per trait (atomic!)
-    #[serde(flatten)]
     pub condition: Condition,
 }
 
@@ -160,13 +159,13 @@ pub struct CompositeTrait {
     #[serde(default)]
     pub criticality: Criticality,
 
-    /// MBC (Malware Behavior Catalog) ID (e.g., "B0036", "E1082")
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub mbc_id: Option<String>,
+    /// MBC (Malware Behavior Catalog) ID - most specific available (e.g., "B0015.001")
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub mbc: Option<String>,
 
-    /// MITRE ATT&CK Technique ID (e.g., "T1082", "T1059")
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub attack_id: Option<String>,
+    /// MITRE ATT&CK Technique ID (e.g., "T1056.001")
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub attack: Option<String>,
 
     #[serde(default = "default_platforms")]
     pub platforms: Vec<Platform>,
@@ -246,8 +245,8 @@ impl CompositeTrait {
                 description: self.description.clone(),
                 confidence: self.confidence,
                 criticality: self.criticality,
-                mbc_id: self.mbc_id.clone(),
-                attack_id: self.attack_id.clone(),
+                mbc: self.mbc.clone(),
+                attack: self.attack.clone(),
                 evidence: result.evidence,
                 traits: result.traits,
                 referenced_paths: None,
@@ -669,8 +668,10 @@ impl TraitDefinition {
                 description: self.description.clone(),
                 confidence: self.confidence,
                 criticality: self.criticality,
-                mbc_id: self.mbc_id.clone(),
-                attack_id: self.attack_id.clone(),
+                mbc: self.mbc.clone(),
+                attack: self.attack.clone(),
+                language: None,
+                platforms: Vec::new(),
                 evidence: result.evidence,
                 referenced_paths: None,
                 referenced_directories: None,

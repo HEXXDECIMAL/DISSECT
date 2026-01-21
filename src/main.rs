@@ -38,11 +38,11 @@ fn main() -> Result<()> {
     }
 
     let result = match args.command {
-        cli::Command::Analyze { target, yara, yara_rules } => {
-            analyze_file(&target, yara, yara_rules.as_deref(), &args.format)?
+        cli::Command::Analyze { target, third_party_yara } => {
+            analyze_file(&target, third_party_yara, &args.format)?
         }
-        cli::Command::Scan { paths, yara, yara_rules } => {
-            scan_paths(paths, yara, yara_rules.as_deref(), &args.format)?
+        cli::Command::Scan { paths, third_party_yara } => {
+            scan_paths(paths, third_party_yara, &args.format)?
         }
         cli::Command::Diff { old, new } => {
             diff_analysis(&old, &new)?
@@ -62,7 +62,7 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn analyze_file(target: &str, use_yara: bool, yara_rules_dir: Option<&str>, format: &cli::OutputFormat) -> Result<String> {
+fn analyze_file(target: &str, enable_third_party_yara: bool, format: &cli::OutputFormat) -> Result<String> {
     let path = Path::new(target);
 
     if !path.exists() {
@@ -75,66 +75,16 @@ fn analyze_file(target: &str, use_yara: bool, yara_rules_dir: Option<&str>, form
         cli::OutputFormat::Terminal => println!("Analyzing: {}", target),
     }
 
-    // Load YARA rules if requested
-    let yara_engine = if use_yara {
-        use indicatif::{ProgressBar, ProgressStyle};
-
+    // Load YARA rules (always enabled)
+    let yara_engine = {
         let mut engine = YaraEngine::new();
+        let (builtin_count, third_party_count) = engine.load_all_rules(enable_third_party_yara)?;
 
-        // Create spinner for YARA loading (terminal mode only)
-        let spinner = if matches!(format, cli::OutputFormat::Terminal) {
-            let sp = ProgressBar::new_spinner();
-            sp.set_style(
-                ProgressStyle::default_spinner()
-                    .template("{spinner:.green} {msg}")
-                    .unwrap()
-            );
-            Some(sp)
+        if builtin_count + third_party_count > 0 {
+            Some(engine)
         } else {
             None
-        };
-
-        if let Some(rules_dir) = yara_rules_dir {
-            match format {
-                cli::OutputFormat::Json => {
-                    eprintln!("Loading YARA rules from: {}", rules_dir);
-                    let count = engine.load_rules_from_directory(Path::new(rules_dir))?;
-                    eprintln!("Loaded {} YARA rules", count);
-                }
-                cli::OutputFormat::Terminal => {
-                    if let Some(ref sp) = spinner {
-                        sp.set_message(format!("Loading YARA rules from: {}", rules_dir));
-                        sp.enable_steady_tick(std::time::Duration::from_millis(100));
-                    }
-                    let count = engine.load_rules_from_directory(Path::new(rules_dir))?;
-                    if let Some(ref sp) = spinner {
-                        sp.finish_with_message(format!("Loaded {} YARA rules", count));
-                    }
-                }
-            }
-        } else {
-            match format {
-                cli::OutputFormat::Json => {
-                    eprintln!("Loading YARA rules from malcontent...");
-                    let count = engine.load_malcontent_rules()?;
-                    eprintln!("Loaded {} YARA rules", count);
-                }
-                cli::OutputFormat::Terminal => {
-                    if let Some(ref sp) = spinner {
-                        sp.set_message("Loading YARA rules from malcontent...");
-                        sp.enable_steady_tick(std::time::Duration::from_millis(100));
-                    }
-                    let count = engine.load_malcontent_rules()?;
-                    if let Some(ref sp) = spinner {
-                        sp.finish_with_message(format!("Loaded {} YARA rules", count));
-                    }
-                }
-            }
         }
-
-        Some(engine)
-    } else {
-        None
     };
 
     // Detect file type
@@ -215,7 +165,7 @@ fn analyze_file(target: &str, use_yara: bool, yara_rules_dir: Option<&str>, form
     }
 }
 
-fn scan_paths(paths: Vec<String>, use_yara: bool, yara_rules_dir: Option<&str>, format: &cli::OutputFormat) -> Result<String> {
+fn scan_paths(paths: Vec<String>, enable_third_party_yara: bool, format: &cli::OutputFormat) -> Result<String> {
     use indicatif::{ProgressBar, ProgressStyle};
 
     println!("Scanning {} path(s)...\n", paths.len());
@@ -244,7 +194,7 @@ fn scan_paths(paths: Vec<String>, use_yara: bool, yara_rules_dir: Option<&str>, 
         }
 
         if path.is_file() {
-            match analyze_file(path_str, use_yara, yara_rules_dir, &cli::OutputFormat::Json) {
+            match analyze_file(path_str, enable_third_party_yara, &cli::OutputFormat::Json) {
                 Ok(json) => {
                     if pb.is_none() {
                         println!("✓ {}", path_str);

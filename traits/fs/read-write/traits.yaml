@@ -1,0 +1,140 @@
+# File System Read/Write Traits
+# MBC: OB0009 (File System) → E1083 (File and Directory Discovery)
+# ATT&CK: T1083 (File and Directory Discovery), T1005 (Data from Local System)
+
+traits:
+  # Symbolic link operations
+  - id: readlink
+    description: Read value of symbolic link
+    criticality: low
+    mbc: "E1083"
+    attack: "T1083"
+    confidence: 0.5
+    condition:
+      type: symbol
+      pattern: readlink
+    platforms: [unix, linux, macos]
+
+  - id: realpath
+    description: Resolve absolute pathname (follows symlinks)
+    criticality: low
+    mbc: "E1083"
+    attack: "T1083"
+    confidence: 0.5
+    condition:
+      type: symbol
+      pattern: realpath
+    platforms: [unix, linux, macos]
+
+  - id: symlink
+    description: Create symbolic link
+    criticality: medium
+    mbc: "E1222"
+    attack: "T1222"
+    confidence: 0.6
+    condition:
+      type: symbol
+      pattern: symlink
+    platforms: [unix, linux, macos]
+
+  - id: link
+    description: Create hard link to file
+    criticality: medium
+    mbc: "E1222"
+    attack: "T1222"
+    confidence: 0.6
+    condition:
+      type: symbol
+      pattern: link
+    platforms: [unix, linux, macos]
+
+  # File metadata operations
+  - id: stat
+    description: Get file status and metadata
+    criticality: low
+    mbc: "E1083"
+    attack: "T1083"
+    confidence: 0.4
+    condition:
+      type: symbol
+      pattern: stat|lstat|fstat
+    platforms: [unix, linux, macos]
+
+  - id: access
+    description: Check file accessibility and permissions
+    criticality: low
+    mbc: "E1083"
+    attack: "T1083"
+    confidence: 0.5
+    condition:
+      type: symbol
+      pattern: access
+    platforms: [unix, linux, macos]
+
+  # Extended attributes (macOS/Linux)
+  - id: getxattr
+    description: Get extended file attributes
+    criticality: low
+    mbc: "E1083"
+    attack: "T1083"
+    confidence: 0.5
+    condition:
+      type: symbol
+      pattern: getxattr
+    platforms: [macos, linux]
+
+  - id: listxattr
+    description: List extended file attributes
+    criticality: low
+    mbc: "E1083"
+    attack: "T1083"
+    confidence: 0.5
+    condition:
+      type: symbol
+      pattern: listxattr
+    platforms: [macos, linux]
+
+  - id: setxattr
+    description: Set extended file attributes
+    criticality: medium
+    mbc: "E1222"
+    attack: "T1222"
+    confidence: 0.6
+    condition:
+      type: symbol
+      pattern: setxattr
+    platforms: [macos, linux]
+
+  - id: removexattr
+    description: Remove extended file attributes
+    criticality: medium
+    mbc: "E1222"
+    attack: "T1222"
+    confidence: 0.6
+    condition:
+      type: symbol
+      pattern: removexattr
+    platforms: [macos, linux]
+
+  # File locking
+  - id: flock
+    description: Apply or remove advisory lock on file
+    criticality: low
+    mbc: "E1083"
+    attack: "T1083"
+    confidence: 0.4
+    condition:
+      type: symbol
+      pattern: flock
+    platforms: [unix, linux, macos]
+
+  - id: fcntl
+    description: File descriptor manipulation and control
+    criticality: low
+    mbc: "E1083"
+    attack: "T1083"
+    confidence: 0.4
+    condition:
+      type: symbol
+      pattern: fcntl
+    platforms: [unix, linux, macos]

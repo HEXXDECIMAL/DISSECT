@@ -1,0 +1,95 @@
+# Process Termination and Signal Handling Traits
+# MBC: OC0003 (Defense Evasion) / OB0006 (Execution)
+# ATT&CK: T1562 (Impair Defenses) / T1059 (Command and Scripting Interpreter)
+
+traits:
+  # Signal sending
+  - id: kill
+    description: Send signal to process (terminate, stop, or control)
+    criticality: medium
+    mbc: "E1562"
+    attack: "T1562"
+    confidence: 0.6
+    condition:
+      type: symbol
+      pattern: kill
+    platforms: [unix, linux, macos]
+
+  - id: killpg
+    description: Send signal to process group
+    criticality: medium
+    mbc: "E1562"
+    attack: "T1562"
+    confidence: 0.7
+    condition:
+      type: symbol
+      pattern: killpg
+    platforms: [unix, linux, macos]
+
+  # Signal handling
+  - id: signal
+    description: Install signal handler (catch or ignore signals)
+    criticality: medium
+    mbc: "F0004"
+    attack: "T1562.001"
+    confidence: 0.6
+    condition:
+      type: symbol
+      pattern: signal
+    platforms: [unix, linux, macos]
+
+  - id: sigaction
+    description: Examine or change signal action
+    criticality: medium
+    mbc: "F0004"
+    attack: "T1562.001"
+    confidence: 0.6
+    condition:
+      type: symbol
+      pattern: sigaction
+    platforms: [unix, linux, macos]
+
+  - id: sigprocmask
+    description: Examine or change blocked signals
+    criticality: medium
+    mbc: "F0004"
+    attack: "T1562.001"
+    confidence: 0.6
+    condition:
+      type: symbol
+      pattern: sigprocmask
+    platforms: [unix, linux, macos]
+
+  # Process termination
+  - id: abort
+    description: Cause abnormal process termination
+    criticality: low
+    mbc: "E1562"
+    attack: "T1562"
+    confidence: 0.4
+    condition:
+      type: symbol
+      pattern: abort
+    platforms: [unix, linux, macos, windows]
+
+  - id: exit
+    description: Terminate process with status code
+    criticality: low
+    mbc: "E1562"
+    attack: "T1562"
+    confidence: 0.3
+    condition:
+      type: symbol
+      pattern: exit
+    platforms: [unix, linux, macos, windows]
+
+  - id: _exit
+    description: Terminate process immediately without cleanup
+    criticality: low
+    mbc: "E1562"
+    attack: "T1562"
+    confidence: 0.4
+    condition:
+      type: symbol
+      pattern: _exit
+    platforms: [unix, linux, macos]

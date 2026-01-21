@@ -1,0 +1,19 @@
+// Migrated from malcontent: impact/remote_access/dbg_exec_post.yara
+
+rule debug_program_with_high_refs: high {
+  meta:
+    description = "debug program with unusual references"
+    mbc         = "OB0010"
+    attack      = "T1498"
+    confidence  = "0.66"
+
+  strings:
+$task_allow = "com.apple.security.get-task-allow"
+    $r_libcurl  = "libcurl"
+    $r_post     = "POST"
+    $r_system   = "_system"
+    $r_execute  = "execute "
+    $r_executed = "executed "
+  condition:
+    $task_allow and 2 of ($r*)
+}

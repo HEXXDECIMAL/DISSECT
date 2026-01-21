@@ -226,8 +226,8 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
             ),
             confidence: 0.95,
             criticality: Criticality::High,
-            mbc_id: None,
-            attack_id: Some("T1552.001".to_string()), // Unsecured Credentials
+            mbc: None,
+            attack: Some("T1552.001".to_string()), // Unsecured Credentials
             evidence: credential_vars
                 .iter()
                 .map(|e| Evidence {
@@ -237,6 +237,8 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
                     location: None,
                 })
                 .collect(),
+            language: None,
+            platforms: Vec::new(),
             referenced_paths: None,
             referenced_directories: None,
         });
@@ -272,14 +274,16 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
             description: description.to_string(),
             confidence: 0.95,
             criticality: Criticality::High,
-            mbc_id: None,
-            attack_id: Some(attack_id.to_string()),
+            mbc: None,
+            attack: Some(attack_id.to_string()),
             evidence: vec![Evidence {
                 method: "env_var".to_string(),
                 source: var.source.clone(),
                 value: var.name.clone(),
                 location: None,
             }],
+            language: None,
+            platforms: Vec::new(),
             referenced_paths: None,
             referenced_directories: None,
         });
@@ -297,8 +301,8 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
             description: "Discovers user information via environment variables".to_string(),
             confidence: 0.8,
             criticality: Criticality::Low,
-            mbc_id: None,
-            attack_id: Some("T1033".to_string()), // System Owner/User Discovery
+            mbc: None,
+            attack: Some("T1033".to_string()), // System Owner/User Discovery
             evidence: user_vars
                 .iter()
                 .map(|e| Evidence {
@@ -308,6 +312,8 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
                     location: None,
                 })
                 .collect(),
+            language: None,
+            platforms: Vec::new(),
             referenced_paths: None,
             referenced_directories: None,
         });
@@ -325,8 +331,8 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
             description: "Discovers system information via environment variables".to_string(),
             confidence: 0.8,
             criticality: Criticality::Low,
-            mbc_id: None,
-            attack_id: Some("T1082".to_string()), // System Information Discovery
+            mbc: None,
+            attack: Some("T1082".to_string()), // System Information Discovery
             evidence: system_vars
                 .iter()
                 .map(|e| Evidence {
@@ -336,6 +342,8 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
                     location: None,
                 })
                 .collect(),
+            language: None,
+            platforms: Vec::new(),
             referenced_paths: None,
             referenced_directories: None,
         });
@@ -353,8 +361,8 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
             description: "Modifies PATH environment variable for persistence/hijacking".to_string(),
             confidence: 0.9,
             criticality: Criticality::High,
-            mbc_id: None,
-            attack_id: Some("T1574.007".to_string()), // Hijack Execution Flow: Path Interception
+            mbc: None,
+            attack: Some("T1574.007".to_string()), // Hijack Execution Flow: Path Interception
             evidence: path_write
                 .iter()
                 .map(|e| Evidence {
@@ -364,6 +372,8 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
                     location: None,
                 })
                 .collect(),
+            language: None,
+            platforms: Vec::new(),
             referenced_paths: None,
             referenced_directories: None,
         });
@@ -381,8 +391,8 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
             description: "Android platform detected via environment variables".to_string(),
             confidence: 0.9,
             criticality: Criticality::Low,
-            mbc_id: None,
-            attack_id: None,
+            mbc: None,
+            attack: None,
             evidence: android_vars
                 .iter()
                 .map(|e| Evidence {
@@ -392,6 +402,8 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
                     location: None,
                 })
                 .collect(),
+            language: None,
+            platforms: Vec::new(),
             referenced_paths: None,
             referenced_directories: None,
         });
@@ -409,8 +421,8 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
             description: "Checks DISPLAY variable (potential sandbox detection)".to_string(),
             confidence: 0.6,
             criticality: Criticality::Medium,
-            mbc_id: None,
-            attack_id: Some("T1497".to_string()), // Virtualization/Sandbox Evasion
+            mbc: None,
+            attack: Some("T1497".to_string()), // Virtualization/Sandbox Evasion
             evidence: display_vars
                 .iter()
                 .map(|e| Evidence {
@@ -420,6 +432,8 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
                     location: None,
                 })
                 .collect(),
+            language: None,
+            platforms: Vec::new(),
             referenced_paths: None,
             referenced_directories: None,
         });
@@ -437,8 +451,8 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
             description: "Checks SSH variables (remote session detection)".to_string(),
             confidence: 0.7,
             criticality: Criticality::Medium,
-            mbc_id: None,
-            attack_id: Some("T1497".to_string()), // Virtualization/Sandbox Evasion
+            mbc: None,
+            attack: Some("T1497".to_string()), // Virtualization/Sandbox Evasion
             evidence: ssh_vars
                 .iter()
                 .map(|e| Evidence {
@@ -448,6 +462,8 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
                     location: None,
                 })
                 .collect(),
+            language: None,
+            platforms: Vec::new(),
             referenced_paths: None,
             referenced_directories: None,
         });
@@ -481,14 +497,16 @@ pub fn analyze_and_link_env_vars(report: &mut AnalysisReport) {
                 description: format!("Uses {} to access environment variables", api_name),
                 confidence: 1.0,
                 criticality: Criticality::None,
-                mbc_id: None,
-                attack_id: None,
+                mbc: None,
+                attack: None,
                 evidence: vec![Evidence {
                     method: "symbol".to_string(),
                     source: "imports".to_string(),
                     value: api_name,
                     location: None,
                 }],
+                language: None,
+                platforms: Vec::new(),
                 referenced_paths: None,
                 referenced_directories: None,
             });

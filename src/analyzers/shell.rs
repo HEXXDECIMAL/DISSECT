@@ -153,8 +153,8 @@ impl ShellAnalyzer {
                     description: description.to_string(),
                     confidence: 1.0,
                         criticality: Criticality::None,
-                    mbc_id: None,
-                    attack_id: None,
+                    mbc: None,
+                    attack: None,
                     evidence: vec![Evidence {
                         method: "ast".to_string(),
                         source: "tree-sitter-bash".to_string(),
@@ -179,8 +179,8 @@ impl ShellAnalyzer {
                         description: "Uses base64 encoding/decoding".to_string(),
                         confidence: 0.9,
                         criticality: Criticality::None,
-                        mbc_id: None,
-                        attack_id: None,
+                        mbc: None,
+                        attack: None,
                         evidence: vec![Evidence {
                             method: "pattern".to_string(),
                             source: "tree-sitter-bash".to_string(),
@@ -202,8 +202,8 @@ impl ShellAnalyzer {
                         description: "Uses hex-encoded strings".to_string(),
                         confidence: 0.9,
                         criticality: Criticality::None,
-                        mbc_id: None,
-                        attack_id: None,
+                        mbc: None,
+                        attack: None,
                         evidence: vec![Evidence {
                             method: "pattern".to_string(),
                             source: "tree-sitter-bash".to_string(),
@@ -225,8 +225,8 @@ impl ShellAnalyzer {
                         description: "Executes dynamically constructed code".to_string(),
                         confidence: 0.95,
                         criticality: Criticality::None,
-                        mbc_id: None,
-                        attack_id: None,
+                        mbc: None,
+                        attack: None,
                         evidence: vec![Evidence {
                             method: "pattern".to_string(),
                             source: "tree-sitter-bash".to_string(),

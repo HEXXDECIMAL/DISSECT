@@ -1,0 +1,20 @@
+# Composite Command Execution Capabilities
+
+capabilities:
+  - id: shell-execution
+    description: Shell command execution capability detected
+    criticality: high
+    mbc: "E1059"
+    attack: "T1059"
+    confidence: 0.9
+    requires_any:
+      - type: trait
+        id: c-system
+      - type: trait
+        id: c-popen
+      - type: trait
+        id: python-os-system
+      - type: trait
+        id: go-os-exec
+      - type: trait
+        id: js-child-process

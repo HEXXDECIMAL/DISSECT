@@ -164,8 +164,8 @@ impl JavaAnalyzer {
                     description: desc.to_string(),
                     confidence: conf,
                     criticality: Criticality::None,
-                    mbc_id: None,
-                    attack_id: None,
+                    mbc: None,
+                    attack: None,
                     evidence: vec![Evidence {
                         method: "ast".to_string(),
                         source: "tree-sitter-java".to_string(),
@@ -206,8 +206,8 @@ impl JavaAnalyzer {
                     description: desc.to_string(),
                     confidence: conf,
                     criticality: Criticality::None,
-                    mbc_id: None,
-                    attack_id: None,
+                    mbc: None,
+                    attack: None,
                     evidence: vec![Evidence {
                         method: "import".to_string(),
                         source: "tree-sitter-java".to_string(),
@@ -242,8 +242,8 @@ impl JavaAnalyzer {
                     description: desc.to_string(),
                     confidence: conf,
                     criticality: Criticality::None,
-                    mbc_id: None,
-                    attack_id: None,
+                    mbc: None,
+                    attack: None,
                     evidence: vec![Evidence {
                         method: "ast".to_string(),
                         source: "tree-sitter-java".to_string(),
@@ -280,9 +280,9 @@ impl JavaAnalyzer {
                             confidence: 0.95,
                             criticality: Criticality::None,
 
-                                                mbc_id: None,
+                                                mbc: None,
 
-                                                attack_id: None,
+                                                attack: None,
 
                                                 evidence: vec![Evidence {
                                 method: "ast".to_string(),

@@ -1,0 +1,14 @@
+// Migrated from malcontent: net/ftp/ftp.yara
+
+rule ftp {
+  meta:
+    description = "File Transfer Protocol (FTP)"
+    capability  = "true"
+    confidence  = "0.66"
+
+  strings:
+$ref  = "ftp.Dial" fullword
+    $ref2 = "EPSV" fullword
+  condition:
+    any of them
+}

@@ -1,0 +1,55 @@
+// Migrated from malcontent: process/groupid-set.yara
+
+rule setgid {
+  meta:
+    description = "set real and effective group ID of process"
+    confidence  = "0.66"
+    syscall     = "setgid"
+    pledge      = "id"
+
+  strings:
+$ref    = "setgid" fullword
+    $not_go = "_syscall.libc_setgid_trampoline"
+    $not_ls = "file that is setgid"
+  condition:
+    $ref and none of ($not*)
+}
+
+rule setegid {
+  meta:
+    description = "set effective group ID of process"
+    confidence  = "0.66"
+    syscall     = "setegid"
+    pledge      = "id"
+
+  strings:
+$ref = "setegid" fullword
+  condition:
+    any of them
+}
+
+rule setregid {
+  meta:
+    description = "set real and effective group ID of process"
+    confidence  = "0.66"
+    syscall     = "setregid"
+    pledge      = "id"
+
+  strings:
+$ref = "setregid" fullword
+  condition:
+    any of them
+}
+
+rule setresgid {
+  meta:
+    description = "set real, effective, and saved group ID of process"
+    confidence  = "0.66"
+    syscall     = "setresgid"
+    pledge      = "id"
+
+  strings:
+$ref = "setresgid" fullword
+  condition:
+    any of them
+}

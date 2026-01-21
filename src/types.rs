@@ -2,7 +2,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 /// Criticality level for traits and capabilities
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 #[serde(rename_all = "lowercase")]
 pub enum Criticality {
     None,
@@ -112,12 +112,18 @@ pub struct Trait {
     /// Criticality level (none = internal only, low/medium/high = shown in output)
     #[serde(default)]
     pub criticality: Criticality,
-    /// MBC (Malware Behavior Catalog) ID (e.g., "B0036.002", "E1082")
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub mbc_id: Option<String>,
-    /// MITRE ATT&CK Technique ID (e.g., "T1082", "T1059")
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub attack_id: Option<String>,
+    /// MBC (Malware Behavior Catalog) ID - most specific available (e.g., "B0015.001")
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub mbc: Option<String>,
+    /// MITRE ATT&CK Technique ID (e.g., "T1056.001")
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub attack: Option<String>,
+    /// Programming language (for language-specific traits)
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub language: Option<String>,
+    /// Platform(s) this trait applies to
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    pub platforms: Vec<String>,
     /// Evidence supporting this trait
     pub evidence: Vec<Evidence>,
     /// Specific paths supporting this trait
@@ -126,6 +132,24 @@ pub struct Trait {
     /// Directories supporting this trait
     #[serde(skip_serializing_if = "Option::is_none")]
     pub referenced_directories: Option<Vec<String>>,
+}
+
+impl Trait {
+    pub fn new(id: String, description: String, confidence: f32, evidence: Vec<Evidence>) -> Self {
+        Self {
+            id,
+            description,
+            confidence,
+            criticality: Criticality::None,
+            mbc: None,
+            attack: None,
+            language: None,
+            platforms: Vec::new(),
+            evidence,
+            referenced_paths: None,
+            referenced_directories: None,
+        }
+    }
 }
 
 /// High-level behavioral capability (derived from trait combinations)
@@ -140,12 +164,12 @@ pub struct Capability {
     /// Criticality level (none/low/medium/high)
     #[serde(default)]
     pub criticality: Criticality,
-    /// MBC (Malware Behavior Catalog) ID (e.g., "B0036", "E1082")
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub mbc_id: Option<String>,
-    /// MITRE ATT&CK Technique ID (e.g., "T1082", "T1059")
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub attack_id: Option<String>,
+    /// MBC (Malware Behavior Catalog) ID - most specific available (e.g., "B0015.001")
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub mbc: Option<String>,
+    /// MITRE ATT&CK Technique ID (e.g., "T1056.001")
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub attack: Option<String>,
     /// Evidence supporting this capability
     pub evidence: Vec<Evidence>,
     /// Traits that contributed to this capability
@@ -157,6 +181,23 @@ pub struct Capability {
     /// Directories supporting this capability
     #[serde(skip_serializing_if = "Option::is_none")]
     pub referenced_directories: Option<Vec<String>>,
+}
+
+impl Capability {
+    pub fn new(id: String, description: String, confidence: f32, evidence: Vec<Evidence>) -> Self {
+        Self {
+            id,
+            description,
+            confidence,
+            criticality: Criticality::None,
+            mbc: None,
+            attack: None,
+            evidence,
+            traits: Vec::new(),
+            referenced_paths: None,
+            referenced_directories: None,
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -469,6 +510,15 @@ pub struct YaraMatch {
     pub severity: String,
     pub description: String,
     pub matched_strings: Vec<MatchedString>,
+    /// Whether this match should be upgraded to a capability
+    #[serde(default)]
+    pub is_capability: bool,
+    /// Optional MBC code from metadata
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub mbc: Option<String>,
+    /// Optional ATT&CK technique from metadata
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub attack: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

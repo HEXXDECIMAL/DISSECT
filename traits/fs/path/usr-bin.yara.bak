@@ -1,0 +1,12 @@
+// Migrated from malcontent: fs/path/usr-bin.yara
+
+rule usr_bin_path {
+  meta:
+    description = "path reference within /usr/bin"
+    confidence  = "0.66"
+
+  strings:
+$ref = /\/usr\/bin\/[\w\.\-]{0,32}/
+  condition:
+    any of them
+}

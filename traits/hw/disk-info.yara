@@ -1,0 +1,18 @@
+// Migrated from malcontent: hw/disk-info.yara
+
+rule DADisk: medium {
+  meta:
+    description = "Get information about disks"
+    capability  = "true"
+    confidence  = "0.66"
+    ref         = "https://developer.apple.com/documentation/diskarbitration"
+    platforms   = "darwin"
+
+  strings:
+$ref  = "DADiskCopyDescription" fullword
+    $ref2 = "DADiskCreateFromBSDNAme" fullword
+    $ref3 = "gopsutil/v3/disk"
+    $ref4 = "DiskFreeSpace" fullword
+  condition:
+    any of them
+}

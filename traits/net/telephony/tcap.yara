@@ -1,0 +1,14 @@
+// Migrated from malcontent: net/telephony/tcap.yara
+
+rule tcap: medium {
+  meta:
+    description = "handles TCAP (Transaction Capabilities Application Part) messages"
+    capability  = "true"
+    confidence  = "0.66"
+
+  strings:
+$send = "tcap"
+    $imsi = "imsi"
+  condition:
+    filesize < 2MB and all of them
+}

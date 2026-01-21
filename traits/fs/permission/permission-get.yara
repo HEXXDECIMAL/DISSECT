@@ -1,0 +1,26 @@
+// Migrated from malcontent: fs/permission/permission-get.yara
+
+rule getmode {
+  meta:
+    description = "looks up file permissions"
+    capability  = "true"
+    confidence  = "0.66"
+    pledge      = "rpath"
+
+  strings:
+$_chmod = "_getmode"
+  condition:
+    any of them
+}
+
+rule icacls: windows {
+  meta:
+    description = "looks up file permissions via icacls"
+    confidence  = "0.66"
+    pledge      = "rpath"
+
+  strings:
+$icacls = "icacls" fullword
+  condition:
+    any of them
+}

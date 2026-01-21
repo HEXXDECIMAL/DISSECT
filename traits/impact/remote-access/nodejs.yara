@@ -1,0 +1,14 @@
+// Migrated from malcontent: impact/remote_access/nodejs.yara
+
+rule timeout_eval: critical {
+  meta:
+    description = "evaluate code dynamically using eval() after timeout"
+    mbc         = "OB0010"
+    attack      = "T1498"
+    confidence  = "0.66"
+
+  strings:
+$ref = /setTimeout\(.{0,64}eval\([\w\(\,\)\;\*\}]{0,32}/ fullword
+  condition:
+    any of them
+}

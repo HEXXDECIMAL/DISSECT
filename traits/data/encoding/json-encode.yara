@@ -1,0 +1,39 @@
+// Migrated from malcontent: data/encoding/json-encode.yara
+
+rule JSONEncode {
+  meta:
+    description = "encodes JSON"
+    capability  = "true"
+    confidence  = "0.66"
+
+  strings:
+$jsone = "JSONEncode"
+    $npm   = "JSON.stringify"
+  condition:
+    any of them
+}
+
+rule MarshalJSON: harmless {
+  meta:
+    description = "encodes JSON"
+    confidence  = "0.66"
+
+  strings:
+$json = "MarshalJSON"
+  condition:
+    any of them
+}
+
+rule json_dumps: low {
+  meta:
+    description = "encodes JSON"
+    confidence  = "0.66"
+    filetypes   = "py"
+
+  strings:
+$jsone   = "json" fullword
+    $marshal = "dumps" fullword
+    $import  = "import" fullword
+  condition:
+    filesize < 8KB and all of them
+}

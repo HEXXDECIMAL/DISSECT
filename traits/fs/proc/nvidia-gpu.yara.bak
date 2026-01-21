@@ -1,0 +1,12 @@
+// Migrated from malcontent: fs/proc/nvidia_gpu.yara
+
+rule proc_nvidia_gpus: medium {
+  meta:
+    description = "get GPU info"
+    confidence  = "0.66"
+
+  strings:
+$ref = "/proc/driver/nvidia/gpus" fullword
+  condition:
+    any of them
+}

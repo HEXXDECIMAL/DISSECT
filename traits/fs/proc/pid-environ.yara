@@ -1,0 +1,13 @@
+// Migrated from malcontent: fs/proc/pid-environ.yara
+
+rule proc_environ: medium {
+  meta:
+    description = "accesses environment variables of other processes"
+    capability  = "true"
+    confidence  = "0.66"
+
+  strings:
+$string = /\/proc\/[\*%{$][\w\}]{0,12}\/environ/
+  condition:
+    any of them
+}

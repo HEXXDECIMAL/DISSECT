@@ -1,0 +1,13 @@
+// Migrated from malcontent: fs/proc/self-cmdline.yara
+
+rule proc_self_cmdline: medium linux {
+  meta:
+    description = "gets process command-line"
+    confidence  = "0.66"
+    pledge      = "stdio"
+
+  strings:
+$ref = "/proc/self/cmdline" fullword
+  condition:
+    any of them
+}

@@ -1,0 +1,15 @@
+// Migrated from malcontent: data/compression/zstd.yara
+
+rule zstd {
+  meta:
+    description = "Zstandard: fast real-time compression algorithm"
+    capability  = "true"
+    confidence  = "0.66"
+
+  strings:
+$ref         = "zstd" fullword
+    $decompress  = "ZSTD_decompressStream" fullword
+    $magic_bytes = { 28 B5 2F FD }
+  condition:
+    any of them
+}

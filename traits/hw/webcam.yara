@@ -1,0 +1,15 @@
+// Migrated from malcontent: hw/webcam.yara
+
+rule macos_webcam_user: medium {
+  meta:
+    description = "accesses webcam"
+    capability  = "true"
+    confidence  = "0.66"
+
+  strings:
+$device_list = "SGGetChannelDeviceList"
+    $set_channel = "SGSetChannelDevice"
+    $cv2         = "cv2.VideoCapture"
+  condition:
+    any of them
+}

@@ -28,13 +28,9 @@ pub enum Command {
         /// Target file to analyze
         target: String,
 
-        /// Enable YARA scanning with malcontent rules
+        /// Enable third-party YARA rules from third_party/yara (high criticality)
         #[arg(long)]
-        yara: bool,
-
-        /// Custom YARA rules directory
-        #[arg(long)]
-        yara_rules: Option<String>,
+        third_party_yara: bool,
     },
 
     /// Scan multiple files or directories
@@ -43,13 +39,9 @@ pub enum Command {
         #[arg(required = true)]
         paths: Vec<String>,
 
-        /// Enable YARA scanning with malcontent rules
+        /// Enable third-party YARA rules from third_party/yara (high criticality)
         #[arg(long)]
-        yara: bool,
-
-        /// Custom YARA rules directory
-        #[arg(long)]
-        yara_rules: Option<String>,
+        third_party_yara: bool,
     },
 
     /// Compare two versions (diff mode) for supply chain attack detection

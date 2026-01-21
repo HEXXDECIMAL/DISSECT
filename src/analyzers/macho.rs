@@ -119,8 +119,8 @@ impl MachOAnalyzer {
                                         description: yara_match.description.clone(),
                                         confidence: 0.9, // YARA matches are high confidence
                                         criticality: crate::types::Criticality::None,
-                                        mbc_id: None,
-                                        attack_id: None,
+                                        mbc: None,
+                                        attack: None,
                                         evidence,
                                         traits: Vec::new(),
                                         referenced_paths: None,
@@ -137,10 +137,215 @@ impl MachOAnalyzer {
             }
         }
 
+        // Generate structural traits from analysis
+        self.generate_structural_traits(&macho, data, &mut report)?;
+
         report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;
         report.metadata.tools_used = tools_used;
 
         Ok(report)
+    }
+
+    /// Generate structural traits (file format, architecture, signing, etc.)
+    fn generate_structural_traits(&self, macho: &MachO, data: &[u8], report: &mut AnalysisReport) -> Result<()> {
+        // 1. File format trait
+        report.capabilities.push(Capability {
+            id: "meta/format/macho".to_string(),
+            description: "Mach-O executable format".to_string(),
+            confidence: 1.0,
+            criticality: Criticality::None,
+            mbc: None,
+            attack: None,
+            evidence: vec![Evidence {
+                method: "magic".to_string(),
+                source: "goblin".to_string(),
+                value: format!("0x{:x}", macho.header.magic),
+                location: None,
+            }],
+            traits: Vec::new(),
+            referenced_paths: None,
+            referenced_directories: None,
+        });
+
+        // 2. Architecture trait
+        let arch = self.get_arch_name(macho);
+        report.capabilities.push(Capability {
+            id: format!("meta/arch/{}", arch),
+            description: format!("{} architecture", arch),
+            confidence: 1.0,
+            criticality: Criticality::None,
+            mbc: None,
+            attack: None,
+            evidence: vec![Evidence {
+                method: "header".to_string(),
+                source: "goblin".to_string(),
+                value: format!("cputype=0x{:x}", macho.header.cputype),
+                location: None,
+            }],
+            traits: Vec::new(),
+            referenced_paths: None,
+            referenced_directories: None,
+        });
+
+        // 3. Code signature trait
+        let has_signature = macho
+            .load_commands
+            .iter()
+            .any(|lc| matches!(lc.command, goblin::mach::load_command::CommandVariant::CodeSignature(_)));
+
+        if has_signature {
+            report.capabilities.push(Capability {
+                id: "meta/signed".to_string(),
+                description: "Code-signed binary".to_string(),
+                confidence: 1.0,
+                criticality: Criticality::None,
+                mbc: None,
+                attack: None,
+                evidence: vec![Evidence {
+                    method: "load_command".to_string(),
+                    source: "goblin".to_string(),
+                    value: "LC_CODE_SIGNATURE".to_string(),
+                    location: None,
+                }],
+                traits: Vec::new(),
+                referenced_paths: None,
+                referenced_directories: None,
+            });
+        }
+
+        // 4. Command-line tool detection (usage string)
+        for s in &report.strings {
+            if s.value.to_lowercase().starts_with("usage:") {
+                report.capabilities.push(Capability {
+                    id: "meta/cli-tool".to_string(),
+                    description: "Command-line tool with usage string".to_string(),
+                    confidence: 0.9,
+                    criticality: Criticality::None,
+                    mbc: None,
+                    attack: None,
+                    evidence: vec![Evidence {
+                        method: "string".to_string(),
+                        source: "strings".to_string(),
+                        value: s.value.chars().take(50).collect::<String>() + "...",
+                        location: s.offset.clone(),
+                    }],
+                    traits: Vec::new(),
+                    referenced_paths: None,
+                    referenced_directories: None,
+                });
+                break;
+            }
+        }
+
+        // 5. FreeBSD origin detection
+        let has_freebsd_tag = report.strings.iter().any(|s| s.value.contains("$FreeBSD"));
+        if has_freebsd_tag {
+            report.capabilities.push(Capability {
+                id: "meta/origin/freebsd".to_string(),
+                description: "Contains FreeBSD version tags".to_string(),
+                confidence: 0.95,
+                criticality: Criticality::None,
+                mbc: None,
+                attack: None,
+                evidence: vec![Evidence {
+                    method: "string".to_string(),
+                    source: "strings".to_string(),
+                    value: "$FreeBSD$".to_string(),
+                    location: None,
+                }],
+                traits: Vec::new(),
+                referenced_paths: None,
+                referenced_directories: None,
+            });
+        }
+
+        // 6. Linked libraries as traits
+        let mut unique_libs: std::collections::HashSet<String> = std::collections::HashSet::new();
+        for imp in &report.imports {
+            if let Some(lib) = &imp.library {
+                if !lib.contains("libSystem") && !unique_libs.contains(lib) {
+                    unique_libs.insert(lib.clone());
+
+                    // Extract library name without path/version
+                    let lib_name = lib.split('/').last().unwrap_or(lib);
+                    let base_name = lib_name.split('.').next().unwrap_or(lib_name).trim_start_matches("lib");
+
+                    report.capabilities.push(Capability {
+                        id: format!("meta/library/{}", base_name),
+                        description: format!("Links to {} library", lib_name),
+                        confidence: 1.0,
+                        criticality: Criticality::None,
+                        mbc: None,
+                        attack: None,
+                        evidence: vec![Evidence {
+                            method: "dylib".to_string(),
+                            source: "goblin".to_string(),
+                            value: lib.clone(),
+                            location: None,
+                        }],
+                        traits: Vec::new(),
+                        referenced_paths: None,
+                        referenced_directories: None,
+                    });
+                }
+            }
+        }
+
+        // 7. High entropy sections (potential obfuscation/packing)
+        for section in &report.sections {
+            if section.entropy > 7.5 {
+                report.capabilities.push(Capability {
+                    id: "meta/high-entropy".to_string(),
+                    description: format!("High entropy section ({})", section.name),
+                    confidence: 0.8,
+                    criticality: Criticality::Low,
+                    mbc: Some("F0001".to_string()), // Anti-static analysis
+                    attack: None,
+                    evidence: vec![Evidence {
+                        method: "entropy".to_string(),
+                        source: "shannon".to_string(),
+                        value: format!("{:.2}", section.entropy),
+                        location: Some(section.name.clone()),
+                    }],
+                    traits: Vec::new(),
+                    referenced_paths: None,
+                    referenced_directories: None,
+                });
+                break; // Only report once
+            }
+        }
+
+        // 8. High complexity functions
+        let high_complexity: Vec<_> = report.functions.iter()
+            .filter(|f| f.complexity.unwrap_or(0) > 50)
+            .collect();
+
+        if !high_complexity.is_empty() {
+            let func_names: Vec<String> = high_complexity.iter()
+                .map(|f| f.name.clone())
+                .take(3)
+                .collect();
+
+            report.capabilities.push(Capability {
+                id: "meta/complex-code".to_string(),
+                description: format!("{} highly complex functions", high_complexity.len()),
+                confidence: 0.7,
+                criticality: Criticality::Low,
+                mbc: Some("F0001".to_string()),
+                attack: None,
+                evidence: vec![Evidence {
+                    method: "cyclomatic".to_string(),
+                    source: "radare2".to_string(),
+                    value: func_names.join(", "),
+                    location: None,
+                }],
+                traits: Vec::new(),
+                referenced_paths: None,
+                referenced_directories: None,
+            });
+        }
+
+        Ok(())
     }
 
     fn analyze_structure(&self, macho: &MachO, report: &mut AnalysisReport) -> Result<()> {

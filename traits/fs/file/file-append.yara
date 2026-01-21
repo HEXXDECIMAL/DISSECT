@@ -1,0 +1,14 @@
+// Migrated from malcontent: fs/file/file-append.yara
+
+rule append_file {
+  meta:
+    description = "appends to a file"
+    capability  = "true"
+    confidence  = "0.66"
+    pledge      = "wpath"
+
+  strings:
+$ref1 = "appendFile" fullword
+  condition:
+    any of them
+}

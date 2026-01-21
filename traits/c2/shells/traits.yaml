@@ -1,0 +1,58 @@
+# Remote Shell Detection
+# MBC: OB0004 (Command & Control) → B0030 (C2 Communication)
+# ATT&CK: T1059 (Command and Scripting Interpreter)
+
+traits:
+  # Reverse shell components
+  - id: socket-connect
+    description: Network socket connection (potential reverse shell)
+    criticality: medium
+    mbc: "B0030.002"
+    attack: "T1071"
+    confidence: 0.6
+    condition:
+      type: symbol
+      pattern: connect
+    platforms: [all]
+
+  - id: dup2-redirect
+    description: File descriptor duplication (I/O redirection)
+    criticality: low
+    mbc: "B0030.002"
+    confidence: 0.5
+    condition:
+      type: symbol
+      pattern: dup2
+    platforms: [unix, linux, macos]
+
+  # Bind shell components
+  - id: socket-bind
+    description: Socket binding (potential bind shell)
+    criticality: medium
+    mbc: "B0030.003"
+    attack: "T1071"
+    confidence: 0.6
+    condition:
+      type: symbol
+      pattern: bind
+    platforms: [all]
+
+  - id: socket-listen
+    description: Socket listening (potential bind shell)
+    criticality: medium
+    mbc: "B0030.003"
+    confidence: 0.6
+    condition:
+      type: symbol
+      pattern: listen
+    platforms: [all]
+
+  # Shell references
+  - id: shell-ref
+    description: Shell executable reference
+    criticality: low
+    confidence: 0.5
+    condition:
+      type: string
+      regex: "/bin/(sh|bash|zsh|ksh)|cmd\\.exe|powershell\\.exe"
+      case_insensitive: true

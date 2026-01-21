@@ -1,0 +1,14 @@
+// Migrated from malcontent: net/ssl/socket.yara
+
+rule py_ssl_socket: medium {
+  meta:
+    description = "manually encrypts a socket with SSL"
+    capability  = "true"
+    confidence  = "0.66"
+
+  strings:
+$ref1 = /\.wrap_socket\([\w\.,= \)]{2,64}/
+    $ref2 = "ssl" fullword
+  condition:
+    all of them
+}

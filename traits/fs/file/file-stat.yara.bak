@@ -1,0 +1,98 @@
+// Migrated from malcontent: fs/file/file-stat.yara
+
+rule stat: harmless {
+  meta:
+    description = "access filesystem information"
+    confidence  = "0.66"
+    pledge      = "rpath"
+    syscall     = "stat"
+
+  strings:
+$_stat = "_stat"
+  condition:
+    any of them
+}
+
+rule fstat: harmless {
+  meta:
+    confidence  = "0.66"
+    pledge      = "rpath"
+    syscall     = "fstat"
+
+  strings:
+$ref  = "fstat" fullword
+    $ref2 = "fstat64" fullword
+    $ref3 = "fstatat64" fullword
+  condition:
+    any of them
+}
+
+rule lstat: harmless {
+  meta:
+    confidence  = "0.66"
+    pledge      = "rpath"
+    syscall     = "lstat"
+
+  strings:
+$ref  = "lstat" fullword
+    $ref2 = "fxstat" fullword
+  condition:
+    any of them
+}
+
+rule go_stat: harmless {
+  meta:
+    description = "access filesystem information"
+    confidence  = "0.66"
+    pledge      = "rpath"
+    syscall     = "stat"
+
+  strings:
+$filestat  = "os.(*fileStat)"
+    $filestat2 = "os.Stat("
+  condition:
+    any of them
+}
+
+rule py_timestamps {
+  meta:
+    description = "Access filesystem timestamps"
+    confidence  = "0.66"
+    pledge      = "rpath"
+    syscall     = "stat"
+    filetypes   = "py"
+
+  strings:
+$atime = "os.path.getatime"
+    $mtime = "os.path.getmtime"
+    $ctime = "os.path.getctime"
+  condition:
+    any of them
+}
+
+rule npm_stat {
+  meta:
+    description = "access filesystem metadata"
+    confidence  = "0.66"
+    pledge      = "rpath"
+    syscall     = "stat"
+    filetypes   = "js,ts"
+
+  strings:
+$filestat = /fs\.stat[\w\(\'\.\)]{0,32}/
+  condition:
+    any of them
+}
+
+rule file_attributes {
+  meta:
+    description = "access filesystem attributes"
+    confidence  = "0.66"
+    pledge      = "rpath"
+    syscall     = "stat"
+
+  strings:
+$attr = "fileAttributes"
+  condition:
+    any of them
+}

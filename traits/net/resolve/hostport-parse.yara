@@ -1,0 +1,15 @@
+// Migrated from malcontent: net/resolve/hostport-parse.yara
+
+rule getaddrinfo: low {
+  meta:
+    description = "Network address and service translation"
+    capability  = "true"
+    confidence  = "0.66"
+    pledge      = "inet"
+
+  strings:
+$ref  = "getaddrinfo" fullword
+    $ref2 = "freeaddrinfo" fullword
+  condition:
+    any of them
+}

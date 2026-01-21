@@ -1,0 +1,24 @@
+// Migrated from malcontent: net/webrtc.yara
+
+rule webrtc_peer: medium {
+  meta:
+    description = "makes outgoing WebRTC connections"
+    confidence  = "0.66"
+
+  strings:
+$ref = "RTCPeerConnection"
+  condition:
+    any of them
+}
+
+rule webrtc_blockhain: medium {
+  meta:
+    description = "makes outgoing WebRTC connections, uses blockchain"
+    confidence  = "0.66"
+
+  strings:
+$ref  = "RTCPeerConnection"
+    $ref2 = "blockchain"
+  condition:
+    all of them
+}

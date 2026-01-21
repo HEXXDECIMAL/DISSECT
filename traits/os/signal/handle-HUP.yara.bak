@@ -1,0 +1,13 @@
+// Migrated from malcontent: os/signal/handle-HUP.yara
+
+rule sigaction_SIGHUP: harmless {
+  meta:
+    description = "Listen for SIGHUP (hangup) events"
+    confidence  = "0.66"
+
+  strings:
+$sigaction = "sigaction" fullword
+    $sigalrm   = "HUP"
+  condition:
+    all of them
+}

@@ -1,0 +1,66 @@
+# VM/Emulator Detection
+# MBC: OB0001 (Anti-Behavioral Analysis) → B0009 (Virtual Machine Detection)
+# ATT&CK: T1497.001 (Virtualization/Sandbox Evasion: System Checks)
+
+traits:
+  - id: vmware-string
+    description: VMware vendor string detection
+    criticality: medium
+    mbc: "B0009"
+    attack: "T1497.001"
+    confidence: 0.9
+    condition:
+      type: string
+      exact: "VMware"
+
+  - id: virtualbox-string
+    description: VirtualBox vendor string detection
+    criticality: medium
+    mbc: "B0009"
+    attack: "T1497.001"
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "(VirtualBox|VBOX)"
+      case_insensitive: true
+
+  - id: qemu-string
+    description: QEMU vendor string detection
+    criticality: medium
+    mbc: "B0009"
+    attack: "T1497.001"
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "(QEMU|qemu)"
+
+  - id: vm-hardware
+    description: VM-specific hardware strings
+    criticality: medium
+    mbc: "B0009"
+    attack: "T1497.001"
+    confidence: 0.85
+    condition:
+      type: string
+      regex: "(VMXH|VBox|virtio|vmmouse)"
+      case_insensitive: true
+
+  - id: macos-vm-sysctl
+    description: macOS VM detection via sysctl
+    criticality: medium
+    mbc: "B0009"
+    attack: "T1497.001"
+    confidence: 0.8
+    condition:
+      type: symbol
+      pattern: sysctl
+    platforms: [macos]
+
+  - id: cpu-vendor
+    description: CPU vendor string checks (Intel/AMD vs VM)
+    criticality: low
+    mbc: "B0009"
+    confidence: 0.6
+    condition:
+      type: string
+      regex: "(GenuineIntel|AuthenticAMD)"

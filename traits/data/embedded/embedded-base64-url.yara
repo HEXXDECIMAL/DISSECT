@@ -1,0 +1,17 @@
+// Migrated from malcontent: data/embedded/embedded-base64-url.yara
+
+rule contains_base64_url: medium {
+  meta:
+    description = "Contains base64 url"
+    capability  = "true"
+    confidence  = "0.66"
+
+  strings:
+$http  = "http://" base64
+    $https = "https://" base64
+    $tcp   = "tcp://" base64
+    $udp   = "udp://" base64
+    $ftp   = "ftp://" base64
+  condition:
+    any of them
+}

@@ -1,0 +1,13 @@
+// Migrated from malcontent: fs/proc/stat.yara
+
+rule proc_stat: medium {
+  meta:
+    description = "gets kernel/system statistics"
+    capability  = "true"
+    confidence  = "0.66"
+
+  strings:
+$ref = "/proc/stat" fullword
+  condition:
+    any of them
+}

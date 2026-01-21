@@ -144,8 +144,8 @@ impl PythonAnalyzer {
                         description: description.to_string(),
                         confidence: 1.0,
                         criticality: crate::types::Criticality::None,
-                        mbc_id: None,
-                        attack_id: None,
+                        mbc: None,
+                        attack: None,
                         evidence: vec![Evidence {
                             method: "ast".to_string(),
                             source: "tree-sitter-python".to_string(),
@@ -181,8 +181,8 @@ impl PythonAnalyzer {
                             description: description.to_string(),
                             confidence: 0.7, // Import alone is not definitive
                             criticality: crate::types::Criticality::None,
-                            mbc_id: None,
-                            attack_id: None,
+                            mbc: None,
+                            attack: None,
                             evidence: vec![Evidence {
                                 method: "import".to_string(),
                                 source: "tree-sitter-python".to_string(),
@@ -210,8 +210,8 @@ impl PythonAnalyzer {
                         description: "Base64 decode followed by eval (obfuscation)".to_string(),
                         confidence: 0.95,
                         criticality: crate::types::Criticality::None,
-                        mbc_id: None,
-                        attack_id: None,
+                        mbc: None,
+                        attack: None,
                         evidence: vec![Evidence {
                             method: "pattern".to_string(),
                             source: "tree-sitter-python".to_string(),
@@ -233,8 +233,8 @@ impl PythonAnalyzer {
                         description: "Hex-encoded strings".to_string(),
                         confidence: 0.9,
                         criticality: crate::types::Criticality::None,
-                        mbc_id: None,
-                        attack_id: None,
+                        mbc: None,
+                        attack: None,
                         evidence: vec![Evidence {
                             method: "pattern".to_string(),
                             source: "tree-sitter-python".to_string(),
@@ -256,8 +256,8 @@ impl PythonAnalyzer {
                         description: "Constructs strings via chr/ord".to_string(),
                         confidence: 0.9,
                         criticality: crate::types::Criticality::None,
-                        mbc_id: None,
-                        attack_id: None,
+                        mbc: None,
+                        attack: None,
                         evidence: vec![Evidence {
                             method: "pattern".to_string(),
                             source: "tree-sitter-python".to_string(),
@@ -327,9 +327,11 @@ impl PythonAnalyzer {
                             location: Some(format!("line:{}", line_num)),
                         }],
                         criticality: crate::types::Criticality::None,
-                        mbc_id: None,
-                        attack_id: None,
+                        mbc: None,
+                        attack: None,
                         referenced_paths: None,
+                        language: Some("python".to_string()),
+                        platforms: Vec::new(),
                         referenced_directories: None,
                     });
                 }
@@ -367,9 +369,11 @@ impl PythonAnalyzer {
                             location: Some(format!("line:{}", line_num)),
                         }],
                         criticality: crate::types::Criticality::None,
-                        mbc_id: None,
-                        attack_id: None,
+                        mbc: None,
+                        attack: None,
                         referenced_paths: None,
+                        language: Some("python".to_string()),
+                        platforms: Vec::new(),
                         referenced_directories: None,
                     });
                 }
@@ -406,9 +410,11 @@ impl PythonAnalyzer {
                             location: Some(format!("line:{}", line_num)),
                         }],
                         criticality: crate::types::Criticality::None,
-                        mbc_id: None,
-                        attack_id: None,
+                        mbc: None,
+                        attack: None,
                         referenced_paths: None,
+                        language: Some("python".to_string()),
+                        platforms: Vec::new(),
                         referenced_directories: None,
                     });
                 }
@@ -445,9 +451,11 @@ impl PythonAnalyzer {
                             location: Some(format!("line:{}", line_num)),
                         }],
                         criticality: crate::types::Criticality::None,
-                        mbc_id: None,
-                        attack_id: None,
+                        mbc: None,
+                        attack: None,
                         referenced_paths: None,
+                        language: Some("python".to_string()),
+                        platforms: Vec::new(),
                         referenced_directories: None,
                     });
                 }
@@ -484,9 +492,11 @@ impl PythonAnalyzer {
                             location: Some(format!("line:{}", line_num)),
                         }],
                         criticality: crate::types::Criticality::None,
-                        mbc_id: None,
-                        attack_id: None,
+                        mbc: None,
+                        attack: None,
                         referenced_paths: None,
+                        language: Some("python".to_string()),
+                        platforms: Vec::new(),
                         referenced_directories: None,
                     });
                 }

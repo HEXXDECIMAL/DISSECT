@@ -1,0 +1,21 @@
+// Migrated from malcontent: credential/ssh/sshd-memory-map.yara
+
+rule ssh_password_trace: high {
+  meta:
+    description = "May access the memory map for sshd"
+    mbc         = "OB0004"
+    attack      = "T1552.004"
+    confidence  = "0.66"
+    ref         = "https://github.com/blendin/3snake"
+
+  strings:
+$f_ptrace   = "ptrace" fullword
+    $f_tracer   = "tracer" fullword
+    $f_password = "password" fullword
+    $f_passwd   = "passwd" fullword
+    $f_sshd     = "sshd" fullword
+
+    $not_pypi_index = "testpack-id-lb001"
+  condition:
+    filesize < 50MB and all of ($f*) and none of ($not*)
+}

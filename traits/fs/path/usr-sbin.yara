@@ -1,0 +1,13 @@
+// Migrated from malcontent: fs/path/usr-sbin.yara
+
+rule usr_sbin_path {
+  meta:
+    description = "path reference within /usr/sbin"
+    capability  = "true"
+    confidence  = "0.66"
+
+  strings:
+$resolv = /\/usr\/sbin\/[\w\.\-\/]{0,64}/
+  condition:
+    any of them
+}

@@ -1,0 +1,16 @@
+// Migrated from malcontent: os/fd/multiplex.yara
+
+rule select {
+  meta:
+    description = "monitor multiple file descriptors"
+    capability  = "true"
+    confidence  = "0.66"
+    ref         = "https://man7.org/linux/man-pages/man2/select.2.html"
+    pledge      = "stdio"
+    syscall     = "select"
+
+  strings:
+$ref = "select" fullword
+  condition:
+    any of them in (1000..3000)
+}

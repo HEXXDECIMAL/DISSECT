@@ -1,0 +1,27 @@
+// Migrated from malcontent: fs/link-create.yara
+
+rule link {
+  meta:
+    description = "May create hard file links"
+    confidence  = "0.66"
+    syscall     = "link"
+    pledge      = "cpath"
+
+  strings:
+$ref = "_link" fullword
+  condition:
+    any of them
+}
+
+rule linkat {
+  meta:
+    description = "May create hard file links"
+    confidence  = "0.66"
+    syscall     = "linkat"
+    pledge      = "cpath"
+
+  strings:
+$rename = "linkat" fullword
+  condition:
+    any of them
+}

@@ -5,6 +5,7 @@ use serde::Deserialize;
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
+use walkdir;
 
 /// Maps symbols (function names, library calls) to capability IDs
 /// Also supports trait definitions and composite rules that combine traits
@@ -102,7 +103,7 @@ impl CapabilityMapper {
         }
     }
 
-    /// Load capability mappings from directory of YAML files
+    /// Load capability mappings from directory of YAML files (recursively)
     pub fn from_directory<P: AsRef<Path>>(dir_path: P) -> Result<Self> {
         let debug = std::env::var("DISSECT_DEBUG").is_ok();
         let dir_path = dir_path.as_ref();
@@ -115,36 +116,37 @@ impl CapabilityMapper {
             eprintln!("🔍 Loading capabilities from: {}", dir_path.display());
         }
 
-        // Read all .yaml files in the directory
-        let entries = fs::read_dir(dir_path)
-            .with_context(|| format!("Failed to read directory: {}", dir_path.display()))?;
+        // Use walkdir to recursively scan for YAML files
+        let walker = walkdir::WalkDir::new(dir_path)
+            .follow_links(false)
+            .into_iter()
+            .filter_map(|e| e.ok());
 
         let mut files_processed = 0;
 
-        for entry in entries {
-            let entry = entry?;
+        for entry in walker {
             let path = entry.path();
 
             // Skip non-YAML files
-            if !path.extension().map(|e| e == "yaml").unwrap_or(false) {
+            if !path.is_file() || !path.extension().map(|e| e == "yaml").unwrap_or(false) {
                 continue;
             }
 
             // Skip README and example files
             let filename = path.file_name().and_then(|f| f.to_str()).unwrap_or("");
-            if filename == "README.md" || filename.starts_with("EXAMPLE") {
+            if filename.to_lowercase().contains("readme") || filename.starts_with("EXAMPLE") {
                 if debug {
-                    eprintln!("   ⏭️  Skipping: {}", filename);
+                    eprintln!("   ⏭️  Skipping: {}", path.display());
                 }
                 continue;
             }
 
             if debug {
-                eprintln!("   📄 Loading: {}", filename);
+                eprintln!("   📄 Loading: {}", path.display());
             }
 
             // Load this YAML file
-            let content = fs::read_to_string(&path)
+            let content = fs::read_to_string(path)
                 .with_context(|| format!("Failed to read {:?}", path))?;
 
             let mappings: CapabilityMappings = serde_yaml::from_str(&content)
@@ -186,7 +188,33 @@ impl CapabilityMapper {
             }
 
             // Merge trait definitions
-            trait_definitions.extend(mappings.traits);
+            trait_definitions.extend(mappings.traits.clone());
+
+            // Extract symbol mappings from trait definitions with symbol conditions
+            for trait_def in &mappings.traits {
+                // Check if this trait has a symbol condition
+                if let crate::composite_rules::Condition::Symbol { pattern, platforms } = &trait_def.condition {
+                    // Check if there are no platform constraints, or add anyway for lookup
+                    // (platform filtering will happen later during evaluation)
+
+                    // For each pattern (may contain "|" for alternatives)
+                    for symbol_pattern in pattern.split('|') {
+                        let symbol = symbol_pattern.trim().to_string();
+
+                        // Only add if not already present (first match wins)
+                        if !symbol_map.contains_key(&symbol) {
+                            symbol_map.insert(
+                                symbol,
+                                CapabilityInfo {
+                                    id: trait_def.id.clone(),
+                                    description: trait_def.description.clone(),
+                                    confidence: trait_def.confidence,
+                                },
+                            );
+                        }
+                    }
+                }
+            }
 
             // Merge composite_rules
             composite_rules.extend(mappings.composite_rules);
@@ -270,8 +298,8 @@ impl CapabilityMapper {
                 description: info.description.clone(),
                 confidence: info.confidence,
                         criticality: Criticality::None,
-                mbc_id: None,
-                attack_id: None,
+                mbc: None,
+                attack: None,
                 evidence: vec![Evidence {
                     method: "symbol".to_string(),
                     source: source.to_string(),
@@ -370,15 +398,21 @@ impl CapabilityMapper {
                     // Always add to traits
                     traits.push(detected_trait.clone());
 
-                    // If marked as capability, also add to capabilities
-                    if trait_def.capability {
+                    // Infer capability from metadata:
+                    // 1. Explicit: capability = true
+                    // 2. Inferred: mbc or attack present
+                    let is_capability = trait_def.capability
+                        || trait_def.mbc.is_some()
+                        || trait_def.attack.is_some();
+
+                    if is_capability {
                         capabilities.push(Capability {
                             id: detected_trait.id.clone(),
                             description: detected_trait.description.clone(),
                             confidence: detected_trait.confidence,
                             criticality: detected_trait.criticality,
-                            mbc_id: detected_trait.mbc_id.clone(),
-                            attack_id: detected_trait.attack_id.clone(),
+                            mbc: detected_trait.mbc.clone(),
+                            attack: detected_trait.attack.clone(),
                             evidence: detected_trait.evidence.clone(),
                             traits: vec![detected_trait.id.clone()], // Self-reference
                             referenced_paths: None,
@@ -500,8 +534,8 @@ fn simple_rule_to_composite_rule(rule: SimpleRule) -> CompositeTrait {
         description: rule.description,
         confidence: rule.confidence,
         criticality: Criticality::None,
-        mbc_id: None,
-        attack_id: None,
+        mbc: None,
+        attack: None,
         platforms,
         file_types,
         requires_all: Some(vec![

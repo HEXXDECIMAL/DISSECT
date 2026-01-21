@@ -1,0 +1,13 @@
+// Migrated from malcontent: net/ssh/fake-ssh_user_agent.yara
+
+rule fake_openssh_0: high {
+  meta:
+    description = "Contains OpenSSH user-agent, possibly for spoofing purposes"
+    capability  = "true"
+    confidence  = "0.66"
+
+  strings:
+$ref = /SSH-2\.0-OpenSSH_[\w\.]{0,8}/
+  condition:
+    $ref
+}

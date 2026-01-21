@@ -1,0 +1,13 @@
+// Migrated from malcontent: fs/path/users.yara
+
+rule home_path_users: medium {
+  meta:
+    description = "references path within /Users"
+    capability  = "true"
+    confidence  = "0.66"
+
+  strings:
+$ref = /\/Users\/[\$\(\)%\w\.\-\/]{0,64}/
+  condition:
+    $ref
+}

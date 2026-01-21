@@ -1,0 +1,16 @@
+// Migrated from malcontent: net/proxy/reverse_proxy.yara
+
+rule reverse_proxy: medium {
+  meta:
+    description = "Implements a reverse proxy"
+    capability  = "true"
+    confidence  = "0.66"
+
+  strings:
+$ref  = "reverseproxy" fullword
+    $ref2 = "reverse_proxy" fullword
+    $ref3 = "reverseProxy"
+    $ref4 = "rev-proxy" fullword
+  condition:
+    any of ($ref*)
+}

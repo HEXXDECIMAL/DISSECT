@@ -1,0 +1,24 @@
+// Migrated from malcontent: mem/query.yara
+
+rule virtualquery: low windows {
+  meta:
+    description = "Retrieves virtual memory information within calling process"
+    capability  = "true"
+    confidence  = "0.66"
+
+  strings:
+$ref = "virtualquery" fullword
+  condition:
+    any of them
+}
+
+rule virtualquery_ex: medium windows {
+  meta:
+    description = "Retrieves virtual memory information within other processes"
+    confidence  = "0.66"
+
+  strings:
+$ref = "virtualqueryEx" fullword
+  condition:
+    any of them
+}

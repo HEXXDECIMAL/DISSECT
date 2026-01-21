@@ -1,0 +1,23 @@
+// Migrated from malcontent: data/embedded/base64.yara
+
+rule base64_content: medium {
+  meta:
+    description = "Contains embedded base64 content"
+    confidence  = "0.66"
+
+  strings:
+$b64_st = /[\"\'][\w\/\+]{24,2048}==[\"\']/
+  condition:
+    any of them
+}
+
+rule base64_content_reversed: high {
+  meta:
+    description = "Contains reversed base64 content"
+    confidence  = "0.66"
+
+  strings:
+$b64_st = /[\"\']==[\w\/\+\"\']{64,2048}/
+  condition:
+    any of them
+}

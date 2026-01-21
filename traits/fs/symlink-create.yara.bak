@@ -1,0 +1,41 @@
+// Migrated from malcontent: fs/symlink-create.yara
+
+rule symlink: harmless {
+  meta:
+    description = "creates symbolic links"
+    confidence  = "0.66"
+    syscall     = "symlink"
+    pledge      = "cpath"
+
+  strings:
+$ref = "symlink" fullword
+    $ls  = "symlink to"
+  condition:
+    $ref and not $ls
+}
+
+rule _symlink: harmless {
+  meta:
+    description = "creates symbolic links"
+    confidence  = "0.66"
+    syscall     = "symlink"
+    pledge      = "cpath"
+
+  strings:
+$ref = "_symlink" fullword
+  condition:
+    any of them
+}
+
+rule symlinkat: harmless {
+  meta:
+    description = "creates symbolic links"
+    confidence  = "0.66"
+    syscall     = "symlinkat"
+    pledge      = "cpath"
+
+  strings:
+$ref = "symlinkat" fullword
+  condition:
+    any of them
+}

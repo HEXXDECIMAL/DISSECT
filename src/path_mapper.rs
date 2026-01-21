@@ -237,8 +237,8 @@ fn detect_platform_from_paths(paths: &[PathInfo]) -> Vec<Trait> {
             description: "Targets embedded device with MTD flash storage".to_string(),
             confidence: 0.9,
             criticality: Criticality::Medium,
-            mbc_id: None,
-            attack_id: None,
+            mbc: None,
+            attack: None,
             evidence: mtd_paths
                 .iter()
                 .map(|p| Evidence {
@@ -248,6 +248,8 @@ fn detect_platform_from_paths(paths: &[PathInfo]) -> Vec<Trait> {
                     location: None,
                 })
                 .collect(),
+            language: None,
+            platforms: Vec::new(),
             referenced_paths: Some(mtd_paths.iter().map(|p| p.path.clone()).collect()),
             referenced_directories: None,
         });
@@ -269,8 +271,8 @@ fn detect_platform_from_paths(paths: &[PathInfo]) -> Vec<Trait> {
             description: "Android platform-specific paths detected".to_string(),
             confidence: 0.95,
             criticality: Criticality::Low,
-            mbc_id: None,
-            attack_id: None,
+            mbc: None,
+            attack: None,
             evidence: android_paths
                 .iter()
                 .map(|p| Evidence {
@@ -280,6 +282,8 @@ fn detect_platform_from_paths(paths: &[PathInfo]) -> Vec<Trait> {
                     location: None,
                 })
                 .collect(),
+            language: None,
+            platforms: Vec::new(),
             referenced_paths: Some(android_paths.iter().map(|p| p.path.clone()).collect()),
             referenced_directories: None,
         });
@@ -307,14 +311,16 @@ fn detect_anomalous_paths(paths: &[PathInfo]) -> Vec<Trait> {
             description: format!("Hidden file in system directory: {}", path.path),
             confidence: 0.8,
             criticality: Criticality::High,
-            mbc_id: None,
-            attack_id: Some("T1564.001".to_string()), // Hide Artifacts: Hidden Files
+            mbc: None,
+            attack: Some("T1564.001".to_string()), // Hide Artifacts: Hidden Files
             evidence: vec![Evidence {
                 method: "path_anomaly".to_string(),
                 source: path.source.clone(),
                 value: path.path.clone(),
                 location: None,
             }],
+            language: None,
+            platforms: Vec::new(),
             referenced_paths: Some(vec![path.path.clone()]),
             referenced_directories: None,
         });
@@ -347,8 +353,8 @@ fn detect_privilege_requirements(paths: &[PathInfo]) -> Vec<Trait> {
             description: "Requires root privileges to access protected paths".to_string(),
             confidence: 1.0,
             criticality: Criticality::High,
-            mbc_id: None,
-            attack_id: None,
+            mbc: None,
+            attack: None,
             evidence: requires_root
                 .iter()
                 .map(|p| Evidence {
@@ -358,6 +364,8 @@ fn detect_privilege_requirements(paths: &[PathInfo]) -> Vec<Trait> {
                     location: None,
                 })
                 .collect(),
+            language: None,
+            platforms: Vec::new(),
             referenced_paths: Some(requires_root.iter().map(|p| p.path.clone()).collect()),
             referenced_directories: None,
         });
@@ -394,14 +402,16 @@ pub fn generate_traits_from_directories(directories: &[DirectoryAccess]) -> Vec<
                     ),
                     confidence: 0.95,
                     criticality: Criticality::High,
-                    mbc_id: None,
-                    attack_id: Some("T1552".to_string()), // Unsecured Credentials
+                    mbc: None,
+                    attack: Some("T1552".to_string()), // Unsecured Credentials
                     evidence: vec![Evidence {
                         method: "directory_pattern".to_string(),
                         source: "path_mapper".to_string(),
                         value: format!("{} credential files in {}", cred_files.len(), dir.directory),
                         location: None,
                     }],
+                    language: None,
+                    platforms: Vec::new(),
                     referenced_paths: Some(cred_files
                         .iter()
                         .map(|f| format!("{}{}", dir.directory, f))
@@ -422,14 +432,16 @@ pub fn generate_traits_from_directories(directories: &[DirectoryAccess]) -> Vec<
                 ),
                 confidence: 0.7,
                 criticality: Criticality::Medium,
-                mbc_id: None,
-                attack_id: Some("T1070.002".to_string()), // Clear Linux Logs
+                mbc: None,
+                attack: Some("T1070.002".to_string()), // Clear Linux Logs
                 evidence: vec![Evidence {
                     method: "directory_pattern".to_string(),
                     source: "path_mapper".to_string(),
                     value: format!("{} log files accessed", dir.file_count),
                     location: Some(dir.directory.clone()),
                 }],
+                language: None,
+                platforms: Vec::new(),
                 referenced_paths: Some(dir
                     .files
                     .iter()

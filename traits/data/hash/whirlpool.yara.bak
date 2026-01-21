@@ -1,0 +1,13 @@
+// Migrated from malcontent: data/hash/whirlpool.yara
+
+rule whirlpool: medium {
+  meta:
+    description = "hash function often used for cryptomining"
+    confidence  = "0.66"
+    ref         = "https://en.wikipedia.org/wiki/Whirlpool_(hash_function)"
+
+  strings:
+$ref = "WHIRLPOOL" fullword
+  condition:
+    any of them
+}

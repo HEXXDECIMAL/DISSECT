@@ -1,0 +1,13 @@
+// Migrated from malcontent: data/hash/blake2b.yara
+
+rule crypto_blake2b {
+  meta:
+    description = "Uses blake2b hash algorithm"
+    capability  = "true"
+    confidence  = "0.66"
+
+  strings:
+$ref = "blake2b"
+  condition:
+    any of them
+}

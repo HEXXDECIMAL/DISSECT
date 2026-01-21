@@ -1,0 +1,41 @@
+// Migrated from malcontent: fs/lock-update.yara
+
+rule flock {
+  meta:
+    description = "apply or remove an advisory lock on a file"
+    capability  = "true"
+    confidence  = "0.66"
+    pledge      = "flock"
+    syscall     = "flock"
+
+  strings:
+$ref = "flock" fullword
+  condition:
+    any of them
+}
+
+rule lockf {
+  meta:
+    description = "apply or remove an advisory lock on a file"
+    confidence  = "0.66"
+    pledge      = "flock"
+    syscall     = "flock"
+
+  strings:
+$ref = "lockf" fullword
+  condition:
+    any of them
+}
+
+rule java_flock {
+  meta:
+    description = "apply or remove an advisory lock on a file"
+    confidence  = "0.66"
+    pledge      = "flock"
+    syscall     = "flock"
+
+  strings:
+$ref = "java/nio/channels/FileLock"
+  condition:
+    any of them
+}

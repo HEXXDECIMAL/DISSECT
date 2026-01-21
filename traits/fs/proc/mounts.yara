@@ -1,0 +1,14 @@
+// Migrated from malcontent: fs/proc/mounts.yara
+
+rule proc_mounts: medium {
+  meta:
+    description = "Parses active mounts (/proc/mounts"
+    capability  = "true"
+    confidence  = "0.66"
+    pledge      = "stdio"
+
+  strings:
+$ref = "/proc/mounts" fullword
+  condition:
+    any of them
+}

@@ -1,0 +1,15 @@
+// Migrated from malcontent: fs/tempdir/tempdir-create.yara
+
+rule mkdtemp {
+  meta:
+    description = "creates temporary directory"
+    capability  = "true"
+    confidence  = "0.66"
+    pledge      = "wpath"
+
+  strings:
+$mkdtemp = "mkdtemp" fullword
+    $tempdir = "temp dir"
+  condition:
+    any of them
+}

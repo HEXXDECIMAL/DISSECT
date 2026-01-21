@@ -1,0 +1,15 @@
+// Migrated from malcontent: exfil/interface_testing.yara
+
+rule interface_testing_service_user: medium {
+  meta:
+    description = "accesses interface testing/developer backends"
+    confidence  = "0.66"
+
+  strings:
+$mockbin_org   = "mockbin.org"
+    $run_mocky_io  = "run.mocky.io"
+    $webhook_site  = "webhook.site"
+    $devtunnels_ms = "devtunnels.ms"
+  condition:
+    any of them
+}

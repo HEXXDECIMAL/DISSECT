@@ -1,0 +1,28 @@
+// Migrated from malcontent: fs/fifo-create.yara
+
+rule mkfifo {
+  meta:
+    description = "make a FIFO special file (a named pipe)"
+    capability  = "true"
+    confidence  = "0.66"
+    pledge      = "wpath"
+    syscall     = "mknod"
+
+  strings:
+$ref = "mkfifo" fullword
+  condition:
+    any of them
+}
+
+rule mkfifoat {
+  meta:
+    description = "make a FIFO special file (a named pipe)"
+    confidence  = "0.66"
+    pledge      = "wpath"
+    syscall     = "mknod"
+
+  strings:
+$ref = "mkfifoat" fullword
+  condition:
+    any of them
+}

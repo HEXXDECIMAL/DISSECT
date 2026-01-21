@@ -1,0 +1,13 @@
+// Migrated from malcontent: data/encoding/base58.yara
+
+rule b58 {
+  meta:
+    description = "Supports base58 encoded strings"
+    capability  = "true"
+    confidence  = "0.66"
+
+  strings:
+$base64 = "bs58" fullword
+  condition:
+    any of them
+}

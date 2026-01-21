@@ -97,18 +97,35 @@ impl ElfAnalyzer {
                         report.yara_matches = matches.clone();
 
                         for yara_match in &matches {
-                            let capability_id = self.yara_namespace_to_capability(&yara_match.namespace);
+                            // Check if YARA rule has capability=true metadata OR maps via namespace
+                            let capability_id = if yara_match.is_capability {
+                                // Use namespace as capability ID (e.g., "exec.cmd" -> "exec/cmd")
+                                Some(yara_match.namespace.replace('.', "/"))
+                            } else {
+                                // Fall back to namespace mapping
+                                self.yara_namespace_to_capability(&yara_match.namespace)
+                            };
 
                             if let Some(cap_id) = capability_id {
                                 if !report.capabilities.iter().any(|c| c.id == cap_id) {
                                     let evidence = yara_engine.yara_match_to_evidence(yara_match);
+
+                                    // Determine criticality from severity
+                                    let criticality = match yara_match.severity.as_str() {
+                                        "critical" => Criticality::High,
+                                        "high" => Criticality::High,
+                                        "medium" => Criticality::Medium,
+                                        "low" => Criticality::Low,
+                                        _ => Criticality::Medium,
+                                    };
+
                                     report.capabilities.push(Capability {
                                         id: cap_id,
                                         description: yara_match.description.clone(),
                                         confidence: 0.9,
-                                        criticality: Criticality::Medium,
-                                        mbc_id: None,
-                                        attack_id: None,
+                                        criticality,
+                                        mbc: yara_match.mbc.clone(),
+                                        attack: yara_match.attack.clone(),
                                         evidence,
                                         traits: Vec::new(),
                                         referenced_paths: None,

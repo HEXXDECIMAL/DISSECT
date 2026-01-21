@@ -1,0 +1,13 @@
+// Migrated from malcontent: net/url/encode.yara
+
+rule url_encode: medium {
+  meta:
+    description = "encodes URL, likely to pass GET variables"
+    capability  = "true"
+    confidence  = "0.66"
+
+  strings:
+$ref = "urlencode"
+  condition:
+    any of them
+}

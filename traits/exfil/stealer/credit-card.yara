@@ -1,0 +1,15 @@
+// Migrated from malcontent: exfil/stealer/credit_card.yara
+
+rule credit_card: medium {
+  meta:
+    description = "references 'credit card'"
+    mbc         = "OB0009"
+    attack      = "T1041"
+    confidence  = "0.66"
+
+  strings:
+$credit_card = "credit card"
+    $Credit_Card = "Credit Card"
+  condition:
+    any of them
+}
