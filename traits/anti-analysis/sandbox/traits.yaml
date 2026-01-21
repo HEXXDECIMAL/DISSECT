@@ -5,7 +5,7 @@
 traits:
   - id: hostname-sandbox
     description: Common sandbox hostnames
-    criticality: medium
+    criticality: suspicious
     mbc: "B0007"
     attack: "T1497.001"
     confidence: 0.8
@@ -16,7 +16,7 @@ traits:
 
   - id: username-sandbox
     description: Common sandbox usernames
-    criticality: medium
+    criticality: suspicious
     mbc: "B0007"
     attack: "T1497.001"
     confidence: 0.8
@@ -27,7 +27,7 @@ traits:
 
   - id: sleep-accel
     description: Sleep acceleration detection (sandbox evasion)
-    criticality: high
+    criticality: suspicious
     mbc: "B0007"
     attack: "T1497.003"
     confidence: 0.9
@@ -37,7 +37,7 @@ traits:
 
   - id: file-check-sandbox
     description: Sandbox artifact file checks
-    criticality: medium
+    criticality: suspicious
     mbc: "B0007"
     attack: "T1497.001"
     confidence: 0.7

@@ -3,7 +3,7 @@
 capabilities:
   - id: reverse-shell
     description: Classic reverse shell pattern (socket + dup2 + shell)
-    criticality: high
+    criticality: hostile
     mbc: "B0030.002"
     attack: "T1059"
     confidence: 0.95
@@ -18,7 +18,7 @@ capabilities:
 
   - id: bind-shell
     description: Bind shell pattern (socket + bind + listen + shell)
-    criticality: high
+    criticality: hostile
     mbc: "B0030.003"
     attack: "T1059"
     confidence: 0.95

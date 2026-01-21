@@ -6,7 +6,7 @@ traits:
   # Messaging platforms
   - id: telegram-api
     description: Telegram Bot API
-    criticality: high
+    criticality: notable
     mbc: "B0030.001"
     attack: "T1567.001"
     confidence: 1.0
@@ -16,7 +16,7 @@ traits:
 
   - id: telegram-send
     description: Telegram send methods
-    criticality: medium
+    criticality: notable
     mbc: "B0030.001"
     confidence: 0.9
     condition:
@@ -25,7 +25,7 @@ traits:
 
   - id: discord-webhook
     description: Discord webhook URL
-    criticality: high
+    criticality: notable
     mbc: "B0030.001"
     attack: "T1567.001"
     confidence: 1.0
@@ -36,7 +36,7 @@ traits:
   # HTTP C2
   - id: http-post
     description: HTTP POST requests (potential C2)
-    criticality: low
+    criticality: inert
     mbc: "B0030"
     attack: "T1071.001"
     confidence: 0.5
@@ -46,7 +46,7 @@ traits:
 
   - id: user-agent-custom
     description: Custom User-Agent string (C2 indicator)
-    criticality: medium
+    criticality: notable
     mbc: "B0030"
     attack: "T1071.001"
     confidence: 0.6
@@ -57,7 +57,7 @@ traits:
   # DNS C2
   - id: dns-query
     description: DNS queries (potential C2 channel)
-    criticality: low
+    criticality: inert
     mbc: "B0030"
     attack: "T1071.004"
     confidence: 0.4

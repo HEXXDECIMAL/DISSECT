@@ -1,4 +1,7 @@
-use crate::types::{Capability, ControlFlowMetrics, Criticality, Evidence, Function, InstructionAnalysis, BinaryProperties};
+use crate::types::{
+    BinaryProperties, Capability, ControlFlowMetrics, Criticality, Evidence, Function,
+    InstructionAnalysis,
+};
 
 /// Maps low-level structural traits to Malware Behavior Catalog capabilities
 pub struct TraitMapper;
@@ -30,7 +33,7 @@ impl TraitMapper {
                     id: "exec/terminate".to_string(),
                     description: "Function terminates execution".to_string(),
                     confidence: 0.7,
-                    criticality: Criticality::None,
+                    criticality: Criticality::Inert,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {
@@ -59,14 +62,17 @@ impl TraitMapper {
                 id: "complexity/high".to_string(),
                 description: "High cyclomatic complexity with loops".to_string(),
                 confidence: 0.7,
-                        criticality: Criticality::None,
-                        mbc: None,
-                        attack: None,
-                        traits: Vec::new(),
+                criticality: Criticality::Inert,
+                mbc: None,
+                attack: None,
+                traits: Vec::new(),
                 evidence: vec![Evidence {
                     method: "trait".to_string(),
                     source: "radare2".to_string(),
-                    value: format!("complexity={}, loops={}", cf.cyclomatic_complexity, cf.loop_count),
+                    value: format!(
+                        "complexity={}, loops={}",
+                        cf.cyclomatic_complexity, cf.loop_count
+                    ),
                     location: Some(func_name.to_string()),
                 }],
                 referenced_paths: None,
@@ -79,10 +85,10 @@ impl TraitMapper {
                     id: "anti-analysis/obfuscation/control-flow".to_string(),
                     description: "Control flow obfuscation detected".to_string(),
                     confidence: 0.6,
-                        criticality: Criticality::None,
-                        mbc: None,
-                        attack: None,
-                        traits: Vec::new(),
+                    criticality: Criticality::Inert,
+                    mbc: None,
+                    attack: None,
+                    traits: Vec::new(),
                     evidence: vec![Evidence {
                         method: "trait".to_string(),
                         source: "radare2".to_string(),
@@ -101,10 +107,10 @@ impl TraitMapper {
                 id: "data/encode".to_string(),
                 description: "Multiple nested loops suggest encoding/crypto".to_string(),
                 confidence: 0.5,
-                        criticality: Criticality::None,
-                        mbc: None,
-                        attack: None,
-                        traits: Vec::new(),
+                criticality: Criticality::Inert,
+                mbc: None,
+                attack: None,
+                traits: Vec::new(),
                 evidence: vec![Evidence {
                     method: "trait".to_string(),
                     source: "radare2".to_string(),
@@ -131,7 +137,7 @@ impl TraitMapper {
                         id: "anti-analysis/anti-debug/debugger-detect".to_string(),
                         description: "Debug trap instruction detected".to_string(),
                         confidence: 0.9,
-                        criticality: Criticality::None,
+                        criticality: Criticality::Inert,
                         mbc: None,
                         attack: None,
                         traits: Vec::new(),
@@ -150,7 +156,7 @@ impl TraitMapper {
                         id: "anti-analysis/anti-debug/breakpoint".to_string(),
                         description: "Breakpoint instruction detected".to_string(),
                         confidence: 0.8,
-                        criticality: Criticality::None,
+                        criticality: Criticality::Inert,
                         mbc: None,
                         attack: None,
                         traits: Vec::new(),
@@ -169,7 +175,7 @@ impl TraitMapper {
                         id: "anti-analysis/anti-debug/timing".to_string(),
                         description: "Timing check via RDTSC".to_string(),
                         confidence: 0.8,
-                        criticality: Criticality::None,
+                        criticality: Criticality::Inert,
                         mbc: None,
                         attack: None,
                         traits: Vec::new(),
@@ -188,7 +194,7 @@ impl TraitMapper {
                         id: "anti-analysis/anti-vm/cpu-detect".to_string(),
                         description: "CPU detection via CPUID".to_string(),
                         confidence: 0.7,
-                        criticality: Criticality::None,
+                        criticality: Criticality::Inert,
                         mbc: None,
                         attack: None,
                         traits: Vec::new(),
@@ -208,7 +214,7 @@ impl TraitMapper {
                         id: "anti-analysis/obfuscation/fpu".to_string(),
                         description: "FPU instructions used for obfuscation".to_string(),
                         confidence: 0.6,
-                        criticality: Criticality::None,
+                        criticality: Criticality::Inert,
                         mbc: None,
                         attack: None,
                         traits: Vec::new(),
@@ -233,10 +239,10 @@ impl TraitMapper {
                 id: "crypto/xor".to_string(),
                 description: "High XOR operation density suggests encoding".to_string(),
                 confidence: 0.6,
-                        criticality: Criticality::None,
-                        mbc: None,
-                        attack: None,
-                        traits: Vec::new(),
+                criticality: Criticality::Inert,
+                mbc: None,
+                attack: None,
+                traits: Vec::new(),
                 evidence: vec![Evidence {
                     method: "trait".to_string(),
                     source: "radare2".to_string(),
@@ -254,10 +260,10 @@ impl TraitMapper {
                 id: "crypto/encrypt".to_string(),
                 description: "Hardware crypto instructions detected".to_string(),
                 confidence: 0.9,
-                        criticality: Criticality::None,
-                        mbc: None,
-                        attack: None,
-                        traits: Vec::new(),
+                criticality: Criticality::Inert,
+                mbc: None,
+                attack: None,
+                traits: Vec::new(),
                 evidence: vec![Evidence {
                     method: "trait".to_string(),
                     source: "radare2".to_string(),
@@ -275,10 +281,10 @@ impl TraitMapper {
                 id: "data/encoding/string-ops".to_string(),
                 description: "String operations for data manipulation".to_string(),
                 confidence: 0.6,
-                        criticality: Criticality::None,
-                        mbc: None,
-                        attack: None,
-                        traits: Vec::new(),
+                criticality: Criticality::Inert,
+                mbc: None,
+                attack: None,
+                traits: Vec::new(),
                 evidence: vec![Evidence {
                     method: "trait".to_string(),
                     source: "radare2".to_string(),
@@ -296,10 +302,10 @@ impl TraitMapper {
                 id: "os/syscall".to_string(),
                 description: "Direct system call usage".to_string(),
                 confidence: 0.8,
-                        criticality: Criticality::None,
-                        mbc: None,
-                        attack: None,
-                        traits: Vec::new(),
+                criticality: Criticality::Inert,
+                mbc: None,
+                attack: None,
+                traits: Vec::new(),
                 evidence: vec![Evidence {
                     method: "trait".to_string(),
                     source: "radare2".to_string(),
@@ -317,10 +323,10 @@ impl TraitMapper {
                 id: "privilege/escalate".to_string(),
                 description: "Privileged instructions detected".to_string(),
                 confidence: 0.7,
-                        criticality: Criticality::None,
-                        mbc: None,
-                        attack: None,
-                        traits: Vec::new(),
+                criticality: Criticality::Inert,
+                mbc: None,
+                attack: None,
+                traits: Vec::new(),
                 evidence: vec![Evidence {
                     method: "trait".to_string(),
                     source: "radare2".to_string(),
@@ -336,7 +342,10 @@ impl TraitMapper {
     }
 
     /// Analyze embedded constants for C2 indicators
-    fn analyze_constants(constants: &[crate::types::EmbeddedConstant], func_name: &str) -> Vec<Capability> {
+    fn analyze_constants(
+        constants: &[crate::types::EmbeddedConstant],
+        func_name: &str,
+    ) -> Vec<Capability> {
         let mut capabilities = Vec::new();
 
         for constant in constants {
@@ -347,7 +356,7 @@ impl TraitMapper {
                             id: "net/c2/address".to_string(),
                             description: format!("Embedded C2 address: {}", decoded.decoded_value),
                             confidence: decoded.confidence,
-                            criticality: Criticality::None,
+                            criticality: Criticality::Inert,
                             mbc: None,
                             attack: None,
                             evidence: vec![Evidence {
@@ -366,7 +375,7 @@ impl TraitMapper {
                             id: "net/socket/listen".to_string(),
                             description: format!("Embedded port number: {}", decoded.decoded_value),
                             confidence: decoded.confidence * 0.7, // Lower confidence for ports alone
-                            criticality: Criticality::Low,
+                            criticality: Criticality::Notable,
                             mbc: None,
                             attack: None,
                             evidence: vec![Evidence {
@@ -376,8 +385,8 @@ impl TraitMapper {
                                 location: Some(func_name.to_string()),
                             }],
                             traits: Vec::new(),
-                        referenced_paths: None,
-                        referenced_directories: None,
+                            referenced_paths: None,
+                            referenced_directories: None,
                         });
                     }
                     _ => {}
@@ -398,10 +407,10 @@ impl TraitMapper {
                 id: "binary/security/none".to_string(),
                 description: "No security hardening features present".to_string(),
                 confidence: 1.0,
-                        criticality: Criticality::None,
-                        mbc: None,
-                        attack: None,
-                        traits: Vec::new(),
+                criticality: Criticality::Inert,
+                mbc: None,
+                attack: None,
+                traits: Vec::new(),
                 evidence: vec![Evidence {
                     method: "trait".to_string(),
                     source: "radare2".to_string(),
@@ -419,10 +428,10 @@ impl TraitMapper {
                 id: "anti-analysis/stripped".to_string(),
                 description: "Binary symbols stripped".to_string(),
                 confidence: 1.0,
-                        criticality: Criticality::None,
-                        mbc: None,
-                        attack: None,
-                        traits: Vec::new(),
+                criticality: Criticality::Inert,
+                mbc: None,
+                attack: None,
+                traits: Vec::new(),
                 evidence: vec![Evidence {
                     method: "trait".to_string(),
                     source: "radare2".to_string(),
@@ -440,10 +449,10 @@ impl TraitMapper {
                 id: "binary/linking/static".to_string(),
                 description: "Statically linked binary".to_string(),
                 confidence: 1.0,
-                        criticality: Criticality::None,
-                        mbc: None,
-                        attack: None,
-                        traits: Vec::new(),
+                criticality: Criticality::Inert,
+                mbc: None,
+                attack: None,
+                traits: Vec::new(),
                 evidence: vec![Evidence {
                     method: "trait".to_string(),
                     source: "radare2".to_string(),
@@ -468,10 +477,10 @@ impl TraitMapper {
                 id: capability_id.to_string(),
                 description: anomaly.description.clone(),
                 confidence: 0.8,
-                        criticality: Criticality::None,
-                        mbc: None,
-                        attack: None,
-                        traits: Vec::new(),
+                criticality: Criticality::Inert,
+                mbc: None,
+                attack: None,
+                traits: Vec::new(),
                 evidence: vec![Evidence {
                     method: "trait".to_string(),
                     source: "radare2".to_string(),
@@ -484,5 +493,635 @@ impl TraitMapper {
         }
 
         capabilities
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::types::*;
+
+    fn create_test_function(name: &str) -> Function {
+        Function {
+            name: name.to_string(),
+            offset: Some("0x1000".to_string()),
+            size: Some(100),
+            complexity: None,
+            calls: Vec::new(),
+            source: "test".to_string(),
+            control_flow: None,
+            instruction_analysis: None,
+            register_usage: None,
+            constants: Vec::new(),
+            properties: None,
+            signature: None,
+            nesting: None,
+            call_patterns: None,
+        }
+    }
+
+    #[test]
+    fn test_analyze_control_flow_high_complexity() {
+        let cf = ControlFlowMetrics {
+            basic_blocks: 20,
+            edges: 25,
+            cyclomatic_complexity: 15,
+            max_block_size: 50,
+            avg_block_size: 15.0,
+            is_linear: false,
+            loop_count: 3,
+            branch_density: 0.3,
+            in_degree: 1,
+            out_degree: 2,
+        };
+
+        let caps = TraitMapper::analyze_control_flow(&cf, "test_func");
+
+        // Should detect high complexity
+        assert!(caps.iter().any(|c| c.id == "complexity/high"));
+
+        // Should detect potential encoding
+        assert!(caps.iter().any(|c| c.id == "data/encode"));
+    }
+
+    #[test]
+    fn test_analyze_control_flow_obfuscation() {
+        let cf = ControlFlowMetrics {
+            basic_blocks: 30,
+            edges: 40,
+            cyclomatic_complexity: 25,
+            max_block_size: 60,
+            avg_block_size: 20.0,
+            is_linear: false,
+            loop_count: 2,
+            branch_density: 0.4,
+            in_degree: 1,
+            out_degree: 3,
+        };
+
+        let caps = TraitMapper::analyze_control_flow(&cf, "obfuscated_func");
+
+        // Should detect obfuscation
+        assert!(caps
+            .iter()
+            .any(|c| c.id == "anti-analysis/obfuscation/control-flow"));
+        assert_eq!(
+            caps.iter()
+                .find(|c| c.id == "anti-analysis/obfuscation/control-flow")
+                .unwrap()
+                .confidence,
+            0.6
+        );
+    }
+
+    #[test]
+    fn test_analyze_control_flow_low_complexity() {
+        let cf = ControlFlowMetrics {
+            basic_blocks: 5,
+            edges: 4,
+            cyclomatic_complexity: 3,
+            max_block_size: 20,
+            avg_block_size: 10.0,
+            is_linear: false,
+            loop_count: 0,
+            branch_density: 0.1,
+            in_degree: 2,
+            out_degree: 1,
+        };
+
+        let caps = TraitMapper::analyze_control_flow(&cf, "simple_func");
+
+        // Should not detect anything suspicious
+        assert!(caps.is_empty());
+    }
+
+    #[test]
+    fn test_analyze_instructions_anti_debug_int1() {
+        let instr = InstructionAnalysis {
+            total_instructions: 100,
+            instruction_cost: 500,
+            instruction_density: 1.5,
+            categories: InstructionCategories {
+                arithmetic: 20,
+                logic: 10,
+                memory: 30,
+                control: 15,
+                system: 0,
+                fpu_simd: 0,
+                string_ops: 5,
+                privileged: 0,
+                crypto: 0,
+            },
+            top_opcodes: vec![],
+            unusual_instructions: vec!["int1".to_string()],
+        };
+
+        let caps = TraitMapper::analyze_instructions(&instr, "debug_trap");
+
+        // Should detect debug trap
+        assert!(caps
+            .iter()
+            .any(|c| c.id == "anti-analysis/anti-debug/debugger-detect"));
+        let cap = caps
+            .iter()
+            .find(|c| c.id == "anti-analysis/anti-debug/debugger-detect")
+            .unwrap();
+        assert_eq!(cap.confidence, 0.9);
+    }
+
+    #[test]
+    fn test_analyze_instructions_anti_debug_int3() {
+        let instr = InstructionAnalysis {
+            total_instructions: 50,
+            instruction_cost: 250,
+            instruction_density: 1.2,
+            categories: InstructionCategories {
+                arithmetic: 10,
+                logic: 5,
+                memory: 20,
+                control: 10,
+                system: 0,
+                fpu_simd: 0,
+                string_ops: 0,
+                privileged: 0,
+                crypto: 0,
+            },
+            top_opcodes: vec![],
+            unusual_instructions: vec!["int3".to_string()],
+        };
+
+        let caps = TraitMapper::analyze_instructions(&instr, "breakpoint_func");
+
+        // Should detect breakpoint
+        assert!(caps
+            .iter()
+            .any(|c| c.id == "anti-analysis/anti-debug/breakpoint"));
+        let cap = caps
+            .iter()
+            .find(|c| c.id == "anti-analysis/anti-debug/breakpoint")
+            .unwrap();
+        assert_eq!(cap.confidence, 0.8);
+    }
+
+    #[test]
+    fn test_analyze_instructions_rdtsc_timing() {
+        let instr = InstructionAnalysis {
+            total_instructions: 40,
+            instruction_cost: 200,
+            instruction_density: 1.3,
+            categories: InstructionCategories {
+                arithmetic: 10,
+                logic: 5,
+                memory: 15,
+                control: 8,
+                system: 0,
+                fpu_simd: 0,
+                string_ops: 0,
+                privileged: 0,
+                crypto: 0,
+            },
+            top_opcodes: vec![],
+            unusual_instructions: vec!["rdtsc".to_string()],
+        };
+
+        let caps = TraitMapper::analyze_instructions(&instr, "timing_check");
+
+        // Should detect timing check
+        assert!(caps
+            .iter()
+            .any(|c| c.id == "anti-analysis/anti-debug/timing"));
+        assert_eq!(
+            caps.iter()
+                .find(|c| c.id == "anti-analysis/anti-debug/timing")
+                .unwrap()
+                .confidence,
+            0.8
+        );
+    }
+
+    #[test]
+    fn test_analyze_instructions_cpuid_vm_detect() {
+        let instr = InstructionAnalysis {
+            total_instructions: 60,
+            instruction_cost: 300,
+            instruction_density: 1.4,
+            categories: InstructionCategories {
+                arithmetic: 15,
+                logic: 10,
+                memory: 20,
+                control: 12,
+                system: 0,
+                fpu_simd: 0,
+                string_ops: 0,
+                privileged: 0,
+                crypto: 0,
+            },
+            top_opcodes: vec![],
+            unusual_instructions: vec!["cpuid".to_string()],
+        };
+
+        let caps = TraitMapper::analyze_instructions(&instr, "vm_detect");
+
+        // Should detect VM detection
+        assert!(caps
+            .iter()
+            .any(|c| c.id == "anti-analysis/anti-vm/cpu-detect"));
+        assert_eq!(
+            caps.iter()
+                .find(|c| c.id == "anti-analysis/anti-vm/cpu-detect")
+                .unwrap()
+                .confidence,
+            0.7
+        );
+    }
+
+    #[test]
+    fn test_analyze_instructions_xor_encoding() {
+        let instr = InstructionAnalysis {
+            total_instructions: 50,
+            instruction_cost: 250,
+            instruction_density: 1.3,
+            categories: InstructionCategories {
+                arithmetic: 5,
+                logic: 15, // High logic operations
+                memory: 10,
+                control: 8,
+                system: 0,
+                fpu_simd: 0,
+                string_ops: 0,
+                privileged: 0,
+                crypto: 0,
+            },
+            top_opcodes: vec![],
+            unusual_instructions: Vec::new(),
+        };
+
+        let caps = TraitMapper::analyze_instructions(&instr, "xor_loop");
+
+        // Should detect XOR encoding (15/50 = 0.3 > 0.2)
+        assert!(caps.iter().any(|c| c.id == "crypto/xor"));
+        assert_eq!(
+            caps.iter()
+                .find(|c| c.id == "crypto/xor")
+                .unwrap()
+                .confidence,
+            0.6
+        );
+    }
+
+    #[test]
+    fn test_analyze_instructions_hardware_crypto() {
+        let instr = InstructionAnalysis {
+            total_instructions: 40,
+            instruction_cost: 200,
+            instruction_density: 1.2,
+            categories: InstructionCategories {
+                arithmetic: 10,
+                logic: 5,
+                memory: 15,
+                control: 8,
+                system: 0,
+                fpu_simd: 0,
+                string_ops: 0,
+                privileged: 0,
+                crypto: 5,
+            },
+            top_opcodes: vec![],
+            unusual_instructions: Vec::new(),
+        };
+
+        let caps = TraitMapper::analyze_instructions(&instr, "aes_encrypt");
+
+        // Should detect hardware crypto
+        assert!(caps.iter().any(|c| c.id == "crypto/encrypt"));
+        assert_eq!(
+            caps.iter()
+                .find(|c| c.id == "crypto/encrypt")
+                .unwrap()
+                .confidence,
+            0.9
+        );
+    }
+
+    #[test]
+    fn test_analyze_instructions_syscalls() {
+        let instr = InstructionAnalysis {
+            total_instructions: 30,
+            instruction_cost: 150,
+            instruction_density: 1.1,
+            categories: InstructionCategories {
+                arithmetic: 5,
+                logic: 3,
+                memory: 10,
+                control: 7,
+                system: 3,
+                fpu_simd: 0,
+                string_ops: 0,
+                privileged: 0,
+                crypto: 0,
+            },
+            top_opcodes: vec![],
+            unusual_instructions: Vec::new(),
+        };
+
+        let caps = TraitMapper::analyze_instructions(&instr, "syscall_func");
+
+        // Should detect system calls
+        assert!(caps.iter().any(|c| c.id == "os/syscall"));
+        assert_eq!(
+            caps.iter()
+                .find(|c| c.id == "os/syscall")
+                .unwrap()
+                .confidence,
+            0.8
+        );
+    }
+
+    #[test]
+    fn test_analyze_instructions_privileged() {
+        let instr = InstructionAnalysis {
+            total_instructions: 25,
+            instruction_cost: 125,
+            instruction_density: 1.0,
+            categories: InstructionCategories {
+                arithmetic: 5,
+                logic: 3,
+                memory: 8,
+                control: 6,
+                system: 0,
+                fpu_simd: 0,
+                string_ops: 0,
+                privileged: 2,
+                crypto: 0,
+            },
+            top_opcodes: vec![],
+            unusual_instructions: Vec::new(),
+        };
+
+        let caps = TraitMapper::analyze_instructions(&instr, "privileged_func");
+
+        // Should detect privileged instructions
+        assert!(caps.iter().any(|c| c.id == "privilege/escalate"));
+        assert_eq!(
+            caps.iter()
+                .find(|c| c.id == "privilege/escalate")
+                .unwrap()
+                .confidence,
+            0.7
+        );
+    }
+
+    #[test]
+    fn test_analyze_constants_ip_address() {
+        let constants = vec![EmbeddedConstant {
+            value: "0xc0a80101".to_string(),
+            constant_type: "dword".to_string(),
+            decoded: vec![DecodedValue {
+                value_type: "ip_address".to_string(),
+                decoded_value: "192.168.1.1".to_string(),
+                confidence: 0.7,
+            }],
+        }];
+
+        let caps = TraitMapper::analyze_constants(&constants, "c2_func");
+
+        // Should detect C2 address
+        assert_eq!(caps.len(), 1);
+        assert_eq!(caps[0].id, "net/c2/address");
+        assert!(caps[0].description.contains("192.168.1.1"));
+        assert_eq!(caps[0].confidence, 0.7);
+    }
+
+    #[test]
+    fn test_analyze_constants_port() {
+        let constants = vec![EmbeddedConstant {
+            value: "0x1bb".to_string(),
+            constant_type: "word".to_string(),
+            decoded: vec![DecodedValue {
+                value_type: "port".to_string(),
+                decoded_value: "443".to_string(),
+                confidence: 0.8,
+            }],
+        }];
+
+        let caps = TraitMapper::analyze_constants(&constants, "listen_func");
+
+        // Should detect port
+        assert_eq!(caps.len(), 1);
+        assert_eq!(caps[0].id, "net/socket/listen");
+        assert!(caps[0].description.contains("443"));
+        assert_eq!(caps[0].confidence, 0.8 * 0.7); // Port confidence is reduced
+        assert_eq!(caps[0].criticality, Criticality::Notable);
+    }
+
+    #[test]
+    fn test_analyze_binary_properties_no_security() {
+        let props = BinaryProperties {
+            security: SecurityFeatures {
+                canary: false,
+                nx: false,
+                pic: false,
+                relro: "none".to_string(),
+                stripped: false,
+                uses_crypto: false,
+                signed: false,
+            },
+            linking: LinkingInfo {
+                is_static: false,
+                libraries: Vec::new(),
+                rpath: Vec::new(),
+            },
+            anomalies: Vec::new(),
+        };
+
+        let caps = TraitMapper::analyze_binary_properties(&props);
+
+        // Should detect no security features
+        assert!(caps.iter().any(|c| c.id == "binary/security/none"));
+        assert_eq!(
+            caps.iter()
+                .find(|c| c.id == "binary/security/none")
+                .unwrap()
+                .confidence,
+            1.0
+        );
+    }
+
+    #[test]
+    fn test_analyze_binary_properties_stripped() {
+        let props = BinaryProperties {
+            security: SecurityFeatures {
+                canary: true,
+                nx: true,
+                pic: true,
+                relro: "full".to_string(),
+                stripped: true,
+                uses_crypto: false,
+                signed: false,
+            },
+            linking: LinkingInfo {
+                is_static: false,
+                libraries: Vec::new(),
+                rpath: Vec::new(),
+            },
+            anomalies: Vec::new(),
+        };
+
+        let caps = TraitMapper::analyze_binary_properties(&props);
+
+        // Should detect stripped binary
+        assert!(caps.iter().any(|c| c.id == "anti-analysis/stripped"));
+        assert_eq!(
+            caps.iter()
+                .find(|c| c.id == "anti-analysis/stripped")
+                .unwrap()
+                .confidence,
+            1.0
+        );
+    }
+
+    #[test]
+    fn test_analyze_binary_properties_static_linking() {
+        let props = BinaryProperties {
+            security: SecurityFeatures {
+                canary: true,
+                nx: true,
+                pic: false,
+                relro: "none".to_string(),
+                stripped: false,
+                uses_crypto: false,
+                signed: false,
+            },
+            linking: LinkingInfo {
+                is_static: true,
+                libraries: Vec::new(),
+                rpath: Vec::new(),
+            },
+            anomalies: Vec::new(),
+        };
+
+        let caps = TraitMapper::analyze_binary_properties(&props);
+
+        // Should detect static linking
+        assert!(caps.iter().any(|c| c.id == "binary/linking/static"));
+    }
+
+    #[test]
+    fn test_analyze_binary_properties_anomalies() {
+        let props = BinaryProperties {
+            security: SecurityFeatures {
+                canary: true,
+                nx: true,
+                pic: true,
+                relro: "full".to_string(),
+                stripped: false,
+                uses_crypto: false,
+                signed: false,
+            },
+            linking: LinkingInfo {
+                is_static: false,
+                libraries: Vec::new(),
+                rpath: Vec::new(),
+            },
+            anomalies: vec![BinaryAnomaly {
+                anomaly_type: "overlapping_functions".to_string(),
+                description: "Functions overlap in memory".to_string(),
+                severity: "medium".to_string(),
+            }],
+        };
+
+        let caps = TraitMapper::analyze_binary_properties(&props);
+
+        // Should detect anomaly
+        assert!(caps
+            .iter()
+            .any(|c| c.id == "anti-analysis/format/overlapping"));
+        assert_eq!(
+            caps.iter()
+                .find(|c| c.id == "anti-analysis/format/overlapping")
+                .unwrap()
+                .confidence,
+            0.8
+        );
+    }
+
+    #[test]
+    fn test_analyze_function_with_noreturn() {
+        let mut func = create_test_function("exit_wrapper");
+        func.properties = Some(FunctionProperties {
+            is_pure: false,
+            is_noreturn: true,
+            is_recursive: false,
+            stack_frame: 0,
+            local_vars: 0,
+            args: 0,
+            is_leaf: false,
+        });
+
+        let caps = TraitMapper::analyze_function(&func);
+
+        // Should detect noreturn
+        assert!(caps.iter().any(|c| c.id == "exec/terminate"));
+    }
+
+    #[test]
+    fn test_analyze_function_integration() {
+        let mut func = create_test_function("malicious_func");
+
+        // Add control flow
+        func.control_flow = Some(ControlFlowMetrics {
+            basic_blocks: 15,
+            edges: 20,
+            cyclomatic_complexity: 12,
+            max_block_size: 40,
+            avg_block_size: 12.0,
+            is_linear: false,
+            loop_count: 2,
+            branch_density: 0.25,
+            in_degree: 1,
+            out_degree: 4,
+        });
+
+        // Add instruction analysis
+        func.instruction_analysis = Some(InstructionAnalysis {
+            total_instructions: 100,
+            instruction_cost: 500,
+            instruction_density: 1.5,
+            categories: InstructionCategories {
+                arithmetic: 20,
+                logic: 25,
+                memory: 30,
+                control: 15,
+                system: 2,
+                fpu_simd: 0,
+                string_ops: 5,
+                privileged: 0,
+                crypto: 0,
+            },
+            top_opcodes: vec![],
+            unusual_instructions: vec!["rdtsc".to_string()],
+        });
+
+        // Add constants
+        func.constants = vec![EmbeddedConstant {
+            value: "0x08080808".to_string(),
+            constant_type: "dword".to_string(),
+            decoded: vec![DecodedValue {
+                value_type: "ip_address".to_string(),
+                decoded_value: "8.8.8.8".to_string(),
+                confidence: 0.8,
+            }],
+        }];
+
+        let caps = TraitMapper::analyze_function(&func);
+
+        // Should detect multiple capabilities
+        assert!(caps.len() >= 5); // complexity/high, data/encode, timing, xor, syscall, c2
+        assert!(caps.iter().any(|c| c.id == "complexity/high"));
+        assert!(caps
+            .iter()
+            .any(|c| c.id == "anti-analysis/anti-debug/timing"));
+        assert!(caps.iter().any(|c| c.id == "crypto/xor"));
+        assert!(caps.iter().any(|c| c.id == "net/c2/address"));
     }
 }

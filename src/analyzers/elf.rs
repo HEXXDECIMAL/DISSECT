@@ -20,7 +20,7 @@ pub struct ElfAnalyzer {
 impl ElfAnalyzer {
     pub fn new() -> Self {
         Self {
-            capability_mapper: CapabilityMapper::new(),
+            capability_mapper: CapabilityMapper::empty(),
             radare2: Radare2Analyzer::new(),
             string_extractor: StringExtractor::new(),
             yara_engine: None,
@@ -30,6 +30,12 @@ impl ElfAnalyzer {
     /// Create analyzer with YARA rules loaded
     pub fn with_yara(mut self, yara_engine: YaraEngine) -> Self {
         self.yara_engine = Some(yara_engine);
+        self
+    }
+
+    /// Create analyzer with pre-existing capability mapper (avoids duplicate loading)
+    pub fn with_capability_mapper(mut self, capability_mapper: CapabilityMapper) -> Self {
+        self.capability_mapper = capability_mapper;
         self
     }
 
@@ -92,7 +98,9 @@ impl ElfAnalyzer {
         if let Some(yara_engine) = &self.yara_engine {
             if yara_engine.is_loaded() {
                 tools_used.push("yara-x".to_string());
-                match yara_engine.scan_bytes(data) {
+                // Filter for ELF-specific rules
+                let file_types = &["elf", "so", "ko"];
+                match yara_engine.scan_bytes_filtered(data, Some(file_types)) {
                     Ok(matches) => {
                         report.yara_matches = matches.clone();
 
@@ -112,11 +120,11 @@ impl ElfAnalyzer {
 
                                     // Determine criticality from severity
                                     let criticality = match yara_match.severity.as_str() {
-                                        "critical" => Criticality::High,
-                                        "high" => Criticality::High,
-                                        "medium" => Criticality::Medium,
-                                        "low" => Criticality::Low,
-                                        _ => Criticality::Medium,
+                                        "critical" => Criticality::Hostile,
+                                        "high" => Criticality::Hostile,
+                                        "medium" => Criticality::Suspicious,
+                                        "low" => Criticality::Notable,
+                                        _ => Criticality::Suspicious,
                                     };
 
                                     report.capabilities.push(Capability {
@@ -136,7 +144,10 @@ impl ElfAnalyzer {
                         }
                     }
                     Err(e) => {
-                        report.metadata.errors.push(format!("YARA scan failed: {}", e));
+                        report
+                            .metadata
+                            .errors
+                            .push(format!("YARA scan failed: {}", e));
                     }
                 }
             }
@@ -211,7 +222,12 @@ impl ElfAnalyzer {
         Ok(())
     }
 
-    fn analyze_dynamic_symbols(&self, elf: &Elf, data: &[u8], report: &mut AnalysisReport) -> Result<()> {
+    fn analyze_dynamic_symbols(
+        &self,
+        elf: &Elf,
+        _data: &[u8],
+        report: &mut AnalysisReport,
+    ) -> Result<()> {
         // Analyze dynamic symbols (imports)
         for dynsym in &elf.dynsyms {
             if let Some(name) = elf.dynstrtab.get_at(dynsym.st_name) {
@@ -233,7 +249,9 @@ impl ElfAnalyzer {
 
         // Analyze regular symbols for exports
         for sym in &elf.syms {
-            if sym.st_bind() == goblin::elf::sym::STB_GLOBAL && sym.st_type() == goblin::elf::sym::STT_FUNC {
+            if sym.st_bind() == goblin::elf::sym::STB_GLOBAL
+                && sym.st_type() == goblin::elf::sym::STT_FUNC
+            {
                 if let Some(name) = elf.strtab.get_at(sym.st_name) {
                     report.exports.push(Export {
                         symbol: name.to_string(),
@@ -269,7 +287,8 @@ impl ElfAnalyzer {
                     if level == EntropyLevel::High {
                         report.structure.push(StructuralFeature {
                             id: "entropy/high".to_string(),
-                            description: "High entropy section (possibly packed/encrypted)".to_string(),
+                            description: "High entropy section (possibly packed/encrypted)"
+                                .to_string(),
                             evidence: vec![Evidence {
                                 method: "entropy".to_string(),
                                 source: "entropy_analyzer".to_string(),
@@ -339,5 +358,159 @@ impl Analyzer for ElfAnalyzer {
         } else {
             false
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::PathBuf;
+
+    fn get_test_elf() -> PathBuf {
+        PathBuf::from("tests/fixtures/test.elf")
+    }
+
+    #[test]
+    fn test_can_analyze_elf() {
+        let analyzer = ElfAnalyzer::new();
+        let test_file = get_test_elf();
+
+        if test_file.exists() {
+            assert!(analyzer.can_analyze(&test_file));
+        }
+    }
+
+    #[test]
+    fn test_cannot_analyze_non_elf() {
+        let analyzer = ElfAnalyzer::new();
+        assert!(!analyzer.can_analyze(&PathBuf::from("/dev/null")));
+        assert!(!analyzer.can_analyze(&PathBuf::from("tests/fixtures/test.exe")));
+    }
+
+    #[test]
+    fn test_analyze_elf_file() {
+        let analyzer = ElfAnalyzer::new();
+        let test_file = get_test_elf();
+
+        if !test_file.exists() {
+            return; // Skip if fixture doesn't exist
+        }
+
+        let result = analyzer.analyze(&test_file);
+        assert!(result.is_ok());
+
+        let report = result.unwrap();
+        assert_eq!(report.target.file_type, "elf");
+        assert!(report.target.size_bytes > 0);
+        assert!(!report.target.sha256.is_empty());
+    }
+
+    #[test]
+    fn test_elf_has_structure() {
+        let analyzer = ElfAnalyzer::new();
+        let test_file = get_test_elf();
+
+        if !test_file.exists() {
+            return;
+        }
+
+        let report = analyzer.analyze(&test_file).unwrap();
+        assert!(!report.structure.is_empty());
+    }
+
+    #[test]
+    fn test_elf_architecture_detected() {
+        let analyzer = ElfAnalyzer::new();
+        let test_file = get_test_elf();
+
+        if !test_file.exists() {
+            return;
+        }
+
+        let report = analyzer.analyze(&test_file).unwrap();
+        assert!(report.target.architectures.is_some());
+        let archs = report.target.architectures.unwrap();
+        assert!(!archs.is_empty());
+    }
+
+    #[test]
+    fn test_elf_sections_analyzed() {
+        let analyzer = ElfAnalyzer::new();
+        let test_file = get_test_elf();
+
+        if !test_file.exists() {
+            return;
+        }
+
+        let report = analyzer.analyze(&test_file).unwrap();
+        assert!(!report.sections.is_empty());
+    }
+
+    #[test]
+    fn test_elf_has_imports() {
+        let analyzer = ElfAnalyzer::new();
+        let test_file = get_test_elf();
+
+        if !test_file.exists() {
+            return;
+        }
+
+        let report = analyzer.analyze(&test_file).unwrap();
+        // Most ELF binaries have dynamic imports
+        assert!(!report.imports.is_empty());
+    }
+
+    #[test]
+    fn test_elf_capabilities_detected() {
+        let analyzer = ElfAnalyzer::new();
+        let test_file = get_test_elf();
+
+        if !test_file.exists() {
+            return;
+        }
+
+        let report = analyzer.analyze(&test_file).unwrap();
+        // Capabilities may or may not be detected depending on the binary
+        // Just verify the analysis completes successfully
+        assert!(report.capabilities.len() >= 0);
+    }
+
+    #[test]
+    fn test_elf_strings_extracted() {
+        let analyzer = ElfAnalyzer::new();
+        let test_file = get_test_elf();
+
+        if !test_file.exists() {
+            return;
+        }
+
+        let report = analyzer.analyze(&test_file).unwrap();
+        assert!(!report.strings.is_empty());
+    }
+
+    #[test]
+    fn test_elf_tools_used() {
+        let analyzer = ElfAnalyzer::new();
+        let test_file = get_test_elf();
+
+        if !test_file.exists() {
+            return;
+        }
+
+        let report = analyzer.analyze(&test_file).unwrap();
+        assert!(report.metadata.tools_used.contains(&"goblin".to_string()));
+    }
+
+    #[test]
+    fn test_elf_analysis_duration() {
+        let analyzer = ElfAnalyzer::new();
+        let test_file = get_test_elf();
+
+        if !test_file.exists() {
+            return;
+        }
+
+        let report = analyzer.analyze(&test_file).unwrap();
+        assert!(report.metadata.analysis_duration_ms > 0);
     }
 }

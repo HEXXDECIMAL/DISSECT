@@ -3,7 +3,7 @@
 capabilities:
   - id: telegram
     description: Data exfiltration via Telegram
-    criticality: high
+    criticality: hostile
     mbc: "B0030.001"
     attack: "T1567.001"
     confidence: 0.95
@@ -15,7 +15,7 @@ capabilities:
 
   - id: discord
     description: Data exfiltration via Discord webhook
-    criticality: high
+    criticality: hostile
     mbc: "B0030.001"
     attack: "T1567.001"
     confidence: 0.9

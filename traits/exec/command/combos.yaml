@@ -3,7 +3,7 @@
 capabilities:
   - id: shell-execution
     description: Shell command execution capability detected
-    criticality: high
+    criticality: notable
     mbc: "E1059"
     attack: "T1059"
     confidence: 0.9

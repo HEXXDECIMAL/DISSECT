@@ -77,9 +77,7 @@ pub enum Condition {
     },
 
     /// Match symbol OR string (convenience)
-    SymbolOrString {
-        any: Vec<String>,
-    },
+    SymbolOrString { any: Vec<String> },
 
     /// Check import count
     ImportsCount {
@@ -100,9 +98,7 @@ pub enum Condition {
     },
 
     /// Reference a previously-defined trait by ID
-    Trait {
-        id: String,
-    },
+    Trait { id: String },
 }
 
 fn default_min_count() -> usize {
@@ -259,17 +255,21 @@ impl CompositeTrait {
 
     /// Check if rule applies to current platform/file type
     fn matches_target(&self, ctx: &EvaluationContext) -> bool {
-        let platform_match = self.platforms.contains(&Platform::All)
-            || self.platforms.contains(&ctx.platform);
+        let platform_match =
+            self.platforms.contains(&Platform::All) || self.platforms.contains(&ctx.platform);
 
-        let file_type_match = self.file_types.contains(&FileType::All)
-            || self.file_types.contains(&ctx.file_type);
+        let file_type_match =
+            self.file_types.contains(&FileType::All) || self.file_types.contains(&ctx.file_type);
 
         platform_match && file_type_match
     }
 
     /// Evaluate ALL conditions must match (AND)
-    fn eval_requires_all(&self, conditions: &[Condition], ctx: &EvaluationContext) -> ConditionResult {
+    fn eval_requires_all(
+        &self,
+        conditions: &[Condition],
+        ctx: &EvaluationContext,
+    ) -> ConditionResult {
         let mut all_evidence = Vec::new();
 
         for condition in conditions {
@@ -292,7 +292,11 @@ impl CompositeTrait {
     }
 
     /// Evaluate at least ONE condition must match (OR)
-    fn eval_requires_any(&self, conditions: &[Condition], ctx: &EvaluationContext) -> ConditionResult {
+    fn eval_requires_any(
+        &self,
+        conditions: &[Condition],
+        ctx: &EvaluationContext,
+    ) -> ConditionResult {
         for condition in conditions {
             let result = self.eval_condition(condition, ctx);
             if result.matched {
@@ -308,7 +312,12 @@ impl CompositeTrait {
     }
 
     /// Evaluate at least N conditions must match
-    fn eval_requires_count(&self, conditions: &[Condition], count: usize, ctx: &EvaluationContext) -> ConditionResult {
+    fn eval_requires_count(
+        &self,
+        conditions: &[Condition],
+        count: usize,
+        ctx: &EvaluationContext,
+    ) -> ConditionResult {
         let mut matched_count = 0;
         let mut all_evidence = Vec::new();
 
@@ -328,7 +337,11 @@ impl CompositeTrait {
     }
 
     /// Evaluate NONE of the conditions can match (NOT)
-    fn eval_requires_none(&self, conditions: &[Condition], ctx: &EvaluationContext) -> ConditionResult {
+    fn eval_requires_none(
+        &self,
+        conditions: &[Condition],
+        ctx: &EvaluationContext,
+    ) -> ConditionResult {
         for condition in conditions {
             let result = self.eval_condition(condition, ctx);
             if result.matched {
@@ -358,25 +371,32 @@ impl CompositeTrait {
             Condition::Symbol { pattern, platforms } => {
                 self.eval_symbol(pattern, platforms.as_ref(), ctx)
             }
-            Condition::String { exact, regex, case_insensitive, exclude_patterns, min_count } => {
-                self.eval_string(exact.as_ref(), regex.as_ref(), *case_insensitive,
-                               exclude_patterns.as_ref(), *min_count, ctx)
-            }
+            Condition::String {
+                exact,
+                regex,
+                case_insensitive,
+                exclude_patterns,
+                min_count,
+            } => self.eval_string(
+                exact.as_ref(),
+                regex.as_ref(),
+                *case_insensitive,
+                exclude_patterns.as_ref(),
+                *min_count,
+                ctx,
+            ),
             Condition::YaraMatch { namespace, rule } => {
                 self.eval_yara_match(namespace, rule.as_ref(), ctx)
             }
-            Condition::Structure { feature, min_sections } => {
-                self.eval_structure(feature, *min_sections, ctx)
-            }
-            Condition::SymbolOrString { any } => {
-                self.eval_symbol_or_string(any, ctx)
-            }
+            Condition::Structure {
+                feature,
+                min_sections,
+            } => self.eval_structure(feature, *min_sections, ctx),
+            Condition::SymbolOrString { any } => self.eval_symbol_or_string(any, ctx),
             Condition::ImportsCount { min, max, filter } => {
                 self.eval_imports_count(*min, *max, filter.as_ref(), ctx)
             }
-            Condition::ExportsCount { min, max } => {
-                self.eval_exports_count(*min, *max, ctx)
-            }
+            Condition::ExportsCount { min, max } => self.eval_exports_count(*min, *max, ctx),
             Condition::Trait { .. } => {
                 // Trait conditions are evaluated separately via TraitMapper
                 ConditionResult {
@@ -389,7 +409,12 @@ impl CompositeTrait {
     }
 
     /// Evaluate symbol condition
-    fn eval_symbol(&self, pattern: &str, platforms: Option<&Vec<Platform>>, ctx: &EvaluationContext) -> ConditionResult {
+    fn eval_symbol(
+        &self,
+        pattern: &str,
+        platforms: Option<&Vec<Platform>>,
+        ctx: &EvaluationContext,
+    ) -> ConditionResult {
         // Check platform constraint
         if let Some(plats) = platforms {
             if !plats.contains(&ctx.platform) && !plats.contains(&Platform::All) {
@@ -435,9 +460,15 @@ impl CompositeTrait {
     }
 
     /// Evaluate string condition
-    fn eval_string(&self, exact: Option<&String>, regex: Option<&String>,
-                   case_insensitive: bool, exclude_patterns: Option<&Vec<String>>,
-                   min_count: usize, ctx: &EvaluationContext) -> ConditionResult {
+    fn eval_string(
+        &self,
+        exact: Option<&String>,
+        regex: Option<&String>,
+        case_insensitive: bool,
+        exclude_patterns: Option<&Vec<String>>,
+        min_count: usize,
+        ctx: &EvaluationContext,
+    ) -> ConditionResult {
         let mut evidence = Vec::new();
 
         // Check in extracted strings from report
@@ -446,7 +477,10 @@ impl CompositeTrait {
 
             if let Some(exact_str) = exact {
                 matched = if case_insensitive {
-                    string_info.value.to_lowercase().contains(&exact_str.to_lowercase())
+                    string_info
+                        .value
+                        .to_lowercase()
+                        .contains(&exact_str.to_lowercase())
                 } else {
                     string_info.value.contains(exact_str)
                 };
@@ -490,7 +524,12 @@ impl CompositeTrait {
     }
 
     /// Evaluate YARA match condition
-    fn eval_yara_match(&self, namespace: &str, rule: Option<&String>, ctx: &EvaluationContext) -> ConditionResult {
+    fn eval_yara_match(
+        &self,
+        namespace: &str,
+        rule: Option<&String>,
+        ctx: &EvaluationContext,
+    ) -> ConditionResult {
         let mut evidence = Vec::new();
 
         for yara_match in &ctx.report.yara_matches {
@@ -517,12 +556,19 @@ impl CompositeTrait {
     }
 
     /// Evaluate structure condition
-    fn eval_structure(&self, feature: &str, min_sections: Option<usize>, ctx: &EvaluationContext) -> ConditionResult {
+    fn eval_structure(
+        &self,
+        feature: &str,
+        min_sections: Option<usize>,
+        ctx: &EvaluationContext,
+    ) -> ConditionResult {
         let mut count = 0;
         let mut evidence = Vec::new();
 
         for structural_feature in &ctx.report.structure {
-            if structural_feature.id == feature || structural_feature.id.starts_with(&format!("{}/", feature)) {
+            if structural_feature.id == feature
+                || structural_feature.id.starts_with(&format!("{}/", feature))
+            {
                 count += 1;
                 evidence.extend(structural_feature.evidence.clone());
             }
@@ -542,7 +588,11 @@ impl CompositeTrait {
     }
 
     /// Evaluate symbol OR string condition
-    fn eval_symbol_or_string(&self, patterns: &[String], ctx: &EvaluationContext) -> ConditionResult {
+    fn eval_symbol_or_string(
+        &self,
+        patterns: &[String],
+        ctx: &EvaluationContext,
+    ) -> ConditionResult {
         for pattern in patterns {
             // Try as symbol first
             let symbol_result = self.eval_symbol(pattern, None, ctx);
@@ -565,11 +615,18 @@ impl CompositeTrait {
     }
 
     /// Evaluate imports count condition
-    fn eval_imports_count(&self, min: Option<usize>, max: Option<usize>,
-                         filter: Option<&String>, ctx: &EvaluationContext) -> ConditionResult {
+    fn eval_imports_count(
+        &self,
+        min: Option<usize>,
+        max: Option<usize>,
+        filter: Option<&String>,
+        ctx: &EvaluationContext,
+    ) -> ConditionResult {
         let count = if let Some(filter_pattern) = filter {
             // Count only imports matching filter
-            ctx.report.imports.iter()
+            ctx.report
+                .imports
+                .iter()
                 .filter(|imp| {
                     if let Ok(re) = Regex::new(filter_pattern) {
                         re.is_match(&imp.symbol)
@@ -601,7 +658,12 @@ impl CompositeTrait {
     }
 
     /// Evaluate exports count condition
-    fn eval_exports_count(&self, min: Option<usize>, max: Option<usize>, ctx: &EvaluationContext) -> ConditionResult {
+    fn eval_exports_count(
+        &self,
+        min: Option<usize>,
+        max: Option<usize>,
+        ctx: &EvaluationContext,
+    ) -> ConditionResult {
         let count = ctx.report.exports.len();
         let matched = min.map_or(true, |m| count >= m) && max.map_or(true, |m| count <= m);
 
@@ -668,6 +730,7 @@ impl TraitDefinition {
                 description: self.description.clone(),
                 confidence: self.confidence,
                 criticality: self.criticality,
+                capability: true, // Composite rules detect capabilities
                 mbc: self.mbc.clone(),
                 attack: self.attack.clone(),
                 language: None,
@@ -683,11 +746,11 @@ impl TraitDefinition {
 
     /// Check if trait applies to current platform/file type
     fn matches_target(&self, ctx: &EvaluationContext) -> bool {
-        let platform_match = self.platforms.contains(&Platform::All)
-            || self.platforms.contains(&ctx.platform);
+        let platform_match =
+            self.platforms.contains(&Platform::All) || self.platforms.contains(&ctx.platform);
 
-        let file_type_match = self.file_types.contains(&FileType::All)
-            || self.file_types.contains(&ctx.file_type);
+        let file_type_match =
+            self.file_types.contains(&FileType::All) || self.file_types.contains(&ctx.file_type);
 
         platform_match && file_type_match
     }
@@ -703,25 +766,32 @@ impl TraitDefinition {
             Condition::Symbol { pattern, platforms } => {
                 eval_symbol(pattern, platforms.as_ref(), ctx)
             }
-            Condition::String { exact, regex, case_insensitive, exclude_patterns, min_count } => {
-                eval_string(exact.as_ref(), regex.as_ref(), *case_insensitive,
-                           exclude_patterns.as_ref(), *min_count, ctx)
-            }
+            Condition::String {
+                exact,
+                regex,
+                case_insensitive,
+                exclude_patterns,
+                min_count,
+            } => eval_string(
+                exact.as_ref(),
+                regex.as_ref(),
+                *case_insensitive,
+                exclude_patterns.as_ref(),
+                *min_count,
+                ctx,
+            ),
             Condition::YaraMatch { namespace, rule } => {
                 eval_yara_match(namespace, rule.as_ref(), ctx)
             }
-            Condition::Structure { feature, min_sections } => {
-                eval_structure(feature, *min_sections, ctx)
-            }
-            Condition::SymbolOrString { any } => {
-                eval_symbol_or_string(any, ctx)
-            }
+            Condition::Structure {
+                feature,
+                min_sections,
+            } => eval_structure(feature, *min_sections, ctx),
+            Condition::SymbolOrString { any } => eval_symbol_or_string(any, ctx),
             Condition::ImportsCount { min, max, filter } => {
                 eval_imports_count(*min, *max, filter.as_ref(), ctx)
             }
-            Condition::ExportsCount { min, max } => {
-                eval_exports_count(*min, *max, ctx)
-            }
+            Condition::ExportsCount { min, max } => eval_exports_count(*min, *max, ctx),
             Condition::Trait { .. } => {
                 // Traits cannot reference other traits in their definition
                 ConditionResult {
@@ -735,7 +805,11 @@ impl TraitDefinition {
 }
 
 // Helper functions for trait evaluation (same as CompositeRule methods but standalone)
-fn eval_symbol(pattern: &str, platforms: Option<&Vec<Platform>>, ctx: &EvaluationContext) -> ConditionResult {
+fn eval_symbol(
+    pattern: &str,
+    platforms: Option<&Vec<Platform>>,
+    ctx: &EvaluationContext,
+) -> ConditionResult {
     // Check platform constraint
     if let Some(plats) = platforms {
         if !plats.contains(&ctx.platform) && !plats.contains(&Platform::All) {
@@ -780,18 +854,26 @@ fn eval_symbol(pattern: &str, platforms: Option<&Vec<Platform>>, ctx: &Evaluatio
     }
 }
 
-fn eval_string(exact: Option<&String>, regex: Option<&String>,
-               case_insensitive: bool, exclude_patterns: Option<&Vec<String>>,
-               min_count: usize, ctx: &EvaluationContext) -> ConditionResult {
+fn eval_string(
+    exact: Option<&String>,
+    regex: Option<&String>,
+    case_insensitive: bool,
+    exclude_patterns: Option<&Vec<String>>,
+    min_count: usize,
+    ctx: &EvaluationContext,
+) -> ConditionResult {
     let mut evidence = Vec::new();
 
-    // Check in extracted strings from report
+    // Check in extracted strings from report (for binaries)
     for string_info in &ctx.report.strings {
         let mut matched = false;
 
         if let Some(exact_str) = exact {
             matched = if case_insensitive {
-                string_info.value.to_lowercase().contains(&exact_str.to_lowercase())
+                string_info
+                    .value
+                    .to_lowercase()
+                    .contains(&exact_str.to_lowercase())
             } else {
                 string_info.value.contains(exact_str)
             };
@@ -827,6 +909,68 @@ fn eval_string(exact: Option<&String>, regex: Option<&String>,
         }
     }
 
+    // For source files or when no strings were extracted, search binary_data directly
+    if ctx.report.strings.is_empty()
+        || matches!(
+            ctx.file_type,
+            FileType::Python | FileType::Ruby | FileType::JavaScript | FileType::ShellScript
+        )
+    {
+        // Convert binary data to string for source code matching
+        if let Ok(content) = std::str::from_utf8(ctx.binary_data) {
+            let mut matched = false;
+            let mut match_value = String::new();
+
+            if let Some(exact_str) = exact {
+                matched = if case_insensitive {
+                    content.to_lowercase().contains(&exact_str.to_lowercase())
+                } else {
+                    content.contains(exact_str)
+                };
+                if matched {
+                    match_value = exact_str.clone();
+                }
+            } else if let Some(regex_pattern) = regex {
+                if let Ok(re) = build_regex(regex_pattern, case_insensitive) {
+                    if let Some(mat) = re.find(content) {
+                        matched = true;
+                        match_value = mat.as_str().to_string();
+                    }
+                }
+            }
+
+            if matched {
+                // Check exclusion patterns
+                if let Some(excludes) = exclude_patterns {
+                    let mut excluded = false;
+                    for exclude_pattern in excludes {
+                        if let Ok(re) = Regex::new(exclude_pattern) {
+                            if re.is_match(&match_value) {
+                                excluded = true;
+                                break;
+                            }
+                        }
+                    }
+                    if !excluded {
+                        evidence.push(Evidence {
+                            method: "string".to_string(),
+                            source: "source_code".to_string(),
+                            value: match_value,
+                            location: Some("file".to_string()),
+                        });
+                    }
+                } else {
+                    evidence.push(Evidence {
+                        method: "string".to_string(),
+                        source: "source_code".to_string(),
+                        value: match_value,
+                        location: Some("file".to_string()),
+                    });
+                }
+            }
+        }
+    }
+
     ConditionResult {
         matched: evidence.len() >= min_count,
         evidence,
@@ -834,7 +978,11 @@ fn eval_string(exact: Option<&String>, regex: Option<&String>,
     }
 }
 
-fn eval_yara_match(namespace: &str, rule: Option<&String>, ctx: &EvaluationContext) -> ConditionResult {
+fn eval_yara_match(
+    namespace: &str,
+    rule: Option<&String>,
+    ctx: &EvaluationContext,
+) -> ConditionResult {
     let mut evidence = Vec::new();
 
     for yara_match in &ctx.report.yara_matches {
@@ -860,12 +1008,18 @@ fn eval_yara_match(namespace: &str, rule: Option<&String>, ctx: &EvaluationConte
     }
 }
 
-fn eval_structure(feature: &str, min_sections: Option<usize>, ctx: &EvaluationContext) -> ConditionResult {
+fn eval_structure(
+    feature: &str,
+    min_sections: Option<usize>,
+    ctx: &EvaluationContext,
+) -> ConditionResult {
     let mut count = 0;
     let mut evidence = Vec::new();
 
     for structural_feature in &ctx.report.structure {
-        if structural_feature.id == feature || structural_feature.id.starts_with(&format!("{}/", feature)) {
+        if structural_feature.id == feature
+            || structural_feature.id.starts_with(&format!("{}/", feature))
+        {
             count += 1;
             evidence.extend(structural_feature.evidence.clone());
         }
@@ -906,9 +1060,16 @@ fn eval_symbol_or_string(patterns: &[String], ctx: &EvaluationContext) -> Condit
     }
 }
 
-fn eval_imports_count(min: Option<usize>, max: Option<usize>, filter: Option<&String>, ctx: &EvaluationContext) -> ConditionResult {
+fn eval_imports_count(
+    min: Option<usize>,
+    max: Option<usize>,
+    filter: Option<&String>,
+    ctx: &EvaluationContext,
+) -> ConditionResult {
     let count = if let Some(filter_pattern) = filter {
-        ctx.report.imports.iter()
+        ctx.report
+            .imports
+            .iter()
             .filter(|imp| imp.symbol.contains(filter_pattern))
             .count()
     } else {
@@ -933,7 +1094,11 @@ fn eval_imports_count(min: Option<usize>, max: Option<usize>, filter: Option<&St
     }
 }
 
-fn eval_exports_count(min: Option<usize>, max: Option<usize>, ctx: &EvaluationContext) -> ConditionResult {
+fn eval_exports_count(
+    min: Option<usize>,
+    max: Option<usize>,
+    ctx: &EvaluationContext,
+) -> ConditionResult {
     let count = ctx.report.exports.len();
     let matched = min.map_or(true, |m| count >= m) && max.map_or(true, |m| count <= m);
 
@@ -956,7 +1121,7 @@ fn eval_exports_count(min: Option<usize>, max: Option<usize>, ctx: &EvaluationCo
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::types::{TargetInfo, Import, Export, StructuralFeature, StringInfo, StringType};
+    use crate::types::{Export, Import, StringInfo, StringType, StructuralFeature, TargetInfo};
 
     fn create_test_context() -> (AnalysisReport, Vec<u8>) {
         let target = TargetInfo {
@@ -1004,18 +1169,19 @@ mod tests {
             platform: Platform::Linux,
         };
 
-        let rule = CompositeRule {
-            capability: "test/capability".to_string(),
+        let rule = CompositeTrait {
+            id: "test/capability".to_string(),
             description: "Test".to_string(),
             confidence: 0.9,
+            criticality: Criticality::Inert,
+            mbc: None,
+            attack: None,
             platforms: vec![Platform::All],
             file_types: vec![FileType::All],
-            requires_all: Some(vec![
-                Condition::Symbol {
-                    pattern: "socket".to_string(),
-                    platforms: None,
-                },
-            ]),
+            requires_all: Some(vec![Condition::Symbol {
+                pattern: "socket".to_string(),
+                platforms: None,
+            }]),
             requires_any: None,
             requires_count: None,
             conditions: None,
@@ -1040,10 +1206,13 @@ mod tests {
             platform: Platform::Linux,
         };
 
-        let rule = CompositeRule {
-            capability: "net/reverse-shell".to_string(),
+        let rule = CompositeTrait {
+            id: "net/reverse-shell".to_string(),
             description: "Reverse shell".to_string(),
             confidence: 0.9,
+            criticality: Criticality::Inert,
+            mbc: None,
+            attack: None,
             platforms: vec![Platform::All],
             file_types: vec![FileType::All],
             requires_all: Some(vec![
@@ -1079,10 +1248,13 @@ mod tests {
             platform: Platform::Linux,
         };
 
-        let rule = CompositeRule {
-            capability: "test/multi".to_string(),
+        let rule = CompositeTrait {
+            id: "test/multi".to_string(),
             description: "Multiple conditions".to_string(),
             confidence: 0.85,
+            criticality: Criticality::Inert,
+            mbc: None,
+            attack: None,
             platforms: vec![Platform::All],
             file_types: vec![FileType::All],
             requires_all: None,
@@ -1102,6 +1274,614 @@ mod tests {
                     platforms: None,
                 },
             ]),
+            requires_none: None,
+        };
+
+        let result = rule.evaluate(&ctx);
+        assert!(result.is_some());
+    }
+
+    #[test]
+    fn test_string_exact_condition() {
+        let (report, data) = create_test_context();
+        let ctx = EvaluationContext {
+            report: &report,
+            binary_data: &data,
+            file_type: FileType::Elf,
+            platform: Platform::Linux,
+        };
+
+        let rule = CompositeTrait {
+            id: "test/string-exact".to_string(),
+            description: "Exact string match".to_string(),
+            confidence: 0.9,
+            criticality: Criticality::Inert,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            file_types: vec![FileType::All],
+            requires_all: Some(vec![Condition::String {
+                exact: Some("/bin/sh".to_string()),
+                regex: None,
+                case_insensitive: false,
+                exclude_patterns: None,
+                min_count: 1,
+            }]),
+            requires_any: None,
+            requires_count: None,
+            conditions: None,
+            requires_none: None,
+        };
+
+        let result = rule.evaluate(&ctx);
+        assert!(result.is_some());
+    }
+
+    #[test]
+    fn test_string_regex_condition() {
+        let (mut report, data) = create_test_context();
+        report.strings.push(StringInfo {
+            value: "192.168.1.1".to_string(),
+            offset: Some("0x2000".to_string()),
+            encoding: "utf8".to_string(),
+            string_type: StringType::Plain,
+            section: None,
+        });
+
+        let ctx = EvaluationContext {
+            report: &report,
+            binary_data: &data,
+            file_type: FileType::Elf,
+            platform: Platform::Linux,
+        };
+
+        let rule = CompositeTrait {
+            id: "test/string-regex".to_string(),
+            description: "Regex string match".to_string(),
+            confidence: 0.9,
+            criticality: Criticality::Inert,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            file_types: vec![FileType::All],
+            requires_all: Some(vec![Condition::String {
+                exact: None,
+                regex: Some(r"\d+\.\d+\.\d+\.\d+".to_string()),
+                case_insensitive: false,
+                exclude_patterns: None,
+                min_count: 1,
+            }]),
+            requires_any: None,
+            requires_count: None,
+            conditions: None,
+            requires_none: None,
+        };
+
+        let result = rule.evaluate(&ctx);
+        assert!(result.is_some());
+    }
+
+    #[test]
+    fn test_string_case_insensitive() {
+        let (mut report, data) = create_test_context();
+        report.strings.push(StringInfo {
+            value: "PASSWORD".to_string(),
+            offset: Some("0x3000".to_string()),
+            encoding: "utf8".to_string(),
+            string_type: StringType::Plain,
+            section: None,
+        });
+
+        let ctx = EvaluationContext {
+            report: &report,
+            binary_data: &data,
+            file_type: FileType::Elf,
+            platform: Platform::Linux,
+        };
+
+        let rule = CompositeTrait {
+            id: "test/string-case".to_string(),
+            description: "Case insensitive match".to_string(),
+            confidence: 0.9,
+            criticality: Criticality::Inert,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            file_types: vec![FileType::All],
+            requires_all: Some(vec![Condition::String {
+                exact: Some("password".to_string()),
+                regex: None,
+                case_insensitive: true,
+                exclude_patterns: None,
+                min_count: 1,
+            }]),
+            requires_any: None,
+            requires_count: None,
+            conditions: None,
+            requires_none: None,
+        };
+
+        let result = rule.evaluate(&ctx);
+        assert!(result.is_some());
+    }
+
+    #[test]
+    fn test_symbol_or_string_condition() {
+        let (report, data) = create_test_context();
+        let ctx = EvaluationContext {
+            report: &report,
+            binary_data: &data,
+            file_type: FileType::Elf,
+            platform: Platform::Linux,
+        };
+
+        let rule = CompositeTrait {
+            id: "test/symbol-or-string".to_string(),
+            description: "Symbol or string match".to_string(),
+            confidence: 0.9,
+            criticality: Criticality::Inert,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            file_types: vec![FileType::All],
+            requires_all: Some(vec![Condition::SymbolOrString {
+                any: vec!["socket".to_string(), "/bin/sh".to_string()],
+            }]),
+            requires_any: None,
+            requires_count: None,
+            conditions: None,
+            requires_none: None,
+        };
+
+        let result = rule.evaluate(&ctx);
+        assert!(result.is_some());
+    }
+
+    #[test]
+    fn test_imports_count_condition() {
+        let (report, data) = create_test_context();
+        let ctx = EvaluationContext {
+            report: &report,
+            binary_data: &data,
+            file_type: FileType::Elf,
+            platform: Platform::Linux,
+        };
+
+        let rule = CompositeTrait {
+            id: "test/imports-count".to_string(),
+            description: "Imports count check".to_string(),
+            confidence: 0.9,
+            criticality: Criticality::Inert,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            file_types: vec![FileType::All],
+            requires_all: Some(vec![Condition::ImportsCount {
+                min: Some(1),
+                max: Some(10),
+                filter: None,
+            }]),
+            requires_any: None,
+            requires_count: None,
+            conditions: None,
+            requires_none: None,
+        };
+
+        let result = rule.evaluate(&ctx);
+        assert!(result.is_some());
+    }
+
+    #[test]
+    fn test_exports_count_condition() {
+        let (mut report, data) = create_test_context();
+        report.exports.push(Export {
+            symbol: "main".to_string(),
+            offset: Some("0x1000".to_string()),
+            source: "test".to_string(),
+        });
+
+        let ctx = EvaluationContext {
+            report: &report,
+            binary_data: &data,
+            file_type: FileType::Elf,
+            platform: Platform::Linux,
+        };
+
+        let rule = CompositeTrait {
+            id: "test/exports-count".to_string(),
+            description: "Exports count check".to_string(),
+            confidence: 0.9,
+            criticality: Criticality::Inert,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            file_types: vec![FileType::All],
+            requires_all: Some(vec![Condition::ExportsCount {
+                min: Some(1),
+                max: Some(10),
+            }]),
+            requires_any: None,
+            requires_count: None,
+            conditions: None,
+            requires_none: None,
+        };
+
+        let result = rule.evaluate(&ctx);
+        assert!(result.is_some());
+    }
+
+    #[test]
+    fn test_structure_condition() {
+        let (mut report, data) = create_test_context();
+        report.structure.push(StructuralFeature {
+            id: "binary/format/elf".to_string(),
+            description: "ELF binary".to_string(),
+            evidence: vec![],
+        });
+
+        let ctx = EvaluationContext {
+            report: &report,
+            binary_data: &data,
+            file_type: FileType::Elf,
+            platform: Platform::Linux,
+        };
+
+        let rule = CompositeTrait {
+            id: "test/structure".to_string(),
+            description: "Structure check".to_string(),
+            confidence: 0.9,
+            criticality: Criticality::Inert,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            file_types: vec![FileType::All],
+            requires_all: Some(vec![Condition::Structure {
+                feature: "binary/format/elf".to_string(),
+                min_sections: None,
+            }]),
+            requires_any: None,
+            requires_count: None,
+            conditions: None,
+            requires_none: None,
+        };
+
+        let result = rule.evaluate(&ctx);
+        assert!(result.is_some());
+    }
+
+    #[test]
+    fn test_requires_any() {
+        let (report, data) = create_test_context();
+        let ctx = EvaluationContext {
+            report: &report,
+            binary_data: &data,
+            file_type: FileType::Elf,
+            platform: Platform::Linux,
+        };
+
+        let rule = CompositeTrait {
+            id: "test/requires-any".to_string(),
+            description: "Requires any condition".to_string(),
+            confidence: 0.9,
+            criticality: Criticality::Inert,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            file_types: vec![FileType::All],
+            requires_all: None,
+            requires_any: Some(vec![
+                Condition::Symbol {
+                    pattern: "nonexistent".to_string(),
+                    platforms: None,
+                },
+                Condition::Symbol {
+                    pattern: "socket".to_string(),
+                    platforms: None,
+                },
+            ]),
+            requires_count: None,
+            conditions: None,
+            requires_none: None,
+        };
+
+        let result = rule.evaluate(&ctx);
+        assert!(result.is_some());
+    }
+
+    #[test]
+    fn test_requires_none() {
+        let (report, data) = create_test_context();
+        let ctx = EvaluationContext {
+            report: &report,
+            binary_data: &data,
+            file_type: FileType::Elf,
+            platform: Platform::Linux,
+        };
+
+        let rule = CompositeTrait {
+            id: "test/requires-none".to_string(),
+            description: "Requires none condition".to_string(),
+            confidence: 0.9,
+            criticality: Criticality::Inert,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            file_types: vec![FileType::All],
+            requires_all: Some(vec![Condition::Symbol {
+                pattern: "socket".to_string(),
+                platforms: None,
+            }]),
+            requires_any: None,
+            requires_count: None,
+            conditions: None,
+            requires_none: Some(vec![Condition::Symbol {
+                pattern: "totally_nonexistent_symbol".to_string(),
+                platforms: None,
+            }]),
+        };
+
+        let result = rule.evaluate(&ctx);
+        assert!(result.is_some());
+    }
+
+    #[test]
+    fn test_requires_none_fails() {
+        let (report, data) = create_test_context();
+        let ctx = EvaluationContext {
+            report: &report,
+            binary_data: &data,
+            file_type: FileType::Elf,
+            platform: Platform::Linux,
+        };
+
+        let rule = CompositeTrait {
+            id: "test/requires-none-fail".to_string(),
+            description: "Requires none fails".to_string(),
+            confidence: 0.9,
+            criticality: Criticality::Inert,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            file_types: vec![FileType::All],
+            requires_all: None,
+            requires_any: None,
+            requires_count: None,
+            conditions: None,
+            requires_none: Some(vec![Condition::Symbol {
+                pattern: "socket".to_string(),
+                platforms: None,
+            }]),
+        };
+
+        let result = rule.evaluate(&ctx);
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_platform_filter() {
+        let (report, data) = create_test_context();
+
+        // Linux platform should match
+        let ctx_linux = EvaluationContext {
+            report: &report,
+            binary_data: &data,
+            file_type: FileType::Elf,
+            platform: Platform::Linux,
+        };
+
+        let rule = CompositeTrait {
+            id: "test/platform".to_string(),
+            description: "Platform filter".to_string(),
+            confidence: 0.9,
+            criticality: Criticality::Inert,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::Linux],
+            file_types: vec![FileType::All],
+            requires_all: Some(vec![Condition::Symbol {
+                pattern: "socket".to_string(),
+                platforms: None,
+            }]),
+            requires_any: None,
+            requires_count: None,
+            conditions: None,
+            requires_none: None,
+        };
+
+        assert!(rule.evaluate(&ctx_linux).is_some());
+
+        // Windows platform should not match
+        let ctx_windows = EvaluationContext {
+            report: &report,
+            binary_data: &data,
+            file_type: FileType::Pe,
+            platform: Platform::Windows,
+        };
+
+        assert!(rule.evaluate(&ctx_windows).is_none());
+    }
+
+    #[test]
+    fn test_file_type_filter() {
+        let (report, data) = create_test_context();
+
+        // ELF file type should match
+        let ctx_elf = EvaluationContext {
+            report: &report,
+            binary_data: &data,
+            file_type: FileType::Elf,
+            platform: Platform::Linux,
+        };
+
+        let rule = CompositeTrait {
+            id: "test/filetype".to_string(),
+            description: "File type filter".to_string(),
+            confidence: 0.9,
+            criticality: Criticality::Inert,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            file_types: vec![FileType::Elf],
+            requires_all: Some(vec![Condition::Symbol {
+                pattern: "socket".to_string(),
+                platforms: None,
+            }]),
+            requires_any: None,
+            requires_count: None,
+            conditions: None,
+            requires_none: None,
+        };
+
+        assert!(rule.evaluate(&ctx_elf).is_some());
+
+        // PE file type should not match
+        let ctx_pe = EvaluationContext {
+            report: &report,
+            binary_data: &data,
+            file_type: FileType::Pe,
+            platform: Platform::Windows,
+        };
+
+        assert!(rule.evaluate(&ctx_pe).is_none());
+    }
+
+    #[test]
+    fn test_min_count_string() {
+        let (mut report, data) = create_test_context();
+        report.strings.push(StringInfo {
+            value: "test".to_string(),
+            offset: Some("0x1000".to_string()),
+            encoding: "utf8".to_string(),
+            string_type: StringType::Plain,
+            section: None,
+        });
+        report.strings.push(StringInfo {
+            value: "test".to_string(),
+            offset: Some("0x2000".to_string()),
+            encoding: "utf8".to_string(),
+            string_type: StringType::Plain,
+            section: None,
+        });
+
+        let ctx = EvaluationContext {
+            report: &report,
+            binary_data: &data,
+            file_type: FileType::Elf,
+            platform: Platform::Linux,
+        };
+
+        let rule = CompositeTrait {
+            id: "test/min-count".to_string(),
+            description: "Min count check".to_string(),
+            confidence: 0.9,
+            criticality: Criticality::Inert,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            file_types: vec![FileType::All],
+            requires_all: Some(vec![Condition::String {
+                exact: Some("test".to_string()),
+                regex: None,
+                case_insensitive: false,
+                exclude_patterns: None,
+                min_count: 2,
+            }]),
+            requires_any: None,
+            requires_count: None,
+            conditions: None,
+            requires_none: None,
+        };
+
+        let result = rule.evaluate(&ctx);
+        assert!(result.is_some());
+    }
+
+    #[test]
+    fn test_exclude_patterns() {
+        let (mut report, data) = create_test_context();
+        // Add both an included and excluded string
+        report.strings.push(StringInfo {
+            value: "/bin/sh".to_string(), // This should match
+            offset: Some("0x1000".to_string()),
+            encoding: "utf8".to_string(),
+            string_type: StringType::Plain,
+            section: None,
+        });
+        report.strings.push(StringInfo {
+            value: "/bin/bash".to_string(), // This should be excluded
+            offset: Some("0x2000".to_string()),
+            encoding: "utf8".to_string(),
+            string_type: StringType::Plain,
+            section: None,
+        });
+
+        let ctx = EvaluationContext {
+            report: &report,
+            binary_data: &data,
+            file_type: FileType::Elf,
+            platform: Platform::Linux,
+        };
+
+        let rule = CompositeTrait {
+            id: "test/exclude".to_string(),
+            description: "Exclude patterns".to_string(),
+            confidence: 0.9,
+            criticality: Criticality::Inert,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            file_types: vec![FileType::All],
+            requires_all: Some(vec![Condition::String {
+                exact: None,
+                regex: Some("/bin/.*".to_string()),
+                case_insensitive: false,
+                exclude_patterns: Some(vec!["bash".to_string()]),
+                min_count: 1,
+            }]),
+            requires_any: None,
+            requires_count: None,
+            conditions: None,
+            requires_none: None,
+        };
+
+        // Should match because /bin/sh matches and is not excluded
+        let result = rule.evaluate(&ctx);
+        assert!(result.is_some());
+    }
+
+    #[test]
+    fn test_imports_count_with_filter() {
+        let (mut report, data) = create_test_context();
+        report.imports.push(Import {
+            symbol: "bind".to_string(),
+            library: None,
+            source: "test".to_string(),
+        });
+
+        let ctx = EvaluationContext {
+            report: &report,
+            binary_data: &data,
+            file_type: FileType::Elf,
+            platform: Platform::Linux,
+        };
+
+        let rule = CompositeTrait {
+            id: "test/imports-filter".to_string(),
+            description: "Imports count with filter".to_string(),
+            confidence: 0.9,
+            criticality: Criticality::Inert,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            file_types: vec![FileType::All],
+            requires_all: Some(vec![Condition::ImportsCount {
+                min: Some(2),
+                max: None,
+                filter: Some("socket|connect|bind".to_string()),
+            }]),
+            requires_any: None,
+            requires_count: None,
+            conditions: None,
             requires_none: None,
         };
 

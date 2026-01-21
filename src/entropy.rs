@@ -122,4 +122,80 @@ mod tests {
         assert_eq!(EntropyLevel::from_value(6.5), EntropyLevel::Elevated);
         assert_eq!(EntropyLevel::from_value(7.5), EntropyLevel::High);
     }
+
+    #[test]
+    fn test_empty_data() {
+        let data = vec![];
+        let entropy = calculate_entropy(&data);
+        assert_eq!(entropy, 0.0);
+    }
+
+    #[test]
+    fn test_sliding_window_entropy() {
+        let data = vec![0u8; 200];
+        let results = sliding_window_entropy(&data, 100);
+
+        assert!(!results.is_empty());
+        // All windows should have zero entropy since all bytes are the same
+        for (_offset, entropy) in results {
+            assert_eq!(entropy, 0.0);
+        }
+    }
+
+    #[test]
+    fn test_sliding_window_small_data() {
+        let data = vec![1, 2, 3];
+        let results = sliding_window_entropy(&data, 100);
+
+        // Window larger than data should return single result
+        assert_eq!(results.len(), 1);
+        assert_eq!(results[0].0, 0);
+    }
+
+    #[test]
+    fn test_entropy_level_as_str() {
+        assert_eq!(EntropyLevel::VeryLow.as_str(), "very_low");
+        assert_eq!(EntropyLevel::Normal.as_str(), "normal");
+        assert_eq!(EntropyLevel::Elevated.as_str(), "elevated");
+        assert_eq!(EntropyLevel::High.as_str(), "high");
+    }
+
+    #[test]
+    fn test_entropy_level_description() {
+        assert!(EntropyLevel::VeryLow.description().contains("Very low"));
+        assert!(EntropyLevel::Normal.description().contains("Normal"));
+        assert!(EntropyLevel::Elevated.description().contains("Elevated"));
+        assert!(EntropyLevel::High.description().contains("High"));
+    }
+
+    #[test]
+    fn test_entropy_boundary_conditions() {
+        assert_eq!(EntropyLevel::from_value(3.99), EntropyLevel::VeryLow);
+        assert_eq!(EntropyLevel::from_value(4.0), EntropyLevel::Normal);
+        assert_eq!(EntropyLevel::from_value(5.99), EntropyLevel::Normal);
+        assert_eq!(EntropyLevel::from_value(6.0), EntropyLevel::Elevated);
+        assert_eq!(EntropyLevel::from_value(7.19), EntropyLevel::Elevated);
+        assert_eq!(EntropyLevel::from_value(7.2), EntropyLevel::High);
+    }
+
+    #[test]
+    fn test_sliding_window_overlap() {
+        let data: Vec<u8> = (0..=255).cycle().take(500).collect();
+        let results = sliding_window_entropy(&data, 100);
+
+        // With 50% overlap, we should have multiple windows
+        assert!(results.len() > 2);
+
+        // Check that offsets are properly spaced
+        if results.len() >= 2 {
+            assert_eq!(results[1].0 - results[0].0, 50); // window_size / 2
+        }
+    }
+
+    #[test]
+    fn test_entropy_with_repeating_pattern() {
+        let data = vec![0xAA, 0xBB, 0xAA, 0xBB, 0xAA, 0xBB]; // Alternating pattern
+        let entropy = calculate_entropy(&data);
+        assert!(entropy > 0.9 && entropy < 1.1); // Should be close to 1.0 (2 equally likely values)
+    }
 }

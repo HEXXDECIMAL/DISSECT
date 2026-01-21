@@ -2,18 +2,24 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 /// Criticality level for traits and capabilities
+/// - Filtered (−1): Matched but wrong file type, preserved for ML analysis
+/// - Inert (0): Universal baseline noise, low analytical signal
+/// - Notable (1): Defines program purpose, flag in diffs for supply chain security
+/// - Suspicious (2): Unusual/evasive behavior, investigate immediately
+/// - Hostile (3): Almost certainly malicious, very rare
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 #[serde(rename_all = "lowercase")]
 pub enum Criticality {
-    None,
-    Low,
-    Medium,
-    High,
+    Filtered,
+    Inert,
+    Notable,
+    Suspicious,
+    Hostile,
 }
 
 impl Default for Criticality {
     fn default() -> Self {
-        Criticality::None
+        Criticality::Inert
     }
 }
 
@@ -24,7 +30,7 @@ pub struct AnalysisReport {
     pub analysis_timestamp: DateTime<Utc>,
     pub target: TargetInfo,
     /// Atomic observable characteristics (used to derive capabilities)
-    #[serde(skip_serializing_if = "Vec::is_empty")]
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub traits: Vec<Trait>,
     /// High-level behavioral capabilities (derived from traits)
     pub capabilities: Vec<Capability>,
@@ -63,9 +69,13 @@ pub struct AnalysisReport {
 
 impl AnalysisReport {
     pub fn new(target: TargetInfo) -> Self {
+        Self::new_with_timestamp(target, Utc::now())
+    }
+
+    pub fn new_with_timestamp(target: TargetInfo, timestamp: chrono::DateTime<Utc>) -> Self {
         Self {
             schema_version: "1.0".to_string(),
-            analysis_timestamp: Utc::now(),
+            analysis_timestamp: timestamp,
             target,
             traits: Vec::new(),
             capabilities: Vec::new(),
@@ -112,6 +122,10 @@ pub struct Trait {
     /// Criticality level (none = internal only, low/medium/high = shown in output)
     #[serde(default)]
     pub criticality: Criticality,
+    /// True if trait indicates a program capability (what it CAN do - static analysis)
+    /// Auto-set to true if mbc or attack is present
+    #[serde(default)]
+    pub capability: bool,
     /// MBC (Malware Behavior Catalog) ID - most specific available (e.g., "B0015.001")
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub mbc: Option<String>,
@@ -140,7 +154,8 @@ impl Trait {
             id,
             description,
             confidence,
-            criticality: Criticality::None,
+            criticality: Criticality::Inert,
+            capability: false,
             mbc: None,
             attack: None,
             language: None,
@@ -149,6 +164,20 @@ impl Trait {
             referenced_paths: None,
             referenced_directories: None,
         }
+    }
+
+    /// Set MBC ID and automatically mark as capability
+    pub fn with_mbc(mut self, mbc: String) -> Self {
+        self.mbc = Some(mbc);
+        self.capability = true;
+        self
+    }
+
+    /// Set ATT&CK ID and automatically mark as capability
+    pub fn with_attack(mut self, attack: String) -> Self {
+        self.attack = Some(attack);
+        self.capability = true;
+        self
     }
 }
 
@@ -189,7 +218,7 @@ impl Capability {
             id,
             description,
             confidence,
-            criticality: Criticality::None,
+            criticality: Criticality::Inert,
             mbc: None,
             attack: None,
             evidence,
@@ -553,6 +582,15 @@ pub struct FileChanges {
     pub added: Vec<String>,
     pub removed: Vec<String>,
     pub modified: Vec<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub renamed: Vec<FileRenameInfo>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FileRenameInfo {
+    pub from: String,
+    pub to: String,
+    pub similarity: f64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -1057,4 +1095,455 @@ pub struct GoIdioms {
     pub cgo_count: u32,
     /// Unsafe pointer operations
     pub unsafe_count: u32,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::entropy::EntropyLevel;
+    use serde_json;
+
+    #[test]
+    fn test_criticality_enum() {
+        assert_eq!(Criticality::Inert < Criticality::Notable, true);
+        assert_eq!(Criticality::Notable < Criticality::Suspicious, true);
+        assert_eq!(Criticality::Suspicious < Criticality::Hostile, true);
+    }
+
+    #[test]
+    fn test_criticality_default() {
+        assert_eq!(Criticality::default(), Criticality::Inert);
+    }
+
+    #[test]
+    fn test_criticality_serialization() {
+        let crit = Criticality::Hostile;
+        let json = serde_json::to_string(&crit).unwrap();
+        assert_eq!(json, "\"hostile\"");
+
+        let deserialized: Criticality = serde_json::from_str(&json).unwrap();
+        assert_eq!(deserialized, Criticality::Hostile);
+    }
+
+    #[test]
+    fn test_path_type_enum_variants() {
+        let types = vec![PathType::Absolute, PathType::Relative, PathType::Dynamic];
+        assert_eq!(types.len(), 3);
+    }
+
+    #[test]
+    fn test_path_category_enum_variants() {
+        let categories = vec![
+            PathCategory::System,
+            PathCategory::Config,
+            PathCategory::Temp,
+            PathCategory::Log,
+            PathCategory::Home,
+            PathCategory::Device,
+            PathCategory::Runtime,
+            PathCategory::Hidden,
+            PathCategory::Network,
+            PathCategory::Other,
+        ];
+        assert_eq!(categories.len(), 10);
+    }
+
+    #[test]
+    fn test_path_access_type_enum() {
+        let access_types = vec![
+            PathAccessType::Read,
+            PathAccessType::Write,
+            PathAccessType::Execute,
+            PathAccessType::Delete,
+            PathAccessType::Create,
+            PathAccessType::Unknown,
+        ];
+        assert_eq!(access_types.len(), 6);
+    }
+
+    #[test]
+    fn test_string_type_enum_variants() {
+        let types = vec![
+            StringType::Url,
+            StringType::Ip,
+            StringType::Path,
+            StringType::Email,
+            StringType::Base64,
+            StringType::Plain,
+            StringType::Literal,
+            StringType::Comment,
+            StringType::Docstring,
+        ];
+        assert_eq!(types.len(), 9);
+    }
+
+    #[test]
+    fn test_env_var_access_type_enum() {
+        let access_types = vec![
+            EnvVarAccessType::Read,
+            EnvVarAccessType::Write,
+            EnvVarAccessType::Delete,
+            EnvVarAccessType::Unknown,
+        ];
+        assert_eq!(access_types.len(), 4);
+    }
+
+    #[test]
+    fn test_env_var_category_enum() {
+        let categories = vec![
+            EnvVarCategory::Path,
+            EnvVarCategory::User,
+            EnvVarCategory::System,
+            EnvVarCategory::Temp,
+            EnvVarCategory::Display,
+            EnvVarCategory::Credential,
+            EnvVarCategory::Runtime,
+            EnvVarCategory::Platform,
+            EnvVarCategory::Injection,
+            EnvVarCategory::Locale,
+            EnvVarCategory::Network,
+            EnvVarCategory::Other,
+        ];
+        assert_eq!(categories.len(), 12);
+    }
+
+    #[test]
+    fn test_directory_access_pattern_enum() {
+        let _pattern1 = DirectoryAccessPattern::SingleFile;
+        let _pattern2 = DirectoryAccessPattern::MultipleSpecific { count: 3 };
+        let _pattern3 = DirectoryAccessPattern::Enumeration {
+            pattern: Some("*.txt".to_string()),
+        };
+        let _pattern4 = DirectoryAccessPattern::BatchOperation {
+            operation: "delete".to_string(),
+            count: 5,
+        };
+        let _pattern5 = DirectoryAccessPattern::UserEnumeration;
+    }
+
+    #[test]
+    fn test_target_info_creation() {
+        let target = TargetInfo {
+            path: "/bin/ls".to_string(),
+            file_type: "elf".to_string(),
+            size_bytes: 12345,
+            sha256: "abc123".to_string(),
+            architectures: Some(vec!["x86_64".to_string()]),
+        };
+
+        assert_eq!(target.path, "/bin/ls");
+        assert_eq!(target.file_type, "elf");
+        assert_eq!(target.size_bytes, 12345);
+        assert!(target.architectures.is_some());
+    }
+
+    #[test]
+    fn test_analysis_report_new() {
+        let target = TargetInfo {
+            path: "/test".to_string(),
+            file_type: "elf".to_string(),
+            size_bytes: 100,
+            sha256: "test".to_string(),
+            architectures: None,
+        };
+
+        let report = AnalysisReport::new(target);
+
+        assert_eq!(report.schema_version, "1.0");
+        assert_eq!(report.target.path, "/test");
+        assert!(report.traits.is_empty());
+        assert!(report.capabilities.is_empty());
+        assert!(report.strings.is_empty());
+    }
+
+    #[test]
+    fn test_analysis_report_new_with_timestamp() {
+        let target = TargetInfo {
+            path: "/test".to_string(),
+            file_type: "elf".to_string(),
+            size_bytes: 100,
+            sha256: "test".to_string(),
+            architectures: None,
+        };
+
+        let timestamp = chrono::DateTime::parse_from_rfc3339("2024-01-01T00:00:00Z")
+            .unwrap()
+            .with_timezone(&chrono::Utc);
+
+        let report = AnalysisReport::new_with_timestamp(target, timestamp);
+
+        assert_eq!(report.schema_version, "1.0");
+        assert_eq!(report.target.path, "/test");
+        assert_eq!(report.analysis_timestamp, timestamp);
+        assert!(report.traits.is_empty());
+        assert!(report.capabilities.is_empty());
+    }
+
+    #[test]
+    fn test_trait_new_constructor() {
+        let evidence = vec![Evidence {
+            method: "symbol".to_string(),
+            source: "goblin".to_string(),
+            value: "socket".to_string(),
+            location: None,
+        }];
+
+        let trait_obj = Trait::new(
+            "test/trait".to_string(),
+            "Test trait".to_string(),
+            0.9,
+            evidence,
+        );
+
+        assert_eq!(trait_obj.id, "test/trait");
+        assert_eq!(trait_obj.confidence, 0.9);
+        assert_eq!(trait_obj.criticality, Criticality::Inert);
+        assert!(trait_obj.evidence.len() == 1);
+    }
+
+    #[test]
+    fn test_capability_new_constructor() {
+        let evidence = vec![Evidence {
+            method: "symbol".to_string(),
+            source: "goblin".to_string(),
+            value: "socket".to_string(),
+            location: Some("0x1000".to_string()),
+        }];
+
+        let cap = Capability::new(
+            "net/socket".to_string(),
+            "Network socket".to_string(),
+            1.0,
+            evidence,
+        );
+
+        assert_eq!(cap.id, "net/socket");
+        assert_eq!(cap.confidence, 1.0);
+        assert!(cap.evidence.len() == 1);
+        assert!(cap.traits.is_empty());
+    }
+
+    #[test]
+    fn test_evidence_creation() {
+        let evidence = Evidence {
+            method: "symbol".to_string(),
+            source: "goblin".to_string(),
+            value: "socket".to_string(),
+            location: Some("0x1000".to_string()),
+        };
+
+        assert_eq!(evidence.method, "symbol");
+        assert_eq!(evidence.source, "goblin");
+        assert_eq!(evidence.value, "socket");
+        assert_eq!(evidence.location, Some("0x1000".to_string()));
+    }
+
+    #[test]
+    fn test_path_info_creation() {
+        let path = PathInfo {
+            path: "/etc/passwd".to_string(),
+            path_type: PathType::Absolute,
+            category: PathCategory::Config,
+            access_type: Some(PathAccessType::Read),
+            source: "strings".to_string(),
+            evidence: vec![],
+            referenced_by_traits: vec![],
+        };
+
+        assert_eq!(path.path, "/etc/passwd");
+        assert_eq!(path.path_type, PathType::Absolute);
+        assert_eq!(path.category, PathCategory::Config);
+        assert_eq!(path.access_type, Some(PathAccessType::Read));
+    }
+
+    #[test]
+    fn test_env_var_info_creation() {
+        let env_var = EnvVarInfo {
+            name: "USER".to_string(),
+            category: EnvVarCategory::User,
+            access_type: EnvVarAccessType::Read,
+            source: "tree-sitter".to_string(),
+            evidence: vec![],
+            referenced_by_traits: vec![],
+        };
+
+        assert_eq!(env_var.name, "USER");
+        assert_eq!(env_var.category, EnvVarCategory::User);
+        assert_eq!(env_var.access_type, EnvVarAccessType::Read);
+    }
+
+    #[test]
+    fn test_function_creation() {
+        let func = Function {
+            name: "main".to_string(),
+            offset: Some("0x1000".to_string()),
+            size: Some(256),
+            complexity: Some(5),
+            calls: vec!["printf".to_string()],
+            source: "radare2".to_string(),
+            control_flow: None,
+            instruction_analysis: None,
+            register_usage: None,
+            constants: vec![],
+            properties: None,
+            signature: None,
+            nesting: None,
+            call_patterns: None,
+        };
+
+        assert_eq!(func.name, "main");
+        assert_eq!(func.size, Some(256));
+        assert_eq!(func.calls.len(), 1);
+        assert_eq!(func.source, "radare2");
+    }
+
+    #[test]
+    fn test_string_info_creation() {
+        let string = StringInfo {
+            value: "http://example.com".to_string(),
+            offset: Some("0x2000".to_string()),
+            encoding: "utf8".to_string(),
+            string_type: StringType::Url,
+            section: Some(".rodata".to_string()),
+        };
+
+        assert_eq!(string.value, "http://example.com");
+        assert_eq!(string.string_type, StringType::Url);
+        assert_eq!(string.encoding, "utf8");
+    }
+
+    #[test]
+    fn test_section_creation() {
+        let section = Section {
+            name: ".text".to_string(),
+            size: 4096,
+            entropy: 6.5,
+            permissions: Some("r-x".to_string()),
+        };
+
+        assert_eq!(section.name, ".text");
+        assert_eq!(section.size, 4096);
+        assert_eq!(section.entropy, 6.5);
+    }
+
+    #[test]
+    fn test_import_creation() {
+        let import = Import {
+            symbol: "printf".to_string(),
+            library: Some("libc.so.6".to_string()),
+            source: "goblin".to_string(),
+        };
+
+        assert_eq!(import.symbol, "printf");
+        assert_eq!(import.library, Some("libc.so.6".to_string()));
+        assert_eq!(import.source, "goblin");
+    }
+
+    #[test]
+    fn test_export_creation() {
+        let export = Export {
+            symbol: "my_function".to_string(),
+            offset: Some("0x1500".to_string()),
+            source: "goblin".to_string(),
+        };
+
+        assert_eq!(export.symbol, "my_function");
+        assert_eq!(export.offset, Some("0x1500".to_string()));
+        assert_eq!(export.source, "goblin");
+    }
+
+    #[test]
+    fn test_yara_match_creation() {
+        let yara_match = YaraMatch {
+            rule: "malware_rule".to_string(),
+            namespace: "malware".to_string(),
+            severity: "high".to_string(),
+            description: "Malware detected".to_string(),
+            matched_strings: vec![],
+            is_capability: false,
+            mbc: None,
+            attack: None,
+        };
+
+        assert_eq!(yara_match.rule, "malware_rule");
+        assert_eq!(yara_match.namespace, "malware");
+        assert_eq!(yara_match.severity, "high");
+    }
+
+    #[test]
+    fn test_analysis_metadata_default() {
+        let metadata = AnalysisMetadata::default();
+
+        assert!(metadata.tools_used.is_empty());
+        assert_eq!(metadata.analysis_duration_ms, 0);
+        assert!(metadata.errors.is_empty());
+    }
+
+    #[test]
+    fn test_structural_feature_serialization() {
+        let feature = StructuralFeature {
+            id: "binary/stripped".to_string(),
+            description: "Binary is stripped".to_string(),
+            evidence: vec![],
+        };
+
+        let json = serde_json::to_string(&feature).unwrap();
+        let deserialized: StructuralFeature = serde_json::from_str(&json).unwrap();
+
+        assert_eq!(deserialized.id, "binary/stripped");
+        assert_eq!(deserialized.description, "Binary is stripped");
+    }
+
+    #[test]
+    fn test_target_info_serialization() {
+        let target = TargetInfo {
+            path: "/bin/test".to_string(),
+            file_type: "elf".to_string(),
+            size_bytes: 1024,
+            sha256: "abc123".to_string(),
+            architectures: Some(vec!["arm64".to_string()]),
+        };
+
+        let json = serde_json::to_string(&target).unwrap();
+        let deserialized: TargetInfo = serde_json::from_str(&json).unwrap();
+
+        assert_eq!(deserialized.path, "/bin/test");
+        assert_eq!(deserialized.size_bytes, 1024);
+    }
+
+    #[test]
+    fn test_directory_access_creation() {
+        let dir_access = DirectoryAccess {
+            directory: "/tmp".to_string(),
+            files: vec!["file1.txt".to_string(), "file2.txt".to_string()],
+            file_count: 2,
+            access_pattern: DirectoryAccessPattern::MultipleSpecific { count: 2 },
+            categories: vec![PathCategory::Temp],
+            enumerated: false,
+            generated_traits: vec![],
+        };
+
+        assert_eq!(dir_access.directory, "/tmp");
+        assert_eq!(dir_access.file_count, 2);
+        assert_eq!(dir_access.files.len(), 2);
+        assert_eq!(dir_access.enumerated, false);
+    }
+
+    #[test]
+    fn test_code_metrics_creation() {
+        let metrics = CodeMetrics {
+            total_functions: 50,
+            total_basic_blocks: 200,
+            avg_complexity: 3.5,
+            max_complexity: 12,
+            total_instructions: 5000,
+            code_density: 0.75,
+            functions_with_loops: 15,
+            functions_with_anomalies: 2,
+        };
+
+        assert_eq!(metrics.total_functions, 50);
+        assert_eq!(metrics.avg_complexity, 3.5);
+        assert_eq!(metrics.max_complexity, 12);
+    }
 }

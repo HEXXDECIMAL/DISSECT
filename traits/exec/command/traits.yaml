@@ -6,7 +6,7 @@ traits:
   # C/C++ - Unix
   - id: c-system
     description: C system() function for shell command execution
-    criticality: high
+    criticality: notable
     mbc: "E1059.004"
     attack: "T1059.004"
     confidence: 0.9
@@ -18,7 +18,7 @@ traits:
 
   - id: c-popen
     description: C popen() for command execution with output capture
-    criticality: high
+    criticality: notable
     mbc: "E1059.004"
     attack: "T1059.004"
     confidence: 0.9
@@ -30,7 +30,7 @@ traits:
 
   - id: c-execve
     description: C execve() direct program execution
-    criticality: high
+    criticality: notable
     mbc: "E1059"
     attack: "T1059"
     confidence: 0.95
@@ -43,7 +43,7 @@ traits:
   # Windows
   - id: win-createprocess
     description: Windows CreateProcess API for process creation
-    criticality: high
+    criticality: notable
     mbc: "E1059.003"
     attack: "T1059.003"
     confidence: 0.9
@@ -56,7 +56,7 @@ traits:
 
   - id: win-shellexecute
     description: Windows ShellExecute API for file/program execution
-    criticality: high
+    criticality: notable
     mbc: "E1059.003"
     attack: "T1059.003"
     confidence: 0.9
@@ -69,7 +69,7 @@ traits:
   # Go
   - id: go-os-exec
     description: Go os/exec package for command execution
-    criticality: high
+    criticality: notable
     mbc: "E1059"
     attack: "T1059"
     confidence: 0.9
@@ -81,7 +81,7 @@ traits:
   # Python
   - id: python-os-system
     description: Python os.system() command execution
-    criticality: high
+    criticality: notable
     mbc: "E1059.006"
     attack: "T1059.006"
     confidence: 0.95
@@ -92,7 +92,7 @@ traits:
 
   - id: python-subprocess
     description: Python subprocess module for process execution
-    criticality: high
+    criticality: notable
     mbc: "E1059.006"
     attack: "T1059.006"
     confidence: 0.9
@@ -104,7 +104,7 @@ traits:
   # JavaScript
   - id: js-child-process
     description: Node.js child_process module for command execution
-    criticality: high
+    criticality: notable
     mbc: "E1059"
     attack: "T1059"
     confidence: 0.9
@@ -116,7 +116,7 @@ traits:
   # Ruby
   - id: ruby-system
     description: Ruby system() command execution
-    criticality: high
+    criticality: notable
     mbc: "E1059"
     attack: "T1059"
     confidence: 0.9
@@ -128,7 +128,7 @@ traits:
   # Rust
   - id: rust-command
     description: Rust std::process::Command for process execution
-    criticality: high
+    criticality: notable
     mbc: "E1059"
     attack: "T1059"
     confidence: 0.9
@@ -140,7 +140,7 @@ traits:
   # Shell references
   - id: bin-sh
     description: References /bin/sh (Bourne shell)
-    criticality: low
+    criticality: notable
     mbc: "E1059.004"
     attack: "T1059.004"
     confidence: 0.6
@@ -151,7 +151,7 @@ traits:
 
   - id: cmd-exe
     description: References cmd.exe (Windows Command Prompt)
-    criticality: low
+    criticality: notable
     mbc: "E1059.003"
     attack: "T1059.003"
     confidence: 0.6

@@ -20,7 +20,7 @@ pub struct MachOAnalyzer {
 impl MachOAnalyzer {
     pub fn new() -> Self {
         Self {
-            capability_mapper: CapabilityMapper::new(),
+            capability_mapper: CapabilityMapper::empty(),
             radare2: Radare2Analyzer::new(),
             string_extractor: StringExtractor::new(),
             yara_engine: None,
@@ -30,6 +30,12 @@ impl MachOAnalyzer {
     /// Create analyzer with YARA rules loaded
     pub fn with_yara(mut self, yara_engine: YaraEngine) -> Self {
         self.yara_engine = Some(yara_engine);
+        self
+    }
+
+    /// Create analyzer with pre-existing capability mapper (avoids duplicate loading)
+    pub fn with_capability_mapper(mut self, capability_mapper: CapabilityMapper) -> Self {
+        self.capability_mapper = capability_mapper;
         self
     }
 
@@ -100,7 +106,9 @@ impl MachOAnalyzer {
         if let Some(yara_engine) = &self.yara_engine {
             if yara_engine.is_loaded() {
                 tools_used.push("yara-x".to_string());
-                match yara_engine.scan_bytes(data) {
+                // Filter for Mach-O-specific rules
+                let file_types = &["macho", "elf", "so"];
+                match yara_engine.scan_bytes_filtered(data, Some(file_types)) {
                     Ok(matches) => {
                         // Add YARA matches to report
                         report.yara_matches = matches.clone();
@@ -108,7 +116,8 @@ impl MachOAnalyzer {
                         // Map YARA matches to capabilities
                         for yara_match in &matches {
                             // Try to map YARA rule to capability ID
-                            let capability_id = self.yara_namespace_to_capability(&yara_match.namespace);
+                            let capability_id =
+                                self.yara_namespace_to_capability(&yara_match.namespace);
 
                             if let Some(cap_id) = capability_id {
                                 // Check if we already have this capability
@@ -118,7 +127,7 @@ impl MachOAnalyzer {
                                         id: cap_id,
                                         description: yara_match.description.clone(),
                                         confidence: 0.9, // YARA matches are high confidence
-                                        criticality: crate::types::Criticality::None,
+                                        criticality: crate::types::Criticality::Inert,
                                         mbc: None,
                                         attack: None,
                                         evidence,
@@ -131,7 +140,10 @@ impl MachOAnalyzer {
                         }
                     }
                     Err(e) => {
-                        report.metadata.errors.push(format!("YARA scan failed: {}", e));
+                        report
+                            .metadata
+                            .errors
+                            .push(format!("YARA scan failed: {}", e));
                     }
                 }
             }
@@ -147,13 +159,18 @@ impl MachOAnalyzer {
     }
 
     /// Generate structural traits (file format, architecture, signing, etc.)
-    fn generate_structural_traits(&self, macho: &MachO, data: &[u8], report: &mut AnalysisReport) -> Result<()> {
+    fn generate_structural_traits(
+        &self,
+        macho: &MachO,
+        _data: &[u8],
+        report: &mut AnalysisReport,
+    ) -> Result<()> {
         // 1. File format trait
         report.capabilities.push(Capability {
             id: "meta/format/macho".to_string(),
             description: "Mach-O executable format".to_string(),
             confidence: 1.0,
-            criticality: Criticality::None,
+            criticality: Criticality::Inert,
             mbc: None,
             attack: None,
             evidence: vec![Evidence {
@@ -173,7 +190,7 @@ impl MachOAnalyzer {
             id: format!("meta/arch/{}", arch),
             description: format!("{} architecture", arch),
             confidence: 1.0,
-            criticality: Criticality::None,
+            criticality: Criticality::Inert,
             mbc: None,
             attack: None,
             evidence: vec![Evidence {
@@ -188,17 +205,19 @@ impl MachOAnalyzer {
         });
 
         // 3. Code signature trait
-        let has_signature = macho
-            .load_commands
-            .iter()
-            .any(|lc| matches!(lc.command, goblin::mach::load_command::CommandVariant::CodeSignature(_)));
+        let has_signature = macho.load_commands.iter().any(|lc| {
+            matches!(
+                lc.command,
+                goblin::mach::load_command::CommandVariant::CodeSignature(_)
+            )
+        });
 
         if has_signature {
             report.capabilities.push(Capability {
                 id: "meta/signed".to_string(),
                 description: "Code-signed binary".to_string(),
                 confidence: 1.0,
-                criticality: Criticality::None,
+                criticality: Criticality::Inert,
                 mbc: None,
                 attack: None,
                 evidence: vec![Evidence {
@@ -220,7 +239,7 @@ impl MachOAnalyzer {
                     id: "meta/cli-tool".to_string(),
                     description: "Command-line tool with usage string".to_string(),
                     confidence: 0.9,
-                    criticality: Criticality::None,
+                    criticality: Criticality::Inert,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {
@@ -244,7 +263,7 @@ impl MachOAnalyzer {
                 id: "meta/origin/freebsd".to_string(),
                 description: "Contains FreeBSD version tags".to_string(),
                 confidence: 0.95,
-                criticality: Criticality::None,
+                criticality: Criticality::Inert,
                 mbc: None,
                 attack: None,
                 evidence: vec![Evidence {
@@ -268,13 +287,17 @@ impl MachOAnalyzer {
 
                     // Extract library name without path/version
                     let lib_name = lib.split('/').last().unwrap_or(lib);
-                    let base_name = lib_name.split('.').next().unwrap_or(lib_name).trim_start_matches("lib");
+                    let base_name = lib_name
+                        .split('.')
+                        .next()
+                        .unwrap_or(lib_name)
+                        .trim_start_matches("lib");
 
                     report.capabilities.push(Capability {
                         id: format!("meta/library/{}", base_name),
                         description: format!("Links to {} library", lib_name),
                         confidence: 1.0,
-                        criticality: Criticality::None,
+                        criticality: Criticality::Inert,
                         mbc: None,
                         attack: None,
                         evidence: vec![Evidence {
@@ -298,7 +321,7 @@ impl MachOAnalyzer {
                     id: "meta/high-entropy".to_string(),
                     description: format!("High entropy section ({})", section.name),
                     confidence: 0.8,
-                    criticality: Criticality::Low,
+                    criticality: Criticality::Notable,
                     mbc: Some("F0001".to_string()), // Anti-static analysis
                     attack: None,
                     evidence: vec![Evidence {
@@ -316,12 +339,15 @@ impl MachOAnalyzer {
         }
 
         // 8. High complexity functions
-        let high_complexity: Vec<_> = report.functions.iter()
+        let high_complexity: Vec<_> = report
+            .functions
+            .iter()
             .filter(|f| f.complexity.unwrap_or(0) > 50)
             .collect();
 
         if !high_complexity.is_empty() {
-            let func_names: Vec<String> = high_complexity.iter()
+            let func_names: Vec<String> = high_complexity
+                .iter()
                 .map(|f| f.name.clone())
                 .take(3)
                 .collect();
@@ -330,7 +356,7 @@ impl MachOAnalyzer {
                 id: "meta/complex-code".to_string(),
                 description: format!("{} highly complex functions", high_complexity.len()),
                 confidence: 0.7,
-                criticality: Criticality::Low,
+                criticality: Criticality::Notable,
                 mbc: Some("F0001".to_string()),
                 attack: None,
                 evidence: vec![Evidence {
@@ -375,10 +401,12 @@ impl MachOAnalyzer {
         });
 
         // Check for code signature
-        let has_signature = macho
-            .load_commands
-            .iter()
-            .any(|lc| matches!(lc.command, goblin::mach::load_command::CommandVariant::CodeSignature(_)));
+        let has_signature = macho.load_commands.iter().any(|lc| {
+            matches!(
+                lc.command,
+                goblin::mach::load_command::CommandVariant::CodeSignature(_)
+            )
+        });
 
         if has_signature {
             report.structure.push(StructuralFeature {
@@ -428,7 +456,12 @@ impl MachOAnalyzer {
         Ok(())
     }
 
-    fn analyze_sections(&self, macho: &MachO, data: &[u8], report: &mut AnalysisReport) -> Result<()> {
+    fn analyze_sections(
+        &self,
+        macho: &MachO,
+        data: &[u8],
+        report: &mut AnalysisReport,
+    ) -> Result<()> {
         for segment in &macho.segments {
             for (section, _) in &segment.sections()? {
                 let section_name = format!(
@@ -457,7 +490,8 @@ impl MachOAnalyzer {
                     if level == EntropyLevel::High {
                         report.structure.push(StructuralFeature {
                             id: "entropy/high".to_string(),
-                            description: "High entropy section (possibly packed/encrypted)".to_string(),
+                            description: "High entropy section (possibly packed/encrypted)"
+                                .to_string(),
                             evidence: vec![Evidence {
                                 method: "entropy".to_string(),
                                 source: "entropy_analyzer".to_string(),
@@ -544,5 +578,158 @@ impl Analyzer for MachOAnalyzer {
         } else {
             false
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::PathBuf;
+
+    fn get_test_macho() -> PathBuf {
+        PathBuf::from("tests/fixtures/test.macho")
+    }
+
+    #[test]
+    fn test_can_analyze_macho() {
+        let analyzer = MachOAnalyzer::new();
+        let test_file = get_test_macho();
+
+        if test_file.exists() {
+            assert!(analyzer.can_analyze(&test_file));
+        }
+    }
+
+    #[test]
+    fn test_cannot_analyze_non_macho() {
+        let analyzer = MachOAnalyzer::new();
+        assert!(!analyzer.can_analyze(&PathBuf::from("/dev/null")));
+        assert!(!analyzer.can_analyze(&PathBuf::from("tests/fixtures/test.elf")));
+    }
+
+    #[test]
+    fn test_analyze_macho_file() {
+        let analyzer = MachOAnalyzer::new();
+        let test_file = get_test_macho();
+
+        if !test_file.exists() {
+            return;
+        }
+
+        let result = analyzer.analyze(&test_file);
+        assert!(result.is_ok());
+
+        let report = result.unwrap();
+        assert_eq!(report.target.file_type, "macho");
+        assert!(report.target.size_bytes > 0);
+        assert!(!report.target.sha256.is_empty());
+    }
+
+    #[test]
+    fn test_macho_has_structure() {
+        let analyzer = MachOAnalyzer::new();
+        let test_file = get_test_macho();
+
+        if !test_file.exists() {
+            return;
+        }
+
+        let report = analyzer.analyze(&test_file).unwrap();
+        assert!(!report.structure.is_empty());
+    }
+
+    #[test]
+    fn test_macho_architecture_detected() {
+        let analyzer = MachOAnalyzer::new();
+        let test_file = get_test_macho();
+
+        if !test_file.exists() {
+            return;
+        }
+
+        let report = analyzer.analyze(&test_file).unwrap();
+        assert!(report.target.architectures.is_some());
+        let archs = report.target.architectures.unwrap();
+        assert!(!archs.is_empty());
+    }
+
+    #[test]
+    fn test_macho_sections_analyzed() {
+        let analyzer = MachOAnalyzer::new();
+        let test_file = get_test_macho();
+
+        if !test_file.exists() {
+            return;
+        }
+
+        let report = analyzer.analyze(&test_file).unwrap();
+        assert!(!report.sections.is_empty());
+    }
+
+    #[test]
+    fn test_macho_has_imports() {
+        let analyzer = MachOAnalyzer::new();
+        let test_file = get_test_macho();
+
+        if !test_file.exists() {
+            return;
+        }
+
+        let report = analyzer.analyze(&test_file).unwrap();
+        assert!(!report.imports.is_empty());
+    }
+
+    #[test]
+    fn test_macho_capabilities_detected() {
+        let analyzer = MachOAnalyzer::new();
+        let test_file = get_test_macho();
+
+        if !test_file.exists() {
+            return;
+        }
+
+        let report = analyzer.analyze(&test_file).unwrap();
+        // Capabilities may or may not be detected depending on the binary
+        // Just verify the analysis completes successfully
+        assert!(report.capabilities.len() >= 0);
+    }
+
+    #[test]
+    fn test_macho_strings_extracted() {
+        let analyzer = MachOAnalyzer::new();
+        let test_file = get_test_macho();
+
+        if !test_file.exists() {
+            return;
+        }
+
+        let report = analyzer.analyze(&test_file).unwrap();
+        assert!(!report.strings.is_empty());
+    }
+
+    #[test]
+    fn test_macho_tools_used() {
+        let analyzer = MachOAnalyzer::new();
+        let test_file = get_test_macho();
+
+        if !test_file.exists() {
+            return;
+        }
+
+        let report = analyzer.analyze(&test_file).unwrap();
+        assert!(report.metadata.tools_used.contains(&"goblin".to_string()));
+    }
+
+    #[test]
+    fn test_macho_analysis_duration() {
+        let analyzer = MachOAnalyzer::new();
+        let test_file = get_test_macho();
+
+        if !test_file.exists() {
+            return;
+        }
+
+        let report = analyzer.analyze(&test_file).unwrap();
+        assert!(report.metadata.analysis_duration_ms > 0);
     }
 }

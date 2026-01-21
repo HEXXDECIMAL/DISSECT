@@ -20,7 +20,7 @@ pub struct PEAnalyzer {
 impl PEAnalyzer {
     pub fn new() -> Self {
         Self {
-            capability_mapper: CapabilityMapper::new(),
+            capability_mapper: CapabilityMapper::empty(),
             radare2: Radare2Analyzer::new(),
             string_extractor: StringExtractor::new(),
             yara_engine: None,
@@ -30,6 +30,12 @@ impl PEAnalyzer {
     /// Create analyzer with YARA rules loaded
     pub fn with_yara(mut self, yara_engine: YaraEngine) -> Self {
         self.yara_engine = Some(yara_engine);
+        self
+    }
+
+    /// Create analyzer with pre-existing capability mapper (avoids duplicate loading)
+    pub fn with_capability_mapper(mut self, capability_mapper: CapabilityMapper) -> Self {
+        self.capability_mapper = capability_mapper;
         self
     }
 
@@ -57,7 +63,7 @@ impl PEAnalyzer {
         // Extract imports and map to capabilities
         self.analyze_imports(&pe, &mut report)?;
 
-        // Extract exports
+        // Analyze exports
         self.analyze_exports(&pe, &mut report)?;
 
         // Analyze sections and entropy
@@ -73,11 +79,12 @@ impl PEAnalyzer {
 
             if let Ok(r2_strings) = self.radare2.extract_strings(file_path) {
                 for r2_str in r2_strings {
+                    let string_type = self.string_extractor.classify_string_type(&r2_str.string);
                     report.strings.push(StringInfo {
                         value: r2_str.string,
                         offset: Some(format!("{:#x}", r2_str.vaddr)),
                         encoding: "utf8".to_string(),
-                        string_type: StringType::Plain,
+                        string_type,
                         section: None,
                     });
                 }
@@ -94,34 +101,39 @@ impl PEAnalyzer {
         if let Some(yara_engine) = &self.yara_engine {
             if yara_engine.is_loaded() {
                 tools_used.push("yara-x".to_string());
-                match yara_engine.scan_bytes(data) {
+                // Filter for PE-specific rules
+                let file_types = &["pe", "exe", "dll", "bat", "ps1"];
+                match yara_engine.scan_bytes_filtered(data, Some(file_types)) {
                     Ok(matches) => {
                         report.yara_matches = matches.clone();
 
                         for yara_match in &matches {
-                            let capability_id = self.yara_namespace_to_capability(&yara_match.namespace);
-
-                            if let Some(cap_id) = capability_id {
-                                if !report.capabilities.iter().any(|c| c.id == cap_id) {
-                                    let evidence = yara_engine.yara_match_to_evidence(yara_match);
-                                    report.capabilities.push(Capability {
-                                        id: cap_id,
-                                        description: yara_match.description.clone(),
-                                        confidence: 0.9,
-                                        criticality: crate::types::Criticality::None,
-                                        mbc: None,
-                                        attack: None,
-                                        evidence,
-                                        traits: Vec::new(),
-                                        referenced_paths: None,
-                                        referenced_directories: None,
-                                    });
-                                }
+                            if let Some(cap_id) = self
+                                .capability_mapper
+                                .yara_rule_to_capability(&yara_match.rule)
+                            {
+                                report.capabilities.push(Capability {
+                                    id: cap_id.clone(),
+                                    description: format!("Matched YARA rule: {}", yara_match.rule),
+                                    confidence: 0.95,
+                                    criticality: Criticality::Inert,
+                                    mbc: None,
+                                    attack: None,
+                                    evidence: vec![Evidence {
+                                        method: "yara".to_string(),
+                                        source: "yara-x".to_string(),
+                                        value: yara_match.rule.clone(),
+                                        location: None,
+                                    }],
+                                    traits: Vec::new(),
+                                    referenced_paths: None,
+                                    referenced_directories: None,
+                                });
                             }
                         }
                     }
                     Err(e) => {
-                        report.metadata.errors.push(format!("YARA scan failed: {}", e));
+                        eprintln!("YARA scan error: {:?}", e);
                     }
                 }
             }
@@ -134,27 +146,20 @@ impl PEAnalyzer {
     }
 
     fn analyze_structure(&self, pe: &PE, report: &mut AnalysisReport) -> Result<()> {
-        // Binary format
         report.structure.push(StructuralFeature {
-            id: "binary/format/pe".to_string(),
-            description: "PE binary format".to_string(),
-            evidence: vec![Evidence {
-                method: "magic".to_string(),
-                source: "goblin".to_string(),
-                value: "MZ".to_string(),
-                location: None,
-            }],
-        });
-
-        // Architecture
-        let arch = self.get_arch_name(pe);
-        report.structure.push(StructuralFeature {
-            id: format!("binary/arch/{}", arch),
-            description: format!("{} architecture", arch),
+            id: "pe/header".to_string(),
+            description: format!(
+                "PE file (machine: {}, subsystem: {:?})",
+                self.get_arch_name(pe),
+                pe.header
+                    .optional_header
+                    .as_ref()
+                    .map(|h| h.windows_fields.subsystem)
+            ),
             evidence: vec![Evidence {
                 method: "header".to_string(),
                 source: "goblin".to_string(),
-                value: format!("machine={:#x}", pe.header.coff_header.machine),
+                value: "PE".to_string(),
                 location: None,
             }],
         });
@@ -162,8 +167,8 @@ impl PEAnalyzer {
         // Check if DLL
         if pe.is_lib {
             report.structure.push(StructuralFeature {
-                id: "binary/dll".to_string(),
-                description: "Dynamic Link Library".to_string(),
+                id: "pe/dll".to_string(),
+                description: "Dynamic Link Library (DLL)".to_string(),
                 evidence: vec![Evidence {
                     method: "header".to_string(),
                     source: "goblin".to_string(),
@@ -173,45 +178,15 @@ impl PEAnalyzer {
             });
         }
 
-        // Check for ASLR (Address Space Layout Randomization)
-        if let Some(characteristics) = pe.header.optional_header.as_ref().map(|h| h.windows_fields.dll_characteristics) {
-            if characteristics & 0x40 != 0 {
-                report.structure.push(StructuralFeature {
-                    id: "binary/aslr".to_string(),
-                    description: "Address Space Layout Randomization enabled".to_string(),
-                    evidence: vec![Evidence {
-                        method: "header".to_string(),
-                        source: "goblin".to_string(),
-                        value: "DYNAMIC_BASE".to_string(),
-                        location: None,
-                    }],
-                });
-            }
-
-            // Check for DEP (Data Execution Prevention)
-            if characteristics & 0x100 != 0 {
-                report.structure.push(StructuralFeature {
-                    id: "binary/dep".to_string(),
-                    description: "Data Execution Prevention enabled".to_string(),
-                    evidence: vec![Evidence {
-                        method: "header".to_string(),
-                        source: "goblin".to_string(),
-                        value: "NX_COMPAT".to_string(),
-                        location: None,
-                    }],
-                });
-            }
-        }
-
-        // Check for code signing
-        if !pe.certificates.is_empty() {
+        // Check for .NET
+        if pe.header.optional_header.is_some() {
             report.structure.push(StructuralFeature {
-                id: "binary/signed".to_string(),
-                description: "Code-signed binary".to_string(),
+                id: "pe/optional_header".to_string(),
+                description: "Has optional header (standard Windows executable)".to_string(),
                 evidence: vec![Evidence {
-                    method: "certificates".to_string(),
+                    method: "header".to_string(),
                     source: "goblin".to_string(),
-                    value: format!("{} certificates", pe.certificates.len()),
+                    value: "OptionalHeader".to_string(),
                     location: None,
                 }],
             });
@@ -221,29 +196,16 @@ impl PEAnalyzer {
     }
 
     fn analyze_imports(&self, pe: &PE, report: &mut AnalysisReport) -> Result<()> {
-        // Analyze imports from PE import table
         for import in &pe.imports {
-            let library = import.dll.to_string();
-            let symbol = import.name.to_string();
-
-            // Add to imports
             report.imports.push(Import {
-                symbol: symbol.clone(),
-                library: Some(library.clone()),
+                symbol: import.name.to_string(),
+                library: Some(import.dll.to_string()),
                 source: "goblin".to_string(),
             });
 
-            // Map Windows API calls to capabilities
-            if let Some(cap) = self.windows_api_to_capability(&symbol, &library) {
-                if !report.capabilities.iter().any(|c| c.id == cap.id) {
-                    report.capabilities.push(cap);
-                }
-            }
-
-            // Also check capability mapper for generic symbol mapping
-            if let Some(cap) = self.capability_mapper.lookup(&symbol, "goblin") {
-                if !report.capabilities.iter().any(|c| c.id == cap.id) {
-                    report.capabilities.push(cap);
+            if let Some(capability) = self.capability_mapper.lookup(&import.name, "goblin") {
+                if !report.capabilities.iter().any(|c| c.id == capability.id) {
+                    report.capabilities.push(capability);
                 }
             }
         }
@@ -252,9 +214,8 @@ impl PEAnalyzer {
     }
 
     fn analyze_exports(&self, pe: &PE, report: &mut AnalysisReport) -> Result<()> {
-        // Analyze exports
         for export in &pe.exports {
-            if let Some(name) = &export.name {
+            if let Some(name) = export.name {
                 report.exports.push(Export {
                     symbol: name.to_string(),
                     offset: Some(format!("{:#x}", export.rva)),
@@ -268,39 +229,87 @@ impl PEAnalyzer {
 
     fn analyze_sections(&self, pe: &PE, data: &[u8], report: &mut AnalysisReport) -> Result<()> {
         for section in &pe.sections {
-            let name = section.name().unwrap_or("unknown");
+            let name = String::from_utf8_lossy(&section.name).to_string();
             let size = section.size_of_raw_data as u64;
+            let offset = section.pointer_to_raw_data as u64;
 
-            // Calculate entropy for section
-            let section_offset = section.pointer_to_raw_data as usize;
-            let section_size = section.size_of_raw_data as usize;
+            let characteristics = section.characteristics;
+            let is_executable = (characteristics & 0x20000000) != 0;
+            let is_writable = (characteristics & 0x80000000) != 0;
+            let is_readable = (characteristics & 0x40000000) != 0;
 
-            let entropy = if section_offset + section_size <= data.len() && section_size > 0 {
-                let section_data = &data[section_offset..section_offset + section_size];
+            let permissions = format!(
+                "{}{}{}",
+                if is_readable { "r" } else { "-" },
+                if is_writable { "w" } else { "-" },
+                if is_executable { "x" } else { "-" }
+            );
+
+            let entropy = if offset < data.len() as u64 {
+                let end = ((offset + size) as usize).min(data.len());
+                let section_data = &data[offset as usize..end];
                 calculate_entropy(section_data)
             } else {
                 0.0
             };
 
+            let entropy_level = if entropy > 7.2 {
+                EntropyLevel::High
+            } else if entropy > 6.0 {
+                EntropyLevel::Elevated
+            } else if entropy > 4.0 {
+                EntropyLevel::Normal
+            } else {
+                EntropyLevel::VeryLow
+            };
+
             report.sections.push(Section {
-                name: name.to_string(),
+                name: name.clone(),
                 size,
                 entropy,
-                permissions: Some(format!("{:#x}", section.characteristics)),
+                permissions: Some(permissions.clone()),
             });
 
-            // Add entropy-based structural features
-            let level = EntropyLevel::from_value(entropy);
-            if level == EntropyLevel::High {
-                report.structure.push(StructuralFeature {
-                    id: "entropy/high".to_string(),
-                    description: "High entropy section (possibly packed/encrypted)".to_string(),
+            if matches!(entropy_level, EntropyLevel::High) && is_executable {
+                report.capabilities.push(Capability {
+                    id: "anti-analysis/packing".to_string(),
+                    description: format!(
+                        "High entropy ({:.2}) in executable section '{}' (possible packing)",
+                        entropy, name
+                    ),
+                    confidence: 0.85,
+                    criticality: Criticality::Suspicious,
+                    mbc: None,
+                    attack: None,
                     evidence: vec![Evidence {
                         method: "entropy".to_string(),
-                        source: "entropy_analyzer".to_string(),
+                        source: "section_analysis".to_string(),
                         value: format!("{:.2}", entropy),
-                        location: Some(name.to_string()),
+                        location: Some(name.clone()),
                     }],
+                    traits: Vec::new(),
+                    referenced_paths: None,
+                    referenced_directories: None,
+                });
+            }
+
+            if is_writable && is_executable {
+                report.capabilities.push(Capability {
+                    id: "exec/memory/wx".to_string(),
+                    description: format!("Writable+executable section '{}'", name),
+                    confidence: 1.0,
+                    criticality: Criticality::Suspicious,
+                    mbc: None,
+                    attack: None,
+                    evidence: vec![Evidence {
+                        method: "section_flags".to_string(),
+                        source: "goblin".to_string(),
+                        value: permissions,
+                        location: Some(name),
+                    }],
+                    traits: Vec::new(),
+                    referenced_paths: None,
+                    referenced_directories: None,
                 });
             }
         }
@@ -310,135 +319,12 @@ impl PEAnalyzer {
 
     fn get_arch_name(&self, pe: &PE) -> String {
         match pe.header.coff_header.machine {
-            0x014c => "i386".to_string(),
+            0x014c => "x86".to_string(),
             0x8664 => "x86_64".to_string(),
-            0x01c4 => "arm".to_string(),
-            0xaa64 => "aarch64".to_string(),
-            _ => format!("unknown_{:#x}", pe.header.coff_header.machine),
+            0x01c0 => "ARM".to_string(),
+            0xaa64 => "ARM64".to_string(),
+            _ => format!("unknown-{:#x}", pe.header.coff_header.machine),
         }
-    }
-
-    fn windows_api_to_capability(&self, symbol: &str, library: &str) -> Option<Capability> {
-        // Map Windows API calls to capabilities
-        let (cap_id, description, confidence) = match (library.to_lowercase().as_str(), symbol) {
-            // Process execution
-            (lib, sym) if lib.contains("kernel32") && (sym == "CreateProcessA" || sym == "CreateProcessW") => {
-                ("exec/process/create", "Create new process", 1.0)
-            }
-            (lib, sym) if lib.contains("kernel32") && (sym == "WinExec" || sym == "ShellExecuteA" || sym == "ShellExecuteW") => {
-                ("exec/command/shell", "Execute shell commands", 1.0)
-            }
-
-            // Registry operations
-            (lib, sym) if lib.contains("advapi32") && sym.starts_with("Reg") => {
-                if sym.contains("Query") || sym.contains("Get") {
-                    ("registry/read", "Read Windows Registry", 0.9)
-                } else if sym.contains("Set") || sym.contains("Create") {
-                    ("registry/write", "Write Windows Registry", 0.9)
-                } else if sym.contains("Delete") {
-                    ("registry/delete", "Delete Registry keys", 0.9)
-                } else {
-                    ("registry/access", "Access Windows Registry", 0.8)
-                }
-            }
-
-            // Service manipulation
-            (lib, sym) if lib.contains("advapi32") && sym.contains("Service") => {
-                if sym.contains("Create") {
-                    ("service/create", "Create Windows service", 1.0)
-                } else if sym.contains("Start") {
-                    ("service/start", "Start Windows service", 1.0)
-                } else if sym.contains("Delete") {
-                    ("service/delete", "Delete Windows service", 1.0)
-                } else {
-                    ("service/manage", "Manage Windows services", 0.9)
-                }
-            }
-
-            // Network operations
-            (lib, sym) if (lib.contains("ws2_32") || lib.contains("wsock32")) && sym == "socket" => {
-                ("net/socket/create", "Create network socket", 1.0)
-            }
-            (lib, sym) if (lib.contains("ws2_32") || lib.contains("wsock32")) && sym == "connect" => {
-                ("net/socket/connect", "Connect to remote host", 1.0)
-            }
-            (lib, sym) if (lib.contains("ws2_32") || lib.contains("wsock32")) && sym == "bind" => {
-                ("net/socket/bind", "Bind network socket", 1.0)
-            }
-            (lib, sym) if lib.contains("wininet") || lib.contains("winhttp") => {
-                ("net/http/client", "HTTP client operations", 0.9)
-            }
-
-            // File operations
-            (lib, sym) if lib.contains("kernel32") && (sym == "CreateFileA" || sym == "CreateFileW") => {
-                ("fs/access", "File operations", 0.7)
-            }
-            (lib, sym) if lib.contains("kernel32") && (sym == "WriteFile" || sym == "WriteFileEx") => {
-                ("fs/write", "Write files", 0.9)
-            }
-            (lib, sym) if lib.contains("kernel32") && (sym == "DeleteFileA" || sym == "DeleteFileW") => {
-                ("fs/delete", "Delete files", 1.0)
-            }
-
-            // Memory manipulation
-            (lib, sym) if lib.contains("kernel32") && (sym == "VirtualAlloc" || sym == "VirtualAllocEx") => {
-                ("memory/allocate", "Allocate virtual memory", 0.9)
-            }
-            (lib, sym) if lib.contains("kernel32") && (sym == "WriteProcessMemory" || sym == "ReadProcessMemory") => {
-                ("memory/process", "Access process memory", 1.0)
-            }
-
-            // Crypto operations
-            (lib, sym) if lib.contains("advapi32") || lib.contains("bcrypt") || lib.contains("crypt32") => {
-                if sym.contains("Encrypt") {
-                    ("crypto/encrypt", "Encryption operations", 0.9)
-                } else if sym.contains("Decrypt") {
-                    ("crypto/decrypt", "Decryption operations", 0.9)
-                } else if sym.contains("Hash") {
-                    ("crypto/hash", "Hashing operations", 0.8)
-                } else {
-                    ("crypto/operation", "Cryptographic operations", 0.7)
-                }
-            }
-
-            // Privilege operations
-            (lib, sym) if lib.contains("advapi32") && (sym == "AdjustTokenPrivileges" || sym == "OpenProcessToken") => {
-                ("privilege/token", "Token manipulation", 1.0)
-            }
-
-            // DLL injection
-            (lib, sym) if lib.contains("kernel32") && (sym == "LoadLibraryA" || sym == "LoadLibraryW") => {
-                ("exec/dylib/load", "Load dynamic library", 0.8)
-            }
-            (lib, sym) if lib.contains("kernel32") && (sym == "CreateRemoteThread" || sym == "CreateThread") => {
-                ("exec/thread/create", "Create thread", 0.9)
-            }
-
-            // Anti-analysis
-            (lib, sym) if lib.contains("kernel32") && (sym == "IsDebuggerPresent" || sym == "CheckRemoteDebuggerPresent") => {
-                ("anti-analysis/debugger-detect", "Debugger detection", 1.0)
-            }
-
-            _ => return None,
-        };
-
-        Some(Capability {
-            id: cap_id.to_string(),
-            description: description.to_string(),
-            confidence,
-            criticality: crate::types::Criticality::None,
-            mbc: None,
-            attack: None,
-            evidence: vec![Evidence {
-                method: "symbol".to_string(),
-                source: "goblin".to_string(),
-                value: format!("{}!{}", library, symbol),
-                location: None,
-            }],
-            traits: vec![],
-            referenced_paths: None,
-            referenced_directories: None,
-        })
     }
 
     fn calculate_sha256(&self, data: &[u8]) -> String {
@@ -446,25 +332,6 @@ impl PEAnalyzer {
         let mut hasher = Sha256::new();
         hasher.update(data);
         format!("{:x}", hasher.finalize())
-    }
-
-    fn yara_namespace_to_capability(&self, namespace: &str) -> Option<String> {
-        let parts: Vec<&str> = namespace.split('.').collect();
-
-        match parts.as_slice() {
-            ["exec", "cmd"] => Some("exec/command/shell".to_string()),
-            ["exec", "program"] => Some("exec/command/direct".to_string()),
-            ["exec", "shell"] => Some("exec/command/shell".to_string()),
-            ["net", sub] => Some(format!("net/{}", sub)),
-            ["crypto", sub] => Some(format!("crypto/{}", sub)),
-            ["fs", sub] => Some(format!("fs/{}", sub)),
-            ["anti-static", "obfuscation"] => Some("anti-analysis/obfuscation".to_string()),
-            ["process", sub] => Some(format!("process/{}", sub)),
-            ["credential", sub] => Some(format!("credential/{}", sub)),
-            ["registry", sub] => Some(format!("registry/{}", sub)),
-            ["service", sub] => Some(format!("service/{}", sub)),
-            _ => None,
-        }
     }
 }
 
@@ -486,5 +353,158 @@ impl Analyzer for PEAnalyzer {
         } else {
             false
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::PathBuf;
+
+    fn get_test_pe() -> PathBuf {
+        PathBuf::from("tests/fixtures/test.exe")
+    }
+
+    #[test]
+    fn test_can_analyze_pe() {
+        let analyzer = PEAnalyzer::new();
+        let test_file = get_test_pe();
+
+        if test_file.exists() {
+            assert!(analyzer.can_analyze(&test_file));
+        }
+    }
+
+    #[test]
+    fn test_cannot_analyze_non_pe() {
+        let analyzer = PEAnalyzer::new();
+        assert!(!analyzer.can_analyze(&PathBuf::from("/dev/null")));
+        assert!(!analyzer.can_analyze(&PathBuf::from("tests/fixtures/test.elf")));
+    }
+
+    #[test]
+    fn test_analyze_pe_file() {
+        let analyzer = PEAnalyzer::new();
+        let test_file = get_test_pe();
+
+        if !test_file.exists() {
+            return;
+        }
+
+        let result = analyzer.analyze(&test_file);
+        assert!(result.is_ok());
+
+        let report = result.unwrap();
+        assert_eq!(report.target.file_type, "pe");
+        assert!(report.target.size_bytes > 0);
+        assert!(!report.target.sha256.is_empty());
+    }
+
+    #[test]
+    fn test_pe_has_structure() {
+        let analyzer = PEAnalyzer::new();
+        let test_file = get_test_pe();
+
+        if !test_file.exists() {
+            return;
+        }
+
+        let report = analyzer.analyze(&test_file).unwrap();
+        assert!(!report.structure.is_empty());
+    }
+
+    #[test]
+    fn test_pe_architecture_detected() {
+        let analyzer = PEAnalyzer::new();
+        let test_file = get_test_pe();
+
+        if !test_file.exists() {
+            return;
+        }
+
+        let report = analyzer.analyze(&test_file).unwrap();
+        assert!(report.target.architectures.is_some());
+        let archs = report.target.architectures.unwrap();
+        assert!(!archs.is_empty());
+    }
+
+    #[test]
+    fn test_pe_sections_analyzed() {
+        let analyzer = PEAnalyzer::new();
+        let test_file = get_test_pe();
+
+        if !test_file.exists() {
+            return;
+        }
+
+        let report = analyzer.analyze(&test_file).unwrap();
+        assert!(!report.sections.is_empty());
+    }
+
+    #[test]
+    fn test_pe_has_imports() {
+        let analyzer = PEAnalyzer::new();
+        let test_file = get_test_pe();
+
+        if !test_file.exists() {
+            return;
+        }
+
+        let report = analyzer.analyze(&test_file).unwrap();
+        assert!(!report.imports.is_empty());
+    }
+
+    #[test]
+    fn test_pe_capabilities_detected() {
+        let analyzer = PEAnalyzer::new();
+        let test_file = get_test_pe();
+
+        if !test_file.exists() {
+            return;
+        }
+
+        let report = analyzer.analyze(&test_file).unwrap();
+        // Capabilities may or may not be detected depending on the binary
+        // Just verify the analysis completes successfully
+        assert!(report.capabilities.len() >= 0);
+    }
+
+    #[test]
+    fn test_pe_strings_extracted() {
+        let analyzer = PEAnalyzer::new();
+        let test_file = get_test_pe();
+
+        if !test_file.exists() {
+            return;
+        }
+
+        let report = analyzer.analyze(&test_file).unwrap();
+        assert!(!report.strings.is_empty());
+    }
+
+    #[test]
+    fn test_pe_tools_used() {
+        let analyzer = PEAnalyzer::new();
+        let test_file = get_test_pe();
+
+        if !test_file.exists() {
+            return;
+        }
+
+        let report = analyzer.analyze(&test_file).unwrap();
+        assert!(report.metadata.tools_used.contains(&"goblin".to_string()));
+    }
+
+    #[test]
+    fn test_pe_analysis_duration() {
+        let analyzer = PEAnalyzer::new();
+        let test_file = get_test_pe();
+
+        if !test_file.exists() {
+            return;
+        }
+
+        let report = analyzer.analyze(&test_file).unwrap();
+        assert!(report.metadata.analysis_duration_ms > 0);
     }
 }

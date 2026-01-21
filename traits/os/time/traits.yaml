@@ -6,7 +6,7 @@ traits:
   # Time retrieval
   - id: time
     description: Get current calendar time (seconds since epoch)
-    criticality: none
+    criticality: inert
     mbc: "T1124"
     attack: "T1124"
     confidence: 0.3
@@ -17,7 +17,7 @@ traits:
 
   - id: gettimeofday
     description: Get current time with microsecond precision
-    criticality: none
+    criticality: inert
     mbc: "T1124"
     attack: "T1124"
     confidence: 0.3
@@ -28,7 +28,7 @@ traits:
 
   - id: clock_gettime
     description: Get time from specified clock
-    criticality: none
+    criticality: inert
     mbc: "T1124"
     attack: "T1124"
     confidence: 0.3
@@ -40,7 +40,7 @@ traits:
   # Time formatting and conversion
   - id: localtime
     description: Convert time to local time structure
-    criticality: none
+    criticality: inert
     confidence: 0.2
     condition:
       type: symbol
@@ -49,7 +49,7 @@ traits:
 
   - id: gmtime
     description: Convert time to UTC time structure
-    criticality: none
+    criticality: inert
     confidence: 0.2
     condition:
       type: symbol
@@ -58,7 +58,7 @@ traits:
 
   - id: strftime
     description: Format time as string
-    criticality: none
+    criticality: inert
     confidence: 0.2
     condition:
       type: symbol
@@ -67,7 +67,7 @@ traits:
 
   - id: strptime
     description: Parse time string into time structure
-    criticality: none
+    criticality: inert
     confidence: 0.2
     condition:
       type: symbol
@@ -77,7 +77,7 @@ traits:
   # Time manipulation (suspicious for timestomping)
   - id: settimeofday
     description: Set system time (requires privileges)
-    criticality: high
+    criticality: suspicious
     mbc: "F0005"
     attack: "T1070.006"
     confidence: 0.9
@@ -88,7 +88,7 @@ traits:
 
   - id: clock_settime
     description: Set time for specified clock (requires privileges)
-    criticality: high
+    criticality: suspicious
     mbc: "F0005"
     attack: "T1070.006"
     confidence: 0.9
@@ -99,7 +99,7 @@ traits:
 
   - id: utimes
     description: Change file access and modification times
-    criticality: medium
+    criticality: notable
     mbc: "F0005"
     attack: "T1070.006"
     confidence: 0.7
@@ -111,7 +111,7 @@ traits:
   # Sleep/delay functions
   - id: sleep
     description: Suspend execution for interval
-    criticality: low
+    criticality: inert
     confidence: 0.4
     condition:
       type: symbol

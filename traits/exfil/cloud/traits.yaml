@@ -5,7 +5,7 @@
 traits:
   - id: s3-upload
     description: AWS S3 upload
-    criticality: high
+    criticality: notable
     mbc: "E1567.002"
     attack: "T1567.002"
     confidence: 0.9
@@ -15,7 +15,7 @@ traits:
 
   - id: dropbox-api
     description: Dropbox API access
-    criticality: high
+    criticality: notable
     mbc: "E1567"
     attack: "T1567"
     confidence: 0.9
@@ -25,7 +25,7 @@ traits:
 
   - id: gdrive-api
     description: Google Drive API access
-    criticality: high
+    criticality: notable
     mbc: "E1567"
     attack: "T1567"
     confidence: 0.9

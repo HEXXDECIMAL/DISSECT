@@ -3,7 +3,7 @@
 capabilities:
   - id: detect-vendors
     description: VM detection via vendor/product strings
-    criticality: high
+    criticality: suspicious
     mbc: "B0009"
     attack: "T1497.001"
     confidence: 0.9
@@ -20,7 +20,7 @@ capabilities:
 
   - id: comprehensive
     description: Virtual machine environment detection
-    criticality: high
+    criticality: suspicious
     mbc: "B0009"
     attack: "T1497.001"
     confidence: 0.9

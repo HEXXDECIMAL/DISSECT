@@ -1,0 +1,310 @@
+use crate::types::{AnalysisReport, Criticality, Trait, YaraMatch};
+use anyhow::Result;
+use colored::Colorize;
+use std::collections::HashMap;
+
+/// Deduplicate traits by ID, keeping highest criticality (then highest confidence)
+fn deduplicate_traits(traits: &[Trait]) -> Vec<&Trait> {
+    let mut best_matches: HashMap<String, &Trait> = HashMap::new();
+
+    for trait_item in traits {
+        match best_matches.get(&trait_item.id) {
+            None => {
+                best_matches.insert(trait_item.id.clone(), trait_item);
+            }
+            Some(existing) => {
+                // Keep the one with higher criticality
+                // If criticality is same, keep the one with higher confidence
+                let should_replace = trait_item.criticality > existing.criticality
+                    || (trait_item.criticality == existing.criticality && trait_item.confidence > existing.confidence);
+
+                if should_replace {
+                    best_matches.insert(trait_item.id.clone(), trait_item);
+                }
+            }
+        }
+    }
+
+    best_matches.into_values().collect()
+}
+
+/// Convert YARA matches to traits for unified display
+fn yara_to_traits(yara_matches: &[YaraMatch]) -> Vec<Trait> {
+    yara_matches.iter().map(|m| {
+        let criticality = match m.severity.as_str() {
+            "critical" | "high" => Criticality::High,
+            "medium" => Criticality::Medium,
+            "low" => Criticality::Low,
+            _ => Criticality::None,
+        };
+
+        // Extract namespace for trait ID (e.g., "traits.intel.discover" -> "intel/discover")
+        let id = if m.namespace.starts_with("traits.") {
+            m.namespace[7..].replace('.', "/") + "/" + &m.rule
+        } else if m.namespace.starts_with("third_party.") {
+            "3P/".to_string() + &m.rule
+        } else {
+            m.namespace.clone() + "/" + &m.rule
+        };
+
+        let evidence = m.matched_strings.iter().take(3).map(|ms| {
+            crate::types::Evidence {
+                method: "yara".to_string(),
+                source: "yara-x".to_string(),
+                value: ms.value.clone(),
+                location: Some(format!("0x{:x}", ms.offset)),
+            }
+        }).collect();
+
+        Trait {
+            id,
+            description: m.description.clone(),
+            confidence: 0.7, // Default for YARA matches
+            criticality,
+            capability: true,
+            mbc: None,
+            attack: None,
+            language: None,
+            platforms: Vec::new(),
+            evidence,
+            referenced_paths: None,
+            referenced_directories: None,
+        }
+    }).collect()
+}
+
+/// Get risk emoji based on criticality
+fn risk_emoji(criticality: &Criticality) -> &'static str {
+    match criticality {
+        Criticality::None => "⚪",
+        Criticality::Low => "🔵",
+        Criticality::Medium => "🟡",
+        Criticality::High => "🛑",
+    }
+}
+
+/// Get risk level name
+fn risk_name(criticality: &Criticality) -> &'static str {
+    match criticality {
+        Criticality::None => "NONE",
+        Criticality::Low => "LOW",
+        Criticality::Medium => "MED",
+        Criticality::High => "HIGH",
+    }
+}
+
+/// Split trait ID into namespace and rest (e.g., "intel/discover/process/getuid" -> ("intel", "discover/process/getuid"))
+fn split_trait_id(id: &str) -> (String, String) {
+    let parts: Vec<&str> = id.split('/').collect();
+    if parts.len() > 1 {
+        (parts[0].to_string(), parts[1..].join("/"))
+    } else {
+        ("other".to_string(), id.to_string())
+    }
+}
+
+/// Convert namespace to long name (malcontent-style)
+fn namespace_long_name(ns: &str) -> &'static str {
+    match ns {
+        "c2" => "command & control",
+        "intel" => "discovery",
+        "crypto" => "cryptography",
+        "exfil" => "exfiltration",
+        "exec" => "execution",
+        "fs" => "filesystem",
+        "hw" => "hardware",
+        "net" => "networking",
+        "os" => "operating-system",
+        "3P" => "third-party",
+        "persistence" => "persistence",
+        "anti-analysis" => "anti-analysis",
+        "anti-static" => "anti-static analysis",
+        "evasion" => "defense evasion",
+        "privesc" => "privilege escalation",
+        "process" => "process",
+        "mem" => "memory",
+        "data" => "data",
+        "impact" => "impact",
+        "access" => "access",
+        "credential" => "credential access",
+        "lateral" => "lateral movement",
+        _ => "other",
+    }
+}
+
+/// Format evidence string (minimal)
+fn format_evidence(trait_item: &Trait) -> String {
+    let values: Vec<String> = trait_item.evidence.iter()
+        .filter_map(|e| {
+            if e.value.len() <= 50 && !trait_item.description.contains(&e.value) {
+                Some(e.value.clone())
+            } else {
+                None
+            }
+        })
+        .take(3)
+        .collect();
+
+    if values.is_empty() {
+        String::new()
+    } else {
+        values.join(", ")
+    }
+}
+
+/// Format size in human-readable format
+fn format_size(bytes: u64) -> String {
+    if bytes < 1024 {
+        format!("{} B", bytes)
+    } else if bytes < 1024 * 1024 {
+        format!("{:.1} KB", bytes as f64 / 1024.0)
+    } else if bytes < 1024 * 1024 * 1024 {
+        format!("{:.1} MB", bytes as f64 / (1024.0 * 1024.0))
+    } else {
+        format!("{:.1} GB", bytes as f64 / (1024.0 * 1024.0 * 1024.0))
+    }
+}
+
+/// Format analysis report as JSON
+pub fn format_json(report: &AnalysisReport) -> Result<String> {
+    Ok(serde_json::to_string_pretty(report)?)
+}
+
+/// Format analysis report for terminal display (malcontent-style)
+pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
+    let mut output = String::new();
+
+    // File path with risk emoji
+    let overall_risk = calculate_overall_risk(report);
+    output.push_str(&format!("├─ {} {} {}\n",
+        risk_emoji(&overall_risk),
+        report.target.path.bright_white(),
+        format!("[{}]", risk_name(&overall_risk)).bright_black()
+    ));
+
+    // Combine traits from report (stored as capabilities) and YARA matches
+    let mut all_traits: Vec<Trait> = report.capabilities.iter().map(|cap| Trait {
+        id: cap.id.clone(),
+        description: cap.description.clone(),
+        confidence: cap.confidence,
+        criticality: cap.criticality,
+        capability: true,  // Capabilities are high-level behaviors
+        mbc: cap.mbc.clone(),
+        attack: cap.attack.clone(),
+        language: None,
+        platforms: Vec::new(),
+        evidence: cap.evidence.clone(),
+        referenced_paths: cap.referenced_paths.clone(),
+        referenced_directories: cap.referenced_directories.clone(),
+    }).collect();
+    all_traits.extend(yara_to_traits(&report.yara_matches));
+
+    // Deduplicate
+    let deduped = deduplicate_traits(&all_traits);
+
+    // Filter: remove criticality=none and confidence<0.5
+    let filtered: Vec<&Trait> = deduped.into_iter()
+        .filter(|t| t.criticality != Criticality::None && t.confidence >= 0.5)
+        .collect();
+
+    if filtered.is_empty() {
+        output.push_str("│\n");
+        return Ok(output);
+    }
+
+    // Group by namespace
+    let mut by_namespace: HashMap<String, Vec<&Trait>> = HashMap::new();
+    let mut ns_max_criticality: HashMap<String, Criticality> = HashMap::new();
+
+    for trait_item in &filtered {
+        let (ns, _) = split_trait_id(&trait_item.id);
+
+        // Update max criticality for namespace
+        let current_max = ns_max_criticality.get(&ns).unwrap_or(&Criticality::None);
+        if &trait_item.criticality > current_max {
+            ns_max_criticality.insert(ns.clone(), trait_item.criticality);
+        }
+
+        by_namespace.entry(ns).or_insert_with(Vec::new).push(*trait_item);
+    }
+
+    // Sort namespaces by long name
+    let mut namespaces: Vec<String> = by_namespace.keys().cloned().collect();
+    namespaces.sort_by_key(|ns| namespace_long_name(ns));
+
+    // Render each namespace
+    for ns in &namespaces {
+        let traits = by_namespace.get(ns).unwrap();
+        let max_crit = ns_max_criticality.get(ns).unwrap_or(&Criticality::None);
+
+        // Namespace header
+        output.push_str(&format!("│     ≡ {} {}\n",
+            namespace_long_name(ns),
+            format!("[{}]", risk_name(max_crit)).bright_black()
+        ));
+
+        // Sort traits by criticality (highest first), then ID
+        let mut sorted_traits = traits.clone();
+        sorted_traits.sort_by(|a, b| {
+            b.criticality.cmp(&a.criticality).then_with(|| a.id.cmp(&b.id))
+        });
+
+        // Render each trait
+        for trait_item in sorted_traits {
+            let (_, rest) = split_trait_id(&trait_item.id);
+            let emoji = risk_emoji(&trait_item.criticality);
+            let evidence = format_evidence(trait_item);
+
+            // Colorize based on criticality
+            let content = match trait_item.criticality {
+                Criticality::High => {
+                    format!("{} {} — {}", emoji, rest, trait_item.description).bright_red()
+                }
+                Criticality::Medium => {
+                    format!("{} {} — {}", emoji, rest, trait_item.description).bright_yellow()
+                }
+                _ => {
+                    format!("{} {} — {}", emoji, rest, trait_item.description).bright_cyan()
+                }
+            };
+
+            if evidence.is_empty() {
+                output.push_str(&format!("│       {}\n", content));
+            } else {
+                output.push_str(&format!("│       {}{} {}\n",
+                    content,
+                    ":".bright_black(),
+                    evidence.white()
+                ));
+            }
+        }
+    }
+
+    output.push_str("│\n");
+    Ok(output)
+}
+
+/// Calculate overall risk level for a report
+fn calculate_overall_risk(report: &AnalysisReport) -> Criticality {
+    let mut max = Criticality::None;
+
+    for cap in &report.capabilities {
+        if cap.criticality > max {
+            max = cap.criticality;
+        }
+    }
+
+    for yara_match in &report.yara_matches {
+        let crit = match yara_match.severity.as_str() {
+            "critical" | "high" => Criticality::High,
+            "medium" => Criticality::Medium,
+            "low" => Criticality::Low,
+            _ => Criticality::None,
+        };
+        if crit > max {
+            max = crit;
+        }
+    }
+
+    max
+}

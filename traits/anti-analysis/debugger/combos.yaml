@@ -3,7 +3,7 @@
 capabilities:
   - id: win-basic
     description: Windows debugger detection (basic)
-    criticality: medium
+    criticality: suspicious
     mbc: "B0001"
     attack: "T1622"
     confidence: 0.85
@@ -17,7 +17,7 @@ capabilities:
 
   - id: win-comprehensive
     description: Windows debugger/VM detection (multiple signals)
-    criticality: high
+    criticality: suspicious
     mbc: "B0001"
     attack: "T1622"
     confidence: 0.9
@@ -34,7 +34,7 @@ capabilities:
 
   - id: linux-comprehensive
     description: Linux debugger detection across multiple methods
-    criticality: high
+    criticality: suspicious
     mbc: "B0001"
     attack: "T1622"
     confidence: 0.95
@@ -51,7 +51,7 @@ capabilities:
 
   - id: ptrace-self
     description: Anti-debugging via ptrace self-attachment
-    criticality: high
+    criticality: suspicious
     mbc: "B0001.m01"
     attack: "T1622"
     confidence: 0.95

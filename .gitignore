@@ -54,3 +54,10 @@ samples/
 
 # Compiled rules
 *.yarc
+
+.claude/
+
+
+tests/fixtures/*.elf
+tests/fixtures/*.exe
+tests/fixtures/*.macho

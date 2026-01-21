@@ -5,7 +5,7 @@
 traits:
   - id: vmware-string
     description: VMware vendor string detection
-    criticality: medium
+    criticality: suspicious
     mbc: "B0009"
     attack: "T1497.001"
     confidence: 0.9
@@ -15,7 +15,7 @@ traits:
 
   - id: virtualbox-string
     description: VirtualBox vendor string detection
-    criticality: medium
+    criticality: suspicious
     mbc: "B0009"
     attack: "T1497.001"
     confidence: 0.9
@@ -26,7 +26,7 @@ traits:
 
   - id: qemu-string
     description: QEMU vendor string detection
-    criticality: medium
+    criticality: suspicious
     mbc: "B0009"
     attack: "T1497.001"
     confidence: 0.9
@@ -36,7 +36,7 @@ traits:
 
   - id: vm-hardware
     description: VM-specific hardware strings
-    criticality: medium
+    criticality: suspicious
     mbc: "B0009"
     attack: "T1497.001"
     confidence: 0.85
@@ -47,7 +47,7 @@ traits:
 
   - id: macos-vm-sysctl
     description: macOS VM detection via sysctl
-    criticality: medium
+    criticality: suspicious
     mbc: "B0009"
     attack: "T1497.001"
     confidence: 0.8
@@ -58,7 +58,7 @@ traits:
 
   - id: cpu-vendor
     description: CPU vendor string checks (Intel/AMD vs VM)
-    criticality: low
+    criticality: suspicious
     mbc: "B0009"
     confidence: 0.6
     condition:

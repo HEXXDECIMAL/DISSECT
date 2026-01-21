@@ -3,7 +3,7 @@ use crate::types::*;
 use anyhow::{Context, Result};
 use std::fs::{self, File};
 use std::io::Read;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 /// Archive analyzer for .zip, .tar.gz, .tgz, etc.
 pub struct ArchiveAnalyzer {
@@ -33,8 +33,7 @@ impl ArchiveAnalyzer {
         }
 
         // Create temporary directory for extraction
-        let temp_dir = tempfile::tempdir()
-            .context("Failed to create temporary directory")?;
+        let temp_dir = tempfile::tempdir().context("Failed to create temporary directory")?;
 
         // Extract archive
         self.extract_archive(file_path, temp_dir.path())?;
@@ -58,7 +57,8 @@ impl ArchiveAnalyzer {
             evidence: vec![Evidence {
                 method: "extension".to_string(),
                 source: "archive_analyzer".to_string(),
-                value: file_path.extension()
+                value: file_path
+                    .extension()
                     .and_then(|e| e.to_str())
                     .unwrap_or("unknown")
                     .to_string(),
@@ -91,7 +91,9 @@ impl ArchiveAnalyzer {
                             for evidence in &mut new_cap.evidence {
                                 evidence.location = Some(format!(
                                     "archive:{}",
-                                    entry.path().strip_prefix(temp_dir.path())
+                                    entry
+                                        .path()
+                                        .strip_prefix(temp_dir.path())
                                         .unwrap_or(entry.path())
                                         .display()
                                 ));
@@ -102,7 +104,10 @@ impl ArchiveAnalyzer {
 
                     // Aggregate strings (limit to interesting ones)
                     for string in file_report.strings {
-                        if matches!(string.string_type, StringType::Url | StringType::Ip | StringType::Base64) {
+                        if matches!(
+                            string.string_type,
+                            StringType::Url | StringType::Ip | StringType::Base64
+                        ) {
                             report.strings.push(string);
                         }
                     }
@@ -113,7 +118,8 @@ impl ArchiveAnalyzer {
         // Add metadata about archive contents
         report.metadata.errors.push(format!(
             "Archive contains {} files analyzed, {} unique capabilities detected",
-            files_analyzed, total_capabilities.len()
+            files_analyzed,
+            total_capabilities.len()
         ));
 
         report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;
@@ -137,8 +143,7 @@ impl ArchiveAnalyzer {
 
     fn extract_zip(&self, archive_path: &Path, dest_dir: &Path) -> Result<()> {
         let file = File::open(archive_path)?;
-        let mut archive = zip::ZipArchive::new(file)
-            .context("Failed to read ZIP archive")?;
+        let mut archive = zip::ZipArchive::new(file).context("Failed to read ZIP archive")?;
 
         for i in 0..archive.len() {
             let mut file = archive.by_index(i)?;
@@ -158,7 +163,12 @@ impl ArchiveAnalyzer {
         Ok(())
     }
 
-    fn extract_tar(&self, archive_path: &Path, dest_dir: &Path, compression: Option<&str>) -> Result<()> {
+    fn extract_tar(
+        &self,
+        archive_path: &Path,
+        dest_dir: &Path,
+        compression: Option<&str>,
+    ) -> Result<()> {
         let file = File::open(archive_path)?;
 
         let mut archive: tar::Archive<Box<dyn Read>> = match compression {
@@ -178,7 +188,8 @@ impl ArchiveAnalyzer {
             _ => anyhow::bail!("Unsupported compression: {:?}", compression),
         };
 
-        archive.unpack(dest_dir)
+        archive
+            .unpack(dest_dir)
             .context("Failed to extract TAR archive")?;
 
         Ok(())
@@ -266,13 +277,191 @@ impl Analyzer for ArchiveAnalyzer {
 
     fn can_analyze(&self, file_path: &Path) -> bool {
         let path_str = file_path.to_string_lossy().to_lowercase();
-        path_str.ends_with(".zip") ||
-        path_str.ends_with(".tar") ||
-        path_str.ends_with(".tar.gz") ||
-        path_str.ends_with(".tgz") ||
-        path_str.ends_with(".tar.bz2") ||
-        path_str.ends_with(".tbz2") ||
-        path_str.ends_with(".tar.xz") ||
-        path_str.ends_with(".txz")
+        path_str.ends_with(".zip")
+            || path_str.ends_with(".tar")
+            || path_str.ends_with(".tar.gz")
+            || path_str.ends_with(".tgz")
+            || path_str.ends_with(".tar.bz2")
+            || path_str.ends_with(".tbz2")
+            || path_str.ends_with(".tar.xz")
+            || path_str.ends_with(".txz")
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::io::Write;
+    use std::path::PathBuf;
+
+    #[test]
+    fn test_new() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert_eq!(analyzer.max_depth, 3);
+        assert_eq!(analyzer.current_depth, 0);
+    }
+
+    #[test]
+    fn test_default() {
+        let analyzer = ArchiveAnalyzer::default();
+        assert_eq!(analyzer.max_depth, 3);
+        assert_eq!(analyzer.current_depth, 0);
+    }
+
+    #[test]
+    fn test_with_depth() {
+        let analyzer = ArchiveAnalyzer::new().with_depth(5);
+        assert_eq!(analyzer.current_depth, 5);
+    }
+
+    #[test]
+    fn test_can_analyze_zip() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert!(analyzer.can_analyze(Path::new("test.zip")));
+        assert!(analyzer.can_analyze(Path::new("TEST.ZIP")));
+    }
+
+    #[test]
+    fn test_can_analyze_tar() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert!(analyzer.can_analyze(Path::new("test.tar")));
+        assert!(analyzer.can_analyze(Path::new("test.tar.gz")));
+        assert!(analyzer.can_analyze(Path::new("test.tgz")));
+    }
+
+    #[test]
+    fn test_can_analyze_tar_bz2() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert!(analyzer.can_analyze(Path::new("test.tar.bz2")));
+        assert!(analyzer.can_analyze(Path::new("test.tbz2")));
+    }
+
+    #[test]
+    fn test_can_analyze_tar_xz() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert!(analyzer.can_analyze(Path::new("test.tar.xz")));
+        assert!(analyzer.can_analyze(Path::new("test.txz")));
+    }
+
+    #[test]
+    fn test_cannot_analyze_other() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert!(!analyzer.can_analyze(Path::new("test.txt")));
+        assert!(!analyzer.can_analyze(Path::new("test.elf")));
+    }
+
+    #[test]
+    fn test_detect_archive_type_zip() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert_eq!(analyzer.detect_archive_type(Path::new("test.zip")), "zip");
+    }
+
+    #[test]
+    fn test_detect_archive_type_tar() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert_eq!(analyzer.detect_archive_type(Path::new("test.tar")), "tar");
+    }
+
+    #[test]
+    fn test_detect_archive_type_tar_gz() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert_eq!(
+            analyzer.detect_archive_type(Path::new("test.tar.gz")),
+            "tar.gz"
+        );
+        assert_eq!(analyzer.detect_archive_type(Path::new("test.tgz")), "tgz");
+    }
+
+    #[test]
+    fn test_detect_archive_type_tar_bz2() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert_eq!(
+            analyzer.detect_archive_type(Path::new("test.tar.bz2")),
+            "tar.bz2"
+        );
+        assert_eq!(analyzer.detect_archive_type(Path::new("test.tbz2")), "tbz");
+        assert_eq!(analyzer.detect_archive_type(Path::new("test.tbz")), "tbz");
+    }
+
+    #[test]
+    fn test_detect_archive_type_tar_xz() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert_eq!(
+            analyzer.detect_archive_type(Path::new("test.tar.xz")),
+            "tar.xz"
+        );
+        assert_eq!(analyzer.detect_archive_type(Path::new("test.txz")), "txz");
+    }
+
+    #[test]
+    fn test_detect_archive_type_unknown() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert_eq!(
+            analyzer.detect_archive_type(Path::new("test.txt")),
+            "unknown"
+        );
+    }
+
+    #[test]
+    fn test_calculate_sha256() {
+        let analyzer = ArchiveAnalyzer::new();
+        let data = b"test data";
+        let hash = analyzer.calculate_sha256(data);
+        assert_eq!(hash.len(), 64); // SHA256 is 64 hex characters
+        assert_eq!(
+            hash,
+            "916f0027a575074ce72a331777c3478d6513f786a591bd892da1a577bf2335f9"
+        );
+    }
+
+    #[test]
+    fn test_analyze_zip_with_shell_script() {
+        // Create a test ZIP with a shell script inside
+        let temp_dir = tempfile::tempdir().unwrap();
+        let zip_path = temp_dir.path().join("test.zip");
+
+        let file = File::create(&zip_path).unwrap();
+        let mut zip = zip::ZipWriter::new(file);
+
+        let options = zip::write::FileOptions::<()>::default()
+            .compression_method(zip::CompressionMethod::Stored);
+        zip.start_file("test.sh", options).unwrap();
+        zip.write_all(b"#!/bin/sh\necho 'hello'").unwrap();
+        zip.finish().unwrap();
+
+        let analyzer = ArchiveAnalyzer::new();
+        let result = analyzer.analyze(&zip_path);
+
+        assert!(result.is_ok());
+        let report = result.unwrap();
+        assert_eq!(report.target.file_type, "zip");
+        assert!(report
+            .structure
+            .iter()
+            .any(|s| s.id.starts_with("archive/")));
+    }
+
+    #[test]
+    fn test_max_depth_exceeded() {
+        let analyzer = ArchiveAnalyzer::new().with_depth(3);
+
+        // Create a temporary ZIP file
+        let temp_dir = tempfile::tempdir().unwrap();
+        let zip_path = temp_dir.path().join("test.zip");
+
+        let file = File::create(&zip_path).unwrap();
+        let mut zip = zip::ZipWriter::new(file);
+        let options = zip::write::FileOptions::<()>::default()
+            .compression_method(zip::CompressionMethod::Stored);
+        zip.start_file("dummy.txt", options).unwrap();
+        zip.write_all(b"test").unwrap();
+        zip.finish().unwrap();
+
+        let result = analyzer.analyze(&zip_path);
+        assert!(result.is_err());
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("Maximum archive depth"));
     }
 }

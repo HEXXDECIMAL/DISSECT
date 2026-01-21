@@ -4,7 +4,7 @@ use anyhow::{Context, Result};
 use std::cell::RefCell;
 use std::fs;
 use std::path::Path;
-use tree_sitter::{Parser, Query, QueryCursor};
+use tree_sitter::Parser;
 
 /// Shell script analyzer using tree-sitter
 pub struct ShellAnalyzer {
@@ -14,16 +14,21 @@ pub struct ShellAnalyzer {
 impl ShellAnalyzer {
     pub fn new() -> Self {
         let mut parser = Parser::new();
-        parser.set_language(&tree_sitter_bash::LANGUAGE.into()).unwrap();
+        parser
+            .set_language(&tree_sitter_bash::LANGUAGE.into())
+            .unwrap();
 
-        Self { parser: RefCell::new(parser) }
+        Self {
+            parser: RefCell::new(parser),
+        }
     }
 
     fn analyze_script(&self, file_path: &Path, content: &str) -> Result<AnalysisReport> {
         let start = std::time::Instant::now();
 
         // Parse the shell script
-        let tree = self.parser
+        let tree = self
+            .parser
             .borrow_mut()
             .parse(content, None)
             .context("Failed to parse shell script")?;
@@ -73,14 +78,24 @@ impl ShellAnalyzer {
         Ok(report)
     }
 
-    fn detect_capabilities(&self, node: &tree_sitter::Node, source: &[u8], report: &mut AnalysisReport) {
+    fn detect_capabilities(
+        &self,
+        node: &tree_sitter::Node,
+        source: &[u8],
+        report: &mut AnalysisReport,
+    ) {
         let mut cursor = node.walk();
 
         // Walk the AST looking for command invocations
         self.walk_ast(&mut cursor, source, report);
     }
 
-    fn walk_ast(&self, cursor: &mut tree_sitter::TreeCursor, source: &[u8], report: &mut AnalysisReport) {
+    fn walk_ast(
+        &self,
+        cursor: &mut tree_sitter::TreeCursor,
+        source: &[u8],
+        report: &mut AnalysisReport,
+    ) {
         loop {
             let node = cursor.node();
 
@@ -113,46 +128,66 @@ impl ShellAnalyzer {
         }
     }
 
-    fn analyze_command(&self, cmd: &str, node: &tree_sitter::Node, source: &[u8], report: &mut AnalysisReport) {
+    fn analyze_command(
+        &self,
+        cmd: &str,
+        node: &tree_sitter::Node,
+        _source: &[u8],
+        report: &mut AnalysisReport,
+    ) {
         let capability = match cmd {
-            "curl" | "wget" => {
-                Some(("net/http/client", "Download files via HTTP"))
-            }
-            "nc" | "netcat" => {
-                Some(("net/socket/connect", "Network socket connections"))
-            }
-            "exec" | "eval" => {
-                Some(("exec/script/eval", "Execute dynamic code"))
-            }
-            "sh" | "bash" | "zsh" => {
-                Some(("exec/command/shell", "Execute shell commands"))
-            }
-            "rm" | "unlink" => {
-                Some(("fs/delete", "Delete files"))
-            }
-            "chmod" | "chown" => {
-                Some(("fs/permissions", "Modify file permissions"))
-            }
-            "crontab" => {
-                Some(("persistence/cron", "Schedule tasks with cron"))
-            }
-            "systemctl" | "service" => {
-                Some(("persistence/service", "Manage system services"))
-            }
-            "sudo" => {
-                Some(("privilege/escalation", "Execute with elevated privileges"))
-            }
+            "curl" | "wget" => Some((
+                "net/http/client",
+                "Download files via HTTP",
+                Criticality::Notable,
+            )),
+            "nc" | "netcat" => Some((
+                "net/socket/connect",
+                "Network socket connections",
+                Criticality::Notable,
+            )),
+            "exec" | "eval" => Some((
+                "exec/script/eval",
+                "Execute dynamic code",
+                Criticality::Notable,
+            )),
+            "sh" | "bash" | "zsh" => Some((
+                "exec/command/shell",
+                "Execute shell commands",
+                Criticality::Notable,
+            )),
+            "rm" | "unlink" => Some(("fs/delete", "Delete files", Criticality::Notable)),
+            "chmod" | "chown" => Some((
+                "fs/permissions",
+                "Modify file permissions",
+                Criticality::Notable,
+            )),
+            "crontab" => Some((
+                "persistence/cron",
+                "Schedule tasks with cron",
+                Criticality::Notable,
+            )),
+            "systemctl" | "service" => Some((
+                "persistence/service",
+                "Manage system services",
+                Criticality::Notable,
+            )),
+            "sudo" => Some((
+                "privilege/escalation",
+                "Execute with elevated privileges",
+                Criticality::Notable,
+            )),
             _ => None,
         };
 
-        if let Some((cap_id, description)) = capability {
+        if let Some((cap_id, description, criticality)) = capability {
             // Check if we already have this capability
             if !report.capabilities.iter().any(|c| c.id == cap_id) {
                 report.capabilities.push(Capability {
                     id: cap_id.to_string(),
                     description: description.to_string(),
                     confidence: 1.0,
-                        criticality: Criticality::None,
+                    criticality,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {
@@ -161,24 +196,33 @@ impl ShellAnalyzer {
                         value: cmd.to_string(),
                         location: Some(format!("line:{}", node.start_position().row + 1)),
                     }],
-                traits: Vec::new(),
-                referenced_paths: None,
-                referenced_directories: None,
+                    traits: Vec::new(),
+                    referenced_paths: None,
+                    referenced_directories: None,
                 });
             }
         }
     }
 
-    fn check_obfuscation(&self, node: &tree_sitter::Node, source: &[u8], report: &mut AnalysisReport) {
+    fn check_obfuscation(
+        &self,
+        node: &tree_sitter::Node,
+        source: &[u8],
+        report: &mut AnalysisReport,
+    ) {
         if let Ok(text) = node.utf8_text(source) {
             // Check for base64 encoding patterns
             if text.contains("base64") || text.contains("b64decode") {
-                if !report.capabilities.iter().any(|c| c.id == "anti-analysis/obfuscation/base64") {
+                if !report
+                    .capabilities
+                    .iter()
+                    .any(|c| c.id == "anti-analysis/obfuscation/base64")
+                {
                     report.capabilities.push(Capability {
                         id: "anti-analysis/obfuscation/base64".to_string(),
                         description: "Uses base64 encoding/decoding".to_string(),
                         confidence: 0.9,
-                        criticality: Criticality::None,
+                        criticality: Criticality::Suspicious,
                         mbc: None,
                         attack: None,
                         evidence: vec![Evidence {
@@ -187,21 +231,25 @@ impl ShellAnalyzer {
                             value: "base64".to_string(),
                             location: Some(format!("line:{}", node.start_position().row + 1)),
                         }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
+                        traits: Vec::new(),
+                        referenced_paths: None,
+                        referenced_directories: None,
                     });
                 }
             }
 
             // Check for hex encoding
             if text.contains("\\x") && text.matches("\\x").count() > 3 {
-                if !report.capabilities.iter().any(|c| c.id == "anti-analysis/obfuscation/hex") {
+                if !report
+                    .capabilities
+                    .iter()
+                    .any(|c| c.id == "anti-analysis/obfuscation/hex")
+                {
                     report.capabilities.push(Capability {
                         id: "anti-analysis/obfuscation/hex".to_string(),
                         description: "Uses hex-encoded strings".to_string(),
                         confidence: 0.9,
-                        criticality: Criticality::None,
+                        criticality: Criticality::Suspicious,
                         mbc: None,
                         attack: None,
                         evidence: vec![Evidence {
@@ -210,21 +258,25 @@ impl ShellAnalyzer {
                             value: "hex_encoding".to_string(),
                             location: Some(format!("line:{}", node.start_position().row + 1)),
                         }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
+                        traits: Vec::new(),
+                        referenced_paths: None,
+                        referenced_directories: None,
                     });
                 }
             }
 
             // Check for eval with variable (dynamic code execution)
             if (text.contains("eval") || text.contains("exec")) && text.contains("$") {
-                if !report.capabilities.iter().any(|c| c.id == "anti-analysis/obfuscation/dynamic-eval") {
+                if !report
+                    .capabilities
+                    .iter()
+                    .any(|c| c.id == "anti-analysis/obfuscation/dynamic-eval")
+                {
                     report.capabilities.push(Capability {
                         id: "anti-analysis/obfuscation/dynamic-eval".to_string(),
                         description: "Executes dynamically constructed code".to_string(),
                         confidence: 0.95,
-                        criticality: Criticality::None,
+                        criticality: Criticality::Suspicious,
                         mbc: None,
                         attack: None,
                         evidence: vec![Evidence {
@@ -233,9 +285,9 @@ impl ShellAnalyzer {
                             value: "eval_with_variable".to_string(),
                             location: Some(format!("line:{}", node.start_position().row + 1)),
                         }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
+                        traits: Vec::new(),
+                        referenced_paths: None,
+                        referenced_directories: None,
                     });
                 }
             }
@@ -281,7 +333,11 @@ impl ShellAnalyzer {
     }
 
     /// Analyze function signature for shell functions
-    fn analyze_function_signature(&self, node: &tree_sitter::Node, _source: &[u8]) -> FunctionSignature {
+    fn analyze_function_signature(
+        &self,
+        _node: &tree_sitter::Node,
+        _source: &[u8],
+    ) -> FunctionSignature {
         // Shell functions don't have explicit parameter declarations
         // Parameters are accessed via $1, $2, etc.
         FunctionSignature {
@@ -304,12 +360,17 @@ impl ShellAnalyzer {
         let mut depths = Vec::new();
         let mut deep_nest_count = 0u32;
 
-        fn traverse(node: &tree_sitter::Node, current_depth: u32, max: &mut u32,
-                    depths: &mut Vec<u32>, deep: &mut u32) {
+        fn traverse(
+            node: &tree_sitter::Node,
+            current_depth: u32,
+            max: &mut u32,
+            depths: &mut Vec<u32>,
+            deep: &mut u32,
+        ) {
             let mut depth = current_depth;
             match node.kind() {
-                "if_statement" | "case_statement" | "for_statement" |
-                "while_statement" | "until_statement" | "subshell" => {
+                "if_statement" | "case_statement" | "for_statement" | "while_statement"
+                | "until_statement" | "subshell" => {
                     depth += 1;
                     depths.push(depth);
                     if depth > *max {
@@ -343,7 +404,12 @@ impl ShellAnalyzer {
     }
 
     /// Analyze call patterns in shell functions
-    fn analyze_call_patterns(&self, node: &tree_sitter::Node, source: &[u8], func_name: &str) -> CallPatternMetrics {
+    fn analyze_call_patterns(
+        &self,
+        node: &tree_sitter::Node,
+        source: &[u8],
+        func_name: &str,
+    ) -> CallPatternMetrics {
         let mut call_count = 0u32;
         let mut callees: Vec<String> = Vec::new();
         let mut recursive_calls = 0u32;
@@ -505,7 +571,12 @@ impl ShellAnalyzer {
         }
     }
 
-    fn extract_functions(&self, root: &tree_sitter::Node, source: &[u8], report: &mut AnalysisReport) {
+    fn extract_functions(
+        &self,
+        root: &tree_sitter::Node,
+        source: &[u8],
+        report: &mut AnalysisReport,
+    ) {
         let mut cursor = root.walk();
 
         loop {
@@ -520,7 +591,8 @@ impl ShellAnalyzer {
                         let complexity = self.calculate_cyclomatic_complexity(&node, source);
                         let signature = self.analyze_function_signature(&node, source);
                         let nesting = self.calculate_nesting_depth(&node);
-                        let call_patterns = self.analyze_call_patterns(&node, source, &func_name_str);
+                        let call_patterns =
+                            self.analyze_call_patterns(&node, source, &func_name_str);
 
                         // Extract command calls
                         let mut calls = Vec::new();
@@ -629,15 +701,16 @@ impl Default for ShellAnalyzer {
 
 impl Analyzer for ShellAnalyzer {
     fn analyze(&self, file_path: &Path) -> Result<AnalysisReport> {
-        let content = fs::read_to_string(file_path)
-            .context("Failed to read shell script")?;
+        let content = fs::read_to_string(file_path).context("Failed to read shell script")?;
 
         self.analyze_script(file_path, &content)
     }
 
     fn can_analyze(&self, file_path: &Path) -> bool {
         if let Ok(data) = fs::read(file_path) {
-            data.starts_with(b"#!/bin/sh") || data.starts_with(b"#!/bin/bash") || data.starts_with(b"#!/usr/bin/env bash")
+            data.starts_with(b"#!/bin/sh")
+                || data.starts_with(b"#!/bin/bash")
+                || data.starts_with(b"#!/usr/bin/env bash")
         } else {
             false
         }
@@ -650,6 +723,15 @@ mod tests {
     use std::io::Write;
     use tempfile::NamedTempFile;
 
+    fn analyze_shell_code(code: &str) -> AnalysisReport {
+        let mut temp_file = NamedTempFile::new().unwrap();
+        temp_file.write_all(code.as_bytes()).unwrap();
+        temp_file.flush().unwrap();
+
+        let analyzer = ShellAnalyzer::new();
+        analyzer.analyze(temp_file.path()).unwrap()
+    }
+
     #[test]
     fn test_simple_script() {
         let script = r#"#!/bin/bash
@@ -657,16 +739,221 @@ curl https://example.com/payload.sh | bash
 rm -rf /tmp/test
 "#;
 
-        let mut temp_file = NamedTempFile::new().unwrap();
-        temp_file.write_all(script.as_bytes()).unwrap();
-        temp_file.flush().unwrap();
-
-        let analyzer = ShellAnalyzer::new();
-        let report = analyzer.analyze(temp_file.path()).unwrap();
+        let report = analyze_shell_code(script);
 
         // Should detect curl, bash, and rm capabilities
         assert!(report.capabilities.len() >= 2);
         assert!(report.capabilities.iter().any(|c| c.id.contains("http")));
         assert!(report.capabilities.iter().any(|c| c.id.contains("delete")));
+    }
+
+    #[test]
+    fn test_detect_curl() {
+        let script = "#!/bin/bash\ncurl https://example.com/data.txt";
+        let report = analyze_shell_code(script);
+
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "net/http/client"));
+    }
+
+    #[test]
+    fn test_detect_wget() {
+        let script = "#!/bin/bash\nwget https://example.com/file.tar.gz";
+        let report = analyze_shell_code(script);
+
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "net/http/client"));
+    }
+
+    #[test]
+    fn test_detect_netcat() {
+        let script = "#!/bin/bash\nnc -l 4444";
+        let report = analyze_shell_code(script);
+
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "net/socket/connect"));
+    }
+
+    #[test]
+    fn test_detect_eval() {
+        let script = "#!/bin/bash\neval \"echo hello\"";
+        let report = analyze_shell_code(script);
+
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "exec/script/eval"));
+    }
+
+    #[test]
+    fn test_detect_exec() {
+        let script = "#!/bin/bash\nexec /bin/sh";
+        let report = analyze_shell_code(script);
+
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "exec/script/eval"));
+    }
+
+    #[test]
+    fn test_detect_rm() {
+        let script = "#!/bin/bash\nrm -rf /tmp/data";
+        let report = analyze_shell_code(script);
+
+        assert!(report.capabilities.iter().any(|c| c.id == "fs/delete"));
+    }
+
+    #[test]
+    fn test_detect_chmod() {
+        let script = "#!/bin/bash\nchmod +x script.sh";
+        let report = analyze_shell_code(script);
+
+        assert!(report.capabilities.iter().any(|c| c.id == "fs/permissions"));
+    }
+
+    #[test]
+    fn test_detect_chown() {
+        let script = "#!/bin/bash\nchown root:root file.txt";
+        let report = analyze_shell_code(script);
+
+        assert!(report.capabilities.iter().any(|c| c.id == "fs/permissions"));
+    }
+
+    #[test]
+    fn test_detect_crontab() {
+        let script = "#!/bin/bash\ncrontab -e";
+        let report = analyze_shell_code(script);
+
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "persistence/cron"));
+    }
+
+    #[test]
+    fn test_detect_systemctl() {
+        let script = "#!/bin/bash\nsystemctl start nginx";
+        let report = analyze_shell_code(script);
+
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "persistence/service"));
+    }
+
+    #[test]
+    fn test_detect_service() {
+        let script = "#!/bin/bash\nservice apache2 restart";
+        let report = analyze_shell_code(script);
+
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "persistence/service"));
+    }
+
+    #[test]
+    fn test_detect_sudo() {
+        let script = "#!/bin/bash\nsudo apt-get update";
+        let report = analyze_shell_code(script);
+
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "privilege/escalation"));
+    }
+
+    #[test]
+    fn test_detect_bash_execution() {
+        let script = "#!/bin/bash\nbash -c 'echo hello'";
+        let report = analyze_shell_code(script);
+
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "exec/command/shell"));
+    }
+
+    #[test]
+    fn test_structural_feature() {
+        let script = "#!/bin/bash\necho hello";
+        let report = analyze_shell_code(script);
+
+        assert!(report
+            .structure
+            .iter()
+            .any(|s| s.id == "source/language/shell"));
+    }
+
+    #[test]
+    fn test_multiple_capabilities() {
+        let script = r#"#!/bin/bash
+curl https://example.com/payload
+chmod +x payload
+sudo ./payload
+rm payload
+"#;
+        let report = analyze_shell_code(script);
+
+        assert!(report.capabilities.len() >= 4);
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "net/http/client"));
+        assert!(report.capabilities.iter().any(|c| c.id == "fs/permissions"));
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "privilege/escalation"));
+        assert!(report.capabilities.iter().any(|c| c.id == "fs/delete"));
+    }
+
+    #[test]
+    fn test_can_analyze_with_sh_shebang() {
+        let mut temp_file = NamedTempFile::new().unwrap();
+        temp_file.write_all(b"#!/bin/sh\necho hello").unwrap();
+        temp_file.flush().unwrap();
+
+        let analyzer = ShellAnalyzer::new();
+        assert!(analyzer.can_analyze(temp_file.path()));
+    }
+
+    #[test]
+    fn test_can_analyze_with_bash_shebang() {
+        let mut temp_file = NamedTempFile::new().unwrap();
+        temp_file.write_all(b"#!/bin/bash\necho hello").unwrap();
+        temp_file.flush().unwrap();
+
+        let analyzer = ShellAnalyzer::new();
+        assert!(analyzer.can_analyze(temp_file.path()));
+    }
+
+    #[test]
+    fn test_can_analyze_with_env_bash_shebang() {
+        let mut temp_file = NamedTempFile::new().unwrap();
+        temp_file
+            .write_all(b"#!/usr/bin/env bash\necho hello")
+            .unwrap();
+        temp_file.flush().unwrap();
+
+        let analyzer = ShellAnalyzer::new();
+        assert!(analyzer.can_analyze(temp_file.path()));
+    }
+
+    #[test]
+    fn test_cannot_analyze_without_shebang() {
+        let mut temp_file = NamedTempFile::new().unwrap();
+        temp_file.write_all(b"echo hello").unwrap();
+        temp_file.flush().unwrap();
+
+        let analyzer = ShellAnalyzer::new();
+        assert!(!analyzer.can_analyze(temp_file.path()));
     }
 }

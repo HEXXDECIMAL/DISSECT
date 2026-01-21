@@ -14,16 +14,21 @@ pub struct PythonAnalyzer {
 impl PythonAnalyzer {
     pub fn new() -> Self {
         let mut parser = Parser::new();
-        parser.set_language(&tree_sitter_python::LANGUAGE.into()).unwrap();
+        parser
+            .set_language(&tree_sitter_python::LANGUAGE.into())
+            .unwrap();
 
-        Self { parser: RefCell::new(parser) }
+        Self {
+            parser: RefCell::new(parser),
+        }
     }
 
     fn analyze_script(&self, file_path: &Path, content: &str) -> Result<AnalysisReport> {
         let start = std::time::Instant::now();
 
         // Parse the Python script
-        let tree = self.parser
+        let tree = self
+            .parser
             .borrow_mut()
             .parse(content, None)
             .context("Failed to parse Python script")?;
@@ -71,12 +76,22 @@ impl PythonAnalyzer {
         Ok(report)
     }
 
-    fn detect_capabilities(&self, node: &tree_sitter::Node, source: &[u8], report: &mut AnalysisReport) {
+    fn detect_capabilities(
+        &self,
+        node: &tree_sitter::Node,
+        source: &[u8],
+        report: &mut AnalysisReport,
+    ) {
         let mut cursor = node.walk();
         self.walk_ast(&mut cursor, source, report);
     }
 
-    fn walk_ast(&self, cursor: &mut tree_sitter::TreeCursor, source: &[u8], report: &mut AnalysisReport) {
+    fn walk_ast(
+        &self,
+        cursor: &mut tree_sitter::TreeCursor,
+        source: &[u8],
+        report: &mut AnalysisReport,
+    ) {
         loop {
             let node = cursor.node();
 
@@ -114,36 +129,95 @@ impl PythonAnalyzer {
     fn analyze_call(&self, node: &tree_sitter::Node, source: &[u8], report: &mut AnalysisReport) {
         if let Ok(text) = node.utf8_text(source) {
             let capability = if text.contains("eval(") {
-                Some(("exec/script/eval", "Evaluates dynamic code", "eval"))
+                Some((
+                    "exec/script/eval",
+                    "Evaluates dynamic code",
+                    "eval",
+                    Criticality::Notable,
+                ))
             } else if text.contains("exec(") {
-                Some(("exec/script/eval", "Executes dynamic code", "exec"))
+                Some((
+                    "exec/script/eval",
+                    "Executes dynamic code",
+                    "exec",
+                    Criticality::Notable,
+                ))
             } else if text.contains("compile(") {
-                Some(("exec/script/eval", "Compiles dynamic code", "compile"))
+                Some((
+                    "exec/script/eval",
+                    "Compiles dynamic code",
+                    "compile",
+                    Criticality::Notable,
+                ))
             } else if text.contains("__import__(") {
-                Some(("anti-analysis/obfuscation/dynamic-import", "Dynamic module import", "__import__"))
-            } else if text.contains("subprocess.") || text.contains("os.system") || text.contains("os.popen") {
-                Some(("exec/command/shell", "Executes system commands", "subprocess/system"))
-            } else if text.contains("requests.") || text.contains("urllib.") || text.contains("http.client") {
-                Some(("net/http/client", "HTTP client operations", "http_client"))
+                Some((
+                    "anti-analysis/obfuscation/dynamic-import",
+                    "Dynamic module import",
+                    "__import__",
+                    Criticality::Suspicious,
+                ))
+            } else if text.contains("subprocess.")
+                || text.contains("os.system")
+                || text.contains("os.popen")
+            {
+                Some((
+                    "exec/command/shell",
+                    "Executes system commands",
+                    "subprocess/system",
+                    Criticality::Notable,
+                ))
+            } else if text.contains("requests.")
+                || text.contains("urllib.")
+                || text.contains("http.client")
+            {
+                Some((
+                    "net/http/client",
+                    "HTTP client operations",
+                    "http_client",
+                    Criticality::Notable,
+                ))
             } else if text.contains("socket.") {
-                Some(("net/socket/create", "Network socket operations", "socket"))
+                Some((
+                    "net/socket/create",
+                    "Network socket operations",
+                    "socket",
+                    Criticality::Notable,
+                ))
             } else if text.contains("open(") && (text.contains("'w'") || text.contains("\"w\"")) {
-                Some(("fs/write", "Write files", "open_write"))
-            } else if text.contains("os.remove") || text.contains("os.unlink") || text.contains("shutil.rmtree") {
-                Some(("fs/delete", "Delete files/directories", "remove"))
+                Some((
+                    "fs/write",
+                    "Write files",
+                    "open_write",
+                    Criticality::Notable,
+                ))
+            } else if text.contains("os.remove")
+                || text.contains("os.unlink")
+                || text.contains("shutil.rmtree")
+            {
+                Some((
+                    "fs/delete",
+                    "Delete files/directories",
+                    "remove",
+                    Criticality::Notable,
+                ))
             } else if text.contains("base64.b64decode") {
-                Some(("anti-analysis/obfuscation/base64", "Base64 decoding", "b64decode"))
+                Some((
+                    "anti-analysis/obfuscation/base64",
+                    "Base64 decoding",
+                    "b64decode",
+                    Criticality::Suspicious,
+                ))
             } else {
                 None
             };
 
-            if let Some((cap_id, description, pattern)) = capability {
+            if let Some((cap_id, description, pattern, criticality)) = capability {
                 if !report.capabilities.iter().any(|c| c.id == cap_id) {
                     report.capabilities.push(Capability {
                         id: cap_id.to_string(),
                         description: description.to_string(),
                         confidence: 1.0,
-                        criticality: crate::types::Criticality::None,
+                        criticality,
                         mbc: None,
                         attack: None,
                         evidence: vec![Evidence {
@@ -165,22 +239,52 @@ impl PythonAnalyzer {
         if let Ok(text) = node.utf8_text(source) {
             // Detect suspicious imports
             let suspicious_modules = [
-                ("subprocess", "exec/command/shell", "Shell command execution"),
-                ("os", "exec/command/shell", "OS operations"),
-                ("socket", "net/socket/create", "Network sockets"),
-                ("requests", "net/http/client", "HTTP client"),
-                ("pickle", "anti-analysis/obfuscation/pickle", "Pickle deserialization"),
-                ("ctypes", "exec/dylib/load", "C library loading"),
+                (
+                    "subprocess",
+                    "exec/command/shell",
+                    "Shell command execution",
+                    Criticality::Notable,
+                ),
+                (
+                    "os",
+                    "exec/command/shell",
+                    "OS operations",
+                    Criticality::Notable,
+                ),
+                (
+                    "socket",
+                    "net/socket/create",
+                    "Network sockets",
+                    Criticality::Notable,
+                ),
+                (
+                    "requests",
+                    "net/http/client",
+                    "HTTP client",
+                    Criticality::Notable,
+                ),
+                (
+                    "pickle",
+                    "anti-analysis/obfuscation/pickle",
+                    "Pickle deserialization",
+                    Criticality::Notable,
+                ),
+                (
+                    "ctypes",
+                    "exec/dylib/load",
+                    "C library loading",
+                    Criticality::Notable,
+                ),
             ];
 
-            for (module, cap_id, description) in suspicious_modules {
+            for (module, cap_id, description, criticality) in suspicious_modules {
                 if text.contains(module) {
                     if !report.capabilities.iter().any(|c| c.id == cap_id) {
                         report.capabilities.push(Capability {
                             id: cap_id.to_string(),
                             description: description.to_string(),
                             confidence: 0.7, // Import alone is not definitive
-                            criticality: crate::types::Criticality::None,
+                            criticality,
                             mbc: None,
                             attack: None,
                             evidence: vec![Evidence {
@@ -199,17 +303,27 @@ impl PythonAnalyzer {
         }
     }
 
-    fn check_obfuscation(&self, node: &tree_sitter::Node, source: &[u8], report: &mut AnalysisReport) {
+    fn check_obfuscation(
+        &self,
+        node: &tree_sitter::Node,
+        source: &[u8],
+        report: &mut AnalysisReport,
+    ) {
         if let Ok(text) = node.utf8_text(source) {
             // Detect base64 + eval pattern (common obfuscation)
             if (text.contains("base64") || text.contains("b64decode"))
-                && (text.contains("eval") || text.contains("exec")) {
-                if !report.capabilities.iter().any(|c| c.id == "anti-analysis/obfuscation/base64-eval") {
+                && (text.contains("eval") || text.contains("exec"))
+            {
+                if !report
+                    .capabilities
+                    .iter()
+                    .any(|c| c.id == "anti-analysis/obfuscation/base64-eval")
+                {
                     report.capabilities.push(Capability {
                         id: "anti-analysis/obfuscation/base64-eval".to_string(),
                         description: "Base64 decode followed by eval (obfuscation)".to_string(),
                         confidence: 0.95,
-                        criticality: crate::types::Criticality::None,
+                        criticality: Criticality::Suspicious,
                         mbc: None,
                         attack: None,
                         evidence: vec![Evidence {
@@ -227,12 +341,16 @@ impl PythonAnalyzer {
 
             // Detect hex string construction
             if text.contains("\\x") && text.matches("\\x").count() > 5 {
-                if !report.capabilities.iter().any(|c| c.id == "anti-analysis/obfuscation/hex") {
+                if !report
+                    .capabilities
+                    .iter()
+                    .any(|c| c.id == "anti-analysis/obfuscation/hex")
+                {
                     report.capabilities.push(Capability {
                         id: "anti-analysis/obfuscation/hex".to_string(),
                         description: "Hex-encoded strings".to_string(),
                         confidence: 0.9,
-                        criticality: crate::types::Criticality::None,
+                        criticality: crate::types::Criticality::Suspicious,
                         mbc: None,
                         attack: None,
                         evidence: vec![Evidence {
@@ -250,12 +368,16 @@ impl PythonAnalyzer {
 
             // Detect string obfuscation via join
             if text.contains(".join(") && (text.contains("chr(") || text.contains("ord(")) {
-                if !report.capabilities.iter().any(|c| c.id == "anti-analysis/obfuscation/string-construct") {
+                if !report
+                    .capabilities
+                    .iter()
+                    .any(|c| c.id == "anti-analysis/obfuscation/string-construct")
+                {
                     report.capabilities.push(Capability {
                         id: "anti-analysis/obfuscation/string-construct".to_string(),
                         description: "Constructs strings via chr/ord".to_string(),
                         confidence: 0.9,
-                        criticality: crate::types::Criticality::None,
+                        criticality: crate::types::Criticality::Suspicious,
                         mbc: None,
                         attack: None,
                         evidence: vec![Evidence {
@@ -273,7 +395,12 @@ impl PythonAnalyzer {
         }
     }
 
-    fn analyze_env_var_access(&self, node: &tree_sitter::Node, source: &[u8], report: &mut AnalysisReport) {
+    fn analyze_env_var_access(
+        &self,
+        node: &tree_sitter::Node,
+        source: &[u8],
+        report: &mut AnalysisReport,
+    ) {
         if let Ok(text) = node.utf8_text(source) {
             let line_num = node.start_position().row + 1;
 
@@ -326,7 +453,8 @@ impl PythonAnalyzer {
                             value: format!("os.environ['{}']", var_name),
                             location: Some(format!("line:{}", line_num)),
                         }],
-                        criticality: crate::types::Criticality::None,
+                        criticality: crate::types::Criticality::Suspicious,
+                        capability: false, // Low-level observable, not a capability
                         mbc: None,
                         attack: None,
                         referenced_paths: None,
@@ -368,7 +496,8 @@ impl PythonAnalyzer {
                             value: format!("os.getenv('{}')", var_name),
                             location: Some(format!("line:{}", line_num)),
                         }],
-                        criticality: crate::types::Criticality::None,
+                        criticality: crate::types::Criticality::Suspicious,
+                        capability: false, // Low-level observable, not a capability
                         mbc: None,
                         attack: None,
                         referenced_paths: None,
@@ -409,7 +538,8 @@ impl PythonAnalyzer {
                             value: format!("os.environ['{}'", var_name),
                             location: Some(format!("line:{}", line_num)),
                         }],
-                        criticality: crate::types::Criticality::None,
+                        criticality: crate::types::Criticality::Suspicious,
+                        capability: false, // Low-level observable, not a capability
                         mbc: None,
                         attack: None,
                         referenced_paths: None,
@@ -450,7 +580,8 @@ impl PythonAnalyzer {
                             value: format!("os.putenv('{}')", var_name),
                             location: Some(format!("line:{}", line_num)),
                         }],
-                        criticality: crate::types::Criticality::None,
+                        criticality: crate::types::Criticality::Suspicious,
+                        capability: false, // Low-level observable, not a capability
                         mbc: None,
                         attack: None,
                         referenced_paths: None,
@@ -491,7 +622,8 @@ impl PythonAnalyzer {
                             value: format!("os.unsetenv('{}')", var_name),
                             location: Some(format!("line:{}", line_num)),
                         }],
-                        criticality: crate::types::Criticality::None,
+                        criticality: crate::types::Criticality::Suspicious,
+                        capability: false, // Low-level observable, not a capability
                         mbc: None,
                         attack: None,
                         referenced_paths: None,
@@ -543,9 +675,18 @@ impl PythonAnalyzer {
 
         if upper_name == "PATH" || upper_name == "PYTHONPATH" || upper_name == "LD_LIBRARY_PATH" {
             EnvVarCategory::Path
-        } else if upper_name == "HOME" || upper_name == "USER" || upper_name == "USERNAME" || upper_name == "USERPROFILE" {
+        } else if upper_name == "HOME"
+            || upper_name == "USER"
+            || upper_name == "USERNAME"
+            || upper_name == "USERPROFILE"
+        {
             EnvVarCategory::User
-        } else if upper_name.contains("TOKEN") || upper_name.contains("KEY") || upper_name.contains("SECRET") || upper_name.contains("PASSWORD") || upper_name.starts_with("AWS_") {
+        } else if upper_name.contains("TOKEN")
+            || upper_name.contains("KEY")
+            || upper_name.contains("SECRET")
+            || upper_name.contains("PASSWORD")
+            || upper_name.starts_with("AWS_")
+        {
             EnvVarCategory::Credential
         } else if upper_name == "LD_PRELOAD" || upper_name == "DYLD_INSERT_LIBRARIES" {
             EnvVarCategory::Injection
@@ -560,7 +701,12 @@ impl PythonAnalyzer {
         }
     }
 
-    fn extract_functions(&self, root: &tree_sitter::Node, source: &[u8], report: &mut AnalysisReport) {
+    fn extract_functions(
+        &self,
+        root: &tree_sitter::Node,
+        source: &[u8],
+        report: &mut AnalysisReport,
+    ) {
         let mut cursor = root.walk();
 
         loop {
@@ -621,8 +767,7 @@ impl Default for PythonAnalyzer {
 
 impl Analyzer for PythonAnalyzer {
     fn analyze(&self, file_path: &Path) -> Result<AnalysisReport> {
-        let content = fs::read_to_string(file_path)
-            .context("Failed to read Python script")?;
+        let content = fs::read_to_string(file_path).context("Failed to read Python script")?;
 
         self.analyze_script(file_path, &content)
     }
@@ -635,5 +780,308 @@ impl Analyzer for PythonAnalyzer {
         } else {
             false
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::PathBuf;
+
+    fn analyze_python_code(code: &str) -> AnalysisReport {
+        let analyzer = PythonAnalyzer::new();
+        let path = PathBuf::from("test.py");
+        analyzer.analyze_script(&path, code).unwrap()
+    }
+
+    #[test]
+    fn test_detect_eval() {
+        let code = r#"
+x = eval("1+1")
+"#;
+        let report = analyze_python_code(code);
+
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "exec/script/eval" && c.description.contains("Evaluates")));
+    }
+
+    #[test]
+    fn test_detect_exec() {
+        let code = r#"
+exec("print('hello')")
+"#;
+        let report = analyze_python_code(code);
+
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "exec/script/eval" && c.description.contains("Executes")));
+    }
+
+    #[test]
+    fn test_detect_compile() {
+        let code = r#"
+code = compile("x = 1", "<string>", "exec")
+"#;
+        let report = analyze_python_code(code);
+
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "exec/script/eval" && c.description.contains("Compiles")));
+    }
+
+    #[test]
+    fn test_detect_subprocess() {
+        let code = r#"
+import subprocess
+subprocess.call(['ls', '-la'])
+"#;
+        let report = analyze_python_code(code);
+
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "exec/command/shell"));
+    }
+
+    #[test]
+    fn test_detect_os_system() {
+        let code = r#"
+import os
+os.system('ls')
+"#;
+        let report = analyze_python_code(code);
+
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "exec/command/shell"));
+    }
+
+    #[test]
+    fn test_detect_http_requests() {
+        let code = r#"
+import requests
+r = requests.get('https://example.com')
+"#;
+        let report = analyze_python_code(code);
+
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "net/http/client"));
+    }
+
+    #[test]
+    fn test_detect_socket() {
+        let code = r#"
+import socket
+s = socket.socket()
+"#;
+        let report = analyze_python_code(code);
+
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "net/socket/create"));
+    }
+
+    #[test]
+    fn test_detect_file_write() {
+        let code = r#"
+with open('test.txt', 'w') as f:
+    f.write('data')
+"#;
+        let report = analyze_python_code(code);
+
+        assert!(report.capabilities.iter().any(|c| c.id == "fs/write"));
+    }
+
+    #[test]
+    fn test_detect_file_delete() {
+        let code = r#"
+import os
+os.remove('file.txt')
+"#;
+        let report = analyze_python_code(code);
+
+        assert!(report.capabilities.iter().any(|c| c.id == "fs/delete"));
+    }
+
+    #[test]
+    fn test_detect_base64_decode() {
+        let code = r#"
+import base64
+data = base64.b64decode('aGVsbG8=')
+"#;
+        let report = analyze_python_code(code);
+
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "anti-analysis/obfuscation/base64"));
+    }
+
+    #[test]
+    fn test_detect_base64_eval_obfuscation() {
+        let code = r#"
+import base64
+result = eval(base64.b64decode('cHJpbnQoImhlbGxvIik='))
+"#;
+        let report = analyze_python_code(code);
+
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "anti-analysis/obfuscation/base64-eval"));
+        assert_eq!(
+            report
+                .capabilities
+                .iter()
+                .find(|c| c.id == "anti-analysis/obfuscation/base64-eval")
+                .unwrap()
+                .confidence,
+            0.95
+        );
+    }
+
+    #[test]
+    fn test_detect_hex_obfuscation() {
+        let code = r#"
+data = b'\x48\x65\x6c\x6c\x6f\x20\x57\x6f\x72\x6c\x64'
+"#;
+        let report = analyze_python_code(code);
+
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "anti-analysis/obfuscation/hex"));
+    }
+
+    #[test]
+    fn test_detect_dynamic_import() {
+        let code = r#"
+module = __import__('os')
+"#;
+        let report = analyze_python_code(code);
+
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "anti-analysis/obfuscation/dynamic-import"));
+    }
+
+    #[test]
+    fn test_detect_subprocess_import() {
+        let code = r#"
+import subprocess
+"#;
+        let report = analyze_python_code(code);
+
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "exec/command/shell" && c.confidence == 0.7));
+    }
+
+    #[test]
+    fn test_detect_pickle_import() {
+        let code = r#"
+import pickle
+"#;
+        let report = analyze_python_code(code);
+
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "anti-analysis/obfuscation/pickle"));
+    }
+
+    #[test]
+    fn test_detect_ctypes_import() {
+        let code = r#"
+import ctypes
+"#;
+        let report = analyze_python_code(code);
+
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "exec/dylib/load"));
+    }
+
+    #[test]
+    fn test_extract_functions() {
+        let code = r#"
+def hello():
+    pass
+
+def world():
+    return 42
+"#;
+        let report = analyze_python_code(code);
+
+        assert_eq!(report.functions.len(), 2);
+        assert!(report.functions.iter().any(|f| f.name == "hello"));
+        assert!(report.functions.iter().any(|f| f.name == "world"));
+        assert_eq!(report.functions[0].source, "tree-sitter-python");
+    }
+
+    #[test]
+    fn test_structural_feature() {
+        let code = "print('hello')";
+        let report = analyze_python_code(code);
+
+        assert!(report
+            .structure
+            .iter()
+            .any(|s| s.id == "source/language/python"));
+    }
+
+    #[test]
+    fn test_multiple_capabilities() {
+        let code = r#"
+import subprocess
+import socket
+import requests
+
+subprocess.call(['ls'])
+s = socket.socket()
+requests.get('http://example.com')
+"#;
+        let report = analyze_python_code(code);
+
+        assert!(report.capabilities.len() >= 3);
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "exec/command/shell"));
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "net/socket/create"));
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "net/http/client"));
+    }
+
+    #[test]
+    fn test_can_analyze_py_extension() {
+        let analyzer = PythonAnalyzer::new();
+        let path = PathBuf::from("test.py");
+
+        assert!(analyzer.can_analyze(&path));
+    }
+
+    #[test]
+    fn test_cannot_analyze_other_extension() {
+        let analyzer = PythonAnalyzer::new();
+        let path = PathBuf::from("test.txt");
+
+        assert!(!analyzer.can_analyze(&path));
     }
 }

@@ -1,5 +1,5 @@
 use crate::types::DecodedValue;
-use std::net::{Ipv4Addr, Ipv6Addr};
+use std::net::Ipv4Addr;
 
 /// Decode embedded constants into possible interpretations
 pub struct ConstantDecoder;
@@ -201,10 +201,16 @@ impl ConstantDecoder {
         }
 
         // Check for base64-encoded data
-        if s.len() >= 8 && s.chars().all(|c| c.is_ascii_alphanumeric() || c == '+' || c == '/' || c == '=') {
+        if s.len() >= 8
+            && s.chars()
+                .all(|c| c.is_ascii_alphanumeric() || c == '+' || c == '/' || c == '=')
+        {
             if let Ok(decoded) = BASE64.decode(s) {
                 if let Ok(utf8) = String::from_utf8(decoded.clone()) {
-                    if utf8.chars().all(|c| c.is_ascii_graphic() || c.is_whitespace()) {
+                    if utf8
+                        .chars()
+                        .all(|c| c.is_ascii_graphic() || c.is_whitespace())
+                    {
                         results.push(DecodedValue {
                             value_type: "base64_decoded".to_string(),
                             decoded_value: utf8,
@@ -248,5 +254,218 @@ impl ConstantDecoder {
 }
 
 // Use external crates for encoding/decoding
-use base64::Engine;
 use base64::engine::general_purpose::STANDARD as BASE64;
+use base64::Engine;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_decode_dword_ip_address() {
+        // 192.168.1.1 in network byte order
+        let value = 0xC0A80101_u32;
+        let decoded = ConstantDecoder::decode_dword(value);
+
+        assert!(decoded.iter().any(|d| d.value_type == "ip_address"));
+    }
+
+    #[test]
+    fn test_decode_dword_port() {
+        // Common HTTP port
+        let value = 80_u32;
+        let decoded = ConstantDecoder::decode_dword(value);
+
+        assert!(decoded
+            .iter()
+            .any(|d| d.value_type == "port" && d.decoded_value == "80"));
+    }
+
+    #[test]
+    fn test_decode_dword_port_too_large() {
+        // Value exceeds max port number
+        let value = 70000_u32;
+        let decoded = ConstantDecoder::decode_dword(value);
+
+        // Should not decode as port
+        let has_port = decoded.iter().any(|d| d.value_type == "port");
+        assert!(!has_port);
+    }
+
+    #[test]
+    fn test_decode_qword_ip_address() {
+        // IPv4 in lower 32 bits
+        let value = 0x00000000C0A80101_u64; // 192.168.1.1
+        let decoded = ConstantDecoder::decode_qword(value);
+
+        assert!(decoded.iter().any(|d| d.value_type == "ip_address"));
+    }
+
+    #[test]
+    fn test_decode_qword_port() {
+        // Common HTTPS port
+        let value = 443_u64;
+        let decoded = ConstantDecoder::decode_qword(value);
+
+        assert!(decoded
+            .iter()
+            .any(|d| d.value_type == "port" && d.decoded_value == "443"));
+    }
+
+    #[test]
+    fn test_decode_qword_timestamp() {
+        // Unix timestamp for 2020-01-01 00:00:00 UTC
+        let value = 1577836800_u64;
+        let decoded = ConstantDecoder::decode_qword(value);
+
+        assert!(decoded.iter().any(|d| d.value_type == "timestamp"));
+
+        let timestamp_entry = decoded
+            .iter()
+            .find(|d| d.value_type == "timestamp")
+            .unwrap();
+        assert!(timestamp_entry.decoded_value.contains("2020-01-01"));
+    }
+
+    #[test]
+    fn test_is_interesting_ip_valid() {
+        let ip = Ipv4Addr::new(192, 168, 1, 1);
+        assert!(ConstantDecoder::is_interesting_ip(&ip));
+
+        let ip = Ipv4Addr::new(8, 8, 8, 8);
+        assert!(ConstantDecoder::is_interesting_ip(&ip));
+    }
+
+    #[test]
+    fn test_is_interesting_ip_invalid_all_zeros() {
+        let ip = Ipv4Addr::new(0, 0, 0, 0);
+        assert!(!ConstantDecoder::is_interesting_ip(&ip));
+    }
+
+    #[test]
+    fn test_is_interesting_ip_invalid_all_ff() {
+        let ip = Ipv4Addr::new(255, 255, 255, 255);
+        assert!(!ConstantDecoder::is_interesting_ip(&ip));
+    }
+
+    #[test]
+    fn test_is_interesting_port_common_ports() {
+        assert!(ConstantDecoder::is_interesting_port(22)); // SSH
+        assert!(ConstantDecoder::is_interesting_port(80)); // HTTP
+        assert!(ConstantDecoder::is_interesting_port(443)); // HTTPS
+        assert!(ConstantDecoder::is_interesting_port(3306)); // MySQL
+        assert!(ConstantDecoder::is_interesting_port(8080)); // Alt HTTP
+    }
+
+    #[test]
+    fn test_is_interesting_port_invalid() {
+        assert!(!ConstantDecoder::is_interesting_port(0));
+        assert!(!ConstantDecoder::is_interesting_port(1));
+        assert!(!ConstantDecoder::is_interesting_port(10));
+    }
+
+    #[test]
+    fn test_decode_string_hex_ip() {
+        // "c0a80101" = 192.168.1.1 in hex
+        let result = ConstantDecoder::decode_string("c0a80101");
+
+        assert!(result
+            .iter()
+            .any(|d| d.value_type == "ip_address" && d.decoded_value == "192.168.1.1"));
+    }
+
+    #[test]
+    fn test_decode_string_base64() {
+        // "SGVsbG8gV29ybGQ=" = "Hello World" in base64
+        let result = ConstantDecoder::decode_string("SGVsbG8gV29ybGQ=");
+
+        assert!(result
+            .iter()
+            .any(|d| d.value_type == "base64_decoded" && d.decoded_value == "Hello World"));
+    }
+
+    #[test]
+    fn test_decode_string_invalid_hex() {
+        // Invalid hex (contains 'z')
+        let result = ConstantDecoder::decode_string("c0a8010z");
+
+        assert!(result.is_empty());
+    }
+
+    #[test]
+    fn test_decode_string_wrong_length() {
+        // Wrong length for hex IP (should be 8 chars)
+        let result = ConstantDecoder::decode_string("c0a801");
+
+        // Should not decode as IP
+        assert!(!result.iter().any(|d| d.value_type == "ip_address"));
+    }
+
+    #[test]
+    fn test_extract_from_instruction() {
+        let instruction = "mov eax, 0x12345678";
+        let constants = ConstantDecoder::extract_from_instruction(instruction);
+
+        assert_eq!(constants.len(), 1);
+        assert_eq!(constants[0].0, 0x12345678);
+        assert_eq!(constants[0].1, "dword");
+    }
+
+    #[test]
+    fn test_extract_from_instruction_multiple() {
+        let instruction = "add rax, 0x1000; mov rbx, 0xdeadbeef";
+        let constants = ConstantDecoder::extract_from_instruction(instruction);
+
+        assert!(constants.len() >= 1);
+        assert!(constants.iter().any(|(v, _)| *v == 0xdeadbeef));
+    }
+
+    #[test]
+    fn test_extract_from_instruction_small_values_filtered() {
+        // Small values (< 0xFFFF) should be filtered unless they're interesting ports
+        let instruction = "mov eax, 0x10";
+        let constants = ConstantDecoder::extract_from_instruction(instruction);
+
+        // 0x10 (16) is not an interesting port, should be filtered
+        assert!(constants.is_empty());
+    }
+
+    #[test]
+    fn test_extract_from_instruction_port() {
+        // Port 80 should be kept even though it's small
+        let instruction = "mov dx, 0x50"; // 0x50 = 80
+        let constants = ConstantDecoder::extract_from_instruction(instruction);
+
+        assert!(constants.iter().any(|(v, _)| *v == 0x50));
+    }
+
+    #[test]
+    fn test_decode_qword_ip_port_combo() {
+        // Test IP:port encoding (port in upper word, IP in lower dword)
+        // Format: 0x0000PPPP_IIII_IIII
+        // Port 443 (0x01BB) and IP 127.0.0.1 (0x7F000001)
+        let value = 0x000001BB7F000001_u64;
+        let decoded = ConstantDecoder::decode_qword(value);
+
+        // Should decode the IP:port combination
+        assert!(decoded.iter().any(|d| d.value_type == "ip_port"));
+    }
+
+    #[test]
+    fn test_timestamp_range_validation() {
+        // Valid timestamp (2020)
+        let value = 1577836800_u64;
+        let decoded = ConstantDecoder::decode_qword(value);
+        assert!(decoded.iter().any(|d| d.value_type == "timestamp"));
+
+        // Too old (before 2000)
+        let value = 900000000_u64;
+        let decoded = ConstantDecoder::decode_qword(value);
+        assert!(!decoded.iter().any(|d| d.value_type == "timestamp"));
+
+        // Too new (after 2040)
+        let value = 3000000000_u64;
+        let decoded = ConstantDecoder::decode_qword(value);
+        assert!(!decoded.iter().any(|d| d.value_type == "timestamp"));
+    }
+}

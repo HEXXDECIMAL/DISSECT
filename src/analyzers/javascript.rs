@@ -16,19 +16,28 @@ pub struct JavaScriptAnalyzer {
 impl JavaScriptAnalyzer {
     pub fn new() -> Self {
         let mut parser = Parser::new();
-        parser.set_language(&tree_sitter_javascript::LANGUAGE.into()).unwrap();
+        parser
+            .set_language(&tree_sitter_javascript::LANGUAGE.into())
+            .unwrap();
 
         Self {
             parser: RefCell::new(parser),
-            capability_mapper: CapabilityMapper::new(),
+            capability_mapper: CapabilityMapper::empty(),
         }
+    }
+
+    /// Create analyzer with pre-existing capability mapper (avoids duplicate loading)
+    pub fn with_capability_mapper(mut self, capability_mapper: CapabilityMapper) -> Self {
+        self.capability_mapper = capability_mapper;
+        self
     }
 
     fn analyze_script(&self, file_path: &Path, content: &str) -> Result<AnalysisReport> {
         let start = std::time::Instant::now();
 
         // Parse the JavaScript
-        let tree = self.parser
+        let tree = self
+            .parser
             .borrow_mut()
             .parse(content, None)
             .context("Failed to parse JavaScript")?;
@@ -76,7 +85,9 @@ impl JavaScriptAnalyzer {
         }
 
         // Evaluate composite rules
-        let composite_capabilities = self.capability_mapper.evaluate_composite_rules(&report, content.as_bytes());
+        let composite_capabilities = self
+            .capability_mapper
+            .evaluate_composite_rules(&report, content.as_bytes());
         for cap in composite_capabilities {
             // Only add if not already present
             if !report.capabilities.iter().any(|c| c.id == cap.id) {
@@ -90,12 +101,22 @@ impl JavaScriptAnalyzer {
         Ok(report)
     }
 
-    fn detect_capabilities(&self, node: &tree_sitter::Node, source: &[u8], report: &mut AnalysisReport) {
+    fn detect_capabilities(
+        &self,
+        node: &tree_sitter::Node,
+        source: &[u8],
+        report: &mut AnalysisReport,
+    ) {
         let mut cursor = node.walk();
         self.walk_ast(&mut cursor, source, report);
     }
 
-    fn walk_ast(&self, cursor: &mut tree_sitter::TreeCursor, source: &[u8], report: &mut AnalysisReport) {
+    fn walk_ast(
+        &self,
+        cursor: &mut tree_sitter::TreeCursor,
+        source: &[u8],
+        report: &mut AnalysisReport,
+    ) {
         loop {
             let node = cursor.node();
 
@@ -127,45 +148,120 @@ impl JavaScriptAnalyzer {
     fn analyze_call(&self, node: &tree_sitter::Node, source: &[u8], report: &mut AnalysisReport) {
         if let Ok(text) = node.utf8_text(source) {
             let capability = if text.contains("eval(") {
-                Some(("exec/script/eval", "Evaluates dynamic code", "eval"))
+                Some((
+                    "exec/script/eval",
+                    "Evaluates dynamic code",
+                    "eval",
+                    Criticality::Notable,
+                ))
             } else if text.contains("Function(") {
-                Some(("exec/script/eval", "Dynamic function constructor", "Function"))
-            } else if text.contains("child_process.exec") || text.contains("child_process.execSync") ||
-                      (text.starts_with("exec(") || text.contains(" exec(")) {
-                Some(("exec/command/shell", "Execute shell commands", "exec"))
-            } else if text.contains("child_process.spawn") || text.contains("child_process.spawnSync") ||
-                      (text.starts_with("spawn(") || text.contains(" spawn(")) {
-                Some(("exec/command/direct", "Spawn child process", "spawn"))
-            } else if text.contains("require(") && !text.contains("require('") && !text.contains("require(\"") {
+                Some((
+                    "exec/script/eval",
+                    "Dynamic function constructor",
+                    "Function",
+                    Criticality::Notable,
+                ))
+            } else if text.contains("child_process.exec")
+                || text.contains("child_process.execSync")
+                || (text.starts_with("exec(") || text.contains(" exec("))
+            {
+                Some((
+                    "exec/command/shell",
+                    "Execute shell commands",
+                    "exec",
+                    Criticality::Notable,
+                ))
+            } else if text.contains("child_process.spawn")
+                || text.contains("child_process.spawnSync")
+                || (text.starts_with("spawn(") || text.contains(" spawn("))
+            {
+                Some((
+                    "exec/command/direct",
+                    "Spawn child process",
+                    "spawn",
+                    Criticality::Notable,
+                ))
+            } else if text.contains("require(")
+                && !text.contains("require('")
+                && !text.contains("require(\"")
+            {
                 // Dynamic require with variable
-                Some(("anti-analysis/obfuscation/dynamic-import", "Dynamic require", "require(variable)"))
+                Some((
+                    "anti-analysis/obfuscation/dynamic-import",
+                    "Dynamic require",
+                    "require(variable)",
+                    Criticality::Suspicious,
+                ))
             } else if text.contains("fs.writeFile") || text.contains("fs.writeFileSync") {
-                Some(("fs/write", "Write files", "fs.writeFile"))
-            } else if text.contains("fs.unlink") || text.contains("fs.unlinkSync") || text.contains("fs.rm") {
-                Some(("fs/delete", "Delete files", "fs.unlink"))
+                Some((
+                    "fs/write",
+                    "Write files",
+                    "fs.writeFile",
+                    Criticality::Notable,
+                ))
+            } else if text.contains("fs.unlink")
+                || text.contains("fs.unlinkSync")
+                || text.contains("fs.rm")
+            {
+                Some((
+                    "fs/delete",
+                    "Delete files",
+                    "fs.unlink",
+                    Criticality::Notable,
+                ))
             } else if text.contains("fs.chmod") || text.contains("fs.chmodSync") {
-                Some(("fs/permissions", "Change file permissions", "fs.chmod"))
+                Some((
+                    "fs/permissions",
+                    "Change file permissions",
+                    "fs.chmod",
+                    Criticality::Notable,
+                ))
             } else if text.contains("http.request") || text.contains("https.request") {
-                Some(("net/http/client", "HTTP client operations", "http.request"))
+                Some((
+                    "net/http/client",
+                    "HTTP client operations",
+                    "http.request",
+                    Criticality::Notable,
+                ))
             } else if text.contains("net.connect") || text.contains("net.createConnection") {
-                Some(("net/socket/connect", "Network socket connection", "net.connect"))
+                Some((
+                    "net/socket/connect",
+                    "Network socket connection",
+                    "net.connect",
+                    Criticality::Notable,
+                ))
             } else if text.contains("net.createServer") {
-                Some(("net/socket/listen", "Create network server", "net.createServer"))
+                Some((
+                    "net/socket/listen",
+                    "Create network server",
+                    "net.createServer",
+                    Criticality::Notable,
+                ))
             } else if text.contains("Buffer.from") && text.contains("'base64'") {
-                Some(("anti-analysis/obfuscation/base64", "Base64 decoding", "Buffer.from"))
+                Some((
+                    "anti-analysis/obfuscation/base64",
+                    "Base64 decoding",
+                    "Buffer.from",
+                    Criticality::Suspicious,
+                ))
             } else if text.contains("atob(") {
-                Some(("anti-analysis/obfuscation/base64", "Base64 decoding (browser)", "atob"))
+                Some((
+                    "anti-analysis/obfuscation/base64",
+                    "Base64 decoding (browser)",
+                    "atob",
+                    Criticality::Suspicious,
+                ))
             } else {
                 None
             };
 
-            if let Some((cap_id, description, pattern)) = capability {
+            if let Some((cap_id, description, pattern, criticality)) = capability {
                 if !report.capabilities.iter().any(|c| c.id == cap_id) {
                     report.capabilities.push(Capability {
                         id: cap_id.to_string(),
                         description: description.to_string(),
                         confidence: 1.0,
-                        criticality: Criticality::None,
+                        criticality,
                         mbc: None,
                         attack: None,
                         evidence: vec![Evidence {
@@ -175,8 +271,8 @@ impl JavaScriptAnalyzer {
                             location: Some(format!("line:{}", node.start_position().row + 1)),
                         }],
                         traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
+                        referenced_paths: None,
+                        referenced_directories: None,
                     });
                 }
             }
@@ -187,23 +283,58 @@ impl JavaScriptAnalyzer {
         if let Ok(text) = node.utf8_text(source) {
             // Detect suspicious imports
             let suspicious_modules = [
-                ("child_process", "exec/command/shell", "Child process execution"),
-                ("fs", "fs/access", "Filesystem operations"),
-                ("net", "net/socket/create", "Network sockets"),
-                ("http", "net/http/client", "HTTP client"),
-                ("https", "net/http/client", "HTTPS client"),
-                ("crypto", "crypto/operation", "Cryptographic operations"),
-                ("vm", "exec/script/eval", "Virtual machine (code execution)"),
+                (
+                    "child_process",
+                    "exec/command/shell",
+                    "Child process execution",
+                    Criticality::Notable,
+                ),
+                (
+                    "fs",
+                    "fs/access",
+                    "Filesystem operations",
+                    Criticality::Notable,
+                ),
+                (
+                    "net",
+                    "net/socket/create",
+                    "Network sockets",
+                    Criticality::Notable,
+                ),
+                (
+                    "http",
+                    "net/http/client",
+                    "HTTP client",
+                    Criticality::Notable,
+                ),
+                (
+                    "https",
+                    "net/http/client",
+                    "HTTPS client",
+                    Criticality::Notable,
+                ),
+                (
+                    "crypto",
+                    "crypto/operation",
+                    "Cryptographic operations",
+                    Criticality::Notable,
+                ),
+                (
+                    "vm",
+                    "exec/script/eval",
+                    "Virtual machine (code execution)",
+                    Criticality::Notable,
+                ),
             ];
 
-            for (module, cap_id, description) in suspicious_modules {
+            for (module, cap_id, description, criticality) in suspicious_modules {
                 if text.contains(module) {
                     if !report.capabilities.iter().any(|c| c.id == cap_id) {
                         report.capabilities.push(Capability {
                             id: cap_id.to_string(),
                             description: description.to_string(),
                             confidence: 0.7, // Import alone is not definitive
-                            criticality: Criticality::None,
+                            criticality,
                             mbc: None,
                             attack: None,
                             evidence: vec![Evidence {
@@ -213,8 +344,8 @@ impl JavaScriptAnalyzer {
                                 location: Some(format!("line:{}", node.start_position().row + 1)),
                             }],
                             traits: Vec::new(),
-                        referenced_paths: None,
-                        referenced_directories: None,
+                            referenced_paths: None,
+                            referenced_directories: None,
                         });
                     }
                 }
@@ -224,16 +355,21 @@ impl JavaScriptAnalyzer {
 
     fn check_global_obfuscation(&self, content: &str, report: &mut AnalysisReport) {
         // Check for base64 + eval pattern across the entire file
-        let has_base64 = content.contains("Buffer.from") && content.contains("base64") || content.contains("atob(");
+        let has_base64 = content.contains("Buffer.from") && content.contains("base64")
+            || content.contains("atob(");
         let has_eval = content.contains("eval(") || content.contains("Function(");
 
         if has_base64 && has_eval {
-            if !report.capabilities.iter().any(|c| c.id == "anti-analysis/obfuscation/base64-eval") {
+            if !report
+                .capabilities
+                .iter()
+                .any(|c| c.id == "anti-analysis/obfuscation/base64-eval")
+            {
                 report.capabilities.push(Capability {
                     id: "anti-analysis/obfuscation/base64-eval".to_string(),
                     description: "Base64 decode followed by eval (obfuscation)".to_string(),
                     confidence: 0.95,
-                    criticality: Criticality::None,
+                    criticality: Criticality::Suspicious,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {
@@ -242,25 +378,34 @@ impl JavaScriptAnalyzer {
                         value: "base64+eval".to_string(),
                         location: None,
                     }],
-                traits: Vec::new(),
-                referenced_paths: None,
-                referenced_directories: None,
+                    traits: Vec::new(),
+                    referenced_paths: None,
+                    referenced_directories: None,
                 });
             }
         }
     }
 
-    fn check_obfuscation(&self, node: &tree_sitter::Node, source: &[u8], report: &mut AnalysisReport) {
+    fn check_obfuscation(
+        &self,
+        node: &tree_sitter::Node,
+        source: &[u8],
+        report: &mut AnalysisReport,
+    ) {
         if let Ok(text) = node.utf8_text(source) {
             // Detect base64 + eval pattern
             if (text.contains("Buffer.from") && text.contains("base64")) || text.contains("atob(") {
                 if text.contains("eval(") || text.contains("Function(") {
-                    if !report.capabilities.iter().any(|c| c.id == "anti-analysis/obfuscation/base64-eval") {
+                    if !report
+                        .capabilities
+                        .iter()
+                        .any(|c| c.id == "anti-analysis/obfuscation/base64-eval")
+                    {
                         report.capabilities.push(Capability {
                             id: "anti-analysis/obfuscation/base64-eval".to_string(),
                             description: "Base64 decode followed by eval (obfuscation)".to_string(),
                             confidence: 0.95,
-                            criticality: Criticality::None,
+                            criticality: Criticality::Suspicious,
                             mbc: None,
                             attack: None,
                             evidence: vec![Evidence {
@@ -269,9 +414,9 @@ impl JavaScriptAnalyzer {
                                 value: "base64+eval".to_string(),
                                 location: Some(format!("line:{}", node.start_position().row + 1)),
                             }],
-                        traits: Vec::new(),
-                        referenced_paths: None,
-                        referenced_directories: None,
+                            traits: Vec::new(),
+                            referenced_paths: None,
+                            referenced_directories: None,
                         });
                     }
                 }
@@ -279,12 +424,16 @@ impl JavaScriptAnalyzer {
 
             // Detect hex string construction
             if text.contains("\\x") && text.matches("\\x").count() > 5 {
-                if !report.capabilities.iter().any(|c| c.id == "anti-analysis/obfuscation/hex") {
+                if !report
+                    .capabilities
+                    .iter()
+                    .any(|c| c.id == "anti-analysis/obfuscation/hex")
+                {
                     report.capabilities.push(Capability {
                         id: "anti-analysis/obfuscation/hex".to_string(),
                         description: "Hex-encoded strings".to_string(),
                         confidence: 0.9,
-                        criticality: Criticality::None,
+                        criticality: Criticality::Suspicious,
                         mbc: None,
                         attack: None,
                         evidence: vec![Evidence {
@@ -293,21 +442,25 @@ impl JavaScriptAnalyzer {
                             value: "hex_encoding".to_string(),
                             location: Some(format!("line:{}", node.start_position().row + 1)),
                         }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
+                        traits: Vec::new(),
+                        referenced_paths: None,
+                        referenced_directories: None,
                     });
                 }
             }
 
             // Detect string manipulation obfuscation
             if text.contains(".split(") && text.contains(".reverse()") && text.contains(".join(") {
-                if !report.capabilities.iter().any(|c| c.id == "anti-analysis/obfuscation/string-construct") {
+                if !report
+                    .capabilities
+                    .iter()
+                    .any(|c| c.id == "anti-analysis/obfuscation/string-construct")
+                {
                     report.capabilities.push(Capability {
                         id: "anti-analysis/obfuscation/string-construct".to_string(),
                         description: "String manipulation obfuscation".to_string(),
                         confidence: 0.9,
-                        criticality: Criticality::None,
+                        criticality: Criticality::Suspicious,
                         mbc: None,
                         attack: None,
                         evidence: vec![Evidence {
@@ -316,21 +469,25 @@ impl JavaScriptAnalyzer {
                             value: "split_reverse_join".to_string(),
                             location: Some(format!("line:{}", node.start_position().row + 1)),
                         }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
+                        traits: Vec::new(),
+                        referenced_paths: None,
+                        referenced_directories: None,
                     });
                 }
             }
 
             // Detect charAt obfuscation
             if text.contains(".charAt(") && text.matches(".charAt(").count() > 5 {
-                if !report.capabilities.iter().any(|c| c.id == "anti-analysis/obfuscation/string-construct") {
+                if !report
+                    .capabilities
+                    .iter()
+                    .any(|c| c.id == "anti-analysis/obfuscation/string-construct")
+                {
                     report.capabilities.push(Capability {
                         id: "anti-analysis/obfuscation/string-construct".to_string(),
                         description: "Character-by-character string construction".to_string(),
                         confidence: 0.85,
-                        criticality: Criticality::None,
+                        criticality: Criticality::Suspicious,
                         mbc: None,
                         attack: None,
                         evidence: vec![Evidence {
@@ -339,9 +496,9 @@ impl JavaScriptAnalyzer {
                             value: "charAt_pattern".to_string(),
                             location: Some(format!("line:{}", node.start_position().row + 1)),
                         }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
+                        traits: Vec::new(),
+                        referenced_paths: None,
+                        referenced_directories: None,
                     });
                 }
             }
@@ -389,12 +546,16 @@ impl JavaScriptAnalyzer {
     }
 
     /// Analyze function signature (params, arrow vs regular, async, etc.)
-    fn analyze_function_signature(&self, node: &tree_sitter::Node, source: &[u8]) -> FunctionSignature {
+    fn analyze_function_signature(
+        &self,
+        node: &tree_sitter::Node,
+        _source: &[u8],
+    ) -> FunctionSignature {
         let mut param_count = 0u32;
         let mut default_param_count = 0u32;
         let mut has_var_positional = false; // rest params
-        let mut has_type_hints = false; // TypeScript
-        let mut has_return_type = false; // TypeScript
+        let has_type_hints = false; // TypeScript
+        let has_return_type = false; // TypeScript
         let mut is_async = false;
         let is_generator = false;
         let is_lambda = node.kind() == "arrow_function";
@@ -461,13 +622,17 @@ impl JavaScriptAnalyzer {
         let mut depths = Vec::new();
         let mut deep_nest_count = 0u32;
 
-        fn traverse(node: &tree_sitter::Node, current_depth: u32, max: &mut u32,
-                    depths: &mut Vec<u32>, deep: &mut u32) {
+        fn traverse(
+            node: &tree_sitter::Node,
+            current_depth: u32,
+            max: &mut u32,
+            depths: &mut Vec<u32>,
+            deep: &mut u32,
+        ) {
             let mut depth = current_depth;
             match node.kind() {
-                "if_statement" | "for_statement" | "for_in_statement" |
-                "while_statement" | "do_statement" | "switch_statement" |
-                "try_statement" => {
+                "if_statement" | "for_statement" | "for_in_statement" | "while_statement"
+                | "do_statement" | "switch_statement" | "try_statement" => {
                     depth += 1;
                     depths.push(depth);
                     if depth > *max {
@@ -501,7 +666,12 @@ impl JavaScriptAnalyzer {
     }
 
     /// Analyze call patterns (promise chains, callbacks, recursion, dynamic calls)
-    fn analyze_call_patterns(&self, node: &tree_sitter::Node, source: &[u8], func_name: &str) -> CallPatternMetrics {
+    fn analyze_call_patterns(
+        &self,
+        node: &tree_sitter::Node,
+        source: &[u8],
+        func_name: &str,
+    ) -> CallPatternMetrics {
         let mut call_count = 0u32;
         let mut callees: Vec<String> = Vec::new();
         let mut recursive_calls = 0u32;
@@ -526,7 +696,10 @@ impl JavaScriptAnalyzer {
                         }
 
                         // Check dynamic calls
-                        if ["eval", "Function", "setTimeout", "setInterval"].iter().any(|&d| func_str.contains(d)) {
+                        if ["eval", "Function", "setTimeout", "setInterval"]
+                            .iter()
+                            .any(|&d| func_str.contains(d))
+                        {
                             dynamic_calls += 1;
                         }
 
@@ -569,7 +742,11 @@ impl JavaScriptAnalyzer {
     }
 
     /// Detect JavaScript-specific idioms
-    fn detect_javascript_idioms(&self, root: &tree_sitter::Node, source: &[u8]) -> JavaScriptIdioms {
+    fn detect_javascript_idioms(
+        &self,
+        root: &tree_sitter::Node,
+        source: &[u8],
+    ) -> JavaScriptIdioms {
         let mut arrow_function_count = 0u32;
         let mut promise_count = 0u32;
         let mut async_await_count = 0u32;
@@ -579,7 +756,7 @@ impl JavaScriptAnalyzer {
         let mut class_count = 0u32;
         let mut callback_count = 0u32;
         let mut iife_count = 0u32;
-        let mut object_shorthand_count = 0u32;
+        let object_shorthand_count = 0u32;
         let mut optional_chaining_count = 0u32;
         let mut nullish_coalescing_count = 0u32;
 
@@ -614,8 +791,11 @@ impl JavaScriptAnalyzer {
                 "call_expression" => {
                     if let Ok(text) = node.utf8_text(source) {
                         // Promise detection
-                        if text.contains("new Promise") || text.contains(".then(") ||
-                           text.contains(".catch(") || text.contains(".finally(") {
+                        if text.contains("new Promise")
+                            || text.contains(".then(")
+                            || text.contains(".catch(")
+                            || text.contains(".finally(")
+                        {
                             promise_count += 1;
                         }
                         // IIFE detection
@@ -672,16 +852,27 @@ impl JavaScriptAnalyzer {
         }
     }
 
-    fn extract_functions(&self, root: &tree_sitter::Node, source: &[u8], report: &mut AnalysisReport) {
+    fn extract_functions(
+        &self,
+        root: &tree_sitter::Node,
+        source: &[u8],
+        report: &mut AnalysisReport,
+    ) {
         let mut cursor = root.walk();
 
         loop {
             let node = cursor.node();
 
             // Match both function declarations and arrow functions
-            if matches!(node.kind(), "function_declaration" | "arrow_function" | "function" | "method_definition") {
+            if matches!(
+                node.kind(),
+                "function_declaration" | "arrow_function" | "function" | "method_definition"
+            ) {
                 let func_name = if let Some(name_node) = node.child_by_field_name("name") {
-                    name_node.utf8_text(source).unwrap_or("<unnamed>").to_string()
+                    name_node
+                        .utf8_text(source)
+                        .unwrap_or("<unnamed>")
+                        .to_string()
                 } else {
                     "<anonymous>".to_string()
                 };
@@ -742,7 +933,7 @@ impl JavaScriptAnalyzer {
                     is_noreturn: false,
                     is_recursive: call_patterns.recursive_calls > 0,
                     stack_frame: 0, // Not applicable to JavaScript
-                    local_vars: 0, // Could count variable declarations if needed
+                    local_vars: 0,  // Could count variable declarations if needed
                     args: signature.param_count,
                     is_leaf: call_patterns.call_count == 0,
                 };
@@ -797,8 +988,7 @@ impl Default for JavaScriptAnalyzer {
 
 impl Analyzer for JavaScriptAnalyzer {
     fn analyze(&self, file_path: &Path) -> Result<AnalysisReport> {
-        let content = fs::read_to_string(file_path)
-            .context("Failed to read JavaScript file")?;
+        let content = fs::read_to_string(file_path).context("Failed to read JavaScript file")?;
 
         self.analyze_script(file_path, &content)
     }
@@ -816,9 +1006,13 @@ impl Analyzer for JavaScriptAnalyzer {
 mod tests {
     use super::*;
 
+    fn analyze_js_code(code: &str) -> AnalysisReport {
+        let analyzer = JavaScriptAnalyzer::new();
+        analyzer.analyze_script(Path::new("test.js"), code).unwrap()
+    }
+
     #[test]
     fn test_simple_script() {
-        let analyzer = JavaScriptAnalyzer::new();
         let script = r#"
             const fs = require('fs');
             const { exec } = require('child_process');
@@ -830,29 +1024,224 @@ mod tests {
             fs.writeFileSync('/tmp/malicious.txt', 'payload');
         "#;
 
-        let report = analyzer.analyze_script(Path::new("test.js"), script).unwrap();
+        let report = analyze_js_code(script);
 
         // Should detect exec and fs imports
         assert!(!report.capabilities.is_empty());
 
         // Should detect shell execution
-        assert!(report.capabilities.iter().any(|c| c.id.contains("exec/command")));
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id.contains("exec/command")));
 
         // Should detect file write
-        assert!(report.capabilities.iter().any(|c| c.id.contains("fs/write")));
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id.contains("fs/write")));
     }
 
     #[test]
     fn test_obfuscated_script() {
-        let analyzer = JavaScriptAnalyzer::new();
         let script = r#"
             const payload = Buffer.from('Y3VybCBldmlsLmNvbQ==', 'base64').toString();
             eval(payload);
         "#;
 
-        let report = analyzer.analyze_script(Path::new("test.js"), script).unwrap();
+        let report = analyze_js_code(script);
 
         // Should detect base64 + eval obfuscation
-        assert!(report.capabilities.iter().any(|c| c.id == "anti-analysis/obfuscation/base64-eval"));
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "anti-analysis/obfuscation/base64-eval"));
+    }
+
+    #[test]
+    fn test_detect_eval() {
+        let code = "eval('console.log(\"hello\")');";
+        let report = analyze_js_code(code);
+
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "exec/script/eval"));
+    }
+
+    #[test]
+    fn test_detect_function_constructor() {
+        let code = "const fn = Function('return 1+1');";
+        let report = analyze_js_code(code);
+
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "exec/script/eval"));
+    }
+
+    #[test]
+    fn test_detect_exec() {
+        let code = "const { exec } = require('child_process'); exec('ls -la');";
+        let report = analyze_js_code(code);
+
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "exec/command/shell"));
+    }
+
+    #[test]
+    fn test_detect_spawn() {
+        let code = "const { spawn } = require('child_process'); spawn('sh', ['-c', 'ls']);";
+        let report = analyze_js_code(code);
+
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "exec/command/direct"));
+    }
+
+    #[test]
+    fn test_detect_fs_write() {
+        let code = "const fs = require('fs'); fs.writeFileSync('test.txt', 'data');";
+        let report = analyze_js_code(code);
+
+        assert!(report.capabilities.iter().any(|c| c.id == "fs/write"));
+    }
+
+    #[test]
+    fn test_detect_fs_unlink() {
+        let code = "const fs = require('fs'); fs.unlinkSync('file.txt');";
+        let report = analyze_js_code(code);
+
+        assert!(report.capabilities.iter().any(|c| c.id == "fs/delete"));
+    }
+
+    #[test]
+    fn test_detect_fs_chmod() {
+        let code = "const fs = require('fs'); fs.chmodSync('script.sh', 0o755);";
+        let report = analyze_js_code(code);
+
+        assert!(report.capabilities.iter().any(|c| c.id == "fs/permissions"));
+    }
+
+    #[test]
+    fn test_detect_http_request() {
+        let code = "const https = require('https'); https.request('https://example.com', cb);";
+        let report = analyze_js_code(code);
+
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "net/http/client"));
+    }
+
+    #[test]
+    fn test_detect_net_connect() {
+        let code = "const net = require('net'); net.connect(4444, 'example.com');";
+        let report = analyze_js_code(code);
+
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "net/socket/connect"));
+    }
+
+    #[test]
+    fn test_detect_net_server() {
+        let code = "const net = require('net'); net.createServer((socket) => {});";
+        let report = analyze_js_code(code);
+
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "net/socket/listen"));
+    }
+
+    #[test]
+    fn test_detect_buffer_base64() {
+        let code = "const data = Buffer.from('aGVsbG8=', 'base64');";
+        let report = analyze_js_code(code);
+
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "anti-analysis/obfuscation/base64"));
+    }
+
+    #[test]
+    fn test_detect_atob() {
+        let code = "const decoded = atob('aGVsbG8=');";
+        let report = analyze_js_code(code);
+
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "anti-analysis/obfuscation/base64"));
+    }
+
+    #[test]
+    fn test_detect_dynamic_require() {
+        let code = "const moduleName = 'fs'; const fs = require(moduleName);";
+        let report = analyze_js_code(code);
+
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "anti-analysis/obfuscation/dynamic-import"));
+    }
+
+    #[test]
+    fn test_structural_feature() {
+        let code = "console.log('hello');";
+        let report = analyze_js_code(code);
+
+        assert!(report
+            .structure
+            .iter()
+            .any(|s| s.id == "source/language/javascript"));
+    }
+
+    #[test]
+    fn test_extract_functions() {
+        let code = r#"
+function hello() {
+    return 'world';
+}
+
+const goodbye = () => {
+    console.log('bye');
+};
+"#;
+        let report = analyze_js_code(code);
+
+        assert!(report.functions.len() >= 1);
+        assert!(report.functions.iter().any(|f| f.name == "hello"));
+    }
+
+    #[test]
+    fn test_multiple_capabilities() {
+        let code = r#"
+const fs = require('fs');
+const { exec } = require('child_process');
+const https = require('https');
+
+exec('whoami');
+fs.writeFileSync('/tmp/data', 'test');
+https.request('https://evil.com');
+"#;
+        let report = analyze_js_code(code);
+
+        assert!(report.capabilities.len() >= 3);
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "exec/command/shell"));
+        assert!(report.capabilities.iter().any(|c| c.id == "fs/write"));
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "net/http/client"));
     }
 }

@@ -6,7 +6,7 @@ traits:
   # Symbolic link operations
   - id: readlink
     description: Read value of symbolic link
-    criticality: low
+    criticality: inert
     mbc: "E1083"
     attack: "T1083"
     confidence: 0.5
@@ -17,7 +17,7 @@ traits:
 
   - id: realpath
     description: Resolve absolute pathname (follows symlinks)
-    criticality: low
+    criticality: inert
     mbc: "E1083"
     attack: "T1083"
     confidence: 0.5
@@ -28,7 +28,7 @@ traits:
 
   - id: symlink
     description: Create symbolic link
-    criticality: medium
+    criticality: notable
     mbc: "E1222"
     attack: "T1222"
     confidence: 0.6
@@ -39,7 +39,7 @@ traits:
 
   - id: link
     description: Create hard link to file
-    criticality: medium
+    criticality: notable
     mbc: "E1222"
     attack: "T1222"
     confidence: 0.6
@@ -51,7 +51,7 @@ traits:
   # File metadata operations
   - id: stat
     description: Get file status and metadata
-    criticality: low
+    criticality: inert
     mbc: "E1083"
     attack: "T1083"
     confidence: 0.4
@@ -62,7 +62,7 @@ traits:
 
   - id: access
     description: Check file accessibility and permissions
-    criticality: low
+    criticality: inert
     mbc: "E1083"
     attack: "T1083"
     confidence: 0.5
@@ -74,7 +74,7 @@ traits:
   # Extended attributes (macOS/Linux)
   - id: getxattr
     description: Get extended file attributes
-    criticality: low
+    criticality: inert
     mbc: "E1083"
     attack: "T1083"
     confidence: 0.5
@@ -85,7 +85,7 @@ traits:
 
   - id: listxattr
     description: List extended file attributes
-    criticality: low
+    criticality: inert
     mbc: "E1083"
     attack: "T1083"
     confidence: 0.5
@@ -96,7 +96,7 @@ traits:
 
   - id: setxattr
     description: Set extended file attributes
-    criticality: medium
+    criticality: notable
     mbc: "E1222"
     attack: "T1222"
     confidence: 0.6
@@ -107,7 +107,7 @@ traits:
 
   - id: removexattr
     description: Remove extended file attributes
-    criticality: medium
+    criticality: notable
     mbc: "E1222"
     attack: "T1222"
     confidence: 0.6
@@ -119,7 +119,7 @@ traits:
   # File locking
   - id: flock
     description: Apply or remove advisory lock on file
-    criticality: low
+    criticality: inert
     mbc: "E1083"
     attack: "T1083"
     confidence: 0.4
@@ -130,7 +130,7 @@ traits:
 
   - id: fcntl
     description: File descriptor manipulation and control
-    criticality: low
+    criticality: inert
     mbc: "E1083"
     attack: "T1083"
     confidence: 0.4

@@ -165,7 +165,9 @@ mod tests {
         let extractor = StringExtractor::new();
         let strings = extractor.extract(data, None);
 
-        let url_string = strings.iter().find(|s| matches!(s.string_type, StringType::Url));
+        let url_string = strings
+            .iter()
+            .find(|s| matches!(s.string_type, StringType::Url));
         assert!(url_string.is_some());
     }
 
@@ -185,7 +187,156 @@ mod tests {
         let extractor = StringExtractor::new();
         let strings = extractor.extract(data, None);
 
-        let ip_string = strings.iter().find(|s| matches!(s.string_type, StringType::Ip));
+        let ip_string = strings
+            .iter()
+            .find(|s| matches!(s.string_type, StringType::Ip));
         assert!(ip_string.is_some());
+    }
+
+    #[test]
+    fn test_email_detection() {
+        let data = b"Contact us at admin@example.com";
+        let extractor = StringExtractor::new();
+        let strings = extractor.extract(data, None);
+
+        let email_string = strings
+            .iter()
+            .find(|s| matches!(s.string_type, StringType::Email));
+        assert!(email_string.is_some());
+    }
+
+    #[test]
+    fn test_base64_detection() {
+        let data = b"SGVsbG8gV29ybGQgdGhpcyBpcyBhIGxvbmcgYmFzZTY0IHN0cmluZw==";
+        let extractor = StringExtractor::new();
+        let strings = extractor.extract(data, None);
+
+        // Base64 needs to be > 20 chars
+        assert!(strings
+            .iter()
+            .any(|s| matches!(s.string_type, StringType::Base64)));
+    }
+
+    #[test]
+    fn test_min_length_filter() {
+        let data = b"ab  Hello World";
+        let extractor = StringExtractor::new();
+        let strings = extractor.extract(data, None);
+
+        // "ab" should be filtered (< 4 chars), "Hello World" should be kept
+        assert!(!strings.iter().any(|s| s.value == "ab"));
+        assert!(strings.iter().any(|s| s.value.contains("Hello World")));
+    }
+
+    #[test]
+    fn test_control_characters_filtered() {
+        let data = b"Hello\x00\x01World";
+        let extractor = StringExtractor::new();
+        let strings = extractor.extract(data, None);
+
+        // Should extract "Hello" and "World" separately
+        assert!(strings.len() >= 2);
+    }
+
+    #[test]
+    fn test_section_name_preserved() {
+        let data = b"test string";
+        let extractor = StringExtractor::new();
+        let strings = extractor.extract(data, Some(".text".to_string()));
+
+        assert!(strings
+            .iter()
+            .any(|s| s.section == Some(".text".to_string())));
+    }
+
+    #[test]
+    fn test_offset_recorded() {
+        let data = b"start test string end";
+        let extractor = StringExtractor::new();
+        let strings = extractor.extract(data, None);
+
+        // Offset should be recorded for each string
+        assert!(strings.iter().all(|s| s.offset.is_some()));
+    }
+
+    #[test]
+    fn test_classify_string_type() {
+        let extractor = StringExtractor::new();
+
+        assert_eq!(
+            extractor.classify_string_type("https://example.com"),
+            StringType::Url
+        );
+        assert_eq!(
+            extractor.classify_string_type("192.168.1.1"),
+            StringType::Ip
+        );
+        assert_eq!(
+            extractor.classify_string_type("user@example.com"),
+            StringType::Email
+        );
+        assert_eq!(
+            extractor.classify_string_type("/usr/bin/bash"),
+            StringType::Path
+        );
+        assert_eq!(
+            extractor.classify_string_type("plain text"),
+            StringType::Plain
+        );
+    }
+
+    #[test]
+    fn test_windows_path_detection() {
+        let extractor = StringExtractor::new();
+
+        assert!(extractor.is_path(r"C:\Windows\System32\cmd.exe"));
+        assert!(extractor.is_path(r"D:\Program Files\App"));
+    }
+
+    #[test]
+    fn test_relative_path_detection() {
+        let extractor = StringExtractor::new();
+
+        assert!(extractor.is_path("/bin/sh"));
+        assert!(extractor.is_path("/usr/local/bin"));
+        assert!(!extractor.is_path("just/text"));
+        assert!(!extractor.is_path("not a path"));
+    }
+
+    #[test]
+    fn test_default() {
+        let extractor = StringExtractor::default();
+        assert_eq!(extractor.min_length, 4);
+    }
+
+    #[test]
+    fn test_trimmed_strings() {
+        let data = b"  spaced  ";
+        let extractor = StringExtractor::new();
+        let strings = extractor.extract(data, None);
+
+        // Should trim whitespace
+        if let Some(s) = strings.first() {
+            assert_eq!(s.value.trim(), s.value);
+        }
+    }
+
+    #[test]
+    fn test_empty_data() {
+        let data = b"";
+        let extractor = StringExtractor::new();
+        let strings = extractor.extract(data, None);
+
+        assert!(strings.is_empty());
+    }
+
+    #[test]
+    fn test_binary_data_only() {
+        let data = vec![0x00, 0x01, 0x02, 0x03, 0xFF];
+        let extractor = StringExtractor::new();
+        let strings = extractor.extract(&data, None);
+
+        // No printable strings should be found
+        assert!(strings.is_empty());
     }
 }

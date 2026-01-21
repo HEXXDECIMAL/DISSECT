@@ -7,7 +7,8 @@ pub fn extract_envvars_from_strings(strings: &[StringInfo]) -> Vec<EnvVarInfo> {
     for string_info in strings {
         // Look for common environment variable names in strings
         if is_env_var_name(&string_info.value) {
-            let env_var_info = analyze_env_var(&string_info.value, "strings", EnvVarAccessType::Unknown);
+            let env_var_info =
+                analyze_env_var(&string_info.value, "strings", EnvVarAccessType::Unknown);
             env_vars.push(env_var_info);
         }
     }
@@ -32,12 +33,14 @@ pub fn extract_envvars_from_imports(imports: &[Import]) -> Vec<(String, EnvVarAc
         } else if symbol.contains("unsetenv") || symbol == "unsetenv" {
             env_api_calls.push(("unsetenv".to_string(), EnvVarAccessType::Delete));
         }
-
         // Windows API calls
         else if symbol.contains("GetEnvironmentVariable") {
             env_api_calls.push(("GetEnvironmentVariable".to_string(), EnvVarAccessType::Read));
         } else if symbol.contains("SetEnvironmentVariable") {
-            env_api_calls.push(("SetEnvironmentVariable".to_string(), EnvVarAccessType::Write));
+            env_api_calls.push((
+                "SetEnvironmentVariable".to_string(),
+                EnvVarAccessType::Write,
+            ));
         }
     }
 
@@ -52,7 +55,9 @@ fn is_env_var_name(s: &str) -> bool {
     }
 
     // Must be all uppercase with underscores or numbers
-    let valid_chars = s.chars().all(|c| c.is_ascii_uppercase() || c == '_' || c.is_ascii_digit());
+    let valid_chars = s
+        .chars()
+        .all(|c| c.is_ascii_uppercase() || c == '_' || c.is_ascii_digit());
     if !valid_chars {
         return false;
     }
@@ -115,7 +120,7 @@ fn is_known_env_var(name: &str) -> bool {
         name.starts_with("JENKINS_") || // Jenkins
         name.starts_with("TRAVIS_") || // Travis CI
         name.starts_with("GITLAB_") || // GitLab CI
-        name.starts_with("ANDROID_")  // Android platform
+        name.starts_with("ANDROID_") // Android platform
 }
 
 /// Analyze a single environment variable and categorize it
@@ -140,35 +145,60 @@ fn analyze_env_var(name: &str, source: &str, access_type: EnvVarAccessType) -> E
 /// Classify environment variable by semantic category
 fn classify_env_var_category(name: &str) -> EnvVarCategory {
     // Credential/secret detection (highest priority)
-    if name.ends_with("_TOKEN") || name.ends_with("_KEY") ||
-       name.ends_with("_SECRET") || name.ends_with("_PASSWORD") ||
-       name.starts_with("AWS_") || name.starts_with("GITHUB_") ||
-       name.contains("API_KEY") || name.contains("ACCESS_TOKEN") {
+    if name.ends_with("_TOKEN")
+        || name.ends_with("_KEY")
+        || name.ends_with("_SECRET")
+        || name.ends_with("_PASSWORD")
+        || name.starts_with("AWS_")
+        || name.starts_with("GITHUB_")
+        || name.contains("API_KEY")
+        || name.contains("ACCESS_TOKEN")
+    {
         return EnvVarCategory::Credential;
     }
 
     // Injection/evasion
-    if name == "LD_PRELOAD" || name == "DYLD_INSERT_LIBRARIES" ||
-       name == "DYLD_FORCE_FLAT_NAMESPACE" {
+    if name == "LD_PRELOAD"
+        || name == "DYLD_INSERT_LIBRARIES"
+        || name == "DYLD_FORCE_FLAT_NAMESPACE"
+    {
         return EnvVarCategory::Injection;
     }
 
     // Path-related
-    if name == "PATH" || name == "LD_LIBRARY_PATH" || name == "DYLD_LIBRARY_PATH" ||
-       name == "PYTHONPATH" || name == "NODE_PATH" || name == "RUBYLIB" ||
-       name == "GOPATH" || name == "CLASSPATH" {
+    if name == "PATH"
+        || name == "LD_LIBRARY_PATH"
+        || name == "DYLD_LIBRARY_PATH"
+        || name == "PYTHONPATH"
+        || name == "NODE_PATH"
+        || name == "RUBYLIB"
+        || name == "GOPATH"
+        || name == "CLASSPATH"
+    {
         return EnvVarCategory::Path;
     }
 
     // User information
-    if name == "USER" || name == "USERNAME" || name == "LOGNAME" ||
-       name == "HOME" || name == "USERPROFILE" || name == "HOMEDRIVE" || name == "HOMEPATH" {
+    if name == "USER"
+        || name == "USERNAME"
+        || name == "LOGNAME"
+        || name == "HOME"
+        || name == "USERPROFILE"
+        || name == "HOMEDRIVE"
+        || name == "HOMEPATH"
+    {
         return EnvVarCategory::User;
     }
 
     // System information
-    if name == "HOSTNAME" || name == "SHELL" || name == "TERM" ||
-       name == "PWD" || name == "OLDPWD" || name == "SYSTEMROOT" || name == "WINDIR" {
+    if name == "HOSTNAME"
+        || name == "SHELL"
+        || name == "TERM"
+        || name == "PWD"
+        || name == "OLDPWD"
+        || name == "SYSTEMROOT"
+        || name == "WINDIR"
+    {
         return EnvVarCategory::System;
     }
 
@@ -183,9 +213,13 @@ fn classify_env_var_category(name: &str) -> EnvVarCategory {
     }
 
     // Runtime paths
-    if name == "PYTHONHOME" || name.starts_with("PYTHON") ||
-       name.starts_with("NODE_") || name.starts_with("RUBY") ||
-       name.starts_with("GO") || name == "JAVA_HOME" {
+    if name == "PYTHONHOME"
+        || name.starts_with("PYTHON")
+        || name.starts_with("NODE_")
+        || name.starts_with("RUBY")
+        || name.starts_with("GO")
+        || name == "JAVA_HOME"
+    {
         return EnvVarCategory::Runtime;
     }
 
@@ -225,7 +259,8 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
                 credential_vars.len()
             ),
             confidence: 0.95,
-            criticality: Criticality::High,
+            criticality: Criticality::Hostile,
+            capability: true,
             mbc: None,
             attack: Some("T1552.001".to_string()), // Unsecured Credentials
             evidence: credential_vars
@@ -273,7 +308,8 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
             id: trait_id.to_string(),
             description: description.to_string(),
             confidence: 0.95,
-            criticality: Criticality::High,
+            criticality: Criticality::Hostile,
+            capability: true,
             mbc: None,
             attack: Some(attack_id.to_string()),
             evidence: vec![Evidence {
@@ -300,7 +336,8 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
             id: "discovery/env/user".to_string(),
             description: "Discovers user information via environment variables".to_string(),
             confidence: 0.8,
-            criticality: Criticality::Low,
+            criticality: Criticality::Notable,
+            capability: true,
             mbc: None,
             attack: Some("T1033".to_string()), // System Owner/User Discovery
             evidence: user_vars
@@ -330,7 +367,8 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
             id: "discovery/env/system".to_string(),
             description: "Discovers system information via environment variables".to_string(),
             confidence: 0.8,
-            criticality: Criticality::Low,
+            criticality: Criticality::Notable,
+            capability: true,
             mbc: None,
             attack: Some("T1082".to_string()), // System Information Discovery
             evidence: system_vars
@@ -360,7 +398,8 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
             id: "persistence/env/path_manipulation".to_string(),
             description: "Modifies PATH environment variable for persistence/hijacking".to_string(),
             confidence: 0.9,
-            criticality: Criticality::High,
+            criticality: Criticality::Hostile,
+            capability: true,
             mbc: None,
             attack: Some("T1574.007".to_string()), // Hijack Execution Flow: Path Interception
             evidence: path_write
@@ -390,7 +429,8 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
             id: "platform/mobile/android_env".to_string(),
             description: "Android platform detected via environment variables".to_string(),
             confidence: 0.9,
-            criticality: Criticality::Low,
+            criticality: Criticality::Notable,
+            capability: true,
             mbc: None,
             attack: None,
             evidence: android_vars
@@ -420,7 +460,8 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
             id: "anti-analysis/env/display_check".to_string(),
             description: "Checks DISPLAY variable (potential sandbox detection)".to_string(),
             confidence: 0.6,
-            criticality: Criticality::Medium,
+            criticality: Criticality::Suspicious,
+            capability: true,
             mbc: None,
             attack: Some("T1497".to_string()), // Virtualization/Sandbox Evasion
             evidence: display_vars
@@ -450,7 +491,8 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
             id: "anti-analysis/env/ssh_check".to_string(),
             description: "Checks SSH variables (remote session detection)".to_string(),
             confidence: 0.7,
-            criticality: Criticality::Medium,
+            criticality: Criticality::Suspicious,
+            capability: true,
             mbc: None,
             attack: Some("T1497".to_string()), // Virtualization/Sandbox Evasion
             evidence: ssh_vars
@@ -496,7 +538,8 @@ pub fn analyze_and_link_env_vars(report: &mut AnalysisReport) {
                 id: trait_id.to_string(),
                 description: format!("Uses {} to access environment variables", api_name),
                 confidence: 1.0,
-                criticality: Criticality::None,
+                criticality: Criticality::Inert,
+                capability: true,
                 mbc: None,
                 attack: None,
                 evidence: vec![Evidence {
@@ -514,7 +557,7 @@ pub fn analyze_and_link_env_vars(report: &mut AnalysisReport) {
     }
 
     // Step 3: Generate behavioral traits from patterns
-    let mut new_traits = generate_traits_from_env_vars(&env_vars);
+    let new_traits = generate_traits_from_env_vars(&env_vars);
 
     // Step 4: Add back-references
     for trait_obj in &new_traits {
@@ -529,4 +572,106 @@ pub fn analyze_and_link_env_vars(report: &mut AnalysisReport) {
     // Store results
     report.env_vars = env_vars;
     report.traits.extend(new_traits);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_is_env_var_name() {
+        assert!(is_env_var_name("PATH"));
+        assert!(is_env_var_name("HOME"));
+
+        assert!(!is_env_var_name(""));
+        assert!(!is_env_var_name("a")); // Too short
+        assert!(!is_env_var_name("path")); // All lowercase
+    }
+
+    #[test]
+    fn test_is_known_env_var() {
+        // System paths
+        assert!(is_known_env_var("PATH"));
+        assert!(is_known_env_var("HOME"));
+        assert!(is_known_env_var("TEMP"));
+
+        // User info
+        assert!(is_known_env_var("USER"));
+        assert!(is_known_env_var("USERNAME"));
+
+        // Shell vars
+        assert!(is_known_env_var("SHELL"));
+        assert!(is_known_env_var("TERM"));
+
+        // Unknown
+        assert!(!is_known_env_var("MY_CUSTOM_VAR"));
+    }
+
+    #[test]
+    fn test_classify_env_var_category_path() {
+        assert_eq!(classify_env_var_category("PATH"), EnvVarCategory::Path);
+        assert_eq!(
+            classify_env_var_category("LD_LIBRARY_PATH"),
+            EnvVarCategory::Path
+        );
+    }
+
+    #[test]
+    fn test_classify_env_var_category_user() {
+        assert_eq!(classify_env_var_category("HOME"), EnvVarCategory::User);
+        assert_eq!(classify_env_var_category("USER"), EnvVarCategory::User);
+        assert_eq!(classify_env_var_category("USERNAME"), EnvVarCategory::User);
+    }
+
+    #[test]
+    fn test_classify_env_var_category_system() {
+        assert_eq!(classify_env_var_category("SHELL"), EnvVarCategory::System);
+        assert_eq!(classify_env_var_category("TERM"), EnvVarCategory::System);
+        assert_eq!(classify_env_var_category("PWD"), EnvVarCategory::System);
+    }
+
+    #[test]
+    fn test_classify_env_var_category_temp() {
+        assert_eq!(classify_env_var_category("TEMP"), EnvVarCategory::Temp);
+        assert_eq!(classify_env_var_category("TMP"), EnvVarCategory::Temp);
+        assert_eq!(classify_env_var_category("TMPDIR"), EnvVarCategory::Temp);
+    }
+
+    #[test]
+    fn test_classify_env_var_category_locale() {
+        assert_eq!(classify_env_var_category("LANG"), EnvVarCategory::Locale);
+        assert_eq!(classify_env_var_category("LC_ALL"), EnvVarCategory::Locale);
+        assert_eq!(
+            classify_env_var_category("LANGUAGE"),
+            EnvVarCategory::Locale
+        );
+    }
+
+    #[test]
+    fn test_classify_env_var_category_network() {
+        assert_eq!(
+            classify_env_var_category("HTTP_PROXY"),
+            EnvVarCategory::Network
+        );
+        assert_eq!(
+            classify_env_var_category("HTTPS_PROXY"),
+            EnvVarCategory::Network
+        );
+        assert_eq!(
+            classify_env_var_category("NO_PROXY"),
+            EnvVarCategory::Network
+        );
+    }
+
+    #[test]
+    fn test_classify_env_var_category_other() {
+        assert_eq!(
+            classify_env_var_category("MY_CUSTOM_VAR"),
+            EnvVarCategory::Other
+        );
+        assert_eq!(
+            classify_env_var_category("UNKNOWN_VAR"),
+            EnvVarCategory::Other
+        );
+    }
 }

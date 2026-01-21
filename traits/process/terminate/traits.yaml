@@ -6,7 +6,7 @@ traits:
   # Signal sending
   - id: kill
     description: Send signal to process (terminate, stop, or control)
-    criticality: medium
+    criticality: notable
     mbc: "E1562"
     attack: "T1562"
     confidence: 0.6
@@ -17,7 +17,7 @@ traits:
 
   - id: killpg
     description: Send signal to process group
-    criticality: medium
+    criticality: notable
     mbc: "E1562"
     attack: "T1562"
     confidence: 0.7
@@ -29,7 +29,7 @@ traits:
   # Signal handling
   - id: signal
     description: Install signal handler (catch or ignore signals)
-    criticality: medium
+    criticality: notable
     mbc: "F0004"
     attack: "T1562.001"
     confidence: 0.6
@@ -40,7 +40,7 @@ traits:
 
   - id: sigaction
     description: Examine or change signal action
-    criticality: medium
+    criticality: notable
     mbc: "F0004"
     attack: "T1562.001"
     confidence: 0.6
@@ -51,7 +51,7 @@ traits:
 
   - id: sigprocmask
     description: Examine or change blocked signals
-    criticality: medium
+    criticality: notable
     mbc: "F0004"
     attack: "T1562.001"
     confidence: 0.6
@@ -63,7 +63,7 @@ traits:
   # Process termination
   - id: abort
     description: Cause abnormal process termination
-    criticality: low
+    criticality: inert
     mbc: "E1562"
     attack: "T1562"
     confidence: 0.4
@@ -74,7 +74,7 @@ traits:
 
   - id: exit
     description: Terminate process with status code
-    criticality: low
+    criticality: inert
     mbc: "E1562"
     attack: "T1562"
     confidence: 0.3
@@ -85,7 +85,7 @@ traits:
 
   - id: _exit
     description: Terminate process immediately without cleanup
-    criticality: low
+    criticality: inert
     mbc: "E1562"
     attack: "T1562"
     confidence: 0.4

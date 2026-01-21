@@ -3,13 +3,13 @@
 rule package_scripts {
   meta:
     confidence  = "0.66"
-
-  strings:
-$npm_name        = /"name":/
-    $npm_version     = /"version":/
-    $npm_description = /"description":/
     mbc         = "OB0009"
     attack      = "T1041"
+
+  strings:
+    $npm_name        = /"name":/
+    $npm_version     = /"version":/
+    $npm_description = /"description":/
     $npm_lint        = /"lint":/
     $npm_test        = /"test":/
     $npm_postversion = /"postversion":/

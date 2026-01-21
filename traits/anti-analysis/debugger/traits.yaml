@@ -6,7 +6,7 @@ traits:
   # Unix/Linux
   - id: ptrace
     description: ptrace system call (debugging/tracing)
-    criticality: medium
+    criticality: suspicious
     mbc: "B0001"
     attack: "T1622"
     confidence: 0.7
@@ -17,7 +17,7 @@ traits:
 
   - id: isatty
     description: Detect if running in terminal
-    criticality: low
+    criticality: suspicious
     mbc: "B0001"
     attack: "T1622"
     confidence: 0.5
@@ -28,7 +28,7 @@ traits:
 
   - id: proc-status
     description: Reading /proc/self/status for TracerPid
-    criticality: medium
+    criticality: suspicious
     mbc: "B0001"
     attack: "T1622"
     confidence: 0.8
@@ -39,7 +39,7 @@ traits:
 
   - id: ld-debug
     description: LD_DEBUG environment variable check
-    criticality: low
+    criticality: suspicious
     mbc: "B0001"
     attack: "T1622"
     confidence: 0.6
@@ -51,7 +51,7 @@ traits:
   # Windows
   - id: win-isdebuggerpresent
     description: Windows IsDebuggerPresent API
-    criticality: medium
+    criticality: suspicious
     mbc: "B0001"
     attack: "T1622"
     confidence: 0.9
@@ -63,7 +63,7 @@ traits:
 
   - id: win-checkremotedebugger
     description: Windows CheckRemoteDebuggerPresent API
-    criticality: medium
+    criticality: suspicious
     mbc: "B0001"
     attack: "T1622"
     confidence: 0.9
@@ -74,7 +74,7 @@ traits:
 
   - id: win-ntqueryinfo
     description: NtQueryInformationProcess for debugger detection
-    criticality: medium
+    criticality: suspicious
     mbc: "B0001"
     attack: "T1622"
     confidence: 0.85
@@ -85,7 +85,7 @@ traits:
 
   - id: win-unhandledexception
     description: UnhandledExceptionFilter for anti-debugging
-    criticality: low
+    criticality: suspicious
     mbc: "B0001"
     attack: "T1622"
     confidence: 0.7
@@ -96,7 +96,7 @@ traits:
 
   - id: win-queryperformance
     description: QueryPerformanceCounter timing check
-    criticality: low
+    criticality: suspicious
     mbc: "B0001"
     attack: "T1622"
     confidence: 0.6

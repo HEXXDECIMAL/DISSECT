@@ -61,21 +61,27 @@ fn classify_path_category(path: &str) -> PathCategory {
     }
 
     // System paths
-    if path.starts_with("/bin/") || path.starts_with("/sbin/") ||
-       path.starts_with("/usr/bin/") || path.starts_with("/usr/sbin/") ||
-       path.starts_with("/lib/") || path.starts_with("/usr/lib/") {
+    if path.starts_with("/bin/")
+        || path.starts_with("/sbin/")
+        || path.starts_with("/usr/bin/")
+        || path.starts_with("/usr/sbin/")
+        || path.starts_with("/lib/")
+        || path.starts_with("/usr/lib/")
+    {
         return PathCategory::System;
     }
 
     // Config paths
-    if path.starts_with("/etc/") || path.ends_with(".conf") ||
-       path.contains("/.config/") || path.contains("/Config/") {
+    if path.starts_with("/etc/")
+        || path.ends_with(".conf")
+        || path.contains("/.config/")
+        || path.contains("/Config/")
+    {
         return PathCategory::Config;
     }
 
     // Temp paths
-    if path.starts_with("/tmp/") || path.starts_with("/var/tmp/") ||
-       path.starts_with("/dev/shm/") {
+    if path.starts_with("/tmp/") || path.starts_with("/var/tmp/") || path.starts_with("/dev/shm/") {
         return PathCategory::Temp;
     }
 
@@ -85,14 +91,20 @@ fn classify_path_category(path: &str) -> PathCategory {
     }
 
     // Home paths
-    if path.starts_with("/home/") || path.starts_with("~/") ||
-       path == "$HOME" || path.contains("${HOME}") {
+    if path.starts_with("/home/")
+        || path.starts_with("~/")
+        || path == "$HOME"
+        || path.contains("${HOME}")
+    {
         return PathCategory::Home;
     }
 
     // Device/mount paths
-    if path.starts_with("/dev/") || path.starts_with("/mnt/") ||
-       path.starts_with("/proc/") || path.starts_with("/sys/") {
+    if path.starts_with("/dev/")
+        || path.starts_with("/mnt/")
+        || path.starts_with("/proc/")
+        || path.starts_with("/sys/")
+    {
         return PathCategory::Device;
     }
 
@@ -102,8 +114,11 @@ fn classify_path_category(path: &str) -> PathCategory {
     }
 
     // Network config
-    if path == "/etc/hosts" || path == "/etc/resolv.conf" ||
-       path == "/etc/hostname" || path.starts_with("/etc/network/") {
+    if path == "/etc/hosts"
+        || path == "/etc/resolv.conf"
+        || path == "/etc/hostname"
+        || path.starts_with("/etc/network/")
+    {
         return PathCategory::Network;
     }
 
@@ -182,7 +197,10 @@ fn get_parent_directory(path: &str) -> Option<String> {
 /// Determine access pattern from file list
 fn determine_access_pattern(files: &[String], paths: &[&PathInfo]) -> DirectoryAccessPattern {
     // Check for user enumeration pattern
-    if paths.iter().any(|p| p.path_type == PathType::Dynamic && p.path.contains("/home/")) {
+    if paths
+        .iter()
+        .any(|p| p.path_type == PathType::Dynamic && p.path.contains("/home/"))
+    {
         return DirectoryAccessPattern::UserEnumeration;
     }
 
@@ -200,9 +218,7 @@ fn determine_access_pattern(files: &[String], paths: &[&PathInfo]) -> DirectoryA
         };
     }
 
-    DirectoryAccessPattern::MultipleSpecific {
-        count: files.len(),
-    }
+    DirectoryAccessPattern::MultipleSpecific { count: files.len() }
 }
 
 /// Generate traits from path patterns
@@ -236,7 +252,8 @@ fn detect_platform_from_paths(paths: &[PathInfo]) -> Vec<Trait> {
             id: "platform/embedded/mtd_device".to_string(),
             description: "Targets embedded device with MTD flash storage".to_string(),
             confidence: 0.9,
-            criticality: Criticality::Medium,
+            criticality: Criticality::Suspicious,
+            capability: true,
             mbc: None,
             attack: None,
             evidence: mtd_paths
@@ -259,9 +276,9 @@ fn detect_platform_from_paths(paths: &[PathInfo]) -> Vec<Trait> {
     let android_paths: Vec<_> = paths
         .iter()
         .filter(|p| {
-            p.path.starts_with("/system/") ||
-            p.path.starts_with("/data/data/") ||
-            p.path.contains("/apex/")
+            p.path.starts_with("/system/")
+                || p.path.starts_with("/data/data/")
+                || p.path.contains("/apex/")
         })
         .collect();
 
@@ -270,7 +287,8 @@ fn detect_platform_from_paths(paths: &[PathInfo]) -> Vec<Trait> {
             id: "platform/mobile/android".to_string(),
             description: "Android platform-specific paths detected".to_string(),
             confidence: 0.95,
-            criticality: Criticality::Low,
+            criticality: Criticality::Notable,
+            capability: true,
             mbc: None,
             attack: None,
             evidence: android_paths
@@ -300,8 +318,8 @@ fn detect_anomalous_paths(paths: &[PathInfo]) -> Vec<Trait> {
     let anomalous_hidden: Vec<_> = paths
         .iter()
         .filter(|p| {
-            p.category == PathCategory::Hidden &&
-            (p.path.starts_with("/var/") || p.path.starts_with("/usr/"))
+            p.category == PathCategory::Hidden
+                && (p.path.starts_with("/var/") || p.path.starts_with("/usr/"))
         })
         .collect();
 
@@ -310,7 +328,8 @@ fn detect_anomalous_paths(paths: &[PathInfo]) -> Vec<Trait> {
             id: "persistence/hidden_file".to_string(),
             description: format!("Hidden file in system directory: {}", path.path),
             confidence: 0.8,
-            criticality: Criticality::High,
+            criticality: Criticality::Hostile,
+            capability: true,
             mbc: None,
             attack: Some("T1564.001".to_string()), // Hide Artifacts: Hidden Files
             evidence: vec![Evidence {
@@ -352,7 +371,8 @@ fn detect_privilege_requirements(paths: &[PathInfo]) -> Vec<Trait> {
             id: "requires/root_access".to_string(),
             description: "Requires root privileges to access protected paths".to_string(),
             confidence: 1.0,
-            criticality: Criticality::High,
+            criticality: Criticality::Hostile,
+            capability: true,
             mbc: None,
             attack: None,
             evidence: requires_root
@@ -385,10 +405,10 @@ pub fn generate_traits_from_directories(directories: &[DirectoryAccess]) -> Vec<
                 .files
                 .iter()
                 .filter(|f| {
-                    f.to_lowercase().contains("account") ||
-                    f.to_lowercase().contains("passwd") ||
-                    f.to_lowercase().contains("password") ||
-                    f.to_lowercase().contains("credential")
+                    f.to_lowercase().contains("account")
+                        || f.to_lowercase().contains("passwd")
+                        || f.to_lowercase().contains("password")
+                        || f.to_lowercase().contains("credential")
                 })
                 .collect();
 
@@ -401,21 +421,28 @@ pub fn generate_traits_from_directories(directories: &[DirectoryAccess]) -> Vec<
                         dir.directory
                     ),
                     confidence: 0.95,
-                    criticality: Criticality::High,
+                    criticality: Criticality::Hostile,
+                    capability: true,
                     mbc: None,
                     attack: Some("T1552".to_string()), // Unsecured Credentials
                     evidence: vec![Evidence {
                         method: "directory_pattern".to_string(),
                         source: "path_mapper".to_string(),
-                        value: format!("{} credential files in {}", cred_files.len(), dir.directory),
+                        value: format!(
+                            "{} credential files in {}",
+                            cred_files.len(),
+                            dir.directory
+                        ),
                         location: None,
                     }],
                     language: None,
                     platforms: Vec::new(),
-                    referenced_paths: Some(cred_files
-                        .iter()
-                        .map(|f| format!("{}{}", dir.directory, f))
-                        .collect()),
+                    referenced_paths: Some(
+                        cred_files
+                            .iter()
+                            .map(|f| format!("{}{}", dir.directory, f))
+                            .collect(),
+                    ),
                     referenced_directories: Some(vec![dir.directory.clone()]),
                 });
             }
@@ -427,11 +454,11 @@ pub fn generate_traits_from_directories(directories: &[DirectoryAccess]) -> Vec<
                 id: "evasion/logging/system_logs".to_string(),
                 description: format!(
                     "Accesses {} log files in {} (potential cleanup)",
-                    dir.file_count,
-                    dir.directory
+                    dir.file_count, dir.directory
                 ),
                 confidence: 0.7,
-                criticality: Criticality::Medium,
+                criticality: Criticality::Suspicious,
+                capability: true,
                 mbc: None,
                 attack: Some("T1070.002".to_string()), // Clear Linux Logs
                 evidence: vec![Evidence {
@@ -442,11 +469,12 @@ pub fn generate_traits_from_directories(directories: &[DirectoryAccess]) -> Vec<
                 }],
                 language: None,
                 platforms: Vec::new(),
-                referenced_paths: Some(dir
-                    .files
-                    .iter()
-                    .map(|f| format!("{}{}", dir.directory, f))
-                    .collect()),
+                referenced_paths: Some(
+                    dir.files
+                        .iter()
+                        .map(|f| format!("{}{}", dir.directory, f))
+                        .collect(),
+                ),
                 referenced_directories: Some(vec![dir.directory.clone()]),
             });
         }
@@ -500,4 +528,214 @@ pub fn analyze_and_link_paths(report: &mut AnalysisReport) {
     report.paths = paths;
     report.directories = updated_directories;
     report.traits.extend(new_traits);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_classify_path_type_absolute() {
+        assert_eq!(classify_path_type("/etc/passwd"), PathType::Absolute);
+        assert_eq!(classify_path_type("/bin/sh"), PathType::Absolute);
+        assert_eq!(classify_path_type("/home/user/.bashrc"), PathType::Absolute);
+    }
+
+    #[test]
+    fn test_classify_path_type_relative() {
+        assert_eq!(classify_path_type("./file.txt"), PathType::Relative);
+        assert_eq!(classify_path_type("../config"), PathType::Relative);
+        assert_eq!(classify_path_type("foo/../bar"), PathType::Relative);
+    }
+
+    #[test]
+    fn test_classify_path_type_dynamic() {
+        assert_eq!(classify_path_type("/home/%s/.config"), PathType::Dynamic);
+        assert_eq!(classify_path_type("/tmp/file-%d"), PathType::Dynamic);
+        assert_eq!(classify_path_type("${HOME}/.bashrc"), PathType::Dynamic);
+        assert_eq!(classify_path_type("$HOME/.profile"), PathType::Dynamic);
+    }
+
+    #[test]
+    fn test_classify_path_category_system() {
+        assert_eq!(classify_path_category("/bin/bash"), PathCategory::System);
+        assert_eq!(classify_path_category("/sbin/init"), PathCategory::System);
+        assert_eq!(
+            classify_path_category("/usr/bin/python"),
+            PathCategory::System
+        );
+        assert_eq!(classify_path_category("/lib/libc.so"), PathCategory::System);
+    }
+
+    #[test]
+    fn test_classify_path_category_config() {
+        assert_eq!(classify_path_category("/etc/passwd"), PathCategory::Config);
+        assert_eq!(classify_path_category("/etc/hosts"), PathCategory::Config);
+        assert_eq!(classify_path_category("app.conf"), PathCategory::Config);
+        // Note: /home/user/.config/app is classified as Hidden due to the dot
+    }
+
+    #[test]
+    fn test_classify_path_category_temp() {
+        assert_eq!(classify_path_category("/tmp/file"), PathCategory::Temp);
+        assert_eq!(classify_path_category("/var/tmp/data"), PathCategory::Temp);
+        assert_eq!(
+            classify_path_category("/dev/shm/buffer"),
+            PathCategory::Temp
+        );
+    }
+
+    #[test]
+    fn test_classify_path_category_log() {
+        assert_eq!(classify_path_category("/var/log/syslog"), PathCategory::Log);
+        assert_eq!(classify_path_category("app.log"), PathCategory::Log);
+    }
+
+    #[test]
+    fn test_classify_path_category_home() {
+        assert_eq!(
+            classify_path_category("/home/user/file"),
+            PathCategory::Home
+        );
+        // Note: ~ and $HOME are classified as Dynamic, not Home
+    }
+
+    #[test]
+    fn test_classify_path_category_device() {
+        assert_eq!(classify_path_category("/dev/null"), PathCategory::Device);
+        assert_eq!(
+            classify_path_category("/proc/self/maps"),
+            PathCategory::Device
+        );
+        assert_eq!(
+            classify_path_category("/sys/class/net"),
+            PathCategory::Device
+        );
+    }
+
+    #[test]
+    fn test_classify_path_category_runtime() {
+        assert_eq!(
+            classify_path_category("/var/run/app.pid"),
+            PathCategory::Runtime
+        );
+        assert_eq!(
+            classify_path_category("/run/lock/file"),
+            PathCategory::Runtime
+        );
+    }
+
+    #[test]
+    fn test_classify_path_category_hidden() {
+        assert_eq!(classify_path_category(".hidden"), PathCategory::Hidden);
+        assert_eq!(
+            classify_path_category("/path/.hidden"),
+            PathCategory::Hidden
+        );
+    }
+
+    #[test]
+    fn test_get_parent_directory() {
+        assert_eq!(
+            get_parent_directory("/etc/passwd"),
+            Some("/etc/".to_string())
+        );
+        assert_eq!(
+            get_parent_directory("/etc/network/interfaces"),
+            Some("/etc/network/".to_string())
+        );
+        assert_eq!(get_parent_directory("/etc"), Some("/".to_string()));
+        assert_eq!(get_parent_directory("file.txt"), None);
+    }
+
+    #[test]
+    fn test_extract_paths_from_strings() {
+        let strings = vec![
+            StringInfo {
+                value: "/etc/passwd".to_string(),
+                string_type: StringType::Path,
+                offset: None,
+                encoding: "ascii".to_string(),
+                section: None,
+            },
+            StringInfo {
+                value: "/bin/sh".to_string(),
+                string_type: StringType::Path,
+                offset: None,
+                encoding: "ascii".to_string(),
+                section: None,
+            },
+            StringInfo {
+                value: "not a path".to_string(),
+                string_type: StringType::Plain,
+                offset: None,
+                encoding: "ascii".to_string(),
+                section: None,
+            },
+        ];
+
+        let paths = extract_paths_from_strings(&strings);
+
+        assert_eq!(paths.len(), 2);
+        assert!(paths.iter().any(|p| p.path == "/etc/passwd"));
+        assert!(paths.iter().any(|p| p.path == "/bin/sh"));
+    }
+
+    #[test]
+    fn test_analyze_path() {
+        let path_info = analyze_path("/etc/passwd", "strings");
+
+        assert_eq!(path_info.path, "/etc/passwd");
+        assert_eq!(path_info.path_type, PathType::Absolute);
+        assert_eq!(path_info.category, PathCategory::Config);
+        assert_eq!(path_info.source, "strings");
+        assert!(!path_info.evidence.is_empty());
+    }
+
+    #[test]
+    fn test_detect_platform_from_paths_mtd() {
+        let paths = vec![
+            PathInfo {
+                path: "/mnt/mtd/config".to_string(),
+                path_type: PathType::Absolute,
+                category: PathCategory::Other,
+                access_type: None,
+                source: "strings".to_string(),
+                evidence: vec![],
+                referenced_by_traits: vec![],
+            },
+            PathInfo {
+                path: "/dev/mtdblock0".to_string(),
+                path_type: PathType::Absolute,
+                category: PathCategory::Device,
+                access_type: None,
+                source: "strings".to_string(),
+                evidence: vec![],
+                referenced_by_traits: vec![],
+            },
+        ];
+
+        let traits = detect_platform_from_paths(&paths);
+
+        assert!(traits
+            .iter()
+            .any(|t| t.id.contains("embedded") && t.id.contains("mtd")));
+    }
+
+    #[test]
+    fn test_detect_privilege_requirements() {
+        let paths = vec![PathInfo {
+            path: "/etc/shadow".to_string(),
+            path_type: PathType::Absolute,
+            category: PathCategory::Config,
+            access_type: None,
+            source: "strings".to_string(),
+            evidence: vec![],
+            referenced_by_traits: vec![],
+        }];
+
+        let traits = detect_privilege_requirements(&paths);
+
+        assert!(traits.iter().any(|t| t.id.contains("root_access")));
+    }
 }

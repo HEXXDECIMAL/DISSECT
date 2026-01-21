@@ -6,7 +6,7 @@ traits:
   # Reverse shell components
   - id: socket-connect
     description: Network socket connection (potential reverse shell)
-    criticality: medium
+    criticality: notable
     mbc: "B0030.002"
     attack: "T1071"
     confidence: 0.6
@@ -17,7 +17,7 @@ traits:
 
   - id: dup2-redirect
     description: File descriptor duplication (I/O redirection)
-    criticality: low
+    criticality: notable
     mbc: "B0030.002"
     confidence: 0.5
     condition:
@@ -28,7 +28,7 @@ traits:
   # Bind shell components
   - id: socket-bind
     description: Socket binding (potential bind shell)
-    criticality: medium
+    criticality: notable
     mbc: "B0030.003"
     attack: "T1071"
     confidence: 0.6
@@ -39,7 +39,7 @@ traits:
 
   - id: socket-listen
     description: Socket listening (potential bind shell)
-    criticality: medium
+    criticality: notable
     mbc: "B0030.003"
     confidence: 0.6
     condition:
@@ -50,7 +50,7 @@ traits:
   # Shell references
   - id: shell-ref
     description: Shell executable reference
-    criticality: low
+    criticality: notable
     confidence: 0.5
     condition:
       type: string

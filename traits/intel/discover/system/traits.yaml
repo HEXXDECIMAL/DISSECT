@@ -6,7 +6,7 @@ traits:
   # System control and configuration
   - id: sysctl
     description: Get or set system information and kernel parameters
-    criticality: medium
+    criticality: inert
     mbc: "E1082"
     attack: "T1082"
     confidence: 0.6
@@ -17,7 +17,7 @@ traits:
 
   - id: sysctlbyname
     description: Get or set system information by name
-    criticality: medium
+    criticality: inert
     mbc: "E1082"
     attack: "T1082"
     confidence: 0.6
@@ -28,7 +28,7 @@ traits:
 
   - id: sysctlnametomib
     description: Convert sysctl name to MIB array
-    criticality: low
+    criticality: inert
     mbc: "E1082"
     attack: "T1082"
     confidence: 0.5
@@ -40,7 +40,7 @@ traits:
   # Device control
   - id: ioctl
     description: Device-specific input/output operations and control
-    criticality: medium
+    criticality: inert
     mbc: "E1082"
     attack: "T1082"
     confidence: 0.5
@@ -52,7 +52,7 @@ traits:
   # System identification
   - id: uname
     description: Get system name and information
-    criticality: low
+    criticality: inert
     mbc: "E1082"
     attack: "T1082"
     confidence: 0.6
@@ -63,7 +63,7 @@ traits:
 
   - id: gethostname
     description: Get hostname of current machine
-    criticality: low
+    criticality: inert
     mbc: "E1082"
     attack: "T1082"
     confidence: 0.5
@@ -74,7 +74,7 @@ traits:
 
   - id: getdomainname
     description: Get NIS domain name
-    criticality: low
+    criticality: inert
     mbc: "E1082"
     attack: "T1082"
     confidence: 0.5
@@ -86,7 +86,7 @@ traits:
   # Resource limits and configuration
   - id: getrlimit
     description: Get resource limits for process
-    criticality: low
+    criticality: inert
     mbc: "E1082"
     attack: "T1082"
     confidence: 0.4
@@ -97,7 +97,7 @@ traits:
 
   - id: setrlimit
     description: Set resource limits for process
-    criticality: medium
+    criticality: notable
     mbc: "F0004"
     attack: "T1562.001"
     confidence: 0.6
@@ -109,7 +109,7 @@ traits:
   # System configuration
   - id: sysconf
     description: Get system configuration information
-    criticality: low
+    criticality: inert
     mbc: "E1082"
     attack: "T1082"
     confidence: 0.4
@@ -120,7 +120,7 @@ traits:
 
   - id: confstr
     description: Get configuration-dependent string variables
-    criticality: low
+    criticality: inert
     mbc: "E1082"
     attack: "T1082"
     confidence: 0.4
@@ -132,7 +132,7 @@ traits:
   # macOS-specific system information
   - id: host_info
     description: Get host information (macOS Mach API)
-    criticality: medium
+    criticality: inert
     mbc: "E1082"
     attack: "T1082"
     confidence: 0.6
@@ -143,7 +143,7 @@ traits:
 
   - id: host_statistics
     description: Get host statistics (macOS Mach API)
-    criticality: medium
+    criticality: inert
     mbc: "E1082"
     attack: "T1082"
     confidence: 0.6
