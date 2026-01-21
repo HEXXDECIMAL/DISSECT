@@ -292,7 +292,6 @@ impl Analyzer for ArchiveAnalyzer {
 mod tests {
     use super::*;
     use std::io::Write;
-    use std::path::PathBuf;
 
     #[test]
     fn test_new() {

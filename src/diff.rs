@@ -98,7 +98,7 @@ fn detect_renames(removed: &[String], added: &[String]) -> Vec<FileRename> {
         if let Some(basename) = Path::new(removed_file).file_name().and_then(|n| n.to_str()) {
             removed_by_basename
                 .entry(basename.to_string())
-                .or_insert_with(Vec::new)
+                .or_default()
                 .push(removed_file);
         }
     }
@@ -107,7 +107,7 @@ fn detect_renames(removed: &[String], added: &[String]) -> Vec<FileRename> {
         if let Some(basename) = Path::new(added_file).file_name().and_then(|n| n.to_str()) {
             added_by_basename
                 .entry(basename.to_string())
-                .or_insert_with(Vec::new)
+                .or_default()
                 .push(added_file);
         }
     }
@@ -142,7 +142,7 @@ fn detect_renames(removed: &[String], added: &[String]) -> Vec<FileRename> {
             if let Some(lib_base) = extract_library_base(basename) {
                 added_by_lib_base
                     .entry(lib_base.to_string())
-                    .or_insert_with(Vec::new)
+                    .or_default()
                     .push(added_file);
             }
         }
@@ -185,10 +185,7 @@ fn detect_renames(removed: &[String], added: &[String]) -> Vec<FileRename> {
             .and_then(|p| p.to_str())
             .unwrap_or("")
             .to_string();
-        removed_by_dir
-            .entry(dir)
-            .or_insert_with(Vec::new)
-            .push(removed_file);
+        removed_by_dir.entry(dir).or_default().push(removed_file);
     }
 
     let mut added_by_dir: HashMap<String, Vec<&String>> = HashMap::new();
@@ -201,10 +198,7 @@ fn detect_renames(removed: &[String], added: &[String]) -> Vec<FileRename> {
             .and_then(|p| p.to_str())
             .unwrap_or("")
             .to_string();
-        added_by_dir
-            .entry(dir)
-            .or_insert_with(Vec::new)
-            .push(added_file);
+        added_by_dir.entry(dir).or_default().push(added_file);
     }
 
     // Within each directory, compare files (O(k*m) where k,m are small directory sizes)
@@ -804,7 +798,6 @@ mod tests {
     use super::*;
     use crate::types::{AnalysisReport, Capability, Criticality, TargetInfo};
     use chrono::Utc;
-    use std::collections::HashMap;
 
     fn create_test_report_for_diff(path: &str, capability_ids: Vec<&str>) -> AnalysisReport {
         let capabilities: Vec<Capability> = capability_ids

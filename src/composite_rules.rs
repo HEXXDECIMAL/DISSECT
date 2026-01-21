@@ -536,7 +536,7 @@ impl CompositeTrait {
             let namespace_match = yara_match.namespace == namespace
                 || yara_match.namespace.starts_with(&format!("{}.", namespace));
 
-            let rule_match = rule.map_or(true, |r| &yara_match.rule == r);
+            let rule_match = rule.is_none_or(|r| &yara_match.rule == r);
 
             if namespace_match && rule_match {
                 evidence.push(Evidence {
@@ -639,7 +639,7 @@ impl CompositeTrait {
             ctx.report.imports.len()
         };
 
-        let matched = min.map_or(true, |m| count >= m) && max.map_or(true, |m| count <= m);
+        let matched = min.is_none_or(|m| count >= m) && max.is_none_or(|m| count <= m);
 
         ConditionResult {
             matched,
@@ -665,7 +665,7 @@ impl CompositeTrait {
         ctx: &EvaluationContext,
     ) -> ConditionResult {
         let count = ctx.report.exports.len();
-        let matched = min.map_or(true, |m| count >= m) && max.map_or(true, |m| count <= m);
+        let matched = min.is_none_or(|m| count >= m) && max.is_none_or(|m| count <= m);
 
         ConditionResult {
             matched,
@@ -989,7 +989,7 @@ fn eval_yara_match(
         let namespace_match = yara_match.namespace == namespace
             || yara_match.namespace.starts_with(&format!("{}.", namespace));
 
-        let rule_match = rule.map_or(true, |r| &yara_match.rule == r);
+        let rule_match = rule.is_none_or(|r| &yara_match.rule == r);
 
         if namespace_match && rule_match {
             evidence.push(Evidence {
@@ -1076,7 +1076,7 @@ fn eval_imports_count(
         ctx.report.imports.len()
     };
 
-    let matched = min.map_or(true, |m| count >= m) && max.map_or(true, |m| count <= m);
+    let matched = min.is_none_or(|m| count >= m) && max.is_none_or(|m| count <= m);
 
     ConditionResult {
         matched,
@@ -1100,7 +1100,7 @@ fn eval_exports_count(
     ctx: &EvaluationContext,
 ) -> ConditionResult {
     let count = ctx.report.exports.len();
-    let matched = min.map_or(true, |m| count >= m) && max.map_or(true, |m| count <= m);
+    let matched = min.is_none_or(|m| count >= m) && max.is_none_or(|m| count <= m);
 
     ConditionResult {
         matched,

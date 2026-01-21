@@ -100,7 +100,7 @@ mod tests {
 
     #[test]
     fn test_temp_dir_guard_cleanup() {
-        let path = {
+        let _path = {
             let guard = TempDirGuard::new("dissect-test").unwrap();
             guard.path().to_path_buf()
         };

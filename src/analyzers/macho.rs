@@ -286,7 +286,7 @@ impl MachOAnalyzer {
                     unique_libs.insert(lib.clone());
 
                     // Extract library name without path/version
-                    let lib_name = lib.split('/').last().unwrap_or(lib);
+                    let lib_name = lib.split('/').next_back().unwrap_or(lib);
                     let base_name = lib_name
                         .split('.')
                         .next()

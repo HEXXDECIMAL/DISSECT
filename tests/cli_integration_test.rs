@@ -30,7 +30,7 @@ fn test_version_command() {
 fn test_analyze_nonexistent_file() {
     Command::cargo_bin("dissect")
         .unwrap()
-        .args(&["analyze", "/nonexistent/file.bin"])
+        .args(["analyze", "/nonexistent/file.bin"])
         .assert()
         .failure()
         .stderr(predicate::str::contains("does not exist"));
@@ -46,7 +46,7 @@ fn test_analyze_shell_script() {
 
     Command::cargo_bin("dissect")
         .unwrap()
-        .args(&["analyze", script_path.to_str().unwrap()])
+        .args(["analyze", script_path.to_str().unwrap()])
         .assert()
         .success()
         .stdout(predicate::str::contains("test.sh"));
@@ -62,7 +62,7 @@ fn test_analyze_json_output() {
 
     Command::cargo_bin("dissect")
         .unwrap()
-        .args(&["-f", "json", "analyze", script_path.to_str().unwrap()])
+        .args(["-f", "json", "analyze", script_path.to_str().unwrap()])
         .assert()
         .success()
         .stdout(predicate::str::contains("schema_version"));
@@ -79,7 +79,7 @@ fn test_analyze_output_to_file() {
 
     Command::cargo_bin("dissect")
         .unwrap()
-        .args(&[
+        .args([
             "-f",
             "json",
             "-o",
@@ -103,7 +103,7 @@ fn test_scan_empty_directory() {
 
     Command::cargo_bin("dissect")
         .unwrap()
-        .args(&["scan", temp_dir.path().to_str().unwrap()])
+        .args(["scan", temp_dir.path().to_str().unwrap()])
         .assert()
         .success()
         .stdout(predicate::str::contains("Scanning"));
@@ -121,7 +121,7 @@ fn test_scan_multiple_files() {
 
     Command::cargo_bin("dissect")
         .unwrap()
-        .args(&["scan", temp_dir.path().to_str().unwrap()])
+        .args(["scan", temp_dir.path().to_str().unwrap()])
         .assert()
         .success()
         .stdout(predicate::str::contains("Scanning"));
@@ -132,7 +132,7 @@ fn test_scan_multiple_files() {
 fn test_diff_nonexistent_files() {
     Command::cargo_bin("dissect")
         .unwrap()
-        .args(&["diff", "/nonexistent/old.bin", "/nonexistent/new.bin"])
+        .args(["diff", "/nonexistent/old.bin", "/nonexistent/new.bin"])
         .assert()
         .failure();
 }
@@ -150,7 +150,7 @@ fn test_diff_identical_files() {
 
     Command::cargo_bin("dissect")
         .unwrap()
-        .args(&["diff", file1.to_str().unwrap(), file2.to_str().unwrap()])
+        .args(["diff", file1.to_str().unwrap(), file2.to_str().unwrap()])
         .assert()
         .success()
         .stdout(predicate::str::contains("Baseline"));
@@ -168,7 +168,7 @@ fn test_diff_different_files() {
 
     Command::cargo_bin("dissect")
         .unwrap()
-        .args(&["diff", file1.to_str().unwrap(), file2.to_str().unwrap()])
+        .args(["diff", file1.to_str().unwrap(), file2.to_str().unwrap()])
         .assert()
         .success();
 }
@@ -192,7 +192,7 @@ fn test_invalid_format() {
 
     Command::cargo_bin("dissect")
         .unwrap()
-        .args(&["-f", "xml", "analyze", script.to_str().unwrap()])
+        .args(["-f", "xml", "analyze", script.to_str().unwrap()])
         .assert()
         .failure();
 }
@@ -206,7 +206,7 @@ fn test_verbose_flag() {
 
     Command::cargo_bin("dissect")
         .unwrap()
-        .args(&["-v", "analyze", script.to_str().unwrap()])
+        .args(["-v", "analyze", script.to_str().unwrap()])
         .assert()
         .success();
 }
@@ -221,7 +221,7 @@ fn test_analyze_python_file() {
 
     Command::cargo_bin("dissect")
         .unwrap()
-        .args(&["analyze", py_file.to_str().unwrap()])
+        .args(["analyze", py_file.to_str().unwrap()])
         .assert()
         .success()
         .stdout(predicate::str::contains("test.py"));
@@ -237,7 +237,7 @@ fn test_analyze_javascript_file() {
 
     Command::cargo_bin("dissect")
         .unwrap()
-        .args(&["analyze", js_file.to_str().unwrap()])
+        .args(["analyze", js_file.to_str().unwrap()])
         .assert()
         .success()
         .stdout(predicate::str::contains("test.js"));
@@ -252,7 +252,7 @@ fn test_scan_json_output() {
 
     Command::cargo_bin("dissect")
         .unwrap()
-        .args(&["-f", "json", "scan", temp_dir.path().to_str().unwrap()])
+        .args(["-f", "json", "scan", temp_dir.path().to_str().unwrap()])
         .assert()
         .success()
         .stdout(predicate::str::contains("["));
@@ -267,7 +267,7 @@ fn test_third_party_yara_flag() {
 
     Command::cargo_bin("dissect")
         .unwrap()
-        .args(&["analyze", script.to_str().unwrap(), "--third-party-yara"])
+        .args(["analyze", script.to_str().unwrap(), "--third-party-yara"])
         .assert()
         .success();
 }

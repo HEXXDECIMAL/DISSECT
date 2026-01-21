@@ -33,20 +33,22 @@ pub fn get_most_recent_yara_mtime() -> Result<SystemTime> {
 
     // Check traits/ directory
     if Path::new("traits").exists() {
-        for entry in WalkDir::new("traits").follow_links(false) {
-            if let Ok(entry) = entry {
-                let path = entry.path();
-                if path.is_file()
-                    && path
-                        .extension()
-                        .map(|ext| ext == "yar" || ext == "yara")
-                        .unwrap_or(false)
-                {
-                    if let Ok(metadata) = fs::metadata(path) {
-                        if let Ok(mtime) = metadata.modified() {
-                            if mtime > most_recent {
-                                most_recent = mtime;
-                            }
+        for entry in WalkDir::new("traits")
+            .follow_links(false)
+            .into_iter()
+            .flatten()
+        {
+            let path = entry.path();
+            if path.is_file()
+                && path
+                    .extension()
+                    .map(|ext| ext == "yar" || ext == "yara")
+                    .unwrap_or(false)
+            {
+                if let Ok(metadata) = fs::metadata(path) {
+                    if let Ok(mtime) = metadata.modified() {
+                        if mtime > most_recent {
+                            most_recent = mtime;
                         }
                     }
                 }
@@ -56,20 +58,22 @@ pub fn get_most_recent_yara_mtime() -> Result<SystemTime> {
 
     // Check third_party/yara directory
     if Path::new("third_party/yara").exists() {
-        for entry in WalkDir::new("third_party/yara").follow_links(false) {
-            if let Ok(entry) = entry {
-                let path = entry.path();
-                if path.is_file()
-                    && path
-                        .extension()
-                        .map(|ext| ext == "yar" || ext == "yara")
-                        .unwrap_or(false)
-                {
-                    if let Ok(metadata) = fs::metadata(path) {
-                        if let Ok(mtime) = metadata.modified() {
-                            if mtime > most_recent {
-                                most_recent = mtime;
-                            }
+        for entry in WalkDir::new("third_party/yara")
+            .follow_links(false)
+            .into_iter()
+            .flatten()
+        {
+            let path = entry.path();
+            if path.is_file()
+                && path
+                    .extension()
+                    .map(|ext| ext == "yar" || ext == "yara")
+                    .unwrap_or(false)
+            {
+                if let Ok(metadata) = fs::metadata(path) {
+                    if let Ok(mtime) = metadata.modified() {
+                        if mtime > most_recent {
+                            most_recent = mtime;
                         }
                     }
                 }
@@ -157,7 +161,7 @@ pub fn cleanup_old_caches(current_cache: &Path) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::io::Write;
+
     use tempfile::TempDir;
 
     #[test]
@@ -165,7 +169,8 @@ mod tests {
         // Should return false when traits/ doesn't exist (in test environment)
         let result = is_developer_mode();
         // Result depends on whether traits/ exists in test environment
-        assert!(result == true || result == false);
+        // Simply verify it returns a boolean without panicking
+        let _ = result;
     }
 
     #[test]

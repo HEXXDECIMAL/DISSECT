@@ -1,5 +1,4 @@
 use assert_cmd::Command;
-use predicates::prelude::*;
 use std::fs;
 use tempfile::TempDir;
 
@@ -14,7 +13,7 @@ fn test_shell_script_matches_shell_rules() {
 
     let output = Command::cargo_bin("dissect")
         .unwrap()
-        .args(&["-f", "json", "analyze", script_path.to_str().unwrap()])
+        .args(["-f", "json", "analyze", script_path.to_str().unwrap()])
         .output()
         .unwrap();
 
@@ -64,7 +63,7 @@ fn test_python_rules_filtered_for_shell_scripts() {
 
     let output = Command::cargo_bin("dissect")
         .unwrap()
-        .args(&["-f", "json", "analyze", script_path.to_str().unwrap()])
+        .args(["-f", "json", "analyze", script_path.to_str().unwrap()])
         .output()
         .unwrap();
 
@@ -112,7 +111,7 @@ fn test_python_file_matches_python_rules() {
 
     let output = Command::cargo_bin("dissect")
         .unwrap()
-        .args(&["-f", "json", "analyze", py_file.to_str().unwrap()])
+        .args(["-f", "json", "analyze", py_file.to_str().unwrap()])
         .output()
         .unwrap();
 
@@ -166,7 +165,7 @@ fn test_generic_rules_never_filtered() {
 
     let output = Command::cargo_bin("dissect")
         .unwrap()
-        .args(&["-f", "json", "analyze", script_path.to_str().unwrap()])
+        .args(["-f", "json", "analyze", script_path.to_str().unwrap()])
         .output()
         .unwrap();
 
@@ -210,7 +209,7 @@ fn test_javascript_file_filters_non_js_rules() {
 
     let output = Command::cargo_bin("dissect")
         .unwrap()
-        .args(&["-f", "json", "analyze", js_file.to_str().unwrap()])
+        .args(["-f", "json", "analyze", js_file.to_str().unwrap()])
         .output()
         .unwrap();
 
@@ -272,7 +271,7 @@ fn test_scan_multi_filetype_directory() {
 
     let output = Command::cargo_bin("dissect")
         .unwrap()
-        .args(&["-f", "json", "scan", temp_dir.path().to_str().unwrap()])
+        .args(["-f", "json", "scan", temp_dir.path().to_str().unwrap()])
         .output()
         .unwrap();
 
@@ -308,7 +307,7 @@ fn test_filtered_criticality_level() {
 
     let output = Command::cargo_bin("dissect")
         .unwrap()
-        .args(&["-f", "json", "analyze", script_path.to_str().unwrap()])
+        .args(["-f", "json", "analyze", script_path.to_str().unwrap()])
         .output()
         .unwrap();
 
@@ -361,7 +360,7 @@ fn test_filtered_matches_preserved() {
 
     let output = Command::cargo_bin("dissect")
         .unwrap()
-        .args(&["-f", "json", "analyze", script_path.to_str().unwrap()])
+        .args(["-f", "json", "analyze", script_path.to_str().unwrap()])
         .output()
         .unwrap();
 

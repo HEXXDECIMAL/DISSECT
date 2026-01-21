@@ -222,16 +222,11 @@ impl CapabilityMapper {
                         let symbol = symbol_pattern.trim().to_string();
 
                         // Only add if not already present (first match wins)
-                        if !symbol_map.contains_key(&symbol) {
-                            symbol_map.insert(
-                                symbol,
-                                CapabilityInfo {
-                                    id: trait_def.id.clone(),
-                                    description: trait_def.description.clone(),
-                                    confidence: trait_def.confidence,
-                                },
-                            );
-                        }
+                        symbol_map.entry(symbol).or_insert_with(|| CapabilityInfo {
+                            id: trait_def.id.clone(),
+                            description: trait_def.description.clone(),
+                            confidence: trait_def.confidence,
+                        });
                     }
                 }
             }

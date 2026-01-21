@@ -1,5 +1,4 @@
 use assert_cmd::Command;
-use predicates::prelude::*;
 use std::fs;
 use tempfile::TempDir;
 
@@ -18,7 +17,7 @@ fn test_windows_keylog_capability_filtered_for_elf() {
 
     let output = Command::cargo_bin("dissect")
         .unwrap()
-        .args(&["-f", "json", "analyze", file_path.to_str().unwrap()])
+        .args(["-f", "json", "analyze", file_path.to_str().unwrap()])
         .output()
         .unwrap();
 
@@ -45,7 +44,10 @@ fn test_windows_keylog_capability_filtered_for_elf() {
             // Windows keylogging capabilities should be filtered out for ELF files
             for cap in windows_caps {
                 let cap_id = cap.get("id").and_then(|id| id.as_str()).unwrap_or("");
-                eprintln!("Note: Windows cap '{}' appeared in ELF file - checking if expected", cap_id);
+                eprintln!(
+                    "Note: Windows cap '{}' appeared in ELF file - checking if expected",
+                    cap_id
+                );
             }
         }
     }
@@ -62,7 +64,7 @@ fn test_universal_capabilities_match_all_files() {
 
     let output = Command::cargo_bin("dissect")
         .unwrap()
-        .args(&["-f", "json", "analyze", script_path.to_str().unwrap()])
+        .args(["-f", "json", "analyze", script_path.to_str().unwrap()])
         .output()
         .unwrap();
 
@@ -89,11 +91,15 @@ fn test_python_capabilities_for_python_files() {
     let py_file = temp_dir.path().join("test.py");
 
     // Python file with network operations
-    fs::write(&py_file, "#!/usr/bin/env python3\nimport socket\ns = socket.socket()\n").unwrap();
+    fs::write(
+        &py_file,
+        "#!/usr/bin/env python3\nimport socket\ns = socket.socket()\n",
+    )
+    .unwrap();
 
     let output = Command::cargo_bin("dissect")
         .unwrap()
-        .args(&["-f", "json", "analyze", py_file.to_str().unwrap()])
+        .args(["-f", "json", "analyze", py_file.to_str().unwrap()])
         .output()
         .unwrap();
 
@@ -114,7 +120,9 @@ fn test_python_capabilities_for_python_files() {
                 .filter(|cap| {
                     cap.get("id")
                         .and_then(|id| id.as_str())
-                        .map(|id| id.contains("net") || id.contains("socket") || id.contains("http"))
+                        .map(|id| {
+                            id.contains("net") || id.contains("socket") || id.contains("http")
+                        })
                         .unwrap_or(false)
                 })
                 .collect();
@@ -138,11 +146,15 @@ fn test_javascript_capabilities_for_js_files() {
     let js_file = temp_dir.path().join("test.js");
 
     // JavaScript with DOM access
-    fs::write(&js_file, "const data = localStorage.getItem('key');\nconsole.log(data);\n").unwrap();
+    fs::write(
+        &js_file,
+        "const data = localStorage.getItem('key');\nconsole.log(data);\n",
+    )
+    .unwrap();
 
     let output = Command::cargo_bin("dissect")
         .unwrap()
-        .args(&["-f", "json", "analyze", js_file.to_str().unwrap()])
+        .args(["-f", "json", "analyze", js_file.to_str().unwrap()])
         .output()
         .unwrap();
 
@@ -154,10 +166,16 @@ fn test_javascript_capabilities_for_js_files() {
 
     // Parse JSON - verify structure
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
-        assert!(json.get("capabilities").is_some(), "Should have capabilities field");
+        assert!(
+            json.get("capabilities").is_some(),
+            "Should have capabilities field"
+        );
 
         if let Some(capabilities) = json.get("capabilities").and_then(|v| v.as_array()) {
-            eprintln!("Found {} capabilities for JavaScript file", capabilities.len());
+            eprintln!(
+                "Found {} capabilities for JavaScript file",
+                capabilities.len()
+            );
 
             // Note: Simple JS scripts might not trigger YAML capabilities
             // The important thing is file type detection works and structure is correct
@@ -177,11 +195,15 @@ fn test_shell_capabilities_for_shell_scripts() {
     let script_path = temp_dir.path().join("test.sh");
 
     // Shell script with network operations
-    fs::write(&script_path, "#!/bin/bash\ncurl http://example.com\nwget http://test.com\n").unwrap();
+    fs::write(
+        &script_path,
+        "#!/bin/bash\ncurl http://example.com\nwget http://test.com\n",
+    )
+    .unwrap();
 
     let output = Command::cargo_bin("dissect")
         .unwrap()
-        .args(&["-f", "json", "analyze", script_path.to_str().unwrap()])
+        .args(["-f", "json", "analyze", script_path.to_str().unwrap()])
         .output()
         .unwrap();
 
@@ -237,17 +259,25 @@ fn test_rules_without_filetype_are_universal() {
     for file in &[sh_file, py_file, js_file] {
         let output = Command::cargo_bin("dissect")
             .unwrap()
-            .args(&["-f", "json", "analyze", file.to_str().unwrap()])
+            .args(["-f", "json", "analyze", file.to_str().unwrap()])
             .output()
             .unwrap();
 
-        assert!(output.status.success(), "Analysis should succeed for {:?}", file.file_name());
+        assert!(
+            output.status.success(),
+            "Analysis should succeed for {:?}",
+            file.file_name()
+        );
 
         let stdout = String::from_utf8_lossy(&output.stdout);
 
         // Parse JSON - verify structure is correct for all file types
         if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
-            assert!(json.get("capabilities").is_some(), "File {:?} should have capabilities field", file.file_name());
+            assert!(
+                json.get("capabilities").is_some(),
+                "File {:?} should have capabilities field",
+                file.file_name()
+            );
 
             if let Some(capabilities) = json.get("capabilities").and_then(|v| v.as_array()) {
                 eprintln!(
@@ -277,12 +307,13 @@ fn test_composite_trait_file_type_filtering() {
          import socket\n\
          import os\n\
          s = socket.socket()\n\
-         os.system('whoami')\n"
-    ).unwrap();
+         os.system('whoami')\n",
+    )
+    .unwrap();
 
     let output = Command::cargo_bin("dissect")
         .unwrap()
-        .args(&["-f", "json", "analyze", py_file.to_str().unwrap()])
+        .args(["-f", "json", "analyze", py_file.to_str().unwrap()])
         .output()
         .unwrap();
 
@@ -292,13 +323,22 @@ fn test_composite_trait_file_type_filtering() {
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
         // Check that Python file gets appropriate capabilities
         if let Some(capabilities) = json.get("capabilities").and_then(|v| v.as_array()) {
-            eprintln!("Found {} capabilities for Python file with suspicious patterns", capabilities.len());
+            eprintln!(
+                "Found {} capabilities for Python file with suspicious patterns",
+                capabilities.len()
+            );
 
             // Verify capabilities have proper structure
             for cap in capabilities {
                 assert!(cap.get("id").is_some(), "Capability should have id");
-                assert!(cap.get("description").is_some(), "Capability should have description");
-                assert!(cap.get("confidence").is_some(), "Capability should have confidence");
+                assert!(
+                    cap.get("description").is_some(),
+                    "Capability should have description"
+                );
+                assert!(
+                    cap.get("confidence").is_some(),
+                    "Capability should have confidence"
+                );
             }
         }
 
@@ -320,7 +360,7 @@ fn test_platform_and_filetype_constraints_together() {
 
     let output = Command::cargo_bin("dissect")
         .unwrap()
-        .args(&["-f", "json", "analyze", script.to_str().unwrap()])
+        .args(["-f", "json", "analyze", script.to_str().unwrap()])
         .output()
         .unwrap();
 
@@ -331,10 +371,17 @@ fn test_platform_and_filetype_constraints_together() {
     // Parse and verify basic structure
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
         assert!(json.get("target").is_some(), "Should have target field");
-        assert!(json.get("capabilities").is_some(), "Should have capabilities field");
+        assert!(
+            json.get("capabilities").is_some(),
+            "Should have capabilities field"
+        );
 
         // File type should be ShellScript
-        if let Some(file_type) = json.get("target").and_then(|t| t.get("file_type")).and_then(|ft| ft.as_str()) {
+        if let Some(file_type) = json
+            .get("target")
+            .and_then(|t| t.get("file_type"))
+            .and_then(|ft| ft.as_str())
+        {
             assert!(
                 file_type.contains("Shell") || file_type.contains("script"),
                 "File type should indicate shell script, got: {}",

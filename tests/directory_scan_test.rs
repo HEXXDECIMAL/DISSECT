@@ -26,7 +26,7 @@ fn test_analyze_command_handles_directory() {
 
     // Run analyze command on directory
     let output = Command::new("cargo")
-        .args(&["run", "--", "--format", "json", "analyze", test_dir])
+        .args(["run", "--", "--format", "json", "analyze", test_dir])
         .output()
         .expect("Failed to execute command");
 
@@ -56,7 +56,7 @@ fn test_analyze_command_handles_single_file() {
 
     // Run analyze command on single file
     let output = Command::new("cargo")
-        .args(&["run", "--", "--format", "json", "analyze", test_file])
+        .args(["run", "--", "--format", "json", "analyze", test_file])
         .output()
         .expect("Failed to execute command");
 
@@ -91,7 +91,7 @@ fn test_scan_command_handles_multiple_paths() {
 
     // Run scan command on multiple directories
     let output = Command::new("cargo")
-        .args(&[
+        .args([
             "run", "--", "--format", "json", "scan", test_dir1, test_dir2,
         ])
         .output()
@@ -117,7 +117,7 @@ fn test_analyze_empty_directory() {
 
     // Run analyze command on empty directory
     let output = Command::new("cargo")
-        .args(&["run", "--", "--format", "json", "analyze", test_dir])
+        .args(["run", "--", "--format", "json", "analyze", test_dir])
         .output()
         .expect("Failed to execute command");
 
@@ -134,8 +134,6 @@ fn test_analyze_empty_directory() {
 
 #[test]
 fn test_analyze_directory_with_archive() {
-    use std::io::Write;
-
     // Create test directory with an archive
     let test_dir = "/tmp/dissect-test-archive-dir";
     let _ = fs::remove_dir_all(test_dir);
@@ -158,7 +156,7 @@ fn test_analyze_directory_with_archive() {
 
     // Run analyze command on directory containing archive
     let output = Command::new("cargo")
-        .args(&["run", "--", "--format", "json", "analyze", test_dir])
+        .args(["run", "--", "--format", "json", "analyze", test_dir])
         .output()
         .expect("Failed to execute command");
 
@@ -183,7 +181,7 @@ fn test_analyze_directory_with_archive() {
 fn test_analyze_nonexistent_path() {
     // Try to analyze a path that doesn't exist
     let output = Command::new("cargo")
-        .args(&[
+        .args([
             "run",
             "--",
             "analyze",
@@ -216,7 +214,7 @@ fn test_analyze_symlink_handling() {
 
     // Analyze the symlink - should work but not follow into infinite loops
     let output = Command::new("cargo")
-        .args(&["run", "--", "--format", "json", "analyze", test_link])
+        .args(["run", "--", "--format", "json", "analyze", test_link])
         .output()
         .expect("Failed to execute command");
 
@@ -244,7 +242,7 @@ fn test_recursive_depth() {
 
     // Run analyze command
     let output = Command::new("cargo")
-        .args(&["run", "--", "--format", "json", "analyze", test_dir])
+        .args(["run", "--", "--format", "json", "analyze", test_dir])
         .output()
         .expect("Failed to execute command");
 

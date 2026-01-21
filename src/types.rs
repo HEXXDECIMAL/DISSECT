@@ -1100,8 +1100,6 @@ pub struct GoIdioms {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::entropy::EntropyLevel;
-    use serde_json;
 
     #[test]
     fn test_criticality_enum() {

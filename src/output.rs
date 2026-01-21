@@ -242,10 +242,7 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
             ns_max_criticality.insert(ns.clone(), trait_item.criticality);
         }
 
-        by_namespace
-            .entry(ns)
-            .or_insert_with(Vec::new)
-            .push(*trait_item);
+        by_namespace.entry(ns).or_default().push(*trait_item);
     }
 
     // Sort namespaces by long name

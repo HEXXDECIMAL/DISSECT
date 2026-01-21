@@ -308,19 +308,29 @@ fn scan_paths(
         match analyze_file_with_shared_mapper(path_str, enable_third_party_yara, &capability_mapper)
         {
             Ok(json) => {
-                eprintln!("DEBUG: Analyzed file {}, JSON length: {}", path_str, json.len());
+                eprintln!(
+                    "DEBUG: Analyzed file {}, JSON length: {}",
+                    path_str,
+                    json.len()
+                );
                 // For terminal format, show immediate output above progress bar
                 if matches!(format, cli::OutputFormat::Terminal) {
                     eprintln!("DEBUG: Terminal format, parsing JSON...");
                     // Parse JSON and format as terminal output
                     let parse_result = serde_json::from_str::<crate::types::AnalysisReport>(&json);
-                    eprintln!("DEBUG: Parse result: {}", if parse_result.is_ok() { "Ok" } else { "Err" });
+                    eprintln!(
+                        "DEBUG: Parse result: {}",
+                        if parse_result.is_ok() { "Ok" } else { "Err" }
+                    );
                     match parse_result {
                         Ok(report) => {
                             eprintln!("DEBUG: Parsed JSON successfully, formatting...");
                             match output::format_terminal(&report) {
                                 Ok(formatted) => {
-                                    eprintln!("DEBUG: Formatted successfully, length: {}", formatted.len());
+                                    eprintln!(
+                                        "DEBUG: Formatted successfully, length: {}",
+                                        formatted.len()
+                                    );
                                     // Print directly to test
                                     eprintln!("{}", formatted);
                                     if let Some(ref bar) = pb {
@@ -332,7 +342,8 @@ fn scan_paths(
                                     }
                                 }
                                 Err(e) => {
-                                    let msg = format!("Error formatting report for {}: {}", path_str, e);
+                                    let msg =
+                                        format!("Error formatting report for {}: {}", path_str, e);
                                     if let Some(ref bar) = pb {
                                         bar.println(msg);
                                     } else {
@@ -391,25 +402,24 @@ fn scan_paths(
                 if matches!(format, cli::OutputFormat::Terminal) {
                     // Parse JSON and format as terminal output
                     match serde_json::from_str::<crate::types::AnalysisReport>(&json) {
-                        Ok(report) => {
-                            match output::format_terminal(&report) {
-                                Ok(formatted) => {
-                                    if let Some(ref bar) = pb {
-                                        bar.println(formatted);
-                                    } else {
-                                        print!("{}", formatted);
-                                    }
-                                }
-                                Err(e) => {
-                                    let msg = format!("Error formatting report for {}: {}", path_str, e);
-                                    if let Some(ref bar) = pb {
-                                        bar.println(msg);
-                                    } else {
-                                        eprintln!("{}", msg);
-                                    }
+                        Ok(report) => match output::format_terminal(&report) {
+                            Ok(formatted) => {
+                                if let Some(ref bar) = pb {
+                                    bar.println(formatted);
+                                } else {
+                                    print!("{}", formatted);
                                 }
                             }
-                        }
+                            Err(e) => {
+                                let msg =
+                                    format!("Error formatting report for {}: {}", path_str, e);
+                                if let Some(ref bar) = pb {
+                                    bar.println(msg);
+                                } else {
+                                    eprintln!("{}", msg);
+                                }
+                            }
+                        },
                         Err(e) => {
                             eprintln!("DEBUG: JSON parse error: {}", e);
                             eprintln!("DEBUG: JSON preview: {}", &json[..json.len().min(500)]);
