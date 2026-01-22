@@ -1,0 +1,89 @@
+# URL Shortener Detection Traits
+# Detects use of URL shortening services which obscure true destinations
+# Often used to hide malicious payloads or C2 infrastructure
+# ATT&CK: T1027.006 (Obfuscated Files or Information: HTML Smuggling)
+
+traits:
+  - id: url-shortener-bitly
+    description: URL shortened via bit.ly (hides true destination)
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "C0036"
+    attack: "T1027"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "bit\\.ly/[A-Za-z0-9]+"
+      search_raw: true
+
+  - id: url-shortener-tinyurl
+    description: URL shortened via tinyurl.com (hides true destination)
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "C0036"
+    attack: "T1027"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "tinyurl\\.com/[A-Za-z0-9]+"
+      search_raw: true
+
+  - id: url-shortener-goo-gl
+    description: URL shortened via goo.gl (hides true destination)
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "C0036"
+    attack: "T1027"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "goo\\.gl/[A-Za-z0-9]+"
+      search_raw: true
+
+  - id: url-shortener-t-co
+    description: URL shortened via t.co (hides true destination)
+    criticality: notable
+    confidence: 0.85
+    mbc: "C0036"
+    attack: "T1027"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "t\\.co/[A-Za-z0-9]+"
+      search_raw: true
+
+  - id: url-shortener-is-gd
+    description: URL shortened via is.gd (hides true destination)
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "C0036"
+    attack: "T1027"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "is\\.gd/[A-Za-z0-9]+"
+      search_raw: true
+
+  - id: url-shortener-cutt-ly
+    description: URL shortened via cutt.ly (hides true destination)
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "C0036"
+    attack: "T1027"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "cutt\\.ly/[A-Za-z0-9]+"
+      search_raw: true
+
+  - id: url-shortener-rebrand-ly
+    description: URL shortened via rebrand.ly (hides true destination)
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "C0036"
+    attack: "T1027"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "rebrand\\.ly/[A-Za-z0-9]+"
+      search_raw: true

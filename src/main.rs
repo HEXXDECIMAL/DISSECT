@@ -46,29 +46,67 @@ fn main() -> Result<()> {
         }
     }
 
+    // Collect zip passwords (default + custom, unless disabled)
+    let zip_passwords: Vec<String> = if args.no_zip_passwords {
+        Vec::new()
+    } else {
+        let mut passwords: Vec<String> = cli::DEFAULT_ZIP_PASSWORDS
+            .iter()
+            .map(|s| s.to_string())
+            .collect();
+        passwords.extend(args.zip_passwords.clone());
+        passwords
+    };
+
+    // Determine third_party_yara setting (can come from top-level or subcommand)
+    // Third-party YARA is opt-in (disabled by default)
+    let enable_third_party_global = args.third_party_yara;
+
     let result = match args.command {
-        cli::Command::Analyze {
-            target,
-            yara,
-            no_third_party_yara,
-        } => {
-            if yara {
-                eprintln!("⚠️  YARA support is deprecated and will be removed in a future version");
+        Some(cli::Command::Analyze {
+            targets,
+            third_party_yara: cmd_third_party,
+        }) => {
+            let enable_third_party = enable_third_party_global || cmd_third_party;
+            let path = Path::new(&targets[0]);
+            if targets.len() == 1 && !path.exists() {
+                // Single nonexistent path - error
+                anyhow::bail!("Path does not exist: {}", targets[0]);
+            } else if targets.len() == 1 && path.is_file() {
+                // Single file - use detailed analyze
+                analyze_file(
+                    &targets[0],
+                    enable_third_party,
+                    &args.format,
+                    &zip_passwords,
+                )?
+            } else {
+                // Multiple targets or directory - use scan
+                scan_paths(targets, enable_third_party, &args.format, &zip_passwords)?
             }
-            // --yara enables all rules; --no-third-party-yara disables third-party
-            analyze_file(&target, yara, yara && !no_third_party_yara, &args.format)?
         }
-        cli::Command::Scan {
+        Some(cli::Command::Scan {
             paths,
-            yara,
-            no_third_party_yara,
-        } => {
-            if yara {
-                eprintln!("⚠️  YARA support is deprecated and will be removed in a future version");
+            third_party_yara: cmd_third_party,
+        }) => scan_paths(
+            paths,
+            enable_third_party_global || cmd_third_party,
+            &args.format,
+            &zip_passwords,
+        )?,
+        Some(cli::Command::Diff { old, new }) => diff_analysis(&old, &new)?,
+        None => {
+            // No subcommand - use paths from top-level args
+            if args.paths.is_empty() {
+                anyhow::bail!("No paths specified. Usage: dissect <path>... or dissect <command>");
             }
-            scan_paths(paths, yara, yara && !no_third_party_yara, &args.format)?
+            scan_paths(
+                args.paths,
+                enable_third_party_global,
+                &args.format,
+                &zip_passwords,
+            )?
         }
-        cli::Command::Diff { old, new } => diff_analysis(&old, &new)?,
     };
 
     // Output results
@@ -86,9 +124,9 @@ fn main() -> Result<()> {
 
 fn analyze_file(
     target: &str,
-    enable_yara: bool,
     enable_third_party_yara: bool,
     format: &cli::OutputFormat,
+    zip_passwords: &[String],
 ) -> Result<String> {
     let _start = std::time::Instant::now();
     let path = Path::new(target);
@@ -101,9 +139,9 @@ fn analyze_file(
     if path.is_dir() {
         return scan_paths(
             vec![target.to_string()],
-            enable_yara,
             enable_third_party_yara,
             format,
+            zip_passwords,
         );
     }
 
@@ -125,54 +163,54 @@ fn analyze_file(
     let capability_mapper = crate::capabilities::CapabilityMapper::new();
     eprintln!("[TIMING] CapabilityMapper::new(): {:?}", t1.elapsed());
 
-    // Only load YARA if explicitly enabled (deprecated feature)
-    let yara_engine = if enable_yara {
-        let t_yara_start = std::time::Instant::now();
-        let empty_mapper = crate::capabilities::CapabilityMapper::empty();
-        let mut engine = YaraEngine::new_with_mapper(empty_mapper);
-        let (builtin_count, third_party_count) = engine.load_all_rules(enable_third_party_yara)?;
-        eprintln!("[TIMING] YaraEngine load: {:?}", t_yara_start.elapsed());
-        engine.set_capability_mapper(capability_mapper.clone());
-        if builtin_count + third_party_count > 0 {
-            Some(engine)
-        } else {
-            None
-        }
+    // Load YARA rules
+    let t_yara_start = std::time::Instant::now();
+    let empty_mapper = crate::capabilities::CapabilityMapper::empty();
+    let mut engine = YaraEngine::new_with_mapper(empty_mapper);
+    let (builtin_count, third_party_count) = engine.load_all_rules(enable_third_party_yara)?;
+    eprintln!("[TIMING] YaraEngine load: {:?}", t_yara_start.elapsed());
+    engine.set_capability_mapper(capability_mapper.clone());
+    let mut yara_engine = if builtin_count + third_party_count > 0 {
+        Some(engine)
     } else {
         None
     };
 
     // Route to appropriate analyzer
+    // Binary analyzers (MachO, Elf, Pe, Archive, Jar) handle YARA internally with specialized filtering
+    // All other analyzers get YARA scanning applied universally after analysis
     let t3 = std::time::Instant::now();
-    let report = match file_type {
+    let mut report = match file_type {
         FileType::MachO => {
             let mut analyzer =
                 MachOAnalyzer::new().with_capability_mapper(capability_mapper.clone());
-            if let Some(engine) = yara_engine {
+            if let Some(engine) = yara_engine.take() {
                 analyzer = analyzer.with_yara(engine);
             }
             analyzer.analyze(path)?
         }
         FileType::Elf => {
             let mut analyzer = ElfAnalyzer::new().with_capability_mapper(capability_mapper.clone());
-            if let Some(engine) = yara_engine {
+            if let Some(engine) = yara_engine.take() {
                 analyzer = analyzer.with_yara(engine);
             }
             analyzer.analyze(path)?
         }
         FileType::Pe => {
             let mut analyzer = PEAnalyzer::new().with_capability_mapper(capability_mapper.clone());
-            if let Some(engine) = yara_engine {
+            if let Some(engine) = yara_engine.take() {
                 analyzer = analyzer.with_yara(engine);
             }
             analyzer.analyze(path)?
         }
-        FileType::ShellScript => {
-            let analyzer = analyzers::shell::ShellAnalyzer::new();
+        FileType::Shell => {
+            let analyzer = analyzers::shell::ShellAnalyzer::new()
+                .with_capability_mapper(capability_mapper.clone());
             analyzer.analyze(path)?
         }
         FileType::Python => {
-            let analyzer = analyzers::python::PythonAnalyzer::new();
+            let analyzer = analyzers::python::PythonAnalyzer::new()
+                .with_capability_mapper(capability_mapper.clone());
             analyzer.analyze(path)?
         }
         FileType::JavaScript => {
@@ -199,9 +237,10 @@ fn analyze_file(
         }
         FileType::Jar => {
             // JAR files are analyzed like archives but with Java-specific handling
-            let mut analyzer =
-                ArchiveAnalyzer::new().with_capability_mapper(capability_mapper.clone());
-            if let Some(engine) = yara_engine {
+            let mut analyzer = ArchiveAnalyzer::new()
+                .with_capability_mapper(capability_mapper.clone())
+                .with_zip_passwords(zip_passwords.to_vec());
+            if let Some(engine) = yara_engine.take() {
                 analyzer = analyzer.with_yara(engine);
             }
             analyzer.analyze(path)?
@@ -239,10 +278,16 @@ fn analyze_file(
             let analyzer = analyzers::csharp::CSharpAnalyzer::new();
             analyzer.analyze(path)?
         }
+        FileType::PackageJson => {
+            let analyzer = analyzers::package_json::PackageJsonAnalyzer::new()
+                .with_capability_mapper(capability_mapper.clone());
+            analyzer.analyze(path)?
+        }
         FileType::Archive => {
-            let mut analyzer =
-                ArchiveAnalyzer::new().with_capability_mapper(capability_mapper.clone());
-            if let Some(engine) = yara_engine {
+            let mut analyzer = ArchiveAnalyzer::new()
+                .with_capability_mapper(capability_mapper.clone())
+                .with_zip_passwords(zip_passwords.to_vec());
+            if let Some(engine) = yara_engine.take() {
                 analyzer = analyzer.with_yara(engine);
             }
             analyzer.analyze(path)?
@@ -251,6 +296,42 @@ fn analyze_file(
             anyhow::bail!("Unsupported file type: {:?}", file_type);
         }
     };
+
+    // Run YARA universally for file types that didn't handle it internally
+    // This ensures all program files get scanned with YARA rules
+    if let Some(ref engine) = yara_engine {
+        if file_type.is_program() && engine.is_loaded() {
+            let file_types = file_type.yara_filetypes();
+            let filter = if file_types.is_empty() {
+                None
+            } else {
+                Some(file_types.as_slice())
+            };
+
+            match engine.scan_file_to_findings(path, filter) {
+                Ok((matches, findings)) => {
+                    // Add YARA matches to report
+                    report.yara_matches = matches;
+
+                    // Add findings that don't already exist
+                    for finding in findings {
+                        if !report.findings.iter().any(|f| f.id == finding.id) {
+                            report.findings.push(finding);
+                        }
+                    }
+
+                    // Mark that we used YARA
+                    if !report.metadata.tools_used.contains(&"yara-x".to_string()) {
+                        report.metadata.tools_used.push("yara-x".to_string());
+                    }
+                }
+                Err(e) => {
+                    eprintln!("⚠️  YARA scan failed: {}", e);
+                }
+            }
+        }
+    }
+
     eprintln!("[TIMING] Analysis: {:?}", t3.elapsed());
 
     // Format output based on requested format
@@ -266,9 +347,9 @@ fn analyze_file(
 
 fn scan_paths(
     paths: Vec<String>,
-    enable_yara: bool,
     enable_third_party_yara: bool,
     format: &cli::OutputFormat,
+    zip_passwords: &[String],
 ) -> Result<String> {
     use indicatif::{ProgressBar, ProgressStyle};
     use walkdir::WalkDir;
@@ -355,9 +436,9 @@ fn scan_paths(
 
         match analyze_file_with_shared_mapper(
             path_str,
-            enable_yara,
             enable_third_party_yara,
             &capability_mapper,
+            zip_passwords,
         ) {
             Ok(json) => {
                 eprintln!(
@@ -449,9 +530,9 @@ fn scan_paths(
 
         match analyze_file_with_shared_mapper(
             path_str,
-            enable_yara,
             enable_third_party_yara,
             &capability_mapper,
+            zip_passwords,
         ) {
             Ok(json) => {
                 // For terminal format, show immediate output above progress bar
@@ -535,9 +616,9 @@ fn scan_paths(
 
 fn analyze_file_with_shared_mapper(
     target: &str,
-    enable_yara: bool,
     enable_third_party_yara: bool,
     capability_mapper: &Arc<crate::capabilities::CapabilityMapper>,
+    zip_passwords: &[String],
 ) -> Result<String> {
     let path = Path::new(target);
 
@@ -545,16 +626,11 @@ fn analyze_file_with_shared_mapper(
         anyhow::bail!("File does not exist: {}", target);
     }
 
-    // Only load YARA if explicitly enabled (deprecated feature)
-    let yara_engine = if enable_yara {
-        let mut engine = YaraEngine::new_with_mapper((**capability_mapper).clone());
-        let (builtin_count, third_party_count) = engine.load_all_rules(enable_third_party_yara)?;
-
-        if builtin_count + third_party_count > 0 {
-            Some(engine)
-        } else {
-            None
-        }
+    // Load YARA rules
+    let mut engine = YaraEngine::new_with_mapper((**capability_mapper).clone());
+    let (builtin_count, third_party_count) = engine.load_all_rules(enable_third_party_yara)?;
+    let mut yara_engine = if builtin_count + third_party_count > 0 {
+        Some(engine)
     } else {
         None
     };
@@ -563,11 +639,13 @@ fn analyze_file_with_shared_mapper(
     let file_type = detect_file_type(path)?;
 
     // Route to appropriate analyzer
-    let report = match file_type {
+    // Binary analyzers (MachO, Elf, Pe, Archive, Jar) handle YARA internally with specialized filtering
+    // All other analyzers get YARA scanning applied universally after analysis
+    let mut report = match file_type {
         FileType::MachO => {
             let mut analyzer =
                 MachOAnalyzer::new().with_capability_mapper((**capability_mapper).clone());
-            if let Some(engine) = yara_engine {
+            if let Some(engine) = yara_engine.take() {
                 analyzer = analyzer.with_yara(engine);
             }
             analyzer.analyze(path)?
@@ -575,7 +653,7 @@ fn analyze_file_with_shared_mapper(
         FileType::Elf => {
             let mut analyzer =
                 ElfAnalyzer::new().with_capability_mapper((**capability_mapper).clone());
-            if let Some(engine) = yara_engine {
+            if let Some(engine) = yara_engine.take() {
                 analyzer = analyzer.with_yara(engine);
             }
             analyzer.analyze(path)?
@@ -583,17 +661,19 @@ fn analyze_file_with_shared_mapper(
         FileType::Pe => {
             let mut analyzer =
                 PEAnalyzer::new().with_capability_mapper((**capability_mapper).clone());
-            if let Some(engine) = yara_engine {
+            if let Some(engine) = yara_engine.take() {
                 analyzer = analyzer.with_yara(engine);
             }
             analyzer.analyze(path)?
         }
-        FileType::ShellScript => {
-            let analyzer = analyzers::shell::ShellAnalyzer::new();
+        FileType::Shell => {
+            let analyzer = analyzers::shell::ShellAnalyzer::new()
+                .with_capability_mapper((**capability_mapper).clone());
             analyzer.analyze(path)?
         }
         FileType::Python => {
-            let analyzer = analyzers::python::PythonAnalyzer::new();
+            let analyzer = analyzers::python::PythonAnalyzer::new()
+                .with_capability_mapper((**capability_mapper).clone());
             analyzer.analyze(path)?
         }
         FileType::JavaScript => {
@@ -620,8 +700,12 @@ fn analyze_file_with_shared_mapper(
         }
         FileType::Jar => {
             // JAR files are analyzed like archives but with Java-specific handling
-            let analyzer =
-                ArchiveAnalyzer::new().with_capability_mapper((**capability_mapper).clone());
+            let mut analyzer = ArchiveAnalyzer::new()
+                .with_capability_mapper((**capability_mapper).clone())
+                .with_zip_passwords(zip_passwords.to_vec());
+            if let Some(engine) = yara_engine.take() {
+                analyzer = analyzer.with_yara(engine);
+            }
             analyzer.analyze(path)?
         }
         FileType::Ruby => {
@@ -658,15 +742,59 @@ fn analyze_file_with_shared_mapper(
             let analyzer = analyzers::csharp::CSharpAnalyzer::new();
             analyzer.analyze(path)?
         }
+        FileType::PackageJson => {
+            let analyzer = analyzers::package_json::PackageJsonAnalyzer::new()
+                .with_capability_mapper((**capability_mapper).clone());
+            analyzer.analyze(path)?
+        }
         FileType::Archive => {
-            let analyzer =
-                ArchiveAnalyzer::new().with_capability_mapper((**capability_mapper).clone());
+            let mut analyzer = ArchiveAnalyzer::new()
+                .with_capability_mapper((**capability_mapper).clone())
+                .with_zip_passwords(zip_passwords.to_vec());
+            if let Some(engine) = yara_engine.take() {
+                analyzer = analyzer.with_yara(engine);
+            }
             analyzer.analyze(path)?
         }
         _ => {
             anyhow::bail!("Unsupported file type: {:?}", file_type);
         }
     };
+
+    // Run YARA universally for file types that didn't handle it internally
+    // This ensures all program files get scanned with YARA rules
+    if let Some(ref engine) = yara_engine {
+        if file_type.is_program() && engine.is_loaded() {
+            let file_types = file_type.yara_filetypes();
+            let filter = if file_types.is_empty() {
+                None
+            } else {
+                Some(file_types.as_slice())
+            };
+
+            match engine.scan_file_to_findings(path, filter) {
+                Ok((matches, findings)) => {
+                    // Add YARA matches to report
+                    report.yara_matches = matches;
+
+                    // Add findings that don't already exist
+                    for finding in findings {
+                        if !report.findings.iter().any(|f| f.id == finding.id) {
+                            report.findings.push(finding);
+                        }
+                    }
+
+                    // Mark that we used YARA
+                    if !report.metadata.tools_used.contains(&"yara-x".to_string()) {
+                        report.metadata.tools_used.push("yara-x".to_string());
+                    }
+                }
+                Err(e) => {
+                    eprintln!("⚠️  YARA scan failed: {}", e);
+                }
+            }
+        }
+    }
 
     // Always output JSON for parallel scanning
     output::format_json(&report)

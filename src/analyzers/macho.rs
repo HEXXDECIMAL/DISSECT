@@ -123,9 +123,11 @@ impl MachOAnalyzer {
 
                             if let Some(cap_id) = capability_id {
                                 // Check if we already have this capability
-                                if !report.capabilities.iter().any(|c| c.id == cap_id) {
+                                if !report.findings.iter().any(|c| c.id == cap_id) {
                                     let evidence = yara_engine.yara_match_to_evidence(yara_match);
-                                    report.capabilities.push(Capability {
+                                    report.findings.push(Finding {
+                                        kind: FindingKind::Capability,
+                                        trait_refs: vec![],
                                         id: cap_id,
                                         description: yara_match.description.clone(),
                                         confidence: 0.9, // YARA matches are high confidence
@@ -133,9 +135,6 @@ impl MachOAnalyzer {
                                         mbc: None,
                                         attack: None,
                                         evidence,
-                                        traits: Vec::new(),
-                                        referenced_paths: None,
-                                        referenced_directories: None,
                                     });
                                 }
                             }
@@ -154,6 +153,24 @@ impl MachOAnalyzer {
         // Generate structural traits from analysis
         self.generate_structural_traits(&macho, data, &mut report)?;
 
+        // Evaluate trait definitions from YAML
+        let trait_findings = self.capability_mapper.evaluate_traits(&report, data);
+        for f in trait_findings {
+            if !report.findings.iter().any(|existing| existing.id == f.id) {
+                report.findings.push(f);
+            }
+        }
+
+        // Evaluate composite rules
+        let composite_findings = self
+            .capability_mapper
+            .evaluate_composite_rules(&report, data);
+        for f in composite_findings {
+            if !report.findings.iter().any(|existing| existing.id == f.id) {
+                report.findings.push(f);
+            }
+        }
+
         report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;
         report.metadata.tools_used = tools_used;
 
@@ -168,7 +185,9 @@ impl MachOAnalyzer {
         report: &mut AnalysisReport,
     ) -> Result<()> {
         // 1. File format trait
-        report.capabilities.push(Capability {
+        report.findings.push(Finding {
+            kind: FindingKind::Capability,
+            trait_refs: vec![],
             id: "meta/format/macho".to_string(),
             description: "Mach-O executable format".to_string(),
             confidence: 1.0,
@@ -181,14 +200,13 @@ impl MachOAnalyzer {
                 value: format!("0x{:x}", macho.header.magic),
                 location: None,
             }],
-            traits: Vec::new(),
-            referenced_paths: None,
-            referenced_directories: None,
         });
 
         // 2. Architecture trait
         let arch = self.arch_name(macho);
-        report.capabilities.push(Capability {
+        report.findings.push(Finding {
+            kind: FindingKind::Capability,
+            trait_refs: vec![],
             id: format!("meta/arch/{}", arch),
             description: format!("{} architecture", arch),
             confidence: 1.0,
@@ -201,9 +219,6 @@ impl MachOAnalyzer {
                 value: format!("cputype=0x{:x}", macho.header.cputype),
                 location: None,
             }],
-            traits: Vec::new(),
-            referenced_paths: None,
-            referenced_directories: None,
         });
 
         // 3. Code signature trait
@@ -215,7 +230,9 @@ impl MachOAnalyzer {
         });
 
         if has_signature {
-            report.capabilities.push(Capability {
+            report.findings.push(Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
                 id: "meta/signed".to_string(),
                 description: "Code-signed binary".to_string(),
                 confidence: 1.0,
@@ -228,16 +245,15 @@ impl MachOAnalyzer {
                     value: "LC_CODE_SIGNATURE".to_string(),
                     location: None,
                 }],
-                traits: Vec::new(),
-                referenced_paths: None,
-                referenced_directories: None,
             });
         }
 
         // 4. Command-line tool detection (usage string)
         for s in &report.strings {
             if s.value.to_lowercase().starts_with("usage:") {
-                report.capabilities.push(Capability {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: "meta/cli-tool".to_string(),
                     description: "Command-line tool with usage string".to_string(),
                     confidence: 0.9,
@@ -250,9 +266,6 @@ impl MachOAnalyzer {
                         value: s.value.chars().take(50).collect::<String>() + "...",
                         location: s.offset.clone(),
                     }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
                 break;
             }
@@ -261,7 +274,9 @@ impl MachOAnalyzer {
         // 5. FreeBSD origin detection
         let has_freebsd_tag = report.strings.iter().any(|s| s.value.contains("$FreeBSD"));
         if has_freebsd_tag {
-            report.capabilities.push(Capability {
+            report.findings.push(Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
                 id: "meta/origin/freebsd".to_string(),
                 description: "Contains FreeBSD version tags".to_string(),
                 confidence: 0.95,
@@ -274,9 +289,6 @@ impl MachOAnalyzer {
                     value: "$FreeBSD$".to_string(),
                     location: None,
                 }],
-                traits: Vec::new(),
-                referenced_paths: None,
-                referenced_directories: None,
             });
         }
 
@@ -295,7 +307,9 @@ impl MachOAnalyzer {
                         .unwrap_or(lib_name)
                         .trim_start_matches("lib");
 
-                    report.capabilities.push(Capability {
+                    report.findings.push(Finding {
+                        kind: FindingKind::Capability,
+                        trait_refs: vec![],
                         id: format!("meta/library/{}", base_name),
                         description: format!("Links to {} library", lib_name),
                         confidence: 1.0,
@@ -308,9 +322,6 @@ impl MachOAnalyzer {
                             value: lib.clone(),
                             location: None,
                         }],
-                        traits: Vec::new(),
-                        referenced_paths: None,
-                        referenced_directories: None,
                     });
                 }
             }
@@ -319,7 +330,9 @@ impl MachOAnalyzer {
         // 7. High entropy sections (potential obfuscation/packing)
         for section in &report.sections {
             if section.entropy > 7.5 {
-                report.capabilities.push(Capability {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: "meta/high-entropy".to_string(),
                     description: format!("High entropy section ({})", section.name),
                     confidence: 0.8,
@@ -332,9 +345,6 @@ impl MachOAnalyzer {
                         value: format!("{:.2}", section.entropy),
                         location: Some(section.name.clone()),
                     }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
                 break; // Only report once
             }
@@ -354,7 +364,9 @@ impl MachOAnalyzer {
                 .take(3)
                 .collect();
 
-            report.capabilities.push(Capability {
+            report.findings.push(Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
                 id: "meta/complex-code".to_string(),
                 description: format!("{} highly complex functions", high_complexity.len()),
                 confidence: 0.7,
@@ -367,9 +379,6 @@ impl MachOAnalyzer {
                     value: func_names.join(", "),
                     location: None,
                 }],
-                traits: Vec::new(),
-                referenced_paths: None,
-                referenced_directories: None,
             });
         }
 
@@ -437,8 +446,8 @@ impl MachOAnalyzer {
             // Map import to capability
             if let Some(cap) = self.capability_mapper.lookup(imp.name, "goblin") {
                 // Check if we already have this capability
-                if !report.capabilities.iter().any(|c| c.id == cap.id) {
-                    report.capabilities.push(cap);
+                if !report.findings.iter().any(|c| c.id == cap.id) {
+                    report.findings.push(cap);
                 }
             }
         }
@@ -693,7 +702,7 @@ mod tests {
         let report = analyzer.analyze(&test_file).unwrap();
         // Capabilities may or may not be detected depending on the binary
         // Just verify the analysis completes successfully
-        let _ = &report.capabilities;
+        let _ = &report.traits;
     }
 
     #[test]

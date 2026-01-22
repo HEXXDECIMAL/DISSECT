@@ -1,0 +1,34 @@
+# Process detachment / daemonization
+# MBC: F0003 (Process Detach)
+
+traits:
+  - id: python
+    description: "Process detachment via os.setsid"
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "F0003"
+    attack: "T1036"
+    file_types: [python]
+    condition:
+      type: string
+      exact: "os.setsid"
+
+  - id: preexec-fn
+    description: "subprocess preexec_fn for process manipulation"
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "F0003"
+    file_types: [python]
+    condition:
+      type: string
+      exact: "preexec_fn="
+
+  - id: c
+    description: "setsid() system call"
+    criticality: notable
+    confidence: 0.8
+    mbc: "F0003"
+    file_types: [c]
+    condition:
+      type: symbol
+      pattern: setsid

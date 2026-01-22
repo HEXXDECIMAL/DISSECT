@@ -261,23 +261,19 @@ impl JavaClassAnalyzer {
             }
         }
 
-        // Evaluate YAML trait definitions and composite rules
-        let (traits, trait_capabilities) = self.capability_mapper.evaluate_traits(&report, data);
-        let composite_capabilities = self
+        // Evaluate trait definitions and composite rules
+        let trait_findings = self.capability_mapper.evaluate_traits(&report, data);
+        let composite_findings = self
             .capability_mapper
             .evaluate_composite_rules(&report, data);
 
-        // Add detected traits to report
-        report.traits.extend(traits);
-
-        // Add all trait-based and composite capabilities
-        for cap in trait_capabilities
+        // Add all findings
+        for f in trait_findings
             .into_iter()
-            .chain(composite_capabilities.into_iter())
+            .chain(composite_findings.into_iter())
         {
-            // Only add if not already present with same ID
-            if !report.capabilities.iter().any(|c| c.id == cap.id) {
-                report.capabilities.push(cap);
+            if !report.findings.iter().any(|existing| existing.id == f.id) {
+                report.findings.push(f);
             }
         }
 
@@ -987,8 +983,10 @@ impl JavaClassAnalyzer {
         for class_ref in &class_info.class_refs {
             for (pattern, cap_id, description) in &suspicious_classes {
                 if class_ref.starts_with(pattern) || class_ref.contains(pattern) {
-                    if !report.capabilities.iter().any(|c| c.id == *cap_id) {
-                        report.capabilities.push(Capability {
+                    if !report.findings.iter().any(|c| c.id == *cap_id) {
+                        report.findings.push(Finding {
+                            kind: FindingKind::Capability,
+                            trait_refs: vec![],
                             id: cap_id.to_string(),
                             description: description.to_string(),
                             confidence: 0.9,
@@ -1007,9 +1005,6 @@ impl JavaClassAnalyzer {
                                 value: class_ref.clone(),
                                 location: None,
                             }],
-                            traits: Vec::new(),
-                            referenced_paths: None,
-                            referenced_directories: None,
                         });
                     }
                     break;
@@ -1261,8 +1256,10 @@ impl JavaClassAnalyzer {
         evidence_value: &str,
         criticality: Criticality,
     ) {
-        if !report.capabilities.iter().any(|c| c.id == id) {
-            report.capabilities.push(Capability {
+        if !report.findings.iter().any(|c| c.id == id) {
+            report.findings.push(Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
                 id: id.to_string(),
                 description: description.to_string(),
                 confidence: 0.85,
@@ -1275,9 +1272,6 @@ impl JavaClassAnalyzer {
                     value: evidence_value.to_string(),
                     location: None,
                 }],
-                traits: Vec::new(),
-                referenced_paths: None,
-                referenced_directories: None,
             });
         }
     }

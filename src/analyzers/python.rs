@@ -1,4 +1,5 @@
 use crate::analyzers::Analyzer;
+use crate::capabilities::CapabilityMapper;
 use crate::types::*;
 use anyhow::{Context, Result};
 use std::cell::RefCell;
@@ -9,6 +10,7 @@ use tree_sitter::Parser;
 /// Python analyzer using tree-sitter
 pub struct PythonAnalyzer {
     parser: RefCell<Parser>,
+    capability_mapper: CapabilityMapper,
 }
 
 impl PythonAnalyzer {
@@ -21,7 +23,14 @@ impl PythonAnalyzer {
 
         Self {
             parser: RefCell::new(parser),
+            capability_mapper: CapabilityMapper::empty(),
         }
+    }
+
+    /// Create analyzer with pre-existing capability mapper (avoids duplicate loading)
+    pub fn with_capability_mapper(mut self, capability_mapper: CapabilityMapper) -> Self {
+        self.capability_mapper = capability_mapper;
+        self
     }
 
     fn analyze_script(&self, file_path: &Path, content: &str) -> Result<AnalysisReport> {
@@ -70,6 +79,24 @@ impl PythonAnalyzer {
 
         // Analyze environment variables and generate env-based traits
         crate::env_mapper::analyze_and_link_env_vars(&mut report);
+
+        // Evaluate trait definitions and composite rules (includes inline YARA)
+        let trait_findings = self
+            .capability_mapper
+            .evaluate_traits(&report, content.as_bytes());
+        let composite_findings = self
+            .capability_mapper
+            .evaluate_composite_rules(&report, content.as_bytes());
+
+        // Add all findings from trait evaluation
+        for f in trait_findings
+            .into_iter()
+            .chain(composite_findings.into_iter())
+        {
+            if !report.findings.iter().any(|existing| existing.id == f.id) {
+                report.findings.push(f);
+            }
+        }
 
         report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;
         report.metadata.tools_used = vec!["tree-sitter-python".to_string()];
@@ -191,16 +218,6 @@ impl PythonAnalyzer {
                     "open_write",
                     Criticality::Notable,
                 ))
-            } else if text.contains("os.remove")
-                || text.contains("os.unlink")
-                || text.contains("shutil.rmtree")
-            {
-                Some((
-                    "fs/delete",
-                    "Delete files/directories",
-                    "remove",
-                    Criticality::Notable,
-                ))
             } else if text.contains("base64.b64decode") {
                 Some((
                     "anti-analysis/obfuscation/base64",
@@ -213,8 +230,10 @@ impl PythonAnalyzer {
             };
 
             if let Some((cap_id, description, pattern, criticality)) = capability {
-                if !report.capabilities.iter().any(|c| c.id == cap_id) {
-                    report.capabilities.push(Capability {
+                if !report.findings.iter().any(|c| c.id == cap_id) {
+                    report.findings.push(Finding {
+                        kind: FindingKind::Capability,
+                        trait_refs: vec![],
                         id: cap_id.to_string(),
                         description: description.to_string(),
                         confidence: 1.0,
@@ -227,9 +246,6 @@ impl PythonAnalyzer {
                             value: pattern.to_string(),
                             location: Some(format!("line:{}", node.start_position().row + 1)),
                         }],
-                        traits: vec![],
-                        referenced_paths: None,
-                        referenced_directories: None,
                     });
                 }
             }
@@ -279,8 +295,10 @@ impl PythonAnalyzer {
             ];
 
             for (module, cap_id, description, criticality) in suspicious_modules {
-                if text.contains(module) && !report.capabilities.iter().any(|c| c.id == cap_id) {
-                    report.capabilities.push(Capability {
+                if text.contains(module) && !report.findings.iter().any(|c| c.id == cap_id) {
+                    report.findings.push(Finding {
+                        kind: FindingKind::Capability,
+                        trait_refs: vec![],
                         id: cap_id.to_string(),
                         description: description.to_string(),
                         confidence: 0.7, // Import alone is not definitive
@@ -293,9 +311,6 @@ impl PythonAnalyzer {
                             value: module.to_string(),
                             location: Some(format!("line:{}", node.start_position().row + 1)),
                         }],
-                        traits: vec![],
-                        referenced_paths: None,
-                        referenced_directories: None,
                     });
                 }
             }
@@ -313,11 +328,13 @@ impl PythonAnalyzer {
             if (text.contains("base64") || text.contains("b64decode"))
                 && (text.contains("eval") || text.contains("exec"))
                 && !report
-                    .capabilities
+                    .findings
                     .iter()
                     .any(|c| c.id == "anti-analysis/obfuscation/base64-eval")
             {
-                report.capabilities.push(Capability {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: "anti-analysis/obfuscation/base64-eval".to_string(),
                     description: "Base64 decode followed by eval (obfuscation)".to_string(),
                     confidence: 0.95,
@@ -330,9 +347,6 @@ impl PythonAnalyzer {
                         value: "base64+eval".to_string(),
                         location: Some(format!("line:{}", node.start_position().row + 1)),
                     }],
-                    traits: vec![],
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
 
@@ -340,11 +354,13 @@ impl PythonAnalyzer {
             if text.contains("\\x")
                 && text.matches("\\x").count() > 5
                 && !report
-                    .capabilities
+                    .findings
                     .iter()
                     .any(|c| c.id == "anti-analysis/obfuscation/hex")
             {
-                report.capabilities.push(Capability {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: "anti-analysis/obfuscation/hex".to_string(),
                     description: "Hex-encoded strings".to_string(),
                     confidence: 0.9,
@@ -357,9 +373,6 @@ impl PythonAnalyzer {
                         value: "hex_encoding".to_string(),
                         location: Some(format!("line:{}", node.start_position().row + 1)),
                     }],
-                    traits: vec![],
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
 
@@ -367,11 +380,13 @@ impl PythonAnalyzer {
             if text.contains(".join(")
                 && (text.contains("chr(") || text.contains("ord("))
                 && !report
-                    .capabilities
+                    .findings
                     .iter()
                     .any(|c| c.id == "anti-analysis/obfuscation/string-construct")
             {
-                report.capabilities.push(Capability {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: "anti-analysis/obfuscation/string-construct".to_string(),
                     description: "Constructs strings via chr/ord".to_string(),
                     confidence: 0.9,
@@ -384,9 +399,6 @@ impl PythonAnalyzer {
                         value: "chr_join_pattern".to_string(),
                         location: Some(format!("line:{}", node.start_position().row + 1)),
                     }],
-                    traits: vec![],
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
         }
@@ -427,6 +439,7 @@ impl PythonAnalyzer {
                         name: var_name.clone(),
                         access_type: crate::types::EnvVarAccessType::Read,
                         source: format!("line:{}", line_num),
+                        referenced_by_traits: Vec::new(),
                         category,
                         evidence: vec![crate::types::Evidence {
                             method: "ast".to_string(),
@@ -434,11 +447,12 @@ impl PythonAnalyzer {
                             value: format!("os.environ['{}']", var_name),
                             location: Some(format!("line:{}", line_num)),
                         }],
-                        referenced_by_traits: vec![],
                     });
 
                     // Add trait for environ usage
-                    report.traits.push(crate::types::Trait {
+                    report.findings.push(Finding {
+                        kind: FindingKind::Capability,
+                        trait_refs: vec![],
                         id: "env/api/environ".to_string(),
                         description: "Accesses os.environ dictionary".to_string(),
                         confidence: 1.0,
@@ -449,13 +463,8 @@ impl PythonAnalyzer {
                             location: Some(format!("line:{}", line_num)),
                         }],
                         criticality: crate::types::Criticality::Suspicious,
-                        capability: false, // Low-level observable, not a capability
                         mbc: None,
                         attack: None,
-                        referenced_paths: None,
-                        language: Some("python".to_string()),
-                        platforms: Vec::new(),
-                        referenced_directories: None,
                     });
                 }
                 return;
@@ -470,6 +479,7 @@ impl PythonAnalyzer {
                         name: var_name.clone(),
                         access_type: crate::types::EnvVarAccessType::Read,
                         source: format!("line:{}", line_num),
+                        referenced_by_traits: Vec::new(),
                         category,
                         evidence: vec![crate::types::Evidence {
                             method: "ast".to_string(),
@@ -477,11 +487,12 @@ impl PythonAnalyzer {
                             value: text.to_string(),
                             location: Some(format!("line:{}", line_num)),
                         }],
-                        referenced_by_traits: vec![],
                     });
 
                     // Add trait for getenv usage
-                    report.traits.push(crate::types::Trait {
+                    report.findings.push(Finding {
+                        kind: FindingKind::Capability,
+                        trait_refs: vec![],
                         id: "env/api/getenv".to_string(),
                         description: "Reads environment variable".to_string(),
                         confidence: 1.0,
@@ -492,13 +503,8 @@ impl PythonAnalyzer {
                             location: Some(format!("line:{}", line_num)),
                         }],
                         criticality: crate::types::Criticality::Suspicious,
-                        capability: false, // Low-level observable, not a capability
                         mbc: None,
                         attack: None,
-                        referenced_paths: None,
-                        language: Some("python".to_string()),
-                        platforms: Vec::new(),
-                        referenced_directories: None,
                     });
                 }
             }
@@ -512,6 +518,7 @@ impl PythonAnalyzer {
                         name: var_name.clone(),
                         access_type: crate::types::EnvVarAccessType::Read,
                         source: format!("line:{}", line_num),
+                        referenced_by_traits: Vec::new(),
                         category,
                         evidence: vec![crate::types::Evidence {
                             method: "ast".to_string(),
@@ -519,11 +526,12 @@ impl PythonAnalyzer {
                             value: text.to_string(),
                             location: Some(format!("line:{}", line_num)),
                         }],
-                        referenced_by_traits: vec![],
                     });
 
                     // Add trait for environ usage
-                    report.traits.push(crate::types::Trait {
+                    report.findings.push(Finding {
+                        kind: FindingKind::Capability,
+                        trait_refs: vec![],
                         id: "env/api/environ".to_string(),
                         description: "Accesses os.environ dictionary".to_string(),
                         confidence: 1.0,
@@ -534,13 +542,8 @@ impl PythonAnalyzer {
                             location: Some(format!("line:{}", line_num)),
                         }],
                         criticality: crate::types::Criticality::Suspicious,
-                        capability: false, // Low-level observable, not a capability
                         mbc: None,
                         attack: None,
-                        referenced_paths: None,
-                        language: Some("python".to_string()),
-                        platforms: Vec::new(),
-                        referenced_directories: None,
                     });
                 }
             }
@@ -554,6 +557,7 @@ impl PythonAnalyzer {
                         name: var_name.clone(),
                         access_type: crate::types::EnvVarAccessType::Write,
                         source: format!("line:{}", line_num),
+                        referenced_by_traits: Vec::new(),
                         category,
                         evidence: vec![crate::types::Evidence {
                             method: "ast".to_string(),
@@ -561,11 +565,12 @@ impl PythonAnalyzer {
                             value: text.to_string(),
                             location: Some(format!("line:{}", line_num)),
                         }],
-                        referenced_by_traits: vec![],
                     });
 
                     // Add trait for setenv usage
-                    report.traits.push(crate::types::Trait {
+                    report.findings.push(Finding {
+                        kind: FindingKind::Capability,
+                        trait_refs: vec![],
                         id: "env/api/setenv".to_string(),
                         description: "Modifies environment variable".to_string(),
                         confidence: 1.0,
@@ -576,13 +581,8 @@ impl PythonAnalyzer {
                             location: Some(format!("line:{}", line_num)),
                         }],
                         criticality: crate::types::Criticality::Suspicious,
-                        capability: false, // Low-level observable, not a capability
                         mbc: None,
                         attack: None,
-                        referenced_paths: None,
-                        language: Some("python".to_string()),
-                        platforms: Vec::new(),
-                        referenced_directories: None,
                     });
                 }
             }
@@ -596,6 +596,7 @@ impl PythonAnalyzer {
                         name: var_name.clone(),
                         access_type: crate::types::EnvVarAccessType::Delete,
                         source: format!("line:{}", line_num),
+                        referenced_by_traits: Vec::new(),
                         category,
                         evidence: vec![crate::types::Evidence {
                             method: "ast".to_string(),
@@ -603,11 +604,12 @@ impl PythonAnalyzer {
                             value: text.to_string(),
                             location: Some(format!("line:{}", line_num)),
                         }],
-                        referenced_by_traits: vec![],
                     });
 
                     // Add trait for unsetenv usage
-                    report.traits.push(crate::types::Trait {
+                    report.findings.push(Finding {
+                        kind: FindingKind::Capability,
+                        trait_refs: vec![],
                         id: "env/api/unsetenv".to_string(),
                         description: "Deletes environment variable".to_string(),
                         confidence: 1.0,
@@ -618,13 +620,8 @@ impl PythonAnalyzer {
                             location: Some(format!("line:{}", line_num)),
                         }],
                         criticality: crate::types::Criticality::Suspicious,
-                        capability: false, // Low-level observable, not a capability
                         mbc: None,
                         attack: None,
-                        referenced_paths: None,
-                        language: Some("python".to_string()),
-                        platforms: Vec::new(),
-                        referenced_directories: None,
                     });
                 }
             }
@@ -797,7 +794,7 @@ x = eval("1+1")
         let report = analyze_python_code(code);
 
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "exec/script/eval" && c.description.contains("Evaluates")));
     }
@@ -810,7 +807,7 @@ exec("print('hello')")
         let report = analyze_python_code(code);
 
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "exec/script/eval" && c.description.contains("Executes")));
     }
@@ -823,7 +820,7 @@ code = compile("x = 1", "<string>", "exec")
         let report = analyze_python_code(code);
 
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "exec/script/eval" && c.description.contains("Compiles")));
     }
@@ -836,10 +833,7 @@ subprocess.call(['ls', '-la'])
 "#;
         let report = analyze_python_code(code);
 
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/command/shell"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/command/shell"));
     }
 
     #[test]
@@ -850,10 +844,7 @@ os.system('ls')
 "#;
         let report = analyze_python_code(code);
 
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/command/shell"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/command/shell"));
     }
 
     #[test]
@@ -864,10 +855,7 @@ r = requests.get('https://example.com')
 "#;
         let report = analyze_python_code(code);
 
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "net/http/client"));
+        assert!(report.findings.iter().any(|c| c.id == "net/http/client"));
     }
 
     #[test]
@@ -878,10 +866,7 @@ s = socket.socket()
 "#;
         let report = analyze_python_code(code);
 
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "net/socket/create"));
+        assert!(report.findings.iter().any(|c| c.id == "net/socket/create"));
     }
 
     #[test]
@@ -892,19 +877,10 @@ with open('test.txt', 'w') as f:
 "#;
         let report = analyze_python_code(code);
 
-        assert!(report.capabilities.iter().any(|c| c.id == "fs/write"));
+        assert!(report.findings.iter().any(|c| c.id == "fs/write"));
     }
 
-    #[test]
-    fn test_detect_file_delete() {
-        let code = r#"
-import os
-os.remove('file.txt')
-"#;
-        let report = analyze_python_code(code);
-
-        assert!(report.capabilities.iter().any(|c| c.id == "fs/delete"));
-    }
+    // Note: fs/file/delete detection moved to traits/fs/file/delete/python.yaml
 
     #[test]
     fn test_detect_base64_decode() {
@@ -915,7 +891,7 @@ data = base64.b64decode('aGVsbG8=')
         let report = analyze_python_code(code);
 
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "anti-analysis/obfuscation/base64"));
     }
@@ -929,12 +905,12 @@ result = eval(base64.b64decode('cHJpbnQoImhlbGxvIik='))
         let report = analyze_python_code(code);
 
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "anti-analysis/obfuscation/base64-eval"));
         assert_eq!(
             report
-                .capabilities
+                .findings
                 .iter()
                 .find(|c| c.id == "anti-analysis/obfuscation/base64-eval")
                 .unwrap()
@@ -951,7 +927,7 @@ data = b'\x48\x65\x6c\x6c\x6f\x20\x57\x6f\x72\x6c\x64'
         let report = analyze_python_code(code);
 
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "anti-analysis/obfuscation/hex"));
     }
@@ -964,7 +940,7 @@ module = __import__('os')
         let report = analyze_python_code(code);
 
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "anti-analysis/obfuscation/dynamic-import"));
     }
@@ -977,7 +953,7 @@ import subprocess
         let report = analyze_python_code(code);
 
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "exec/command/shell" && c.confidence == 0.7));
     }
@@ -990,7 +966,7 @@ import pickle
         let report = analyze_python_code(code);
 
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "anti-analysis/obfuscation/pickle"));
     }
@@ -1002,10 +978,7 @@ import ctypes
 "#;
         let report = analyze_python_code(code);
 
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/dylib/load"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/dylib/load"));
     }
 
     #[test]
@@ -1049,19 +1022,10 @@ requests.get('http://example.com')
 "#;
         let report = analyze_python_code(code);
 
-        assert!(report.capabilities.len() >= 3);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/command/shell"));
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "net/socket/create"));
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "net/http/client"));
+        assert!(report.findings.len() >= 3);
+        assert!(report.findings.iter().any(|c| c.id == "exec/command/shell"));
+        assert!(report.findings.iter().any(|c| c.id == "net/socket/create"));
+        assert!(report.findings.iter().any(|c| c.id == "net/http/client"));
     }
 
     #[test]

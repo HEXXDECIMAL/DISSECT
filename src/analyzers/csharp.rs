@@ -401,7 +401,9 @@ impl CSharpAnalyzer {
         }
 
         for (cap_id, desc, method, conf, criticality) in capabilities {
-            report.capabilities.push(Capability {
+            report.findings.push(Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
                 id: cap_id.to_string(),
                 description: desc.to_string(),
                 confidence: conf,
@@ -418,9 +420,6 @@ impl CSharpAnalyzer {
                         node.start_position().column
                     )),
                 }],
-                traits: Vec::new(),
-                referenced_paths: None,
-                referenced_directories: None,
             });
         }
     }
@@ -481,7 +480,9 @@ impl CSharpAnalyzer {
         }
 
         for (cap_id, desc, method, conf, criticality) in capabilities {
-            report.capabilities.push(Capability {
+            report.findings.push(Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
                 id: cap_id.to_string(),
                 description: desc.to_string(),
                 confidence: conf,
@@ -498,9 +499,6 @@ impl CSharpAnalyzer {
                         node.start_position().column
                     )),
                 }],
-                traits: Vec::new(),
-                referenced_paths: None,
-                referenced_directories: None,
             });
         }
     }
@@ -556,7 +554,9 @@ impl CSharpAnalyzer {
         }
 
         for (cap_id, desc, method, conf, criticality) in capabilities {
-            report.capabilities.push(Capability {
+            report.findings.push(Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
                 id: cap_id.to_string(),
                 description: desc.to_string(),
                 confidence: conf,
@@ -573,9 +573,6 @@ impl CSharpAnalyzer {
                         node.start_position().column
                     )),
                 }],
-                traits: Vec::new(),
-                referenced_paths: None,
-                referenced_directories: None,
             });
         }
     }
@@ -590,7 +587,9 @@ impl CSharpAnalyzer {
 
         // DllImport (P/Invoke)
         if text.contains("DllImport") {
-            report.capabilities.push(Capability {
+            report.findings.push(Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
                 id: "exec/pinvoke".to_string(),
                 description: "P/Invoke native function import".to_string(),
                 confidence: 0.9,
@@ -607,9 +606,6 @@ impl CSharpAnalyzer {
                         node.start_position().column
                     )),
                 }],
-                traits: Vec::new(),
-                referenced_paths: None,
-                referenced_directories: None,
             });
         }
     }
@@ -742,7 +738,7 @@ class Test {
 "#;
         let report = analyze_cs_code(code);
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "exec/command/process"));
     }
@@ -759,7 +755,7 @@ class Test {
 "#;
         let report = analyze_cs_code(code);
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "exec/reflection/assembly-load"));
     }
@@ -777,7 +773,7 @@ class Test {
 "#;
         let report = analyze_cs_code(code);
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "net/http/client" || c.id == "net/http/download"));
     }
@@ -795,7 +791,7 @@ class Test {
 "#;
         let report = analyze_cs_code(code);
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "anti-analysis/deserialization"));
     }
@@ -810,6 +806,6 @@ class Test {
 }
 "#;
         let report = analyze_cs_code(code);
-        assert!(report.capabilities.iter().any(|c| c.id == "exec/pinvoke"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/pinvoke"));
     }
 }

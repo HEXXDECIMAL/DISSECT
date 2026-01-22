@@ -79,7 +79,7 @@ fn test_analyze_output_to_file() {
             output_path.to_str().unwrap(),
             "analyze",
             script_path.to_str().unwrap(),
-            "--no-third-party-yara",
+            // Third-party YARA is disabled by default (opt-in with --third-party-yara)
         ])
         .assert()
         .success()
@@ -143,7 +143,7 @@ fn test_diff_identical_files() {
         .args(["diff", file1.to_str().unwrap(), file2.to_str().unwrap()])
         .assert()
         .success()
-        .stdout(predicate::str::contains("Baseline"));
+        .stdout(predicate::str::contains("No capability changes"));
 }
 
 /// Test diff command with different files
@@ -257,23 +257,20 @@ fn test_yara_flag() {
         .success();
 }
 
-/// Test that --yara --no-third-party-yara disables third-party YARA rules
+/// Test that --third-party-yara enables third-party YARA rules
 /// Ignored by default: YARA rules are slow to compile in debug builds
-/// Run with: cargo test --release test_yara_no_third_party_flag -- --ignored
+/// Run with: cargo test --release test_yara_third_party_flag -- --ignored
 #[test]
 #[ignore]
-fn test_yara_no_third_party_flag() {
+fn test_yara_third_party_flag() {
     let temp_dir = TempDir::new().unwrap();
     let script = temp_dir.path().join("test.sh");
     fs::write(&script, "#!/bin/bash\n").unwrap();
 
+    // Third-party YARA is opt-in (disabled by default)
+    // This test verifies the --third-party-yara flag enables it
     assert_cmd::cargo_bin_cmd!("dissect")
-        .args([
-            "analyze",
-            script.to_str().unwrap(),
-            "--yara",
-            "--no-third-party-yara",
-        ])
+        .args(["analyze", script.to_str().unwrap(), "--third-party-yara"])
         .assert()
         .success();
 }

@@ -18,7 +18,7 @@ fn test_shell_script_matches_shell_rules() {
     let stdout = String::from_utf8_lossy(&output.stdout);
 
     // Should detect shell file type
-    assert!(String::from_utf8_lossy(&output.stderr).contains("ShellScript"));
+    assert!(String::from_utf8_lossy(&output.stderr).contains("Shell"));
 
     // Parse JSON to check YARA matches
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
@@ -67,7 +67,7 @@ fn test_python_rules_filtered_for_shell_scripts() {
     let stdout = String::from_utf8_lossy(&output.stdout);
 
     // Should detect shell file type
-    assert!(String::from_utf8_lossy(&output.stderr).contains("ShellScript"));
+    assert!(String::from_utf8_lossy(&output.stderr).contains("Shell"));
 
     // Parse JSON to check YARA matches
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {

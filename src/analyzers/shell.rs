@@ -1,4 +1,5 @@
 use crate::analyzers::Analyzer;
+use crate::capabilities::CapabilityMapper;
 use crate::types::*;
 use anyhow::{Context, Result};
 use std::cell::RefCell;
@@ -9,6 +10,7 @@ use tree_sitter::Parser;
 /// Shell script analyzer using tree-sitter
 pub struct ShellAnalyzer {
     parser: RefCell<Parser>,
+    capability_mapper: CapabilityMapper,
 }
 
 impl ShellAnalyzer {
@@ -21,7 +23,14 @@ impl ShellAnalyzer {
 
         Self {
             parser: RefCell::new(parser),
+            capability_mapper: CapabilityMapper::empty(),
         }
+    }
+
+    /// Create analyzer with pre-existing capability mapper (avoids duplicate loading)
+    pub fn with_capability_mapper(mut self, capability_mapper: CapabilityMapper) -> Self {
+        self.capability_mapper = capability_mapper;
+        self
     }
 
     fn analyze_script(&self, file_path: &Path, content: &str) -> Result<AnalysisReport> {
@@ -71,6 +80,24 @@ impl ShellAnalyzer {
         // Add idioms to source code metrics if they exist
         if let Some(ref mut metrics) = report.source_code_metrics {
             metrics.shell_idioms = Some(shell_idioms);
+        }
+
+        // Evaluate trait definitions and composite rules from YAML
+        let trait_findings = self
+            .capability_mapper
+            .evaluate_traits(&report, content.as_bytes());
+        let composite_findings = self
+            .capability_mapper
+            .evaluate_composite_rules(&report, content.as_bytes());
+
+        // Add all findings from trait evaluation
+        for f in trait_findings
+            .into_iter()
+            .chain(composite_findings.into_iter())
+        {
+            if !report.findings.iter().any(|existing| existing.id == f.id) {
+                report.findings.push(f);
+            }
         }
 
         report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;
@@ -183,8 +210,10 @@ impl ShellAnalyzer {
 
         if let Some((cap_id, description, criticality)) = capability {
             // Check if we already have this capability
-            if !report.capabilities.iter().any(|c| c.id == cap_id) {
-                report.capabilities.push(Capability {
+            if !report.findings.iter().any(|c| c.id == cap_id) {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: cap_id.to_string(),
                     description: description.to_string(),
                     confidence: 1.0,
@@ -197,9 +226,6 @@ impl ShellAnalyzer {
                         value: cmd.to_string(),
                         location: Some(format!("line:{}", node.start_position().row + 1)),
                     }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
         }
@@ -215,11 +241,13 @@ impl ShellAnalyzer {
             // Check for base64 encoding patterns
             if (text.contains("base64") || text.contains("b64decode"))
                 && !report
-                    .capabilities
+                    .findings
                     .iter()
                     .any(|c| c.id == "anti-analysis/obfuscation/base64")
             {
-                report.capabilities.push(Capability {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: "anti-analysis/obfuscation/base64".to_string(),
                     description: "Uses base64 encoding/decoding".to_string(),
                     confidence: 0.9,
@@ -232,9 +260,6 @@ impl ShellAnalyzer {
                         value: "base64".to_string(),
                         location: Some(format!("line:{}", node.start_position().row + 1)),
                     }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
 
@@ -242,11 +267,13 @@ impl ShellAnalyzer {
             if text.contains("\\x")
                 && text.matches("\\x").count() > 3
                 && !report
-                    .capabilities
+                    .findings
                     .iter()
                     .any(|c| c.id == "anti-analysis/obfuscation/hex")
             {
-                report.capabilities.push(Capability {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: "anti-analysis/obfuscation/hex".to_string(),
                     description: "Uses hex-encoded strings".to_string(),
                     confidence: 0.9,
@@ -259,9 +286,6 @@ impl ShellAnalyzer {
                         value: "hex_encoding".to_string(),
                         location: Some(format!("line:{}", node.start_position().row + 1)),
                     }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
 
@@ -269,11 +293,13 @@ impl ShellAnalyzer {
             if (text.contains("eval") || text.contains("exec"))
                 && text.contains("$")
                 && !report
-                    .capabilities
+                    .findings
                     .iter()
                     .any(|c| c.id == "anti-analysis/obfuscation/dynamic-eval")
             {
-                report.capabilities.push(Capability {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: "anti-analysis/obfuscation/dynamic-eval".to_string(),
                     description: "Executes dynamically constructed code".to_string(),
                     confidence: 0.95,
@@ -286,9 +312,6 @@ impl ShellAnalyzer {
                         value: "eval_with_variable".to_string(),
                         location: Some(format!("line:{}", node.start_position().row + 1)),
                     }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
         }
@@ -742,9 +765,9 @@ rm -rf /tmp/test
         let report = analyze_shell_code(script);
 
         // Should detect curl, bash, and rm capabilities
-        assert!(report.capabilities.len() >= 2);
-        assert!(report.capabilities.iter().any(|c| c.id.contains("http")));
-        assert!(report.capabilities.iter().any(|c| c.id.contains("delete")));
+        assert!(report.findings.len() >= 2);
+        assert!(report.findings.iter().any(|c| c.id.contains("http")));
+        assert!(report.findings.iter().any(|c| c.id.contains("delete")));
     }
 
     #[test]
@@ -752,10 +775,7 @@ rm -rf /tmp/test
         let script = "#!/bin/bash\ncurl https://example.com/data.txt";
         let report = analyze_shell_code(script);
 
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "net/http/client"));
+        assert!(report.findings.iter().any(|c| c.id == "net/http/client"));
     }
 
     #[test]
@@ -763,10 +783,7 @@ rm -rf /tmp/test
         let script = "#!/bin/bash\nwget https://example.com/file.tar.gz";
         let report = analyze_shell_code(script);
 
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "net/http/client"));
+        assert!(report.findings.iter().any(|c| c.id == "net/http/client"));
     }
 
     #[test]
@@ -774,10 +791,7 @@ rm -rf /tmp/test
         let script = "#!/bin/bash\nnc -l 4444";
         let report = analyze_shell_code(script);
 
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "net/socket/connect"));
+        assert!(report.findings.iter().any(|c| c.id == "net/socket/connect"));
     }
 
     #[test]
@@ -785,10 +799,7 @@ rm -rf /tmp/test
         let script = "#!/bin/bash\neval \"echo hello\"";
         let report = analyze_shell_code(script);
 
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/script/eval"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/script/eval"));
     }
 
     #[test]
@@ -796,10 +807,7 @@ rm -rf /tmp/test
         let script = "#!/bin/bash\nexec /bin/sh";
         let report = analyze_shell_code(script);
 
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/script/eval"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/script/eval"));
     }
 
     #[test]
@@ -807,7 +815,7 @@ rm -rf /tmp/test
         let script = "#!/bin/bash\nrm -rf /tmp/data";
         let report = analyze_shell_code(script);
 
-        assert!(report.capabilities.iter().any(|c| c.id == "fs/delete"));
+        assert!(report.findings.iter().any(|c| c.id == "fs/delete"));
     }
 
     #[test]
@@ -815,7 +823,7 @@ rm -rf /tmp/test
         let script = "#!/bin/bash\nchmod +x script.sh";
         let report = analyze_shell_code(script);
 
-        assert!(report.capabilities.iter().any(|c| c.id == "fs/permissions"));
+        assert!(report.findings.iter().any(|c| c.id == "fs/permissions"));
     }
 
     #[test]
@@ -823,7 +831,7 @@ rm -rf /tmp/test
         let script = "#!/bin/bash\nchown root:root file.txt";
         let report = analyze_shell_code(script);
 
-        assert!(report.capabilities.iter().any(|c| c.id == "fs/permissions"));
+        assert!(report.findings.iter().any(|c| c.id == "fs/permissions"));
     }
 
     #[test]
@@ -831,10 +839,7 @@ rm -rf /tmp/test
         let script = "#!/bin/bash\ncrontab -e";
         let report = analyze_shell_code(script);
 
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "persistence/cron"));
+        assert!(report.findings.iter().any(|c| c.id == "persistence/cron"));
     }
 
     #[test]
@@ -843,7 +848,7 @@ rm -rf /tmp/test
         let report = analyze_shell_code(script);
 
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "persistence/service"));
     }
@@ -854,7 +859,7 @@ rm -rf /tmp/test
         let report = analyze_shell_code(script);
 
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "persistence/service"));
     }
@@ -865,7 +870,7 @@ rm -rf /tmp/test
         let report = analyze_shell_code(script);
 
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "privilege/escalation"));
     }
@@ -875,10 +880,7 @@ rm -rf /tmp/test
         let script = "#!/bin/bash\nbash -c 'echo hello'";
         let report = analyze_shell_code(script);
 
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/command/shell"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/command/shell"));
     }
 
     #[test]
@@ -902,17 +904,14 @@ rm payload
 "#;
         let report = analyze_shell_code(script);
 
-        assert!(report.capabilities.len() >= 4);
+        assert!(report.findings.len() >= 4);
+        assert!(report.findings.iter().any(|c| c.id == "net/http/client"));
+        assert!(report.findings.iter().any(|c| c.id == "fs/permissions"));
         assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "net/http/client"));
-        assert!(report.capabilities.iter().any(|c| c.id == "fs/permissions"));
-        assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "privilege/escalation"));
-        assert!(report.capabilities.iter().any(|c| c.id == "fs/delete"));
+        assert!(report.findings.iter().any(|c| c.id == "fs/delete"));
     }
 
     #[test]

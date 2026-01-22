@@ -1,5 +1,6 @@
 use crate::analyzers::{archive::ArchiveAnalyzer, detect_file_type, Analyzer};
 use crate::capabilities::CapabilityMapper;
+use crate::output::aggregate_findings_by_directory;
 use crate::types::*;
 use anyhow::{Context, Result};
 use chrono::Utc;
@@ -218,9 +219,7 @@ fn detect_renames(removed: &[String], added: &[String]) -> Vec<FileRename> {
                     }
 
                     let score = calculate_file_similarity(removed_file, added_file);
-                    if score >= 0.9
-                        && (best_match.is_none() || score > best_match.unwrap().1)
-                    {
+                    if score >= 0.9 && (best_match.is_none() || score > best_match.unwrap().1) {
                         best_match = Some((added_file, score));
                     }
                 }
@@ -258,11 +257,6 @@ impl DiffAnalyzer {
     }
 
     pub fn analyze(&self) -> Result<DiffReport> {
-        let start = std::time::Instant::now();
-
-        println!("Analyzing baseline: {}", self.baseline_path.display());
-        println!("Analyzing target:   {}", self.target_path.display());
-
         // Determine if we're comparing files or directories
         let is_baseline_dir = self.baseline_path.is_dir();
         let is_target_dir = self.target_path.is_dir();
@@ -275,17 +269,10 @@ impl DiffAnalyzer {
             anyhow::bail!("Baseline and target must both be files or both be directories");
         };
 
-        println!(
-            "Diff analysis complete in {}ms",
-            start.elapsed().as_millis()
-        );
-
         Ok(diff_report)
     }
 
     fn analyze_files(&self) -> Result<DiffReport> {
-        println!("  Mode: File comparison");
-
         // Analyze both files
         let baseline_report = self.analyze_single_file(&self.baseline_path)?;
         let target_report = self.analyze_single_file(&self.target_path)?;
@@ -328,14 +315,9 @@ impl DiffAnalyzer {
     }
 
     fn analyze_directories(&self) -> Result<DiffReport> {
-        println!("  Mode: Directory comparison");
-
         // Get all files in both directories
         let baseline_files = self.collect_files(&self.baseline_path)?;
         let target_files = self.collect_files(&self.target_path)?;
-
-        println!("  Baseline files: {}", baseline_files.len());
-        println!("  Target files:   {}", target_files.len());
 
         // Determine what changed
         let baseline_set: HashSet<_> = baseline_files.keys().collect();
@@ -354,19 +336,10 @@ impl DiffAnalyzer {
             .map(|s| s.to_string())
             .collect();
 
-        println!("  Added files:    {}", added.len());
-        println!("  Removed files:  {}", removed.len());
-        println!(
-            "  Checking:       {} common files",
-            modified_candidates.len()
-        );
-
         // Detect renames using similarity scoring
         let renames = detect_renames(&removed, &added);
 
         if !renames.is_empty() {
-            println!("  Detected renames: {}", renames.len());
-
             // Remove renamed files from added/removed lists
             let renamed_baseline: HashSet<String> =
                 renames.iter().map(|r| r.baseline_path.clone()).collect();
@@ -412,20 +385,6 @@ impl DiffAnalyzer {
                     if !analysis.new_capabilities.is_empty()
                         || !analysis.removed_capabilities.is_empty()
                     {
-                        println!("  🔍 Modified: {}", relative_path);
-                        if !analysis.new_capabilities.is_empty() {
-                            println!("      ➕ New capabilities: {:?}", analysis.new_capabilities);
-                        }
-                        if !analysis.removed_capabilities.is_empty() {
-                            println!(
-                                "      ➖ Removed capabilities: {:?}",
-                                analysis.removed_capabilities
-                            );
-                        }
-                        if analysis.risk_increase {
-                            println!("      ⚠️  RISK INCREASED");
-                        }
-
                         actually_modified.push(relative_path.clone());
                         modified_analysis.push(analysis);
                     }
@@ -433,34 +392,6 @@ impl DiffAnalyzer {
                 _ => {
                     // Failed to analyze, skip
                 }
-            }
-        }
-
-        // Report on renames
-        if !renames.is_empty() {
-            println!("\n  🔄 Renamed files:");
-            for rename in &renames {
-                println!(
-                    "      {} → {} (similarity: {:.1}%)",
-                    rename.baseline_path,
-                    rename.target_path,
-                    rename.similarity_score * 100.0
-                );
-            }
-        }
-
-        // Report on new/removed files
-        if !added.is_empty() {
-            println!("\n  ➕ Added files:");
-            for file in &added {
-                println!("      {}", file);
-            }
-        }
-
-        if !removed.is_empty() {
-            println!("\n  ➖ Removed files:");
-            for file in &removed {
-                println!("      {}", file);
             }
         }
 
@@ -535,12 +466,14 @@ impl DiffAnalyzer {
                     .with_capability_mapper(self.capability_mapper.clone());
                 analyzer.analyze(path)
             }
-            crate::analyzers::FileType::ShellScript => {
-                let analyzer = crate::analyzers::shell::ShellAnalyzer::new();
+            crate::analyzers::FileType::Shell => {
+                let analyzer = crate::analyzers::shell::ShellAnalyzer::new()
+                    .with_capability_mapper(self.capability_mapper.clone());
                 analyzer.analyze(path)
             }
             crate::analyzers::FileType::Python => {
-                let analyzer = crate::analyzers::python::PythonAnalyzer::new();
+                let analyzer = crate::analyzers::python::PythonAnalyzer::new()
+                    .with_capability_mapper(self.capability_mapper.clone());
                 analyzer.analyze(path)
             }
             crate::analyzers::FileType::JavaScript => {
@@ -549,8 +482,8 @@ impl DiffAnalyzer {
                 analyzer.analyze(path)
             }
             crate::analyzers::FileType::Archive => {
-                let analyzer = ArchiveAnalyzer::new()
-                    .with_capability_mapper(self.capability_mapper.clone());
+                let analyzer =
+                    ArchiveAnalyzer::new().with_capability_mapper(self.capability_mapper.clone());
                 analyzer.analyze(path)
             }
             _ => {
@@ -566,10 +499,10 @@ impl DiffAnalyzer {
         target: &AnalysisReport,
     ) -> ModifiedFileAnalysis {
         let baseline_cap_ids: HashSet<String> =
-            baseline.capabilities.iter().map(|c| c.id.clone()).collect();
+            baseline.findings.iter().map(|c| c.id.clone()).collect();
 
         let target_cap_ids: HashSet<String> =
-            target.capabilities.iter().map(|c| c.id.clone()).collect();
+            target.findings.iter().map(|c| c.id.clone()).collect();
 
         // Get IDs of new and removed capabilities
         let new_cap_ids: HashSet<&String> = target_cap_ids.difference(&baseline_cap_ids).collect();
@@ -577,16 +510,16 @@ impl DiffAnalyzer {
             baseline_cap_ids.difference(&target_cap_ids).collect();
 
         // Get full capability objects for new capabilities (from target)
-        let new_capabilities: Vec<Capability> = target
-            .capabilities
+        let new_capabilities: Vec<Finding> = target
+            .findings
             .iter()
             .filter(|c| new_cap_ids.contains(&c.id))
             .cloned()
             .collect();
 
         // Get full capability objects for removed capabilities (from baseline)
-        let removed_capabilities: Vec<Capability> = baseline
-            .capabilities
+        let removed_capabilities: Vec<Finding> = baseline
+            .findings
             .iter()
             .filter(|c| removed_cap_ids.contains(&c.id))
             .cloned()
@@ -604,7 +537,7 @@ impl DiffAnalyzer {
         }
     }
 
-    fn assess_risk_increase(&self, new_caps: &[Capability], removed_caps: &[Capability]) -> bool {
+    fn assess_risk_increase(&self, new_caps: &[Finding], removed_caps: &[Finding]) -> bool {
         // High-risk capability categories
         let high_risk_prefixes = [
             "exec/",
@@ -644,13 +577,32 @@ impl DiffAnalyzer {
     }
 }
 
-/// Format diff report as human-readable output (compact, malcontent-inspired)
+/// Format diff report as human-readable output
 pub fn format_diff_terminal(report: &DiffReport) -> String {
     let mut output = String::new();
 
-    // Compact header
-    output.push_str(&format!("Baseline: {}\n", report.baseline));
-    output.push_str(&format!("Target:   {}\n\n", report.target));
+    // Header with version comparison
+    let baseline_name = Path::new(&report.baseline)
+        .file_name()
+        .and_then(|n| n.to_str())
+        .unwrap_or(&report.baseline);
+    let target_name = Path::new(&report.target)
+        .file_name()
+        .and_then(|n| n.to_str())
+        .unwrap_or(&report.target);
+
+    output.push_str(&format!("📦 {} → {}\n", baseline_name, target_name));
+    output.push_str(&format!("   {}\n   {}\n\n", report.baseline, report.target));
+
+    let total_changes = report.changes.added.len()
+        + report.changes.removed.len()
+        + report.changes.modified.len()
+        + report.changes.renamed.len();
+
+    if total_changes == 0 && report.modified_analysis.is_empty() {
+        output.push_str("✅ No capability changes detected\n");
+        return output;
+    }
 
     // Risk assessment upfront
     let high_risk_changes = report
@@ -659,157 +611,156 @@ pub fn format_diff_terminal(report: &DiffReport) -> String {
         .filter(|a| a.risk_increase)
         .count();
 
-    let total_changes = report.changes.added.len()
-        + report.changes.removed.len()
-        + report.changes.modified.len()
-        + report.changes.renamed.len();
-
     if high_risk_changes > 0 {
         output.push_str(&format!(
-            "⚠️  {} HIGH-RISK changes detected\n\n",
+            "🚨 {} file(s) with increased risk\n\n",
             high_risk_changes
         ));
     }
 
-    if total_changes == 0 {
-        output.push_str("No changes detected\n");
-        return output;
-    }
+    // Sort modified files: high risk first, then by filename
+    let mut sorted_analysis = report.modified_analysis.clone();
+    sorted_analysis.sort_by(|a, b| {
+        b.risk_increase
+            .cmp(&a.risk_increase)
+            .then_with(|| a.file.cmp(&b.file))
+    });
 
-    // Compact summary line
-    let mut summary_parts = Vec::new();
-    if !report.changes.added.is_empty() {
-        summary_parts.push(format!("+{}", report.changes.added.len()));
-    }
-    if !report.changes.removed.is_empty() {
-        summary_parts.push(format!("-{}", report.changes.removed.len()));
-    }
-    if !report.changes.modified.is_empty() {
-        summary_parts.push(format!("~{}", report.changes.modified.len()));
-    }
-    if !report.changes.renamed.is_empty() {
-        summary_parts.push(format!("→{}", report.changes.renamed.len()));
-    }
-    output.push_str(&format!("{}\n\n", summary_parts.join(" ")));
+    // Modified files with capability changes (most important)
+    for analysis in &sorted_analysis {
+        let risk_icon = if analysis.risk_increase {
+            "⚠️ "
+        } else {
+            ""
+        };
+        output.push_str(&format!("{}📄 {}\n", risk_icon, analysis.file));
 
-    // Modified files (most important, show first)
-    if !report.modified_analysis.is_empty() {
-        for analysis in &report.modified_analysis {
-            let risk_arrow = if analysis.risk_increase {
-                "⚠️ "
-            } else {
-                ""
+        // Aggregate findings by directory path for cleaner display
+        let mut aggregated_new = aggregate_findings_by_directory(&analysis.new_capabilities);
+
+        // Sort by criticality (highest first), then by name
+        aggregated_new.sort_by(|a, b| {
+            b.criticality
+                .cmp(&a.criticality)
+                .then_with(|| a.id.cmp(&b.id))
+        });
+
+        // Show new capabilities (one line each, aggregated by directory)
+        for cap in &aggregated_new {
+            let risk_icon = match cap.criticality {
+                crate::types::Criticality::Hostile => "🔴",
+                crate::types::Criticality::Suspicious => "🟠",
+                crate::types::Criticality::Notable => "🟡",
+                _ => "🟢",
             };
-            output.push_str(&format!("~ {}{}\n", risk_arrow, analysis.file));
 
-            // Show only the new high/medium risk capabilities for brevity
-            let high_risk_caps: Vec<_> = analysis
-                .new_capabilities
+            // Get best evidence (prefer one with a line number)
+            let evidence_str = cap
+                .evidence
                 .iter()
-                .filter(|c| is_high_risk(c) || is_medium_risk(c))
-                .collect();
+                .find(|e| e.location.as_ref().is_some_and(|l| l.starts_with("line:")))
+                .or(cap.evidence.first())
+                .map(|ev| {
+                    let loc = ev
+                        .location
+                        .as_ref()
+                        .filter(|l| l != &"file" && !l.is_empty())
+                        .map(|l| format!(":{}", l.trim_start_matches("line:")))
+                        .unwrap_or_default();
+                    format!(" [{}{}]", ev.value, loc)
+                })
+                .unwrap_or_default();
 
-            if !high_risk_caps.is_empty() {
-                for cap in high_risk_caps {
-                    let risk_marker = if is_high_risk(cap) { "🔴" } else { "🟡" };
-                    output.push_str(&format!("  + {} {}\n", risk_marker, cap.id));
-                    // Show description
-                    output.push_str(&format!("      {} — {}\n", risk_marker, cap.description));
-                    // Show evidence if available
-                    if !cap.evidence.is_empty() {
-                        for ev in &cap.evidence {
-                            output.push_str(&format!("      └─ {}\n", ev.value));
-                        }
-                    }
-                }
-            } else if !analysis.new_capabilities.is_empty() {
-                // Show count of low-risk capabilities
-                output.push_str(&format!(
-                    "  + {} new capabilities\n",
-                    analysis.new_capabilities.len()
-                ));
-            }
+            output.push_str(&format!(
+                "   + {} {}: {}{}\n",
+                risk_icon, cap.id, cap.description, evidence_str
+            ));
+        }
 
-            if !analysis.removed_capabilities.is_empty() && analysis.removed_capabilities.len() <= 3
-            {
-                for cap in &analysis.removed_capabilities {
-                    output.push_str(&format!("  - {}\n", cap.id));
-                }
-            } else if !analysis.removed_capabilities.is_empty() {
-                output.push_str(&format!(
-                    "  - {} removed capabilities\n",
-                    analysis.removed_capabilities.len()
-                ));
-            }
+        // Aggregate removed capabilities by directory path too
+        let mut aggregated_removed =
+            aggregate_findings_by_directory(&analysis.removed_capabilities);
+
+        // Sort by criticality (highest first), then by name
+        aggregated_removed.sort_by(|a, b| {
+            b.criticality
+                .cmp(&a.criticality)
+                .then_with(|| a.id.cmp(&b.id))
+        });
+
+        // Show removed capabilities
+        for cap in &aggregated_removed {
+            output.push_str(&format!("   - {}\n", cap.id));
         }
         output.push('\n');
     }
 
-    // Renamed files (compact, one line each)
-    if !report.changes.renamed.is_empty() {
+    // File-level changes section
+    let file_changes =
+        report.changes.added.len() + report.changes.removed.len() + report.changes.renamed.len();
+    if file_changes > 0 {
+        output.push_str("📁 File changes:\n");
+
+        // Added files
+        for file in &report.changes.added {
+            output.push_str(&format!("   + {}\n", file));
+        }
+
+        // Removed files
+        for file in &report.changes.removed {
+            output.push_str(&format!("   - {}\n", file));
+        }
+
+        // Renamed files
         for rename in &report.changes.renamed {
-            // Show similarity only if not perfect match
             if rename.similarity < 1.0 {
                 output.push_str(&format!(
-                    "→ {} → {} ({:.0}%)\n",
+                    "   → {} → {} ({:.0}%)\n",
                     rename.from,
                     rename.to,
                     rename.similarity * 100.0
                 ));
             } else {
-                output.push_str(&format!("→ {} → {}\n", rename.from, rename.to));
+                output.push_str(&format!("   → {} → {}\n", rename.from, rename.to));
             }
         }
         output.push('\n');
     }
 
-    // Added files (compact list, or count if too many)
+    // Summary line
+    let mut summary_parts = Vec::new();
     if !report.changes.added.is_empty() {
-        if report.changes.added.len() <= 10 {
-            for file in &report.changes.added {
-                output.push_str(&format!("+ {}\n", file));
-            }
-        } else {
-            output.push_str(&format!("+ {} files added\n", report.changes.added.len()));
-            // Show first 5
-            for file in report.changes.added.iter().take(5) {
-                output.push_str(&format!("  {}\n", file));
-            }
-            output.push_str(&format!(
-                "  ... and {} more\n",
-                report.changes.added.len() - 5
-            ));
-        }
-        output.push('\n');
+        summary_parts.push(format!("+{} files", report.changes.added.len()));
     }
-
-    // Removed files (compact list, or count if too many)
     if !report.changes.removed.is_empty() {
-        if report.changes.removed.len() <= 10 {
-            for file in &report.changes.removed {
-                output.push_str(&format!("- {}\n", file));
-            }
-        } else {
-            output.push_str(&format!(
-                "- {} files removed\n",
-                report.changes.removed.len()
-            ));
-            // Show first 5
-            for file in report.changes.removed.iter().take(5) {
-                output.push_str(&format!("  {}\n", file));
-            }
-            output.push_str(&format!(
-                "  ... and {} more\n",
-                report.changes.removed.len() - 5
-            ));
+        summary_parts.push(format!("-{} files", report.changes.removed.len()));
+    }
+    if !report.modified_analysis.is_empty() {
+        let total_new: usize = report
+            .modified_analysis
+            .iter()
+            .map(|a| a.new_capabilities.len())
+            .sum();
+        let total_removed: usize = report
+            .modified_analysis
+            .iter()
+            .map(|a| a.removed_capabilities.len())
+            .sum();
+        if total_new > 0 {
+            summary_parts.push(format!("+{} capabilities", total_new));
         }
-        output.push('\n');
+        if total_removed > 0 {
+            summary_parts.push(format!("-{} capabilities", total_removed));
+        }
+    }
+    if !summary_parts.is_empty() {
+        output.push_str(&format!("Summary: {}\n", summary_parts.join(", ")));
     }
 
     output
 }
 
-fn is_high_risk(capability: &Capability) -> bool {
+fn is_high_risk(capability: &Finding) -> bool {
     is_high_risk_id(&capability.id)
 }
 
@@ -825,7 +776,7 @@ fn is_high_risk_id(id: &str) -> bool {
         || id.starts_with("data/secret")
 }
 
-fn is_medium_risk(capability: &Capability) -> bool {
+fn is_medium_risk(capability: &Finding) -> bool {
     is_medium_risk_id(&capability.id)
 }
 
@@ -840,14 +791,15 @@ fn is_medium_risk_id(id: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::types::{AnalysisReport, Capability, Criticality, TargetInfo};
+    use crate::types::{AnalysisReport, Criticality, Finding, FindingKind, TargetInfo};
     use chrono::Utc;
 
-    fn create_test_report_for_diff(path: &str, capability_ids: Vec<&str>) -> AnalysisReport {
-        let capabilities: Vec<Capability> = capability_ids
+    fn create_test_report_for_diff(path: &str, trait_ids: Vec<&str>) -> AnalysisReport {
+        let findings: Vec<Finding> = trait_ids
             .iter()
-            .map(|id| Capability {
+            .map(|id| Finding {
                 id: id.to_string(),
+                kind: FindingKind::Capability,
                 description: format!("Test {}", id),
                 confidence: 0.8,
                 criticality: if id.starts_with("exec/") {
@@ -857,15 +809,13 @@ mod tests {
                 },
                 mbc: None,
                 attack: None,
+                trait_refs: vec![],
                 evidence: vec![],
-                traits: vec![],
-                referenced_paths: None,
-                referenced_directories: None,
             })
             .collect();
 
         AnalysisReport {
-            schema_version: "1.0".to_string(),
+            schema_version: "1.1".to_string(),
             analysis_timestamp: Utc::now(),
             target: TargetInfo {
                 path: path.to_string(),
@@ -874,8 +824,8 @@ mod tests {
                 sha256: "abc123".to_string(),
                 architectures: None,
             },
+            findings,
             traits: vec![],
-            capabilities,
             structure: vec![],
             functions: vec![],
             strings: vec![],
@@ -981,23 +931,22 @@ mod tests {
             .any(|c| c.id == "exec/shell"));
     }
 
-    fn make_test_cap(id: &str) -> Capability {
-        Capability {
+    fn make_test_cap(id: &str) -> Finding {
+        Finding {
             id: id.to_string(),
+            kind: FindingKind::Capability,
             description: format!("Test {}", id),
             confidence: 0.9,
             criticality: Criticality::Notable,
             mbc: None,
             attack: None,
+            trait_refs: vec![],
             evidence: vec![Evidence {
                 method: "test".to_string(),
                 source: "test".to_string(),
                 value: id.to_string(),
                 location: None,
             }],
-            traits: vec![],
-            referenced_paths: None,
-            referenced_directories: None,
         }
     }
 
@@ -1079,10 +1028,9 @@ mod tests {
         };
 
         let output = format_diff_terminal(&report);
-        // Compact format
-        assert!(output.contains("Baseline: /baseline"));
-        assert!(output.contains("Target:   /target"));
-        assert!(output.contains("No changes detected"));
+        assert!(output.contains("/baseline"));
+        assert!(output.contains("/target"));
+        assert!(output.contains("No capability changes"));
     }
 
     #[test]
@@ -1114,15 +1062,11 @@ mod tests {
         };
 
         let output = format_diff_terminal(&report);
-        // Compact format tests
-        assert!(output.contains("+1")); // Added files count
-        assert!(output.contains("-1")); // Removed files count
-        assert!(output.contains("~1")); // Modified files count
         assert!(output.contains("new_file.bin"));
         assert!(output.contains("old_file.bin"));
         assert!(output.contains("changed_file.bin"));
         assert!(output.contains("exec/shell"));
-        assert!(output.contains("HIGH-RISK"));
+        assert!(output.contains("increased risk"));
     }
 
     #[test]
@@ -1142,15 +1086,15 @@ mod tests {
             modified_analysis: vec![
                 ModifiedFileAnalysis {
                     file: "file1.bin".to_string(),
-                    new_capabilities: vec![make_test_cap("net/http")],
+                    new_capabilities: vec![make_test_cap("net/http/client")],
                     removed_capabilities: vec![],
                     capability_delta: 1,
                     risk_increase: false,
                 },
                 ModifiedFileAnalysis {
                     file: "file2.bin".to_string(),
-                    new_capabilities: vec![make_test_cap("exec/shell")],
-                    removed_capabilities: vec![make_test_cap("fs/read")],
+                    new_capabilities: vec![make_test_cap("exec/command/shell")],
+                    removed_capabilities: vec![make_test_cap("fs/file/read")],
                     capability_delta: 0,
                     risk_increase: true,
                 },
@@ -1165,9 +1109,10 @@ mod tests {
         let output = format_diff_terminal(&report);
         assert!(output.contains("file1.bin"));
         assert!(output.contains("file2.bin"));
+        // Capabilities are aggregated by directory (objective/behavior)
         assert!(output.contains("net/http"));
-        assert!(output.contains("exec/shell"));
-        assert!(output.contains("fs/read"));
+        assert!(output.contains("exec/command"));
+        assert!(output.contains("fs/file"));
     }
 
     #[test]
@@ -1291,10 +1236,9 @@ mod tests {
         };
 
         let output = format_diff_terminal(&report);
-        assert!(output.contains("→1")); // Compact format
         assert!(output.contains("old_name.txt"));
         assert!(output.contains("new_name.txt"));
-        assert!(output.contains("92%")); // No decimal in compact format
+        assert!(output.contains("92%"));
     }
 
     #[test]
@@ -1476,8 +1420,7 @@ mod tests {
     }
 
     #[test]
-    fn test_format_diff_terminal_compact() {
-        // Test the new compact format
+    fn test_format_diff_terminal_file_changes() {
         let report = DiffReport {
             schema_version: "1.0".to_string(),
             analysis_timestamp: Utc::now(),
@@ -1503,16 +1446,17 @@ mod tests {
         };
 
         let output = format_diff_terminal(&report);
-        // Compact summary line should show: +1 -1 ~1 →1
-        assert!(output.contains("+1"));
-        assert!(output.contains("-1"));
-        assert!(output.contains("~1"));
-        assert!(output.contains("→1"));
+        // Should contain file names
+        assert!(output.contains("new.txt"));
+        assert!(output.contains("old.txt"));
+        assert!(output.contains("a.txt"));
+        assert!(output.contains("b.txt"));
+        assert!(output.contains("File changes"));
     }
 
     #[test]
     fn test_format_diff_terminal_many_files() {
-        // Test that large file lists are summarized
+        // Test with many added files
         let mut added = Vec::new();
         for i in 0..50 {
             added.push(format!("file{}.txt", i));
@@ -1539,8 +1483,7 @@ mod tests {
         };
 
         let output = format_diff_terminal(&report);
-        // Should show summary instead of all 50 files
-        assert!(output.contains("50 files added"));
-        assert!(output.contains("... and 45 more"));
+        // Should show summary with file count
+        assert!(output.contains("+50 files"));
     }
 }

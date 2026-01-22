@@ -1,0 +1,28 @@
+# File Delete Operations - Go
+# MBC: C0047 (Delete File)
+# ATT&CK: T1070.004
+
+traits:
+  - id: os-Remove
+    description: Delete file (os.Remove)
+    criticality: notable
+    confidence: 0.9
+    mbc: "C0047"
+    attack: "T1070.004"
+    file_types: [go]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "os.Remove"
+
+  - id: os-RemoveAll
+    description: Recursive directory deletion
+    criticality: notable
+    confidence: 0.9
+    mbc: "C0047"
+    attack: "T1070.004"
+    file_types: [go]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "os.RemoveAll"

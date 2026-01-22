@@ -363,7 +363,9 @@ impl LuaAnalyzer {
         }
 
         for (cap_id, desc, method, conf, criticality) in capabilities {
-            report.capabilities.push(Capability {
+            report.findings.push(Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
                 id: cap_id.to_string(),
                 description: desc.to_string(),
                 confidence: conf,
@@ -380,9 +382,6 @@ impl LuaAnalyzer {
                         node.start_position().column
                     )),
                 }],
-                traits: Vec::new(),
-                referenced_paths: None,
-                referenced_directories: None,
             });
         }
     }
@@ -392,7 +391,9 @@ impl LuaAnalyzer {
 
         // Check for socket methods
         if text.contains(":send") || text.contains(":receive") {
-            report.capabilities.push(Capability {
+            report.findings.push(Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
                 id: "net/socket/io".to_string(),
                 description: "Socket I/O operation".to_string(),
                 confidence: 0.8,
@@ -409,9 +410,6 @@ impl LuaAnalyzer {
                         node.start_position().column
                     )),
                 }],
-                traits: Vec::new(),
-                referenced_paths: None,
-                referenced_directories: None,
             });
         }
     }
@@ -529,30 +527,21 @@ mod tests {
     fn test_detect_os_execute() {
         let code = r#"os.execute("whoami")"#;
         let report = analyze_lua_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/command/shell"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/command/shell"));
     }
 
     #[test]
     fn test_detect_loadstring() {
         let code = r#"loadstring(code)()"#;
         let report = analyze_lua_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/script/eval"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/script/eval"));
     }
 
     #[test]
     fn test_detect_io_popen() {
         let code = r#"local f = io.popen("ls")"#;
         let report = analyze_lua_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/command/shell"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/command/shell"));
     }
 
     #[test]
@@ -563,6 +552,6 @@ mod tests {
             f:close()
         "#;
         let report = analyze_lua_code(code);
-        assert!(report.capabilities.iter().any(|c| c.id == "fs/open"));
+        assert!(report.findings.iter().any(|c| c.id == "fs/open"));
     }
 }

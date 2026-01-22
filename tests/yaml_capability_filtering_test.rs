@@ -1,7 +1,7 @@
 use std::fs;
 use tempfile::TempDir;
 
-/// Test that platform-specific YAML capabilities are filtered correctly
+/// Test that platform-specific YAML traits are filtered correctly
 #[test]
 fn test_windows_keylog_capability_filtered_for_elf() {
     let temp_dir = TempDir::new().unwrap();
@@ -25,10 +25,20 @@ fn test_windows_keylog_capability_filtered_for_elf() {
     // Should detect as ELF
     assert!(stderr.contains("Elf") || stderr.contains("ELF"));
 
-    // Parse JSON to check capabilities
+    // Parse JSON to check traits with capability: true
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
-        if let Some(capabilities) = json.get("capabilities").and_then(|v| v.as_array()) {
-            // Windows-specific capabilities should NOT appear in ELF analysis
+        if let Some(traits) = json.get("traits").and_then(|v| v.as_array()) {
+            // Get traits that are capabilities (capability: true)
+            let capabilities: Vec<_> = traits
+                .iter()
+                .filter(|t| {
+                    t.get("capability")
+                        .and_then(|c| c.as_bool())
+                        .unwrap_or(false)
+                })
+                .collect();
+
+            // Windows-specific traits should NOT appear in ELF analysis
             let windows_caps: Vec<_> = capabilities
                 .iter()
                 .filter(|cap| {
@@ -39,7 +49,7 @@ fn test_windows_keylog_capability_filtered_for_elf() {
                 })
                 .collect();
 
-            // Windows keylogging capabilities should be filtered out for ELF files
+            // Windows keylogging traits should be filtered out for ELF files
             for cap in windows_caps {
                 let cap_id = cap.get("id").and_then(|id| id.as_str()).unwrap_or("");
                 eprintln!(
@@ -69,19 +79,32 @@ fn test_universal_capabilities_match_all_files() {
 
     // Parse JSON - just verify the structure works
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
-        // Capabilities array should exist (even if empty for simple scripts)
+        // Verify basic structure exists
+        assert!(json.get("target").is_some(), "Should have target field");
         assert!(
-            json.get("capabilities").is_some(),
-            "Should have capabilities field in output"
+            json.get("structure").is_some(),
+            "Should have structure field"
         );
 
-        if let Some(capabilities) = json.get("capabilities").and_then(|v| v.as_array()) {
+        // Traits field may be missing if empty (skip_serializing_if)
+        // Capabilities are traits with capability: true
+        if let Some(traits) = json.get("traits").and_then(|v| v.as_array()) {
+            let capabilities: Vec<_> = traits
+                .iter()
+                .filter(|t| {
+                    t.get("capability")
+                        .and_then(|c| c.as_bool())
+                        .unwrap_or(false)
+                })
+                .collect();
             eprintln!("Found {} capabilities for shell script", capabilities.len());
+        } else {
+            eprintln!("No traits detected for simple shell script (expected)");
         }
     }
 }
 
-/// Test that Python-specific capabilities match Python files
+/// Test that Python-specific traits match Python files
 #[test]
 fn test_python_capabilities_for_python_files() {
     let temp_dir = TempDir::new().unwrap();
@@ -105,10 +128,18 @@ fn test_python_capabilities_for_python_files() {
     // Should detect as Python
     assert!(stderr.contains("Python"));
 
-    // Parse JSON to check for network capabilities
+    // Parse JSON to check for network traits (traits with capability: true)
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
-        if let Some(capabilities) = json.get("capabilities").and_then(|v| v.as_array()) {
-            eprintln!("Found {} capabilities for Python file", capabilities.len());
+        if let Some(traits) = json.get("traits").and_then(|v| v.as_array()) {
+            let capabilities: Vec<_> = traits
+                .iter()
+                .filter(|t| {
+                    t.get("capability")
+                        .and_then(|c| c.as_bool())
+                        .unwrap_or(false)
+                })
+                .collect();
+            eprintln!("Found {} traits for Python file", capabilities.len());
 
             // Look for network-related capabilities
             let net_caps: Vec<_> = capabilities
@@ -124,7 +155,7 @@ fn test_python_capabilities_for_python_files() {
                 .collect();
 
             if !net_caps.is_empty() {
-                eprintln!("Found network capabilities:");
+                eprintln!("Found network traits:");
                 for cap in &net_caps {
                     if let Some(id) = cap.get("id").and_then(|i| i.as_str()) {
                         eprintln!("  - {}", id);
@@ -135,7 +166,7 @@ fn test_python_capabilities_for_python_files() {
     }
 }
 
-/// Test that JavaScript-specific capabilities match JavaScript files
+/// Test that JavaScript-specific traits match JavaScript files
 #[test]
 fn test_javascript_capabilities_for_js_files() {
     let temp_dir = TempDir::new().unwrap();
@@ -159,21 +190,31 @@ fn test_javascript_capabilities_for_js_files() {
     // Should detect as JavaScript
     assert!(stderr.contains("JavaScript"));
 
-    // Parse JSON - verify structure
+    // Parse JSON - verify structure (capabilities are traits with capability: true)
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
+        // Verify basic structure exists
+        assert!(json.get("target").is_some(), "Should have target field");
         assert!(
-            json.get("capabilities").is_some(),
-            "Should have capabilities field"
+            json.get("structure").is_some(),
+            "Should have structure field"
         );
 
-        if let Some(capabilities) = json.get("capabilities").and_then(|v| v.as_array()) {
+        // Traits field may be missing if empty
+        if let Some(traits) = json.get("traits").and_then(|v| v.as_array()) {
+            let capabilities: Vec<_> = traits
+                .iter()
+                .filter(|t| {
+                    t.get("capability")
+                        .and_then(|c| c.as_bool())
+                        .unwrap_or(false)
+                })
+                .collect();
             eprintln!(
                 "Found {} capabilities for JavaScript file",
                 capabilities.len()
             );
-
-            // Note: Simple JS scripts might not trigger YAML capabilities
-            // The important thing is file type detection works and structure is correct
+        } else {
+            eprintln!("No traits detected for simple JS file (expected)");
         }
 
         // Check for YARA matches which are more likely for localStorage usage
@@ -183,7 +224,7 @@ fn test_javascript_capabilities_for_js_files() {
     }
 }
 
-/// Test that shell-specific capabilities match shell scripts
+/// Test that shell-specific traits match shell scripts
 #[test]
 fn test_shell_capabilities_for_shell_scripts() {
     let temp_dir = TempDir::new().unwrap();
@@ -204,13 +245,21 @@ fn test_shell_capabilities_for_shell_scripts() {
     let stdout = String::from_utf8_lossy(&output.stdout);
     let stderr = String::from_utf8_lossy(&output.stderr);
 
-    // Should detect as ShellScript
-    assert!(stderr.contains("ShellScript"));
+    // Should detect as Shell
+    assert!(stderr.contains("Shell"));
 
-    // Parse JSON
+    // Parse JSON (capabilities are traits with capability: true)
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
-        if let Some(capabilities) = json.get("capabilities").and_then(|v| v.as_array()) {
-            eprintln!("Found {} capabilities for shell script", capabilities.len());
+        if let Some(traits) = json.get("traits").and_then(|v| v.as_array()) {
+            let capabilities: Vec<_> = traits
+                .iter()
+                .filter(|t| {
+                    t.get("capability")
+                        .and_then(|c| c.as_bool())
+                        .unwrap_or(false)
+                })
+                .collect();
+            eprintln!("Found {} traits for shell script", capabilities.len());
 
             // Look for HTTP-related capabilities
             let http_caps: Vec<_> = capabilities
@@ -224,7 +273,7 @@ fn test_shell_capabilities_for_shell_scripts() {
                 .collect();
 
             if !http_caps.is_empty() {
-                eprintln!("Found HTTP capabilities:");
+                eprintln!("Found HTTP traits:");
                 for cap in &http_caps {
                     if let Some(id) = cap.get("id").and_then(|i| i.as_str()) {
                         eprintln!("  - {}", id);
@@ -265,23 +314,40 @@ fn test_rules_without_filetype_are_universal() {
         let stdout = String::from_utf8_lossy(&output.stdout);
 
         // Parse JSON - verify structure is correct for all file types
+        // (capabilities are traits with capability: true)
         if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
+            // Verify basic structure exists
             assert!(
-                json.get("capabilities").is_some(),
-                "File {:?} should have capabilities field",
+                json.get("target").is_some(),
+                "File {:?} should have target field",
+                file.file_name()
+            );
+            assert!(
+                json.get("structure").is_some(),
+                "File {:?} should have structure field",
                 file.file_name()
             );
 
-            if let Some(capabilities) = json.get("capabilities").and_then(|v| v.as_array()) {
+            // Traits field may be missing if empty
+            if let Some(traits) = json.get("traits").and_then(|v| v.as_array()) {
+                let capabilities: Vec<_> = traits
+                    .iter()
+                    .filter(|t| {
+                        t.get("capability")
+                            .and_then(|c| c.as_bool())
+                            .unwrap_or(false)
+                    })
+                    .collect();
                 eprintln!(
                     "File {:?} has {} capabilities",
                     file.file_name(),
                     capabilities.len()
                 );
-
-                // Note: Simple scripts without imports may not trigger YAML capabilities
-                // The test verifies that the filtering infrastructure works, not that
-                // every script triggers capabilities
+            } else {
+                eprintln!(
+                    "File {:?} has no traits detected (expected for simple scripts)",
+                    file.file_name()
+                );
             }
         }
     }
@@ -311,17 +377,28 @@ fn test_composite_trait_file_type_filtering() {
 
     let stdout = String::from_utf8_lossy(&output.stdout);
 
-    // Parse JSON
+    // Parse JSON (capabilities are traits with capability: true)
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
-        // Check that Python file gets appropriate capabilities
-        if let Some(capabilities) = json.get("capabilities").and_then(|v| v.as_array()) {
+        // Check traits
+        if let Some(traits) = json.get("traits").and_then(|v| v.as_array()) {
+            eprintln!("Found {} traits detected", traits.len());
+
+            // Check that Python file gets appropriate capabilities
+            let capabilities: Vec<_> = traits
+                .iter()
+                .filter(|t| {
+                    t.get("capability")
+                        .and_then(|c| c.as_bool())
+                        .unwrap_or(false)
+                })
+                .collect();
             eprintln!(
-                "Found {} capabilities for Python file with suspicious patterns",
+                "Found {} traits for Python file with suspicious patterns",
                 capabilities.len()
             );
 
             // Verify capabilities have proper structure
-            for cap in capabilities {
+            for cap in &capabilities {
                 assert!(cap.get("id").is_some(), "Capability should have id");
                 assert!(
                     cap.get("description").is_some(),
@@ -332,11 +409,6 @@ fn test_composite_trait_file_type_filtering() {
                     "Capability should have confidence"
                 );
             }
-        }
-
-        // Check traits
-        if let Some(traits) = json.get("traits").and_then(|v| v.as_array()) {
-            eprintln!("Found {} traits detected", traits.len());
         }
     }
 }
@@ -359,15 +431,15 @@ fn test_platform_and_filetype_constraints_together() {
 
     let stdout = String::from_utf8_lossy(&output.stdout);
 
-    // Parse and verify basic structure
+    // Parse and verify basic structure (capabilities are traits with capability: true)
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
         assert!(json.get("target").is_some(), "Should have target field");
         assert!(
-            json.get("capabilities").is_some(),
-            "Should have capabilities field"
+            json.get("structure").is_some(),
+            "Should have structure field"
         );
 
-        // File type should be ShellScript
+        // File type should be Shell
         if let Some(file_type) = json
             .get("target")
             .and_then(|t| t.get("file_type"))

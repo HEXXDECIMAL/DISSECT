@@ -1,7 +1,7 @@
 use crate::composite_rules::{
     CompositeTrait, EvaluationContext, FileType as RuleFileType, Platform, TraitDefinition,
 };
-use crate::types::{AnalysisReport, Capability, Criticality, Evidence, Trait};
+use crate::types::{AnalysisReport, Criticality, Evidence, Finding, FindingKind};
 use anyhow::{Context, Result};
 use rayon::prelude::*;
 use serde::Deserialize;
@@ -13,13 +13,13 @@ use std::path::Path;
 /// Also supports trait definitions and composite rules that combine traits
 #[derive(Clone)]
 pub struct CapabilityMapper {
-    symbol_map: HashMap<String, CapabilityInfo>,
+    symbol_map: HashMap<String, TraitInfo>,
     trait_definitions: Vec<TraitDefinition>,
     composite_rules: Vec<CompositeTrait>,
 }
 
 #[derive(Clone)]
-struct CapabilityInfo {
+struct TraitInfo {
     id: String,
     description: String,
     confidence: f32,
@@ -27,7 +27,7 @@ struct CapabilityInfo {
 
 /// YAML file structure
 #[derive(Debug, Deserialize)]
-struct CapabilityMappings {
+struct TraitMappings {
     #[serde(default)]
     symbols: Vec<SymbolMapping>,
 
@@ -151,7 +151,7 @@ impl CapabilityMapper {
                 let content = fs::read_to_string(path)
                     .with_context(|| format!("Failed to read {:?}", path))?;
 
-                let mappings: CapabilityMappings = serde_yaml::from_str(&content)
+                let mappings: TraitMappings = serde_yaml::from_str(&content)
                     .with_context(|| format!("Failed to parse YAML in {:?}", path))?;
 
                 Ok::<_, anyhow::Error>((path.clone(), mappings))
@@ -185,7 +185,7 @@ impl CapabilityMapper {
             for mapping in mappings.symbols {
                 symbol_map.insert(
                     mapping.symbol.clone(),
-                    CapabilityInfo {
+                    TraitInfo {
                         id: mapping.capability,
                         description: mapping.description,
                         confidence: mapping.confidence,
@@ -203,7 +203,7 @@ impl CapabilityMapper {
                     // No constraints - add to symbol map for fast lookup
                     symbol_map.insert(
                         rule.symbol.clone(),
-                        CapabilityInfo {
+                        TraitInfo {
                             id: rule.capability,
                             description: rule.description,
                             confidence: rule.confidence,
@@ -249,7 +249,7 @@ impl CapabilityMapper {
                         let symbol = symbol_pattern.trim().to_string();
 
                         // Only add if not already present (first match wins)
-                        symbol_map.entry(symbol).or_insert_with(|| CapabilityInfo {
+                        symbol_map.entry(symbol).or_insert_with(|| TraitInfo {
                             id: trait_def.id.clone(),
                             description: trait_def.description.clone(),
                             confidence: trait_def.confidence,
@@ -295,7 +295,7 @@ impl CapabilityMapper {
         let content =
             fs::read_to_string(path.as_ref()).context("Failed to read capabilities YAML file")?;
 
-        let mappings: CapabilityMappings =
+        let mappings: TraitMappings =
             serde_yaml::from_str(&content).context("Failed to parse capabilities YAML")?;
 
         let mut symbol_map = HashMap::new();
@@ -304,7 +304,7 @@ impl CapabilityMapper {
         for mapping in mappings.symbols {
             symbol_map.insert(
                 mapping.symbol.clone(),
-                CapabilityInfo {
+                TraitInfo {
                     id: mapping.capability,
                     description: mapping.description,
                     confidence: mapping.confidence,
@@ -316,7 +316,7 @@ impl CapabilityMapper {
         for rule in mappings.simple_rules {
             symbol_map.insert(
                 rule.symbol.clone(),
-                CapabilityInfo {
+                TraitInfo {
                     id: rule.capability,
                     description: rule.description,
                     confidence: rule.confidence,
@@ -331,30 +331,29 @@ impl CapabilityMapper {
         })
     }
 
-    /// Look up a symbol and return its capability if known
-    pub fn lookup(&self, symbol: &str, source: &str) -> Option<Capability> {
+    /// Look up a symbol and return its capability finding if known
+    pub fn lookup(&self, symbol: &str, source: &str) -> Option<Finding> {
         // Strip common prefixes for matching
         let clean_symbol = symbol
             .trim_start_matches('_') // C symbols often have leading underscore
             .trim_start_matches("__"); // Some have double underscore
 
         if let Some(info) = self.symbol_map.get(clean_symbol) {
-            return Some(Capability {
+            return Some(Finding {
                 id: info.id.clone(),
+                kind: FindingKind::Capability,
                 description: info.description.clone(),
                 confidence: info.confidence,
                 criticality: Criticality::Inert,
                 mbc: None,
                 attack: None,
+                trait_refs: vec![],
                 evidence: vec![Evidence {
                     method: "symbol".to_string(),
                     source: source.to_string(),
                     value: symbol.to_string(),
                     location: None,
                 }],
-                traits: Vec::new(),
-                referenced_paths: None,
-                referenced_directories: None,
             });
         }
 
@@ -415,16 +414,9 @@ impl CapabilityMapper {
     }
 
     /// Evaluate trait definitions against an analysis report
-    /// Returns (traits, capabilities_from_traits)
-    /// - traits: All detected atomic observations (always exported)
-    /// - capabilities: Traits marked with capability: true
-    pub fn evaluate_traits(
-        &self,
-        report: &AnalysisReport,
-        binary_data: &[u8],
-    ) -> (Vec<Trait>, Vec<Capability>) {
-        let mut traits = Vec::new();
-        let mut capabilities = Vec::new();
+    /// Returns findings detected from trait definitions
+    pub fn evaluate_traits(&self, report: &AnalysisReport, binary_data: &[u8]) -> Vec<Finding> {
+        let mut findings = Vec::new();
 
         // Determine platform and file type from report
         let platform = self.detect_platform(&report.target.file_type);
@@ -438,48 +430,25 @@ impl CapabilityMapper {
         };
 
         for trait_def in &self.trait_definitions {
-            if let Some(detected_trait) = trait_def.evaluate(&ctx) {
-                // Check if this trait already exists (avoid duplicates)
-                if !traits.iter().any(|t: &Trait| t.id == detected_trait.id) {
-                    // Always add to traits
-                    traits.push(detected_trait.clone());
-
-                    // Infer capability from metadata:
-                    // 1. Explicit: capability = true
-                    // 2. Inferred: mbc or attack present
-                    let is_capability = trait_def.capability
-                        || trait_def.mbc.is_some()
-                        || trait_def.attack.is_some();
-
-                    if is_capability {
-                        capabilities.push(Capability {
-                            id: detected_trait.id.clone(),
-                            description: detected_trait.description.clone(),
-                            confidence: detected_trait.confidence,
-                            criticality: detected_trait.criticality,
-                            mbc: detected_trait.mbc.clone(),
-                            attack: detected_trait.attack.clone(),
-                            evidence: detected_trait.evidence.clone(),
-                            traits: vec![detected_trait.id.clone()], // Self-reference
-                            referenced_paths: None,
-                            referenced_directories: None,
-                        });
-                    }
+            if let Some(detected) = trait_def.evaluate(&ctx) {
+                // Check if this finding already exists (avoid duplicates)
+                if !findings.iter().any(|f: &Finding| f.id == detected.id) {
+                    findings.push(detected);
                 }
             }
         }
 
-        (traits, capabilities)
+        findings
     }
 
     /// Evaluate composite rules against an analysis report
-    /// Returns additional capabilities detected by composite rules
+    /// Returns additional findings detected by composite rules
     pub fn evaluate_composite_rules(
         &self,
         report: &AnalysisReport,
         binary_data: &[u8],
-    ) -> Vec<Capability> {
-        let mut capabilities = Vec::new();
+    ) -> Vec<Finding> {
+        let mut findings = Vec::new();
 
         // Determine platform and file type from report
         let platform = self.detect_platform(&report.target.file_type);
@@ -493,18 +462,15 @@ impl CapabilityMapper {
         };
 
         for rule in &self.composite_rules {
-            if let Some(capability) = rule.evaluate(&ctx) {
-                // Check if this capability already exists (avoid duplicates)
-                if !capabilities
-                    .iter()
-                    .any(|c: &Capability| c.id == capability.id)
-                {
-                    capabilities.push(capability);
+            if let Some(finding) = rule.evaluate(&ctx) {
+                // Check if this finding already exists (avoid duplicates)
+                if !findings.iter().any(|f: &Finding| f.id == finding.id) {
+                    findings.push(finding);
                 }
             }
         }
 
-        capabilities
+        findings
     }
 
     /// Detect platform from file type string
@@ -526,8 +492,8 @@ impl CapabilityMapper {
             "dylib" => RuleFileType::Dylib,
             "so" => RuleFileType::So,
             "dll" => RuleFileType::Dll,
-            "shellscript" | "shell" => RuleFileType::ShellScript,
-            "python" => RuleFileType::Python,
+            "shell" | "shellscript" => RuleFileType::Shell,
+            "python" | "python_script" => RuleFileType::Python,
             "javascript" | "js" => RuleFileType::JavaScript,
             "c" | "h" => RuleFileType::C,
             "rust" | "rs" => RuleFileType::Rust,
@@ -577,7 +543,7 @@ fn simple_rule_to_composite_rule(rule: SimpleRule) -> CompositeTrait {
                 "dylib" => Some(RuleFileType::Dylib),
                 "so" => Some(RuleFileType::So),
                 "dll" => Some(RuleFileType::Dll),
-                "shellscript" => Some(RuleFileType::ShellScript),
+                "shell" | "shellscript" => Some(RuleFileType::Shell),
                 "python" => Some(RuleFileType::Python),
                 "javascript" => Some(RuleFileType::JavaScript),
                 "java" => Some(RuleFileType::Java),

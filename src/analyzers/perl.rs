@@ -179,7 +179,9 @@ impl PerlAnalyzer {
         }
 
         for (cap_id, desc, method, conf, criticality) in capabilities {
-            report.capabilities.push(Capability {
+            report.findings.push(Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
                 id: cap_id.to_string(),
                 description: desc.to_string(),
                 confidence: conf,
@@ -196,9 +198,6 @@ impl PerlAnalyzer {
                         node.start_position().column
                     )),
                 }],
-                traits: Vec::new(),
-                referenced_paths: None,
-                referenced_directories: None,
             });
         }
     }
@@ -209,7 +208,9 @@ impl PerlAnalyzer {
         source: &[u8],
         report: &mut AnalysisReport,
     ) {
-        report.capabilities.push(Capability {
+        report.findings.push(Finding {
+            kind: FindingKind::Capability,
+            trait_refs: vec![],
             id: "exec/command/shell".to_string(),
             description: "Backtick command execution".to_string(),
             confidence: 0.95,
@@ -226,9 +227,6 @@ impl PerlAnalyzer {
                     node.start_position().column
                 )),
             }],
-            traits: Vec::new(),
-            referenced_paths: None,
-            referenced_directories: None,
         });
     }
 
@@ -236,7 +234,9 @@ impl PerlAnalyzer {
         let text = node.utf8_text(source).unwrap_or("");
 
         if text.contains("IO::Socket") {
-            report.capabilities.push(Capability {
+            report.findings.push(Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
                 id: "net/socket/import".to_string(),
                 description: "Socket module import".to_string(),
                 confidence: 0.8,
@@ -253,9 +253,6 @@ impl PerlAnalyzer {
                         node.start_position().column
                     )),
                 }],
-                traits: Vec::new(),
-                referenced_paths: None,
-                referenced_directories: None,
             });
         }
     }
@@ -263,7 +260,9 @@ impl PerlAnalyzer {
     fn detect_string_patterns(&self, content: &str, report: &mut AnalysisReport) {
         // Command execution: system(), exec()
         if content.contains("system(") || content.contains("exec(") {
-            report.capabilities.push(Capability {
+            report.findings.push(Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
                 id: "exec/command/shell".to_string(),
                 description: "Command execution".to_string(),
                 confidence: 0.95,
@@ -276,15 +275,14 @@ impl PerlAnalyzer {
                     value: "system/exec".to_string(),
                     location: None,
                 }],
-                traits: Vec::new(),
-                referenced_paths: None,
-                referenced_directories: None,
             });
         }
 
         // eval()
         if content.contains("eval(") || content.contains("eval $") {
-            report.capabilities.push(Capability {
+            report.findings.push(Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
                 id: "exec/script/eval".to_string(),
                 description: "Dynamic code execution".to_string(),
                 confidence: 0.95,
@@ -297,15 +295,14 @@ impl PerlAnalyzer {
                     value: "eval".to_string(),
                     location: None,
                 }],
-                traits: Vec::new(),
-                referenced_paths: None,
-                referenced_directories: None,
             });
         }
 
         // Backticks
         if content.contains('`') {
-            report.capabilities.push(Capability {
+            report.findings.push(Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
                 id: "exec/command/shell".to_string(),
                 description: "Backtick command execution".to_string(),
                 confidence: 0.95,
@@ -318,9 +315,6 @@ impl PerlAnalyzer {
                     value: "backticks".to_string(),
                     location: None,
                 }],
-                traits: Vec::new(),
-                referenced_paths: None,
-                referenced_directories: None,
             });
         }
     }
@@ -443,29 +437,20 @@ print "Hello\n";
     fn test_detect_system() {
         let code = r#"system("whoami");"#;
         let report = analyze_perl_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/command/shell"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/command/shell"));
     }
 
     #[test]
     fn test_detect_backticks() {
         let code = r#"my $out = `ls -la`;"#;
         let report = analyze_perl_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/command/shell"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/command/shell"));
     }
 
     #[test]
     fn test_detect_eval() {
         let code = r#"eval($code);"#;
         let report = analyze_perl_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/script/eval"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/script/eval"));
     }
 }

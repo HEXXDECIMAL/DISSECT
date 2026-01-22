@@ -589,6 +589,76 @@ impl YaraEngine {
         evidence
     }
 
+    /// Map YARA namespace to capability ID
+    /// Returns the capability ID if the namespace maps to a known capability
+    pub fn namespace_to_capability(&self, namespace: &str) -> Option<String> {
+        // YARA namespace format: exec.cmd, anti-static.obfuscation, etc.
+        // Convert to capability ID: exec/command, anti-analysis/obfuscation
+        let parts: Vec<&str> = namespace.split('.').collect();
+
+        match parts.as_slice() {
+            ["exec", "cmd"] => Some("exec/command/shell".to_string()),
+            ["exec", "program"] => Some("exec/command/direct".to_string()),
+            ["exec", "shell"] => Some("exec/command/shell".to_string()),
+            ["net", sub] => Some(format!("net/{}", sub)),
+            ["crypto", sub] => Some(format!("crypto/{}", sub)),
+            ["fs", sub] => Some(format!("fs/{}", sub)),
+            ["anti-static", "obfuscation"] => Some("anti-analysis/obfuscation".to_string()),
+            ["process", sub] => Some(format!("process/{}", sub)),
+            ["credential", sub] => Some(format!("credential/{}", sub)),
+            // For third-party rules, use the namespace directly as the capability
+            _ if !namespace.is_empty() => Some(namespace.replace('.', "/")),
+            _ => None,
+        }
+    }
+
+    /// Scan a file and return both YARA matches and derived findings
+    /// This is the main entry point for universal YARA scanning
+    pub fn scan_file_to_findings(
+        &self,
+        file_path: &Path,
+        file_type_filter: Option<&[&str]>,
+    ) -> Result<(Vec<YaraMatch>, Vec<crate::types::Finding>)> {
+        use crate::types::{Criticality, Finding, FindingKind};
+
+        let data =
+            fs::read(file_path).context(format!("Failed to read file: {}", file_path.display()))?;
+
+        let matches = self.scan_bytes_filtered(&data, file_type_filter)?;
+        let mut findings = Vec::new();
+
+        for yara_match in &matches {
+            // Map namespace to capability ID
+            let capability_id = self.namespace_to_capability(&yara_match.namespace);
+
+            if let Some(cap_id) = capability_id {
+                let evidence = self.yara_match_to_evidence(yara_match);
+
+                // Determine criticality from severity
+                let criticality = match yara_match.severity.as_str() {
+                    "high" => Criticality::Hostile,
+                    "medium" => Criticality::Suspicious,
+                    "low" => Criticality::Notable,
+                    _ => Criticality::Inert,
+                };
+
+                findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
+                    id: cap_id,
+                    description: yara_match.description.clone(),
+                    confidence: 0.9, // YARA matches are high confidence
+                    criticality,
+                    mbc: yara_match.mbc.clone(),
+                    attack: yara_match.attack.clone(),
+                    evidence,
+                });
+            }
+        }
+
+        Ok((matches, findings))
+    }
+
     /// Save compiled YARA rules to cache
     fn save_to_cache(
         &self,
@@ -870,7 +940,7 @@ rule test_rule : medium {
                 offset: 0x1000,
                 value: "test".to_string(),
             }],
-            is_capability: true,
+            is_capability: false,
             mbc: None,
             attack: None,
         };
@@ -894,7 +964,7 @@ rule test_rule : medium {
             severity: "high".to_string(),
             description: "Test".to_string(),
             matched_strings: vec![],
-            is_capability: true,
+            is_capability: false,
             mbc: None,
             attack: None,
         };

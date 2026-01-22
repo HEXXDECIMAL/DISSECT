@@ -206,7 +206,9 @@ impl PowerShellAnalyzer {
         }
 
         for (cap_id, desc, method, conf, criticality) in capabilities {
-            report.capabilities.push(Capability {
+            report.findings.push(Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
                 id: cap_id.to_string(),
                 description: desc.to_string(),
                 confidence: conf,
@@ -223,9 +225,6 @@ impl PowerShellAnalyzer {
                         node.start_position().column
                     )),
                 }],
-                traits: Vec::new(),
-                referenced_paths: None,
-                referenced_directories: None,
             });
         }
     }
@@ -235,7 +234,9 @@ impl PowerShellAnalyzer {
 
         // Base64 encoded commands
         if content_lower.contains("-encodedcommand") || content_lower.contains("-enc ") {
-            report.capabilities.push(Capability {
+            report.findings.push(Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
                 id: "anti-analysis/obfuscation/base64".to_string(),
                 description: "Base64 encoded command".to_string(),
                 confidence: 0.95,
@@ -248,15 +249,14 @@ impl PowerShellAnalyzer {
                     value: "-EncodedCommand".to_string(),
                     location: None,
                 }],
-                traits: Vec::new(),
-                referenced_paths: None,
-                referenced_directories: None,
             });
         }
 
         // Stealthy execution pattern
         if content_lower.contains("-nop") && content_lower.contains("-w hidden") {
-            report.capabilities.push(Capability {
+            report.findings.push(Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
                 id: "evasion/stealthy-execution".to_string(),
                 description: "Stealthy execution flags".to_string(),
                 confidence: 0.95,
@@ -269,9 +269,6 @@ impl PowerShellAnalyzer {
                     value: "-nop -w hidden".to_string(),
                     location: None,
                 }],
-                traits: Vec::new(),
-                referenced_paths: None,
-                referenced_directories: None,
             });
         }
     }
@@ -392,10 +389,7 @@ mod tests {
     fn test_detect_invoke_expression() {
         let code = r#"Invoke-Expression $code"#;
         let report = analyze_ps_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/script/eval"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/script/eval"));
     }
 
     #[test]
@@ -403,7 +397,7 @@ mod tests {
         let code = r#"powershell -EncodedCommand JABjAG8AZABlAA=="#;
         let report = analyze_ps_code(code);
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "anti-analysis/obfuscation/base64"));
     }

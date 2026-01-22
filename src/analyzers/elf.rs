@@ -117,7 +117,7 @@ impl ElfAnalyzer {
                             };
 
                             if let Some(cap_id) = capability_id {
-                                if !report.capabilities.iter().any(|c| c.id == cap_id) {
+                                if !report.findings.iter().any(|c| c.id == cap_id) {
                                     let evidence = yara_engine.yara_match_to_evidence(yara_match);
 
                                     // Determine criticality from severity
@@ -129,7 +129,9 @@ impl ElfAnalyzer {
                                         _ => Criticality::Suspicious,
                                     };
 
-                                    report.capabilities.push(Capability {
+                                    report.findings.push(Finding {
+                                        kind: FindingKind::Capability,
+                                        trait_refs: vec![],
                                         id: cap_id,
                                         description: yara_match.description.clone(),
                                         confidence: 0.9,
@@ -137,9 +139,6 @@ impl ElfAnalyzer {
                                         mbc: yara_match.mbc.clone(),
                                         attack: yara_match.attack.clone(),
                                         evidence,
-                                        traits: Vec::new(),
-                                        referenced_paths: None,
-                                        referenced_directories: None,
                                     });
                                 }
                             }
@@ -152,6 +151,24 @@ impl ElfAnalyzer {
                             .push(format!("YARA scan failed: {}", e));
                     }
                 }
+            }
+        }
+
+        // Evaluate trait definitions from YAML
+        let trait_findings = self.capability_mapper.evaluate_traits(&report, data);
+        for f in trait_findings {
+            if !report.findings.iter().any(|existing| existing.id == f.id) {
+                report.findings.push(f);
+            }
+        }
+
+        // Evaluate composite rules
+        let composite_findings = self
+            .capability_mapper
+            .evaluate_composite_rules(&report, data);
+        for f in composite_findings {
+            if !report.findings.iter().any(|existing| existing.id == f.id) {
+                report.findings.push(f);
             }
         }
 
@@ -242,8 +259,8 @@ impl ElfAnalyzer {
 
                 // Map to capability
                 if let Some(cap) = self.capability_mapper.lookup(name, "goblin") {
-                    if !report.capabilities.iter().any(|c| c.id == cap.id) {
-                        report.capabilities.push(cap);
+                    if !report.findings.iter().any(|c| c.id == cap.id) {
+                        report.findings.push(cap);
                     }
                 }
             }
@@ -474,7 +491,7 @@ mod tests {
         let report = analyzer.analyze(&test_file).unwrap();
         // Capabilities may or may not be detected depending on the binary
         // Just verify the analysis completes successfully
-        let _ = &report.capabilities;
+        let _ = &report.traits;
     }
 
     #[test]

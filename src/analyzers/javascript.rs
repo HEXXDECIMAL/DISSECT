@@ -91,29 +91,21 @@ impl JavaScriptAnalyzer {
             metrics.javascript_idioms = Some(javascript_idioms);
         }
 
-        // Evaluate YAML trait definitions
-        let (traits, trait_capabilities) = self
+        // Evaluate trait definitions and composite rules
+        let trait_findings = self
             .capability_mapper
             .evaluate_traits(&report, content.as_bytes());
-
-        // Add detected traits to report
-        report.traits.extend(traits);
-
-        // Add trait-based capabilities
-        for cap in trait_capabilities {
-            if !report.capabilities.iter().any(|c| c.id == cap.id) {
-                report.capabilities.push(cap);
-            }
-        }
-
-        // Evaluate composite rules
-        let composite_capabilities = self
+        let composite_findings = self
             .capability_mapper
             .evaluate_composite_rules(&report, content.as_bytes());
-        for cap in composite_capabilities {
-            // Only add if not already present
-            if !report.capabilities.iter().any(|c| c.id == cap.id) {
-                report.capabilities.push(cap);
+
+        // Add all findings
+        for f in trait_findings
+            .into_iter()
+            .chain(composite_findings.into_iter())
+        {
+            if !report.findings.iter().any(|existing| existing.id == f.id) {
+                report.findings.push(f);
             }
         }
 
@@ -221,16 +213,7 @@ impl JavaScriptAnalyzer {
                     "fs.writeFile",
                     Criticality::Notable,
                 ))
-            } else if text.contains("fs.unlink")
-                || text.contains("fs.unlinkSync")
-                || text.contains("fs.rm")
-            {
-                Some((
-                    "fs/delete",
-                    "Delete files",
-                    "fs.unlink",
-                    Criticality::Notable,
-                ))
+            // Note: fs/file/delete detection moved to traits/fs/file/delete/javascript.yaml
             } else if text.contains("fs.chmod") || text.contains("fs.chmodSync") {
                 Some((
                     "fs/permissions",
@@ -278,8 +261,10 @@ impl JavaScriptAnalyzer {
             };
 
             if let Some((cap_id, description, pattern, criticality)) = capability {
-                if !report.capabilities.iter().any(|c| c.id == cap_id) {
-                    report.capabilities.push(Capability {
+                if !report.findings.iter().any(|c| c.id == cap_id) {
+                    report.findings.push(Finding {
+                        kind: FindingKind::Capability,
+                        trait_refs: vec![],
                         id: cap_id.to_string(),
                         description: description.to_string(),
                         confidence: 1.0,
@@ -292,9 +277,6 @@ impl JavaScriptAnalyzer {
                             value: pattern.to_string(),
                             location: Some(format!("line:{}", node.start_position().row + 1)),
                         }],
-                        traits: Vec::new(),
-                        referenced_paths: None,
-                        referenced_directories: None,
                     });
                 }
             }
@@ -350,8 +332,10 @@ impl JavaScriptAnalyzer {
             ];
 
             for (module, cap_id, description, criticality) in suspicious_modules {
-                if text.contains(module) && !report.capabilities.iter().any(|c| c.id == cap_id) {
-                    report.capabilities.push(Capability {
+                if text.contains(module) && !report.findings.iter().any(|c| c.id == cap_id) {
+                    report.findings.push(Finding {
+                        kind: FindingKind::Capability,
+                        trait_refs: vec![],
                         id: cap_id.to_string(),
                         description: description.to_string(),
                         confidence: 0.7, // Import alone is not definitive
@@ -364,9 +348,6 @@ impl JavaScriptAnalyzer {
                             value: module.to_string(),
                             location: Some(format!("line:{}", node.start_position().row + 1)),
                         }],
-                        traits: Vec::new(),
-                        referenced_paths: None,
-                        referenced_directories: None,
                     });
                 }
             }
@@ -382,11 +363,13 @@ impl JavaScriptAnalyzer {
         if has_base64
             && has_eval
             && !report
-                .capabilities
+                .findings
                 .iter()
                 .any(|c| c.id == "anti-analysis/obfuscation/base64-eval")
         {
-            report.capabilities.push(Capability {
+            report.findings.push(Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
                 id: "anti-analysis/obfuscation/base64-eval".to_string(),
                 description: "Base64 decode followed by eval (obfuscation)".to_string(),
                 confidence: 0.95,
@@ -399,9 +382,6 @@ impl JavaScriptAnalyzer {
                     value: "base64+eval".to_string(),
                     location: None,
                 }],
-                traits: Vec::new(),
-                referenced_paths: None,
-                referenced_directories: None,
             });
         }
     }
@@ -583,8 +563,10 @@ impl JavaScriptAnalyzer {
         criticality: Criticality,
         evidence_value: &str,
     ) {
-        if !report.capabilities.iter().any(|c| c.id == cap_id) {
-            report.capabilities.push(Capability {
+        if !report.findings.iter().any(|c| c.id == cap_id) {
+            report.findings.push(Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
                 id: cap_id.to_string(),
                 description: description.to_string(),
                 confidence: 0.9,
@@ -597,9 +579,6 @@ impl JavaScriptAnalyzer {
                     value: evidence_value.to_string(),
                     location: None,
                 }],
-                traits: Vec::new(),
-                referenced_paths: None,
-                referenced_directories: None,
             });
         }
     }
@@ -685,11 +664,13 @@ impl JavaScriptAnalyzer {
             if ((text.contains("Buffer.from") && text.contains("base64")) || text.contains("atob("))
                 && (text.contains("eval(") || text.contains("Function("))
                 && !report
-                    .capabilities
+                    .findings
                     .iter()
                     .any(|c| c.id == "anti-analysis/obfuscation/base64-eval")
             {
-                report.capabilities.push(Capability {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: "anti-analysis/obfuscation/base64-eval".to_string(),
                     description: "Base64 decode followed by eval (obfuscation)".to_string(),
                     confidence: 0.95,
@@ -702,9 +683,6 @@ impl JavaScriptAnalyzer {
                         value: "base64+eval".to_string(),
                         location: Some(format!("line:{}", node.start_position().row + 1)),
                     }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
 
@@ -712,11 +690,13 @@ impl JavaScriptAnalyzer {
             if text.contains("\\x")
                 && text.matches("\\x").count() > 5
                 && !report
-                    .capabilities
+                    .findings
                     .iter()
                     .any(|c| c.id == "anti-analysis/obfuscation/hex")
             {
-                report.capabilities.push(Capability {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: "anti-analysis/obfuscation/hex".to_string(),
                     description: "Hex-encoded strings".to_string(),
                     confidence: 0.9,
@@ -729,9 +709,6 @@ impl JavaScriptAnalyzer {
                         value: "hex_encoding".to_string(),
                         location: Some(format!("line:{}", node.start_position().row + 1)),
                     }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
 
@@ -740,11 +717,13 @@ impl JavaScriptAnalyzer {
                 && text.contains(".reverse()")
                 && text.contains(".join(")
                 && !report
-                    .capabilities
+                    .findings
                     .iter()
                     .any(|c| c.id == "anti-analysis/obfuscation/string-construct")
             {
-                report.capabilities.push(Capability {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: "anti-analysis/obfuscation/string-construct".to_string(),
                     description: "String manipulation obfuscation".to_string(),
                     confidence: 0.9,
@@ -757,9 +736,6 @@ impl JavaScriptAnalyzer {
                         value: "split_reverse_join".to_string(),
                         location: Some(format!("line:{}", node.start_position().row + 1)),
                     }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
 
@@ -767,11 +743,13 @@ impl JavaScriptAnalyzer {
             if text.contains(".charAt(")
                 && text.matches(".charAt(").count() > 5
                 && !report
-                    .capabilities
+                    .findings
                     .iter()
                     .any(|c| c.id == "anti-analysis/obfuscation/string-construct")
             {
-                report.capabilities.push(Capability {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: "anti-analysis/obfuscation/string-construct".to_string(),
                     description: "Character-by-character string construction".to_string(),
                     confidence: 0.85,
@@ -784,9 +762,6 @@ impl JavaScriptAnalyzer {
                         value: "charAt_pattern".to_string(),
                         location: Some(format!("line:{}", node.start_position().row + 1)),
                     }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
         }
@@ -1314,19 +1289,16 @@ mod tests {
         let report = analyze_js_code(script);
 
         // Should detect exec and fs imports
-        assert!(!report.capabilities.is_empty());
+        assert!(!report.findings.is_empty());
 
         // Should detect shell execution
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id.contains("exec/command")));
 
         // Should detect file write
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id.contains("fs/write")));
+        assert!(report.findings.iter().any(|c| c.id.contains("fs/write")));
     }
 
     #[test]
@@ -1340,7 +1312,7 @@ mod tests {
 
         // Should detect base64 + eval obfuscation
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "anti-analysis/obfuscation/base64-eval"));
     }
@@ -1350,10 +1322,7 @@ mod tests {
         let code = "eval('console.log(\"hello\")');";
         let report = analyze_js_code(code);
 
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/script/eval"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/script/eval"));
     }
 
     #[test]
@@ -1361,10 +1330,7 @@ mod tests {
         let code = "const fn = Function('return 1+1');";
         let report = analyze_js_code(code);
 
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/script/eval"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/script/eval"));
     }
 
     #[test]
@@ -1372,10 +1338,7 @@ mod tests {
         let code = "const { exec } = require('child_process'); exec('ls -la');";
         let report = analyze_js_code(code);
 
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/command/shell"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/command/shell"));
     }
 
     #[test]
@@ -1384,7 +1347,7 @@ mod tests {
         let report = analyze_js_code(code);
 
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "exec/command/direct"));
     }
@@ -1394,23 +1357,17 @@ mod tests {
         let code = "const fs = require('fs'); fs.writeFileSync('test.txt', 'data');";
         let report = analyze_js_code(code);
 
-        assert!(report.capabilities.iter().any(|c| c.id == "fs/write"));
+        assert!(report.findings.iter().any(|c| c.id == "fs/write"));
     }
 
-    #[test]
-    fn test_detect_fs_unlink() {
-        let code = "const fs = require('fs'); fs.unlinkSync('file.txt');";
-        let report = analyze_js_code(code);
-
-        assert!(report.capabilities.iter().any(|c| c.id == "fs/delete"));
-    }
+    // Note: fs/file/delete detection moved to traits/fs/file/delete/javascript.yaml
 
     #[test]
     fn test_detect_fs_chmod() {
         let code = "const fs = require('fs'); fs.chmodSync('script.sh', 0o755);";
         let report = analyze_js_code(code);
 
-        assert!(report.capabilities.iter().any(|c| c.id == "fs/permissions"));
+        assert!(report.findings.iter().any(|c| c.id == "fs/permissions"));
     }
 
     #[test]
@@ -1418,10 +1375,7 @@ mod tests {
         let code = "const https = require('https'); https.request('https://example.com', cb);";
         let report = analyze_js_code(code);
 
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "net/http/client"));
+        assert!(report.findings.iter().any(|c| c.id == "net/http/client"));
     }
 
     #[test]
@@ -1429,10 +1383,7 @@ mod tests {
         let code = "const net = require('net'); net.connect(4444, 'example.com');";
         let report = analyze_js_code(code);
 
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "net/socket/connect"));
+        assert!(report.findings.iter().any(|c| c.id == "net/socket/connect"));
     }
 
     #[test]
@@ -1440,10 +1391,7 @@ mod tests {
         let code = "const net = require('net'); net.createServer((socket) => {});";
         let report = analyze_js_code(code);
 
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "net/socket/listen"));
+        assert!(report.findings.iter().any(|c| c.id == "net/socket/listen"));
     }
 
     #[test]
@@ -1452,7 +1400,7 @@ mod tests {
         let report = analyze_js_code(code);
 
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "anti-analysis/obfuscation/base64"));
     }
@@ -1463,7 +1411,7 @@ mod tests {
         let report = analyze_js_code(code);
 
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "anti-analysis/obfuscation/base64"));
     }
@@ -1474,7 +1422,7 @@ mod tests {
         let report = analyze_js_code(code);
 
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "anti-analysis/obfuscation/dynamic-import"));
     }
@@ -1520,15 +1468,9 @@ https.request('https://evil.com');
 "#;
         let report = analyze_js_code(code);
 
-        assert!(report.capabilities.len() >= 3);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/command/shell"));
-        assert!(report.capabilities.iter().any(|c| c.id == "fs/write"));
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "net/http/client"));
+        assert!(report.findings.len() >= 3);
+        assert!(report.findings.iter().any(|c| c.id == "exec/command/shell"));
+        assert!(report.findings.iter().any(|c| c.id == "fs/write"));
+        assert!(report.findings.iter().any(|c| c.id == "net/http/client"));
     }
 }

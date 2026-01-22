@@ -45,11 +45,17 @@ pub struct AnalysisReport {
     pub schema_version: String,
     pub analysis_timestamp: DateTime<Utc>,
     pub target: TargetInfo,
-    /// Atomic observable characteristics (used to derive capabilities)
+
+    // ========================================================================
+    // Traits + Findings model
+    // ========================================================================
+    /// Observable characteristics (strings, paths, symbols, IPs, etc.)
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub traits: Vec<Trait>,
-    /// High-level behavioral capabilities (derived from traits)
-    pub capabilities: Vec<Capability>,
+    /// Findings - interpretive conclusions based on traits (capabilities, threats, etc.)
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    pub findings: Vec<Finding>,
+
     pub structure: Vec<StructuralFeature>,
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub functions: Vec<Function>,
@@ -90,11 +96,11 @@ impl AnalysisReport {
 
     pub fn new_with_timestamp(target: TargetInfo, timestamp: chrono::DateTime<Utc>) -> Self {
         Self {
-            schema_version: "1.0".to_string(),
+            schema_version: "1.1".to_string(),
             analysis_timestamp: timestamp,
             target,
             traits: Vec::new(),
-            capabilities: Vec::new(),
+            findings: Vec::new(),
             structure: Vec::new(),
             functions: Vec::new(),
             strings: Vec::new(),
@@ -112,6 +118,26 @@ impl AnalysisReport {
             metadata: AnalysisMetadata::default(),
         }
     }
+
+    /// Add a trait and return its index for reference
+    pub fn add_trait(&mut self, t: Trait) -> usize {
+        let idx = self.traits.len();
+        self.traits.push(t);
+        idx
+    }
+
+    /// Add a finding
+    pub fn add_finding(&mut self, finding: Finding) {
+        if !self.findings.iter().any(|f| f.id == finding.id) {
+            self.findings.push(finding);
+        }
+    }
+
+    /// Add a finding that references specific traits by ID
+    pub fn add_finding_with_refs(&mut self, mut finding: Finding, trait_ids: Vec<String>) {
+        finding.trait_refs = trait_ids;
+        self.add_finding(finding);
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -125,126 +151,197 @@ pub struct TargetInfo {
     pub architectures: Option<Vec<String>>,
 }
 
-/// Atomic observable characteristic (e.g., "uses socket API", "contains eval")
-/// Traits are combined to form capabilities
+// ========================================================================
+// Traits + Findings Model
+// ========================================================================
+
+/// Kind of trait - observable characteristics of a file
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[serde(rename_all = "lowercase")]
+pub enum TraitKind {
+    /// String literal extracted from binary or source
+    String,
+    /// File or directory path
+    Path,
+    /// Environment variable reference
+    EnvVar,
+    /// Imported symbol (function/variable from external library)
+    Import,
+    /// Exported symbol (function/variable exposed by this file)
+    Export,
+    /// IP address (v4 or v6)
+    Ip,
+    /// URL or URI
+    Url,
+    /// Domain name
+    Domain,
+    /// Email address
+    Email,
+    /// Base64-encoded data
+    Base64,
+    /// Cryptographic hash
+    Hash,
+    /// Registry key (Windows)
+    Registry,
+    /// Function or method name
+    Function,
+}
+
+/// Observable characteristic of a file - a fact without interpretation
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Trait {
-    /// Trait identifier using / delimiter (e.g., "net/api/socket", "exec/eval")
-    pub id: String,
-    /// Human-readable description
-    pub description: String,
-    /// Confidence score (0.5 = heuristic, 1.0 = definitive)
-    pub confidence: f32,
-    /// Criticality level (none = internal only, low/medium/high = shown in output)
-    #[serde(default)]
-    pub criticality: Criticality,
-    /// True if trait indicates a program capability (what it CAN do - static analysis)
-    /// Auto-set to true if mbc or attack is present
-    #[serde(default, skip_serializing_if = "is_false")]
-    pub capability: bool,
-    /// MBC (Malware Behavior Catalog) ID - most specific available (e.g., "B0015.001")
+    /// Kind of trait
+    pub kind: TraitKind,
+    /// The raw value discovered
+    pub value: String,
+    /// Offset in file (hex format like "0x1234")
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub mbc: Option<String>,
-    /// MITRE ATT&CK Technique ID (e.g., "T1056.001")
+    pub offset: Option<String>,
+    /// Encoding for strings (utf8, utf16le, utf16be, ascii)
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub attack: Option<String>,
-    /// Programming language (for language-specific traits)
+    pub encoding: Option<String>,
+    /// Section where found (for binaries: .text, .data, .rodata)
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub language: Option<String>,
-    /// Platform(s) this trait applies to
-    #[serde(skip_serializing_if = "Vec::is_empty", default)]
-    pub platforms: Vec<String>,
-    /// Evidence supporting this trait
-    pub evidence: Vec<Evidence>,
-    /// Specific paths supporting this trait
-    #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub referenced_paths: Option<Vec<String>>,
-    /// Directories supporting this trait
-    #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub referenced_directories: Option<Vec<String>>,
+    pub section: Option<String>,
+    /// Source tool that discovered this trait
+    pub source: String,
 }
 
 impl Trait {
-    pub fn new(id: String, description: String, confidence: f32, evidence: Vec<Evidence>) -> Self {
+    pub fn new(kind: TraitKind, value: String, source: String) -> Self {
         Self {
-            id,
-            description,
-            confidence,
-            criticality: Criticality::Inert,
-            capability: false,
-            mbc: None,
-            attack: None,
-            language: None,
-            platforms: Vec::new(),
-            evidence,
-            referenced_paths: None,
-            referenced_directories: None,
+            kind,
+            value,
+            offset: None,
+            encoding: None,
+            section: None,
+            source,
         }
     }
 
-    /// Set MBC ID and automatically mark as capability
-    pub fn with_mbc(mut self, mbc: String) -> Self {
-        self.mbc = Some(mbc);
-        self.capability = true;
+    pub fn with_offset(mut self, offset: String) -> Self {
+        self.offset = Some(offset);
         self
     }
 
-    /// Set ATT&CK ID and automatically mark as capability
-    pub fn with_attack(mut self, attack: String) -> Self {
-        self.attack = Some(attack);
-        self.capability = true;
+    pub fn with_encoding(mut self, encoding: String) -> Self {
+        self.encoding = Some(encoding);
+        self
+    }
+
+    pub fn with_section(mut self, section: String) -> Self {
+        self.section = Some(section);
         self
     }
 }
 
-/// High-level behavioral capability (derived from trait combinations)
+/// Kind of finding - what type of conclusion this represents
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum FindingKind {
+    /// What the code CAN do (behavioral) - e.g., net/socket, fs/write, exec/eval, anti-debug
+    #[default]
+    Capability,
+    /// How the file is built/hidden - e.g., obfuscation, packing, high entropy, missing security features
+    Structural,
+    /// Signs of malicious intent (threat signals) - e.g., C2 patterns, malware signatures
+    Indicator,
+    /// Security vulnerabilities - e.g., SQL injection, buffer overflow
+    Weakness,
+}
+
+/// A finding - an interpretive conclusion based on traits
+/// Findings represent what we CONCLUDE from traits (capabilities, threats, behaviors)
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct Capability {
-    /// Capability identifier using / delimiter (e.g., "exec/command/shell")
+pub struct Finding {
+    /// Finding identifier using / delimiter (e.g., "c2/hardcoded-ip", "net/socket")
     pub id: String,
+    /// Kind of finding (capability, structural, indicator, weakness)
+    #[serde(default)]
+    pub kind: FindingKind,
     /// Human-readable description
     pub description: String,
     /// Confidence score (0.5 = heuristic, 1.0 = definitive)
     pub confidence: f32,
-    /// Criticality level (none/low/medium/high)
+    /// Criticality level
     #[serde(default)]
     pub criticality: Criticality,
-    /// MBC (Malware Behavior Catalog) ID - most specific available (e.g., "B0015.001")
+    /// MBC (Malware Behavior Catalog) ID
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub mbc: Option<String>,
-    /// MITRE ATT&CK Technique ID (e.g., "T1056.001")
+    /// MITRE ATT&CK Technique ID
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub attack: Option<String>,
-    /// Evidence supporting this capability
-    pub evidence: Vec<Evidence>,
-    /// Traits that contributed to this capability
+    /// Trait IDs that contributed to this finding (for aggregated findings)
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
-    pub traits: Vec<String>,
-    /// Specific paths supporting this capability
-    #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub referenced_paths: Option<Vec<String>>,
-    /// Directories supporting this capability
-    #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub referenced_directories: Option<Vec<String>>,
+    pub trait_refs: Vec<String>,
+    /// Additional evidence (for findings not tied to specific traits)
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    pub evidence: Vec<Evidence>,
 }
 
-impl Capability {
-    pub fn new(id: String, description: String, confidence: f32, evidence: Vec<Evidence>) -> Self {
+impl Finding {
+    pub fn new(id: String, kind: FindingKind, description: String, confidence: f32) -> Self {
         Self {
             id,
+            kind,
             description,
             confidence,
             criticality: Criticality::Inert,
             mbc: None,
             attack: None,
-            evidence,
-            traits: Vec::new(),
-            referenced_paths: None,
-            referenced_directories: None,
+            trait_refs: Vec::new(),
+            evidence: Vec::new(),
         }
+    }
+
+    /// Create a capability finding
+    pub fn capability(id: String, description: String, confidence: f32) -> Self {
+        Self::new(id, FindingKind::Capability, description, confidence)
+    }
+
+    /// Create a structural finding (obfuscation, packing, etc.)
+    pub fn structural(id: String, description: String, confidence: f32) -> Self {
+        Self::new(id, FindingKind::Structural, description, confidence)
+    }
+
+    /// Create an indicator finding (threat signals)
+    pub fn indicator(id: String, description: String, confidence: f32) -> Self {
+        Self::new(id, FindingKind::Indicator, description, confidence)
+    }
+
+    /// Create a weakness finding (vulnerabilities)
+    pub fn weakness(id: String, description: String, confidence: f32) -> Self {
+        Self::new(id, FindingKind::Weakness, description, confidence)
+    }
+
+    pub fn with_criticality(mut self, criticality: Criticality) -> Self {
+        self.criticality = criticality;
+        self
+    }
+
+    pub fn with_mbc(mut self, mbc: String) -> Self {
+        self.mbc = Some(mbc);
+        self
+    }
+
+    pub fn with_attack(mut self, attack: String) -> Self {
+        self.attack = Some(attack);
+        self
+    }
+
+    pub fn with_trait_refs(mut self, refs: Vec<String>) -> Self {
+        self.trait_refs = refs;
+        self
+    }
+
+    pub fn with_evidence(mut self, evidence: Vec<Evidence>) -> Self {
+        self.evidence = evidence;
+        self
     }
 }
 
+/// Legacy trait structure - being replaced by Artifact + Finding model
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct StructuralFeature {
     /// Feature identifier using / delimiter (e.g., "binary/format/macho")
@@ -615,9 +712,9 @@ pub struct FileRenameInfo {
 pub struct ModifiedFileAnalysis {
     pub file: String,
     /// Full capability objects for new capabilities (includes description/evidence)
-    pub new_capabilities: Vec<Capability>,
+    pub new_capabilities: Vec<Finding>,
     /// Full capability objects for removed capabilities
-    pub removed_capabilities: Vec<Capability>,
+    pub removed_capabilities: Vec<Finding>,
     pub capability_delta: i32,
     pub risk_increase: bool,
 }
@@ -1444,10 +1541,9 @@ mod tests {
 
         let report = AnalysisReport::new(target);
 
-        assert_eq!(report.schema_version, "1.0");
+        assert_eq!(report.schema_version, "1.1");
         assert_eq!(report.target.path, "/test");
-        assert!(report.traits.is_empty());
-        assert!(report.capabilities.is_empty());
+        assert!(report.findings.is_empty());
         assert!(report.strings.is_empty());
     }
 
@@ -1467,37 +1563,27 @@ mod tests {
 
         let report = AnalysisReport::new_with_timestamp(target, timestamp);
 
-        assert_eq!(report.schema_version, "1.0");
+        assert_eq!(report.schema_version, "1.1");
         assert_eq!(report.target.path, "/test");
         assert_eq!(report.analysis_timestamp, timestamp);
-        assert!(report.traits.is_empty());
-        assert!(report.capabilities.is_empty());
+        assert!(report.findings.is_empty());
     }
 
     #[test]
     fn test_trait_new_constructor() {
-        let evidence = vec![Evidence {
-            method: "symbol".to_string(),
-            source: "goblin".to_string(),
-            value: "socket".to_string(),
-            location: None,
-        }];
-
         let trait_obj = Trait::new(
-            "test/trait".to_string(),
-            "Test trait".to_string(),
-            0.9,
-            evidence,
+            TraitKind::String,
+            "test_value".to_string(),
+            "test_source".to_string(),
         );
 
-        assert_eq!(trait_obj.id, "test/trait");
-        assert_eq!(trait_obj.confidence, 0.9);
-        assert_eq!(trait_obj.criticality, Criticality::Inert);
-        assert!(trait_obj.evidence.len() == 1);
+        assert_eq!(trait_obj.kind, TraitKind::String);
+        assert_eq!(trait_obj.value, "test_value");
+        assert_eq!(trait_obj.source, "test_source");
     }
 
     #[test]
-    fn test_capability_new_constructor() {
+    fn test_finding_constructor() {
         let evidence = vec![Evidence {
             method: "symbol".to_string(),
             source: "goblin".to_string(),
@@ -1505,17 +1591,21 @@ mod tests {
             location: Some("0x1000".to_string()),
         }];
 
-        let cap = Capability::new(
-            "net/socket".to_string(),
-            "Network socket".to_string(),
-            1.0,
+        let finding = Finding {
+            id: "net/socket".to_string(),
+            kind: FindingKind::Capability,
+            description: "Network socket".to_string(),
+            confidence: 1.0,
+            criticality: Criticality::Inert,
+            mbc: None,
+            attack: None,
+            trait_refs: vec![],
             evidence,
-        );
+        };
 
-        assert_eq!(cap.id, "net/socket");
-        assert_eq!(cap.confidence, 1.0);
-        assert!(cap.evidence.len() == 1);
-        assert!(cap.traits.is_empty());
+        assert_eq!(finding.id, "net/socket");
+        assert_eq!(finding.confidence, 1.0);
+        assert!(finding.evidence.len() == 1);
     }
 
     #[test]

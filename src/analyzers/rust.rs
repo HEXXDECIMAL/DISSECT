@@ -155,25 +155,7 @@ impl RustAnalyzer {
                 ));
             }
 
-            // File operations
-            if text.contains("fs::remove_dir_all") {
-                capabilities.push((
-                    "fs/delete",
-                    "Recursive directory deletion",
-                    "remove_dir_all",
-                    0.95,
-                    Criticality::Notable,
-                ));
-            }
-            if text.contains("fs::remove_file") {
-                capabilities.push((
-                    "fs/delete",
-                    "Delete file",
-                    "remove_file",
-                    0.9,
-                    Criticality::Notable,
-                ));
-            }
+            // Note: fs/file/delete detection moved to traits/fs/file/delete/rust.yaml
 
             // Reverse shell pattern
             if (text.contains("TcpStream::connect") || text.contains("TcpStream"))
@@ -205,7 +187,9 @@ impl RustAnalyzer {
 
             // Add capabilities
             for (cap_id, desc, method, conf, criticality) in capabilities {
-                report.capabilities.push(Capability {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: cap_id.to_string(),
                     description: desc.to_string(),
                     confidence: conf,
@@ -222,9 +206,6 @@ impl RustAnalyzer {
                             node.start_position().column
                         )),
                     }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
         }
@@ -272,7 +253,9 @@ impl RustAnalyzer {
             }
 
             for (cap_id, desc, method, conf, criticality) in capabilities {
-                report.capabilities.push(Capability {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: cap_id.to_string(),
                     description: desc.to_string(),
                     confidence: conf,
@@ -289,9 +272,6 @@ impl RustAnalyzer {
                             node.start_position().column
                         )),
                     }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
         }
@@ -300,7 +280,9 @@ impl RustAnalyzer {
     fn analyze_unsafe(&self, node: &tree_sitter::Node, source: &[u8], report: &mut AnalysisReport) {
         if let Ok(text) = node.utf8_text(source) {
             // Any unsafe block is noteworthy
-            report.capabilities.push(Capability {
+            report.findings.push(Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
                 id: "unsafe/block".to_string(),
                 description: "Unsafe code block".to_string(),
                 confidence: 1.0,
@@ -320,14 +302,13 @@ impl RustAnalyzer {
                         node.start_position().column
                     )),
                 }],
-                traits: Vec::new(),
-                referenced_paths: None,
-                referenced_directories: None,
             });
 
             // Check for specific unsafe operations
             if text.contains("transmute") {
-                report.capabilities.push(Capability {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: "unsafe/transmute".to_string(),
                     description: "Type transmutation (unsafe cast)".to_string(),
                     confidence: 0.95,
@@ -347,14 +328,13 @@ impl RustAnalyzer {
                             node.start_position().column
                         )),
                     }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
 
             if text.contains("*const") || text.contains("*mut") {
-                report.capabilities.push(Capability {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: "unsafe/pointer".to_string(),
                     description: "Raw pointer operations".to_string(),
                     confidence: 0.9,
@@ -374,14 +354,13 @@ impl RustAnalyzer {
                             node.start_position().column
                         )),
                     }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
 
             if text.contains("asm!") || text.contains("global_asm!") {
-                report.capabilities.push(Capability {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: "unsafe/inline-asm".to_string(),
                     description: "Inline assembly".to_string(),
                     confidence: 1.0,
@@ -401,15 +380,14 @@ impl RustAnalyzer {
                             node.start_position().column
                         )),
                     }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
 
             // FFI detection
             if text.contains("extern \"C\"") || text.contains("extern \"system\"") {
-                report.capabilities.push(Capability {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: "unsafe/ffi".to_string(),
                     description: "Foreign function interface (C boundary)".to_string(),
                     confidence: 0.95,
@@ -429,9 +407,6 @@ impl RustAnalyzer {
                             node.start_position().column
                         )),
                     }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
         }
@@ -440,7 +415,9 @@ impl RustAnalyzer {
     fn analyze_macro(&self, node: &tree_sitter::Node, source: &[u8], report: &mut AnalysisReport) {
         if let Ok(text) = node.utf8_text(source) {
             if text.contains("asm!") || text.contains("global_asm!") {
-                report.capabilities.push(Capability {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: "unsafe/inline-asm".to_string(),
                     description: "Inline assembly macro".to_string(),
                     confidence: 1.0,
@@ -460,9 +437,6 @@ impl RustAnalyzer {
                             node.start_position().column
                         )),
                     }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
         }
@@ -608,10 +582,7 @@ fn main() {
 }
 "#;
         let report = analyze_rust_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/command/shell"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/command/shell"));
     }
 
     #[test]
@@ -623,10 +594,7 @@ fn main() {
 }
 "#;
         let report = analyze_rust_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "net/socket/create"));
+        assert!(report.findings.iter().any(|c| c.id == "net/socket/create"));
     }
 
     #[test]
@@ -638,35 +606,10 @@ fn main() {
 }
 "#;
         let report = analyze_rust_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "net/socket/server"));
+        assert!(report.findings.iter().any(|c| c.id == "net/socket/server"));
     }
 
-    #[test]
-    fn test_detect_remove_dir_all() {
-        let code = r#"
-use std::fs;
-fn main() {
-    fs::remove_dir_all("/important").unwrap();
-}
-"#;
-        let report = analyze_rust_code(code);
-        assert!(report.capabilities.iter().any(|c| c.id == "fs/delete"));
-    }
-
-    #[test]
-    fn test_detect_remove_file() {
-        let code = r#"
-use std::fs;
-fn main() {
-    fs::remove_file("secret.txt").unwrap();
-}
-"#;
-        let report = analyze_rust_code(code);
-        assert!(report.capabilities.iter().any(|c| c.id == "fs/delete"));
-    }
+    // Note: fs/file/delete detection moved to traits/fs/file/delete/rust.yaml
 
     #[test]
     fn test_detect_unsafe_block() {
@@ -678,7 +621,7 @@ fn main() {
 }
 "#;
         let report = analyze_rust_code(code);
-        assert!(report.capabilities.iter().any(|c| c.id == "unsafe/block"));
+        assert!(report.findings.iter().any(|c| c.id == "unsafe/block"));
     }
 
     #[test]
@@ -692,10 +635,7 @@ fn main() {
 }
 "#;
         let report = analyze_rust_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "unsafe/transmute"));
+        assert!(report.findings.iter().any(|c| c.id == "unsafe/transmute"));
     }
 
     #[test]
@@ -709,7 +649,7 @@ fn main() {
 }
 "#;
         let report = analyze_rust_code(code);
-        assert!(report.capabilities.iter().any(|c| c.id == "unsafe/pointer"));
+        assert!(report.findings.iter().any(|c| c.id == "unsafe/pointer"));
     }
 
     #[test]
@@ -723,10 +663,7 @@ fn main() {
 }
 "#;
         let report = analyze_rust_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "unsafe/inline-asm"));
+        assert!(report.findings.iter().any(|c| c.id == "unsafe/inline-asm"));
     }
 
     #[test]
@@ -736,10 +673,7 @@ use std::process::Command;
 fn main() {}
 "#;
         let report = analyze_rust_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/command/shell"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/command/shell"));
     }
 
     #[test]
@@ -749,10 +683,7 @@ use std::net::TcpStream;
 fn main() {}
 "#;
         let report = analyze_rust_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "net/socket/create"));
+        assert!(report.findings.iter().any(|c| c.id == "net/socket/create"));
     }
 
     #[test]
@@ -762,7 +693,7 @@ use libc::fork;
 fn main() {}
 "#;
         let report = analyze_rust_code(code);
-        assert!(report.capabilities.iter().any(|c| c.id == "exec/syscall"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/syscall"));
     }
 
     #[test]
@@ -772,10 +703,7 @@ use libloading::Library;
 fn main() {}
 "#;
         let report = analyze_rust_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/dylib/load"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/dylib/load"));
     }
 
     #[test]
@@ -809,15 +737,9 @@ fn main() {
 }
 "#;
         let report = analyze_rust_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "net/socket/create"));
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/command/shell"));
-        assert!(report.capabilities.iter().any(|c| c.id == "unsafe/block"));
-        assert!(report.capabilities.len() >= 3);
+        assert!(report.findings.iter().any(|c| c.id == "net/socket/create"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/command/shell"));
+        assert!(report.findings.iter().any(|c| c.id == "unsafe/block"));
+        assert!(report.findings.len() >= 3);
     }
 }

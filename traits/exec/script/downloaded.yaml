@@ -1,0 +1,88 @@
+# Downloaded Script Execution
+# Detects patterns where scripts are downloaded and executed
+# ATT&CK: T1059 (Command and Scripting Interpreter)
+
+traits:
+  - id: perl-execute
+    description: Perl script execution
+    criticality: notable
+    confidence: 0.75
+    mbc: "C0059"
+    attack: "T1059.006"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "perl\\s+[/\\w.-]+"
+      search_raw: true
+
+  - id: python-execute
+    description: Python script execution
+    criticality: notable
+    confidence: 0.7
+    mbc: "C0059"
+    attack: "T1059.006"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "python[23]?\\s+[/\\w.-]+"
+      search_raw: true
+
+  - id: ruby-execute
+    description: Ruby script execution
+    criticality: notable
+    confidence: 0.7
+    mbc: "C0059"
+    attack: "T1059.005"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "ruby\\s+[/\\w.-]+"
+      search_raw: true
+
+  - id: node-execute
+    description: Node.js script execution
+    criticality: notable
+    confidence: 0.7
+    mbc: "C0059"
+    attack: "T1059.007"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "node\\s+[/\\w.-]+"
+      search_raw: true
+
+  - id: sh-execute
+    description: Shell script execution
+    criticality: notable
+    confidence: 0.7
+    mbc: "C0059"
+    attack: "T1059.004"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "(sh|bash|zsh)\\s+[/\\w.-]+"
+      search_raw: true
+
+  - id: pipe-to-shell
+    description: Pipe to shell execution (very suspicious)
+    criticality: hostile
+    confidence: 0.95
+    mbc: "B0024"
+    attack: "T1059.004"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "\\|\\s*(sh|bash|zsh|perl|python|ruby|node)"
+      search_raw: true
+
+  - id: download-pipe-execute
+    description: Download and pipe to interpreter
+    criticality: hostile
+    confidence: 0.95
+    mbc: "B0024"
+    attack: "T1059"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "(curl|wget).*(\\||&&).*(sh|bash|perl|python|ruby|node)"
+      search_raw: true

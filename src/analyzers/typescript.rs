@@ -184,17 +184,16 @@ impl TypeScriptAnalyzer {
                     for (pattern, trait_id, description, criticality) in dangerous_funcs {
                         if func_lower.contains(pattern) {
                             let full_trait_id = format!("{}/typescript", trait_id);
-                            if !report.traits.iter().any(|t| t.id == full_trait_id) {
-                                report.traits.push(Trait {
+                            if !report.findings.iter().any(|t| t.id == full_trait_id) {
+                                report.findings.push(Finding {
+                                    kind: FindingKind::Capability,
+                                    trait_refs: vec![],
                                     id: full_trait_id,
                                     description: description.to_string(),
                                     confidence: 1.0,
                                     criticality,
-                                    capability: false,
                                     mbc: None,
                                     attack: None,
-                                    language: Some("typescript".to_string()),
-                                    platforms: vec!["nodejs".to_string()],
                                     evidence: vec![Evidence {
                                         method: "ast".to_string(),
                                         source: "tree-sitter-typescript".to_string(),
@@ -204,8 +203,6 @@ impl TypeScriptAnalyzer {
                                             node.start_position().row + 1
                                         )),
                                     }],
-                                    referenced_paths: None,
-                                    referenced_directories: None,
                                 });
                             }
                             break;
@@ -217,28 +214,25 @@ impl TypeScriptAnalyzer {
             // Check for eval/Function in any context
             if text.contains("eval(")
                 && !report
-                    .traits
+                    .findings
                     .iter()
                     .any(|t| t.id == "exec/script/eval/typescript")
             {
-                report.traits.push(Trait {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: "exec/script/eval/typescript".to_string(),
                     description: "Dynamic code evaluation".to_string(),
                     confidence: 1.0,
                     criticality: Criticality::Hostile,
-                    capability: false,
                     mbc: None,
                     attack: None,
-                    language: Some("typescript".to_string()),
-                    platforms: vec!["nodejs".to_string()],
                     evidence: vec![Evidence {
                         method: "ast".to_string(),
                         source: "tree-sitter-typescript".to_string(),
                         value: "eval".to_string(),
                         location: Some(format!("line:{}", node.start_position().row + 1)),
                     }],
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
         }
@@ -249,28 +243,25 @@ impl TypeScriptAnalyzer {
             // Check for dynamic imports
             if text.contains("import(")
                 && !report
-                    .traits
+                    .findings
                     .iter()
                     .any(|t| t.id == "anti-analysis/dynamic-import/typescript")
             {
-                report.traits.push(Trait {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: "anti-analysis/dynamic-import/typescript".to_string(),
                     description: "Dynamic import (possible obfuscation)".to_string(),
                     confidence: 0.7,
                     criticality: Criticality::Suspicious,
-                    capability: false,
                     mbc: None,
                     attack: None,
-                    language: Some("typescript".to_string()),
-                    platforms: vec!["nodejs".to_string()],
                     evidence: vec![Evidence {
                         method: "ast".to_string(),
                         source: "tree-sitter-typescript".to_string(),
                         value: "dynamic-import".to_string(),
                         location: Some(format!("line:{}", node.start_position().row + 1)),
                     }],
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
 
@@ -291,25 +282,22 @@ impl TypeScriptAnalyzer {
             ];
 
             for (module, trait_id, description) in suspicious_modules {
-                if text.contains(module) && !report.traits.iter().any(|t| t.id == trait_id) {
-                    report.traits.push(Trait {
+                if text.contains(module) && !report.findings.iter().any(|t| t.id == trait_id) {
+                    report.findings.push(Finding {
+                        kind: FindingKind::Capability,
+                        trait_refs: vec![],
                         id: trait_id.to_string(),
                         description: description.to_string(),
                         confidence: 0.6,
                         criticality: Criticality::Notable,
-                        capability: false,
                         mbc: None,
                         attack: None,
-                        language: Some("typescript".to_string()),
-                        platforms: vec!["nodejs".to_string()],
                         evidence: vec![Evidence {
                             method: "import".to_string(),
                             source: "tree-sitter-typescript".to_string(),
                             value: module.to_string(),
                             location: Some(format!("line:{}", node.start_position().row + 1)),
                         }],
-                        referenced_paths: None,
-                        referenced_directories: None,
                     });
                 }
             }
@@ -326,28 +314,25 @@ impl TypeScriptAnalyzer {
             // Check for prototype pollution patterns
             if (text.contains("__proto__") || text.contains("constructor.prototype"))
                 && !report
-                    .traits
+                    .findings
                     .iter()
                     .any(|t| t.id == "impact/prototype-pollution/typescript")
             {
-                report.traits.push(Trait {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: "impact/prototype-pollution/typescript".to_string(),
                     description: "Prototype pollution pattern detected".to_string(),
                     confidence: 0.8,
                     criticality: Criticality::Hostile,
-                    capability: false,
                     mbc: None,
                     attack: Some("T1059".to_string()),
-                    language: Some("typescript".to_string()),
-                    platforms: vec!["nodejs".to_string()],
                     evidence: vec![Evidence {
                         method: "ast".to_string(),
                         source: "tree-sitter-typescript".to_string(),
                         value: "prototype-pollution".to_string(),
                         location: Some(format!("line:{}", node.start_position().row + 1)),
                     }],
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
         }
@@ -362,28 +347,25 @@ impl TypeScriptAnalyzer {
         if let Ok(text) = node.utf8_text(source) {
             if text.contains("__proto__")
                 && !report
-                    .traits
+                    .findings
                     .iter()
                     .any(|t| t.id == "impact/prototype-pollution/typescript")
             {
-                report.traits.push(Trait {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: "impact/prototype-pollution/typescript".to_string(),
                     description: "Prototype pollution via __proto__ access".to_string(),
                     confidence: 0.9,
                     criticality: Criticality::Hostile,
-                    capability: false,
                     mbc: None,
                     attack: Some("T1059".to_string()),
-                    language: Some("typescript".to_string()),
-                    platforms: vec!["nodejs".to_string()],
                     evidence: vec![Evidence {
                         method: "ast".to_string(),
                         source: "tree-sitter-typescript".to_string(),
                         value: "__proto__".to_string(),
                         location: Some(format!("line:{}", node.start_position().row + 1)),
                     }],
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
         }
@@ -399,28 +381,25 @@ impl TypeScriptAnalyzer {
             // Check for Function constructor (code execution)
             if text.contains("new Function")
                 && !report
-                    .traits
+                    .findings
                     .iter()
                     .any(|t| t.id == "exec/script/function-constructor/typescript")
             {
-                report.traits.push(Trait {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: "exec/script/function-constructor/typescript".to_string(),
                     description: "Function constructor (dynamic code execution)".to_string(),
                     confidence: 1.0,
                     criticality: Criticality::Hostile,
-                    capability: false,
                     mbc: None,
                     attack: None,
-                    language: Some("typescript".to_string()),
-                    platforms: vec!["nodejs".to_string()],
                     evidence: vec![Evidence {
                         method: "ast".to_string(),
                         source: "tree-sitter-typescript".to_string(),
                         value: "Function constructor".to_string(),
                         location: Some(format!("line:{}", node.start_position().row + 1)),
                     }],
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
         }
@@ -489,9 +468,9 @@ mod tests {
         "#;
         let report = analyzer.analyze_script(Path::new("test.ts"), code).unwrap();
 
-        assert!(report.traits.iter().any(|t| t.id.contains("eval")));
+        assert!(report.findings.iter().any(|t| t.id.contains("eval")));
         let eval_trait = report
-            .traits
+            .findings
             .iter()
             .find(|t| t.id.contains("eval"))
             .unwrap();
@@ -508,7 +487,7 @@ mod tests {
         let report = analyzer.analyze_script(Path::new("test.ts"), code).unwrap();
 
         assert!(report
-            .traits
+            .findings
             .iter()
             .any(|t| t.id.contains("exec") || t.id.contains("shell")));
     }
@@ -523,7 +502,7 @@ mod tests {
         let report = analyzer.analyze_script(Path::new("test.ts"), code).unwrap();
 
         assert!(report
-            .traits
+            .findings
             .iter()
             .any(|t| t.id.contains("shell") || t.id.contains("spawn")));
     }
@@ -536,9 +515,9 @@ mod tests {
         "#;
         let report = analyzer.analyze_script(Path::new("test.ts"), code).unwrap();
 
-        assert!(report.traits.iter().any(|t| t.id.contains("http")));
+        assert!(report.findings.iter().any(|t| t.id.contains("http")));
         let http_trait = report
-            .traits
+            .findings
             .iter()
             .find(|t| t.id.contains("http"))
             .unwrap();
@@ -567,7 +546,7 @@ mod tests {
         let report = analyzer.analyze_script(Path::new("test.ts"), code).unwrap();
 
         assert!(report
-            .traits
+            .findings
             .iter()
             .any(|t| t.id.contains("shell") || t.id.contains("child_process")));
     }
@@ -581,7 +560,7 @@ mod tests {
         let report = analyzer.analyze_script(Path::new("test.ts"), code).unwrap();
 
         assert!(report
-            .traits
+            .findings
             .iter()
             .any(|t| t.id.contains("vm") || t.id.contains("eval")));
     }
@@ -595,7 +574,7 @@ mod tests {
         "#;
         let report = analyzer.analyze_script(Path::new("test.ts"), code).unwrap();
 
-        assert!(report.traits.iter().any(|t| t.id.contains("os")));
+        assert!(report.findings.iter().any(|t| t.id.contains("os")));
     }
 
     #[test]
@@ -606,7 +585,7 @@ mod tests {
         "#;
         let report = analyzer.analyze_script(Path::new("test.ts"), code).unwrap();
 
-        assert!(report.traits.iter().any(|t| t.id.contains("crypto")));
+        assert!(report.findings.iter().any(|t| t.id.contains("crypto")));
     }
 
     #[test]
@@ -619,11 +598,11 @@ mod tests {
         let report = analyzer.analyze_script(Path::new("test.ts"), code).unwrap();
 
         assert!(report
-            .traits
+            .findings
             .iter()
             .any(|t| t.id.contains("prototype-pollution")));
         let pollution_trait = report
-            .traits
+            .findings
             .iter()
             .find(|t| t.id.contains("prototype-pollution"))
             .unwrap();
@@ -640,7 +619,7 @@ mod tests {
         let report = analyzer.analyze_script(Path::new("test.ts"), code).unwrap();
 
         assert!(report
-            .traits
+            .findings
             .iter()
             .any(|t| t.id.contains("prototype-pollution")));
     }
@@ -654,11 +633,11 @@ mod tests {
         let report = analyzer.analyze_script(Path::new("test.ts"), code).unwrap();
 
         assert!(report
-            .traits
+            .findings
             .iter()
             .any(|t| t.id.contains("function-constructor")));
         let fn_trait = report
-            .traits
+            .findings
             .iter()
             .find(|t| t.id.contains("function-constructor"))
             .unwrap();
@@ -676,7 +655,7 @@ mod tests {
         "#;
         let report = analyzer.analyze_script(Path::new("test.ts"), code).unwrap();
 
-        assert!(report.traits.iter().any(|t| t.id.contains("fs/")));
+        assert!(report.findings.iter().any(|t| t.id.contains("fs/")));
     }
 
     #[test]
@@ -694,7 +673,7 @@ mod tests {
 
         // Should have structural feature but no dangerous traits
         assert!(!report.structure.is_empty());
-        assert_eq!(report.traits.len(), 0);
+        assert_eq!(report.findings.len(), 0);
     }
 
     #[test]
@@ -713,11 +692,11 @@ mod tests {
         let report = analyzer.analyze_script(Path::new("test.ts"), code).unwrap();
 
         // Should detect multiple dangerous patterns
-        assert!(report.traits.len() >= 3);
-        assert!(report.traits.iter().any(|t| t.id.contains("eval")));
-        assert!(report.traits.iter().any(|t| t.id.contains("shell")));
+        assert!(report.findings.len() >= 3);
+        assert!(report.findings.iter().any(|t| t.id.contains("eval")));
+        assert!(report.findings.iter().any(|t| t.id.contains("shell")));
         assert!(report
-            .traits
+            .findings
             .iter()
             .any(|t| t.id.contains("prototype-pollution")));
     }
@@ -770,7 +749,7 @@ mod tests {
 
         // Should only have one eval trait despite multiple calls
         let eval_traits: Vec<_> = report
-            .traits
+            .findings
             .iter()
             .filter(|t| t.id.contains("eval"))
             .collect();

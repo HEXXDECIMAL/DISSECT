@@ -1,0 +1,52 @@
+# File Delete Operations - Python
+# MBC: C0047 (Delete File)
+# ATT&CK: T1070.004
+
+traits:
+  - id: os-remove
+    description: Delete file (os.remove)
+    criticality: notable
+    confidence: 0.9
+    mbc: "C0047"
+    attack: "T1070.004"
+    file_types: [python]
+    condition:
+      type: ast_pattern
+      node_type: call
+      pattern: "os.remove"
+
+  - id: os-unlink
+    description: Delete file (os.unlink)
+    criticality: notable
+    confidence: 0.9
+    mbc: "C0047"
+    attack: "T1070.004"
+    file_types: [python]
+    condition:
+      type: ast_pattern
+      node_type: call
+      pattern: "os.unlink"
+
+  - id: shutil-rmtree
+    description: Recursive directory deletion
+    criticality: notable
+    confidence: 0.9
+    mbc: "C0047"
+    attack: "T1070.004"
+    file_types: [python]
+    condition:
+      type: ast_pattern
+      node_type: call
+      pattern: "shutil.rmtree"
+
+  - id: pathlib-unlink
+    description: Delete file (pathlib.unlink)
+    criticality: notable
+    confidence: 0.9
+    mbc: "C0047"
+    attack: "T1070.004"
+    file_types: [python]
+    condition:
+      type: ast_pattern
+      node_type: call
+      pattern: ".unlink("

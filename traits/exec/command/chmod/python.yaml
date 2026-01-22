@@ -1,0 +1,25 @@
+# File permission modification (Python)
+# ATT&CK: T1222.002 (File and Directory Permissions Modification: Linux and Mac)
+
+traits:
+  - id: call
+    description: "File permission modification via os.chmod"
+    criticality: notable
+    confidence: 0.85
+    mbc: "C0047"
+    attack: "T1222.002"
+    file_types: [python]
+    condition:
+      type: string
+      regex: "os\\.chmod\\("
+
+  - id: executable
+    description: "chmod with executable permissions (0o7xx)"
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "C0047"
+    attack: "T1222.002"
+    file_types: [python]
+    condition:
+      type: string
+      regex: "0o7[0-7][0-7]"

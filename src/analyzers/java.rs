@@ -250,7 +250,9 @@ impl JavaAnalyzer {
 
             // Add capabilities
             for (cap_id, desc, method, conf, criticality) in capabilities {
-                report.capabilities.push(Capability {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: cap_id.to_string(),
                     description: desc.to_string(),
                     confidence: conf,
@@ -267,9 +269,6 @@ impl JavaAnalyzer {
                             node.start_position().column
                         )),
                     }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
         }
@@ -326,7 +325,9 @@ impl JavaAnalyzer {
             }
 
             for (cap_id, desc, method, conf, criticality) in capabilities {
-                report.capabilities.push(Capability {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: cap_id.to_string(),
                     description: desc.to_string(),
                     confidence: conf,
@@ -343,9 +344,6 @@ impl JavaAnalyzer {
                             node.start_position().column
                         )),
                     }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
         }
@@ -389,7 +387,9 @@ impl JavaAnalyzer {
             }
 
             for (cap_id, desc, method, conf, criticality) in capabilities {
-                report.capabilities.push(Capability {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: cap_id.to_string(),
                     description: desc.to_string(),
                     confidence: conf,
@@ -406,9 +406,6 @@ impl JavaAnalyzer {
                             node.start_position().column
                         )),
                     }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
         }
@@ -442,7 +439,9 @@ impl JavaAnalyzer {
 
                     // Check for native methods
                     if text.contains("native ") {
-                        report.capabilities.push(Capability {
+                        report.findings.push(Finding {
+                            kind: FindingKind::Capability,
+                            trait_refs: vec![],
                             id: "jni/native-method".to_string(),
                             description: format!("Native method: {}", name),
                             confidence: 0.95,
@@ -462,9 +461,6 @@ impl JavaAnalyzer {
                                     node.start_position().column
                                 )),
                             }],
-                            traits: Vec::new(),
-                            referenced_paths: None,
-                            referenced_directories: None,
                         });
                     }
 
@@ -586,12 +582,9 @@ public class Exec {
 }
 "#;
         let report = analyze_java_code(code);
+        assert!(report.findings.iter().any(|c| c.id == "exec/command/shell"));
         assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/command/shell"));
-        assert!(report
-            .capabilities
+            .findings
             .iter()
             .filter(|c| c.id == "exec/command/shell")
             .any(|c| c.confidence >= 0.9));
@@ -608,10 +601,7 @@ public class PB {
 }
 "#;
         let report = analyze_java_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/command/shell"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/command/shell"));
     }
 
     #[test]
@@ -625,7 +615,7 @@ public class Reflect {
 "#;
         let report = analyze_java_code(code);
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "anti-analysis/reflection"));
     }
@@ -643,7 +633,7 @@ public class Invoke {
 "#;
         let report = analyze_java_code(code);
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "anti-analysis/reflection"));
     }
@@ -661,7 +651,7 @@ public class Access {
 "#;
         let report = analyze_java_code(code);
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "anti-analysis/reflection"));
     }
@@ -679,7 +669,7 @@ public class Deserial {
 "#;
         let report = analyze_java_code(code);
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "anti-analysis/deserialization"));
     }
@@ -697,7 +687,7 @@ public class XmlD {
 "#;
         let report = analyze_java_code(code);
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "anti-analysis/deserialization"));
     }
@@ -714,7 +704,7 @@ public class JNDI {
 }
 "#;
         let report = analyze_java_code(code);
-        assert!(report.capabilities.iter().any(|c| c.id == "jndi/injection"));
+        assert!(report.findings.iter().any(|c| c.id == "jndi/injection"));
     }
 
     #[test]
@@ -727,10 +717,7 @@ public class Native {
 }
 "#;
         let report = analyze_java_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/dylib/load"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/dylib/load"));
     }
 
     #[test]
@@ -745,10 +732,7 @@ public class Loader {
 }
 "#;
         let report = analyze_java_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/classloader"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/classloader"));
     }
 
     #[test]
@@ -761,7 +745,7 @@ public class Script {
 }
 "#;
         let report = analyze_java_code(code);
-        assert!(report.capabilities.iter().any(|c| c.id == "exec/script"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/script"));
     }
 
     #[test]
@@ -775,10 +759,7 @@ public class Network {
 }
 "#;
         let report = analyze_java_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "net/socket/create"));
+        assert!(report.findings.iter().any(|c| c.id == "net/socket/create"));
     }
 
     #[test]
@@ -793,10 +774,7 @@ public class JNI {
 }
 "#;
         let report = analyze_java_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "jni/native-method"));
+        assert!(report.findings.iter().any(|c| c.id == "jni/native-method"));
     }
 
     #[test]
@@ -826,7 +804,7 @@ public class Test {
 "#;
         let report = analyze_java_code(code);
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "anti-analysis/reflection"));
     }
@@ -839,7 +817,7 @@ public class Test {
 }
 "#;
         let report = analyze_java_code(code);
-        assert!(report.capabilities.iter().any(|c| c.id == "jndi/import"));
+        assert!(report.findings.iter().any(|c| c.id == "jndi/import"));
     }
 
     #[test]
@@ -859,18 +837,15 @@ public class MultiThreat {
 }
 "#;
         let report = analyze_java_code(code);
+        assert!(report.findings.iter().any(|c| c.id == "net/socket/create"));
         assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "net/socket/create"));
-        assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "anti-analysis/deserialization"));
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "anti-analysis/reflection"));
-        assert!(report.capabilities.len() >= 3);
+        assert!(report.findings.len() >= 3);
     }
 }

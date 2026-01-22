@@ -1,36 +1,83 @@
-use crate::types::{AnalysisReport, Criticality, Trait, YaraMatch};
+use crate::types::{AnalysisReport, Criticality, Finding, FindingKind, YaraMatch};
 use anyhow::Result;
 use colored::Colorize;
 use std::collections::HashMap;
 
-/// Deduplicate traits by ID, keeping highest criticality (then highest confidence)
-fn deduplicate_traits(traits: &[Trait]) -> Vec<&Trait> {
-    let mut best_matches: HashMap<String, &Trait> = HashMap::new();
+/// Extract directory path from trait ID (everything except the last component)
+/// e.g., "exec/command/subprocess/popen" -> "exec/command/subprocess"
+/// e.g., "malware/cryptominer/monero/wallet-address" -> "malware/cryptominer/monero"
+pub fn get_directory_path(id: &str) -> String {
+    let parts: Vec<&str> = id.split('/').collect();
+    if parts.len() > 1 {
+        parts[..parts.len() - 1].join("/")
+    } else {
+        id.to_string()
+    }
+}
 
-    for trait_item in traits {
-        match best_matches.get(&trait_item.id) {
+/// Aggregated finding for a directory path
+#[derive(Clone)]
+struct AggregatedFinding {
+    /// The directory path (e.g., "exec/command/subprocess")
+    directory: String,
+    /// The best (highest criticality) finding
+    best: Finding,
+    /// All trait IDs that matched in this directory
+    matched_traits: Vec<String>,
+}
+
+/// Aggregate findings by directory path, keeping highest criticality (then highest confidence)
+/// Returns findings with IDs set to directory paths and trait_refs containing all matched trait IDs
+pub fn aggregate_findings_by_directory(findings: &[Finding]) -> Vec<Finding> {
+    let mut aggregated: HashMap<String, AggregatedFinding> = HashMap::new();
+
+    for finding in findings {
+        let dir_path = get_directory_path(&finding.id);
+
+        match aggregated.get_mut(&dir_path) {
             None => {
-                best_matches.insert(trait_item.id.clone(), trait_item);
+                aggregated.insert(
+                    dir_path.clone(),
+                    AggregatedFinding {
+                        directory: dir_path,
+                        best: finding.clone(),
+                        matched_traits: vec![finding.id.clone()],
+                    },
+                );
             }
-            Some(existing) => {
+            Some(agg) => {
+                // Add this trait ID to the list
+                if !agg.matched_traits.contains(&finding.id) {
+                    agg.matched_traits.push(finding.id.clone());
+                }
+
                 // Keep the one with higher criticality
                 // If criticality is same, keep the one with higher confidence
-                let should_replace = trait_item.criticality > existing.criticality
-                    || (trait_item.criticality == existing.criticality
-                        && trait_item.confidence > existing.confidence);
+                let should_replace = finding.criticality > agg.best.criticality
+                    || (finding.criticality == agg.best.criticality
+                        && finding.confidence > agg.best.confidence);
 
                 if should_replace {
-                    best_matches.insert(trait_item.id.clone(), trait_item);
+                    agg.best = finding.clone();
                 }
             }
         }
     }
 
-    best_matches.into_values().collect()
+    // Convert aggregated findings to Finding structs with directory as ID
+    aggregated
+        .into_values()
+        .map(|agg| {
+            let mut result = agg.best;
+            result.id = agg.directory;
+            result.trait_refs = agg.matched_traits;
+            result
+        })
+        .collect()
 }
 
-/// Convert YARA matches to traits for unified display
-fn yara_to_traits(yara_matches: &[YaraMatch]) -> Vec<Trait> {
+/// Convert YARA matches to findings for unified display
+fn yara_to_findings(yara_matches: &[YaraMatch]) -> Vec<Finding> {
     yara_matches
         .iter()
         .map(|m| {
@@ -41,7 +88,7 @@ fn yara_to_traits(yara_matches: &[YaraMatch]) -> Vec<Trait> {
                 _ => Criticality::Inert,
             };
 
-            // Extract namespace for trait ID (e.g., "traits.intel.discover" -> "intel/discover")
+            // Extract namespace for finding ID (e.g., "traits.intel.discover" -> "intel/discover")
             let id = if m.namespace.starts_with("traits.") {
                 m.namespace[7..].replace('.', "/") + "/" + &m.rule
             } else if m.namespace.starts_with("third_party.") {
@@ -62,19 +109,16 @@ fn yara_to_traits(yara_matches: &[YaraMatch]) -> Vec<Trait> {
                 })
                 .collect();
 
-            Trait {
+            Finding {
                 id,
+                kind: FindingKind::Indicator,
                 description: m.description.clone(),
                 confidence: 0.7, // Default for YARA matches
                 criticality,
-                capability: true,
                 mbc: None,
                 attack: None,
-                language: None,
-                platforms: Vec::new(),
+                trait_refs: vec![],
                 evidence,
-                referenced_paths: None,
-                referenced_directories: None,
             }
         })
         .collect()
@@ -145,12 +189,12 @@ fn namespace_long_name(ns: &str) -> &'static str {
 }
 
 /// Format evidence string (minimal)
-fn format_evidence(trait_item: &Trait) -> String {
-    let values: Vec<String> = trait_item
+fn format_evidence(finding: &Finding) -> String {
+    let values: Vec<String> = finding
         .evidence
         .iter()
         .filter_map(|e| {
-            if e.value.len() <= 50 && !trait_item.description.contains(&e.value) {
+            if e.value.len() <= 50 && !finding.description.contains(&e.value) {
                 Some(e.value.clone())
             } else {
                 None
@@ -197,34 +241,19 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
         format!("[{}]", risk_name(&overall_risk)).bright_black()
     ));
 
-    // Combine traits from report (stored as capabilities) and YARA matches
-    let mut all_traits: Vec<Trait> = report
-        .capabilities
-        .iter()
-        .map(|cap| Trait {
-            id: cap.id.clone(),
-            description: cap.description.clone(),
-            confidence: cap.confidence,
-            criticality: cap.criticality,
-            capability: true, // Capabilities are high-level behaviors
-            mbc: cap.mbc.clone(),
-            attack: cap.attack.clone(),
-            language: None,
-            platforms: Vec::new(),
-            evidence: cap.evidence.clone(),
-            referenced_paths: cap.referenced_paths.clone(),
-            referenced_directories: cap.referenced_directories.clone(),
-        })
-        .collect();
-    all_traits.extend(yara_to_traits(&report.yara_matches));
+    // Combine all findings from report and YARA matches
+    let mut all_findings: Vec<Finding> = report.findings.clone();
 
-    // Deduplicate
-    let deduped = deduplicate_traits(&all_traits);
+    // Add YARA matches as findings
+    all_findings.extend(yara_to_findings(&report.yara_matches));
+
+    // Aggregate by directory path (e.g., exec/command, malware/cryptominer)
+    let aggregated = aggregate_findings_by_directory(&all_findings);
 
     // Filter: remove criticality=none and confidence<0.5
-    let filtered: Vec<&Trait> = deduped
+    let filtered: Vec<Finding> = aggregated
         .into_iter()
-        .filter(|t| t.criticality != Criticality::Inert && t.confidence >= 0.5)
+        .filter(|f| f.criticality != Criticality::Inert && f.confidence >= 0.5)
         .collect();
 
     if filtered.is_empty() {
@@ -232,20 +261,20 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
         return Ok(output);
     }
 
-    // Group by namespace
-    let mut by_namespace: HashMap<String, Vec<&Trait>> = HashMap::new();
+    // Group by namespace (top-level objective like "exec", "malware", "c2")
+    let mut by_namespace: HashMap<String, Vec<&Finding>> = HashMap::new();
     let mut ns_max_criticality: HashMap<String, Criticality> = HashMap::new();
 
-    for trait_item in &filtered {
-        let (ns, _) = split_trait_id(&trait_item.id);
+    for finding in &filtered {
+        let (ns, _) = split_trait_id(&finding.id);
 
         // Update max criticality for namespace
         let current_max = ns_max_criticality.get(&ns).unwrap_or(&Criticality::Inert);
-        if &trait_item.criticality > current_max {
-            ns_max_criticality.insert(ns.clone(), trait_item.criticality);
+        if &finding.criticality > current_max {
+            ns_max_criticality.insert(ns.clone(), finding.criticality);
         }
 
-        by_namespace.entry(ns).or_default().push(*trait_item);
+        by_namespace.entry(ns).or_default().push(finding);
     }
 
     // Sort namespaces by long name
@@ -254,7 +283,7 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
 
     // Render each namespace
     for ns in &namespaces {
-        let traits = by_namespace.get(ns).unwrap();
+        let findings = by_namespace.get(ns).unwrap();
         let max_crit = ns_max_criticality.get(ns).unwrap_or(&Criticality::Inert);
 
         // Namespace header
@@ -264,29 +293,29 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
             format!("[{}]", risk_name(max_crit)).bright_black()
         ));
 
-        // Sort traits by criticality (highest first), then ID
-        let mut sorted_traits = traits.clone();
-        sorted_traits.sort_by(|a, b| {
+        // Sort findings by criticality (highest first), then ID
+        let mut sorted_findings = findings.clone();
+        sorted_findings.sort_by(|a, b| {
             b.criticality
                 .cmp(&a.criticality)
                 .then_with(|| a.id.cmp(&b.id))
         });
 
-        // Render each trait
-        for trait_item in sorted_traits {
-            let (_, rest) = split_trait_id(&trait_item.id);
-            let emoji = risk_emoji(&trait_item.criticality);
-            let evidence = format_evidence(trait_item);
+        // Render each finding
+        for finding in sorted_findings {
+            let (_, rest) = split_trait_id(&finding.id);
+            let emoji = risk_emoji(&finding.criticality);
+            let evidence = format_evidence(finding);
 
             // Colorize based on criticality
-            let content = match trait_item.criticality {
+            let content = match finding.criticality {
                 Criticality::Hostile => {
-                    format!("{} {} — {}", emoji, rest, trait_item.description).bright_red()
+                    format!("{} {} — {}", emoji, rest, finding.description).bright_red()
                 }
                 Criticality::Suspicious => {
-                    format!("{} {} — {}", emoji, rest, trait_item.description).bright_yellow()
+                    format!("{} {} — {}", emoji, rest, finding.description).bright_yellow()
                 }
-                _ => format!("{} {} — {}", emoji, rest, trait_item.description).bright_cyan(),
+                _ => format!("{} {} — {}", emoji, rest, finding.description).bright_cyan(),
             };
 
             if evidence.is_empty() {
@@ -310,9 +339,9 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
 fn calculate_overall_risk(report: &AnalysisReport) -> Criticality {
     let mut max = Criticality::Inert;
 
-    for cap in &report.capabilities {
-        if cap.criticality > max {
-            max = cap.criticality;
+    for finding in &report.findings {
+        if finding.criticality > max {
+            max = finding.criticality;
         }
     }
 
@@ -334,15 +363,12 @@ fn calculate_overall_risk(report: &AnalysisReport) -> Criticality {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::types::{AnalysisReport, Capability, Evidence, TargetInfo};
+    use crate::types::{AnalysisReport, Evidence, TargetInfo};
     use chrono::Utc;
 
-    fn create_test_report(
-        capabilities: Vec<Capability>,
-        yara_matches: Vec<YaraMatch>,
-    ) -> AnalysisReport {
+    fn create_test_report(findings: Vec<Finding>, yara_matches: Vec<YaraMatch>) -> AnalysisReport {
         AnalysisReport {
-            schema_version: "1.0".to_string(),
+            schema_version: "1.1".to_string(),
             analysis_timestamp: Utc::now(),
             target: TargetInfo {
                 path: "/test/sample.bin".to_string(),
@@ -351,8 +377,8 @@ mod tests {
                 sha256: "def456abc".to_string(),
                 architectures: Some(vec!["x86_64".to_string()]),
             },
+            findings,
             traits: vec![],
-            capabilities,
             structure: vec![],
             functions: vec![],
             strings: vec![],
@@ -376,124 +402,114 @@ mod tests {
     }
 
     #[test]
-    fn test_deduplicate_traits_empty() {
-        let traits: Vec<Trait> = vec![];
-        let deduped = deduplicate_traits(&traits);
-        assert_eq!(deduped.len(), 0);
+    fn test_aggregate_findings_empty() {
+        let findings: Vec<Finding> = vec![];
+        let aggregated = aggregate_findings_by_directory(&findings);
+        assert_eq!(aggregated.len(), 0);
     }
 
     #[test]
-    fn test_deduplicate_traits_no_duplicates() {
-        let traits = vec![
-            Trait {
-                id: "exec/shell".to_string(),
-                description: "Execute shell".to_string(),
+    fn test_aggregate_findings_different_directories() {
+        let findings = vec![
+            Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
+                id: "exec/shell/bash".to_string(),
+                description: "Execute bash".to_string(),
                 confidence: 0.9,
                 criticality: Criticality::Hostile,
-                capability: true,
                 mbc: None,
                 attack: None,
-                language: None,
-                platforms: vec![],
                 evidence: vec![],
-                referenced_paths: None,
-                referenced_directories: None,
             },
-            Trait {
-                id: "net/http".to_string(),
-                description: "HTTP request".to_string(),
+            Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
+                id: "net/http/get".to_string(),
+                description: "HTTP GET request".to_string(),
                 confidence: 0.8,
                 criticality: Criticality::Suspicious,
-                capability: true,
                 mbc: None,
                 attack: None,
-                language: None,
-                platforms: vec![],
                 evidence: vec![],
-                referenced_paths: None,
-                referenced_directories: None,
             },
         ];
-        let deduped = deduplicate_traits(&traits);
-        assert_eq!(deduped.len(), 2);
+        let aggregated = aggregate_findings_by_directory(&findings);
+        assert_eq!(aggregated.len(), 2);
+        // IDs should be directory paths
+        let ids: Vec<_> = aggregated.iter().map(|f| f.id.as_str()).collect();
+        assert!(ids.contains(&"exec/shell"));
+        assert!(ids.contains(&"net/http"));
     }
 
     #[test]
-    fn test_deduplicate_traits_keeps_highest_criticality() {
-        let traits = vec![
-            Trait {
-                id: "exec/shell".to_string(),
-                description: "Execute shell".to_string(),
+    fn test_aggregate_findings_same_directory_keeps_highest_criticality() {
+        let findings = vec![
+            Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
+                id: "exec/shell/bash".to_string(),
+                description: "Execute bash".to_string(),
                 confidence: 0.7,
                 criticality: Criticality::Suspicious,
-                capability: true,
                 mbc: None,
                 attack: None,
-                language: None,
-                platforms: vec![],
                 evidence: vec![],
-                referenced_paths: None,
-                referenced_directories: None,
             },
-            Trait {
-                id: "exec/shell".to_string(),
-                description: "Execute shell".to_string(),
+            Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
+                id: "exec/shell/sh".to_string(),
+                description: "Execute sh".to_string(),
                 confidence: 0.7,
                 criticality: Criticality::Hostile,
-                capability: true,
                 mbc: None,
                 attack: None,
-                language: None,
-                platforms: vec![],
                 evidence: vec![],
-                referenced_paths: None,
-                referenced_directories: None,
             },
         ];
-        let deduped = deduplicate_traits(&traits);
-        assert_eq!(deduped.len(), 1);
-        assert_eq!(deduped[0].criticality, Criticality::Hostile);
+        let aggregated = aggregate_findings_by_directory(&findings);
+        assert_eq!(aggregated.len(), 1);
+        assert_eq!(aggregated[0].id, "exec/shell");
+        assert_eq!(aggregated[0].criticality, Criticality::Hostile);
+        // Should have both trait IDs in trait_refs
+        assert_eq!(aggregated[0].trait_refs.len(), 2);
     }
 
     #[test]
-    fn test_deduplicate_traits_keeps_highest_confidence() {
-        let traits = vec![
-            Trait {
-                id: "exec/shell".to_string(),
-                description: "Execute shell".to_string(),
+    fn test_aggregate_findings_same_directory_keeps_highest_confidence() {
+        let findings = vec![
+            Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
+                id: "exec/shell/bash".to_string(),
+                description: "Execute bash".to_string(),
                 confidence: 0.6,
                 criticality: Criticality::Hostile,
-                capability: true,
                 mbc: None,
                 attack: None,
-                language: None,
-                platforms: vec![],
                 evidence: vec![],
-                referenced_paths: None,
-                referenced_directories: None,
             },
-            Trait {
-                id: "exec/shell".to_string(),
-                description: "Execute shell".to_string(),
+            Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
+                id: "exec/shell/sh".to_string(),
+                description: "Execute sh".to_string(),
                 confidence: 0.9,
                 criticality: Criticality::Hostile,
-                capability: true,
                 mbc: None,
                 attack: None,
-                language: None,
-                platforms: vec![],
                 evidence: vec![],
-                referenced_paths: None,
-                referenced_directories: None,
             },
         ];
-        let deduped = deduplicate_traits(&traits);
-        assert_eq!(deduped.len(), 1);
-        assert_eq!(deduped[0].confidence, 0.9);
+        let aggregated = aggregate_findings_by_directory(&findings);
+        assert_eq!(aggregated.len(), 1);
+        assert_eq!(aggregated[0].id, "exec/shell");
+        assert_eq!(aggregated[0].confidence, 0.9);
     }
 
     #[test]
-    fn test_yara_to_traits_high_severity() {
+    fn test_yara_to_findings_high_severity() {
         let yara_matches = vec![YaraMatch {
             namespace: "traits.intel.discover".to_string(),
             rule: "process_info".to_string(),
@@ -504,14 +520,14 @@ mod tests {
             mbc: None,
             attack: None,
         }];
-        let traits = yara_to_traits(&yara_matches);
+        let traits = yara_to_findings(&yara_matches);
         assert_eq!(traits.len(), 1);
         assert_eq!(traits[0].id, "intel/discover/process_info");
         assert_eq!(traits[0].criticality, Criticality::Hostile);
     }
 
     #[test]
-    fn test_yara_to_traits_medium_severity() {
+    fn test_yara_to_findings_medium_severity() {
         let yara_matches = vec![YaraMatch {
             namespace: "traits.net.http".to_string(),
             rule: "client".to_string(),
@@ -522,12 +538,12 @@ mod tests {
             mbc: None,
             attack: None,
         }];
-        let traits = yara_to_traits(&yara_matches);
+        let traits = yara_to_findings(&yara_matches);
         assert_eq!(traits[0].criticality, Criticality::Suspicious);
     }
 
     #[test]
-    fn test_yara_to_traits_third_party() {
+    fn test_yara_to_findings_third_party() {
         let yara_matches = vec![YaraMatch {
             namespace: "third_party.mitre".to_string(),
             rule: "apt29".to_string(),
@@ -538,7 +554,7 @@ mod tests {
             mbc: None,
             attack: None,
         }];
-        let traits = yara_to_traits(&yara_matches);
+        let traits = yara_to_findings(&yara_matches);
         assert_eq!(traits[0].id, "3P/apt29");
     }
 
@@ -585,35 +601,31 @@ mod tests {
 
     #[test]
     fn test_format_evidence_empty() {
-        let trait_item = Trait {
+        let trait_item = Finding {
+            kind: FindingKind::Capability,
+            trait_refs: vec![],
             id: "test".to_string(),
             description: "Test trait".to_string(),
             confidence: 0.8,
             criticality: Criticality::Notable,
-            capability: true,
             mbc: None,
             attack: None,
-            language: None,
-            platforms: vec![],
             evidence: vec![],
-            referenced_paths: None,
-            referenced_directories: None,
         };
         assert_eq!(format_evidence(&trait_item), "");
     }
 
     #[test]
     fn test_format_evidence_with_values() {
-        let trait_item = Trait {
+        let trait_item = Finding {
+            kind: FindingKind::Capability,
+            trait_refs: vec![],
             id: "test".to_string(),
             description: "Test".to_string(),
             confidence: 0.8,
             criticality: Criticality::Notable,
-            capability: true,
             mbc: None,
             attack: None,
-            language: None,
-            platforms: vec![],
             evidence: vec![
                 Evidence {
                     method: "yara".to_string(),
@@ -628,8 +640,6 @@ mod tests {
                     location: None,
                 },
             ],
-            referenced_paths: None,
-            referenced_directories: None,
         };
         let formatted = format_evidence(&trait_item);
         assert!(formatted.contains("cmd.exe"));
@@ -650,7 +660,7 @@ mod tests {
         let report = create_test_report(vec![], vec![]);
         let json = format_json(&report).unwrap();
         assert!(json.contains("schema_version"));
-        assert!(json.contains("1.0"));
+        assert!(json.contains("1.1"));
     }
 
     #[test]
@@ -662,7 +672,9 @@ mod tests {
 
     #[test]
     fn test_format_terminal_with_capabilities() {
-        let capabilities = vec![Capability {
+        let capabilities = vec![Finding {
+            kind: FindingKind::Capability,
+            trait_refs: vec![],
             id: "exec/shell".to_string(),
             description: "Execute shell commands".to_string(),
             confidence: 0.9,
@@ -670,9 +682,6 @@ mod tests {
             mbc: None,
             attack: None,
             evidence: vec![],
-            traits: vec![],
-            referenced_paths: None,
-            referenced_directories: None,
         }];
         let report = create_test_report(capabilities, vec![]);
         let output = format_terminal(&report).unwrap();
@@ -688,7 +697,9 @@ mod tests {
 
     #[test]
     fn test_calculate_overall_risk_from_capabilities() {
-        let capabilities = vec![Capability {
+        let capabilities = vec![Finding {
+            kind: FindingKind::Capability,
+            trait_refs: vec![],
             id: "test".to_string(),
             description: "Test".to_string(),
             confidence: 0.8,
@@ -696,9 +707,6 @@ mod tests {
             mbc: None,
             attack: None,
             evidence: vec![],
-            traits: vec![],
-            referenced_paths: None,
-            referenced_directories: None,
         }];
         let report = create_test_report(capabilities, vec![]);
         let risk = calculate_overall_risk(&report);

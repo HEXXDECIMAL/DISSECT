@@ -244,15 +244,7 @@ impl GoAnalyzer {
                     Criticality::Notable,
                 ));
             }
-            if text.contains("os.Remove") || text.contains("os.RemoveAll") {
-                capabilities.push((
-                    "fs/delete",
-                    "Delete files/directories",
-                    "os.Remove",
-                    0.9,
-                    Criticality::Notable,
-                ));
-            }
+            // Note: fs/file/delete detection moved to traits/fs/file/delete/go.yaml
             if text.contains("filepath.Walk") || text.contains("ioutil.ReadDir") {
                 capabilities.push((
                     "fs/enumerate",
@@ -434,8 +426,10 @@ impl GoAnalyzer {
 
             // Add all detected capabilities
             for (cap_id, description, pattern, confidence, criticality) in capabilities {
-                if !report.capabilities.iter().any(|c| c.id == cap_id) {
-                    report.capabilities.push(Capability {
+                if !report.findings.iter().any(|c| c.id == cap_id) {
+                    report.findings.push(Finding {
+                        kind: FindingKind::Capability,
+                        trait_refs: vec![],
                         id: cap_id.to_string(),
                         description: description.to_string(),
                         confidence,
@@ -448,9 +442,6 @@ impl GoAnalyzer {
                             value: pattern.to_string(),
                             location: Some(format!("line:{}", node.start_position().row + 1)),
                         }],
-                        traits: Vec::new(),
-                        referenced_paths: None,
-                        referenced_directories: None,
                     });
                 }
             }
@@ -505,7 +496,7 @@ impl GoAnalyzer {
             ];
 
             for (module, cap_id, description) in suspicious_imports {
-                if text.contains(module) && !report.capabilities.iter().any(|c| c.id == cap_id) {
+                if text.contains(module) && !report.findings.iter().any(|c| c.id == cap_id) {
                     // Higher confidence for dangerous imports
                     let confidence = if cap_id.contains("exec")
                         || cap_id.contains("syscall")
@@ -516,7 +507,9 @@ impl GoAnalyzer {
                         0.7
                     };
 
-                    report.capabilities.push(Capability {
+                    report.findings.push(Finding {
+                        kind: FindingKind::Capability,
+                        trait_refs: vec![],
                         id: cap_id.to_string(),
                         description: description.to_string(),
                         confidence,
@@ -529,9 +522,6 @@ impl GoAnalyzer {
                             value: module.to_string(),
                             location: Some(format!("line:{}", node.start_position().row + 1)),
                         }],
-                        traits: Vec::new(),
-                        referenced_paths: None,
-                        referenced_directories: None,
                     });
                 }
             }
@@ -549,11 +539,13 @@ impl GoAnalyzer {
             if (text.contains("base64") || text.contains("DecodeString"))
                 && (text.contains("exec.Command") || text.contains("syscall"))
                 && !report
-                    .capabilities
+                    .findings
                     .iter()
                     .any(|c| c.id == "anti-analysis/obfuscation/base64-exec")
             {
-                report.capabilities.push(Capability {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: "anti-analysis/obfuscation/base64-exec".to_string(),
                     description: "Base64 decode followed by exec (obfuscation)".to_string(),
                     confidence: 0.95,
@@ -566,9 +558,6 @@ impl GoAnalyzer {
                         value: "base64+exec".to_string(),
                         location: Some(format!("line:{}", node.start_position().row + 1)),
                     }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
 
@@ -576,11 +565,13 @@ impl GoAnalyzer {
             if text.contains("\\x")
                 && text.matches("\\x").count() > 5
                 && !report
-                    .capabilities
+                    .findings
                     .iter()
                     .any(|c| c.id == "anti-analysis/obfuscation/hex-strings")
             {
-                report.capabilities.push(Capability {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: "anti-analysis/obfuscation/hex-strings".to_string(),
                     description: "Hex-encoded strings".to_string(),
                     confidence: 0.9,
@@ -593,9 +584,6 @@ impl GoAnalyzer {
                         value: "hex_encoding".to_string(),
                         location: Some(format!("line:{}", node.start_position().row + 1)),
                     }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
 
@@ -603,11 +591,13 @@ impl GoAnalyzer {
             if text.contains("// +build")
                 && (text.contains("!") || text.contains(","))
                 && !report
-                    .capabilities
+                    .findings
                     .iter()
                     .any(|c| c.id == "anti-analysis/build-tags")
             {
-                report.capabilities.push(Capability {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: "anti-analysis/build-tags".to_string(),
                     description: "Conditional build tags (platform evasion)".to_string(),
                     confidence: 0.75,
@@ -620,9 +610,6 @@ impl GoAnalyzer {
                         value: "build_tags".to_string(),
                         location: Some(format!("line:{}", node.start_position().row + 1)),
                     }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
         }
@@ -1093,10 +1080,7 @@ func main() {
 }
 "#;
         let report = analyze_go_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/command/shell"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/command/shell"));
     }
 
     #[test]
@@ -1110,7 +1094,7 @@ func main() {
 "#;
         let report = analyze_go_code(code);
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "exec/program/direct"));
     }
@@ -1128,14 +1112,8 @@ func main() {
 "#;
         let report = analyze_go_code(code);
         // Should detect at least net.Dial and exec.Command
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "net/socket/create"));
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/command/shell"));
+        assert!(report.findings.iter().any(|c| c.id == "net/socket/create"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/command/shell"));
     }
 
     #[test]
@@ -1148,10 +1126,7 @@ func main() {
 }
 "#;
         let report = analyze_go_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "net/socket/server"));
+        assert!(report.findings.iter().any(|c| c.id == "net/socket/server"));
     }
 
     #[test]
@@ -1164,10 +1139,7 @@ func main() {
 }
 "#;
         let report = analyze_go_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "net/socket/create"));
+        assert!(report.findings.iter().any(|c| c.id == "net/socket/create"));
     }
 
     #[test]
@@ -1180,10 +1152,7 @@ func main() {
 }
 "#;
         let report = analyze_go_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "net/http/client"));
+        assert!(report.findings.iter().any(|c| c.id == "net/http/client"));
     }
 
     #[test]
@@ -1196,10 +1165,7 @@ func main() {
 }
 "#;
         let report = analyze_go_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "net/http/server"));
+        assert!(report.findings.iter().any(|c| c.id == "net/http/server"));
     }
 
     #[test]
@@ -1214,10 +1180,7 @@ func main() {
 }
 "#;
         let report = analyze_go_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "crypto/cipher/aes"));
+        assert!(report.findings.iter().any(|c| c.id == "crypto/cipher/aes"));
     }
 
     #[test]
@@ -1230,10 +1193,7 @@ func main() {
 }
 "#;
         let report = analyze_go_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "crypto/cipher/rsa"));
+        assert!(report.findings.iter().any(|c| c.id == "crypto/cipher/rsa"));
     }
 
     #[test]
@@ -1247,21 +1207,10 @@ func main() {
 }
 "#;
         let report = analyze_go_code(code);
-        assert!(report.capabilities.iter().any(|c| c.id == "fs/write"));
+        assert!(report.findings.iter().any(|c| c.id == "fs/write"));
     }
 
-    #[test]
-    fn test_detect_file_delete() {
-        let code = r#"
-package main
-import "os"
-func main() {
-    os.Remove("file.txt")
-}
-"#;
-        let report = analyze_go_code(code);
-        assert!(report.capabilities.iter().any(|c| c.id == "fs/delete"));
-    }
+    // Note: fs/file/delete detection moved to traits/fs/file/delete/go.yaml
 
     #[test]
     fn test_structural_feature() {
@@ -1305,16 +1254,10 @@ func main() {
 }
 "#;
         let report = analyze_go_code(code);
-        assert!(report.capabilities.len() >= 3);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/command/shell"));
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "net/http/client"));
-        assert!(report.capabilities.iter().any(|c| c.id == "fs/delete"));
+        assert!(report.findings.len() >= 2);
+        assert!(report.findings.iter().any(|c| c.id == "exec/command/shell"));
+        assert!(report.findings.iter().any(|c| c.id == "net/http/client"));
+        // Note: fs/file/delete detection moved to traits/fs/file/delete/go.yaml
     }
 
     #[test]

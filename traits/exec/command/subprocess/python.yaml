@@ -1,0 +1,36 @@
+# Python subprocess execution
+# ATT&CK: T1059.006 (Python)
+
+traits:
+  - id: popen
+    description: "subprocess.Popen process creation"
+    criticality: notable
+    confidence: 0.85
+    mbc: "C0017"
+    attack: "T1059.006"
+    file_types: [python]
+    condition:
+      type: string
+      regex: "subprocess\\.Popen\\("
+
+  - id: run
+    description: "subprocess.run command execution"
+    criticality: notable
+    confidence: 0.85
+    mbc: "C0017"
+    attack: "T1059.006"
+    file_types: [python]
+    condition:
+      type: string
+      regex: "subprocess\\.run\\("
+
+  - id: call
+    description: "subprocess.call command execution"
+    criticality: notable
+    confidence: 0.85
+    mbc: "C0017"
+    attack: "T1059.006"
+    file_types: [python]
+    condition:
+      type: string
+      regex: "subprocess\\.call\\("

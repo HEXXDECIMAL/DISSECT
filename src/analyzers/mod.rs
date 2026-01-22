@@ -8,6 +8,7 @@ pub mod java_class;
 pub mod javascript;
 pub mod lua;
 pub mod macho;
+pub mod package_json;
 pub mod pe;
 pub mod perl;
 pub mod php;
@@ -78,7 +79,7 @@ pub fn detect_file_type(file_path: &Path) -> Result<FileType> {
         || file_data.starts_with(b"#!/usr/bin/env zsh")
         || file_data.starts_with(b"#!/usr/bin/env dash")
     {
-        return Ok(FileType::ShellScript);
+        return Ok(FileType::Shell);
     }
 
     // Check for Python script shebang
@@ -124,6 +125,13 @@ pub fn detect_file_type(file_path: &Path) -> Result<FileType> {
         return Ok(FileType::Lua);
     }
 
+    // Check for package.json (npm manifest)
+    if let Some(file_name) = file_path.file_name() {
+        if file_name == "package.json" {
+            return Ok(FileType::PackageJson);
+        }
+    }
+
     // Check for archives by file extension (need to check path, not just extension)
     let path_str = file_path.to_string_lossy().to_lowercase();
     if path_str.ends_with(".zip")
@@ -144,7 +152,7 @@ pub fn detect_file_type(file_path: &Path) -> Result<FileType> {
     if let Some(ext) = file_path.extension() {
         let ext_str = ext.to_str().unwrap_or("");
         if ext_str == "sh" {
-            return Ok(FileType::ShellScript);
+            return Ok(FileType::Shell);
         }
         if ext_str == "py" {
             return Ok(FileType::Python);
@@ -234,7 +242,7 @@ pub enum FileType {
     MachO,
     Elf,
     Pe,
-    ShellScript,
+    Shell,
     Python,
     JavaScript,
     TypeScript,
@@ -250,11 +258,40 @@ pub enum FileType {
     CSharp,
     PowerShell,
     C,
+    PackageJson, // npm package.json manifest
     Archive,
     Unknown,
 }
 
 impl FileType {
+    /// Returns true if this file type represents executable code (binaries, scripts, etc.)
+    /// as opposed to data files (images, documents, etc.)
+    pub fn is_program(&self) -> bool {
+        match self {
+            FileType::MachO
+            | FileType::Elf
+            | FileType::Pe
+            | FileType::Shell
+            | FileType::Python
+            | FileType::JavaScript
+            | FileType::TypeScript
+            | FileType::Go
+            | FileType::Rust
+            | FileType::Java
+            | FileType::JavaClass
+            | FileType::Jar
+            | FileType::Ruby
+            | FileType::Php
+            | FileType::Perl
+            | FileType::Lua
+            | FileType::CSharp
+            | FileType::PowerShell
+            | FileType::C
+            | FileType::PackageJson => true, // package.json can contain executable scripts
+            FileType::Archive | FileType::Unknown => false,
+        }
+    }
+
     /// Get YARA rule filetypes that are relevant for this file type
     /// Returns a list of filetype identifiers to match against YARA metadata
     pub fn yara_filetypes(&self) -> Vec<&'static str> {
@@ -262,7 +299,7 @@ impl FileType {
             FileType::MachO => vec!["macho", "elf", "so"],
             FileType::Elf => vec!["elf", "so", "ko"],
             FileType::Pe => vec!["pe", "exe", "dll", "bat", "ps1"],
-            FileType::ShellScript => {
+            FileType::Shell => {
                 vec!["sh", "bash", "zsh", "application/x-sh", "application/x-zsh"]
             }
             FileType::Python => vec!["py", "pyc"],
@@ -280,6 +317,7 @@ impl FileType {
             FileType::CSharp => vec!["cs", "csharp"],
             FileType::PowerShell => vec!["ps1", "psm1", "psd1"],
             FileType::C => vec!["c", "h", "hh"],
+            FileType::PackageJson => vec!["json", "package.json", "npm"],
             FileType::Archive => vec!["zip", "tar", "gz"],
             FileType::Unknown => vec![], // No filtering for unknown types
         }

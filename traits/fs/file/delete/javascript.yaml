@@ -1,0 +1,76 @@
+# File Delete Operations - JavaScript/Node.js
+# MBC: C0047 (Delete File)
+# ATT&CK: T1070.004
+
+traits:
+  - id: fs-unlink
+    description: Delete file (fs.unlink)
+    criticality: notable
+    confidence: 0.9
+    mbc: "C0047"
+    attack: "T1070.004"
+    file_types: [javascript]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "fs.unlink"
+
+  - id: fs-unlinkSync
+    description: Delete file synchronously
+    criticality: notable
+    confidence: 0.9
+    mbc: "C0047"
+    attack: "T1070.004"
+    file_types: [javascript]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "fs.unlinkSync"
+
+  - id: fs-rm
+    description: Delete file or directory (fs.rm)
+    criticality: notable
+    confidence: 0.9
+    mbc: "C0047"
+    attack: "T1070.004"
+    file_types: [javascript]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "fs.rm"
+
+  - id: fs-rmSync
+    description: Delete file or directory synchronously
+    criticality: notable
+    confidence: 0.9
+    mbc: "C0047"
+    attack: "T1070.004"
+    file_types: [javascript]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "fs.rmSync"
+
+  - id: fs-rmdir
+    description: Delete empty directory
+    criticality: notable
+    confidence: 0.9
+    mbc: "C0047"
+    attack: "T1070.004"
+    file_types: [javascript]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "fs.rmdir"
+
+  - id: promises-unlink
+    description: Delete file (promises API)
+    criticality: notable
+    confidence: 0.9
+    mbc: "C0047"
+    attack: "T1070.004"
+    file_types: [javascript]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "promises.unlink"

@@ -74,24 +74,20 @@ impl CAnalyzer {
         self.extract_functions(&root, content.as_bytes(), &mut report);
 
         // Evaluate YAML trait definitions and composite rules
-        let (traits, trait_capabilities) = self
+        let trait_findings = self
             .capability_mapper
             .evaluate_traits(&report, content.as_bytes());
-        let composite_capabilities = self
+        let composite_findings = self
             .capability_mapper
             .evaluate_composite_rules(&report, content.as_bytes());
 
-        // Add detected traits to report
-        report.traits.extend(traits);
-
-        // Add all trait-based and composite capabilities
-        for cap in trait_capabilities
+        // Add all findings
+        for f in trait_findings
             .into_iter()
-            .chain(composite_capabilities.into_iter())
+            .chain(composite_findings.into_iter())
         {
-            // Only add if not already present with same ID
-            if !report.capabilities.iter().any(|c| c.id == cap.id) {
-                report.capabilities.push(cap);
+            if !report.findings.iter().any(|existing| existing.id == f.id) {
+                report.findings.push(f);
             }
         }
 
@@ -643,7 +639,9 @@ impl CAnalyzer {
 
             // Add capabilities
             for (cap_id, desc, method, conf, criticality) in capabilities {
-                report.capabilities.push(Capability {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: cap_id.to_string(),
                     description: desc.to_string(),
                     confidence: conf,
@@ -660,9 +658,6 @@ impl CAnalyzer {
                             node.start_position().column
                         )),
                     }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
         }
@@ -861,7 +856,9 @@ impl CAnalyzer {
             }
 
             for (cap_id, desc, method, conf, criticality) in capabilities {
-                report.capabilities.push(Capability {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: cap_id.to_string(),
                     description: desc.to_string(),
                     confidence: conf,
@@ -878,9 +875,6 @@ impl CAnalyzer {
                             node.start_position().column
                         )),
                     }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
         }
@@ -936,7 +930,9 @@ impl CAnalyzer {
             (Criticality::Notable, "Inline assembly")
         };
 
-        report.capabilities.push(Capability {
+        report.findings.push(Finding {
+            kind: FindingKind::Capability,
+            trait_refs: vec![],
             id: "unsafe/inline-asm".to_string(),
             description: description.to_string(),
             confidence: 1.0,
@@ -953,9 +949,6 @@ impl CAnalyzer {
                     node.start_position().column
                 )),
             }],
-            traits: Vec::new(),
-            referenced_paths: None,
-            referenced_directories: None,
         });
     }
 
@@ -1079,7 +1072,9 @@ impl CAnalyzer {
             }
 
             for (cap_id, desc, method, conf, criticality) in capabilities {
-                report.capabilities.push(Capability {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: cap_id.to_string(),
                     description: desc.to_string(),
                     confidence: conf,
@@ -1096,9 +1091,6 @@ impl CAnalyzer {
                             node.start_position().column
                         )),
                     }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
         }
@@ -1222,7 +1214,9 @@ impl CAnalyzer {
             }
 
             for (cap_id, desc, method, conf, criticality) in capabilities {
-                report.capabilities.push(Capability {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: cap_id.to_string(),
                     description: desc.to_string(),
                     confidence: conf,
@@ -1239,9 +1233,6 @@ impl CAnalyzer {
                             node.start_position().column
                         )),
                     }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
         }
@@ -1346,7 +1337,9 @@ impl CAnalyzer {
             }
 
             for (cap_id, desc, method, conf, criticality) in capabilities {
-                report.capabilities.push(Capability {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: cap_id.to_string(),
                     description: desc.to_string(),
                     confidence: conf,
@@ -1363,9 +1356,6 @@ impl CAnalyzer {
                             node.start_position().column
                         )),
                     }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
         }
@@ -1439,7 +1429,9 @@ impl CAnalyzer {
             }
 
             for (cap_id, desc, method, conf, criticality) in capabilities {
-                report.capabilities.push(Capability {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: cap_id.to_string(),
                     description: desc.to_string(),
                     confidence: conf,
@@ -1456,9 +1448,6 @@ impl CAnalyzer {
                             node.start_position().column
                         )),
                     }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
         }
@@ -1528,7 +1517,9 @@ impl CAnalyzer {
             }
 
             for (cap_id, desc, method, conf, criticality) in capabilities {
-                report.capabilities.push(Capability {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: cap_id.to_string(),
                     description: desc.to_string(),
                     confidence: conf,
@@ -1545,9 +1536,6 @@ impl CAnalyzer {
                             node.start_position().column
                         )),
                     }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
         }
@@ -1677,10 +1665,7 @@ int main() {
 }
 "#;
         let report = analyze_c_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/command/shell"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/command/shell"));
     }
 
     #[test]
@@ -1692,10 +1677,7 @@ int main() {
 }
 "#;
         let report = analyze_c_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/command/shell"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/command/shell"));
     }
 
     #[test]
@@ -1709,7 +1691,7 @@ int main() {
 "#;
         let report = analyze_c_code(code);
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "exec/program/direct"));
     }
@@ -1725,7 +1707,7 @@ int main() {
 "#;
         let report = analyze_c_code(code);
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "unsafe/buffer-overflow-risk"));
     }
@@ -1741,12 +1723,12 @@ int main() {
 "#;
         let report = analyze_c_code(code);
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "unsafe/buffer-overflow-risk"));
         assert_eq!(
             report
-                .capabilities
+                .findings
                 .iter()
                 .find(|c| c.id == "unsafe/buffer-overflow-risk")
                 .unwrap()
@@ -1766,7 +1748,7 @@ int main() {
 "#;
         let report = analyze_c_code(code);
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "unsafe/buffer-overflow-risk"));
     }
@@ -1780,10 +1762,7 @@ int main() {
 }
 "#;
         let report = analyze_c_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "net/socket/create"));
+        assert!(report.findings.iter().any(|c| c.id == "net/socket/create"));
     }
 
     #[test]
@@ -1795,7 +1774,7 @@ int main() {
 }
 "#;
         let report = analyze_c_code(code);
-        assert!(report.capabilities.iter().any(|c| c.id == "memory/map"));
+        assert!(report.findings.iter().any(|c| c.id == "memory/map"));
     }
 
     #[test]
@@ -1807,7 +1786,7 @@ int main() {
 }
 "#;
         let report = analyze_c_code(code);
-        assert!(report.capabilities.iter().any(|c| c.id == "memory/protect"));
+        assert!(report.findings.iter().any(|c| c.id == "memory/protect"));
     }
 
     #[test]
@@ -1821,8 +1800,8 @@ int main() {
 "#;
         let report = analyze_c_code(code);
         // Should detect both individual capabilities
-        assert!(report.capabilities.iter().any(|c| c.id == "memory/map"));
-        assert!(report.capabilities.iter().any(|c| c.id == "memory/protect"));
+        assert!(report.findings.iter().any(|c| c.id == "memory/map"));
+        assert!(report.findings.iter().any(|c| c.id == "memory/protect"));
     }
 
     #[test]
@@ -1835,7 +1814,7 @@ int main() {
 "#;
         let report = analyze_c_code(code);
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "process/debug/attach"));
     }
@@ -1849,10 +1828,7 @@ int main() {
 }
 "#;
         let report = analyze_c_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "privilege/setuid"));
+        assert!(report.findings.iter().any(|c| c.id == "privilege/setuid"));
     }
 
     #[test]
@@ -1877,19 +1853,13 @@ int main() {
 }
 "#;
         let report = analyze_c_code(code);
-        assert!(report.capabilities.len() >= 3);
+        assert!(report.findings.len() >= 3);
+        assert!(report.findings.iter().any(|c| c.id == "exec/command/shell"));
         assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/command/shell"));
-        assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "unsafe/buffer-overflow-risk"));
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "net/socket/create"));
+        assert!(report.findings.iter().any(|c| c.id == "net/socket/create"));
     }
 
     #[test]
@@ -1918,10 +1888,10 @@ int main() {
 int init_module(void) { return 0; }
 "#;
         let report = analyze_c_code(code);
-        assert!(report.capabilities.iter().any(|c| c.id == "kernel/module"));
+        assert!(report.findings.iter().any(|c| c.id == "kernel/module"));
         // Should be Hostile criticality
         let cap = report
-            .capabilities
+            .findings
             .iter()
             .find(|c| c.id == "kernel/module")
             .unwrap();
@@ -1938,7 +1908,7 @@ void init(void) {
 "#;
         let report = analyze_c_code(code);
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "kernel/symbol-lookup"));
     }
@@ -1955,13 +1925,10 @@ void get_root(void) {
 "#;
         let report = analyze_c_code(code);
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "kernel/credential-manipulation"));
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "kernel/cred-struct"));
+        assert!(report.findings.iter().any(|c| c.id == "kernel/cred-struct"));
     }
 
     #[test]
@@ -1975,11 +1942,11 @@ void hide_module(void) {
 "#;
         let report = analyze_c_code(code);
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "kernel/list-manipulation"));
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "kernel/module-self-reference"));
     }
@@ -1996,11 +1963,11 @@ void hook_syscalls(void) {
 "#;
         let report = analyze_c_code(code);
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "kernel/syscall-table"));
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "kernel/syscall-number"));
     }
@@ -2016,11 +1983,11 @@ int hide_file(void) {
 "#;
         let report = analyze_c_code(code);
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "kernel/dirent-manipulation"));
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "kernel/dirent-struct"));
     }
@@ -2037,17 +2004,11 @@ void process_data(void) {
 "#;
         let report = analyze_c_code(code);
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "kernel/memory-alloc"));
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "kernel/user-copy"));
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "kernel/memory-free"));
+        assert!(report.findings.iter().any(|c| c.id == "kernel/user-copy"));
+        assert!(report.findings.iter().any(|c| c.id == "kernel/memory-free"));
     }
 
     #[test]
@@ -2060,16 +2021,10 @@ void disable_wp(void) {
 }
 "#;
         let report = analyze_c_code(code);
+        assert!(report.findings.iter().any(|c| c.id == "kernel/cr0-read"));
+        assert!(report.findings.iter().any(|c| c.id == "kernel/cr0-write"));
         assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "kernel/cr0-read"));
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "kernel/cr0-write"));
-        assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "kernel/memory-protection-bypass"));
     }
@@ -2086,10 +2041,7 @@ struct task_struct *find_task(pid_t pid) {
 }
 "#;
         let report = analyze_c_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "kernel/task-struct"));
+        assert!(report.findings.iter().any(|c| c.id == "kernel/task-struct"));
     }
 
     #[test]
@@ -2100,7 +2052,7 @@ int main() { return 0; }
 "#;
         let report = analyze_c_code(code);
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "meta/rootkit-mention"));
     }
@@ -2115,17 +2067,11 @@ module_exit(my_exit);
 "#;
         let report = analyze_c_code(code);
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "kernel/module-metadata"));
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "kernel/module-init"));
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "kernel/module-exit"));
+        assert!(report.findings.iter().any(|c| c.id == "kernel/module-init"));
+        assert!(report.findings.iter().any(|c| c.id == "kernel/module-exit"));
     }
 
     #[test]
@@ -2136,7 +2082,7 @@ int main() { return 0; }
 "#;
         let report = analyze_c_code(code);
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "kernel/rootkit-helper"));
     }
@@ -2150,10 +2096,7 @@ void modify_cr0(unsigned long val) {
 "#;
         let report = analyze_c_code(code);
         // Should detect inline ASM with CR0
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "unsafe/inline-asm"));
+        assert!(report.findings.iter().any(|c| c.id == "unsafe/inline-asm"));
     }
 
     #[test]
@@ -2166,11 +2109,8 @@ int check_proc(struct inode *inode) {
 }
 "#;
         let report = analyze_c_code(code);
-        assert!(report.capabilities.iter().any(|c| c.id == "kernel/procfs"));
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "kernel/procfs-root"));
+        assert!(report.findings.iter().any(|c| c.id == "kernel/procfs"));
+        assert!(report.findings.iter().any(|c| c.id == "kernel/procfs-root"));
     }
 
     #[test]
@@ -2184,7 +2124,7 @@ void escalate(void) {
 "#;
         let report = analyze_c_code(code);
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "privilege/root-credentials"));
     }
@@ -2198,7 +2138,7 @@ void hide_process(struct task_struct *task) {
 "#;
         let report = analyze_c_code(code);
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "kernel/task-flag-manipulation"));
     }
@@ -2210,7 +2150,7 @@ void hide_process(struct task_struct *task) {
 int main() { return 0; }
 "#;
         let report = analyze_c_code(code);
-        assert!(report.capabilities.iter().any(|c| c.id == "kernel/dirent"));
+        assert!(report.findings.iter().any(|c| c.id == "kernel/dirent"));
     }
 
     #[test]
@@ -2221,7 +2161,7 @@ int main() { return 0; }
 "#;
         let report = analyze_c_code(code);
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "meta/evasion-mention"));
     }

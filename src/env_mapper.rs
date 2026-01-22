@@ -242,7 +242,7 @@ fn classify_env_var_category(name: &str) -> EnvVarCategory {
 }
 
 /// Generate traits from environment variable patterns
-pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
+pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Finding> {
     let mut traits = Vec::new();
 
     // Credential access detection
@@ -252,7 +252,9 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
         .collect();
 
     if !credential_vars.is_empty() {
-        traits.push(Trait {
+        traits.push(Finding {
+            kind: FindingKind::Capability,
+            trait_refs: vec![],
             id: "credential/env/access".to_string(),
             description: format!(
                 "Accesses {} environment variables containing credentials/secrets",
@@ -260,7 +262,6 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
             ),
             confidence: 0.95,
             criticality: Criticality::Hostile,
-            capability: true,
             mbc: None,
             attack: Some("T1552.001".to_string()), // Unsecured Credentials
             evidence: credential_vars
@@ -272,10 +273,6 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
                     location: None,
                 })
                 .collect(),
-            language: None,
-            platforms: Vec::new(),
-            referenced_paths: None,
-            referenced_directories: None,
         });
     }
 
@@ -304,12 +301,13 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
             ),
         };
 
-        traits.push(Trait {
+        traits.push(Finding {
+            kind: FindingKind::Capability,
+            trait_refs: vec![],
             id: trait_id.to_string(),
             description: description.to_string(),
             confidence: 0.95,
             criticality: Criticality::Hostile,
-            capability: true,
             mbc: None,
             attack: Some(attack_id.to_string()),
             evidence: vec![Evidence {
@@ -318,10 +316,6 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
                 value: var.name.clone(),
                 location: None,
             }],
-            language: None,
-            platforms: Vec::new(),
-            referenced_paths: None,
-            referenced_directories: None,
         });
     }
 
@@ -332,12 +326,13 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
         .collect();
 
     if user_vars.len() >= 2 {
-        traits.push(Trait {
+        traits.push(Finding {
+            kind: FindingKind::Capability,
+            trait_refs: vec![],
             id: "discovery/env/user".to_string(),
             description: "Discovers user information via environment variables".to_string(),
             confidence: 0.8,
             criticality: Criticality::Notable,
-            capability: true,
             mbc: None,
             attack: Some("T1033".to_string()), // System Owner/User Discovery
             evidence: user_vars
@@ -349,10 +344,6 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
                     location: None,
                 })
                 .collect(),
-            language: None,
-            platforms: Vec::new(),
-            referenced_paths: None,
-            referenced_directories: None,
         });
     }
 
@@ -363,12 +354,13 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
         .collect();
 
     if system_vars.len() >= 2 {
-        traits.push(Trait {
+        traits.push(Finding {
+            kind: FindingKind::Capability,
+            trait_refs: vec![],
             id: "discovery/env/system".to_string(),
             description: "Discovers system information via environment variables".to_string(),
             confidence: 0.8,
             criticality: Criticality::Notable,
-            capability: true,
             mbc: None,
             attack: Some("T1082".to_string()), // System Information Discovery
             evidence: system_vars
@@ -380,10 +372,6 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
                     location: None,
                 })
                 .collect(),
-            language: None,
-            platforms: Vec::new(),
-            referenced_paths: None,
-            referenced_directories: None,
         });
     }
 
@@ -394,12 +382,13 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
         .collect();
 
     if !path_write.is_empty() {
-        traits.push(Trait {
+        traits.push(Finding {
+            kind: FindingKind::Capability,
+            trait_refs: vec![],
             id: "persistence/env/path_manipulation".to_string(),
             description: "Modifies PATH environment variable for persistence/hijacking".to_string(),
             confidence: 0.9,
             criticality: Criticality::Hostile,
-            capability: true,
             mbc: None,
             attack: Some("T1574.007".to_string()), // Hijack Execution Flow: Path Interception
             evidence: path_write
@@ -411,10 +400,6 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
                     location: None,
                 })
                 .collect(),
-            language: None,
-            platforms: Vec::new(),
-            referenced_paths: None,
-            referenced_directories: None,
         });
     }
 
@@ -425,12 +410,13 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
         .collect();
 
     if !android_vars.is_empty() {
-        traits.push(Trait {
+        traits.push(Finding {
+            kind: FindingKind::Capability,
+            trait_refs: vec![],
             id: "platform/mobile/android_env".to_string(),
             description: "Android platform detected via environment variables".to_string(),
             confidence: 0.9,
             criticality: Criticality::Notable,
-            capability: true,
             mbc: None,
             attack: None,
             evidence: android_vars
@@ -442,10 +428,6 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
                     location: None,
                 })
                 .collect(),
-            language: None,
-            platforms: Vec::new(),
-            referenced_paths: None,
-            referenced_directories: None,
         });
     }
 
@@ -456,12 +438,13 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
         .collect();
 
     if !display_vars.is_empty() {
-        traits.push(Trait {
+        traits.push(Finding {
+            kind: FindingKind::Capability,
+            trait_refs: vec![],
             id: "anti-analysis/env/display_check".to_string(),
             description: "Checks DISPLAY variable (potential sandbox detection)".to_string(),
             confidence: 0.6,
             criticality: Criticality::Suspicious,
-            capability: true,
             mbc: None,
             attack: Some("T1497".to_string()), // Virtualization/Sandbox Evasion
             evidence: display_vars
@@ -473,10 +456,6 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
                     location: None,
                 })
                 .collect(),
-            language: None,
-            platforms: Vec::new(),
-            referenced_paths: None,
-            referenced_directories: None,
         });
     }
 
@@ -487,12 +466,13 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
         .collect();
 
     if !ssh_vars.is_empty() {
-        traits.push(Trait {
+        traits.push(Finding {
+            kind: FindingKind::Capability,
+            trait_refs: vec![],
             id: "anti-analysis/env/ssh_check".to_string(),
             description: "Checks SSH variables (remote session detection)".to_string(),
             confidence: 0.7,
             criticality: Criticality::Suspicious,
-            capability: true,
             mbc: None,
             attack: Some("T1497".to_string()), // Virtualization/Sandbox Evasion
             evidence: ssh_vars
@@ -504,10 +484,6 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Trait> {
                     location: None,
                 })
                 .collect(),
-            language: None,
-            platforms: Vec::new(),
-            referenced_paths: None,
-            referenced_directories: None,
         });
     }
 
@@ -533,13 +509,14 @@ pub fn analyze_and_link_env_vars(report: &mut AnalysisReport) {
             _ => "env/api/access",
         };
 
-        if !report.traits.iter().any(|t| t.id == trait_id) {
-            report.traits.push(Trait {
+        if !report.findings.iter().any(|t| t.id == trait_id) {
+            report.findings.push(Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
                 id: trait_id.to_string(),
                 description: format!("Uses {} to access environment variables", api_name),
                 confidence: 1.0,
                 criticality: Criticality::Inert,
-                capability: true,
                 mbc: None,
                 attack: None,
                 evidence: vec![Evidence {
@@ -548,10 +525,6 @@ pub fn analyze_and_link_env_vars(report: &mut AnalysisReport) {
                     value: api_name,
                     location: None,
                 }],
-                language: None,
-                platforms: Vec::new(),
-                referenced_paths: None,
-                referenced_directories: None,
             });
         }
     }
@@ -571,7 +544,7 @@ pub fn analyze_and_link_env_vars(report: &mut AnalysisReport) {
 
     // Store results
     report.env_vars = env_vars;
-    report.traits.extend(new_traits);
+    report.findings.extend(new_traits);
 }
 
 #[cfg(test)]

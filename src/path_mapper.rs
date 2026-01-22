@@ -222,7 +222,7 @@ fn determine_access_pattern(files: &[String], paths: &[&PathInfo]) -> DirectoryA
 }
 
 /// Generate traits from path patterns
-pub fn generate_traits_from_paths(paths: &[PathInfo]) -> Vec<Trait> {
+pub fn generate_traits_from_paths(paths: &[PathInfo]) -> Vec<Finding> {
     let mut traits = Vec::new();
 
     // Platform detection from paths
@@ -238,7 +238,7 @@ pub fn generate_traits_from_paths(paths: &[PathInfo]) -> Vec<Trait> {
 }
 
 /// Detect platform based on path patterns
-fn detect_platform_from_paths(paths: &[PathInfo]) -> Vec<Trait> {
+fn detect_platform_from_paths(paths: &[PathInfo]) -> Vec<Finding> {
     let mut traits = Vec::new();
 
     // IoT/Embedded detection (MTD flash)
@@ -248,12 +248,13 @@ fn detect_platform_from_paths(paths: &[PathInfo]) -> Vec<Trait> {
         .collect();
 
     if mtd_paths.len() >= 2 {
-        traits.push(Trait {
+        traits.push(Finding {
+            kind: FindingKind::Capability,
+            trait_refs: vec![],
             id: "platform/embedded/mtd_device".to_string(),
             description: "Targets embedded device with MTD flash storage".to_string(),
             confidence: 0.9,
             criticality: Criticality::Suspicious,
-            capability: true,
             mbc: None,
             attack: None,
             evidence: mtd_paths
@@ -265,10 +266,6 @@ fn detect_platform_from_paths(paths: &[PathInfo]) -> Vec<Trait> {
                     location: None,
                 })
                 .collect(),
-            language: None,
-            platforms: Vec::new(),
-            referenced_paths: Some(mtd_paths.iter().map(|p| p.path.clone()).collect()),
-            referenced_directories: None,
         });
     }
 
@@ -283,12 +280,13 @@ fn detect_platform_from_paths(paths: &[PathInfo]) -> Vec<Trait> {
         .collect();
 
     if android_paths.len() >= 3 {
-        traits.push(Trait {
+        traits.push(Finding {
+            kind: FindingKind::Capability,
+            trait_refs: vec![],
             id: "platform/mobile/android".to_string(),
             description: "Android platform-specific paths detected".to_string(),
             confidence: 0.95,
             criticality: Criticality::Notable,
-            capability: true,
             mbc: None,
             attack: None,
             evidence: android_paths
@@ -300,10 +298,6 @@ fn detect_platform_from_paths(paths: &[PathInfo]) -> Vec<Trait> {
                     location: None,
                 })
                 .collect(),
-            language: None,
-            platforms: Vec::new(),
-            referenced_paths: Some(android_paths.iter().map(|p| p.path.clone()).collect()),
-            referenced_directories: None,
         });
     }
 
@@ -311,7 +305,7 @@ fn detect_platform_from_paths(paths: &[PathInfo]) -> Vec<Trait> {
 }
 
 /// Detect anomalous paths (hidden files in system directories, etc.)
-fn detect_anomalous_paths(paths: &[PathInfo]) -> Vec<Trait> {
+fn detect_anomalous_paths(paths: &[PathInfo]) -> Vec<Finding> {
     let mut traits = Vec::new();
 
     // Hidden files in system directories
@@ -324,12 +318,13 @@ fn detect_anomalous_paths(paths: &[PathInfo]) -> Vec<Trait> {
         .collect();
 
     for path in anomalous_hidden {
-        traits.push(Trait {
+        traits.push(Finding {
+            kind: FindingKind::Capability,
+            trait_refs: vec![],
             id: "persistence/hidden_file".to_string(),
             description: format!("Hidden file in system directory: {}", path.path),
             confidence: 0.8,
             criticality: Criticality::Hostile,
-            capability: true,
             mbc: None,
             attack: Some("T1564.001".to_string()), // Hide Artifacts: Hidden Files
             evidence: vec![Evidence {
@@ -338,10 +333,6 @@ fn detect_anomalous_paths(paths: &[PathInfo]) -> Vec<Trait> {
                 value: path.path.clone(),
                 location: None,
             }],
-            language: None,
-            platforms: Vec::new(),
-            referenced_paths: Some(vec![path.path.clone()]),
-            referenced_directories: None,
         });
     }
 
@@ -349,7 +340,7 @@ fn detect_anomalous_paths(paths: &[PathInfo]) -> Vec<Trait> {
 }
 
 /// Detect privilege requirements from paths
-fn detect_privilege_requirements(paths: &[PathInfo]) -> Vec<Trait> {
+fn detect_privilege_requirements(paths: &[PathInfo]) -> Vec<Finding> {
     let mut traits = Vec::new();
 
     // Root-only paths
@@ -367,12 +358,13 @@ fn detect_privilege_requirements(paths: &[PathInfo]) -> Vec<Trait> {
         .collect();
 
     if !requires_root.is_empty() {
-        traits.push(Trait {
+        traits.push(Finding {
+            kind: FindingKind::Capability,
+            trait_refs: vec![],
             id: "requires/root_access".to_string(),
             description: "Requires root privileges to access protected paths".to_string(),
             confidence: 1.0,
             criticality: Criticality::Hostile,
-            capability: true,
             mbc: None,
             attack: None,
             evidence: requires_root
@@ -384,10 +376,6 @@ fn detect_privilege_requirements(paths: &[PathInfo]) -> Vec<Trait> {
                     location: None,
                 })
                 .collect(),
-            language: None,
-            platforms: Vec::new(),
-            referenced_paths: Some(requires_root.iter().map(|p| p.path.clone()).collect()),
-            referenced_directories: None,
         });
     }
 
@@ -395,7 +383,7 @@ fn detect_privilege_requirements(paths: &[PathInfo]) -> Vec<Trait> {
 }
 
 /// Generate traits from directory patterns
-pub fn generate_traits_from_directories(directories: &[DirectoryAccess]) -> Vec<Trait> {
+pub fn generate_traits_from_directories(directories: &[DirectoryAccess]) -> Vec<Finding> {
     let mut traits = Vec::new();
 
     for dir in directories {
@@ -413,7 +401,9 @@ pub fn generate_traits_from_directories(directories: &[DirectoryAccess]) -> Vec<
                 .collect();
 
             if cred_files.len() >= 2 {
-                traits.push(Trait {
+                traits.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: "credential/backdoor/config_directory".to_string(),
                     description: format!(
                         "Systematically accesses {} credential files in {}",
@@ -422,7 +412,6 @@ pub fn generate_traits_from_directories(directories: &[DirectoryAccess]) -> Vec<
                     ),
                     confidence: 0.95,
                     criticality: Criticality::Hostile,
-                    capability: true,
                     mbc: None,
                     attack: Some("T1552".to_string()), // Unsecured Credentials
                     evidence: vec![Evidence {
@@ -435,22 +424,15 @@ pub fn generate_traits_from_directories(directories: &[DirectoryAccess]) -> Vec<
                         ),
                         location: None,
                     }],
-                    language: None,
-                    platforms: Vec::new(),
-                    referenced_paths: Some(
-                        cred_files
-                            .iter()
-                            .map(|f| format!("{}{}", dir.directory, f))
-                            .collect(),
-                    ),
-                    referenced_directories: Some(vec![dir.directory.clone()]),
                 });
             }
         }
 
         // Log file access (potential cleanup)
         if dir.categories.contains(&PathCategory::Log) && dir.file_count >= 2 {
-            traits.push(Trait {
+            traits.push(Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
                 id: "evasion/logging/system_logs".to_string(),
                 description: format!(
                     "Accesses {} log files in {} (potential cleanup)",
@@ -458,7 +440,6 @@ pub fn generate_traits_from_directories(directories: &[DirectoryAccess]) -> Vec<
                 ),
                 confidence: 0.7,
                 criticality: Criticality::Suspicious,
-                capability: true,
                 mbc: None,
                 attack: Some("T1070.002".to_string()), // Clear Linux Logs
                 evidence: vec![Evidence {
@@ -467,15 +448,6 @@ pub fn generate_traits_from_directories(directories: &[DirectoryAccess]) -> Vec<
                     value: format!("{} log files accessed", dir.file_count),
                     location: Some(dir.directory.clone()),
                 }],
-                language: None,
-                platforms: Vec::new(),
-                referenced_paths: Some(
-                    dir.files
-                        .iter()
-                        .map(|f| format!("{}{}", dir.directory, f))
-                        .collect(),
-                ),
-                referenced_directories: Some(vec![dir.directory.clone()]),
             });
         }
     }
@@ -500,14 +472,12 @@ pub fn analyze_and_link_paths(report: &mut AnalysisReport) {
     // Generate traits from directory patterns
     new_traits.extend(generate_traits_from_directories(&directories));
 
-    // Step 4: Add back-references
+    // Step 4: Add back-references using evidence
     for trait_obj in &new_traits {
-        // Mark paths that contributed to this trait
+        // Mark paths that contributed to this trait based on evidence
         for path in &mut paths {
-            if let Some(ref_paths) = &trait_obj.referenced_paths {
-                if ref_paths.contains(&path.path) {
-                    path.referenced_by_traits.push(trait_obj.id.clone());
-                }
+            if trait_obj.evidence.iter().any(|e| e.value == path.path) {
+                path.referenced_by_traits.push(trait_obj.id.clone());
             }
         }
     }
@@ -516,10 +486,12 @@ pub fn analyze_and_link_paths(report: &mut AnalysisReport) {
     let mut updated_directories = directories;
     for dir in &mut updated_directories {
         for trait_obj in &new_traits {
-            if let Some(ref_dirs) = &trait_obj.referenced_directories {
-                if ref_dirs.contains(&dir.directory) {
-                    dir.generated_traits.push(trait_obj.id.clone());
-                }
+            if trait_obj
+                .evidence
+                .iter()
+                .any(|e| e.location.as_ref() == Some(&dir.directory))
+            {
+                dir.generated_traits.push(trait_obj.id.clone());
             }
         }
     }
@@ -527,7 +499,7 @@ pub fn analyze_and_link_paths(report: &mut AnalysisReport) {
     // Store results
     report.paths = paths;
     report.directories = updated_directories;
-    report.traits.extend(new_traits);
+    report.findings.extend(new_traits);
 }
 
 #[cfg(test)]

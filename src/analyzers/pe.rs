@@ -114,7 +114,9 @@ impl PEAnalyzer {
                                 .capability_mapper
                                 .yara_rule_to_capability(&yara_match.rule)
                             {
-                                report.capabilities.push(Capability {
+                                report.findings.push(Finding {
+                                    kind: FindingKind::Capability,
+                                    trait_refs: vec![],
                                     id: cap_id.clone(),
                                     description: format!("Matched YARA rule: {}", yara_match.rule),
                                     confidence: 0.95,
@@ -127,9 +129,6 @@ impl PEAnalyzer {
                                         value: yara_match.rule.clone(),
                                         location: None,
                                     }],
-                                    traits: Vec::new(),
-                                    referenced_paths: None,
-                                    referenced_directories: None,
                                 });
                             }
                         }
@@ -138,6 +137,24 @@ impl PEAnalyzer {
                         eprintln!("YARA scan error: {:?}", e);
                     }
                 }
+            }
+        }
+
+        // Evaluate trait definitions from YAML
+        let trait_findings = self.capability_mapper.evaluate_traits(&report, data);
+        for f in trait_findings {
+            if !report.findings.iter().any(|existing| existing.id == f.id) {
+                report.findings.push(f);
+            }
+        }
+
+        // Evaluate composite rules
+        let composite_findings = self
+            .capability_mapper
+            .evaluate_composite_rules(&report, data);
+        for f in composite_findings {
+            if !report.findings.iter().any(|existing| existing.id == f.id) {
+                report.findings.push(f);
             }
         }
 
@@ -206,8 +223,8 @@ impl PEAnalyzer {
             });
 
             if let Some(capability) = self.capability_mapper.lookup(&import.name, "goblin") {
-                if !report.capabilities.iter().any(|c| c.id == capability.id) {
-                    report.capabilities.push(capability);
+                if !report.findings.iter().any(|c| c.id == capability.id) {
+                    report.findings.push(capability);
                 }
             }
         }
@@ -273,7 +290,9 @@ impl PEAnalyzer {
             });
 
             if matches!(entropy_level, EntropyLevel::High) && is_executable {
-                report.capabilities.push(Capability {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: "anti-analysis/packing".to_string(),
                     description: format!(
                         "High entropy ({:.2}) in executable section '{}' (possible packing)",
@@ -289,14 +308,13 @@ impl PEAnalyzer {
                         value: format!("{:.2}", entropy),
                         location: Some(name.clone()),
                     }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
 
             if is_writable && is_executable {
-                report.capabilities.push(Capability {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: "exec/memory/wx".to_string(),
                     description: format!("Writable+executable section '{}'", name),
                     confidence: 1.0,
@@ -309,9 +327,6 @@ impl PEAnalyzer {
                         value: permissions,
                         location: Some(name),
                     }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
         }
@@ -468,7 +483,7 @@ mod tests {
         let report = analyzer.analyze(&test_file).unwrap();
         // Capabilities may or may not be detected depending on the binary
         // Just verify the analysis completes successfully
-        let _ = &report.capabilities;
+        let _ = &report.traits;
     }
 
     #[test]

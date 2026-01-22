@@ -1,4 +1,4 @@
-use crate::types::{AnalysisReport, Capability, Criticality, Evidence, Trait};
+use crate::types::{AnalysisReport, Criticality, Evidence, Finding, FindingKind};
 use anyhow::Result;
 use regex::Regex;
 use serde::Deserialize;
@@ -28,7 +28,7 @@ pub enum FileType {
     Dylib,
     So,
     Dll,
-    ShellScript,
+    Shell,
     Python,
     JavaScript,
     Rust,
@@ -203,10 +203,6 @@ pub struct TraitDefinition {
     #[serde(default = "default_file_types")]
     pub file_types: Vec<FileType>,
 
-    /// If true, also emit this trait as a capability
-    #[serde(default)]
-    pub capability: bool,
-
     // Detection condition - just one condition per trait (atomic!)
     pub condition: Condition,
 }
@@ -284,7 +280,7 @@ struct ConditionResult {
 
 impl CompositeTrait {
     /// Evaluate this rule against the analysis context
-    pub fn evaluate(&self, ctx: &EvaluationContext) -> Option<Capability> {
+    pub fn evaluate(&self, ctx: &EvaluationContext) -> Option<Finding> {
         // Check if this rule applies to the current platform/file type
         if !self.matches_target(ctx) {
             return None;
@@ -308,17 +304,16 @@ impl CompositeTrait {
         };
 
         if result.matched {
-            Some(Capability {
+            Some(Finding {
                 id: self.id.clone(),
+                kind: FindingKind::Capability,
                 description: self.description.clone(),
                 confidence: self.confidence,
                 criticality: self.criticality,
                 mbc: self.mbc.clone(),
                 attack: self.attack.clone(),
+                trait_refs: vec![],
                 evidence: result.evidence,
-                traits: result.traits,
-                referenced_paths: None,
-                referenced_directories: None,
             })
         } else {
             None
@@ -553,7 +548,6 @@ impl CompositeTrait {
         }
     }
 
-
     /// Evaluate YARA match condition
     fn eval_yara_match(
         &self,
@@ -754,7 +748,7 @@ fn build_regex(pattern: &str, case_insensitive: bool) -> Result<Regex> {
 
 impl TraitDefinition {
     /// Evaluate this trait definition against the analysis context
-    pub fn evaluate(&self, ctx: &EvaluationContext) -> Option<Trait> {
+    pub fn evaluate(&self, ctx: &EvaluationContext) -> Option<Finding> {
         // Check if this trait applies to the current platform/file type
         if !self.matches_target(ctx) {
             return None;
@@ -764,19 +758,16 @@ impl TraitDefinition {
         let result = self.eval_condition(&self.condition, ctx);
 
         if result.matched {
-            Some(Trait {
+            Some(Finding {
                 id: self.id.clone(),
+                kind: FindingKind::Capability,
                 description: self.description.clone(),
                 confidence: self.confidence,
                 criticality: self.criticality,
-                capability: true, // Composite rules detect capabilities
                 mbc: self.mbc.clone(),
                 attack: self.attack.clone(),
-                language: None,
-                platforms: Vec::new(),
+                trait_refs: vec![],
                 evidence: result.evidence,
-                referenced_paths: None,
-                referenced_directories: None,
             })
         } else {
             None
@@ -1023,7 +1014,7 @@ fn eval_string(params: &StringParams, ctx: &EvaluationContext) -> ConditionResul
     if ctx.report.strings.is_empty()
         || matches!(
             ctx.file_type,
-            FileType::Python | FileType::Ruby | FileType::JavaScript | FileType::ShellScript
+            FileType::Python | FileType::Ruby | FileType::JavaScript | FileType::Shell
         )
     {
         // Convert binary data to string for source code matching
@@ -1265,7 +1256,7 @@ fn eval_ast_pattern(
         FileType::Go => Some(tree_sitter_go::LANGUAGE),
         FileType::Java => Some(tree_sitter_java::LANGUAGE),
         FileType::Ruby => Some(tree_sitter_ruby::LANGUAGE),
-        FileType::ShellScript => Some(tree_sitter_bash::LANGUAGE),
+        FileType::Shell => Some(tree_sitter_bash::LANGUAGE),
         _ => None,
     };
 
@@ -1402,7 +1393,7 @@ fn eval_ast_query(query_str: &str, ctx: &EvaluationContext) -> ConditionResult {
         FileType::Go => tree_sitter_go::LANGUAGE.into(),
         FileType::Java => tree_sitter_java::LANGUAGE.into(),
         FileType::Ruby => tree_sitter_ruby::LANGUAGE.into(),
-        FileType::ShellScript => tree_sitter_bash::LANGUAGE.into(),
+        FileType::Shell => tree_sitter_bash::LANGUAGE.into(),
         _ => {
             return ConditionResult {
                 matched: false,
@@ -2592,7 +2583,6 @@ int main() {
             attack: None,
             platforms: vec![Platform::Linux],
             file_types: vec![FileType::C],
-            capability: true,
             condition: Condition::AstPattern {
                 node_type: "call_expression".to_string(),
                 pattern: "kallsyms_lookup_name".to_string(),
@@ -2712,7 +2702,8 @@ int main() {
     fn test_search_raw_regex_matches_when_count_exceeds_threshold() {
         // Test that search_raw: true with regex counts all occurrences in raw content
         // Pattern: _0x[a-fA-F0-9]{4} should match _0x1234, _0xABCD, etc.
-        let content = b"var _0x1234 = 1; var _0x5678 = 2; var _0xABCD = 3; var _0xDEF0 = 4; var _0x9999 = 5;";
+        let content =
+            b"var _0x1234 = 1; var _0x5678 = 2; var _0xABCD = 3; var _0xDEF0 = 4; var _0x9999 = 5;";
         let (report, _) = create_test_context();
         let ctx = EvaluationContext {
             report: &report,
@@ -2731,7 +2722,10 @@ int main() {
             search_raw: true,
         };
         let result = eval_string(&params, &ctx);
-        assert!(result.matched, "Should match when count (5) >= min_count (3)");
+        assert!(
+            result.matched,
+            "Should match when count (5) >= min_count (3)"
+        );
         assert!(!result.evidence.is_empty());
         assert!(
             result.evidence[0].value.contains("Found 5"),
@@ -3064,7 +3058,6 @@ int main() {
             attack: Some("T1027".to_string()),
             platforms: vec![Platform::All],
             file_types: vec![FileType::JavaScript],
-            capability: true,
             condition: Condition::String {
                 exact: None,
                 regex: Some("0x[a-fA-F0-9]+".to_string()),
@@ -3129,7 +3122,10 @@ int main() {
             search_raw: true,
         };
         let result = eval_string(&params, &ctx);
-        assert!(result.matched, "min_count: 1 should match single occurrence");
+        assert!(
+            result.matched,
+            "min_count: 1 should match single occurrence"
+        );
         assert!(result.evidence[0].value.contains("Found 1"));
     }
 
@@ -3264,7 +3260,8 @@ traits:
         let trait_def = &parsed.traits[0];
 
         // Content with 5 hex literals - should match min_count: 3
-        let content = b"var a = 0x1234; var b = 0xABCD; var c = 0xDEF0; var d = 0x5678; var e = 0x9999;";
+        let content =
+            b"var a = 0x1234; var b = 0xABCD; var c = 0xDEF0; var d = 0x5678; var e = 0x9999;";
         let (report, _) = create_test_context();
         let ctx = EvaluationContext {
             report: &report,
