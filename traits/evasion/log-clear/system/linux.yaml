@@ -6,7 +6,7 @@ traits:
   - id: evasion/log-clear
     description: Clear system logs
     criticality: suspicious
-    confidence: 0.66
+    confidence: 0.75
     mbc: "F0005"
     attack: "T1070.001"
     condition:
@@ -14,13 +14,21 @@ traits:
       source: |
         rule log_clear {
           strings:
+            // Redirect to log file (shell command)
             $var_log = ">/var/log/"
+            // Specific log files commonly targeted
             $wtmp = "/var/log/wtmp"
             $btmp = "/var/log/btmp"
             $lastlog = "/var/log/lastlog"
+            $auth_log = "/var/log/auth"
+            $secure_log = "/var/log/secure"
+            $messages = "/var/log/messages"
+            // History clearing commands
             $history_clear = "history -c"
-            $bash_history = ".bash_history"
-            $truncate = "truncate" fullword
+            $history_r = "history -r"
+            $unset_history = "unset HISTFILE"
+            // Truncate command with log paths (not just truncate alone)
+            $truncate_log = /truncate\s+(-s\s*0\s+)?\/var\/log/
           condition:
             any of them
         }

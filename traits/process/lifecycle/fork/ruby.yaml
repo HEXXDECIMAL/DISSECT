@@ -8,7 +8,6 @@ traits:
     platforms: [all]
     file_types: [ruby]
     condition:
-      type: symbol_or_string
-      any:
-        - Process.fork
-        - fork
+      type: string
+      # Require method call syntax to avoid matching "prefork" in module names
+      regex: "Process\\.fork|\\bfork\\s*(\\{|do\\b|\\()"

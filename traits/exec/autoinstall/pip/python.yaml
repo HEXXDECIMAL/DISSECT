@@ -1,0 +1,81 @@
+# Automatic Dependency Installation - Python pip
+# Detects runtime package installation, common in malware droppers
+# ATT&CK: T1059.006 (Command and Scripting Interpreter: Python)
+
+defaults:
+  file_types: [python]
+  mbc: "B0024"
+  attack: "T1059.006"
+  criticality: suspicious
+
+traits:
+  # subprocess pip install - most common pattern
+  - id: exec/autoinstall/pip/subprocess-install
+    description: "Runtime pip install via subprocess"
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "subprocess\\.[a-z_]+\\([^)]*pip[^)]*install"
+
+  # sys.executable -m pip pattern
+  - id: exec/autoinstall/pip/sys-executable
+    description: "pip install using sys.executable"
+    confidence: 0.95
+    condition:
+      type: string
+      regex: "sys\\.executable[^)]*-m[^)]*pip[^)]*install"
+
+  # os.system pip install
+  - id: exec/autoinstall/pip/os-system
+    description: "Runtime pip install via os.system"
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "os\\.system\\([^)]*pip[^)]*install"
+
+  # importlib fallback pattern (try import, except install)
+  - id: exec/autoinstall/pip/try-import-install
+    description: "Try-except import with fallback pip install"
+    confidence: 0.85
+    condition:
+      type: string
+      # Matches pattern in try/except blocks
+      regex: "except[^:]*:.*pip.*install|ImportError.*pip.*install"
+
+  # pip.main() direct call
+  - id: exec/autoinstall/pip/main-call
+    description: "Direct pip.main() installation"
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "pip\\.main\\(\\[.*install"
+
+  # ensurepip module usage
+  - id: exec/autoinstall/pip/ensurepip
+    description: "pip bootstrapping via ensurepip"
+    confidence: 0.8
+    criticality: notable
+    condition:
+      type: string
+      regex: "ensurepip"
+
+composite_rules:
+  # Combination: try/except import with immediate pip install
+  - id: exec/autoinstall/pip/fallback-install
+    description: "Import fallback with automatic pip install"
+    confidence: 0.95
+    criticality: suspicious
+    condition:
+      type: yara
+      source: |
+        rule pip_fallback_install {
+          meta:
+            description = "Try import with pip install fallback"
+          strings:
+            $try = "try:" ascii
+            $except = /except[^:]*:/ ascii
+            $import = /import\s+\w+/ ascii
+            $pip = /pip.*install/ ascii
+          condition:
+            all of them
+        }

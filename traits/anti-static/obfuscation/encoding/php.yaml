@@ -93,7 +93,7 @@ traits:
     confidence: 0.9
     mbc: "E1059"
     attack: "T1059"
-    file_types: [all]
+    file_types: [php]
     condition:
       type: string
       exact: create_function

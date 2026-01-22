@@ -1,0 +1,119 @@
+# AppleScript Evasion and Social Engineering Detection
+# Detects malicious AppleScript techniques used by macOS malware
+# ATT&CK: T1059.002 (AppleScript), T1564.003 (Hidden Window)
+# MBC: E1564 (Hide Artifacts)
+
+defaults:
+  attack: "T1059.002"
+  platforms: [macos]
+
+traits:
+  # Window hiding via AppleScript
+  - id: evasion/applescript/hide-window
+    description: "AppleScript Terminal window hiding"
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "E1564.003"
+    attack: "T1564.003"
+    condition:
+      type: string
+      regex: "set visible of (the )?front window to false|set visible to false"
+
+  # Hide all windows of application
+  - id: evasion/applescript/hide-application
+    description: "AppleScript application hiding"
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1564.003"
+    condition:
+      type: string
+      regex: "tell application.*to set visible.*false|set visible of.*application"
+
+  # osascript execution (inline AppleScript)
+  - id: evasion/applescript/osascript-exec
+    description: "osascript command execution"
+    criticality: notable
+    confidence: 0.8
+    condition:
+      type: string
+      regex: "osascript\\s+-e\\s+['\"]"
+
+  # do shell script execution
+  - id: evasion/applescript/do-shell-script
+    description: "AppleScript shell command execution"
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1059.004"
+    condition:
+      type: string
+      exact: "do shell script"
+
+  # Password dialog phishing
+  - id: evasion/applescript/password-dialog
+    description: "AppleScript password input dialog"
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1056.002"
+    mbc: "E1056.002"
+    condition:
+      type: string
+      regex: "display dialog.*password|default answer.*password|with hidden answer"
+
+  # Fake system dialog (password phishing)
+  - id: evasion/applescript/fake-system-dialog
+    description: "AppleScript fake system prompt"
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1056.002"
+    condition:
+      type: string
+      regex: "with icon (caution|stop|note).*button|display dialog.*enter.*password"
+
+  # Administrator privileges via do shell script
+  - id: evasion/applescript/admin-privileges
+    description: "AppleScript privilege escalation"
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1548.004"
+    condition:
+      type: string
+      regex: "with administrator privileges|administrator privileges"
+
+  # Keystroke logging via System Events
+  - id: evasion/applescript/keystroke-logging
+    description: "AppleScript keystroke monitoring"
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1056.001"
+    condition:
+      type: string
+      regex: "keystroke|key code|tell application.*System Events.*key"
+
+composite_rules:
+  # Password phishing pattern
+  - id: evasion/applescript/password-phishing
+    description: "AppleScript password phishing attack"
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1056.002"
+    requires_all:
+      - type: string
+        regex: "display dialog|osascript"
+      - type: string
+        regex: "password|credential|authenticate"
+    requires_any:
+      - type: string
+        regex: "default answer|with hidden answer"
+      - type: string
+        regex: "with icon caution|with icon stop"
+
+  # Stealthy AppleScript execution
+  - id: evasion/applescript/stealthy-execution
+    description: "Hidden AppleScript execution"
+    criticality: hostile
+    confidence: 0.9
+    requires_all:
+      - type: trait
+        id: evasion/applescript/hide-window
+      - type: trait
+        id: evasion/applescript/do-shell-script

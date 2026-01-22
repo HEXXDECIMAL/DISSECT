@@ -6,7 +6,7 @@ traits:
   - id: impact/ransom/encrypt
     description: Ransomware encryption patterns
     criticality: suspicious
-    confidence: 0.66
+    confidence: 0.75
     mbc: "B0040"
     attack: "T1486"
     condition:
@@ -14,16 +14,27 @@ traits:
       source: |
         rule ransomware {
           strings:
-            $locked = "locked" fullword
-            $encrypt = "encrypt" fullword
-            $readme = "README" fullword
+            // Ransom-specific terms (not generic crypto)
+            $ransom1 = "ransom" nocase fullword
+            $ransom2 = "your files have been encrypted" nocase
+            $ransom3 = "pay to decrypt" nocase
+            $ransom4 = "files will be deleted" nocase
+            // Payment indicators
             $tor = "torproject.org"
-            $onion = /\w\.onion\W/
-            $btc = "BTC" fullword
-            $ransom = "ransom"
-            $decrypt = "decrypt"
+            $onion = /[a-z2-7]{16,56}\.onion/
+            $btc_addr = /[13][a-km-zA-HJ-NP-Z1-9]{25,34}/
+            $btc_pay = "bitcoin" nocase fullword
+            // File extension indicators
+            $ext_locked = ".locked" ascii
+            $ext_encrypted = ".encrypted" ascii
+            $ext_crypto = ".crypto" ascii
           condition:
-            filesize < 25MB and 3 of them
+            filesize < 25MB and (
+              any of ($ransom*) or
+              ($tor and $btc_pay) or
+              (any of ($ext_*) and $btc_pay) or
+              ($onion and any of ($btc*))
+            )
         }
 
   - id: impact/ransom/encrypt-decryptor
@@ -32,7 +43,11 @@ traits:
     confidence: 0.66
     condition:
       type: string
-      exact: decryptor
+      # Match "decryptor" in ransom context, not browser password decryptor code
+      # Real ransomware: "decryptor.exe", "your decryptor", "run decryptor"
+      # False positive: "src/browsers/firefox/modules/decryptors.rs"
+      regex: "\\b(your|run|download|get|free)\\s+decryptor|decryptor\\.(exe|bin|bat)"
+      case_insensitive: true
 
   - id: impact/ransom/encrypt-note
     description: Ransom note patterns

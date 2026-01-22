@@ -1,4 +1,4 @@
-traits:
+composite_rules:
   - id: syscall/net/server
     description: Network server - binds and listens on port
     confidence: 0.9

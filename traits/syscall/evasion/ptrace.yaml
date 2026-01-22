@@ -15,8 +15,6 @@ traits:
     criticality: suspicious
     platforms: [linux]
     file_types: [elf]
-    requires_any:
-      - type: syscall
-        name: ["process_vm_readv"]
-      - type: syscall
-        name: ["process_vm_writev"]
+    condition:
+      type: syscall
+      name: ["process_vm_readv", "process_vm_writev"]

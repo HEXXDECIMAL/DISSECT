@@ -1,4 +1,4 @@
-traits:
+composite_rules:
   - id: syscall/evasion/namespace-manipulation
     description: Manipulates Linux namespaces
     confidence: 0.85

@@ -51,7 +51,8 @@ traits:
     file_types: [all]
     condition:
       type: string
-      exact: ".profile"
+      # Use regex with word boundary to avoid matching .profiled, .profiles, etc.
+      regex: "\\.profile\\b"
 
   - id: persistence/shell/etc-profile
     description: Access to /etc/profile

@@ -38,9 +38,7 @@ impl UPXDecompressor {
         let search_data = &data[..search_range];
 
         // Look for "UPX!" magic string
-        search_data
-            .windows(4)
-            .any(|window| window == b"UPX!")
+        search_data.windows(4).any(|window| window == b"UPX!")
     }
 
     /// Check if the upx binary is available in PATH (and not disabled).
@@ -212,7 +210,7 @@ mod tests {
         data[4] = 2; // 64-bit
         data[5] = 1; // little-endian
         data[6] = 1; // ELF version
-        // UPX magic typically appears in the packed data section
+                     // UPX magic typically appears in the packed data section
         data[100..104].copy_from_slice(b"UPX!");
         assert!(UPXDecompressor::is_upx_packed(&data));
     }
@@ -224,19 +222,13 @@ mod tests {
     #[test]
     fn test_upx_error_not_installed_display() {
         let err = UPXError::NotInstalled;
-        assert_eq!(
-            err.to_string(),
-            "UPX binary not installed or not in PATH"
-        );
+        assert_eq!(err.to_string(), "UPX binary not installed or not in PATH");
     }
 
     #[test]
     fn test_upx_error_decompression_failed_display() {
         let err = UPXError::DecompressionFailed("corrupt file".to_string());
-        assert_eq!(
-            err.to_string(),
-            "UPX decompression failed: corrupt file"
-        );
+        assert_eq!(err.to_string(), "UPX decompression failed: corrupt file");
     }
 
     #[test]
@@ -268,7 +260,9 @@ mod tests {
     fn test_decompress_non_upx_file() {
         // Create a temp file that is NOT UPX-packed
         let mut temp_file = NamedTempFile::new().unwrap();
-        temp_file.write_all(b"\x7fELF\x01\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00").unwrap();
+        temp_file
+            .write_all(b"\x7fELF\x01\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00")
+            .unwrap();
         temp_file.flush().unwrap();
 
         let result = UPXDecompressor::decompress(temp_file.path());

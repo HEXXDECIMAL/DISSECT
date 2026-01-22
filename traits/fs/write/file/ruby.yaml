@@ -98,3 +98,17 @@ traits:
       type: symbol_or_string
       any:
         - FileUtils.rm_rf
+
+  - id: fs/write/file/ruby-fileutils
+    description: "Imports FileUtils library (mkdir, cp, mv, rm, touch)"
+    criticality: notable
+    confidence: 0.6
+    platforms:
+      - all
+    file_types:
+      - ruby
+    condition:
+      type: symbol_or_string
+      any:
+        - "'fileutils'"
+        - '"fileutils"'

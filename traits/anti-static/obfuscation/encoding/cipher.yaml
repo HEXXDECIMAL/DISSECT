@@ -2,14 +2,16 @@
 # Detects RC4, custom XOR ciphers, and table-based encoding in binaries
 # ATT&CK: T1027 (Obfuscated Files or Information)
 
-traits:
+defaults:
+  file_types: [elf, pe, macho]
+  attack: "T1027"
+
+composite_rules:
   - id: anti-static/obfuscation/encoding/rc4-sbox-init
     description: "RC4 S-box initialization pattern (256-byte permutation)"
-    criticality: suspicious
-    confidence: 0.75
+    criticality: notable
+    confidence: 0.6
     mbc: "C0027.001"
-    attack: "T1027"
-    file_types: [elf, pe, macho]
     condition:
       type: yara
       source: |
@@ -31,19 +33,15 @@ traits:
     criticality: notable
     confidence: 0.7
     mbc: "C0027"
-    attack: "T1027"
-    file_types: [elf, pe, macho]
     condition:
       type: symbol
       pattern: "key_schedule|ksa|init_key|setup_key|expand_key"
 
   - id: anti-static/obfuscation/encoding/stream-cipher-decrypt
     description: "Stream cipher decryption function"
-    criticality: suspicious
-    confidence: 0.75
+    criticality: notable
+    confidence: 0.6
     mbc: "C0027"
-    attack: "T1027"
-    file_types: [elf, pe, macho]
     condition:
       type: symbol
       pattern: "stream_decrypt|prga|rc4_crypt|arc4|cipher_stream"
@@ -53,8 +51,6 @@ traits:
     criticality: notable
     confidence: 0.5
     mbc: "C0026"
-    attack: "T1027"
-    file_types: [elf, pe, macho]
     condition:
       type: string
       exact: "0123456789abcdef"
@@ -64,20 +60,15 @@ traits:
     criticality: notable
     confidence: 0.4
     mbc: "C0026"
-    attack: "T1027"
-    file_types: [elf, pe, macho]
     condition:
       type: string
       regex: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789\\+/"
 
-composite_rules:
   - id: anti-static/obfuscation/rc4-cipher
     description: "RC4 or RC4-like stream cipher detected"
-    criticality: suspicious
-    confidence: 0.85
+    criticality: notable
+    confidence: 0.7
     mbc: "C0027.001"
-    attack: "T1027"
-    file_types: [elf, pe, macho]
     requires_any:
       - type: trait
         id: rc4-sbox-init

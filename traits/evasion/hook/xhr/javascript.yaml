@@ -1,0 +1,68 @@
+# XMLHttpRequest Hooking - JavaScript
+# Detects hooking/patching of XMLHttpRequest to intercept web traffic
+# ATT&CK: T1557 (Adversary-in-the-Middle), T1185 (Browser Session Hijacking)
+
+defaults:
+  file_types: [javascript]
+  attack: "T1557"
+  criticality: suspicious
+
+traits:
+  # XMLHttpRequest.prototype hooking
+  - id: evasion/hook/xhr/prototype-access
+    description: "XMLHttpRequest prototype access (potential hooking)"
+    confidence: 0.8
+    condition:
+      type: string
+      # Match both direct .prototype access and obfuscated bracket notation
+      regex: "XMLHttpRequest\\.prototype|XMLHttpRequest\\[.+\\]\\[.+\\]"
+
+  # Hooking XMLHttpRequest.open
+  - id: evasion/hook/xhr/open-hook
+    description: "XMLHttpRequest.open method hooking"
+    confidence: 0.85
+    criticality: hostile
+    condition:
+      type: string
+      regex: "XMLHttpRequest\\.prototype\\.open\\s*=|XMLHttpRequest\\[.+\\]\\[.+open.+\\]\\s*="
+
+  # Hooking XMLHttpRequest.send
+  - id: evasion/hook/xhr/send-hook
+    description: "XMLHttpRequest.send method hooking"
+    confidence: 0.85
+    criticality: hostile
+    condition:
+      type: string
+      regex: "XMLHttpRequest\\.prototype\\.send\\s*=|XMLHttpRequest\\[.+\\]\\[.+send.+\\]\\s*="
+
+  # Hooking fetch API
+  - id: evasion/hook/xhr/fetch-hook
+    description: "fetch API hooking"
+    confidence: 0.85
+    criticality: hostile
+    condition:
+      type: string
+      regex: "window\\.fetch\\s*=|globalThis\\.fetch\\s*=|self\\.fetch\\s*="
+
+  # onreadystatechange interception
+  - id: evasion/hook/xhr/readystate-intercept
+    description: "XMLHttpRequest readystate interception"
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "onreadystatechange\\s*=.*function"
+
+composite_rules:
+  # Multiple XHR hooks = request interceptor
+  - id: evasion/hook/xhr/request-interceptor
+    description: "HTTP request interceptor (XHR/fetch hooking)"
+    criticality: hostile
+    confidence: 0.9
+    requires_count: 2
+    conditions:
+      - type: string
+        regex: "XMLHttpRequest\\.prototype\\.open"
+      - type: string
+        regex: "XMLHttpRequest\\.prototype\\.send"
+      - type: string
+        regex: "window\\.fetch\\s*="

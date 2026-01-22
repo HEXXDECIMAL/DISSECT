@@ -1,5 +1,6 @@
 #![allow(dead_code)]
 
+mod amos_cipher;
 mod analyzers;
 mod archive_utils;
 mod cache;
@@ -10,6 +11,7 @@ mod constant_decoder;
 mod diff;
 mod entropy;
 mod env_mapper;
+mod lang_strings;
 mod output;
 mod path_mapper;
 mod radare2;
@@ -54,14 +56,20 @@ fn main() -> Result<()> {
             eprintln!("DISSECT v{}", env!("CARGO_PKG_VERSION"));
             eprintln!("Deep static analysis tool\n");
             if disabled.any_disabled() {
-                eprintln!("Disabled components: {}", disabled.disabled_names().join(", "));
+                eprintln!(
+                    "Disabled components: {}",
+                    disabled.disabled_names().join(", ")
+                );
             }
         }
         cli::OutputFormat::Terminal => {
             println!("DISSECT v{}", env!("CARGO_PKG_VERSION"));
             println!("Deep static analysis tool\n");
             if disabled.any_disabled() {
-                println!("Disabled components: {}", disabled.disabled_names().join(", "));
+                println!(
+                    "Disabled components: {}",
+                    disabled.disabled_names().join(", ")
+                );
             }
         }
     }
@@ -87,7 +95,8 @@ fn main() -> Result<()> {
             targets,
             third_party_yara: cmd_third_party,
         }) => {
-            let enable_third_party = (enable_third_party_global || cmd_third_party) && !disabled.third_party;
+            let enable_third_party =
+                (enable_third_party_global || cmd_third_party) && !disabled.third_party;
             let path = Path::new(&targets[0]);
             if targets.len() == 1 && !path.exists() {
                 // Single nonexistent path - error
@@ -103,7 +112,13 @@ fn main() -> Result<()> {
                 )?
             } else {
                 // Multiple targets or directory - use scan
-                scan_paths(targets, enable_third_party, &args.format, &zip_passwords, &disabled)?
+                scan_paths(
+                    targets,
+                    enable_third_party,
+                    &args.format,
+                    &zip_passwords,
+                    &disabled,
+                )?
             }
         }
         Some(cli::Command::Scan {
@@ -478,26 +493,24 @@ fn scan_paths(
                 if matches!(format, cli::OutputFormat::Terminal) {
                     // Parse JSON and format as terminal output
                     match serde_json::from_str::<crate::types::AnalysisReport>(&json) {
-                        Ok(report) => {
-                            match output::format_terminal(&report) {
-                                Ok(formatted) => {
-                                    if let Some(ref bar) = pb {
-                                        bar.println(formatted);
-                                    } else {
-                                        print!("{}", formatted);
-                                    }
-                                }
-                                Err(e) => {
-                                    let msg =
-                                        format!("Error formatting report for {}: {}", path_str, e);
-                                    if let Some(ref bar) = pb {
-                                        bar.println(msg);
-                                    } else {
-                                        eprintln!("{}", msg);
-                                    }
+                        Ok(report) => match output::format_terminal(&report) {
+                            Ok(formatted) => {
+                                if let Some(ref bar) = pb {
+                                    bar.println(formatted);
+                                } else {
+                                    print!("{}", formatted);
                                 }
                             }
-                        }
+                            Err(e) => {
+                                let msg =
+                                    format!("Error formatting report for {}: {}", path_str, e);
+                                if let Some(ref bar) = pb {
+                                    bar.println(msg);
+                                } else {
+                                    eprintln!("{}", msg);
+                                }
+                            }
+                        },
                         Err(e) => {
                             let msg = format!("Error parsing JSON for {}: {}", path_str, e);
                             if let Some(ref bar) = pb {

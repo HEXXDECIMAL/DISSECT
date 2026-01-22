@@ -22,7 +22,9 @@ traits:
     confidence: 0.8
     condition:
       type: string
-      regex: "(malware|sandbox|virus|sample)"
+      # Use word boundaries and require username-like context
+      # Excludes legitimate uses like "entering sandbox" or "sandbox.sb" profiles
+      regex: "\\b(user|USER|username|USERNAME|User|Username)\\s*[=:]\\s*(malware|sandbox|virus|sample|test|admin)\\b"
       case_insensitive: true
 
   - id: anti-analysis/sandbox/detect/sleep-accel

@@ -1,3 +1,4 @@
+use crate::amos_cipher::AMOSCipherAnalyzer;
 use crate::analyzers::Analyzer;
 use crate::capabilities::CapabilityMapper;
 use crate::entropy::{calculate_entropy, EntropyLevel};
@@ -76,6 +77,13 @@ impl MachOAnalyzer {
         // Analyze sections and entropy
         self.analyze_sections(&macho, data, &mut report)?;
 
+        // Extract strings using language-aware extraction (Go/Rust) with fallback
+        report.strings = self.string_extractor.extract_smart(data);
+        tools_used.push("string_extractor".to_string());
+
+        // AMOS cipher detection and decryption
+        self.analyze_amos_cipher(data, &mut report, &mut tools_used);
+
         // Use radare2 for deep analysis if available
         if Radare2Analyzer::is_available() {
             tools_used.push("radare2".to_string());
@@ -84,29 +92,10 @@ impl MachOAnalyzer {
                 report.functions = functions;
             }
 
-            if let Ok(r2_strings) = self.radare2.extract_strings(file_path) {
-                // Convert R2 strings to our format
-                for r2_str in r2_strings {
-                    report.strings.push(StringInfo {
-                        value: r2_str.string,
-                        offset: Some(format!("0x{:x}", r2_str.vaddr)),
-                        encoding: "utf8".to_string(),
-                        string_type: StringType::Plain,
-                        section: None,
-                    });
-                }
-            }
-
             // Extract syscalls for binary analysis
             if let Ok(syscalls) = self.radare2.extract_syscalls(file_path) {
                 report.syscalls = syscalls;
             }
-        }
-
-        // Extract strings if not already done by radare2
-        if report.strings.is_empty() {
-            report.strings = self.string_extractor.extract(data, None);
-            tools_used.push("string_extractor".to_string());
         }
 
         // Run YARA scan if engine is loaded
@@ -158,7 +147,7 @@ impl MachOAnalyzer {
         // Generate structural traits from analysis
         self.generate_structural_traits(&macho, data, &mut report)?;
 
-        // Evaluate trait definitions from YAML
+        // Evaluate trait definitions from YAML (parallelized)
         let trait_findings = self.capability_mapper.evaluate_traits(&report, data);
         for f in trait_findings {
             if !report.findings.iter().any(|existing| existing.id == f.id) {
@@ -166,7 +155,7 @@ impl MachOAnalyzer {
             }
         }
 
-        // Evaluate composite rules
+        // Evaluate composite rules (parallelized)
         let composite_findings = self
             .capability_mapper
             .evaluate_composite_rules(&report, data);
@@ -558,6 +547,174 @@ impl MachOAnalyzer {
             _ => None,
         }
     }
+
+    /// Analyze for AMOS cipher encryption and attempt decryption
+    fn analyze_amos_cipher(
+        &self,
+        data: &[u8],
+        report: &mut AnalysisReport,
+        tools_used: &mut Vec<String>,
+    ) {
+        let amos_analyzer = AMOSCipherAnalyzer::new();
+
+        // Detect AMOS cipher
+        let detection = match amos_analyzer.detect(data) {
+            Ok(d) => d,
+            Err(_) => return,
+        };
+
+        if !detection.detected {
+            return;
+        }
+
+        tools_used.push("amos_cipher".to_string());
+
+        // Add detection finding
+        let variant_name = match &detection.variant {
+            Some(crate::amos_cipher::CipherVariant::TripleLookupTable) => {
+                "Triple Lookup Table (Variant A)"
+            }
+            Some(crate::amos_cipher::CipherVariant::PRNGStreamCipher) => {
+                "PRNG Stream Cipher (Variant B)"
+            }
+            None => "Unknown",
+        };
+
+        // Build evidence from detection
+        let mut evidence: Vec<Evidence> = detection
+            .evidence
+            .iter()
+            .map(|e| Evidence {
+                method: e.indicator.clone(),
+                source: "amos_cipher".to_string(),
+                value: e.value.clone(),
+                location: e.offset.map(|o| format!("0x{:x}", o)),
+            })
+            .collect();
+
+        // Add payload location evidence
+        for (offset, size) in &detection.payload_locations {
+            evidence.push(Evidence {
+                method: "payload_location".to_string(),
+                source: "amos_cipher".to_string(),
+                value: format!("{} bytes", size),
+                location: Some(format!("0x{:x}", offset)),
+            });
+        }
+
+        report.findings.push(Finding {
+            kind: FindingKind::Capability,
+            trait_refs: vec![],
+            id: "malware/stealer/amos/encrypted".to_string(),
+            description: format!(
+                "AMOS stealer encrypted payload detected ({}), confidence: {:.0}%",
+                variant_name,
+                detection.confidence * 100.0
+            ),
+            confidence: detection.confidence,
+            criticality: Criticality::Hostile,
+            mbc: Some("C0027".to_string()), // Obfuscated Files or Information
+            attack: Some("T1027".to_string()),
+            evidence: evidence.clone(),
+        });
+
+        // Attempt decryption
+        match amos_analyzer.decrypt(data) {
+            Ok(payloads) => {
+                for payload in payloads {
+                    // Add decrypted payload finding
+                    let quality_str = match payload.quality() {
+                        crate::amos_cipher::DecryptionQuality::HighConfidence => "high",
+                        crate::amos_cipher::DecryptionQuality::MediumConfidence => "medium",
+                        crate::amos_cipher::DecryptionQuality::LowConfidence => "low",
+                    };
+
+                    let mut decrypt_evidence = vec![
+                        Evidence {
+                            method: "decryption".to_string(),
+                            source: "amos_cipher".to_string(),
+                            value: format!(
+                                "{} bytes decrypted (quality: {})",
+                                payload.plaintext.len(),
+                                quality_str
+                            ),
+                            location: Some(format!("0x{:x}", payload.source_offset)),
+                        },
+                        Evidence {
+                            method: "variant".to_string(),
+                            source: "amos_cipher".to_string(),
+                            value: format!("{:?}", payload.variant),
+                            location: None,
+                        },
+                    ];
+
+                    // Identify payload type based on content
+                    let payload_type = identify_payload_type(&payload.plaintext);
+                    decrypt_evidence.push(Evidence {
+                        method: "payload_type".to_string(),
+                        source: "amos_cipher".to_string(),
+                        value: payload_type.clone(),
+                        location: None,
+                    });
+
+                    // Add decrypted string preview if available
+                    if let Some(ref script) = payload.as_string {
+                        let preview: String = script.chars().take(500).collect();
+                        decrypt_evidence.push(Evidence {
+                            method: "decrypted_content".to_string(),
+                            source: "amos_cipher".to_string(),
+                            value: if script.len() > 500 {
+                                format!("{}...", preview)
+                            } else {
+                                preview
+                            },
+                            location: None,
+                        });
+                    }
+
+                    // Extract strings from decrypted payload using standard extractor
+                    // This enables full trait analysis on the decrypted content
+                    let decrypted_strings = self
+                        .string_extractor
+                        .extract(&payload.plaintext, Some("AMOS decrypted".to_string()));
+
+                    for mut string_info in decrypted_strings {
+                        // Mark strings as from decrypted content
+                        string_info.offset =
+                            Some(format!("decrypted:0x{:x}", payload.source_offset));
+                        if !report.strings.iter().any(|s| s.value == string_info.value) {
+                            report.strings.push(string_info);
+                        }
+                    }
+
+                    report.findings.push(Finding {
+                        kind: FindingKind::Capability,
+                        trait_refs: vec![],
+                        id: "malware/stealer/amos/decrypted".to_string(),
+                        description: format!(
+                            "AMOS payload decrypted successfully ({} bytes)",
+                            payload.plaintext.len()
+                        ),
+                        confidence: match payload.quality() {
+                            crate::amos_cipher::DecryptionQuality::HighConfidence => 0.95,
+                            crate::amos_cipher::DecryptionQuality::MediumConfidence => 0.75,
+                            crate::amos_cipher::DecryptionQuality::LowConfidence => 0.5,
+                        },
+                        criticality: Criticality::Hostile,
+                        mbc: Some("C0027".to_string()),
+                        attack: Some("T1027".to_string()),
+                        evidence: decrypt_evidence,
+                    });
+                }
+            }
+            Err(e) => {
+                report
+                    .metadata
+                    .errors
+                    .push(format!("AMOS decryption failed: {}", e));
+            }
+        }
+    }
 }
 
 impl Default for MachOAnalyzer {
@@ -574,9 +731,14 @@ impl Analyzer for MachOAnalyzer {
         match goblin::mach::Mach::parse(&data)? {
             Mach::Binary(_) => self.analyze_single(file_path, &data),
             Mach::Fat(fat) => {
-                // For now, analyze the first architecture
-                // TODO: Support multi-architecture analysis
-                if let Some(arch) = fat.arches()?.first() {
+                // Prefer arm64, fall back to first architecture
+                let arches = fat.arches()?;
+                let preferred_arch = arches
+                    .iter()
+                    .find(|a| a.cputype == 0x0100000c) // CPU_TYPE_ARM64
+                    .or_else(|| arches.first());
+
+                if let Some(arch) = preferred_arch {
                     let offset = arch.offset as usize;
                     let size = arch.size as usize;
                     let arch_data = &data[offset..offset + size];
@@ -595,6 +757,89 @@ impl Analyzer for MachOAnalyzer {
             false
         }
     }
+}
+
+/// Identify the type of decrypted payload based on content signatures.
+fn identify_payload_type(data: &[u8]) -> String {
+    // Check for common script/file signatures
+    if data.starts_with(b"#!/") {
+        // Shebang - identify interpreter
+        if let Some(line_end) = data.iter().position(|&b| b == b'\n') {
+            let shebang = String::from_utf8_lossy(&data[..line_end]);
+            if shebang.contains("bash") || shebang.contains("/sh") {
+                return "Shell script (bash/sh)".to_string();
+            } else if shebang.contains("python") {
+                return "Python script".to_string();
+            } else if shebang.contains("perl") {
+                return "Perl script".to_string();
+            } else if shebang.contains("ruby") {
+                return "Ruby script".to_string();
+            }
+            return format!("Script ({})", shebang.trim());
+        }
+    }
+
+    // AppleScript indicators (common in AMOS)
+    if data.starts_with(b"tell ") || data.starts_with(b"on ") || data.starts_with(b"set ") {
+        return "AppleScript".to_string();
+    }
+
+    // osascript execution (inline AppleScript)
+    if data.starts_with(b"osascript") {
+        return "AppleScript (via osascript)".to_string();
+    }
+
+    // JSON
+    if data.starts_with(b"{") || data.starts_with(b"[") {
+        if data.iter().filter(|&&b| b == b'{' || b == b'}').count() >= 2 {
+            return "JSON".to_string();
+        }
+    }
+
+    // XML/Plist
+    if data.starts_with(b"<?xml") || data.starts_with(b"<!DOCTYPE plist") {
+        return "XML/Plist".to_string();
+    }
+
+    // Binary signatures
+    if data.starts_with(b"MZ") {
+        return "PE executable".to_string();
+    }
+    if data.starts_with(b"\x7fELF") {
+        return "ELF executable".to_string();
+    }
+    if data.starts_with(&[0xCF, 0xFA, 0xED, 0xFE]) || data.starts_with(&[0xFE, 0xED, 0xFA, 0xCF]) {
+        return "Mach-O executable".to_string();
+    }
+    if data.starts_with(b"PK") {
+        return "ZIP archive".to_string();
+    }
+
+    // Check for high ASCII printable ratio (text content)
+    let printable = data
+        .iter()
+        .filter(|&&b| (0x20..=0x7e).contains(&b) || b == b'\n' || b == b'\r' || b == b'\t')
+        .count();
+    let ratio = printable as f32 / data.len().max(1) as f32;
+
+    if ratio > 0.85 {
+        // Likely text - check for common patterns
+        let text = String::from_utf8_lossy(data);
+        if text.contains("curl ") || text.contains("wget ") {
+            return "Shell commands (downloader)".to_string();
+        }
+        if text.contains("function ") || text.contains("var ") || text.contains("const ") {
+            return "JavaScript".to_string();
+        }
+        if text.contains("def ") || text.contains("import ") {
+            return "Python script".to_string();
+        }
+        return "Text/script".to_string();
+    } else if ratio > 0.5 {
+        return "Mixed text/binary".to_string();
+    }
+
+    "Binary data".to_string()
 }
 
 #[cfg(test)]
@@ -747,5 +992,114 @@ mod tests {
 
         let report = analyzer.analyze(&test_file).unwrap();
         assert!(report.metadata.analysis_duration_ms > 0);
+    }
+
+    // Tests for identify_payload_type function
+
+    #[test]
+    fn test_identify_payload_type_shell_script() {
+        let data = b"#!/bin/bash\necho 'Hello World'";
+        assert_eq!(identify_payload_type(data), "Shell script (bash/sh)");
+
+        let data2 = b"#!/bin/sh\nls -la";
+        assert_eq!(identify_payload_type(data2), "Shell script (bash/sh)");
+    }
+
+    #[test]
+    fn test_identify_payload_type_python() {
+        let data = b"#!/usr/bin/python3\nimport os";
+        assert_eq!(identify_payload_type(data), "Python script");
+    }
+
+    #[test]
+    fn test_identify_payload_type_applescript() {
+        let data = b"tell application \"Finder\"";
+        assert_eq!(identify_payload_type(data), "AppleScript");
+
+        let data2 = b"on run\n  display dialog";
+        assert_eq!(identify_payload_type(data2), "AppleScript");
+
+        let data3 = b"set myVar to true";
+        assert_eq!(identify_payload_type(data3), "AppleScript");
+    }
+
+    #[test]
+    fn test_identify_payload_type_osascript() {
+        let data = b"osascript -e 'tell application'";
+        assert_eq!(identify_payload_type(data), "AppleScript (via osascript)");
+    }
+
+    #[test]
+    fn test_identify_payload_type_json() {
+        let data = b"{\"key\": \"value\"}";
+        assert_eq!(identify_payload_type(data), "JSON");
+    }
+
+    #[test]
+    fn test_identify_payload_type_xml() {
+        let data = b"<?xml version=\"1.0\"?><root/>";
+        assert_eq!(identify_payload_type(data), "XML/Plist");
+    }
+
+    #[test]
+    fn test_identify_payload_type_pe() {
+        let data = b"MZ\x90\x00\x03\x00";
+        assert_eq!(identify_payload_type(data), "PE executable");
+    }
+
+    #[test]
+    fn test_identify_payload_type_elf() {
+        let data = b"\x7fELF\x02\x01\x01";
+        assert_eq!(identify_payload_type(data), "ELF executable");
+    }
+
+    #[test]
+    fn test_identify_payload_type_macho() {
+        // Little-endian Mach-O magic
+        let data = &[0xCF, 0xFA, 0xED, 0xFE, 0x07, 0x00];
+        assert_eq!(identify_payload_type(data), "Mach-O executable");
+    }
+
+    #[test]
+    fn test_identify_payload_type_zip() {
+        let data = b"PK\x03\x04\x14\x00";
+        assert_eq!(identify_payload_type(data), "ZIP archive");
+    }
+
+    #[test]
+    fn test_identify_payload_type_downloader() {
+        let data = b"curl -o /tmp/file https://example.com";
+        assert_eq!(identify_payload_type(data), "Shell commands (downloader)");
+    }
+
+    #[test]
+    fn test_identify_payload_type_javascript() {
+        let data = b"function test() { var x = 1; }";
+        assert_eq!(identify_payload_type(data), "JavaScript");
+    }
+
+    #[test]
+    fn test_identify_payload_type_binary() {
+        // Mostly non-printable data (control characters and high bytes)
+        let data: Vec<u8> = (0u8..32)
+            .chain(128u8..255)
+            .cycle()
+            .take(100)
+            .collect();
+        assert_eq!(identify_payload_type(&data), "Binary data");
+    }
+
+    #[test]
+    fn test_identify_payload_type_text() {
+        let data = b"This is just plain text without any specific markers.";
+        assert_eq!(identify_payload_type(data), "Text/script");
+    }
+
+    #[test]
+    fn test_identify_payload_type_mixed() {
+        // ~60% printable
+        let mut data = b"Some text here...".to_vec();
+        data.extend_from_slice(&[0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A]);
+        assert_eq!(identify_payload_type(&data), "Mixed text/binary");
     }
 }

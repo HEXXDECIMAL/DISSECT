@@ -147,23 +147,23 @@ impl RubyAnalyzer {
             // Keep only a few critical patterns that need AST-level analysis
             let mut capabilities = Vec::new();
 
-            // Command execution (critical in Ruby)
+            // Command execution in Ruby - suspicious but common in legitimate scripts
             if text.contains("system(") || text.contains("system ") {
                 capabilities.push((
                     "exec/command/shell",
                     "system() command execution",
                     "system",
-                    0.95,
-                    Criticality::Hostile,
+                    0.9,
+                    Criticality::Suspicious,
                 ));
             }
             if text.contains("exec(") || text.contains("exec ") {
                 capabilities.push((
                     "exec/command/shell",
-                    "exec() command execution",
+                    "exec() replaces current process",
                     "exec",
-                    0.95,
-                    Criticality::Hostile,
+                    0.85,
+                    Criticality::Suspicious,
                 ));
             }
             if text.contains("spawn(") || text.contains("spawn ") {

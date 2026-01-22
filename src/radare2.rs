@@ -55,6 +55,7 @@ impl Radare2Analyzer {
     }
 
     /// Extract functions with complexity metrics
+    /// Uses 'aa' (basic analysis) instead of 'aaa' (full analysis) for speed
     pub fn extract_functions(&self, file_path: &Path) -> Result<Vec<Function>> {
         let output = Command::new("r2")
             .arg("-q")
@@ -63,7 +64,7 @@ impl Radare2Analyzer {
             .arg("-e")
             .arg("log.level=0") // Disable log messages
             .arg("-c")
-            .arg("aaa; aflj") // Analyze all, list functions as JSON
+            .arg("aa; aflj") // Basic analysis (faster than aaa), list functions as JSON
             .arg(file_path)
             .output()
             .context("Failed to execute radare2")?;
@@ -178,31 +179,118 @@ impl Radare2Analyzer {
 
     /// Extract syscalls from binary using architecture-aware analysis
     /// Returns detected syscalls with their numbers and resolved names
+    /// Optimized to use a SINGLE r2 session for all operations
     pub fn extract_syscalls(&self, file_path: &Path) -> Result<Vec<SyscallInfo>> {
-        // Get architecture info first
-        let arch = self.get_architecture(file_path)?;
+        // Build a batched command that gets arch info and searches for syscall patterns
+        // We'll run a single r2 session and parse all results at once
+        let output = Command::new("r2")
+            .arg("-q")
+            .arg("-e")
+            .arg("scr.color=0")
+            .arg("-e")
+            .arg("log.level=0")
+            .arg("-c")
+            // Batched commands: get arch info, then search for common syscall patterns
+            .arg("iIj; echo SEPARATOR; /x 0f05; echo SEPARATOR; /x cd80; echo SEPARATOR; /x 010000d4")
+            .arg(file_path)
+            .output()
+            .context("Failed to execute radare2")?;
+
+        if !output.status.success() {
+            return Ok(Vec::new());
+        }
+
+        let output_str = String::from_utf8_lossy(&output.stdout);
+        let parts: Vec<&str> = output_str.split("SEPARATOR").collect();
+
+        // Parse architecture from first part
+        let arch = if let Some(arch_part) = parts.first() {
+            if let Some(json_start) = arch_part.find('{') {
+                if let Ok(info) =
+                    serde_json::from_str::<serde_json::Value>(&arch_part[json_start..])
+                {
+                    let arch_str = info.get("arch").and_then(|v| v.as_str()).unwrap_or("");
+                    let bits = info.get("bits").and_then(|v| v.as_u64()).unwrap_or(32);
+                    match (arch_str, bits) {
+                        ("x86", 64) => "x86_64",
+                        ("x86", _) => "x86",
+                        ("arm", 64) => "aarch64",
+                        ("arm", _) => "arm",
+                        ("mips", _) => "mips",
+                        ("ppc", _) => "ppc",
+                        _ => "",
+                    }
+                } else {
+                    ""
+                }
+            } else {
+                ""
+            }
+        } else {
+            ""
+        };
+
         if arch.is_empty() {
             return Ok(Vec::new());
         }
 
-        // Find syscall instruction addresses based on architecture
-        let syscall_addrs = self.find_syscall_instructions(file_path, &arch)?;
+        // Parse syscall addresses from search results (parts 1-3)
+        let mut syscall_addrs = Vec::new();
+        for part in parts.iter().skip(1) {
+            syscall_addrs.extend(parse_search_results(part));
+        }
+
         if syscall_addrs.is_empty() {
             return Ok(Vec::new());
         }
 
-        // For each syscall instruction, try to resolve the syscall number
+        // Deduplicate
+        syscall_addrs.sort_unstable();
+        syscall_addrs.dedup();
+
+        // Limit to first 20 syscalls to avoid excessive analysis time
+        syscall_addrs.truncate(20);
+
+        // Build a second batched command to disassemble around each syscall address
+        let disasm_cmds: Vec<String> = syscall_addrs
+            .iter()
+            .map(|addr| format!("pd -10 @ {:#x}", addr))
+            .collect();
+
+        if disasm_cmds.is_empty() {
+            return Ok(Vec::new());
+        }
+
+        let disasm_output = Command::new("r2")
+            .arg("-q")
+            .arg("-e")
+            .arg("scr.color=0")
+            .arg("-e")
+            .arg("log.level=0")
+            .arg("-c")
+            .arg(disasm_cmds.join("; echo ADDR_SEP; "))
+            .arg(file_path)
+            .output()
+            .context("Failed to execute radare2")?;
+
+        let disasm_str = String::from_utf8_lossy(&disasm_output.stdout);
+        let disasm_parts: Vec<&str> = disasm_str.split("ADDR_SEP").collect();
+
+        // Parse syscall numbers from disassembly
         let mut syscalls = Vec::new();
-        for addr in syscall_addrs {
-            if let Some(num) = self.find_syscall_number(file_path, &arch, addr)? {
-                let name = syscall_name(&arch, num);
+        for (i, disasm) in disasm_parts.iter().enumerate() {
+            if i >= syscall_addrs.len() {
+                break;
+            }
+            if let Some(num) = parse_syscall_number_from_disasm(disasm, arch) {
+                let name = syscall_name(arch, num);
                 let description = syscall_description(&name);
                 syscalls.push(SyscallInfo {
-                    address: addr,
+                    address: syscall_addrs[i],
                     number: num,
                     name,
                     description,
-                    arch: arch.clone(),
+                    arch: arch.to_string(),
                 });
             }
         }
@@ -254,12 +342,12 @@ impl Radare2Analyzer {
     fn find_syscall_instructions(&self, file_path: &Path, arch: &str) -> Result<Vec<u64>> {
         // Architecture-specific syscall instruction patterns
         let pattern = match arch {
-            "x86" => "/x cd80",               // int 0x80
-            "x86_64" => "/x 0f05",            // syscall
-            "arm" => "/x 00 00 00 ef",        // svc #0 (ARM mode)
-            "aarch64" => "/x 01 00 00 d4",    // svc #0 (AArch64)
-            "mips" => "/x 00 00 00 0c",       // syscall (big-endian)
-            "ppc" => "/x 44 00 00 02",        // sc
+            "x86" => "/x cd80",            // int 0x80
+            "x86_64" => "/x 0f05",         // syscall
+            "arm" => "/x 00 00 00 ef",     // svc #0 (ARM mode)
+            "aarch64" => "/x 01 00 00 d4", // svc #0 (AArch64)
+            "mips" => "/x 00 00 00 0c",    // syscall (big-endian)
+            "ppc" => "/x 44 00 00 02",     // sc
             _ => return Ok(Vec::new()),
         };
 
@@ -398,6 +486,69 @@ impl Radare2Analyzer {
 
         Ok(None)
     }
+}
+
+/// Parse syscall number from disassembly output
+fn parse_syscall_number_from_disasm(disasm: &str, arch: &str) -> Option<u32> {
+    match arch {
+        "mips" => {
+            // MIPS o32: syscall number in v0 ($2)
+            for line in disasm.lines().rev() {
+                let line_lower = line.to_lowercase();
+                if (line_lower.contains("addiu") || line_lower.contains("li"))
+                    && (line_lower.contains("v0") || line_lower.contains("$2"))
+                {
+                    if let Some(num) = extract_hex_or_decimal(line) {
+                        if (4000..6000).contains(&num) || (6000..8000).contains(&num) {
+                            return Some(num);
+                        }
+                    }
+                }
+            }
+        }
+        "x86" | "x86_64" => {
+            // x86: syscall number in eax/rax
+            for line in disasm.lines().rev() {
+                let line_lower = line.to_lowercase();
+                if line_lower.contains("mov")
+                    && (line_lower.contains("eax") || line_lower.contains("rax"))
+                {
+                    if let Some(num) = extract_hex_or_decimal(line) {
+                        if num < 1000 {
+                            return Some(num);
+                        }
+                    }
+                }
+            }
+        }
+        "arm" | "aarch64" => {
+            let reg = if arch == "arm" { "r7" } else { "x8" };
+            for line in disasm.lines().rev() {
+                let line_lower = line.to_lowercase();
+                if line_lower.contains("mov") && line_lower.contains(reg) {
+                    if let Some(num) = extract_hex_or_decimal(line) {
+                        if num < 1000 {
+                            return Some(num);
+                        }
+                    }
+                }
+            }
+        }
+        "ppc" => {
+            for line in disasm.lines().rev() {
+                let line_lower = line.to_lowercase();
+                if line_lower.contains("li") && line_lower.contains("r0") {
+                    if let Some(num) = extract_hex_or_decimal(line) {
+                        if num < 1000 {
+                            return Some(num);
+                        }
+                    }
+                }
+            }
+        }
+        _ => {}
+    }
+    None
 }
 
 /// Parse radare2 search results to extract addresses

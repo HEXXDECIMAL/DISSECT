@@ -93,8 +93,8 @@ traits:
 
   - id: lateral/ssh/authorized-keys
     description: References authorized_keys file
-    criticality: suspicious
-    confidence: 0.7
+    criticality: notable
+    confidence: 0.6
     attack: "T1021.004"
     platforms: [linux, macos, unix]
     condition:

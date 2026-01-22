@@ -1,0 +1,53 @@
+# C2 Infrastructure Detection - IP Addresses (Python)
+# AST-aware patterns that match code constructs, not comments
+# ATT&CK: T1071.001
+
+defaults:
+  file_types: [python]
+  mbc: "C0002"
+  attack: "T1071.001"
+  criticality: suspicious
+
+traits:
+  # Match IP assigned to a variable: host = "1.2.3.4" or ip = '10.0.0.1'
+  - id: c2/infrastructure/ip/python-assigned-ipv4
+    description: "Hardcoded IPv4 address assigned to variable"
+    confidence: 0.9
+    condition:
+      type: string
+      # Matches: var = "IP" or var = 'IP' with optional quotes
+      regex: "\\w+\\s*=\\s*[\"'](?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])[\"']"
+
+  # Match IP in f-string URL construction: f"http://{host}" or f'http://{ip}:1234'
+  - id: c2/infrastructure/ip/python-fstring-url
+    description: "URL constructed with f-string variable interpolation"
+    confidence: 0.85
+    condition:
+      type: string
+      regex: "f[\"']https?://\\{\\w+\\}"
+
+  # Match requests.get/post with IP-based URL
+  - id: c2/infrastructure/ip/python-requests-ip-url
+    description: "HTTP request to IP-based URL"
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "requests\\.(get|post)\\([^)]*https?://(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.){3}"
+
+  # Match urllib with IP-based URL
+  - id: c2/infrastructure/ip/python-urllib-ip-url
+    description: "urllib request to IP-based URL"
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "urlopen\\([^)]*https?://(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.){3}"
+
+composite_rules:
+  # Match URL construction pattern: host + port concatenation
+  - id: c2/infrastructure/ip/python-url-construction
+    description: "C2 URL constructed from host variable"
+    confidence: 0.85
+    condition:
+      type: string
+      # f'http://{host}:port' or "http://" + host patterns
+      regex: "(f[\"']https?://\\{\\w+\\}:\\d+|[\"']https?://[\"']\\s*\\+\\s*\\w+)"

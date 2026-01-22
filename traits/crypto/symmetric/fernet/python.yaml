@@ -1,0 +1,85 @@
+# Fernet Encryption Library Detection (Python)
+# Fernet is a symmetric encryption library often abused by malware for payload encryption
+# ATT&CK: T1027 (Obfuscated Files or Information)
+
+defaults:
+  file_types: [python]
+  attack: "T1027"
+  mbc: "C0027"
+
+traits:
+  # Direct fernet import
+  - id: crypto/symmetric/fernet/import
+    description: "Fernet symmetric encryption library import"
+    criticality: suspicious
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "\\bimport\\s+fernet\\b|\\bfrom\\s+cryptography\\.fernet\\s+import"
+
+  # Fernet class usage
+  - id: crypto/symmetric/fernet/class-usage
+    description: "Fernet encryption class instantiation"
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: string
+      regex: "Fernet\\s*\\("
+
+  # Fernet decrypt operation
+  - id: crypto/symmetric/fernet/decrypt
+    description: "Fernet decryption operation"
+    criticality: suspicious
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "\\.decrypt\\s*\\("
+
+  # Fernet key generation
+  - id: crypto/symmetric/fernet/keygen
+    description: "Fernet key generation"
+    criticality: notable
+    confidence: 0.85
+    condition:
+      type: string
+      regex: "Fernet\\.generate_key\\s*\\("
+
+composite_rules:
+  # Runtime fernet installation (very suspicious - why install crypto at runtime?)
+  - id: crypto/symmetric/fernet/runtime-install
+    description: "Runtime installation of fernet encryption library"
+    criticality: hostile
+    confidence: 0.95
+    condition:
+      type: yara
+      source: |
+        rule fernet_runtime_install {
+          meta:
+            description = "Detects runtime installation of fernet library"
+          strings:
+            $pip_fernet1 = "pip install fernet" ascii nocase
+            $pip_fernet2 = "pip install cryptography" ascii nocase
+            $import_check = "import fernet" ascii
+            $except = "except" ascii
+            $importerror = "ImportError" ascii
+          condition:
+            ($pip_fernet1 or $pip_fernet2) and ($except or $importerror or $import_check)
+        }
+
+  # Fernet with hardcoded key (payload decryption)
+  - id: crypto/symmetric/fernet/hardcoded-key
+    description: "Fernet encryption with hardcoded key pattern"
+    criticality: hostile
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule fernet_hardcoded_key {
+          meta:
+            description = "Fernet with base64 key (44 chars ending in =)"
+          strings:
+            $fernet = "Fernet" ascii
+            $b64_key = /b['"][A-Za-z0-9+\/]{43}=['"]/ ascii
+          condition:
+            $fernet and $b64_key
+        }

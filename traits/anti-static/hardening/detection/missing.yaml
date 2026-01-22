@@ -2,7 +2,7 @@
 # Binaries without standard security features are suspicious
 # ATT&CK: T1027 (Obfuscated Files or Information)
 
-traits:
+composite_rules:
   - id: anti-static/hardening/detection/stripped-binary
     description: "Binary has symbol table stripped"
     criticality: notable
@@ -30,7 +30,16 @@ traits:
       type: structure
       feature: "binary/no-pie"
 
-composite_rules:
+  - id: anti-static/hardening/detection/no-nx
+    description: "Binary lacks NX/DEP protection (executable stack)"
+    criticality: notable
+    confidence: 0.7
+    attack: "T1027"
+    file_types: [elf, macho]
+    condition:
+      type: structure
+      feature: "binary/no-nx"
+
   - id: anti-static/hardening/minimal
     description: "Binary lacks security hardening (stripped + static)"
     criticality: suspicious

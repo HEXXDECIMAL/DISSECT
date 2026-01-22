@@ -1,0 +1,44 @@
+# Terminal ANSI Color Handling - Python
+# Detects libraries/code that manipulate terminal colors and styles
+# These are benign terminal output formatting mechanisms
+
+defaults:
+  file_types: [python]
+  criticality: notable
+
+traits:
+  # ANSI escape code usage
+  - id: ui/terminal/ansi/escape-codes
+    description: "ANSI terminal escape codes"
+    confidence: 0.8
+    condition:
+      type: string
+      regex: "\\\\x1b\\[|\\\\033\\[|\\\\e\\["
+      search_raw: true
+
+  # colorama library
+  - id: ui/terminal/ansi/colorama
+    description: "Terminal color library (colorama)"
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "colorama|from\\s+\\.ansi\\s+import|Fore,\\s*Back,\\s*Style"
+      search_raw: true
+
+  # Terminal color classes
+  - id: ui/terminal/ansi/color-classes
+    description: "Terminal color/style classes"
+    confidence: 0.85
+    condition:
+      type: string
+      regex: "\\bFore\\b|\\bBack\\b|\\bStyle\\b|\\bCursor\\b"
+      search_raw: true
+
+  # Windows console handling
+  - id: ui/terminal/ansi/windows-console
+    description: "Windows console color compatibility"
+    confidence: 0.8
+    condition:
+      type: string
+      regex: "AnsiToWin32|just_fix_windows_console|colorama_text"
+      search_raw: true

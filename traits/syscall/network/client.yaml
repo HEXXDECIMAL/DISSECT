@@ -1,4 +1,4 @@
-traits:
+composite_rules:
   - id: syscall/net/socket-create
     description: Creates network socket
     confidence: 0.9

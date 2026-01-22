@@ -1,4 +1,4 @@
-traits:
+composite_rules:
   - id: syscall/process/setuid
     description: Changes user identity
     confidence: 0.9

@@ -5,8 +5,8 @@
 traits:
   - id: anti-analysis/vm
     description: VM detection techniques
-    criticality: suspicious
-    confidence: 0.66
+    criticality: notable
+    confidence: 0.5
     mbc: "B0009"
     attack: "T1497.001"
     condition:
@@ -14,14 +14,39 @@ traits:
       source: |
         rule vm_detect {
           strings:
-            $vmware = "VMware" nocase
-            $virtualbox = "VirtualBox" nocase
-            $vbox = "VBOX" nocase
-            $qemu = "QEMU" nocase
-            $xen = "Xen" nocase
+            // VM product names - require word boundaries to avoid false positives
+            // Single vendor string is notable; multiple is suspicious (see composite)
+            $vmware = "VMware" nocase fullword
+            $virtualbox = "VirtualBox" nocase fullword
+            $vbox = "VBOX" fullword
+            $qemu = "QEMU" fullword
+            $xen = "XEN" fullword
             $hyperv = "Hyper-V" nocase
-            $kvm = "KVM" nocase
-            $parallels = "Parallels" nocase
+            $kvm = "KVM" fullword
+            $parallels = "Parallels" nocase fullword
           condition:
             any of them
+        }
+
+  - id: anti-analysis/vm/multi-vendor
+    description: Multiple VM vendor detection (evasion technique)
+    criticality: suspicious
+    confidence: 0.8
+    mbc: "B0009"
+    attack: "T1497.001"
+    condition:
+      type: yara
+      source: |
+        rule vm_detect_multi {
+          strings:
+            $vmware = "VMware" nocase fullword
+            $virtualbox = "VirtualBox" nocase fullword
+            $vbox = "VBOX" fullword
+            $qemu = "QEMU" fullword
+            $xen = "XEN" fullword
+            $hyperv = "Hyper-V" nocase
+            $kvm = "KVM" fullword
+            $parallels = "Parallels" nocase fullword
+          condition:
+            2 of them
         }

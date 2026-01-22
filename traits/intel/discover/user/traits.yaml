@@ -74,8 +74,8 @@ traits:
 
   - id: intel/discover/user/getpwnam
     description: Get password entry by name
-    criticality: suspicious
-    confidence: 0.8
+    criticality: notable
+    confidence: 0.7
     attack: "T1033"
     file_types: [elf, macho]
     condition:
@@ -135,15 +135,26 @@ composite_rules:
       source: |
         rule user_enumeration {
           strings:
-            $whoami = "whoami"
+            // Active enumeration commands (more suspicious - shell commands)
+            $whoami = "whoami" fullword
+            $etc_passwd = "/etc/passwd"
+            $dscl = "dscl" fullword
+            $finger = "finger" fullword
+            $last_cmd = "/usr/bin/last"
+            $w_cmd = "/usr/bin/w" ascii
+            // POSIX user lookup functions (common in auth software)
+            $getpwnam = "getpwnam" fullword
             $getuid = "getuid" fullword
             $getpwuid = "getpwuid" fullword
-            $getpwnam = "getpwnam" fullword
-            $etc_passwd = "/etc/passwd"
-            $dscl = "dscl"
+            // Environment variables (very common)
             $username = "USERNAME" fullword
             $user = "USER" fullword
             $logname = "LOGNAME" fullword
           condition:
-            filesize < 20MB and 3 of them
+            filesize < 20MB and (
+              // Require active shell commands + additional context
+              (1 of ($whoami, $etc_passwd, $dscl, $finger, $last_cmd, $w_cmd) and 2 of them) or
+              // Or require many indicators if only passive functions
+              (5 of them)
+            )
         }

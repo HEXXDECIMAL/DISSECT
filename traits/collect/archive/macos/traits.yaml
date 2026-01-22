@@ -1,0 +1,82 @@
+# macOS Data Collection and Archiving Detection
+# Detects data staging techniques on macOS
+# ATT&CK: T1560 (Archive Collected Data), T1074 (Data Staged)
+
+defaults:
+  attack: "T1560"
+  platforms: [macos]
+
+traits:
+  # ditto command for archiving
+  - id: collect/archive/ditto-compress
+    description: "macOS ditto archive compression"
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1560.001"
+    condition:
+      type: string
+      regex: "ditto\\s+-c\\s+-k|ditto.*--sequesterRsrc|ditto.*\\.zip"
+
+  # ditto for directory copy
+  - id: collect/archive/ditto-copy
+    description: "macOS ditto directory copy"
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "ditto\\s+[^-]"
+
+  # hdiutil for disk image creation
+  - id: collect/archive/hdiutil-create
+    description: "macOS disk image creation"
+    criticality: notable
+    confidence: 0.75
+    attack: "T1560.001"
+    condition:
+      type: string
+      regex: "hdiutil\\s+create|hdiutil.*-format"
+
+  # tar/gzip archiving
+  - id: collect/archive/tar-compress
+    description: "tar archive creation"
+    criticality: notable
+    confidence: 0.6
+    attack: "T1560.001"
+    condition:
+      type: string
+      regex: "tar\\s+-[a-z]*[cz]|tar\\s+--create|gzip\\s+-"
+
+  # zip command
+  - id: collect/archive/zip-compress
+    description: "zip archive creation"
+    criticality: notable
+    confidence: 0.65
+    attack: "T1560.001"
+    condition:
+      type: string
+      regex: "\\bzip\\s+-[r0-9]|unzip\\s+-o"
+
+  # /tmp staging
+  - id: collect/staging/tmp-directory
+    description: "Data staging in /tmp"
+    criticality: notable
+    confidence: 0.7
+    attack: "T1074.001"
+    condition:
+      type: string
+      regex: "/tmp/.*\\.(zip|tar|gz|dmg)|/tmp/out\\."
+
+composite_rules:
+  # Archive + exfiltration pattern
+  - id: collect/archive/stealer-pattern
+    description: "Data collection and archiving for exfiltration"
+    criticality: hostile
+    confidence: 0.9
+    requires_all:
+      - type: trait
+        id: collect/archive/ditto-compress
+    requires_any:
+      - type: string
+        regex: "curl|wget|POST|upload"
+      - type: string
+        regex: "/tmp/.*\\.zip"

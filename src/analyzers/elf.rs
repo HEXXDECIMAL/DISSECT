@@ -68,6 +68,10 @@ impl ElfAnalyzer {
         // Analyze sections and entropy
         self.analyze_sections(&elf, data, &mut report)?;
 
+        // Extract strings using language-aware extraction (Go/Rust) with fallback
+        report.strings = self.string_extractor.extract_smart(data);
+        tools_used.push("string_extractor".to_string());
+
         // Use radare2 for deep analysis if available
         if Radare2Analyzer::is_available() {
             tools_used.push("radare2".to_string());
@@ -76,29 +80,10 @@ impl ElfAnalyzer {
                 report.functions = functions;
             }
 
-            if let Ok(r2_strings) = self.radare2.extract_strings(file_path) {
-                for r2_str in r2_strings {
-                    let string_type = self.string_extractor.classify_string_type(&r2_str.string);
-                    report.strings.push(StringInfo {
-                        value: r2_str.string,
-                        offset: Some(format!("{:#x}", r2_str.vaddr)),
-                        encoding: "utf8".to_string(),
-                        string_type,
-                        section: None,
-                    });
-                }
-            }
-
             // Extract syscalls for binary analysis
             if let Ok(syscalls) = self.radare2.extract_syscalls(file_path) {
                 report.syscalls = syscalls;
             }
-        }
-
-        // Extract strings if not already done by radare2
-        if report.strings.is_empty() {
-            report.strings = self.string_extractor.extract(data, None);
-            tools_used.push("string_extractor".to_string());
         }
 
         // Run YARA scan if engine is loaded
@@ -368,7 +353,10 @@ impl ElfAnalyzer {
     fn merge_reports(&self, packed: &mut AnalysisReport, unpacked: AnalysisReport) {
         // Merge findings by ID, keeping highest criticality
         for unpacked_finding in unpacked.findings {
-            if let Some(existing) = packed.findings.iter_mut().find(|f| f.id == unpacked_finding.id)
+            if let Some(existing) = packed
+                .findings
+                .iter_mut()
+                .find(|f| f.id == unpacked_finding.id)
             {
                 // Merge evidence
                 existing.evidence.extend(unpacked_finding.evidence);
@@ -446,19 +434,25 @@ impl Analyzer for ElfAnalyzer {
         let mut report = self.analyze_elf(file_path, &data)?;
 
         // Add UPX packer finding
-        report.findings.push(Finding::structural(
-            "anti-static/packer/upx".to_string(),
-            "Binary is packed with UPX".to_string(),
-            1.0,
-        ).with_criticality(Criticality::Suspicious));
+        report.findings.push(
+            Finding::structural(
+                "anti-static/packer/upx".to_string(),
+                "Binary is packed with UPX".to_string(),
+                1.0,
+            )
+            .with_criticality(Criticality::Suspicious),
+        );
 
         // Attempt decompression
         if !UPXDecompressor::is_available() {
-            report.findings.push(Finding::structural(
-                "anti-static/packer/upx/tool-missing".to_string(),
-                "UPX binary not found in PATH - unpacked analysis skipped".to_string(),
-                1.0,
-            ).with_criticality(Criticality::Notable));
+            report.findings.push(
+                Finding::structural(
+                    "anti-static/packer/upx/tool-missing".to_string(),
+                    "UPX binary not found in PATH - unpacked analysis skipped".to_string(),
+                    1.0,
+                )
+                .with_criticality(Criticality::Notable),
+            );
             return Ok(report);
         }
 
@@ -484,11 +478,14 @@ impl Analyzer for ElfAnalyzer {
                     }
                     _ => format!("UPX decompression failed: {}", e),
                 };
-                report.findings.push(Finding::structural(
-                    "anti-static/packer/upx/decompression-failed".to_string(),
-                    description,
-                    1.0,
-                ).with_criticality(Criticality::Suspicious));
+                report.findings.push(
+                    Finding::structural(
+                        "anti-static/packer/upx/decompression-failed".to_string(),
+                        description,
+                        1.0,
+                    )
+                    .with_criticality(Criticality::Suspicious),
+                );
             }
         }
 
@@ -696,17 +693,15 @@ mod tests {
         let mut unpacked = create_test_report();
 
         // Add same finding to both with different criticality
-        packed.findings.push(Finding::capability(
-            "net/socket".to_string(),
-            "Network socket".to_string(),
-            0.9,
-        ).with_criticality(Criticality::Notable));
+        packed.findings.push(
+            Finding::capability("net/socket".to_string(), "Network socket".to_string(), 0.9)
+                .with_criticality(Criticality::Notable),
+        );
 
-        unpacked.findings.push(Finding::capability(
-            "net/socket".to_string(),
-            "Network socket".to_string(),
-            0.9,
-        ).with_criticality(Criticality::Suspicious));
+        unpacked.findings.push(
+            Finding::capability("net/socket".to_string(), "Network socket".to_string(), 0.9)
+                .with_criticality(Criticality::Suspicious),
+        );
 
         analyzer.merge_reports(&mut packed, unpacked);
 
@@ -747,27 +742,25 @@ mod tests {
         let mut packed = create_test_report();
         let mut unpacked = create_test_report();
 
-        packed.findings.push(Finding::capability(
-            "net/socket".to_string(),
-            "Network socket".to_string(),
-            0.9,
-        ).with_evidence(vec![Evidence {
-            method: "symbol".to_string(),
-            source: "goblin".to_string(),
-            value: "socket".to_string(),
-            location: None,
-        }]));
+        packed.findings.push(
+            Finding::capability("net/socket".to_string(), "Network socket".to_string(), 0.9)
+                .with_evidence(vec![Evidence {
+                    method: "symbol".to_string(),
+                    source: "goblin".to_string(),
+                    value: "socket".to_string(),
+                    location: None,
+                }]),
+        );
 
-        unpacked.findings.push(Finding::capability(
-            "net/socket".to_string(),
-            "Network socket".to_string(),
-            0.9,
-        ).with_evidence(vec![Evidence {
-            method: "symbol".to_string(),
-            source: "goblin".to_string(),
-            value: "connect".to_string(),
-            location: None,
-        }]));
+        unpacked.findings.push(
+            Finding::capability("net/socket".to_string(), "Network socket".to_string(), 0.9)
+                .with_evidence(vec![Evidence {
+                    method: "symbol".to_string(),
+                    source: "goblin".to_string(),
+                    value: "connect".to_string(),
+                    location: None,
+                }]),
+        );
 
         analyzer.merge_reports(&mut packed, unpacked);
 
@@ -1060,18 +1053,24 @@ mod tests {
         let mut unpacked = create_test_report();
 
         // Packed has Hostile
-        packed.findings.push(Finding::capability(
-            "malware/backdoor".to_string(),
-            "Backdoor detected".to_string(),
-            0.9,
-        ).with_criticality(Criticality::Hostile));
+        packed.findings.push(
+            Finding::capability(
+                "malware/backdoor".to_string(),
+                "Backdoor detected".to_string(),
+                0.9,
+            )
+            .with_criticality(Criticality::Hostile),
+        );
 
         // Unpacked has Suspicious (lower)
-        unpacked.findings.push(Finding::capability(
-            "malware/backdoor".to_string(),
-            "Backdoor detected".to_string(),
-            0.9,
-        ).with_criticality(Criticality::Suspicious));
+        unpacked.findings.push(
+            Finding::capability(
+                "malware/backdoor".to_string(),
+                "Backdoor detected".to_string(),
+                0.9,
+            )
+            .with_criticality(Criticality::Suspicious),
+        );
 
         analyzer.merge_reports(&mut packed, unpacked);
 
@@ -1086,18 +1085,16 @@ mod tests {
         let mut unpacked = create_test_report();
 
         // Packed has Notable (lower)
-        packed.findings.push(Finding::capability(
-            "net/socket".to_string(),
-            "Network socket".to_string(),
-            0.9,
-        ).with_criticality(Criticality::Notable));
+        packed.findings.push(
+            Finding::capability("net/socket".to_string(), "Network socket".to_string(), 0.9)
+                .with_criticality(Criticality::Notable),
+        );
 
         // Unpacked has Hostile (higher)
-        unpacked.findings.push(Finding::capability(
-            "net/socket".to_string(),
-            "Network socket".to_string(),
-            0.9,
-        ).with_criticality(Criticality::Hostile));
+        unpacked.findings.push(
+            Finding::capability("net/socket".to_string(), "Network socket".to_string(), 0.9)
+                .with_criticality(Criticality::Hostile),
+        );
 
         analyzer.merge_reports(&mut packed, unpacked);
 

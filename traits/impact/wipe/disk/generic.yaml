@@ -6,7 +6,7 @@ traits:
   - id: impact/wipe/disk-terms
     description: Disk wiper terminology
     criticality: suspicious
-    confidence: 0.66
+    confidence: 0.75
     mbc: "E1561"
     attack: "T1561"
     condition:
@@ -14,11 +14,20 @@ traits:
       source: |
         rule disk_wiper_terms {
           strings:
-            $wipe = "wipe" fullword
-            $overwrite = "overwrite" fullword
-            $destroy = "destroy" fullword
+            // Disk-specific wipe terms (more specific than generic "wipe")
+            $wipe_disk = "wipe disk" nocase
+            $wipe_drive = "wipe drive" nocase
+            $disk_wipe = "disk wipe" nocase
+            $secure_erase = "secure erase" nocase
+            // Boot sector targeting
             $mbr = "MBR" fullword
-            $boot_sector = "boot sector"
+            $boot_sector = "boot sector" nocase
+            $master_boot = "master boot record" nocase
+            // Direct disk device access patterns
+            $dev_sda = "/dev/sda"
+            $dev_hda = "/dev/hda"
+            $dev_nvme = "/dev/nvme"
+            $physicaldrive = "PhysicalDrive" nocase
           condition:
             any of them
         }

@@ -1,0 +1,164 @@
+# Meta - Apple System Component Identification
+# Identifies legitimate Apple system binaries and frameworks
+# These traits help contextualize findings for known-good system components
+
+defaults:
+  criticality: inert
+  platforms: [macos]
+  file_types: [macho, dylib]
+
+traits:
+  # === Bundle Identifiers ===
+
+  - id: meta/apple/bundle-id
+    description: Apple bundle identifier (com.apple.*)
+    criticality: inert
+    confidence: 0.95
+    condition:
+      type: string
+      regex: "com\\.apple\\.[a-z][a-z0-9.-]+"
+
+  - id: meta/apple/system-daemon
+    description: Apple system daemon (libexec)
+    criticality: inert
+    confidence: 0.9
+    platforms: [macos]
+    file_types: [macho]
+    condition:
+      type: string
+      regex: "/usr/libexec/[a-z][a-z0-9_-]+d\\b"
+
+  - id: meta/apple/xpc-service
+    description: Apple XPC service
+    criticality: inert
+    confidence: 0.9
+    platforms: [macos]
+    file_types: [macho]
+    condition:
+      type: string
+      regex: "\\.xpc/Contents/MacOS/"
+
+  # === Code Signing ===
+
+  - id: meta/apple/signed
+    description: Apple code signature markers
+    criticality: inert
+    confidence: 0.85
+    platforms: [macos]
+    file_types: [macho]
+    condition:
+      type: string
+      regex: "Apple Development|Apple Distribution|Developer ID"
+
+  - id: meta/apple/codesign-requirement
+    description: Code signature requirement blob
+    criticality: inert
+    confidence: 0.9
+    platforms: [macos]
+    file_types: [macho]
+    condition:
+      type: string
+      regex: "anchor apple|certificate leaf"
+
+  # === Project Identifiers ===
+
+  - id: meta/apple/project-marker
+    description: Apple internal project marker
+    confidence: 0.95
+    condition:
+      type: string
+      # Apple internal PROJECT: marker in binary
+      regex: "@\\(#\\)PROGRAM:[a-z]+\\s+PROJECT:[A-Za-z]+-[0-9]+"
+
+  # === Apple Frameworks ===
+
+  - id: meta/apple/ad-framework
+    description: Apple advertising framework usage
+    criticality: notable
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "/AdCore\\.framework/|/AdID\\.framework/|/LimitAdTracking\\.framework/"
+
+  - id: meta/apple/privacy-framework
+    description: Apple privacy framework usage
+    criticality: notable
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "/AppTrackingTransparency\\.framework/|/PrivacyContentPrediction\\.framework/"
+
+  - id: meta/apple/private-framework
+    description: Apple private framework usage
+    confidence: 0.85
+    condition:
+      type: string
+      exact: "/System/Library/PrivateFrameworks"
+
+  # === IPC Mechanisms ===
+
+  - id: meta/apple/xpc-connection
+    description: XPC connection symbol
+    confidence: 0.9
+    condition:
+      type: symbol
+      pattern: "xpc_connection_create"
+
+  - id: meta/apple/xpc-message
+    description: XPC message handling
+    confidence: 0.85
+    condition:
+      type: symbol
+      pattern: "xpc_dictionary_"
+
+  # === Dispatch (GCD) ===
+
+  - id: meta/apple/dispatch-queue
+    description: Grand Central Dispatch queue usage
+    confidence: 0.8
+    condition:
+      type: symbol
+      pattern: "dispatch_queue_create|dispatch_get_global_queue"
+
+  - id: meta/apple/dispatch-async
+    description: Grand Central Dispatch async execution
+    confidence: 0.8
+    condition:
+      type: symbol
+      pattern: "dispatch_async|dispatch_sync"
+
+  - id: meta/apple/dispatch-source
+    description: Grand Central Dispatch source (event monitoring)
+    confidence: 0.85
+    condition:
+      type: symbol
+      pattern: "dispatch_source_create"
+
+composite_rules:
+  - id: meta/apple/system-component
+    description: Apple system component (legitimate macOS binary)
+    criticality: inert
+    confidence: 0.95
+    platforms: [macos]
+    file_types: [macho]
+    condition:
+      type: yara
+      source: |
+        rule apple_system_component {
+          meta:
+            description = "Legitimate Apple macOS system component"
+          strings:
+            // Bundle identifier
+            $bundle = /com\.apple\.[a-z][a-z0-9.-]+/ ascii
+            // Project marker
+            $project = /@\(#\)PROGRAM:\w+\s+PROJECT:\w+-\d+/ ascii
+            // Common Apple framework paths
+            $framework1 = "/System/Library/Frameworks" ascii
+            $framework2 = "/System/Library/PrivateFrameworks" ascii
+            // launchd plist embedding
+            $launchd = "launchd.plist" ascii
+          condition:
+            ($bundle and $project) or
+            ($bundle and any of ($framework*)) or
+            ($project and any of ($framework*))
+        }

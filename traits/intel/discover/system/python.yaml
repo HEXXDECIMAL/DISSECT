@@ -1,0 +1,120 @@
+# System Information Discovery - Python
+# Detects Python code that fingerprints the host system
+# ATT&CK: T1082 (System Information Discovery)
+
+defaults:
+  file_types: [python]
+  mbc: "E1082"
+  attack: "T1082"
+  criticality: notable
+
+traits:
+  # Platform module - OS detection
+  - id: intel/discover/system/python-platform-system
+    description: "OS type detection (platform.system)"
+    confidence: 0.8
+    condition:
+      type: string
+      regex: "platform\\.system\\(\\)"
+
+  - id: intel/discover/system/python-platform-machine
+    description: "CPU architecture detection (platform.machine)"
+    confidence: 0.75
+    condition:
+      type: string
+      regex: "platform\\.machine\\(\\)"
+
+  - id: intel/discover/system/python-platform-node
+    description: "Hostname detection (platform.node)"
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "platform\\.node\\(\\)"
+
+  - id: intel/discover/system/python-platform-release
+    description: "OS release detection (platform.release)"
+    confidence: 0.65
+    criticality: inert
+    condition:
+      type: string
+      regex: "platform\\.release\\(\\)"
+
+  - id: intel/discover/system/python-platform-version
+    description: "OS version detection (platform.version)"
+    confidence: 0.65
+    criticality: inert
+    condition:
+      type: string
+      regex: "platform\\.version\\(\\)"
+
+  - id: intel/discover/system/python-platform-processor
+    description: "Processor detection (platform.processor)"
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "platform\\.processor\\(\\)"
+
+  - id: intel/discover/system/python-platform-uname
+    description: "Full system info (platform.uname)"
+    confidence: 0.8
+    condition:
+      type: string
+      regex: "platform\\.uname\\(\\)"
+
+  # sys module - Python environment detection
+  - id: intel/discover/system/python-sys-platform
+    description: "Platform identifier (sys.platform)"
+    confidence: 0.75
+    condition:
+      type: string
+      regex: "sys\\.platform\\b"
+
+  - id: intel/discover/system/python-sys-executable
+    description: "Python interpreter path (sys.executable)"
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "sys\\.executable\\b"
+
+  # os module - environment detection
+  - id: intel/discover/system/python-os-name
+    description: "OS name detection (os.name)"
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "os\\.name\\b"
+
+  - id: intel/discover/system/python-os-uname
+    description: "System identification (os.uname)"
+    confidence: 0.75
+    condition:
+      type: string
+      regex: "os\\.uname\\(\\)"
+
+composite_rules:
+  # Composite: Multiple platform checks = fingerprinting
+  - id: intel/discover/system/python-platform-fingerprint
+    description: "System fingerprinting (multiple platform checks)"
+    confidence: 0.9
+    criticality: suspicious
+    requires_count: 2
+    conditions:
+      - type: string
+        regex: "platform\\.system\\(\\)"
+      - type: string
+        regex: "platform\\.machine\\(\\)"
+      - type: string
+        regex: "platform\\.node\\(\\)"
+      - type: string
+        regex: "sys\\.platform\\b"
+      - type: string
+        regex: "os\\.name\\b"
+
+  # OS-conditional execution pattern
+  - id: intel/discover/system/python-os-conditional
+    description: "OS-conditional code execution"
+    confidence: 0.85
+    condition:
+      type: string
+      # Matches: if platform.system() == "Windows" or similar
+      regex: "if\\s+(?:platform\\.system\\(\\)|sys\\.platform|os\\.name)\\s*[=!]"

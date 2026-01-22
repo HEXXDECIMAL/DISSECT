@@ -14,13 +14,21 @@ traits:
       source: |
         rule sandbox_detect {
           strings:
-            $sandbox = "sandbox" nocase
-            $cuckoo = "cuckoo"
-            $joe = "joe sandbox"
+            // Specific sandbox product names (not generic "sandbox" word)
+            $cuckoo = "cuckoo" nocase fullword
+            $joe = "joe sandbox" nocase
             $any_run = "any.run"
-            $wireshark = "wireshark"
-            $fiddler = "fiddler"
-            $procmon = "procmon"
+            $hybrid = "hybrid-analysis" nocase
+            $virustotal = "virustotal" nocase
+            // Analysis tools commonly checked for
+            $wireshark = "wireshark" nocase fullword
+            $fiddler = "fiddler" nocase fullword
+            $procmon = "procmon" nocase fullword
+            $processhacker = "process hacker" nocase
+            $x64dbg = "x64dbg" nocase fullword
+            $ollydbg = "ollydbg" nocase fullword
+            // Sandbox detection file paths
+            $sandbox_path = /C:\\(sandbox|analysis|malware)/i
           condition:
             any of them
         }

@@ -70,7 +70,8 @@ traits:
     file_types: [all]
     condition:
       type: string
-      regex: "Extensions|chrome-extension"
+      # Require browser-specific extension paths, not just "Extensions"
+      regex: "chrome-extension://|/Extensions/[a-z]{32}|/Google/Chrome/.*Extensions|/BrowserSupport/Extensions"
 
   - id: intel/discover/browser/webdata
     description: Chrome Web Data access

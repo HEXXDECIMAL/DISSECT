@@ -1,0 +1,191 @@
+# Encrypted Payload Detection
+# Detects encrypted/obfuscated payload droppers via section analysis
+# ATT&CK: T1027 (Obfuscated Files or Information)
+
+defaults:
+  file_types: [macho, elf, pe]
+  attack: "T1027"
+  mbc: "B0032"
+
+traits:
+  # === Section Ratio Indicators ===
+
+  - id: anti-static/obfuscation/payload/large-const-section
+    description: "Large __const section (>80% of binary)"
+    criticality: suspicious
+    confidence: 0.8
+    file_types: [macho]
+    condition:
+      type: section_ratio
+      section: "__const"
+      compare_to: "total"
+      min_ratio: 0.80
+
+  - id: anti-static/obfuscation/payload/large-data-section
+    description: "Large .data section (>70% of binary)"
+    criticality: suspicious
+    confidence: 0.75
+    file_types: [elf, pe]
+    condition:
+      type: section_ratio
+      section: "\\.(data|rdata)"
+      compare_to: "total"
+      min_ratio: 0.70
+
+  - id: anti-static/obfuscation/payload/tiny-cstring
+    description: "Tiny __cstring section (<0.1% of binary)"
+    criticality: notable
+    confidence: 0.7
+    file_types: [macho]
+    condition:
+      type: section_ratio
+      section: "__cstring"
+      compare_to: "total"
+      max_ratio: 0.001
+
+  - id: anti-static/obfuscation/payload/minimal-text
+    description: "Small code section (<5% of binary)"
+    criticality: notable
+    confidence: 0.65
+    file_types: [macho]
+    condition:
+      type: section_ratio
+      section: "__text"
+      compare_to: "total"
+      max_ratio: 0.05
+
+  # === Entropy Indicators ===
+
+  - id: anti-static/obfuscation/payload/high-entropy-const
+    description: "High entropy in __const section (likely encrypted)"
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "C0027"
+    file_types: [macho]
+    condition:
+      type: section_entropy
+      section: "__const"
+      min_entropy: 7.5
+
+  - id: anti-static/obfuscation/payload/high-entropy-data
+    description: "High entropy in data section (likely encrypted)"
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "C0027"
+    file_types: [elf, pe]
+    condition:
+      type: section_entropy
+      section: "\\.(data|rdata|rodata)"
+      min_entropy: 7.5
+
+  - id: anti-static/obfuscation/payload/high-entropy-text
+    description: "High entropy in code section (packed/encrypted)"
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "B0032.002"
+    condition:
+      type: section_entropy
+      section: "(__text|\\.text)"
+      min_entropy: 7.0
+
+  # === String Concealment ===
+
+  - id: anti-static/obfuscation/payload/string-concealment
+    description: "Very few visible strings (<10)"
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string_count
+      max: 10
+      min_length: 4
+
+  - id: anti-static/obfuscation/payload/no-strings
+    description: "No visible strings in binary"
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: string_count
+      max: 0
+      min_length: 4
+
+  # === Import Patterns ===
+
+  - id: anti-static/obfuscation/payload/math-cipher-imports
+    description: "Math functions (cipher indicator) with system() import"
+    criticality: suspicious
+    confidence: 0.85
+    file_types: [macho]
+    condition:
+      type: import_combination
+      required:
+        - "^_?system$"
+      suspicious:
+        - "^_?(cos|sin|tan|exp|pow|log|sqrt|fmod|hypot|log1p)$"
+      min_suspicious: 4
+
+  - id: anti-static/obfuscation/payload/minimal-imports
+    description: "Very few imports (<50) with system() present"
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: import_combination
+      required:
+        - "^_?system$"
+      max_total: 50
+
+composite_rules:
+  # === Encrypted Dropper Detection ===
+
+  - id: anti-static/obfuscation/encrypted-payload-dropper
+    description: "Encrypted payload dropper (large encrypted section + minimal strings)"
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1027"
+    mbc: "B0032"
+    file_types: [macho]
+    requires_count: 3
+    conditions:
+      - type: trait
+        id: large-const-section
+      - type: trait
+        id: high-entropy-const
+      - type: trait
+        id: tiny-cstring
+      - type: trait
+        id: minimal-text
+      - type: trait
+        id: string-concealment
+
+  - id: anti-static/obfuscation/cipher-dropper
+    description: "Cipher-based dropper (math imports + encrypted payload)"
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1027"
+    mbc: "C0027"
+    file_types: [macho]
+    requires_all:
+      - type: trait
+        id: math-cipher-imports
+      - type: trait
+        id: high-entropy-const
+    requires_any:
+      - type: trait
+        id: string-concealment
+      - type: trait
+        id: tiny-cstring
+
+  - id: anti-static/obfuscation/elf-encrypted-dropper
+    description: "Encrypted payload dropper (ELF)"
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1027"
+    mbc: "B0032"
+    file_types: [elf]
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: large-data-section
+      - type: trait
+        id: high-entropy-data
+      - type: trait
+        id: string-concealment

@@ -4,15 +4,16 @@
 
 traits:
   - id: evasion/timestomp/modify/touch
-    description: File timestamp modification
-    criticality: suspicious
-    confidence: 0.85
+    description: PHP touch() file timestamp modification
+    criticality: notable
+    confidence: 0.6
     mbc: "F0006"
     attack: "T1070.006"
-    file_types: [all]
+    file_types: [php]
     condition:
       type: string
-      exact: touch
+      # PHP touch() function call, not just the word "touch"
+      regex: "touch\\s*\\("
 
   - id: evasion/timestomp/modify/filemtime
     description: File modification time access

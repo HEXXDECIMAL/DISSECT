@@ -1,4 +1,4 @@
-traits:
+composite_rules:
   - id: syscall/exec/shell-redirect
     description: Executes program with file descriptor redirection
     confidence: 0.8
@@ -28,3 +28,33 @@ traits:
         min_count: 2
       - type: syscall
         name: ["execve", "execveat"]
+
+  - id: syscall/exec/shell-redirect-macos
+    description: macOS program execution with FD redirection
+    confidence: 0.8
+    criticality: suspicious
+    platforms: [macos]
+    file_types: [macho]
+    requires_all:
+      - type: syscall
+        name: ["execve"]
+      - type: syscall
+        name: ["dup2"]
+        min_count: 2
+
+  - id: syscall/exec/reverse-shell-pattern-macos
+    description: macOS reverse shell pattern - socket + dup2 + execve
+    confidence: 0.9
+    criticality: suspicious
+    platforms: [macos]
+    file_types: [macho]
+    requires_all:
+      - type: syscall
+        name: ["socket"]
+      - type: syscall
+        name: ["connect"]
+      - type: syscall
+        name: ["dup2"]
+        min_count: 2
+      - type: syscall
+        name: ["execve"]

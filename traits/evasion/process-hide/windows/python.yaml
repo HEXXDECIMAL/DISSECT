@@ -1,0 +1,73 @@
+# Process Hiding - Windows (Python)
+# Detects subprocess creation with hidden window flags
+# ATT&CK: T1564.003 (Hide Artifacts: Hidden Window)
+
+defaults:
+  file_types: [python]
+  mbc: "F0005"
+  attack: "T1564.003"
+  criticality: suspicious
+  platforms: [windows]
+
+traits:
+  # CREATE_NO_WINDOW flag - hides console window
+  - id: evasion/process-hide/windows/create-no-window
+    description: "Process creation with hidden window (CREATE_NO_WINDOW)"
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "CREATE_NO_WINDOW"
+
+  # CREATE_NEW_PROCESS_GROUP - detaches from parent
+  - id: evasion/process-hide/windows/create-new-process-group
+    description: "Process creation detached from parent (CREATE_NEW_PROCESS_GROUP)"
+    confidence: 0.8
+    condition:
+      type: string
+      regex: "CREATE_NEW_PROCESS_GROUP"
+
+  # DETACHED_PROCESS - runs without console
+  - id: evasion/process-hide/windows/detached-process
+    description: "Detached process creation (DETACHED_PROCESS)"
+    confidence: 0.85
+    condition:
+      type: string
+      regex: "DETACHED_PROCESS"
+
+  # SW_HIDE - hidden window via startupinfo
+  - id: evasion/process-hide/windows/sw-hide
+    description: "Hidden window via STARTUPINFO (SW_HIDE)"
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "SW_HIDE"
+
+  # creationflags parameter in subprocess
+  - id: evasion/process-hide/windows/creationflags
+    description: "Process creation with custom flags"
+    confidence: 0.75
+    criticality: notable
+    condition:
+      type: string
+      regex: "creationflags\\s*="
+
+composite_rules:
+  # Combined: CREATE_NO_WINDOW + CREATE_NEW_PROCESS_GROUP
+  - id: evasion/process-hide/windows/stealth-subprocess
+    description: "Stealthy subprocess creation (hidden + detached)"
+    confidence: 0.95
+    criticality: hostile
+    requires_all:
+      - type: string
+        regex: "subprocess\\.(Popen|run|call)\\("
+      - type: string
+        regex: "CREATE_NO_WINDOW|DETACHED_PROCESS"
+
+  # creationflags with bitwise OR - combining multiple flags
+  - id: evasion/process-hide/windows/combined-flags
+    description: "Multiple process creation flags combined"
+    confidence: 0.9
+    condition:
+      type: string
+      # Matches: creationflags=FLAG1 | FLAG2
+      regex: "creationflags\\s*=\\s*[^,)]+\\|"

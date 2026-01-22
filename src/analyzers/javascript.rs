@@ -535,23 +535,53 @@ impl JavaScriptAnalyzer {
         // This requires regex with capture groups and filtering, which YAML can't express
         let ip_pattern =
             regex::Regex::new(r#"["']?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d+)?["']?"#).unwrap();
+        // Version string patterns that look like IPs (Chrome/100.0.0.0, Safari/537.36, etc.)
+        let version_pattern = regex::Regex::new(
+            r#"(?i)(?:Chrome|Safari|Firefox|Edge|Opera|Chromium|Version|AppleWebKit|KHTML|Gecko|Trident|OPR|Mobile|MSIE|rv:|v)/\d+\.\d+\.\d+\.\d+"#,
+        )
+        .unwrap();
+
         for cap in ip_pattern.captures_iter(content) {
             let ip = &cap[1];
+            let match_str = &cap[0];
+
             // Skip localhost and private ranges that might be benign
-            if !ip.starts_with("127.")
-                && !ip.starts_with("10.")
-                && !ip.starts_with("192.168.")
-                && !ip.starts_with("0.")
+            if ip.starts_with("127.")
+                || ip.starts_with("10.")
+                || ip.starts_with("192.168.")
+                || ip.starts_with("0.")
             {
-                self.add_capability_if_missing(
-                    report,
-                    "c2/hardcoded-ip",
-                    "Hardcoded IP address (potential C2 server)",
-                    Criticality::Hostile,
-                    &cap[0],
-                );
-                break; // Only report once
+                continue;
             }
+
+            // Skip version strings that look like IPs
+            // Find the position of this match and check surrounding context
+            if let Some(pos) = content.find(match_str) {
+                let start = pos.saturating_sub(50);
+                let end = (pos + match_str.len() + 10).min(content.len());
+                let context = &content[start..end];
+                if version_pattern.is_match(context) {
+                    continue;
+                }
+            }
+
+            // Validate octets are valid (0-255)
+            let octets: Vec<&str> = ip.split('.').collect();
+            let valid_octets = octets
+                .iter()
+                .all(|o| o.parse::<u32>().map(|v| v <= 255).unwrap_or(false));
+            if !valid_octets {
+                continue;
+            }
+
+            self.add_capability_if_missing(
+                report,
+                "c2/hardcoded-ip",
+                "Hardcoded IP address (potential C2 server)",
+                Criticality::Hostile,
+                match_str,
+            );
+            break; // Only report once
         }
     }
 

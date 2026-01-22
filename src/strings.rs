@@ -1,11 +1,14 @@
+use crate::lang_strings::{extract_lang_strings, is_go_binary, ExtractedString};
 use crate::types::{StringInfo, StringType};
 use regex::Regex;
+use std::collections::HashSet;
 
 /// Extract and classify strings from binary data
 pub struct StringExtractor {
     min_length: usize,
     url_regex: Regex,
     ip_regex: Regex,
+    version_ip_regex: Regex,
     email_regex: Regex,
     base64_regex: Regex,
 }
@@ -15,7 +18,10 @@ impl StringExtractor {
         Self {
             min_length: 4,
             url_regex: Regex::new(r"(?i)(https?|ftp)://[^\s<>]+").unwrap(),
+            // Basic IP pattern for initial detection
             ip_regex: Regex::new(r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}").unwrap(),
+            // Pattern to detect version strings that look like IPs (e.g., Chrome/100.0.0.0)
+            version_ip_regex: Regex::new(r"(?i)(?:Chrome|Safari|Firefox|Edge|Opera|Chromium|Version|AppleWebKit|KHTML|Gecko|Trident|OPR|Mobile|MSIE|rv:|v)/\d+\.\d+\.\d+\.\d+").unwrap(),
             email_regex: Regex::new(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}").unwrap(),
             base64_regex: Regex::new(r"^[A-Za-z0-9+/]{20,}={0,2}$").unwrap(),
         }
@@ -67,11 +73,64 @@ impl StringExtractor {
         strings
     }
 
+    /// Extract strings using language-aware analysis for Go/Rust binaries.
+    ///
+    /// This method provides better results for Go and Rust binaries by using
+    /// structure-based extraction that understands how these languages store
+    /// strings. For other binary types, it falls back to basic extraction.
+    ///
+    /// The method:
+    /// 1. Attempts language-aware extraction for Go/Rust binaries
+    /// 2. Falls back to basic ASCII extraction for other binaries
+    /// 3. Merges results from both methods, deduplicating by value
+    pub fn extract_smart(&self, data: &[u8]) -> Vec<StringInfo> {
+        let mut seen: HashSet<String> = HashSet::new();
+        let mut strings = Vec::new();
+
+        // Try language-aware extraction first (Go/Rust binaries)
+        let lang_strings = extract_lang_strings(data, self.min_length);
+        for es in lang_strings {
+            if !seen.contains(&es.value) {
+                seen.insert(es.value.clone());
+                strings.push(self.convert_extracted_string(es));
+            }
+        }
+
+        // Also do basic extraction to catch any strings missed by language extraction
+        // (e.g., non-Go/Rust binaries, or strings not stored in typical locations)
+        let basic_strings = self.extract(data, None);
+        for s in basic_strings {
+            if !seen.contains(&s.value) {
+                seen.insert(s.value.clone());
+                strings.push(s);
+            }
+        }
+
+        strings
+    }
+
+    /// Check if the binary is a Go binary (useful for conditional processing)
+    pub fn is_go_binary(&self, data: &[u8]) -> bool {
+        is_go_binary(data)
+    }
+
+    /// Convert an ExtractedString from lang_strings to StringInfo
+    fn convert_extracted_string(&self, es: ExtractedString) -> StringInfo {
+        let string_type = self.classify_string_type(&es.value);
+        StringInfo {
+            value: es.value,
+            offset: Some(format!("{:#x}", es.data_offset)),
+            encoding: "utf8".to_string(),
+            string_type,
+            section: es.section,
+        }
+    }
+
     /// Classify a string by type
     fn classify_string(&self, value: String, offset: usize, section: Option<String>) -> StringInfo {
         let string_type = if self.url_regex.is_match(&value) {
             StringType::Url
-        } else if self.ip_regex.is_match(&value) {
+        } else if self.is_real_ip(&value) {
             StringType::Ip
         } else if self.email_regex.is_match(&value) {
             StringType::Email
@@ -96,7 +155,7 @@ impl StringExtractor {
     pub fn classify_string_type(&self, value: &str) -> StringType {
         if self.url_regex.is_match(value) {
             StringType::Url
-        } else if self.ip_regex.is_match(value) {
+        } else if self.is_real_ip(value) {
             StringType::Ip
         } else if self.email_regex.is_match(value) {
             StringType::Email
@@ -107,6 +166,36 @@ impl StringExtractor {
         } else {
             StringType::Plain
         }
+    }
+
+    /// Check if string contains a real IP address (not a version string)
+    fn is_real_ip(&self, s: &str) -> bool {
+        // Must contain IP-like pattern
+        if !self.ip_regex.is_match(s) {
+            return false;
+        }
+        // Exclude version strings like "Chrome/100.0.0.0", "Safari/537.36.0.0"
+        if self.version_ip_regex.is_match(s) {
+            return false;
+        }
+        // Validate that IP octets are in valid range (0-255)
+        if let Some(caps) = self.ip_regex.find(s) {
+            let ip_str = caps.as_str();
+            let octets: Vec<&str> = ip_str.split('.').collect();
+            if octets.len() == 4 {
+                for octet in octets {
+                    if let Ok(val) = octet.parse::<u32>() {
+                        if val > 255 {
+                            return false;
+                        }
+                    } else {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+        false
     }
 
     /// Check if string looks like a file path
@@ -191,6 +280,74 @@ mod tests {
             .iter()
             .find(|s| matches!(s.string_type, StringType::Ip));
         assert!(ip_string.is_some());
+    }
+
+    #[test]
+    fn test_ip_excludes_version_strings() {
+        let extractor = StringExtractor::new();
+
+        // Version strings should NOT be detected as IPs
+        assert!(
+            !extractor.is_real_ip("Chrome/100.0.0.0"),
+            "Chrome version should not be IP"
+        );
+        assert!(
+            !extractor.is_real_ip("Safari/537.36.0.0"),
+            "Safari version should not be IP"
+        );
+        assert!(
+            !extractor.is_real_ip("AppleWebKit/537.36.0.0"),
+            "AppleWebKit version should not be IP"
+        );
+        assert!(
+            !extractor.is_real_ip("Mozilla/5.0 Chrome/100.0.0.0 Safari/537.36"),
+            "UA string with version should not be IP"
+        );
+        assert!(
+            !extractor.is_real_ip("Firefox/115.0.0.0"),
+            "Firefox version should not be IP"
+        );
+
+        // Real IPs should be detected
+        assert!(
+            extractor.is_real_ip("192.168.1.1"),
+            "Private IP should be IP"
+        );
+        assert!(extractor.is_real_ip("10.0.0.1"), "Private IP should be IP");
+        assert!(
+            extractor.is_real_ip("8.8.8.8"),
+            "Public DNS IP should be IP"
+        );
+        assert!(
+            extractor.is_real_ip("Connect to 192.168.1.1 now"),
+            "IP in sentence should be IP"
+        );
+    }
+
+    #[test]
+    fn test_ip_validates_octets() {
+        let extractor = StringExtractor::new();
+
+        // Invalid octets (> 255) should not be detected as IPs
+        assert!(
+            !extractor.is_real_ip("300.168.1.1"),
+            "Invalid octet should not be IP"
+        );
+        assert!(
+            !extractor.is_real_ip("192.300.1.1"),
+            "Invalid octet should not be IP"
+        );
+        assert!(
+            !extractor.is_real_ip("192.168.1.300"),
+            "Invalid octet should not be IP"
+        );
+
+        // Valid edge cases
+        assert!(
+            extractor.is_real_ip("255.255.255.255"),
+            "Max IP should be IP"
+        );
+        assert!(extractor.is_real_ip("0.0.0.0"), "Zero IP should be IP");
     }
 
     #[test]
@@ -338,5 +495,94 @@ mod tests {
 
         // No printable strings should be found
         assert!(strings.is_empty());
+    }
+
+    #[test]
+    fn test_extract_smart_basic() {
+        // Basic test with non-Go/Rust data - should fall back to basic extraction
+        let data = b"Hello World http://example.com /usr/bin/ls";
+        let extractor = StringExtractor::new();
+        let strings = extractor.extract_smart(data);
+
+        assert!(!strings.is_empty());
+        // Should find URL
+        assert!(strings
+            .iter()
+            .any(|s| matches!(s.string_type, StringType::Url)));
+    }
+
+    #[test]
+    fn test_extract_smart_empty() {
+        let data = b"";
+        let extractor = StringExtractor::new();
+        let strings = extractor.extract_smart(data);
+
+        assert!(strings.is_empty());
+    }
+
+    #[test]
+    fn test_extract_smart_deduplication() {
+        // Test that duplicate strings are removed
+        let data = b"test string\0test string\0test string";
+        let extractor = StringExtractor::new();
+        let strings = extractor.extract_smart(data);
+
+        // Should not have duplicate values
+        let values: Vec<&str> = strings.iter().map(|s| s.value.as_str()).collect();
+        let unique: std::collections::HashSet<&str> = values.iter().cloned().collect();
+        assert_eq!(values.len(), unique.len());
+    }
+
+    #[test]
+    fn test_is_go_binary_false_for_plain_data() {
+        let data = b"Hello World";
+        let extractor = StringExtractor::new();
+
+        // Plain data should not be detected as Go
+        assert!(!extractor.is_go_binary(data));
+    }
+
+    #[test]
+    fn test_extract_smart_with_go_binary() {
+        // Test with actual Go binary if available
+        let path = "tests/fixtures/lang_strings/go_darwin_arm64";
+        if !std::path::Path::new(path).exists() {
+            return;
+        }
+        let data = std::fs::read(path).unwrap();
+        let extractor = StringExtractor::new();
+
+        let strings = extractor.extract_smart(&data);
+
+        // Should find strings from both lang_strings and basic extraction
+        assert!(!strings.is_empty());
+
+        // Go binaries should have DISSECT_CONST_MARKER from lang_strings
+        assert!(
+            strings.iter().any(|s| s.value.contains("DISSECT")),
+            "Should find DISSECT markers in Go binary"
+        );
+    }
+
+    #[test]
+    fn test_extract_smart_with_rust_binary() {
+        // Test with actual Rust binary if available
+        let path = "tests/fixtures/lang_strings/rust_native";
+        if !std::path::Path::new(path).exists() {
+            return;
+        }
+        let data = std::fs::read(path).unwrap();
+        let extractor = StringExtractor::new();
+
+        let strings = extractor.extract_smart(&data);
+
+        // Should find strings
+        assert!(!strings.is_empty());
+
+        // Rust binaries should have stdlib paths
+        assert!(
+            strings.iter().any(|s| s.value.contains("library/std")),
+            "Should find stdlib paths in Rust binary"
+        );
     }
 }

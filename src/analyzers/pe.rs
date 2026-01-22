@@ -71,6 +71,10 @@ impl PEAnalyzer {
         // Analyze sections and entropy
         self.analyze_sections(&pe, data, &mut report)?;
 
+        // Extract strings using language-aware extraction (Go/Rust) with fallback
+        report.strings = self.string_extractor.extract_smart(data);
+        tools_used.push("string_extractor".to_string());
+
         // Use radare2 for deep analysis if available
         if Radare2Analyzer::is_available() {
             tools_used.push("radare2".to_string());
@@ -78,25 +82,6 @@ impl PEAnalyzer {
             if let Ok(functions) = self.radare2.extract_functions(file_path) {
                 report.functions = functions;
             }
-
-            if let Ok(r2_strings) = self.radare2.extract_strings(file_path) {
-                for r2_str in r2_strings {
-                    let string_type = self.string_extractor.classify_string_type(&r2_str.string);
-                    report.strings.push(StringInfo {
-                        value: r2_str.string,
-                        offset: Some(format!("{:#x}", r2_str.vaddr)),
-                        encoding: "utf8".to_string(),
-                        string_type,
-                        section: None,
-                    });
-                }
-            }
-        }
-
-        // Extract strings if not already done by radare2
-        if report.strings.is_empty() {
-            report.strings = self.string_extractor.extract(data, None);
-            tools_used.push("string_extractor".to_string());
         }
 
         // Run YARA scan if engine is loaded

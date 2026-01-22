@@ -1,0 +1,63 @@
+# User Home Directory Access - Python
+# Detects Python code accessing user home directories
+# ATT&CK: T1083 (File and Directory Discovery)
+
+defaults:
+  file_types: [python]
+  mbc: "E1083"
+  attack: "T1083"
+  criticality: notable
+
+traits:
+  # os.path.expanduser("~") - most common pattern
+  - id: fs/path/user/python-expanduser
+    description: "Home directory expansion (os.path.expanduser)"
+    confidence: 0.8
+    condition:
+      type: string
+      regex: "os\\.path\\.expanduser\\([^)]*[\"']~"
+
+  # pathlib.Path.home()
+  - id: fs/path/user/python-pathlib-home
+    description: "Home directory via pathlib (Path.home)"
+    confidence: 0.8
+    condition:
+      type: string
+      regex: "Path\\.home\\(\\)|Path\\(\\)\\s*\\.home\\(\\)"
+
+  # os.environ['HOME'] or os.environ.get('HOME')
+  - id: fs/path/user/python-environ-home
+    description: "HOME environment variable access"
+    confidence: 0.75
+    condition:
+      type: string
+      regex: "os\\.environ\\[['\"]HOME['\"]\\]|os\\.environ\\.get\\(['\"]HOME"
+
+  # USERPROFILE for Windows
+  - id: fs/path/user/python-environ-userprofile
+    description: "USERPROFILE environment variable access (Windows)"
+    confidence: 0.75
+    platforms: [windows]
+    condition:
+      type: string
+      regex: "os\\.environ\\[['\"]USERPROFILE['\"]\\]|os\\.environ\\.get\\(['\"]USERPROFILE"
+
+  # os.getenv('HOME')
+  - id: fs/path/user/python-getenv-home
+    description: "Home directory via getenv"
+    confidence: 0.75
+    condition:
+      type: string
+      regex: "os\\.getenv\\(['\"]HOME['\"]"
+
+composite_rules:
+  # Home directory + hidden path construction
+  - id: fs/path/user/python-home-hidden-dir
+    description: "Hidden directory in home (likely malware staging)"
+    confidence: 0.9
+    criticality: suspicious
+    requires_all:
+      - type: string
+        regex: "os\\.path\\.expanduser\\([^)]*~|Path\\.home\\(\\)|os\\.environ.*HOME"
+      - type: string
+        regex: "os\\.path\\.join\\([^)]*,\\s*[\"']\\.[a-zA-Z]"

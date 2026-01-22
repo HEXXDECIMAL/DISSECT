@@ -2,7 +2,7 @@
 # Detects daemon/background process behavior common in malware
 # ATT&CK: T1543 (Create or Modify System Process)
 
-traits:
+composite_rules:
   - id: persistence/daemon/init/daemon-fork
     description: "Process forking for daemon behavior"
     criticality: notable
@@ -55,7 +55,6 @@ traits:
       type: string
       regex: "/proc/self(/|$)"
 
-composite_rules:
   - id: persistence/daemon/full-daemon
     description: "Full daemon behavior (fork + setsid + /dev/null)"
     criticality: suspicious
@@ -87,3 +86,40 @@ composite_rules:
         id: daemon-fork
       - type: trait
         id: daemon-setsid
+
+  # Signal handling for daemon persistence
+  - id: persistence/daemon/init/signal-ignore-pattern
+    description: "Signal handler setup (daemon persistence pattern)"
+    criticality: notable
+    confidence: 0.6
+    attack: "T1543"
+    file_types: [elf, macho]
+    platforms: [linux, macos, unix]
+    condition:
+      type: yara
+      source: |
+        rule daemon_signal_ignore {
+          meta:
+            description = "Daemon ignores terminal/pipe signals"
+          strings:
+            $signal = "signal" fullword
+            $sigaction = "sigaction" fullword
+            // Signal numbers: SIGPIPE=13, SIGHUP=1
+            $sig_ign = { bf 01 00 00 00 be 01 00 00 00 }  // mov edi, 1; mov esi, 1 (SIGHUP, SIG_IGN)
+            $sig_ign2 = { bf 0d 00 00 00 be 01 00 00 00 } // mov edi, 13; mov esi, 1 (SIGPIPE, SIG_IGN)
+          condition:
+            filesize < 10MB and
+            ($signal or $sigaction) and
+            ($sig_ign or $sig_ign2)
+        }
+
+  - id: persistence/daemon/init/sigchld-handler
+    description: "Custom SIGCHLD handler (child process reaping)"
+    criticality: notable
+    confidence: 0.6
+    attack: "T1543"
+    file_types: [elf, macho]
+    platforms: [linux, macos, unix]
+    condition:
+      type: string
+      regex: "_sigchild|sigchld_handler|handle_sigchld"

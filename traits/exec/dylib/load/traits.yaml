@@ -84,8 +84,8 @@ traits:
 
   - id: exec/dylib/nsbundle
     description: macOS NSBundle loading
-    criticality: suspicious
-    confidence: 0.8
+    criticality: notable
+    confidence: 0.6
     attack: "T1574.006"
     file_types: [macho]
     condition:

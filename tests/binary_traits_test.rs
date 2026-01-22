@@ -331,12 +331,7 @@ fn test_big_endian_trait() {
 fn test_static_binary_trait() {
     // Use the test fixture ELF which should be a normal dynamically linked binary
     let output = assert_cmd::cargo_bin_cmd!("dissect")
-        .args([
-            "-f",
-            "json",
-            "analyze",
-            "tests/fixtures/test.elf",
-        ])
+        .args(["-f", "json", "analyze", "tests/fixtures/test.elf"])
         .output()
         .unwrap();
 

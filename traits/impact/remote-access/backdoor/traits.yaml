@@ -2,7 +2,7 @@
 # ATT&CK: T1059 (Command and Scripting Interpreter)
 # MBC: B0022 (Remote Access)
 
-traits:
+composite_rules:
   # === Atomic: Reverse Shell Indicators ===
 
   - id: impact/remote-access/reverse-shell-ref
@@ -208,7 +208,6 @@ traits:
       type: string
       exact: "dialTCP"
 
-composite_rules:
   - id: impact/remote-access/mkfifo-netcat-shell
     description: Reverse shell via mkfifo and netcat
     criticality: suspicious

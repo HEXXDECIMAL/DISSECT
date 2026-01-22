@@ -2,6 +2,7 @@ use crate::types::{AnalysisReport, Criticality, Evidence, Finding, FindingKind};
 use anyhow::Result;
 use regex::Regex;
 use serde::Deserialize;
+use std::sync::Arc;
 use streaming_iterator::StreamingIterator;
 
 /// Platform specifier for trait targeting
@@ -37,6 +38,7 @@ pub enum FileType {
     Ruby,
     C,
     Go,
+    Php,
 }
 
 /// Parameters for string condition evaluation (reduces argument count)
@@ -142,6 +144,9 @@ pub enum Condition {
     Yara {
         /// YARA rule source code
         source: String,
+        /// Pre-compiled YARA rules (populated at load time, skipped during deserialization)
+        #[serde(skip)]
+        compiled: Option<Arc<yara_x::Rules>>,
     },
 
     /// Match syscalls detected via radare2 binary analysis
@@ -160,6 +165,70 @@ pub enum Condition {
         #[serde(skip_serializing_if = "Option::is_none")]
         min_count: Option<usize>,
     },
+
+    /// Check section size ratio (e.g., __const is 80%+ of binary)
+    /// For detecting encrypted payload droppers
+    SectionRatio {
+        /// Section name pattern (regex)
+        section: String,
+        /// Compare to "total" binary size or another section pattern
+        #[serde(default = "default_compare_to")]
+        compare_to: String,
+        /// Minimum ratio (0.0-1.0)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        min_ratio: Option<f64>,
+        /// Maximum ratio (0.0-1.0)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        max_ratio: Option<f64>,
+    },
+
+    /// Check section entropy (0.0-8.0)
+    /// High entropy (>7.0) indicates encryption or compression
+    SectionEntropy {
+        /// Section name pattern (regex)
+        section: String,
+        /// Minimum entropy threshold
+        #[serde(skip_serializing_if = "Option::is_none")]
+        min_entropy: Option<f64>,
+        /// Maximum entropy threshold
+        #[serde(skip_serializing_if = "Option::is_none")]
+        max_entropy: Option<f64>,
+    },
+
+    /// Check import patterns (required + suspicious combination)
+    /// For detecting malware import fingerprints
+    ImportCombination {
+        /// All of these imports must be present
+        #[serde(skip_serializing_if = "Option::is_none")]
+        required: Option<Vec<String>>,
+        /// Count matches from this suspicious list
+        #[serde(skip_serializing_if = "Option::is_none")]
+        suspicious: Option<Vec<String>>,
+        /// Minimum number of suspicious imports required
+        #[serde(skip_serializing_if = "Option::is_none")]
+        min_suspicious: Option<usize>,
+        /// Maximum total import count (low count = suspicious)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        max_total: Option<usize>,
+    },
+
+    /// Check extracted string count
+    /// For detecting string concealment (very few visible strings)
+    StringCount {
+        /// Minimum number of strings
+        #[serde(skip_serializing_if = "Option::is_none")]
+        min: Option<usize>,
+        /// Maximum number of strings (low count = suspicious)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        max: Option<usize>,
+        /// Only count strings of this minimum length
+        #[serde(skip_serializing_if = "Option::is_none")]
+        min_length: Option<usize>,
+    },
+}
+
+fn default_compare_to() -> String {
+    "total".to_string()
 }
 
 impl Condition {
@@ -167,7 +236,7 @@ impl Condition {
     /// Call this at load time to catch syntax errors early
     pub fn validate(&self) -> Result<()> {
         match self {
-            Condition::Yara { source } => {
+            Condition::Yara { source, .. } => {
                 let mut compiler = yara_x::Compiler::new();
                 compiler
                     .add_source(source.as_bytes())
@@ -186,6 +255,20 @@ impl Condition {
             }
             // Other conditions don't need compilation validation
             _ => Ok(()),
+        }
+    }
+
+    /// Pre-compile YARA rules for faster evaluation
+    /// Call this after loading traits to avoid repeated compilation during scanning
+    pub fn compile_yara(&mut self) {
+        if let Condition::Yara { source, compiled } = self {
+            if compiled.is_none() {
+                let mut compiler = yara_x::Compiler::new();
+                compiler.new_namespace("inline");
+                if compiler.add_source(source.as_bytes()).is_ok() {
+                    *compiled = Some(Arc::new(compiler.build()));
+                }
+            }
         }
     }
 }
@@ -296,6 +379,30 @@ struct ConditionResult {
 }
 
 impl CompositeTrait {
+    /// Pre-compile YARA rules in all conditions
+    pub fn compile_yara(&mut self) {
+        if let Some(ref mut conditions) = self.requires_all {
+            for cond in conditions.iter_mut() {
+                cond.compile_yara();
+            }
+        }
+        if let Some(ref mut conditions) = self.requires_any {
+            for cond in conditions.iter_mut() {
+                cond.compile_yara();
+            }
+        }
+        if let Some(ref mut conditions) = self.conditions {
+            for cond in conditions.iter_mut() {
+                cond.compile_yara();
+            }
+        }
+        if let Some(ref mut conditions) = self.requires_none {
+            for cond in conditions.iter_mut() {
+                cond.compile_yara();
+            }
+        }
+    }
+
     /// Evaluate this rule against the analysis context
     pub fn evaluate(&self, ctx: &EvaluationContext) -> Option<Finding> {
         // Check if this rule applies to the current platform/file type
@@ -510,13 +617,49 @@ impl CompositeTrait {
                 case_insensitive,
             } => eval_ast_pattern(node_type, pattern, *regex, *case_insensitive, ctx),
             Condition::AstQuery { query } => eval_ast_query(query, ctx),
-            Condition::Yara { source } => eval_yara_inline(source, ctx),
+            Condition::Yara { source, compiled } => {
+                eval_yara_inline(source, compiled.as_ref(), ctx)
+            }
             Condition::Syscall {
                 name,
                 number,
                 arch,
                 min_count,
-            } => eval_syscall(name.as_ref(), number.as_ref(), arch.as_ref(), *min_count, ctx),
+            } => eval_syscall(
+                name.as_ref(),
+                number.as_ref(),
+                arch.as_ref(),
+                *min_count,
+                ctx,
+            ),
+            Condition::SectionRatio {
+                section,
+                compare_to,
+                min_ratio,
+                max_ratio,
+            } => eval_section_ratio(section, compare_to, *min_ratio, *max_ratio, ctx),
+            Condition::SectionEntropy {
+                section,
+                min_entropy,
+                max_entropy,
+            } => eval_section_entropy(section, *min_entropy, *max_entropy, ctx),
+            Condition::ImportCombination {
+                required,
+                suspicious,
+                min_suspicious,
+                max_total,
+            } => eval_import_combination(
+                required.as_ref(),
+                suspicious.as_ref(),
+                *min_suspicious,
+                *max_total,
+                ctx,
+            ),
+            Condition::StringCount {
+                min,
+                max,
+                min_length,
+            } => eval_string_count(*min, *max, *min_length, ctx),
         }
     }
 
@@ -768,6 +911,11 @@ fn build_regex(pattern: &str, case_insensitive: bool) -> Result<Regex> {
 }
 
 impl TraitDefinition {
+    /// Pre-compile YARA rules in this trait's condition
+    pub fn compile_yara(&mut self) {
+        self.condition.compile_yara();
+    }
+
     /// Evaluate this trait definition against the analysis context
     pub fn evaluate(&self, ctx: &EvaluationContext) -> Option<Finding> {
         // Check if this trait applies to the current platform/file type
@@ -872,13 +1020,49 @@ impl TraitDefinition {
                 case_insensitive,
             } => eval_ast_pattern(node_type, pattern, *regex, *case_insensitive, ctx),
             Condition::AstQuery { query } => eval_ast_query(query, ctx),
-            Condition::Yara { source } => eval_yara_inline(source, ctx),
+            Condition::Yara { source, compiled } => {
+                eval_yara_inline(source, compiled.as_ref(), ctx)
+            }
             Condition::Syscall {
                 name,
                 number,
                 arch,
                 min_count,
-            } => eval_syscall(name.as_ref(), number.as_ref(), arch.as_ref(), *min_count, ctx),
+            } => eval_syscall(
+                name.as_ref(),
+                number.as_ref(),
+                arch.as_ref(),
+                *min_count,
+                ctx,
+            ),
+            Condition::SectionRatio {
+                section,
+                compare_to,
+                min_ratio,
+                max_ratio,
+            } => eval_section_ratio(section, compare_to, *min_ratio, *max_ratio, ctx),
+            Condition::SectionEntropy {
+                section,
+                min_entropy,
+                max_entropy,
+            } => eval_section_entropy(section, *min_entropy, *max_entropy, ctx),
+            Condition::ImportCombination {
+                required,
+                suspicious,
+                min_suspicious,
+                max_total,
+            } => eval_import_combination(
+                required.as_ref(),
+                suspicious.as_ref(),
+                *min_suspicious,
+                *max_total,
+                ctx,
+            ),
+            Condition::StringCount {
+                min,
+                max,
+                min_length,
+            } => eval_string_count(*min, *max, *min_length, ctx),
         }
     }
 }
@@ -999,12 +1183,7 @@ fn eval_string(params: &StringParams, ctx: &EvaluationContext) -> ConditionResul
 
     let compiled_excludes: Vec<Regex> = params
         .exclude_patterns
-        .map(|excludes| {
-            excludes
-                .iter()
-                .filter_map(|p| Regex::new(p).ok())
-                .collect()
-        })
+        .map(|excludes| excludes.iter().filter_map(|p| Regex::new(p).ok()).collect())
         .unwrap_or_default();
 
     // Check in extracted strings from report (for binaries)
@@ -1079,9 +1258,7 @@ fn eval_string(params: &StringParams, ctx: &EvaluationContext) -> ConditionResul
 
             if matched {
                 // Check exclusion patterns (already compiled)
-                let excluded = compiled_excludes
-                    .iter()
-                    .any(|re| re.is_match(&match_value));
+                let excluded = compiled_excludes.iter().any(|re| re.is_match(&match_value));
                 if !excluded {
                     evidence.push(Evidence {
                         method: "string".to_string(),
@@ -1488,22 +1665,32 @@ fn eval_ast_query(query_str: &str, ctx: &EvaluationContext) -> ConditionResult {
 }
 
 /// Evaluate inline YARA rule condition
-fn eval_yara_inline(source: &str, ctx: &EvaluationContext) -> ConditionResult {
-    // Compile the YARA rule
-    let mut compiler = yara_x::Compiler::new();
-    compiler.new_namespace("inline");
-    if compiler.add_source(source.as_bytes()).is_err() {
-        // Should not happen if validated at load time
-        return ConditionResult {
-            matched: false,
-            evidence: Vec::new(),
-            traits: Vec::new(),
-        };
-    }
-    let rules = compiler.build();
+fn eval_yara_inline(
+    source: &str,
+    compiled: Option<&Arc<yara_x::Rules>>,
+    ctx: &EvaluationContext,
+) -> ConditionResult {
+    // Use pre-compiled rules if available, otherwise compile on-the-fly (slower)
+    let owned_rules;
+    let rules: &yara_x::Rules = if let Some(pre_compiled) = compiled {
+        pre_compiled.as_ref()
+    } else {
+        // Fallback: compile the YARA rule (this is slow, should be pre-compiled)
+        let mut compiler = yara_x::Compiler::new();
+        compiler.new_namespace("inline");
+        if compiler.add_source(source.as_bytes()).is_err() {
+            return ConditionResult {
+                matched: false,
+                evidence: Vec::new(),
+                traits: Vec::new(),
+            };
+        }
+        owned_rules = compiler.build();
+        &owned_rules
+    };
 
     // Scan the binary data
-    let mut scanner = yara_x::Scanner::new(&rules);
+    let mut scanner = yara_x::Scanner::new(rules);
     let results = match scanner.scan(ctx.binary_data) {
         Ok(r) => r,
         Err(_) => {
@@ -1584,7 +1771,10 @@ fn eval_syscall(
             evidence.push(Evidence {
                 method: "syscall".to_string(),
                 source: "radare2".to_string(),
-                value: format!("{}({}) at 0x{:x}", syscall.name, syscall.number, syscall.address),
+                value: format!(
+                    "{}({}) at 0x{:x}",
+                    syscall.name, syscall.number, syscall.address
+                ),
                 location: Some(format!("0x{:x}", syscall.address)),
             });
         }
@@ -1596,6 +1786,278 @@ fn eval_syscall(
     ConditionResult {
         matched,
         evidence: if matched { evidence } else { Vec::new() },
+        traits: Vec::new(),
+    }
+}
+
+/// Evaluate section ratio condition - check if section size is within ratio bounds
+fn eval_section_ratio(
+    section_pattern: &str,
+    compare_to: &str,
+    min_ratio: Option<f64>,
+    max_ratio: Option<f64>,
+    ctx: &EvaluationContext,
+) -> ConditionResult {
+    let section_re = match Regex::new(section_pattern) {
+        Ok(re) => re,
+        Err(_) => {
+            return ConditionResult {
+                matched: false,
+                evidence: Vec::new(),
+                traits: Vec::new(),
+            }
+        }
+    };
+
+    // Find matching section(s) and sum their sizes
+    let mut section_size: u64 = 0;
+    let mut matched_sections = Vec::new();
+    for section in &ctx.report.sections {
+        if section_re.is_match(&section.name) {
+            section_size += section.size;
+            matched_sections.push(section.name.clone());
+        }
+    }
+
+    if matched_sections.is_empty() {
+        return ConditionResult {
+            matched: false,
+            evidence: Vec::new(),
+            traits: Vec::new(),
+        };
+    }
+
+    // Calculate comparison size
+    let compare_size: u64 = if compare_to == "total" {
+        ctx.report.sections.iter().map(|s| s.size).sum()
+    } else {
+        let compare_re = match Regex::new(compare_to) {
+            Ok(re) => re,
+            Err(_) => {
+                return ConditionResult {
+                    matched: false,
+                    evidence: Vec::new(),
+                    traits: Vec::new(),
+                }
+            }
+        };
+        ctx.report
+            .sections
+            .iter()
+            .filter(|s| compare_re.is_match(&s.name))
+            .map(|s| s.size)
+            .sum()
+    };
+
+    if compare_size == 0 {
+        return ConditionResult {
+            matched: false,
+            evidence: Vec::new(),
+            traits: Vec::new(),
+        };
+    }
+
+    let ratio = section_size as f64 / compare_size as f64;
+    let min_ok = min_ratio.is_none_or(|min| ratio >= min);
+    let max_ok = max_ratio.is_none_or(|max| ratio <= max);
+    let matched = min_ok && max_ok;
+
+    ConditionResult {
+        matched,
+        evidence: if matched {
+            vec![Evidence {
+                method: "section_ratio".to_string(),
+                source: "binary".to_string(),
+                value: format!(
+                    "{} = {:.1}% of {} ({} / {} bytes)",
+                    matched_sections.join("+"),
+                    ratio * 100.0,
+                    compare_to,
+                    section_size,
+                    compare_size
+                ),
+                location: None,
+            }]
+        } else {
+            Vec::new()
+        },
+        traits: Vec::new(),
+    }
+}
+
+/// Evaluate section entropy condition - check if section entropy is within bounds
+fn eval_section_entropy(
+    section_pattern: &str,
+    min_entropy: Option<f64>,
+    max_entropy: Option<f64>,
+    ctx: &EvaluationContext,
+) -> ConditionResult {
+    let section_re = match Regex::new(section_pattern) {
+        Ok(re) => re,
+        Err(_) => {
+            return ConditionResult {
+                matched: false,
+                evidence: Vec::new(),
+                traits: Vec::new(),
+            }
+        }
+    };
+
+    let mut evidence = Vec::new();
+    let mut any_matched = false;
+
+    for section in &ctx.report.sections {
+        if section_re.is_match(&section.name) {
+            let min_ok = min_entropy.is_none_or(|min| section.entropy >= min);
+            let max_ok = max_entropy.is_none_or(|max| section.entropy <= max);
+
+            if min_ok && max_ok {
+                any_matched = true;
+                evidence.push(Evidence {
+                    method: "section_entropy".to_string(),
+                    source: "binary".to_string(),
+                    value: format!("{} entropy = {:.2}/8.0", section.name, section.entropy),
+                    location: None,
+                });
+            }
+        }
+    }
+
+    ConditionResult {
+        matched: any_matched,
+        evidence,
+        traits: Vec::new(),
+    }
+}
+
+/// Evaluate import combination condition - check for required + suspicious import patterns
+fn eval_import_combination(
+    required: Option<&Vec<String>>,
+    suspicious: Option<&Vec<String>>,
+    min_suspicious: Option<usize>,
+    max_total: Option<usize>,
+    ctx: &EvaluationContext,
+) -> ConditionResult {
+    let import_symbols: Vec<&str> = ctx
+        .report
+        .imports
+        .iter()
+        .map(|i| i.symbol.as_str())
+        .collect();
+    let mut evidence = Vec::new();
+
+    // Check required imports - all must be present
+    if let Some(req) = required {
+        for pattern in req {
+            let re = match Regex::new(pattern) {
+                Ok(re) => re,
+                Err(_) => continue,
+            };
+            let found = import_symbols.iter().any(|sym| re.is_match(sym));
+            if !found {
+                return ConditionResult {
+                    matched: false,
+                    evidence: Vec::new(),
+                    traits: Vec::new(),
+                };
+            }
+            evidence.push(Evidence {
+                method: "import".to_string(),
+                source: "required".to_string(),
+                value: pattern.clone(),
+                location: None,
+            });
+        }
+    }
+
+    // Count suspicious imports
+    let mut suspicious_count = 0;
+    if let Some(susp) = suspicious {
+        for pattern in susp {
+            let re = match Regex::new(pattern) {
+                Ok(re) => re,
+                Err(_) => continue,
+            };
+            for sym in &import_symbols {
+                if re.is_match(sym) {
+                    suspicious_count += 1;
+                    evidence.push(Evidence {
+                        method: "import".to_string(),
+                        source: "suspicious".to_string(),
+                        value: (*sym).to_string(),
+                        location: None,
+                    });
+                }
+            }
+        }
+    }
+
+    // Check minimum suspicious count
+    if let Some(min) = min_suspicious {
+        if suspicious_count < min {
+            return ConditionResult {
+                matched: false,
+                evidence: Vec::new(),
+                traits: Vec::new(),
+            };
+        }
+    }
+
+    // Check maximum total imports
+    if let Some(max) = max_total {
+        if ctx.report.imports.len() > max {
+            return ConditionResult {
+                matched: false,
+                evidence: Vec::new(),
+                traits: Vec::new(),
+            };
+        }
+        evidence.push(Evidence {
+            method: "import_count".to_string(),
+            source: "binary".to_string(),
+            value: format!("{} imports (max {})", ctx.report.imports.len(), max),
+            location: None,
+        });
+    }
+
+    ConditionResult {
+        matched: true,
+        evidence,
+        traits: Vec::new(),
+    }
+}
+
+/// Evaluate string count condition - check if string count is within bounds
+fn eval_string_count(
+    min: Option<usize>,
+    max: Option<usize>,
+    min_length: Option<usize>,
+    ctx: &EvaluationContext,
+) -> ConditionResult {
+    let min_len = min_length.unwrap_or(0);
+    let count = ctx
+        .report
+        .strings
+        .iter()
+        .filter(|s| s.value.len() >= min_len)
+        .count();
+
+    let min_ok = min.is_none_or(|m| count >= m);
+    let max_ok = max.is_none_or(|m| count <= m);
+    let matched = min_ok && max_ok;
+
+    ConditionResult {
+        matched,
+        evidence: if matched {
+            vec![Evidence {
+                method: "string_count".to_string(),
+                source: "binary".to_string(),
+                value: format!("{} strings (>= {} chars)", count, min_len),
+                location: None,
+            }]
+        } else {
+            Vec::new()
+        },
         traits: Vec::new(),
     }
 }
@@ -2682,6 +3144,7 @@ int main() {
                     $test
             }
             "#,
+            None,
             &ctx,
         );
         assert!(result.matched);
@@ -2709,6 +3172,7 @@ int main() {
                     $test
             }
             "#,
+            None,
             &ctx,
         );
         assert!(!result.matched);
@@ -2736,6 +3200,7 @@ int main() {
                     any of them
             }
             "#,
+            None,
             &ctx,
         );
         assert!(result.matched);
@@ -2748,12 +3213,14 @@ int main() {
         // Valid YARA rule should pass validation
         let valid = Condition::Yara {
             source: r#"rule test { strings: $a = "test" condition: $a }"#.to_string(),
+            compiled: None,
         };
         assert!(valid.validate().is_ok());
 
         // Invalid YARA rule should fail validation
         let invalid = Condition::Yara {
             source: "this is not valid yara syntax".to_string(),
+            compiled: None,
         };
         assert!(invalid.validate().is_err());
     }
@@ -3507,7 +3974,10 @@ traits:
         };
 
         let result = rule.evaluate(&ctx);
-        assert!(result.is_some(), "Should match MIPS syscalls with min_count");
+        assert!(
+            result.is_some(),
+            "Should match MIPS syscalls with min_count"
+        );
         let cap = result.unwrap();
         assert!(cap.evidence.len() >= 3);
     }
@@ -3544,7 +4014,10 @@ traits:
         };
 
         let result = rule.evaluate(&ctx);
-        assert!(result.is_none(), "Should not match x86_64 syscalls in MIPS binary");
+        assert!(
+            result.is_none(),
+            "Should not match x86_64 syscalls in MIPS binary"
+        );
     }
 
     #[test]
@@ -3650,6 +4123,367 @@ traits:
         };
 
         let result = parsed.traits[0].evaluate(&ctx);
-        assert!(result.is_some(), "Parsed composite syscall trait should match");
+        assert!(
+            result.is_some(),
+            "Parsed composite syscall trait should match"
+        );
+    }
+
+    // === Tests for dropper detection conditions ===
+
+    fn create_dropper_test_context() -> (AnalysisReport, Vec<u8>) {
+        let target = TargetInfo {
+            path: "/test/Setup".to_string(),
+            file_type: "macho".to_string(),
+            size_bytes: 800_000,
+            sha256: "test".to_string(),
+            architectures: Some(vec!["x86_64".to_string(), "arm64".to_string()]),
+        };
+
+        let mut report = AnalysisReport::new(target);
+
+        // Add sections mimicking AMOS cipher variant
+        report.sections.push(crate::types::Section {
+            name: "__const".to_string(),
+            size: 783_000, // 98%
+            entropy: 7.85,
+            permissions: Some("r--".to_string()),
+        });
+        report.sections.push(crate::types::Section {
+            name: "__text".to_string(),
+            size: 12_740, // 1.5%
+            entropy: 5.2,
+            permissions: Some("r-x".to_string()),
+        });
+        report.sections.push(crate::types::Section {
+            name: "__cstring".to_string(),
+            size: 20, // 0.002%
+            entropy: 4.5,
+            permissions: Some("r--".to_string()),
+        });
+
+        // Add minimal imports (system + math functions)
+        for sym in &[
+            "system", "cos", "sin", "tan", "exp", "pow", "hypot", "log1p", "fmod", "memcpy",
+        ] {
+            report.imports.push(Import {
+                symbol: format!("@_{}", sym),
+                library: None,
+                source: "macho".to_string(),
+            });
+        }
+
+        // Add only /dev/urandom as visible string
+        report.strings.push(StringInfo {
+            value: "/dev/urandom".to_string(),
+            offset: Some("0x1000".to_string()),
+            encoding: "utf8".to_string(),
+            string_type: crate::types::StringType::Path,
+            section: Some("__cstring".to_string()),
+        });
+
+        (report, vec![])
+    }
+
+    #[test]
+    fn test_section_ratio_large_const() {
+        let (report, data) = create_dropper_test_context();
+        let ctx = EvaluationContext {
+            report: &report,
+            binary_data: &data,
+            file_type: FileType::Macho,
+            platform: Platform::MacOS,
+        };
+
+        let rule = CompositeTrait {
+            id: "test/large-const".to_string(),
+            description: "Large const section".to_string(),
+            confidence: 0.8,
+            criticality: Criticality::Suspicious,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            file_types: vec![FileType::All],
+            requires_all: Some(vec![Condition::SectionRatio {
+                section: "__const".to_string(),
+                compare_to: "total".to_string(),
+                min_ratio: Some(0.80),
+                max_ratio: None,
+            }]),
+            requires_any: None,
+            requires_count: None,
+            conditions: None,
+            requires_none: None,
+        };
+
+        let result = rule.evaluate(&ctx);
+        assert!(result.is_some(), "Should detect large __const section");
+    }
+
+    #[test]
+    fn test_section_entropy_high() {
+        let (report, data) = create_dropper_test_context();
+        let ctx = EvaluationContext {
+            report: &report,
+            binary_data: &data,
+            file_type: FileType::Macho,
+            platform: Platform::MacOS,
+        };
+
+        let rule = CompositeTrait {
+            id: "test/high-entropy".to_string(),
+            description: "High entropy section".to_string(),
+            confidence: 0.85,
+            criticality: Criticality::Suspicious,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            file_types: vec![FileType::All],
+            requires_all: Some(vec![Condition::SectionEntropy {
+                section: "__const".to_string(),
+                min_entropy: Some(7.5),
+                max_entropy: None,
+            }]),
+            requires_any: None,
+            requires_count: None,
+            conditions: None,
+            requires_none: None,
+        };
+
+        let result = rule.evaluate(&ctx);
+        assert!(result.is_some(), "Should detect high entropy __const");
+    }
+
+    #[test]
+    fn test_import_combination_cipher_pattern() {
+        let (report, data) = create_dropper_test_context();
+        let ctx = EvaluationContext {
+            report: &report,
+            binary_data: &data,
+            file_type: FileType::Macho,
+            platform: Platform::MacOS,
+        };
+
+        let rule = CompositeTrait {
+            id: "test/cipher-imports".to_string(),
+            description: "Cipher import pattern".to_string(),
+            confidence: 0.85,
+            criticality: Criticality::Suspicious,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            file_types: vec![FileType::All],
+            requires_all: Some(vec![Condition::ImportCombination {
+                required: Some(vec!["system".to_string()]),
+                suspicious: Some(vec![
+                    "cos".to_string(),
+                    "sin".to_string(),
+                    "tan".to_string(),
+                    "exp".to_string(),
+                    "pow".to_string(),
+                ]),
+                min_suspicious: Some(3),
+                max_total: Some(50),
+            }]),
+            requires_any: None,
+            requires_count: None,
+            conditions: None,
+            requires_none: None,
+        };
+
+        let result = rule.evaluate(&ctx);
+        assert!(result.is_some(), "Should detect cipher import pattern");
+    }
+
+    #[test]
+    fn test_string_count_concealment() {
+        let (report, data) = create_dropper_test_context();
+        let ctx = EvaluationContext {
+            report: &report,
+            binary_data: &data,
+            file_type: FileType::Macho,
+            platform: Platform::MacOS,
+        };
+
+        let rule = CompositeTrait {
+            id: "test/string-concealment".to_string(),
+            description: "String concealment".to_string(),
+            confidence: 0.7,
+            criticality: Criticality::Notable,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            file_types: vec![FileType::All],
+            requires_all: Some(vec![Condition::StringCount {
+                min: None,
+                max: Some(10),
+                min_length: Some(4),
+            }]),
+            requires_any: None,
+            requires_count: None,
+            conditions: None,
+            requires_none: None,
+        };
+
+        let result = rule.evaluate(&ctx);
+        assert!(result.is_some(), "Should detect string concealment");
+    }
+
+    #[test]
+    fn test_composite_encrypted_dropper() {
+        let (report, data) = create_dropper_test_context();
+        let ctx = EvaluationContext {
+            report: &report,
+            binary_data: &data,
+            file_type: FileType::Macho,
+            platform: Platform::MacOS,
+        };
+
+        // Combine multiple conditions like a real encrypted dropper rule
+        let rule = CompositeTrait {
+            id: "test/encrypted-dropper".to_string(),
+            description: "Encrypted payload dropper".to_string(),
+            confidence: 0.9,
+            criticality: Criticality::Suspicious,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::MacOS],
+            file_types: vec![FileType::Macho],
+            requires_all: Some(vec![
+                Condition::SectionRatio {
+                    section: "__const".to_string(),
+                    compare_to: "total".to_string(),
+                    min_ratio: Some(0.80),
+                    max_ratio: None,
+                },
+                Condition::SectionEntropy {
+                    section: "__const".to_string(),
+                    min_entropy: Some(7.0),
+                    max_entropy: None,
+                },
+            ]),
+            requires_any: Some(vec![
+                Condition::StringCount {
+                    min: None,
+                    max: Some(10),
+                    min_length: Some(4),
+                },
+                Condition::SectionRatio {
+                    section: "__cstring".to_string(),
+                    compare_to: "total".to_string(),
+                    min_ratio: None,
+                    max_ratio: Some(0.001),
+                },
+            ]),
+            requires_count: None,
+            conditions: None,
+            requires_none: None,
+        };
+
+        let result = rule.evaluate(&ctx);
+        assert!(result.is_some(), "Should detect encrypted dropper pattern");
+    }
+
+    #[test]
+    fn test_section_ratio_yaml_parsing() {
+        #[derive(Deserialize)]
+        struct TraitFile {
+            traits: Vec<TraitDefinition>,
+        }
+
+        let yaml = r#"
+traits:
+  - id: test/large-const
+    description: Large const section
+    confidence: 0.8
+    criticality: suspicious
+    condition:
+      type: section_ratio
+      section: "__const"
+      compare_to: "total"
+      min_ratio: 0.80
+"#;
+        let parsed: TraitFile = serde_yaml::from_str(yaml).expect("YAML should parse");
+        assert_eq!(parsed.traits.len(), 1);
+
+        let (report, data) = create_dropper_test_context();
+        let ctx = EvaluationContext {
+            report: &report,
+            binary_data: &data,
+            file_type: FileType::Macho,
+            platform: Platform::MacOS,
+        };
+
+        let result = parsed.traits[0].evaluate(&ctx);
+        assert!(result.is_some(), "Parsed section_ratio trait should match");
+    }
+
+    #[test]
+    fn test_section_entropy_yaml_parsing() {
+        #[derive(Deserialize)]
+        struct TraitFile {
+            traits: Vec<TraitDefinition>,
+        }
+
+        let yaml = r#"
+traits:
+  - id: test/high-entropy
+    description: High entropy section
+    confidence: 0.85
+    criticality: suspicious
+    condition:
+      type: section_entropy
+      section: "__const"
+      min_entropy: 7.5
+"#;
+        let parsed: TraitFile = serde_yaml::from_str(yaml).expect("YAML should parse");
+        assert_eq!(parsed.traits.len(), 1);
+
+        let (report, data) = create_dropper_test_context();
+        let ctx = EvaluationContext {
+            report: &report,
+            binary_data: &data,
+            file_type: FileType::Macho,
+            platform: Platform::MacOS,
+        };
+
+        let result = parsed.traits[0].evaluate(&ctx);
+        assert!(
+            result.is_some(),
+            "Parsed section_entropy trait should match"
+        );
+    }
+
+    #[test]
+    fn test_string_count_yaml_parsing() {
+        #[derive(Deserialize)]
+        struct TraitFile {
+            traits: Vec<TraitDefinition>,
+        }
+
+        let yaml = r#"
+traits:
+  - id: test/string-concealment
+    description: String concealment
+    confidence: 0.7
+    criticality: notable
+    condition:
+      type: string_count
+      max: 10
+      min_length: 4
+"#;
+        let parsed: TraitFile = serde_yaml::from_str(yaml).expect("YAML should parse");
+        assert_eq!(parsed.traits.len(), 1);
+
+        let (report, data) = create_dropper_test_context();
+        let ctx = EvaluationContext {
+            report: &report,
+            binary_data: &data,
+            file_type: FileType::Macho,
+            platform: Platform::MacOS,
+        };
+
+        let result = parsed.traits[0].evaluate(&ctx);
+        assert!(result.is_some(), "Parsed string_count trait should match");
     }
 }

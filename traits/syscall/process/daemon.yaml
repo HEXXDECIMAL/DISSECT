@@ -1,4 +1,4 @@
-traits:
+composite_rules:
   - id: syscall/process/daemon
     description: Daemon behavior - detaches from controlling terminal
     confidence: 0.85
@@ -24,4 +24,31 @@ traits:
         name: ["setsid"]
       - type: syscall
         name: ["dup2", "dup3"]
+        min_count: 2
+
+  - id: syscall/process/daemon-macos
+    description: macOS daemon behavior - detaches from terminal
+    confidence: 0.85
+    criticality: notable
+    platforms: [macos]
+    file_types: [macho]
+    requires_all:
+      - type: syscall
+        name: ["fork"]
+      - type: syscall
+        name: ["setsid"]
+
+  - id: syscall/process/daemon-macos-full
+    description: Full macOS daemon pattern with I/O redirection
+    confidence: 0.9
+    criticality: notable
+    platforms: [macos]
+    file_types: [macho]
+    requires_all:
+      - type: syscall
+        name: ["fork"]
+      - type: syscall
+        name: ["setsid"]
+      - type: syscall
+        name: ["dup2"]
         min_count: 2

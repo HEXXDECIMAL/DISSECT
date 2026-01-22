@@ -1,0 +1,81 @@
+# Data Exfiltration Patterns for Info-Stealers
+# Detects C2 communication patterns common in credential stealers
+# ATT&CK: T1041 (Exfiltration Over C2 Channel)
+
+defaults:
+  attack: "T1041"
+  criticality: suspicious
+
+traits:
+  # curl POST with custom headers (common in stealers)
+  - id: exfil/stealer/curl-post-headers
+    description: "curl POST with custom identification headers"
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1041"
+    mbc: "C0001"
+    condition:
+      type: string
+      regex: "curl\\s+-X\\s+POST\\s+-H|curl.*-H.*user:|curl.*-H.*BuildID"
+
+  # curl upload file
+  - id: exfil/stealer/curl-upload
+    description: "curl file upload"
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: string
+      regex: "curl\\s+.*-F\\s+|curl\\s+.*--data-binary|curl.*@/tmp/"
+
+  # Bot/stealer identification headers
+  - id: exfil/stealer/bot-headers
+    description: "Bot identification HTTP headers"
+    criticality: hostile
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "-H\\s+[\"']?(user|userid|client|bot|build|hwid|machine):|X-(User|Client|Bot|Build|HWID)"
+
+  # Hardcoded gate/C2 URL
+  - id: exfil/stealer/gate-url
+    description: "Hardcoded gate/C2 URL variable"
+    criticality: hostile
+    confidence: 0.85
+    condition:
+      type: string
+      regex: "\\bgate\\s*=\\s*[\"']http|\\bc2\\s*=\\s*[\"']http|\\bpanel\\s*=\\s*[\"']http"
+
+  # ZIP upload pattern
+  - id: exfil/stealer/zip-upload
+    description: "ZIP archive upload for exfiltration"
+    criticality: hostile
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "curl.*\\.zip|POST.*\\.zip|upload.*\\.zip|send.*\\.zip"
+
+  # Multipart form data (file upload)
+  - id: exfil/stealer/multipart-upload
+    description: "Multipart form data upload"
+    criticality: suspicious
+    confidence: 0.75
+    condition:
+      type: string
+      regex: "multipart/form-data|boundary=|Content-Disposition.*filename"
+
+composite_rules:
+  # Full exfiltration pattern: archive + upload
+  - id: exfil/stealer/stealer-exfil
+    description: "Stealer data exfiltration pattern"
+    criticality: hostile
+    confidence: 0.95
+    requires_all:
+      - type: string
+        regex: "curl|wget|POST"
+    requires_any:
+      - type: trait
+        id: exfil/stealer/curl-post-headers
+      - type: trait
+        id: exfil/stealer/bot-headers
+      - type: trait
+        id: exfil/stealer/gate-url

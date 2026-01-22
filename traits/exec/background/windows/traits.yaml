@@ -1,0 +1,74 @@
+# Windows Background Command Execution
+# Detects commands designed to run in background/hidden on Windows
+# ATT&CK: T1059.003 (Windows Command Shell)
+
+defaults:
+  file_types: [python, shell, php, javascript]
+  attack: "T1059.003"
+  mbc: "E1059"
+
+traits:
+  # Windows 'start' command for background execution
+  - id: exec/background/windows/start-command
+    description: "Windows 'start' command for background process"
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: string
+      regex: "\\bstart\\s+['\"]?\\{?\\$?\\w*executable"
+
+  # Start with /b flag (no window)
+  - id: exec/background/windows/start-hidden
+    description: "Windows 'start /b' hidden background process"
+    criticality: suspicious
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "\\bstart\\s+/[bB]\\s"
+
+  # Start with /min flag (minimized)
+  - id: exec/background/windows/start-minimized
+    description: "Windows 'start /min' minimized process"
+    criticality: notable
+    confidence: 0.8
+    condition:
+      type: string
+      regex: "\\bstart\\s+/min\\s"
+
+  # PowerShell hidden window
+  - id: exec/background/windows/powershell-hidden
+    description: "PowerShell hidden window execution"
+    criticality: suspicious
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "powershell.*-[Ww](indow)?[Ss](tyle)?\\s*[Hh]idden"
+
+  # cmd.exe /c with start
+  - id: exec/background/windows/cmd-start
+    description: "cmd.exe /c with background start"
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: string
+      regex: "cmd(\\.exe)?\\s*/[cC]\\s+start"
+
+composite_rules:
+  # Background pip install on Windows (common malware pattern)
+  - id: exec/background/windows/hidden-pip-install
+    description: "Background pip install via Windows start command"
+    criticality: hostile
+    confidence: 0.95
+    condition:
+      type: yara
+      source: |
+        rule windows_hidden_pip_install {
+          meta:
+            description = "Hidden pip install using Windows start command"
+          strings:
+            $start = /start\s+/ ascii nocase
+            $pip = /pip\s+install/ ascii nocase
+            $executable = /sys\.executable|python/ ascii
+          condition:
+            $start and $pip
+        }

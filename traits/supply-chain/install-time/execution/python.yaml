@@ -1,0 +1,107 @@
+# Supply Chain - Install-time Code Execution (Python)
+# Detects malicious code executed during package installation
+# Common in typosquatting attacks and supply chain compromises
+# ATT&CK: T1195.002 (Supply Chain Compromise: Compromise Software Supply Chain)
+
+defaults:
+  file_types: [python]
+  mbc: "B0030"
+  attack: "T1195.002"
+
+traits:
+  # os.system call at module level (outside functions)
+  - id: supply-chain/install-time/execution/module-level-system
+    description: "os.system at module level (install-time execution)"
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: string
+      regex: "^os\\.system\\s*\\("
+
+  # Import-triggered execution
+  - id: supply-chain/install-time/execution/import-trigger
+    description: "Code execution triggered by import"
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: string
+      # os.system or subprocess at top-level in __init__.py
+      regex: "^(import|from).*\\n.*os\\.system|^(import|from).*\\n.*subprocess\\."
+
+  # Try-except ImportError with installation
+  - id: supply-chain/install-time/execution/import-fallback-install
+    description: "Import fallback with automatic package installation"
+    criticality: suspicious
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "except\\s*(ImportError)?.*:\\s*\\n?\\s*(os\\.system|subprocess)"
+
+composite_rules:
+  # Setup.py with external code execution
+  - id: supply-chain/install-time/execution/setup-py-exec
+    description: "setup.py with suspicious code execution"
+    criticality: hostile
+    confidence: 0.95
+    condition:
+      type: yara
+      source: |
+        rule setup_py_malicious_exec {
+          meta:
+            description = "Detects setup.py files with code execution"
+          strings:
+            $setup = "setup(" ascii
+            $setuptools = "from setuptools" ascii
+            $distutils = "from distutils" ascii
+            $os_system = "os.system(" ascii
+            $subprocess = "subprocess." ascii
+            $exec = "exec(" ascii
+            $eval = "eval(" ascii
+            $pip = "pip install" ascii nocase
+          condition:
+            ($setup or $setuptools or $distutils) and ($os_system or $subprocess or $exec or $eval or $pip)
+        }
+
+  # __init__.py with code execution (very suspicious)
+  - id: supply-chain/install-time/execution/init-py-exec
+    description: "__init__.py with immediate code execution"
+    criticality: hostile
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule init_py_malicious_exec {
+          meta:
+            description = "Detects __init__.py with immediate code execution"
+          strings:
+            $init_marker = "__version__" ascii
+            $os_system = "os.system(" ascii
+            $subprocess_run = "subprocess.run(" ascii
+            $subprocess_call = "subprocess.call(" ascii
+            $subprocess_popen = "subprocess.Popen(" ascii
+            $pip = "pip install" ascii nocase
+            $http = /https?:\/\// ascii
+          condition:
+            $init_marker and ($os_system or $subprocess_run or $subprocess_call or $subprocess_popen) and ($pip or $http)
+        }
+
+  # Package that installs other packages at runtime
+  - id: supply-chain/install-time/execution/dependency-injection
+    description: "Package installs additional dependencies at runtime"
+    criticality: hostile
+    confidence: 0.95
+    condition:
+      type: yara
+      source: |
+        rule runtime_dependency_injection {
+          meta:
+            description = "Package that installs dependencies during import/setup"
+          strings:
+            $try = "try:" ascii
+            $except = /except\s*(ImportError)?:/ ascii
+            $import = /import\s+\w+/ ascii
+            $pip_install = "pip install" ascii nocase
+            $sys_exec = "sys.executable" ascii
+          condition:
+            $try and $except and $import and ($pip_install or $sys_exec)
+        }

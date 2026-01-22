@@ -56,14 +56,15 @@ traits:
       regex: "\\b[Pp]robe\\b|[Bb]anner[_\\s]?[Gg]rab"
 
   - id: lateral/scan/target-ref
-    description: Generic target terminology
+    description: Scan target terminology
     criticality: notable
-    confidence: 0.5
+    confidence: 0.6
     attack: "T1046"
     platforms: [all]
     condition:
       type: string
-      regex: "\\b[Tt]arget\\b"
+      # Require scanning context, not just standalone "target"
+      regex: "target[_\\s]*(host|ip|port|range|list|addr)|scan[_\\s]*target"
 
   # === Atomic: Brute Force Indicators ===
 

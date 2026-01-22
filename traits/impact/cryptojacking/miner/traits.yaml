@@ -2,7 +2,7 @@
 # ATT&CK: T1496 (Resource Hijacking)
 # MBC: B0036 (Cryptomining)
 
-traits:
+composite_rules:
   # === Atomic: Mining Protocols ===
 
   - id: impact/cryptojacking/stratum-protocol
@@ -216,7 +216,6 @@ traits:
       type: string
       exact: "argon2d"
 
-composite_rules:
   - id: impact/cryptojacking/cryptocurrency-miner
     description: Cryptocurrency miner detected
     criticality: suspicious

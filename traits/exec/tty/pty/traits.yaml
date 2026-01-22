@@ -2,15 +2,59 @@
 # ATT&CK: T1059 (Command and Scripting Interpreter)
 
 traits:
+  # openpty is common in legitimate programs (terminal emulators, SSH, screen)
   - id: exec/tty/openpty
     description: Open pseudoterminal
-    criticality: suspicious
+    criticality: notable
     confidence: 0.85
     attack: "T1059"
     file_types: [elf, macho, python]
     condition:
       type: string
       regex: "(openpty|pty\\.Open)"
+
+  # POSIX pseudoterminal functions (used on macOS/BSD for PTY creation)
+  # These are notable (not suspicious) because many legitimate programs use PTY:
+  # terminal emulators, SSH clients, screen/tmux, expect, etc.
+  - id: exec/tty/posix-openpt
+    description: POSIX open pseudoterminal master
+    criticality: notable
+    confidence: 0.85
+    attack: "T1059"
+    file_types: [elf, macho]
+    condition:
+      type: symbol
+      pattern: posix_openpt
+
+  - id: exec/tty/grantpt
+    description: Grant access to slave pseudoterminal
+    criticality: notable
+    confidence: 0.8
+    attack: "T1059"
+    file_types: [elf, macho]
+    condition:
+      type: symbol
+      pattern: grantpt
+
+  - id: exec/tty/unlockpt
+    description: Unlock slave pseudoterminal
+    criticality: notable
+    confidence: 0.8
+    attack: "T1059"
+    file_types: [elf, macho]
+    condition:
+      type: symbol
+      pattern: unlockpt
+
+  - id: exec/tty/ptsname
+    description: Get slave pseudoterminal name
+    criticality: notable
+    confidence: 0.8
+    attack: "T1059"
+    file_types: [elf, macho]
+    condition:
+      type: symbol
+      pattern: ptsname|ptsname_r
 
   - id: exec/tty/isatty
     description: Check if terminal
@@ -24,7 +68,7 @@ traits:
 
   - id: exec/tty/ttyname
     description: Get terminal device pathname
-    criticality: suspicious
+    criticality: notable
     confidence: 0.8
     attack: "T1059"
     file_types: [elf, macho]
@@ -127,4 +171,75 @@ composite_rules:
             filesize < 10MB and
             (any of ($openpty, $pty_open, $pty_spawn)) and
             (any of ($bin_sh, $bin_bash) or ($dup2 and $fork and $execve))
+        }
+
+  - id: exec/tty/posix-pty-shell
+    description: POSIX PTY shell (backdoor pattern)
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1059"
+    mbc: "B0022"
+    file_types: [elf, macho]
+    platforms: [macos, linux, unix]
+    condition:
+      type: yara
+      source: |
+        rule posix_pty_shell {
+          meta:
+            description = "POSIX PTY shell creation pattern - common in macOS/BSD backdoors"
+          strings:
+            $posix_openpt = "posix_openpt" fullword
+            $grantpt = "grantpt" fullword
+            $unlockpt = "unlockpt" fullword
+            $ptsname = "ptsname" fullword
+            $ptsname_r = "ptsname_r" fullword
+            $bin_sh = "/bin/sh"
+            $bin_bash = "/bin/bash"
+            $fork = "fork" fullword
+            $execve = "execve" fullword
+            $setsid = "setsid" fullword
+          condition:
+            filesize < 10MB and
+            $posix_openpt and $grantpt and $unlockpt and
+            any of ($ptsname, $ptsname_r) and
+            any of ($bin_sh, $bin_bash, $execve)
+        }
+
+  - id: exec/tty/pty-network-backdoor
+    description: PTY-based network backdoor
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1059"
+    mbc: "B0022"
+    file_types: [elf, macho]
+    platforms: [macos, linux, unix]
+    condition:
+      type: yara
+      source: |
+        rule pty_network_backdoor {
+          meta:
+            description = "PTY-based network backdoor combining socket and PTY"
+          strings:
+            // PTY functions
+            $posix_openpt = "posix_openpt" fullword
+            $openpty = "openpty" fullword
+            $grantpt = "grantpt" fullword
+            $unlockpt = "unlockpt" fullword
+            // Network functions
+            $socket = "socket" fullword
+            $connect = "connect" fullword
+            $recv = "recv" fullword
+            $send = "send" fullword
+            // Process/shell
+            $fork = "fork" fullword
+            $execve = "execve" fullword
+            $bin_sh = "/bin/sh"
+          condition:
+            filesize < 10MB and
+            any of ($posix_openpt, $openpty) and
+            any of ($grantpt, $unlockpt) and
+            $socket and $connect and
+            any of ($recv, $send) and
+            $fork and
+            any of ($execve, $bin_sh)
         }

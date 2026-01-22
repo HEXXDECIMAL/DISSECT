@@ -396,7 +396,10 @@ impl PackageJsonAnalyzer {
                 report.add_finding(
                     Finding::indicator(
                         "c2/endpoint/php".to_string(),
-                        format!("Script '{}' contacts PHP endpoint (common C2 pattern)", name),
+                        format!(
+                            "Script '{}' contacts PHP endpoint (common C2 pattern)",
+                            name
+                        ),
                         0.75,
                     )
                     .with_criticality(Criticality::Suspicious)
@@ -438,12 +441,11 @@ impl PackageJsonAnalyzer {
         let author_empty = match &pkg.author {
             None => true,
             Some(serde_json::Value::String(s)) => s.trim().is_empty(),
-            Some(serde_json::Value::Object(obj)) => {
-                obj.get("name")
-                    .and_then(|v| v.as_str())
-                    .map(|s| s.trim().is_empty())
-                    .unwrap_or(true)
-            }
+            Some(serde_json::Value::Object(obj)) => obj
+                .get("name")
+                .and_then(|v| v.as_str())
+                .map(|s| s.trim().is_empty())
+                .unwrap_or(true),
             _ => false,
         };
 

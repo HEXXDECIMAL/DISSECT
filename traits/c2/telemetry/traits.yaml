@@ -1,0 +1,104 @@
+# C2 - Operator Telemetry/Monitoring
+# Detects malware using error tracking services (Sentry, etc.) for operator monitoring
+# This is a technique where malware authors use legitimate services to track their malware's health
+# ATT&CK: T1102 (Web Service)
+
+traits:
+  # === Sentry Error Tracking ===
+
+  - id: c2/telemetry/sentry-dsn
+    description: Sentry DSN configuration (operator telemetry)
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1102"
+    condition:
+      type: string
+      # Sentry DSN format: https://<key>@<org>.ingest.sentry.io/<project>
+      regex: "https://[a-f0-9]+@[a-z0-9.-]+\\.ingest\\.sentry\\.io/\\d+"
+
+  - id: c2/telemetry/sentry-sdk
+    description: Sentry SDK integration
+    criticality: notable
+    confidence: 0.7
+    attack: "T1102"
+    condition:
+      type: string
+      regex: "sentry[_-]sdk|@sentry/|sentry\\.io"
+
+  - id: c2/telemetry/sentry-init
+    description: Sentry initialization function
+    criticality: notable
+    confidence: 0.7
+    attack: "T1102"
+    condition:
+      type: string
+      regex: "sentry\\.init|Sentry\\.init|sentry_init"
+
+  - id: c2/telemetry/sentry-capture
+    description: Sentry error capture
+    criticality: notable
+    confidence: 0.6
+    attack: "T1102"
+    condition:
+      type: string
+      regex: "capture_exception|capture_message|captureException|captureMessage"
+
+  # === Other Telemetry Services ===
+
+  - id: c2/telemetry/bugsnag
+    description: Bugsnag error tracking
+    criticality: notable
+    confidence: 0.7
+    attack: "T1102"
+    condition:
+      type: string
+      regex: "bugsnag\\.com|Bugsnag\\.notify"
+
+  - id: c2/telemetry/rollbar
+    description: Rollbar error tracking
+    criticality: notable
+    confidence: 0.7
+    attack: "T1102"
+    condition:
+      type: string
+      regex: "rollbar\\.com|Rollbar\\.error"
+
+  - id: c2/telemetry/raygun
+    description: Raygun error tracking
+    criticality: notable
+    confidence: 0.7
+    attack: "T1102"
+    condition:
+      type: string
+      regex: "raygun\\.com|raygun\\.io"
+
+composite_rules:
+  - id: c2/telemetry/operator-monitoring
+    description: Malware operator monitoring via error tracking service
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1102"
+    condition:
+      type: yara
+      source: |
+        rule operator_telemetry {
+          meta:
+            description = "Uses error tracking service for operator monitoring"
+          strings:
+            // Sentry
+            $sentry_dsn = /https:\/\/[a-f0-9]+@[a-z0-9.-]+\.ingest\.sentry\.io\/\d+/
+            $sentry_sdk = "sentry" ascii nocase
+            $sentry_init = "sentry.init" ascii nocase
+            // Bugsnag
+            $bugsnag = "bugsnag" ascii nocase
+            // Rollbar
+            $rollbar = "rollbar" ascii nocase
+            // Stacktrace keywords (common in error reporting)
+            $stacktrace1 = "attach-stacktrace" ascii
+            $stacktrace2 = "process-stacktrace" ascii
+            $stacktrace3 = "capture_exception" ascii
+          condition:
+            ($sentry_dsn or ($sentry_sdk and $sentry_init)) or
+            ($bugsnag and any of ($stacktrace*)) or
+            ($rollbar and any of ($stacktrace*))
+        }

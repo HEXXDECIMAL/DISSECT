@@ -1,7 +1,7 @@
 # Collection - Archive Operations
 # ATT&CK: T1560 (Archive Collected Data)
 
-traits:
+composite_rules:
   # === Atomic: Tar Operations ===
 
   - id: collect/archive/tar-create
@@ -70,7 +70,6 @@ traits:
       type: string
       regex: "[Uu]narchive"
 
-composite_rules:
   - id: collect/archive/binary-tar-exec
     description: Binary executes tar command (not script)
     criticality: suspicious

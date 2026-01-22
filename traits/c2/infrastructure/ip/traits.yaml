@@ -2,48 +2,63 @@
 # Detects hardcoded IP addresses, ports, and obfuscated C2 patterns
 # ATT&CK: T1071.001
 
-traits:
+defaults:
+  file_types: [elf, macho, pe]
+  mbc: "C0002"
+  attack: "T1071.001"
+  criticality: suspicious
+
+composite_rules:
   - id: c2/infrastructure/ip/hardcoded-ipv4
     description: "Hardcoded IPv4 address"
-    criticality: suspicious
     confidence: 0.85
-    mbc: "C0002"
-    attack: "T1071.001"
-    file_types: [elf, macho, pe]
     condition:
       type: string
-      regex: "\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b"
+      # Strict IPv4 regex that:
+      # - Rejects leading zeros (invalid per RFC)
+      # - Requires non-digit before first octet (excludes OIDs like 1.2.840.113635.100.6.1.9)
+      # - Excludes version strings (Chrome/100.0.0.0, Safari/537.36, etc.) via negative lookbehind
+      # - Each octet: 0-9, 10-99, 100-199, 200-249, or 250-255
+      regex: "(?<![0-9./])(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])(?![0-9.])"
 
   - id: c2/infrastructure/ip/ipv4-with-port
     description: "IPv4 address with port number"
-    criticality: suspicious
     confidence: 0.9
-    mbc: "C0002"
-    attack: "T1071.001"
-    file_types: [elf, macho, pe]
     condition:
       type: string
-      regex: "\\b\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}:\\d{1,5}\\b"
+      # Strict IPv4:port - no leading zeros in octets, port 1-65535
+      regex: "\\b(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9]):[1-9][0-9]{0,4}\\b"
 
   - id: c2/infrastructure/ip/http-url-with-ip
     description: "HTTP URL with hardcoded IP address"
-    criticality: suspicious
     confidence: 0.9
-    mbc: "C0002"
-    attack: "T1071.001"
-    file_types: [all]
+    file_types: [all]  # Override: applies to all file types
     condition:
       type: string
-      regex: "https?://\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}"
+      # HTTP(S) URL with strict IPv4 (no leading zeros)
+      regex: "https?://(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])"
 
   - id: c2/infrastructure/ip/private-ip-reference
     description: "Private/internal IP address reference"
     criticality: notable
     confidence: 0.75
-    file_types: [elf, macho, pe]
+    mbc: none  # Override: not C2 related
+    attack: none
     condition:
-      type: string
-      regex: "\\b(?:10\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}|172\\.(?:1[6-9]|2[0-9]|3[01])\\.\\d{1,3}\\.\\d{1,3}|192\\.168\\.\\d{1,3}\\.\\d{1,3})\\b"
+      type: yara
+      # Use YARA for cleaner private IP detection with proper octet validation
+      source: |
+        rule private_ipv4 {
+          strings:
+            // 10.x.x.x - Class A private
+            $ten = /\b10\.([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\b/
+            // 172.16-31.x.x - Class B private
+            $oneseventwo = /\b172\.(1[6-9]|2[0-9]|3[01])\.([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\b/
+            // 192.168.x.x - Class C private
+            $onenine = /\b192\.168\.([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\b/
+          condition:
+            any of them
+        }
 
   - id: c2/infrastructure/ip/ip-format-string
     description: "IP address format string (dynamic IP construction)"
@@ -51,19 +66,16 @@ traits:
     confidence: 0.7
     mbc: "B0032"
     attack: "T1027"
-    file_types: [elf, macho, pe]
     condition:
       type: string
-      # Match %hhu.%hhu or %d.%d patterns (partial or full IP format strings)
       regex: "%[0-9]*h{0,2}[ud]\\.%[0-9]*h{0,2}[ud]"
 
   - id: c2/infrastructure/ip/truncated-http-url
     description: "Truncated HTTP URL (C2 address likely obfuscated)"
-    criticality: suspicious
     confidence: 0.85
     mbc: "B0032"
     attack: "T1027"
-    file_types: [elf]
+    file_types: [elf]  # Override: ELF only
     condition:
       type: string
       regex: "wget http://[^0-9a-zA-Z]|curl http://[^0-9a-zA-Z]|http://\\x00"
@@ -73,15 +85,14 @@ traits:
     description: "Common C2 port number (23, 80, 443, 8080, 4444)"
     criticality: notable
     confidence: 0.6
-    file_types: [elf, macho, pe]
+    mbc: none  # Override: port alone isn't C2
+    attack: none
     condition:
       type: string
       regex: ":(?:23|80|443|8080|4444|1337|31337)\\b"
 
-composite_rules:
   - id: c2/infrastructure/obfuscated-address
     description: "C2 address obfuscation (HTTP client + no visible IP)"
-    criticality: suspicious
     confidence: 0.85
     mbc: "B0032"
     attack: "T1027"
@@ -95,11 +106,9 @@ composite_rules:
 
   - id: c2/infrastructure/dynamic-ip
     description: "Dynamic IP address construction"
-    criticality: suspicious
     confidence: 0.8
     mbc: "B0032"
     attack: "T1027"
-    file_types: [elf, macho, pe]
     requires_all:
       - type: trait
         id: ip-format-string

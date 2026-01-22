@@ -1,0 +1,84 @@
+# System Directory Destructive Operations
+# Detects targeting of critical system directories for destructive purposes
+# ATT&CK: T1485 (Data Destruction), T1561 (Disk Wipe)
+
+defaults:
+  attack: "T1485"
+  criticality: hostile
+
+traits:
+  # Windows System32 deletion
+  - id: impact/system/directory/windows-system32-delete
+    description: "Windows System32 directory deletion"
+    confidence: 0.95
+    platforms: [windows]
+    condition:
+      type: string
+      regex: "(rmdir|del|remove|shutil\\.rmtree|os\\.remove).*[Ss]ystem32|[Ss]ystem32.*(rmdir|del|remove)"
+
+  # Windows directory recursive deletion
+  - id: impact/system/directory/windows-recursive-delete
+    description: "Windows system directory recursive deletion"
+    confidence: 0.9
+    platforms: [windows]
+    condition:
+      type: string
+      regex: "rd\\s+/s|rmdir\\s+/s.*Windows|del\\s+/f\\s+/q.*Windows"
+
+  # Linux critical directory targeting
+  - id: impact/system/directory/linux-etc-delete
+    description: "Linux /etc directory deletion attempt"
+    confidence: 0.95
+    platforms: [linux]
+    condition:
+      type: string
+      regex: "rm\\s+-rf\\s+/etc|shutil\\.rmtree.*[\"']/etc"
+
+  # Linux boot directory targeting
+  - id: impact/system/directory/linux-boot-delete
+    description: "Linux /boot directory deletion attempt"
+    confidence: 0.95
+    platforms: [linux]
+    condition:
+      type: string
+      regex: "rm\\s+-rf\\s+/boot|shutil\\.rmtree.*[\"']/boot"
+
+  # Root filesystem wipe
+  - id: impact/system/directory/root-wipe
+    description: "Root filesystem wipe attempt"
+    confidence: 0.95
+    attack: "T1561"
+    condition:
+      type: string
+      regex: "rm\\s+-rf\\s+/\\s|rm\\s+-rf\\s+/\\*|shutil\\.rmtree.*[\"']/[\"']"
+
+  # macOS system directory targeting
+  - id: impact/system/directory/macos-system-delete
+    description: "macOS system directory deletion"
+    confidence: 0.95
+    platforms: [macos]
+    condition:
+      type: string
+      regex: "rm\\s+-rf.*(/System|/Library/System)|shutil\\.rmtree.*/System"
+
+  # MBR/Boot sector targeting
+  - id: impact/system/directory/mbr-target
+    description: "MBR/Boot sector targeting"
+    confidence: 0.95
+    attack: "T1561.002"
+    condition:
+      type: string
+      regex: "/dev/sda|/dev/hda|PhysicalDrive0|\\\\\\\\\\\\.\\\\PhysicalDrive"
+
+composite_rules:
+  # System destruction with iteration
+  - id: impact/system/directory/mass-deletion
+    description: "Mass system file deletion"
+    confidence: 0.95
+    requires_all:
+      - type: string
+        regex: "rmtree|rm\\s+-rf|rmdir.*(/s|/q)"
+      - type: string
+        regex: "for\\s|while\\s|os\\.walk|glob\\."
+      - type: string
+        regex: "Windows|System32|/etc|/boot|/usr"

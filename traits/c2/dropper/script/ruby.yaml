@@ -182,19 +182,6 @@ traits:
         - "'socket'"
         - '"socket"'
 
-  - id: c2/dropper/script/ruby-require-fileutils
-    description: "Imports file utilities library"
-    criticality: notable
-    confidence: 0.75
-    platforms:
-      - all
-    file_types:
-      - ruby
-    condition:
-      type: symbol_or_string
-      any:
-        - "'fileutils'"
-        - '"fileutils"'
 
   - id: c2/dropper/script/ruby-require-tempfile
     description: "Imports temporary file library"
