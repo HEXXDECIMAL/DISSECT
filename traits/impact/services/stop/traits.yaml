@@ -1,0 +1,101 @@
+# Impact - Service Manipulation
+# ATT&CK: T1489 (Service Stop)
+
+traits:
+  - id: impact/services/esxcli
+    description: VMware ESXi CLI usage
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1489"
+    file_types: [elf, shell]
+    condition:
+      type: string
+      exact: "esxcli"
+
+  - id: impact/services/systemctl-stop
+    description: Systemd service stop
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1489"
+    file_types: [elf, shell]
+    condition:
+      type: string
+      regex: "systemctl\\s+stop"
+
+  - id: impact/services/service-stop
+    description: SysV service stop
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1489"
+    file_types: [elf, shell]
+    condition:
+      type: string
+      regex: "service\\s+\\w+\\s+stop"
+
+  - id: impact/services/sc-stop
+    description: Windows service control stop
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1489"
+    file_types: [pe, shell]
+    condition:
+      type: string
+      regex: "sc\\s+stop"
+
+  - id: impact/services/net-stop
+    description: Windows net stop command
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1489"
+    file_types: [pe, shell]
+    condition:
+      type: string
+      regex: "net\\s+stop"
+
+  - id: impact/services/vmsvc-getallvms
+    description: VMware VM enumeration
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1489"
+    file_types: [elf, shell]
+    condition:
+      type: string
+      exact: "vmsvc/getallvms"
+
+  - id: impact/services/kill-database
+    description: Database service termination
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1489"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "(?i)(kill|stop).*(mysql|postgres|oracle|mssql|mongodb)"
+
+composite_rules:
+  - id: impact/services/esxi-ransomware
+    description: VMware ESXi ransomware
+    criticality: suspicious
+    confidence: 0.99
+    attack: "T1486"
+    mbc: "B0040"
+    file_types: [elf]
+    condition:
+      type: yara
+      source: |
+        rule esxi_ransomware {
+          strings:
+            $esxcli = "esxcli"
+            $onion = ".onion"
+            $w_encrypted = "encrypted" nocase
+            $w_ransom = "ransom" nocase
+            $w_tor = "tor" fullword nocase
+            $w_bitcoin = "bitcoin" nocase
+            $w_victim = "victim" nocase
+            $w_company = "company" fullword
+            $w_data = "your data"
+          condition:
+            uint32(0) == 0x464C457F and
+            filesize < 5MB and
+            $esxcli and $onion and any of ($w_*)
+        }

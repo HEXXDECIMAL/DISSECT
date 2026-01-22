@@ -1,0 +1,84 @@
+# Lateral Movement - SSH Worm Composite Rules
+# ATT&CK: T1021.004 (Remote Services: SSH)
+
+composite_rules:
+  # === SSH Worm Detection ===
+
+  - id: lateral/ssh/shell-worm
+    description: SSH worm implemented in shell script
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1021.004"
+    mbc: "E1021"
+    file_types: [shell]
+    requires_all:
+      - type: trait
+        id: lateral/ssh/dot-ssh-ref
+    requires_count: 3
+    conditions:
+      - type: trait
+        id: lateral/ssh/strict-host-disable
+      - type: trait
+        id: lateral/ssh/known-hosts-bypass
+      - type: trait
+        id: lateral/ssh/connect-timeout
+      - type: trait
+        id: lateral/ssh/remote-curl
+      - type: trait
+        id: lateral/ssh/remote-wget
+      - type: trait
+        id: lateral/ssh/authorized-keys
+      - type: trait
+        id: lateral/ssh/known-hosts-file
+      - type: trait
+        id: lateral/ssh/ssh-config-parse
+
+  # === SSH Attack Tool ===
+
+  - id: lateral/ssh/attack-tool
+    description: SSH attack tool or script
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1021.004"
+    file_types: [all]
+    requires_any:
+      - type: trait
+        id: lateral/ssh/attack-ref
+
+  # === SSH Key Theft + Lateral Movement ===
+
+  - id: lateral/ssh/key-based-spread
+    description: SSH key theft for lateral movement
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1552.004"
+    file_types: [elf, shell]
+    requires_all:
+      - type: trait
+        id: lateral/ssh/dot-ssh-ref
+    requires_any:
+      - type: trait
+        id: lateral/ssh/key-id-rsa
+      - type: trait
+        id: lateral/ssh/key-pem
+
+  # === SSH Host Discovery ===
+
+  - id: lateral/ssh/host-discovery
+    description: SSH target host discovery
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1018"
+    file_types: [elf, shell]
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: lateral/ssh/authorized-keys
+      - type: trait
+        id: lateral/ssh/known-hosts-file
+      - type: trait
+        id: lateral/ssh/ssh-config-parse
+      - type: trait
+        id: lateral/ssh/bash-history-ssh
+      - type: trait
+        id: lateral/ssh/getent-hosts

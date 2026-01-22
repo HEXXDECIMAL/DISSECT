@@ -1,0 +1,66 @@
+# Composite Debugger Detection Capabilities
+
+capabilities:
+  - id: anti-analysis/debugger/detect/win-basic
+    description: Windows debugger detection (basic)
+    criticality: suspicious
+    mbc: "B0001"
+    attack: "T1622"
+    confidence: 0.85
+    platforms: [windows]
+    file_types: [pe, dll]
+    requires_any:
+      - type: trait
+        id: win-isdebuggerpresent
+      - type: trait
+        id: win-unhandledexception
+
+  - id: anti-analysis/debugger/detect/win-comprehensive
+    description: Windows debugger/VM detection (multiple signals)
+    criticality: suspicious
+    mbc: "B0001"
+    attack: "T1622"
+    confidence: 0.9
+    platforms: [windows]
+    file_types: [pe, dll]
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: win-isdebuggerpresent
+      - type: trait
+        id: win-unhandledexception
+      - type: trait
+        id: win-queryperformance
+
+  - id: anti-analysis/debugger/detect/linux-comprehensive
+    description: Linux debugger detection across multiple methods
+    criticality: suspicious
+    mbc: "B0001"
+    attack: "T1622"
+    confidence: 0.95
+    platforms: [linux]
+    file_types: [elf]
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: ld-debug
+      - type: trait
+        id: proc-status
+      - type: trait
+        id: ptrace
+
+  - id: anti-analysis/debugger/detect/ptrace-self
+    description: Anti-debugging via ptrace self-attachment
+    criticality: suspicious
+    mbc: "B0001.m01"
+    attack: "T1622"
+    confidence: 0.95
+    platforms: [linux, unix]
+    file_types: [elf]
+    requires_all:
+      - type: trait
+        id: ptrace
+      - type: symbol
+        pattern: getpid
+      - type: string
+        regex: "PTRACE_TRACEME|PT_DENY_ATTACH"

@@ -1,0 +1,53 @@
+# XOR Obfuscation Detection
+# Detects XOR-based string/data obfuscation patterns
+# ATT&CK: T1027 (Obfuscated Files or Information)
+
+traits:
+  - id: anti-static/obfuscation/encoding/xor-decode-loop
+    description: "XOR decryption loop pattern"
+    criticality: suspicious
+    confidence: 0.8
+    mbc: "B0032"
+    attack: "T1027"
+    file_types: [elf, macho, pe]
+    condition:
+      type: symbol
+      pattern: "xor_decode|decode_xor|xor_decrypt|decrypt_xor|xor_string"
+
+  - id: anti-static/obfuscation/encoding/single-byte-xor-key
+    description: "Single-byte XOR key constant (0x37, 0x55, 0xAA, 0xFF)"
+    criticality: notable
+    confidence: 0.65
+    mbc: "B0032"
+    attack: "T1027"
+    file_types: [elf]
+    condition:
+      type: string
+      # Common single-byte XOR keys used in malware
+      regex: "\\x37{4,}|\\x55{4,}|\\xAA{4,}|\\xDE{4,}"
+      search_raw: true
+
+  - id: anti-static/obfuscation/encoding/table-based-decode
+    description: "Table-based decoding function"
+    criticality: notable
+    confidence: 0.7
+    mbc: "B0032"
+    attack: "T1027"
+    file_types: [elf, macho, pe]
+    condition:
+      type: symbol
+      pattern: "decode_table|table_decode|lookup_decode|char_map"
+
+composite_rules:
+  - id: anti-static/obfuscation/string-decrypt
+    description: "String decryption capability"
+    criticality: suspicious
+    confidence: 0.8
+    mbc: "B0032"
+    attack: "T1027"
+    file_types: [elf, macho, pe]
+    requires_any:
+      - type: trait
+        id: xor-decode-loop
+      - type: trait
+        id: table-based-decode

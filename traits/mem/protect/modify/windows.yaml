@@ -1,0 +1,25 @@
+# Memory Protection - Windows
+# ATT&CK: T1055 (Process Injection)
+
+traits:
+  - id: mem/protect/modify/virtualprotect
+    description: Change memory protection (VirtualProtect)
+    criticality: notable
+    confidence: 0.9
+    attack: "T1055"
+    platforms: [windows]
+    file_types: [pe, dll]
+    condition:
+      type: symbol
+      pattern: "VirtualProtect$"
+
+  - id: mem/protect/modify/virtualprotect-ex
+    description: Change memory protection in other process (VirtualProtectEx)
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1055"
+    platforms: [windows]
+    file_types: [pe, dll]
+    condition:
+      type: symbol
+      pattern: "VirtualProtectEx"

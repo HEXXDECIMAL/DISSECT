@@ -1,0 +1,45 @@
+# Missing Security Hardening Detection
+# Binaries without standard security features are suspicious
+# ATT&CK: T1027 (Obfuscated Files or Information)
+
+traits:
+  - id: anti-static/hardening/detection/stripped-binary
+    description: "Binary has symbol table stripped"
+    criticality: notable
+    confidence: 0.7
+    file_types: [elf, macho, pe]
+    condition:
+      type: structure
+      feature: "binary/stripped"
+
+  - id: anti-static/hardening/detection/static-linked
+    description: "Statically linked binary (self-contained)"
+    criticality: notable
+    confidence: 0.7
+    file_types: [elf]
+    condition:
+      type: structure
+      feature: "binary/static"
+
+  - id: anti-static/hardening/detection/no-pie
+    description: "Binary not position-independent (no ASLR)"
+    criticality: notable
+    confidence: 0.6
+    file_types: [elf]
+    condition:
+      type: structure
+      feature: "binary/no-pie"
+
+composite_rules:
+  - id: anti-static/hardening/minimal
+    description: "Binary lacks security hardening (stripped + static)"
+    criticality: suspicious
+    confidence: 0.8
+    mbc: "F0001"
+    attack: "T1027"
+    file_types: [elf]
+    requires_all:
+      - type: trait
+        id: stripped-binary
+      - type: trait
+        id: static-linked

@@ -1,0 +1,27 @@
+traits:
+  - id: syscall/process/daemon
+    description: Daemon behavior - detaches from controlling terminal
+    confidence: 0.85
+    criticality: notable
+    platforms: [linux]
+    file_types: [elf]
+    requires_all:
+      - type: syscall
+        name: ["fork", "vfork", "clone"]
+      - type: syscall
+        name: ["setsid"]
+
+  - id: syscall/process/daemon-full
+    description: Full daemon pattern with stdin/stdout redirection
+    confidence: 0.9
+    criticality: notable
+    platforms: [linux]
+    file_types: [elf]
+    requires_all:
+      - type: syscall
+        name: ["fork", "vfork", "clone"]
+      - type: syscall
+        name: ["setsid"]
+      - type: syscall
+        name: ["dup2", "dup3"]
+        min_count: 2

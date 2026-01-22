@@ -1,0 +1,48 @@
+# PHP Impersonation/Evasion Traits
+# Bot and User-Agent impersonation for evasion
+# MBC: B0032 (Obfuscated Files or Information)
+# ATT&CK: T1036
+
+traits:
+  - id: evasion/impersonate/ua/googlebot
+    description: Googlebot User-Agent impersonation
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "B0032"
+    attack: "T1036"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "Googlebot/\\d"
+
+  - id: evasion/impersonate/ua/bingbot
+    description: Bingbot User-Agent impersonation
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "B0032"
+    attack: "T1036"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "bingbot/\\d"
+
+  - id: evasion/impersonate/ua/ua-array
+    description: User-Agent string array (rotation for evasion)
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "B0032"
+    attack: "T1036"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "Mozilla/5\\.0.*Mozilla/5\\.0.*Mozilla/5\\.0"
+
+  - id: evasion/impersonate/ua/array-rand-ua
+    description: Random User-Agent selection
+    criticality: suspicious
+    confidence: 0.8
+    mbc: "B0032"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "array_rand.*Mozilla|Mozilla.*array_rand"

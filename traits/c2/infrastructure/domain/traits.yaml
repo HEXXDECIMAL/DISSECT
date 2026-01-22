@@ -1,0 +1,71 @@
+# C2 Infrastructure Detection - Domains
+# Detects hardcoded domain names and suspicious TLDs
+# ATT&CK: T1071.001
+
+traits:
+  - id: c2/infrastructure/domain/hardcoded-domain-com
+    description: "Hardcoded .com domain"
+    criticality: notable
+    confidence: 0.7
+    mbc: "C0002"
+    attack: "T1071.001"
+    file_types: [elf, macho, pe]
+    condition:
+      type: string
+      regex: "\\b[a-zA-Z0-9][-a-zA-Z0-9]{0,62}\\.(com|org|net)\\b"
+
+  - id: c2/infrastructure/domain/hardcoded-domain-suspicious
+    description: "Hardcoded suspicious TLD domain (.ru, .cn, .xyz, .top)"
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "C0002"
+    attack: "T1071.001"
+    file_types: [elf, macho, pe]
+    condition:
+      type: string
+      regex: "\\b[a-zA-Z0-9][-a-zA-Z0-9]{0,62}\\.(ru|cn|xyz|top|cc|ws|tk|ml|ga|cf|gq|pw|biz|club|work|date|stream|download|racing|win|party|review|accountant|science|trade|webcam|bid|loan)\\b"
+
+  - id: c2/infrastructure/domain/dynamic-dns-domain
+    description: "Dynamic DNS domain (common C2 infrastructure)"
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "C0002"
+    attack: "T1071.001"
+    file_types: [elf, macho, pe]
+    condition:
+      type: string
+      regex: "\\b[a-zA-Z0-9][-a-zA-Z0-9]*\\.(duckdns|no-ip|dynu|freedns|afraid|hopto|zapto|sytes|ddns|servebeer|servehttp|serveftp|servegame|servequake|redirectme|bounceme|myftp|myvnc)\\.[a-z]{2,6}\\b"
+
+  - id: c2/infrastructure/domain/http-url-with-domain
+    description: "HTTP URL with domain name"
+    criticality: notable
+    confidence: 0.7
+    file_types: [all]
+    condition:
+      type: string
+      regex: "https?://[a-zA-Z0-9][-a-zA-Z0-9]*\\.[a-zA-Z]{2,6}(?:/|$|:)"
+
+  - id: c2/infrastructure/domain/url-path-payload
+    description: "URL path suggesting payload download"
+    criticality: suspicious
+    confidence: 0.8
+    mbc: "C0002"
+    attack: "T1105"
+    file_types: [elf, macho, pe]
+    condition:
+      type: string
+      regex: "(?:GET|POST|PUT)\\s+/[a-zA-Z0-9_./-]*\\.(bin|exe|sh|elf|dll|so|dat|payload|bot|drop)"
+
+composite_rules:
+  - id: c2/infrastructure/c2-domain
+    description: "Likely C2 domain (suspicious TLD or dynamic DNS)"
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "C0002"
+    attack: "T1071.001"
+    file_types: [elf, macho, pe]
+    requires_any:
+      - type: trait
+        id: hardcoded-domain-suspicious
+      - type: trait
+        id: dynamic-dns-domain

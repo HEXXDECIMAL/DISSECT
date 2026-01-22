@@ -2,7 +2,7 @@
 # MBC: F0003 (Process Detach)
 
 traits:
-  - id: python
+  - id: exec/command/setsid/python
     description: "Process detachment via os.setsid"
     criticality: suspicious
     confidence: 0.9
@@ -13,7 +13,7 @@ traits:
       type: string
       exact: "os.setsid"
 
-  - id: preexec-fn
+  - id: exec/command/setsid/preexec-fn
     description: "subprocess preexec_fn for process manipulation"
     criticality: suspicious
     confidence: 0.85
@@ -23,7 +23,7 @@ traits:
       type: string
       exact: "preexec_fn="
 
-  - id: c
+  - id: exec/command/setsid/c
     description: "setsid() system call"
     criticality: notable
     confidence: 0.8

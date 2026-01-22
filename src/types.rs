@@ -1,3 +1,4 @@
+use crate::radare2::SyscallInfo;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
@@ -69,6 +70,9 @@ pub struct AnalysisReport {
     pub exports: Vec<Export>,
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub yara_matches: Vec<YaraMatch>,
+    /// Syscalls detected via binary analysis (ELF, Mach-O)
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    pub syscalls: Vec<SyscallInfo>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub binary_properties: Option<BinaryProperties>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
@@ -108,6 +112,7 @@ impl AnalysisReport {
             imports: Vec::new(),
             exports: Vec::new(),
             yara_matches: Vec::new(),
+            syscalls: Vec::new(),
             binary_properties: None,
             code_metrics: None,
             source_code_metrics: None,

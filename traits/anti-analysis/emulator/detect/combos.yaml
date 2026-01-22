@@ -1,0 +1,38 @@
+# Composite VM/Emulator Detection Capabilities
+
+capabilities:
+  - id: anti-analysis/emulator/detect/detect-vendors
+    description: VM detection via vendor/product strings
+    criticality: suspicious
+    mbc: "B0009"
+    attack: "T1497.001"
+    confidence: 0.9
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: vmware-string
+      - type: trait
+        id: virtualbox-string
+      - type: trait
+        id: qemu-string
+      - type: trait
+        id: cpu-vendor
+
+  - id: anti-analysis/emulator/detect/comprehensive
+    description: Virtual machine environment detection
+    criticality: suspicious
+    mbc: "B0009"
+    attack: "T1497.001"
+    confidence: 0.9
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: vmware-string
+      - type: trait
+        id: virtualbox-string
+      - type: trait
+        id: qemu-string
+      - type: trait
+        id: vm-hardware
+      - type: trait
+        id: macos-vm-sysctl

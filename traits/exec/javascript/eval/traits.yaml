@@ -1,0 +1,174 @@
+# JavaScript/Node.js Execution Traits
+# Detects process execution and shell invocation patterns
+# MBC: Execution
+# ATT&CK: T1059 (Command and Scripting Interpreter)
+
+traits:
+  # Process execution functions
+  - id: getExecOutput
+    description: Node.js exec output capture (GitHub Actions)
+    criticality: notable
+    confidence: 0.8
+    file_types: [javascript]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "getExecOutput"
+
+  - id: exec/javascript/eval/child-process-exec
+    description: Node.js child_process exec
+    criticality: notable
+    confidence: 0.85
+    mbc: "C0017"
+    attack: "T1059"
+    file_types: [javascript]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "exec"
+
+  - id: exec/javascript/eval/child-process-spawn
+    description: Node.js child_process spawn
+    criticality: notable
+    confidence: 0.85
+    mbc: "C0017"
+    attack: "T1059"
+    file_types: [javascript]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "spawn"
+
+  - id: child-process-execSync
+    description: Node.js synchronous exec
+    criticality: notable
+    confidence: 0.85
+    mbc: "C0017"
+    attack: "T1059"
+    file_types: [javascript]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "execSync"
+
+  - id: exec/javascript/eval/child-process-require
+    description: Node.js child_process module import
+    criticality: notable
+    confidence: 0.8
+    file_types: [javascript]
+    condition:
+      type: string
+      exact: "child_process"
+
+  # Shell invocation
+  - id: exec/javascript/eval/bash-string
+    description: Bash shell reference in string
+    criticality: notable
+    confidence: 0.75
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "'bash'|\"bash\""
+
+  - id: exec/javascript/eval/sh-string
+    description: Shell reference in string
+    criticality: notable
+    confidence: 0.7
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "'/bin/sh'|\"/bin/sh\"|'sh'|\"sh\""
+
+  - id: exec/javascript/eval/bash-c-flag
+    description: Bash -c command execution flag
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "C0017"
+    attack: "T1059.004"
+    file_types: [javascript]
+    condition:
+      type: string
+      exact: "'-c'"
+
+  # Output/error handling (stealth indicators)
+  - id: exec/javascript/eval/stdout-capture
+    description: Standard output capture
+    criticality: inert
+    confidence: 0.6
+    file_types: [javascript]
+    condition:
+      type: string
+      exact: "stdout"
+
+  - id: exec/javascript/eval/stderr-capture
+    description: Standard error capture
+    criticality: inert
+    confidence: 0.6
+    file_types: [javascript]
+    condition:
+      type: string
+      exact: "stderr"
+
+  - id: exec/javascript/eval/silent-true
+    description: Silent execution flag (hides output)
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "F0005"
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "silent:\\s*true"
+
+  - id: ignoreReturnCode
+    description: Ignore return code (hides errors)
+    criticality: suspicious
+    confidence: 0.8
+    mbc: "F0005"
+    file_types: [javascript]
+    condition:
+      type: string
+      exact: "ignoreReturnCode"
+
+  # Encoding/decoding
+  - id: exec/javascript/eval/base64-decode-cli
+    description: Base64 decode via CLI
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "C0026"
+    attack: "T1140"
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "base64 -d|base64 --decode"
+
+  - id: exec/javascript/eval/echo-pipe
+    description: Echo piped to command
+    criticality: notable
+    confidence: 0.75
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "echo .* \\|"
+
+  # Temp file operations
+  - id: exec/javascript/eval/tmp-write
+    description: Write to /tmp directory
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "C0016"
+    attack: "T1074.001"
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "> /tmp/|>/tmp/"
+
+  - id: exec/javascript/eval/tmp-execute
+    description: Execute from /tmp directory
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "B0024"
+    attack: "T1059"
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "bash /tmp/|sh /tmp/|\\./tmp/"

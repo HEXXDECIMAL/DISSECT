@@ -1,0 +1,19 @@
+# .NET Interception and Proxy Patterns
+# Common in ORM, AOP, and dependency injection frameworks
+
+traits:
+  - id: exec/interception/hook/dynamic-proxy
+    description: Dynamic proxy generation (Castle, etc.)
+    criticality: notable
+    confidence: 0.80
+    condition:
+      type: string
+      regex: "ProxyGenerator|IInterceptor|DynamicProxy"
+
+  - id: exec/interception/hook/interceptor
+    description: Method interception capability
+    criticality: notable
+    confidence: 0.75
+    condition:
+      type: string
+      regex: "IInterceptor|Interceptor|IInvocation"

@@ -1,0 +1,85 @@
+# Collection - Archive Operations
+# ATT&CK: T1560 (Archive Collected Data)
+
+traits:
+  # === Atomic: Tar Operations ===
+
+  - id: collect/archive/tar-create
+    description: Creates tar archive
+    criticality: notable
+    confidence: 0.6
+    attack: "T1560"
+    platforms: [linux, macos, unix]
+    file_types: [shell]
+    condition:
+      type: string
+      regex: "tar\\s+-c"
+
+  - id: collect/archive/tar-current-dir
+    description: Archives current directory
+    criticality: suspicious
+    confidence: 0.75
+    attack: "T1560"
+    platforms: [linux, macos, unix]
+    file_types: [shell]
+    condition:
+      type: string
+      regex: "tar\\s+-c\\w*\\s+\\."
+
+  - id: collect/archive/tar-from-file
+    description: Tar with file list input
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1560"
+    platforms: [linux, macos, unix]
+    file_types: [shell]
+    condition:
+      type: string
+      regex: "tar\\s+-[rT]"
+
+  # === Atomic: Zip Operations ===
+
+  - id: collect/archive/zip-create
+    description: Creates zip archive
+    criticality: notable
+    confidence: 0.6
+    attack: "T1560"
+    platforms: [all]
+    condition:
+      type: string
+      regex: "zip\\s+-[rX]"
+
+  - id: collect/archive/zip-library
+    description: ZIP library usage
+    criticality: inert
+    confidence: 0.5
+    attack: "T1560"
+    platforms: [all]
+    condition:
+      type: string
+      regex: "archive/zip|zip_writer|zipfile|ZIP64"
+
+  # === Atomic: Unarchive ===
+
+  - id: collect/archive/unarchive
+    description: Unarchive operation
+    criticality: notable
+    confidence: 0.5
+    platforms: [all]
+    condition:
+      type: string
+      regex: "[Uu]narchive"
+
+composite_rules:
+  - id: collect/archive/binary-tar-exec
+    description: Binary executes tar command (not script)
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1560"
+    platforms: [linux, macos, unix]
+    file_types: [elf, macho]
+    requires_any:
+      - type: trait
+        id: collect/archive/tar-create
+      - type: trait
+        id: collect/archive/tar-from-file

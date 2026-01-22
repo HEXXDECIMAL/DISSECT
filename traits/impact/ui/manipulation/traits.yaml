@@ -1,0 +1,126 @@
+# Impact - UI Manipulation
+# ATT&CK: T1491 (Defacement)
+
+traits:
+  - id: impact/ui/dock-hide
+    description: macOS dock hiding
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1564.003"
+    file_types: [macho]
+    condition:
+      type: string
+      regex: "(?i)(hideDock|applicationWillHide)"
+
+  - id: impact/ui/screencapture
+    description: macOS screencapture command
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1113"
+    file_types: [macho, shell]
+    condition:
+      type: string
+      exact: "screencapture"
+
+  - id: impact/ui/pil-imagegrab
+    description: Python PIL screenshot capture
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1113"
+    file_types: [python]
+    condition:
+      type: string
+      exact: "ImageGrab"
+
+  - id: impact/ui/cg-window-capture
+    description: macOS CGWindow capture
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1113"
+    file_types: [macho]
+    condition:
+      type: string
+      exact: "CGWindowListCreateImageFromArray"
+
+  - id: impact/ui/screensaver-engine
+    description: macOS ScreenSaver control
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1491"
+    file_types: [macho, shell]
+    condition:
+      type: string
+      exact: "ScreenSaverEngine"
+
+  - id: impact/ui/system-events
+    description: macOS System Events control
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1059.002"
+    file_types: [macho, shell]
+    condition:
+      type: string
+      exact: "tell application \"System Events\""
+
+  - id: impact/ui/window-watcher
+    description: macOS window/application monitoring
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1010"
+    file_types: [macho]
+    condition:
+      type: string
+      exact: "frontmostApplication"
+
+  - id: impact/ui/screen-locked
+    description: macOS screen lock detection
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1010"
+    file_types: [macho]
+    condition:
+      type: string
+      exact: "CGSSessionScreenIsLocked"
+
+  - id: impact/ui/x11-auth
+    description: X11 authentication cookie
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1056"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "MIT-MAGIC-COOKIE-1"
+
+  - id: impact/ui/xsession
+    description: Xsession reference
+    criticality: suspicious
+    confidence: 0.75
+    attack: "T1056"
+    file_types: [elf, shell]
+    condition:
+      type: string
+      exact: "Xsession"
+
+composite_rules:
+  - id: impact/ui/macos-spy-detected
+    description: macOS UI spying
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1010"
+    mbc: "B0042"
+    file_types: [macho]
+    condition:
+      type: yara
+      source: |
+        rule macos_ui_spy {
+          strings:
+            $locked = "CGSSessionScreenIsLocked"
+            $idle = "HIDIdleTime"
+            $frontmost = "frontmostApplication"
+            $proc = "processIdentifier"
+          condition:
+            (uint32(0) == 0xFEEDFACE or uint32(0) == 0xFEEDFACF or
+             uint32(0) == 0xCEFAEDFE or uint32(0) == 0xCFFAEDFE) and
+            filesize < 10MB and 2 of them
+        }

@@ -1,0 +1,109 @@
+# Impact - Infection Markers
+# ATT&CK: T1204 (User Execution)
+
+traits:
+  - id: impact/infection/infected-marker
+    description: References being infected
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1204"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "(?i)\\binfected\\b"
+
+  - id: impact/infection/infection-marker
+    description: References infection
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1204"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "infection"
+
+  - id: impact/infection/infected-with
+    description: Infection notification pattern
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1204"
+    file_types: [all]
+    condition:
+      type: string
+      regex: ".{3,16} infected with .{3,16}"
+
+  - id: impact/infection/virus-marker
+    description: Virus reference
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1204"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "(?i)\\bvirus\\b"
+
+  - id: impact/infection/worm-marker
+    description: Worm reference
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1204"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "(?i)\\bworm\\b"
+
+  - id: impact/infection/trojan-marker
+    description: Trojan reference
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1204"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "(?i)\\btrojan\\b"
+
+composite_rules:
+  - id: impact/infection/elf-infector-detected
+    description: ELF file infector
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1204"
+    mbc: "B0009"
+    file_types: [elf]
+    condition:
+      type: yara
+      source: |
+        rule elf_infector {
+          strings:
+            $f_readdir = "readdir" fullword
+            $f_fopen = "fopen" fullword
+            $f_ftruncate = "ftruncate" fullword
+            $f_fork = "fork" fullword
+            $f_unlink = "unlink" fullword
+            $f_lseek = "lseek" fullword
+            $f_execve = "execve" fullword
+            $f_opendir = "opendir" fullword
+            $magic = { 7F 45 4C 46 }
+            $infect = "infect" nocase
+          condition:
+            uint32(0) == 0x464C457F and
+            filesize < 1MB and
+            6 of ($f_*) and ($magic or $infect)
+        }
+
+  - id: impact/infection/infected-xor-detected
+    description: XOR obfuscated infection marker
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1027"
+    file_types: [all]
+    condition:
+      type: yara
+      source: |
+        rule infected_xor {
+          strings:
+            $infected_x = "infected" xor(1-255)
+            $INFECTED_x = "INFECTED" xor(1-255)
+          condition:
+            filesize < 5MB and any of them
+        }

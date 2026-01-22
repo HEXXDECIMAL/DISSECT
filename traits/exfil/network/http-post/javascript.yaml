@@ -3,7 +3,7 @@
 # ATT&CK: T1041 (Exfiltration Over C2 Channel)
 
 traits:
-  - id: axios-post
+  - id: exfil/network/http-post/axios-post
     description: axios POST request (potential exfiltration)
     criticality: suspicious
     confidence: 0.8
@@ -13,7 +13,7 @@ traits:
       type: string
       regex: "axios\\.post|axios\\[.*post"
 
-  - id: fetch-post
+  - id: exfil/network/http-post/fetch-post
     description: fetch POST request (potential exfiltration)
     criticality: suspicious
     confidence: 0.8
@@ -23,7 +23,7 @@ traits:
       type: string
       regex: "fetch\\(.*POST|method:\\s*['\"]POST"
 
-  - id: request-post
+  - id: exfil/network/http-post/request-post
     description: request module POST (potential exfiltration)
     criticality: suspicious
     confidence: 0.8
@@ -33,7 +33,7 @@ traits:
       type: string
       regex: "request\\.post|request\\(.*method.*POST"
 
-  - id: http-request
+  - id: exfil/network/http-post/http-request
     description: Node.js http.request (potential exfiltration)
     criticality: notable
     confidence: 0.7

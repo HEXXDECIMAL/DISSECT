@@ -98,8 +98,7 @@ fn test_scan_empty_directory() {
     assert_cmd::cargo_bin_cmd!("dissect")
         .args(["scan", temp_dir.path().to_str().unwrap()])
         .assert()
-        .success()
-        .stdout(predicate::str::contains("Scanning"));
+        .success();
 }
 
 /// Test scan command with multiple files
@@ -116,7 +115,8 @@ fn test_scan_multiple_files() {
         .args(["scan", temp_dir.path().to_str().unwrap()])
         .assert()
         .success()
-        .stdout(predicate::str::contains("Scanning"));
+        .stdout(predicate::str::contains("test1.sh"))
+        .stdout(predicate::str::contains("test2.sh"));
 }
 
 /// Test diff command with nonexistent files

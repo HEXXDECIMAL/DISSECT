@@ -138,26 +138,27 @@ fn risk_emoji(criticality: &Criticality) -> &'static str {
 /// Get risk level name
 fn risk_name(criticality: &Criticality) -> &'static str {
     match criticality {
-        Criticality::Filtered => "FILT",
-        Criticality::Inert => "NONE",
-        Criticality::Notable => "LOW",
-        Criticality::Suspicious => "MED",
-        Criticality::Hostile => "HIGH",
+        Criticality::Filtered => "filtered",
+        Criticality::Inert => "inert",
+        Criticality::Notable => "notable",
+        Criticality::Suspicious => "suspicious",
+        Criticality::Hostile => "hostile",
     }
 }
 
 /// Split trait ID into namespace and rest (e.g., "intel/discover/process/getuid" -> ("intel", "discover/process/getuid"))
+/// For IDs without a slash, use the ID itself as both namespace and rest
 fn split_trait_id(id: &str) -> (String, String) {
     let parts: Vec<&str> = id.split('/').collect();
     if parts.len() > 1 {
         (parts[0].to_string(), parts[1..].join("/"))
     } else {
-        ("other".to_string(), id.to_string())
+        (id.to_string(), id.to_string())
     }
 }
 
-/// Convert namespace to long name (malcontent-style)
-fn namespace_long_name(ns: &str) -> &'static str {
+/// Convert namespace to long name, falling back to original if no mapping exists
+fn namespace_long_name(ns: &str) -> &str {
     match ns {
         "c2" => "command & control",
         "intel" => "discovery",
@@ -184,7 +185,7 @@ fn namespace_long_name(ns: &str) -> &'static str {
         "kernel" => "kernel",
         "reflect" => "reflection",
         "archive" => "archive",
-        _ => "other",
+        _ => ns,
     }
 }
 
@@ -232,14 +233,8 @@ pub fn format_json(report: &AnalysisReport) -> Result<String> {
 pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
     let mut output = String::new();
 
-    // File path with risk emoji
-    let overall_risk = calculate_overall_risk(report);
-    output.push_str(&format!(
-        "├─ {} {} {}\n",
-        risk_emoji(&overall_risk),
-        report.target.path.bright_white(),
-        format!("[{}]", risk_name(&overall_risk)).bright_black()
-    ));
+    // File path (no file-level criticality until ML pipeline is ready)
+    output.push_str(&format!("├─ {}\n", report.target.path.bright_white()));
 
     // Combine all findings from report and YARA matches
     let mut all_findings: Vec<Finding> = report.findings.clone();
@@ -279,7 +274,7 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
 
     // Sort namespaces by long name
     let mut namespaces: Vec<String> = by_namespace.keys().cloned().collect();
-    namespaces.sort_by_key(|ns| namespace_long_name(ns));
+    namespaces.sort_by(|a, b| namespace_long_name(a).cmp(namespace_long_name(b)));
 
     // Render each namespace
     for ns in &namespaces {
@@ -386,6 +381,7 @@ mod tests {
             imports: vec![],
             exports: vec![],
             yara_matches,
+            syscalls: vec![],
             binary_properties: None,
             code_metrics: None,
             source_code_metrics: None,
@@ -568,10 +564,10 @@ mod tests {
 
     #[test]
     fn test_risk_name() {
-        assert_eq!(risk_name(&Criticality::Inert), "NONE");
-        assert_eq!(risk_name(&Criticality::Notable), "LOW");
-        assert_eq!(risk_name(&Criticality::Suspicious), "MED");
-        assert_eq!(risk_name(&Criticality::Hostile), "HIGH");
+        assert_eq!(risk_name(&Criticality::Inert), "inert");
+        assert_eq!(risk_name(&Criticality::Notable), "notable");
+        assert_eq!(risk_name(&Criticality::Suspicious), "suspicious");
+        assert_eq!(risk_name(&Criticality::Hostile), "hostile");
     }
 
     #[test]
@@ -584,7 +580,7 @@ mod tests {
     #[test]
     fn test_split_trait_id_no_namespace() {
         let (ns, rest) = split_trait_id("test");
-        assert_eq!(ns, "other");
+        assert_eq!(ns, "test");
         assert_eq!(rest, "test");
     }
 
@@ -596,7 +592,7 @@ mod tests {
         assert_eq!(namespace_long_name("3P"), "third-party");
         assert_eq!(namespace_long_name("credential"), "credential access");
         assert_eq!(namespace_long_name("impact"), "impact");
-        assert_eq!(namespace_long_name("unknown"), "other");
+        assert_eq!(namespace_long_name("unknown"), "unknown");
     }
 
     #[test]

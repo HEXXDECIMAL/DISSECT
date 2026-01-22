@@ -1,0 +1,284 @@
+# Impact - Cryptojacking / Cryptocurrency Mining
+# ATT&CK: T1496 (Resource Hijacking)
+# MBC: B0036 (Cryptomining)
+
+traits:
+  # === Atomic: Mining Protocols ===
+
+  - id: impact/cryptojacking/stratum-protocol
+    description: Stratum mining protocol reference
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1496"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "stratum(\\+(tcp|ssl|tls))?://"
+
+  # === Atomic: Mining Pools ===
+
+  - id: impact/cryptojacking/pool-c3pool
+    description: C3Pool mining pool
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1496"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "c3pool"
+
+  - id: impact/cryptojacking/pool-f2pool
+    description: F2Pool mining pool
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1496"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "f2pool"
+
+  - id: impact/cryptojacking/pool-hashvault
+    description: HashVault mining pool
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1496"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "hashvault"
+
+  - id: impact/cryptojacking/pool-monerohash
+    description: MoneroHash mining pool
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1496"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "monerohash"
+
+  - id: impact/cryptojacking/pool-xmrpool
+    description: XMRPool mining pool
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1496"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "xmrpool"
+
+  - id: impact/cryptojacking/pool-supportxmr
+    description: SupportXMR mining pool
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1496"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "supportxmr"
+
+  - id: impact/cryptojacking/pool-minergate
+    description: MinerGate mining pool
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1496"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "minergate"
+
+  - id: impact/cryptojacking/pool-generic
+    description: Generic mining pool reference
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1496"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "crypto-pool|moneropool"
+
+  # === Atomic: Mining Software ===
+
+  - id: impact/cryptojacking/xmrig-ref
+    description: XMRig miner reference
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1496"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "xmrig"
+      case_insensitive: true
+
+  - id: impact/cryptojacking/cryptonight
+    description: CryptoNight algorithm reference
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1496"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "[Cc]rypto[Nn]ight"
+
+  - id: impact/cryptojacking/monero-ref
+    description: Monero cryptocurrency reference
+    criticality: notable
+    confidence: 0.6
+    attack: "T1496"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "\\b[Mm]onero\\b|\\bMONERO\\b|\\bXMR\\b"
+
+  # === Atomic: Mining Configuration ===
+
+  - id: impact/cryptojacking/donate-level
+    description: Mining donate-level configuration
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1496"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "--donate-level"
+
+  - id: impact/cryptojacking/tls-fingerprint
+    description: Mining TLS fingerprint option
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1496"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "--tls-fingerprint"
+
+  - id: impact/cryptojacking/miner-name
+    description: Miner name configuration
+    criticality: suspicious
+    confidence: 0.75
+    attack: "T1496"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "miner_name"
+
+  - id: impact/cryptojacking/miner-url
+    description: Miner URL configuration
+    criticality: suspicious
+    confidence: 0.75
+    attack: "T1496"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "miner_url"
+
+  - id: impact/cryptojacking/normal-hashing
+    description: Normal hashing configuration
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1496"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "\"normalHashing\": true,"
+
+  # === Atomic: Memory Optimization ===
+
+  - id: impact/cryptojacking/hugepages
+    description: Huge pages memory configuration
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1496"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "vm.nr_hugepages"
+
+  - id: impact/cryptojacking/nmi-watchdog
+    description: NMI watchdog disable (mining optimization)
+    criticality: suspicious
+    confidence: 0.75
+    attack: "T1496"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "kernel.nmi_watchdog"
+
+  # === Atomic: Argon2 (Memory-Hard) ===
+
+  - id: impact/cryptojacking/argon2d
+    description: Argon2d hashing algorithm
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1496"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "argon2d"
+
+composite_rules:
+  - id: impact/cryptojacking/cryptocurrency-miner
+    description: Cryptocurrency miner detected
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1496"
+    mbc: "B0036"
+    file_types: [all]
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: impact/cryptojacking/stratum-protocol
+      - type: trait
+        id: impact/cryptojacking/pool-c3pool
+      - type: trait
+        id: impact/cryptojacking/pool-f2pool
+      - type: trait
+        id: impact/cryptojacking/pool-hashvault
+      - type: trait
+        id: impact/cryptojacking/pool-monerohash
+      - type: trait
+        id: impact/cryptojacking/pool-xmrpool
+      - type: trait
+        id: impact/cryptojacking/pool-supportxmr
+      - type: trait
+        id: impact/cryptojacking/pool-minergate
+      - type: trait
+        id: impact/cryptojacking/xmrig-ref
+      - type: trait
+        id: impact/cryptojacking/cryptonight
+      - type: trait
+        id: impact/cryptojacking/donate-level
+      - type: trait
+        id: impact/cryptojacking/miner-name
+
+  - id: impact/cryptojacking/memory-optimized-miner
+    description: Memory-optimized cryptocurrency miner
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1496"
+    mbc: "B0036"
+    file_types: [elf]
+    requires_all:
+      - type: trait
+        id: impact/cryptojacking/hugepages
+    requires_any:
+      - type: trait
+        id: impact/cryptojacking/xmrig-ref
+      - type: trait
+        id: impact/cryptojacking/monero-ref
+      - type: string
+        exact: "wallet"
+
+  - id: impact/cryptojacking/argon2-miner
+    description: Argon2-based cryptocurrency miner
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1496"
+    file_types: [all]
+    requires_all:
+      - type: trait
+        id: impact/cryptojacking/argon2d
+      - type: string
+        exact: "/proc/self"
+      - type: string
+        exact: "NUMA"

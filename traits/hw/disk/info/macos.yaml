@@ -1,0 +1,15 @@
+# Disk Information - macOS
+# ATT&CK: T1082 (System Information Discovery)
+
+traits:
+  - id: hw/disk/info/diskarbitration
+    description: macOS DiskArbitration framework
+    criticality: notable
+    confidence: 0.7
+    attack: "T1082"
+    platforms: [macos]
+    condition:
+      type: symbol_or_string
+      any:
+        - "DADiskCopyDescription"
+        - "DADiskCreateFromBSDName"

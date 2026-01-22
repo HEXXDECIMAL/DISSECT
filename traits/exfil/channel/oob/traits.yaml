@@ -1,0 +1,137 @@
+# Exfiltration - Out-of-Band (OOB) Data Exfiltration
+# ATT&CK: T1048 (Exfiltration Over Alternative Protocol)
+
+traits:
+  - id: exfil/oob/interactsh
+    description: Interactsh OOB interaction domain
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1048"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "[a-z0-9]{8,32}\\.interactsh\\.com"
+
+  - id: exfil/oob/burp-collaborator
+    description: Burp Collaborator domain
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1048"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "[a-z0-9]{8,32}\\.burpcollaborator\\.net"
+
+  - id: exfil/oob/oastify
+    description: Oastify OOB domain
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1048"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "[a-z0-9]{8,32}\\.oastify\\.com"
+
+  - id: exfil/oob/oast-fun
+    description: OAST.fun OOB domain
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1048"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "[a-z0-9]{8,32}\\.oast\\.fun"
+
+  - id: exfil/oob/pipedream
+    description: Pipedream OOB endpoint
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1048"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "[a-z0-9]{8,32}\\.m\\.pipedream\\.net"
+
+  - id: exfil/oob/requestbin
+    description: RequestBin OOB endpoint
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1048"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "requestbin\\.(com|net)"
+
+  - id: exfil/oob/webhook-site
+    description: Webhook.site OOB endpoint
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1048"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "webhook.site"
+
+  - id: exfil/oob/dnslog-cn
+    description: DNSLog.cn OOB domain
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1048"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "dnslog.cn"
+
+  - id: exfil/oob/canarytokens
+    description: Canarytokens OOB domain
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1048"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "canarytokens.com"
+
+composite_rules:
+  - id: exfil/oob/preinstall-exfil
+    description: OOB exfiltration from npm preinstall
+    criticality: suspicious
+    confidence: 0.99
+    attack: "T1048"
+    mbc: "B0030"
+    file_types: [javascript]
+    condition:
+      type: yara
+      source: |
+        rule oob_preinstall_exfil {
+          strings:
+            $preinstall = /\s{2,8}"preinstall": ".{12,256}/
+            $oob1 = /[a-z0-9]{8,32}\.burpcollaborator\.net/
+            $oob2 = /[a-z0-9]{8,32}\.oastify\.com/
+            $oob3 = /[a-z0-9]{8,32}\.oast\.fun/
+            $oob4 = /[a-z0-9]{8,32}\.interactsh\.com/
+            $oob5 = /[a-z0-9]{8,32}\.m\.pipedream\.net/
+          condition:
+            filesize < 5KB and $preinstall and any of ($oob*)
+        }
+
+  - id: exfil/oob/crypto-exfil
+    description: Encrypted OOB exfiltration
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1048"
+    mbc: "B0030"
+    file_types: [javascript]
+    condition:
+      type: yara
+      source: |
+        rule oob_crypto_exfil {
+          strings:
+            $crypto = /require\(['"]crypto['"]\)/
+            $oob1 = /[a-z0-9]{8,32}\.burpcollaborator\.net/
+            $oob2 = /[a-z0-9]{8,32}\.oastify\.com/
+            $oob3 = /[a-z0-9]{8,32}\.oast\.fun/
+            $oob4 = /[a-z0-9]{8,32}\.interactsh\.com/
+          condition:
+            filesize < 24KB and $crypto and any of ($oob*)
+        }

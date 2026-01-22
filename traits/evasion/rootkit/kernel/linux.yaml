@@ -1,0 +1,25 @@
+# Rootkit Detection - Linux
+# MBC: B0003 (Rootkit)
+# ATT&CK: T1014
+
+traits:
+  - id: evasion/rootkit
+    description: Linux rootkit patterns
+    criticality: suspicious
+    confidence: 0.66
+    mbc: "B0003"
+    attack: "T1014"
+    condition:
+      type: yara
+      source: |
+        rule linux_rootkit {
+          strings:
+            $rootkit = "rootkit" nocase
+            $hide_pid = "hide_pid"
+            $hide_file = "hide_file"
+            $ld_preload = "/etc/ld.so.preload"
+            $readdir_hook = "readdir" fullword
+            $getdents = "getdents" fullword
+          condition:
+            2 of them
+        }

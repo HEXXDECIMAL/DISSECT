@@ -1,0 +1,97 @@
+# Time-based Trigger Composite Rules
+# Logic bombs and time-triggered malware
+
+composite_rules:
+  # Self-termination: GetCurrentProcess + Kill
+  - id: time/trigger/self-termination
+    description: "Self-destruct: terminates own process"
+    criticality: suspicious
+    mbc: "E1562"
+    attack: "T1562"
+    confidence: 0.95
+    file_types: [all]
+    requires_all:
+      - type: trait
+        id: exec/process/current-process
+      - type: trait
+        id: exec/process/terminate
+
+  # Probabilistic execution: Random number decides whether to execute
+  - id: time/trigger/probabilistic-execution
+    description: "Probabilistic execution: uses randomness to evade consistent detection"
+    criticality: suspicious
+    mbc: "B0009"
+    attack: "T1497"
+    confidence: 0.9
+    file_types: [all]
+    requires_all:
+      - type: trait
+        id: anti-analysis/randomness/instantiation
+
+  # Logic bomb with self-destruct
+  - id: time/trigger/logic-bomb-self-destruct
+    description: "Logic bomb: time-triggered self-destruct with date-based activation"
+    criticality: suspicious
+    mbc: "B0003"
+    attack: "T1480.001"
+    confidence: 0.95
+    file_types: [all]
+    requires_all:
+      - type: trait
+        id: time/trigger/hardcoded-datetime
+      - type: trait
+        id: exec/process/current-process
+      - type: trait
+        id: exec/process/terminate
+
+  # Logic bomb with probabilistic self-destruct
+  - id: time/trigger/logic-bomb-probabilistic-self-destruct
+    description: "Logic bomb: time-triggered probabilistic self-destruct (activates after date with random chance)"
+    criticality: suspicious
+    mbc: "B0003"
+    attack: "T1480.001"
+    confidence: 0.95
+    file_types: [all]
+    requires_all:
+      - type: trait
+        id: time/trigger/hardcoded-datetime
+      - type: trait
+        id: anti-analysis/randomness/instantiation
+      - type: trait
+        id: exec/process/current-process
+      - type: trait
+        id: exec/process/terminate
+
+  # Supply chain: SQL library with malicious payload
+  - id: time/trigger/supply-chain-sql-backdoor
+    description: "Supply chain attack: malicious code hidden in SQL database extension"
+    criticality: suspicious
+    mbc: "B0003"
+    attack: "T1195.001"
+    confidence: 0.95
+    file_types: [all]
+    requires_all:
+      - type: trait
+        id: data/sql/sqlcommand
+    requires_any:
+      - type: trait
+        id: exec/process/terminate
+      - type: trait
+        id: exec/process/start
+      - type: trait
+        id: exec/reflection/assembly-load
+
+  # Concentrated malicious code: all behaviors within 30 lines (tight proximity)
+  - id: time/trigger/concentrated-logic-bomb
+    description: "Concentrated logic bomb: all malicious behaviors in close proximity"
+    criticality: suspicious
+    mbc: "B0003"
+    attack: "T1480.001"
+    confidence: 0.98
+    file_types: [all]
+    near_lines: 30              # All patterns must be within 30 lines
+    requires_all:
+      - type: trait
+        id: time/trigger/hardcoded-datetime
+      - type: trait
+        id: exec/process/terminate

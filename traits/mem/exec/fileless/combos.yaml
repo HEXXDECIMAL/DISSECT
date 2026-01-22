@@ -1,0 +1,52 @@
+# Memory-based Code Execution
+# ATT&CK: T1055 (Process Injection)
+# MBC: B0033
+
+composite_rules:
+  - id: mem/exec/fileless/linux-memfd
+    description: Fileless execution via anonymous memory
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1055"
+    mbc: "B0033"
+    platforms: [linux]
+    file_types: [elf]
+    requires_all:
+      - type: trait
+        id: mem/anonymous/create/memfd-create
+    requires_any:
+      - type: symbol
+        pattern: "^_?(execve|fexecve)$"
+      - type: trait
+        id: mem/protect/modify/mprotect
+
+  - id: mem/exec/fileless/python-shellcode
+    description: Python shellcode injection via VirtualProtect
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1055"
+    platforms: [windows]
+    file_types: [python]
+    requires_all:
+      - type: trait
+        id: mem/protect/modify/virtualprotect-ctypes
+    requires_any:
+      - type: ast_pattern
+        node_type: call
+        pattern: "encode"
+      - type: ast_pattern
+        node_type: call
+        pattern: "b64decode"
+
+  - id: mem/exec/fileless/remote-injection
+    description: Remote process memory manipulation
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1055"
+    platforms: [windows]
+    file_types: [pe, dll]
+    requires_any:
+      - type: trait
+        id: mem/protect/modify/virtualprotect-ex
+      - type: trait
+        id: mem/query/info/virtualquery-ex

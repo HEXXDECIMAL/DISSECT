@@ -1,0 +1,108 @@
+# C2 Infrastructure Detection - IP Addresses
+# Detects hardcoded IP addresses, ports, and obfuscated C2 patterns
+# ATT&CK: T1071.001
+
+traits:
+  - id: c2/infrastructure/ip/hardcoded-ipv4
+    description: "Hardcoded IPv4 address"
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "C0002"
+    attack: "T1071.001"
+    file_types: [elf, macho, pe]
+    condition:
+      type: string
+      regex: "\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b"
+
+  - id: c2/infrastructure/ip/ipv4-with-port
+    description: "IPv4 address with port number"
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "C0002"
+    attack: "T1071.001"
+    file_types: [elf, macho, pe]
+    condition:
+      type: string
+      regex: "\\b\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}:\\d{1,5}\\b"
+
+  - id: c2/infrastructure/ip/http-url-with-ip
+    description: "HTTP URL with hardcoded IP address"
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "C0002"
+    attack: "T1071.001"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "https?://\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}"
+
+  - id: c2/infrastructure/ip/private-ip-reference
+    description: "Private/internal IP address reference"
+    criticality: notable
+    confidence: 0.75
+    file_types: [elf, macho, pe]
+    condition:
+      type: string
+      regex: "\\b(?:10\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}|172\\.(?:1[6-9]|2[0-9]|3[01])\\.\\d{1,3}\\.\\d{1,3}|192\\.168\\.\\d{1,3}\\.\\d{1,3})\\b"
+
+  - id: c2/infrastructure/ip/ip-format-string
+    description: "IP address format string (dynamic IP construction)"
+    criticality: notable
+    confidence: 0.7
+    mbc: "B0032"
+    attack: "T1027"
+    file_types: [elf, macho, pe]
+    condition:
+      type: string
+      # Match %hhu.%hhu or %d.%d patterns (partial or full IP format strings)
+      regex: "%[0-9]*h{0,2}[ud]\\.%[0-9]*h{0,2}[ud]"
+
+  - id: c2/infrastructure/ip/truncated-http-url
+    description: "Truncated HTTP URL (C2 address likely obfuscated)"
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "B0032"
+    attack: "T1027"
+    file_types: [elf]
+    condition:
+      type: string
+      regex: "wget http://[^0-9a-zA-Z]|curl http://[^0-9a-zA-Z]|http://\\x00"
+      search_raw: true
+
+  - id: c2/infrastructure/ip/port-number-constant
+    description: "Common C2 port number (23, 80, 443, 8080, 4444)"
+    criticality: notable
+    confidence: 0.6
+    file_types: [elf, macho, pe]
+    condition:
+      type: string
+      regex: ":(?:23|80|443|8080|4444|1337|31337)\\b"
+
+composite_rules:
+  - id: c2/infrastructure/obfuscated-address
+    description: "C2 address obfuscation (HTTP client + no visible IP)"
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "B0032"
+    attack: "T1027"
+    file_types: [elf]
+    requires_all:
+      - type: trait
+        id: truncated-http-url
+    requires_none:
+      - type: trait
+        id: hardcoded-ipv4
+
+  - id: c2/infrastructure/dynamic-ip
+    description: "Dynamic IP address construction"
+    criticality: suspicious
+    confidence: 0.8
+    mbc: "B0032"
+    attack: "T1027"
+    file_types: [elf, macho, pe]
+    requires_all:
+      - type: trait
+        id: ip-format-string
+    requires_none:
+      - type: trait
+        id: hardcoded-ipv4

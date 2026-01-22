@@ -1,0 +1,221 @@
+# PHP Webshell Composite Detection Rules
+# These rules combine multiple traits to identify webshell behavior patterns
+# MBC: B0030 (C2 Communication)
+# ATT&CK: T1505.003 (Server Software Component: Web Shell)
+
+composite_rules:
+  # High-confidence webshell detection
+  - id: c2/webshell/php-backdoor
+    description: "PHP webshell: session-based backdoor with user input handling"
+    criticality: suspicious
+    confidence: 0.95
+    mbc: "B0030"
+    attack: "T1505.003"
+    file_types: [all]
+    requires_all:
+      - type: trait
+        id: persistence/session/start
+      - type: trait
+        id: data/user-input/post
+    requires_any:
+      - type: trait
+        id: anti-static/obfuscation/base64-decode
+      - type: trait
+        id: fs/write/file-put-contents
+      - type: trait
+        id: exec/command/exec
+
+  # Dropper webshell (writes decoded payloads)
+  - id: c2/webshell/php-dropper
+    description: "PHP dropper: decodes and writes payload files"
+    criticality: suspicious
+    confidence: 0.95
+    mbc: "B0030"
+    attack: "T1105"
+    file_types: [all]
+    requires_all:
+      - type: trait
+        id: anti-static/obfuscation/base64-decode
+      - type: trait
+        id: fs/write/file-put-contents
+    requires_any:
+      - type: trait
+        id: data/user-input/post
+      - type: trait
+        id: data/user-input/get
+
+  # Self-destructing webshell
+  - id: c2/webshell/php-self-destruct
+    description: "PHP webshell with self-deletion capability"
+    criticality: suspicious
+    confidence: 0.95
+    mbc: "F0006"
+    attack: "T1070.004"
+    file_types: [all]
+    requires_all:
+      - type: trait
+        id: evasion/self-destruct/unlink
+      - type: trait
+        id: data/user-input/script-filename
+
+  # SSRF/Proxy webshell
+  - id: c2/webshell/php-proxy
+    description: "PHP proxy/SSRF webshell for fetching remote URLs"
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "B0030"
+    attack: "T1090"
+    file_types: [all]
+    requires_all:
+      - type: trait
+        id: net/http/curl/init
+    requires_any:
+      - type: trait
+        id: data/user-input/post
+      - type: trait
+        id: data/user-input/get
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: net/http/curl/ssl-verify-disable
+      - type: trait
+        id: net/http/curl/ssl-host-disable
+      - type: trait
+        id: evasion/impersonate/ua-array
+
+  # Bot impersonation webshell
+  - id: c2/webshell/php-bot-impersonate
+    description: "PHP webshell with search engine bot impersonation"
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "B0032"
+    attack: "T1036"
+    file_types: [all]
+    requires_all:
+      - type: trait
+        id: net/http/curl/init
+    requires_any:
+      - type: trait
+        id: evasion/impersonate/googlebot
+      - type: trait
+        id: evasion/impersonate/ua-array
+
+  # Timestamp manipulation (anti-forensic)
+  - id: c2/webshell/php-timestomp
+    description: "PHP webshell with timestamp manipulation for evasion"
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "F0006"
+    attack: "T1070.006"
+    file_types: [all]
+    requires_all:
+      - type: trait
+        id: evasion/timestomp/touch
+      - type: trait
+        id: fs/write/file-put-contents
+
+  # Hardcoded authentication backdoor
+  - id: c2/webshell/php-hardcoded-auth
+    description: "PHP webshell with hardcoded hash authentication"
+    criticality: suspicious
+    confidence: 0.95
+    mbc: "B0030"
+    attack: "T1505.003"
+    file_types: [all]
+    requires_any:
+      - type: trait
+        id: c2/webshell/hardcoded-hash-auth
+      - type: trait
+        id: c2/webshell/substr-hash-compare
+
+  # File upload webshell
+  - id: c2/webshell/php-uploader
+    description: "PHP webshell with file upload capability"
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "B0030"
+    attack: "T1105"
+    file_types: [all]
+    requires_any:
+      - type: trait
+        id: data/user-input/files
+      - type: trait
+        id: net/http/curl/file-upload
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: fs/write/move-uploaded-file
+      - type: trait
+        id: fs/write/file-put-contents
+
+  # Command execution webshell
+  - id: c2/webshell/php-rce
+    description: "PHP webshell with remote command execution"
+    criticality: suspicious
+    confidence: 0.95
+    mbc: "E1059"
+    attack: "T1059.004"
+    file_types: [all]
+    requires_any:
+      - type: trait
+        id: exec/command/exec-user-input
+      - type: trait
+        id: anti-static/obfuscation/eval
+      - type: trait
+        id: anti-static/obfuscation/preg-replace-e
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: data/user-input/get
+      - type: trait
+        id: data/user-input/post
+
+  # Web UI webshell (has HTML interface)
+  - id: c2/webshell/php-web-ui
+    description: "PHP webshell with web-based user interface"
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "B0030"
+    attack: "T1505.003"
+    file_types: [all]
+    requires_all:
+      - type: trait
+        id: c2/webshell/password-form
+    requires_any:
+      - type: trait
+        id: persistence/session/start
+      - type: trait
+        id: data/user-input/post
+
+  # Google scraping webshell (SEO spam tool)
+  - id: c2/webshell/php-seo-tool
+    description: "PHP SEO spam tool with Google scraping capability"
+    criticality: suspicious
+    confidence: 0.85
+    file_types: [all]
+    requires_all:
+      - type: trait
+        id: c2/webshell/google-search-scrape
+      - type: trait
+        id: net/http/curl/init
+
+  # Obfuscated payload webshell
+  - id: c2/webshell/php-obfuscated
+    description: "PHP webshell with heavily obfuscated payload"
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "B0032"
+    attack: "T1027"
+    file_types: [all]
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: anti-static/obfuscation/base64-decode
+      - type: trait
+        id: anti-static/obfuscation/gzinflate
+      - type: trait
+        id: anti-static/obfuscation/gzuncompress
+      - type: trait
+        id: anti-static/obfuscation/rot13
+      - type: trait
+        id: anti-static/obfuscation/eval

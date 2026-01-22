@@ -1,0 +1,57 @@
+# PHP Filesystem Write Traits
+# MBC: C0052 (Write File)
+# ATT&CK: T1105 (Ingress Tool Transfer)
+
+traits:
+  - id: fs/write/file/file-put-contents
+    description: File write via file_put_contents
+    criticality: notable
+    confidence: 0.8
+    mbc: "C0052"
+    attack: "T1105"
+    file_types: [all]
+    condition:
+      type: string
+      exact: file_put_contents
+
+  - id: fs/write/file/fwrite
+    description: File write via fwrite
+    criticality: notable
+    confidence: 0.8
+    mbc: "C0052"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "\\bfwrite\\s*\\("
+
+  - id: fs/write/file/fputs
+    description: File write via fputs
+    criticality: notable
+    confidence: 0.8
+    mbc: "C0052"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "\\bfputs\\s*\\("
+
+  - id: fs/write/file/dropper-pattern
+    description: File dropper pattern (base64 decode + file write)
+    criticality: suspicious
+    confidence: 0.95
+    mbc: "B0030"
+    attack: "T1105"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "file_put_contents\\s*\\([^,]+,\\s*base64_decode"
+
+  - id: fs/write/file/move-uploaded-file
+    description: Move uploaded file to destination
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "C0052"
+    attack: "T1105"
+    file_types: [all]
+    condition:
+      type: string
+      exact: move_uploaded_file

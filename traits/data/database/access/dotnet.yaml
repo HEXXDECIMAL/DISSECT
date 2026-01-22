@@ -1,0 +1,43 @@
+# .NET Database Access Patterns
+# Detected via string matching in compiled assemblies
+
+traits:
+  - id: data/database/access/sql-connection
+    description: SQL database connection capability
+    criticality: notable
+    confidence: 0.85
+    condition:
+      type: string
+      regex: "SqlConnection|DbConnection|OleDbConnection|OdbcConnection"
+
+  - id: data/database/access/sql-command
+    description: SQL command execution
+    criticality: notable
+    confidence: 0.85
+    condition:
+      type: string
+      regex: "ExecuteNonQuery|ExecuteScalar|ExecuteReader|SqlCommand|DbCommand"
+
+  - id: data/database/access/connection-string
+    description: Database connection string handling
+    criticality: notable
+    confidence: 0.80
+    condition:
+      type: string
+      regex: "ConnectionString|ConnectionStrings"
+
+  - id: data/database/access/sql-parameter
+    description: Parameterized SQL queries (good practice)
+    criticality: notable
+    confidence: 0.75
+    condition:
+      type: string
+      regex: "SqlParameter|DbParameter|AddWithValue"
+
+  - id: data/database/access/data-adapter
+    description: ADO.NET data adapter usage
+    criticality: notable
+    confidence: 0.75
+    condition:
+      type: string
+      regex: "SqlDataAdapter|DataAdapter|Fill\\("

@@ -1,0 +1,25 @@
+# Memory Protection - Unix
+# ATT&CK: T1055 (Process Injection)
+
+traits:
+  - id: mem/protect/modify/mprotect
+    description: Change memory protection (mprotect)
+    criticality: inert
+    confidence: 1.0
+    attack: "T1055"
+    platforms: [linux, macos, unix]
+    file_types: [elf, macho, so, dylib]
+    condition:
+      type: symbol
+      pattern: "^_?mprotect$"
+
+  - id: mem/protect/modify/mprotect-string
+    description: mprotect reference in source/script
+    criticality: notable
+    confidence: 0.7
+    attack: "T1055"
+    platforms: [linux, macos, unix]
+    file_types: [python, shell, c]
+    condition:
+      type: string
+      exact: "mprotect"

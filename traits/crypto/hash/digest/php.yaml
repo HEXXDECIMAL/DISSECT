@@ -1,0 +1,61 @@
+# PHP Cryptographic Hash Traits
+# MBC: C0029 (Cryptographic Hash)
+
+traits:
+  - id: crypto/hash/digest/md5
+    description: MD5 hash computation
+    criticality: inert
+    confidence: 0.7
+    mbc: "C0029"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "\\bmd5\\s*\\("
+
+  - id: crypto/hash/digest/sha1
+    description: SHA1 hash computation
+    criticality: inert
+    confidence: 0.7
+    mbc: "C0029"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "\\bsha1\\s*\\("
+
+  - id: crypto/hash/digest/sha256
+    description: SHA256 hash computation
+    criticality: inert
+    confidence: 0.7
+    mbc: "C0029"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "hash\\s*\\(['\"]sha256['\"]"
+
+  - id: crypto/hash/digest/hash-generic
+    description: Generic hash function usage
+    criticality: inert
+    confidence: 0.65
+    mbc: "C0029"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "\\bhash\\s*\\("
+
+  - id: crypto/hash/digest/password-hash
+    description: Password hashing (bcrypt/argon2)
+    criticality: inert
+    confidence: 0.6
+    file_types: [all]
+    condition:
+      type: string
+      exact: password_hash
+
+  - id: crypto/hash/digest/password-verify
+    description: Password verification
+    criticality: notable
+    confidence: 0.7
+    file_types: [all]
+    condition:
+      type: string
+      exact: password_verify

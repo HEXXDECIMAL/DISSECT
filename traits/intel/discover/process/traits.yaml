@@ -4,7 +4,7 @@
 
 traits:
   # User ID functions
-  - id: getuid
+  - id: intel/discover/process/getuid
     description: Get real user ID of calling process
     criticality: inert
     mbc: "E1057"
@@ -15,7 +15,7 @@ traits:
       pattern: getuid
     platforms: [unix, linux, macos]
 
-  - id: geteuid
+  - id: intel/discover/process/geteuid
     description: Get effective user ID of calling process
     criticality: inert
     mbc: "E1057"
@@ -26,7 +26,7 @@ traits:
       pattern: geteuid
     platforms: [unix, linux, macos]
 
-  - id: getgid
+  - id: intel/discover/process/getgid
     description: Get real group ID of calling process
     criticality: inert
     mbc: "E1057"
@@ -37,7 +37,7 @@ traits:
       pattern: getgid
     platforms: [unix, linux, macos]
 
-  - id: getegid
+  - id: intel/discover/process/getegid
     description: Get effective group ID of calling process
     criticality: inert
     mbc: "E1057"
@@ -49,7 +49,7 @@ traits:
     platforms: [unix, linux, macos]
 
   # Process ID functions
-  - id: getpid
+  - id: intel/discover/process/getpid
     description: Get process ID of calling process
     criticality: inert
     mbc: "E1057"
@@ -60,7 +60,7 @@ traits:
       pattern: getpid
     platforms: [unix, linux, macos]
 
-  - id: getppid
+  - id: intel/discover/process/getppid
     description: Get parent process ID
     criticality: inert
     mbc: "E1057"
@@ -72,7 +72,7 @@ traits:
     platforms: [unix, linux, macos]
 
   # User information lookup
-  - id: getpwnam
+  - id: intel/discover/process/getpwnam
     description: Get user database entry by name
     criticality: inert
     mbc: "E1087"
@@ -83,7 +83,7 @@ traits:
       pattern: getpwnam
     platforms: [unix, linux, macos]
 
-  - id: getpwuid
+  - id: intel/discover/process/getpwuid
     description: Get user database entry by UID
     criticality: inert
     mbc: "E1087"
@@ -95,7 +95,7 @@ traits:
     platforms: [unix, linux, macos]
 
   # Group information lookup
-  - id: getgrnam
+  - id: intel/discover/process/getgrnam
     description: Get group database entry by name
     criticality: inert
     mbc: "E1087"
@@ -106,7 +106,7 @@ traits:
       pattern: getgrnam
     platforms: [unix, linux, macos]
 
-  - id: getgrgid
+  - id: intel/discover/process/getgrgid
     description: Get group database entry by GID
     criticality: inert
     mbc: "E1087"

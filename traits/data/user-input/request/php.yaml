@@ -1,0 +1,89 @@
+# PHP User Input (Superglobal) Access Traits
+# These are critical for webshell/backdoor detection
+# ATT&CK: T1059 (Command and Scripting Interpreter)
+
+traits:
+  - id: data/user-input/request/get
+    description: HTTP GET parameter access ($_GET)
+    criticality: notable
+    confidence: 0.85
+    attack: "T1059"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "\\$_GET\\s*\\["
+
+  - id: data/user-input/request/post
+    description: HTTP POST parameter access ($_POST)
+    criticality: notable
+    confidence: 0.85
+    attack: "T1059"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "\\$_POST\\s*\\["
+
+  - id: data/user-input/request/request
+    description: HTTP REQUEST parameter access ($_REQUEST)
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1059"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "\\$_REQUEST\\s*\\["
+
+  - id: data/user-input/request/cookie
+    description: HTTP Cookie access ($_COOKIE)
+    criticality: notable
+    confidence: 0.8
+    file_types: [all]
+    condition:
+      type: string
+      regex: "\\$_COOKIE\\s*\\["
+
+  - id: data/user-input/request/server
+    description: Server variable access ($_SERVER)
+    criticality: notable
+    confidence: 0.75
+    file_types: [all]
+    condition:
+      type: string
+      regex: "\\$_SERVER\\s*\\["
+
+  - id: data/user-input/request/files
+    description: File upload access ($_FILES)
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1105"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "\\$_FILES\\s*\\["
+
+  - id: data/user-input/request/session
+    description: Session variable access ($_SESSION)
+    criticality: notable
+    confidence: 0.75
+    file_types: [all]
+    condition:
+      type: string
+      regex: "\\$_SESSION\\s*\\["
+
+  - id: data/user-input/request/script-filename
+    description: Access to script filename (self-reference)
+    criticality: suspicious
+    confidence: 0.85
+    file_types: [all]
+    condition:
+      type: string
+      exact: "SCRIPT_FILENAME"
+
+  - id: data/user-input/request/http-user-agent
+    description: Access to HTTP User-Agent header
+    criticality: notable
+    confidence: 0.7
+    file_types: [all]
+    condition:
+      type: string
+      exact: "HTTP_USER_AGENT"

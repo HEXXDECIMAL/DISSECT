@@ -1,0 +1,37 @@
+# C# Time-based Trigger Traits
+# objective: time, behavior: trigger (potential logic bombs)
+
+traits:
+  - id: time/trigger/scheduled/datetime-now
+    description: Current time access (potential time-based trigger)
+    criticality: inert
+    mbc: "B0003"
+    confidence: 0.6
+    condition:
+      type: ast_pattern
+      node_type: member_access_expression
+      pattern: "DateTime.Now"
+    file_types: [all]
+
+  - id: time/trigger/scheduled/datetime-utcnow
+    description: Current UTC time access
+    criticality: inert
+    mbc: "B0003"
+    confidence: 0.6
+    condition:
+      type: ast_pattern
+      node_type: member_access_expression
+      pattern: "DateTime.UtcNow"
+    file_types: [all]
+
+  - id: time/trigger/scheduled/hardcoded-datetime
+    description: Hardcoded date/time value (potential logic bomb trigger)
+    criticality: notable
+    mbc: "B0003"
+    attack: "T1480.001"
+    confidence: 0.75
+    condition:
+      type: ast_pattern
+      node_type: object_creation_expression
+      pattern: "new DateTime"
+    file_types: [all]

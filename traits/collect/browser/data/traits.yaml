@@ -1,0 +1,55 @@
+# Collection - Browser Data Access
+# ATT&CK: T1005 (Data from Local System), T1185 (Browser Session Hijacking)
+
+traits:
+  # === Atomic: LocalStorage ===
+
+  - id: collect/browser/localstorage-get
+    description: Browser localStorage access
+    criticality: notable
+    confidence: 0.7
+    attack: "T1005"
+    platforms: [all]
+    file_types: [javascript]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "localStorage.get"
+
+  - id: collect/browser/localstorage-set
+    description: Browser localStorage write
+    criticality: notable
+    confidence: 0.6
+    attack: "T1005"
+    platforms: [all]
+    file_types: [javascript]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "localStorage.set"
+
+  # === Atomic: IndexedDB ===
+
+  - id: collect/browser/indexeddb
+    description: Browser IndexedDB access
+    criticality: notable
+    confidence: 0.6
+    attack: "T1005"
+    platforms: [all]
+    file_types: [javascript]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "indexedDB"
+
+  # === Atomic: Analytics ===
+
+  - id: collect/browser/google-analytics-id
+    description: Hardcoded Google Analytics ID
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1005"
+    platforms: [all]
+    condition:
+      type: string
+      regex: "UA-\\d{5,9}-\\d{1,3}"

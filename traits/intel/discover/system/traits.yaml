@@ -4,7 +4,7 @@
 
 traits:
   # System control and configuration
-  - id: sysctl
+  - id: intel/discover/system/sysctl
     description: Get or set system information and kernel parameters
     criticality: inert
     mbc: "E1082"
@@ -15,7 +15,7 @@ traits:
       pattern: sysctl
     platforms: [unix, linux, macos]
 
-  - id: sysctlbyname
+  - id: intel/discover/system/sysctlbyname
     description: Get or set system information by name
     criticality: inert
     mbc: "E1082"
@@ -26,7 +26,7 @@ traits:
       pattern: sysctlbyname
     platforms: [macos]
 
-  - id: sysctlnametomib
+  - id: intel/discover/system/sysctlnametomib
     description: Convert sysctl name to MIB array
     criticality: inert
     mbc: "E1082"
@@ -38,7 +38,7 @@ traits:
     platforms: [macos]
 
   # Device control
-  - id: ioctl
+  - id: intel/discover/system/ioctl
     description: Device-specific input/output operations and control
     criticality: inert
     mbc: "E1082"
@@ -50,7 +50,7 @@ traits:
     platforms: [unix, linux, macos]
 
   # System identification
-  - id: uname
+  - id: intel/discover/system/uname
     description: Get system name and information
     criticality: inert
     mbc: "E1082"
@@ -61,7 +61,7 @@ traits:
       pattern: uname
     platforms: [unix, linux, macos]
 
-  - id: gethostname
+  - id: intel/discover/system/gethostname
     description: Get hostname of current machine
     criticality: inert
     mbc: "E1082"
@@ -72,7 +72,7 @@ traits:
       pattern: gethostname
     platforms: [unix, linux, macos, windows]
 
-  - id: getdomainname
+  - id: intel/discover/system/getdomainname
     description: Get NIS domain name
     criticality: inert
     mbc: "E1082"
@@ -84,7 +84,7 @@ traits:
     platforms: [unix, linux, macos]
 
   # Resource limits and configuration
-  - id: getrlimit
+  - id: intel/discover/system/getrlimit
     description: Get resource limits for process
     criticality: inert
     mbc: "E1082"
@@ -95,7 +95,7 @@ traits:
       pattern: getrlimit
     platforms: [unix, linux, macos]
 
-  - id: setrlimit
+  - id: intel/discover/system/setrlimit
     description: Set resource limits for process
     criticality: notable
     mbc: "F0004"
@@ -107,7 +107,7 @@ traits:
     platforms: [unix, linux, macos]
 
   # System configuration
-  - id: sysconf
+  - id: intel/discover/system/sysconf
     description: Get system configuration information
     criticality: inert
     mbc: "E1082"
@@ -118,7 +118,7 @@ traits:
       pattern: sysconf
     platforms: [unix, linux, macos]
 
-  - id: confstr
+  - id: intel/discover/system/confstr
     description: Get configuration-dependent string variables
     criticality: inert
     mbc: "E1082"
@@ -130,7 +130,7 @@ traits:
     platforms: [unix, linux, macos]
 
   # macOS-specific system information
-  - id: host_info
+  - id: intel/discover/system/host_info
     description: Get host information (macOS Mach API)
     criticality: inert
     mbc: "E1082"
@@ -141,7 +141,7 @@ traits:
       pattern: host_info
     platforms: [macos]
 
-  - id: host_statistics
+  - id: intel/discover/system/host_statistics
     description: Get host statistics (macOS Mach API)
     criticality: inert
     mbc: "E1082"

@@ -1,0 +1,91 @@
+# Cipher-based Obfuscation Detection
+# Detects RC4, custom XOR ciphers, and table-based encoding in binaries
+# ATT&CK: T1027 (Obfuscated Files or Information)
+
+traits:
+  - id: anti-static/obfuscation/encoding/rc4-sbox-init
+    description: "RC4 S-box initialization pattern (256-byte permutation)"
+    criticality: suspicious
+    confidence: 0.75
+    mbc: "C0027.001"
+    attack: "T1027"
+    file_types: [elf, pe, macho]
+    condition:
+      type: yara
+      source: |
+        rule rc4_sbox_init {
+          meta:
+            description = "RC4 S-box initialization (256 iterations)"
+          strings:
+            // Common: mov reg, 256 or cmp reg, 256
+            $x86_256_mov = { B? 00 01 00 00 }
+            $x86_256_cmp = { 81 F? 00 01 00 00 }
+            // Sequential bytes 0-255 in data (initialized S-box)
+            $sbox_partial = { 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F }
+          condition:
+            any of them
+        }
+
+  - id: anti-static/obfuscation/encoding/cipher-key-schedule
+    description: "Cipher key schedule function"
+    criticality: notable
+    confidence: 0.7
+    mbc: "C0027"
+    attack: "T1027"
+    file_types: [elf, pe, macho]
+    condition:
+      type: symbol
+      pattern: "key_schedule|ksa|init_key|setup_key|expand_key"
+
+  - id: anti-static/obfuscation/encoding/stream-cipher-decrypt
+    description: "Stream cipher decryption function"
+    criticality: suspicious
+    confidence: 0.75
+    mbc: "C0027"
+    attack: "T1027"
+    file_types: [elf, pe, macho]
+    condition:
+      type: symbol
+      pattern: "stream_decrypt|prga|rc4_crypt|arc4|cipher_stream"
+
+  - id: anti-static/obfuscation/encoding/hardcoded-hex-charset
+    description: "Hardcoded hex encoding charset (encoding/decoding)"
+    criticality: notable
+    confidence: 0.5
+    mbc: "C0026"
+    attack: "T1027"
+    file_types: [elf, pe, macho]
+    condition:
+      type: string
+      exact: "0123456789abcdef"
+
+  - id: anti-static/obfuscation/encoding/hardcoded-base64-charset
+    description: "Hardcoded Base64 charset"
+    criticality: notable
+    confidence: 0.4
+    mbc: "C0026"
+    attack: "T1027"
+    file_types: [elf, pe, macho]
+    condition:
+      type: string
+      regex: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789\\+/"
+
+composite_rules:
+  - id: anti-static/obfuscation/rc4-cipher
+    description: "RC4 or RC4-like stream cipher detected"
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "C0027.001"
+    attack: "T1027"
+    file_types: [elf, pe, macho]
+    requires_any:
+      - type: trait
+        id: rc4-sbox-init
+      - type: trait
+        id: stream-cipher-decrypt
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: cipher-key-schedule
+      - type: trait
+        id: hardcoded-hex-charset

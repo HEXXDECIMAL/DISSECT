@@ -1,0 +1,18 @@
+# Process Identity Operations
+
+traits:
+  - id: process/identity/get-uid
+    description: Get user/group identity
+    criticality: notable
+    confidence: 0.70
+    condition:
+      type: symbol
+      pattern: getuid|geteuid|getgid|getegid
+
+  - id: process/identity/get-pid
+    description: Get process ID
+    criticality: notable
+    confidence: 0.65
+    condition:
+      type: symbol
+      pattern: getpid|getppid

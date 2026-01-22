@@ -1,0 +1,194 @@
+# Persistence - Shell Configuration Files
+# ATT&CK: T1546.004 (Unix Shell Configuration Modification)
+
+traits:
+  # Bash persistence
+  - id: persistence/shell/bash-profile
+    description: Access to .bash_profile
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1546.004"
+    file_types: [all]
+    condition:
+      type: string
+      exact: ".bash_profile"
+
+  - id: persistence/shell/bashrc
+    description: Access to .bashrc
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1546.004"
+    file_types: [all]
+    condition:
+      type: string
+      exact: ".bashrc"
+
+  - id: persistence/shell/bash-login
+    description: Access to .bash_login
+    criticality: suspicious
+    confidence: 0.75
+    attack: "T1546.004"
+    file_types: [all]
+    condition:
+      type: string
+      exact: ".bash_login"
+
+  - id: persistence/shell/bash-logout
+    description: Access to .bash_logout
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1546.004"
+    file_types: [all]
+    condition:
+      type: string
+      exact: ".bash_logout"
+
+  - id: persistence/shell/profile
+    description: Access to .profile
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1546.004"
+    file_types: [all]
+    condition:
+      type: string
+      exact: ".profile"
+
+  - id: persistence/shell/etc-profile
+    description: Access to /etc/profile
+    criticality: suspicious
+    confidence: 0.75
+    attack: "T1546.004"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "/etc/profile"
+
+  - id: persistence/shell/etc-bashrc
+    description: Access to /etc/bashrc
+    criticality: suspicious
+    confidence: 0.75
+    attack: "T1546.004"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "/etc/bashrc"
+
+  # Zsh persistence
+  - id: persistence/shell/zshrc
+    description: Access to .zshrc
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1546.004"
+    file_types: [all]
+    condition:
+      type: string
+      exact: ".zshrc"
+
+  - id: persistence/shell/zprofile
+    description: Access to .zprofile
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1546.004"
+    file_types: [all]
+    condition:
+      type: string
+      exact: ".zprofile"
+
+  - id: persistence/shell/zlogin
+    description: Access to .zlogin
+    criticality: suspicious
+    confidence: 0.75
+    attack: "T1546.004"
+    file_types: [all]
+    condition:
+      type: string
+      exact: ".zlogin"
+
+  - id: persistence/shell/zlogout
+    description: Access to .zlogout
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1546.004"
+    file_types: [all]
+    condition:
+      type: string
+      exact: ".zlogout"
+
+  - id: persistence/shell/etc-zshrc
+    description: Access to /etc/zshrc
+    criticality: suspicious
+    confidence: 0.75
+    attack: "T1546.004"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "/etc/zshrc"
+
+  # Hardcoded paths (more suspicious)
+  - id: persistence/shell/hardcoded-profile
+    description: Hardcoded path to .profile
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1546.004"
+    file_types: [elf]
+    condition:
+      type: string
+      regex: "/[\\w./]{0,32}/\\.profile"
+
+  - id: persistence/shell/hardcoded-bashrc
+    description: Hardcoded path to .bashrc
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1546.004"
+    file_types: [elf]
+    condition:
+      type: string
+      regex: "/[\\w./]{0,32}/\\.bashrc"
+
+composite_rules:
+  - id: persistence/shell/multi-file-access
+    description: Multiple shell config file access (persistence)
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1546.004"
+    mbc: "F0006"
+    file_types: [all]
+    condition:
+      type: yara
+      source: |
+        rule shell_persistence_multi {
+          strings:
+            $bash_profile = ".bash_profile"
+            $bash_login = ".bash_login"
+            $profile = ".profile" fullword
+            $bashrc = ".bashrc" fullword
+            $zshrc = ".zshrc" fullword
+            $zprofile = ".zprofile"
+            $not_bash = "POSIXLY_CORRECT"
+            $not_csh = ".cshrc"
+            $not_tcsh = "tcsh" fullword
+          condition:
+            filesize < 10MB and
+            3 of ($bash*, $profile, $bashrc, $zshrc, $zprofile) and
+            none of ($not*)
+        }
+
+  - id: persistence/shell/elf-hardcoded
+    description: ELF binary with hardcoded shell config paths
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1546.004"
+    mbc: "F0006"
+    file_types: [elf]
+    condition:
+      type: yara
+      source: |
+        rule elf_shell_persistence {
+          strings:
+            $profile = /\/[\w\.\/]{0,32}\/\.profile/ fullword
+            $bashrc = /\/[\w\.\/]{0,32}\/\.bashrc/ fullword
+            $zshrc = /\/[\w\.\/]{0,32}\/\.zshrc/ fullword
+          condition:
+            uint32(0) == 0x464C457F and
+            filesize < 100MB and any of them
+        }

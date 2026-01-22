@@ -143,6 +143,23 @@ pub enum Condition {
         /// YARA rule source code
         source: String,
     },
+
+    /// Match syscalls detected via radare2 binary analysis
+    /// For detecting direct syscall usage patterns in ELF/Mach-O binaries
+    Syscall {
+        /// Syscall name(s) to match (e.g., "socket", "connect", "execve")
+        #[serde(skip_serializing_if = "Option::is_none")]
+        name: Option<Vec<String>>,
+        /// Syscall number(s) to match (architecture-dependent)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        number: Option<Vec<u32>>,
+        /// Architecture filter (e.g., "mips", "x86_64", "arm")
+        #[serde(skip_serializing_if = "Option::is_none")]
+        arch: Option<Vec<String>>,
+        /// Minimum number of matching syscalls required
+        #[serde(skip_serializing_if = "Option::is_none")]
+        min_count: Option<usize>,
+    },
 }
 
 impl Condition {
@@ -494,6 +511,12 @@ impl CompositeTrait {
             } => eval_ast_pattern(node_type, pattern, *regex, *case_insensitive, ctx),
             Condition::AstQuery { query } => eval_ast_query(query, ctx),
             Condition::Yara { source } => eval_yara_inline(source, ctx),
+            Condition::Syscall {
+                name,
+                number,
+                arch,
+                min_count,
+            } => eval_syscall(name.as_ref(), number.as_ref(), arch.as_ref(), *min_count, ctx),
         }
     }
 
@@ -656,18 +679,16 @@ impl CompositeTrait {
         ctx: &EvaluationContext,
     ) -> ConditionResult {
         let count = if let Some(filter_pattern) = filter {
-            // Count only imports matching filter
-            ctx.report
-                .imports
-                .iter()
-                .filter(|imp| {
-                    if let Ok(re) = Regex::new(filter_pattern) {
-                        re.is_match(&imp.symbol)
-                    } else {
-                        false
-                    }
-                })
-                .count()
+            // Compile regex once, then filter
+            if let Ok(re) = Regex::new(filter_pattern) {
+                ctx.report
+                    .imports
+                    .iter()
+                    .filter(|imp| re.is_match(&imp.symbol))
+                    .count()
+            } else {
+                0
+            }
         } else {
             ctx.report.imports.len()
         };
@@ -852,6 +873,12 @@ impl TraitDefinition {
             } => eval_ast_pattern(node_type, pattern, *regex, *case_insensitive, ctx),
             Condition::AstQuery { query } => eval_ast_query(query, ctx),
             Condition::Yara { source } => eval_yara_inline(source, ctx),
+            Condition::Syscall {
+                name,
+                number,
+                arch,
+                min_count,
+            } => eval_syscall(name.as_ref(), number.as_ref(), arch.as_ref(), *min_count, ctx),
         }
     }
 }
@@ -965,9 +992,25 @@ fn eval_string(params: &StringParams, ctx: &EvaluationContext) -> ConditionResul
         };
     }
 
+    // Pre-compile regex patterns ONCE before iterating strings
+    let compiled_regex = params
+        .regex
+        .and_then(|pattern| build_regex(pattern, params.case_insensitive).ok());
+
+    let compiled_excludes: Vec<Regex> = params
+        .exclude_patterns
+        .map(|excludes| {
+            excludes
+                .iter()
+                .filter_map(|p| Regex::new(p).ok())
+                .collect()
+        })
+        .unwrap_or_default();
+
     // Check in extracted strings from report (for binaries)
     for string_info in &ctx.report.strings {
         let mut matched = false;
+        let mut match_value = String::new();
 
         if let Some(exact_str) = params.exact {
             matched = if params.case_insensitive {
@@ -978,33 +1021,29 @@ fn eval_string(params: &StringParams, ctx: &EvaluationContext) -> ConditionResul
             } else {
                 string_info.value.contains(exact_str)
             };
-        } else if let Some(regex_pattern) = params.regex {
-            if let Ok(re) = build_regex(regex_pattern, params.case_insensitive) {
-                matched = re.is_match(&string_info.value);
+            if matched {
+                match_value = exact_str.clone();
+            }
+        } else if let Some(ref re) = compiled_regex {
+            if let Some(mat) = re.find(&string_info.value) {
+                matched = true;
+                match_value = mat.as_str().to_string();
             }
         }
 
         if matched {
-            // Check exclusion patterns
-            if let Some(excludes) = params.exclude_patterns {
-                let mut excluded = false;
-                for exclude_pattern in excludes {
-                    if let Ok(re) = Regex::new(exclude_pattern) {
-                        if re.is_match(&string_info.value) {
-                            excluded = true;
-                            break;
-                        }
-                    }
-                }
-                if excluded {
-                    continue;
-                }
+            // Check exclusion patterns (already compiled)
+            let excluded = compiled_excludes
+                .iter()
+                .any(|re| re.is_match(&string_info.value));
+            if excluded {
+                continue;
             }
 
             evidence.push(Evidence {
                 method: "string".to_string(),
                 source: "string_extractor".to_string(),
-                value: string_info.value.clone(),
+                value: match_value,
                 location: string_info.offset.clone(),
             });
         }
@@ -1031,36 +1070,19 @@ fn eval_string(params: &StringParams, ctx: &EvaluationContext) -> ConditionResul
                 if matched {
                     match_value = exact_str.clone();
                 }
-            } else if let Some(regex_pattern) = params.regex {
-                if let Ok(re) = build_regex(regex_pattern, params.case_insensitive) {
-                    if let Some(mat) = re.find(content) {
-                        matched = true;
-                        match_value = mat.as_str().to_string();
-                    }
+            } else if let Some(ref re) = compiled_regex {
+                if let Some(mat) = re.find(content) {
+                    matched = true;
+                    match_value = mat.as_str().to_string();
                 }
             }
 
             if matched {
-                // Check exclusion patterns
-                if let Some(excludes) = params.exclude_patterns {
-                    let mut excluded = false;
-                    for exclude_pattern in excludes {
-                        if let Ok(re) = Regex::new(exclude_pattern) {
-                            if re.is_match(&match_value) {
-                                excluded = true;
-                                break;
-                            }
-                        }
-                    }
-                    if !excluded {
-                        evidence.push(Evidence {
-                            method: "string".to_string(),
-                            source: "source_code".to_string(),
-                            value: match_value,
-                            location: Some("file".to_string()),
-                        });
-                    }
-                } else {
+                // Check exclusion patterns (already compiled)
+                let excluded = compiled_excludes
+                    .iter()
+                    .any(|re| re.is_match(&match_value));
+                if !excluded {
                     evidence.push(Evidence {
                         method: "string".to_string(),
                         source: "source_code".to_string(),
@@ -1537,9 +1559,51 @@ fn truncate_evidence(s: &str, max_len: usize) -> String {
     }
 }
 
+/// Evaluate syscall condition - matches syscalls detected via radare2 analysis
+fn eval_syscall(
+    name: Option<&Vec<String>>,
+    number: Option<&Vec<u32>>,
+    arch: Option<&Vec<String>>,
+    min_count: Option<usize>,
+    ctx: &EvaluationContext,
+) -> ConditionResult {
+    let mut evidence = Vec::new();
+    let mut match_count = 0;
+
+    for syscall in &ctx.report.syscalls {
+        let name_match = name.is_none_or(|names| names.contains(&syscall.name));
+        let number_match = number.is_none_or(|nums| nums.contains(&syscall.number));
+        let arch_match = arch.is_none_or(|archs| {
+            archs
+                .iter()
+                .any(|a| syscall.arch.to_lowercase().contains(&a.to_lowercase()))
+        });
+
+        if name_match && number_match && arch_match {
+            match_count += 1;
+            evidence.push(Evidence {
+                method: "syscall".to_string(),
+                source: "radare2".to_string(),
+                value: format!("{}({}) at 0x{:x}", syscall.name, syscall.number, syscall.address),
+                location: Some(format!("0x{:x}", syscall.address)),
+            });
+        }
+    }
+
+    let min_required = min_count.unwrap_or(1);
+    let matched = match_count >= min_required;
+
+    ConditionResult {
+        matched,
+        evidence: if matched { evidence } else { Vec::new() },
+        traits: Vec::new(),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::radare2::SyscallInfo;
     use crate::types::{Export, Import, StringInfo, StringType, StructuralFeature, TargetInfo};
 
     fn create_test_context() -> (AnalysisReport, Vec<u8>) {
@@ -3282,5 +3346,310 @@ traits:
             "Should detect 5 hex literals: {}",
             detected.evidence[0].value
         );
+    }
+
+    // ============== Syscall Condition Tests ==============
+
+    fn create_syscall_test_context() -> (AnalysisReport, Vec<u8>) {
+        let target = TargetInfo {
+            path: "/test/binary".to_string(),
+            file_type: "elf".to_string(),
+            size_bytes: 1024,
+            sha256: "test".to_string(),
+            architectures: Some(vec!["mips".to_string()]),
+        };
+
+        let mut report = AnalysisReport::new(target);
+
+        // Add some syscalls (simulating MIPS malware syscalls)
+        report.syscalls.push(SyscallInfo {
+            address: 0x1000,
+            number: 4001,
+            name: "exit".to_string(),
+            description: "terminates process".to_string(),
+            arch: "mips".to_string(),
+        });
+        report.syscalls.push(SyscallInfo {
+            address: 0x1100,
+            number: 4039,
+            name: "mkdir".to_string(),
+            description: "creates directory".to_string(),
+            arch: "mips".to_string(),
+        });
+        report.syscalls.push(SyscallInfo {
+            address: 0x1200,
+            number: 4120,
+            name: "clone".to_string(),
+            description: "creates process or thread".to_string(),
+            arch: "mips".to_string(),
+        });
+        report.syscalls.push(SyscallInfo {
+            address: 0x1300,
+            number: 4183,
+            name: "socket".to_string(),
+            description: "creates network socket".to_string(),
+            arch: "mips".to_string(),
+        });
+        report.syscalls.push(SyscallInfo {
+            address: 0x1400,
+            number: 4185,
+            name: "connect".to_string(),
+            description: "connects to remote host".to_string(),
+            arch: "mips".to_string(),
+        });
+
+        (report, vec![])
+    }
+
+    #[test]
+    fn test_syscall_condition_match_by_name() {
+        let (report, data) = create_syscall_test_context();
+        let ctx = EvaluationContext {
+            report: &report,
+            binary_data: &data,
+            file_type: FileType::Elf,
+            platform: Platform::Linux,
+        };
+
+        let rule = CompositeTrait {
+            id: "syscall/network".to_string(),
+            description: "Network syscalls".to_string(),
+            confidence: 0.9,
+            criticality: Criticality::Notable,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            file_types: vec![FileType::Elf],
+            requires_all: Some(vec![Condition::Syscall {
+                name: Some(vec!["socket".to_string(), "connect".to_string()]),
+                number: None,
+                arch: None,
+                min_count: Some(2),
+            }]),
+            requires_any: None,
+            requires_count: None,
+            conditions: None,
+            requires_none: None,
+        };
+
+        let result = rule.evaluate(&ctx);
+        assert!(result.is_some(), "Should match syscalls by name");
+        let cap = result.unwrap();
+        assert_eq!(cap.evidence.len(), 2);
+    }
+
+    #[test]
+    fn test_syscall_condition_match_by_number() {
+        let (report, data) = create_syscall_test_context();
+        let ctx = EvaluationContext {
+            report: &report,
+            binary_data: &data,
+            file_type: FileType::Elf,
+            platform: Platform::Linux,
+        };
+
+        let rule = CompositeTrait {
+            id: "syscall/mips-socket".to_string(),
+            description: "MIPS socket syscall".to_string(),
+            confidence: 0.9,
+            criticality: Criticality::Notable,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            file_types: vec![FileType::Elf],
+            requires_all: Some(vec![Condition::Syscall {
+                name: None,
+                number: Some(vec![4183]), // MIPS socket syscall number
+                arch: None,
+                min_count: None,
+            }]),
+            requires_any: None,
+            requires_count: None,
+            conditions: None,
+            requires_none: None,
+        };
+
+        let result = rule.evaluate(&ctx);
+        assert!(result.is_some(), "Should match syscall by number");
+        let cap = result.unwrap();
+        assert!(cap.evidence[0].value.contains("socket"));
+    }
+
+    #[test]
+    fn test_syscall_condition_match_by_arch() {
+        let (report, data) = create_syscall_test_context();
+        let ctx = EvaluationContext {
+            report: &report,
+            binary_data: &data,
+            file_type: FileType::Elf,
+            platform: Platform::Linux,
+        };
+
+        let rule = CompositeTrait {
+            id: "syscall/mips-any".to_string(),
+            description: "Any MIPS syscall".to_string(),
+            confidence: 0.9,
+            criticality: Criticality::Inert,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            file_types: vec![FileType::Elf],
+            requires_all: Some(vec![Condition::Syscall {
+                name: None,
+                number: None,
+                arch: Some(vec!["mips".to_string()]),
+                min_count: Some(3),
+            }]),
+            requires_any: None,
+            requires_count: None,
+            conditions: None,
+            requires_none: None,
+        };
+
+        let result = rule.evaluate(&ctx);
+        assert!(result.is_some(), "Should match MIPS syscalls with min_count");
+        let cap = result.unwrap();
+        assert!(cap.evidence.len() >= 3);
+    }
+
+    #[test]
+    fn test_syscall_condition_no_match() {
+        let (report, data) = create_syscall_test_context();
+        let ctx = EvaluationContext {
+            report: &report,
+            binary_data: &data,
+            file_type: FileType::Elf,
+            platform: Platform::Linux,
+        };
+
+        let rule = CompositeTrait {
+            id: "syscall/x86".to_string(),
+            description: "x86 syscalls".to_string(),
+            confidence: 0.9,
+            criticality: Criticality::Inert,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            file_types: vec![FileType::Elf],
+            requires_all: Some(vec![Condition::Syscall {
+                name: None,
+                number: None,
+                arch: Some(vec!["x86_64".to_string()]),
+                min_count: None,
+            }]),
+            requires_any: None,
+            requires_count: None,
+            conditions: None,
+            requires_none: None,
+        };
+
+        let result = rule.evaluate(&ctx);
+        assert!(result.is_none(), "Should not match x86_64 syscalls in MIPS binary");
+    }
+
+    #[test]
+    fn test_syscall_condition_min_count_not_met() {
+        let (report, data) = create_syscall_test_context();
+        let ctx = EvaluationContext {
+            report: &report,
+            binary_data: &data,
+            file_type: FileType::Elf,
+            platform: Platform::Linux,
+        };
+
+        let rule = CompositeTrait {
+            id: "syscall/many".to_string(),
+            description: "Many syscalls".to_string(),
+            confidence: 0.9,
+            criticality: Criticality::Inert,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            file_types: vec![FileType::Elf],
+            requires_all: Some(vec![Condition::Syscall {
+                name: None,
+                number: None,
+                arch: None,
+                min_count: Some(100), // More than we have
+            }]),
+            requires_any: None,
+            requires_count: None,
+            conditions: None,
+            requires_none: None,
+        };
+
+        let result = rule.evaluate(&ctx);
+        assert!(result.is_none(), "Should not match when min_count not met");
+    }
+
+    #[test]
+    fn test_syscall_yaml_parsing() {
+        // Test atomic trait (TraitDefinition) with syscall condition
+        #[derive(Deserialize)]
+        struct AtomicTraitFile {
+            traits: Vec<TraitDefinition>,
+        }
+
+        let yaml = r#"
+traits:
+  - id: syscall/clone
+    description: Clone syscall detected
+    confidence: 0.9
+    criticality: notable
+    platforms: [linux]
+    file_types: [elf]
+    condition:
+      type: syscall
+      name: ["clone"]
+"#;
+        let parsed: AtomicTraitFile = serde_yaml::from_str(yaml).expect("YAML should parse");
+        assert_eq!(parsed.traits.len(), 1);
+
+        let (report, data) = create_syscall_test_context();
+        let ctx = EvaluationContext {
+            report: &report,
+            binary_data: &data,
+            file_type: FileType::Elf,
+            platform: Platform::Linux,
+        };
+
+        let result = parsed.traits[0].evaluate(&ctx);
+        assert!(result.is_some(), "Parsed syscall trait should match");
+    }
+
+    #[test]
+    fn test_syscall_composite_yaml_parsing() {
+        // Test composite trait (CompositeTrait) with requires_all syscalls
+        #[derive(Deserialize)]
+        struct CompositeTraitFile {
+            traits: Vec<CompositeTrait>,
+        }
+
+        let yaml = r#"
+traits:
+  - id: syscall/daemon
+    description: Daemon behavior via syscalls
+    confidence: 0.9
+    criticality: notable
+    platforms: [linux]
+    file_types: [elf]
+    requires_all:
+      - type: syscall
+        name: ["clone", "exit"]
+        min_count: 2
+"#;
+        let parsed: CompositeTraitFile = serde_yaml::from_str(yaml).expect("YAML should parse");
+        assert_eq!(parsed.traits.len(), 1);
+
+        let (report, data) = create_syscall_test_context();
+        let ctx = EvaluationContext {
+            report: &report,
+            binary_data: &data,
+            file_type: FileType::Elf,
+            platform: Platform::Linux,
+        };
+
+        let result = parsed.traits[0].evaluate(&ctx);
+        assert!(result.is_some(), "Parsed composite syscall trait should match");
     }
 }

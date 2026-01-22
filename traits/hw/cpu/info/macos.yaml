@@ -1,0 +1,13 @@
+# CPU Information - macOS
+# ATT&CK: T1082 (System Information Discovery)
+
+traits:
+  - id: hw/cpu/info/macos-cpuinfo
+    description: macOS CPU information query
+    criticality: notable
+    confidence: 0.7
+    attack: "T1082"
+    platforms: [macos]
+    condition:
+      type: string
+      exact: "CpuInfoAndModel"

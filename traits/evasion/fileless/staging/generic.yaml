@@ -1,0 +1,38 @@
+# Fileless Execution / Memory-only Staging
+# Patterns for avoiding disk-based detection
+# ATT&CK: T1055, T1620
+
+traits:
+  - id: evasion/fileless/staging/dev-shm
+    description: "/dev/shm staging (fileless execution)"
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "F0012"
+    attack: "T1055"
+    file_types: [elf]
+    platforms: [linux]
+    condition:
+      type: string
+      exact: "/dev/shm/"
+
+  - id: evasion/fileless/staging/memfd-create
+    description: "memfd_create for anonymous memory-backed file"
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "F0012"
+    attack: "T1620"
+    file_types: [elf]
+    platforms: [linux]
+    condition:
+      type: symbol
+      pattern: "memfd_create"
+
+  - id: evasion/fileless/staging/proc-self-fd
+    description: "Access /proc/self/fd for file descriptor manipulation"
+    criticality: notable
+    confidence: 0.7
+    file_types: [elf]
+    platforms: [linux]
+    condition:
+      type: string
+      regex: "/proc/self/fd/"

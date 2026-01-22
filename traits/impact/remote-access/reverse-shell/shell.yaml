@@ -5,7 +5,7 @@
 traits:
   - id: impact/remote-access/reverse-shell-bash
     description: Bash reverse shell via /dev/tcp
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.66
     attack: "T1059"
     condition:
@@ -14,7 +14,7 @@ traits:
 
   - id: impact/remote-access/reverse-shell-redirect
     description: Shell reverse shell stdin redirect
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.66
     condition:
       type: string
@@ -22,7 +22,7 @@ traits:
 
   - id: impact/remote-access/reverse-shell-mkfifo
     description: Reverse shell using mkfifo and netcat
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.66
     condition:
       type: yara

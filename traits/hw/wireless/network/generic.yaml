@@ -1,0 +1,13 @@
+# Wireless Network - Generic
+# ATT&CK: T1016 (System Network Configuration Discovery)
+
+traits:
+  - id: hw/wireless/network/bssid
+    description: Wireless network base station ID reference
+    criticality: notable
+    confidence: 0.6
+    attack: "T1016"
+    platforms: [all]
+    condition:
+      type: string
+      regex: "\\b[Bb][Ss][Ss][Ii][Dd]\\b"

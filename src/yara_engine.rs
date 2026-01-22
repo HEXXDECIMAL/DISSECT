@@ -80,7 +80,11 @@ impl YaraEngine {
                     }
                 }
                 Err(e) => {
-                    eprintln!("⚠️  No built-in YARA rules found: {}", e);
+                    // Only warn if this is an actual error, not just "no rules found"
+                    let err_str = e.to_string();
+                    if !err_str.contains("No YARA rules found") {
+                        eprintln!("⚠️  Failed to load YARA rules from traits/: {}", e);
+                    }
                 }
             }
         }

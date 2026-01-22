@@ -1,0 +1,13 @@
+# Disk Information - Generic
+# ATT&CK: T1082 (System Information Discovery)
+
+traits:
+  - id: hw/disk/info/freespace
+    description: Disk free space query
+    criticality: inert
+    confidence: 0.5
+    attack: "T1082"
+    platforms: [all]
+    condition:
+      type: string
+      exact: "DiskFreeSpace"

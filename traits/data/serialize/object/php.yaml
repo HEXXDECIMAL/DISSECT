@@ -1,0 +1,52 @@
+# PHP Data Serialization Traits
+# MBC: C0026 (Encode Data)
+
+traits:
+  - id: data/serialize/object/json-encode
+    description: JSON encoding for data output
+    criticality: inert
+    confidence: 0.6
+    file_types: [all]
+    condition:
+      type: string
+      exact: json_encode
+
+  - id: data/serialize/object/json-decode
+    description: JSON decoding for data input
+    criticality: inert
+    confidence: 0.6
+    file_types: [all]
+    condition:
+      type: string
+      exact: json_decode
+
+  - id: data/serialize/object/serialize
+    description: PHP object serialization
+    criticality: notable
+    confidence: 0.7
+    file_types: [all]
+    condition:
+      type: string
+      regex: "\\bserialize\\s*\\("
+
+  - id: data/serialize/object/unserialize
+    description: PHP object deserialization (potential RCE vector)
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "E1059"
+    attack: "T1059"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "\\bunserialize\\s*\\("
+
+  - id: data/serialize/object/unserialize-user-input
+    description: Deserialization of user input (RCE vulnerability)
+    criticality: suspicious
+    confidence: 0.95
+    mbc: "E1059"
+    attack: "T1059"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "unserialize\\s*\\(.*\\$_(GET|POST|REQUEST|COOKIE)"

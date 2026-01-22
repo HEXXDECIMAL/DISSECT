@@ -833,6 +833,7 @@ mod tests {
             imports: vec![],
             exports: vec![],
             yara_matches: vec![],
+            syscalls: vec![],
             binary_properties: None,
             code_metrics: None,
             source_code_metrics: None,

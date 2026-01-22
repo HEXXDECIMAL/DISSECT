@@ -1,0 +1,174 @@
+# Lateral Movement - SSH Attack Traits
+# ATT&CK: T1021.004 (Remote Services: SSH)
+# MBC: E1021
+
+traits:
+  # === Atomic: SSH Attack Terminology ===
+
+  - id: lateral/ssh/attack-ref
+    description: SSH attack function/variable reference
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1021.004"
+    platforms: [all]
+    condition:
+      type: string
+      regex: "[Ss][Ss][Hh][_\\-]?[Aa]ttack|[Aa]ttack[_\\-]?[Ss][Ss][Hh]|ssh[_\\-]?boom"
+
+  # === Atomic: SSH Configuration Abuse ===
+
+  - id: lateral/ssh/dot-ssh-ref
+    description: References .ssh directory
+    criticality: notable
+    confidence: 0.5
+    attack: "T1021.004"
+    platforms: [linux, macos, unix]
+    condition:
+      type: string
+      exact: ".ssh"
+
+  - id: lateral/ssh/strict-host-disable
+    description: StrictHostKeyChecking reference (bypass host verification)
+    criticality: suspicious
+    confidence: 0.75
+    attack: "T1021.004"
+    platforms: [linux, macos, unix]
+    condition:
+      type: string
+      exact: "StrictHostKeyChecking"
+
+  - id: lateral/ssh/known-hosts-bypass
+    description: UserKnownHostsFile reference (bypass known hosts)
+    criticality: suspicious
+    confidence: 0.75
+    attack: "T1021.004"
+    platforms: [linux, macos, unix]
+    condition:
+      type: string
+      exact: "UserKnownHostsFile"
+
+  - id: lateral/ssh/connect-timeout
+    description: ConnectTimeout reference (scripted SSH)
+    criticality: notable
+    confidence: 0.6
+    attack: "T1021.004"
+    platforms: [linux, macos, unix]
+    condition:
+      type: string
+      exact: "ConnectTimeout"
+
+  # === Atomic: SSH Key Files ===
+
+  - id: lateral/ssh/key-id-rsa
+    description: References id_rsa private key
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1552.004"
+    platforms: [linux, macos, unix]
+    condition:
+      type: string
+      exact: "id_rsa"
+
+  - id: lateral/ssh/key-pem
+    description: References .pem key file
+    criticality: notable
+    confidence: 0.6
+    attack: "T1552.004"
+    platforms: [all]
+    condition:
+      type: string
+      exact: ".pem"
+
+  - id: lateral/ssh/key-identity-file
+    description: IdentityFile SSH config option
+    criticality: notable
+    confidence: 0.6
+    attack: "T1552.004"
+    platforms: [linux, macos, unix]
+    condition:
+      type: string
+      exact: "IdentityFile"
+
+  # === Atomic: SSH Target Discovery ===
+
+  - id: lateral/ssh/authorized-keys
+    description: References authorized_keys file
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1021.004"
+    platforms: [linux, macos, unix]
+    condition:
+      type: string
+      exact: "authorized_keys"
+
+  - id: lateral/ssh/known-hosts-file
+    description: References known_hosts file
+    criticality: notable
+    confidence: 0.6
+    attack: "T1021.004"
+    platforms: [linux, macos, unix]
+    condition:
+      type: string
+      exact: "known_hosts"
+
+  - id: lateral/ssh/ssh-config-parse
+    description: Parses SSH config for hostnames
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1021.004"
+    platforms: [linux, macos, unix]
+    condition:
+      type: string
+      regex: "grep.*HostName.*/\\.ssh/config"
+
+  - id: lateral/ssh/bash-history-ssh
+    description: Extracts SSH targets from bash history
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1021.004"
+    platforms: [linux, macos, unix]
+    condition:
+      type: string
+      regex: "(scp|ssh).{2,64}bash_history"
+
+  - id: lateral/ssh/getent-hosts
+    description: Uses getent for host discovery
+    criticality: suspicious
+    confidence: 0.75
+    attack: "T1018"
+    platforms: [linux, unix]
+    condition:
+      type: string
+      exact: "getent ahostsv4"
+
+  # === Atomic: Remote Payload Delivery ===
+
+  - id: lateral/ssh/remote-curl
+    description: Uses curl for remote payload
+    criticality: notable
+    confidence: 0.5
+    attack: "T1105"
+    platforms: [all]
+    condition:
+      type: string
+      regex: "curl\\s+-"
+
+  - id: lateral/ssh/remote-wget
+    description: Uses wget for remote payload
+    criticality: notable
+    confidence: 0.5
+    attack: "T1105"
+    platforms: [linux, unix]
+    condition:
+      type: string
+      exact: "wget"
+
+  - id: lateral/ssh/remote-lwp
+    description: Uses lwp-download for remote payload
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1105"
+    platforms: [linux, unix]
+    condition:
+      type: string
+      exact: "lwp-download"

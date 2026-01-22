@@ -1,0 +1,33 @@
+# Network Exfiltration
+# MBC: OB0010 (Exfiltration) → E1041 (Exfiltration Over C2 Channel)
+# ATT&CK: T1041 (Exfiltration Over C2 Channel)
+
+traits:
+  - id: exfil/network/http/http-upload
+    description: HTTP file upload (potential exfiltration)
+    criticality: notable
+    mbc: "E1041"
+    attack: "T1041"
+    confidence: 0.6
+    condition:
+      type: symbol
+      pattern: http_upload|upload|PUT
+
+  - id: exfil/network/http/ftp-upload
+    description: FTP upload
+    criticality: notable
+    mbc: "E1041"
+    attack: "T1048.002"
+    confidence: 0.7
+    condition:
+      type: symbol
+      pattern: ftp_put|STOR
+
+  - id: exfil/network/http/large-buffer
+    description: Large network send buffer (bulk exfiltration)
+    criticality: inert
+    mbc: "E1041"
+    confidence: 0.4
+    condition:
+      type: symbol
+      pattern: send|sendto|write

@@ -1,0 +1,14 @@
+# Process Lifecycle - Ruby
+
+traits:
+  - id: process/lifecycle/fork/ruby-fork
+    description: Fork process
+    criticality: notable
+    confidence: 0.88
+    platforms: [all]
+    file_types: [ruby]
+    condition:
+      type: symbol_or_string
+      any:
+        - Process.fork
+        - fork

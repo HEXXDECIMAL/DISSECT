@@ -88,6 +88,11 @@ impl ElfAnalyzer {
                     });
                 }
             }
+
+            // Extract syscalls for binary analysis
+            if let Ok(syscalls) = self.radare2.extract_syscalls(file_path) {
+                report.syscalls = syscalls;
+            }
         }
 
         // Extract strings if not already done by radare2
@@ -357,6 +362,67 @@ impl ElfAnalyzer {
             _ => None,
         }
     }
+
+    /// Merge findings from unpacked analysis into the packed report.
+    /// Deduplicates by finding ID, keeping the highest criticality.
+    fn merge_reports(&self, packed: &mut AnalysisReport, unpacked: AnalysisReport) {
+        // Merge findings by ID, keeping highest criticality
+        for unpacked_finding in unpacked.findings {
+            if let Some(existing) = packed.findings.iter_mut().find(|f| f.id == unpacked_finding.id)
+            {
+                // Merge evidence
+                existing.evidence.extend(unpacked_finding.evidence);
+                // Keep higher criticality
+                if unpacked_finding.criticality > existing.criticality {
+                    existing.criticality = unpacked_finding.criticality;
+                }
+            } else {
+                packed.findings.push(unpacked_finding);
+            }
+        }
+
+        // Merge strings (deduplicate by value)
+        for s in unpacked.strings {
+            if !packed.strings.iter().any(|ps| ps.value == s.value) {
+                packed.strings.push(s);
+            }
+        }
+
+        // Merge imports (deduplicate by symbol)
+        for imp in unpacked.imports {
+            if !packed.imports.iter().any(|pi| pi.symbol == imp.symbol) {
+                packed.imports.push(imp);
+            }
+        }
+
+        // Merge exports (deduplicate by symbol)
+        for exp in unpacked.exports {
+            if !packed.exports.iter().any(|pe| pe.symbol == exp.symbol) {
+                packed.exports.push(exp);
+            }
+        }
+
+        // Merge functions (deduplicate by name)
+        for func in unpacked.functions {
+            if !packed.functions.iter().any(|pf| pf.name == func.name) {
+                packed.functions.push(func);
+            }
+        }
+
+        // Merge sections (deduplicate by name)
+        for sec in unpacked.sections {
+            if !packed.sections.iter().any(|ps| ps.name == sec.name) {
+                packed.sections.push(sec);
+            }
+        }
+
+        // Merge YARA matches (deduplicate by rule name)
+        for ym in unpacked.yara_matches {
+            if !packed.yara_matches.iter().any(|py| py.rule == ym.rule) {
+                packed.yara_matches.push(ym);
+            }
+        }
+    }
 }
 
 impl Default for ElfAnalyzer {
@@ -367,8 +433,66 @@ impl Default for ElfAnalyzer {
 
 impl Analyzer for ElfAnalyzer {
     fn analyze(&self, file_path: &Path) -> Result<AnalysisReport> {
+        use crate::upx::{UPXDecompressor, UPXError};
+
         let data = fs::read(file_path).context("Failed to read file")?;
-        self.analyze_elf(file_path, &data)
+
+        // Check for UPX packing
+        if !UPXDecompressor::is_upx_packed(&data) {
+            return self.analyze_elf(file_path, &data);
+        }
+
+        // File is UPX-packed - analyze packed version first
+        let mut report = self.analyze_elf(file_path, &data)?;
+
+        // Add UPX packer finding
+        report.findings.push(Finding::structural(
+            "anti-static/packer/upx".to_string(),
+            "Binary is packed with UPX".to_string(),
+            1.0,
+        ).with_criticality(Criticality::Suspicious));
+
+        // Attempt decompression
+        if !UPXDecompressor::is_available() {
+            report.findings.push(Finding::structural(
+                "anti-static/packer/upx/tool-missing".to_string(),
+                "UPX binary not found in PATH - unpacked analysis skipped".to_string(),
+                1.0,
+            ).with_criticality(Criticality::Notable));
+            return Ok(report);
+        }
+
+        match UPXDecompressor::decompress(file_path) {
+            Ok(unpacked_data) => {
+                // Write unpacked data to temp file for radare2 analysis
+                let temp_file = tempfile::NamedTempFile::new()
+                    .context("Failed to create temp file for unpacked analysis")?;
+                fs::write(temp_file.path(), &unpacked_data)
+                    .context("Failed to write unpacked data to temp file")?;
+
+                // Analyze unpacked version
+                if let Ok(unpacked_report) = self.analyze_elf(temp_file.path(), &unpacked_data) {
+                    self.merge_reports(&mut report, unpacked_report);
+                }
+
+                report.metadata.tools_used.push("upx".to_string());
+            }
+            Err(e) => {
+                let description = match e {
+                    UPXError::DecompressionFailed(msg) => {
+                        format!("UPX decompression failed (possibly tampered): {}", msg)
+                    }
+                    _ => format!("UPX decompression failed: {}", e),
+                };
+                report.findings.push(Finding::structural(
+                    "anti-static/packer/upx/decompression-failed".to_string(),
+                    description,
+                    1.0,
+                ).with_criticality(Criticality::Suspicious));
+            }
+        }
+
+        Ok(report)
     }
 
     fn can_analyze(&self, file_path: &Path) -> bool {
@@ -531,5 +655,453 @@ mod tests {
 
         let report = analyzer.analyze(&test_file).unwrap();
         assert!(report.metadata.analysis_duration_ms > 0);
+    }
+
+    // =========================================================================
+    // UPX Integration Tests
+    // =========================================================================
+
+    #[test]
+    fn test_upx_detection_in_data() {
+        use crate::upx::UPXDecompressor;
+
+        // Data with UPX magic
+        let upx_data = b"\x7fELF\x00\x00\x00\x00UPX!\x00\x00";
+        assert!(UPXDecompressor::is_upx_packed(upx_data));
+
+        // Data without UPX magic
+        let normal_data = b"\x7fELF\x01\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00";
+        assert!(!UPXDecompressor::is_upx_packed(normal_data));
+    }
+
+    // =========================================================================
+    // merge_reports Tests
+    // =========================================================================
+
+    fn create_test_report() -> AnalysisReport {
+        let target = TargetInfo {
+            path: "/test/path".to_string(),
+            file_type: "elf".to_string(),
+            size_bytes: 1000,
+            sha256: "abc123".to_string(),
+            architectures: Some(vec!["x86_64".to_string()]),
+        };
+        AnalysisReport::new(target)
+    }
+
+    #[test]
+    fn test_merge_reports_findings_dedup_by_id() {
+        let analyzer = ElfAnalyzer::new();
+        let mut packed = create_test_report();
+        let mut unpacked = create_test_report();
+
+        // Add same finding to both with different criticality
+        packed.findings.push(Finding::capability(
+            "net/socket".to_string(),
+            "Network socket".to_string(),
+            0.9,
+        ).with_criticality(Criticality::Notable));
+
+        unpacked.findings.push(Finding::capability(
+            "net/socket".to_string(),
+            "Network socket".to_string(),
+            0.9,
+        ).with_criticality(Criticality::Suspicious));
+
+        analyzer.merge_reports(&mut packed, unpacked);
+
+        // Should have only one finding with higher criticality
+        assert_eq!(packed.findings.len(), 1);
+        assert_eq!(packed.findings[0].criticality, Criticality::Suspicious);
+    }
+
+    #[test]
+    fn test_merge_reports_findings_unique_added() {
+        let analyzer = ElfAnalyzer::new();
+        let mut packed = create_test_report();
+        let mut unpacked = create_test_report();
+
+        packed.findings.push(Finding::capability(
+            "net/socket".to_string(),
+            "Network socket".to_string(),
+            0.9,
+        ));
+
+        unpacked.findings.push(Finding::capability(
+            "exec/shell".to_string(),
+            "Shell execution".to_string(),
+            0.9,
+        ));
+
+        analyzer.merge_reports(&mut packed, unpacked);
+
+        // Should have both findings
+        assert_eq!(packed.findings.len(), 2);
+        assert!(packed.findings.iter().any(|f| f.id == "net/socket"));
+        assert!(packed.findings.iter().any(|f| f.id == "exec/shell"));
+    }
+
+    #[test]
+    fn test_merge_reports_evidence_combined() {
+        let analyzer = ElfAnalyzer::new();
+        let mut packed = create_test_report();
+        let mut unpacked = create_test_report();
+
+        packed.findings.push(Finding::capability(
+            "net/socket".to_string(),
+            "Network socket".to_string(),
+            0.9,
+        ).with_evidence(vec![Evidence {
+            method: "symbol".to_string(),
+            source: "goblin".to_string(),
+            value: "socket".to_string(),
+            location: None,
+        }]));
+
+        unpacked.findings.push(Finding::capability(
+            "net/socket".to_string(),
+            "Network socket".to_string(),
+            0.9,
+        ).with_evidence(vec![Evidence {
+            method: "symbol".to_string(),
+            source: "goblin".to_string(),
+            value: "connect".to_string(),
+            location: None,
+        }]));
+
+        analyzer.merge_reports(&mut packed, unpacked);
+
+        // Evidence should be combined
+        assert_eq!(packed.findings.len(), 1);
+        assert_eq!(packed.findings[0].evidence.len(), 2);
+    }
+
+    #[test]
+    fn test_merge_reports_strings_dedup() {
+        let analyzer = ElfAnalyzer::new();
+        let mut packed = create_test_report();
+        let mut unpacked = create_test_report();
+
+        packed.strings.push(StringInfo {
+            value: "hello".to_string(),
+            offset: Some("0x100".to_string()),
+            encoding: "utf8".to_string(),
+            string_type: StringType::Plain,
+            section: None,
+        });
+
+        // Same string value - should be deduped
+        unpacked.strings.push(StringInfo {
+            value: "hello".to_string(),
+            offset: Some("0x200".to_string()),
+            encoding: "utf8".to_string(),
+            string_type: StringType::Plain,
+            section: None,
+        });
+
+        // Different string - should be added
+        unpacked.strings.push(StringInfo {
+            value: "world".to_string(),
+            offset: Some("0x300".to_string()),
+            encoding: "utf8".to_string(),
+            string_type: StringType::Plain,
+            section: None,
+        });
+
+        analyzer.merge_reports(&mut packed, unpacked);
+
+        assert_eq!(packed.strings.len(), 2);
+        assert!(packed.strings.iter().any(|s| s.value == "hello"));
+        assert!(packed.strings.iter().any(|s| s.value == "world"));
+    }
+
+    #[test]
+    fn test_merge_reports_imports_dedup() {
+        let analyzer = ElfAnalyzer::new();
+        let mut packed = create_test_report();
+        let mut unpacked = create_test_report();
+
+        packed.imports.push(Import {
+            symbol: "printf".to_string(),
+            library: Some("libc.so.6".to_string()),
+            source: "goblin".to_string(),
+        });
+
+        // Same symbol - should be deduped
+        unpacked.imports.push(Import {
+            symbol: "printf".to_string(),
+            library: Some("libc.so.6".to_string()),
+            source: "goblin".to_string(),
+        });
+
+        // Different symbol - should be added
+        unpacked.imports.push(Import {
+            symbol: "malloc".to_string(),
+            library: Some("libc.so.6".to_string()),
+            source: "goblin".to_string(),
+        });
+
+        analyzer.merge_reports(&mut packed, unpacked);
+
+        assert_eq!(packed.imports.len(), 2);
+        assert!(packed.imports.iter().any(|i| i.symbol == "printf"));
+        assert!(packed.imports.iter().any(|i| i.symbol == "malloc"));
+    }
+
+    #[test]
+    fn test_merge_reports_exports_dedup() {
+        let analyzer = ElfAnalyzer::new();
+        let mut packed = create_test_report();
+        let mut unpacked = create_test_report();
+
+        packed.exports.push(Export {
+            symbol: "main".to_string(),
+            offset: Some("0x1000".to_string()),
+            source: "goblin".to_string(),
+        });
+
+        unpacked.exports.push(Export {
+            symbol: "main".to_string(),
+            offset: Some("0x2000".to_string()),
+            source: "goblin".to_string(),
+        });
+
+        unpacked.exports.push(Export {
+            symbol: "helper".to_string(),
+            offset: Some("0x3000".to_string()),
+            source: "goblin".to_string(),
+        });
+
+        analyzer.merge_reports(&mut packed, unpacked);
+
+        assert_eq!(packed.exports.len(), 2);
+    }
+
+    #[test]
+    fn test_merge_reports_functions_dedup() {
+        let analyzer = ElfAnalyzer::new();
+        let mut packed = create_test_report();
+        let mut unpacked = create_test_report();
+
+        packed.functions.push(Function {
+            name: "main".to_string(),
+            offset: Some("0x1000".to_string()),
+            size: Some(100),
+            complexity: Some(5),
+            calls: vec![],
+            source: "radare2".to_string(),
+            control_flow: None,
+            instruction_analysis: None,
+            register_usage: None,
+            constants: vec![],
+            properties: None,
+            signature: None,
+            nesting: None,
+            call_patterns: None,
+        });
+
+        unpacked.functions.push(Function {
+            name: "main".to_string(),
+            offset: Some("0x2000".to_string()),
+            size: Some(200),
+            complexity: Some(10),
+            calls: vec![],
+            source: "radare2".to_string(),
+            control_flow: None,
+            instruction_analysis: None,
+            register_usage: None,
+            constants: vec![],
+            properties: None,
+            signature: None,
+            nesting: None,
+            call_patterns: None,
+        });
+
+        unpacked.functions.push(Function {
+            name: "helper".to_string(),
+            offset: Some("0x3000".to_string()),
+            size: Some(50),
+            complexity: Some(2),
+            calls: vec![],
+            source: "radare2".to_string(),
+            control_flow: None,
+            instruction_analysis: None,
+            register_usage: None,
+            constants: vec![],
+            properties: None,
+            signature: None,
+            nesting: None,
+            call_patterns: None,
+        });
+
+        analyzer.merge_reports(&mut packed, unpacked);
+
+        assert_eq!(packed.functions.len(), 2);
+        assert!(packed.functions.iter().any(|f| f.name == "main"));
+        assert!(packed.functions.iter().any(|f| f.name == "helper"));
+    }
+
+    #[test]
+    fn test_merge_reports_sections_dedup() {
+        let analyzer = ElfAnalyzer::new();
+        let mut packed = create_test_report();
+        let mut unpacked = create_test_report();
+
+        packed.sections.push(Section {
+            name: ".text".to_string(),
+            size: 1000,
+            entropy: 6.5,
+            permissions: Some("r-x".to_string()),
+        });
+
+        unpacked.sections.push(Section {
+            name: ".text".to_string(),
+            size: 5000,
+            entropy: 5.5,
+            permissions: Some("r-x".to_string()),
+        });
+
+        unpacked.sections.push(Section {
+            name: ".data".to_string(),
+            size: 2000,
+            entropy: 3.0,
+            permissions: Some("rw-".to_string()),
+        });
+
+        analyzer.merge_reports(&mut packed, unpacked);
+
+        assert_eq!(packed.sections.len(), 2);
+    }
+
+    #[test]
+    fn test_merge_reports_yara_matches_dedup() {
+        let analyzer = ElfAnalyzer::new();
+        let mut packed = create_test_report();
+        let mut unpacked = create_test_report();
+
+        packed.yara_matches.push(YaraMatch {
+            rule: "suspicious_strings".to_string(),
+            namespace: "malware".to_string(),
+            severity: "high".to_string(),
+            description: "Suspicious strings detected".to_string(),
+            matched_strings: vec![],
+            is_capability: false,
+            mbc: None,
+            attack: None,
+        });
+
+        unpacked.yara_matches.push(YaraMatch {
+            rule: "suspicious_strings".to_string(),
+            namespace: "malware".to_string(),
+            severity: "high".to_string(),
+            description: "Suspicious strings detected".to_string(),
+            matched_strings: vec![],
+            is_capability: false,
+            mbc: None,
+            attack: None,
+        });
+
+        unpacked.yara_matches.push(YaraMatch {
+            rule: "crypto_constants".to_string(),
+            namespace: "crypto".to_string(),
+            severity: "medium".to_string(),
+            description: "Crypto constants found".to_string(),
+            matched_strings: vec![],
+            is_capability: false,
+            mbc: None,
+            attack: None,
+        });
+
+        analyzer.merge_reports(&mut packed, unpacked);
+
+        assert_eq!(packed.yara_matches.len(), 2);
+    }
+
+    #[test]
+    fn test_merge_reports_empty_unpacked() {
+        let analyzer = ElfAnalyzer::new();
+        let mut packed = create_test_report();
+        let unpacked = create_test_report();
+
+        packed.findings.push(Finding::capability(
+            "net/socket".to_string(),
+            "Network socket".to_string(),
+            0.9,
+        ));
+
+        analyzer.merge_reports(&mut packed, unpacked);
+
+        // Should still have original finding
+        assert_eq!(packed.findings.len(), 1);
+    }
+
+    #[test]
+    fn test_merge_reports_empty_packed() {
+        let analyzer = ElfAnalyzer::new();
+        let mut packed = create_test_report();
+        let mut unpacked = create_test_report();
+
+        unpacked.findings.push(Finding::capability(
+            "net/socket".to_string(),
+            "Network socket".to_string(),
+            0.9,
+        ));
+
+        analyzer.merge_reports(&mut packed, unpacked);
+
+        // Should have the unpacked finding
+        assert_eq!(packed.findings.len(), 1);
+    }
+
+    #[test]
+    fn test_merge_reports_criticality_keeps_higher() {
+        let analyzer = ElfAnalyzer::new();
+        let mut packed = create_test_report();
+        let mut unpacked = create_test_report();
+
+        // Packed has Hostile
+        packed.findings.push(Finding::capability(
+            "malware/backdoor".to_string(),
+            "Backdoor detected".to_string(),
+            0.9,
+        ).with_criticality(Criticality::Hostile));
+
+        // Unpacked has Suspicious (lower)
+        unpacked.findings.push(Finding::capability(
+            "malware/backdoor".to_string(),
+            "Backdoor detected".to_string(),
+            0.9,
+        ).with_criticality(Criticality::Suspicious));
+
+        analyzer.merge_reports(&mut packed, unpacked);
+
+        // Should keep Hostile (higher)
+        assert_eq!(packed.findings[0].criticality, Criticality::Hostile);
+    }
+
+    #[test]
+    fn test_merge_reports_criticality_upgrades() {
+        let analyzer = ElfAnalyzer::new();
+        let mut packed = create_test_report();
+        let mut unpacked = create_test_report();
+
+        // Packed has Notable (lower)
+        packed.findings.push(Finding::capability(
+            "net/socket".to_string(),
+            "Network socket".to_string(),
+            0.9,
+        ).with_criticality(Criticality::Notable));
+
+        // Unpacked has Hostile (higher)
+        unpacked.findings.push(Finding::capability(
+            "net/socket".to_string(),
+            "Network socket".to_string(),
+            0.9,
+        ).with_criticality(Criticality::Hostile));
+
+        analyzer.merge_reports(&mut packed, unpacked);
+
+        // Should upgrade to Hostile
+        assert_eq!(packed.findings[0].criticality, Criticality::Hostile);
     }
 }

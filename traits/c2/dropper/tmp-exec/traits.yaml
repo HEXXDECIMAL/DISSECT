@@ -3,7 +3,7 @@
 # ATT&CK: T1059 (Command and Scripting Interpreter)
 
 traits:
-  - id: tmp-path
+  - id: c2/dropper/tmp-exec/tmp-path
     description: "Reference to /tmp directory for execution"
     criticality: notable
     confidence: 0.7
@@ -12,10 +12,10 @@ traits:
       regex: '"/tmp/[a-zA-Z_][a-zA-Z0-9_]*"'
 
 composite_rules:
-  - id: python
+  - id: c2/dropper/tmp-exec/python
     description: "Download to /tmp, chmod, execute (supply chain attack)"
     confidence: 0.95
-    criticality: hostile
+    criticality: suspicious
     mbc: "B0024"
     attack: "T1059.006"
     file_types: [python]

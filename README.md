@@ -26,12 +26,12 @@ brew install radare2  # macOS
 ## Usage
 
 ```bash
-# Analyze single file
-dissect analyze /bin/ls
-dissect analyze suspicious.py --format json -o report.json
+# Analyze files (subcommand optional)
+dissect /bin/ls
+dissect suspicious.py --format json -o report.json
 
-# Scan multiple files or directories
-dissect scan /path/to/files
+# Scan directories
+dissect /path/to/files
 
 # Diff analysis (supply chain attack detection)
 dissect diff package-v1.0/ package-v1.1/
@@ -77,7 +77,7 @@ JSON schema v1.0 includes full attribution:
 |--------|--------|-----|
 | symbol | goblin | Binary imports/exports |
 | ast | tree-sitter | Source code analysis |
-| yara | yara-x | Pattern matching (1000+ rules) |
+| yara | yara-x | Pattern matching |
 | radare2 | r2 | Deep binary analysis |
 | entropy | built-in | Packing/encryption detection |
 | pattern | regex | String classification |

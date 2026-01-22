@@ -96,6 +96,11 @@ impl MachOAnalyzer {
                     });
                 }
             }
+
+            // Extract syscalls for binary analysis
+            if let Ok(syscalls) = self.radare2.extract_syscalls(file_path) {
+                report.syscalls = syscalls;
+            }
         }
 
         // Extract strings if not already done by radare2

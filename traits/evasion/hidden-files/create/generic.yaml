@@ -1,0 +1,40 @@
+# Hidden File Detection Traits
+# Detects creation of hidden dotfiles often used to hide malware
+# ATT&CK: T1564.001 (Hide Artifacts: Hidden Files and Directories)
+
+traits:
+  - id: evasion/hidden-files/create/hidden-file-write
+    description: Writing to hidden dotfile (malware hiding)
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "F0005"
+    attack: "T1564.001"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "-O \\./\\.[a-zA-Z]|> \\./\\.[a-zA-Z]|>\\./\\.[a-zA-Z]"
+      search_raw: true
+
+  - id: evasion/hidden-files/create/hidden-file-execute
+    description: Executing hidden dotfile
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "B0024"
+    attack: "T1059"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "\\./\\.[a-zA-Z][a-zA-Z0-9_-]*\\s|\\./\\.[a-zA-Z][a-zA-Z0-9_-]*$|\\./\\.[a-zA-Z][a-zA-Z0-9_-]*;"
+      search_raw: true
+
+  - id: evasion/hidden-files/create/chmod-hidden-file
+    description: Making hidden file executable
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "C0047"
+    attack: "T1222.002"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "chmod \\+x \\.[a-zA-Z]|chmod 7[0-9][0-9] \\.[a-zA-Z]"
+      search_raw: true

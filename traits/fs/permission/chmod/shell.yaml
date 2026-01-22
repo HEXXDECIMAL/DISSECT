@@ -20,7 +20,7 @@ traits:
 
   - id: fs/permission/chmod-world-exec
     description: Makes file world-writable and executable (777)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.66
     condition:
       type: yara

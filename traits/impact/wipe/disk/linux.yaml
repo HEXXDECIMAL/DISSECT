@@ -5,7 +5,7 @@
 traits:
   - id: impact/wipe/disk
     description: Disk wiper patterns
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.66
     mbc: "E1561"
     attack: "T1561"
@@ -23,7 +23,7 @@ traits:
 
   - id: impact/wipe/disk-device
     description: Direct disk device access
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.66
     condition:
       type: string

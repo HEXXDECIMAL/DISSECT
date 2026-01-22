@@ -1,0 +1,19 @@
+# Network Interface Operations
+# MBC: C0001 (Network Communication)
+
+traits:
+  - id: net/interface/enum/enumerate
+    description: Enumerate network interfaces
+    criticality: notable
+    confidence: 0.75
+    condition:
+      type: symbol
+      pattern: getifaddrs|if_nameindex
+
+  - id: net/interface/enum/name-lookup
+    description: Network interface name lookup
+    criticality: notable
+    confidence: 0.70
+    condition:
+      type: symbol
+      pattern: if_nametoindex|if_indextoname

@@ -1,0 +1,42 @@
+# PHP Timestamp Manipulation Traits
+# MBC: F0006 (Indicator Removal)
+# ATT&CK: T1070.006 (Timestomp)
+
+traits:
+  - id: evasion/timestomp/modify/touch
+    description: File timestamp modification
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "F0006"
+    attack: "T1070.006"
+    file_types: [all]
+    condition:
+      type: string
+      exact: touch
+
+  - id: evasion/timestomp/modify/filemtime
+    description: File modification time access
+    criticality: inert
+    confidence: 0.6
+    file_types: [all]
+    condition:
+      type: string
+      exact: filemtime
+
+  - id: evasion/timestomp/modify/fileatime
+    description: File access time access
+    criticality: inert
+    confidence: 0.6
+    file_types: [all]
+    condition:
+      type: string
+      exact: fileatime
+
+  - id: evasion/timestomp/modify/filectime
+    description: File change time access
+    criticality: inert
+    confidence: 0.6
+    file_types: [all]
+    condition:
+      type: string
+      exact: filectime

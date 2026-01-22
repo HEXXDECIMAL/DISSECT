@@ -1,0 +1,46 @@
+# Sandbox Detection
+# MBC: OB0001 (Anti-Behavioral Analysis) → B0007 (Sandbox Detection)
+# ATT&CK: T1497.001 (Virtualization/Sandbox Evasion: System Checks)
+
+traits:
+  - id: anti-analysis/sandbox/detect/hostname-sandbox
+    description: Common sandbox hostnames
+    criticality: suspicious
+    mbc: "B0007"
+    attack: "T1497.001"
+    confidence: 0.8
+    condition:
+      type: string
+      regex: "(DESKTOP-19OLLTD|DESKTOP-B0T93D6|DESKTOP-VRSQLAG|JOHN-PC|JULIA-PC|LISA-PC)"
+      case_insensitive: true
+
+  - id: anti-analysis/sandbox/detect/username-sandbox
+    description: Common sandbox usernames
+    criticality: suspicious
+    mbc: "B0007"
+    attack: "T1497.001"
+    confidence: 0.8
+    condition:
+      type: string
+      regex: "(malware|sandbox|virus|sample)"
+      case_insensitive: true
+
+  - id: anti-analysis/sandbox/detect/sleep-accel
+    description: Sleep acceleration detection (sandbox evasion)
+    criticality: suspicious
+    mbc: "B0007"
+    attack: "T1497.003"
+    confidence: 0.9
+    condition:
+      type: symbol
+      pattern: sleep|Sleep|usleep
+
+  - id: anti-analysis/sandbox/detect/file-check-sandbox
+    description: Sandbox artifact file checks
+    criticality: suspicious
+    mbc: "B0007"
+    attack: "T1497.001"
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "(C:\\\\analysis|C:\\\\sandbox|/tmp/analysis)"

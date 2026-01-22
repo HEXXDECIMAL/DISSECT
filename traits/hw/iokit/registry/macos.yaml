@@ -1,0 +1,11 @@
+# IOKit Registry - macOS
+
+traits:
+  - id: hw/iokit/registry/access
+    description: Access IOKit device driver registry
+    criticality: notable
+    confidence: 0.6
+    platforms: [macos]
+    condition:
+      type: string
+      exact: "IORegistry"

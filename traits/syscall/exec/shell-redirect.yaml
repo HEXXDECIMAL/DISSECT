@@ -1,0 +1,30 @@
+traits:
+  - id: syscall/exec/shell-redirect
+    description: Executes program with file descriptor redirection
+    confidence: 0.8
+    criticality: suspicious
+    platforms: [linux]
+    file_types: [elf]
+    requires_all:
+      - type: syscall
+        name: ["execve", "execveat"]
+      - type: syscall
+        name: ["dup2", "dup3"]
+        min_count: 2
+
+  - id: syscall/exec/reverse-shell-pattern
+    description: Reverse shell pattern - socket + dup2 + execve
+    confidence: 0.9
+    criticality: suspicious
+    platforms: [linux]
+    file_types: [elf]
+    requires_all:
+      - type: syscall
+        name: ["socket", "socketcall"]
+      - type: syscall
+        name: ["connect"]
+      - type: syscall
+        name: ["dup2", "dup3"]
+        min_count: 2
+      - type: syscall
+        name: ["execve", "execveat"]

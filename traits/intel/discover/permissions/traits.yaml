@@ -1,0 +1,125 @@
+# Intelligence Gathering - Permissions Discovery
+# ATT&CK: T1069 (Permission Groups Discovery)
+
+traits:
+  - id: intel/discover/permissions/capsh
+    description: Linux capability shell
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1069"
+    file_types: [elf, shell]
+    condition:
+      type: string
+      exact: "capsh"
+
+  - id: intel/discover/permissions/proc-status
+    description: Process status file access
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1069"
+    file_types: [elf, shell]
+    condition:
+      type: string
+      exact: "/proc/self/status"
+
+  - id: intel/discover/permissions/getgroups
+    description: Get group list
+    criticality: notable
+    confidence: 0.75
+    attack: "T1069"
+    file_types: [elf, macho]
+    condition:
+      type: string
+      exact: "getgroups"
+
+  - id: intel/discover/permissions/getgid
+    description: Get group ID
+    criticality: notable
+    confidence: 0.7
+    attack: "T1069"
+    file_types: [elf, macho]
+    condition:
+      type: string
+      exact: "getgid"
+
+  - id: intel/discover/permissions/getegid
+    description: Get effective group ID
+    criticality: notable
+    confidence: 0.75
+    attack: "T1069"
+    file_types: [elf, macho]
+    condition:
+      type: string
+      exact: "getegid"
+
+  - id: intel/discover/permissions/geteuid
+    description: Get effective user ID
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1033"
+    file_types: [elf, macho]
+    condition:
+      type: string
+      exact: "geteuid"
+
+  - id: intel/discover/permissions/etc-group
+    description: Group file access
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1069"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "/etc/group"
+
+  - id: intel/discover/permissions/etc-sudoers
+    description: Sudoers file access
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1069"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "/etc/sudoers"
+
+  - id: intel/discover/permissions/cap-get
+    description: Linux capability get
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1069"
+    file_types: [elf]
+    condition:
+      type: string
+      regex: "cap_(get|set)_(proc|file)"
+
+  - id: intel/discover/permissions/sudo-l
+    description: Sudo permission listing
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1069"
+    file_types: [shell]
+    condition:
+      type: string
+      regex: "sudo\\s+-l"
+
+composite_rules:
+  - id: intel/discover/permissions/linux-caps-enum
+    description: Linux capabilities enumeration
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1069"
+    mbc: "B0046"
+    file_types: [elf, shell]
+    condition:
+      type: yara
+      source: |
+        rule linux_caps_enum {
+          strings:
+            $capsh = "capsh" fullword
+            $proc_status = "/proc/self/status"
+            $cap_get = "cap_get_proc"
+            $cap_set = "cap_set_proc"
+          condition:
+            filesize < 10MB and
+            ($capsh and $proc_status) or 2 of ($cap*)
+        }

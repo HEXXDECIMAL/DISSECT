@@ -1,0 +1,249 @@
+# Java Execution and Security Traits
+# Detects dangerous Java patterns in source code
+# MBC: Execution, Defense Evasion
+# ATT&CK: T1059 (Command and Scripting Interpreter)
+
+traits:
+  # ============================================================
+  # COMMAND EXECUTION
+  # ============================================================
+
+  - id: exec/java/runtime/runtime-exec
+    description: Runtime.exec() command execution
+    criticality: notable
+    confidence: 0.95
+    mbc: "C0033"
+    attack: "T1059"
+    file_types: [java]
+    condition:
+      type: ast_pattern
+      node_type: method_invocation
+      pattern: "Runtime.exec"
+
+  - id: exec/java/runtime/runtime-getruntime-exec
+    description: Runtime.getRuntime().exec() command execution
+    criticality: notable
+    confidence: 0.95
+    mbc: "C0033"
+    attack: "T1059"
+    file_types: [java]
+    condition:
+      type: ast_pattern
+      node_type: method_invocation
+      pattern: "getRuntime().exec"
+
+  - id: exec/java/runtime/processbuilder
+    description: ProcessBuilder command execution
+    criticality: notable
+    confidence: 0.9
+    mbc: "C0033"
+    attack: "T1059"
+    file_types: [java]
+    condition:
+      type: ast_pattern
+      node_type: object_creation_expression
+      pattern: "ProcessBuilder"
+
+  # ============================================================
+  # REFLECTION (ANTI-ANALYSIS / EVASION)
+  # ============================================================
+
+  - id: exec/java/runtime/class-forname
+    description: Dynamic class loading via reflection
+    criticality: notable
+    confidence: 0.9
+    mbc: "F0006"
+    file_types: [java]
+    condition:
+      type: ast_pattern
+      node_type: method_invocation
+      pattern: "Class.forName"
+
+  - id: exec/java/runtime/method-invoke
+    description: Dynamic method invocation via reflection
+    criticality: notable
+    confidence: 0.95
+    mbc: "F0006"
+    file_types: [java]
+    condition:
+      type: ast_pattern
+      node_type: method_invocation
+      pattern: ".invoke("
+
+  - id: exec/java/runtime/setaccessible
+    description: Bypass Java access control via reflection
+    criticality: suspicious
+    confidence: 0.95
+    mbc: "F0006"
+    file_types: [java]
+    condition:
+      type: ast_pattern
+      node_type: method_invocation
+      pattern: ".setAccessible"
+
+  - id: exec/java/runtime/getdeclaredmethod
+    description: Access private methods via reflection
+    criticality: notable
+    confidence: 0.9
+    mbc: "F0006"
+    file_types: [java]
+    condition:
+      type: ast_pattern
+      node_type: method_invocation
+      pattern: ".getDeclaredMethod"
+
+  - id: exec/java/runtime/getdeclaredfield
+    description: Access private fields via reflection
+    criticality: notable
+    confidence: 0.9
+    mbc: "F0006"
+    file_types: [java]
+    condition:
+      type: ast_pattern
+      node_type: method_invocation
+      pattern: ".getDeclaredField"
+
+  # ============================================================
+  # DESERIALIZATION (COMMON ATTACK VECTOR)
+  # ============================================================
+
+  - id: exec/java/runtime/objectinputstream
+    description: Object deserialization (potential RCE vector)
+    criticality: notable
+    confidence: 0.9
+    mbc: "C0033"
+    attack: "T1059"
+    file_types: [java]
+    condition:
+      type: ast_pattern
+      node_type: object_creation_expression
+      pattern: "ObjectInputStream"
+
+  - id: exec/java/runtime/readobject
+    description: Deserialize object from stream
+    criticality: notable
+    confidence: 0.9
+    mbc: "C0033"
+    file_types: [java]
+    condition:
+      type: ast_pattern
+      node_type: method_invocation
+      pattern: ".readObject("
+
+  - id: exec/java/runtime/xmldecoder
+    description: XML deserialization (CVE vector)
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "C0033"
+    file_types: [java]
+    condition:
+      type: ast_pattern
+      node_type: object_creation_expression
+      pattern: "XMLDecoder"
+
+  # ============================================================
+  # NATIVE CODE LOADING
+  # ============================================================
+
+  - id: exec/java/runtime/system-loadlibrary
+    description: Load native library
+    criticality: notable
+    confidence: 0.9
+    mbc: "C0033"
+    attack: "T1129"
+    file_types: [java]
+    condition:
+      type: ast_pattern
+      node_type: method_invocation
+      pattern: "System.loadLibrary"
+
+  - id: exec/java/runtime/system-load
+    description: Load native library by path
+    criticality: notable
+    confidence: 0.9
+    mbc: "C0033"
+    attack: "T1129"
+    file_types: [java]
+    condition:
+      type: ast_pattern
+      node_type: method_invocation
+      pattern: "System.load("
+
+  # ============================================================
+  # DYNAMIC CLASS LOADING
+  # ============================================================
+
+  - id: exec/java/runtime/urlclassloader
+    description: Load classes from URL (supply chain risk)
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "C0033"
+    file_types: [java]
+    condition:
+      type: ast_pattern
+      node_type: object_creation_expression
+      pattern: "URLClassLoader"
+
+  - id: exec/java/runtime/defineclass
+    description: Define class from bytecode
+    criticality: suspicious
+    confidence: 0.95
+    mbc: "C0033"
+    file_types: [java]
+    condition:
+      type: ast_pattern
+      node_type: method_invocation
+      pattern: ".defineClass"
+
+  # ============================================================
+  # SCRIPT EXECUTION
+  # ============================================================
+
+  - id: exec/java/runtime/scriptengine
+    description: Script engine execution
+    criticality: notable
+    confidence: 0.9
+    mbc: "C0033"
+    attack: "T1059"
+    file_types: [java]
+    condition:
+      type: ast_pattern
+      node_type: object_creation_expression
+      pattern: "ScriptEngineManager"
+
+  - id: exec/java/runtime/scriptengine-eval
+    description: Evaluate script code
+    criticality: notable
+    confidence: 0.9
+    mbc: "C0033"
+    attack: "T1059"
+    file_types: [java]
+    condition:
+      type: ast_pattern
+      node_type: method_invocation
+      pattern: ".eval("
+
+  # ============================================================
+  # JNDI (Log4Shell vector)
+  # ============================================================
+
+  - id: exec/java/runtime/initialcontext
+    description: JNDI InitialContext (potential injection)
+    criticality: notable
+    confidence: 0.85
+    file_types: [java]
+    condition:
+      type: ast_pattern
+      node_type: object_creation_expression
+      pattern: "InitialContext"
+
+  - id: exec/java/runtime/jndi-lookup
+    description: JNDI lookup (Log4Shell attack vector)
+    criticality: notable
+    confidence: 0.9
+    mbc: "C0033"
+    file_types: [java]
+    condition:
+      type: ast_pattern
+      node_type: method_invocation
+      pattern: ".lookup("

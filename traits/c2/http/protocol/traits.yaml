@@ -1,0 +1,97 @@
+# HTTP C2 Protocol Detection
+# Detects HTTP protocol strings and patterns in binaries
+# ATT&CK: T1071.001 (Application Layer Protocol: Web Protocols)
+
+traits:
+  - id: c2/http/protocol/http-protocol-string
+    description: "HTTP protocol version string"
+    criticality: notable
+    confidence: 0.3
+    attack: "T1071.001"
+    file_types: [elf, pe, macho]
+    condition:
+      type: string
+      regex: "HTTP/[012]\\.[0-9]"
+
+  - id: c2/http/protocol/http-method-get
+    description: "HTTP GET method string"
+    criticality: notable
+    confidence: 0.25
+    attack: "T1071.001"
+    file_types: [elf, pe, macho]
+    condition:
+      type: string
+      regex: "GET /[^ ]+ HTTP"
+
+  - id: c2/http/protocol/http-method-post
+    description: "HTTP POST method string"
+    criticality: notable
+    confidence: 0.35
+    attack: "T1071.001"
+    file_types: [elf, pe, macho]
+    condition:
+      type: string
+      regex: "POST /[^ ]+ HTTP"
+
+  - id: c2/http/protocol/http-user-agent
+    description: "HTTP User-Agent header"
+    criticality: notable
+    confidence: 0.3
+    attack: "T1071.001"
+    file_types: [elf, pe, macho]
+    condition:
+      type: string
+      regex: "User-Agent:"
+
+  - id: c2/http/protocol/http-content-type
+    description: "HTTP Content-Type header"
+    criticality: notable
+    confidence: 0.25
+    attack: "T1071.001"
+    file_types: [elf, pe, macho]
+    condition:
+      type: string
+      regex: "Content-Type:"
+
+  - id: c2/http/protocol/http-delimiter
+    description: "HTTP header/body delimiter (CRLF CRLF)"
+    criticality: notable
+    confidence: 0.2
+    attack: "T1071.001"
+    file_types: [elf, pe, macho]
+    condition:
+      type: string
+      exact: "\r\n\r\n"
+
+composite_rules:
+  - id: c2/http/hardcoded-request
+    description: "Hardcoded HTTP request in binary"
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1071.001"
+    file_types: [elf, pe, macho]
+    requires_all:
+      - type: trait
+        id: http-protocol-string
+    requires_any:
+      - type: trait
+        id: http-method-get
+      - type: trait
+        id: http-method-post
+
+  - id: c2/http/custom-client
+    description: "Custom HTTP client implementation"
+    criticality: suspicious
+    confidence: 0.65
+    attack: "T1071.001"
+    file_types: [elf, pe, macho]
+    requires_all:
+      - type: trait
+        id: http-protocol-string
+      - type: trait
+        id: http-delimiter
+    requires_any:
+      - type: trait
+        id: http-user-agent
+      - type: trait
+        id: http-content-type

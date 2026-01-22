@@ -1,0 +1,121 @@
+# PHP Anti-Static Analysis / Obfuscation Traits
+# MBC: B0032 (Obfuscated Files or Information)
+# ATT&CK: T1027
+
+traits:
+  - id: anti-static/obfuscation/encoding/base64-decode
+    description: Base64 decoding (potential payload)
+    criticality: notable
+    confidence: 0.7
+    mbc: "B0032"
+    attack: "T1140"
+    file_types: [all]
+    condition:
+      type: string
+      exact: base64_decode
+
+  - id: anti-static/obfuscation/encoding/base64-encode
+    description: Base64 encoding
+    criticality: inert
+    confidence: 0.6
+    file_types: [all]
+    condition:
+      type: string
+      exact: base64_encode
+
+  - id: anti-static/obfuscation/encoding/gzinflate
+    description: Gzip decompression (packed payload)
+    criticality: suspicious
+    confidence: 0.8
+    mbc: "B0032"
+    attack: "T1140"
+    file_types: [all]
+    condition:
+      type: string
+      exact: gzinflate
+
+  - id: anti-static/obfuscation/encoding/gzuncompress
+    description: Zlib decompression (packed payload)
+    criticality: suspicious
+    confidence: 0.8
+    mbc: "B0032"
+    attack: "T1140"
+    file_types: [all]
+    condition:
+      type: string
+      exact: gzuncompress
+
+  - id: anti-static/obfuscation/encoding/gzdecode
+    description: Gzip decoding (packed payload)
+    criticality: suspicious
+    confidence: 0.8
+    mbc: "B0032"
+    attack: "T1140"
+    file_types: [all]
+    condition:
+      type: string
+      exact: gzdecode
+
+  - id: anti-static/obfuscation/encoding/rot13
+    description: ROT13 encoding/decoding
+    criticality: suspicious
+    confidence: 0.8
+    mbc: "B0032"
+    file_types: [all]
+    condition:
+      type: string
+      exact: str_rot13
+
+  - id: anti-static/obfuscation/encoding/chr-ord
+    description: Character code manipulation
+    criticality: notable
+    confidence: 0.65
+    mbc: "B0032"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "(chr|ord)\\s*\\("
+
+  - id: anti-static/obfuscation/encoding/eval
+    description: Dynamic code execution via eval
+    criticality: suspicious
+    confidence: 0.95
+    mbc: "E1059"
+    attack: "T1059"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "\\beval\\s*\\("
+
+  - id: anti-static/obfuscation/encoding/create-function
+    description: Dynamic function creation (deprecated, often malicious)
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "E1059"
+    attack: "T1059"
+    file_types: [all]
+    condition:
+      type: string
+      exact: create_function
+
+  - id: anti-static/obfuscation/encoding/preg-replace-e
+    description: preg_replace with /e modifier (code execution)
+    criticality: suspicious
+    confidence: 0.95
+    mbc: "E1059"
+    attack: "T1059"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "preg_replace\\s*\\(['\"][^'\"]*\\/[a-zA-Z]*e[a-zA-Z]*['\"]"
+
+  - id: anti-static/obfuscation/encoding/assert-dynamic
+    description: Assert with dynamic code (code execution)
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "E1059"
+    attack: "T1059"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "assert\\s*\\(\\s*\\$"

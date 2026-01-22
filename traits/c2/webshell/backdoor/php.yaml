@@ -1,0 +1,106 @@
+# PHP Webshell C2 Traits
+# MBC: B0030 (C2 Communication)
+# ATT&CK: T1505.003 (Web Shell)
+
+traits:
+  - id: c2/webshell/backdoor/password-form
+    description: HTML password form in PHP (webshell login)
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "B0030"
+    attack: "T1505.003"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "<input[^>]*type=['\"]password['\"]"
+
+  - id: c2/webshell/backdoor/ajax-handler
+    description: AJAX request handler pattern
+    criticality: notable
+    confidence: 0.7
+    file_types: [all]
+    condition:
+      type: string
+      regex: "\\$_(GET|POST)\\s*\\[\\s*['\"]do['\"]\\s*\\]"
+
+  - id: c2/webshell/backdoor/json-response
+    description: JSON API response pattern
+    criticality: notable
+    confidence: 0.7
+    mbc: "B0030"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "exit\\s*\\(\\s*json_encode"
+
+  - id: c2/webshell/backdoor/hardcoded-hash-auth
+    description: Hardcoded MD5 hash authentication (backdoor)
+    criticality: suspicious
+    confidence: 0.95
+    mbc: "B0030"
+    attack: "T1505.003"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "md5\\s*\\([^)]+\\)\\s*(==|===)\\s*['\"][0-9a-f]{12,32}['\"]"
+
+  - id: c2/webshell/backdoor/substr-hash-compare
+    description: Partial hash comparison (weak authentication)
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "B0030"
+    attack: "T1505.003"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "substr\\s*\\(\\s*md5\\s*\\("
+
+  - id: c2/webshell/backdoor/error-suppress-prefix
+    description: Error suppression operator usage (@)
+    criticality: notable
+    confidence: 0.7
+    mbc: "B0032"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "@\\s*(\\$|session_start|include|require|file_|curl_)"
+
+  - id: c2/webshell/backdoor/proxy-port
+    description: High port number (proxy/backdoor indicator)
+    criticality: suspicious
+    confidence: 0.8
+    mbc: "B0030"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "\\b(30000|31337|4444|5555|6666|8080|9999)\\b"
+
+  - id: c2/webshell/backdoor/ssrf-pattern
+    description: Server-Side Request Forgery pattern (URL from user input)
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "B0030"
+    attack: "T1090"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "curl_init\\s*\\(.*\\$_(GET|POST|REQUEST)"
+
+  - id: c2/webshell/backdoor/google-search-scrape
+    description: Google search results scraping
+    criticality: suspicious
+    confidence: 0.85
+    file_types: [all]
+    condition:
+      type: string
+      regex: "google\\.[a-z.]+/search\\?.*site:"
+
+  - id: c2/webshell/backdoor/url-param-fetch
+    description: URL parameter fetched and executed
+    criticality: suspicious
+    confidence: 0.8
+    mbc: "B0030"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "(curl_init|file_get_contents|fopen)\\s*\\(.*\\$_(GET|POST)"

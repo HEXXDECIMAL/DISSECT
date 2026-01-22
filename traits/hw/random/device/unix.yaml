@@ -1,0 +1,11 @@
+# Random Device - Unix
+
+traits:
+  - id: hw/random/device/urandom
+    description: Access /dev/urandom
+    criticality: inert
+    confidence: 1.0
+    platforms: [linux, macos, unix]
+    condition:
+      type: string
+      exact: "/dev/urandom"

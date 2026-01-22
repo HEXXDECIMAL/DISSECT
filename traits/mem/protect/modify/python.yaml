@@ -1,0 +1,15 @@
+# Memory Protection - Python
+# ATT&CK: T1055 (Process Injection)
+
+traits:
+  - id: mem/protect/modify/virtualprotect-ctypes
+    description: VirtualProtect via Python ctypes
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1055"
+    platforms: [windows]
+    file_types: [python]
+    condition:
+      type: ast_pattern
+      node_type: call
+      pattern: "ctypes.windll.kernel32.VirtualProtect"

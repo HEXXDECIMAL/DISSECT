@@ -1,0 +1,22 @@
+traits:
+  - id: syscall/net/socket-create
+    description: Creates network socket
+    confidence: 0.9
+    criticality: inert
+    platforms: [linux]
+    file_types: [elf]
+    condition:
+      type: syscall
+      name: ["socket", "socketpair", "socketcall"]
+
+  - id: syscall/net/client
+    description: Network client - connects to remote host
+    confidence: 0.85
+    criticality: notable
+    platforms: [linux]
+    file_types: [elf]
+    requires_all:
+      - type: syscall
+        name: ["socket", "socketcall"]
+      - type: syscall
+        name: ["connect"]

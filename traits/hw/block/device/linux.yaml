@@ -1,0 +1,40 @@
+# Block Devices - Linux
+# ATT&CK: T1082 (System Information Discovery)
+
+traits:
+  - id: hw/block/device/sys-block
+    description: Access block device info via sysfs
+    criticality: suspicious
+    confidence: 0.75
+    attack: "T1082"
+    platforms: [linux]
+    condition:
+      type: string
+      regex: "/sys/(dev/)?block"
+
+  - id: hw/block/device/dev-sd
+    description: Access raw SCSI/SATA block devices
+    criticality: suspicious
+    confidence: 0.8
+    platforms: [linux]
+    condition:
+      type: string
+      regex: "/dev/sd[a-z]"
+
+  - id: hw/block/device/dev-dm
+    description: Access LVM device mapper
+    criticality: suspicious
+    confidence: 0.75
+    platforms: [linux]
+    condition:
+      type: string
+      regex: "/dev/dm-\\d"
+
+  - id: hw/block/device/dev-mapper
+    description: Uses device mapper framework
+    criticality: notable
+    confidence: 0.7
+    platforms: [linux]
+    condition:
+      type: string
+      regex: "/dev/mapper"

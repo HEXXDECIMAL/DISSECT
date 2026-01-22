@@ -25,7 +25,7 @@ traits:
 
   - id: net/ip/services-tor
     description: Contains TOR onion address
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.66
     mbc: "B0030"
     condition:

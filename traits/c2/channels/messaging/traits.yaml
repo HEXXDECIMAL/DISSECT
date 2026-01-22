@@ -1,0 +1,66 @@
+# C2 Communication Channels
+# MBC: OB0004 (Command & Control) → B0030 (C2 Communication)
+# ATT&CK: T1071 (Application Layer Protocol)
+
+traits:
+  # Messaging platforms
+  - id: c2/channels/messaging/telegram-api
+    description: Telegram Bot API
+    criticality: notable
+    mbc: "B0030.001"
+    attack: "T1567.001"
+    confidence: 1.0
+    condition:
+      type: string
+      exact: "api.telegram.org"
+
+  - id: c2/channels/messaging/telegram-send
+    description: Telegram send methods
+    criticality: notable
+    mbc: "B0030.001"
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "/(sendMessage|sendDocument|sendPhoto)"
+
+  - id: c2/channels/messaging/discord-webhook
+    description: Discord webhook URL
+    criticality: notable
+    mbc: "B0030.001"
+    attack: "T1567.001"
+    confidence: 1.0
+    condition:
+      type: string
+      regex: "(discordapp\\.com|discord\\.com)/api/webhooks"
+
+  # HTTP C2
+  - id: c2/channels/messaging/http-post
+    description: HTTP POST requests (potential C2)
+    criticality: inert
+    mbc: "B0030"
+    attack: "T1071.001"
+    confidence: 0.5
+    condition:
+      type: symbol
+      pattern: http_post|POST|HttpPost
+
+  - id: c2/channels/messaging/user-agent-custom
+    description: Custom User-Agent string (C2 indicator)
+    criticality: notable
+    mbc: "B0030"
+    attack: "T1071.001"
+    confidence: 0.6
+    condition:
+      type: string
+      regex: "User-Agent:"
+
+  # DNS C2
+  - id: c2/channels/messaging/dns-query
+    description: DNS queries (potential C2 channel)
+    criticality: inert
+    mbc: "B0030"
+    attack: "T1071.004"
+    confidence: 0.4
+    condition:
+      type: symbol
+      pattern: res_query|dns_query

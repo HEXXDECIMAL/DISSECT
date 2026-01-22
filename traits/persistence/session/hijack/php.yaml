@@ -1,0 +1,42 @@
+# PHP Session Persistence Traits
+# MBC: B0028 (Persistence)
+# ATT&CK: T1071
+
+traits:
+  - id: persistence/session/hijack/start
+    description: PHP session initialization for state persistence
+    criticality: notable
+    confidence: 0.7
+    mbc: "B0028"
+    file_types: [all]
+    condition:
+      type: string
+      exact: session_start
+
+  - id: persistence/session/hijack/destroy
+    description: PHP session destruction
+    criticality: notable
+    confidence: 0.7
+    file_types: [all]
+    condition:
+      type: string
+      exact: session_destroy
+
+  - id: persistence/session/hijack/regenerate
+    description: PHP session ID regeneration
+    criticality: notable
+    confidence: 0.75
+    file_types: [all]
+    condition:
+      type: string
+      exact: session_regenerate_id
+
+  - id: persistence/session/hijack/id-access
+    description: Direct session ID manipulation
+    criticality: suspicious
+    confidence: 0.8
+    mbc: "B0028"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "session_id\\s*\\("

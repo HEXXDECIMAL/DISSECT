@@ -34,7 +34,7 @@ traits:
 
   - id: fs/attributes/chattr-immutable-recursive
     description: Recursively remove immutability of a directory
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.66
     condition:
       type: yara

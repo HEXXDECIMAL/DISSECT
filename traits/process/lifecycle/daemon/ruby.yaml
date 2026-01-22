@@ -1,0 +1,13 @@
+# Process Lifecycle - Ruby
+
+traits:
+  - id: process/lifecycle/daemon/ruby-daemon
+    description: Daemonize process (background)
+    criticality: notable
+    confidence: 0.93
+    platforms: [all]
+    file_types: [ruby]
+    condition:
+      type: symbol_or_string
+      any:
+        - Process.daemon

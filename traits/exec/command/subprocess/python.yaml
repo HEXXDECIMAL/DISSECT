@@ -2,7 +2,7 @@
 # ATT&CK: T1059.006 (Python)
 
 traits:
-  - id: popen
+  - id: exec/command/subprocess/popen
     description: "subprocess.Popen process creation"
     criticality: notable
     confidence: 0.85
@@ -13,7 +13,7 @@ traits:
       type: string
       regex: "subprocess\\.Popen\\("
 
-  - id: run
+  - id: exec/command/subprocess/run
     description: "subprocess.run command execution"
     criticality: notable
     confidence: 0.85
@@ -24,7 +24,7 @@ traits:
       type: string
       regex: "subprocess\\.run\\("
 
-  - id: call
+  - id: exec/command/subprocess/call
     description: "subprocess.call command execution"
     criticality: notable
     confidence: 0.85

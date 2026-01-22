@@ -30,6 +30,70 @@ Examples:
 - `c2/channels/telegram` — C2 via Telegram Bot API
 - `anti-analysis/debugger/ptrace` — Debugger detection via ptrace
 
+### Special Taxonomy: Malware Families
+
+Known malware families use a separate taxonomy pattern:
+
+```
+malware/<kind>/<family>
+```
+
+| Level | Name | Description | Example |
+|-------|------|-------------|---------|
+| 1 | malware | Fixed prefix for known malware | `malware` |
+| 2 | Kind | Category of malware | `botnet`, `ransomware`, `rootkit`, `stealer` |
+| 3 | Family | Specific malware family name | `mirai`, `conti`, `diamorphine`, `amos` |
+
+Malware kinds:
+- `apt` — Advanced persistent threat tools
+- `backdoor` — Remote access backdoors
+- `botnet` — Bot/zombie network malware
+- `c2-framework` — Command & control frameworks (Cobalt Strike, Sliver)
+- `cryptominer` — Cryptocurrency mining malware
+- `injector` — Code injection tools
+- `proxyware` — Proxy/bandwidth hijacking
+- `ransomware` — Encryption/extortion malware
+- `rootkit` — Kernel/userland rootkits
+- `scanner` — Network/vulnerability scanners
+- `stealer` — Information stealing malware
+- `virus` — Self-replicating file infectors
+
+Examples:
+- `malware/botnet/mirai` — Mirai IoT botnet
+- `malware/ransomware/conti` — Conti ransomware
+- `malware/rootkit/diamorphine` — Diamorphine Linux rootkit
+- `malware/c2-framework/cobalt-strike` — Cobalt Strike beacon
+
+## File Organization
+
+### Trait Files
+
+Files within taxonomy directories:
+
+| Filename | Purpose |
+|----------|---------|
+| `traits.yaml` | Primary trait definitions |
+| `combos.yaml` | Composite rules combining traits |
+| `<platform>.yaml` | Platform-specific traits (linux, windows, macos, unix) |
+| `<language>.yaml` | Language-specific traits (python, javascript, go, etc.)  |
+| `generic.yaml` | Cross-platform/language traits |
+
+### Trait ID Naming
+
+**Trait IDs must be fully qualified paths** matching their file location:
+
+```yaml
+# In traits/exec/command/shell/traits.yaml
+traits:
+  - id: exec/command/shell/system    # ✓ Full path
+  - id: system                        # ✗ Avoid short IDs
+```
+
+This ensures:
+- Unique trait references across the codebase
+- Clear provenance when traits are referenced in composite rules
+- Consistent behavior when using suffix matching in `requires_*` conditions
+
 ## Criticality Levels
 
 | DISSECT | malcontent | Description |

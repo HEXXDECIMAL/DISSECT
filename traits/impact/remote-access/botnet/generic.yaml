@@ -5,12 +5,23 @@
 traits:
   - id: impact/remote-access/botnet
     description: Botnet-related patterns
-    criticality: hostile
-    confidence: 0.66
+    criticality: suspicious
+    confidence: 0.75
     attack: "T1583"
     condition:
       type: string
-      regex: "(botnet|bot.?net|zombie|c2.?server|command.?and.?control)"
+      # Note: "zombie" removed - it's a legitimate Unix process state term
+      regex: "(botnet|bot.?net|c2.?server|command.?and.?control)"
+
+  - id: impact/remote-access/zombie-botnet
+    description: Zombie botnet specific patterns
+    criticality: suspicious
+    confidence: 0.6
+    attack: "T1583"
+    condition:
+      type: string
+      # Only match zombie in clearly botnet-related contexts
+      regex: "(zombie[_\\s]?(bot|net|army|horde|node)|bot[_\\s]?zombie)"
 
   - id: impact/remote-access/botnet-agent
     description: Bot agent patterns

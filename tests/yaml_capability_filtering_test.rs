@@ -20,13 +20,20 @@ fn test_windows_keylog_capability_filtered_for_elf() {
         .unwrap();
 
     let stdout = String::from_utf8_lossy(&output.stdout);
-    let stderr = String::from_utf8_lossy(&output.stderr);
 
-    // Should detect as ELF
-    assert!(stderr.contains("Elf") || stderr.contains("ELF"));
-
-    // Parse JSON to check traits with capability: true
+    // Parse JSON to check file type and traits
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
+        // Should detect as ELF
+        let file_type = json
+            .get("target")
+            .and_then(|t| t.get("type"))
+            .and_then(|v| v.as_str())
+            .unwrap_or("");
+        assert!(
+            file_type.to_lowercase().contains("elf"),
+            "Expected ELF file type, got: {}",
+            file_type
+        );
         if let Some(traits) = json.get("traits").and_then(|v| v.as_array()) {
             // Get traits that are capabilities (capability: true)
             let capabilities: Vec<_> = traits
@@ -123,13 +130,20 @@ fn test_python_capabilities_for_python_files() {
         .unwrap();
 
     let stdout = String::from_utf8_lossy(&output.stdout);
-    let stderr = String::from_utf8_lossy(&output.stderr);
 
-    // Should detect as Python
-    assert!(stderr.contains("Python"));
-
-    // Parse JSON to check for network traits (traits with capability: true)
+    // Parse JSON to check file type and traits
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
+        // Should detect as Python
+        let file_type = json
+            .get("target")
+            .and_then(|t| t.get("type"))
+            .and_then(|v| v.as_str())
+            .unwrap_or("");
+        assert!(
+            file_type.to_lowercase().contains("python"),
+            "Expected Python file type, got: {}",
+            file_type
+        );
         if let Some(traits) = json.get("traits").and_then(|v| v.as_array()) {
             let capabilities: Vec<_> = traits
                 .iter()
@@ -185,13 +199,21 @@ fn test_javascript_capabilities_for_js_files() {
         .unwrap();
 
     let stdout = String::from_utf8_lossy(&output.stdout);
-    let stderr = String::from_utf8_lossy(&output.stderr);
-
-    // Should detect as JavaScript
-    assert!(stderr.contains("JavaScript"));
 
     // Parse JSON - verify structure (capabilities are traits with capability: true)
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
+        // Should detect as JavaScript
+        let file_type = json
+            .get("target")
+            .and_then(|t| t.get("type"))
+            .and_then(|v| v.as_str())
+            .unwrap_or("");
+        assert!(
+            file_type.to_lowercase().contains("javascript"),
+            "Expected JavaScript file type, got: {}",
+            file_type
+        );
+
         // Verify basic structure exists
         assert!(json.get("target").is_some(), "Should have target field");
         assert!(
@@ -243,13 +265,20 @@ fn test_shell_capabilities_for_shell_scripts() {
         .unwrap();
 
     let stdout = String::from_utf8_lossy(&output.stdout);
-    let stderr = String::from_utf8_lossy(&output.stderr);
-
-    // Should detect as Shell
-    assert!(stderr.contains("Shell"));
 
     // Parse JSON (capabilities are traits with capability: true)
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
+        // Should detect as Shell
+        let file_type = json
+            .get("target")
+            .and_then(|t| t.get("type"))
+            .and_then(|v| v.as_str())
+            .unwrap_or("");
+        assert!(
+            file_type.to_lowercase().contains("shell"),
+            "Expected Shell file type, got: {}",
+            file_type
+        );
         if let Some(traits) = json.get("traits").and_then(|v| v.as_array()) {
             let capabilities: Vec<_> = traits
                 .iter()

@@ -4,6 +4,76 @@ use clap::{Parser, Subcommand};
 pub const DEFAULT_ZIP_PASSWORDS: &[&str] =
     &["infected", "infect3d", "malware", "virus", "password"];
 
+/// Components that can be disabled via --disable flag
+pub const DISABLEABLE_COMPONENTS: &[&str] = &["yara", "radare2", "upx", "third-party"];
+
+/// Default components to disable (for faster testing)
+pub const DEFAULT_DISABLED: &[&str] = &["third-party"];
+
+/// Tracks which components are disabled
+#[derive(Debug, Clone, Default)]
+pub struct DisabledComponents {
+    pub yara: bool,
+    pub radare2: bool,
+    pub upx: bool,
+    pub third_party: bool,
+}
+
+impl DisabledComponents {
+    /// Parse comma-separated list of components to disable
+    pub fn from_str(s: &str) -> Self {
+        let mut disabled = Self::default();
+        for component in s.split(',').map(|c| c.trim().to_lowercase()) {
+            match component.as_str() {
+                "yara" => disabled.yara = true,
+                "radare2" => disabled.radare2 = true,
+                "upx" => disabled.upx = true,
+                "third-party" => disabled.third_party = true,
+                _ => {} // Ignore unknown components
+            }
+        }
+        disabled
+    }
+
+    /// Create from a list of component names
+    pub fn from_list(components: &[&str]) -> Self {
+        let mut disabled = Self::default();
+        for component in components {
+            match *component {
+                "yara" => disabled.yara = true,
+                "radare2" => disabled.radare2 = true,
+                "upx" => disabled.upx = true,
+                "third-party" => disabled.third_party = true,
+                _ => {}
+            }
+        }
+        disabled
+    }
+
+    /// Check if any components are disabled
+    pub fn any_disabled(&self) -> bool {
+        self.yara || self.radare2 || self.upx || self.third_party
+    }
+
+    /// Get list of disabled component names
+    pub fn disabled_names(&self) -> Vec<&'static str> {
+        let mut names = Vec::new();
+        if self.yara {
+            names.push("yara");
+        }
+        if self.radare2 {
+            names.push("radare2");
+        }
+        if self.upx {
+            names.push("upx");
+        }
+        if self.third_party {
+            names.push("third-party");
+        }
+        names
+    }
+}
+
 #[derive(Parser, Debug)]
 #[command(name = "dissect")]
 #[command(
@@ -41,6 +111,26 @@ pub struct Args {
     /// Enable third-party YARA rules (from third_party/yara directory)
     #[arg(long)]
     pub third_party_yara: bool,
+
+    /// Disable specific components (comma-separated: yara,radare2,upx,third-party)
+    /// Default: third-party is disabled for faster analysis
+    #[arg(long, value_name = "COMPONENTS", default_value = "third-party")]
+    pub disable: String,
+
+    /// Enable all components (overrides --disable default)
+    #[arg(long)]
+    pub enable_all: bool,
+}
+
+impl Args {
+    /// Get the disabled components based on --disable and --enable-all flags
+    pub fn disabled_components(&self) -> DisabledComponents {
+        if self.enable_all {
+            DisabledComponents::default()
+        } else {
+            DisabledComponents::from_str(&self.disable)
+        }
+    }
 }
 
 #[derive(Subcommand, Debug)]
@@ -345,5 +435,110 @@ mod tests {
         assert!(DEFAULT_ZIP_PASSWORDS.contains(&"virus"));
         assert!(DEFAULT_ZIP_PASSWORDS.contains(&"password"));
         assert_eq!(DEFAULT_ZIP_PASSWORDS.len(), 5);
+    }
+
+    #[test]
+    fn test_disabled_components_default() {
+        let args = Args::try_parse_from(["dissect", "file.bin"]).unwrap();
+        let disabled = args.disabled_components();
+        // third-party is disabled by default
+        assert!(disabled.third_party);
+        assert!(!disabled.yara);
+        assert!(!disabled.radare2);
+        assert!(!disabled.upx);
+    }
+
+    #[test]
+    fn test_disabled_components_custom() {
+        let args =
+            Args::try_parse_from(["dissect", "--disable", "yara,radare2", "file.bin"]).unwrap();
+        let disabled = args.disabled_components();
+        assert!(disabled.yara);
+        assert!(disabled.radare2);
+        assert!(!disabled.upx);
+        assert!(!disabled.third_party);
+    }
+
+    #[test]
+    fn test_disabled_components_all() {
+        let args = Args::try_parse_from([
+            "dissect",
+            "--disable",
+            "yara,radare2,upx,third-party",
+            "file.bin",
+        ])
+        .unwrap();
+        let disabled = args.disabled_components();
+        assert!(disabled.yara);
+        assert!(disabled.radare2);
+        assert!(disabled.upx);
+        assert!(disabled.third_party);
+    }
+
+    #[test]
+    fn test_enable_all_overrides_disable() {
+        let args = Args::try_parse_from(["dissect", "--enable-all", "file.bin"]).unwrap();
+        let disabled = args.disabled_components();
+        // --enable-all should override the default --disable=third-party
+        assert!(!disabled.third_party);
+        assert!(!disabled.yara);
+        assert!(!disabled.radare2);
+        assert!(!disabled.upx);
+    }
+
+    #[test]
+    fn test_disabled_components_from_str() {
+        let disabled = DisabledComponents::from_str("yara,upx");
+        assert!(disabled.yara);
+        assert!(disabled.upx);
+        assert!(!disabled.radare2);
+        assert!(!disabled.third_party);
+    }
+
+    #[test]
+    fn test_disabled_components_from_str_with_spaces() {
+        let disabled = DisabledComponents::from_str("yara, radare2 , upx");
+        assert!(disabled.yara);
+        assert!(disabled.radare2);
+        assert!(disabled.upx);
+        assert!(!disabled.third_party);
+    }
+
+    #[test]
+    fn test_disabled_components_from_str_ignores_unknown() {
+        let disabled = DisabledComponents::from_str("yara,unknown,radare2");
+        assert!(disabled.yara);
+        assert!(disabled.radare2);
+        assert!(!disabled.upx);
+        assert!(!disabled.third_party);
+    }
+
+    #[test]
+    fn test_disabled_components_any_disabled() {
+        let disabled = DisabledComponents::default();
+        assert!(!disabled.any_disabled());
+
+        let disabled = DisabledComponents::from_str("yara");
+        assert!(disabled.any_disabled());
+    }
+
+    #[test]
+    fn test_disabled_components_disabled_names() {
+        let disabled = DisabledComponents::from_str("yara,upx");
+        let names = disabled.disabled_names();
+        assert_eq!(names.len(), 2);
+        assert!(names.contains(&"yara"));
+        assert!(names.contains(&"upx"));
+    }
+
+    #[test]
+    fn test_disable_empty_string() {
+        let args = Args::try_parse_from(["dissect", "--disable", "", "file.bin"]).unwrap();
+        let disabled = args.disabled_components();
+        // Empty string means nothing disabled
+        assert!(!disabled.yara);
+        assert!(!disabled.radare2);
+        assert!(!disabled.upx);
+        assert!(!disabled.third_party);
     }
 }

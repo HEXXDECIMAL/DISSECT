@@ -3,23 +3,146 @@
 # ATT&CK: T1499
 
 traits:
-  - id: impact/ddos/flood
-    description: DDoS/flooding patterns
+  - id: impact/ddos/ddos-reference
+    description: References DDoS attack
     criticality: suspicious
-    confidence: 0.66
+    confidence: 0.7
     mbc: "B0042"
     attack: "T1499"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "(?i)ddos|dd0s"
+
+  - id: impact/ddos/syn-flood
+    description: SYN flood attack reference
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "B0042"
+    attack: "T1499"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "(?i)syn.?flood"
+
+  - id: impact/ddos/ack-flood
+    description: ACK flood attack reference
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "B0042"
+    attack: "T1499"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "(?i)ack.?flood"
+
+  - id: impact/ddos/udp-flood
+    description: UDP flood attack function
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "B0042"
+    attack: "T1499"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "udp_flood"
+
+  - id: impact/ddos/tcp-flood
+    description: TCP flood attack function
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "B0042"
+    attack: "T1499"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "tcp_flood"
+
+  - id: impact/ddos/flooder
+    description: Flooder tool reference
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "B0042"
+    attack: "T1499"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "(?i)flooder"
+
+  - id: impact/ddos/stresser
+    description: Stresser tool reference
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "B0042"
+    attack: "T1499"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "stresser"
+
+  - id: impact/ddos/tsource-engine
+    description: TSource Engine Query (DDoS amplification)
+    criticality: suspicious
+    confidence: 0.95
+    mbc: "B0042"
+    attack: "T1499"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "TSource Engine Query"
+
+  - id: impact/ddos/icmp-flood
+    description: ICMP flood attack
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "B0042"
+    attack: "T1499"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "ICMPFLOOD"
+
+  - id: impact/ddos/blacknurse
+    description: BlackNurse ICMP attack
+    criticality: suspicious
+    confidence: 0.95
+    mbc: "B0042"
+    attack: "T1499"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "BLACKNURSE"
+
+composite_rules:
+  - id: impact/ddos/flood-tool-detected
+    description: DDoS flood tool
+    criticality: suspicious
+    confidence: 0.95
+    mbc: "B0042"
+    attack: "T1499"
+    file_types: [all]
     condition:
       type: yara
       source: |
-        rule ddos {
+        rule ddos_flood_tool {
           strings:
-            $flood = "flood" fullword
-            $ddos = /[dD][dD][oO][sS]/
-            $syn_flood = "SYN flood"
-            $udp_flood = "UDP flood"
-            $amplification = "amplification"
-            $botnet = "botnet"
+            $ack_flood = /ack.?flood/i
+            $syn_flood = /syn.?flood/i
+            $udp_flood = "udp_flood"
+            $tcp_flood = "tcp_flood"
+            $tcpraw_flood = "tcpraw_flood"
+            $flooder = /flooder/i
+            $stresser = "stresser" fullword
+            $tsource = "TSource Engine Query"
+            $icmpflood = "ICMPFLOOD"
+            $blacknurse = "BLACKNURSE"
+            $hydrasyn = "HYDRASYN"
+            $flood_op = "Flood operation"
+            $start_flood = "Starting Flood"
           condition:
-            any of them
+            filesize < 5MB and
+            ((any of ($ack*) and any of ($syn*)) or
+             2 of ($udp_flood, $tcp_flood, $tcpraw_flood) or
+             any of ($tsource, $icmpflood, $blacknurse, $hydrasyn) or
+             any of ($flood_op, $start_flood))
         }

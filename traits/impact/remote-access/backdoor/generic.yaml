@@ -23,7 +23,7 @@ traits:
 
   - id: impact/remote-access/backdoor-shell
     description: References a backdoor shell
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.66
     condition:
       type: string
@@ -31,7 +31,7 @@ traits:
 
   - id: impact/remote-access/backdoor-leet
     description: References backd00r (leet speak)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.66
     condition:
       type: string
@@ -39,7 +39,7 @@ traits:
 
   - id: impact/remote-access/backdoor-hidden
     description: Suspicious backdoor reference
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.66
     condition:
       type: string

@@ -1,0 +1,96 @@
+# C# Reflection Traits
+# objective: exec, behavior: reflection
+
+traits:
+  - id: exec/reflection/invoke/assembly-load
+    description: Runtime assembly loading
+    criticality: suspicious
+    mbc: "F0004.001"
+    attack: "T1620"
+    confidence: 0.95
+    condition:
+      type: ast_pattern
+      node_type: invocation_expression
+      pattern: "Assembly.Load"
+    file_types: [all]
+
+  - id: exec/reflection/invoke/assembly-load-file
+    description: Assembly loaded from file
+    criticality: suspicious
+    mbc: "F0004.001"
+    attack: "T1620"
+    confidence: 0.95
+    condition:
+      type: ast_pattern
+      node_type: invocation_expression
+      pattern: "Assembly.LoadFile"
+    file_types: [all]
+
+  - id: exec/reflection/invoke/activator-create
+    description: Dynamic object creation via reflection
+    criticality: suspicious
+    mbc: "F0004"
+    attack: "T1620"
+    confidence: 0.9
+    condition:
+      type: ast_pattern
+      node_type: invocation_expression
+      pattern: "Activator.CreateInstance"
+    file_types: [all]
+
+  - id: exec/reflection/invoke/method-invoke
+    description: Reflective method invocation
+    criticality: suspicious
+    mbc: "F0004"
+    attack: "T1620"
+    confidence: 0.95
+    condition:
+      type: ast_pattern
+      node_type: invocation_expression
+      pattern: ".Invoke("
+    file_types: [all]
+
+  - id: exec/reflection/invoke/get-method
+    description: Reflection API to get method info
+    criticality: notable
+    mbc: "F0004"
+    confidence: 0.75
+    condition:
+      type: ast_pattern
+      node_type: invocation_expression
+      pattern: "GetMethod"
+    file_types: [all]
+
+  - id: exec/reflection/invoke/get-type
+    description: Reflection API to get type info
+    criticality: notable
+    mbc: "F0004"
+    confidence: 0.75
+    condition:
+      type: ast_pattern
+      node_type: invocation_expression
+      pattern: "GetType"
+    file_types: [all]
+
+  - id: exec/reflection/invoke/marshal
+    description: Marshal operations (memory/native interop)
+    criticality: notable
+    mbc: "F0004"
+    confidence: 0.8
+    condition:
+      type: ast_pattern
+      node_type: invocation_expression
+      pattern: "Marshal."
+    file_types: [all]
+
+  - id: exec/reflection/invoke/dllimport
+    description: P/Invoke native function import
+    criticality: suspicious
+    mbc: "F0004"
+    attack: "T1106"
+    confidence: 0.9
+    condition:
+      type: ast_pattern
+      node_type: attribute
+      pattern: "DllImport"
+    file_types: [all]

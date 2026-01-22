@@ -1,0 +1,21 @@
+# Wireless Network - Linux
+# ATT&CK: T1016 (System Network Configuration Discovery)
+
+traits:
+  - id: hw/wireless/network/wpa-supplicant
+    description: WPA supplicant wireless access
+    criticality: notable
+    confidence: 0.6
+    platforms: [linux]
+    condition:
+      type: string
+      exact: "wpa_supplicant"
+
+  - id: hw/wireless/network/wps-supplicant
+    description: WPS supplicant wireless access
+    criticality: notable
+    confidence: 0.6
+    platforms: [linux]
+    condition:
+      type: string
+      exact: "wps_supplicant"

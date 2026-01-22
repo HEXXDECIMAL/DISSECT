@@ -1,0 +1,148 @@
+# Execution - Dynamic Library Loading
+# ATT&CK: T1574.006 (Dynamic Linker Hijacking)
+
+traits:
+  - id: exec/dylib/dlopen
+    description: Dynamic library loading via dlopen
+    criticality: notable
+    confidence: 0.9
+    attack: "T1574.006"
+    file_types: [elf, macho]
+    condition:
+      type: string
+      exact: "dlopen"
+
+  - id: exec/dylib/dlsym
+    description: Symbol lookup via dlsym
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1574.006"
+    file_types: [elf, macho]
+    condition:
+      type: string
+      exact: "dlsym"
+
+  - id: exec/dylib/dlclose
+    description: Dynamic library unload
+    criticality: notable
+    confidence: 0.8
+    attack: "T1574.006"
+    file_types: [elf, macho]
+    condition:
+      type: string
+      exact: "dlclose"
+
+  - id: exec/dylib/dlerror
+    description: Dynamic linker error handling
+    criticality: notable
+    confidence: 0.8
+    attack: "T1574.006"
+    file_types: [elf, macho]
+    condition:
+      type: string
+      exact: "dlerror"
+
+  - id: exec/dylib/dladdr
+    description: Address to symbol lookup
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1574.006"
+    file_types: [elf, macho]
+    condition:
+      type: string
+      exact: "dladdr"
+
+  - id: exec/dylib/dl-iterate-phdr
+    description: Iterate shared object list
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1574.006"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "dl_iterate_phdr"
+
+  - id: exec/dylib/loadlibrary
+    description: Windows LoadLibrary
+    criticality: notable
+    confidence: 0.85
+    attack: "T1574.002"
+    file_types: [pe]
+    condition:
+      type: string
+      regex: "LoadLibrary[AW]?"
+
+  - id: exec/dylib/getprocaddress
+    description: Windows GetProcAddress
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1574.002"
+    file_types: [pe]
+    condition:
+      type: string
+      exact: "GetProcAddress"
+
+  - id: exec/dylib/nsbundle
+    description: macOS NSBundle loading
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1574.006"
+    file_types: [macho]
+    condition:
+      type: string
+      exact: "NSBundle"
+
+  - id: exec/dylib/ctypes-windll
+    description: Python ctypes Windows DLL
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1574.002"
+    file_types: [python]
+    condition:
+      type: string
+      regex: "windll\\.[\\w.]+"
+
+  - id: exec/dylib/ruby-dlopen
+    description: Ruby FFI dlopen
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1574.006"
+    file_types: [ruby]
+    condition:
+      type: string
+      regex: "\\.dlopen\\("
+
+  - id: exec/dylib/java-loadclass
+    description: Java runtime class loading
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1574"
+    file_types: [java, class]
+    condition:
+      type: string
+      exact: "loadReplacementClass"
+
+composite_rules:
+  - id: exec/dylib/dynamic-loader-detected
+    description: Dynamic code loading pattern
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1574.006"
+    mbc: "B0023"
+    file_types: [elf, macho]
+    condition:
+      type: yara
+      source: |
+        rule dynamic_loader {
+          strings:
+            $dlopen = "dlopen" fullword
+            $dlsym = "dlsym" fullword
+            $dlclose = "dlclose" fullword
+            $dlerror = "dlerror" fullword
+            $nsbundle = "NSBundle" fullword
+          condition:
+            filesize < 50MB and
+            ($dlopen and $dlsym) or
+            (all of ($dl*)) or
+            ($nsbundle and any of ($dl*))
+        }

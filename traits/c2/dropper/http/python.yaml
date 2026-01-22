@@ -3,10 +3,10 @@
 # ATT&CK: T1105 (Ingress Tool Transfer)
 
 composite_rules:
-  - id: dropper
+  - id: c2/dropper/http/dropper
     description: "HTTP download and execute pattern"
     confidence: 0.9
-    criticality: hostile
+    criticality: suspicious
     mbc: "B0024"
     attack: "T1105"
     file_types: [python]

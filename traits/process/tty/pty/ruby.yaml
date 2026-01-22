@@ -1,0 +1,14 @@
+# Process TTY/PTY - Ruby
+
+traits:
+  - id: process/tty/pty/ruby-pty
+    description: Pseudo-terminal (PTY) manipulation
+    criticality: notable
+    confidence: 0.93
+    platforms: [all]
+    file_types: [ruby]
+    condition:
+      type: symbol_or_string
+      any:
+        - PTY.spawn
+        - PTY.open

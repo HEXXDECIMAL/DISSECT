@@ -1,0 +1,92 @@
+# Impact - System Degradation
+# ATT&CK: T1499 (Endpoint Denial of Service)
+
+traits:
+  - id: impact/degrade/forkbomb
+    description: Fork bomb pattern
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1499"
+    file_types: [shell]
+    condition:
+      type: string
+      regex: ":\\(\\)\\{\\s*:\\|:&\\s*\\};:"
+
+  - id: impact/degrade/bluescreen
+    description: Windows BSOD trigger
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1499"
+    file_types: [python, pe]
+    condition:
+      type: string
+      exact: "RtlAdjustPrivilege(19, 1,"
+
+  - id: impact/degrade/edr-stopper
+    description: EDR/Antivirus service stopper
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1562.001"
+    file_types: [pe, shell]
+    condition:
+      type: string
+      exact: "stopservice"
+
+  - id: impact/degrade/edr-kill
+    description: EDR process termination
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1562.001"
+    file_types: [elf, pe]
+    condition:
+      type: string
+      regex: "(?i)(kill|terminate).*(defender|malwarebytes|kaspersky|avast|norton|mcafee|bitdefender|eset|sophos)"
+
+  - id: impact/degrade/terminate-process
+    description: TerminateProcess API
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1489"
+    file_types: [pe]
+    condition:
+      type: string
+      exact: "TerminateProcess"
+
+  - id: impact/degrade/osascript-quit
+    description: macOS application quit via osascript
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1489"
+    file_types: [macho, shell]
+    condition:
+      type: string
+      regex: "osascript.*tell.*application.*quit"
+
+composite_rules:
+  - id: impact/degrade/edr-bypass-detected
+    description: EDR/Antivirus bypass attempt
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1562.001"
+    mbc: "F0004"
+    file_types: [pe, elf]
+    condition:
+      type: yara
+      source: |
+        rule edr_bypass {
+          strings:
+            $stop = "stopservice" nocase
+            $kill = "TerminateProcess"
+            $edr1 = "malwarebytes" nocase
+            $edr2 = "defender" nocase
+            $edr3 = "kaspersky" nocase
+            $edr4 = "bitdefender" nocase
+            $edr5 = "avast" nocase
+            $edr6 = "norton" nocase
+            $edr7 = "mcafee" nocase
+            $edr8 = "sophos" nocase
+            $edr9 = "eset" nocase
+          condition:
+            filesize < 5MB and
+            any of ($stop, $kill) and any of ($edr*)
+        }

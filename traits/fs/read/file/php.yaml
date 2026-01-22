@@ -1,0 +1,60 @@
+# PHP Filesystem Read Traits
+# MBC: C0051 (Read File)
+
+traits:
+  - id: fs/read/file/file-get-contents
+    description: File read via file_get_contents
+    criticality: notable
+    confidence: 0.75
+    mbc: "C0051"
+    file_types: [all]
+    condition:
+      type: string
+      exact: file_get_contents
+
+  - id: fs/read/file/fread
+    description: File read via fread
+    criticality: notable
+    confidence: 0.75
+    mbc: "C0051"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "\\bfread\\s*\\("
+
+  - id: fs/read/file/fgets
+    description: Line read via fgets
+    criticality: inert
+    confidence: 0.6
+    file_types: [all]
+    condition:
+      type: string
+      regex: "\\bfgets\\s*\\("
+
+  - id: fs/read/file/readfile
+    description: Output file contents via readfile
+    criticality: notable
+    confidence: 0.75
+    mbc: "C0051"
+    file_types: [all]
+    condition:
+      type: string
+      exact: readfile
+
+  - id: fs/read/file/fopen
+    description: File open operation
+    criticality: inert
+    confidence: 0.6
+    file_types: [all]
+    condition:
+      type: string
+      regex: "\\bfopen\\s*\\("
+
+  - id: fs/read/file/realpath
+    description: Resolve real file path
+    criticality: inert
+    confidence: 0.6
+    file_types: [all]
+    condition:
+      type: string
+      exact: realpath

@@ -1,0 +1,103 @@
+# PHP Command Execution Traits
+# MBC: E1059 (Command and Scripting Interpreter)
+# ATT&CK: T1059.004 (Unix Shell)
+
+traits:
+  - id: exec/command/shell/exec
+    description: Shell command execution via exec()
+    criticality: suspicious
+    confidence: 0.95
+    mbc: "E1059"
+    attack: "T1059.004"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "\\bexec\\s*\\("
+
+  - id: exec/command/shell/shell-exec
+    description: Shell command execution via shell_exec()
+    criticality: suspicious
+    confidence: 0.95
+    mbc: "E1059"
+    attack: "T1059.004"
+    file_types: [all]
+    condition:
+      type: string
+      exact: shell_exec
+
+  - id: exec/command/shell/system
+    description: Shell command execution via system()
+    criticality: suspicious
+    confidence: 0.95
+    mbc: "E1059"
+    attack: "T1059.004"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "\\bsystem\\s*\\("
+
+  - id: exec/command/shell/passthru
+    description: Shell command execution via passthru()
+    criticality: suspicious
+    confidence: 0.95
+    mbc: "E1059"
+    attack: "T1059.004"
+    file_types: [all]
+    condition:
+      type: string
+      exact: passthru
+
+  - id: exec/command/shell/popen
+    description: Process open via popen()
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "E1059"
+    attack: "T1059.004"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "\\bpopen\\s*\\("
+
+  - id: exec/command/shell/proc-open
+    description: Process execution via proc_open()
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "E1059"
+    attack: "T1059.004"
+    file_types: [all]
+    condition:
+      type: string
+      exact: proc_open
+
+  - id: exec/command/shell/pcntl-exec
+    description: Direct process execution via pcntl_exec()
+    criticality: suspicious
+    confidence: 0.95
+    mbc: "E1059"
+    attack: "T1059"
+    file_types: [all]
+    condition:
+      type: string
+      exact: pcntl_exec
+
+  - id: exec/command/shell/backtick
+    description: Shell command execution via backticks
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "E1059"
+    attack: "T1059.004"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "`[^`]+`"
+
+  - id: exec/command/shell/exec-user-input
+    description: Command execution with user input (RCE)
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "E1059"
+    attack: "T1059.004"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "(exec|system|shell_exec|passthru|popen)\\s*\\([^)]*\\$_(GET|POST|REQUEST)"

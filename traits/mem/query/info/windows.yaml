@@ -1,0 +1,25 @@
+# Memory Query - Windows
+# ATT&CK: T1055 (Process Injection)
+
+traits:
+  - id: mem/query/info/virtualquery
+    description: Query virtual memory info (VirtualQuery)
+    criticality: notable
+    confidence: 0.7
+    attack: "T1055"
+    platforms: [windows]
+    file_types: [pe, dll]
+    condition:
+      type: symbol
+      pattern: "VirtualQuery$"
+
+  - id: mem/query/info/virtualquery-ex
+    description: Query virtual memory in other process (VirtualQueryEx)
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1055"
+    platforms: [windows]
+    file_types: [pe, dll]
+    condition:
+      type: symbol
+      pattern: "VirtualQueryEx"

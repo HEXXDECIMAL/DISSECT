@@ -1,0 +1,14 @@
+# Executable Memory Allocation - Windows
+# ATT&CK: T1055 (Process Injection)
+
+traits:
+  - id: mem/allocate/executable/virtualalloc
+    description: Allocate executable memory (VirtualAlloc)
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1055"
+    platforms: [windows]
+    file_types: [pe, dll]
+    condition:
+      type: symbol
+      pattern: "VirtualAlloc(Ex)?"

@@ -1,0 +1,13 @@
+# CPU Information - Linux
+# ATT&CK: T1082 (System Information Discovery)
+
+traits:
+  - id: hw/cpu/info/sys-devices
+    description: Access CPU info via /sys/devices
+    criticality: notable
+    confidence: 0.7
+    attack: "T1082"
+    platforms: [linux]
+    condition:
+      type: string
+      exact: "/sys/devices/system/cpu"

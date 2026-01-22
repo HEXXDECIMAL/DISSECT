@@ -17,11 +17,20 @@ fn test_shell_script_matches_shell_rules() {
 
     let stdout = String::from_utf8_lossy(&output.stdout);
 
-    // Should detect shell file type
-    assert!(String::from_utf8_lossy(&output.stderr).contains("Shell"));
-
-    // Parse JSON to check YARA matches
+    // Parse JSON to check file type and YARA matches
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
+        // Should detect shell file type
+        let file_type = json
+            .get("target")
+            .and_then(|t| t.get("type"))
+            .and_then(|v| v.as_str())
+            .unwrap_or("");
+        assert!(
+            file_type.to_lowercase().contains("shell"),
+            "Expected shell file type, got: {}",
+            file_type
+        );
+
         if let Some(yara_matches) = json.get("yara_matches").and_then(|v| v.as_array()) {
             // Look for shell-specific rules - should NOT be filtered
             let shell_rules: Vec<_> = yara_matches
@@ -66,11 +75,20 @@ fn test_python_rules_filtered_for_shell_scripts() {
 
     let stdout = String::from_utf8_lossy(&output.stdout);
 
-    // Should detect shell file type
-    assert!(String::from_utf8_lossy(&output.stderr).contains("Shell"));
-
-    // Parse JSON to check YARA matches
+    // Parse JSON to check file type and YARA matches
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
+        // Should detect shell file type
+        let file_type = json
+            .get("target")
+            .and_then(|t| t.get("type"))
+            .and_then(|v| v.as_str())
+            .unwrap_or("");
+        assert!(
+            file_type.to_lowercase().contains("shell"),
+            "Expected shell file type, got: {}",
+            file_type
+        );
+
         if let Some(yara_matches) = json.get("yara_matches").and_then(|v| v.as_array()) {
             // Look for any matches with severity "filtered"
             let filtered_rules: Vec<_> = yara_matches
@@ -113,11 +131,20 @@ fn test_python_file_matches_python_rules() {
 
     let stdout = String::from_utf8_lossy(&output.stdout);
 
-    // Should detect Python file type
-    assert!(String::from_utf8_lossy(&output.stderr).contains("Python"));
-
-    // Parse JSON to check YARA matches
+    // Parse JSON to check file type and YARA matches
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
+        // Should detect Python file type
+        let file_type = json
+            .get("target")
+            .and_then(|t| t.get("type"))
+            .and_then(|v| v.as_str())
+            .unwrap_or("");
+        assert!(
+            file_type.to_lowercase().contains("python"),
+            "Expected Python file type, got: {}",
+            file_type
+        );
+
         if let Some(yara_matches) = json.get("yara_matches").and_then(|v| v.as_array()) {
             // Look for Python-specific rules
             let python_rules: Vec<_> = yara_matches
@@ -209,11 +236,20 @@ fn test_javascript_file_filters_non_js_rules() {
 
     let stdout = String::from_utf8_lossy(&output.stdout);
 
-    // Should detect JavaScript file type
-    assert!(String::from_utf8_lossy(&output.stderr).contains("JavaScript"));
-
-    // Parse JSON to check YARA matches
+    // Parse JSON to check file type and YARA matches
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
+        // Should detect JavaScript file type
+        let file_type = json
+            .get("target")
+            .and_then(|t| t.get("type"))
+            .and_then(|v| v.as_str())
+            .unwrap_or("");
+        assert!(
+            file_type.to_lowercase().contains("javascript"),
+            "Expected JavaScript file type, got: {}",
+            file_type
+        );
+
         if let Some(yara_matches) = json.get("yara_matches").and_then(|v| v.as_array()) {
             // Count filtered vs unfiltered
             let filtered_count = yara_matches
@@ -278,11 +314,15 @@ fn test_scan_multi_filetype_directory() {
         if let Some(reports_array) = reports.as_array() {
             assert_eq!(reports_array.len(), 3, "Should have 3 analysis reports");
 
-            // Each report should have yara_matches
+            // Each report should have target and metadata fields
             for report in reports_array {
                 assert!(
-                    report.get("yara_matches").is_some(),
-                    "Each report should have yara_matches field"
+                    report.get("target").is_some(),
+                    "Each report should have target field"
+                );
+                assert!(
+                    report.get("metadata").is_some(),
+                    "Each report should have metadata field"
                 );
             }
         }

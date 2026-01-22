@@ -1,0 +1,13 @@
+# Process Control - Ruby
+
+traits:
+  - id: process/control/kill/ruby-kill
+    description: Kill process
+    criticality: notable
+    confidence: 0.90
+    platforms: [all]
+    file_types: [ruby]
+    condition:
+      type: symbol_or_string
+      any:
+        - Process.kill

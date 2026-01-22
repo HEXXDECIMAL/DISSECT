@@ -1,0 +1,50 @@
+# C# Process Execution Traits
+# objective: exec, behavior: process
+
+traits:
+  - id: exec/process/spawn/start
+    description: Process execution via Process.Start
+    criticality: suspicious
+    mbc: "OB0006"
+    attack: "T1059"
+    confidence: 0.95
+    condition:
+      type: ast_pattern
+      node_type: invocation_expression
+      pattern: "Process.Start"
+    file_types: [all]
+
+  - id: exec/process/spawn/start-info
+    description: Process start configuration
+    criticality: notable
+    mbc: "OB0006"
+    attack: "T1059"
+    confidence: 0.85
+    condition:
+      type: ast_pattern
+      node_type: object_creation_expression
+      pattern: "ProcessStartInfo"
+    file_types: [all]
+
+  - id: exec/process/spawn/current-process
+    description: Acquires handle to current process (often precedes self-termination)
+    criticality: notable
+    mbc: "OB0006"
+    confidence: 0.85
+    condition:
+      type: ast_pattern
+      node_type: invocation_expression
+      pattern: "GetCurrentProcess"
+    file_types: [all]
+
+  - id: exec/process/spawn/terminate
+    description: Process termination via Kill()
+    criticality: suspicious
+    mbc: "E1562"
+    attack: "T1562"
+    confidence: 0.95
+    condition:
+      type: ast_pattern
+      node_type: invocation_expression
+      pattern: ".Kill("
+    file_types: [all]

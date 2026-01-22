@@ -1,7 +1,7 @@
 ---
 # Ruby system information gathering
 traits:
-  - id: ruby-dns-resolve
+  - id: intel/discover/system/ruby-dns-resolve
     description: "DNS hostname resolution"
     criticality: notable
     confidence: 0.85
@@ -15,7 +15,7 @@ traits:
         - Resolv.getaddress
         - Resolv.getname
 
-  - id: ruby-env-read
+  - id: intel/discover/system/ruby-env-read
     description: "Read environment variables"
     criticality: notable
     confidence: 0.75
@@ -29,7 +29,7 @@ traits:
         - "ENV["
         - ENV.fetch
 
-  - id: ruby-process-info
+  - id: intel/discover/system/ruby-process-info
     description: "Process information access"
     criticality: notable
     confidence: 0.75

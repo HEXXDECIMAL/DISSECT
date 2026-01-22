@@ -1,0 +1,21 @@
+# Executable Memory Allocation - Unix
+# ATT&CK: T1055 (Process Injection)
+
+traits:
+  - id: mem/allocate/executable/mmap-exec
+    description: Memory mapping with execute permission
+    criticality: suspicious
+    confidence: 0.75
+    attack: "T1055"
+    platforms: [linux, macos, unix]
+    file_types: [elf, macho]
+    condition:
+      type: yara
+      source: |
+        rule mmap_exec {
+          strings:
+            $mmap = "mmap" fullword
+            $prot_exec = "PROT_EXEC"
+          condition:
+            all of them
+        }

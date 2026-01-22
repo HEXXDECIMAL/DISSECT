@@ -3,9 +3,9 @@
 # ATT&CK: T1059.007 (Command and Scripting Interpreter: JavaScript)
 
 traits:
-  - id: eval-function-reference
+  - id: exec/eval/dynamic/eval-function-reference
     description: eval passed as function reference
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1059.007"
     file_types: [javascript]
@@ -13,9 +13,9 @@ traits:
       type: string
       regex: "\\(eval\\s*,|,\\s*eval\\)"
 
-  - id: eval-variable
+  - id: exec/eval/dynamic/eval-variable
     description: eval with variable argument
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     attack: "T1059.007"
     file_types: [javascript]
@@ -25,7 +25,7 @@ traits:
 
   - id: Function-constructor
     description: Function constructor (dynamic code execution)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1059.007"
     file_types: [javascript]

@@ -2,7 +2,7 @@
 # ATT&CK: T1195.002 (Supply Chain Compromise: Compromise Software Supply Chain)
 
 traits:
-  - id: blob-api
+  - id: c2/dropper/github/blob-api
     description: "GitHub blob API download (unusual pattern)"
     criticality: suspicious
     confidence: 0.85
@@ -11,10 +11,10 @@ traits:
       regex: "api\\.github\\.com.*/git/blobs"
 
 composite_rules:
-  - id: execute
+  - id: c2/dropper/github/execute
     description: "Download from GitHub blob API and execute"
     confidence: 0.95
-    criticality: hostile
+    criticality: suspicious
     mbc: "B0024"
     attack: "T1195.002"
     requires_count: 2

@@ -5,7 +5,7 @@
 traits:
   - id: impact/ransom/encrypt
     description: Ransomware encryption patterns
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.66
     mbc: "B0040"
     attack: "T1486"
@@ -36,7 +36,7 @@ traits:
 
   - id: impact/ransom/encrypt-note
     description: Ransom note patterns
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.66
     condition:
       type: string

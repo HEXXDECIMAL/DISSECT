@@ -1,0 +1,15 @@
+# C# Deserialization Traits (dangerous/exploitable)
+# objective: anti-analysis, behavior: deserialization
+
+traits:
+  - id: anti-analysis/deserialization/unsafe/binary-formatter
+    description: Binary deserialization (insecure, commonly exploited)
+    criticality: suspicious
+    mbc: "E1059"
+    attack: "T1059"
+    confidence: 0.95
+    condition:
+      type: ast_pattern
+      node_type: object_creation_expression
+      pattern: "BinaryFormatter"
+    file_types: [all]

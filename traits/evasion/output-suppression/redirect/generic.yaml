@@ -1,0 +1,40 @@
+# Output Suppression Detection Traits
+# Detects patterns that hide command output to avoid detection
+# ATT&CK: T1564.001 (Hide Artifacts: Hidden Files and Directories)
+
+traits:
+  - id: evasion/output-suppression/redirect/redirect-to-devnull
+    description: Output redirected to /dev/null (hiding evidence)
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "F0005"
+    attack: "T1564"
+    file_types: [all]
+    condition:
+      type: string
+      regex: ">/dev/null|> /dev/null"
+      search_raw: true
+
+  - id: evasion/output-suppression/redirect/stderr-to-devnull
+    description: Standard error redirected to /dev/null
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "F0005"
+    attack: "T1564"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "2>/dev/null|2> /dev/null|2>&1.*>/dev/null"
+      search_raw: true
+
+  - id: evasion/output-suppression/redirect/all-output-suppressed
+    description: All output suppressed (stdout and stderr to /dev/null)
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "F0005"
+    attack: "T1564"
+    file_types: [all]
+    condition:
+      type: string
+      regex: ">/dev/null 2>&1|&>/dev/null|2>&1 >/dev/null"
+      search_raw: true

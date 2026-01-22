@@ -5,7 +5,7 @@
 traits:
   - id: fs/overwrite/dd-background
     description: dd command running in background (potential wiper)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.66
     condition:
       type: yara

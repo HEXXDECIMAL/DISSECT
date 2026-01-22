@@ -2,7 +2,7 @@
 # MBC: F0003 (Process Detach), F0005 (Hide Output)
 
 traits:
-  - id: devnull
+  - id: c2/dropper/stealth/devnull
     description: "subprocess.DEVNULL to hide output"
     criticality: notable
     confidence: 0.75
@@ -12,7 +12,7 @@ traits:
       type: string
       exact: "subprocess.DEVNULL"
 
-  - id: close-fds
+  - id: c2/dropper/stealth/close-fds
     description: "close_fds=True for file descriptor isolation"
     criticality: notable
     confidence: 0.7
@@ -22,10 +22,10 @@ traits:
       exact: "close_fds=True"
 
 composite_rules:
-  - id: python
+  - id: c2/dropper/stealth/python
     description: "Process execution with output hiding and detachment"
     confidence: 0.92
-    criticality: hostile
+    criticality: suspicious
     mbc: "F0003"
     attack: "T1036"
     file_types: [python]

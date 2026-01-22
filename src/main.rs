@@ -13,10 +13,12 @@ mod env_mapper;
 mod output;
 mod path_mapper;
 mod radare2;
+mod syscall_names;
 // mod radare2_extended;  // Removed: integrated into radare2.rs
 mod strings;
 mod trait_mapper;
 mod types;
+mod upx;
 mod yara_engine;
 
 use analyzers::{
@@ -27,6 +29,7 @@ use anyhow::{Context, Result};
 use clap::Parser;
 use rayon::prelude::*;
 use std::fs;
+use std::io::IsTerminal;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
 use yara_engine::YaraEngine;
@@ -34,15 +37,32 @@ use yara_engine::YaraEngine;
 fn main() -> Result<()> {
     let args = cli::Args::parse();
 
+    // Get disabled components
+    let disabled = args.disabled_components();
+
+    // Apply global disables for radare2 and upx
+    if disabled.radare2 {
+        radare2::disable_radare2();
+    }
+    if disabled.upx {
+        upx::disable_upx();
+    }
+
     // Print banner to stderr if JSON mode, stdout otherwise
     match args.format {
         cli::OutputFormat::Json => {
             eprintln!("DISSECT v{}", env!("CARGO_PKG_VERSION"));
             eprintln!("Deep static analysis tool\n");
+            if disabled.any_disabled() {
+                eprintln!("Disabled components: {}", disabled.disabled_names().join(", "));
+            }
         }
         cli::OutputFormat::Terminal => {
             println!("DISSECT v{}", env!("CARGO_PKG_VERSION"));
             println!("Deep static analysis tool\n");
+            if disabled.any_disabled() {
+                println!("Disabled components: {}", disabled.disabled_names().join(", "));
+            }
         }
     }
 
@@ -59,15 +79,15 @@ fn main() -> Result<()> {
     };
 
     // Determine third_party_yara setting (can come from top-level or subcommand)
-    // Third-party YARA is opt-in (disabled by default)
-    let enable_third_party_global = args.third_party_yara;
+    // Third-party YARA is opt-in (disabled by default), but can also be disabled via --disable
+    let enable_third_party_global = args.third_party_yara && !disabled.third_party;
 
     let result = match args.command {
         Some(cli::Command::Analyze {
             targets,
             third_party_yara: cmd_third_party,
         }) => {
-            let enable_third_party = enable_third_party_global || cmd_third_party;
+            let enable_third_party = (enable_third_party_global || cmd_third_party) && !disabled.third_party;
             let path = Path::new(&targets[0]);
             if targets.len() == 1 && !path.exists() {
                 // Single nonexistent path - error
@@ -79,10 +99,11 @@ fn main() -> Result<()> {
                     enable_third_party,
                     &args.format,
                     &zip_passwords,
+                    &disabled,
                 )?
             } else {
                 // Multiple targets or directory - use scan
-                scan_paths(targets, enable_third_party, &args.format, &zip_passwords)?
+                scan_paths(targets, enable_third_party, &args.format, &zip_passwords, &disabled)?
             }
         }
         Some(cli::Command::Scan {
@@ -90,9 +111,10 @@ fn main() -> Result<()> {
             third_party_yara: cmd_third_party,
         }) => scan_paths(
             paths,
-            enable_third_party_global || cmd_third_party,
+            (enable_third_party_global || cmd_third_party) && !disabled.third_party,
             &args.format,
             &zip_passwords,
+            &disabled,
         )?,
         Some(cli::Command::Diff { old, new }) => diff_analysis(&old, &new)?,
         None => {
@@ -105,6 +127,7 @@ fn main() -> Result<()> {
                 enable_third_party_global,
                 &args.format,
                 &zip_passwords,
+                &disabled,
             )?
         }
     };
@@ -127,6 +150,7 @@ fn analyze_file(
     enable_third_party_yara: bool,
     format: &cli::OutputFormat,
     zip_passwords: &[String],
+    disabled: &cli::DisabledComponents,
 ) -> Result<String> {
     let _start = std::time::Instant::now();
     let path = Path::new(target);
@@ -142,6 +166,7 @@ fn analyze_file(
             enable_third_party_yara,
             format,
             zip_passwords,
+            disabled,
         );
     }
 
@@ -163,17 +188,22 @@ fn analyze_file(
     let capability_mapper = crate::capabilities::CapabilityMapper::new();
     eprintln!("[TIMING] CapabilityMapper::new(): {:?}", t1.elapsed());
 
-    // Load YARA rules
-    let t_yara_start = std::time::Instant::now();
-    let empty_mapper = crate::capabilities::CapabilityMapper::empty();
-    let mut engine = YaraEngine::new_with_mapper(empty_mapper);
-    let (builtin_count, third_party_count) = engine.load_all_rules(enable_third_party_yara)?;
-    eprintln!("[TIMING] YaraEngine load: {:?}", t_yara_start.elapsed());
-    engine.set_capability_mapper(capability_mapper.clone());
-    let mut yara_engine = if builtin_count + third_party_count > 0 {
-        Some(engine)
-    } else {
+    // Load YARA rules (unless YARA is disabled)
+    let mut yara_engine = if disabled.yara {
+        eprintln!("[INFO] YARA scanning disabled");
         None
+    } else {
+        let t_yara_start = std::time::Instant::now();
+        let empty_mapper = crate::capabilities::CapabilityMapper::empty();
+        let mut engine = YaraEngine::new_with_mapper(empty_mapper);
+        let (builtin_count, third_party_count) = engine.load_all_rules(enable_third_party_yara)?;
+        eprintln!("[TIMING] YaraEngine load: {:?}", t_yara_start.elapsed());
+        engine.set_capability_mapper(capability_mapper.clone());
+        if builtin_count + third_party_count > 0 {
+            Some(engine)
+        } else {
+            None
+        }
     };
 
     // Route to appropriate analyzer
@@ -350,6 +380,7 @@ fn scan_paths(
     enable_third_party_yara: bool,
     format: &cli::OutputFormat,
     zip_passwords: &[String],
+    disabled: &cli::DisabledComponents,
 ) -> Result<String> {
     use indicatif::{ProgressBar, ProgressStyle};
     use walkdir::WalkDir;
@@ -405,9 +436,10 @@ fn scan_paths(
         archives_found.len()
     );
 
-    // Create progress bar for terminal output (indicatif is thread-safe)
+    // Create progress bar for terminal output only when stdout is a TTY
     let total_items = all_files.len() + archives_found.len();
-    let pb = if matches!(format, cli::OutputFormat::Terminal) {
+    let is_tty = std::io::stdout().is_terminal();
+    let pb = if matches!(format, cli::OutputFormat::Terminal) && is_tty {
         let bar = ProgressBar::new(total_items as u64);
         bar.set_style(
             ProgressStyle::default_bar()
@@ -439,37 +471,18 @@ fn scan_paths(
             enable_third_party_yara,
             &capability_mapper,
             zip_passwords,
+            disabled,
         ) {
             Ok(json) => {
-                eprintln!(
-                    "DEBUG: Analyzed file {}, JSON length: {}",
-                    path_str,
-                    json.len()
-                );
                 // For terminal format, show immediate output above progress bar
                 if matches!(format, cli::OutputFormat::Terminal) {
-                    eprintln!("DEBUG: Terminal format, parsing JSON...");
                     // Parse JSON and format as terminal output
-                    let parse_result = serde_json::from_str::<crate::types::AnalysisReport>(&json);
-                    eprintln!(
-                        "DEBUG: Parse result: {}",
-                        if parse_result.is_ok() { "Ok" } else { "Err" }
-                    );
-                    match parse_result {
+                    match serde_json::from_str::<crate::types::AnalysisReport>(&json) {
                         Ok(report) => {
-                            eprintln!("DEBUG: Parsed JSON successfully, formatting...");
                             match output::format_terminal(&report) {
                                 Ok(formatted) => {
-                                    eprintln!(
-                                        "DEBUG: Formatted successfully, length: {}",
-                                        formatted.len()
-                                    );
-                                    // Print directly to test
-                                    eprintln!("{}", formatted);
                                     if let Some(ref bar) = pb {
-                                        eprintln!("DEBUG: Calling bar.println()");
-                                        bar.println(formatted.clone());
-                                        eprintln!("DEBUG: bar.println() returned");
+                                        bar.println(formatted);
                                     } else {
                                         print!("{}", formatted);
                                     }
@@ -486,13 +499,12 @@ fn scan_paths(
                             }
                         }
                         Err(e) => {
-                            eprintln!("DEBUG: JSON parse error: {}", e);
-                            eprintln!("DEBUG: JSON preview: {}", &json[..json.len().min(500)]);
                             let msg = format!("Error parsing JSON for {}: {}", path_str, e);
                             if let Some(ref bar) = pb {
-                                bar.println(msg.clone());
+                                bar.println(msg);
+                            } else {
+                                eprintln!("{}", msg);
                             }
-                            eprintln!("{}", msg);
                         }
                     }
                 } else {
@@ -533,6 +545,7 @@ fn scan_paths(
             enable_third_party_yara,
             &capability_mapper,
             zip_passwords,
+            disabled,
         ) {
             Ok(json) => {
                 // For terminal format, show immediate output above progress bar
@@ -619,6 +632,7 @@ fn analyze_file_with_shared_mapper(
     enable_third_party_yara: bool,
     capability_mapper: &Arc<crate::capabilities::CapabilityMapper>,
     zip_passwords: &[String],
+    disabled: &cli::DisabledComponents,
 ) -> Result<String> {
     let path = Path::new(target);
 
@@ -626,13 +640,17 @@ fn analyze_file_with_shared_mapper(
         anyhow::bail!("File does not exist: {}", target);
     }
 
-    // Load YARA rules
-    let mut engine = YaraEngine::new_with_mapper((**capability_mapper).clone());
-    let (builtin_count, third_party_count) = engine.load_all_rules(enable_third_party_yara)?;
-    let mut yara_engine = if builtin_count + third_party_count > 0 {
-        Some(engine)
-    } else {
+    // Load YARA rules (unless YARA is disabled)
+    let mut yara_engine = if disabled.yara {
         None
+    } else {
+        let mut engine = YaraEngine::new_with_mapper((**capability_mapper).clone());
+        let (builtin_count, third_party_count) = engine.load_all_rules(enable_third_party_yara)?;
+        if builtin_count + third_party_count > 0 {
+            Some(engine)
+        } else {
+            None
+        }
     };
 
     // Detect file type

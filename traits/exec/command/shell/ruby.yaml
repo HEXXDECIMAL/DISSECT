@@ -1,0 +1,113 @@
+---
+# Ruby command execution patterns
+traits:
+  - id: exec/command/shell/ruby-system
+    description: "system() command execution"
+    criticality: suspicious
+    confidence: 0.95
+    platforms:
+      - all
+    file_types:
+      - ruby
+    condition:
+      type: symbol_or_string
+      any:
+        - system(
+        - system
+
+  - id: exec/command/shell/ruby-exec
+    description: "exec() replaces current process"
+    criticality: suspicious
+    confidence: 0.95
+    platforms:
+      - all
+    file_types:
+      - ruby
+    condition:
+      type: symbol_or_string
+      any:
+        - exec(
+        - exec
+
+  - id: exec/command/shell/ruby-spawn
+    description: "spawn() creates new process"
+    criticality: notable
+    confidence: 0.90
+    platforms:
+      - all
+    file_types:
+      - ruby
+    condition:
+      type: symbol_or_string
+      any:
+        - spawn(
+        - spawn
+
+  - id: exec/command/shell/ruby-popen
+    description: "popen pipes to/from command"
+    criticality: notable
+    confidence: 0.92
+    platforms:
+      - all
+    file_types:
+      - ruby
+    condition:
+      type: symbol_or_string
+      any:
+        - IO.popen
+        - popen
+
+  - id: exec/command/shell/ruby-backtick
+    description: "Backtick command execution"
+    criticality: notable
+    confidence: 0.93
+    platforms:
+      - all
+    file_types:
+      - ruby
+    condition:
+      type: symbol_or_string
+      any:
+        - "`"
+        - "%x"
+
+  - id: exec/command/shell/ruby-eval
+    description: "eval() dynamic code execution"
+    criticality: notable
+    confidence: 0.90
+    platforms:
+      - all
+    file_types:
+      - ruby
+    condition:
+      type: symbol_or_string
+      any:
+        - eval(
+        - eval
+
+  - id: exec/command/shell/ruby-instance-eval
+    description: "instance_eval dynamic execution"
+    criticality: notable
+    confidence: 0.93
+    platforms:
+      - all
+    file_types:
+      - ruby
+    condition:
+      type: symbol_or_string
+      any:
+        - instance_eval
+
+  - id: exec/command/shell/ruby-class-eval
+    description: "class/module_eval dynamic execution"
+    criticality: notable
+    confidence: 0.93
+    platforms:
+      - all
+    file_types:
+      - ruby
+    condition:
+      type: symbol_or_string
+      any:
+        - class_eval
+        - module_eval

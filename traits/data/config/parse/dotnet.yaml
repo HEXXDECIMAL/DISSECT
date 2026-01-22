@@ -1,0 +1,26 @@
+# .NET Configuration Access Patterns
+
+traits:
+  - id: data/config/parse/config-manager
+    description: Application configuration access
+    criticality: notable
+    confidence: 0.75
+    condition:
+      type: string
+      exact: "ConfigurationManager"
+
+  - id: data/config/parse/app-settings
+    description: AppSettings configuration access
+    criticality: notable
+    confidence: 0.70
+    condition:
+      type: string
+      regex: "AppSettings|appsettings"
+
+  - id: data/config/parse/environment-vars
+    description: Environment variable access
+    criticality: notable
+    confidence: 0.70
+    condition:
+      type: string
+      regex: "GetEnvironmentVariable|Environment\\."

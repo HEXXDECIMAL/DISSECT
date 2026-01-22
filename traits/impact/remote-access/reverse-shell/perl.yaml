@@ -5,7 +5,7 @@
 traits:
   - id: impact/remote-access/reverse-shell-perl
     description: Reverse shell in Perl
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.66
     attack: "T1059"
     condition:

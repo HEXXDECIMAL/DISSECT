@@ -1,8 +1,38 @@
+use crate::syscall_names::{syscall_description, syscall_name};
 use crate::types::{ControlFlowMetrics, Function, FunctionProperties, InstructionAnalysis};
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 use std::process::Command;
+use std::sync::atomic::{AtomicBool, Ordering};
+
+/// Global flag to disable radare2 analysis
+static RADARE2_DISABLED: AtomicBool = AtomicBool::new(false);
+
+/// Disable radare2 analysis globally
+pub fn disable_radare2() {
+    RADARE2_DISABLED.store(true, Ordering::SeqCst);
+}
+
+/// Check if radare2 is disabled
+pub fn is_disabled() -> bool {
+    RADARE2_DISABLED.load(Ordering::SeqCst)
+}
+
+/// Syscall information extracted from binary
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct SyscallInfo {
+    /// Address where syscall instruction occurs
+    pub address: u64,
+    /// Syscall number (architecture-dependent)
+    pub number: u32,
+    /// Resolved syscall name (e.g., "read", "write", "socket")
+    pub name: String,
+    /// Brief description of what this syscall does
+    pub description: String,
+    /// Architecture (e.g., "x86", "x86_64", "mips", "arm")
+    pub arch: String,
+}
 
 /// Radare2 integration for deep binary analysis
 pub struct Radare2Analyzer {
@@ -16,8 +46,11 @@ impl Radare2Analyzer {
         }
     }
 
-    /// Check if radare2 is available
+    /// Check if radare2 is available (and not disabled)
     pub fn is_available() -> bool {
+        if is_disabled() {
+            return false;
+        }
         Command::new("r2").arg("-v").output().is_ok()
     }
 
@@ -142,6 +175,272 @@ impl Radare2Analyzer {
 
         Ok(sections)
     }
+
+    /// Extract syscalls from binary using architecture-aware analysis
+    /// Returns detected syscalls with their numbers and resolved names
+    pub fn extract_syscalls(&self, file_path: &Path) -> Result<Vec<SyscallInfo>> {
+        // Get architecture info first
+        let arch = self.get_architecture(file_path)?;
+        if arch.is_empty() {
+            return Ok(Vec::new());
+        }
+
+        // Find syscall instruction addresses based on architecture
+        let syscall_addrs = self.find_syscall_instructions(file_path, &arch)?;
+        if syscall_addrs.is_empty() {
+            return Ok(Vec::new());
+        }
+
+        // For each syscall instruction, try to resolve the syscall number
+        let mut syscalls = Vec::new();
+        for addr in syscall_addrs {
+            if let Some(num) = self.find_syscall_number(file_path, &arch, addr)? {
+                let name = syscall_name(&arch, num);
+                let description = syscall_description(&name);
+                syscalls.push(SyscallInfo {
+                    address: addr,
+                    number: num,
+                    name,
+                    description,
+                    arch: arch.clone(),
+                });
+            }
+        }
+
+        Ok(syscalls)
+    }
+
+    /// Get architecture string from binary
+    fn get_architecture(&self, file_path: &Path) -> Result<String> {
+        let output = Command::new("r2")
+            .arg("-q")
+            .arg("-e")
+            .arg("scr.color=0")
+            .arg("-e")
+            .arg("log.level=0")
+            .arg("-c")
+            .arg("iIj") // Binary info as JSON
+            .arg(file_path)
+            .output()
+            .context("Failed to execute radare2")?;
+
+        if !output.status.success() {
+            return Ok(String::new());
+        }
+
+        let json_str = String::from_utf8_lossy(&output.stdout);
+        if let Some(json_start) = json_str.find('{') {
+            if let Ok(info) = serde_json::from_str::<serde_json::Value>(&json_str[json_start..]) {
+                if let Some(arch) = info.get("arch").and_then(|v| v.as_str()) {
+                    // Normalize architecture names
+                    let bits = info.get("bits").and_then(|v| v.as_u64()).unwrap_or(32);
+                    return Ok(match (arch, bits) {
+                        ("x86", 64) => "x86_64".to_string(),
+                        ("x86", _) => "x86".to_string(),
+                        ("arm", 64) => "aarch64".to_string(),
+                        ("arm", _) => "arm".to_string(),
+                        ("mips", _) => "mips".to_string(),
+                        ("ppc", _) => "ppc".to_string(),
+                        (other, _) => other.to_string(),
+                    });
+                }
+            }
+        }
+
+        Ok(String::new())
+    }
+
+    /// Find syscall instruction addresses based on architecture
+    fn find_syscall_instructions(&self, file_path: &Path, arch: &str) -> Result<Vec<u64>> {
+        // Architecture-specific syscall instruction patterns
+        let pattern = match arch {
+            "x86" => "/x cd80",               // int 0x80
+            "x86_64" => "/x 0f05",            // syscall
+            "arm" => "/x 00 00 00 ef",        // svc #0 (ARM mode)
+            "aarch64" => "/x 01 00 00 d4",    // svc #0 (AArch64)
+            "mips" => "/x 00 00 00 0c",       // syscall (big-endian)
+            "ppc" => "/x 44 00 00 02",        // sc
+            _ => return Ok(Vec::new()),
+        };
+
+        // Also search for little-endian MIPS variant
+        let le_pattern = if arch == "mips" {
+            Some("/x 0c 00 00 00") // syscall (little-endian)
+        } else if arch == "arm" {
+            Some("/x ef 00 00 00") // svc #0 (Thumb might differ)
+        } else {
+            None
+        };
+
+        let output = Command::new("r2")
+            .arg("-q")
+            .arg("-e")
+            .arg("scr.color=0")
+            .arg("-e")
+            .arg("log.level=0")
+            .arg("-c")
+            .arg(pattern)
+            .arg(file_path)
+            .output()
+            .context("Failed to execute radare2")?;
+
+        let mut addrs = parse_search_results(&String::from_utf8_lossy(&output.stdout));
+
+        // Also try alternate pattern if applicable
+        if let Some(alt_pattern) = le_pattern {
+            let alt_output = Command::new("r2")
+                .arg("-q")
+                .arg("-e")
+                .arg("scr.color=0")
+                .arg("-e")
+                .arg("log.level=0")
+                .arg("-c")
+                .arg(alt_pattern)
+                .arg(file_path)
+                .output()
+                .context("Failed to execute radare2")?;
+
+            addrs.extend(parse_search_results(&String::from_utf8_lossy(
+                &alt_output.stdout,
+            )));
+        }
+
+        // Deduplicate and sort
+        addrs.sort_unstable();
+        addrs.dedup();
+
+        Ok(addrs)
+    }
+
+    /// Find syscall number by backtracking from syscall instruction
+    fn find_syscall_number(&self, file_path: &Path, arch: &str, addr: u64) -> Result<Option<u32>> {
+        // Disassemble backwards to find the register load
+        let output = Command::new("r2")
+            .arg("-q")
+            .arg("-e")
+            .arg("scr.color=0")
+            .arg("-e")
+            .arg("log.level=0")
+            .arg("-c")
+            .arg(format!("pd -15 @ {:#x}", addr)) // 15 instructions before syscall
+            .arg(file_path)
+            .output()
+            .context("Failed to execute radare2")?;
+
+        let disasm = String::from_utf8_lossy(&output.stdout);
+
+        // Parse based on architecture
+        match arch {
+            "mips" => {
+                // MIPS o32: syscall number in v0 ($2)
+                // Look for: addiu v0, zero, 0xNNN or li v0, 0xNNN
+                for line in disasm.lines().rev() {
+                    let line_lower = line.to_lowercase();
+                    if (line_lower.contains("addiu") || line_lower.contains("li"))
+                        && (line_lower.contains("v0") || line_lower.contains("$2"))
+                    {
+                        if let Some(num) = extract_hex_or_decimal(line) {
+                            // MIPS o32 syscalls start at 4000, n32/n64 at 6000
+                            if (4000..6000).contains(&num) || (6000..8000).contains(&num) {
+                                return Ok(Some(num));
+                            }
+                        }
+                    }
+                }
+            }
+            "x86" | "x86_64" => {
+                // x86: syscall number in eax/rax
+                // Look for: mov eax, NNN or mov rax, NNN
+                for line in disasm.lines().rev() {
+                    let line_lower = line.to_lowercase();
+                    if line_lower.contains("mov")
+                        && (line_lower.contains("eax") || line_lower.contains("rax"))
+                    {
+                        if let Some(num) = extract_hex_or_decimal(line) {
+                            // Reasonable syscall number range
+                            if num < 1000 {
+                                return Ok(Some(num));
+                            }
+                        }
+                    }
+                }
+            }
+            "arm" | "aarch64" => {
+                // ARM32: syscall number in r7
+                // AArch64: syscall number in x8
+                let reg = if arch == "arm" { "r7" } else { "x8" };
+                for line in disasm.lines().rev() {
+                    let line_lower = line.to_lowercase();
+                    if line_lower.contains("mov") && line_lower.contains(reg) {
+                        if let Some(num) = extract_hex_or_decimal(line) {
+                            if num < 1000 {
+                                return Ok(Some(num));
+                            }
+                        }
+                    }
+                }
+            }
+            "ppc" => {
+                // PowerPC: syscall number in r0
+                for line in disasm.lines().rev() {
+                    let line_lower = line.to_lowercase();
+                    if line_lower.contains("li") && line_lower.contains("r0") {
+                        if let Some(num) = extract_hex_or_decimal(line) {
+                            if num < 1000 {
+                                return Ok(Some(num));
+                            }
+                        }
+                    }
+                }
+            }
+            _ => {}
+        }
+
+        Ok(None)
+    }
+}
+
+/// Parse radare2 search results to extract addresses
+fn parse_search_results(output: &str) -> Vec<u64> {
+    let mut addrs = Vec::new();
+    for line in output.lines() {
+        // r2 search output format: "0x00400123 hit0_0 ..."
+        if let Some(addr_str) = line.split_whitespace().next() {
+            if let Some(hex) = addr_str.strip_prefix("0x") {
+                if let Ok(addr) = u64::from_str_radix(hex, 16) {
+                    addrs.push(addr);
+                }
+            }
+        }
+    }
+    addrs
+}
+
+/// Extract hex or decimal number from disassembly line
+/// Returns the LAST valid syscall number found (to skip addresses at start of line)
+fn extract_hex_or_decimal(line: &str) -> Option<u32> {
+    let mut last_valid: Option<u32> = None;
+
+    // Try to find hex numbers like 0x1234 or plain decimal
+    for word in line.split(|c: char| !c.is_alphanumeric() && c != 'x') {
+        if let Some(hex) = word.strip_prefix("0x") {
+            if let Ok(num) = u32::from_str_radix(hex, 16) {
+                // Keep track of all valid syscall-range numbers
+                // MIPS syscalls are 4000-6000, x86/ARM are 0-1000
+                if num < 10000 {
+                    last_valid = Some(num);
+                }
+            }
+        } else if word.chars().all(|c| c.is_ascii_digit()) && !word.is_empty() {
+            if let Ok(num) = word.parse::<u32>() {
+                // Filter out likely non-syscall numbers (addresses, large constants)
+                if num > 0 && num < 10000 {
+                    last_valid = Some(num);
+                }
+            }
+        }
+    }
+    last_valid
 }
 
 impl Default for Radare2Analyzer {
@@ -725,5 +1024,93 @@ mod tests {
         assert_eq!(funcs.len(), 2);
         assert_eq!(funcs[0].name, "func1");
         assert_eq!(funcs[1].name, "func2");
+    }
+
+    #[test]
+    fn test_syscall_info_serialize() {
+        let syscall = SyscallInfo {
+            address: 0x400123,
+            number: 4004,
+            name: "write".to_string(),
+            description: "writes to file".to_string(),
+            arch: "mips".to_string(),
+        };
+        let json = serde_json::to_string(&syscall).unwrap();
+        assert!(json.contains("\"address\":4194595"));
+        assert!(json.contains("\"number\":4004"));
+        assert!(json.contains("\"name\":\"write\""));
+        assert!(json.contains("\"description\":\"writes to file\""));
+        assert!(json.contains("\"arch\":\"mips\""));
+    }
+
+    #[test]
+    fn test_parse_search_results_valid() {
+        let output = "0x00400123 hit0_0 cd80\n0x00400456 hit0_1 cd80\n";
+        let addrs = parse_search_results(output);
+        assert_eq!(addrs.len(), 2);
+        assert_eq!(addrs[0], 0x400123);
+        assert_eq!(addrs[1], 0x400456);
+    }
+
+    #[test]
+    fn test_parse_search_results_empty() {
+        let output = "";
+        let addrs = parse_search_results(output);
+        assert!(addrs.is_empty());
+    }
+
+    #[test]
+    fn test_parse_search_results_no_hex() {
+        let output = "No results found\n";
+        let addrs = parse_search_results(output);
+        assert!(addrs.is_empty());
+    }
+
+    #[test]
+    fn test_extract_hex_or_decimal_hex() {
+        let line = "mov eax, 0x3b";
+        let num = extract_hex_or_decimal(line);
+        assert_eq!(num, Some(59)); // 0x3b = 59
+    }
+
+    #[test]
+    fn test_extract_hex_or_decimal_decimal() {
+        let line = "addiu v0, zero, 4004";
+        let num = extract_hex_or_decimal(line);
+        assert_eq!(num, Some(4004));
+    }
+
+    #[test]
+    fn test_extract_hex_or_decimal_none() {
+        let line = "nop";
+        let num = extract_hex_or_decimal(line);
+        assert_eq!(num, None);
+    }
+
+    #[test]
+    fn test_extract_hex_or_decimal_large_number_filtered() {
+        // Large numbers (addresses) should be filtered out
+        let line = "call 0x401234";
+        let num = extract_hex_or_decimal(line);
+        // 0x401234 = 4198964 which is > 10000, so it should be filtered
+        assert_eq!(num, None);
+    }
+
+    #[test]
+    fn test_extract_hex_or_decimal_mips_disasm() {
+        // Test MIPS disassembly line - should extract the operand, not the address
+        let line = "0x0040b730      24020fd7       addiu v0, zero, 0xfd7";
+        let num = extract_hex_or_decimal(line);
+        // 0xfd7 = 4055 which is a MIPS syscall number
+        assert_eq!(num, Some(0xfd7));
+    }
+
+    #[test]
+    fn test_extract_hex_or_decimal_x86_disasm() {
+        // Test x86 disassembly line
+        let line = "0x00401234      mov eax, 0x3b";
+        let num = extract_hex_or_decimal(line);
+        // 0x3b = 59 (execve on x86_64)
+        assert_eq!(num, Some(0x3b));
     }
 }

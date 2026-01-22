@@ -29,7 +29,7 @@ traits:
 
   - id: impact/cryptojacking/miner-xmrig
     description: XMRig miner
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.66
     condition:
       type: string

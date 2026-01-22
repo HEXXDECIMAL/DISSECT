@@ -1,0 +1,104 @@
+# PHP cURL HTTP Client Traits
+# MBC: C0002 (HTTP Communication)
+# ATT&CK: T1071.001
+
+traits:
+  - id: net/http/curl/init
+    description: cURL session initialization
+    criticality: notable
+    confidence: 0.8
+    mbc: "C0002"
+    attack: "T1071.001"
+    file_types: [all]
+    condition:
+      type: string
+      exact: curl_init
+
+  - id: net/http/curl/exec
+    description: cURL request execution
+    criticality: notable
+    confidence: 0.8
+    mbc: "C0002"
+    attack: "T1071.001"
+    file_types: [all]
+    condition:
+      type: string
+      exact: curl_exec
+
+  - id: net/http/curl/setopt
+    description: cURL option configuration
+    criticality: inert
+    confidence: 0.7
+    file_types: [all]
+    condition:
+      type: string
+      exact: curl_setopt
+
+  - id: net/http/curl/ssl-verify-disable
+    description: SSL certificate verification disabled (security bypass)
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "B0032"
+    attack: "T1553"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "CURLOPT_SSL_VERIFYPEER\\s*,\\s*(false|0|FALSE)"
+
+  - id: net/http/curl/ssl-host-disable
+    description: SSL host verification disabled (security bypass)
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "B0032"
+    attack: "T1553"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "CURLOPT_SSL_VERIFYHOST\\s*,\\s*(0|false|FALSE)"
+
+  - id: net/http/curl/follow-redirects
+    description: cURL follows HTTP redirects
+    criticality: inert
+    confidence: 0.6
+    file_types: [all]
+    condition:
+      type: string
+      exact: CURLOPT_FOLLOWLOCATION
+
+  - id: net/http/curl/file-upload
+    description: cURL file upload capability (CURLFile)
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "B0030"
+    attack: "T1041"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "\\bCURLFile\\b"
+
+  - id: net/http/curl/post-data
+    description: cURL POST data configuration
+    criticality: notable
+    confidence: 0.7
+    file_types: [all]
+    condition:
+      type: string
+      exact: CURLOPT_POSTFIELDS
+
+  - id: net/http/curl/user-agent-set
+    description: Custom User-Agent header configuration
+    criticality: notable
+    confidence: 0.75
+    file_types: [all]
+    condition:
+      type: string
+      exact: CURLOPT_USERAGENT
+
+  - id: net/http/curl/referer-set
+    description: Custom Referer header configuration
+    criticality: notable
+    confidence: 0.7
+    file_types: [all]
+    condition:
+      type: string
+      exact: CURLOPT_REFERER

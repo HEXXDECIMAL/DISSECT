@@ -1,0 +1,24 @@
+# Disk Information - Linux
+# ATT&CK: T1082 (System Information Discovery)
+
+traits:
+  - id: hw/disk/info/dmidecode
+    description: Hardware info via dmidecode
+    criticality: suspicious
+    confidence: 0.75
+    attack: "T1082"
+    platforms: [linux]
+    condition:
+      type: string
+      regex: "dmidecode[\\s-]"
+
+  - id: hw/disk/info/gopsutil
+    description: Go disk info via gopsutil
+    criticality: notable
+    confidence: 0.6
+    attack: "T1082"
+    platforms: [all]
+    file_types: [elf, macho]
+    condition:
+      type: string
+      exact: "gopsutil/v3/disk"

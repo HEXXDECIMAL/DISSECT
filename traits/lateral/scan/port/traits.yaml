@@ -1,0 +1,238 @@
+# Lateral Movement - Network Scanning
+# ATT&CK: T1046 (Network Service Discovery)
+# MBC: E1046
+
+traits:
+  # === Atomic: Network Scanning Indicators ===
+
+  - id: lateral/scan/ip-format
+    description: IP address format string (scanning indicator)
+    criticality: notable
+    confidence: 0.6
+    attack: "T1046"
+    platforms: [all]
+    condition:
+      type: string
+      exact: "%d.%d.%d.%d"
+
+  - id: lateral/scan/target-ip-ref
+    description: References target IP concept
+    criticality: suspicious
+    confidence: 0.75
+    attack: "T1046"
+    platforms: [all]
+    condition:
+      type: string
+      regex: "[Tt]arget[_\\s]?[Ii][Pp]|targetIP"
+
+  - id: lateral/scan/random-target
+    description: Random target/IP generation
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1046"
+    platforms: [all]
+    condition:
+      type: string
+      regex: "[Rr]andom[_\\s]?[Tt]arget|[Rr]andom[_\\s]?IP|getrandip"
+
+  - id: lateral/scan/port-ref
+    description: Port scanning terminology
+    criticality: notable
+    confidence: 0.5
+    attack: "T1046"
+    platforms: [all]
+    condition:
+      type: string
+      regex: "\\b[Pp]ort[Ss]can|scan[_\\s]?[Pp]ort|[Pp]ort[_\\s]?[Ss]can"
+
+  - id: lateral/scan/probe-ref
+    description: Network probing terminology
+    criticality: notable
+    confidence: 0.6
+    attack: "T1046"
+    platforms: [all]
+    condition:
+      type: string
+      regex: "\\b[Pp]robe\\b|[Bb]anner[_\\s]?[Gg]rab"
+
+  - id: lateral/scan/target-ref
+    description: Generic target terminology
+    criticality: notable
+    confidence: 0.5
+    attack: "T1046"
+    platforms: [all]
+    condition:
+      type: string
+      regex: "\\b[Tt]arget\\b"
+
+  # === Atomic: Brute Force Indicators ===
+
+  - id: lateral/scan/brute-force-ref
+    description: Brute force attack reference
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1110"
+    platforms: [all]
+    condition:
+      type: string
+      regex: "[Bb]rute[_\\-\\s]?[Ff]orce"
+
+  # === Atomic: IoT Default Credentials ===
+
+  - id: lateral/scan/iot-cred-hikvision
+    description: Hikvision default credential
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1110.001"
+    platforms: [all]
+    condition:
+      type: string
+      exact: "hikvision"
+      case_insensitive: true
+
+  - id: lateral/scan/iot-cred-xmhdipc
+    description: XMeye/Xiongmai default credential
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1110.001"
+    platforms: [all]
+    condition:
+      type: string
+      exact: "xmhdipc"
+
+  - id: lateral/scan/iot-cred-cuadmin
+    description: CUAdmin default credential
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1110.001"
+    platforms: [all]
+    condition:
+      type: string
+      exact: "CUAdmin"
+
+  - id: lateral/scan/iot-cred-jvbzd
+    description: Dahua default credential
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1110.001"
+    platforms: [all]
+    condition:
+      type: string
+      exact: "jvbzd"
+
+  - id: lateral/scan/iot-cred-tsgoingon
+    description: ZTE router default credential
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1110.001"
+    platforms: [all]
+    condition:
+      type: string
+      exact: "tsgoingon"
+
+  - id: lateral/scan/iot-cred-lnadmin
+    description: LN admin default credential
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1110.001"
+    platforms: [all]
+    condition:
+      type: string
+      exact: "lnadmin"
+
+  - id: lateral/scan/iot-cred-zte521
+    description: ZTE router default credential (Zte521/Pon521)
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1110.001"
+    platforms: [all]
+    condition:
+      type: string
+      regex: "[ZP]te521|Pon521|Zxic521"
+
+  - id: lateral/scan/iot-cred-oelinux
+    description: OE Linux default credential
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1110.001"
+    platforms: [all]
+    condition:
+      type: string
+      exact: "oelinux123"
+
+  - id: lateral/scan/iot-cred-xc3511
+    description: Hikvision xc3511 default credential
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1110.001"
+    platforms: [all]
+    condition:
+      type: string
+      exact: "xc3511"
+
+  - id: lateral/scan/iot-cred-vizxv
+    description: Dahua vizxv default credential
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1110.001"
+    platforms: [all]
+    condition:
+      type: string
+      exact: "vizxv"
+
+  # === Atomic: Common Weak Passwords ===
+
+  - id: lateral/scan/weak-pass-root123
+    description: Weak password root123
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1110.001"
+    platforms: [all]
+    condition:
+      type: string
+      exact: "root123"
+
+  - id: lateral/scan/weak-pass-admin123
+    description: Weak password admin123
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1110.001"
+    platforms: [all]
+    condition:
+      type: string
+      regex: "[Aa]dmin123"
+
+  - id: lateral/scan/weak-pass-passw0rd
+    description: Weak password Passw0rd
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1110.001"
+    platforms: [all]
+    condition:
+      type: string
+      exact: "Passw0rd"
+
+  - id: lateral/scan/weak-pass-qwerty
+    description: Weak password qwerty variants
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1110.001"
+    platforms: [all]
+    condition:
+      type: string
+      regex: "qwerty123|qwerty"
+
+  # === Atomic: Root/Exploit Terminology ===
+
+  - id: lateral/scan/root-exploit-ref
+    description: Root exploitation terminology (leetspeak/hacker slang)
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1068"
+    platforms: [all]
+    condition:
+      type: string
+      # "root the " = hacker slang for compromising a device
+      # "r00t" = leetspeak for root (clearly malicious intent)
+      # Note: "get_root" removed - legitimate function name in system utilities
+      regex: "root the |r00t[^a-zA-Z]"

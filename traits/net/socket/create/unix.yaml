@@ -1,0 +1,27 @@
+# Socket Creation
+# MBC: C0001 (Socket Communication)
+
+traits:
+  - id: net/socket/create/create
+    description: Create network socket
+    criticality: notable
+    confidence: 0.75
+    condition:
+      type: symbol
+      pattern: socket
+
+  - id: net/socket/create/bind
+    description: Bind socket to address
+    criticality: notable
+    confidence: 0.75
+    condition:
+      type: symbol
+      pattern: bind
+
+  - id: net/socket/create/connect
+    description: Connect socket to remote host
+    criticality: notable
+    confidence: 0.75
+    condition:
+      type: symbol
+      pattern: connect
