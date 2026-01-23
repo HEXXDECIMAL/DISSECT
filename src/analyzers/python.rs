@@ -242,12 +242,14 @@ impl PythonAnalyzer {
 
                 functions.push(info);
             } else if node.kind() == "lambda" {
-                let mut info = FunctionInfo::default();
-                info.is_anonymous = true;
-                info.start_line = node.start_position().row as u32;
-                info.end_line = node.end_position().row as u32;
-                info.line_count = 1; // Lambdas are typically one-liners
-                info.nesting_depth = depth;
+                let mut info = FunctionInfo {
+                    is_anonymous: true,
+                    start_line: node.start_position().row as u32,
+                    end_line: node.end_position().row as u32,
+                    line_count: 1,
+                    nesting_depth: depth,
+                    ..Default::default()
+                };
 
                 // Count lambda parameters
                 if let Some(params) = node.child_by_field_name("parameters") {
@@ -1161,7 +1163,8 @@ impl Default for PythonAnalyzer {
 
 impl Analyzer for PythonAnalyzer {
     fn analyze(&self, file_path: &Path) -> Result<AnalysisReport> {
-        let content = fs::read_to_string(file_path).context("Failed to read Python script")?;
+        let bytes = fs::read(file_path).context("Failed to read Python script")?;
+        let content = String::from_utf8_lossy(&bytes);
 
         self.analyze_script(file_path, &content)
     }

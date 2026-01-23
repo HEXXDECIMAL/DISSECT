@@ -321,8 +321,11 @@ impl GoAnalyzer {
             let node = cursor.node();
             if node.kind() == "interpreted_string_literal" || node.kind() == "raw_string_literal" {
                 if let Ok(text) = node.utf8_text(source) {
-                    let s = text.trim_start_matches('"').trim_end_matches('"')
-                        .trim_start_matches('`').trim_end_matches('`');
+                    let s = text
+                        .trim_start_matches('"')
+                        .trim_end_matches('"')
+                        .trim_start_matches('`')
+                        .trim_end_matches('`');
                     if !s.is_empty() {
                         strings.push(s.to_string());
                     }
@@ -1381,7 +1384,8 @@ impl Default for GoAnalyzer {
 
 impl Analyzer for GoAnalyzer {
     fn analyze(&self, file_path: &Path) -> Result<AnalysisReport> {
-        let content = fs::read_to_string(file_path).context("Failed to read Go source file")?;
+        let bytes = fs::read(file_path).context("Failed to read Go source file")?;
+        let content = String::from_utf8_lossy(&bytes);
 
         self.analyze_source(file_path, &content)
     }
@@ -1650,14 +1654,35 @@ func main() {
         let go_metrics = metrics.go_metrics.expect("go_metrics should be present");
 
         assert!(go_metrics.unsafe_usage >= 1, "unsafe_usage should be >= 1");
-        assert!(go_metrics.reflect_usage >= 1, "reflect_usage should be >= 1");
-        assert!(go_metrics.syscall_direct >= 1, "syscall_direct should be >= 1");
-        assert!(go_metrics.exec_command_count >= 1, "exec_command_count should be >= 1");
-        assert!(go_metrics.net_dial_count >= 1, "net_dial_count should be >= 1");
+        assert!(
+            go_metrics.reflect_usage >= 1,
+            "reflect_usage should be >= 1"
+        );
+        assert!(
+            go_metrics.syscall_direct >= 1,
+            "syscall_direct should be >= 1"
+        );
+        assert!(
+            go_metrics.exec_command_count >= 1,
+            "exec_command_count should be >= 1"
+        );
+        assert!(
+            go_metrics.net_dial_count >= 1,
+            "net_dial_count should be >= 1"
+        );
         assert!(go_metrics.http_usage >= 1, "http_usage should be >= 1");
-        assert_eq!(go_metrics.init_function_count, 1, "init_function_count should be 1");
-        assert_eq!(go_metrics.blank_import_count, 1, "blank_import_count should be 1");
-        assert_eq!(go_metrics.embed_directive_count, 1, "embed_directive_count should be 1");
+        assert_eq!(
+            go_metrics.init_function_count, 1,
+            "init_function_count should be 1"
+        );
+        assert_eq!(
+            go_metrics.blank_import_count, 1,
+            "blank_import_count should be 1"
+        );
+        assert_eq!(
+            go_metrics.embed_directive_count, 1,
+            "embed_directive_count should be 1"
+        );
         assert_eq!(go_metrics.linkname_count, 1, "linkname_count should be 1");
     }
 }

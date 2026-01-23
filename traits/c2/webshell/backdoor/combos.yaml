@@ -219,3 +219,116 @@ composite_rules:
         id: anti-static/obfuscation/rot13
       - type: trait
         id: anti-static/obfuscation/eval
+
+  # Decompressed code execution
+  - id: c2/webshell/php-gz-eval
+    description: "PHP: decompresses and executes code (obfuscated backdoor)"
+    criticality: hostile
+    confidence: 0.98
+    mbc: "B0032"
+    attack: "T1027"
+    file_types: [php]
+    requires_all:
+      - type: trait
+        id: anti-static/obfuscation/encoding/gzinflate
+      - type: trait
+        id: anti-static/obfuscation/encoding/eval
+
+  # Obfuscated dynamic backdoor
+  - id: c2/webshell/php-obfuscated-dynamic-backdoor
+    description: "PHP: obfuscated dynamic backdoor (dynamic calls + obfuscation metrics)"
+    criticality: hostile
+    confidence: 0.98
+    mbc: "B0032"
+    attack: "T1027"
+    file_types: [php]
+    requires_all:
+      - type: trait
+        id: exec/dynamic-call
+    requires_any:
+      - type: trait
+        id: anti-static/obfuscation/code-metrics/php-obfuscated-vars
+      - type: trait
+        id: anti-static/obfuscation/code-metrics/php-encoded-strings
+      - type: trait
+        id: anti-static/obfuscation/encoding
+
+  # Non-ASCII dynamic backdoor
+  - id: c2/webshell/php-non-ascii-backdoor
+    description: "PHP: non-ASCII dynamic backdoor (dynamic calls + binary content)"
+    criticality: hostile
+    confidence: 0.98
+    mbc: "B0032"
+    attack: "T1027"
+    file_types: [php]
+    requires_all:
+      - type: trait
+        id: exec/dynamic-call
+      - type: trait
+        id: anti-static/obfuscation/code-metrics/php-high-non-ascii-ratio
+
+  - id: c2/webshell/php-non-ascii-identifiers-backdoor
+    description: "PHP: backdoor using non-ASCII identifiers"
+    criticality: hostile
+    confidence: 0.98
+    mbc: "B0032"
+    attack: "T1027"
+    file_types: [php]
+    requires_any:
+      - type: trait
+        id: anti-static/obfuscation/code-metrics/php-non-ascii-call
+      - type: trait
+        id: anti-static/obfuscation/code-metrics/php-non-ascii-variable
+      - type: trait
+        id: anti-static/obfuscation/code-metrics/php-non-ascii-name
+
+  - id: c2/webshell/php-shell-functional
+    description: "PHP: functional webshell (exec + input + obfuscation/file ops)"
+    criticality: hostile
+    confidence: 0.98
+    mbc: "B0030"
+    attack: "T1505.003"
+    file_types: [php]
+    requires_all:
+      - type: trait
+        id: exec/dynamic-call
+    requires_any:
+      - type: trait
+        id: data/user-input/request/get
+      - type: trait
+        id: data/user-input/request/post
+      - type: trait
+        id: data/user-input/request/request
+      - type: trait
+        id: data/user-input/request/cookie
+      - type: trait
+        id: data/user-input/request/server
+      - type: trait
+        id: anti-analysis/obfuscation
+      - type: trait
+        id: anti-analysis/obfuscation/non-ascii-call
+      - type: trait
+        id: fs/read/file
+      - type: trait
+        id: fs/write/file
+
+  # Functional PHP shell
+  - id: c2/webshell/php-shell
+    description: "PHP: functional webshell (exec + user input + file ops)"
+    criticality: hostile
+    confidence: 0.98
+    mbc: "B0030"
+    attack: "T1505.003"
+    file_types: [php]
+    requires_all:
+      - type: trait
+        id: exec/command/shell
+      - type: trait
+        id: data/user-input/request
+    requires_any:
+      - type: trait
+        id: fs/read/file
+      - type: trait
+        id: fs/write/file
+      - type: trait
+        id: anti-static/obfuscation/encoding

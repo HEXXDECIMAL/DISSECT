@@ -4,6 +4,7 @@ use crate::analyzers::{
     function_metrics::{self, FunctionInfo},
     identifier_metrics, string_metrics, text_metrics,
 };
+use crate::capabilities::CapabilityMapper;
 use crate::types::*;
 use anyhow::{Context, Result};
 use std::cell::RefCell;
@@ -14,6 +15,7 @@ use tree_sitter::Parser;
 /// PHP analyzer using tree-sitter
 pub struct PhpAnalyzer {
     parser: RefCell<Parser>,
+    capability_mapper: CapabilityMapper,
 }
 
 impl Default for PhpAnalyzer {
@@ -31,11 +33,24 @@ impl PhpAnalyzer {
 
         Self {
             parser: RefCell::new(parser),
+            capability_mapper: CapabilityMapper::empty(),
         }
+    }
+
+    /// Create analyzer with pre-existing capability mapper (avoids duplicate loading)
+    pub fn with_capability_mapper(mut self, capability_mapper: CapabilityMapper) -> Self {
+        self.capability_mapper = capability_mapper;
+        self
     }
 
     fn analyze_source(&self, file_path: &Path, content: &str) -> Result<AnalysisReport> {
         let start = std::time::Instant::now();
+
+        if std::env::var("DISSECT_DEBUG").is_ok() {
+            eprintln!("[DEBUG] PHP Analyzer: parsing {}", file_path.display());
+            let preview = content.chars().take(100).collect::<String>();
+            eprintln!("[DEBUG] PHP Content preview: {:?}", preview);
+        }
 
         let tree = self
             .parser
@@ -44,6 +59,48 @@ impl PhpAnalyzer {
             .context("Failed to parse PHP source")?;
 
         let root = tree.root_node();
+
+        if std::env::var("DISSECT_DEBUG").is_ok() {
+            let mut node_count = 0;
+            let mut error_count = 0;
+            let mut cursor = root.walk();
+
+            loop {
+                node_count += 1;
+                if cursor.node().is_error() {
+                    error_count += 1;
+                }
+
+                if cursor.goto_first_child() {
+                    continue;
+                }
+
+                if cursor.goto_next_sibling() {
+                    continue;
+                }
+
+                loop {
+                    if !cursor.goto_parent() {
+                        break;
+                    }
+                    if cursor.goto_next_sibling() {
+                        break;
+                    }
+                }
+
+                if cursor.node() == root {
+                    break;
+                }
+            }
+
+            eprintln!(
+                "[DEBUG] PHP AST: root kind={}, has_error={}, total_nodes={}, error_nodes={}",
+                root.kind(),
+                root.has_error(),
+                node_count,
+                error_count
+            );
+        }
 
         let target = TargetInfo {
             path: file_path.display().to_string(),
@@ -73,8 +130,26 @@ impl PhpAnalyzer {
         crate::env_mapper::analyze_and_link_env_vars(&mut report);
 
         // Compute metrics for ML analysis
-        let metrics = self.compute_metrics(&root, content);
+        let metrics = self.compute_metrics(&root, content, &mut report);
         report.metrics = Some(metrics);
+
+        // Evaluate trait definitions and composite rules (includes inline YARA)
+        let trait_findings = self
+            .capability_mapper
+            .evaluate_traits(&report, content.as_bytes());
+        let composite_findings = self
+            .capability_mapper
+            .evaluate_composite_rules(&report, content.as_bytes());
+
+        // Add all findings from trait evaluation
+        for f in trait_findings
+            .into_iter()
+            .chain(composite_findings.into_iter())
+        {
+            if !report.findings.iter().any(|existing| existing.id == f.id) {
+                report.findings.push(f);
+            }
+        }
 
         report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;
         report.metadata.tools_used = vec!["tree-sitter-php".to_string()];
@@ -83,7 +158,12 @@ impl PhpAnalyzer {
     }
 
     /// Compute all metrics for PHP code
-    fn compute_metrics(&self, root: &tree_sitter::Node, content: &str) -> Metrics {
+    fn compute_metrics(
+        &self,
+        root: &tree_sitter::Node,
+        content: &str,
+        report: &mut AnalysisReport,
+    ) -> Metrics {
         let source = content.as_bytes();
         let total_lines = content.lines().count() as u32;
 
@@ -91,7 +171,7 @@ impl PhpAnalyzer {
         let text = text_metrics::analyze_text(content);
 
         // Extract identifiers from AST
-        let identifiers = self.extract_identifiers(root, source);
+        let identifiers = self.extract_identifiers(root, source, report);
         let ident_refs: Vec<&str> = identifiers.iter().map(|s| s.as_str()).collect();
         let identifier_metrics = identifier_metrics::analyze_identifiers(&ident_refs);
 
@@ -118,10 +198,15 @@ impl PhpAnalyzer {
     }
 
     /// Extract identifiers from PHP AST
-    fn extract_identifiers(&self, root: &tree_sitter::Node, source: &[u8]) -> Vec<String> {
+    fn extract_identifiers(
+        &self,
+        root: &tree_sitter::Node,
+        source: &[u8],
+        report: &mut AnalysisReport,
+    ) -> Vec<String> {
         let mut identifiers = Vec::new();
         let mut cursor = root.walk();
-        self.walk_for_identifiers(&mut cursor, source, &mut identifiers);
+        self.walk_for_identifiers(&mut cursor, source, &mut identifiers, report);
         identifiers
     }
 
@@ -130,6 +215,7 @@ impl PhpAnalyzer {
         cursor: &mut tree_sitter::TreeCursor,
         source: &[u8],
         identifiers: &mut Vec<String>,
+        report: &mut AnalysisReport,
     ) {
         loop {
             let node = cursor.node();
@@ -139,12 +225,37 @@ impl PhpAnalyzer {
                     let name = text.trim_start_matches('$');
                     if !name.is_empty() {
                         identifiers.push(name.to_string());
+
+                        // Detect unusually long variable names (potential obfuscation)
+                        if name.len() > 15 {
+                            report.findings.push(Finding {
+                                kind: FindingKind::Capability,
+                                trait_refs: vec![],
+                                id: "anti-analysis/obfuscation/long-identifier".to_string(),
+                                description: "Unusually long identifier (potential obfuscation)"
+                                    .to_string(),
+                                confidence: 0.8,
+                                criticality: Criticality::Notable,
+                                mbc: None,
+                                attack: None,
+                                evidence: vec![Evidence {
+                                    method: "ast".to_string(),
+                                    source: "tree-sitter-php".to_string(),
+                                    value: name.to_string(),
+                                    location: Some(format!(
+                                        "{}:{}",
+                                        node.start_position().row + 1,
+                                        node.start_position().column
+                                    )),
+                                }],
+                            });
+                        }
                     }
                 }
             }
 
             if cursor.goto_first_child() {
-                self.walk_for_identifiers(cursor, source, identifiers);
+                self.walk_for_identifiers(cursor, source, identifiers, report);
                 cursor.goto_parent();
             }
 
@@ -329,9 +440,69 @@ impl PhpAnalyzer {
         let Some(func_node) = node.child_by_field_name("function") else {
             return;
         };
-        let Ok(func_name) = func_node.utf8_text(source) else {
-            return;
-        };
+
+        let mut is_dynamic = false;
+        let mut func_name = String::new();
+
+        if let Ok(text) = func_node.utf8_text(source) {
+            func_name = text.to_string();
+            // In tree-sitter-php, function can be a name, variable, or even a subscript expression
+            if func_node.kind() == "variable_name" || func_node.kind() == "subscript_expression" {
+                is_dynamic = true;
+            }
+        }
+
+        if std::env::var("DISSECT_DEBUG").is_ok() {
+            eprintln!("[DEBUG] PHP analyze_call: func_name={}", func_name);
+        }
+
+        // Detect non-ASCII function names (obfuscation)
+        if func_name.chars().any(|c| !c.is_ascii()) {
+            report.findings.push(Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
+                id: "anti-analysis/obfuscation/non-ascii-call".to_string(),
+                description: "Function call with non-ASCII name (obfuscation)".to_string(),
+                confidence: 0.98,
+                criticality: Criticality::Hostile,
+                mbc: None,
+                attack: None,
+                evidence: vec![Evidence {
+                    method: "ast".to_string(),
+                    source: "tree-sitter-php".to_string(),
+                    value: func_name.clone(),
+                    location: Some(format!(
+                        "{}:{}",
+                        node.start_position().row + 1,
+                        node.start_position().column
+                    )),
+                }],
+            });
+        }
+
+        if is_dynamic {
+            report.findings.push(Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
+                id: "exec/dynamic-call".to_string(),
+                description: "Dynamic function call (potential webshell indicator)".to_string(),
+                confidence: 0.9,
+                criticality: Criticality::Suspicious,
+                mbc: None,
+                attack: None,
+                evidence: vec![Evidence {
+                    method: "ast".to_string(),
+                    source: "tree-sitter-php".to_string(),
+                    value: func_name.clone(),
+                    location: Some(format!(
+                        "{}:{}",
+                        node.start_position().row + 1,
+                        node.start_position().column
+                    )),
+                }],
+            });
+        }
+
         let func_lower = func_name.to_lowercase();
         let text = node.utf8_text(source).unwrap_or("");
 
@@ -343,7 +514,7 @@ impl PhpAnalyzer {
                 capabilities.push((
                     "exec/command/shell",
                     "Command execution",
-                    func_name,
+                    &func_name,
                     0.95,
                     Criticality::Suspicious,
                 ));
@@ -352,7 +523,7 @@ impl PhpAnalyzer {
                 capabilities.push((
                     "exec/command/direct",
                     "Direct process execution",
-                    func_name,
+                    &func_name,
                     0.95,
                     Criticality::Suspicious,
                 ));
@@ -365,7 +536,7 @@ impl PhpAnalyzer {
             capabilities.push((
                 "exec/script/eval",
                 "Dynamic code execution",
-                func_name,
+                &func_name,
                 0.95,
                 Criticality::Suspicious,
             ));
@@ -374,7 +545,7 @@ impl PhpAnalyzer {
             capabilities.push((
                 "exec/script/eval",
                 "Assert with variable (potential code exec)",
-                func_name,
+                &func_name,
                 0.85,
                 Criticality::Notable,
             ));
@@ -383,7 +554,7 @@ impl PhpAnalyzer {
             capabilities.push((
                 "exec/script/eval",
                 "Dynamic function creation",
-                func_name,
+                &func_name,
                 0.9,
                 Criticality::Suspicious,
             ));
@@ -392,7 +563,7 @@ impl PhpAnalyzer {
             capabilities.push((
                 "exec/dynamic-call",
                 "Dynamic function call",
-                func_name,
+                &func_name,
                 0.8,
                 Criticality::Notable,
             ));
@@ -403,7 +574,7 @@ impl PhpAnalyzer {
             capabilities.push((
                 "anti-analysis/obfuscation/base64",
                 "Base64 decoding",
-                func_name,
+                &func_name,
                 0.7,
                 Criticality::Notable,
             ));
@@ -412,7 +583,7 @@ impl PhpAnalyzer {
             capabilities.push((
                 "anti-analysis/obfuscation/compression",
                 "Compressed data decoding",
-                func_name,
+                &func_name,
                 0.75,
                 Criticality::Notable,
             ));
@@ -421,7 +592,7 @@ impl PhpAnalyzer {
             capabilities.push((
                 "anti-analysis/obfuscation/rot13",
                 "ROT13 encoding",
-                func_name,
+                &func_name,
                 0.7,
                 Criticality::Notable,
             ));
@@ -430,7 +601,7 @@ impl PhpAnalyzer {
             capabilities.push((
                 "anti-analysis/obfuscation/char-encoding",
                 "Character code manipulation",
-                func_name,
+                &func_name,
                 0.5,
                 Criticality::Inert,
             ));
@@ -441,7 +612,7 @@ impl PhpAnalyzer {
             capabilities.push((
                 "anti-analysis/deserialization",
                 "PHP object deserialization",
-                func_name,
+                &func_name,
                 0.9,
                 Criticality::Suspicious,
             ));
@@ -453,7 +624,7 @@ impl PhpAnalyzer {
                 capabilities.push((
                     "fs/read",
                     "File read operation",
-                    func_name,
+                    &func_name,
                     0.8,
                     Criticality::Notable,
                 ));
@@ -462,7 +633,7 @@ impl PhpAnalyzer {
                 capabilities.push((
                     "fs/write",
                     "File write operation",
-                    func_name,
+                    &func_name,
                     0.85,
                     Criticality::Notable,
                 ));
@@ -471,7 +642,7 @@ impl PhpAnalyzer {
                 capabilities.push((
                     "fs/delete",
                     "File/directory deletion",
-                    func_name,
+                    &func_name,
                     0.85,
                     Criticality::Notable,
                 ));
@@ -480,7 +651,7 @@ impl PhpAnalyzer {
                 capabilities.push((
                     "fs/permissions",
                     "File permission change",
-                    func_name,
+                    &func_name,
                     0.85,
                     Criticality::Notable,
                 ));
@@ -489,7 +660,7 @@ impl PhpAnalyzer {
                 capabilities.push((
                     "fs/modify",
                     "File modification",
-                    func_name,
+                    &func_name,
                     0.8,
                     Criticality::Notable,
                 ));
@@ -503,7 +674,7 @@ impl PhpAnalyzer {
                 capabilities.push((
                     "net/http/client",
                     "HTTP client (cURL)",
-                    func_name,
+                    &func_name,
                     0.85,
                     Criticality::Notable,
                 ));
@@ -512,7 +683,7 @@ impl PhpAnalyzer {
                 capabilities.push((
                     "net/socket/create",
                     "Socket creation",
-                    func_name,
+                    &func_name,
                     0.85,
                     Criticality::Suspicious,
                 ));
@@ -521,7 +692,7 @@ impl PhpAnalyzer {
                 capabilities.push((
                     "net/socket/stream",
                     "Stream socket operation",
-                    func_name,
+                    &func_name,
                     0.85,
                     Criticality::Suspicious,
                 ));
@@ -530,7 +701,7 @@ impl PhpAnalyzer {
                 capabilities.push((
                     "net/dns/resolve",
                     "DNS lookup",
-                    func_name,
+                    &func_name,
                     0.8,
                     Criticality::Inert,
                 ));
@@ -544,7 +715,7 @@ impl PhpAnalyzer {
                 capabilities.push((
                     "database/query",
                     "Database query",
-                    func_name,
+                    &func_name,
                     0.8,
                     Criticality::Notable,
                 ));
@@ -553,7 +724,7 @@ impl PhpAnalyzer {
                 capabilities.push((
                     "database/connect",
                     "Database connection",
-                    func_name,
+                    &func_name,
                     0.8,
                     Criticality::Notable,
                 ));
@@ -566,7 +737,7 @@ impl PhpAnalyzer {
             capabilities.push((
                 "net/email/send",
                 "Email sending",
-                func_name,
+                &func_name,
                 0.85,
                 Criticality::Notable,
             ));
@@ -578,7 +749,7 @@ impl PhpAnalyzer {
                 capabilities.push((
                     "crypto/encrypt",
                     "Encryption operation",
-                    func_name,
+                    &func_name,
                     0.8,
                     Criticality::Notable,
                 ));
@@ -587,7 +758,7 @@ impl PhpAnalyzer {
                 capabilities.push((
                     "crypto/hash",
                     "Hashing operation",
-                    func_name,
+                    &func_name,
                     0.7,
                     Criticality::Inert,
                 ));
@@ -601,7 +772,7 @@ impl PhpAnalyzer {
                 capabilities.push((
                     "env/access",
                     "Environment variable access",
-                    func_name,
+                    &func_name,
                     0.7,
                     Criticality::Inert,
                 ));
@@ -610,7 +781,7 @@ impl PhpAnalyzer {
                 capabilities.push((
                     "discovery/system-info",
                     "System information disclosure",
-                    func_name,
+                    &func_name,
                     0.85,
                     Criticality::Notable,
                 ));
@@ -619,7 +790,7 @@ impl PhpAnalyzer {
                 capabilities.push((
                     "discovery/system-info",
                     "OS information gathering",
-                    func_name,
+                    &func_name,
                     0.8,
                     Criticality::Notable,
                 ));
@@ -628,7 +799,7 @@ impl PhpAnalyzer {
                 capabilities.push((
                     "config/php-ini",
                     "PHP configuration manipulation",
-                    func_name,
+                    &func_name,
                     0.75,
                     Criticality::Notable,
                 ));
@@ -644,7 +815,7 @@ impl PhpAnalyzer {
             capabilities.push((
                 "anti-analysis/reflection",
                 "Runtime introspection",
-                func_name,
+                &func_name,
                 0.7,
                 Criticality::Notable,
             ));
@@ -655,7 +826,7 @@ impl PhpAnalyzer {
             capabilities.push((
                 "exec/script/eval",
                 "preg_replace with /e modifier (code execution)",
-                func_name,
+                &func_name,
                 0.95,
                 Criticality::Hostile,
             ));
@@ -931,7 +1102,8 @@ impl PhpAnalyzer {
 
 impl Analyzer for PhpAnalyzer {
     fn analyze(&self, file_path: &Path) -> Result<AnalysisReport> {
-        let content = fs::read_to_string(file_path)?;
+        let bytes = fs::read(file_path).context("Failed to read PHP file")?;
+        let content = String::from_utf8_lossy(&bytes);
         self.analyze_source(file_path, &content)
     }
 
@@ -1084,5 +1256,42 @@ mod tests {
         assert_eq!(report.functions.len(), 2);
         assert!(report.functions.iter().any(|f| f.name == "hello"));
         assert!(report.functions.iter().any(|f| f.name == "goodbye"));
+    }
+
+    #[test]
+    fn test_detect_dynamic_call() {
+        let code = r#"<?php $func = "system"; $func("whoami"); ?>"#;
+        let report = analyze_php_code(code);
+        assert!(report.findings.iter().any(|c| c.id == "exec/dynamic-call"));
+    }
+
+    #[test]
+    fn test_detect_non_ascii_call() {
+        let code = "<?php $ִ('payload'); ?>";
+        let report = analyze_php_code(code);
+        assert!(report
+            .findings
+            .iter()
+            .any(|c| c.id == "anti-analysis/obfuscation/non-ascii-call"));
+    }
+
+    #[test]
+    fn test_detect_long_identifier() {
+        let code = "<?php $unusually_long_variable_name_for_obfuscation = 1; ?>";
+        let report = analyze_php_code(code);
+        assert!(report
+            .findings
+            .iter()
+            .any(|c| c.id == "anti-analysis/obfuscation/long-identifier"));
+    }
+
+    #[test]
+    fn test_lossy_utf8_reading() {
+        let analyzer = PhpAnalyzer::new();
+        let invalid_utf8 = vec![0x3c, 0x3f, 0x70, 0x68, 0x70, 0x20, 0xff, 0xfe, 0xfd, 0x20, 0x3f, 0x3e];
+        let content = String::from_utf8_lossy(&invalid_utf8);
+        let path = PathBuf::from("test_invalid.php");
+        let report = analyzer.analyze_source(&path, &content).unwrap();
+        assert_eq!(report.target.file_type, "php");
     }
 }

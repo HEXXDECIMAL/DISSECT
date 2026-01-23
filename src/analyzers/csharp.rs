@@ -160,8 +160,11 @@ impl CSharpAnalyzer {
             let node = cursor.node();
             if node.kind() == "string_literal" || node.kind() == "verbatim_string_literal" {
                 if let Ok(text) = node.utf8_text(source) {
-                    let s = text.trim_start_matches('"').trim_end_matches('"')
-                        .trim_start_matches("@\"").trim_end_matches('"');
+                    let s = text
+                        .trim_start_matches('"')
+                        .trim_end_matches('"')
+                        .trim_start_matches("@\"")
+                        .trim_end_matches('"');
                     if !s.is_empty() {
                         strings.push(s.to_string());
                     }
@@ -195,7 +198,10 @@ impl CSharpAnalyzer {
             let node = cursor.node();
             let kind = node.kind();
 
-            if kind == "method_declaration" || kind == "constructor_declaration" || kind == "local_function_statement" {
+            if kind == "method_declaration"
+                || kind == "constructor_declaration"
+                || kind == "local_function_statement"
+            {
                 let mut info = FunctionInfo::default();
                 if let Some(name_node) = node.child_by_field_name("name") {
                     if let Ok(name) = name_node.utf8_text(source) {
@@ -234,7 +240,10 @@ impl CSharpAnalyzer {
             }
 
             if cursor.goto_first_child() {
-                let new_depth = if kind == "method_declaration" || kind == "constructor_declaration" || kind == "local_function_statement" {
+                let new_depth = if kind == "method_declaration"
+                    || kind == "constructor_declaration"
+                    || kind == "local_function_statement"
+                {
                     depth + 1
                 } else {
                     depth
@@ -864,7 +873,8 @@ impl CSharpAnalyzer {
 
 impl Analyzer for CSharpAnalyzer {
     fn analyze(&self, file_path: &Path) -> Result<AnalysisReport> {
-        let content = fs::read_to_string(file_path)?;
+        let bytes = fs::read(file_path).context("Failed to read C# file")?;
+        let content = String::from_utf8_lossy(&bytes);
         self.analyze_source(file_path, &content)
     }
 

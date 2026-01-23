@@ -11,8 +11,9 @@ traits:
     attack: "T1140"
     file_types: [all]
     condition:
-      type: string
-      exact: base64_decode
+      type: ast_pattern
+      node_type: function_call_expression
+      pattern: "base64_decode"
 
   - id: anti-static/obfuscation/encoding/base64-encode
     description: Base64 encoding
@@ -20,8 +21,9 @@ traits:
     confidence: 0.6
     file_types: [all]
     condition:
-      type: string
-      exact: base64_encode
+      type: ast_pattern
+      node_type: function_call_expression
+      pattern: "base64_encode"
 
   - id: anti-static/obfuscation/encoding/gzinflate
     description: Gzip decompression (packed payload)
@@ -31,8 +33,9 @@ traits:
     attack: "T1140"
     file_types: [all]
     condition:
-      type: string
-      exact: gzinflate
+      type: ast_pattern
+      node_type: function_call_expression
+      pattern: "gzinflate"
 
   - id: anti-static/obfuscation/encoding/gzuncompress
     description: Zlib decompression (packed payload)
@@ -42,8 +45,9 @@ traits:
     attack: "T1140"
     file_types: [all]
     condition:
-      type: string
-      exact: gzuncompress
+      type: ast_pattern
+      node_type: function_call_expression
+      pattern: "gzuncompress"
 
   - id: anti-static/obfuscation/encoding/gzdecode
     description: Gzip decoding (packed payload)
@@ -53,8 +57,9 @@ traits:
     attack: "T1140"
     file_types: [all]
     condition:
-      type: string
-      exact: gzdecode
+      type: ast_pattern
+      node_type: function_call_expression
+      pattern: "gzdecode"
 
   - id: anti-static/obfuscation/encoding/rot13
     description: ROT13 encoding/decoding
@@ -63,8 +68,9 @@ traits:
     mbc: "B0032"
     file_types: [all]
     condition:
-      type: string
-      exact: str_rot13
+      type: ast_pattern
+      node_type: function_call_expression
+      pattern: "str_rot13"
 
   - id: anti-static/obfuscation/encoding/chr-ord
     description: Character code manipulation
@@ -73,8 +79,10 @@ traits:
     mbc: "B0032"
     file_types: [all]
     condition:
-      type: string
-      regex: "(chr|ord)\\s*\\("
+      type: ast_pattern
+      node_type: function_call_expression
+      pattern: "chr|ord"
+      regex: true
 
   - id: anti-static/obfuscation/encoding/eval
     description: Dynamic code execution via eval
@@ -84,8 +92,9 @@ traits:
     attack: "T1059"
     file_types: [all]
     condition:
-      type: string
-      regex: "\\beval\\s*\\("
+      type: ast_pattern
+      node_type: function_call_expression
+      pattern: "eval"
 
   - id: anti-static/obfuscation/encoding/create-function
     description: Dynamic function creation (deprecated, often malicious)
@@ -95,8 +104,9 @@ traits:
     attack: "T1059"
     file_types: [php]
     condition:
-      type: string
-      exact: create_function
+      type: ast_pattern
+      node_type: function_call_expression
+      pattern: "create_function"
 
   - id: anti-static/obfuscation/encoding/preg-replace-e
     description: preg_replace with /e modifier (code execution)
@@ -106,8 +116,10 @@ traits:
     attack: "T1059"
     file_types: [all]
     condition:
-      type: string
-      regex: "preg_replace\\s*\\(['\"][^'\"]*\\/[a-zA-Z]*e[a-zA-Z]*['\"]"
+      type: ast_pattern
+      node_type: function_call_expression
+      pattern: "preg_replace\\s*\\(['\"][^'\"]*\\/[a-zA-Z]*e[a-zA-Z]*['\"]"
+      regex: true
 
   - id: anti-static/obfuscation/encoding/assert-dynamic
     description: Assert with dynamic code (code execution)
@@ -117,5 +129,152 @@ traits:
     attack: "T1059"
     file_types: [all]
     condition:
-      type: string
-      regex: "assert\\s*\\(\\s*\\$"
+      type: ast_pattern
+      node_type: function_call_expression
+      pattern: "assert"
+
+  - id: anti-static/obfuscation/encoding/xor-string
+    description: XOR string manipulation (obfuscation)
+    criticality: suspicious
+    confidence: 0.8
+    mbc: "B0032"
+    condition:
+      type: ast_pattern
+      node_type: binary_expression
+      pattern: "\\^"
+      regex: true
+
+  - id: anti-static/obfuscation/encoding/xor-loop
+    description: Loop performing XOR on user input (deobfuscation)
+    criticality: hostile
+    confidence: 0.95
+    mbc: "B0032"
+    condition:
+      type: ast_pattern
+      node_type: for_statement
+      pattern: "\\^="
+      regex: true
+
+  - id: anti-static/obfuscation/encoding/strrev
+    description: String reversal (obfuscation)
+    criticality: notable
+    confidence: 0.7
+    mbc: "B0032"
+    condition:
+      type: ast_pattern
+      node_type: function_call_expression
+      pattern: "strrev"
+
+  - id: anti-static/obfuscation/encoding/hex2bin
+    description: Hex to binary conversion (obfuscation)
+    criticality: notable
+    confidence: 0.75
+    mbc: "B0032"
+    condition:
+      type: ast_pattern
+      node_type: function_call_expression
+      pattern: "hex2bin"
+
+  - id: anti-static/obfuscation/encoding/bin2hex
+    description: Binary to hex conversion (obfuscation)
+    criticality: notable
+    confidence: 0.75
+    mbc: "B0032"
+    condition:
+      type: ast_pattern
+      node_type: function_call_expression
+      pattern: "bin2hex"
+
+  - id: anti-static/obfuscation/encoding/substitution-cipher
+    description: Potential substitution cipher (obfuscation)
+    criticality: suspicious
+    confidence: 0.8
+    mbc: "B0032"
+    condition:
+      type: ast_pattern
+      node_type: function_call_expression
+      pattern: "str_replace\\s*\\(\\s*array\\s*\\([^)]+\\)\\s*,\\s*array\\s*\\([^)]+\\)"
+      regex: true
+
+  - id: anti-static/obfuscation/encoding/pack
+    description: Packs data into binary string
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: ast_pattern
+      node_type: function_call_expression
+      pattern: "pack"
+
+  - id: anti-static/obfuscation/encoding/unpack
+    description: Unpacks data from binary string
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: ast_pattern
+      node_type: function_call_expression
+      pattern: "unpack"
+
+  - id: anti-static/obfuscation/encoding/variable-function-call
+    description: Variable function call (obfuscation)
+    criticality: suspicious
+    confidence: 0.8
+    mbc: "B0032"
+    condition:
+      type: ast_pattern
+      node_type: function_call_expression
+      pattern: "^(\\$|\\{).*\\("
+      regex: true
+
+  - id: anti-static/obfuscation/encoding/dynamic-variable-call
+    description: Dynamic variable function call (e.g. ${$v}())
+    criticality: hostile
+    confidence: 0.95
+    condition:
+      type: ast_pattern
+      node_type: function_call_expression
+      pattern: "\\$\\{.*\\}"
+      regex: true
+
+  - id: anti-static/obfuscation/encoding/dynamic-superglobal-call
+    description: Superglobal used as function (obfuscated backdoor)
+    criticality: hostile
+    confidence: 0.98
+    mbc: "B0032"
+    condition:
+      type: ast_pattern
+      node_type: function_call_expression
+      pattern: "\\$_(GET|POST|REQUEST|COOKIE|SERVER)"
+      regex: true
+
+  - id: anti-static/obfuscation/encoding/subscript-function-call
+    description: Subscript used as function (obfuscated backdoor)
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "B0032"
+    condition:
+      type: ast_pattern
+      node_type: function_call_expression
+      pattern: "\\$\\w+\\s*\\[[^]]+\\]\\s*\\("
+      regex: true
+
+  - id: anti-static/obfuscation/encoding/simple-variable-call
+    description: Variable used as function (obfuscated backdoor)
+    criticality: suspicious
+    confidence: 0.8
+    mbc: "B0032"
+    condition:
+      type: ast_pattern
+      node_type: function_call_expression
+      pattern: "\\$\\w+\\s*\\("
+      regex: true
+
+  - id: anti-static/obfuscation/encoding/dynamic-superglobal-simple
+    description: Superglobal used as function (obfuscated backdoor)
+    criticality: hostile
+    confidence: 0.98
+    mbc: "B0032"
+    condition:
+      type: ast_pattern
+      node_type: function_call_expression
+      pattern: "\\$_(GET|POST|REQUEST|COOKIE|SERVER)"
+      regex: true

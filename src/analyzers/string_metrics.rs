@@ -191,7 +191,7 @@ fn calculate_string_entropy(s: &str) -> f32 {
 
 /// Check if string is likely base64-encoded
 fn is_likely_base64(s: &str) -> bool {
-    if s.len() < 16 || s.len() % 4 != 0 {
+    if s.len() < 16 || !s.len().is_multiple_of(4) {
         return false;
     }
 
@@ -217,7 +217,7 @@ fn is_likely_base64(s: &str) -> bool {
 
 /// Check if string is pure hexadecimal
 fn is_hex_string(s: &str) -> bool {
-    if s.len() < 8 || s.len() % 2 != 0 {
+    if s.len() < 8 || !s.len().is_multiple_of(2) {
         return false;
     }
 
@@ -318,7 +318,7 @@ fn is_ip_address(s: &str) -> bool {
     // IPv6 check (contains :: or multiple :)
     if s.contains(':') && !s.contains("://") {
         let colon_count = s.chars().filter(|&c| c == ':').count();
-        if colon_count >= 2 && colon_count <= 7 {
+        if (2..=7).contains(&colon_count) {
             return s.chars().all(|c| c.is_ascii_hexdigit() || c == ':');
         }
     }

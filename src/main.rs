@@ -307,11 +307,13 @@ fn analyze_file(
             analyzer.analyze(path)?
         }
         FileType::Php => {
-            let analyzer = analyzers::php::PhpAnalyzer::new();
+            let analyzer = analyzers::php::PhpAnalyzer::new()
+                .with_capability_mapper(capability_mapper.clone());
             analyzer.analyze(path)?
         }
         FileType::C => {
-            let analyzer = analyzers::c::CAnalyzer::new().with_capability_mapper(capability_mapper);
+            let analyzer = analyzers::c::CAnalyzer::new()
+                .with_capability_mapper(capability_mapper.clone());
             analyzer.analyze(path)?
         }
         FileType::Perl => {
@@ -763,7 +765,8 @@ fn analyze_file_with_shared_mapper(
             analyzer.analyze(path)?
         }
         FileType::Php => {
-            let analyzer = analyzers::php::PhpAnalyzer::new();
+            let analyzer = analyzers::php::PhpAnalyzer::new()
+                .with_capability_mapper((**capability_mapper).clone());
             analyzer.analyze(path)?
         }
         FileType::C => {

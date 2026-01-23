@@ -161,11 +161,17 @@ impl PowerShellAnalyzer {
     ) {
         loop {
             let node = cursor.node();
-            if node.kind() == "expandable_string_literal" || node.kind() == "verbatim_string_literal" {
+            if node.kind() == "expandable_string_literal"
+                || node.kind() == "verbatim_string_literal"
+            {
                 if let Ok(text) = node.utf8_text(source) {
-                    let s = text.trim_start_matches('"').trim_end_matches('"')
-                        .trim_start_matches('\'').trim_end_matches('\'')
-                        .trim_start_matches("@\"").trim_end_matches("\"@");
+                    let s = text
+                        .trim_start_matches('"')
+                        .trim_end_matches('"')
+                        .trim_start_matches('\'')
+                        .trim_end_matches('\'')
+                        .trim_start_matches("@\"")
+                        .trim_end_matches("\"@");
                     if !s.is_empty() {
                         strings.push(s.to_string());
                     }
@@ -235,7 +241,11 @@ impl PowerShellAnalyzer {
             }
 
             if cursor.goto_first_child() {
-                let new_depth = if kind == "function_statement" { depth + 1 } else { depth };
+                let new_depth = if kind == "function_statement" {
+                    depth + 1
+                } else {
+                    depth
+                };
                 self.walk_for_function_info(cursor, source, functions, new_depth);
                 cursor.goto_parent();
             }
@@ -523,7 +533,8 @@ impl PowerShellAnalyzer {
 
 impl Analyzer for PowerShellAnalyzer {
     fn analyze(&self, file_path: &Path) -> Result<AnalysisReport> {
-        let content = fs::read_to_string(file_path)?;
+        let bytes = fs::read(file_path).context("Failed to read PowerShell file")?;
+        let content = String::from_utf8_lossy(&bytes);
         self.analyze_source(file_path, &content)
     }
 

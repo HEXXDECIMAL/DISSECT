@@ -40,3 +40,48 @@ traits:
     condition:
       type: string
       regex: "session_id\\s*\\("
+
+  - id: persistence/php/no-time-limit
+    description: Disables PHP script time limit (webshell indicator)
+    criticality: notable
+    confidence: 0.85
+    condition:
+      type: ast_pattern
+      node_type: function_call_expression
+      pattern: "set_time_limit"
+
+  - id: persistence/php/ignore-abort
+    description: Ignores client abort (webshell indicator)
+    criticality: notable
+    confidence: 0.85
+    condition:
+      type: ast_pattern
+      node_type: function_call_expression
+      pattern: "ignore_user_abort"
+
+  - id: evasion/php/output-buffering
+    description: Uses output buffering (potential evasion)
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: ast_pattern
+      node_type: function_call_expression
+      pattern: "ob_start"
+
+  - id: evasion/php/error-reporting-off
+    description: Disables error reporting (stealth)
+    criticality: notable
+    confidence: 0.8
+    condition:
+      type: ast_pattern
+      node_type: function_call_expression
+      pattern: "error_reporting"
+
+  - id: evasion/php/display-errors-off
+    description: Disables error display (stealth)
+    criticality: notable
+    confidence: 0.8
+    condition:
+      type: ast_pattern
+      node_type: member_call_expression
+      pattern: "ini_set"

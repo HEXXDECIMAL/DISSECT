@@ -300,8 +300,9 @@ impl FileType {
             | FileType::CSharp
             | FileType::PowerShell
             | FileType::C
-            | FileType::PackageJson => true, // package.json can contain executable scripts
-            FileType::Archive | FileType::Unknown => false,
+            | FileType::PackageJson
+            | FileType::Unknown => true, // Treat unknown as potential program for YARA scanning
+            FileType::Archive => false,
         }
     }
 

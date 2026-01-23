@@ -1,5 +1,7 @@
 use crate::syscall_names::{syscall_description, syscall_name};
-use crate::types::{BinaryMetrics, ControlFlowMetrics, Function, FunctionProperties, InstructionAnalysis};
+use crate::types::{
+    BinaryMetrics, ControlFlowMetrics, Function, FunctionProperties, InstructionAnalysis,
+};
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
@@ -551,9 +553,8 @@ impl Radare2Analyzer {
 
                 // Calculate entropy variance
                 let mean = metrics.overall_entropy;
-                let variance: f32 = entropies.iter()
-                    .map(|e| (e - mean).powi(2))
-                    .sum::<f32>() / entropies.len() as f32;
+                let variance: f32 = entropies.iter().map(|e| (e - mean).powi(2)).sum::<f32>()
+                    / entropies.len() as f32;
                 metrics.entropy_variance = variance.sqrt();
             }
 
@@ -574,26 +575,27 @@ impl Radare2Analyzer {
 
             if !r2_functions.is_empty() {
                 // Size metrics
-                let sizes: Vec<u64> = r2_functions.iter()
-                    .filter_map(|f| f.size)
-                    .collect();
+                let sizes: Vec<u64> = r2_functions.iter().filter_map(|f| f.size).collect();
 
                 if !sizes.is_empty() {
-                    metrics.avg_function_size = sizes.iter().sum::<u64>() as f32 / sizes.len() as f32;
+                    metrics.avg_function_size =
+                        sizes.iter().sum::<u64>() as f32 / sizes.len() as f32;
                     metrics.tiny_functions = sizes.iter().filter(|&&s| s < 16).count() as u32;
                     metrics.huge_functions = sizes.iter().filter(|&&s| s > 65536).count() as u32;
                 }
 
                 // Complexity metrics
-                let complexities: Vec<u32> = r2_functions.iter()
-                    .filter_map(|f| f.complexity)
-                    .collect();
+                let complexities: Vec<u32> =
+                    r2_functions.iter().filter_map(|f| f.complexity).collect();
 
                 if !complexities.is_empty() {
-                    metrics.avg_complexity = complexities.iter().sum::<u32>() as f32 / complexities.len() as f32;
+                    metrics.avg_complexity =
+                        complexities.iter().sum::<u32>() as f32 / complexities.len() as f32;
                     metrics.max_complexity = *complexities.iter().max().unwrap_or(&0);
-                    metrics.high_complexity_functions = complexities.iter().filter(|&&c| c > 10).count() as u32;
-                    metrics.very_high_complexity_functions = complexities.iter().filter(|&&c| c > 25).count() as u32;
+                    metrics.high_complexity_functions =
+                        complexities.iter().filter(|&&c| c > 10).count() as u32;
+                    metrics.very_high_complexity_functions =
+                        complexities.iter().filter(|&&c| c > 25).count() as u32;
                 }
 
                 // Control flow metrics
@@ -621,14 +623,17 @@ impl Radare2Analyzer {
                 }
 
                 // Stack metrics
-                let stack_frames: Vec<u32> = r2_functions.iter()
+                let stack_frames: Vec<u32> = r2_functions
+                    .iter()
                     .filter_map(|f| f.stackframe.map(|s| s.max(0) as u32))
                     .collect();
 
                 if !stack_frames.is_empty() {
-                    metrics.avg_stack_frame = stack_frames.iter().sum::<u32>() as f32 / stack_frames.len() as f32;
+                    metrics.avg_stack_frame =
+                        stack_frames.iter().sum::<u32>() as f32 / stack_frames.len() as f32;
                     metrics.max_stack_frame = *stack_frames.iter().max().unwrap_or(&0);
-                    metrics.large_stack_functions = stack_frames.iter().filter(|&&s| s > 1024).count() as u32;
+                    metrics.large_stack_functions =
+                        stack_frames.iter().filter(|&&s| s > 1024).count() as u32;
                 }
             }
         }
@@ -638,9 +643,7 @@ impl Radare2Analyzer {
             metrics.import_count = imports.len() as u32;
 
             // Calculate import name entropy
-            let import_chars: Vec<char> = imports.iter()
-                .flat_map(|i| i.name.chars())
-                .collect();
+            let import_chars: Vec<char> = imports.iter().flat_map(|i| i.name.chars()).collect();
             if !import_chars.is_empty() {
                 metrics.import_entropy = calculate_char_entropy(&import_chars);
             }

@@ -162,9 +162,13 @@ impl LuaAnalyzer {
             let node = cursor.node();
             if node.kind() == "string" {
                 if let Ok(text) = node.utf8_text(source) {
-                    let s = text.trim_start_matches('"').trim_end_matches('"')
-                        .trim_start_matches('\'').trim_end_matches('\'')
-                        .trim_start_matches("[[").trim_end_matches("]]");
+                    let s = text
+                        .trim_start_matches('"')
+                        .trim_end_matches('"')
+                        .trim_start_matches('\'')
+                        .trim_end_matches('\'')
+                        .trim_start_matches("[[")
+                        .trim_end_matches("]]");
                     if !s.is_empty() {
                         strings.push(s.to_string());
                     }
@@ -670,7 +674,8 @@ impl LuaAnalyzer {
 
 impl Analyzer for LuaAnalyzer {
     fn analyze(&self, file_path: &Path) -> Result<AnalysisReport> {
-        let content = fs::read_to_string(file_path)?;
+        let bytes = fs::read(file_path).context("Failed to read Lua file")?;
+        let content = String::from_utf8_lossy(&bytes);
         self.analyze_source(file_path, &content)
     }
 

@@ -45,6 +45,64 @@ traits:
       field: functions.one_liners
       min: 8
 
+  - id: anti-static/obfuscation/code-metrics/php-non-ascii-identifiers
+    description: "Many non-ASCII identifiers (obfuscation)"
+    criticality: suspicious
+    confidence: 0.9
+    condition:
+      type: metrics
+      field: identifiers.avg_entropy
+      min: 0.8
+
+  - id: anti-static/obfuscation/code-metrics/php-high-non-ascii-ratio
+    description: "High non-ASCII byte ratio (packed/obfuscated)"
+    criticality: hostile
+    confidence: 0.95
+    condition:
+      type: metrics
+      field: text.non_ascii_ratio
+      min: 0.5
+
+  - id: anti-static/obfuscation/code-metrics/php-non-ascii-call
+    description: "Function call with non-ASCII name (obfuscation)"
+    criticality: hostile
+    confidence: 0.98
+    condition:
+      type: ast_pattern
+      node_type: function_call_expression
+      pattern: "[^\\x00-\\x7F]"
+      regex: true
+
+  - id: anti-static/obfuscation/code-metrics/php-non-ascii-variable
+    description: "Variable with non-ASCII name (obfuscation)"
+    criticality: hostile
+    confidence: 0.98
+    condition:
+      type: ast_pattern
+      node_type: variable_name
+      pattern: "[^\\x00-\\x7F]"
+      regex: true
+
+  - id: anti-static/obfuscation/code-metrics/php-non-ascii-name
+    description: "Identifier with non-ASCII characters (obfuscation)"
+    criticality: hostile
+    confidence: 0.98
+    condition:
+      type: ast_pattern
+      node_type: name
+      pattern: "[^\\x00-\\x7F]"
+      regex: true
+
+  - id: anti-static/obfuscation/code-metrics/php-non-ascii-subscript
+    description: "Subscript with non-ASCII characters (obfuscation)"
+    criticality: hostile
+    confidence: 0.98
+    condition:
+      type: ast_pattern
+      node_type: subscript_expression
+      pattern: "[^\\x00-\\x7F]"
+      regex: true
+
 composite_rules:
   - id: anti-static/obfuscation/php-webshell-pattern
     description: "PHP webshell obfuscation pattern"

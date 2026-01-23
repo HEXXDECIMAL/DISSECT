@@ -425,8 +425,8 @@ impl CapabilityMapper {
                     eprintln!("   📄 Loading: {}", path.display());
                 }
 
-                let content = fs::read_to_string(path)
-                    .with_context(|| format!("Failed to read {:?}", path))?;
+                let bytes = fs::read(path).with_context(|| format!("Failed to read {:?}", path))?;
+                let content = String::from_utf8_lossy(&bytes);
 
                 let mappings: TraitMappings = serde_yaml::from_str(&content)
                     .with_context(|| format!("Failed to parse YAML in {:?}", path))?;
@@ -598,8 +598,8 @@ impl CapabilityMapper {
 
     /// Load capability mappings from YAML file
     pub fn from_yaml<P: AsRef<Path>>(path: P) -> Result<Self> {
-        let content =
-            fs::read_to_string(path.as_ref()).context("Failed to read capabilities YAML file")?;
+        let bytes = fs::read(path.as_ref()).context("Failed to read capabilities YAML file")?;
+        let content = String::from_utf8_lossy(&bytes);
 
         let mappings: TraitMappings =
             serde_yaml::from_str(&content).context("Failed to parse capabilities YAML")?;

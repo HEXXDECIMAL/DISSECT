@@ -644,7 +644,8 @@ impl TypeScriptAnalyzer {
 
 impl Analyzer for TypeScriptAnalyzer {
     fn analyze(&self, file_path: &Path) -> Result<AnalysisReport> {
-        let content = fs::read_to_string(file_path).context("Failed to read TypeScript file")?;
+        let bytes = fs::read(file_path).context("Failed to read TypeScript file")?;
+        let content = String::from_utf8_lossy(&bytes);
 
         self.analyze_script(file_path, &content)
     }

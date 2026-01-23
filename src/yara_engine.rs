@@ -164,7 +164,8 @@ impl YaraEngine {
         let sources: Vec<_> = rule_files
             .par_iter()
             .filter_map(|path| {
-                let source = fs::read_to_string(path).ok()?;
+                let bytes = fs::read(path).ok()?;
+                let source = String::from_utf8_lossy(&bytes).into_owned();
                 Some((path.clone(), source))
             })
             .collect();
@@ -359,8 +360,9 @@ impl YaraEngine {
 
     /// Compile a single rule file into the compiler
     fn compile_rule_file(&self, compiler: &mut yara_x::Compiler, path: &Path) -> Result<()> {
-        let source = fs::read_to_string(path)
-            .context(format!("Failed to read rule file: {}", path.display()))?;
+        let bytes =
+            fs::read(path).context(format!("Failed to read rule file: {}", path.display()))?;
+        let source = String::from_utf8_lossy(&bytes);
 
         // Extract namespace from path and set it
         let namespace = self.extract_namespace(path);

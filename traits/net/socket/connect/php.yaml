@@ -10,5 +10,6 @@ traits:
     mbc: "C0001"
     attack: "T1071"
     condition:
-      type: string
-      exact: fsockopen
+      type: ast_pattern
+      node_type: function_call_expression
+      pattern: "fsockopen"

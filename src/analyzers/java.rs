@@ -204,7 +204,9 @@ impl JavaAnalyzer {
                     if param_cursor.goto_first_child() {
                         loop {
                             let param = param_cursor.node();
-                            if param.kind() == "formal_parameter" || param.kind() == "spread_parameter" {
+                            if param.kind() == "formal_parameter"
+                                || param.kind() == "spread_parameter"
+                            {
                                 info.param_count += 1;
                                 if let Some(name_node) = param.child_by_field_name("name") {
                                     if let Ok(name) = name_node.utf8_text(source) {
@@ -226,7 +228,8 @@ impl JavaAnalyzer {
             }
 
             if cursor.goto_first_child() {
-                let new_depth = if kind == "method_declaration" || kind == "constructor_declaration" {
+                let new_depth = if kind == "method_declaration" || kind == "constructor_declaration"
+                {
                     depth + 1
                 } else {
                     depth
@@ -691,7 +694,8 @@ impl JavaAnalyzer {
 
 impl Analyzer for JavaAnalyzer {
     fn analyze(&self, file_path: &Path) -> Result<AnalysisReport> {
-        let content = fs::read_to_string(file_path)?;
+        let bytes = fs::read(file_path).context("Failed to read Java file")?;
+        let content = String::from_utf8_lossy(&bytes);
         self.analyze_source(file_path, &content)
     }
 

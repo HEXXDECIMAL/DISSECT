@@ -608,6 +608,29 @@ fn test_syscall_condition_via_eval_condition() {
 }
 
 #[test]
+fn test_truncate_evidence_multibyte() {
+    let s = "ִ payload";
+    // "ִ" is 2 bytes, "" is 3 bytes. Total 5 bytes for first 2 chars.
+    let truncated = truncate_evidence(s, 2);
+    assert_eq!(truncated, "ִ...");
+}
+
+#[test]
+fn test_ast_pattern_php() {
+    let php_code = r#"<?php system("whoami"); ?>"#;
+    let (report, _) = create_test_context();
+    let ctx = EvaluationContext {
+        report: &report,
+        binary_data: php_code.as_bytes(),
+        file_type: FileType::Php,
+        platform: Platform::Linux,
+    };
+
+    let result = eval_ast_pattern("function_call_expression", "system", false, false, &ctx);
+    assert!(result.matched);
+}
+
+#[test]
 fn test_syscall_trait_definition() {
     let (report, data) = create_test_context_with_syscalls();
     let ctx = EvaluationContext {

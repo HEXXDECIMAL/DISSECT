@@ -975,7 +975,8 @@ impl Default for ShellAnalyzer {
 
 impl Analyzer for ShellAnalyzer {
     fn analyze(&self, file_path: &Path) -> Result<AnalysisReport> {
-        let content = fs::read_to_string(file_path).context("Failed to read shell script")?;
+        let bytes = fs::read(file_path).context("Failed to read shell script")?;
+        let content = String::from_utf8_lossy(&bytes);
 
         self.analyze_script(file_path, &content)
     }

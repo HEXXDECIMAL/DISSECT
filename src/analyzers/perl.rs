@@ -130,7 +130,10 @@ impl PerlAnalyzer {
             let node = cursor.node();
             if node.kind() == "identifier" || node.kind() == "scalar_variable" {
                 if let Ok(text) = node.utf8_text(source) {
-                    let name = text.trim_start_matches('$').trim_start_matches('@').trim_start_matches('%');
+                    let name = text
+                        .trim_start_matches('$')
+                        .trim_start_matches('@')
+                        .trim_start_matches('%');
                     if !name.is_empty() {
                         identifiers.push(name.to_string());
                     }
@@ -163,8 +166,11 @@ impl PerlAnalyzer {
             let node = cursor.node();
             if node.kind() == "string_literal" || node.kind() == "interpolated_string" {
                 if let Ok(text) = node.utf8_text(source) {
-                    let s = text.trim_start_matches('"').trim_end_matches('"')
-                        .trim_start_matches('\'').trim_end_matches('\'');
+                    let s = text
+                        .trim_start_matches('"')
+                        .trim_end_matches('"')
+                        .trim_start_matches('\'')
+                        .trim_end_matches('\'');
                     if !s.is_empty() {
                         strings.push(s.to_string());
                     }
@@ -213,7 +219,11 @@ impl PerlAnalyzer {
             }
 
             if cursor.goto_first_child() {
-                let new_depth = if kind == "subroutine_declaration" { depth + 1 } else { depth };
+                let new_depth = if kind == "subroutine_declaration" {
+                    depth + 1
+                } else {
+                    depth
+                };
                 self.walk_for_function_info(cursor, source, functions, new_depth);
                 cursor.goto_parent();
             }
@@ -547,7 +557,8 @@ impl PerlAnalyzer {
 
 impl Analyzer for PerlAnalyzer {
     fn analyze(&self, file_path: &Path) -> Result<AnalysisReport> {
-        let content = fs::read_to_string(file_path)?;
+        let bytes = fs::read(file_path).context("Failed to read Perl file")?;
+        let content = String::from_utf8_lossy(&bytes);
         self.analyze_source(file_path, &content)
     }
 

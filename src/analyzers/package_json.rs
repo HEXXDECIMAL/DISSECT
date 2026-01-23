@@ -993,8 +993,9 @@ impl Default for PackageJsonAnalyzer {
 
 impl Analyzer for PackageJsonAnalyzer {
     fn analyze(&self, file_path: &Path) -> Result<AnalysisReport> {
-        let content = fs::read_to_string(file_path)
-            .context(format!("Failed to read file: {}", file_path.display()))?;
+        let bytes =
+            fs::read(file_path).context(format!("Failed to read file: {}", file_path.display()))?;
+        let content = String::from_utf8_lossy(&bytes);
         self.analyze_package(file_path, &content)
     }
 

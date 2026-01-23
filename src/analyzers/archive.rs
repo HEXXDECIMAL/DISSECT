@@ -1347,7 +1347,8 @@ mod tests {
         // Verify file was extracted
         let extracted_file = extract_dir.join("data.txt");
         assert!(extracted_file.exists(), "Extracted file should exist");
-        let content = fs::read_to_string(&extracted_file).unwrap();
+        let bytes = fs::read(&extracted_file).unwrap();
+        let content = String::from_utf8_lossy(&bytes);
         assert_eq!(content, "secret data");
     }
 }

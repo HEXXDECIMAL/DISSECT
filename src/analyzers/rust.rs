@@ -157,8 +157,11 @@ impl RustAnalyzer {
             let node = cursor.node();
             if node.kind() == "string_literal" || node.kind() == "raw_string_literal" {
                 if let Ok(text) = node.utf8_text(source) {
-                    let s = text.trim_start_matches('"').trim_end_matches('"')
-                        .trim_start_matches("r#\"").trim_end_matches("\"#");
+                    let s = text
+                        .trim_start_matches('"')
+                        .trim_end_matches('"')
+                        .trim_start_matches("r#\"")
+                        .trim_end_matches("\"#");
                     if !s.is_empty() {
                         strings.push(s.to_string());
                     }
@@ -231,7 +234,11 @@ impl RustAnalyzer {
             }
 
             if cursor.goto_first_child() {
-                let new_depth = if kind == "function_item" { depth + 1 } else { depth };
+                let new_depth = if kind == "function_item" {
+                    depth + 1
+                } else {
+                    depth
+                };
                 self.walk_for_function_info(cursor, source, functions, new_depth);
                 cursor.goto_parent();
             }
@@ -696,7 +703,8 @@ impl RustAnalyzer {
 
 impl Analyzer for RustAnalyzer {
     fn analyze(&self, file_path: &Path) -> Result<AnalysisReport> {
-        let content = fs::read_to_string(file_path)?;
+        let bytes = fs::read(file_path).context("Failed to read Rust file")?;
+        let content = String::from_utf8_lossy(&bytes);
         self.analyze_source(file_path, &content)
     }
 

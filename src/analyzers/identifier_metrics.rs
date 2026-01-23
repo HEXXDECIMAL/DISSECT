@@ -98,7 +98,7 @@ pub fn analyze_identifiers(identifiers: &[&str]) -> IdentifierMetrics {
         }
 
         // Numeric suffix (var1, item2, etc.)
-        if len > 1 && s.chars().last().map_or(false, |c| c.is_ascii_digit()) {
+        if len > 1 && s.chars().last().is_some_and(|c| c.is_ascii_digit()) {
             if s.chars().take(len - 1).any(|c| c.is_ascii_alphabetic()) {
                 numeric_suffix += 1;
             }
@@ -220,7 +220,7 @@ fn is_hex_like(s: &str) -> bool {
     let ratio = hex_chars as f32 / s.len() as f32;
 
     // High proportion of hex chars and even length suggests hex encoding
-    ratio > 0.9 && s.len() % 2 == 0
+    ratio > 0.9 && s.len().is_multiple_of(2)
 }
 
 /// Check if string looks like base64-encoded data
@@ -304,17 +304,15 @@ pub fn extract_identifiers_heuristic(content: &str) -> Vec<String> {
         // Build identifier
         if c.is_ascii_alphanumeric() || c == '_' {
             current.push(c);
-        } else {
-            if !current.is_empty() {
-                // Filter out pure numbers and very common keywords
-                let first = current.chars().next().unwrap();
-                if first.is_ascii_alphabetic() || first == '_' {
-                    if !is_common_keyword(&current) {
-                        identifiers.push(current.clone());
-                    }
+        } else if !current.is_empty() {
+            // Filter out pure numbers and very common keywords
+            let first = current.chars().next().unwrap();
+            if first.is_ascii_alphabetic() || first == '_' {
+                if !is_common_keyword(&current) {
+                    identifiers.push(current.clone());
                 }
-                current.clear();
             }
+            current.clear();
         }
         prev_char = c;
     }

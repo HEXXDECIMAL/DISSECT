@@ -233,7 +233,11 @@ impl CAnalyzer {
             }
 
             if cursor.goto_first_child() {
-                let new_depth = if kind == "function_definition" { depth + 1 } else { depth };
+                let new_depth = if kind == "function_definition" {
+                    depth + 1
+                } else {
+                    depth
+                };
                 self.walk_for_function_info(cursor, source, functions, new_depth);
                 cursor.goto_parent();
             }
@@ -1821,7 +1825,8 @@ impl CAnalyzer {
 
 impl Analyzer for CAnalyzer {
     fn analyze(&self, file_path: &Path) -> Result<AnalysisReport> {
-        let content = fs::read_to_string(file_path)?;
+        let bytes = fs::read(file_path).context("Failed to read C file")?;
+        let content = String::from_utf8_lossy(&bytes);
         self.analyze_source(file_path, &content)
     }
 

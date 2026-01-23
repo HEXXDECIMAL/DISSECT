@@ -203,11 +203,12 @@ fn calculate_entropy(s: &str) -> f32 {
 
 /// Check if name has numeric suffix (func1, handler2, etc.)
 fn has_numeric_suffix(name: &str) -> bool {
-    if name.len() < 2 {
+    let chars: Vec<char> = name.chars().collect();
+    if chars.len() < 2 {
         return false;
     }
-    let last = name.chars().last().unwrap();
-    let second_last = name.chars().nth(name.len() - 2).unwrap();
+    let last = chars[chars.len() - 1];
+    let second_last = chars[chars.len() - 2];
     last.is_ascii_digit() && second_last.is_ascii_alphabetic()
 }
 

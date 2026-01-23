@@ -210,7 +210,7 @@ pub fn eval_string(params: &StringParams, ctx: &EvaluationContext) -> ConditionR
     if ctx.report.strings.is_empty()
         || matches!(
             ctx.file_type,
-            FileType::Python | FileType::Ruby | FileType::JavaScript | FileType::Shell
+            FileType::Python | FileType::Ruby | FileType::JavaScript | FileType::Shell | FileType::Php
         )
     {
         if let Ok(content) = std::str::from_utf8(ctx.binary_data) {
@@ -447,6 +447,7 @@ pub fn eval_ast_pattern(
         FileType::Ruby => Some(tree_sitter_ruby::LANGUAGE),
         FileType::Shell => Some(tree_sitter_bash::LANGUAGE),
         FileType::CSharp => Some(tree_sitter_c_sharp::LANGUAGE),
+        FileType::Php => Some(tree_sitter_php::LANGUAGE_PHP),
         _ => None,
     };
 
@@ -480,6 +481,30 @@ pub fn eval_ast_pattern(
 
     let mut evidence = Vec::new();
     let mut cursor = tree.walk();
+
+    if std::env::var("DISSECT_DEBUG").is_ok() {
+        let mut kind_counts = std::collections::HashMap::new();
+        let mut debug_cursor = tree.walk();
+        fn count_kinds(
+            cursor: &mut tree_sitter::TreeCursor,
+            counts: &mut std::collections::HashMap<String, usize>,
+        ) {
+            loop {
+                let kind = cursor.node().kind().to_string();
+                *counts.entry(kind).or_insert(0) += 1;
+                if cursor.goto_first_child() {
+                    count_kinds(cursor, counts);
+                    cursor.goto_parent();
+                }
+                if !cursor.goto_next_sibling() {
+                    break;
+                }
+            }
+        }
+        count_kinds(&mut debug_cursor, &mut kind_counts);
+        eprintln!("[DEBUG] AST node distribution: {:?}", kind_counts);
+    }
+
     walk_ast_for_pattern(
         &mut cursor,
         source.as_bytes(),
@@ -508,6 +533,9 @@ fn walk_ast_for_pattern(
         if node.kind() == target_node_type {
             if let Ok(text) = node.utf8_text(source) {
                 if matcher(text) {
+                    if std::env::var("DISSECT_DEBUG").is_ok() {
+                        eprintln!("[DEBUG] AST Pattern match: kind={}, text={:?}", node.kind(), truncate_evidence(text, 50));
+                    }
                     evidence.push(Evidence {
                         method: "ast_pattern".to_string(),
                         source: "tree-sitter".to_string(),
@@ -550,6 +578,7 @@ pub fn eval_ast_query(query_str: &str, ctx: &EvaluationContext) -> ConditionResu
         FileType::Ruby => tree_sitter_ruby::LANGUAGE.into(),
         FileType::Shell => tree_sitter_bash::LANGUAGE.into(),
         FileType::CSharp => tree_sitter_c_sharp::LANGUAGE.into(),
+        FileType::Php => tree_sitter_php::LANGUAGE_PHP.into(),
         _ => return ConditionResult::no_match(),
     };
 
