@@ -275,7 +275,8 @@ fn analyze_file(
             analyzer.analyze(path)?
         }
         FileType::Rust => {
-            let analyzer = analyzers::rust::RustAnalyzer::new();
+            let analyzer = analyzers::rust::RustAnalyzer::new()
+                .with_capability_mapper(capability_mapper.clone());
             analyzer.analyze(path)?
         }
         FileType::Java => {
@@ -334,6 +335,11 @@ fn analyze_file(
         }
         FileType::PackageJson => {
             let analyzer = analyzers::package_json::PackageJsonAnalyzer::new()
+                .with_capability_mapper(capability_mapper.clone());
+            analyzer.analyze(path)?
+        }
+        FileType::VsixManifest => {
+            let analyzer = analyzers::vsix_manifest::VsixManifestAnalyzer::new()
                 .with_capability_mapper(capability_mapper.clone());
             analyzer.analyze(path)?
         }
@@ -733,7 +739,8 @@ fn analyze_file_with_shared_mapper(
             analyzer.analyze(path)?
         }
         FileType::Rust => {
-            let analyzer = analyzers::rust::RustAnalyzer::new();
+            let analyzer = analyzers::rust::RustAnalyzer::new()
+                .with_capability_mapper((**capability_mapper).clone());
             analyzer.analyze(path)?
         }
         FileType::Java => {
@@ -792,6 +799,16 @@ fn analyze_file_with_shared_mapper(
         }
         FileType::PackageJson => {
             let analyzer = analyzers::package_json::PackageJsonAnalyzer::new()
+                .with_capability_mapper((**capability_mapper).clone());
+            analyzer.analyze(path)?
+        }
+        FileType::VsixManifest => {
+            let analyzer = analyzers::vsix_manifest::VsixManifestAnalyzer::new()
+                .with_capability_mapper((**capability_mapper).clone());
+            analyzer.analyze(path)?
+        }
+        FileType::AppleScript => {
+            let analyzer = analyzers::applescript::AppleScriptAnalyzer::new()
                 .with_capability_mapper((**capability_mapper).clone());
             analyzer.analyze(path)?
         }

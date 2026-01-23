@@ -63,6 +63,8 @@ traits:
       regex: "(?i)\\btrojan\\b"
 
 composite_rules:
+  # NOTE: Simple libc function references are too common in statically linked binaries
+  # Require explicit infection markers or embedded ELF payloads at non-zero offset
   - id: impact/infection/elf-infector-detected
     description: ELF file infector
     criticality: suspicious
@@ -75,20 +77,26 @@ composite_rules:
       source: |
         rule elf_infector {
           strings:
-            $f_readdir = "readdir" fullword
-            $f_fopen = "fopen" fullword
-            $f_ftruncate = "ftruncate" fullword
-            $f_fork = "fork" fullword
-            $f_unlink = "unlink" fullword
-            $f_lseek = "lseek" fullword
-            $f_execve = "execve" fullword
-            $f_opendir = "opendir" fullword
-            $magic = { 7F 45 4C 46 }
+            // Infection-specific strings (required)
             $infect = "infect" nocase
+            $payload = "payload" fullword
+            $virus = "virus" nocase
+            $parasite = "parasite" nocase
+            $inject_elf = "inject" fullword
+            // Embedded ELF magic at non-zero offset indicates payload
+            $embedded_elf = { 7F 45 4C 46 }
+            // Common file-scanning patterns in infectors
+            $scan_elf = /scan.{0,10}elf/i
+            $find_target = /find.{0,10}target/i
           condition:
             uint32(0) == 0x464C457F and
             filesize < 1MB and
-            6 of ($f_*) and ($magic or $infect)
+            (
+              // Explicit infection terminology
+              any of ($infect, $virus, $parasite, $scan_elf, $find_target) or
+              // Embedded ELF payload (not at offset 0)
+              ($embedded_elf and @embedded_elf[1] > 512)
+            )
         }
 
   - id: impact/infection/infected-xor-detected

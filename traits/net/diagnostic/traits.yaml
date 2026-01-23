@@ -13,19 +13,19 @@ traits:
         rule network_troubleshoot {
           strings:
             // Ping/traceroute
-            $ping1 = "ping " ascii
-            $ping2 = "ping6" ascii
-            $trace1 = "traceroute" ascii
-            $trace2 = "tracepath" ascii
-            $trace3 = "mtr" ascii
+            $ping1 = /\bping\s+/ ascii
+            $ping2 = /\bping6\b/ ascii
+            $trace1 = /\btraceroute\b/ ascii
+            $trace2 = /\btracepath\b/ ascii
+            $trace3 = /\bmtr\b/ ascii
             // DNS
-            $dns1 = "nslookup" ascii
-            $dns2 = "dig " ascii
-            $dns3 = "host " ascii
-            // Connection testing
-            $conn1 = "nc " ascii
-            $conn2 = "netcat" ascii
-            $conn3 = "telnet " ascii
+            $dns1 = /\bnslookup\b/ ascii
+            $dns2 = /\bdig\s+/ ascii
+            $dns3 = /\bhost\s+/ ascii
+            // Connection testing - word boundaries prevent matching 'sync' or 'func'
+            $conn1 = /\bnc\s+/ ascii
+            $conn2 = /\bnetcat\b/ ascii
+            $conn3 = /\btelnet\s+/ ascii
           condition:
             any of them
         }

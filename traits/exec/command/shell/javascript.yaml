@@ -1,0 +1,23 @@
+# Command Execution - JavaScript/Node.js
+# ATT&CK: T1059 (Command and Scripting Interpreter)
+
+traits:
+  - id: exec/command/shell/js-execsync
+    description: Executes shell commands synchronously
+    criticality: notable
+    confidence: 1.0
+    file_types: [javascript]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "execSync"
+
+  - id: exec/command/shell/js-spawn
+    description: Spawns a child process
+    criticality: notable
+    confidence: 1.0
+    file_types: [javascript]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "spawn"

@@ -1,0 +1,23 @@
+# Data Exfiltration - Go
+# ATT&CK: T1041
+
+traits:
+  - id: exfil/stealer/go-json-exfil-keys
+    description: Marshals sensitive-looking keys into JSON for exfiltration
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1041"
+    file_types: [go]
+    condition:
+      type: string
+      regex: "\"aiv\"|\"crd\"|\"pwd\""
+
+  - id: exfil/stealer/go-dpaste-exfil
+    description: Exfiltrates data to dpaste service
+    criticality: hostile
+    confidence: 1.0
+    attack: "T1041"
+    file_types: [go]
+    condition:
+      type: string
+      exact: "https://dpaste.com/api/v2/"

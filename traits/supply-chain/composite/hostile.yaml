@@ -123,6 +123,35 @@ traits:
             any of ($discord*) and any of ($sys*)
         }
 
+  # Environment harvesting + exfiltration
+  - id: supply-chain/composite/env-harvest-exfil
+    description: Environment variable harvesting with network exfiltration
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1552.001"
+    file_types: [javascript, typescript, shell, python]
+    condition:
+      type: yara
+      source: |
+        rule env_harvest_exfil {
+          strings:
+            // Environment collection
+            $env1 = "env" ascii fullword
+            $env2 = "printenv" ascii fullword
+            $env3 = "process.env" ascii
+            $env4 = "os.environ" ascii
+            // Exfiltration
+            $exfil1 = "curl" ascii fullword
+            $exfil2 = "wget" ascii fullword
+            $exfil3 = "fetch(" ascii
+            $exfil4 = "requests.post" ascii
+            $exfil5 = "requests.get" ascii
+            $exfil6 = "axios" ascii
+            $post = "POST" ascii
+          condition:
+            any of ($env*) and (any of ($exfil*) or $post)
+        }
+
   # Base64 encode + POST (data exfil prep)
   - id: supply-chain/composite/encode-exfil
     description: Base64/hex encoding with HTTP POST exfiltration

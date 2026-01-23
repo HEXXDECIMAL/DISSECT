@@ -1332,3 +1332,27 @@ pub fn eval_metrics(
         traits: Vec::new(),
     }
 }
+
+/// Evaluate trait reference condition - check if a trait has already been matched
+pub fn eval_trait(id: &str, ctx: &EvaluationContext) -> ConditionResult {
+    let mut evidence = Vec::new();
+    let mut matched = false;
+
+    for finding in &ctx.report.findings {
+        // Support exact match or suffix match (e.g. "net/socket" matches "legitimate/net/socket")
+        if finding.id == id || finding.id.ends_with(&format!("/{}", id)) {
+            matched = true;
+            evidence.extend(finding.evidence.clone());
+        }
+    }
+
+    ConditionResult {
+        matched,
+        evidence,
+        traits: if matched {
+            vec![id.to_string()]
+        } else {
+            Vec::new()
+        },
+    }
+}

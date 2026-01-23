@@ -39,12 +39,10 @@ release: $(OUT_DIR) ## Build in release mode
 test: ## Run all tests (unit + integration)
 	@echo "Running all tests (unit + integration)..."
 	@echo ""
+	@cargo build --quiet
 	cargo test --workspace
 	@echo ""
 	@echo "✓ All tests passed"
-	@echo "  - Unit tests: embedded in src/ modules"
-	@echo "  - Integration tests: tests/cli_integration_test.rs"
-	@echo "  - Directory scan tests: tests/directory_scan_test.rs"
 
 lint: ## Run code formatting and linting checks
 	@echo "Checking formatting..."

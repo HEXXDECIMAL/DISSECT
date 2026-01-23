@@ -828,6 +828,7 @@ impl CapabilityMapper {
             "php" => RuleFileType::Php,
             "csharp" | "cs" => RuleFileType::CSharp,
             "package.json" | "packagejson" => RuleFileType::PackageJson,
+            "applescript" | "scpt" => RuleFileType::AppleScript,
             _ => RuleFileType::All,
         }
     }

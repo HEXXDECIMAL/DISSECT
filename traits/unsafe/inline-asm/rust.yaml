@@ -1,0 +1,23 @@
+# Inline Assembly - Rust
+# MBC: B0006 (Inline Assembly)
+
+traits:
+  - id: unsafe/inline-asm/macro
+    description: Inline assembly macro
+    criticality: notable
+    confidence: 1.0
+    file_types: [rust]
+    condition:
+      type: ast_pattern
+      node_type: macro_invocation
+      pattern: "asm!"
+
+  - id: unsafe/inline-asm/global-macro
+    description: Global inline assembly macro
+    criticality: notable
+    confidence: 1.0
+    file_types: [rust]
+    condition:
+      type: ast_pattern
+      node_type: macro_invocation
+      pattern: "global_asm!"

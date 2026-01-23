@@ -151,6 +151,37 @@ traits:
       type: string
       regex: '(bullethost\.cloud|anonfiles\.com|gofile\.io|transfer\.sh|tmpfiles\.org|catbox\.moe|uguu\.se|pomf\.cat|0x0\.st|file\.io|filedropper\.com)'
 
+  # Cloud storage abuse for payload hosting
+  - id: c2/infrastructure/domain/appwrite-storage
+    description: Appwrite cloud storage (commonly abused for malware payloads)
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1105"
+    file_types: [all]
+    condition:
+      type: string
+      regex: '[a-z0-9-]+\.cloud\.appwrite\.io/v[0-9]+/storage/buckets/[a-z0-9]+/files/'
+
+  - id: c2/infrastructure/domain/supabase-storage
+    description: Supabase storage endpoint (can be abused for payloads)
+    criticality: notable
+    confidence: 0.75
+    attack: "T1105"
+    file_types: [all]
+    condition:
+      type: string
+      regex: '[a-z0-9]+\.supabase\.co/storage/v[0-9]+/'
+
+  - id: c2/infrastructure/domain/firebase-storage
+    description: Firebase storage endpoint (can be abused for payloads)
+    criticality: notable
+    confidence: 0.7
+    attack: "T1105"
+    file_types: [all]
+    condition:
+      type: string
+      regex: 'firebasestorage\.googleapis\.com/v[0-9]+/b/[^/]+/o/'
+
   # PHP collector scripts (common exfil pattern)
   - id: c2/infrastructure/domain/php-collector
     description: Contacts PHP data collection endpoint

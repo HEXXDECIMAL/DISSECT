@@ -11,4 +11,22 @@ traits:
     attack: "T1070.006"
     condition:
       type: string
-      regex: "touch\\s+-[amd]"
+      regex: "touch\\s+-[amdt]"
+
+  - id: evasion/timestomp-touch-specific
+    description: Set specific timestamp via touch -t
+    criticality: suspicious
+    confidence: 0.8
+    mbc: "F0006"
+    attack: "T1070.006"
+    condition:
+      type: yara
+      source: |
+        rule touch_timestamp {
+          strings:
+            $touch_t = /touch\s+-t\s+[0-9]+/ ascii
+            $touch_r = /touch\s+-r\s+/ ascii
+            $touch_d = /touch\s+--date=/ ascii
+          condition:
+            any of them
+        }

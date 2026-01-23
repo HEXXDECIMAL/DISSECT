@@ -224,3 +224,89 @@ traits:
       type: string
       regex: '"version"\\s*:\\s*"202[7-9]\\.|"version"\\s*:\\s*"203'
       search_raw: true
+
+  # Self-dependency (package depends on itself)
+  - id: eco/npm/metadata/self-dependency
+    description: Package depends on itself (circular dependency, often malicious)
+    criticality: suspicious
+    confidence: 0.95
+    file_types: [packagejson]
+    condition:
+      type: yara
+      source: |
+        rule npm_self_dependency {
+          meta:
+            description = "Detects packages that depend on themselves"
+          strings:
+            // Match name field to extract package name, then check dependencies
+            // This pattern catches when the same string appears in both name and dependencies
+            $name_pattern = /"name"\s*:\s*"([^"]+)"/ ascii
+            $deps_pattern = /"dependencies"\s*:\s*\{[^}]*"/ ascii
+          condition:
+            $name_pattern and $deps_pattern and
+            // Check for the package name appearing in dependencies section
+            for any s in (1..#name_pattern) : (
+              @deps_pattern > @name_pattern[s]
+            )
+        }
+
+  # npm URL as homepage/repository (lazy/suspicious)
+  - id: eco/npm/metadata/npm-as-homepage
+    description: Package uses npmjs.com as homepage (lazy metadata, often malicious)
+    criticality: notable
+    confidence: 0.8
+    file_types: [packagejson]
+    condition:
+      type: yara
+      source: |
+        rule npm_url_as_homepage {
+          strings:
+            $homepage = /"homepage"\s*:\s*"https?:\/\/(www\.)?npmjs\.(com|org)\/package\// ascii
+            $repo = /"url"\s*:\s*"https?:\/\/(www\.)?npmjs\.(com|org)\/package\// ascii
+          condition:
+            any of them
+        }
+
+  # Missing repository with install hooks (suspicious combo)
+  - id: eco/npm/metadata/no-repo-with-hooks
+    description: Package has install hooks but no repository URL
+    criticality: suspicious
+    confidence: 0.85
+    file_types: [packagejson]
+    condition:
+      type: yara
+      source: |
+        rule no_repo_install_hooks {
+          strings:
+            $repo1 = /"repository"\s*:/ ascii
+            $repo2 = /"url"\s*:\s*"(git|https?):\/\/(github|gitlab|bitbucket)/ ascii
+            $hook1 = /"preinstall"\s*:/ ascii
+            $hook2 = /"postinstall"\s*:/ ascii
+            $hook3 = /"install"\s*:/ ascii
+          condition:
+            any of ($hook*) and not any of ($repo*)
+        }
+
+  # Generic description with hooks (template malware)
+  - id: eco/npm/metadata/generic-desc-with-hooks
+    description: Generic description combined with install hooks (template malware)
+    criticality: suspicious
+    confidence: 0.8
+    file_types: [packagejson]
+    condition:
+      type: yara
+      source: |
+        rule generic_desc_hooks {
+          strings:
+            // Generic descriptions often used in malware templates
+            $desc1 = "A lightweight" ascii nocase
+            $desc2 = "modern web applications" ascii nocase
+            $desc3 = "universal" ascii nocase
+            $desc4 = "powerful library" ascii nocase
+            $desc5 = "simple and easy" ascii nocase
+            // Install hooks
+            $hook1 = /"preinstall"\s*:/ ascii
+            $hook2 = /"postinstall"\s*:/ ascii
+          condition:
+            2 of ($desc*) and any of ($hook*)
+        }

@@ -818,6 +818,7 @@ dependencies = [
  "predicates",
  "rayon",
  "regex",
+ "roxmltree",
  "serde",
  "serde_json",
  "serde_yaml",

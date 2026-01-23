@@ -1,0 +1,22 @@
+# Shell Configuration - JavaScript/Node.js
+# ATT&CK: T1546.004 (Event Triggered Execution: Unix Shell Configuration Modification)
+
+traits:
+  - id: persistence/shell/js-source-profile
+    description: Sources shell profile files to reload environment
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1546.004"
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: 'source\s+\.(bashrc|bash_profile|profile|zshrc)'
+
+  - id: persistence/shell/js-path-manipulation
+    description: Manually manipulates PATH environment variable
+    criticality: notable
+    confidence: 0.8
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: 'process\.env\.PATH\s*='

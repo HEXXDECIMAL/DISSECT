@@ -122,12 +122,20 @@ traits:
       source: |
         rule e2e_test {
           strings:
-            $cypress = "cypress" ascii
-            $playwright = "playwright" ascii
-            $puppeteer = "puppeteer" ascii
-            $selenium = "selenium" ascii
-            $webdriver = "webdriver" ascii
-            $nightwatch = "nightwatch" ascii
+            $cypress = "require('cypress')" ascii
+            $cypress2 = "from 'cypress'" ascii
+            $cypress3 = "cy." ascii
+            $playwright = "require('playwright')" ascii
+            $playwright2 = "from 'playwright'" ascii
+            $playwright3 = "from '@playwright" ascii
+            $puppeteer = "require('puppeteer')" ascii
+            $puppeteer2 = "from 'puppeteer'" ascii
+            $selenium = "require('selenium" ascii
+            $selenium2 = "from 'selenium" ascii
+            $webdriver = "require('webdriver" ascii
+            $webdriver2 = "from 'webdriver" ascii
+            $nightwatch = "require('nightwatch')" ascii
+            $nightwatch2 = "from 'nightwatch'" ascii
           condition:
             any of them
         }
@@ -139,8 +147,25 @@ traits:
     confidence: 0.95
     file_types: [javascript, typescript]
     condition:
-      type: string
-      regex: "@testing-library|render\\(|screen\\.|fireEvent\\.|userEvent\\."
+      type: yara
+      source: |
+        rule testing_library {
+          strings:
+            $import1 = "@testing-library" ascii
+            $import2 = "from '@testing-library" ascii
+            $import3 = "require('@testing-library" ascii
+            // Testing Library specific methods (not just screen.)
+            $method1 = "screen.getBy" ascii
+            $method2 = "screen.findBy" ascii
+            $method3 = "screen.queryBy" ascii
+            $method4 = "screen.getAllBy" ascii
+            $method5 = "fireEvent." ascii
+            $method6 = "userEvent." ascii
+            $method7 = "render(" ascii
+            $method8 = "waitFor(" ascii
+          condition:
+            any of ($import*) or 2 of ($method*)
+        }
 
   # Test configuration files
   - id: eco/npm/legitimate/test-config

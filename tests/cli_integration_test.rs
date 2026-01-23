@@ -1,9 +1,11 @@
 use predicates::prelude::*;
+
 use std::fs;
 use tempfile::TempDir;
 
 /// Test that the binary runs and shows help
 #[test]
+
 fn test_help_command() {
     assert_cmd::cargo_bin_cmd!("dissect")
         .arg("--help")
@@ -14,6 +16,7 @@ fn test_help_command() {
 
 /// Test that the binary shows version
 #[test]
+
 fn test_version_command() {
     assert_cmd::cargo_bin_cmd!("dissect")
         .arg("--version")
@@ -24,6 +27,7 @@ fn test_version_command() {
 
 /// Test analyze command with nonexistent file
 #[test]
+
 fn test_analyze_nonexistent_file() {
     assert_cmd::cargo_bin_cmd!("dissect")
         .args(["analyze", "/nonexistent/file.bin"])
@@ -34,6 +38,7 @@ fn test_analyze_nonexistent_file() {
 
 /// Test analyze command with a simple shell script
 #[test]
+
 fn test_analyze_shell_script() {
     let temp_dir = TempDir::new().unwrap();
     let script_path = temp_dir.path().join("test.sh");
@@ -49,6 +54,7 @@ fn test_analyze_shell_script() {
 
 /// Test analyze command with JSON output
 #[test]
+
 fn test_analyze_json_output() {
     let temp_dir = TempDir::new().unwrap();
     let script_path = temp_dir.path().join("test.sh");
@@ -64,6 +70,7 @@ fn test_analyze_json_output() {
 
 /// Test analyze command with output to file
 #[test]
+
 fn test_analyze_output_to_file() {
     let temp_dir = TempDir::new().unwrap();
     let script_path = temp_dir.path().join("test.sh");
@@ -92,6 +99,7 @@ fn test_analyze_output_to_file() {
 
 /// Test scan command with empty directory
 #[test]
+
 fn test_scan_empty_directory() {
     let temp_dir = TempDir::new().unwrap();
 
@@ -103,6 +111,7 @@ fn test_scan_empty_directory() {
 
 /// Test scan command with multiple files
 #[test]
+
 fn test_scan_multiple_files() {
     let temp_dir = TempDir::new().unwrap();
     let script1 = temp_dir.path().join("test1.sh");
@@ -121,6 +130,7 @@ fn test_scan_multiple_files() {
 
 /// Test diff command with nonexistent files
 #[test]
+
 fn test_diff_nonexistent_files() {
     assert_cmd::cargo_bin_cmd!("dissect")
         .args(["diff", "/nonexistent/old.bin", "/nonexistent/new.bin"])
@@ -130,6 +140,7 @@ fn test_diff_nonexistent_files() {
 
 /// Test diff command with identical files
 #[test]
+
 fn test_diff_identical_files() {
     let temp_dir = TempDir::new().unwrap();
     let file1 = temp_dir.path().join("file1.sh");
@@ -148,6 +159,7 @@ fn test_diff_identical_files() {
 
 /// Test diff command with different files
 #[test]
+
 fn test_diff_different_files() {
     let temp_dir = TempDir::new().unwrap();
     let file1 = temp_dir.path().join("old.sh");
@@ -164,6 +176,7 @@ fn test_diff_different_files() {
 
 /// Test that missing subcommand fails
 #[test]
+
 fn test_missing_subcommand() {
     assert_cmd::cargo_bin_cmd!("dissect")
         .assert()
@@ -173,6 +186,7 @@ fn test_missing_subcommand() {
 
 /// Test invalid format argument
 #[test]
+
 fn test_invalid_format() {
     let temp_dir = TempDir::new().unwrap();
     let script = temp_dir.path().join("test.sh");
@@ -186,6 +200,7 @@ fn test_invalid_format() {
 
 /// Test verbose flag
 #[test]
+
 fn test_verbose_flag() {
     let temp_dir = TempDir::new().unwrap();
     let script = temp_dir.path().join("test.sh");
@@ -199,6 +214,7 @@ fn test_verbose_flag() {
 
 /// Test analyze with Python file
 #[test]
+
 fn test_analyze_python_file() {
     let temp_dir = TempDir::new().unwrap();
     let py_file = temp_dir.path().join("test.py");
@@ -214,6 +230,7 @@ fn test_analyze_python_file() {
 
 /// Test analyze with JavaScript file
 #[test]
+
 fn test_analyze_javascript_file() {
     let temp_dir = TempDir::new().unwrap();
     let js_file = temp_dir.path().join("test.js");
@@ -229,6 +246,7 @@ fn test_analyze_javascript_file() {
 
 /// Test scan with JSON output format
 #[test]
+
 fn test_scan_json_output() {
     let temp_dir = TempDir::new().unwrap();
     let script = temp_dir.path().join("test.sh");

@@ -44,29 +44,55 @@ impl ElfAnalyzer {
     fn analyze_elf(&self, file_path: &Path, data: &[u8]) -> Result<AnalysisReport> {
         let start = std::time::Instant::now();
 
-        // Parse with goblin
-        let elf = Elf::parse(data)?;
-
-        // Create target info
-        let target = TargetInfo {
+        // Create target info with default/empty values for fields that require parsing
+        let mut target = TargetInfo {
             path: file_path.display().to_string(),
             file_type: "elf".to_string(),
             size_bytes: data.len() as u64,
             sha256: self.calculate_sha256(data),
-            architectures: Some(vec![self.arch_name(&elf)]),
+            architectures: None,
         };
 
         let mut report = AnalysisReport::new(target);
-        let mut tools_used = vec!["goblin".to_string()];
+        let mut tools_used = vec![];
 
-        // Analyze header and structure
-        self.analyze_structure(&elf, &mut report)?;
+        // Attempt to parse with goblin
+        match Elf::parse(data) {
+            Ok(elf) => {
+                tools_used.push("goblin".to_string());
 
-        // Extract dynamic symbols and map to capabilities
-        self.analyze_dynamic_symbols(&elf, data, &mut report)?;
+                // Update architecture now that we have parsed the header
+                report.target.architectures = Some(vec![self.arch_name(&elf)]);
 
-        // Analyze sections and entropy
-        self.analyze_sections(&elf, data, &mut report)?;
+                // Analyze header and structure
+                self.analyze_structure(&elf, &mut report)?;
+
+                // Extract dynamic symbols and map to capabilities
+                self.analyze_dynamic_symbols(&elf, data, &mut report)?;
+
+                // Analyze sections and entropy
+                self.analyze_sections(&elf, data, &mut report)?;
+            }
+            Err(e) => {
+                // Parsing failed - this is a strong indicator of malformed/hostile binary
+                report.findings.push(Finding {
+                    kind: FindingKind::Structural,
+                    id: "anti-analysis/malformed/elf-header".to_string(),
+                    description: format!("Malformed ELF header or section headers: {}", e),
+                    confidence: 1.0,
+                    criticality: Criticality::Hostile,
+                    mbc: Some("B0001".to_string()), // Defense Evasion: Software Packing/Obfuscation
+                    attack: Some("T1027".to_string()), // Obfuscated Files or Information
+                    evidence: vec![],
+                    trait_refs: vec![],
+                });
+
+                report
+                    .metadata
+                    .errors
+                    .push(format!("ELF parse error: {}", e));
+            }
+        }
 
         // Extract strings using language-aware extraction (Go/Rust) with fallback
         report.strings = self.string_extractor.extract_smart(data);
@@ -163,7 +189,7 @@ impl ElfAnalyzer {
             }
         }
 
-        // Evaluate composite rules
+        // Evaluate composite rules (after traits are merged)
         let composite_findings = self
             .capability_mapper
             .evaluate_composite_rules(&report, data);

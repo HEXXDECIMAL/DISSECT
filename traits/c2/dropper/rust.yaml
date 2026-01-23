@@ -1,0 +1,21 @@
+# Dropper - Rust
+# ATT&CK: T1105
+
+traits:
+  - id: c2/dropper/rust-download-exec
+    description: Downloads and executes a file
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1105"
+    file_types: [rust]
+    condition:
+      type: yara
+      source: |
+        rule rust_download_exec {
+          strings:
+            $get = "client.get"
+            $write = ".write(&body)"
+            $spawn = ".spawn()"
+          condition:
+            all of them
+        }

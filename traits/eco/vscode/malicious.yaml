@@ -3,11 +3,30 @@
 # These combine multiple indicators to reduce false positives
 
 traits:
+  # VSCode-specific markers for contextual analysis
+  - id: eco/vscode/marker/api-usage
+    description: Uses VSCode API (extension marker)
+    criticality: inert
+    confidence: 1.0
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule vscode_api_usage {
+          strings:
+            $require = /require\(['"]vscode['"]\)/ ascii
+            $import = /from\s+['"]vscode['"]/ ascii
+            $namespace = "vscode." ascii
+            $activate = "activate" ascii fullword
+          condition:
+            any of them
+        }
+
   # Post-Install Code Execution
   - id: eco/vscode/malicious/post-install-exec
     description: Post-install script execution (dropper pattern)
-    criticality: suspicious
-    confidence: 0.9
+    criticality: hostile
+    confidence: 0.95
     mbc: "B0024"
     attack: "T1059"
     file_types: [javascript, typescript]
@@ -16,109 +35,12 @@ traits:
       source: |
         rule vscode_post_install_exec {
           strings:
-            $activate = "activate"
-            $state1 = "globalState"
-            $state2 = "postInstall"
-            $state3 = "hasRun"
-            $state4 = "firstRun"
-            $exec1 = "child_process"
-            $exec2 = "execAsync"
-            $exec3 = "execSync"
-            $exec4 = ".exec("
+            $activate = "activate" ascii fullword
+            $state1 = "globalState" ascii
+            $state2 = "postInstall" ascii
+            $exec = /exec(Sync|Async)?/ ascii
           condition:
-            $activate and any of ($state*) and any of ($exec*)
-        }
-
-  # Extension Runs External Script
-  - id: eco/vscode/malicious/run-external-script
-    description: Extension executes external script file
-    criticality: malicious
-    confidence: 0.95
-    mbc: "B0024"
-    attack: "T1059"
-    file_types: [javascript, typescript]
-    condition:
-      type: yara
-      source: |
-        rule vscode_run_script {
-          strings:
-            $path1 = "asAbsolutePath"
-            $path2 = "extensionPath"
-            $script1 = ".bat"
-            $script2 = ".cmd"
-            $script3 = ".sh"
-            $script4 = ".ps1"
-            $exec1 = "exec("
-            $exec2 = "execAsync"
-            $exec3 = "spawn("
-          condition:
-            any of ($path*) and any of ($script*) and any of ($exec*)
-        }
-
-  # Hidden Window Execution
-  - id: eco/vscode/malicious/hidden-exec
-    description: Hidden window command execution
-    criticality: suspicious
-    confidence: 0.9
-    mbc: "F0005"
-    attack: "T1564"
-    file_types: [javascript, typescript]
-    condition:
-      type: string
-      exact: "windowsHide: true"
-
-  # Extension with HTTP Exfiltration
-  # IMPORTANT: Requires VSCode-specific markers to avoid FPs on npm packages
-  - id: eco/vscode/malicious/data-exfil
-    description: VSCode extension with data exfiltration pattern
-    criticality: hostile
-    confidence: 0.9
-    mbc: "E1591"
-    attack: "T1041"
-    file_types: [javascript, typescript]
-    condition:
-      type: yara
-      source: |
-        rule vscode_data_exfil {
-          strings:
-            // Must have VSCode-specific markers
-            $vscode1 = "vscode.commands"
-            $vscode2 = "vscode.window"
-            $vscode3 = "vscode.workspace"
-            $vscode4 = "vscode.extensions"
-            $vscode5 = "function activate"
-            $collect1 = "os.hostname"
-            $collect2 = "os.userInfo"
-            $collect3 = "os.platform"
-            $collect4 = "process.env"
-            $collect5 = "networkInterfaces"
-            $http1 = "https.request"
-            $http2 = "POST"
-            $http3 = "fetch("
-            $http4 = "axios.post"
-          condition:
-            any of ($vscode*) and 2 of ($collect*) and any of ($http*)
-        }
-
-  # Obfuscated Extension Code
-  - id: eco/vscode/malicious/obfuscated-extension
-    description: Heavily obfuscated VSCode extension code
-    criticality: suspicious
-    confidence: 0.85
-    mbc: "B0032"
-    attack: "T1027"
-    file_types: [javascript, typescript]
-    condition:
-      type: yara
-      source: |
-        rule vscode_obfuscated {
-          strings:
-            $activate = "function activate"
-            $obf1 = /_0x[0-9a-fA-F]{4,}/
-            $obf2 = "while(!![]){"
-            $obf3 = "push']['shift"
-          condition:
-            $activate and any of ($obf*)
+            $activate and any of ($state*) and $exec
         }
 
   # Extension Credential Theft
@@ -134,79 +56,43 @@ traits:
       source: |
         rule vscode_credential_theft {
           strings:
-            $cred1 = ".ssh"
-            $cred2 = ".aws"
-            $cred3 = ".npmrc"
-            $cred4 = ".gitconfig"
-            $cred5 = "id_rsa"
-            $cred6 = "credentials"
-            $cred7 = ".env"
-            $read1 = "readFileSync"
-            $read2 = "readFile"
-            $send1 = "https.request"
-            $send2 = "POST"
-            $send3 = "fetch("
+            $cred1 = ".ssh" ascii
+            $cred2 = ".aws" ascii
+            $cred3 = ".npmrc" ascii
+            $cred4 = ".env" ascii
+            $read = /read(File|FileSync)/ ascii
+            $send1 = "POST" ascii
+            $send2 = "fetch(" ascii
+            $send3 = "axios" ascii
           condition:
-            any of ($cred*) and any of ($read*) and any of ($send*)
+            any of ($cred*) and $read and any of ($send*)
         }
 
-  # Crypto Wallet Targeting
-  # IMPORTANT: Requires VSCode-specific markers OR file access patterns to avoid FPs on crypto libraries
-  - id: eco/vscode/malicious/crypto-wallet
-    description: VSCode extension targeting crypto wallets
+composite_rules:
+  # Staged Decryption and Execution inside a VSCode Extension
+  - id: eco/vscode/malicious/staged-dropper
+    description: VSCode extension with staged decryption and execution (Dropper)
     criticality: hostile
-    confidence: 0.95
-    mbc: "E1519"
-    attack: "T1555"
-    file_types: [javascript, typescript]
-    condition:
-      type: yara
-      source: |
-        rule vscode_crypto_wallet {
-          strings:
-            // VSCode markers
-            $vscode1 = "vscode.commands"
-            $vscode2 = "vscode.window"
-            $vscode3 = "vscode.workspace"
-            $vscode4 = "function activate"
-            // File access patterns (targeting wallet files)
-            $access1 = "readFileSync"
-            $access2 = "readFile("
-            $access3 = "readdirSync"
-            // Wallet indicators
-            $wallet1 = "metamask"
-            $wallet2 = "exodus"
-            $wallet3 = "phantom"
-            $wallet4 = "wallet.dat"
-            $wallet5 = "keystore"
-            $wallet6 = ".solana"
-            $wallet7 = "Ethereum"
-            $wallet8 = "Chrome/User Data"
-            $wallet9 = "Local Extension Settings"
-          condition:
-            (any of ($vscode*) or any of ($access*)) and any of ($wallet*)
-        }
+    confidence: 0.99
+    mbc: "B0032"
+    attack: "T1027"
+    requires_all:
+      - type: trait
+        id: malware/dropper/js-decrypt-eval
+      - type: trait
+        id: eco/vscode/marker/api-usage
 
-  # Extension Persistence
+  # Extension Persistence via well-known hooks
   - id: eco/vscode/malicious/persistence
     description: Extension establishing persistence
-    criticality: suspicious
-    confidence: 0.85
+    criticality: hostile
+    confidence: 0.95
     mbc: "F0011"
     attack: "T1547"
-    file_types: [javascript, typescript]
-    condition:
-      type: yara
-      source: |
-        rule vscode_persistence {
-          strings:
-            $persist1 = "APPDATA"
-            $persist2 = "Startup"
-            $persist3 = "crontab"
-            $persist4 = "launchd"
-            $persist5 = "systemd"
-            $write1 = "writeFileSync"
-            $write2 = "copyFileSync"
-          condition:
-            any of ($persist*) and any of ($write*)
-        }
+    requires_all:
+      - type: trait
+        id: eco/vscode/marker/api-usage
+      - type: string
+        regex: 'APPDATA|Startup|crontab|launchd|systemd'
+      - type: string
+        regex: 'write(File|FileSync)|copy(File|FileSync)'

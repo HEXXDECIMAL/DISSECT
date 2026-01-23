@@ -14,11 +14,9 @@ traits:
     description: "Profiles the host operating system type"
     confidence: 0.8
     condition:
-      type: ast_query
-      language: python
-      query: |
-        (call function: (attribute attribute: (identifier) @meth))
-        (#match? @meth "^(system|node|machine|uname|getuser)$")
+      type: ast_pattern
+      node_type: call
+      pattern: ".system()"
 
   - id: intel/discover/system/python-platform-machine
     description: "Identifies the host CPU architecture"

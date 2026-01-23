@@ -1,0 +1,16 @@
+# Data Exfiltration Composite Rules
+# ATT&CK: T1041
+
+composite_rules:
+  - id: exfil/stealer/go-crypto-exfil
+    description: Go program with crypto-based exfiltration
+    criticality: hostile
+    confidence: 0.98
+    attack: "T1041"
+    requires_all:
+      - type: trait
+        id: crypto/symmetric/aes/go-cfb-encrypter
+      - type: trait
+        id: net/http/request/go-http-client-do
+      - type: trait
+        id: exfil/stealer/go-json-exfil-keys

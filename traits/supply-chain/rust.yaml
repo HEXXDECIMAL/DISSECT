@@ -1,0 +1,80 @@
+# Rust Supply Chain Attack Patterns
+# ATT&CK: T1195 (Supply Chain Compromise)
+
+traits:
+  - id: supply-chain/rust/suspicious-crate-call
+    description: Call to a suspicious-looking crate (potential typosquat or malicious)
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1195"
+    file_types: [rust]
+    condition:
+      type: yara
+      source: |
+        rule suspicious_crate_call {
+          strings:
+            $c1 = "sha_rust" ascii
+            $c2 = "rust_sha" ascii
+            $c3 = "reqwest_rust" ascii
+            $c4 = "tokio_rust" ascii
+            $c5 = "base64_rust" ascii
+          condition:
+            any of them
+        }
+
+  - id: supply-chain/rust/misspelled-common-words
+    description: Misspelled common words in identifiers (indicator of low quality/malicious)
+    criticality: notable
+    confidence: 0.7
+    file_types: [rust]
+    condition:
+      type: yara
+      source: |
+        rule misspelled_identifiers {
+          strings:
+            $m1 = "filte_var" ascii
+            $m2 = "connecion" ascii
+            $m3 = "payloaad" ascii
+            $m4 = "exfiltrat" ascii
+          condition:
+            any of them
+        }
+
+  - id: supply-chain/rust/dummy-keys-hashmap
+    description: Usage of dummy keys in a HashMap (potential test/placeholder for malicious data)
+    criticality: notable
+    confidence: 0.6
+    file_types: [rust]
+    condition:
+      type: string
+      regex: "dummy_key|dummy_value"
+
+  - id: supply-chain/rust/internal-lib-pattern
+    description: Generic indicator of legitimate library code (traits, structs, impls)
+    criticality: inert
+    confidence: 0.5
+    file_types: [rust]
+    condition:
+      type: yara
+      source: |
+        rule rust_library_patterns {
+          strings:
+            $s1 = "pub struct " ascii
+            $s2 = "pub enum " ascii
+            $s3 = "impl " ascii
+            $s4 = "pub trait " ascii
+          condition:
+            2 of them
+        }
+
+composite_rules:
+  - id: supply-chain/rust/trojanized-lib
+    description: Potential trojanized library (legitimate library code + suspicious crate calls)
+    criticality: hostile
+    confidence: 0.85
+    attack: "T1195.001"
+    requires_all:
+      - type: trait
+        id: supply-chain/rust/internal-lib-pattern
+      - type: trait
+        id: supply-chain/rust/suspicious-crate-call

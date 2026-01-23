@@ -1,0 +1,28 @@
+# C2 Trigger Mechanisms
+# Detects out-of-band triggers for malicious activity
+
+traits:
+  # ICMP Magic Packet Trigger
+  - id: c2/trigger/icmp-magic-packet
+    description: Detects ICMP packet inspection for magic values (C2 trigger)
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1205.001"
+    file_types: [c, go, python]
+    condition:
+      type: yara
+      source: |
+        rule icmp_magic_trigger {
+          strings:
+            $icmp_hdr = "struct icmphdr" ascii
+            $icmp_rcv = "icmp_rcv" ascii
+            $magic1 = "1337" ascii
+            $magic2 = "0x539" ascii
+            $magic3 = "MAGIC" ascii nocase
+            $trigger1 = "trigger" ascii nocase
+            $trigger2 = "activate" ascii nocase
+            $trigger3 = "revshell" ascii nocase
+            $icmp_type = "ICMP_ECHO" ascii
+          condition:
+            ($icmp_hdr or $icmp_rcv) and any of ($magic*) and any of ($trigger*, $icmp_type)
+        }

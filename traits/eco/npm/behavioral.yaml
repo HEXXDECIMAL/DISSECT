@@ -280,3 +280,34 @@ traits:
             filesize > 500 and filesize < 5000 and not any of ($func, $arrow, $class)
         }
 
+composite_rules:
+  # npm package with interpreter dropper (hostile combination)
+  - id: eco/npm/behavioral/interpreter-dropper-package
+    description: npm package that downloads and executes via external interpreter
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1195.002"
+    mbc: "B0024"
+    file_types: [javascript, typescript]
+    requires_any:
+      - type: trait
+        id: python-standalone
+      - type: trait
+        id: node-standalone
+    requires_all:
+      - type: string
+        regex: "spawn\\(|exec\\("
+
+  # Obfuscated npm dropper with install hook
+  - id: eco/npm/behavioral/obfuscated-dropper
+    description: npm package with obfuscated code and dropper behavior
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1195.002"
+    file_types: [javascript, typescript]
+    requires_all:
+      - type: trait
+        id: hex-url-array
+      - type: string
+        regex: "require\\(['\"]child_process['\"]\\)"
+

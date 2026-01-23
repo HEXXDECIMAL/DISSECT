@@ -89,19 +89,25 @@ impl PythonAnalyzer {
         let metrics = self.compute_metrics(&root, content);
         report.metrics = Some(metrics);
 
-        // Evaluate trait definitions and composite rules (includes inline YARA)
+        // Evaluate trait definitions first
         let trait_findings = self
             .capability_mapper
             .evaluate_traits(&report, content.as_bytes());
+
+        // Add trait findings to report immediately so composite rules can see them
+        for f in trait_findings {
+            if !report.findings.iter().any(|existing| existing.id == f.id) {
+                report.findings.push(f);
+            }
+        }
+
+        // Now evaluate composite rules (which can reference the traits above)
         let composite_findings = self
             .capability_mapper
             .evaluate_composite_rules(&report, content.as_bytes());
 
-        // Add all findings from trait evaluation
-        for f in trait_findings
-            .into_iter()
-            .chain(composite_findings.into_iter())
-        {
+        // Add composite findings
+        for f in composite_findings {
             if !report.findings.iter().any(|existing| existing.id == f.id) {
                 report.findings.push(f);
             }

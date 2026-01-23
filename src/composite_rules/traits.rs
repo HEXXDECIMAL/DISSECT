@@ -9,7 +9,7 @@ use super::evaluators::{
     eval_ast_pattern, eval_ast_query, eval_exports_count, eval_import_combination,
     eval_imports_count, eval_metrics, eval_section_entropy, eval_section_ratio, eval_string,
     eval_string_count, eval_structure, eval_symbol, eval_symbol_or_string, eval_syscall,
-    eval_yara_inline, eval_yara_match,
+    eval_trait, eval_yara_inline, eval_yara_match,
 };
 use super::types::{default_file_types, default_platforms, FileType, Platform};
 use crate::types::{Criticality, Evidence, Finding, FindingKind};
@@ -142,14 +142,7 @@ impl TraitDefinition {
                 eval_imports_count(*min, *max, filter.as_ref(), ctx)
             }
             Condition::ExportsCount { min, max } => eval_exports_count(*min, *max, ctx),
-            Condition::Trait { .. } => {
-                // Traits cannot reference other traits in their definition
-                ConditionResult {
-                    matched: false,
-                    evidence: Vec::new(),
-                    traits: Vec::new(),
-                }
-            }
+            Condition::Trait { id } => eval_trait(id, ctx),
             Condition::AstPattern {
                 node_type,
                 pattern,
@@ -483,14 +476,7 @@ impl CompositeTrait {
                 self.eval_imports_count(*min, *max, filter.as_ref(), ctx)
             }
             Condition::ExportsCount { min, max } => self.eval_exports_count(*min, *max, ctx),
-            Condition::Trait { .. } => {
-                // Trait conditions are evaluated separately via TraitMapper
-                ConditionResult {
-                    matched: false,
-                    evidence: Vec::new(),
-                    traits: Vec::new(),
-                }
-            }
+            Condition::Trait { id } => eval_trait(id, ctx),
             Condition::AstPattern {
                 node_type,
                 pattern,

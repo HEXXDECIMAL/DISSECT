@@ -129,6 +129,65 @@ traits:
             ($hide_pid or $hidden_proc) or (3 of ($proc*))
         }
 
+  # Dynamic linker hook symbol (_dlfcn_hook)
+  # This glibc internal symbol indicates dynamic linker hooking capability
+  - id: rootkit/userspace/dlfcn-hook-symbol
+    description: Contains _dlfcn_hook symbol (dynamic linker hook)
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "F0015"
+    attack: "T1574.006"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "_dlfcn_hook"
+
+  # ld.so.preload file path (rootkit installation target)
+  - id: rootkit/userspace/ld-so-preload-file
+    description: References /etc/ld.so.preload file
+    criticality: hostile
+    confidence: 0.9
+    mbc: "F0015"
+    attack: "T1574.006"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "/etc/ld.so.preload"
+
+  # Backup ld.so pattern (rootkit hijacking original loader)
+  - id: rootkit/userspace/ld-backup-pattern
+    description: Dynamic linker backup/restore pattern
+    criticality: hostile
+    confidence: 0.9
+    mbc: "F0015"
+    attack: "T1574.006"
+    file_types: [elf]
+    condition:
+      type: yara
+      source: |
+        rule ld_backup_pattern {
+          strings:
+            $backup_ld = "backup_ld" ascii nocase
+            $orig_ld = "orig_ld" ascii nocase
+            $real_ld = "real_ld" ascii nocase
+            $ld_so_backup = /ld[\-_\.]so[\.\-_]?bak/ ascii nocase
+            $ld_backup_file = ".backup_ld.so" ascii
+          condition:
+            any of them
+        }
+
+  # __libc_dlopen_mode (internal glibc dynamic loading)
+  - id: rootkit/userspace/libc-dlopen-mode
+    description: Uses __libc_dlopen_mode (internal glibc loader)
+    criticality: suspicious
+    confidence: 0.8
+    mbc: "F0015"
+    attack: "T1574.006"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "__libc_dlopen_mode"
+
 composite_rules:
   # Full LD_PRELOAD rootkit
   - id: rootkit/userspace/ld-preload-rootkit
@@ -143,3 +202,22 @@ composite_rules:
         id: rootkit/userspace/libc-hook-targets
       - type: trait
         id: rootkit/userspace/proc-hiding
+
+  # LD_PRELOAD installation rootkit
+  - id: rootkit/userspace/ld-preload-installer
+    description: LD_PRELOAD rootkit installer (modifies ld.so.preload)
+    criticality: hostile
+    confidence: 0.95
+    mbc: "F0015"
+    attack: "T1574.006"
+    file_types: [elf]
+    requires_all:
+      - type: trait
+        id: rootkit/userspace/ld-so-preload-file
+    requires_any:
+      - type: trait
+        id: rootkit/userspace/ld-backup-pattern
+      - type: trait
+        id: rootkit/userspace/libc-dlopen-mode
+      - type: trait
+        id: rootkit/userspace/dlsym-rtld-next

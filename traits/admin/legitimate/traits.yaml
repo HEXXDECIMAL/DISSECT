@@ -42,12 +42,14 @@ traits:
             $cron3 = "/etc/cron.d/" ascii
             $cron4 = "/etc/crontab" ascii
             $cron5 = "/var/spool/cron" ascii
-            // Legitimate scheduling
-            $at1 = "at " ascii
-            $at2 = "atq" ascii
-            $at3 = "batch" ascii
+            // Legitimate scheduling - using word boundaries and common shell patterns
+            $at1 = /\bat\s+[-+\d]/ ascii
+            $at2 = /\bat\s+now/ ascii
+            $at3 = /\bat\s+\w+/ ascii
+            $atq = /\batq\b/ ascii
+            $batch = /\bbatch\b/ ascii
           condition:
-            any of them
+            any of ($cron*) or any of ($at*) or $atq or $batch
         }
 
   # Legitimate package management

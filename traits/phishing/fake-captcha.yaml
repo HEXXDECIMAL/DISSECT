@@ -1,0 +1,45 @@
+# Fake Captcha / Social Engineering Patterns
+# Detects implementations of fake verification UI used for phishing or clocking
+
+traits:
+  - id: phishing/fake-captcha/cloudflare-turnstile
+    description: Fake Cloudflare Turnstile implementation (social engineering)
+    criticality: hostile
+    confidence: 0.95
+    mbc: "B0021"
+    attack: "T1204.001"
+    file_types: [javascript, typescript, html]
+    condition:
+      type: yara
+      source: |
+        rule fake_cloudflare_captcha {
+          strings:
+            $s1 = "Verify you are human" ascii nocase
+            $s2 = "completing the action below" ascii
+            $s3 = "cloudflare.com/products/turnstile" ascii
+            $s4 = "Success!" ascii
+            $s5 = "Verifying..." ascii
+            $spinner = "spinner-i" ascii
+            $checkbox = "vfclick" ascii
+          condition:
+            3 of ($s*) or ($s1 and ($spinner or $checkbox))
+        }
+
+  - id: phishing/fake-captcha/recaptcha
+    description: Fake Google reCAPTCHA implementation
+    criticality: hostile
+    confidence: 0.9
+    mbc: "B0021"
+    attack: "T1204.001"
+    file_types: [javascript, typescript, html]
+    condition:
+      type: yara
+      source: |
+        rule fake_recaptcha {
+          strings:
+            $s1 = "I'm not a robot" ascii nocase
+            $s2 = "recaptcha-checkbox" ascii
+            $s3 = "google.com/recaptcha" ascii
+          condition:
+            all of them
+        }

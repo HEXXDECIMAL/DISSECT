@@ -1,0 +1,13 @@
+# Process Masquerading - Rust
+# ATT&CK: T1036
+
+traits:
+  - id: evasion/masquerade/process/rust-360-check
+    description: Checks for 360 Safe Tray (AV evasion)
+    criticality: suspicious
+    confidence: 1.0
+    attack: "T1036"
+    file_types: [rust]
+    condition:
+      type: string
+      exact: "qhsafetray.exe"

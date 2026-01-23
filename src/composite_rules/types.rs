@@ -40,6 +40,7 @@ pub enum FileType {
     Php,
     CSharp,
     PackageJson,
+    AppleScript,
 }
 
 /// Default platforms for rules (all platforms)

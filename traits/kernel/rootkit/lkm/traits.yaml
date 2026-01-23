@@ -4,9 +4,9 @@
 # ATT&CK: T1014 (Rootkit), T1068 (Exploitation for Privilege Escalation)
 
 traits:
-  # ============================================================
+  # ============================================================ 
   # KERNEL MODULE HEADERS
-  # ============================================================
+  # ============================================================ 
 
   - id: kernel/rootkit/kernel-module-header
     description: Linux kernel module header (loadable kernel module)
@@ -118,9 +118,9 @@ traits:
       node_type: preproc_include
       pattern: "ftrace_helper"
 
-  # ============================================================
+  # ============================================================ 
   # KERNEL FUNCTION CALLS
-  # ============================================================
+  # ============================================================ 
 
   - id: kernel/rootkit/kallsyms-lookup
     description: Kernel symbol lookup (rootkit indicator)
@@ -225,9 +225,9 @@ traits:
       node_type: call_expression
       pattern: "copy_to_user"
 
-  # ============================================================
+  # ============================================================ 
   # MODULE MACROS
-  # ============================================================
+  # ============================================================ 
 
   - id: kernel/rootkit/module-license-macro
     description: Kernel module license declaration
@@ -273,9 +273,9 @@ traits:
       node_type: call_expression
       pattern: "for_each_process"
 
-  # ============================================================
+  # ============================================================ 
   # DECLARATIONS / STRUCTURES
-  # ============================================================
+  # ============================================================ 
 
   - id: kernel/rootkit/syscall-table-decl
     description: Syscall table pointer (syscall hooking)
@@ -333,9 +333,9 @@ traits:
       node_type: declaration
       pattern: "pt_regs"
 
-  # ============================================================
+  # ============================================================ 
   # EXPRESSION PATTERNS
-  # ============================================================
+  # ============================================================ 
 
   - id: kernel/rootkit/syscall-number-ref
     description: Direct syscall number reference (syscall hooking)
@@ -381,9 +381,9 @@ traits:
       node_type: field_expression
       pattern: "THIS_MODULE"
 
-  # ============================================================
+  # ============================================================ 
   # COMMENT/METADATA DETECTION
-  # ============================================================
+  # ============================================================ 
 
   - id: kernel/rootkit/rootkit-mention-comment
     description: Code explicitly mentions rootkit
@@ -444,9 +444,9 @@ traits:
       regex: true
       case_insensitive: true
 
-  # ============================================================
+  # ============================================================ 
   # FUNCTION NAMING PATTERNS
-  # ============================================================
+  # ============================================================ 
 
   - id: kernel/rootkit/hide-function-name
     description: Function name suggests hiding capability
@@ -472,9 +472,9 @@ traits:
       regex: true
       case_insensitive: true
 
-  # ============================================================
+  # ============================================================ 
   # INLINE ASSEMBLY
-  # ============================================================
+  # ============================================================ 
 
   - id: kernel/rootkit/asm-cr0-manipulation
     description: Inline assembly manipulating CR0 register
@@ -498,9 +498,9 @@ traits:
       pattern: "int.*0x80|syscall|sysenter"
       regex: true
 
-  # ============================================================
+  # ============================================================ 
   # DIRECTORY ENTRY MANIPULATION (FILE/PROCESS HIDING)
-  # ============================================================
+  # ============================================================ 
 
   - id: kernel/rootkit/d-reclen-manipulation
     description: Directory entry record length manipulation (file hiding)
@@ -556,9 +556,9 @@ traits:
       node_type: call_expression
       pattern: "memcmp"
 
-  # ============================================================
+  # ============================================================ 
   # MODULE HIDING TECHNIQUES
-  # ============================================================
+  # ============================================================ 
 
   - id: kernel/rootkit/sect-attrs-removal
     description: Module section attributes removal (hide module info)
@@ -594,9 +594,9 @@ traits:
       node_type: call_expression
       pattern: "kfree"
 
-  # ============================================================
+  # ============================================================ 
   # SYSCALL HOOKING INFRASTRUCTURE
-  # ============================================================
+  # ============================================================ 
 
   - id: kernel/rootkit/asmlinkage-decl
     description: Assembly linkage declaration (syscall calling convention)
@@ -667,9 +667,9 @@ traits:
       node_type: field_expression
       pattern: "->si"
 
-  # ============================================================
+  # ============================================================ 
   # KERNEL STRUCTURE TRAVERSAL
-  # ============================================================
+  # ============================================================ 
 
   - id: kernel/rootkit/current-files-access
     description: Current process file table access
@@ -748,9 +748,9 @@ traits:
       node_type: call_expression
       pattern: "MAJOR"
 
-  # ============================================================
+  # ============================================================ 
   # USER/KERNEL BOUNDARY
-  # ============================================================
+  # ============================================================ 
 
   - id: kernel/rootkit/user-annotation
     description: __user annotation (kernel/userspace boundary marker)
@@ -774,9 +774,9 @@ traits:
       node_type: call_expression
       pattern: "GFP_KERNEL"
 
-  # ============================================================
+  # ============================================================ 
   # MODULE LIFECYCLE
-  # ============================================================
+  # ============================================================ 
 
   - id: kernel/rootkit/init-attribute
     description: __init module initialization attribute
@@ -833,9 +833,9 @@ traits:
       node_type: string_literal
       pattern: "Dual BSD/GPL"
 
-  # ============================================================
+  # ============================================================ 
   # SIGNAL-BASED BACKDOOR CONTROL
-  # ============================================================
+  # ============================================================ 
 
   - id: kernel/rootkit/custom-signal-define
     description: Custom signal definition (backdoor trigger)
@@ -860,9 +860,9 @@ traits:
       pattern: "sig"
       case_insensitive: true
 
-  # ============================================================
+  # ============================================================ 
   # TASK/PROCESS MANIPULATION
-  # ============================================================
+  # ============================================================ 
 
   - id: kernel/rootkit/task-flags-manipulation
     description: Task flags manipulation (process hiding via PF_INVISIBLE)
@@ -912,9 +912,9 @@ traits:
       pattern: "^current$"
       regex: true
 
-  # ============================================================
+  # ============================================================ 
   # CREDENTIAL MANIPULATION
-  # ============================================================
+  # ============================================================ 
 
   - id: kernel/rootkit/uid-zero-assign
     description: UID set to zero (root privilege)
@@ -954,9 +954,9 @@ traits:
       pattern: "euid|egid|suid|sgid|fsuid|fsgid"
       regex: true
 
-  # ============================================================
+  # ============================================================ 
   # COMPILER/MEMORY ORDERING
-  # ============================================================
+  # ============================================================ 
 
   - id: kernel/rootkit/force-order-variable
     description: __force_order variable (prevent CR0 write reordering)
@@ -979,9 +979,9 @@ traits:
       node_type: asm_statement
       pattern: "volatile"
 
-  # ============================================================
+  # ============================================================ 
   # GETDENTS HOOKING SPECIFIC
-  # ============================================================
+  # ============================================================ 
 
   - id: kernel/rootkit/getdents-hook-function
     description: getdents hook function (directory listing interception)
@@ -1018,9 +1018,9 @@ traits:
       node_type: subscript_expression
       pattern: "__NR_kill"
 
-  # ============================================================
+  # ============================================================ 
   # SUSPICIOUS COMMENT PATTERNS
-  # ============================================================
+  # ============================================================ 
 
   - id: kernel/rootkit/corruption-mention-comment
     description: Code mentions corruption/corrupting
@@ -1112,9 +1112,9 @@ traits:
       pattern: "covert"
       case_insensitive: true
 
-  # ============================================================
+  # ============================================================ 
   # OBFUSCATED NAMING PATTERNS
-  # ============================================================
+  # ============================================================ 
 
   - id: kernel/rootkit/random-prefix-function
     description: Function with random-looking prefix (obfuscation)
@@ -1138,9 +1138,9 @@ traits:
       pattern: "^__[a-z]+"
       regex: true
 
-  # ============================================================
+  # ============================================================ 
   # RETURN VALUE MANIPULATION
-  # ============================================================
+  # ============================================================ 
 
   - id: kernel/rootkit/esrch-return
     description: Return -ESRCH (no such process - hiding indicator)
@@ -1164,3 +1164,81 @@ traits:
       node_type: return_statement
       pattern: "-E[A-Z]+"
       regex: true
+
+  # ============================================================ 
+  # KERNEL MODULE LOADING (FILELESS)
+  # ============================================================ 
+
+  - id: kernel/rootkit/fileless-lkm-loading
+    description: Fileless kernel module loading (memfd_create + finit_module)
+    criticality: hostile
+    confidence: 1.0
+    attack: "T1620"
+    condition:
+      type: yara
+      source: |
+        rule fileless_lkm_loading {
+          strings:
+            $memfd = "memfd_create" ascii
+            $finit = "finit_module" ascii
+            $sys_memfd = "SYS_memfd_create" ascii
+            $sys_finit = "SYS_finit_module" ascii
+          condition:
+            (any of ($memfd, $sys_memfd)) and (any of ($finit, $sys_finit))
+        }
+
+  # ============================================================ 
+  # MEMORY PROTECTION BYPASS (PTE MANIPULATION)
+  # ============================================================ 
+
+  - id: kernel/rootkit/pte-manipulation
+    description: Direct PTE manipulation to bypass memory protection
+    criticality: hostile
+    confidence: 0.95
+    file_types: [c]
+    condition:
+      type: yara
+      source: |
+        rule pte_manipulation {
+          strings:
+            $lookup = "lookup_address" ascii
+            $rw = "_PAGE_RW" ascii
+            $nx = "_PAGE_NX" ascii
+          condition:
+            $lookup and ($rw or $nx)
+        }
+
+  # ============================================================ 
+  # ELF BINARY PATCHING
+  # ============================================================ 
+
+  - id: kernel/rootkit/elf-patching
+    description: ELF binary structural patching (Infection)
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1542.001"
+    file_types: [c]
+    condition:
+      type: yara
+      source: |
+        rule elf_patching {
+          strings:
+            $elf1 = "Elf64_Ehdr" ascii
+            $elf2 = "Elf64_Shdr" ascii
+            $elf3 = "Elf64_Phdr" ascii
+            $entry = "e_entry" ascii
+            $patch = "patch" ascii nocase
+          condition:
+            all of ($elf*) and ($entry or $patch)
+        }
+composite_rules:
+  # Advanced LKM Rootkit Flow
+  - id: kernel/rootkit/advanced-lkm-rootkit
+    description: Advanced LKM rootkit with fileless loading or PTE manipulation
+    criticality: hostile
+    confidence: 1.0
+    requires_any:
+      - type: trait
+        id: kernel/rootkit/fileless-lkm-loading
+      - type: trait
+        id: kernel/rootkit/pte-manipulation

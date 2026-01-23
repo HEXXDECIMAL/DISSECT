@@ -1,0 +1,148 @@
+# Kernel Anti-Forensics and Deception
+# Detects real-time sanitization of kernel logs, audit records, and forensic data
+
+traits:
+  # Kernel Taint Erasure
+  - id: evasion/anti-forensics/kernel-taint-reset
+    description: Resets kernel tainted_mask to hide out-of-tree modules
+    criticality: hostile
+    confidence: 1.0
+    attack: "T1562.001"
+    file_types: [c]
+    condition:
+      type: yara
+      source: |
+        rule kernel_taint_reset {
+          strings:
+            $s1 = "tainted_mask" ascii
+            $s2 = "taint_mask" ascii
+          condition:
+            any of them
+        }
+
+  # Kernel Taint Erasure (AST)
+  - id: evasion/anti-forensics/kernel-taint-assign
+    description: Direct assignment to kernel taint mask (structural)
+    criticality: hostile
+    confidence: 1.0
+    file_types: [c]
+    condition:
+      type: ast_pattern
+      node_type: assignment_expression
+      pattern: "*taint_mask_ptr = 0"
+
+  # Real-time Log Sanitization
+  - id: evasion/anti-forensics/log-sanitization
+    description: Real-time filtering of dmesg or kmsg output
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1562.001"
+    file_types: [c]
+    condition:
+      type: yara
+      source: |
+        rule log_sanitization {
+          strings:
+            $f1 = "filter_kmsg" ascii
+            $f2 = "filter_taint" ascii
+            $f3 = "sanitize_log" ascii
+            $k1 = "/dev/kmsg" ascii
+            $k2 = "do_syslog" ascii
+            // Singularity specific keywords filtered in logs
+            $s1 = "singularity" ascii nocase
+            $s2 = "ftrace" ascii nocase
+            $s3 = "taint" ascii nocase
+          condition:
+            ($k1 or $k2) and any of ($f*) and any of ($s*)
+        }
+
+  # TaskStats Forensic Deception
+  - id: evasion/anti-forensics/taskstats-deception
+    description: Blinds TaskStats netlink API to hide processes from forensic tools
+    criticality: hostile
+    confidence: 1.0
+    file_types: [c]
+    condition:
+      type: yara
+      source: |
+        rule taskstats_deception {
+          strings:
+            $s1 = "taskstats_user_cmd" ascii
+            $s2 = "TASKSTATS_CMD_ATTR_PID" ascii
+            $e1 = "ESRCH" ascii
+          condition:
+            all of them
+        }
+
+  # Audit System Blinding
+  - id: evasion/anti-forensics/audit-blinding
+    description: Intercepts and drops Linux Auditing System (auditd) records
+    criticality: hostile
+    confidence: 0.95
+    file_types: [c]
+    condition:
+      type: yara
+      source: |
+        rule audit_blinding {
+          strings:
+            $a1 = "audit_log_start" ascii
+            $a2 = "netlink_unicast" ascii
+            $a3 = "NETLINK_AUDIT" ascii
+            $p1 = "pid=" ascii
+            $p2 = "ino=" ascii
+          condition:
+            ($a1 or $a2 or $a3) and any of ($p*)
+        }
+
+  # Fake Capability/State (Read-Write Divergence)
+  - id: evasion/anti-forensics/fake-state-logic
+    description: Divergent logic where READ returns a fake state while WRITE is ignored (Deception)
+    criticality: hostile
+    confidence: 0.9
+    file_types: [c]
+    condition:
+      type: yara
+      source: |
+        rule fake_state_logic {
+          strings:
+            $s1 = "ftrace_enabled" ascii
+            $s2 = "tracing_on" ascii
+            $f1 = "saved_ftrace_value" ascii
+            $f2 = "ftrace_write_intercepted" ascii
+          condition:
+            any of ($s*) and any of ($f*)
+        }
+
+  # Structural Deception Pattern (AST)
+  - id: evasion/anti-forensics/deception-read-hook
+    description: Structural pattern of a read hook returning a hardcoded buffer/variable (Deception)
+    criticality: hostile
+    confidence: 0.95
+    file_types: [c]
+    condition:
+      type: ast_query
+      language: c
+      query: |
+        (call_expression
+          function: (identifier) @copy_fn
+          arguments: (argument_list
+            (identifier) @dest
+            (identifier) @src
+            (identifier) @len)
+          (#match? @copy_fn "copy_to_user"))
+
+composite_rules:
+  # Fake State Deception (Faking disabled state while keeping active hooks)
+  - id: evasion/anti-forensics/fake-state-deception
+    description: High-confidence detection of faking a disabled state for kernel security features
+    criticality: hostile
+    confidence: 1.0
+    attack: "T1562.001"
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: evasion/anti-forensics/fake-state-logic
+      - type: trait
+        id: evasion/anti-forensics/deception-read-hook
+      - type: trait
+        id: kernel/rootkit/copy-to-user-call

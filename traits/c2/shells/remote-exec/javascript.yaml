@@ -1,0 +1,18 @@
+# Remote Execution - JavaScript/Node.js
+# ATT&CK: T1059.003 (Command and Scripting Interpreter: Windows Command Shell)
+
+composite_rules:
+  - id: c2/shells/remote-exec/js-http-backdoor
+    description: Remote shell backdoor (Poll C2 + Execute + Exfil)
+    criticality: hostile
+    confidence: 0.98
+    attack: "T1059.003"
+    requires_all:
+      - type: trait
+        id: net/http/request/js-axios-get
+      - type: trait
+        id: exec/command/shell/js-execsync
+      - type: trait
+        id: net/http/request/js-axios-post
+      - type: string
+        regex: "output|command"

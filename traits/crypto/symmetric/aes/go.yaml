@@ -1,0 +1,26 @@
+# AES Encryption - Go
+# MBC: C0021.001 (AES)
+# ATT&CK: T1573.001
+
+traits:
+  - id: crypto/symmetric/aes/go-new-cipher
+    description: Creates a new AES cipher in Go
+    criticality: notable
+    confidence: 0.9
+    mbc: "C0021.001"
+    file_types: [go]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "aes.NewCipher"
+
+  - id: crypto/symmetric/aes/go-cfb-encrypter
+    description: Creates a new AES-CFB encrypter in Go
+    criticality: notable
+    confidence: 0.9
+    mbc: "C0021.001"
+    file_types: [go]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "cipher.NewCFBEncrypter"

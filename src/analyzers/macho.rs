@@ -166,7 +166,7 @@ impl MachOAnalyzer {
             }
         }
 
-        // Evaluate composite rules (parallelized)
+        // Evaluate composite rules (after traits are merged)
         let composite_findings = self
             .capability_mapper
             .evaluate_composite_rules(&report, data);

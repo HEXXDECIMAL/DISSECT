@@ -4,6 +4,7 @@ use crate::analyzers::{
     function_metrics::{self, FunctionInfo},
     identifier_metrics, string_metrics, text_metrics,
 };
+use crate::capabilities::CapabilityMapper;
 use crate::types::*;
 use anyhow::{Context, Result};
 use std::cell::RefCell;
@@ -14,6 +15,7 @@ use tree_sitter::Parser;
 /// Rust analyzer using tree-sitter
 pub struct RustAnalyzer {
     parser: RefCell<Parser>,
+    capability_mapper: CapabilityMapper,
 }
 
 impl RustAnalyzer {
@@ -25,7 +27,14 @@ impl RustAnalyzer {
 
         Self {
             parser: RefCell::new(parser),
+            capability_mapper: CapabilityMapper::empty(),
         }
+    }
+
+    /// Create analyzer with pre-existing capability mapper (avoids duplicate loading)
+    pub fn with_capability_mapper(mut self, capability_mapper: CapabilityMapper) -> Self {
+        self.capability_mapper = capability_mapper;
+        self
     }
 
     fn analyze_source(&self, file_path: &Path, content: &str) -> Result<AnalysisReport> {
@@ -63,7 +72,7 @@ impl RustAnalyzer {
             }],
         });
 
-        // Detect capabilities and patterns
+        // Detect capabilities and patterns (hardcoded)
         self.detect_capabilities(&root, content.as_bytes(), &mut report);
 
         // Extract functions
@@ -72,6 +81,29 @@ impl RustAnalyzer {
         // Compute metrics for ML analysis
         let metrics = self.compute_metrics(&root, content);
         report.metrics = Some(metrics);
+
+        // Evaluate trait definitions and composite rules from YAML
+        let trait_findings = self
+            .capability_mapper
+            .evaluate_traits(&report, content.as_bytes());
+        
+        // Add atomic traits first so composite rules can reference them
+        for f in trait_findings {
+            if !report.findings.iter().any(|existing| existing.id == f.id) {
+                report.findings.push(f);
+            }
+        }
+
+        let composite_findings = self
+            .capability_mapper
+            .evaluate_composite_rules(&report, content.as_bytes());
+
+        // Add composite findings
+        for f in composite_findings {
+            if !report.findings.iter().any(|existing| existing.id == f.id) {
+                report.findings.push(f);
+            }
+        }
 
         report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;
         report.metadata.tools_used = vec!["tree-sitter-rust".to_string()];
@@ -98,13 +130,85 @@ impl RustAnalyzer {
         let func_infos = self.extract_function_info(root, source);
         let func_metrics = function_metrics::analyze_functions(&func_infos, total_lines);
 
+        let rust_metrics = self.compute_rust_metrics(root, source);
+
         Metrics {
             text: Some(text),
             identifiers: Some(identifier_metrics),
             strings: Some(string_metrics),
             comments: Some(comment_metrics),
             functions: Some(func_metrics),
+            rust_metrics: Some(rust_metrics),
             ..Default::default()
+        }
+    }
+
+    fn compute_rust_metrics(&self, root: &tree_sitter::Node, source: &[u8]) -> RustMetrics {
+        let mut metrics = RustMetrics::default();
+        let mut cursor = root.walk();
+        self.walk_for_rust_metrics(&mut cursor, source, &mut metrics);
+        metrics
+    }
+
+    fn walk_for_rust_metrics(
+        &self,
+        cursor: &mut tree_sitter::TreeCursor,
+        source: &[u8],
+        metrics: &mut RustMetrics,
+    ) {
+        loop {
+            let node = cursor.node();
+            match node.kind() {
+                "unsafe_block" => metrics.unsafe_block_count += 1,
+                "function_item" => {
+                    if let Ok(text) = node.utf8_text(source) {
+                        if text.contains("unsafe fn") {
+                            metrics.unsafe_fn_count += 1;
+                        }
+                        if text.contains("extern \"C\"") || text.contains("extern \"system\"") {
+                            metrics.extern_fn_count += 1;
+                        }
+                    }
+                }
+                "extern_block" => metrics.extern_block_count += 1,
+                "pointer_type" => metrics.raw_pointer_count += 1,
+                "call_expression" => {
+                    if let Ok(text) = node.utf8_text(source) {
+                        if text.contains("transmute") {
+                            metrics.transmute_count += 1;
+                        }
+                        if text.contains("Command::new") {
+                            metrics.command_count += 1;
+                        }
+                    }
+                }
+                "macro_invocation" => {
+                    if let Ok(text) = node.utf8_text(source) {
+                        if text.contains("include_bytes!") {
+                            metrics.include_bytes_count += 1;
+                        }
+                        if text.contains("include_str!") {
+                            metrics.include_str_count += 1;
+                        }
+                    }
+                }
+                "attribute" => {
+                    if let Ok(text) = node.utf8_text(source) {
+                        if text.contains("link") {
+                            metrics.link_attribute_count += 1;
+                        }
+                    }
+                }
+                _ => {}
+            }
+
+            if cursor.goto_first_child() {
+                self.walk_for_rust_metrics(cursor, source, metrics);
+                cursor.goto_parent();
+            }
+            if !cursor.goto_next_sibling() {
+                break;
+            }
         }
     }
 
@@ -302,40 +406,7 @@ impl RustAnalyzer {
         if let Ok(text) = node.utf8_text(source) {
             let mut capabilities = Vec::new();
 
-            // Command execution
-            if text.contains("Command::new") {
-                capabilities.push((
-                    "exec/command/shell",
-                    "Executes shell commands",
-                    "Command::new",
-                    0.95,
-                    Criticality::Notable,
-                ));
-            }
-
-            // Network operations
-            if text.contains("TcpStream::connect") {
-                capabilities.push((
-                    "net/socket/create",
-                    "TCP connection",
-                    "TcpStream::connect",
-                    0.9,
-                    Criticality::Notable,
-                ));
-            }
-            if text.contains("TcpListener::bind") {
-                capabilities.push((
-                    "net/socket/server",
-                    "TCP server",
-                    "TcpListener::bind",
-                    0.9,
-                    Criticality::Notable,
-                ));
-            }
-
-            // Note: fs/file/delete detection moved to traits/fs/file/delete/rust.yaml
-
-            // Reverse shell pattern
+            // Reverse shell pattern (example of complex pattern still better in code for now)
             if (text.contains("TcpStream::connect") || text.contains("TcpStream"))
                 && (text.contains("Command::new")
                     || text.contains("/bin/sh")
@@ -346,19 +417,6 @@ impl RustAnalyzer {
                     "Reverse shell connection",
                     "TcpStream+Command",
                     0.98,
-                    Criticality::Hostile,
-                ));
-            }
-
-            // Ransomware indicators
-            if (text.contains("aes") || text.contains("cipher"))
-                && (text.contains("walkdir") || text.contains("read_dir"))
-            {
-                capabilities.push((
-                    "crypto/ransomware/encrypt",
-                    "File encryption pattern",
-                    "crypto+walk",
-                    0.92,
                     Criticality::Hostile,
                 ));
             }
@@ -389,235 +447,36 @@ impl RustAnalyzer {
         }
     }
 
-    fn analyze_import(&self, node: &tree_sitter::Node, source: &[u8], report: &mut AnalysisReport) {
-        if let Ok(text) = node.utf8_text(source) {
-            let mut capabilities = Vec::new();
-
-            if text.contains("std::process") || text.contains("std::process::Command") {
-                capabilities.push((
-                    "exec/command/shell",
-                    "Process execution import",
-                    "std::process",
-                    0.8,
-                    Criticality::Notable,
-                ));
-            }
-            if text.contains("std::net") {
-                capabilities.push((
-                    "net/socket/create",
-                    "Network import",
-                    "std::net",
-                    0.7,
-                    Criticality::Notable,
-                ));
-            }
-            if text.contains("libc") {
-                capabilities.push((
-                    "exec/syscall",
-                    "Low-level system calls",
-                    "libc",
-                    0.8,
-                    Criticality::Notable,
-                ));
-            }
-            if text.contains("libloading") || text.contains("dlopen") {
-                capabilities.push((
-                    "exec/dylib/load",
-                    "Dynamic library loading",
-                    "libloading",
-                    0.9,
-                    Criticality::Notable,
-                ));
-            }
-
-            for (cap_id, desc, method, conf, criticality) in capabilities {
-                report.findings.push(Finding {
-                    kind: FindingKind::Capability,
-                    trait_refs: vec![],
-                    id: cap_id.to_string(),
-                    description: desc.to_string(),
-                    confidence: conf,
-                    criticality,
-                    mbc: None,
-                    attack: None,
-                    evidence: vec![Evidence {
-                        method: "import".to_string(),
-                        source: "tree-sitter-rust".to_string(),
-                        value: method.to_string(),
-                        location: Some(format!(
-                            "{}:{}",
-                            node.start_position().row,
-                            node.start_position().column
-                        )),
-                    }],
-                });
-            }
-        }
+    fn analyze_import(&self, _node: &tree_sitter::Node, _source: &[u8], _report: &mut AnalysisReport) {
+        // Most imports are now handled via YAML traits
     }
 
-    fn analyze_unsafe(&self, node: &tree_sitter::Node, source: &[u8], report: &mut AnalysisReport) {
-        if let Ok(text) = node.utf8_text(source) {
-            // Any unsafe block is noteworthy
-            report.findings.push(Finding {
-                kind: FindingKind::Capability,
-                trait_refs: vec![],
-                id: "unsafe/block".to_string(),
-                description: "Unsafe code block".to_string(),
-                confidence: 1.0,
-                criticality: Criticality::Notable,
-
-                mbc: None,
-
-                attack: None,
-
-                evidence: vec![Evidence {
-                    method: "ast".to_string(),
-                    source: "tree-sitter-rust".to_string(),
-                    value: "unsafe block".to_string(),
-                    location: Some(format!(
-                        "{}:{}",
-                        node.start_position().row,
-                        node.start_position().column
-                    )),
-                }],
-            });
-
-            // Check for specific unsafe operations
-            if text.contains("transmute") {
-                report.findings.push(Finding {
-                    kind: FindingKind::Capability,
-                    trait_refs: vec![],
-                    id: "unsafe/transmute".to_string(),
-                    description: "Type transmutation (unsafe cast)".to_string(),
-                    confidence: 0.95,
-                    criticality: Criticality::Notable,
-
-                    mbc: None,
-
-                    attack: None,
-
-                    evidence: vec![Evidence {
-                        method: "ast".to_string(),
-                        source: "tree-sitter-rust".to_string(),
-                        value: "transmute".to_string(),
-                        location: Some(format!(
-                            "{}:{}",
-                            node.start_position().row,
-                            node.start_position().column
-                        )),
-                    }],
-                });
-            }
-
-            if text.contains("*const") || text.contains("*mut") {
-                report.findings.push(Finding {
-                    kind: FindingKind::Capability,
-                    trait_refs: vec![],
-                    id: "unsafe/pointer".to_string(),
-                    description: "Raw pointer operations".to_string(),
-                    confidence: 0.9,
-                    criticality: Criticality::Notable,
-
-                    mbc: None,
-
-                    attack: None,
-
-                    evidence: vec![Evidence {
-                        method: "ast".to_string(),
-                        source: "tree-sitter-rust".to_string(),
-                        value: "raw pointers".to_string(),
-                        location: Some(format!(
-                            "{}:{}",
-                            node.start_position().row,
-                            node.start_position().column
-                        )),
-                    }],
-                });
-            }
-
-            if text.contains("asm!") || text.contains("global_asm!") {
-                report.findings.push(Finding {
-                    kind: FindingKind::Capability,
-                    trait_refs: vec![],
-                    id: "unsafe/inline-asm".to_string(),
-                    description: "Inline assembly".to_string(),
-                    confidence: 1.0,
-                    criticality: Criticality::Notable,
-
-                    mbc: None,
-
-                    attack: None,
-
-                    evidence: vec![Evidence {
-                        method: "ast".to_string(),
-                        source: "tree-sitter-rust".to_string(),
-                        value: "asm!".to_string(),
-                        location: Some(format!(
-                            "{}:{}",
-                            node.start_position().row,
-                            node.start_position().column
-                        )),
-                    }],
-                });
-            }
-
-            // FFI detection
-            if text.contains("extern \"C\"") || text.contains("extern \"system\"") {
-                report.findings.push(Finding {
-                    kind: FindingKind::Capability,
-                    trait_refs: vec![],
-                    id: "unsafe/ffi".to_string(),
-                    description: "Foreign function interface (C boundary)".to_string(),
-                    confidence: 0.95,
-                    criticality: Criticality::Notable,
-
-                    mbc: None,
-
-                    attack: None,
-
-                    evidence: vec![Evidence {
-                        method: "ast".to_string(),
-                        source: "tree-sitter-rust".to_string(),
-                        value: "extern".to_string(),
-                        location: Some(format!(
-                            "{}:{}",
-                            node.start_position().row,
-                            node.start_position().column
-                        )),
-                    }],
-                });
-            }
-        }
+    fn analyze_unsafe(&self, node: &tree_sitter::Node, _source: &[u8], report: &mut AnalysisReport) {
+        // Any unsafe block is noteworthy
+        report.findings.push(Finding {
+            kind: FindingKind::Capability,
+            trait_refs: vec![],
+            id: "unsafe/block".to_string(),
+            description: "Unsafe code block".to_string(),
+            confidence: 1.0,
+            criticality: Criticality::Notable,
+            mbc: None,
+            attack: None,
+            evidence: vec![Evidence {
+                method: "ast".to_string(),
+                source: "tree-sitter-rust".to_string(),
+                value: "unsafe block".to_string(),
+                location: Some(format!(
+                    "{}:{}",
+                    node.start_position().row,
+                    node.start_position().column
+                )),
+            }],
+        });
     }
 
-    fn analyze_macro(&self, node: &tree_sitter::Node, source: &[u8], report: &mut AnalysisReport) {
-        if let Ok(text) = node.utf8_text(source) {
-            if text.contains("asm!") || text.contains("global_asm!") {
-                report.findings.push(Finding {
-                    kind: FindingKind::Capability,
-                    trait_refs: vec![],
-                    id: "unsafe/inline-asm".to_string(),
-                    description: "Inline assembly macro".to_string(),
-                    confidence: 1.0,
-                    criticality: Criticality::Notable,
-
-                    mbc: None,
-
-                    attack: None,
-
-                    evidence: vec![Evidence {
-                        method: "ast".to_string(),
-                        source: "tree-sitter-rust".to_string(),
-                        value: text.split('!').next().unwrap_or("asm").to_string(),
-                        location: Some(format!(
-                            "{}:{}",
-                            node.start_position().row,
-                            node.start_position().column
-                        )),
-                    }],
-                });
-            }
-        }
+    fn analyze_macro(&self, _node: &tree_sitter::Node, _source: &[u8], _report: &mut AnalysisReport) {
+        // Most macros are now handled via YAML traits
     }
 
     fn extract_functions(
@@ -646,21 +505,42 @@ impl RustAnalyzer {
                         .extract_function_name(&node, source)
                         .unwrap_or_else(|| "anonymous".to_string());
 
+                    let complexity = self.calculate_cyclomatic_complexity(&node, source);
+                    let nesting = self.calculate_nesting_depth(&node);
+                    let call_patterns = self.analyze_call_patterns(&node, source, &name);
+
+                    // Extract actual function calls
+                    let mut calls = Vec::new();
+                    let mut call_cursor = node.walk();
+                    self.walk_for_calls(&mut call_cursor, source, &mut calls);
+                    calls.sort();
+                    calls.dedup();
+
                     report.functions.push(Function {
                         name,
                         offset: Some(format!("0x{:x}", node.start_byte())),
                         size: Some((node.end_byte() - node.start_byte()) as u64),
-                        complexity: None,
-                        calls: Vec::new(),
+                        complexity: Some(complexity),
+                        calls,
                         source: "tree-sitter-rust".to_string(),
-                        control_flow: None,
+                        control_flow: Some(ControlFlowMetrics {
+                            cyclomatic_complexity: complexity,
+                            basic_blocks: complexity, // Approximation
+                            edges: if complexity > 1 { complexity + 1 } else { 1 },
+                            out_degree: call_patterns.unique_callees,
+                            ..Default::default()
+                        }),
                         instruction_analysis: None,
                         register_usage: None,
                         constants: Vec::new(),
-                        properties: None,
+                        properties: Some(FunctionProperties {
+                            is_recursive: call_patterns.recursive_calls > 0,
+                            is_leaf: call_patterns.call_count == 0,
+                            ..Default::default()
+                        }),
                         signature: None,
-                        nesting: None,
-                        call_patterns: None,
+                        nesting: Some(nesting),
+                        call_patterns: Some(call_patterns),
                     });
                 }
             }
@@ -673,6 +553,139 @@ impl RustAnalyzer {
 
             if !cursor.goto_next_sibling() {
                 break;
+            }
+        }
+    }
+
+    fn walk_for_calls(
+        &self,
+        cursor: &mut tree_sitter::TreeCursor,
+        source: &[u8],
+        calls: &mut Vec<String>,
+    ) {
+        loop {
+            let node = cursor.node();
+            if node.kind() == "call_expression" {
+                if let Some(func_node) = node.child_by_field_name("function") {
+                    if let Ok(text) = func_node.utf8_text(source) {
+                        calls.push(text.to_string());
+                    }
+                }
+            }
+            if cursor.goto_first_child() {
+                self.walk_for_calls(cursor, source, calls);
+                cursor.goto_parent();
+            }
+            if !cursor.goto_next_sibling() {
+                break;
+            }
+        }
+    }
+
+    fn calculate_cyclomatic_complexity(&self, node: &tree_sitter::Node, source: &[u8]) -> u32 {
+        let mut complexity = 1;
+        let mut cursor = node.walk();
+        self.walk_for_complexity(&mut cursor, source, &mut complexity);
+        complexity
+    }
+
+    fn walk_for_complexity(
+        &self,
+        cursor: &mut tree_sitter::TreeCursor,
+        source: &[u8],
+        complexity: &mut u32,
+    ) {
+        loop {
+            let node = cursor.node();
+            match node.kind() {
+                "if_expression" | "match_arm" | "while_expression" | "for_expression" | "loop_expression" => {
+                    *complexity += 1;
+                }
+                "binary_expression" => {
+                    if let Ok(text) = node.utf8_text(source) {
+                        if text.contains("&&") || text.contains("||") {
+                            *complexity += 1;
+                        }
+                    }
+                }
+                _ => {}
+            }
+            if cursor.goto_first_child() {
+                self.walk_for_complexity(cursor, source, complexity);
+                cursor.goto_parent();
+            }
+            if !cursor.goto_next_sibling() {
+                break;
+            }
+        }
+    }
+
+    fn calculate_nesting_depth(&self, node: &tree_sitter::Node) -> NestingMetrics {
+        let mut max_depth = 0;
+        let mut depths = Vec::new();
+        let mut deep_nest_count = 0;
+
+        fn traverse(node: &tree_sitter::Node, current_depth: u32, max: &mut u32, depths: &mut Vec<u32>, deep: &mut u32) {
+            let mut depth = current_depth;
+            match node.kind() {
+                "if_expression" | "match_expression" | "for_expression" | "while_expression" | "loop_expression" => {
+                    depth += 1;
+                    depths.push(depth);
+                    if depth > *max { *max = depth; }
+                    if depth > 4 { *deep += 1; }
+                }
+                _ => {}
+            }
+            let mut cursor = node.walk();
+            for child in node.children(&mut cursor) {
+                traverse(&child, depth, max, depths, deep);
+            }
+        }
+
+        traverse(node, 0, &mut max_depth, &mut depths, &mut deep_nest_count);
+
+        NestingMetrics {
+            max_depth,
+            avg_depth: if !depths.is_empty() {
+                depths.iter().sum::<u32>() as f32 / depths.len() as f32
+            } else { 0.0 },
+            deep_nest_count,
+        }
+    }
+
+    fn analyze_call_patterns(&self, node: &tree_sitter::Node, source: &[u8], func_name: &str) -> CallPatternMetrics {
+        let mut call_count = 0;
+        let mut callees = Vec::new();
+        let mut recursive_calls = 0;
+
+        let mut cursor = node.walk();
+        loop {
+            let current = cursor.node();
+            if current.kind() == "call_expression" {
+                call_count += 1;
+                if let Some(func_node) = current.child_by_field_name("function") {
+                    if let Ok(text) = func_node.utf8_text(source) {
+                        let name = text.to_string();
+                        callees.push(name.clone());
+                        if name == func_name { recursive_calls += 1; }
+                    }
+                }
+            }
+            if cursor.goto_first_child() {
+                continue;
+            }
+            loop {
+                if cursor.goto_next_sibling() { break; }
+                if !cursor.goto_parent() {
+                    callees.sort();
+                    callees.dedup();
+                    return CallPatternMetrics {
+                        call_count,
+                        unique_callees: callees.len() as u32,
+                        recursive_calls,
+                        ..Default::default()
+                    };
+                }
             }
         }
     }

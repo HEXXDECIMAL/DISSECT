@@ -1,0 +1,56 @@
+# VSCode Extension Manifest (VSIX) Traits
+# Detects metadata and properties in extension.vsixmanifest
+
+traits:
+  - id: eco/vscode/manifest/identity
+    description: VSCode extension identity metadata
+    criticality: inert
+    confidence: 1.0
+    file_types: [vsixmanifest]
+    condition:
+      type: yara
+      source: |
+        rule vscode_manifest_identity {
+          strings:
+            $identity = "<Identity" ascii
+            $publisher = "Publisher=" ascii
+            $id = "Id=" ascii
+            $version = "Version=" ascii
+          condition:
+            all of them
+        }
+
+  - id: eco/vscode/manifest/engine
+    description: VSCode engine requirement
+    criticality: inert
+    confidence: 1.0
+    file_types: [vsixmanifest]
+    condition:
+      type: string
+      regex: 'Microsoft\.VisualStudio\.Code\.Engine'
+
+  - id: eco/vscode/manifest/executes-code
+    description: Extension explicitly marks that it executes code
+    criticality: notable
+    confidence: 1.0
+    file_types: [vsixmanifest]
+    condition:
+      type: string
+      regex: 'Microsoft\.VisualStudio\.Code\.ExecutesCode.*Value="true"'
+
+  - id: eco/vscode/manifest/links
+    description: Extension manifest contains external links
+    criticality: inert
+    confidence: 0.8
+    file_types: [vsixmanifest]
+    condition:
+      type: yara
+      source: |
+        rule vscode_manifest_links {
+          strings:
+            $link1 = "Microsoft.VisualStudio.Services.Links.Source" ascii
+            $link2 = "Microsoft.VisualStudio.Services.Links.GitHub" ascii
+            $link3 = "Microsoft.VisualStudio.Services.Links.Support" ascii
+          condition:
+            any of them
+        }

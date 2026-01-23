@@ -1,0 +1,52 @@
+# Monitoring - JavaScript/Node.js
+# ATT&CK: T1113 (Screen Capture)
+
+traits:
+  - id: collect/monitor/js-node-screenshots
+    description: usage of node-screenshots library
+    criticality: suspicious
+    confidence: 0.95
+    mbc: "B0002"
+    attack: "T1113"
+    file_types: [javascript]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "require('node-screenshots')"
+
+  - id: collect/monitor/js-desktop-screenshot
+    description: usage of desktop-screenshot library
+    criticality: suspicious
+    confidence: 0.95
+    mbc: "B0002"
+    attack: "T1113"
+    file_types: [javascript]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "require('desktop-screenshot')"
+
+  - id: collect/monitor/js-sharp-image-processing
+    description: usage of sharp for image processing (often used with screenshots)
+    criticality: notable
+    confidence: 0.8
+    file_types: [javascript]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "require('sharp')"
+
+composite_rules:
+  - id: collect/monitor/js-screenshot-exfil
+    description: JavaScript screenshot capture with exfiltration
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1113"
+    requires_all:
+      - type: trait
+        id: net/http/request/js-axios-post
+    requires_any:
+      - type: trait
+        id: collect/monitor/js-node-screenshots
+      - type: trait
+        id: collect/monitor/js-desktop-screenshot

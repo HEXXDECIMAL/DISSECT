@@ -835,6 +835,13 @@ impl ArchiveAnalyzer {
                 let analyzer = crate::analyzers::ruby::RubyAnalyzer::new();
                 analyzer.analyze(file_path)
             }
+            crate::analyzers::FileType::VsixManifest => {
+                let mut analyzer = crate::analyzers::vsix_manifest::VsixManifestAnalyzer::new();
+                if let Some(ref mapper) = self.capability_mapper {
+                    analyzer = analyzer.with_capability_mapper(mapper.clone());
+                }
+                analyzer.analyze(file_path)
+            }
             _ => {
                 // Skip unknown files
                 Err(anyhow::anyhow!("Unsupported file type"))

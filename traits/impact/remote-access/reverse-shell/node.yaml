@@ -97,9 +97,11 @@ traits:
         }
 
   # Socket Data Event with Exec
+  # NOTE: Requires net.Socket context to avoid FPs from HTTP response streaming
+  # HTTP responses also use .on('data') but are not reverse shells
   - id: impact/remote-access/reverse-shell/data-event-exec
     description: Socket data event with command execution
-    criticality: malicious
+    criticality: hostile
     confidence: 0.95
     mbc: "B0032"
     attack: "T1059"
@@ -109,10 +111,24 @@ traits:
       source: |
         rule socket_data_exec {
           strings:
-            $event1 = ".on('data'"
-            $event2 = ".on(\"data\""
-            $exec1 = "exec("
-            $exec2 = "spawn("
+            // Socket creation (required for reverse shell)
+            $socket1 = "net.Socket" ascii
+            $socket2 = "net.connect" ascii
+            $socket3 = "net.createConnection" ascii
+            $socket4 = "new Socket(" ascii
+            // Data event handler
+            $event1 = ".on('data'" ascii
+            $event2 = ".on(\"data\"" ascii
+            // Command execution
+            $exec1 = "exec(" ascii
+            $exec2 = "spawn(" ascii
+            $exec3 = "execSync(" ascii
+            $exec4 = "spawnSync(" ascii
+            // Exclude HTTP response patterns (not reverse shells)
+            $http_res1 = "res.on('data'" ascii
+            $http_res2 = "response.on('data'" ascii
+            $http_res3 = "https.get" ascii
+            $http_res4 = "http.get" ascii
           condition:
-            any of ($event*) and any of ($exec*)
+            any of ($socket*) and any of ($event*) and any of ($exec*) and none of ($http_res*)
         }

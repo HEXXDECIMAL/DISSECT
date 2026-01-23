@@ -1,0 +1,148 @@
+# SELinux Bypass/Manipulation Detection
+# ATT&CK: T1562.001 (Impair Defenses: Disable or Modify Tools)
+
+traits:
+  # SELinux extended attribute manipulation
+  - id: evasion/selinux/xattr-manipulation
+    description: SELinux extended attribute manipulation
+    criticality: suspicious
+    confidence: 0.75
+    attack: "T1562.001"
+    platforms: [linux]
+    condition:
+      type: yara
+      source: |
+        rule selinux_xattr {
+          strings:
+            $security_selinux = "security.selinux" ascii
+            $setxattr = "setxattr" ascii
+            $fsetxattr = "fsetxattr" ascii
+            $lsetxattr = "lsetxattr" ascii
+          condition:
+            $security_selinux and any of ($setxattr, $fsetxattr, $lsetxattr)
+        }
+
+  # Unconfined context assignment
+  - id: evasion/selinux/unconfined-context
+    description: SELinux unconfined context assignment
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1562.001"
+    platforms: [linux]
+    condition:
+      type: yara
+      source: |
+        rule selinux_unconfined {
+          strings:
+            $unconfined_u = "unconfined_u:" ascii
+            $unconfined_r = "unconfined_r:" ascii
+            $unconfined_t = "unconfined_t" ascii
+            $object_r = "object_r:" ascii
+          condition:
+            any of ($unconfined*) or ($object_r and filesize < 5MB)
+        }
+
+  # SELinux setenforce/getenforce manipulation
+  - id: evasion/selinux/setenforce
+    description: SELinux enforcement mode manipulation
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1562.001"
+    platforms: [linux]
+    condition:
+      type: yara
+      source: |
+        rule selinux_enforce {
+          strings:
+            $setenforce = "setenforce" ascii
+            $getenforce = "getenforce" ascii
+            $enforcing = "/sys/fs/selinux/enforce" ascii
+            $selinuxfs = "/selinux/enforce" ascii
+            $permissive = "Permissive" ascii
+          condition:
+            any of ($setenforce, $getenforce, $enforcing, $selinuxfs) or
+            ($permissive and filesize < 2MB)
+        }
+
+  # SELinux policy manipulation
+  - id: evasion/selinux/policy-manipulation
+    description: SELinux policy load or manipulation
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1562.001"
+    platforms: [linux]
+    condition:
+      type: yara
+      source: |
+        rule selinux_policy {
+          strings:
+            $load_policy = "load_policy" ascii
+            $semodule = "semodule" ascii
+            $policy_dir = "/etc/selinux" ascii
+            $policy_file = "policy." ascii
+            $chcon = "chcon" ascii
+            $restorecon = "restorecon" ascii
+          condition:
+            any of them
+        }
+
+  # SELinux disable via kernel parameters
+  - id: evasion/selinux/kernel-disable
+    description: SELinux kernel parameter disable
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1562.001"
+    platforms: [linux]
+    condition:
+      type: yara
+      source: |
+        rule selinux_kernel_disable {
+          strings:
+            $selinux0 = "selinux=0" ascii
+            $enforcing0 = "enforcing=0" ascii
+            $disable = "SELINUX=disabled" ascii
+            $permissive_cfg = "SELINUX=permissive" ascii
+          condition:
+            any of them
+        }
+
+  # SELinux runtime state memory patching
+  - id: evasion/selinux/runtime-patch
+    description: Direct kernel memory manipulation of SELinux enforcement state
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1562.001"
+    platforms: [linux]
+    file_types: [c]
+    condition:
+      type: yara
+      source: |
+        rule selinux_runtime_patch {
+          strings:
+            $s1 = "selinux_state" ascii
+            $s2 = "enforcing" ascii
+            $s3 = "fake_enforce" ascii
+            $s4 = "sel_read_enforce" ascii
+            $s5 = "sel_write_enforce" ascii
+          condition:
+            ($s1 and $s2) or ($s4 and $s5) or ($s3 and $s1)
+        }
+
+composite_rules:
+  # Active SELinux bypass
+  - id: evasion/selinux/bypass
+    description: Active SELinux bypass behavior
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1562.001"
+    platforms: [linux]
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: evasion/selinux/xattr-manipulation
+      - type: trait
+        id: evasion/selinux/unconfined-context
+      - type: trait
+        id: evasion/selinux/setenforce
+      - type: trait
+        id: evasion/selinux/kernel-disable

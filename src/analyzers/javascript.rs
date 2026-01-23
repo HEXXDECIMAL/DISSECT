@@ -104,15 +104,20 @@ impl JavaScriptAnalyzer {
         let trait_findings = self
             .capability_mapper
             .evaluate_traits(&report, content.as_bytes());
+        
+        // Add atomic traits first so composite rules can reference them
+        for f in trait_findings {
+            if !report.findings.iter().any(|existing| existing.id == f.id) {
+                report.findings.push(f);
+            }
+        }
+
         let composite_findings = self
             .capability_mapper
             .evaluate_composite_rules(&report, content.as_bytes());
 
         // Add all findings
-        for f in trait_findings
-            .into_iter()
-            .chain(composite_findings.into_iter())
-        {
+        for f in composite_findings {
             if !report.findings.iter().any(|existing| existing.id == f.id) {
                 report.findings.push(f);
             }

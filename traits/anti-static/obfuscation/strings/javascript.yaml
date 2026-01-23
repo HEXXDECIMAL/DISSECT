@@ -49,6 +49,58 @@ traits:
       type: string
       regex: "Buffer\\.from\\([^,]+,\\s*['\"](?:base64|hex)['\"]\\)"
 
+  # Hex-encoded URL in array (common npm malware pattern)
+  # Pattern: array of hex strings that decode to URL parts
+  - id: anti-static/obfuscation/strings/hex-url-array
+    description: Hex-encoded URL stored as array elements (C2 obfuscation)
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "B0032"
+    attack: "T1027"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule hex_url_array {
+          strings:
+            // Array containing hex strings (each 20+ chars = at least 10 bytes)
+            $arr1 = /const\s+\w+\s*=\s*\[\s*"[0-9a-fA-F]{20,}"/ ascii
+            $arr2 = /const\s+\w+\s*=\s*\[\s*'[0-9a-fA-F]{20,}'/ ascii
+            // .map() with Buffer.from hex decode pattern
+            $map_decode = ".map(" ascii
+            $buffer = "Buffer.from" ascii
+            $hex1 = "'hex'" ascii
+            $hex2 = "\"hex\"" ascii
+            $join = ".join(" ascii
+          condition:
+            any of ($arr*) and $map_decode and $buffer and any of ($hex*) and $join
+        }
+
+  # Base64-encoded content fetched and decoded
+  - id: anti-static/obfuscation/strings/remote-base64-decode
+    description: Fetches remote content and decodes as base64 (payload delivery)
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1027"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule remote_base64_decode {
+          strings:
+            // Network fetch
+            $fetch1 = "https.get" ascii
+            $fetch2 = "http.get" ascii
+            $fetch3 = "_fetch" ascii
+            // Response handling + base64 decode
+            $decode = "Buffer.from" ascii
+            $b64_1 = "'base64'" ascii
+            $b64_2 = "\"base64\"" ascii
+            $trim = ".trim()" ascii
+          condition:
+            any of ($fetch*) and $decode and any of ($b64_*) and $trim
+        }
+
   # Array join obfuscation
   - id: anti-static/obfuscation/strings/js-array-join
     description: Array join pattern used to construct strings

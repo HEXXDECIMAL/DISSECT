@@ -1,0 +1,75 @@
+# Security Product Blinding
+# Detects active interference with security products (LKRG, EDR, AV)
+
+traits:
+  # LKRG Blinding
+  - id: evasion/blinding/lkrg
+    description: Targets Linux Kernel Runtime Guard (LKRG) integrity checks
+    criticality: hostile
+    confidence: 1.0
+    attack: "T1562.001"
+    file_types: [c]
+    condition:
+      type: yara
+      source: |
+        rule target_lkrg {
+          strings:
+            $s1 = "p_check_integrity" ascii
+            $s2 = "p_dump_task_f" ascii
+            $s3 = "p_cmp_creds" ascii
+            $s4 = "p_cmp_tasks" ascii
+            $s5 = "ed_task_add" ascii
+            $s6 = "p_exploit_detection_init" ascii
+          condition:
+            any of them
+        }
+
+  # Generic Kernel Security Blinding
+  - id: evasion/blinding/kernel-integrity
+    description: Targets kernel integrity or exploit detection functions
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1562.001"
+    condition:
+      type: yara
+      source: |
+        rule kernel_security_blinding {
+          strings:
+            $f1 = "check_integrity" ascii nocase
+            $f2 = "validate_sp" ascii nocase
+            $f3 = "enforce_pcfi" ascii nocase
+            $f4 = "exploit_detection" ascii nocase
+            $f5 = "bypass_selinux" ascii nocase
+          condition:
+            any of them
+        }
+
+  # Hooking Security functions (AST)
+  - id: evasion/blinding/hook-security-logic
+    description: Structural detection of hooking kernel integrity checks
+    criticality: hostile
+    confidence: 0.95
+    file_types: [c]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "HOOK(.*integrity|.*exploit|.*pcfi)"
+      regex: true
+
+composite_rules:
+  # Active security software blinding (e.g. LKRG, EDR)
+  - id: evasion/blinding/security-software-blinding
+    description: High-confidence detection of security software blinding (LKRG/EDR)
+    criticality: hostile
+    confidence: 0.99
+    attack: "T1562.001"
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: evasion/blinding/lkrg
+      - type: trait
+        id: evasion/blinding/hook-security-logic
+      - type: trait
+        id: evasion/blinding/kernel-integrity
+      - type: trait
+        id: kernel/rootkit/ftrace-helper-include

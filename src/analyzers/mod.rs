@@ -1,6 +1,7 @@
 pub mod archive;
 pub mod c;
 pub mod csharp;
+pub mod applescript;
 
 // Universal metrics analyzers
 pub mod comment_metrics;
@@ -26,6 +27,7 @@ pub mod ruby;
 pub mod rust;
 pub mod shell;
 pub mod typescript;
+pub mod vsix_manifest;
 
 use crate::types::AnalysisReport;
 use anyhow::Result;
@@ -46,6 +48,11 @@ pub fn detect_file_type(file_path: &Path) -> Result<FileType> {
 
     if file_data.len() < 4 {
         return Ok(FileType::Unknown);
+    }
+
+    // Check for compiled AppleScript magic bytes "Fasd"
+    if file_data.starts_with(b"Fasd") {
+        return Ok(FileType::AppleScript);
     }
 
     // Check for Java class files BEFORE Mach-O (both use 0xCAFEBABE)
@@ -135,9 +142,28 @@ pub fn detect_file_type(file_path: &Path) -> Result<FileType> {
 
     // Check for package.json (npm manifest)
     if let Some(file_name) = file_path.file_name() {
-        if file_name == "package.json" {
+        let name = file_name.to_string_lossy().to_lowercase();
+        if name == "package.json" {
             return Ok(FileType::PackageJson);
         }
+        if name == "extension.vsixmanifest" || name.ends_with(".vsixmanifest") {
+            return Ok(FileType::VsixManifest);
+        }
+        // Debian/Ubuntu package maintainer scripts (often lack shebang)
+        let name = file_name.to_string_lossy().to_lowercase();
+        if name.contains("postinst")
+            || name.contains("preinst")
+            || name.contains("postrm")
+            || name.contains("prerm")
+        {
+            return Ok(FileType::Shell);
+        }
+    }
+
+    // Heuristic shell detection for files without shebang
+    // Look for common shell patterns in first few lines
+    if looks_like_shell(&file_data) {
+        return Ok(FileType::Shell);
     }
 
     // Check for archives by file extension (need to check path, not just extension)
@@ -204,6 +230,9 @@ pub fn detect_file_type(file_path: &Path) -> Result<FileType> {
         if ext_str == "cs" {
             return Ok(FileType::CSharp);
         }
+        if ext_str == "scpt" || ext_str == "applescript" {
+            return Ok(FileType::AppleScript);
+        }
     }
 
     Ok(FileType::Unknown)
@@ -248,6 +277,17 @@ fn is_macho(data: &[u8]) -> bool {
     matches!(magic, 0xfeedface | 0xcefaedfe | 0xfeedfacf | 0xcffaedfe)
 }
 
+fn looks_like_shell(data: &[u8]) -> bool {
+    let s = String::from_utf8_lossy(data);
+    let first_lines: String = s.lines().take(5).collect::<Vec<_>>().join("\n");
+
+    first_lines.contains("export ")
+        || first_lines.contains("alias ")
+        || first_lines.contains("set -e")
+        || first_lines.contains("if [")
+        || first_lines.contains("case $")
+}
+
 #[derive(Debug, PartialEq)]
 pub enum FileType {
     MachO,
@@ -271,7 +311,9 @@ pub enum FileType {
     PowerShell,
     C,
     PackageJson, // npm package.json manifest
+    VsixManifest, // VSCode extension.vsixmanifest
     Archive,
+    AppleScript,
     Unknown,
 }
 
@@ -301,6 +343,8 @@ impl FileType {
             | FileType::PowerShell
             | FileType::C
             | FileType::PackageJson
+            | FileType::VsixManifest
+            | FileType::AppleScript
             | FileType::Unknown => true, // Treat unknown as potential program for YARA scanning
             FileType::Archive => false,
         }
@@ -333,7 +377,9 @@ impl FileType {
             FileType::PowerShell => vec!["ps1", "psm1", "psd1"],
             FileType::C => vec!["c", "h", "hh"],
             FileType::PackageJson => vec!["json", "package.json", "npm"],
+            FileType::VsixManifest => vec!["xml", "vsix", "vscode"],
             FileType::Archive => vec!["zip", "tar", "gz"],
+            FileType::AppleScript => vec!["scpt", "applescript"],
             FileType::Unknown => vec![], // No filtering for unknown types
         }
     }

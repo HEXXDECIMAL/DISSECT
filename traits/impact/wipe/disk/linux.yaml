@@ -3,6 +3,8 @@
 # ATT&CK: T1561
 
 traits:
+  # NOTE: "shred" alone is too generic - it's present in glibc
+  # Require command-line context or disk device patterns to reduce false positives
   - id: impact/wipe/disk
     description: Disk wiper patterns
     criticality: suspicious
@@ -16,7 +18,10 @@ traits:
           strings:
             $dd_zero = "dd if=/dev/zero"
             $dd_random = "dd if=/dev/urandom"
-            $shred = "shred" fullword
+            // shred requires command-line flags or device path to avoid glibc false positive
+            $shred_cmd = "shred -" ascii
+            $shred_dev = /shred.{0,20}\/dev\// ascii
+            $shred_force = "shred --force" ascii
           condition:
             any of them
         }

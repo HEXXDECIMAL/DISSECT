@@ -190,8 +190,21 @@ traits:
     confidence: 0.95
     file_types: [javascript, typescript]
     condition:
-      type: string
-      regex: "\\b(?:describe|it|test|expect)\\s*\\("
+      type: yara
+      source: |
+        rule test_blocks {
+          strings:
+            // Test block patterns with string descriptions
+            $describe = /describe\s*\(\s*['"`]/ ascii
+            $it = /it\s*\(\s*['"`]/ ascii
+            $test = /test\s*\(\s*['"`]/ ascii
+            // Assertion patterns
+            $expect = "expect(" ascii
+            $assert = "assert." ascii
+            $should = ".should." ascii
+          condition:
+            any of ($describe, $it, $test) and any of ($expect, $assert, $should)
+        }
 
   # Has assertion library usage
   - id: eco/npm/legitimate/has-assertions
