@@ -281,6 +281,19 @@ pub enum Condition {
         #[serde(skip_serializing_if = "Option::is_none")]
         min_count: Option<usize>,
     },
+
+    /// Match against computed source code metrics
+    /// Supports fields like: go_metrics.unsafe_usage, python.eval_count, etc.
+    Metrics {
+        /// Dot-separated path to metric field (e.g., "go_metrics.unsafe_usage")
+        field: String,
+        /// Minimum value (inclusive)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        min: Option<f64>,
+        /// Maximum value (inclusive)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        max: Option<f64>,
+    },
 }
 
 impl Condition {

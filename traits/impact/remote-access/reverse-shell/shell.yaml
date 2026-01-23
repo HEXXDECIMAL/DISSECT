@@ -1,29 +1,44 @@
 # Reverse Shell Detection - Shell/Bash
 # MBC: B0033 (Adversary-in-the-Middle)
-# ATT&CK: T1059
+# ATT&CK: T1059.004 (Unix Shell)
 
 traits:
-  - id: impact/remote-access/reverse-shell-bash
-    description: Bash reverse shell via /dev/tcp
-    criticality: suspicious
-    confidence: 0.66
-    attack: "T1059"
+  # Complete bash reverse shell pattern (HOSTILE - no legitimate use)
+  - id: impact/remote-access/reverse-shell-bash-complete
+    description: Bash reverse shell via /dev/tcp (complete pattern)
+    criticality: hostile
+    confidence: 0.98
+    attack: "T1059.004"
+    file_types: [shell, packagejson, javascript]
     condition:
       type: string
-      regex: "bash -i >& /dev/tcp/"
+      regex: "bash\\s+-i\\s+>&\\s*/dev/tcp/[0-9.]+/[0-9]+\\s+0>&1"
+
+  - id: impact/remote-access/reverse-shell-bash
+    description: Bash reverse shell via /dev/tcp
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1059.004"
+    file_types: [shell, packagejson, javascript]
+    condition:
+      type: string
+      regex: "bash\\s+-i\\s+>&\\s*/dev/tcp/"
 
   - id: impact/remote-access/reverse-shell-redirect
     description: Shell reverse shell stdin redirect
-    criticality: suspicious
-    confidence: 0.66
+    criticality: notable
+    confidence: 0.6
+    file_types: [shell, packagejson]
     condition:
       type: string
       exact: "0>&1"
 
   - id: impact/remote-access/reverse-shell-mkfifo
     description: Reverse shell using mkfifo and netcat
-    criticality: suspicious
-    confidence: 0.66
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1059.004"
+    file_types: [shell, packagejson]
     condition:
       type: yara
       source: |
@@ -35,3 +50,66 @@ traits:
           condition:
             filesize < 16384 and all of them
         }
+
+  # Python reverse shell
+  - id: impact/remote-access/reverse-shell-python
+    description: Python reverse shell pattern
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1059.006"
+    file_types: [shell, packagejson, python]
+    condition:
+      type: string
+      regex: "python[23]?\\s+-c\\s+['\"]import socket.*subprocess.*connect"
+
+  # Perl reverse shell
+  - id: impact/remote-access/reverse-shell-perl
+    description: Perl reverse shell pattern
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1059"
+    file_types: [shell, packagejson]
+    condition:
+      type: string
+      regex: "perl\\s+-e\\s+['\"].*socket.*connect.*exec"
+
+  # Netcat reverse shell
+  - id: impact/remote-access/reverse-shell-netcat
+    description: Netcat reverse shell pattern
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1059.004"
+    file_types: [shell, packagejson]
+    condition:
+      type: yara
+      source: |
+        rule netcat_reverse_shell {
+          strings:
+            $nc1 = /nc\s+-e\s+\/bin\/(ba)?sh/ ascii
+            $nc2 = /ncat\s+-e\s+\/bin\/(ba)?sh/ ascii
+            $nc3 = /netcat\s+-e\s+\/bin\/(ba)?sh/ ascii
+          condition:
+            any of them
+        }
+
+  # Ruby reverse shell
+  - id: impact/remote-access/reverse-shell-ruby
+    description: Ruby reverse shell pattern
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1059"
+    file_types: [shell, packagejson, ruby]
+    condition:
+      type: string
+      regex: "ruby\\s+-rsocket\\s+-e|TCPSocket\\.open.*exec"
+
+  # PHP reverse shell
+  - id: impact/remote-access/reverse-shell-php
+    description: PHP reverse shell pattern
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1059"
+    file_types: [shell, packagejson, php]
+    condition:
+      type: string
+      regex: "php\\s+-r\\s+['\"].*fsockopen.*shell_exec|\\$sock\\s*=\\s*fsockopen"

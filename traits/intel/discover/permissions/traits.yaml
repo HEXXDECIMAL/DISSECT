@@ -84,8 +84,8 @@ traits:
 
   - id: intel/discover/permissions/cap-get
     description: Linux capability get
-    criticality: suspicious
-    confidence: 0.85
+    criticality: notable
+    confidence: 0.7
     attack: "T1069"
     file_types: [elf]
     condition:

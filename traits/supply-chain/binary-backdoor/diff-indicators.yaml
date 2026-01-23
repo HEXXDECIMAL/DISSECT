@@ -12,8 +12,8 @@ traits:
 
   - id: supply-chain/binary-backdoor/unexpected-socket-ops
     description: "Socket operations in non-network library"
-    criticality: suspicious
-    confidence: 0.8
+    criticality: notable
+    confidence: 0.6
     condition:
       type: yara
       source: |
@@ -31,9 +31,15 @@ traits:
             $net_lib2 = "libcrypto" ascii
             $net_lib3 = "libcurl" ascii
             $net_lib4 = "libssh" ascii
+            // Exclude coreutils and common system utilities (use NSS for lookups)
+            $coreutils1 = "GNU coreutils" ascii
+            $coreutils2 = "coreutils" ascii
+            $coreutils3 = "glibc" ascii
+            $systemd1 = "systemd" ascii
           condition:
-            (3 of ($sock*, $send*, $recv*)) and
-            not any of ($net_lib*)
+            (4 of ($sock*, $send*, $recv*)) and
+            not any of ($net_lib*) and
+            not any of ($coreutils*, $systemd1)
         }
 
   - id: supply-chain/binary-backdoor/unexpected-process-ops
@@ -172,9 +178,9 @@ traits:
             $proc1 = "/proc/self/status" ascii
             $proc2 = "/proc/self/maps" ascii
             $proc3 = "TracerPid" ascii
-            $int3 = { CC }  // int 3
+            // Note: int3 (CC) removed - too common as padding in optimized code
           condition:
-            $ptrace or any of ($proc*) or #int3 > 5
+            $ptrace or any of ($proc*)
         }
 
   # === Obfuscation Indicators ===

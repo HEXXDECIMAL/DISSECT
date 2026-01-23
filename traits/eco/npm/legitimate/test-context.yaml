@@ -1,0 +1,175 @@
+# Test File Context Markers
+# These patterns indicate code is in a test context
+# Helps reduce false positives from test fixtures
+
+traits:
+  # Jest test file
+  - id: eco/npm/legitimate/jest-test-file
+    description: Jest test file markers
+    criticality: inert
+    confidence: 0.95
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule jest_test_file {
+          strings:
+            $describe = "describe(" ascii
+            $it = "it(" ascii
+            $test = "test(" ascii
+            $expect = "expect(" ascii
+            $jest = "jest" ascii
+            $mock = "jest.mock" ascii
+            $before = "beforeEach" ascii
+            $after = "afterEach" ascii
+          condition:
+            ($describe or $test or $it) and ($expect or $jest or $mock or $before or $after)
+        }
+
+  # Mocha test file
+  - id: eco/npm/legitimate/mocha-test-file
+    description: Mocha test file markers
+    criticality: inert
+    confidence: 0.95
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule mocha_test_file {
+          strings:
+            $describe = "describe(" ascii
+            $it = "it(" ascii
+            $before = "before(" ascii
+            $after = "after(" ascii
+            $chai = "chai" ascii
+            $assert = "assert" ascii
+            $should = "should" ascii
+          condition:
+            $describe and $it and any of ($chai, $assert, $should, $before, $after)
+        }
+
+  # Vitest test file
+  - id: eco/npm/legitimate/vitest-test-file
+    description: Vitest test file markers
+    criticality: inert
+    confidence: 0.95
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "from ['\"]vitest['\"]|import.*vitest|vi\\.mock|vi\\.fn"
+
+  # Test file naming pattern
+  - id: eco/npm/legitimate/test-filename-pattern
+    description: File follows test naming convention
+    criticality: inert
+    confidence: 0.9
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule test_filename {
+          strings:
+            $test1 = ".test." ascii
+            $test2 = ".spec." ascii
+            $test3 = "_test." ascii
+            $test4 = "_spec." ascii
+            $test5 = "/__tests__/" ascii
+            $test6 = "/__mocks__/" ascii
+          condition:
+            any of them
+        }
+
+  # Test fixture/mock data
+  - id: eco/npm/legitimate/test-fixtures
+    description: Test fixture or mock data markers
+    criticality: inert
+    confidence: 0.9
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule test_fixtures {
+          strings:
+            $fixture1 = "fixtures" ascii
+            $fixture2 = "testdata" ascii
+            $mock1 = "mockData" ascii
+            $mock2 = "__mocks__" ascii
+            $mock3 = "jest.fn()" ascii
+            $stub = "sinon.stub" ascii
+            $fake = "faker" ascii
+          condition:
+            any of them
+        }
+
+  # Snapshot testing
+  - id: eco/npm/legitimate/snapshot-test
+    description: Snapshot testing patterns
+    criticality: inert
+    confidence: 0.95
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: 'toMatchSnapshot|toMatchInlineSnapshot|\.snap'
+
+  # E2E test frameworks
+  - id: eco/npm/legitimate/e2e-test
+    description: E2E test framework markers
+    criticality: inert
+    confidence: 0.9
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule e2e_test {
+          strings:
+            $cypress = "cypress" ascii
+            $playwright = "playwright" ascii
+            $puppeteer = "puppeteer" ascii
+            $selenium = "selenium" ascii
+            $webdriver = "webdriver" ascii
+            $nightwatch = "nightwatch" ascii
+          condition:
+            any of them
+        }
+
+  # Testing library patterns
+  - id: eco/npm/legitimate/testing-library
+    description: Testing Library patterns
+    criticality: inert
+    confidence: 0.95
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "@testing-library|render\\(|screen\\.|fireEvent\\.|userEvent\\."
+
+  # Test configuration files
+  - id: eco/npm/legitimate/test-config
+    description: Test configuration file
+    criticality: inert
+    confidence: 0.95
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule test_config {
+          strings:
+            $jest1 = "jest.config" ascii
+            $jest2 = "setupFilesAfterEnv" ascii
+            $jest3 = "testEnvironment" ascii
+            $mocha = "mocharc" ascii
+            $karma = "karma.conf" ascii
+            $vitest = "vitest.config" ascii
+          condition:
+            any of them
+        }
+
+  # Coverage markers
+  - id: eco/npm/legitimate/coverage-markers
+    description: Code coverage markers
+    criticality: inert
+    confidence: 0.9
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: 'istanbul|nyc|c8|coverage|__coverage__|lcov'
+

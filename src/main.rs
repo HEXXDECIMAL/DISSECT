@@ -270,7 +270,8 @@ fn analyze_file(
             analyzer.analyze(path)?
         }
         FileType::Go => {
-            let analyzer = analyzers::go::GoAnalyzer::new();
+            let analyzer =
+                analyzers::go::GoAnalyzer::new().with_capability_mapper(capability_mapper.clone());
             analyzer.analyze(path)?
         }
         FileType::Rust => {
@@ -725,7 +726,8 @@ fn analyze_file_with_shared_mapper(
             analyzer.analyze(path)?
         }
         FileType::Go => {
-            let analyzer = analyzers::go::GoAnalyzer::new();
+            let analyzer = analyzers::go::GoAnalyzer::new()
+                .with_capability_mapper((**capability_mapper).clone());
             analyzer.analyze(path)?
         }
         FileType::Rust => {

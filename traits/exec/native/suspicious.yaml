@@ -1,0 +1,195 @@
+# Suspicious Native Module Patterns
+# Detects compiled native binaries (.node, .so, .dll) with suspicious capabilities
+# ATT&CK: T1059 (Command and Scripting Interpreter)
+
+traits:
+  # Native .node module in npm package
+  - id: exec/native/node-addon
+    description: Package contains native Node.js addon (.node binary)
+    criticality: notable
+    confidence: 0.7
+    file_types: [javascript, typescript, packagejson]
+    condition:
+      type: yara
+      source: |
+        rule node_addon {
+          strings:
+            $ext1 = ".node" ascii
+            $req1 = "require(" ascii
+            $bin1 = "binding(" ascii
+            $gyp1 = "node-gyp" ascii
+          condition:
+            $ext1 or ($req1 and $bin1) or $gyp1
+        }
+
+  # Native module with network capability
+  - id: exec/native/network-capable
+    description: Native module with network/socket capabilities
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1071"
+    file_types: [elf, macho, pe, dll]
+    condition:
+      type: yara
+      source: |
+        rule native_network {
+          strings:
+            $sock1 = "socket" ascii
+            $sock2 = "connect" ascii
+            $sock3 = "send" ascii
+            $sock4 = "recv" ascii
+            $http1 = "HTTP/1" ascii
+            $http2 = "Content-Type" ascii
+            $curl = "libcurl" ascii
+            $ssl = "SSL_connect" ascii
+          condition:
+            3 of them
+        }
+
+  # Process injection patterns (Cobalt Strike, etc)
+  - id: exec/native/process-injection
+    description: Native binary with process injection capabilities
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1055"
+    file_types: [pe, dll, elf, macho]
+    condition:
+      type: yara
+      source: |
+        rule process_injection {
+          strings:
+            // Windows
+            $w1 = "VirtualAllocEx" ascii
+            $w2 = "WriteProcessMemory" ascii
+            $w3 = "CreateRemoteThread" ascii
+            $w4 = "NtCreateThreadEx" ascii
+            $w5 = "RtlCreateUserThread" ascii
+            // Linux
+            $l1 = "ptrace" ascii
+            $l2 = "PTRACE_ATTACH" ascii
+            $l3 = "__libc_dlopen_mode" ascii
+            // macOS
+            $m1 = "task_for_pid" ascii
+            $m2 = "mach_vm_write" ascii
+          condition:
+            2 of ($w*) or any of ($l*) or any of ($m*)
+        }
+
+  # Anti-debugging in native code
+  - id: exec/native/anti-debug
+    description: Native binary with anti-debugging techniques
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1622"
+    file_types: [pe, dll, elf, macho]
+    condition:
+      type: yara
+      source: |
+        rule native_anti_debug {
+          strings:
+            // Windows
+            $w1 = "IsDebuggerPresent" ascii
+            $w2 = "CheckRemoteDebuggerPresent" ascii
+            $w3 = "NtQueryInformationProcess" ascii
+            $w4 = "OutputDebugString" ascii
+            // Linux
+            $l1 = "PTRACE_TRACEME" ascii
+            $l2 = "/proc/self/status" ascii
+            // macOS
+            $m1 = "sysctl" ascii
+            $m2 = "P_TRACED" ascii
+          condition:
+            any of them
+        }
+
+  # Shellcode patterns
+  - id: exec/native/shellcode
+    description: Native binary with shellcode patterns
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1055.001"
+    file_types: [pe, dll, elf, macho]
+    condition:
+      type: yara
+      source: |
+        rule shellcode_patterns {
+          strings:
+            // Common shellcode stubs
+            $sc1 = { 31 c0 50 68 2f 2f 73 68 }  // Linux execve /bin/sh
+            $sc2 = { 6a 3b 58 99 48 bb 2f 62 69 6e 2f 73 68 }  // x64 /bin/sh
+            $sc3 = { fc e8 82 00 00 00 }  // Windows shellcode stub
+            // VirtualAlloc + memcpy pattern
+            $alloc = "VirtualAlloc" ascii
+            $exec = "PAGE_EXECUTE" ascii
+          condition:
+            any of ($sc*) or ($alloc and $exec)
+        }
+
+  # Cobalt Strike beacon patterns
+  - id: exec/native/cobalt-strike
+    description: Cobalt Strike beacon indicators
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1071.001"
+    file_types: [pe, dll, elf, macho]
+    condition:
+      type: yara
+      source: |
+        rule cobalt_strike_beacon {
+          strings:
+            $s1 = "%s.4444" ascii
+            $s2 = "beacon.dll" ascii wide
+            $s3 = "beacon.x64.dll" ascii wide
+            $s4 = "ReflectiveLoader" ascii
+            $s5 = "%02d/%02d/%02d %02d:%02d:%02d" ascii
+            $s6 = "poisonivy" ascii nocase
+            $cfg1 = { 00 01 00 01 00 02 }  // Config header
+            $cfg2 = { 69 68 69 68 69 6b }  // "ihihik" marker
+          condition:
+            2 of ($s*) or any of ($cfg*)
+        }
+
+  # Metasploit patterns
+  - id: exec/native/metasploit
+    description: Metasploit payload indicators
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1059"
+    file_types: [pe, dll, elf, macho]
+    condition:
+      type: yara
+      source: |
+        rule metasploit_payload {
+          strings:
+            $s1 = "metsrv" ascii wide
+            $s2 = "meterpreter" ascii wide nocase
+            $s3 = "stdapi" ascii
+            $s4 = "priv_elevate" ascii
+            $s5 = "migrate" ascii
+            $s6 = { 4d 5a 52 45 }  // MZRE header
+          condition:
+            2 of them
+        }
+
+  # Cryptocurrency miner in native code
+  - id: exec/native/cryptominer
+    description: Native cryptocurrency miner binary
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1496"
+    file_types: [elf, macho, pe]
+    condition:
+      type: yara
+      source: |
+        rule native_cryptominer {
+          strings:
+            $pool1 = "stratum+tcp://" ascii
+            $pool2 = "stratum+ssl://" ascii
+            $xmr1 = "cryptonight" ascii nocase
+            $xmr2 = "randomx" ascii nocase
+            $wallet = /4[0-9AB][1-9A-HJ-NP-Za-km-z]{93}/ ascii  // Monero
+            $algo = "cn/r" ascii
+          condition:
+            any of ($pool*) or 2 of ($xmr*, $algo, $wallet)
+        }
+

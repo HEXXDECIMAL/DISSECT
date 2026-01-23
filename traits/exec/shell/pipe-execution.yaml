@@ -1,0 +1,82 @@
+# Pipe-to-Shell Execution Patterns
+# ATT&CK: T1059.004 (Unix Shell)
+# Detects curl/wget piped to shell interpreters - common dropper pattern
+
+traits:
+  # curl piped to shell
+  - id: exec/shell/curl-pipe-shell
+    description: Curl output piped to shell (dropper pattern)
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1059.004"
+    file_types: [shell, packagejson, javascript, python]
+    condition:
+      type: string
+      regex: 'curl\s+[^|]*\|\s*(sh|bash|zsh|ksh|dash)\b'
+
+  # wget piped to shell
+  - id: exec/shell/wget-pipe-shell
+    description: Wget output piped to shell (dropper pattern)
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1059.004"
+    file_types: [shell, packagejson, javascript, python]
+    condition:
+      type: string
+      regex: 'wget\s+[^|]*\|\s*(sh|bash|zsh|ksh|dash)\b'
+
+  # Generic download and execute
+  - id: exec/shell/download-pipe-exec
+    description: Download piped to interpreter (dropper pattern)
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1059"
+    file_types: [shell, packagejson]
+    condition:
+      type: yara
+      source: |
+        rule download_pipe_exec {
+          strings:
+            $curl_sh = /curl\s+[^\n|]*\|\s*(ba)?sh/ ascii
+            $wget_sh = /wget\s+[^\n|]*\|\s*(ba)?sh/ ascii
+            $curl_python = /curl\s+[^\n|]*\|\s*python/ ascii
+            $wget_python = /wget\s+[^\n|]*\|\s*python/ ascii
+            $curl_perl = /curl\s+[^\n|]*\|\s*perl/ ascii
+            $curl_node = /curl\s+[^\n|]*\|\s*node/ ascii
+          condition:
+            any of them
+        }
+
+  # Fetch and eval in shell
+  - id: exec/shell/fetch-eval
+    description: Remote script fetch and eval pattern
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1059.004"
+    file_types: [shell]
+    condition:
+      type: string
+      regex: 'eval\s*"\$\(curl|eval\s*`curl|eval\s*"\$\(wget|eval\s*`wget'
+
+  # Base64 decode and execute
+  - id: exec/shell/base64-decode-exec
+    description: Base64 decode piped to shell execution
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1027"
+    file_types: [shell, packagejson]
+    condition:
+      type: string
+      regex: 'base64\s+(-d|--decode)\s*\|\s*(sh|bash)|echo\s+[A-Za-z0-9+/=]+\s*\|\s*base64\s+(-d|--decode)\s*\|\s*(sh|bash)'
+
+  # Process substitution execution
+  - id: exec/shell/process-substitution
+    description: Process substitution for remote execution
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1059.004"
+    file_types: [shell]
+    condition:
+      type: string
+      regex: '(bash|sh)\s+<\(curl|source\s+<\(curl|source\s+<\(wget'
+

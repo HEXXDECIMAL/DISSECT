@@ -478,6 +478,59 @@ traits:
       type: string
       regex: "process\\.env\\.(API_KEY|SECRET|TOKEN|PASSWORD|CREDENTIALS|AWS_|GITHUB_TOKEN)"
 
+  # CI/CD credential targeting
+  - id: eco/npm/suspicious/cicd-credentials
+    description: Accesses CI/CD environment credentials
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1552.001"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule cicd_credentials {
+          strings:
+            $jenkins = "JENKINS_TOKEN" ascii
+            $jenkins2 = "JENKINS_API_TOKEN" ascii
+            $github = "GITHUB_TOKEN" ascii
+            $gh = "GH_TOKEN" ascii
+            $gitlab = "GITLAB_TOKEN" ascii
+            $gitlab2 = "CI_JOB_TOKEN" ascii
+            $circle = "CIRCLE_TOKEN" ascii
+            $travis = "TRAVIS_TOKEN" ascii
+            $npm = "NPM_TOKEN" ascii
+            $npm2 = "NPM_AUTH_TOKEN" ascii
+            $docker = "DOCKER_TOKEN" ascii
+            $docker2 = "DOCKERHUB_TOKEN" ascii
+            $aws = "AWS_SECRET_ACCESS_KEY" ascii
+            $aws2 = "AWS_SESSION_TOKEN" ascii
+            $azure = "AZURE_CREDENTIALS" ascii
+            $gcp = "GOOGLE_APPLICATION_CREDENTIALS" ascii
+          condition:
+            any of them
+        }
+
+  # Full process.env dump
+  - id: eco/npm/suspicious/env-dump
+    description: Dumps entire process.env (secrets exfiltration)
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1552.001"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule env_dump {
+          strings:
+            $dump1 = "JSON.stringify(process.env)" ascii
+            $dump2 = "Object.keys(process.env)" ascii
+            $dump3 = "Object.entries(process.env)" ascii
+            $dump4 = "{ ...process.env }" ascii
+            $spread = /\{\s*\.\.\.process\.env\s*\}/ ascii
+          condition:
+            any of them
+        }
+
   # File system traversal pattern
   - id: eco/npm/suspicious/fs-traversal
     description: File system directory traversal

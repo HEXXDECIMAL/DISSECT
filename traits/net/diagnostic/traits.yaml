@@ -1,0 +1,109 @@
+# Network Diagnostic Tools Detection
+# Benign baseline for ML differentiation
+
+traits:
+  # Network troubleshooting tools
+  - id: net/diagnostic/troubleshoot
+    description: Network troubleshooting utilities
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule network_troubleshoot {
+          strings:
+            // Ping/traceroute
+            $ping1 = "ping " ascii
+            $ping2 = "ping6" ascii
+            $trace1 = "traceroute" ascii
+            $trace2 = "tracepath" ascii
+            $trace3 = "mtr" ascii
+            // DNS
+            $dns1 = "nslookup" ascii
+            $dns2 = "dig " ascii
+            $dns3 = "host " ascii
+            // Connection testing
+            $conn1 = "nc " ascii
+            $conn2 = "netcat" ascii
+            $conn3 = "telnet " ascii
+          condition:
+            any of them
+        }
+
+  # Network monitoring
+  - id: net/diagnostic/monitoring
+    description: Network monitoring utilities
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule network_monitoring {
+          strings:
+            // Traffic capture
+            $cap1 = "tcpdump" ascii
+            $cap2 = "wireshark" ascii
+            $cap3 = "tshark" ascii
+            // Connection info
+            $info1 = "netstat" ascii
+            $info2 = "ss " ascii
+            $info3 = "lsof -i" ascii
+            // Interface info
+            $if1 = "ifconfig" ascii
+            $if2 = "ip addr" ascii
+            $if3 = "ip link" ascii
+          condition:
+            any of them
+        }
+
+  # Network performance
+  - id: net/diagnostic/performance
+    description: Network performance testing
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule network_performance {
+          strings:
+            // Bandwidth testing
+            $bw1 = "iperf" ascii
+            $bw2 = "iperf3" ascii
+            $bw3 = "speedtest" ascii
+            // Latency testing
+            $lat1 = "hping" ascii
+            $lat2 = "fping" ascii
+            // HTTP testing
+            $http1 = "curl " ascii
+            $http2 = "wget " ascii
+            $http3 = "ab " ascii
+            $http4 = "wrk " ascii
+          condition:
+            any of them
+        }
+
+  # Firewall management
+  - id: net/diagnostic/firewall
+    description: Firewall management utilities
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule firewall_mgmt {
+          strings:
+            // iptables
+            $ipt1 = "iptables" ascii
+            $ipt2 = "ip6tables" ascii
+            $ipt3 = "iptables-save" ascii
+            // nftables
+            $nft1 = "nft " ascii
+            $nft2 = "nftables" ascii
+            // firewalld
+            $fw1 = "firewall-cmd" ascii
+            $fw2 = "firewalld" ascii
+            // ufw
+            $ufw1 = "ufw " ascii
+          condition:
+            any of them
+        }

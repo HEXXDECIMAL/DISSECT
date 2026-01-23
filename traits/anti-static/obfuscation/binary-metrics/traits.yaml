@@ -225,7 +225,7 @@ traits:
     condition:
       type: metrics
       field: binary.avg_complexity
-      min: 25
+      min: 55
 
   - id: anti-static/obfuscation/binary-metrics/very-high-avg-complexity
     description: "Very high average complexity (heavy obfuscation)"
@@ -235,17 +235,17 @@ traits:
     condition:
       type: metrics
       field: binary.avg_complexity
-      min: 50
+      min: 75
 
   - id: anti-static/obfuscation/binary-metrics/extreme-max-complexity
     description: "Extremely high max function complexity (opaque predicates)"
-    criticality: suspicious
-    confidence: 0.8
+    criticality: notable
+    confidence: 0.7
     attack: "T1027.002"
     condition:
       type: metrics
       field: binary.max_complexity
-      min: 200
+      min: 500
 
   - id: anti-static/obfuscation/binary-metrics/many-complex-functions
     description: "Many high complexity functions (>50 cyclomatic)"

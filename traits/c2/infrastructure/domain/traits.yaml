@@ -282,3 +282,58 @@ traits:
     condition:
       type: string
       regex: '[a-z0-9-]+\.herokuapp\.com'
+
+  # Serveo SSH tunnel
+  - id: c2/infrastructure/domain/serveo-tunnel
+    description: Serveo SSH tunnel endpoint (reverse shell infrastructure)
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1572"
+    file_types: [all]
+    condition:
+      type: string
+      regex: 'serveo\.net'
+
+  # Localtunnel
+  - id: c2/infrastructure/domain/localtunnel
+    description: Localtunnel endpoint (reverse shell infrastructure)
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1572"
+    file_types: [all]
+    condition:
+      type: string
+      regex: '[a-z0-9-]+\.loca\.lt'
+
+  # Localhost.run tunnel
+  - id: c2/infrastructure/domain/localhost-run
+    description: Localhost.run tunnel endpoint
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1572"
+    file_types: [all]
+    condition:
+      type: string
+      regex: '[a-z0-9-]+\.localhost\.run'
+
+  # Cloudflare tunnel
+  - id: c2/infrastructure/domain/cloudflare-tunnel
+    description: Cloudflare tunnel endpoint
+    criticality: notable
+    confidence: 0.7
+    attack: "T1572"
+    file_types: [all]
+    condition:
+      type: string
+      regex: '[a-z0-9-]+\.trycloudflare\.com'
+
+  # Chisel tunnel binary
+  - id: c2/infrastructure/domain/chisel-tunnel
+    description: Chisel reverse tunnel infrastructure
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1572"
+    file_types: [all]
+    condition:
+      type: string
+      regex: 'chisel\\s+(client|server)|jpillora/chisel'

@@ -13,12 +13,12 @@ traits:
 
   - id: supply-chain/binary-backdoor/huge-avg-function-size
     description: "Unusually large average function size (code blob injection)"
-    criticality: suspicious
-    confidence: 0.75
+    criticality: notable
+    confidence: 0.65
     condition:
       type: metrics
       field: binary.avg_function_size
-      min: 2000
+      min: 4000
 
   - id: supply-chain/binary-backdoor/extreme-avg-function-size
     description: "Extremely large average function size (massive code injection)"
@@ -27,7 +27,7 @@ traits:
     condition:
       type: metrics
       field: binary.avg_function_size
-      min: 5000
+      min: 10000
 
   - id: supply-chain/binary-backdoor/multiple-huge-functions
     description: "Multiple extremely large functions (backdoor pattern)"

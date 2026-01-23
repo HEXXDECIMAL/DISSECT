@@ -1,0 +1,189 @@
+# Windows Scripting Objects Detection
+# ATT&CK: T1059.005 (Visual Basic), T1059.007 (JavaScript)
+# Detects WScript, ActiveX, and COM object abuse
+
+traits:
+  # WScript.Shell execution
+  - id: exec/windows/wscript-shell
+    description: WScript.Shell command execution
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1059.005"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule wscript_shell {
+          strings:
+            $ws1 = "WScript.Shell" ascii
+          condition:
+            $ws1
+        }
+
+  # Scripting.FileSystemObject
+  - id: exec/windows/filesystem-object
+    description: Scripting.FileSystemObject usage
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1059.005"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule filesystem_object {
+          strings:
+            $fso = "FileSystemObject" ascii
+          condition:
+            $fso
+        }
+
+  # ActiveXObject creation
+  - id: exec/windows/activex-object
+    description: ActiveXObject instantiation
+    criticality: notable
+    confidence: 0.8
+    attack: "T1559.001"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule activex_object {
+          strings:
+            $ax = "ActiveXObject" ascii
+          condition:
+            $ax
+        }
+
+  # Shell.Application (explorer shell)
+  - id: exec/windows/shell-application
+    description: Shell.Application COM object
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1559.001"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule shell_application {
+          strings:
+            $sa = "Shell.Application" ascii
+          condition:
+            $sa
+        }
+
+  # MSXML HTTP request
+  - id: exec/windows/msxml-http
+    description: MSXML HTTP request object
+    criticality: notable
+    confidence: 0.75
+    attack: "T1071.001"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule msxml_http {
+          strings:
+            $xml1 = "MSXML2.XMLHTTP" ascii
+            $xml2 = "Microsoft.XMLHTTP" ascii
+            $xml3 = "Msxml2.ServerXMLHTTP" ascii
+          condition:
+            any of them
+        }
+
+  # WMI scripting
+  - id: exec/windows/wmi-scripting
+    description: WMI scripting access
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1047"
+    file_types: [javascript, typescript, powershell]
+    condition:
+      type: yara
+      source: |
+        rule wmi_scripting {
+          strings:
+            $wmi1 = "winmgmts:" ascii
+            $wmi2 = "WbemScripting.SWbemLocator" ascii
+          condition:
+            any of them
+        }
+
+  # ADODB stream (file operations)
+  - id: exec/windows/adodb-stream
+    description: ADODB.Stream for file operations
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1059.005"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule adodb_stream {
+          strings:
+            $adodb = "ADODB.Stream" ascii
+          condition:
+            $adodb
+        }
+
+  # Schedule.Service (task scheduler)
+  - id: exec/windows/schedule-service
+    description: Task Scheduler COM object access
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1053.005"
+    file_types: [javascript, typescript, powershell]
+    condition:
+      type: yara
+      source: |
+        rule schedule_service {
+          strings:
+            $sched1 = "Schedule.Service" ascii
+            $sched2 = "Win32_ScheduledJob" ascii
+          condition:
+            any of them
+        }
+
+  # Registry manipulation via scripting
+  - id: exec/windows/registry-scripting
+    description: Registry manipulation via scripting
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1112"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule registry_scripting {
+          strings:
+            $wsh = "WScript.Shell" ascii
+            $reg1 = "RegRead" ascii
+            $reg2 = "RegWrite" ascii
+            $reg3 = "RegDelete" ascii
+            $hklm = "HKLM" ascii
+            $hkcu = "HKCU" ascii
+          condition:
+            $wsh and any of ($reg*) and any of ($hklm, $hkcu)
+        }
+
+  # Windows Script Host dropper
+  - id: exec/windows/wsh-dropper
+    description: Windows Script Host dropper pattern
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1059.005"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule wsh_dropper {
+          strings:
+            $wsh = "WScript.Shell" ascii
+            $fso = "FileSystemObject" ascii
+            $http1 = "MSXML2.XMLHTTP" ascii
+            $http2 = "WinHttp" ascii
+            $run = ".Run(" ascii
+            $exec = ".Exec(" ascii
+            $save = "SaveToFile" ascii
+          condition:
+            ($wsh or $fso) and any of ($http*) and any of ($run, $exec, $save)
+        }

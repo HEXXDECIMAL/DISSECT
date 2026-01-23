@@ -1,0 +1,86 @@
+# BPF/eBPF Detection Patterns
+# Can be both legitimate (tracing) and malicious (backdoors)
+
+traits:
+  # Malicious BPF usage (backdoor patterns)
+  - id: evasion/bpf/backdoor
+    description: BPF packet filtering for backdoor activation
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1205"
+    condition:
+      type: yara
+      source: |
+        rule bpf_backdoor {
+          strings:
+            // BPF filter attachment
+            $bpf1 = "SO_ATTACH_FILTER" ascii
+            $bpf2 = "SO_ATTACH_BPF" ascii
+            // Raw packet capture
+            $raw1 = "AF_PACKET" ascii
+            $raw2 = "SOCK_RAW" ascii
+            // Magic packet patterns
+            $magic1 = "magic_packet" ascii
+            $magic2 = "trigger_packet" ascii
+            $magic3 = "knock" ascii
+            // Port knocking
+            $knock1 = "port_knock" ascii
+            $knock2 = "sequence" ascii
+          condition:
+            (any of ($bpf*) and any of ($raw*) and any of ($magic*, $knock*))
+        }
+
+  # BPFDoor-style backdoor
+  - id: evasion/bpf/bpfdoor-style
+    description: BPFDoor-style packet filter backdoor
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1205"
+    condition:
+      type: yara
+      source: |
+        rule bpfdoor_style {
+          strings:
+            // BPF filter for specific packets
+            $bpf1 = "bpf_program" ascii
+            $bpf2 = "BPF_" ascii
+            // Packet inspection
+            $pkt1 = "pcap_" ascii
+            $pkt2 = "recvfrom" ascii
+            // Reverse shell activation
+            $shell1 = "/bin/sh" ascii
+            $shell2 = "dup2" ascii
+            $shell3 = "execve" ascii
+            // ICMP or UDP trigger
+            $proto1 = "IPPROTO_ICMP" ascii
+            $proto2 = "IPPROTO_UDP" ascii
+          condition:
+            (any of ($bpf*) and any of ($pkt*)) and
+            (any of ($shell*) or any of ($proto*))
+        }
+
+  # Legitimate eBPF tracing
+  - id: evasion/bpf/tracing
+    description: Legitimate eBPF tracing/observability
+    criticality: benign
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule ebpf_tracing {
+          strings:
+            // BPF tracing frameworks
+            $trace1 = "bpftrace" ascii
+            $trace2 = "bcc" ascii
+            $trace3 = "libbpf" ascii
+            // Tracing functions
+            $func1 = "bpf_probe_read" ascii
+            $func2 = "bpf_kprobe" ascii
+            $func3 = "bpf_tracepoint" ascii
+            // Observability
+            $obs1 = "cilium" ascii
+            $obs2 = "falco" ascii
+            $obs3 = "tracee" ascii
+          condition:
+            any of ($trace*) or any of ($func*) or any of ($obs*)
+        }

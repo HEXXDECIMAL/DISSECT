@@ -1,0 +1,91 @@
+# Blockchain-Based C2 Infrastructure
+# ATT&CK: T1102 (Web Service)
+# Uses blockchain/smart contract storage for C2 URL retrieval
+
+traits:
+  # Etherscan API abuse for C2 retrieval
+  - id: c2/infrastructure/blockchain/etherscan-api
+    description: Uses Etherscan API (potential blockchain-based C2)
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1102"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "api\\.etherscan\\.io|etherscan\\.io/api"
+
+  # BSCScan API (Binance Smart Chain)
+  - id: c2/infrastructure/blockchain/bscscan-api
+    description: Uses BSCScan API (potential blockchain-based C2)
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1102"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "api\\.bscscan\\.com|bscscan\\.com/api"
+
+  # PolygonScan API
+  - id: c2/infrastructure/blockchain/polygonscan-api
+    description: Uses PolygonScan API (potential blockchain-based C2)
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1102"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "api\\.polygonscan\\.com|polygonscan\\.com/api"
+
+  # Generic blockchain explorer with contract read
+  - id: c2/infrastructure/blockchain/contract-read
+    description: Reads smart contract storage (potential C2 retrieval)
+    criticality: notable
+    confidence: 0.75
+    attack: "T1102"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule contract_storage_read {
+          strings:
+            $eth_call = "eth_call" ascii
+            $eth_storage = "eth_getStorageAt" ascii
+            $contract = "contract" ascii nocase
+            $address = /0x[a-fA-F0-9]{40}/ ascii
+          condition:
+            any of ($eth_call, $eth_storage) and ($contract or $address)
+        }
+
+  # Infura/Alchemy RPC with suspicious patterns
+  - id: c2/infrastructure/blockchain/rpc-provider
+    description: Uses blockchain RPC provider (monitor for C2 abuse)
+    criticality: notable
+    confidence: 0.6
+    attack: "T1102"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "infura\\.io/v3/|alchemy\\.com/v2/|quicknode\\.com|ankr\\.com"
+
+  # IPFS gateway (decentralized payload hosting)
+  - id: c2/infrastructure/blockchain/ipfs-gateway
+    description: Uses IPFS gateway (decentralized content retrieval)
+    criticality: notable
+    confidence: 0.7
+    attack: "T1102"
+    file_types: [javascript, typescript, shell]
+    condition:
+      type: string
+      regex: "ipfs\\.io/ipfs/|gateway\\.pinata\\.cloud|cloudflare-ipfs\\.com|dweb\\.link"
+
+  # Arweave gateway (permanent storage C2)
+  - id: c2/infrastructure/blockchain/arweave-gateway
+    description: Uses Arweave gateway (permanent content retrieval)
+    criticality: notable
+    confidence: 0.7
+    attack: "T1102"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "arweave\\.net/|ar-io\\.net/"
+

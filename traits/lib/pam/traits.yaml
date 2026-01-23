@@ -1,0 +1,67 @@
+# PAM (Pluggable Authentication Modules) Library Detection
+# Useful for ML baseline - legitimate PAM usage patterns
+
+traits:
+  # PAM library usage
+  - id: lib/pam/client
+    description: PAM client library usage
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule pam_client {
+          strings:
+            $pam1 = "pam_start" ascii
+            $pam2 = "pam_end" ascii
+            $pam3 = "pam_authenticate" ascii
+            $pam4 = "pam_acct_mgmt" ascii
+            $pam5 = "pam_setcred" ascii
+            $lib1 = "libpam.so" ascii
+            $lib2 = "libpam" ascii
+          condition:
+            any of ($lib*) or 3 of ($pam*)
+        }
+
+  # PAM module development
+  - id: lib/pam/module
+    description: PAM module implementation
+    criticality: benign
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule pam_module {
+          strings:
+            $mod1 = "pam_sm_authenticate" ascii
+            $mod2 = "pam_sm_setcred" ascii
+            $mod3 = "pam_sm_acct_mgmt" ascii
+            $mod4 = "pam_sm_open_session" ascii
+            $mod5 = "pam_sm_close_session" ascii
+            $handle1 = "pam_handle_t" ascii
+            $handle2 = "pam_get_item" ascii
+          condition:
+            2 of ($mod*) or (any of ($mod*) and any of ($handle*))
+        }
+
+  # PAM configuration
+  - id: lib/pam/config
+    description: PAM configuration patterns
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule pam_config {
+          strings:
+            $cfg1 = "/etc/pam.d/" ascii
+            $cfg2 = "/etc/pam.conf" ascii
+            $mod1 = "pam_unix" ascii
+            $mod2 = "pam_permit" ascii
+            $mod3 = "pam_deny" ascii
+            $ctrl1 = "required" ascii
+            $ctrl2 = "sufficient" ascii
+          condition:
+            any of ($cfg*) or 2 of ($mod*) or
+            (any of ($mod*) and any of ($ctrl*))
+        }

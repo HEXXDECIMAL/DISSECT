@@ -1,0 +1,189 @@
+# Virtual Machine / Hypervisor Detection
+# ATT&CK: T1497.001 (Virtualization/Sandbox Evasion: System Checks)
+# Detects checks for VM/hypervisor presence
+
+traits:
+  # Hypervisor vendor strings
+  - id: anti-analysis/vm/hypervisor-vendor
+    description: Checks for hypervisor vendor strings
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1497.001"
+    file_types: [javascript, typescript, python, shell]
+    condition:
+      type: yara
+      source: |
+        rule hypervisor_vendor {
+          strings:
+            $xen = "XEN" ascii
+            $xen2 = "Xen" ascii
+            $kvm = "KVM" ascii
+            $kvm2 = "KVMKVMKVM" ascii
+            $vmware = "VMware" ascii nocase
+            $vbox = "VirtualBox" ascii nocase
+            $vbox2 = "VBOX" ascii
+            $hyperv = "Hyper-V" ascii nocase
+            $hyperv2 = "Microsoft Hv" ascii
+            $qemu = "QEMU" ascii
+            $parallels = "Parallels" ascii
+            $bhyve = "bhyve" ascii
+          condition:
+            any of them
+        }
+
+  # CPUID hypervisor bit check
+  - id: anti-analysis/vm/cpuid-check
+    description: CPUID instruction for hypervisor detection
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1497.001"
+    file_types: [python, shell]
+    condition:
+      type: string
+      regex: '/proc/cpuinfo.*hypervisor|cpuid|hypervisor\s*flag'
+
+  # DMI/SMBIOS VM detection
+  - id: anti-analysis/vm/dmi-check
+    description: DMI/SMBIOS check for VM detection
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1497.001"
+    file_types: [python, shell]
+    condition:
+      type: yara
+      source: |
+        rule dmi_vm_check {
+          strings:
+            $dmi1 = "dmidecode" ascii
+            $dmi2 = "/sys/class/dmi" ascii
+            $dmi3 = "product_name" ascii
+            $dmi4 = "sys_vendor" ascii
+            $bios = "bios_vendor" ascii
+          condition:
+            $dmi1 or ($dmi2 and any of ($dmi3, $dmi4, $bios))
+        }
+
+  # VM-specific file checks
+  - id: anti-analysis/vm/file-check
+    description: Checks for VM-specific files
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1497.001"
+    file_types: [python, shell, javascript]
+    condition:
+      type: yara
+      source: |
+        rule vm_file_check {
+          strings:
+            $vbox1 = "VBoxGuest" ascii
+            $vbox2 = "VBoxMouse" ascii
+            $vbox3 = "VBoxSF" ascii
+            $vmware1 = "vmware-tools" ascii
+            $vmware2 = "vmtoolsd" ascii
+            $vmware3 = "/vmhgfs" ascii
+            $qemu1 = "qemu-ga" ascii
+            $qemu2 = "/dev/vda" ascii
+          condition:
+            any of them
+        }
+
+  # VM MAC address prefixes
+  - id: anti-analysis/vm/mac-prefix
+    description: Checks for VM MAC address prefixes
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1497.001"
+    file_types: [javascript, typescript, python, shell]
+    condition:
+      type: yara
+      source: |
+        rule vm_mac_prefix {
+          strings:
+            // VMware
+            $mac1 = "00:0c:29" ascii nocase
+            $mac2 = "00:50:56" ascii nocase
+            $mac3 = "00:05:69" ascii nocase
+            // VirtualBox
+            $mac4 = "08:00:27" ascii nocase
+            // Xen
+            $mac5 = "00:16:3e" ascii nocase
+            // Hyper-V
+            $mac6 = "00:15:5d" ascii nocase
+            // Parallels
+            $mac7 = "00:1c:42" ascii nocase
+            // QEMU/KVM
+            $mac8 = "52:54:00" ascii nocase
+          condition:
+            any of them
+        }
+
+  # Hardware model VM check
+  - id: anti-analysis/vm/hardware-model
+    description: Checks hardware model for VM indicators
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1497.001"
+    file_types: [python, shell]
+    condition:
+      type: string
+      regex: 'system_profiler.*Model|wmic.*computersystem.*model|/sys/devices/virtual'
+
+  # Cloud provider metadata check
+  - id: anti-analysis/vm/cloud-metadata
+    description: Cloud provider metadata access (VM detection)
+    criticality: notable
+    confidence: 0.7
+    attack: "T1497.001"
+    file_types: [javascript, typescript, python, shell]
+    condition:
+      type: string
+      regex: '169\.254\.169\.254|metadata\.google\.internal|169\.254\.169\.123'
+
+  # Docker/container detection
+  - id: anti-analysis/vm/container-check
+    description: Container environment detection
+    criticality: notable
+    confidence: 0.75
+    attack: "T1497.001"
+    file_types: [python, shell, javascript]
+    condition:
+      type: yara
+      source: |
+        rule container_check {
+          strings:
+            $docker1 = "/.dockerenv" ascii
+            $docker2 = "/run/docker.sock" ascii
+            $cgroup = "/proc/1/cgroup" ascii
+            $k8s1 = "KUBERNETES_SERVICE" ascii
+            $k8s2 = "/var/run/secrets/kubernetes" ascii
+          condition:
+            any of them
+        }
+
+  # Comprehensive VM evasion
+  - id: anti-analysis/vm/comprehensive-evasion
+    description: Multiple VM detection techniques (evasion attempt)
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1497.001"
+    file_types: [python, shell, javascript]
+    condition:
+      type: yara
+      source: |
+        rule comprehensive_vm_evasion {
+          strings:
+            $vm1 = "VirtualBox" ascii nocase
+            $vm2 = "VMware" ascii nocase
+            $vm3 = "QEMU" ascii nocase
+            $vm4 = "Xen" ascii nocase
+            $mac1 = "00:0c:29" ascii
+            $mac2 = "08:00:27" ascii
+            $file1 = "/.dockerenv" ascii
+            $file2 = "vmtoolsd" ascii
+            $exit1 = "exit" ascii
+            $exit2 = "sys.exit" ascii
+            $exit3 = "process.exit" ascii
+          condition:
+            3 of ($vm*, $mac*, $file*) and any of ($exit*)
+        }
+

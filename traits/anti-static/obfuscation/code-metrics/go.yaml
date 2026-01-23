@@ -1,0 +1,78 @@
+# Go Source Code Metrics for Obfuscation Detection
+# Detects obfuscation patterns in Go source code via metrics analysis
+
+defaults:
+  file_types: [go]
+  attack: "T1027"
+  mbc: "B0032"
+
+traits:
+  # === Dangerous Package Usage (Obfuscation/Anti-Analysis) ===
+
+  - id: anti-static/obfuscation/code-metrics/go-unsafe-usage
+    description: Uses unsafe package for pointer manipulation
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: metrics
+      field: go_metrics.unsafe_usage
+      min: 1
+
+  - id: anti-static/obfuscation/code-metrics/go-reflect-heavy
+    description: Heavy use of reflection (dynamic invocation)
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: metrics
+      field: go_metrics.reflect_usage
+      min: 3
+
+  - id: anti-static/obfuscation/code-metrics/go-plugin-loading
+    description: Uses plugin package for dynamic code loading
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: metrics
+      field: go_metrics.plugin_usage
+      min: 1
+
+  # === Build Directive Abuse (Stealth/Anti-Analysis) ===
+
+  - id: anti-static/obfuscation/code-metrics/go-linkname-directive
+    description: Uses //go:linkname to access private runtime
+    criticality: suspicious
+    confidence: 0.9
+    condition:
+      type: metrics
+      field: go_metrics.linkname_count
+      min: 1
+
+  - id: anti-static/obfuscation/code-metrics/go-noescape-directive
+    description: Uses //go:noescape compiler directive
+    criticality: notable
+    confidence: 0.75
+    condition:
+      type: metrics
+      field: go_metrics.noescape_count
+      min: 1
+
+  - id: anti-static/obfuscation/code-metrics/go-cgo-directives
+    description: Uses #cgo preprocessor directives
+    criticality: notable
+    confidence: 0.75
+    condition:
+      type: metrics
+      field: go_metrics.cgo_directives
+      min: 1
+
+composite_rules:
+  # Detect obfuscation via unsafe + reflect
+  - id: anti-static/obfuscation/code-metrics/go-obfuscation-combo
+    description: Uses unsafe and heavy reflection (obfuscation pattern)
+    criticality: suspicious
+    confidence: 0.85
+    requires_all:
+      - type: trait
+        id: go-unsafe-usage
+      - type: trait
+        id: go-reflect-heavy

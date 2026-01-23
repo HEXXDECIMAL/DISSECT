@@ -1,0 +1,146 @@
+# PyPI Malicious Package Patterns
+# ATT&CK: T1195.002 (Supply Chain Compromise)
+
+traits:
+  # setup.py abuse
+  - id: eco/pypi/malicious/setup-abuse
+    description: Malicious setup.py execution
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1195.002"
+    condition:
+      type: yara
+      source: |
+        rule pypi_setup_abuse {
+          strings:
+            // setup.py context
+            $setup1 = "setup(" ascii
+            $setup2 = "setuptools" ascii
+            $setup3 = "distutils" ascii
+            // Malicious imports
+            $imp1 = "subprocess" ascii
+            $imp2 = "os.system" ascii
+            $imp3 = "urllib" ascii
+            // Command execution
+            $cmd1 = "Popen" ascii
+            $cmd2 = "call(" ascii
+            $cmd3 = "run(" ascii
+            // Download and execute
+            $dl1 = "urlopen" ascii
+            $dl2 = "urlretrieve" ascii
+          condition:
+            (any of ($setup*) and any of ($imp*) and any of ($cmd*, $dl*))
+        }
+
+  # PyPI credential stealing
+  - id: eco/pypi/malicious/cred-steal
+    description: PyPI package stealing credentials
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1552"
+    condition:
+      type: yara
+      source: |
+        rule pypi_cred_steal {
+          strings:
+            // Environment access
+            $env1 = "os.environ" ascii
+            $env2 = "os.getenv" ascii
+            // Sensitive targets
+            $sens1 = "AWS_" ascii
+            $sens2 = "GITHUB" ascii
+            $sens3 = "TOKEN" ascii
+            $sens4 = "SECRET" ascii
+            $sens5 = "PASSWORD" ascii
+            // Exfil methods
+            $exfil1 = "requests.post" ascii
+            $exfil2 = "urllib" ascii
+            $exfil3 = "http.client" ascii
+            // File access
+            $file1 = "/.aws/" ascii
+            $file2 = "/.ssh/" ascii
+            $file3 = "/.netrc" ascii
+          condition:
+            (any of ($env*) and any of ($sens*) and any of ($exfil*)) or
+            (any of ($file*) and any of ($exfil*))
+        }
+
+  # PyPI reverse shell
+  - id: eco/pypi/malicious/reverse-shell
+    description: PyPI package with reverse shell
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1059"
+    condition:
+      type: yara
+      source: |
+        rule pypi_reverse_shell {
+          strings:
+            // Socket operations
+            $sock1 = "socket.socket" ascii
+            $sock2 = "socket.AF_INET" ascii
+            $sock3 = ".connect(" ascii
+            // Shell execution
+            $shell1 = "subprocess" ascii
+            $shell2 = "/bin/sh" ascii
+            $shell3 = "/bin/bash" ascii
+            // Pipe redirection
+            $pipe1 = "dup2" ascii
+            $pipe2 = "stdin" ascii
+            $pipe3 = "stdout" ascii
+          condition:
+            (any of ($sock*) and any of ($shell*)) or
+            (any of ($sock*) and any of ($pipe*))
+        }
+
+  # PyPI typosquatting
+  - id: eco/pypi/malicious/typosquat
+    description: PyPI typosquatting indicators
+    criticality: suspicious
+    confidence: 0.75
+    attack: "T1195.002"
+    condition:
+      type: yara
+      source: |
+        rule pypi_typosquat {
+          strings:
+            // Common targets
+            $pkg1 = "requests" ascii
+            $pkg2 = "urllib3" ascii
+            $pkg3 = "colorama" ascii
+            $pkg4 = "numpy" ascii
+            // With suspicious behavior
+            $sus1 = "subprocess" ascii
+            $sus2 = "os.system" ascii
+            $sus3 = "exec(" ascii
+            $sus4 = "eval(" ascii
+          condition:
+            (any of ($pkg*) and 2 of ($sus*))
+        }
+
+  # PyPI code injection
+  - id: eco/pypi/malicious/code-inject
+    description: PyPI package with code injection
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1059"
+    condition:
+      type: yara
+      source: |
+        rule pypi_code_inject {
+          strings:
+            // Code execution
+            $exec1 = "exec(" ascii
+            $exec2 = "eval(" ascii
+            $exec3 = "compile(" ascii
+            // Encoding/decoding
+            $enc1 = "base64.b64decode" ascii
+            $enc2 = "codecs.decode" ascii
+            $enc3 = "zlib.decompress" ascii
+            // Marshal/pickle
+            $ser1 = "marshal.loads" ascii
+            $ser2 = "pickle.loads" ascii
+          condition:
+            (any of ($exec*) and any of ($enc*)) or
+            any of ($ser*)
+        }

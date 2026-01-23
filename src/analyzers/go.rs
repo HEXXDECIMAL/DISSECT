@@ -4,6 +4,7 @@ use crate::analyzers::{
     function_metrics::{self, FunctionInfo},
     identifier_metrics, string_metrics, text_metrics,
 };
+use crate::capabilities::CapabilityMapper;
 use crate::types::*;
 use anyhow::{Context, Result};
 use std::cell::RefCell;
@@ -14,6 +15,7 @@ use tree_sitter::Parser;
 /// Go analyzer using tree-sitter
 pub struct GoAnalyzer {
     parser: RefCell<Parser>,
+    capability_mapper: CapabilityMapper,
 }
 
 impl GoAnalyzer {
@@ -25,7 +27,13 @@ impl GoAnalyzer {
 
         Self {
             parser: RefCell::new(parser),
+            capability_mapper: CapabilityMapper::empty(),
         }
+    }
+
+    pub fn with_capability_mapper(mut self, capability_mapper: CapabilityMapper) -> Self {
+        self.capability_mapper = capability_mapper;
+        self
     }
 
     fn analyze_source(&self, file_path: &Path, content: &str) -> Result<AnalysisReport> {
@@ -84,6 +92,18 @@ impl GoAnalyzer {
         report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;
         report.metadata.tools_used = vec!["tree-sitter-go".to_string()];
 
+        // Apply YAML-defined traits using capability mapper
+        let trait_findings = self
+            .capability_mapper
+            .evaluate_traits(&report, content.as_bytes());
+        report.findings.extend(trait_findings);
+
+        // Apply composite rules
+        let composite_findings = self
+            .capability_mapper
+            .evaluate_composite_rules(&report, content.as_bytes());
+        report.findings.extend(composite_findings);
+
         Ok(report)
     }
 
@@ -107,13 +127,148 @@ impl GoAnalyzer {
         let func_infos = self.extract_function_info(root, source);
         let func_metrics = function_metrics::analyze_functions(&func_infos, total_lines);
 
+        // Compute Go-specific metrics
+        let go_metrics = self.compute_go_metrics(root, source, content);
+
         Metrics {
             text: Some(text),
             identifiers: Some(identifier_metrics),
             strings: Some(string_metrics),
             comments: Some(comment_metrics),
             functions: Some(func_metrics),
+            go_metrics: Some(go_metrics),
             ..Default::default()
+        }
+    }
+
+    /// Compute Go-specific metrics for malware/obfuscation detection
+    fn compute_go_metrics(
+        &self,
+        root: &tree_sitter::Node,
+        source: &[u8],
+        content: &str,
+    ) -> GoMetrics {
+        let mut metrics = GoMetrics::default();
+        let mut cursor = root.walk();
+        self.walk_for_go_metrics(&mut cursor, source, &mut metrics);
+
+        // Additional pattern-based detection via string matching
+        // These catch patterns that might be in comments or string literals
+        metrics.linkname_count += content.matches("//go:linkname").count() as u32;
+        metrics.noescape_count += content.matches("//go:noescape").count() as u32;
+        metrics.embed_directive_count += content.matches("//go:embed").count() as u32;
+        metrics.cgo_directives += content.matches("#cgo ").count() as u32;
+
+        metrics
+    }
+
+    fn walk_for_go_metrics(
+        &self,
+        cursor: &mut tree_sitter::TreeCursor,
+        source: &[u8],
+        metrics: &mut GoMetrics,
+    ) {
+        loop {
+            let node = cursor.node();
+
+            match node.kind() {
+                "import_spec" => {
+                    if let Ok(text) = node.utf8_text(source) {
+                        // Dangerous package imports
+                        if text.contains("\"unsafe\"") {
+                            metrics.unsafe_usage += 1;
+                        }
+                        if text.contains("\"reflect\"") {
+                            metrics.reflect_usage += 1;
+                        }
+                        if text.contains("\"C\"") {
+                            metrics.cgo_usage += 1;
+                        }
+                        if text.contains("\"plugin\"") {
+                            metrics.plugin_usage += 1;
+                        }
+                        if text.contains("\"syscall\"") {
+                            metrics.syscall_direct += 1;
+                        }
+                        // Blank imports (import _ "pkg") - often used for side effects
+                        if text.starts_with("_ ") || text.contains("_ \"") {
+                            metrics.blank_import_count += 1;
+                        }
+                    }
+                }
+                "function_declaration" => {
+                    // Count init functions
+                    if let Some(name_node) = node.child_by_field_name("name") {
+                        if let Ok(name) = name_node.utf8_text(source) {
+                            if name == "init" {
+                                metrics.init_function_count += 1;
+                            }
+                        }
+                    }
+                }
+                "call_expression" => {
+                    if let Ok(text) = node.utf8_text(source) {
+                        // Execution
+                        if text.contains("exec.Command") {
+                            metrics.exec_command_count += 1;
+                        }
+                        if text.contains("os.StartProcess") {
+                            metrics.os_startprocess_count += 1;
+                        }
+
+                        // Network
+                        if text.contains("net.Dial")
+                            || text.contains("net.DialTCP")
+                            || text.contains("net.DialUDP")
+                        {
+                            metrics.net_dial_count += 1;
+                        }
+                        if text.contains("http.Get")
+                            || text.contains("http.Post")
+                            || text.contains("http.Do")
+                            || text.contains("http.ListenAndServe")
+                            || text.contains("http.NewRequest")
+                        {
+                            metrics.http_usage += 1;
+                        }
+                        if text.contains("syscall.Socket")
+                            || text.contains("net.ListenPacket")
+                            || text.contains("icmp")
+                        {
+                            metrics.raw_socket_count += 1;
+                        }
+                    }
+                }
+                "selector_expression" => {
+                    if let Ok(text) = node.utf8_text(source) {
+                        // Track unsafe.Pointer usage
+                        if text.contains("unsafe.Pointer")
+                            || text.contains("unsafe.Sizeof")
+                            || text.contains("unsafe.Offsetof")
+                            || text.contains("unsafe.Alignof")
+                        {
+                            metrics.unsafe_usage += 1;
+                        }
+                        // Track reflect usage
+                        if text.contains("reflect.ValueOf")
+                            || text.contains("reflect.TypeOf")
+                            || text.contains("reflect.Call")
+                        {
+                            metrics.reflect_usage += 1;
+                        }
+                    }
+                }
+                _ => {}
+            }
+
+            if cursor.goto_first_child() {
+                self.walk_for_go_metrics(cursor, source, metrics);
+                cursor.goto_parent();
+            }
+
+            if !cursor.goto_next_sibling() {
+                break;
+            }
         }
     }
 
@@ -1454,5 +1609,55 @@ func main() {
         let analyzer = GoAnalyzer::new();
         let path = PathBuf::from("test.txt");
         assert!(!analyzer.can_analyze(&path));
+    }
+
+    #[test]
+    fn test_go_metrics() {
+        let code = r#"
+package main
+
+import (
+    "os/exec"
+    "net"
+    "net/http"
+    "reflect"
+    "unsafe"
+    "syscall"
+    _ "embed"
+)
+
+//go:embed data.txt
+var data string
+
+//go:linkname runtimeGC runtime.GC
+func runtimeGC()
+
+func init() {
+    println("init")
+}
+
+func main() {
+    exec.Command("ls").Run()
+    net.Dial("tcp", "example.com:80")
+    http.Get("https://example.com")
+    reflect.ValueOf(42)
+    _ = unsafe.Pointer(nil)
+    syscall.Getpid()
+}
+"#;
+        let report = analyze_go_code(code);
+        let metrics = report.metrics.expect("metrics should be present");
+        let go_metrics = metrics.go_metrics.expect("go_metrics should be present");
+
+        assert!(go_metrics.unsafe_usage >= 1, "unsafe_usage should be >= 1");
+        assert!(go_metrics.reflect_usage >= 1, "reflect_usage should be >= 1");
+        assert!(go_metrics.syscall_direct >= 1, "syscall_direct should be >= 1");
+        assert!(go_metrics.exec_command_count >= 1, "exec_command_count should be >= 1");
+        assert!(go_metrics.net_dial_count >= 1, "net_dial_count should be >= 1");
+        assert!(go_metrics.http_usage >= 1, "http_usage should be >= 1");
+        assert_eq!(go_metrics.init_function_count, 1, "init_function_count should be 1");
+        assert_eq!(go_metrics.blank_import_count, 1, "blank_import_count should be 1");
+        assert_eq!(go_metrics.embed_directive_count, 1, "embed_directive_count should be 1");
+        assert_eq!(go_metrics.linkname_count, 1, "linkname_count should be 1");
     }
 }

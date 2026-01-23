@@ -814,6 +814,214 @@ pub fn eval_entropy(
     }
 }
 
+/// Evaluate a generic metrics condition against computed source code metrics
+/// Supports dot-separated field paths like "go_metrics.unsafe_usage"
+pub fn eval_metrics(
+    field: &str,
+    min: Option<f64>,
+    max: Option<f64>,
+    ctx: &EvaluationContext,
+) -> ConditionResult {
+    let metrics = match &ctx.report.metrics {
+        Some(m) => m,
+        None => return ConditionResult::no_match(),
+    };
+
+    // Look up the field value using the dot-separated path
+    let value = get_metric_value(metrics, field);
+
+    let value = match value {
+        Some(v) => v,
+        None => return ConditionResult::no_match(),
+    };
+
+    // Check min/max bounds
+    let mut matches = true;
+    if let Some(min_val) = min {
+        if value < min_val {
+            matches = false;
+        }
+    }
+    if let Some(max_val) = max {
+        if value > max_val {
+            matches = false;
+        }
+    }
+
+    if matches && value > 0.0 {
+        ConditionResult {
+            matched: true,
+            evidence: vec![Evidence {
+                method: "metrics".to_string(),
+                source: "source_analysis".to_string(),
+                value: format!("{} = {:.2}", field, value),
+                location: None,
+                span: None,
+                analysis_layer: None,
+            }],
+            traits: Vec::new(),
+        }
+    } else {
+        ConditionResult::no_match()
+    }
+}
+
+/// Get a metric value by dot-separated field path
+fn get_metric_value(metrics: &crate::types::Metrics, field: &str) -> Option<f64> {
+    let parts: Vec<&str> = field.split('.').collect();
+    if parts.len() != 2 {
+        return None;
+    }
+
+    let (section, key) = (parts[0], parts[1]);
+
+    match section {
+        // Go metrics
+        "go_metrics" => {
+            let go = metrics.go_metrics.as_ref()?;
+            match key {
+                "unsafe_usage" => Some(go.unsafe_usage as f64),
+                "reflect_usage" => Some(go.reflect_usage as f64),
+                "cgo_usage" => Some(go.cgo_usage as f64),
+                "plugin_usage" => Some(go.plugin_usage as f64),
+                "syscall_direct" => Some(go.syscall_direct as f64),
+                "exec_command_count" => Some(go.exec_command_count as f64),
+                "os_startprocess_count" => Some(go.os_startprocess_count as f64),
+                "net_dial_count" => Some(go.net_dial_count as f64),
+                "http_usage" => Some(go.http_usage as f64),
+                "raw_socket_count" => Some(go.raw_socket_count as f64),
+                "embed_directive_count" => Some(go.embed_directive_count as f64),
+                "linkname_count" => Some(go.linkname_count as f64),
+                "noescape_count" => Some(go.noescape_count as f64),
+                "cgo_directives" => Some(go.cgo_directives as f64),
+                "init_function_count" => Some(go.init_function_count as f64),
+                "blank_import_count" => Some(go.blank_import_count as f64),
+                _ => None,
+            }
+        }
+        // Python metrics
+        "python" => {
+            let py = metrics.python.as_ref()?;
+            match key {
+                "eval_count" => Some(py.eval_count as f64),
+                "exec_count" => Some(py.exec_count as f64),
+                "compile_count" => Some(py.compile_count as f64),
+                "dunder_import_count" => Some(py.dunder_import_count as f64),
+                "importlib_count" => Some(py.importlib_count as f64),
+                "attr_manipulation_count" => Some(py.attr_manipulation_count as f64),
+                "globals_locals_access" => Some(py.globals_locals_access as f64),
+                "marshal_usage" => Some(py.marshal_usage as f64),
+                "lambda_count" => Some(py.lambda_count as f64),
+                "nested_lambda_count" => Some(py.nested_lambda_count as f64),
+                _ => None,
+            }
+        }
+        // JavaScript metrics
+        "javascript" => {
+            let js = metrics.javascript.as_ref()?;
+            match key {
+                "eval_count" => Some(js.eval_count as f64),
+                "function_constructor" => Some(js.function_constructor as f64),
+                "document_write" => Some(js.document_write as f64),
+                "innerhtml_count" => Some(js.innerhtml_count as f64),
+                "settimeout_string" => Some(js.settimeout_string as f64),
+                "obfuscation_score" => Some(js.obfuscation_score as f64),
+                _ => None,
+            }
+        }
+        // Shell metrics
+        "shell" => {
+            let sh = metrics.shell.as_ref()?;
+            match key {
+                "eval_count" => Some(sh.eval_count as f64),
+                "base64_decode_count" => Some(sh.base64_decode_count as f64),
+                "curl_wget_count" => Some(sh.curl_wget_count as f64),
+                "pipe_to_shell_count" => Some(sh.pipe_to_shell_count as f64),
+                "hidden_file_access" => Some(sh.hidden_file_access as f64),
+                _ => None,
+            }
+        }
+        // Text metrics (universal)
+        "text" => {
+            let t = metrics.text.as_ref()?;
+            match key {
+                "total_lines" => Some(t.total_lines as f64),
+                "total_chars" => Some(t.total_chars as f64),
+                "max_line_length" => Some(t.max_line_length as f64),
+                "avg_line_length" => Some(t.avg_line_length),
+                "entropy" => Some(t.entropy),
+                _ => None,
+            }
+        }
+        // Identifier metrics (universal)
+        "identifiers" => {
+            let i = metrics.identifiers.as_ref()?;
+            match key {
+                "total" => Some(i.total as f64),
+                "unique" => Some(i.unique as f64),
+                "avg_length" => Some(i.avg_length),
+                "avg_entropy" => Some(i.avg_entropy),
+                "single_char_count" => Some(i.single_char_count as f64),
+                "single_char_ratio" => Some(i.single_char_ratio),
+                _ => None,
+            }
+        }
+        // String metrics (universal)
+        "strings" => {
+            let s = metrics.strings.as_ref()?;
+            match key {
+                "total" => Some(s.total as f64),
+                "avg_length" => Some(s.avg_length),
+                "avg_entropy" => Some(s.avg_entropy),
+                "max_entropy" => Some(s.max_entropy),
+                "high_entropy_count" => Some(s.high_entropy_count as f64),
+                "base64_count" => Some(s.base64_count as f64),
+                "hex_count" => Some(s.hex_count as f64),
+                _ => None,
+            }
+        }
+        // Comment metrics (universal)
+        "comments" => {
+            let c = metrics.comments.as_ref()?;
+            match key {
+                "total" => Some(c.total as f64),
+                "single_line" => Some(c.single_line as f64),
+                "multi_line" => Some(c.multi_line as f64),
+                "doc_comments" => Some(c.doc_comments as f64),
+                "comment_density" => Some(c.comment_density),
+                _ => None,
+            }
+        }
+        // Function metrics (universal)
+        "functions" => {
+            let f = metrics.functions.as_ref()?;
+            match key {
+                "total" => Some(f.total as f64),
+                "avg_lines" => Some(f.avg_lines),
+                "max_lines" => Some(f.max_lines as f64),
+                "avg_params" => Some(f.avg_params),
+                "max_params" => Some(f.max_params as f64),
+                _ => None,
+            }
+        }
+        // Binary metrics
+        "binary" => {
+            let b = metrics.binary.as_ref()?;
+            match key {
+                "function_count" => Some(b.function_count as f64),
+                "avg_function_size" => Some(b.avg_function_size),
+                "max_function_size" => Some(b.max_function_size as f64),
+                "huge_functions" => Some(b.huge_functions as f64),
+                "total_complexity" => Some(b.total_complexity as f64),
+                "avg_complexity" => Some(b.avg_complexity),
+                "max_complexity" => Some(b.max_complexity as f64),
+                _ => None,
+            }
+        }
+        _ => None,
+    }
+}
+
 /// Parameters for binary condition evaluation
 pub struct BinaryParams<'a> {
     pub section_count: Option<&'a NumericRange>,
@@ -1114,6 +1322,7 @@ pub fn eval_condition(condition: &Condition, ctx: &EvaluationContext) -> Conditi
             };
             eval_syscall(&params, ctx)
         }
+        Condition::Metrics { field, min, max } => eval_metrics(field, *min, *max, ctx),
     }
 }
 

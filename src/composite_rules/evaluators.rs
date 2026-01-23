@@ -1249,6 +1249,46 @@ pub fn eval_metrics(
             metrics.binary.as_ref().map(|b| b.large_stack_functions as f64)
         }
 
+        // Go metrics (language-specific)
+        "go_metrics.unsafe_usage" => metrics.go_metrics.as_ref().map(|g| g.unsafe_usage as f64),
+        "go_metrics.reflect_usage" => metrics.go_metrics.as_ref().map(|g| g.reflect_usage as f64),
+        "go_metrics.cgo_usage" => metrics.go_metrics.as_ref().map(|g| g.cgo_usage as f64),
+        "go_metrics.plugin_usage" => metrics.go_metrics.as_ref().map(|g| g.plugin_usage as f64),
+        "go_metrics.syscall_direct" => {
+            metrics.go_metrics.as_ref().map(|g| g.syscall_direct as f64)
+        }
+        "go_metrics.exec_command_count" => {
+            metrics.go_metrics.as_ref().map(|g| g.exec_command_count as f64)
+        }
+        "go_metrics.os_startprocess_count" => {
+            metrics.go_metrics.as_ref().map(|g| g.os_startprocess_count as f64)
+        }
+        "go_metrics.net_dial_count" => {
+            metrics.go_metrics.as_ref().map(|g| g.net_dial_count as f64)
+        }
+        "go_metrics.http_usage" => metrics.go_metrics.as_ref().map(|g| g.http_usage as f64),
+        "go_metrics.raw_socket_count" => {
+            metrics.go_metrics.as_ref().map(|g| g.raw_socket_count as f64)
+        }
+        "go_metrics.embed_directive_count" => {
+            metrics.go_metrics.as_ref().map(|g| g.embed_directive_count as f64)
+        }
+        "go_metrics.linkname_count" => {
+            metrics.go_metrics.as_ref().map(|g| g.linkname_count as f64)
+        }
+        "go_metrics.noescape_count" => {
+            metrics.go_metrics.as_ref().map(|g| g.noescape_count as f64)
+        }
+        "go_metrics.cgo_directives" => {
+            metrics.go_metrics.as_ref().map(|g| g.cgo_directives as f64)
+        }
+        "go_metrics.init_function_count" => {
+            metrics.go_metrics.as_ref().map(|g| g.init_function_count as f64)
+        }
+        "go_metrics.blank_import_count" => {
+            metrics.go_metrics.as_ref().map(|g| g.blank_import_count as f64)
+        }
+
         _ => None,
     };
 

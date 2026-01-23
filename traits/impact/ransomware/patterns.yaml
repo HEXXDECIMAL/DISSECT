@@ -1,0 +1,161 @@
+# Ransomware Detection Patterns
+# ATT&CK: T1486 (Data Encrypted for Impact)
+# Detects file encryption, key generation, and ransom note patterns
+
+traits:
+  # RSA key generation/handling
+  - id: impact/ransomware/rsa-key-handling
+    description: RSA key generation or handling (potential ransomware)
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1486"
+    file_types: [javascript, typescript, python]
+    condition:
+      type: yara
+      source: |
+        rule rsa_key_handling {
+          strings:
+            $rsa1 = "RSA" ascii
+            $rsa2 = "generateKeyPair" ascii
+            $rsa3 = "publicEncrypt" ascii
+            $rsa4 = "privateDecrypt" ascii
+            $rsa5 = "-----BEGIN RSA" ascii
+            $rsa6 = "-----BEGIN PUBLIC KEY" ascii
+            $crypto = "crypto" ascii
+          condition:
+            $crypto and 2 of ($rsa*)
+        }
+
+  # File encryption loop pattern
+  - id: impact/ransomware/file-encryption-loop
+    description: File iteration with encryption (ransomware pattern)
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1486"
+    file_types: [javascript, typescript, python]
+    condition:
+      type: yara
+      source: |
+        rule file_encryption_loop {
+          strings:
+            // File iteration
+            $iter1 = "readdirSync" ascii
+            $iter2 = "walkSync" ascii
+            $iter3 = "glob" ascii
+            $iter4 = "readdir" ascii
+            $iter5 = "os.walk" ascii
+            // Encryption
+            $enc1 = "encrypt" ascii
+            $enc2 = "cipher" ascii
+            $enc3 = "createCipheriv" ascii
+            $enc4 = "AES" ascii
+            // File write
+            $write1 = "writeFileSync" ascii
+            $write2 = "writeFile" ascii
+            $write3 = "open(" ascii
+          condition:
+            any of ($iter*) and any of ($enc*) and any of ($write*)
+        }
+
+  # Ransom note indicators
+  - id: impact/ransomware/ransom-note
+    description: Ransom note text patterns
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1486"
+    file_types: [javascript, typescript, python, shell]
+    condition:
+      type: yara
+      source: |
+        rule ransom_note {
+          strings:
+            $note1 = "your files have been encrypted" ascii nocase
+            $note2 = "pay bitcoin" ascii nocase
+            $note3 = "pay btc" ascii nocase
+            $note4 = "decrypt your files" ascii nocase
+            $note5 = "ransom" ascii nocase
+            $note6 = "bitcoin wallet" ascii nocase
+            $note7 = "restore your files" ascii nocase
+            $note8 = "send payment" ascii nocase
+          condition:
+            any of them
+        }
+
+  # File extension change pattern
+  - id: impact/ransomware/extension-change
+    description: Changes file extensions (ransomware indicator)
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1486"
+    file_types: [javascript, typescript, python]
+    condition:
+      type: yara
+      source: |
+        rule extension_change {
+          strings:
+            $rename1 = "renameSync" ascii
+            $rename2 = "rename(" ascii
+            $rename3 = "os.rename" ascii
+            $ext1 = ".encrypted" ascii
+            $ext2 = ".locked" ascii
+            $ext3 = ".enc" ascii
+            $ext4 = ".crypt" ascii
+          condition:
+            any of ($rename*) and any of ($ext*)
+        }
+
+  # Medusa ransomware patterns
+  - id: impact/ransomware/medusa-pattern
+    description: Medusa ransomware indicators
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1486"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule medusa_ransomware {
+          strings:
+            $medusa1 = "medusa" ascii nocase
+            $medusa2 = "MEDUSA" ascii
+            $poly = "polymorphic" ascii nocase
+            $mutate = "mutate" ascii
+            $rsa = "RSA" ascii
+          condition:
+            any of ($medusa*) or ($poly and $mutate) or (($poly or $mutate) and $rsa)
+        }
+
+  # Shadow copy deletion (Windows ransomware)
+  - id: impact/ransomware/shadow-delete
+    description: Shadow copy deletion (ransomware preparation)
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1490"
+    file_types: [javascript, powershell, shell]
+    condition:
+      type: string
+      regex: 'vssadmin\s+delete\s+shadows|wmic\s+shadowcopy\s+delete|bcdedit.*recoveryenabled.*no'
+
+  # Symmetric key generation for encryption
+  - id: impact/ransomware/symmetric-key-gen
+    description: Symmetric key generation (potential ransomware)
+    criticality: notable
+    confidence: 0.7
+    attack: "T1486"
+    file_types: [javascript, typescript, python]
+    condition:
+      type: yara
+      source: |
+        rule symmetric_key_gen {
+          strings:
+            $aes = "aes-256" ascii nocase
+            $aes2 = "AES-256-CBC" ascii
+            $aes3 = "AES-256-GCM" ascii
+            $key1 = "randomBytes" ascii
+            $key2 = "generateKey" ascii
+            $key3 = "crypto.getRandomValues" ascii
+            $iv = "iv" ascii
+          condition:
+            any of ($aes*) and any of ($key*) and $iv
+        }
+

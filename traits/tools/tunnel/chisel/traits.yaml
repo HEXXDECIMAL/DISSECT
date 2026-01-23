@@ -1,0 +1,95 @@
+# Chisel Tunneling Tool Detection
+# ATT&CK: T1090 (Proxy)
+# Note: Chisel is a legitimate tool but frequently abused
+
+traits:
+  # Chisel tunneling tool
+  - id: tools/tunnel/chisel/generic
+    description: Chisel TCP/UDP tunneling tool
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1090"
+    condition:
+      type: yara
+      source: |
+        rule chisel_tunnel {
+          strings:
+            // Chisel identifiers
+            $name1 = "chisel" ascii nocase
+            $name2 = "jpillora/chisel" ascii
+            $name3 = "github.com/jpillora/chisel" ascii
+            // Chisel CLI options
+            $opt1 = "--reverse" ascii
+            $opt2 = "--socks5" ascii
+            $opt3 = "--proxy" ascii
+            // Chisel specific
+            $func1 = "ChiselServer" ascii
+            $func2 = "ChiselClient" ascii
+          condition:
+            any of ($name*) or any of ($func*) or
+            ($opt1 and ($opt2 or $opt3))
+        }
+
+  # Chisel reverse tunneling
+  - id: tools/tunnel/chisel/reverse
+    description: Chisel reverse tunnel capability
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1090.001"
+    condition:
+      type: yara
+      source: |
+        rule chisel_reverse {
+          strings:
+            // Chisel reverse mode
+            $chisel = "chisel" ascii nocase
+            $rev1 = "reverse" ascii
+            $rev2 = "R:" ascii
+            // WebSocket tunnel
+            $ws1 = "websocket" ascii nocase
+            $ws2 = "ws://" ascii
+            $ws3 = "wss://" ascii
+            // Server/client mode
+            $mode1 = "server" ascii
+            $mode2 = "client" ascii
+          condition:
+            $chisel or
+            (($rev1 or $rev2) and any of ($ws*) and any of ($mode*))
+        }
+
+  # Chisel SOCKS proxy
+  - id: tools/tunnel/chisel/socks
+    description: Chisel SOCKS5 proxy capability
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1090.003"
+    condition:
+      type: yara
+      source: |
+        rule chisel_socks {
+          strings:
+            // Chisel identifier
+            $chisel = "chisel" ascii nocase
+            // SOCKS5 patterns
+            $socks1 = "socks5" ascii nocase
+            $socks2 = "SOCKS" ascii
+            $socks3 = ":1080" ascii
+            // Proxy patterns
+            $proxy1 = "proxy" ascii
+            $proxy2 = "tunnel" ascii
+          condition:
+            $chisel or
+            (any of ($socks*) and any of ($proxy*))
+        }
+
+composite_rules:
+  # Chisel detection
+  - id: tools/tunnel/chisel/detected
+    description: Chisel tunneling tool detected
+    criticality: suspicious
+    confidence: 0.95
+    requires_any:
+      - type: trait
+        id: tools/tunnel/chisel/generic
+      - type: trait
+        id: tools/tunnel/chisel/reverse

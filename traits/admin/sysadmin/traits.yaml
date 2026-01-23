@@ -1,0 +1,109 @@
+# System Administration Tools Detection
+# Benign baseline for ML differentiation
+
+traits:
+  # System monitoring tools
+  - id: admin/sysadmin/monitoring
+    description: System monitoring utilities
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule sysadmin_monitoring {
+          strings:
+            // Process monitoring
+            $mon1 = "htop" ascii
+            $mon2 = "top" ascii
+            $mon3 = "atop" ascii
+            $mon4 = "iotop" ascii
+            $mon5 = "iftop" ascii
+            // Resource monitoring
+            $res1 = "vmstat" ascii
+            $res2 = "iostat" ascii
+            $res3 = "mpstat" ascii
+            $res4 = "sar" ascii
+            // System info
+            $info1 = "lscpu" ascii
+            $info2 = "lsmem" ascii
+            $info3 = "lsblk" ascii
+          condition:
+            any of them
+        }
+
+  # Package management
+  - id: admin/sysadmin/package-mgmt
+    description: Package management utilities
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule package_management {
+          strings:
+            // Debian/Ubuntu
+            $apt1 = "apt-get" ascii
+            $apt2 = "apt " ascii
+            $apt3 = "dpkg" ascii
+            // Red Hat/CentOS
+            $yum1 = "yum " ascii
+            $yum2 = "dnf " ascii
+            $rpm1 = "rpm " ascii
+            // Generic
+            $pkg1 = "pkg " ascii
+            $pkg2 = "pacman" ascii
+            $pkg3 = "zypper" ascii
+          condition:
+            any of them
+        }
+
+  # System configuration
+  - id: admin/sysadmin/config
+    description: System configuration utilities
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule sysadmin_config {
+          strings:
+            // Service management
+            $svc1 = "systemctl" ascii
+            $svc2 = "service " ascii
+            $svc3 = "chkconfig" ascii
+            // User management
+            $usr1 = "useradd" ascii
+            $usr2 = "usermod" ascii
+            $usr3 = "passwd" ascii
+            // Network config
+            $net1 = "nmcli" ascii
+            $net2 = "netplan" ascii
+            $net3 = "ip addr" ascii
+          condition:
+            any of them
+        }
+
+  # Log analysis
+  - id: admin/sysadmin/logs
+    description: Log analysis utilities
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule log_analysis {
+          strings:
+            // Journal
+            $log1 = "journalctl" ascii
+            $log2 = "dmesg" ascii
+            // Log viewers
+            $view1 = "less " ascii
+            $view2 = "tail -f" ascii
+            $view3 = "multitail" ascii
+            // Log paths
+            $path1 = "/var/log/syslog" ascii
+            $path2 = "/var/log/messages" ascii
+            $path3 = "/var/log/auth.log" ascii
+          condition:
+            any of ($log*, $view*) or 2 of ($path*)
+        }

@@ -1,0 +1,89 @@
+# IRC Bot/C2 Detection Patterns
+# ATT&CK: T1071.001 (Application Layer Protocol: Web Protocols)
+
+traits:
+  # IRC bot C2
+  - id: c2/irc/bot
+    description: IRC bot command and control
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1071.001"
+    condition:
+      type: yara
+      source: |
+        rule irc_bot {
+          strings:
+            // IRC protocol commands
+            $irc1 = "PRIVMSG" ascii
+            $irc2 = "NICK " ascii
+            $irc3 = "USER " ascii
+            $irc4 = "JOIN #" ascii
+            $irc5 = "PING :" ascii
+            $irc6 = "PONG :" ascii
+            // Bot commands via IRC
+            $cmd1 = ".login" ascii
+            $cmd2 = ".udp" ascii
+            $cmd3 = ".tcp" ascii
+            $cmd4 = ".shell" ascii
+          condition:
+            (4 of ($irc*)) or
+            (2 of ($irc*) and any of ($cmd*))
+        }
+
+  # Tsunami/Kaiten IRC bot
+  - id: c2/irc/tsunami
+    description: Tsunami/Kaiten IRC DDoS bot
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1071.001"
+    condition:
+      type: yara
+      source: |
+        rule tsunami_kaiten {
+          strings:
+            // Tsunami/Kaiten names
+            $name1 = "tsunami" ascii nocase
+            $name2 = "kaiten" ascii nocase
+            // IRC commands
+            $irc1 = "PRIVMSG" ascii
+            $irc2 = "NICK " ascii
+            // Attack commands
+            $atk1 = "PAN" ascii
+            $atk2 = "UDP" ascii
+            $atk3 = "UNKNOWN" ascii
+            $atk4 = "NICK" ascii
+            // DDoS
+            $ddos1 = "flood" ascii nocase
+            $ddos2 = "attack" ascii nocase
+          condition:
+            any of ($name*) or
+            (any of ($irc*) and 2 of ($atk*) and any of ($ddos*))
+        }
+
+  # IRC authentication
+  - id: c2/irc/auth
+    description: IRC bot authentication patterns
+    criticality: suspicious
+    confidence: 0.75
+    attack: "T1071.001"
+    condition:
+      type: yara
+      source: |
+        rule irc_auth {
+          strings:
+            // IRC auth
+            $auth1 = "PASS " ascii
+            $auth2 = "OPER " ascii
+            $auth3 = "NickServ" ascii
+            // Bot auth
+            $bot1 = ".login " ascii
+            $bot2 = ".auth " ascii
+            $bot3 = "admin" ascii
+            // Server connection
+            $srv1 = "irc." ascii
+            $srv2 = ":6667" ascii
+            $srv3 = ":6697" ascii
+          condition:
+            (any of ($auth*) and any of ($bot*)) or
+            (any of ($auth*) and any of ($srv*))
+        }

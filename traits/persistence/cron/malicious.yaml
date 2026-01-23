@@ -1,0 +1,86 @@
+# Malicious Crontab Persistence
+# ATT&CK: T1053.003 (Scheduled Task/Job: Cron)
+
+traits:
+  # Malicious cron persistence
+  - id: persistence/cron/malicious
+    description: Malicious crontab persistence patterns
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1053.003"
+    condition:
+      type: yara
+      source: |
+        rule cron_malicious {
+          strings:
+            // Cron paths
+            $cron1 = "/etc/cron.d/" ascii
+            $cron2 = "/etc/crontab" ascii
+            $cron3 = "/var/spool/cron" ascii
+            $cron4 = "crontab -" ascii
+            // Download and execute patterns
+            $dl1 = "curl " ascii
+            $dl2 = "wget " ascii
+            $dl3 = "| bash" ascii
+            $dl4 = "| sh" ascii
+            // Frequent execution
+            $freq1 = "* * * * *" ascii
+            $freq2 = "*/5 * * * *" ascii
+            $freq3 = "@reboot" ascii
+          condition:
+            (any of ($cron*) and any of ($dl*)) or
+            (any of ($cron*) and any of ($freq*) and any of ($dl*))
+        }
+
+  # Cron download cradle
+  - id: persistence/cron/download-cradle
+    description: Cron-based download and execute
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1053.003"
+    condition:
+      type: yara
+      source: |
+        rule cron_cradle {
+          strings:
+            // One-liner download cradles in cron
+            $cradle1 = "curl -s" ascii
+            $cradle2 = "wget -q" ascii
+            $cradle3 = "wget -O -" ascii
+            // Pipe to shell
+            $shell1 = "| sh" ascii
+            $shell2 = "| bash" ascii
+            $shell3 = "| /bin/sh" ascii
+            // Suppression
+            $supp1 = ">/dev/null" ascii
+            $supp2 = "2>&1" ascii
+          condition:
+            (any of ($cradle*) and any of ($shell*)) or
+            (any of ($cradle*) and any of ($supp*))
+        }
+
+  # Hidden cron entries
+  - id: persistence/cron/hidden
+    description: Hidden or obfuscated cron entries
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1053.003"
+    condition:
+      type: yara
+      source: |
+        rule cron_hidden {
+          strings:
+            // Cron manipulation
+            $cron1 = "crontab" ascii
+            $cron2 = "/etc/cron" ascii
+            // Base64 execution
+            $b64_1 = "base64 -d" ascii
+            $b64_2 = "base64 --decode" ascii
+            // Hidden files
+            $hide1 = "/tmp/." ascii
+            $hide2 = "/var/tmp/." ascii
+            $hide3 = "/dev/shm/." ascii
+          condition:
+            (any of ($cron*) and any of ($b64_*)) or
+            (any of ($cron*) and any of ($hide*))
+        }

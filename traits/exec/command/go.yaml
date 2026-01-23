@@ -1,0 +1,43 @@
+# Go Command Execution Detection
+# Metrics-based detection of command execution patterns in Go code
+
+defaults:
+  file_types: [go]
+  attack: "T1059"
+
+traits:
+  - id: exec/command/go-exec-command
+    description: Executes shell commands via exec.Command
+    criticality: notable
+    confidence: 0.85
+    condition:
+      type: metrics
+      field: go_metrics.exec_command_count
+      min: 1
+
+  - id: exec/command/go-many-exec-calls
+    description: Multiple shell command executions
+    criticality: suspicious
+    confidence: 0.9
+    condition:
+      type: metrics
+      field: go_metrics.exec_command_count
+      min: 3
+
+  - id: exec/command/go-direct-syscall
+    description: Uses syscall package for direct system calls
+    criticality: notable
+    confidence: 0.8
+    condition:
+      type: metrics
+      field: go_metrics.syscall_direct
+      min: 1
+
+  - id: exec/command/go-os-startprocess
+    description: Uses os.StartProcess for low-level process creation
+    criticality: notable
+    confidence: 0.85
+    condition:
+      type: metrics
+      field: go_metrics.os_startprocess_count
+      min: 1

@@ -22,10 +22,12 @@ traits:
         }
 
   # libc function hooking (common rootkit targets)
+  # NOTE: This trait alone is not sufficient - many legitimate binaries use these
+  # functions. It becomes suspicious only when combined with dlsym/RTLD_NEXT or LD_PRELOAD
   - id: rootkit/userspace/libc-hook-targets
     description: References multiple libc functions commonly hooked by rootkits
-    criticality: suspicious
-    confidence: 0.85
+    criticality: notable
+    confidence: 0.5
     mbc: "F0015"
     attack: "T1574.006"
     condition:
@@ -54,8 +56,13 @@ traits:
             $fstat = "__fxstat" ascii
             $stat64 = "__xstat64" ascii
             $lstat64 = "__lxstat64" ascii
+            // Hooking indicators (required for this to be meaningful)
+            $hook1 = "dlsym" ascii
+            $hook2 = "RTLD_NEXT" ascii
+            $hook3 = "LD_PRELOAD" ascii
           condition:
-            5 of them
+            5 of ($fopen, $open, $read, $readdir*, $opendir, $accept, $connect, $recvfrom, $getpwnam, $getpwuid, $stat*, $lstat*, $fstat*) and
+            any of ($hook*)
         }
 
   # dlsym RTLD_NEXT pattern (hook chaining)
