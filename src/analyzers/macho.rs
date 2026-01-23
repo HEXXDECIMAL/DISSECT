@@ -147,6 +147,17 @@ impl MachOAnalyzer {
         // Generate structural traits from analysis
         self.generate_structural_traits(&macho, data, &mut report)?;
 
+        // Compute binary metrics using radare2 (BEFORE trait evaluation)
+        if Radare2Analyzer::is_available() {
+            if let Ok(binary_metrics) = self.radare2.compute_binary_metrics(file_path) {
+                report.metrics = Some(Metrics {
+                    binary: Some(binary_metrics),
+                    ..Default::default()
+                });
+                tools_used.push("radare2".to_string());
+            }
+        }
+
         // Evaluate trait definitions from YAML (parallelized)
         let trait_findings = self.capability_mapper.evaluate_traits(&report, data);
         for f in trait_findings {

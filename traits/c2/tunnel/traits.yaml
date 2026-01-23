@@ -1,0 +1,129 @@
+# Network Tunneling Tool Detection
+# Detects port forwarding and tunneling tools used in APT attacks
+# ATT&CK: T1572 (Protocol Tunneling)
+
+traits:
+  # Earthworm (EW) tunneling tool
+  - id: c2/tunnel/earthworm
+    description: Earthworm tunneling tool (APT lateral movement)
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1572"
+    condition:
+      type: yara
+      source: |
+        rule earthworm {
+          strings:
+            $ew1 = "ssocksd" ascii
+            $ew2 = "rcsocks" ascii
+            $ew3 = "rssocks" ascii
+            $ew4 = "lcx_listen" ascii
+            $ew5 = "lcx_tran" ascii
+            $ew6 = "lcx_slave" ascii
+            $rootkiter = "rootkiter.com" ascii
+          condition:
+            3 of ($ew*) or $rootkiter
+        }
+
+  # LCX port forwarder
+  - id: c2/tunnel/lcx
+    description: LCX-style port forwarding tool
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1572"
+    condition:
+      type: yara
+      source: |
+        rule lcx_forwarder {
+          strings:
+            // Full LCX command patterns
+            $lcx_tran = "lcx_tran" ascii
+            $lcx_slave = "lcx_slave" ascii
+            $lcx_listen = "lcx_listen" ascii
+            // Usage strings
+            $lcx_usage1 = "-tran" ascii
+            $lcx_usage2 = "-slave" ascii
+            $lcx_usage3 = "-listen" ascii
+            // Port forwarding config strings
+            $listen_port = "listenport" ascii nocase
+            $conn_port = "connport" ascii nocase
+            $local_port = "localport" ascii nocase
+            $remote_host = "remotehost" ascii nocase
+          condition:
+            any of ($lcx_*) or
+            (($listen_port or $local_port) and ($conn_port or $remote_host))
+        }
+
+  # reGeorg/Tunna web tunnel
+  - id: c2/tunnel/regeorg
+    description: reGeorg/Tunna web tunneling
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1572"
+    condition:
+      type: yara
+      source: |
+        rule regeorg {
+          strings:
+            $regeorg = "reGeorg" ascii nocase
+            $tunna = "Tunna" ascii nocase
+            $neo = "neo-reGeorg" ascii nocase
+            $webshell_tunnel = "X-CMD" ascii
+          condition:
+            any of them
+        }
+
+  # Chisel tunneling
+  - id: c2/tunnel/chisel
+    description: Chisel HTTP tunneling tool
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1572"
+    condition:
+      type: yara
+      source: |
+        rule chisel {
+          strings:
+            $chisel1 = "github.com/jpillora/chisel" ascii
+            $chisel2 = "chisel client" ascii
+            $chisel3 = "chisel server" ascii
+          condition:
+            any of them
+        }
+
+  # Ngrok tunneling
+  - id: c2/tunnel/ngrok
+    description: Ngrok tunneling service
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1572"
+    condition:
+      type: yara
+      source: |
+        rule ngrok {
+          strings:
+            $ngrok = "ngrok" ascii nocase
+            $ngrok_io = "ngrok.io" ascii
+            $ngrok_com = "ngrok.com" ascii
+          condition:
+            any of them
+        }
+
+  # Generic SOCKS proxy behavior
+  - id: c2/tunnel/socks-server
+    description: SOCKS proxy server implementation
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1572"
+    condition:
+      type: yara
+      source: |
+        rule socks_server {
+          strings:
+            $socks4 = "SOCKS4" ascii
+            $socks5 = "SOCKS5" ascii
+            $socks_port = ":1080" ascii
+            $sock_server = "socks server" ascii nocase
+          condition:
+            2 of them
+        }

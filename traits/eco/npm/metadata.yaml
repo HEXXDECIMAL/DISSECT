@@ -160,3 +160,67 @@ traits:
       type: string
       regex: 'api\.telegram\.org/bot'
       search_raw: true
+
+  # Typosquats of blockchain/crypto packages
+  - id: eco/npm/metadata/typosquat-ganache
+    description: Potential ganache typosquat
+    criticality: suspicious
+    confidence: 0.85
+    file_types: [packagejson]
+    condition:
+      type: string
+      regex: '"name"\\s*:\\s*"(ganach-|ganacha|ganachee|ganacche|ganac[^h])'
+      search_raw: true
+
+  - id: eco/npm/metadata/typosquat-ethers
+    description: Potential ethers.js typosquat
+    criticality: suspicious
+    confidence: 0.85
+    file_types: [packagejson]
+    condition:
+      type: string
+      regex: '"name"\\s*:\\s*"(ether[^s]|etherss|3thers|etheers)'
+      search_raw: true
+
+  - id: eco/npm/metadata/typosquat-web3
+    description: Potential web3 typosquat
+    criticality: suspicious
+    confidence: 0.85
+    file_types: [packagejson]
+    condition:
+      type: string
+      regex: '"name"\\s*:\\s*"(web3[a-z]|w3b3|vveb3|wep3)'
+      search_raw: true
+
+  # Random-looking package names
+  - id: eco/npm/metadata/random-name
+    description: Package name looks randomly generated
+    criticality: notable
+    confidence: 0.7
+    file_types: [packagejson]
+    condition:
+      type: string
+      regex: '"name"\\s*:\\s*"[a-z]{2,4}[0-9]{3,}[a-z]*"'
+      search_raw: true
+
+  # Extremely long version numbers (often used to evade detection)
+  - id: eco/npm/metadata/long-version
+    description: Suspiciously long version number
+    criticality: notable
+    confidence: 0.75
+    file_types: [packagejson]
+    condition:
+      type: string
+      regex: '"version"\\s*:\\s*"[0-9]{4,}\\.'
+      search_raw: true
+
+  # Future year versions (dependency confusion)
+  - id: eco/npm/metadata/future-version
+    description: Version number with future year (dependency confusion)
+    criticality: suspicious
+    confidence: 0.9
+    file_types: [packagejson]
+    condition:
+      type: string
+      regex: '"version"\\s*:\\s*"202[7-9]\\.|"version"\\s*:\\s*"203'
+      search_raw: true

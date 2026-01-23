@@ -1,4 +1,9 @@
 use crate::analyzers::Analyzer;
+use crate::analyzers::{
+    comment_metrics::{self, CommentStyle},
+    function_metrics::{self, FunctionInfo},
+    identifier_metrics, string_metrics, text_metrics,
+};
 use crate::capabilities::CapabilityMapper;
 use crate::types::*;
 use anyhow::{Context, Result};
@@ -82,6 +87,10 @@ impl ShellAnalyzer {
             metrics.shell_idioms = Some(shell_idioms);
         }
 
+        // === Compute metrics for ML analysis (BEFORE trait evaluation) ===
+        let metrics = self.compute_metrics(&root, content);
+        report.metrics = Some(metrics);
+
         // Evaluate trait definitions and composite rules from YAML
         let trait_findings = self
             .capability_mapper
@@ -104,6 +113,248 @@ impl ShellAnalyzer {
         report.metadata.tools_used = vec!["tree-sitter-bash".to_string()];
 
         Ok(report)
+    }
+
+    /// Compute all metrics for shell scripts
+    fn compute_metrics(&self, root: &tree_sitter::Node, content: &str) -> Metrics {
+        let source = content.as_bytes();
+        let total_lines = content.lines().count() as u32;
+
+        // Universal text metrics
+        let text = text_metrics::analyze_text(content);
+
+        // Extract identifiers (variable names in shell)
+        let identifiers = self.extract_identifiers(root, source);
+        let ident_refs: Vec<&str> = identifiers.iter().map(|s| s.as_str()).collect();
+        let identifier_metrics = identifier_metrics::analyze_identifiers(&ident_refs);
+
+        // Extract strings
+        let strings = self.extract_string_literals(root, source);
+        let str_refs: Vec<&str> = strings.iter().map(|s| s.as_str()).collect();
+        let string_metrics = string_metrics::analyze_strings(&str_refs);
+
+        // Comment metrics (hash comments for shell)
+        let comment_metrics = comment_metrics::analyze_comments(content, CommentStyle::Hash);
+
+        // Function metrics
+        let func_infos = self.extract_function_info(root, source);
+        let func_metrics = function_metrics::analyze_functions(&func_infos, total_lines);
+
+        // Shell-specific metrics
+        let shell_metrics = self.compute_shell_metrics(root, source, content);
+
+        Metrics {
+            text: Some(text),
+            identifiers: Some(identifier_metrics),
+            strings: Some(string_metrics),
+            comments: Some(comment_metrics),
+            functions: Some(func_metrics),
+            shell: Some(shell_metrics),
+            ..Default::default()
+        }
+    }
+
+    /// Extract identifiers (variable names) from shell script
+    fn extract_identifiers(&self, root: &tree_sitter::Node, source: &[u8]) -> Vec<String> {
+        let mut identifiers = Vec::new();
+        let mut cursor = root.walk();
+        self.walk_for_identifiers(&mut cursor, source, &mut identifiers);
+        identifiers
+    }
+
+    fn walk_for_identifiers(
+        &self,
+        cursor: &mut tree_sitter::TreeCursor,
+        source: &[u8],
+        identifiers: &mut Vec<String>,
+    ) {
+        loop {
+            let node = cursor.node();
+
+            // Variable names in shell
+            if node.kind() == "variable_name" || node.kind() == "simple_expansion" {
+                if let Ok(text) = node.utf8_text(source) {
+                    let name = text.trim_start_matches('$');
+                    if !name.is_empty() {
+                        identifiers.push(name.to_string());
+                    }
+                }
+            }
+
+            if cursor.goto_first_child() {
+                self.walk_for_identifiers(cursor, source, identifiers);
+                cursor.goto_parent();
+            }
+
+            if !cursor.goto_next_sibling() {
+                break;
+            }
+        }
+    }
+
+    /// Extract string literals from shell script
+    fn extract_string_literals(&self, root: &tree_sitter::Node, source: &[u8]) -> Vec<String> {
+        let mut strings = Vec::new();
+        let mut cursor = root.walk();
+        self.walk_for_strings(&mut cursor, source, &mut strings);
+        strings
+    }
+
+    fn walk_for_strings(
+        &self,
+        cursor: &mut tree_sitter::TreeCursor,
+        source: &[u8],
+        strings: &mut Vec<String>,
+    ) {
+        loop {
+            let node = cursor.node();
+
+            if node.kind() == "string" || node.kind() == "raw_string" {
+                if let Ok(text) = node.utf8_text(source) {
+                    // Strip quotes
+                    let s = text
+                        .trim_start_matches('"')
+                        .trim_end_matches('"')
+                        .trim_start_matches('\'')
+                        .trim_end_matches('\'');
+                    if !s.is_empty() {
+                        strings.push(s.to_string());
+                    }
+                }
+            }
+
+            if cursor.goto_first_child() {
+                self.walk_for_strings(cursor, source, strings);
+                cursor.goto_parent();
+            }
+
+            if !cursor.goto_next_sibling() {
+                break;
+            }
+        }
+    }
+
+    /// Extract function information for metrics
+    fn extract_function_info(&self, root: &tree_sitter::Node, source: &[u8]) -> Vec<FunctionInfo> {
+        let mut functions = Vec::new();
+        let mut cursor = root.walk();
+        self.walk_for_function_info(&mut cursor, source, &mut functions, 0);
+        functions
+    }
+
+    fn walk_for_function_info(
+        &self,
+        cursor: &mut tree_sitter::TreeCursor,
+        source: &[u8],
+        functions: &mut Vec<FunctionInfo>,
+        depth: u32,
+    ) {
+        loop {
+            let node = cursor.node();
+
+            if node.kind() == "function_definition" {
+                let mut info = FunctionInfo::default();
+
+                // Get function name
+                if let Some(name_node) = node.child_by_field_name("name") {
+                    if let Ok(name) = name_node.utf8_text(source) {
+                        info.name = name.to_string();
+                    }
+                }
+
+                // Shell functions don't have explicit parameters
+                // They use $1, $2, etc. which we could count in the body
+                info.param_count = 0;
+
+                // Line count
+                info.start_line = node.start_position().row as u32;
+                info.end_line = node.end_position().row as u32;
+                info.line_count = info.end_line.saturating_sub(info.start_line) + 1;
+                info.nesting_depth = depth;
+
+                functions.push(info);
+            }
+
+            if cursor.goto_first_child() {
+                let new_depth = if node.kind() == "function_definition" {
+                    depth + 1
+                } else {
+                    depth
+                };
+                self.walk_for_function_info(cursor, source, functions, new_depth);
+                cursor.goto_parent();
+            }
+
+            if !cursor.goto_next_sibling() {
+                break;
+            }
+        }
+    }
+
+    /// Compute shell-specific metrics
+    fn compute_shell_metrics(
+        &self,
+        root: &tree_sitter::Node,
+        source: &[u8],
+        content: &str,
+    ) -> ShellMetrics {
+        let mut metrics = ShellMetrics::default();
+        let mut cursor = root.walk();
+        self.walk_for_shell_metrics(&mut cursor, source, &mut metrics);
+
+        // Pattern-based detection
+        metrics.eval_count += content.matches("eval ").count() as u32;
+        metrics.base64_decode_count += content.matches("base64 -d").count() as u32;
+        metrics.base64_decode_count += content.matches("base64 --decode").count() as u32;
+
+        metrics
+    }
+
+    fn walk_for_shell_metrics(
+        &self,
+        cursor: &mut tree_sitter::TreeCursor,
+        source: &[u8],
+        metrics: &mut ShellMetrics,
+    ) {
+        loop {
+            let node = cursor.node();
+
+            if node.kind() == "command" {
+                if let Ok(text) = node.utf8_text(source) {
+                    // Command execution patterns
+                    if text.starts_with("eval ") {
+                        metrics.eval_count += 1;
+                    }
+                    if text.starts_with("source ") || text.starts_with(". ") {
+                        metrics.source_count += 1;
+                    }
+                    if text.contains("curl ") || text.contains("wget ") {
+                        metrics.curl_wget_count += 1;
+                    }
+                    if text.contains("chmod +x") || text.contains("chmod 7") {
+                        metrics.chmod_x_count += 1;
+                    }
+                    if text.contains("rm -rf") || text.contains("shred ") {
+                        metrics.secure_delete_count += 1;
+                    }
+                }
+            } else if node.kind() == "process_substitution" {
+                metrics.process_substitution += 1;
+            } else if node.kind() == "pipeline" {
+                metrics.pipe_count += 1;
+            } else if node.kind() == "heredoc_body" || node.kind() == "heredoc_redirect" {
+                metrics.here_doc_count += 1;
+            }
+
+            if cursor.goto_first_child() {
+                self.walk_for_shell_metrics(cursor, source, metrics);
+                cursor.goto_parent();
+            }
+
+            if !cursor.goto_next_sibling() {
+                break;
+            }
+        }
     }
 
     fn detect_capabilities(

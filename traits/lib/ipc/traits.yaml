@@ -1,0 +1,168 @@
+# Inter-Process Communication Libraries
+# Useful for ML features and understanding application architecture
+
+traits:
+  # D-Bus
+  - id: lib/ipc/dbus
+    description: D-Bus IPC usage
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule dbus_ipc {
+          strings:
+            $dbus1 = "org.freedesktop.DBus" ascii
+            $dbus2 = "dbus_connection" ascii
+            $dbus3 = "sd_bus_" ascii
+            $dbus4 = "GDBus" ascii
+            $dbus5 = "dbus-daemon" ascii
+          condition:
+            any of them
+        }
+
+  # gRPC
+  - id: lib/ipc/grpc
+    description: gRPC communication
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule grpc_ipc {
+          strings:
+            $grpc1 = "grpc::" ascii
+            $grpc2 = "grpc.io" ascii
+            $grpc3 = "google.golang.org/grpc" ascii
+            $grpc4 = "grpcio" ascii
+            $grpc5 = ".proto" ascii
+          condition:
+            any of them
+        }
+
+  # ZeroMQ
+  - id: lib/ipc/zeromq
+    description: ZeroMQ messaging
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule zeromq_ipc {
+          strings:
+            $zmq1 = "zmq_" ascii
+            $zmq2 = "zeromq" ascii nocase
+            $zmq3 = "libzmq" ascii
+            $zmq4 = "pyzmq" ascii
+          condition:
+            any of them
+        }
+
+  # RabbitMQ/AMQP
+  - id: lib/ipc/amqp
+    description: AMQP/RabbitMQ messaging
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule amqp_ipc {
+          strings:
+            $amqp1 = "amqp://" ascii
+            $amqp2 = "amqps://" ascii
+            $amqp3 = "rabbitmq" ascii nocase
+            $amqp4 = "pika" ascii
+            $amqp5 = "streadway/amqp" ascii
+          condition:
+            any of them
+        }
+
+  # Apache Kafka
+  - id: lib/ipc/kafka
+    description: Apache Kafka messaging
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule kafka_ipc {
+          strings:
+            $kafka1 = "kafka" ascii nocase
+            $kafka2 = "confluent" ascii
+            $kafka3 = "sarama" ascii
+            $kafka4 = "kafka-python" ascii
+            $kafka5 = "librdkafka" ascii
+          condition:
+            any of them
+        }
+
+  # NATS
+  - id: lib/ipc/nats
+    description: NATS messaging
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule nats_ipc {
+          strings:
+            $nats1 = "nats://" ascii
+            $nats2 = "nats.io" ascii
+            $nats3 = "nats-io" ascii
+          condition:
+            any of them
+        }
+
+  # Unix domain sockets
+  - id: lib/ipc/unix-socket
+    description: Unix domain socket IPC
+    criticality: benign
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule unix_socket_ipc {
+          strings:
+            $uds1 = "AF_UNIX" ascii
+            $uds2 = "unix://" ascii
+            $uds3 = "/var/run/" ascii
+            $uds4 = ".sock" ascii
+          condition:
+            2 of them
+        }
+
+  # Shared memory
+  - id: lib/ipc/shm
+    description: Shared memory IPC
+    criticality: notable
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule shm_ipc {
+          strings:
+            $shm1 = "shm_open" ascii
+            $shm2 = "shmget" ascii
+            $shm3 = "shmat" ascii
+            $shm4 = "mmap" ascii
+            $shm5 = "/dev/shm" ascii
+          condition:
+            any of ($shm1, $shm2, $shm3, $shm5) or ($shm4 and $shm5)
+        }
+
+  # Named pipes (FIFO)
+  - id: lib/ipc/fifo
+    description: Named pipe (FIFO) IPC
+    criticality: benign
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule fifo_ipc {
+          strings:
+            $fifo1 = "mkfifo" ascii
+            $fifo2 = "S_IFIFO" ascii
+            $fifo3 = "named pipe" ascii nocase
+          condition:
+            any of them
+        }

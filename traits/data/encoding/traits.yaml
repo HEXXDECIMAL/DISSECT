@@ -1,0 +1,239 @@
+# Serialization Library Detection
+# Useful for ML features and supply chain diff analysis
+
+traits:
+  # Protocol Buffers
+  - id: data/encoding/protobuf
+    description: Google Protocol Buffers
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule protobuf_serialization {
+          strings:
+            $proto1 = "google.protobuf" ascii
+            $proto2 = ".proto" ascii
+            $proto3 = "protobuf" ascii
+            $proto4 = "ParseFromString" ascii
+            $proto5 = "SerializeToString" ascii
+            $proto6 = "protoc" ascii
+          condition:
+            any of them
+        }
+
+  # JSON libraries
+  - id: data/encoding/json
+    description: JSON serialization libraries
+    criticality: benign
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule json_serialization {
+          strings:
+            $json1 = "json.Marshal" ascii
+            $json2 = "json.Unmarshal" ascii
+            $json3 = "JSON.parse" ascii
+            $json4 = "JSON.stringify" ascii
+            $json5 = "serde_json" ascii
+            $json6 = "nlohmann/json" ascii
+            $json7 = "rapidjson" ascii
+            $json8 = "cJSON" ascii
+          condition:
+            any of them
+        }
+
+  # YAML libraries
+  - id: data/encoding/yaml
+    description: YAML serialization libraries
+    criticality: benign
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule yaml_serialization {
+          strings:
+            $yaml1 = "yaml.v2" ascii
+            $yaml2 = "yaml.v3" ascii
+            $yaml3 = "PyYAML" ascii
+            $yaml4 = "yaml.safe_load" ascii
+            $yaml5 = "serde_yaml" ascii
+            $yaml6 = "yaml-cpp" ascii
+          condition:
+            any of them
+        }
+
+  # XML libraries
+  - id: data/encoding/xml
+    description: XML serialization libraries
+    criticality: benign
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule xml_serialization {
+          strings:
+            $xml1 = "encoding/xml" ascii
+            $xml2 = "xml.etree" ascii
+            $xml3 = "lxml" ascii
+            $xml4 = "libxml2" ascii
+            $xml5 = "tinyxml" ascii
+            $xml6 = "pugixml" ascii
+            $xml7 = "xerces" ascii
+          condition:
+            any of them
+        }
+
+  # MessagePack
+  - id: data/encoding/msgpack
+    description: MessagePack serialization
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule msgpack_serialization {
+          strings:
+            $msgpack1 = "msgpack" ascii
+            $msgpack2 = "MessagePack" ascii
+            $msgpack3 = "vmihailenco/msgpack" ascii
+          condition:
+            any of them
+        }
+
+  # CBOR
+  - id: data/encoding/cbor
+    description: CBOR serialization
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule cbor_serialization {
+          strings:
+            $cbor1 = "cbor" ascii nocase
+            $cbor2 = "CBOR" ascii
+          condition:
+            any of them
+        }
+
+  # Apache Avro
+  - id: data/encoding/avro
+    description: Apache Avro serialization
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule avro_serialization {
+          strings:
+            $avro1 = "avro" ascii
+            $avro2 = "org.apache.avro" ascii
+            $avro3 = ".avsc" ascii
+          condition:
+            any of them
+        }
+
+  # Apache Thrift
+  - id: data/encoding/thrift
+    description: Apache Thrift serialization
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule thrift_serialization {
+          strings:
+            $thrift1 = "thrift" ascii
+            $thrift2 = "apache.thrift" ascii
+            $thrift3 = ".thrift" ascii
+          condition:
+            any of them
+        }
+
+  # FlatBuffers
+  - id: data/encoding/flatbuffers
+    description: Google FlatBuffers
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule flatbuffers_serialization {
+          strings:
+            $fb1 = "flatbuffers" ascii
+            $fb2 = "FlatBufferBuilder" ascii
+            $fb3 = ".fbs" ascii
+          condition:
+            any of them
+        }
+
+  # Cap'n Proto
+  - id: data/encoding/capnproto
+    description: Cap'n Proto serialization
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule capnproto_serialization {
+          strings:
+            $capnp1 = "capnp" ascii
+            $capnp2 = "capnproto" ascii
+            $capnp3 = ".capnp" ascii
+          condition:
+            any of them
+        }
+
+  # BSON (MongoDB)
+  - id: data/encoding/bson
+    description: BSON serialization (MongoDB)
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule bson_serialization {
+          strings:
+            $bson1 = "bson" ascii
+            $bson2 = "BSON" ascii
+            $bson3 = "go.mongodb.org/mongo-driver/bson" ascii
+          condition:
+            any of them
+        }
+
+  # pickle (Python - potentially dangerous)
+  - id: data/encoding/pickle
+    description: Python pickle serialization
+    criticality: notable
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule pickle_serialization {
+          strings:
+            $pickle1 = "pickle.load" ascii
+            $pickle2 = "pickle.dump" ascii
+            $pickle3 = "cPickle" ascii
+            $pickle4 = "pickle.Unpickler" ascii
+          condition:
+            any of them
+        }
+
+  # Gob (Go)
+  - id: data/encoding/gob
+    description: Go gob serialization
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule gob_serialization {
+          strings:
+            $gob1 = "encoding/gob" ascii
+            $gob2 = "gob.NewEncoder" ascii
+            $gob3 = "gob.NewDecoder" ascii
+          condition:
+            any of them
+        }

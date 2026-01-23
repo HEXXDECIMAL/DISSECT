@@ -1,0 +1,296 @@
+# Code Metrics-Based Obfuscation Detection
+# Detects obfuscation patterns via statistical analysis of code structure
+# ATT&CK: T1027 (Obfuscated Files or Information)
+
+defaults:
+  file_types: [python, javascript, typescript, shell, php, ruby, perl, go, rust, java, lua, csharp, powershell]
+  attack: "T1027"
+  mbc: "B0032"
+
+traits:
+  # === Identifier Obfuscation ===
+
+  - id: anti-static/obfuscation/code-metrics/high-entropy-identifiers
+    description: "High entropy identifiers (random-looking variable names)"
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: metrics
+      field: identifiers.avg_entropy
+      min: 2.5
+
+  - id: anti-static/obfuscation/code-metrics/many-high-entropy-identifiers
+    description: "Many high-entropy identifiers (>20% have random names)"
+    criticality: suspicious
+    confidence: 0.9
+    condition:
+      type: metrics
+      field: identifiers.high_entropy_ratio
+      min: 0.20
+
+  - id: anti-static/obfuscation/code-metrics/excessive-single-char-vars
+    description: "Excessive single-character variable names (>30%)"
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: metrics
+      field: identifiers.single_char_ratio
+      min: 0.30
+
+  - id: anti-static/obfuscation/code-metrics/numeric-suffix-identifiers
+    description: "Many numeric suffix identifiers (var1, var2 - generated code)"
+    criticality: notable
+    confidence: 0.75
+    condition:
+      type: metrics
+      field: identifiers.numeric_suffix_count
+      min: 5
+
+  - id: anti-static/obfuscation/code-metrics/sequential-identifiers
+    description: "Sequential identifiers (a, b, c, d - minified code)"
+    criticality: notable
+    confidence: 0.8
+    condition:
+      type: metrics
+      field: identifiers.sequential_names
+      min: 5
+
+  - id: anti-static/obfuscation/code-metrics/low-identifier-reuse
+    description: "Low identifier reuse (each variable used once - obfuscation)"
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: metrics
+      field: identifiers.reuse_ratio
+      max: 0.15
+
+  # === Function Obfuscation ===
+
+  - id: anti-static/obfuscation/code-metrics/high-entropy-function-names
+    description: "Functions with random-looking names"
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: metrics
+      field: functions.high_entropy_names
+      min: 3
+
+  - id: anti-static/obfuscation/code-metrics/single-char-function-names
+    description: "Functions with single-character names"
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: metrics
+      field: functions.single_char_names
+      min: 3
+
+  - id: anti-static/obfuscation/code-metrics/many-anonymous-functions
+    description: "Many anonymous functions"
+    criticality: notable
+    confidence: 0.75
+    file_types: [javascript, typescript, python, ruby]
+    condition:
+      type: metrics
+      field: functions.anonymous
+      min: 5
+
+  - id: anti-static/obfuscation/code-metrics/high-function-density
+    description: "High function density (>20 functions per 100 lines - minified)"
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: metrics
+      field: functions.density_per_100_lines
+      min: 20
+
+  - id: anti-static/obfuscation/code-metrics/many-one-liner-functions
+    description: "Many one-liner functions (minified code pattern)"
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: metrics
+      field: functions.one_liners
+      min: 5
+
+  - id: anti-static/obfuscation/code-metrics/deep-nesting
+    description: "Deeply nested functions (complexity indicator)"
+    criticality: notable
+    confidence: 0.75
+    condition:
+      type: metrics
+      field: functions.max_nesting_depth
+      min: 5
+
+  - id: anti-static/obfuscation/code-metrics/single-char-params
+    description: "Many single-character parameter names"
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: metrics
+      field: functions.single_char_params
+      min: 10
+
+  # === String Obfuscation ===
+
+  - id: anti-static/obfuscation/code-metrics/high-entropy-strings
+    description: "High entropy strings (encoded/encrypted data)"
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: metrics
+      field: strings.avg_entropy
+      min: 4.0
+
+  - id: anti-static/obfuscation/code-metrics/few-strings
+    description: "Very few string literals (string concealment)"
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: metrics
+      field: strings.total
+      max: 5
+
+  # === Code Structure Anomalies ===
+
+  - id: anti-static/obfuscation/code-metrics/no-comments
+    description: "No comments in code (stripped or obfuscated)"
+    criticality: notable
+    confidence: 0.6
+    condition:
+      type: metrics
+      field: comments.total
+      max: 0
+
+  - id: anti-static/obfuscation/code-metrics/very-low-comment-ratio
+    description: "Very low comment-to-code ratio (<1%)"
+    criticality: notable
+    confidence: 0.65
+    condition:
+      type: metrics
+      field: comments.to_code_ratio
+      max: 0.01
+
+  - id: anti-static/obfuscation/code-metrics/very-long-lines
+    description: "Very long lines (>500 chars - minified code)"
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: metrics
+      field: text.max_line_length
+      min: 500
+
+  - id: anti-static/obfuscation/code-metrics/high-text-entropy
+    description: "High overall text entropy (encoded content)"
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: metrics
+      field: text.char_entropy
+      min: 5.5
+
+  - id: anti-static/obfuscation/code-metrics/low-whitespace
+    description: "Very low whitespace ratio (minified/compressed)"
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: metrics
+      field: text.whitespace_ratio
+      max: 0.10
+
+  # === Complexity Anomalies ===
+
+  - id: anti-static/obfuscation/code-metrics/monster-function
+    description: "Extremely large function (>500 lines)"
+    criticality: notable
+    confidence: 0.8
+    condition:
+      type: metrics
+      field: functions.over_500_lines
+      min: 1
+
+  - id: anti-static/obfuscation/code-metrics/many-large-functions
+    description: "Multiple very large functions (>100 lines each)"
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: metrics
+      field: functions.over_100_lines
+      min: 5
+
+  - id: anti-static/obfuscation/code-metrics/many-params
+    description: "Functions with excessive parameters (>7)"
+    criticality: notable
+    confidence: 0.65
+    condition:
+      type: metrics
+      field: functions.many_params_count
+      min: 3
+
+composite_rules:
+  # === Combined Obfuscation Detection ===
+
+  - id: anti-static/obfuscation/minified-code
+    description: "Minified/compressed code (multiple indicators)"
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1027"
+    requires_count: 3
+    conditions:
+      - type: trait
+        id: high-function-density
+      - type: trait
+        id: many-one-liner-functions
+      - type: trait
+        id: very-long-lines
+      - type: trait
+        id: low-whitespace
+      - type: trait
+        id: no-comments
+      - type: trait
+        id: sequential-identifiers
+
+  - id: anti-static/obfuscation/identifier-obfuscation
+    description: "Identifier obfuscation (random/encoded names)"
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1027"
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: high-entropy-identifiers
+      - type: trait
+        id: many-high-entropy-identifiers
+      - type: trait
+        id: high-entropy-function-names
+      - type: trait
+        id: low-identifier-reuse
+
+  - id: anti-static/obfuscation/generated-code
+    description: "Machine-generated or transformed code"
+    criticality: notable
+    confidence: 0.85
+    attack: "T1027"
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: numeric-suffix-identifiers
+      - type: trait
+        id: single-char-function-names
+      - type: trait
+        id: excessive-single-char-vars
+      - type: trait
+        id: single-char-params
+
+  - id: anti-static/obfuscation/string-hiding
+    description: "String concealment/encoding"
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1027"
+    requires_all:
+      - type: trait
+        id: high-entropy-strings
+    requires_any:
+      - type: trait
+        id: few-strings
+      - type: trait
+        id: high-text-entropy

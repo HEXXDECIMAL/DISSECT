@@ -1,0 +1,225 @@
+# Legitimate Cryptographic Usage
+# These traits indicate normal/benign cryptographic operations
+# Useful for differential analysis to distinguish malware from legitimate software
+
+traits:
+  # OpenSSL library usage (legitimate TLS)
+  - id: crypto/legitimate/openssl-tls
+    description: OpenSSL TLS library usage (legitimate)
+    criticality: benign
+    confidence: 0.8
+    condition:
+      type: yara
+      source: |
+        rule openssl_tls {
+          strings:
+            $ssl1 = "SSL_library_init" ascii
+            $ssl2 = "SSL_CTX_new" ascii
+            $ssl3 = "SSL_new" ascii
+            $ssl4 = "SSL_connect" ascii
+            $ssl5 = "SSL_read" ascii
+            $ssl6 = "SSL_write" ascii
+            $tls1 = "TLSv1_method" ascii
+            $tls2 = "TLSv1_2_method" ascii
+            $tls3 = "TLS_method" ascii
+            $version = "OpenSSL " ascii
+          condition:
+            3 of ($ssl*) or any of ($tls*) or $version
+        }
+
+  # Standard hash functions (normal usage)
+  - id: crypto/legitimate/hash-functions
+    description: Standard cryptographic hash function usage
+    criticality: benign
+    confidence: 0.75
+    condition:
+      type: yara
+      source: |
+        rule standard_hash {
+          strings:
+            $md5_1 = "MD5_Init" ascii
+            $md5_2 = "MD5_Update" ascii
+            $md5_3 = "MD5_Final" ascii
+            $sha1_1 = "SHA1_Init" ascii
+            $sha1_2 = "SHA1_Update" ascii
+            $sha256_1 = "SHA256_Init" ascii
+            $sha256_2 = "SHA256_Update" ascii
+            $sha512_1 = "SHA512_Init" ascii
+            // Go crypto
+            $go1 = "crypto/sha256" ascii
+            $go2 = "crypto/sha512" ascii
+            $go3 = "crypto/md5" ascii
+          condition:
+            2 of ($md5_*) or 2 of ($sha*) or any of ($go*)
+        }
+
+  # GnuTLS library (legitimate)
+  - id: crypto/legitimate/gnutls
+    description: GnuTLS library usage (legitimate)
+    criticality: benign
+    confidence: 0.8
+    condition:
+      type: yara
+      source: |
+        rule gnutls_usage {
+          strings:
+            $gnu1 = "gnutls_init" ascii
+            $gnu2 = "gnutls_handshake" ascii
+            $gnu3 = "gnutls_record_send" ascii
+            $gnu4 = "gnutls_record_recv" ascii
+            $gnu5 = "gnutls_certificate_" ascii
+            $gnu6 = "gnutls_x509_" ascii
+            $version = "GnuTLS" ascii
+          condition:
+            2 of them or $version
+        }
+
+  # NSS (Mozilla) crypto library
+  - id: crypto/legitimate/nss
+    description: Mozilla NSS crypto library usage
+    criticality: benign
+    confidence: 0.8
+    condition:
+      type: yara
+      source: |
+        rule nss_crypto {
+          strings:
+            $nss1 = "NSS_Init" ascii
+            $nss2 = "PK11_" ascii
+            $nss3 = "CERT_" ascii
+            $nss4 = "SEC_" ascii
+            $nss5 = "SECMOD_" ascii
+            $nss6 = "libnss" ascii
+          condition:
+            2 of them
+        }
+
+  # libsodium (modern crypto library)
+  - id: crypto/legitimate/libsodium
+    description: libsodium modern crypto library usage
+    criticality: benign
+    confidence: 0.8
+    condition:
+      type: yara
+      source: |
+        rule libsodium_usage {
+          strings:
+            $sodium1 = "sodium_init" ascii
+            $sodium2 = "crypto_secretbox" ascii
+            $sodium3 = "crypto_box" ascii
+            $sodium4 = "crypto_sign" ascii
+            $sodium5 = "crypto_hash" ascii
+            $sodium6 = "crypto_pwhash" ascii
+            $sodium7 = "randombytes" ascii
+            $lib = "libsodium" ascii
+          condition:
+            2 of them or $lib
+        }
+
+  # Rust crypto crates
+  - id: crypto/legitimate/rust-crypto
+    description: Rust cryptographic crate usage
+    criticality: benign
+    confidence: 0.75
+    condition:
+      type: yara
+      source: |
+        rule rust_crypto {
+          strings:
+            $ring = "ring::" ascii
+            $rustls = "rustls::" ascii
+            $aes = "aes::" ascii
+            $chacha = "chacha20poly1305" ascii
+            $rsa = "rsa::" ascii
+            $ed25519 = "ed25519" ascii
+            $cargo1 = "/cargo/registry/src/" ascii
+            $cargo2 = "crypto" ascii
+          condition:
+            any of ($ring, $rustls, $chacha) or (($cargo1 or $cargo2) and any of them)
+        }
+
+  # Go crypto packages
+  - id: crypto/legitimate/go-crypto
+    description: Go standard crypto package usage
+    criticality: benign
+    confidence: 0.8
+    condition:
+      type: yara
+      source: |
+        rule go_crypto {
+          strings:
+            $pkg1 = "crypto/tls" ascii
+            $pkg2 = "crypto/x509" ascii
+            $pkg3 = "crypto/rsa" ascii
+            $pkg4 = "crypto/ecdsa" ascii
+            $pkg5 = "crypto/aes" ascii
+            $pkg6 = "crypto/cipher" ascii
+            $pkg7 = "crypto/rand" ascii
+            $pkg8 = "golang.org/x/crypto" ascii
+          condition:
+            2 of them
+        }
+
+  # Certificate handling (legitimate)
+  - id: crypto/legitimate/certificate-handling
+    description: X.509 certificate handling (legitimate)
+    criticality: benign
+    confidence: 0.8
+    condition:
+      type: yara
+      source: |
+        rule cert_handling {
+          strings:
+            $x509_1 = "X509_" ascii
+            $x509_2 = "x509" ascii nocase
+            $cert1 = "certificate" ascii nocase
+            $cert2 = "CERTIFICATE" ascii
+            $pem1 = "-----BEGIN" ascii
+            $pem2 = "-----END" ascii
+            $ca1 = "/etc/ssl/certs" ascii
+            $ca2 = "ca-certificates" ascii
+          condition:
+            2 of ($x509_*, $cert*) or ($pem1 and $pem2) or any of ($ca*)
+        }
+
+  # Random number generation (legitimate)
+  - id: crypto/legitimate/secure-random
+    description: Secure random number generation
+    criticality: benign
+    confidence: 0.8
+    condition:
+      type: yara
+      source: |
+        rule secure_random {
+          strings:
+            $dev1 = "/dev/urandom" ascii
+            $dev2 = "/dev/random" ascii
+            $rand1 = "RAND_bytes" ascii
+            $rand2 = "getrandom" ascii
+            $rand3 = "arc4random" ascii
+            $rand4 = "getentropy" ascii
+            $rand5 = "SecRandomCopyBytes" ascii
+          condition:
+            any of them
+        }
+
+  # Key derivation functions (legitimate)
+  - id: crypto/legitimate/key-derivation
+    description: Key derivation function usage
+    criticality: benign
+    confidence: 0.75
+    condition:
+      type: yara
+      source: |
+        rule kdf_usage {
+          strings:
+            $pbkdf2 = "PBKDF2" ascii nocase
+            $scrypt = "scrypt" ascii nocase
+            $argon2 = "argon2" ascii nocase
+            $bcrypt = "bcrypt" ascii nocase
+            $hkdf = "HKDF" ascii
+            $kdf1 = "EVP_PKEY_derive" ascii
+            $kdf2 = "PKCS5_PBKDF2_HMAC" ascii
+          condition:
+            any of them
+        }

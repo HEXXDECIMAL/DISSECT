@@ -11,5 +11,5 @@ composite_rules:
         id: net/http/request/get
       - type: trait
         id: fs/file/write/generic
-      - type: trait
-        id: exec/command/subprocess/run
+      - type: string
+        regex: "os\\.system\\(|exec\\(|subprocess\\."

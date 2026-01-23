@@ -51,6 +51,47 @@ traits:
             3 of ($dir*) and any of ($delete*)
         }
 
+  # Individual directory targeting
+  - id: impact/wiper/target-git
+    description: Targets .git directory (version control)
+    criticality: notable
+    confidence: 0.85
+    attack: "T1485"
+    file_types: [javascript, typescript, python, shell]
+    condition:
+      type: string
+      regex: '["'']\\./?\\.git["'']'
+
+  - id: impact/wiper/target-node-modules
+    description: Targets node_modules directory
+    criticality: notable
+    confidence: 0.8
+    attack: "T1485"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: '["'']/?(\\./)?node_modules["'']'
+
+  - id: impact/wiper/target-src
+    description: Targets source code directory
+    criticality: notable
+    confidence: 0.85
+    attack: "T1485"
+    file_types: [javascript, typescript, python]
+    condition:
+      type: string
+      regex: '["'']/?(\\./)?src["'']'
+
+  - id: impact/wiper/target-vscode
+    description: Targets .vscode configuration directory
+    criticality: notable
+    confidence: 0.85
+    attack: "T1485"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: '["'']/?(\\./)?\\.(vscode|idea)["'']'
+
   # Conditional destruction based on environment
   - id: impact/wiper/conditional-destroy
     description: Conditional destruction based on environment check
@@ -70,6 +111,30 @@ traits:
             $destroy3 = "rm -rf" ascii
           condition:
             ($env_check or $node_env) and any of ($destroy*)
+        }
+
+  # Android/mobile storage targeting
+  - id: impact/wiper/target-android-storage
+    description: Targets Android storage directories
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1485"
+    file_types: [javascript, typescript, shell]
+    condition:
+      type: yara
+      source: |
+        rule target_android_storage {
+          strings:
+            $sdcard = "/sdcard" ascii
+            $storage = "/storage/emulated" ascii
+            $dcim = "DCIM" ascii
+            $pictures = "Pictures" ascii
+            $downloads = "Download" ascii
+            $rm = "rm " ascii
+            $rmrf = "rm -rf" ascii
+            $spawn = "spawn(" ascii
+          condition:
+            ($sdcard or $storage) and any of ($dcim, $pictures, $downloads) and any of ($rm, $rmrf, $spawn)
         }
 
   # Mass file deletion

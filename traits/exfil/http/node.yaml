@@ -1,0 +1,151 @@
+# Node.js HTTP Exfiltration Patterns
+# ATT&CK: T1041 (Exfiltration Over C2 Channel), T1071 (Application Layer Protocol)
+
+traits:
+  # HTTP POST with JSON body
+  - id: exfil/http/node-post-json
+    description: HTTP POST request with JSON body
+    criticality: notable
+    confidence: 0.75
+    attack: "T1041"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule http_post_json {
+          strings:
+            $method = "method:" ascii
+            $post = "'POST'" ascii
+            $post2 = "\"POST\"" ascii
+            $json = "application/json" ascii
+          condition:
+            $method and ($post or $post2) and $json
+        }
+
+  # HTTP GET with query params (data in URL)
+  - id: exfil/http/node-get-params
+    description: HTTP GET with data in query parameters
+    criticality: notable
+    confidence: 0.8
+    attack: "T1041"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "path:\\s*[`\"'][^`\"']*\\$\\{"
+
+  # axios POST
+  - id: exfil/http/node-axios-post
+    description: Sends data via axios POST request
+    criticality: notable
+    confidence: 0.8
+    attack: "T1041"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "axios\\.post\\("
+
+  # axios with data
+  - id: exfil/http/node-axios-data
+    description: axios request with data payload
+    criticality: notable
+    confidence: 0.75
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "axios\\(\\{[^}]*data:"
+
+  # fetch POST
+  - id: exfil/http/node-fetch-post
+    description: Sends data via fetch POST request
+    criticality: notable
+    confidence: 0.8
+    attack: "T1041"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "fetch\\([^)]+\\{[^}]*method:\\s*['\"]POST['\"]"
+
+  # http.request
+  - id: exfil/http/node-http-request
+    description: Makes HTTP request using http module
+    criticality: notable
+    confidence: 0.7
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "http\\.request\\("
+
+  # https.request
+  - id: exfil/http/node-https-request
+    description: Makes HTTPS request using https module
+    criticality: notable
+    confidence: 0.7
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "https\\.request\\("
+
+  # https.get
+  - id: exfil/http/node-https-get
+    description: Makes HTTPS GET request
+    criticality: inert
+    confidence: 0.7
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "https\\.get\\("
+
+  # Request write (sending body)
+  - id: exfil/http/node-req-write
+    description: Writes data to HTTP request body
+    criticality: notable
+    confidence: 0.8
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "req\\.write\\("
+
+  # Silent error handling (hiding exfil failures)
+  - id: exfil/http/node-silent-error
+    description: Silent error handling (hides network failures)
+    criticality: notable
+    confidence: 0.7
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "\\.on\\(['\"]error['\"],\\s*\\(\\)\\s*=>\\s*\\{\\s*\\}\\)"
+
+  # Timeout handling
+  - id: exfil/http/node-request-timeout
+    description: HTTP request with timeout handling
+    criticality: inert
+    confidence: 0.6
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "\\.setTimeout\\(\\d+,"
+
+composite_rules:
+  # Collect and exfil pattern
+  - id: exfil/http/node-collect-exfil
+    description: Collects system info and exfiltrates via HTTP
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1041"
+    requires_all:
+      - type: trait
+        id: intel/discover/system/node
+      - type: string
+        regex: "axios\\.post|https\\.request|http\\.request|fetch\\("
+
+  # Stealthy exfil (silent errors)
+  - id: exfil/http/node-stealthy-exfil
+    description: Stealthy exfiltration with silent error handling
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1041"
+    requires_all:
+      - type: trait
+        id: exfil/http/node-silent-error
+      - type: string
+        regex: "axios|https\\.request|http\\.request|fetch\\("

@@ -1,0 +1,212 @@
+# Programming Language Detection
+# Useful for ML feature extraction and contextual analysis
+
+traits:
+  # Go language binary
+  - id: meta/language/go
+    description: Go language compiled binary
+    criticality: benign
+    confidence: 0.95
+    condition:
+      type: yara
+      source: |
+        rule go_binary {
+          strings:
+            $runtime1 = "runtime.goexit" ascii
+            $runtime2 = "runtime.main" ascii
+            $runtime3 = "runtime.gopanic" ascii
+            $runtime4 = "runtime.mstart" ascii
+            $gc1 = "runtime.gcStart" ascii
+            $gc2 = "runtime.mallocgc" ascii
+            $go_buildid = "Go build ID:" ascii
+            $go_version = "go1." ascii
+          condition:
+            3 of ($runtime*) or (any of ($gc*) and any of ($runtime*)) or
+            $go_buildid or ($go_version and any of ($runtime*))
+        }
+
+  # Rust language binary
+  - id: meta/language/rust
+    description: Rust language compiled binary
+    criticality: benign
+    confidence: 0.95
+    condition:
+      type: yara
+      source: |
+        rule rust_binary {
+          strings:
+            $panic1 = "panicked at" ascii
+            $panic2 = "rust_begin_unwind" ascii
+            $panic3 = "rust_panic" ascii
+            $core1 = "core::fmt" ascii
+            $core2 = "core::ptr" ascii
+            $core3 = "core::slice" ascii
+            $std1 = "std::io" ascii
+            $std2 = "std::fs" ascii
+            $std3 = "std::thread" ascii
+            $alloc = "alloc::vec" ascii
+            $rustc = "/rustc/" ascii
+          condition:
+            2 of ($panic*) or 3 of ($core*, $std*, $alloc) or ($rustc and any of ($core*))
+        }
+
+  # C/C++ binary (GCC/Clang compiled)
+  - id: meta/language/c-cpp
+    description: C/C++ compiled binary
+    criticality: benign
+    confidence: 0.8
+    condition:
+      type: yara
+      source: |
+        rule c_cpp_binary {
+          strings:
+            $glibc1 = "GLIBC_" ascii
+            $glibc2 = "__libc_start_main" ascii
+            $gxx1 = "GLIBCXX_" ascii
+            $gxx2 = "CXXABI_" ascii
+            $libstd1 = "std::basic_string" ascii
+            $libstd2 = "std::vector" ascii
+            $libstd3 = "std::__cxx11" ascii
+            $gcc = "GCC:" ascii
+          condition:
+            ($glibc1 and $glibc2) or any of ($gxx*, $libstd*) or $gcc
+        }
+
+  # Python (embedded or PyInstaller)
+  - id: meta/language/python-embedded
+    description: Embedded Python interpreter or PyInstaller binary
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule python_embedded {
+          strings:
+            $py1 = "Py_Initialize" ascii
+            $py2 = "PyRun_" ascii
+            $py3 = "PyObject_" ascii
+            $py4 = "PyErr_" ascii
+            $pyinst1 = "pyiboot" ascii
+            $pyinst2 = "PYINSTALLER" ascii
+            $pyinst3 = "_MEIPASS" ascii
+            $pyz = { 50 59 5A 00 }  // PYZ archive magic
+          condition:
+            3 of ($py*) or any of ($pyinst*) or $pyz
+        }
+
+  # Java/JVM bytecode
+  - id: meta/language/java
+    description: Java/JVM bytecode or native
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule java_binary {
+          strings:
+            $class_magic = { CA FE BA BE }
+            $jni1 = "JNI_CreateJavaVM" ascii
+            $jni2 = "JNI_OnLoad" ascii
+            $jvm1 = "java/lang/" ascii
+            $jvm2 = "javax/" ascii
+            $graal = "org.graalvm" ascii
+          condition:
+            $class_magic at 0 or any of ($jni*) or any of ($jvm*) or $graal
+        }
+
+  # .NET/Mono binary
+  - id: meta/language/dotnet
+    description: .NET or Mono compiled binary
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule dotnet_binary {
+          strings:
+            $clr1 = "mscoree.dll" ascii wide nocase
+            $clr2 = "_CorExeMain" ascii
+            $clr3 = "mscorlib" ascii wide
+            $mono1 = "mono_" ascii
+            $mono2 = "Mono.Runtime" ascii
+            $il = "System.Runtime" ascii
+          condition:
+            any of ($clr*) or any of ($mono*) or $il
+        }
+
+  # Node.js/V8 binary
+  - id: meta/language/nodejs
+    description: Node.js or V8 JavaScript binary
+    criticality: benign
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule nodejs_binary {
+          strings:
+            $v8_1 = "v8::Isolate" ascii
+            $v8_2 = "v8::Context" ascii
+            $node1 = "node::" ascii
+            $node2 = "libuv" ascii
+            $node3 = "NODE_MODULE" ascii
+            $pkg1 = "pkg/" ascii
+            $nexe = "nexe" ascii
+          condition:
+            any of ($v8_*) or 2 of ($node*) or any of ($pkg1, $nexe)
+        }
+
+  # Nim language binary
+  - id: meta/language/nim
+    description: Nim language compiled binary
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule nim_binary {
+          strings:
+            $nim1 = "NimMain" ascii
+            $nim2 = "nimGC" ascii
+            $nim3 = "NimStringV2" ascii
+            $nim4 = "@mstdlib" ascii
+            $nim5 = "Nim/" ascii
+          condition:
+            2 of them
+        }
+
+  # Zig language binary
+  - id: meta/language/zig
+    description: Zig language compiled binary
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule zig_binary {
+          strings:
+            $zig1 = "zig-linux" ascii
+            $zig2 = "std.debug" ascii
+            $zig3 = "std.mem" ascii
+            $zig4 = "@panic" ascii
+            $zig5 = "zig.zig" ascii
+          condition:
+            2 of them
+        }
+
+  # Assembly/hand-crafted binary
+  - id: meta/language/assembly
+    description: Hand-crafted or assembly-only binary
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: yara
+      source: |
+        rule assembly_binary {
+          strings:
+            $nasm = "NASM" ascii
+            $fasm = "FASM" ascii
+            $masm = "MASM" ascii
+            $yasm = "YASM" ascii
+          condition:
+            any of them
+        }

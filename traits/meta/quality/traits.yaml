@@ -1,0 +1,197 @@
+# Code Quality and Maturity Indicators
+# Useful for ML classification - mature codebases have different patterns than quick scripts
+
+traits:
+  # Error handling patterns
+  - id: meta/quality/error-handling
+    description: Proper error handling patterns
+    criticality: benign
+    confidence: 0.8
+    condition:
+      type: yara
+      source: |
+        rule error_handling {
+          strings:
+            // Go error handling
+            $go1 = "if err != nil" ascii
+            $go2 = "errors.New" ascii
+            $go3 = "fmt.Errorf" ascii
+            // Rust error handling
+            $rust1 = "Result<" ascii
+            $rust2 = "unwrap_or" ascii
+            $rust3 = "expect(" ascii
+            // Generic
+            $try1 = "try {" ascii
+            $try2 = "catch" ascii
+            $try3 = "except" ascii
+            $try4 = "finally" ascii
+          condition:
+            2 of ($go*) or 2 of ($rust*) or 2 of ($try*)
+        }
+
+  # Logging presence
+  - id: meta/quality/has-logging
+    description: Application has logging infrastructure
+    criticality: benign
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule has_logging {
+          strings:
+            $log1 = "log.Print" ascii
+            $log2 = "logger" ascii nocase
+            $log3 = "logging" ascii
+            $log4 = "syslog" ascii
+            $log5 = "log.info" ascii nocase
+            $log6 = "log.debug" ascii nocase
+            $log7 = "log.error" ascii nocase
+          condition:
+            2 of them
+        }
+
+  # Configuration management
+  - id: meta/quality/config-management
+    description: External configuration management
+    criticality: benign
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule config_management {
+          strings:
+            $cfg1 = "config.yaml" ascii
+            $cfg2 = "config.json" ascii
+            $cfg3 = "config.toml" ascii
+            $cfg4 = ".env" ascii
+            $cfg5 = "viper" ascii
+            $cfg6 = "configparser" ascii
+            $cfg7 = "dotenv" ascii
+          condition:
+            any of them
+        }
+
+  # Version information
+  - id: meta/quality/versioned
+    description: Contains version information
+    criticality: benign
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule has_version {
+          strings:
+            $ver1 = "version" ascii nocase
+            $ver2 = "Version:" ascii
+            $ver3 = "v1." ascii
+            $ver4 = "v2." ascii
+            $ver5 = "VERSION" ascii
+            $semver = /v?\d+\.\d+\.\d+/ ascii
+          condition:
+            any of ($ver*) or $semver
+        }
+
+  # Help/usage information
+  - id: meta/quality/has-help
+    description: Contains help or usage information
+    criticality: benign
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule has_help {
+          strings:
+            $help1 = "--help" ascii
+            $help2 = "-h" ascii
+            $help3 = "usage:" ascii nocase
+            $help4 = "Usage:" ascii
+            $help5 = "Options:" ascii
+            $help6 = "USAGE:" ascii
+          condition:
+            2 of them
+        }
+
+  # License information
+  - id: meta/quality/licensed
+    description: Contains license information
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule has_license {
+          strings:
+            $lic1 = "MIT License" ascii
+            $lic2 = "Apache License" ascii
+            $lic3 = "GPL" ascii
+            $lic4 = "BSD" ascii
+            $lic5 = "LICENSE" ascii
+            $lic6 = "Copyright" ascii
+            $lic7 = "SPDX-License-Identifier" ascii
+          condition:
+            any of them
+        }
+
+  # Documentation strings
+  - id: meta/quality/documented
+    description: Contains documentation strings
+    criticality: benign
+    confidence: 0.8
+    condition:
+      type: yara
+      source: |
+        rule has_docs {
+          strings:
+            $doc1 = "\"\"\"" ascii
+            $doc2 = "'''" ascii
+            $doc3 = "///" ascii
+            $doc4 = "/**" ascii
+            $doc5 = "/// " ascii
+            $doc6 = "@param" ascii
+            $doc7 = "@return" ascii
+            $doc8 = ":param" ascii
+            $doc9 = ":returns:" ascii
+          condition:
+            any of them
+        }
+
+  # Unit test presence (in production binary)
+  - id: meta/quality/has-tests
+    description: Binary includes test code (unusual for production)
+    criticality: notable
+    confidence: 0.8
+    condition:
+      type: yara
+      source: |
+        rule has_test_code {
+          strings:
+            $test1 = "TestMain" ascii
+            $test2 = "test_" ascii
+            $test3 = "_test.go" ascii
+            $test4 = "_test.py" ascii
+            $test5 = "unittest" ascii
+            $test6 = "pytest" ascii
+            $test7 = "#[test]" ascii
+          condition:
+            any of them
+        }
+
+  # Metrics/telemetry
+  - id: meta/quality/has-metrics
+    description: Application has metrics/telemetry
+    criticality: benign
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule has_metrics {
+          strings:
+            $met1 = "prometheus" ascii
+            $met2 = "metrics" ascii nocase
+            $met3 = "statsd" ascii
+            $met4 = "datadog" ascii
+            $met5 = "opentelemetry" ascii
+            $met6 = "NewRelic" ascii
+          condition:
+            any of them
+        }

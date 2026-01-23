@@ -1,0 +1,102 @@
+# Process Masquerading Detection
+# MBC: F0004 (Process Name Spoofing)
+# ATT&CK: T1036.004 (Masquerade Task or Service)
+
+traits:
+  # prctl PR_SET_NAME for process renaming
+  - id: evasion/masquerade/prctl-setname
+    description: Uses prctl to change process name
+    criticality: suspicious
+    confidence: 0.8
+    mbc: "F0004"
+    attack: "T1036.004"
+    condition:
+      type: yara
+      source: |
+        rule prctl_setname {
+          strings:
+            $prctl = "prctl" ascii
+            $pr_set_name = "PR_SET_NAME" ascii
+            // prctl syscall number on x86_64 is 157
+            $syscall_prctl = { b8 9d 00 00 00 }
+          condition:
+            $prctl or $pr_set_name or $syscall_prctl
+        }
+
+  # Masquerade as system daemon (abrtd - BPFDoor pattern)
+  - id: evasion/masquerade/fake-abrtd
+    description: Masquerades as abrtd daemon (BPFDoor indicator)
+    criticality: hostile
+    confidence: 0.95
+    mbc: "F0004"
+    attack: "T1036.004"
+    condition:
+      type: yara
+      source: |
+        rule fake_abrtd {
+          strings:
+            $abrtd = "/usr/sbin/abrtd" ascii
+            $abrt = "abrtd" ascii
+          condition:
+            $abrtd or ($abrt and not uint32(0) == 0x464c457f)
+        }
+
+  # Masquerade as common system processes
+  - id: evasion/masquerade/fake-system-process
+    description: Contains names of system processes (potential masquerading)
+    criticality: suspicious
+    confidence: 0.75
+    mbc: "F0004"
+    attack: "T1036.004"
+    condition:
+      type: yara
+      source: |
+        rule fake_system_process {
+          strings:
+            $sshd = "[sshd]" ascii
+            $kworker = "[kworker/" ascii
+            $migration = "[migration/" ascii
+            $ksoftirqd = "[ksoftirqd/" ascii
+            $kthreadd = "[kthreadd]" ascii
+            $systemd = "/lib/systemd/systemd" ascii
+            $udevd = "/sbin/udevd" ascii
+            $rsyslogd = "/usr/sbin/rsyslogd" ascii
+            $crond = "/usr/sbin/crond" ascii
+            $atd = "/usr/sbin/atd" ascii
+          condition:
+            2 of them
+        }
+
+  # argv[0] manipulation
+  - id: evasion/masquerade/argv0-manipulation
+    description: Manipulates argv[0] to hide process name
+    criticality: suspicious
+    confidence: 0.8
+    mbc: "F0004"
+    attack: "T1036.004"
+    condition:
+      type: yara
+      source: |
+        rule argv0_manipulation {
+          strings:
+            $strncpy_argv = /strncpy\s*\(\s*argv\s*\[\s*0\s*\]/ ascii
+            $memset_argv = /memset\s*\(\s*argv\s*\[\s*0\s*\]/ ascii
+            $strcpy_argv = /strcpy\s*\(\s*argv\s*\[\s*0\s*\]/ ascii
+          condition:
+            any of them
+        }
+
+composite_rules:
+  # BPFDoor-style process masquerading
+  - id: evasion/masquerade/bpfdoor-style
+    description: BPFDoor-style process masquerading with anti-forensics
+    criticality: hostile
+    confidence: 0.98
+    requires_all:
+      - type: trait
+        id: evasion/masquerade/prctl-setname
+    requires_any:
+      - type: trait
+        id: evasion/masquerade/fake-abrtd
+      - type: trait
+        id: evasion/masquerade/fake-system-process

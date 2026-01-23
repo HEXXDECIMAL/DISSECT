@@ -1,0 +1,160 @@
+# DDoS Attack Pattern Detection
+# Detects various DDoS attack implementations
+# ATT&CK: T1498 (Network Denial of Service)
+
+traits:
+  # SYN Flood attack
+  - id: impact/ddos/syn-flood
+    description: SYN flood attack implementation
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1498"
+    condition:
+      type: yara
+      source: |
+        rule syn_flood {
+          strings:
+            $syn1 = "SYN flood" ascii nocase
+            $syn2 = "synflood" ascii nocase
+            $syn3 = "syn_flood" ascii nocase
+            $raw = "SOCK_RAW" ascii
+            $tcp = "IPPROTO_TCP" ascii
+          condition:
+            any of ($syn*) or ($raw and $tcp)
+        }
+
+  # UDP Flood attack
+  - id: impact/ddos/udp-flood
+    description: UDP flood attack implementation
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1498"
+    condition:
+      type: yara
+      source: |
+        rule udp_flood {
+          strings:
+            $udp1 = "UDP flood" ascii nocase
+            $udp2 = "udpflood" ascii nocase
+            $udp3 = "udp_flood" ascii nocase
+            $udpbuf = "udpbuf" ascii
+            $sock_dgram = "SOCK_DGRAM" ascii
+            $sendto = "sendto" ascii
+          condition:
+            any of ($udp*) or ($sock_dgram and $sendto and $udpbuf)
+        }
+
+  # DNS Amplification attack
+  - id: impact/ddos/dns-amp
+    description: DNS amplification attack
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1498"
+    condition:
+      type: yara
+      source: |
+        rule dns_amp {
+          strings:
+            $dns_amp = "dns amp" ascii nocase
+            $dnsamp = "dnsamp" ascii nocase
+            $amplification = "amplification" ascii nocase
+            $port_53 = ":53" ascii
+          condition:
+            any of ($dns_amp, $dnsamp) or ($amplification and $port_53)
+        }
+
+  # NTP Amplification attack
+  - id: impact/ddos/ntp-amp
+    description: NTP amplification attack (monlist)
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1498"
+    condition:
+      type: yara
+      source: |
+        rule ntp_amp {
+          strings:
+            $ntp_amp = "ntp amp" ascii nocase
+            $monlist = "monlist" ascii nocase
+            $ntpamp = "ntpamp" ascii nocase
+            $port_123 = ":123" ascii
+          condition:
+            any of them
+        }
+
+  # ICMP Flood (ping flood)
+  - id: impact/ddos/icmp-flood
+    description: ICMP flood attack
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1498"
+    condition:
+      type: yara
+      source: |
+        rule icmp_flood {
+          strings:
+            $icmp_flood = "icmp flood" ascii nocase
+            $ping_flood = "ping flood" ascii nocase
+            $icmp = "IPPROTO_ICMP" ascii
+            $raw = "SOCK_RAW" ascii
+          condition:
+            any of ($icmp_flood, $ping_flood) or ($icmp and $raw)
+        }
+
+  # HTTP Flood (Layer 7)
+  - id: impact/ddos/http-flood
+    description: HTTP flood attack (Layer 7 DDoS)
+    criticality: hostile
+    confidence: 0.85
+    attack: "T1498"
+    condition:
+      type: yara
+      source: |
+        rule http_flood {
+          strings:
+            $http_flood = "http flood" ascii nocase
+            $httpflood = "httpflood" ascii nocase
+            $slowloris = "slowloris" ascii nocase
+            $layer7 = "layer7" ascii nocase
+            $l7_ddos = "l7 ddos" ascii nocase
+          condition:
+            any of them
+        }
+
+  # Memcached amplification
+  - id: impact/ddos/memcached-amp
+    description: Memcached amplification attack
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1498"
+    condition:
+      type: yara
+      source: |
+        rule memcached_amp {
+          strings:
+            $memcached = "memcached" ascii nocase
+            $memcrashed = "memcrashed" ascii nocase
+            $port_11211 = ":11211" ascii
+            $stats = "stats" ascii
+          condition:
+            ($memcached or $memcrashed) and ($port_11211 or $stats)
+        }
+
+composite_rules:
+  # Multi-vector DDoS tool
+  - id: impact/ddos/multi-vector
+    description: Multi-vector DDoS tool (multiple attack types)
+    criticality: hostile
+    confidence: 0.95
+    min_matches: 2
+    requires_any:
+      - type: trait
+        id: impact/ddos/syn-flood
+      - type: trait
+        id: impact/ddos/udp-flood
+      - type: trait
+        id: impact/ddos/dns-amp
+      - type: trait
+        id: impact/ddos/icmp-flood
+      - type: trait
+        id: impact/ddos/http-flood

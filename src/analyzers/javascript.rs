@@ -1,4 +1,9 @@
 use crate::analyzers::Analyzer;
+use crate::analyzers::{
+    comment_metrics::{self, CommentStyle},
+    function_metrics::{self, FunctionInfo},
+    identifier_metrics, string_metrics, text_metrics,
+};
 use crate::capabilities::CapabilityMapper;
 use crate::types::*;
 use anyhow::{Context, Result};
@@ -91,6 +96,10 @@ impl JavaScriptAnalyzer {
             metrics.javascript_idioms = Some(javascript_idioms);
         }
 
+        // === Compute metrics for ML analysis (BEFORE trait evaluation) ===
+        let metrics = self.compute_metrics(&root, content);
+        report.metrics = Some(metrics);
+
         // Evaluate trait definitions and composite rules
         let trait_findings = self
             .capability_mapper
@@ -113,6 +122,354 @@ impl JavaScriptAnalyzer {
         report.metadata.tools_used = vec!["tree-sitter-javascript".to_string()];
 
         Ok(report)
+    }
+
+    /// Compute all metrics for JavaScript code
+    fn compute_metrics(&self, root: &tree_sitter::Node, content: &str) -> Metrics {
+        let source = content.as_bytes();
+        let total_lines = content.lines().count() as u32;
+
+        // Universal text metrics
+        let text = text_metrics::analyze_text(content);
+
+        // Extract identifiers from AST
+        let identifiers = self.extract_identifiers(root, source);
+        let ident_refs: Vec<&str> = identifiers.iter().map(|s| s.as_str()).collect();
+        let identifier_metrics = identifier_metrics::analyze_identifiers(&ident_refs);
+
+        // Extract strings from AST
+        let strings = self.extract_string_literals(root, source);
+        let str_refs: Vec<&str> = strings.iter().map(|s| s.as_str()).collect();
+        let string_metrics = string_metrics::analyze_strings(&str_refs);
+
+        // Comment metrics (C-style comments for JS)
+        let comment_metrics = comment_metrics::analyze_comments(content, CommentStyle::CStyle);
+
+        // Function metrics
+        let func_infos = self.extract_function_info(root, source);
+        let func_metrics = function_metrics::analyze_functions(&func_infos, total_lines);
+
+        // JavaScript-specific metrics
+        let js_metrics = self.compute_javascript_metrics(root, source, content);
+
+        Metrics {
+            text: Some(text),
+            identifiers: Some(identifier_metrics),
+            strings: Some(string_metrics),
+            comments: Some(comment_metrics),
+            functions: Some(func_metrics),
+            javascript: Some(js_metrics),
+            ..Default::default()
+        }
+    }
+
+    /// Extract function information from the AST for metrics
+    fn extract_function_info(&self, root: &tree_sitter::Node, source: &[u8]) -> Vec<FunctionInfo> {
+        let mut functions = Vec::new();
+        let mut cursor = root.walk();
+        self.walk_for_function_info(&mut cursor, source, &mut functions, 0);
+        functions
+    }
+
+    fn walk_for_function_info(
+        &self,
+        cursor: &mut tree_sitter::TreeCursor,
+        source: &[u8],
+        functions: &mut Vec<FunctionInfo>,
+        depth: u32,
+    ) {
+        loop {
+            let node = cursor.node();
+            let kind = node.kind();
+
+            // Function declarations and expressions
+            if kind == "function_declaration"
+                || kind == "function_expression"
+                || kind == "method_definition"
+                || kind == "arrow_function"
+                || kind == "generator_function"
+                || kind == "generator_function_declaration"
+            {
+                let mut info = FunctionInfo::default();
+
+                // Get function name
+                if let Some(name_node) = node.child_by_field_name("name") {
+                    if let Ok(name) = name_node.utf8_text(source) {
+                        info.name = name.to_string();
+                    }
+                }
+
+                // Arrow functions and function expressions are anonymous if no name
+                if kind == "arrow_function" || kind == "function_expression" {
+                    if info.name.is_empty() {
+                        info.is_anonymous = true;
+                    }
+                }
+
+                // Check for async
+                if let Ok(text) = node.utf8_text(source) {
+                    if text.starts_with("async ") {
+                        info.is_async = true;
+                    }
+                }
+
+                // Check for generator
+                if kind.contains("generator") {
+                    info.is_generator = true;
+                }
+
+                // Get parameters
+                if let Some(params_node) = node.child_by_field_name("parameters") {
+                    let mut param_cursor = params_node.walk();
+                    if param_cursor.goto_first_child() {
+                        loop {
+                            let param = param_cursor.node();
+                            let param_kind = param.kind();
+                            if param_kind == "identifier" {
+                                if let Ok(param_name) = param.utf8_text(source) {
+                                    info.param_names.push(param_name.to_string());
+                                    info.param_count += 1;
+                                }
+                            } else if param_kind == "assignment_pattern"
+                                || param_kind == "rest_pattern"
+                            {
+                                // Get left side of default parameter
+                                if let Some(left) = param.child_by_field_name("left") {
+                                    if let Ok(name) = left.utf8_text(source) {
+                                        info.param_names.push(name.to_string());
+                                        info.param_count += 1;
+                                    }
+                                } else if let Ok(text) = param.utf8_text(source) {
+                                    let name = text.trim_start_matches("...");
+                                    if let Some(name) = name.split('=').next() {
+                                        let name = name.trim();
+                                        if !name.is_empty() {
+                                            info.param_names.push(name.to_string());
+                                            info.param_count += 1;
+                                        }
+                                    }
+                                }
+                            }
+                            if !param_cursor.goto_next_sibling() {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                // Line count
+                info.start_line = node.start_position().row as u32;
+                info.end_line = node.end_position().row as u32;
+                info.line_count = info.end_line.saturating_sub(info.start_line) + 1;
+                info.nesting_depth = depth;
+
+                // Check for nested functions
+                if let Some(body) = node.child_by_field_name("body") {
+                    let body_text = body.utf8_text(source).unwrap_or("");
+                    if body_text.contains("function ")
+                        || body_text.contains("function(")
+                        || body_text.contains("=>")
+                    {
+                        info.contains_nested_functions = true;
+                    }
+                }
+
+                functions.push(info);
+            }
+
+            // Recurse with increased depth for function bodies
+            let new_depth = if kind == "function_declaration"
+                || kind == "function_expression"
+                || kind == "arrow_function"
+                || kind == "method_definition"
+            {
+                depth + 1
+            } else {
+                depth
+            };
+
+            if cursor.goto_first_child() {
+                self.walk_for_function_info(cursor, source, functions, new_depth);
+                cursor.goto_parent();
+            }
+
+            if !cursor.goto_next_sibling() {
+                break;
+            }
+        }
+    }
+
+    /// Extract all identifiers from the AST
+    fn extract_identifiers(&self, root: &tree_sitter::Node, source: &[u8]) -> Vec<String> {
+        let mut identifiers = Vec::new();
+        let mut cursor = root.walk();
+        self.walk_for_identifiers(&mut cursor, source, &mut identifiers);
+        identifiers
+    }
+
+    fn walk_for_identifiers(
+        &self,
+        cursor: &mut tree_sitter::TreeCursor,
+        source: &[u8],
+        identifiers: &mut Vec<String>,
+    ) {
+        loop {
+            let node = cursor.node();
+
+            if node.kind() == "identifier" || node.kind() == "property_identifier" {
+                if let Ok(text) = node.utf8_text(source) {
+                    identifiers.push(text.to_string());
+                }
+            }
+
+            if cursor.goto_first_child() {
+                self.walk_for_identifiers(cursor, source, identifiers);
+                cursor.goto_parent();
+            }
+
+            if !cursor.goto_next_sibling() {
+                break;
+            }
+        }
+    }
+
+    /// Extract all string literals from the AST
+    fn extract_string_literals(&self, root: &tree_sitter::Node, source: &[u8]) -> Vec<String> {
+        let mut strings = Vec::new();
+        let mut cursor = root.walk();
+        self.walk_for_strings(&mut cursor, source, &mut strings);
+        strings
+    }
+
+    fn walk_for_strings(
+        &self,
+        cursor: &mut tree_sitter::TreeCursor,
+        source: &[u8],
+        strings: &mut Vec<String>,
+    ) {
+        loop {
+            let node = cursor.node();
+
+            if node.kind() == "string" || node.kind() == "template_string" {
+                if let Ok(text) = node.utf8_text(source) {
+                    // Strip quotes if present
+                    let s = text.trim_matches(|c| c == '"' || c == '\'' || c == '`');
+                    if !s.is_empty() {
+                        strings.push(s.to_string());
+                    }
+                }
+            }
+
+            if cursor.goto_first_child() {
+                self.walk_for_strings(cursor, source, strings);
+                cursor.goto_parent();
+            }
+
+            if !cursor.goto_next_sibling() {
+                break;
+            }
+        }
+    }
+
+    /// Compute JavaScript-specific metrics
+    fn compute_javascript_metrics(
+        &self,
+        root: &tree_sitter::Node,
+        source: &[u8],
+        content: &str,
+    ) -> JavaScriptMetrics {
+        let mut metrics = JavaScriptMetrics::default();
+        let mut cursor = root.walk();
+        self.walk_for_js_metrics(&mut cursor, source, &mut metrics);
+
+        // Additional pattern-based detection
+        metrics.eval_count += content.matches("eval(").count() as u32;
+        if content.contains("new Function(") {
+            metrics.function_constructor += 1;
+        }
+
+        metrics
+    }
+
+    fn walk_for_js_metrics(
+        &self,
+        cursor: &mut tree_sitter::TreeCursor,
+        source: &[u8],
+        metrics: &mut JavaScriptMetrics,
+    ) {
+        loop {
+            let node = cursor.node();
+
+            match node.kind() {
+                "call_expression" => {
+                    if let Ok(text) = node.utf8_text(source) {
+                        // Dynamic execution
+                        if text.starts_with("eval(") {
+                            metrics.eval_count += 1;
+                        }
+                        if text.contains("setTimeout") && text.contains("\"") {
+                            metrics.settimeout_string += 1;
+                        }
+                        if text.contains("setInterval") && text.contains("\"") {
+                            metrics.setinterval_string += 1;
+                        }
+                        if text.contains("document.write") {
+                            metrics.document_write += 1;
+                        }
+                        if text.contains("innerHTML") {
+                            metrics.innerhtml_writes += 1;
+                        }
+                        if text.contains("fromCharCode") {
+                            metrics.from_char_code_count += 1;
+                        }
+                        if text.contains("charCodeAt") {
+                            metrics.char_code_at_count += 1;
+                        }
+                        if text.contains("atob(") || text.contains("btoa(") {
+                            metrics.atob_btoa_count += 1;
+                        }
+                        if text.contains("decodeURIComponent") {
+                            metrics.decode_uri_component += 1;
+                        }
+                        if text.contains(".join(") {
+                            metrics.array_join_strings += 1;
+                        }
+                    }
+                }
+                "arrow_function" => {
+                    metrics.arrow_function_count += 1;
+                }
+                "function_declaration" | "function_expression" => {
+                    // Count functions
+                }
+                "new_expression" => {
+                    if let Ok(text) = node.utf8_text(source) {
+                        if text.contains("new Function(") {
+                            metrics.function_constructor += 1;
+                        }
+                    }
+                }
+                "class_declaration" | "class_expression" => {
+                    // Class counted for structural analysis
+                }
+                "debugger_statement" => {
+                    metrics.debugger_statements += 1;
+                }
+                "with_statement" => {
+                    metrics.with_statement += 1;
+                }
+                _ => {}
+            }
+
+            if cursor.goto_first_child() {
+                self.walk_for_js_metrics(cursor, source, metrics);
+                cursor.goto_parent();
+            }
+
+            if !cursor.goto_next_sibling() {
+                break;
+            }
+        }
     }
 
     fn detect_capabilities(

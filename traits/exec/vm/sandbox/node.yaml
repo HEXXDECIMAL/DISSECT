@@ -111,3 +111,51 @@ traits:
     condition:
       type: string
       exact: "process.binding"
+
+  # Remote Code Loading via Function Constructor
+  - id: exec/vm/sandbox/function-with-http
+    description: Function constructor with HTTP fetch (remote code execution)
+    criticality: malicious
+    confidence: 0.95
+    mbc: "B0024"
+    attack: "T1105"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule function_remote_code_exec {
+          strings:
+            $func1 = "new Function(" ascii
+            $func2 = "Function.constructor" ascii
+            $func3 = "Function(" ascii
+            $http1 = "axios.get" ascii
+            $http2 = "axios(" ascii
+            $http3 = "fetch(" ascii
+            $http4 = "https.get" ascii
+            $http5 = "http.get" ascii
+            $http6 = ".request(" ascii
+          condition:
+            any of ($func*) and any of ($http*)
+        }
+
+  # Base64 encoded URL patterns (evasion)
+  - id: exec/vm/sandbox/base64-url
+    description: Base64 encoded URL (potential C2 obfuscation)
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "C0026"
+    attack: "T1027"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule base64_url_pattern {
+          strings:
+            $decode1 = "atob(" ascii
+            $decode2 = "Buffer.from" ascii
+            $url_like = /[a-zA-Z0-9+\/=]{20,}/ ascii
+            $http = /https?:\/\// ascii
+            $env_key = /DEV_.*_KEY|API_.*KEY|SECRET/ ascii
+          condition:
+            any of ($decode*) and $url_like and ($http or $env_key)
+        }

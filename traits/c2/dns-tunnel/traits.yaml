@@ -1,0 +1,85 @@
+# DNS Tunneling Detection
+# MBC: C0001 (Command and Control)
+# ATT&CK: T1071.004 (Application Layer Protocol: DNS)
+
+traits:
+  # dnscat2 protocol
+  - id: c2/dns-tunnel/dnscat
+    description: dnscat2 DNS tunneling tool
+    criticality: hostile
+    confidence: 0.95
+    mbc: "C0001"
+    attack: "T1071.004"
+    condition:
+      type: yara
+      source: |
+        rule dnscat2 {
+          strings:
+            $secret = "DNSCAT_SECRET" ascii
+            $dnscat = "dnscat" ascii nocase
+            $session_state = "SESSION_STATE_ESTABLISHED" ascii
+            $msg_packet = "MSG packet" ascii
+          condition:
+            any of them
+        }
+
+  # iodine DNS tunnel
+  - id: c2/dns-tunnel/iodine
+    description: iodine DNS tunneling tool
+    criticality: hostile
+    confidence: 0.95
+    mbc: "C0001"
+    attack: "T1071.004"
+    condition:
+      type: yara
+      source: |
+        rule iodine_tunnel {
+          strings:
+            $iodine = "iodine" ascii
+            $tun_device = "/dev/net/tun" ascii
+            $dns_tunnel = "dns tunnel" ascii nocase
+          condition:
+            ($iodine and $tun_device) or $dns_tunnel
+        }
+
+  # Generic DNS tunnel patterns
+  - id: c2/dns-tunnel/generic
+    description: Generic DNS tunneling patterns
+    criticality: suspicious
+    confidence: 0.8
+    mbc: "C0001"
+    attack: "T1071.004"
+    condition:
+      type: yara
+      source: |
+        rule dns_tunnel_generic {
+          strings:
+            $dns_exfil = "dns exfil" ascii nocase
+            $dns_c2 = "dns c2" ascii nocase
+            $subdomain_encode = /[a-z0-9]{30,}\.[a-z]+\.(com|net|org|io)/ ascii
+            $txt_record = "TXT record" ascii
+            $dns_beacon = "dns beacon" ascii nocase
+          condition:
+            any of them
+        }
+
+  # DNS over HTTPS for C2
+  - id: c2/dns-tunnel/doh-c2
+    description: DNS over HTTPS potential C2 channel
+    criticality: suspicious
+    confidence: 0.75
+    mbc: "C0001"
+    attack: "T1071.004"
+    condition:
+      type: yara
+      source: |
+        rule doh_c2 {
+          strings:
+            $cloudflare_doh = "cloudflare-dns.com/dns-query" ascii
+            $google_doh = "dns.google/dns-query" ascii
+            $quad9_doh = "dns.quad9.net/dns-query" ascii
+            $doh_content = "application/dns-message" ascii
+            $doh_json = "application/dns-json" ascii
+          condition:
+            any of them
+        }

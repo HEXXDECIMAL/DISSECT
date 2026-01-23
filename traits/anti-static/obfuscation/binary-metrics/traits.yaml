@@ -1,0 +1,511 @@
+# Binary Metrics-Based Obfuscation/Packing Detection
+# Detects packing, obfuscation, and anomalies in binaries via statistical analysis
+# ATT&CK: T1027 (Obfuscated Files or Information), T1045 (Software Packing)
+
+defaults:
+  file_types: [elf, pe, macho]
+  attack: "T1027"
+  mbc: "B0032"
+
+traits:
+  # === Entropy-Based Detection ===
+
+  - id: anti-static/obfuscation/binary-metrics/high-overall-entropy
+    description: "High overall file entropy (likely packed/encrypted)"
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: metrics
+      field: binary.overall_entropy
+      min: 7.0
+
+  - id: anti-static/obfuscation/binary-metrics/very-high-entropy
+    description: "Very high entropy (strongly indicates packing/encryption)"
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1045"
+    condition:
+      type: metrics
+      field: binary.overall_entropy
+      min: 7.5
+
+  - id: anti-static/obfuscation/binary-metrics/high-code-entropy
+    description: "High code section entropy (encrypted/packed code)"
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1045"
+    condition:
+      type: metrics
+      field: binary.code_entropy
+      min: 7.0
+
+  - id: anti-static/obfuscation/binary-metrics/high-entropy-regions
+    description: "Multiple high entropy regions"
+    criticality: suspicious
+    confidence: 0.75
+    condition:
+      type: metrics
+      field: binary.high_entropy_regions
+      min: 3
+
+  - id: anti-static/obfuscation/binary-metrics/entropy-variance-low
+    description: "Low entropy variance (uniform packing)"
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: metrics
+      field: binary.entropy_variance
+      max: 0.5
+
+  # === Section Anomalies ===
+
+  - id: anti-static/obfuscation/binary-metrics/wx-sections
+    description: "Writable and executable sections (self-modifying code)"
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1055"
+    condition:
+      type: metrics
+      field: binary.wx_sections
+      min: 1
+
+  - id: anti-static/obfuscation/binary-metrics/many-wx-sections
+    description: "Multiple W+X sections (packer pattern)"
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1045"
+    condition:
+      type: metrics
+      field: binary.wx_sections
+      min: 2
+
+  - id: anti-static/obfuscation/binary-metrics/high-section-name-entropy
+    description: "High entropy section names (packer signature)"
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1045"
+    condition:
+      type: metrics
+      field: binary.section_name_entropy
+      min: 4.8
+
+  - id: anti-static/obfuscation/binary-metrics/few-sections
+    description: "Very few sections (merged/stripped)"
+    criticality: notable
+    confidence: 0.6
+    condition:
+      type: metrics
+      field: binary.section_count
+      max: 3
+
+  - id: anti-static/obfuscation/binary-metrics/dominant-section
+    description: "Single section dominates file (packer pattern)"
+    criticality: suspicious
+    confidence: 0.75
+    attack: "T1045"
+    condition:
+      type: metrics
+      field: binary.largest_section_ratio
+      min: 0.85
+
+  # === Import Anomalies ===
+
+  - id: anti-static/obfuscation/binary-metrics/no-imports
+    description: "No imports (static linking or API resolution)"
+    criticality: suspicious
+    confidence: 0.7
+    condition:
+      type: metrics
+      field: binary.import_count
+      max: 0
+
+  - id: anti-static/obfuscation/binary-metrics/few-imports
+    description: "Very few imports (loader stub pattern)"
+    criticality: notable
+    confidence: 0.6
+    condition:
+      type: metrics
+      field: binary.import_count
+      max: 5
+
+  - id: anti-static/obfuscation/binary-metrics/high-import-entropy
+    description: "High entropy import names (obfuscated imports)"
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: metrics
+      field: binary.import_entropy
+      min: 5.0
+
+  # === String Anomalies ===
+
+  - id: anti-static/obfuscation/binary-metrics/no-strings
+    description: "No readable strings (encrypted/packed)"
+    criticality: suspicious
+    confidence: 0.75
+    attack: "T1045"
+    condition:
+      type: metrics
+      field: binary.string_count
+      max: 5
+
+  - id: anti-static/obfuscation/binary-metrics/high-string-entropy
+    description: "High entropy strings (encoded data)"
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: metrics
+      field: binary.avg_string_entropy
+      min: 5.0
+
+  - id: anti-static/obfuscation/binary-metrics/many-high-entropy-strings
+    description: "Many high entropy strings (embedded encrypted data)"
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: metrics
+      field: binary.high_entropy_strings
+      min: 10
+
+  # === Function Anomalies ===
+
+  - id: anti-static/obfuscation/binary-metrics/no-functions
+    description: "No detected functions (packed/obfuscated)"
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1045"
+    condition:
+      type: metrics
+      field: binary.function_count
+      max: 3
+
+  - id: anti-static/obfuscation/binary-metrics/few-functions
+    description: "Very few functions detected"
+    criticality: notable
+    confidence: 0.6
+    condition:
+      type: metrics
+      field: binary.function_count
+      max: 10
+
+  - id: anti-static/obfuscation/binary-metrics/huge-functions
+    description: "Has extremely large functions (>64KB)"
+    criticality: suspicious
+    confidence: 0.75
+    condition:
+      type: metrics
+      field: binary.huge_functions
+      min: 1
+
+  - id: anti-static/obfuscation/binary-metrics/many-tiny-functions
+    description: "Many tiny functions (<16 bytes)"
+    criticality: notable
+    confidence: 0.65
+    condition:
+      type: metrics
+      field: binary.tiny_functions
+      min: 20
+
+  - id: anti-static/obfuscation/binary-metrics/small-avg-function
+    description: "Very small average function size"
+    criticality: notable
+    confidence: 0.6
+    condition:
+      type: metrics
+      field: binary.avg_function_size
+      max: 32
+
+  # === Complexity Anomalies (Control Flow Obfuscation) ===
+
+  - id: anti-static/obfuscation/binary-metrics/high-avg-complexity
+    description: "High average cyclomatic complexity (control flow obfuscation)"
+    criticality: suspicious
+    confidence: 0.75
+    attack: "T1027.002"
+    condition:
+      type: metrics
+      field: binary.avg_complexity
+      min: 25
+
+  - id: anti-static/obfuscation/binary-metrics/very-high-avg-complexity
+    description: "Very high average complexity (heavy obfuscation)"
+    criticality: hostile
+    confidence: 0.85
+    attack: "T1027.002"
+    condition:
+      type: metrics
+      field: binary.avg_complexity
+      min: 50
+
+  - id: anti-static/obfuscation/binary-metrics/extreme-max-complexity
+    description: "Extremely high max function complexity (opaque predicates)"
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1027.002"
+    condition:
+      type: metrics
+      field: binary.max_complexity
+      min: 200
+
+  - id: anti-static/obfuscation/binary-metrics/many-complex-functions
+    description: "Many high complexity functions (>50 cyclomatic)"
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1027.002"
+    condition:
+      type: metrics
+      field: binary.high_complexity_functions
+      min: 5
+
+  - id: anti-static/obfuscation/binary-metrics/very-complex-functions
+    description: "Has very high complexity functions (>100 cyclomatic)"
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1027.002"
+    condition:
+      type: metrics
+      field: binary.very_high_complexity_functions
+      min: 2
+
+  # === Control Flow Anomalies ===
+
+  - id: anti-static/obfuscation/binary-metrics/many-basic-blocks
+    description: "High average basic blocks per function"
+    criticality: notable
+    confidence: 0.65
+    condition:
+      type: metrics
+      field: binary.avg_basic_blocks
+      min: 30
+
+  - id: anti-static/obfuscation/binary-metrics/few-basic-blocks
+    description: "Very few basic blocks (obfuscated control flow)"
+    criticality: notable
+    confidence: 0.6
+    condition:
+      type: metrics
+      field: binary.total_basic_blocks
+      max: 10
+
+  - id: anti-static/obfuscation/binary-metrics/many-linear-functions
+    description: "Many linear functions (possible VM dispatcher)"
+    criticality: notable
+    confidence: 0.6
+    condition:
+      type: metrics
+      field: binary.linear_functions
+      min: 50
+
+  - id: anti-static/obfuscation/binary-metrics/recursive-functions
+    description: "Has recursive functions"
+    criticality: notable
+    confidence: 0.5
+    condition:
+      type: metrics
+      field: binary.recursive_functions
+      min: 3
+
+  - id: anti-static/obfuscation/binary-metrics/many-noreturn-functions
+    description: "Many noreturn functions (anti-analysis pattern)"
+    criticality: suspicious
+    confidence: 0.7
+    condition:
+      type: metrics
+      field: binary.noreturn_functions
+      min: 10
+
+  - id: anti-static/obfuscation/binary-metrics/few-leaf-functions
+    description: "Very few leaf functions (deep call chains)"
+    criticality: notable
+    confidence: 0.6
+    condition:
+      type: metrics
+      field: binary.leaf_functions
+      max: 5
+
+  # === Stack Anomalies ===
+
+  - id: anti-static/obfuscation/binary-metrics/large-stack-frames
+    description: "Has functions with large stack frames (>4KB)"
+    criticality: notable
+    confidence: 0.6
+    condition:
+      type: metrics
+      field: binary.large_stack_functions
+      min: 3
+
+  - id: anti-static/obfuscation/binary-metrics/huge-stack-frame
+    description: "Extremely large max stack frame (>64KB)"
+    criticality: suspicious
+    confidence: 0.7
+    condition:
+      type: metrics
+      field: binary.max_stack_frame
+      min: 65536
+
+  - id: anti-static/obfuscation/binary-metrics/high-avg-stack
+    description: "High average stack frame size"
+    criticality: notable
+    confidence: 0.6
+    condition:
+      type: metrics
+      field: binary.avg_stack_frame
+      min: 2048
+
+  # === Overlay Anomalies ===
+
+  - id: anti-static/obfuscation/binary-metrics/has-overlay
+    description: "Binary has overlay data"
+    criticality: notable
+    confidence: 0.5
+    condition:
+      type: metrics
+      field: binary.has_overlay
+      min: 1
+
+  - id: anti-static/obfuscation/binary-metrics/large-overlay
+    description: "Large overlay relative to file size"
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1027.009"
+    condition:
+      type: metrics
+      field: binary.overlay_ratio
+      min: 0.5
+
+  - id: anti-static/obfuscation/binary-metrics/high-entropy-overlay
+    description: "High entropy overlay (encrypted payload)"
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1027.009"
+    condition:
+      type: metrics
+      field: binary.overlay_entropy
+      min: 7.0
+
+composite_rules:
+  # === Combined Packing Detection ===
+
+  - id: anti-static/obfuscation/binary-packed
+    description: "Binary appears to be packed"
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1045"
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: high-overall-entropy
+      - type: trait
+        id: no-strings
+      - type: trait
+        id: few-imports
+      - type: trait
+        id: no-functions
+      - type: trait
+        id: dominant-section
+
+  - id: anti-static/obfuscation/binary-heavily-packed
+    description: "Binary is heavily packed/encrypted"
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1045"
+    requires_count: 3
+    conditions:
+      - type: trait
+        id: very-high-entropy
+      - type: trait
+        id: no-strings
+      - type: trait
+        id: no-functions
+      - type: trait
+        id: wx-sections
+      - type: trait
+        id: few-imports
+
+  - id: anti-static/obfuscation/binary-encrypted-overlay
+    description: "Binary with encrypted overlay payload"
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1027.009"
+    requires_all:
+      - type: trait
+        id: has-overlay
+      - type: trait
+        id: high-entropy-overlay
+
+  - id: anti-static/obfuscation/packer-signature
+    description: "Packer signature pattern detected"
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1045"
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: high-section-name-entropy
+      - type: trait
+        id: few-sections
+      - type: trait
+        id: dominant-section
+      - type: trait
+        id: wx-sections
+
+  # === Control Flow Obfuscation Detection ===
+
+  - id: anti-static/obfuscation/control-flow-obfuscation
+    description: "Control flow obfuscation detected"
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1027.002"
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: high-avg-complexity
+      - type: trait
+        id: many-complex-functions
+      - type: trait
+        id: many-basic-blocks
+      - type: trait
+        id: extreme-max-complexity
+
+  - id: anti-static/obfuscation/heavy-control-flow-obfuscation
+    description: "Heavy control flow obfuscation"
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1027.002"
+    requires_all:
+      - type: trait
+        id: very-high-avg-complexity
+      - type: trait
+        id: very-complex-functions
+
+  - id: anti-static/obfuscation/vm-based-obfuscation
+    description: "VM-based obfuscation pattern"
+    criticality: hostile
+    confidence: 0.85
+    attack: "T1027.002"
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: few-functions
+      - type: trait
+        id: extreme-max-complexity
+      - type: trait
+        id: huge-stack-frame
+      - type: trait
+        id: many-linear-functions
+
+  - id: anti-static/obfuscation/anti-analysis-pattern
+    description: "Anti-analysis pattern detected"
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1027"
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: many-noreturn-functions
+      - type: trait
+        id: many-complex-functions
+      - type: trait
+        id: few-leaf-functions
+      - type: trait
+        id: large-stack-frames

@@ -1,0 +1,149 @@
+# Dynamic Loading Patterns
+# These patterns can be legitimate but are also used by malware
+# Useful for ML classification and behavioral analysis
+
+traits:
+  # dlopen/dlsym (Linux/macOS)
+  - id: suspicious/dynamic-load/dlopen
+    description: Runtime library loading via dlopen
+    criticality: notable
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule dlopen_load {
+          strings:
+            $dlopen = "dlopen" ascii
+            $dlsym = "dlsym" ascii
+            $dlclose = "dlclose" ascii
+            $dlerror = "dlerror" ascii
+          condition:
+            $dlopen or ($dlsym and any of ($dlclose, $dlerror))
+        }
+
+  # LoadLibrary (Windows)
+  - id: suspicious/dynamic-load/loadlibrary
+    description: Runtime library loading via LoadLibrary
+    criticality: notable
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule loadlibrary_load {
+          strings:
+            $ll1 = "LoadLibrary" ascii wide
+            $ll2 = "LoadLibraryA" ascii
+            $ll3 = "LoadLibraryW" ascii
+            $ll4 = "LoadLibraryEx" ascii wide
+            $gpa = "GetProcAddress" ascii wide
+          condition:
+            any of ($ll*) or $gpa
+        }
+
+  # Python dynamic import
+  - id: suspicious/dynamic-load/python-import
+    description: Python dynamic import patterns
+    criticality: notable
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule python_dynamic_import {
+          strings:
+            $imp1 = "__import__" ascii
+            $imp2 = "importlib.import_module" ascii
+            $imp3 = "exec(compile" ascii
+            $imp4 = "importlib.util" ascii
+          condition:
+            any of them
+        }
+
+  # Java reflection loading
+  - id: suspicious/dynamic-load/java-reflection
+    description: Java reflection class loading
+    criticality: notable
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule java_reflection_load {
+          strings:
+            $ref1 = "Class.forName" ascii
+            $ref2 = "ClassLoader" ascii
+            $ref3 = "defineClass" ascii
+            $ref4 = "loadClass" ascii
+            $ref5 = "newInstance" ascii
+          condition:
+            2 of them
+        }
+
+  # .NET reflection loading
+  - id: suspicious/dynamic-load/dotnet-reflection
+    description: .NET reflection assembly loading
+    criticality: notable
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule dotnet_reflection_load {
+          strings:
+            $ref1 = "Assembly.Load" ascii wide
+            $ref2 = "Assembly.LoadFrom" ascii wide
+            $ref3 = "Activator.CreateInstance" ascii wide
+            $ref4 = "Type.GetType" ascii wide
+            $ref5 = "MethodInfo.Invoke" ascii wide
+          condition:
+            any of them
+        }
+
+  # Go plugin loading
+  - id: suspicious/dynamic-load/go-plugin
+    description: Go plugin dynamic loading
+    criticality: notable
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule go_plugin_load {
+          strings:
+            $plug1 = "plugin.Open" ascii
+            $plug2 = "plugin.Lookup" ascii
+            $plug3 = "plugin.Symbol" ascii
+          condition:
+            any of them
+        }
+
+  # JIT compilation indicators
+  - id: suspicious/dynamic-load/jit
+    description: JIT compilation patterns
+    criticality: notable
+    confidence: 0.8
+    condition:
+      type: yara
+      source: |
+        rule jit_compilation {
+          strings:
+            $jit1 = "mprotect" ascii
+            $jit2 = "VirtualProtect" ascii wide
+            $jit3 = "PAGE_EXECUTE" ascii wide
+            $jit4 = "PROT_EXEC" ascii
+            $mmap = "mmap" ascii
+            $rwx = "MAP_ANONYMOUS" ascii
+          condition:
+            any of ($jit*) or ($mmap and $rwx)
+        }
+
+composite_rules:
+  # Suspicious dynamic loading with memory execution
+  - id: suspicious/dynamic-load/memory-exec
+    description: Dynamic loading with executable memory allocation
+    criticality: suspicious
+    confidence: 0.85
+    requires_all:
+      - type: trait
+        id: suspicious/dynamic-load/jit
+    requires_any:
+      - type: trait
+        id: suspicious/dynamic-load/dlopen
+      - type: trait
+        id: suspicious/dynamic-load/loadlibrary

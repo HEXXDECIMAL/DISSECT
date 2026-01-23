@@ -172,3 +172,67 @@ traits:
     condition:
       type: string
       regex: "bash /tmp/|sh /tmp/|\\./tmp/"
+
+  # Function constructor abuse (remote code execution)
+  - id: exec/javascript/eval/function-constructor
+    description: Function constructor code execution
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "B0024"
+    attack: "T1059.007"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "new\\s+Function\\.constructor\\(|new\\s+Function\\s*\\("
+
+  # Detached child process (background execution)
+  - id: exec/javascript/eval/detached-spawn
+    description: Detached child process (background execution)
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "F0011"
+    attack: "T1059"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "detached:\\s*true"
+
+  # Signal handler abuse (prevent termination)
+  - id: exec/javascript/eval/sigint-handler
+    description: SIGINT handler (may prevent CTRL+C)
+    criticality: notable
+    confidence: 0.7
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "process\\.on\\s*\\(['\"]SIGINT['\"]"
+
+  - id: exec/javascript/eval/sigterm-handler
+    description: SIGTERM handler (may prevent kill)
+    criticality: notable
+    confidence: 0.7
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "process\\.on\\s*\\(['\"]SIGTERM['\"]"
+
+  # Process respawning (persistence via self-restart)
+  - id: exec/javascript/eval/self-respawn
+    description: Self-respawning process
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "F0011"
+    attack: "T1547"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule self_respawn {
+          strings:
+            $spawn = "spawn(" ascii
+            $import_meta = "import.meta.url" ascii
+            $process_argv = "process.argv" ascii
+            $file = "__filename" ascii
+          condition:
+            $spawn and any of ($import_meta, $process_argv, $file)
+        }

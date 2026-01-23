@@ -1,0 +1,135 @@
+# Cloud SDK and Infrastructure Libraries
+# Useful for ML baseline - legitimate cloud usage patterns
+
+traits:
+  # AWS SDK
+  - id: lib/cloud/aws-sdk
+    description: AWS SDK usage
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule aws_sdk {
+          strings:
+            $aws1 = "aws-sdk" ascii
+            $aws2 = "github.com/aws/aws-sdk-go" ascii
+            $aws3 = "boto3" ascii
+            $aws4 = "botocore" ascii
+            $aws5 = "amazonaws.com" ascii
+            $aws6 = "AWS_REGION" ascii
+          condition:
+            any of them
+        }
+
+  # Google Cloud SDK
+  - id: lib/cloud/gcp-sdk
+    description: Google Cloud SDK usage
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule gcp_sdk {
+          strings:
+            $gcp1 = "google-cloud" ascii
+            $gcp2 = "cloud.google.com" ascii
+            $gcp3 = "googleapis.com" ascii
+            $gcp4 = "GOOGLE_APPLICATION_CREDENTIALS" ascii
+            $gcp5 = "google.cloud" ascii
+          condition:
+            any of them
+        }
+
+  # Azure SDK
+  - id: lib/cloud/azure-sdk
+    description: Azure SDK usage
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule azure_sdk {
+          strings:
+            $az1 = "azure-sdk" ascii
+            $az2 = "azure.core" ascii
+            $az3 = "azure.identity" ascii
+            $az4 = "AZURE_" ascii
+            $az5 = "management.azure.com" ascii
+          condition:
+            any of them
+        }
+
+  # Kubernetes client
+  - id: lib/cloud/kubernetes
+    description: Kubernetes client library
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule kubernetes_client {
+          strings:
+            $k8s1 = "k8s.io/client-go" ascii
+            $k8s2 = "kubernetes" ascii
+            $k8s3 = "kubectl" ascii
+            $k8s4 = "KUBECONFIG" ascii
+            $k8s5 = ".kube/config" ascii
+          condition:
+            any of them
+        }
+
+  # Docker client
+  - id: lib/cloud/docker-client
+    description: Docker client library
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule docker_client {
+          strings:
+            $docker1 = "docker.io" ascii
+            $docker2 = "moby" ascii
+            $docker3 = "containerd" ascii
+            $docker4 = "/var/run/docker.sock" ascii
+            $docker5 = "DOCKER_HOST" ascii
+          condition:
+            any of them
+        }
+
+  # Terraform
+  - id: lib/cloud/terraform
+    description: Terraform infrastructure as code
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule terraform {
+          strings:
+            $tf1 = "terraform" ascii
+            $tf2 = "hashicorp" ascii
+            $tf3 = ".tf" ascii
+            $tf4 = "tfstate" ascii
+          condition:
+            2 of them
+        }
+
+  # Vault secrets management
+  - id: lib/cloud/hashicorp-vault
+    description: HashiCorp Vault client
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule vault_client {
+          strings:
+            $vault1 = "vault" ascii
+            $vault2 = "VAULT_ADDR" ascii
+            $vault3 = "VAULT_TOKEN" ascii
+            $vault4 = "hashicorp/vault" ascii
+          condition:
+            2 of them
+        }

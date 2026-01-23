@@ -12,6 +12,16 @@ traits:
       type: string
       regex: "[a-z0-9]{8,32}\\.(interactsh|burpcollaborator\\.net|oastify\\.com|oast\\.fun|m\\.pipedream\\.net)"
 
+  - id: exfil/oob/ngrok
+    description: Communication with Ngrok (common C2 tunnel)
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1572"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "[a-z0-9-]+\\.(tcp|http|https)\\.(eu|us|asia|au|sa|jp|in)\\.ngrok\\.io"
+
   - id: exfil/oob/bytedance-dast
     description: Exfiltrates data to Bytedance DAST testing domain
     criticality: suspicious
@@ -90,6 +100,50 @@ traits:
       type: string
       exact: "b2FzdC5mdW4"
 
+  # Discord webhook exfiltration
+  - id: exfil/oob/discord-webhook
+    description: Discord webhook exfiltration endpoint
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1567.004"
+    file_types: [javascript, typescript, python]
+    condition:
+      type: string
+      regex: "discord\\.com/api/webhooks/[0-9]+/[A-Za-z0-9_-]+"
+
+  # Telegram bot exfiltration
+  - id: exfil/oob/telegram-bot
+    description: Telegram bot API exfiltration
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1567"
+    file_types: [javascript, typescript, python]
+    condition:
+      type: string
+      regex: "api\\.telegram\\.org/bot[0-9]+:[A-Za-z0-9_-]+"
+
+  # Slack webhook exfiltration
+  - id: exfil/oob/slack-webhook
+    description: Slack webhook exfiltration endpoint
+    criticality: notable
+    confidence: 0.8
+    attack: "T1567"
+    file_types: [javascript, typescript, python]
+    condition:
+      type: string
+      regex: "hooks\\.slack\\.com/services/T[A-Z0-9]+/B[A-Z0-9]+/[A-Za-z0-9]+"
+
+  # Ngrok free tunnel detection
+  - id: exfil/oob/ngrok-free
+    description: Ngrok free tunnel endpoint
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1572"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "[a-z0-9-]+\\.ngrok-free\\.app"
+
 composite_rules:
   - id: exfil/oob/multiple-encoded-indicators
     description: "Multiple base64-encoded indicators detected (potential evasion)"
@@ -121,11 +175,11 @@ composite_rules:
         rule oob_preinstall_exfil {
           strings:
             $preinstall = /\s{2,8}\"preinstall\": \".{12,256}/
-            $oob1 = /[a-z0-9]{8,32}\\.burpcollaborator\\.net/
-            $oob2 = /[a-z0-9]{8,32}\\.oastify\\.com/
-            $oob3 = /[a-z0-9]{8,32}\\.oast\\.fun/
-            $oob4 = /[a-z0-9]{8,32}\\.interactsh\\.com/
-            $oob5 = /[a-z0-9]{8,32}\\.m\\.pipedream\\.net/
+            $oob1 = /[a-z0-9]{8,32}\.burpcollaborator\.net/
+            $oob2 = /[a-z0-9]{8,32}\.oastify\.com/
+            $oob3 = /[a-z0-9]{8,32}\.oast\.fun/
+            $oob4 = /[a-z0-9]{8,32}\.interactsh\.com/
+            $oob5 = /[a-z0-9]{8,32}\.m\.pipedream\.net/
           condition:
             filesize < 5KB and $preinstall and any of ($oob*)
         }
@@ -143,10 +197,10 @@ composite_rules:
         rule oob_crypto_exfil {
           strings:
             $crypto = /require\(['"]crypto['"]\)/
-            $oob1 = /[a-z0-9]{8,32}\\.burpcollaborator\\.net/
-            $oob2 = /[a-z0-9]{8,32}\\.oastify\\.com/
-            $oob3 = /[a-z0-9]{8,32}\\.oast\\.fun/
-            $oob4 = /[a-z0-9]{8,32}\\.interactsh\\.com/
+            $oob1 = /[a-z0-9]{8,32}\.burpcollaborator\.net/
+            $oob2 = /[a-z0-9]{8,32}\.oastify\.com/
+            $oob3 = /[a-z0-9]{8,32}\.oast\.fun/
+            $oob4 = /[a-z0-9]{8,32}\.interactsh\.com/
           condition:
             filesize < 24KB and $crypto and any of ($oob*)
         }

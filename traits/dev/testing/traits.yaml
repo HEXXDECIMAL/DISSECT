@@ -1,0 +1,216 @@
+# Testing Framework Detection
+# Useful for identifying test binaries vs production code
+
+traits:
+  # Google Test (C++)
+  - id: dev/testing/gtest
+    description: Google Test framework
+    criticality: benign
+    confidence: 0.95
+    condition:
+      type: yara
+      source: |
+        rule gtest_framework {
+          strings:
+            $gtest1 = "testing::Test" ascii
+            $gtest2 = "GTEST_" ascii
+            $gtest3 = "TEST_F(" ascii
+            $gtest4 = "EXPECT_" ascii
+            $gtest5 = "ASSERT_" ascii
+            $gtest6 = "gtest" ascii
+          condition:
+            2 of them
+        }
+
+  # Catch2 (C++)
+  - id: dev/testing/catch2
+    description: Catch2 test framework
+    criticality: benign
+    confidence: 0.95
+    condition:
+      type: yara
+      source: |
+        rule catch2_framework {
+          strings:
+            $catch1 = "Catch::" ascii
+            $catch2 = "CATCH_" ascii
+            $catch3 = "TEST_CASE" ascii
+            $catch4 = "SECTION" ascii
+            $catch5 = "REQUIRE" ascii
+          condition:
+            2 of them
+        }
+
+  # JUnit (Java)
+  - id: dev/testing/junit
+    description: JUnit test framework
+    criticality: benign
+    confidence: 0.95
+    condition:
+      type: yara
+      source: |
+        rule junit_framework {
+          strings:
+            $junit1 = "org.junit" ascii
+            $junit2 = "@Test" ascii
+            $junit3 = "assertEquals" ascii
+            $junit4 = "assertTrue" ascii
+            $junit5 = "assertNotNull" ascii
+          condition:
+            any of them
+        }
+
+  # pytest (Python)
+  - id: dev/testing/pytest
+    description: pytest test framework
+    criticality: benign
+    confidence: 0.95
+    condition:
+      type: yara
+      source: |
+        rule pytest_framework {
+          strings:
+            $pytest1 = "pytest" ascii
+            $pytest2 = "def test_" ascii
+            $pytest3 = "@pytest" ascii
+            $pytest4 = "conftest.py" ascii
+            $assert1 = "assert " ascii
+          condition:
+            any of ($pytest*) or ($assert1 and any of ($pytest*))
+        }
+
+  # Go testing
+  - id: dev/testing/go-test
+    description: Go testing package
+    criticality: benign
+    confidence: 0.95
+    condition:
+      type: yara
+      source: |
+        rule go_testing {
+          strings:
+            $go1 = "testing.T" ascii
+            $go2 = "testing.M" ascii
+            $go3 = "testing.B" ascii
+            $go4 = "func Test" ascii
+            $go5 = "t.Error" ascii
+            $go6 = "t.Fatal" ascii
+          condition:
+            2 of them
+        }
+
+  # Rust testing
+  - id: dev/testing/rust-test
+    description: Rust test framework
+    criticality: benign
+    confidence: 0.95
+    condition:
+      type: yara
+      source: |
+        rule rust_testing {
+          strings:
+            $rust1 = "#[test]" ascii
+            $rust2 = "#[cfg(test)]" ascii
+            $rust3 = "assert!" ascii
+            $rust4 = "assert_eq!" ascii
+            $rust5 = "cargo test" ascii
+          condition:
+            any of them
+        }
+
+  # Jest (JavaScript)
+  - id: dev/testing/jest
+    description: Jest test framework
+    criticality: benign
+    confidence: 0.95
+    condition:
+      type: yara
+      source: |
+        rule jest_framework {
+          strings:
+            $jest1 = "jest" ascii
+            $jest2 = "describe(" ascii
+            $jest3 = "it(" ascii
+            $jest4 = "expect(" ascii
+            $jest5 = "toBe(" ascii
+            $jest6 = "toEqual(" ascii
+          condition:
+            $jest1 or 3 of ($jest2, $jest3, $jest4, $jest5, $jest6)
+        }
+
+  # Mocha (JavaScript)
+  - id: dev/testing/mocha
+    description: Mocha test framework
+    criticality: benign
+    confidence: 0.95
+    condition:
+      type: yara
+      source: |
+        rule mocha_framework {
+          strings:
+            $mocha1 = "mocha" ascii
+            $mocha2 = "describe(" ascii
+            $mocha3 = "it(" ascii
+            $mocha4 = "before(" ascii
+            $mocha5 = "after(" ascii
+          condition:
+            $mocha1 or 3 of them
+        }
+
+  # RSpec (Ruby)
+  - id: dev/testing/rspec
+    description: RSpec test framework
+    criticality: benign
+    confidence: 0.95
+    condition:
+      type: yara
+      source: |
+        rule rspec_framework {
+          strings:
+            $rspec1 = "rspec" ascii
+            $rspec2 = "RSpec" ascii
+            $rspec3 = "describe " ascii
+            $rspec4 = "context " ascii
+            $rspec5 = "expect(" ascii
+          condition:
+            any of ($rspec1, $rspec2) or 2 of ($rspec3, $rspec4, $rspec5)
+        }
+
+  # Fuzzing frameworks
+  - id: dev/testing/fuzzing
+    description: Fuzzing test framework
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule fuzzing_framework {
+          strings:
+            $fuzz1 = "libfuzzer" ascii
+            $fuzz2 = "LLVMFuzzer" ascii
+            $fuzz3 = "AFL" ascii
+            $fuzz4 = "honggfuzz" ascii
+            $fuzz5 = "go-fuzz" ascii
+            $fuzz6 = "cargo-fuzz" ascii
+          condition:
+            any of them
+        }
+
+  # Benchmark frameworks
+  - id: dev/testing/benchmark
+    description: Benchmark test framework
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule benchmark_framework {
+          strings:
+            $bench1 = "benchmark" ascii nocase
+            $bench2 = "google/benchmark" ascii
+            $bench3 = "testing.B" ascii
+            $bench4 = "criterion" ascii
+            $bench5 = "BenchmarkDotNet" ascii
+          condition:
+            any of them
+        }

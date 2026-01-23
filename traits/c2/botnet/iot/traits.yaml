@@ -58,8 +58,25 @@ traits:
     file_types: [elf]
     platforms: [linux]
     condition:
-      type: string
-      regex: "\\| *sh|sh;|-o- \\| sh|-O- \\| sh"
+      type: yara
+      source: |
+        rule pipe_to_shell {
+          strings:
+            // curl/wget piped to shell
+            $curl_sh = "curl " ascii
+            $wget_sh = "wget " ascii
+            $pipe_sh1 = " | sh" ascii
+            $pipe_sh2 = " | bash" ascii
+            $pipe_sh3 = " |sh" ascii
+            $pipe_sh4 = " |bash" ascii
+            // -O- | sh pattern
+            $o_pipe1 = "-O- | sh" ascii
+            $o_pipe2 = "-o- | sh" ascii
+            $o_pipe3 = "-O - | sh" ascii
+          condition:
+            (($curl_sh or $wget_sh) and any of ($pipe_sh*)) or
+            any of ($o_pipe*)
+        }
 
   - id: c2/botnet/iot/mirai-credential
     description: "Mirai botnet default credential (7ujMko0admin)"
@@ -92,8 +109,21 @@ traits:
     file_types: [elf]
     platforms: [linux]
     condition:
-      type: string
-      exact: "/proc/self/exe"
+      type: yara
+      source: |
+        rule self_propagate {
+          strings:
+            // Self-propagation patterns with network context
+            $proc_exe = "/proc/self/exe" ascii
+            $send1 = "send(" ascii
+            $send2 = "sendto(" ascii
+            $send3 = "sendfile(" ascii
+            $tftp = "tftp" ascii
+            $wget = "wget" ascii
+            $curl = "curl" ascii
+          condition:
+            $proc_exe and (any of ($send*) or any of ($tftp, $wget, $curl))
+        }
 
 composite_rules:
   - id: c2/botnet/mirai-variant

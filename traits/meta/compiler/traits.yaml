@@ -1,0 +1,237 @@
+# Compiler and Toolchain Detection
+# Useful for ML features and build provenance analysis
+
+traits:
+  # GCC compiler
+  - id: meta/compiler/gcc
+    description: Compiled with GCC
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule gcc_compiler {
+          strings:
+            $gcc1 = "GCC:" ascii
+            $gcc2 = "gcc-" ascii
+            $gcc3 = "GNU C" ascii
+            $gcc4 = "__GNUC__" ascii
+            $gcc5 = "libgcc" ascii
+          condition:
+            any of them
+        }
+
+  # Clang/LLVM compiler
+  - id: meta/compiler/clang
+    description: Compiled with Clang/LLVM
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule clang_compiler {
+          strings:
+            $clang1 = "clang" ascii
+            $clang2 = "LLVM" ascii
+            $clang3 = "__clang__" ascii
+            $clang4 = "libLLVM" ascii
+          condition:
+            any of them
+        }
+
+  # MSVC compiler
+  - id: meta/compiler/msvc
+    description: Compiled with Microsoft Visual C++
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule msvc_compiler {
+          strings:
+            $msvc1 = "MSVC" ascii
+            $msvc2 = "_MSC_VER" ascii
+            $msvc3 = "vcruntime" ascii wide
+            $msvc4 = "Microsoft Visual" ascii
+            $msvc5 = "VCRUNTIME" ascii wide
+          condition:
+            any of them
+        }
+
+  # Intel compiler
+  - id: meta/compiler/intel
+    description: Compiled with Intel compiler
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule intel_compiler {
+          strings:
+            $intel1 = "Intel(R)" ascii
+            $intel2 = "__INTEL_COMPILER" ascii
+            $intel3 = "icc" ascii
+            $intel4 = "libiomp" ascii
+          condition:
+            any of them
+        }
+
+  # musl libc (Alpine, static builds)
+  - id: meta/compiler/musl
+    description: Linked with musl libc
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule musl_libc {
+          strings:
+            $musl1 = "musl libc" ascii
+            $musl2 = "musl-" ascii
+            $musl3 = "__musl__" ascii
+          condition:
+            any of them
+        }
+
+  # Static linking indicator
+  - id: meta/compiler/static-linked
+    description: Statically linked binary
+    criticality: benign
+    confidence: 0.8
+    condition:
+      type: yara
+      source: |
+        rule static_linked {
+          strings:
+            $static1 = "statically linked" ascii
+            $interp = "/lib/ld-linux" ascii
+            $interp2 = "/lib64/ld-linux" ascii
+          condition:
+            $static1 or (not $interp and not $interp2)
+        }
+
+  # Debug symbols present
+  - id: meta/compiler/debug-symbols
+    description: Binary contains debug symbols
+    criticality: benign
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule debug_symbols {
+          strings:
+            $dwarf1 = ".debug_info" ascii
+            $dwarf2 = ".debug_line" ascii
+            $dwarf3 = ".debug_str" ascii
+            $stab1 = ".stab" ascii
+            $stab2 = ".stabstr" ascii
+          condition:
+            any of ($dwarf*) or all of ($stab*)
+        }
+
+  # LTO (Link Time Optimization) used
+  - id: meta/compiler/lto
+    description: Link Time Optimization enabled
+    criticality: benign
+    confidence: 0.8
+    condition:
+      type: yara
+      source: |
+        rule lto_enabled {
+          strings:
+            $lto1 = ".llvmbc" ascii
+            $lto2 = ".llvmlto" ascii
+            $lto3 = "LTO" ascii
+            $lto4 = "-flto" ascii
+          condition:
+            any of them
+        }
+
+  # Position Independent Executable
+  - id: meta/compiler/pie
+    description: Position Independent Executable (PIE)
+    criticality: benign
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule pie_binary {
+          strings:
+            $pie1 = "__pie__" ascii
+            $pie2 = "-fPIE" ascii
+            $got = ".got.plt" ascii
+          condition:
+            any of ($pie*) or $got
+        }
+
+  # Stack protector enabled
+  - id: meta/compiler/stack-protector
+    description: Stack protector/canary enabled
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule stack_protector {
+          strings:
+            $ssp1 = "__stack_chk_fail" ascii
+            $ssp2 = "__stack_chk_guard" ascii
+            $ssp3 = "-fstack-protector" ascii
+          condition:
+            any of them
+        }
+
+  # FORTIFY_SOURCE enabled
+  - id: meta/compiler/fortify
+    description: FORTIFY_SOURCE hardening enabled
+    criticality: benign
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule fortify_source {
+          strings:
+            $fort1 = "__fortify_fail" ascii
+            $fort2 = "__chk_fail" ascii
+            $fort3 = "_chk@" ascii
+            $fort4 = "__memcpy_chk" ascii
+            $fort5 = "__strcpy_chk" ascii
+          condition:
+            any of them
+        }
+
+  # RELRO enabled
+  - id: meta/compiler/relro
+    description: RELRO hardening enabled
+    criticality: benign
+    confidence: 0.8
+    condition:
+      type: yara
+      source: |
+        rule relro_enabled {
+          strings:
+            $relro1 = "GNU_RELRO" ascii
+            $relro2 = ".got" ascii
+          condition:
+            $relro1 or $relro2
+        }
+
+  # Cross-compilation indicator
+  - id: meta/compiler/cross-compiled
+    description: Cross-compiled binary (different target arch)
+    criticality: notable
+    confidence: 0.75
+    condition:
+      type: yara
+      source: |
+        rule cross_compiled {
+          strings:
+            $cross1 = "arm-linux-gnu" ascii
+            $cross2 = "aarch64-linux-gnu" ascii
+            $cross3 = "mips-linux-gnu" ascii
+            $cross4 = "powerpc-linux-gnu" ascii
+            $cross5 = "x86_64-linux-musl" ascii
+            $cross6 = "-cross" ascii
+          condition:
+            any of them
+        }

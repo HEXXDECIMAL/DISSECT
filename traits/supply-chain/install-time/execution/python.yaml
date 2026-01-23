@@ -38,9 +38,9 @@ traits:
       regex: "except\\s*(ImportError)?.*:\\s*\\n?\\s*(os\\.system|subprocess)"
 
 composite_rules:
-  # Setup.py with external code execution
+  # Setup.py with external code execution or network activity
   - id: supply-chain/install-time/execution/setup-py-exec
-    description: "setup.py with suspicious code execution"
+    description: "setup.py with suspicious code execution or network activity"
     criticality: hostile
     confidence: 0.95
     condition:
@@ -48,7 +48,7 @@ composite_rules:
       source: |
         rule setup_py_malicious_exec {
           meta:
-            description = "Detects setup.py files with code execution"
+            description = "Detects setup.py files with code execution or network activity"
           strings:
             $setup = "setup(" ascii
             $setuptools = "from setuptools" ascii
@@ -58,6 +58,15 @@ composite_rules:
             $exec = "exec(" ascii
             $eval = "eval(" ascii
             $pip = "pip install" ascii nocase
+            // Network activity
+            $requests = "requests." ascii
+            $urllib = "urllib." ascii
+            $aiohttp = "aiohttp" ascii
+            $httpx = "httpx" ascii
+            $socket = "socket." ascii
+            $webhook = "webhook" ascii nocase
+            // Custom install commands
+            $cmdclass = "cmdclass" ascii
             // Legitimate publishing/build patterns (excludes)
             $legit_sdist = "setup.py sdist" ascii nocase
             $legit_bdist = "bdist_wheel" ascii nocase
@@ -71,7 +80,7 @@ composite_rules:
             $legit_develop = "setup.py develop" ascii nocase
           condition:
             ($setup or $setuptools or $distutils) and
-            ($os_system or $subprocess or $exec or $eval or $pip) and
+            ($os_system or $subprocess or $exec or $eval or $pip or $requests or $urllib or $aiohttp or $httpx or $socket or $webhook or $cmdclass) and
             // Exclude if any legitimate publishing/build patterns found
             not any of ($legit*)
         }
@@ -94,7 +103,7 @@ composite_rules:
             $subprocess_call = "subprocess.call(" ascii
             $subprocess_popen = "subprocess.Popen(" ascii
             $pip = "pip install" ascii nocase
-            $http = /https?:\/\// ascii
+            $http = /https?:\/\/// ascii
             // Legitimate patterns (excludes)
             $legit_sdist = "setup.py sdist" ascii nocase
             $legit_bdist = "bdist_wheel" ascii nocase
@@ -126,8 +135,8 @@ composite_rules:
             description = "Package that installs dependencies during import/setup"
           strings:
             $try = "try:" ascii
-            $except = /except\s*(ImportError)?:/ ascii
-            $import = /import\s+\w+/ ascii
+            $except = /except\s*(ImportError)?:/
+            $import = /import\s+\\w+/ ascii
             $pip_install = "pip install" ascii nocase
             $sys_exec = "sys.executable" ascii
           condition:

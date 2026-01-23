@@ -81,6 +81,9 @@ pub struct AnalysisReport {
     pub source_code_metrics: Option<SourceCodeMetrics>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub overlay_metrics: Option<OverlayMetrics>,
+    /// Unified metrics container for ML analysis
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub metrics: Option<Metrics>,
     /// Raw paths discovered (complete list)
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub paths: Vec<PathInfo>,
@@ -117,6 +120,7 @@ impl AnalysisReport {
             code_metrics: None,
             source_code_metrics: None,
             overlay_metrics: None,
+            metrics: None,
             paths: Vec::new(),
             directories: Vec::new(),
             env_vars: Vec::new(),
@@ -1394,6 +1398,2305 @@ pub struct GoIdioms {
     /// Unsafe pointer operations
     #[serde(default, skip_serializing_if = "is_zero_u32")]
     pub unsafe_count: u32,
+}
+
+// =============================================================================
+// UNIFIED METRICS SYSTEM
+// =============================================================================
+
+/// Unified metrics container - all measurements in one place
+/// Sections are only present when applicable to the file type
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct Metrics {
+    // === Universal text metrics (all text files) ===
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub text: Option<TextMetrics>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub identifiers: Option<IdentifierMetrics>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub strings: Option<StringMetrics>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub comments: Option<CommentMetrics>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub functions: Option<FunctionMetrics>,
+
+    // === Language-specific metrics (mutually exclusive) ===
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub python: Option<PythonMetrics>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub javascript: Option<JavaScriptMetrics>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub powershell: Option<PowerShellMetrics>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub shell: Option<ShellMetrics>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub php: Option<PhpMetrics>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ruby: Option<RubyMetrics>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub perl: Option<PerlMetrics>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub go_metrics: Option<GoMetrics>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub rust_metrics: Option<RustMetrics>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub c_metrics: Option<CMetrics>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub java: Option<JavaSourceMetrics>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub lua: Option<LuaMetrics>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub csharp: Option<CSharpMetrics>,
+
+    // === Binary-specific metrics ===
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub binary: Option<BinaryMetrics>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub elf: Option<ElfMetrics>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pe: Option<PeMetrics>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub macho: Option<MachoMetrics>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub java_class: Option<JavaClassMetrics>,
+
+    // === Container/Archive metrics ===
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub archive: Option<ArchiveMetrics>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub package_json: Option<PackageJsonMetrics>,
+
+    // === Composite scores ===
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub obfuscation: Option<ObfuscationScore>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub packing: Option<PackingScore>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub supply_chain: Option<SupplyChainScore>,
+}
+
+// =============================================================================
+// UNIVERSAL TEXT METRICS (All text files)
+// =============================================================================
+
+/// Text-level metrics computed on raw file content
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct TextMetrics {
+    // === Character Distribution ===
+    /// Shannon entropy of character distribution (0-8, normal code ~4.5)
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub char_entropy: f32,
+    /// Number of distinct characters used
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub unique_chars: u32,
+    /// Most frequent non-whitespace character
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub most_common_char: Option<char>,
+    /// Ratio of most common char to total (0-1)
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub most_common_ratio: f32,
+
+    // === Byte-Level Analysis ===
+    /// Ratio of non-ASCII bytes (0-1)
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub non_ascii_ratio: f32,
+    /// Ratio of non-printable control characters
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub non_printable_ratio: f32,
+    /// Count of null bytes (binary in text file?)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub null_byte_count: u32,
+    /// Ratio of bytes > 0x7F
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub high_byte_ratio: f32,
+
+    // === Line Statistics ===
+    /// Total lines in file
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub total_lines: u32,
+    /// Average line length in characters
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub avg_line_length: f32,
+    /// Maximum line length
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub max_line_length: u32,
+    /// Standard deviation of line lengths
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub line_length_stddev: f32,
+    /// Lines over 200 characters
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub lines_over_200: u32,
+    /// Lines over 500 characters
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub lines_over_500: u32,
+    /// Lines over 1000 characters (strong obfuscation signal)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub lines_over_1000: u32,
+    /// Ratio of empty lines to total
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub empty_line_ratio: f32,
+
+    // === Whitespace Forensics ===
+    /// Ratio of whitespace to total characters
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub whitespace_ratio: f32,
+    /// Tab characters count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub tab_count: u32,
+    /// Space characters count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub space_count: u32,
+    /// Mixed tabs and spaces for indentation
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub mixed_indent: bool,
+    /// Lines with trailing whitespace
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub trailing_whitespace_lines: u32,
+    /// Unicode whitespace chars (zero-width, non-breaking, etc.)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub unusual_whitespace: u32,
+
+    // === Escape Sequences ===
+    /// Hex escape sequences (\xNN)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub hex_escape_count: u32,
+    /// Unicode escapes (\uNNNN, \UNNNNNNNN)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub unicode_escape_count: u32,
+    /// Octal escapes (\NNN)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub octal_escape_count: u32,
+    /// Escape sequences per 100 characters
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub escape_density: f32,
+
+    // === Suspicious Text Patterns ===
+    /// Tokens over 100 chars without spaces
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub long_token_count: u32,
+    /// Repeated character sequences (>10 same char)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub repeated_char_sequences: u32,
+    /// Ratio of digits to alphanumeric characters
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub digit_ratio: f32,
+    /// Visible ASCII art or banner patterns
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub ascii_art_lines: u32,
+}
+
+/// Identifier/naming metrics from AST analysis
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct IdentifierMetrics {
+    // === Counts ===
+    /// Total identifier occurrences
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub total: u32,
+    /// Unique identifiers
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub unique: u32,
+    /// Reuse ratio (unique/total, low = repetitive)
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub reuse_ratio: f32,
+
+    // === Length Analysis ===
+    /// Average identifier length
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub avg_length: f32,
+    /// Minimum identifier length
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub min_length: u32,
+    /// Maximum identifier length
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub max_length: u32,
+    /// Standard deviation of lengths
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub length_stddev: f32,
+    /// Single-character identifiers (a, b, x, i)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub single_char_count: u32,
+    /// Ratio of single-char to total (high = obfuscation)
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub single_char_ratio: f32,
+
+    // === Entropy/Randomness ===
+    /// Average entropy per identifier name
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub avg_entropy: f32,
+    /// Identifiers with entropy > 3.5 (random-looking)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub high_entropy_count: u32,
+    /// Ratio of high-entropy identifiers
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub high_entropy_ratio: f32,
+
+    // === Naming Patterns ===
+    /// All lowercase identifiers ratio
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub all_lowercase_ratio: f32,
+    /// All uppercase identifiers ratio
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub all_uppercase_ratio: f32,
+    /// Identifiers containing digits
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub has_digit_ratio: f32,
+    /// Underscore-prefixed identifiers (_var, __var)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub underscore_prefix_count: u32,
+    /// Double-underscore identifiers (__dunder__)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub double_underscore_count: u32,
+    /// Numeric suffix patterns (var1, var2, var3)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub numeric_suffix_count: u32,
+
+    // === Suspicious Patterns ===
+    /// Names that look like hex (deadbeef, cafebabe)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub hex_like_names: u32,
+    /// Names matching base64 character set
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub base64_like_names: u32,
+    /// Sequential patterns (a, b, c or var1, var2)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub sequential_names: u32,
+    /// Keyboard patterns (qwerty, asdf)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub keyboard_pattern_names: u32,
+    /// Names that are just repeated chars (aaa, xxx)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub repeated_char_names: u32,
+}
+
+/// String literal metrics from AST analysis
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct StringMetrics {
+    // === Counts & Sizes ===
+    /// Total string literals
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub total: u32,
+    /// Total bytes in all strings
+    #[serde(default, skip_serializing_if = "is_zero_u64")]
+    pub total_bytes: u64,
+    /// Average string length
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub avg_length: f32,
+    /// Maximum string length
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub max_length: u32,
+    /// Empty string count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub empty_count: u32,
+
+    // === Entropy Analysis ===
+    /// Average entropy across all strings
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub avg_entropy: f32,
+    /// Standard deviation of string entropy
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub entropy_stddev: f32,
+    /// Strings with entropy > 5.0
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub high_entropy_count: u32,
+    /// Strings with entropy > 6.5 (encrypted/compressed)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub very_high_entropy_count: u32,
+
+    // === Encoding Patterns ===
+    /// Strings matching base64 pattern
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub base64_candidates: u32,
+    /// Pure hexadecimal strings
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub hex_strings: u32,
+    /// URL-encoded strings (%XX patterns)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub url_encoded_strings: u32,
+    /// Strings with many unicode escapes
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub unicode_heavy_strings: u32,
+
+    // === Content Categories ===
+    /// URL strings detected
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub url_count: u32,
+    /// File path strings
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub path_count: u32,
+    /// IP address strings
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub ip_count: u32,
+    /// Email address strings
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub email_count: u32,
+    /// Domain name strings
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub domain_count: u32,
+
+    // === Construction Patterns (from AST) ===
+    /// String concatenation operations
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub concat_operations: u32,
+    /// Format strings (f-strings, .format, sprintf)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub format_strings: u32,
+    /// Character-by-character construction (chr/fromCharCode)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub char_construction: u32,
+    /// Array join construction ([].join)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub array_join_construction: u32,
+
+    // === Suspicious Patterns ===
+    /// Very long strings (> 1000 chars)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub very_long_strings: u32,
+    /// Strings containing code-like patterns
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub embedded_code_candidates: u32,
+    /// Strings with shell command patterns
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub shell_command_strings: u32,
+    /// Strings with SQL patterns
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub sql_strings: u32,
+}
+
+/// Comment and documentation metrics
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct CommentMetrics {
+    /// Total comment count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub total: u32,
+    /// Lines that are comments
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub lines: u32,
+    /// Total characters in comments
+    #[serde(default, skip_serializing_if = "is_zero_u64")]
+    pub chars: u64,
+    /// Comment to code ratio
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub to_code_ratio: f32,
+
+    // === Comment Patterns ===
+    /// TODO comments
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub todo_count: u32,
+    /// FIXME comments
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub fixme_count: u32,
+    /// HACK comments
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub hack_count: u32,
+    /// XXX comments
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub xxx_count: u32,
+    /// Empty comments (// or /* */)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub empty_comments: u32,
+
+    // === Suspicious Patterns ===
+    /// High-entropy comments (random-looking)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub high_entropy_comments: u32,
+    /// Comments containing code
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub code_in_comments: u32,
+    /// URLs in comments
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub url_in_comments: u32,
+    /// Base64 in comments (hidden payloads)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub base64_in_comments: u32,
+}
+
+/// Function/method metrics from AST analysis
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct FunctionMetrics {
+    // === Counts ===
+    /// Total functions/methods
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub total: u32,
+    /// Anonymous functions (lambdas, closures)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub anonymous: u32,
+    /// Async functions
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub async_count: u32,
+    /// Generator functions
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub generator_count: u32,
+
+    // === Size Analysis ===
+    /// Average function length (lines)
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub avg_length_lines: f32,
+    /// Maximum function length (lines)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub max_length_lines: u32,
+    /// Minimum function length (lines)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub min_length_lines: u32,
+    /// Standard deviation of function lengths
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub length_stddev: f32,
+    /// Functions over 100 lines
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub over_100_lines: u32,
+    /// Functions over 500 lines (very suspicious)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub over_500_lines: u32,
+    /// One-liner functions
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub one_liners: u32,
+
+    // === Parameter Analysis ===
+    /// Average parameter count
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub avg_params: f32,
+    /// Maximum parameter count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub max_params: u32,
+    /// Functions with no parameters
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub no_params_count: u32,
+    /// Functions with many parameters (>7)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub many_params_count: u32,
+    /// Average parameter name length
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub avg_param_name_length: f32,
+    /// Single-char parameter names (x, y, a)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub single_char_params: u32,
+
+    // === Naming Analysis ===
+    /// Average function name length
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub avg_name_length: f32,
+    /// Single-char function names
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub single_char_names: u32,
+    /// High entropy function names (random-looking)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub high_entropy_names: u32,
+    /// Numeric-suffix function names (func1, func2)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub numeric_suffix_names: u32,
+
+    // === Nesting & Complexity ===
+    /// Maximum nesting depth across all functions
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub max_nesting_depth: u32,
+    /// Average nesting depth
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub avg_nesting_depth: f32,
+    /// Nested function definitions
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub nested_functions: u32,
+    /// Recursive functions detected
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub recursive_count: u32,
+
+    // === Density ===
+    /// Functions per 100 lines of code
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub density_per_100_lines: f32,
+    /// Code to function ratio (lines in functions / total lines)
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub code_in_functions_ratio: f32,
+}
+
+// =============================================================================
+// LANGUAGE-SPECIFIC METRICS
+// =============================================================================
+
+/// Python-specific metrics for obfuscation/malware detection
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct PythonMetrics {
+    // === Dynamic Execution ===
+    /// eval() calls
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub eval_count: u32,
+    /// exec() calls
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub exec_count: u32,
+    /// compile() calls
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub compile_count: u32,
+    /// __import__() calls
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub dunder_import_count: u32,
+    /// importlib usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub importlib_count: u32,
+    /// getattr/setattr/delattr calls
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub attr_manipulation_count: u32,
+
+    // === Obfuscation Patterns ===
+    /// chr() calls
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub chr_calls: u32,
+    /// ord() calls
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub ord_calls: u32,
+    /// Lambda expressions
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub lambda_count: u32,
+    /// Nested lambdas (lambda inside lambda)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub nested_lambda_count: u32,
+    /// Maximum comprehension nesting depth
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub comprehension_depth_max: u32,
+    /// Walrus operator usage (:=)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub walrus_operator_count: u32,
+
+    // === Reflection/Introspection ===
+    /// globals()/locals() access
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub globals_locals_access: u32,
+    /// __builtins__ access
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub builtins_access: u32,
+    /// type() calls (metaclass tricks)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub type_calls: u32,
+    /// __class__ access
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub class_access: u32,
+    /// vars() calls
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub vars_calls: u32,
+    /// dir() calls
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub dir_calls: u32,
+
+    // === Serialization (RCE vectors) ===
+    /// pickle usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub pickle_usage: u32,
+    /// marshal usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub marshal_usage: u32,
+    /// yaml.load (unsafe)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub yaml_load_unsafe: u32,
+    /// shelve usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub shelve_usage: u32,
+
+    // === Decorators ===
+    /// Total decorators
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub decorator_count: u32,
+    /// Max decorators stacked on one function
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub stacked_decorators_max: u32,
+
+    // === Magic Methods ===
+    /// Dunder method definitions
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub dunder_method_count: u32,
+    /// __getattribute__ override
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub getattribute_override: bool,
+    /// __new__ override
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub new_override: bool,
+    /// Descriptor protocol (__get__, __set__)
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub descriptor_protocol: bool,
+
+    // === Encoding/Decoding ===
+    /// base64 module calls
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub base64_calls: u32,
+    /// codecs module calls
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub codecs_calls: u32,
+    /// zlib/gzip calls
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub compression_calls: u32,
+    /// rot13 usage
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub rot13_usage: bool,
+
+    // === Control Flow ===
+    /// try/except blocks
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub try_except_count: u32,
+    /// Bare except (except:)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub bare_except_count: u32,
+    /// except Exception (too broad)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub broad_except_count: u32,
+    /// Maximum nesting depth
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub max_nesting_depth: u32,
+
+    // === Additional Structural Metrics ===
+    /// vars() calls
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub vars_access: u32,
+    /// type() manipulation (3-arg form)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub type_manipulation: u32,
+    /// __code__ object access
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub code_object_access: u32,
+    /// Frame access (sys._getframe, inspect.currentframe)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub frame_access: u32,
+    /// Class definitions
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub class_count: u32,
+    /// Metaclass usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub metaclass_usage: u32,
+    /// with statement count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub with_statement_count: u32,
+    /// assert statement count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub assert_count: u32,
+}
+
+/// JavaScript/TypeScript metrics
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct JavaScriptMetrics {
+    // === Dynamic Execution ===
+    /// eval() calls
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub eval_count: u32,
+    /// new Function() constructor
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub function_constructor: u32,
+    /// setTimeout with string argument
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub settimeout_string: u32,
+    /// setInterval with string argument
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub setinterval_string: u32,
+    /// document.write calls
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub document_write: u32,
+
+    // === Obfuscation Patterns ===
+    /// String.fromCharCode calls
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub from_char_code_count: u32,
+    /// charCodeAt calls
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub char_code_at_count: u32,
+    /// Array.join for string building
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub array_join_strings: u32,
+    /// split().reverse().join() patterns
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub split_reverse_join: u32,
+    /// Chained .replace() calls
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub replace_chain_count: u32,
+    /// Computed property access obj[var]
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub computed_property_access: u32,
+
+    // === Encoding ===
+    /// atob/btoa calls
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub atob_btoa_count: u32,
+    /// escape/unescape calls
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub escape_unescape: u32,
+    /// decodeURIComponent calls
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub decode_uri_component: u32,
+
+    // === Suspicious Constructs ===
+    /// with statements (deprecated)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub with_statement: u32,
+    /// debugger statements
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub debugger_statements: u32,
+    /// arguments.caller/callee access
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub caller_callee_access: u32,
+    /// Prototype pollution patterns
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub prototype_pollution_patterns: u32,
+    /// __proto__ access
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub proto_access: u32,
+
+    // === Functions & Closures ===
+    /// IIFE count (function(){})()
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub iife_count: u32,
+    /// Maximum nested IIFE depth
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub nested_iife_depth: u32,
+    /// Arrow function count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub arrow_function_count: u32,
+    /// Maximum closure depth
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub closure_depth_max: u32,
+
+    // === Array/Object Patterns ===
+    /// Large array literals (>100 elements)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub large_array_literals: u32,
+    /// Computed object keys {[expr]: val}
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub computed_key_count: u32,
+    /// Excessive spread operator usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub spread_count: u32,
+
+    // === DOM Manipulation ===
+    /// innerHTML assignments
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub innerhtml_writes: u32,
+    /// Script element creation
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub script_element_creation: u32,
+    /// Event handler strings (onclick="...")
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub event_handler_strings: u32,
+    /// XHR/fetch usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub network_requests: u32,
+}
+
+/// Shell script metrics (bash/sh/zsh)
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct ShellMetrics {
+    // === Command Execution ===
+    /// eval usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub eval_count: u32,
+    /// source or . command
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub source_count: u32,
+    /// exec command
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub exec_count: u32,
+    /// bash -c usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub bash_c_count: u32,
+    /// xargs usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub xargs_count: u32,
+
+    // === Network Operations ===
+    /// curl/wget usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub curl_wget_count: u32,
+    /// nc/netcat usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub nc_netcat_count: u32,
+    /// /dev/tcp or /dev/udp usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub dev_tcp_count: u32,
+    /// DNS exfiltration patterns (dig, nslookup abuse)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub dns_exfil_patterns: u32,
+    /// ssh/scp usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub ssh_scp_count: u32,
+
+    // === Encoding/Decoding ===
+    /// base64 decode usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub base64_decode_count: u32,
+    /// xxd usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub xxd_count: u32,
+    /// printf with hex escapes
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub printf_hex_count: u32,
+    /// openssl encryption usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub openssl_enc_count: u32,
+    /// gzip/gunzip usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub gzip_count: u32,
+
+    // === Pipes & Redirection ===
+    /// Pipe count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub pipe_count: u32,
+    /// Maximum pipe chain depth
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub pipe_depth_max: u32,
+    /// Here-doc count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub here_doc_count: u32,
+    /// Process substitution <() >()
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub process_substitution: u32,
+    /// File descriptor redirection
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub fd_redirection: u32,
+
+    // === Anti-Forensics ===
+    /// History manipulation (unset HISTFILE, etc.)
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub history_manipulation: bool,
+    /// Background job usage (&)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub background_jobs: u32,
+    /// nohup/disown usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub nohup_disown_count: u32,
+    /// cron/at manipulation
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub cron_at_manipulation: bool,
+    /// chmod +x usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub chmod_x_count: u32,
+    /// shred/rm -rf usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub secure_delete_count: u32,
+
+    // === Variable Tricks ===
+    /// Indirect variable expansion ${!var}
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub indirect_vars: u32,
+    /// eval with variable expansion
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub eval_expansion: u32,
+    /// IFS manipulation
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub ifs_manipulation: bool,
+    /// PATH manipulation
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub path_manipulation: bool,
+
+    // === Timing/Evasion ===
+    /// sleep commands
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub sleep_count: u32,
+    /// timeout command
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub timeout_count: u32,
+    /// trap commands (signal handling)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub trap_count: u32,
+
+    // === System Modification ===
+    /// dd usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub dd_usage: u32,
+    /// mkfifo/mknod usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub special_file_creation: u32,
+    /// iptables/firewall manipulation
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub firewall_manipulation: u32,
+}
+
+/// PowerShell metrics
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct PowerShellMetrics {
+    // === Execution ===
+    /// Invoke-Expression (IEX) count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub invoke_expression_count: u32,
+    /// Invoke-Command count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub invoke_command_count: u32,
+    /// Start-Process count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub start_process_count: u32,
+    /// -EncodedCommand usage
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub encoded_command_usage: bool,
+    /// & call operator abuse
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub call_operator_count: u32,
+
+    // === Download Cradles ===
+    /// Net.WebClient usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub webclient_count: u32,
+    /// Invoke-WebRequest
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub webrequest_count: u32,
+    /// DownloadString calls
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub downloadstring_count: u32,
+    /// DownloadFile calls
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub downloadfile_count: u32,
+    /// BitsTransfer usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub bitstransfer_count: u32,
+
+    // === Obfuscation Techniques ===
+    /// Tick character obfuscation (`s`t`r)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub tick_obfuscation: u32,
+    /// Caret obfuscation (^s^t^r)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub caret_obfuscation: u32,
+    /// String concatenation ("str" + "ing")
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub concat_obfuscation: u32,
+    /// Format string obfuscation ("{0}{1}" -f)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub format_obfuscation: u32,
+    /// -replace obfuscation
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub replace_obfuscation: u32,
+    /// [char[]] array usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub char_array_count: u32,
+    /// Variable substitution tricks
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub variable_substitution: u32,
+
+    // === Reflection/Bypass ===
+    /// [Reflection.Assembly] usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub reflection_assembly: u32,
+    /// Add-Type count (compile C#)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub add_type_count: u32,
+    /// Type accelerators [type]::method
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub type_accelerators: u32,
+    /// AMSI bypass indicators
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub amsi_bypass_indicators: u32,
+    /// ETW bypass indicators
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub etw_bypass_indicators: u32,
+    /// Execution policy bypass
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub execution_policy_bypass: bool,
+
+    // === Suspicious Cmdlets ===
+    /// Get-Process usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub get_process_count: u32,
+    /// Get-WmiObject/Get-CimInstance
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub wmi_cim_count: u32,
+    /// New-Object count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub new_object_count: u32,
+    /// Registry access
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub registry_access: u32,
+    /// Credential access patterns
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub credential_access: u32,
+
+    // === Encoding ===
+    /// Base64 patterns
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub base64_patterns: u32,
+    /// Gzip decompression
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub gzip_decompress: u32,
+    /// SecureString usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub securestring_usage: u32,
+}
+
+/// PHP metrics
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct PhpMetrics {
+    // === Dangerous Functions ===
+    /// eval() usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub eval_count: u32,
+    /// assert() with string
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub assert_string_count: u32,
+    /// create_function() usage (deprecated)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub create_function_count: u32,
+    /// preg_replace with /e modifier
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub preg_replace_e_count: u32,
+    /// call_user_func usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub call_user_func_count: u32,
+
+    // === Command Execution ===
+    /// system() calls
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub system_count: u32,
+    /// exec() calls
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub exec_count: u32,
+    /// shell_exec() calls
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub shell_exec_count: u32,
+    /// passthru() calls
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub passthru_count: u32,
+    /// Backtick execution
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub backtick_count: u32,
+    /// proc_open() calls
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub proc_open_count: u32,
+    /// popen() calls
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub popen_count: u32,
+
+    // === File Operations ===
+    /// Dynamic include/require
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub include_require_dynamic: u32,
+    /// file_get_contents usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub file_get_contents_count: u32,
+    /// file_put_contents usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub file_put_contents_count: u32,
+    /// fwrite usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub fwrite_count: u32,
+
+    // === Obfuscation ===
+    /// Variable variables ($$var)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub variable_variables: u32,
+    /// extract() usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub extract_count: u32,
+    /// chr/pack usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub chr_pack_count: u32,
+    /// base64_decode usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub base64_decode_count: u32,
+    /// gzinflate usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub gzinflate_count: u32,
+    /// gzuncompress usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub gzuncompress_count: u32,
+    /// str_rot13 usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub str_rot13_count: u32,
+    /// hex2bin usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub hex2bin_count: u32,
+
+    // === Network ===
+    /// curl usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub curl_count: u32,
+    /// fsockopen usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub fsockopen_count: u32,
+    /// stream_socket usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub stream_socket_count: u32,
+
+    // === Suspicious Patterns ===
+    /// @ error suppression
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub error_suppression: u32,
+    /// ini_set calls
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub ini_set_count: u32,
+    /// $GLOBALS access
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub globals_access: u32,
+    /// $_REQUEST/$_GET/$_POST access
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub superglobal_input: u32,
+}
+
+/// Ruby metrics
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct RubyMetrics {
+    // === Dynamic Execution ===
+    /// eval usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub eval_count: u32,
+    /// instance_eval usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub instance_eval_count: u32,
+    /// class_eval/module_eval usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub class_module_eval_count: u32,
+    /// send/public_send usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub send_count: u32,
+    /// method_missing definitions
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub method_missing_count: u32,
+    /// define_method usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub define_method_count: u32,
+
+    // === Command Execution ===
+    /// system() calls
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub system_count: u32,
+    /// exec() calls
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub exec_count: u32,
+    /// Backtick/x{} execution
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub backtick_count: u32,
+    /// Open3/spawn usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub spawn_popen_count: u32,
+
+    // === Serialization ===
+    /// Marshal.load usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub marshal_load_count: u32,
+    /// YAML.load usage (unsafe)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub yaml_load_count: u32,
+
+    // === Metaprogramming ===
+    /// const_get/const_set usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub const_manipulation: u32,
+    /// binding usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub binding_usage: u32,
+    /// ObjectSpace usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub objectspace_usage: u32,
+
+    // === Obfuscation ===
+    /// pack/unpack usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub pack_unpack_count: u32,
+    /// chr/ord usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub chr_ord_count: u32,
+}
+
+/// Perl metrics
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct PerlMetrics {
+    // === Dynamic Execution ===
+    /// eval STRING usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub eval_string_count: u32,
+    /// eval BLOCK usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub eval_block_count: u32,
+    /// do FILE usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub do_count: u32,
+    /// Dynamic require
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub require_dynamic: u32,
+
+    // === Command Execution ===
+    /// system() calls
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub system_count: u32,
+    /// exec() calls
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub exec_count: u32,
+    /// Backtick/qx execution
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub backtick_qx_count: u32,
+    /// open() with pipe
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub open_pipe_count: u32,
+
+    // === Obfuscation ===
+    /// pack/unpack usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub pack_unpack_count: u32,
+    /// chr/ord usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub chr_ord_count: u32,
+    /// Symbolic dereferencing ($$var)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub symbolic_deref_count: u32,
+    /// Regex code execution (?{})
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub regex_code_count: u32,
+
+    // === Special Blocks ===
+    /// BEGIN/END/CHECK/INIT blocks
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub special_block_count: u32,
+    /// tie usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub tie_usage: u32,
+    /// AUTOLOAD definitions
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub autoload_count: u32,
+}
+
+/// Go-specific metrics
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct GoMetrics {
+    // === Dangerous Packages ===
+    /// unsafe package usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub unsafe_usage: u32,
+    /// reflect package usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub reflect_usage: u32,
+    /// CGo usage (import "C")
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub cgo_usage: u32,
+    /// plugin package usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub plugin_usage: u32,
+    /// syscall direct usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub syscall_direct: u32,
+
+    // === Execution ===
+    /// exec.Command usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub exec_command_count: u32,
+    /// os.StartProcess usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub os_startprocess_count: u32,
+
+    // === Network ===
+    /// net.Dial usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub net_dial_count: u32,
+    /// http client/server usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub http_usage: u32,
+    /// Raw socket usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub raw_socket_count: u32,
+
+    // === Embedding ===
+    /// //go:embed directives
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub embed_directive_count: u32,
+    /// Embedded binary data size
+    #[serde(default, skip_serializing_if = "is_zero_u64")]
+    pub embedded_binary_size: u64,
+
+    // === Build Configuration ===
+    /// //go:linkname usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub linkname_count: u32,
+    /// //go:noescape usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub noescape_count: u32,
+    /// #cgo directives
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub cgo_directives: u32,
+
+    // === Patterns ===
+    /// init() function count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub init_function_count: u32,
+    /// Blank imports (import _ "pkg")
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub blank_import_count: u32,
+}
+
+/// Rust-specific metrics
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct RustMetrics {
+    // === Unsafe ===
+    /// unsafe blocks
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub unsafe_block_count: u32,
+    /// unsafe fn declarations
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub unsafe_fn_count: u32,
+    /// Raw pointer operations
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub raw_pointer_count: u32,
+    /// std::mem::transmute usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub transmute_count: u32,
+
+    // === FFI ===
+    /// extern fn declarations
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub extern_fn_count: u32,
+    /// extern blocks
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub extern_block_count: u32,
+    /// #[link] attributes
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub link_attribute_count: u32,
+
+    // === Execution ===
+    /// std::process::Command usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub command_count: u32,
+    /// Shell execution patterns
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub shell_count: u32,
+
+    // === Embedding ===
+    /// include_bytes! macro usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub include_bytes_count: u32,
+    /// include_str! macro usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub include_str_count: u32,
+    /// Embedded data size
+    #[serde(default, skip_serializing_if = "is_zero_u64")]
+    pub embedded_size: u64,
+
+    // === Macros ===
+    /// Procedural macro usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub proc_macro_count: u32,
+    /// macro_rules! definitions
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub macro_rules_count: u32,
+    /// asm! macro usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub asm_macro_count: u32,
+}
+
+/// C/C++ metrics
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct CMetrics {
+    // === Dangerous Constructs ===
+    /// Inline assembly
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub inline_asm_count: u32,
+    /// goto statements
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub goto_count: u32,
+    /// setjmp/longjmp usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub setjmp_longjmp_count: u32,
+    /// Computed goto (goto *ptr)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub computed_goto_count: u32,
+
+    // === Function Pointers ===
+    /// Function pointer declarations
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub fn_pointer_count: u32,
+    /// Function pointer arrays
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub fn_pointer_array_count: u32,
+
+    // === Memory Operations ===
+    /// malloc/free calls (for ratio)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub malloc_count: u32,
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub free_count: u32,
+    /// void pointer usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub void_pointer_count: u32,
+    /// Type casts
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub cast_count: u32,
+    /// memcpy/memmove usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub memcpy_count: u32,
+
+    // === Preprocessor ===
+    /// Macro definitions
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub macro_count: u32,
+    /// Conditional compilation (#ifdef)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub conditional_compile_count: u32,
+    /// #pragma directives
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub pragma_count: u32,
+
+    // === Suspicious Patterns ===
+    /// Shellcode-like byte arrays
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub shellcode_arrays: u32,
+    /// XOR operation loops
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub xor_loops: u32,
+    /// VirtualAlloc/mmap with EXEC
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub exec_memory_alloc: u32,
+}
+
+/// Java source metrics
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct JavaSourceMetrics {
+    // === Reflection ===
+    /// Class.forName usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub class_forname_count: u32,
+    /// getMethod/getDeclaredMethod usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub get_method_count: u32,
+    /// invoke() calls
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub invoke_count: u32,
+    /// setAccessible(true) calls
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub set_accessible_count: u32,
+
+    // === Execution ===
+    /// Runtime.exec usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub runtime_exec_count: u32,
+    /// ProcessBuilder usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub processbuilder_count: u32,
+
+    // === ClassLoading ===
+    /// URLClassLoader usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub urlclassloader_count: u32,
+    /// defineClass usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub defineclass_count: u32,
+    /// Custom ClassLoader
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub custom_classloader: bool,
+
+    // === Serialization ===
+    /// ObjectInputStream usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub objectinputstream_count: u32,
+    /// readObject override
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub readobject_override: bool,
+
+    // === Scripting ===
+    /// ScriptEngine usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub scriptengine_count: u32,
+
+    // === JNI ===
+    /// native method declarations
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub native_method_count: u32,
+    /// System.loadLibrary calls
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub load_library_count: u32,
+}
+
+/// Lua metrics
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct LuaMetrics {
+    /// loadstring/load usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub loadstring_count: u32,
+    /// dofile usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub dofile_count: u32,
+    /// loadfile usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub loadfile_count: u32,
+    /// os.execute usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub os_execute_count: u32,
+    /// io.popen usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub io_popen_count: u32,
+    /// debug library usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub debug_library_usage: u32,
+    /// setfenv/getfenv usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub setfenv_count: u32,
+    /// rawset/rawget usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub rawset_rawget_count: u32,
+    /// string.dump (bytecode generation)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub string_dump_count: u32,
+}
+
+/// C# metrics
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct CSharpMetrics {
+    // === P/Invoke ===
+    /// DllImport declarations
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub dllimport_count: u32,
+    /// Marshal class usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub marshal_usage: u32,
+
+    // === Reflection ===
+    /// Assembly.Load* usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub assembly_load_count: u32,
+    /// Activator.CreateInstance usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub activator_count: u32,
+    /// Type.GetMethod usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub reflection_invoke: u32,
+
+    // === Execution ===
+    /// Process.Start usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub process_start_count: u32,
+
+    // === Network ===
+    /// WebClient/HttpClient usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub web_client_count: u32,
+    /// Socket usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub socket_count: u32,
+
+    // === Unsafe ===
+    /// unsafe blocks
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub unsafe_block_count: u32,
+    /// fixed statements
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub fixed_statement_count: u32,
+
+    // === Suspicious ===
+    /// CryptoStream usage
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub crypto_usage: u32,
+    /// Registry access
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub registry_access: u32,
+}
+
+// =============================================================================
+// BINARY METRICS
+// =============================================================================
+
+/// Universal binary metrics (ELF/PE/Mach-O)
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct BinaryMetrics {
+    // === Entropy ===
+    /// Overall file entropy
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub overall_entropy: f32,
+    /// Code section entropy
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub code_entropy: f32,
+    /// Data section entropy
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub data_entropy: f32,
+    /// Entropy variance across sections
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub entropy_variance: f32,
+    /// High entropy regions (>7.5)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub high_entropy_regions: u32,
+
+    // === Sections ===
+    /// Total section count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub section_count: u32,
+    /// Executable sections
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub executable_sections: u32,
+    /// Writable sections
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub writable_sections: u32,
+    /// W+X sections (self-modifying)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub wx_sections: u32,
+    /// Section name entropy (random names = packer)
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub section_name_entropy: f32,
+    /// Largest section ratio to file size
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub largest_section_ratio: f32,
+
+    // === Imports/Exports ===
+    /// Import count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub import_count: u32,
+    /// Export count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub export_count: u32,
+    /// Import name entropy (randomness)
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub import_entropy: f32,
+
+    // === Strings ===
+    /// String count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub string_count: u32,
+    /// Average string entropy
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub avg_string_entropy: f32,
+    /// High entropy strings
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub high_entropy_strings: u32,
+    /// Strings in code sections (unusual)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub strings_in_code: u32,
+
+    // === Functions ===
+    /// Function count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub function_count: u32,
+    /// Average function size
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub avg_function_size: f32,
+    /// Tiny functions (<16 bytes)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub tiny_functions: u32,
+    /// Huge functions (>64KB)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub huge_functions: u32,
+    /// Indirect call instructions
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub indirect_calls: u32,
+    /// Indirect jump instructions
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub indirect_jumps: u32,
+
+    // === Complexity (from radare2 analysis) ===
+    /// Average cyclomatic complexity
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub avg_complexity: f32,
+    /// Maximum cyclomatic complexity
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub max_complexity: u32,
+    /// Functions with high complexity (>10)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub high_complexity_functions: u32,
+    /// Functions with very high complexity (>25)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub very_high_complexity_functions: u32,
+
+    // === Control Flow ===
+    /// Total basic blocks across all functions
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub total_basic_blocks: u32,
+    /// Average basic blocks per function
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub avg_basic_blocks: f32,
+    /// Linear functions (no branches)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub linear_functions: u32,
+    /// Recursive functions
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub recursive_functions: u32,
+    /// Non-returning functions
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub noreturn_functions: u32,
+    /// Leaf functions (make no calls)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub leaf_functions: u32,
+
+    // === Stack ===
+    /// Average stack frame size
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub avg_stack_frame: f32,
+    /// Maximum stack frame size
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub max_stack_frame: u32,
+    /// Functions with large stack (>1KB)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub large_stack_functions: u32,
+
+    // === Overlay ===
+    /// Has overlay data
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub has_overlay: bool,
+    /// Overlay size in bytes
+    #[serde(default, skip_serializing_if = "is_zero_u64")]
+    pub overlay_size: u64,
+    /// Overlay ratio to file size
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub overlay_ratio: f32,
+    /// Overlay entropy
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub overlay_entropy: f32,
+}
+
+/// ELF-specific metrics
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct ElfMetrics {
+    // === Header ===
+    /// Entry point not in .text
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub entry_not_in_text: bool,
+    /// Entry point section name
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub entry_section: Option<String>,
+
+    // === Dynamic Linking ===
+    /// Number of needed libraries
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub needed_libs: u32,
+    /// RPATH set
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub rpath_set: bool,
+    /// RUNPATH set
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub runpath_set: bool,
+    /// DT_INIT_ARRAY count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub init_array_count: u32,
+    /// DT_FINI_ARRAY count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub fini_array_count: u32,
+
+    // === Symbols ===
+    /// Stripped (no symbols)
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub stripped: bool,
+    /// Hidden visibility symbols
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub hidden_symbols: u32,
+    /// GNU hash present
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub gnu_hash_present: bool,
+
+    // === Security Features ===
+    /// RELRO status
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub relro: Option<String>,
+    /// TEXTREL present (bad)
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub textrel_present: bool,
+    /// Stack canary
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub stack_canary: bool,
+    /// NX (non-executable stack)
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub nx_enabled: bool,
+    /// PIE enabled
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub pie_enabled: bool,
+
+    // === Special Sections ===
+    /// Has .plt
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub has_plt: bool,
+    /// Has .got
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub has_got: bool,
+    /// Has .eh_frame
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub has_eh_frame: bool,
+    /// Has .note section
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub has_note: bool,
+}
+
+/// PE-specific metrics
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct PeMetrics {
+    // === Header Anomalies ===
+    /// Timestamp anomaly (future or ancient)
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub timestamp_anomaly: bool,
+    /// Checksum valid
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub checksum_valid: bool,
+    /// Rich header present
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub rich_header_present: bool,
+    /// DOS stub modified
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub dos_stub_modified: bool,
+
+    // === Sections ===
+    /// Resource section size
+    #[serde(default, skip_serializing_if = "is_zero_u64")]
+    pub rsrc_size: u64,
+    /// Resource section entropy
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub rsrc_entropy: f32,
+    /// Unusual section alignment
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub unusual_alignment: bool,
+
+    // === Imports ===
+    /// Delay-load imports
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub delay_load_imports: u32,
+    /// Ordinal-only imports
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub ordinal_imports: u32,
+    /// API hashing indicators
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub api_hashing_indicators: u32,
+    /// Suspicious import combo (VirtualAlloc+Write+Protect)
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub suspicious_import_combo: bool,
+
+    // === Exports ===
+    /// Export forwarders
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub export_forwarders: u32,
+
+    // === Resources ===
+    /// Resource count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub resource_count: u32,
+    /// Embedded PE files
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub embedded_pe_count: u32,
+    /// Version info present
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub version_info_present: bool,
+    /// Manifest present
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub manifest_present: bool,
+    /// Icon count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub icon_count: u32,
+
+    // === .NET ===
+    /// Is .NET assembly
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub is_dotnet: bool,
+    /// CLR version
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub clr_version: Option<String>,
+    /// Mixed mode (native + .NET)
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub mixed_mode: bool,
+
+    // === TLS ===
+    /// TLS callback count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub tls_callbacks: u32,
+
+    // === Authenticode ===
+    /// Has digital signature
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub has_signature: bool,
+    /// Signature valid
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub signature_valid: Option<bool>,
+}
+
+/// Mach-O specific metrics
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct MachoMetrics {
+    // === Structure ===
+    /// Universal (fat) binary
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub is_universal: bool,
+    /// Slice count (for universal)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub slice_count: u32,
+
+    // === Load Commands ===
+    /// Load command count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub load_command_count: u32,
+    /// Has code signature
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub has_code_signature: bool,
+    /// Signature valid
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub signature_valid: Option<bool>,
+
+    // === Segments ===
+    /// Segment count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub segment_count: u32,
+    /// __LINKEDIT size
+    #[serde(default, skip_serializing_if = "is_zero_u64")]
+    pub linkedit_size: u64,
+    /// __TEXT segment entropy
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub text_entropy: f32,
+
+    // === Symbols ===
+    /// Symbol count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub symbol_count: u32,
+    /// Indirect symbol count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub indirect_symbol_count: u32,
+    /// Stripped
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub stripped: bool,
+
+    // === Entitlements ===
+    /// Has entitlements
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub has_entitlements: bool,
+    /// Dangerous entitlement count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub dangerous_entitlements: u32,
+
+    // === dyld ===
+    /// dylib dependency count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub dylib_count: u32,
+    /// Weak dylib count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub weak_dylib_count: u32,
+    /// @rpath count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub rpath_count: u32,
+
+    // === Hardened Runtime ===
+    /// Hardened runtime enabled
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub hardened_runtime: bool,
+    /// Allow unsigned executable memory
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub allow_jit: bool,
+}
+
+/// Java class file metrics
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct JavaClassMetrics {
+    // === Version ===
+    /// Major version number
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub major_version: u32,
+    /// Minor version number
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub minor_version: u32,
+    /// Java version string
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub java_version: Option<String>,
+
+    // === Constant Pool ===
+    /// Constant pool size
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub constant_pool_size: u32,
+    /// UTF8 constants
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub utf8_constants: u32,
+    /// Class references
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub class_refs: u32,
+    /// Method references
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub method_refs: u32,
+    /// String constant entropy
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub string_constant_entropy: f32,
+    /// Obfuscated string count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub obfuscated_strings: u32,
+
+    // === Methods ===
+    /// Method count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub method_count: u32,
+    /// Native methods
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub native_methods: u32,
+    /// Synthetic (compiler-generated) methods
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub synthetic_methods: u32,
+    /// Average method size
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub avg_method_size: f32,
+    /// Maximum method size
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub max_method_size: u32,
+
+    // === Bytecode ===
+    /// invokedynamic count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub invokedynamic_count: u32,
+    /// Reflection patterns
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub reflection_patterns: u32,
+
+    // === Debug Info ===
+    /// Has source file attribute
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub has_source_file: bool,
+    /// Has line numbers
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub has_line_numbers: bool,
+    /// Has local variable info
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub has_local_vars: bool,
+    /// Inner class count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub inner_class_count: u32,
+}
+
+// =============================================================================
+// CONTAINER/ARCHIVE METRICS
+// =============================================================================
+
+/// Archive metrics (ZIP, TAR, etc.)
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct ArchiveMetrics {
+    // === Structure ===
+    /// File count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub file_count: u32,
+    /// Directory count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub directory_count: u32,
+    /// Total uncompressed size
+    #[serde(default, skip_serializing_if = "is_zero_u64")]
+    pub total_uncompressed: u64,
+    /// Total compressed size
+    #[serde(default, skip_serializing_if = "is_zero_u64")]
+    pub total_compressed: u64,
+    /// Compression ratio
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub compression_ratio: f32,
+
+    // === Suspicious Patterns ===
+    /// Path traversal attempts (../)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub path_traversal_count: u32,
+    /// Symlink count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub symlink_count: u32,
+    /// Symlinks targeting outside archive
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub symlink_escape_count: u32,
+    /// Hidden files (.dotfiles)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub hidden_files: u32,
+    /// Executable files
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub executable_count: u32,
+    /// Script files
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub script_count: u32,
+
+    // === Filename Analysis ===
+    /// Maximum filename length
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub max_filename_length: u32,
+    /// Unicode filenames
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub unicode_filenames: u32,
+    /// Homoglyph filenames (lookalike chars)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub homoglyph_filenames: u32,
+    /// Double extension files (file.txt.exe)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub double_extension_count: u32,
+    /// Right-to-left override chars
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub rtlo_filenames: u32,
+
+    // === Content Analysis ===
+    /// Nested archives
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub nested_archive_count: u32,
+    /// Executables in unexpected locations
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub misplaced_executables: u32,
+    /// High entropy files
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub high_entropy_files: u32,
+
+    // === ZIP-specific ===
+    /// Encrypted entries
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub encrypted_entries: u32,
+    /// Zip bomb indicator (extreme ratio)
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub zip_bomb_ratio: f32,
+    /// ZIP64 format
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub zip64_format: bool,
+    /// Comment present
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub has_comment: bool,
+    /// Extra field total size
+    #[serde(default, skip_serializing_if = "is_zero_u64")]
+    pub extra_field_size: u64,
+}
+
+/// package.json metrics for npm supply chain analysis
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct PackageJsonMetrics {
+    // === Dependencies ===
+    /// Dependency count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub dependency_count: u32,
+    /// Dev dependency count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub dev_dependency_count: u32,
+    /// Peer dependency count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub peer_dependency_count: u32,
+    /// Optional dependency count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub optional_dependency_count: u32,
+
+    // === Lifecycle Scripts (high risk) ===
+    /// Has preinstall script
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub has_preinstall: bool,
+    /// Has postinstall script
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub has_postinstall: bool,
+    /// Has preuninstall script
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub has_preuninstall: bool,
+    /// Total script count
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub script_count: u32,
+    /// Scripts with curl/wget
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub scripts_with_download: u32,
+    /// Scripts with eval
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub scripts_with_eval: u32,
+    /// Scripts with base64
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub scripts_with_base64: u32,
+    /// Total script character count
+    #[serde(default, skip_serializing_if = "is_zero_u64")]
+    pub script_total_chars: u64,
+    /// High entropy scripts (obfuscated)
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub obfuscated_scripts: u32,
+
+    // === Non-Registry Dependencies ===
+    /// Git URL dependencies
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub git_dependencies: u32,
+    /// GitHub shorthand dependencies
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub github_dependencies: u32,
+    /// HTTP URL dependencies
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub url_dependencies: u32,
+    /// Local file dependencies
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub local_dependencies: u32,
+    /// No semver ("*" or "latest")
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub wildcard_dependencies: u32,
+
+    // === Suspicious Patterns ===
+    /// Typosquat likelihood score (0-1)
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub typosquat_score: f32,
+    /// Package name entropy
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub name_entropy: f32,
+    /// Missing author
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub missing_author: bool,
+    /// Missing repository
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub missing_repository: bool,
+    /// Missing license
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub missing_license: bool,
+    /// Suspicious bin names
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub suspicious_bin_names: u32,
+}
+
+// =============================================================================
+// COMPOSITE SCORES
+// =============================================================================
+
+/// Composite obfuscation score for source code
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct ObfuscationScore {
+    /// Overall obfuscation score (0.0-1.0)
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub score: f32,
+    /// Confidence in the score
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub confidence: f32,
+
+    // === Component Scores ===
+    /// Naming obfuscation score
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub naming_score: f32,
+    /// String obfuscation score
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub string_score: f32,
+    /// Structure obfuscation score
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub structure_score: f32,
+    /// Encoding obfuscation score
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub encoding_score: f32,
+    /// Dynamic execution score
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub dynamic_score: f32,
+
+    /// Human-readable contributing signals
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub signals: Vec<String>,
+}
+
+/// Composite packing score for binaries
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct PackingScore {
+    /// Overall packing score (0.0-1.0)
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub score: f32,
+    /// Confidence in the score
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub confidence: f32,
+
+    // === Component Scores ===
+    /// Entropy-based score
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub entropy_score: f32,
+    /// Import analysis score
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub import_score: f32,
+    /// String analysis score
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub string_score: f32,
+    /// Section analysis score
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub section_score: f32,
+
+    /// Known packer name if detected
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub known_packer: Option<String>,
+    /// Human-readable contributing signals
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub signals: Vec<String>,
+}
+
+/// Supply chain risk score for packages/archives
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct SupplyChainScore {
+    /// Overall risk score (0.0-1.0)
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub score: f32,
+    /// Confidence in the score
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub confidence: f32,
+
+    // === Component Scores ===
+    /// Install script risk
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub install_script_score: f32,
+    /// Dependency risk
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub dependency_score: f32,
+    /// Metadata completeness score
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub metadata_score: f32,
+    /// Typosquatting risk
+    #[serde(default, skip_serializing_if = "is_zero_f32")]
+    pub typosquat_score: f32,
+
+    /// Human-readable contributing signals
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub signals: Vec<String>,
 }
 
 #[cfg(test)]

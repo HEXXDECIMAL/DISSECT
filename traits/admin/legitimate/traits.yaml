@@ -1,0 +1,298 @@
+# Legitimate System Administration Traits
+# These traits indicate normal administrative operations
+# Useful for differential analysis to reduce false positives
+
+traits:
+  # Legitimate systemd service management
+  - id: admin/legitimate/systemd-management
+    description: Legitimate systemd service management
+    criticality: benign
+    confidence: 0.75
+    condition:
+      type: yara
+      source: |
+        rule systemd_management {
+          strings:
+            $ctl1 = "systemctl status" ascii
+            $ctl2 = "systemctl show" ascii
+            $ctl3 = "systemctl list" ascii
+            $ctl4 = "systemctl is-active" ascii
+            $ctl5 = "systemctl is-enabled" ascii
+            $journal1 = "journalctl" ascii
+            $journal2 = "systemd-journal" ascii
+            // D-Bus interface
+            $dbus1 = "org.freedesktop.systemd1" ascii
+            $dbus2 = "GetUnit" ascii
+          condition:
+            any of ($ctl*, $journal*) or ($dbus1 and $dbus2)
+        }
+
+  # Legitimate cron job management
+  - id: admin/legitimate/cron-management
+    description: Legitimate cron job management
+    criticality: benign
+    confidence: 0.7
+    condition:
+      type: yara
+      source: |
+        rule cron_management {
+          strings:
+            $cron1 = "crontab -l" ascii
+            $cron2 = "crontab -e" ascii
+            $cron3 = "/etc/cron.d/" ascii
+            $cron4 = "/etc/crontab" ascii
+            $cron5 = "/var/spool/cron" ascii
+            // Legitimate scheduling
+            $at1 = "at " ascii
+            $at2 = "atq" ascii
+            $at3 = "batch" ascii
+          condition:
+            any of them
+        }
+
+  # Legitimate package management
+  - id: admin/legitimate/package-management
+    description: Legitimate package management operations
+    criticality: benign
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule package_management {
+          strings:
+            // Debian/Ubuntu
+            $apt1 = "apt-get" ascii
+            $apt2 = "apt install" ascii
+            $apt3 = "dpkg" ascii
+            $apt4 = "/var/lib/dpkg" ascii
+            // RHEL/CentOS
+            $yum1 = "yum install" ascii
+            $yum2 = "dnf install" ascii
+            $rpm1 = "rpm -" ascii
+            // Alpine
+            $apk = "apk add" ascii
+            // Arch
+            $pacman = "pacman -S" ascii
+            // Generic
+            $pkg1 = "/var/cache/apt" ascii
+            $pkg2 = "/var/lib/rpm" ascii
+          condition:
+            any of them
+        }
+
+  # Legitimate log management
+  - id: admin/legitimate/log-management
+    description: Legitimate log file management
+    criticality: benign
+    confidence: 0.8
+    condition:
+      type: yara
+      source: |
+        rule log_management {
+          strings:
+            $log1 = "/var/log/" ascii
+            $log2 = "syslog" ascii
+            $log3 = "logrotate" ascii
+            $log4 = "rsyslog" ascii
+            $log5 = "syslog-ng" ascii
+            $view1 = "tail -f" ascii
+            $view2 = "less " ascii
+            $view3 = "journalctl" ascii
+          condition:
+            ($log1 and any of ($view*)) or any of ($log2, $log3, $log4, $log5)
+        }
+
+  # Legitimate user management
+  - id: admin/legitimate/user-management
+    description: Legitimate user account management
+    criticality: benign
+    confidence: 0.75
+    condition:
+      type: yara
+      source: |
+        rule user_management {
+          strings:
+            $user1 = "useradd" ascii
+            $user2 = "usermod" ascii
+            $user3 = "userdel" ascii
+            $user4 = "adduser" ascii
+            $group1 = "groupadd" ascii
+            $group2 = "groupmod" ascii
+            $passwd1 = "passwd" ascii
+            $passwd2 = "chpasswd" ascii
+          condition:
+            any of ($user*, $group*) or any of ($passwd*)
+        }
+
+  # Legitimate network configuration
+  - id: admin/legitimate/network-config
+    description: Legitimate network configuration
+    criticality: benign
+    confidence: 0.8
+    condition:
+      type: yara
+      source: |
+        rule network_config {
+          strings:
+            $ip1 = "ip addr" ascii
+            $ip2 = "ip route" ascii
+            $ip3 = "ip link" ascii
+            $if1 = "ifconfig" ascii
+            $if2 = "ifup" ascii
+            $if3 = "ifdown" ascii
+            $nm1 = "nmcli" ascii
+            $nm2 = "NetworkManager" ascii
+            $dns1 = "resolvconf" ascii
+            $dns2 = "systemd-resolved" ascii
+            $fw1 = "iptables" ascii
+            $fw2 = "nftables" ascii
+            $fw3 = "firewalld" ascii
+          condition:
+            any of ($ip*, $if*, $nm*, $dns*, $fw*)
+        }
+
+  # Legitimate file system operations
+  - id: admin/legitimate/filesystem-ops
+    description: Legitimate filesystem administration
+    criticality: benign
+    confidence: 0.75
+    condition:
+      type: yara
+      source: |
+        rule filesystem_ops {
+          strings:
+            $mount1 = "mount " ascii
+            $mount2 = "umount" ascii
+            $mount3 = "/etc/fstab" ascii
+            $lvm1 = "lvcreate" ascii
+            $lvm2 = "lvextend" ascii
+            $lvm3 = "pvcreate" ascii
+            $fs1 = "mkfs" ascii
+            $fs2 = "fsck" ascii
+            $fs3 = "resize2fs" ascii
+            $disk1 = "fdisk" ascii
+            $disk2 = "parted" ascii
+          condition:
+            any of them
+        }
+
+  # Legitimate backup operations
+  - id: admin/legitimate/backup-ops
+    description: Legitimate backup and restore operations
+    criticality: benign
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule backup_ops {
+          strings:
+            $tar = "tar -" ascii
+            $rsync = "rsync" ascii
+            $cp = "cp -a" ascii
+            $dd = "dd if=" ascii
+            $dump = "dump" ascii
+            $restore = "restore" ascii
+            $borg = "borg " ascii
+            $restic = "restic" ascii
+            $duplicity = "duplicity" ascii
+            $backup = "backup" ascii nocase
+          condition:
+            any of them
+        }
+
+  # Legitimate process management
+  - id: admin/legitimate/process-management
+    description: Legitimate process management
+    criticality: benign
+    confidence: 0.8
+    condition:
+      type: yara
+      source: |
+        rule process_management {
+          strings:
+            $ps1 = "ps aux" ascii
+            $ps2 = "ps -ef" ascii
+            $top1 = "top -" ascii
+            $top2 = "htop" ascii
+            $kill1 = "kill -9" ascii
+            $kill2 = "killall" ascii
+            $nice1 = "nice " ascii
+            $nice2 = "renice" ascii
+            $proc1 = "/proc/loadavg" ascii
+            $proc2 = "/proc/meminfo" ascii
+          condition:
+            any of them
+        }
+
+  # Legitimate SSH administration
+  - id: admin/legitimate/ssh-admin
+    description: Legitimate SSH server administration
+    criticality: benign
+    confidence: 0.8
+    condition:
+      type: yara
+      source: |
+        rule ssh_admin {
+          strings:
+            $sshd1 = "sshd_config" ascii
+            $sshd2 = "/etc/ssh/" ascii
+            $key1 = "ssh-keygen" ascii
+            $key2 = "ssh-copy-id" ascii
+            $key3 = "authorized_keys" ascii
+            $conn1 = "ssh -" ascii
+            $conn2 = "scp " ascii
+            $conn3 = "sftp" ascii
+          condition:
+            any of them
+        }
+
+  # Legitimate container management
+  - id: admin/legitimate/container-management
+    description: Legitimate container management (Docker/Podman)
+    criticality: benign
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule container_management {
+          strings:
+            $docker1 = "docker " ascii
+            $docker2 = "docker-compose" ascii
+            $docker3 = "/var/run/docker.sock" ascii
+            $podman1 = "podman " ascii
+            $podman2 = "buildah" ascii
+            $k8s1 = "kubectl" ascii
+            $k8s2 = "kubelet" ascii
+            $k8s3 = "kubeadm" ascii
+            $cri = "crictl" ascii
+          condition:
+            any of them
+        }
+
+  # Legitimate monitoring/observability
+  - id: admin/legitimate/monitoring
+    description: Legitimate system monitoring tools
+    criticality: benign
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule monitoring_tools {
+          strings:
+            // Prometheus stack
+            $prom1 = "prometheus" ascii
+            $prom2 = "node_exporter" ascii
+            $prom3 = "alertmanager" ascii
+            // Grafana
+            $grafana = "grafana" ascii
+            // Traditional
+            $nagios = "nagios" ascii
+            $zabbix = "zabbix" ascii
+            $icinga = "icinga" ascii
+            // Logging
+            $elk = "elasticsearch" ascii
+            $logstash = "logstash" ascii
+            $fluentd = "fluentd" ascii
+          condition:
+            any of them
+        }

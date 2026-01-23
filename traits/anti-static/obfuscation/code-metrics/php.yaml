@@ -1,0 +1,75 @@
+# PHP-Specific Metrics-Based Obfuscation Detection
+# Detects PHP webshell and malware obfuscation patterns
+
+defaults:
+  file_types: [php]
+  attack: "T1027"
+  mbc: "B0032"
+
+traits:
+  # === PHP-Specific Obfuscation Patterns ===
+
+  - id: anti-static/obfuscation/code-metrics/php-encoded-strings
+    description: "High entropy strings (base64/gzinflate encoded)"
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: metrics
+      field: strings.avg_entropy
+      min: 4.5
+
+  - id: anti-static/obfuscation/code-metrics/php-obfuscated-vars
+    description: "Obfuscated PHP variable names"
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: metrics
+      field: identifiers.avg_entropy
+      min: 3.2
+
+  - id: anti-static/obfuscation/code-metrics/php-single-long-line
+    description: "Single very long line (webshell pattern)"
+    criticality: suspicious
+    confidence: 0.9
+    condition:
+      type: metrics
+      field: text.max_line_length
+      min: 1000
+
+  - id: anti-static/obfuscation/code-metrics/php-many-short-functions
+    description: "Many short functions (deobfuscation layers)"
+    criticality: notable
+    confidence: 0.75
+    condition:
+      type: metrics
+      field: functions.one_liners
+      min: 8
+
+composite_rules:
+  - id: anti-static/obfuscation/php-webshell-pattern
+    description: "PHP webshell obfuscation pattern"
+    criticality: hostile
+    confidence: 0.9
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: php-encoded-strings
+      - type: trait
+        id: php-single-long-line
+      - type: trait
+        id: php-obfuscated-vars
+      - type: trait
+        id: anti-static/obfuscation/code-metrics/no-comments
+
+  - id: anti-static/obfuscation/php-encoded-payload
+    description: "PHP with encoded payload"
+    criticality: suspicious
+    confidence: 0.85
+    requires_all:
+      - type: trait
+        id: php-encoded-strings
+    requires_any:
+      - type: trait
+        id: php-obfuscated-vars
+      - type: trait
+        id: php-many-short-functions

@@ -146,7 +146,10 @@ pub fn eval_string(params: &StringParams, ctx: &EvaluationContext) -> ConditionR
                 if exact_str == "vscode" {
                     eprintln!(
                         "DEBUG eval_string: exact={} match_count={} min_count={} content_len={}",
-                        exact_str, match_count, params.min_count, content.len()
+                        exact_str,
+                        match_count,
+                        params.min_count,
+                        content.len()
                     );
                 }
                 if match_count >= params.min_count {
@@ -1045,6 +1048,232 @@ pub fn eval_string_count(
                 method: "string_count".to_string(),
                 source: "binary".to_string(),
                 value: format!("{} strings (>= {} chars)", count, min_len),
+                location: None,
+            }]
+        } else {
+            Vec::new()
+        },
+        traits: Vec::new(),
+    }
+}
+
+/// Evaluate metrics condition - check computed metrics against thresholds
+/// Field path examples: "identifiers.avg_entropy", "functions.density_per_100_lines"
+pub fn eval_metrics(
+    field: &str,
+    min: Option<f64>,
+    max: Option<f64>,
+    ctx: &EvaluationContext,
+) -> ConditionResult {
+    let metrics = match &ctx.report.metrics {
+        Some(m) => m,
+        None => {
+            return ConditionResult {
+                matched: false,
+                evidence: Vec::new(),
+                traits: Vec::new(),
+            }
+        }
+    };
+
+    // Parse field path and get value
+    let value = match field {
+        // Text metrics
+        "text.char_entropy" => metrics.text.as_ref().map(|t| t.char_entropy as f64),
+        "text.line_length_stddev" => metrics.text.as_ref().map(|t| t.line_length_stddev as f64),
+        "text.avg_line_length" => metrics.text.as_ref().map(|t| t.avg_line_length as f64),
+        "text.max_line_length" => metrics.text.as_ref().map(|t| t.max_line_length as f64),
+        "text.empty_line_ratio" => metrics.text.as_ref().map(|t| t.empty_line_ratio as f64),
+        "text.whitespace_ratio" => metrics.text.as_ref().map(|t| t.whitespace_ratio as f64),
+        "text.digit_ratio" => metrics.text.as_ref().map(|t| t.digit_ratio as f64),
+
+        // Identifier metrics
+        "identifiers.total" => metrics.identifiers.as_ref().map(|i| i.total as f64),
+        "identifiers.unique" => metrics.identifiers.as_ref().map(|i| i.unique as f64),
+        "identifiers.reuse_ratio" => metrics.identifiers.as_ref().map(|i| i.reuse_ratio as f64),
+        "identifiers.avg_length" => metrics.identifiers.as_ref().map(|i| i.avg_length as f64),
+        "identifiers.avg_entropy" => metrics.identifiers.as_ref().map(|i| i.avg_entropy as f64),
+        "identifiers.high_entropy_ratio" => {
+            metrics.identifiers.as_ref().map(|i| i.high_entropy_ratio as f64)
+        }
+        "identifiers.single_char_ratio" => {
+            metrics.identifiers.as_ref().map(|i| i.single_char_ratio as f64)
+        }
+        "identifiers.single_char_count" => {
+            metrics.identifiers.as_ref().map(|i| i.single_char_count as f64)
+        }
+        "identifiers.numeric_suffix_count" => {
+            metrics.identifiers.as_ref().map(|i| i.numeric_suffix_count as f64)
+        }
+        "identifiers.sequential_names" => {
+            metrics.identifiers.as_ref().map(|i| i.sequential_names as f64)
+        }
+
+        // String metrics
+        "strings.total" => metrics.strings.as_ref().map(|s| s.total as f64),
+        "strings.avg_entropy" => metrics.strings.as_ref().map(|s| s.avg_entropy as f64),
+        "strings.entropy_stddev" => metrics.strings.as_ref().map(|s| s.entropy_stddev as f64),
+        "strings.avg_length" => metrics.strings.as_ref().map(|s| s.avg_length as f64),
+
+        // Comment metrics
+        "comments.total" => metrics.comments.as_ref().map(|c| c.total as f64),
+        "comments.to_code_ratio" => metrics.comments.as_ref().map(|c| c.to_code_ratio as f64),
+
+        // Function metrics
+        "functions.total" => metrics.functions.as_ref().map(|f| f.total as f64),
+        "functions.anonymous" => metrics.functions.as_ref().map(|f| f.anonymous as f64),
+        "functions.async_count" => metrics.functions.as_ref().map(|f| f.async_count as f64),
+        "functions.avg_length_lines" => {
+            metrics.functions.as_ref().map(|f| f.avg_length_lines as f64)
+        }
+        "functions.max_length_lines" => {
+            metrics.functions.as_ref().map(|f| f.max_length_lines as f64)
+        }
+        "functions.length_stddev" => metrics.functions.as_ref().map(|f| f.length_stddev as f64),
+        "functions.over_100_lines" => metrics.functions.as_ref().map(|f| f.over_100_lines as f64),
+        "functions.over_500_lines" => metrics.functions.as_ref().map(|f| f.over_500_lines as f64),
+        "functions.one_liners" => metrics.functions.as_ref().map(|f| f.one_liners as f64),
+        "functions.avg_params" => metrics.functions.as_ref().map(|f| f.avg_params as f64),
+        "functions.max_params" => metrics.functions.as_ref().map(|f| f.max_params as f64),
+        "functions.many_params_count" => {
+            metrics.functions.as_ref().map(|f| f.many_params_count as f64)
+        }
+        "functions.single_char_names" => {
+            metrics.functions.as_ref().map(|f| f.single_char_names as f64)
+        }
+        "functions.high_entropy_names" => {
+            metrics.functions.as_ref().map(|f| f.high_entropy_names as f64)
+        }
+        "functions.numeric_suffix_names" => {
+            metrics.functions.as_ref().map(|f| f.numeric_suffix_names as f64)
+        }
+        "functions.max_nesting_depth" => {
+            metrics.functions.as_ref().map(|f| f.max_nesting_depth as f64)
+        }
+        "functions.avg_nesting_depth" => {
+            metrics.functions.as_ref().map(|f| f.avg_nesting_depth as f64)
+        }
+        "functions.nested_functions" => {
+            metrics.functions.as_ref().map(|f| f.nested_functions as f64)
+        }
+        "functions.density_per_100_lines" => {
+            metrics.functions.as_ref().map(|f| f.density_per_100_lines as f64)
+        }
+        "functions.code_in_functions_ratio" => {
+            metrics.functions.as_ref().map(|f| f.code_in_functions_ratio as f64)
+        }
+        "functions.single_char_params" => {
+            metrics.functions.as_ref().map(|f| f.single_char_params as f64)
+        }
+        "functions.avg_param_name_length" => {
+            metrics.functions.as_ref().map(|f| f.avg_param_name_length as f64)
+        }
+
+        // Binary metrics (from radare2 analysis)
+        "binary.overall_entropy" => metrics.binary.as_ref().map(|b| b.overall_entropy as f64),
+        "binary.code_entropy" => metrics.binary.as_ref().map(|b| b.code_entropy as f64),
+        "binary.data_entropy" => metrics.binary.as_ref().map(|b| b.data_entropy as f64),
+        "binary.entropy_variance" => metrics.binary.as_ref().map(|b| b.entropy_variance as f64),
+        "binary.high_entropy_regions" => {
+            metrics.binary.as_ref().map(|b| b.high_entropy_regions as f64)
+        }
+        "binary.section_count" => metrics.binary.as_ref().map(|b| b.section_count as f64),
+        "binary.executable_sections" => {
+            metrics.binary.as_ref().map(|b| b.executable_sections as f64)
+        }
+        "binary.writable_sections" => {
+            metrics.binary.as_ref().map(|b| b.writable_sections as f64)
+        }
+        "binary.wx_sections" => metrics.binary.as_ref().map(|b| b.wx_sections as f64),
+        "binary.section_name_entropy" => {
+            metrics.binary.as_ref().map(|b| b.section_name_entropy as f64)
+        }
+        "binary.largest_section_ratio" => {
+            metrics.binary.as_ref().map(|b| b.largest_section_ratio as f64)
+        }
+        "binary.import_count" => metrics.binary.as_ref().map(|b| b.import_count as f64),
+        "binary.export_count" => metrics.binary.as_ref().map(|b| b.export_count as f64),
+        "binary.import_entropy" => metrics.binary.as_ref().map(|b| b.import_entropy as f64),
+        "binary.string_count" => metrics.binary.as_ref().map(|b| b.string_count as f64),
+        "binary.avg_string_entropy" => {
+            metrics.binary.as_ref().map(|b| b.avg_string_entropy as f64)
+        }
+        "binary.high_entropy_strings" => {
+            metrics.binary.as_ref().map(|b| b.high_entropy_strings as f64)
+        }
+        "binary.function_count" => metrics.binary.as_ref().map(|b| b.function_count as f64),
+        "binary.avg_function_size" => {
+            metrics.binary.as_ref().map(|b| b.avg_function_size as f64)
+        }
+        "binary.tiny_functions" => metrics.binary.as_ref().map(|b| b.tiny_functions as f64),
+        "binary.huge_functions" => metrics.binary.as_ref().map(|b| b.huge_functions as f64),
+        "binary.has_overlay" => {
+            metrics.binary.as_ref().map(|b| if b.has_overlay { 1.0 } else { 0.0 })
+        }
+        "binary.overlay_size" => metrics.binary.as_ref().map(|b| b.overlay_size as f64),
+        "binary.overlay_ratio" => metrics.binary.as_ref().map(|b| b.overlay_ratio as f64),
+        "binary.overlay_entropy" => metrics.binary.as_ref().map(|b| b.overlay_entropy as f64),
+
+        // Complexity metrics
+        "binary.avg_complexity" => metrics.binary.as_ref().map(|b| b.avg_complexity as f64),
+        "binary.max_complexity" => metrics.binary.as_ref().map(|b| b.max_complexity as f64),
+        "binary.high_complexity_functions" => {
+            metrics.binary.as_ref().map(|b| b.high_complexity_functions as f64)
+        }
+        "binary.very_high_complexity_functions" => {
+            metrics.binary.as_ref().map(|b| b.very_high_complexity_functions as f64)
+        }
+
+        // Control flow metrics
+        "binary.total_basic_blocks" => {
+            metrics.binary.as_ref().map(|b| b.total_basic_blocks as f64)
+        }
+        "binary.avg_basic_blocks" => {
+            metrics.binary.as_ref().map(|b| b.avg_basic_blocks as f64)
+        }
+        "binary.linear_functions" => {
+            metrics.binary.as_ref().map(|b| b.linear_functions as f64)
+        }
+        "binary.recursive_functions" => {
+            metrics.binary.as_ref().map(|b| b.recursive_functions as f64)
+        }
+        "binary.noreturn_functions" => {
+            metrics.binary.as_ref().map(|b| b.noreturn_functions as f64)
+        }
+        "binary.leaf_functions" => metrics.binary.as_ref().map(|b| b.leaf_functions as f64),
+
+        // Stack metrics
+        "binary.avg_stack_frame" => metrics.binary.as_ref().map(|b| b.avg_stack_frame as f64),
+        "binary.max_stack_frame" => metrics.binary.as_ref().map(|b| b.max_stack_frame as f64),
+        "binary.large_stack_functions" => {
+            metrics.binary.as_ref().map(|b| b.large_stack_functions as f64)
+        }
+
+        _ => None,
+    };
+
+    let value = match value {
+        Some(v) => v,
+        None => {
+            return ConditionResult {
+                matched: false,
+                evidence: Vec::new(),
+                traits: Vec::new(),
+            }
+        }
+    };
+
+    let min_ok = min.is_none_or(|m| value >= m);
+    let max_ok = max.is_none_or(|m| value <= m);
+    let matched = min_ok && max_ok;
+
+    ConditionResult {
+        matched,
+        evidence: if matched {
+            vec![Evidence {
+                method: "metrics".to_string(),
+                source: "analyzer".to_string(),
+                value: format!("{} = {:.2}", field, value),
                 location: None,
             }]
         } else {

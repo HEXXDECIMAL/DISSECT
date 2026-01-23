@@ -125,6 +125,17 @@ impl PEAnalyzer {
             }
         }
 
+        // Compute binary metrics using radare2 (BEFORE trait evaluation)
+        if Radare2Analyzer::is_available() {
+            if let Ok(binary_metrics) = self.radare2.compute_binary_metrics(file_path) {
+                report.metrics = Some(Metrics {
+                    binary: Some(binary_metrics),
+                    ..Default::default()
+                });
+                tools_used.push("radare2".to_string());
+            }
+        }
+
         // Evaluate trait definitions from YAML
         let trait_findings = self.capability_mapper.evaluate_traits(&report, data);
         for f in trait_findings {

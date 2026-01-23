@@ -4,13 +4,13 @@
 
 traits:
   - id: net/http/request-python
-    description: "Performs HTTP request (urllib or requests)"
+    description: "Performs HTTP request (urllib, requests, aiohttp, httpx)"
     criticality: inert
     confidence: 0.9
     file_types: [python]
     condition:
       type: string
-      regex: "(requests\\.(get|post)|urllib\\.request\\.urlopen)"
+      regex: "(requests\\.(get|post)|urllib\\.request\\.urlopen|aiohttp\\.ClientSession|httpx\\.(get|post))"
 
   - id: net/http/request/get
     description: "Performs HTTP GET request"
@@ -19,7 +19,7 @@ traits:
     file_types: [python]
     condition:
       type: string
-      regex: 'requests\\.get\('
+      regex: '(requests|httpx)\\.get\('
 
   - id: net/http/request/post
     description: "Performs HTTP POST request (Exfiltration indicator)"
@@ -28,7 +28,7 @@ traits:
     file_types: [python]
     condition:
       type: string
-      regex: 'requests\\.post\('
+      regex: '(requests|httpx)\\.post\('
 
   - id: net/http/request/url-literal
     description: "Direct URL literal in HTTP request"
@@ -45,8 +45,8 @@ traits:
             attribute: (identifier) @meth)
           arguments: (argument_list
             (string) @url))
-        (#match? @obj "^(requests|urqt|urllib|urllib2|req|r|client|http)$")
-        (#match? @meth "^(get|post|urlopen|urlretrieve)$")
+        (#match? @obj "^(requests|urqt|urllib|urllib2|req|r|client|http|session|httpx)$")
+        (#match? @meth "^(get|post|urlopen|urlretrieve|request)$")
 
 composite_rules:
   - id: net/http/python-exfiltration

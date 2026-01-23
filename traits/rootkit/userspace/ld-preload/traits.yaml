@@ -1,0 +1,138 @@
+# Userspace Rootkit Detection - LD_PRELOAD Hooking
+# MBC: F0015 (Hijack Execution Flow)
+# ATT&CK: T1574.006 (Dynamic Linker Hijacking)
+
+traits:
+  # LD_PRELOAD environment variable manipulation
+  - id: rootkit/userspace/ld-preload-env
+    description: References LD_PRELOAD environment variable
+    criticality: suspicious
+    confidence: 0.8
+    mbc: "F0015"
+    attack: "T1574.006"
+    condition:
+      type: yara
+      source: |
+        rule ld_preload_env {
+          strings:
+            $ld_preload = "LD_PRELOAD" ascii
+            $ld_library = "LD_LIBRARY_PATH" ascii
+          condition:
+            any of them
+        }
+
+  # libc function hooking (common rootkit targets)
+  - id: rootkit/userspace/libc-hook-targets
+    description: References multiple libc functions commonly hooked by rootkits
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "F0015"
+    attack: "T1574.006"
+    condition:
+      type: yara
+      source: |
+        rule libc_hook_targets {
+          strings:
+            // File operations
+            $fopen = "fopen" ascii
+            $open = "open64" ascii
+            $read = "read" ascii
+            $readdir = "readdir" ascii
+            $readdir64 = "readdir64" ascii
+            // Process listing
+            $opendir = "opendir" ascii
+            // Network
+            $accept = "accept" ascii
+            $connect = "connect" ascii
+            $recvfrom = "recvfrom" ascii
+            // User info
+            $getpwnam = "getpwnam" ascii
+            $getpwuid = "getpwuid" ascii
+            // stat family
+            $stat = "__xstat" ascii
+            $lstat = "__lxstat" ascii
+            $fstat = "__fxstat" ascii
+            $stat64 = "__xstat64" ascii
+            $lstat64 = "__lxstat64" ascii
+          condition:
+            5 of them
+        }
+
+  # dlsym RTLD_NEXT pattern (hook chaining)
+  - id: rootkit/userspace/dlsym-rtld-next
+    description: Uses dlsym with RTLD_NEXT (function hooking pattern)
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "F0015"
+    attack: "T1574.006"
+    condition:
+      type: yara
+      source: |
+        rule dlsym_rtld_next {
+          strings:
+            $dlsym = "dlsym" ascii
+            $rtld_next = "RTLD_NEXT" ascii
+            // Common hook pattern in C
+            $hook_pattern = /dlsym\s*\(\s*RTLD_NEXT/ ascii
+          condition:
+            ($dlsym and $rtld_next) or $hook_pattern
+        }
+
+  # Symbiote-specific patterns
+  - id: rootkit/userspace/symbiote
+    description: Symbiote rootkit indicators
+    criticality: hostile
+    confidence: 0.95
+    mbc: "F0015"
+    attack: "T1574.006"
+    condition:
+      type: yara
+      source: |
+        rule symbiote_rootkit {
+          strings:
+            $skullsec = "skullseclabs" ascii
+            $dnscat = "DNSCAT" ascii
+            $hooked = "Hooked" ascii
+            $static = "Static" ascii
+            // Function pairs indicating hook implementation
+            $hook1 = "original_" ascii
+            $hook2 = "real_" ascii
+          condition:
+            $skullsec or $dnscat or ($hooked and $static) or ($hook1 and $hook2)
+        }
+
+  # /proc filesystem hiding
+  - id: rootkit/userspace/proc-hiding
+    description: Patterns for hiding processes via /proc manipulation
+    criticality: hostile
+    confidence: 0.9
+    mbc: "F0015"
+    attack: "T1574.006"
+    condition:
+      type: yara
+      source: |
+        rule proc_hiding {
+          strings:
+            $proc_self = "/proc/self" ascii
+            $proc_pid = /\/proc\/[0-9]+/ ascii
+            $proc_net = "/proc/net" ascii
+            $hide_pid = "hide_pid" ascii nocase
+            $hidden_proc = "hidden_proc" ascii nocase
+          condition:
+            ($hide_pid or $hidden_proc) or (3 of ($proc*))
+        }
+
+composite_rules:
+  # Full LD_PRELOAD rootkit
+  - id: rootkit/userspace/ld-preload-rootkit
+    description: LD_PRELOAD userspace rootkit (Symbiote-style)
+    criticality: hostile
+    confidence: 0.95
+    requires_all:
+      - type: trait
+        id: rootkit/userspace/dlsym-rtld-next
+    requires_any:
+      - type: trait
+        id: rootkit/userspace/libc-hook-targets
+      - type: trait
+        id: rootkit/userspace/proc-hiding

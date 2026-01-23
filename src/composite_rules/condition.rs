@@ -183,6 +183,19 @@ pub enum Condition {
         #[serde(skip_serializing_if = "Option::is_none")]
         min_length: Option<usize>,
     },
+
+    /// Check computed metrics for obfuscation/anomaly detection
+    /// For detecting obfuscation patterns in source code via statistical analysis
+    Metrics {
+        /// Metric path (e.g., "identifiers.avg_entropy", "functions.density_per_100_lines")
+        field: String,
+        /// Minimum value threshold
+        #[serde(skip_serializing_if = "Option::is_none")]
+        min: Option<f64>,
+        /// Maximum value threshold
+        #[serde(skip_serializing_if = "Option::is_none")]
+        max: Option<f64>,
+    },
 }
 
 fn default_compare_to() -> String {
@@ -225,7 +238,10 @@ impl Condition {
                     Some("php") => tree_sitter_php::LANGUAGE_PHP.into(),
                     Some("csharp") | Some("c#") => tree_sitter_c_sharp::LANGUAGE.into(),
                     Some(other) => {
-                        return Err(anyhow::anyhow!("unsupported language for ast_query: {}", other))
+                        return Err(anyhow::anyhow!(
+                            "unsupported language for ast_query: {}",
+                            other
+                        ))
                     }
                     None => {
                         // No language specified - skip validation, will validate at runtime

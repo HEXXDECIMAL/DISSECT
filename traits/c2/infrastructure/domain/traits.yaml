@@ -86,11 +86,39 @@ composite_rules:
       type: string
       regex: "https?://[a-zA-Z0-9][-a-zA-Z0-9]*\\.[a-zA-Z]{2,6}(?:/|$|:)"
       exclude_patterns:
+        # Documentation/standards
         - "ezgif\\.com"
         - "w3\\.org"
         - "schemas\\.microsoft\\.com"
         - "www\\.google\\.com"
         - "googleapis\\.com"
+        - "mdn\\.io"
+        - "developer\\.mozilla\\.org"
+        - "docs\\.github\\.com"
+        - "nodejs\\.org"
+        - "npmjs\\.com"
+        - "npmjs\\.org"
+        # CI/CD services
+        - "travis-ci\\.org"
+        - "travis-ci\\.com"
+        - "circleci\\.com"
+        - "github\\.com"
+        - "gitlab\\.com"
+        - "bitbucket\\.org"
+        - "codecov\\.io"
+        - "coveralls\\.io"
+        - "snyk\\.io"
+        # Package registries
+        - "registry\\.npmjs\\.org"
+        - "yarnpkg\\.com"
+        - "unpkg\\.com"
+        - "jsdelivr\\.net"
+        - "cdnjs\\.cloudflare\\.com"
+        # Major vendors
+        - "apple\\.com"
+        - "microsoft\\.com"
+        - "amazon\\.com"
+        - "aws\\.amazon\\.com"
 
   - id: c2/infrastructure/domain/url-path-payload
     description: "URL path suggesting payload download"
@@ -110,3 +138,147 @@ composite_rules:
         id: hardcoded-domain-suspicious
       - type: trait
         id: dynamic-dns-domain
+
+traits:
+  # Malicious file hosting domains
+  - id: c2/infrastructure/domain/malware-hosting
+    description: Contacts known malware/payload hosting service
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1105"
+    file_types: [all]
+    condition:
+      type: string
+      regex: '(bullethost\.cloud|anonfiles\.com|gofile\.io|transfer\.sh|tmpfiles\.org|catbox\.moe|uguu\.se|pomf\.cat|0x0\.st|file\.io|filedropper\.com)'
+
+  # PHP collector scripts (common exfil pattern)
+  - id: c2/infrastructure/domain/php-collector
+    description: Contacts PHP data collection endpoint
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1041"
+    file_types: [all]
+    condition:
+      type: string
+      regex: '/collect[_-]?(info|data|stats)?\.php|/log[_-]?(info|data)?\.php|/report\.php|/beacon\.php|/gate\.php'
+
+  # Internal API probing
+  - id: c2/infrastructure/domain/internal-api-probe
+    description: Probes internal network API endpoints
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1046"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: 'http://(internal|localhost|127\\.0\\.0\\.1|10\\.|192\\.168\\.|172\\.(1[6-9]|2[0-9]|3[01]))[-a-zA-Z0-9.]*/(api|ping|health|status)'
+
+  # Hardcoded IP addresses
+  - id: c2/infrastructure/domain/hardcoded-ip
+    description: Hardcoded IP address (potential C2)
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1071"
+    file_types: [all]
+    condition:
+      type: string
+      regex: 'https?://\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}[:/]'
+
+  # Serverless function URLs (common C2 vector)
+  - id: c2/infrastructure/domain/serverless-function
+    description: Contacts serverless function endpoint (Lambda, Azure, etc.)
+    criticality: notable
+    confidence: 0.7
+    attack: "T1071"
+    file_types: [all]
+    condition:
+      type: string
+      regex: '(execute-api\.[a-z0-9-]+\.amazonaws\.com|[a-z0-9-]+\.azurewebsites\.net|[a-z0-9-]+\.cloudfunctions\.net|[a-z0-9-]+\.vercel\.app|[a-z0-9-]+\.netlify\.app)'
+
+  # Ngrok tunnels
+  - id: c2/infrastructure/domain/ngrok-tunnel
+    description: Contacts ngrok tunnel endpoint
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1071"
+    file_types: [all]
+    condition:
+      type: string
+      regex: '[a-z0-9]+\.ngrok\.io|[a-z0-9]+\.ngrok-free\.app'
+
+  # Pastebin-like services
+  - id: c2/infrastructure/domain/paste-service
+    description: Contacts paste/bin service (common payload host)
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1102"
+    file_types: [all]
+    condition:
+      type: string
+      regex: '(pastebin\.com|hastebin\.com|ghostbin\.com|paste\.ee|dpaste\.com|privatebin\.net|rentry\.co)/[a-zA-Z0-9]+'
+
+  # Vercel serverless C2 (elevated - commonly abused)
+  - id: c2/infrastructure/domain/vercel-serverless
+    description: Contacts Vercel serverless function (commonly abused for C2)
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1071"
+    file_types: [all]
+    condition:
+      type: string
+      regex: '[a-z0-9-]+\.vercel\.app(?:/|$)'
+
+  # Replit-hosted C2
+  - id: c2/infrastructure/domain/replit-hosted
+    description: Contacts Replit-hosted endpoint (commonly abused)
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1071"
+    file_types: [all]
+    condition:
+      type: string
+      regex: '[a-z0-9-]+\.replit\.dev|[a-z0-9-]+\.repl\.co'
+
+  # Glitch-hosted C2
+  - id: c2/infrastructure/domain/glitch-hosted
+    description: Contacts Glitch-hosted endpoint
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1071"
+    file_types: [all]
+    condition:
+      type: string
+      regex: '[a-z0-9-]+\.glitch\.me'
+
+  # Railway-hosted C2
+  - id: c2/infrastructure/domain/railway-hosted
+    description: Contacts Railway-hosted endpoint
+    criticality: notable
+    confidence: 0.75
+    attack: "T1071"
+    file_types: [all]
+    condition:
+      type: string
+      regex: '[a-z0-9-]+\.railway\.app'
+
+  # Render-hosted C2
+  - id: c2/infrastructure/domain/render-hosted
+    description: Contacts Render-hosted endpoint
+    criticality: notable
+    confidence: 0.75
+    attack: "T1071"
+    file_types: [all]
+    condition:
+      type: string
+      regex: '[a-z0-9-]+\.onrender\.com'
+
+  # Heroku-hosted C2
+  - id: c2/infrastructure/domain/heroku-hosted
+    description: Contacts Heroku-hosted endpoint
+    criticality: notable
+    confidence: 0.7
+    attack: "T1071"
+    file_types: [all]
+    condition:
+      type: string
+      regex: '[a-z0-9-]+\.herokuapp\.com'

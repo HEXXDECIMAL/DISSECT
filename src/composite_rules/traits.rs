@@ -7,9 +7,9 @@ use super::condition::Condition;
 use super::context::{ConditionResult, EvaluationContext, StringParams};
 use super::evaluators::{
     eval_ast_pattern, eval_ast_query, eval_exports_count, eval_import_combination,
-    eval_imports_count, eval_section_entropy, eval_section_ratio, eval_string, eval_string_count,
-    eval_structure, eval_symbol, eval_symbol_or_string, eval_syscall, eval_yara_inline,
-    eval_yara_match,
+    eval_imports_count, eval_metrics, eval_section_entropy, eval_section_ratio, eval_string,
+    eval_string_count, eval_structure, eval_symbol, eval_symbol_or_string, eval_syscall,
+    eval_yara_inline, eval_yara_match,
 };
 use super::types::{default_file_types, default_platforms, FileType, Platform};
 use crate::types::{Criticality, Evidence, Finding, FindingKind};
@@ -70,7 +70,9 @@ impl TraitDefinition {
         if self.id.contains("eco/npm/metadata/vscode") {
             eprintln!(
                 "DEBUG evaluate: {} result.matched={} evidence_count={}",
-                self.id, result.matched, result.evidence.len()
+                self.id,
+                result.matched,
+                result.evidence.len()
             );
         }
 
@@ -100,14 +102,6 @@ impl TraitDefinition {
         let file_type_match = self.file_types.contains(&FileType::All)
             || ctx.file_type == FileType::All
             || self.file_types.contains(&ctx.file_type);
-
-        // Debug: print trait file type matching for packagejson
-        if self.id.contains("eco/npm") {
-            eprintln!(
-                "DEBUG: trait {} file_types={:?} ctx.file_type={:?} match={}",
-                self.id, self.file_types, ctx.file_type, file_type_match
-            );
-        }
 
         platform_match && file_type_match
     }
@@ -206,6 +200,7 @@ impl TraitDefinition {
                 max,
                 min_length,
             } => eval_string_count(*min, *max, *min_length, ctx),
+            Condition::Metrics { field, min, max } => eval_metrics(field, *min, *max, ctx),
         }
     }
 }
@@ -546,6 +541,7 @@ impl CompositeTrait {
                 max,
                 min_length,
             } => eval_string_count(*min, *max, *min_length, ctx),
+            Condition::Metrics { field, min, max } => eval_metrics(field, *min, *max, ctx),
         }
     }
 

@@ -1,0 +1,133 @@
+# Self-Modification Patterns
+# These patterns indicate code that modifies itself at runtime
+# Can be legitimate (JIT, hot-patching) or malicious (polymorphic malware)
+
+traits:
+  # Memory protection changes
+  - id: suspicious/self-modify/mprotect
+    description: Memory protection modification (mprotect/VirtualProtect)
+    criticality: notable
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule mprotect_modify {
+          strings:
+            $mp1 = "mprotect" ascii
+            $mp2 = "VirtualProtect" ascii wide
+            $mp3 = "VirtualProtectEx" ascii wide
+            $prot1 = "PROT_WRITE" ascii
+            $prot2 = "PROT_EXEC" ascii
+            $prot3 = "PAGE_EXECUTE_READWRITE" ascii wide
+          condition:
+            any of ($mp*) or any of ($prot*)
+        }
+
+  # Self-overwriting code
+  - id: suspicious/self-modify/self-overwrite
+    description: Self-overwriting code patterns
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: yara
+      source: |
+        rule self_overwrite {
+          strings:
+            $proc_self = "/proc/self/mem" ascii
+            $proc_maps = "/proc/self/maps" ascii
+            $write_mem = "WriteProcessMemory" ascii wide
+            $patch = "patch" ascii nocase
+          condition:
+            $proc_self or ($proc_maps and any of ($write_mem, $patch))
+        }
+
+  # Code cave injection
+  - id: suspicious/self-modify/code-cave
+    description: Code cave or slack space usage
+    criticality: suspicious
+    confidence: 0.75
+    condition:
+      type: yara
+      source: |
+        rule code_cave {
+          strings:
+            $cave1 = "codecave" ascii nocase
+            $cave2 = "code cave" ascii nocase
+            $slack = "slack space" ascii nocase
+            $nop_sled = { 90 90 90 90 90 90 90 90 }
+          condition:
+            any of ($cave*, $slack) or $nop_sled
+        }
+
+  # Hook installation
+  - id: suspicious/self-modify/hook-install
+    description: Runtime hook installation
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: yara
+      source: |
+        rule hook_install {
+          strings:
+            $hook1 = "SetWindowsHookEx" ascii wide
+            $hook2 = "inline hook" ascii nocase
+            $hook3 = "detour" ascii nocase
+            $hook4 = "trampoline" ascii nocase
+            $hook5 = "LD_PRELOAD" ascii
+            $hook6 = "DYLD_INSERT_LIBRARIES" ascii
+          condition:
+            any of them
+        }
+
+  # Import Address Table modification
+  - id: suspicious/self-modify/iat-hook
+    description: Import Address Table hooking
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule iat_hook {
+          strings:
+            $iat1 = "IMAGE_IMPORT_DESCRIPTOR" ascii
+            $iat2 = "ImportAddressTable" ascii
+            $iat3 = "IAT" ascii
+            $got1 = ".got.plt" ascii
+            $got2 = "GOT" ascii
+          condition:
+            any of ($iat*) or any of ($got*)
+        }
+
+  # Polymorphic/metamorphic indicators
+  - id: suspicious/self-modify/polymorphic
+    description: Polymorphic or metamorphic code indicators
+    criticality: suspicious
+    confidence: 0.75
+    condition:
+      type: yara
+      source: |
+        rule polymorphic_code {
+          strings:
+            $poly1 = "polymorphic" ascii nocase
+            $poly2 = "metamorphic" ascii nocase
+            $poly3 = "self-modifying" ascii nocase
+            $poly4 = "decrypt" ascii nocase
+            $xor_loop = { 30 ?? 4? 83 ?? ?? 7? }
+          condition:
+            any of ($poly*) or $xor_loop
+        }
+
+composite_rules:
+  # Active self-modification
+  - id: suspicious/self-modify/active
+    description: Active self-modification capability
+    criticality: suspicious
+    confidence: 0.9
+    requires_all:
+      - type: trait
+        id: suspicious/self-modify/mprotect
+    requires_any:
+      - type: trait
+        id: suspicious/self-modify/self-overwrite
+      - type: trait
+        id: suspicious/self-modify/hook-install

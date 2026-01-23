@@ -1,6 +1,14 @@
 pub mod archive;
 pub mod c;
 pub mod csharp;
+
+// Universal metrics analyzers
+pub mod comment_metrics;
+pub mod function_metrics;
+pub mod identifier_metrics;
+pub mod string_metrics;
+pub mod text_metrics;
+
 pub mod elf;
 pub mod go;
 pub mod java;

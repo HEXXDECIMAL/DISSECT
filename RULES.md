@@ -26,6 +26,10 @@ Rules follow the path `objective/behavior/kind`:
 | `eco/<ecosystem>/<behavior>` | Package ecosystem patterns | `eco/npm/scripts/postinstall-hook`, `eco/vscode/malicious/dropper` |
 | `supply-chain/<vector>/<type>` | Supply chain attacks | `supply-chain/typosquat/domain`, `supply-chain/install-time/execution` |
 | `intel/<category>/<type>` | Discovery/reconnaissance | `intel/fingerprint/system`, `intel/discover/user` |
+| `meta/<category>/<type>` | Binary metadata/provenance | `meta/language/go`, `meta/compiler/gcc`, `meta/build/cmake` |
+| `data/<category>/<format>` | Data operations | `data/database/postgresql`, `data/encoding/protobuf` |
+| `lib/<category>/<library>` | Library usage patterns | `lib/logging/syslog`, `lib/ipc/grpc` |
+| `dev/<category>/<tool>` | Development artifacts | `dev/testing/gtest` |
 
 ### Ecosystem Traits (`eco/`)
 

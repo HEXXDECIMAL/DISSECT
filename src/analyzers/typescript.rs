@@ -1,4 +1,9 @@
 use crate::analyzers::Analyzer;
+use crate::analyzers::{
+    comment_metrics::{self, CommentStyle},
+    function_metrics::{self, FunctionInfo},
+    identifier_metrics, string_metrics, text_metrics,
+};
 use crate::types::*;
 use anyhow::{Context, Result};
 use std::cell::RefCell;
@@ -59,10 +64,234 @@ impl TypeScriptAnalyzer {
         crate::path_mapper::analyze_and_link_paths(&mut report);
         crate::env_mapper::analyze_and_link_env_vars(&mut report);
 
+        // Compute metrics for ML analysis
+        if let Some(ref tree) = self.parser.borrow_mut().parse(content, None) {
+            let root = tree.root_node();
+            let metrics = self.compute_metrics(&root, content);
+            report.metrics = Some(metrics);
+        }
+
         report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;
         report.metadata.tools_used = vec!["tree-sitter-typescript".to_string()];
 
         Ok(report)
+    }
+
+    /// Compute all metrics for TypeScript code
+    fn compute_metrics(&self, root: &tree_sitter::Node, content: &str) -> Metrics {
+        let source = content.as_bytes();
+        let total_lines = content.lines().count() as u32;
+
+        // Universal text metrics
+        let text = text_metrics::analyze_text(content);
+
+        // Extract identifiers from AST
+        let identifiers = self.extract_identifiers(root, source);
+        let ident_refs: Vec<&str> = identifiers.iter().map(|s| s.as_str()).collect();
+        let identifier_metrics = identifier_metrics::analyze_identifiers(&ident_refs);
+
+        // Extract strings from AST
+        let strings = self.extract_string_literals(root, source);
+        let str_refs: Vec<&str> = strings.iter().map(|s| s.as_str()).collect();
+        let string_metrics = string_metrics::analyze_strings(&str_refs);
+
+        // Comment metrics (C-style comments for TypeScript)
+        let comment_metrics = comment_metrics::analyze_comments(content, CommentStyle::CStyle);
+
+        // Function metrics
+        let func_infos = self.extract_function_info(root, source);
+        let func_metrics = function_metrics::analyze_functions(&func_infos, total_lines);
+
+        Metrics {
+            text: Some(text),
+            identifiers: Some(identifier_metrics),
+            strings: Some(string_metrics),
+            comments: Some(comment_metrics),
+            functions: Some(func_metrics),
+            ..Default::default()
+        }
+    }
+
+    /// Extract identifiers from TypeScript AST
+    fn extract_identifiers(&self, root: &tree_sitter::Node, source: &[u8]) -> Vec<String> {
+        let mut identifiers = Vec::new();
+        let mut cursor = root.walk();
+        self.walk_for_identifiers(&mut cursor, source, &mut identifiers);
+        identifiers
+    }
+
+    fn walk_for_identifiers(
+        &self,
+        cursor: &mut tree_sitter::TreeCursor,
+        source: &[u8],
+        identifiers: &mut Vec<String>,
+    ) {
+        loop {
+            let node = cursor.node();
+
+            if node.kind() == "identifier" || node.kind() == "property_identifier" {
+                if let Ok(text) = node.utf8_text(source) {
+                    if !text.is_empty() {
+                        identifiers.push(text.to_string());
+                    }
+                }
+            }
+
+            if cursor.goto_first_child() {
+                self.walk_for_identifiers(cursor, source, identifiers);
+                cursor.goto_parent();
+            }
+
+            if !cursor.goto_next_sibling() {
+                break;
+            }
+        }
+    }
+
+    /// Extract string literals from TypeScript AST
+    fn extract_string_literals(&self, root: &tree_sitter::Node, source: &[u8]) -> Vec<String> {
+        let mut strings = Vec::new();
+        let mut cursor = root.walk();
+        self.walk_for_strings(&mut cursor, source, &mut strings);
+        strings
+    }
+
+    fn walk_for_strings(
+        &self,
+        cursor: &mut tree_sitter::TreeCursor,
+        source: &[u8],
+        strings: &mut Vec<String>,
+    ) {
+        loop {
+            let node = cursor.node();
+
+            if node.kind() == "string" || node.kind() == "template_string" {
+                if let Ok(text) = node.utf8_text(source) {
+                    // Strip quotes
+                    let s = text
+                        .trim_start_matches('"')
+                        .trim_end_matches('"')
+                        .trim_start_matches('\'')
+                        .trim_end_matches('\'')
+                        .trim_start_matches('`')
+                        .trim_end_matches('`');
+                    if !s.is_empty() {
+                        strings.push(s.to_string());
+                    }
+                }
+            }
+
+            if cursor.goto_first_child() {
+                self.walk_for_strings(cursor, source, strings);
+                cursor.goto_parent();
+            }
+
+            if !cursor.goto_next_sibling() {
+                break;
+            }
+        }
+    }
+
+    /// Extract function information for metrics
+    fn extract_function_info(&self, root: &tree_sitter::Node, source: &[u8]) -> Vec<FunctionInfo> {
+        let mut functions = Vec::new();
+        let mut cursor = root.walk();
+        self.walk_for_function_info(&mut cursor, source, &mut functions, 0);
+        functions
+    }
+
+    fn walk_for_function_info(
+        &self,
+        cursor: &mut tree_sitter::TreeCursor,
+        source: &[u8],
+        functions: &mut Vec<FunctionInfo>,
+        depth: u32,
+    ) {
+        loop {
+            let node = cursor.node();
+            let kind = node.kind();
+
+            // Function declarations and expressions
+            if kind == "function_declaration"
+                || kind == "function_expression"
+                || kind == "method_definition"
+                || kind == "arrow_function"
+                || kind == "generator_function"
+                || kind == "generator_function_declaration"
+            {
+                let mut info = FunctionInfo::default();
+
+                // Get function name
+                if let Some(name_node) = node.child_by_field_name("name") {
+                    if let Ok(name) = name_node.utf8_text(source) {
+                        info.name = name.to_string();
+                    }
+                }
+
+                // Check if anonymous
+                info.is_anonymous = info.name.is_empty();
+
+                // Check for async
+                if let Ok(text) = node.utf8_text(source) {
+                    info.is_async = text.starts_with("async ");
+                }
+
+                // Check for generator
+                info.is_generator = kind.contains("generator");
+
+                // Get parameters
+                if let Some(params_node) = node.child_by_field_name("parameters") {
+                    let mut param_cursor = params_node.walk();
+                    if param_cursor.goto_first_child() {
+                        loop {
+                            let param = param_cursor.node();
+                            if param.kind() == "identifier"
+                                || param.kind() == "required_parameter"
+                                || param.kind() == "optional_parameter"
+                            {
+                                info.param_count += 1;
+                                if let Ok(param_text) = param.utf8_text(source) {
+                                    // Extract just the parameter name
+                                    let name = param_text.split(':').next().unwrap_or(param_text);
+                                    let name = name.split('=').next().unwrap_or(name).trim();
+                                    if !name.is_empty() && name != "," {
+                                        info.param_names.push(name.to_string());
+                                    }
+                                }
+                            }
+                            if !param_cursor.goto_next_sibling() {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                // Line count
+                info.start_line = node.start_position().row as u32;
+                info.end_line = node.end_position().row as u32;
+                info.line_count = info.end_line.saturating_sub(info.start_line) + 1;
+                info.nesting_depth = depth;
+
+                functions.push(info);
+            }
+
+            if cursor.goto_first_child() {
+                let new_depth = if kind.contains("function")
+                    || kind == "method_definition"
+                    || kind == "arrow_function"
+                {
+                    depth + 1
+                } else {
+                    depth
+                };
+                self.walk_for_function_info(cursor, source, functions, new_depth);
+                cursor.goto_parent();
+            }
+
+            if !cursor.goto_next_sibling() {
+                break;
+            }
+        }
     }
 
     fn analyze_ast(&self, node: &tree_sitter::Node, source: &[u8], report: &mut AnalysisReport) {

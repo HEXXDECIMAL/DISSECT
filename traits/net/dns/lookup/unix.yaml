@@ -38,8 +38,12 @@ traits:
       source: |
         rule dns_txt {
           strings:
-            $dns = "dns"
-            $txt = "TXT"
+            // DNS TXT record type constant or query patterns
+            $txt_query1 = "TXT record" ascii nocase
+            $txt_query2 = "query TXT" ascii nocase
+            $txt_query3 = "DNS_TYPE_TXT" ascii
+            $txt_query4 = "T_TXT" ascii
+            $txt_query5 = "ns_t_txt" ascii
           condition:
-            all of them
+            any of ($txt_query*)
         }

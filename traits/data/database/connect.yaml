@@ -1,0 +1,235 @@
+# Database Connectivity Detection
+# Useful for ML features and understanding application purpose
+
+traits:
+  # PostgreSQL
+  - id: data/database/postgresql
+    description: PostgreSQL database connectivity
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule postgresql_db {
+          strings:
+            $pg1 = "libpq" ascii
+            $pg2 = "PQconnect" ascii
+            $pg3 = "postgres://" ascii
+            $pg4 = "postgresql://" ascii
+            $pg5 = "pq." ascii
+            $pg6 = "psycopg2" ascii
+            $pg7 = "pg8000" ascii
+          condition:
+            any of them
+        }
+
+  # MySQL/MariaDB
+  - id: data/database/mysql
+    description: MySQL/MariaDB database connectivity
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule mysql_db {
+          strings:
+            $mysql1 = "libmysql" ascii
+            $mysql2 = "mysql://" ascii
+            $mysql3 = "mysql_real_connect" ascii
+            $mysql4 = "mysqlclient" ascii
+            $mysql5 = "go-sql-driver/mysql" ascii
+            $mysql6 = "PyMySQL" ascii
+          condition:
+            any of them
+        }
+
+  # SQLite
+  - id: data/database/sqlite
+    description: SQLite database
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule sqlite_db {
+          strings:
+            $sqlite1 = "sqlite3" ascii
+            $sqlite2 = "sqlite3_open" ascii
+            $sqlite3 = "mattn/go-sqlite3" ascii
+            $sqlite4 = "rusqlite" ascii
+            $sqlite5 = "SQLite format" ascii
+          condition:
+            any of them
+        }
+
+  # MongoDB
+  - id: data/database/mongodb
+    description: MongoDB database connectivity
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule mongodb_db {
+          strings:
+            $mongo1 = "mongodb://" ascii
+            $mongo2 = "mongodb+srv://" ascii
+            $mongo3 = "go.mongodb.org" ascii
+            $mongo4 = "pymongo" ascii
+            $mongo5 = "mongoose" ascii
+          condition:
+            any of them
+        }
+
+  # Redis
+  - id: data/database/redis
+    description: Redis database connectivity
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule redis_db {
+          strings:
+            $redis1 = "redis://" ascii
+            $redis2 = "rediss://" ascii
+            $redis3 = "go-redis" ascii
+            $redis4 = "redis-py" ascii
+            $redis5 = "hiredis" ascii
+            $redis6 = "ioredis" ascii
+          condition:
+            any of them
+        }
+
+  # Elasticsearch
+  - id: data/database/elasticsearch
+    description: Elasticsearch connectivity
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule elasticsearch_db {
+          strings:
+            $es1 = "elasticsearch" ascii
+            $es2 = "elastic.co" ascii
+            $es3 = "olivere/elastic" ascii
+            $es4 = "_search" ascii
+            $es5 = "_bulk" ascii
+          condition:
+            any of them
+        }
+
+  # Cassandra
+  - id: data/database/cassandra
+    description: Apache Cassandra connectivity
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule cassandra_db {
+          strings:
+            $cass1 = "cassandra" ascii nocase
+            $cass2 = "gocql" ascii
+            $cass3 = "datastax" ascii
+            $cass4 = "cql://" ascii
+          condition:
+            any of them
+        }
+
+  # DynamoDB
+  - id: data/database/dynamodb
+    description: AWS DynamoDB connectivity
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule dynamodb_db {
+          strings:
+            $ddb1 = "dynamodb" ascii nocase
+            $ddb2 = "DynamoDB" ascii
+            $ddb3 = "aws-sdk" ascii
+          condition:
+            any of them
+        }
+
+  # InfluxDB
+  - id: data/database/influxdb
+    description: InfluxDB time series database
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule influxdb_db {
+          strings:
+            $influx1 = "influxdb" ascii nocase
+            $influx2 = "influxdata" ascii
+            $influx3 = "InfluxDB" ascii
+          condition:
+            any of them
+        }
+
+  # Generic SQL patterns
+  - id: data/database/sql-generic
+    description: Generic SQL database patterns
+    criticality: benign
+    confidence: 0.8
+    condition:
+      type: yara
+      source: |
+        rule sql_generic {
+          strings:
+            $sql1 = "SELECT " ascii nocase
+            $sql2 = "INSERT INTO" ascii nocase
+            $sql3 = "UPDATE " ascii nocase
+            $sql4 = "DELETE FROM" ascii nocase
+            $sql5 = "CREATE TABLE" ascii nocase
+            $sql6 = "data/database/sql" ascii
+            $sql7 = "sql.Open" ascii
+          condition:
+            3 of ($sql1, $sql2, $sql3, $sql4, $sql5) or any of ($sql6, $sql7)
+        }
+
+  # ORM frameworks
+  - id: data/database/orm
+    description: ORM framework usage
+    criticality: benign
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule orm_framework {
+          strings:
+            $gorm = "gorm.io" ascii
+            $sqlalchemy = "sqlalchemy" ascii
+            $hibernate = "hibernate" ascii
+            $django = "django.db" ascii
+            $sequelize = "sequelize" ascii
+            $prisma = "prisma" ascii
+            $typeorm = "typeorm" ascii
+          condition:
+            any of them
+        }
+
+  # Connection pooling
+  - id: data/database/connection-pool
+    description: Database connection pooling
+    criticality: benign
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule connection_pool {
+          strings:
+            $pool1 = "pgxpool" ascii
+            $pool2 = "pool.Pool" ascii
+            $pool3 = "MaxOpenConns" ascii
+            $pool4 = "MaxIdleConns" ascii
+            $pool5 = "connection_pool" ascii
+            $pool6 = "HikariCP" ascii
+          condition:
+            any of them
+        }

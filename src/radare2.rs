@@ -1,5 +1,5 @@
 use crate::syscall_names::{syscall_description, syscall_name};
-use crate::types::{ControlFlowMetrics, Function, FunctionProperties, InstructionAnalysis};
+use crate::types::{BinaryMetrics, ControlFlowMetrics, Function, FunctionProperties, InstructionAnalysis};
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
@@ -57,6 +57,12 @@ impl Radare2Analyzer {
     /// Extract functions with complexity metrics
     /// Uses 'aa' (basic analysis) instead of 'aaa' (full analysis) for speed
     pub fn extract_functions(&self, file_path: &Path) -> Result<Vec<Function>> {
+        let r2_functions = self.extract_r2_functions(file_path)?;
+        Ok(r2_functions.into_iter().map(|f| f.into()).collect())
+    }
+
+    /// Extract raw R2Function structs for metrics computation
+    pub fn extract_r2_functions(&self, file_path: &Path) -> Result<Vec<R2Function>> {
         let output = Command::new("r2")
             .arg("-q")
             .arg("-e")
@@ -80,8 +86,7 @@ impl Radare2Analyzer {
         if let Some(json_start) = json_str.find('[') {
             let json_only = &json_str[json_start..];
             let r2_functions: Vec<R2Function> = serde_json::from_str(json_only).unwrap_or_default();
-
-            return Ok(r2_functions.into_iter().map(|f| f.into()).collect());
+            return Ok(r2_functions);
         }
 
         Ok(Vec::new())
@@ -486,6 +491,210 @@ impl Radare2Analyzer {
 
         Ok(None)
     }
+
+    /// Compute binary metrics using radare2 analysis
+    /// This provides function-level and entropy metrics for packing/obfuscation detection
+    pub fn compute_binary_metrics(&self, file_path: &Path) -> Result<BinaryMetrics> {
+        let mut metrics = BinaryMetrics::default();
+
+        // Get sections with entropy
+        if let Ok(sections) = self.extract_sections(file_path) {
+            metrics.section_count = sections.len() as u32;
+
+            let mut entropies: Vec<f32> = Vec::new();
+            let mut total_size: u64 = 0;
+            let mut largest_size: u64 = 0;
+            let mut section_name_chars: Vec<char> = Vec::new();
+
+            for section in &sections {
+                let entropy = section.entropy as f32;
+                entropies.push(entropy);
+                total_size += section.size;
+
+                if section.size > largest_size {
+                    largest_size = section.size;
+                }
+
+                // Check permissions
+                if let Some(ref perm) = section.perm {
+                    if perm.contains('x') {
+                        metrics.executable_sections += 1;
+                    }
+                    if perm.contains('w') {
+                        metrics.writable_sections += 1;
+                    }
+                    if perm.contains('x') && perm.contains('w') {
+                        metrics.wx_sections += 1;
+                    }
+                }
+
+                // Count high entropy regions
+                if entropy > 7.5 {
+                    metrics.high_entropy_regions += 1;
+                }
+
+                // Collect section name characters for entropy calculation
+                section_name_chars.extend(section.name.chars());
+
+                // Track code/data entropy
+                if section.name == ".text" || section.name.contains("code") {
+                    metrics.code_entropy = entropy;
+                }
+                if section.name == ".data" || section.name == ".rodata" {
+                    metrics.data_entropy = entropy;
+                }
+            }
+
+            // Calculate overall entropy (average)
+            if !entropies.is_empty() {
+                metrics.overall_entropy = entropies.iter().sum::<f32>() / entropies.len() as f32;
+
+                // Calculate entropy variance
+                let mean = metrics.overall_entropy;
+                let variance: f32 = entropies.iter()
+                    .map(|e| (e - mean).powi(2))
+                    .sum::<f32>() / entropies.len() as f32;
+                metrics.entropy_variance = variance.sqrt();
+            }
+
+            // Largest section ratio
+            if total_size > 0 {
+                metrics.largest_section_ratio = largest_size as f32 / total_size as f32;
+            }
+
+            // Section name entropy (high entropy names = packer)
+            if !section_name_chars.is_empty() {
+                metrics.section_name_entropy = calculate_char_entropy(&section_name_chars);
+            }
+        }
+
+        // Get functions with full analysis
+        if let Ok(r2_functions) = self.extract_r2_functions(file_path) {
+            metrics.function_count = r2_functions.len() as u32;
+
+            if !r2_functions.is_empty() {
+                // Size metrics
+                let sizes: Vec<u64> = r2_functions.iter()
+                    .filter_map(|f| f.size)
+                    .collect();
+
+                if !sizes.is_empty() {
+                    metrics.avg_function_size = sizes.iter().sum::<u64>() as f32 / sizes.len() as f32;
+                    metrics.tiny_functions = sizes.iter().filter(|&&s| s < 16).count() as u32;
+                    metrics.huge_functions = sizes.iter().filter(|&&s| s > 65536).count() as u32;
+                }
+
+                // Complexity metrics
+                let complexities: Vec<u32> = r2_functions.iter()
+                    .filter_map(|f| f.complexity)
+                    .collect();
+
+                if !complexities.is_empty() {
+                    metrics.avg_complexity = complexities.iter().sum::<u32>() as f32 / complexities.len() as f32;
+                    metrics.max_complexity = *complexities.iter().max().unwrap_or(&0);
+                    metrics.high_complexity_functions = complexities.iter().filter(|&&c| c > 10).count() as u32;
+                    metrics.very_high_complexity_functions = complexities.iter().filter(|&&c| c > 25).count() as u32;
+                }
+
+                // Control flow metrics
+                let mut total_bbs: u32 = 0;
+                for f in &r2_functions {
+                    if let Some(nbbs) = f.nbbs {
+                        total_bbs += nbbs;
+                    }
+                    if f.is_lineal == Some(true) {
+                        metrics.linear_functions += 1;
+                    }
+                    if f.recursive == Some(true) {
+                        metrics.recursive_functions += 1;
+                    }
+                    if f.noreturn == Some(true) {
+                        metrics.noreturn_functions += 1;
+                    }
+                    if f.calls.is_empty() {
+                        metrics.leaf_functions += 1;
+                    }
+                }
+                metrics.total_basic_blocks = total_bbs;
+                if !r2_functions.is_empty() {
+                    metrics.avg_basic_blocks = total_bbs as f32 / r2_functions.len() as f32;
+                }
+
+                // Stack metrics
+                let stack_frames: Vec<u32> = r2_functions.iter()
+                    .filter_map(|f| f.stackframe.map(|s| s.max(0) as u32))
+                    .collect();
+
+                if !stack_frames.is_empty() {
+                    metrics.avg_stack_frame = stack_frames.iter().sum::<u32>() as f32 / stack_frames.len() as f32;
+                    metrics.max_stack_frame = *stack_frames.iter().max().unwrap_or(&0);
+                    metrics.large_stack_functions = stack_frames.iter().filter(|&&s| s > 1024).count() as u32;
+                }
+            }
+        }
+
+        // Get imports
+        if let Ok(imports) = self.extract_imports(file_path) {
+            metrics.import_count = imports.len() as u32;
+
+            // Calculate import name entropy
+            let import_chars: Vec<char> = imports.iter()
+                .flat_map(|i| i.name.chars())
+                .collect();
+            if !import_chars.is_empty() {
+                metrics.import_entropy = calculate_char_entropy(&import_chars);
+            }
+        }
+
+        // Get exports
+        if let Ok(exports) = self.extract_exports(file_path) {
+            metrics.export_count = exports.len() as u32;
+        }
+
+        // Get strings
+        if let Ok(strings) = self.extract_strings(file_path) {
+            metrics.string_count = strings.len() as u32;
+
+            let mut total_entropy: f32 = 0.0;
+            for s in &strings {
+                let chars: Vec<char> = s.string.chars().collect();
+                if !chars.is_empty() {
+                    let entropy = calculate_char_entropy(&chars);
+                    total_entropy += entropy;
+                    if entropy > 5.5 {
+                        metrics.high_entropy_strings += 1;
+                    }
+                }
+            }
+            if !strings.is_empty() {
+                metrics.avg_string_entropy = total_entropy / strings.len() as f32;
+            }
+        }
+
+        Ok(metrics)
+    }
+}
+
+/// Calculate Shannon entropy for a character sequence
+fn calculate_char_entropy(chars: &[char]) -> f32 {
+    if chars.is_empty() {
+        return 0.0;
+    }
+
+    let mut freq: std::collections::HashMap<char, u32> = std::collections::HashMap::new();
+    for &c in chars {
+        *freq.entry(c).or_insert(0) += 1;
+    }
+
+    let total = chars.len() as f32;
+    let mut entropy: f32 = 0.0;
+    for &count in freq.values() {
+        let p = count as f32 / total;
+        if p > 0.0 {
+            entropy -= p * p.log2();
+        }
+    }
+    entropy
 }
 
 /// Parse syscall number from disassembly output

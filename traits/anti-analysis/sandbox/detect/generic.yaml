@@ -35,3 +35,73 @@ traits:
             // Require 2+ indicators to avoid false positives on single words
             2 of them
         }
+
+  # JavaScript/Node.js sandbox detection
+  - id: anti-analysis/sandbox/detect/js-timing
+    description: Sleep acceleration detection (sandbox evasion)
+    criticality: suspicious
+    confidence: 0.8
+    mbc: "B0007"
+    attack: "T1497"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "atomic-sleep|Date\\.now\\(\\).*setTimeout|performance\\.now\\(\\).*setTimeout"
+
+  - id: anti-analysis/sandbox/detect/js-debugger
+    description: JavaScript debugger detection
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "B0001"
+    attack: "T1622"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule js_debugger_detect {
+          strings:
+            $debug1 = "debugger" ascii
+            $func_check = "function.toString" ascii
+            $console_check = /console\.(log|warn|error)\.toString/
+            $devtools1 = "__REACT_DEVTOOLS" ascii
+            $devtools2 = "__VUE_DEVTOOLS" ascii
+          condition:
+            2 of them
+        }
+
+  - id: anti-analysis/sandbox/detect/js-headless
+    description: Headless browser detection
+    criticality: suspicious
+    confidence: 0.8
+    mbc: "B0007"
+    attack: "T1497"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "navigator\\.webdriver|navigator\\.plugins\\.length\\s*===?\\s*0|window\\.outerWidth\\s*===?\\s*0"
+
+  - id: anti-analysis/sandbox/detect/vm-detect
+    description: Virtual machine detection
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "B0009"
+    attack: "T1497.001"
+    file_types: [javascript, typescript, python, shell]
+    condition:
+      type: yara
+      source: |
+        rule vm_detection {
+          strings:
+            $vm1 = "VirtualBox" nocase
+            $vm2 = "VMware" nocase
+            $vm3 = "QEMU" nocase
+            $vm4 = "Xen" nocase
+            $vm5 = "KVM" nocase
+            $vm6 = "Hyper-V" nocase
+            $vm7 = "Parallels" nocase
+            $mac1 = "00:0c:29" ascii
+            $mac2 = "00:50:56" ascii
+            $mac3 = "08:00:27" ascii
+          condition:
+            any of them
+        }

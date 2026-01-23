@@ -838,6 +838,7 @@ mod tests {
             code_metrics: None,
             source_code_metrics: None,
             overlay_metrics: None,
+            metrics: None,
             paths: vec![],
             directories: vec![],
             env_vars: vec![],

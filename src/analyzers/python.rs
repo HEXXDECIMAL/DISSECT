@@ -1,4 +1,9 @@
 use crate::analyzers::Analyzer;
+use crate::analyzers::{
+    comment_metrics::{self, CommentStyle},
+    function_metrics::{self, FunctionInfo},
+    identifier_metrics, string_metrics, text_metrics,
+};
 use crate::capabilities::CapabilityMapper;
 use crate::types::*;
 use anyhow::{Context, Result};
@@ -80,6 +85,10 @@ impl PythonAnalyzer {
         // Analyze environment variables and generate env-based traits
         crate::env_mapper::analyze_and_link_env_vars(&mut report);
 
+        // === Compute metrics for ML analysis (BEFORE trait evaluation) ===
+        let metrics = self.compute_metrics(&root, content);
+        report.metrics = Some(metrics);
+
         // Evaluate trait definitions and composite rules (includes inline YARA)
         let trait_findings = self
             .capability_mapper
@@ -102,6 +111,399 @@ impl PythonAnalyzer {
         report.metadata.tools_used = vec!["tree-sitter-python".to_string()];
 
         Ok(report)
+    }
+
+    /// Compute all metrics for Python code
+    fn compute_metrics(&self, root: &tree_sitter::Node, content: &str) -> Metrics {
+        let source = content.as_bytes();
+        let total_lines = content.lines().count() as u32;
+
+        // Universal text metrics
+        let text = text_metrics::analyze_text(content);
+
+        // Extract identifiers from AST
+        let identifiers = self.extract_identifiers(root, source);
+        let ident_refs: Vec<&str> = identifiers.iter().map(|s| s.as_str()).collect();
+        let identifier_metrics = identifier_metrics::analyze_identifiers(&ident_refs);
+
+        // Extract strings from AST
+        let strings = self.extract_string_literals(root, source);
+        let str_refs: Vec<&str> = strings.iter().map(|s| s.as_str()).collect();
+        let string_metrics = string_metrics::analyze_strings(&str_refs);
+
+        // Comment metrics
+        let comment_metrics = comment_metrics::analyze_comments(content, CommentStyle::Hash);
+
+        // Function metrics
+        let func_infos = self.extract_function_info(root, source);
+        let func_metrics = function_metrics::analyze_functions(&func_infos, total_lines);
+
+        // Python-specific metrics
+        let python_metrics = self.compute_python_metrics(root, source, content);
+
+        Metrics {
+            text: Some(text),
+            identifiers: Some(identifier_metrics),
+            strings: Some(string_metrics),
+            comments: Some(comment_metrics),
+            functions: Some(func_metrics),
+            python: Some(python_metrics),
+            ..Default::default()
+        }
+    }
+
+    /// Extract function information from the AST for metrics
+    fn extract_function_info(&self, root: &tree_sitter::Node, source: &[u8]) -> Vec<FunctionInfo> {
+        let mut functions = Vec::new();
+        let mut cursor = root.walk();
+        self.walk_for_function_info(&mut cursor, source, &mut functions, 0);
+        functions
+    }
+
+    fn walk_for_function_info(
+        &self,
+        cursor: &mut tree_sitter::TreeCursor,
+        source: &[u8],
+        functions: &mut Vec<FunctionInfo>,
+        depth: u32,
+    ) {
+        loop {
+            let node = cursor.node();
+
+            if node.kind() == "function_definition" {
+                let mut info = FunctionInfo::default();
+
+                // Get function name
+                if let Some(name_node) = node.child_by_field_name("name") {
+                    if let Ok(name) = name_node.utf8_text(source) {
+                        info.name = name.to_string();
+                    }
+                }
+
+                // Get parameters
+                if let Some(params_node) = node.child_by_field_name("parameters") {
+                    let mut param_cursor = params_node.walk();
+                    if param_cursor.goto_first_child() {
+                        loop {
+                            let param = param_cursor.node();
+                            if param.kind() == "identifier" {
+                                if let Ok(param_name) = param.utf8_text(source) {
+                                    info.param_names.push(param_name.to_string());
+                                    info.param_count += 1;
+                                }
+                            } else if param.kind() == "typed_parameter"
+                                || param.kind() == "default_parameter"
+                            {
+                                // Extract name from typed/default parameter
+                                if let Some(name_node) = param.child_by_field_name("name") {
+                                    if let Ok(param_name) = name_node.utf8_text(source) {
+                                        info.param_names.push(param_name.to_string());
+                                        info.param_count += 1;
+                                    }
+                                } else if let Ok(text) = param.utf8_text(source) {
+                                    // Fallback: get first identifier-like part
+                                    if let Some(name) = text.split([':', '=']).next() {
+                                        let name = name.trim();
+                                        if !name.is_empty() {
+                                            info.param_names.push(name.to_string());
+                                            info.param_count += 1;
+                                        }
+                                    }
+                                }
+                            }
+                            if !param_cursor.goto_next_sibling() {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                // Line count
+                info.start_line = node.start_position().row as u32;
+                info.end_line = node.end_position().row as u32;
+                info.line_count = info.end_line.saturating_sub(info.start_line) + 1;
+
+                // Check for async
+                if let Ok(text) = node.utf8_text(source) {
+                    if text.starts_with("async ") {
+                        info.is_async = true;
+                    }
+                }
+
+                info.nesting_depth = depth;
+
+                // Check for nested functions
+                if let Some(body) = node.child_by_field_name("body") {
+                    let body_text = body.utf8_text(source).unwrap_or("");
+                    if body_text.contains("def ") {
+                        info.contains_nested_functions = true;
+                    }
+                }
+
+                functions.push(info);
+            } else if node.kind() == "lambda" {
+                let mut info = FunctionInfo::default();
+                info.is_anonymous = true;
+                info.start_line = node.start_position().row as u32;
+                info.end_line = node.end_position().row as u32;
+                info.line_count = 1; // Lambdas are typically one-liners
+                info.nesting_depth = depth;
+
+                // Count lambda parameters
+                if let Some(params) = node.child_by_field_name("parameters") {
+                    let mut param_cursor = params.walk();
+                    if param_cursor.goto_first_child() {
+                        loop {
+                            if param_cursor.node().kind() == "identifier" {
+                                if let Ok(name) = param_cursor.node().utf8_text(source) {
+                                    info.param_names.push(name.to_string());
+                                    info.param_count += 1;
+                                }
+                            }
+                            if !param_cursor.goto_next_sibling() {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                functions.push(info);
+            }
+
+            // Recurse with increased depth for function bodies
+            let new_depth = if node.kind() == "function_definition" || node.kind() == "lambda" {
+                depth + 1
+            } else {
+                depth
+            };
+
+            if cursor.goto_first_child() {
+                self.walk_for_function_info(cursor, source, functions, new_depth);
+                cursor.goto_parent();
+            }
+
+            if !cursor.goto_next_sibling() {
+                break;
+            }
+        }
+    }
+
+    /// Extract all identifiers from the AST
+    fn extract_identifiers(&self, root: &tree_sitter::Node, source: &[u8]) -> Vec<String> {
+        let mut identifiers = Vec::new();
+        let mut cursor = root.walk();
+        self.walk_for_identifiers(&mut cursor, source, &mut identifiers);
+        identifiers
+    }
+
+    fn walk_for_identifiers(
+        &self,
+        cursor: &mut tree_sitter::TreeCursor,
+        source: &[u8],
+        identifiers: &mut Vec<String>,
+    ) {
+        loop {
+            let node = cursor.node();
+
+            if node.kind() == "identifier" {
+                if let Ok(text) = node.utf8_text(source) {
+                    identifiers.push(text.to_string());
+                }
+            }
+
+            if cursor.goto_first_child() {
+                self.walk_for_identifiers(cursor, source, identifiers);
+                cursor.goto_parent();
+            }
+
+            if !cursor.goto_next_sibling() {
+                break;
+            }
+        }
+    }
+
+    /// Extract all string literals from the AST
+    fn extract_string_literals(&self, root: &tree_sitter::Node, source: &[u8]) -> Vec<String> {
+        let mut strings = Vec::new();
+        let mut cursor = root.walk();
+        self.walk_for_strings(&mut cursor, source, &mut strings);
+        strings
+    }
+
+    fn walk_for_strings(
+        &self,
+        cursor: &mut tree_sitter::TreeCursor,
+        source: &[u8],
+        strings: &mut Vec<String>,
+    ) {
+        loop {
+            let node = cursor.node();
+
+            if node.kind() == "string" || node.kind() == "string_content" {
+                if let Ok(text) = node.utf8_text(source) {
+                    // Strip quotes if present
+                    let s = text.trim_matches(|c| c == '"' || c == '\'');
+                    if !s.is_empty() {
+                        strings.push(s.to_string());
+                    }
+                }
+            }
+
+            if cursor.goto_first_child() {
+                self.walk_for_strings(cursor, source, strings);
+                cursor.goto_parent();
+            }
+
+            if !cursor.goto_next_sibling() {
+                break;
+            }
+        }
+    }
+
+    /// Compute Python-specific metrics
+    fn compute_python_metrics(
+        &self,
+        root: &tree_sitter::Node,
+        source: &[u8],
+        content: &str,
+    ) -> PythonMetrics {
+        let mut metrics = PythonMetrics::default();
+        let mut cursor = root.walk();
+        self.walk_for_python_metrics(&mut cursor, source, &mut metrics);
+
+        // Additional pattern-based detection
+        metrics.chr_calls += content.matches("chr(").count() as u32;
+        metrics.ord_calls += content.matches("ord(").count() as u32;
+
+        metrics
+    }
+
+    fn walk_for_python_metrics(
+        &self,
+        cursor: &mut tree_sitter::TreeCursor,
+        source: &[u8],
+        metrics: &mut PythonMetrics,
+    ) {
+        loop {
+            let node = cursor.node();
+
+            match node.kind() {
+                "call" => {
+                    if let Ok(text) = node.utf8_text(source) {
+                        // Dynamic execution
+                        if text.starts_with("eval(") {
+                            metrics.eval_count += 1;
+                        }
+                        if text.starts_with("exec(") {
+                            metrics.exec_count += 1;
+                        }
+                        if text.starts_with("compile(") {
+                            metrics.compile_count += 1;
+                        }
+                        if text.starts_with("__import__(") {
+                            metrics.dunder_import_count += 1;
+                        }
+                        if text.contains("importlib") {
+                            metrics.importlib_count += 1;
+                        }
+
+                        // Attribute manipulation
+                        if text.starts_with("getattr(")
+                            || text.starts_with("setattr(")
+                            || text.starts_with("delattr(")
+                            || text.starts_with("hasattr(")
+                        {
+                            metrics.attr_manipulation_count += 1;
+                        }
+
+                        // Reflection
+                        if text.starts_with("globals(") || text.starts_with("locals(") {
+                            metrics.globals_locals_access += 1;
+                        }
+                        if text.starts_with("vars(") {
+                            metrics.vars_access += 1;
+                        }
+                        if text.starts_with("type(") && text.contains(",") {
+                            // type() with 3 args creates a class dynamically
+                            metrics.type_manipulation += 1;
+                        }
+
+                        // Code manipulation
+                        if text.contains(".__code__") || text.contains("__code__") {
+                            metrics.code_object_access += 1;
+                        }
+
+                        // Frame access
+                        if text.contains("sys._getframe") || text.contains("inspect.currentframe") {
+                            metrics.frame_access += 1;
+                        }
+
+                        // Marshaling
+                        if text.contains("marshal.loads") || text.contains("marshal.dumps") {
+                            metrics.marshal_usage += 1;
+                        }
+                    }
+                }
+                "lambda" => {
+                    metrics.lambda_count += 1;
+
+                    // Check for nested lambda
+                    if let Ok(text) = node.utf8_text(source) {
+                        if text.matches("lambda").count() > 1 {
+                            metrics.nested_lambda_count += 1;
+                        }
+                    }
+                }
+                "list_comprehension"
+                | "dict_comprehension"
+                | "set_comprehension"
+                | "generator_expression" => {
+                    // Count comprehension depth by nested fors
+                    if let Ok(text) = node.utf8_text(source) {
+                        let depth = text.matches(" for ").count() as u32;
+                        if depth > metrics.comprehension_depth_max {
+                            metrics.comprehension_depth_max = depth;
+                        }
+                    }
+                }
+                "named_expression" => {
+                    // Walrus operator :=
+                    metrics.walrus_operator_count += 1;
+                }
+                "decorator" => {
+                    metrics.decorator_count += 1;
+                }
+                "class_definition" => {
+                    metrics.class_count += 1;
+
+                    // Check for metaclass
+                    if let Ok(text) = node.utf8_text(source) {
+                        if text.contains("metaclass=") {
+                            metrics.metaclass_usage += 1;
+                        }
+                    }
+                }
+                "with_statement" => {
+                    metrics.with_statement_count += 1;
+                }
+                "try_statement" => {
+                    metrics.try_except_count += 1;
+                }
+                "assert_statement" => {
+                    metrics.assert_count += 1;
+                }
+                _ => {}
+            }
+
+            if cursor.goto_first_child() {
+                self.walk_for_python_metrics(cursor, source, metrics);
+                cursor.goto_parent();
+            }
+
+            if !cursor.goto_next_sibling() {
+                break;
+            }
+        }
     }
 
     fn detect_capabilities(

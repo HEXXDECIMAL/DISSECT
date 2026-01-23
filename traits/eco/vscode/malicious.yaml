@@ -151,9 +151,10 @@ traits:
         }
 
   # Crypto Wallet Targeting
+  # IMPORTANT: Requires VSCode-specific markers OR file access patterns to avoid FPs on crypto libraries
   - id: eco/vscode/malicious/crypto-wallet
     description: VSCode extension targeting crypto wallets
-    criticality: malicious
+    criticality: hostile
     confidence: 0.95
     mbc: "E1519"
     attack: "T1555"
@@ -163,16 +164,27 @@ traits:
       source: |
         rule vscode_crypto_wallet {
           strings:
+            // VSCode markers
+            $vscode1 = "vscode.commands"
+            $vscode2 = "vscode.window"
+            $vscode3 = "vscode.workspace"
+            $vscode4 = "function activate"
+            // File access patterns (targeting wallet files)
+            $access1 = "readFileSync"
+            $access2 = "readFile("
+            $access3 = "readdirSync"
+            // Wallet indicators
             $wallet1 = "metamask"
             $wallet2 = "exodus"
             $wallet3 = "phantom"
             $wallet4 = "wallet.dat"
             $wallet5 = "keystore"
-            $coin1 = "bitcoin"
-            $coin2 = "ethereum"
-            $coin3 = "solana"
+            $wallet6 = ".solana"
+            $wallet7 = "Ethereum"
+            $wallet8 = "Chrome/User Data"
+            $wallet9 = "Local Extension Settings"
           condition:
-            any of them
+            (any of ($vscode*) or any of ($access*)) and any of ($wallet*)
         }
 
   # Extension Persistence

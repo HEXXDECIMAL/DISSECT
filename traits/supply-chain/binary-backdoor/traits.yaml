@@ -1,0 +1,270 @@
+# Supply Chain Binary Backdoor Detection
+# Detects patterns consistent with supply chain attacks like XZ Utils (CVE-2024-3094)
+# ATT&CK: T1195.002 (Supply Chain Compromise: Compromise Software Supply Chain)
+# MBC: B0025 (Compromise Software Supply Chain)
+
+defaults:
+  file_types: [elf, pe, macho]
+  attack: "T1195.002"
+  mbc: "B0025"
+
+traits:
+  # === Function Size Anomalies (XZ-style code injection) ===
+
+  - id: supply-chain/binary-backdoor/huge-avg-function-size
+    description: "Unusually large average function size (code blob injection)"
+    criticality: suspicious
+    confidence: 0.75
+    condition:
+      type: metrics
+      field: binary.avg_function_size
+      min: 2000
+
+  - id: supply-chain/binary-backdoor/extreme-avg-function-size
+    description: "Extremely large average function size (massive code injection)"
+    criticality: hostile
+    confidence: 0.85
+    condition:
+      type: metrics
+      field: binary.avg_function_size
+      min: 5000
+
+  - id: supply-chain/binary-backdoor/multiple-huge-functions
+    description: "Multiple extremely large functions (backdoor pattern)"
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: metrics
+      field: binary.huge_functions
+      min: 2
+
+  - id: supply-chain/binary-backdoor/many-huge-functions
+    description: "Many huge functions (>64KB) - XZ-style injection"
+    criticality: hostile
+    confidence: 0.9
+    condition:
+      type: metrics
+      field: binary.huge_functions
+      min: 4
+
+  # === Linear Functions (obfuscated dispatch tables) ===
+
+  - id: supply-chain/binary-backdoor/high-linear-ratio
+    description: "High ratio of linear functions (VM/dispatch pattern)"
+    criticality: notable
+    confidence: 0.65
+    condition:
+      type: metrics
+      field: binary.linear_functions
+      min: 100
+
+  # === Low Complexity Despite Large Size (encrypted blobs) ===
+
+  - id: supply-chain/binary-backdoor/low-complexity-large-functions
+    description: "Low complexity with huge functions (encrypted/encoded data)"
+    criticality: suspicious
+    confidence: 0.75
+    condition:
+      type: metrics
+      field: binary.avg_complexity
+      max: 3
+
+  # === XZ Utils Backdoor Specific Patterns ===
+
+  - id: supply-chain/binary-backdoor/xz-backdoor-signature
+    description: "XZ Utils backdoor signature (CVE-2024-3094)"
+    criticality: hostile
+    confidence: 0.99
+    attack: "T1195.002"
+    condition:
+      type: yara
+      source: |
+        rule xz_backdoor_cve_2024_3094 {
+          meta:
+            description = "XZ Utils backdoor CVE-2024-3094"
+            reference = "https://www.openwall.com/lists/oss-security/2024/03/29/4"
+          strings:
+            // Backdoor entry patterns
+            $entry1 = { F3 0F 1E FA 55 48 89 E5 41 55 41 54 53 48 83 EC 18 }
+            // CRC64 hijack pattern
+            $crc1 = "lzma_crc64_table" ascii
+            $crc2 = "lzma_crc64" ascii
+            // Obfuscated function markers
+            $obf1 = { 0F B6 ?? ?? 0F B6 ?? ?? 31 ?? 0F B6 ?? ?? 31 }
+            // Specific backdoor bytes
+            $sig1 = { 48 8D 05 ?? ?? ?? ?? 48 89 C7 E8 ?? ?? ?? ?? 48 85 C0 74 }
+          condition:
+            uint32(0) == 0x464c457f and  // ELF magic
+            (2 of ($crc*) and any of ($entry*, $obf*, $sig*))
+        }
+
+  - id: supply-chain/binary-backdoor/xz-ifunc-pattern
+    description: "IFUNC resolver pattern (function hooking)"
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: yara
+      source: |
+        rule ifunc_resolver_pattern {
+          strings:
+            $resolver1 = "_resolver" ascii
+            $resolver2 = ".gnu.hash" ascii
+            $resolver3 = "__libc_start" ascii
+            $ifunc1 = "IFUNC" ascii
+            // CPUID-based resolver (common in XZ)
+            $cpuid = { 0F A2 }  // cpuid instruction
+            $getauxval = "getauxval" ascii
+          condition:
+            uint32(0) == 0x464c457f and
+            (any of ($resolver*) and $cpuid) or
+            ($ifunc1 and $cpuid and $getauxval)
+        }
+
+  - id: supply-chain/binary-backdoor/rsa-in-compression-lib
+    description: "RSA operations in non-crypto library (backdoor indicator)"
+    criticality: hostile
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule rsa_in_compression {
+          strings:
+            // RSA operations
+            $rsa1 = "RSA_public_decrypt" ascii
+            $rsa2 = "RSA_public_encrypt" ascii
+            $rsa3 = "EVP_PKEY" ascii
+            // Compression library markers
+            $lzma1 = "lzma" ascii nocase
+            $xz1 = "xz" ascii nocase
+            $zlib1 = "zlib" ascii nocase
+            $compress1 = "compress" ascii nocase
+          condition:
+            any of ($rsa*) and any of ($lzma*, $xz*, $zlib*, $compress*)
+        }
+
+  # === SSH/Auth Library Hooking ===
+
+  - id: supply-chain/binary-backdoor/ssh-hook-pattern
+    description: "SSH authentication hooking pattern"
+    criticality: hostile
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule ssh_auth_hook {
+          strings:
+            $ssh1 = "libsystemd" ascii
+            $ssh2 = "sshd" ascii
+            $auth1 = "RSA_public_decrypt" ascii
+            $auth2 = "mm_answer_keyallowed" ascii
+            $auth3 = "mm_answer_authpassword" ascii
+            $auth4 = "pubkey_auth" ascii
+          condition:
+            any of ($ssh*) and any of ($auth*)
+        }
+
+  # === Code Section Anomalies ===
+
+  - id: supply-chain/binary-backdoor/large-text-section
+    description: "Unusually large .text section (code injection)"
+    criticality: notable
+    confidence: 0.6
+    condition:
+      type: metrics
+      field: binary.largest_section_ratio
+      min: 0.75
+
+  # === Hidden Code Patterns ===
+
+  - id: supply-chain/binary-backdoor/cpuid-fingerprinting
+    description: "CPUID fingerprinting in library (anti-analysis)"
+    criticality: suspicious
+    confidence: 0.75
+    attack: "T1082"
+    condition:
+      type: yara
+      source: |
+        rule cpuid_in_lib {
+          strings:
+            $cpuid = { 0F A2 }  // cpuid instruction
+            $xgetbv = { 0F 01 D0 }  // xgetbv instruction
+          condition:
+            uint32(0) == 0x464c457f and
+            #cpuid > 3 and $xgetbv
+        }
+
+  - id: supply-chain/binary-backdoor/glibc-hijack
+    description: "glibc function hijacking pattern"
+    criticality: suspicious
+    confidence: 0.7
+    condition:
+      type: yara
+      source: |
+        rule glibc_hijack {
+          strings:
+            $dl1 = "dlsym" ascii
+            $dl2 = "dlopen" ascii
+            $rtld1 = "__rtld_global" ascii
+            $audit = "la_symbind" ascii
+            $preload = "LD_PRELOAD" ascii
+            $audit2 = "LD_AUDIT" ascii
+          condition:
+            2 of them
+        }
+
+composite_rules:
+  # === XZ-style Backdoor Detection ===
+
+  - id: supply-chain/binary-backdoor/xz-style-attack
+    description: "XZ-style supply chain backdoor pattern"
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1195.002"
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: many-huge-functions
+      - type: trait
+        id: multiple-huge-functions
+      - type: trait
+        id: extreme-avg-function-size
+      - type: trait
+        id: cpuid-fingerprinting
+
+  - id: supply-chain/binary-backdoor/code-injection-pattern
+    description: "Code injection pattern in binary"
+    criticality: suspicious
+    confidence: 0.85
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: huge-avg-function-size
+      - type: trait
+        id: multiple-huge-functions
+      - type: trait
+        id: large-text-section
+      - type: trait
+        id: low-complexity-large-functions
+
+  - id: supply-chain/binary-backdoor/auth-bypass-indicator
+    description: "Authentication bypass backdoor indicator"
+    criticality: hostile
+    confidence: 0.95
+    requires_any:
+      - type: trait
+        id: ssh-hook-pattern
+      - type: trait
+        id: rsa-in-compression-lib
+
+  - id: supply-chain/binary-backdoor/function-hook-pattern
+    description: "Dynamic function hooking pattern"
+    criticality: suspicious
+    confidence: 0.8
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: xz-ifunc-pattern
+      - type: trait
+        id: glibc-hijack
+      - type: trait
+        id: cpuid-fingerprinting

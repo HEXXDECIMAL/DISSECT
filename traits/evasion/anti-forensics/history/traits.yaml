@@ -1,0 +1,95 @@
+# Anti-Forensics: Shell History Clearing
+# MBC: F0005 (Indicator Blocking)
+# ATT&CK: T1070.003 (Clear Command History)
+
+traits:
+  # Bash history file clearing
+  - id: evasion/anti-forensics/histfile-null
+    description: Redirects shell history to /dev/null
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "F0005"
+    attack: "T1070.003"
+    condition:
+      type: yara
+      source: |
+        rule histfile_null {
+          strings:
+            $bash_hist = "HISTFILE=/dev/null" ascii nocase
+            $hist_export = "export HISTFILE=" ascii
+            $hist_unset = "unset HISTFILE" ascii
+            $histsize_zero = "HISTSIZE=0" ascii
+            $histfilesize = "HISTFILESIZE=0" ascii
+          condition:
+            any of them
+        }
+
+  # MySQL history clearing
+  - id: evasion/anti-forensics/mysql-histfile-null
+    description: Clears MySQL command history
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "F0005"
+    attack: "T1070.003"
+    condition:
+      type: yara
+      source: |
+        rule mysql_histfile_null {
+          strings:
+            $mysql_hist = "MYSQL_HISTFILE=/dev/null" ascii nocase
+            $mysql_export = "export MYSQL_HISTFILE=" ascii
+          condition:
+            any of them
+        }
+
+  # Prompt command clearing (prevents logging)
+  - id: evasion/anti-forensics/prompt-command-unset
+    description: Unsets PROMPT_COMMAND to evade logging
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "F0005"
+    attack: "T1070.003"
+    condition:
+      type: yara
+      source: |
+        rule prompt_command_unset {
+          strings:
+            $unset = "unset PROMPT_COMMAND" ascii
+            $export_empty = "PROMPT_COMMAND=''" ascii
+            $export_null = "PROMPT_COMMAND=" ascii
+          condition:
+            any of them
+        }
+
+  # Terminal setup for backdoor shell
+  - id: evasion/anti-forensics/term-setup
+    description: Sets TERM variable (backdoor shell setup)
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: yara
+      source: |
+        rule term_setup {
+          strings:
+            $term_vt100 = "export TERM=vt100" ascii
+            $term_xterm = "export TERM=xterm" ascii
+            $term_linux = "export TERM=linux" ascii
+          condition:
+            any of them
+        }
+
+composite_rules:
+  # BPFDoor-style anti-forensics setup
+  - id: evasion/anti-forensics/backdoor-shell-setup
+    description: Multiple anti-forensics techniques (backdoor indicator)
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1070.003"
+    requires_any:
+      - type: trait
+        id: evasion/anti-forensics/histfile-null
+      - type: trait
+        id: evasion/anti-forensics/mysql-histfile-null
+    requires_all:
+      - type: trait
+        id: evasion/anti-forensics/prompt-command-unset
