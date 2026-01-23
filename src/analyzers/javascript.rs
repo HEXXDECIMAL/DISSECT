@@ -122,7 +122,7 @@ impl JavaScriptAnalyzer {
         report: &mut AnalysisReport,
     ) {
         let mut cursor = node.walk();
-        self.walk_ast(&mut cursor, source, report);
+        self.walk_ast(&mut cursor, source, report, 0);
     }
 
     fn walk_ast(
@@ -130,9 +130,41 @@ impl JavaScriptAnalyzer {
         cursor: &mut tree_sitter::TreeCursor,
         source: &[u8],
         report: &mut AnalysisReport,
+        _depth: u32,
     ) {
+        // Fully iterative traversal to avoid stack overflow on deeply nested ASTs
+        // (common in obfuscated/minified JS which can have thousands of nesting levels)
+        let mut current_depth: u32 = 0;
+        let mut max_depth: u32 = 0;
+        let mut deep_ast_reported = false;
+
         loop {
             let node = cursor.node();
+
+            if current_depth > max_depth {
+                max_depth = current_depth;
+            }
+
+            // Report extremely deep AST as obfuscation indicator (only once)
+            if !deep_ast_reported && max_depth > 500 {
+                deep_ast_reported = true;
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
+                    id: "anti-analysis/obfuscation/deep-ast".to_string(),
+                    description: "Extremely deep AST nesting (>500 levels)".to_string(),
+                    confidence: 0.95,
+                    criticality: Criticality::Suspicious,
+                    mbc: None,
+                    attack: None,
+                    evidence: vec![Evidence {
+                        method: "ast".to_string(),
+                        source: "tree-sitter-javascript".to_string(),
+                        value: format!("depth:{}", max_depth),
+                        location: None,
+                    }],
+                });
+            }
 
             match node.kind() {
                 "call_expression" => {
@@ -147,14 +179,28 @@ impl JavaScriptAnalyzer {
                 _ => {}
             }
 
-            // Recurse
+            // Depth-first traversal without recursion:
+            // 1. Try to go to first child
+            // 2. If no child, try next sibling
+            // 3. If no sibling, walk up looking for an ancestor with a sibling
             if cursor.goto_first_child() {
-                self.walk_ast(cursor, source, report);
-                cursor.goto_parent();
+                current_depth += 1;
+                continue;
             }
 
-            if !cursor.goto_next_sibling() {
-                break;
+            if cursor.goto_next_sibling() {
+                continue;
+            }
+
+            // Walk back up the tree looking for a sibling
+            loop {
+                if !cursor.goto_parent() {
+                    return; // Done - back at root with no more siblings
+                }
+                current_depth = current_depth.saturating_sub(1);
+                if cursor.goto_next_sibling() {
+                    break; // Found a sibling, continue outer loop
+                }
             }
         }
     }
@@ -574,11 +620,14 @@ impl JavaScriptAnalyzer {
                 continue;
             }
 
+            // NOTE: Standalone IP in JS is suspicious not hostile
+            // Data libraries like faker.js have example IPs
+            // Real C2 requires additional context (network calls, etc.)
             self.add_capability_if_missing(
                 report,
                 "c2/hardcoded-ip",
                 "Hardcoded IP address (potential C2 server)",
-                Criticality::Hostile,
+                Criticality::Suspicious,
                 match_str,
             );
             break; // Only report once
@@ -908,52 +957,66 @@ impl JavaScriptAnalyzer {
         }
     }
 
-    /// Calculate nesting depth of control structures
+    /// Calculate nesting depth of control structures (iterative to avoid stack overflow)
     fn calculate_nesting_depth(&self, node: &tree_sitter::Node) -> NestingMetrics {
         let mut max_depth = 0u32;
         let mut depths = Vec::new();
         let mut deep_nest_count = 0u32;
 
-        fn traverse(
-            node: &tree_sitter::Node,
-            current_depth: u32,
-            max: &mut u32,
-            depths: &mut Vec<u32>,
-            deep: &mut u32,
-        ) {
-            let mut depth = current_depth;
-            match node.kind() {
+        // Use explicit stack: (node_id, depth) - we track by byte range since Node isn't easily stored
+        let mut cursor = node.walk();
+        let mut depth_stack: Vec<u32> = vec![0]; // Track depth as we traverse
+
+        loop {
+            let current = cursor.node();
+            let current_depth = *depth_stack.last().unwrap_or(&0);
+
+            // Check if this node increases nesting depth
+            let new_depth = match current.kind() {
                 "if_statement" | "for_statement" | "for_in_statement" | "while_statement"
                 | "do_statement" | "switch_statement" | "try_statement" => {
-                    depth += 1;
-                    depths.push(depth);
-                    if depth > *max {
-                        *max = depth;
+                    let d = current_depth + 1;
+                    depths.push(d);
+                    if d > max_depth {
+                        max_depth = d;
                     }
-                    if depth > 4 {
-                        *deep += 1;
+                    if d > 4 {
+                        deep_nest_count += 1;
                     }
+                    d
                 }
-                _ => {}
+                _ => current_depth,
+            };
+
+            // Depth-first traversal
+            if cursor.goto_first_child() {
+                depth_stack.push(new_depth);
+                continue;
             }
 
-            // Recurse through children
-            let mut cursor = node.walk();
-            for child in node.children(&mut cursor) {
-                traverse(&child, depth, max, depths, deep);
+            if cursor.goto_next_sibling() {
+                continue;
             }
-        }
 
-        traverse(node, 0, &mut max_depth, &mut depths, &mut deep_nest_count);
-
-        NestingMetrics {
-            max_depth,
-            avg_depth: if !depths.is_empty() {
-                depths.iter().sum::<u32>() as f32 / depths.len() as f32
-            } else {
-                0.0
-            },
-            deep_nest_count,
+            // Walk back up
+            loop {
+                if !cursor.goto_parent() {
+                    // Done traversing
+                    return NestingMetrics {
+                        max_depth,
+                        avg_depth: if !depths.is_empty() {
+                            depths.iter().sum::<u32>() as f32 / depths.len() as f32
+                        } else {
+                            0.0
+                        },
+                        deep_nest_count,
+                    };
+                }
+                depth_stack.pop();
+                if cursor.goto_next_sibling() {
+                    break;
+                }
+            }
         }
     }
 

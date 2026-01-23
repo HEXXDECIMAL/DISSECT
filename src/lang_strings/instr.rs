@@ -72,6 +72,7 @@ pub fn extract_inline_strings_arm64(
 }
 
 /// Extract a string from ARM64 ADRP+ADD+MOV pattern targeting specific registers.
+#[allow(clippy::too_many_arguments)]
 fn extract_arm64_string_pattern(
     bl_pos: usize,
     text_data: &[u8],
@@ -174,6 +175,7 @@ fn extract_arm64_string_pattern(
 }
 
 /// Decode ARM64 ADRP+ADD instructions to extract string address and length.
+#[allow(clippy::too_many_arguments)]
 fn decode_arm64_string(
     inst1: u32,
     inst2: u32,
@@ -382,6 +384,7 @@ pub fn extract_inline_strings_amd64(
 }
 
 /// Extract first argument string (LEAQ addr(RIP), RDI + MOVL $len, RSI).
+#[allow(clippy::too_many_arguments)]
 fn extract_amd64_first_arg_string(
     call_pos: usize,
     text_data: &[u8],
@@ -472,6 +475,7 @@ fn extract_amd64_first_arg_string(
 }
 
 /// Extract key string (LEAQ addr(RIP), RSI + MOVL $len, RDX).
+#[allow(clippy::too_many_arguments)]
 fn extract_amd64_key_string(
     call_pos: usize,
     text_data: &[u8],
@@ -548,6 +552,7 @@ fn extract_amd64_key_string(
 }
 
 /// Extract value string from after CALL (LEAQ + MOVQ pattern).
+#[allow(clippy::too_many_arguments)]
 fn extract_amd64_value_string(
     call_pos: usize,
     text_data: &[u8],
@@ -644,7 +649,7 @@ fn is_valid_utf8_string(s: &str) -> bool {
     // Check that it's mostly printable
     let printable = s
         .chars()
-        .filter(|&c| (c >= '\x20' && c <= '\x7E') || c >= '\u{80}')
+        .filter(|&c| ('\x20'..='\x7E').contains(&c) || c >= '\u{80}')
         .count();
 
     (printable as f64 / s.chars().count() as f64) > 0.5

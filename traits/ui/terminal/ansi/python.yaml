@@ -4,7 +4,7 @@
 
 defaults:
   file_types: [python]
-  criticality: notable
+  criticality: inert
 
 traits:
   # ANSI escape code usage

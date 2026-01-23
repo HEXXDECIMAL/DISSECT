@@ -1,0 +1,158 @@
+# Windows Batch Dropper Traits
+# Detects malicious batch script patterns for downloading and executing payloads
+# MBC: C0002 (Download), B0024 (Execution)
+# ATT&CK: T1105 (Ingress Tool Transfer), T1059.003 (Windows Command Shell)
+
+traits:
+  # Download Patterns
+  - id: c2/dropper/windows/curl-silent-download
+    description: Silent curl download with output redirect
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "C0002"
+    attack: "T1105"
+    file_types: [shell, batch]
+    condition:
+      type: string
+      regex: "curl\\s+.*-[sS].*-o\\s"
+
+  - id: c2/dropper/windows/curl-to-temp
+    description: Download to TEMP directory
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "C0002"
+    attack: "T1074.001"
+    file_types: [shell, batch]
+    condition:
+      type: string
+      regex: "%TEMP%|%TMP%|\\\\Temp\\\\"
+
+  - id: c2/dropper/windows/powershell-download
+    description: PowerShell download cradle in batch
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "C0002"
+    attack: "T1059.001"
+    file_types: [shell, batch]
+    condition:
+      type: string
+      regex: "powershell.*DownloadFile|Invoke-WebRequest|iwr\\s|wget\\s"
+
+  - id: c2/dropper/windows/certutil-download
+    description: Certutil download (LOLBin)
+    criticality: malicious
+    confidence: 0.95
+    mbc: "C0002"
+    attack: "T1105"
+    file_types: [shell, batch]
+    condition:
+      type: string
+      regex: "certutil\\s+.*-urlcache.*-split.*-f"
+
+  - id: c2/dropper/windows/bitsadmin-download
+    description: BitsAdmin download (LOLBin)
+    criticality: malicious
+    confidence: 0.95
+    mbc: "C0002"
+    attack: "T1105"
+    file_types: [shell, batch]
+    condition:
+      type: string
+      regex: "bitsadmin\\s+.*\\/transfer"
+
+  # Execution Patterns
+  - id: c2/dropper/windows/start-hidden
+    description: Start process hidden (/B flag)
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "F0005"
+    attack: "T1564"
+    file_types: [shell, batch]
+    condition:
+      type: string
+      regex: "start\\s+[\"']?[\"']?\\s*/[Bb]"
+
+  - id: c2/dropper/windows/run-from-temp
+    description: Execute binary from TEMP directory
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "B0024"
+    attack: "T1059.003"
+    file_types: [shell, batch]
+    condition:
+      type: yara
+      source: |
+        rule run_from_temp {
+          strings:
+            $temp1 = "%TEMP%\\" nocase
+            $temp2 = "%TMP%\\" nocase
+            $exe = ".exe" nocase
+            $start = "start" nocase
+          condition:
+            any of ($temp*) and $exe and $start
+        }
+
+  # Persistence/Markers
+  - id: c2/dropper/windows/done-marker
+    description: Execution marker file (run-once pattern)
+    criticality: notable
+    confidence: 0.75
+    file_types: [shell, batch]
+    condition:
+      type: string
+      regex: "if exist.*\\.done|echo\\.>.*\\.done|\\.installed|\\.complete"
+
+  # Evasion
+  - id: c2/dropper/windows/echo-off
+    description: Echo off (hide command output)
+    criticality: inert
+    confidence: 0.6
+    file_types: [shell, batch]
+    condition:
+      type: string
+      regex: "@echo\\s+off"
+
+  - id: c2/dropper/windows/redirect-null
+    description: Redirect output to null (hide output)
+    criticality: notable
+    confidence: 0.7
+    mbc: "F0005"
+    file_types: [shell, batch]
+    condition:
+      type: string
+      regex: ">nul|2>nul|>NUL|2>&1"
+
+  - id: c2/dropper/windows/delayed-expansion
+    description: Delayed expansion enabled (advanced scripting)
+    criticality: inert
+    confidence: 0.5
+    file_types: [shell, batch]
+    condition:
+      type: string
+      exact: "EnableDelayedExpansion"
+
+  # Download + Execute Combo
+  - id: c2/dropper/windows/download-and-execute
+    description: Download and execute pattern (dropper behavior)
+    criticality: malicious
+    confidence: 0.95
+    mbc: "C0002"
+    attack: "T1105"
+    file_types: [shell, batch]
+    condition:
+      type: yara
+      source: |
+        rule download_and_execute {
+          strings:
+            $dl1 = "curl" nocase
+            $dl2 = "wget" nocase
+            $dl3 = "DownloadFile" nocase
+            $dl4 = "certutil" nocase
+            $dl5 = "bitsadmin" nocase
+            $exec1 = "start" nocase
+            $exec2 = ".exe" nocase
+            $exec3 = "call" nocase
+            $out = "-o" nocase
+          condition:
+            any of ($dl*) and any of ($exec*) and $out
+        }

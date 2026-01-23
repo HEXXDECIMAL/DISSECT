@@ -33,6 +33,14 @@ traits:
       type: string
       regex: "(discordapp\\.com|discord\\.com)/api/webhooks"
 
+  - id: c2/channels/messaging/discord-invite
+    description: Discord invite URL (potential C2/support)
+    criticality: notable
+    confidence: 0.8
+    condition:
+      type: string
+      regex: "discord\\.gg/[a-zA-Z0-9]+"
+
   # HTTP C2
   - id: c2/channels/messaging/http-post
     description: HTTP POST requests (potential C2)

@@ -10,7 +10,7 @@ traits:
     file_types: [shell]
     condition:
       type: string
-      regex: ":\\(\\)\\{\\s*:\\|:&\\s*\\};:"
+      regex: ":\\(\\) \\{\\s*:\\|:&\\s*\\\\};:"
 
   - id: impact/degrade/bluescreen
     description: Windows BSOD trigger
@@ -40,7 +40,7 @@ traits:
     file_types: [elf, pe]
     condition:
       type: string
-      regex: "(?i)(kill|terminate).*(defender|malwarebytes|kaspersky|avast|norton|mcafee|bitdefender|eset|sophos)"
+      regex: "(?i)(kill|terminate).* (defender|malwarebytes|kaspersky|avast|norton|mcafee|bitdefender|eset|sophos)"
 
   - id: impact/degrade/terminate-process
     description: TerminateProcess API

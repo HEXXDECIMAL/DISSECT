@@ -1,0 +1,97 @@
+# Impact - System Crash (Windows)
+# Blue Screen of Death and system crash techniques
+# ATT&CK: T1499.004 (Application or System Exploitation)
+
+defaults:
+  file_types: [python, pe]
+  attack: "T1499.004"
+
+traits:
+  # NtRaiseHardError - forces BSOD
+  - id: impact/system/crash/nt-raise-hard-error
+    description: NtRaiseHardError API (BSOD trigger)
+    criticality: hostile
+    confidence: 0.98
+    condition:
+      type: string
+      exact: "NtRaiseHardError"
+
+  # RtlAdjustPrivilege - enables shutdown privilege
+  - id: impact/system/crash/rtl-adjust-privilege
+    description: RtlAdjustPrivilege API (privilege escalation)
+    criticality: suspicious
+    confidence: 0.9
+    condition:
+      type: string
+      exact: "RtlAdjustPrivilege"
+
+  # Shutdown privilege constant (19)
+  - id: impact/system/crash/shutdown-privilege
+    description: SeShutdownPrivilege constant
+    criticality: notable
+    confidence: 0.7
+    file_types: [python]
+    condition:
+      type: string
+      regex: "RtlAdjustPrivilege\\s*\\(\\s*(c_uint\\()?19"
+
+  # STATUS_ASSERTION_FAILURE error code
+  - id: impact/system/crash/status-assertion-failure
+    description: STATUS_ASSERTION_FAILURE error code (BSOD)
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: string
+      regex: "0x[Cc]000007[Bb]|3221226363"
+
+composite_rules:
+  # Full BSOD trigger pattern
+  - id: impact/system/crash/bsod-trigger
+    description: Windows BSOD trigger via ntdll
+    criticality: hostile
+    confidence: 0.99
+    attack: "T1499.004"
+    mbc: "B0033"
+    condition:
+      type: yara
+      source: |
+        rule windows_bsod_trigger {
+          meta:
+            description = "Detects Windows BSOD trigger pattern"
+          strings:
+            $ntdll1 = "ntdll" ascii nocase
+            $ntdll2 = "windll.ntdll" ascii
+            $raise = "NtRaiseHardError" ascii
+            $adjust = "RtlAdjustPrivilege" ascii
+            $priv19 = /RtlAdjustPrivilege\s*\(\s*(c_uint\()?19/
+            $status = /0x[Cc]000007[Bb]/ ascii
+          condition:
+            filesize < 1MB and
+            any of ($ntdll*) and
+            ($raise or ($adjust and $status))
+        }
+
+  # Python-specific BSOD via ctypes
+  - id: impact/system/crash/python-bsod
+    description: Python BSOD trigger via ctypes
+    criticality: hostile
+    confidence: 0.99
+    file_types: [python]
+    attack: "T1499.004"
+    condition:
+      type: yara
+      source: |
+        rule python_bsod_trigger {
+          meta:
+            description = "Python ctypes BSOD trigger"
+          strings:
+            $ctypes = "from ctypes import" ascii
+            $windll = "windll" ascii
+            $ntdll = "ntdll" ascii
+            $raise = "NtRaiseHardError" ascii
+            $adjust = "RtlAdjustPrivilege" ascii
+          condition:
+            filesize < 1MB and
+            $ctypes and $windll and $ntdll and
+            ($raise or $adjust)
+        }

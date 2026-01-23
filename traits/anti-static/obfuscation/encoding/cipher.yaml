@@ -25,7 +25,7 @@ composite_rules:
             // Sequential bytes 0-255 in data (initialized S-box)
             $sbox_partial = { 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F }
           condition:
-            any of them
+            $sbox_partial or ($x86_256_mov and $x86_256_cmp)
         }
 
   - id: anti-static/obfuscation/encoding/cipher-key-schedule

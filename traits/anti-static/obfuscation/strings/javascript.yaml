@@ -3,12 +3,83 @@
 # ATT&CK: T1027
 
 traits:
-  - id: anti-static/obfuscation/strings-fromcharcode
+  # fromCharCode obfuscation
+  - id: anti-static/obfuscation/strings/fromcharcode
     description: String obfuscation via fromCharCode
     criticality: notable
     confidence: 0.66
     mbc: "B0032"
     attack: "T1027"
+    file_types: [javascript, typescript]
     condition:
       type: string
       exact: fromCharCode
+
+  # Unicode escape sequences used to hide strings
+  - id: anti-static/obfuscation/strings/js-unicode-escape
+    description: Unicode escape sequences used to hide strings
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "B0032"
+    attack: "T1027"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: '(\\u[0-9a-fA-F]{4}){4,}'
+
+  # Hex escape sequences
+  - id: anti-static/obfuscation/strings/js-hex-escape
+    description: Hex escape sequences used to hide strings
+    criticality: notable
+    confidence: 0.75
+    mbc: "B0032"
+    attack: "T1027"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: '(\\x[0-9a-fA-F]{2}){4,}'
+
+  # Buffer.from with encoding
+  - id: anti-static/obfuscation/strings/js-buffer-decode
+    description: Buffer.from used to decode strings at runtime
+    criticality: notable
+    confidence: 0.7
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "Buffer\\.from\\([^,]+,\\s*['\"](?:base64|hex)['\"]\\)"
+
+  # Array join obfuscation
+  - id: anti-static/obfuscation/strings/js-array-join
+    description: Array join pattern used to construct strings
+    criticality: notable
+    confidence: 0.6
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "\\[['\"][^'\"]+['\"](?:,\\s*['\"][^'\"]+['\"]){5,}\\]\\.join"
+
+composite_rules:
+  # Unicode obfuscation with execution
+  - id: anti-static/obfuscation/strings/js-unicode-exec
+    description: Unicode obfuscated string executed (evasion)
+    criticality: hostile
+    confidence: 0.95
+    mbc: "B0032"
+    attack: "T1027"
+    requires_all:
+      - type: trait
+        id: anti-static/obfuscation/strings/js-unicode-escape
+      - type: string
+        regex: 'eval\(|Function\(|new Function'
+
+  # Dynamic require with obfuscation
+  - id: anti-static/obfuscation/strings/js-dynamic-require
+    description: Dynamic require with obfuscated module name
+    criticality: suspicious
+    confidence: 0.85
+    requires_all:
+      - type: string
+        regex: 'require\([^"'']'
+      - type: trait
+        id: anti-static/obfuscation/strings/js-unicode-escape

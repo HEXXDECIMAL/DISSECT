@@ -624,9 +624,9 @@ impl MachOAnalyzer {
                 for payload in payloads {
                     // Add decrypted payload finding
                     let quality_str = match payload.quality() {
-                        crate::amos_cipher::DecryptionQuality::HighConfidence => "high",
-                        crate::amos_cipher::DecryptionQuality::MediumConfidence => "medium",
-                        crate::amos_cipher::DecryptionQuality::LowConfidence => "low",
+                        crate::amos_cipher::DecryptionQuality::High => "high",
+                        crate::amos_cipher::DecryptionQuality::Medium => "medium",
+                        crate::amos_cipher::DecryptionQuality::Low => "low",
                     };
 
                     let mut decrypt_evidence = vec![
@@ -696,9 +696,9 @@ impl MachOAnalyzer {
                             payload.plaintext.len()
                         ),
                         confidence: match payload.quality() {
-                            crate::amos_cipher::DecryptionQuality::HighConfidence => 0.95,
-                            crate::amos_cipher::DecryptionQuality::MediumConfidence => 0.75,
-                            crate::amos_cipher::DecryptionQuality::LowConfidence => 0.5,
+                            crate::amos_cipher::DecryptionQuality::High => 0.95,
+                            crate::amos_cipher::DecryptionQuality::Medium => 0.75,
+                            crate::amos_cipher::DecryptionQuality::Low => 0.5,
                         },
                         criticality: Criticality::Hostile,
                         mbc: Some("C0027".to_string()),
@@ -1081,11 +1081,7 @@ mod tests {
     #[test]
     fn test_identify_payload_type_binary() {
         // Mostly non-printable data (control characters and high bytes)
-        let data: Vec<u8> = (0u8..32)
-            .chain(128u8..255)
-            .cycle()
-            .take(100)
-            .collect();
+        let data: Vec<u8> = (0u8..32).chain(128u8..255).cycle().take(100).collect();
         assert_eq!(identify_payload_type(&data), "Binary data");
     }
 
@@ -1099,7 +1095,9 @@ mod tests {
     fn test_identify_payload_type_mixed() {
         // ~60% printable
         let mut data = b"Some text here...".to_vec();
-        data.extend_from_slice(&[0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A]);
+        data.extend_from_slice(&[
+            0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A,
+        ]);
         assert_eq!(identify_payload_type(&data), "Mixed text/binary");
     }
 }

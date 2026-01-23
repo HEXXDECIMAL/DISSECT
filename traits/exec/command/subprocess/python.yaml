@@ -2,35 +2,20 @@
 # ATT&CK: T1059.006 (Python)
 
 traits:
-  - id: exec/command/subprocess/popen
-    description: "subprocess.Popen process creation"
-    criticality: notable
-    confidence: 0.85
-    mbc: "C0017"
-    attack: "T1059.006"
-    file_types: [python]
-    condition:
-      type: string
-      regex: "subprocess\\.Popen\\("
-
   - id: exec/command/subprocess/run
-    description: "subprocess.run command execution"
+    description: "Executes external system command"
     criticality: notable
     confidence: 0.85
     mbc: "C0017"
     attack: "T1059.006"
     file_types: [python]
     condition:
-      type: string
-      regex: "subprocess\\.run\\("
-
-  - id: exec/command/subprocess/call
-    description: "subprocess.call command execution"
-    criticality: notable
-    confidence: 0.85
-    mbc: "C0017"
-    attack: "T1059.006"
-    file_types: [python]
-    condition:
-      type: string
-      regex: "subprocess\\.call\\("
+      type: ast_query
+      language: python
+      query: |
+        (call
+          function: (attribute
+            attribute: (identifier) @meth)
+          arguments: (argument_list
+            (string) @cmd))
+        (#match? @meth "^(Popen|run|call|check_output|system|spawn)$")

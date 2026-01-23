@@ -218,8 +218,10 @@ fn parse_file_types(types: &[String]) -> Vec<RuleFileType> {
             "so" => Some(RuleFileType::So),
             "dll" => Some(RuleFileType::Dll),
             "shell" | "shellscript" => Some(RuleFileType::Shell),
+            "batch" | "bat" | "cmd" => Some(RuleFileType::Batch),
             "python" => Some(RuleFileType::Python),
             "javascript" | "js" => Some(RuleFileType::JavaScript),
+            "typescript" | "ts" => Some(RuleFileType::TypeScript),
             "java" => Some(RuleFileType::Java),
             "class" => Some(RuleFileType::Class),
             "c" => Some(RuleFileType::C),
@@ -227,6 +229,8 @@ fn parse_file_types(types: &[String]) -> Vec<RuleFileType> {
             "go" => Some(RuleFileType::Go),
             "ruby" => Some(RuleFileType::Ruby),
             "php" => Some(RuleFileType::Php),
+            "csharp" | "cs" => Some(RuleFileType::CSharp),
+            "packagejson" | "package.json" => Some(RuleFileType::PackageJson),
             _ => None,
         })
         .collect()
@@ -314,7 +318,8 @@ impl CapabilityMapper {
     pub fn new() -> Self {
         let debug = std::env::var("DISSECT_DEBUG").is_ok();
 
-        // Try to load from capabilities directory, fall back to single file, then empty
+        // Try to load from capabilities directory, fall back to single file
+        // YAML parse errors or invalid trait configurations are fatal
         match Self::from_directory("traits") {
             Ok(mapper) => {
                 eprintln!("✅ Loaded capabilities from traits/ directory");
@@ -324,6 +329,24 @@ impl CapabilityMapper {
                 return mapper;
             }
             Err(e) => {
+                // Check if this is a YAML parse error or invalid configuration
+                // These are fatal and should exit immediately with clear error message
+                let error_chain = format!("{:#}", e);
+                if error_chain.contains("Failed to parse YAML")
+                    || error_chain.contains("invalid condition")
+                {
+                    eprintln!("\n❌ FATAL: Invalid trait configuration file\n");
+                    // Print the full error chain which includes file path and line info
+                    for (i, cause) in e.chain().enumerate() {
+                        if i == 0 {
+                            eprintln!("   Error: {}", cause);
+                        } else {
+                            eprintln!("   Caused by: {}", cause);
+                        }
+                    }
+                    eprintln!();
+                    std::process::exit(1);
+                }
                 if debug {
                     eprintln!("⚠️  Failed to load from traits/ directory: {:#}", e);
                 }
@@ -337,6 +360,20 @@ impl CapabilityMapper {
                 return mapper;
             }
             Err(e) => {
+                // Check if this is a YAML parse error - fatal
+                let error_chain = format!("{:#}", e);
+                if error_chain.contains("Failed to parse") {
+                    eprintln!("\n❌ FATAL: Invalid capabilities.yaml file\n");
+                    for (i, cause) in e.chain().enumerate() {
+                        if i == 0 {
+                            eprintln!("   Error: {}", cause);
+                        } else {
+                            eprintln!("   Caused by: {}", cause);
+                        }
+                    }
+                    eprintln!();
+                    std::process::exit(1);
+                }
                 if debug {
                     eprintln!("⚠️  Failed to load from capabilities.yaml: {:#}", e);
                 }
@@ -777,9 +814,11 @@ impl CapabilityMapper {
             "dylib" => RuleFileType::Dylib,
             "so" => RuleFileType::So,
             "dll" => RuleFileType::Dll,
-            "shell" | "shellscript" => RuleFileType::Shell,
+            "shell" | "shellscript" | "shell_script" => RuleFileType::Shell,
+            "batch" | "bat" | "cmd" => RuleFileType::Batch,
             "python" | "python_script" => RuleFileType::Python,
             "javascript" | "js" => RuleFileType::JavaScript,
+            "typescript" | "ts" => RuleFileType::TypeScript,
             "c" | "h" => RuleFileType::C,
             "rust" | "rs" => RuleFileType::Rust,
             "go" => RuleFileType::Go,
@@ -787,6 +826,8 @@ impl CapabilityMapper {
             "class" => RuleFileType::Class,
             "ruby" | "rb" => RuleFileType::Ruby,
             "php" => RuleFileType::Php,
+            "csharp" | "cs" => RuleFileType::CSharp,
+            "package.json" | "packagejson" => RuleFileType::PackageJson,
             _ => RuleFileType::All,
         }
     }
@@ -830,8 +871,10 @@ fn simple_rule_to_composite_rule(rule: SimpleRule) -> CompositeTrait {
                 "so" => Some(RuleFileType::So),
                 "dll" => Some(RuleFileType::Dll),
                 "shell" | "shellscript" => Some(RuleFileType::Shell),
+                "batch" | "bat" | "cmd" => Some(RuleFileType::Batch),
                 "python" => Some(RuleFileType::Python),
-                "javascript" => Some(RuleFileType::JavaScript),
+                "javascript" | "js" => Some(RuleFileType::JavaScript),
+                "typescript" | "ts" => Some(RuleFileType::TypeScript),
                 "java" => Some(RuleFileType::Java),
                 "class" => Some(RuleFileType::Class),
                 "c" => Some(RuleFileType::C),
@@ -839,6 +882,8 @@ fn simple_rule_to_composite_rule(rule: SimpleRule) -> CompositeTrait {
                 "go" => Some(RuleFileType::Go),
                 "ruby" => Some(RuleFileType::Ruby),
                 "php" => Some(RuleFileType::Php),
+                "csharp" | "cs" => Some(RuleFileType::CSharp),
+                "packagejson" | "package.json" => Some(RuleFileType::PackageJson),
                 _ => None,
             })
             .collect()

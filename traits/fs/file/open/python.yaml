@@ -3,10 +3,31 @@
 # ATT&CK: T1005
 
 traits:
-  - id: fs/file/open-python
-    description: Open files (Python)
+  - id: fs/file/open/generic
+    description: "Opens a file"
     criticality: inert
-    confidence: 0.66
+    confidence: 0.9
+    file_types: [python]
     condition:
       type: string
-      regex: "\\sopen\\("
+      regex: '\bopen\('
+
+  - id: fs/file/open/sensitive-path
+    description: "Accesses sensitive browser or wallet files"
+    criticality: hostile
+    confidence: 0.95
+    file_types: [python]
+    condition:
+      type: yara
+      source: |
+        rule python_sensitive_file_access {
+          strings:
+            $open = /\bopen\(/
+            $path1 = "Login Data"
+            $path2 = "Cookies"
+            $path3 = "key4.db"
+            $path4 = "exodus.wallet"
+            $path5 = "wallet.dat"
+          condition:
+            $open and any of ($path*)
+        }

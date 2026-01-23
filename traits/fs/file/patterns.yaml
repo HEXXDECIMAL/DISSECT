@@ -1,0 +1,16 @@
+# Malicious File System Patterns
+# Detects patterns of file creation followed by execution
+
+composite_rules:
+  - id: fs/file/patterns/execute-temp-file
+    description: "Creates and executes a file from a temporary directory (Staging)"
+    criticality: hostile
+    confidence: 0.95
+    near_lines: 50
+    requires_all:
+      - type: trait
+        id: fs/file/open/generic
+      - type: trait
+        id: exec/command/subprocess/run
+      - type: string
+        regex: 'tmp|tempfile|environ\[[''"]TMP'

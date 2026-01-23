@@ -1,0 +1,162 @@
+# npm Package Metadata Patterns
+# Detects suspicious metadata patterns in package.json
+# These patterns often indicate malicious or typosquatting packages
+
+traits:
+  # VSCode extension detection
+  - id: eco/npm/metadata/vscode-extension
+    description: Package is a VSCode extension
+    criticality: inert
+    confidence: 0.95
+    file_types: [packagejson]
+    condition:
+      type: string
+      exact: "vscode"
+      search_raw: true
+
+  # Empty Author Field (detected by analyzer, this catches explicit empty)
+  - id: eco/npm/metadata/empty-author
+    description: Package has explicitly empty author field
+    criticality: notable
+    confidence: 0.6
+    file_types: [packagejson]
+    condition:
+      type: string
+      regex: '"author"\s*:\s*""'
+      search_raw: true
+
+  # Suspicious Version Patterns
+  - id: eco/npm/metadata/version-1.0.0-with-hooks
+    description: Version 1.0.0 with install hooks (common malware pattern)
+    criticality: suspicious
+    confidence: 0.75
+    file_types: [packagejson]
+    condition:
+      type: yara
+      source: |
+        rule npm_v100_with_hooks {
+          strings:
+            $version = /"version"\s*:\s*"1\.0\.0"/
+            $hook1 = /"preinstall"\s*:/
+            $hook2 = /"postinstall"\s*:/
+            $hook3 = /"install"\s*:/
+          condition:
+            $version and any of ($hook*)
+        }
+
+  - id: eco/npm/metadata/version-0.0.1
+    description: Very early version number (0.0.1)
+    criticality: inert
+    confidence: 0.3
+    file_types: [packagejson]
+    condition:
+      type: string
+      regex: '"version"\s*:\s*"0\.0\.1"'
+      search_raw: true
+
+  # Suspicious Name Patterns
+  - id: eco/npm/metadata/typosquat-lodash
+    description: Potential lodash typosquat
+    criticality: suspicious
+    confidence: 0.8
+    file_types: [packagejson]
+    condition:
+      type: string
+      regex: '"name"\s*:\s*"(l0dash|1odash|lodas|lodashe)'
+      search_raw: true
+
+  - id: eco/npm/metadata/typosquat-express
+    description: Potential express typosquat
+    criticality: suspicious
+    confidence: 0.8
+    file_types: [packagejson]
+    condition:
+      type: string
+      regex: '"name"\s*:\s*"(expres|expresss|expess|3xpress)'
+      search_raw: true
+
+  - id: eco/npm/metadata/typosquat-react
+    description: Potential react typosquat
+    criticality: suspicious
+    confidence: 0.8
+    file_types: [packagejson]
+    condition:
+      type: string
+      regex: '"name"\s*:\s*"(reacr|raect|reactt|r3act)'
+      search_raw: true
+
+  - id: eco/npm/metadata/suspicious-name-pattern
+    description: Package name matches suspicious patterns (random chars, test names)
+    criticality: notable
+    confidence: 0.6
+    file_types: [packagejson]
+    condition:
+      type: string
+      regex: '"name"\s*:\s*"(test-pkg-|temp-pkg-|tmp-pkg-)'
+      search_raw: true
+
+  # Dependency Patterns
+  - id: eco/npm/metadata/github-dependency
+    description: Package has GitHub URL as dependency (not pinned version)
+    criticality: notable
+    confidence: 0.6
+    file_types: [packagejson]
+    condition:
+      type: string
+      regex: 'github\.com/[^"]+\.git'
+      search_raw: true
+
+  - id: eco/npm/metadata/git-dependency
+    description: Package has git:// protocol dependency
+    criticality: notable
+    confidence: 0.65
+    file_types: [packagejson]
+    condition:
+      type: string
+      regex: 'git://'
+      search_raw: true
+
+  # Binary Patterns
+  - id: eco/npm/metadata/has-bin
+    description: Package installs binary executables
+    criticality: notable
+    confidence: 0.7
+    file_types: [packagejson]
+    condition:
+      type: string
+      regex: '"bin"\s*:\s*\{'
+      search_raw: true
+
+  # Suspicious URLs in package
+  - id: eco/npm/metadata/pastebin-url
+    description: Package references pastebin (common for malware payloads)
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1102"
+    file_types: [packagejson]
+    condition:
+      type: string
+      regex: 'pastebin\.com|hastebin\.com|ghostbin\.com'
+      search_raw: true
+
+  - id: eco/npm/metadata/discord-webhook
+    description: Package references Discord webhook (common exfil channel)
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1567"
+    file_types: [packagejson]
+    condition:
+      type: string
+      regex: 'discord\.com/api/webhooks|discordapp\.com/api/webhooks'
+      search_raw: true
+
+  - id: eco/npm/metadata/telegram-bot
+    description: Package references Telegram bot API (common exfil channel)
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1567"
+    file_types: [packagejson]
+    condition:
+      type: string
+      regex: 'api\.telegram\.org/bot'
+      search_raw: true

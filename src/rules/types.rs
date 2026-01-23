@@ -31,8 +31,10 @@ pub enum FileType {
     So,
     Dll,
     Shell,
+    Batch,
     Python,
     JavaScript,
+    TypeScript,
     Rust,
     Java,
     Class,
@@ -41,6 +43,7 @@ pub enum FileType {
     Go,
     CSharp,
     Php,
+    PackageJson,
 }
 
 /// Scope level for proximity constraints

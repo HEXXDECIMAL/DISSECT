@@ -112,10 +112,14 @@ impl PackageJsonAnalyzer {
             .evaluate_composite_rules(&report, content.as_bytes());
 
         // Add all findings from trait evaluation
+        eprintln!("DEBUG: trait_findings count={}", trait_findings.len());
         for f in trait_findings
             .into_iter()
             .chain(composite_findings.into_iter())
         {
+            if f.id.contains("eco/npm") {
+                eprintln!("DEBUG: adding finding id={}", f.id);
+            }
             if !report.findings.iter().any(|existing| existing.id == f.id) {
                 report.findings.push(f);
             }
@@ -903,6 +907,7 @@ impl PackageJsonAnalyzer {
         None
     }
 
+    #[allow(clippy::needless_range_loop)]
     fn levenshtein_distance(&self, a: &str, b: &str) -> usize {
         let a_chars: Vec<char> = a.chars().collect();
         let b_chars: Vec<char> = b.chars().collect();

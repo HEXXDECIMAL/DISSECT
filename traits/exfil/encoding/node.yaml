@@ -1,0 +1,85 @@
+# Node.js Data Encoding for Exfiltration
+# ATT&CK: T1027 (Obfuscated Files or Information), T1132 (Data Encoding)
+
+traits:
+  # Base64 encoding
+  - id: exfil/encoding/node-base64-encode
+    description: Base64 encodes data (pre-exfiltration)
+    criticality: notable
+    confidence: 0.8
+    attack: "T1132"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "toString\\(['\"]base64['\"]\\)"
+
+  - id: exfil/encoding/node-buffer-base64
+    description: Buffer to base64 conversion
+    criticality: notable
+    confidence: 0.85
+    attack: "T1132"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "Buffer\\.from\\([^)]+\\)\\.toString\\(['\"]base64['\"]\\)"
+
+  - id: exfil/encoding/node-base64-decode
+    description: Base64 decodes data
+    criticality: notable
+    confidence: 0.75
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "Buffer\\.from\\([^,]+,\\s*['\"]base64['\"]\\)"
+
+  # Hex encoding
+  - id: exfil/encoding/node-hex-encode
+    description: Hex encodes data
+    criticality: notable
+    confidence: 0.75
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "toString\\(['\"]hex['\"]\\)"
+
+  # JSON serialization
+  - id: exfil/encoding/node-json-stringify
+    description: JSON serializes data for transmission
+    criticality: inert
+    confidence: 0.7
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: 'JSON\.stringify\('
+
+  # URL encoding
+  - id: exfil/encoding/node-querystring
+    description: URL-encodes data using querystring
+    criticality: notable
+    confidence: 0.8
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: 'querystring\.stringify\('
+
+  - id: exfil/encoding/node-url-params
+    description: Creates URLSearchParams for data
+    criticality: notable
+    confidence: 0.75
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: 'new URLSearchParams\('
+
+composite_rules:
+  # Encode then exfil pattern
+  - id: exfil/encoding/node-encode-exfil
+    description: Encodes data then sends via HTTP (exfiltration)
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1041"
+    requires_all:
+      - type: trait
+        id: exfil/encoding/node-base64-encode
+      - type: string
+        regex: 'http\.request|https\.request|axios|fetch\('

@@ -253,6 +253,12 @@ fn analyze_file(
                 .with_capability_mapper(capability_mapper.clone());
             analyzer.analyze(path)?
         }
+        FileType::Batch => {
+            // Use shell analyzer for batch files (basic string/YARA analysis)
+            let analyzer = analyzers::shell::ShellAnalyzer::new()
+                .with_capability_mapper(capability_mapper.clone());
+            analyzer.analyze(path)?
+        }
         FileType::Python => {
             let analyzer = analyzers::python::PythonAnalyzer::new()
                 .with_capability_mapper(capability_mapper.clone());
@@ -698,6 +704,12 @@ fn analyze_file_with_shared_mapper(
             analyzer.analyze(path)?
         }
         FileType::Shell => {
+            let analyzer = analyzers::shell::ShellAnalyzer::new()
+                .with_capability_mapper((**capability_mapper).clone());
+            analyzer.analyze(path)?
+        }
+        FileType::Batch => {
+            // Use shell analyzer for batch files (basic string/YARA analysis)
             let analyzer = analyzers::shell::ShellAnalyzer::new()
                 .with_capability_mapper((**capability_mapper).clone());
             analyzer.analyze(path)?

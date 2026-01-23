@@ -3,7 +3,7 @@
 
 traits:
   - id: exec/command/setsid/python
-    description: "Process detachment via os.setsid"
+    description: "Detaches process via os.setsid"
     criticality: suspicious
     confidence: 0.9
     mbc: "F0003"
@@ -14,7 +14,7 @@ traits:
       exact: "os.setsid"
 
   - id: exec/command/setsid/preexec-fn
-    description: "subprocess preexec_fn for process manipulation"
+    description: "Manipulates process via subprocess preexec_fn"
     criticality: suspicious
     confidence: 0.85
     mbc: "F0003"
@@ -24,7 +24,7 @@ traits:
       exact: "preexec_fn="
 
   - id: exec/command/setsid/c
-    description: "setsid() system call"
+    description: "Calls setsid() system call"
     criticality: notable
     confidence: 0.8
     mbc: "F0003"

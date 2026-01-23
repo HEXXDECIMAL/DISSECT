@@ -1,0 +1,11 @@
+# Anti-Analysis - Obfuscation Tools
+# Detects known obfuscators
+
+traits:
+  - id: anti-analysis/obfuscation/tools/blankobf
+    description: "Obfuscated with BlankOBF"
+    criticality: hostile
+    confidence: 1.0
+    condition:
+      type: string
+      exact: "BlankOBF"

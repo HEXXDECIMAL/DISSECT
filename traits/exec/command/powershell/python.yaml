@@ -1,0 +1,41 @@
+# PowerShell Execution from Python
+# Detects malicious use of PowerShell for downloads or execution
+
+traits:
+  - id: exec/command/powershell/python-download
+    description: "Downloads file via PowerShell and curl.exe"
+    criticality: suspicious
+    confidence: 0.9
+    file_types: [python]
+    condition:
+      type: string
+      regex: "powershell.*curl\\.exe.*-o"
+
+  - id: exec/command/powershell/python-start-process
+    description: "Executes process via PowerShell Start-Process"
+    criticality: suspicious
+    confidence: 0.9
+    file_types: [python]
+    condition:
+      type: string
+      regex: "powershell.*Start-Process"
+
+  - id: packaging/evasion/system-masquerade
+    description: "Masquerades as system process (e.g. Realtek, Windows Update)"
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: string
+      regex: "RealtekHDAudio|WindowsUpdate|lsass|svchost"
+
+composite_rules:
+  - id: supply-chain/dropper/powershell-dropper
+    description: "PowerShell-based dropper (Download + Execute)"
+    criticality: hostile
+    confidence: 0.98
+    requires_all:
+      - type: trait
+        id: exec/command/powershell/python-download
+      - type: trait
+        id: exec/command/powershell/python-start-process
+

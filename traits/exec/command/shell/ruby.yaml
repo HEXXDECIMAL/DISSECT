@@ -13,7 +13,9 @@ traits:
       type: symbol_or_string
       any:
         - system(
-        - system
+    requires_all:
+      - type: file_type
+        file_types: [ruby]
 
   - id: exec/command/shell/ruby-exec
     description: "exec() replaces current process"

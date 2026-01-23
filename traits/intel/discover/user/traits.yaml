@@ -107,7 +107,8 @@ traits:
     criticality: suspicious
     confidence: 0.75
     attack: "T1033"
-    file_types: [all]
+    # Exclude JS - syntax highlighters have shell keywords
+    file_types: [shell, elf, macho, pe, python]
     condition:
       type: string
       exact: "whoami"
@@ -129,7 +130,8 @@ composite_rules:
     confidence: 0.9
     attack: "T1033"
     mbc: "B0046"
-    file_types: [all]
+    # Exclude JS - syntax highlighters have shell command keywords
+    file_types: [shell, elf, macho, pe, python]
     condition:
       type: yara
       source: |

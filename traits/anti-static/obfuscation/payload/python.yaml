@@ -1,0 +1,20 @@
+# Large Obfuscated Payload Detection - Python
+# Detects large blobs of encoded data embedded in scripts
+
+traits:
+  - id: anti-static/obfuscation/payload/large-encoded-string
+    description: "Large high-entropy string literal (likely payload)"
+    criticality: suspicious
+    confidence: 0.85
+    file_types: [python]
+    condition:
+      type: yara
+      source: |
+        rule large_encoded_string {
+          strings:
+            // Matches long strings of base64-like or hex-like data without spaces
+            $b64 = /[A-Za-z0-9+\/]{512,}/
+            $hex = /[0-9a-fA-F]{1024,}/
+          condition:
+            any of them
+        }

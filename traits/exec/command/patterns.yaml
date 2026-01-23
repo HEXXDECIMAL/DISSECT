@@ -1,0 +1,29 @@
+# Malicious Command and Script Patterns
+# Detects complex construction and execution logic
+
+traits:
+  - id: exec/command/construction/string-assign
+    description: "Constructs command or URL via string assignment"
+    criticality: inert
+    confidence: 0.6
+    file_types: [python]
+    condition:
+      type: ast_query
+      language: python
+      query: |
+        (assignment
+          left: (identifier) @var
+          right: (string) @val)
+        (#match? @var "^(cmd|command|url|payload|data|msg|body)$")
+
+composite_rules:
+  - id: exec/command/construction/command-spreading
+    description: "Command spreading (String construction + Execution)"
+    criticality: suspicious
+    confidence: 0.85
+    near_lines: 10
+    requires_all:
+      - type: trait
+        id: exec/command/construction/string-assign
+      - type: trait
+        id: exec/command/subprocess/run

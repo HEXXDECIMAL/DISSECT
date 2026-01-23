@@ -1,0 +1,98 @@
+# DNS-based C2 and Exfiltration Traits (Node.js)
+# Detects DNS tunneling and data exfiltration via DNS queries
+# MBC: C0002 (DNS Communication), E1591 (Data Exfiltration)
+# ATT&CK: T1071.004 (DNS), T1048 (Exfiltration Over Alternative Protocol)
+
+traits:
+  # DNS Module Usage
+  - id: c2/dns/exfil/dns-resolve
+    description: Node.js DNS resolve function (potential DNS tunneling)
+    criticality: notable
+    confidence: 0.8
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "dns\\.resolve|dns\\.resolve4|dns\\.resolve6"
+
+  - id: c2/dns/exfil/dns-resolve-txt
+    description: DNS TXT record resolution (common C2 channel)
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "C0002"
+    attack: "T1071.004"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "dns\\.resolveTxt|resolveTxt\\(|'TXT'|\"TXT\""
+
+  - id: c2/dns/exfil/dns-promises
+    description: DNS promises API (async DNS operations)
+    criticality: notable
+    confidence: 0.75
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "dns/promises"
+
+  # DNS Tunneling Patterns
+  - id: c2/dns/exfil/subdomain-encoding
+    description: Subdomain-based data encoding pattern
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "C0002"
+    attack: "T1048"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule dns_subdomain_encoding {
+          strings:
+            $encode1 = /\.\w+\.(com|net|org|io)/
+            $dns = "resolveTxt" nocase
+            $split = ".split"
+            $join = ".join"
+          condition:
+            $encode1 and $dns and ($split or $join)
+        }
+
+  - id: c2/dns/exfil/dns-with-crypto
+    description: DNS combined with encryption (encrypted C2 channel)
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "C0002"
+    attack: "T1573"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule dns_encrypted_c2 {
+          strings:
+            $dns1 = "resolveTxt"
+            $dns2 = "dns.resolve"
+            $crypto1 = "createCipheriv"
+            $crypto2 = "createDecipheriv"
+            $crypto3 = "aes-128"
+            $crypto4 = "aes-256"
+          condition:
+            any of ($dns*) and any of ($crypto*)
+        }
+
+  - id: c2/dns/exfil/dns-polling-loop
+    description: DNS polling loop (C2 beacon pattern)
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "C0002"
+    attack: "T1071.004"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule dns_polling {
+          strings:
+            $dns = "resolveTxt"
+            $interval1 = "setInterval"
+            $interval2 = "setTimeout"
+            $loop = "while"
+          condition:
+            $dns and any of ($interval*, $loop)
+        }

@@ -1,0 +1,9 @@
+traits:
+  - id: exec/eval/dynamic/node-vm
+    description: Executing code via Node.js VM module (sandbox escape/obfuscation)
+    criticality: suspicious
+    confidence: 0.9
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: 'vm\.runIn(New)?Context'

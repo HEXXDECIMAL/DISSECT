@@ -25,6 +25,36 @@ traits:
       pattern: dup2
     platforms: [unix, linux, macos]
 
+  - id: c2/shells/reverse/python-socket-connect
+    description: Python socket connection
+    criticality: notable
+    confidence: 0.8
+    file_types: [python]
+    condition:
+      type: ast_pattern
+      node_type: call
+      pattern: ".connect("
+
+  - id: c2/shells/reverse/python-dup2
+    description: Python file descriptor duplication (os.dup2)
+    criticality: notable
+    confidence: 0.85
+    file_types: [python]
+    condition:
+      type: ast_pattern
+      node_type: call
+      pattern: "os.dup2"
+
+  - id: c2/shells/reverse/python-pty-spawn
+    description: Python PTY spawn (interactive shell)
+    criticality: suspicious
+    confidence: 0.9
+    file_types: [python]
+    condition:
+      type: ast_pattern
+      node_type: call
+      pattern: "pty.spawn"
+
   # Bind shell components
   - id: c2/shells/reverse/socket-bind
     description: Socket binding (potential bind shell)
@@ -48,11 +78,11 @@ traits:
     platforms: [all]
 
   # Shell references
-  - id: c2/shells/reverse/shell-ref
+  - id: c2/shells/reverse/shell-ref-path
     description: Shell executable reference
     criticality: notable
     confidence: 0.5
     condition:
       type: string
-      regex: "/bin/(sh|bash|zsh|ksh)|cmd\\.exe|powershell\\.exe"
+      regex: "(/bin/(sh|bash|zsh|ksh)|cmd\\.exe|powershell\\.exe)"
       case_insensitive: true

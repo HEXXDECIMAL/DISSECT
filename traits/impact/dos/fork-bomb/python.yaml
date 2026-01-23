@@ -1,0 +1,82 @@
+# Impact - Fork Bomb (Python)
+# Denial of service via infinite process forking
+# ATT&CK: T1499.004 (Application or System Exploitation)
+
+defaults:
+  file_types: [python]
+  attack: "T1499.004"
+
+traits:
+  # os.fork() call - notable on its own, hostile in loop
+  - id: impact/dos/fork-bomb/os-fork
+    description: Process forking via os.fork()
+    criticality: notable
+    confidence: 0.8
+    condition:
+      type: ast_pattern
+      node_type: call
+      pattern: "os.fork"
+
+  # multiprocessing.Process - legitimate parallel processing
+  - id: impact/dos/fork-bomb/multiprocessing
+    description: Multiprocessing for parallel execution
+    criticality: inert
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "multiprocessing\\.(Process|Pool)"
+
+composite_rules:
+  # Fork bomb: os.fork() inside while True loop
+  - id: impact/dos/fork-bomb/infinite-fork
+    description: Fork bomb - infinite process forking (DoS)
+    criticality: hostile
+    confidence: 0.98
+    attack: "T1499.004"
+    mbc: "B0033"
+    condition:
+      type: yara
+      source: |
+        rule python_fork_bomb {
+          meta:
+            description = "Detects Python fork bomb pattern"
+          strings:
+            $while_true = "while True:" ascii
+            $while_1 = "while 1:" ascii
+            $for_ever = "for _ in iter(int, 1):" ascii
+            $fork = "os.fork()" ascii
+            $import_os = "import os" ascii
+          condition:
+            filesize < 10KB and
+            $import_os and
+            $fork and
+            any of ($while_true, $while_1, $for_ever)
+        }
+
+  # Fork without rate limiting in tight loop (suspicious)
+  - id: impact/dos/fork-bomb/rapid-fork
+    description: Rapid process forking without delay
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1499.004"
+    condition:
+      type: yara
+      source: |
+        rule python_rapid_fork {
+          meta:
+            description = "Detects rapid forking without sleep/delay"
+          strings:
+            $fork = "os.fork()" ascii
+            $while = /while\s+(True|1):/ ascii
+            $for = /for\s+\w+\s+in\s+range\(\d{4,}\):/ ascii
+            // Legitimate patterns (exclusions)
+            $sleep = "time.sleep" ascii
+            $worker = "worker" ascii nocase
+            $pool = "Pool" ascii
+            $daemon = "daemon" ascii
+          condition:
+            filesize < 1MB and
+            $fork and
+            any of ($while, $for) and
+            not any of ($sleep, $worker, $pool, $daemon)
+        }

@@ -4,7 +4,7 @@
 traits:
   # Bash persistence
   - id: persistence/shell/bash-profile
-    description: Access to .bash_profile
+    description: Accesses .bash_profile for shell persistence
     criticality: suspicious
     confidence: 0.7
     attack: "T1546.004"
@@ -14,7 +14,7 @@ traits:
       exact: ".bash_profile"
 
   - id: persistence/shell/bashrc
-    description: Access to .bashrc
+    description: Accesses .bashrc for shell persistence
     criticality: suspicious
     confidence: 0.7
     attack: "T1546.004"
@@ -24,7 +24,7 @@ traits:
       exact: ".bashrc"
 
   - id: persistence/shell/bash-login
-    description: Access to .bash_login
+    description: Accesses .bash_login for shell persistence
     criticality: suspicious
     confidence: 0.75
     attack: "T1546.004"
@@ -34,7 +34,7 @@ traits:
       exact: ".bash_login"
 
   - id: persistence/shell/bash-logout
-    description: Access to .bash_logout
+    description: Accesses .bash_logout for shell persistence
     criticality: suspicious
     confidence: 0.85
     attack: "T1546.004"
@@ -44,7 +44,7 @@ traits:
       exact: ".bash_logout"
 
   - id: persistence/shell/profile
-    description: Access to .profile
+    description: Accesses .profile for shell persistence
     criticality: suspicious
     confidence: 0.7
     attack: "T1546.004"
@@ -55,7 +55,7 @@ traits:
       regex: "\\.profile\\b"
 
   - id: persistence/shell/etc-profile
-    description: Access to /etc/profile
+    description: Accesses /etc/profile for system-wide shell persistence
     criticality: suspicious
     confidence: 0.75
     attack: "T1546.004"
@@ -65,7 +65,7 @@ traits:
       exact: "/etc/profile"
 
   - id: persistence/shell/etc-bashrc
-    description: Access to /etc/bashrc
+    description: Accesses /etc/bashrc for system-wide shell persistence
     criticality: suspicious
     confidence: 0.75
     attack: "T1546.004"
@@ -76,7 +76,7 @@ traits:
 
   # Zsh persistence
   - id: persistence/shell/zshrc
-    description: Access to .zshrc
+    description: Accesses .zshrc for shell persistence
     criticality: suspicious
     confidence: 0.7
     attack: "T1546.004"
@@ -86,7 +86,7 @@ traits:
       exact: ".zshrc"
 
   - id: persistence/shell/zprofile
-    description: Access to .zprofile
+    description: Accesses .zprofile for shell persistence
     criticality: suspicious
     confidence: 0.7
     attack: "T1546.004"
@@ -96,7 +96,7 @@ traits:
       exact: ".zprofile"
 
   - id: persistence/shell/zlogin
-    description: Access to .zlogin
+    description: Accesses .zlogin for shell persistence
     criticality: suspicious
     confidence: 0.75
     attack: "T1546.004"
@@ -106,7 +106,7 @@ traits:
       exact: ".zlogin"
 
   - id: persistence/shell/zlogout
-    description: Access to .zlogout
+    description: Accesses .zlogout for shell persistence
     criticality: suspicious
     confidence: 0.85
     attack: "T1546.004"
@@ -116,7 +116,7 @@ traits:
       exact: ".zlogout"
 
   - id: persistence/shell/etc-zshrc
-    description: Access to /etc/zshrc
+    description: Accesses /etc/zshrc for system-wide shell persistence
     criticality: suspicious
     confidence: 0.75
     attack: "T1546.004"

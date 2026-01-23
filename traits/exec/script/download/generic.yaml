@@ -69,7 +69,8 @@ traits:
     confidence: 0.95
     mbc: "B0024"
     attack: "T1059.004"
-    file_types: [all]
+    # Exclude JS - syntax highlighters have keyword lists with |bash that trigger false positives
+    file_types: [shell, elf, macho, pe]
     condition:
       type: string
       regex: "\\|\\s*(sh|bash|zsh|perl|python|ruby|node)"
@@ -81,7 +82,8 @@ traits:
     confidence: 0.95
     mbc: "B0024"
     attack: "T1059"
-    file_types: [all]
+    # Exclude JS - syntax highlighters have keyword lists that trigger false positives
+    file_types: [shell, elf, macho, pe]
     condition:
       type: string
       regex: "(curl|wget).*(\\||&&).*(sh|bash|perl|python|ruby|node)"

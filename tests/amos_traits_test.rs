@@ -8,8 +8,8 @@ use std::path::Path;
 
 /// Read a trait YAML file and verify it parses correctly
 fn verify_trait_file(path: &str) -> serde_yaml::Value {
-    let content = fs::read_to_string(path)
-        .unwrap_or_else(|_| panic!("Failed to read trait file: {}", path));
+    let content =
+        fs::read_to_string(path).unwrap_or_else(|_| panic!("Failed to read trait file: {}", path));
     serde_yaml::from_str(&content)
         .unwrap_or_else(|e| panic!("Failed to parse YAML in {}: {}", path, e))
 }
@@ -37,10 +37,7 @@ fn verify_trait_structure(yaml: &serde_yaml::Value, expected_ids: &[&str]) {
 
     // Check for composite_rules section if expected
     if let Some(rules) = yaml.get("composite_rules") {
-        assert!(
-            rules.is_sequence(),
-            "composite_rules should be a sequence"
-        );
+        assert!(rules.is_sequence(), "composite_rules should be a sequence");
     }
 }
 
@@ -125,7 +122,10 @@ fn test_desktop_wallet_traits_have_criticality() {
         for trait_def in traits {
             assert!(
                 trait_def.get("criticality").is_some()
-                    || yaml.get("defaults").and_then(|d| d.get("criticality")).is_some(),
+                    || yaml
+                        .get("defaults")
+                        .and_then(|d| d.get("criticality"))
+                        .is_some(),
                 "Each wallet trait should have criticality set"
             );
         }

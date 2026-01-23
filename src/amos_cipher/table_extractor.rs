@@ -247,7 +247,7 @@ fn estimate_table_size(section_data: &[u8]) -> Result<usize, AMOSError> {
     }
 
     // Fallback: use 1/3 of section (assumes section is exactly 3 tables)
-    if total_size % 12 == 0 {
+    if total_size.is_multiple_of(12) {
         return Ok(total_size / 12);
     }
 
@@ -292,7 +292,7 @@ fn is_valid_table_size(section_data: &[u8], entry_count: usize) -> bool {
 
 /// Extract a u32 array from little-endian byte data.
 fn extract_u32_array(data: &[u8]) -> Result<Vec<u32>, AMOSError> {
-    if data.len() % 4 != 0 {
+    if !data.len().is_multiple_of(4) {
         return Err(AMOSError::InvalidAlignment);
     }
 

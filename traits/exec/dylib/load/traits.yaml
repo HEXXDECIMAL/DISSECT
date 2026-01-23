@@ -102,6 +102,36 @@ traits:
       type: string
       regex: "windll\\.[\\w.]+"
 
+  - id: exec/dylib/ctypes-cdll
+    description: Python ctypes CDLL loading
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1574"
+    file_types: [python]
+    condition:
+      type: string
+      regex: "ctypes\\.CDLL|CDLL\\("
+
+  - id: exec/dylib/local-load
+    description: Loading dynamic library from local path
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1574"
+    file_types: [python]
+    condition:
+      type: yara
+      source: |
+        rule local_dylib_load {
+          strings:
+            $cdll = "CDLL"
+            $load = "LoadLibrary"
+            $path1 = "__file__"
+            $path2 = "dirname"
+            $path3 = "abspath"
+          condition:
+            ($cdll or $load) and any of ($path*)
+        }
+
   - id: exec/dylib/ruby-dlopen
     description: Ruby FFI dlopen
     criticality: suspicious

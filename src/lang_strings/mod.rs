@@ -207,13 +207,10 @@ mod tests {
 
         // Constants should be extracted
         assert!(
-            values.iter().any(|s| *s == "DISSECT_CONST_MARKER_1"),
+            values.contains(&"DISSECT_CONST_MARKER_1"),
             "Should find const marker 1"
         );
-        assert!(
-            values.iter().any(|s| *s == "10.0.0.100"),
-            "Should find const IP"
-        );
+        assert!(values.contains(&"10.0.0.100"), "Should find const IP");
     }
 
     #[test]
@@ -228,13 +225,10 @@ mod tests {
 
         // Global variables should be extracted
         assert!(
-            values.iter().any(|s| *s == "DISSECT_VAR_MARKER_1"),
+            values.contains(&"DISSECT_VAR_MARKER_1"),
             "Should find var marker 1"
         );
-        assert!(
-            values.iter().any(|s| *s == "/etc/passwd"),
-            "Should find var path"
-        );
+        assert!(values.contains(&"/etc/passwd"), "Should find var path");
     }
 
     #[test]
@@ -265,12 +259,9 @@ mod tests {
         let values: Vec<&str> = strings.iter().map(|s| s.value.as_str()).collect();
 
         // Struct field values from variables should be extracted
+        assert!(values.contains(&"api-server"), "Should find server name");
         assert!(
-            values.iter().any(|s| *s == "api-server"),
-            "Should find server name"
-        );
-        assert!(
-            values.iter().any(|s| *s == "api.example.com"),
+            values.contains(&"api.example.com"),
             "Should find server host"
         );
     }
@@ -286,10 +277,7 @@ mod tests {
         let values: Vec<&str> = strings.iter().map(|s| s.value.as_str()).collect();
 
         // Map keys and values from variables should be extracted
-        assert!(
-            values.iter().any(|s| *s == "DATABASE_URL"),
-            "Should find env key"
-        );
+        assert!(values.contains(&"DATABASE_URL"), "Should find env key");
         assert!(
             values
                 .iter()
@@ -310,13 +298,10 @@ mod tests {
 
         // Sensitive data patterns should be extracted
         assert!(
-            values.iter().any(|s| *s == "sk_live_abc123xyz"),
+            values.contains(&"sk_live_abc123xyz"),
             "Should find API token"
         );
-        assert!(
-            values.iter().any(|s| *s == "secret123"),
-            "Should find password"
-        );
+        assert!(values.contains(&"secret123"), "Should find password");
     }
 
     // ==================== Go String Extraction - ELF AMD64 ====================
@@ -332,7 +317,7 @@ mod tests {
         let values: Vec<&str> = strings.iter().map(|s| s.value.as_str()).collect();
 
         assert!(
-            values.iter().any(|s| *s == "DISSECT_CONST_MARKER_1"),
+            values.contains(&"DISSECT_CONST_MARKER_1"),
             "ELF AMD64: Should find const marker"
         );
     }
@@ -348,7 +333,7 @@ mod tests {
         let values: Vec<&str> = strings.iter().map(|s| s.value.as_str()).collect();
 
         assert!(
-            values.iter().any(|s| *s == "DISSECT_VAR_MARKER_1"),
+            values.contains(&"DISSECT_VAR_MARKER_1"),
             "ELF AMD64: Should find var marker"
         );
     }
@@ -364,7 +349,7 @@ mod tests {
         let values: Vec<&str> = strings.iter().map(|s| s.value.as_str()).collect();
 
         assert!(
-            values.iter().any(|s| *s == "DATABASE_URL"),
+            values.contains(&"DATABASE_URL"),
             "ELF AMD64: Should find env key"
         );
     }
@@ -382,7 +367,7 @@ mod tests {
         let values: Vec<&str> = strings.iter().map(|s| s.value.as_str()).collect();
 
         assert!(
-            values.iter().any(|s| *s == "DISSECT_CONST_MARKER_1"),
+            values.contains(&"DISSECT_CONST_MARKER_1"),
             "ELF ARM64: Should find const marker"
         );
     }
@@ -398,7 +383,7 @@ mod tests {
         let values: Vec<&str> = strings.iter().map(|s| s.value.as_str()).collect();
 
         assert!(
-            values.iter().any(|s| *s == "DISSECT_VAR_MARKER_1"),
+            values.contains(&"DISSECT_VAR_MARKER_1"),
             "ELF ARM64: Should find var marker"
         );
     }
@@ -475,7 +460,7 @@ mod tests {
 
         for exp in &expected {
             assert!(
-                values.iter().any(|s| *s == *exp),
+                values.contains(exp),
                 "Rust Mach-O: Should find static string '{}'",
                 exp
             );
@@ -497,7 +482,7 @@ mod tests {
 
         for exp in &expected {
             assert!(
-                values.iter().any(|s| *s == *exp),
+                values.contains(exp),
                 "Rust Mach-O: Should find const string '{}'",
                 exp
             );
@@ -526,7 +511,7 @@ mod tests {
 
         for exp in &expected {
             assert!(
-                values.iter().any(|s| *s == *exp),
+                values.contains(exp),
                 "Rust Mach-O: Should find struct field '{}'",
                 exp
             );
@@ -663,7 +648,7 @@ mod tests {
 
     /// Helper to check if an exact string exists in extracted values
     fn has_exact(values: &[&str], expected: &str) -> bool {
-        values.iter().any(|s| *s == expected)
+        values.contains(&expected)
     }
 
     /// Helper to report missing strings

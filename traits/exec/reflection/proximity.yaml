@@ -1,0 +1,15 @@
+# Proximity-based Reflection Detection
+# Detects dynamic module loading followed immediately by attribute access
+
+composite_rules:
+  - id: exec/reflection/dynamic-import-access
+    description: "Dynamic module import followed by immediate attribute access (Shadowing)"
+    criticality: hostile
+    confidence: 0.95
+    file_types: [python]
+    near_lines: 5
+    requires_all:
+      - type: trait
+        id: exec/reflection/dynamic-import
+      - type: trait
+        id: exec/reflection/getattr-module

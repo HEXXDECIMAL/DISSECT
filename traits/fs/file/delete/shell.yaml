@@ -4,7 +4,7 @@
 
 traits:
   - id: fs/file/delete-rm-hardcoded
-    description: Delete files in tmp/var/dev directories
+    description: Deletes files in /tmp, /var, or /dev directories (potential cleanup)
     criticality: suspicious
     confidence: 0.66
     condition:

@@ -9,7 +9,7 @@ defaults:
 traits:
   # Windows Startup folder paths
   - id: persistence/startup/windows-startup-folder
-    description: "Windows Startup folder path"
+    description: "Targets Windows Startup folder for persistence"
     confidence: 0.85
     criticality: hostile
     platforms: [windows]
@@ -19,7 +19,7 @@ traits:
 
   # Registry Run keys (common persistence location)
   - id: persistence/startup/windows-registry-run
-    description: "Windows registry Run key access"
+    description: "Accesses Windows registry Run key for persistence"
     confidence: 0.9
     criticality: hostile
     platforms: [windows]
@@ -29,7 +29,7 @@ traits:
 
   # Registry RunOnce keys
   - id: persistence/startup/windows-registry-runonce
-    description: "Windows registry RunOnce key access"
+    description: "Accesses Windows registry RunOnce key for persistence"
     confidence: 0.9
     criticality: hostile
     platforms: [windows]
@@ -39,7 +39,7 @@ traits:
 
   # winreg module (Python Windows registry access)
   - id: persistence/startup/windows-python-winreg
-    description: "Windows registry access via Python winreg"
+    description: "Accesses Windows registry via Python winreg module"
     confidence: 0.8
     platforms: [windows]
     file_types: [python]
@@ -49,7 +49,7 @@ traits:
 
   # Scheduled tasks (schtasks)
   - id: persistence/startup/windows-schtasks
-    description: "Windows scheduled task creation"
+    description: "Creates scheduled task for persistence"
     confidence: 0.85
     criticality: hostile
     attack: "T1053.005"
@@ -60,7 +60,7 @@ traits:
 
   # Windows service installation
   - id: persistence/startup/windows-service-install
-    description: "Windows service installation"
+    description: "Installs Windows service for persistence"
     confidence: 0.85
     attack: "T1543.003"
     platforms: [windows]
@@ -70,7 +70,7 @@ traits:
 
   # PowerShell registry persistence
   - id: persistence/startup/windows-powershell-registry
-    description: "PowerShell registry modification for persistence"
+    description: "Modifies registry for persistence via PowerShell"
     confidence: 0.9
     criticality: hostile
     platforms: [windows]
@@ -80,7 +80,7 @@ traits:
 
   # WMI event subscription persistence
   - id: persistence/startup/windows-wmi-persistence
-    description: "WMI event subscription persistence"
+    description: "Sets up WMI event subscription for persistence"
     confidence: 0.9
     criticality: hostile
     attack: "T1546.003"

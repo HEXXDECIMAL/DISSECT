@@ -3,7 +3,7 @@
 
 traits:
   - id: exec/command/chmod/call
-    description: "File permission modification via os.chmod"
+    description: "Modifies file permissions via os.chmod"
     criticality: notable
     confidence: 0.85
     mbc: "C0047"
@@ -14,7 +14,7 @@ traits:
       regex: "os\\.chmod\\("
 
   - id: exec/command/chmod/executable
-    description: "chmod with executable permissions (0o7xx)"
+    description: "Sets executable permissions via chmod (0o7xx)"
     criticality: suspicious
     confidence: 0.9
     mbc: "C0047"

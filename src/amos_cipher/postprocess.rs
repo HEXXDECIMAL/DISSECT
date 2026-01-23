@@ -35,10 +35,7 @@ const STANDARD_BASE64_ALPHABET: &[u8; 64] =
 /// then using the standard base64 decoder.
 pub fn decode_custom_base64(data: &[u8]) -> Result<Vec<u8>, AMOSError> {
     // Build translation table: AMOS char -> Standard char
-    let mut translate_table = [0u8; 256];
-    for i in 0..256 {
-        translate_table[i] = i as u8; // Default: no translation
-    }
+    let mut translate_table: [u8; 256] = std::array::from_fn(|i| i as u8);
     for (idx, &amos_char) in AMOS_BASE64_ALPHABET.iter().enumerate() {
         translate_table[amos_char as usize] = STANDARD_BASE64_ALPHABET[idx];
     }
@@ -59,7 +56,7 @@ pub fn decode_custom_base64(data: &[u8]) -> Result<Vec<u8>, AMOSError> {
 
     // Pad to multiple of 4 if needed
     let mut padded = filtered;
-    while padded.len() % 4 != 0 {
+    while !padded.len().is_multiple_of(4) {
         padded.push(b'=');
     }
 
@@ -84,7 +81,7 @@ fn decode_hex(data: &[u8]) -> Result<Vec<u8>, AMOSError> {
     }
 
     // Handle odd-length hex data by truncating the last character
-    if hex_chars.len() % 2 != 0 {
+    if !hex_chars.len().is_multiple_of(2) {
         hex_chars.pop();
     }
 
@@ -94,7 +91,7 @@ fn decode_hex(data: &[u8]) -> Result<Vec<u8>, AMOSError> {
 /// Validate decoded output quality.
 pub fn validate_decryption(plaintext: &[u8]) -> DecryptionQuality {
     if plaintext.is_empty() {
-        return DecryptionQuality::LowConfidence;
+        return DecryptionQuality::Low;
     }
 
     // Check for printable ASCII ratio
@@ -106,14 +103,14 @@ pub fn validate_decryption(plaintext: &[u8]) -> DecryptionQuality {
     let ratio = printable_count as f32 / plaintext.len() as f32;
 
     if ratio > 0.9 {
-        DecryptionQuality::HighConfidence
+        DecryptionQuality::High
     } else if ratio > 0.5 {
-        DecryptionQuality::MediumConfidence
+        DecryptionQuality::Medium
     } else if has_null_terminated_strings(plaintext) {
         // Could be binary data with embedded strings
-        DecryptionQuality::MediumConfidence
+        DecryptionQuality::Medium
     } else {
-        DecryptionQuality::LowConfidence
+        DecryptionQuality::Low
     }
 }
 
@@ -203,13 +200,13 @@ mod tests {
     #[test]
     fn test_validate_high_confidence() {
         let good = b"This is a valid decrypted string with normal text!";
-        assert_eq!(validate_decryption(good), DecryptionQuality::HighConfidence);
+        assert_eq!(validate_decryption(good), DecryptionQuality::High);
     }
 
     #[test]
     fn test_validate_garbage() {
         let bad: Vec<u8> = (0..100).map(|i| ((i * 7) % 256) as u8).collect();
-        assert_eq!(validate_decryption(&bad), DecryptionQuality::LowConfidence);
+        assert_eq!(validate_decryption(&bad), DecryptionQuality::Low);
     }
 
     #[test]
@@ -284,7 +281,7 @@ mod tests {
         let mut data = b"Hello World! This is mostly text.".to_vec();
         data.extend_from_slice(&[0x00, 0x01, 0x02, 0x03, 0x04, 0x05]);
         let quality = validate_decryption(&data);
-        assert!(quality == DecryptionQuality::HighConfidence || quality == DecryptionQuality::MediumConfidence);
+        assert!(quality == DecryptionQuality::High || quality == DecryptionQuality::Medium);
     }
 
     #[test]

@@ -15,7 +15,7 @@ traits:
 
   - id: setInterval-function
     description: setInterval with function callback
-    criticality: notable
+    criticality: inert
     confidence: 0.7
     file_types: [javascript]
     condition:

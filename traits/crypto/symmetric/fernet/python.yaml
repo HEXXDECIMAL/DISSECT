@@ -11,7 +11,7 @@ traits:
   # Direct fernet import
   - id: crypto/symmetric/fernet/import
     description: "Fernet symmetric encryption library import"
-    criticality: suspicious
+    criticality: notable
     confidence: 0.9
     condition:
       type: string
@@ -20,7 +20,7 @@ traits:
   # Fernet class usage
   - id: crypto/symmetric/fernet/class-usage
     description: "Fernet encryption class instantiation"
-    criticality: suspicious
+    criticality: notable
     confidence: 0.85
     condition:
       type: string
@@ -29,7 +29,7 @@ traits:
   # Fernet decrypt operation
   - id: crypto/symmetric/fernet/decrypt
     description: "Fernet decryption operation"
-    criticality: suspicious
+    criticality: notable
     confidence: 0.9
     condition:
       type: string

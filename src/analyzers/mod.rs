@@ -184,6 +184,9 @@ pub fn detect_file_type(file_path: &Path) -> Result<FileType> {
         if matches!(ext_str, "ps1" | "psm1" | "psd1") {
             return Ok(FileType::PowerShell);
         }
+        if matches!(ext_str, "bat" | "cmd") {
+            return Ok(FileType::Batch);
+        }
         if ext_str == "c" || ext_str == "h" {
             return Ok(FileType::C);
         }
@@ -243,6 +246,7 @@ pub enum FileType {
     Elf,
     Pe,
     Shell,
+    Batch, // Windows batch files (.bat, .cmd)
     Python,
     JavaScript,
     TypeScript,
@@ -272,6 +276,7 @@ impl FileType {
             | FileType::Elf
             | FileType::Pe
             | FileType::Shell
+            | FileType::Batch
             | FileType::Python
             | FileType::JavaScript
             | FileType::TypeScript
@@ -302,6 +307,7 @@ impl FileType {
             FileType::Shell => {
                 vec!["sh", "bash", "zsh", "application/x-sh", "application/x-zsh"]
             }
+            FileType::Batch => vec!["bat", "cmd", "batch"],
             FileType::Python => vec!["py", "pyc"],
             FileType::JavaScript => vec!["js", "mjs", "cjs", "ts"],
             FileType::TypeScript => vec!["ts", "tsx", "mts", "cts", "js"],

@@ -1,0 +1,16 @@
+traits:
+  - id: anti-static/packer/vmprotect/section
+    description: VMProtect detected via section names
+    criticality: suspicious
+    confidence: 0.95
+    file_types: [pe, elf, macho]
+    attack: "T1027.002"
+    condition:
+      type: yara
+      source: |
+        rule vmprotect_section {
+          strings:
+            $vmp = /\.vmp[0-2]/
+          condition:
+            $vmp
+        }

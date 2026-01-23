@@ -3,6 +3,20 @@ use anyhow::Result;
 use colored::Colorize;
 use std::collections::HashMap;
 
+/// Program summary for quick classification
+pub struct ProgramSummary {
+    /// Classification: "infostealer", "ransomware", "backdoor", "cryptominer", "legitimate", "unknown"
+    pub classification: String,
+    /// Malware family if detected (e.g., "AMOS", "Mirai", "XMRig")
+    pub malware_family: Option<String>,
+    /// Overall risk level
+    pub risk_level: Criticality,
+    /// Key capabilities (top 3-5)
+    pub key_capabilities: Vec<String>,
+    /// Brief description of what this program does
+    pub description: String,
+}
+
 /// Extract directory path from trait ID (everything except the last component)
 /// e.g., "exec/command/subprocess/popen" -> "exec/command/subprocess"
 /// e.g., "malware/cryptominer/monero/wallet-address" -> "malware/cryptominer/monero"
@@ -236,6 +250,12 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
     // File path (no file-level criticality until ML pipeline is ready)
     output.push_str(&format!("├─ {}\n", report.target.path.bright_white()));
 
+    // Generate and display summary for hostile/suspicious content
+    let summary = generate_summary(report);
+    if summary.risk_level >= Criticality::Suspicious || summary.malware_family.is_some() {
+        output.push_str(&format_summary(&summary));
+    }
+
     // Combine all findings from report and YARA matches
     let mut all_findings: Vec<Finding> = report.findings.clone();
 
@@ -353,6 +373,173 @@ fn calculate_overall_risk(report: &AnalysisReport) -> Criticality {
     }
 
     max
+}
+
+/// Generate a program summary from analysis findings
+pub fn generate_summary(report: &AnalysisReport) -> ProgramSummary {
+    let mut classification = "unknown".to_string();
+    let mut malware_family: Option<String> = None;
+    let mut key_capabilities: Vec<String> = Vec::new();
+    let mut description_parts: Vec<String> = Vec::new();
+
+    let risk_level = calculate_overall_risk(report);
+
+    // Combine all findings
+    let mut all_findings: Vec<&Finding> = report.findings.iter().collect();
+    let yara_findings: Vec<Finding> = yara_to_findings(&report.yara_matches);
+    let yara_refs: Vec<&Finding> = yara_findings.iter().collect();
+    all_findings.extend(yara_refs);
+
+    // Check for malware family detection
+    for finding in &all_findings {
+        let id_lower = finding.id.to_lowercase();
+
+        // Detect malware families
+        if id_lower.contains("malware/stealer/amos") {
+            classification = "macOS Infostealer".to_string();
+            malware_family = Some("AMOS Stealer".to_string());
+            description_parts
+                .push("Steals browser credentials and cryptocurrency wallets".to_string());
+        } else if id_lower.contains("malware/stealer/poseidon") {
+            classification = "macOS Infostealer".to_string();
+            malware_family = Some("Poseidon Stealer".to_string());
+            description_parts.push("Steals browser credentials".to_string());
+        } else if id_lower.contains("malware/botnet/mirai") {
+            classification = "IoT Botnet".to_string();
+            malware_family = Some("Mirai".to_string());
+            description_parts.push("DDoS botnet targeting IoT devices".to_string());
+        } else if id_lower.contains("malware/cryptominer/xmrig") {
+            classification = "Cryptominer".to_string();
+            malware_family = Some("XMRig".to_string());
+            description_parts.push("Mines Monero cryptocurrency".to_string());
+        } else if id_lower.contains("malware/ransomware") {
+            classification = "Ransomware".to_string();
+            if id_lower.contains("conti") {
+                malware_family = Some("Conti".to_string());
+            } else if id_lower.contains("mallox") {
+                malware_family = Some("Mallox".to_string());
+            }
+            description_parts.push("Encrypts files for ransom".to_string());
+        } else if id_lower.contains("malware/backdoor") {
+            classification = "Backdoor".to_string();
+            description_parts.push("Provides remote access".to_string());
+        }
+
+        // Collect key capabilities (hostile/suspicious only)
+        if finding.criticality >= Criticality::Suspicious {
+            let cap = format_capability_short(&finding.id);
+            if !key_capabilities.contains(&cap) && key_capabilities.len() < 5 {
+                key_capabilities.push(cap);
+            }
+        }
+    }
+
+    // If no malware detected, classify based on capabilities
+    if classification == "unknown" {
+        classification = match risk_level {
+            Criticality::Hostile => "Potentially Malicious".to_string(),
+            Criticality::Suspicious => "Suspicious Program".to_string(),
+            Criticality::Notable => "Notable Program".to_string(),
+            _ => "Legitimate Program".to_string(),
+        };
+    }
+
+    // Generate description if we don't have one
+    if description_parts.is_empty() && !key_capabilities.is_empty() {
+        description_parts.push(format!(
+            "Program with {} notable capabilities",
+            key_capabilities.len()
+        ));
+    }
+
+    ProgramSummary {
+        classification,
+        malware_family,
+        risk_level,
+        key_capabilities,
+        description: description_parts.join("; "),
+    }
+}
+
+/// Format a capability ID into a short human-readable form
+fn format_capability_short(id: &str) -> String {
+    let parts: Vec<&str> = id.split('/').collect();
+    if parts.len() >= 2 {
+        match parts[0] {
+            "exec" => format!("Execute {}", parts.last().unwrap_or(&"code")),
+            "c2" => "Command & Control".to_string(),
+            "credential" => "Credential Access".to_string(),
+            "exfil" => "Data Exfiltration".to_string(),
+            "persistence" => "Persistence".to_string(),
+            "evasion" => "Defense Evasion".to_string(),
+            "malware" => {
+                if parts.len() >= 3 {
+                    format!("{} {}", parts[1], parts[2])
+                } else {
+                    "Malware".to_string()
+                }
+            }
+            _ => parts.join(" "),
+        }
+    } else {
+        id.to_string()
+    }
+}
+
+/// Format the program summary for terminal display
+pub fn format_summary(summary: &ProgramSummary) -> String {
+    let mut output = String::new();
+
+    // Risk emoji
+    let risk_emoji = match summary.risk_level {
+        Criticality::Hostile => "🛑",
+        Criticality::Suspicious => "🟡",
+        Criticality::Notable => "🔵",
+        _ => "⚪",
+    };
+
+    // Classification header
+    output.push_str("│\n");
+    output.push_str(&format!(
+        "│  {} {}\n",
+        risk_emoji,
+        summary.classification.bright_white().bold()
+    ));
+
+    // Malware family if detected
+    if let Some(family) = &summary.malware_family {
+        output.push_str(&format!(
+            "│  Family:  {} (detected with high confidence)\n",
+            family.bright_red().bold()
+        ));
+    }
+
+    // Risk level
+    let risk_color = match summary.risk_level {
+        Criticality::Hostile => "HOSTILE".bright_red().bold(),
+        Criticality::Suspicious => "SUSPICIOUS".bright_yellow().bold(),
+        Criticality::Notable => "NOTABLE".bright_cyan(),
+        _ => "INERT".normal(),
+    };
+    output.push_str(&format!("│  Risk:    {}\n", risk_color));
+
+    // Description
+    if !summary.description.is_empty() {
+        output.push_str("│\n");
+        output.push_str(&format!("│  {}\n", summary.description.italic()));
+    }
+
+    // Key capabilities
+    if !summary.key_capabilities.is_empty() {
+        output.push_str("│\n");
+        output.push_str(&format!("│  {}\n", "Key Capabilities:".bright_white()));
+        for cap in &summary.key_capabilities {
+            output.push_str(&format!("│  • {}\n", cap));
+        }
+    }
+
+    output.push_str("│\n");
+    output
 }
 
 #[cfg(test)]

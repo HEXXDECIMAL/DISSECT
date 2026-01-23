@@ -1,0 +1,200 @@
+# Malicious VSCode Extension Patterns
+# Detects high-confidence malicious patterns in VSCode extensions
+# These combine multiple indicators to reduce false positives
+
+traits:
+  # Post-Install Code Execution
+  - id: eco/vscode/malicious/post-install-exec
+    description: Post-install script execution (dropper pattern)
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "B0024"
+    attack: "T1059"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule vscode_post_install_exec {
+          strings:
+            $activate = "activate"
+            $state1 = "globalState"
+            $state2 = "postInstall"
+            $state3 = "hasRun"
+            $state4 = "firstRun"
+            $exec1 = "child_process"
+            $exec2 = "execAsync"
+            $exec3 = "execSync"
+            $exec4 = ".exec("
+          condition:
+            $activate and any of ($state*) and any of ($exec*)
+        }
+
+  # Extension Runs External Script
+  - id: eco/vscode/malicious/run-external-script
+    description: Extension executes external script file
+    criticality: malicious
+    confidence: 0.95
+    mbc: "B0024"
+    attack: "T1059"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule vscode_run_script {
+          strings:
+            $path1 = "asAbsolutePath"
+            $path2 = "extensionPath"
+            $script1 = ".bat"
+            $script2 = ".cmd"
+            $script3 = ".sh"
+            $script4 = ".ps1"
+            $exec1 = "exec("
+            $exec2 = "execAsync"
+            $exec3 = "spawn("
+          condition:
+            any of ($path*) and any of ($script*) and any of ($exec*)
+        }
+
+  # Hidden Window Execution
+  - id: eco/vscode/malicious/hidden-exec
+    description: Hidden window command execution
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "F0005"
+    attack: "T1564"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "windowsHide: true"
+
+  # Extension with HTTP Exfiltration
+  # IMPORTANT: Requires VSCode-specific markers to avoid FPs on npm packages
+  - id: eco/vscode/malicious/data-exfil
+    description: VSCode extension with data exfiltration pattern
+    criticality: hostile
+    confidence: 0.9
+    mbc: "E1591"
+    attack: "T1041"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule vscode_data_exfil {
+          strings:
+            // Must have VSCode-specific markers
+            $vscode1 = "vscode.commands"
+            $vscode2 = "vscode.window"
+            $vscode3 = "vscode.workspace"
+            $vscode4 = "vscode.extensions"
+            $vscode5 = "function activate"
+            $collect1 = "os.hostname"
+            $collect2 = "os.userInfo"
+            $collect3 = "os.platform"
+            $collect4 = "process.env"
+            $collect5 = "networkInterfaces"
+            $http1 = "https.request"
+            $http2 = "POST"
+            $http3 = "fetch("
+            $http4 = "axios.post"
+          condition:
+            any of ($vscode*) and 2 of ($collect*) and any of ($http*)
+        }
+
+  # Obfuscated Extension Code
+  - id: eco/vscode/malicious/obfuscated-extension
+    description: Heavily obfuscated VSCode extension code
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "B0032"
+    attack: "T1027"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule vscode_obfuscated {
+          strings:
+            $activate = "function activate"
+            $obf1 = /_0x[0-9a-fA-F]{4,}/
+            $obf2 = "while(!![]){"
+            $obf3 = "push']['shift"
+          condition:
+            $activate and any of ($obf*)
+        }
+
+  # Extension Credential Theft
+  - id: eco/vscode/malicious/credential-theft
+    description: VSCode extension accessing sensitive credentials
+    criticality: malicious
+    confidence: 0.9
+    mbc: "E1519"
+    attack: "T1555"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule vscode_credential_theft {
+          strings:
+            $cred1 = ".ssh"
+            $cred2 = ".aws"
+            $cred3 = ".npmrc"
+            $cred4 = ".gitconfig"
+            $cred5 = "id_rsa"
+            $cred6 = "credentials"
+            $cred7 = ".env"
+            $read1 = "readFileSync"
+            $read2 = "readFile"
+            $send1 = "https.request"
+            $send2 = "POST"
+            $send3 = "fetch("
+          condition:
+            any of ($cred*) and any of ($read*) and any of ($send*)
+        }
+
+  # Crypto Wallet Targeting
+  - id: eco/vscode/malicious/crypto-wallet
+    description: VSCode extension targeting crypto wallets
+    criticality: malicious
+    confidence: 0.95
+    mbc: "E1519"
+    attack: "T1555"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule vscode_crypto_wallet {
+          strings:
+            $wallet1 = "metamask"
+            $wallet2 = "exodus"
+            $wallet3 = "phantom"
+            $wallet4 = "wallet.dat"
+            $wallet5 = "keystore"
+            $coin1 = "bitcoin"
+            $coin2 = "ethereum"
+            $coin3 = "solana"
+          condition:
+            any of them
+        }
+
+  # Extension Persistence
+  - id: eco/vscode/malicious/persistence
+    description: Extension establishing persistence
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "F0011"
+    attack: "T1547"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule vscode_persistence {
+          strings:
+            $persist1 = "APPDATA"
+            $persist2 = "Startup"
+            $persist3 = "crontab"
+            $persist4 = "launchd"
+            $persist5 = "systemd"
+            $write1 = "writeFileSync"
+            $write2 = "copyFileSync"
+          condition:
+            any of ($persist*) and any of ($write*)
+        }

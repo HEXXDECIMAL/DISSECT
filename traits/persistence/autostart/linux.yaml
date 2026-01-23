@@ -49,6 +49,8 @@ traits:
     description: "init.d script persistence"
     confidence: 0.85
     attack: "T1037.004"
+    # Exclude JS - syntax highlighters have shell command keywords
+    file_types: [shell, elf, macho, python]
     condition:
       type: string
       regex: "/etc/init\\.d/|update-rc\\.d|chkconfig"

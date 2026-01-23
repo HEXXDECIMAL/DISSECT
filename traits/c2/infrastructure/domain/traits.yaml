@@ -13,8 +13,48 @@ composite_rules:
     criticality: notable
     confidence: 0.7
     condition:
-      type: string
-      regex: "\\b[a-zA-Z0-9][-a-zA-Z0-9]{0,62}\\.(com|org|net)\\b"
+      type: yara
+      source: |
+        rule hardcoded_domain_com {
+          meta:
+            description = "Detects hardcoded .com/.org/.net domains excluding known legitimate vendors"
+          strings:
+            // Generic domain pattern
+            $domain = /\b[a-zA-Z0-9][-a-zA-Z0-9]{0,62}\.(com|org|net)\b/
+            // Known legitimate OS vendor / major software domains (excludes)
+            $legit_apple = "apple.com" ascii nocase
+            $legit_microsoft = "microsoft.com" ascii nocase
+            $legit_windows = "windows.com" ascii nocase
+            $legit_google = "google.com" ascii nocase
+            $legit_android = "android.com" ascii nocase
+            $legit_mozilla = "mozilla.org" ascii nocase
+            $legit_gnu = "gnu.org" ascii nocase
+            $legit_kernel = "kernel.org" ascii nocase
+            $legit_debian = "debian.org" ascii nocase
+            $legit_ubuntu = "ubuntu.com" ascii nocase
+            $legit_redhat = "redhat.com" ascii nocase
+            $legit_fedora = "fedoraproject.org" ascii nocase
+            $legit_github = "github.com" ascii nocase
+            $legit_gitlab = "gitlab.com" ascii nocase
+            $legit_sourceforge = "sourceforge.net" ascii nocase
+            $legit_python = "python.org" ascii nocase
+            $legit_pypi = "pypi.org" ascii nocase
+            $legit_npmjs = "npmjs.com" ascii nocase
+            $legit_npmjs_org = "npmjs.org" ascii nocase
+            $legit_rubygems = "rubygems.org" ascii nocase
+            $legit_rust = "rust-lang.org" ascii nocase
+            $legit_golang = "golang.org" ascii nocase
+            $legit_cloudflare = "cloudflare.com" ascii nocase
+            $legit_amazon = "amazon.com" ascii nocase
+            $legit_aws = "amazonaws.com" ascii nocase
+            $legit_icloud = "icloud.com" ascii nocase
+            $legit_docker = "docker.com" ascii nocase
+            $legit_openssl = "openssl.org" ascii nocase
+            $legit_curl = "curl.se" ascii nocase
+            $legit_ezgif = "ezgif.com" ascii nocase
+          condition:
+            $domain and not any of ($legit*)
+        }
 
   - id: c2/infrastructure/domain/hardcoded-domain-suspicious
     description: "Hardcoded suspicious TLD domain (.ru, .cn, .xyz, .top)"
@@ -45,6 +85,12 @@ composite_rules:
     condition:
       type: string
       regex: "https?://[a-zA-Z0-9][-a-zA-Z0-9]*\\.[a-zA-Z]{2,6}(?:/|$|:)"
+      exclude_patterns:
+        - "ezgif\\.com"
+        - "w3\\.org"
+        - "schemas\\.microsoft\\.com"
+        - "www\\.google\\.com"
+        - "googleapis\\.com"
 
   - id: c2/infrastructure/domain/url-path-payload
     description: "URL path suggesting payload download"

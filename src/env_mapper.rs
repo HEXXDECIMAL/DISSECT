@@ -301,13 +301,15 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Finding> {
             ),
         };
 
+        // NOTE: Suspicious not hostile - system utilities legitimately reference these
+        // Real library injection requires additional context (actual preload code)
         traits.push(Finding {
             kind: FindingKind::Capability,
             trait_refs: vec![],
             id: trait_id.to_string(),
             description: description.to_string(),
-            confidence: 0.95,
-            criticality: Criticality::Hostile,
+            confidence: 0.75,
+            criticality: Criticality::Suspicious,
             mbc: None,
             attack: Some(attack_id.to_string()),
             evidence: vec![Evidence {

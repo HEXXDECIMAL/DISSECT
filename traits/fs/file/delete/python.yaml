@@ -4,7 +4,7 @@
 
 traits:
   - id: fs/file/delete/os-remove
-    description: Delete file (os.remove)
+    description: Deletes file via os.remove
     criticality: notable
     confidence: 0.9
     mbc: "C0047"
@@ -16,7 +16,7 @@ traits:
       pattern: "os.remove"
 
   - id: fs/file/delete/os-unlink
-    description: Delete file (os.unlink)
+    description: Deletes file via os.unlink
     criticality: notable
     confidence: 0.9
     mbc: "C0047"
@@ -28,7 +28,7 @@ traits:
       pattern: "os.unlink"
 
   - id: fs/file/delete/shutil-rmtree
-    description: Recursive directory deletion
+    description: Deletes directory recursively via shutil.rmtree
     criticality: notable
     confidence: 0.9
     mbc: "C0047"
@@ -40,7 +40,7 @@ traits:
       pattern: "shutil.rmtree"
 
   - id: fs/file/delete/pathlib-unlink
-    description: Delete file (pathlib.unlink)
+    description: Deletes file via pathlib.unlink
     criticality: notable
     confidence: 0.9
     mbc: "C0047"

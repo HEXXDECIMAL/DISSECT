@@ -1,0 +1,48 @@
+//! Evaluation context and result types for composite rules.
+
+use super::types::{FileType, Platform};
+use crate::types::{AnalysisReport, Evidence};
+
+/// Context for evaluating composite rules
+pub struct EvaluationContext<'a> {
+    pub report: &'a AnalysisReport,
+    pub binary_data: &'a [u8],
+    pub file_type: FileType,
+    pub platform: Platform,
+}
+
+/// Result of evaluating a condition
+#[derive(Debug)]
+pub struct ConditionResult {
+    pub matched: bool,
+    pub evidence: Vec<Evidence>,
+    pub traits: Vec<String>, // Trait IDs referenced
+}
+
+impl ConditionResult {
+    pub fn no_match() -> Self {
+        Self {
+            matched: false,
+            evidence: Vec::new(),
+            traits: Vec::new(),
+        }
+    }
+
+    pub fn matched_with(evidence: Vec<Evidence>) -> Self {
+        Self {
+            matched: true,
+            evidence,
+            traits: Vec::new(),
+        }
+    }
+}
+
+/// Parameters for string condition evaluation (reduces argument count)
+pub struct StringParams<'a> {
+    pub exact: Option<&'a String>,
+    pub regex: Option<&'a String>,
+    pub case_insensitive: bool,
+    pub exclude_patterns: Option<&'a Vec<String>>,
+    pub min_count: usize,
+    pub search_raw: bool,
+}

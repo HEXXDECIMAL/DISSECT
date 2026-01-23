@@ -67,6 +67,8 @@ composite_rules:
     confidence: 0.6
     attack: "T1059"
     platforms: [linux, macos, unix]
+    # Exclude JS - syntax highlighters have shell command keywords
+    file_types: [shell, elf, macho, python]
     condition:
       type: string
       exact: "mkfifo"

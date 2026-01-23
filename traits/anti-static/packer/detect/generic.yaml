@@ -24,3 +24,43 @@ traits:
           condition:
             any of them
         }
+
+  - id: anti-static/packer/upx
+    description: "UPX packed binary (section)"
+    criticality: suspicious
+    confidence: 0.95
+    mbc: "F0001.008"
+    file_types: [pe, elf, macho]
+    condition:
+      type: yara
+      source: |
+        import "pe"
+        import "elf"
+        import "macho"
+        
+        rule upx_section {
+          condition:
+            (pe.is_pe and for any section in pe.sections : (section.name matches /^(UPX\d+|\.UPX\d+)$/)) or
+            (elf.number_of_sections > 0 and for any section in elf.sections : (section.name matches /^(UPX\d+|\.UPX\d+)$/)) or
+            (macho.number_of_segments > 0 and for any segment in macho.segments : (segment.segname matches /^(UPX\d+|\.UPX\d+)$/))
+        }
+
+  - id: anti-static/packer/vmprotect
+    description: "VMProtect packed binary (section)"
+    criticality: suspicious
+    confidence: 0.95
+    mbc: "F0001"
+    file_types: [pe, elf, macho]
+    condition:
+      type: yara
+      source: |
+        import "pe"
+        import "elf"
+        import "macho"
+
+        rule vmp_section {
+          condition:
+            (pe.is_pe and for any section in pe.sections : (section.name matches /^\.vmp[0-9]+$/)) or
+            (elf.number_of_sections > 0 and for any section in elf.sections : (section.name matches /^\.vmp[0-9]+$/)) or
+            (macho.number_of_segments > 0 and for any segment in macho.segments : (segment.segname matches /^\.vmp[0-9]+$/))
+        }

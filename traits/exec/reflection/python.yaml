@@ -1,0 +1,32 @@
+# Python Reflection and Dynamic Imports
+# Detects attempts to hide module loading or function access
+
+traits:
+  - id: exec/reflection/dynamic-import
+    description: "Dynamic module import via __import__"
+    criticality: suspicious
+    confidence: 0.8
+    file_types: [python]
+    condition:
+      type: string
+      regex: "__import__("
+
+  - id: exec/reflection/getattr-module
+    description: "Dynamic attribute access on modules (potential shadowing)"
+    criticality: suspicious
+    confidence: 0.7
+    file_types: [python]
+    condition:
+      type: string
+      regex: "getattr(.*? ,.*?)"
+
+composite_rules:
+  - id: exec/reflection/obfuscated-import
+    description: "Obfuscated module import (Dynamic Import + Encoding)"
+    criticality: hostile
+    confidence: 0.95
+    requires_all:
+      - type: trait
+        id: exec/reflection/dynamic-import
+      - type: trait
+        id: anti-static/obfuscation/strings/python-hex

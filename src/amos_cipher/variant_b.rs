@@ -78,7 +78,7 @@ pub fn decrypt(encrypted: &[u8], seed: u64) -> Result<DecryptedPayload, AMOSErro
     let plaintext = strip_padding(&plaintext);
 
     let quality = validate_quality(&plaintext);
-    let as_string = if quality != DecryptionQuality::LowConfidence {
+    let as_string = if quality != DecryptionQuality::Low {
         String::from_utf8(plaintext.clone()).ok()
     } else {
         None
@@ -144,7 +144,7 @@ pub fn try_decrypt_with_seeds(
     for &seed in candidate_seeds {
         if let Ok(payload) = decrypt(encrypted, seed) {
             let quality = validate_quality(&payload.plaintext);
-            if quality != DecryptionQuality::LowConfidence {
+            if quality != DecryptionQuality::Low {
                 return Some(payload);
             }
         }
@@ -196,7 +196,7 @@ fn strip_padding(data: &[u8]) -> Vec<u8> {
 /// Validate decryption quality.
 fn validate_quality(data: &[u8]) -> DecryptionQuality {
     if data.is_empty() {
-        return DecryptionQuality::LowConfidence;
+        return DecryptionQuality::Low;
     }
 
     let printable = data
@@ -207,11 +207,11 @@ fn validate_quality(data: &[u8]) -> DecryptionQuality {
     let ratio = printable as f32 / data.len() as f32;
 
     if ratio > 0.9 {
-        DecryptionQuality::HighConfidence
+        DecryptionQuality::High
     } else if ratio > 0.5 {
-        DecryptionQuality::MediumConfidence
+        DecryptionQuality::Medium
     } else {
-        DecryptionQuality::LowConfidence
+        DecryptionQuality::Low
     }
 }
 

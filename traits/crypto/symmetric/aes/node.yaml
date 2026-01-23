@@ -1,0 +1,137 @@
+# Node.js AES Encryption Traits
+# Detects AES encryption usage patterns (often used in C2 communication)
+# MBC: C0027 (Cryptography)
+# ATT&CK: T1573 (Encrypted Channel)
+
+traits:
+  # Crypto Module Import
+  - id: crypto/symmetric/aes/crypto-require
+    description: Node.js crypto module import
+    criticality: inert
+    confidence: 0.9
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "require\\(['\"]crypto['\"]\\)|from ['\"]crypto['\"]"
+
+  # Cipher Creation
+  - id: crypto/symmetric/aes/createCipheriv
+    description: Create cipher with IV (symmetric encryption)
+    criticality: notable
+    confidence: 0.85
+    mbc: "C0027"
+    file_types: [javascript, typescript]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "createCipheriv"
+
+  - id: crypto/symmetric/aes/createDecipheriv
+    description: Create decipher with IV (symmetric decryption)
+    criticality: notable
+    confidence: 0.85
+    mbc: "C0027"
+    file_types: [javascript, typescript]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "createDecipheriv"
+
+  # Specific AES Modes
+  - id: crypto/symmetric/aes/aes-128-ctr
+    description: AES-128-CTR encryption (stream cipher mode)
+    criticality: notable
+    confidence: 0.85
+    mbc: "C0027"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "aes-128-ctr|aes128ctr"
+
+  - id: crypto/symmetric/aes/aes-256-cbc
+    description: AES-256-CBC encryption
+    criticality: notable
+    confidence: 0.85
+    mbc: "C0027"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "aes-256-cbc|aes256cbc"
+
+  - id: crypto/symmetric/aes/aes-256-gcm
+    description: AES-256-GCM authenticated encryption
+    criticality: notable
+    confidence: 0.85
+    mbc: "C0027"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "aes-256-gcm|aes256gcm"
+
+  # Encryption with Network Activity
+  - id: crypto/symmetric/aes/encrypted-c2
+    description: AES encryption combined with network requests (encrypted C2)
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "C0027"
+    attack: "T1573"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule encrypted_c2_channel {
+          strings:
+            $cipher1 = "createCipheriv"
+            $cipher2 = "createDecipheriv"
+            $aes = "aes-" nocase
+            $net1 = "https.request"
+            $net2 = "http.request"
+            $net3 = "fetch("
+            $net4 = "axios"
+            $dns = "resolveTxt"
+          condition:
+            any of ($cipher*) and $aes and any of ($net*, $dns)
+        }
+
+  # Key/IV Handling
+  - id: crypto/symmetric/aes/hardcoded-key
+    description: Hardcoded encryption key pattern
+    criticality: suspicious
+    confidence: 0.8
+    mbc: "C0027"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule hardcoded_crypto_key {
+          strings:
+            $key = /['"](key|secret|password|pass)['"]\s*[,:=]\s*['"][A-Za-z0-9+\/=]{16,}['"]/
+            $iv = /iv\s*[,:=]\s*['"][A-Za-z0-9+\/=]{16,}['"]/
+            $hex = /Buffer\.from\s*\(\s*['"][0-9a-fA-F]{32,}['"]/
+          condition:
+            any of them
+        }
+
+  # Compression with Encryption
+  - id: crypto/symmetric/aes/gzip-with-crypto
+    description: Gzip compression with encryption (obfuscated payload)
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "C0027"
+    attack: "T1027"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule compressed_encrypted_payload {
+          strings:
+            $gzip1 = "zlib"
+            $gzip2 = "gzip"
+            $gzip3 = "gunzip"
+            $gzip4 = "inflate"
+            $gzip5 = "deflate"
+            $crypto1 = "createCipheriv"
+            $crypto2 = "createDecipheriv"
+          condition:
+            any of ($gzip*) and any of ($crypto*)
+        }

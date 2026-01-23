@@ -58,8 +58,22 @@ composite_rules:
             $exec = "exec(" ascii
             $eval = "eval(" ascii
             $pip = "pip install" ascii nocase
+            // Legitimate publishing/build patterns (excludes)
+            $legit_sdist = "setup.py sdist" ascii nocase
+            $legit_bdist = "bdist_wheel" ascii nocase
+            $legit_twine = "twine upload" ascii nocase
+            $legit_test = "setup.py test" ascii nocase
+            $legit_pytest = "pytest" ascii
+            // Reading version file with exec is common
+            $legit_version_exec = "exec(f.read()" ascii
+            $legit_version_exec2 = "exec(open(" ascii
+            // Testing commands
+            $legit_develop = "setup.py develop" ascii nocase
           condition:
-            ($setup or $setuptools or $distutils) and ($os_system or $subprocess or $exec or $eval or $pip)
+            ($setup or $setuptools or $distutils) and
+            ($os_system or $subprocess or $exec or $eval or $pip) and
+            // Exclude if any legitimate publishing/build patterns found
+            not any of ($legit*)
         }
 
   # __init__.py with code execution (very suspicious)
@@ -81,8 +95,22 @@ composite_rules:
             $subprocess_popen = "subprocess.Popen(" ascii
             $pip = "pip install" ascii nocase
             $http = /https?:\/\// ascii
+            // Legitimate patterns (excludes)
+            $legit_sdist = "setup.py sdist" ascii nocase
+            $legit_bdist = "bdist_wheel" ascii nocase
+            $legit_twine = "twine upload" ascii nocase
+            $legit_setup = "from setuptools" ascii
+            $legit_version_read = "exec(f.read()" ascii
+            $legit_version_read2 = "exec(open(" ascii
+            $legit_pypi = "pypi.org" ascii nocase
+            $legit_readthedocs = "readthedocs" ascii nocase
+            $legit_github = "github.com" ascii nocase
           condition:
-            $init_marker and ($os_system or $subprocess_run or $subprocess_call or $subprocess_popen) and ($pip or $http)
+            $init_marker and
+            ($os_system or $subprocess_run or $subprocess_call or $subprocess_popen) and
+            ($pip or $http) and
+            // Exclude if any legitimate publishing/build patterns found
+            not any of ($legit*)
         }
 
   # Package that installs other packages at runtime

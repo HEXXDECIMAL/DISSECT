@@ -48,7 +48,7 @@ pub fn decrypt(tables: &LookupTables) -> Result<DecryptedPayload, AMOSError> {
     let quality = postprocess::validate_decryption(&post_processed);
 
     // If primary method produces low quality, try alternative orderings
-    if quality == DecryptionQuality::LowConfidence {
+    if quality == DecryptionQuality::Low {
         // Try: (t1 ^ t3) - t2
         let alt1 = try_alternative_decrypt(tables, |t1, t2, t3| (t1 ^ t3).wrapping_sub(t2));
         if let Some(payload) = alt1 {
@@ -68,7 +68,7 @@ pub fn decrypt(tables: &LookupTables) -> Result<DecryptedPayload, AMOSError> {
         }
     }
 
-    let as_string = if quality != DecryptionQuality::LowConfidence {
+    let as_string = if quality != DecryptionQuality::Low {
         // Try to convert to UTF-8, trimming invalid bytes at the end if needed
         match String::from_utf8(post_processed.clone()) {
             Ok(s) => Some(s),
@@ -114,7 +114,7 @@ where
     let post_processed = postprocess::try_decode_amos_payload(&plaintext);
     let quality = postprocess::validate_decryption(&post_processed);
 
-    if quality != DecryptionQuality::LowConfidence {
+    if quality != DecryptionQuality::Low {
         let as_string = String::from_utf8(post_processed.clone()).ok();
         Some(DecryptedPayload {
             plaintext: post_processed,
@@ -205,7 +205,7 @@ pub fn try_decrypt_variants(tables: &LookupTables) -> Vec<DecryptedPayload> {
     // Try raw (no post-processing) - some variants might not use encoding
     if let Ok(raw) = decrypt_raw(tables) {
         let quality = postprocess::validate_decryption(&raw);
-        if quality != DecryptionQuality::LowConfidence {
+        if quality != DecryptionQuality::Low {
             results.push(DecryptedPayload {
                 plaintext: raw.clone(),
                 source_offset: tables.offset,
@@ -257,7 +257,7 @@ fn decrypt_as_bytes(tables: &LookupTables) -> Option<DecryptedPayload> {
     let post_processed = postprocess::try_decode_amos_payload(&stripped);
     let quality = postprocess::validate_decryption(&post_processed);
 
-    if quality != DecryptionQuality::LowConfidence {
+    if quality != DecryptionQuality::Low {
         Some(DecryptedPayload {
             plaintext: post_processed.clone(),
             source_offset: tables.offset,
@@ -269,7 +269,7 @@ fn decrypt_as_bytes(tables: &LookupTables) -> Option<DecryptedPayload> {
     } else {
         // Also try raw byte output
         let raw_quality = postprocess::validate_decryption(&stripped);
-        if raw_quality != DecryptionQuality::LowConfidence {
+        if raw_quality != DecryptionQuality::Low {
             Some(DecryptedPayload {
                 plaintext: stripped.clone(),
                 source_offset: tables.offset,

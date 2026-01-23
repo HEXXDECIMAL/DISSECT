@@ -1,0 +1,12 @@
+# Evasive Module Aliasing Detection
+# Detects when multiple standard libraries are aliased to obfuscate intent
+
+traits:
+  - id: evasion/aliasing/python-std-alias
+    description: "Suspicious standard library aliasing (potential evasion)"
+    criticality: suspicious
+    confidence: 0.8
+    file_types: [python]
+    condition:
+      type: string
+      regex: 'import\s+(?:os|subprocess|platform|getpass|base64|urllib)\s+as\s+[a-z]{1,5}\b'

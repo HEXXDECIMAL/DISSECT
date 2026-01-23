@@ -411,7 +411,7 @@ impl RustStringExtractor {
         }
 
         // Split on nulls and non-printables first
-        for segment in text.split(|c| c == '\0' || c == '\x01') {
+        for segment in text.split(['\0', '\x01']) {
             if segment.len() < self.min_length {
                 continue;
             }
@@ -437,9 +437,7 @@ impl RustStringExtractor {
                 .unwrap()
                 .find_iter(segment)
         {
-            let url = cap
-                .as_str()
-                .trim_end_matches(|c| c == '.' || c == ',' || c == ';');
+            let url = cap.as_str().trim_end_matches(['.', ',', ';']);
             self.add_if_valid(url, section_name, strings, seen);
         }
 

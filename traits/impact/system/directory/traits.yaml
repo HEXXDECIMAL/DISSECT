@@ -34,6 +34,15 @@ traits:
       type: string
       regex: "rm\\s+-rf\\s+/etc|shutil\\.rmtree.*[\"']/etc"
 
+  # Linux /usr directory targeting (binaries/libs)
+  - id: impact/system/directory/linux-usr-delete
+    description: "Linux /usr directory deletion attempt"
+    confidence: 0.95
+    platforms: [linux]
+    condition:
+      type: string
+      regex: "rm\\s+-rf\\s+/usr|shutil\\.rmtree.*[\"']/usr"
+
   # Linux boot directory targeting
   - id: impact/system/directory/linux-boot-delete
     description: "Linux /boot directory deletion attempt"

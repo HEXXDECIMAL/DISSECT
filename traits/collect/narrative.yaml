@@ -1,0 +1,16 @@
+# Data Staging and Collection Narratives
+# Detects the intent of gathering, processing, and exfiltrating data
+
+composite_rules:
+  - id: collect/narrative/data-staging
+    description: "Data staging for exfiltration (Collect + Encode + Transmit)"
+    criticality: hostile
+    confidence: 0.98
+    near_lines: 100
+    requires_all:
+      - type: trait
+        id: intel/discover/system/python-platform-fingerprint
+      - type: trait
+        id: anti-static/obfuscation/strings/execute-decoded-content
+      - type: trait
+        id: net/http/python-exfiltration

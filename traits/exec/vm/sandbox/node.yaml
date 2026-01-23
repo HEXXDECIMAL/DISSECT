@@ -1,0 +1,113 @@
+# Node.js VM Module Traits
+# Detects sandbox execution and potential sandbox escape patterns
+# MBC: B0024 (Sandbox Evasion), E1059 (Code Execution)
+# ATT&CK: T1059 (Command and Scripting Interpreter)
+
+traits:
+  # VM Module Imports
+  - id: exec/vm/sandbox/vm-require
+    description: Node.js vm module import
+    criticality: notable
+    confidence: 0.85
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "require\\(['\"]vm['\"]\\)|from ['\"]vm['\"]"
+
+  - id: exec/vm/sandbox/vm-createContext
+    description: VM createContext (sandbox creation)
+    criticality: notable
+    confidence: 0.8
+    file_types: [javascript, typescript]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "createContext"
+
+  - id: exec/vm/sandbox/vm-runInContext
+    description: VM runInContext (execute code in sandbox)
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "B0024"
+    attack: "T1059"
+    file_types: [javascript, typescript]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "runInContext"
+
+  - id: exec/vm/sandbox/vm-runInNewContext
+    description: VM runInNewContext (execute in isolated context)
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "B0024"
+    attack: "T1059"
+    file_types: [javascript, typescript]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "runInNewContext"
+
+  - id: exec/vm/sandbox/vm-runInThisContext
+    description: VM runInThisContext (execute in current context)
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1059"
+    file_types: [javascript, typescript]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "runInThisContext"
+
+  - id: exec/vm/sandbox/vm-Script
+    description: VM Script compilation
+    criticality: notable
+    confidence: 0.8
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "new vm\\.Script|vm\\.Script\\("
+
+  # Remote Code Execution via VM
+  - id: exec/vm/sandbox/vm-with-http
+    description: VM execution combined with HTTP fetch (stage loader)
+    criticality: malicious
+    confidence: 0.95
+    mbc: "B0024"
+    attack: "T1105"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule vm_remote_code_exec {
+          strings:
+            $vm1 = "runInContext"
+            $vm2 = "runInNewContext"
+            $http1 = "https.request"
+            $http2 = "http.request"
+            $http3 = "fetch("
+            $http4 = "axios"
+          condition:
+            any of ($vm*) and any of ($http*)
+        }
+
+  # Sandbox Escape Patterns
+  - id: exec/vm/sandbox/constructor-escape
+    description: VM sandbox escape via constructor
+    criticality: malicious
+    confidence: 0.95
+    mbc: "B0024"
+    attack: "T1059"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "constructor\\s*\\(\\s*['\"]return this['\"]\\s*\\)|this\\.constructor\\.constructor"
+
+  - id: exec/vm/sandbox/process-binding
+    description: Access to process.binding (internal Node API)
+    criticality: suspicious
+    confidence: 0.9
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "process.binding"

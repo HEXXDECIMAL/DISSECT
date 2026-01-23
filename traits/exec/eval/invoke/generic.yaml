@@ -1,0 +1,29 @@
+# Shell/Code Execution - Generic
+# MBC: E1059 (Command and Scripting Interpreter)
+# ATT&CK: T1059
+
+traits:
+  # Suspicious for non-Python languages (JS, shell, etc.) where eval/exec is rare
+  - id: exec/shell-eval
+    description: Dynamic code evaluation
+    criticality: suspicious
+    confidence: 0.66
+    mbc: "E1059"
+    attack: "T1059"
+    # Exclude Python - exec/eval are common and often legitimate
+    file_types: [shell, javascript]
+    condition:
+      type: string
+      regex: "(eval\\(|exec\\()"
+
+  # Notable for Python - exec/eval are common for version parsing, setup scripts
+  - id: exec/python-eval
+    description: Python dynamic code evaluation
+    criticality: notable
+    confidence: 0.5
+    mbc: "E1059"
+    attack: "T1059"
+    file_types: [python]
+    condition:
+      type: string
+      regex: "(eval\\(|exec\\(|compile\\()"

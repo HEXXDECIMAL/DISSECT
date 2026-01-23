@@ -38,7 +38,7 @@ pub fn detect(data: &[u8]) -> Result<AMOSDetectionResult, AMOSError> {
 
         // 2. Check if section size suggests three parallel tables
         // Each table ~240KB = 60K entries * 4 bytes
-        if size >= 700_000 && size <= 850_000 {
+        if (700_000..=850_000).contains(&size) {
             variant_a_score += 0.2;
             evidence.push(DetectionEvidence {
                 indicator: "triple_table_size".to_string(),

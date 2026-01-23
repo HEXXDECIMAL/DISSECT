@@ -29,3 +29,26 @@ capabilities:
         id: socket-listen
       - type: trait
         id: shell-ref
+
+  - id: c2/shells/reverse/python-reverse-shell
+    description: "Python reverse shell detected (socket + pty/dup2)"
+    criticality: hostile
+    confidence: 0.98
+    file_types: [python]
+    near_lines: 20
+    requires_all:
+      - type: trait
+        id: python-socket-connect
+      - type: trait
+        id: c2/shells/reverse/python-redirection
+
+  - id: c2/shells/reverse/python-redirection
+    description: "Python shell redirection (pty/dup2)"
+    criticality: suspicious
+    requires_any:
+      - type: trait
+        id: python-pty-spawn
+      - type: trait
+        id: python-dup2
+
+

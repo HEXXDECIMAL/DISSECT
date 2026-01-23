@@ -84,16 +84,16 @@ pub struct DecryptedString {
 /// Quality assessment of decryption output.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DecryptionQuality {
-    HighConfidence,
-    MediumConfidence,
-    LowConfidence,
+    High,
+    Medium,
+    Low,
 }
 
 impl DecryptedPayload {
     /// Assess the quality of the decryption based on content analysis.
     pub fn quality(&self) -> DecryptionQuality {
         if self.plaintext.is_empty() {
-            return DecryptionQuality::LowConfidence;
+            return DecryptionQuality::Low;
         }
 
         // Check printable ratio
@@ -106,11 +106,11 @@ impl DecryptedPayload {
         let ratio = printable as f32 / self.plaintext.len() as f32;
 
         if ratio > 0.9 {
-            DecryptionQuality::HighConfidence
+            DecryptionQuality::High
         } else if ratio > 0.5 {
-            DecryptionQuality::MediumConfidence
+            DecryptionQuality::Medium
         } else {
-            DecryptionQuality::LowConfidence
+            DecryptionQuality::Low
         }
     }
 }

@@ -4,11 +4,57 @@
 
 traits:
   - id: net/http/request-python
-    description: HTTP requests (Python)
+    description: "Performs HTTP request (urllib or requests)"
     criticality: inert
-    confidence: 0.66
-    mbc: "C0002"
-    attack: "T1071.001"
+    confidence: 0.9
+    file_types: [python]
     condition:
       type: string
-      regex: "(HTTPConnection|HTTPSConnection|requests\\.(get|post))"
+      regex: "(requests\\.(get|post)|urllib\\.request\\.urlopen)"
+
+  - id: net/http/request/get
+    description: "Performs HTTP GET request"
+    criticality: notable
+    confidence: 0.9
+    file_types: [python]
+    condition:
+      type: string
+      regex: 'requests\\.get\('
+
+  - id: net/http/request/post
+    description: "Performs HTTP POST request (Exfiltration indicator)"
+    criticality: notable
+    confidence: 0.9
+    file_types: [python]
+    condition:
+      type: string
+      regex: 'requests\\.post\('
+
+  - id: net/http/request/url-literal
+    description: "Direct URL literal in HTTP request"
+    criticality: notable
+    confidence: 0.8
+    file_types: [python]
+    condition:
+      type: ast_query
+      language: python
+      query: |
+        (call
+          function: (attribute
+            object: (identifier) @obj
+            attribute: (identifier) @meth)
+          arguments: (argument_list
+            (string) @url))
+        (#match? @obj "^(requests|urqt|urllib|urllib2|req|r|client|http)$")
+        (#match? @meth "^(get|post|urlopen|urlretrieve)$")
+
+composite_rules:
+  - id: net/http/python-exfiltration
+    description: "Gathers system info and exfiltrates via HTTP"
+    criticality: hostile
+    confidence: 0.9
+    requires_all:
+      - type: trait
+        id: intel/discover/system/python-platform-fingerprint
+      - type: trait
+        id: net/http/request-python

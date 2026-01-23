@@ -3,10 +3,12 @@
 # ATT&CK: T1059.004, T1110.001
 
 traits:
+  # NOTE: Individual "/bin/busybox" string is notable, not suspicious
+  # Real IoT malware detection requires multiple indicators (see composite rules)
   - id: c2/botnet/iot/busybox
     description: "BusyBox reference (IoT device targeting)"
-    criticality: suspicious
-    confidence: 0.85
+    criticality: notable
+    confidence: 0.5
     attack: "T1059.004"
     file_types: [elf]
     platforms: [linux]

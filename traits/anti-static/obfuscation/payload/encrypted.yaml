@@ -103,6 +103,7 @@ traits:
     description: "No visible strings in binary"
     criticality: suspicious
     confidence: 0.8
+    file_types: [macho, elf, pe]
     condition:
       type: string_count
       max: 0

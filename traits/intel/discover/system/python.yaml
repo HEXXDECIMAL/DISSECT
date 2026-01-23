@@ -9,112 +9,72 @@ defaults:
   criticality: notable
 
 traits:
-  # Platform module - OS detection
+  # Platform module - OS detection (Alias-resistant AST)
   - id: intel/discover/system/python-platform-system
-    description: "OS type detection (platform.system)"
+    description: "Profiles the host operating system type"
     confidence: 0.8
     condition:
-      type: string
-      regex: "platform\\.system\\(\\)"
+      type: ast_query
+      language: python
+      query: |
+        (call function: (attribute attribute: (identifier) @meth))
+        (#match? @meth "^(system|node|machine|uname|getuser)$")
 
   - id: intel/discover/system/python-platform-machine
-    description: "CPU architecture detection (platform.machine)"
+    description: "Identifies the host CPU architecture"
     confidence: 0.75
     condition:
-      type: string
-      regex: "platform\\.machine\\(\\)"
+      type: ast_pattern
+      node_type: call
+      pattern: ".machine()"
 
   - id: intel/discover/system/python-platform-node
-    description: "Hostname detection (platform.node)"
+    description: "Retrieves the system hostname"
     confidence: 0.7
     condition:
-      type: string
-      regex: "platform\\.node\\(\\)"
-
-  - id: intel/discover/system/python-platform-release
-    description: "OS release detection (platform.release)"
-    confidence: 0.65
-    criticality: inert
-    condition:
-      type: string
-      regex: "platform\\.release\\(\\)"
-
-  - id: intel/discover/system/python-platform-version
-    description: "OS version detection (platform.version)"
-    confidence: 0.65
-    criticality: inert
-    condition:
-      type: string
-      regex: "platform\\.version\\(\\)"
-
-  - id: intel/discover/system/python-platform-processor
-    description: "Processor detection (platform.processor)"
-    confidence: 0.7
-    condition:
-      type: string
-      regex: "platform\\.processor\\(\\)"
+      type: ast_pattern
+      node_type: call
+      pattern: ".node()"
 
   - id: intel/discover/system/python-platform-uname
-    description: "Full system info (platform.uname)"
+    description: "Collects comprehensive system hardware and OS information"
+    confidence: 0.8
+    condition:
+      type: ast_pattern
+      node_type: call
+      pattern: ".uname()"
+
+  # User lookup (Alias-resistant)
+  - id: intel/discover/system/python-getpass-user
+    description: "Identifies the current logged-in user"
+    confidence: 0.85
+    condition:
+      type: ast_pattern
+      node_type: call
+      pattern: ".getuser()"
+
+  # MAC address discovery
+  - id: intel/discover/system/python-mac-discovery
+    description: "Collects hardware MAC addresses for system fingerprinting"
     confidence: 0.8
     condition:
       type: string
-      regex: "platform\\.uname\\(\\)"
-
-  # sys module - Python environment detection
-  - id: intel/discover/system/python-sys-platform
-    description: "Platform identifier (sys.platform)"
-    confidence: 0.75
-    condition:
-      type: string
-      regex: "sys\\.platform\\b"
-
-  - id: intel/discover/system/python-sys-executable
-    description: "Python interpreter path (sys.executable)"
-    confidence: 0.7
-    condition:
-      type: string
-      regex: "sys\\.executable\\b"
-
-  # os module - environment detection
-  - id: intel/discover/system/python-os-name
-    description: "OS name detection (os.name)"
-    confidence: 0.7
-    condition:
-      type: string
-      regex: "os\\.name\\b"
-
-  - id: intel/discover/system/python-os-uname
-    description: "System identification (os.uname)"
-    confidence: 0.75
-    condition:
-      type: string
-      regex: "os\\.uname\\(\\)"
+      regex: 'getmac|ifconfig|uuid\.getnode\(\)'
 
 composite_rules:
-  # Composite: Multiple platform checks = fingerprinting
-  - id: intel/discover/system/python-platform-fingerprint
-    description: "System fingerprinting (multiple platform checks)"
-    confidence: 0.9
+  # Composite: Intensive system enumeration (Alias-resistant)
+  - id: intel/discover/system/python-enumeration
+    description: "Performs intensive system enumeration (multiple info leaks)"
     criticality: suspicious
-    requires_count: 2
+    confidence: 0.95
+    near_lines: 80
+    requires_count: 3
     conditions:
-      - type: string
-        regex: "platform\\.system\\(\\)"
-      - type: string
-        regex: "platform\\.machine\\(\\)"
-      - type: string
-        regex: "platform\\.node\\(\\)"
-      - type: string
-        regex: "sys\\.platform\\b"
-      - type: string
-        regex: "os\\.name\\b"
-
-  # OS-conditional execution pattern
-  - id: intel/discover/system/python-os-conditional
-    description: "OS-conditional code execution"
-    confidence: 0.85
-    condition:
-      type: string
-      # Matches: if platform.system() == "Windows" or similar
-      regex: "if\\s+(?:platform\\.system\\(\\)|sys\\.platform|os\\.name)\\s*[=!]"
+      - type: trait
+        id: intel/discover/system/python-platform-system
+      - type: trait
+        id: intel/discover/system/python-mac-discovery
+      - type: trait
+        id: intel/discover/system/python-getpass-user
+      - type: trait
+        id: net/http/request-python

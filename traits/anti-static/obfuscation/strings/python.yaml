@@ -1,0 +1,90 @@
+# String Obfuscation Detection - Python
+# MBC: B0032 (Obfuscated Files or Information)
+# ATT&CK: T1027
+
+traits:
+  - id: anti-static/obfuscation/strings/python-hex
+    description: "Detects hex-encoded string patterns"
+    criticality: notable
+    confidence: 0.7
+    file_types: [python]
+    condition:
+      type: yara
+      source: |
+        rule python_hex_obfuscation {
+          strings:
+            $hex = /(\\x[0-9a-fA-F]{2}){4,}/
+          condition:
+            $hex
+        }
+
+  - id: anti-static/obfuscation/strings/python-octal
+    description: "Detects octal-encoded string patterns"
+    criticality: notable
+    confidence: 0.7
+    file_types: [python]
+    condition:
+      type: yara
+      source: |
+        rule python_octal_obfuscation {
+          strings:
+            $oct = /(\\[0-7]{3}){4,}/
+          condition:
+            $oct
+        }
+
+  - id: anti-static/obfuscation/strings/python-chr
+    description: "Character code manipulation (chr/ord)"
+    criticality: notable
+    confidence: 0.6
+    file_types: [python]
+    condition:
+      type: string
+      regex: '\\b(chr|ord)\('
+
+composite_rules:
+  - id: anti-static/obfuscation/strings/execute-decoded-content
+    description: "Direct execution of decoded content (Dynamic Dropper)"
+    criticality: hostile
+    confidence: 0.98
+    requires_all:
+      - type: string
+        regex: 'exec\(|eval\('
+      - type: string
+        regex: 'b64decode|fromhex|bytes\.fromhex|bz2\.decompress|zlib\.decompress|marshal\.loads'
+
+  - id: anti-static/obfuscation/strings/python-encoded-pattern
+    description: "Detects encoded string patterns (hex or octal)"
+    criticality: notable
+    requires_any:
+      - type: trait
+        id: anti-static/obfuscation/strings/python-hex
+      - type: trait
+        id: anti-static/obfuscation/strings/python-octal
+
+  - id: anti-static/obfuscation/strings/obfuscated-execution
+    description: "Direct execution of encoded string (Dynamic Dropper)"
+    criticality: hostile
+    confidence: 0.95
+    requires_all:
+      - type: string
+        regex: 'exec\(|eval\('
+      - type: trait
+        id: anti-static/obfuscation/strings/python-encoded-pattern
+
+  - id: anti-static/obfuscation/strings/concatenated-execution
+    description: "String concatenation in execution sink (Evasion)"
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: ast_query
+      language: python
+      query: |
+        (call
+          function: (identifier) @func
+          arguments: (argument_list
+            (binary_operator
+              left: (_)
+              operator: "+"
+              right: (_))))
+        (#match? @func "^(exec|eval|b64decode|system|compile)$")

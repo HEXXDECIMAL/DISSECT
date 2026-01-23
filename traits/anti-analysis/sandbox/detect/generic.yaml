@@ -9,6 +9,8 @@ traits:
     confidence: 0.66
     mbc: "B0007"
     attack: "T1497"
+    # Exclude JS - data libraries like faker.js have random words that match
+    file_types: [elf, macho, pe, shell, python]
     condition:
       type: yara
       source: |
@@ -30,5 +32,6 @@ traits:
             // Sandbox detection file paths
             $sandbox_path = /C:\\(sandbox|analysis|malware)/i
           condition:
-            any of them
+            // Require 2+ indicators to avoid false positives on single words
+            2 of them
         }

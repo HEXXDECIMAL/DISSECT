@@ -143,32 +143,5 @@ traits:
 
   # === Atomic: Remote Payload Delivery ===
 
-  - id: lateral/ssh/remote-curl
-    description: Uses curl for remote payload
-    criticality: notable
-    confidence: 0.5
-    attack: "T1105"
-    platforms: [all]
-    condition:
-      type: string
-      regex: "curl\\s+-"
+  # Removed: remote-curl, remote-wget, remote-lwp (better covered by net/download/ traits)
 
-  - id: lateral/ssh/remote-wget
-    description: Uses wget for remote payload
-    criticality: notable
-    confidence: 0.5
-    attack: "T1105"
-    platforms: [linux, unix]
-    condition:
-      type: string
-      exact: "wget"
-
-  - id: lateral/ssh/remote-lwp
-    description: Uses lwp-download for remote payload
-    criticality: suspicious
-    confidence: 0.7
-    attack: "T1105"
-    platforms: [linux, unix]
-    condition:
-      type: string
-      exact: "lwp-download"
