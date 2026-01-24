@@ -635,10 +635,27 @@ impl Radare2Analyzer {
                     metrics.avg_complexity =
                         complexities.iter().sum::<u32>() as f32 / complexities.len() as f32;
                     metrics.max_complexity = *complexities.iter().max().unwrap_or(&0);
-                    metrics.high_complexity_functions =
-                        complexities.iter().filter(|&&c| c > 10).count() as u32;
-                    metrics.very_high_complexity_functions =
-                        complexities.iter().filter(|&&c| c > 25).count() as u32;
+
+                    // High complexity (>50)
+                    let high_comp: Vec<_> = r2_functions
+                        .iter()
+                        .filter(|f| f.complexity.unwrap_or(0) > 50)
+                        .collect();
+                    metrics.high_complexity_functions = high_comp.len() as u32;
+                    metrics.high_complexity_function_names =
+                        high_comp.iter().map(|f| f.name.clone()).take(5).collect();
+
+                    // Very high complexity (>100)
+                    let very_high_comp: Vec<_> = r2_functions
+                        .iter()
+                        .filter(|f| f.complexity.unwrap_or(0) > 100)
+                        .collect();
+                    metrics.very_high_complexity_functions = very_high_comp.len() as u32;
+                    metrics.very_high_complexity_function_names = very_high_comp
+                        .iter()
+                        .map(|f| f.name.clone())
+                        .take(5)
+                        .collect();
                 }
 
                 // Control flow metrics
@@ -675,8 +692,15 @@ impl Radare2Analyzer {
                     metrics.avg_stack_frame =
                         stack_frames.iter().sum::<u32>() as f32 / stack_frames.len() as f32;
                     metrics.max_stack_frame = *stack_frames.iter().max().unwrap_or(&0);
-                    metrics.large_stack_functions =
-                        stack_frames.iter().filter(|&&s| s > 1024).count() as u32;
+
+                    // Large stack (>4KB)
+                    let large_stack: Vec<_> = r2_functions
+                        .iter()
+                        .filter(|f| f.stackframe.unwrap_or(0).max(0) as u32 > 4096)
+                        .collect();
+                    metrics.large_stack_functions = large_stack.len() as u32;
+                    metrics.large_stack_function_names =
+                        large_stack.iter().map(|f| f.name.clone()).take(5).collect();
                 }
             }
         }
