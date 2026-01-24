@@ -1,0 +1,134 @@
+# Node.js Reverse Shell Traits
+# Detects reverse shell and remote command execution patterns
+# MBC: B0032 (Remote Access)
+# ATT&CK: T1059 (Command Interpreter), T1095 (Non-Application Layer Protocol)
+
+traits:
+  - id: node
+    description: Node.js reverse shell pattern (net + child_process)
+    criticality: hostile
+    confidence: 0.85
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule node_reverse_shell {
+          strings:
+            $net = "net.Socket"
+            $cp = "child_process"
+            $spawn = "spawn"
+            $exec = "exec"
+            $pipe = "pipe"
+          condition:
+            $net and $cp and ($spawn or $exec) and $pipe
+        }
+
+  # Socket-based Reverse Shell
+  - id: net-socket
+    description: Net socket creation (potential reverse shell)
+    criticality: notable
+    confidence: 0.8
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "new net\\.Socket|net\\.createConnection|net\\.connect"
+
+  - id: socket-with-exec
+    description: Socket combined with command execution
+    criticality: malicious
+    confidence: 0.95
+    mbc: "B0032"
+    attack: "T1059"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule socket_exec_combo {
+          strings:
+            $socket1 = "net.Socket"
+            $socket2 = "net.connect"
+            $socket3 = "createConnection"
+            $exec1 = ".exec("
+            $exec2 = ".spawn("
+            $exec3 = "execSync"
+          condition:
+            any of ($socket*) and any of ($exec*)
+        }
+
+  # Ngrok/Tunnel Services
+  - id: ngrok-tunnel
+    description: Ngrok tunnel endpoint (C2 tunneling)
+    criticality: malicious
+    confidence: 0.95
+    mbc: "C0002"
+    attack: "T1572"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "ngrok\\.io|ngrok\\.com|tcp\\.ngrok"
+
+  - id: tunnel-service
+    description: Tunneling service endpoint
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1572"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "serveo\\.net|localtunnel\\.me|localhost\\.run|pinggy\\.io"
+
+  # Lock File Pattern (single instance)
+  - id: lock-file
+    description: Lock file for single instance (RAT pattern)
+    criticality: notable
+    confidence: 0.7
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule rat_lock_file {
+          strings:
+            $lock1 = ".lock"
+            $lock2 = "lockfile"
+            $exists = "existsSync"
+            $write = "writeFileSync"
+          condition:
+            any of ($lock*) and $exists and $write
+        }
+
+  # Socket Data Event with Exec
+  # NOTE: Requires net.Socket context to avoid FPs from HTTP response streaming
+  # HTTP responses also use .on('data') but are not reverse shells
+  - id: data-event-exec
+    description: Socket data event with command execution
+    criticality: hostile
+    confidence: 0.95
+    mbc: "B0032"
+    attack: "T1059"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule socket_data_exec {
+          strings:
+            // Socket creation (required for reverse shell)
+            $socket1 = "net.Socket" ascii
+            $socket2 = "net.connect" ascii
+            $socket3 = "net.createConnection" ascii
+            $socket4 = "new Socket(" ascii
+            // Data event handler
+            $event1 = ".on('data'" ascii
+            $event2 = ".on(\"data\"" ascii
+            // Command execution
+            $exec1 = "exec(" ascii
+            $exec2 = "spawn(" ascii
+            $exec3 = "execSync(" ascii
+            $exec4 = "spawnSync(" ascii
+            // Exclude HTTP response patterns (not reverse shells)
+            $http_res1 = "res.on('data'" ascii
+            $http_res2 = "response.on('data'" ascii
+            $http_res3 = "https.get" ascii
+            $http_res4 = "http.get" ascii
+          condition:
+            any of ($socket*) and any of ($event*) and any of ($exec*) and none of ($http_res*)
+        }

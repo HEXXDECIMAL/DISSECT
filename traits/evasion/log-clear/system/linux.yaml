@@ -3,7 +3,7 @@
 # ATT&CK: T1070.001
 
 traits:
-  - id: fs/path/system-log
+  - id: system-log
     description: Reference to system log file
     criticality: notable
     confidence: 0.66
@@ -22,7 +22,7 @@ traits:
             any of them
         }
 
-  - id: evasion/log-clear
+  - id: log-clear
     description: Clear system logs or history
     criticality: suspicious
     confidence: 0.8

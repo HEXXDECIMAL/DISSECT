@@ -3,7 +3,7 @@
 # ATT&CK: T1053.003
 
 traits:
-  - id: persistence/cron
+  - id: cron
     description: Cron job persistence
     criticality: notable
     confidence: 0.66

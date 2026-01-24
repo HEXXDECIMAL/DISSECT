@@ -1,7 +1,7 @@
 # Composite VM/Emulator Detection Capabilities
 
 capabilities:
-  - id: anti-analysis/emulator/detect/detect-vendors
+  - id: detect-vendors
     description: VM detection via vendor/product strings
     criticality: suspicious
     mbc: "B0009"
@@ -18,7 +18,7 @@ capabilities:
       - type: trait
         id: cpu-vendor
 
-  - id: anti-analysis/emulator/detect/comprehensive
+  - id: comprehensive
     description: Virtual machine environment detection
     criticality: suspicious
     mbc: "B0009"

@@ -3,7 +3,7 @@
 # ATT&CK: T1070.004
 
 traits:
-  - id: evasion/self-delete-shell
+  - id: self-delete-shell
     description: Self-deleting shell script
     criticality: suspicious
     confidence: 0.66

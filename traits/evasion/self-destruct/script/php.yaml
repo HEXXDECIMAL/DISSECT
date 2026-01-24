@@ -3,24 +3,24 @@
 # ATT&CK: T1070.004 (File Deletion)
 
 traits:
-  - id: evasion/self-destruct/script/unlink
+  - id: unlink
     description: File deletion capability
     criticality: notable
     confidence: 0.8
     mbc: "F0006"
     attack: "T1070.004"
-    file_types: [all]
+    file_types: [php]
     condition:
       type: string
       exact: unlink
 
-  - id: evasion/self-destruct/script/script-self-delete
+  - id: script-self-delete
     description: Script self-deletion pattern (SCRIPT_FILENAME + unlink)
     criticality: suspicious
     confidence: 0.95
     mbc: "F0006"
     attack: "T1070.004"
-    file_types: [all]
+    file_types: [php]
     condition:
       type: string
       regex: "unlink\\s*\\(\\s*\\$_SERVER\\s*\\[\\s*['\"]SCRIPT_FILENAME['\"]\\s*\\]"

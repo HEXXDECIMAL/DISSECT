@@ -3,7 +3,7 @@
 # ATT&CK: T1083
 
 traits:
-  - id: fs/watch/fswatch
+  - id: fswatch
     description: Filesystem watcher utilities
     criticality: inert
     confidence: 0.66

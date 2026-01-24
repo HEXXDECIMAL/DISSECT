@@ -3,7 +3,7 @@
 # ATT&CK: T1561
 
 traits:
-  - id: impact/wipe/disk-terms
+  - id: disk-terms
     description: Disk wiper terminology
     criticality: suspicious
     confidence: 0.75

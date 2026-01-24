@@ -9,7 +9,7 @@ defaults:
 
 traits:
   # XDG autostart directories
-  - id: persistence/autostart/linux-xdg-autostart
+  - id: linux-xdg-autostart
     description: "XDG autostart directory access"
     confidence: 0.85
     criticality: hostile
@@ -18,7 +18,7 @@ traits:
       regex: "\\.config/autostart|/etc/xdg/autostart|XDG_CONFIG_HOME.*autostart"
 
   # Desktop entry files
-  - id: persistence/autostart/linux-desktop-entry
+  - id: linux-desktop-entry
     description: "Desktop entry file creation (.desktop)"
     confidence: 0.8
     condition:
@@ -26,7 +26,7 @@ traits:
       regex: "\\.desktop|\\[Desktop Entry\\]|X-GNOME-Autostart"
 
   # User systemd service persistence
-  - id: persistence/autostart/linux-user-systemd
+  - id: linux-user-systemd
     description: "User-level systemd service persistence"
     confidence: 0.85
     attack: "T1543.002"
@@ -35,7 +35,7 @@ traits:
       regex: "\\.config/systemd/user|\\.local/share/systemd/user|systemctl.*--user.*enable"
 
   # rc.local persistence
-  - id: persistence/autostart/linux-rc-local
+  - id: linux-rc-local
     description: "rc.local persistence mechanism"
     confidence: 0.9
     criticality: hostile
@@ -45,7 +45,7 @@ traits:
       regex: "/etc/rc\\.local|/etc/rc\\.d/rc\\.local"
 
   # init.d script persistence
-  - id: persistence/autostart/linux-init-script
+  - id: linux-init-script
     description: "init.d script persistence"
     confidence: 0.85
     attack: "T1037.004"
@@ -57,7 +57,7 @@ traits:
 
 composite_rules:
   # XDG autostart with executable
-  - id: persistence/autostart/linux-xdg-executable
+  - id: linux-xdg-executable
     description: "XDG autostart with executable command"
     criticality: hostile
     confidence: 0.95

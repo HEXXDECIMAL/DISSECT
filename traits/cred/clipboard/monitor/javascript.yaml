@@ -3,7 +3,7 @@
 # ATT&CK: T1553 (Capture Clipboard)
 
 traits:
-  - id: credential/clipboard/monitor/js-pbpaste
+  - id: js-pbpaste
     description: Accesses system clipboard via pbpaste (macOS)
     criticality: suspicious
     confidence: 0.95
@@ -13,7 +13,7 @@ traits:
       type: string
       exact: "pbpaste"
 
-  - id: credential/clipboard/monitor/js-powershell-clipboard
+  - id: js-powershell-clipboard
     description: Accesses system clipboard via PowerShell (Windows)
     criticality: suspicious
     confidence: 0.95
@@ -23,7 +23,7 @@ traits:
       type: string
       regex: 'powershell.*Get-Clipboard'
 
-  - id: credential/clipboard/monitor/js-xclip
+  - id: js-xclip
     description: Accesses system clipboard via xclip (Linux)
     criticality: suspicious
     confidence: 0.95
@@ -34,7 +34,7 @@ traits:
       exact: "xclip"
 
 composite_rules:
-  - id: credential/clipboard/monitor/js-clipboard-exfil
+  - id: js-clipboard-exfil
     description: JavaScript clipboard theft with exfiltration
     criticality: hostile
     confidence: 0.98

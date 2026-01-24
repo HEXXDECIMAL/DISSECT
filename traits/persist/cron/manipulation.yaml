@@ -2,7 +2,7 @@
 # ATT&CK: T1053.003
 
 traits:
-  - id: persistence/cron/manipulation/blind_append
+  - id: blind_append
     description: "Appends to crontab by piping echo to crontab -"
     criticality: suspicious
     confidence: 0.9
@@ -19,7 +19,7 @@ traits:
             $crontab_l and $echo and $pipe_crontab
         }
 
-  - id: persistence/cron/manipulation/filtered_rewrite
+  - id: filtered_rewrite
     description: "Rewrites crontab by filtering output of crontab -l"
     criticality: suspicious
     confidence: 0.9

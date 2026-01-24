@@ -2,7 +2,7 @@
 # ATT&CK: T1555.003 (Credentials from Web Browsers)
 
 traits:
-  - id: credential/browser/chromium/js-sqlite-logins
+  - id: js-sqlite-logins
     description: SQL query for Chromium login data in JS
     criticality: suspicious
     confidence: 0.95
@@ -14,7 +14,7 @@ traits:
       case_insensitive: true
 
 composite_rules:
-  - id: credential/browser/chromium/js-stealer
+  - id: js-stealer
     description: Chromium browser credential stealer (SQLite + Exfil)
     criticality: hostile
     confidence: 0.98

@@ -3,7 +3,7 @@
 # ATT&CK: T1083
 
 traits:
-  - id: fs/path/log-var
+  - id: log-var
     description: Reference to /var/log
     criticality: notable
     confidence: 0.66

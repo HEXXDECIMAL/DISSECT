@@ -3,7 +3,7 @@
 # ATT&CK: T1071
 
 traits:
-  - id: socket/multiplex
+  - id: multiplex
     description: I/O multiplexing on sockets
     criticality: inert
     confidence: 0.66

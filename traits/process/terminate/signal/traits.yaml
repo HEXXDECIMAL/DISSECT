@@ -4,7 +4,7 @@
 
 traits:
   # Signal sending
-  - id: process/terminate/kill
+  - id: kill
     description: Send signal to process (terminate, stop, or control)
     criticality: notable
     mbc: "E1562"
@@ -15,7 +15,7 @@ traits:
       pattern: kill
     platforms: [unix, linux, macos]
 
-  - id: process/terminate/killpg
+  - id: killpg
     description: Send signal to process group
     criticality: notable
     mbc: "E1562"
@@ -27,7 +27,7 @@ traits:
     platforms: [unix, linux, macos]
 
   # Signal handling
-  - id: process/terminate/signal
+  - id: signal
     description: Install signal handler (catch or ignore signals)
     criticality: notable
     mbc: "F0004"
@@ -38,7 +38,7 @@ traits:
       pattern: signal
     platforms: [unix, linux, macos]
 
-  - id: process/terminate/sigaction
+  - id: sigaction
     description: Examine or change signal action
     criticality: notable
     mbc: "F0004"
@@ -49,7 +49,7 @@ traits:
       pattern: sigaction
     platforms: [unix, linux, macos]
 
-  - id: process/terminate/sigprocmask
+  - id: sigprocmask
     description: Examine or change blocked signals
     criticality: notable
     mbc: "F0004"
@@ -61,7 +61,7 @@ traits:
     platforms: [unix, linux, macos]
 
   # Process termination
-  - id: process/terminate/abort
+  - id: abort
     description: Cause abnormal process termination
     criticality: inert
     mbc: "E1562"
@@ -72,7 +72,7 @@ traits:
       pattern: abort
     platforms: [unix, linux, macos, windows]
 
-  - id: process/terminate/exit
+  - id: exit
     description: Terminate process with status code
     criticality: inert
     mbc: "E1562"
@@ -83,7 +83,7 @@ traits:
       pattern: exit
     platforms: [unix, linux, macos, windows]
 
-  - id: process/terminate/_exit
+  - id: _exit
     description: Terminate process immediately without cleanup
     criticality: inert
     mbc: "E1562"

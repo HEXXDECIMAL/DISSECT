@@ -5,7 +5,7 @@
 composite_rules:
   # === Atomic: Password Database Functions ===
 
-  - id: credential/dump/getpwnam
+  - id: getpwnam
     description: Read user password database (getpwnam)
     criticality: inert
     confidence: 0.7
@@ -17,7 +17,7 @@ composite_rules:
       type: symbol
       pattern: "getpwnam"
 
-  - id: credential/dump/getpwuid
+  - id: getpwuid
     description: Read user password database by UID (getpwuid)
     criticality: inert
     confidence: 0.7
@@ -29,7 +29,7 @@ composite_rules:
       type: symbol
       pattern: "getpwuid"
 
-  - id: credential/dump/getspnam
+  - id: getspnam
     description: Read shadow password file (getspnam)
     criticality: notable
     confidence: 0.8
@@ -45,7 +45,7 @@ composite_rules:
 
   # NOTE: For ELF binaries, shadow file access is common in system utilities
   # Real credential dumping detection requires additional context
-  - id: credential/dump/shadow-file
+  - id: shadow-file
     description: Access to system shadow password file
     criticality: notable
     confidence: 0.9
@@ -55,42 +55,42 @@ composite_rules:
       regex: "/etc/(shadow|gshadow|master.passwd)"
 
 
-  - id: credential/dump/passwd-file
+  - id: passwd-file
     description: Password file access (/etc/passwd)
     criticality: inert
     confidence: 0.6
     mbc: "E1003.008"
     attack: "T1003.008"
     platforms: [unix, linux, macos]
-    file_types: [all]
+    file_types: [elf, macho, shell, perl, python, ruby]
     condition:
       type: string
       exact: "/etc/passwd"
 
   # NOTE: System utilities like busybox legitimately access gshadow
-  - id: credential/dump/gshadow-file
+  - id: gshadow-file
     description: Group shadow file access (/etc/gshadow)
     criticality: notable
     confidence: 0.6
     attack: "T1003.008"
     platforms: [linux]
-    file_types: [all]
+    file_types: [elf, macho, shell, perl, python, ruby]
     condition:
       type: string
       exact: "/etc/gshadow"
 
-  - id: credential/dump/master-passwd
+  - id: master-passwd
     description: BSD master.passwd file access
     criticality: suspicious
     confidence: 0.9
     attack: "T1003.008"
     platforms: [macos, unix]
-    file_types: [all]
+    file_types: [elf, macho, shell, perl, python, ruby]
     condition:
       type: string
       exact: "/etc/master.passwd"
 
-  - id: credential/dump/shadow-extraction
+  - id: shadow-extraction
     description: Shadow file credential extraction
     criticality: suspicious
     confidence: 0.9

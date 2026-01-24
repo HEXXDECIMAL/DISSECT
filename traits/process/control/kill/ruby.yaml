@@ -1,7 +1,7 @@
 # Process Control - Ruby
 
 traits:
-  - id: process/control/kill/ruby-kill
+  - id: ruby-kill
     description: Kill process
     criticality: notable
     confidence: 0.90

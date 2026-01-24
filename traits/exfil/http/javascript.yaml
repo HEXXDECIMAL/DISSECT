@@ -1,0 +1,44 @@
+# HTTP POST Exfiltration - JavaScript/Node.js
+# Detects HTTP POST requests that may be used for data exfiltration
+# ATT&CK: T1041 (Exfiltration Over C2 Channel)
+
+traits:
+  - id: axios-post
+    description: axios POST request (potential exfiltration)
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1041"
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "axios\\.post|axios\\[.*post"
+
+  - id: fetch-post
+    description: fetch POST request (potential exfiltration)
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1041"
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "fetch\\(.*POST|method:\\s*['\"]POST"
+
+  - id: request-post
+    description: request module POST (potential exfiltration)
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1041"
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "request\\.post|request\\(.*method.*POST"
+
+  - id: http-request
+    description: Node.js http.request (potential exfiltration)
+    criticality: notable
+    confidence: 0.7
+    attack: "T1041"
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "http\\.request|https\\.request"

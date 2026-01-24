@@ -1,0 +1,27 @@
+# Manjusaka C2 Framework Detection
+# Chinese attack framework similar to Cobalt Strike/Sliver
+# Reference: https://www.cisco.com/c/en/us/products/security/talos/manjusaka.html
+
+traits:
+  - id: c2-framework/manjusaka
+    description: Manjusaka C2 framework indicators
+    criticality: hostile
+    confidence: 0.95
+    condition:
+      type: yara
+      source: |
+        rule manjusaka_c2 {
+          meta:
+            description = "Manjusaka C2 framework"
+            reference = "https://blog.talosintelligence.com/manjusaka-offensive-framework/"
+          strings:
+            $manjusaka = "manjusaka" ascii nocase
+            $mjs = "mjs_" ascii
+            // Rust-based implant patterns
+            $rust_panic = "rust_panic" ascii
+            // Chinese C2 patterns
+            $cn_c2_1 = "xmrig" ascii
+            $cn_c2_2 = "stratum" ascii
+          condition:
+            $manjusaka or ($mjs and $rust_panic) or (all of ($cn_c2*))
+        }

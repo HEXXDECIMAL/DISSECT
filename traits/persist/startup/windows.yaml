@@ -8,7 +8,7 @@ defaults:
 
 traits:
   # Windows Startup folder paths
-  - id: persistence/startup/windows-startup-folder
+  - id: windows-startup-folder
     description: "Targets Windows Startup folder for persistence"
     confidence: 0.85
     criticality: hostile
@@ -18,7 +18,7 @@ traits:
       regex: "\\\\Start Menu\\\\Programs\\\\Startup|AppData\\\\Roaming\\\\Microsoft\\\\Windows\\\\Start Menu\\\\Programs\\\\Startup|shell:startup"
 
   # Registry Run keys (common persistence location)
-  - id: persistence/startup/windows-registry-run
+  - id: windows-registry-run
     description: "Accesses Windows registry Run key for persistence"
     confidence: 0.9
     criticality: hostile
@@ -28,7 +28,7 @@ traits:
       regex: "SOFTWARE\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run|HKCU.*Run|HKLM.*Run|CurrentVersion\\\\Run"
 
   # Registry RunOnce keys
-  - id: persistence/startup/windows-registry-runonce
+  - id: windows-registry-runonce
     description: "Accesses Windows registry RunOnce key for persistence"
     confidence: 0.9
     criticality: hostile
@@ -38,7 +38,7 @@ traits:
       regex: "CurrentVersion\\\\RunOnce|RunOnce"
 
   # winreg module (Python Windows registry access)
-  - id: persistence/startup/windows-python-winreg
+  - id: windows-python-winreg
     description: "Accesses Windows registry via Python winreg module"
     confidence: 0.8
     platforms: [windows]
@@ -48,7 +48,7 @@ traits:
       regex: "import winreg|from winreg|_winreg|OpenKey.*HKEY|SetValueEx|CreateKey"
 
   # Scheduled tasks (schtasks)
-  - id: persistence/startup/windows-schtasks
+  - id: windows-schtasks
     description: "Creates scheduled task for persistence"
     confidence: 0.85
     criticality: hostile
@@ -59,7 +59,7 @@ traits:
       regex: "schtasks\\s*/create|schtasks\\.exe.*create|ITaskScheduler|TaskScheduler"
 
   # Windows service installation
-  - id: persistence/startup/windows-service-install
+  - id: windows-service-install
     description: "Installs Windows service for persistence"
     confidence: 0.85
     attack: "T1543.003"
@@ -69,7 +69,7 @@ traits:
       regex: "sc\\s+create|CreateService|InstallService|win32serviceutil"
 
   # PowerShell registry persistence
-  - id: persistence/startup/windows-powershell-registry
+  - id: windows-powershell-registry
     description: "Modifies registry for persistence via PowerShell"
     confidence: 0.9
     criticality: hostile
@@ -79,7 +79,7 @@ traits:
       regex: "Set-ItemProperty.*Run|New-ItemProperty.*Run|reg\\s+add.*Run"
 
   # WMI event subscription persistence
-  - id: persistence/startup/windows-wmi-persistence
+  - id: windows-wmi-persistence
     description: "Sets up WMI event subscription for persistence"
     confidence: 0.9
     criticality: hostile
@@ -91,7 +91,7 @@ traits:
 
 composite_rules:
   # Python registry persistence pattern
-  - id: persistence/startup/windows-python-reg-persistence
+  - id: windows-python-reg-persistence
     description: "Python Windows registry persistence"
     criticality: hostile
     confidence: 0.95
@@ -104,7 +104,7 @@ composite_rules:
         regex: "CurrentVersion\\\\Run|OpenKey.*HKEY.*Run"
 
   # Scheduled task with suspicious payload
-  - id: persistence/startup/windows-schtasks-payload
+  - id: windows-schtasks-payload
     description: "Scheduled task with executable payload"
     criticality: hostile
     confidence: 0.95

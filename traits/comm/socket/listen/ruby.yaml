@@ -3,7 +3,7 @@
 # ATT&CK: T1071
 
 traits:
-  - id: socket/listen-ruby
+  - id: listen-ruby
     description: Listen on TCP socket (Ruby)
     criticality: notable
     confidence: 0.66

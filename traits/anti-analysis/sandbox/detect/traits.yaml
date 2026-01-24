@@ -3,7 +3,7 @@
 # ATT&CK: T1497.001 (Virtualization/Sandbox Evasion: System Checks)
 
 traits:
-  - id: anti-analysis/sandbox/detect/hostname-sandbox
+  - id: hostname-sandbox
     description: Common sandbox hostnames
     criticality: suspicious
     mbc: "B0007"
@@ -14,7 +14,7 @@ traits:
       regex: "(DESKTOP-19OLLTD|DESKTOP-B0T93D6|DESKTOP-VRSQLAG|JOHN-PC|JULIA-PC|LISA-PC)"
       case_insensitive: true
 
-  - id: anti-analysis/sandbox/detect/username-sandbox
+  - id: username-sandbox
     description: Common sandbox usernames
     criticality: suspicious
     mbc: "B0007"
@@ -27,7 +27,7 @@ traits:
       regex: "\\b(user|USER|username|USERNAME|User|Username)\\s*[=:]\\s*(malware|sandbox|virus|sample|test|admin)\\b"
       case_insensitive: true
 
-  - id: anti-analysis/sandbox/detect/sleep-accel
+  - id: sleep-accel
     description: Sleep acceleration detection (sandbox evasion)
     criticality: suspicious
     mbc: "B0007"
@@ -37,7 +37,7 @@ traits:
       type: symbol
       pattern: sleep|Sleep|usleep
 
-  - id: anti-analysis/sandbox/detect/file-check-sandbox
+  - id: file-check-sandbox
     description: Sandbox artifact file checks
     criticality: suspicious
     mbc: "B0007"

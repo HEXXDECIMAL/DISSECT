@@ -2,7 +2,7 @@
 # ATT&CK: T1195 (Supply Chain Compromise)
 
 traits:
-  - id: rust/suspicious-crate-call
+  - id: suspicious-crate-call
     description: Call to a suspicious-looking crate (potential typosquat or malicious)
     criticality: suspicious
     confidence: 0.8
@@ -22,7 +22,7 @@ traits:
             any of them
         }
 
-  - id: rust/misspelled-common-words
+  - id: misspelled-common-words
     description: Misspelled common words in identifiers (indicator of low quality/malicious)
     criticality: notable
     confidence: 0.7
@@ -40,7 +40,7 @@ traits:
             any of them
         }
 
-  - id: rust/dummy-keys-hashmap
+  - id: dummy-keys-hashmap
     description: Usage of dummy keys in a HashMap (potential test/placeholder for malicious data)
     criticality: notable
     confidence: 0.6
@@ -49,7 +49,7 @@ traits:
       type: string
       regex: "dummy_key|dummy_value"
 
-  - id: rust/internal-lib-pattern
+  - id: internal-lib-pattern
     description: Generic indicator of legitimate library code (traits, structs, impls)
     criticality: inert
     confidence: 0.5
@@ -68,7 +68,7 @@ traits:
         }
 
 composite_rules:
-  - id: rust/trojanized-lib
+  - id: trojanized-lib
     description: Potential trojanized library (legitimate library code + suspicious crate calls)
     criticality: hostile
     confidence: 0.85

@@ -1,0 +1,144 @@
+# PyPI Malicious Package Patterns (Supply-Chain Specific)
+# ATT&CK: T1195.002 (Supply Chain Compromise)
+# These patterns are specific to PyPI supply-chain attacks
+# Generic behaviors (reverse shells, obfuscation) should be in their objective directories
+
+defaults:
+  file_types: [python]
+  attack: "T1195.002"
+
+traits:
+  # setup.py abuse - core supply-chain pattern
+  - id: setup-abuse
+    description: Malicious setup.py execution
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule pypi_setup_abuse {
+          strings:
+            // setup.py context
+            $setup1 = "setup(" ascii
+            $setup2 = "setuptools" ascii
+            $setup3 = "distutils" ascii
+            // Malicious operations
+            $imp1 = "subprocess" ascii
+            $imp2 = "os.system" ascii
+            $imp3 = "urllib" ascii
+            // Download and execute
+            $dl1 = "urlopen" ascii
+            $dl2 = "urlretrieve" ascii
+          condition:
+            (any of ($setup*) and any of ($imp*) and any of ($dl*))
+        }
+
+  # PyPI typosquatting with execution
+  - id: typosquat-exec
+    description: PyPI typosquatting with code execution
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: yara
+      source: |
+        rule pypi_typosquat_exec {
+          strings:
+            // Common targets
+            $pkg1 = "requests" ascii
+            $pkg2 = "urllib3" ascii
+            $pkg3 = "colorama" ascii
+            $pkg4 = "numpy" ascii
+            // With suspicious behavior
+            $sus1 = "subprocess" ascii
+            $sus2 = "os.system" ascii
+            $sus3 = "exec(" ascii
+            $sus4 = "eval(" ascii
+          condition:
+            (any of ($pkg*) and 2 of ($sus*))
+        }
+
+  # Install-triggered network activity
+  - id: install-network
+    description: Network activity triggered by package import/install
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule pypi_install_network {
+          strings:
+            // Module level indicators
+            $init = "__init__" ascii
+            $version = "__version__" ascii
+            // Network
+            $net1 = "requests.get" ascii
+            $net2 = "requests.post" ascii
+            $net3 = "urllib.request" ascii
+            $net4 = "urlopen" ascii
+            // Command execution
+            $exec1 = "exec(" ascii
+            $exec2 = "eval(" ascii
+            $exec3 = "subprocess" ascii
+          condition:
+            ($init or $version) and any of ($net*) and any of ($exec*)
+        }
+
+  # Author impersonation with malicious code
+  - id: author-impersonation
+    description: Impersonates package author with malicious code
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: yara
+      source: |
+        rule pypi_author_impersonation {
+          strings:
+            $author1 = "__author__" ascii
+            $email1 = "__email__" ascii
+            $exec = "exec(" ascii
+            $eval = "eval(" ascii
+            $b64 = "b64decode" ascii
+            $compile = "compile(" ascii
+          condition:
+            ($author1 and $email1) and any of ($exec, $eval, $b64, $compile)
+        }
+
+  # Gzip JSON payload loading (supply-chain specific pattern)
+  - id: gzip-json-payload
+    description: Loads code payload from gzipped JSON resource
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule pypi_gzip_json_payload {
+          strings:
+            $gzip_open = "gzip.open" ascii
+            $json_loads = "json.loads" ascii
+            $resources = "resources" ascii
+            $json_gz = ".json.gz" ascii
+            $b64decode = "b64decode" ascii
+            $exec = "exec(" ascii
+            $eval = "eval(" ascii
+          condition:
+            ($gzip_open and $json_loads and any of ($resources, $json_gz)) and any of ($b64decode, $exec, $eval)
+        }
+
+  # Runtime dependency injection
+  - id: dependency-injection
+    description: Package installs additional dependencies at runtime
+    criticality: hostile
+    confidence: 0.95
+    condition:
+      type: yara
+      source: |
+        rule runtime_dependency_injection {
+          strings:
+            $try = "try:" ascii
+            $except = /except\s*(ImportError)?:/
+            $import = /import\s+\w+/ ascii
+            $pip_install = "pip install" ascii nocase
+            $sys_exec = "sys.executable" ascii
+          condition:
+            $try and $except and $import and ($pip_install or $sys_exec)
+        }

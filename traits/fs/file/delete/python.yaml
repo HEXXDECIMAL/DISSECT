@@ -3,7 +3,7 @@
 # ATT&CK: T1070.004
 
 traits:
-  - id: fs/file/delete/os-remove
+  - id: os-remove
     description: Deletes file via os.remove
     criticality: notable
     confidence: 0.9
@@ -15,7 +15,7 @@ traits:
       node_type: call
       pattern: "os.remove"
 
-  - id: fs/file/delete/os-unlink
+  - id: os-unlink
     description: Deletes file via os.unlink
     criticality: notable
     confidence: 0.9
@@ -27,7 +27,7 @@ traits:
       node_type: call
       pattern: "os.unlink"
 
-  - id: fs/file/delete/shutil-rmtree
+  - id: shutil-rmtree
     description: Deletes directory recursively via shutil.rmtree
     criticality: notable
     confidence: 0.9
@@ -39,7 +39,7 @@ traits:
       node_type: call
       pattern: "shutil.rmtree"
 
-  - id: fs/file/delete/pathlib-unlink
+  - id: pathlib-unlink
     description: Deletes file via pathlib.unlink
     criticality: notable
     confidence: 0.9

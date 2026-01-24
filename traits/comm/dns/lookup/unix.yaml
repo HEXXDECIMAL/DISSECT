@@ -3,7 +3,7 @@
 # ATT&CK: T1071.004
 
 traits:
-  - id: dns/lookup
+  - id: lookup
     description: Uses DNS (Domain Name Service)
     criticality: inert
     confidence: 0.66
@@ -13,7 +13,7 @@ traits:
       type: symbol
       pattern: res_query|res_search|getaddrinfo|gethostbyname
 
-  - id: dns/lookup-resolv
+  - id: lookup-resolv
     description: Reads DNS resolver configuration
     criticality: inert
     confidence: 0.66
@@ -21,7 +21,7 @@ traits:
       type: string
       exact: resolv.conf
 
-  - id: dns/lookup-reverse
+  - id: lookup-reverse
     description: Reverse DNS lookup
     criticality: inert
     confidence: 0.66
@@ -29,7 +29,7 @@ traits:
       type: string
       regex: "(\\.in-addr\\.arpa|ip6\\.arpa)"
 
-  - id: dns/lookup-txt
+  - id: lookup-txt
     description: DNS TXT record queries
     criticality: notable
     confidence: 0.66

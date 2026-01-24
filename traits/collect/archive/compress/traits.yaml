@@ -4,7 +4,7 @@
 composite_rules:
   # === Atomic: Tar Operations ===
 
-  - id: collect/archive/tar-create
+  - id: tar-create
     description: Creates tar archive
     criticality: notable
     confidence: 0.6
@@ -15,7 +15,7 @@ composite_rules:
       type: string
       regex: "tar\\s+-c"
 
-  - id: collect/archive/tar-current-dir
+  - id: tar-current-dir
     description: Archives current directory
     criticality: suspicious
     confidence: 0.75
@@ -26,7 +26,7 @@ composite_rules:
       type: string
       regex: "tar\\s+-c\\w*\\s+\\."
 
-  - id: collect/archive/tar-from-file
+  - id: tar-from-file
     description: Tar with file list input
     criticality: suspicious
     confidence: 0.7
@@ -39,7 +39,7 @@ composite_rules:
 
   # === Atomic: Zip Operations ===
 
-  - id: collect/archive/zip-create
+  - id: zip-create
     description: Creates zip archive
     criticality: notable
     confidence: 0.6
@@ -49,7 +49,7 @@ composite_rules:
       type: string
       regex: "zip\\s+-[rX]"
 
-  - id: collect/archive/zip-library
+  - id: zip-library
     description: ZIP library usage
     criticality: inert
     confidence: 0.5
@@ -61,7 +61,7 @@ composite_rules:
 
   # === Atomic: Unarchive ===
 
-  - id: collect/archive/unarchive
+  - id: unarchive
     description: Unarchive operation
     criticality: notable
     confidence: 0.5
@@ -70,7 +70,7 @@ composite_rules:
       type: string
       regex: "[Uu]narchive"
 
-  - id: collect/archive/binary-tar-exec
+  - id: binary-tar-exec
     description: Binary executes tar command (not script)
     criticality: suspicious
     confidence: 0.8

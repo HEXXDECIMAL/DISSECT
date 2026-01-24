@@ -4,7 +4,7 @@
 
 traits:
   # C/C++ - Unix
-  - id: exec/command/shell/c-system
+  - id: c-system
     description: Executes shell commands via C system()
     criticality: notable
     mbc: "E1059.004"
@@ -17,7 +17,7 @@ traits:
     platforms: [unix, linux, macos]
     file_types: [pe, elf, macho, dll, so, dylib]
 
-  - id: exec/command/shell/c-popen
+  - id: c-popen
     description: Executes command and captures output via C popen()
     criticality: notable
     mbc: "E1059.004"
@@ -30,7 +30,7 @@ traits:
     platforms: [unix, linux, macos]
     file_types: [pe, elf, macho, dll, so, dylib]
 
-  - id: exec/command/shell/c-execve
+  - id: c-execve
     description: Executes program directly via C execve()
     criticality: notable
     mbc: "E1059"
@@ -44,7 +44,7 @@ traits:
     file_types: [pe, elf, macho, dll, so, dylib]
 
   # Windows
-  - id: exec/command/shell/win-createprocess
+  - id: win-createprocess
     description: Creates new process via Windows CreateProcess API
     criticality: notable
     mbc: "E1059.003"
@@ -57,7 +57,7 @@ traits:
     platforms: [windows]
     file_types: [pe, dll]
 
-  - id: exec/command/shell/win-shellexecute
+  - id: win-shellexecute
     description: Executes file or program via Windows ShellExecute API
     criticality: notable
     mbc: "E1059.003"
@@ -70,7 +70,7 @@ traits:
     platforms: [windows]
 
   # Go
-  - id: exec/command/shell/go-os-exec
+  - id: go-os-exec
     description: Executes commands via Go os/exec package
     criticality: notable
     mbc: "E1059"
@@ -82,7 +82,7 @@ traits:
       exact: '"os/exec"'
 
   # Python
-  - id: exec/command/shell/python-os-system
+  - id: python-os-system
     description: Executes shell commands via Python os.system()
     criticality: notable
     mbc: "E1059.006"
@@ -93,7 +93,7 @@ traits:
       type: string
       regex: "os\\.system\\("
 
-  - id: exec/command/shell/python-subprocess
+  - id: python-subprocess
     description: Executes process via Python subprocess module
     criticality: notable
     mbc: "E1059.006"
@@ -105,7 +105,7 @@ traits:
       regex: "import subprocess|from subprocess"
 
   # JavaScript
-  - id: exec/command/shell/js-child-process
+  - id: js-child-process
     description: Executes commands via Node.js child_process
     criticality: notable
     mbc: "E1059"
@@ -117,7 +117,7 @@ traits:
       regex: "require\\(['\"]child_process['\"]\\)|from ['\"]child_process['\"]"
 
   # Ruby
-  - id: exec/command/shell/ruby-system
+  - id: ruby-system
     description: Executes commands via Ruby system()
     criticality: notable
     mbc: "E1059"
@@ -129,7 +129,7 @@ traits:
       regex: "\\bsystem\\(['\"]"
 
   # Rust
-  - id: exec/command/shell/rust-command
+  - id: rust-command
     description: Executes process via Rust std::process::Command
     criticality: notable
     mbc: "E1059"
@@ -141,7 +141,7 @@ traits:
       regex: "use std::process::Command|Command::new"
 
   # Shell references
-  - id: exec/command/shell/bin-sh
+  - id: bin-sh
     description: References /bin/sh (Bourne shell)
     criticality: notable
     mbc: "E1059.004"
@@ -153,7 +153,7 @@ traits:
     platforms: [unix, linux, macos]
     file_types: [pe, elf, macho, dll, so, dylib]
 
-  - id: exec/command/shell/cmd-exe
+  - id: cmd-exe
     description: References cmd.exe (Windows Command Prompt)
     criticality: notable
     mbc: "E1059.003"

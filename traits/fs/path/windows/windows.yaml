@@ -3,7 +3,7 @@
 # ATT&CK: T1083
 
 traits:
-  - id: fs/path/windows-appdata
+  - id: windows-appdata
     description: Reference to Windows Application Data
     criticality: notable
     confidence: 0.66
@@ -19,7 +19,7 @@ traits:
             any of them
         }
 
-  - id: fs/path/windows-root
+  - id: windows-root
     description: Reference to Windows system root
     criticality: inert
     confidence: 0.66
@@ -27,7 +27,7 @@ traits:
       type: string
       regex: "[Cc]:\\\\Windows\\\\[\\w\\\\]+"
 
-  - id: fs/path/windows-system32
+  - id: windows-system32
     description: Reference to Windows System32
     criticality: notable
     confidence: 0.66

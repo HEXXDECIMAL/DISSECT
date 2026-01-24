@@ -3,7 +3,7 @@
 # ATT&CK: T1543 (Create or Modify System Process)
 
 composite_rules:
-  - id: persistence/daemon/init/daemon-fork
+  - id: daemon-fork
     description: "Process forking for daemon behavior"
     criticality: notable
     confidence: 0.4
@@ -14,7 +14,7 @@ composite_rules:
       type: symbol
       pattern: "\\bfork\\b|\\bdaemon\\b"
 
-  - id: persistence/daemon/init/daemon-setsid
+  - id: daemon-setsid
     description: "Session creation (setsid) for daemon"
     criticality: notable
     confidence: 0.5
@@ -25,7 +25,7 @@ composite_rules:
       type: symbol
       pattern: "\\bsetsid\\b"
 
-  - id: persistence/daemon/init/daemon-dev-null
+  - id: daemon-dev-null
     description: "Redirects I/O to /dev/null (daemon behavior)"
     criticality: notable
     confidence: 0.4
@@ -35,7 +35,7 @@ composite_rules:
       type: string
       exact: "/dev/null"
 
-  - id: persistence/daemon/init/daemon-chdir-root
+  - id: daemon-chdir-root
     description: "Change directory to root (daemon behavior)"
     criticality: notable
     confidence: 0.3
@@ -45,7 +45,7 @@ composite_rules:
       type: symbol
       pattern: "\\bchdir\\b"
 
-  - id: persistence/daemon/init/daemon-proc-self
+  - id: daemon-proc-self
     description: "Reads /proc/self (process introspection)"
     criticality: notable
     confidence: 0.5
@@ -55,7 +55,7 @@ composite_rules:
       type: string
       regex: "/proc/self(/|$)"
 
-  - id: persistence/daemon/full-daemon
+  - id: full-daemon
     description: "Full daemon behavior (fork + setsid + /dev/null)"
     criticality: suspicious
     confidence: 0.8
@@ -71,7 +71,7 @@ composite_rules:
       - type: trait
         id: daemon-setsid
 
-  - id: persistence/daemon/stealth-daemon
+  - id: stealth-daemon
     description: "Stealthy daemon (daemon + proc introspection)"
     criticality: suspicious
     confidence: 0.75
@@ -88,7 +88,7 @@ composite_rules:
         id: daemon-setsid
 
   # Signal handling for daemon persistence
-  - id: persistence/daemon/init/signal-ignore-pattern
+  - id: signal-ignore-pattern
     description: "Signal handler setup (daemon persistence pattern)"
     criticality: notable
     confidence: 0.6
@@ -113,7 +113,7 @@ composite_rules:
             ($sig_ign or $sig_ign2)
         }
 
-  - id: persistence/daemon/init/sigchld-handler
+  - id: sigchld-handler
     description: "Custom SIGCHLD handler (child process reaping)"
     criticality: notable
     confidence: 0.6

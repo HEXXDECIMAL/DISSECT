@@ -3,7 +3,7 @@
 
 capabilities:
   # Hidden shell execution (common in supply chain attacks)
-  - id: exec/javascript/eval/hidden-shell-exec
+  - id: hidden-shell-exec
     description: Shell execution with output suppression
     criticality: suspicious
     confidence: 0.95
@@ -17,7 +17,7 @@ capabilities:
         id: exec/javascript/silent-true
 
   # Base64 decode and execute pattern
-  - id: exec/javascript/eval/base64-decode-exec
+  - id: base64-decode-exec
     description: Decode and execute pattern (supply chain indicator)
     criticality: suspicious
     confidence: 0.95
@@ -31,7 +31,7 @@ capabilities:
         id: exec/javascript/bash-string
 
   # Temp file dropper pattern
-  - id: exec/javascript/eval/tmp-dropper
+  - id: tmp-dropper
     description: Write to temp and execute
     criticality: suspicious
     confidence: 0.98
@@ -45,7 +45,7 @@ capabilities:
         id: exec/javascript/tmp-execute
 
   # Silent error suppression (stealth)
-  - id: exec/javascript/eval/silent-error-suppression
+  - id: silent-error-suppression
     description: Silent execution with error suppression
     criticality: suspicious
     confidence: 0.85
@@ -61,7 +61,7 @@ capabilities:
         id: exec/javascript/stderr-capture
 
   # Comprehensive supply chain attack pattern
-  - id: exec/javascript/eval/supply-chain-exec
+  - id: supply-chain-exec
     description: Supply chain attack execution pattern
     criticality: suspicious
     confidence: 0.98

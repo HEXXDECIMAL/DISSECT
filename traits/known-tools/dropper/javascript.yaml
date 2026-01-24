@@ -1,0 +1,44 @@
+# JavaScript Dropper and Staged Payload Patterns
+# ATT&CK: T1027 (Obfuscated Files or Information)
+
+traits:
+  - id: dropper/js-decrypt-eval
+    description: Decrypts a hardcoded payload and executes it via eval
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1027"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule js_decrypt_eval {
+          strings:
+            // Encryption library imports
+            $crypto1 = /require\(['"]crypto['"]\)/ ascii
+            $crypto2 = /from\s+['"]crypto['"]/ ascii
+            
+            // Decryption methods
+            $decipher = "createDecipheriv" ascii
+            
+            // Execution
+            $eval = "eval(" ascii
+            
+            // Large encoded blobs (Hex or Base64)
+            $encoded1 = /['"][0-9a-fA-F]{128,}['"]/ ascii
+            $encoded2 = /['"][a-zA-Z0-9+\/]{128,}={0,2}['"]/ ascii
+            
+            // Buffer decoding
+            $buf1 = /Buffer\.from\(.*['"]hex['"]\)/ ascii
+            $buf2 = /Buffer\.from\(.*['"]base64['"]\)/ ascii
+          condition:
+            (any of ($crypto*) and $decipher and $eval) and (any of ($encoded*) or any of ($buf*))
+        }
+
+  - id: dropper/js-staged-generator
+    description: Uses a generator function to staged-evaluate code (obfuscation)
+    criticality: suspicious
+    confidence: 0.9
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: 'function\*.*yield\s+eval\('

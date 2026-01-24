@@ -5,7 +5,7 @@
 traits:
   # === Atomic: Network Scanning Indicators ===
 
-  - id: lateral/scan/ip-format
+  - id: ip-format
     description: IP address format string (scanning indicator)
     criticality: notable
     confidence: 0.6
@@ -15,7 +15,7 @@ traits:
       type: string
       exact: "%d.%d.%d.%d"
 
-  - id: lateral/scan/target-ip-ref
+  - id: target-ip-ref
     description: References target IP concept
     criticality: suspicious
     confidence: 0.75
@@ -25,7 +25,7 @@ traits:
       type: string
       regex: "[Tt]arget[_\\s]?[Ii][Pp]|targetIP"
 
-  - id: lateral/scan/random-target
+  - id: random-target
     description: Random target/IP generation
     criticality: suspicious
     confidence: 0.8
@@ -35,7 +35,7 @@ traits:
       type: string
       regex: "[Rr]andom[_\\s]?[Tt]arget|[Rr]andom[_\\s]?IP|getrandip"
 
-  - id: lateral/scan/port-ref
+  - id: port-ref
     description: Port scanning terminology
     criticality: notable
     confidence: 0.5
@@ -45,7 +45,7 @@ traits:
       type: string
       regex: "\\b[Pp]ort[Ss]can|scan[_\\s]?[Pp]ort|[Pp]ort[_\\s]?[Ss]can"
 
-  - id: lateral/scan/probe-ref
+  - id: probe-ref
     description: Network probing terminology
     criticality: notable
     confidence: 0.6
@@ -55,7 +55,7 @@ traits:
       type: string
       regex: "\\b[Pp]robe\\b|[Bb]anner[_\\s]?[Gg]rab"
 
-  - id: lateral/scan/target-ref
+  - id: target-ref
     description: Scan target terminology
     criticality: notable
     confidence: 0.6
@@ -68,7 +68,7 @@ traits:
 
   # === Atomic: Brute Force Indicators ===
 
-  - id: lateral/scan/brute-force-ref
+  - id: brute-force-ref
     description: Brute force attack reference
     criticality: suspicious
     confidence: 0.85
@@ -80,7 +80,7 @@ traits:
 
   # === Atomic: IoT Default Credentials ===
 
-  - id: lateral/scan/iot-cred-hikvision
+  - id: iot-cred-hikvision
     description: Hikvision default credential
     criticality: suspicious
     confidence: 0.8
@@ -91,7 +91,7 @@ traits:
       exact: "hikvision"
       case_insensitive: true
 
-  - id: lateral/scan/iot-cred-xmhdipc
+  - id: iot-cred-xmhdipc
     description: XMeye/Xiongmai default credential
     criticality: suspicious
     confidence: 0.85
@@ -101,7 +101,7 @@ traits:
       type: string
       exact: "xmhdipc"
 
-  - id: lateral/scan/iot-cred-cuadmin
+  - id: iot-cred-cuadmin
     description: CUAdmin default credential
     criticality: suspicious
     confidence: 0.8
@@ -111,7 +111,7 @@ traits:
       type: string
       exact: "CUAdmin"
 
-  - id: lateral/scan/iot-cred-jvbzd
+  - id: iot-cred-jvbzd
     description: Dahua default credential
     criticality: suspicious
     confidence: 0.85
@@ -121,7 +121,7 @@ traits:
       type: string
       exact: "jvbzd"
 
-  - id: lateral/scan/iot-cred-tsgoingon
+  - id: iot-cred-tsgoingon
     description: ZTE router default credential
     criticality: suspicious
     confidence: 0.85
@@ -131,7 +131,7 @@ traits:
       type: string
       exact: "tsgoingon"
 
-  - id: lateral/scan/iot-cred-lnadmin
+  - id: iot-cred-lnadmin
     description: LN admin default credential
     criticality: suspicious
     confidence: 0.8
@@ -141,7 +141,7 @@ traits:
       type: string
       exact: "lnadmin"
 
-  - id: lateral/scan/iot-cred-zte521
+  - id: iot-cred-zte521
     description: ZTE router default credential (Zte521/Pon521)
     criticality: suspicious
     confidence: 0.9
@@ -151,7 +151,7 @@ traits:
       type: string
       regex: "[ZP]te521|Pon521|Zxic521"
 
-  - id: lateral/scan/iot-cred-oelinux
+  - id: iot-cred-oelinux
     description: OE Linux default credential
     criticality: suspicious
     confidence: 0.9
@@ -161,7 +161,7 @@ traits:
       type: string
       exact: "oelinux123"
 
-  - id: lateral/scan/iot-cred-xc3511
+  - id: iot-cred-xc3511
     description: Hikvision xc3511 default credential
     criticality: suspicious
     confidence: 0.9
@@ -171,7 +171,7 @@ traits:
       type: string
       exact: "xc3511"
 
-  - id: lateral/scan/iot-cred-vizxv
+  - id: iot-cred-vizxv
     description: Dahua vizxv default credential
     criticality: suspicious
     confidence: 0.9
@@ -183,7 +183,7 @@ traits:
 
   # === Atomic: Common Weak Passwords ===
 
-  - id: lateral/scan/weak-pass-root123
+  - id: weak-pass-root123
     description: Weak password root123
     criticality: suspicious
     confidence: 0.7
@@ -193,7 +193,7 @@ traits:
       type: string
       exact: "root123"
 
-  - id: lateral/scan/weak-pass-admin123
+  - id: weak-pass-admin123
     description: Weak password admin123
     criticality: suspicious
     confidence: 0.7
@@ -203,7 +203,7 @@ traits:
       type: string
       regex: "[Aa]dmin123"
 
-  - id: lateral/scan/weak-pass-passw0rd
+  - id: weak-pass-passw0rd
     description: Weak password Passw0rd
     criticality: suspicious
     confidence: 0.7
@@ -213,7 +213,7 @@ traits:
       type: string
       exact: "Passw0rd"
 
-  - id: lateral/scan/weak-pass-qwerty
+  - id: weak-pass-qwerty
     description: Weak password qwerty variants
     criticality: suspicious
     confidence: 0.7
@@ -225,7 +225,7 @@ traits:
 
   # === Atomic: Root/Exploit Terminology ===
 
-  - id: lateral/scan/root-exploit-ref
+  - id: root-exploit-ref
     description: Root exploitation terminology (leetspeak/hacker slang)
     criticality: suspicious
     confidence: 0.85

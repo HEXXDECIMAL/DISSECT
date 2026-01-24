@@ -1,6 +1,6 @@
 traits:
   # VSCode Extension API Usage
-  - id: api/workspace-findFiles
+  - id: workspace-findFiles
     description: VSCode workspace.findFiles API call (file enumeration)
     criticality: notable
     confidence: 0.85
@@ -10,7 +10,7 @@ traits:
       node_type: call_expression
       pattern: "workspace.findFiles"
 
-  - id: api/fs-readFile
+  - id: fs-readFile
     description: VSCode workspace.fs.readFile API call (file reading)
     criticality: notable
     confidence: 0.85
@@ -20,7 +20,7 @@ traits:
       node_type: call_expression
       pattern: "workspace.fs.readFile"
 
-  - id: api/openTextDocument
+  - id: openTextDocument
     description: VSCode workspace.openTextDocument API call
     criticality: notable
     confidence: 0.8
@@ -30,7 +30,7 @@ traits:
       node_type: call_expression
       pattern: "openTextDocument"
 
-  - id: api/globalState
+  - id: globalState
     description: VSCode extension globalState access
     criticality: notable
     confidence: 0.7
@@ -40,7 +40,7 @@ traits:
       exact: "globalState"
 
   # Extension Activation Patterns
-  - id: lifecycle/activate
+  - id: activate
     description: VSCode extension activate function
     criticality: inert
     confidence: 1.0
@@ -49,7 +49,7 @@ traits:
       type: string
       regex: "function activate|async function activate|export.*activate"
 
-  - id: lifecycle/deactivate
+  - id: deactivate
     description: VSCode extension deactivate function
     criticality: inert
     confidence: 1.0
@@ -60,7 +60,7 @@ traits:
 
   # Suspicious VSCode Extension Behaviors
   # IMPORTANT: Requires VSCode markers to avoid FPs on regular npm packages
-  - id: suspicious/env-access
+  - id: env-access
     description: Access to process.env in VSCode extension
     criticality: suspicious
     confidence: 0.85
@@ -82,7 +82,7 @@ traits:
             any of ($vscode*) and $env
         }
 
-  - id: suspicious/clipboard-write
+  - id: clipboard-write
     description: VSCode clipboard write access
     criticality: notable
     confidence: 0.8
@@ -92,7 +92,7 @@ traits:
       node_type: call_expression
       pattern: "clipboard.writeText"
 
-  - id: suspicious/clipboard-read
+  - id: clipboard-read
     description: VSCode clipboard read access
     criticality: notable
     confidence: 0.8
@@ -104,7 +104,7 @@ traits:
 
   # Telemetry/Exfiltration Patterns
   # IMPORTANT: Requires VSCode markers to avoid FPs on regular npm packages
-  - id: exfil/external-request
+  - id: external-request
     description: HTTP request in VSCode extension (potential exfiltration)
     criticality: suspicious
     confidence: 0.7
@@ -128,7 +128,7 @@ traits:
             any of ($vscode*) and any of ($http*)
         }
 
-  - id: exfil/telemetry-event
+  - id: telemetry-event
     description: VSCode telemetry event sending
     criticality: notable
     confidence: 0.7

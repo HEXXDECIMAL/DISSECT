@@ -4,7 +4,7 @@
 
 traits:
   # SYN Flood attack
-  - id: impact/ddos/syn-flood-logic
+  - id: syn-flood-logic
     description: SYN flood attack implementation
     criticality: hostile
     confidence: 0.9
@@ -22,7 +22,7 @@ traits:
             $raw and $tcp and $syn
         }
 
-  - id: impact/ddos/identifier/syn-flood
+  - id: syn-flood
     description: SYN flood identifier string
     criticality: notable
     confidence: 0.7
@@ -31,7 +31,7 @@ traits:
       regex: "(?i)syn[ _]?flood"
 
   # UDP Flood attack
-  - id: impact/ddos/udp-flood-logic
+  - id: udp-flood-logic
     description: UDP flood attack implementation
     criticality: hostile
     confidence: 0.9
@@ -50,7 +50,7 @@ traits:
         }
 
   # DNS Amplification attack
-  - id: impact/ddos/dns-amp-logic
+  - id: dns-amp-logic
     description: DNS amplification attack implementation
     criticality: hostile
     confidence: 0.9
@@ -68,7 +68,7 @@ traits:
             $amplification and $port_53 and $dns
         }
 
-  - id: impact/ddos/identifier/dns-amp
+  - id: dns-amp
     description: DNS amplification identifier string
     criticality: notable
     confidence: 0.7
@@ -77,7 +77,7 @@ traits:
       regex: "(?i)dns[ _]?amp"
 
   # HTTP Flood (Layer 7)
-  - id: impact/ddos/http-flood-identifier
+  - id: http-flood-identifier
     description: Layer 7 DDoS identifier string
     criticality: notable
     confidence: 0.7
@@ -95,7 +95,7 @@ traits:
 
 composite_rules:
   # Multi-vector DDoS tool
-  - id: impact/ddos/multi-vector
+  - id: multi-vector
     description: Multi-vector DDoS tool (multiple attack types)
     criticality: hostile
     confidence: 0.95

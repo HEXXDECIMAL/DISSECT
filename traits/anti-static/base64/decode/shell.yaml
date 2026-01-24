@@ -3,7 +3,7 @@
 # ATT&CK: T1140
 
 traits:
-  - id: anti-static/base64/decode-shell
+  - id: decode-shell
     description: Base64 decoding via shell command
     criticality: notable
     confidence: 0.66

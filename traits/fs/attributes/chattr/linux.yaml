@@ -3,7 +3,7 @@
 # ATT&CK: T1222
 
 traits:
-  - id: fs/attributes/chattr
+  - id: chattr
     description: Modify Linux file attributes
     criticality: notable
     confidence: 0.66
@@ -17,7 +17,7 @@ traits:
             $chattr
         }
 
-  - id: fs/attributes/chattr-immutable
+  - id: chattr-immutable
     description: Modify immutability of a file
     criticality: suspicious
     confidence: 0.66
@@ -32,7 +32,7 @@ traits:
             $chattr and none of ($not*)
         }
 
-  - id: fs/attributes/chattr-immutable-recursive
+  - id: chattr-immutable-recursive
     description: Recursively remove immutability of a directory
     criticality: suspicious
     confidence: 0.66

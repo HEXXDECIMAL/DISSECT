@@ -3,7 +3,7 @@
 # ATT&CK: T1222
 
 traits:
-  - id: fs/permission/chown
+  - id: chown
     description: Change file ownership
     criticality: notable
     confidence: 0.66

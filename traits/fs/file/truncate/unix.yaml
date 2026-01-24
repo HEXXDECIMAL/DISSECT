@@ -3,7 +3,7 @@
 # ATT&CK: T1565
 
 traits:
-  - id: fs/file/truncate
+  - id: truncate
     description: Truncate file
     criticality: notable
     confidence: 0.66

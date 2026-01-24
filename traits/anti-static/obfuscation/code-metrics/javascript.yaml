@@ -9,7 +9,7 @@ defaults:
 traits:
   # === JavaScript-Specific Obfuscation Patterns ===
 
-  - id: anti-static/obfuscation/code-metrics/js-arrow-function-abuse
+  - id: js-arrow-function-abuse
     description: "Excessive anonymous arrow functions (obfuscation pattern)"
     criticality: suspicious
     confidence: 0.8
@@ -18,7 +18,7 @@ traits:
       field: functions.anonymous
       min: 20
 
-  - id: anti-static/obfuscation/code-metrics/js-iife-heavy
+  - id: js-iife-heavy
     description: "High function density with one-liners (IIFE obfuscation)"
     criticality: suspicious
     confidence: 0.85
@@ -27,7 +27,7 @@ traits:
       field: functions.density_per_100_lines
       min: 15
 
-  - id: anti-static/obfuscation/code-metrics/js-deep-callback-nesting
+  - id: js-deep-callback-nesting
     description: "Deep function nesting (callback hell or obfuscation)"
     criticality: notable
     confidence: 0.75
@@ -36,7 +36,7 @@ traits:
       field: functions.max_nesting_depth
       min: 6
 
-  - id: anti-static/obfuscation/code-metrics/js-webpack-minified
+  - id: js-webpack-minified
     description: "Webpack/bundler minified output pattern"
     criticality: notable
     confidence: 0.7
@@ -46,7 +46,7 @@ traits:
       min: 1000
 
 composite_rules:
-  - id: anti-static/obfuscation/js-obfuscator-pattern
+  - id: js-obfuscator-pattern
     description: "JavaScript obfuscator tool output"
     criticality: suspicious
     confidence: 0.9
@@ -61,7 +61,7 @@ composite_rules:
       - type: trait
         id: anti-static/obfuscation/code-metrics/no-comments
 
-  - id: anti-static/obfuscation/js-npm-malware-pattern
+  - id: js-npm-malware-pattern
     description: "npm malware obfuscation pattern (install script)"
     criticality: hostile
     confidence: 0.9

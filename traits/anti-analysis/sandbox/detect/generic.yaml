@@ -3,7 +3,7 @@
 # ATT&CK: T1497
 
 traits:
-  - id: anti-analysis/sandbox
+  - id: sandbox
     description: Sandbox detection techniques
     criticality: suspicious
     confidence: 0.66
@@ -37,7 +37,7 @@ traits:
         }
 
   # JavaScript/Node.js sandbox detection
-  - id: anti-analysis/sandbox/detect/js-timing
+  - id: js-timing
     description: Sleep acceleration detection (sandbox evasion)
     criticality: suspicious
     confidence: 0.8
@@ -48,7 +48,7 @@ traits:
       type: string
       regex: "atomic-sleep|Date\\.now\\(\\).*setTimeout|performance\\.now\\(\\).*setTimeout"
 
-  - id: anti-analysis/sandbox/detect/js-debugger
+  - id: js-debugger
     description: JavaScript debugger detection
     criticality: suspicious
     confidence: 0.85
@@ -69,7 +69,7 @@ traits:
             2 of them
         }
 
-  - id: anti-analysis/sandbox/detect/js-headless
+  - id: js-headless
     description: Headless browser detection
     criticality: suspicious
     confidence: 0.8
@@ -80,7 +80,7 @@ traits:
       type: string
       regex: "navigator\\.webdriver|navigator\\.plugins\\.length\\s*===?\\s*0|window\\.outerWidth\\s*===?\\s*0"
 
-  - id: anti-analysis/sandbox/detect/vm-detect
+  - id: vm-detect
     description: Virtual machine detection
     criticality: suspicious
     confidence: 0.85

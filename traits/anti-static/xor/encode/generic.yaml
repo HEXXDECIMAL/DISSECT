@@ -3,7 +3,7 @@
 # ATT&CK: T1027
 
 traits:
-  - id: anti-static/xor/encode
+  - id: encode
     description: XOR encoding patterns
     criticality: notable
     confidence: 0.66

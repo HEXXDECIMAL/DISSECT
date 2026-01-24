@@ -3,7 +3,7 @@
 # ATT&CK: T1074
 
 traits:
-  - id: fs/temp/mktemp-go
+  - id: mktemp-go
     description: Create temporary files (Go)
     criticality: inert
     confidence: 0.66

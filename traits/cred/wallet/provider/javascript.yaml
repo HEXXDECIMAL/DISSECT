@@ -9,7 +9,7 @@ defaults:
 
 traits:
   # window.ethereum - MetaMask and EIP-1193 compatible wallets
-  - id: credential/wallet/provider/ethereum-provider
+  - id: ethereum-provider
     description: "Web3 wallet provider access (window.ethereum)"
     confidence: 0.75
     condition:
@@ -17,7 +17,7 @@ traits:
       regex: "window\\.ethereum|window\\[['\"]ethereum['\"]\\]"
 
   # ethereum.request method - primary wallet interaction API
-  - id: credential/wallet/provider/ethereum-request
+  - id: ethereum-request
     description: "Ethereum wallet request API"
     confidence: 0.8
     condition:
@@ -25,7 +25,7 @@ traits:
       regex: "ethereum\\.request\\s*\\(|\\['\"]request['\"]\\]\\s*\\("
 
   # eth_requestAccounts - request wallet connection
-  - id: credential/wallet/provider/eth-request-accounts
+  - id: eth-request-accounts
     description: "Request wallet accounts (eth_requestAccounts)"
     confidence: 0.85
     condition:
@@ -33,7 +33,7 @@ traits:
       regex: "eth_requestAccounts|eth_accounts|eth_accoun"
 
   # eth_sendTransaction - send transaction
-  - id: credential/wallet/provider/eth-send-transaction
+  - id: eth-send-transaction
     description: "Send Ethereum transaction (eth_sendTransaction)"
     confidence: 0.9
     criticality: suspicious
@@ -42,7 +42,7 @@ traits:
       regex: "eth_sendTransaction|eth_sendTr"
 
   # ERC-20 approve function selector (0x095ea7b3)
-  - id: credential/wallet/provider/erc20-approve
+  - id: erc20-approve
     description: "ERC-20 token approve function selector"
     confidence: 0.85
     criticality: suspicious
@@ -51,7 +51,7 @@ traits:
       exact: "0x095ea7b3"
 
   # ERC-20 transfer function selector (0xa9059cbb)
-  - id: credential/wallet/provider/erc20-transfer
+  - id: erc20-transfer
     description: "ERC-20 token transfer function selector"
     confidence: 0.8
     condition:
@@ -59,7 +59,7 @@ traits:
       exact: "0xa9059cbb"
 
   # ERC-20 transferFrom function selector (0x23b872dd)
-  - id: credential/wallet/provider/erc20-transferFrom
+  - id: erc20-transferFrom
     description: "ERC-20 token transferFrom function selector"
     confidence: 0.85
     criticality: suspicious
@@ -68,7 +68,7 @@ traits:
       exact: "0x23b872dd"
 
   # Function name patterns for wallet drainers
-  - id: credential/wallet/provider/drainer-function-names
+  - id: drainer-function-names
     description: "Suspicious wallet drainer function names"
     confidence: 0.9
     criticality: hostile
@@ -78,7 +78,7 @@ traits:
 
 composite_rules:
   # Wallet provider access + transaction sending = wallet drainer
-  - id: credential/wallet/provider/wallet-drainer
+  - id: wallet-drainer
     description: "Cryptocurrency wallet drainer (provider access + transaction)"
     criticality: hostile
     confidence: 0.95

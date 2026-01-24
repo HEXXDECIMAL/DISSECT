@@ -2,7 +2,7 @@
 # ATT&CK: T1567.002 (Exfiltration Over Web Service)
 
 traits:
-  - id: exfil/discord/webhook-endpoint
+  - id: webhook-endpoint
     description: Discord webhook API endpoint
     criticality: suspicious
     confidence: 0.9
@@ -12,7 +12,7 @@ traits:
       type: string
       regex: "discord\\.com/api/webhooks/\\d+"
 
-  - id: exfil/discord/webhook-endpoint-legacy
+  - id: webhook-endpoint-legacy
     description: Discord webhook API endpoint (legacy)
     criticality: suspicious
     confidence: 0.9
@@ -22,7 +22,7 @@ traits:
       type: string
       regex: "discordapp\\.com/api/webhooks/\\d+"
 
-  - id: exfil/discord/lib-js
+  - id: lib-js
     description: Discord.js library usage
     criticality: notable
     confidence: 0.7
@@ -32,7 +32,7 @@ traits:
       type: string
       exact: "discord.js"
 
-  - id: exfil/discord/lib-go
+  - id: lib-go
     description: DiscordGo library usage
     criticality: notable
     confidence: 0.7
@@ -42,7 +42,7 @@ traits:
       type: string
       exact: "discordgo"
 
-  - id: exfil/discord/lib-python
+  - id: lib-python
     description: Discord Python library usage
     criticality: notable
     confidence: 0.7
@@ -52,7 +52,7 @@ traits:
       type: string
       exact: "import discord"
 
-  - id: exfil/discord/lib-disnake
+  - id: lib-disnake
     description: Disnake Python library usage
     criticality: notable
     confidence: 0.7
@@ -63,7 +63,7 @@ traits:
       exact: "import disnake"
 
 composite_rules:
-  - id: exfil/discord/webhook-exfil
+  - id: webhook-exfil
     description: Discord webhook exfiltration
     criticality: suspicious
     confidence: 0.9

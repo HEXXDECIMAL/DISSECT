@@ -3,7 +3,7 @@
 # ATT&CK: T1567 (Exfiltration Over Web Service)
 
 traits:
-  - id: exfil/channel/cloud/s3-upload
+  - id: s3-upload
     description: AWS S3 upload
     criticality: notable
     mbc: "E1567.002"
@@ -13,7 +13,7 @@ traits:
       type: string
       regex: "s3\\.amazonaws\\.com|s3.*\\.upload"
 
-  - id: exfil/channel/cloud/dropbox-api
+  - id: dropbox-api
     description: Dropbox API access
     criticality: notable
     mbc: "E1567"
@@ -23,7 +23,7 @@ traits:
       type: string
       regex: "api\\.dropbox\\.com|dropbox.*upload"
 
-  - id: exfil/channel/cloud/gdrive-api
+  - id: gdrive-api
     description: Google Drive API access
     criticality: notable
     mbc: "E1567"

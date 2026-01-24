@@ -1,0 +1,23 @@
+# Implant Detection
+# MBC: B0033 (Adversary-in-the-Middle)
+# ATT&CK: T1543
+
+traits:
+  - id: implant
+    description: References an implant
+    criticality: suspicious
+    confidence: 0.7
+    condition:
+      type: string
+      # Require malware/C2 context - standalone words like "dropper" match DNS-SD records
+      regex: "(malware|c2|rat|backdoor)[_\\s]?(implant|dropper|stager)|(implant|dropper|stager)[_\\s]?(payload|config|beacon)|beacon[_\\s]?payload|malware[_\\s]?payload|shell[_\\s]?payload"
+
+  - id: trojan
+    description: References a trojan
+    criticality: suspicious
+    confidence: 0.66
+    condition:
+      type: string
+      # Require context - "trojan" alone can appear in documentation
+      regex: "trojan[_\\s]?(horse|malware|payload|downloader)|[_\\s]trojan[_\\s]"
+      case_insensitive: true

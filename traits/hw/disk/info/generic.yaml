@@ -2,7 +2,7 @@
 # ATT&CK: T1082 (System Information Discovery)
 
 traits:
-  - id: hw/disk/info/freespace
+  - id: freespace
     description: Disk free space query
     criticality: inert
     confidence: 0.5

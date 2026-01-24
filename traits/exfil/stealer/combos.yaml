@@ -2,7 +2,7 @@
 # ATT&CK: T1041
 
 composite_rules:
-  - id: exfil/stealer/go-crypto-exfil
+  - id: go-crypto-exfil
     description: Go program with crypto-based exfiltration
     criticality: hostile
     confidence: 0.98

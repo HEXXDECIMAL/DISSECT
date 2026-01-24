@@ -3,7 +3,7 @@
 # ATT&CK: T1083
 
 traits:
-  - id: fs/directory/readdir-python
+  - id: readdir-python
     description: List directory contents (Python)
     criticality: inert
     confidence: 0.66

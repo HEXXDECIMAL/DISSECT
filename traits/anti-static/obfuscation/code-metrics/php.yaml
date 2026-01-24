@@ -9,7 +9,7 @@ defaults:
 traits:
   # === PHP-Specific Obfuscation Patterns ===
 
-  - id: anti-static/obfuscation/code-metrics/php-encoded-strings
+  - id: php-encoded-strings
     description: "High entropy strings (base64/gzinflate encoded)"
     criticality: suspicious
     confidence: 0.85
@@ -18,7 +18,7 @@ traits:
       field: strings.avg_entropy
       min: 4.5
 
-  - id: anti-static/obfuscation/code-metrics/php-obfuscated-vars
+  - id: php-obfuscated-vars
     description: "Obfuscated PHP variable names"
     criticality: suspicious
     confidence: 0.8
@@ -27,7 +27,7 @@ traits:
       field: identifiers.avg_entropy
       min: 3.2
 
-  - id: anti-static/obfuscation/code-metrics/php-single-long-line
+  - id: php-single-long-line
     description: "Single very long line (webshell pattern)"
     criticality: suspicious
     confidence: 0.9
@@ -36,7 +36,7 @@ traits:
       field: text.max_line_length
       min: 1000
 
-  - id: anti-static/obfuscation/code-metrics/php-many-short-functions
+  - id: php-many-short-functions
     description: "Many short functions (deobfuscation layers)"
     criticality: notable
     confidence: 0.75
@@ -45,7 +45,7 @@ traits:
       field: functions.one_liners
       min: 8
 
-  - id: anti-static/obfuscation/code-metrics/php-non-ascii-identifiers
+  - id: php-non-ascii-identifiers
     description: "Many non-ASCII identifiers (obfuscation)"
     criticality: suspicious
     confidence: 0.9
@@ -54,7 +54,7 @@ traits:
       field: identifiers.avg_entropy
       min: 0.8
 
-  - id: anti-static/obfuscation/code-metrics/php-high-non-ascii-ratio
+  - id: php-high-non-ascii-ratio
     description: "High non-ASCII byte ratio (packed/obfuscated)"
     criticality: hostile
     confidence: 0.95
@@ -63,7 +63,7 @@ traits:
       field: text.non_ascii_ratio
       min: 0.5
 
-  - id: anti-static/obfuscation/code-metrics/php-non-ascii-call
+  - id: php-non-ascii-call
     description: "Function call with non-ASCII name (obfuscation)"
     criticality: hostile
     confidence: 0.98
@@ -73,7 +73,7 @@ traits:
       pattern: "[^\\x00-\\x7F]"
       regex: true
 
-  - id: anti-static/obfuscation/code-metrics/php-non-ascii-variable
+  - id: php-non-ascii-variable
     description: "Variable with non-ASCII name (obfuscation)"
     criticality: hostile
     confidence: 0.98
@@ -83,7 +83,7 @@ traits:
       pattern: "[^\\x00-\\x7F]"
       regex: true
 
-  - id: anti-static/obfuscation/code-metrics/php-non-ascii-name
+  - id: php-non-ascii-name
     description: "Identifier with non-ASCII characters (obfuscation)"
     criticality: hostile
     confidence: 0.98
@@ -93,7 +93,7 @@ traits:
       pattern: "[^\\x00-\\x7F]"
       regex: true
 
-  - id: anti-static/obfuscation/code-metrics/php-non-ascii-subscript
+  - id: php-non-ascii-subscript
     description: "Subscript with non-ASCII characters (obfuscation)"
     criticality: hostile
     confidence: 0.98
@@ -104,7 +104,7 @@ traits:
       regex: true
 
 composite_rules:
-  - id: anti-static/obfuscation/php-webshell-pattern
+  - id: php-webshell-pattern
     description: "PHP webshell obfuscation pattern"
     criticality: hostile
     confidence: 0.9
@@ -119,7 +119,7 @@ composite_rules:
       - type: trait
         id: anti-static/obfuscation/code-metrics/no-comments
 
-  - id: anti-static/obfuscation/php-encoded-payload
+  - id: php-encoded-payload
     description: "PHP with encoded payload"
     criticality: suspicious
     confidence: 0.85

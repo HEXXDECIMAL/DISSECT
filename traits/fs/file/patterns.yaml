@@ -2,7 +2,7 @@
 # Detects patterns of file creation followed by execution
 
 composite_rules:
-  - id: fs/file/patterns/execute-temp-file
+  - id: execute-temp-file
     description: "Creates and executes a file from a temporary directory (Staging)"
     criticality: hostile
     confidence: 0.95

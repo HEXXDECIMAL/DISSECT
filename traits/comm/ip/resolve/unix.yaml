@@ -3,7 +3,7 @@
 # ATT&CK: T1071.004
 
 traits:
-  - id: ip/resolve
+  - id: resolve
     description: Resolve IP addresses
     criticality: inert
     confidence: 0.66

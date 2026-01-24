@@ -3,7 +3,7 @@
 
 traits:
   # Overwrite and remove pattern (Secure Wipe)
-  - id: impact/wiper/go/secure-wipe-pattern
+  - id: secure-wipe-pattern
     description: Opens file for read-write and then removes it (secure wipe pattern)
     criticality: notable
     confidence: 0.8
@@ -22,7 +22,7 @@ traits:
         }
 
   # Known Wiper Standards
-  - id: impact/wiper/standards-reference
+  - id: standards-reference
     description: References to secure wiping standards (Gutmann, DoD 5220.22-M, etc.)
     criticality: notable
     confidence: 0.9
@@ -41,7 +41,7 @@ traits:
         }
 
   # Specific overwriting patterns (Gutmann)
-  - id: impact/wiper/gutmann-patterns
+  - id: gutmann-patterns
     description: Uses Gutmann secure deletion overwrite patterns
     criticality: notable
     confidence: 0.95
@@ -69,7 +69,7 @@ traits:
         }
 
   # Mass file destruction (Go)
-  - id: impact/wiper/go/mass-destruction
+  - id: mass-destruction
     description: Recursively walks filesystem and deletes/overwrites files
     criticality: suspicious
     confidence: 0.85
@@ -90,7 +90,7 @@ traits:
 
 composite_rules:
   # Secure wiper detection
-  - id: impact/wiper/go/secure-wiper
+  - id: secure-wiper
     description: Highly confident secure wiper (recursive overwrite and delete)
     criticality: suspicious
     confidence: 0.99

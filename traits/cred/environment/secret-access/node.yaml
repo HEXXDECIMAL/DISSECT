@@ -3,7 +3,7 @@
 
 traits:
   # Generic config file access
-  - id: credential/environment/secret-access/node-config
+  - id: node-config
     description: Accessing sensitive configuration files
     criticality: suspicious
     confidence: 0.7
@@ -13,7 +13,7 @@ traits:
       regex: '(\.env|\.ssh/id_rsa|\.aws/credentials|\.kube/config)'
 
   # AWS credentials
-  - id: credential/environment/secret-access/node-aws
+  - id: node-aws
     description: Accesses AWS credentials from environment
     criticality: suspicious
     confidence: 0.9
@@ -24,7 +24,7 @@ traits:
       regex: "process\\.env\\.(AWS_ACCESS_KEY|AWS_SECRET|AWS_SESSION_TOKEN)"
 
   # GitHub/GitLab tokens
-  - id: credential/environment/secret-access/node-git-token
+  - id: node-git-token
     description: Accesses Git service tokens from environment
     criticality: suspicious
     confidence: 0.9
@@ -35,7 +35,7 @@ traits:
       regex: "process\\.env\\.(GITHUB_TOKEN|GITLAB_TOKEN|GH_TOKEN|BITBUCKET_TOKEN)"
 
   # NPM tokens
-  - id: credential/environment/secret-access/node-npm-token
+  - id: node-npm-token
     description: Accesses NPM authentication tokens
     criticality: suspicious
     confidence: 0.95
@@ -46,7 +46,7 @@ traits:
       regex: "process\\.env\\.(NPM_TOKEN|NPM_AUTH_TOKEN|NODE_AUTH_TOKEN)"
 
   # Discord tokens
-  - id: credential/environment/secret-access/node-discord
+  - id: node-discord
     description: Accesses Discord bot/user tokens
     criticality: suspicious
     confidence: 0.9
@@ -57,7 +57,7 @@ traits:
       regex: "process\\.env\\.(DISCORD_TOKEN|DISCORD_BOT_TOKEN|DISCORD_CLIENT_SECRET)"
 
   # Slack tokens
-  - id: credential/environment/secret-access/node-slack
+  - id: node-slack
     description: Accesses Slack tokens from environment
     criticality: suspicious
     confidence: 0.9
@@ -68,7 +68,7 @@ traits:
       regex: "process\\.env\\.(SLACK_TOKEN|SLACK_BOT_TOKEN|SLACK_WEBHOOK)"
 
   # Database credentials
-  - id: credential/environment/secret-access/node-database
+  - id: node-database
     description: Accesses database connection strings
     criticality: suspicious
     confidence: 0.85
@@ -79,7 +79,7 @@ traits:
       regex: "process\\.env\\.(DATABASE_URL|MONGODB_URI|POSTGRES_|MYSQL_|REDIS_URL)"
 
   # API keys (generic)
-  - id: credential/environment/secret-access/node-api-key
+  - id: node-api-key
     description: Accesses API keys from environment
     criticality: notable
     confidence: 0.75
@@ -90,7 +90,7 @@ traits:
       regex: "process\\.env\\.[A-Z_]*(API_KEY|SECRET_KEY|PRIVATE_KEY|AUTH_KEY)"
 
   # Crypto/Wallet keys
-  - id: credential/environment/secret-access/node-crypto
+  - id: node-crypto
     description: Accesses cryptocurrency private keys
     criticality: hostile
     confidence: 0.95
@@ -101,7 +101,7 @@ traits:
       regex: "process\\.env\\.(WALLET_|MNEMONIC|SEED_PHRASE|PRIVATE_KEY|ETH_PRIVATE)"
 
   # CI/CD tokens
-  - id: credential/environment/secret-access/node-cicd
+  - id: node-cicd
     description: Accesses CI/CD pipeline tokens
     criticality: suspicious
     confidence: 0.85
@@ -112,7 +112,7 @@ traits:
       regex: "process\\.env\\.(CI_TOKEN|CIRCLE_TOKEN|TRAVIS_TOKEN|JENKINS_|BUILDKITE_)"
 
   # Cloud provider tokens
-  - id: credential/environment/secret-access/node-cloud
+  - id: node-cloud
     description: Accesses cloud provider credentials
     criticality: suspicious
     confidence: 0.9
@@ -123,7 +123,7 @@ traits:
       regex: "process\\.env\\.(GOOGLE_|GCP_|AZURE_|DIGITALOCEAN_|HEROKU_API)"
 
   # Full process.env dump
-  - id: credential/environment/secret-access/node-env-dump
+  - id: node-env-dump
     description: Accesses entire process.env object
     criticality: suspicious
     confidence: 0.85
@@ -135,7 +135,7 @@ traits:
 
 composite_rules:
   # Multi-credential access
-  - id: credential/environment/secret-access/node-multi-cred
+  - id: node-multi-cred
     description: Accesses multiple credential sources (credential harvesting)
     criticality: hostile
     confidence: 0.95

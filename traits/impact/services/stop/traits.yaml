@@ -2,7 +2,7 @@
 # ATT&CK: T1489 (Service Stop)
 
 traits:
-  - id: impact/services/esxcli
+  - id: esxcli
     description: VMware ESXi CLI usage
     criticality: suspicious
     confidence: 0.9
@@ -12,7 +12,7 @@ traits:
       type: string
       exact: "esxcli"
 
-  - id: impact/services/systemctl-stop
+  - id: systemctl-stop
     description: Systemd service stop
     criticality: suspicious
     confidence: 0.8
@@ -22,7 +22,7 @@ traits:
       type: string
       regex: "systemctl\\s+stop"
 
-  - id: impact/services/service-stop
+  - id: service-stop
     description: SysV service stop
     criticality: suspicious
     confidence: 0.8
@@ -32,7 +32,7 @@ traits:
       type: string
       regex: "service\\s+\\w+\\s+stop"
 
-  - id: impact/services/sc-stop
+  - id: sc-stop
     description: Windows service control stop
     criticality: suspicious
     confidence: 0.8
@@ -42,7 +42,7 @@ traits:
       type: string
       regex: "sc\\s+stop"
 
-  - id: impact/services/net-stop
+  - id: net-stop
     description: Windows net stop command
     criticality: suspicious
     confidence: 0.8
@@ -52,7 +52,7 @@ traits:
       type: string
       regex: "net\\s+stop"
 
-  - id: impact/services/vmsvc-getallvms
+  - id: vmsvc-getallvms
     description: VMware VM enumeration
     criticality: suspicious
     confidence: 0.9
@@ -62,7 +62,7 @@ traits:
       type: string
       exact: "vmsvc/getallvms"
 
-  - id: impact/services/kill-database
+  - id: kill-database
     description: Database service termination
     criticality: suspicious
     confidence: 0.9
@@ -73,7 +73,7 @@ traits:
       regex: "(?i)(kill|stop).*(mysql|postgres|oracle|mssql|mongodb)"
 
 composite_rules:
-  - id: impact/services/esxi-ransomware
+  - id: esxi-ransomware
     description: VMware ESXi ransomware
     criticality: suspicious
     confidence: 0.99

@@ -3,7 +3,7 @@
 
 traits:
   # SELinux extended attribute manipulation
-  - id: evasion/selinux/xattr-manipulation
+  - id: xattr-manipulation
     description: SELinux extended attribute manipulation
     criticality: suspicious
     confidence: 0.75
@@ -23,7 +23,7 @@ traits:
         }
 
   # Unconfined context assignment
-  - id: evasion/selinux/unconfined-context
+  - id: unconfined-context
     description: SELinux unconfined context assignment
     criticality: suspicious
     confidence: 0.8
@@ -43,7 +43,7 @@ traits:
         }
 
   # SELinux setenforce/getenforce manipulation
-  - id: evasion/selinux/setenforce
+  - id: setenforce
     description: SELinux enforcement mode manipulation
     criticality: suspicious
     confidence: 0.85
@@ -65,7 +65,7 @@ traits:
         }
 
   # SELinux policy manipulation
-  - id: evasion/selinux/policy-manipulation
+  - id: policy-manipulation
     description: SELinux policy load or manipulation
     criticality: suspicious
     confidence: 0.8
@@ -87,7 +87,7 @@ traits:
         }
 
   # SELinux disable via kernel parameters
-  - id: evasion/selinux/kernel-disable
+  - id: kernel-disable
     description: SELinux kernel parameter disable
     criticality: hostile
     confidence: 0.9
@@ -107,7 +107,7 @@ traits:
         }
 
   # SELinux runtime state memory patching
-  - id: evasion/selinux/runtime-patch
+  - id: runtime-patch
     description: Direct kernel memory manipulation of SELinux enforcement state
     criticality: hostile
     confidence: 0.95
@@ -130,7 +130,7 @@ traits:
 
 composite_rules:
   # Active SELinux bypass
-  - id: evasion/selinux/bypass
+  - id: bypass
     description: Active SELinux bypass behavior
     criticality: hostile
     confidence: 0.9

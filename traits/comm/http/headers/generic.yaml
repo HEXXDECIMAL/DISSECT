@@ -3,7 +3,7 @@
 # ATT&CK: T1071.001
 
 traits:
-  - id: http/headers-useragent-fake
+  - id: headers-useragent-fake
     description: Fake or suspicious User-Agent
     criticality: suspicious
     confidence: 0.66
@@ -20,7 +20,7 @@ traits:
             any of them
         }
 
-  - id: http/headers-auth
+  - id: headers-auth
     description: HTTP Authorization header
     criticality: notable
     confidence: 0.66
@@ -28,7 +28,7 @@ traits:
       type: string
       regex: "(Authorization:|Bearer |Basic )"
 
-  - id: http/headers-encoding
+  - id: headers-encoding
     description: Accept-Encoding header
     criticality: inert
     confidence: 0.66

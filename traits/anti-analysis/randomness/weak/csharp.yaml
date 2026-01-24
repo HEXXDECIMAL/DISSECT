@@ -1,25 +1,25 @@
 # C# Randomness Traits (often used for evasion)
-# objective: anti-analysis, behavior: randomness
+# MBC: B0009 - Probabilistic Execution
 
 traits:
-  - id: anti-analysis/randomness/weak/instantiation
+  - id: instantiation
     description: Random number generator instantiation
     criticality: notable
     mbc: "B0009"
     confidence: 0.7
+    file_types: [csharp]
     condition:
       type: ast_pattern
       node_type: object_creation_expression
       pattern: "new Random"
-    file_types: [all]
 
-  - id: anti-analysis/randomness/weak/next
+  - id: next
     description: Random number generation (potential probabilistic execution)
     criticality: notable
     mbc: "B0009"
     confidence: 0.7
+    file_types: [csharp]
     condition:
       type: ast_pattern
       node_type: invocation_expression
       pattern: ".Next("
-    file_types: [all]

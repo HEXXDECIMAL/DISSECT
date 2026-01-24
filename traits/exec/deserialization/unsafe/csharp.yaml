@@ -1,0 +1,15 @@
+# C# Deserialization Traits (dangerous/exploitable)
+# MBC: E1059 - Command and Scripting Interpreter
+
+traits:
+  - id: binary-formatter
+    description: Binary deserialization (insecure, commonly exploited)
+    criticality: suspicious
+    mbc: "E1059"
+    attack: "T1059"
+    confidence: 0.95
+    file_types: [csharp]
+    condition:
+      type: ast_pattern
+      node_type: object_creation_expression
+      pattern: "BinaryFormatter"

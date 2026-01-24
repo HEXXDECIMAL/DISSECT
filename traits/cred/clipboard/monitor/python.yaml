@@ -10,7 +10,7 @@ defaults:
 
 traits:
   # win32clipboard - Windows clipboard API
-  - id: credential/clipboard/monitor/python-win32clipboard
+  - id: python-win32clipboard
     description: "Windows clipboard access (win32clipboard)"
     confidence: 0.8
     platforms: [windows]
@@ -19,7 +19,7 @@ traits:
       regex: "import win32clipboard|win32clipboard\\.(GetClipboardData|SetClipboardData|OpenClipboard)"
 
   # pyperclip - cross-platform clipboard
-  - id: credential/clipboard/monitor/python-pyperclip
+  - id: python-pyperclip
     description: "Clipboard access (pyperclip)"
     confidence: 0.7
     condition:
@@ -27,7 +27,7 @@ traits:
       regex: "import pyperclip|pyperclip\\.(paste|copy)"
 
   # wx.Clipboard - wxPython clipboard
-  - id: credential/clipboard/monitor/python-wx-clipboard
+  - id: python-wx-clipboard
     description: "Clipboard access (wxPython)"
     confidence: 0.75
     condition:
@@ -35,7 +35,7 @@ traits:
       regex: "wx\\.Clipboard|clipboard\\.GetData|wx\\.TheClipboard"
 
   # tkinter clipboard
-  - id: credential/clipboard/monitor/python-tkinter-clipboard
+  - id: python-tkinter-clipboard
     description: "Clipboard access (tkinter)"
     confidence: 0.65
     criticality: notable
@@ -44,7 +44,7 @@ traits:
       regex: "\\.clipboard_get\\(\\)|\\.clipboard_clear\\(\\)"
 
   # SetClipboardViewer - Windows clipboard chain
-  - id: credential/clipboard/monitor/python-clipboard-viewer
+  - id: python-clipboard-viewer
     description: "Windows clipboard viewer chain (real-time monitoring)"
     confidence: 0.9
     criticality: hostile
@@ -54,7 +54,7 @@ traits:
       regex: "SetClipboardViewer\\("
 
   # WM_DRAWCLIPBOARD - clipboard change notification
-  - id: credential/clipboard/monitor/python-clipboard-change
+  - id: python-clipboard-change
     description: "Clipboard change notification handler"
     confidence: 0.9
     criticality: hostile
@@ -64,7 +64,7 @@ traits:
       regex: "WM_DRAWCLIPBOARD|WM_CHANGECBCHAIN"
 
   # pynput clipboard (cross-platform)
-  - id: credential/clipboard/monitor/python-pynput-clipboard
+  - id: python-pynput-clipboard
     description: "Clipboard monitoring via pynput"
     confidence: 0.75
     condition:
@@ -73,7 +73,7 @@ traits:
 
 composite_rules:
   # Clipboard monitoring with exfiltration
-  - id: credential/clipboard/monitor/python-clipboard-exfil
+  - id: python-clipboard-exfil
     description: "Clipboard theft with exfiltration"
     confidence: 0.95
     criticality: hostile
@@ -84,7 +84,7 @@ composite_rules:
         regex: "requests\\.(post|get)|urllib|socket\\."
 
   # Real-time clipboard monitoring (chain viewer)
-  - id: credential/clipboard/monitor/python-realtime-monitor
+  - id: python-realtime-monitor
     description: "Real-time clipboard monitoring"
     confidence: 0.9
     criticality: hostile

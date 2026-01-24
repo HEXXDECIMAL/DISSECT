@@ -3,7 +3,7 @@
 # ATT&CK: T1071.001
 
 traits:
-  - id: http/request-axios
+  - id: request-axios
     description: HTTP requests via axios
     criticality: inert
     confidence: 0.66

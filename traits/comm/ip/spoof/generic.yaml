@@ -3,7 +3,7 @@
 # ATT&CK: T1071
 
 traits:
-  - id: ip/spoof
+  - id: spoof
     description: IP address spoofing capabilities
     criticality: suspicious
     confidence: 0.66
@@ -20,7 +20,7 @@ traits:
             any of them
         }
 
-  - id: ip/syncookie
+  - id: syncookie
     description: SYN cookie manipulation
     criticality: suspicious
     confidence: 0.66

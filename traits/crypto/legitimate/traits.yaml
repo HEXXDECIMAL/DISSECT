@@ -4,7 +4,7 @@
 
 traits:
   # OpenSSL library usage (legitimate TLS)
-  - id: crypto/legitimate/openssl-tls
+  - id: openssl-tls
     description: OpenSSL TLS library usage (legitimate)
     criticality: benign
     confidence: 0.8
@@ -28,7 +28,7 @@ traits:
         }
 
   # Standard hash functions (normal usage)
-  - id: crypto/legitimate/hash-functions
+  - id: hash-functions
     description: Standard cryptographic hash function usage
     criticality: benign
     confidence: 0.75
@@ -54,7 +54,7 @@ traits:
         }
 
   # GnuTLS library (legitimate)
-  - id: crypto/legitimate/gnutls
+  - id: gnutls
     description: GnuTLS library usage (legitimate)
     criticality: benign
     confidence: 0.8
@@ -75,7 +75,7 @@ traits:
         }
 
   # NSS (Mozilla) crypto library
-  - id: crypto/legitimate/nss
+  - id: nss
     description: Mozilla NSS crypto library usage
     criticality: benign
     confidence: 0.8
@@ -95,7 +95,7 @@ traits:
         }
 
   # libsodium (modern crypto library)
-  - id: crypto/legitimate/libsodium
+  - id: libsodium
     description: libsodium modern crypto library usage
     criticality: benign
     confidence: 0.8
@@ -117,7 +117,7 @@ traits:
         }
 
   # Rust crypto crates
-  - id: crypto/legitimate/rust-crypto
+  - id: rust-crypto
     description: Rust cryptographic crate usage
     criticality: benign
     confidence: 0.75
@@ -139,7 +139,7 @@ traits:
         }
 
   # Go crypto packages
-  - id: crypto/legitimate/go-crypto
+  - id: go-crypto
     description: Go standard crypto package usage
     criticality: benign
     confidence: 0.8
@@ -161,7 +161,7 @@ traits:
         }
 
   # Certificate handling (legitimate)
-  - id: crypto/legitimate/certificate-handling
+  - id: certificate-handling
     description: X.509 certificate handling (legitimate)
     criticality: benign
     confidence: 0.8
@@ -183,7 +183,7 @@ traits:
         }
 
   # Random number generation (legitimate)
-  - id: crypto/legitimate/secure-random
+  - id: secure-random
     description: Secure random number generation
     criticality: benign
     confidence: 0.8
@@ -204,7 +204,7 @@ traits:
         }
 
   # Key derivation functions (legitimate)
-  - id: crypto/legitimate/key-derivation
+  - id: key-derivation
     description: Key derivation function usage
     criticality: benign
     confidence: 0.75

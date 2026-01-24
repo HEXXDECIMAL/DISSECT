@@ -4,7 +4,7 @@
 
 traits:
   # Bash history file clearing
-  - id: evasion/anti-forensics/histfile-null
+  - id: histfile-null
     description: Redirects shell history to /dev/null
     criticality: suspicious
     confidence: 0.9
@@ -25,7 +25,7 @@ traits:
         }
 
   # MySQL history clearing
-  - id: evasion/anti-forensics/mysql-histfile-null
+  - id: mysql-histfile-null
     description: Clears MySQL command history
     criticality: suspicious
     confidence: 0.9
@@ -43,7 +43,7 @@ traits:
         }
 
   # Prompt command clearing (prevents logging)
-  - id: evasion/anti-forensics/prompt-command-unset
+  - id: prompt-command-unset
     description: Unsets PROMPT_COMMAND to evade logging
     criticality: suspicious
     confidence: 0.85
@@ -62,7 +62,7 @@ traits:
         }
 
   # Terminal setup for backdoor shell
-  - id: evasion/anti-forensics/term-setup
+  - id: term-setup
     description: Sets TERM variable (backdoor shell setup)
     criticality: notable
     confidence: 0.7
@@ -80,7 +80,7 @@ traits:
 
 composite_rules:
   # BPFDoor-style anti-forensics setup
-  - id: evasion/anti-forensics/backdoor-shell-setup
+  - id: backdoor-shell-setup
     description: Multiple anti-forensics techniques (backdoor indicator)
     criticality: hostile
     confidence: 0.95

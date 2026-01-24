@@ -2,7 +2,7 @@
 # ATT&CK: T1016 (System Network Configuration Discovery)
 
 traits:
-  - id: hw/wireless/network/bssid
+  - id: bssid
     description: Wireless network base station ID reference
     criticality: notable
     confidence: 0.6

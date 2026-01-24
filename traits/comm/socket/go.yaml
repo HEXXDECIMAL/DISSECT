@@ -6,7 +6,7 @@ defaults:
   attack: "T1071"
 
 traits:
-  - id: socket/go-network-dial
+  - id: go-network-dial
     description: Creates network connections via net.Dial
     criticality: notable
     confidence: 0.75
@@ -15,7 +15,7 @@ traits:
       field: go_metrics.net_dial_count
       min: 1
 
-  - id: socket/go-raw-sockets
+  - id: go-raw-sockets
     description: Uses raw socket operations
     criticality: suspicious
     confidence: 0.85
@@ -24,7 +24,7 @@ traits:
       field: go_metrics.raw_socket_count
       min: 1
 
-  - id: socket/go-http-operations
+  - id: go-http-operations
     description: Performs HTTP client/server operations
     criticality: notable
     confidence: 0.7

@@ -1,0 +1,106 @@
+# Shell Command Reconnaissance Detection
+# Detects system info gathering via shell command execution
+# ATT&CK: T1059 (Command Execution), T1082 (System Information Discovery)
+
+traits:
+  # execSync with system info commands
+  - id: whoami
+    description: Shell whoami command execution
+    criticality: notable
+    confidence: 0.85
+    attack: "T1033"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "exec(Sync)?\\(['\"]whoami['\"]"
+
+  - id: hostname
+    description: Shell hostname command execution
+    criticality: notable
+    confidence: 0.8
+    attack: "T1082"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "exec(Sync)?\\(['\"]hostname['\"]"
+
+  - id: ifconfig
+    description: Shell ifconfig/ip command execution
+    criticality: notable
+    confidence: 0.85
+    attack: "T1016"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "exec(Sync)?\\(['\"](ifconfig|ip addr|ip a)['\"]"
+
+  - id: uname
+    description: Shell uname command execution
+    criticality: notable
+    confidence: 0.75
+    attack: "T1082"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "exec(Sync)?\\(['\"]uname['\"]"
+
+  - id: id
+    description: Shell id command execution
+    criticality: notable
+    confidence: 0.85
+    attack: "T1033"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "exec(Sync)?\\(['\"]id['\"]"
+
+  - id: pwd
+    description: Shell pwd command execution
+    criticality: inert
+    confidence: 0.7
+    attack: "T1083"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "exec(Sync)?\\(['\"]pwd['\"]"
+
+  - id: npm-whoami
+    description: npm whoami command execution (npm user discovery)
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1033"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "exec(Sync)?\\(['\"]npm whoami['\"]"
+
+  # Curl/wget data exfiltration in shell
+  - id: curl-exfil
+    description: Curl command with data parameter (exfiltration)
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1041"
+    file_types: [javascript, typescript, python, shell]
+    condition:
+      type: string
+      regex: "curl\\s+(-d|--data|-X\\s*POST)"
+
+composite_rules:
+  # Multiple system info commands
+  - id: system-profiling
+    description: Multiple system info commands (reconnaissance)
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1082"
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: shell/whoami
+      - type: trait
+        id: shell/hostname
+      - type: trait
+        id: shell/ifconfig
+      - type: trait
+        id: shell/uname
+      - type: trait
+        id: shell/id

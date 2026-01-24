@@ -3,7 +3,7 @@
 # MBC: B0033
 
 composite_rules:
-  - id: mem/exec/fileless/linux-memfd
+  - id: linux-memfd
     description: Fileless execution via anonymous memory
     criticality: suspicious
     confidence: 0.9
@@ -20,7 +20,7 @@ composite_rules:
       - type: trait
         id: mem/protect/modify/mprotect
 
-  - id: mem/exec/fileless/python-shellcode
+  - id: python-shellcode
     description: Python shellcode injection via VirtualProtect
     criticality: suspicious
     confidence: 0.95
@@ -38,7 +38,7 @@ composite_rules:
         node_type: call
         pattern: "b64decode"
 
-  - id: mem/exec/fileless/remote-injection
+  - id: remote-injection
     description: Remote process memory manipulation
     criticality: suspicious
     confidence: 0.9

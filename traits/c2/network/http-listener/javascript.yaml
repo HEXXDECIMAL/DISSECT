@@ -3,7 +3,7 @@
 # ATT&CK: T1071.001 (Application Layer Protocol: Web Protocols)
 
 traits:
-  - id: c2/network/http-listener/express-router
+  - id: express-router
     description: Express Router creation (potential C2 receiver)
     criticality: suspicious
     confidence: 0.75
@@ -13,7 +13,7 @@ traits:
       type: string
       regex: "express\\.Router|express\\(\\)"
 
-  - id: c2/network/http-listener/express-post-endpoint
+  - id: express-post-endpoint
     description: Express POST endpoint (potential command receiver)
     criticality: suspicious
     confidence: 0.8
@@ -23,7 +23,7 @@ traits:
       type: string
       regex: "\\.post\\s*\\(|app\\.post"
 
-  - id: c2/network/http-listener/express-get-endpoint
+  - id: express-get-endpoint
     description: Express GET endpoint
     criticality: notable
     confidence: 0.7
@@ -43,7 +43,7 @@ traits:
       type: string
       regex: "createServer|http\\.Server"
 
-  - id: c2/network/http-listener/socket-io
+  - id: socket-io
     description: Socket.io server (real-time C2 potential)
     criticality: suspicious
     confidence: 0.8

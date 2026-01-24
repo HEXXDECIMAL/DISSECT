@@ -5,7 +5,7 @@
 traits:
   # NOTE: Individual "/bin/busybox" string is notable, not suspicious
   # Real IoT malware detection requires multiple indicators (see composite rules)
-  - id: c2/botnet/iot/busybox
+  - id: busybox
     description: "BusyBox reference (IoT device targeting)"
     criticality: notable
     confidence: 0.5
@@ -16,7 +16,7 @@ traits:
       type: string
       exact: "/bin/busybox"
 
-  - id: c2/botnet/iot/busybox-wget
+  - id: busybox-wget
     description: "BusyBox wget payload download"
     criticality: suspicious
     confidence: 0.9
@@ -27,7 +27,7 @@ traits:
       type: string
       regex: "busybox wget"
 
-  - id: c2/botnet/iot/busybox-tftp
+  - id: busybox-tftp
     description: "BusyBox tftp payload download"
     criticality: suspicious
     confidence: 0.9
@@ -38,7 +38,7 @@ traits:
       type: string
       regex: "busybox tftp"
 
-  - id: c2/botnet/iot/busybox-ftpget
+  - id: busybox-ftpget
     description: "BusyBox ftpget payload download"
     criticality: suspicious
     confidence: 0.9
@@ -49,7 +49,7 @@ traits:
       type: string
       regex: "busybox ftpget"
 
-  - id: c2/botnet/iot/pipe-to-shell
+  - id: pipe-to-shell
     description: "Download and pipe to shell execution"
     criticality: suspicious
     confidence: 0.95
@@ -78,7 +78,7 @@ traits:
             any of ($o_pipe*)
         }
 
-  - id: c2/botnet/iot/mirai-credential
+  - id: mirai-credential
     description: "Mirai botnet default credential (7ujMko0admin)"
     criticality: suspicious
     confidence: 0.99
@@ -89,7 +89,7 @@ traits:
       type: string
       exact: "7ujMko0admin"
 
-  - id: c2/botnet/iot/telnet-target
+  - id: telnet-target
     description: "Telnet service targeting"
     criticality: suspicious
     confidence: 0.8
@@ -100,7 +100,7 @@ traits:
       type: string
       regex: "telnetadmin|:23[^0-9]"
 
-  - id: c2/botnet/iot/self-propagate
+  - id: self-propagate
     description: "Read own executable for propagation"
     criticality: suspicious
     confidence: 0.8
@@ -126,7 +126,7 @@ traits:
         }
 
 composite_rules:
-  - id: c2/botnet/mirai-variant
+  - id: mirai-variant
     description: "Mirai-like IoT botnet (credential brute-force + shell dropper)"
     criticality: suspicious
     confidence: 0.95
@@ -143,7 +143,7 @@ composite_rules:
       - type: trait
         id: pipe-to-shell
 
-  - id: c2/botnet/multi-protocol
+  - id: multi-protocol
     description: "Multi-protocol payload dropper (wget/tftp/ftpget/curl)"
     criticality: suspicious
     confidence: 0.9

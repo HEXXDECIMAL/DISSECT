@@ -3,7 +3,7 @@
 # ATT&CK: T1071
 
 traits:
-  - id: fs/pipe/fifo
+  - id: fifo
     description: Create FIFO special file (named pipe)
     criticality: inert
     confidence: 0.66

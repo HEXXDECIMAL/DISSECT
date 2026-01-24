@@ -3,7 +3,7 @@
 # ATT&CK: T1140
 
 traits:
-  - id: anti-static/base64/decode-python
+  - id: decode-python
     description: Base64 decoding in Python
     criticality: notable
     confidence: 0.66
@@ -13,7 +13,7 @@ traits:
       type: string
       exact: b64decode
 
-  - id: anti-static/base64/decode-exec-python
+  - id: decode-exec-python
     description: Base64 decode and execute in Python
     criticality: suspicious
     confidence: 0.66

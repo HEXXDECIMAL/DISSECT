@@ -3,7 +3,7 @@
 # ATT&CK: T1071.001
 
 traits:
-  - id: http/request-python
+  - id: request-python
     description: "Performs HTTP request (urllib, requests, aiohttp, httpx)"
     criticality: inert
     confidence: 0.9
@@ -12,7 +12,7 @@ traits:
       type: string
       regex: "(requests\\.(get|post)|urllib\\.request\\.urlopen|aiohttp\\.ClientSession|httpx\\.(get|post))"
 
-  - id: http/request/get
+  - id: get
     description: "Performs HTTP GET request"
     criticality: notable
     confidence: 0.9
@@ -21,7 +21,7 @@ traits:
       type: string
       regex: '(requests|httpx)\\.get\('
 
-  - id: http/request/post
+  - id: post
     description: "Performs HTTP POST request (Exfiltration indicator)"
     criticality: notable
     confidence: 0.9
@@ -30,7 +30,7 @@ traits:
       type: string
       regex: '(requests|httpx)\\.post\('
 
-  - id: http/request/url-literal
+  - id: url-literal
     description: "Direct URL literal in HTTP request"
     criticality: notable
     confidence: 0.8
@@ -49,12 +49,12 @@ traits:
         (#match? @meth "^(get|post|urlopen|urlretrieve|request)$")
 
 composite_rules:
-  - id: http/python-exfiltration
+  - id: python-exfiltration
     description: "Gathers system info and exfiltrates via HTTP"
     criticality: hostile
     confidence: 0.9
     requires_all:
       - type: trait
-        id: discovery/discover/system/python-platform-fingerprint
+        id: discovery/system/python-platform-fingerprint
       - type: trait
         id: http/request-python

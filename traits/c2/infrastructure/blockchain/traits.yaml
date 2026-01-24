@@ -4,7 +4,7 @@
 
 traits:
   # Etherscan API abuse for C2 retrieval
-  - id: c2/infrastructure/blockchain/etherscan-api
+  - id: etherscan-api
     description: Uses Etherscan API (potential blockchain-based C2)
     criticality: suspicious
     confidence: 0.85
@@ -15,7 +15,7 @@ traits:
       regex: "api\\.etherscan\\.io|etherscan\\.io/api"
 
   # BSCScan API (Binance Smart Chain)
-  - id: c2/infrastructure/blockchain/bscscan-api
+  - id: bscscan-api
     description: Uses BSCScan API (potential blockchain-based C2)
     criticality: suspicious
     confidence: 0.85
@@ -26,7 +26,7 @@ traits:
       regex: "api\\.bscscan\\.com|bscscan\\.com/api"
 
   # PolygonScan API
-  - id: c2/infrastructure/blockchain/polygonscan-api
+  - id: polygonscan-api
     description: Uses PolygonScan API (potential blockchain-based C2)
     criticality: suspicious
     confidence: 0.85
@@ -37,7 +37,7 @@ traits:
       regex: "api\\.polygonscan\\.com|polygonscan\\.com/api"
 
   # Generic blockchain explorer with contract read
-  - id: c2/infrastructure/blockchain/contract-read
+  - id: contract-read
     description: Reads smart contract storage (potential C2 retrieval)
     criticality: notable
     confidence: 0.75
@@ -57,7 +57,7 @@ traits:
         }
 
   # Infura/Alchemy RPC with suspicious patterns
-  - id: c2/infrastructure/blockchain/rpc-provider
+  - id: rpc-provider
     description: Uses blockchain RPC provider (monitor for C2 abuse)
     criticality: notable
     confidence: 0.6
@@ -68,7 +68,7 @@ traits:
       regex: "infura\\.io/v3/|alchemy\\.com/v2/|quicknode\\.com|ankr\\.com"
 
   # IPFS gateway (decentralized payload hosting)
-  - id: c2/infrastructure/blockchain/ipfs-gateway
+  - id: ipfs-gateway
     description: Uses IPFS gateway (decentralized content retrieval)
     criticality: notable
     confidence: 0.7
@@ -79,7 +79,7 @@ traits:
       regex: "ipfs\\.io/ipfs/|gateway\\.pinata\\.cloud|cloudflare-ipfs\\.com|dweb\\.link"
 
   # Arweave gateway (permanent storage C2)
-  - id: c2/infrastructure/blockchain/arweave-gateway
+  - id: arweave-gateway
     description: Uses Arweave gateway (permanent content retrieval)
     criticality: notable
     confidence: 0.7

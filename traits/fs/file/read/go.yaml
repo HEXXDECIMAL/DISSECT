@@ -3,7 +3,7 @@
 # ATT&CK: T1005
 
 traits:
-  - id: fs/file/read-go
+  - id: read-go
     description: Read files (Go)
     criticality: inert
     confidence: 0.66

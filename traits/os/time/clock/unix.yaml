@@ -2,7 +2,7 @@
 # MBC: B0028 (Time Discovery)
 
 traits:
-  - id: time/clock/get
+  - id: get
     description: Get system time
     criticality: notable
     confidence: 0.70
@@ -10,7 +10,7 @@ traits:
       type: symbol
       pattern: gettimeofday|clock_gettime|time
 
-  - id: time/clock/local
+  - id: local
     description: Convert to local time
     criticality: notable
     confidence: 0.65
@@ -18,7 +18,7 @@ traits:
       type: symbol
       pattern: localtime|gmtime|strftime
 
-  - id: time/clock/alarm
+  - id: alarm
     description: Set alarm timer
     criticality: notable
     confidence: 0.75

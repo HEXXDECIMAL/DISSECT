@@ -3,7 +3,7 @@
 
 traits:
   # Network troubleshooting tools
-  - id: diagnostic/troubleshoot
+  - id: troubleshoot
     description: Network troubleshooting utilities
     criticality: benign
     confidence: 0.9
@@ -31,7 +31,7 @@ traits:
         }
 
   # Network monitoring
-  - id: diagnostic/monitoring
+  - id: monitoring
     description: Network monitoring utilities
     criticality: benign
     confidence: 0.9
@@ -57,7 +57,7 @@ traits:
         }
 
   # Network performance
-  - id: diagnostic/performance
+  - id: performance
     description: Network performance testing
     criticality: benign
     confidence: 0.9
@@ -83,7 +83,7 @@ traits:
         }
 
   # Firewall management
-  - id: diagnostic/firewall
+  - id: firewall
     description: Firewall management utilities
     criticality: benign
     confidence: 0.9

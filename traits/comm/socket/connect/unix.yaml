@@ -3,7 +3,7 @@
 # ATT&CK: T1071
 
 traits:
-  - id: socket/connect
+  - id: connect
     description: Connect socket to remote host
     criticality: notable
     confidence: 0.66

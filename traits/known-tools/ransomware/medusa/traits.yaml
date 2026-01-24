@@ -1,0 +1,102 @@
+# Medusa Ransomware Detection
+# ATT&CK: T1486 (Data Encrypted for Impact)
+# MBC: C0027 (Encrypt Files)
+
+traits:
+  # Medusa ransomware indicators
+  - id: ransomware/medusa/generic
+    description: Medusa ransomware patterns
+    criticality: hostile
+    confidence: 0.9
+    mbc: "C0027"
+    attack: "T1486"
+    file_types: [elf, macho, pe, so, dylib, dll]
+    condition:
+      type: yara
+      source: |
+        rule medusa_ransomware {
+          strings:
+            $name1 = "medusa" ascii nocase
+            $name2 = "MEDUSA" ascii
+            // Medusa ransom extensions
+            $ext1 = ".MEDUSA" ascii
+            $ext2 = ".medusa" ascii
+            // Ransom note
+            $note1 = "!!!READ_ME_MEDUSA!!!.txt" ascii
+            $note2 = "MEDUSA_README" ascii
+            // Leak site references
+            $leak1 = "medusablog" ascii
+            $leak2 = ".onion" ascii
+          condition:
+            (any of ($ext*) and any of ($note*)) or
+            ($name1 and $leak2) or
+            ($name2 and any of ($leak*))
+        }
+
+  # Medusa encryption
+  - id: ransomware/medusa/encryption
+    description: Medusa encryption patterns
+    criticality: hostile
+    confidence: 0.85
+    mbc: "C0027"
+    attack: "T1486"
+    file_types: [elf, macho, pe, so, dylib, dll]
+    condition:
+      type: yara
+      source: |
+        rule medusa_encrypt {
+          strings:
+            $name = "medusa" ascii nocase
+            // Encryption algorithms
+            $enc1 = "AES" ascii
+            $enc2 = "RSA" ascii
+            $enc3 = "ChaCha20" ascii
+            // File operations
+            $file1 = "encrypt_file" ascii
+            $file2 = "process_directory" ascii
+            // Key handling
+            $key1 = "public_key" ascii
+            $key2 = "session_key" ascii
+          condition:
+            $name and (any of ($enc*) or any of ($file*) or any of ($key*)) or
+            (any of ($enc*) and any of ($file*) and any of ($key*))
+        }
+
+  # Medusa Linux variant
+  - id: ransomware/medusa/linux
+    description: Medusa Linux/ESXi targeting
+    criticality: hostile
+    confidence: 0.9
+    mbc: "C0027"
+    attack: "T1486"
+    file_types: [elf, so]
+    condition:
+      type: yara
+      source: |
+        rule medusa_linux {
+          strings:
+            $name = "medusa" ascii nocase
+            // ESXi targeting
+            $vm1 = "/vmfs/" ascii
+            $vm2 = "esxcli" ascii
+            $vm3 = "vim-cmd" ascii
+            // VM file types
+            $ext1 = ".vmdk" ascii
+            $ext2 = ".vmx" ascii
+            $ext3 = ".vmsn" ascii
+          condition:
+            ($name and $vm1) or
+            ($vm1 and (any of ($vm2, $vm3) and any of ($ext*)))
+        }
+
+composite_rules:
+  - id: ransomware/medusa/detected
+    description: Medusa ransomware detected
+    criticality: hostile
+    confidence: 0.95
+    file_types: [elf, macho, pe, so, dylib, dll]
+    requires_any:
+      - type: trait
+        id: ransomware/medusa/generic
+      - type: trait
+        id: ransomware/medusa/linux

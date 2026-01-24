@@ -4,7 +4,7 @@
 
 traits:
   # prctl PR_SET_NAME for process renaming
-  - id: evasion/masquerade/prctl-setname
+  - id: prctl-setname
     description: Uses prctl to change process name
     criticality: suspicious
     confidence: 0.8
@@ -24,7 +24,7 @@ traits:
         }
 
   # Masquerade as system daemon (abrtd - BPFDoor pattern)
-  - id: evasion/masquerade/fake-abrtd
+  - id: fake-abrtd
     description: Masquerades as abrtd daemon (BPFDoor indicator)
     criticality: hostile
     confidence: 0.95
@@ -42,7 +42,7 @@ traits:
         }
 
   # Masquerade as common system processes
-  - id: evasion/masquerade/fake-system-process
+  - id: fake-system-process
     description: Contains names of system processes (potential masquerading)
     criticality: suspicious
     confidence: 0.75
@@ -68,7 +68,7 @@ traits:
         }
 
   # argv[0] manipulation
-  - id: evasion/masquerade/argv0-manipulation
+  - id: argv0-manipulation
     description: Manipulates argv[0] to hide process name
     criticality: suspicious
     confidence: 0.8
@@ -88,7 +88,7 @@ traits:
 
 composite_rules:
   # BPFDoor-style process masquerading
-  - id: evasion/masquerade/bpfdoor-style
+  - id: bpfdoor-style
     description: BPFDoor-style process masquerading with anti-forensics
     criticality: hostile
     confidence: 0.98

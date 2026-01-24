@@ -1,0 +1,52 @@
+# Shell-based Network Exfiltration
+# Detects curl/wget patterns used for data exfiltration
+# ATT&CK: T1041 (Exfiltration Over C2 Channel)
+
+traits:
+  - id: curl-post-data
+    description: Curl POST with data (potential exfiltration)
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "E1041"
+    attack: "T1041"
+    file_types: [shell]
+    condition:
+      type: string
+      regex: "curl .* -d |curl .* --data|curl .* -X POST"
+      search_raw: true
+
+  - id: curl-upload-file
+    description: Curl file upload
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "E1041"
+    attack: "T1041"
+    file_types: [shell]
+    condition:
+      type: string
+      regex: "curl .* -F |curl .* --form|curl .* -T |curl .* --upload-file"
+      search_raw: true
+
+  - id: wget-post
+    description: Wget POST request (potential exfiltration)
+    criticality: suspicious
+    confidence: 0.8
+    mbc: "E1041"
+    attack: "T1041"
+    file_types: [shell]
+    condition:
+      type: string
+      regex: "wget .* --post-data|wget .* --post-file"
+      search_raw: true
+
+  - id: nc-exfil
+    description: Netcat exfiltration
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "E1041"
+    attack: "T1048"
+    file_types: [shell]
+    condition:
+      type: string
+      regex: "nc .* < |cat .* \\| nc |\\| nc "
+      search_raw: true

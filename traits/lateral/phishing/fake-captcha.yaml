@@ -2,7 +2,7 @@
 # Detects implementations of fake verification UI used for phishing or clocking
 
 traits:
-  - id: phishing/fake-captcha/cloudflare-turnstile
+  - id: cloudflare-turnstile
     description: Fake Cloudflare Turnstile implementation (social engineering)
     criticality: hostile
     confidence: 0.95
@@ -25,7 +25,7 @@ traits:
             3 of ($s*) or ($s1 and ($spinner or $checkbox))
         }
 
-  - id: phishing/fake-captcha/recaptcha
+  - id: recaptcha
     description: Fake Google reCAPTCHA implementation
     criticality: hostile
     confidence: 0.9

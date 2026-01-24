@@ -1,0 +1,153 @@
+# System Information Discovery Traits
+# MBC: OB0007 (Discovery) → E1082 (System Information Discovery)
+# ATT&CK: T1082 (System Information Discovery)
+
+traits:
+  # System control and configuration
+  - id: sysctl
+    description: Get or set system information and kernel parameters
+    criticality: inert
+    mbc: "E1082"
+    attack: "T1082"
+    confidence: 0.6
+    condition:
+      type: symbol
+      pattern: sysctl
+    platforms: [unix, linux, macos]
+
+  - id: sysctlbyname
+    description: Get or set system information by name
+    criticality: inert
+    mbc: "E1082"
+    attack: "T1082"
+    confidence: 0.6
+    condition:
+      type: symbol
+      pattern: sysctlbyname
+    platforms: [macos]
+
+  - id: sysctlnametomib
+    description: Convert sysctl name to MIB array
+    criticality: inert
+    mbc: "E1082"
+    attack: "T1082"
+    confidence: 0.5
+    condition:
+      type: symbol
+      pattern: sysctlnametomib
+    platforms: [macos]
+
+  # Device control
+  - id: ioctl
+    description: Device-specific input/output operations and control
+    criticality: inert
+    mbc: "E1082"
+    attack: "T1082"
+    confidence: 0.5
+    condition:
+      type: symbol
+      pattern: ioctl
+    platforms: [unix, linux, macos]
+
+  # System identification
+  - id: uname
+    description: Get system name and information
+    criticality: inert
+    mbc: "E1082"
+    attack: "T1082"
+    confidence: 0.6
+    condition:
+      type: symbol
+      pattern: uname
+    platforms: [unix, linux, macos]
+
+  - id: gethostname
+    description: Get hostname of current machine
+    criticality: inert
+    mbc: "E1082"
+    attack: "T1082"
+    confidence: 0.5
+    condition:
+      type: symbol
+      pattern: gethostname
+    platforms: [unix, linux, macos, windows]
+
+  - id: getdomainname
+    description: Get NIS domain name
+    criticality: inert
+    mbc: "E1082"
+    attack: "T1082"
+    confidence: 0.5
+    condition:
+      type: symbol
+      pattern: getdomainname
+    platforms: [unix, linux, macos]
+
+  # Resource limits and configuration
+  - id: getrlimit
+    description: Get resource limits for process
+    criticality: inert
+    mbc: "E1082"
+    attack: "T1082"
+    confidence: 0.4
+    condition:
+      type: symbol
+      pattern: getrlimit
+    platforms: [unix, linux, macos]
+
+  - id: setrlimit
+    description: Set resource limits for process
+    criticality: notable
+    mbc: "F0004"
+    attack: "T1562.001"
+    confidence: 0.6
+    condition:
+      type: symbol
+      pattern: setrlimit
+    platforms: [unix, linux, macos]
+
+  # System configuration
+  - id: sysconf
+    description: Get system configuration information
+    criticality: inert
+    mbc: "E1082"
+    attack: "T1082"
+    confidence: 0.4
+    condition:
+      type: symbol
+      pattern: sysconf
+    platforms: [unix, linux, macos]
+
+  - id: confstr
+    description: Get configuration-dependent string variables
+    criticality: inert
+    mbc: "E1082"
+    attack: "T1082"
+    confidence: 0.4
+    condition:
+      type: symbol
+      pattern: confstr
+    platforms: [unix, linux, macos]
+
+  # macOS-specific system information
+  - id: host_info
+    description: Get host information (macOS Mach API)
+    criticality: inert
+    mbc: "E1082"
+    attack: "T1082"
+    confidence: 0.6
+    condition:
+      type: symbol
+      pattern: host_info
+    platforms: [macos]
+
+  - id: host_statistics
+    description: Get host statistics (macOS Mach API)
+    criticality: inert
+    mbc: "E1082"
+    attack: "T1082"
+    confidence: 0.6
+    condition:
+      type: symbol
+      pattern: host_statistics
+    platforms: [macos]

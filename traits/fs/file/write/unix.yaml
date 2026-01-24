@@ -3,7 +3,7 @@
 # ATT&CK: T1105
 
 traits:
-  - id: fs/file/write
+  - id: write
     description: Write files
     criticality: inert
     confidence: 0.66

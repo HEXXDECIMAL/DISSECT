@@ -3,7 +3,7 @@
 # ATT&CK: T1222
 
 traits:
-  - id: fs/permission/chown-takeown
+  - id: chown-takeown
     description: Take ownership of files (Windows takeown)
     criticality: notable
     confidence: 0.66
@@ -11,7 +11,7 @@ traits:
       type: string
       regex: "(takeown|TAKEOWN)"
 
-  - id: fs/permission/chown-takeown-force
+  - id: chown-takeown-force
     description: Forcibly take ownership of files recursively
     criticality: suspicious
     confidence: 0.66

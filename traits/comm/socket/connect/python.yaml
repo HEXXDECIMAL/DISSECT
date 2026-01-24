@@ -3,7 +3,7 @@
 # ATT&CK: T1071
 
 traits:
-  - id: socket/connect-python
+  - id: connect-python
     description: Initiate socket connection (Python)
     criticality: notable
     confidence: 0.66

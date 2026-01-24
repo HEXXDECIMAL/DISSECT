@@ -1,0 +1,93 @@
+# Malware Family - Gelsemium/Wolfsbane
+# Reference: https://www.welivesecurity.com/en/eset-research/unveiling-wolfsbane-gelsemiums-linux-counterpart-to-gelsevirine/
+# ATT&CK: T1071 (Application Layer Protocol)
+
+composite_rules:
+  - id: apt/gelsemium/clientpath
+    description: Wolfsbane clientpath config
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    attack: "T1071"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "clientpath"
+
+  - id: apt/gelsemium/hiderpath
+    description: Wolfsbane hiderpath config
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    attack: "T1564"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "hiderpath"
+
+  - id: apt/gelsemium/pluginkey
+    description: Wolfsbane pluginkey config
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    attack: "T1071"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "pluginkey"
+
+  - id: apt/gelsemium/mainpath
+    description: Wolfsbane mainpath config
+    criticality: hostile
+    confidence: 0.9
+    family: true
+    attack: "T1071"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "mainpath"
+
+  - id: apt/gelsemium/rc4-key
+    description: Wolfsbane RC4 encryption key
+    criticality: hostile
+    confidence: 0.99
+    family: true
+    attack: "T1573"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "8825FC47153E264D"
+
+  - id: apt/gelsemium/config-detected
+    description: Wolfsbane/Gelsemium (configuration)
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    reference: "https://www.welivesecurity.com/en/eset-research/unveiling-wolfsbane-gelsemiums-linux-counterpart-to-gelsevirine/"
+    attack: "T1071"
+    mbc: "B0030"
+    file_types: [elf]
+    condition:
+      type: yara
+      source: |
+        rule wolfsbane_config {
+          strings:
+            $config_clientpath = "clientpath" wide
+            $config_hiderpath = "hiderpath" wide
+            $config_pluginkey = "pluginkey" wide
+            $config_mainpath = "mainpath" wide
+          condition:
+            uint32(0) == 0x464C457F and
+            filesize < 10MB and all of them
+        }
+
+  - id: apt/gelsemium/rc4-detected
+    description: Wolfsbane/Gelsemium (RC4 key)
+    criticality: hostile
+    confidence: 0.99
+    family: true
+    attack: "T1573"
+    file_types: [elf]
+    requires_any:
+      - type: trait
+        id: apt/gelsemium/rc4-key

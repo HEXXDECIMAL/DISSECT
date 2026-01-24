@@ -3,115 +3,115 @@
 # ATT&CK: T1059 (Command and Scripting Interpreter)
 
 traits:
-  - id: data/user-input/request/get
+  - id: get
     description: HTTP GET parameter access ($_GET)
     criticality: notable
     confidence: 0.85
     attack: "T1059"
-    file_types: [all]
+    file_types: [php]
     condition:
       type: ast_pattern
       node_type: variable_name
       pattern: "\\$_GET"
       regex: true
 
-  - id: data/user-input/request/post
+  - id: post
     description: HTTP POST parameter access ($_POST)
     criticality: notable
     confidence: 0.85
     attack: "T1059"
-    file_types: [all]
+    file_types: [php]
     condition:
       type: ast_pattern
       node_type: variable_name
       pattern: "\\$_POST"
       regex: true
 
-  - id: data/user-input/request/request
+  - id: request
     description: HTTP REQUEST parameter access ($_REQUEST)
     criticality: suspicious
     confidence: 0.85
     attack: "T1059"
-    file_types: [all]
+    file_types: [php]
     condition:
       type: ast_pattern
       node_type: variable_name
       pattern: "\\$_REQUEST"
       regex: true
 
-  - id: data/user-input/request/cookie
+  - id: cookie
     description: HTTP Cookie access ($_COOKIE)
     criticality: notable
     confidence: 0.8
-    file_types: [all]
+    file_types: [php]
     condition:
       type: ast_pattern
       node_type: variable_name
       pattern: "\\$_COOKIE"
       regex: true
 
-  - id: data/user-input/request/server
+  - id: server
     description: Server variable access ($_SERVER)
     criticality: notable
     confidence: 0.75
-    file_types: [all]
+    file_types: [php]
     condition:
       type: ast_pattern
       node_type: variable_name
       pattern: "\\$_SERVER"
       regex: true
 
-  - id: data/user-input/request/files
+  - id: files
     description: File upload access ($_FILES)
     criticality: suspicious
     confidence: 0.85
     attack: "T1105"
-    file_types: [all]
+    file_types: [php]
     condition:
       type: ast_pattern
       node_type: variable_name
       pattern: "\\$_FILES"
       regex: true
 
-  - id: data/user-input/request/session
+  - id: session
     description: Session variable access ($_SESSION)
     criticality: notable
     confidence: 0.75
-    file_types: [all]
+    file_types: [php]
     condition:
       type: ast_pattern
       node_type: variable_name
       pattern: "\\$_SESSION"
       regex: true
 
-  - id: data/user-input/request/script-filename
+  - id: script-filename
     description: Access to script filename (self-reference)
     criticality: suspicious
     confidence: 0.85
-    file_types: [all]
+    file_types: [php]
     condition:
       type: string
       exact: "SCRIPT_FILENAME"
 
-  - id: data/user-input/request/http-user-agent
+  - id: http-user-agent
     description: Access to HTTP User-Agent header
     criticality: notable
     confidence: 0.7
-    file_types: [all]
+    file_types: [php]
     condition:
       type: string
       exact: "HTTP_USER_AGENT"
 
-  - id: data/user-input/request/http-referer
+  - id: http-referer
     description: Access to HTTP Referer header
     criticality: notable
     confidence: 0.7
-    file_types: [all]
+    file_types: [php]
     condition:
       type: string
       exact: "HTTP_REFERER"
 
-  - id: data/user-input/request/extract-input
+  - id: extract-input
     description: Extracts variables from user input (potential backdoor)
     criticality: suspicious
     confidence: 0.9
@@ -120,7 +120,7 @@ traits:
       type: string
       regex: "extract\\s*\\(\\s*\\$_(GET|POST|REQUEST|COOKIE|SERVER)"
 
-  - id: data/user-input/request/parse-str-input
+  - id: parse-str-input
     description: Parses user input into variables
     criticality: suspicious
     confidence: 0.9

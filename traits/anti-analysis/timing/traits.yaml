@@ -3,7 +3,7 @@
 # ATT&CK: T1497.001 (Virtualization/Sandbox Evasion: System Checks)
 
 traits:
-  - id: anti-analysis/timing/primitive
+  - id: primitive
     description: "Hardware timing primitive (potential anti-analysis)"
     criticality: notable
     confidence: 0.7

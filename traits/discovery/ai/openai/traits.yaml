@@ -1,5 +1,5 @@
 traits:
-  - id: openai/client
+  - id: client
     description: Integration with OpenAI/Azure AI libraries
     criticality: notable
     confidence: 0.8

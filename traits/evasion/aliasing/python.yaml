@@ -2,7 +2,7 @@
 # Detects when multiple standard libraries are aliased to obfuscate intent
 
 traits:
-  - id: evasion/aliasing/python-std-alias
+  - id: python-std-alias
     description: "Suspicious standard library aliasing (potential evasion)"
     criticality: suspicious
     confidence: 0.8

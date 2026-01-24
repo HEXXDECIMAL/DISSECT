@@ -10,7 +10,7 @@ defaults:
 
 traits:
   # Ethereum address regex pattern
-  - id: credential/wallet/address/ethereum-regex
+  - id: ethereum-regex
     description: "Ethereum address regex pattern (0x...40 hex)"
     confidence: 0.9
     criticality: suspicious
@@ -19,7 +19,7 @@ traits:
       regex: "0x\\[a-fA-F0-9\\]\\{40\\}|\\\\b0x\\[a-fA-F0-9\\]"
 
   # Bitcoin Legacy address regex (1xxx)
-  - id: credential/wallet/address/bitcoin-legacy-regex
+  - id: bitcoin-legacy-regex
     description: "Bitcoin legacy address regex pattern"
     confidence: 0.9
     criticality: suspicious
@@ -28,7 +28,7 @@ traits:
       regex: "1\\[a-km-zA-HJ-NP-Z1-9\\]\\{25,34\\}"
 
   # Bitcoin SegWit address regex (bc1xxx)
-  - id: credential/wallet/address/bitcoin-segwit-regex
+  - id: bitcoin-segwit-regex
     description: "Bitcoin SegWit address regex pattern"
     confidence: 0.9
     criticality: suspicious
@@ -37,7 +37,7 @@ traits:
       regex: "bc1\\[qpzry9x8gf2tvdw0s3jn54khce6mua7l\\]"
 
   # Bitcoin Cash address regex
-  - id: credential/wallet/address/bitcoin-cash-regex
+  - id: bitcoin-cash-regex
     description: "Bitcoin Cash address regex pattern"
     confidence: 0.9
     criticality: suspicious
@@ -46,7 +46,7 @@ traits:
       regex: "bitcoincash:\\[qp\\]\\[a-zA-Z0-9\\]"
 
   # Litecoin address regex
-  - id: credential/wallet/address/litecoin-regex
+  - id: litecoin-regex
     description: "Litecoin address regex pattern"
     confidence: 0.9
     criticality: suspicious
@@ -55,7 +55,7 @@ traits:
       regex: "ltc1\\[qpzry9x8gf2tvdw0s3jn54khce6mua7l\\]|\\[mlML\\]\\[a-km-zA-HJ-NP-Z1-9\\]"
 
   # TRON address regex (Txxx)
-  - id: credential/wallet/address/tron-regex
+  - id: tron-regex
     description: "TRON address regex pattern"
     confidence: 0.9
     criticality: suspicious
@@ -64,7 +64,7 @@ traits:
       regex: "\\[T\\]\\[1-9A-HJ-NP-Za-km-z\\]\\{33\\}"
 
   # Solana address regex
-  - id: credential/wallet/address/solana-regex
+  - id: solana-regex
     description: "Solana address regex pattern"
     confidence: 0.85
     criticality: suspicious
@@ -74,7 +74,7 @@ traits:
 
 composite_rules:
   # Multiple cryptocurrency address patterns = clipboard hijacker
-  - id: credential/wallet/address/multi-crypto-regex
+  - id: multi-crypto-regex
     description: "Multiple cryptocurrency address regex patterns (clipboard hijacker)"
     criticality: hostile
     confidence: 0.95

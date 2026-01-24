@@ -1,7 +1,7 @@
 ---
 # Ruby command execution patterns
 traits:
-  - id: exec/command/shell/ruby-system
+  - id: ruby-system
     description: "system() command execution"
     criticality: suspicious
     confidence: 0.95
@@ -17,7 +17,7 @@ traits:
       - type: file_type
         file_types: [ruby]
 
-  - id: exec/command/shell/ruby-exec
+  - id: ruby-exec
     description: "exec() replaces current process"
     criticality: suspicious
     confidence: 0.95
@@ -31,7 +31,7 @@ traits:
         - exec(
         - exec
 
-  - id: exec/command/shell/ruby-spawn
+  - id: ruby-spawn
     description: "spawn() creates new process"
     criticality: notable
     confidence: 0.90
@@ -45,7 +45,7 @@ traits:
         - spawn(
         - spawn
 
-  - id: exec/command/shell/ruby-popen
+  - id: ruby-popen
     description: "popen pipes to/from command"
     criticality: notable
     confidence: 0.92
@@ -59,7 +59,7 @@ traits:
         - IO.popen
         - popen
 
-  - id: exec/command/shell/ruby-backtick
+  - id: ruby-backtick
     description: "Backtick command execution"
     criticality: notable
     confidence: 0.93
@@ -73,7 +73,7 @@ traits:
         - "`"
         - "%x"
 
-  - id: exec/command/shell/ruby-eval
+  - id: ruby-eval
     description: "eval() dynamic code execution"
     criticality: notable
     confidence: 0.90
@@ -87,7 +87,7 @@ traits:
         - eval(
         - eval
 
-  - id: exec/command/shell/ruby-instance-eval
+  - id: ruby-instance-eval
     description: "instance_eval dynamic execution"
     criticality: notable
     confidence: 0.93
@@ -100,7 +100,7 @@ traits:
       any:
         - instance_eval
 
-  - id: exec/command/shell/ruby-class-eval
+  - id: ruby-class-eval
     description: "class/module_eval dynamic execution"
     criticality: notable
     confidence: 0.93

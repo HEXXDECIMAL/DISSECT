@@ -3,7 +3,7 @@
 
 traits:
   # Kernel Taint Erasure
-  - id: evasion/anti-forensics/kernel-taint-reset
+  - id: kernel-taint-reset
     description: Resets kernel tainted_mask to hide out-of-tree modules
     criticality: hostile
     confidence: 1.0
@@ -21,7 +21,7 @@ traits:
         }
 
   # Kernel Taint Erasure (AST)
-  - id: evasion/anti-forensics/kernel-taint-assign
+  - id: kernel-taint-assign
     description: Direct assignment to kernel taint mask (structural)
     criticality: hostile
     confidence: 1.0
@@ -32,7 +32,7 @@ traits:
       pattern: "*taint_mask_ptr = 0"
 
   # Real-time Log Sanitization
-  - id: evasion/anti-forensics/log-sanitization
+  - id: log-sanitization
     description: Real-time filtering of dmesg or kmsg output
     criticality: hostile
     confidence: 0.95
@@ -57,7 +57,7 @@ traits:
         }
 
   # TaskStats Forensic Deception
-  - id: evasion/anti-forensics/taskstats-deception
+  - id: taskstats-deception
     description: Blinds TaskStats netlink API to hide processes from forensic tools
     criticality: hostile
     confidence: 1.0
@@ -75,7 +75,7 @@ traits:
         }
 
   # Audit System Blinding
-  - id: evasion/anti-forensics/audit-blinding
+  - id: audit-blinding
     description: Intercepts and drops Linux Auditing System (auditd) records
     criticality: hostile
     confidence: 0.95
@@ -95,7 +95,7 @@ traits:
         }
 
   # Fake Capability/State (Read-Write Divergence)
-  - id: evasion/anti-forensics/fake-state-logic
+  - id: fake-state-logic
     description: Divergent logic where READ returns a fake state while WRITE is ignored (Deception)
     criticality: hostile
     confidence: 0.9
@@ -114,7 +114,7 @@ traits:
         }
 
   # Structural Deception Pattern (AST)
-  - id: evasion/anti-forensics/deception-read-hook
+  - id: deception-read-hook
     description: Structural pattern of a read hook returning a hardcoded buffer/variable (Deception)
     criticality: hostile
     confidence: 0.95
@@ -133,7 +133,7 @@ traits:
 
 composite_rules:
   # Fake State Deception (Faking disabled state while keeping active hooks)
-  - id: evasion/anti-forensics/fake-state-deception
+  - id: fake-state-deception
     description: High-confidence detection of faking a disabled state for kernel security features
     criticality: hostile
     confidence: 1.0

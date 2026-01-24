@@ -3,7 +3,7 @@
 # ATT&CK: T1070.006 (Timestomp)
 
 traits:
-  - id: evasion/timestomp/modify/touch
+  - id: touch
     description: PHP touch() file timestamp modification
     criticality: notable
     confidence: 0.6
@@ -15,29 +15,29 @@ traits:
       # PHP touch() function call, not just the word "touch"
       regex: "touch\\s*\\("
 
-  - id: evasion/timestomp/modify/filemtime
+  - id: filemtime
     description: File modification time access
     criticality: inert
     confidence: 0.6
-    file_types: [all]
+    file_types: [php]
     condition:
       type: string
       exact: filemtime
 
-  - id: evasion/timestomp/modify/fileatime
+  - id: fileatime
     description: File access time access
     criticality: inert
     confidence: 0.6
-    file_types: [all]
+    file_types: [php]
     condition:
       type: string
       exact: fileatime
 
-  - id: evasion/timestomp/modify/filectime
+  - id: filectime
     description: File change time access
     criticality: inert
     confidence: 0.6
-    file_types: [all]
+    file_types: [php]
     condition:
       type: string
       exact: filectime

@@ -3,7 +3,7 @@
 # ATT&CK: T1497
 
 traits:
-  - id: fs/proc/container-pid1-cgroup
+  - id: container-pid1-cgroup
     description: Check PID 1 cgroup to detect container environment
     criticality: notable
     confidence: 0.66
@@ -11,7 +11,7 @@ traits:
       type: string
       exact: /proc/1/cgroup
 
-  - id: fs/proc/container-self-cgroup
+  - id: container-self-cgroup
     description: Check own cgroup to detect container environment
     criticality: inert
     confidence: 0.66

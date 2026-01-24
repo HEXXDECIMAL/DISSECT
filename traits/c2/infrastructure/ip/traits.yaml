@@ -9,7 +9,7 @@ defaults:
   criticality: suspicious
 
 composite_rules:
-  - id: c2/infrastructure/ip/hardcoded-ipv4
+  - id: hardcoded-ipv4
     description: "Hardcoded IPv4 address"
     confidence: 0.8
     condition:
@@ -20,7 +20,7 @@ composite_rules:
       # - Each octet: 0-255
       regex: "(?<![0-9./vV])(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])(?![0-9.])"
 
-  - id: c2/infrastructure/ip/ipv4-with-port
+  - id: ipv4-with-port
     description: "IPv4 address with port number"
     confidence: 0.9
     condition:
@@ -28,7 +28,7 @@ composite_rules:
       # Strict IPv4:port - no leading zeros in octets, port 1-65535
       regex: "\\b(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9]):[1-9][0-9]{0,4}\\b"
 
-  - id: c2/infrastructure/ip/http-url-with-ip
+  - id: http-url-with-ip
     description: "HTTP URL with hardcoded IP address"
     confidence: 0.9
     file_types: [all]  # Override: applies to all file types
@@ -37,7 +37,7 @@ composite_rules:
       # HTTP(S) URL with strict IPv4 (no leading zeros)
       regex: "https?://(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])"
 
-  - id: c2/infrastructure/ip/private-ip-reference
+  - id: private-ip-reference
     description: "Private/internal IP address reference"
     criticality: notable
     confidence: 0.75
@@ -59,7 +59,7 @@ composite_rules:
             any of them
         }
 
-  - id: c2/infrastructure/ip/ip-format-string
+  - id: ip-format-string
     description: "IP address format string (dynamic IP construction)"
     criticality: notable
     confidence: 0.7
@@ -69,7 +69,7 @@ composite_rules:
       type: string
       regex: "%[0-9]*h{0,2}[ud]\\.%[0-9]*h{0,2}[ud]"
 
-  - id: c2/infrastructure/ip/truncated-http-url
+  - id: truncated-http-url
     description: "Truncated HTTP URL (C2 address likely obfuscated)"
     confidence: 0.85
     mbc: "B0032"
@@ -80,7 +80,7 @@ composite_rules:
       regex: "wget http://[^0-9a-zA-Z]|curl http://[^0-9a-zA-Z]|http://\\x00"
       search_raw: true
 
-  - id: c2/infrastructure/ip/port-number-constant
+  - id: port-number-constant
     description: "Common C2 port number (23, 80, 443, 8080, 4444)"
     criticality: notable
     confidence: 0.6
@@ -90,7 +90,7 @@ composite_rules:
       type: string
       regex: ":(?:23|80|443|8080|4444|1337|31337)\\b"
 
-  - id: c2/infrastructure/obfuscated-address
+  - id: obfuscated-address
     description: "C2 address obfuscation (HTTP client + no visible IP)"
     confidence: 0.85
     mbc: "B0032"
@@ -103,7 +103,7 @@ composite_rules:
       - type: trait
         id: hardcoded-ipv4
 
-  - id: c2/infrastructure/dynamic-ip
+  - id: dynamic-ip
     description: "Dynamic IP address construction"
     confidence: 0.8
     mbc: "B0032"

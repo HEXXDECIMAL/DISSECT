@@ -3,7 +3,7 @@
 # ATT&CK: T1016 (System Network Configuration Discovery)
 
 composite_rules:
-  - id: discovery/tcp-connections
+  - id: tcp-connections
     description: "Enumerate TCP connections via /proc/net/tcp"
     criticality: suspicious
     confidence: 0.8
@@ -15,7 +15,7 @@ composite_rules:
       type: string
       exact: "/proc/net/tcp"
 
-  - id: discovery/udp-connections
+  - id: udp-connections
     description: "Enumerate UDP connections via /proc/net/udp"
     criticality: suspicious
     confidence: 0.8
@@ -27,7 +27,7 @@ composite_rules:
       type: string
       exact: "/proc/net/udp"
 
-  - id: discovery/raw-sockets
+  - id: raw-sockets
     description: "Enumerate raw sockets via /proc/net/raw"
     criticality: suspicious
     confidence: 0.85
@@ -39,7 +39,7 @@ composite_rules:
       type: string
       exact: "/proc/net/raw"
 
-  - id: discovery/arp-table
+  - id: arp-table
     description: "Read ARP table via /proc/net/arp"
     criticality: notable
     confidence: 0.75
@@ -51,7 +51,7 @@ composite_rules:
       type: string
       exact: "/proc/net/arp"
 
-  - id: discovery/routing-table
+  - id: routing-table
     description: "Read routing table via /proc/net/route"
     criticality: notable
     confidence: 0.75

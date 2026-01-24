@@ -1,0 +1,203 @@
+# Trojanized Library Detection
+# ATT&CK: T1195.001 (Compromise Software Dependencies and Development Tools)
+# Detects patterns of legitimate libraries modified to include malicious code
+
+traits:
+  # Legitimate library with install hooks added
+  - id: popular-lib-with-hooks
+    description: Popular library pattern with unusual install hooks
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1195.001"
+    file_types: [packagejson]
+    condition:
+      type: yara
+      source: |
+        rule popular_lib_with_hooks {
+          strings:
+            // Popular library patterns
+            $lib1 = "lodash" ascii nocase
+            $lib2 = "axios" ascii nocase
+            $lib3 = "express" ascii nocase
+            $lib4 = "react" ascii nocase
+            $lib5 = "discord" ascii nocase
+            $lib6 = "telegram" ascii nocase
+            $lib7 = "winston" ascii nocase
+            $lib8 = "pino" ascii nocase
+            // Install hooks
+            $hook1 = "\"preinstall\":" ascii
+            $hook2 = "\"postinstall\":" ascii
+            // Network activity
+            $net1 = "curl " ascii
+            $net2 = "wget " ascii
+            $net3 = "http" ascii
+          condition:
+            any of ($lib*) and any of ($hook*) and any of ($net*)
+        }
+
+  # Clone with additional requires
+  - id: additional-requires
+    description: Library clone with suspicious additional requires
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1195.001"
+    file_types: [javascript]
+    condition:
+      type: yara
+      source: |
+        rule additional_suspicious_requires {
+          strings:
+            // Legitimate requires
+            $legit1 = "require('express')" ascii
+            $legit2 = "require('lodash')" ascii
+            $legit3 = "require('axios')" ascii
+            // Suspicious additions
+            $sus1 = "require('child_process')" ascii
+            $sus2 = "require('os')" ascii
+            $sus3 = "require('https')" ascii
+            $sus4 = "require('fs')" ascii
+            // Network patterns
+            $net1 = "fetch(" ascii
+            $net2 = ".request(" ascii
+          condition:
+            any of ($legit*) and 2 of ($sus*) and any of ($net*)
+        }
+
+  # Discord library trojanization
+  - id: discord-library
+    description: Trojanized Discord library patterns
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1195.001"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule trojanized_discord {
+          strings:
+            // Discord library indicators
+            $discord1 = "discord.js" ascii
+            $discord2 = "discord.io" ascii
+            $discord3 = "Discord.Client" ascii
+            // Malicious additions
+            $token1 = "DISCORD_TOKEN" ascii
+            $token2 = ".token" ascii
+            $webhook = "webhook" ascii
+            $steal1 = "localStorage" ascii
+            $steal2 = "leveldb" ascii
+            $exfil = "POST" ascii
+          condition:
+            any of ($discord*) and any of ($token*) and ($webhook or any of ($steal*) or $exfil)
+        }
+
+  # Telegram library trojanization
+  - id: telegram-library
+    description: Trojanized Telegram library patterns
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1195.001"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule trojanized_telegram {
+          strings:
+            // Telegram library indicators
+            $tg1 = "telegram" ascii nocase
+            $tg2 = "telegraf" ascii
+            $tg3 = "node-telegram-bot" ascii
+            // Malicious additions
+            $mal1 = "child_process" ascii
+            $mal2 = "spawn(" ascii
+            $mal3 = "exec(" ascii
+            $oob1 = "oast" ascii
+            $oob2 = "webhook.site" ascii
+          condition:
+            any of ($tg*) and any of ($mal*) and any of ($oob*)
+        }
+
+  # Logging library trojanization
+  - id: logging-library
+    description: Trojanized logging library patterns
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1195.001"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule trojanized_logger {
+          strings:
+            // Logger library indicators
+            $log1 = "winston" ascii
+            $log2 = "pino" ascii
+            $log3 = "bunyan" ascii
+            $log4 = "log4js" ascii
+            // Suspicious additions (loggers shouldn't need these)
+            $sus1 = "child_process" ascii
+            $sus2 = "spawn" ascii
+            $sus3 = "exec" ascii
+            $sus4 = "/etc/passwd" ascii
+          condition:
+            any of ($log*) and 2 of ($sus*)
+        }
+
+  # SDK/API client trojanization
+  - id: sdk-client
+    description: Trojanized SDK or API client
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1195.001"
+    file_types: [javascript, typescript, packagejson]
+    condition:
+      type: yara
+      source: |
+        rule trojanized_sdk {
+          strings:
+            // SDK patterns
+            $sdk1 = "-sdk" ascii
+            $sdk2 = "-client" ascii
+            $sdk3 = "-api" ascii
+            $sdk4 = "Client" ascii
+            // Install hook (SDKs rarely need these)
+            $hook1 = "\"preinstall\":" ascii
+            $hook2 = "\"postinstall\":" ascii
+            // Suspicious activity
+            $sus1 = "curl " ascii
+            $sus2 = "wget " ascii
+            $sus3 = "os.userInfo" ascii
+          condition:
+            any of ($sdk*) and any of ($hook*) and any of ($sus*)
+        }
+
+  # Crypto/blockchain library trojanization
+  - id: crypto-library
+    description: Trojanized cryptocurrency library
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1195.001"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule trojanized_crypto_lib {
+          strings:
+            // Crypto library patterns
+            $crypto1 = "ethers" ascii
+            $crypto2 = "web3" ascii
+            $crypto3 = "wallet" ascii
+            $crypto4 = "bitcoin" ascii
+            $crypto5 = "solana" ascii
+            // Key theft patterns
+            $steal1 = "privateKey" ascii
+            $steal2 = "mnemonic" ascii
+            $steal3 = "seedPhrase" ascii
+            $steal4 = "keystore" ascii
+            // Exfil
+            $exfil1 = "webhook" ascii
+            $exfil2 = "POST" ascii
+            $exfil3 = "oast" ascii
+          condition:
+            any of ($crypto*) and any of ($steal*) and any of ($exfil*)
+        }
+

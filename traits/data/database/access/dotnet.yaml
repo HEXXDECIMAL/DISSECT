@@ -2,7 +2,7 @@
 # Detected via string matching in compiled assemblies
 
 traits:
-  - id: data/database/access/sql-connection
+  - id: sql-connection
     description: SQL database connection capability
     criticality: notable
     confidence: 0.85
@@ -10,7 +10,7 @@ traits:
       type: string
       regex: "SqlConnection|DbConnection|OleDbConnection|OdbcConnection"
 
-  - id: data/database/access/sql-command
+  - id: sql-command
     description: SQL command execution
     criticality: notable
     confidence: 0.85
@@ -18,7 +18,7 @@ traits:
       type: string
       regex: "ExecuteNonQuery|ExecuteScalar|ExecuteReader|SqlCommand|DbCommand"
 
-  - id: data/database/access/connection-string
+  - id: connection-string
     description: Database connection string handling
     criticality: notable
     confidence: 0.80
@@ -26,7 +26,7 @@ traits:
       type: string
       regex: "ConnectionString|ConnectionStrings"
 
-  - id: data/database/access/sql-parameter
+  - id: sql-parameter
     description: Parameterized SQL queries (good practice)
     criticality: notable
     confidence: 0.75
@@ -34,7 +34,7 @@ traits:
       type: string
       regex: "SqlParameter|DbParameter|AddWithValue"
 
-  - id: data/database/access/data-adapter
+  - id: data-adapter
     description: ADO.NET data adapter usage
     criticality: notable
     confidence: 0.75

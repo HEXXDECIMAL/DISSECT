@@ -4,7 +4,7 @@
 traits:
   # === Path/File References ===
 
-  - id: credential/browser/firefox/path
+  - id: path
     description: Firefox browser reference
     criticality: notable
     confidence: 0.6
@@ -13,7 +13,7 @@ traits:
       type: string
       exact: "Firefox"
 
-  - id: credential/browser/firefox/cookies-sqlite
+  - id: cookies-sqlite
     description: Firefox cookies.sqlite database
     criticality: suspicious
     confidence: 0.8
@@ -22,7 +22,7 @@ traits:
       type: string
       exact: "cookies.sqlite"
 
-  - id: credential/browser/firefox/formhistory-sqlite
+  - id: formhistory-sqlite
     description: Firefox formhistory.sqlite database
     criticality: suspicious
     confidence: 0.85
@@ -31,7 +31,7 @@ traits:
       type: string
       exact: "formhistory.sqlite"
 
-  - id: credential/browser/firefox/logins-json
+  - id: logins-json
     description: Firefox logins.json file
     criticality: suspicious
     confidence: 0.85
@@ -40,7 +40,7 @@ traits:
       type: string
       exact: "logins.json"
 
-  - id: credential/browser/firefox/key4-db
+  - id: key4-db
     description: Firefox key4.db (master password database)
     criticality: suspicious
     confidence: 0.9
@@ -49,7 +49,7 @@ traits:
       type: string
       exact: "key4.db"
 
-  - id: credential/browser/firefox/cert9-db
+  - id: cert9-db
     description: Firefox cert9.db certificate store
     criticality: suspicious
     confidence: 0.8
@@ -60,7 +60,7 @@ traits:
 
   # === NSS Library (used for decryption) ===
 
-  - id: credential/browser/firefox/nss-private
+  - id: nss-private
     description: Firefox NSS private key database
     criticality: suspicious
     confidence: 0.8
@@ -69,7 +69,7 @@ traits:
       type: string
       exact: "nssPrivate"
 
-  - id: credential/browser/firefox/nss3-lib
+  - id: nss3-lib
     description: Firefox NSS3 library reference
     criticality: suspicious
     confidence: 0.85
@@ -78,7 +78,7 @@ traits:
       type: string
       regex: "\\bnss3\\b|libnss3"
 
-  - id: credential/browser/firefox/pk11-decrypt
+  - id: pk11-decrypt
     description: Firefox PK11SDR_Decrypt function
     criticality: hostile
     confidence: 0.95
@@ -90,7 +90,7 @@ traits:
 
   # === SQL Queries ===
 
-  - id: credential/browser/firefox/moz-cookies-sql
+  - id: moz-cookies-sql
     description: Firefox moz_cookies SQL query
     criticality: suspicious
     confidence: 0.9
@@ -100,7 +100,7 @@ traits:
       regex: "SELECT.*FROM\\s+moz_cookies"
       case_insensitive: true
 
-  - id: credential/browser/firefox/moz-logins-sql
+  - id: moz-logins-sql
     description: Firefox moz_logins SQL query
     criticality: hostile
     confidence: 0.95
@@ -112,7 +112,7 @@ traits:
       case_insensitive: true
 
 composite_rules:
-  - id: credential/browser/firefox/cookie-theft
+  - id: cookie-theft
     description: Firefox cookie theft
     criticality: suspicious
     confidence: 0.85
@@ -123,7 +123,7 @@ composite_rules:
       - type: trait
         id: credential/browser/firefox/cookies-sqlite
 
-  - id: credential/browser/firefox/password-theft
+  - id: password-theft
     description: Firefox password/form history theft
     criticality: suspicious
     confidence: 0.85
@@ -141,7 +141,7 @@ composite_rules:
       - type: trait
         id: credential/browser/firefox/key4-db
 
-  - id: credential/browser/firefox/nss-decrypt
+  - id: nss-decrypt
     description: Firefox NSS decryption (password extraction)
     criticality: hostile
     confidence: 0.95

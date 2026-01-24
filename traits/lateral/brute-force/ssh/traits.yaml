@@ -1,0 +1,102 @@
+# SSH Brute-Force Attack Detection
+# ATT&CK: T1110.001 (Brute Force: Password Guessing)
+# MBC: E1110 (Brute Force)
+
+traits:
+  # SSH authentication brute-force
+  - id: auth-spray
+    description: SSH authentication credential spraying
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "E1110"
+    attack: "T1110.001"
+    condition:
+      type: yara
+      source: |
+        rule ssh_brute {
+          strings:
+            $ssh1 = "ssh-userauth" ascii
+            $ssh2 = "libssh" ascii
+            $ssh3 = "SSH-2.0" ascii
+            $auth1 = "password" ascii
+            $auth2 = "keyboard-interactive" ascii
+            $err1 = "Authentication failed" ascii
+            $err2 = "Permission denied" ascii
+            $err3 = "Too many authentication failures" ascii
+          condition:
+            (any of ($ssh*) and any of ($auth*)) or any of ($err*)
+        }
+
+  # Default IoT credential lists
+  - id: iot-creds
+    description: Default IoT device credentials for brute-force
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "E1110"
+    attack: "T1078.001"
+    condition:
+      type: yara
+      source: |
+        rule iot_default_creds {
+          strings:
+            // Common router/IoT defaults
+            $cred1 = "admin:admin" ascii
+            $cred2 = "root:root" ascii
+            $cred3 = "admin:1234" ascii
+            $cred4 = "ubnt:ubnt" ascii
+            $cred5 = "pi:raspberry" ascii
+            $cred6 = "admin:password" ascii
+            $cred7 = "guest:guest" ascii
+            $cred8 = "support:support" ascii
+            // Telnet defaults
+            $cred9 = "root:vizxv" ascii
+            $cred10 = "root:xc3511" ascii
+            $cred11 = "root:888888" ascii
+            $cred12 = "root:juantech" ascii
+            // Camera defaults
+            $cred13 = "admin:admin1234" ascii
+            $cred14 = "admin:smcadmin" ascii
+            $cred15 = "user:user" ascii
+          condition:
+            3 of them
+        }
+
+  # SSH scanner patterns
+  - id: scanner
+    description: SSH network scanner for brute-force attacks
+    criticality: suspicious
+    confidence: 0.8
+    mbc: "E1110"
+    attack: "T1046"
+    condition:
+      type: yara
+      source: |
+        rule ssh_scanner {
+          strings:
+            $port = ":22" ascii
+            $port2 = "port 22" ascii nocase
+            $scan1 = "scanner" ascii
+            $scan2 = "scanning" ascii
+            $scan3 = "connect" ascii
+            $timeout = "timeout" ascii
+            $thread1 = "pthread" ascii
+            $thread2 = "goroutine" ascii
+          condition:
+            (any of ($port*) and any of ($scan*)) or
+            (any of ($port*) and $timeout and any of ($thread*))
+        }
+
+composite_rules:
+  # SSH brute-force botnet
+  - id: botnet
+    description: SSH brute-force botnet detected
+    criticality: hostile
+    confidence: 0.9
+    requires_all:
+      - type: trait
+        id: lateral/bruteforce/ssh/scanner
+    requires_any:
+      - type: trait
+        id: lateral/bruteforce/ssh/auth-spray
+      - type: trait
+        id: lateral/bruteforce/ssh/iot-creds

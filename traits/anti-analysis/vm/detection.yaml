@@ -4,7 +4,7 @@
 
 traits:
   # Hypervisor vendor strings
-  - id: anti-analysis/vm/hypervisor-vendor
+  - id: hypervisor-vendor
     description: Checks for hypervisor vendor strings
     criticality: suspicious
     confidence: 0.85
@@ -32,7 +32,7 @@ traits:
         }
 
   # CPUID hypervisor bit check
-  - id: anti-analysis/vm/cpuid-check
+  - id: cpuid-check
     description: CPUID instruction for hypervisor detection
     criticality: suspicious
     confidence: 0.9
@@ -43,7 +43,7 @@ traits:
       regex: '/proc/cpuinfo.*hypervisor|cpuid|hypervisor\s*flag'
 
   # DMI/SMBIOS VM detection
-  - id: anti-analysis/vm/dmi-check
+  - id: dmi-check
     description: DMI/SMBIOS check for VM detection
     criticality: suspicious
     confidence: 0.85
@@ -64,7 +64,7 @@ traits:
         }
 
   # VM-specific file checks
-  - id: anti-analysis/vm/file-check
+  - id: file-check
     description: Checks for VM-specific files
     criticality: suspicious
     confidence: 0.85
@@ -88,7 +88,7 @@ traits:
         }
 
   # VM MAC address prefixes
-  - id: anti-analysis/vm/mac-prefix
+  - id: mac-prefix
     description: Checks for VM MAC address prefixes
     criticality: suspicious
     confidence: 0.85
@@ -118,7 +118,7 @@ traits:
         }
 
   # Hardware model VM check
-  - id: anti-analysis/vm/hardware-model
+  - id: hardware-model
     description: Checks hardware model for VM indicators
     criticality: suspicious
     confidence: 0.8
@@ -129,7 +129,7 @@ traits:
       regex: 'system_profiler.*Model|wmic.*computersystem.*model|/sys/devices/virtual'
 
   # Cloud provider metadata check
-  - id: anti-analysis/vm/cloud-metadata
+  - id: cloud-metadata
     description: Cloud provider metadata access (VM detection)
     criticality: notable
     confidence: 0.7
@@ -140,7 +140,7 @@ traits:
       regex: '169\.254\.169\.254|metadata\.google\.internal|169\.254\.169\.123'
 
   # Docker/container detection
-  - id: anti-analysis/vm/container-check
+  - id: container-check
     description: Container environment detection
     criticality: notable
     confidence: 0.75
@@ -161,7 +161,7 @@ traits:
         }
 
   # Comprehensive VM evasion
-  - id: anti-analysis/vm/comprehensive-evasion
+  - id: comprehensive-evasion
     description: Multiple VM detection techniques (evasion attempt)
     criticality: hostile
     confidence: 0.95

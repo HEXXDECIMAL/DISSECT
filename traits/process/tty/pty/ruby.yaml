@@ -1,7 +1,7 @@
 # Process TTY/PTY - Ruby
 
 traits:
-  - id: process/tty/pty/ruby-pty
+  - id: ruby-pty
     description: Pseudo-terminal (PTY) manipulation
     criticality: notable
     confidence: 0.93

@@ -3,7 +3,7 @@
 # ATT&CK: T1105
 
 traits:
-  - id: fs/file/copy
+  - id: copy
     description: Copy files
     criticality: inert
     confidence: 0.66

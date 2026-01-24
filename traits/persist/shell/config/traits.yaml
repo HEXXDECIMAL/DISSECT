@@ -3,7 +3,7 @@
 
 traits:
   # Bash persistence
-  - id: persistence/shell/bash-profile
+  - id: bash-profile
     description: Accesses .bash_profile for shell persistence
     criticality: suspicious
     confidence: 0.7
@@ -13,7 +13,7 @@ traits:
       type: string
       exact: ".bash_profile"
 
-  - id: persistence/shell/bashrc
+  - id: bashrc
     description: Accesses .bashrc for shell persistence
     criticality: suspicious
     confidence: 0.7
@@ -23,7 +23,7 @@ traits:
       type: string
       exact: ".bashrc"
 
-  - id: persistence/shell/bash-login
+  - id: bash-login
     description: Accesses .bash_login for shell persistence
     criticality: suspicious
     confidence: 0.75
@@ -33,7 +33,7 @@ traits:
       type: string
       exact: ".bash_login"
 
-  - id: persistence/shell/bash-logout
+  - id: bash-logout
     description: Accesses .bash_logout for shell persistence
     criticality: suspicious
     confidence: 0.85
@@ -43,7 +43,7 @@ traits:
       type: string
       exact: ".bash_logout"
 
-  - id: persistence/shell/profile
+  - id: profile
     description: Accesses .profile for shell persistence
     criticality: suspicious
     confidence: 0.7
@@ -54,7 +54,7 @@ traits:
       # Use regex with word boundary to avoid matching .profiled, .profiles, etc.
       regex: "\\.profile\\b"
 
-  - id: persistence/shell/etc-profile
+  - id: etc-profile
     description: Accesses /etc/profile for system-wide shell persistence
     criticality: suspicious
     confidence: 0.75
@@ -64,7 +64,7 @@ traits:
       type: string
       exact: "/etc/profile"
 
-  - id: persistence/shell/etc-bashrc
+  - id: etc-bashrc
     description: Accesses /etc/bashrc for system-wide shell persistence
     criticality: suspicious
     confidence: 0.75
@@ -75,7 +75,7 @@ traits:
       exact: "/etc/bashrc"
 
   # Zsh persistence
-  - id: persistence/shell/zshrc
+  - id: zshrc
     description: Accesses .zshrc for shell persistence
     criticality: suspicious
     confidence: 0.7
@@ -85,7 +85,7 @@ traits:
       type: string
       exact: ".zshrc"
 
-  - id: persistence/shell/zprofile
+  - id: zprofile
     description: Accesses .zprofile for shell persistence
     criticality: suspicious
     confidence: 0.7
@@ -95,7 +95,7 @@ traits:
       type: string
       exact: ".zprofile"
 
-  - id: persistence/shell/zlogin
+  - id: zlogin
     description: Accesses .zlogin for shell persistence
     criticality: suspicious
     confidence: 0.75
@@ -105,7 +105,7 @@ traits:
       type: string
       exact: ".zlogin"
 
-  - id: persistence/shell/zlogout
+  - id: zlogout
     description: Accesses .zlogout for shell persistence
     criticality: suspicious
     confidence: 0.85
@@ -115,7 +115,7 @@ traits:
       type: string
       exact: ".zlogout"
 
-  - id: persistence/shell/etc-zshrc
+  - id: etc-zshrc
     description: Accesses /etc/zshrc for system-wide shell persistence
     criticality: suspicious
     confidence: 0.75
@@ -126,7 +126,7 @@ traits:
       exact: "/etc/zshrc"
 
   # Hardcoded paths (more suspicious)
-  - id: persistence/shell/hardcoded-profile
+  - id: hardcoded-profile
     description: Hardcoded path to .profile
     criticality: suspicious
     confidence: 0.9
@@ -136,7 +136,7 @@ traits:
       type: string
       regex: "/[\\w./]{0,32}/\\.profile"
 
-  - id: persistence/shell/hardcoded-bashrc
+  - id: hardcoded-bashrc
     description: Hardcoded path to .bashrc
     criticality: suspicious
     confidence: 0.9
@@ -147,7 +147,7 @@ traits:
       regex: "/[\\w./]{0,32}/\\.bashrc"
 
 composite_rules:
-  - id: persistence/shell/multi-file-access
+  - id: multi-file-access
     description: Multiple shell config file access (persistence)
     criticality: suspicious
     confidence: 0.9
@@ -174,7 +174,7 @@ composite_rules:
             none of ($not*)
         }
 
-  - id: persistence/shell/elf-hardcoded
+  - id: elf-hardcoded
     description: ELF binary with hardcoded shell config paths
     criticality: suspicious
     confidence: 0.95

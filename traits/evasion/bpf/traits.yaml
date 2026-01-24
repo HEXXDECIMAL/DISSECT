@@ -3,7 +3,7 @@
 
 traits:
   # Malicious BPF usage (backdoor patterns)
-  - id: evasion/bpf/backdoor
+  - id: backdoor
     description: BPF packet filtering for backdoor activation
     criticality: suspicious
     confidence: 0.8
@@ -31,7 +31,7 @@ traits:
         }
 
   # BPFDoor-style backdoor
-  - id: evasion/bpf/bpfdoor-style
+  - id: bpfdoor-style
     description: BPFDoor-style packet filter backdoor
     criticality: hostile
     confidence: 0.9
@@ -60,7 +60,7 @@ traits:
         }
 
   # Legitimate eBPF tracing
-  - id: evasion/bpf/tracing
+  - id: tracing
     description: Legitimate eBPF tracing/observability
     criticality: benign
     confidence: 0.85

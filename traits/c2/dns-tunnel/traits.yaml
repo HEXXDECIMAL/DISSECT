@@ -4,7 +4,7 @@
 
 traits:
   # dnscat2 protocol
-  - id: c2/dns-tunnel/dnscat
+  - id: dnscat
     description: dnscat2 DNS tunneling tool
     criticality: hostile
     confidence: 0.95
@@ -24,7 +24,7 @@ traits:
         }
 
   # iodine DNS tunnel
-  - id: c2/dns-tunnel/iodine
+  - id: iodine
     description: iodine DNS tunneling tool
     criticality: hostile
     confidence: 0.95
@@ -43,7 +43,7 @@ traits:
         }
 
   # Generic DNS tunnel patterns
-  - id: c2/dns-tunnel/generic
+  - id: generic
     description: Generic DNS tunneling patterns
     criticality: suspicious
     confidence: 0.8
@@ -64,7 +64,7 @@ traits:
         }
 
   # DNS over HTTPS for C2
-  - id: c2/dns-tunnel/doh-c2
+  - id: doh-c2
     description: DNS over HTTPS potential C2 channel
     criticality: suspicious
     confidence: 0.75

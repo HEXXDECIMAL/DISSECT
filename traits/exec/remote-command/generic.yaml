@@ -1,6 +1,6 @@
 # Remote Command Execution
 traits:
-  - id: exec/remote-command/generic
+  - id: generic
     description: "Function to execute remote commands"
     criticality: suspicious
     confidence: 0.8

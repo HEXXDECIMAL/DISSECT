@@ -2,7 +2,7 @@
 # ATT&CK: T1055 (Process Injection)
 
 traits:
-  - id: mem/protect/modify/virtualprotect
+  - id: virtualprotect
     description: Change memory protection (VirtualProtect)
     criticality: notable
     confidence: 0.9
@@ -13,7 +13,7 @@ traits:
       type: symbol
       pattern: "VirtualProtect$"
 
-  - id: mem/protect/modify/virtualprotect-ex
+  - id: virtualprotect-ex
     description: Change memory protection in other process (VirtualProtectEx)
     criticality: suspicious
     confidence: 0.85

@@ -3,7 +3,7 @@
 # ATT&CK: T1083
 
 traits:
-  - id: fs/directory/mkdir-java
+  - id: mkdir-java
     description: Create directories (Java)
     criticality: inert
     confidence: 0.66

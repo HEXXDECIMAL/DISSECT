@@ -3,7 +3,7 @@
 # ATT&CK: T1070.004
 
 traits:
-  - id: evasion/self-delete-python
+  - id: self-delete-python
     description: Self-deleting Python script
     criticality: suspicious
     confidence: 0.66

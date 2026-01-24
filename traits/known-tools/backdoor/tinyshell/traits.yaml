@@ -1,0 +1,118 @@
+# Malware Family - TinyShell Backdoor
+# Open-source backdoor, commonly reused in attacks
+# ATT&CK: T1059.004 (Unix Shell)
+
+traits:
+  # === Go variant traits ===
+
+  - id: backdoor/tinyshell/go-runshell
+    description: TinyShell Go shell handler
+    criticality: hostile
+    confidence: 0.9
+    family: true
+    attack: "T1059.004"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "handleRunShell"
+
+  - id: backdoor/tinyshell/go-background
+    description: TinyShell Go background execution
+    criticality: suspicious
+    confidence: 0.6
+    attack: "T1059.004"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "RunInBackground"
+
+  - id: backdoor/tinyshell/go-pty-wrapper
+    description: TinyShell Go PTY wrapper
+    criticality: hostile
+    confidence: 0.85
+    family: true
+    attack: "T1059.004"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "LinuxPtyWrapper"
+
+  # === C variant traits ===
+
+  - id: backdoor/tinyshell/c-runshell
+    description: TinyShell C daemon shell function
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    attack: "T1059.004"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "_tshd_runshell"
+
+  - id: backdoor/tinyshell/c-getfile
+    description: TinyShell C file transfer function
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    attack: "T1105"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "_tshd_get_file"
+
+  - id: backdoor/tinyshell/c-putfile
+    description: TinyShell C file upload function
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    attack: "T1105"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "_tshd_put_file"
+
+composite_rules:
+  # Go variant detection
+  - id: backdoor/tinyshell/go-detected
+    description: TinyShell Go backdoor
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    attack: "T1059.004"
+    mbc: "B0022"
+    file_types: [elf]
+    condition:
+      type: yara
+      source: |
+        rule tinyshell_go {
+          strings:
+            $ref = "handleRunShell"
+            $ref2 = "RunInBackground"
+            $ref3 = "LinuxPtyWrapper"
+          condition:
+            uint32(0) == 0x464C457F and
+            filesize < 10MB and all of them
+        }
+
+  # C variant detection
+  - id: backdoor/tinyshell/c-detected
+    description: TinyShell C backdoor
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    attack: "T1059.004"
+    mbc: "B0022"
+    file_types: [elf]
+    condition:
+      type: yara
+      source: |
+        rule tinyshell_c {
+          strings:
+            $ref = "_tshd_runshell"
+            $ref2 = "_tshd_get_file"
+            $ref3 = "_tshd_put_file"
+          condition:
+            uint32(0) == 0x464C457F and
+            filesize < 1MB and 2 of them
+        }

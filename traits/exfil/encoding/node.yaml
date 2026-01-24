@@ -3,7 +3,7 @@
 
 traits:
   # Base64 encoding
-  - id: exfil/encoding/node-base64-encode
+  - id: node-base64-encode
     description: Base64 encodes data (pre-exfiltration)
     criticality: notable
     confidence: 0.8
@@ -13,7 +13,7 @@ traits:
       type: string
       regex: "toString\\(['\"]base64['\"]\\)"
 
-  - id: exfil/encoding/node-buffer-base64
+  - id: node-buffer-base64
     description: Buffer to base64 conversion
     criticality: notable
     confidence: 0.85
@@ -23,7 +23,7 @@ traits:
       type: string
       regex: "Buffer\\.from\\([^)]+\\)\\.toString\\(['\"]base64['\"]\\)"
 
-  - id: exfil/encoding/node-base64-decode
+  - id: node-base64-decode
     description: Base64 decodes data
     criticality: notable
     confidence: 0.75
@@ -33,7 +33,7 @@ traits:
       regex: "Buffer\\.from\\([^,]+,\\s*['\"]base64['\"]\\)"
 
   # Hex encoding
-  - id: exfil/encoding/node-hex-encode
+  - id: node-hex-encode
     description: Hex encodes data
     criticality: notable
     confidence: 0.75
@@ -43,7 +43,7 @@ traits:
       regex: "toString\\(['\"]hex['\"]\\)"
 
   # JSON serialization
-  - id: exfil/encoding/node-json-stringify
+  - id: node-json-stringify
     description: JSON serializes data for transmission
     criticality: inert
     confidence: 0.7
@@ -53,7 +53,7 @@ traits:
       regex: 'JSON\.stringify\('
 
   # URL encoding
-  - id: exfil/encoding/node-querystring
+  - id: node-querystring
     description: URL-encodes data using querystring
     criticality: notable
     confidence: 0.8
@@ -62,7 +62,7 @@ traits:
       type: string
       regex: 'querystring\.stringify\('
 
-  - id: exfil/encoding/node-url-params
+  - id: node-url-params
     description: Creates URLSearchParams for data
     criticality: notable
     confidence: 0.75
@@ -73,7 +73,7 @@ traits:
 
 composite_rules:
   # Encode then exfil pattern
-  - id: exfil/encoding/node-encode-exfil
+  - id: node-encode-exfil
     description: Encodes data then sends via HTTP (exfiltration)
     criticality: suspicious
     confidence: 0.9

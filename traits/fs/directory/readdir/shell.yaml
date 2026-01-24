@@ -3,7 +3,7 @@
 # ATT&CK: T1083
 
 traits:
-  - id: fs/directory/readdir-ls
+  - id: readdir-ls
     description: List directory contents via /bin/ls
     criticality: inert
     confidence: 0.66

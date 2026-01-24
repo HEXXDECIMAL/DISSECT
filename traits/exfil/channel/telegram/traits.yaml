@@ -3,7 +3,7 @@
 # ATT&CK: T1567.002 (Exfiltration Over Web Service)
 
 traits:
-  - id: exfil/telegram/api-endpoint
+  - id: api-endpoint
     description: Telegram Bot API endpoint
     criticality: suspicious
     confidence: 0.9
@@ -13,7 +13,7 @@ traits:
       type: string
       exact: "api.telegram.org"
 
-  - id: exfil/telegram/api-endpoint-b64
+  - id: api-endpoint-b64
     description: Telegram Bot API endpoint (base64)
     criticality: suspicious
     confidence: 0.95
@@ -23,7 +23,7 @@ traits:
       type: string
       exact: "YXBpLnRlbGVncmFtLm9yZw=="
 
-  - id: exfil/telegram/send-message
+  - id: send-message
     description: Telegram sendMessage API
     criticality: suspicious
     confidence: 0.85
@@ -33,7 +33,7 @@ traits:
       type: string
       exact: "/sendMessage"
 
-  - id: exfil/telegram/send-document
+  - id: send-document
     description: Telegram sendDocument API
     criticality: suspicious
     confidence: 0.9
@@ -43,7 +43,7 @@ traits:
       type: string
       exact: "/sendDocument"
 
-  - id: exfil/telegram/send-location
+  - id: send-location
     description: Telegram sendLocation API
     criticality: suspicious
     confidence: 0.9
@@ -53,7 +53,7 @@ traits:
       type: string
       exact: "/sendLocation"
 
-  - id: exfil/telegram/send-photo
+  - id: send-photo
     description: Telegram sendPhoto API
     criticality: suspicious
     confidence: 0.9
@@ -63,7 +63,7 @@ traits:
       type: string
       exact: "/sendPhoto"
 
-  - id: exfil/telegram/bot-token
+  - id: bot-token
     description: Telegram bot token pattern
     criticality: suspicious
     confidence: 0.95
@@ -74,7 +74,7 @@ traits:
       regex: "\\d{8,10}:[A-Za-z0-9_-]{35}"
 
 composite_rules:
-  - id: exfil/telegram/bot-exfil
+  - id: bot-exfil
     description: Telegram bot exfiltration
     criticality: suspicious
     confidence: 0.9

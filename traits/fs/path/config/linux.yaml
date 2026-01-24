@@ -3,7 +3,7 @@
 # ATT&CK: T1083
 
 traits:
-  - id: fs/path/config-etc
+  - id: config-etc
     description: Reference to /etc configuration files
     criticality: inert
     confidence: 0.66
@@ -11,7 +11,7 @@ traits:
       type: string
       regex: "/etc/[\\w\\.\\-/]{1,32}"
 
-  - id: fs/path/config-hosts
+  - id: config-hosts
     description: Reference to /etc/hosts
     criticality: notable
     confidence: 0.66
@@ -19,7 +19,7 @@ traits:
       type: string
       exact: /etc/hosts
 
-  - id: fs/path/config-resolv
+  - id: config-resolv
     description: Reference to /etc/resolv.conf
     criticality: notable
     confidence: 0.66
@@ -27,7 +27,7 @@ traits:
       type: string
       exact: /etc/resolv.conf
 
-  - id: fs/path/config-initd
+  - id: config-initd
     description: Reference to /etc/init.d scripts
     criticality: notable
     confidence: 0.66

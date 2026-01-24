@@ -1,7 +1,7 @@
 # .NET Serialization Patterns
 
 traits:
-  - id: data/serialization/unsafe/json-newtonsoft
+  - id: json-newtonsoft
     description: Newtonsoft.Json serialization library
     criticality: notable
     confidence: 0.85
@@ -9,7 +9,7 @@ traits:
       type: string
       exact: "Newtonsoft.Json"
 
-  - id: data/serialization/unsafe/json-system
+  - id: json-system
     description: System.Text.Json serialization
     criticality: notable
     confidence: 0.85
@@ -17,7 +17,7 @@ traits:
       type: string
       exact: "System.Text.Json"
 
-  - id: data/serialization/unsafe/xml-serializer
+  - id: xml-serializer
     description: XML serialization capability
     criticality: notable
     confidence: 0.75
@@ -25,7 +25,7 @@ traits:
       type: string
       regex: "XmlSerializer|System\\.Xml\\.Serialization"
 
-  - id: data/serialization/unsafe/binary-formatter
+  - id: binary-formatter
     description: Binary serialization (security risk)
     criticality: suspicious
     confidence: 0.90

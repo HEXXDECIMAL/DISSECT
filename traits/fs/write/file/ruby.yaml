@@ -1,7 +1,7 @@
 ---
 # Ruby file write operations
 traits:
-  - id: fs/write/file/ruby-file-open-write-binary
+  - id: ruby-file-open-write-binary
     description: "Write binary file"
     criticality: notable
     confidence: 0.92
@@ -17,7 +17,7 @@ traits:
         - "'wb+"
         - "\"wb+"
 
-  - id: fs/write/file/ruby-file-binmode
+  - id: ruby-file-binmode
     description: "Binary file mode"
     criticality: notable
     confidence: 0.90
@@ -30,7 +30,7 @@ traits:
       any:
         - .binmode
 
-  - id: fs/write/file/ruby-file-write-tmp
+  - id: ruby-file-write-tmp
     description: "Write to /tmp directory"
     criticality: notable
     confidence: 0.88
@@ -43,7 +43,7 @@ traits:
       any:
         - /tmp/
 
-  - id: fs/write/file/ruby-file-chmod
+  - id: ruby-file-chmod
     description: "Modify file permissions"
     criticality: notable
     confidence: 0.90
@@ -57,7 +57,7 @@ traits:
         - File.chmod
         - .chmod(
 
-  - id: fs/write/file/ruby-chmod-777
+  - id: ruby-chmod-777
     description: "Make file world-executable (chmod 777)"
     criticality: suspicious
     confidence: 0.95
@@ -72,7 +72,7 @@ traits:
         - chmod 0777
         - chmod(0o777)
 
-  - id: fs/write/file/ruby-file-delete
+  - id: ruby-file-delete
     description: "Delete file"
     criticality: notable
     confidence: 0.90
@@ -86,7 +86,7 @@ traits:
         - File.delete
         - File.unlink
 
-  - id: fs/write/file/ruby-rm-rf
+  - id: ruby-rm-rf
     description: "Recursive directory deletion"
     criticality: notable
     confidence: 0.93
@@ -99,7 +99,7 @@ traits:
       any:
         - FileUtils.rm_rf
 
-  - id: fs/write/file/ruby-fileutils
+  - id: ruby-fileutils
     description: "Imports FileUtils library (mkdir, cp, mv, rm, touch)"
     criticality: notable
     confidence: 0.6

@@ -1,0 +1,68 @@
+# JavaScript Obfuscator Detection
+# Detects signatures of javascript-obfuscator and similar tools
+# ATT&CK: T1027 (Obfuscated Files or Information)
+
+traits:
+  - id: infinite-loop
+    description: Obfuscated infinite loop (while(!![]) pattern)
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1027"
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "while\\s*\\(\\s*!!\\[\\]\\s*\\)|while\\s*\\(\\s*!0\\s*\\)|while\\s*\\(\\s*!\\s*0\\s*\\)"
+
+  - id: string-array-rotation
+    description: String array with rotation decoder (obfuscation)
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1027"
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "push.*shift|shift.*push"
+
+  - id: buffer-hex-encoding
+    description: Buffer with hex encoding (obfuscation)
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1027"
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "Buffer\\.from.*hex|Buffer\\.from.*'hex'|Buffer\\.from.*\"hex\""
+
+  - id: fromCharCode
+    description: String.fromCharCode obfuscation
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1027"
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "String\\.fromCharCode|fromCharCode\\("
+
+  - id: obfuscator-variables
+    description: JavaScript obfuscator tool signature (_0x naming pattern)
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1027"
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "_0x[a-fA-F0-9]{4,8}"
+      min_count: 10
+      search_raw: true
+
+  - id: hex-literal-density
+    description: High density of hex literals (obfuscated arithmetic)
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1027"
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "0x[a-fA-F0-9]+"
+      min_count: 50
+      search_raw: true

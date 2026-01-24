@@ -2,7 +2,7 @@
 # ATT&CK: T1059.006 (Python)
 
 traits:
-  - id: exec/command/subprocess/run
+  - id: run
     description: "Executes external system command"
     criticality: notable
     confidence: 0.85

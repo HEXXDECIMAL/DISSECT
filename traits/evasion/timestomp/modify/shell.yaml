@@ -3,7 +3,7 @@
 # ATT&CK: T1070.006
 
 traits:
-  - id: evasion/timestomp-touch
+  - id: timestomp-touch
     description: Modify timestamps via touch command
     criticality: suspicious
     confidence: 0.66
@@ -13,7 +13,7 @@ traits:
       type: string
       regex: "touch\\s+-[amdt]"
 
-  - id: evasion/timestomp-touch-specific
+  - id: timestomp-touch-specific
     description: Set specific timestamp via touch -t
     criticality: suspicious
     confidence: 0.8

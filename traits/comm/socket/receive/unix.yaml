@@ -3,7 +3,7 @@
 # ATT&CK: T1071
 
 traits:
-  - id: socket/receive
+  - id: receive
     description: Receive a message from a socket
     criticality: inert
     confidence: 0.66

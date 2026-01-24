@@ -7,7 +7,7 @@ defaults:
   attack: "T1027"
 
 composite_rules:
-  - id: anti-static/obfuscation/encoding/rc4-sbox-init
+  - id: rc4-sbox-init
     description: "RC4 S-box initialization pattern (256-byte permutation)"
     criticality: notable
     confidence: 0.6
@@ -28,7 +28,7 @@ composite_rules:
             $sbox_partial or ($x86_256_mov and $x86_256_cmp)
         }
 
-  - id: anti-static/obfuscation/encoding/cipher-key-schedule
+  - id: cipher-key-schedule
     description: "Cipher key schedule function"
     criticality: notable
     confidence: 0.7
@@ -37,7 +37,7 @@ composite_rules:
       type: symbol
       pattern: "key_schedule|ksa|init_key|setup_key|expand_key"
 
-  - id: anti-static/obfuscation/encoding/stream-cipher-decrypt
+  - id: stream-cipher-decrypt
     description: "Stream cipher decryption function"
     criticality: notable
     confidence: 0.6
@@ -46,7 +46,7 @@ composite_rules:
       type: symbol
       pattern: "stream_decrypt|prga|rc4_crypt|arc4|cipher_stream"
 
-  - id: anti-static/obfuscation/encoding/hardcoded-hex-charset
+  - id: hardcoded-hex-charset
     description: "Hardcoded hex encoding charset (encoding/decoding)"
     criticality: notable
     confidence: 0.5
@@ -55,7 +55,7 @@ composite_rules:
       type: string
       exact: "0123456789abcdef"
 
-  - id: anti-static/obfuscation/encoding/hardcoded-base64-charset
+  - id: hardcoded-base64-charset
     description: "Hardcoded Base64 charset"
     criticality: notable
     confidence: 0.4
@@ -64,7 +64,7 @@ composite_rules:
       type: string
       regex: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789\\+/"
 
-  - id: anti-static/obfuscation/rc4-cipher
+  - id: rc4-cipher
     description: "RC4 or RC4-like stream cipher detected"
     criticality: notable
     confidence: 0.7

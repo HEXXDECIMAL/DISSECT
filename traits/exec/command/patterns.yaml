@@ -2,7 +2,7 @@
 # Detects complex construction and execution logic
 
 traits:
-  - id: exec/command/construction/string-assign
+  - id: string-assign
     description: "Constructs command or URL via string assignment"
     criticality: inert
     confidence: 0.6
@@ -17,7 +17,7 @@ traits:
         (#match? @var "^(cmd|command|url|payload|data|msg|body)$")
 
 composite_rules:
-  - id: exec/command/construction/command-spreading
+  - id: command-spreading
     description: "Command spreading (String construction + Execution)"
     criticality: suspicious
     confidence: 0.85

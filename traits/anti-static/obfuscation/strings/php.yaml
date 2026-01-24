@@ -3,7 +3,7 @@
 # ATT&CK: T1027
 
 traits:
-  - id: anti-static/obfuscation/strings-chr-concat
+  - id: strings-chr-concat
     description: String obfuscation via chr() concatenation
     criticality: notable
     confidence: 0.66

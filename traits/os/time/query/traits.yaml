@@ -4,7 +4,7 @@
 
 traits:
   # Time retrieval
-  - id: os/time/query/time
+  - id: time
     description: Get current calendar time (seconds since epoch)
     criticality: inert
     mbc: "T1124"
@@ -15,7 +15,7 @@ traits:
       pattern: time
     platforms: [unix, linux, macos, windows]
 
-  - id: os/time/query/gettimeofday
+  - id: gettimeofday
     description: Get current time with microsecond precision
     criticality: inert
     mbc: "T1124"
@@ -26,7 +26,7 @@ traits:
       pattern: gettimeofday
     platforms: [unix, linux, macos]
 
-  - id: os/time/query/clock_gettime
+  - id: clock_gettime
     description: Get time from specified clock
     criticality: inert
     mbc: "T1124"
@@ -38,7 +38,7 @@ traits:
     platforms: [unix, linux, macos]
 
   # Time formatting and conversion
-  - id: os/time/query/localtime
+  - id: localtime
     description: Convert time to local time structure
     criticality: inert
     confidence: 0.2
@@ -47,7 +47,7 @@ traits:
       pattern: localtime
     platforms: [unix, linux, macos, windows]
 
-  - id: os/time/query/gmtime
+  - id: gmtime
     description: Convert time to UTC time structure
     criticality: inert
     confidence: 0.2
@@ -56,7 +56,7 @@ traits:
       pattern: gmtime
     platforms: [unix, linux, macos, windows]
 
-  - id: os/time/query/strftime
+  - id: strftime
     description: Format time as string
     criticality: inert
     confidence: 0.2
@@ -65,7 +65,7 @@ traits:
       pattern: strftime
     platforms: [unix, linux, macos, windows]
 
-  - id: os/time/query/strptime
+  - id: strptime
     description: Parse time string into time structure
     criticality: inert
     confidence: 0.2
@@ -75,7 +75,7 @@ traits:
     platforms: [unix, linux, macos]
 
   # Time manipulation (suspicious for timestomping)
-  - id: os/time/query/settimeofday
+  - id: settimeofday
     description: Set system time (requires privileges)
     criticality: suspicious
     mbc: "F0005"
@@ -86,7 +86,7 @@ traits:
       pattern: settimeofday
     platforms: [unix, linux, macos]
 
-  - id: os/time/query/clock_settime
+  - id: clock_settime
     description: Set time for specified clock (requires privileges)
     criticality: suspicious
     mbc: "F0005"
@@ -97,7 +97,7 @@ traits:
       pattern: clock_settime
     platforms: [unix, linux, macos]
 
-  - id: os/time/query/utimes
+  - id: utimes
     description: Change file access and modification times
     criticality: notable
     mbc: "F0005"
@@ -109,7 +109,7 @@ traits:
     platforms: [unix, linux, macos]
 
   # Sleep/delay functions
-  - id: os/time/query/sleep
+  - id: sleep
     description: Suspend execution for interval
     criticality: inert
     confidence: 0.4

@@ -3,7 +3,7 @@
 # ATT&CK: T1497.001
 
 traits:
-  - id: anti-analysis/vm
+  - id: vm
     description: VM detection techniques
     criticality: notable
     confidence: 0.5
@@ -28,7 +28,7 @@ traits:
             any of them
         }
 
-  - id: anti-analysis/vm/multi-vendor
+  - id: multi-vendor
     description: Multiple VM vendor detection (evasion technique)
     criticality: suspicious
     confidence: 0.8

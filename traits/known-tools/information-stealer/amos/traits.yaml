@@ -1,0 +1,369 @@
+# Malware Family - AMOS Infostealer
+# macOS infostealer (Atomic macOS Stealer)
+# Reference: https://www.intego.com/mac-security-blog/poseidon-macos-malware-employs-new-tricks-targets-swiss-mac-users/
+# ATT&CK: T1555 (Credentials from Password Stores)
+
+traits:
+  # === Atomic Traits ===
+
+  - id: stealer/amos/magic-var
+    description: AMOS magic variable marker
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    attack: "T1555"
+    platforms: [macos]
+    file_types: [macho]
+    condition:
+      type: string
+      exact: "_MAGIC_VAR_"
+
+  - id: stealer/amos/base32-invalid
+    description: AMOS base32 decoding error
+    criticality: suspicious
+    confidence: 0.6
+    family: true
+    attack: "T1140"
+    platforms: [macos]
+    file_types: [macho]
+    condition:
+      type: string
+      exact: "Invalid Base32 character"
+
+  - id: stealer/amos/base32-charset
+    description: AMOS base32 charset
+    criticality: suspicious
+    confidence: 0.5
+    attack: "T1140"
+    platforms: [macos]
+    file_types: [macho]
+    condition:
+      type: string
+      exact: "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
+
+  # === Cipher Variant Traits (triple lookup table) ===
+  # Note: The atomic "/dev/urandom" trait is too generic (all Rust binaries have it).
+  # The cipher variant is detected by the composite YARA rule below which checks
+  # for /dev/urandom + system + math functions + high entropy in combination.
+
+  - id: stealer/amos/custom-base64-charset
+    description: "Custom Base64 alphabet (cipher variant)"
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    attack: "T1140"
+    platforms: [macos]
+    file_types: [macho]
+    condition:
+      type: string
+      # Known AMOS custom Base64 alphabet
+      exact: "Hbe1MtN?UT9jksJIE7D=VK&-XBA*h6y2i%p<!PqFw#@lR+vo$(Qd>_gxcmzY3af4"
+
+  - id: stealer/amos/cipher-math-imports
+    description: "Math function imports (cipher indicator)"
+    criticality: notable
+    confidence: 0.7
+    attack: "T1027"
+    platforms: [macos]
+    file_types: [macho]
+    condition:
+      type: import_combination
+      suspicious:
+        - "^@?_?(cos|sin|tan)$"
+        - "^@?_?(exp|pow|log|sqrt)$"
+        - "^@?_?(fmod|hypot|log1p)$"
+      min_suspicious: 5
+
+  - id: stealer/amos/minimal-cstring
+    description: "Minimal __cstring section (<100 bytes)"
+    criticality: notable
+    confidence: 0.7
+    attack: "T1027"
+    platforms: [macos]
+    file_types: [macho]
+    condition:
+      type: section_ratio
+      section: "__cstring"
+      compare_to: "total"
+      max_ratio: 0.0001
+
+  - id: stealer/amos/large-const-payload
+    description: "Large __const section (>90% of binary)"
+    criticality: suspicious
+    confidence: 0.75
+    attack: "T1027"
+    platforms: [macos]
+    file_types: [macho]
+    condition:
+      type: section_ratio
+      section: "__const"
+      compare_to: "total"
+      min_ratio: 0.90
+
+  - id: stealer/amos/high-const-entropy
+    description: "High entropy __const section (encrypted payload)"
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1027"
+    mbc: "C0027"
+    platforms: [macos]
+    file_types: [macho]
+    condition:
+      type: section_entropy
+      section: "__const"
+      min_entropy: 7.5
+
+composite_rules:
+  # AMOS magic variable variant
+  - id: stealer/amos/magic-variant-detected
+    description: AMOS infostealer (magic var variant)
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    reference: "https://www.intego.com/mac-security-blog/poseidon-macos-malware-employs-new-tricks-targets-swiss-mac-users/"
+    attack: "T1555"
+    mbc: "B0028"
+    platforms: [macos]
+    file_types: [macho]
+    condition:
+      type: yara
+      source: |
+        import "math"
+        rule amos_magic_var {
+          strings:
+            $not_jar = "META-INF/"
+            $not_dwarf = "_DWARF"
+            $not_kext = "_.SYMDEF SORTED"
+            $magic = "_MAGIC_VAR_"
+            $header = "mh_execute_header"
+            $main = "main" fullword
+            $f_system = "@_system"
+            $f_setsid = "@_setsid"
+            $f_fork = "@_fork"
+            $word_with_spaces = /[a-z]{2,} [a-z]{2,}/
+          condition:
+            (uint32(0) == 4277009102 or uint32(0) == 3472551422 or
+             uint32(0) == 4277009103 or uint32(0) == 3489328638 or
+             uint32(0) == 3405691582 or uint32(0) == 3199925962 or
+             uint32(0) == 3405691583 or uint32(0) == 3216703178) and
+            none of ($not*) and
+            filesize > 100KB and filesize < 600KB and
+            $magic and $header and $main and all of ($f*) and
+            #word_with_spaces < 3
+        }
+
+  # AMOS base32 variant
+  - id: stealer/amos/base32-variant-detected
+    description: AMOS infostealer (base32 variant)
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    attack: "T1555"
+    mbc: "B0028"
+    platforms: [macos]
+    file_types: [macho]
+    condition:
+      type: yara
+      source: |
+        rule amos_base32 {
+          strings:
+            $not_jar = "META-INF/"
+            $not_dwarf = "_DWARF"
+            $not_kext = "_.SYMDEF SORTED"
+            $base32 = "Invalid Base32 character"
+            $header = "mh_execute_header"
+            $f_system = "@_system"
+            $charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
+            $at_exit = "@___cxa_atexit"
+          condition:
+            (uint32(0) == 4277009102 or uint32(0) == 3472551422 or
+             uint32(0) == 4277009103 or uint32(0) == 3489328638 or
+             uint32(0) == 3405691582 or uint32(0) == 3199925962 or
+             uint32(0) == 3405691583 or uint32(0) == 3216703178) and
+            none of ($not*) and
+            filesize > 40KB and filesize < 2MB and all of them
+        }
+
+  # AMOS hex obfuscated variant
+  - id: stealer/amos/hex-obfuscated-detected
+    description: AMOS infostealer (hex obfuscated)
+    criticality: hostile
+    confidence: 0.9
+    family: true
+    attack: "T1555"
+    mbc: "B0028"
+    platforms: [macos]
+    file_types: [macho]
+    condition:
+      type: yara
+      source: |
+        import "math"
+        rule amos_hex_obfuscated {
+          strings:
+            $not_jar = "META-INF/"
+            $not_dwarf = "_DWARF"
+            $not_kext = "_.SYMDEF SORTED"
+            $f_zd = "@__ZdlPv" fullword
+            $f_sy = "@_system" fullword
+            $f_main = "_main" fullword
+            $f_labs = "@_labs" fullword
+            $f_memcpy = "@_memcpy" fullword
+            $f_signal = "@_signal" fullword
+            $f_fork = "@_fork" fullword
+            $f_exit = "@_exit" fullword
+            $f_setsid = "@_setsid" fullword
+            $f_memset = "@_memset" fullword
+            $f_strlen = "@_strlen" fullword
+            $f_unwind = "@__Unwind_Resume" fullword
+            $x = /0x[\dabcdefABCDEF]{2,8}/
+          condition:
+            (uint32(0) == 4277009102 or uint32(0) == 3472551422 or
+             uint32(0) == 4277009103 or uint32(0) == 3489328638 or
+             uint32(0) == 3405691582 or uint32(0) == 3199925962 or
+             uint32(0) == 3405691583 or uint32(0) == 3216703178) and
+            none of ($not*) and
+            filesize > 190KB and filesize < 400KB and
+            95% of ($f*) and math.entropy(20000, 50000) >= 4.5 and #x > 64
+        }
+
+  # AMOS string-obfuscated variant (C++ with minimal readable strings)
+  # Sample: Cosmical_setup, FlaUI_Driver, setup (271KB universal binary)
+  # Characteristics: Very few readable strings, C++ RTTI, daemon imports
+  - id: stealer/amos/string-obfuscated-detected
+    description: "AMOS infostealer (string obfuscated variant)"
+    criticality: hostile
+    confidence: 0.9
+    family: true
+    attack: "T1555"
+    mbc: "B0028"
+    platforms: [macos]
+    file_types: [macho]
+    condition:
+      type: yara
+      source: |
+        rule amos_string_obfuscated {
+          meta:
+            description = "AMOS with heavy string obfuscation"
+          strings:
+            $not_jar = "META-INF/"
+            $not_dwarf = "_DWARF"
+            $not_kext = "_.SYMDEF SORTED"
+            // C++ RTTI strings (C++ build indicator)
+            $cpp_rtti = "NSt3__1" ascii
+            $cpp_stream = "basic_istringstream" ascii
+            $cpp_stringbuf = "basic_stringbuf" ascii
+            // Truncated/obfuscated Windows-like API names
+            $win_api1 = "SignDataWithCert" ascii
+            $win_api2 = "UpdatePublisher" ascii
+            $win_api3 = "The server is requ" ascii
+            $win_api4 = "__abi_WinRTra" ascii
+            // Daemon execution imports (symbol table)
+            $f_system = "_system" ascii
+            $f_fork = "_fork" ascii
+            $f_setsid = "_setsid" ascii
+            // C++ memory management
+            $cpp_delete = "__ZdlPv" ascii
+          condition:
+            // Mach-O magic (FAT universal binary or 64-bit)
+            (uint32(0) == 0xCAFEBABE or uint32(0) == 0xBEBAFECA or
+             uint32(0) == 0xFEEDFACF or uint32(0) == 0xCFFAEDFE or
+             uint32(0) == 0xFEEDFACE or uint32(0) == 0xCEFAEDFE) and
+            none of ($not*) and
+            // Size range for this variant (100KB-600KB)
+            filesize > 100KB and filesize < 600KB and
+            // Must have C++ RTTI
+            ($cpp_rtti and ($cpp_stream or $cpp_stringbuf)) and
+            // Must have daemon execution capability
+            ($f_system and $f_fork and $f_setsid) and
+            // Must have truncated Windows API names (obfuscation indicator)
+            2 of ($win_api*) and
+            // Must have C++ delete
+            $cpp_delete
+        }
+
+  # AMOS cipher variant (triple lookup table)
+  # Sample: 0a1b92f6f95e369c813f8bd67694cdb3a15a0c6faac9f2af44e2f3eeca0cef8c
+  # Obfuscation: plaintext[i] = (table1[i] - table2[i]) ^ table3[i]
+  - id: stealer/amos/cipher-variant-detected
+    description: "AMOS infostealer (cipher variant - triple lookup table)"
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    reference: "https://www.sentinelone.com/blog/atomic-stealer-threat-actor-spawns-second-variant-of-macos-malware-sold-on-telegram/"
+    attack: "T1555"
+    mbc: "B0028"
+    platforms: [macos]
+    file_types: [macho]
+    condition:
+      type: yara
+      source: |
+        import "math"
+        import "macho"
+        rule amos_cipher_variant {
+          meta:
+            description = "AMOS cipher variant with triple lookup table encryption"
+            sample = "0a1b92f6f95e369c813f8bd67694cdb3a15a0c6faac9f2af44e2f3eeca0cef8c"
+          strings:
+            $not_jar = "META-INF/"
+            $not_dwarf = "_DWARF"
+            $not_kext = "_.SYMDEF SORTED"
+            // The only visible string in the binary
+            $dev_urandom = "/dev/urandom" fullword
+            // Typical Mach-O exports
+            $main = "_main" fullword
+            $header = "mh_execute_header"
+            // Required imports for cipher + execution
+            $f_system = "@_system" fullword
+            // Math imports used in cipher implementation
+            $f_cos = "@_cos" fullword
+            $f_sin = "@_sin" fullword
+            $f_tan = "@_tan" fullword
+            $f_exp = "@_exp" fullword
+            $f_pow = "@_pow" fullword
+            $f_hypot = "@_hypot" fullword
+            $f_log1p = "@_log1p" fullword
+            $f_fmod = "@_fmod" fullword
+            // Random device access
+            $f_random = "@_random" fullword
+            // Memory operations
+            $f_memcpy = "@_memcpy" fullword
+            $f_memset = "@_memset" fullword
+          condition:
+            // Mach-O magic (FAT, 64-bit, etc.)
+            (uint32(0) == 0xCAFEBABE or uint32(0) == 0xBEBAFECA or
+             uint32(0) == 0xFEEDFACF or uint32(0) == 0xCFFAEDFE or
+             uint32(0) == 0xFEEDFACE or uint32(0) == 0xCEFAEDFE) and
+            none of ($not*) and
+            // Size range for cipher variant (larger due to encrypted payload)
+            filesize > 500KB and filesize < 3MB and
+            // Must have /dev/urandom and system
+            $dev_urandom and $f_system and
+            // Must have 4+ math functions (cipher fingerprint)
+            4 of ($f_cos, $f_sin, $f_tan, $f_exp, $f_pow, $f_hypot, $f_log1p, $f_fmod) and
+            // High entropy in data section (encrypted payload)
+            math.entropy(0, filesize) > 6.0
+        }
+
+  # Generic AMOS detection combining multiple indicators
+  - id: stealer/amos/detected
+    description: "AMOS infostealer detected (any variant)"
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    attack: "T1555"
+    mbc: "B0028"
+    platforms: [macos]
+    file_types: [macho]
+    requires_any:
+      - type: trait
+        id: magic-variant-detected
+      - type: trait
+        id: base32-variant-detected
+      - type: trait
+        id: hex-obfuscated-detected
+      - type: trait
+        id: cipher-variant-detected
+      - type: trait
+        id: string-obfuscated-detected
+      - type: trait
+        id: custom-base64-charset

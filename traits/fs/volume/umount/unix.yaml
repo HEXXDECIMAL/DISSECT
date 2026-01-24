@@ -3,7 +3,7 @@
 # ATT&CK: T1222
 
 traits:
-  - id: fs/volume/umount
+  - id: umount
     description: Unmount file system
     criticality: notable
     confidence: 0.66

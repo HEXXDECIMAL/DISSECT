@@ -9,7 +9,7 @@ defaults:
 
 traits:
   # Direct fernet import
-  - id: crypto/symmetric/fernet/import
+  - id: import
     description: "Fernet symmetric encryption library import"
     criticality: notable
     confidence: 0.9
@@ -18,7 +18,7 @@ traits:
       regex: "\\bimport\\s+fernet\\b|\\bfrom\\s+cryptography\\.fernet\\s+import"
 
   # Fernet class usage
-  - id: crypto/symmetric/fernet/class-usage
+  - id: class-usage
     description: "Fernet encryption class instantiation"
     criticality: notable
     confidence: 0.85
@@ -27,7 +27,7 @@ traits:
       regex: "Fernet\\s*\\("
 
   # Fernet decrypt operation
-  - id: crypto/symmetric/fernet/decrypt
+  - id: decrypt
     description: "Fernet decryption operation"
     criticality: notable
     confidence: 0.9
@@ -36,7 +36,7 @@ traits:
       regex: "\\.decrypt\\s*\\("
 
   # Fernet key generation
-  - id: crypto/symmetric/fernet/keygen
+  - id: keygen
     description: "Fernet key generation"
     criticality: notable
     confidence: 0.85
@@ -46,7 +46,7 @@ traits:
 
 composite_rules:
   # Runtime fernet installation (very suspicious - why install crypto at runtime?)
-  - id: crypto/symmetric/fernet/runtime-install
+  - id: runtime-install
     description: "Runtime installation of fernet encryption library"
     criticality: hostile
     confidence: 0.95
@@ -67,7 +67,7 @@ composite_rules:
         }
 
   # Fernet with hardcoded key (payload decryption)
-  - id: crypto/symmetric/fernet/hardcoded-key
+  - id: hardcoded-key
     description: "Fernet encryption with hardcoded key pattern"
     criticality: hostile
     confidence: 0.9

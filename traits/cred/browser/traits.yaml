@@ -5,7 +5,7 @@
 traits:
   # === Cookie Theft Libraries ===
 
-  - id: credential/browser/pycookiecheat
+  - id: pycookiecheat
     description: Python cookie theft library (pycookiecheat)
     criticality: suspicious
     confidence: 0.85
@@ -15,7 +15,7 @@ traits:
       type: string
       exact: "pycookiecheat"
 
-  - id: credential/browser/kooky
+  - id: kooky
     description: Go cookie theft library (kooky)
     criticality: suspicious
     confidence: 0.85
@@ -24,7 +24,7 @@ traits:
       type: string
       exact: "browserutils/kooky"
 
-  - id: credential/browser/browser-cookie3
+  - id: browser-cookie3
     description: Python browser-cookie3 library
     criticality: suspicious
     confidence: 0.85
@@ -34,7 +34,7 @@ traits:
       type: string
       exact: "browser_cookie3"
 
-  - id: credential/browser/hackbrowserdata
+  - id: hackbrowserdata
     description: HackBrowserData tool reference
     criticality: hostile
     confidence: 0.95
@@ -47,7 +47,7 @@ traits:
 
 composite_rules:
   # Multi-browser targeting detection
-  - id: credential/browser/multi-browser-theft
+  - id: multi-browser-theft
     description: Multi-browser credential theft
     criticality: hostile
     confidence: 0.9
@@ -83,7 +83,7 @@ composite_rules:
         }
 
   # Full browser stealer with decryption and exfiltration
-  - id: credential/browser/full-stealer-detected
+  - id: full-stealer-detected
     description: Complete browser credential stealer (theft + decrypt + exfil)
     criticality: hostile
     confidence: 0.98
@@ -128,7 +128,7 @@ composite_rules:
         }
 
   # Python browser stealer pattern
-  - id: credential/browser/python-stealer
+  - id: python-stealer
     description: Python-based browser credential stealer
     criticality: hostile
     confidence: 0.95

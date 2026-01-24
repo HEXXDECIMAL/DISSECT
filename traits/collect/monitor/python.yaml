@@ -2,7 +2,7 @@
 # Detects clipboard or keyboard monitoring
 
 traits:
-  - id: collect/monitor/clipboard-access
+  - id: clipboard-access
     description: "Accesses system clipboard (potential stealer)"
     criticality: suspicious
     confidence: 0.9
@@ -11,7 +11,7 @@ traits:
       type: string
       regex: 'pyperclip\.paste\(|clipboard\.get\('
 
-  - id: collect/monitor/keyboard-logger
+  - id: keyboard-logger
     description: "Monitors keyboard input (potential keylogger)"
     criticality: hostile
     confidence: 0.9

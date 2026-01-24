@@ -8,49 +8,49 @@ defaults:
   criticality: notable
 
 composite_rules:
-  - id: c2/http/protocol/http-protocol-string
+  - id: http-protocol-string
     description: "HTTP protocol version string"
     confidence: 0.3
     condition:
       type: string
       regex: "HTTP/[012]\\.[0-9]"
 
-  - id: c2/http/protocol/http-method-get
+  - id: http-method-get
     description: "HTTP GET method string"
     confidence: 0.25
     condition:
       type: string
       regex: "GET /[^ ]+ HTTP"
 
-  - id: c2/http/protocol/http-method-post
+  - id: http-method-post
     description: "HTTP POST method string"
     confidence: 0.35
     condition:
       type: string
       regex: "POST /[^ ]+ HTTP"
 
-  - id: c2/http/protocol/http-user-agent
+  - id: http-user-agent
     description: "HTTP User-Agent header"
     confidence: 0.3
     condition:
       type: string
       regex: "User-Agent:"
 
-  - id: c2/http/protocol/http-content-type
+  - id: http-content-type
     description: "HTTP Content-Type header"
     confidence: 0.25
     condition:
       type: string
       regex: "Content-Type:"
 
-  - id: c2/http/protocol/http-delimiter
+  - id: http-delimiter
     description: "HTTP header/body delimiter (CRLF CRLF)"
     confidence: 0.2
     condition:
       type: string
       exact: "\r\n\r\n"
 
-  - id: c2/http/hardcoded-request
+  - id: hardcoded-request
     description: "Hardcoded HTTP request in binary"
     criticality: suspicious
     confidence: 0.7
@@ -63,7 +63,7 @@ composite_rules:
       - type: trait
         id: http-method-post
 
-  - id: c2/http/custom-client
+  - id: custom-client
     description: "Custom HTTP client implementation"
     criticality: suspicious
     confidence: 0.65

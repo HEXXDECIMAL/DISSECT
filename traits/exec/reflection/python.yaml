@@ -2,7 +2,7 @@
 # Detects attempts to hide module loading or function access
 
 traits:
-  - id: exec/reflection/dynamic-import
+  - id: dynamic-import
     description: "Dynamic module import via __import__"
     criticality: suspicious
     confidence: 0.8
@@ -11,7 +11,7 @@ traits:
       type: string
       regex: "__import__("
 
-  - id: exec/reflection/getattr-module
+  - id: getattr-module
     description: "Dynamic attribute access on modules (potential shadowing)"
     criticality: suspicious
     confidence: 0.7
@@ -21,7 +21,7 @@ traits:
       regex: "getattr(.*? ,.*?)"
 
 composite_rules:
-  - id: exec/reflection/obfuscated-import
+  - id: obfuscated-import
     description: "Obfuscated module import (Dynamic Import + Encoding)"
     criticality: hostile
     confidence: 0.95

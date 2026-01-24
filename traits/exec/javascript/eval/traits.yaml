@@ -15,7 +15,7 @@ traits:
       node_type: call_expression
       pattern: "getExecOutput"
 
-  - id: exec/javascript/eval/child-process-exec
+  - id: child-process-exec
     description: Node.js child_process exec
     criticality: notable
     confidence: 0.85
@@ -27,7 +27,7 @@ traits:
       node_type: call_expression
       pattern: "exec"
 
-  - id: exec/javascript/eval/child-process-spawn
+  - id: child-process-spawn
     description: Node.js child_process spawn
     criticality: notable
     confidence: 0.85
@@ -51,7 +51,7 @@ traits:
       node_type: call_expression
       pattern: "execSync"
 
-  - id: exec/javascript/eval/child-process-require
+  - id: child-process-require
     description: Node.js child_process module import
     criticality: notable
     confidence: 0.8
@@ -61,7 +61,7 @@ traits:
       exact: "child_process"
 
   # Shell invocation
-  - id: exec/javascript/eval/bash-string
+  - id: bash-string
     description: Bash shell reference in string
     criticality: notable
     confidence: 0.75
@@ -70,7 +70,7 @@ traits:
       type: string
       regex: "'bash'|\"bash\""
 
-  - id: exec/javascript/eval/sh-string
+  - id: sh-string
     description: Shell reference in string
     criticality: notable
     confidence: 0.7
@@ -79,7 +79,7 @@ traits:
       type: string
       regex: "'/bin/sh'|\"/bin/sh\"|'sh'|\"sh\""
 
-  - id: exec/javascript/eval/bash-c-flag
+  - id: bash-c-flag
     description: Bash -c command execution flag
     criticality: suspicious
     confidence: 0.85
@@ -91,7 +91,7 @@ traits:
       exact: "'-c'"
 
   # Output/error handling (stealth indicators)
-  - id: exec/javascript/eval/stdout-capture
+  - id: stdout-capture
     description: Standard output capture
     criticality: inert
     confidence: 0.6
@@ -100,7 +100,7 @@ traits:
       type: string
       exact: "stdout"
 
-  - id: exec/javascript/eval/stderr-capture
+  - id: stderr-capture
     description: Standard error capture
     criticality: inert
     confidence: 0.6
@@ -109,7 +109,7 @@ traits:
       type: string
       exact: "stderr"
 
-  - id: exec/javascript/eval/silent-true
+  - id: silent-true
     description: Silent execution flag (hides output)
     criticality: suspicious
     confidence: 0.85
@@ -130,7 +130,7 @@ traits:
       exact: "ignoreReturnCode"
 
   # Encoding/decoding
-  - id: exec/javascript/eval/base64-decode-cli
+  - id: base64-decode-cli
     description: Base64 decode via CLI
     criticality: suspicious
     confidence: 0.9
@@ -141,7 +141,7 @@ traits:
       type: string
       regex: "base64 -d|base64 --decode"
 
-  - id: exec/javascript/eval/echo-pipe
+  - id: echo-pipe
     description: Echo piped to command
     criticality: notable
     confidence: 0.75
@@ -151,7 +151,7 @@ traits:
       regex: "echo .* \\|"
 
   # Temp file operations
-  - id: exec/javascript/eval/tmp-write
+  - id: tmp-write
     description: Write to /tmp directory
     criticality: suspicious
     confidence: 0.85
@@ -162,7 +162,7 @@ traits:
       type: string
       regex: "> /tmp/|>/tmp/"
 
-  - id: exec/javascript/eval/tmp-execute
+  - id: tmp-execute
     description: Execute from /tmp directory
     criticality: suspicious
     confidence: 0.9
@@ -174,7 +174,7 @@ traits:
       regex: "bash /tmp/|sh /tmp/|\\./tmp/"
 
   # Function constructor abuse (remote code execution)
-  - id: exec/javascript/eval/function-constructor
+  - id: function-constructor
     description: Function constructor code execution
     criticality: suspicious
     confidence: 0.9
@@ -186,7 +186,7 @@ traits:
       regex: "new\\s+Function\\.constructor\\(|new\\s+Function\\s*\\("
 
   # Detached child process (background execution)
-  - id: exec/javascript/eval/detached-spawn
+  - id: detached-spawn
     description: Detached child process (background execution)
     criticality: suspicious
     confidence: 0.85
@@ -198,7 +198,7 @@ traits:
       regex: "detached:\\s*true"
 
   # Signal handler abuse (prevent termination)
-  - id: exec/javascript/eval/sigint-handler
+  - id: sigint-handler
     description: SIGINT handler (may prevent CTRL+C)
     criticality: notable
     confidence: 0.7
@@ -207,7 +207,7 @@ traits:
       type: string
       regex: "process\\.on\\s*\\(['\"]SIGINT['\"]"
 
-  - id: exec/javascript/eval/sigterm-handler
+  - id: sigterm-handler
     description: SIGTERM handler (may prevent kill)
     criticality: notable
     confidence: 0.7
@@ -217,7 +217,7 @@ traits:
       regex: "process\\.on\\s*\\(['\"]SIGTERM['\"]"
 
   # Process respawning (persistence via self-restart)
-  - id: exec/javascript/eval/self-respawn
+  - id: self-respawn
     description: Self-respawning process
     criticality: suspicious
     confidence: 0.85

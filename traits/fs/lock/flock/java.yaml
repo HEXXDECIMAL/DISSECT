@@ -3,7 +3,7 @@
 # ATT&CK: T1083
 
 traits:
-  - id: fs/lock/flock-java
+  - id: flock-java
     description: Java file locking
     criticality: inert
     confidence: 0.66

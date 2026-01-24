@@ -5,7 +5,7 @@
 
 traits:
   # OS Module - Basic System Info
-  - id: system/os-hostname
+  - id: os-hostname
     description: Hostname collection via os module
     criticality: notable
     confidence: 0.8
@@ -16,7 +16,7 @@ traits:
       node_type: call_expression
       pattern: "os.hostname"
 
-  - id: system/os-platform
+  - id: os-platform
     description: Platform detection via os module
     criticality: notable
     confidence: 0.75
@@ -27,7 +27,7 @@ traits:
       node_type: call_expression
       pattern: "os.platform"
 
-  - id: system/os-arch
+  - id: os-arch
     description: Architecture detection via os module
     criticality: notable
     confidence: 0.75
@@ -38,7 +38,7 @@ traits:
       node_type: call_expression
       pattern: "os.arch"
 
-  - id: system/os-release
+  - id: os-release
     description: OS release version collection
     criticality: notable
     confidence: 0.75
@@ -49,7 +49,7 @@ traits:
       node_type: call_expression
       pattern: "os.release"
 
-  - id: system/os-userInfo
+  - id: os-userInfo
     description: User information collection
     criticality: suspicious
     confidence: 0.85
@@ -60,7 +60,7 @@ traits:
       node_type: call_expression
       pattern: "os.userInfo"
 
-  - id: system/os-cpus
+  - id: os-cpus
     description: CPU information collection
     criticality: notable
     confidence: 0.7
@@ -71,7 +71,7 @@ traits:
       node_type: call_expression
       pattern: "os.cpus"
 
-  - id: system/os-totalmem
+  - id: os-totalmem
     description: Total memory collection
     criticality: notable
     confidence: 0.7
@@ -82,7 +82,7 @@ traits:
       node_type: call_expression
       pattern: "os.totalmem"
 
-  - id: system/os-networkInterfaces
+  - id: os-networkInterfaces
     description: Network interface enumeration
     criticality: suspicious
     confidence: 0.85
@@ -94,7 +94,7 @@ traits:
       pattern: "os.networkInterfaces"
 
   # MAC Address Collection
-  - id: system/mac-address
+  - id: mac-address
     description: MAC address extraction pattern
     criticality: suspicious
     confidence: 0.9
@@ -115,7 +115,7 @@ traits:
         }
 
   # Machine ID / Unique Identifier
-  - id: system/machine-id
+  - id: machine-id
     description: Machine unique identifier generation
     criticality: suspicious
     confidence: 0.85
@@ -138,7 +138,7 @@ traits:
         }
 
   # Comprehensive Fingerprinting
-  - id: system/full-fingerprint
+  - id: full-fingerprint
     description: Comprehensive system fingerprinting (multiple vectors)
     criticality: suspicious
     confidence: 0.9
@@ -163,7 +163,7 @@ traits:
         }
 
   # Process Environment
-  - id: system/process-env-dump
+  - id: process-env-dump
     description: Full environment variable dump
     criticality: suspicious
     confidence: 0.85
@@ -184,7 +184,7 @@ traits:
         }
 
   # Process List
-  - id: system/process-list
+  - id: process-list
     description: Running process enumeration
     criticality: suspicious
     confidence: 0.9

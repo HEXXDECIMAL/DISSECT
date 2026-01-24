@@ -5,7 +5,7 @@
 traits:
   # === Path/File References ===
 
-  - id: credential/browser/chromium/chrome-path
+  - id: chrome-path
     description: Chrome browser profile path
     criticality: suspicious
     confidence: 0.7
@@ -14,7 +14,7 @@ traits:
       type: string
       exact: "/Google/Chrome"
 
-  - id: credential/browser/chromium/cookies-path
+  - id: cookies-path
     description: Chromium Cookies file path
     criticality: suspicious
     confidence: 0.75
@@ -23,7 +23,7 @@ traits:
       type: string
       exact: "/Cookies"
 
-  - id: credential/browser/chromium/local-state
+  - id: local-state
     description: Chromium Local State file
     criticality: suspicious
     confidence: 0.8
@@ -32,7 +32,7 @@ traits:
       type: string
       exact: "Local State"
 
-  - id: credential/browser/chromium/login-data
+  - id: login-data
     description: Chromium Login Data file reference
     criticality: suspicious
     confidence: 0.8
@@ -41,7 +41,7 @@ traits:
       type: string
       exact: "Login Data"
 
-  - id: credential/browser/chromium/web-data
+  - id: web-data
     description: Chromium Web Data file (passwords, cards)
     criticality: suspicious
     confidence: 0.8
@@ -52,7 +52,7 @@ traits:
 
   # === Encryption/Decryption Keys ===
 
-  - id: credential/browser/chromium/encrypted-key
+  - id: encrypted-key
     description: Chromium encrypted_key field
     criticality: suspicious
     confidence: 0.85
@@ -61,7 +61,7 @@ traits:
       type: string
       exact: "encrypted_key"
 
-  - id: credential/browser/chromium/os-crypt
+  - id: os-crypt
     description: Chromium os_crypt structure
     criticality: suspicious
     confidence: 0.85
@@ -72,7 +72,7 @@ traits:
 
   # === Database Tables ===
 
-  - id: credential/browser/chromium/credit-cards-table
+  - id: credit-cards-table
     description: Chromium credit_cards table
     criticality: suspicious
     confidence: 0.8
@@ -81,7 +81,7 @@ traits:
       type: string
       exact: "credit_cards"
 
-  - id: credential/browser/chromium/logins-table
+  - id: logins-table
     description: Chromium logins table reference
     criticality: suspicious
     confidence: 0.8
@@ -92,7 +92,7 @@ traits:
 
   # === SQL Queries (high confidence) ===
 
-  - id: credential/browser/chromium/password-sql
+  - id: password-sql
     description: Chromium Login Data SQL query (password theft)
     criticality: hostile
     confidence: 0.95
@@ -103,7 +103,7 @@ traits:
       regex: "SELECT.*origin_url.*username_value.*password_value.*FROM\\s+logins"
       case_insensitive: true
 
-  - id: credential/browser/chromium/cookie-sql
+  - id: cookie-sql
     description: Chromium Cookies SQL query
     criticality: suspicious
     confidence: 0.9
@@ -113,7 +113,7 @@ traits:
       regex: "SELECT.*host_key.*encrypted_value.*FROM\\s+(cookies|moz_cookies)"
       case_insensitive: true
 
-  - id: credential/browser/chromium/credit-card-sql
+  - id: credit-card-sql
     description: Chromium credit card SQL query
     criticality: hostile
     confidence: 0.95
@@ -127,7 +127,7 @@ traits:
 composite_rules:
   # === Composite Detections ===
 
-  - id: credential/browser/chromium/cookie-theft
+  - id: cookie-theft
     description: Chrome cookie file access
     criticality: suspicious
     confidence: 0.85
@@ -138,7 +138,7 @@ composite_rules:
       - type: trait
         id: credential/browser/chromium/cookies-path
 
-  - id: credential/browser/chromium/master-decrypt
+  - id: master-decrypt
     description: Chromium master password decryption
     criticality: suspicious
     confidence: 0.9
@@ -152,7 +152,7 @@ composite_rules:
       - type: trait
         id: credential/browser/chromium/os-crypt
 
-  - id: credential/browser/chromium/password-theft
+  - id: password-theft
     description: Chromium password database theft
     criticality: hostile
     confidence: 0.95
@@ -164,7 +164,7 @@ composite_rules:
       - type: trait
         id: credential/browser/chromium/login-data
 
-  - id: credential/browser/chromium/credit-card-theft
+  - id: credit-card-theft
     description: Chromium credit card data theft
     criticality: hostile
     confidence: 0.9

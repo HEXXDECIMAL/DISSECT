@@ -3,7 +3,7 @@
 # ATT&CK: T1071
 
 traits:
-  - id: socket/connect-php
+  - id: connect-php
     description: Initiate socket connection (PHP fsockopen)
     criticality: notable
     confidence: 0.66

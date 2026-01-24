@@ -3,7 +3,7 @@
 # ATT&CK: T1070.006
 
 traits:
-  - id: evasion/timestomp
+  - id: timestomp
     description: Modify file timestamps
     criticality: suspicious
     confidence: 0.66

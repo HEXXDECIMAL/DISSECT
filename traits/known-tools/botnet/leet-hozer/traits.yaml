@@ -1,0 +1,50 @@
+# Malware Family - LeetHozer Botnet
+# Reference: https://blog.netlab.360.com/the-leethozer-botnet-en/
+# ATT&CK: T1498 (Network Denial of Service)
+
+traits:
+  - id: botnet/leet-hozer/xor-key
+    description: LeetHozer XOR encryption key
+    criticality: hostile
+    confidence: 0.99
+    family: true
+    attack: "T1027"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "qE6MGAbI"
+
+  # NOTE: /dev/full alone is NOT a reliable indicator - it's present in glibc
+  # This trait should only trigger alongside the XOR key
+  - id: botnet/leet-hozer/dev-full
+    description: LeetHozer /dev/full usage (requires XOR key)
+    criticality: notable
+    confidence: 0.3
+    family: true
+    attack: "T1498"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "/dev/full"
+
+composite_rules:
+  - id: botnet/leet-hozer/detected
+    description: LeetHozer botnet client
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    reference: "https://blog.netlab.360.com/the-leethozer-botnet-en/"
+    attack: "T1498"
+    mbc: "B0008"
+    file_types: [elf]
+    condition:
+      type: yara
+      source: |
+        rule leethozer_botnet {
+          strings:
+            $xor_key = "qE6MGAbI"
+            $dev_full = "/dev/full"
+          condition:
+            uint32(0) == 0x464C457F and
+            filesize > 1MB and all of them
+        }

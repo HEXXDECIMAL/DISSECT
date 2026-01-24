@@ -1,0 +1,111 @@
+# Malware Family - Kaiji IoT Botnet
+# Chinese Linux/IoT malware written in Go
+# Reference: https://intezer.com/blog/research/kaiji-new-chinese-linux-malware-turning-to-golang/
+# ATT&CK: T1583.005 (Botnet)
+
+composite_rules:
+  # === Atomic Traits ===
+
+  - id: botnet/kaiji/systemctl-service
+    description: Kaiji systemd service startup
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    attack: "T1543.002"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "systemctl start linux.service"
+
+  - id: botnet/kaiji/audit-selinux
+    description: Kaiji SELinux audit bypass
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    attack: "T1562.001"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "audit2allow -M my-Systemimgconf"
+
+  - id: botnet/kaiji/chaos-cve
+    description: Kaiji CVE exploitation function
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    attack: "T1190"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "chaos_cve_make"
+
+  # === Old variant traits (Go symbols) ===
+
+  - id: botnet/kaiji/beat-heart
+    description: Kaiji heartbeat function (old)
+    criticality: hostile
+    confidence: 0.9
+    family: true
+    attack: "T1071"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "main.BeatHeart"
+
+  - id: botnet/kaiji/make-packet
+    description: Kaiji packet crafting (old)
+    criticality: hostile
+    confidence: 0.9
+    family: true
+    attack: "T1498"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "main.makePacketa"
+
+  - id: botnet/kaiji/decrypt-cfb
+    description: Kaiji CFB decryption (old)
+    criticality: hostile
+    confidence: 0.9
+    family: true
+    attack: "T1140"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "main.DecryptCFB"
+
+  # Modern Kaiji detection
+  - id: botnet/kaiji/detected
+    description: Kaiji IoT botnet
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    reference: "https://intezer.com/blog/research/kaiji-new-chinese-linux-malware-turning-to-golang/"
+    attack: "T1583.005"
+    mbc: "OB0004"
+    file_types: [elf]
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: botnet/kaiji/systemctl-service
+      - type: trait
+        id: botnet/kaiji/audit-selinux
+      - type: trait
+        id: botnet/kaiji/chaos-cve
+
+  # Old variant detection
+  - id: botnet/kaiji/old-variant-detected
+    description: Kaiji IoT botnet (old variant)
+    criticality: hostile
+    confidence: 0.9
+    family: true
+    attack: "T1583.005"
+    mbc: "OB0004"
+    file_types: [elf]
+    requires_any:
+      - type: trait
+        id: botnet/kaiji/beat-heart
+      - type: trait
+        id: botnet/kaiji/make-packet
+      - type: trait
+        id: botnet/kaiji/decrypt-cfb

@@ -1,0 +1,13 @@
+# Process Lifecycle - Ruby
+
+traits:
+  - id: ruby-fork
+    description: Fork process
+    criticality: notable
+    confidence: 0.88
+    platforms: [all]
+    file_types: [ruby]
+    condition:
+      type: string
+      # Require method call syntax to avoid matching "prefork" in module names
+      regex: "Process\\.fork|\\bfork\\s*(\\{|do\\b|\\()"

@@ -3,7 +3,7 @@
 # ATT&CK: T1071
 
 traits:
-  - id: socket/send
+  - id: send
     description: Send a message to a socket
     criticality: inert
     confidence: 0.66

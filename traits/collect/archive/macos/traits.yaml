@@ -8,7 +8,7 @@ defaults:
 
 traits:
   # ditto command for archiving
-  - id: collect/archive/ditto-compress
+  - id: ditto-compress
     description: "macOS ditto archive compression"
     criticality: suspicious
     confidence: 0.85
@@ -18,7 +18,7 @@ traits:
       regex: "ditto\\s+-c\\s+-k|ditto.*--sequesterRsrc|ditto.*\\.zip"
 
   # ditto for directory copy
-  - id: collect/archive/ditto-copy
+  - id: ditto-copy
     description: "macOS ditto directory copy"
     criticality: notable
     confidence: 0.7
@@ -27,7 +27,7 @@ traits:
       regex: "ditto\\s+[^-]"
 
   # hdiutil for disk image creation
-  - id: collect/archive/hdiutil-create
+  - id: hdiutil-create
     description: "macOS disk image creation"
     criticality: notable
     confidence: 0.75
@@ -37,7 +37,7 @@ traits:
       regex: "hdiutil\\s+create|hdiutil.*-format"
 
   # tar/gzip archiving
-  - id: collect/archive/tar-compress
+  - id: tar-compress
     description: "tar archive creation"
     criticality: notable
     confidence: 0.6
@@ -47,7 +47,7 @@ traits:
       regex: "tar\\s+-[a-z]*[cz]|tar\\s+--create|gzip\\s+-"
 
   # zip command
-  - id: collect/archive/zip-compress
+  - id: zip-compress
     description: "zip archive creation"
     criticality: notable
     confidence: 0.65
@@ -57,7 +57,7 @@ traits:
       regex: "\\bzip\\s+-[r0-9]|unzip\\s+-o"
 
   # /tmp staging
-  - id: collect/staging/tmp-directory
+  - id: tmp-directory
     description: "Data staging in /tmp"
     criticality: notable
     confidence: 0.7
@@ -68,7 +68,7 @@ traits:
 
 composite_rules:
   # Archive + exfiltration pattern
-  - id: collect/archive/stealer-pattern
+  - id: stealer-pattern
     description: "Data collection and archiving for exfiltration"
     criticality: hostile
     confidence: 0.9

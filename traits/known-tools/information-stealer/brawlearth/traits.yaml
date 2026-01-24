@@ -1,0 +1,122 @@
+# Malware Family - BrawlEarth macOS Stealer
+# Rust-based macOS infostealer targeting browser data and crypto wallets
+# Reference: https://github.com/anthropics/claude-code (sample analysis)
+# ATT&CK: T1555 (Credentials from Password Stores)
+
+traits:
+  # === Brand/Name Markers ===
+
+  - id: stealer/brawlearth/brand-name
+    description: BrawlEarth stealer brand string
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    attack: "T1555"
+    platforms: [macos]
+    file_types: [macho]
+    condition:
+      type: string
+      exact: "BrawlEarth"
+
+  - id: stealer/brawlearth/version-string
+    description: BrawlEarth version identifier
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    attack: "T1555"
+    platforms: [macos]
+    file_types: [macho]
+    condition:
+      type: string
+      regex: "BrawlEarth[0-9.]+"
+
+  # === Source Code Paths (developer signature) ===
+
+  - id: stealer/brawlearth/src-path-browsers
+    description: BrawlEarth browser module source path
+    criticality: hostile
+    confidence: 0.9
+    family: true
+    attack: "T1555"
+    platforms: [macos]
+    file_types: [macho]
+    condition:
+      type: string
+      regex: "src/browsers/(chromium|firefox)/modules"
+
+  - id: stealer/brawlearth/src-path-decryptors
+    description: BrawlEarth decryptor module source path
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    attack: "T1555"
+    platforms: [macos]
+    file_types: [macho]
+    condition:
+      type: string
+      exact: "src/browsers/firefox/modules/decryptors.rs"
+
+  # === C2/Exfiltration ===
+
+  - id: stealer/brawlearth/c2-connect-msg
+    description: BrawlEarth C2 connection error message
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    attack: "T1071"
+    platforms: [macos]
+    file_types: [macho]
+    condition:
+      type: string
+      exact: "Cannot connect to the server..."
+
+composite_rules:
+  # Main BrawlEarth detection
+  - id: stealer/brawlearth/detected
+    description: BrawlEarth macOS infostealer
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    reference: "Rust-based macOS stealer targeting browser credentials and crypto wallets"
+    attack: "T1555"
+    mbc: "B0028"
+    platforms: [macos]
+    file_types: [macho]
+    condition:
+      type: yara
+      source: |
+        rule brawlearth_stealer {
+          meta:
+            description = "BrawlEarth macOS Infostealer"
+            author = "DISSECT"
+          strings:
+            // Brand/version markers
+            $brand = "BrawlEarth" ascii
+            $version = /BrawlEarth[0-9.]+/ ascii
+
+            // Developer source paths (compiled into binary)
+            $src1 = "src/browsers/chromium/modules" ascii
+            $src2 = "src/browsers/firefox/modules" ascii
+            $src3 = "src/programmes/modules.rs" ascii
+            $src4 = "src/utils.rs" ascii
+
+            // C2/config strings
+            $c2_msg = "Cannot connect to the server..." ascii
+            $build = "buildNamebuildVersionuid" ascii
+
+            // Rust tokio async runtime (common in Rust stealers)
+            $tokio = "/Users/rootr/.cargo/registry/src/" ascii
+
+            // Target artifacts
+            $kc = "/Library/Keychains/login.keychain" ascii
+            $screenshot = "screenshot.png" ascii
+            $zipdata = "zipdata.zip" ascii
+
+          condition:
+            uint32(0) == 0xFEEDFACF or uint32(0) == 0xCFFAEDFE or
+            uint32(0) == 0xCAFEBABE or uint32(0) == 0xBEBAFECA and
+            filesize > 1MB and filesize < 20MB and
+            ($brand or $version) and
+            2 of ($src*) and
+            any of ($kc, $screenshot, $zipdata)
+        }

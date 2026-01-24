@@ -1,5 +1,5 @@
 traits:
-  - id: anti-static/packer/vmprotect/section
+  - id: section
     description: VMProtect detected via section names
     criticality: suspicious
     confidence: 0.95

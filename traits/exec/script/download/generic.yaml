@@ -3,7 +3,7 @@
 # ATT&CK: T1059 (Command and Scripting Interpreter)
 
 traits:
-  - id: exec/script/download/perl-execute
+  - id: perl-execute
     description: Perl script execution
     criticality: notable
     confidence: 0.75
@@ -15,7 +15,7 @@ traits:
       regex: "perl\\s+[/\\w.-]+"
       search_raw: true
 
-  - id: exec/script/download/python-execute
+  - id: python-execute
     description: Python script execution
     criticality: notable
     confidence: 0.7
@@ -27,7 +27,7 @@ traits:
       regex: "python[23]?\\s+[/\\w.-]+"
       search_raw: true
 
-  - id: exec/script/download/ruby-execute
+  - id: ruby-execute
     description: Ruby script execution
     criticality: notable
     confidence: 0.7
@@ -39,7 +39,7 @@ traits:
       regex: "ruby\\s+[/\\w.-]+"
       search_raw: true
 
-  - id: exec/script/download/node-execute
+  - id: node-execute
     description: Node.js script execution
     criticality: notable
     confidence: 0.7
@@ -51,7 +51,7 @@ traits:
       regex: "node\\s+[/\\w.-]+"
       search_raw: true
 
-  - id: exec/script/download/sh-execute
+  - id: sh-execute
     description: Shell script execution
     criticality: notable
     confidence: 0.7
@@ -63,7 +63,7 @@ traits:
       regex: "(sh|bash|zsh)\\s+[/\\w.-]+"
       search_raw: true
 
-  - id: exec/script/download/pipe-to-shell
+  - id: pipe-to-shell
     description: Pipe to shell execution (very suspicious)
     criticality: suspicious
     confidence: 0.95
@@ -76,7 +76,7 @@ traits:
       regex: "\\|\\s*(sh|bash|zsh|perl|python|ruby|node)"
       search_raw: true
 
-  - id: exec/script/download/download-pipe-execute
+  - id: download-pipe-execute
     description: Download and pipe to interpreter
     criticality: suspicious
     confidence: 0.95

@@ -6,7 +6,7 @@ defaults:
   criticality: suspicious
 
 traits:
-  - id: data/user-input/request/php-input
+  - id: php-input
     description: Access to php://input (raw POST data)
     confidence: 0.95
     condition:

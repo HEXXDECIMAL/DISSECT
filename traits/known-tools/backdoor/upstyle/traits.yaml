@@ -1,0 +1,97 @@
+# PAN-OS Upstyle Backdoor Detection
+# ATT&CK: T1505 (Server Software Component)
+# Reference: Palo Alto Networks firewall backdoor
+
+defaults:
+  file_types: [python, elf, macho, so, dylib]
+
+traits:
+  # Upstyle backdoor indicators
+  - id: backdoor/upstyle/generic
+    description: PAN-OS Upstyle backdoor patterns
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1505"
+    condition:
+      type: yara
+      source: |
+        rule upstyle_backdoor {
+          strings:
+            $name1 = "upstyle" ascii nocase
+            $name2 = "UPSTYLE" ascii
+            // PAN-OS specific paths
+            $pan1 = "/var/appweb" ascii
+            $pan2 = "/opt/panlogs" ascii
+            $pan3 = "GlobalProtect" ascii
+            // Backdoor markers
+            $bd1 = "update.py" ascii
+            $bd2 = "system_upstyle" ascii
+          condition:
+            any of ($name*) or
+            (any of ($pan*) and any of ($bd*))
+        }
+
+  # Upstyle command execution
+  - id: backdoor/upstyle/cmd-exec
+    description: Upstyle command execution capability
+    criticality: hostile
+    confidence: 0.85
+    attack: "T1059"
+    condition:
+      type: yara
+      source: |
+        rule upstyle_cmd {
+          strings:
+            $name = "upstyle" ascii nocase
+            // Python execution
+            $py1 = "subprocess" ascii
+            $py2 = "os.system" ascii
+            $py3 = "exec(" ascii
+            // PAN-OS context
+            $pan1 = "panos" ascii nocase
+            $pan2 = "/opt/pancfg" ascii
+            // Web shell behavior
+            $web1 = "request.GET" ascii
+            $web2 = "request.POST" ascii
+          condition:
+            $name or
+            (any of ($pan*) and any of ($py*)) or
+            (any of ($pan*) and any of ($web*))
+        }
+
+  # Upstyle persistence
+  - id: backdoor/upstyle/persistence
+    description: Upstyle persistence mechanism
+    criticality: hostile
+    confidence: 0.85
+    attack: "T1546"
+    condition:
+      type: yara
+      source: |
+        rule upstyle_persist {
+          strings:
+            $name = "upstyle" ascii nocase
+            // Cron persistence
+            $cron1 = "/etc/cron" ascii
+            $cron2 = "crontab" ascii
+            // Service persistence
+            $svc1 = "systemctl" ascii
+            $svc2 = "/etc/init.d" ascii
+            // PAN-OS services
+            $pan1 = "mgmtsrvr" ascii
+            $pan2 = "appweb" ascii
+          condition:
+            $name or
+            (any of ($pan*) and any of ($cron*, $svc*))
+        }
+
+composite_rules:
+  - id: backdoor/upstyle/detected
+    description: PAN-OS Upstyle backdoor detected
+    criticality: hostile
+    confidence: 0.95
+    requires_any:
+      - type: trait
+        id: backdoor/upstyle/generic
+      - type: trait
+        id: backdoor/upstyle/cmd-exec

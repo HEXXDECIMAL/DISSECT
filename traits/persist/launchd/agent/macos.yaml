@@ -3,7 +3,7 @@
 # ATT&CK: T1543.004
 
 traits:
-  - id: persistence/launchd
+  - id: launchd
     description: macOS launchd persistence
     criticality: notable
     confidence: 0.66

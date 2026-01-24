@@ -5,7 +5,7 @@
 
 traits:
   # Remote execution commands
-  - id: c2/java/agent/remote-cmd-string
+  - id: remote-cmd-string
     description: Remote command execution indicator
     criticality: suspicious
     confidence: 0.95
@@ -16,7 +16,7 @@ traits:
       type: string
       exact: "remote-cmd"
 
-  - id: c2/java/agent/power-shell-string
+  - id: power-shell-string
     description: PowerShell execution command
     criticality: suspicious
     confidence: 0.95
@@ -28,7 +28,7 @@ traits:
       exact: "power-shell"
 
   # Download and execute
-  - id: c2/java/agent/down-n-exec-string
+  - id: down-n-exec-string
     description: Download and execute command
     criticality: suspicious
     confidence: 0.98
@@ -39,7 +39,7 @@ traits:
       type: string
       exact: "down-n-exec"
 
-  - id: c2/java/agent/up-n-exec-string
+  - id: up-n-exec-string
     description: Upload and execute command
     criticality: suspicious
     confidence: 0.98
@@ -51,7 +51,7 @@ traits:
       exact: "up-n-exec"
 
   # Remote desktop/screen
-  - id: c2/java/agent/remote-screen-string
+  - id: remote-screen-string
     description: Remote screen access command
     criticality: suspicious
     confidence: 0.95
@@ -62,7 +62,7 @@ traits:
       type: string
       exact: "remote-screen"
 
-  - id: c2/java/agent/hrdp-new-string
+  - id: hrdp-new-string
     description: Hidden RDP session command
     criticality: suspicious
     confidence: 0.95
@@ -73,7 +73,7 @@ traits:
       type: string
       exact: "hrdp-new"
 
-  - id: c2/java/agent/hrdp-res-string
+  - id: hrdp-res-string
     description: Hidden RDP resume command
     criticality: suspicious
     confidence: 0.95
@@ -85,7 +85,7 @@ traits:
       exact: "hrdp-res"
 
   # File management
-  - id: c2/java/agent/file-manager-string
+  - id: file-manager-string
     description: File manager command
     criticality: suspicious
     confidence: 0.9
@@ -97,7 +97,7 @@ traits:
       exact: "file-manager"
 
   # Proxy/tunneling
-  - id: c2/java/agent/rev-proxy-string
+  - id: rev-proxy-string
     description: Reverse proxy command
     criticality: suspicious
     confidence: 0.95
@@ -109,7 +109,7 @@ traits:
       exact: "rev-proxy"
 
   # Encryption commands (ransomware indicator)
-  - id: c2/java/agent/rw-encrypt-string
+  - id: rw-encrypt-string
     description: Ransomware encrypt command
     criticality: suspicious
     confidence: 0.95
@@ -120,7 +120,7 @@ traits:
       type: string
       exact: "rw-encrypt"
 
-  - id: c2/java/agent/rw-decrypt-string
+  - id: rw-decrypt-string
     description: Ransomware decrypt command
     criticality: suspicious
     confidence: 0.95

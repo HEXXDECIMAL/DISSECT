@@ -3,7 +3,7 @@
 # ATT&CK: T1071.001
 
 traits:
-  - id: http/server-express
+  - id: server-express
     description: Express.js HTTP server
     criticality: notable
     confidence: 0.66

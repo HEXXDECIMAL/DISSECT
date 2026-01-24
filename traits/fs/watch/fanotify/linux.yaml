@@ -3,7 +3,7 @@
 # ATT&CK: T1083
 
 traits:
-  - id: fs/watch/fanotify
+  - id: fanotify
     description: Filesystem-wide event monitoring via fanotify
     criticality: notable
     confidence: 0.66

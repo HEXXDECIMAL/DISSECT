@@ -1,7 +1,7 @@
 # Composite C2 Channel Capabilities
 
 capabilities:
-  - id: c2/channels/messaging/telegram
+  - id: telegram
     description: Data exfiltration via Telegram
     criticality: suspicious
     mbc: "B0030.001"
@@ -13,7 +13,7 @@ capabilities:
       - type: trait
         id: telegram-send
 
-  - id: c2/channels/messaging/discord
+  - id: discord
     description: Data exfiltration via Discord webhook
     criticality: suspicious
     mbc: "B0030.001"

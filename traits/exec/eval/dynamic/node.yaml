@@ -1,5 +1,5 @@
 traits:
-  - id: exec/eval/dynamic/node-vm
+  - id: node-vm
     description: Executing code via Node.js VM module (sandbox escape/obfuscation)
     criticality: suspicious
     confidence: 0.9

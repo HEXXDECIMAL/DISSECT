@@ -3,7 +3,7 @@
 # ATT&CK: T1622
 
 traits:
-  - id: anti-analysis/debugger-api
+  - id: debugger-api
     description: Debugger detection via Windows API
     criticality: suspicious
     confidence: 0.66

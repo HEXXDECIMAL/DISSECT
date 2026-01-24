@@ -1,0 +1,144 @@
+# Supply Chain - Install-time Code Execution (Python)
+# Detects malicious code executed during package installation
+# Common in typosquatting attacks and supply chain compromises
+# ATT&CK: T1195.002 (Supply Chain Compromise: Compromise Software Supply Chain)
+
+defaults:
+  file_types: [python]
+  mbc: "B0030"
+  attack: "T1195.002"
+
+traits:
+  # os.system call at module level (outside functions)
+  - id: module-level-system
+    description: "os.system at module level (install-time execution)"
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: string
+      regex: "^os\\.system\\s*\\("
+
+  # Import-triggered execution
+  - id: import-trigger
+    description: "Code execution triggered by import"
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: string
+      # os.system or subprocess at top-level in __init__.py
+      regex: "^(import|from).*\\n.*os\\.system|^(import|from).*\\n.*subprocess\\."
+
+  # Try-except ImportError with installation
+  - id: import-fallback-install
+    description: "Import fallback with automatic package installation"
+    criticality: suspicious
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "except\\s*(ImportError)?.*:\\s*\\n?\\s*(os\\.system|subprocess)"
+
+composite_rules:
+  # Setup.py with external code execution or network activity
+  - id: setup-py-exec
+    description: "setup.py with suspicious code execution or network activity"
+    criticality: hostile
+    confidence: 0.95
+    condition:
+      type: yara
+      source: |
+        rule setup_py_malicious_exec {
+          meta:
+            description = "Detects setup.py files with code execution or network activity"
+          strings:
+            $setup = "setup(" ascii
+            $setuptools = "from setuptools" ascii
+            $distutils = "from distutils" ascii
+            $os_system = "os.system(" ascii
+            $subprocess = "subprocess." ascii
+            $exec = "exec(" ascii
+            $eval = "eval(" ascii
+            $pip = "pip install" ascii nocase
+            // Network activity
+            $requests = "requests." ascii
+            $urllib = "urllib." ascii
+            $aiohttp = "aiohttp" ascii
+            $httpx = "httpx" ascii
+            $socket = "socket." ascii
+            $webhook = "webhook" ascii nocase
+            // Custom install commands
+            $cmdclass = "cmdclass" ascii
+            // Legitimate publishing/build patterns (excludes)
+            $legit_sdist = "setup.py sdist" ascii nocase
+            $legit_bdist = "bdist_wheel" ascii nocase
+            $legit_twine = "twine upload" ascii nocase
+            $legit_test = "setup.py test" ascii nocase
+            $legit_pytest = "pytest" ascii
+            // Reading version file with exec is common
+            $legit_version_exec = "exec(f.read()" ascii
+            $legit_version_exec2 = "exec(open(" ascii
+            // Testing commands
+            $legit_develop = "setup.py develop" ascii nocase
+          condition:
+            ($setup or $setuptools or $distutils) and
+            ($os_system or $subprocess or $exec or $eval or $pip or $requests or $urllib or $aiohttp or $httpx or $socket or $webhook or $cmdclass) and
+            // Exclude if any legitimate publishing/build patterns found
+            not any of ($legit*)
+        }
+
+  # __init__.py with code execution (very suspicious)
+  - id: init-py-exec
+    description: "__init__.py with immediate code execution"
+    criticality: hostile
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule init_py_malicious_exec {
+          meta:
+            description = "Detects __init__.py with immediate code execution"
+          strings:
+            $init_marker = "__version__" ascii
+            $os_system = "os.system(" ascii
+            $subprocess_run = "subprocess.run(" ascii
+            $subprocess_call = "subprocess.call(" ascii
+            $subprocess_popen = "subprocess.Popen(" ascii
+            $pip = "pip install" ascii nocase
+            $http = /https?:\/\/// ascii
+            // Legitimate patterns (excludes)
+            $legit_sdist = "setup.py sdist" ascii nocase
+            $legit_bdist = "bdist_wheel" ascii nocase
+            $legit_twine = "twine upload" ascii nocase
+            $legit_setup = "from setuptools" ascii
+            $legit_version_read = "exec(f.read()" ascii
+            $legit_version_read2 = "exec(open(" ascii
+            $legit_pypi = "pypi.org" ascii nocase
+            $legit_readthedocs = "readthedocs" ascii nocase
+            $legit_github = "github.com" ascii nocase
+          condition:
+            $init_marker and
+            ($os_system or $subprocess_run or $subprocess_call or $subprocess_popen) and
+            ($pip or $http) and
+            // Exclude if any legitimate publishing/build patterns found
+            not any of ($legit*)
+        }
+
+  # Package that installs other packages at runtime
+  - id: dependency-injection
+    description: "Package installs additional dependencies at runtime"
+    criticality: hostile
+    confidence: 0.95
+    condition:
+      type: yara
+      source: |
+        rule runtime_dependency_injection {
+          meta:
+            description = "Package that installs dependencies during import/setup"
+          strings:
+            $try = "try:" ascii
+            $except = /except\s*(ImportError)?:/
+            $import = /import\s+\\w+/ ascii
+            $pip_install = "pip install" ascii nocase
+            $sys_exec = "sys.executable" ascii
+          condition:
+            $try and $except and $import and ($pip_install or $sys_exec)
+        }

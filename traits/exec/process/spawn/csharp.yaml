@@ -2,7 +2,7 @@
 # objective: exec, behavior: process
 
 traits:
-  - id: exec/process/spawn/start
+  - id: start
     description: Process execution via Process.Start
     criticality: suspicious
     mbc: "OB0006"
@@ -12,9 +12,9 @@ traits:
       type: ast_pattern
       node_type: invocation_expression
       pattern: "Process.Start"
-    file_types: [all]
+    file_types: [csharp]
 
-  - id: exec/process/spawn/start-info
+  - id: start-info
     description: Process start configuration
     criticality: notable
     mbc: "OB0006"
@@ -24,9 +24,9 @@ traits:
       type: ast_pattern
       node_type: object_creation_expression
       pattern: "ProcessStartInfo"
-    file_types: [all]
+    file_types: [csharp]
 
-  - id: exec/process/spawn/current-process
+  - id: current-process
     description: Acquires handle to current process (often precedes self-termination)
     criticality: notable
     mbc: "OB0006"
@@ -35,9 +35,9 @@ traits:
       type: ast_pattern
       node_type: invocation_expression
       pattern: "GetCurrentProcess"
-    file_types: [all]
+    file_types: [csharp]
 
-  - id: exec/process/spawn/terminate
+  - id: terminate
     description: Process termination via Kill()
     criticality: suspicious
     mbc: "E1562"
@@ -47,4 +47,4 @@ traits:
       type: ast_pattern
       node_type: invocation_expression
       pattern: ".Kill("
-    file_types: [all]
+    file_types: [csharp]

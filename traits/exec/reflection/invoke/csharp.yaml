@@ -2,7 +2,7 @@
 # objective: exec, behavior: reflection
 
 traits:
-  - id: exec/reflection/invoke/assembly-load
+  - id: assembly-load
     description: Runtime assembly loading
     criticality: suspicious
     mbc: "F0004.001"
@@ -12,9 +12,9 @@ traits:
       type: ast_pattern
       node_type: invocation_expression
       pattern: "Assembly.Load"
-    file_types: [all]
+    file_types: [csharp]
 
-  - id: exec/reflection/invoke/assembly-load-file
+  - id: assembly-load-file
     description: Assembly loaded from file
     criticality: suspicious
     mbc: "F0004.001"
@@ -24,9 +24,9 @@ traits:
       type: ast_pattern
       node_type: invocation_expression
       pattern: "Assembly.LoadFile"
-    file_types: [all]
+    file_types: [csharp]
 
-  - id: exec/reflection/invoke/activator-create
+  - id: activator-create
     description: Dynamic object creation via reflection
     criticality: suspicious
     mbc: "F0004"
@@ -36,9 +36,9 @@ traits:
       type: ast_pattern
       node_type: invocation_expression
       pattern: "Activator.CreateInstance"
-    file_types: [all]
+    file_types: [csharp]
 
-  - id: exec/reflection/invoke/method-invoke
+  - id: method-invoke
     description: Reflective method invocation
     criticality: suspicious
     mbc: "F0004"
@@ -48,9 +48,9 @@ traits:
       type: ast_pattern
       node_type: invocation_expression
       pattern: ".Invoke("
-    file_types: [all]
+    file_types: [csharp]
 
-  - id: exec/reflection/invoke/get-method
+  - id: get-method
     description: Reflection API to get method info
     criticality: notable
     mbc: "F0004"
@@ -59,9 +59,9 @@ traits:
       type: ast_pattern
       node_type: invocation_expression
       pattern: "GetMethod"
-    file_types: [all]
+    file_types: [csharp]
 
-  - id: exec/reflection/invoke/get-type
+  - id: get-type
     description: Reflection API to get type info
     criticality: notable
     mbc: "F0004"
@@ -70,9 +70,9 @@ traits:
       type: ast_pattern
       node_type: invocation_expression
       pattern: "GetType"
-    file_types: [all]
+    file_types: [csharp]
 
-  - id: exec/reflection/invoke/marshal
+  - id: marshal
     description: Marshal operations (memory/native interop)
     criticality: notable
     mbc: "F0004"
@@ -81,9 +81,9 @@ traits:
       type: ast_pattern
       node_type: invocation_expression
       pattern: "Marshal."
-    file_types: [all]
+    file_types: [csharp]
 
-  - id: exec/reflection/invoke/dllimport
+  - id: dllimport
     description: P/Invoke native function import
     criticality: suspicious
     mbc: "F0004"
@@ -93,4 +93,4 @@ traits:
       type: ast_pattern
       node_type: attribute
       pattern: "DllImport"
-    file_types: [all]
+    file_types: [csharp]

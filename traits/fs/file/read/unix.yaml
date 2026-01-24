@@ -3,7 +3,7 @@
 # ATT&CK: T1005
 
 traits:
-  - id: fs/file/read
+  - id: read
     description: Read files
     criticality: inert
     confidence: 0.66

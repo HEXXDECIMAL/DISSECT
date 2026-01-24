@@ -3,7 +3,7 @@
 # ATT&CK: T1543.002
 
 traits:
-  - id: persistence/systemd
+  - id: systemd
     description: Linux systemd persistence
     criticality: notable
     confidence: 0.66

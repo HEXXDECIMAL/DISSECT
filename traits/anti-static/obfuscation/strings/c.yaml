@@ -3,7 +3,7 @@
 # ATT&CK: T1027
 
 traits:
-  - id: anti-static/obfuscation/strings-char-array
+  - id: strings-char-array
     description: String obfuscation via char array
     criticality: notable
     confidence: 0.66
@@ -13,7 +13,7 @@ traits:
       type: string
       regex: "char\\s+\\w+\\[\\]\\s*=\\s*\\{[0-9, ]+\\}"
 
-  - id: anti-static/obfuscation/strings-hex
+  - id: strings-hex
     description: Hex-encoded string patterns
     criticality: notable
     confidence: 0.66

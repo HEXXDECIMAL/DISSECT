@@ -4,7 +4,7 @@
 
 traits:
   # Native .node module in npm package
-  - id: exec/native/node-addon
+  - id: node-addon
     description: Package contains native Node.js addon (.node binary)
     criticality: notable
     confidence: 0.7
@@ -23,7 +23,7 @@ traits:
         }
 
   # Native module with network capability
-  - id: exec/native/network-capable
+  - id: network-capable
     description: Native module with network/socket capabilities
     criticality: suspicious
     confidence: 0.85
@@ -47,7 +47,7 @@ traits:
         }
 
   # Process inspection/injection patterns
-  - id: exec/native/process-inspection
+  - id: process-inspection
     description: Native binary with process inspection or injection capabilities
     criticality: notable
     confidence: 0.8
@@ -77,7 +77,7 @@ traits:
         }
 
   # Anti-debugging or process status checks
-  - id: exec/native/process-status-check
+  - id: process-status-check
     description: Native binary checking process status (potential anti-debug)
     criticality: notable
     confidence: 0.7
@@ -105,7 +105,7 @@ traits:
         }
 
   # Shellcode patterns
-  - id: exec/native/shellcode
+  - id: shellcode
     description: Native binary with shellcode patterns
     criticality: hostile
     confidence: 0.9
@@ -128,7 +128,7 @@ traits:
         }
 
   # Cobalt Strike beacon patterns
-  - id: exec/native/cobalt-strike
+  - id: cobalt-strike
     description: Cobalt Strike beacon indicators
     criticality: hostile
     confidence: 0.95
@@ -152,7 +152,7 @@ traits:
         }
 
   # Metasploit patterns
-  - id: exec/native/metasploit
+  - id: metasploit
     description: Metasploit payload indicators
     criticality: hostile
     confidence: 0.9
@@ -174,7 +174,7 @@ traits:
         }
 
   # Cryptocurrency miner in native code
-  - id: exec/native/cryptominer
+  - id: cryptominer
     description: Native cryptocurrency miner binary
     criticality: hostile
     confidence: 0.95

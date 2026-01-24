@@ -2,7 +2,7 @@
 # MBC: B0006 (Inline Assembly)
 
 traits:
-  - id: unsafe/inline-asm/macro
+  - id: macro
     description: Inline assembly macro
     criticality: notable
     confidence: 1.0
@@ -12,7 +12,7 @@ traits:
       node_type: macro_invocation
       pattern: "asm!"
 
-  - id: unsafe/inline-asm/global-macro
+  - id: global-macro
     description: Global inline assembly macro
     criticality: notable
     confidence: 1.0

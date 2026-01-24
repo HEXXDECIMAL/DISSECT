@@ -1,0 +1,15 @@
+# NodeJS Backdoor Behaviors
+# Detects combinations of behaviors common in NodeJS backdoors
+
+composite_rules:
+  - id: backdoor/nodejs/behavior-mix
+    description: "NodeJS backdoor-like behavior (Masquerading + Execution + File Perms)"
+    criticality: hostile
+    confidence: 0.85
+    requires_all:
+      - type: trait
+        id: exec/process/name/nodejs-title
+      - type: trait
+        id: fs/permission/chmod/string
+      - type: trait
+        id: exec/javascript/eval/child-process-require

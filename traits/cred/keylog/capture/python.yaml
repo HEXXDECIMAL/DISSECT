@@ -10,7 +10,7 @@ defaults:
 
 traits:
   # pyHook - Windows keyboard hook library
-  - id: credential/keylog/capture/python-pyhook
+  - id: python-pyhook
     description: "Windows keyboard hooking (pyHook)"
     confidence: 0.85
     platforms: [windows]
@@ -19,7 +19,7 @@ traits:
       regex: "import pyHook|from pyHook|pyHook\\.HookManager"
 
   # pyWinhook - maintained fork of pyHook
-  - id: credential/keylog/capture/python-pywinhook
+  - id: python-pywinhook
     description: "Windows keyboard hooking (pyWinhook)"
     confidence: 0.85
     platforms: [windows]
@@ -28,7 +28,7 @@ traits:
       regex: "import pyWinhook|from pyWinhook|pyWinhook\\.HookManager"
 
   # keyboard module - cross-platform
-  - id: credential/keylog/capture/python-keyboard
+  - id: python-keyboard
     description: "Cross-platform keyboard capture (keyboard module)"
     confidence: 0.8
     condition:
@@ -36,7 +36,7 @@ traits:
       regex: "import keyboard|keyboard\\.on_press|keyboard\\.hook|keyboard\\.record"
 
   # pynput keyboard listener (more specific than existing trait)
-  - id: credential/keylog/capture/python-pynput-listener
+  - id: python-pynput-listener
     description: "Keyboard listener via pynput"
     confidence: 0.8
     condition:
@@ -44,7 +44,7 @@ traits:
       regex: "keyboard\\.Listener\\(|on_press\\s*=|on_release\\s*="
 
   # HookKeyboard method call
-  - id: credential/keylog/capture/python-hook-keyboard
+  - id: python-hook-keyboard
     description: "Keyboard hook registration"
     confidence: 0.9
     condition:
@@ -52,7 +52,7 @@ traits:
       regex: "\\.HookKeyboard\\(\\)"
 
   # KeyDown event handler
-  - id: credential/keylog/capture/python-keydown-handler
+  - id: python-keydown-handler
     description: "KeyDown event handler registration"
     confidence: 0.85
     condition:
@@ -61,7 +61,7 @@ traits:
 
 composite_rules:
   # Full keylogger pattern: hook + log to file
-  - id: credential/keylog/capture/python-keylogger-file
+  - id: python-keylogger-file
     description: "Keylogger writing to file"
     confidence: 0.95
     criticality: hostile
@@ -72,7 +72,7 @@ composite_rules:
         regex: "open\\([^)]+[\"'](?:a|w)[\"']"
 
   # Windows keyboard hook with exfiltration
-  - id: credential/keylog/capture/python-keylogger-exfil
+  - id: python-keylogger-exfil
     description: "Keylogger with network exfiltration"
     confidence: 0.95
     criticality: hostile

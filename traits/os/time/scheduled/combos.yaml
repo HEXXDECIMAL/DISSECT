@@ -3,7 +3,7 @@
 
 composite_rules:
   # Self-termination: GetCurrentProcess + Kill
-  - id: time/trigger/self-termination
+  - id: self-termination
     description: "Self-destruct: terminates own process"
     criticality: suspicious
     mbc: "E1562"
@@ -17,7 +17,7 @@ composite_rules:
         id: exec/process/terminate
 
   # Probabilistic execution: Random number decides whether to execute
-  - id: time/trigger/probabilistic-execution
+  - id: probabilistic-execution
     description: "Probabilistic execution: uses randomness to evade consistent detection"
     criticality: suspicious
     mbc: "B0009"
@@ -29,7 +29,7 @@ composite_rules:
         id: anti-analysis/randomness/instantiation
 
   # Logic bomb with self-destruct
-  - id: time/trigger/logic-bomb-self-destruct
+  - id: logic-bomb-self-destruct
     description: "Logic bomb: time-triggered self-destruct with date-based activation"
     criticality: suspicious
     mbc: "B0003"
@@ -45,7 +45,7 @@ composite_rules:
         id: exec/process/terminate
 
   # Logic bomb with probabilistic self-destruct
-  - id: time/trigger/logic-bomb-probabilistic-self-destruct
+  - id: logic-bomb-probabilistic-self-destruct
     description: "Logic bomb: time-triggered probabilistic self-destruct (activates after date with random chance)"
     criticality: suspicious
     mbc: "B0003"
@@ -63,7 +63,7 @@ composite_rules:
         id: exec/process/terminate
 
   # Supply chain: SQL library with malicious payload
-  - id: time/trigger/supply-chain-sql-backdoor
+  - id: supply-chain-sql-backdoor
     description: "Supply chain attack: malicious code hidden in SQL database extension"
     criticality: suspicious
     mbc: "B0003"
@@ -82,7 +82,7 @@ composite_rules:
         id: exec/reflection/assembly-load
 
   # Concentrated malicious code: all behaviors within 30 lines (tight proximity)
-  - id: time/trigger/concentrated-logic-bomb
+  - id: concentrated-logic-bomb
     description: "Concentrated logic bomb: all malicious behaviors in close proximity"
     criticality: suspicious
     mbc: "B0003"

@@ -3,7 +3,7 @@
 # ATT&CK: T1083
 
 traits:
-  - id: fs/proc/mounts
+  - id: mounts
     description: Parse active mounts from /proc/mounts
     criticality: inert
     confidence: 0.66
@@ -11,7 +11,7 @@ traits:
       type: string
       exact: /proc/mounts
 
-  - id: fs/proc/mounts-mountinfo
+  - id: mounts-mountinfo
     description: Read mount info from /proc/self/mountinfo
     criticality: inert
     confidence: 0.66

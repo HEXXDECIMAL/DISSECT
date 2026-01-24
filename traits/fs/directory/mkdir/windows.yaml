@@ -3,7 +3,7 @@
 # ATT&CK: T1083
 
 traits:
-  - id: fs/directory/mkdir-win
+  - id: mkdir-win
     description: Create directories (Windows API)
     criticality: inert
     confidence: 0.66

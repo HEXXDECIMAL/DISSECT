@@ -8,7 +8,7 @@ defaults:
 
 traits:
   # NtRaiseHardError - forces BSOD
-  - id: impact/system/crash/nt-raise-hard-error
+  - id: nt-raise-hard-error
     description: NtRaiseHardError API (BSOD trigger)
     criticality: hostile
     confidence: 0.98
@@ -17,7 +17,7 @@ traits:
       exact: "NtRaiseHardError"
 
   # RtlAdjustPrivilege - enables shutdown privilege
-  - id: impact/system/crash/rtl-adjust-privilege
+  - id: rtl-adjust-privilege
     description: RtlAdjustPrivilege API (privilege escalation)
     criticality: suspicious
     confidence: 0.9
@@ -26,7 +26,7 @@ traits:
       exact: "RtlAdjustPrivilege"
 
   # Shutdown privilege constant (19)
-  - id: impact/system/crash/shutdown-privilege
+  - id: shutdown-privilege
     description: SeShutdownPrivilege constant
     criticality: notable
     confidence: 0.7
@@ -36,7 +36,7 @@ traits:
       regex: "RtlAdjustPrivilege\\s*\\(\\s*(c_uint\\()?19"
 
   # STATUS_ASSERTION_FAILURE error code
-  - id: impact/system/crash/status-assertion-failure
+  - id: status-assertion-failure
     description: STATUS_ASSERTION_FAILURE error code (BSOD)
     criticality: suspicious
     confidence: 0.85
@@ -46,7 +46,7 @@ traits:
 
 composite_rules:
   # Full BSOD trigger pattern
-  - id: impact/system/crash/bsod-trigger
+  - id: bsod-trigger
     description: Windows BSOD trigger via ntdll
     criticality: hostile
     confidence: 0.99
@@ -72,7 +72,7 @@ composite_rules:
         }
 
   # Python-specific BSOD via ctypes
-  - id: impact/system/crash/python-bsod
+  - id: python-bsod
     description: Python BSOD trigger via ctypes
     criticality: hostile
     confidence: 0.99

@@ -3,7 +3,7 @@
 # ATT&CK: T1027.002
 
 traits:
-  - id: anti-static/packer/detect
+  - id: detect
     description: Packed/compressed executable
     criticality: notable
     confidence: 0.66
@@ -25,7 +25,7 @@ traits:
             any of them
         }
 
-  - id: anti-static/packer/upx
+  - id: upx
     description: "UPX packed binary (section)"
     criticality: suspicious
     confidence: 0.95
@@ -45,7 +45,7 @@ traits:
             (macho.number_of_segments > 0 and for any segment in macho.segments : (segment.segname matches /^(UPX\d+|\.UPX\d+)$/))
         }
 
-  - id: anti-static/packer/vmprotect
+  - id: vmprotect
     description: "VMProtect packed binary (section)"
     criticality: suspicious
     confidence: 0.95

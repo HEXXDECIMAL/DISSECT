@@ -3,7 +3,7 @@
 # ATT&CK: T1083
 
 traits:
-  - id: fs/file/stat
+  - id: stat
     description: Get file status/metadata
     criticality: inert
     confidence: 0.66
@@ -11,7 +11,7 @@ traits:
       type: symbol
       pattern: stat|lstat|fstat|fstatat|stat64|lstat64|fstat64
 
-  - id: fs/file/stat-exists
+  - id: stat-exists
     description: Check if file exists
     criticality: inert
     confidence: 0.66

@@ -10,7 +10,7 @@ defaults:
 
 traits:
   # BIP-39 word count patterns (12, 15, 18, 21, 24 words)
-  - id: credential/wallet/mnemonic/word-count-check
+  - id: word-count-check
     description: "Mnemonic word count validation (12/15/18/21/24)"
     confidence: 0.85
     criticality: hostile
@@ -19,7 +19,7 @@ traits:
       regex: "split\\([^)]*\\)\\s*\\.\\s*length\\s*[=!<>]+\\s*(12|15|18|21|24)|len\\([^)]*split[^)]*\\)\\s*[=!<>]+\\s*(12|15|18|21|24)|words?_?count\\s*[=!<>]+\\s*(12|15|18|21|24)"
 
   # Common mnemonic-related variable/function names
-  - id: credential/wallet/mnemonic/variable-names
+  - id: variable-names
     description: "Mnemonic-related variable or function names"
     confidence: 0.8
     condition:
@@ -27,7 +27,7 @@ traits:
       regex: "\\b(mnemonic|seed_phrase|seedphrase|recovery_phrase|recoveryPhrase|secret_words|secretWords|wallet_words|walletWords)\\s*[=:]"
 
   # BIP-39 wordlist references
-  - id: credential/wallet/mnemonic/bip39-wordlist
+  - id: bip39-wordlist
     description: "BIP-39 wordlist reference"
     confidence: 0.85
     condition:
@@ -35,7 +35,7 @@ traits:
       regex: "bip39|bip-39|wordlist|word_list|english\\.txt.*mnemonic|mnemonic.*english\\.txt"
 
   # Mnemonic validation patterns
-  - id: credential/wallet/mnemonic/validation-pattern
+  - id: validation-pattern
     description: "Mnemonic phrase validation logic"
     confidence: 0.85
     criticality: hostile
@@ -44,7 +44,7 @@ traits:
       regex: "validate.*mnemonic|mnemonic.*valid|check.*seed.*phrase|verify.*recovery"
 
   # Private key extraction in wallet context (not general crypto)
-  - id: credential/wallet/mnemonic/private-key-hex
+  - id: private-key-hex
     description: "Wallet private key extraction"
     confidence: 0.85
     criticality: hostile
@@ -55,7 +55,7 @@ traits:
       regex: "(wallet|eth|btc|crypto|metamask|phantom).*private_?key|export.*(wallet|crypto|eth|btc).*key"
 
   # Bitcoin WIF private key format detection
-  - id: credential/wallet/mnemonic/bitcoin-wif
+  - id: bitcoin-wif
     description: "Bitcoin WIF private key format reference"
     confidence: 0.85
     criticality: hostile
@@ -65,7 +65,7 @@ traits:
       regex: "wallet_import_format|WIF.*key|WIF.*private|bitcoin.*wif|wif.*bitcoin|decode.*wif|encode.*wif|to_?wif|from_?wif"
 
   # HD wallet derivation path patterns
-  - id: credential/wallet/mnemonic/derivation-path
+  - id: derivation-path
     description: "HD wallet derivation path (BIP-44/49/84)"
     confidence: 0.8
     condition:
@@ -73,7 +73,7 @@ traits:
       regex: "m/44'/|m/49'/|m/84'/|m/86'/|derivation_?path|derivationPath"
 
   # Keystore/JSON wallet file patterns
-  - id: credential/wallet/mnemonic/keystore-file
+  - id: keystore-file
     description: "Ethereum keystore file reference"
     confidence: 0.8
     condition:
@@ -83,7 +83,7 @@ traits:
 
 composite_rules:
   # Mnemonic extraction with file/network operations
-  - id: credential/wallet/mnemonic/stealer-pattern
+  - id: stealer-pattern
     description: "Mnemonic phrase theft (extraction + exfiltration)"
     criticality: hostile
     confidence: 0.95
@@ -94,7 +94,7 @@ composite_rules:
         regex: "requests\\.(post|get)|urllib|socket\\.|fetch\\(|XMLHttpRequest"
 
   # Multiple wallet-related patterns = wallet stealer
-  - id: credential/wallet/mnemonic/comprehensive-stealer
+  - id: comprehensive-stealer
     description: "Comprehensive wallet credential theft"
     criticality: hostile
     confidence: 0.95

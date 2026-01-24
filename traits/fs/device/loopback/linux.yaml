@@ -3,7 +3,7 @@
 # ATT&CK: T1082
 
 traits:
-  - id: fs/device/loopback
+  - id: loopback
     description: Access virtual block devices (loopback)
     criticality: notable
     confidence: 0.66

@@ -3,7 +3,7 @@
 # ATT&CK: T1622
 
 traits:
-  - id: anti-analysis/debugger-ptrace
+  - id: debugger-ptrace
     description: Debugger detection via ptrace
     criticality: suspicious
     confidence: 0.66
@@ -13,7 +13,7 @@ traits:
       type: string
       exact: PTRACE_TRACEME
 
-  - id: anti-analysis/debugger-proc
+  - id: debugger-proc
     description: Debugger detection via /proc/self/status
     criticality: suspicious
     confidence: 0.66
@@ -21,7 +21,7 @@ traits:
       type: string
       exact: /proc/self/status
 
-  - id: anti-analysis/debugger-gdb
+  - id: debugger-gdb
     description: References gdb debugger
     criticality: notable
     confidence: 0.66

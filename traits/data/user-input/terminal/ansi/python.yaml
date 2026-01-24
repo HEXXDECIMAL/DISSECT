@@ -8,7 +8,7 @@ defaults:
 
 traits:
   # ANSI escape code usage
-  - id: ui/terminal/ansi/escape-codes
+  - id: escape-codes
     description: "ANSI terminal escape codes"
     confidence: 0.8
     condition:
@@ -17,7 +17,7 @@ traits:
       search_raw: true
 
   # colorama library
-  - id: ui/terminal/ansi/colorama
+  - id: colorama
     description: "Terminal color library (colorama)"
     confidence: 0.9
     condition:
@@ -26,7 +26,7 @@ traits:
       search_raw: true
 
   # Terminal color classes
-  - id: ui/terminal/ansi/color-classes
+  - id: color-classes
     description: "Terminal color/style classes"
     confidence: 0.85
     condition:
@@ -35,7 +35,7 @@ traits:
       search_raw: true
 
   # Windows console handling
-  - id: ui/terminal/ansi/windows-console
+  - id: windows-console
     description: "Windows console color compatibility"
     confidence: 0.8
     condition:

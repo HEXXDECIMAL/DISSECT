@@ -2,7 +2,7 @@
 # Detects malicious use of PowerShell for downloads or execution
 
 traits:
-  - id: exec/command/powershell/python-download
+  - id: python-download
     description: "Downloads file via PowerShell and curl.exe"
     criticality: suspicious
     confidence: 0.9
@@ -11,7 +11,7 @@ traits:
       type: string
       regex: "powershell.*curl\\.exe.*-o"
 
-  - id: exec/command/powershell/python-start-process
+  - id: python-start-process
     description: "Executes process via PowerShell Start-Process"
     criticality: suspicious
     confidence: 0.9

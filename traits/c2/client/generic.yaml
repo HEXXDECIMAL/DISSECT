@@ -1,6 +1,6 @@
 # Generic C2 Client Markers
 traits:
-  - id: c2/client/generic/marker
+  - id: marker
     description: "Explicit 'c2-client' string marker"
     criticality: hostile
     confidence: 1.0

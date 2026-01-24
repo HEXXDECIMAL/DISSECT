@@ -6,7 +6,7 @@ defaults:
 
 composite_rules:
   # === Atomic: Bash History ===
-  - id: credential/shell/bash-history
+  - id: bash-history
     description: Bash shell history file access
     criticality: suspicious
     confidence: 0.8
@@ -16,7 +16,7 @@ composite_rules:
       exact: ".bash_history"
 
   # === Atomic: Zsh History ===
-  - id: credential/shell/zsh-history
+  - id: zsh-history
     description: Zsh shell history file access
     criticality: suspicious
     confidence: 0.8
@@ -26,7 +26,7 @@ composite_rules:
       exact: ".zsh_history"
 
   # === Atomic: Fish History ===
-  - id: credential/shell/fish-history
+  - id: fish-history
     description: Fish shell history file access
     criticality: suspicious
     confidence: 0.8
@@ -36,7 +36,7 @@ composite_rules:
       regex: "\\.local/share/fish/fish_history"
 
   # === Atomic: Shell RC Files ===
-  - id: credential/shell/bashrc
+  - id: bashrc
     description: Bashrc configuration file access
     criticality: notable
     confidence: 0.5
@@ -44,7 +44,7 @@ composite_rules:
       type: string
       exact: ".bashrc"
 
-  - id: credential/shell/zshrc
+  - id: zshrc
     description: Zshrc configuration file access
     criticality: notable
     confidence: 0.5
@@ -52,7 +52,7 @@ composite_rules:
       type: string
       exact: ".zshrc"
 
-  - id: credential/shell/profile
+  - id: profile
     description: Shell profile file access
     criticality: notable
     confidence: 0.5
@@ -61,7 +61,7 @@ composite_rules:
       # Require word boundary to avoid matching .profiled, .profiles, etc.
       regex: "\\.(bash_)?profile\\b"
 
-  - id: credential/shell/history-theft
+  - id: history-theft
     description: Shell history file theft
     criticality: suspicious
     confidence: 0.8

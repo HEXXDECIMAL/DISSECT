@@ -2,7 +2,7 @@
 # objective: data, behavior: sql
 
 traits:
-  - id: data/sql/query/sqlcommand
+  - id: sqlcommand
     description: SQL command construction or execution
     criticality: inert
     confidence: 0.8
@@ -10,9 +10,9 @@ traits:
       type: ast_pattern
       node_type: identifier
       pattern: "SqlCommand"
-    file_types: [all]
+    file_types: [csharp]
 
-  - id: data/sql/query/sqlconnection
+  - id: sqlconnection
     description: SQL database connection
     criticality: inert
     confidence: 0.8
@@ -20,9 +20,9 @@ traits:
       type: ast_pattern
       node_type: identifier
       pattern: "SqlConnection"
-    file_types: [all]
+    file_types: [csharp]
 
-  - id: data/sql/query/sqldatareader
+  - id: sqldatareader
     description: SQL data reader
     criticality: inert
     confidence: 0.7
@@ -30,9 +30,9 @@ traits:
       type: ast_pattern
       node_type: identifier
       pattern: "SqlDataReader"
-    file_types: [all]
+    file_types: [csharp]
 
-  - id: data/sql/query/extension-method
+  - id: extension-method
     description: Extension method definition (can extend existing types)
     criticality: inert
     confidence: 0.7
@@ -40,4 +40,4 @@ traits:
       type: ast_pattern
       node_type: parameter
       pattern: "this SqlCommand"
-    file_types: [all]
+    file_types: [csharp]

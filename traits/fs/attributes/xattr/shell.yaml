@@ -3,7 +3,7 @@
 # ATT&CK: T1222
 
 traits:
-  - id: fs/attributes/xattr-command
+  - id: xattr-command
     description: Modify extended filesystem attributes using xattr command
     criticality: notable
     confidence: 0.66

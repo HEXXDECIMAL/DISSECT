@@ -1,0 +1,9 @@
+traits:
+  - id: backdoor/blspy
+    description: "BLSpy backdoor signature string"
+    criticality: hostile
+    confidence: 1.0
+    attack: "T1588"
+    condition:
+      type: string
+      exact: "-BLSpy"

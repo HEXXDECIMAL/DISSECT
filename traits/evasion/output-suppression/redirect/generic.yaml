@@ -4,7 +4,7 @@
 # ATT&CK: T1564.001 (Hide Artifacts: Hidden Files and Directories)
 
 traits:
-  - id: evasion/output-suppression/redirect/redirect-to-devnull
+  - id: redirect-to-devnull
     description: Output redirected to /dev/null
     criticality: notable
     confidence: 0.5
@@ -16,7 +16,7 @@ traits:
       regex: ">/dev/null|> /dev/null"
       search_raw: true
 
-  - id: evasion/output-suppression/redirect/stderr-to-devnull
+  - id: stderr-to-devnull
     description: Standard error redirected to /dev/null
     criticality: notable
     confidence: 0.5
@@ -28,7 +28,7 @@ traits:
       regex: "2>/dev/null|2> /dev/null|2>&1.*>/dev/null"
       search_raw: true
 
-  - id: evasion/output-suppression/redirect/all-output-suppressed
+  - id: all-output-suppressed
     description: All output suppressed (stdout and stderr to /dev/null)
     criticality: notable
     confidence: 0.6

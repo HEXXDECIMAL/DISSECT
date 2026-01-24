@@ -2,7 +2,7 @@
 # ATT&CK: T1204 (User Execution)
 
 traits:
-  - id: impact/infection/infected-marker
+  - id: infected-marker
     description: References being infected
     criticality: suspicious
     confidence: 0.7
@@ -12,7 +12,7 @@ traits:
       type: string
       regex: "(?i)\\binfected\\b"
 
-  - id: impact/infection/infection-marker
+  - id: infection-marker
     description: References infection
     criticality: suspicious
     confidence: 0.7
@@ -22,7 +22,7 @@ traits:
       type: string
       exact: "infection"
 
-  - id: impact/infection/infected-with
+  - id: infected-with
     description: Infection notification pattern
     criticality: suspicious
     confidence: 0.9
@@ -32,7 +32,7 @@ traits:
       type: string
       regex: ".{3,16} infected with .{3,16}"
 
-  - id: impact/infection/virus-marker
+  - id: virus-marker
     description: Virus reference
     criticality: suspicious
     confidence: 0.7
@@ -42,7 +42,7 @@ traits:
       type: string
       regex: "(?i)\\bvirus\\b"
 
-  - id: impact/infection/worm-marker
+  - id: worm-marker
     description: Worm reference
     criticality: suspicious
     confidence: 0.7
@@ -52,7 +52,7 @@ traits:
       type: string
       regex: "(?i)\\bworm\\b"
 
-  - id: impact/infection/trojan-marker
+  - id: trojan-marker
     description: Trojan reference
     criticality: suspicious
     confidence: 0.7
@@ -65,7 +65,7 @@ traits:
 composite_rules:
   # NOTE: Simple libc function references are too common in statically linked binaries
   # Require explicit infection markers or embedded ELF payloads at non-zero offset
-  - id: impact/infection/elf-infector-detected
+  - id: elf-infector-detected
     description: ELF file infector
     criticality: suspicious
     confidence: 0.95
@@ -99,7 +99,7 @@ composite_rules:
             )
         }
 
-  - id: impact/infection/infected-xor-detected
+  - id: infected-xor-detected
     description: XOR obfuscated infection marker
     criticality: suspicious
     confidence: 0.95

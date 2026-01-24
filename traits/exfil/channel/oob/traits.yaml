@@ -2,7 +2,7 @@
 # ATT&CK: T1048 (Exfiltration Over Alternative Protocol)
 
 traits:
-  - id: exfil/oob/interactsh
+  - id: interactsh
     description: Exfiltrates data to Interactsh OOB domain
     criticality: suspicious
     confidence: 0.95
@@ -12,7 +12,7 @@ traits:
       type: string
       regex: "[a-z0-9]{8,32}\\.(interactsh|burpcollaborator\\.net|oastify\\.com|oast\\.fun|m\\.pipedream\\.net)"
 
-  - id: exfil/oob/ngrok
+  - id: ngrok
     description: Communication with Ngrok (common C2 tunnel)
     criticality: suspicious
     confidence: 0.95
@@ -22,7 +22,7 @@ traits:
       type: string
       regex: "[a-z0-9-]+\\.(tcp|http|https)\\.(eu|us|asia|au|sa|jp|in)\\.ngrok\\.io"
 
-  - id: exfil/oob/bytedance-dast
+  - id: bytedance-dast
     description: Exfiltrates data to Bytedance DAST testing domain
     criticality: suspicious
     confidence: 0.95
@@ -32,7 +32,7 @@ traits:
       type: string
       regex: "[a-z0-9-]+\\.byted-dast\\.com"
 
-  - id: exfil/oob/workers-dev
+  - id: workers-dev
     description: Communication with Cloudflare Workers (common C2 vector)
     criticality: notable
     confidence: 0.7
@@ -42,7 +42,7 @@ traits:
       type: string
       regex: "[a-z0-9-]+\\.workers\\.dev"
 
-  - id: exfil/oob/requestbin
+  - id: requestbin
     description: Exfiltrates data to RequestBin OOB endpoint
     criticality: suspicious
     confidence: 0.9
@@ -52,7 +52,7 @@ traits:
       type: string
       regex: "requestbin\\.(com|net)"
 
-  - id: exfil/oob/webhook-site
+  - id: webhook-site
     description: Exfiltrates data to Webhook.site OOB endpoint
     criticality: suspicious
     confidence: 0.9
@@ -62,7 +62,7 @@ traits:
       type: string
       exact: "webhook.site"
 
-  - id: exfil/oob/dnslog-cn
+  - id: dnslog-cn
     description: Exfiltrates data to DNSLog.cn OOB domain
     criticality: suspicious
     confidence: 0.95
@@ -72,7 +72,7 @@ traits:
       type: string
       exact: "dnslog.cn"
 
-  - id: exfil/oob/canarytokens
+  - id: canarytokens
     description: Accesses Canarytokens OOB domain (potential probe)
     criticality: suspicious
     confidence: 0.9
@@ -82,7 +82,7 @@ traits:
       type: string
       exact: "canarytokens.com"
 
-  - id: exfil/oob/oastify-b64
+  - id: oastify-b64
     description: Exfiltrates data to base64-encoded Oastify OOB domain
     criticality: hostile
     confidence: 0.9
@@ -91,7 +91,7 @@ traits:
       type: string
       exact: "b2FzdGlmeS5jb20"
 
-  - id: exfil/oob/oast-fun-b64
+  - id: oast-fun-b64
     description: Exfiltrates data to base64-encoded OAST.fun OOB domain
     criticality: hostile
     confidence: 0.9
@@ -101,7 +101,7 @@ traits:
       exact: "b2FzdC5mdW4"
 
   # Discord webhook exfiltration
-  - id: exfil/oob/discord-webhook
+  - id: discord-webhook
     description: Discord webhook exfiltration endpoint
     criticality: suspicious
     confidence: 0.9
@@ -112,7 +112,7 @@ traits:
       regex: "discord\\.com/api/webhooks/[0-9]+/[A-Za-z0-9_-]+"
 
   # Telegram bot exfiltration
-  - id: exfil/oob/telegram-bot
+  - id: telegram-bot
     description: Telegram bot API exfiltration
     criticality: suspicious
     confidence: 0.9
@@ -123,7 +123,7 @@ traits:
       regex: "api\\.telegram\\.org/bot[0-9]+:[A-Za-z0-9_-]+"
 
   # Slack webhook exfiltration
-  - id: exfil/oob/slack-webhook
+  - id: slack-webhook
     description: Slack webhook exfiltration endpoint
     criticality: notable
     confidence: 0.8
@@ -134,7 +134,7 @@ traits:
       regex: "hooks\\.slack\\.com/services/T[A-Z0-9]+/B[A-Z0-9]+/[A-Za-z0-9]+"
 
   # Ngrok free tunnel detection
-  - id: exfil/oob/ngrok-free
+  - id: ngrok-free
     description: Ngrok free tunnel endpoint
     criticality: suspicious
     confidence: 0.9
@@ -145,7 +145,7 @@ traits:
       regex: "[a-z0-9-]+\\.ngrok-free\\.app"
 
 composite_rules:
-  - id: exfil/oob/multiple-encoded-indicators
+  - id: multiple-encoded-indicators
     description: "Multiple base64-encoded indicators detected (potential evasion)"
     criticality: hostile
     confidence: 0.9
@@ -162,7 +162,7 @@ composite_rules:
       - type: trait
         id: exfil/oob/interactsh
 
-  - id: exfil/oob/preinstall-exfil
+  - id: preinstall-exfil
     description: OOB exfiltration from npm preinstall
     criticality: suspicious
     confidence: 0.99
@@ -184,7 +184,7 @@ composite_rules:
             filesize < 5KB and $preinstall and any of ($oob*)
         }
 
-  - id: exfil/oob/crypto-exfil
+  - id: crypto-exfil
     description: Encrypted OOB exfiltration
     criticality: suspicious
     confidence: 0.95

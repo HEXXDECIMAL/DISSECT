@@ -3,7 +3,7 @@
 # ATT&CK: T1055
 
 traits:
-  - id: evasion/process-inject-api
+  - id: process-inject-api
     description: Process injection via Windows API
     criticality: suspicious
     confidence: 0.66

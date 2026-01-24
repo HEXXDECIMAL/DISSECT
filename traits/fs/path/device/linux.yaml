@@ -3,7 +3,7 @@
 # ATT&CK: T1083
 
 traits:
-  - id: fs/path/device-dev
+  - id: device-dev
     description: Reference to /dev devices (excluding /dev/null)
     criticality: notable
     confidence: 0.66
@@ -19,7 +19,7 @@ traits:
             $path and none of ($ignore*)
         }
 
-  - id: fs/path/device-null
+  - id: device-null
     description: Reference to /dev/null
     criticality: inert
     confidence: 0.66

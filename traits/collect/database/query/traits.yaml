@@ -4,7 +4,7 @@
 traits:
   # === Atomic: SQLite ===
 
-  - id: collect/database/sqlite
+  - id: sqlite
     description: SQLite database access
     criticality: notable
     confidence: 0.7
@@ -16,7 +16,7 @@ traits:
 
   # === Atomic: MySQL ===
 
-  - id: collect/database/mysql
+  - id: mysql
     description: MySQL database access
     criticality: notable
     confidence: 0.7
@@ -28,7 +28,7 @@ traits:
 
   # === Atomic: PostgreSQL ===
 
-  - id: collect/database/postgresql
+  - id: postgresql
     description: PostgreSQL database access
     criticality: notable
     confidence: 0.7
@@ -40,7 +40,7 @@ traits:
 
   # === Atomic: LevelDB ===
 
-  - id: collect/database/leveldb
+  - id: leveldb
     description: LevelDB database access
     criticality: notable
     confidence: 0.7

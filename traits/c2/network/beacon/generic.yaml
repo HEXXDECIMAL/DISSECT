@@ -3,7 +3,7 @@
 # ATT&CK: T1071.001 (Web Protocols)
 
 traits:
-  - id: c2/http-template
+  - id: http-template
     description: HTTP request template with placeholders (C2 communication)
     criticality: suspicious
     confidence: 0.85
@@ -13,7 +13,7 @@ traits:
       type: string
       regex: "(POST|GET)\\s+%s\\s+HTTP"
 
-  - id: c2/hardcoded-ip
+  - id: hardcoded-ip
     description: Hardcoded IP address (potential C2 server)
     criticality: suspicious
     confidence: 0.75
@@ -32,7 +32,7 @@ traits:
         - "^10\\."
         - "^172\\.(1[6-9]|2[0-9]|3[01])\\."
 
-  - id: c2/user-agent-rotation
+  - id: user-agent-rotation
     description: Multiple User-Agent strings (evasion technique)
     criticality: suspicious
     confidence: 0.80
@@ -43,7 +43,7 @@ traits:
       regex: "User-Agent:"
       min_count: 3
 
-  - id: c2/bot-user-agent
+  - id: bot-user-agent
     description: Search engine bot User-Agent (DDoS/evasion)
     criticality: suspicious
     confidence: 0.85
@@ -53,7 +53,7 @@ traits:
       type: string
       regex: "(Googlebot|bingbot|Baiduspider|YandexBot|DuckDuckBot)"
 
-  - id: c2/wget-download
+  - id: wget-download
     description: wget download command (payload fetching)
     criticality: suspicious
     confidence: 0.80

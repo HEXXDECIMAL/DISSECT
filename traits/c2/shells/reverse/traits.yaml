@@ -4,7 +4,7 @@
 
 traits:
   # Reverse shell components
-  - id: c2/shells/reverse/socket-connect
+  - id: socket-connect
     description: Network socket connection (potential reverse shell)
     criticality: notable
     mbc: "B0030.002"
@@ -15,7 +15,7 @@ traits:
       pattern: connect
     platforms: [all]
 
-  - id: c2/shells/reverse/dup2-redirect
+  - id: dup2-redirect
     description: File descriptor duplication (I/O redirection)
     criticality: notable
     mbc: "B0030.002"
@@ -25,7 +25,7 @@ traits:
       pattern: dup2
     platforms: [unix, linux, macos]
 
-  - id: c2/shells/reverse/python-socket-connect
+  - id: python-socket-connect
     description: Python socket connection
     criticality: notable
     confidence: 0.8
@@ -35,7 +35,7 @@ traits:
       node_type: call
       pattern: ".connect("
 
-  - id: c2/shells/reverse/python-dup2
+  - id: python-dup2
     description: Python file descriptor duplication (os.dup2)
     criticality: notable
     confidence: 0.85
@@ -45,7 +45,7 @@ traits:
       node_type: call
       pattern: "os.dup2"
 
-  - id: c2/shells/reverse/python-pty-spawn
+  - id: python-pty-spawn
     description: Python PTY spawn (interactive shell)
     criticality: suspicious
     confidence: 0.9
@@ -56,7 +56,7 @@ traits:
       pattern: "pty.spawn"
 
   # Bind shell components
-  - id: c2/shells/reverse/socket-bind
+  - id: socket-bind
     description: Socket binding (potential bind shell)
     criticality: notable
     mbc: "B0030.003"
@@ -67,7 +67,7 @@ traits:
       pattern: bind
     platforms: [all]
 
-  - id: c2/shells/reverse/socket-listen
+  - id: socket-listen
     description: Socket listening (potential bind shell)
     criticality: notable
     mbc: "B0030.003"

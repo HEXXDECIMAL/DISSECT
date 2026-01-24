@@ -3,7 +3,7 @@
 
 traits:
   # HTTP POST with JSON body
-  - id: exfil/http/node-post-json
+  - id: node-post-json
     description: HTTP POST request with JSON body
     criticality: notable
     confidence: 0.75
@@ -23,7 +23,7 @@ traits:
         }
 
   # HTTP GET with query params (data in URL)
-  - id: exfil/http/node-get-params
+  - id: node-get-params
     description: HTTP GET with data in query parameters
     criticality: notable
     confidence: 0.8
@@ -34,7 +34,7 @@ traits:
       regex: "path:\\s*[`\"'][^`\"']*\\$\\{"
 
   # axios POST
-  - id: exfil/http/node-axios-post
+  - id: node-axios-post
     description: Sends data via axios POST request
     criticality: notable
     confidence: 0.8
@@ -45,7 +45,7 @@ traits:
       regex: "axios\\.post\\("
 
   # axios with data
-  - id: exfil/http/node-axios-data
+  - id: node-axios-data
     description: axios request with data payload
     criticality: notable
     confidence: 0.75
@@ -55,7 +55,7 @@ traits:
       regex: "axios\\(\\{[^}]*data:"
 
   # fetch POST
-  - id: exfil/http/node-fetch-post
+  - id: node-fetch-post
     description: Sends data via fetch POST request
     criticality: notable
     confidence: 0.8
@@ -66,7 +66,7 @@ traits:
       regex: "fetch\\([^)]+\\{[^}]*method:\\s*['\"]POST['\"]"
 
   # http.request
-  - id: exfil/http/node-http-request
+  - id: node-http-request
     description: Makes HTTP request using http module
     criticality: notable
     confidence: 0.7
@@ -76,7 +76,7 @@ traits:
       regex: "http\\.request\\("
 
   # https.request
-  - id: exfil/http/node-https-request
+  - id: node-https-request
     description: Makes HTTPS request using https module
     criticality: notable
     confidence: 0.7
@@ -86,7 +86,7 @@ traits:
       regex: "https\\.request\\("
 
   # https.get
-  - id: exfil/http/node-https-get
+  - id: node-https-get
     description: Makes HTTPS GET request
     criticality: inert
     confidence: 0.7
@@ -96,7 +96,7 @@ traits:
       regex: "https\\.get\\("
 
   # Request write (sending body)
-  - id: exfil/http/node-req-write
+  - id: node-req-write
     description: Writes data to HTTP request body
     criticality: notable
     confidence: 0.8
@@ -106,7 +106,7 @@ traits:
       regex: "req\\.write\\("
 
   # Silent error handling (hiding exfil failures)
-  - id: exfil/http/node-silent-error
+  - id: node-silent-error
     description: Silent error handling (hides network failures)
     criticality: notable
     confidence: 0.7
@@ -116,7 +116,7 @@ traits:
       regex: "\\.on\\(['\"]error['\"],\\s*\\(\\)\\s*=>\\s*\\{\\s*\\}\\)"
 
   # Timeout handling
-  - id: exfil/http/node-request-timeout
+  - id: node-request-timeout
     description: HTTP request with timeout handling
     criticality: inert
     confidence: 0.6
@@ -127,19 +127,19 @@ traits:
 
 composite_rules:
   # Collect and exfil pattern
-  - id: exfil/http/node-collect-exfil
+  - id: node-collect-exfil
     description: Collects system info and exfiltrates via HTTP
     criticality: hostile
     confidence: 0.95
     attack: "T1041"
     requires_all:
       - type: trait
-        id: discovery/discover/system/node
+        id: discovery/system/node
       - type: string
         regex: "axios\\.post|https\\.request|http\\.request|fetch\\("
 
   # Stealthy exfil (silent errors)
-  - id: exfil/http/node-stealthy-exfil
+  - id: node-stealthy-exfil
     description: Stealthy exfiltration with silent error handling
     criticality: suspicious
     confidence: 0.85

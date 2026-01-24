@@ -2,7 +2,7 @@
 # ATT&CK: T1056.001 (Input Capture: Keylogging)
 
 traits:
-  - id: credential/keylog/capture/js-keyboard-listener
+  - id: js-keyboard-listener
     description: Global keyboard listener implementation
     criticality: suspicious
     confidence: 0.9
@@ -14,7 +14,7 @@ traits:
       regex: "GlobalKeyboardListener"
 
 composite_rules:
-  - id: credential/keylog/capture/js-keylogger-exfil
+  - id: js-keylogger-exfil
     description: JavaScript keylogger with exfiltration
     criticality: hostile
     confidence: 0.95

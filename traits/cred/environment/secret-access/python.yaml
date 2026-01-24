@@ -2,7 +2,7 @@
 # Detects access to sensitive environment variables via os.environ or os.getenv
 
 traits:
-  - id: credential/environment/secret-access/python-os-getenv
+  - id: python-os-getenv
     description: "Accesses sensitive environment variable via os.getenv"
     criticality: suspicious
     confidence: 0.9
@@ -17,7 +17,7 @@ traits:
             $re
         }
 
-  - id: credential/environment/secret-access/python-os-environ
+  - id: python-os-environ
     description: "Accesses sensitive environment variable via os.environ"
     criticality: suspicious
     confidence: 0.9
@@ -33,7 +33,7 @@ traits:
         }
 
 composite_rules:
-  - id: credential/environment/secret-access/python-env-key
+  - id: python-env-key
     description: "Accesses sensitive environment variable"
     criticality: suspicious
     requires_any:

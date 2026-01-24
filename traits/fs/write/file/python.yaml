@@ -9,7 +9,7 @@ defaults:
 
 traits:
   # Binary file write - open with 'wb' mode
-  - id: fs/write/file/python-open-write-binary
+  - id: python-open-write-binary
     description: "Write binary file (open with 'wb')"
     confidence: 0.85
     condition:
@@ -18,7 +18,7 @@ traits:
       regex: "open\\([^)]+['\"]wb['\"]\\)"
 
   # Binary append mode
-  - id: fs/write/file/python-open-append-binary
+  - id: python-open-append-binary
     description: "Append to binary file (open with 'ab')"
     confidence: 0.8
     condition:
@@ -26,7 +26,7 @@ traits:
       regex: "open\\([^)]+['\"]ab['\"]\\)"
 
   # Write with pathlib
-  - id: fs/write/file/python-pathlib-write-bytes
+  - id: python-pathlib-write-bytes
     description: "Write bytes via pathlib"
     confidence: 0.85
     condition:
@@ -34,7 +34,7 @@ traits:
       regex: "\\.write_bytes\\("
 
   # File content from HTTP response
-  - id: fs/write/file/python-write-response-content
+  - id: python-write-response-content
     description: "Write HTTP response content to file"
     confidence: 0.9
     condition:
@@ -43,7 +43,7 @@ traits:
       regex: "\\.write\\([^)]*\\.content\\)"
 
   # shutil.copyfileobj - streaming copy
-  - id: fs/write/file/python-shutil-copy
+  - id: python-shutil-copy
     description: "Copy file object (shutil.copyfileobj)"
     confidence: 0.75
     criticality: inert
@@ -52,7 +52,7 @@ traits:
       regex: "shutil\\.copyfileobj\\("
 
   # Write to temp directory
-  - id: fs/write/file/python-write-tmp
+  - id: python-write-tmp
     description: "Write to /tmp directory"
     confidence: 0.85
     condition:
@@ -60,7 +60,7 @@ traits:
       regex: "open\\([^)]*['\"]?/tmp/"
 
   # tempfile module usage
-  - id: fs/write/file/python-tempfile
+  - id: python-tempfile
     description: "Temporary file creation (tempfile module)"
     confidence: 0.7
     criticality: inert
@@ -70,7 +70,7 @@ traits:
 
 composite_rules:
   # Download and write pattern (dropper behavior)
-  - id: fs/write/file/python-download-write
+  - id: python-download-write
     description: "Download content and write to file"
     confidence: 0.9
     criticality: suspicious
@@ -83,7 +83,7 @@ composite_rules:
         regex: "open\\([^)]+['\"]wb['\"]\\)|write_bytes\\("
 
   # Write + make executable pattern
-  - id: fs/write/file/python-write-chmod-exec
+  - id: python-write-chmod-exec
     description: "Write file and make executable"
     confidence: 0.95
     criticality: suspicious

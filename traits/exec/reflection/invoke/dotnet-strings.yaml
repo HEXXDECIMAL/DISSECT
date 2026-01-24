@@ -2,7 +2,7 @@
 # These complement the AST-based csharp.yaml traits
 
 traits:
-  - id: exec/reflection/invoke/namespace-import
+  - id: namespace-import
     description: System.Reflection namespace usage
     criticality: notable
     confidence: 0.70
@@ -10,7 +10,7 @@ traits:
       type: string
       exact: "System.Reflection"
 
-  - id: exec/reflection/invoke/activator
+  - id: activator
     description: Dynamic object instantiation via Activator
     criticality: notable
     confidence: 0.80
@@ -18,7 +18,7 @@ traits:
       type: string
       exact: "Activator"
 
-  - id: exec/reflection/invoke/property-info
+  - id: property-info
     description: Reflection property access
     criticality: notable
     confidence: 0.70
@@ -26,7 +26,7 @@ traits:
       type: string
       regex: "PropertyInfo|GetProperties"
 
-  - id: exec/reflection/invoke/method-info
+  - id: method-info
     description: Reflection method access
     criticality: notable
     confidence: 0.70
@@ -34,7 +34,7 @@ traits:
       type: string
       regex: "MethodInfo|GetMethod|GetMethods"
 
-  - id: exec/reflection/invoke/type-info
+  - id: type-info
     description: Runtime type inspection
     criticality: notable
     confidence: 0.70

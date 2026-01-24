@@ -3,7 +3,7 @@
 
 traits:
   # System monitoring tools
-  - id: admin/sysadmin/monitoring
+  - id: monitoring
     description: System monitoring utilities
     criticality: benign
     confidence: 0.9
@@ -32,7 +32,7 @@ traits:
         }
 
   # Package management
-  - id: admin/sysadmin/package-mgmt
+  - id: package-mgmt
     description: Package management utilities
     criticality: benign
     confidence: 0.9
@@ -58,7 +58,7 @@ traits:
         }
 
   # System configuration
-  - id: admin/sysadmin/config
+  - id: config
     description: System configuration utilities
     criticality: benign
     confidence: 0.9
@@ -84,7 +84,7 @@ traits:
         }
 
   # Log analysis
-  - id: admin/sysadmin/logs
+  - id: logs
     description: Log analysis utilities
     criticality: benign
     confidence: 0.9

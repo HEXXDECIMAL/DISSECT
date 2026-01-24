@@ -3,7 +3,7 @@
 # ATT&CK: T1222
 
 traits:
-  - id: fs/link/symlink-create
+  - id: symlink-create
     description: Create symbolic links
     criticality: inert
     confidence: 0.66
@@ -11,7 +11,7 @@ traits:
       type: symbol
       pattern: symlink|symlinkat
 
-  - id: fs/link/symlink-read
+  - id: symlink-read
     description: Read value of symbolic link
     criticality: inert
     confidence: 0.66
@@ -19,7 +19,7 @@ traits:
       type: symbol
       pattern: readlink|readlinkat
 
-  - id: fs/link/symlink-resolve
+  - id: symlink-resolve
     description: Resolve symbolic links to canonical path
     criticality: inert
     confidence: 0.66

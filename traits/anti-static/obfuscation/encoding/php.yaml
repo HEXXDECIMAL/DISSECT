@@ -3,100 +3,100 @@
 # ATT&CK: T1027
 
 traits:
-  - id: anti-static/obfuscation/encoding/base64-decode
+  - id: base64-decode
     description: Base64 decoding (potential payload)
     criticality: notable
     confidence: 0.7
     mbc: "B0032"
     attack: "T1140"
-    file_types: [all]
+    file_types: [php]
     condition:
       type: ast_pattern
       node_type: function_call_expression
       pattern: "base64_decode"
 
-  - id: anti-static/obfuscation/encoding/base64-encode
+  - id: base64-encode
     description: Base64 encoding
     criticality: inert
     confidence: 0.6
-    file_types: [all]
+    file_types: [php]
     condition:
       type: ast_pattern
       node_type: function_call_expression
       pattern: "base64_encode"
 
-  - id: anti-static/obfuscation/encoding/gzinflate
+  - id: gzinflate
     description: Gzip decompression (packed payload)
     criticality: suspicious
     confidence: 0.8
     mbc: "B0032"
     attack: "T1140"
-    file_types: [all]
+    file_types: [php]
     condition:
       type: ast_pattern
       node_type: function_call_expression
       pattern: "gzinflate"
 
-  - id: anti-static/obfuscation/encoding/gzuncompress
+  - id: gzuncompress
     description: Zlib decompression (packed payload)
     criticality: suspicious
     confidence: 0.8
     mbc: "B0032"
     attack: "T1140"
-    file_types: [all]
+    file_types: [php]
     condition:
       type: ast_pattern
       node_type: function_call_expression
       pattern: "gzuncompress"
 
-  - id: anti-static/obfuscation/encoding/gzdecode
+  - id: gzdecode
     description: Gzip decoding (packed payload)
     criticality: suspicious
     confidence: 0.8
     mbc: "B0032"
     attack: "T1140"
-    file_types: [all]
+    file_types: [php]
     condition:
       type: ast_pattern
       node_type: function_call_expression
       pattern: "gzdecode"
 
-  - id: anti-static/obfuscation/encoding/rot13
+  - id: rot13
     description: ROT13 encoding/decoding
     criticality: suspicious
     confidence: 0.8
     mbc: "B0032"
-    file_types: [all]
+    file_types: [php]
     condition:
       type: ast_pattern
       node_type: function_call_expression
       pattern: "str_rot13"
 
-  - id: anti-static/obfuscation/encoding/chr-ord
+  - id: chr-ord
     description: Character code manipulation
     criticality: notable
     confidence: 0.65
     mbc: "B0032"
-    file_types: [all]
+    file_types: [php]
     condition:
       type: ast_pattern
       node_type: function_call_expression
       pattern: "chr|ord"
       regex: true
 
-  - id: anti-static/obfuscation/encoding/eval
+  - id: eval
     description: Dynamic code execution via eval
     criticality: suspicious
     confidence: 0.95
     mbc: "E1059"
     attack: "T1059"
-    file_types: [all]
+    file_types: [php]
     condition:
       type: ast_pattern
       node_type: function_call_expression
       pattern: "eval"
 
-  - id: anti-static/obfuscation/encoding/create-function
+  - id: create-function
     description: Dynamic function creation (deprecated, often malicious)
     criticality: suspicious
     confidence: 0.9
@@ -108,32 +108,32 @@ traits:
       node_type: function_call_expression
       pattern: "create_function"
 
-  - id: anti-static/obfuscation/encoding/preg-replace-e
+  - id: preg-replace-e
     description: preg_replace with /e modifier (code execution)
     criticality: suspicious
     confidence: 0.95
     mbc: "E1059"
     attack: "T1059"
-    file_types: [all]
+    file_types: [php]
     condition:
       type: ast_pattern
       node_type: function_call_expression
       pattern: "preg_replace\\s*\\(['\"][^'\"]*\\/[a-zA-Z]*e[a-zA-Z]*['\"]"
       regex: true
 
-  - id: anti-static/obfuscation/encoding/assert-dynamic
+  - id: assert-dynamic
     description: Assert with dynamic code (code execution)
     criticality: suspicious
     confidence: 0.85
     mbc: "E1059"
     attack: "T1059"
-    file_types: [all]
+    file_types: [php]
     condition:
       type: ast_pattern
       node_type: function_call_expression
       pattern: "assert"
 
-  - id: anti-static/obfuscation/encoding/xor-string
+  - id: xor-string
     description: XOR string manipulation (obfuscation)
     criticality: suspicious
     confidence: 0.8
@@ -144,7 +144,7 @@ traits:
       pattern: "\\^"
       regex: true
 
-  - id: anti-static/obfuscation/encoding/xor-loop
+  - id: xor-loop
     description: Loop performing XOR on user input (deobfuscation)
     criticality: hostile
     confidence: 0.95
@@ -155,7 +155,7 @@ traits:
       pattern: "\\^="
       regex: true
 
-  - id: anti-static/obfuscation/encoding/strrev
+  - id: strrev
     description: String reversal (obfuscation)
     criticality: notable
     confidence: 0.7
@@ -165,7 +165,7 @@ traits:
       node_type: function_call_expression
       pattern: "strrev"
 
-  - id: anti-static/obfuscation/encoding/hex2bin
+  - id: hex2bin
     description: Hex to binary conversion (obfuscation)
     criticality: notable
     confidence: 0.75
@@ -175,7 +175,7 @@ traits:
       node_type: function_call_expression
       pattern: "hex2bin"
 
-  - id: anti-static/obfuscation/encoding/bin2hex
+  - id: bin2hex
     description: Binary to hex conversion (obfuscation)
     criticality: notable
     confidence: 0.75
@@ -185,7 +185,7 @@ traits:
       node_type: function_call_expression
       pattern: "bin2hex"
 
-  - id: anti-static/obfuscation/encoding/substitution-cipher
+  - id: substitution-cipher
     description: Potential substitution cipher (obfuscation)
     criticality: suspicious
     confidence: 0.8
@@ -196,7 +196,7 @@ traits:
       pattern: "str_replace\\s*\\(\\s*array\\s*\\([^)]+\\)\\s*,\\s*array\\s*\\([^)]+\\)"
       regex: true
 
-  - id: anti-static/obfuscation/encoding/pack
+  - id: pack
     description: Packs data into binary string
     criticality: notable
     confidence: 0.7
@@ -205,7 +205,7 @@ traits:
       node_type: function_call_expression
       pattern: "pack"
 
-  - id: anti-static/obfuscation/encoding/unpack
+  - id: unpack
     description: Unpacks data from binary string
     criticality: notable
     confidence: 0.7
@@ -214,7 +214,7 @@ traits:
       node_type: function_call_expression
       pattern: "unpack"
 
-  - id: anti-static/obfuscation/encoding/variable-function-call
+  - id: variable-function-call
     description: Variable function call (obfuscation)
     criticality: suspicious
     confidence: 0.8
@@ -225,7 +225,7 @@ traits:
       pattern: "^(\\$|\\{).*\\("
       regex: true
 
-  - id: anti-static/obfuscation/encoding/dynamic-variable-call
+  - id: dynamic-variable-call
     description: Dynamic variable function call (e.g. ${$v}())
     criticality: hostile
     confidence: 0.95
@@ -235,7 +235,7 @@ traits:
       pattern: "\\$\\{.*\\}"
       regex: true
 
-  - id: anti-static/obfuscation/encoding/dynamic-superglobal-call
+  - id: dynamic-superglobal-call
     description: Superglobal used as function (obfuscated backdoor)
     criticality: hostile
     confidence: 0.98
@@ -246,7 +246,7 @@ traits:
       pattern: "\\$_(GET|POST|REQUEST|COOKIE|SERVER)"
       regex: true
 
-  - id: anti-static/obfuscation/encoding/subscript-function-call
+  - id: subscript-function-call
     description: Subscript used as function (obfuscated backdoor)
     criticality: suspicious
     confidence: 0.85
@@ -257,7 +257,7 @@ traits:
       pattern: "\\$\\w+\\s*\\[[^]]+\\]\\s*\\("
       regex: true
 
-  - id: anti-static/obfuscation/encoding/simple-variable-call
+  - id: simple-variable-call
     description: Variable used as function (obfuscated backdoor)
     criticality: suspicious
     confidence: 0.8
@@ -268,7 +268,7 @@ traits:
       pattern: "\\$\\w+\\s*\\("
       regex: true
 
-  - id: anti-static/obfuscation/encoding/dynamic-superglobal-simple
+  - id: dynamic-superglobal-simple
     description: Superglobal used as function (obfuscated backdoor)
     criticality: hostile
     confidence: 0.98

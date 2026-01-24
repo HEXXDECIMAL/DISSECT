@@ -1,7 +1,7 @@
 # Flash/Embedded Storage - Linux
 
 traits:
-  - id: hw/flash/device/mtd
+  - id: mtd
     description: Access raw flash memory (MTD)
     criticality: suspicious
     confidence: 0.8
@@ -10,7 +10,7 @@ traits:
       type: string
       regex: "/dev/(block/)?mtd"
 
-  - id: hw/flash/device/mmc
+  - id: mmc
     description: Access raw SD/MMC devices
     criticality: suspicious
     confidence: 0.85
@@ -19,7 +19,7 @@ traits:
       type: string
       regex: "/dev/(block/)?mmcblk"
 
-  - id: hw/flash/device/ubi
+  - id: ubi
     description: Access raw unsorted block images (UBI)
     criticality: suspicious
     confidence: 0.8

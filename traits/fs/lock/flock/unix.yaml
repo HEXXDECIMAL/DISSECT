@@ -3,7 +3,7 @@
 # ATT&CK: T1083
 
 traits:
-  - id: fs/lock/flock
+  - id: flock
     description: Apply or remove advisory lock on file
     criticality: inert
     confidence: 0.66

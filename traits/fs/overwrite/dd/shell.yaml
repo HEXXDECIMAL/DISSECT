@@ -3,7 +3,7 @@
 # ATT&CK: T1561
 
 traits:
-  - id: fs/overwrite/dd-background
+  - id: dd-background
     description: dd command running in background (potential wiper)
     criticality: suspicious
     confidence: 0.66

@@ -4,7 +4,7 @@
 
 traits:
   # Suspicious for non-Python languages (JS, shell, etc.) where eval/exec is rare
-  - id: exec/shell-eval
+  - id: shell-eval
     description: Dynamic code evaluation
     criticality: suspicious
     confidence: 0.66
@@ -17,7 +17,7 @@ traits:
       regex: "(eval\\(|exec\\()"
 
   # Notable for Python - exec/eval are common for version parsing, setup scripts
-  - id: exec/python-eval
+  - id: python-eval
     description: Python dynamic code evaluation
     criticality: notable
     confidence: 0.5

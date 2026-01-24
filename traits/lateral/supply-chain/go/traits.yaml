@@ -5,7 +5,7 @@ defaults:
   file_types: [go]
 
 traits:
-  - id: go/many-init-functions
+  - id: many-init-functions
     description: Multiple init() functions (auto-execute on import)
     criticality: suspicious
     confidence: 0.85
@@ -15,7 +15,7 @@ traits:
       field: go_metrics.init_function_count
       min: 3
 
-  - id: go/blank-imports
+  - id: blank-imports
     description: Uses blank imports for side effects
     criticality: notable
     confidence: 0.7
@@ -24,7 +24,7 @@ traits:
       field: go_metrics.blank_import_count
       min: 1
 
-  - id: go/many-blank-imports
+  - id: many-blank-imports
     description: Many blank imports (suspicious side-effect loading)
     criticality: suspicious
     confidence: 0.85
@@ -33,7 +33,7 @@ traits:
       field: go_metrics.blank_import_count
       min: 3
 
-  - id: go/cgo-usage
+  - id: cgo-usage
     description: Uses CGo for C interoperability (evasion vector)
     criticality: notable
     confidence: 0.75
@@ -42,7 +42,7 @@ traits:
       field: go_metrics.cgo_usage
       min: 1
 
-  - id: go/embed-directive
+  - id: embed-directive
     description: Embeds files via //go:embed (payload embedding)
     criticality: notable
     confidence: 0.7
@@ -53,7 +53,7 @@ traits:
 
 composite_rules:
   # Detect potential backdoor patterns
-  - id: go/backdoor-indicators
+  - id: backdoor-indicators
     description: Go code with backdoor-like characteristics
     criticality: hostile
     confidence: 0.9
@@ -65,7 +65,7 @@ composite_rules:
         id: comm/socket/go-network-dial
 
   # Detect supply chain attack patterns
-  - id: go/suspicious-init
+  - id: suspicious-init
     description: Multiple init functions with network/exec capability
     criticality: hostile
     confidence: 0.9

@@ -3,7 +3,7 @@
 # ATT&CK: T1036.004 (Masquerading: Process Name)
 
 traits:
-  - id: exec/process/name/nodejs-title
+  - id: nodejs-title
     description: "Modify process title in NodeJS (masquerading)"
     criticality: notable
     confidence: 0.9

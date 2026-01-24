@@ -1,0 +1,129 @@
+# Malware Family - Gafgyt IoT Botnet
+# Reference: https://www.trendmicro.com/vinfo/us/threat-encyclopedia/malware/gafgyt
+# ATT&CK: T1583.005 (Botnet)
+
+traits:
+  # === Atomic Traits (decomposed for ML) ===
+
+  - id: botnet/gafgyt/botkill
+    description: Gafgyt bot killer function
+    criticality: hostile
+    confidence: 0.9
+    family: true
+    attack: "T1562"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "botkill"
+
+  - id: botnet/gafgyt/bash-ref
+    description: Bash shell reference
+    criticality: notable
+    confidence: 0.3
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "/bin/bash"
+
+  # NOTE: /sys/devices/system/cpu is present in glibc - this trait alone is NOT
+  # a reliable botnet indicator. Only meaningful when combined with other Gafgyt indicators.
+  - id: botnet/gafgyt/cpu-enumeration
+    description: CPU device enumeration (requires context)
+    criticality: notable
+    confidence: 0.3
+    attack: "T1082"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "/sys/devices/system/cpu"
+
+  - id: botnet/gafgyt/udp-flood
+    description: Gafgyt UDP flood function
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    attack: "T1498"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "udp_flood"
+
+  - id: botnet/gafgyt/tcp-flood
+    description: Gafgyt TCP flood function
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    attack: "T1498"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "tcpraw_flood"
+
+  - id: botnet/gafgyt/syn-flood
+    description: Gafgyt SYN flood function
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    attack: "T1498"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "syn_flood"
+
+  - id: botnet/gafgyt/ack-flood
+    description: Gafgyt ACK flood function
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    attack: "T1498"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "ack_flood"
+
+composite_rules:
+  # Main detection via YARA with ELF magic check
+  - id: botnet/gafgyt/detected
+    description: Gafgyt IoT botnet
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    reference: "https://www.trendmicro.com/vinfo/us/threat-encyclopedia/malware/gafgyt"
+    attack: "T1583.005"
+    mbc: "OB0004"
+    file_types: [elf]
+    condition:
+      type: yara
+      source: |
+        rule gafgyt_botnet {
+          strings:
+            $botkill = "botkill"
+            $bash = "/bin/bash"
+            $cpu = "/sys/devices/system/cpu"
+            $udp_flood = "udp_flood"
+            $tcp_flood = "tcpraw_flood"
+            $syn_flood = "syn_flood"
+            $ack_flood = "ack_flood"
+          condition:
+            uint32(0) == 0x464C457F and
+            filesize < 500KB and
+            $botkill and 3 of them
+        }
+
+  # DDoS capability detection
+  - id: botnet/gafgyt/ddos-capability
+    description: Gafgyt DDoS capability
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1498"
+    file_types: [elf]
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: botnet/gafgyt/udp-flood
+      - type: trait
+        id: botnet/gafgyt/tcp-flood
+      - type: trait
+        id: botnet/gafgyt/syn-flood
+      - type: trait
+        id: botnet/gafgyt/ack-flood

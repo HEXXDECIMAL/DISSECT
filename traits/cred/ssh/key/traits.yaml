@@ -6,7 +6,7 @@ defaults:
 
 composite_rules:
   # === Atomic: SSH Directory ===
-  - id: credential/ssh/dot-ssh-path
+  - id: dot-ssh-path
     description: Accesses .ssh directory
     criticality: notable
     confidence: 0.6
@@ -16,7 +16,7 @@ composite_rules:
       regex: "/\\.ssh|\\.\\.ssh/"
 
   # === Atomic: SSH Private Keys ===
-  - id: credential/ssh/id-rsa
+  - id: id-rsa
     description: SSH id_rsa private key reference
     criticality: suspicious
     confidence: 0.75
@@ -25,7 +25,7 @@ composite_rules:
       type: string
       exact: "id_rsa"
 
-  - id: credential/ssh/id-dsa
+  - id: id-dsa
     description: SSH id_dsa private key reference
     criticality: suspicious
     confidence: 0.75
@@ -34,7 +34,7 @@ composite_rules:
       type: string
       exact: "id_dsa"
 
-  - id: credential/ssh/id-ecdsa
+  - id: id-ecdsa
     description: SSH id_ecdsa private key reference
     criticality: suspicious
     confidence: 0.75
@@ -43,7 +43,7 @@ composite_rules:
       type: string
       exact: "id_ecdsa"
 
-  - id: credential/ssh/id-ed25519
+  - id: id-ed25519
     description: SSH id_ed25519 private key reference
     criticality: suspicious
     confidence: 0.75
@@ -53,7 +53,7 @@ composite_rules:
       exact: "id_ed25519"
 
   # === Atomic: SSH Configuration Files ===
-  - id: credential/ssh/authorized-keys
+  - id: authorized-keys
     description: SSH authorized_keys file reference
     criticality: notable
     confidence: 0.6
@@ -62,7 +62,7 @@ composite_rules:
       type: string
       exact: "authorized_keys"
 
-  - id: credential/ssh/known-hosts
+  - id: known-hosts
     description: SSH known_hosts file reference
     criticality: notable
     confidence: 0.5
@@ -72,7 +72,7 @@ composite_rules:
       exact: "known_hosts"
 
   # === Atomic: PuTTY (Windows) ===
-  - id: credential/ssh/putty-sessions
+  - id: putty-sessions
     description: PuTTY sessions registry reference
     criticality: suspicious
     confidence: 0.8
@@ -83,7 +83,7 @@ composite_rules:
       exact: "Software\\SimonTatham\\PuTTY\\Sessions"
 
   # === Atomic: SSHD Process (no ATT&CK - process reference, not credential access) ===
-  - id: credential/ssh/sshd-ref
+  - id: sshd-ref
     description: SSHD daemon reference
     criticality: notable
     confidence: 0.5
@@ -91,7 +91,7 @@ composite_rules:
       type: string
       exact: "sshd"
 
-  - id: credential/ssh/sshd-path
+  - id: sshd-path
     description: SSHD daemon path
     criticality: suspicious
     confidence: 0.7
@@ -99,7 +99,7 @@ composite_rules:
       type: string
       exact: "/usr/bin/sshd"
 
-  - id: credential/ssh/sshd-net-proc
+  - id: sshd-net-proc
     description: SSHD network process reference
     criticality: suspicious
     confidence: 0.8
@@ -107,7 +107,7 @@ composite_rules:
       type: string
       regex: "sshd: \\[(net|accepted)\\]"
 
-  - id: credential/ssh/sshd-proc-ref
+  - id: sshd-proc-ref
     description: SSHD process reference
     criticality: suspicious
     confidence: 0.75
@@ -116,7 +116,7 @@ composite_rules:
       regex: "sshd_?proc"
 
   # === Composite Rules ===
-  - id: credential/ssh/private-key-theft
+  - id: private-key-theft
     description: SSH private key theft
     criticality: suspicious
     confidence: 0.85
@@ -135,7 +135,7 @@ composite_rules:
       - type: trait
         id: credential/ssh/id-ed25519
 
-  - id: credential/ssh/sshd-password-trace
+  - id: sshd-password-trace
     description: SSHD memory tracing for passwords
     criticality: suspicious
     confidence: 0.85
@@ -151,7 +151,7 @@ composite_rules:
 
   # === SSH session/password sniffing ===
 
-  - id: credential/ssh/session-sniff
+  - id: session-sniff
     description: SSH session sniffing indicators
     criticality: hostile
     confidence: 0.9
@@ -172,7 +172,7 @@ composite_rules:
             any of them
         }
 
-  - id: credential/ssh/password-file-storage
+  - id: password-file-storage
     description: SSH password file storage
     criticality: hostile
     confidence: 0.85
@@ -193,7 +193,7 @@ composite_rules:
 
   # === SSH host verification bypass ===
 
-  - id: credential/ssh/stricthostkey-bypass
+  - id: stricthostkey-bypass
     description: SSH StrictHostKeyChecking bypass
     criticality: suspicious
     confidence: 0.8
@@ -202,7 +202,7 @@ composite_rules:
       type: string
       exact: "StrictHostKeyChecking=no"
 
-  - id: credential/ssh/userknownhosts-bypass
+  - id: userknownhosts-bypass
     description: SSH UserKnownHostsFile bypass
     criticality: suspicious
     confidence: 0.75
@@ -213,7 +213,7 @@ composite_rules:
 
   # === Composite: SSH credential theft behavior ===
 
-  - id: credential/ssh/credential-theft
+  - id: credential-theft
     description: SSH credential theft behavior
     criticality: hostile
     confidence: 0.9

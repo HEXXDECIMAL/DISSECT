@@ -1,7 +1,7 @@
 # Random Device - Unix
 
 traits:
-  - id: hw/random/device/urandom
+  - id: urandom
     description: Access /dev/urandom
     criticality: inert
     confidence: 1.0

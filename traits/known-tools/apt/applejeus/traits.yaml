@@ -1,0 +1,38 @@
+# Malware Family - AppleJeus (Lazarus Group)
+# Cryptocurrency-targeting malware attributed to DPRK
+# Reference: https://www.cisa.gov/news-events/cybersecurity-advisories/aa21-048a
+# ATT&CK: T1566 (Phishing)
+
+traits:
+  - id: apt/applejeus/boundary-marker
+    description: AppleJeus multipart boundary marker
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    attack: "T1071.001"
+    file_types: [macho]
+    condition:
+      type: string
+      exact: "multipart/form-data;boundary=jeus"
+
+composite_rules:
+  - id: apt/applejeus/detected
+    description: AppleJeus cryptocurrency malware (Lazarus)
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    reference: "https://www.cisa.gov/news-events/cybersecurity-advisories/aa21-048a"
+    attack: "T1566"
+    mbc: "B0030"
+    file_types: [macho]
+    condition:
+      type: yara
+      source: |
+        rule applejeus {
+          strings:
+            $boundary = "multipart/form-data;boundary=jeus"
+          condition:
+            (uint32(0) == 0xFEEDFACE or uint32(0) == 0xFEEDFACF or
+             uint32(0) == 0xCEFAEDFE or uint32(0) == 0xCFFAEDFE) and
+            filesize < 200KB and any of them
+        }

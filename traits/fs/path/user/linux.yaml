@@ -3,7 +3,7 @@
 # ATT&CK: T1083
 
 traits:
-  - id: fs/path/user-home
+  - id: user-home
     description: Reference to /home directories
     criticality: inert
     confidence: 0.66
@@ -11,7 +11,7 @@ traits:
       type: string
       regex: "/home/[\\w\\-/]+"
 
-  - id: fs/path/user-root
+  - id: user-root
     description: Reference to /root directory
     criticality: notable
     confidence: 0.66
@@ -19,7 +19,7 @@ traits:
       type: string
       regex: "/root/[\\w\\-/]+"
 
-  - id: fs/path/user-home-config
+  - id: user-home-config
     description: Reference to home config directories
     criticality: inert
     confidence: 0.66

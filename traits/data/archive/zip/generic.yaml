@@ -1,6 +1,6 @@
 # ZIP Creation
 traits:
-  - id: data/archive/zip/generic
+  - id: generic
     description: "Function to handle ZIP creation"
     criticality: suspicious
     confidence: 0.8

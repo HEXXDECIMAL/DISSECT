@@ -3,7 +3,7 @@
 # ATT&CK: T1552.001 (Credentials In Files)
 
 traits:
-  - id: credential/environment/secret-access/github-token
+  - id: github-token
     description: GITHUB_TOKEN environment variable access
     criticality: suspicious
     confidence: 0.95
@@ -12,7 +12,7 @@ traits:
       type: string
       regex: "GITHUB_TOKEN|GH_TOKEN"
 
-  - id: credential/environment/secret-access/aws-access-key
+  - id: aws-access-key
     description: AWS_ACCESS_KEY environment variable access
     criticality: suspicious
     confidence: 0.95
@@ -21,7 +21,7 @@ traits:
       type: string
       regex: "AWS_ACCESS_KEY"
 
-  - id: credential/environment/secret-access/aws-secret
+  - id: aws-secret
     description: AWS_SECRET environment variable access
     criticality: suspicious
     confidence: 0.95
@@ -30,7 +30,7 @@ traits:
       type: string
       regex: "AWS_SECRET"
 
-  - id: credential/environment/secret-access/api-key-generic
+  - id: api-key-generic
     description: Generic API_KEY environment variable access
     criticality: suspicious
     confidence: 0.8
@@ -39,7 +39,7 @@ traits:
       type: string
       exact: "API_KEY"
 
-  - id: credential/environment/secret-access/secret-key-generic
+  - id: secret-key-generic
     description: Generic SECRET_KEY environment variable access
     criticality: suspicious
     confidence: 0.8
@@ -48,7 +48,7 @@ traits:
       type: string
       exact: "SECRET_KEY"
 
-  - id: credential/environment/secret-access/discord-token
+  - id: discord-token
     description: DISCORD_TOKEN environment variable access
     criticality: suspicious
     confidence: 0.95
@@ -57,7 +57,7 @@ traits:
       type: string
       exact: "DISCORD_TOKEN"
 
-  - id: credential/environment/secret-access/slack-token
+  - id: slack-token
     description: SLACK_TOKEN environment variable access
     criticality: suspicious
     confidence: 0.95
@@ -66,7 +66,7 @@ traits:
       type: string
       exact: "SLACK_TOKEN"
 
-  - id: credential/environment/secret-access/openai-api-key
+  - id: openai-api-key
     description: OPENAI_API_KEY environment variable access
     criticality: suspicious
     confidence: 0.95
@@ -75,7 +75,7 @@ traits:
       type: string
       exact: "OPENAI_API_KEY"
 
-  - id: credential/environment/secret-access/anthropic-api-key
+  - id: anthropic-api-key
     description: ANTHROPIC_API_KEY environment variable access
     criticality: suspicious
     confidence: 0.95

@@ -4,7 +4,7 @@
 
 traits:
   # WScript.Shell execution
-  - id: exec/windows/wscript-shell
+  - id: wscript-shell
     description: WScript.Shell command execution
     criticality: suspicious
     confidence: 0.9
@@ -21,7 +21,7 @@ traits:
         }
 
   # Scripting.FileSystemObject
-  - id: exec/windows/filesystem-object
+  - id: filesystem-object
     description: Scripting.FileSystemObject usage
     criticality: suspicious
     confidence: 0.85
@@ -38,7 +38,7 @@ traits:
         }
 
   # ActiveXObject creation
-  - id: exec/windows/activex-object
+  - id: activex-object
     description: ActiveXObject instantiation
     criticality: notable
     confidence: 0.8
@@ -55,7 +55,7 @@ traits:
         }
 
   # Shell.Application (explorer shell)
-  - id: exec/windows/shell-application
+  - id: shell-application
     description: Shell.Application COM object
     criticality: suspicious
     confidence: 0.85
@@ -72,7 +72,7 @@ traits:
         }
 
   # MSXML HTTP request
-  - id: exec/windows/msxml-http
+  - id: msxml-http
     description: MSXML HTTP request object
     criticality: notable
     confidence: 0.75
@@ -91,7 +91,7 @@ traits:
         }
 
   # WMI scripting
-  - id: exec/windows/wmi-scripting
+  - id: wmi-scripting
     description: WMI scripting access
     criticality: suspicious
     confidence: 0.85
@@ -109,7 +109,7 @@ traits:
         }
 
   # ADODB stream (file operations)
-  - id: exec/windows/adodb-stream
+  - id: adodb-stream
     description: ADODB.Stream for file operations
     criticality: suspicious
     confidence: 0.85
@@ -126,7 +126,7 @@ traits:
         }
 
   # Schedule.Service (task scheduler)
-  - id: exec/windows/schedule-service
+  - id: schedule-service
     description: Task Scheduler COM object access
     criticality: suspicious
     confidence: 0.9
@@ -144,7 +144,7 @@ traits:
         }
 
   # Registry manipulation via scripting
-  - id: exec/windows/registry-scripting
+  - id: registry-scripting
     description: Registry manipulation via scripting
     criticality: suspicious
     confidence: 0.85
@@ -166,7 +166,7 @@ traits:
         }
 
   # Windows Script Host dropper
-  - id: exec/windows/wsh-dropper
+  - id: wsh-dropper
     description: Windows Script Host dropper pattern
     criticality: hostile
     confidence: 0.95

@@ -1,0 +1,69 @@
+# NPM Malicious Package Patterns (Supply-Chain Specific)
+# ATT&CK: T1195.002 (Supply Chain Compromise)
+# These patterns are specific to npm supply-chain attacks, not generic behaviors
+
+traits:
+  # NPM preinstall/postinstall abuse with dropper behavior
+  - id: lifecycle-dropper
+    description: NPM lifecycle script with dropper pattern
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1195.002"
+    file_types: [packagejson]
+    condition:
+      type: yara
+      source: |
+        rule npm_lifecycle_dropper {
+          strings:
+            // Lifecycle hooks
+            $hook1 = "preinstall" ascii
+            $hook2 = "postinstall" ascii
+            // Download commands
+            $cmd1 = "curl " ascii
+            $cmd2 = "wget " ascii
+            // Pipe to shell
+            $exec1 = "| bash" ascii
+            $exec2 = "| sh" ascii
+            $exec3 = "| node" ascii
+          condition:
+            any of ($hook*) and any of ($cmd*) and any of ($exec*)
+        }
+
+  # NPM package with inline node eval in hooks
+  - id: hook-node-eval
+    description: NPM install hook with node -e inline execution
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1059.007"
+    file_types: [packagejson]
+    condition:
+      type: yara
+      source: |
+        rule npm_hook_node_eval {
+          strings:
+            $hook1 = "preinstall" ascii
+            $hook2 = "postinstall" ascii
+            $node_e = "node -e" ascii
+            $node_eval = "node --eval" ascii
+          condition:
+            any of ($hook*) and any of ($node_e, $node_eval)
+        }
+
+  # Install hook spawns child process
+  - id: hook-child-process
+    description: NPM install hook using child_process module
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1195.002"
+    file_types: [packagejson]
+    condition:
+      type: yara
+      source: |
+        rule npm_hook_child_process {
+          strings:
+            $hook1 = "preinstall" ascii
+            $hook2 = "postinstall" ascii
+            $cp = "child_process" ascii
+          condition:
+            any of ($hook*) and $cp
+        }

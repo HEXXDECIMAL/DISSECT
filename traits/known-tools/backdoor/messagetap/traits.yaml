@@ -1,0 +1,60 @@
+# Malware Family - MessageTap (APT41)
+# Reference: https://malpedia.caad.fkie.fraunhofer.de/details/elf.messagetap
+# ATT&CK: T1040 (Network Sniffing)
+
+traits:
+  - id: backdoor/messagetap/global-code-tag
+    description: MessageTap operation tag
+    criticality: hostile
+    confidence: 0.99
+    family: true
+    attack: "T1040"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "Operation_Global_Code_tag"
+
+  - id: backdoor/messagetap/sms-intercept
+    description: MessageTap SMS intercept log
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    attack: "T1040"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "send sms from %s imsi:%s"
+
+  - id: backdoor/messagetap/tcap-parse
+    description: MessageTap TCAP dialogue parser
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    attack: "T1040"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "tcap parse begin Dialogue"
+
+composite_rules:
+  - id: backdoor/messagetap/detected
+    description: MessageTap SMS interception malware
+    criticality: hostile
+    confidence: 0.99
+    family: true
+    reference: "https://malpedia.caad.fkie.fraunhofer.de/details/elf.messagetap"
+    attack: "T1040"
+    mbc: "B0022"
+    file_types: [elf]
+    condition:
+      type: yara
+      source: |
+        rule messagetap {
+          strings:
+            $tag = "Operation_Global_Code_tag"
+            $sms = "send sms from %s imsi:%s"
+            $dialog = "tcap parse begin Dialogue"
+          condition:
+            uint32(0) == 0x464C457F and
+            filesize < 512KB and all of them
+        }

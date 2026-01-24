@@ -3,7 +3,7 @@
 # ATT&CK: T1071.001
 
 traits:
-  - id: http/post
+  - id: post
     description: Makes HTTP POST requests
     criticality: notable
     confidence: 0.66
@@ -13,7 +13,7 @@ traits:
       type: string
       regex: "(POST|http\\.post|requests\\.post)"
 
-  - id: http/post-form
+  - id: post-form
     description: HTTP form data upload
     criticality: notable
     confidence: 0.66

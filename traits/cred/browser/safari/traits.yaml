@@ -5,7 +5,7 @@
 traits:
   # === Path/File References ===
 
-  - id: credential/browser/safari/cookies-path
+  - id: cookies-path
     description: macOS system cookies path
     criticality: suspicious
     confidence: 0.8
@@ -15,7 +15,7 @@ traits:
       type: string
       exact: "/Library/Cookies"
 
-  - id: credential/browser/safari/binarycookies
+  - id: binarycookies
     description: macOS binary cookies file
     criticality: suspicious
     confidence: 0.8
@@ -25,7 +25,7 @@ traits:
       type: string
       exact: ".binarycookies"
 
-  - id: credential/browser/safari/cookies-binarycookies
+  - id: cookies-binarycookies
     description: Safari Cookies.binarycookies file
     criticality: suspicious
     confidence: 0.85
@@ -35,7 +35,7 @@ traits:
       type: string
       exact: "Cookies.binarycookies"
 
-  - id: credential/browser/safari/history-db
+  - id: history-db
     description: Safari History.db file
     criticality: suspicious
     confidence: 0.8
@@ -45,7 +45,7 @@ traits:
       type: string
       exact: "History.db"
 
-  - id: credential/browser/safari/localstorage
+  - id: localstorage
     description: Safari LocalStorage path
     criticality: suspicious
     confidence: 0.75
@@ -56,7 +56,7 @@ traits:
       exact: "Safari/LocalStorage"
 
 composite_rules:
-  - id: credential/browser/safari/cookie-theft
+  - id: cookie-theft
     description: Safari cookie theft
     criticality: suspicious
     confidence: 0.85

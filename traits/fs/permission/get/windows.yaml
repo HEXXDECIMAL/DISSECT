@@ -3,7 +3,7 @@
 # ATT&CK: T1083
 
 traits:
-  - id: fs/permission/get-icacls
+  - id: get-icacls
     description: Look up file permissions via icacls
     criticality: inert
     confidence: 0.66

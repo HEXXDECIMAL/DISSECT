@@ -1,0 +1,167 @@
+# Malware Family - Mirai IoT Botnet
+# Reference: https://www.cloudflare.com/learning/ddos/glossary/mirai-botnet/
+# ATT&CK: T1583.005 (Botnet)
+
+composite_rules:
+  # === Behavioral Traits (reusable) ===
+  # These are Mirai behaviors that could appear in variants
+
+  - id: botnet/mirai/cnc-connect
+    description: Mirai C2 connection function
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1071"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "connectToCNC"
+
+  - id: botnet/mirai/scanner-cookie
+    description: Mirai scanner module reference
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1046"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "__scan_cookie.c"
+
+  - id: botnet/mirai/anti-reinfect
+    description: Mirai anti-reinfection marker
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1480"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "been_there_done_that"
+
+  - id: botnet/mirai/dvr-helper
+    description: Mirai DVR exploitation helper
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1190"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "dvrHelper"
+
+  - id: botnet/mirai/brand-name
+    description: Mirai botnet brand string
+    criticality: hostile
+    confidence: 0.9
+    family: true
+    attack: "T1583.005"
+    file_types: [elf]
+    condition:
+      type: string
+      regex: "\\bMIRAI\\b"
+
+  # === Family Artifacts (signature-based) ===
+
+  - id: botnet/mirai/read-module
+    description: Mirai _READ.c module
+    criticality: suspicious
+    confidence: 0.8
+    family: true
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "_READ.c"
+
+  - id: botnet/mirai/write-module
+    description: Mirai _WRITE.c module
+    criticality: suspicious
+    confidence: 0.8
+    family: true
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "_WRITE.c"
+
+  - id: botnet/mirai/killer-module
+    description: Mirai killer module
+    criticality: hostile
+    confidence: 0.9
+    family: true
+    attack: "T1489"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "killer_init"
+
+  - id: botnet/mirai/attack-module
+    description: Mirai attack module
+    criticality: hostile
+    confidence: 0.9
+    family: true
+    attack: "T1498"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "attack_init"
+
+  # Main Mirai detection - uses YARA for filesize/magic constraints
+  - id: botnet/mirai/detected
+    description: Mirai IoT botnet
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    reference: "https://www.cloudflare.com/learning/ddos/glossary/mirai-botnet/"
+    attack: "T1583.005"
+    mbc: "OB0004"
+    file_types: [elf]
+    condition:
+      type: yara
+      source: |
+        rule mirai_botnet {
+          strings:
+            $proc1 = "/proc/%d"
+            $proc2 = "/proc/cpuinfo"
+            $proc3 = "/proc/self/fd"
+            $cnc = "connectToCNC"
+            $scanner = "__scan_cookie.c"
+            $marker = "been_there_done_that"
+            $read = "_READ.c"
+            $write = "_WRITE.c"
+            $killer = "killer_init"
+            $attack = "attack_init"
+          condition:
+            uint32(0) == 0x464C457F and
+            filesize > 40KB and filesize < 150KB and
+            6 of them
+        }
+
+  # Mirai DVR helper variant
+  - id: botnet/mirai/dvr-helper-detected
+    description: Mirai DVR exploitation helper
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    attack: "T1190"
+    file_types: [elf]
+    requires_all:
+      - type: trait
+        id: botnet/mirai/brand-name
+      - type: trait
+        id: botnet/mirai/dvr-helper
+      - type: string
+        exact: "HTTP/1.0"
+
+  # Behavioral variant detection (no brand string)
+  - id: botnet/mirai/variant
+    description: Mirai botnet variant (behavioral match)
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1583.005"
+    file_types: [elf]
+    requires_all:
+      - type: trait
+        id: botnet/mirai/cnc-connect
+    requires_any:
+      - type: trait
+        id: botnet/mirai/scanner-cookie
+      - type: trait
+        id: botnet/mirai/anti-reinfect
+      - type: trait
+        id: botnet/mirai/killer-module

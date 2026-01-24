@@ -2,7 +2,7 @@
 # ATT&CK: T1556.003 (Modify Authentication Process: Pluggable Authentication Modules)
 
 traits:
-  - id: credential/pam/interceptor
+  - id: interceptor
     description: "Accesses PAM authentication tokens (potential credential stealer)"
     criticality: suspicious
     confidence: 0.8

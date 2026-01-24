@@ -3,7 +3,7 @@
 # ATT&CK: T1027 (Obfuscated Files or Information)
 
 composite_rules:
-  - id: anti-static/hardening/detection/stripped-binary
+  - id: stripped-binary
     description: "Binary has symbol table stripped"
     criticality: notable
     confidence: 0.7
@@ -12,7 +12,7 @@ composite_rules:
       type: structure
       feature: "binary/stripped"
 
-  - id: anti-static/hardening/detection/static-linked
+  - id: static-linked
     description: "Statically linked binary (self-contained)"
     criticality: notable
     confidence: 0.7
@@ -21,7 +21,7 @@ composite_rules:
       type: structure
       feature: "binary/static"
 
-  - id: anti-static/hardening/detection/no-pie
+  - id: no-pie
     description: "Binary not position-independent (no ASLR)"
     criticality: notable
     confidence: 0.6
@@ -30,7 +30,7 @@ composite_rules:
       type: structure
       feature: "binary/no-pie"
 
-  - id: anti-static/hardening/detection/no-nx
+  - id: no-nx
     description: "Binary lacks NX/DEP protection (executable stack)"
     criticality: notable
     confidence: 0.7
@@ -40,7 +40,7 @@ composite_rules:
       type: structure
       feature: "binary/no-nx"
 
-  - id: anti-static/hardening/minimal
+  - id: minimal
     description: "Binary lacks security hardening (stripped + static)"
     criticality: suspicious
     confidence: 0.8

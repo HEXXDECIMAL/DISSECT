@@ -2,7 +2,7 @@
 # ATT&CK: T1491 (Defacement)
 
 traits:
-  - id: impact/ui/dock-hide
+  - id: dock-hide
     description: macOS dock hiding
     criticality: suspicious
     confidence: 0.9
@@ -12,7 +12,7 @@ traits:
       type: string
       regex: "(?i)(hideDock|applicationWillHide)"
 
-  - id: impact/ui/screencapture
+  - id: screencapture
     description: macOS screencapture command
     criticality: suspicious
     confidence: 0.85
@@ -22,7 +22,7 @@ traits:
       type: string
       exact: "screencapture"
 
-  - id: impact/ui/pil-imagegrab
+  - id: pil-imagegrab
     description: Python PIL screenshot capture
     criticality: suspicious
     confidence: 0.85
@@ -32,7 +32,7 @@ traits:
       type: string
       exact: "ImageGrab"
 
-  - id: impact/ui/cg-window-capture
+  - id: cg-window-capture
     description: macOS CGWindow capture
     criticality: suspicious
     confidence: 0.85
@@ -42,7 +42,7 @@ traits:
       type: string
       exact: "CGWindowListCreateImageFromArray"
 
-  - id: impact/ui/screensaver-engine
+  - id: screensaver-engine
     description: macOS ScreenSaver control
     criticality: suspicious
     confidence: 0.8
@@ -52,7 +52,7 @@ traits:
       type: string
       exact: "ScreenSaverEngine"
 
-  - id: impact/ui/system-events
+  - id: system-events
     description: macOS System Events control
     criticality: suspicious
     confidence: 0.8
@@ -62,7 +62,7 @@ traits:
       type: string
       exact: "tell application \"System Events\""
 
-  - id: impact/ui/window-watcher
+  - id: window-watcher
     description: macOS window/application monitoring
     criticality: suspicious
     confidence: 0.9
@@ -72,7 +72,7 @@ traits:
       type: string
       exact: "frontmostApplication"
 
-  - id: impact/ui/screen-locked
+  - id: screen-locked
     description: macOS screen lock detection
     criticality: suspicious
     confidence: 0.8
@@ -82,7 +82,7 @@ traits:
       type: string
       exact: "CGSSessionScreenIsLocked"
 
-  - id: impact/ui/x11-auth
+  - id: x11-auth
     description: X11 authentication cookie
     criticality: suspicious
     confidence: 0.8
@@ -92,7 +92,7 @@ traits:
       type: string
       exact: "MIT-MAGIC-COOKIE-1"
 
-  - id: impact/ui/xsession
+  - id: xsession
     description: Xsession reference
     criticality: suspicious
     confidence: 0.75
@@ -103,7 +103,7 @@ traits:
       exact: "Xsession"
 
 composite_rules:
-  - id: impact/ui/macos-spy-detected
+  - id: macos-spy-detected
     description: macOS UI spying
     criticality: suspicious
     confidence: 0.95

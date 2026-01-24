@@ -5,7 +5,7 @@
 
 traits:
   # Crypto Module Import
-  - id: crypto/symmetric/aes/crypto-require
+  - id: crypto-require
     description: Node.js crypto module import
     criticality: inert
     confidence: 0.9
@@ -15,7 +15,7 @@ traits:
       regex: "require\\(['\"]crypto['\"]\\)|from ['\"]crypto['\"]"
 
   # Cipher Creation
-  - id: crypto/symmetric/aes/createCipheriv
+  - id: createCipheriv
     description: Create cipher with IV (symmetric encryption)
     criticality: notable
     confidence: 0.85
@@ -26,7 +26,7 @@ traits:
       node_type: call_expression
       pattern: "createCipheriv"
 
-  - id: crypto/symmetric/aes/createDecipheriv
+  - id: createDecipheriv
     description: Create decipher with IV (symmetric decryption)
     criticality: notable
     confidence: 0.85
@@ -38,7 +38,7 @@ traits:
       pattern: "createDecipheriv"
 
   # Specific AES Modes
-  - id: crypto/symmetric/aes/aes-128-ctr
+  - id: aes-128-ctr
     description: AES-128-CTR encryption (stream cipher mode)
     criticality: notable
     confidence: 0.85
@@ -48,7 +48,7 @@ traits:
       type: string
       regex: "aes-128-ctr|aes128ctr"
 
-  - id: crypto/symmetric/aes/aes-256-cbc
+  - id: aes-256-cbc
     description: AES-256-CBC encryption
     criticality: notable
     confidence: 0.85
@@ -58,7 +58,7 @@ traits:
       type: string
       regex: "aes-256-cbc|aes256cbc"
 
-  - id: crypto/symmetric/aes/aes-256-gcm
+  - id: aes-256-gcm
     description: AES-256-GCM authenticated encryption
     criticality: notable
     confidence: 0.85
@@ -69,7 +69,7 @@ traits:
       regex: "aes-256-gcm|aes256gcm"
 
   # Encryption with Network Activity
-  - id: crypto/symmetric/aes/encrypted-c2
+  - id: encrypted-c2
     description: AES encryption combined with network requests (encrypted C2)
     criticality: suspicious
     confidence: 0.9
@@ -94,7 +94,7 @@ traits:
         }
 
   # Key/IV Handling
-  - id: crypto/symmetric/aes/hardcoded-key
+  - id: hardcoded-key
     description: Hardcoded encryption key pattern
     criticality: suspicious
     confidence: 0.8
@@ -113,7 +113,7 @@ traits:
         }
 
   # Compression with Encryption
-  - id: crypto/symmetric/aes/gzip-with-crypto
+  - id: gzip-with-crypto
     description: Gzip compression with encryption (obfuscated payload)
     criticality: suspicious
     confidence: 0.85

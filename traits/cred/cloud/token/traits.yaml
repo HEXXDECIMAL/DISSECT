@@ -7,21 +7,21 @@ defaults:
 
 composite_rules:
   # === Atomic: AWS ===
-  - id: credential/cloud/aws-config
+  - id: aws-config
     description: AWS configuration directory
     confidence: 0.75
     condition:
       type: string
       exact: ".aws"
 
-  - id: credential/cloud/aws-credentials-file
+  - id: aws-credentials-file
     description: AWS credentials file path
     confidence: 0.8
     condition:
       type: string
       regex: "\\.aws/credentials"
 
-  - id: credential/cloud/aws-access-key
+  - id: aws-access-key
     description: AWS access key ID pattern
     confidence: 0.85
     condition:
@@ -29,14 +29,14 @@ composite_rules:
       regex: "AKIA[0-9A-Z]{16}"
 
   # === Atomic: GCP ===
-  - id: credential/cloud/gcloud-config
+  - id: gcloud-config
     description: GCloud configuration directory
     confidence: 0.75
     condition:
       type: string
       exact: ".config/gcloud"
 
-  - id: credential/cloud/gcp-default-credentials
+  - id: gcp-default-credentials
     description: GCP application default credentials
     confidence: 0.8
     condition:
@@ -44,7 +44,7 @@ composite_rules:
       exact: "application_default_credentials.json"
 
   # === Atomic: Azure ===
-  - id: credential/cloud/azure-config
+  - id: azure-config
     description: Azure CLI configuration directory
     confidence: 0.75
     condition:
@@ -52,14 +52,14 @@ composite_rules:
       exact: ".azure"
 
   # === Atomic: Environment Files ===
-  - id: credential/cloud/dotenv-request
+  - id: dotenv-request
     description: HTTP request for .env file
     confidence: 0.85
     condition:
       type: string
       exact: "GET /.env"
 
-  - id: credential/cloud/dotenv-file
+  - id: dotenv-file
     description: .env file reference
     criticality: notable
     confidence: 0.5
@@ -68,7 +68,7 @@ composite_rules:
       regex: "\\.env\\b"
 
   # === Composite Rules ===
-  - id: credential/cloud/aws-credential-theft
+  - id: aws-credential-theft
     description: AWS credential theft
     confidence: 0.85
     requires_any:
@@ -80,7 +80,7 @@ composite_rules:
       - type: trait
         id: credential/cloud/aws-config
 
-  - id: credential/cloud/gcp-credential-theft
+  - id: gcp-credential-theft
     description: GCP credential theft
     confidence: 0.85
     requires_all:
@@ -92,7 +92,7 @@ composite_rules:
 
 traits:
   # AWS Instance Metadata Service (IMDS) access
-  - id: credential/cloud/aws-imds-access
+  - id: aws-imds-access
     description: AWS metadata service access (credential theft)
     criticality: hostile
     confidence: 0.95
@@ -103,7 +103,7 @@ traits:
       regex: "169\\.254\\.169\\.254|instance-data/latest/meta-data|iam/security-credentials"
 
   # GCP metadata service access
-  - id: credential/cloud/gcp-metadata-access
+  - id: gcp-metadata-access
     description: GCP metadata service access (credential theft)
     criticality: hostile
     confidence: 0.95
@@ -114,7 +114,7 @@ traits:
       regex: "metadata\\.google\\.internal|computeMetadata/v1"
 
   # Azure IMDS access
-  - id: credential/cloud/azure-imds-access
+  - id: azure-imds-access
     description: Azure metadata service access (credential theft)
     criticality: hostile
     confidence: 0.95

@@ -2,7 +2,7 @@
 # ATT&CK: T1082 (System Information Discovery)
 
 traits:
-  - id: hw/cpu/info/macos-cpuinfo
+  - id: macos-cpuinfo
     description: macOS CPU information query
     criticality: notable
     confidence: 0.7

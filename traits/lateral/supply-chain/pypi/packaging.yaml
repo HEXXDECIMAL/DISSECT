@@ -1,0 +1,60 @@
+# PyPI Package Distribution Patterns
+# Detects Python packaging mechanisms (setuptools, distutils)
+# These help identify setup.py context for supply-chain analysis
+
+defaults:
+  file_types: [python]
+  criticality: notable
+
+traits:
+  # setuptools usage
+  - id: setuptools
+    description: "Python package distribution (setuptools)"
+    confidence: 0.8
+    condition:
+      type: string
+      regex: "from\\s+setuptools\\s+import|import\\s+setuptools"
+
+  # distutils usage (older)
+  - id: distutils
+    description: "Python package distribution (distutils)"
+    confidence: 0.8
+    condition:
+      type: string
+      regex: "from\\s+distutils"
+
+  # setup() function call
+  - id: setup-call
+    description: "Python package setup() definition"
+    confidence: 0.85
+    condition:
+      type: ast_pattern
+      node_type: call
+      pattern: "setup("
+
+  # Package metadata
+  - id: metadata
+    description: "Python package metadata definition"
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "author\\s*=|version\\s*=|description\\s*=|packages\\s*="
+
+  # Directory masquerading (evasion technique)
+  - id: directory-masquerade
+    description: Directory masquerading as file (e.g. file.py/file.py)
+    criticality: suspicious
+    confidence: 0.8
+    file_types: [all]
+    condition:
+      type: string
+      regex: "os\\.path\\.join\\(.*\\.py.*\\)"
+
+  # cmdclass override (custom install commands)
+  - id: cmdclass-override
+    description: Custom install command class override
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: string
+      regex: "cmdclass\\s*=\\s*\\{|class\\s+\\w+\\(install\\)"

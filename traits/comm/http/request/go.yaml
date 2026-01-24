@@ -3,7 +3,7 @@
 # ATT&CK: T1071.001
 
 traits:
-  - id: http/request/go-http-newrequest
+  - id: go-http-newrequest
     description: Creates a new HTTP request in Go
     criticality: notable
     confidence: 0.9
@@ -15,7 +15,7 @@ traits:
       node_type: call_expression
       pattern: "http.NewRequest"
 
-  - id: http/request/go-http-client-do
+  - id: go-http-client-do
     description: Executes an HTTP request in Go
     criticality: notable
     confidence: 0.9
@@ -27,7 +27,7 @@ traits:
       node_type: call_expression
       pattern: ".Do("
 
-  - id: http/request/go-http-header-auth
+  - id: go-http-header-auth
     description: Sets Authorization header in Go
     criticality: suspicious
     confidence: 0.95

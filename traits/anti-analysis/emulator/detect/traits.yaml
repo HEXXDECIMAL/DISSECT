@@ -5,7 +5,7 @@
 traits:
   # Single VM vendor strings are notable - network tools legitimately know about VMware
   # Multiple vendor checks indicate deliberate VM detection (see combos.yaml)
-  - id: anti-analysis/emulator/detect/vmware-string
+  - id: vmware-string
     description: VMware vendor string detection
     criticality: notable
     mbc: "B0009"
@@ -15,7 +15,7 @@ traits:
       type: string
       exact: "VMware"
 
-  - id: anti-analysis/emulator/detect/virtualbox-string
+  - id: virtualbox-string
     description: VirtualBox vendor string detection
     criticality: notable
     mbc: "B0009"
@@ -26,7 +26,7 @@ traits:
       regex: "(VirtualBox|VBOX)"
       case_insensitive: true
 
-  - id: anti-analysis/emulator/detect/qemu-string
+  - id: qemu-string
     description: QEMU vendor string detection
     criticality: notable
     mbc: "B0009"
@@ -36,7 +36,7 @@ traits:
       type: string
       regex: "(QEMU|qemu)"
 
-  - id: anti-analysis/emulator/detect/vm-hardware
+  - id: vm-hardware
     description: VM-specific hardware strings
     criticality: notable
     mbc: "B0009"
@@ -50,7 +50,7 @@ traits:
   # Removed: sysctl is a standard system API, not inherently VM detection
   # macOS tools legitimately use sysctl for system information
 
-  - id: anti-analysis/emulator/detect/cpu-vendor
+  - id: cpu-vendor
     description: CPU vendor string checks (Intel/AMD vs VM)
     criticality: notable
     mbc: "B0009"

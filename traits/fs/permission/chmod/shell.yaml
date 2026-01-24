@@ -3,7 +3,7 @@
 # ATT&CK: T1222
 
 traits:
-  - id: fs/permission/chmod-world-write
+  - id: chmod-world-write
     description: Makes file world-writable (666)
     criticality: suspicious
     confidence: 0.66
@@ -18,7 +18,7 @@ traits:
             filesize < 50MB and any of them
         }
 
-  - id: fs/permission/chmod-world-exec
+  - id: chmod-world-exec
     description: Makes file world-writable and executable (777)
     criticality: suspicious
     confidence: 0.66

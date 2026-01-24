@@ -5,7 +5,7 @@
 traits:
   # === Atomic: SSH Attack Terminology ===
 
-  - id: lateral/ssh/attack-ref
+  - id: attack-ref
     description: SSH attack function/variable reference
     criticality: suspicious
     confidence: 0.9
@@ -17,7 +17,7 @@ traits:
 
   # === Atomic: SSH Configuration Abuse ===
 
-  - id: lateral/ssh/dot-ssh-ref
+  - id: dot-ssh-ref
     description: References .ssh directory
     criticality: notable
     confidence: 0.5
@@ -27,7 +27,7 @@ traits:
       type: string
       exact: ".ssh"
 
-  - id: lateral/ssh/strict-host-disable
+  - id: strict-host-disable
     description: StrictHostKeyChecking reference (bypass host verification)
     criticality: suspicious
     confidence: 0.75
@@ -37,7 +37,7 @@ traits:
       type: string
       exact: "StrictHostKeyChecking"
 
-  - id: lateral/ssh/known-hosts-bypass
+  - id: known-hosts-bypass
     description: UserKnownHostsFile reference (bypass known hosts)
     criticality: suspicious
     confidence: 0.75
@@ -47,7 +47,7 @@ traits:
       type: string
       exact: "UserKnownHostsFile"
 
-  - id: lateral/ssh/connect-timeout
+  - id: connect-timeout
     description: ConnectTimeout reference (scripted SSH)
     criticality: notable
     confidence: 0.6
@@ -59,7 +59,7 @@ traits:
 
   # === Atomic: SSH Key Files ===
 
-  - id: lateral/ssh/key-id-rsa
+  - id: key-id-rsa
     description: References id_rsa private key
     criticality: suspicious
     confidence: 0.7
@@ -69,7 +69,7 @@ traits:
       type: string
       exact: "id_rsa"
 
-  - id: lateral/ssh/key-pem
+  - id: key-pem
     description: References .pem key file
     criticality: notable
     confidence: 0.6
@@ -79,7 +79,7 @@ traits:
       type: string
       exact: ".pem"
 
-  - id: lateral/ssh/key-identity-file
+  - id: key-identity-file
     description: IdentityFile SSH config option
     criticality: notable
     confidence: 0.6
@@ -91,7 +91,7 @@ traits:
 
   # === Atomic: SSH Target Discovery ===
 
-  - id: lateral/ssh/authorized-keys
+  - id: authorized-keys
     description: References authorized_keys file
     criticality: notable
     confidence: 0.6
@@ -101,7 +101,7 @@ traits:
       type: string
       exact: "authorized_keys"
 
-  - id: lateral/ssh/known-hosts-file
+  - id: known-hosts-file
     description: References known_hosts file
     criticality: notable
     confidence: 0.6
@@ -111,7 +111,7 @@ traits:
       type: string
       exact: "known_hosts"
 
-  - id: lateral/ssh/ssh-config-parse
+  - id: ssh-config-parse
     description: Parses SSH config for hostnames
     criticality: suspicious
     confidence: 0.8
@@ -121,7 +121,7 @@ traits:
       type: string
       regex: "grep.*HostName.*/\\.ssh/config"
 
-  - id: lateral/ssh/bash-history-ssh
+  - id: bash-history-ssh
     description: Extracts SSH targets from bash history
     criticality: suspicious
     confidence: 0.85
@@ -131,7 +131,7 @@ traits:
       type: string
       regex: "(scp|ssh).{2,64}bash_history"
 
-  - id: lateral/ssh/getent-hosts
+  - id: getent-hosts
     description: Uses getent for host discovery
     criticality: suspicious
     confidence: 0.75

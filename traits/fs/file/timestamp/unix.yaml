@@ -3,7 +3,7 @@
 # ATT&CK: T1070.006
 
 traits:
-  - id: fs/file/timestamp
+  - id: timestamp
     description: Modify file timestamps
     criticality: notable
     confidence: 0.66

@@ -4,7 +4,7 @@
 traits:
   # === Atomic: LocalStorage ===
 
-  - id: collect/browser/localstorage-get
+  - id: localstorage-get
     description: Browser localStorage access
     criticality: notable
     confidence: 0.7
@@ -16,7 +16,7 @@ traits:
       node_type: call_expression
       pattern: "localStorage.get"
 
-  - id: collect/browser/localstorage-set
+  - id: localstorage-set
     description: Browser localStorage write
     criticality: notable
     confidence: 0.6
@@ -30,7 +30,7 @@ traits:
 
   # === Atomic: IndexedDB ===
 
-  - id: collect/browser/indexeddb
+  - id: indexeddb
     description: Browser IndexedDB access
     criticality: notable
     confidence: 0.6
@@ -44,7 +44,7 @@ traits:
 
   # === Atomic: Analytics ===
 
-  - id: collect/browser/google-analytics-id
+  - id: google-analytics-id
     description: Hardcoded Google Analytics ID
     criticality: suspicious
     confidence: 0.8

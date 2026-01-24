@@ -4,7 +4,7 @@
 
 traits:
   # ESXi VM enumeration
-  - id: impact/ransomware/esxi/vm-enumeration
+  - id: vm-enumeration
     description: ESXi virtual machine enumeration
     criticality: suspicious
     confidence: 0.85
@@ -26,7 +26,7 @@ traits:
         }
 
   # ESXi VM termination
-  - id: impact/ransomware/esxi/vm-kill
+  - id: vm-kill
     description: ESXi virtual machine termination
     criticality: hostile
     confidence: 0.9
@@ -50,7 +50,7 @@ traits:
         }
 
   # ESXi snapshot manipulation
-  - id: impact/ransomware/esxi/snapshot
+  - id: snapshot
     description: ESXi snapshot removal for encryption
     criticality: hostile
     confidence: 0.9
@@ -74,7 +74,7 @@ traits:
         }
 
   # ESXi file targeting
-  - id: impact/ransomware/esxi/file-targeting
+  - id: file-targeting
     description: ESXi-specific file extension targeting
     criticality: suspicious
     confidence: 0.85
@@ -102,7 +102,7 @@ traits:
         }
 
   # ESXi CLI tools usage
-  - id: impact/ransomware/esxi/cli-tools
+  - id: cli-tools
     description: ESXi CLI tools for attack operations
     criticality: suspicious
     confidence: 0.8
@@ -125,7 +125,7 @@ traits:
         }
 
   # ESXi version detection
-  - id: impact/ransomware/esxi/version-detect
+  - id: version-detect
     description: ESXi version detection for compatibility
     criticality: notable
     confidence: 0.7
@@ -146,7 +146,7 @@ traits:
         }
 
   # ESXi datastore access
-  - id: impact/ransomware/esxi/datastore-access
+  - id: datastore-access
     description: ESXi datastore enumeration and access
     criticality: suspicious
     confidence: 0.8
@@ -168,7 +168,7 @@ traits:
 
 composite_rules:
   # Full ESXi ransomware targeting
-  - id: impact/ransomware/esxi/full-attack
+  - id: full-attack
     description: ESXi-targeted ransomware attack chain
     criticality: hostile
     confidence: 0.95

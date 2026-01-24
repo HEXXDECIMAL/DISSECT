@@ -3,7 +3,7 @@
 # ATT&CK: T1083
 
 traits:
-  - id: fs/temp/pyinstaller-meipass
+  - id: pyinstaller-meipass
     description: References PyInstaller bundle folder
     criticality: inert
     confidence: 0.66

@@ -3,7 +3,7 @@
 
 traits:
   # IRC bot C2
-  - id: c2/irc/bot-logic
+  - id: bot-logic
     description: IRC-based command and control logic
     criticality: suspicious
     confidence: 0.8
@@ -24,7 +24,7 @@ traits:
         }
 
   # Tsunami/Kaiten IRC bot artifacts
-  - id: malware/bot/irc/tsunami-artifact
+  - id: tsunami-artifact
     description: Tsunami/Kaiten IRC bot identifier
     criticality: notable
     confidence: 0.7
@@ -39,7 +39,7 @@ traits:
             any of them
         }
 
-  - id: comm/attack/flood/irc-ddos
+  - id: irc-ddos
     description: IRC-controlled DDoS attack logic
     criticality: hostile
     confidence: 0.9

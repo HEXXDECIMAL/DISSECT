@@ -3,7 +3,7 @@
 # ATT&CK: T1014
 
 traits:
-  - id: evasion/rootkit
+  - id: rootkit
     description: Linux rootkit patterns
     criticality: suspicious
     confidence: 0.66

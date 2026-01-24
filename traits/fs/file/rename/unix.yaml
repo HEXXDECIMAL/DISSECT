@@ -3,7 +3,7 @@
 # ATT&CK: T1105
 
 traits:
-  - id: fs/file/rename
+  - id: rename
     description: Rename files
     criticality: inert
     confidence: 0.66

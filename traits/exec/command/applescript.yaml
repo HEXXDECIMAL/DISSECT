@@ -1,5 +1,5 @@
 traits:
-  - id: exec/command/applescript
+  - id: applescript
     description: "Executes shell commands via AppleScript"
     criticality: notable
     confidence: 1.0
@@ -7,7 +7,7 @@ traits:
       type: string
       exact: "do shell script"
 
-  - id: automation/applescript/tell
+  - id: tell
     description: "Controls other applications via AppleScript"
     criticality: notable
     confidence: 1.0
@@ -15,7 +15,7 @@ traits:
       type: string
       exact: "tell application"
 
-  - id: malware/applescript/lure
+  - id: lure
     description: "AppleScript social engineering lure (Compatibility Wizard)"
     criticality: hostile
     confidence: 1.0
@@ -23,7 +23,7 @@ traits:
       type: string
       regex: "(?i)Compatibility Wizard|compatibility issue|Missing required extensions"
 
-  - id: behavior/applescript/system-exec
+  - id: system-exec
     description: "AppleScript low-level system execution indicator"
     criticality: suspicious
     confidence: 0.8
@@ -31,7 +31,7 @@ traits:
       type: string
       regex: "sysoexec|sysoopen"
 
-  - id: behavior/applescript/app-reference
+  - id: app-reference
     description: "AppleScript references system applications"
     criticality: notable
     confidence: 0.7

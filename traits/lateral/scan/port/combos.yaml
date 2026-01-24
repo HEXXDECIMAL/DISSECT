@@ -4,7 +4,7 @@
 composite_rules:
   # === Network Scanner Detection ===
 
-  - id: lateral/scan/generic-scanner
+  - id: generic-scanner
     description: Generic network scanning tool
     criticality: suspicious
     confidence: 0.85
@@ -27,7 +27,7 @@ composite_rules:
       - type: trait
         id: lateral/scan/target-ref
 
-  - id: lateral/scan/root-scanner
+  - id: root-scanner
     description: Root exploitation scanner
     criticality: suspicious
     confidence: 0.9
@@ -45,7 +45,7 @@ composite_rules:
 
   # === IoT Credential Brute Force ===
 
-  - id: lateral/scan/iot-credential-attack
+  - id: iot-credential-attack
     description: IoT device credential attack (multiple default passwords)
     criticality: suspicious
     confidence: 0.9
@@ -75,7 +75,7 @@ composite_rules:
       - type: trait
         id: lateral/scan/iot-cred-vizxv
 
-  - id: lateral/scan/router-brute-force
+  - id: router-brute-force
     description: Router credential brute force attack
     criticality: suspicious
     confidence: 0.85
@@ -99,7 +99,7 @@ composite_rules:
 
   # === Random IP Scanning ===
 
-  - id: lateral/scan/random-ip-scanner
+  - id: random-ip-scanner
     description: Random IP address scanning
     criticality: suspicious
     confidence: 0.8

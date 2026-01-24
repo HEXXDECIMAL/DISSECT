@@ -3,7 +3,7 @@
 # ATT&CK: T1222
 
 traits:
-  - id: fs/quota/quotactl
+  - id: quotactl
     description: Manipulate disk quota
     criticality: notable
     confidence: 0.66

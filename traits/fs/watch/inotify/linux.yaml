@@ -3,7 +3,7 @@
 # ATT&CK: T1083
 
 traits:
-  - id: fs/watch/inotify
+  - id: inotify
     description: Monitor filesystem events via inotify
     criticality: inert
     confidence: 0.66

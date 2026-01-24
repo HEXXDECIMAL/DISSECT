@@ -3,7 +3,7 @@
 # ATT&CK: T1222
 
 traits:
-  - id: fs/link/hardlink
+  - id: hardlink
     description: Create hard file links
     criticality: notable
     confidence: 0.66

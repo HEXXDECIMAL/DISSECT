@@ -2,7 +2,7 @@
 # ATT&CK: T1082 (System Information Discovery)
 
 traits:
-  - id: hw/disk/info/dmidecode
+  - id: dmidecode
     description: Hardware info via dmidecode
     criticality: suspicious
     confidence: 0.75
@@ -12,7 +12,7 @@ traits:
       type: string
       regex: "dmidecode[\\s-]"
 
-  - id: hw/disk/info/gopsutil
+  - id: gopsutil
     description: Go disk info via gopsutil
     criticality: notable
     confidence: 0.6

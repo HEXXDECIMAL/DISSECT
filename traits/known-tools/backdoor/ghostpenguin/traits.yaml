@@ -1,0 +1,32 @@
+traits:
+  - id: ghostpenguin/c2-ip
+    description: "GhostPenguin C2 IP address"
+    criticality: hostile
+    confidence: 1.0
+    condition:
+      type: string
+      regex: "124[.]221[.]109[.]147|65[.]20[.]72[.]101"
+
+  - id: ghostpenguin/c2-domain
+    description: "GhostPenguin C2 domain"
+    criticality: hostile
+    confidence: 1.0
+    condition:
+      type: string
+      exact: "www.iytest.com"
+
+  - id: ghostpenguin/string-format
+    description: "GhostPenguin unique format strings"
+    criticality: hostile
+    confidence: 1.0
+    condition:
+      type: string
+      regex: 'Bytes == %d\r\n(LanIP|GateWay|OSInfo|MachineName|DomainName|Userame|OSBits):%s'
+
+  - id: ghostpenguin/class-name
+    description: "GhostPenguin internal class names"
+    criticality: suspicious
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "CBasicInfoGather|CTool|CMyRC5|CMyShowMessage"

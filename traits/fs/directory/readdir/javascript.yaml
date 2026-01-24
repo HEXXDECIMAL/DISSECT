@@ -3,7 +3,7 @@
 # ATT&CK: T1083
 
 traits:
-  - id: fs/directory/readdir-node
+  - id: readdir-node
     description: List directory contents (Node.js)
     criticality: inert
     confidence: 0.66

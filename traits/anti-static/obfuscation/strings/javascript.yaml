@@ -4,7 +4,7 @@
 
 traits:
   # fromCharCode obfuscation
-  - id: anti-static/obfuscation/strings/fromcharcode
+  - id: fromcharcode
     description: String obfuscation via fromCharCode
     criticality: notable
     confidence: 0.66
@@ -16,7 +16,7 @@ traits:
       exact: fromCharCode
 
   # Unicode escape sequences used to hide strings
-  - id: anti-static/obfuscation/strings/js-unicode-escape
+  - id: js-unicode-escape
     description: Unicode escape sequences used to hide strings
     criticality: suspicious
     confidence: 0.85
@@ -28,7 +28,7 @@ traits:
       regex: '(\\u[0-9a-fA-F]{4}){4,}'
 
   # Hex escape sequences
-  - id: anti-static/obfuscation/strings/js-hex-escape
+  - id: js-hex-escape
     description: Hex escape sequences used to hide strings
     criticality: notable
     confidence: 0.75
@@ -40,7 +40,7 @@ traits:
       regex: '(\\x[0-9a-fA-F]{2}){4,}'
 
   # Buffer.from with encoding
-  - id: anti-static/obfuscation/strings/js-buffer-decode
+  - id: js-buffer-decode
     description: Buffer.from used to decode strings at runtime
     criticality: notable
     confidence: 0.7
@@ -51,7 +51,7 @@ traits:
 
   # Hex-encoded URL in array (common npm malware pattern)
   # Pattern: array of hex strings that decode to URL parts
-  - id: anti-static/obfuscation/strings/hex-url-array
+  - id: hex-url-array
     description: Hex-encoded URL stored as array elements (C2 obfuscation)
     criticality: suspicious
     confidence: 0.9
@@ -77,7 +77,7 @@ traits:
         }
 
   # Base64-encoded content fetched and decoded
-  - id: anti-static/obfuscation/strings/remote-base64-decode
+  - id: remote-base64-decode
     description: Fetches remote content and decodes as base64 (payload delivery)
     criticality: suspicious
     confidence: 0.85
@@ -102,7 +102,7 @@ traits:
         }
 
   # Array join obfuscation
-  - id: anti-static/obfuscation/strings/js-array-join
+  - id: js-array-join
     description: Array join pattern used to construct strings
     criticality: notable
     confidence: 0.6
@@ -113,7 +113,7 @@ traits:
 
 composite_rules:
   # Unicode obfuscation with execution
-  - id: anti-static/obfuscation/strings/js-unicode-exec
+  - id: js-unicode-exec
     description: Unicode obfuscated string executed (evasion)
     criticality: hostile
     confidence: 0.95
@@ -126,7 +126,7 @@ composite_rules:
         regex: 'eval\(|Function\(|new Function'
 
   # Dynamic require with obfuscation
-  - id: anti-static/obfuscation/strings/js-dynamic-require
+  - id: js-dynamic-require
     description: Dynamic require with obfuscated module name
     criticality: suspicious
     confidence: 0.85

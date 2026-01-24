@@ -3,7 +3,7 @@
 # ATT&CK: T1027
 
 traits:
-  - id: anti-static/obfuscation/strings/python-hex
+  - id: python-hex
     description: "Detects hex-encoded string patterns"
     criticality: notable
     confidence: 0.7
@@ -18,7 +18,7 @@ traits:
             $hex
         }
 
-  - id: anti-static/obfuscation/strings/python-octal
+  - id: python-octal
     description: "Detects octal-encoded string patterns"
     criticality: notable
     confidence: 0.7
@@ -33,7 +33,7 @@ traits:
             $oct
         }
 
-  - id: anti-static/obfuscation/strings/python-chr
+  - id: python-chr
     description: "Character code manipulation (chr/ord)"
     criticality: notable
     confidence: 0.6
@@ -43,7 +43,7 @@ traits:
       regex: '\\b(chr|ord)\('
 
 composite_rules:
-  - id: anti-static/obfuscation/strings/execute-decoded-content
+  - id: execute-decoded-content
     description: "Direct execution of decoded content (Dynamic Dropper)"
     criticality: hostile
     confidence: 0.98
@@ -53,7 +53,7 @@ composite_rules:
       - type: string
         regex: 'b64decode|fromhex|bytes\.fromhex|bz2\.decompress|zlib\.decompress|marshal\.loads'
 
-  - id: anti-static/obfuscation/strings/python-encoded-pattern
+  - id: python-encoded-pattern
     description: "Detects encoded string patterns (hex or octal)"
     criticality: notable
     requires_any:
@@ -62,7 +62,7 @@ composite_rules:
       - type: trait
         id: anti-static/obfuscation/strings/python-octal
 
-  - id: anti-static/obfuscation/strings/obfuscated-execution
+  - id: obfuscated-execution
     description: "Direct execution of encoded string (Dynamic Dropper)"
     criticality: hostile
     confidence: 0.95
@@ -72,7 +72,7 @@ composite_rules:
       - type: trait
         id: anti-static/obfuscation/strings/python-encoded-pattern
 
-  - id: anti-static/obfuscation/strings/concatenated-execution
+  - id: concatenated-execution
     description: "String concatenation in execution sink (Evasion)"
     criticality: suspicious
     confidence: 0.85

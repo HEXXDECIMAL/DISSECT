@@ -3,7 +3,7 @@
 # ATT&CK: T1082
 
 traits:
-  - id: fs/swap/swapon
+  - id: swapon
     description: Start swapping to a file/device
     criticality: notable
     confidence: 0.66

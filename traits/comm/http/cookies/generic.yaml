@@ -3,7 +3,7 @@
 # ATT&CK: T1071.001
 
 traits:
-  - id: http/cookies
+  - id: cookies
     description: HTTP cookie handling
     criticality: inert
     confidence: 0.66

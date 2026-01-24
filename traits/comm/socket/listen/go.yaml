@@ -3,7 +3,7 @@
 # ATT&CK: T1071
 
 traits:
-  - id: socket/listen-go
+  - id: listen-go
     description: Listen on a socket (Go net.Listen)
     criticality: notable
     confidence: 0.66

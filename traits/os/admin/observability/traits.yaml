@@ -3,7 +3,7 @@
 
 traits:
   # Prometheus ecosystem
-  - id: admin/observability/prometheus
+  - id: prometheus
     description: Prometheus monitoring stack
     criticality: benign
     confidence: 0.9
@@ -29,7 +29,7 @@ traits:
         }
 
   # Grafana
-  - id: admin/observability/grafana
+  - id: grafana
     description: Grafana visualization
     criticality: benign
     confidence: 0.9
@@ -48,7 +48,7 @@ traits:
         }
 
   # OpenTelemetry
-  - id: admin/observability/opentelemetry
+  - id: opentelemetry
     description: OpenTelemetry instrumentation
     criticality: benign
     confidence: 0.9
@@ -68,7 +68,7 @@ traits:
         }
 
   # Elastic/ELK stack
-  - id: admin/observability/elastic
+  - id: elastic
     description: Elastic/ELK monitoring stack
     criticality: benign
     confidence: 0.9
@@ -93,7 +93,7 @@ traits:
         }
 
   # Datadog
-  - id: admin/observability/datadog
+  - id: datadog
     description: Datadog monitoring agent
     criticality: benign
     confidence: 0.9
@@ -112,7 +112,7 @@ traits:
         }
 
   # Fluentd/Fluent Bit
-  - id: admin/observability/fluentd
+  - id: fluentd
     description: Fluentd/Fluent Bit log collector
     criticality: benign
     confidence: 0.9

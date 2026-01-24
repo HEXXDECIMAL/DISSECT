@@ -1,7 +1,7 @@
 # Composite Debugger Detection Capabilities
 
 capabilities:
-  - id: anti-analysis/debugger/detect/win-basic
+  - id: win-basic
     description: Windows debugger detection (basic)
     criticality: suspicious
     mbc: "B0001"
@@ -15,7 +15,7 @@ capabilities:
       - type: trait
         id: win-unhandledexception
 
-  - id: anti-analysis/debugger/detect/win-comprehensive
+  - id: win-comprehensive
     description: Windows debugger/VM detection (multiple signals)
     criticality: suspicious
     mbc: "B0001"
@@ -32,7 +32,7 @@ capabilities:
       - type: trait
         id: win-queryperformance
 
-  - id: anti-analysis/debugger/detect/linux-comprehensive
+  - id: linux-comprehensive
     description: Linux debugger detection across multiple methods
     criticality: suspicious
     mbc: "B0001"
@@ -49,7 +49,7 @@ capabilities:
       - type: trait
         id: ptrace
 
-  - id: anti-analysis/debugger/detect/ptrace-self
+  - id: ptrace-self
     description: Anti-debugging via ptrace self-attachment
     criticality: suspicious
     mbc: "B0001.m01"

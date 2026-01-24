@@ -3,7 +3,7 @@
 # ATT&CK: T1071
 
 traits:
-  - id: socket/listen
+  - id: listen
     description: Listen on a socket
     criticality: notable
     confidence: 0.66

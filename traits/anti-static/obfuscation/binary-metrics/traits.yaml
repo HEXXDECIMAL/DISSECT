@@ -10,7 +10,7 @@ defaults:
 traits:
   # === Entropy-Based Detection ===
 
-  - id: anti-static/obfuscation/binary-metrics/high-overall-entropy
+  - id: high-overall-entropy
     description: "High overall file entropy (likely packed/encrypted)"
     criticality: suspicious
     confidence: 0.85
@@ -19,7 +19,7 @@ traits:
       field: binary.overall_entropy
       min: 7.0
 
-  - id: anti-static/obfuscation/binary-metrics/very-high-entropy
+  - id: very-high-entropy
     description: "Very high entropy (strongly indicates packing/encryption)"
     criticality: hostile
     confidence: 0.95
@@ -29,7 +29,7 @@ traits:
       field: binary.overall_entropy
       min: 7.5
 
-  - id: anti-static/obfuscation/binary-metrics/high-code-entropy
+  - id: high-code-entropy
     description: "High code section entropy (encrypted/packed code)"
     criticality: suspicious
     confidence: 0.8
@@ -39,7 +39,7 @@ traits:
       field: binary.code_entropy
       min: 7.0
 
-  - id: anti-static/obfuscation/binary-metrics/high-entropy-regions
+  - id: high-entropy-regions
     description: "Multiple high entropy regions"
     criticality: suspicious
     confidence: 0.75
@@ -48,7 +48,7 @@ traits:
       field: binary.high_entropy_regions
       min: 3
 
-  - id: anti-static/obfuscation/binary-metrics/entropy-variance-low
+  - id: entropy-variance-low
     description: "Low entropy variance (uniform packing)"
     criticality: notable
     confidence: 0.7
@@ -59,7 +59,7 @@ traits:
 
   # === Section Anomalies ===
 
-  - id: anti-static/obfuscation/binary-metrics/wx-sections
+  - id: wx-sections
     description: "Writable and executable sections (self-modifying code)"
     criticality: suspicious
     confidence: 0.9
@@ -69,7 +69,7 @@ traits:
       field: binary.wx_sections
       min: 1
 
-  - id: anti-static/obfuscation/binary-metrics/many-wx-sections
+  - id: many-wx-sections
     description: "Multiple W+X sections (packer pattern)"
     criticality: hostile
     confidence: 0.95
@@ -79,7 +79,7 @@ traits:
       field: binary.wx_sections
       min: 2
 
-  - id: anti-static/obfuscation/binary-metrics/high-section-name-entropy
+  - id: high-section-name-entropy
     description: "High entropy section names (packer signature)"
     criticality: suspicious
     confidence: 0.85
@@ -89,7 +89,7 @@ traits:
       field: binary.section_name_entropy
       min: 4.8
 
-  - id: anti-static/obfuscation/binary-metrics/few-sections
+  - id: few-sections
     description: "Very few sections (merged/stripped)"
     criticality: notable
     confidence: 0.6
@@ -98,7 +98,7 @@ traits:
       field: binary.section_count
       max: 3
 
-  - id: anti-static/obfuscation/binary-metrics/dominant-section
+  - id: dominant-section
     description: "Single section dominates file (packer pattern)"
     criticality: suspicious
     confidence: 0.75
@@ -110,7 +110,7 @@ traits:
 
   # === Import Anomalies ===
 
-  - id: anti-static/obfuscation/binary-metrics/no-imports
+  - id: no-imports
     description: "No imports (static linking or API resolution)"
     criticality: suspicious
     confidence: 0.7
@@ -119,7 +119,7 @@ traits:
       field: binary.import_count
       max: 0
 
-  - id: anti-static/obfuscation/binary-metrics/few-imports
+  - id: few-imports
     description: "Very few imports (loader stub pattern)"
     criticality: notable
     confidence: 0.6
@@ -128,7 +128,7 @@ traits:
       field: binary.import_count
       max: 5
 
-  - id: anti-static/obfuscation/binary-metrics/high-import-entropy
+  - id: high-import-entropy
     description: "High entropy import names (obfuscated imports)"
     criticality: suspicious
     confidence: 0.8
@@ -139,7 +139,7 @@ traits:
 
   # === String Anomalies ===
 
-  - id: anti-static/obfuscation/binary-metrics/no-strings
+  - id: no-strings
     description: "No readable strings (encrypted/packed)"
     criticality: suspicious
     confidence: 0.75
@@ -149,7 +149,7 @@ traits:
       field: binary.string_count
       max: 5
 
-  - id: anti-static/obfuscation/binary-metrics/high-string-entropy
+  - id: high-string-entropy
     description: "High entropy strings (encoded data)"
     criticality: suspicious
     confidence: 0.8
@@ -158,7 +158,7 @@ traits:
       field: binary.avg_string_entropy
       min: 5.0
 
-  - id: anti-static/obfuscation/binary-metrics/many-high-entropy-strings
+  - id: many-high-entropy-strings
     description: "Many high entropy strings (embedded encrypted data)"
     criticality: suspicious
     confidence: 0.85
@@ -169,7 +169,7 @@ traits:
 
   # === Function Anomalies ===
 
-  - id: anti-static/obfuscation/binary-metrics/no-functions
+  - id: no-functions
     description: "No detected functions (packed/obfuscated)"
     criticality: suspicious
     confidence: 0.8
@@ -179,7 +179,7 @@ traits:
       field: binary.function_count
       max: 3
 
-  - id: anti-static/obfuscation/binary-metrics/few-functions
+  - id: few-functions
     description: "Very few functions detected"
     criticality: notable
     confidence: 0.6
@@ -188,7 +188,7 @@ traits:
       field: binary.function_count
       max: 10
 
-  - id: anti-static/obfuscation/binary-metrics/huge-functions
+  - id: huge-functions
     description: "Has extremely large functions (>64KB)"
     criticality: suspicious
     confidence: 0.75
@@ -197,7 +197,7 @@ traits:
       field: binary.huge_functions
       min: 1
 
-  - id: anti-static/obfuscation/binary-metrics/many-tiny-functions
+  - id: many-tiny-functions
     description: "Many tiny functions (<16 bytes)"
     criticality: notable
     confidence: 0.65
@@ -206,7 +206,7 @@ traits:
       field: binary.tiny_functions
       min: 20
 
-  - id: anti-static/obfuscation/binary-metrics/small-avg-function
+  - id: small-avg-function
     description: "Very small average function size"
     criticality: notable
     confidence: 0.6
@@ -217,7 +217,7 @@ traits:
 
   # === Complexity Anomalies (Control Flow Obfuscation) ===
 
-  - id: anti-static/obfuscation/binary-metrics/high-avg-complexity
+  - id: high-avg-complexity
     description: "High average cyclomatic complexity (control flow obfuscation)"
     criticality: suspicious
     confidence: 0.75
@@ -227,7 +227,7 @@ traits:
       field: binary.avg_complexity
       min: 55
 
-  - id: anti-static/obfuscation/binary-metrics/very-high-avg-complexity
+  - id: very-high-avg-complexity
     description: "Very high average complexity (heavy obfuscation)"
     criticality: hostile
     confidence: 0.85
@@ -237,7 +237,7 @@ traits:
       field: binary.avg_complexity
       min: 75
 
-  - id: anti-static/obfuscation/binary-metrics/extreme-max-complexity
+  - id: extreme-max-complexity
     description: "Extremely high max function complexity (opaque predicates)"
     criticality: notable
     confidence: 0.7
@@ -247,7 +247,7 @@ traits:
       field: binary.max_complexity
       min: 500
 
-  - id: anti-static/obfuscation/binary-metrics/many-complex-functions
+  - id: many-complex-functions
     description: "Many high complexity functions (>50 cyclomatic)"
     criticality: suspicious
     confidence: 0.8
@@ -257,7 +257,7 @@ traits:
       field: binary.high_complexity_functions
       min: 5
 
-  - id: anti-static/obfuscation/binary-metrics/very-complex-functions
+  - id: very-complex-functions
     description: "Has very high complexity functions (>100 cyclomatic)"
     criticality: suspicious
     confidence: 0.85
@@ -269,7 +269,7 @@ traits:
 
   # === Control Flow Anomalies ===
 
-  - id: anti-static/obfuscation/binary-metrics/many-basic-blocks
+  - id: many-basic-blocks
     description: "High average basic blocks per function"
     criticality: notable
     confidence: 0.65
@@ -278,7 +278,7 @@ traits:
       field: binary.avg_basic_blocks
       min: 30
 
-  - id: anti-static/obfuscation/binary-metrics/few-basic-blocks
+  - id: few-basic-blocks
     description: "Very few basic blocks (obfuscated control flow)"
     criticality: notable
     confidence: 0.6
@@ -287,7 +287,7 @@ traits:
       field: binary.total_basic_blocks
       max: 10
 
-  - id: anti-static/obfuscation/binary-metrics/many-linear-functions
+  - id: many-linear-functions
     description: "Many linear functions (possible VM dispatcher)"
     criticality: notable
     confidence: 0.6
@@ -296,7 +296,7 @@ traits:
       field: binary.linear_functions
       min: 50
 
-  - id: anti-static/obfuscation/binary-metrics/recursive-functions
+  - id: recursive-functions
     description: "Has recursive functions"
     criticality: notable
     confidence: 0.5
@@ -305,7 +305,7 @@ traits:
       field: binary.recursive_functions
       min: 3
 
-  - id: anti-static/obfuscation/binary-metrics/many-noreturn-functions
+  - id: many-noreturn-functions
     description: "Many noreturn functions (anti-analysis pattern)"
     criticality: suspicious
     confidence: 0.7
@@ -314,7 +314,7 @@ traits:
       field: binary.noreturn_functions
       min: 20
 
-  - id: anti-static/obfuscation/binary-metrics/few-leaf-functions
+  - id: few-leaf-functions
     description: "Very few leaf functions (deep call chains)"
     criticality: notable
     confidence: 0.6
@@ -325,7 +325,7 @@ traits:
 
   # === Stack Anomalies ===
 
-  - id: anti-static/obfuscation/binary-metrics/large-stack-frames
+  - id: large-stack-frames
     description: "Has functions with large stack frames (>4KB)"
     criticality: notable
     confidence: 0.6
@@ -334,7 +334,7 @@ traits:
       field: binary.large_stack_functions
       min: 3
 
-  - id: anti-static/obfuscation/binary-metrics/huge-stack-frame
+  - id: huge-stack-frame
     description: "Extremely large max stack frame (>64KB)"
     criticality: suspicious
     confidence: 0.7
@@ -343,7 +343,7 @@ traits:
       field: binary.max_stack_frame
       min: 65536
 
-  - id: anti-static/obfuscation/binary-metrics/high-avg-stack
+  - id: high-avg-stack
     description: "High average stack frame size"
     criticality: notable
     confidence: 0.6
@@ -354,7 +354,7 @@ traits:
 
   # === Overlay Anomalies ===
 
-  - id: anti-static/obfuscation/binary-metrics/has-overlay
+  - id: has-overlay
     description: "Binary has overlay data"
     criticality: notable
     confidence: 0.5
@@ -363,7 +363,7 @@ traits:
       field: binary.has_overlay
       min: 1
 
-  - id: anti-static/obfuscation/binary-metrics/large-overlay
+  - id: large-overlay
     description: "Large overlay relative to file size"
     criticality: suspicious
     confidence: 0.7
@@ -373,7 +373,7 @@ traits:
       field: binary.overlay_ratio
       min: 0.5
 
-  - id: anti-static/obfuscation/binary-metrics/high-entropy-overlay
+  - id: high-entropy-overlay
     description: "High entropy overlay (encrypted payload)"
     criticality: suspicious
     confidence: 0.8
@@ -386,7 +386,7 @@ traits:
 composite_rules:
   # === Combined Packing Detection ===
 
-  - id: anti-static/obfuscation/binary-packed
+  - id: binary-packed
     description: "Binary appears to be packed"
     criticality: suspicious
     confidence: 0.9
@@ -404,7 +404,7 @@ composite_rules:
       - type: trait
         id: dominant-section
 
-  - id: anti-static/obfuscation/binary-heavily-packed
+  - id: binary-heavily-packed
     description: "Binary is heavily packed/encrypted"
     criticality: hostile
     confidence: 0.95
@@ -422,7 +422,7 @@ composite_rules:
       - type: trait
         id: few-imports
 
-  - id: anti-static/obfuscation/binary-encrypted-overlay
+  - id: binary-encrypted-overlay
     description: "Binary with encrypted overlay payload"
     criticality: suspicious
     confidence: 0.85
@@ -433,7 +433,7 @@ composite_rules:
       - type: trait
         id: high-entropy-overlay
 
-  - id: anti-static/obfuscation/packer-signature
+  - id: packer-signature
     description: "Packer signature pattern detected"
     criticality: suspicious
     confidence: 0.9
@@ -451,7 +451,7 @@ composite_rules:
 
   # === Control Flow Obfuscation Detection ===
 
-  - id: anti-static/obfuscation/control-flow-obfuscation
+  - id: control-flow-obfuscation
     description: "Control flow obfuscation detected"
     criticality: suspicious
     confidence: 0.85
@@ -467,7 +467,7 @@ composite_rules:
       - type: trait
         id: extreme-max-complexity
 
-  - id: anti-static/obfuscation/heavy-control-flow-obfuscation
+  - id: heavy-control-flow-obfuscation
     description: "Heavy control flow obfuscation"
     criticality: hostile
     confidence: 0.9
@@ -478,7 +478,7 @@ composite_rules:
       - type: trait
         id: very-complex-functions
 
-  - id: anti-static/obfuscation/vm-based-obfuscation
+  - id: vm-based-obfuscation
     description: "VM-based obfuscation pattern"
     criticality: hostile
     confidence: 0.85
@@ -494,7 +494,7 @@ composite_rules:
       - type: trait
         id: many-linear-functions
 
-  - id: anti-static/obfuscation/anti-analysis-pattern
+  - id: anti-analysis-pattern
     description: "Anti-analysis pattern detected"
     criticality: suspicious
     confidence: 0.8

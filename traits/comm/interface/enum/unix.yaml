@@ -2,7 +2,7 @@
 # MBC: C0001 (Network Communication)
 
 traits:
-  - id: interface/enum/enumerate
+  - id: enumerate
     description: Enumerate network interfaces
     criticality: notable
     confidence: 0.75
@@ -10,7 +10,7 @@ traits:
       type: symbol
       pattern: getifaddrs|if_nameindex
 
-  - id: interface/enum/name-lookup
+  - id: name-lookup
     description: Network interface name lookup
     criticality: notable
     confidence: 0.70

@@ -3,7 +3,7 @@
 # ATT&CK: T1071.001
 
 traits:
-  - id: http/request
+  - id: request
     description: Makes HTTP requests
     criticality: inert
     confidence: 0.66

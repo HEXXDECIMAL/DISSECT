@@ -3,7 +3,7 @@
 # ATT&CK: T1486
 
 traits:
-  - id: impact/ransom/encrypt
+  - id: encrypt
     description: Ransomware encryption patterns
     criticality: suspicious
     confidence: 0.75
@@ -37,7 +37,7 @@ traits:
             )
         }
 
-  - id: impact/ransom/encrypt-decryptor
+  - id: encrypt-decryptor
     description: References decryptor
     criticality: suspicious
     confidence: 0.66
@@ -49,7 +49,7 @@ traits:
       regex: "\\b(your|run|download|get|free)\\s+decryptor|decryptor\\.(exe|bin|bat)"
       case_insensitive: true
 
-  - id: impact/ransom/encrypt-note
+  - id: encrypt-note
     description: Ransom note patterns
     criticality: suspicious
     confidence: 0.66
@@ -58,7 +58,7 @@ traits:
       regex: "(your files|files have been|pay.*bitcoin|decrypt.*files)"
 
   # Go file encryption patterns (ransomware)
-  - id: feat/language/go-malware/file-encrypt
+  - id: file-encrypt
     description: Go file encryption patterns (potential ransomware)
     criticality: suspicious
     confidence: 0.8

@@ -4,7 +4,7 @@
 
 traits:
   # VSCode extension detection
-  - id: metadata/vscode-extension
+  - id: vscode-extension
     description: Package is a VSCode extension
     criticality: inert
     confidence: 0.95
@@ -15,7 +15,7 @@ traits:
       search_raw: true
 
   # Empty Author Field (detected by analyzer, this catches explicit empty)
-  - id: metadata/empty-author
+  - id: empty-author
     description: Package has explicitly empty author field
     criticality: notable
     confidence: 0.6
@@ -26,7 +26,7 @@ traits:
       search_raw: true
 
   # Suspicious Version Patterns
-  - id: metadata/version-1.0.0-with-hooks
+  - id: version-1.0.0-with-hooks
     description: Version 1.0.0 with install hooks (common malware pattern)
     criticality: suspicious
     confidence: 0.75
@@ -44,7 +44,7 @@ traits:
             $version and any of ($hook*)
         }
 
-  - id: metadata/version-0.0.1
+  - id: version-0.0.1
     description: Very early version number (0.0.1)
     criticality: inert
     confidence: 0.3
@@ -55,7 +55,7 @@ traits:
       search_raw: true
 
   # Suspicious Name Patterns
-  - id: metadata/typosquat-lodash
+  - id: typosquat-lodash
     description: Potential lodash typosquat
     criticality: suspicious
     confidence: 0.8
@@ -65,7 +65,7 @@ traits:
       regex: '"name"\s*:\s*"(l0dash|1odash|lodas|lodashe)'
       search_raw: true
 
-  - id: metadata/typosquat-express
+  - id: typosquat-express
     description: Potential express typosquat
     criticality: suspicious
     confidence: 0.8
@@ -75,7 +75,7 @@ traits:
       regex: '"name"\s*:\s*"(expres|expresss|expess|3xpress)'
       search_raw: true
 
-  - id: metadata/typosquat-react
+  - id: typosquat-react
     description: Potential react typosquat
     criticality: suspicious
     confidence: 0.8
@@ -85,7 +85,7 @@ traits:
       regex: '"name"\s*:\s*"(reacr|raect|reactt|r3act)'
       search_raw: true
 
-  - id: metadata/suspicious-name-pattern
+  - id: suspicious-name-pattern
     description: Package name matches suspicious patterns (random chars, test names)
     criticality: notable
     confidence: 0.6
@@ -96,7 +96,7 @@ traits:
       search_raw: true
 
   # Dependency Patterns
-  - id: metadata/github-dependency
+  - id: github-dependency
     description: Package has GitHub URL as dependency (not pinned version)
     criticality: notable
     confidence: 0.6
@@ -106,7 +106,7 @@ traits:
       regex: 'github\.com/[^"]+\.git'
       search_raw: true
 
-  - id: metadata/git-dependency
+  - id: git-dependency
     description: Package has git:// protocol dependency
     criticality: notable
     confidence: 0.65
@@ -117,7 +117,7 @@ traits:
       search_raw: true
 
   # Binary Patterns
-  - id: metadata/has-bin
+  - id: has-bin
     description: Package installs binary executables
     criticality: notable
     confidence: 0.7
@@ -128,7 +128,7 @@ traits:
       search_raw: true
 
   # Suspicious URLs in package
-  - id: metadata/pastebin-url
+  - id: pastebin-url
     description: Package references pastebin (common for malware payloads)
     criticality: suspicious
     confidence: 0.85
@@ -139,7 +139,7 @@ traits:
       regex: 'pastebin\.com|hastebin\.com|ghostbin\.com'
       search_raw: true
 
-  - id: metadata/discord-webhook
+  - id: discord-webhook
     description: Package references Discord webhook (common exfil channel)
     criticality: suspicious
     confidence: 0.85
@@ -150,7 +150,7 @@ traits:
       regex: 'discord\.com/api/webhooks|discordapp\.com/api/webhooks'
       search_raw: true
 
-  - id: metadata/telegram-bot
+  - id: telegram-bot
     description: Package references Telegram bot API (common exfil channel)
     criticality: suspicious
     confidence: 0.85
@@ -162,7 +162,7 @@ traits:
       search_raw: true
 
   # Typosquats of blockchain/crypto packages
-  - id: metadata/typosquat-ganache
+  - id: typosquat-ganache
     description: Potential ganache typosquat
     criticality: suspicious
     confidence: 0.85
@@ -172,7 +172,7 @@ traits:
       regex: '"name"\\s*:\\s*"(ganach-|ganacha|ganachee|ganacche|ganac[^h])'
       search_raw: true
 
-  - id: metadata/typosquat-ethers
+  - id: typosquat-ethers
     description: Potential ethers.js typosquat
     criticality: suspicious
     confidence: 0.85
@@ -182,7 +182,7 @@ traits:
       regex: '"name"\\s*:\\s*"(ether[^s]|etherss|3thers|etheers)'
       search_raw: true
 
-  - id: metadata/typosquat-web3
+  - id: typosquat-web3
     description: Potential web3 typosquat
     criticality: suspicious
     confidence: 0.85
@@ -193,7 +193,7 @@ traits:
       search_raw: true
 
   # Random-looking package names
-  - id: metadata/random-name
+  - id: random-name
     description: Package name looks randomly generated
     criticality: notable
     confidence: 0.7
@@ -204,7 +204,7 @@ traits:
       search_raw: true
 
   # Extremely long version numbers (often used to evade detection)
-  - id: metadata/long-version
+  - id: long-version
     description: Suspiciously long version number
     criticality: notable
     confidence: 0.75
@@ -215,7 +215,7 @@ traits:
       search_raw: true
 
   # Future year versions (dependency confusion)
-  - id: metadata/future-version
+  - id: future-version
     description: Version number with future year (dependency confusion)
     criticality: suspicious
     confidence: 0.9
@@ -226,7 +226,7 @@ traits:
       search_raw: true
 
   # Self-dependency (package depends on itself)
-  - id: metadata/self-dependency
+  - id: self-dependency
     description: Package depends on itself (circular dependency, often malicious)
     criticality: suspicious
     confidence: 0.95
@@ -251,7 +251,7 @@ traits:
         }
 
   # npm URL as homepage/repository (lazy/suspicious)
-  - id: metadata/npm-as-homepage
+  - id: npm-as-homepage
     description: Package uses npmjs.com as homepage (lazy metadata, often malicious)
     criticality: notable
     confidence: 0.8
@@ -268,7 +268,7 @@ traits:
         }
 
   # Missing repository with install hooks (suspicious combo)
-  - id: metadata/no-repo-with-hooks
+  - id: no-repo-with-hooks
     description: Package has install hooks but no repository URL
     criticality: suspicious
     confidence: 0.85
@@ -288,7 +288,7 @@ traits:
         }
 
   # Generic description with hooks (template malware)
-  - id: metadata/generic-desc-with-hooks
+  - id: generic-desc-with-hooks
     description: Generic description combined with install hooks (template malware)
     criticality: suspicious
     confidence: 0.8

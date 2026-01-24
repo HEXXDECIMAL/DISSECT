@@ -9,7 +9,7 @@ defaults:
   attack: "T1059.004"
 
 traits:
-  - id: exec/command/shell/exec
+  - id: exec
     description: Shell command execution via exec()
     confidence: 0.95
     condition:
@@ -17,7 +17,7 @@ traits:
       node_type: function_call_expression
       pattern: "exec"
 
-  - id: exec/command/shell/shell-exec
+  - id: shell-exec
     description: Shell command execution via shell_exec()
     confidence: 0.95
     condition:
@@ -25,7 +25,7 @@ traits:
       node_type: function_call_expression
       pattern: "shell_exec"
 
-  - id: exec/command/shell/system
+  - id: system
     description: Shell command execution via system()
     confidence: 0.95
     condition:
@@ -33,7 +33,7 @@ traits:
       node_type: function_call_expression
       pattern: "system"
 
-  - id: exec/command/shell/passthru
+  - id: passthru
     description: Shell command execution via passthru()
     confidence: 0.95
     condition:
@@ -41,7 +41,7 @@ traits:
       node_type: function_call_expression
       pattern: "passthru"
 
-  - id: exec/command/shell/popen
+  - id: popen
     description: Process open via popen()
     confidence: 0.9
     condition:
@@ -49,7 +49,7 @@ traits:
       node_type: function_call_expression
       pattern: "popen"
 
-  - id: exec/command/shell/proc-open
+  - id: proc-open
     description: Process execution via proc_open()
     confidence: 0.9
     condition:
@@ -57,7 +57,7 @@ traits:
       node_type: function_call_expression
       pattern: "proc_open"
 
-  - id: exec/command/shell/pcntl-exec
+  - id: pcntl-exec
     description: Direct process execution via pcntl_exec()
     confidence: 0.95
     attack: "T1059"  # Override: generic T1059 instead of T1059.004
@@ -66,7 +66,7 @@ traits:
       node_type: function_call_expression
       pattern: "pcntl_exec"
 
-  - id: exec/command/shell/backtick
+  - id: backtick
     description: Shell command execution via backticks
     confidence: 0.9
     condition:
@@ -75,7 +75,7 @@ traits:
       pattern: ".*"
       regex: true
 
-  - id: exec/command/shell/exec-user-input
+  - id: exec-user-input
     description: Command execution with user input (RCE)
     confidence: 0.9
     condition:

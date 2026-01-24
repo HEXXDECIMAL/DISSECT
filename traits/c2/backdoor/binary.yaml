@@ -1,0 +1,438 @@
+# Supply Chain Diff Indicators
+# Traits that indicate suspicious changes in library updates
+# These are particularly useful for dissect diff comparisons
+
+defaults:
+  file_types: [elf, pe, macho]
+  attack: "T1195.002"
+  mbc: "B0025"
+
+traits:
+  # === Unexpected Functionality in Libraries ===
+
+  - id: unexpected-socket-ops
+    description: "Socket operations in non-network library"
+    criticality: notable
+    confidence: 0.6
+    condition:
+      type: yara
+      source: |
+        rule unexpected_socket {
+          strings:
+            $sock1 = "socket" ascii
+            $sock2 = "connect" ascii
+            $sock3 = "bind" ascii
+            $sock4 = "listen" ascii
+            $sock5 = "accept" ascii
+            $send1 = "send" ascii
+            $recv1 = "recv" ascii
+            // Exclude obvious network libraries
+            $net_lib1 = "libssl" ascii
+            $net_lib2 = "libcrypto" ascii
+            $net_lib3 = "libcurl" ascii
+            $net_lib4 = "libssh" ascii
+            // Exclude coreutils and common system utilities (use NSS for lookups)
+            $coreutils1 = "GNU coreutils" ascii
+            $coreutils2 = "coreutils" ascii
+            $coreutils3 = "glibc" ascii
+            $systemd1 = "systemd" ascii
+          condition:
+            (4 of ($sock*, $send*, $recv*)) and
+            not any of ($net_lib*) and
+            not any of ($coreutils*, $systemd1)
+        }
+
+  - id: unexpected-process-ops
+    description: "Process operations in utility library"
+    criticality: suspicious
+    confidence: 0.75
+    condition:
+      type: yara
+      source: |
+        rule unexpected_process {
+          strings:
+            $fork = "fork" ascii
+            $exec1 = "execve" ascii
+            $exec2 = "execl" ascii
+            $exec3 = "system" ascii
+            $popen = "popen" ascii
+            $shell = "/bin/sh" ascii
+          condition:
+            3 of them
+        }
+
+  - id: unexpected-crypto
+    description: "Cryptographic operations in non-crypto library"
+    criticality: suspicious
+    confidence: 0.75
+    condition:
+      type: yara
+      source: |
+        rule unexpected_crypto {
+          strings:
+            $aes1 = "AES_" ascii
+            $aes2 = { 63 7C 77 7B F2 6B 6F C5 }  // AES S-box start
+            $rsa1 = "RSA_" ascii
+            $evp1 = "EVP_" ascii
+            $sha1 = "SHA256" ascii
+            $chacha = "chacha" ascii nocase
+            // ED25519 constants (used in XZ backdoor)
+            $ed1 = { 79 07 4D C9 D3 14 79 51 }
+          condition:
+            3 of them
+        }
+
+  - id: unexpected-env-access
+    description: "Environment variable access patterns"
+    criticality: notable
+    confidence: 0.65
+    condition:
+      type: yara
+      source: |
+        rule env_access_pattern {
+          strings:
+            $env1 = "getenv" ascii
+            $env2 = "setenv" ascii
+            $env3 = "putenv" ascii
+            // Suspicious env vars
+            $ld1 = "LD_PRELOAD" ascii
+            $ld2 = "LD_LIBRARY_PATH" ascii
+            $ld3 = "LD_AUDIT" ascii
+            $ld4 = "LD_DEBUG" ascii
+          condition:
+            any of ($env*) and any of ($ld*)
+        }
+
+  # === Memory/Code Manipulation ===
+
+  - id: memory-protection-change
+    description: "Memory protection modification (self-modifying code)"
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1055"
+    condition:
+      type: yara
+      source: |
+        rule mem_protect_change {
+          strings:
+            $mprotect = "mprotect" ascii
+            $mmap = "mmap" ascii
+            $wx = { 07 00 00 00 }  // PROT_READ | PROT_WRITE | PROT_EXEC
+          condition:
+            ($mprotect and $wx) or
+            ($mmap and $mprotect)
+        }
+
+  - id: jit-pattern
+    description: "JIT-like code generation pattern"
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: yara
+      source: |
+        rule jit_pattern {
+          strings:
+            $mmap = "mmap" ascii
+            $mprotect = "mprotect" ascii
+            $memcpy = "memcpy" ascii
+            // Indirect call patterns
+            $icall1 = { FF D? }  // call reg
+            $icall2 = { FF 1? }  // call [reg]
+          condition:
+            ($mmap and $mprotect and $memcpy) and
+            (#icall1 + #icall2) > 10
+        }
+
+  # === Obfuscation Indicators ===
+
+  - id: data-obfuscation
+    description: "Large obfuscated data blob"
+    criticality: suspicious
+    confidence: 0.7
+    condition:
+      type: metrics
+      field: binary.high_entropy_strings
+      min: 20
+
+  # === Suspicious Library Patterns ===
+
+  - id: constructor-destructor
+    description: "ELF constructor/destructor functions"
+    criticality: notable
+    confidence: 0.5
+    condition:
+      type: yara
+      source: |
+        rule elf_ctors_dtors {
+          strings:
+            $init = ".init_array" ascii
+            $fini = ".fini_array" ascii
+            $ctors = ".ctors" ascii
+            $dtors = ".dtors" ascii
+            $preinit = ".preinit_array" ascii
+          condition:
+            uint32(0) == 0x464c457f and
+            2 of them
+        }
+
+  - id: symbol-interposition
+    description: "Symbol interposition/override pattern"
+    criticality: suspicious
+    confidence: 0.7
+    condition:
+      type: yara
+      source: |
+        rule symbol_interpose {
+          strings:
+            $dlsym = "dlsym" ascii
+            $rtld = "RTLD_NEXT" ascii
+            $rtld2 = "RTLD_DEFAULT" ascii
+            $versym = ".gnu.version" ascii
+          condition:
+            $dlsym and any of ($rtld, $rtld2, $versym)
+        }
+
+composite_rules:
+  # === Unexpected Capability Combination ===
+
+  - id: unexpected-capabilities
+    description: "Unexpected capability combination in library"
+    criticality: suspicious
+    confidence: 0.8
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: unexpected-socket-ops
+      - type: trait
+        id: unexpected-process-ops
+      - type: trait
+        id: unexpected-crypto
+
+  - id: injected-code-pattern
+    description: "Injected code pattern in library"
+    criticality: hostile
+    confidence: 0.85
+    requires_all:
+      - type: trait
+        id: data-obfuscation
+    requires_any:
+      - type: trait
+        id: unexpected-crypto
+      - type: trait
+        id: unexpected-socket-ops
+
+# Supply Chain Binary Backdoor Detection
+# Detects patterns consistent with supply chain attacks like XZ Utils (CVE-2024-3094)
+# ATT&CK: T1195.002 (Supply Chain Compromise: Compromise Software Supply Chain)
+# MBC: B0025 (Compromise Software Supply Chain)
+
+defaults:
+  file_types: [elf, pe, macho]
+  attack: "T1195.002"
+  mbc: "B0025"
+
+traits:
+  # === Massive Code Injection Indicators ===
+
+  - id: massive-code-blob
+    description: "Extremely large average function size (massive code injection)"
+    criticality: hostile
+    confidence: 0.85
+    condition:
+      type: metrics
+      field: binary.avg_function_size
+      min: 10000
+
+  - id: many-huge-functions
+    description: "Many huge functions (>64KB) - potential XZ-style injection"
+    criticality: hostile
+    confidence: 0.9
+    condition:
+      type: metrics
+      field: binary.huge_functions
+      min: 4
+
+  # === XZ Utils Backdoor Specific Patterns ===
+
+  - id: xz-backdoor-signature
+    description: "XZ Utils backdoor signature (CVE-2024-3094)"
+    criticality: hostile
+    confidence: 0.99
+    attack: "T1195.002"
+    condition:
+      type: yara
+      source: |
+        rule xz_backdoor_cve_2024_3094 {
+          meta:
+            description = "XZ Utils backdoor CVE-2024-3094"
+            reference = "https://www.openwall.com/lists/oss-security/2024/03/29/4"
+          strings:
+            // Backdoor entry patterns
+            $entry1 = { F3 0F 1E FA 55 48 89 E5 41 55 41 54 53 48 83 EC 18 }
+            // CRC64 hijack pattern
+            $crc1 = "lzma_crc64_table" ascii
+            $crc2 = "lzma_crc64" ascii
+            // Obfuscated function markers
+            $obf1 = { 0F B6 ?? ?? 0F B6 ?? ?? 31 ?? 0F B6 ?? ?? 31 }
+            // Specific backdoor bytes
+            $sig1 = { 48 8D 05 ?? ?? ?? ?? 48 89 C7 E8 ?? ?? ?? ?? 48 85 C0 74 }
+          condition:
+            uint32(0) == 0x464c457f and  // ELF magic
+            (2 of ($crc*) and any of ($entry*, $obf*, $sig*))
+        }
+
+  - id: xz-ifunc-pattern
+    description: "IFUNC resolver pattern (potential function hooking)"
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: yara
+      source: |
+        rule ifunc_resolver_pattern {
+          strings:
+            $resolver1 = "_resolver" ascii
+            $resolver2 = ".gnu.hash" ascii
+            $resolver3 = "__libc_start" ascii
+            $ifunc1 = "IFUNC" ascii
+            // CPUID-based resolver (common in XZ)
+            $cpuid = { 0F A2 }  // cpuid instruction
+            $getauxval = "getauxval" ascii
+          condition:
+            uint32(0) == 0x464c457f and
+            (any of ($resolver*) and $cpuid) or
+            ($ifunc1 and $cpuid and $getauxval)
+        }
+
+  - id: rsa-in-compression-lib
+    description: "RSA operations in non-crypto library (backdoor indicator)"
+    criticality: hostile
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule rsa_in_compression {
+          strings:
+            // RSA operations
+            $rsa1 = "RSA_public_decrypt" ascii
+            $rsa2 = "RSA_public_encrypt" ascii
+            $rsa3 = "EVP_PKEY" ascii
+            // Compression library markers
+            $lzma1 = "lzma" ascii nocase
+            $xz1 = "xz" ascii nocase
+            $zlib1 = "zlib" ascii nocase
+            $compress1 = "compress" ascii nocase
+          condition:
+            any of ($rsa*) and any of ($lzma*, $xz*, $zlib*, $compress*)
+        }
+
+  # === SSH/Auth Library Hooking ===
+
+  - id: ssh-hook-pattern
+    description: "SSH authentication hooking pattern"
+    criticality: hostile
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule ssh_auth_hook {
+          strings:
+            $ssh1 = "libsystemd" ascii
+            $ssh2 = "sshd" ascii
+            $auth1 = "RSA_public_decrypt" ascii
+            $auth2 = "mm_answer_keyallowed" ascii
+            $auth3 = "mm_answer_authpassword" ascii
+            $auth4 = "pubkey_auth" ascii
+          condition:
+            any of ($ssh*) and any of ($auth*)
+        }
+
+  # === Hidden Code Patterns ===
+
+  - id: cpuid-fingerprinting
+    description: "CPUID fingerprinting in library (potential anti-analysis)"
+    criticality: notable
+    confidence: 0.75
+    attack: "T1082"
+    condition:
+      type: yara
+      source: |
+        rule cpuid_in_lib {
+          strings:
+            $cpuid = { 0F A2 }  // cpuid instruction
+            $xgetbv = { 0F 01 D0 }  // xgetbv instruction
+          condition:
+            uint32(0) == 0x464c457f and
+            #cpuid > 3 and $xgetbv
+        }
+
+  - id: glibc-hijack
+    description: "glibc function hijacking patterns"
+    criticality: suspicious
+    confidence: 0.7
+    condition:
+      type: yara
+      source: |
+        rule glibc_hijack {
+          strings:
+            $dl1 = "dlsym" ascii
+            $dl2 = "dlopen" ascii
+            $rtld1 = "__rtld_global" ascii
+            $audit = "la_symbind" ascii
+            $preload = "LD_PRELOAD" ascii
+            $audit2 = "LD_AUDIT" ascii
+          condition:
+            2 of them
+        }
+
+composite_rules:
+  # === XZ-style Backdoor Detection ===
+
+  - id: xz-style-attack
+    description: "XZ-style supply chain backdoor pattern"
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1195.002"
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: many-huge-functions
+      - type: trait
+        id: cpuid-fingerprinting
+      - type: trait
+        id: xz-ifunc-pattern
+
+  - id: potential-code-injection
+    description: "Potential code injection indicators"
+    criticality: suspicious
+    confidence: 0.8
+    requires_all:
+      - type: trait
+        id: massive-code-blob
+    requires_any:
+      - type: trait
+        id: many-huge-functions
+      - type: trait
+        id: glibc-hijack
+
+  - id: auth-bypass-indicator
+    description: "Authentication bypass backdoor indicator"
+    criticality: hostile
+    confidence: 0.95
+    requires_any:
+      - type: trait
+        id: ssh-hook-pattern
+      - type: trait
+        id: rsa-in-compression-lib
+
+  - id: function-hooking-behavior
+    description: "Dynamic function hooking patterns"
+    criticality: suspicious
+    confidence: 0.8
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: xz-ifunc-pattern
+      - type: trait
+        id: glibc-hijack
+      - type: trait
+        id: cpuid-fingerprinting

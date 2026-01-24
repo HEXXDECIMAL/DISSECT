@@ -2,7 +2,7 @@
 # ATT&CK: T1082 (System Information Discovery)
 
 traits:
-  - id: hw/cpu/info/sys-devices
+  - id: sys-devices
     description: Access CPU info via /sys/devices
     criticality: notable
     confidence: 0.7

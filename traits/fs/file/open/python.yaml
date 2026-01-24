@@ -3,7 +3,7 @@
 # ATT&CK: T1005
 
 traits:
-  - id: fs/file/open/generic
+  - id: generic
     description: "Opens a file"
     criticality: inert
     confidence: 0.9
@@ -12,7 +12,7 @@ traits:
       type: string
       regex: '\bopen\('
 
-  - id: fs/file/open/sensitive-path
+  - id: sensitive-path
     description: "Accesses sensitive browser or wallet files"
     criticality: hostile
     confidence: 0.95

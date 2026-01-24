@@ -1,0 +1,57 @@
+# XorDDoS Botnet Detection
+# Linux DDoS trojan using XOR encryption
+# Reference: https://www.microsoft.com/security/blog/2022/05/19/rise-in-xorddos/
+
+traits:
+  - id: botnet/xorddos
+    description: XorDDoS botnet indicators
+    criticality: hostile
+    confidence: 0.95
+    condition:
+      type: yara
+      source: |
+        rule xorddos {
+          meta:
+            description = "XorDDoS Linux botnet"
+          strings:
+            // XOR key patterns (specific to XorDDoS)
+            $xor_key = "BB2FA36AAA9541F0" ascii
+            $xor_key2 = "8ABE41BA76DC301A" ascii
+            // C2 communication - more specific port patterns
+            $c2_port = ":8852" ascii
+            $c2_url = "www.gzcfr5axf6mk.com" ascii
+            // Init.d persistence with specific script names
+            $initd = "/etc/init.d/" ascii
+            $chkconfig = "chkconfig --add" ascii
+            // XorDDoS specific paths
+            $path1 = "/lib/libudev.so" ascii
+            $path2 = "/var/run/gcc.pid" ascii
+            $path3 = "/usr/bin/dsfsfcxssfsefsdf" ascii
+            // DDoS attack strings
+            $ddos1 = "SYN_Flood" ascii
+            $ddos2 = "DNS_Flood" ascii
+            $ddos3 = "ACK_Flood" ascii
+          condition:
+            any of ($xor_key*) or
+            $c2_url or $c2_port or
+            any of ($path*) or
+            ($initd and $chkconfig and any of ($ddos*))
+        }
+
+  - id: botnet/xorddos-persistence
+    description: XorDDoS persistence mechanism
+    criticality: hostile
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule xorddos_persist {
+          strings:
+            $initd = "/etc/init.d/" ascii
+            $chkconfig = "chkconfig" ascii
+            $update_rc = "update-rc.d" ascii
+            $resolv = "/etc/resolv.conf" ascii
+            $proc_exe = "/proc/self/exe" ascii
+          condition:
+            ($initd and ($chkconfig or $update_rc)) and ($resolv or $proc_exe)
+        }

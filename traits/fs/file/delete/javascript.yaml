@@ -3,7 +3,7 @@
 # ATT&CK: T1070.004
 
 traits:
-  - id: fs/file/delete/fs-unlink
+  - id: fs-unlink
     description: Delete file (fs.unlink)
     criticality: notable
     confidence: 0.9
@@ -27,7 +27,7 @@ traits:
       node_type: call_expression
       pattern: "fs.unlinkSync"
 
-  - id: fs/file/delete/fs-rm
+  - id: fs-rm
     description: Delete file or directory (fs.rm)
     criticality: notable
     confidence: 0.9
@@ -51,7 +51,7 @@ traits:
       node_type: call_expression
       pattern: "fs.rmSync"
 
-  - id: fs/file/delete/fs-rmdir
+  - id: fs-rmdir
     description: Delete empty directory
     criticality: notable
     confidence: 0.9
@@ -63,7 +63,7 @@ traits:
       node_type: call_expression
       pattern: "fs.rmdir"
 
-  - id: fs/file/delete/promises-unlink
+  - id: promises-unlink
     description: Delete file (promises API)
     criticality: notable
     confidence: 0.9

@@ -3,7 +3,7 @@
 # ATT&CK: T1071.001
 
 traits:
-  - id: http/request/rust-reqwest
+  - id: rust-reqwest
     description: Makes HTTP requests using reqwest
     criticality: notable
     confidence: 0.9
@@ -15,7 +15,7 @@ traits:
       node_type: call_expression
       pattern: "client.get"
 
-  - id: http/request/rust-reqwest-builder
+  - id: rust-reqwest-builder
     description: HTTP client builder with invalid cert acceptance
     criticality: suspicious
     confidence: 0.95

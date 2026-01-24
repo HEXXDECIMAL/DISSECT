@@ -2,7 +2,7 @@
 # ATT&CK: T1016 (System Network Configuration Discovery)
 
 traits:
-  - id: hw/wireless/network/wpa-supplicant
+  - id: wpa-supplicant
     description: WPA supplicant wireless access
     criticality: notable
     confidence: 0.6
@@ -11,7 +11,7 @@ traits:
       type: string
       exact: "wpa_supplicant"
 
-  - id: hw/wireless/network/wps-supplicant
+  - id: wps-supplicant
     description: WPS supplicant wireless access
     criticality: notable
     confidence: 0.6

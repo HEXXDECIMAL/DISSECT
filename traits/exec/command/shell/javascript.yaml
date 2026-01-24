@@ -2,7 +2,7 @@
 # ATT&CK: T1059 (Command and Scripting Interpreter)
 
 traits:
-  - id: exec/command/shell/js-execsync
+  - id: js-execsync
     description: Executes shell commands synchronously
     criticality: notable
     confidence: 1.0
@@ -12,7 +12,7 @@ traits:
       node_type: call_expression
       pattern: "execSync"
 
-  - id: exec/command/shell/js-spawn
+  - id: js-spawn
     description: Spawns a child process
     criticality: notable
     confidence: 1.0

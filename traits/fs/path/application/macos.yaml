@@ -3,7 +3,7 @@
 # ATT&CK: T1083
 
 traits:
-  - id: fs/path/application-macos
+  - id: application-macos
     description: Reference to /Applications
     criticality: notable
     confidence: 0.66
@@ -11,7 +11,7 @@ traits:
       type: string
       regex: "/Applications/[\\w\\s\\.\\-]+\\.app/Contents/MacOS/[\\w\\.\\-]+"
 
-  - id: fs/path/application-browser-extensions
+  - id: application-browser-extensions
     description: Reference to browser extension paths
     criticality: suspicious
     confidence: 0.66

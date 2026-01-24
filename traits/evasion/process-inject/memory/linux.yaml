@@ -3,7 +3,7 @@
 # ATT&CK: T1055
 
 traits:
-  - id: evasion/process-inject-ptrace
+  - id: process-inject-ptrace
     description: Process injection via ptrace
     criticality: suspicious
     confidence: 0.66

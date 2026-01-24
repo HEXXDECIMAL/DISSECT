@@ -3,7 +3,7 @@
 # ATT&CK: T1105
 
 traits:
-  - id: download/curl
+  - id: curl
     description: Download via curl
     criticality: notable
     confidence: 0.66
@@ -12,7 +12,7 @@ traits:
       type: string
       regex: "(curl\\s|libcurl|CURLOPT)"
 
-  - id: download/wget
+  - id: wget
     description: Download via wget
     criticality: notable
     confidence: 0.66
@@ -21,7 +21,7 @@ traits:
       type: string
       regex: "(wget\\s|/usr/bin/wget)"
 
-  - id: download/fetch
+  - id: fetch
     description: Download via fetch
     criticality: notable
     confidence: 0.66

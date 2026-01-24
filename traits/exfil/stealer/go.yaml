@@ -2,7 +2,7 @@
 # ATT&CK: T1041
 
 traits:
-  - id: exfil/stealer/go-json-exfil-keys
+  - id: go-json-exfil-keys
     description: Marshals sensitive-looking keys into JSON for exfiltration
     criticality: hostile
     confidence: 0.95
@@ -12,7 +12,7 @@ traits:
       type: string
       regex: "\"aiv\"|\"crd\"|\"pwd\""
 
-  - id: exfil/stealer/go-dpaste-exfil
+  - id: go-dpaste-exfil
     description: Exfiltrates data to dpaste service
     criticality: hostile
     confidence: 1.0

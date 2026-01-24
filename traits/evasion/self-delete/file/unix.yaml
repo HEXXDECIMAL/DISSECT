@@ -3,7 +3,7 @@
 # ATT&CK: T1070.004
 
 traits:
-  - id: evasion/self-delete-unlink
+  - id: self-delete-unlink
     description: Self-deleting via unlink
     criticality: suspicious
     confidence: 0.66

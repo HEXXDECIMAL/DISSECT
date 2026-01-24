@@ -3,7 +3,7 @@
 # ATT&CK: T1140
 
 traits:
-  - id: anti-static/base64/decode-php
+  - id: decode-php
     description: Base64 decoding in PHP
     criticality: notable
     confidence: 0.66

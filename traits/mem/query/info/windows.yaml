@@ -2,7 +2,7 @@
 # ATT&CK: T1055 (Process Injection)
 
 traits:
-  - id: mem/query/info/virtualquery
+  - id: virtualquery
     description: Query virtual memory info (VirtualQuery)
     criticality: notable
     confidence: 0.7
@@ -13,7 +13,7 @@ traits:
       type: symbol
       pattern: "VirtualQuery$"
 
-  - id: mem/query/info/virtualquery-ex
+  - id: virtualquery-ex
     description: Query virtual memory in other process (VirtualQueryEx)
     criticality: suspicious
     confidence: 0.8

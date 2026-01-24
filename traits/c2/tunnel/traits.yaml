@@ -4,7 +4,7 @@
 
 traits:
   # Earthworm (EW) tunneling tool
-  - id: c2/tunnel/earthworm
+  - id: earthworm
     description: Earthworm tunneling tool (APT lateral movement)
     criticality: hostile
     confidence: 0.95
@@ -26,7 +26,7 @@ traits:
         }
 
   # LCX port forwarder
-  - id: c2/tunnel/lcx
+  - id: lcx
     description: LCX-style port forwarding tool
     criticality: suspicious
     confidence: 0.85
@@ -55,7 +55,7 @@ traits:
         }
 
   # reGeorg/Tunna web tunnel
-  - id: c2/tunnel/regeorg
+  - id: regeorg
     description: reGeorg/Tunna web tunneling
     criticality: hostile
     confidence: 0.9
@@ -74,7 +74,7 @@ traits:
         }
 
   # Chisel tunneling
-  - id: c2/tunnel/chisel
+  - id: chisel
     description: Chisel HTTP tunneling tool
     criticality: suspicious
     confidence: 0.9
@@ -92,7 +92,7 @@ traits:
         }
 
   # Ngrok tunneling
-  - id: c2/tunnel/ngrok
+  - id: ngrok
     description: Ngrok tunneling service
     criticality: suspicious
     confidence: 0.85
@@ -110,7 +110,7 @@ traits:
         }
 
   # Generic SOCKS proxy behavior
-  - id: c2/tunnel/socks-server
+  - id: socks-server
     description: SOCKS proxy server implementation
     criticality: suspicious
     confidence: 0.8

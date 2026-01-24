@@ -3,7 +3,7 @@
 # ATT&CK: T1070.004
 
 traits:
-  - id: evasion/self-delete-windows
+  - id: self-delete-windows
     description: Self-deleting via DeleteFile
     criticality: suspicious
     confidence: 0.66

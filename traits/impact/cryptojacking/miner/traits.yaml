@@ -5,7 +5,7 @@
 composite_rules:
   # === Atomic: Mining Protocols ===
 
-  - id: impact/cryptojacking/stratum-protocol
+  - id: stratum-protocol
     description: Stratum mining protocol reference
     criticality: suspicious
     confidence: 0.85
@@ -17,7 +17,7 @@ composite_rules:
 
   # === Atomic: Mining Pools ===
 
-  - id: impact/cryptojacking/pool-c3pool
+  - id: pool-c3pool
     description: C3Pool mining pool
     criticality: suspicious
     confidence: 0.9
@@ -27,7 +27,7 @@ composite_rules:
       type: string
       exact: "c3pool"
 
-  - id: impact/cryptojacking/pool-f2pool
+  - id: pool-f2pool
     description: F2Pool mining pool
     criticality: suspicious
     confidence: 0.9
@@ -37,7 +37,7 @@ composite_rules:
       type: string
       exact: "f2pool"
 
-  - id: impact/cryptojacking/pool-hashvault
+  - id: pool-hashvault
     description: HashVault mining pool
     criticality: suspicious
     confidence: 0.9
@@ -47,7 +47,7 @@ composite_rules:
       type: string
       exact: "hashvault"
 
-  - id: impact/cryptojacking/pool-monerohash
+  - id: pool-monerohash
     description: MoneroHash mining pool
     criticality: suspicious
     confidence: 0.9
@@ -57,7 +57,7 @@ composite_rules:
       type: string
       exact: "monerohash"
 
-  - id: impact/cryptojacking/pool-xmrpool
+  - id: pool-xmrpool
     description: XMRPool mining pool
     criticality: suspicious
     confidence: 0.9
@@ -67,7 +67,7 @@ composite_rules:
       type: string
       exact: "xmrpool"
 
-  - id: impact/cryptojacking/pool-supportxmr
+  - id: pool-supportxmr
     description: SupportXMR mining pool
     criticality: suspicious
     confidence: 0.9
@@ -77,7 +77,7 @@ composite_rules:
       type: string
       exact: "supportxmr"
 
-  - id: impact/cryptojacking/pool-minergate
+  - id: pool-minergate
     description: MinerGate mining pool
     criticality: suspicious
     confidence: 0.9
@@ -87,7 +87,7 @@ composite_rules:
       type: string
       exact: "minergate"
 
-  - id: impact/cryptojacking/pool-generic
+  - id: pool-generic
     description: Generic mining pool reference
     criticality: suspicious
     confidence: 0.7
@@ -99,7 +99,7 @@ composite_rules:
 
   # === Atomic: Mining Software ===
 
-  - id: impact/cryptojacking/xmrig-ref
+  - id: xmrig-ref
     description: XMRig miner reference
     criticality: suspicious
     confidence: 0.9
@@ -110,7 +110,7 @@ composite_rules:
       exact: "xmrig"
       case_insensitive: true
 
-  - id: impact/cryptojacking/cryptonight
+  - id: cryptonight
     description: CryptoNight algorithm reference
     criticality: suspicious
     confidence: 0.85
@@ -120,7 +120,7 @@ composite_rules:
       type: string
       regex: "[Cc]rypto[Nn]ight"
 
-  - id: impact/cryptojacking/monero-ref
+  - id: monero-ref
     description: Monero cryptocurrency reference
     criticality: notable
     confidence: 0.6
@@ -132,7 +132,7 @@ composite_rules:
 
   # === Atomic: Mining Configuration ===
 
-  - id: impact/cryptojacking/donate-level
+  - id: donate-level
     description: Mining donate-level configuration
     criticality: suspicious
     confidence: 0.85
@@ -142,7 +142,7 @@ composite_rules:
       type: string
       exact: "--donate-level"
 
-  - id: impact/cryptojacking/tls-fingerprint
+  - id: tls-fingerprint
     description: Mining TLS fingerprint option
     criticality: suspicious
     confidence: 0.8
@@ -152,7 +152,7 @@ composite_rules:
       type: string
       exact: "--tls-fingerprint"
 
-  - id: impact/cryptojacking/miner-name
+  - id: miner-name
     description: Miner name configuration
     criticality: suspicious
     confidence: 0.75
@@ -162,7 +162,7 @@ composite_rules:
       type: string
       exact: "miner_name"
 
-  - id: impact/cryptojacking/miner-url
+  - id: miner-url
     description: Miner URL configuration
     criticality: suspicious
     confidence: 0.75
@@ -172,7 +172,7 @@ composite_rules:
       type: string
       exact: "miner_url"
 
-  - id: impact/cryptojacking/normal-hashing
+  - id: normal-hashing
     description: Normal hashing configuration
     criticality: suspicious
     confidence: 0.8
@@ -184,7 +184,7 @@ composite_rules:
 
   # === Atomic: Memory Optimization ===
 
-  - id: impact/cryptojacking/hugepages
+  - id: hugepages
     description: Huge pages memory configuration
     criticality: suspicious
     confidence: 0.7
@@ -194,7 +194,7 @@ composite_rules:
       type: string
       exact: "vm.nr_hugepages"
 
-  - id: impact/cryptojacking/nmi-watchdog
+  - id: nmi-watchdog
     description: NMI watchdog disable (mining optimization)
     criticality: suspicious
     confidence: 0.75
@@ -206,7 +206,7 @@ composite_rules:
 
   # === Atomic: Argon2 (Memory-Hard) ===
 
-  - id: impact/cryptojacking/argon2d
+  - id: argon2d
     description: Argon2d hashing algorithm
     criticality: suspicious
     confidence: 0.7
@@ -216,7 +216,7 @@ composite_rules:
       type: string
       exact: "argon2d"
 
-  - id: impact/cryptojacking/cryptocurrency-miner
+  - id: cryptocurrency-miner
     description: Cryptocurrency miner detected
     criticality: suspicious
     confidence: 0.95
@@ -250,7 +250,7 @@ composite_rules:
       - type: trait
         id: impact/cryptojacking/miner-name
 
-  - id: impact/cryptojacking/memory-optimized-miner
+  - id: memory-optimized-miner
     description: Memory-optimized cryptocurrency miner
     criticality: suspicious
     confidence: 0.9
@@ -268,7 +268,7 @@ composite_rules:
       - type: string
         exact: "wallet"
 
-  - id: impact/cryptojacking/argon2-miner
+  - id: argon2-miner
     description: Argon2-based cryptocurrency miner
     criticality: suspicious
     confidence: 0.85

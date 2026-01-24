@@ -1,6 +1,6 @@
 # Remote File Download
 traits:
-  - id: download/generic
+  - id: generic
     description: "Function to handle remote file downloads"
     criticality: suspicious
     confidence: 0.8

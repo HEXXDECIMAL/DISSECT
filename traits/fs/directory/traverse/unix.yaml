@@ -3,7 +3,7 @@
 # ATT&CK: T1083
 
 traits:
-  - id: fs/directory/traverse-fts
+  - id: traverse-fts
     description: Traverse filesystem hierarchy via fts
     criticality: inert
     confidence: 0.66
@@ -21,7 +21,7 @@ traits:
             2 of them
         }
 
-  - id: fs/directory/traverse-nftw
+  - id: traverse-nftw
     description: Traverse filesystem hierarchy via nftw
     criticality: inert
     confidence: 0.66
@@ -29,7 +29,7 @@ traits:
       type: symbol
       pattern: nftw|ftw
 
-  - id: fs/directory/traverse-manual
+  - id: traverse-manual
     description: Manual recursive directory traversal
     criticality: notable
     confidence: 0.7

@@ -2,7 +2,7 @@
 # ATT&CK: T1528 (Steal Application Access Token)
 
 traits:
-  - id: exfil/oauth/google-token-endpoint
+  - id: google-token-endpoint
     description: Google OAuth2 token endpoint
     criticality: notable
     confidence: 0.8
@@ -12,7 +12,7 @@ traits:
       type: string
       exact: "googleapis.com/oauth2/v4/token"
 
-  - id: exfil/oauth/google-auth-endpoint
+  - id: google-auth-endpoint
     description: Google OAuth2 auth endpoint
     criticality: notable
     confidence: 0.8
@@ -22,7 +22,7 @@ traits:
       type: string
       exact: "accounts.google.com/o/oauth2/auth"
 
-  - id: exfil/oauth/google-userinfo
+  - id: google-userinfo
     description: Google OAuth2 userinfo endpoint
     criticality: suspicious
     confidence: 0.85
@@ -32,7 +32,7 @@ traits:
       type: string
       exact: "googleapis.com/oauth2/v1/userinfo"
 
-  - id: exfil/oauth/gmail-client-id
+  - id: gmail-client-id
     description: Gmail client ID variable
     criticality: suspicious
     confidence: 0.9
@@ -42,7 +42,7 @@ traits:
       type: string
       exact: "GMAIL_CLIENT_ID"
 
-  - id: exfil/oauth/microsoft-graph
+  - id: microsoft-graph
     description: Microsoft Graph API endpoint
     criticality: notable
     confidence: 0.8
@@ -52,7 +52,7 @@ traits:
       type: string
       exact: "graph.microsoft.com/v1.0/me"
 
-  - id: exfil/oauth/microsoft-auth
+  - id: microsoft-auth
     description: Microsoft OAuth2 auth endpoint
     criticality: notable
     confidence: 0.8
@@ -62,7 +62,7 @@ traits:
       type: string
       exact: "login.microsoftonline.com/common/oauth2/v2.0/authorize"
 
-  - id: exfil/oauth/o365-client-id
+  - id: o365-client-id
     description: Office 365 client ID variable
     criticality: suspicious
     confidence: 0.9
@@ -72,7 +72,7 @@ traits:
       type: string
       exact: "O365_CLIENT_ID"
 
-  - id: exfil/oauth/code-verifier
+  - id: code-verifier
     description: OAuth PKCE code verifier
     criticality: notable
     confidence: 0.7
@@ -82,7 +82,7 @@ traits:
       type: string
       exact: "code_verifier"
 
-  - id: exfil/oauth/code-challenge
+  - id: code-challenge
     description: OAuth PKCE code challenge
     criticality: notable
     confidence: 0.7
@@ -93,7 +93,7 @@ traits:
       exact: "code_challenge"
 
 composite_rules:
-  - id: exfil/oauth/stealer-detected
+  - id: stealer-detected
     description: OAuth credential stealer
     criticality: suspicious
     confidence: 0.9

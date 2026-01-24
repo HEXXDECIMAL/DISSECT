@@ -3,7 +3,7 @@
 # ATT&CK: T1222
 
 traits:
-  - id: fs/permission/chmod
+  - id: chmod
     description: Modify file permissions
     criticality: notable
     confidence: 0.66
@@ -11,7 +11,7 @@ traits:
       type: symbol
       pattern: chmod|fchmod|fchmodat|lchmod
 
-  - id: fs/permission/chmod/string
+  - id: string
     description: Modify file permissions (string match)
     criticality: notable
     confidence: 0.7

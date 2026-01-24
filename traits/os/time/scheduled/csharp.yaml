@@ -2,7 +2,7 @@
 # objective: time, behavior: trigger (potential logic bombs)
 
 traits:
-  - id: time/trigger/scheduled/datetime-now
+  - id: datetime-now
     description: Current time access (potential time-based trigger)
     criticality: inert
     mbc: "B0003"
@@ -11,9 +11,9 @@ traits:
       type: ast_pattern
       node_type: member_access_expression
       pattern: "DateTime.Now"
-    file_types: [all]
+    file_types: [csharp]
 
-  - id: time/trigger/scheduled/datetime-utcnow
+  - id: datetime-utcnow
     description: Current UTC time access
     criticality: inert
     mbc: "B0003"
@@ -22,9 +22,9 @@ traits:
       type: ast_pattern
       node_type: member_access_expression
       pattern: "DateTime.UtcNow"
-    file_types: [all]
+    file_types: [csharp]
 
-  - id: time/trigger/scheduled/hardcoded-datetime
+  - id: hardcoded-datetime
     description: Hardcoded date/time value (potential logic bomb trigger)
     criticality: notable
     mbc: "B0003"
@@ -34,4 +34,4 @@ traits:
       type: ast_pattern
       node_type: object_creation_expression
       pattern: "new DateTime"
-    file_types: [all]
+    file_types: [csharp]

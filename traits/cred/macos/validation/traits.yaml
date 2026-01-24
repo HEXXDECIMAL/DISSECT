@@ -9,7 +9,7 @@ defaults:
 
 traits:
   # dscl authonly - verify password without creating session
-  - id: credential/macos/dscl-authonly
+  - id: dscl-authonly
     description: "macOS dscl password validation (authonly)"
     criticality: hostile
     confidence: 0.95
@@ -20,7 +20,7 @@ traits:
       regex: "dscl\\s+\\.\\s+authonly|dscl.*-authonly"
 
   # dscl read - enumerate user information
-  - id: credential/macos/dscl-read
+  - id: dscl-read
     description: "macOS Directory Services user enumeration"
     criticality: notable
     confidence: 0.7
@@ -30,7 +30,7 @@ traits:
       regex: "dscl\\s+\\.\\s+read|dscl.*-read"
 
   # dscl list - list users/groups
-  - id: credential/macos/dscl-list
+  - id: dscl-list
     description: "macOS Directory Services listing"
     criticality: notable
     confidence: 0.65
@@ -40,7 +40,7 @@ traits:
       regex: "dscl\\s+\\.\\s+list|dscl\\s+\\.\\s+-list"
 
   # Password file access
-  - id: credential/macos/etc-passwd
+  - id: etc-passwd
     description: "Access to /etc/passwd"
     criticality: notable
     confidence: 0.6
@@ -50,7 +50,7 @@ traits:
       exact: "/etc/passwd"
 
   # Shadow password access
-  - id: credential/macos/shadow-hash
+  - id: shadow-hash
     description: "Access to shadow password hashes"
     criticality: suspicious
     confidence: 0.85
@@ -61,7 +61,7 @@ traits:
 
 composite_rules:
   # Password validation + capture = credential theft
-  - id: credential/macos/validation-theft
+  - id: validation-theft
     description: "macOS credential capture and validation"
     criticality: hostile
     confidence: 0.95

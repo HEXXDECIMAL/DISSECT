@@ -6,7 +6,7 @@
 traits:
   # === Sentry Error Tracking ===
 
-  - id: c2/telemetry/sentry-dsn
+  - id: sentry-dsn
     description: Sentry DSN configuration (operator telemetry)
     criticality: suspicious
     confidence: 0.85
@@ -16,7 +16,7 @@ traits:
       # Sentry DSN format: https://<key>@<org>.ingest.sentry.io/<project>
       regex: "https://[a-f0-9]+@[a-z0-9.-]+\\.ingest\\.sentry\\.io/\\d+"
 
-  - id: c2/telemetry/sentry-sdk
+  - id: sentry-sdk
     description: Sentry SDK integration
     criticality: notable
     confidence: 0.7
@@ -25,7 +25,7 @@ traits:
       type: string
       regex: "sentry[_-]sdk|@sentry/|sentry\\.io"
 
-  - id: c2/telemetry/sentry-init
+  - id: sentry-init
     description: Sentry initialization function
     criticality: notable
     confidence: 0.7
@@ -34,7 +34,7 @@ traits:
       type: string
       regex: "sentry\\.init|Sentry\\.init|sentry_init"
 
-  - id: c2/telemetry/sentry-capture
+  - id: sentry-capture
     description: Sentry error capture
     criticality: notable
     confidence: 0.6
@@ -45,7 +45,7 @@ traits:
 
   # === Other Telemetry Services ===
 
-  - id: c2/telemetry/bugsnag
+  - id: bugsnag
     description: Bugsnag error tracking
     criticality: notable
     confidence: 0.7
@@ -54,7 +54,7 @@ traits:
       type: string
       regex: "bugsnag\\.com|Bugsnag\\.notify"
 
-  - id: c2/telemetry/rollbar
+  - id: rollbar
     description: Rollbar error tracking
     criticality: notable
     confidence: 0.7
@@ -63,7 +63,7 @@ traits:
       type: string
       regex: "rollbar\\.com|Rollbar\\.error"
 
-  - id: c2/telemetry/raygun
+  - id: raygun
     description: Raygun error tracking
     criticality: notable
     confidence: 0.7
@@ -73,7 +73,7 @@ traits:
       regex: "raygun\\.com|raygun\\.io"
 
 composite_rules:
-  - id: c2/telemetry/operator-monitoring
+  - id: operator-monitoring
     description: Malware operator monitoring via error tracking service
     criticality: suspicious
     confidence: 0.85

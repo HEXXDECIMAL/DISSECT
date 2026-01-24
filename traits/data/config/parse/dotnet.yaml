@@ -1,7 +1,7 @@
 # .NET Configuration Access Patterns
 
 traits:
-  - id: data/config/parse/config-manager
+  - id: config-manager
     description: Application configuration access
     criticality: notable
     confidence: 0.75
@@ -9,7 +9,7 @@ traits:
       type: string
       exact: "ConfigurationManager"
 
-  - id: data/config/parse/app-settings
+  - id: app-settings
     description: AppSettings configuration access
     criticality: notable
     confidence: 0.70
@@ -17,7 +17,7 @@ traits:
       type: string
       regex: "AppSettings|appsettings"
 
-  - id: data/config/parse/environment-vars
+  - id: environment-vars
     description: Environment variable access
     criticality: notable
     confidence: 0.70

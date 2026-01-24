@@ -4,7 +4,7 @@
 
 traits:
   # Recursive directory deletion (Node.js)
-  - id: impact/wiper/node/recursive-delete
+  - id: recursive-delete
     description: Recursive directory deletion function
     criticality: suspicious
     confidence: 0.85
@@ -25,7 +25,7 @@ traits:
         }
 
   # Targets development directories
-  - id: impact/wiper/target-dev-dirs
+  - id: target-dev-dirs
     description: Targets development directories for deletion
     criticality: suspicious
     confidence: 0.9
@@ -52,7 +52,7 @@ traits:
         }
 
   # Individual directory targeting
-  - id: impact/wiper/target-git
+  - id: target-git
     description: Targets .git directory (version control)
     criticality: notable
     confidence: 0.85
@@ -62,7 +62,7 @@ traits:
       type: string
       regex: '["'']\\./?\\.git["'']'
 
-  - id: impact/wiper/target-node-modules
+  - id: target-node-modules
     description: Targets node_modules directory
     criticality: notable
     confidence: 0.8
@@ -72,7 +72,7 @@ traits:
       type: string
       regex: '["'']/?(\\./)?node_modules["'']'
 
-  - id: impact/wiper/target-src
+  - id: target-src
     description: Targets source code directory
     criticality: notable
     confidence: 0.85
@@ -82,7 +82,7 @@ traits:
       type: string
       regex: '["'']/?(\\./)?src["'']'
 
-  - id: impact/wiper/target-vscode
+  - id: target-vscode
     description: Targets .vscode configuration directory
     criticality: notable
     confidence: 0.85
@@ -93,7 +93,7 @@ traits:
       regex: '["'']/?(\\./)?\\.(vscode|idea)["'']'
 
   # Conditional destruction based on environment
-  - id: impact/wiper/conditional-destroy
+  - id: conditional-destroy
     description: Conditional destruction based on environment check
     criticality: hostile
     confidence: 0.95
@@ -114,7 +114,7 @@ traits:
         }
 
   # Android/mobile storage targeting
-  - id: impact/wiper/target-android-storage
+  - id: target-android-storage
     description: Targets Android storage directories
     criticality: hostile
     confidence: 0.95
@@ -138,7 +138,7 @@ traits:
         }
 
   # Mass file deletion
-  - id: impact/wiper/mass-delete
+  - id: mass-delete
     description: Mass file deletion pattern
     criticality: suspicious
     confidence: 0.85
@@ -164,7 +164,7 @@ traits:
 
 composite_rules:
   # Protestware pattern (env-conditional destruction)
-  - id: impact/wiper/protestware
+  - id: protestware
     description: Protestware pattern - conditional destruction based on location/env
     criticality: hostile
     confidence: 0.98
@@ -176,7 +176,7 @@ composite_rules:
         id: impact/wiper/target-dev-dirs
 
   # Full wiper with HTTP callback (report success)
-  - id: impact/wiper/with-callback
+  - id: with-callback
     description: Wiper with HTTP callback (potential coordinated attack)
     criticality: hostile
     confidence: 0.95

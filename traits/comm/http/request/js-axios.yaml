@@ -2,7 +2,7 @@
 # MBC: C0002 (HTTP Communication)
 
 traits:
-  - id: http/request/js-axios-get
+  - id: js-axios-get
     description: Makes HTTP GET requests using axios
     criticality: inert
     confidence: 1.0
@@ -12,7 +12,7 @@ traits:
       node_type: call_expression
       pattern: "axios.get"
 
-  - id: http/request/js-axios-post
+  - id: js-axios-post
     description: Makes HTTP POST requests using axios
     criticality: inert
     confidence: 1.0

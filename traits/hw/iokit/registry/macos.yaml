@@ -1,7 +1,7 @@
 # IOKit Registry - macOS
 
 traits:
-  - id: hw/iokit/registry/access
+  - id: access
     description: Access IOKit device driver registry
     criticality: notable
     confidence: 0.6

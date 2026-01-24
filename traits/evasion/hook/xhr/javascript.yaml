@@ -9,7 +9,7 @@ defaults:
 
 traits:
   # XMLHttpRequest.prototype hooking
-  - id: evasion/hook/xhr/prototype-access
+  - id: prototype-access
     description: "XMLHttpRequest prototype access (potential hooking)"
     confidence: 0.8
     condition:
@@ -18,7 +18,7 @@ traits:
       regex: "XMLHttpRequest\\.prototype|XMLHttpRequest\\[.+\\]\\[.+\\]"
 
   # Hooking XMLHttpRequest.open
-  - id: evasion/hook/xhr/open-hook
+  - id: open-hook
     description: "XMLHttpRequest.open method hooking"
     confidence: 0.85
     criticality: hostile
@@ -27,7 +27,7 @@ traits:
       regex: "XMLHttpRequest\\.prototype\\.open\\s*=|XMLHttpRequest\\[.+\\]\\[.+open.+\\]\\s*="
 
   # Hooking XMLHttpRequest.send
-  - id: evasion/hook/xhr/send-hook
+  - id: send-hook
     description: "XMLHttpRequest.send method hooking"
     confidence: 0.85
     criticality: hostile
@@ -36,7 +36,7 @@ traits:
       regex: "XMLHttpRequest\\.prototype\\.send\\s*=|XMLHttpRequest\\[.+\\]\\[.+send.+\\]\\s*="
 
   # Hooking fetch API
-  - id: evasion/hook/xhr/fetch-hook
+  - id: fetch-hook
     description: "fetch API hooking"
     confidence: 0.85
     criticality: hostile
@@ -45,7 +45,7 @@ traits:
       regex: "window\\.fetch\\s*=|globalThis\\.fetch\\s*=|self\\.fetch\\s*="
 
   # onreadystatechange interception
-  - id: evasion/hook/xhr/readystate-intercept
+  - id: readystate-intercept
     description: "XMLHttpRequest readystate interception"
     confidence: 0.7
     condition:
@@ -54,7 +54,7 @@ traits:
 
 composite_rules:
   # Multiple XHR hooks = request interceptor
-  - id: evasion/hook/xhr/request-interceptor
+  - id: request-interceptor
     description: "HTTP request interceptor (XHR/fetch hooking)"
     criticality: hostile
     confidence: 0.9

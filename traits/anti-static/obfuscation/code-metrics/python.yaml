@@ -9,7 +9,7 @@ defaults:
 traits:
   # === Python-Specific Obfuscation Patterns ===
 
-  - id: anti-static/obfuscation/code-metrics/py-lambda-abuse
+  - id: py-lambda-abuse
     description: "Excessive lambda functions (obfuscation via lambdas)"
     criticality: suspicious
     confidence: 0.8
@@ -18,7 +18,7 @@ traits:
       field: functions.anonymous
       min: 15
 
-  - id: anti-static/obfuscation/code-metrics/py-single-line-heavy
+  - id: py-single-line-heavy
     description: "Many one-liner functions (compressed code)"
     criticality: notable
     confidence: 0.75
@@ -27,7 +27,7 @@ traits:
       field: functions.one_liners
       min: 10
 
-  - id: anti-static/obfuscation/code-metrics/py-nested-functions
+  - id: py-nested-functions
     description: "Nested function definitions (closure obfuscation)"
     criticality: notable
     confidence: 0.7
@@ -36,7 +36,7 @@ traits:
       field: functions.nested_functions
       min: 5
 
-  - id: anti-static/obfuscation/code-metrics/py-encoded-strings
+  - id: py-encoded-strings
     description: "High string entropy (base64/hex encoded payloads)"
     criticality: suspicious
     confidence: 0.85
@@ -46,7 +46,7 @@ traits:
       min: 4.5
 
 composite_rules:
-  - id: anti-static/obfuscation/py-pyobfuscate-pattern
+  - id: py-pyobfuscate-pattern
     description: "Python obfuscator tool output"
     criticality: suspicious
     confidence: 0.85
@@ -61,7 +61,7 @@ composite_rules:
       - type: trait
         id: anti-static/obfuscation/code-metrics/no-comments
 
-  - id: anti-static/obfuscation/py-pypi-malware-pattern
+  - id: py-pypi-malware-pattern
     description: "PyPI malware obfuscation pattern"
     criticality: hostile
     confidence: 0.9

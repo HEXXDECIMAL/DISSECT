@@ -3,7 +3,7 @@
 # ATT&CK: T1090
 
 traits:
-  - id: tunnel/tun
+  - id: tun
     description: TUN/TAP device usage
     criticality: notable
     confidence: 0.66

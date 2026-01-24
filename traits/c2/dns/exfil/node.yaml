@@ -5,7 +5,7 @@
 
 traits:
   # DNS Module Usage
-  - id: c2/dns/exfil/dns-resolve
+  - id: dns-resolve
     description: Node.js DNS resolve function (potential DNS tunneling)
     criticality: notable
     confidence: 0.8
@@ -14,7 +14,7 @@ traits:
       type: string
       regex: "dns\\.resolve|dns\\.resolve4|dns\\.resolve6"
 
-  - id: c2/dns/exfil/dns-resolve-txt
+  - id: dns-resolve-txt
     description: DNS TXT record resolution (common C2 channel)
     criticality: suspicious
     confidence: 0.9
@@ -25,7 +25,7 @@ traits:
       type: string
       regex: "dns\\.resolveTxt|resolveTxt\\(|'TXT'|\"TXT\""
 
-  - id: c2/dns/exfil/dns-promises
+  - id: dns-promises
     description: DNS promises API (async DNS operations)
     criticality: notable
     confidence: 0.75
@@ -35,7 +35,7 @@ traits:
       exact: "dns/promises"
 
   # DNS Tunneling Patterns
-  - id: c2/dns/exfil/subdomain-encoding
+  - id: subdomain-encoding
     description: Subdomain-based data encoding pattern
     criticality: suspicious
     confidence: 0.85
@@ -55,7 +55,7 @@ traits:
             $encode1 and $dns and ($split or $join)
         }
 
-  - id: c2/dns/exfil/dns-with-crypto
+  - id: dns-with-crypto
     description: DNS combined with encryption (encrypted C2 channel)
     criticality: suspicious
     confidence: 0.9
@@ -77,7 +77,7 @@ traits:
             any of ($dns*) and any of ($crypto*)
         }
 
-  - id: c2/dns/exfil/dns-polling-loop
+  - id: dns-polling-loop
     description: DNS polling loop (C2 beacon pattern)
     criticality: suspicious
     confidence: 0.85

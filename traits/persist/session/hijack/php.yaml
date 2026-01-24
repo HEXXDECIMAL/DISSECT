@@ -3,45 +3,45 @@
 # ATT&CK: T1071
 
 traits:
-  - id: persistence/session/hijack/start
+  - id: start
     description: PHP session initialization for state persistence
     criticality: notable
     confidence: 0.7
     mbc: "B0028"
-    file_types: [all]
+    file_types: [php]
     condition:
       type: string
       exact: session_start
 
-  - id: persistence/session/hijack/destroy
+  - id: destroy
     description: PHP session destruction
     criticality: notable
     confidence: 0.7
-    file_types: [all]
+    file_types: [php]
     condition:
       type: string
       exact: session_destroy
 
-  - id: persistence/session/hijack/regenerate
+  - id: regenerate
     description: PHP session ID regeneration
     criticality: notable
     confidence: 0.75
-    file_types: [all]
+    file_types: [php]
     condition:
       type: string
       exact: session_regenerate_id
 
-  - id: persistence/session/hijack/id-access
+  - id: id-access
     description: Direct session ID manipulation
     criticality: suspicious
     confidence: 0.8
     mbc: "B0028"
-    file_types: [all]
+    file_types: [php]
     condition:
       type: string
       regex: "session_id\\s*\\("
 
-  - id: persistence/php/no-time-limit
+  - id: no-time-limit
     description: Disables PHP script time limit (webshell indicator)
     criticality: notable
     confidence: 0.85
@@ -50,7 +50,7 @@ traits:
       node_type: function_call_expression
       pattern: "set_time_limit"
 
-  - id: persistence/php/ignore-abort
+  - id: ignore-abort
     description: Ignores client abort (webshell indicator)
     criticality: notable
     confidence: 0.85
@@ -59,7 +59,7 @@ traits:
       node_type: function_call_expression
       pattern: "ignore_user_abort"
 
-  - id: evasion/php/output-buffering
+  - id: output-buffering
     description: Uses output buffering (potential evasion)
     criticality: notable
     confidence: 0.7
@@ -68,7 +68,7 @@ traits:
       node_type: function_call_expression
       pattern: "ob_start"
 
-  - id: evasion/php/error-reporting-off
+  - id: error-reporting-off
     description: Disables error reporting (stealth)
     criticality: notable
     confidence: 0.8
@@ -77,7 +77,7 @@ traits:
       node_type: function_call_expression
       pattern: "error_reporting"
 
-  - id: evasion/php/display-errors-off
+  - id: display-errors-off
     description: Disables error display (stealth)
     criticality: notable
     confidence: 0.8

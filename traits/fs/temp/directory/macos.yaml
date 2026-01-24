@@ -3,7 +3,7 @@
 # ATT&CK: T1083
 
 traits:
-  - id: fs/temp/directory-cocoa
+  - id: directory-cocoa
     description: Look up temp directory via NSTemporaryDirectory
     criticality: inert
     confidence: 0.66

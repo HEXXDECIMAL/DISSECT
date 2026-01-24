@@ -2,7 +2,7 @@
 # ATT&CK: T1071
 
 traits:
-  - id: c2/network/custom_framing/text_headers
+  - id: text_headers
     description: "Custom text-based C2 protocol framing headers"
     criticality: suspicious
     confidence: 0.8

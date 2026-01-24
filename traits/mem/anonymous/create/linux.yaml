@@ -3,7 +3,7 @@
 # MBC: B0033
 
 traits:
-  - id: mem/anonymous/create/memfd-create
+  - id: memfd-create
     description: Create anonymous memory file (memfd_create)
     criticality: suspicious
     confidence: 0.8
@@ -15,7 +15,7 @@ traits:
       type: symbol
       pattern: "memfd_create"
 
-  - id: mem/anonymous/create/memfd-create-go
+  - id: memfd-create-go
     description: Create anonymous memory file (Go MemfdCreate)
     criticality: suspicious
     confidence: 0.85

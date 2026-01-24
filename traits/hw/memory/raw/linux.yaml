@@ -2,7 +2,7 @@
 # ATT&CK: T1003 (OS Credential Dumping)
 
 traits:
-  - id: hw/memory/raw/kmem
+  - id: kmem
     description: Access raw kernel memory (/dev/kmem)
     criticality: suspicious
     confidence: 0.9
@@ -12,7 +12,7 @@ traits:
       type: string
       exact: "/dev/kmem"
 
-  - id: hw/memory/raw/dev-mem
+  - id: dev-mem
     description: Access raw system memory (/dev/mem)
     criticality: suspicious
     confidence: 0.9
@@ -22,7 +22,7 @@ traits:
       type: string
       exact: "/dev/mem"
 
-  - id: hw/memory/raw/memdump-ref
+  - id: memdump-ref
     description: Memory dump utility reference
     criticality: suspicious
     confidence: 0.75

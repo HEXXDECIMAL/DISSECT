@@ -4,7 +4,7 @@
 
 traits:
   # Legitimate systemd service management
-  - id: admin/legitimate/systemd-management
+  - id: systemd-management
     description: Legitimate systemd service management
     criticality: benign
     confidence: 0.75
@@ -28,7 +28,7 @@ traits:
         }
 
   # Legitimate cron job management
-  - id: admin/legitimate/cron-management
+  - id: cron-management
     description: Legitimate cron job management
     criticality: benign
     confidence: 0.7
@@ -53,7 +53,7 @@ traits:
         }
 
   # Legitimate package management
-  - id: admin/legitimate/package-management
+  - id: package-management
     description: Legitimate package management operations
     criticality: benign
     confidence: 0.85
@@ -83,7 +83,7 @@ traits:
         }
 
   # Legitimate log management
-  - id: admin/legitimate/log-management
+  - id: log-management
     description: Legitimate log file management
     criticality: benign
     confidence: 0.8
@@ -105,7 +105,7 @@ traits:
         }
 
   # Legitimate user management
-  - id: admin/legitimate/user-management
+  - id: user-management
     description: Legitimate user account management
     criticality: benign
     confidence: 0.75
@@ -127,7 +127,7 @@ traits:
         }
 
   # Legitimate network configuration
-  - id: admin/legitimate/network-config
+  - id: network-config
     description: Legitimate network configuration
     criticality: benign
     confidence: 0.8
@@ -154,7 +154,7 @@ traits:
         }
 
   # Legitimate file system operations
-  - id: admin/legitimate/filesystem-ops
+  - id: filesystem-ops
     description: Legitimate filesystem administration
     criticality: benign
     confidence: 0.75
@@ -179,7 +179,7 @@ traits:
         }
 
   # Legitimate backup operations
-  - id: admin/legitimate/backup-ops
+  - id: backup-ops
     description: Legitimate backup and restore operations
     criticality: benign
     confidence: 0.85
@@ -203,7 +203,7 @@ traits:
         }
 
   # Legitimate process management
-  - id: admin/legitimate/process-management
+  - id: process-management
     description: Legitimate process management
     criticality: benign
     confidence: 0.8
@@ -227,7 +227,7 @@ traits:
         }
 
   # Legitimate SSH administration
-  - id: admin/legitimate/ssh-admin
+  - id: ssh-admin
     description: Legitimate SSH server administration
     criticality: benign
     confidence: 0.8
@@ -249,7 +249,7 @@ traits:
         }
 
   # Legitimate container management
-  - id: admin/legitimate/container-management
+  - id: container-management
     description: Legitimate container management (Docker/Podman)
     criticality: benign
     confidence: 0.85
@@ -272,7 +272,7 @@ traits:
         }
 
   # Legitimate monitoring/observability
-  - id: admin/legitimate/monitoring
+  - id: monitoring
     description: Legitimate system monitoring tools
     criticality: benign
     confidence: 0.85

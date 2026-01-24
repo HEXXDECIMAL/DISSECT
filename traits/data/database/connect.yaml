@@ -3,7 +3,7 @@
 
 traits:
   # PostgreSQL
-  - id: data/database/postgresql
+  - id: postgresql
     description: PostgreSQL database connectivity
     criticality: benign
     confidence: 0.9
@@ -24,7 +24,7 @@ traits:
         }
 
   # MySQL/MariaDB
-  - id: data/database/mysql
+  - id: mysql
     description: MySQL/MariaDB database connectivity
     criticality: benign
     confidence: 0.9
@@ -44,7 +44,7 @@ traits:
         }
 
   # SQLite
-  - id: data/database/sqlite
+  - id: sqlite
     description: SQLite database
     criticality: benign
     confidence: 0.9
@@ -63,7 +63,7 @@ traits:
         }
 
   # MongoDB
-  - id: data/database/mongodb
+  - id: mongodb
     description: MongoDB database connectivity
     criticality: benign
     confidence: 0.9
@@ -82,7 +82,7 @@ traits:
         }
 
   # Redis
-  - id: data/database/redis
+  - id: redis
     description: Redis database connectivity
     criticality: benign
     confidence: 0.9
@@ -102,7 +102,7 @@ traits:
         }
 
   # Elasticsearch
-  - id: data/database/elasticsearch
+  - id: elasticsearch
     description: Elasticsearch connectivity
     criticality: benign
     confidence: 0.9
@@ -121,7 +121,7 @@ traits:
         }
 
   # Cassandra
-  - id: data/database/cassandra
+  - id: cassandra
     description: Apache Cassandra connectivity
     criticality: benign
     confidence: 0.9
@@ -139,7 +139,7 @@ traits:
         }
 
   # DynamoDB
-  - id: data/database/dynamodb
+  - id: dynamodb
     description: AWS DynamoDB connectivity
     criticality: benign
     confidence: 0.9
@@ -156,7 +156,7 @@ traits:
         }
 
   # InfluxDB
-  - id: data/database/influxdb
+  - id: influxdb
     description: InfluxDB time series database
     criticality: benign
     confidence: 0.9
@@ -173,7 +173,7 @@ traits:
         }
 
   # Generic SQL patterns
-  - id: data/database/sql-generic
+  - id: sql-generic
     description: Generic SQL database patterns
     criticality: benign
     confidence: 0.8
@@ -194,7 +194,7 @@ traits:
         }
 
   # ORM frameworks
-  - id: data/database/orm
+  - id: orm
     description: ORM framework usage
     criticality: benign
     confidence: 0.85
@@ -215,7 +215,7 @@ traits:
         }
 
   # Connection pooling
-  - id: data/database/connection-pool
+  - id: connection-pool
     description: Database connection pooling
     criticality: benign
     confidence: 0.85

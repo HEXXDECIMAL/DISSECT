@@ -4,7 +4,7 @@
 
 traits:
   # PM2 process manager spawn
-  - id: persistence/process-manager/pm2-spawn
+  - id: pm2-spawn
     description: Spawns PM2 process manager (potential persistence)
     criticality: suspicious
     confidence: 0.85
@@ -15,7 +15,7 @@ traits:
       regex: "spawn\\([^)]*pm2"
 
   # PM2 start command
-  - id: persistence/process-manager/pm2-start
+  - id: pm2-start
     description: Starts process via PM2 (persistence mechanism)
     criticality: suspicious
     confidence: 0.85
@@ -26,7 +26,7 @@ traits:
       regex: "pm2\\s+start|exec\\([^)]*pm2\\s+start"
 
   # Forever process manager
-  - id: persistence/process-manager/forever-spawn
+  - id: forever-spawn
     description: Uses forever process manager (persistence)
     criticality: suspicious
     confidence: 0.8
@@ -37,7 +37,7 @@ traits:
       regex: "forever\\s+start|spawn\\([^)]*forever"
 
   # Nodemon for persistence
-  - id: persistence/process-manager/nodemon-spawn
+  - id: nodemon-spawn
     description: Uses nodemon for process persistence
     criticality: notable
     confidence: 0.7
@@ -48,7 +48,7 @@ traits:
       regex: "spawn\\([^)]*nodemon"
 
   # PM2 with detached mode
-  - id: persistence/process-manager/pm2-detached
+  - id: pm2-detached
     description: PM2 spawned in detached mode (background persistence)
     criticality: suspicious
     confidence: 0.9

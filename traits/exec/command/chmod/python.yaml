@@ -2,7 +2,7 @@
 # ATT&CK: T1222.002 (File and Directory Permissions Modification: Linux and Mac)
 
 traits:
-  - id: exec/command/chmod/call
+  - id: call
     description: "Modifies file permissions via os.chmod"
     criticality: notable
     confidence: 0.85
@@ -13,7 +13,7 @@ traits:
       type: string
       regex: "os\\.chmod\\("
 
-  - id: exec/command/chmod/executable
+  - id: executable
     description: "Sets executable permissions via chmod (0o7xx)"
     criticality: suspicious
     confidence: 0.9

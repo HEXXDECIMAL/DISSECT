@@ -3,7 +3,7 @@
 # ATT&CK: T1082
 
 traits:
-  - id: fs/device/blkid
+  - id: blkid
     description: Works with block device attributes
     criticality: inert
     confidence: 0.66

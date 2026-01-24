@@ -4,7 +4,7 @@
 
 traits:
   # RSA key generation/handling
-  - id: impact/ransomware/rsa-key-handling
+  - id: rsa-key-handling
     description: RSA key generation or handling (potential ransomware)
     criticality: notable
     confidence: 0.8
@@ -27,7 +27,7 @@ traits:
         }
 
   # File encryption loop pattern
-  - id: impact/ransomware/file-encryption-loop
+  - id: file-encryption-loop
     description: File iteration with encryption (ransomware pattern)
     criticality: hostile
     confidence: 0.9
@@ -58,7 +58,7 @@ traits:
         }
 
   # Ransom note indicators
-  - id: impact/ransomware/ransom-note
+  - id: ransom-note
     description: Ransom note text patterns
     criticality: hostile
     confidence: 0.95
@@ -80,7 +80,7 @@ traits:
             2 of them
         }
 
-  - id: impact/ransomware/ransom-identifier
+  - id: ransom-identifier
     description: Ransom-related terminology
     criticality: notable
     confidence: 0.6
@@ -89,7 +89,7 @@ traits:
       regex: "(?i)\\bransom\\b"
 
   # File extension change pattern
-  - id: impact/ransomware/extension-change
+  - id: extension-change
     description: Changes file extensions (potential ransomware)
     criticality: suspicious
     confidence: 0.85
@@ -112,7 +112,7 @@ traits:
         }
 
   # Medusa ransomware patterns
-  - id: impact/ransomware/medusa-pattern
+  - id: medusa-pattern
     description: Medusa ransomware implementation indicators
     criticality: notable
     confidence: 0.95
@@ -132,7 +132,7 @@ traits:
         }
 
   # Shadow copy deletion (Windows ransomware)
-  - id: impact/ransomware/shadow-delete
+  - id: shadow-delete
     description: Shadow copy deletion (ransomware preparation)
     criticality: hostile
     confidence: 0.95

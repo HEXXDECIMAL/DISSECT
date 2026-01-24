@@ -4,7 +4,7 @@
 composite_rules:
   # === SSH Worm Detection ===
 
-  - id: lateral/ssh/shell-worm
+  - id: shell-worm
     description: SSH worm implemented in shell script
     criticality: suspicious
     confidence: 0.95
@@ -35,7 +35,7 @@ composite_rules:
 
   # === SSH Attack Tool ===
 
-  - id: lateral/ssh/attack-tool
+  - id: attack-tool
     description: SSH attack tool or script
     criticality: suspicious
     confidence: 0.9
@@ -47,7 +47,7 @@ composite_rules:
 
   # === SSH Key Theft + Lateral Movement ===
 
-  - id: lateral/ssh/key-based-spread
+  - id: key-based-spread
     description: SSH key theft for lateral movement
     criticality: suspicious
     confidence: 0.85
@@ -64,7 +64,7 @@ composite_rules:
 
   # === SSH Host Discovery ===
 
-  - id: lateral/ssh/host-discovery
+  - id: host-discovery
     description: SSH target host discovery
     criticality: suspicious
     confidence: 0.8

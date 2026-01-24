@@ -3,7 +3,7 @@
 # ATT&CK: T1071
 
 traits:
-  - id: socket/raw
+  - id: raw
     description: Create raw network sockets
     criticality: notable
     confidence: 0.8

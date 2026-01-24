@@ -3,7 +3,7 @@
 # ATT&CK: T1082
 
 traits:
-  - id: fs/proc/hardware-nvidia
+  - id: hardware-nvidia
     description: Access NVIDIA GPU information via /proc
     criticality: inert
     confidence: 0.66

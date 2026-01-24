@@ -2,7 +2,7 @@
 # ATT&CK: T1036
 
 traits:
-  - id: evasion/masquerade/process/rust-360-check
+  - id: rust-360-check
     description: Checks for 360 Safe Tray (AV evasion)
     criticality: suspicious
     confidence: 1.0

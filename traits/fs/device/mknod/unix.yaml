@@ -3,7 +3,7 @@
 # ATT&CK: T1222
 
 traits:
-  - id: fs/device/mknod
+  - id: mknod
     description: Create device files
     criticality: notable
     confidence: 0.66

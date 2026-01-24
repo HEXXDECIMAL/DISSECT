@@ -3,7 +3,7 @@
 # ATT&CK: T1057
 
 traits:
-  - id: fs/proc/process-arbitrary
+  - id: process-arbitrary
     description: Access /proc for arbitrary PIDs
     criticality: notable
     confidence: 0.66
@@ -11,7 +11,7 @@ traits:
       type: string
       regex: "/proc/[%{$][/\\$\\w\\}]{0,12}"
 
-  - id: fs/proc/process-self-exe
+  - id: process-self-exe
     description: Read own executable path via /proc/self/exe
     criticality: inert
     confidence: 0.66
@@ -19,7 +19,7 @@ traits:
       type: string
       exact: /proc/self/exe
 
-  - id: fs/proc/process-self-cmdline
+  - id: process-self-cmdline
     description: Read own command line via /proc/self/cmdline
     criticality: inert
     confidence: 0.66
@@ -27,7 +27,7 @@ traits:
       type: string
       exact: /proc/self/cmdline
 
-  - id: fs/proc/process-self-status
+  - id: process-self-status
     description: Read own process status via /proc/self/status
     criticality: inert
     confidence: 0.66
@@ -35,7 +35,7 @@ traits:
       type: string
       exact: /proc/self/status
 
-  - id: fs/proc/process-pid-maps
+  - id: process-pid-maps
     description: Read process memory maps via /proc/*/maps
     criticality: notable
     confidence: 0.66
@@ -43,7 +43,7 @@ traits:
       type: string
       regex: "/proc/[^/]+/maps"
 
-  - id: fs/proc/process-pid-cmdline
+  - id: process-pid-cmdline
     description: Read process command line via /proc/*/cmdline
     criticality: notable
     confidence: 0.66
@@ -51,7 +51,7 @@ traits:
       type: string
       regex: "/proc/[^/]+/cmdline"
 
-  - id: fs/proc/process-pid-environ
+  - id: process-pid-environ
     description: Read process environment via /proc/*/environ
     criticality: suspicious
     confidence: 0.66
@@ -59,7 +59,7 @@ traits:
       type: string
       regex: "/proc/[^/]+/environ"
 
-  - id: fs/proc/process-pid-fd
+  - id: process-pid-fd
     description: Access process file descriptors via /proc/*/fd
     criticality: notable
     confidence: 0.66
@@ -67,7 +67,7 @@ traits:
       type: string
       regex: "/proc/[^/]+/fd"
 
-  - id: fs/proc/process-pid-exe
+  - id: process-pid-exe
     description: Read process executable path via /proc/*/exe
     criticality: notable
     confidence: 0.66
@@ -75,7 +75,7 @@ traits:
       type: string
       regex: "/proc/[^/]+/exe"
 
-  - id: fs/proc/process-pid-status
+  - id: process-pid-status
     description: Read process status via /proc/*/status
     criticality: notable
     confidence: 0.66
@@ -83,7 +83,7 @@ traits:
       type: string
       regex: "/proc/[^/]+/status"
 
-  - id: fs/proc/process-pid-stat
+  - id: process-pid-stat
     description: Read process statistics via /proc/*/stat
     criticality: notable
     confidence: 0.66
@@ -91,7 +91,7 @@ traits:
       type: string
       regex: "/proc/[^/]+/stat[^u]"
 
-  - id: fs/proc/process-oom
+  - id: process-oom
     description: Adjust OOM killer score via /proc/*/oom_score_adj
     criticality: suspicious
     confidence: 0.66

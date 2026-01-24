@@ -11,7 +11,7 @@ defaults:
 
 traits:
   # CREATE_NO_WINDOW flag - hides console window
-  - id: evasion/process-hide/windows/create-no-window
+  - id: create-no-window
     description: "Process creation with hidden window (CREATE_NO_WINDOW)"
     confidence: 0.9
     condition:
@@ -19,7 +19,7 @@ traits:
       regex: "CREATE_NO_WINDOW"
 
   # CREATE_NEW_PROCESS_GROUP - detaches from parent
-  - id: evasion/process-hide/windows/create-new-process-group
+  - id: create-new-process-group
     description: "Process creation detached from parent (CREATE_NEW_PROCESS_GROUP)"
     confidence: 0.8
     condition:
@@ -27,7 +27,7 @@ traits:
       regex: "CREATE_NEW_PROCESS_GROUP"
 
   # DETACHED_PROCESS - runs without console
-  - id: evasion/process-hide/windows/detached-process
+  - id: detached-process
     description: "Detached process creation (DETACHED_PROCESS)"
     confidence: 0.85
     condition:
@@ -35,7 +35,7 @@ traits:
       regex: "DETACHED_PROCESS"
 
   # SW_HIDE - hidden window via startupinfo
-  - id: evasion/process-hide/windows/sw-hide
+  - id: sw-hide
     description: "Hidden window via STARTUPINFO (SW_HIDE)"
     confidence: 0.9
     condition:
@@ -43,7 +43,7 @@ traits:
       regex: "SW_HIDE"
 
   # creationflags parameter in subprocess
-  - id: evasion/process-hide/windows/creationflags
+  - id: creationflags
     description: "Process creation with custom flags"
     confidence: 0.75
     criticality: notable
@@ -53,7 +53,7 @@ traits:
 
 composite_rules:
   # Combined: CREATE_NO_WINDOW + CREATE_NEW_PROCESS_GROUP
-  - id: evasion/process-hide/windows/stealth-subprocess
+  - id: stealth-subprocess
     description: "Stealthy subprocess creation (hidden + detached)"
     confidence: 0.95
     criticality: hostile
@@ -64,7 +64,7 @@ composite_rules:
         regex: "CREATE_NO_WINDOW|DETACHED_PROCESS"
 
   # creationflags with bitwise OR - combining multiple flags
-  - id: evasion/process-hide/windows/combined-flags
+  - id: combined-flags
     description: "Multiple process creation flags combined"
     confidence: 0.9
     condition:

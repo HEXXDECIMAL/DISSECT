@@ -3,7 +3,7 @@
 # ATT&CK: T1552.001 (Credentials In Files)
 
 traits:
-  - id: credential/environment/secret-access/npm-token
+  - id: npm-token
     description: NPM_TOKEN environment variable access
     criticality: suspicious
     confidence: 0.95
@@ -13,7 +13,7 @@ traits:
       type: string
       exact: "NPM_TOKEN"
 
-  - id: credential/environment/secret-access/node-auth-token
+  - id: node-auth-token
     description: NODE_AUTH_TOKEN environment variable access
     criticality: suspicious
     confidence: 0.95
@@ -23,7 +23,7 @@ traits:
       type: string
       exact: "NODE_AUTH_TOKEN"
 
-  - id: credential/environment/secret-access/npm-config-token
+  - id: npm-config-token
     description: npm_config token access
     criticality: suspicious
     confidence: 0.9
@@ -33,7 +33,7 @@ traits:
       type: string
       regex: "npm_config.*token|NPM_CONFIG.*TOKEN"
 
-  - id: credential/environment/secret-access/npmrc-access
+  - id: npmrc-access
     description: .npmrc file access (contains tokens)
     criticality: suspicious
     confidence: 0.9

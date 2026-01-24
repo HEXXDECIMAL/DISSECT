@@ -9,7 +9,7 @@ defaults:
 traits:
   # === Shell-Specific Obfuscation Patterns ===
 
-  - id: anti-static/obfuscation/code-metrics/sh-single-char-vars
+  - id: sh-single-char-vars
     description: "Excessive single-character variables in shell"
     criticality: suspicious
     confidence: 0.8
@@ -18,7 +18,7 @@ traits:
       field: identifiers.single_char_ratio
       min: 0.40
 
-  - id: anti-static/obfuscation/code-metrics/sh-obfuscated-identifiers
+  - id: sh-obfuscated-identifiers
     description: "Obfuscated shell variable names"
     criticality: suspicious
     confidence: 0.85
@@ -27,7 +27,7 @@ traits:
       field: identifiers.avg_entropy
       min: 3.0
 
-  - id: anti-static/obfuscation/code-metrics/sh-encoded-payload
+  - id: sh-encoded-payload
     description: "Shell script with encoded payload strings"
     criticality: suspicious
     confidence: 0.85
@@ -36,7 +36,7 @@ traits:
       field: strings.avg_entropy
       min: 4.0
 
-  - id: anti-static/obfuscation/code-metrics/sh-long-lines
+  - id: sh-long-lines
     description: "Very long shell lines (compressed/obfuscated)"
     criticality: suspicious
     confidence: 0.8
@@ -45,7 +45,7 @@ traits:
       field: text.max_line_length
       min: 300
 
-  - id: anti-static/obfuscation/code-metrics/sh-no-functions
+  - id: sh-no-functions
     description: "No shell functions (inline obfuscation)"
     criticality: notable
     confidence: 0.6
@@ -55,7 +55,7 @@ traits:
       max: 0
 
 composite_rules:
-  - id: anti-static/obfuscation/sh-encoded-dropper
+  - id: sh-encoded-dropper
     description: "Shell script with encoded payload dropper"
     criticality: hostile
     confidence: 0.9
@@ -68,7 +68,7 @@ composite_rules:
       - type: trait
         id: sh-obfuscated-identifiers
 
-  - id: anti-static/obfuscation/sh-compact-malware
+  - id: sh-compact-malware
     description: "Compacted shell malware pattern"
     criticality: suspicious
     confidence: 0.85

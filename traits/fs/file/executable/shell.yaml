@@ -3,7 +3,7 @@
 # ATT&CK: T1222
 
 traits:
-  - id: fs/file/executable
+  - id: executable
     description: Make file executable
     criticality: notable
     confidence: 0.66

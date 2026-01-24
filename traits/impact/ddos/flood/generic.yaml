@@ -3,7 +3,7 @@
 # ATT&CK: T1499
 
 traits:
-  - id: impact/ddos/ddos-reference
+  - id: ddos-reference
     description: References DDoS attack
     criticality: suspicious
     confidence: 0.7
@@ -14,7 +14,7 @@ traits:
       type: string
       regex: "(?i)ddos|dd0s"
 
-  - id: impact/ddos/syn-flood
+  - id: syn-flood
     description: SYN flood attack reference
     criticality: suspicious
     confidence: 0.9
@@ -25,7 +25,7 @@ traits:
       type: string
       regex: "(?i)syn.?flood"
 
-  - id: impact/ddos/ack-flood
+  - id: ack-flood
     description: ACK flood attack reference
     criticality: suspicious
     confidence: 0.9
@@ -36,7 +36,7 @@ traits:
       type: string
       regex: "(?i)ack.?flood"
 
-  - id: impact/ddos/udp-flood
+  - id: udp-flood
     description: UDP flood attack function
     criticality: suspicious
     confidence: 0.9
@@ -47,7 +47,7 @@ traits:
       type: string
       exact: "udp_flood"
 
-  - id: impact/ddos/tcp-flood
+  - id: tcp-flood
     description: TCP flood attack function
     criticality: suspicious
     confidence: 0.9
@@ -58,7 +58,7 @@ traits:
       type: string
       exact: "tcp_flood"
 
-  - id: impact/ddos/flooder
+  - id: flooder
     description: Flooder tool reference
     criticality: suspicious
     confidence: 0.85
@@ -69,7 +69,7 @@ traits:
       type: string
       regex: "(?i)flooder"
 
-  - id: impact/ddos/stresser
+  - id: stresser
     description: Stresser tool reference
     criticality: suspicious
     confidence: 0.9
@@ -80,7 +80,7 @@ traits:
       type: string
       exact: "stresser"
 
-  - id: impact/ddos/tsource-engine
+  - id: tsource-engine
     description: TSource Engine Query (DDoS amplification)
     criticality: suspicious
     confidence: 0.95
@@ -91,7 +91,7 @@ traits:
       type: string
       exact: "TSource Engine Query"
 
-  - id: impact/ddos/icmp-flood
+  - id: icmp-flood
     description: ICMP flood attack
     criticality: suspicious
     confidence: 0.9
@@ -102,7 +102,7 @@ traits:
       type: string
       exact: "ICMPFLOOD"
 
-  - id: impact/ddos/blacknurse
+  - id: blacknurse
     description: BlackNurse ICMP attack
     criticality: suspicious
     confidence: 0.95
@@ -114,7 +114,7 @@ traits:
       exact: "BLACKNURSE"
 
 composite_rules:
-  - id: impact/ddos/flood-tool-detected
+  - id: flood-tool-detected
     description: DDoS flood tool
     criticality: suspicious
     confidence: 0.95

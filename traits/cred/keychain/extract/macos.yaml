@@ -5,7 +5,7 @@
 composite_rules:
   # === Atomic: Security Framework Symbols ===
 
-  - id: credential/keychain/find-generic
+  - id: find-generic
     description: Read passwords from macOS Keychain (SecKeychainFindGenericPassword)
     criticality: suspicious
     confidence: 0.9
@@ -17,7 +17,7 @@ composite_rules:
       type: symbol
       pattern: "SecKeychainFindGenericPassword"
 
-  - id: credential/keychain/find-internet
+  - id: find-internet
     description: Read internet passwords from macOS Keychain (SecKeychainFindInternetPassword)
     criticality: suspicious
     confidence: 0.9
@@ -29,7 +29,7 @@ composite_rules:
       type: symbol
       pattern: "SecKeychainFindInternetPassword"
 
-  - id: credential/keychain/item-copy-content
+  - id: item-copy-content
     description: Copy Keychain item contents (SecKeychainItemCopyContent)
     criticality: suspicious
     confidence: 0.95
@@ -41,7 +41,7 @@ composite_rules:
       type: symbol
       pattern: "SecKeychainItemCopyContent"
 
-  - id: credential/keychain/open
+  - id: open
     description: Open Keychain database (SecKeychainOpen)
     criticality: suspicious
     confidence: 0.8
@@ -52,7 +52,7 @@ composite_rules:
       type: symbol
       pattern: "SecKeychainOpen"
 
-  - id: credential/keychain/copy-default
+  - id: copy-default
     description: Copy default Keychain reference (SecKeychainCopyDefault)
     criticality: notable
     confidence: 0.7
@@ -63,7 +63,7 @@ composite_rules:
       type: symbol
       pattern: "SecKeychainCopyDefault"
 
-  - id: credential/keychain/sec-item-copy
+  - id: sec-item-copy
     description: Copy keychain item attributes (SecItemCopyMatching)
     criticality: suspicious
     confidence: 0.85
@@ -76,7 +76,7 @@ composite_rules:
 
   # === Atomic: Command Line Tools ===
 
-  - id: credential/keychain/security-cli
+  - id: security-cli
     description: macOS security command line tool
     criticality: suspicious
     confidence: 0.75
@@ -89,7 +89,7 @@ composite_rules:
       # Excludes false positives like "SECURITY_MESSAGES" or "security.framework"
       regex: "\\bsecurity\\s+(find-|dump-|delete-|add-|export|import|unlock)"
 
-  - id: credential/keychain/find-generic-password-cli
+  - id: find-generic-password-cli
     description: security find-generic-password command
     criticality: suspicious
     confidence: 0.85
@@ -100,7 +100,7 @@ composite_rules:
       type: string
       exact: "find-generic-password"
 
-  - id: credential/keychain/dump-keychain-cli
+  - id: dump-keychain-cli
     description: security dump-keychain command
     criticality: suspicious
     confidence: 0.9
@@ -113,29 +113,29 @@ composite_rules:
 
   # === Atomic: Keychain File Paths ===
 
-  - id: credential/keychain/login-path
+  - id: login-path
     description: User login keychain path
     criticality: notable
     confidence: 0.7
     attack: "T1555.001"
     platforms: [macos]
-    file_types: [all]
+    file_types: [macho, shell, perl, python, ruby]
     condition:
       type: string
       exact: "login.keychain"
 
-  - id: credential/keychain/system-path
+  - id: system-path
     description: System keychain path
     criticality: notable
     confidence: 0.7
     attack: "T1555.001"
     platforms: [macos]
-    file_types: [all]
+    file_types: [macho, shell, perl, python, ruby]
     condition:
       type: string
       exact: "/Library/Keychains/System.keychain"
 
-  - id: credential/keychain/password-extraction
+  - id: password-extraction
     description: macOS Keychain password extraction
     criticality: suspicious
     confidence: 0.9
@@ -152,7 +152,7 @@ composite_rules:
       - type: trait
         id: credential/keychain/item-copy-content
 
-  - id: credential/keychain/cli-dump
+  - id: cli-dump
     description: macOS Keychain dump via CLI
     criticality: suspicious
     confidence: 0.9

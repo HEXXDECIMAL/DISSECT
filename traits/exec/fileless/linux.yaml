@@ -3,7 +3,7 @@
 
 traits:
   # memfd_create syscall for anonymous memory-backed file
-  - id: exec/fileless/memfd-create
+  - id: memfd-create
     description: Creates anonymous memory-backed file (memfd_create syscall)
     criticality: hostile
     confidence: 0.95
@@ -25,7 +25,7 @@ traits:
         }
 
   # Execution from /proc/self/fd (fileless execution)
-  - id: exec/fileless/proc-fd-exec
+  - id: proc-fd-exec
     description: Executes binary from /proc/self/fd (fileless execution)
     criticality: hostile
     confidence: 0.95
@@ -48,7 +48,7 @@ traits:
         }
 
   # ctypes syscall invocation
-  - id: exec/fileless/ctypes-syscall
+  - id: ctypes-syscall
     description: Direct syscall invocation via ctypes
     criticality: suspicious
     confidence: 0.9
@@ -68,7 +68,7 @@ traits:
         }
 
   # Download and memfd execution chain
-  - id: exec/fileless/download-memfd-exec
+  - id: download-memfd-exec
     description: Downloads binary and executes via memfd (fileless dropper)
     criticality: hostile
     confidence: 0.98
@@ -100,7 +100,7 @@ traits:
         }
 
   # os.write to file descriptor
-  - id: exec/fileless/fd-write
+  - id: fd-write
     description: Writes binary data to file descriptor
     criticality: notable
     confidence: 0.8
@@ -119,7 +119,7 @@ traits:
         }
 
   # shm_open for shared memory execution
-  - id: exec/fileless/shm-exec
+  - id: shm-exec
     description: Uses shared memory for fileless execution
     criticality: hostile
     confidence: 0.9
@@ -140,7 +140,7 @@ traits:
 
 composite_rules:
   # Complete fileless dropper pattern
-  - id: exec/fileless/linux-dropper
+  - id: linux-dropper
     description: Linux fileless dropper (download + memfd + exec)
     criticality: hostile
     confidence: 0.99

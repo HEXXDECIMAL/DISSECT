@@ -3,7 +3,7 @@
 # ATT&CK: T1083
 
 traits:
-  - id: fs/temp/directory-python
+  - id: directory-python
     description: Look up temp directory via tempfile.gettempdir
     criticality: inert
     confidence: 0.66

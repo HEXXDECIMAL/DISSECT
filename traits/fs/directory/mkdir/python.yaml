@@ -3,7 +3,7 @@
 # ATT&CK: T1083
 
 traits:
-  - id: fs/directory/mkdir-python
+  - id: mkdir-python
     description: Create directories (Python os.makedirs)
     criticality: inert
     confidence: 0.66

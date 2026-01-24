@@ -4,7 +4,7 @@
 # ATT&CK: T1027.006 (Obfuscated Files or Information: HTML Smuggling)
 
 traits:
-  - id: evasion/url-shortener/redirect/url-shortener-bitly
+  - id: url-shortener-bitly
     description: URL shortened via bit.ly (hides true destination)
     criticality: suspicious
     confidence: 0.9
@@ -16,7 +16,7 @@ traits:
       regex: "bit\\.ly/[A-Za-z0-9]+"
       search_raw: true
 
-  - id: evasion/url-shortener/redirect/url-shortener-tinyurl
+  - id: url-shortener-tinyurl
     description: URL shortened via tinyurl.com (hides true destination)
     criticality: suspicious
     confidence: 0.9
@@ -28,7 +28,7 @@ traits:
       regex: "tinyurl\\.com/[A-Za-z0-9]+"
       search_raw: true
 
-  - id: evasion/url-shortener/redirect/url-shortener-goo-gl
+  - id: url-shortener-goo-gl
     description: URL shortened via goo.gl (hides true destination)
     criticality: suspicious
     confidence: 0.9
@@ -40,7 +40,7 @@ traits:
       regex: "goo\\.gl/[A-Za-z0-9]+"
       search_raw: true
 
-  - id: evasion/url-shortener/redirect/url-shortener-t-co
+  - id: url-shortener-t-co
     description: URL shortened via t.co (hides true destination)
     criticality: notable
     confidence: 0.85
@@ -52,7 +52,7 @@ traits:
       regex: "t\\.co/[A-Za-z0-9]+"
       search_raw: true
 
-  - id: evasion/url-shortener/redirect/url-shortener-is-gd
+  - id: url-shortener-is-gd
     description: URL shortened via is.gd (hides true destination)
     criticality: suspicious
     confidence: 0.9
@@ -64,7 +64,7 @@ traits:
       regex: "is\\.gd/[A-Za-z0-9]+"
       search_raw: true
 
-  - id: evasion/url-shortener/redirect/url-shortener-cutt-ly
+  - id: url-shortener-cutt-ly
     description: URL shortened via cutt.ly (hides true destination)
     criticality: suspicious
     confidence: 0.9
@@ -76,7 +76,7 @@ traits:
       regex: "cutt\\.ly/[A-Za-z0-9]+"
       search_raw: true
 
-  - id: evasion/url-shortener/redirect/url-shortener-rebrand-ly
+  - id: url-shortener-rebrand-ly
     description: URL shortened via rebrand.ly (hides true destination)
     criticality: suspicious
     confidence: 0.9

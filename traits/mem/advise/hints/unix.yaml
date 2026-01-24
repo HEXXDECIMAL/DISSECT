@@ -1,7 +1,7 @@
 # Memory Advisory - Unix
 
 traits:
-  - id: mem/advise/hints/madvise
+  - id: madvise
     description: Memory advisory hints (madvise)
     criticality: inert
     confidence: 1.0

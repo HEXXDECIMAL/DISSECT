@@ -7,7 +7,7 @@ defaults:
 
 traits:
   # Discord token regex pattern (standard)
-  - id: credential/discord/token/regex-standard
+  - id: regex-standard
     description: Discord token regex pattern
     criticality: suspicious
     confidence: 0.95
@@ -17,7 +17,7 @@ traits:
       regex: '\\[\\\\w-\\]\\{24\\}\\.\\[\\\\w-\\]\\{6\\}\\.\\[\\\\w-\\]\\{27\\}'
 
   # Discord MFA token pattern
-  - id: credential/discord/token/regex-mfa
+  - id: regex-mfa
     description: Discord MFA token regex pattern
     criticality: suspicious
     confidence: 0.95
@@ -27,7 +27,7 @@ traits:
       regex: 'mfa\\.\\[\\\\w-\\]\\{84\\}'
 
   # Discord token literal pattern (actual token format)
-  - id: credential/discord/token/literal-pattern
+  - id: literal-pattern
     description: Discord token in code
     criticality: hostile
     confidence: 0.9
@@ -37,7 +37,7 @@ traits:
       regex: "[MN][A-Za-z0-9]{23,}\\.[A-Za-z0-9_-]{6}\\.[A-Za-z0-9_-]{27}"
 
   # Discord Local Storage path
-  - id: credential/discord/token/localstorage-path
+  - id: localstorage-path
     description: Discord Local Storage directory access
     criticality: suspicious
     confidence: 0.9
@@ -46,7 +46,7 @@ traits:
       regex: "(?i)(discord|discordcanary|discordptb)[/\\\\]+(Local Storage|leveldb)"
 
   # Discord API user endpoint (token validation)
-  - id: credential/discord/token/api-users-me
+  - id: api-users-me
     description: Discord API user validation endpoint
     criticality: suspicious
     confidence: 0.85
@@ -55,7 +55,7 @@ traits:
       regex: "discord(app)?\\.com/api/(v[0-9]+/)?users/@me"
 
   # Discord billing endpoint (payment theft)
-  - id: credential/discord/token/api-billing
+  - id: api-billing
     description: Discord billing/payment API endpoint
     criticality: hostile
     confidence: 0.95
@@ -64,7 +64,7 @@ traits:
       regex: "discord(app)?\\.com/api/(v[0-9]+/)?users/@me/billing"
 
   # Discord payment sources endpoint
-  - id: credential/discord/token/api-payment-sources
+  - id: api-payment-sources
     description: Discord payment sources API endpoint
     criticality: hostile
     confidence: 0.95
@@ -73,7 +73,7 @@ traits:
       exact: "payment-sources"
 
   # Discord relationships endpoint (friends list)
-  - id: credential/discord/token/api-relationships
+  - id: api-relationships
     description: Discord relationships API endpoint
     criticality: suspicious
     confidence: 0.85
@@ -82,7 +82,7 @@ traits:
       regex: "users/@me/relationships"
 
   # Discord channels endpoint (DM access)
-  - id: credential/discord/token/api-channels
+  - id: api-channels
     description: Discord channels API endpoint
     criticality: suspicious
     confidence: 0.8
@@ -92,7 +92,7 @@ traits:
 
 composite_rules:
   # Discord token stealer composite
-  - id: credential/discord/token/stealer-detected
+  - id: stealer-detected
     description: Discord token stealer detected
     criticality: hostile
     confidence: 0.98
@@ -129,7 +129,7 @@ composite_rules:
         }
 
   # Discord token grabber with browser enumeration
-  - id: credential/discord/token/browser-grabber
+  - id: browser-grabber
     description: Discord token grabber targeting multiple browsers
     criticality: hostile
     confidence: 0.95

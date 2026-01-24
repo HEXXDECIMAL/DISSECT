@@ -3,7 +3,7 @@
 # ATT&CK: T1083
 
 traits:
-  - id: fs/permission/get
+  - id: get
     description: Look up file permissions
     criticality: inert
     confidence: 0.66

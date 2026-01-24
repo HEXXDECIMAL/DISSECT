@@ -3,7 +3,7 @@
 
 traits:
   # openpty is common in legitimate programs (terminal emulators, SSH, screen)
-  - id: exec/tty/openpty
+  - id: openpty
     description: Open pseudoterminal
     criticality: notable
     confidence: 0.85
@@ -16,7 +16,7 @@ traits:
   # POSIX pseudoterminal functions (used on macOS/BSD for PTY creation)
   # These are notable (not suspicious) because many legitimate programs use PTY:
   # terminal emulators, SSH clients, screen/tmux, expect, etc.
-  - id: exec/tty/posix-openpt
+  - id: posix-openpt
     description: POSIX open pseudoterminal master
     criticality: notable
     confidence: 0.85
@@ -26,7 +26,7 @@ traits:
       type: symbol
       pattern: posix_openpt
 
-  - id: exec/tty/grantpt
+  - id: grantpt
     description: Grant access to slave pseudoterminal
     criticality: notable
     confidence: 0.8
@@ -36,7 +36,7 @@ traits:
       type: symbol
       pattern: grantpt
 
-  - id: exec/tty/unlockpt
+  - id: unlockpt
     description: Unlock slave pseudoterminal
     criticality: notable
     confidence: 0.8
@@ -46,7 +46,7 @@ traits:
       type: symbol
       pattern: unlockpt
 
-  - id: exec/tty/ptsname
+  - id: ptsname
     description: Get slave pseudoterminal name
     criticality: notable
     confidence: 0.8
@@ -56,7 +56,7 @@ traits:
       type: symbol
       pattern: ptsname|ptsname_r
 
-  - id: exec/tty/isatty
+  - id: isatty
     description: Check if terminal
     criticality: notable
     confidence: 0.7
@@ -66,7 +66,7 @@ traits:
       type: string
       exact: "isatty"
 
-  - id: exec/tty/ttyname
+  - id: ttyname
     description: Get terminal device pathname
     criticality: notable
     confidence: 0.8
@@ -76,7 +76,7 @@ traits:
       type: string
       exact: "ttyname"
 
-  - id: exec/tty/tcgetattr
+  - id: tcgetattr
     description: Get terminal attributes
     criticality: notable
     confidence: 0.75
@@ -86,7 +86,7 @@ traits:
       type: string
       exact: "tcgetattr"
 
-  - id: exec/tty/tcsetattr
+  - id: tcsetattr
     description: Set terminal attributes
     criticality: notable
     confidence: 0.75
@@ -96,7 +96,7 @@ traits:
       type: string
       exact: "tcsetattr"
 
-  - id: exec/tty/vhangup
+  - id: vhangup
     description: Virtual terminal hangup
     criticality: suspicious
     confidence: 0.85
@@ -106,7 +106,7 @@ traits:
       type: string
       exact: "vhangup"
 
-  - id: exec/tty/getpass
+  - id: getpass
     description: Terminal password prompt
     criticality: suspicious
     confidence: 0.8
@@ -116,7 +116,7 @@ traits:
       type: string
       exact: "getpass"
 
-  - id: exec/tty/setupterm
+  - id: setupterm
     description: Terminal initialization
     criticality: notable
     confidence: 0.7
@@ -126,7 +126,7 @@ traits:
       type: string
       exact: "setupterm"
 
-  - id: exec/tty/python-pty
+  - id: python-pty
     description: Python PTY module
     criticality: suspicious
     confidence: 0.85
@@ -136,7 +136,7 @@ traits:
       type: string
       regex: "(import pty|from pty import)"
 
-  - id: exec/tty/pty-spawn
+  - id: pty-spawn
     description: Python PTY spawn
     criticality: suspicious
     confidence: 0.9
@@ -147,7 +147,7 @@ traits:
       exact: "pty.spawn"
 
 composite_rules:
-  - id: exec/tty/interactive-shell
+  - id: interactive-shell
     description: Interactive shell via PTY
     criticality: suspicious
     confidence: 0.95
@@ -173,7 +173,7 @@ composite_rules:
             (any of ($bin_sh, $bin_bash) or ($dup2 and $fork and $execve))
         }
 
-  - id: exec/tty/posix-pty-shell
+  - id: posix-pty-shell
     description: POSIX PTY shell (backdoor pattern)
     criticality: suspicious
     confidence: 0.95
@@ -205,7 +205,7 @@ composite_rules:
             any of ($bin_sh, $bin_bash, $execve)
         }
 
-  - id: exec/tty/pty-network-backdoor
+  - id: pty-network-backdoor
     description: PTY-based network backdoor
     criticality: suspicious
     confidence: 0.95

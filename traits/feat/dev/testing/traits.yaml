@@ -3,7 +3,7 @@
 
 traits:
   # Google Test (C++)
-  - id: dev/testing/gtest
+  - id: gtest
     description: Google Test framework
     criticality: benign
     confidence: 0.95
@@ -23,7 +23,7 @@ traits:
         }
 
   # Catch2 (C++)
-  - id: dev/testing/catch2
+  - id: catch2
     description: Catch2 test framework
     criticality: benign
     confidence: 0.95
@@ -42,7 +42,7 @@ traits:
         }
 
   # JUnit (Java)
-  - id: dev/testing/junit
+  - id: junit
     description: JUnit test framework
     criticality: benign
     confidence: 0.95
@@ -61,7 +61,7 @@ traits:
         }
 
   # pytest (Python)
-  - id: dev/testing/pytest
+  - id: pytest
     description: pytest test framework
     criticality: benign
     confidence: 0.95
@@ -80,7 +80,7 @@ traits:
         }
 
   # Go testing
-  - id: dev/testing/go-test
+  - id: go-test
     description: Go testing package
     criticality: benign
     confidence: 0.95
@@ -100,7 +100,7 @@ traits:
         }
 
   # Rust testing
-  - id: dev/testing/rust-test
+  - id: rust-test
     description: Rust test framework
     criticality: benign
     confidence: 0.95
@@ -119,7 +119,7 @@ traits:
         }
 
   # Jest (JavaScript)
-  - id: dev/testing/jest
+  - id: jest
     description: Jest test framework
     criticality: benign
     confidence: 0.95
@@ -139,7 +139,7 @@ traits:
         }
 
   # Mocha (JavaScript)
-  - id: dev/testing/mocha
+  - id: mocha
     description: Mocha test framework
     criticality: benign
     confidence: 0.95
@@ -158,7 +158,7 @@ traits:
         }
 
   # RSpec (Ruby)
-  - id: dev/testing/rspec
+  - id: rspec
     description: RSpec test framework
     criticality: benign
     confidence: 0.95
@@ -177,7 +177,7 @@ traits:
         }
 
   # Fuzzing frameworks
-  - id: dev/testing/fuzzing
+  - id: fuzzing
     description: Fuzzing test framework
     criticality: benign
     confidence: 0.9
@@ -197,7 +197,7 @@ traits:
         }
 
   # Benchmark frameworks
-  - id: dev/testing/benchmark
+  - id: benchmark
     description: Benchmark test framework
     criticality: benign
     confidence: 0.9

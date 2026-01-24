@@ -1,0 +1,26 @@
+# Malware Family - StealthWorker Worm/Trojan
+# ATT&CK: T1110 (Brute Force)
+
+composite_rules:
+  - id: botnet/stealthworker/brand
+    description: StealthWorker Worker component
+    criticality: hostile
+    confidence: 0.99
+    family: true
+    attack: "T1110"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "StealthWorker/Worker"
+
+  - id: botnet/stealthworker/detected
+    description: StealthWorker worm/trojan
+    criticality: hostile
+    confidence: 0.99
+    family: true
+    attack: "T1110"
+    mbc: "B0022"
+    file_types: [elf]
+    requires_any:
+      - type: trait
+        id: botnet/stealthworker/brand

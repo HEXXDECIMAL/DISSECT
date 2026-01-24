@@ -2,7 +2,7 @@
 # ATT&CK: T1016.001 (Internet Connection Discovery)
 
 traits:
-  - id: ip-lookup/ipify
+  - id: ipify
     description: ipify.org IP lookup service
     criticality: suspicious
     confidence: 0.85
@@ -12,7 +12,7 @@ traits:
       type: string
       exact: "ipify.org"
 
-  - id: ip-lookup/ipinfo
+  - id: ipinfo
     description: ipinfo.io IP lookup service
     criticality: suspicious
     confidence: 0.85
@@ -22,7 +22,7 @@ traits:
       type: string
       exact: "ipinfo.io"
 
-  - id: ip-lookup/ifconfig-me
+  - id: ifconfig-me
     description: ifconfig.me IP lookup service
     criticality: suspicious
     confidence: 0.85
@@ -32,7 +32,7 @@ traits:
       type: string
       exact: "ifconfig.me"
 
-  - id: ip-lookup/icanhazip
+  - id: icanhazip
     description: icanhazip.com IP lookup service
     criticality: suspicious
     confidence: 0.85
@@ -42,7 +42,7 @@ traits:
       type: string
       exact: "icanhazip"
 
-  - id: ip-lookup/wtfismyip
+  - id: wtfismyip
     description: wtfismyip.com IP lookup service
     criticality: suspicious
     confidence: 0.85
@@ -52,7 +52,7 @@ traits:
       type: string
       exact: "wtfismyip"
 
-  - id: ip-lookup/iplogger
+  - id: iplogger
     description: iplogger.org IP logging service
     criticality: suspicious
     confidence: 0.9
@@ -62,7 +62,7 @@ traits:
       type: string
       exact: "iplogger.org"
 
-  - id: ip-lookup/ifconfig-io
+  - id: ifconfig-io
     description: ifconfig.io IP lookup service
     criticality: suspicious
     confidence: 0.85
@@ -72,7 +72,7 @@ traits:
       type: string
       exact: "ifconfig.io"
 
-  - id: ip-lookup/ifconfig-co
+  - id: ifconfig-co
     description: ifconfig.co IP lookup service
     criticality: suspicious
     confidence: 0.85
@@ -82,7 +82,7 @@ traits:
       type: string
       exact: "ifconfig.co"
 
-  - id: ip-lookup/ident-me
+  - id: ident-me
     description: ident.me IP lookup service
     criticality: suspicious
     confidence: 0.85
@@ -92,7 +92,7 @@ traits:
       type: string
       exact: "ident.me"
 
-  - id: ip-lookup/checkip-amazonaws
+  - id: checkip-amazonaws
     description: AWS checkip service
     criticality: suspicious
     confidence: 0.85
@@ -103,7 +103,7 @@ traits:
       exact: "checkip.amazonaws.com"
 
   # Base64 encoded variants (common evasion)
-  - id: ip-lookup/ipify-b64
+  - id: ipify-b64
     description: ipify.org (base64 encoded)
     criticality: suspicious
     confidence: 0.9
@@ -113,7 +113,7 @@ traits:
       type: string
       exact: "aXBpZnkub3Jn"
 
-  - id: ip-lookup/ipinfo-b64
+  - id: ipinfo-b64
     description: ipinfo.io (base64 encoded)
     criticality: suspicious
     confidence: 0.9

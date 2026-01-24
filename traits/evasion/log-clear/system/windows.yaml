@@ -3,7 +3,7 @@
 # ATT&CK: T1070.001
 
 traits:
-  - id: evasion/log-clear-windows
+  - id: log-clear-windows
     description: Clear Windows event logs
     criticality: suspicious
     confidence: 0.66

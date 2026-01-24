@@ -1,7 +1,7 @@
 # .NET LINQ and Expression Patterns
 
 traits:
-  - id: data/linq/query/linq-expressions
+  - id: linq-expressions
     description: LINQ expression tree manipulation
     criticality: notable
     confidence: 0.75
@@ -9,7 +9,7 @@ traits:
       type: string
       regex: "System\\.Linq\\.Expressions|ExpressionVisitor|LambdaExpression"
 
-  - id: data/linq/query/linq-queries
+  - id: linq-queries
     description: LINQ query operations
     criticality: notable
     confidence: 0.70
@@ -17,7 +17,7 @@ traits:
       type: string
       exact: "System.Linq"
 
-  - id: data/linq/query/expression-compilation
+  - id: expression-compilation
     description: Runtime expression compilation
     criticality: notable
     confidence: 0.80

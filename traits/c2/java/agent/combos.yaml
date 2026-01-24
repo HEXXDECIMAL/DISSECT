@@ -3,7 +3,7 @@
 
 capabilities:
   # Full-featured Java RAT (STRRat-style)
-  - id: c2/java/agent/java-rat-comprehensive
+  - id: java-rat-comprehensive
     description: Comprehensive Java RAT with multiple capabilities
     criticality: suspicious
     mbc: "B0022"
@@ -39,7 +39,7 @@ capabilities:
         id: impact/java/uninstall-string
 
   # Java credential stealer
-  - id: c2/java/agent/java-credential-stealer
+  - id: java-credential-stealer
     description: Java-based credential stealing capability
     criticality: suspicious
     mbc: "T1555"
@@ -66,7 +66,7 @@ capabilities:
         id: credential/java/save-all-pass-string
 
   # Java keylogger
-  - id: c2/java/agent/java-keylogger
+  - id: java-keylogger
     description: Java keylogging capability
     criticality: suspicious
     mbc: "T1056.001"
@@ -80,7 +80,7 @@ capabilities:
         id: credential/java/o-keylogger-string
 
   # Java remote access
-  - id: c2/java/agent/java-remote-access
+  - id: java-remote-access
     description: Java remote access capability
     criticality: suspicious
     mbc: "B0022"
@@ -101,7 +101,7 @@ capabilities:
         id: c2/java/power-shell-string
 
   # Java dropper/downloader
-  - id: c2/java/agent/java-dropper
+  - id: java-dropper
     description: Java download and execute capability
     criticality: suspicious
     mbc: "B0025"
@@ -115,7 +115,7 @@ capabilities:
         id: c2/java/up-n-exec-string
 
   # Java ransomware indicators
-  - id: c2/java/agent/java-ransomware
+  - id: java-ransomware
     description: Java ransomware capability
     criticality: suspicious
     mbc: "B0031"
@@ -129,7 +129,7 @@ capabilities:
         id: c2/java/rw-decrypt-string
 
   # Allatori obfuscated Java (likely malware)
-  - id: c2/java/agent/java-allatori-obfuscated
+  - id: java-allatori-obfuscated
     description: Java obfuscated with Allatori (common in malware)
     criticality: suspicious
     confidence: 0.9

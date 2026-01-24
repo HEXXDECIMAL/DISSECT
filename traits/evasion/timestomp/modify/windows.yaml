@@ -3,7 +3,7 @@
 # ATT&CK: T1070.006
 
 traits:
-  - id: evasion/timestomp-windows
+  - id: timestomp-windows
     description: Modify file timestamps via SetFileTime
     criticality: suspicious
     confidence: 0.66

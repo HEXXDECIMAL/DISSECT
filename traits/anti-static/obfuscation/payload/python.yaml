@@ -2,7 +2,7 @@
 # Detects large blobs of encoded data embedded in scripts
 
 traits:
-  - id: anti-static/obfuscation/payload/large-encoded-string
+  - id: large-encoded-string
     description: "Large high-entropy string literal (likely payload)"
     criticality: suspicious
     confidence: 0.85

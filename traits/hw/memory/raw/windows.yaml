@@ -2,7 +2,7 @@
 # ATT&CK: T1003.001 (LSASS Memory)
 
 traits:
-  - id: hw/memory/raw/comsvcs-dump
+  - id: comsvcs-dump
     description: Dump process memory via comsvcs.dll
     criticality: suspicious
     confidence: 0.95

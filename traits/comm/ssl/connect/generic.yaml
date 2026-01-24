@@ -3,7 +3,7 @@
 # ATT&CK: T1071
 
 traits:
-  - id: ssl/connect
+  - id: connect
     description: SSL/TLS connection
     criticality: inert
     confidence: 0.66
@@ -11,7 +11,7 @@ traits:
       type: symbol
       pattern: SSL_connect|SSL_new|SSL_CTX_new|TLS_client_method
 
-  - id: ssl/verify-skip
+  - id: verify-skip
     description: Skip SSL certificate verification
     criticality: suspicious
     confidence: 0.66

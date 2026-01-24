@@ -2,7 +2,7 @@
 # ATT&CK: T1574.006 (Dynamic Linker Hijacking)
 
 traits:
-  - id: exec/dylib/dlopen
+  - id: dlopen
     description: Dynamic library loading via dlopen
     criticality: notable
     confidence: 0.9
@@ -12,7 +12,7 @@ traits:
       type: string
       exact: "dlopen"
 
-  - id: exec/dylib/dlclose
+  - id: dlclose
     description: Dynamic library unload
     criticality: notable
     confidence: 0.8
@@ -22,7 +22,7 @@ traits:
       type: string
       exact: "dlclose"
 
-  - id: exec/dylib/dlerror
+  - id: dlerror
     description: Dynamic linker error handling
     criticality: notable
     confidence: 0.8
@@ -51,7 +51,7 @@ traits:
             any of ($ll*) or $gpa
         }
 
-  - id: exec/dylib/loadlibrary
+  - id: loadlibrary
     description: Windows LoadLibrary
     criticality: notable
     confidence: 0.85
@@ -61,7 +61,7 @@ traits:
       type: string
       regex: "LoadLibrary[AW]?"
 
-  - id: exec/dylib/nsbundle
+  - id: nsbundle
     description: macOS NSBundle loading
     criticality: notable
     confidence: 0.6
@@ -71,7 +71,7 @@ traits:
       type: string
       exact: "NSBundle"
 
-  - id: exec/dylib/ctypes-windll
+  - id: ctypes-windll
     description: Python ctypes Windows DLL
     criticality: suspicious
     confidence: 0.85
@@ -81,7 +81,7 @@ traits:
       type: string
       regex: "windll\\.[\\w.]+"
 
-  - id: exec/dylib/ctypes-cdll
+  - id: ctypes-cdll
     description: Python ctypes CDLL loading
     criticality: suspicious
     confidence: 0.85
@@ -91,7 +91,7 @@ traits:
       type: string
       regex: "ctypes\\.CDLL|CDLL\\("
 
-  - id: exec/dylib/local-load
+  - id: local-load
     description: Loading dynamic library from local path
     criticality: suspicious
     confidence: 0.9
@@ -111,7 +111,7 @@ traits:
             ($cdll or $load) and any of ($path*)
         }
 
-  - id: exec/dylib/ruby-dlopen
+  - id: ruby-dlopen
     description: Ruby FFI dlopen
     criticality: suspicious
     confidence: 0.85
@@ -121,7 +121,7 @@ traits:
       type: string
       regex: "\\.dlopen\\("
 
-  - id: exec/dylib/java-loadclass
+  - id: java-loadclass
     description: Java runtime class loading
     criticality: suspicious
     confidence: 0.85
@@ -132,7 +132,7 @@ traits:
       exact: "loadReplacementClass"
 
 composite_rules:
-  - id: exec/dylib/dynamic-loader-detected
+  - id: dynamic-loader-detected
     description: Dynamic code loading pattern
     criticality: suspicious
     confidence: 0.9

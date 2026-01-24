@@ -1,0 +1,266 @@
+# Impact - Remote Access / Reverse Shells
+# ATT&CK: T1059 (Command and Scripting Interpreter)
+# MBC: B0022 (Remote Access)
+
+composite_rules:
+  # === Atomic: Reverse Shell Indicators ===
+
+  - id: reverse-shell-ref
+    description: Reverse shell terminology reference
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1059"
+    platforms: [all]
+    condition:
+      type: string
+      regex: "reverse[_\\s]?shell|revshell|r[e3]v[e3]rs[e3][_\\s]*sh[e3]ll"
+      case_insensitive: true
+
+  - id: webshell-ref
+    description: Web shell terminology reference
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1505.003"
+    platforms: [all]
+    condition:
+      type: string
+      regex: "w[3e]b[_\\s]*sh[e3]ll"
+      case_insensitive: true
+
+  - id: backdoor-ref
+    description: Backdoor terminology reference
+    criticality: suspicious
+    confidence: 0.75
+    attack: "T1059"
+    platforms: [all]
+    condition:
+      type: string
+      regex: "\\b[Bb]ackdoor\\b"
+
+  # === Atomic: Bash Reverse Shell ===
+
+  - id: bash-dev-tcp
+    description: Bash /dev/tcp reverse shell
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1059.004"
+    platforms: [linux, macos, unix]
+    condition:
+      type: string
+      regex: "bash\\s+-i\\s+>&\\s*/dev/tcp/"
+
+  - id: stdin-redirect
+    description: Stdin redirection (reverse shell indicator)
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1059"
+    platforms: [all]
+    condition:
+      type: string
+      exact: "0>&1"
+
+  # === Atomic: mkfifo + Netcat ===
+
+  - id: mkfifo
+    description: mkfifo command (named pipe for shell)
+    criticality: suspicious
+    confidence: 0.6
+    attack: "T1059"
+    platforms: [linux, macos, unix]
+    # Exclude JS - syntax highlighters have shell command keywords
+    file_types: [shell, elf, macho, python]
+    condition:
+      type: string
+      exact: "mkfifo"
+
+  - id: sh-interactive
+    description: Interactive shell invocation
+    criticality: notable
+    confidence: 0.5
+    attack: "T1059"
+    platforms: [linux, macos, unix]
+    condition:
+      type: string
+      exact: "sh -i"
+
+  - id: nc-pipe
+    description: Netcat with pipe
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1059"
+    platforms: [linux, macos, unix]
+    condition:
+      type: string
+      regex: "\\|\\s*nc\\s"
+
+  # === Atomic: Socket + Shell (Generic) ===
+
+  - id: socket-ref
+    description: Socket reference
+    criticality: inert
+    confidence: 0.5
+    platforms: [all]
+    condition:
+      type: string
+      exact: "socket"
+
+  - id: bin-bash
+    description: /bin/bash path reference
+    criticality: inert
+    confidence: 0.4
+    platforms: [linux, macos, unix]
+    condition:
+      type: string
+      exact: "/bin/bash"
+
+  - id: bin-sh
+    description: /bin/sh path reference
+    criticality: inert
+    confidence: 0.4
+    platforms: [linux, macos, unix]
+    condition:
+      type: string
+      exact: "/bin/sh"
+
+  # === Atomic: Perl Reverse Shell ===
+
+  - id: perl-socket-open
+    description: Perl socket with open (reverse shell pattern)
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1059.006"
+    platforms: [all]
+    file_types: [all]
+    condition:
+      type: yara
+      source: |
+        rule perl_rev_shell {
+          strings:
+            $socket = "socket("
+            $open = "open("
+            $redir = /["']>&/
+            $sh_i = "sh -i"
+          condition:
+            all of them
+        }
+
+  # === Atomic: Ruby Reverse Shell ===
+
+  - id: ruby-tcpsocket-spawn
+    description: Ruby TCPSocket with spawn (reverse shell)
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1059.006"
+    platforms: [all]
+    file_types: [ruby]
+    condition:
+      type: string
+      regex: "spawn\\([\"']/bin/sh[\"'],.{0,64}TCPSocket"
+
+  - id: ruby-tcpsocket-popen
+    description: Ruby TCPSocket with popen (reverse shell)
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1059.006"
+    platforms: [all]
+    file_types: [ruby]
+    condition:
+      type: string
+      regex: "TCPSocket.{0,64}\\.gets.{0,64}IO.popen"
+
+  # === Atomic: Go Reverse Shell Functions ===
+
+  - id: go-cmd-run
+    description: Go os/exec.Cmd.Run
+    criticality: notable
+    confidence: 0.5
+    platforms: [all]
+    file_types: [elf, macho]
+    condition:
+      type: string
+      exact: "os/exec.(*Cmd).Run"
+
+  - id: go-net-conn
+    description: Go net.conn.Write
+    criticality: notable
+    confidence: 0.5
+    platforms: [all]
+    file_types: [elf, macho]
+    condition:
+      type: string
+      exact: "net.(*conn).Write"
+
+  - id: go-child-stdin
+    description: Go exec.Cmd.childStdin
+    criticality: suspicious
+    confidence: 0.7
+    platforms: [all]
+    file_types: [elf, macho]
+    condition:
+      type: string
+      exact: "os/exec.(*Cmd).childStdin"
+
+  - id: go-dial-tcp
+    description: Go dialTCP
+    criticality: notable
+    confidence: 0.5
+    platforms: [all]
+    file_types: [elf, macho]
+    condition:
+      type: string
+      exact: "dialTCP"
+
+  - id: mkfifo-netcat-shell
+    description: Reverse shell via mkfifo and netcat
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1059.004"
+    mbc: "B0022"
+    platforms: [linux, macos, unix]
+    requires_all:
+      - type: trait
+        id: impact/remote-access/mkfifo
+      - type: trait
+        id: impact/remote-access/sh-interactive
+      - type: trait
+        id: impact/remote-access/nc-pipe
+
+  - id: go-reverse-shell
+    description: Go reverse shell pattern
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1059"
+    mbc: "B0022"
+    platforms: [all]
+    file_types: [elf, macho]
+    requires_any:
+      - type: trait
+        id: impact/remote-access/bin-bash
+      - type: trait
+        id: impact/remote-access/bin-sh
+    requires_all:
+      - type: trait
+        id: impact/remote-access/go-cmd-run
+      - type: trait
+        id: impact/remote-access/go-net-conn
+      - type: trait
+        id: impact/remote-access/go-child-stdin
+      - type: trait
+        id: impact/remote-access/go-dial-tcp
+
+  - id: generic-reverse-shell
+    description: Generic reverse shell pattern (socket + shell)
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1059"
+    platforms: [all]
+    requires_all:
+      - type: string
+        exact: "reverse"
+      - type: trait
+        id: impact/remote-access/socket-ref
+    requires_any:
+      - type: trait
+        id: impact/remote-access/bin-bash
+      - type: trait
+        id: impact/remote-access/bin-sh

@@ -2,7 +2,7 @@
 # ATT&CK: T1082
 
 traits:
-  - id: system/host_info_strings
+  - id: host_info_strings
     description: "Detailed system information gathering strings"
     criticality: suspicious
     confidence: 0.8

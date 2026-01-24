@@ -2,7 +2,7 @@
 # ATT&CK: T1499 (Endpoint Denial of Service)
 
 traits:
-  - id: impact/degrade/forkbomb
+  - id: forkbomb
     description: Fork bomb pattern
     criticality: suspicious
     confidence: 0.95
@@ -12,7 +12,7 @@ traits:
       type: string
       regex: ":\\(\\) \\{\\s*:\\|:&\\s*\\\\};:"
 
-  - id: impact/degrade/bluescreen
+  - id: bluescreen
     description: Windows BSOD trigger
     criticality: suspicious
     confidence: 0.95
@@ -22,7 +22,7 @@ traits:
       type: string
       exact: "RtlAdjustPrivilege(19, 1,"
 
-  - id: impact/degrade/edr-stopper
+  - id: edr-stopper
     description: EDR/Antivirus service stopper
     criticality: suspicious
     confidence: 0.95
@@ -32,7 +32,7 @@ traits:
       type: string
       exact: "stopservice"
 
-  - id: impact/degrade/edr-kill
+  - id: edr-kill
     description: EDR process termination
     criticality: suspicious
     confidence: 0.9
@@ -42,7 +42,7 @@ traits:
       type: string
       regex: "(?i)(kill|terminate).* (defender|malwarebytes|kaspersky|avast|norton|mcafee|bitdefender|eset|sophos)"
 
-  - id: impact/degrade/terminate-process
+  - id: terminate-process
     description: TerminateProcess API
     criticality: suspicious
     confidence: 0.8
@@ -52,7 +52,7 @@ traits:
       type: string
       exact: "TerminateProcess"
 
-  - id: impact/degrade/osascript-quit
+  - id: osascript-quit
     description: macOS application quit via osascript
     criticality: suspicious
     confidence: 0.85
@@ -63,7 +63,7 @@ traits:
       regex: "osascript.*tell.*application.*quit"
 
 composite_rules:
-  - id: impact/degrade/edr-bypass-detected
+  - id: edr-bypass-detected
     description: EDR/Antivirus bypass attempt
     criticality: suspicious
     confidence: 0.95

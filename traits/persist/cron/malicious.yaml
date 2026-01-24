@@ -3,7 +3,7 @@
 
 traits:
   # Malicious cron persistence
-  - id: persistence/cron/malicious
+  - id: malicious
     description: Malicious crontab persistence patterns
     criticality: suspicious
     confidence: 0.8
@@ -33,7 +33,7 @@ traits:
         }
 
   # Cron download cradle
-  - id: persistence/cron/download-cradle
+  - id: download-cradle
     description: Cron-based download and execute
     criticality: suspicious
     confidence: 0.85
@@ -60,7 +60,7 @@ traits:
         }
 
   # Hidden cron entries
-  - id: persistence/cron/hidden
+  - id: hidden
     description: Hidden or obfuscated cron entries
     criticality: suspicious
     confidence: 0.8

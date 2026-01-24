@@ -2,7 +2,7 @@
 # ATT&CK: T1486 (Data Encrypted for Impact)
 
 traits:
-  - id: impact/ransom/encrypt-note/completion_msg
+  - id: completion_msg
     description: "Declarative encryption completion message"
     criticality: suspicious
     confidence: 0.7
@@ -11,7 +11,7 @@ traits:
       type: string
       exact: "Encryption complete. Your files have been encrypted."
 
-  - id: impact/ransom/encrypt-note/generic_msg
+  - id: generic_msg
     description: "Generic ransom note string"
     criticality: suspicious
     confidence: 0.6

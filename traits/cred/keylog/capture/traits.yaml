@@ -14,7 +14,7 @@ defaults:
 
 composite_rules:
   # === Atomic: Windows Keyboard Hooks ===
-  - id: credential/keylog/windows-hook
+  - id: windows-hook
     description: Windows keyboard hooking via SetWindowsHookEx
     confidence: 0.7
     mbc: "B0015.001"
@@ -24,7 +24,7 @@ composite_rules:
       type: symbol
       pattern: "SetWindowsHookEx"
 
-  - id: credential/keylog/windows-rawinput
+  - id: windows-rawinput
     description: Windows raw input API for keyboard access
     confidence: 0.7
     platforms: [windows]
@@ -33,7 +33,7 @@ composite_rules:
       type: symbol
       pattern: "GetRawInputData"
 
-  - id: credential/keylog/windows-asynckey
+  - id: windows-asynckey
     description: Windows GetAsyncKeyState for key polling
     confidence: 0.65
     platforms: [windows]
@@ -43,7 +43,7 @@ composite_rules:
       pattern: "GetAsyncKeyState"
 
   # === Atomic: Linux Keyboard Input ===
-  - id: credential/keylog/linux-input-device
+  - id: linux-input-device
     description: Direct access to Linux input devices
     confidence: 0.75
     platforms: [linux]
@@ -52,7 +52,7 @@ composite_rules:
       type: string
       regex: "/dev/input/event[0-9]+"
 
-  - id: credential/keylog/x11-grab
+  - id: x11-grab
     description: X11 key grabbing for keylogging
     confidence: 0.65
     platforms: [linux, unix]
@@ -62,7 +62,7 @@ composite_rules:
       pattern: "XGrabKey"
 
   # === Atomic: macOS Keyboard Capture ===
-  - id: credential/keylog/macos-eventtap
+  - id: macos-eventtap
     description: macOS CGEventTap for key interception
     confidence: 0.7
     platforms: [macos]
@@ -72,7 +72,7 @@ composite_rules:
       pattern: "CGEventTapCreate"
 
   # === Atomic: Language Libraries ===
-  - id: credential/keylog/go-gohook
+  - id: go-gohook
     description: Go robotn/gohook keyboard capture library
     confidence: 0.75
     file_types: [elf, macho]
@@ -80,7 +80,7 @@ composite_rules:
       type: string
       exact: "github.com/robotn/gohook"
 
-  - id: credential/keylog/python-pynput
+  - id: python-pynput
     description: Python pynput keyboard listener
     confidence: 0.7
     file_types: [python]
@@ -88,7 +88,7 @@ composite_rules:
       type: string
       regex: "(from pynput import keyboard|from pynput\\.keyboard)"
 
-  - id: credential/keylog/js-iohook
+  - id: js-iohook
     description: Node.js iohook global keyboard hook library
     confidence: 0.75
     file_types: [javascript]
@@ -96,7 +96,7 @@ composite_rules:
       type: string
       regex: "(require\\(['\"]iohook['\"]\\)|from ['\"]iohook['\"])"
 
-  - id: credential/keylog/rust-rdev
+  - id: rust-rdev
     description: Rust rdev keyboard event library
     confidence: 0.65
     file_types: [rust]
@@ -107,7 +107,7 @@ composite_rules:
   # === Composite Rules ===
   # Multiple keyboard-related indicators - still only suspicious
   # Hostile classification requires exfiltration indicators
-  - id: credential/keylog/windows-keylogger
+  - id: windows-keylogger
     description: Windows keylogger pattern (multiple keyboard APIs)
     confidence: 0.85
     platforms: [windows]
@@ -121,7 +121,7 @@ composite_rules:
       - type: trait
         id: credential/keylog/windows-asynckey
 
-  - id: credential/keylog/linux-keylogger
+  - id: linux-keylogger
     description: Linux keylogger pattern (multiple input methods)
     confidence: 0.85
     platforms: [linux]
@@ -134,7 +134,7 @@ composite_rules:
 
 traits:
   # === AppleScript Keystroke Capture ===
-  - id: credential/keylog/applescript-keystroke
+  - id: applescript-keystroke
     description: AppleScript keystroke capture
     criticality: hostile
     confidence: 0.95
@@ -157,7 +157,7 @@ traits:
         }
 
   # JXA (JavaScript for Automation) keystroke capture
-  - id: credential/keylog/jxa-keystroke
+  - id: jxa-keystroke
     description: JXA (JavaScript for Automation) keystroke capture
     criticality: hostile
     confidence: 0.95
@@ -179,7 +179,7 @@ traits:
         }
 
   # Node.js AppleScript execution for keystroke
-  - id: credential/keylog/node-applescript
+  - id: node-applescript
     description: Node.js AppleScript execution
     criticality: suspicious
     confidence: 0.85

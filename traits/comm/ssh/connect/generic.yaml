@@ -3,7 +3,7 @@
 # ATT&CK: T1021.004
 
 traits:
-  - id: ssh/connect
+  - id: connect
     description: SSH connection
     criticality: notable
     confidence: 0.66

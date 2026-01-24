@@ -9,7 +9,7 @@ defaults:
 traits:
   # === PowerShell-Specific Obfuscation Patterns ===
 
-  - id: anti-static/obfuscation/code-metrics/ps-encoded-commands
+  - id: ps-encoded-commands
     description: "High entropy strings (encoded PowerShell payloads)"
     criticality: suspicious
     confidence: 0.85
@@ -18,7 +18,7 @@ traits:
       field: strings.avg_entropy
       min: 4.0
 
-  - id: anti-static/obfuscation/code-metrics/ps-obfuscated-vars
+  - id: ps-obfuscated-vars
     description: "Obfuscated PowerShell variable names"
     criticality: suspicious
     confidence: 0.8
@@ -27,7 +27,7 @@ traits:
       field: identifiers.avg_entropy
       min: 3.0
 
-  - id: anti-static/obfuscation/code-metrics/ps-single-line-script
+  - id: ps-single-line-script
     description: "Single long line PowerShell (encoded command)"
     criticality: suspicious
     confidence: 0.85
@@ -36,7 +36,7 @@ traits:
       field: text.max_line_length
       min: 500
 
-  - id: anti-static/obfuscation/code-metrics/ps-many-single-char
+  - id: ps-many-single-char
     description: "Many single-character variables"
     criticality: notable
     confidence: 0.75
@@ -45,7 +45,7 @@ traits:
       field: identifiers.single_char_ratio
       min: 0.35
 
-  - id: anti-static/obfuscation/code-metrics/ps-no-comments
+  - id: ps-no-comments
     description: "No comments in PowerShell script"
     criticality: notable
     confidence: 0.6
@@ -55,7 +55,7 @@ traits:
       max: 0
 
 composite_rules:
-  - id: anti-static/obfuscation/ps-invoke-obfuscation
+  - id: ps-invoke-obfuscation
     description: "Invoke-Obfuscation tool output pattern"
     criticality: hostile
     confidence: 0.9
@@ -70,7 +70,7 @@ composite_rules:
       - type: trait
         id: ps-many-single-char
 
-  - id: anti-static/obfuscation/ps-encoded-downloader
+  - id: ps-encoded-downloader
     description: "Encoded PowerShell downloader"
     criticality: hostile
     confidence: 0.9

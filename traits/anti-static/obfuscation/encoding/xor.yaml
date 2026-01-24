@@ -8,7 +8,7 @@ defaults:
   attack: "T1027"
 
 composite_rules:
-  - id: anti-static/obfuscation/encoding/xor-decode-loop
+  - id: xor-decode-loop
     description: "XOR decryption loop pattern"
     criticality: suspicious
     confidence: 0.8
@@ -16,7 +16,7 @@ composite_rules:
       type: symbol
       pattern: "xor_decode|decode_xor|xor_decrypt|decrypt_xor|xor_string"
 
-  - id: anti-static/obfuscation/encoding/single-byte-xor-key
+  - id: single-byte-xor-key
     description: "Single-byte XOR key constant (0x37, 0x55, 0xAA, 0xFF)"
     criticality: notable
     confidence: 0.65
@@ -26,7 +26,7 @@ composite_rules:
       regex: "\\x37{4,}|\\x55{4,}|\\xAA{4,}|\\xDE{4,}"
       search_raw: true
 
-  - id: anti-static/obfuscation/encoding/table-based-decode
+  - id: table-based-decode
     description: "Table-based decoding function"
     criticality: notable
     confidence: 0.7
@@ -34,7 +34,7 @@ composite_rules:
       type: symbol
       pattern: "decode_table|table_decode|lookup_decode|char_map"
 
-  - id: anti-static/obfuscation/string-decrypt
+  - id: string-decrypt
     description: "String decryption capability"
     criticality: suspicious
     confidence: 0.8

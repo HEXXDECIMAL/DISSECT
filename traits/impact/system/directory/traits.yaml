@@ -8,7 +8,7 @@ defaults:
 
 traits:
   # Windows System32 deletion
-  - id: impact/system/directory/windows-system32-delete
+  - id: windows-system32-delete
     description: "Windows System32 directory deletion"
     confidence: 0.95
     platforms: [windows]
@@ -17,7 +17,7 @@ traits:
       regex: "(rmdir|del|remove|shutil\\.rmtree|os\\.remove).*[Ss]ystem32|[Ss]ystem32.*(rmdir|del|remove)"
 
   # Windows directory recursive deletion
-  - id: impact/system/directory/windows-recursive-delete
+  - id: windows-recursive-delete
     description: "Windows system directory recursive deletion"
     confidence: 0.9
     platforms: [windows]
@@ -26,7 +26,7 @@ traits:
       regex: "rd\\s+/s|rmdir\\s+/s.*Windows|del\\s+/f\\s+/q.*Windows"
 
   # Linux critical directory targeting
-  - id: impact/system/directory/linux-etc-delete
+  - id: linux-etc-delete
     description: "Linux /etc directory deletion attempt"
     confidence: 0.95
     platforms: [linux]
@@ -35,7 +35,7 @@ traits:
       regex: "rm\\s+-rf\\s+/etc|shutil\\.rmtree.*[\"']/etc"
 
   # Linux /usr directory targeting (binaries/libs)
-  - id: impact/system/directory/linux-usr-delete
+  - id: linux-usr-delete
     description: "Linux /usr directory deletion attempt"
     confidence: 0.95
     platforms: [linux]
@@ -44,7 +44,7 @@ traits:
       regex: "rm\\s+-rf\\s+/usr|shutil\\.rmtree.*[\"']/usr"
 
   # Linux boot directory targeting
-  - id: impact/system/directory/linux-boot-delete
+  - id: linux-boot-delete
     description: "Linux /boot directory deletion attempt"
     confidence: 0.95
     platforms: [linux]
@@ -53,7 +53,7 @@ traits:
       regex: "rm\\s+-rf\\s+/boot|shutil\\.rmtree.*[\"']/boot"
 
   # Root filesystem wipe
-  - id: impact/system/directory/root-wipe
+  - id: root-wipe
     description: "Root filesystem wipe attempt"
     confidence: 0.95
     attack: "T1561"
@@ -62,7 +62,7 @@ traits:
       regex: "rm\\s+-rf\\s+/\\s|rm\\s+-rf\\s+/\\*|shutil\\.rmtree.*[\"']/[\"']"
 
   # macOS system directory targeting
-  - id: impact/system/directory/macos-system-delete
+  - id: macos-system-delete
     description: "macOS system directory deletion"
     confidence: 0.95
     platforms: [macos]
@@ -71,7 +71,7 @@ traits:
       regex: "rm\\s+-rf.*(/System|/Library/System)|shutil\\.rmtree.*/System"
 
   # MBR/Boot sector targeting
-  - id: impact/system/directory/mbr-target
+  - id: mbr-target
     description: "MBR/Boot sector targeting"
     confidence: 0.95
     attack: "T1561.002"
@@ -81,7 +81,7 @@ traits:
 
 composite_rules:
   # System destruction with iteration
-  - id: impact/system/directory/mass-deletion
+  - id: mass-deletion
     description: "Mass system file deletion"
     confidence: 0.95
     requires_all:

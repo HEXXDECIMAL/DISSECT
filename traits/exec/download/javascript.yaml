@@ -2,7 +2,7 @@
 # ATT&CK: T1105 (Ingress Tool Transfer)
 
 traits:
-  - id: exec/download/js-installer-sh
+  - id: js-installer-sh
     description: Downloads and executes shell script (installer pattern)
     criticality: suspicious
     confidence: 0.9
@@ -12,7 +12,7 @@ traits:
       type: string
       regex: 'curl.*\|.*(bash|sh|zsh)'
 
-  - id: exec/download/js-installer-ps1
+  - id: js-installer-ps1
     description: Downloads and executes PowerShell script (installer pattern)
     criticality: suspicious
     confidence: 0.9
@@ -23,7 +23,7 @@ traits:
       regex: 'powershell.*(irm|iwr).*\|.*iex'
 
 composite_rules:
-  - id: exec/download/js-silent-installer
+  - id: js-silent-installer
     description: Silent download and execute installer
     criticality: hostile
     confidence: 0.95

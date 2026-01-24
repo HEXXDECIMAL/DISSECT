@@ -1,7 +1,7 @@
 # Composite Command Execution Capabilities
 
 capabilities:
-  - id: exec/command/shell/shell-execution
+  - id: shell-execution
     description: Shell command execution capability detected
     criticality: notable
     mbc: "E1059"

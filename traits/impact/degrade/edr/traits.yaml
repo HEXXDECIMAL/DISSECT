@@ -2,7 +2,7 @@
 # ATT&CK: T1562.001 (Impair Defenses: Disable or Modify Tools)
 
 traits:
-  - id: impact/degrade/edr/stopper
+  - id: stopper
     description: EDR/Antivirus service stopper
     criticality: suspicious
     confidence: 0.95
@@ -12,7 +12,7 @@ traits:
       type: string
       exact: "stopservice"
 
-  - id: impact/degrade/edr/kill
+  - id: kill
     description: EDR process termination
     criticality: suspicious
     confidence: 0.9
@@ -23,7 +23,7 @@ traits:
       regex: "(?i)(kill|terminate).*(defender|malwarebytes|kaspersky|avast|norton|mcafee|bitdefender|eset|sophos)"
 
 composite_rules:
-  - id: impact/degrade/edr/bypass-detected
+  - id: bypass-detected
     description: EDR/Antivirus bypass attempt
     criticality: suspicious
     confidence: 0.95

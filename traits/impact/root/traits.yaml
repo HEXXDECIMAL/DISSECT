@@ -3,7 +3,7 @@
 
 traits:
   # Become Root Pattern (AST Structural)
-  - id: impact/root/credential-manipulation
+  - id: credential-manipulation
     description: Structural pattern of resetting multiple credential fields to 0 (root)
     criticality: hostile
     confidence: 0.99

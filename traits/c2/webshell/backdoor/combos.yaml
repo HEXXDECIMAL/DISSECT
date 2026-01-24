@@ -5,7 +5,7 @@
 
 composite_rules:
   # High-confidence webshell detection
-  - id: c2/webshell/php-backdoor
+  - id: php-backdoor
     description: "PHP webshell: session-based backdoor with user input handling"
     criticality: suspicious
     confidence: 0.95
@@ -26,7 +26,7 @@ composite_rules:
         id: exec/command/exec
 
   # Dropper webshell (writes decoded payloads)
-  - id: c2/webshell/php-dropper
+  - id: php-dropper
     description: "PHP dropper: decodes and writes payload files"
     criticality: suspicious
     confidence: 0.95
@@ -45,7 +45,7 @@ composite_rules:
         id: data/user-input/get
 
   # Self-destructing webshell
-  - id: c2/webshell/php-self-destruct
+  - id: php-self-destruct
     description: "PHP webshell with self-deletion capability"
     criticality: suspicious
     confidence: 0.95
@@ -59,7 +59,7 @@ composite_rules:
         id: data/user-input/script-filename
 
   # SSRF/Proxy webshell
-  - id: c2/webshell/php-proxy
+  - id: php-proxy
     description: "PHP proxy/SSRF webshell for fetching remote URLs"
     criticality: suspicious
     confidence: 0.9
@@ -84,7 +84,7 @@ composite_rules:
         id: evasion/impersonate/ua-array
 
   # Bot impersonation webshell
-  - id: c2/webshell/php-bot-impersonate
+  - id: php-bot-impersonate
     description: "PHP webshell with search engine bot impersonation"
     criticality: suspicious
     confidence: 0.9
@@ -101,7 +101,7 @@ composite_rules:
         id: evasion/impersonate/ua-array
 
   # Timestamp manipulation (anti-forensic)
-  - id: c2/webshell/php-timestomp
+  - id: php-timestomp
     description: "PHP webshell with timestamp manipulation for evasion"
     criticality: suspicious
     confidence: 0.9
@@ -115,7 +115,7 @@ composite_rules:
         id: fs/write/file-put-contents
 
   # Hardcoded authentication backdoor
-  - id: c2/webshell/php-hardcoded-auth
+  - id: php-hardcoded-auth
     description: "PHP webshell with hardcoded hash authentication"
     criticality: suspicious
     confidence: 0.95
@@ -129,7 +129,7 @@ composite_rules:
         id: c2/webshell/substr-hash-compare
 
   # File upload webshell
-  - id: c2/webshell/php-uploader
+  - id: php-uploader
     description: "PHP webshell with file upload capability"
     criticality: suspicious
     confidence: 0.9
@@ -149,7 +149,7 @@ composite_rules:
         id: fs/write/file-put-contents
 
   # Command execution webshell
-  - id: c2/webshell/php-rce
+  - id: php-rce
     description: "PHP webshell with remote command execution"
     criticality: suspicious
     confidence: 0.95
@@ -171,7 +171,7 @@ composite_rules:
         id: data/user-input/post
 
   # Web UI webshell (has HTML interface)
-  - id: c2/webshell/php-web-ui
+  - id: php-web-ui
     description: "PHP webshell with web-based user interface"
     criticality: suspicious
     confidence: 0.85
@@ -188,7 +188,7 @@ composite_rules:
         id: data/user-input/post
 
   # Google scraping webshell (SEO spam tool)
-  - id: c2/webshell/php-seo-tool
+  - id: php-seo-tool
     description: "PHP SEO spam tool with Google scraping capability"
     criticality: suspicious
     confidence: 0.85
@@ -200,7 +200,7 @@ composite_rules:
         id: comm/http/curl/init
 
   # Obfuscated payload webshell
-  - id: c2/webshell/php-obfuscated
+  - id: php-obfuscated
     description: "PHP webshell with heavily obfuscated payload"
     criticality: suspicious
     confidence: 0.9
@@ -221,7 +221,7 @@ composite_rules:
         id: anti-static/obfuscation/eval
 
   # Decompressed code execution
-  - id: c2/webshell/php-gz-eval
+  - id: php-gz-eval
     description: "PHP: decompresses and executes code (obfuscated backdoor)"
     criticality: hostile
     confidence: 0.98
@@ -235,7 +235,7 @@ composite_rules:
         id: anti-static/obfuscation/encoding/eval
 
   # Obfuscated dynamic backdoor
-  - id: c2/webshell/php-obfuscated-dynamic-backdoor
+  - id: php-obfuscated-dynamic-backdoor
     description: "PHP: obfuscated dynamic backdoor (dynamic calls + obfuscation metrics)"
     criticality: hostile
     confidence: 0.98
@@ -254,7 +254,7 @@ composite_rules:
         id: anti-static/obfuscation/encoding
 
   # Non-ASCII dynamic backdoor
-  - id: c2/webshell/php-non-ascii-backdoor
+  - id: php-non-ascii-backdoor
     description: "PHP: non-ASCII dynamic backdoor (dynamic calls + binary content)"
     criticality: hostile
     confidence: 0.98
@@ -267,7 +267,7 @@ composite_rules:
       - type: trait
         id: anti-static/obfuscation/code-metrics/php-high-non-ascii-ratio
 
-  - id: c2/webshell/php-non-ascii-identifiers-backdoor
+  - id: php-non-ascii-identifiers-backdoor
     description: "PHP: backdoor using non-ASCII identifiers"
     criticality: hostile
     confidence: 0.98
@@ -282,7 +282,7 @@ composite_rules:
       - type: trait
         id: anti-static/obfuscation/code-metrics/php-non-ascii-name
 
-  - id: c2/webshell/php-shell-functional
+  - id: php-shell-functional
     description: "PHP: functional webshell (exec + input + obfuscation/file ops)"
     criticality: hostile
     confidence: 0.98
@@ -313,7 +313,7 @@ composite_rules:
         id: fs/write/file
 
   # Functional PHP shell
-  - id: c2/webshell/php-shell
+  - id: php-shell
     description: "PHP: functional webshell (exec + user input + file ops)"
     criticality: hostile
     confidence: 0.98

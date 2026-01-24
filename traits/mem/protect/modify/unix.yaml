@@ -2,7 +2,7 @@
 # ATT&CK: T1055 (Process Injection)
 
 traits:
-  - id: mem/protect/modify/mprotect
+  - id: mprotect
     description: Change memory protection (mprotect)
     criticality: inert
     confidence: 1.0
@@ -13,7 +13,7 @@ traits:
       type: symbol
       pattern: "^_?mprotect$"
 
-  - id: mem/protect/modify/mprotect-string
+  - id: mprotect-string
     description: mprotect reference in source/script
     criticality: notable
     confidence: 0.7

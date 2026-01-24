@@ -4,7 +4,7 @@
 # ATT&CK: T1027 (Obfuscated Files or Information)
 
 traits:
-  - id: anti-static/packer/detect/dean-edwards
+  - id: dean-edwards
     description: "Dean Edwards JavaScript Packer detected"
     criticality: suspicious
     confidence: 0.9
