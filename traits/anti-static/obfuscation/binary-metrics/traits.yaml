@@ -312,7 +312,7 @@ traits:
     condition:
       type: metrics
       field: binary.noreturn_functions
-      min: 10
+      min: 20
 
   - id: anti-static/obfuscation/binary-metrics/few-leaf-functions
     description: "Very few leaf functions (deep call chains)"
