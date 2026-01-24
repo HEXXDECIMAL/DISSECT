@@ -42,7 +42,7 @@ fn test_strings_subcommand_ls_accuracy_and_performance() {
                 let sym = &sym_part[..lib_start];
                 let lib_part = &sym_part[lib_start + 7..];
                 let lib = lib_part.trim_end_matches(')');
-                expected_imports.insert(sym.to_string(), lib.to_string());
+                expected_imports.insert(sym.trim().to_string(), lib.to_string());
             } else {
                 let sym = sym_part.trim();
                 expected_imports.insert(sym.to_string(), "unknown".to_string());
@@ -80,38 +80,37 @@ fn test_strings_subcommand_ls_accuracy_and_performance() {
     // Verify accuracy: Check that we found the expected imports
     let mut found_imports = std::collections::HashMap::new();
     let mut found_functions = 0;
+    let mut found_exports = 0;
 
     for line in stdout.lines() {
-        if line.contains("Import") {
+        // Line format: OFFSET TYPE VALUE
+        // Type column is now @libname or Function/Export/Plain
+        if line.contains('@') {
             let parts: Vec<&str> = line.split_whitespace().collect();
             if parts.len() >= 3 {
+                let type_col = parts[1];
                 let sym = parts[2];
-                let mut lib = "unknown".to_string();
-
-                if let Some(bracket_start) = line.rfind('[') {
-                    if let Some(bracket_end) = line.rfind(']') {
-                        if bracket_end > bracket_start {
-                            lib = line[bracket_start + 1..bracket_end].to_string();
-                        }
-                    }
-                }
-
+                let lib = type_col.trim_start_matches('@').to_string();
                 found_imports.insert(sym.to_string(), lib);
             }
         } else if line.contains("Function") {
             found_functions += 1;
+        } else if line.contains("Export") {
+            found_exports += 1;
         }
     }
 
     println!(
-        "Found {} imports and {} functions in dissect output",
+        "Found {} imports, {} functions, {} exports in dissect output",
         found_imports.len(),
-        found_functions
+        found_functions,
+        found_exports
     );
 
     let mut matched_count = 0;
+    let mut lib_matched_count = 0;
 
-    for (expected_sym, _expected_lib) in &expected_imports {
+    for (expected_sym, expected_lib) in &expected_imports {
         let mut actual_found_sym: Option<String> = None;
 
         if found_imports.contains_key(expected_sym) {
@@ -125,8 +124,14 @@ fn test_strings_subcommand_ls_accuracy_and_performance() {
             }
         }
 
-        if let Some(_) = actual_found_sym {
+        if let Some(fs) = actual_found_sym {
             matched_count += 1;
+            let found_lib = found_imports.get(&fs).unwrap();
+            if found_lib != "unknown" && expected_lib != "unknown" {
+                if expected_lib.contains(found_lib) || found_lib.contains(expected_lib) {
+                    lib_matched_count += 1;
+                }
+            }
         }
     }
 
@@ -138,11 +143,21 @@ fn test_strings_subcommand_ls_accuracy_and_performance() {
             expected_imports.len(),
             match_ratio * 100.0
         );
+        println!("Matched {} library mappings", lib_matched_count);
 
+        // We expect a high match ratio for symbols
         assert!(
             match_ratio > 0.7,
             "Too many missing imports! Ratio: {:.2}%",
             match_ratio * 100.0
         );
+
+        // If we are on macOS, we expect at least some library mappings to match
+        if std::env::consts::OS == "macos" && expected_imports.values().any(|l| l != "unknown") {
+            assert!(
+                lib_matched_count > 0,
+                "No library mappings matched on macOS!"
+            );
+        }
     }
 }

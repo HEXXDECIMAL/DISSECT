@@ -25,7 +25,7 @@ impl StringExtractor {
             // Pattern to detect version strings that look like IPs (e.g., Chrome/100.0.0.0)
             version_ip_regex: Regex::new(r"(?i)(?:Chrome|Safari|Firefox|Edge|Opera|Chromium|Version|AppleWebKit|KHTML|Gecko|Trident|OPR|Mobile|MSIE|rv:|v)/\d+\.\d+\.\d+\.\d+").unwrap(),
             email_regex: Regex::new(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}").unwrap(),
-            base64_regex: Regex::new(r"^[A-Za-z0-9+/]{20,}=={0,2}$").unwrap(),
+            base64_regex: Regex::new(r"^[A-Za-z0-9+/]{16,}={0,2}$").unwrap(),
             symbol_map: HashMap::new(),
         }
     }
@@ -182,12 +182,19 @@ impl StringExtractor {
     /// Convert an ExtractedString from lang_strings to StringInfo
     fn convert_extracted_string(&self, es: ExtractedString) -> StringInfo {
         let string_type = self.classify_string_type(&es.value);
+        let library = if string_type == StringType::Import {
+            self.get_import_library(&es.value)
+        } else {
+            None
+        };
+
         StringInfo {
             value: es.value,
             offset: Some(format!("{:#x}", es.data_offset)),
             encoding: "utf8".to_string(),
             string_type,
             section: es.section,
+            library,
         }
     }
 
@@ -206,7 +213,7 @@ impl StringExtractor {
                     StringType::Email
                 } else if self.is_path(&value) {
                     StringType::Path
-                } else if value.len() > 20 && self.base64_regex.is_match(&value) {
+                } else if value.len() >= 16 && self.base64_regex.is_match(&value) {
                     StringType::Base64
                 } else {
                     StringType::Plain
@@ -215,23 +222,15 @@ impl StringExtractor {
             }
         };
 
-        let mut final_value = value;
-        if stype == StringType::Import {
-            if let Some(lib) = lib_info {
-                let lib_name = lib.split('/').next_back().unwrap_or(&lib);
-                final_value = format!("{} [{}]", final_value, lib_name);
-            }
-        }
-
         StringInfo {
-            value: final_value,
+            value,
             offset: Some(format!("{:#x}", offset)),
             encoding: "utf8".to_string(),
             string_type: stype,
             section,
+            library: lib_info,
         }
     }
-
     /// Classify a string's type without creating a StringInfo object
     pub fn classify_string_type(&self, value: &str) -> StringType {
         let normalized = Self::normalize_symbol(value);
@@ -247,7 +246,7 @@ impl StringExtractor {
             StringType::Email
         } else if self.is_path(value) {
             StringType::Path
-        } else if value.len() > 20 && self.base64_regex.is_match(value) {
+        } else if value.len() >= 16 && self.base64_regex.is_match(value) {
             StringType::Base64
         } else {
             StringType::Plain
