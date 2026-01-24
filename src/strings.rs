@@ -193,8 +193,9 @@ impl StringExtractor {
             offset: Some(format!("{:#x}", es.data_offset)),
             encoding: "utf8".to_string(),
             string_type,
-                    section: es.section,
-                }    }
+            section: es.section,
+        }
+    }
 
     /// Classify a string by type
     fn classify_string(&self, value: String, offset: usize, section: Option<String>) -> StringInfo {
@@ -225,8 +226,9 @@ impl StringExtractor {
             offset: Some(format!("{:#x}", offset)),
             encoding: "utf8".to_string(),
             string_type: stype,
-                    section,
-                }    }
+            section,
+        }
+    }
     /// Classify a string's type without creating a StringInfo object
     pub fn classify_string_type(&self, value: &str) -> StringType {
         let normalized = Self::normalize_symbol(value);

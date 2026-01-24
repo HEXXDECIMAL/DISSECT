@@ -1021,47 +1021,33 @@ fn extract_strings(target: &str, min_length: usize, format: &cli::OutputFormat) 
                 let offset = s.offset.unwrap_or_else(|| "unknown".to_string());
 
                 let stype_str = if s.string_type == crate::types::StringType::Import {
-                                "@unknown".to_string()                } else {
+                    "@unknown".to_string()
+                } else {
                     format!("{:?}", s.string_type)
                 };
 
-                                let mut val_display = s.value.clone();
+                let mut val_display = s.value.clone();
 
-                                if s.string_type == crate::types::StringType::Base64 {
+                if s.string_type == crate::types::StringType::Base64 {
+                    use base64::{engine::general_purpose, Engine as _};
 
-                                    use base64::{engine::general_purpose, Engine as _};
+                    if let Ok(decoded) = general_purpose::STANDARD.decode(s.value.trim()) {
+                        if !decoded.is_empty()
+                            && decoded.iter().all(|&b| {
+                                (0x20..=0x7e).contains(&b) || b == b'\n' || b == b'\r' || b == b'\t'
+                            })
+                        {
+                            if let Ok(decoded_str) = String::from_utf8(decoded) {
+                                let escaped = decoded_str
+                                    .replace('\n', "\\n")
+                                    .replace('\r', "\\r")
+                                    .replace('\t', "\\t");
 
-                                    if let Ok(decoded) = general_purpose::STANDARD.decode(s.value.trim()) {
-
-                                        if !decoded.is_empty()
-
-                                            && decoded.iter().all(|&b| {
-
-                                                (0x20..=0x7e).contains(&b) || b == b'\n' || b == b'\r' || b == b'\t'
-
-                                            })
-
-                                        {
-
-                                            if let Ok(decoded_str) = String::from_utf8(decoded) {
-
-                                                let escaped = decoded_str
-
-                                                    .replace('\n', "\\n")
-
-                                                    .replace('\r', "\\r")
-
-                                                    .replace('\t', "\\t");
-
-                                                val_display = format!("{}  [{}]", val_display, escaped);
-
-                                            }
-
-                                        }
-
-                                    }
-
-                                }
+                                val_display = format!("{}  [{}]", val_display, escaped);
+                            }
+                        }
+                    }
+                }
 
                 output.push_str(&format!(
                     "{:<10} {:<14} {}\n",

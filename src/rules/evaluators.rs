@@ -644,24 +644,33 @@ pub fn eval_yara_inline(source: &str, ctx: &EvaluationContext) -> ConditionResul
     for matched_rule in results.matching_rules() {
         for pattern in matched_rule.patterns() {
             for m in pattern.matches() {
-                let match_value = ctx
-                    .binary_data
-                    .get(m.range())
-                    .and_then(|bytes| std::str::from_utf8(bytes).ok())
-                    .map(|s| truncate_evidence(s, 50))
-                    .unwrap_or_else(|| format!("<{} bytes>", m.range().len()));
+                // Extract matched bytes - use identifier if unprintable
+                let match_bytes = ctx.binary_data.get(m.range());
+                let evidence_value = match match_bytes {
+                    Some(bytes) => {
+                        // Check if printable ASCII
+                        let is_printable = bytes
+                            .iter()
+                            .all(|&b| b >= 0x20 && b < 0x7f || b == b'\n' || b == b'\t');
+                        if is_printable {
+                            if let Ok(s) = std::str::from_utf8(bytes) {
+                                truncate_evidence(s, 50)
+                            } else {
+                                pattern.identifier().to_string()
+                            }
+                        } else {
+                            pattern.identifier().to_string()
+                        }
+                    }
+                    None => pattern.identifier().to_string(),
+                };
 
                 evidence.push(Evidence {
                     method: "yara".to_string(),
                     source: "yara-x".to_string(),
-                    value: format!(
-                        "{}:{} = {}",
-                        matched_rule.identifier(),
-                        pattern.identifier(),
-                        match_value
-                    ),
+                    value: evidence_value,
                     location: Some(format!("offset:{}", m.range().start)),
-                    span: None, analysis_layer: None,
+                    span: None,
                     analysis_layer: None,
                 });
             }

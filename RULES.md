@@ -34,6 +34,8 @@ Here's the objectives taxonomy:
 |[**persist**](./traits/persist)| remain on a system.|
 |[**privesc**](./traits/privesc)| obtain higher level permissions.|
 
+The "kind" directory should be granular enough that supply-chain attacks are obvious when you diff the list of new traits, but not so granular that code refactors would cause a diff.
+
 We also support a seperate hierarchy of non-objective based micro-traits, which gets split based on: category/subcategory/kind/ - based on MBC MicroBehaviors
 
 |**Micro-trait**|**description**|

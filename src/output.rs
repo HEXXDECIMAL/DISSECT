@@ -203,8 +203,9 @@ fn namespace_long_name(ns: &str) -> &str {
     }
 }
 
-/// Format evidence string (minimal)
+/// Format evidence string (minimal, deduplicated)
 fn format_evidence(finding: &Finding) -> String {
+    let mut seen = std::collections::HashSet::new();
     let values: Vec<String> = finding
         .evidence
         .iter()
@@ -215,6 +216,7 @@ fn format_evidence(finding: &Finding) -> String {
                 None
             }
         })
+        .filter(|v| seen.insert(v.clone()))
         .take(3)
         .collect();
 
