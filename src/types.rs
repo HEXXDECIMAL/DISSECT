@@ -613,7 +613,7 @@ pub struct StringInfo {
     pub section: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
 #[serde(rename_all = "lowercase")]
 pub enum StringType {
     Url,
@@ -621,6 +621,9 @@ pub enum StringType {
     Path,
     Email,
     Base64,
+    Import,
+    Export,
+    Function,
     Plain,
     /// String literal from source code
     Literal,

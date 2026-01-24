@@ -25,7 +25,8 @@ impl VsixManifestAnalyzer {
     fn analyze_manifest(&self, file_path: &Path, content: &str) -> Result<AnalysisReport> {
         let start = std::time::Instant::now();
 
-        let doc = roxmltree::Document::parse(content).context("Failed to parse .vsixmanifest XML")?;
+        let doc =
+            roxmltree::Document::parse(content).context("Failed to parse .vsixmanifest XML")?;
 
         let mut identity = String::new();
         if let Some(node) = doc.descendants().find(|n| n.has_tag_name("Identity")) {
@@ -59,7 +60,8 @@ impl VsixManifestAnalyzer {
 
         // Check for interesting properties
         for property in doc.descendants().filter(|n| n.has_tag_name("Property")) {
-            if let (Some(id), Some(value)) = (property.attribute("Id"), property.attribute("Value")) {
+            if let (Some(id), Some(value)) = (property.attribute("Id"), property.attribute("Value"))
+            {
                 if id == "Microsoft.VisualStudio.Code.ExecutesCode" && value == "true" {
                     report.add_finding(
                         Finding::capability(
@@ -123,7 +125,11 @@ impl Analyzer for VsixManifestAnalyzer {
     fn can_analyze(&self, file_path: &Path) -> bool {
         file_path
             .file_name()
-            .map(|n| n.to_string_lossy().to_lowercase().ends_with(".vsixmanifest"))
+            .map(|n| {
+                n.to_string_lossy()
+                    .to_lowercase()
+                    .ends_with(".vsixmanifest")
+            })
             .unwrap_or(false)
     }
 }

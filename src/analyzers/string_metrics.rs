@@ -239,12 +239,14 @@ fn has_url_encoding(s: &str) -> bool {
     let mut i = 0;
 
     while i < len {
-        if bytes[i] == b'%' && i + 2 < len {
-            if bytes[i + 1].is_ascii_hexdigit() && bytes[i + 2].is_ascii_hexdigit() {
-                count += 1;
-                i += 3;
-                continue;
-            }
+        if bytes[i] == b'%'
+            && i + 2 < len
+            && bytes[i + 1].is_ascii_hexdigit()
+            && bytes[i + 2].is_ascii_hexdigit()
+        {
+            count += 1;
+            i += 3;
+            continue;
         }
         i += 1;
     }

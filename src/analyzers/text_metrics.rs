@@ -83,7 +83,7 @@ pub fn analyze_text(content: &str) -> TextMetrics {
     metrics.unicode_escape_count = unicode_esc;
     metrics.octal_escape_count = octal_esc;
     let total_escapes = hex_esc + unicode_esc + octal_esc;
-    metrics.escape_density = if content.len() > 0 {
+    metrics.escape_density = if !content.is_empty() {
         (total_escapes as f32 / content.len() as f32) * 100.0
     } else {
         0.0

@@ -9,10 +9,10 @@ fn test_react2shell_detection() -> Result<(), Box<dyn std::error::Error>> {
     let elf_path = temp_dir.path().join("react2shell_variant.elf");
 
     let mut file = File::create(&elf_path)?;
-    
+
     // ELF Header (x86_64)
     file.write_all(b"\x7fELF\x02\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")?;
-    
+
     // 1. Unique GoSocks paths
     file.write_all(b"src/mode/httpAndTcp/socket5Quick\0")?;
     file.write_all(b"src/mode/httpAndTcp/shell/ShellLinux.Exec_shell\0")?;
@@ -26,10 +26,11 @@ fn test_react2shell_detection() -> Result<(), Box<dyn std::error::Error>> {
     file.write_all(b"socksAddr\0")?;
 
     // Run dissect
+    #[allow(deprecated)]
     let mut cmd = Command::cargo_bin("dissect")?;
     cmd.arg("-v");
     cmd.arg(&elf_path);
-    
+
     let cmd_assert = cmd.assert();
     let success = cmd_assert.success();
     let output = success.get_output();
@@ -38,11 +39,20 @@ fn test_react2shell_detection() -> Result<(), Box<dyn std::error::Error>> {
     println!("Output: {}", stdout);
 
     // Verify Detections
-    assert!(stdout.contains("Unique Go package path for SOCKS5/Shell logic"), "Missing unique path detection");
-    assert!(stdout.contains("backdoor/gosocks"), "Missing GoSocks trait ID");
-    
+    assert!(
+        stdout.contains("Unique Go package path for SOCKS5/Shell logic"),
+        "Missing unique path detection"
+    );
+    assert!(
+        stdout.contains("backdoor/gosocks"),
+        "Missing GoSocks trait ID"
+    );
+
     // Generalized Detection
-    assert!(stdout.contains("Go-based Reverse Shell with SOCKS Proxy"), "Missing generalized backdoor detection");
+    assert!(
+        stdout.contains("Go-based Reverse Shell with SOCKS Proxy"),
+        "Missing generalized backdoor detection"
+    );
 
     Ok(())
 }

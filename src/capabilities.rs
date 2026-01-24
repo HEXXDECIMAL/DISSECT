@@ -183,7 +183,7 @@ fn apply_trait_defaults(raw: RawTraitDefinition, defaults: &TraitDefaults) -> Tr
         .unwrap_or_else(|| vec![Platform::All]);
 
     // Parse criticality: "none" means Inert
-    let criticality = match &raw.criticality {
+    let mut criticality = match &raw.criticality {
         Some(v) if v.eq_ignore_ascii_case("none") => Criticality::Inert,
         Some(v) => parse_criticality(v),
         None => defaults
@@ -192,6 +192,45 @@ fn apply_trait_defaults(raw: RawTraitDefinition, defaults: &TraitDefaults) -> Tr
             .map(parse_criticality)
             .unwrap_or(Criticality::Inert),
     };
+
+    // Stricter validation for HOSTILE traits: atomic traits cannot be HOSTILE
+    if criticality == Criticality::Hostile {
+        eprintln!(
+            "⚠️  WARNING: Trait '{}' is atomic but marked HOSTILE. Downgrading to SUSPICIOUS. (Only composite traits can be HOSTILE)",
+            raw.id
+        );
+        criticality = Criticality::Suspicious;
+    }
+
+    // Additional strictness for SUSPICIOUS/HOSTILE traits
+    if criticality >= Criticality::Suspicious {
+        if raw.description.len() < 15 {
+            eprintln!(
+                "⚠️  WARNING: Trait '{}' has an overly short description for its criticality. Please provide more context.",
+                raw.id
+            );
+        }
+        if criticality >= Criticality::Hostile
+            && raw.mbc.is_none()
+            && raw.attack.is_none()
+            && defaults.mbc.is_none()
+            && defaults.attack.is_none()
+        {
+            eprintln!(
+                "⚠️  WARNING: Trait '{}' is marked {:?} but lacks an MBC or MITRE ATT&CK mapping.",
+                raw.id, criticality
+            );
+        }
+        if criticality >= Criticality::Hostile
+            && platforms.contains(&Platform::All)
+            && file_types.contains(&RuleFileType::All)
+        {
+            eprintln!(
+                "⚠️  WARNING: Trait '{}' is marked {:?} but targets all platforms and file types. Consider narrowing the scope.",
+                raw.id, criticality
+            );
+        }
+    }
 
     TraitDefinition {
         id: raw.id,
@@ -275,7 +314,7 @@ fn apply_composite_defaults(raw: RawCompositeRule, defaults: &TraitDefaults) -> 
         .unwrap_or_else(|| vec![Platform::All]);
 
     // Parse criticality: "none" means Inert
-    let criticality = match &raw.criticality {
+    let mut criticality = match &raw.criticality {
         Some(v) if v.eq_ignore_ascii_case("none") => Criticality::Inert,
         Some(v) => parse_criticality(v),
         None => defaults
@@ -284,6 +323,66 @@ fn apply_composite_defaults(raw: RawCompositeRule, defaults: &TraitDefaults) -> 
             .map(parse_criticality)
             .unwrap_or(Criticality::Inert),
     };
+
+    // Stricter validation for HOSTILE traits: composite traits must have at least 3 conditions and a file_type filter
+    if criticality == Criticality::Hostile {
+        let mut condition_count = 0;
+        if let Some(ref c) = raw.requires_all {
+            condition_count += c.len();
+        }
+        if let Some(ref c) = raw.requires_any {
+            condition_count += c.len();
+        }
+        if let Some(ref c) = raw.conditions {
+            condition_count += c.len();
+        }
+        if let Some(ref c) = raw.requires_none {
+            condition_count += c.len();
+        }
+        if raw.condition.is_some() {
+            condition_count += 1;
+        }
+
+        let has_file_type_filter = !file_types.contains(&RuleFileType::All);
+
+        if condition_count < 3 || !has_file_type_filter {
+            eprintln!(
+                "⚠️  WARNING: Composite trait '{}' is marked HOSTILE but does not meet strictness requirements (conditions: {}, has_file_type_filter: {}). Downgrading to SUSPICIOUS.",
+                raw.id, condition_count, has_file_type_filter
+            );
+            criticality = Criticality::Suspicious;
+        }
+    }
+
+    // Additional strictness for SUSPICIOUS/HOSTILE composite rules
+    if criticality >= Criticality::Suspicious {
+        if raw.description.len() < 15 {
+            eprintln!(
+                "⚠️  WARNING: Composite trait '{}' has an overly short description for its criticality. Please provide more context.",
+                raw.id
+            );
+        }
+        if criticality >= Criticality::Hostile
+            && raw.mbc.is_none()
+            && raw.attack.is_none()
+            && defaults.mbc.is_none()
+            && defaults.attack.is_none()
+        {
+            eprintln!(
+                "⚠️  WARNING: Composite trait '{}' is marked {:?} but lacks an MBC or MITRE ATT&CK mapping.",
+                raw.id, criticality
+            );
+        }
+        if criticality >= Criticality::Hostile
+            && platforms.contains(&Platform::All)
+            && file_types.contains(&RuleFileType::All)
+        {
+            eprintln!(
+                "⚠️  WARNING: Composite trait '{}' is marked {:?} but targets all platforms and file types. Consider narrowing the scope.",
+                raw.id, criticality
+            );
+        }
+    }
 
     // Handle single condition by converting to requires_all
     let requires_all = raw.requires_all.or_else(|| raw.condition.map(|c| vec![c]));

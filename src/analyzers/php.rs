@@ -457,7 +457,7 @@ impl PhpAnalyzer {
         }
 
         // Detect non-ASCII function names (obfuscation)
-        if func_name.chars().any(|c| !c.is_ascii()) {
+        if !func_name.is_ascii() {
             report.findings.push(Finding {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
@@ -1288,7 +1288,9 @@ mod tests {
     #[test]
     fn test_lossy_utf8_reading() {
         let analyzer = PhpAnalyzer::new();
-        let invalid_utf8 = vec![0x3c, 0x3f, 0x70, 0x68, 0x70, 0x20, 0xff, 0xfe, 0xfd, 0x20, 0x3f, 0x3e];
+        let invalid_utf8 = vec![
+            0x3c, 0x3f, 0x70, 0x68, 0x70, 0x20, 0xff, 0xfe, 0xfd, 0x20, 0x3f, 0x3e,
+        ];
         let content = String::from_utf8_lossy(&invalid_utf8);
         let path = PathBuf::from("test_invalid.php");
         let report = analyzer.analyze_source(&path, &content).unwrap();

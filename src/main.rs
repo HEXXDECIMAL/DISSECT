@@ -23,6 +23,7 @@ mod types;
 mod upx;
 mod yara_engine;
 
+use crate::radare2::Radare2Analyzer;
 use analyzers::{
     archive::ArchiveAnalyzer, detect_file_type, elf::ElfAnalyzer, javascript::JavaScriptAnalyzer,
     macho::MachOAnalyzer, pe::PEAnalyzer, Analyzer, FileType,
@@ -132,6 +133,9 @@ fn main() -> Result<()> {
             &disabled,
         )?,
         Some(cli::Command::Diff { old, new }) => diff_analysis(&old, &new)?,
+        Some(cli::Command::Strings { target, min_length }) => {
+            extract_strings(&target, min_length, &args.format)?
+        }
         None => {
             // No subcommand - use paths from top-level args
             if args.paths.is_empty() {
@@ -313,8 +317,8 @@ fn analyze_file(
             analyzer.analyze(path)?
         }
         FileType::C => {
-            let analyzer = analyzers::c::CAnalyzer::new()
-                .with_capability_mapper(capability_mapper.clone());
+            let analyzer =
+                analyzers::c::CAnalyzer::new().with_capability_mapper(capability_mapper.clone());
             analyzer.analyze(path)?
         }
         FileType::Perl => {
@@ -641,7 +645,12 @@ fn scan_paths(
 
     // Format based on output type
     match format {
-        cli::OutputFormat::Json => Ok(format!("[\n{}\n]", reports.join(",\n"))),
+        cli::OutputFormat::Json => Ok(format!(
+            "[
+{}
+]",
+            reports.join(",\n")
+        )),
         cli::OutputFormat::Terminal => {
             // For terminal, show summary
             let mut output = String::new();
@@ -871,4 +880,123 @@ fn diff_analysis(old: &str, new: &str) -> Result<String> {
 
     // Format as terminal output
     Ok(diff::format_diff_terminal(&report))
+}
+
+fn extract_strings(target: &str, min_length: usize, format: &cli::OutputFormat) -> Result<String> {
+    let path = Path::new(target);
+    if !path.exists() {
+        anyhow::bail!("File does not exist: {}", target);
+    }
+
+    let data = fs::read(path)?;
+    let mut imports = std::collections::HashSet::new();
+    let mut import_libraries = std::collections::HashMap::new();
+    let mut exports = std::collections::HashSet::new();
+    let mut functions = std::collections::HashSet::new();
+
+    // Try to extract symbols if it's a binary file
+    if let Ok(file_type) = detect_file_type(path) {
+        match file_type {
+            FileType::Elf | FileType::MachO | FileType::Pe => {
+                // Use radare2 directly for fast symbol/function extraction in ONE batch
+                if Radare2Analyzer::is_available() {
+                    let r2 = Radare2Analyzer::new();
+                    if let Ok((r2_imports, _, r2_symbols)) = r2.extract_all_symbols(path) {
+                        for imp in r2_imports {
+                            imports.insert(imp.name.clone());
+                            if let Some(lib) = imp.lib_name {
+                                import_libraries.insert(imp.name, lib);
+                            }
+                        }
+                        for sym in r2_symbols {
+                            if sym.name.starts_with("imp.") || sym.name.starts_with("sym.imp.") {
+                                let clean = sym
+                                    .name
+                                    .trim_start_matches("sym.imp.")
+                                    .trim_start_matches("imp.");
+                                imports.insert(clean.to_string());
+                            } else if sym.symbol_type == "FUNC"
+                                || sym.symbol_type == "func"
+                                || sym.name.starts_with("fcn.")
+                            {
+                                let name = sym.name.clone();
+                                // Exports are GLOBAL in MachO symbols
+                                if sym.symbol_type == "FUNC"
+                                    && (sym.name.starts_with("__mh_") || !sym.name.starts_with('_'))
+                                {
+                                    exports.insert(name.clone());
+                                }
+                                if !imports.contains(&name) && !exports.contains(&name) {
+                                    functions.insert(name);
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    // Fallback to minimal goblin analysis
+                    let capability_mapper = crate::capabilities::CapabilityMapper::empty();
+                    let report = match file_type {
+                        FileType::Elf => ElfAnalyzer::new()
+                            .with_capability_mapper(capability_mapper)
+                            .analyze(path)?,
+                        FileType::MachO => MachOAnalyzer::new()
+                            .with_capability_mapper(capability_mapper)
+                            .analyze(path)?,
+                        FileType::Pe => PEAnalyzer::new()
+                            .with_capability_mapper(capability_mapper)
+                            .analyze(path)?,
+                        _ => unreachable!(),
+                    };
+
+                    for import in report.imports {
+                        imports.insert(import.symbol.clone());
+                        if let Some(lib) = import.library {
+                            import_libraries.insert(import.symbol, lib);
+                        }
+                    }
+                    for export in report.exports {
+                        exports.insert(export.symbol);
+                    }
+                    for func in report.functions {
+                        if func.name.starts_with("sym.imp.") {
+                            let clean = func.name.trim_start_matches("sym.imp.");
+                            imports.insert(clean.to_string());
+                        } else if !imports.contains(&func.name) && !exports.contains(&func.name) {
+                            functions.insert(func.name);
+                        }
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
+
+    let extractor = strings::StringExtractor::new()
+        .with_min_length(min_length)
+        .with_imports(imports)
+        .with_import_libraries(import_libraries)
+        .with_exports(exports)
+        .with_functions(functions);
+
+    let strings = extractor.extract_smart(&data);
+
+    match format {
+        cli::OutputFormat::Json => Ok(serde_json::to_string_pretty(&strings)?),
+        cli::OutputFormat::Terminal => {
+            let mut output = String::new();
+            output.push_str(&format!(
+                "Extracted {} strings from {}\n\n",
+                strings.len(),
+                target
+            ));
+            output.push_str(&format!("{:<10} {:<10} {}\n", "OFFSET", "TYPE", "VALUE"));
+            output.push_str(&format!("{:-<10} {:-<10} {:-<20}\n", "", "", ""));
+            for s in strings {
+                let offset = s.offset.unwrap_or_else(|| "unknown".to_string());
+                let stype = format!("{:?}", s.string_type);
+                output.push_str(&format!("{:<10} {:<10} {}\n", offset, stype, s.value));
+            }
+            Ok(output)
+        }
+    }
 }

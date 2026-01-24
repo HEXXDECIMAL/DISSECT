@@ -86,7 +86,7 @@ impl RustAnalyzer {
         let trait_findings = self
             .capability_mapper
             .evaluate_traits(&report, content.as_bytes());
-        
+
         // Add atomic traits first so composite rules can reference them
         for f in trait_findings {
             if !report.findings.iter().any(|existing| existing.id == f.id) {
@@ -447,11 +447,21 @@ impl RustAnalyzer {
         }
     }
 
-    fn analyze_import(&self, _node: &tree_sitter::Node, _source: &[u8], _report: &mut AnalysisReport) {
+    fn analyze_import(
+        &self,
+        _node: &tree_sitter::Node,
+        _source: &[u8],
+        _report: &mut AnalysisReport,
+    ) {
         // Most imports are now handled via YAML traits
     }
 
-    fn analyze_unsafe(&self, node: &tree_sitter::Node, _source: &[u8], report: &mut AnalysisReport) {
+    fn analyze_unsafe(
+        &self,
+        node: &tree_sitter::Node,
+        _source: &[u8],
+        report: &mut AnalysisReport,
+    ) {
         // Any unsafe block is noteworthy
         report.findings.push(Finding {
             kind: FindingKind::Capability,
@@ -475,7 +485,12 @@ impl RustAnalyzer {
         });
     }
 
-    fn analyze_macro(&self, _node: &tree_sitter::Node, _source: &[u8], _report: &mut AnalysisReport) {
+    fn analyze_macro(
+        &self,
+        _node: &tree_sitter::Node,
+        _source: &[u8],
+        _report: &mut AnalysisReport,
+    ) {
         // Most macros are now handled via YAML traits
     }
 
@@ -598,7 +613,8 @@ impl RustAnalyzer {
         loop {
             let node = cursor.node();
             match node.kind() {
-                "if_expression" | "match_arm" | "while_expression" | "for_expression" | "loop_expression" => {
+                "if_expression" | "match_arm" | "while_expression" | "for_expression"
+                | "loop_expression" => {
                     *complexity += 1;
                 }
                 "binary_expression" => {
@@ -625,14 +641,25 @@ impl RustAnalyzer {
         let mut depths = Vec::new();
         let mut deep_nest_count = 0;
 
-        fn traverse(node: &tree_sitter::Node, current_depth: u32, max: &mut u32, depths: &mut Vec<u32>, deep: &mut u32) {
+        fn traverse(
+            node: &tree_sitter::Node,
+            current_depth: u32,
+            max: &mut u32,
+            depths: &mut Vec<u32>,
+            deep: &mut u32,
+        ) {
             let mut depth = current_depth;
             match node.kind() {
-                "if_expression" | "match_expression" | "for_expression" | "while_expression" | "loop_expression" => {
+                "if_expression" | "match_expression" | "for_expression" | "while_expression"
+                | "loop_expression" => {
                     depth += 1;
                     depths.push(depth);
-                    if depth > *max { *max = depth; }
-                    if depth > 4 { *deep += 1; }
+                    if depth > *max {
+                        *max = depth;
+                    }
+                    if depth > 4 {
+                        *deep += 1;
+                    }
                 }
                 _ => {}
             }
@@ -648,12 +675,19 @@ impl RustAnalyzer {
             max_depth,
             avg_depth: if !depths.is_empty() {
                 depths.iter().sum::<u32>() as f32 / depths.len() as f32
-            } else { 0.0 },
+            } else {
+                0.0
+            },
             deep_nest_count,
         }
     }
 
-    fn analyze_call_patterns(&self, node: &tree_sitter::Node, source: &[u8], func_name: &str) -> CallPatternMetrics {
+    fn analyze_call_patterns(
+        &self,
+        node: &tree_sitter::Node,
+        source: &[u8],
+        func_name: &str,
+    ) -> CallPatternMetrics {
         let mut call_count = 0;
         let mut callees = Vec::new();
         let mut recursive_calls = 0;
@@ -667,7 +701,9 @@ impl RustAnalyzer {
                     if let Ok(text) = func_node.utf8_text(source) {
                         let name = text.to_string();
                         callees.push(name.clone());
-                        if name == func_name { recursive_calls += 1; }
+                        if name == func_name {
+                            recursive_calls += 1;
+                        }
                     }
                 }
             }
@@ -675,7 +711,9 @@ impl RustAnalyzer {
                 continue;
             }
             loop {
-                if cursor.goto_next_sibling() { break; }
+                if cursor.goto_next_sibling() {
+                    break;
+                }
                 if !cursor.goto_parent() {
                     callees.sort();
                     callees.dedup();

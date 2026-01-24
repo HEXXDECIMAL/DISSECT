@@ -4,10 +4,11 @@
 //! Works with AST-extracted function information.
 
 use crate::types::FunctionMetrics;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 /// Information about a single function for metrics computation
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct FunctionInfo {
     pub name: String,
     pub line_count: u32,
@@ -20,24 +21,6 @@ pub struct FunctionInfo {
     pub is_generator: bool,
     pub nesting_depth: u32,
     pub contains_nested_functions: bool,
-}
-
-impl Default for FunctionInfo {
-    fn default() -> Self {
-        Self {
-            name: String::new(),
-            line_count: 0,
-            param_count: 0,
-            param_names: Vec::new(),
-            start_line: 0,
-            end_line: 0,
-            is_anonymous: false,
-            is_async: false,
-            is_generator: false,
-            nesting_depth: 0,
-            contains_nested_functions: false,
-        }
-    }
 }
 
 /// Analyze a collection of functions and compute metrics

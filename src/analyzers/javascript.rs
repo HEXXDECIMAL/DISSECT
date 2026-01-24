@@ -104,7 +104,7 @@ impl JavaScriptAnalyzer {
         let trait_findings = self
             .capability_mapper
             .evaluate_traits(&report, content.as_bytes());
-        
+
         // Add atomic traits first so composite rules can reference them
         for f in trait_findings {
             if !report.findings.iter().any(|existing| existing.id == f.id) {
@@ -205,10 +205,10 @@ impl JavaScriptAnalyzer {
                 }
 
                 // Arrow functions and function expressions are anonymous if no name
-                if kind == "arrow_function" || kind == "function_expression" {
-                    if info.name.is_empty() {
-                        info.is_anonymous = true;
-                    }
+                if (kind == "arrow_function" || kind == "function_expression")
+                    && info.name.is_empty()
+                {
+                    info.is_anonymous = true;
                 }
 
                 // Check for async

@@ -45,7 +45,7 @@ impl ElfAnalyzer {
         let start = std::time::Instant::now();
 
         // Create target info with default/empty values for fields that require parsing
-        let mut target = TargetInfo {
+        let target = TargetInfo {
             path: file_path.display().to_string(),
             file_type: "elf".to_string(),
             size_bytes: data.len() as u64,

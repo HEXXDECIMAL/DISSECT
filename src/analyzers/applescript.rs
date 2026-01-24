@@ -3,8 +3,8 @@ use crate::capabilities::CapabilityMapper;
 use crate::strings::StringExtractor;
 use crate::types::*;
 use anyhow::Result;
-use std::path::Path;
 use std::fs;
+use std::path::Path;
 
 pub struct AppleScriptAnalyzer {
     capability_mapper: CapabilityMapper,
@@ -39,13 +39,11 @@ impl Analyzer for AppleScriptAnalyzer {
                 if let Ok(mut file) = fs::File::open(file_path) {
                     use std::io::Read;
                     let mut magic = [0u8; 4];
-                    if file.read_exact(&mut magic).is_ok() {
-                        if &magic == b"Fasd" {
-                            return true;
-                        }
+                    if file.read_exact(&mut magic).is_ok() && &magic == b"Fasd" {
+                        return true;
                     }
                 }
-                
+
                 if let Some(ext) = file_path.extension() {
                     return ext == "scpt";
                 }
@@ -56,7 +54,7 @@ impl Analyzer for AppleScriptAnalyzer {
 
     fn analyze(&self, file_path: &Path) -> Result<AnalysisReport> {
         let data = fs::read(file_path)?;
-        
+
         let target = TargetInfo {
             path: file_path.display().to_string(),
             file_type: "applescript".to_string(),
@@ -66,10 +64,10 @@ impl Analyzer for AppleScriptAnalyzer {
         };
 
         let mut report = AnalysisReport::new(target);
-        
+
         // Use intelligent string extraction
         report.strings = self.string_extractor.extract_smart(&data);
-        
+
         // Evaluate trait definitions from YAML
         let trait_findings = self.capability_mapper.evaluate_traits(&report, &data);
         for f in trait_findings {

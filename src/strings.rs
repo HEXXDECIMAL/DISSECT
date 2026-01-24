@@ -1,7 +1,7 @@
 use crate::lang_strings::{extract_lang_strings, is_go_binary, ExtractedString};
 use crate::types::{StringInfo, StringType};
 use regex::Regex;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 /// Extract and classify strings from binary data
 pub struct StringExtractor {
@@ -11,6 +11,8 @@ pub struct StringExtractor {
     version_ip_regex: Regex,
     email_regex: Regex,
     base64_regex: Regex,
+    // Unified map for O(1) classification: normalized_name -> (Type, Optional Library)
+    symbol_map: HashMap<String, (StringType, Option<String>)>,
 }
 
 impl StringExtractor {
@@ -23,8 +25,70 @@ impl StringExtractor {
             // Pattern to detect version strings that look like IPs (e.g., Chrome/100.0.0.0)
             version_ip_regex: Regex::new(r"(?i)(?:Chrome|Safari|Firefox|Edge|Opera|Chromium|Version|AppleWebKit|KHTML|Gecko|Trident|OPR|Mobile|MSIE|rv:|v)/\d+\.\d+\.\d+\.\d+").unwrap(),
             email_regex: Regex::new(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}").unwrap(),
-            base64_regex: Regex::new(r"^[A-Za-z0-9+/]{20,}={0,2}$").unwrap(),
+            base64_regex: Regex::new(r"^[A-Za-z0-9+/]{20,}=={0,2}$").unwrap(),
+            symbol_map: HashMap::new(),
         }
+    }
+
+    fn normalize_symbol(sym: &str) -> String {
+        sym.trim_start_matches("sym.imp.")
+            .trim_start_matches("sym.")
+            .trim_start_matches("fcn.")
+            .trim_start_matches('_')
+            .to_string()
+    }
+
+    pub fn with_min_length(mut self, min_length: usize) -> Self {
+        self.min_length = min_length;
+        self
+    }
+
+    pub fn with_symbols(mut self, functions: HashSet<String>) -> Self {
+        for func in &functions {
+            let normalized = Self::normalize_symbol(func);
+            self.symbol_map
+                .entry(normalized)
+                .or_insert((StringType::Function, None));
+        }
+        self
+    }
+
+    pub fn with_functions(mut self, functions: HashSet<String>) -> Self {
+        for func in &functions {
+            let normalized = Self::normalize_symbol(func);
+            self.symbol_map
+                .entry(normalized)
+                .or_insert((StringType::Function, None));
+        }
+        self
+    }
+
+    pub fn with_imports(mut self, imports: HashSet<String>) -> Self {
+        for imp in &imports {
+            let normalized = Self::normalize_symbol(imp);
+            self.symbol_map
+                .insert(normalized, (StringType::Import, None));
+        }
+        self
+    }
+
+    pub fn with_import_libraries(mut self, import_libraries: HashMap<String, String>) -> Self {
+        // Update existing imports in symbol_map with library info
+        for (imp, lib) in import_libraries {
+            let normalized = Self::normalize_symbol(&imp);
+            self.symbol_map
+                .insert(normalized, (StringType::Import, Some(lib)));
+        }
+        self
+    }
+
+    pub fn with_exports(mut self, exports: HashSet<String>) -> Self {
+        for exp in &exports {
+            let normalized = Self::normalize_symbol(exp);
+            self.symbol_map
+                .insert(normalized, (StringType::Export, None));
+        }
+        self
     }
 
     /// Extract all strings from binary data
@@ -84,11 +148,15 @@ impl StringExtractor {
     /// 2. Falls back to basic ASCII extraction for other binaries
     /// 3. Merges results from both methods, deduplicating by value
     pub fn extract_smart(&self, data: &[u8]) -> Vec<StringInfo> {
+        // Run both extractions in parallel
+        let (lang_strings, basic_strings) = rayon::join(
+            || extract_lang_strings(data, self.min_length),
+            || self.extract(data, None),
+        );
+
         let mut seen: HashSet<String> = HashSet::new();
         let mut strings = Vec::new();
 
-        // Try language-aware extraction first (Go/Rust binaries)
-        let lang_strings = extract_lang_strings(data, self.min_length);
         for es in lang_strings {
             if !seen.contains(&es.value) {
                 seen.insert(es.value.clone());
@@ -96,9 +164,6 @@ impl StringExtractor {
             }
         }
 
-        // Also do basic extraction to catch any strings missed by language extraction
-        // (e.g., non-Go/Rust binaries, or strings not stored in typical locations)
-        let basic_strings = self.extract(data, None);
         for s in basic_strings {
             if !seen.contains(&s.value) {
                 seen.insert(s.value.clone());
@@ -128,31 +193,52 @@ impl StringExtractor {
 
     /// Classify a string by type
     fn classify_string(&self, value: String, offset: usize, section: Option<String>) -> StringInfo {
-        let string_type = if self.url_regex.is_match(&value) {
-            StringType::Url
-        } else if self.is_real_ip(&value) {
-            StringType::Ip
-        } else if self.email_regex.is_match(&value) {
-            StringType::Email
-        } else if self.is_path(&value) {
-            StringType::Path
-        } else if value.len() > 20 && self.base64_regex.is_match(&value) {
-            StringType::Base64
-        } else {
-            StringType::Plain
+        let normalized = Self::normalize_symbol(&value);
+
+        let (stype, lib_info) = match self.symbol_map.get(&normalized) {
+            Some((t, l)) => (*t, l.clone()),
+            None => {
+                let t = if self.url_regex.is_match(&value) {
+                    StringType::Url
+                } else if self.is_real_ip(&value) {
+                    StringType::Ip
+                } else if self.email_regex.is_match(&value) {
+                    StringType::Email
+                } else if self.is_path(&value) {
+                    StringType::Path
+                } else if value.len() > 20 && self.base64_regex.is_match(&value) {
+                    StringType::Base64
+                } else {
+                    StringType::Plain
+                };
+                (t, None)
+            }
         };
 
+        let mut final_value = value;
+        if stype == StringType::Import {
+            if let Some(lib) = lib_info {
+                let lib_name = lib.split('/').next_back().unwrap_or(&lib);
+                final_value = format!("{} [{}]", final_value, lib_name);
+            }
+        }
+
         StringInfo {
-            value,
+            value: final_value,
             offset: Some(format!("{:#x}", offset)),
             encoding: "utf8".to_string(),
-            string_type,
+            string_type: stype,
             section,
         }
     }
 
     /// Classify a string's type without creating a StringInfo object
     pub fn classify_string_type(&self, value: &str) -> StringType {
+        let normalized = Self::normalize_symbol(value);
+        if let Some((stype, _)) = self.symbol_map.get(&normalized) {
+            return *stype;
+        }
+
         if self.url_regex.is_match(value) {
             StringType::Url
         } else if self.is_real_ip(value) {
@@ -166,6 +252,23 @@ impl StringExtractor {
         } else {
             StringType::Plain
         }
+    }
+
+    fn find_symbol_type(&self, value: &str) -> Option<StringType> {
+        let normalized = Self::normalize_symbol(value);
+        self.symbol_map.get(&normalized).map(|(t, _)| *t)
+    }
+
+    fn get_import_library(&self, value: &str) -> Option<String> {
+        let normalized = Self::normalize_symbol(value);
+        self.symbol_map
+            .get(&normalized)
+            .and_then(|(_, l)| l.clone())
+    }
+
+    fn matches_symbol_set(&self, _set: &HashSet<String>, value: &str) -> bool {
+        let normalized = Self::normalize_symbol(value);
+        self.symbol_map.contains_key(&normalized)
     }
 
     /// Check if string contains a real IP address (not a version string)
@@ -529,7 +632,7 @@ mod tests {
 
         // Should not have duplicate values
         let values: Vec<&str> = strings.iter().map(|s| s.value.as_str()).collect();
-        let unique: std::collections::HashSet<&str> = values.iter().cloned().collect();
+        let unique: HashSet<&str> = values.iter().cloned().collect();
         assert_eq!(values.len(), unique.len());
     }
 

@@ -69,7 +69,7 @@ impl MachOAnalyzer {
         self.analyze_structure(&macho, &mut report)?;
 
         // Extract imports and map to capabilities
-        self.analyze_imports(&macho, &mut report)?;
+        self.analyze_imports(file_path, &macho, &mut report)?;
 
         // Extract exports
         self.analyze_exports(&macho, &mut report)?;
@@ -440,19 +440,66 @@ impl MachOAnalyzer {
         Ok(())
     }
 
-    fn analyze_imports(&self, macho: &MachO, report: &mut AnalysisReport) -> Result<()> {
-        for imp in &macho.imports()? {
-            report.imports.push(Import {
-                symbol: imp.name.to_string(),
-                library: Some(imp.dylib.to_string()),
-                source: "goblin".to_string(),
-            });
+    fn analyze_imports(
+        &self,
+        file_path: &Path,
+        macho: &MachO,
+        report: &mut AnalysisReport,
+    ) -> Result<()> {
+        let imports = macho.imports()?;
 
-            // Map import to capability
-            if let Some(cap) = self.capability_mapper.lookup(imp.name, "goblin") {
-                // Check if we already have this capability
-                if !report.findings.iter().any(|c| c.id == cap.id) {
-                    report.findings.push(cap);
+        // Fallback: use symbol table and radare2 if imports() is empty
+        if imports.is_empty() {
+            // If we have radare2, use it to get library names for imports
+            if Radare2Analyzer::is_available() {
+                if let Ok(r2_imports) = self.radare2.extract_imports(file_path) {
+                    for imp in r2_imports {
+                        report.imports.push(Import {
+                            symbol: imp.name.clone(),
+                            library: imp.lib_name.clone(),
+                            source: "radare2".to_string(),
+                        });
+
+                        // Map import to capability
+                        if let Some(cap) = self.capability_mapper.lookup(&imp.name, "radare2") {
+                            if !report.findings.iter().any(|c| c.id == cap.id) {
+                                report.findings.push(cap);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Also try symbol table for basic names (catch anything r2 missed)
+            if let Some(syms) = &macho.symbols {
+                for (name, sym) in syms.iter().flatten() {
+                    // N_EXT (external) and N_UNDF (undefined) means it's an import
+                    if (sym.n_type & 0x01 != 0) && (sym.n_type & 0x0e == 0) {
+                        // Only add if not already added by radare2
+                        if !report.imports.iter().any(|i| i.symbol == name) {
+                            report.imports.push(Import {
+                                symbol: name.to_string(),
+                                library: None,
+                                source: "goblin_symtab".to_string(),
+                            });
+                        }
+                    }
+                }
+            }
+        } else {
+            for imp in &imports {
+                report.imports.push(Import {
+                    symbol: imp.name.to_string(),
+                    library: Some(imp.dylib.to_string()),
+                    source: "goblin".to_string(),
+                });
+
+                // Map import to capability
+                if let Some(cap) = self.capability_mapper.lookup(imp.name, "goblin") {
+                    // Check if we already have this capability
+                    if !report.findings.iter().any(|c| c.id == cap.id) {
+                        report.findings.push(cap);
+                    }
                 }
             }
         }
@@ -801,10 +848,10 @@ fn identify_payload_type(data: &[u8]) -> String {
     }
 
     // JSON
-    if data.starts_with(b"{") || data.starts_with(b"[") {
-        if data.iter().filter(|&&b| b == b'{' || b == b'}').count() >= 2 {
-            return "JSON".to_string();
-        }
+    if (data.starts_with(b"{") || data.starts_with(b"["))
+        && data.iter().filter(|&&b| b == b'{' || b == b'}').count() >= 2
+    {
+        return "JSON".to_string();
     }
 
     // XML/Plist

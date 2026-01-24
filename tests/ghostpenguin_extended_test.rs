@@ -9,17 +9,17 @@ fn test_ghostpenguin_extended_detection() -> Result<(), Box<dyn std::error::Erro
     let elf_path = temp_dir.path().join("ghostpenguin_new_traits.elf");
 
     let mut file = File::create(&elf_path)?;
-    
+
     // ELF Header (x86_64)
     file.write_all(b"\x7fELF\x02\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")?;
     file.write_all(&[0u8; 50])?;
 
     // 1. Cron Persistence (Blind Append)
     file.write_all(b"(crontab -l ; echo \"* * * * * /tmp/x\") | crontab -")?;
-    
+
     // 2. Cron Persistence (Filtered Rewrite)
     file.write_all(b"crontab -l | grep -v 'malware' | crontab -")?;
-    
+
     // 3. Host Info Strings (Need 3 to trigger)
     file.write_all(b"LanIP: 192.168.1.1")?;
     file.write_all(b"GateWay: 192.168.1.254")?;
@@ -31,9 +31,10 @@ fn test_ghostpenguin_extended_detection() -> Result<(), Box<dyn std::error::Erro
     file.write_all(b"iDataSize == %d")?;
 
     // Run dissect
+    #[allow(deprecated)]
     let mut cmd = Command::cargo_bin("dissect")?;
     cmd.arg(&elf_path);
-    
+
     let cmd_assert = cmd.assert();
     let success = cmd_assert.success();
     let output = success.get_output();
@@ -42,10 +43,19 @@ fn test_ghostpenguin_extended_detection() -> Result<(), Box<dyn std::error::Erro
     println!("Output: {}", stdout);
 
     // Verify New Detections
-    assert!(stdout.contains("Appends to crontab by piping echo"), "Missing cron blind append detection");
+    assert!(
+        stdout.contains("Appends to crontab by piping echo"),
+        "Missing cron blind append detection"
+    );
     // assert!(stdout.contains("Rewrites crontab by filtering"), "Missing cron filtered rewrite detection"); // Masked by blind append in UI
-    assert!(stdout.contains("Detailed system information gathering strings"), "Missing host info strings detection");
-    assert!(stdout.contains("Custom text-based C2 protocol framing"), "Missing custom C2 framing detection");
+    assert!(
+        stdout.contains("Detailed system information gathering strings"),
+        "Missing host info strings detection"
+    );
+    assert!(
+        stdout.contains("Custom text-based C2 protocol framing"),
+        "Missing custom C2 framing detection"
+    );
 
     Ok(())
 }

@@ -184,6 +184,49 @@ impl Radare2Analyzer {
         Ok(sections)
     }
 
+    /// Extract all symbols (imports, exports, and internal symbols) in a single session
+    pub fn extract_all_symbols(
+        &self,
+        file_path: &Path,
+    ) -> Result<(Vec<R2Import>, Vec<R2Export>, Vec<R2Symbol>)> {
+        let output = Command::new("r2")
+            .arg("-q")
+            .arg("-e")
+            .arg("scr.color=0")
+            .arg("-e")
+            .arg("log.level=0")
+            .arg("-c")
+            .arg("iij; echo SEPARATOR; isj") // Batched imports and symbols (symbols include exports)
+            .arg(file_path)
+            .output()
+            .context("Failed to execute radare2")?;
+
+        if !output.status.success() {
+            return Ok((Vec::new(), Vec::new(), Vec::new()));
+        }
+
+        let output_str = String::from_utf8_lossy(&output.stdout);
+        let parts: Vec<&str> = output_str.split("SEPARATOR").collect();
+
+        let imports = parts
+            .first()
+            .and_then(|p| {
+                let json_start = p.find('[')?;
+                serde_json::from_str(&p[json_start..]).ok()
+            })
+            .unwrap_or_default();
+
+        let symbols = parts
+            .get(1)
+            .and_then(|p| {
+                let json_start = p.find('[')?;
+                serde_json::from_str(&p[json_start..]).ok()
+            })
+            .unwrap_or_default();
+
+        Ok((imports, Vec::new(), symbols))
+    }
+
     /// Extract syscalls from binary using architecture-aware analysis
     /// Returns detected syscalls with their numbers and resolved names
     /// Optimized to use a SINGLE r2 session for all operations
@@ -969,6 +1012,16 @@ pub struct R2Export {
     pub paddr: u64,
     #[serde(rename = "type")]
     pub export_type: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct R2Symbol {
+    pub name: String,
+    pub vaddr: u64,
+    pub paddr: u64,
+    pub size: u64,
+    #[serde(rename = "type")]
+    pub symbol_type: String,
 }
 
 #[derive(Debug, Deserialize, Serialize)]

@@ -165,9 +165,20 @@ pub enum Command {
         /// New/target version (file or directory)
         new: String,
     },
+
+    /// Extract language-specific strings from a binary
+    Strings {
+        /// Target binary file
+        #[arg(required = true)]
+        target: String,
+
+        /// Minimum string length
+        #[arg(short, long, default_value = "4")]
+        min_length: usize,
+    },
 }
 
-#[derive(Debug, Clone, clap::ValueEnum)]
+#[derive(Debug, Clone, clap::ValueEnum, PartialEq)]
 pub enum OutputFormat {
     /// JSON output for machine consumption
     Json,

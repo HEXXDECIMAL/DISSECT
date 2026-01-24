@@ -98,10 +98,11 @@ pub fn analyze_identifiers(identifiers: &[&str]) -> IdentifierMetrics {
         }
 
         // Numeric suffix (var1, item2, etc.)
-        if len > 1 && s.chars().last().is_some_and(|c| c.is_ascii_digit()) {
-            if s.chars().take(len - 1).any(|c| c.is_ascii_alphabetic()) {
-                numeric_suffix += 1;
-            }
+        if len > 1
+            && s.chars().last().is_some_and(|c| c.is_ascii_digit())
+            && s.chars().take(len - 1).any(|c| c.is_ascii_alphabetic())
+        {
+            numeric_suffix += 1;
         }
 
         // Hex-like names (looks like hex data)
@@ -307,10 +308,8 @@ pub fn extract_identifiers_heuristic(content: &str) -> Vec<String> {
         } else if !current.is_empty() {
             // Filter out pure numbers and very common keywords
             let first = current.chars().next().unwrap();
-            if first.is_ascii_alphabetic() || first == '_' {
-                if !is_common_keyword(&current) {
-                    identifiers.push(current.clone());
-                }
+            if (first.is_ascii_alphabetic() || first == '_') && !is_common_keyword(&current) {
+                identifiers.push(current.clone());
             }
             current.clear();
         }
@@ -320,10 +319,8 @@ pub fn extract_identifiers_heuristic(content: &str) -> Vec<String> {
     // Don't forget the last identifier
     if !current.is_empty() {
         let first = current.chars().next().unwrap();
-        if first.is_ascii_alphabetic() || first == '_' {
-            if !is_common_keyword(&current) {
-                identifiers.push(current);
-            }
+        if (first.is_ascii_alphabetic() || first == '_') && !is_common_keyword(&current) {
+            identifiers.push(current);
         }
     }
 

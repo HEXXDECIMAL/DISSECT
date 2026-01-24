@@ -1,7 +1,7 @@
+pub mod applescript;
 pub mod archive;
 pub mod c;
 pub mod csharp;
-pub mod applescript;
 
 // Universal metrics analyzers
 pub mod comment_metrics;
@@ -310,7 +310,7 @@ pub enum FileType {
     CSharp,
     PowerShell,
     C,
-    PackageJson, // npm package.json manifest
+    PackageJson,  // npm package.json manifest
     VsixManifest, // VSCode extension.vsixmanifest
     Archive,
     AppleScript,

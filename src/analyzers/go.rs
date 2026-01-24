@@ -96,7 +96,7 @@ impl GoAnalyzer {
         let trait_findings = self
             .capability_mapper
             .evaluate_traits(&report, content.as_bytes());
-        
+
         // Add atomic traits first so composite rules can reference them
         for f in trait_findings {
             if !report.findings.iter().any(|existing| existing.id == f.id) {
@@ -108,7 +108,7 @@ impl GoAnalyzer {
         let composite_findings = self
             .capability_mapper
             .evaluate_composite_rules(&report, content.as_bytes());
-        
+
         // Add composite findings
         for f in composite_findings {
             if !report.findings.iter().any(|existing| existing.id == f.id) {

@@ -11,17 +11,25 @@ fn test_analyze_command_handles_directory() {
     let subdir = temp_dir.path().join("subdir");
     fs::create_dir_all(&subdir).unwrap();
 
-    fs::write(temp_dir.path().join("test1.sh"), "#!/bin/bash\necho 'test1'").unwrap();
+    fs::write(
+        temp_dir.path().join("test1.sh"),
+        "#!/bin/bash\necho 'test1'",
+    )
+    .unwrap();
     fs::write(subdir.join("test2.sh"), "#!/bin/bash\necho 'test2'").unwrap();
 
+    #[allow(deprecated)]
     assert_cmd::Command::cargo_bin("dissect")
         .unwrap()
-        .args(["--format", "json", "analyze", temp_dir.path().to_str().unwrap()])
+        .args([
+            "--format",
+            "json",
+            "analyze",
+            temp_dir.path().to_str().unwrap(),
+        ])
         .assert()
         .success()
-        .stdout(
-            predicate::str::contains("test1.sh").or(predicate::str::contains("test2.sh")),
-        );
+        .stdout(predicate::str::contains("test1.sh").or(predicate::str::contains("test2.sh")));
 }
 
 /// Test that analyze command handles single files
@@ -32,6 +40,7 @@ fn test_analyze_command_handles_single_file() {
     let test_file = temp_dir.path().join("single-file.sh");
     fs::write(&test_file, "#!/bin/bash\necho 'hello'").unwrap();
 
+    #[allow(deprecated)]
     assert_cmd::Command::cargo_bin("dissect")
         .unwrap()
         .args(["--format", "json", "analyze", test_file.to_str().unwrap()])
@@ -50,6 +59,7 @@ fn test_scan_command_handles_multiple_paths() {
     fs::write(temp_dir1.path().join("file1.sh"), "#!/bin/bash\necho '1'").unwrap();
     fs::write(temp_dir2.path().join("file2.sh"), "#!/bin/bash\necho '2'").unwrap();
 
+    #[allow(deprecated)]
     assert_cmd::Command::cargo_bin("dissect")
         .unwrap()
         .args([
@@ -69,9 +79,15 @@ fn test_scan_command_handles_multiple_paths() {
 fn test_analyze_empty_directory() {
     let temp_dir = TempDir::new().unwrap();
 
+    #[allow(deprecated)]
     assert_cmd::Command::cargo_bin("dissect")
         .unwrap()
-        .args(["--format", "json", "analyze", temp_dir.path().to_str().unwrap()])
+        .args([
+            "--format",
+            "json",
+            "analyze",
+            temp_dir.path().to_str().unwrap(),
+        ])
         .assert()
         .success();
 }
@@ -96,9 +112,15 @@ fn test_analyze_directory_with_archive() {
         .unwrap();
     tar.finish().unwrap();
 
+    #[allow(deprecated)]
     assert_cmd::Command::cargo_bin("dissect")
         .unwrap()
-        .args(["--format", "json", "analyze", temp_dir.path().to_str().unwrap()])
+        .args([
+            "--format",
+            "json",
+            "analyze",
+            temp_dir.path().to_str().unwrap(),
+        ])
         .assert()
         .success();
 }
@@ -107,12 +129,15 @@ fn test_analyze_directory_with_archive() {
 #[test]
 
 fn test_analyze_nonexistent_path() {
+    #[allow(deprecated)]
     assert_cmd::Command::cargo_bin("dissect")
         .unwrap()
         .args(["analyze", "/tmp/dissect-nonexistent-path-12345"])
         .assert()
         .failure()
-        .stderr(predicate::str::contains("does not exist").or(predicate::str::contains("not found")));
+        .stderr(
+            predicate::str::contains("does not exist").or(predicate::str::contains("not found")),
+        );
 }
 
 /// Test symlink handling
@@ -128,6 +153,7 @@ fn test_analyze_symlink_handling() {
     fs::write(&target, "#!/bin/bash\necho 'target'").unwrap();
     symlink(&target, &link).unwrap();
 
+    #[allow(deprecated)]
     assert_cmd::Command::cargo_bin("dissect")
         .unwrap()
         .args(["--format", "json", "analyze", link.to_str().unwrap()])
@@ -146,9 +172,15 @@ fn test_recursive_depth() {
     fs::create_dir_all(&deep_path).unwrap();
     fs::write(deep_path.join("deep.sh"), "#!/bin/bash\necho 'deep'").unwrap();
 
+    #[allow(deprecated)]
     assert_cmd::Command::cargo_bin("dissect")
         .unwrap()
-        .args(["--format", "json", "analyze", temp_dir.path().to_str().unwrap()])
+        .args([
+            "--format",
+            "json",
+            "analyze",
+            temp_dir.path().to_str().unwrap(),
+        ])
         .assert()
         .success()
         .stdout(predicate::str::contains("deep.sh"));
