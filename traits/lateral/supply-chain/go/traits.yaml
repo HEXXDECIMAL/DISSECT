@@ -1,0 +1,82 @@
+# Go Supply Chain Attack Indicators
+# Metrics-based detection of supply chain attack patterns in Go code
+
+defaults:
+  file_types: [go]
+
+traits:
+  - id: go/many-init-functions
+    description: Multiple init() functions (auto-execute on import)
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1195.001"
+    condition:
+      type: metrics
+      field: go_metrics.init_function_count
+      min: 3
+
+  - id: go/blank-imports
+    description: Uses blank imports for side effects
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: metrics
+      field: go_metrics.blank_import_count
+      min: 1
+
+  - id: go/many-blank-imports
+    description: Many blank imports (suspicious side-effect loading)
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: metrics
+      field: go_metrics.blank_import_count
+      min: 3
+
+  - id: go/cgo-usage
+    description: Uses CGo for C interoperability (evasion vector)
+    criticality: notable
+    confidence: 0.75
+    condition:
+      type: metrics
+      field: go_metrics.cgo_usage
+      min: 1
+
+  - id: go/embed-directive
+    description: Embeds files via //go:embed (payload embedding)
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: metrics
+      field: go_metrics.embed_directive_count
+      min: 1
+
+composite_rules:
+  # Detect potential backdoor patterns
+  - id: go/backdoor-indicators
+    description: Go code with backdoor-like characteristics
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1195.001"
+    requires_all:
+      - type: trait
+        id: exec/command/go-exec-command
+      - type: trait
+        id: comm/socket/go-network-dial
+
+  # Detect supply chain attack patterns
+  - id: go/suspicious-init
+    description: Multiple init functions with network/exec capability
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1195.001"
+    requires_all:
+      - type: trait
+        id: go/many-init-functions
+    requires_any:
+      - type: trait
+        id: exec/command/go-exec-command
+      - type: trait
+        id: comm/socket/go-network-dial
+      - type: trait
+        id: comm/socket/go-http-operations

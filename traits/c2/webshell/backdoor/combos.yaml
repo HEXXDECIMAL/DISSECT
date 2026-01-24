@@ -68,7 +68,7 @@ composite_rules:
     file_types: [all]
     requires_all:
       - type: trait
-        id: net/http/curl/init
+        id: comm/http/curl/init
     requires_any:
       - type: trait
         id: data/user-input/post
@@ -77,9 +77,9 @@ composite_rules:
     requires_count: 1
     conditions:
       - type: trait
-        id: net/http/curl/ssl-verify-disable
+        id: comm/http/curl/ssl-verify-disable
       - type: trait
-        id: net/http/curl/ssl-host-disable
+        id: comm/http/curl/ssl-host-disable
       - type: trait
         id: evasion/impersonate/ua-array
 
@@ -93,7 +93,7 @@ composite_rules:
     file_types: [all]
     requires_all:
       - type: trait
-        id: net/http/curl/init
+        id: comm/http/curl/init
     requires_any:
       - type: trait
         id: evasion/impersonate/googlebot
@@ -140,7 +140,7 @@ composite_rules:
       - type: trait
         id: data/user-input/files
       - type: trait
-        id: net/http/curl/file-upload
+        id: comm/http/curl/file-upload
     requires_count: 1
     conditions:
       - type: trait
@@ -197,7 +197,7 @@ composite_rules:
       - type: trait
         id: c2/webshell/google-search-scrape
       - type: trait
-        id: net/http/curl/init
+        id: comm/http/curl/init
 
   # Obfuscated payload webshell
   - id: c2/webshell/php-obfuscated

@@ -1,0 +1,20 @@
+# HTTP Request Operations - JavaScript
+# MBC: C0002 (HTTP Communication)
+# ATT&CK: T1071.001
+
+traits:
+  - id: http/request-axios
+    description: HTTP requests via axios
+    criticality: inert
+    confidence: 0.66
+    mbc: "C0002"
+    attack: "T1071.001"
+    condition:
+      type: yara
+      source: |
+        rule axios_request {
+          strings:
+            $axios = "axios" fullword
+          condition:
+            $axios
+        }

@@ -20,7 +20,7 @@ traits:
       type: string
       regex: "powershell.*Start-Process"
 
-  - id: packaging/evasion/system-masquerade
+  - id: system-masquerade
     description: "Masquerades as system process (e.g. Realtek, Windows Update)"
     criticality: suspicious
     confidence: 0.8
@@ -29,7 +29,7 @@ traits:
       regex: "RealtekHDAudio|WindowsUpdate|lsass|svchost"
 
 composite_rules:
-  - id: supply-chain/dropper/powershell-dropper
+  - id: powershell-dropper
     description: "PowerShell-based dropper (Download + Execute)"
     criticality: hostile
     confidence: 0.98

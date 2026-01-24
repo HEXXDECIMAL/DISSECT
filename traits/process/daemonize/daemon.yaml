@@ -1,0 +1,54 @@
+composite_rules:
+  - id: daemon
+    description: Daemon behavior - detaches from controlling terminal
+    confidence: 0.85
+    criticality: notable
+    platforms: [linux]
+    file_types: [elf]
+    requires_all:
+      - type: syscall
+        name: ["fork", "vfork", "clone"]
+      - type: syscall
+        name: ["setsid"]
+
+  - id: daemon-full
+    description: Full daemon pattern with stdin/stdout redirection
+    confidence: 0.9
+    criticality: notable
+    platforms: [linux]
+    file_types: [elf]
+    requires_all:
+      - type: syscall
+        name: ["fork", "vfork", "clone"]
+      - type: syscall
+        name: ["setsid"]
+      - type: syscall
+        name: ["dup2", "dup3"]
+        min_count: 2
+
+  - id: daemon-macos
+    description: macOS daemon behavior - detaches from terminal
+    confidence: 0.85
+    criticality: notable
+    platforms: [macos]
+    file_types: [macho]
+    requires_all:
+      - type: syscall
+        name: ["fork"]
+      - type: syscall
+        name: ["setsid"]
+
+  - id: daemon-macos-full
+    description: Full macOS daemon pattern with I/O redirection
+    confidence: 0.9
+    criticality: notable
+    platforms: [macos]
+    file_types: [macho]
+    requires_all:
+      - type: syscall
+        name: ["fork"]
+      - type: syscall
+        name: ["setsid"]
+      - type: syscall
+        name: ["dup2"]
+        min_count: 2

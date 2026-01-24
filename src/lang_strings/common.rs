@@ -407,7 +407,7 @@ mod tests {
         let es = ExtractedString {
             value: "test".to_string(),
             data_offset: 0x1000,
-            section: None, library: None,
+            section: None,
             method: StringMethod::RawScan,
         };
         assert!(es.section.is_none());

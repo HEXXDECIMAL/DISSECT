@@ -1,0 +1,15 @@
+# macOS XPC Communication
+traits:
+  - id: xpc-connection
+    description: XPC connection symbol
+    confidence: 0.9
+    condition:
+      type: symbol
+      pattern: "xpc_connection_create"
+
+  - id: xpc-message
+    description: XPC message handling
+    confidence: 0.85
+    condition:
+      type: symbol
+      pattern: "xpc_dictionary_"

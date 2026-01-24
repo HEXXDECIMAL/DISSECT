@@ -1,0 +1,22 @@
+composite_rules:
+  - id: memfd
+    description: Creates anonymous file in memory
+    confidence: 0.9
+    criticality: suspicious
+    platforms: [linux]
+    file_types: [elf]
+    condition:
+      type: syscall
+      name: ["memfd_create"]
+
+  - id: fileless
+    description: Fileless execution - memfd_create + execve
+    confidence: 0.95
+    criticality: suspicious
+    platforms: [linux]
+    file_types: [elf]
+    requires_all:
+      - type: syscall
+        name: ["memfd_create"]
+      - type: syscall
+        name: ["execve", "execveat"]

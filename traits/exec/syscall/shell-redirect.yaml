@@ -1,0 +1,60 @@
+composite_rules:
+  - id: shell-redirect
+    description: Executes program with file descriptor redirection
+    confidence: 0.8
+    criticality: suspicious
+    platforms: [linux]
+    file_types: [elf]
+    requires_all:
+      - type: syscall
+        name: ["execve", "execveat"]
+      - type: syscall
+        name: ["dup2", "dup3"]
+        min_count: 2
+
+  - id: reverse-shell-pattern
+    description: Reverse shell pattern - socket + dup2 + execve
+    confidence: 0.9
+    criticality: suspicious
+    platforms: [linux]
+    file_types: [elf]
+    requires_all:
+      - type: syscall
+        name: ["socket", "socketcall"]
+      - type: syscall
+        name: ["connect"]
+      - type: syscall
+        name: ["dup2", "dup3"]
+        min_count: 2
+      - type: syscall
+        name: ["execve", "execveat"]
+
+  - id: shell-redirect-macos
+    description: macOS program execution with FD redirection
+    confidence: 0.8
+    criticality: suspicious
+    platforms: [macos]
+    file_types: [macho]
+    requires_all:
+      - type: syscall
+        name: ["execve"]
+      - type: syscall
+        name: ["dup2"]
+        min_count: 2
+
+  - id: reverse-shell-pattern-macos
+    description: macOS reverse shell pattern - socket + dup2 + execve
+    confidence: 0.9
+    criticality: suspicious
+    platforms: [macos]
+    file_types: [macho]
+    requires_all:
+      - type: syscall
+        name: ["socket"]
+      - type: syscall
+        name: ["connect"]
+      - type: syscall
+        name: ["dup2"]
+        min_count: 2
+      - type: syscall
+        name: ["execve"]

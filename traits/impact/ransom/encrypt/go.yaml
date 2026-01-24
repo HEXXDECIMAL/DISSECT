@@ -1,0 +1,24 @@
+# Go file encryption patterns (ransomware)
+traits:
+  - id: file-encrypt
+    description: Go file encryption patterns (potential ransomware)
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: yara
+      source: |
+        rule go_file_encrypt {
+          strings:
+            $crypto1 = "crypto/aes" ascii
+            $crypto2 = "crypto/cipher" ascii
+            $crypto3 = "crypto/rsa" ascii
+            $walk1 = "filepath.Walk" ascii
+            $walk2 = "filepath.WalkDir" ascii
+            $write1 = "ioutil.WriteFile" ascii
+            $write2 = "os.WriteFile" ascii
+            $ext1 = ".encrypted" ascii
+            $ext2 = ".locked" ascii
+          condition:
+            any of ($crypto*) and any of ($walk*) and
+            (any of ($write*) or any of ($ext*))
+        }

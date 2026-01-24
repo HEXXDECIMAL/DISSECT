@@ -1,0 +1,47 @@
+# Binary Structural Metrics
+# Observational traits for binary organization and characteristics
+
+traits:
+  # === Function Size Metrics ===
+
+  - id: large-functions
+    description: "Binary contains unusually large functions"
+    criticality: notable
+    confidence: 0.65
+    condition:
+      type: metrics
+      field: binary.huge_functions
+      min: 2
+
+  # === Linear Code Patterns ===
+
+  - id: linear-code-ratio
+    description: "High ratio of linear functions (monolithic or VM structure)"
+    criticality: notable
+    confidence: 0.65
+    condition:
+      type: metrics
+      field: binary.linear_functions
+      min: 100
+
+  # === Complexity Metrics ===
+
+  - id: low-average-complexity
+    description: "Low average code complexity (simple functions or generated code)"
+    criticality: inert
+    confidence: 0.75
+    condition:
+      type: metrics
+      field: binary.avg_complexity
+      max: 3
+
+  # === Section Metrics ===
+
+  - id: dominant-text-section
+    description: "Binary with dominant .text section (monolithic multicall binary)"
+    criticality: notable
+    confidence: 0.6
+    condition:
+      type: metrics
+      field: binary.largest_section_ratio
+      min: 0.75

@@ -1,0 +1,98 @@
+# Malicious VSCode Extension Patterns
+# Detects high-confidence malicious patterns in VSCode extensions
+# These combine multiple indicators to reduce false positives
+
+traits:
+  # VSCode-specific markers for contextual analysis
+  - id: marker/api-usage
+    description: Uses VSCode API (extension marker)
+    criticality: inert
+    confidence: 1.0
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule vscode_api_usage {
+          strings:
+            $require = /require\(['"]vscode['"]\)/ ascii
+            $import = /from\s+['"]vscode['"]/ ascii
+            $namespace = "vscode." ascii
+            $activate = "activate" ascii fullword
+          condition:
+            any of them
+        }
+
+  # Post-Install Code Execution
+  - id: malicious/post-install-exec
+    description: Post-install script execution (dropper pattern)
+    criticality: hostile
+    confidence: 0.95
+    mbc: "B0024"
+    attack: "T1059"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule vscode_post_install_exec {
+          strings:
+            $activate = "activate" ascii fullword
+            $state1 = "globalState" ascii
+            $state2 = "postInstall" ascii
+            $exec = /exec(Sync|Async)?/ ascii
+          condition:
+            $activate and any of ($state*) and $exec
+        }
+
+  # Extension Credential Theft
+  - id: malicious/credential-theft
+    description: VSCode extension accessing sensitive credentials
+    criticality: malicious
+    confidence: 0.9
+    mbc: "E1519"
+    attack: "T1555"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule vscode_credential_theft {
+          strings:
+            $cred1 = ".ssh" ascii
+            $cred2 = ".aws" ascii
+            $cred3 = ".npmrc" ascii
+            $cred4 = ".env" ascii
+            $read = /read(File|FileSync)/ ascii
+            $send1 = "POST" ascii
+            $send2 = "fetch(" ascii
+            $send3 = "axios" ascii
+          condition:
+            any of ($cred*) and $read and any of ($send*)
+        }
+
+composite_rules:
+  # Staged Decryption and Execution inside a VSCode Extension
+  - id: malicious/staged-dropper
+    description: VSCode extension with staged decryption and execution (Dropper)
+    criticality: hostile
+    confidence: 0.99
+    mbc: "B0032"
+    attack: "T1027"
+    requires_all:
+      - type: trait
+        id: malware/dropper/js-decrypt-eval
+      - type: trait
+        id: marker/api-usage
+
+  # Extension Persistence via well-known hooks
+  - id: malicious/persistence
+    description: Extension establishing persistence
+    criticality: hostile
+    confidence: 0.95
+    mbc: "F0011"
+    attack: "T1547"
+    requires_all:
+      - type: trait
+        id: marker/api-usage
+      - type: string
+        regex: 'APPDATA|Startup|crontab|launchd|systemd'
+      - type: string
+        regex: 'write(File|FileSync)|copy(File|FileSync)'

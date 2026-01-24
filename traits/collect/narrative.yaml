@@ -9,8 +9,8 @@ composite_rules:
     near_lines: 100
     requires_all:
       - type: trait
-        id: intel/discover/system/python-platform-fingerprint
+        id: discovery/discover/system/python-platform-fingerprint
       - type: trait
         id: anti-static/obfuscation/strings/execute-decoded-content
       - type: trait
-        id: net/http/python-exfiltration
+        id: comm/http/python-exfiltration

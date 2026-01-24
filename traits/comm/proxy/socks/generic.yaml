@@ -1,0 +1,22 @@
+# SOCKS Proxy
+# MBC: C0001 (Socket Communication)
+# ATT&CK: T1090
+
+traits:
+  - id: proxy/socks
+    description: SOCKS proxy usage
+    criticality: notable
+    confidence: 0.66
+    attack: "T1090"
+    condition:
+      type: yara
+      source: |
+        rule socks_proxy {
+          strings:
+            $socks4 = "SOCKS4"
+            $socks5 = "SOCKS5"
+            $socks_proxy = "socks://"
+            $socks_port = "1080"
+          condition:
+            any of them
+        }

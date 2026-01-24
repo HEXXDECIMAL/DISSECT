@@ -1,0 +1,118 @@
+# Process Discovery Traits - Symbol-based Detection
+# MBC: OB0007 (Discovery) → E1057 (Process Discovery)
+# ATT&CK: T1057 (Process Discovery)
+
+traits:
+  # User ID functions
+  - id: process/getuid
+    description: Get real user ID of calling process
+    criticality: inert
+    mbc: "E1057"
+    attack: "T1057"
+    confidence: 0.5
+    condition:
+      type: symbol
+      pattern: getuid
+    platforms: [unix, linux, macos]
+
+  - id: process/geteuid
+    description: Get effective user ID of calling process
+    criticality: inert
+    mbc: "E1057"
+    attack: "T1057"
+    confidence: 0.5
+    condition:
+      type: symbol
+      pattern: geteuid
+    platforms: [unix, linux, macos]
+
+  - id: process/getgid
+    description: Get real group ID of calling process
+    criticality: inert
+    mbc: "E1057"
+    attack: "T1057"
+    confidence: 0.5
+    condition:
+      type: symbol
+      pattern: getgid
+    platforms: [unix, linux, macos]
+
+  - id: process/getegid
+    description: Get effective group ID of calling process
+    criticality: inert
+    mbc: "E1057"
+    attack: "T1057"
+    confidence: 0.5
+    condition:
+      type: symbol
+      pattern: getegid
+    platforms: [unix, linux, macos]
+
+  # Process ID functions
+  - id: process/getpid
+    description: Get process ID of calling process
+    criticality: inert
+    mbc: "E1057"
+    attack: "T1057"
+    confidence: 0.5
+    condition:
+      type: symbol
+      pattern: getpid
+    platforms: [unix, linux, macos]
+
+  - id: process/getppid
+    description: Get parent process ID
+    criticality: inert
+    mbc: "E1057"
+    attack: "T1057"
+    confidence: 0.5
+    condition:
+      type: symbol
+      pattern: getppid
+    platforms: [unix, linux, macos]
+
+  # User information lookup
+  - id: process/getpwnam
+    description: Get user database entry by name
+    criticality: inert
+    mbc: "E1087"
+    attack: "T1087.001"
+    confidence: 0.6
+    condition:
+      type: symbol
+      pattern: getpwnam
+    platforms: [unix, linux, macos]
+
+  - id: process/getpwuid
+    description: Get user database entry by UID
+    criticality: inert
+    mbc: "E1087"
+    attack: "T1087.001"
+    confidence: 0.6
+    condition:
+      type: symbol
+      pattern: getpwuid
+    platforms: [unix, linux, macos]
+
+  # Group information lookup
+  - id: process/getgrnam
+    description: Get group database entry by name
+    criticality: inert
+    mbc: "E1087"
+    attack: "T1087.002"
+    confidence: 0.6
+    condition:
+      type: symbol
+      pattern: getgrnam
+    platforms: [unix, linux, macos]
+
+  - id: process/getgrgid
+    description: Get group database entry by GID
+    criticality: inert
+    mbc: "E1087"
+    attack: "T1087.002"
+    confidence: 0.6
+    condition:
+      type: symbol
+      pattern: getgrgid
+    platforms: [unix, linux, macos]

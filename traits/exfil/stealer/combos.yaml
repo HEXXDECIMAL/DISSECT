@@ -11,6 +11,6 @@ composite_rules:
       - type: trait
         id: crypto/symmetric/aes/go-cfb-encrypter
       - type: trait
-        id: net/http/request/go-http-client-do
+        id: comm/http/request/go-http-client-do
       - type: trait
         id: exfil/stealer/go-json-exfil-keys

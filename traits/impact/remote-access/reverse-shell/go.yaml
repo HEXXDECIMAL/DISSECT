@@ -1,0 +1,26 @@
+# Go reverse shell patterns
+traits:
+  - id: reverse-shell
+    description: Go reverse shell implementation patterns
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule go_reverse_shell {
+          strings:
+            $conn1 = "net.Dial" ascii
+            $conn2 = "net.(*Dialer).Dial" ascii
+            $exec1 = "os/exec.Command" ascii
+            $exec2 = "exec.(*Cmd).Start" ascii
+            $exec3 = "exec.(*Cmd).Run" ascii
+            $pipe1 = "StdinPipe" ascii
+            $pipe2 = "StdoutPipe" ascii
+            $pipe3 = "StderrPipe" ascii
+            $shell1 = "/bin/sh" ascii
+            $shell2 = "/bin/bash" ascii
+            $shell3 = "cmd.exe" ascii
+          condition:
+            any of ($conn*) and any of ($exec*) and
+            (any of ($pipe*) or any of ($shell*))
+        }

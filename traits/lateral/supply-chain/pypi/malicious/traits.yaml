@@ -1,0 +1,323 @@
+# PyPI Malicious Package Patterns
+# ATT&CK: T1195.002 (Supply Chain Compromise)
+
+traits:
+  # Hex-encoded execution keywords
+  - id: malicious/hex-encoded-exec
+    description: Hex-encoded execution keyword (exec/eval hidden)
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1027"
+    file_types: [python]
+    condition:
+      type: yara
+      source: |
+        rule pypi_hex_encoded_exec {
+          strings:
+            // "exec" = 65786563
+            $exec_hex = "65786563" ascii nocase
+            // "eval" = 6576616c
+            $eval_hex = "6576616c" ascii nocase
+            // "import" = 696d706f7274
+            $import_hex = "696d706f7274" ascii nocase
+            // "system" = 73797374656d
+            $system_hex = "73797374656d" ascii nocase
+            // fromhex usage
+            $fromhex = "fromhex" ascii
+            $bytes_fromhex = "bytes.fromhex" ascii
+          condition:
+            any of ($exec_hex, $eval_hex, $import_hex, $system_hex) and any of ($fromhex, $bytes_fromhex)
+        }
+
+  # Compile with dynamic mode string
+  - id: malicious/dynamic-compile
+    description: Dynamic code compilation with exec/eval mode
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1059"
+    file_types: [python]
+    condition:
+      type: yara
+      source: |
+        rule pypi_dynamic_compile {
+          strings:
+            $compile = "compile(" ascii
+            $eval_mode = /compile\s*\([^)]*["']exec["']\s*\)/ ascii
+            $eval_mode2 = /compile\s*\([^)]*["']eval["']\s*\)/ ascii
+            $decode = ".decode(" ascii
+            $b64 = "b64decode" ascii
+            $fromhex = "fromhex" ascii
+          condition:
+            $compile and (any of ($eval_mode*) or ($decode and any of ($b64, $fromhex)))
+        }
+
+  # Gzip JSON payload loading
+  - id: malicious/gzip-json-payload
+    description: Loads code payload from gzipped JSON resource
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1059"
+    file_types: [python]
+    condition:
+      type: yara
+      source: |
+        rule pypi_gzip_json_payload {
+          strings:
+            $gzip_open = "gzip.open" ascii
+            $json_loads = "json.loads" ascii
+            $resources = "resources" ascii
+            $json_gz = ".json.gz" ascii
+            $b64decode = "b64decode" ascii
+            $exec = "exec(" ascii
+            $eval = "eval(" ascii
+          condition:
+            ($gzip_open and $json_loads and any of ($resources, $json_gz)) and any of ($b64decode, $exec, $eval)
+        }
+
+  # Impersonating legitimate package author
+  - id: malicious/author-impersonation
+    description: Impersonates well-known package author
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1195.002"
+    file_types: [python]
+    condition:
+      type: yara
+      source: |
+        rule pypi_author_impersonation {
+          strings:
+            // Known PyPI author patterns being impersonated
+            $author1 = "__author__" ascii
+            $email1 = "__email__" ascii
+            // Suspicious code alongside author metadata
+            $exec = "exec(" ascii
+            $eval = "eval(" ascii
+            $b64 = "b64decode" ascii
+            $compile = "compile(" ascii
+          condition:
+            ($author1 and $email1) and any of ($exec, $eval, $b64, $compile)
+        }
+
+  # Eval/exec with nested encoding
+  - id: malicious/nested-decode-exec
+    description: Nested decoding before execution
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1027"
+    file_types: [python]
+    condition:
+      type: yara
+      source: |
+        rule pypi_nested_decode_exec {
+          strings:
+            // Pattern: eval(compile(b64decode(...).decode(...), ...))
+            $pattern1 = /eval\s*\(\s*compile\s*\(\s*.*b64decode/ ascii
+            $pattern2 = /exec\s*\(\s*compile\s*\(\s*.*b64decode/ ascii
+            $pattern3 = /eval\s*\(\s*.*\.decode\s*\(.*\.decode\s*\(/ ascii
+            $pattern4 = /exec\s*\(\s*.*\.decode\s*\(.*\.decode\s*\(/ ascii
+          condition:
+            any of them
+        }
+
+
+  # setup.py abuse
+  - id: malicious/setup-abuse
+    description: Malicious setup.py execution
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1195.002"
+    condition:
+      type: yara
+      source: |
+        rule pypi_setup_abuse {
+          strings:
+            // setup.py context
+            $setup1 = "setup(" ascii
+            $setup2 = "setuptools" ascii
+            $setup3 = "distutils" ascii
+            // Malicious imports
+            $imp1 = "subprocess" ascii
+            $imp2 = "os.system" ascii
+            $imp3 = "urllib" ascii
+            // Command execution
+            $cmd1 = "Popen" ascii
+            $cmd2 = "call(" ascii
+            $cmd3 = "run(" ascii
+            // Download and execute
+            $dl1 = "urlopen" ascii
+            $dl2 = "urlretrieve" ascii
+          condition:
+            (any of ($setup*) and any of ($imp*) and any of ($cmd*, $dl*))
+        }
+
+  # PyPI credential stealing
+  - id: malicious/cred-steal
+    description: PyPI package stealing credentials
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1552"
+    condition:
+      type: yara
+      source: |
+        rule pypi_cred_steal {
+          strings:
+            // Environment access
+            $env1 = "os.environ" ascii
+            $env2 = "os.getenv" ascii
+            // Sensitive targets
+            $sens1 = "AWS_" ascii
+            $sens2 = "GITHUB" ascii
+            $sens3 = "TOKEN" ascii
+            $sens4 = "SECRET" ascii
+            $sens5 = "PASSWORD" ascii
+            // Exfil methods
+            $exfil1 = "requests.post" ascii
+            $exfil2 = "urllib" ascii
+            $exfil3 = "http.client" ascii
+            // File access
+            $file1 = "/.aws/" ascii
+            $file2 = "/.ssh/" ascii
+            $file3 = "/.netrc" ascii
+          condition:
+            (any of ($env*) and any of ($sens*) and any of ($exfil*)) or
+            (any of ($file*) and any of ($exfil*))
+        }
+
+  # PyPI reverse shell
+  - id: malicious/reverse-shell
+    description: PyPI package with reverse shell
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1059"
+    file_types: [python]
+    condition:
+      type: yara
+      source: |
+        rule pypi_reverse_shell {
+          strings:
+            // Socket operations - more specific
+            $sock1 = "socket.socket" ascii
+            $sock2 = "socket.AF_INET" ascii
+            $sock3 = "socket.connect" ascii
+            $sock4 = "socket.SOCK_STREAM" ascii
+            // Shell execution
+            $shell1 = "subprocess" ascii fullword
+            $shell2 = "/bin/sh" ascii
+            $shell3 = "/bin/bash" ascii
+            // Pipe redirection
+            $pipe1 = "dup2" ascii fullword
+            $pipe2 = "stdin" ascii fullword
+            $pipe3 = "stdout" ascii fullword
+          condition:
+            (2 of ($sock*) and any of ($shell*)) or
+            (any of ($sock*) and 2 of ($pipe*))
+        }
+
+  # PyPI typosquatting
+  - id: malicious/typosquat
+    description: PyPI typosquatting indicators
+    criticality: suspicious
+    confidence: 0.75
+    attack: "T1195.002"
+    condition:
+      type: yara
+      source: |
+        rule pypi_typosquat {
+          strings:
+            // Common targets
+            $pkg1 = "requests" ascii
+            $pkg2 = "urllib3" ascii
+            $pkg3 = "colorama" ascii
+            $pkg4 = "numpy" ascii
+            // With suspicious behavior
+            $sus1 = "subprocess" ascii
+            $sus2 = "os.system" ascii
+            $sus3 = "exec(" ascii
+            $sus4 = "eval(" ascii
+          condition:
+            (any of ($pkg*) and 2 of ($sus*))
+        }
+
+  # PyPI fileless dropper
+  - id: malicious/fileless-dropper
+    description: PyPI package with fileless dropper technique
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1620"
+    file_types: [python]
+    condition:
+      type: yara
+      source: |
+        rule pypi_fileless_dropper {
+          strings:
+            // ctypes for syscall
+            $ctypes = "ctypes" ascii
+            $cdll = "CDLL" ascii
+            $libc = "libc.so" ascii
+            // memfd_create
+            $memfd = "memfd_create" ascii
+            $syscall_319 = "319" ascii
+            // Download
+            $requests = "requests.get" ascii
+            $content = ".content" ascii
+            // Execution from /proc
+            $proc_fd = "/proc/self/fd" ascii
+            $execv = "execv" ascii
+          condition:
+            ($ctypes and ($cdll or $libc)) and
+            (any of ($memfd, $syscall_319)) and
+            ($requests or $content) and
+            ($proc_fd or $execv)
+        }
+
+  # PyPI with C2 IP address
+  - id: malicious/c2-ip
+    description: PyPI package with hardcoded C2 IP address
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1071"
+    file_types: [python]
+    condition:
+      type: yara
+      source: |
+        rule pypi_c2_ip {
+          strings:
+            // HTTP with IP
+            $http_ip = /http:\/\/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/ ascii
+            // Download indicators
+            $requests = "requests.get" ascii
+            $urllib = "urllib" ascii
+            $content = ".content" ascii
+            // Write or exec
+            $write = "open(" ascii
+            $exec = "exec" ascii
+          condition:
+            $http_ip and any of ($requests, $urllib) and any of ($content, $write, $exec)
+        }
+
+  # PyPI code injection
+  - id: malicious/code-inject
+    description: PyPI package with code injection
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1059"
+    condition:
+      type: yara
+      source: |
+        rule pypi_code_inject {
+          strings:
+            // Code execution
+            $exec1 = "exec(" ascii
+            $exec2 = "eval(" ascii
+            $exec3 = "compile(" ascii
+            // Encoding/decoding
+            $enc1 = "base64.b64decode" ascii
+            $enc2 = "codecs.decode" ascii
+            $enc3 = "zlib.decompress" ascii
+            // Marshal/pickle
+            $ser1 = "marshal.loads" ascii
+            $ser2 = "pickle.loads" ascii
+          condition:
+            (any of ($exec*) and any of ($enc*)) or
+            any of ($ser*)
+        }

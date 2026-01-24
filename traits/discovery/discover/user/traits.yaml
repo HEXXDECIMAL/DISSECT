@@ -1,0 +1,162 @@
+# Intelligence Gathering - User Discovery
+# ATT&CK: T1033 (System Owner/User Discovery)
+
+traits:
+  - id: user/home-env
+    description: HOME environment variable lookup
+    criticality: notable
+    confidence: 0.7
+    attack: "T1033"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "(getenv.*HOME|env\\.HOME|\\$HOME)"
+
+  - id: user/appdata
+    description: Windows APPDATA lookup
+    criticality: notable
+    confidence: 0.75
+    attack: "T1033"
+    file_types: [pe, python, javascript]
+    condition:
+      type: string
+      exact: "APPDATA"
+
+  - id: user/localappdata
+    description: Windows LOCALAPPDATA lookup
+    criticality: notable
+    confidence: 0.75
+    attack: "T1033"
+    file_types: [pe, python, javascript]
+    condition:
+      type: string
+      exact: "LOCALAPPDATA"
+
+  - id: user/userprofile
+    description: Windows USERPROFILE lookup
+    criticality: notable
+    confidence: 0.75
+    attack: "T1033"
+    file_types: [pe, python, javascript]
+    condition:
+      type: string
+      exact: "USERPROFILE"
+
+  - id: user/username-env
+    description: USERNAME environment variable
+    criticality: notable
+    confidence: 0.75
+    attack: "T1033"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "(USERNAME|USER|LOGNAME)"
+
+  - id: user/getuid
+    description: Get user ID
+    criticality: notable
+    confidence: 0.7
+    attack: "T1033"
+    file_types: [elf, macho]
+    condition:
+      type: string
+      exact: "getuid"
+
+  - id: user/getpwuid
+    description: Get password entry by UID
+    criticality: notable
+    confidence: 0.75
+    attack: "T1033"
+    file_types: [elf, macho]
+    condition:
+      type: string
+      exact: "getpwuid"
+
+  - id: user/getpwnam
+    description: Get password entry by name
+    criticality: notable
+    confidence: 0.7
+    attack: "T1033"
+    file_types: [elf, macho]
+    condition:
+      type: string
+      exact: "getpwnam"
+
+  - id: user/dscl
+    description: macOS Directory Service CLI
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1087.001"
+    file_types: [macho, shell]
+    condition:
+      type: string
+      regex: "dscl\\s+\\."
+
+  - id: user/dsenableroot
+    description: macOS enable root user
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1087.001"
+    file_types: [macho, shell]
+    condition:
+      type: string
+      exact: "dsenableroot"
+
+  - id: user/whoami
+    description: Current user lookup
+    criticality: suspicious
+    confidence: 0.75
+    attack: "T1033"
+    # Exclude JS - syntax highlighters have shell keywords
+    file_types: [shell, elf, macho, pe, python]
+    condition:
+      type: string
+      exact: "whoami"
+
+  - id: user/etc-passwd
+    description: Password file access
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1087.001"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "/etc/passwd"
+
+composite_rules:
+  - id: user/enumeration-detected
+    description: User enumeration activity
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1033"
+    mbc: "B0046"
+    # Exclude JS - syntax highlighters have shell command keywords
+    file_types: [shell, elf, macho, pe, python]
+    condition:
+      type: yara
+      source: |
+        rule user_enumeration {
+          strings:
+            // Active enumeration commands (more suspicious - shell commands)
+            $whoami = "whoami" fullword
+            $etc_passwd = "/etc/passwd"
+            $dscl = "dscl" fullword
+            $finger = "finger" fullword
+            $last_cmd = "/usr/bin/last"
+            $w_cmd = "/usr/bin/w" ascii
+            // POSIX user lookup functions (common in auth software)
+            $getpwnam = "getpwnam" fullword
+            $getuid = "getuid" fullword
+            $getpwuid = "getpwuid" fullword
+            // Environment variables (very common)
+            $username = "USERNAME" fullword
+            $user = "USER" fullword
+            $logname = "LOGNAME" fullword
+          condition:
+            filesize < 20MB and (
+              // Require active shell commands + additional context
+              (1 of ($whoami, $etc_passwd, $dscl, $finger, $last_cmd, $w_cmd) and 2 of them) or
+              // Or require many indicators if only passive functions
+              (5 of them)
+            )
+        }

@@ -1,0 +1,221 @@
+# Userspace Rootkit Detection - LD_PRELOAD Hooking
+# MBC: F0015 (Hijack Execution Flow)
+# ATT&CK: T1574.006 (Dynamic Linker Hijacking)
+
+traits:
+  # LD_PRELOAD environment variable manipulation
+  - id: ld-preload
+    description: References LD_PRELOAD environment variable
+    criticality: notable
+    confidence: 0.8
+    condition:
+      type: yara
+      source: |
+        rule ld_preload_env {
+          strings:
+            $ld_preload = "LD_PRELOAD" ascii
+            $ld_library = "LD_LIBRARY_PATH" ascii
+          condition:
+            any of them
+        }
+
+  # libc function hooking (common rootkit targets)
+  # NOTE: This trait alone is not sufficient - many legitimate binaries use these
+  # functions. It becomes suspicious only when combined with dlsym/RTLD_NEXT or LD_PRELOAD
+  - id: libc-hook-targets
+    description: References multiple libc functions commonly hooked by rootkits
+    criticality: notable
+    confidence: 0.5
+    mbc: "F0015"
+    attack: "T1574.006"
+    condition:
+      type: yara
+      source: |
+        rule libc_hook_targets {
+          strings:
+            // File operations
+            $fopen = "fopen" ascii
+            $open = "open64" ascii
+            $read = "read" ascii
+            $readdir = "readdir" ascii
+            $readdir64 = "readdir64" ascii
+            // Process listing
+            $opendir = "opendir" ascii
+            // Network
+            $accept = "accept" ascii
+            $connect = "connect" ascii
+            $recvfrom = "recvfrom" ascii
+            // User info
+            $getpwnam = "getpwnam" ascii
+            $getpwuid = "getpwuid" ascii
+            // stat family
+            $stat = "__xstat" ascii
+            $lstat = "__lxstat" ascii
+            $fstat = "__fxstat" ascii
+            $stat64 = "__xstat64" ascii
+            $lstat64 = "__lxstat64" ascii
+            // Hooking indicators (required for this to be meaningful)
+            $hook1 = "dlsym" ascii
+            $hook2 = "RTLD_NEXT" ascii
+            $hook3 = "LD_PRELOAD" ascii
+          condition:
+            5 of ($fopen, $open, $read, $readdir*, $opendir, $accept, $connect, $recvfrom, $getpwnam, $getpwuid, $stat*, $lstat*, $fstat*) and
+            any of ($hook*)
+        }
+
+  # dlsym RTLD_NEXT pattern (hook chaining)
+  - id: dlsym-rtld-next
+    description: Uses dlsym with RTLD_NEXT (function hooking pattern)
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "F0015"
+    attack: "T1574.006"
+    condition:
+      type: yara
+      source: |
+        rule dlsym_rtld_next {
+          strings:
+            $dlsym = "dlsym" ascii
+            $rtld_next = "RTLD_NEXT" ascii
+            // Common hook pattern in C
+            $hook_pattern = /dlsym\s*\(\s*RTLD_NEXT/ ascii
+          condition:
+            ($dlsym and $rtld_next) or $hook_pattern
+        }
+
+  # Symbiote-specific patterns
+  - id: symbiote
+    description: Symbiote rootkit indicators
+    criticality: hostile
+    confidence: 0.95
+    mbc: "F0015"
+    attack: "T1574.006"
+    condition:
+      type: yara
+      source: |
+        rule symbiote_rootkit {
+          strings:
+            $skullsec = "skullseclabs" ascii
+            $dnscat = "DNSCAT" ascii
+            $hooked = "Hooked" ascii
+            $static = "Static" ascii
+            // Function pairs indicating hook implementation
+            $hook1 = "original_" ascii
+            $hook2 = "real_" ascii
+          condition:
+            $skullsec or $dnscat or ($hooked and $static) or ($hook1 and $hook2)
+        }
+
+  # /proc filesystem hiding
+  - id: proc-hiding
+    description: Patterns for hiding processes via /proc manipulation
+    criticality: hostile
+    confidence: 0.9
+    mbc: "F0015"
+    attack: "T1574.006"
+    condition:
+      type: yara
+      source: |
+        rule proc_hiding {
+          strings:
+            $proc_self = "/proc/self" ascii
+            $proc_pid = /\/proc\/[0-9]+/ ascii
+            $proc_net = "/proc/net" ascii
+            $hide_pid = "hide_pid" ascii nocase
+            $hidden_proc = "hidden_proc" ascii nocase
+          condition:
+            ($hide_pid or $hidden_proc) or (3 of ($proc*))
+        }
+
+  # Dynamic linker hook symbol (_dlfcn_hook)
+  # This glibc internal symbol indicates dynamic linker hooking capability
+  - id: dlfcn-hook-symbol
+    description: Contains _dlfcn_hook symbol (dynamic linker hook)
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "F0015"
+    attack: "T1574.006"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "_dlfcn_hook"
+
+  # ld.so.preload file path (rootkit installation target)
+  - id: ld-so-preload-file
+    description: References /etc/ld.so.preload file
+    criticality: hostile
+    confidence: 0.9
+    mbc: "F0015"
+    attack: "T1574.006"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "/etc/ld.so.preload"
+
+  # Backup ld.so pattern (rootkit hijacking original loader)
+  - id: ld-backup-pattern
+    description: Dynamic linker backup/restore pattern
+    criticality: hostile
+    confidence: 0.9
+    mbc: "F0015"
+    attack: "T1574.006"
+    file_types: [elf]
+    condition:
+      type: yara
+      source: |
+        rule ld_backup_pattern {
+          strings:
+            $backup_ld = "backup_ld" ascii nocase
+            $orig_ld = "orig_ld" ascii nocase
+            $real_ld = "real_ld" ascii nocase
+            $ld_so_backup = /ld[\-_\.]so[\.\-_]?bak/ ascii nocase
+            $ld_backup_file = ".backup_ld.so" ascii
+          condition:
+            any of them
+        }
+
+  # __libc_dlopen_mode (internal glibc dynamic loading)
+  - id: libc-dlopen-mode
+    description: Uses __libc_dlopen_mode (internal glibc loader)
+    criticality: suspicious
+    confidence: 0.8
+    mbc: "F0015"
+    attack: "T1574.006"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "__libc_dlopen_mode"
+
+composite_rules:
+  # Full LD_PRELOAD rootkit
+  - id: ld-preload-rootkit
+    description: LD_PRELOAD userspace rootkit (Symbiote-style)
+    criticality: hostile
+    confidence: 0.95
+    requires_all:
+      - type: trait
+        id: dlsym-rtld-next
+    requires_any:
+      - type: trait
+        id: libc-hook-targets
+      - type: trait
+        id: proc-hiding
+
+  # LD_PRELOAD installation rootkit
+  - id: ld-preload-installer
+    description: LD_PRELOAD rootkit installer (modifies ld.so.preload)
+    criticality: hostile
+    confidence: 0.95
+    mbc: "F0015"
+    attack: "T1574.006"
+    file_types: [elf]
+    requires_all:
+      - type: trait
+        id: ld-so-preload-file
+    requires_any:
+      - type: trait
+        id: ld-backup-pattern
+      - type: trait
+        id: libc-dlopen-mode
+      - type: trait
+        id: dlsym-rtld-next

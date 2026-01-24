@@ -1,0 +1,187 @@
+# Supply Chain Composite Rules - HOSTILE Escalation
+# These combinations should escalate to HOSTILE when seen together
+# ATT&CK: T1195.002 (Compromise Software Supply Chain)
+
+traits:
+  # Fingerprint + Exfiltration in same context
+  - id: composite/fingerprint-exfil
+    description: System fingerprinting combined with data exfiltration
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1082"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule fingerprint_and_exfil {
+          strings:
+            // Fingerprinting
+            $fp1 = "os.userInfo()" ascii
+            $fp2 = "os.hostname()" ascii
+            $fp3 = "os.networkInterfaces()" ascii
+            $fp4 = "os.platform()" ascii
+            $fp5 = "process.env" ascii
+            // Exfiltration
+            $exfil1 = "fetch(" ascii
+            $exfil2 = "https.request" ascii
+            $exfil3 = "http.request" ascii
+            $exfil4 = "axios" ascii
+            $exfil5 = /method:\s*["']POST["']/ ascii
+            // OOB domains
+            $oob1 = "oast.fun" ascii nocase
+            $oob2 = "oastify.com" ascii nocase
+            $oob3 = "webhook.site" ascii nocase
+            $oob4 = "pipedream.net" ascii nocase
+          condition:
+            2 of ($fp*) and (any of ($exfil*) or any of ($oob*))
+        }
+
+  # Credential file access + network
+  - id: composite/credential-harvest
+    description: Credential file access with network exfiltration
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1552.001"
+    file_types: [javascript, typescript, shell, packagejson]
+    condition:
+      type: yara
+      source: |
+        rule credential_harvest {
+          strings:
+            // Credential files
+            $cred1 = ".env" ascii
+            $cred2 = ".npmrc" ascii
+            $cred3 = ".yarnrc" ascii
+            $cred4 = "/etc/passwd" ascii
+            $cred5 = "/etc/shadow" ascii
+            $cred6 = ".ssh/" ascii
+            $cred7 = ".aws/credentials" ascii
+            $cred8 = ".docker/config.json" ascii
+            // Network activity
+            $net1 = "curl " ascii
+            $net2 = "wget " ascii
+            $net3 = "fetch(" ascii
+            $net4 = "https.request" ascii
+            $net5 = "http.request" ascii
+            $net6 = "POST" ascii
+            // Legitimate exclusions
+            $legit1 = "/bin/bash" ascii
+            $legit2 = "/bin/sh" ascii
+            $legit3 = "busybox" ascii
+            $legit4 = "coreutils" ascii
+          condition:
+            2 of ($cred*) and any of ($net*) and not any of ($legit*)
+        }
+
+  # Install hook + system recon + exfil (triple threat)
+  - id: composite/install-recon-exfil
+    description: Install hook with system reconnaissance and exfiltration
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1195.002"
+    file_types: [packagejson]
+    condition:
+      type: yara
+      source: |
+        rule install_recon_exfil {
+          strings:
+            // Install hooks
+            $hook1 = "\"preinstall\":" ascii
+            $hook2 = "\"postinstall\":" ascii
+            $hook3 = "\"install\":" ascii
+            // System recon in hook
+            $recon1 = "whoami" ascii
+            $recon2 = "hostname" ascii
+            $recon3 = "uname" ascii
+            $recon4 = "id " ascii
+            $recon5 = "ifconfig" ascii
+            $recon6 = "ipconfig" ascii
+            // Network exfil
+            $exfil1 = "curl " ascii
+            $exfil2 = "wget " ascii
+            $exfil3 = "http" ascii
+          condition:
+            any of ($hook*) and any of ($recon*) and any of ($exfil*)
+        }
+
+  # Discord webhook with system data
+  - id: composite/discord-exfil
+    description: Discord webhook exfiltration with system data collection
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1567"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule discord_system_exfil {
+          strings:
+            $discord = "discord.com/api/webhooks" ascii
+            $discordapp = "discordapp.com/api/webhooks" ascii
+            // System data collection
+            $sys1 = "os.userInfo" ascii
+            $sys2 = "os.hostname" ascii
+            $sys3 = "process.env" ascii
+            $sys4 = "os.platform" ascii
+            $sys5 = "os.networkInterfaces" ascii
+          condition:
+            any of ($discord*) and any of ($sys*)
+        }
+
+  # Environment harvesting + exfiltration
+  - id: composite/env-harvest-exfil
+    description: Environment variable harvesting with network exfiltration
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1552.001"
+    file_types: [javascript, typescript, shell, python]
+    condition:
+      type: yara
+      source: |
+        rule env_harvest_exfil {
+          strings:
+            // Environment collection
+            $env1 = "env" ascii fullword
+            $env2 = "printenv" ascii fullword
+            $env3 = "process.env" ascii
+            $env4 = "os.environ" ascii
+            // Exfiltration
+            $exfil1 = "curl" ascii fullword
+            $exfil2 = "wget" ascii fullword
+            $exfil3 = "fetch(" ascii
+            $exfil4 = "requests.post" ascii
+            $exfil5 = "requests.get" ascii
+            $exfil6 = "axios" ascii
+            $post = "POST" ascii
+          condition:
+            any of ($env*) and (any of ($exfil*) or $post)
+        }
+
+  # Base64 encode + POST (data exfil prep)
+  - id: composite/encode-exfil
+    description: Base64/hex encoding with HTTP POST exfiltration
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1041"
+    file_types: [javascript, typescript, shell]
+    condition:
+      type: yara
+      source: |
+        rule encode_and_exfil {
+          strings:
+            // Encoding
+            $enc1 = "btoa(" ascii
+            $enc2 = "Buffer.from" ascii
+            $enc3 = "toString('base64')" ascii
+            $enc4 = "toString(\"base64\")" ascii
+            $enc5 = "base64" ascii
+            $enc6 = "toString('hex')" ascii
+            // POST exfil
+            $post1 = "curl -X POST" ascii
+            $post2 = "curl -d" ascii
+            $post3 = /method:\s*["']POST["']/ ascii
+            $post4 = "wget --post" ascii
+          condition:
+            any of ($enc*) and any of ($post*)
+        }
+

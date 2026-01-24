@@ -1,0 +1,14 @@
+# WebSocket Operations
+# MBC: C0002 (HTTP Communication)
+# ATT&CK: T1071.001
+
+traits:
+  - id: http/websocket
+    description: WebSocket communication
+    criticality: notable
+    confidence: 0.66
+    mbc: "C0002"
+    attack: "T1071.001"
+    condition:
+      type: string
+      regex: "(WebSocket|websocket|ws://|wss://)"

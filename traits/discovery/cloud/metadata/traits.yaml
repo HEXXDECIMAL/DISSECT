@@ -1,0 +1,147 @@
+# Intelligence Gathering - Cloud Metadata
+# ATT&CK: T1552.005 (Cloud Instance Metadata API)
+
+traits:
+  # AWS Metadata
+  - id: aws-metadata-token
+    description: AWS EC2 metadata token header
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1552.005"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "X-aws-ec2-metadata-token"
+
+  - id: aws-metadata-endpoint
+    description: AWS EC2 metadata endpoint
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1552.005"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "169.254.169.254"
+
+  - id: aws-imds-v2
+    description: AWS IMDSv2 token TTL header
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1552.005"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "X-aws-ec2-metadata-token-ttl-seconds"
+
+  - id: aws-iam-credentials
+    description: AWS IAM credentials metadata path
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1552.005"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "/latest/meta-data/iam/security-credentials"
+
+  - id: aws-user-data
+    description: AWS EC2 user-data endpoint
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1552.005"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "/latest/user-data"
+
+  # GCP Metadata
+  - id: gcp-metadata-flavor
+    description: GCP metadata flavor header
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1552.005"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "Metadata-Flavor"
+
+  - id: gcp-metadata-endpoint
+    description: GCP metadata endpoint
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1552.005"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "metadata.google.internal"
+
+  - id: gcp-access-token
+    description: GCP service account access token path
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1552.005"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "/computeMetadata/v1/instance/service-accounts/default/token"
+
+  # Azure Metadata
+  - id: azure-metadata-endpoint
+    description: Azure IMDS endpoint
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1552.005"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "169.254.169.254/metadata/instance"
+
+  - id: azure-metadata-header
+    description: Azure metadata header
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1552.005"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "Metadata:true"
+
+  - id: azure-identity-token
+    description: Azure managed identity token endpoint
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1552.005"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "/metadata/identity/oauth2/token"
+
+composite_rules:
+  - id: metadata-harvesting
+    description: Cloud metadata harvesting
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1552.005"
+    mbc: "B0046"
+    file_types: [all]
+    condition:
+      type: yara
+      source: |
+        rule cloud_metadata_harvesting {
+          strings:
+            $aws_token = "X-aws-ec2-metadata-token"
+            $aws_ip = "169.254.169.254"
+            $aws_iam = "/latest/meta-data/iam/security-credentials"
+            $gcp_flavor = "Metadata-Flavor"
+            $gcp_host = "metadata.google.internal"
+            $gcp_token = "/computeMetadata/v1/instance/service-accounts"
+            $azure_meta = "Metadata:true"
+            $azure_token = "/metadata/identity/oauth2/token"
+            $http_get = "GET" fullword
+            $curl = "curl" fullword
+            $wget = "wget" fullword
+            $requests = "requests.get"
+          condition:
+            filesize < 10MB and
+            (any of ($http_get, $curl, $wget, $requests)) and
+            (2 of ($aws*) or 2 of ($gcp*) or 2 of ($azure*))
+        }

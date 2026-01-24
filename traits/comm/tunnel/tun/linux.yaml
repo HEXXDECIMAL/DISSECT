@@ -1,0 +1,13 @@
+# TUN/TAP Network Tunneling
+# MBC: C0001 (Socket Communication)
+# ATT&CK: T1090
+
+traits:
+  - id: tunnel/tun
+    description: TUN/TAP device usage
+    criticality: notable
+    confidence: 0.66
+    attack: "T1090"
+    condition:
+      type: string
+      regex: "(/dev/tun|/dev/tap|TUNSETIFF)"

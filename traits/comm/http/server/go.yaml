@@ -1,0 +1,14 @@
+# HTTP Server Operations - Go
+# MBC: C0002 (HTTP Communication)
+# ATT&CK: T1071.001
+
+traits:
+  - id: http/server-go
+    description: Go HTTP server
+    criticality: notable
+    confidence: 0.66
+    mbc: "C0002"
+    attack: "T1071.001"
+    condition:
+      type: string
+      exact: ListenAndServe

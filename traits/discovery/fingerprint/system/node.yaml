@@ -1,0 +1,196 @@
+# System Fingerprinting Traits (Node.js)
+# Detects system information collection for fingerprinting/profiling
+# MBC: E1592 (System Information Discovery)
+# ATT&CK: T1082 (System Information Discovery), T1016 (System Network Configuration)
+
+traits:
+  # OS Module - Basic System Info
+  - id: system/os-hostname
+    description: Hostname collection via os module
+    criticality: notable
+    confidence: 0.8
+    attack: "T1082"
+    file_types: [javascript, typescript]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "os.hostname"
+
+  - id: system/os-platform
+    description: Platform detection via os module
+    criticality: notable
+    confidence: 0.75
+    attack: "T1082"
+    file_types: [javascript, typescript]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "os.platform"
+
+  - id: system/os-arch
+    description: Architecture detection via os module
+    criticality: notable
+    confidence: 0.75
+    attack: "T1082"
+    file_types: [javascript, typescript]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "os.arch"
+
+  - id: system/os-release
+    description: OS release version collection
+    criticality: notable
+    confidence: 0.75
+    attack: "T1082"
+    file_types: [javascript, typescript]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "os.release"
+
+  - id: system/os-userInfo
+    description: User information collection
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1033"
+    file_types: [javascript, typescript]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "os.userInfo"
+
+  - id: system/os-cpus
+    description: CPU information collection
+    criticality: notable
+    confidence: 0.7
+    attack: "T1082"
+    file_types: [javascript, typescript]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "os.cpus"
+
+  - id: system/os-totalmem
+    description: Total memory collection
+    criticality: notable
+    confidence: 0.7
+    attack: "T1082"
+    file_types: [javascript, typescript]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "os.totalmem"
+
+  - id: system/os-networkInterfaces
+    description: Network interface enumeration
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1016"
+    file_types: [javascript, typescript]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "os.networkInterfaces"
+
+  # MAC Address Collection
+  - id: system/mac-address
+    description: MAC address extraction pattern
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "E1592"
+    attack: "T1016"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule mac_address_collection {
+          strings:
+            $net = "networkInterfaces"
+            $mac1 = "mac" nocase
+            $mac2 = /[0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5}/
+            $filter = "internal"
+          condition:
+            $net and (any of ($mac*) or $filter)
+        }
+
+  # Machine ID / Unique Identifier
+  - id: system/machine-id
+    description: Machine unique identifier generation
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "E1592"
+    attack: "T1082"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule machine_id_generation {
+          strings:
+            $hash1 = "createHash"
+            $hash2 = "sha256"
+            $hash3 = "md5"
+            $host = "hostname"
+            $user = "userInfo"
+            $mac = "networkInterfaces"
+          condition:
+            any of ($hash*) and 2 of ($host, $user, $mac)
+        }
+
+  # Comprehensive Fingerprinting
+  - id: system/full-fingerprint
+    description: Comprehensive system fingerprinting (multiple vectors)
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "E1592"
+    attack: "T1082"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule full_system_fingerprint {
+          strings:
+            $os1 = "os.hostname"
+            $os2 = "os.platform"
+            $os3 = "os.arch"
+            $os4 = "os.release"
+            $os5 = "os.userInfo"
+            $os6 = "os.cpus"
+            $os7 = "os.totalmem"
+            $os8 = "os.networkInterfaces"
+          condition:
+            4 of them
+        }
+
+  # Process Environment
+  - id: system/process-env-dump
+    description: Full environment variable dump
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "E1592"
+    attack: "T1082"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule env_dump {
+          strings:
+            $env1 = "process.env"
+            $json1 = "JSON.stringify"
+            $keys1 = "Object.keys"
+            $entries = "Object.entries"
+          condition:
+            $env1 and any of ($json1, $keys1, $entries)
+        }
+
+  # Process List
+  - id: system/process-list
+    description: Running process enumeration
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "E1592"
+    attack: "T1057"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "tasklist|ps aux|ps -ef|Get-Process"

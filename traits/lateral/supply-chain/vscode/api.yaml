@@ -1,0 +1,138 @@
+traits:
+  # VSCode Extension API Usage
+  - id: api/workspace-findFiles
+    description: VSCode workspace.findFiles API call (file enumeration)
+    criticality: notable
+    confidence: 0.85
+    file_types: [javascript, typescript]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "workspace.findFiles"
+
+  - id: api/fs-readFile
+    description: VSCode workspace.fs.readFile API call (file reading)
+    criticality: notable
+    confidence: 0.85
+    file_types: [javascript, typescript]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "workspace.fs.readFile"
+
+  - id: api/openTextDocument
+    description: VSCode workspace.openTextDocument API call
+    criticality: notable
+    confidence: 0.8
+    file_types: [javascript, typescript]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "openTextDocument"
+
+  - id: api/globalState
+    description: VSCode extension globalState access
+    criticality: notable
+    confidence: 0.7
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "globalState"
+
+  # Extension Activation Patterns
+  - id: lifecycle/activate
+    description: VSCode extension activate function
+    criticality: inert
+    confidence: 1.0
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "function activate|async function activate|export.*activate"
+
+  - id: lifecycle/deactivate
+    description: VSCode extension deactivate function
+    criticality: inert
+    confidence: 1.0
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "function deactivate|export.*deactivate"
+
+  # Suspicious VSCode Extension Behaviors
+  # IMPORTANT: Requires VSCode markers to avoid FPs on regular npm packages
+  - id: suspicious/env-access
+    description: Access to process.env in VSCode extension
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "E1592"
+    attack: "T1082"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule vscode_env_access {
+          strings:
+            $vscode1 = "vscode.commands"
+            $vscode2 = "vscode.window"
+            $vscode3 = "vscode.workspace"
+            $vscode4 = "vscode.extensions"
+            $vscode5 = "function activate"
+            $env = "process.env"
+          condition:
+            any of ($vscode*) and $env
+        }
+
+  - id: suspicious/clipboard-write
+    description: VSCode clipboard write access
+    criticality: notable
+    confidence: 0.8
+    file_types: [javascript, typescript]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "clipboard.writeText"
+
+  - id: suspicious/clipboard-read
+    description: VSCode clipboard read access
+    criticality: notable
+    confidence: 0.8
+    file_types: [javascript, typescript]
+    condition:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "clipboard.readText"
+
+  # Telemetry/Exfiltration Patterns
+  # IMPORTANT: Requires VSCode markers to avoid FPs on regular npm packages
+  - id: exfil/external-request
+    description: HTTP request in VSCode extension (potential exfiltration)
+    criticality: suspicious
+    confidence: 0.7
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule vscode_external_request {
+          strings:
+            $vscode1 = "vscode.commands"
+            $vscode2 = "vscode.window"
+            $vscode3 = "vscode.workspace"
+            $vscode4 = "vscode.extensions"
+            $vscode5 = "function activate"
+            $http1 = "https.request"
+            $http2 = "http.request"
+            $http3 = "axios"
+            $http4 = "node-fetch"
+            $http5 = "fetch("
+          condition:
+            any of ($vscode*) and any of ($http*)
+        }
+
+  - id: exfil/telemetry-event
+    description: VSCode telemetry event sending
+    criticality: notable
+    confidence: 0.7
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "sendTelemetryEvent"

@@ -1,0 +1,15 @@
+# JScript/VBScript Dropper Composite Rules
+# Detects combinations of ActiveX usage typical of droppers/downloaders
+# ATT&CK: T1105 (Ingress Tool Transfer)
+
+composite_rules:
+  # ActiveXObject + WScript.Shell/ADODB.Stream/XMLHTTP (Classic Dropper)
+  - id: dropper/activex-dropper
+    description: "Classic JScript/VBScript dropper pattern (ActiveXObject + Shell/Network)"
+    criticality: hostile
+    confidence: 0.95
+    requires_all:
+      - type: trait
+        id: dropper/builder/activex-object
+      - type: string
+        regex: "WScript\\.Shell|ADODB\\.Stream|MSXML2\\.XMLHTTP|Microsoft\\.XMLHTTP"

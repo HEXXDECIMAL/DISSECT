@@ -898,6 +898,32 @@ fn extract_strings(target: &str, min_length: usize, format: &cli::OutputFormat) 
     if let Ok(file_type) = detect_file_type(path) {
         match file_type {
             FileType::Elf | FileType::MachO | FileType::Pe => {
+                // macOS specific optimization: use nm -u -m for highly accurate import library mappings
+                #[cfg(target_os = "macos")]
+                {
+                    if file_type == FileType::MachO {
+                        if let Ok(nm_output) = std::process::Command::new("nm")
+                            .args(["-u", "-m", path.to_str().unwrap()])
+                            .output()
+                        {
+                            let nm_str = String::from_utf8_lossy(&nm_output.stdout);
+                            for line in nm_str.lines() {
+                                let trimmed = line.trim();
+                                if let Some(sym_start) = trimmed.find("external ") {
+                                    let sym_part = &trimmed[sym_start + 9..];
+                                    if let Some(lib_start) = sym_part.find(" (from ") {
+                                        let sym = sym_part[..lib_start].trim().to_string();
+                                        let lib_part = &sym_part[lib_start + 7..];
+                                        let lib = lib_part.trim_end_matches(')').to_string();
+                                        imports.insert(sym.clone());
+                                        import_libraries.insert(sym, lib);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
                 // Use radare2 directly for fast symbol/function extraction in ONE batch
                 if Radare2Analyzer::is_available() {
                     let r2 = Radare2Analyzer::new();
@@ -989,12 +1015,58 @@ fn extract_strings(target: &str, min_length: usize, format: &cli::OutputFormat) 
                 strings.len(),
                 target
             ));
-            output.push_str(&format!("{:<10} {:<10} {}\n", "OFFSET", "TYPE", "VALUE"));
-            output.push_str(&format!("{:-<10} {:-<10} {:-<20}\n", "", "", ""));
+            output.push_str(&format!("{:<10} {:<14} {}\n", "OFFSET", "TYPE", "VALUE"));
+            output.push_str(&format!("{:-<10} {:-<14} {:-<20}\n", "", "", ""));
             for s in strings {
                 let offset = s.offset.unwrap_or_else(|| "unknown".to_string());
-                let stype = format!("{:?}", s.string_type);
-                output.push_str(&format!("{:<10} {:<10} {}\n", offset, stype, s.value));
+
+                let stype_str = if s.string_type == crate::types::StringType::Import {
+                                "@unknown".to_string()                } else {
+                    format!("{:?}", s.string_type)
+                };
+
+                                let mut val_display = s.value.clone();
+
+                                if s.string_type == crate::types::StringType::Base64 {
+
+                                    use base64::{engine::general_purpose, Engine as _};
+
+                                    if let Ok(decoded) = general_purpose::STANDARD.decode(s.value.trim()) {
+
+                                        if !decoded.is_empty()
+
+                                            && decoded.iter().all(|&b| {
+
+                                                (0x20..=0x7e).contains(&b) || b == b'\n' || b == b'\r' || b == b'\t'
+
+                                            })
+
+                                        {
+
+                                            if let Ok(decoded_str) = String::from_utf8(decoded) {
+
+                                                let escaped = decoded_str
+
+                                                    .replace('\n', "\\n")
+
+                                                    .replace('\r', "\\r")
+
+                                                    .replace('\t', "\\t");
+
+                                                val_display = format!("{}  [{}]", val_display, escaped);
+
+                                            }
+
+                                        }
+
+                                    }
+
+                                }
+
+                output.push_str(&format!(
+                    "{:<10} {:<14} {}\n",
+                    offset, stype_str, val_display
+                ));
             }
             Ok(output)
         }

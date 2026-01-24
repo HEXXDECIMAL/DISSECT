@@ -59,7 +59,7 @@ fn test_applescript_traits_yaml_valid() {
 
 #[test]
 fn test_desktop_wallet_traits_yaml_valid() {
-    let yaml = verify_trait_file("traits/credential/wallet/desktop/traits.yaml");
+    let yaml = verify_trait_file("traits/cred/wallet/desktop/traits.yaml");
 
     // Verify expected traits exist
     verify_trait_structure(
@@ -77,7 +77,7 @@ fn test_desktop_wallet_traits_yaml_valid() {
 
 #[test]
 fn test_macos_validation_traits_yaml_valid() {
-    let yaml = verify_trait_file("traits/credential/macos/validation/traits.yaml");
+    let yaml = verify_trait_file("traits/cred/macos/validation/traits.yaml");
 
     // Verify expected traits exist
     verify_trait_structure(&yaml, &["dscl-authonly", "dscl-read", "dscl-list"]);
@@ -116,7 +116,7 @@ fn test_applescript_traits_have_attack_mapping() {
 
 #[test]
 fn test_desktop_wallet_traits_have_criticality() {
-    let yaml = verify_trait_file("traits/credential/wallet/desktop/traits.yaml");
+    let yaml = verify_trait_file("traits/cred/wallet/desktop/traits.yaml");
 
     if let Some(traits) = yaml.get("traits").and_then(|t| t.as_sequence()) {
         for trait_def in traits {
@@ -146,8 +146,8 @@ fn test_exfil_stealer_has_composite_rules() {
 fn test_all_new_trait_files_exist() {
     let trait_files = [
         "traits/evasion/applescript/traits.yaml",
-        "traits/credential/wallet/desktop/traits.yaml",
-        "traits/credential/macos/validation/traits.yaml",
+        "traits/cred/wallet/desktop/traits.yaml",
+        "traits/cred/macos/validation/traits.yaml",
         "traits/collect/archive/macos/traits.yaml",
         "traits/exfil/stealer/traits.yaml",
     ];
@@ -162,32 +162,30 @@ fn test_all_new_trait_files_exist() {
 }
 
 #[test]
-fn test_trait_ids_match_file_paths() {
-    // Verify trait IDs follow the convention of matching their file path
+fn test_trait_ids_are_short_format() {
+    // Verify trait IDs use short format (no path prefix)
+    // The Rust loader auto-prefixes based on directory path
     let checks = [
-        (
-            "traits/evasion/applescript/traits.yaml",
-            "evasion/applescript/",
-        ),
-        (
-            "traits/credential/wallet/desktop/traits.yaml",
-            "credential/wallet/desktop/",
-        ),
-        ("traits/exfil/stealer/traits.yaml", "exfil/stealer/"),
+        "traits/evasion/applescript/traits.yaml",
+        "traits/cred/wallet/desktop/traits.yaml",
+        "traits/exfil/stealer/traits.yaml",
     ];
 
-    for (file_path, expected_prefix) in checks {
+    for file_path in checks {
         let yaml = verify_trait_file(file_path);
 
         if let Some(traits) = yaml.get("traits").and_then(|t| t.as_sequence()) {
             for trait_def in traits {
                 if let Some(id) = trait_def.get("id").and_then(|i| i.as_str()) {
+                    // Short format IDs should not contain slashes (unless they're sub-paths within the directory)
+                    // They should be simple names like "electrum", "password-dialog", etc.
+                    let slash_count = id.matches('/').count();
                     assert!(
-                        id.starts_with(expected_prefix),
-                        "Trait ID '{}' in {} should start with '{}'",
+                        slash_count <= 1,
+                        "Trait ID '{}' in {} should be short format (got {} slashes)",
                         id,
                         file_path,
-                        expected_prefix
+                        slash_count
                     );
                 }
             }

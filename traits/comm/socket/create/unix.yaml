@@ -1,0 +1,43 @@
+# Socket Creation
+# MBC: C0001 (Socket Communication)
+
+traits:
+  - id: create
+    description: Create network socket
+    criticality: notable
+    file_types: [elf, aout, perl, python]
+    confidence: 0.75
+    condition:
+      type: symbol
+      pattern: "socket|socketpair|socketcall"
+
+  - id: socket-create
+    description: Creates network socket
+    confidence: 0.9
+    criticality: inert
+    platforms: [linux]
+    file_types: [elf]
+    condition:
+      type: syscall
+      name: ["socket", "socketpair", "socketcall"]
+
+  - id: connect
+    description: Connect socket to remote host
+    criticality: notable
+    file_types: [elf]
+    confidence: 0.85
+    condition:
+      type: symbol
+      pattern: connect
+
+composite_rules:
+  - id: client
+    description: Network client - connects to remote host
+    confidence: 0.85
+    criticality: notable
+    platforms: [linux]
+    requires_all:
+      - type: syscall
+        name: ["socket", "socketcall"]
+      - type: syscall
+        name: ["connect"]

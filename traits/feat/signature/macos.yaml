@@ -1,0 +1,21 @@
+# Apple Code Signature Detection
+traits:
+  - id: signed
+    description: Apple code signature markers
+    criticality: inert
+    confidence: 0.85
+    platforms: [macos]
+    file_types: [macho]
+    condition:
+      type: string
+      regex: "Apple Development|Apple Distribution|Developer ID"
+
+  - id: codesign-requirement
+    description: Code signature requirement blob
+    criticality: inert
+    confidence: 0.9
+    platforms: [macos]
+    file_types: [macho]
+    condition:
+      type: string
+      regex: "anchor apple|certificate leaf"

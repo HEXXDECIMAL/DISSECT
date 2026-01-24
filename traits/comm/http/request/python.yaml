@@ -1,0 +1,60 @@
+# HTTP Request Operations - Python
+# MBC: C0002 (HTTP Communication)
+# ATT&CK: T1071.001
+
+traits:
+  - id: http/request-python
+    description: "Performs HTTP request (urllib, requests, aiohttp, httpx)"
+    criticality: inert
+    confidence: 0.9
+    file_types: [python]
+    condition:
+      type: string
+      regex: "(requests\\.(get|post)|urllib\\.request\\.urlopen|aiohttp\\.ClientSession|httpx\\.(get|post))"
+
+  - id: http/request/get
+    description: "Performs HTTP GET request"
+    criticality: notable
+    confidence: 0.9
+    file_types: [python]
+    condition:
+      type: string
+      regex: '(requests|httpx)\\.get\('
+
+  - id: http/request/post
+    description: "Performs HTTP POST request (Exfiltration indicator)"
+    criticality: notable
+    confidence: 0.9
+    file_types: [python]
+    condition:
+      type: string
+      regex: '(requests|httpx)\\.post\('
+
+  - id: http/request/url-literal
+    description: "Direct URL literal in HTTP request"
+    criticality: notable
+    confidence: 0.8
+    file_types: [python]
+    condition:
+      type: ast_query
+      language: python
+      query: |
+        (call
+          function: (attribute
+            object: (identifier) @obj
+            attribute: (identifier) @meth)
+          arguments: (argument_list
+            (string) @url))
+        (#match? @obj "^(requests|urqt|urllib|urllib2|req|r|client|http|session|httpx)$")
+        (#match? @meth "^(get|post|urlopen|urlretrieve|request)$")
+
+composite_rules:
+  - id: http/python-exfiltration
+    description: "Gathers system info and exfiltrates via HTTP"
+    criticality: hostile
+    confidence: 0.9
+    requires_all:
+      - type: trait
+        id: discovery/discover/system/python-platform-fingerprint
+      - type: trait
+        id: http/request-python

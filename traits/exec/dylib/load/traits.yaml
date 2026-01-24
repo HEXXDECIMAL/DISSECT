@@ -12,16 +12,6 @@ traits:
       type: string
       exact: "dlopen"
 
-  - id: exec/dylib/dlsym
-    description: Symbol lookup via dlsym
-    criticality: suspicious
-    confidence: 0.85
-    attack: "T1574.006"
-    file_types: [elf, macho]
-    condition:
-      type: string
-      exact: "dlsym"
-
   - id: exec/dylib/dlclose
     description: Dynamic library unload
     criticality: notable
@@ -42,25 +32,24 @@ traits:
       type: string
       exact: "dlerror"
 
-  - id: exec/dylib/dladdr
-    description: Address to symbol lookup
-    criticality: suspicious
-    confidence: 0.85
-    attack: "T1574.006"
-    file_types: [elf, macho]
+  # LoadLibrary (Windows)
+  - id: loadlibrary
+    description: Runtime library loading via LoadLibrary
+    criticality: notable
+    confidence: 0.9
     condition:
-      type: string
-      exact: "dladdr"
-
-  - id: exec/dylib/dl-iterate-phdr
-    description: Iterate shared object list
-    criticality: suspicious
-    confidence: 0.85
-    attack: "T1574.006"
-    file_types: [elf]
-    condition:
-      type: string
-      exact: "dl_iterate_phdr"
+      type: yara
+      source: |
+        rule loadlibrary_load {
+          strings:
+            $ll1 = "LoadLibrary" ascii wide
+            $ll2 = "LoadLibraryA" ascii
+            $ll3 = "LoadLibraryW" ascii
+            $ll4 = "LoadLibraryEx" ascii wide
+            $gpa = "GetProcAddress" ascii wide
+          condition:
+            any of ($ll*) or $gpa
+        }
 
   - id: exec/dylib/loadlibrary
     description: Windows LoadLibrary
@@ -71,16 +60,6 @@ traits:
     condition:
       type: string
       regex: "LoadLibrary[AW]?"
-
-  - id: exec/dylib/getprocaddress
-    description: Windows GetProcAddress
-    criticality: suspicious
-    confidence: 0.85
-    attack: "T1574.002"
-    file_types: [pe]
-    condition:
-      type: string
-      exact: "GetProcAddress"
 
   - id: exec/dylib/nsbundle
     description: macOS NSBundle loading

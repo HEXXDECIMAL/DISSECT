@@ -1,0 +1,139 @@
+# Packaging - Legitimate Python Patterns
+# Benign Python development and deployment patterns
+# These help distinguish legitimate code from malware
+
+defaults:
+  file_types: [python]
+  criticality: inert
+
+traits:
+  # Legitimate web frameworks
+  - id: aiohttp-server
+    description: aiohttp web server (legitimate async framework)
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "from aiohttp import web|aiohttp\\.web\\.Application"
+
+  - id: flask-app
+    description: Flask web application
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "from flask import|Flask\\(__name__\\)"
+
+  - id: django-app
+    description: Django web application
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "from django|django\\.core"
+
+  - id: fastapi-app
+    description: FastAPI web application
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "from fastapi import|FastAPI\\("
+
+  # Legitimate testing frameworks
+  - id: pytest
+    description: pytest testing framework
+    confidence: 0.95
+    condition:
+      type: string
+      regex: "import pytest|from pytest"
+
+  - id: unittest
+    description: unittest testing framework
+    confidence: 0.95
+    condition:
+      type: string
+      regex: "import unittest|unittest\\.TestCase"
+
+  # Legitimate CLI frameworks
+  - id: argparse
+    description: argparse CLI argument parsing
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "import argparse|argparse\\.ArgumentParser"
+
+  - id: click
+    description: Click CLI framework
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "import click|@click\\.command"
+
+  # Legitimate logging
+  - id: logging
+    description: Python logging module
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "import logging|logging\\.getLogger"
+
+  # Legitimate data processing
+  - id: pandas
+    description: pandas data analysis
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "import pandas|from pandas"
+
+  - id: numpy
+    description: NumPy numerical computing
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "import numpy|from numpy"
+
+  # Legitimate async patterns
+  - id: asyncio-proper
+    description: Proper asyncio usage with event loop
+    confidence: 0.85
+    condition:
+      type: string
+      regex: "asyncio\\.run\\(|asyncio\\.get_event_loop\\(\\)"
+
+  # Legitimate type hints
+  - id: type-hints
+    description: Python type annotations (modern code)
+    confidence: 0.8
+    condition:
+      type: string
+      regex: "from typing import|-> [A-Z][a-z]+:|: List\\[|: Dict\\[|: Optional\\["
+
+  # Documentation strings
+  - id: docstrings
+    description: Python docstrings (documented code)
+    confidence: 0.75
+    condition:
+      type: string
+      regex: '"""[^"]{20,}"""'
+
+composite_rules:
+  # Well-structured Python project indicators
+  - id: professional-code
+    description: Professional Python codebase indicators
+    criticality: inert
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule professional_python_code {
+          meta:
+            description = "Indicators of professional/legitimate Python code"
+          strings:
+            $logging = "logging.getLogger" ascii
+            $argparse = "argparse.ArgumentParser" ascii
+            $typing = "from typing import" ascii
+            $docstring = /"""[\s\S]{20,}?"""/ ascii
+            $test = "def test_" ascii
+            $main = 'if __name__ == "__main__"' ascii
+            $class = /class\s+[A-Z][a-zA-Z]+\s*(\([^)]*\))?:/ ascii
+          condition:
+            filesize < 10MB and
+            3 of them
+        }

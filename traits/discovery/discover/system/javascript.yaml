@@ -1,0 +1,33 @@
+# System Fingerprinting - JavaScript/Node.js
+# ATT&CK: T1082 (System Information Discovery)
+
+traits:
+  - id: system/js-profiling
+    description: Aggregates system info for profiling
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1082"
+    file_types: [javascript]
+    condition:
+      type: yara
+      source: |
+        rule js_profiling {
+          strings:
+            $os1 = "os.hostname()" ascii
+            $os2 = "os.userInfo()" ascii
+            $os3 = "os.platform()" ascii
+          condition:
+            all of them
+        }
+
+composite_rules:
+  - id: system/js-profiling-exfil
+    description: JavaScript system profiling with exfiltration
+    criticality: hostile
+    confidence: 0.98
+    attack: "T1020"
+    requires_all:
+      - type: trait
+        id: system/js-profiling
+      - type: trait
+        id: comm/http/request/js-axios-post

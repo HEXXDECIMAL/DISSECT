@@ -1,0 +1,9 @@
+# Socket Bind Operations
+traits:
+  - id: bind
+    description: Bind socket to address
+    criticality: notable
+    confidence: 0.75
+    condition:
+      type: symbol
+      pattern: bind

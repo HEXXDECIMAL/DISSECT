@@ -44,7 +44,7 @@ composite_rules:
     attack: "T1113"
     requires_all:
       - type: trait
-        id: net/http/request/js-axios-post
+        id: comm/http/request/js-axios-post
     requires_any:
       - type: trait
         id: collect/monitor/js-node-screenshots

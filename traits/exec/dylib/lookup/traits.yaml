@@ -1,0 +1,31 @@
+# Dynamic Library Symbol Lookup
+traits:
+  - id: dlsym
+    description: Symbol lookup via dlsym
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1574.006"
+    file_types: [elf, macho]
+    condition:
+      type: string
+      exact: "dlsym"
+
+  - id: dladdr
+    description: Address to symbol lookup
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1574.006"
+    file_types: [elf, macho]
+    condition:
+      type: string
+      exact: "dladdr"
+
+  - id: getprocaddress
+    description: Windows GetProcAddress
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1574.002"
+    file_types: [pe]
+    condition:
+      type: string
+      exact: "GetProcAddress"

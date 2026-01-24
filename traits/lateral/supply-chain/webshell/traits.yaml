@@ -1,0 +1,105 @@
+# Webshell Detection
+# ATT&CK: T1505.003 (Server Software Component: Web Shell)
+# MBC: B0030 (Remote Access)
+
+traits:
+  # PHP webshell patterns
+  - id: php-shell
+    description: PHP webshell implementation patterns
+    criticality: hostile
+    confidence: 0.9
+    mbc: "B0030"
+    attack: "T1505.003"
+    condition:
+      type: yara
+      source: |
+        rule php_webshell {
+          strings:
+            // PHP markers
+            $php = "<?php" ascii nocase
+            // Common shell functions
+            $func1 = "system(" ascii
+            $func2 = "exec(" ascii
+            $func3 = "shell_exec(" ascii
+            // Request parameters
+            $req1 = "$_GET[" ascii
+            $req2 = "$_POST[" ascii
+            $req3 = "$_REQUEST[" ascii
+          condition:
+            $php and any of ($func*) and any of ($req*)
+        }
+
+  # JSP webshell patterns
+  - id: jsp-shell
+    description: JSP webshell implementation patterns
+    criticality: hostile
+    confidence: 0.9
+    mbc: "B0030"
+    attack: "T1505.003"
+    condition:
+      type: yara
+      source: |
+        rule jsp_webshell {
+          strings:
+            // Runtime execution
+            $rt1 = "Runtime.getRuntime()" ascii
+            $rt2 = ".exec(" ascii
+            // Request parameters
+            $req1 = "request.getParameter" ascii
+          condition:
+            $rt1 and $rt2 and $req1
+        }
+
+  # Generic webshell identifiers
+  - id: identifier
+    description: Webshell-related terminology
+    criticality: notable
+    confidence: 0.6
+    condition:
+      type: string
+      regex: "(?i)\\bwebshell\\b"
+
+  - id: specific-family
+    description: Known webshell family identifier
+    criticality: notable
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule webshell_families {
+          strings:
+            $ws2 = "c99shell" ascii nocase fullword
+            $ws3 = "r57shell" ascii nocase fullword
+            $ws4 = "b374k" ascii nocase fullword
+            $ws5 = "phpspy" ascii nocase fullword
+            $ws6 = "WSO Shell" ascii
+            $ws8 = "FilesMan" ascii
+            $ws10 = "China Chopper" ascii
+            $ws11 = "weevely" ascii
+          condition:
+            any of them
+        }
+
+composite_rules:
+  - id: family-identified
+    description: Webshell family identified with generic terminology
+    criticality: suspicious
+    confidence: 0.85
+    requires_all:
+      - type: trait
+        id: identifier
+      - type: trait
+        id: specific-family
+
+  # Webshell detection
+  - id: detected
+    description: Webshell implementation detected
+    criticality: hostile
+    confidence: 0.95
+    requires_any:
+      - type: trait
+        id: php-shell
+      - type: trait
+        id: jsp-shell
+      - type: trait
+        id: family-identified

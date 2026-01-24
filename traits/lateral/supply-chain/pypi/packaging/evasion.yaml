@@ -1,0 +1,12 @@
+# Python Packaging Evasion
+# Detects techniques used to hide malicious code within Python packages
+
+traits:
+  - id: evasion/directory-masquerade
+    description: Directory masquerading as file (e.g. file.py/file.py)
+    criticality: suspicious
+    confidence: 0.8
+    file_types: [all]
+    condition:
+      type: string
+      regex: "os\\.path\\.join\\(.*\\.py.*\\)"

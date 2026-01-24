@@ -1,0 +1,21 @@
+# Socket Connect - Python
+# MBC: C0001 (Socket Communication)
+# ATT&CK: T1071
+
+traits:
+  - id: socket/connect-python
+    description: Initiate socket connection (Python)
+    criticality: notable
+    confidence: 0.66
+    mbc: "C0001"
+    attack: "T1071"
+    condition:
+      type: yara
+      source: |
+        rule py_connect {
+          strings:
+            $socket = "socket.socket"
+            $connect = ".connect("
+          condition:
+            all of them
+        }

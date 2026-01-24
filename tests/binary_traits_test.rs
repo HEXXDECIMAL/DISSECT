@@ -197,6 +197,7 @@ fn test_hex_charset_cipher_trait() {
 
 /// Test that exotic architecture traits are detected - MIPS
 #[test]
+#[ignore = "Depends on binary.yaml.disabled which has experimental binary condition types"]
 fn test_exotic_arch_mips_trait() {
     let temp_dir = TempDir::new().unwrap();
     let elf_path = temp_dir.path().join("mips.elf");

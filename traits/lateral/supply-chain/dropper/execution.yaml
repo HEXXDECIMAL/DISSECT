@@ -1,0 +1,15 @@
+# Dropper Logic Detection
+# Detects the pattern of downloading, writing, and executing a file
+
+composite_rules:
+  - id: dropper/fetch-write-execute
+    description: "Complete dropper lifecycle (Fetch + Write + Execute)"
+    criticality: hostile
+    confidence: 0.98
+    requires_all:
+      - type: trait
+        id: comm/http/request/get
+      - type: trait
+        id: fs/file/write/generic
+      - type: string
+        regex: "os\\.system\\(|exec\\(|subprocess\\."

@@ -1,0 +1,41 @@
+# IP-based Services (C2 channels)
+# MBC: B0030 (C2 Communication)
+# ATT&CK: T1567.001
+
+traits:
+  - id: ip/services-telegram
+    description: May communicate with Telegram
+    criticality: suspicious
+    confidence: 0.66
+    mbc: "B0030"
+    attack: "T1567.001"
+    condition:
+      type: string
+      regex: "(telegram\\.org|api\\.telegram)"
+
+  - id: ip/services-discord
+    description: May communicate with Discord
+    criticality: suspicious
+    confidence: 0.66
+    mbc: "B0030"
+    attack: "T1567.001"
+    condition:
+      type: string
+      regex: "(discordapp\\.com|discord\\.com/api)"
+
+  - id: ip/services-tor
+    description: Contains TOR onion address
+    criticality: suspicious
+    confidence: 0.66
+    mbc: "B0030"
+    condition:
+      type: string
+      regex: "[a-z0-9]{56}\\.onion"
+
+  - id: ip/services-icmp
+    description: ICMP communication
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: string
+      regex: "(ICMP|icmp|IPPROTO_ICMP)"

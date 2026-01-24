@@ -1,0 +1,301 @@
+# Phishing Kit Detection Traits
+# These patterns detect credential harvesting pages and phishing kits
+
+traits:
+  # Anti-copy/paste mechanisms (hiding content from analysis)
+  - id: anti-copy
+    description: Anti-copy mechanism (prevents text selection/copying)
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1566"
+    file_types: [javascript, html]
+    condition:
+      type: yara
+      source: |
+        rule anti_copy {
+          strings:
+            $oncopy = "oncopy=\"return false\"" ascii nocase
+            $oncut = "oncut=\"return false\"" ascii nocase
+            $onpaste = "onpaste=\"return false\"" ascii nocase
+            $oncontextmenu = "oncontextmenu=\"return false\"" ascii nocase
+            $ondragstart = "ondragstart=\"return false\"" ascii nocase
+            $onselectstart = "onselectstart=\"return false\"" ascii nocase
+            $js_copy = "addEventListener('copy'" ascii
+            $js_cut = "addEventListener('cut'" ascii
+            $js_paste = "addEventListener('paste'" ascii
+            $js_contextmenu = "addEventListener('contextmenu'" ascii
+          condition:
+            2 of them
+        }
+
+  # Honeypot form fields (bot detection)
+  - id: honeypot-field
+    description: Honeypot form field for bot detection
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1566"
+    file_types: [javascript, html]
+    condition:
+      type: string
+      regex: |
+        class=['"]honeypot|honeypot-field['"]|display:\s*none.*name=['"]|name=['"][^'"']\*honeypot
+
+  # Human interaction verification
+  - id: human-verification
+    description: Requires human interaction before enabling actions
+    criticality: notable
+    confidence: 0.8
+    file_types: [javascript, html]
+    condition:
+      type: yara
+      source: |
+        rule human_verification {
+          strings:
+            $mousemove = "addEventListener('mousemove'" ascii
+            $touchstart = "addEventListener('touchstart'" ascii
+            $scroll = "addEventListener('scroll'" ascii
+            $disabled = ".disabled" ascii
+            $enable = "disabled=false" ascii
+            $enable2 = "disabled = false" ascii
+            $remove_disabled = "removeAttribute('disabled')" ascii
+          condition:
+            any of ($mousemove, $touchstart, $scroll) and any of ($disabled, $enable, $enable2, $remove_disabled)
+        }
+
+  # Microsoft brand impersonation
+  - id: microsoft-impersonation
+    description: Microsoft brand impersonation
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1566.002"
+    file_types: [javascript, html]
+    condition:
+      type: yara
+      source: |
+        rule microsoft_impersonation {
+          strings:
+            $logo1 = "Microsoft_logo" ascii nocase
+            $logo2 = "microsoft.svg" ascii nocase
+            $brand1 = "Microsoft</span>" ascii nocase
+            $brand2 = ">Microsoft<" ascii nocase
+            $signin = "Sign in" ascii fullword
+            $signin2 = "Sign-in" ascii fullword
+            $input_email = "Email, phone, or Skype" ascii
+          condition:
+            (any of ($logo*) or any of ($brand*)) and (any of ($signin*) or $input_email)
+        }
+
+  # Google brand impersonation
+  - id: google-impersonation
+    description: Google brand impersonation
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1566.002"
+    file_types: [javascript, html]
+    condition:
+      type: yara
+      source: |
+        rule google_impersonation {
+          strings:
+            $logo1 = "Google_logo" ascii nocase
+            $logo2 = "google.svg" ascii nocase
+            $brand1 = "Google</span>" ascii nocase
+            $brand2 = ">Google<" ascii nocase
+            $signin = "Sign in" ascii fullword
+            $signin2 = "Sign-in" ascii fullword
+          condition:
+            (any of ($logo*) or any of ($brand*)) and any of ($signin*)
+        }
+
+  # Generic login form phishing
+  - id: login-form
+    description: Suspicious login form with credential inputs
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1566"
+    file_types: [javascript, html]
+    condition:
+      type: yara
+      source: |
+        rule login_form {
+          strings:
+            $signin1 = "Sign in" ascii nocase fullword
+            $signin2 = "Login" ascii nocase fullword
+            $signin3 = "Log in" ascii nocase fullword
+            $password = "type=\"password\"" ascii nocase
+            $password2 = "type='password'" ascii nocase
+            $email = "type=\"email\"" ascii nocase
+            $email2 = "type='email'" ascii nocase
+            $placeholder1 = "placeholder=\"Email\"" ascii nocase
+            $placeholder2 = "placeholder=\"Password\"" ascii nocase
+          condition:
+            any of ($signin*) and (any of ($password*) or any of ($email*) or any of ($placeholder*))
+        }
+
+  # Document sharing lure
+  - id: document-lure
+    description: Fake document sharing lure
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1566.002"
+    file_types: [javascript, html]
+    condition:
+      type: yara
+      source: |
+        rule document_lure {
+          strings:
+            $share1 = "shared with" ascii nocase
+            $share2 = "document" ascii nocase
+            $share3 = "securely shared" ascii nocase
+            $share4 = "file sharing" ascii nocase
+            $pdf1 = ".pdf" ascii nocase
+            $pdf2 = "PDF Icon" ascii nocase
+            $doc1 = ".doc" ascii nocase
+            $xls1 = ".xls" ascii nocase
+            $download = "Download" ascii nocase
+            $verify = "verify" ascii nocase
+          condition:
+            (any of ($share*)) and (any of ($pdf*, $doc*, $xls*) or any of ($download, $verify))
+        }
+
+  # Suspicious external domain in form action
+  - id: external-form-action
+    description: Form submits to suspicious external domain
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1566"
+    file_types: [javascript, html]
+    condition:
+      type: yara
+      source: |
+        rule external_form_action {
+          strings:
+            $location = "window.location.href=" ascii
+            $location2 = "location.href=" ascii
+            $submit = "addEventListener(\"submit\"" ascii
+            $submit2 = "addEventListener('submit'" ascii
+            $icu = ".icu" ascii
+            $xyz = ".xyz" ascii
+            $tk = ".tk" ascii
+            $ml = ".ml" ascii
+            $ga = ".ga" ascii
+            $cf = ".cf" ascii
+            $gq = ".gq" ascii
+            $top = ".top" ascii
+            $work = ".work" ascii
+            $click = ".click" ascii
+          condition:
+            (any of ($location*) or any of ($submit*)) and any of ($icu, $xyz, $tk, $ml, $ga, $cf, $gq, $top, $work, $click)
+        }
+
+  # Typosquatting domain indicators
+  - id: typosquat-domain
+    description: Typosquatting domain pattern
+    criticality: hostile
+    confidence: 0.85
+    attack: "T1566.002"
+    file_types: [javascript, html]
+    condition:
+      type: yara
+      source: |
+        rule typosquat_domain {
+          strings:
+            // Siemens typosquats
+            $siemens1 = "siemensergy" ascii nocase
+            $siemens2 = "siemans" ascii nocase
+            $siemens3 = "siemnes" ascii nocase
+            // Microsoft typosquats
+            $ms1 = "microsoFt" ascii nocase fullword
+            $ms2 = "micorsoft" ascii nocase fullword
+            $ms3 = "micosoft" ascii nocase fullword
+            $ms4 = "microsft" ascii nocase fullword
+            // Google typosquats
+            $google1 = "gooogle" ascii nocase fullword
+            $google2 = "goggle" ascii nocase fullword
+            $google3 = "gogle" ascii nocase fullword
+            // Login prefix with brand (common phishing)
+            $login1 = "login." ascii nocase
+            $login2 = "signin." ascii nocase
+            $tld = /\.(icu|xyz|top|work|click|tk|ml|ga|cf|gq)/ ascii nocase
+          condition:
+            any of ($siemens*, $ms*, $google*) or (any of ($login*) and $tld)
+        }
+
+  # Bot detection evasion (webdriver check)
+  - id: bot-detection
+    description: Bot/automation detection for phishing evasion
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1566"
+    file_types: [javascript, html]
+    condition:
+      type: yara
+      source: |
+        rule bot_detection {
+          strings:
+            $webdriver = "navigator.webdriver" ascii
+            $plugins = "navigator.plugins.length" ascii
+            $screen_w = "screen.width" ascii
+            $screen_h = "screen.height" ascii
+            $headless = "HeadlessChrome" ascii
+            $phantom = "PhantomJS" ascii
+            $selenium = "Selenium" ascii
+            $puppeteer = "puppeteer" ascii nocase
+            $bot_ua = /bot|crawl|spider|headless/i ascii
+          condition:
+            2 of them
+        }
+
+  # External icon/image CDN for brand impersonation
+  - id: brand-cdn-icons
+    description: External CDN icons for brand impersonation
+    criticality: notable
+    confidence: 0.8
+    attack: "T1566.002"
+    file_types: [javascript, html]
+    condition:
+      type: yara
+      source: |
+        rule brand_cdn_icons {
+          strings:
+            $flaticon = "flaticon.com" ascii
+            $wikimedia = "wikimedia.org" ascii
+            $wikipedia = "wikipedia.org" ascii
+            $logo = "logo" ascii nocase
+            $icon = "icon" ascii nocase
+            $brand = /Microsoft|Google|Apple|Amazon|PayPal|Netflix|Adobe/ ascii
+          condition:
+            any of ($flaticon, $wikimedia, $wikipedia) and any of ($logo, $icon) and $brand
+        }
+
+  # Pre-filled email target
+  - id: targeted-email
+    description: Pre-filled target email address
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1566.001"
+    file_types: [javascript, html]
+    condition:
+      type: yara
+      source: |
+        rule targeted_email {
+          strings:
+            $value = /value=["'][a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}["']/ ascii
+            $readonly = "readonly" ascii
+            $email_placeholder = "recipient_email_placeholder" ascii
+            $pre_filled = /["'][a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}["']/ ascii
+          condition:
+            ($value and $readonly) or $email_placeholder or (#pre_filled > 1)
+        }
+
+  # Authentication required lure
+  - id: auth-required-lure
+    description: Fake authentication required message
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1566"
+    file_types: [javascript, html]
+    condition:
+      type: string
+      regex: |
+        (?i)(authentication|verification)\s+(required|needed)|verify\s+your\s+(email|identity|account)|confirm\s+your\s+(email|identity)

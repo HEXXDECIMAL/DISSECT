@@ -1,9 +1,0 @@
-traits:
-  - id: intel/ai/openai/client
-    description: Integration with OpenAI/Azure AI libraries
-    criticality: notable
-    confidence: 0.8
-    file_types: [pe, elf, macho, python, javascript]
-    condition:
-      type: string
-      regex: 'Azure\.AI\.OpenAI|OpenAI'

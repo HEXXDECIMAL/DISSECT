@@ -1,0 +1,14 @@
+# HTTP Request Operations - Ruby
+# MBC: C0002 (HTTP Communication)
+# ATT&CK: T1071.001
+
+traits:
+  - id: http/request-ruby
+    description: HTTP requests (Ruby)
+    criticality: inert
+    confidence: 0.66
+    mbc: "C0002"
+    attack: "T1071.001"
+    condition:
+      type: string
+      regex: "(Net::HTTP|HTTP\\.get|open-uri)"

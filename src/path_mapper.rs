@@ -705,6 +705,6 @@ mod tests {
 
         let traits = detect_privilege_requirements(&paths);
 
-        assert!(traits.iter().any(|t| t.id.contains("root_access")));
+        assert!(traits.iter().any(|t| t.id.contains("root-access")));
     }
 }

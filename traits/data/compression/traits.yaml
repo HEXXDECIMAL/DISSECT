@@ -1,0 +1,95 @@
+# Compression Library Detection
+# Useful for ML baseline - legitimate compression usage patterns
+
+traits:
+  # LZMA/XZ compression
+  - id: lzma
+    description: LZMA/XZ compression library
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule lzma_lib {
+          strings:
+            $lzma1 = "liblzma" ascii
+            $lzma2 = "lzma_" ascii
+            $xz1 = "xz_" ascii
+            $sdk1 = "LzmaEnc" ascii
+            $sdk2 = "LzmaDec" ascii
+            $stream1 = "LZMA_OK" ascii
+          condition:
+            any of ($lzma*) or $xz1 or any of ($sdk*) or $stream1
+        }
+
+  # Zlib compression
+  - id: zlib
+    description: Zlib compression library
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule zlib_lib {
+          strings:
+            $z1 = "deflate" ascii
+            $z2 = "inflate" ascii
+            $zs1 = "z_stream" ascii
+            $lib1 = "libz.so" ascii
+            $lib2 = "zlib" ascii
+          condition:
+            ($z1 and $z2) or $zs1 or any of ($lib*)
+        }
+
+  # Bzip2 compression
+  - id: bzip2
+    description: Bzip2 compression library
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule bzip2_lib {
+          strings:
+            $bz1 = "BZ2_bzCompress" ascii
+            $bz2 = "BZ2_bzDecompress" ascii
+            $lib1 = "libbz2" ascii
+            $lib2 = "bzip2" ascii
+          condition:
+            any of ($bz*) or any of ($lib*)
+        }
+
+  # Zstd compression
+  - id: zstd
+    description: Zstandard compression library
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule zstd_lib {
+          strings:
+            $zstd1 = "ZSTD_compress" ascii
+            $zstd2 = "ZSTD_decompress" ascii
+            $zstd3 = "ZSTD_CCtx" ascii
+            $lib1 = "libzstd" ascii
+          condition:
+            any of ($zstd*) or $lib1
+        }
+
+  # LZ4 compression
+  - id: lz4
+    description: LZ4 compression library
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule lz4_lib {
+          strings:
+            $lz4_1 = "LZ4_compress" ascii
+            $lz4_2 = "LZ4_decompress" ascii
+            $lib1 = "liblz4" ascii
+          condition:
+            any of ($lz4_*) or $lib1
+        }

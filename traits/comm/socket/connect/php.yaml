@@ -1,0 +1,15 @@
+# Socket Connect - PHP
+# MBC: C0001 (Socket Communication)
+# ATT&CK: T1071
+
+traits:
+  - id: socket/connect-php
+    description: Initiate socket connection (PHP fsockopen)
+    criticality: notable
+    confidence: 0.66
+    mbc: "C0001"
+    attack: "T1071"
+    condition:
+      type: ast_pattern
+      node_type: function_call_expression
+      pattern: "fsockopen"

@@ -1,0 +1,171 @@
+# Supply Chain - Dropper/Packer Builder
+# Tools that convert executables into obfuscated droppers
+# ATT&CK: T1027.002 (Software Packing)
+
+defaults:
+  attack: "T1027.002"
+
+traits:
+  # Batch file generation (echo >> pattern)
+  - id: dropper/builder/batch-echo
+    description: Batch file generation via echo commands
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: string
+      regex: 'echo\\s+[^>]*>>[^\\n]*\\.(bat|cmd)'
+
+  # JScript/VBScript ActiveXObject
+  - id: dropper/builder/activex-object
+    description: ActiveXObject usage (JScript/VBScript)
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: string
+      regex: "ActiveXObject\\s*\\("
+
+  # ADODB.Stream for binary file writing
+  - id: dropper/builder/adodb-stream
+    description: ADODB.Stream for binary file operations
+    criticality: suspicious
+    confidence: 0.9
+    condition:
+      type: string
+      exact: "ADODB.Stream"
+
+  # Shell.Application namespace (ZIP extraction)
+  - id: dropper/builder/shell-namespace
+    description: Shell.Application namespace for ZIP operations
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: string
+      regex: "Shell\\.Application.*namespace"
+
+  # MSXml2 Base64 decode
+  - id: dropper/builder/msxml-base64
+    description: MSXml2 Base64 decoding
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: string
+      regex: "MSXml2.*Base64|bin\\.base64"
+
+  # Scripting.FileSystemObject
+  - id: dropper/builder/fso
+    description: Scripting.FileSystemObject usage
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "Scripting.FileSystemObject"
+
+  # Batch escape function
+  - id: dropper/builder/batch-escape
+    description: Batch special character escaping
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: string
+      regex: 'replace\\([^)]*"\\^"'
+
+  # %appdata% drop path
+  - id: dropper/builder/appdata-drop
+    description: Payload drop to %appdata%
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: string
+      regex: "%appdata%|%%appdata%%"
+
+composite_rules:
+  # EXE to batch dropper builder
+  - id: dropper/builder/exe-to-batch
+    description: EXE to batch file converter (dropper builder)
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1027.002"
+    mbc: "F0001"
+    condition:
+      type: yara
+      source: |
+        rule exe_to_batch_builder {
+          meta:
+            description = "Tool that converts EXE to batch dropper"
+          strings:
+            // Base64 encoding
+            $b64_1 = "base64.b64encode" ascii
+            $b64_2 = "base64.encodestring" ascii
+            $b64_3 = "encodebytes" ascii
+            // Batch file indicators
+            $batch1 = "@echo off" ascii nocase
+            $batch2 = 'echo %' ascii
+            $batch3 = ".bat" ascii
+            $batch4 = ".cmd" ascii
+            // Script generation
+            $script1 = "ActiveXObject" ascii
+            $script2 = "WScript" ascii
+            $script3 = ".js" ascii
+            $script4 = ".vbs" ascii
+            // File read
+            $read = 'open(' ascii
+            $rb = "'rb'" ascii
+          condition:
+            filesize < 500KB and
+            any of ($b64_*) and
+            any of ($batch*) and
+            any of ($script*) and
+            $read and $rb
+        }
+
+  # JScript dropper generation
+  - id: dropper/builder/jscript-dropper
+    description: JScript-based dropper generator
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1027.002"
+    condition:
+      type: yara
+      source: |
+        rule jscript_dropper_builder {
+          meta:
+            description = "Generates JScript dropper payloads"
+          strings:
+            $activex = "ActiveXObject" ascii
+            $adodb = "ADODB.Stream" ascii
+            $fso = "FileSystemObject" ascii
+            $shell = "Shell.Application" ascii
+            $msxml = "MSXml2" ascii
+            $base64 = "Base64" ascii
+            $save = "saveToFile" ascii
+          condition:
+            filesize < 1MB and
+            $activex and
+            ($adodb or $msxml) and
+            ($fso or $shell) and
+            ($base64 or $save)
+        }
+
+  # Python marshal/bytecode obfuscation builder
+  - id: dropper/builder/python-marshal
+    description: Python marshal bytecode obfuscation
+    criticality: suspicious
+    confidence: 0.85
+    file_types: [python]
+    attack: "T1027"
+    condition:
+      type: yara
+      source: |
+        rule python_marshal_obfuscator {
+          meta:
+            description = "Python code using marshal for obfuscation"
+          strings:
+            $marshal = "from marshal import loads" ascii
+            $exec = "exec(" ascii
+            $loads = "loads(b'" ascii
+            $compressed = /\\x78\\x9c/ ascii
+          condition:
+            filesize < 5MB and
+            $marshal and $exec and
+            ($loads or $compressed)
+        }

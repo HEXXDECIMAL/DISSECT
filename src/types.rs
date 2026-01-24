@@ -3072,12 +3072,18 @@ pub struct BinaryMetrics {
     /// Maximum cyclomatic complexity
     #[serde(default, skip_serializing_if = "is_zero_u32")]
     pub max_complexity: u32,
-    /// Functions with high complexity (>10)
+    /// Functions with high complexity (>50)
     #[serde(default, skip_serializing_if = "is_zero_u32")]
     pub high_complexity_functions: u32,
-    /// Functions with very high complexity (>25)
+    /// Names of high complexity functions
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub high_complexity_function_names: Vec<String>,
+    /// Functions with very high complexity (>100)
     #[serde(default, skip_serializing_if = "is_zero_u32")]
     pub very_high_complexity_functions: u32,
+    /// Names of very high complexity functions
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub very_high_complexity_function_names: Vec<String>,
 
     // === Control Flow ===
     /// Total basic blocks across all functions
@@ -3106,9 +3112,12 @@ pub struct BinaryMetrics {
     /// Maximum stack frame size
     #[serde(default, skip_serializing_if = "is_zero_u32")]
     pub max_stack_frame: u32,
-    /// Functions with large stack (>1KB)
+    /// Functions with large stack (>4KB)
     #[serde(default, skip_serializing_if = "is_zero_u32")]
     pub large_stack_functions: u32,
+    /// Names of large stack functions
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub large_stack_function_names: Vec<String>,
 
     // === Overlay ===
     /// Has overlay data

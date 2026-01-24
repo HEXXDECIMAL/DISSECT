@@ -1,0 +1,173 @@
+# Intelligence Gathering - External IP Discovery
+# ATT&CK: T1016.001 (Internet Connection Discovery)
+
+traits:
+  - id: ip-lookup/ipify
+    description: ipify.org IP lookup service
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1016.001"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "ipify.org"
+
+  - id: ip-lookup/ipinfo
+    description: ipinfo.io IP lookup service
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1016.001"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "ipinfo.io"
+
+  - id: ip-lookup/ifconfig-me
+    description: ifconfig.me IP lookup service
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1016.001"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "ifconfig.me"
+
+  - id: ip-lookup/icanhazip
+    description: icanhazip.com IP lookup service
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1016.001"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "icanhazip"
+
+  - id: ip-lookup/wtfismyip
+    description: wtfismyip.com IP lookup service
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1016.001"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "wtfismyip"
+
+  - id: ip-lookup/iplogger
+    description: iplogger.org IP logging service
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1016.001"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "iplogger.org"
+
+  - id: ip-lookup/ifconfig-io
+    description: ifconfig.io IP lookup service
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1016.001"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "ifconfig.io"
+
+  - id: ip-lookup/ifconfig-co
+    description: ifconfig.co IP lookup service
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1016.001"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "ifconfig.co"
+
+  - id: ip-lookup/ident-me
+    description: ident.me IP lookup service
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1016.001"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "ident.me"
+
+  - id: ip-lookup/checkip-amazonaws
+    description: AWS checkip service
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1016.001"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "checkip.amazonaws.com"
+
+  # Base64 encoded variants (common evasion)
+  - id: ip-lookup/ipify-b64
+    description: ipify.org (base64 encoded)
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1016.001"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "aXBpZnkub3Jn"
+
+  - id: ip-lookup/ipinfo-b64
+    description: ipinfo.io (base64 encoded)
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1016.001"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "aXBpbmZvLmlv"
+
+composite_rules:
+  - id: ip-recon-detected
+    description: External IP address reconnaissance
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1016.001"
+    mbc: "B0046"
+    file_types: [all]
+    condition:
+      type: yara
+      source: |
+        rule ip_recon {
+          strings:
+            $ipify = "ipify.org"
+            $ipinfo = "ipinfo.io"
+            $ifconfig_me = "ifconfig.me"
+            $icanhazip = "icanhazip"
+            $wtfismyip = "wtfismyip"
+            $iplogger = "iplogger.org"
+            $ifconfig_io = "ifconfig.io"
+            $ifconfig_co = "ifconfig.co"
+            $ident_me = "ident.me"
+            $checkip = "checkip.amazonaws.com"
+            $ipify_b64 = "aXBpZnkub3Jn"
+            $ipinfo_b64 = "aXBpbmZvLmlv"
+          condition:
+            filesize < 50MB and 2 of them
+        }
+
+  - id: ip-recon-obfuscated
+    description: Obfuscated IP reconnaissance
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1016.001"
+    mbc: "B0046"
+    file_types: [all]
+    condition:
+      type: yara
+      source: |
+        rule ip_recon_obfuscated {
+          strings:
+            $ipify_x = "ipify.org" xor(1-255)
+            $ipinfo_x = "ipinfo.io" xor(1-255)
+            $wtfismyip_x = "wtfismyip" xor(1-255)
+            $iplogger_x = "iplogger.org" xor(1-255)
+          condition:
+            filesize < 50MB and any of them
+        }

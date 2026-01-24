@@ -9,7 +9,7 @@ defaults:
 
 traits:
   # Window hiding via AppleScript
-  - id: evasion/applescript/hide-window
+  - id: hide-window
     description: "AppleScript Terminal window hiding"
     criticality: suspicious
     confidence: 0.9
@@ -20,7 +20,7 @@ traits:
       regex: "set visible of (the )?front window to false|set visible to false"
 
   # Hide all windows of application
-  - id: evasion/applescript/hide-application
+  - id: hide-application
     description: "AppleScript application hiding"
     criticality: suspicious
     confidence: 0.85
@@ -30,7 +30,7 @@ traits:
       regex: "tell application.*to set visible.*false|set visible of.*application"
 
   # osascript execution (inline AppleScript)
-  - id: evasion/applescript/osascript-exec
+  - id: osascript-exec
     description: "osascript command execution"
     criticality: notable
     confidence: 0.8
@@ -39,7 +39,7 @@ traits:
       regex: "osascript\\s+-e\\s+['\"]"
 
   # do shell script execution
-  - id: evasion/applescript/do-shell-script
+  - id: do-shell-script
     description: "AppleScript shell command execution"
     criticality: suspicious
     confidence: 0.85
@@ -49,7 +49,7 @@ traits:
       exact: "do shell script"
 
   # Password dialog phishing
-  - id: evasion/applescript/password-dialog
+  - id: password-dialog
     description: "AppleScript password input dialog"
     criticality: hostile
     confidence: 0.95
@@ -60,7 +60,7 @@ traits:
       regex: "display dialog.*password|default answer.*password|with hidden answer"
 
   # Fake system dialog (password phishing)
-  - id: evasion/applescript/fake-system-dialog
+  - id: fake-system-dialog
     description: "AppleScript fake system prompt"
     criticality: hostile
     confidence: 0.9
@@ -70,7 +70,7 @@ traits:
       regex: "with icon (caution|stop|note).*button|display dialog.*enter.*password"
 
   # Administrator privileges via do shell script
-  - id: evasion/applescript/admin-privileges
+  - id: admin-privileges
     description: "AppleScript privilege escalation"
     criticality: suspicious
     confidence: 0.9
@@ -80,7 +80,7 @@ traits:
       regex: "with administrator privileges|administrator privileges"
 
   # Keystroke logging via System Events
-  - id: evasion/applescript/keystroke-logging
+  - id: keystroke-logging
     description: "AppleScript keystroke monitoring"
     criticality: hostile
     confidence: 0.9
@@ -91,7 +91,7 @@ traits:
 
 composite_rules:
   # Password phishing pattern
-  - id: evasion/applescript/password-phishing
+  - id: password-phishing
     description: "AppleScript password phishing attack"
     criticality: hostile
     confidence: 0.95
@@ -108,12 +108,12 @@ composite_rules:
         regex: "with icon caution|with icon stop"
 
   # Stealthy AppleScript execution
-  - id: evasion/applescript/stealthy-execution
+  - id: stealthy-execution
     description: "Hidden AppleScript execution"
     criticality: hostile
     confidence: 0.9
     requires_all:
       - type: trait
-        id: evasion/applescript/hide-window
+        id: hide-window
       - type: trait
-        id: evasion/applescript/do-shell-script
+        id: do-shell-script

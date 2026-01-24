@@ -182,7 +182,7 @@ impl StringExtractor {
     /// Convert an ExtractedString from lang_strings to StringInfo
     fn convert_extracted_string(&self, es: ExtractedString) -> StringInfo {
         let string_type = self.classify_string_type(&es.value);
-        let library = if string_type == StringType::Import {
+        let _library = if string_type == StringType::Import {
             self.get_import_library(&es.value)
         } else {
             None
@@ -193,16 +193,14 @@ impl StringExtractor {
             offset: Some(format!("{:#x}", es.data_offset)),
             encoding: "utf8".to_string(),
             string_type,
-            section: es.section,
-            library,
-        }
-    }
+                    section: es.section,
+                }    }
 
     /// Classify a string by type
     fn classify_string(&self, value: String, offset: usize, section: Option<String>) -> StringInfo {
         let normalized = Self::normalize_symbol(&value);
 
-        let (stype, lib_info) = match self.symbol_map.get(&normalized) {
+        let (stype, _lib_info) = match self.symbol_map.get(&normalized) {
             Some((t, l)) => (*t, l.clone()),
             None => {
                 let t = if self.url_regex.is_match(&value) {
@@ -227,10 +225,8 @@ impl StringExtractor {
             offset: Some(format!("{:#x}", offset)),
             encoding: "utf8".to_string(),
             string_type: stype,
-            section,
-            library: lib_info,
-        }
-    }
+                    section,
+                }    }
     /// Classify a string's type without creating a StringInfo object
     pub fn classify_string_type(&self, value: &str) -> StringType {
         let normalized = Self::normalize_symbol(value);

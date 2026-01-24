@@ -9,10 +9,10 @@ composite_rules:
     attack: "T1059.003"
     requires_all:
       - type: trait
-        id: net/http/request/js-axios-get
+        id: comm/http/request/js-axios-get
       - type: trait
         id: exec/command/shell/js-execsync
       - type: trait
-        id: net/http/request/js-axios-post
+        id: comm/http/request/js-axios-post
       - type: string
         regex: "output|command"

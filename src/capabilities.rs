@@ -1273,7 +1273,8 @@ mod tests {
         let result = apply_trait_defaults(raw, &defaults);
 
         assert_eq!(result.confidence, 0.99);
-        assert_eq!(result.criticality, Criticality::Hostile);
+        // Atomic traits cannot be HOSTILE, so they get downgraded to SUSPICIOUS
+        assert_eq!(result.criticality, Criticality::Suspicious);
         assert_eq!(result.mbc, Some("B0002".to_string()));
         assert_eq!(result.attack, Some("T1234".to_string()));
         assert_eq!(result.platforms, vec![Platform::Windows]);

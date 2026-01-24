@@ -39,7 +39,7 @@ traits:
             any of them
         }
 
-  - id: net/attack/flood/irc-ddos
+  - id: comm/attack/flood/irc-ddos
     description: IRC-controlled DDoS attack logic
     criticality: hostile
     confidence: 0.9

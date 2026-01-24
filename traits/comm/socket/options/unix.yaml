@@ -1,0 +1,36 @@
+# Socket Options
+# MBC: C0001 (Socket Communication)
+# ATT&CK: T1071
+
+traits:
+  - id: socket/options-get
+    description: Get socket options
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: getsockopt
+
+  - id: socket/options-set
+    description: Set socket options
+    criticality: inert
+    confidence: 0.66
+    condition:
+      type: symbol
+      pattern: setsockopt
+
+  - id: socket/options-reuseport
+    description: Enable socket port reuse
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: string
+      exact: SO_REUSEPORT
+
+  - id: socket/options-filter
+    description: Socket packet filtering
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: string
+      exact: SO_ATTACH_FILTER

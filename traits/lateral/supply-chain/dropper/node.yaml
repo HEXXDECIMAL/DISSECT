@@ -1,0 +1,122 @@
+# Supply Chain - Node.js Dropper Patterns
+# Detects JavaScript/Node.js dropper patterns in npm packages
+# ATT&CK: T1105 (Ingress Tool Transfer), T1059 (Command Execution)
+
+traits:
+  # Download and write file (https.get/request with fs.write)
+  - id: dropper/node/download-file
+    description: Node.js HTTPS download to file
+    criticality: notable
+    confidence: 0.8
+    attack: "T1105"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule node_download_file {
+          strings:
+            $dl1 = "https.get" ascii
+            $dl2 = "http.get" ascii
+            $dl3 = "https.request" ascii
+            $dl4 = "http.request" ascii
+            $write1 = "createWriteStream" ascii
+            $write2 = "writeFileSync" ascii
+            $write3 = ".pipe(" ascii
+          condition:
+            any of ($dl*) and any of ($write*)
+        }
+
+  # Spawn with detached process (persistence)
+  - id: dropper/node/detached-spawn
+    description: Detached process spawning (backgrounding)
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1059"
+    mbc: "F0011"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "spawn\\([^)]*\\{[^}]*detached:\\s*true"
+
+  # Execute downloaded file
+  - id: dropper/node/exec-downloaded
+    description: Execution of file from temp directory
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1059"
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule node_exec_temp {
+          strings:
+            $temp1 = "process.env.TEMP" ascii
+            $temp2 = "process.env.TMP" ascii
+            $temp3 = "/tmp" ascii
+            $exec1 = "spawn(" ascii
+            $exec2 = "execFile(" ascii
+            $exec3 = "execSync(" ascii
+          condition:
+            any of ($temp*) and any of ($exec*)
+        }
+
+  # Archive extraction before execution
+  - id: dropper/node/archive-extract
+    description: Archive extraction (potential payload delivery)
+    criticality: notable
+    confidence: 0.75
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule node_archive_extract {
+          strings:
+            $lib1 = "node-7z" ascii
+            $lib2 = "7zip-bin" ascii
+            $lib3 = "adm-zip" ascii
+            $lib4 = "unzipper" ascii
+            $lib5 = "extract-zip" ascii
+            $op1 = "extractFull" ascii
+            $op2 = "extract(" ascii
+            $op3 = "unzip" ascii
+          condition:
+            any of ($lib*) or 2 of ($op*)
+        }
+
+  # Password-protected archive extraction
+  - id: dropper/node/password-archive
+    description: Password-protected archive extraction
+    criticality: suspicious
+    confidence: 0.85
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "password:\\s*['\"][^'\"]+['\"]"
+
+composite_rules:
+  # Full dropper lifecycle: download + extract + execute
+  - id: dropper/node/full-dropper
+    description: Complete Node.js dropper (download + extract + execute)
+    criticality: hostile
+    confidence: 0.98
+    attack: "T1105"
+    mbc: "B0024"
+    requires_all:
+      - type: trait
+        id: dropper/node/download-file
+      - type: trait
+        id: dropper/node/archive-extract
+      - type: string
+        regex: "spawn\\(|exec\\(|execFile\\("
+
+  # Download and detached execute
+  - id: dropper/node/download-detached-exec
+    description: Download file and execute detached (stealth dropper)
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1105"
+    requires_all:
+      - type: trait
+        id: dropper/node/download-file
+      - type: trait
+        id: dropper/node/detached-spawn

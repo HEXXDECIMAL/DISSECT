@@ -1,0 +1,313 @@
+# Behavioral Context Traits
+# These capture when and how code executes, useful for ML classification
+# Helps distinguish install-time vs runtime behavior
+
+traits:
+  # === INSTALL-TIME BEHAVIOR (Suspicious Context) ===
+
+  # Executes immediately on require (no export call needed)
+  - id: behavioral/auto-execute
+    description: Code auto-executes on require/import
+    criticality: notable
+    confidence: 0.8
+    file_types: [javascript]
+    condition:
+      type: yara
+      source: |
+        rule auto_execute {
+          strings:
+            $iife = /^\s*\((?:async\s+)?(?:function|\(\s*\)|[a-z_$][a-z0-9_$]*\s*=>)/ ascii
+            $call = /^[a-z_$][a-z0-9_$]*\s*\(\s*\)\s*;?\s*$/ ascii
+            $export = "module.exports" ascii
+          condition:
+            any of ($iife, $call) and not $export
+        }
+
+  # Side-effect only module (no exports)
+  - id: behavioral/side-effect-only
+    description: Module produces side effects without exports
+    criticality: notable
+    confidence: 0.8
+    file_types: [javascript]
+    condition:
+      type: yara
+      source: |
+        rule side_effect_only {
+          strings:
+            $export1 = "module.exports" ascii
+            $export2 = "exports." ascii
+            $export3 = /^export\s/ ascii
+            $http = "http" ascii
+            $fs = "writeFile" ascii
+            $exec = "exec(" ascii
+            $spawn = "spawn(" ascii
+          condition:
+            (any of ($http, $fs, $exec, $spawn)) and not any of ($export*)
+        }
+
+  # Network activity at module load time
+  - id: behavioral/network-on-load
+    description: Network request during module initialization
+    criticality: suspicious
+    confidence: 0.85
+    file_types: [javascript]
+    condition:
+      type: yara
+      source: |
+        rule network_on_load {
+          strings:
+            $iife = /^\((?:async\s+)?(?:function|\()/ ascii
+            $fetch = "fetch(" ascii
+            $http = "https.request" ascii
+            $axios = "axios" ascii
+            $got = "got(" ascii
+          condition:
+            $iife and any of ($fetch, $http, $axios, $got)
+        }
+
+  # File write at module load time
+  - id: behavioral/write-on-load
+    description: File write during module initialization
+    criticality: suspicious
+    confidence: 0.85
+    file_types: [javascript]
+    condition:
+      type: yara
+      source: |
+        rule write_on_load {
+          strings:
+            $iife = /^\((?:async\s+)?(?:function|\()/ ascii
+            $write1 = "writeFileSync" ascii
+            $write2 = "writeFile(" ascii
+            $append = "appendFile" ascii
+          condition:
+            $iife and any of ($write*, $append)
+        }
+
+  # Process spawn at module load time
+  - id: behavioral/spawn-on-load
+    description: Process spawned during module initialization
+    criticality: suspicious
+    confidence: 0.9
+    file_types: [javascript]
+    condition:
+      type: yara
+      source: |
+        rule spawn_on_load {
+          strings:
+            $iife = /^\((?:async\s+)?(?:function|\()/ ascii
+            $exec = "exec(" ascii
+            $spawn = "spawn(" ascii
+            $fork = "fork(" ascii
+          condition:
+            $iife and any of ($exec, $spawn, $fork)
+        }
+
+  # === RUNTIME BEHAVIOR (Expected Context) ===
+
+  # Exports function that performs network
+  - id: behavioral/exported-network
+    description: Exported function performs network requests
+    criticality: inert
+    confidence: 0.8
+    file_types: [javascript]
+    condition:
+      type: yara
+      source: |
+        rule exported_network {
+          strings:
+            $export = "module.exports" ascii
+            $func = /function\s+\w+\s*\(/ ascii
+            $fetch = "fetch(" ascii
+            $http = "http" ascii
+          condition:
+            $export and $func and any of ($fetch, $http)
+        }
+
+  # Exports class with methods
+  - id: behavioral/exported-class
+    description: Exports class with defined methods
+    criticality: inert
+    confidence: 0.85
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule exported_class {
+          strings:
+            $export = "module.exports" ascii
+            $export2 = "export class" ascii
+            $class = /class\s+[A-Z][a-zA-Z0-9]*\s*\{/ ascii
+            $method = /^\s+\w+\s*\([^)]*\)\s*\{/ ascii
+          condition:
+            any of ($export, $export2) and $class and $method
+        }
+
+  # Exports object with multiple functions
+  - id: behavioral/exported-api
+    description: Exports object with multiple API functions
+    criticality: inert
+    confidence: 0.85
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "module\\.exports\\s*=\\s*\\{[^}]*\\w+\\s*:\\s*(?:function|\\w+),[^}]*\\w+\\s*:\\s*(?:function|\\w+)"
+
+  # === STRUCTURAL INDICATORS ===
+
+  # Has constants/configuration section
+  - id: behavioral/has-config-section
+    description: Code has clear configuration section
+    criticality: inert
+    confidence: 0.8
+    file_types: [javascript, typescript]
+    condition:
+      type: yara
+      source: |
+        rule has_config_section {
+          strings:
+            $const1 = /^const\s+[A-Z_]+\s*=/ ascii
+            $const2 = /^const\s+config\s*=/ ascii
+            $const3 = /^const\s+options\s*=/ ascii
+            $const4 = /^const\s+defaults\s*=/ ascii
+          condition:
+            2 of them
+        }
+
+  # Has input validation
+  - id: behavioral/has-input-validation
+    description: Code validates input parameters
+    criticality: inert
+    confidence: 0.85
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "if\\s*\\(\\s*!\\w+|if\\s*\\(\\s*typeof\\s+\\w+|throw\\s+new\\s+(?:Type|Range|)Error"
+
+  # Has defensive null checks
+  - id: behavioral/has-null-checks
+    description: Code has defensive null/undefined checks
+    criticality: inert
+    confidence: 0.8
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "\\?\\?|\\?\\.|!= null|!== null|!= undefined|!== undefined"
+
+  # Has return statements (not void/side-effect)
+  - id: behavioral/has-returns
+    description: Functions return values
+    criticality: inert
+    confidence: 0.75
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "return\\s+[^;]+"
+
+  # Has async iteration
+  - id: behavioral/has-async-iteration
+    description: Code uses async iteration patterns
+    criticality: inert
+    confidence: 0.85
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "for\\s+await\\s*\\(|async\\s*\\*|Symbol\\.asyncIterator"
+
+  # === TIMING PATTERNS ===
+
+  # Uses cron/schedule pattern
+  - id: behavioral/has-scheduler
+    description: Code has scheduled/recurring execution
+    criticality: notable
+    confidence: 0.75
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "node-cron|node-schedule|setInterval\\s*\\([^,]+,\\s*[0-9]{4,}"
+
+  # Has rate limiting
+  - id: behavioral/has-rate-limiting
+    description: Code implements rate limiting
+    criticality: inert
+    confidence: 0.85
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "rateLimit|throttle|debounce|bottleneck"
+
+  # Has retry with backoff
+  - id: behavioral/has-retry-backoff
+    description: Code implements retry with backoff
+    criticality: inert
+    confidence: 0.85
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "exponential.*backoff|retry.*delay|p-retry|async-retry"
+
+  # === SIZE/COMPLEXITY INDICATORS ===
+
+  # Very small file (< 500 bytes)
+  - id: behavioral/tiny-file
+    description: Very small code file
+    criticality: notable
+    confidence: 0.6
+    file_types: [javascript]
+    condition:
+      type: yara
+      source: |
+        rule tiny_file {
+          condition:
+            filesize < 500
+        }
+
+  # Medium file with no functions
+  - id: behavioral/script-blob
+    description: Medium-sized file with no function definitions
+    criticality: notable
+    confidence: 0.7
+    file_types: [javascript]
+    condition:
+      type: yara
+      source: |
+        rule script_blob {
+          strings:
+            $func = /function\s+\w+\s*\(/ ascii
+            $arrow = /const\s+\w+\s*=\s*(?:async\s+)?\([^)]*\)\s*=>/ ascii
+            $class = /class\s+\w+/ ascii
+          condition:
+            filesize > 500 and filesize < 5000 and not any of ($func, $arrow, $class)
+        }
+
+composite_rules:
+  # npm package with interpreter dropper (hostile combination)
+  - id: behavioral/interpreter-dropper-package
+    description: npm package that downloads and executes via external interpreter
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1195.002"
+    mbc: "B0024"
+    file_types: [javascript, typescript]
+    requires_any:
+      - type: trait
+        id: python-standalone
+      - type: trait
+        id: node-standalone
+    requires_all:
+      - type: string
+        regex: "spawn\\(|exec\\("
+
+  # Obfuscated npm dropper with install hook
+  - id: behavioral/obfuscated-dropper
+    description: npm package with obfuscated code and dropper behavior
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1195.002"
+    file_types: [javascript, typescript]
+    requires_all:
+      - type: trait
+        id: hex-url-array
+      - type: string
+        regex: "require\\(['\"]child_process['\"]\\)"
+

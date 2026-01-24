@@ -1,0 +1,255 @@
+# Build Tool and CI/CD Artifacts
+# Useful for supply chain analysis and diff context
+
+traits:
+  # CMake build system
+  - id: cmake
+    description: Built with CMake
+    criticality: benign
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule cmake_build {
+          strings:
+            $cmake1 = "CMakeFiles" ascii
+            $cmake2 = "cmake_minimum_required" ascii
+            $cmake3 = "CMAKE_" ascii
+            $cmake4 = "CMakeLists.txt" ascii
+          condition:
+            any of them
+        }
+
+  # Meson build system
+  - id: meson
+    description: Built with Meson
+    criticality: benign
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule meson_build {
+          strings:
+            $meson1 = "meson.build" ascii
+            $meson2 = "meson_options" ascii
+            $meson3 = "meson-private" ascii
+          condition:
+            any of them
+        }
+
+  # Bazel build system
+  - id: bazel
+    description: Built with Bazel
+    criticality: benign
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule bazel_build {
+          strings:
+            $bazel1 = "bazel-out" ascii
+            $bazel2 = "WORKSPACE" ascii
+            $bazel3 = "BUILD.bazel" ascii
+            $bazel4 = "@bazel_tools" ascii
+          condition:
+            any of them
+        }
+
+  # Autotools build system
+  - id: autotools
+    description: Built with Autotools (autoconf/automake)
+    criticality: benign
+    confidence: 0.8
+    condition:
+      type: yara
+      source: |
+        rule autotools_build {
+          strings:
+            $auto1 = "configure.ac" ascii
+            $auto2 = "Makefile.am" ascii
+            $auto3 = "config.h.in" ascii
+            $auto4 = "PACKAGE_VERSION" ascii
+            $auto5 = "AC_INIT" ascii
+          condition:
+            any of them
+        }
+
+  # Cargo (Rust) build
+  - id: cargo
+    description: Built with Cargo (Rust)
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule cargo_build {
+          strings:
+            $cargo1 = "Cargo.toml" ascii
+            $cargo2 = "cargo::" ascii
+            $cargo3 = "/registry/src/" ascii
+            $cargo4 = ".cargo/" ascii
+          condition:
+            any of them
+        }
+
+  # Go modules build
+  - id: go-modules
+    description: Built with Go modules
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule go_modules {
+          strings:
+            $go1 = "go.mod" ascii
+            $go2 = "go.sum" ascii
+            $go3 = "go/pkg/mod" ascii
+            $go4 = "GOPATH" ascii
+          condition:
+            any of them
+        }
+
+  # npm/yarn build
+  - id: npm
+    description: Built with npm/yarn (Node.js)
+    criticality: benign
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule npm_build {
+          strings:
+            $npm1 = "package.json" ascii
+            $npm2 = "node_modules" ascii
+            $npm3 = "package-lock.json" ascii
+            $yarn = "yarn.lock" ascii
+          condition:
+            any of them
+        }
+
+  # pip/setuptools build
+  - id: pip
+    description: Built with pip/setuptools (Python)
+    criticality: benign
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule pip_build {
+          strings:
+            $pip1 = "setup.py" ascii
+            $pip2 = "pyproject.toml" ascii
+            $pip3 = "requirements.txt" ascii
+            $pip4 = "site-packages" ascii
+          condition:
+            any of them
+        }
+
+  # GitHub Actions CI
+  - id: github-actions
+    description: GitHub Actions CI artifacts
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule github_actions {
+          strings:
+            $gha1 = "GITHUB_ACTIONS" ascii
+            $gha2 = "GITHUB_RUN_ID" ascii
+            $gha3 = "GITHUB_SHA" ascii
+            $gha4 = "actions/checkout" ascii
+            $gha5 = ".github/workflows" ascii
+          condition:
+            any of them
+        }
+
+  # GitLab CI
+  - id: gitlab-ci
+    description: GitLab CI artifacts
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule gitlab_ci {
+          strings:
+            $gl1 = "CI_PIPELINE_ID" ascii
+            $gl2 = "CI_JOB_ID" ascii
+            $gl3 = "GITLAB_CI" ascii
+            $gl4 = ".gitlab-ci.yml" ascii
+          condition:
+            any of them
+        }
+
+  # Jenkins CI
+  - id: jenkins
+    description: Jenkins CI artifacts
+    criticality: benign
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule jenkins_ci {
+          strings:
+            $jenkins1 = "JENKINS_URL" ascii
+            $jenkins2 = "BUILD_NUMBER" ascii
+            $jenkins3 = "JOB_NAME" ascii
+            $jenkins4 = "Jenkinsfile" ascii
+          condition:
+            2 of them
+        }
+
+  # CircleCI
+  - id: circleci
+    description: CircleCI artifacts
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: yara
+      source: |
+        rule circleci {
+          strings:
+            $ci1 = "CIRCLECI" ascii
+            $ci2 = "CIRCLE_BUILD_NUM" ascii
+            $ci3 = ".circleci/config" ascii
+          condition:
+            any of them
+        }
+
+  # Docker build
+  - id: docker
+    description: Built in Docker container
+    criticality: benign
+    confidence: 0.8
+    condition:
+      type: yara
+      source: |
+        rule docker_build {
+          strings:
+            $docker1 = "Dockerfile" ascii
+            $docker2 = "DOCKER_" ascii
+            $docker3 = "/.dockerenv" ascii
+            $docker4 = "/docker-entrypoint" ascii
+          condition:
+            any of them
+        }
+
+  # Reproducible build markers
+  - id: reproducible
+    description: Reproducible build markers
+    criticality: benign
+    confidence: 0.85
+    condition:
+      type: yara
+      source: |
+        rule reproducible_build {
+          strings:
+            $repr1 = "SOURCE_DATE_EPOCH" ascii
+            $repr2 = "REPRODUCIBLE" ascii
+            $repr3 = "build-id" ascii
+            $repr4 = "debuglink" ascii
+          condition:
+            any of them
+        }

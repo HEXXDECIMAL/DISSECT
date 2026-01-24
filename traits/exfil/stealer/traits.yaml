@@ -8,7 +8,7 @@ defaults:
 
 traits:
   # curl POST with custom headers (common in stealers)
-  - id: exfil/stealer/curl-post-headers
+  - id: curl-post-headers
     description: "curl POST with custom identification headers"
     criticality: hostile
     confidence: 0.9
@@ -19,7 +19,7 @@ traits:
       regex: "curl\\s+-X\\s+POST\\s+-H|curl.*-H.*user:|curl.*-H.*BuildID"
 
   # curl upload file
-  - id: exfil/stealer/curl-upload
+  - id: curl-upload
     description: "curl file upload"
     criticality: suspicious
     confidence: 0.8
@@ -28,7 +28,7 @@ traits:
       regex: "curl\\s+.*-F\\s+|curl\\s+.*--data-binary|curl.*@/tmp/"
 
   # Bot/stealer identification headers
-  - id: exfil/stealer/bot-headers
+  - id: bot-headers
     description: "Bot identification HTTP headers"
     criticality: hostile
     confidence: 0.9
@@ -37,7 +37,7 @@ traits:
       regex: "-H\\s+[\"']?(user|userid|client|bot|build|hwid|machine):|X-(User|Client|Bot|Build|HWID)"
 
   # Hardcoded gate/C2 URL
-  - id: exfil/stealer/gate-url
+  - id: gate-url
     description: "Hardcoded gate/C2 URL variable"
     criticality: hostile
     confidence: 0.85
@@ -46,7 +46,7 @@ traits:
       regex: "\\bgate\\s*=\\s*[\"']http|\\bc2\\s*=\\s*[\"']http|\\bpanel\\s*=\\s*[\"']http"
 
   # ZIP upload pattern
-  - id: exfil/stealer/zip-upload
+  - id: zip-upload
     description: "ZIP archive upload for exfiltration"
     criticality: hostile
     confidence: 0.9
@@ -55,7 +55,7 @@ traits:
       regex: "curl.*\\.zip|POST.*\\.zip|upload.*\\.zip|send.*\\.zip"
 
   # Multipart form data (file upload)
-  - id: exfil/stealer/multipart-upload
+  - id: multipart-upload
     description: "Multipart form data upload"
     criticality: suspicious
     confidence: 0.75
@@ -65,7 +65,7 @@ traits:
 
 composite_rules:
   # Full exfiltration pattern: archive + upload
-  - id: exfil/stealer/stealer-exfil
+  - id: stealer-exfil
     description: "Stealer data exfiltration pattern"
     criticality: hostile
     confidence: 0.95
@@ -74,8 +74,8 @@ composite_rules:
         regex: "curl|wget|POST"
     requires_any:
       - type: trait
-        id: exfil/stealer/curl-post-headers
+        id: curl-post-headers
       - type: trait
-        id: exfil/stealer/bot-headers
+        id: bot-headers
       - type: trait
-        id: exfil/stealer/gate-url
+        id: gate-url

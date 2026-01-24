@@ -1,0 +1,34 @@
+composite_rules:
+  - id: kernel-module-load
+    description: Loads kernel module
+    confidence: 0.95
+    criticality: suspicious
+    platforms: [linux]
+    file_types: [elf]
+    requires_any:
+      - type: syscall
+        name: ["init_module"]
+      - type: syscall
+        name: ["finit_module"]
+
+  - id: kernel-module-unload
+    description: Unloads kernel module
+    confidence: 0.9
+    criticality: suspicious
+    platforms: [linux]
+    file_types: [elf]
+    condition:
+      type: syscall
+      name: ["delete_module"]
+
+  - id: kexec
+    description: Loads new kernel for kexec
+    confidence: 0.95
+    criticality: suspicious
+    platforms: [linux]
+    file_types: [elf]
+    requires_any:
+      - type: syscall
+        name: ["kexec_load"]
+      - type: syscall
+        name: ["kexec_file_load"]

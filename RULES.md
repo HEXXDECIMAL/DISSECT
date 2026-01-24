@@ -10,45 +10,47 @@
 
 ## Taxonomy
 
-Rules follow the path `objective/behavior/kind`:
+Most rules follow the organization of `objective/capability/kind`, inspired by the MalwareBehaviorCatalog, even if the capability isn't malicious, but could be performed by a malicious program. Since this is static analysis, we don't know what the true "behavior" of a program is, only it's capabilities.
 
-| Level | Description | Examples |
-|-------|-------------|----------|
-| Objective | What the code achieves | `exec`, `net`, `c2`, `anti-analysis` |
-| Behavior | How it achieves it | `command`, `socket`, `channels` |
-| Kind | Specific implementation | `shell`, `connect`, `telegram` |
+* An **objective** is what a program could achieve
+* A **capability** is how the program could achieve it
+* A **kind** is a specific implementation of that capability
 
-### Special Prefixes
+Here's the objectives taxonomy:
 
-| Prefix | Description | Examples |
-|--------|-------------|----------|
-| `malware/<family>/<variant>` | Malware families | `malware/stealer/amos`, `malware/rat/asyncrat` |
-| `eco/<ecosystem>/<behavior>` | Package ecosystem patterns | `eco/npm/scripts/postinstall-hook`, `eco/vscode/malicious/dropper` |
-| `supply-chain/<vector>/<type>` | Supply chain attacks | `supply-chain/typosquat/domain`, `supply-chain/install-time/execution` |
-| `intel/<category>/<type>` | Discovery/reconnaissance | `intel/fingerprint/system`, `intel/discover/user` |
-| `meta/<category>/<type>` | Binary metadata/provenance | `meta/language/go`, `meta/compiler/gcc`, `meta/build/cmake` |
-| `data/<category>/<format>` | Data operations | `data/database/postgresql`, `data/encoding/protobuf` |
-| `lib/<category>/<library>` | Library usage patterns | `lib/logging/syslog`, `lib/ipc/grpc` |
-| `dev/<category>/<tool>` | Development artifacts | `dev/testing/gtest` |
+|**Objective**|**Capabilities that could be used to ...**|
+|---|---|
+|[**anti-analysis**](./traits/anti-analysis)| evade behavior analysis |
+|[**anti-static**](./traits/anti-static)| make static analysis more difficult |
+|[**collect**](./traits/collect)| identify and gather information from a machine or network |
+|[**c2**](./traits/c2)| communicate with compromised systems |
+|[**cred**](./traits/cred)| steal account names and passwords |
+|[**evasion**](./traits/evasion)| evade detection |
+|[**discovery**](./traits/discovery)| gain knowledge about the environment.|
+|[**exec**](./traits/exec)| execute code on a system.|
+|[**exfil**](./traits/exec)| steal data.|
+|[**xmpact**](./traits/impact)| manipulate, interrupt, or destroy systems or data.|
+|[**lateral**](./traits/lateral)| propagate or otherwise move through an environment.|
+|[**persist**](./traits/persist)| remain on a system.|
+|[**privesc**](./traits/privesc)| obtain higher level permissions.|
 
-### Ecosystem Traits (`eco/`)
+We also support a seperate hierarchy of non-objective based micro-traits, which gets split based on: category/subcategory/kind/ - based on MBC MicroBehaviors
 
-Ecosystem-specific traits detect patterns unique to package managers and extension platforms:
+|**Micro-trait**|**description**|
+|---|---|
+| [**comm**](./traits/comm) | communications (generally networking)
+| [**crypto**](./traits/crypto) | cryptography (not cryptomining)
+| [**data**](./traits/data) | data manipulation
+| [**fs**](./traits/fs) | filesystem manipulation
+| [**hw**](./traits/hw) | hardware manipulation
+| [**mem**](./traits/mem) | memory manipulation
+| [**process**](./traits/process) | process manipulation
+| [**os**](./traits/os) | operating system manipulation (registry access, env vars, console)
+| [**feat**](./traits/feat) | the layout or features of a program
 
-```
-traits/eco/
-├── npm/              # npm packages (package.json)
-│   ├── scripts.yaml  # Script hook patterns (preinstall, postinstall)
-│   └── metadata.yaml # Package metadata anomalies
-├── vscode/           # VSCode extensions
-│   ├── api.yaml      # Extension API usage
-│   └── malicious.yaml # Malicious extension patterns
-├── chrome/           # Chrome extensions (future)
-├── pypi/             # PyPI packages (future)
-└── cargo/            # Rust crates (future)
-```
+To help security engineers, we also have rules to identify of a limited number of popular malware families and security tools within the [**known-tools**](./traits/known-malware) directory (organized by STIX 2.1 Malware Type). Identifying malware by family is not a focus area for this project, but sometimes it's nice to have.
 
-## File Organization
+## Example File Organization
 
 ```
 traits/
@@ -59,11 +61,13 @@ traits/
 │   └── python.yaml      # Language-specific
 ```
 
-**Trait IDs must be fully qualified paths** matching their file location:
+**Trait IDs** are short and relative to the directory. For example, within exec/command/python.yaml you may see:
+
 ```yaml
-- id: exec/command/shell/system    # Correct
-- id: system                        # Avoid
+- id: py_subprocess
 ```
+
+If you need to rely on this rule from a rule outside of the directory, you will need to refer to it by it's full name: exec/command/py_subprocess
 
 ## Criticality Levels
 
@@ -177,7 +181,8 @@ condition:
 ```
 
 ### symbol_or_string
-Match if pattern found as either symbol OR string.
+
+Match if pattern found as either symbol OR string. Prefer symbol where possible.
 
 ```yaml
 condition:
@@ -186,7 +191,12 @@ condition:
 ```
 
 ### yara / yara_match
+
 Inline YARA or reference existing matches.
+
+YARA should be used sparingly due to its lack of contextual accuracy (symbols, go-string support), and only when it's not possible to define otherwise. Never use YARA just to tie strings together unless it's in a way unsupported by the composite rule language - and even then, consider improving the language, or splitting up the YARA rules and bringing them together using a composite rule.
+
+YARA rules should always have filetypes associated to them.
 
 ```yaml
 # Inline
@@ -291,12 +301,7 @@ composite_rules:
     file_types: [elf, macho]
 
     requires_all:                   # AND
-      - type: symbol
-        pattern: "socket|connect"
-      - type: symbol
-        pattern: "dup2"
-      - type: symbol
-        pattern: "execve|system"
+      - ...
 ```
 
 ### Boolean Operators
@@ -319,12 +324,21 @@ conditions:
 
 ### Trait References
 
+When referring to a trait from another category, you specify it based on group name (directory):
+
 ```yaml
 - type: trait
-  id: exec/process/terminate       # Full path
+  id: exec/process/terminate
+```
+
+For relative trait references, use the short name:
+
+```
 - type: trait
   id: terminate                    # Suffix match
 ```
+
+It is intentionally not possible to reference an exact trait in another directory.
 
 ---
 
