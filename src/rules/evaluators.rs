@@ -1055,6 +1055,8 @@ fn get_metric_value(metrics: &crate::types::Metrics, field: &str) -> Option<f64>
 pub struct BinaryParams<'a> {
     pub section_count: Option<&'a NumericRange>,
     pub segment_count: Option<&'a NumericRange>,
+    pub min_size: Option<u64>,
+    pub max_size: Option<u64>,
     pub file_entropy: Option<&'a FloatRange>,
     pub overlay_size: Option<&'a NumericRange>,
     pub machine_type: Option<&'a Vec<u16>>,
@@ -1093,6 +1095,23 @@ pub fn eval_binary(params: &BinaryParams, ctx: &EvaluationContext) -> ConditionR
             matches = false;
         } else {
             match_reasons.push(format!("segment_count={}", header.segment_count));
+        }
+    }
+
+    // Check file size
+    let size = ctx.report.target.size_bytes;
+    if let Some(min) = params.min_size {
+        if size < min {
+            matches = false;
+        } else {
+            match_reasons.push(format!("file_size>={}", min));
+        }
+    }
+    if let Some(max) = params.max_size {
+        if size > max {
+            matches = false;
+        } else {
+            match_reasons.push(format!("file_size<={}", max));
         }
     }
 
@@ -1316,6 +1335,8 @@ pub fn eval_condition(condition: &Condition, ctx: &EvaluationContext) -> Conditi
         Condition::Binary {
             section_count,
             segment_count,
+            min_size,
+            max_size,
             file_entropy,
             overlay_size,
             machine_type,
@@ -1327,6 +1348,8 @@ pub fn eval_condition(condition: &Condition, ctx: &EvaluationContext) -> Conditi
             let params = BinaryParams {
                 section_count: section_count.as_ref(),
                 segment_count: segment_count.as_ref(),
+                min_size: *min_size,
+                max_size: *max_size,
                 file_entropy: file_entropy.as_ref(),
                 overlay_size: overlay_size.as_ref(),
                 machine_type: machine_type.as_ref(),

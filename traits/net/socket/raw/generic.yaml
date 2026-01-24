@@ -4,25 +4,17 @@
 
 traits:
   - id: net/socket/raw
-    description: Send raw and/or malformed IP packets
-    criticality: suspicious
-    confidence: 0.66
-    mbc: "C0001"
-    attack: "T1071"
+    description: Create raw network sockets
+    criticality: notable
+    confidence: 0.8
+    attack: "T1011"
     condition:
       type: yara
       source: |
         rule raw_sockets {
           strings:
-            $ref = "raw socket" fullword
-            $hdrincl = "HDRINCL" fullword
-            $sock_raw = "SOCK_RAW" fullword
-            $ipproto_raw = "IPPROTO_RAW" fullword
-            $proc_net_raw = "/proc/net/raw"
-            $make_ip = "makeIPPacket"
-            $impacket = "impacket."
-            $makePackets = "makePacket" fullword
-            $scapy = /scapy.{0,32}Raw/
+            $ref = "raw socket" ascii nocase
+            $proc_net_raw = "/proc/net/raw" ascii
           condition:
             any of them
         }

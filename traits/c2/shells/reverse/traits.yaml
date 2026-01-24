@@ -77,12 +77,4 @@ traits:
       pattern: listen
     platforms: [all]
 
-  # Shell references
-  - id: c2/shells/reverse/shell-ref-path
-    description: Shell executable reference
-    criticality: notable
-    confidence: 0.5
-    condition:
-      type: string
-      regex: "(/bin/(sh|bash|zsh|ksh)|cmd\\.exe|powershell\\.exe)"
-      case_insensitive: true
+

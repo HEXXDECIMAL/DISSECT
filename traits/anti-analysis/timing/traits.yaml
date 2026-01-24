@@ -1,0 +1,22 @@
+# Anti-Analysis - Timing Primitives
+# MBC: B0001.032 (Timing/Delay Check)
+# ATT&CK: T1497.001 (Virtualization/Sandbox Evasion: System Checks)
+
+traits:
+  - id: anti-analysis/timing/primitive
+    description: "Hardware timing primitive (potential anti-analysis)"
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: yara
+      source: |
+        rule timing_primitive {
+          strings:
+            $rdtsc = { 0F 31 }  // rdtsc instruction
+            $clock1 = "clock_gettime" ascii fullword
+            $clock2 = "gettimeofday" ascii fullword
+            $time1 = "time" ascii fullword
+          condition:
+            ($rdtsc and any of ($clock*, $time*)) or
+            #rdtsc > 3
+        }

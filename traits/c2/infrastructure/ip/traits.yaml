@@ -11,15 +11,14 @@ defaults:
 composite_rules:
   - id: c2/infrastructure/ip/hardcoded-ipv4
     description: "Hardcoded IPv4 address"
-    confidence: 0.85
+    confidence: 0.8
     condition:
       type: string
       # Strict IPv4 regex that:
-      # - Rejects leading zeros (invalid per RFC)
-      # - Requires non-digit before first octet (excludes OIDs like 1.2.840.113635.100.6.1.9)
-      # - Excludes version strings (Chrome/100.0.0.0, Safari/537.36, etc.) via negative lookbehind
-      # - Each octet: 0-9, 10-99, 100-199, 200-249, or 250-255
-      regex: "(?<![0-9./])(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])(?![0-9.])"
+      # - Rejects leading zeros
+      # - Ensures it's not part of a version string (vX.X.X.X) or long numeric string
+      # - Each octet: 0-255
+      regex: "(?<![0-9./vV])(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])(?![0-9.])"
 
   - id: c2/infrastructure/ip/ipv4-with-port
     description: "IPv4 address with port number"

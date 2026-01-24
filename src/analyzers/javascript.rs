@@ -804,7 +804,7 @@ impl JavaScriptAnalyzer {
                 report,
                 "exec/ci-pipeline/shell",
                 "CI/CD pipeline shell execution",
-                Criticality::Suspicious,
+                Criticality::Notable,
                 "getExecOutput+bash",
             );
         }
@@ -861,49 +861,6 @@ impl JavaScriptAnalyzer {
             }
         }
 
-        // 4. Shell commands embedded in strings (supply chain indicators)
-        let shell_indicators = [
-            (
-                "curl ",
-                "net/download/curl",
-                "Curl download command in string",
-            ),
-            (
-                "wget ",
-                "net/download/wget",
-                "Wget download command in string",
-            ),
-            (
-                "sudo ",
-                "privesc/sudo",
-                "Sudo privilege escalation in string",
-            ),
-            (
-                "base64 -d",
-                "anti-analysis/decode/base64-cli",
-                "Base64 CLI decoding",
-            ),
-            (
-                "| python",
-                "exec/pipe-to-interpreter",
-                "Piping to Python interpreter",
-            ),
-            ("| bash", "exec/pipe-to-shell", "Piping to bash shell"),
-            ("| sh", "exec/pipe-to-shell", "Piping to shell"),
-        ];
-
-        for (pattern, cap_id, description) in shell_indicators {
-            if content.contains(pattern) {
-                self.add_capability_if_missing(
-                    report,
-                    cap_id,
-                    description,
-                    Criticality::Hostile,
-                    pattern,
-                );
-            }
-        }
-
         // 5. Secret/credential access patterns in CI context
         if content.contains("isSecret") && content.contains("true") {
             self.add_capability_if_missing(
@@ -913,26 +870,6 @@ impl JavaScriptAnalyzer {
                 Criticality::Suspicious,
                 "isSecret:true",
             );
-        }
-
-        // 6. External gist/pastebin downloads (common exfil/C2 pattern)
-        let external_code_hosts = [
-            "gist.githubusercontent.com",
-            "pastebin.com",
-            "paste.ee",
-            "hastebin.com",
-            "dpaste.org",
-        ];
-        for host in external_code_hosts {
-            if content.contains(host) {
-                self.add_capability_if_missing(
-                    report,
-                    "c2/external-code-host",
-                    "Downloads from external code hosting",
-                    Criticality::Hostile,
-                    host,
-                );
-            }
         }
     }
 

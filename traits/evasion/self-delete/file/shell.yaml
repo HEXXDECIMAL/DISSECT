@@ -16,7 +16,7 @@ traits:
           strings:
             $rm_self = "rm $0"
             $rm_argv = "rm \"$0\""
-            $shred_self = "shred" fullword
+            $shred_self = /shred\s+(-[a-z]+\s+)?["']?\$0["']?/
           condition:
             any of them
         }

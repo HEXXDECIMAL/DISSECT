@@ -143,66 +143,7 @@ traits:
             (#icall1 + #icall2) > 10
         }
 
-  # === Anti-Analysis Indicators ===
-
-  - id: supply-chain/binary-backdoor/timing-check
-    description: "Timing-based anti-analysis check"
-    criticality: notable
-    confidence: 0.7
-    attack: "T1497"
-    condition:
-      type: yara
-      source: |
-        rule timing_check {
-          strings:
-            $rdtsc = { 0F 31 }  // rdtsc instruction
-            $clock1 = "clock_gettime" ascii
-            $clock2 = "gettimeofday" ascii
-            $time1 = "time" ascii
-          condition:
-            ($rdtsc and any of ($clock*, $time*)) or
-            #rdtsc > 3
-        }
-
-  - id: supply-chain/binary-backdoor/debug-detection
-    description: "Debugger detection pattern"
-    criticality: suspicious
-    confidence: 0.75
-    attack: "T1622"
-    condition:
-      type: yara
-      source: |
-        rule debug_detect {
-          strings:
-            $ptrace = "ptrace" ascii
-            $proc1 = "/proc/self/status" ascii
-            $proc2 = "/proc/self/maps" ascii
-            $proc3 = "TracerPid" ascii
-            // Note: int3 (CC) removed - too common as padding in optimized code
-          condition:
-            $ptrace or any of ($proc*)
-        }
-
   # === Obfuscation Indicators ===
-
-  - id: supply-chain/binary-backdoor/string-obfuscation
-    description: "String obfuscation/deobfuscation pattern"
-    criticality: notable
-    confidence: 0.65
-    condition:
-      type: yara
-      source: |
-        rule string_obfuscation {
-          strings:
-            // XOR deobfuscation loop
-            $xor1 = { 30 ?? 4? FF C? 3? ?? 7? }  // xor byte, inc, cmp, jl
-            $xor2 = { 32 ?? 4? 83 ?? ?? 7? }     // xor byte, inc, cmp, jl
-            // Stack string construction
-            $stack1 = { C6 45 ?? ?? C6 45 ?? ?? C6 45 ?? ?? }  // mov [rbp-x], imm8
-            $stack2 = { C7 45 ?? ?? ?? ?? ?? C7 45 ?? ?? ?? ?? ?? }  // mov [rbp-x], imm32
-          condition:
-            any of them
-        }
 
   - id: supply-chain/binary-backdoor/data-obfuscation
     description: "Large obfuscated data blob"
@@ -267,21 +208,6 @@ composite_rules:
       - type: trait
         id: unexpected-crypto
 
-  - id: supply-chain/binary-backdoor/stealth-backdoor-pattern
-    description: "Stealth backdoor pattern"
-    criticality: hostile
-    confidence: 0.9
-    requires_count: 2
-    conditions:
-      - type: trait
-        id: debug-detection
-      - type: trait
-        id: timing-check
-      - type: trait
-        id: string-obfuscation
-      - type: trait
-        id: memory-protection-change
-
   - id: supply-chain/binary-backdoor/injected-code-pattern
     description: "Injected code pattern in library"
     criticality: hostile
@@ -294,3 +220,4 @@ composite_rules:
         id: unexpected-crypto
       - type: trait
         id: unexpected-socket-ops
+

@@ -361,10 +361,10 @@ fn detect_privilege_requirements(paths: &[PathInfo]) -> Vec<Finding> {
         traits.push(Finding {
             kind: FindingKind::Capability,
             trait_refs: vec![],
-            id: "requires/root_access".to_string(),
-            description: "Requires root privileges to access protected paths".to_string(),
+            id: "os/privilege/root-access".to_string(),
+            description: "Accesses paths that typically require root privileges".to_string(),
             confidence: 1.0,
-            criticality: Criticality::Hostile,
+            criticality: Criticality::Notable,
             mbc: None,
             attack: None,
             evidence: requires_root

@@ -1,0 +1,29 @@
+# Ransomware Encryption Note Indicators
+# ATT&CK: T1486 (Data Encrypted for Impact)
+
+traits:
+  - id: impact/ransom/encrypt-note/completion_msg
+    description: "Declarative encryption completion message"
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1486"
+    condition:
+      type: string
+      exact: "Encryption complete. Your files have been encrypted."
+
+  - id: impact/ransom/encrypt-note/generic_msg
+    description: "Generic ransom note string"
+    criticality: suspicious
+    confidence: 0.6
+    condition:
+      type: yara
+      source: |
+        rule ransom_note_strings {
+          strings:
+            $s1 = "Your files have been encrypted" ascii
+            $s2 = "restore your files" ascii
+            $s3 = "contact us" ascii
+            $s4 = "pay the ransom" ascii
+          condition:
+            any of them
+        }

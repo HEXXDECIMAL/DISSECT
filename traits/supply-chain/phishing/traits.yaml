@@ -24,7 +24,6 @@ traits:
             $js_cut = "addEventListener('cut'" ascii
             $js_paste = "addEventListener('paste'" ascii
             $js_contextmenu = "addEventListener('contextmenu'" ascii
-            $prevent = "preventDefault()" ascii
           condition:
             2 of them
         }
@@ -38,7 +37,8 @@ traits:
     file_types: [javascript, html]
     condition:
       type: string
-      regex: "class=['\"]honeypot|honeypot-field['\"]|display:\\s*none.*name=['\"]|name=['\"][^'\"]*honeypot"
+      regex: |
+        class=['"]honeypot|honeypot-field['"]|display:\s*none.*name=['"]|name=['"][^'"']\*honeypot
 
   # Human interaction verification
   - id: supply-chain/phishing/human-verification
@@ -76,11 +76,10 @@ traits:
           strings:
             $logo1 = "Microsoft_logo" ascii nocase
             $logo2 = "microsoft.svg" ascii nocase
-            $logo3 = "microsoft.png" ascii nocase
             $brand1 = "Microsoft</span>" ascii nocase
             $brand2 = ">Microsoft<" ascii nocase
-            $signin = "Sign in" ascii
-            $signin2 = "Sign-in" ascii
+            $signin = "Sign in" ascii fullword
+            $signin2 = "Sign-in" ascii fullword
             $input_email = "Email, phone, or Skype" ascii
           condition:
             (any of ($logo*) or any of ($brand*)) and (any of ($signin*) or $input_email)
@@ -100,11 +99,10 @@ traits:
           strings:
             $logo1 = "Google_logo" ascii nocase
             $logo2 = "google.svg" ascii nocase
-            $logo3 = "google.png" ascii nocase
             $brand1 = "Google</span>" ascii nocase
             $brand2 = ">Google<" ascii nocase
-            $signin = "Sign in" ascii
-            $signin2 = "Sign-in" ascii
+            $signin = "Sign in" ascii fullword
+            $signin2 = "Sign-in" ascii fullword
           condition:
             (any of ($logo*) or any of ($brand*)) and any of ($signin*)
         }
@@ -121,17 +119,15 @@ traits:
       source: |
         rule login_form {
           strings:
-            $signin1 = "Sign in" ascii nocase
-            $signin2 = "Login" ascii nocase
-            $signin3 = "Log in" ascii nocase
+            $signin1 = "Sign in" ascii nocase fullword
+            $signin2 = "Login" ascii nocase fullword
+            $signin3 = "Log in" ascii nocase fullword
             $password = "type=\"password\"" ascii nocase
             $password2 = "type='password'" ascii nocase
             $email = "type=\"email\"" ascii nocase
             $email2 = "type='email'" ascii nocase
-            $placeholder1 = "placeholder=\"Email" ascii nocase
-            $placeholder2 = "placeholder=\"Password" ascii nocase
-            $placeholder3 = "placeholder='Email" ascii nocase
-            $placeholder4 = "placeholder='Password" ascii nocase
+            $placeholder1 = "placeholder=\"Email\"" ascii nocase
+            $placeholder2 = "placeholder=\"Password\"" ascii nocase
           condition:
             any of ($signin*) and (any of ($password*) or any of ($email*) or any of ($placeholder*))
         }
@@ -209,19 +205,17 @@ traits:
             $siemens2 = "siemans" ascii nocase
             $siemens3 = "siemnes" ascii nocase
             // Microsoft typosquats
-            $ms1 = "microsoFt" ascii nocase
-            $ms2 = "micorsoft" ascii nocase
-            $ms3 = "micosoft" ascii nocase
-            $ms4 = "microsft" ascii nocase
+            $ms1 = "microsoFt" ascii nocase fullword
+            $ms2 = "micorsoft" ascii nocase fullword
+            $ms3 = "micosoft" ascii nocase fullword
+            $ms4 = "microsft" ascii nocase fullword
             // Google typosquats
-            $google1 = "gooogle" ascii nocase
-            $google2 = "goggle" ascii nocase
-            $google3 = "gogle" ascii nocase
+            $google1 = "gooogle" ascii nocase fullword
+            $google2 = "goggle" ascii nocase fullword
+            $google3 = "gogle" ascii nocase fullword
             // Login prefix with brand (common phishing)
             $login1 = "login." ascii nocase
             $login2 = "signin." ascii nocase
-            $login3 = "secure-login." ascii nocase
-            $login4 = "auth." ascii nocase
             $tld = /\.(icu|xyz|top|work|click|tk|ml|ga|cf|gq)/ ascii nocase
           condition:
             any of ($siemens*, $ms*, $google*) or (any of ($login*) and $tld)
@@ -303,4 +297,5 @@ traits:
     file_types: [javascript, html]
     condition:
       type: string
-      regex: "(?i)(authentication|verification)\\s+(required|needed)|verify\\s+your\\s+(email|identity|account)|confirm\\s+your\\s+(email|identity)"
+      regex: |
+        (?i)(authentication|verification)\s+(required|needed)|verify\s+your\s+(email|identity|account)|confirm\s+your\s+(email|identity)

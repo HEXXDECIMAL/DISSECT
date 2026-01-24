@@ -1,0 +1,9 @@
+# Remote File Download
+traits:
+  - id: net/download/generic
+    description: "Function to handle remote file downloads"
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: string
+      exact: "handleFileDownload"

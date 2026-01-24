@@ -6,7 +6,7 @@ traits:
   # RSA key generation/handling
   - id: impact/ransomware/rsa-key-handling
     description: RSA key generation or handling (potential ransomware)
-    criticality: suspicious
+    criticality: notable
     confidence: 0.8
     attack: "T1486"
     file_types: [javascript, typescript, python]
@@ -69,21 +69,28 @@ traits:
       source: |
         rule ransom_note {
           strings:
-            $note1 = "your files have been encrypted" ascii nocase
-            $note2 = "pay bitcoin" ascii nocase
-            $note3 = "pay btc" ascii nocase
-            $note4 = "decrypt your files" ascii nocase
-            $note5 = "ransom" ascii nocase
-            $note6 = "bitcoin wallet" ascii nocase
-            $note7 = "restore your files" ascii nocase
-            $note8 = "send payment" ascii nocase
+            $s1 = "your files have been encrypted" ascii nocase
+            $s2 = "pay bitcoin" ascii nocase
+            $s3 = "pay btc" ascii nocase
+            $s4 = "decrypt your files" ascii nocase
+            $s5 = "bitcoin wallet" ascii nocase
+            $s6 = "restore your files" ascii nocase
+            $s7 = "send payment" ascii nocase
           condition:
-            any of them
+            2 of them
         }
+
+  - id: impact/ransomware/ransom-identifier
+    description: Ransom-related terminology
+    criticality: notable
+    confidence: 0.6
+    condition:
+      type: string
+      regex: "(?i)\\bransom\\b"
 
   # File extension change pattern
   - id: impact/ransomware/extension-change
-    description: Changes file extensions (ransomware indicator)
+    description: Changes file extensions (potential ransomware)
     criticality: suspicious
     confidence: 0.85
     attack: "T1486"
@@ -106,8 +113,8 @@ traits:
 
   # Medusa ransomware patterns
   - id: impact/ransomware/medusa-pattern
-    description: Medusa ransomware indicators
-    criticality: hostile
+    description: Medusa ransomware implementation indicators
+    criticality: notable
     confidence: 0.95
     attack: "T1486"
     file_types: [javascript, typescript]
@@ -116,13 +123,12 @@ traits:
       source: |
         rule medusa_ransomware {
           strings:
-            $medusa1 = "medusa" ascii nocase
-            $medusa2 = "MEDUSA" ascii
-            $poly = "polymorphic" ascii nocase
-            $mutate = "mutate" ascii
-            $rsa = "RSA" ascii
+            $medusa1 = "medusa" ascii nocase fullword
+            $poly = "polymorphic" ascii nocase fullword
+            $mutate = "mutate" ascii fullword
+            $rsa = "RSA" ascii fullword
           condition:
-            any of ($medusa*) or ($poly and $mutate) or (($poly or $mutate) and $rsa)
+            ($medusa1 and any of ($poly, $mutate, $rsa)) or ($poly and $mutate and $rsa)
         }
 
   # Shadow copy deletion (Windows ransomware)
@@ -135,27 +141,3 @@ traits:
     condition:
       type: string
       regex: 'vssadmin\s+delete\s+shadows|wmic\s+shadowcopy\s+delete|bcdedit.*recoveryenabled.*no'
-
-  # Symmetric key generation for encryption
-  - id: impact/ransomware/symmetric-key-gen
-    description: Symmetric key generation (potential ransomware)
-    criticality: notable
-    confidence: 0.7
-    attack: "T1486"
-    file_types: [javascript, typescript, python]
-    condition:
-      type: yara
-      source: |
-        rule symmetric_key_gen {
-          strings:
-            $aes = "aes-256" ascii nocase
-            $aes2 = "AES-256-CBC" ascii
-            $aes3 = "AES-256-GCM" ascii
-            $key1 = "randomBytes" ascii
-            $key2 = "generateKey" ascii
-            $key3 = "crypto.getRandomValues" ascii
-            $iv = "iv" ascii
-          condition:
-            any of ($aes*) and any of ($key*) and $iv
-        }
-

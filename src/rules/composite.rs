@@ -156,7 +156,24 @@ impl CompositeTrait {
             || ctx.file_type == FileType::All
             || self.file_types.contains(&ctx.file_type);
 
-        platform_match && file_type_match
+        if !platform_match || !file_type_match {
+            return false;
+        }
+
+        // Check file size constraints
+        let size = ctx.report.target.size_bytes;
+        if let Some(min) = self.min_size {
+            if size < min {
+                return false;
+            }
+        }
+        if let Some(max) = self.max_size {
+            if size > max {
+                return false;
+            }
+        }
+
+        true
     }
 
     fn eval_requires_all(

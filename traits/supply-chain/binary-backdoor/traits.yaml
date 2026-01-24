@@ -9,18 +9,9 @@ defaults:
   mbc: "B0025"
 
 traits:
-  # === Function Size Anomalies (XZ-style code injection) ===
+  # === Massive Code Injection Indicators ===
 
-  - id: supply-chain/binary-backdoor/huge-avg-function-size
-    description: "Unusually large average function size (code blob injection)"
-    criticality: notable
-    confidence: 0.65
-    condition:
-      type: metrics
-      field: binary.avg_function_size
-      min: 4000
-
-  - id: supply-chain/binary-backdoor/extreme-avg-function-size
+  - id: supply-chain/binary-backdoor/massive-code-blob
     description: "Extremely large average function size (massive code injection)"
     criticality: hostile
     confidence: 0.85
@@ -29,45 +20,14 @@ traits:
       field: binary.avg_function_size
       min: 10000
 
-  - id: supply-chain/binary-backdoor/multiple-huge-functions
-    description: "Multiple extremely large functions (backdoor pattern)"
-    criticality: suspicious
-    confidence: 0.8
-    condition:
-      type: metrics
-      field: binary.huge_functions
-      min: 2
-
   - id: supply-chain/binary-backdoor/many-huge-functions
-    description: "Many huge functions (>64KB) - XZ-style injection"
+    description: "Many huge functions (>64KB) - potential XZ-style injection"
     criticality: hostile
     confidence: 0.9
     condition:
       type: metrics
       field: binary.huge_functions
       min: 4
-
-  # === Linear Functions (obfuscated dispatch tables) ===
-
-  - id: supply-chain/binary-backdoor/high-linear-ratio
-    description: "High ratio of linear functions (VM/dispatch pattern)"
-    criticality: notable
-    confidence: 0.65
-    condition:
-      type: metrics
-      field: binary.linear_functions
-      min: 100
-
-  # === Low Complexity Despite Large Size (encrypted blobs) ===
-
-  - id: supply-chain/binary-backdoor/low-complexity-large-functions
-    description: "Low complexity with huge functions (encrypted/encoded data)"
-    criticality: suspicious
-    confidence: 0.75
-    condition:
-      type: metrics
-      field: binary.avg_complexity
-      max: 3
 
   # === XZ Utils Backdoor Specific Patterns ===
 
@@ -99,7 +59,7 @@ traits:
         }
 
   - id: supply-chain/binary-backdoor/xz-ifunc-pattern
-    description: "IFUNC resolver pattern (function hooking)"
+    description: "IFUNC resolver pattern (potential function hooking)"
     criticality: suspicious
     confidence: 0.8
     condition:
@@ -163,22 +123,11 @@ traits:
             any of ($ssh*) and any of ($auth*)
         }
 
-  # === Code Section Anomalies ===
-
-  - id: supply-chain/binary-backdoor/large-text-section
-    description: "Unusually large .text section (code injection)"
-    criticality: notable
-    confidence: 0.6
-    condition:
-      type: metrics
-      field: binary.largest_section_ratio
-      min: 0.75
-
   # === Hidden Code Patterns ===
 
   - id: supply-chain/binary-backdoor/cpuid-fingerprinting
-    description: "CPUID fingerprinting in library (anti-analysis)"
-    criticality: suspicious
+    description: "CPUID fingerprinting in library (potential anti-analysis)"
+    criticality: notable
     confidence: 0.75
     attack: "T1082"
     condition:
@@ -194,7 +143,7 @@ traits:
         }
 
   - id: supply-chain/binary-backdoor/glibc-hijack
-    description: "glibc function hijacking pattern"
+    description: "glibc function hijacking patterns"
     criticality: suspicious
     confidence: 0.7
     condition:
@@ -225,26 +174,22 @@ composite_rules:
       - type: trait
         id: many-huge-functions
       - type: trait
-        id: multiple-huge-functions
-      - type: trait
-        id: extreme-avg-function-size
-      - type: trait
         id: cpuid-fingerprinting
+      - type: trait
+        id: xz-ifunc-pattern
 
-  - id: supply-chain/binary-backdoor/code-injection-pattern
-    description: "Code injection pattern in binary"
+  - id: supply-chain/binary-backdoor/potential-code-injection
+    description: "Potential code injection indicators"
     criticality: suspicious
-    confidence: 0.85
-    requires_count: 2
-    conditions:
+    confidence: 0.8
+    requires_all:
       - type: trait
-        id: huge-avg-function-size
+        id: massive-code-blob
+    requires_any:
       - type: trait
-        id: multiple-huge-functions
+        id: many-huge-functions
       - type: trait
-        id: large-text-section
-      - type: trait
-        id: low-complexity-large-functions
+        id: glibc-hijack
 
   - id: supply-chain/binary-backdoor/auth-bypass-indicator
     description: "Authentication bypass backdoor indicator"
@@ -256,8 +201,8 @@ composite_rules:
       - type: trait
         id: rsa-in-compression-lib
 
-  - id: supply-chain/binary-backdoor/function-hook-pattern
-    description: "Dynamic function hooking pattern"
+  - id: supply-chain/binary-backdoor/function-hooking-behavior
+    description: "Dynamic function hooking patterns"
     criticality: suspicious
     confidence: 0.8
     requires_count: 2

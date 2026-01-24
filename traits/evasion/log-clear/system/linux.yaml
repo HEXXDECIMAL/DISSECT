@@ -3,10 +3,29 @@
 # ATT&CK: T1070.001
 
 traits:
+  - id: fs/path/system-log
+    description: Reference to system log file
+    criticality: notable
+    confidence: 0.66
+    condition:
+      type: yara
+      source: |
+        rule system_log_paths {
+          strings:
+            $wtmp = "/var/log/wtmp" ascii fullword
+            $btmp = "/var/log/btmp" ascii fullword
+            $lastlog = "/var/log/lastlog" ascii fullword
+            $auth_log = "/var/log/auth" ascii fullword
+            $secure_log = "/var/log/secure" ascii fullword
+            $messages = "/var/log/messages" ascii fullword
+          condition:
+            any of them
+        }
+
   - id: evasion/log-clear
-    description: Clear system logs
+    description: Clear system logs or history
     criticality: suspicious
-    confidence: 0.75
+    confidence: 0.8
     mbc: "F0005"
     attack: "T1070.001"
     condition:
@@ -16,18 +35,11 @@ traits:
           strings:
             // Redirect to log file (shell command)
             $var_log = ">/var/log/"
-            // Specific log files commonly targeted
-            $wtmp = "/var/log/wtmp"
-            $btmp = "/var/log/btmp"
-            $lastlog = "/var/log/lastlog"
-            $auth_log = "/var/log/auth"
-            $secure_log = "/var/log/secure"
-            $messages = "/var/log/messages"
             // History clearing commands
             $history_clear = "history -c"
             $history_r = "history -r"
             $unset_history = "unset HISTFILE"
-            // Truncate command with log paths (not just truncate alone)
+            // Truncate command with log paths
             $truncate_log = /truncate\s+(-s\s*0\s+)?\/var\/log/
           condition:
             any of them

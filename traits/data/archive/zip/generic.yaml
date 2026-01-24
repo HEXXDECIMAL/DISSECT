@@ -1,0 +1,9 @@
+# ZIP Creation
+traits:
+  - id: data/archive/zip/generic
+    description: "Function to handle ZIP creation"
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: string
+      exact: "handleZipCreation"

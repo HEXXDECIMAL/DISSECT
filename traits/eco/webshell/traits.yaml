@@ -5,7 +5,7 @@
 traits:
   # PHP webshell patterns
   - id: eco/webshell/php-shell
-    description: PHP webshell code patterns
+    description: PHP webshell implementation patterns
     criticality: hostile
     confidence: 0.9
     mbc: "B0030"
@@ -15,36 +15,23 @@ traits:
       source: |
         rule php_webshell {
           strings:
+            // PHP markers
+            $php = "<?php" ascii nocase
             // Common shell functions
             $func1 = "system(" ascii
             $func2 = "exec(" ascii
             $func3 = "shell_exec(" ascii
-            $func4 = "passthru(" ascii
-            $func5 = "popen(" ascii
-            $func6 = "proc_open(" ascii
-            // Eval patterns
-            $eval1 = "eval(" ascii
-            $eval2 = "assert(" ascii
-            $eval3 = "create_function(" ascii
             // Request parameters
             $req1 = "$_GET[" ascii
             $req2 = "$_POST[" ascii
             $req3 = "$_REQUEST[" ascii
-            $req4 = "$_COOKIE[" ascii
-            // Obfuscation
-            $obf1 = "base64_decode(" ascii
-            $obf2 = "gzinflate(" ascii
-            $obf3 = "str_rot13(" ascii
-            $obf4 = "gzuncompress(" ascii
           condition:
-            (any of ($func*) and any of ($req*)) or
-            (any of ($eval*) and any of ($obf*)) or
-            (any of ($eval*) and any of ($req*))
+            $php and any of ($func*) and any of ($req*)
         }
 
   # JSP webshell patterns
   - id: eco/webshell/jsp-shell
-    description: JSP webshell code patterns
+    description: JSP webshell implementation patterns
     criticality: hostile
     confidence: 0.9
     mbc: "B0030"
@@ -57,118 +44,56 @@ traits:
             // Runtime execution
             $rt1 = "Runtime.getRuntime()" ascii
             $rt2 = ".exec(" ascii
-            // Process builder
-            $pb1 = "ProcessBuilder" ascii
             // Request parameters
             $req1 = "request.getParameter" ascii
-            // Reflection
-            $ref1 = "Class.forName" ascii
-            $ref2 = "getMethod" ascii
-            $ref3 = "invoke" ascii
           condition:
-            ($rt1 and $rt2) or ($pb1 and $req1) or (2 of ($ref*) and $req1)
+            $rt1 and $rt2 and $req1
         }
 
-  # ASP/ASPX webshell patterns
-  - id: eco/webshell/asp-shell
-    description: ASP/ASPX webshell code patterns
-    criticality: hostile
+  # Generic webshell identifiers
+  - id: eco/webshell/identifier
+    description: Webshell-related terminology
+    criticality: notable
+    confidence: 0.6
+    condition:
+      type: string
+      regex: "(?i)\\bwebshell\\b"
+
+  - id: eco/webshell/specific-family
+    description: Known webshell family identifier
+    criticality: notable
     confidence: 0.9
-    mbc: "B0030"
-    attack: "T1505.003"
     condition:
       type: yara
       source: |
-        rule asp_webshell {
+        rule webshell_families {
           strings:
-            // Process execution
-            $proc1 = "Process.Start" ascii
-            $proc2 = "WScript.Shell" ascii
-            $proc3 = "Shell.Application" ascii
-            // Request
-            $req1 = "Request(" ascii
-            $req2 = "Request.Form" ascii
-            $req3 = "Request.QueryString" ascii
-            // Eval
-            $eval1 = "Eval(" ascii
-            $eval2 = "Execute(" ascii
-            $eval3 = "ExecuteGlobal(" ascii
-          condition:
-            (any of ($proc*) and any of ($req*)) or
-            (any of ($eval*) and any of ($req*))
-        }
-
-  # Generic webshell indicators
-  - id: eco/webshell/generic
-    description: Generic webshell indicators
-    criticality: suspicious
-    confidence: 0.8
-    mbc: "B0030"
-    attack: "T1505.003"
-    file_types: [php, jsp, asp, aspx, js, py, pl, cgi]
-    condition:
-      type: yara
-      source: |
-        rule webshell_generic {
-          strings:
-            $ws1 = "webshell" ascii nocase
-            $ws2 = "c99shell" ascii nocase
-            $ws3 = "r57shell" ascii nocase
-            $ws4 = "b374k" ascii nocase
-            $ws5 = "phpspy" ascii nocase
-            // More specific WSO patterns
+            $ws2 = "c99shell" ascii nocase fullword
+            $ws3 = "r57shell" ascii nocase fullword
+            $ws4 = "b374k" ascii nocase fullword
+            $ws5 = "phpspy" ascii nocase fullword
             $ws6 = "WSO Shell" ascii
-            $ws7 = "WSO 2." ascii
             $ws8 = "FilesMan" ascii
-            $ws9 = "Ani-Shell" ascii
             $ws10 = "China Chopper" ascii
             $ws11 = "weevely" ascii
-            // Additional known shells
-            $ws12 = "c100.php" ascii
-            $ws13 = "wso.php" ascii
           condition:
             any of them
         }
 
-  # File manager webshell
-  - id: eco/webshell/file-manager
-    description: Webshell with file manager capabilities
+composite_rules:
+  - id: eco/webshell/family-identified
+    description: Webshell family identified with generic terminology
     criticality: suspicious
     confidence: 0.85
-    mbc: "B0030"
-    attack: "T1505.003"
-    file_types: [php, jsp, asp, aspx, js, py, pl, cgi]
-    condition:
-      type: yara
-      source: |
-        rule webshell_filemanager {
-          strings:
-            // PHP-specific file functions
-            $php_file1 = "file_get_contents(" ascii
-            $php_file2 = "file_put_contents(" ascii
-            $php_dir1 = "scandir(" ascii
-            $php_glob = "glob(" ascii
-            // Upload handling
-            $upload1 = "move_uploaded_file(" ascii
-            $upload2 = "$_FILES[" ascii
-            // Web request context - PHP superglobals
-            $req1 = "$_GET[" ascii
-            $req2 = "$_POST[" ascii
-            $req3 = "$_REQUEST[" ascii
-            // PHP markers to prevent FP on binaries
-            $php1 = "<?php" ascii nocase
-            $php2 = "<?=" ascii
-          condition:
-            any of ($php*) and (
-              (any of ($php_file*, $php_dir*, $php_glob) and any of ($req*)) or
-              (any of ($upload*) and any of ($req*))
-            )
-        }
+    requires_all:
+      - type: trait
+        id: eco/webshell/identifier
+      - type: trait
+        id: eco/webshell/specific-family
 
-composite_rules:
   # Webshell detection
   - id: eco/webshell/detected
-    description: Webshell detected
+    description: Webshell implementation detected
     criticality: hostile
     confidence: 0.95
     requires_any:
@@ -177,6 +102,4 @@ composite_rules:
       - type: trait
         id: eco/webshell/jsp-shell
       - type: trait
-        id: eco/webshell/asp-shell
-      - type: trait
-        id: eco/webshell/generic
+        id: eco/webshell/family-identified

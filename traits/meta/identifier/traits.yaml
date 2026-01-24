@@ -1,0 +1,13 @@
+# General Identifiers
+# Commmon strings and artifacts used for identification
+
+traits:
+  - id: meta/identifier/shell
+    description: Common shell executable reference
+    criticality: notable
+    confidence: 0.5
+    condition:
+      type: string
+      regex: |
+        (/bin/(sh|bash|zsh|ksh)|cmd\.exe|powershell\.exe)
+

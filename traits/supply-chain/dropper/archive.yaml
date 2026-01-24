@@ -85,15 +85,15 @@ traits:
       source: |
         rule extract_and_execute {
           strings:
-            $extract1 = "extractFull" ascii
+            $extract1 = "extractFull" ascii fullword
             $extract2 = "extract(" ascii
-            $extract3 = "unzip" ascii
+            $extract3 = "unzip" ascii fullword
             $spawn1 = "spawn(" ascii
             $spawn2 = "exec(" ascii
             $spawn3 = "execFile(" ascii
-            $exe1 = ".exe" ascii
-            $exe2 = "exePath" ascii
-            $exe3 = "exeFile" ascii
+            $exe1 = ".exe" ascii fullword
+            $exe2 = "exePath" ascii fullword
+            $exe3 = "exeFile" ascii fullword
           condition:
             any of ($extract*) and any of ($spawn*) and any of ($exe*)
         }

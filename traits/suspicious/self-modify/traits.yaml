@@ -13,12 +13,12 @@ traits:
       source: |
         rule mprotect_modify {
           strings:
-            $mp1 = "mprotect" ascii
-            $mp2 = "VirtualProtect" ascii wide
-            $mp3 = "VirtualProtectEx" ascii wide
-            $prot1 = "PROT_WRITE" ascii
-            $prot2 = "PROT_EXEC" ascii
-            $prot3 = "PAGE_EXECUTE_READWRITE" ascii wide
+            $mp1 = "mprotect" ascii fullword
+            $mp2 = "VirtualProtect" ascii wide fullword
+            $mp3 = "VirtualProtectEx" ascii wide fullword
+            $prot1 = "PROT_WRITE" ascii fullword
+            $prot2 = "PROT_EXEC" ascii fullword
+            $prot3 = "PAGE_EXECUTE_READWRITE" ascii wide fullword
           condition:
             any of ($mp*) or any of ($prot*)
         }
@@ -35,8 +35,8 @@ traits:
           strings:
             $proc_self = "/proc/self/mem" ascii
             $proc_maps = "/proc/self/maps" ascii
-            $write_mem = "WriteProcessMemory" ascii wide
-            $patch = "patch" ascii nocase
+            $write_mem = "WriteProcessMemory" ascii wide fullword
+            $patch = "self-patch" ascii nocase
           condition:
             $proc_self or ($proc_maps and any of ($write_mem, $patch))
         }
@@ -60,21 +60,21 @@ traits:
         }
 
   # Hook installation
-  - id: suspicious/self-modify/hook-install
-    description: Runtime hook installation
-    criticality: suspicious
-    confidence: 0.8
+  - id: lib/interposition/hook-install
+    description: Dynamic interposition hook patterns
+    criticality: notable
+    confidence: 0.7
     condition:
       type: yara
       source: |
-        rule hook_install {
+        rule hook_patterns {
           strings:
-            $hook1 = "SetWindowsHookEx" ascii wide
+            $hook1 = "SetWindowsHookEx" ascii wide fullword
             $hook2 = "inline hook" ascii nocase
             $hook3 = "detour" ascii nocase
             $hook4 = "trampoline" ascii nocase
-            $hook5 = "LD_PRELOAD" ascii
-            $hook6 = "DYLD_INSERT_LIBRARIES" ascii
+            $hook5 = "LD_PRELOAD" ascii fullword
+            $hook6 = "DYLD_INSERT_LIBRARIES" ascii fullword
           condition:
             any of them
         }
@@ -91,9 +91,9 @@ traits:
           strings:
             $iat1 = "IMAGE_IMPORT_DESCRIPTOR" ascii
             $iat2 = "ImportAddressTable" ascii
-            $iat3 = "IAT" ascii
+            $iat3 = "IAT" ascii fullword
             $got1 = ".got.plt" ascii
-            $got2 = "GOT" ascii
+            $got2 = "GOT" ascii fullword
           condition:
             any of ($iat*) or any of ($got*)
         }
@@ -111,7 +111,6 @@ traits:
             $poly1 = "polymorphic" ascii nocase
             $poly2 = "metamorphic" ascii nocase
             $poly3 = "self-modifying" ascii nocase
-            $poly4 = "decrypt" ascii nocase
             $xor_loop = { 30 ?? 4? 83 ?? ?? 7? }
           condition:
             any of ($poly*) or $xor_loop
@@ -120,8 +119,8 @@ traits:
 composite_rules:
   # Active self-modification
   - id: suspicious/self-modify/active
-    description: Active self-modification capability
-    criticality: suspicious
+    description: Active self-modification behavior
+    criticality: notable
     confidence: 0.9
     requires_all:
       - type: trait
@@ -130,4 +129,4 @@ composite_rules:
       - type: trait
         id: suspicious/self-modify/self-overwrite
       - type: trait
-        id: suspicious/self-modify/hook-install
+        id: lib/interposition/hook-install

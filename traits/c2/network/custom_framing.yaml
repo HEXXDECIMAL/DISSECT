@@ -1,0 +1,19 @@
+# Custom C2 Framing Protocols
+# ATT&CK: T1071
+
+traits:
+  - id: c2/network/custom_framing/text_headers
+    description: "Custom text-based C2 protocol framing headers"
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1071"
+    condition:
+      type: yara
+      source: |
+        rule c2_text_framing {
+          strings:
+            $h1 = "Bytes == %d" ascii
+            $h2 = "iDataSize == %d" ascii
+          condition:
+            any of them
+        }

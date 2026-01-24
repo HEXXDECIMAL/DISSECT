@@ -64,8 +64,13 @@ traits:
             $net4 = "https.request" ascii
             $net5 = "http.request" ascii
             $net6 = "POST" ascii
+            // Legitimate exclusions
+            $legit1 = "/bin/bash" ascii
+            $legit2 = "/bin/sh" ascii
+            $legit3 = "busybox" ascii
+            $legit4 = "coreutils" ascii
           condition:
-            2 of ($cred*) and any of ($net*)
+            2 of ($cred*) and any of ($net*) and not any of ($legit*)
         }
 
   # Install hook + system recon + exfil (triple threat)

@@ -20,9 +20,13 @@ traits:
             $gc2 = "runtime.mallocgc" ascii
             $go_buildid = "Go build ID:" ascii
             $go_version = "go1." ascii
+            $cgo1 = "_cgo_" ascii
+            $cgo2 = "_cgo_allocate" ascii
+            $cgo3 = "_cgo_panic" ascii
           condition:
             3 of ($runtime*) or (any of ($gc*) and any of ($runtime*)) or
-            $go_buildid or ($go_version and any of ($runtime*))
+            $go_buildid or ($go_version and any of ($runtime*)) or
+            2 of ($cgo*)
         }
 
   # Rust language binary

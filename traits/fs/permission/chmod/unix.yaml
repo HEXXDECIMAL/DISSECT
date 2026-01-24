@@ -10,3 +10,14 @@ traits:
     condition:
       type: symbol
       pattern: chmod|fchmod|fchmodat|lchmod
+
+  - id: fs/permission/chmod/string
+    description: Modify file permissions (string match)
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "chmod(Sync)?\\s*\\("
+
+
+

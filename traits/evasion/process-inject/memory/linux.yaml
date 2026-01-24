@@ -20,12 +20,3 @@ traits:
           condition:
             any of them
         }
-
-  - id: evasion/process-inject-preload
-    description: Process injection via LD_PRELOAD
-    criticality: suspicious
-    confidence: 0.66
-    attack: "T1055"
-    condition:
-      type: string
-      exact: LD_PRELOAD

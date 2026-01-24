@@ -4,140 +4,93 @@
 
 traits:
   # SYN Flood attack
-  - id: impact/ddos/syn-flood
+  - id: impact/ddos/syn-flood-logic
     description: SYN flood attack implementation
     criticality: hostile
     confidence: 0.9
     attack: "T1498"
+    file_types: [elf, macho, pe, so, dylib]
     condition:
       type: yara
       source: |
-        rule syn_flood {
+        rule syn_flood_logic {
           strings:
-            $syn1 = "SYN flood" ascii nocase
-            $syn2 = "synflood" ascii nocase
-            $syn3 = "syn_flood" ascii nocase
-            $raw = "SOCK_RAW" ascii
-            $tcp = "IPPROTO_TCP" ascii
+            $raw = "SOCK_RAW" ascii fullword
+            $tcp = "IPPROTO_TCP" ascii fullword
+            $syn = "syn_flood" ascii nocase
           condition:
-            any of ($syn*) or ($raw and $tcp)
+            $raw and $tcp and $syn
         }
 
+  - id: impact/ddos/identifier/syn-flood
+    description: SYN flood identifier string
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "(?i)syn[ _]?flood"
+
   # UDP Flood attack
-  - id: impact/ddos/udp-flood
+  - id: impact/ddos/udp-flood-logic
     description: UDP flood attack implementation
     criticality: hostile
     confidence: 0.9
     attack: "T1498"
+    file_types: [elf, macho, pe, so, dylib]
     condition:
       type: yara
       source: |
-        rule udp_flood {
+        rule udp_flood_logic {
           strings:
-            $udp1 = "UDP flood" ascii nocase
-            $udp2 = "udpflood" ascii nocase
-            $udp3 = "udp_flood" ascii nocase
             $udpbuf = "udpbuf" ascii
-            $sock_dgram = "SOCK_DGRAM" ascii
-            $sendto = "sendto" ascii
+            $sock_dgram = "SOCK_DGRAM" ascii fullword
+            $sendto = "sendto" ascii fullword
           condition:
-            any of ($udp*) or ($sock_dgram and $sendto and $udpbuf)
+            $sock_dgram and $sendto and $udpbuf
         }
 
   # DNS Amplification attack
-  - id: impact/ddos/dns-amp
-    description: DNS amplification attack
+  - id: impact/ddos/dns-amp-logic
+    description: DNS amplification attack implementation
     criticality: hostile
     confidence: 0.9
     attack: "T1498"
+    file_types: [elf, macho, pe, so, dylib]
     condition:
       type: yara
       source: |
-        rule dns_amp {
+        rule dns_amp_logic {
           strings:
-            $dns_amp = "dns amp" ascii nocase
-            $dnsamp = "dnsamp" ascii nocase
             $amplification = "amplification" ascii nocase
             $port_53 = ":53" ascii
+            $dns = "dns" ascii nocase
           condition:
-            any of ($dns_amp, $dnsamp) or ($amplification and $port_53)
+            $amplification and $port_53 and $dns
         }
 
-  # NTP Amplification attack
-  - id: impact/ddos/ntp-amp
-    description: NTP amplification attack (monlist)
-    criticality: hostile
-    confidence: 0.9
-    attack: "T1498"
+  - id: impact/ddos/identifier/dns-amp
+    description: DNS amplification identifier string
+    criticality: notable
+    confidence: 0.7
     condition:
-      type: yara
-      source: |
-        rule ntp_amp {
-          strings:
-            $ntp_amp = "ntp amp" ascii nocase
-            $monlist = "monlist" ascii nocase
-            $ntpamp = "ntpamp" ascii nocase
-            $port_123 = ":123" ascii
-          condition:
-            any of them
-        }
-
-  # ICMP Flood (ping flood)
-  - id: impact/ddos/icmp-flood
-    description: ICMP flood attack
-    criticality: suspicious
-    confidence: 0.85
-    attack: "T1498"
-    condition:
-      type: yara
-      source: |
-        rule icmp_flood {
-          strings:
-            $icmp_flood = "icmp flood" ascii nocase
-            $ping_flood = "ping flood" ascii nocase
-            $icmp = "IPPROTO_ICMP" ascii
-            $raw = "SOCK_RAW" ascii
-          condition:
-            any of ($icmp_flood, $ping_flood) or ($icmp and $raw)
-        }
+      type: string
+      regex: "(?i)dns[ _]?amp"
 
   # HTTP Flood (Layer 7)
-  - id: impact/ddos/http-flood
-    description: HTTP flood attack (Layer 7 DDoS)
-    criticality: hostile
-    confidence: 0.85
-    attack: "T1498"
+  - id: impact/ddos/http-flood-identifier
+    description: Layer 7 DDoS identifier string
+    criticality: notable
+    confidence: 0.7
     condition:
       type: yara
       source: |
-        rule http_flood {
+        rule l7_ddos_id {
           strings:
-            $http_flood = "http flood" ascii nocase
-            $httpflood = "httpflood" ascii nocase
-            $slowloris = "slowloris" ascii nocase
-            $layer7 = "layer7" ascii nocase
-            $l7_ddos = "l7 ddos" ascii nocase
+            $s1 = "slowloris" ascii nocase fullword
+            $s2 = "layer7" ascii nocase fullword
+            $s3 = "http_flood" ascii nocase fullword
           condition:
             any of them
-        }
-
-  # Memcached amplification
-  - id: impact/ddos/memcached-amp
-    description: Memcached amplification attack
-    criticality: hostile
-    confidence: 0.9
-    attack: "T1498"
-    condition:
-      type: yara
-      source: |
-        rule memcached_amp {
-          strings:
-            $memcached = "memcached" ascii nocase
-            $memcrashed = "memcrashed" ascii nocase
-            $port_11211 = ":11211" ascii
-            $stats = "stats" ascii
-          condition:
-            ($memcached or $memcrashed) and ($port_11211 or $stats)
         }
 
 composite_rules:
@@ -146,15 +99,10 @@ composite_rules:
     description: Multi-vector DDoS tool (multiple attack types)
     criticality: hostile
     confidence: 0.95
-    min_matches: 2
     requires_any:
       - type: trait
-        id: impact/ddos/syn-flood
+        id: impact/ddos/syn-flood-logic
       - type: trait
-        id: impact/ddos/udp-flood
+        id: impact/ddos/udp-flood-logic
       - type: trait
-        id: impact/ddos/dns-amp
-      - type: trait
-        id: impact/ddos/icmp-flood
-      - type: trait
-        id: impact/ddos/http-flood
+        id: impact/ddos/dns-amp-logic

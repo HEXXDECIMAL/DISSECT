@@ -235,6 +235,7 @@ pub enum Condition {
 
     /// Match binary header properties (goblin)
     /// For ELF/PE/Mach-O structural analysis
+    #[serde(rename = "binary")]
     Binary {
         /// Number of sections (e_shnum for ELF)
         #[serde(skip_serializing_if = "Option::is_none")]
@@ -242,6 +243,12 @@ pub enum Condition {
         /// Number of program headers/segments
         #[serde(skip_serializing_if = "Option::is_none")]
         segment_count: Option<NumericRange>,
+        /// Minimum file size in bytes
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub min_size: Option<u64>,
+        /// Maximum file size in bytes
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub max_size: Option<u64>,
         /// Whole-file entropy (0.0-8.0)
         #[serde(skip_serializing_if = "Option::is_none")]
         file_entropy: Option<FloatRange>,
@@ -364,6 +371,12 @@ pub struct CompositeTrait {
     pub platforms: Vec<Platform>,
     #[serde(default = "default_file_types")]
     pub file_types: Vec<FileType>,
+
+    // File size constraints
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub min_size: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub max_size: Option<u64>,
 
     // Proximity constraints
     #[serde(default)]

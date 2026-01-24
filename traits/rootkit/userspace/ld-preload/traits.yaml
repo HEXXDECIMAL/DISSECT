@@ -4,12 +4,10 @@
 
 traits:
   # LD_PRELOAD environment variable manipulation
-  - id: rootkit/userspace/ld-preload-env
+  - id: lib/interposition/ld-preload
     description: References LD_PRELOAD environment variable
-    criticality: suspicious
+    criticality: notable
     confidence: 0.8
-    mbc: "F0015"
-    attack: "T1574.006"
     condition:
       type: yara
       source: |

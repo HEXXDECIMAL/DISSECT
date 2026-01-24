@@ -46,58 +46,60 @@ traits:
             3 of them
         }
 
-  # Process injection patterns (Cobalt Strike, etc)
-  - id: exec/native/process-injection
-    description: Native binary with process injection capabilities
-    criticality: hostile
-    confidence: 0.95
+  # Process inspection/injection patterns
+  - id: exec/native/process-inspection
+    description: Native binary with process inspection or injection capabilities
+    criticality: notable
+    confidence: 0.8
+    mbc: "C0043"
     attack: "T1055"
     file_types: [pe, dll, elf, macho]
     condition:
       type: yara
       source: |
-        rule process_injection {
+        rule process_inspection {
           strings:
             // Windows
-            $w1 = "VirtualAllocEx" ascii
-            $w2 = "WriteProcessMemory" ascii
-            $w3 = "CreateRemoteThread" ascii
-            $w4 = "NtCreateThreadEx" ascii
-            $w5 = "RtlCreateUserThread" ascii
+            $w1 = "VirtualAllocEx" ascii fullword
+            $w2 = "WriteProcessMemory" ascii fullword
+            $w3 = "CreateRemoteThread" ascii fullword
+            $w4 = "NtCreateThreadEx" ascii fullword
+            $w5 = "RtlCreateUserThread" ascii fullword
             // Linux
-            $l1 = "ptrace" ascii
-            $l2 = "PTRACE_ATTACH" ascii
-            $l3 = "__libc_dlopen_mode" ascii
+            $l1 = "ptrace" ascii fullword
+            $l2 = "PTRACE_ATTACH" ascii fullword
+            $l3 = "__libc_dlopen_mode" ascii fullword
             // macOS
-            $m1 = "task_for_pid" ascii
-            $m2 = "mach_vm_write" ascii
+            $m1 = "task_for_pid" ascii fullword
+            $m2 = "mach_vm_write" ascii fullword
           condition:
             2 of ($w*) or any of ($l*) or any of ($m*)
         }
 
-  # Anti-debugging in native code
-  - id: exec/native/anti-debug
-    description: Native binary with anti-debugging techniques
-    criticality: suspicious
-    confidence: 0.85
+  # Anti-debugging or process status checks
+  - id: exec/native/process-status-check
+    description: Native binary checking process status (potential anti-debug)
+    criticality: notable
+    confidence: 0.7
+    mbc: "B0001"
     attack: "T1622"
     file_types: [pe, dll, elf, macho]
     condition:
       type: yara
       source: |
-        rule native_anti_debug {
+        rule process_status_check {
           strings:
             // Windows
-            $w1 = "IsDebuggerPresent" ascii
-            $w2 = "CheckRemoteDebuggerPresent" ascii
-            $w3 = "NtQueryInformationProcess" ascii
-            $w4 = "OutputDebugString" ascii
+            $w1 = "IsDebuggerPresent" ascii fullword
+            $w2 = "CheckRemoteDebuggerPresent" ascii fullword
+            $w3 = "NtQueryInformationProcess" ascii fullword
+            $w4 = "OutputDebugString" ascii fullword
             // Linux
-            $l1 = "PTRACE_TRACEME" ascii
-            $l2 = "/proc/self/status" ascii
+            $l1 = "PTRACE_TRACEME" ascii fullword
+            $l2 = "/proc/self/status" ascii fullword
             // macOS
-            $m1 = "sysctl" ascii
-            $m2 = "P_TRACED" ascii
+            $m1 = "sysctl" ascii fullword
+            $m2 = "P_TRACED" ascii fullword
           condition:
             any of them
         }

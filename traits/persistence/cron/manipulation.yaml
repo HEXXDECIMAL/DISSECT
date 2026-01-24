@@ -1,0 +1,37 @@
+# Crontab Manipulation Patterns
+# ATT&CK: T1053.003
+
+traits:
+  - id: persistence/cron/manipulation/blind_append
+    description: "Appends to crontab by piping echo to crontab -"
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1053.003"
+    condition:
+      type: yara
+      source: |
+        rule cron_blind_append {
+          strings:
+            $crontab_l = "crontab -l" ascii
+            $echo = "echo" ascii
+            $pipe_crontab = "| crontab -" ascii
+          condition:
+            $crontab_l and $echo and $pipe_crontab
+        }
+
+  - id: persistence/cron/manipulation/filtered_rewrite
+    description: "Rewrites crontab by filtering output of crontab -l"
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1053.003"
+    condition:
+      type: yara
+      source: |
+        rule cron_filtered_rewrite {
+          strings:
+            $crontab_l = "crontab -l" ascii
+            $grep_v = "grep -v" ascii
+            $pipe_crontab = "| crontab -" ascii
+          condition:
+            $crontab_l and $grep_v and $pipe_crontab
+        }

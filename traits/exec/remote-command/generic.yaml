@@ -1,0 +1,9 @@
+# Remote Command Execution
+traits:
+  - id: exec/remote-command/generic
+    description: "Function to execute remote commands"
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: string
+      exact: "executeCommand"
