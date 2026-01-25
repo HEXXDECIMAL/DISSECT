@@ -83,15 +83,26 @@ traits:
       type: string
       regex: "windll\\.[\\w.]+"
 
-  - id: ctypes-cdll
-    description: Python ctypes CDLL loading
-    criticality: suspicious
-    confidence: 0.85
+  # === ctypes CDLL atomic indicators ===
+  - id: ctypes-cdll-dot
+    description: ctypes.CDLL pattern
+    criticality: notable
+    confidence: 0.7
     attack: "T1574"
     file_types: [python]
     condition:
       type: string
-      regex: "ctypes\\.CDLL|CDLL\\("
+      exact: "ctypes.CDLL"
+
+  - id: cdll-paren
+    description: CDLL( call pattern
+    criticality: notable
+    confidence: 0.7
+    attack: "T1574"
+    file_types: [python]
+    condition:
+      type: string
+      regex: "CDLL\\("
 
   - id: local-load
     description: Loading dynamic library from local path
@@ -181,3 +192,15 @@ composite_rules:
     conditions:
       - id: dlopen-dlsym
       - id: nsbundle-dynamic
+
+  # ctypes CDLL composite
+  - id: ctypes-cdll
+    description: Python ctypes CDLL loading
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1574"
+    file_types: [python]
+    requires_count: 1
+    conditions:
+      - id: ctypes-cdll-dot
+      - id: cdll-paren

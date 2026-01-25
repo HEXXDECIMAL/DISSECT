@@ -27,13 +27,22 @@ traits:
             2 of them
         }
 
-  - id: miner-xmrig
-    description: XMRig cryptocurrency miner reference
-    criticality: suspicious
-    confidence: 0.66
+  # === XMRig atomic indicators ===
+  - id: xmrig-lower
+    description: xmrig (lowercase)
+    criticality: notable
+    confidence: 0.55
     condition:
       type: string
-      regex: "(xmrig|XMRig)"
+      exact: "xmrig"
+
+  - id: xmrig-pascal
+    description: XMRig (PascalCase)
+    criticality: notable
+    confidence: 0.55
+    condition:
+      type: string
+      exact: "XMRig"
 
   - id: miner-stratum
     description: Stratum mining protocol
@@ -42,3 +51,14 @@ traits:
     condition:
       type: string
       regex: "stratum\\+tcp://"
+
+composite_rules:
+  # XMRig composite
+  - id: miner-xmrig
+    description: XMRig cryptocurrency miner reference
+    criticality: suspicious
+    confidence: 0.66
+    requires_count: 1
+    conditions:
+      - id: xmrig-lower
+      - id: xmrig-pascal

@@ -7,14 +7,23 @@ defaults:
   criticality: suspicious
 
 traits:
-  # === Telegram Desktop ===
+  # === Telegram Desktop atomic indicators ===
 
-  - id: telegram-tdata
-    description: "Telegram Desktop tdata directory"
-    confidence: 0.9
+  - id: telegram-tdata-desktop
+    description: Telegram Desktop tdata path
+    criticality: notable
+    confidence: 0.7
     condition:
       type: string
-      regex: "Telegram Desktop/tdata|Telegram/tdata"
+      exact: "Telegram Desktop/tdata"
+
+  - id: telegram-tdata-short
+    description: Telegram tdata path
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "Telegram/tdata"
 
   - id: telegram-key-datas
     description: "Telegram Desktop key_datas file"
@@ -23,57 +32,181 @@ traits:
       type: string
       exact: "key_datas"
 
-  - id: telegram-map
-    description: "Telegram Desktop map files"
-    confidence: 0.85
+  - id: telegram-map-hash
+    description: Telegram map file hash
+    criticality: notable
+    confidence: 0.7
     condition:
       type: string
-      regex: "D877F783D5D3EF8C|map[0-9]"
+      exact: "D877F783D5D3EF8C"
 
-  # === Discord Desktop ===
-
-  - id: discord-leveldb
-    description: "Discord LevelDB storage"
-    confidence: 0.85
+  - id: telegram-map-numbered
+    description: Telegram numbered map files
+    criticality: notable
+    confidence: 0.7
     condition:
       type: string
-      regex: "discord/Local Storage/leveldb|Discord/Local Storage/leveldb"
+      regex: "map[0-9]"
 
-  - id: discord-ldb
-    description: "Discord LDB database files"
-    confidence: 0.8
+  # === Discord Desktop atomic indicators ===
+
+  - id: discord-leveldb-lower
+    description: Discord LevelDB storage (lowercase)
+    criticality: notable
+    confidence: 0.7
     condition:
       type: string
-      regex: "\\.ldb$|\\.log$"
+      exact: "discord/Local Storage/leveldb"
 
-  # === Signal Desktop ===
-
-  - id: signal-config
-    description: "Signal Desktop configuration"
-    confidence: 0.85
+  - id: discord-leveldb-upper
+    description: Discord LevelDB storage (capitalized)
+    criticality: notable
+    confidence: 0.7
     condition:
       type: string
-      regex: "Signal/config\\.json|Signal/sql/db\\.sqlite"
+      exact: "Discord/Local Storage/leveldb"
 
-  # === Slack Desktop ===
-
-  - id: slack-storage
-    description: "Slack Desktop storage"
-    confidence: 0.85
+  - id: discord-ldb-ext
+    description: LDB database extension
+    criticality: inert
+    confidence: 0.5
     condition:
       type: string
-      regex: "Slack/storage|Slack/IndexedDB"
+      regex: "\\.ldb$"
 
-  # === WhatsApp Desktop ===
-
-  - id: whatsapp-storage
-    description: "WhatsApp Desktop storage"
-    confidence: 0.85
+  - id: discord-log-ext
+    description: Log file extension
+    criticality: inert
+    confidence: 0.4
     condition:
       type: string
-      regex: "WhatsApp/IndexedDB|WhatsApp/Local Storage"
+      regex: "\\.log$"
+
+  # === Signal Desktop atomic indicators ===
+
+  - id: signal-config-json
+    description: Signal config.json path
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "Signal/config.json"
+
+  - id: signal-sql-db
+    description: Signal SQLite database path
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "Signal/sql/db.sqlite"
+
+  # === Slack Desktop atomic indicators ===
+
+  - id: slack-storage-path
+    description: Slack storage path
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "Slack/storage"
+
+  - id: slack-indexeddb-path
+    description: Slack IndexedDB path
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "Slack/IndexedDB"
+
+  # === WhatsApp Desktop atomic indicators ===
+
+  - id: whatsapp-indexeddb-path
+    description: WhatsApp IndexedDB path
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "WhatsApp/IndexedDB"
+
+  - id: whatsapp-localstorage-path
+    description: WhatsApp Local Storage path
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "WhatsApp/Local Storage"
 
 composite_rules:
+  # Telegram tdata composite
+  - id: telegram-tdata
+    description: Telegram Desktop tdata directory
+    criticality: suspicious
+    confidence: 0.9
+    requires_count: 1
+    conditions:
+      - id: telegram-tdata-desktop
+      - id: telegram-tdata-short
+
+  # Telegram map composite
+  - id: telegram-map
+    description: Telegram Desktop map files
+    criticality: suspicious
+    confidence: 0.85
+    requires_count: 1
+    conditions:
+      - id: telegram-map-hash
+      - id: telegram-map-numbered
+
+  # Discord leveldb composite
+  - id: discord-leveldb
+    description: Discord LevelDB storage
+    criticality: suspicious
+    confidence: 0.85
+    requires_count: 1
+    conditions:
+      - id: discord-leveldb-lower
+      - id: discord-leveldb-upper
+
+  # Discord ldb composite
+  - id: discord-ldb
+    description: Discord LDB database files
+    criticality: notable
+    confidence: 0.8
+    requires_count: 1
+    conditions:
+      - id: discord-ldb-ext
+      - id: discord-log-ext
+
+  # Signal config composite
+  - id: signal-config
+    description: Signal Desktop configuration
+    criticality: suspicious
+    confidence: 0.85
+    requires_count: 1
+    conditions:
+      - id: signal-config-json
+      - id: signal-sql-db
+
+  # Slack storage composite
+  - id: slack-storage
+    description: Slack Desktop storage
+    criticality: suspicious
+    confidence: 0.85
+    requires_count: 1
+    conditions:
+      - id: slack-storage-path
+      - id: slack-indexeddb-path
+
+  # WhatsApp storage composite
+  - id: whatsapp-storage
+    description: WhatsApp Desktop storage
+    criticality: suspicious
+    confidence: 0.85
+    requires_count: 1
+    conditions:
+      - id: whatsapp-indexeddb-path
+      - id: whatsapp-localstorage-path
+
   # Telegram data theft
   - id: telegram-theft
     description: "Telegram Desktop session/data theft"
@@ -82,7 +215,7 @@ composite_rules:
     attack: "T1005"
     file_types: [shell, python, applescript, macho, elf, pe]
     requires_all:
-      - {id: telegram-tdata}
+      - id: telegram-tdata
 
   # Discord data theft
   - id: discord-theft
@@ -92,7 +225,7 @@ composite_rules:
     attack: "T1005"
     file_types: [shell, python, javascript, macho, elf, pe]
     requires_all:
-      - {id: discord-leveldb}
+      - id: discord-leveldb
 
   # Multi-messenger theft
   - id: multi-messenger
@@ -103,8 +236,8 @@ composite_rules:
     file_types: [shell, python, applescript, macho, elf, pe]
     requires_count: 2
     conditions:
-      - {id: telegram-tdata}
-      - {id: discord-leveldb}
-      - {id: signal-config}
-      - {id: slack-storage}
-      - {id: whatsapp-storage}
+      - id: telegram-tdata
+      - id: discord-leveldb
+      - id: signal-config
+      - id: slack-storage
+      - id: whatsapp-storage

@@ -3,13 +3,22 @@
 # ATT&CK: T1222
 
 traits:
-  - id: chown-takeown
-    description: Take ownership of files (Windows takeown)
-    criticality: notable
-    confidence: 0.66
+  # === takeown atomic indicators ===
+  - id: takeown-lower
+    description: takeown command (lowercase)
+    criticality: inert
+    confidence: 0.55
     condition:
       type: string
-      regex: "(takeown|TAKEOWN)"
+      exact: "takeown"
+
+  - id: takeown-upper
+    description: TAKEOWN command (uppercase)
+    criticality: inert
+    confidence: 0.55
+    condition:
+      type: string
+      exact: "TAKEOWN"
 
   - id: chown-takeown-force
     description: Forcibly take ownership of files recursively
@@ -25,3 +34,14 @@ traits:
           condition:
             any of them
         }
+
+composite_rules:
+  # takeown composite
+  - id: chown-takeown
+    description: Take ownership of files (Windows takeown)
+    criticality: notable
+    confidence: 0.66
+    requires_count: 1
+    conditions:
+      - id: takeown-lower
+      - id: takeown-upper

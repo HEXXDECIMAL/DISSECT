@@ -39,24 +39,52 @@ traits:
       type: string
       exact: "globalState"
 
-  # Extension Activation Patterns
-  - id: activate
-    description: VSCode extension activate function
+  # === Extension Activation atomic indicators ===
+  - id: function-activate
+    description: function activate definition
     criticality: inert
-    confidence: 1.0
+    confidence: 0.9
     file_types: [javascript, typescript]
     condition:
       type: string
-      regex: "function activate|async function activate|export.*activate"
+      exact: "function activate"
 
-  - id: deactivate
-    description: VSCode extension deactivate function
+  - id: async-function-activate
+    description: async function activate definition
     criticality: inert
-    confidence: 1.0
+    confidence: 0.9
     file_types: [javascript, typescript]
     condition:
       type: string
-      regex: "function deactivate|export.*deactivate"
+      exact: "async function activate"
+
+  - id: export-activate
+    description: export activate pattern
+    criticality: inert
+    confidence: 0.9
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "export.*activate"
+
+  # === Extension Deactivation atomic indicators ===
+  - id: function-deactivate
+    description: function deactivate definition
+    criticality: inert
+    confidence: 0.9
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "function deactivate"
+
+  - id: export-deactivate
+    description: export deactivate pattern
+    criticality: inert
+    confidence: 0.9
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "export.*deactivate"
 
   # Suspicious VSCode Extension Behaviors
   # IMPORTANT: Requires VSCode markers to avoid FPs on regular npm packages
@@ -136,3 +164,27 @@ traits:
     condition:
       type: string
       exact: "sendTelemetryEvent"
+
+composite_rules:
+  # Activate composite
+  - id: activate
+    description: VSCode extension activate function
+    criticality: inert
+    confidence: 1.0
+    file_types: [javascript, typescript]
+    requires_count: 1
+    conditions:
+      - id: function-activate
+      - id: async-function-activate
+      - id: export-activate
+
+  # Deactivate composite
+  - id: deactivate
+    description: VSCode extension deactivate function
+    criticality: inert
+    confidence: 1.0
+    file_types: [javascript, typescript]
+    requires_count: 1
+    conditions:
+      - id: function-deactivate
+      - id: export-deactivate

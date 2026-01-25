@@ -6,13 +6,22 @@ defaults:
   file_types: [elf, macho, so, dylib, c]
 
 traits:
-  - id: fstab-files
-    description: Reads mount table files (/etc/fstab, /etc/mtab)
+  # === Mount table file atomic indicators ===
+  - id: etc-fstab
+    description: /etc/fstab mount table file
     criticality: inert
-    confidence: 0.66
+    confidence: 0.6
     condition:
       type: string
-      regex: "/etc/(fstab|mtab)"
+      exact: "/etc/fstab"
+
+  - id: etc-mtab
+    description: /etc/mtab mount table file
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "/etc/mtab"
 
   - id: fstab-mntent
     description: Parse mount table entries via mntent API
@@ -29,3 +38,14 @@ traits:
     condition:
       type: symbol
       pattern: getmntinfo
+
+composite_rules:
+  # Mount table files composite
+  - id: fstab-files
+    description: Reads mount table files (/etc/fstab, /etc/mtab)
+    criticality: inert
+    confidence: 0.66
+    requires_count: 1
+    conditions:
+      - id: etc-fstab
+      - id: etc-mtab

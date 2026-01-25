@@ -2,42 +2,201 @@
 # Detected via string matching in compiled assemblies
 
 traits:
+  # === SQL connection atomic indicators ===
+  - id: sql-connection-class
+    description: SqlConnection class
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "SqlConnection"
+
+  - id: db-connection-class
+    description: DbConnection class
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "DbConnection"
+
+  - id: oledb-connection-class
+    description: OleDbConnection class
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "OleDbConnection"
+
+  - id: odbc-connection-class
+    description: OdbcConnection class
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "OdbcConnection"
+
+  # === SQL command atomic indicators ===
+  - id: execute-nonquery
+    description: ExecuteNonQuery method
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "ExecuteNonQuery"
+
+  - id: execute-scalar
+    description: ExecuteScalar method
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "ExecuteScalar"
+
+  - id: execute-reader
+    description: ExecuteReader method
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "ExecuteReader"
+
+  - id: sql-command-class
+    description: SqlCommand class
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "SqlCommand"
+
+  - id: db-command-class
+    description: DbCommand class
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "DbCommand"
+
+  # === Connection string atomic indicators ===
+  - id: connection-string-singular
+    description: ConnectionString property
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "ConnectionString"
+
+  - id: connection-strings-plural
+    description: ConnectionStrings property
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "ConnectionStrings"
+
+  # === SQL parameter atomic indicators ===
+  - id: sql-parameter-class
+    description: SqlParameter class
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "SqlParameter"
+
+  - id: db-parameter-class
+    description: DbParameter class
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "DbParameter"
+
+  - id: add-with-value
+    description: AddWithValue method
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "AddWithValue"
+
+  # === Data adapter atomic indicators ===
+  - id: sql-data-adapter-class
+    description: SqlDataAdapter class
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "SqlDataAdapter"
+
+  - id: data-adapter-class
+    description: DataAdapter class
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "DataAdapter"
+
+  - id: fill-method
+    description: Fill method
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: "Fill\\("
+
+composite_rules:
+  # SQL connection composite
   - id: sql-connection
     description: SQL database connection capability
     criticality: notable
     confidence: 0.85
-    condition:
-      type: string
-      regex: "SqlConnection|DbConnection|OleDbConnection|OdbcConnection"
+    requires_count: 1
+    conditions:
+      - id: sql-connection-class
+      - id: db-connection-class
+      - id: oledb-connection-class
+      - id: odbc-connection-class
 
+  # SQL command composite
   - id: sql-command
     description: SQL command execution
     criticality: notable
     confidence: 0.85
-    condition:
-      type: string
-      regex: "ExecuteNonQuery|ExecuteScalar|ExecuteReader|SqlCommand|DbCommand"
+    requires_count: 1
+    conditions:
+      - id: execute-nonquery
+      - id: execute-scalar
+      - id: execute-reader
+      - id: sql-command-class
+      - id: db-command-class
 
+  # Connection string composite
   - id: connection-string
     description: Database connection string handling
     criticality: notable
     confidence: 0.80
-    condition:
-      type: string
-      regex: "ConnectionString|ConnectionStrings"
+    requires_count: 1
+    conditions:
+      - id: connection-string-singular
+      - id: connection-strings-plural
 
+  # SQL parameter composite
   - id: sql-parameter
     description: Parameterized SQL queries (good practice)
     criticality: notable
     confidence: 0.75
-    condition:
-      type: string
-      regex: "SqlParameter|DbParameter|AddWithValue"
+    requires_count: 1
+    conditions:
+      - id: sql-parameter-class
+      - id: db-parameter-class
+      - id: add-with-value
 
+  # Data adapter composite
   - id: data-adapter
     description: ADO.NET data adapter usage
     criticality: notable
     confidence: 0.75
-    condition:
-      type: string
-      regex: "SqlDataAdapter|DataAdapter|Fill\\("
+    requires_count: 1
+    conditions:
+      - id: sql-data-adapter-class
+      - id: data-adapter-class
+      - id: fill-method

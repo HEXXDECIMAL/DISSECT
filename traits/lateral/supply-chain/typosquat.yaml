@@ -141,17 +141,46 @@ traits:
             ($fake_host or $fake_python) and $package_ext
         }
 
-  # Python package file extensions
-  - id: python-package-extension
-    description: "Python package file extension"
-    confidence: 0.70
-    criticality: notable
+  # === Python package extension atomic indicators ===
+  - id: ext-tar-gz
+    description: .tar.gz package extension
+    confidence: 0.6
+    criticality: inert
     condition:
       type: string
-      regex: "\\.(tar\\.gz|whl|zip)"
+      exact: ".tar.gz"
+      search_raw: true
+
+  - id: ext-whl
+    description: .whl package extension
+    confidence: 0.6
+    criticality: inert
+    condition:
+      type: string
+      exact: ".whl"
+      search_raw: true
+
+  - id: ext-zip
+    description: .zip package extension
+    confidence: 0.5
+    criticality: inert
+    condition:
+      type: string
+      exact: ".zip"
       search_raw: true
 
 composite_rules:
+  # Python package extension composite
+  - id: python-package-extension
+    description: Python package file extension
+    confidence: 0.70
+    criticality: notable
+    requires_count: 1
+    conditions:
+      - id: ext-tar-gz
+      - id: ext-whl
+      - id: ext-zip
+
   # Fake PyPI host composite
   - id: fake-pypi-host-raw
     description: "Typosquatted PyPI file hosting domain"

@@ -4,15 +4,24 @@
 # ATT&CK: T1573 (Encrypted Channel)
 
 traits:
-  # Crypto Module Import
-  - id: crypto-require
-    description: Node.js crypto module import
+  # === Crypto module import atomic indicators ===
+  - id: crypto-require-call
+    description: require('crypto') import
     criticality: inert
-    confidence: 0.9
+    confidence: 0.8
     file_types: [javascript, typescript]
     condition:
       type: string
-      regex: "require\\(['\"]crypto['\"]\\)|from ['\"]crypto['\"]"
+      regex: "require\\(['\"]crypto['\"]\\)"
+
+  - id: crypto-from-import
+    description: from 'crypto' import (ESM)
+    criticality: inert
+    confidence: 0.8
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "from ['\"]crypto['\"]"
 
   # Cipher Creation
   - id: createCipheriv
@@ -169,6 +178,17 @@ traits:
         }
 
 composite_rules:
+  # Crypto require composite
+  - id: crypto-require
+    description: Node.js crypto module import
+    criticality: inert
+    confidence: 0.9
+    file_types: [javascript, typescript]
+    requires_count: 1
+    conditions:
+      - id: crypto-require-call
+      - id: crypto-from-import
+
   # AES-128-CTR composite
   - id: aes-128-ctr
     description: AES-128-CTR encryption (stream cipher mode)

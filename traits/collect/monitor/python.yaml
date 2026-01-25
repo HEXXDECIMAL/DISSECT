@@ -2,22 +2,69 @@
 # Detects clipboard or keyboard monitoring
 
 traits:
-  - id: clipboard-access
-    description: "Accesses system clipboard (potential stealer)"
-    criticality: suspicious
-    confidence: 0.9
+  # === Clipboard access atomic indicators ===
+  - id: pyperclip-paste
+    description: pyperclip.paste() call
+    criticality: notable
+    confidence: 0.7
     file_types: [python]
     condition:
       type: string
-      regex: 'pyperclip\.paste\(|clipboard\.get\('
+      regex: 'pyperclip\.paste\('
 
-  - id: keyboard-logger
-    description: "Monitors keyboard input (potential keylogger)"
-    criticality: suspicious
-    confidence: 0.9
+  - id: clipboard-get
+    description: clipboard.get() call
+    criticality: notable
+    confidence: 0.7
+    file_types: [python]
+    condition:
+      type: string
+      regex: 'clipboard\.get\('
+
+  # === Keyboard logger atomic indicators ===
+  - id: pynput-keyboard
+    description: pynput.keyboard import
+    criticality: notable
+    confidence: 0.7
     mbc: "F0002"
     attack: "T1056.001"
     file_types: [python]
     condition:
       type: string
-      regex: 'pynput\.keyboard|keyboard\.on_press'
+      exact: "pynput.keyboard"
+
+  - id: keyboard-on-press
+    description: keyboard.on_press hook
+    criticality: notable
+    confidence: 0.7
+    mbc: "F0002"
+    attack: "T1056.001"
+    file_types: [python]
+    condition:
+      type: string
+      exact: "keyboard.on_press"
+
+composite_rules:
+  # Clipboard access composite
+  - id: clipboard-access
+    description: Accesses system clipboard (potential stealer)
+    criticality: suspicious
+    confidence: 0.9
+    file_types: [python]
+    requires_count: 1
+    conditions:
+      - id: pyperclip-paste
+      - id: clipboard-get
+
+  # Keyboard logger composite
+  - id: keyboard-logger
+    description: Monitors keyboard input (potential keylogger)
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "F0002"
+    attack: "T1056.001"
+    file_types: [python]
+    requires_count: 1
+    conditions:
+      - id: pynput-keyboard
+      - id: keyboard-on-press

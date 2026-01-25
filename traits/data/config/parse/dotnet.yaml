@@ -9,18 +9,57 @@ traits:
       type: string
       exact: "ConfigurationManager"
 
+  # === AppSettings atomic indicators ===
+  - id: appsettings-pascal
+    description: AppSettings (PascalCase)
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "AppSettings"
+
+  - id: appsettings-lower
+    description: appsettings (lowercase)
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "appsettings"
+
+  # === Environment variable atomic indicators ===
+  - id: get-env-var
+    description: GetEnvironmentVariable method
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "GetEnvironmentVariable"
+
+  - id: environment-class
+    description: Environment class access
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: "Environment\\."
+
+composite_rules:
+  # AppSettings composite
   - id: app-settings
     description: AppSettings configuration access
     criticality: notable
     confidence: 0.70
-    condition:
-      type: string
-      regex: "AppSettings|appsettings"
+    requires_count: 1
+    conditions:
+      - id: appsettings-pascal
+      - id: appsettings-lower
 
+  # Environment variable composite
   - id: environment-vars
     description: Environment variable access
     criticality: notable
     confidence: 0.70
-    condition:
-      type: string
-      regex: "GetEnvironmentVariable|Environment\\."
+    requires_count: 1
+    conditions:
+      - id: get-env-var
+      - id: environment-class

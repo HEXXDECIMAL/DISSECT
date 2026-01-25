@@ -6,24 +6,43 @@ defaults:
   attack: "T1497.001"
 
 traits:
-  # === Hypervisor vendor strings (atomic) ===
-  - id: vendor-xen
-    description: Xen hypervisor vendor string
+  # === Xen hypervisor atomic indicators ===
+  - id: vendor-xen-upper
+    description: XEN hypervisor (uppercase)
     criticality: inert
-    confidence: 0.7
+    confidence: 0.6
     file_types: [javascript, typescript, python, shell]
     condition:
       type: string
-      regex: '\bXEN\b|\bXen\b'
+      exact: "XEN"
 
-  - id: vendor-kvm
-    description: KVM hypervisor vendor string
+  - id: vendor-xen-title
+    description: Xen hypervisor (titlecase)
+    criticality: inert
+    confidence: 0.6
+    file_types: [javascript, typescript, python, shell]
+    condition:
+      type: string
+      exact: "Xen"
+
+  # === KVM hypervisor atomic indicators ===
+  - id: vendor-kvm-upper
+    description: KVM hypervisor (uppercase)
+    criticality: inert
+    confidence: 0.6
+    file_types: [javascript, typescript, python, shell]
+    condition:
+      type: string
+      exact: "KVM"
+
+  - id: vendor-kvm-repeat
+    description: KVMKVMKVM hypervisor signature
     criticality: inert
     confidence: 0.7
     file_types: [javascript, typescript, python, shell]
     condition:
       type: string
-      regex: '\bKVM\b|KVMKVMKVM'
+      exact: "KVMKVMKVM"
 
   - id: vendor-vmware
     description: VMware hypervisor vendor string
@@ -35,24 +54,46 @@ traits:
       exact: VMware
       case_insensitive: true
 
-  - id: vendor-vbox
+  # === VirtualBox hypervisor atomic indicators ===
+  - id: vendor-virtualbox
     description: VirtualBox hypervisor vendor string
     criticality: inert
-    confidence: 0.7
+    confidence: 0.6
     file_types: [javascript, typescript, python, shell]
     condition:
       type: string
-      regex: 'VirtualBox|VBOX'
+      exact: VirtualBox
       case_insensitive: true
 
-  - id: vendor-hyperv
-    description: Hyper-V hypervisor vendor string
+  - id: vendor-vbox-short
+    description: VBOX hypervisor short string
     criticality: inert
-    confidence: 0.7
+    confidence: 0.6
     file_types: [javascript, typescript, python, shell]
     condition:
       type: string
-      regex: 'Hyper-V|Microsoft Hv'
+      exact: VBOX
+      case_insensitive: true
+
+  # === Hyper-V hypervisor atomic indicators ===
+  - id: vendor-hyperv-dash
+    description: Hyper-V hypervisor vendor string
+    criticality: inert
+    confidence: 0.6
+    file_types: [javascript, typescript, python, shell]
+    condition:
+      type: string
+      exact: "Hyper-V"
+      case_insensitive: true
+
+  - id: vendor-microsoft-hv
+    description: Microsoft Hv hypervisor string
+    criticality: inert
+    confidence: 0.6
+    file_types: [javascript, typescript, python, shell]
+    condition:
+      type: string
+      exact: "Microsoft Hv"
       case_insensitive: true
 
   - id: vendor-qemu
@@ -387,6 +428,50 @@ traits:
       exact: process.exit
 
 composite_rules:
+  # Xen vendor composite
+  - id: vendor-xen
+    description: Xen hypervisor vendor string
+    criticality: inert
+    confidence: 0.7
+    file_types: [javascript, typescript, python, shell]
+    requires_count: 1
+    conditions:
+      - id: vendor-xen-upper
+      - id: vendor-xen-title
+
+  # KVM vendor composite
+  - id: vendor-kvm
+    description: KVM hypervisor vendor string
+    criticality: inert
+    confidence: 0.7
+    file_types: [javascript, typescript, python, shell]
+    requires_count: 1
+    conditions:
+      - id: vendor-kvm-upper
+      - id: vendor-kvm-repeat
+
+  # VirtualBox vendor composite
+  - id: vendor-vbox
+    description: VirtualBox hypervisor vendor string
+    criticality: inert
+    confidence: 0.7
+    file_types: [javascript, typescript, python, shell]
+    requires_count: 1
+    conditions:
+      - id: vendor-virtualbox
+      - id: vendor-vbox-short
+
+  # Hyper-V vendor composite
+  - id: vendor-hyperv
+    description: Hyper-V hypervisor vendor string
+    criticality: inert
+    confidence: 0.7
+    file_types: [javascript, typescript, python, shell]
+    requires_count: 1
+    conditions:
+      - id: vendor-hyperv-dash
+      - id: vendor-microsoft-hv
+
   # Hypervisor vendor strings
   - id: hypervisor-vendor
     description: Checks for hypervisor vendor strings

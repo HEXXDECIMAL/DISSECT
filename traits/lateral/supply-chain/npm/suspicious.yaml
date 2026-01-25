@@ -150,25 +150,43 @@ traits:
       type: string
       regex: '"name":\\s*"@[^/]+/(react|vue|angular|express|lodash|axios|webpack|babel|typescript|eslint|prettier|jest|mocha)'
 
-  # Orphan child process (detached from install)
-  - id: child-unref
-    description: Orphan child process (unref pattern)
-    criticality: suspicious
-    confidence: 0.85
-    file_types: [javascript, typescript]
-    condition:
-      type: string
-      regex: "child\\.unref\\(\\)|spawn\\([^)]+\\)\\.unref\\(\\)"
-
-  # Silent process execution
-  - id: stdio-ignore
-    description: Silent process execution (stdio ignored)
+  # === Orphan child process atomic indicators ===
+  - id: child-dot-unref
+    description: child.unref() call
     criticality: notable
-    confidence: 0.8
+    confidence: 0.75
     file_types: [javascript, typescript]
     condition:
       type: string
-      regex: "stdio:\\s*['\"]ignore['\"]|stdio:\\s*\\[.*ignore"
+      regex: "child\\.unref\\(\\)"
+
+  - id: spawn-unref
+    description: spawn().unref() call
+    criticality: notable
+    confidence: 0.75
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "spawn\\([^)]+\\)\\.unref\\(\\)"
+
+  # === Silent process execution atomic indicators ===
+  - id: stdio-ignore-string
+    description: "stdio: 'ignore' pattern"
+    criticality: inert
+    confidence: 0.7
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "stdio:\\s*['\"]ignore['\"]"
+
+  - id: stdio-ignore-array
+    description: "stdio: [...ignore...] pattern"
+    criticality: inert
+    confidence: 0.7
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "stdio:\\s*\\[.*ignore"
 
   # Bug bounty / security research markers
   - id: bug-bounty-marker
@@ -200,3 +218,26 @@ traits:
           condition:
             2 of them
         }
+
+composite_rules:
+  # Child unref composite
+  - id: child-unref
+    description: Orphan child process (unref pattern)
+    criticality: suspicious
+    confidence: 0.85
+    file_types: [javascript, typescript]
+    requires_count: 1
+    conditions:
+      - id: child-dot-unref
+      - id: spawn-unref
+
+  # Stdio ignore composite
+  - id: stdio-ignore
+    description: Silent process execution (stdio ignored)
+    criticality: notable
+    confidence: 0.8
+    file_types: [javascript, typescript]
+    requires_count: 1
+    conditions:
+      - id: stdio-ignore-string
+      - id: stdio-ignore-array
