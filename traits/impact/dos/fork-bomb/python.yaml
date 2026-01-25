@@ -86,8 +86,7 @@ composite_rules:
     attack: "T1499.004"
     mbc: "B0033"
     requires_all:
-      - type: trait
-        id: yara-fork-bomb
+      - id: yara-fork-bomb
 
   # Fork without rate limiting in tight loop (suspicious)
   - id: rapid-fork
@@ -96,5 +95,4 @@ composite_rules:
     confidence: 0.85
     attack: "T1499.004"
     requires_all:
-      - type: trait
-        id: yara-rapid-fork
+      - id: yara-rapid-fork

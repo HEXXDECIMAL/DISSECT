@@ -57,10 +57,8 @@ composite_rules:
     platforms: [linux]
     file_types: [elf]
     requires_any:
-      - type: trait
-        id: syscall-setns
-      - type: trait
-        id: syscall-unshare
+      - id: syscall-setns
+      - id: syscall-unshare
 
   - id: container-escape
     description: Container escape pattern - clone + setns
@@ -69,10 +67,8 @@ composite_rules:
     platforms: [linux]
     file_types: [elf]
     requires_all:
-      - type: trait
-        id: syscall-clone
-      - type: trait
-        id: syscall-setns
+      - id: syscall-clone
+      - id: syscall-setns
 
   - id: chroot-escape
     description: Potential chroot escape - chdir + chroot combination
@@ -81,7 +77,5 @@ composite_rules:
     platforms: [linux]
     file_types: [elf]
     requires_all:
-      - type: trait
-        id: syscall-chroot
-      - type: trait
-        id: syscall-chdir
+      - id: syscall-chroot
+      - id: syscall-chdir

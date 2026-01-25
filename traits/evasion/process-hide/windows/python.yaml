@@ -51,22 +51,30 @@ traits:
       type: string
       regex: "creationflags\\s*="
 
-  # subprocess module calls for process creation
-  - id: subprocess-call
-    description: "Subprocess module process creation call"
-    confidence: 0.7
-    criticality: notable
+  # === subprocess call atomic indicators ===
+  - id: subprocess-popen
+    description: subprocess.Popen call
+    confidence: 0.6
+    criticality: inert
     condition:
       type: string
-      regex: "subprocess\\.(Popen|run|call)\\("
+      exact: "subprocess.Popen("
 
-  # Hidden or detached window flags
-  - id: hidden-window-flag
-    description: "Hidden or detached process window flag"
-    confidence: 0.85
+  - id: subprocess-run
+    description: subprocess.run call
+    confidence: 0.6
+    criticality: inert
     condition:
       type: string
-      regex: "CREATE_NO_WINDOW|DETACHED_PROCESS"
+      exact: "subprocess.run("
+
+  - id: subprocess-call-fn
+    description: subprocess.call call
+    confidence: 0.6
+    criticality: inert
+    condition:
+      type: string
+      exact: "subprocess.call("
 
   # Combined creation flags with bitwise OR
   - id: combined-creationflags
@@ -78,21 +86,38 @@ traits:
       regex: "creationflags\\s*=\\s*[^,)]+\\|"
 
 composite_rules:
+  # subprocess call composite
+  - id: subprocess-call
+    description: "Subprocess module process creation call"
+    confidence: 0.7
+    criticality: notable
+    requires_count: 1
+    conditions:
+      - id: subprocess-popen
+      - id: subprocess-run
+      - id: subprocess-call-fn
+
+  # hidden window flag composite
+  - id: hidden-window-flag
+    description: "Hidden or detached process window flag"
+    confidence: 0.85
+    requires_count: 1
+    conditions:
+      - id: create-no-window
+      - id: detached-process
+
   # Combined: CREATE_NO_WINDOW + CREATE_NEW_PROCESS_GROUP
   - id: stealth-subprocess
     description: "Stealthy subprocess creation (hidden + detached)"
     confidence: 0.95
     criticality: suspicious
     requires_all:
-      - type: trait
-        id: subprocess-call
-      - type: trait
-        id: hidden-window-flag
+      - id: subprocess-call
+      - id: hidden-window-flag
 
   # creationflags with bitwise OR - combining multiple flags
   - id: combined-flags
     description: "Multiple process creation flags combined"
     confidence: 0.9
     requires_all:
-      - type: trait
-        id: combined-creationflags
+      - id: combined-creationflags

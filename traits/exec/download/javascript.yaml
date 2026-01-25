@@ -40,12 +40,8 @@ composite_rules:
     mbc: "B0024"
     file_types: [javascript]
     requires_all:
-      - type: trait
-        id: exec/command/shell/js-execsync
-      - type: trait
-        id: exec/download/js-stdio-ignore
+      - id: exec/command/shell/js-execsync
+      - id: exec/download/js-stdio-ignore
     requires_any:
-      - type: trait
-        id: exec/download/js-installer-sh
-      - type: trait
-        id: exec/download/js-installer-ps1
+      - id: exec/download/js-installer-sh
+      - id: exec/download/js-installer-ps1

@@ -22,7 +22,5 @@ composite_rules:
     mbc: "B0028"
     file_types: [javascript]
     requires_all:
-      - type: trait
-        id: js-sqlite-logins
-      - type: trait
-        id: comm/http/request/js-axios-post
+      - id: js-sqlite-logins
+      - id: comm/http/request/js-axios-post

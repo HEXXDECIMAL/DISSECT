@@ -130,9 +130,6 @@ composite_rules:
     attack: "T1195.002"
     file_types: [shell, text]
     requires_all:
-      - type: trait
-        id: base64-binary-embed
-      - type: trait
-        id: echo-cron
-      - type: trait
-        id: botdir-selection
+      - id: base64-binary-embed
+      - id: echo-cron
+      - id: botdir-selection

@@ -181,18 +181,12 @@ composite_rules:
     file_types: [macho, dylib]
     requires_count: 1
     conditions:
-      - type: trait
-        id: sandbox-init
-      - type: trait
-        id: sandbox-init-params
-      - type: trait
-        id: sandbox-extension-consume
-      - type: trait
-        id: sandbox-extension-issue
-      - type: trait
-        id: sandbox-entering
-      - type: trait
-        id: sandbox-failed
+      - id: sandbox-init
+      - id: sandbox-init-params
+      - id: sandbox-extension-consume
+      - id: sandbox-extension-issue
+      - id: sandbox-entering
+      - id: sandbox-failed
 
   - id: linux-seccomp
     description: Linux seccomp sandbox enabled
@@ -202,13 +196,8 @@ composite_rules:
     file_types: [elf]
     requires_count: 2
     conditions:
-      - type: trait
-        id: seccomp-init
-      - type: trait
-        id: seccomp-load
-      - type: trait
-        id: seccomp-rule-add
-      - type: trait
-        id: prctl-seccomp
-      - type: trait
-        id: seccomp-mode-filter
+      - id: seccomp-init
+      - id: seccomp-load
+      - id: seccomp-rule-add
+      - id: prctl-seccomp
+      - id: seccomp-mode-filter

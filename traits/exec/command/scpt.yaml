@@ -17,7 +17,7 @@ traits:
     confidence: 0.95
     attack: "T1059.004"
     condition:
-      type: symbol
+      type: string
       pattern: "^syso\\.exec$"
 
   - id: shell-cmd
@@ -26,7 +26,7 @@ traits:
     confidence: 0.95
     attack: "T1059.004"
     condition:
-      type: symbol
+      type: string
       exact: "do shell script"
 
   # ============================================
@@ -37,7 +37,7 @@ traits:
     criticality: inert
     confidence: 0.95
     condition:
-      type: symbol
+      type: string
       pattern: "^syso\\.dela$"
 
   # ============================================
@@ -48,7 +48,7 @@ traits:
     criticality: notable
     confidence: 0.9
     condition:
-      type: symbol
+      type: string
       pattern: "^syso\\.load$"
 
   - id: load-script-cmd
@@ -56,7 +56,7 @@ traits:
     criticality: notable
     confidence: 0.9
     condition:
-      type: symbol
+      type: string
       exact: "load script"
 
   # ============================================
@@ -68,7 +68,7 @@ traits:
     confidence: 0.9
     attack: "T1204.001"
     condition:
-      type: symbol
+      type: string
       pattern: "^syso\\.open$"
 
   - id: open-url
@@ -77,7 +77,7 @@ traits:
     confidence: 0.9
     attack: "T1204.001"
     condition:
-      type: symbol
+      type: string
       pattern: "^syso\\.surl$"
 
   - id: get-url
@@ -85,7 +85,7 @@ traits:
     criticality: notable
     confidence: 0.9
     condition:
-      type: symbol
+      type: string
       pattern: "^syso\\.GUrl$"
 
   - id: open-location-cmd
@@ -93,7 +93,7 @@ traits:
     criticality: notable
     confidence: 0.9
     condition:
-      type: symbol
+      type: string
       exact: "open location"
 
   - id: open-url-cmd
@@ -101,7 +101,7 @@ traits:
     criticality: notable
     confidence: 0.9
     condition:
-      type: symbol
+      type: string
       exact: "open URL"
 
   # ============================================
@@ -112,7 +112,7 @@ traits:
     criticality: notable
     confidence: 0.85
     condition:
-      type: symbol
+      type: string
       pattern: "^aevt\\.oapp$"
 
   - id: quit-app
@@ -120,7 +120,7 @@ traits:
     criticality: notable
     confidence: 0.85
     condition:
-      type: symbol
+      type: string
       pattern: "^aevt\\.quit$"
 
   - id: reopen-app
@@ -128,7 +128,7 @@ traits:
     criticality: inert
     confidence: 0.85
     condition:
-      type: symbol
+      type: string
       pattern: "^aevt\\.rapp$"
 
   # ============================================
@@ -139,7 +139,7 @@ traits:
     criticality: inert
     confidence: 0.9
     condition:
-      type: symbol
+      type: string
       pattern: "^misc\\.actv$"
 
   - id: do-script
@@ -147,7 +147,7 @@ traits:
     criticality: notable
     confidence: 0.9
     condition:
-      type: symbol
+      type: string
       pattern: "^misc\\.dosc$"
 
   - id: select
@@ -155,7 +155,7 @@ traits:
     criticality: inert
     confidence: 0.85
     condition:
-      type: symbol
+      type: string
       pattern: "^misc\\.slct$"
 
   # ============================================
@@ -166,7 +166,7 @@ traits:
     criticality: inert
     confidence: 0.9
     condition:
-      type: symbol
+      type: string
       pattern: "^ears\\.ffdr$"
 
   - id: count
@@ -174,7 +174,7 @@ traits:
     criticality: inert
     confidence: 0.9
     condition:
-      type: symbol
+      type: string
       pattern: "^core\\.cnte$"
 
   - id: delete
@@ -183,7 +183,7 @@ traits:
     confidence: 0.9
     attack: "T1070.004"
     condition:
-      type: symbol
+      type: string
       pattern: "^core\\.dele$"
 
   - id: move
@@ -191,7 +191,7 @@ traits:
     criticality: notable
     confidence: 0.85
     condition:
-      type: symbol
+      type: string
       pattern: "^core\\.move$"
 
   - id: duplicate
@@ -199,7 +199,7 @@ traits:
     criticality: inert
     confidence: 0.85
     condition:
-      type: symbol
+      type: string
       pattern: "^core\\.clon$"
 
 composite_rules:
@@ -213,8 +213,8 @@ composite_rules:
     attack: "T1059.004"
     file_types: [applescript]
     requires_any:
-      - {type: trait, id: shell}
-      - {type: trait, id: shell-cmd}
+      - {id: shell}
+      - {id: shell-cmd}
 
   # ============================================
   # Delayed Execution (evasion pattern)
@@ -226,8 +226,8 @@ composite_rules:
     attack: "T1497"
     file_types: [applescript]
     requires_all:
-      - {type: trait, id: delay}
-      - {type: trait, id: shell-execution}
+      - {id: delay}
+      - {id: shell-execution}
 
   # ============================================
   # External Code Loading
@@ -238,8 +238,8 @@ composite_rules:
     confidence: 0.85
     file_types: [applescript]
     requires_any:
-      - {type: trait, id: load-script}
-      - {type: trait, id: load-script-cmd}
+      - {id: load-script}
+      - {id: load-script-cmd}
 
   # ============================================
   # URL Opening (any method)
@@ -251,11 +251,11 @@ composite_rules:
     attack: "T1204.001"
     file_types: [applescript]
     requires_any:
-      - {type: trait, id: open-location}
-      - {type: trait, id: open-url}
-      - {type: trait, id: get-url}
-      - {type: trait, id: open-location-cmd}
-      - {type: trait, id: open-url-cmd}
+      - {id: open-location}
+      - {id: open-url}
+      - {id: get-url}
+      - {id: open-location-cmd}
+      - {id: open-url-cmd}
 
   # ============================================
   # Dropper Pattern
@@ -266,5 +266,5 @@ composite_rules:
     confidence: 0.9
     file_types: [applescript]
     requires_all:
-      - {type: trait, id: external-script}
-      - {type: trait, id: shell-execution}
+      - {id: external-script}
+      - {id: shell-execution}

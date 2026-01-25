@@ -156,7 +156,7 @@ traits:
       regex: "\\bip_address\\b"
 
   - id: ip-json-field
-    description: "ip" JSON field
+    description: '"ip" JSON field'
     criticality: inert
     confidence: 0.4
     attack: "T1016"
@@ -200,10 +200,8 @@ composite_rules:
     attack: "T1016"
     requires_count: 1
     conditions:
-      - type: trait
-        id: api-db-ip
-      - type: trait
-        id: db-ip-v2
+      - id: api-db-ip
+      - id: db-ip-v2
 
   # ipify API composite
   - id: ipify-api
@@ -213,10 +211,8 @@ composite_rules:
     attack: "T1016"
     requires_count: 1
     conditions:
-      - type: trait
-        id: api-ipify
-      - type: trait
-        id: ipify-org
+      - id: api-ipify
+      - id: ipify-org
 
   # MaxMind API composite
   - id: maxmind-api
@@ -226,10 +222,8 @@ composite_rules:
     attack: "T1016"
     requires_count: 1
     conditions:
-      - type: trait
-        id: geoip-maxmind
-      - type: trait
-        id: maxmind-geoip
+      - id: geoip-maxmind
+      - id: maxmind-geoip
 
   # freegeoip API composite
   - id: freegeoip-api
@@ -239,12 +233,9 @@ composite_rules:
     attack: "T1016"
     requires_count: 1
     conditions:
-      - type: trait
-        id: freegeoip-app
-      - type: trait
-        id: freegeoip-net
-      - type: trait
-        id: freegeoip-io
+      - id: freegeoip-app
+      - id: freegeoip-net
+      - id: freegeoip-io
 
   # Country code field composite
   - id: country-code-field
@@ -254,10 +245,8 @@ composite_rules:
     attack: "T1016"
     requires_count: 1
     conditions:
-      - type: trait
-        id: country-code-camel
-      - type: trait
-        id: country-code-snake
+      - id: country-code-camel
+      - id: country-code-snake
 
   # IP address field composite
   - id: ip-address-field
@@ -267,12 +256,38 @@ composite_rules:
     attack: "T1016"
     requires_count: 1
     conditions:
-      - type: trait
-        id: ip-address-camel
-      - type: trait
-        id: ip-address-snake
-      - type: trait
-        id: ip-json-field
+      - id: ip-address-camel
+      - id: ip-address-snake
+      - id: ip-json-field
+
+  # Geo API composite (any one of these APIs)
+  - id: geo-api
+    description: Geolocation API endpoint
+    criticality: notable
+    confidence: 0.7
+    attack: "T1016"
+    requires_count: 1
+    conditions:
+      - id: db-ip-api
+      - id: ipinfo-io
+      - id: ipapi-api
+      - id: ipgeolocation-api
+      - id: freegeoip-api
+      - id: freegeoip-generic
+      - id: ipify-api
+
+  # Geo response field composite (any one of these fields)
+  - id: geo-response-field
+    description: Geolocation response field
+    criticality: notable
+    confidence: 0.5
+    attack: "T1016"
+    requires_count: 1
+    conditions:
+      - id: country-code-field
+      - id: ip-address-field
+      - id: city-field
+      - id: region-field
 
   - id: victim-profiling
     description: Victim geolocation profiling via IP API
@@ -280,27 +295,5 @@ composite_rules:
     confidence: 0.9
     attack: "T1016"
     requires_all:
-      - requires_any:
-          - type: composite
-            id: db-ip-api
-          - type: trait
-            id: ipinfo-io
-          - type: trait
-            id: ipapi-api
-          - type: trait
-            id: ipgeolocation-api
-          - type: composite
-            id: freegeoip-api
-          - type: trait
-            id: freegeoip-generic
-          - type: composite
-            id: ipify-api
-      - requires_any:
-          - type: composite
-            id: country-code-field
-          - type: composite
-            id: ip-address-field
-          - type: trait
-            id: city-field
-          - type: trait
-            id: region-field
+      - id: geo-api
+      - id: geo-response-field

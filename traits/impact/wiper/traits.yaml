@@ -182,10 +182,8 @@ composite_rules:
     mbc: "B0031"
     file_types: [javascript, typescript]
     requires_all:
-      - type: trait
-        id: impact/wiper/conditional-destroy
-      - type: trait
-        id: impact/wiper/target-dev-dirs
+      - id: impact/wiper/conditional-destroy
+      - id: impact/wiper/target-dev-dirs
 
   # Full wiper with HTTP callback (report success)
   - id: with-callback
@@ -196,7 +194,5 @@ composite_rules:
     mbc: "B0031"
     file_types: [javascript, typescript]
     requires_all:
-      - type: trait
-        id: impact/wiper/recursive-delete
-      - type: trait
-        id: impact/wiper/http-callback
+      - id: impact/wiper/recursive-delete
+      - id: impact/wiper/http-callback

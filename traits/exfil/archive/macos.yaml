@@ -35,16 +35,43 @@ traits:
       type: string
       regex: "\\bzip\\s+-[rq]|\\bzip\\s+.*\\.zip"
 
-  # Output to tmp directory (staging)
+  # === tmp archive atomic indicators ===
+  - id: tmp-zip-path
+    description: zip file in /tmp
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      regex: "/tmp/.*\\.zip"
+
+  - id: tmp-out-zip
+    description: /tmp/out.zip file
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "/tmp/out.zip"
+
+  - id: var-tmp-zip
+    description: zip file in /var/tmp
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      regex: "/var/tmp/.*\\.zip"
+
+composite_rules:
+  # tmp archive composite
   - id: tmp-archive
     description: "Archive creation in /tmp"
     criticality: suspicious
     confidence: 0.8
-    condition:
-      type: string
-      regex: "/tmp/.*\\.zip|/tmp/out\\.zip|/var/tmp/.*\\.zip"
+    requires_count: 1
+    conditions:
+      - id: tmp-zip-path
+      - id: tmp-out-zip
+      - id: var-tmp-zip
 
-composite_rules:
   # ditto staging for exfil
   - id: ditto-staging
     description: "macOS data staging via ditto"
@@ -53,10 +80,10 @@ composite_rules:
     attack: "T1560.001"
     file_types: [shell, applescript, python]
     requires_any:
-      - {type: trait, id: ditto-compress}
-      - {type: trait, id: ditto-sequester}
+      - id: ditto-compress
+      - id: ditto-sequester
     requires_all:
-      - {type: trait, id: tmp-archive}
+      - id: tmp-archive
 
   # Archive with curl exfil
   - id: archive-exfil
@@ -66,8 +93,8 @@ composite_rules:
     attack: "T1560.001"
     file_types: [shell, applescript, python]
     requires_all:
-      - {type: trait, id: tmp-archive}
+      - id: tmp-archive
     requires_any:
-      - {type: trait, id: ditto-compress}
-      - {type: trait, id: ditto-sequester}
-      - {type: trait, id: zip-create}
+      - id: ditto-compress
+      - id: ditto-sequester
+      - id: zip-create

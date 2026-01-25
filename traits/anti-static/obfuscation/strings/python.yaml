@@ -69,44 +69,91 @@ traits:
       type: string
       regex: 'exec\(|eval\('
 
+  # === Decoding function atomic indicators ===
+  - id: b64decode-call
+    description: base64 b64decode function
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "b64decode"
+
+  - id: fromhex-call
+    description: fromhex function
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "fromhex"
+
+  - id: bytes-fromhex-call
+    description: bytes.fromhex function
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "bytes.fromhex"
+
+  - id: bz2-decompress-call
+    description: bz2.decompress function
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "bz2.decompress"
+
+  - id: zlib-decompress-call
+    description: zlib.decompress function
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "zlib.decompress"
+
+  - id: marshal-loads-call
+    description: marshal.loads function
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "marshal.loads"
+
+composite_rules:
+  # Decode functions composite
   - id: python-decode-functions
     description: "Decoding functions for encoded payloads"
     criticality: notable
     confidence: 0.7
-    condition:
-      type: string
-      regex: 'b64decode|fromhex|bytes\.fromhex|bz2\.decompress|zlib\.decompress|marshal\.loads'
+    requires_count: 1
+    conditions:
+      - id: b64decode-call
+      - id: fromhex-call
+      - id: bytes-fromhex-call
+      - id: bz2-decompress-call
+      - id: zlib-decompress-call
+      - id: marshal-loads-call
 
-composite_rules:
   - id: execute-decoded-content
     description: "Direct execution of decoded content (Dynamic Dropper)"
     criticality: hostile
     confidence: 0.98
     requires_all:
-      - type: trait
-        id: anti-static/obfuscation/strings/python-exec-eval
-      - type: trait
-        id: anti-static/obfuscation/strings/python-decode-functions
-      - type: trait
-        id: anti-static/obfuscation/strings/python-chr
+      - id: python-exec-eval
+      - id: python-decode-functions
+      - id: python-chr
 
   - id: python-encoded-pattern
     description: "Detects encoded string patterns (hex or octal)"
     criticality: notable
     requires_any:
-      - type: trait
-        id: anti-static/obfuscation/strings/python-hex
-      - type: trait
-        id: anti-static/obfuscation/strings/python-octal
+      - id: python-hex
+      - id: python-octal
 
   - id: obfuscated-execution
     description: "Direct execution of encoded string (Dynamic Dropper)"
     criticality: hostile
     confidence: 0.95
     requires_all:
-      - type: trait
-        id: anti-static/obfuscation/strings/python-exec-eval
-      - type: trait
-        id: anti-static/obfuscation/strings/python-encoded-pattern
-      - type: trait
-        id: anti-static/obfuscation/strings/python-chr
+      - id: python-exec-eval
+      - id: python-encoded-pattern
+      - id: python-chr

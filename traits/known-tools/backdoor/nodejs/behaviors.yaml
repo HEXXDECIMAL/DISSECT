@@ -10,9 +10,6 @@ composite_rules:
     mbc: "B0022"
     file_types: [elf, macho]
     requires_all:
-      - type: trait
-        id: exec/process/name/nodejs-title
-      - type: trait
-        id: fs/permission/chmod/string
-      - type: trait
-        id: exec/javascript/eval/child-process-require
+      - id: exec/process/name/nodejs-title
+      - id: fs/permission/chmod/string
+      - id: exec/javascript/eval/child-process-require

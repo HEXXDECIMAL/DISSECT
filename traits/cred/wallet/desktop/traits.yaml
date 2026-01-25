@@ -183,27 +183,15 @@ composite_rules:
     file_types: [python, javascript, elf, pe, macho, applescript, shell]
     requires_count: 3
     conditions:
-      - type: trait
-        id: electrum
-      - type: trait
-        id: coinomi
-      - type: trait
-        id: exodus
-      - type: trait
-        id: atomic
-      - type: trait
-        id: binance
-      - type: trait
-        id: tonkeeper
-      - type: trait
-        id: monero
-      - type: trait
-        id: litecoin-core
-      - type: trait
-        id: dash-core
-      - type: trait
-        id: dogecoin-core
-      - type: trait
-        id: ledger
-      - type: trait
-        id: trezor
+      - id: electrum
+      - id: coinomi
+      - id: exodus
+      - id: atomic
+      - id: binance
+      - id: tonkeeper
+      - id: monero
+      - id: litecoin-core
+      - id: dash-core
+      - id: dogecoin-core
+      - id: ledger
+      - id: trezor

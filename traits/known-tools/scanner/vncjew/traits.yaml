@@ -41,9 +41,6 @@ composite_rules:
     mbc: "B0046"
     file_types: [elf]
     requires_all:
-      - type: trait
-        id: scanner/vncjew/read-vncs
-      - type: trait
-        id: scanner/vncjew/iptables-ref
-      - type: trait
-        id: scanner/vncjew/masscan-ref
+      - id: scanner/vncjew/read-vncs
+      - id: scanner/vncjew/iptables-ref
+      - id: scanner/vncjew/masscan-ref

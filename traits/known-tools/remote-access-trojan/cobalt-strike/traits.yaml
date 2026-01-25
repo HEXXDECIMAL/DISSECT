@@ -204,18 +204,12 @@ composite_rules:
     mbc: "B0030"
     file_types: [elf, macho, pe, so, dylib, dll]
     requires_any:
-      - type: trait
-        id: c2-framework/cobalt-strike/vermilionstrike
-      - type: trait
-        id: c2-framework/cobalt-strike/config-block
-      - type: trait
-        id: c2-framework/cobalt-strike/malleable-c2
-      - type: trait
-        id: c2-framework/cobalt-strike/named-pipe
-      - type: trait
-        id: c2-framework/cobalt-strike/sleep-mask
-      - type: trait
-        id: c2-framework/cobalt-strike/format-string
+      - id: c2-framework/cobalt-strike/vermilionstrike
+      - id: c2-framework/cobalt-strike/config-block
+      - id: c2-framework/cobalt-strike/malleable-c2
+      - id: c2-framework/cobalt-strike/named-pipe
+      - id: c2-framework/cobalt-strike/sleep-mask
+      - id: c2-framework/cobalt-strike/format-string
 
   # macOS beacon detection via syscall combination + entropy
   - id: c2-framework/cobalt-strike/macos-beacon
@@ -228,9 +222,6 @@ composite_rules:
     platforms: [macos]
     file_types: [macho]
     requires_all:
-      - type: trait
-        id: c2-framework/cobalt-strike/config-block
-      - type: trait
-        id: c2-framework/cobalt-strike/sleep-mask
-      - type: trait
-        id: c2-framework/cobalt-strike/process-inject
+      - id: c2-framework/cobalt-strike/config-block
+      - id: c2-framework/cobalt-strike/sleep-mask
+      - id: c2-framework/cobalt-strike/process-inject

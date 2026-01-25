@@ -96,15 +96,9 @@ composite_rules:
     file_types: [elf, macho, pe, go]
     requires_count: 2
     conditions:
-      - type: trait
-        id: c2-framework/geacon/coded-ref
-      - type: trait
-        id: c2-framework/geacon/path-ref
-      - type: trait
-        id: c2-framework/geacon/author-darkr4y
-      - type: trait
-        id: c2-framework/geacon/motto
-      - type: trait
-        id: c2-framework/geacon/change-dir
-      - type: trait
-        id: c2-framework/geacon/gbk-convert
+      - id: c2-framework/geacon/coded-ref
+      - id: c2-framework/geacon/path-ref
+      - id: c2-framework/geacon/author-darkr4y
+      - id: c2-framework/geacon/motto
+      - id: c2-framework/geacon/change-dir
+      - id: c2-framework/geacon/gbk-convert

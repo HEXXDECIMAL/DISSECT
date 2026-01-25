@@ -1242,9 +1242,6 @@ composite_rules:
     attack: "T1014"
     file_types: [elf, c]
     requires_any:
-      - type: trait
-        id: fileless-lkm-loading
-      - type: trait
-        id: pte-manipulation
-      - type: trait
-        id: elf-patching
+      - id: fileless-lkm-loading
+      - id: pte-manipulation
+      - id: elf-patching

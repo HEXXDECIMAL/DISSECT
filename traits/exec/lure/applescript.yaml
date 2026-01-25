@@ -125,6 +125,49 @@ traits:
       regex: "(?i)press.*to continue"
 
 composite_rules:
+  # Missing message group
+  - id: missing-message
+    description: Missing components/extensions message
+    criticality: suspicious
+    confidence: 0.85
+    requires_count: 1
+    conditions:
+      - id: missing-extensions
+      - id: missing-required-ext
+      - id: missing-required-comp
+
+  # User action prompt group
+  - id: user-action-prompt
+    description: User action prompt text
+    criticality: notable
+    confidence: 0.75
+    requires_count: 1
+    conditions:
+      - id: click-button
+      - id: press-continue
+
+  # Update message group
+  - id: update-message
+    description: Update-related lure message
+    criticality: notable
+    confidence: 0.8
+    requires_count: 1
+    conditions:
+      - id: system-update
+      - id: check-updates
+
+  # Compatibility lure group
+  - id: compat-lure
+    description: Compatibility-related lure message
+    criticality: suspicious
+    confidence: 0.9
+    requires_count: 1
+    conditions:
+      - id: compat-wizard
+      - id: compat-issue
+      - id: missing-extensions
+      - id: missing-required-ext
+
   # ============================================
   # Compatibility Wizard Attack
   # ============================================
@@ -134,12 +177,8 @@ composite_rules:
     confidence: 0.95
     file_types: [applescript, shell]
     requires_all:
-      - {type: trait, id: compat-wizard}
-    requires_any:
-      - {type: trait, id: compat-issue}
-      - {type: trait, id: missing-extensions}
-      - {type: trait, id: missing-required-ext}
-      - {type: trait, id: missing-required-comp}
+      - id: compat-wizard
+      - id: missing-message
 
   # ============================================
   # Fake Update Attack
@@ -149,11 +188,9 @@ composite_rules:
     criticality: hostile
     confidence: 0.9
     file_types: [applescript, shell]
-    requires_any:
-      - {type: trait, id: system-update}
-      - {type: trait, id: check-updates}
     requires_all:
-      - {type: trait, id: install-components}
+      - id: update-message
+      - id: install-components
 
   # ============================================
   # Missing Components Attack
@@ -163,13 +200,9 @@ composite_rules:
     criticality: hostile
     confidence: 0.9
     file_types: [applescript, shell]
-    requires_any:
-      - {type: trait, id: missing-extensions}
-      - {type: trait, id: missing-required-ext}
-      - {type: trait, id: missing-required-comp}
-    requires_any:
-      - {type: trait, id: click-button}
-      - {type: trait, id: press-continue}
+    requires_all:
+      - id: missing-message
+      - id: user-action-prompt
 
   # ============================================
   # Lure with Shell Execution
@@ -179,10 +212,6 @@ composite_rules:
     criticality: hostile
     confidence: 0.95
     file_types: [applescript]
-    requires_any:
-      - {type: trait, id: compat-wizard}
-      - {type: trait, id: compat-issue}
-      - {type: trait, id: missing-extensions}
-      - {type: trait, id: missing-required-ext}
     requires_all:
-      - {type: trait, id: exec/command/shell-execution}
+      - id: compat-lure
+      - id: exec/command/shell-execution

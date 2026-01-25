@@ -12,11 +12,7 @@ composite_rules:
     max_size: 10485760 # 10MB
     requires_count: 3
     conditions:
-      - type: trait
-        id: anti-analysis/debugger/detect/process-inspection
-      - type: trait
-        id: anti-analysis/timing/primitive
-      - type: trait
-        id: anti-static/obfuscation/strings-deobfuscation
-      - type: trait
-        id: anti-analysis/self-modify/mprotect
+      - id: anti-analysis/debugger/detect/process-inspection
+      - id: anti-analysis/timing/primitive
+      - id: anti-static/obfuscation/strings-deobfuscation
+      - id: anti-analysis/self-modify/mprotect

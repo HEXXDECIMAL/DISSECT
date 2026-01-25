@@ -62,8 +62,8 @@ composite_rules:
     attack: "T1564.003"
     file_types: [applescript]
     requires_all:
-      - {type: trait, id: terminal-hide}
-      - {type: trait, id: exec/command/shell-execution}
+      - {id: terminal-hide}
+      - {id: exec/command/shell-execution}
 
   # Window hiding with credential access
   - id: hidden-cred-access
@@ -73,7 +73,7 @@ composite_rules:
     attack: "T1564.003"
     file_types: [applescript]
     requires_all:
-      - {type: trait, id: terminal-hide}
+      - {id: terminal-hide}
     requires_any:
-      - {type: trait, id: cred/phishing/hidden-answer}
-      - {type: trait, id: cred/macos/validation/dscl-authonly}
+      - {id: cred/phishing/hidden-answer}
+      - {id: cred/macos/validation/dscl-authonly}

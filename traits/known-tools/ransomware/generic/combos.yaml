@@ -9,13 +9,8 @@ composite_rules:
     attack: "T1486"
     file_types: [elf, macho, pe, so, dylib, dll]
     requires_any:
-      - type: trait
-        id: ransomware/generic/symbol/encrypt_file
-      - type: trait
-        id: ransomware/generic/symbol/encrypt_directory
-      - type: trait
-        id: ransomware/generic/symbol/encrypt_disk
-      - type: trait
-        id: ransomware/generic/source/ransomware_c
-      - type: trait
-        id: ransomware/generic/source/crypter_c
+      - id: ransomware/generic/symbol/encrypt_file
+      - id: ransomware/generic/symbol/encrypt_directory
+      - id: ransomware/generic/symbol/encrypt_disk
+      - id: ransomware/generic/source/ransomware_c
+      - id: ransomware/generic/source/crypter_c

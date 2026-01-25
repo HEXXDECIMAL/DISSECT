@@ -40,7 +40,5 @@ composite_rules:
     confidence: 0.66
     requires_count: 1
     conditions:
-      - type: trait
-        id: gdb-ref
-      - type: trait
-        id: lldb-ref
+      - id: gdb-ref
+      - id: lldb-ref

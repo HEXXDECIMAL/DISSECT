@@ -91,12 +91,9 @@ composite_rules:
     mbc: "B0030"
     file_types: [elf, macho, pe, so, dylib, dll]
     requires_all:
-      - type: trait
-        id: comm/proxy/socks5-server
-      - type: trait
-        id: exec/remote-shell/socks-context
-      - type: trait
-        id: crypto/rc4/communication
+      - id: comm/proxy/socks5-server
+      - id: exec/remote-shell/socks-context
+      - id: crypto/rc4/communication
 
   # Full SystemBC detection
   - id: backdoor/systembc/detected
@@ -108,11 +105,7 @@ composite_rules:
     file_types: [elf, macho, pe, so, dylib, dll]
     requires_count: 2
     conditions:
-      - type: trait
-        id: backdoor/systembc/artifact
-      - type: trait
-        id: crypto/rc4/communication
-      - type: trait
-        id: comm/proxy/socks5-server
-      - type: trait
-        id: exec/remote-shell/socks-context
+      - id: backdoor/systembc/artifact
+      - id: crypto/rc4/communication
+      - id: comm/proxy/socks5-server
+      - id: exec/remote-shell/socks-context

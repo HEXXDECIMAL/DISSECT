@@ -13,12 +13,9 @@ composite_rules:
     attack: "T1041"
     file_types: [python]
     requires_all:
-      - type: trait
-        id: discovery/system
-      - type: trait
-        id: comm/http/request
-      - type: trait
-        id: fs/file/write
+      - id: discovery/system
+      - id: comm/http/request
+      - id: fs/file/write
 
   - id: dynamic-dropper
     description: "Dynamic Dropper behavior: Fetches, writes, and executes obfuscated code"
@@ -28,12 +25,9 @@ composite_rules:
     attack: "T1059"
     file_types: [python]
     requires_all:
-      - type: trait
-        id: anti-static/obfuscation/strings
-      - type: trait
-        id: lateral/supply-chain
-      - type: trait
-        id: exec
+      - id: anti-static/obfuscation/strings
+      - id: lateral/supply-chain
+      - id: exec
 
   - id: evasive-profiler
     description: "Evasive Profiler: Uses module aliasing to hide system enumeration"
@@ -43,12 +37,9 @@ composite_rules:
     attack: "T1082"
     file_types: [python]
     requires_all:
-      - type: trait
-        id: evasion/aliasing
-      - type: trait
-        id: discovery/system
-      - type: trait
-        id: comm/http/request
+      - id: evasion/aliasing
+      - id: discovery/system
+      - id: comm/http/request
 
   - id: data-staging
     description: "Data staging for exfiltration (Collect + Encode + Transmit)"
@@ -59,9 +50,6 @@ composite_rules:
     file_types: [python]
     near_lines: 100
     requires_all:
-      - type: trait
-        id: discovery/system
-      - type: trait
-        id: anti-static/obfuscation/strings
-      - type: trait
-        id: exfil/http
+      - id: discovery/system
+      - id: anti-static/obfuscation/strings
+      - id: exfil/http

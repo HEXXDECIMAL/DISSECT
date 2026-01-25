@@ -9,7 +9,5 @@ composite_rules:
     file_types: [python]
     near_lines: 5
     requires_all:
-      - type: trait
-        id: exec/reflection/dynamic-import
-      - type: trait
-        id: exec/reflection/getattr-module
+      - id: exec/reflection/dynamic-import
+      - id: exec/reflection/getattr-module

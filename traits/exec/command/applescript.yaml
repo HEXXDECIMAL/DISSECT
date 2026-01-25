@@ -86,8 +86,8 @@ composite_rules:
     attack: "T1059.004"
     file_types: [shell, python, ruby, perl]
     requires_all:
-      - {type: trait, id: evasion/applescript/osascript-exec}
-      - {type: trait, id: sysoexec-string}
+      - {id: evasion/applescript/osascript-exec}
+      - {id: sysoexec-string}
 
   # ============================================
   # Settings Automation via osascript
@@ -98,7 +98,7 @@ composite_rules:
     confidence: 0.8
     file_types: [shell, python, ruby, perl]
     requires_all:
-      - {type: trait, id: evasion/applescript/osascript-exec}
+      - {id: evasion/applescript/osascript-exec}
     requires_any:
-      - {type: trait, id: ref-system-settings}
-      - {type: trait, id: ref-system-prefs}
+      - {id: ref-system-settings}
+      - {id: ref-system-prefs}

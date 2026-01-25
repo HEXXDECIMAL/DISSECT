@@ -140,13 +140,8 @@ composite_rules:
     file_types: [shell, c, elf]
     requires_count: 2
     conditions:
-      - type: trait
-        id: evasion/selinux/xattr-manipulation
-      - type: trait
-        id: evasion/selinux/unconfined-context
-      - type: trait
-        id: evasion/selinux/setenforce
-      - type: trait
-        id: evasion/selinux/kernel-disable
-      - type: trait
-        id: evasion/selinux/runtime-patch
+      - id: evasion/selinux/xattr-manipulation
+      - id: evasion/selinux/unconfined-context
+      - id: evasion/selinux/setenforce
+      - id: evasion/selinux/kernel-disable
+      - id: evasion/selinux/runtime-patch

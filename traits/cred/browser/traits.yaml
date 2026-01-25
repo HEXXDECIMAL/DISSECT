@@ -79,8 +79,8 @@ traits:
             $cookies_sqlite = "cookies.sqlite" ascii
             $local_state = "Local State" ascii
           condition:
-            // At least 2 browser refs + 1 data file
-            2 of ($chrome, $chromium, $edge, $brave, $opera, $vivaldi, $firefox, $safari) and
+            // At least 2 browser/client refs + 1 data file
+            2 of ($chrome, $chromium, $edge, $brave, $opera, $vivaldi, $firefox, $thunderbird, $safari) and
             1 of ($login_data, $cookies_sqlite, $local_state)
         }
 
@@ -178,8 +178,7 @@ composite_rules:
     mbc: "B0028"
     file_types: [python, javascript, elf, pe, macho]
     requires_all:
-      - type: trait
-        id: multi-browser-theft-yara
+      - id: multi-browser-theft-yara
 
   # Full browser stealer with decryption and exfiltration
   - id: full-stealer-detected
@@ -190,8 +189,7 @@ composite_rules:
     mbc: "B0028"
     file_types: [python, javascript, elf, pe, macho]
     requires_all:
-      - type: trait
-        id: full-stealer-detected-yara
+      - id: full-stealer-detected-yara
 
   # Python browser stealer pattern
   - id: python-stealer
@@ -202,5 +200,4 @@ composite_rules:
     mbc: "B0028"
     file_types: [python]
     requires_all:
-      - type: trait
-        id: python-stealer-yara
+      - id: python-stealer-yara

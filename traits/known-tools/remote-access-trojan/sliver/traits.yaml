@@ -146,18 +146,12 @@ composite_rules:
     file_types: [elf, macho, pe, go]
     requires_count: 2
     conditions:
-      - type: trait
-        id: c2-framework/sliver/sliverpb
-      - type: trait
-        id: c2-framework/sliver/bishopfox
-      - type: trait
-        id: c2-framework/sliver/proto-ref
-      - type: trait
-        id: c2-framework/sliver/implant-builds
-      - type: trait
-        id: c2-framework/sliver/beacon-jitter
-      - type: trait
-        id: c2-framework/sliver/beacon-id
+      - id: c2-framework/sliver/sliverpb
+      - id: c2-framework/sliver/bishopfox
+      - id: c2-framework/sliver/proto-ref
+      - id: c2-framework/sliver/implant-builds
+      - id: c2-framework/sliver/beacon-jitter
+      - id: c2-framework/sliver/beacon-id
 
   # Sliver functions detection
   - id: c2-framework/sliver/functions-detected
@@ -170,14 +164,10 @@ composite_rules:
     file_types: [elf, macho, pe, go]
     requires_count: 2
     conditions:
-      - type: trait
-        id: c2-framework/sliver/implant-builds
-      - type: trait
-        id: c2-framework/sliver/beacon-jitter
-      - type: trait
-        id: c2-framework/sliver/obfuscate-symbols
-      - type: trait
-        id: c2-framework/sliver/beacon-id
+      - id: c2-framework/sliver/implant-builds
+      - id: c2-framework/sliver/beacon-jitter
+      - id: c2-framework/sliver/obfuscate-symbols
+      - id: c2-framework/sliver/beacon-id
 
   # Obfuscated variant detection via YARA (needs filesize constraints)
   - id: c2-framework/sliver/obfuscated-detected
@@ -190,11 +180,7 @@ composite_rules:
     platforms: [linux]
     file_types: [elf]
     requires_all:
-      - type: trait
-        id: c2-framework/sliver/coredump
-      - type: trait
-        id: c2-framework/sliver/gvisor-gso
-      - type: trait
-        id: c2-framework/sliver/proxy-func
-      - type: trait
-        id: c2-framework/sliver/set-spoofing
+      - id: c2-framework/sliver/coredump
+      - id: c2-framework/sliver/gvisor-gso
+      - id: c2-framework/sliver/proxy-func
+      - id: c2-framework/sliver/set-spoofing

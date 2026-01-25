@@ -117,14 +117,10 @@ composite_rules:
     file_types: [javascript, typescript]
     requires_count: 1
     conditions:
-      - type: trait
-        id: node-http-req
-      - type: trait
-        id: node-https-req
-      - type: trait
-        id: node-axios
-      - type: trait
-        id: node-fetch-call
+      - id: node-http-req
+      - id: node-https-req
+      - id: node-axios
+      - id: node-fetch-call
 
   # Encode then exfil pattern
   - id: node-encode-exfil
@@ -133,7 +129,5 @@ composite_rules:
     confidence: 0.9
     attack: "T1041"
     requires_all:
-      - type: trait
-        id: node-base64-encode
-      - type: trait
-        id: comm/http/request/node-http-request
+      - id: node-base64-encode
+      - id: comm/http/request/node-http-request

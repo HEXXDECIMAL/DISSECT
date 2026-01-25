@@ -10,7 +10,5 @@ composite_rules:
     attack: "T1041"
     file_types: [python]
     requires_all:
-      - type: trait
-        id: discovery/system
-      - type: trait
-        id: comm/http/request
+      - id: discovery/system
+      - id: comm/http/request

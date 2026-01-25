@@ -16,10 +16,38 @@ traits:
       type: string
       regex: "[a-z0-9]{56}\\.onion"
 
+  # === ICMP atomic indicators ===
+  - id: icmp-upper
+    description: ICMP uppercase
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "ICMP"
+
+  - id: icmp-lower
+    description: icmp lowercase
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "icmp"
+
+  - id: ipproto-icmp
+    description: IPPROTO_ICMP constant
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "IPPROTO_ICMP"
+
+composite_rules:
   - id: services-icmp
     description: ICMP communication
     criticality: notable
     confidence: 0.66
-    condition:
-      type: string
-      regex: "(ICMP|icmp|IPPROTO_ICMP)"
+    requires_count: 1
+    conditions:
+      - id: icmp-upper
+      - id: icmp-lower
+      - id: ipproto-icmp

@@ -93,9 +93,6 @@ composite_rules:
     attack: "T1505"
     mbc: "B0022"
     requires_any:
-      - type: trait
-        id: backdoor/upstyle/generic
-      - type: trait
-        id: backdoor/upstyle/cmd-exec
-      - type: trait
-        id: backdoor/upstyle/persistence
+      - id: backdoor/upstyle/generic
+      - id: backdoor/upstyle/cmd-exec
+      - id: backdoor/upstyle/persistence

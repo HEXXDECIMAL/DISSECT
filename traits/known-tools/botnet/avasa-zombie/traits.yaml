@@ -58,11 +58,7 @@ composite_rules:
     file_types: [elf]
     requires_count: 3
     conditions:
-      - type: trait
-        id: botnet/avasa-zombie/brand
-      - type: trait
-        id: botnet/avasa-zombie/motd-method
-      - type: trait
-        id: botnet/avasa-zombie/convert-attack
-      - type: trait
-        id: botnet/avasa-zombie/local-attack
+      - id: botnet/avasa-zombie/brand
+      - id: botnet/avasa-zombie/motd-method
+      - id: botnet/avasa-zombie/convert-attack
+      - id: botnet/avasa-zombie/local-attack

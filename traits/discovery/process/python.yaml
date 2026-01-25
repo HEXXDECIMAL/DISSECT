@@ -87,12 +87,9 @@ composite_rules:
     confidence: 0.8
     requires_count: 1
     conditions:
-      - type: trait
-        id: tasklist-cmd
-      - type: trait
-        id: pgrep-cmd
-      - type: trait
-        id: ps-ef-cmd
+      - id: tasklist-cmd
+      - id: pgrep-cmd
+      - id: ps-ef-cmd
 
   # Analysis tool detection
   - id: analysis-tool-names
@@ -101,23 +98,16 @@ composite_rules:
     confidence: 0.8
     requires_count: 1
     conditions:
-      - type: trait
-        id: wireshark-proc
-      - type: trait
-        id: vbox-proc
-      - type: trait
-        id: vmware-proc
-      - type: trait
-        id: charles-proc
-      - type: trait
-        id: fiddler-proc
+      - id: wireshark-proc
+      - id: vbox-proc
+      - id: vmware-proc
+      - id: charles-proc
+      - id: fiddler-proc
 
   - id: anti-analysis-recon
     description: Process-based anti-analysis/recon (psutil + sensitive process)
     criticality: suspicious
     confidence: 0.9
     requires_all:
-      - type: trait
-        id: psutil-enum
-      - type: composite
-        id: analysis-tool-names
+      - id: psutil-enum
+      - id: analysis-tool-names

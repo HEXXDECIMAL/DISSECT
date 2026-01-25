@@ -8,13 +8,8 @@ composite_rules:
     attack: "T1059"
     confidence: 0.9
     requires_any:
-      - type: trait
-        id: c-system
-      - type: trait
-        id: c-popen
-      - type: trait
-        id: python-os-system
-      - type: trait
-        id: go-os-exec
-      - type: trait
-        id: js-child-process
+      - id: c-system
+      - id: c-popen
+      - id: python-os-system
+      - id: go-os-exec
+      - id: js-child-process

@@ -236,18 +236,12 @@ composite_rules:
     attack: "T1027"
     requires_count: 3
     conditions:
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/high-function-density
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/many-one-liner-functions
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/very-long-lines
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/low-whitespace
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/no-comments
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/sequential-identifiers
+      - id: anti-static/obfuscation/code-metrics/high-function-density
+      - id: anti-static/obfuscation/code-metrics/many-one-liner-functions
+      - id: anti-static/obfuscation/code-metrics/very-long-lines
+      - id: anti-static/obfuscation/code-metrics/low-whitespace
+      - id: anti-static/obfuscation/code-metrics/no-comments
+      - id: anti-static/obfuscation/code-metrics/sequential-identifiers
 
   - id: identifier-obfuscation
     description: "Identifier obfuscation (random/encoded names)"
@@ -256,14 +250,10 @@ composite_rules:
     attack: "T1027"
     requires_count: 2
     conditions:
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/high-entropy-identifiers
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/many-high-entropy-identifiers
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/high-entropy-function-names
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/low-identifier-reuse
+      - id: anti-static/obfuscation/code-metrics/high-entropy-identifiers
+      - id: anti-static/obfuscation/code-metrics/many-high-entropy-identifiers
+      - id: anti-static/obfuscation/code-metrics/high-entropy-function-names
+      - id: anti-static/obfuscation/code-metrics/low-identifier-reuse
 
   - id: generated-code
     description: "Machine-generated or transformed code"
@@ -272,14 +262,10 @@ composite_rules:
     attack: "T1027"
     requires_count: 2
     conditions:
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/numeric-suffix-identifiers
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/single-char-function-names
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/excessive-single-char-vars
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/single-char-params
+      - id: anti-static/obfuscation/code-metrics/numeric-suffix-identifiers
+      - id: anti-static/obfuscation/code-metrics/single-char-function-names
+      - id: anti-static/obfuscation/code-metrics/excessive-single-char-vars
+      - id: anti-static/obfuscation/code-metrics/single-char-params
 
   - id: string-hiding
     description: "String concealment/encoding"
@@ -287,10 +273,7 @@ composite_rules:
     confidence: 0.85
     attack: "T1027"
     requires_all:
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/high-entropy-strings
+      - id: anti-static/obfuscation/code-metrics/high-entropy-strings
     requires_any:
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/few-strings
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/high-text-entropy
+      - id: anti-static/obfuscation/code-metrics/few-strings
+      - id: anti-static/obfuscation/code-metrics/high-text-entropy

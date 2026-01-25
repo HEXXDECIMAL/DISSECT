@@ -17,11 +17,7 @@ composite_rules:
     confidence: 0.98
     attack: "T1059.003"
     requires_all:
-      - type: trait
-        id: comm/http/request/js-axios-get
-      - type: trait
-        id: exec/command/shell/js-execsync
-      - type: trait
-        id: comm/http/request/js-axios-post
-      - type: trait
-        id: c2/shells/remote-exec/js-output-command-var
+      - id: comm/http/request/js-axios-get
+      - id: exec/command/shell/js-execsync
+      - id: comm/http/request/js-axios-post
+      - id: c2/shells/remote-exec/js-output-command-var

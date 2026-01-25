@@ -22,7 +22,5 @@ composite_rules:
     mbc: "B0015"
     file_types: [javascript]
     requires_all:
-      - type: trait
-        id: js-keyboard-listener
-      - type: trait
-        id: comm/http/request/js-axios-post
+      - id: js-keyboard-listener
+      - id: comm/http/request/js-axios-post

@@ -242,14 +242,9 @@ composite_rules:
     attack: "T1014"
     file_types: [elf, c]
     requires_all:
-      - type: trait
-        id: module-format
+      - id: module-format
     requires_any:
-      - type: trait
-        id: syscall-hook
-      - type: trait
-        id: proc-hiding
-      - type: trait
-        id: tcp-hiding
-      - type: trait
-        id: vfs-hook
+      - id: syscall-hook
+      - id: proc-hiding
+      - id: tcp-hiding
+      - id: vfs-hook

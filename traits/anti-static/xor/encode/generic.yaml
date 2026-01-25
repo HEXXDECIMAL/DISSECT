@@ -47,11 +47,7 @@ composite_rules:
     attack: "T1027"
     requires_count: 1
     conditions:
-      - type: trait
-        id: xor-key
-      - type: trait
-        id: xor-encrypt
-      - type: trait
-        id: xor-decode
-      - type: trait
-        id: xor-loop
+      - id: xor-key
+      - id: xor-encrypt
+      - id: xor-decode
+      - id: xor-loop

@@ -172,12 +172,9 @@ composite_rules:
     confidence: 0.7
     requires_count: 1
     conditions:
-      - type: trait
-        id: sentry-sdk-pkg
-      - type: trait
-        id: sentry-js-import
-      - type: trait
-        id: sentry-io-domain
+      - id: sentry-sdk-pkg
+      - id: sentry-js-import
+      - id: sentry-io-domain
 
   - id: sentry-init
     description: Sentry initialization function
@@ -185,12 +182,9 @@ composite_rules:
     confidence: 0.7
     requires_count: 1
     conditions:
-      - type: trait
-        id: sentry-init-js
-      - type: trait
-        id: sentry-init-py
-      - type: trait
-        id: sentry-init-c
+      - id: sentry-init-js
+      - id: sentry-init-py
+      - id: sentry-init-c
 
   - id: sentry-capture
     description: Sentry error capture
@@ -198,14 +192,10 @@ composite_rules:
     confidence: 0.6
     requires_count: 1
     conditions:
-      - type: trait
-        id: capture-exception
-      - type: trait
-        id: capture-message
-      - type: trait
-        id: capture-exception-js
-      - type: trait
-        id: capture-message-js
+      - id: capture-exception
+      - id: capture-message
+      - id: capture-exception-js
+      - id: capture-message-js
 
   - id: bugsnag
     description: Bugsnag error tracking
@@ -213,10 +203,8 @@ composite_rules:
     confidence: 0.7
     requires_count: 1
     conditions:
-      - type: trait
-        id: bugsnag-domain
-      - type: trait
-        id: bugsnag-notify
+      - id: bugsnag-domain
+      - id: bugsnag-notify
 
   - id: rollbar
     description: Rollbar error tracking
@@ -224,10 +212,8 @@ composite_rules:
     confidence: 0.7
     requires_count: 1
     conditions:
-      - type: trait
-        id: rollbar-domain
-      - type: trait
-        id: rollbar-error
+      - id: rollbar-domain
+      - id: rollbar-error
 
   - id: raygun
     description: Raygun error tracking
@@ -235,47 +221,37 @@ composite_rules:
     confidence: 0.7
     requires_count: 1
     conditions:
-      - type: trait
-        id: raygun-com
-      - type: trait
-        id: raygun-io
+      - id: raygun-com
+      - id: raygun-io
 
   - id: sentry-operator-monitoring
     description: Sentry error tracking for operator monitoring
     criticality: suspicious
     confidence: 0.85
     requires_any:
-      - type: trait
-        id: sentry-dsn
-      - type: composite
-        id: sentry-sdk
-      - type: composite
-        id: sentry-init
+      - id: sentry-dsn
+      - id: sentry-sdk
+      - id: sentry-init
 
   - id: bugsnag-operator-monitoring
     description: Bugsnag error tracking with stacktrace capture
     criticality: suspicious
     confidence: 0.8
     requires_any:
-      - type: composite
-        id: bugsnag
+      - id: bugsnag
 
   - id: rollbar-operator-monitoring
     description: Rollbar error tracking with stacktrace capture
     criticality: suspicious
     confidence: 0.8
     requires_any:
-      - type: composite
-        id: rollbar
+      - id: rollbar
 
   - id: operator-monitoring
     description: Malware operator monitoring via error tracking service
     criticality: suspicious
     confidence: 0.85
     requires_any:
-      - type: composite
-        id: sentry-operator-monitoring
-      - type: composite
-        id: bugsnag-operator-monitoring
-      - type: composite
-        id: rollbar-operator-monitoring
+      - id: sentry-operator-monitoring
+      - id: bugsnag-operator-monitoring
+      - id: rollbar-operator-monitoring

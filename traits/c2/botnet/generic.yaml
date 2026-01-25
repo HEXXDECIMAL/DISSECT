@@ -106,14 +106,10 @@ composite_rules:
     confidence: 0.75
     requires_count: 1
     conditions:
-      - type: trait
-        id: botnet-term
-      - type: trait
-        id: bot-net-term
-      - type: trait
-        id: c2-server-term
-      - type: trait
-        id: command-control-term
+      - id: botnet-term
+      - id: bot-net-term
+      - id: c2-server-term
+      - id: command-control-term
 
   - id: zombie-botnet
     description: Zombie botnet specific patterns
@@ -121,10 +117,8 @@ composite_rules:
     confidence: 0.6
     requires_count: 1
     conditions:
-      - type: trait
-        id: zombie-bot
-      - type: trait
-        id: bot-zombie
+      - id: zombie-bot
+      - id: bot-zombie
 
   - id: botnet-agent
     description: Bot agent patterns
@@ -132,11 +126,7 @@ composite_rules:
     confidence: 0.66
     requires_count: 1
     conditions:
-      - type: trait
-        id: bot-agent
-      - type: trait
-        id: agent-bot
-      - type: trait
-        id: slave-term
-      - type: trait
-        id: master-node
+      - id: bot-agent
+      - id: agent-bot
+      - id: slave-term
+      - id: master-node

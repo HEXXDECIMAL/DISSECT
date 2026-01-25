@@ -98,7 +98,5 @@ composite_rules:
     attack: "T1486"
     file_types: [elf, macho, pe, so, dylib, dll]
     requires_any:
-      - type: trait
-        id: ransomware/medusa/generic
-      - type: trait
-        id: ransomware/medusa/linux
+      - id: ransomware/medusa/generic
+      - id: ransomware/medusa/linux

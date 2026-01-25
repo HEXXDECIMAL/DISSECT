@@ -70,13 +70,8 @@ composite_rules:
     file_types: [elf]
     requires_count: 4
     conditions:
-      - type: trait
-        id: backdoor/fontonlake/hidden-proc
-      - type: trait
-        id: backdoor/fontonlake/x11-socket
-      - type: trait
-        id: backdoor/fontonlake/insmod
-      - type: trait
-        id: backdoor/fontonlake/ssh-known-hosts
-      - type: trait
-        id: backdoor/fontonlake/dmesg-clear
+      - id: backdoor/fontonlake/hidden-proc
+      - id: backdoor/fontonlake/x11-socket
+      - id: backdoor/fontonlake/insmod
+      - id: backdoor/fontonlake/ssh-known-hosts
+      - id: backdoor/fontonlake/dmesg-clear

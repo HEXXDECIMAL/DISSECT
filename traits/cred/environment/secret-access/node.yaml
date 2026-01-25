@@ -144,15 +144,9 @@ composite_rules:
     file_types: [javascript, typescript]
     requires_count: 3
     conditions:
-      - type: trait
-        id: node-aws
-      - type: trait
-        id: node-git-token
-      - type: trait
-        id: node-npm-token
-      - type: trait
-        id: node-discord
-      - type: trait
-        id: node-database
-      - type: trait
-        id: node-crypto
+      - id: node-aws
+      - id: node-git-token
+      - id: node-npm-token
+      - id: node-discord
+      - id: node-database
+      - id: node-crypto

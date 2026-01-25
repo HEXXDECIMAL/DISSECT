@@ -153,8 +153,7 @@ composite_rules:
     confidence: 0.95
     mbc: "B0030"
     requires_all:
-      - type: trait
-        id: setup-py-exec-yara
+      - id: setup-py-exec-yara
 
   # __init__.py with code execution (very suspicious)
   - id: init-py-exec
@@ -163,8 +162,7 @@ composite_rules:
     confidence: 0.9
     mbc: "B0030"
     requires_all:
-      - type: trait
-        id: init-py-exec-yara
+      - id: init-py-exec-yara
 
   # Package that installs other packages at runtime
   - id: dependency-injection
@@ -173,5 +171,4 @@ composite_rules:
     confidence: 0.95
     mbc: "B0030"
     requires_all:
-      - type: trait
-        id: dependency-injection-yara
+      - id: dependency-injection-yara

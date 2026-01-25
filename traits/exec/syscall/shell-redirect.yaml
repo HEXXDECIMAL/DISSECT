@@ -91,10 +91,8 @@ composite_rules:
     platforms: [linux]
     file_types: [elf]
     requires_all:
-      - type: trait
-        id: syscall-execve-linux
-      - type: trait
-        id: syscall-dup-redirect-linux
+      - id: syscall-execve-linux
+      - id: syscall-dup-redirect-linux
 
   - id: reverse-shell-pattern
     description: Reverse shell pattern - socket + dup2 + execve
@@ -103,14 +101,10 @@ composite_rules:
     platforms: [linux]
     file_types: [elf]
     requires_all:
-      - type: trait
-        id: syscall-socket-linux
-      - type: trait
-        id: syscall-connect-linux
-      - type: trait
-        id: syscall-dup-redirect-linux
-      - type: trait
-        id: syscall-execve-linux
+      - id: syscall-socket-linux
+      - id: syscall-connect-linux
+      - id: syscall-dup-redirect-linux
+      - id: syscall-execve-linux
 
   - id: shell-redirect-macos
     description: macOS program execution with FD redirection
@@ -119,10 +113,8 @@ composite_rules:
     platforms: [macos]
     file_types: [macho]
     requires_all:
-      - type: trait
-        id: syscall-execve-macos
-      - type: trait
-        id: syscall-dup-redirect-macos
+      - id: syscall-execve-macos
+      - id: syscall-dup-redirect-macos
 
   - id: reverse-shell-pattern-macos
     description: macOS reverse shell pattern - socket + dup2 + execve
@@ -131,11 +123,7 @@ composite_rules:
     platforms: [macos]
     file_types: [macho]
     requires_all:
-      - type: trait
-        id: syscall-socket-macos
-      - type: trait
-        id: syscall-connect-macos
-      - type: trait
-        id: syscall-dup-redirect-macos
-      - type: trait
-        id: syscall-execve-macos
+      - id: syscall-socket-macos
+      - id: syscall-connect-macos
+      - id: syscall-dup-redirect-macos
+      - id: syscall-execve-macos

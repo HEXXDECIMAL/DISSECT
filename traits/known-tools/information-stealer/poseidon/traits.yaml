@@ -41,8 +41,7 @@ composite_rules:
     platforms: [macos]
     file_types: [macho]
     requires_any:
-      - type: trait
-        id: stealer/poseidon/c2-url
+      - id: stealer/poseidon/c2-url
 
   # Behavioral detection via YARA (filesize + entropy)
   - id: stealer/poseidon/detected

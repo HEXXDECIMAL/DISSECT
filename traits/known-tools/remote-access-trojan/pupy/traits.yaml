@@ -165,11 +165,7 @@ composite_rules:
     attack: "T1071"
     file_types: [elf, macho, pe, so, dylib, dll, python]
     requires_any:
-      - type: trait
-        id: c2-framework/pupy/reflective-loader
-      - type: trait
-        id: c2-framework/pupy/python-stager
-      - type: trait
-        id: c2-framework/pupy/rpyc-transport
-      - type: trait
-        id: c2-framework/pupy/inmemory
+      - id: c2-framework/pupy/reflective-loader
+      - id: c2-framework/pupy/python-stager
+      - id: c2-framework/pupy/rpyc-transport
+      - id: c2-framework/pupy/inmemory

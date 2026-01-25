@@ -484,7 +484,7 @@ traits:
             $b64_3 = "encodebytes" ascii
             // Batch file indicators
             $batch1 = "@echo off" ascii nocase
-            $batch2 = 'echo %' ascii
+            $batch2 = "echo %" ascii
             $batch3 = ".bat" ascii
             $batch4 = ".cmd" ascii
             // Script generation
@@ -493,8 +493,8 @@ traits:
             $script3 = ".js" ascii
             $script4 = ".vbs" ascii
             // File read
-            $read = 'open(' ascii
-            $rb = "'rb'" ascii
+            $read = "open(" ascii
+            $rb = "\"rb\"" ascii
           condition:
             filesize < 500KB and
             any of ($b64_*) and
@@ -548,7 +548,7 @@ traits:
           strings:
             $marshal = "from marshal import loads" ascii
             $exec = "exec(" ascii
-            $loads = "loads(b'" ascii
+            $loads = "loads(b" ascii
             $compressed = /\\x78\\x9c/ ascii
           condition:
             filesize < 5MB and
@@ -566,12 +566,9 @@ composite_rules:
     mbc: "B0024"
     file_types: [javascript, typescript]
     requires_all:
-      - type: trait
-        id: dropper/archive/download-zip
-      - type: trait
-        id: dropper/archive/exe-search
-      - type: trait
-        id: dropper/archive/extract-execute
+      - id: dropper/archive/download-zip
+      - id: dropper/archive/exe-search
+      - id: dropper/archive/extract-execute
 
   # Complete dropper lifecycle (Fetch + Write + Execute)
   - id: fetch-write-execute
@@ -582,12 +579,9 @@ composite_rules:
     attack: "T1105"
     file_types: [python]
     requires_all:
-      - type: trait
-        id: comm/http/request/get
-      - type: trait
-        id: fs/file/write/generic
-      - type: trait
-        id: python-exec-call
+      - id: comm/http/request/get
+      - id: fs/file/write/generic
+      - id: python-exec-call
 
   # Full interpreter dropper: download + extract + stdin exec
   - id: full-stager
@@ -598,15 +592,11 @@ composite_rules:
     mbc: "B0024"
     file_types: [javascript, typescript]
     requires_any:
-      - type: trait
-        id: python-standalone
-      - type: trait
-        id: node-standalone
+      - id: python-standalone
+      - id: node-standalone
     requires_all:
-      - type: trait
-        id: stdin-exec
-      - type: trait
-        id: stream-tar-extract
+      - id: stdin-exec
+      - id: stream-tar-extract
 
   # Download interpreter + remote payload fetch + execute
   - id: remote-payload-stager
@@ -617,12 +607,9 @@ composite_rules:
     mbc: "B0024"
     file_types: [javascript, typescript]
     requires_all:
-      - type: trait
-        id: download-and-exec
-      - type: trait
-        id: stdin-exec
-      - type: trait
-        id: base64-buffer
+      - id: download-and-exec
+      - id: stdin-exec
+      - id: base64-buffer
 
   # Python stager with obfuscated payload URL
   - id: python-obfuscated-stager
@@ -633,12 +620,9 @@ composite_rules:
     mbc: "B0024"
     file_types: [javascript, typescript]
     requires_all:
-      - type: trait
-        id: python-standalone
-      - type: trait
-        id: stdin-exec
-      - type: trait
-        id: hex-url-array
+      - id: python-standalone
+      - id: stdin-exec
+      - id: hex-url-array
 
   # Full dropper lifecycle: download + extract + execute
   - id: full-dropper
@@ -649,12 +633,9 @@ composite_rules:
     mbc: "B0024"
     file_types: [javascript, typescript]
     requires_all:
-      - type: trait
-        id: dropper/node/download-file
-      - type: trait
-        id: dropper/node/archive-extract
-      - type: trait
-        id: spawn-exec-call
+      - id: dropper/node/download-file
+      - id: dropper/node/archive-extract
+      - id: spawn-exec-call
 
   # Download and detached execute
   - id: download-detached-exec
@@ -665,12 +646,9 @@ composite_rules:
     mbc: "B0024"
     file_types: [javascript, typescript]
     requires_all:
-      - type: trait
-        id: dropper/node/download-file
-      - type: trait
-        id: dropper/node/detached-spawn
-      - type: trait
-        id: dropper/node/exec-downloaded
+      - id: dropper/node/download-file
+      - id: dropper/node/detached-spawn
+      - id: dropper/node/exec-downloaded
 
   # ActiveXObject + WScript.Shell/ADODB.Stream/XMLHTTP (Classic Dropper)
   - id: activex-dropper
@@ -681,9 +659,6 @@ composite_rules:
     mbc: "B0024"
     file_types: [javascript]
     requires_all:
-      - type: trait
-        id: dropper/builder/activex-object
-      - type: trait
-        id: dropper/builder/adodb-stream
-      - type: trait
-        id: wscript-xmlhttp
+      - id: dropper/builder/activex-object
+      - id: dropper/builder/adodb-stream
+      - id: wscript-xmlhttp

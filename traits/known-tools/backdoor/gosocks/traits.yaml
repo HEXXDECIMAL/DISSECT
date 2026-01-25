@@ -52,11 +52,7 @@ composite_rules:
     mbc: "B0022"
     file_types: [elf, macho]
     requires_any:
-      - type: trait
-        id: backdoor/gosocks/unique-path
-      - type: trait
-        id: backdoor/gosocks/shell-module
-      - type: trait
-        id: backdoor/gosocks/proxy-module
-      - type: trait
-        id: backdoor/gosocks/forward-module
+      - id: backdoor/gosocks/unique-path
+      - id: backdoor/gosocks/shell-module
+      - id: backdoor/gosocks/proxy-module
+      - id: backdoor/gosocks/forward-module

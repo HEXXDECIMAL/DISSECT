@@ -131,33 +131,20 @@ composite_rules:
     attack: "T1016.001"
     mbc: "B0046"
     file_types: [all]
-    requires_any:
-      minimum: 2
-      conditions:
-        - type: trait
-          id: ipify
-        - type: trait
-          id: ipinfo
-        - type: trait
-          id: ifconfig-me
-        - type: trait
-          id: icanhazip
-        - type: trait
-          id: wtfismyip
-        - type: trait
-          id: iplogger
-        - type: trait
-          id: ifconfig-io
-        - type: trait
-          id: ifconfig-co
-        - type: trait
-          id: ident-me
-        - type: trait
-          id: checkip-amazonaws
-        - type: trait
-          id: ipify-b64
-        - type: trait
-          id: ipinfo-b64
+    requires_count: 2
+    conditions:
+      - id: ipify
+      - id: ipinfo
+      - id: ifconfig-me
+      - id: icanhazip
+      - id: wtfismyip
+      - id: iplogger
+      - id: ifconfig-io
+      - id: ifconfig-co
+      - id: ident-me
+      - id: checkip-amazonaws
+      - id: ipify-b64
+      - id: ipinfo-b64
 
   - id: ip-recon-obfuscated
     description: Obfuscated IP reconnaissance

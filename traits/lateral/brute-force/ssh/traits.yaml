@@ -96,10 +96,7 @@ composite_rules:
     attack: "T1110.001"
     file_types: [elf]
     requires_all:
-      - type: trait
-        id: scanner
-      - type: trait
-        id: iot-creds
+      - id: scanner
+      - id: iot-creds
     requires_any:
-      - type: trait
-        id: auth-spray
+      - id: auth-spray

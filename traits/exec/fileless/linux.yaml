@@ -273,16 +273,11 @@ composite_rules:
     file_types: [python, c, shell]
     requires_count: 1
     conditions:
-      - type: trait
-        id: execv-fn
-      - type: trait
-        id: execve-fn
-      - type: trait
-        id: execl-fn
-      - type: trait
-        id: os-exec
-      - type: trait
-        id: subprocess-mod
+      - id: execv-fn
+      - id: execve-fn
+      - id: execl-fn
+      - id: os-exec
+      - id: subprocess-mod
 
   # Download indicators composite
   - id: http-download-python
@@ -293,14 +288,10 @@ composite_rules:
     file_types: [python]
     requires_count: 1
     conditions:
-      - type: trait
-        id: requests-get
-      - type: trait
-        id: urllib-mod
-      - type: trait
-        id: http-client
-      - type: trait
-        id: dot-content
+      - id: requests-get
+      - id: urllib-mod
+      - id: http-client
+      - id: dot-content
 
   # Write to fd composite
   - id: fd-write-raw
@@ -310,10 +301,8 @@ composite_rules:
     file_types: [python, c]
     requires_count: 1
     conditions:
-      - type: trait
-        id: os-write
-      - type: trait
-        id: write-fd
+      - id: os-write
+      - id: write-fd
 
   # memfd_create syscall
   - id: memfd-create
@@ -323,10 +312,8 @@ composite_rules:
     file_types: [python, c, shell]
     requires_count: 1
     conditions:
-      - type: trait
-        id: memfd-create-fn
-      - type: trait
-        id: sys-memfd-create
+      - id: memfd-create-fn
+      - id: sys-memfd-create
 
   # proc/self/fd path
   - id: proc-fd-path
@@ -336,10 +323,8 @@ composite_rules:
     file_types: [python, c, shell]
     requires_count: 1
     conditions:
-      - type: trait
-        id: proc-self-fd
-      - type: trait
-        id: proc-self-fd-slash
+      - id: proc-self-fd
+      - id: proc-self-fd-slash
 
   # Execution from /proc/self/fd
   - id: proc-fd-exec
@@ -348,10 +333,8 @@ composite_rules:
     confidence: 0.95
     file_types: [python, c, shell]
     requires_all:
-      - type: composite
-        id: proc-fd-path
-      - type: composite
-        id: exec-function
+      - id: proc-fd-path
+      - id: exec-function
 
   # ctypes syscall invocation
   - id: ctypes-syscall
@@ -361,16 +344,12 @@ composite_rules:
     attack: "T1106"
     file_types: [python]
     requires_all:
-      - type: trait
-        id: ctypes-mod
-      - type: trait
-        id: dot-syscall
+      - id: ctypes-mod
+      - id: dot-syscall
     requires_count: 1
     conditions:
-      - type: trait
-        id: ctypes-cdll
-      - type: trait
-        id: libc-so
+      - id: ctypes-cdll
+      - id: libc-so
 
   # Write to fd with seek
   - id: fd-write
@@ -379,14 +358,11 @@ composite_rules:
     confidence: 0.8
     file_types: [python]
     requires_all:
-      - type: trait
-        id: os-write
+      - id: os-write
     requires_count: 1
     conditions:
-      - type: trait
-        id: os-lseek
-      - type: trait
-        id: seek-set
+      - id: os-lseek
+      - id: seek-set
 
   # Download and memfd execution chain
   - id: download-memfd-exec
@@ -395,16 +371,12 @@ composite_rules:
     confidence: 0.98
     file_types: [python, c, shell]
     requires_all:
-      - type: composite
-        id: http-download-python
-      - type: composite
-        id: memfd-create
+      - id: http-download-python
+      - id: memfd-create
     requires_count: 1
     conditions:
-      - type: composite
-        id: exec-function
-      - type: composite
-        id: fd-write-raw
+      - id: exec-function
+      - id: fd-write-raw
 
   # shm_open for shared memory execution
   - id: shm-exec
@@ -414,14 +386,10 @@ composite_rules:
     file_types: [python, c, shell]
     requires_count: 2
     conditions:
-      - type: trait
-        id: shm-open
-      - type: trait
-        id: mmap-fn
-      - type: trait
-        id: dev-shm
-      - type: trait
-        id: execv-fn
+      - id: shm-open
+      - id: mmap-fn
+      - id: dev-shm
+      - id: execv-fn
 
   # Complete fileless dropper pattern
   - id: linux-dropper
@@ -430,9 +398,6 @@ composite_rules:
     confidence: 0.99
     file_types: [python, elf]
     requires_all:
-      - type: composite
-        id: memfd-create
-      - type: composite
-        id: http-download-python
-      - type: composite
-        id: fd-write-raw
+      - id: memfd-create
+      - id: http-download-python
+      - id: fd-write-raw

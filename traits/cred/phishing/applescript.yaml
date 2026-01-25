@@ -83,34 +83,61 @@ traits:
       regex: "(?i)admin.*password"
 
 composite_rules:
+  # Password prompt patterns group
+  - id: password-prompt-pattern
+    description: Password dialog prompt
+    criticality: suspicious
+    confidence: 0.8
+    file_types: [applescript, shell]
+    requires_count: 1
+    conditions:
+      - id: display-dialog-password
+      - id: default-answer-password
+      - id: enter-password-prompt
+
+  # Fake dialog UI elements group
+  - id: fake-dialog-ui
+    description: Fake dialog UI element
+    criticality: notable
+    confidence: 0.7
+    file_types: [applescript, shell]
+    requires_count: 1
+    conditions:
+      - id: hidden-answer
+      - id: icon-caution
+      - id: icon-stop
+
+  # System credential prompts group
+  - id: system-cred-prompt
+    description: System credential prompt
+    criticality: suspicious
+    confidence: 0.85
+    file_types: [applescript, shell]
+    requires_count: 1
+    conditions:
+      - id: keychain-password
+      - id: admin-password
+
   # ============================================
   # Password Phishing Dialog
   # ============================================
   - id: password-phishing
-    description: "AppleScript password phishing dialog"
+    description: AppleScript password phishing dialog
     criticality: hostile
     confidence: 0.95
     file_types: [applescript, shell]
-    requires_any:
-      - {type: trait, id: display-dialog-password}
-      - {type: trait, id: default-answer-password}
-      - {type: trait, id: enter-password-prompt}
-    requires_any:
-      - {type: trait, id: hidden-answer}
-      - {type: trait, id: icon-caution}
-      - {type: trait, id: icon-stop}
+    requires_all:
+      - id: password-prompt-pattern
+      - id: fake-dialog-ui
 
   # ============================================
   # Fake System Password Prompt
   # ============================================
   - id: fake-system-prompt
-    description: "Fake system password prompt"
+    description: Fake system password prompt
     criticality: hostile
     confidence: 0.9
     file_types: [applescript, shell]
-    requires_any:
-      - {type: trait, id: keychain-password}
-      - {type: trait, id: admin-password}
-    requires_any:
-      - {type: trait, id: hidden-answer}
-      - {type: trait, id: icon-caution}
+    requires_all:
+      - id: system-cred-prompt
+      - id: fake-dialog-ui

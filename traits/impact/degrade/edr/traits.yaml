@@ -142,24 +142,15 @@ composite_rules:
     file_types: [pe, elf]
     requires_count: 1
     conditions:
-      - type: trait
-        id: defender-name
-      - type: trait
-        id: malwarebytes-name
-      - type: trait
-        id: kaspersky-name
-      - type: trait
-        id: bitdefender-name
-      - type: trait
-        id: avast-name
-      - type: trait
-        id: norton-name
-      - type: trait
-        id: mcafee-name
-      - type: trait
-        id: sophos-name
-      - type: trait
-        id: eset-name
+      - id: defender-name
+      - id: malwarebytes-name
+      - id: kaspersky-name
+      - id: bitdefender-name
+      - id: avast-name
+      - id: norton-name
+      - id: mcafee-name
+      - id: sophos-name
+      - id: eset-name
 
   # EDR termination verbs composite
   - id: termination-verbs
@@ -169,10 +160,8 @@ composite_rules:
     file_types: [elf, pe]
     requires_count: 1
     conditions:
-      - type: trait
-        id: kill-keyword
-      - type: trait
-        id: terminate-keyword
+      - id: kill-keyword
+      - id: terminate-keyword
 
   # EDR process termination (verb + product name)
   - id: kill
@@ -181,10 +170,8 @@ composite_rules:
     confidence: 0.9
     file_types: [elf, pe]
     requires_all:
-      - type: composite
-        id: termination-verbs
-      - type: composite
-        id: edr-product-name
+      - id: termination-verbs
+      - id: edr-product-name
 
   - id: bypass-detected
     description: EDR/Antivirus bypass attempt
@@ -193,10 +180,7 @@ composite_rules:
     mbc: "F0004"
     file_types: [pe, elf]
     requires_any:
-      - type: trait
-        id: stopper
-      - type: trait
-        id: terminate-process-api
+      - id: stopper
+      - id: terminate-process-api
     requires_all:
-      - type: composite
-        id: edr-product-name
+      - id: edr-product-name

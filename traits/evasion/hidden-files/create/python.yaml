@@ -105,9 +105,6 @@ composite_rules:
     confidence: 0.95
     criticality: hostile
     requires_all:
-      - type: trait
-        id: python-home-expansion
-      - type: trait
-        id: python-hidden-join-pattern
-      - type: trait
-        id: python-write-or-makedirs
+      - id: python-home-expansion
+      - id: python-hidden-join-pattern
+      - id: python-write-or-makedirs

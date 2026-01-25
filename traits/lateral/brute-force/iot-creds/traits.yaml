@@ -200,24 +200,15 @@ composite_rules:
     file_types: [elf]
     requires_count: 3
     conditions:
-      - type: trait
-        id: mirai-cred-admin
-      - type: trait
-        id: mirai-cred-vizxv
-      - type: trait
-        id: mirai-cred-juantech
-      - type: trait
-        id: mirai-cred-xc3511
-      - type: trait
-        id: mirai-cred-jvbzd
-      - type: trait
-        id: mirai-cred-smcadmin
-      - type: trait
-        id: mirai-cred-gm8182
-      - type: trait
-        id: mirai-cred-oelinux
-      - type: trait
-        id: mirai-cred-hi3518
+      - id: mirai-cred-admin
+      - id: mirai-cred-vizxv
+      - id: mirai-cred-juantech
+      - id: mirai-cred-xc3511
+      - id: mirai-cred-jvbzd
+      - id: mirai-cred-smcadmin
+      - id: mirai-cred-gm8182
+      - id: mirai-cred-oelinux
+      - id: mirai-cred-hi3518
 
   # Camera credential list detection
   - id: camera-creds
@@ -229,14 +220,10 @@ composite_rules:
     file_types: [elf]
     requires_count: 2
     conditions:
-      - type: trait
-        id: camera-cred-vizxv
-      - type: trait
-        id: camera-cred-xmhdipc
-      - type: trait
-        id: mirai-cred-vizxv
-      - type: trait
-        id: mirai-cred-prefix
+      - id: camera-cred-vizxv
+      - id: camera-cred-xmhdipc
+      - id: mirai-cred-vizxv
+      - id: mirai-cred-prefix
 
   # Telnet bruteforce attack pattern
   - id: telnet-attack
@@ -248,11 +235,7 @@ composite_rules:
     file_types: [elf]
     requires_count: 2
     conditions:
-      - type: trait
-        id: telnet-connect
-      - type: trait
-        id: busybox-download
-      - type: trait
-        id: telnet-port-scan
-      - type: trait
-        id: router-shell-enable
+      - id: telnet-connect
+      - id: busybox-download
+      - id: telnet-port-scan
+      - id: router-shell-enable

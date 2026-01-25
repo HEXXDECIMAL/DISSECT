@@ -65,8 +65,8 @@ composite_rules:
     attack: "T1005"
     file_types: [shell, python, applescript, macho]
     requires_all:
-      - {type: trait, id: notestore-db}
+      - {id: notestore-db}
     requires_any:
-      - {type: trait, id: notestore-wal}
-      - {type: trait, id: notestore-shm}
-      - {type: trait, id: notes-container}
+      - {id: notestore-wal}
+      - {id: notestore-shm}
+      - {id: notes-container}

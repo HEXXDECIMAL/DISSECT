@@ -29,9 +29,6 @@ composite_rules:
     attack: "T1020"
     file_types: [javascript]
     requires_all:
-      - type: trait
-        id: js-profiling
-      - type: trait
-        id: comm/http/request/js-axios-post
-      - type: trait
-        id: fs/file/read
+      - id: js-profiling
+      - id: comm/http/request/js-axios-post
+      - id: fs/file/read

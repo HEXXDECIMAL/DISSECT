@@ -246,95 +246,58 @@ composite_rules:
     description: Network troubleshooting utilities
     requires_count: 1
     conditions:
-      - type: trait
-        id: ping
-      - type: trait
-        id: ping6
-      - type: trait
-        id: traceroute
-      - type: trait
-        id: tracepath
-      - type: trait
-        id: mtr
-      - type: trait
-        id: nslookup
-      - type: trait
-        id: dig
-      - type: trait
-        id: host
-      - type: trait
-        id: nc
-      - type: trait
-        id: netcat
-      - type: trait
-        id: telnet
+      - id: ping
+      - id: ping6
+      - id: traceroute
+      - id: tracepath
+      - id: mtr
+      - id: nslookup
+      - id: dig
+      - id: host
+      - id: nc
+      - id: netcat
+      - id: telnet
 
   # Network monitoring
   - id: monitoring
     description: Network monitoring utilities
     requires_count: 1
     conditions:
-      - type: trait
-        id: tcpdump
-      - type: trait
-        id: wireshark
-      - type: trait
-        id: tshark
-      - type: trait
-        id: netstat
-      - type: trait
-        id: ss
-      - type: trait
-        id: lsof-i
-      - type: trait
-        id: ifconfig
-      - type: trait
-        id: ip-addr
-      - type: trait
-        id: ip-link
+      - id: tcpdump
+      - id: wireshark
+      - id: tshark
+      - id: netstat
+      - id: ss
+      - id: lsof-i
+      - id: ifconfig
+      - id: ip-addr
+      - id: ip-link
 
   # Network performance
   - id: performance
     description: Network performance testing
     requires_count: 1
     conditions:
-      - type: trait
-        id: iperf
-      - type: trait
-        id: iperf3
-      - type: trait
-        id: speedtest
-      - type: trait
-        id: hping
-      - type: trait
-        id: fping
-      - type: trait
-        id: curl
-      - type: trait
-        id: wget
-      - type: trait
-        id: ab
-      - type: trait
-        id: wrk
+      - id: iperf
+      - id: iperf3
+      - id: speedtest
+      - id: hping
+      - id: fping
+      - id: curl
+      - id: wget
+      - id: ab
+      - id: wrk
 
   # Firewall management
   - id: firewall
     description: Firewall management utilities
     requires_count: 1
     conditions:
-      - type: trait
-        id: iptables
-      - type: trait
-        id: ip6tables
-      - type: trait
-        id: iptables-save
-      - type: trait
-        id: nft
-      - type: trait
-        id: nftables
-      - type: trait
-        id: firewall-cmd
-      - type: trait
-        id: firewalld
-      - type: trait
-        id: ufw
+      - id: iptables
+      - id: ip6tables
+      - id: iptables-save
+      - id: nft
+      - id: nftables
+      - id: firewall-cmd
+      - id: firewalld
+      - id: ufw

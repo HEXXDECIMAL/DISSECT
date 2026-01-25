@@ -214,13 +214,8 @@ composite_rules:
     confidence: 0.85
     requires_count: 3
     conditions:
-      - type: trait
-        id: machine-id
-      - type: trait
-        id: cpu-info
-      - type: trait
-        id: network-interfaces
-      - type: trait
-        id: disk-serial
-      - type: trait
-        id: os-info
+      - id: machine-id
+      - id: cpu-info
+      - id: network-interfaces
+      - id: disk-serial
+      - id: os-info

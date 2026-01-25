@@ -85,5 +85,4 @@ composite_rules:
     confidence: 0.95
     criticality: suspicious
     requires_all:
-      - type: trait
-        id: yara-pip-fallback-install
+      - id: yara-pip-fallback-install

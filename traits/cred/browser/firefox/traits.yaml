@@ -145,10 +145,8 @@ composite_rules:
     confidence: 0.85
     attack: "T1555.003"
     requires_all:
-      - type: trait
-        id: path
-      - type: trait
-        id: cookies-sqlite
+      - id: path
+      - id: cookies-sqlite
 
   - id: password-theft
     description: Firefox password/form history theft
@@ -156,17 +154,12 @@ composite_rules:
     confidence: 0.85
     attack: "T1555.003"
     requires_all:
-      - type: trait
-        id: path
+      - id: path
     requires_any:
-      - type: trait
-        id: formhistory-sqlite
-      - type: trait
-        id: nss-private
-      - type: trait
-        id: logins-json
-      - type: trait
-        id: key4-db
+      - id: formhistory-sqlite
+      - id: nss-private
+      - id: logins-json
+      - id: key4-db
 
   - id: nss-decrypt
     description: Firefox NSS decryption (password extraction)
@@ -176,10 +169,7 @@ composite_rules:
     mbc: "B0028"
     file_types: [python, javascript, elf, pe, macho, so, dll]
     requires_any:
-      - type: trait
-        id: pk11-decrypt
-      - type: trait
-        id: nss3-lib
+      - id: pk11-decrypt
+      - id: nss3-lib
     requires_all:
-      - type: trait
-        id: path
+      - id: path

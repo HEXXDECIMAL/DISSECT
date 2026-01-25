@@ -207,19 +207,11 @@ composite_rules:
     file_types: [c, elf, go]
     requires_count: 2
     conditions:
-      - type: trait
-        id: syscall-hooking
-      - type: trait
-        id: xdp-backdoor
-      - type: trait
-        id: probe-write-user
-      - type: trait
-        id: sudoers-manipulation
-      - type: trait
-        id: dirent-hiding
-      - type: trait
-        id: uprobe-hooking
-      - type: trait
-        id: http-manipulation
-      - type: trait
-        id: go-offensive-program
+      - id: syscall-hooking
+      - id: xdp-backdoor
+      - id: probe-write-user
+      - id: sudoers-manipulation
+      - id: dirent-hiding
+      - id: uprobe-hooking
+      - id: http-manipulation
+      - id: go-offensive-program

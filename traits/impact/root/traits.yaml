@@ -38,8 +38,7 @@ composite_rules:
     criticality: hostile
     confidence: 1.0
     requires_all:
-      - type: trait
-        id: impact/root/prepare-creds-string
+      - id: impact/root/prepare-creds-string
 
   # Become Root Flow
   - id: my-become-root
@@ -48,11 +47,7 @@ composite_rules:
     confidence: 1.0
     attack: "T1068"
     requires_all:
-      - type: trait
-        id: impact/root/prepare-creds-string
-      - type: trait
-        id: kernel/rootkit/prepare-creds-call
-      - type: trait
-        id: kernel/rootkit/commit-creds-call
-      - type: trait
-        id: impact/root/credential-manipulation
+      - id: impact/root/prepare-creds-string
+      - id: kernel/rootkit/prepare-creds-call
+      - id: kernel/rootkit/commit-creds-call
+      - id: impact/root/credential-manipulation

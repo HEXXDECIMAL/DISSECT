@@ -295,12 +295,9 @@ composite_rules:
     file_types: [shell]
     requires_count: 1
     conditions:
-      - type: trait
-        id: curl-post-x
-      - type: trait
-        id: curl-user-header
-      - type: trait
-        id: curl-buildid-header
+      - id: curl-post-x
+      - id: curl-user-header
+      - id: curl-buildid-header
 
   # curl file upload
   - id: curl-upload
@@ -310,12 +307,9 @@ composite_rules:
     file_types: [shell]
     requires_count: 1
     conditions:
-      - type: trait
-        id: curl-form-upload
-      - type: trait
-        id: curl-data-binary
-      - type: trait
-        id: curl-at-tmp
+      - id: curl-form-upload
+      - id: curl-data-binary
+      - id: curl-at-tmp
 
   # Bot identification headers
   - id: bot-headers
@@ -325,28 +319,17 @@ composite_rules:
     file_types: [shell]
     requires_count: 1
     conditions:
-      - type: trait
-        id: header-user
-      - type: trait
-        id: header-client
-      - type: trait
-        id: header-bot
-      - type: trait
-        id: header-build
-      - type: trait
-        id: header-hwid
-      - type: trait
-        id: header-machine
-      - type: trait
-        id: x-header-user
-      - type: trait
-        id: x-header-client
-      - type: trait
-        id: x-header-bot
-      - type: trait
-        id: x-header-build
-      - type: trait
-        id: x-header-hwid
+      - id: header-user
+      - id: header-client
+      - id: header-bot
+      - id: header-build
+      - id: header-hwid
+      - id: header-machine
+      - id: x-header-user
+      - id: x-header-client
+      - id: x-header-bot
+      - id: x-header-build
+      - id: x-header-hwid
 
   # Gate URL
   - id: gate-url
@@ -356,12 +339,9 @@ composite_rules:
     file_types: [shell, python, javascript]
     requires_count: 1
     conditions:
-      - type: trait
-        id: gate-var-http
-      - type: trait
-        id: c2-var-http
-      - type: trait
-        id: panel-var-http
+      - id: gate-var-http
+      - id: c2-var-http
+      - id: panel-var-http
 
   # ZIP upload
   - id: zip-upload
@@ -371,14 +351,10 @@ composite_rules:
     file_types: [shell]
     requires_count: 1
     conditions:
-      - type: trait
-        id: curl-zip
-      - type: trait
-        id: post-zip
-      - type: trait
-        id: upload-zip
-      - type: trait
-        id: send-zip
+      - id: curl-zip
+      - id: post-zip
+      - id: upload-zip
+      - id: send-zip
 
   # Multipart upload
   - id: multipart-upload
@@ -388,12 +364,9 @@ composite_rules:
     file_types: [shell, python, javascript]
     requires_count: 1
     conditions:
-      - type: trait
-        id: multipart-form-data
-      - type: trait
-        id: boundary-param
-      - type: trait
-        id: content-disposition-filename
+      - id: multipart-form-data
+      - id: boundary-param
+      - id: content-disposition-filename
 
   # HTTP client/POST
   - id: http-client-post
@@ -403,12 +376,9 @@ composite_rules:
     file_types: [shell]
     requires_count: 1
     conditions:
-      - type: trait
-        id: curl-cmd
-      - type: trait
-        id: wget-cmd
-      - type: trait
-        id: post-method
+      - id: curl-cmd
+      - id: wget-cmd
+      - id: post-method
 
   # Full exfiltration pattern: archive + upload
   - id: stealer-exfil
@@ -418,12 +388,8 @@ composite_rules:
     mbc: "C0001"
     file_types: [shell]
     requires_all:
-      - type: composite
-        id: http-client-post
+      - id: http-client-post
     requires_any:
-      - type: composite
-        id: curl-post-headers
-      - type: composite
-        id: bot-headers
-      - type: composite
-        id: gate-url
+      - id: curl-post-headers
+      - id: bot-headers
+      - id: gate-url

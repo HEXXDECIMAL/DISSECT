@@ -76,9 +76,6 @@ composite_rules:
     mbc: "B0024"
     file_types: [rust]
     requires_all:
-      - type: trait
-        id: internal-lib-pattern
-      - type: trait
-        id: suspicious-crate-call
-      - type: trait
-        id: misspelled-common-words
+      - id: internal-lib-pattern
+      - id: suspicious-crate-call
+      - id: misspelled-common-words

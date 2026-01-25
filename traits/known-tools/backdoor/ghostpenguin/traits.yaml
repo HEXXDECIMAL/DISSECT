@@ -49,11 +49,7 @@ composite_rules:
     file_types: [elf, pe]
     requires_count: 2
     conditions:
-      - type: trait
-        id: ghostpenguin/c2-ip
-      - type: trait
-        id: ghostpenguin/c2-domain
-      - type: trait
-        id: ghostpenguin/string-format
-      - type: trait
-        id: ghostpenguin/class-name
+      - id: ghostpenguin/c2-ip
+      - id: ghostpenguin/c2-domain
+      - id: ghostpenguin/string-format
+      - id: ghostpenguin/class-name

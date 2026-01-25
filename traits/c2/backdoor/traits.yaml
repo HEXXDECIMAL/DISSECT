@@ -211,12 +211,9 @@ composite_rules:
     mbc: "B0022"
     platforms: [linux, macos, unix]
     requires_all:
-      - type: trait
-        id: mkfifo
-      - type: trait
-        id: sh-interactive
-      - type: trait
-        id: nc-pipe
+      - id: mkfifo
+      - id: sh-interactive
+      - id: nc-pipe
 
   - id: go-reverse-shell
     description: Go reverse shell pattern
@@ -227,19 +224,13 @@ composite_rules:
     platforms: [all]
     file_types: [elf, macho]
     requires_any:
-      - type: trait
-        id: exec/command/shell/bin-bash
-      - type: trait
-        id: exec/command/shell/bin-sh
+      - id: exec/command/shell/bin-bash
+      - id: exec/command/shell/bin-sh
     requires_all:
-      - type: trait
-        id: go-cmd-run
-      - type: trait
-        id: go-net-conn
-      - type: trait
-        id: go-child-stdin
-      - type: trait
-        id: go-dial-tcp
+      - id: go-cmd-run
+      - id: go-net-conn
+      - id: go-child-stdin
+      - id: go-dial-tcp
 
   - id: generic-reverse-shell
     description: Generic reverse shell pattern (socket + shell)
@@ -248,12 +239,8 @@ composite_rules:
     attack: "T1059"
     platforms: [all]
     requires_all:
-      - type: trait
-        id: reverse-keyword
-      - type: trait
-        id: socket-ref
+      - id: reverse-keyword
+      - id: socket-ref
     requires_any:
-      - type: trait
-        id: exec/command/shell/bin-bash
-      - type: trait
-        id: exec/command/shell/bin-sh
+      - id: exec/command/shell/bin-bash
+      - id: exec/command/shell/bin-sh

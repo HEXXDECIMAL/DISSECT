@@ -253,18 +253,12 @@ composite_rules:
     confidence: 0.85
     requires_count: 1
     conditions:
-      - type: trait
-        id: mprotect-unix
-      - type: trait
-        id: virtualprotect-win
-      - type: trait
-        id: virtualprotectex-win
-      - type: trait
-        id: prot-write
-      - type: trait
-        id: prot-exec
-      - type: trait
-        id: page-rwx
+      - id: mprotect-unix
+      - id: virtualprotect-win
+      - id: virtualprotectex-win
+      - id: prot-write
+      - id: prot-exec
+      - id: page-rwx
 
   # Self-overwriting code
   - id: self-overwrite
@@ -272,17 +266,13 @@ composite_rules:
     criticality: suspicious
     confidence: 0.8
     requires_any:
-      - type: trait
-        id: proc-self-mem
+      - id: proc-self-mem
     requires_all:
-      - type: trait
-        id: proc-self-maps
+      - id: proc-self-maps
     requires_count: 1
     conditions:
-      - type: trait
-        id: writeprocessmemory
-      - type: trait
-        id: self-patch-ref
+      - id: writeprocessmemory
+      - id: self-patch-ref
 
   # Code cave injection
   - id: code-cave
@@ -291,12 +281,9 @@ composite_rules:
     confidence: 0.75
     requires_count: 1
     conditions:
-      - type: trait
-        id: codecave-ref
-      - type: trait
-        id: slack-space-ref
-      - type: trait
-        id: nop-sled
+      - id: codecave-ref
+      - id: slack-space-ref
+      - id: nop-sled
 
   # Hook installation
   - id: hook-install
@@ -305,18 +292,12 @@ composite_rules:
     confidence: 0.7
     requires_count: 1
     conditions:
-      - type: trait
-        id: setwindowshook
-      - type: trait
-        id: inline-hook-ref
-      - type: trait
-        id: detour-ref
-      - type: trait
-        id: trampoline-ref
-      - type: trait
-        id: ld-preload
-      - type: trait
-        id: dyld-insert
+      - id: setwindowshook
+      - id: inline-hook-ref
+      - id: detour-ref
+      - id: trampoline-ref
+      - id: ld-preload
+      - id: dyld-insert
 
   # IAT/GOT hooking
   - id: iat-hook
@@ -325,16 +306,11 @@ composite_rules:
     confidence: 0.85
     requires_count: 1
     conditions:
-      - type: trait
-        id: import-descriptor
-      - type: trait
-        id: import-address-table
-      - type: trait
-        id: iat-ref
-      - type: trait
-        id: got-plt-section
-      - type: trait
-        id: got-ref
+      - id: import-descriptor
+      - id: import-address-table
+      - id: iat-ref
+      - id: got-plt-section
+      - id: got-ref
 
   # Polymorphic/metamorphic indicators
   - id: polymorphic
@@ -343,14 +319,10 @@ composite_rules:
     confidence: 0.75
     requires_count: 1
     conditions:
-      - type: trait
-        id: polymorphic-ref
-      - type: trait
-        id: metamorphic-ref
-      - type: trait
-        id: self-modifying-ref
-      - type: trait
-        id: xor-loop-pattern
+      - id: polymorphic-ref
+      - id: metamorphic-ref
+      - id: self-modifying-ref
+      - id: xor-loop-pattern
 
   # Active self-modification
   - id: active
@@ -358,10 +330,7 @@ composite_rules:
     criticality: notable
     confidence: 0.9
     requires_all:
-      - type: trait
-        id: anti-analysis/self-modify/mprotect
+      - id: anti-analysis/self-modify/mprotect
     requires_any:
-      - type: trait
-        id: anti-analysis/self-modify/self-overwrite
-      - type: trait
-        id: anti-analysis/self-modify/hook-install
+      - id: anti-analysis/self-modify/self-overwrite
+      - id: anti-analysis/self-modify/hook-install

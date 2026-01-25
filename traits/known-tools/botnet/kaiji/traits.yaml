@@ -87,12 +87,9 @@ composite_rules:
     file_types: [elf]
     requires_count: 2
     conditions:
-      - type: trait
-        id: botnet/kaiji/systemctl-service
-      - type: trait
-        id: botnet/kaiji/audit-selinux
-      - type: trait
-        id: botnet/kaiji/chaos-cve
+      - id: botnet/kaiji/systemctl-service
+      - id: botnet/kaiji/audit-selinux
+      - id: botnet/kaiji/chaos-cve
 
   # Old variant detection - requires_any with 3+ conditions is fine
   - id: botnet/kaiji/old-variant-detected
@@ -104,9 +101,6 @@ composite_rules:
     mbc: "OB0004"
     file_types: [elf]
     requires_any:
-      - type: trait
-        id: botnet/kaiji/beat-heart
-      - type: trait
-        id: botnet/kaiji/make-packet
-      - type: trait
-        id: botnet/kaiji/decrypt-cfb
+      - id: botnet/kaiji/beat-heart
+      - id: botnet/kaiji/make-packet
+      - id: botnet/kaiji/decrypt-cfb

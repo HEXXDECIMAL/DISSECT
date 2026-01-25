@@ -146,16 +146,11 @@ composite_rules:
     file_types: [macho]
     requires_count: 3
     conditions:
-      - type: trait
-        id: large-const-section
-      - type: trait
-        id: high-entropy-const
-      - type: trait
-        id: tiny-cstring
-      - type: trait
-        id: minimal-text
-      - type: trait
-        id: string-concealment
+      - id: large-const-section
+      - id: high-entropy-const
+      - id: tiny-cstring
+      - id: minimal-text
+      - id: string-concealment
 
   - id: cipher-dropper
     description: "Cipher-based dropper (math imports + encrypted payload)"
@@ -165,15 +160,11 @@ composite_rules:
     mbc: "C0027"
     file_types: [macho]
     requires_all:
-      - type: trait
-        id: math-cipher-imports
-      - type: trait
-        id: high-entropy-const
+      - id: math-cipher-imports
+      - id: high-entropy-const
     requires_any:
-      - type: trait
-        id: string-concealment
-      - type: trait
-        id: tiny-cstring
+      - id: string-concealment
+      - id: tiny-cstring
 
   - id: elf-encrypted-dropper
     description: "Encrypted payload dropper (ELF)"
@@ -184,9 +175,6 @@ composite_rules:
     file_types: [elf]
     requires_count: 2
     conditions:
-      - type: trait
-        id: large-data-section
-      - type: trait
-        id: high-entropy-data
-      - type: trait
-        id: string-concealment
+      - id: large-data-section
+      - id: high-entropy-data
+      - id: string-concealment

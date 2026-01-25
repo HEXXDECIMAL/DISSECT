@@ -45,9 +45,6 @@ composite_rules:
     attack: "T1552.003"
     mbc: "E1552"
     requires_any:
-      - type: trait
-        id: bash-history
-      - type: trait
-        id: zsh-history
-      - type: trait
-        id: fish-history
+      - id: bash-history
+      - id: zsh-history
+      - id: fish-history

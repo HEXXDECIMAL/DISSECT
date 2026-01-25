@@ -108,12 +108,9 @@ composite_rules:
     attack: "T1027"
     file_types: [javascript, typescript]
     requires_all:
-      - type: trait
-        id: js-decrypt-eval
-      - type: trait
-        id: api-usage
-      - type: trait
-        id: vscode-namespace
+      - id: js-decrypt-eval
+      - id: api-usage
+      - id: vscode-namespace
 
   # Extension Persistence via well-known hooks
   - id: persistence
@@ -124,9 +121,6 @@ composite_rules:
     attack: "T1547"
     file_types: [javascript, typescript]
     requires_all:
-      - type: trait
-        id: api-usage
-      - type: trait
-        id: persistence-locations
-      - type: trait
-        id: file-write-ops
+      - id: api-usage
+      - id: persistence-locations
+      - id: file-write-ops

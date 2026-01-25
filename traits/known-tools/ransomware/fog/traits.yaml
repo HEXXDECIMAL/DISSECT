@@ -78,7 +78,5 @@ composite_rules:
     attack: "T1486"
     file_types: [elf, macho, pe, so, dylib, dll]
     requires_any:
-      - type: trait
-        id: ransomware/fog/generic
-      - type: trait
-        id: ransomware/fog/linux
+      - id: ransomware/fog/generic
+      - id: ransomware/fog/linux

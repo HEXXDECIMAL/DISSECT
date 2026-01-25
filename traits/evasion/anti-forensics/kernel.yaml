@@ -146,9 +146,6 @@ composite_rules:
     file_types: [c]
     requires_count: 2
     conditions:
-      - type: trait
-        id: evasion/anti-forensics/fake-state-logic
-      - type: trait
-        id: evasion/anti-forensics/deception-read-hook
-      - type: trait
-        id: kernel/rootkit/copy-to-user-call
+      - id: evasion/anti-forensics/fake-state-logic
+      - id: evasion/anti-forensics/deception-read-hook
+      - id: kernel/rootkit/copy-to-user-call

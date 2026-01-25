@@ -87,11 +87,7 @@ composite_rules:
     confidence: 0.95
     mbc: "B0030"
     requires_any:
-      - type: trait
-        id: fake-pypi-host
-      - type: trait
-        id: fake-pypi-host-raw
-      - type: trait
-        id: fake-pypi-index
-      - type: trait
-        id: fake-pypi-url-domain
+      - id: fake-pypi-host
+      - id: fake-pypi-host-raw
+      - id: fake-pypi-index
+      - id: fake-pypi-url-domain

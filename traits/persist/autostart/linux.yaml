@@ -8,72 +8,233 @@ defaults:
   platforms: [linux]
 
 traits:
-  # XDG autostart directories
+  # === XDG autostart atomic indicators ===
+  - id: config-autostart
+    description: .config/autostart directory
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: ".config/autostart"
+
+  - id: etc-xdg-autostart
+    description: /etc/xdg/autostart directory
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "/etc/xdg/autostart"
+
+  - id: xdg-config-autostart
+    description: XDG_CONFIG_HOME autostart
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      regex: "XDG_CONFIG_HOME.*autostart"
+
+  # === Desktop entry atomic indicators ===
+  - id: dot-desktop-ext
+    description: .desktop file extension
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: ".desktop"
+
+  - id: desktop-entry-header
+    description: "[Desktop Entry] header"
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "[Desktop Entry]"
+
+  - id: x-gnome-autostart
+    description: X-GNOME-Autostart directive
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "X-GNOME-Autostart"
+
+  # === User systemd atomic indicators ===
+  - id: config-systemd-user
+    description: .config/systemd/user directory
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: ".config/systemd/user"
+
+  - id: local-share-systemd-user
+    description: .local/share/systemd/user directory
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: ".local/share/systemd/user"
+
+  - id: systemctl-user-enable
+    description: systemctl --user enable
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "systemctl.*--user.*enable"
+
+  # === rc.local atomic indicators ===
+  - id: etc-rc-local
+    description: /etc/rc.local file
+    criticality: inert
+    confidence: 0.8
+    attack: "T1037.004"
+    condition:
+      type: string
+      exact: "/etc/rc.local"
+
+  - id: etc-rc-d-rc-local
+    description: /etc/rc.d/rc.local file
+    criticality: inert
+    confidence: 0.8
+    attack: "T1037.004"
+    condition:
+      type: string
+      exact: "/etc/rc.d/rc.local"
+
+  # === init.d atomic indicators ===
+  - id: etc-init-d
+    description: /etc/init.d/ directory
+    criticality: inert
+    confidence: 0.6
+    attack: "T1037.004"
+    file_types: [shell, elf, macho, python]
+    condition:
+      type: string
+      exact: "/etc/init.d/"
+
+  - id: update-rc-d-cmd
+    description: update-rc.d command
+    criticality: inert
+    confidence: 0.7
+    attack: "T1037.004"
+    file_types: [shell, elf, macho, python]
+    condition:
+      type: string
+      exact: "update-rc.d"
+
+  - id: chkconfig-cmd
+    description: chkconfig command
+    criticality: inert
+    confidence: 0.7
+    attack: "T1037.004"
+    file_types: [shell, elf, macho, python]
+    condition:
+      type: string
+      exact: "chkconfig"
+
+  # === Desktop entry exec atomic indicators ===
+  - id: exec-eq-directive
+    description: Exec= directive
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "Exec="
+
+  - id: hidden-false-directive
+    description: Hidden=false directive
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "Hidden=false"
+
+  - id: type-application-directive
+    description: Type=Application directive
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "Type=Application"
+
+composite_rules:
+  # XDG autostart composite
   - id: linux-xdg-autostart
     description: "XDG autostart directory access"
     confidence: 0.85
     criticality: suspicious
-    condition:
-      type: string
-      regex: "\\.config/autostart|/etc/xdg/autostart|XDG_CONFIG_HOME.*autostart"
+    requires_count: 1
+    conditions:
+      - id: config-autostart
+      - id: etc-xdg-autostart
+      - id: xdg-config-autostart
 
-  # Desktop entry files
+  # Desktop entry composite
   - id: linux-desktop-entry
     description: "Desktop entry file creation (.desktop)"
     confidence: 0.8
-    condition:
-      type: string
-      regex: "\\.desktop|\\[Desktop Entry\\]|X-GNOME-Autostart"
+    requires_count: 1
+    conditions:
+      - id: dot-desktop-ext
+      - id: desktop-entry-header
+      - id: x-gnome-autostart
 
-  # User systemd service persistence
+  # User systemd composite
   - id: linux-user-systemd
     description: "User-level systemd service persistence"
     confidence: 0.85
     attack: "T1543.002"
-    condition:
-      type: string
-      regex: "\\.config/systemd/user|\\.local/share/systemd/user|systemctl.*--user.*enable"
+    requires_count: 1
+    conditions:
+      - id: config-systemd-user
+      - id: local-share-systemd-user
+      - id: systemctl-user-enable
 
-  # rc.local persistence
+  # rc.local composite
   - id: linux-rc-local
     description: "rc.local persistence mechanism"
     confidence: 0.9
     criticality: suspicious
     attack: "T1037.004"
-    condition:
-      type: string
-      regex: "/etc/rc\\.local|/etc/rc\\.d/rc\\.local"
+    requires_count: 1
+    conditions:
+      - id: etc-rc-local
+      - id: etc-rc-d-rc-local
 
-  # init.d script persistence
+  # init.d composite
   - id: linux-init-script
     description: "init.d script persistence"
     confidence: 0.85
     attack: "T1037.004"
-    # Exclude JS - syntax highlighters have shell command keywords
     file_types: [shell, elf, macho, python]
-    condition:
-      type: string
-      regex: "/etc/init\\.d/|update-rc\\.d|chkconfig"
+    requires_count: 1
+    conditions:
+      - id: etc-init-d
+      - id: update-rc-d-cmd
+      - id: chkconfig-cmd
 
-  # XDG autostart directory path (for composite rules)
+  # XDG autostart directory composite
   - id: linux-xdg-autostart-dir
     description: "XDG autostart directory path"
     confidence: 0.8
     criticality: notable
-    condition:
-      type: string
-      regex: "\\.config/autostart|/etc/xdg/autostart"
+    requires_count: 1
+    conditions:
+      - id: config-autostart
+      - id: etc-xdg-autostart
 
-  # Desktop entry executable directive
+  # Desktop entry exec composite
   - id: linux-desktop-entry-exec
     description: "Desktop entry executable directive"
     confidence: 0.8
     criticality: notable
-    condition:
-      type: string
-      regex: "Exec=|Hidden=false|Type=Application"
+    requires_count: 1
+    conditions:
+      - id: exec-eq-directive
+      - id: hidden-false-directive
+      - id: type-application-directive
 
-composite_rules:
   # XDG autostart with executable
   - id: linux-xdg-executable
     description: "XDG autostart with executable command"
@@ -83,7 +244,5 @@ composite_rules:
     mbc: "F0006"
     file_types: [shell, python, elf]
     requires_all:
-      - type: trait
-        id: linux-xdg-autostart-dir
-      - type: trait
-        id: linux-desktop-entry-exec
+      - id: linux-xdg-autostart-dir
+      - id: linux-desktop-entry-exec

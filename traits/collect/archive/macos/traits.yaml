@@ -7,15 +7,33 @@ defaults:
   platforms: [macos]
 
 traits:
-  # ditto command for archiving
-  - id: ditto-compress
-    description: "macOS ditto archive compression"
-    criticality: suspicious
-    confidence: 0.85
+  # === ditto compression atomic indicators ===
+  - id: ditto-ck-flags
+    description: ditto -c -k compression flags
+    criticality: inert
+    confidence: 0.7
     attack: "T1560.001"
     condition:
       type: string
-      regex: "ditto\\s+-c\\s+-k|ditto.*--sequesterRsrc|ditto.*\\.zip"
+      regex: "ditto\\s+-c\\s+-k"
+
+  - id: ditto-sequester
+    description: ditto --sequesterRsrc flag
+    criticality: inert
+    confidence: 0.7
+    attack: "T1560.001"
+    condition:
+      type: string
+      exact: "--sequesterRsrc"
+
+  - id: ditto-zip-output
+    description: ditto with .zip output
+    criticality: inert
+    confidence: 0.7
+    attack: "T1560.001"
+    condition:
+      type: string
+      regex: "ditto.*\\.zip"
 
   # ditto for directory copy
   - id: ditto-copy
@@ -36,15 +54,33 @@ traits:
       type: string
       regex: "hdiutil\\s+create|hdiutil.*-format"
 
-  # tar/gzip archiving
-  - id: tar-compress
-    description: "tar archive creation"
-    criticality: notable
-    confidence: 0.6
+  # === tar/gzip atomic indicators ===
+  - id: tar-create-flag
+    description: tar create/compress flags
+    criticality: inert
+    confidence: 0.5
     attack: "T1560.001"
     condition:
       type: string
-      regex: "tar\\s+-[a-z]*[cz]|tar\\s+--create|gzip\\s+-"
+      regex: "tar\\s+-[a-z]*[cz]"
+
+  - id: tar-create-long
+    description: tar --create long option
+    criticality: inert
+    confidence: 0.5
+    attack: "T1560.001"
+    condition:
+      type: string
+      exact: "tar --create"
+
+  - id: gzip-compress
+    description: gzip compression
+    criticality: inert
+    confidence: 0.5
+    attack: "T1560.001"
+    condition:
+      type: string
+      regex: "gzip\\s+-"
 
   # zip command
   - id: zip-compress
@@ -56,24 +92,84 @@ traits:
       type: string
       regex: "\\bzip\\s+-[r0-9]|unzip\\s+-o"
 
-  # /tmp staging
-  - id: tmp-directory
-    description: "Data staging in /tmp"
-    criticality: notable
-    confidence: 0.7
+  # === /tmp staging atomic indicators ===
+  - id: tmp-zip-file
+    description: .zip file in /tmp
+    criticality: inert
+    confidence: 0.6
     attack: "T1074.001"
     condition:
       type: string
-      regex: "/tmp/.*\\.(zip|tar|gz|dmg)|/tmp/out\\."
+      regex: "/tmp/.*\\.zip"
 
-  # Network upload/exfiltration indicators
-  - id: network-upload
-    description: "Network upload or exfiltration command"
-    criticality: notable
-    confidence: 0.7
+  - id: tmp-tar-file
+    description: .tar file in /tmp
+    criticality: inert
+    confidence: 0.6
+    attack: "T1074.001"
     condition:
       type: string
-      regex: "curl|wget|POST|upload"
+      regex: "/tmp/.*\\.tar"
+
+  - id: tmp-gz-file
+    description: .gz file in /tmp
+    criticality: inert
+    confidence: 0.6
+    attack: "T1074.001"
+    condition:
+      type: string
+      regex: "/tmp/.*\\.gz"
+
+  - id: tmp-dmg-file
+    description: .dmg file in /tmp
+    criticality: inert
+    confidence: 0.6
+    attack: "T1074.001"
+    condition:
+      type: string
+      regex: "/tmp/.*\\.dmg"
+
+  - id: tmp-out-file
+    description: /tmp/out. output file
+    criticality: inert
+    confidence: 0.6
+    attack: "T1074.001"
+    condition:
+      type: string
+      exact: "/tmp/out."
+
+  # === Network upload atomic indicators ===
+  - id: curl-cmd
+    description: curl command
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      exact: "curl"
+
+  - id: wget-cmd
+    description: wget command
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      exact: "wget"
+
+  - id: http-post-method
+    description: HTTP POST method
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      exact: "POST"
+
+  - id: upload-keyword
+    description: upload keyword
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      exact: "upload"
 
   # Temp zip file staging
   - id: tmp-zip-staging
@@ -86,6 +182,56 @@ traits:
       regex: "/tmp/.*\\.zip"
 
 composite_rules:
+  # ditto compression composite
+  - id: ditto-compress
+    description: "macOS ditto archive compression"
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1560.001"
+    requires_count: 1
+    conditions:
+      - id: ditto-ck-flags
+      - id: ditto-sequester
+      - id: ditto-zip-output
+
+  # tar/gzip compression composite
+  - id: tar-compress
+    description: "tar archive creation"
+    criticality: notable
+    confidence: 0.6
+    attack: "T1560.001"
+    requires_count: 1
+    conditions:
+      - id: tar-create-flag
+      - id: tar-create-long
+      - id: gzip-compress
+
+  # /tmp staging composite
+  - id: tmp-directory
+    description: "Data staging in /tmp"
+    criticality: notable
+    confidence: 0.7
+    attack: "T1074.001"
+    requires_count: 1
+    conditions:
+      - id: tmp-zip-file
+      - id: tmp-tar-file
+      - id: tmp-gz-file
+      - id: tmp-dmg-file
+      - id: tmp-out-file
+
+  # Network upload composite
+  - id: network-upload
+    description: "Network upload or exfiltration command"
+    criticality: notable
+    confidence: 0.7
+    requires_count: 1
+    conditions:
+      - id: curl-cmd
+      - id: wget-cmd
+      - id: http-post-method
+      - id: upload-keyword
+
   # Archive + exfiltration pattern
   - id: stealer-pattern
     description: "Data collection and archiving for exfiltration"
@@ -95,10 +241,7 @@ composite_rules:
     attack: "T1560.001"
     file_types: [shell]
     requires_all:
-      - type: trait
-        id: ditto-compress
+      - id: ditto-compress
     requires_any:
-      - type: trait
-        id: network-upload
-      - type: trait
-        id: tmp-zip-staging
+      - id: network-upload
+      - id: tmp-zip-staging

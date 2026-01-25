@@ -23,7 +23,5 @@ composite_rules:
     confidence: 0.85
     near_lines: 10
     requires_all:
-      - type: trait
-        id: exec/command/construction/string-assign
-      - type: trait
-        id: exec/command/subprocess/run
+      - id: exec/command/construction/string-assign
+      - id: exec/command/subprocess/run

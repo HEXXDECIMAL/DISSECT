@@ -42,12 +42,8 @@ composite_rules:
     mbc: "B0014"
     file_types: [javascript]
     requires_all:
-      - type: trait
-        id: comm/http/request/js-axios-post
+      - id: comm/http/request/js-axios-post
     requires_any:
-      - type: trait
-        id: js-pbpaste
-      - type: trait
-        id: js-powershell-clipboard
-      - type: trait
-        id: js-xclip
+      - id: js-pbpaste
+      - id: js-powershell-clipboard
+      - id: js-xclip

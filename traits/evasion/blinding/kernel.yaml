@@ -68,11 +68,7 @@ composite_rules:
     file_types: [c]
     requires_count: 2
     conditions:
-      - type: trait
-        id: evasion/blinding/lkrg
-      - type: trait
-        id: evasion/blinding/hook-security-logic
-      - type: trait
-        id: evasion/blinding/kernel-integrity
-      - type: trait
-        id: kernel/rootkit/ftrace-helper-include
+      - id: evasion/blinding/lkrg
+      - id: evasion/blinding/hook-security-logic
+      - id: evasion/blinding/kernel-integrity
+      - id: kernel/rootkit/ftrace-helper-include

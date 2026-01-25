@@ -241,18 +241,12 @@ composite_rules:
     file_types: [all]
     requires_count: 2
     conditions:
-      - type: trait
-        id: chrome-name
-      - type: trait
-        id: firefox-name
-      - type: trait
-        id: safari-name
-      - type: trait
-        id: edge-name
-      - type: trait
-        id: opera-name
-      - type: trait
-        id: brave-name
+      - id: chrome-name
+      - id: firefox-name
+      - id: safari-name
+      - id: edge-name
+      - id: opera-name
+      - id: brave-name
 
   # Browser data files composite
   - id: browser-data-files
@@ -263,14 +257,10 @@ composite_rules:
     file_types: [all]
     requires_count: 1
     conditions:
-      - type: trait
-        id: history-file
-      - type: trait
-        id: cookies-file
-      - type: trait
-        id: login-data-file
-      - type: trait
-        id: places-sqlite
+      - id: history-file
+      - id: cookies-file
+      - id: login-data-file
+      - id: places-sqlite
 
   # Chrome history composite
   - id: chrome-history
@@ -280,15 +270,11 @@ composite_rules:
     attack: "T1217"
     file_types: [all]
     requires_all:
-      - type: trait
-        id: chrome-name
+      - id: chrome-name
     requires_any:
-      - type: trait
-        id: history-file
-      - type: trait
-        id: cookies-file
-      - type: trait
-        id: login-data-file
+      - id: history-file
+      - id: cookies-file
+      - id: login-data-file
 
   # Firefox history composite
   - id: firefox-history
@@ -299,12 +285,9 @@ composite_rules:
     file_types: [all]
     requires_count: 1
     conditions:
-      - type: trait
-        id: places-sqlite
-      - type: trait
-        id: cookies-sqlite
-      - type: trait
-        id: logins-json
+      - id: places-sqlite
+      - id: cookies-sqlite
+      - id: logins-json
 
   # Safari history composite
   - id: safari-history
@@ -314,13 +297,10 @@ composite_rules:
     attack: "T1217"
     file_types: [all]
     requires_all:
-      - type: trait
-        id: safari-name
+      - id: safari-name
     requires_any:
-      - type: trait
-        id: history-file
-      - type: trait
-        id: cookies-file
+      - id: history-file
+      - id: cookies-file
 
   # Edge history composite
   - id: edge-history
@@ -330,13 +310,10 @@ composite_rules:
     attack: "T1217"
     file_types: [all]
     requires_all:
-      - type: trait
-        id: edge-name
+      - id: edge-name
     requires_any:
-      - type: trait
-        id: history-file
-      - type: trait
-        id: cookies-file
+      - id: history-file
+      - id: cookies-file
 
   # Bookmarks composite
   - id: bookmarks
@@ -347,10 +324,8 @@ composite_rules:
     file_types: [all]
     requires_count: 1
     conditions:
-      - type: trait
-        id: bookmarks-word
-      - type: trait
-        id: bookmarks-plist
+      - id: bookmarks-word
+      - id: bookmarks-plist
 
   # Local storage composite
   - id: local-storage
@@ -361,10 +336,8 @@ composite_rules:
     file_types: [all]
     requires_count: 1
     conditions:
-      - type: trait
-        id: local-storage-dir
-      - type: trait
-        id: leveldb-storage
+      - id: local-storage-dir
+      - id: leveldb-storage
 
   # Extensions composite
   - id: extensions
@@ -375,14 +348,10 @@ composite_rules:
     file_types: [all]
     requires_count: 1
     conditions:
-      - type: trait
-        id: chrome-extension-url
-      - type: trait
-        id: extensions-hash-path
-      - type: trait
-        id: chrome-extensions-path
-      - type: trait
-        id: browser-support-extensions
+      - id: chrome-extension-url
+      - id: extensions-hash-path
+      - id: chrome-extensions-path
+      - id: browser-support-extensions
 
   # Opera composite
   - id: opera
@@ -393,10 +362,8 @@ composite_rules:
     file_types: [all]
     requires_count: 1
     conditions:
-      - type: trait
-        id: opera-stable
-      - type: trait
-        id: opera-name
+      - id: opera-stable
+      - id: opera-name
 
   # Brave composite
   - id: brave
@@ -406,8 +373,7 @@ composite_rules:
     attack: "T1217"
     file_types: [all]
     requires_all:
-      - type: trait
-        id: brave-software
+      - id: brave-software
 
   # Multi-browser enumeration
   - id: multi-browser-enum
@@ -418,7 +384,5 @@ composite_rules:
     mbc: "B0046"
     file_types: [all]
     requires_all:
-      - type: composite
-        id: browser-names
-      - type: composite
-        id: browser-data-files
+      - id: browser-names
+      - id: browser-data-files

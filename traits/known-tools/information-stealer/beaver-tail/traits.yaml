@@ -114,15 +114,9 @@ composite_rules:
     file_types: [elf, macho]
     requires_count: 3
     conditions:
-      - type: trait
-        id: stealer/beaver-tail/pdown
-      - type: trait
-        id: stealer/beaver-tail/upload-ldb
-      - type: trait
-        id: stealer/beaver-tail/python-download
-      - type: trait
-        id: stealer/beaver-tail/keychain-log
-      - type: trait
-        id: stealer/beaver-tail/pdown-finished
-      - type: trait
-        id: stealer/beaver-tail/browser-url
+      - id: stealer/beaver-tail/pdown
+      - id: stealer/beaver-tail/upload-ldb
+      - id: stealer/beaver-tail/python-download
+      - id: stealer/beaver-tail/keychain-log
+      - id: stealer/beaver-tail/pdown-finished
+      - id: stealer/beaver-tail/browser-url

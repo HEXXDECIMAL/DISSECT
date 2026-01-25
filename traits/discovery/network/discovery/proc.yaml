@@ -73,9 +73,6 @@ composite_rules:
     file_types: [elf]
     platforms: [linux]
     requires_any:
-      - type: trait
-        id: tcp-connections
-      - type: trait
-        id: udp-connections
-      - type: trait
-        id: raw-sockets
+      - id: tcp-connections
+      - id: udp-connections
+      - id: raw-sockets

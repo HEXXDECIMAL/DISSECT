@@ -42,9 +42,6 @@ composite_rules:
     reference: "https://blog.talosintelligence.com/manjusaka-offensive-framework/"
     requires_count: 2
     conditions:
-      - type: trait
-        id: known-tools/remote-access-trojan/manjusaka/brand
-      - type: trait
-        id: known-tools/remote-access-trojan/manjusaka/prefix
-      - type: trait
-        id: known-tools/remote-access-trojan/manjusaka/rust-panic
+      - id: known-tools/remote-access-trojan/manjusaka/brand
+      - id: known-tools/remote-access-trojan/manjusaka/prefix
+      - id: known-tools/remote-access-trojan/manjusaka/rust-panic

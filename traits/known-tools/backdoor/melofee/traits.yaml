@@ -73,10 +73,7 @@ composite_rules:
     attack: "T1071"
     mbc: "B0030"
     requires_all:
-      - type: trait
-        id: backdoor/melofee/artifact
+      - id: backdoor/melofee/artifact
     requires_any:
-      - type: trait
-        id: kernel/rootkit/process-hiding
-      - type: trait
-        id: comm/c2/heartbeat-protocol
+      - id: kernel/rootkit/process-hiding
+      - id: comm/c2/heartbeat-protocol

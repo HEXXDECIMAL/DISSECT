@@ -150,10 +150,7 @@ composite_rules:
     criticality: suspicious
     confidence: 0.85
     requires_all:
-      - type: trait
-        id: jit
+      - id: jit
     requires_any:
-      - type: trait
-        id: dlopen
-      - type: trait
-        id: loadlibrary
+      - id: dlopen
+      - id: loadlibrary

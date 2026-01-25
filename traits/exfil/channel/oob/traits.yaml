@@ -199,16 +199,11 @@ composite_rules:
     file_types: [python, javascript]
     requires_count: 2
     conditions:
-      - type: trait
-        id: http-b64
-      - type: trait
-        id: https-b64
-      - type: trait
-        id: oastify-b64
-      - type: trait
-        id: oast-fun-b64
-      - type: trait
-        id: interactsh
+      - id: http-b64
+      - id: https-b64
+      - id: oastify-b64
+      - id: oast-fun-b64
+      - id: interactsh
 
   - id: encoded-oob-exfil
     description: "Base64-encoded OOB domain with HTTP exfiltration"
@@ -218,10 +213,7 @@ composite_rules:
     mbc: "B0030"
     file_types: [python, javascript]
     requires_all:
-      - type: trait
-        id: comm/http/request
+      - id: comm/http/request
     requires_any:
-      - type: trait
-        id: oastify-b64
-      - type: trait
-        id: oast-fun-b64
+      - id: oastify-b64
+      - id: oast-fun-b64

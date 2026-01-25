@@ -9,14 +9,10 @@ composite_rules:
     confidence: 0.9
     requires_count: 2
     conditions:
-      - type: trait
-        id: vmware-string
-      - type: trait
-        id: virtualbox-string
-      - type: trait
-        id: qemu-string
-      - type: trait
-        id: cpu-vendor
+      - id: vmware-string
+      - id: virtualbox-string
+      - id: qemu-string
+      - id: cpu-vendor
 
   - id: comprehensive
     description: Virtual machine environment detection
@@ -26,13 +22,8 @@ composite_rules:
     confidence: 0.9
     requires_count: 2
     conditions:
-      - type: trait
-        id: vmware-string
-      - type: trait
-        id: virtualbox-string
-      - type: trait
-        id: qemu-string
-      - type: trait
-        id: vm-hardware
-      - type: trait
-        id: macos-vm-sysctl
+      - id: vmware-string
+      - id: virtualbox-string
+      - id: qemu-string
+      - id: vm-hardware
+      - id: macos-vm-sysctl

@@ -84,12 +84,9 @@ composite_rules:
     confidence: 0.8
     requires_count: 1
     conditions:
-      - type: trait
-        id: getmac-module
-      - type: trait
-        id: ifconfig-cmd
-      - type: trait
-        id: uuid-getnode
+      - id: getmac-module
+      - id: ifconfig-cmd
+      - id: uuid-getnode
 
   # Composite: Intensive system enumeration (Alias-resistant)
   - id: python-enumeration
@@ -99,11 +96,7 @@ composite_rules:
     near_lines: 80
     requires_count: 3
     conditions:
-      - type: trait
-        id: python-platform-system
-      - type: composite
-        id: python-mac-discovery
-      - type: trait
-        id: python-getpass-user
-      - type: trait
-        id: comm/http/request
+      - id: python-platform-system
+      - id: python-mac-discovery
+      - id: python-getpass-user
+      - id: comm/http/request

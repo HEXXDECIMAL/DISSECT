@@ -147,12 +147,9 @@ composite_rules:
     mbc: "B0028"
     file_types: [python, javascript]
     requires_all:
-      - type: trait
-        id: mnemonic-terms
-      - type: trait
-        id: network-exfil
-      - type: trait
-        id: wallet-context
+      - id: mnemonic-terms
+      - id: network-exfil
+      - id: wallet-context
 
   # Multiple wallet-related patterns = wallet stealer
   - id: comprehensive-stealer
@@ -164,13 +161,8 @@ composite_rules:
     file_types: [python, javascript, elf, pe, macho]
     requires_count: 3
     conditions:
-      - type: trait
-        id: mnemonic-terms
-      - type: trait
-        id: private-key-var
-      - type: trait
-        id: keystore-ref
-      - type: trait
-        id: derivation-pattern
-      - type: trait
-        id: bip39-ref
+      - id: mnemonic-terms
+      - id: private-key-var
+      - id: keystore-ref
+      - id: derivation-pattern
+      - id: bip39-ref

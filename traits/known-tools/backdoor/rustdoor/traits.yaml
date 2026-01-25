@@ -111,14 +111,10 @@ composite_rules:
     mbc: "B0022"
     file_types: [macho]
     requires_all:
-      - type: trait
-        id: c2/botkill/botkill
-      - type: trait
-        id: backdoor/rustdoor/ziptask
-      - type: trait
-        id: backdoor/rustdoor/upload-files
-      - type: trait
-        id: backdoor/rustdoor/launch-agents
+      - id: c2/botkill/botkill
+      - id: backdoor/rustdoor/ziptask
+      - id: backdoor/rustdoor/upload-files
+      - id: backdoor/rustdoor/launch-agents
 
   # Rustdoor v2 detection
   - id: backdoor/rustdoor/v2-detected
@@ -131,13 +127,8 @@ composite_rules:
     file_types: [macho]
     requires_count: 4
     conditions:
-      - type: trait
-        id: backdoor/rustdoor/cfg-check-cron
-      - type: trait
-        id: backdoor/rustdoor/cfg-lock-cron
-      - type: trait
-        id: backdoor/rustdoor/cfg-lock-dock
-      - type: trait
-        id: backdoor/rustdoor/cfg-lock-launch
-      - type: trait
-        id: backdoor/rustdoor/cfg-copy-files
+      - id: backdoor/rustdoor/cfg-check-cron
+      - id: backdoor/rustdoor/cfg-lock-cron
+      - id: backdoor/rustdoor/cfg-lock-dock
+      - id: backdoor/rustdoor/cfg-lock-launch
+      - id: backdoor/rustdoor/cfg-copy-files

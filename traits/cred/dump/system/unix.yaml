@@ -45,14 +45,33 @@ traits:
 
   # NOTE: For ELF binaries, shadow file access is common in system utilities
   # Real credential dumping detection requires additional context
-  - id: shadow-file
-    description: Access to system shadow password file
-    criticality: notable
-    confidence: 0.9
+  # === shadow file atomic indicators ===
+  - id: etc-shadow
+    description: /etc/shadow file
+    criticality: inert
+    confidence: 0.7
     attack: "T1003.008"
     condition:
       type: string
-      regex: "/etc/(shadow|gshadow|master.passwd)"
+      exact: "/etc/shadow"
+
+  - id: etc-gshadow
+    description: /etc/gshadow file
+    criticality: inert
+    confidence: 0.7
+    attack: "T1003.008"
+    condition:
+      type: string
+      exact: "/etc/gshadow"
+
+  - id: etc-master-passwd
+    description: /etc/master.passwd file
+    criticality: inert
+    confidence: 0.7
+    attack: "T1003.008"
+    condition:
+      type: string
+      exact: "/etc/master.passwd"
 
 
   # NOTE: /etc/passwd is defined in discovery/user/traits.yaml as etc-passwd
@@ -81,6 +100,18 @@ traits:
       exact: "/etc/master.passwd"
 
 composite_rules:
+  # shadow file composite
+  - id: shadow-file
+    description: Access to system shadow password file
+    criticality: notable
+    confidence: 0.9
+    attack: "T1003.008"
+    requires_count: 1
+    conditions:
+      - id: etc-shadow
+      - id: etc-gshadow
+      - id: etc-master-passwd
+
   - id: shadow-extraction
     description: Shadow file credential extraction
     criticality: suspicious
@@ -90,7 +121,5 @@ composite_rules:
     platforms: [linux, unix]
     file_types: [elf]
     requires_any:
-      - type: trait
-        id: getspnam
-      - type: trait
-        id: shadow-file
+      - id: getspnam
+      - id: shadow-file

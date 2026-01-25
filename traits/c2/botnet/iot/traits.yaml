@@ -138,12 +138,9 @@ composite_rules:
     platforms: [linux]
     requires_count: 2
     conditions:
-      - type: trait
-        id: lateral/brute-force/iot-creds/mirai-cred-admin
-      - type: trait
-        id: busybox
-      - type: trait
-        id: pipe-to-shell
+      - id: lateral/brute-force/iot-creds/mirai-cred-admin
+      - id: busybox
+      - id: pipe-to-shell
 
   - id: multi-protocol
     description: "Multi-protocol payload dropper (wget/tftp/ftpget/curl)"
@@ -155,11 +152,7 @@ composite_rules:
     platforms: [linux]
     requires_count: 2
     conditions:
-      - type: trait
-        id: busybox-wget
-      - type: trait
-        id: busybox-tftp
-      - type: trait
-        id: busybox-ftpget
-      - type: trait
-        id: curl-http-download
+      - id: busybox-wget
+      - id: busybox-tftp
+      - id: busybox-ftpget
+      - id: curl-http-download

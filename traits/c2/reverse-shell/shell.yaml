@@ -134,12 +134,9 @@ composite_rules:
     confidence: 0.95
     file_types: [shell, packagejson]
     requires_all:
-      - type: trait
-        id: mkfifo-cmd
-      - type: trait
-        id: sh-interactive
-      - type: trait
-        id: nc-pipe
+      - id: mkfifo-cmd
+      - id: sh-interactive
+      - id: nc-pipe
 
   # Netcat reverse shell variants
   - id: reverse-shell-netcat
@@ -149,9 +146,6 @@ composite_rules:
     file_types: [shell, packagejson]
     requires_count: 1
     conditions:
-      - type: trait
-        id: nc-exec-sh
-      - type: trait
-        id: ncat-exec-sh
-      - type: trait
-        id: netcat-exec-sh
+      - id: nc-exec-sh
+      - id: ncat-exec-sh
+      - id: netcat-exec-sh

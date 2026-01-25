@@ -575,28 +575,18 @@ composite_rules:
     description: OpenSSL TLS library usage (legitimate)
     confidence: 0.8
     requires_any:
-      - type: trait
-        id: tls-v1-method
-      - type: trait
-        id: tls-v1-2-method
-      - type: trait
-        id: tls-method
-      - type: trait
-        id: openssl-version
+      - id: tls-v1-method
+      - id: tls-v1-2-method
+      - id: tls-method
+      - id: openssl-version
     requires_count: 3
     conditions:
-      - type: trait
-        id: ssl-library-init
-      - type: trait
-        id: ssl-ctx-new
-      - type: trait
-        id: ssl-new
-      - type: trait
-        id: ssl-connect
-      - type: trait
-        id: ssl-read
-      - type: trait
-        id: ssl-write
+      - id: ssl-library-init
+      - id: ssl-ctx-new
+      - id: ssl-new
+      - id: ssl-connect
+      - id: ssl-read
+      - id: ssl-write
 
   # Hash functions (2+ MD5 or 2+ SHA or any Go crypto)
   - id: hash-functions
@@ -604,50 +594,32 @@ composite_rules:
     confidence: 0.75
     requires_count: 2
     conditions:
-      - type: trait
-        id: md5-init
-      - type: trait
-        id: md5-update
-      - type: trait
-        id: md5-final
-      - type: trait
-        id: sha1-init
-      - type: trait
-        id: sha1-update
-      - type: trait
-        id: sha256-init
-      - type: trait
-        id: sha256-update
-      - type: trait
-        id: sha512-init
-      - type: trait
-        id: go-crypto-sha256
-      - type: trait
-        id: go-crypto-sha512
-      - type: trait
-        id: go-crypto-md5
+      - id: md5-init
+      - id: md5-update
+      - id: md5-final
+      - id: sha1-init
+      - id: sha1-update
+      - id: sha256-init
+      - id: sha256-update
+      - id: sha512-init
+      - id: go-crypto-sha256
+      - id: go-crypto-sha512
+      - id: go-crypto-md5
 
   # GnuTLS (2+ functions or version string)
   - id: gnutls
     description: GnuTLS library usage (legitimate)
     confidence: 0.8
     requires_any:
-      - type: trait
-        id: gnutls-version
+      - id: gnutls-version
     requires_count: 2
     conditions:
-      - type: trait
-        id: gnutls-init
-      - type: trait
-        id: gnutls-handshake
-      - type: trait
-        id: gnutls-record-send
-      - type: trait
-        id: gnutls-record-recv
-      - type: trait
-        id: gnutls-certificate
-      - type: trait
-        id: gnutls-x509
+      - id: gnutls-init
+      - id: gnutls-handshake
+      - id: gnutls-record-send
+      - id: gnutls-record-recv
+      - id: gnutls-certificate
+      - id: gnutls-x509
 
   # NSS (2+ indicators)
   - id: nss
@@ -655,42 +627,28 @@ composite_rules:
     confidence: 0.8
     requires_count: 2
     conditions:
-      - type: trait
-        id: nss-init
-      - type: trait
-        id: nss-pk11
-      - type: trait
-        id: nss-cert
-      - type: trait
-        id: nss-sec
-      - type: trait
-        id: nss-secmod
-      - type: trait
-        id: libnss
+      - id: nss-init
+      - id: nss-pk11
+      - id: nss-cert
+      - id: nss-sec
+      - id: nss-secmod
+      - id: libnss
 
   # libsodium (2+ functions or library name)
   - id: libsodium
     description: libsodium modern crypto library usage
     confidence: 0.8
     requires_any:
-      - type: trait
-        id: crypto/legitimate/libsodium
+      - id: crypto/legitimate/libsodium
     requires_count: 2
     conditions:
-      - type: trait
-        id: sodium-init
-      - type: trait
-        id: sodium-secretbox
-      - type: trait
-        id: sodium-box
-      - type: trait
-        id: sodium-sign
-      - type: trait
-        id: sodium-hash
-      - type: trait
-        id: sodium-pwhash
-      - type: trait
-        id: sodium-randombytes
+      - id: sodium-init
+      - id: sodium-secretbox
+      - id: sodium-box
+      - id: sodium-sign
+      - id: sodium-hash
+      - id: sodium-pwhash
+      - id: sodium-randombytes
 
   # Rust crypto
   - id: rust-crypto
@@ -698,18 +656,12 @@ composite_rules:
     confidence: 0.75
     requires_count: 1
     conditions:
-      - type: trait
-        id: rust-ring
-      - type: trait
-        id: rust-rustls
-      - type: trait
-        id: rust-chacha
-      - type: trait
-        id: rust-aes
-      - type: trait
-        id: rust-rsa
-      - type: trait
-        id: rust-ed25519
+      - id: rust-ring
+      - id: rust-rustls
+      - id: rust-chacha
+      - id: rust-aes
+      - id: rust-rsa
+      - id: rust-ed25519
 
   # Go crypto (2+ packages)
   - id: go-crypto
@@ -717,44 +669,29 @@ composite_rules:
     confidence: 0.8
     requires_count: 2
     conditions:
-      - type: trait
-        id: go-crypto-tls
-      - type: trait
-        id: go-crypto-x509
-      - type: trait
-        id: go-crypto-rsa
-      - type: trait
-        id: go-crypto-ecdsa
-      - type: trait
-        id: go-crypto-aes
-      - type: trait
-        id: go-crypto-cipher
-      - type: trait
-        id: go-crypto-rand
-      - type: trait
-        id: go-x-crypto
+      - id: go-crypto-tls
+      - id: go-crypto-x509
+      - id: go-crypto-rsa
+      - id: go-crypto-ecdsa
+      - id: go-crypto-aes
+      - id: go-crypto-cipher
+      - id: go-crypto-rand
+      - id: go-x-crypto
 
   # Certificate handling
   - id: certificate-handling
     description: X.509 certificate handling (legitimate)
     confidence: 0.8
     requires_any:
-      - type: trait
-        id: ssl-certs-path
-      - type: trait
-        id: ca-certificates
+      - id: ssl-certs-path
+      - id: ca-certificates
     requires_count: 2
     conditions:
-      - type: trait
-        id: x509-prefix
-      - type: trait
-        id: x509-string
-      - type: trait
-        id: certificate-ref
-      - type: trait
-        id: pem-begin
-      - type: trait
-        id: pem-end
+      - id: x509-prefix
+      - id: x509-string
+      - id: certificate-ref
+      - id: pem-begin
+      - id: pem-end
 
   # Secure random
   - id: secure-random
@@ -762,20 +699,13 @@ composite_rules:
     confidence: 0.8
     requires_count: 1
     conditions:
-      - type: trait
-        id: dev-urandom
-      - type: trait
-        id: dev-random
-      - type: trait
-        id: rand-bytes
-      - type: trait
-        id: getrandom
-      - type: trait
-        id: arc4random
-      - type: trait
-        id: getentropy
-      - type: trait
-        id: secrandomcopybytes
+      - id: dev-urandom
+      - id: dev-random
+      - id: rand-bytes
+      - id: getrandom
+      - id: arc4random
+      - id: getentropy
+      - id: secrandomcopybytes
 
   # Key derivation
   - id: key-derivation
@@ -783,17 +713,10 @@ composite_rules:
     confidence: 0.75
     requires_count: 1
     conditions:
-      - type: trait
-        id: pbkdf2
-      - type: trait
-        id: scrypt
-      - type: trait
-        id: argon2
-      - type: trait
-        id: bcrypt
-      - type: trait
-        id: hkdf
-      - type: trait
-        id: evp-pkey-derive
-      - type: trait
-        id: pkcs5-pbkdf2
+      - id: pbkdf2
+      - id: scrypt
+      - id: argon2
+      - id: bcrypt
+      - id: hkdf
+      - id: evp-pkey-derive
+      - id: pkcs5-pbkdf2

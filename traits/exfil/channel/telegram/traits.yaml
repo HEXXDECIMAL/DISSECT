@@ -91,25 +91,11 @@ composite_rules:
     attack: "T1567.002"
     mbc: "B0030"
     file_types: [all]
-    requires_all:
-      - type: any
-        conditions:
-          - type: trait
-            id: api-endpoint
-          - type: trait
-            id: api-endpoint-b64
-      - type: any
-        conditions:
-          - type: all
-            min_count: 2
-            conditions:
-              - type: trait
-                id: send-message
-              - type: trait
-                id: send-document
-              - type: trait
-                id: send-location
-              - type: trait
-                id: send-photo
-          - type: trait
-            id: bot-token
+    requires_any:
+      - id: api-endpoint
+      - id: api-endpoint-b64
+      - id: bot-token
+      - id: send-message
+      - id: send-document
+      - id: send-location
+      - id: send-photo

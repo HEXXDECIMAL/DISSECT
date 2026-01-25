@@ -394,22 +394,14 @@ composite_rules:
     confidence: 0.85
     requires_count: 1
     conditions:
-      - type: trait
-        id: vendor-xen
-      - type: trait
-        id: vendor-kvm
-      - type: trait
-        id: vendor-vmware
-      - type: trait
-        id: vendor-vbox
-      - type: trait
-        id: vendor-hyperv
-      - type: trait
-        id: vendor-qemu
-      - type: trait
-        id: vendor-parallels
-      - type: trait
-        id: vendor-bhyve
+      - id: vendor-xen
+      - id: vendor-kvm
+      - id: vendor-vmware
+      - id: vendor-vbox
+      - id: vendor-hyperv
+      - id: vendor-qemu
+      - id: vendor-parallels
+      - id: vendor-bhyve
 
   # DMI/SMBIOS VM detection
   - id: dmi-check
@@ -417,19 +409,14 @@ composite_rules:
     criticality: suspicious
     confidence: 0.85
     requires_any:
-      - type: trait
-        id: dmi-dmidecode
+      - id: dmi-dmidecode
     requires_all:
-      - type: trait
-        id: dmi-sysfs
+      - id: dmi-sysfs
     requires_count: 1
     conditions:
-      - type: trait
-        id: dmi-product-name
-      - type: trait
-        id: dmi-sys-vendor
-      - type: trait
-        id: dmi-bios-vendor
+      - id: dmi-product-name
+      - id: dmi-sys-vendor
+      - id: dmi-bios-vendor
 
   # VM-specific file checks
   - id: file-check
@@ -438,22 +425,14 @@ composite_rules:
     confidence: 0.85
     requires_count: 1
     conditions:
-      - type: trait
-        id: file-vbox-guest
-      - type: trait
-        id: file-vbox-mouse
-      - type: trait
-        id: file-vbox-sf
-      - type: trait
-        id: file-vmware-tools
-      - type: trait
-        id: file-vmtoolsd
-      - type: trait
-        id: file-vmhgfs
-      - type: trait
-        id: file-qemu-ga
-      - type: trait
-        id: file-dev-vda
+      - id: file-vbox-guest
+      - id: file-vbox-mouse
+      - id: file-vbox-sf
+      - id: file-vmware-tools
+      - id: file-vmtoolsd
+      - id: file-vmhgfs
+      - id: file-qemu-ga
+      - id: file-dev-vda
 
   # VM MAC address prefixes
   - id: mac-prefix
@@ -462,22 +441,14 @@ composite_rules:
     confidence: 0.85
     requires_count: 1
     conditions:
-      - type: trait
-        id: mac-vmware-1
-      - type: trait
-        id: mac-vmware-2
-      - type: trait
-        id: mac-vmware-3
-      - type: trait
-        id: mac-vbox
-      - type: trait
-        id: mac-xen
-      - type: trait
-        id: mac-hyperv
-      - type: trait
-        id: mac-parallels
-      - type: trait
-        id: mac-qemu
+      - id: mac-vmware-1
+      - id: mac-vmware-2
+      - id: mac-vmware-3
+      - id: mac-vbox
+      - id: mac-xen
+      - id: mac-hyperv
+      - id: mac-parallels
+      - id: mac-qemu
 
   # Docker/container detection
   - id: container-check
@@ -486,16 +457,11 @@ composite_rules:
     confidence: 0.75
     requires_count: 1
     conditions:
-      - type: trait
-        id: docker-env
-      - type: trait
-        id: docker-sock
-      - type: trait
-        id: cgroup-check
-      - type: trait
-        id: k8s-service
-      - type: trait
-        id: k8s-secrets
+      - id: docker-env
+      - id: docker-sock
+      - id: cgroup-check
+      - id: k8s-service
+      - id: k8s-secrets
 
   # Comprehensive VM evasion (3+ VM indicators + exit)
   - id: comprehensive-evasion
@@ -504,26 +470,15 @@ composite_rules:
     confidence: 0.95
     requires_count: 3
     conditions:
-      - type: trait
-        id: vendor-vmware
-      - type: trait
-        id: vendor-vbox
-      - type: trait
-        id: vendor-qemu
-      - type: trait
-        id: vendor-xen
-      - type: trait
-        id: mac-vmware-1
-      - type: trait
-        id: mac-vbox
-      - type: trait
-        id: docker-env
-      - type: trait
-        id: file-vmtoolsd
+      - id: vendor-vmware
+      - id: vendor-vbox
+      - id: vendor-qemu
+      - id: vendor-xen
+      - id: mac-vmware-1
+      - id: mac-vbox
+      - id: docker-env
+      - id: file-vmtoolsd
     requires_any:
-      - type: trait
-        id: exit-call
-      - type: trait
-        id: sys-exit
-      - type: trait
-        id: process-exit
+      - id: exit-call
+      - id: sys-exit
+      - id: process-exit

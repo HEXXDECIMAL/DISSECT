@@ -99,9 +99,6 @@ composite_rules:
     attack: "T1059"
     file_types: [elf, macho, pe, so, dylib, dll, shell]
     requires_any:
-      - type: trait
-        id: dropper/hadooken/generic
-      - type: trait
-        id: dropper/hadooken/miner
-      - type: trait
-        id: dropper/hadooken/webshell
+      - id: dropper/hadooken/generic
+      - id: dropper/hadooken/miner
+      - id: dropper/hadooken/webshell

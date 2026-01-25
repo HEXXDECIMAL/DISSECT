@@ -395,18 +395,12 @@ composite_rules:
     file_types: [javascript, typescript, python]
     requires_count: 2
     conditions:
-      - type: trait
-        id: rsa-keyword
-      - type: trait
-        id: generate-keypair
-      - type: trait
-        id: public-encrypt
-      - type: trait
-        id: private-decrypt
-      - type: trait
-        id: begin-rsa-key
-      - type: trait
-        id: begin-public-key
+      - id: rsa-keyword
+      - id: generate-keypair
+      - id: public-encrypt
+      - id: private-decrypt
+      - id: begin-rsa-key
+      - id: begin-public-key
 
   # RSA key handling with crypto
   - id: rsa-key-handling
@@ -415,10 +409,8 @@ composite_rules:
     confidence: 0.8
     file_types: [javascript, typescript, python]
     requires_all:
-      - type: trait
-        id: crypto-module
-      - type: composite
-        id: rsa-key-operations
+      - id: crypto-module
+      - id: rsa-key-operations
 
   # File iteration
   - id: file-iteration
@@ -428,16 +420,11 @@ composite_rules:
     file_types: [javascript, typescript, python]
     requires_count: 1
     conditions:
-      - type: trait
-        id: readdir-sync
-      - type: trait
-        id: walk-sync
-      - type: trait
-        id: glob-module
-      - type: trait
-        id: readdir-fn
-      - type: trait
-        id: os-walk
+      - id: readdir-sync
+      - id: walk-sync
+      - id: glob-module
+      - id: readdir-fn
+      - id: os-walk
 
   # Encryption functions
   - id: encryption-functions
@@ -447,14 +434,10 @@ composite_rules:
     file_types: [javascript, typescript, python]
     requires_count: 1
     conditions:
-      - type: trait
-        id: encrypt-fn
-      - type: trait
-        id: cipher-keyword
-      - type: trait
-        id: create-cipheriv
-      - type: trait
-        id: aes-keyword
+      - id: encrypt-fn
+      - id: cipher-keyword
+      - id: create-cipheriv
+      - id: aes-keyword
 
   # File write functions
   - id: file-write-functions
@@ -464,12 +447,9 @@ composite_rules:
     file_types: [javascript, typescript, python]
     requires_count: 1
     conditions:
-      - type: trait
-        id: writefile-sync
-      - type: trait
-        id: writefile-fn
-      - type: trait
-        id: open-paren
+      - id: writefile-sync
+      - id: writefile-fn
+      - id: open-paren
 
   # File encryption loop
   - id: file-encryption-loop
@@ -478,12 +458,9 @@ composite_rules:
     confidence: 0.9
     file_types: [javascript, typescript, python]
     requires_all:
-      - type: composite
-        id: file-iteration
-      - type: composite
-        id: encryption-functions
-      - type: composite
-        id: file-write-functions
+      - id: file-iteration
+      - id: encryption-functions
+      - id: file-write-functions
 
   # Ransom note
   - id: ransom-note
@@ -493,20 +470,13 @@ composite_rules:
     file_types: [javascript, typescript, python, shell]
     requires_count: 2
     conditions:
-      - type: trait
-        id: files-encrypted-msg
-      - type: trait
-        id: pay-bitcoin-msg
-      - type: trait
-        id: pay-btc-msg
-      - type: trait
-        id: decrypt-files-msg
-      - type: trait
-        id: bitcoin-wallet-msg
-      - type: trait
-        id: restore-files-msg
-      - type: trait
-        id: send-payment-msg
+      - id: files-encrypted-msg
+      - id: pay-bitcoin-msg
+      - id: pay-btc-msg
+      - id: decrypt-files-msg
+      - id: bitcoin-wallet-msg
+      - id: restore-files-msg
+      - id: send-payment-msg
 
   # Rename functions
   - id: rename-functions
@@ -516,12 +486,9 @@ composite_rules:
     file_types: [javascript, typescript, python]
     requires_count: 1
     conditions:
-      - type: trait
-        id: rename-sync
-      - type: trait
-        id: rename-fn
-      - type: trait
-        id: os-rename
+      - id: rename-sync
+      - id: rename-fn
+      - id: os-rename
 
   # Encrypted extensions
   - id: encrypted-extensions
@@ -531,14 +498,10 @@ composite_rules:
     file_types: [javascript, typescript, python]
     requires_count: 1
     conditions:
-      - type: trait
-        id: ext-encrypted
-      - type: trait
-        id: ext-locked
-      - type: trait
-        id: ext-enc
-      - type: trait
-        id: ext-crypt
+      - id: ext-encrypted
+      - id: ext-locked
+      - id: ext-enc
+      - id: ext-crypt
 
   # Extension change
   - id: extension-change
@@ -547,10 +510,8 @@ composite_rules:
     confidence: 0.85
     file_types: [javascript, typescript, python]
     requires_all:
-      - type: composite
-        id: rename-functions
-      - type: composite
-        id: encrypted-extensions
+      - id: rename-functions
+      - id: encrypted-extensions
 
   # Medusa pattern
   - id: medusa-pattern
@@ -559,16 +520,12 @@ composite_rules:
     confidence: 0.95
     file_types: [javascript, typescript]
     requires_all:
-      - type: trait
-        id: medusa-name
+      - id: medusa-name
     requires_count: 1
     conditions:
-      - type: trait
-        id: polymorphic-keyword
-      - type: trait
-        id: mutate-keyword
-      - type: trait
-        id: rsa-keyword
+      - id: polymorphic-keyword
+      - id: mutate-keyword
+      - id: rsa-keyword
 
   # Shadow copy deletion
   - id: shadow-delete
@@ -579,9 +536,6 @@ composite_rules:
     file_types: [javascript, powershell, shell]
     requires_count: 1
     conditions:
-      - type: trait
-        id: vssadmin-delete
-      - type: trait
-        id: wmic-shadowcopy
-      - type: trait
-        id: bcdedit-recovery
+      - id: vssadmin-delete
+      - id: wmic-shadowcopy
+      - id: bcdedit-recovery

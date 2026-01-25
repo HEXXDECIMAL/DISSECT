@@ -69,13 +69,8 @@ composite_rules:
     file_types: [elf]
     requires_count: 3
     conditions:
-      - type: trait
-        id: iot-botnet/gpio-daemon
-      - type: trait
-        id: iot-botnet/ssdp-discover
-      - type: trait
-        id: iot-botnet/telnet-brute
-      - type: trait
-        id: iot-botnet/mirai-strings
-      - type: trait
-        id: busybox
+      - id: iot-botnet/gpio-daemon
+      - id: iot-botnet/ssdp-discover
+      - id: iot-botnet/telnet-brute
+      - id: iot-botnet/mirai-strings
+      - id: busybox

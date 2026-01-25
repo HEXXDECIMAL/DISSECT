@@ -251,22 +251,15 @@ composite_rules:
     criticality: suspicious
     confidence: 0.95
     requires_any:
-      - type: trait
-        id: ew-rootkiter
+      - id: ew-rootkiter
     requires_count: 3
     conditions:
-      - type: trait
-        id: ew-ssocksd
-      - type: trait
-        id: ew-rcsocks
-      - type: trait
-        id: ew-rssocks
-      - type: trait
-        id: ew-lcx-listen
-      - type: trait
-        id: ew-lcx-tran
-      - type: trait
-        id: ew-lcx-slave
+      - id: ew-ssocksd
+      - id: ew-rcsocks
+      - id: ew-rssocks
+      - id: ew-lcx-listen
+      - id: ew-lcx-tran
+      - id: ew-lcx-slave
 
   # LCX port forwarder
   - id: lcx
@@ -275,18 +268,12 @@ composite_rules:
     confidence: 0.85
     requires_count: 1
     conditions:
-      - type: trait
-        id: ew-lcx-listen
-      - type: trait
-        id: ew-lcx-tran
-      - type: trait
-        id: ew-lcx-slave
-      - type: trait
-        id: lcx-tran-flag
-      - type: trait
-        id: lcx-slave-flag
-      - type: trait
-        id: lcx-listen-flag
+      - id: ew-lcx-listen
+      - id: ew-lcx-tran
+      - id: ew-lcx-slave
+      - id: lcx-tran-flag
+      - id: lcx-slave-flag
+      - id: lcx-listen-flag
 
   # LCX via port config (listen/local + conn/remote)
   - id: lcx-config
@@ -294,16 +281,12 @@ composite_rules:
     criticality: suspicious
     confidence: 0.8
     requires_any:
-      - type: trait
-        id: listen-port
-      - type: trait
-        id: local-port
+      - id: listen-port
+      - id: local-port
     requires_count: 1
     conditions:
-      - type: trait
-        id: conn-port
-      - type: trait
-        id: remote-host
+      - id: conn-port
+      - id: remote-host
 
   # reGeorg/Tunna web tunnel
   - id: regeorg
@@ -312,14 +295,10 @@ composite_rules:
     confidence: 0.9
     requires_count: 1
     conditions:
-      - type: trait
-        id: regeorg-name
-      - type: trait
-        id: tunna-name
-      - type: trait
-        id: neo-regeorg
-      - type: trait
-        id: xcmd-header
+      - id: regeorg-name
+      - id: tunna-name
+      - id: neo-regeorg
+      - id: xcmd-header
 
   # Chisel tunneling
   - id: chisel
@@ -328,12 +307,9 @@ composite_rules:
     confidence: 0.9
     requires_count: 1
     conditions:
-      - type: trait
-        id: chisel-import
-      - type: trait
-        id: chisel-client
-      - type: trait
-        id: chisel-server
+      - id: chisel-import
+      - id: chisel-client
+      - id: chisel-server
 
   # Ngrok tunneling
   - id: ngrok
@@ -342,12 +318,9 @@ composite_rules:
     confidence: 0.85
     requires_count: 1
     conditions:
-      - type: trait
-        id: ngrok-name
-      - type: trait
-        id: ngrok-io
-      - type: trait
-        id: ngrok-com
+      - id: ngrok-name
+      - id: ngrok-io
+      - id: ngrok-com
 
   # Generic SOCKS proxy behavior (2 of them)
   - id: socks-server
@@ -356,11 +329,7 @@ composite_rules:
     confidence: 0.8
     requires_count: 2
     conditions:
-      - type: trait
-        id: socks4-proto
-      - type: trait
-        id: socks5-proto
-      - type: trait
-        id: socks-default-port
-      - type: trait
-        id: socks-server-ref
+      - id: socks4-proto
+      - id: socks5-proto
+      - id: socks-default-port
+      - id: socks-server-ref

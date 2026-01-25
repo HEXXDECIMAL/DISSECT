@@ -235,7 +235,7 @@ traits:
       exact: "WndProc"
 
   - id: message-loop-str
-    description: "message loop" string
+    description: '"message loop" string'
     criticality: inert
     confidence: 0.5
     platforms: [windows]
@@ -259,14 +259,10 @@ composite_rules:
     platforms: [windows]
     requires_count: 1
     conditions:
-      - type: trait
-        id: import-win32clipboard
-      - type: trait
-        id: win32-get-clipboard
-      - type: trait
-        id: win32-set-clipboard
-      - type: trait
-        id: win32-open-clipboard
+      - id: import-win32clipboard
+      - id: win32-get-clipboard
+      - id: win32-set-clipboard
+      - id: win32-open-clipboard
 
   # pyperclip composite
   - id: python-pyperclip
@@ -274,12 +270,9 @@ composite_rules:
     confidence: 0.7
     requires_count: 1
     conditions:
-      - type: trait
-        id: import-pyperclip
-      - type: trait
-        id: pyperclip-paste
-      - type: trait
-        id: pyperclip-copy
+      - id: import-pyperclip
+      - id: pyperclip-paste
+      - id: pyperclip-copy
 
   # wxPython clipboard composite
   - id: python-wx-clipboard
@@ -287,12 +280,9 @@ composite_rules:
     confidence: 0.75
     requires_count: 1
     conditions:
-      - type: trait
-        id: wx-clipboard
-      - type: trait
-        id: clipboard-getdata
-      - type: trait
-        id: wx-theclipboard
+      - id: wx-clipboard
+      - id: clipboard-getdata
+      - id: wx-theclipboard
 
   # tkinter clipboard composite
   - id: python-tkinter-clipboard
@@ -301,10 +291,8 @@ composite_rules:
     criticality: notable
     requires_count: 1
     conditions:
-      - type: trait
-        id: clipboard-get-method
-      - type: trait
-        id: clipboard-clear-method
+      - id: clipboard-get-method
+      - id: clipboard-clear-method
 
   # Windows clipboard chain composite
   - id: python-clipboard-viewer
@@ -313,8 +301,7 @@ composite_rules:
     criticality: suspicious
     platforms: [windows]
     requires_all:
-      - type: trait
-        id: set-clipboard-viewer
+      - id: set-clipboard-viewer
 
   # Clipboard change notification composite
   - id: python-clipboard-change
@@ -324,10 +311,8 @@ composite_rules:
     platforms: [windows]
     requires_count: 1
     conditions:
-      - type: trait
-        id: wm-drawclipboard
-      - type: trait
-        id: wm-changecbchain
+      - id: wm-drawclipboard
+      - id: wm-changecbchain
 
   # pynput clipboard composite
   - id: python-pynput-clipboard
@@ -335,10 +320,8 @@ composite_rules:
     confidence: 0.75
     requires_count: 1
     conditions:
-      - type: trait
-        id: pynput-import-clipboard
-      - type: trait
-        id: pynput-clipboard-mod
+      - id: pynput-import-clipboard
+      - id: pynput-clipboard-mod
 
   # Clipboard access any library composite
   - id: python-clipboard-access-any
@@ -347,14 +330,10 @@ composite_rules:
     criticality: notable
     requires_count: 1
     conditions:
-      - type: composite
-        id: python-win32clipboard
-      - type: composite
-        id: python-pyperclip
-      - type: composite
-        id: python-wx-clipboard
-      - type: trait
-        id: clipboard-get-method
+      - id: python-win32clipboard
+      - id: python-pyperclip
+      - id: python-wx-clipboard
+      - id: clipboard-get-method
 
   # Network exfil composite
   - id: python-network-exfil
@@ -363,14 +342,10 @@ composite_rules:
     criticality: notable
     requires_count: 1
     conditions:
-      - type: trait
-        id: requests-post-clip
-      - type: trait
-        id: requests-get-clip
-      - type: trait
-        id: urllib-clip
-      - type: trait
-        id: socket-clip
+      - id: requests-post-clip
+      - id: requests-get-clip
+      - id: urllib-clip
+      - id: socket-clip
 
   # Loop persistence composite
   - id: python-loop-persistence
@@ -379,14 +354,10 @@ composite_rules:
     criticality: notable
     requires_count: 1
     conditions:
-      - type: trait
-        id: while-keyword
-      - type: trait
-        id: loop-keyword
-      - type: trait
-        id: schedule-keyword
-      - type: trait
-        id: time-sleep
+      - id: while-keyword
+      - id: loop-keyword
+      - id: schedule-keyword
+      - id: time-sleep
 
   # Clipboard viewer notification composite
   - id: python-clipboard-viewer-notify
@@ -396,10 +367,8 @@ composite_rules:
     platforms: [windows]
     requires_count: 1
     conditions:
-      - type: trait
-        id: set-clipboard-viewer
-      - type: trait
-        id: wm-drawclipboard
+      - id: set-clipboard-viewer
+      - id: wm-drawclipboard
 
   # Clipboard data retrieval composite
   - id: python-clipboard-get-data
@@ -408,10 +377,8 @@ composite_rules:
     criticality: notable
     requires_count: 1
     conditions:
-      - type: trait
-        id: getclipboarddata-fn
-      - type: trait
-        id: clipboard-getdata
+      - id: getclipboarddata-fn
+      - id: clipboard-getdata
 
   # Message loop composite
   - id: python-message-loop
@@ -421,12 +388,9 @@ composite_rules:
     platforms: [windows]
     requires_count: 1
     conditions:
-      - type: trait
-        id: while-keyword
-      - type: trait
-        id: wndproc-keyword
-      - type: trait
-        id: message-loop-str
+      - id: while-keyword
+      - id: wndproc-keyword
+      - id: message-loop-str
 
   # Clipboard monitoring with exfiltration
   - id: python-clipboard-exfil
@@ -437,12 +401,9 @@ composite_rules:
     mbc: "E1510"
     file_types: [python]
     requires_all:
-      - type: composite
-        id: python-clipboard-access-any
-      - type: composite
-        id: python-network-exfil
-      - type: composite
-        id: python-loop-persistence
+      - id: python-clipboard-access-any
+      - id: python-network-exfil
+      - id: python-loop-persistence
 
   # Real-time clipboard monitoring (chain viewer)
   - id: python-realtime-monitor
@@ -453,9 +414,6 @@ composite_rules:
     mbc: "E1510"
     file_types: [python]
     requires_all:
-      - type: composite
-        id: python-clipboard-viewer-notify
-      - type: composite
-        id: python-clipboard-get-data
-      - type: composite
-        id: python-message-loop
+      - id: python-clipboard-viewer-notify
+      - id: python-clipboard-get-data
+      - id: python-message-loop

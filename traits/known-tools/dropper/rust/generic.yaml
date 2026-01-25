@@ -126,13 +126,10 @@ composite_rules:
     attack: "T1105"
     file_types: [elf, macho, pe]
     requires_all:
-      - type: trait
-        id: dropper/rust/http-client
+      - id: dropper/rust/http-client
     requires_any:
-      - type: trait
-        id: dropper/rust/file-execution
-      - type: trait
-        id: dropper/rust/fs-ops
+      - id: dropper/rust/file-execution
+      - id: dropper/rust/fs-ops
 
   - id: dropper/rust/likely-stager
     description: "Likely Rust-based stager (small binary with HTTP/exec capabilities)"
@@ -142,12 +139,9 @@ composite_rules:
     attack: "T1105"
     file_types: [elf, macho, pe]
     requires_all:
-      - type: trait
-        id: dropper/rust/http-client
+      - id: dropper/rust/http-client
       - type: string
         exact: "https://"
     requires_any:
-      - type: trait
-        id: dropper/rust/file-execution
-      - type: trait
-        id: dropper/rust/fs-ops
+      - id: dropper/rust/file-execution
+      - id: dropper/rust/fs-ops

@@ -125,27 +125,62 @@ traits:
       type: string
       regex: "\\.setTimeout\\(\\d+,"
 
-  # HTTP request methods (for composite rules)
+  # === HTTP method atomic indicators ===
+  - id: axios-post-call
+    description: axios.post() call
+    criticality: inert
+    confidence: 0.6
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "axios.post"
+
+  - id: fetch-call
+    description: fetch() call
+    criticality: inert
+    confidence: 0.5
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "fetch("
+
+  # === HTTP library atomic indicators ===
+  - id: axios-import
+    description: axios library usage
+    criticality: inert
+    confidence: 0.5
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "axios"
+
+composite_rules:
+  # HTTP request methods composite
   - id: node-http-methods
     description: Node.js HTTP request methods
     criticality: notable
     confidence: 0.7
     file_types: [javascript, typescript]
-    condition:
-      type: string
-      regex: "axios\\.post|https\\.request|http\\.request|fetch\\("
+    requires_count: 1
+    conditions:
+      - id: axios-post-call
+      - id: node-https-request
+      - id: node-http-request
+      - id: fetch-call
 
-  # HTTP request libraries (for composite rules)
+  # HTTP libraries composite
   - id: node-http-libs
     description: Node.js HTTP request libraries
     criticality: notable
     confidence: 0.7
     file_types: [javascript, typescript]
-    condition:
-      type: string
-      regex: "axios|https\\.request|http\\.request|fetch\\("
+    requires_count: 1
+    conditions:
+      - id: axios-import
+      - id: node-https-request
+      - id: node-http-request
+      - id: fetch-call
 
-composite_rules:
   # Collect and exfil pattern
   - id: node-collect-exfil
     description: Collects system info and exfiltrates via HTTP
@@ -154,10 +189,8 @@ composite_rules:
     attack: "T1041"
     file_types: [javascript, typescript]
     requires_all:
-      - type: trait
-        id: discovery/system/node
-      - type: trait
-        id: exfil/http/node-http-methods
+      - id: discovery/system/node
+      - id: node-http-methods
 
   # Stealthy exfil (silent errors)
   - id: node-stealthy-exfil
@@ -166,7 +199,5 @@ composite_rules:
     confidence: 0.85
     attack: "T1041"
     requires_all:
-      - type: trait
-        id: exfil/http/node-silent-error
-      - type: trait
-        id: exfil/http/node-http-libs
+      - id: node-silent-error
+      - id: node-http-libs

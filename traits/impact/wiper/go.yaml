@@ -99,11 +99,7 @@ composite_rules:
     file_types: [go]
     requires_count: 2
     conditions:
-      - type: trait
-        id: impact/wiper/go/secure-wipe-pattern
-      - type: trait
-        id: impact/wiper/go/mass-destruction
-      - type: trait
-        id: impact/wiper/standards-reference
-      - type: trait
-        id: impact/wiper/gutmann-patterns
+      - id: impact/wiper/go/secure-wipe-pattern
+      - id: impact/wiper/go/mass-destruction
+      - id: impact/wiper/standards-reference
+      - id: impact/wiper/gutmann-patterns

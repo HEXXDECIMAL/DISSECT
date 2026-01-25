@@ -205,12 +205,9 @@ composite_rules:
     file_types: [all]
     requires_count: 1
     conditions:
-      - type: trait
-        id: getenv-home
-      - type: trait
-        id: env-dot-home
-      - type: trait
-        id: dollar-home
+      - id: getenv-home
+      - id: env-dot-home
+      - id: dollar-home
 
   # Username environment composite
   - id: username-env
@@ -221,12 +218,9 @@ composite_rules:
     file_types: [all]
     requires_count: 1
     conditions:
-      - type: trait
-        id: username-var
-      - type: trait
-        id: user-var
-      - type: trait
-        id: logname-var
+      - id: username-var
+      - id: user-var
+      - id: logname-var
 
   # Active enumeration commands
   - id: active-enum-cmds
@@ -237,18 +231,12 @@ composite_rules:
     file_types: [shell, elf, macho, pe, python]
     requires_count: 1
     conditions:
-      - type: trait
-        id: whoami
-      - type: trait
-        id: etc-passwd
-      - type: trait
-        id: dscl
-      - type: trait
-        id: finger
-      - type: trait
-        id: last-cmd
-      - type: trait
-        id: w-cmd
+      - id: whoami
+      - id: etc-passwd
+      - id: dscl
+      - id: finger
+      - id: last-cmd
+      - id: w-cmd
 
   # Passive user lookup functions
   - id: passive-user-lookup
@@ -259,12 +247,9 @@ composite_rules:
     file_types: [elf, macho]
     requires_count: 1
     conditions:
-      - type: trait
-        id: getpwnam
-      - type: trait
-        id: getuid
-      - type: trait
-        id: getpwuid
+      - id: getpwnam
+      - id: getuid
+      - id: getpwuid
 
   # User enumeration detected (active commands + context)
   - id: enumeration-detected
@@ -275,12 +260,8 @@ composite_rules:
     mbc: "B0046"
     file_types: [shell, elf, macho, pe, python]
     requires_all:
-      - type: composite
-        id: active-enum-cmds
+      - id: active-enum-cmds
     requires_any:
-      - type: composite
-        id: passive-user-lookup
-      - type: composite
-        id: username-env
-      - type: composite
-        id: home-env
+      - id: passive-user-lookup
+      - id: username-env
+      - id: home-env

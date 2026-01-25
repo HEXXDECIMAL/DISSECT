@@ -57,9 +57,6 @@ composite_rules:
     mbc: "B0022"
     file_types: [elf]
     requires_all:
-      - type: trait
-        id: backdoor/vshell/send-vshell
-      - type: trait
-        id: backdoor/vshell/sockopt-fprog
-      - type: trait
-        id: backdoor/vshell/yara-signature
+      - id: backdoor/vshell/send-vshell
+      - id: backdoor/vshell/sockopt-fprog
+      - id: backdoor/vshell/yara-signature

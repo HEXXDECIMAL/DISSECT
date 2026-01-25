@@ -393,16 +393,11 @@ composite_rules:
     attack: "T1045"
     requires_count: 2
     conditions:
-      - type: trait
-        id: anti-static/obfuscation/binary-metrics/high-overall-entropy
-      - type: trait
-        id: anti-static/obfuscation/binary-metrics/no-strings
-      - type: trait
-        id: anti-static/obfuscation/binary-metrics/few-imports
-      - type: trait
-        id: anti-static/obfuscation/binary-metrics/no-functions
-      - type: trait
-        id: anti-static/obfuscation/binary-metrics/dominant-section
+      - id: anti-static/obfuscation/binary-metrics/high-overall-entropy
+      - id: anti-static/obfuscation/binary-metrics/no-strings
+      - id: anti-static/obfuscation/binary-metrics/few-imports
+      - id: anti-static/obfuscation/binary-metrics/no-functions
+      - id: anti-static/obfuscation/binary-metrics/dominant-section
 
   - id: binary-heavily-packed
     description: "Binary is heavily packed/encrypted"
@@ -411,16 +406,11 @@ composite_rules:
     attack: "T1045"
     requires_count: 3
     conditions:
-      - type: trait
-        id: anti-static/obfuscation/binary-metrics/very-high-entropy
-      - type: trait
-        id: anti-static/obfuscation/binary-metrics/no-strings
-      - type: trait
-        id: anti-static/obfuscation/binary-metrics/no-functions
-      - type: trait
-        id: anti-static/obfuscation/binary-metrics/wx-sections
-      - type: trait
-        id: anti-static/obfuscation/binary-metrics/few-imports
+      - id: anti-static/obfuscation/binary-metrics/very-high-entropy
+      - id: anti-static/obfuscation/binary-metrics/no-strings
+      - id: anti-static/obfuscation/binary-metrics/no-functions
+      - id: anti-static/obfuscation/binary-metrics/wx-sections
+      - id: anti-static/obfuscation/binary-metrics/few-imports
 
   - id: binary-encrypted-overlay
     description: "Binary with encrypted overlay payload"
@@ -428,10 +418,8 @@ composite_rules:
     confidence: 0.85
     attack: "T1027.009"
     requires_all:
-      - type: trait
-        id: anti-static/obfuscation/binary-metrics/has-overlay
-      - type: trait
-        id: anti-static/obfuscation/binary-metrics/high-entropy-overlay
+      - id: anti-static/obfuscation/binary-metrics/has-overlay
+      - id: anti-static/obfuscation/binary-metrics/high-entropy-overlay
 
   - id: packer-signature
     description: "Packer signature pattern detected"
@@ -440,14 +428,10 @@ composite_rules:
     attack: "T1045"
     requires_count: 2
     conditions:
-      - type: trait
-        id: anti-static/obfuscation/binary-metrics/high-section-name-entropy
-      - type: trait
-        id: anti-static/obfuscation/binary-metrics/few-sections
-      - type: trait
-        id: anti-static/obfuscation/binary-metrics/dominant-section
-      - type: trait
-        id: anti-static/obfuscation/binary-metrics/wx-sections
+      - id: anti-static/obfuscation/binary-metrics/high-section-name-entropy
+      - id: anti-static/obfuscation/binary-metrics/few-sections
+      - id: anti-static/obfuscation/binary-metrics/dominant-section
+      - id: anti-static/obfuscation/binary-metrics/wx-sections
 
   # === Control Flow Obfuscation Detection ===
 
@@ -458,14 +442,10 @@ composite_rules:
     attack: "T1027.002"
     requires_count: 2
     conditions:
-      - type: trait
-        id: anti-static/obfuscation/binary-metrics/high-avg-complexity
-      - type: trait
-        id: anti-static/obfuscation/binary-metrics/many-complex-functions
-      - type: trait
-        id: anti-static/obfuscation/binary-metrics/many-basic-blocks
-      - type: trait
-        id: anti-static/obfuscation/binary-metrics/extreme-max-complexity
+      - id: anti-static/obfuscation/binary-metrics/high-avg-complexity
+      - id: anti-static/obfuscation/binary-metrics/many-complex-functions
+      - id: anti-static/obfuscation/binary-metrics/many-basic-blocks
+      - id: anti-static/obfuscation/binary-metrics/extreme-max-complexity
 
   - id: heavy-control-flow-obfuscation
     description: "Heavy control flow obfuscation"
@@ -473,12 +453,9 @@ composite_rules:
     confidence: 0.9
     attack: "T1027.002"
     requires_all:
-      - type: trait
-        id: anti-static/obfuscation/binary-metrics/very-high-avg-complexity
-      - type: trait
-        id: anti-static/obfuscation/binary-metrics/very-complex-functions
-      - type: trait
-        id: anti-static/obfuscation/binary-metrics/many-complex-functions
+      - id: anti-static/obfuscation/binary-metrics/very-high-avg-complexity
+      - id: anti-static/obfuscation/binary-metrics/very-complex-functions
+      - id: anti-static/obfuscation/binary-metrics/many-complex-functions
 
   - id: vm-based-obfuscation
     description: "VM-based obfuscation pattern"
@@ -487,14 +464,10 @@ composite_rules:
     attack: "T1027.002"
     requires_count: 2
     conditions:
-      - type: trait
-        id: anti-static/obfuscation/binary-metrics/few-functions
-      - type: trait
-        id: anti-static/obfuscation/binary-metrics/extreme-max-complexity
-      - type: trait
-        id: anti-static/obfuscation/binary-metrics/huge-stack-frame
-      - type: trait
-        id: anti-static/obfuscation/binary-metrics/many-linear-functions
+      - id: anti-static/obfuscation/binary-metrics/few-functions
+      - id: anti-static/obfuscation/binary-metrics/extreme-max-complexity
+      - id: anti-static/obfuscation/binary-metrics/huge-stack-frame
+      - id: anti-static/obfuscation/binary-metrics/many-linear-functions
 
   - id: anti-analysis-pattern
     description: "Anti-analysis pattern detected"
@@ -503,11 +476,7 @@ composite_rules:
     attack: "T1027"
     requires_count: 2
     conditions:
-      - type: trait
-        id: anti-static/obfuscation/binary-metrics/many-noreturn-functions
-      - type: trait
-        id: anti-static/obfuscation/binary-metrics/many-complex-functions
-      - type: trait
-        id: anti-static/obfuscation/binary-metrics/few-leaf-functions
-      - type: trait
-        id: anti-static/obfuscation/binary-metrics/large-stack-frames
+      - id: anti-static/obfuscation/binary-metrics/many-noreturn-functions
+      - id: anti-static/obfuscation/binary-metrics/many-complex-functions
+      - id: anti-static/obfuscation/binary-metrics/few-leaf-functions
+      - id: anti-static/obfuscation/binary-metrics/large-stack-frames

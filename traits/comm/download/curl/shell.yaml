@@ -2,29 +2,94 @@
 # MBC: C0002 (HTTP Communication)
 # ATT&CK: T1105
 
+defaults:
+  attack: "T1105"
+
 traits:
+  # === curl atomic indicators ===
+  - id: curl-cmd
+    description: curl command
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: "curl\\s"
+
+  - id: libcurl-ref
+    description: libcurl library
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "libcurl"
+
+  - id: curlopt-ref
+    description: CURLOPT constant
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "CURLOPT"
+
+  # === wget atomic indicators ===
+  - id: wget-cmd
+    description: wget command
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: "wget\\s"
+
+  - id: wget-path
+    description: wget binary path
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "/usr/bin/wget"
+
+  # === fetch atomic indicators ===
+  - id: fetch-call
+    description: fetch function call
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "fetch("
+
+  - id: urllib-urlretrieve
+    description: urllib urlretrieve
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "urllib.request.urlretrieve"
+
+composite_rules:
   - id: curl
     description: Download via curl
     criticality: notable
     confidence: 0.66
-    attack: "T1105"
-    condition:
-      type: string
-      regex: "(curl\\s|libcurl|CURLOPT)"
+    requires_count: 1
+    conditions:
+      - id: curl-cmd
+      - id: libcurl-ref
+      - id: curlopt-ref
 
   - id: wget
     description: Download via wget
     criticality: notable
     confidence: 0.66
-    attack: "T1105"
-    condition:
-      type: string
-      regex: "(wget\\s|/usr/bin/wget)"
+    requires_count: 1
+    conditions:
+      - id: wget-cmd
+      - id: wget-path
 
   - id: fetch
     description: Download via fetch
     criticality: notable
     confidence: 0.66
-    condition:
-      type: string
-      regex: "(fetch\\(|urllib\\.request\\.urlretrieve)"
+    requires_count: 1
+    conditions:
+      - id: fetch-call
+      - id: urllib-urlretrieve

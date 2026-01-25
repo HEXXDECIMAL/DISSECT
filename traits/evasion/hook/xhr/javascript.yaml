@@ -99,10 +99,8 @@ composite_rules:
     confidence: 0.8
     requires_count: 1
     conditions:
-      - type: trait
-        id: xhr-prototype-access
-      - type: trait
-        id: xhr-bracket-access
+      - id: xhr-prototype-access
+      - id: xhr-bracket-access
 
   # XMLHttpRequest.open hook composite
   - id: open-hook
@@ -111,10 +109,8 @@ composite_rules:
     criticality: suspicious
     requires_count: 1
     conditions:
-      - type: trait
-        id: xhr-prototype-open-eq
-      - type: trait
-        id: xhr-bracket-open-eq
+      - id: xhr-prototype-open-eq
+      - id: xhr-bracket-open-eq
 
   # XMLHttpRequest.send hook composite
   - id: send-hook
@@ -123,10 +119,8 @@ composite_rules:
     criticality: suspicious
     requires_count: 1
     conditions:
-      - type: trait
-        id: xhr-prototype-send-eq
-      - type: trait
-        id: xhr-bracket-send-eq
+      - id: xhr-prototype-send-eq
+      - id: xhr-bracket-send-eq
 
   # fetch API hook composite
   - id: fetch-hook
@@ -135,12 +129,9 @@ composite_rules:
     criticality: suspicious
     requires_count: 1
     conditions:
-      - type: trait
-        id: window-fetch-eq
-      - type: trait
-        id: globalthis-fetch-eq
-      - type: trait
-        id: self-fetch-eq
+      - id: window-fetch-eq
+      - id: globalthis-fetch-eq
+      - id: self-fetch-eq
 
   # Multiple XHR hooks = request interceptor
   - id: request-interceptor
@@ -151,9 +142,6 @@ composite_rules:
     file_types: [javascript]
     requires_count: 2
     conditions:
-      - type: composite
-        id: open-hook
-      - type: composite
-        id: send-hook
-      - type: composite
-        id: fetch-hook
+      - id: open-hook
+      - id: send-hook
+      - id: fetch-hook

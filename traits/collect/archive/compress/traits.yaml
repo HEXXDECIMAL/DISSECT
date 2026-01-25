@@ -49,15 +49,49 @@ traits:
       type: string
       regex: "zip\\s+-[rX]"
 
-  - id: zip-library
-    description: ZIP library usage
+  # === Zip library atomic indicators ===
+  - id: go-archive-zip
+    description: Go archive/zip package
+    criticality: inert
+    confidence: 0.5
+    attack: "T1560"
+    platforms: [all]
+    file_types: [go, elf, macho, pe]
+    condition:
+      type: string
+      exact: "archive/zip"
+
+  - id: rust-zip-writer
+    description: Rust zip_writer usage
+    criticality: inert
+    confidence: 0.5
+    attack: "T1560"
+    platforms: [all]
+    file_types: [rust, elf, macho, pe]
+    condition:
+      type: string
+      exact: "zip_writer"
+
+  - id: python-zipfile
+    description: Python zipfile module
+    criticality: inert
+    confidence: 0.5
+    attack: "T1560"
+    platforms: [all]
+    file_types: [python, elf, macho, pe]
+    condition:
+      type: string
+      exact: "zipfile"
+
+  - id: zip64-format
+    description: ZIP64 format reference
     criticality: inert
     confidence: 0.5
     attack: "T1560"
     platforms: [all]
     condition:
       type: string
-      regex: "archive/zip|zip_writer|zipfile|ZIP64"
+      exact: "ZIP64"
 
   # === Unarchive ===
 
@@ -71,6 +105,20 @@ traits:
       regex: "[Uu]narchive"
 
 composite_rules:
+  # Zip library composite
+  - id: zip-library
+    description: ZIP library usage
+    criticality: notable
+    confidence: 0.6
+    attack: "T1560"
+    platforms: [all]
+    requires_count: 1
+    conditions:
+      - id: go-archive-zip
+      - id: rust-zip-writer
+      - id: python-zipfile
+      - id: zip64-format
+
   - id: binary-tar-exec
     description: Binary executes tar command (not script)
     criticality: suspicious
@@ -79,7 +127,5 @@ composite_rules:
     platforms: [linux, macos, unix]
     file_types: [elf, macho]
     requires_any:
-      - type: trait
-        id: tar-create
-      - type: trait
-        id: tar-from-file
+      - id: tar-create
+      - id: tar-from-file

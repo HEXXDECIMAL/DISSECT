@@ -271,12 +271,9 @@ composite_rules:
     file_types: [javascript, typescript]
     requires_count: 1
     conditions:
-      - type: trait
-        id: js-atomic-sleep
-      - type: trait
-        id: js-date-now-timeout
-      - type: trait
-        id: js-performance-now-timeout
+      - id: js-atomic-sleep
+      - id: js-date-now-timeout
+      - id: js-performance-now-timeout
 
   # JS headless browser detection composite
   - id: js-headless
@@ -286,12 +283,9 @@ composite_rules:
     file_types: [javascript, typescript]
     requires_count: 1
     conditions:
-      - type: trait
-        id: js-navigator-webdriver
-      - type: trait
-        id: js-plugins-length-zero
-      - type: trait
-        id: js-outerwidth-zero
+      - id: js-navigator-webdriver
+      - id: js-plugins-length-zero
+      - id: js-outerwidth-zero
 
   # Sandbox detection (2+ indicators)
   - id: sandbox
@@ -301,30 +295,18 @@ composite_rules:
     file_types: [elf, macho, pe, shell, python]
     requires_count: 2
     conditions:
-      - type: trait
-        id: cuckoo
-      - type: trait
-        id: joe-sandbox
-      - type: trait
-        id: any-run
-      - type: trait
-        id: hybrid-analysis
-      - type: trait
-        id: virustotal
-      - type: trait
-        id: wireshark
-      - type: trait
-        id: fiddler
-      - type: trait
-        id: procmon
-      - type: trait
-        id: process-hacker
-      - type: trait
-        id: x64dbg
-      - type: trait
-        id: ollydbg
-      - type: trait
-        id: sandbox-path
+      - id: cuckoo
+      - id: joe-sandbox
+      - id: any-run
+      - id: hybrid-analysis
+      - id: virustotal
+      - id: wireshark
+      - id: fiddler
+      - id: procmon
+      - id: process-hacker
+      - id: x64dbg
+      - id: ollydbg
+      - id: sandbox-path
 
   # Console toString composite
   - id: js-console-tostring
@@ -336,12 +318,9 @@ composite_rules:
     file_types: [javascript, typescript]
     requires_count: 1
     conditions:
-      - type: trait
-        id: js-console-log-tostring
-      - type: trait
-        id: js-console-warn-tostring
-      - type: trait
-        id: js-console-error-tostring
+      - id: js-console-log-tostring
+      - id: js-console-warn-tostring
+      - id: js-console-error-tostring
 
   # JS debugger detection (2+ indicators)
   - id: js-debugger
@@ -353,16 +332,11 @@ composite_rules:
     file_types: [javascript, typescript]
     requires_count: 2
     conditions:
-      - type: trait
-        id: js-debugger-stmt
-      - type: trait
-        id: js-func-tostring
-      - type: composite
-        id: js-console-tostring
-      - type: trait
-        id: js-react-devtools
-      - type: trait
-        id: js-vue-devtools
+      - id: js-debugger-stmt
+      - id: js-func-tostring
+      - id: js-console-tostring
+      - id: js-react-devtools
+      - id: js-vue-devtools
 
 # NOTE: VM detection traits are in anti-analysis/vm/
 # Use anti-analysis/vm directory reference for VM/hypervisor detection

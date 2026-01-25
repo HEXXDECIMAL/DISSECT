@@ -83,12 +83,9 @@ composite_rules:
     mbc: "B0022"
     file_types: [elf]
     requires_all:
-      - type: trait
-        id: backdoor/tinyshell/go-runshell
-      - type: trait
-        id: backdoor/tinyshell/go-background
-      - type: trait
-        id: backdoor/tinyshell/go-pty-wrapper
+      - id: backdoor/tinyshell/go-runshell
+      - id: backdoor/tinyshell/go-background
+      - id: backdoor/tinyshell/go-pty-wrapper
 
   # C variant detection
   - id: backdoor/tinyshell/c-detected
@@ -101,9 +98,6 @@ composite_rules:
     file_types: [elf]
     requires_count: 2
     conditions:
-      - type: trait
-        id: backdoor/tinyshell/c-runshell
-      - type: trait
-        id: backdoor/tinyshell/c-getfile
-      - type: trait
-        id: backdoor/tinyshell/c-putfile
+      - id: backdoor/tinyshell/c-runshell
+      - id: backdoor/tinyshell/c-getfile
+      - id: backdoor/tinyshell/c-putfile

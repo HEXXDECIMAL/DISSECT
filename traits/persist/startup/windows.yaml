@@ -7,131 +7,502 @@ defaults:
   criticality: suspicious
 
 traits:
-  # Windows Startup folder paths
+  # === Startup folder atomic indicators ===
+  - id: start-menu-startup
+    description: Start Menu Programs Startup path
+    criticality: inert
+    confidence: 0.7
+    platforms: [windows]
+    condition:
+      type: string
+      exact: "\\Start Menu\\Programs\\Startup"
+
+  - id: appdata-startup
+    description: AppData Roaming Startup path
+    criticality: inert
+    confidence: 0.7
+    platforms: [windows]
+    condition:
+      type: string
+      exact: "AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
+
+  - id: shell-startup
+    description: shell:startup special folder
+    criticality: inert
+    confidence: 0.7
+    platforms: [windows]
+    condition:
+      type: string
+      exact: "shell:startup"
+
+  # === Registry Run key atomic indicators ===
+  - id: software-run-key
+    description: SOFTWARE CurrentVersion Run path
+    criticality: inert
+    confidence: 0.7
+    platforms: [windows]
+    condition:
+      type: string
+      exact: "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"
+
+  - id: hkcu-run
+    description: HKCU Run key reference
+    criticality: inert
+    confidence: 0.6
+    platforms: [windows]
+    condition:
+      type: string
+      regex: "HKCU.*Run"
+
+  - id: hklm-run
+    description: HKLM Run key reference
+    criticality: inert
+    confidence: 0.6
+    platforms: [windows]
+    condition:
+      type: string
+      regex: "HKLM.*Run"
+
+  - id: currentversion-run
+    description: CurrentVersion Run path
+    criticality: inert
+    confidence: 0.7
+    platforms: [windows]
+    condition:
+      type: string
+      exact: "CurrentVersion\\Run"
+
+  # === RunOnce atomic indicators ===
+  - id: currentversion-runonce
+    description: CurrentVersion RunOnce path
+    criticality: inert
+    confidence: 0.7
+    platforms: [windows]
+    condition:
+      type: string
+      exact: "CurrentVersion\\RunOnce"
+
+  - id: runonce-word
+    description: RunOnce keyword
+    criticality: inert
+    confidence: 0.5
+    platforms: [windows]
+    condition:
+      type: string
+      exact: "RunOnce"
+
+  # === Python winreg atomic indicators ===
+  - id: import-winreg
+    description: import winreg statement
+    criticality: inert
+    confidence: 0.5
+    platforms: [windows]
+    file_types: [python]
+    condition:
+      type: string
+      exact: "import winreg"
+
+  - id: from-winreg
+    description: from winreg import
+    criticality: inert
+    confidence: 0.5
+    platforms: [windows]
+    file_types: [python]
+    condition:
+      type: string
+      exact: "from winreg"
+
+  - id: underscore-winreg
+    description: _winreg module (Python 2)
+    criticality: inert
+    confidence: 0.5
+    platforms: [windows]
+    file_types: [python]
+    condition:
+      type: string
+      exact: "_winreg"
+
+  - id: openkey-hkey
+    description: OpenKey HKEY call
+    criticality: inert
+    confidence: 0.6
+    platforms: [windows]
+    file_types: [python]
+    condition:
+      type: string
+      regex: "OpenKey.*HKEY"
+
+  - id: setvalueex
+    description: SetValueEx call
+    criticality: inert
+    confidence: 0.6
+    platforms: [windows]
+    file_types: [python]
+    condition:
+      type: string
+      exact: "SetValueEx"
+
+  - id: createkey
+    description: CreateKey call
+    criticality: inert
+    confidence: 0.6
+    platforms: [windows]
+    file_types: [python]
+    condition:
+      type: string
+      exact: "CreateKey"
+
+  # === Scheduled tasks atomic indicators ===
+  - id: schtasks-create-cmd
+    description: schtasks /create command
+    criticality: inert
+    confidence: 0.7
+    platforms: [windows]
+    condition:
+      type: string
+      regex: "schtasks\\s*/create"
+
+  - id: schtasks-exe-create
+    description: schtasks.exe create
+    criticality: inert
+    confidence: 0.7
+    platforms: [windows]
+    condition:
+      type: string
+      regex: "schtasks\\.exe.*create"
+
+  - id: itaskscheduler-iface
+    description: ITaskScheduler interface
+    criticality: inert
+    confidence: 0.7
+    platforms: [windows]
+    condition:
+      type: string
+      exact: "ITaskScheduler"
+
+  - id: taskscheduler-word
+    description: TaskScheduler keyword
+    criticality: inert
+    confidence: 0.6
+    platforms: [windows]
+    condition:
+      type: string
+      exact: "TaskScheduler"
+
+  # === Service installation atomic indicators ===
+  - id: sc-create-cmd
+    description: sc create command
+    criticality: inert
+    confidence: 0.7
+    platforms: [windows]
+    condition:
+      type: string
+      regex: "sc\\s+create"
+
+  - id: createservice-api
+    description: CreateService API
+    criticality: inert
+    confidence: 0.7
+    platforms: [windows]
+    condition:
+      type: string
+      exact: "CreateService"
+
+  - id: installservice-fn
+    description: InstallService function
+    criticality: inert
+    confidence: 0.7
+    platforms: [windows]
+    condition:
+      type: string
+      exact: "InstallService"
+
+  - id: win32serviceutil-mod
+    description: win32serviceutil module
+    criticality: inert
+    confidence: 0.7
+    platforms: [windows]
+    condition:
+      type: string
+      exact: "win32serviceutil"
+
+  # === PowerShell registry atomic indicators ===
+  - id: set-itemproperty-run
+    description: Set-ItemProperty Run
+    criticality: inert
+    confidence: 0.7
+    platforms: [windows]
+    condition:
+      type: string
+      regex: "Set-ItemProperty.*Run"
+
+  - id: new-itemproperty-run
+    description: New-ItemProperty Run
+    criticality: inert
+    confidence: 0.7
+    platforms: [windows]
+    condition:
+      type: string
+      regex: "New-ItemProperty.*Run"
+
+  - id: reg-add-run
+    description: reg add Run
+    criticality: inert
+    confidence: 0.7
+    platforms: [windows]
+    condition:
+      type: string
+      regex: "reg\\s+add.*Run"
+
+  # === WMI persistence atomic indicators ===
+  - id: wmi-eventfilter
+    description: __EventFilter class
+    criticality: inert
+    confidence: 0.7
+    platforms: [windows]
+    condition:
+      type: string
+      exact: "__EventFilter"
+
+  - id: wmi-filtertoconsumer
+    description: __FilterToConsumerBinding class
+    criticality: inert
+    confidence: 0.7
+    platforms: [windows]
+    condition:
+      type: string
+      exact: "__FilterToConsumerBinding"
+
+  - id: wmi-commandlineconsumer
+    description: CommandLineEventConsumer class
+    criticality: inert
+    confidence: 0.7
+    platforms: [windows]
+    condition:
+      type: string
+      exact: "CommandLineEventConsumer"
+
+  - id: wmi-activescriptconsumer
+    description: ActiveScriptEventConsumer class
+    criticality: inert
+    confidence: 0.7
+    platforms: [windows]
+    condition:
+      type: string
+      exact: "ActiveScriptEventConsumer"
+
+  # === Executable payload atomic indicators ===
+  - id: exe-extension
+    description: .exe file extension
+    criticality: inert
+    confidence: 0.4
+    platforms: [windows]
+    condition:
+      type: string
+      exact: ".exe"
+
+  - id: bat-extension
+    description: .bat file extension
+    criticality: inert
+    confidence: 0.4
+    platforms: [windows]
+    condition:
+      type: string
+      exact: ".bat"
+
+  - id: ps1-extension
+    description: .ps1 file extension
+    criticality: inert
+    confidence: 0.5
+    platforms: [windows]
+    condition:
+      type: string
+      exact: ".ps1"
+
+  - id: vbs-extension
+    description: .vbs file extension
+    criticality: inert
+    confidence: 0.5
+    platforms: [windows]
+    condition:
+      type: string
+      exact: ".vbs"
+
+  - id: powershell-word
+    description: powershell keyword
+    criticality: inert
+    confidence: 0.4
+    platforms: [windows]
+    condition:
+      type: string
+      exact: "powershell"
+
+  - id: cmd-exe
+    description: cmd.exe reference
+    criticality: inert
+    confidence: 0.4
+    platforms: [windows]
+    condition:
+      type: string
+      exact: "cmd.exe"
+
+composite_rules:
+  # Startup folder composite
   - id: windows-startup-folder
     description: "Targets Windows Startup folder for persistence"
     confidence: 0.85
     criticality: suspicious
     platforms: [windows]
-    condition:
-      type: string
-      regex: "\\\\Start Menu\\\\Programs\\\\Startup|AppData\\\\Roaming\\\\Microsoft\\\\Windows\\\\Start Menu\\\\Programs\\\\Startup|shell:startup"
+    requires_count: 1
+    conditions:
+      - id: start-menu-startup
+      - id: appdata-startup
+      - id: shell-startup
 
-  # Registry Run keys (common persistence location)
+  # Registry Run key composite
   - id: windows-registry-run
     description: "Accesses Windows registry Run key for persistence"
     confidence: 0.9
     criticality: suspicious
     platforms: [windows]
-    condition:
-      type: string
-      regex: "SOFTWARE\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run|HKCU.*Run|HKLM.*Run|CurrentVersion\\\\Run"
+    requires_count: 1
+    conditions:
+      - id: software-run-key
+      - id: hkcu-run
+      - id: hklm-run
+      - id: currentversion-run
 
-  # Registry RunOnce keys
+  # RunOnce composite
   - id: windows-registry-runonce
     description: "Accesses Windows registry RunOnce key for persistence"
     confidence: 0.9
     criticality: suspicious
     platforms: [windows]
-    condition:
-      type: string
-      regex: "CurrentVersion\\\\RunOnce|RunOnce"
+    requires_count: 1
+    conditions:
+      - id: currentversion-runonce
+      - id: runonce-word
 
-  # winreg module (Python Windows registry access)
-  - id: windows-python-winreg
-    description: "Accesses Windows registry via Python winreg module"
-    confidence: 0.8
-    platforms: [windows]
-    file_types: [python]
-    condition:
-      type: string
-      regex: "import winreg|from winreg|_winreg|OpenKey.*HKEY|SetValueEx|CreateKey"
-
-  # Scheduled tasks (schtasks)
-  - id: windows-schtasks
-    description: "Creates scheduled task for persistence"
-    confidence: 0.85
-    criticality: suspicious
-    attack: "T1053.005"
-    platforms: [windows]
-    condition:
-      type: string
-      regex: "schtasks\\s*/create|schtasks\\.exe.*create|ITaskScheduler|TaskScheduler"
-
-  # Windows service installation
-  - id: windows-service-install
-    description: "Installs Windows service for persistence"
-    confidence: 0.85
-    attack: "T1543.003"
-    platforms: [windows]
-    condition:
-      type: string
-      regex: "sc\\s+create|CreateService|InstallService|win32serviceutil"
-
-  # PowerShell registry persistence
-  - id: windows-powershell-registry
-    description: "Modifies registry for persistence via PowerShell"
-    confidence: 0.9
-    criticality: suspicious
-    platforms: [windows]
-    condition:
-      type: string
-      regex: "Set-ItemProperty.*Run|New-ItemProperty.*Run|reg\\s+add.*Run"
-
-  # WMI event subscription persistence
-  - id: windows-wmi-persistence
-    description: "Sets up WMI event subscription for persistence"
-    confidence: 0.9
-    criticality: suspicious
-    attack: "T1546.003"
-    platforms: [windows]
-    condition:
-      type: string
-      regex: "__EventFilter|__FilterToConsumerBinding|CommandLineEventConsumer|ActiveScriptEventConsumer"
-
-  # Python winreg import pattern (for composite rules)
+  # Python winreg import composite
   - id: windows-python-winreg-import
     description: "Imports Python winreg module for registry access"
     confidence: 0.7
     criticality: notable
     platforms: [windows]
     file_types: [python]
-    condition:
-      type: string
-      regex: "import winreg|from winreg|_winreg"
+    requires_count: 1
+    conditions:
+      - id: import-winreg
+      - id: from-winreg
+      - id: underscore-winreg
 
-  # Registry Run key access pattern (for composite rules)
+  # Python winreg composite
+  - id: windows-python-winreg
+    description: "Accesses Windows registry via Python winreg module"
+    confidence: 0.8
+    platforms: [windows]
+    file_types: [python]
+    requires_count: 1
+    conditions:
+      - id: import-winreg
+      - id: from-winreg
+      - id: underscore-winreg
+      - id: openkey-hkey
+      - id: setvalueex
+      - id: createkey
+
+  # Registry Run access composite
   - id: windows-registry-run-access
     description: "Accesses Windows registry Run key"
     confidence: 0.8
     criticality: notable
     platforms: [windows]
-    condition:
-      type: string
-      regex: "CurrentVersion\\\\Run|OpenKey.*HKEY.*Run"
+    requires_count: 1
+    conditions:
+      - id: currentversion-run
+      - id: openkey-hkey
 
-  # Scheduled task creation pattern (for composite rules)
+  # Scheduled tasks composite
+  - id: windows-schtasks
+    description: "Creates scheduled task for persistence"
+    confidence: 0.85
+    criticality: suspicious
+    attack: "T1053.005"
+    platforms: [windows]
+    requires_count: 1
+    conditions:
+      - id: schtasks-create-cmd
+      - id: schtasks-exe-create
+      - id: itaskscheduler-iface
+      - id: taskscheduler-word
+
+  # Scheduled task create composite
   - id: windows-schtasks-create
     description: "Creates Windows scheduled task"
     confidence: 0.8
     criticality: notable
     attack: "T1053.005"
     platforms: [windows]
-    condition:
-      type: string
-      regex: "schtasks.*create|ITaskScheduler"
+    requires_count: 1
+    conditions:
+      - id: schtasks-create-cmd
+      - id: schtasks-exe-create
+      - id: itaskscheduler-iface
 
-  # Executable payload pattern (for composite rules)
+  # Service installation composite
+  - id: windows-service-install
+    description: "Installs Windows service for persistence"
+    confidence: 0.85
+    attack: "T1543.003"
+    platforms: [windows]
+    requires_count: 1
+    conditions:
+      - id: sc-create-cmd
+      - id: createservice-api
+      - id: installservice-fn
+      - id: win32serviceutil-mod
+
+  # PowerShell registry composite
+  - id: windows-powershell-registry
+    description: "Modifies registry for persistence via PowerShell"
+    confidence: 0.9
+    criticality: suspicious
+    platforms: [windows]
+    requires_count: 1
+    conditions:
+      - id: set-itemproperty-run
+      - id: new-itemproperty-run
+      - id: reg-add-run
+
+  # WMI persistence composite
+  - id: windows-wmi-persistence
+    description: "Sets up WMI event subscription for persistence"
+    confidence: 0.9
+    criticality: suspicious
+    attack: "T1546.003"
+    platforms: [windows]
+    requires_count: 1
+    conditions:
+      - id: wmi-eventfilter
+      - id: wmi-filtertoconsumer
+      - id: wmi-commandlineconsumer
+      - id: wmi-activescriptconsumer
+
+  # Executable payload composite
   - id: windows-executable-payload
     description: "References executable file types or interpreters"
     confidence: 0.6
     criticality: notable
     platforms: [windows]
-    condition:
-      type: string
-      regex: "\\.exe|\\.bat|\\.ps1|\\.vbs|powershell|cmd\\.exe"
+    requires_count: 1
+    conditions:
+      - id: exe-extension
+      - id: bat-extension
+      - id: ps1-extension
+      - id: vbs-extension
+      - id: powershell-word
+      - id: cmd-exe
 
-composite_rules:
   # Python registry persistence pattern
   - id: windows-python-reg-persistence
     description: "Python Windows registry persistence"
@@ -142,10 +513,8 @@ composite_rules:
     platforms: [windows]
     file_types: [python]
     requires_all:
-      - type: trait
-        id: windows-python-winreg-import
-      - type: trait
-        id: windows-registry-run-access
+      - id: windows-python-winreg-import
+      - id: windows-registry-run-access
 
   # Scheduled task with suspicious payload
   - id: windows-schtasks-payload
@@ -156,7 +525,5 @@ composite_rules:
     mbc: "F0006"
     platforms: [windows]
     requires_all:
-      - type: trait
-        id: windows-schtasks-create
-      - type: trait
-        id: windows-executable-payload
+      - id: windows-schtasks-create
+      - id: windows-executable-payload

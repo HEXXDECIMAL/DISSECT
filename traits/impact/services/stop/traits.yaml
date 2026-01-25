@@ -191,16 +191,11 @@ composite_rules:
     file_types: [all]
     requires_count: 1
     conditions:
-      - type: trait
-        id: kill-mysql
-      - type: trait
-        id: kill-postgres
-      - type: trait
-        id: kill-oracle
-      - type: trait
-        id: kill-mssql
-      - type: trait
-        id: kill-mongodb
+      - id: kill-mysql
+      - id: kill-postgres
+      - id: kill-oracle
+      - id: kill-mssql
+      - id: kill-mongodb
 
   - id: esxi-ransomware
     description: VMware ESXi ransomware
@@ -210,23 +205,14 @@ composite_rules:
     mbc: "B0040"
     file_types: [elf]
     requires_all:
-      - type: trait
-        id: esxcli
-      - type: trait
-        id: onion-domain
+      - id: esxcli
+      - id: onion-domain
     requires_count: 1
     conditions:
-      - type: trait
-        id: word-encrypted
-      - type: trait
-        id: word-ransom
-      - type: trait
-        id: word-tor
-      - type: trait
-        id: word-bitcoin
-      - type: trait
-        id: word-victim
-      - type: trait
-        id: word-company
-      - type: trait
-        id: phrase-your-data
+      - id: word-encrypted
+      - id: word-ransom
+      - id: word-tor
+      - id: word-bitcoin
+      - id: word-victim
+      - id: word-company
+      - id: phrase-your-data

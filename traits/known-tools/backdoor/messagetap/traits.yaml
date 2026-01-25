@@ -47,9 +47,6 @@ composite_rules:
     mbc: "B0022"
     file_types: [elf]
     requires_all:
-      - type: trait
-        id: backdoor/messagetap/global-code-tag
-      - type: trait
-        id: backdoor/messagetap/sms-intercept
-      - type: trait
-        id: backdoor/messagetap/tcap-parse
+      - id: backdoor/messagetap/global-code-tag
+      - id: backdoor/messagetap/sms-intercept
+      - id: backdoor/messagetap/tcap-parse

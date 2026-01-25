@@ -10,10 +10,8 @@ composite_rules:
     platforms: [windows]
     file_types: [pe, dll]
     requires_any:
-      - type: trait
-        id: win-isdebuggerpresent
-      - type: trait
-        id: win-unhandledexception
+      - id: win-isdebuggerpresent
+      - id: win-unhandledexception
 
   - id: win-comprehensive
     description: Windows debugger/VM detection (multiple signals)
@@ -25,12 +23,9 @@ composite_rules:
     file_types: [pe, dll]
     requires_count: 2
     conditions:
-      - type: trait
-        id: win-isdebuggerpresent
-      - type: trait
-        id: win-unhandledexception
-      - type: trait
-        id: win-queryperformance
+      - id: win-isdebuggerpresent
+      - id: win-unhandledexception
+      - id: win-queryperformance
 
   - id: linux-comprehensive
     description: Linux debugger detection across multiple methods
@@ -42,12 +37,9 @@ composite_rules:
     file_types: [elf]
     requires_count: 2
     conditions:
-      - type: trait
-        id: ld-debug
-      - type: trait
-        id: proc-status
-      - type: trait
-        id: ptrace
+      - id: ld-debug
+      - id: proc-status
+      - id: ptrace
 
   - id: ptrace-self
     description: Anti-debugging via ptrace self-attachment
@@ -58,9 +50,6 @@ composite_rules:
     platforms: [linux, unix]
     file_types: [elf]
     requires_all:
-      - type: trait
-        id: ptrace
-      - type: trait
-        id: getpid
-      - type: trait
-        id: ptrace-traceme-or-deny
+      - id: ptrace
+      - id: getpid
+      - id: ptrace-traceme-or-deny

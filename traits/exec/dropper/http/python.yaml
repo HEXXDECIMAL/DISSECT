@@ -138,14 +138,10 @@ composite_rules:
     confidence: 0.9
     requires_count: 3
     conditions:
-      - type: trait
-        id: python-http-lib
-      - type: trait
-        id: python-tmp-dir
-      - type: trait
-        id: python-chmod
-      - type: trait
-        id: python-subprocess-exec
+      - id: python-http-lib
+      - id: python-tmp-dir
+      - id: python-chmod
+      - id: python-subprocess-exec
 
   # Home directory dropper - downloads to hidden dir in home
   - id: home-dropper
@@ -154,26 +150,19 @@ composite_rules:
     criticality: suspicious
     requires_count: 3
     conditions:
-      - type: trait
-        id: python-http-download-call
-      - type: trait
-        id: python-home-dir
-      - type: trait
-        id: python-write-binary
-      - type: trait
-        id: python-exec-any
+      - id: python-http-download-call
+      - id: python-home-dir
+      - id: python-write-binary
+      - id: python-exec-any
 
   # Generic download + write + execute (any location)
   - id: generic-dropper
     description: "Download, write, and execute pattern"
     confidence: 0.9
     requires_all:
-      - type: trait
-        id: python-http-download-generic
-      - type: trait
-        id: python-write-content
-      - type: trait
-        id: python-subprocess-exec
+      - id: python-http-download-generic
+      - id: python-write-content
+      - id: python-subprocess-exec
 
   # Multi-payload dropper - downloads multiple files
   - id: multi-payload
@@ -181,8 +170,7 @@ composite_rules:
     confidence: 0.95
     criticality: suspicious
     requires_all:
-      - type: trait
-        id: python-http-multi-request
+      - id: python-http-multi-request
 
   # Staged dropper - download function called multiple times
   - id: staged-dropper

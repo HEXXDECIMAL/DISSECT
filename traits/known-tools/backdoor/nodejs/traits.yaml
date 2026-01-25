@@ -73,16 +73,10 @@ composite_rules:
     attack: "T1059.003"
     mbc: "B0022"
     requires_all:
-      - type: trait
-        id: nodejs/pkg-marker
+      - id: nodejs/pkg-marker
     requires_any:
-      - type: trait
-        id: backdoor/nodejs/suspicious-c2
-      - type: trait
-        id: backdoor/nodejs/exfil-pattern
-      - type: trait
-        id: c2/client/generic/marker
-      - type: trait
-        id: exec/remote-command/generic
-      - type: trait
-        id: data/archive/zip/generic
+      - id: backdoor/nodejs/suspicious-c2
+      - id: backdoor/nodejs/exfil-pattern
+      - id: c2/client/generic/marker
+      - id: exec/remote-command/generic
+      - id: data/archive/zip/generic

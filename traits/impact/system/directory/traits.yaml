@@ -112,9 +112,6 @@ composite_rules:
     description: "Mass system file deletion"
     confidence: 0.95
     requires_all:
-      - type: trait
-        id: recursive-delete-cmd
-      - type: trait
-        id: iteration-loop-pattern
-      - type: trait
-        id: system-dir-reference
+      - id: recursive-delete-cmd
+      - id: iteration-loop-pattern
+      - id: system-dir-reference

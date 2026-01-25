@@ -164,15 +164,11 @@ composite_rules:
     criticality: suspicious
     confidence: 0.66
     requires_all:
-      - type: trait
-        id: backdoor-ref
+      - id: backdoor-ref
     requires_none:
-      - type: trait
-        id: vcpu-backdoor
-      - type: trait
-        id: guest-backdoor-ops
-      - type: trait
-        id: backdoor-comment
+      - id: vcpu-backdoor
+      - id: guest-backdoor-ops
+      - id: backdoor-comment
 
   - id: backdoor-shell
     description: References a backdoor shell
@@ -180,10 +176,8 @@ composite_rules:
     confidence: 0.66
     requires_count: 1
     conditions:
-      - type: trait
-        id: backdoor-shell-ref
-      - type: trait
-        id: backdoor-leet
+      - id: backdoor-shell-ref
+      - id: backdoor-leet
 
   - id: backdoor-hidden
     description: Suspicious backdoor reference
@@ -191,25 +185,14 @@ composite_rules:
     confidence: 0.66
     requires_count: 1
     conditions:
-      - type: trait
-        id: hidden-backdoor
-      - type: trait
-        id: hide-backdoor
-      - type: trait
-        id: icmp-backdoor
-      - type: trait
-        id: pam-backdoor
-      - type: trait
-        id: ssh-backdoor
-      - type: trait
-        id: sshd-backdoor
-      - type: trait
-        id: backdoor-task
-      - type: trait
-        id: backdoor-process
-      - type: trait
-        id: backdoor-shell-ctx
-      - type: trait
-        id: backdoor-login
-      - type: trait
-        id: backdoor-pass
+      - id: hidden-backdoor
+      - id: hide-backdoor
+      - id: icmp-backdoor
+      - id: pam-backdoor
+      - id: ssh-backdoor
+      - id: sshd-backdoor
+      - id: backdoor-task
+      - id: backdoor-process
+      - id: backdoor-shell-ctx
+      - id: backdoor-login
+      - id: backdoor-pass

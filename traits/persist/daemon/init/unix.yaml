@@ -102,13 +102,10 @@ composite_rules:
     file_types: [elf]
     platforms: [linux]
     requires_all:
-      - type: trait
-        id: daemon-dev-null
+      - id: daemon-dev-null
     requires_any:
-      - type: trait
-        id: daemon-fork
-      - type: trait
-        id: daemon-setsid
+      - id: daemon-fork
+      - id: daemon-setsid
 
   - id: stealth-daemon
     description: "Stealthy daemon (daemon + proc introspection)"
@@ -119,10 +116,7 @@ composite_rules:
     file_types: [elf]
     platforms: [linux]
     requires_all:
-      - type: trait
-        id: daemon-proc-self
+      - id: daemon-proc-self
     requires_any:
-      - type: trait
-        id: daemon-fork
-      - type: trait
-        id: daemon-setsid
+      - id: daemon-fork
+      - id: daemon-setsid

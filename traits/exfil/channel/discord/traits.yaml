@@ -115,23 +115,11 @@ composite_rules:
     attack: "T1567.002"
     mbc: "B0030"
     file_types: [all]
-    condition:
-      type: composite
-      requires_any:
-        - type: trait
-          id: webhook-endpoint
-        - type: trait
-          id: webhook-endpoint-legacy
-      requires_n:
-        count: 1
-        of:
-          - type: trait
-            id: ip-lookup-ipify
-          - type: trait
-            id: ip-lookup-ipinfo
-          - type: trait
-            id: ip-lookup-ifconfig
-          - type: trait
-            id: ip-lookup-icanhazip
-          - type: trait
-            id: ip-lookup-wtfismyip
+    requires_all:
+      - id: webhook-endpoint
+    requires_any:
+      - id: ip-lookup-ipify
+      - id: ip-lookup-ipinfo
+      - id: ip-lookup-ifconfig
+      - id: ip-lookup-icanhazip
+      - id: ip-lookup-wtfismyip

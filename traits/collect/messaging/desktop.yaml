@@ -82,7 +82,7 @@ composite_rules:
     attack: "T1005"
     file_types: [shell, python, applescript, macho, elf, pe]
     requires_all:
-      - {type: trait, id: telegram-tdata}
+      - {id: telegram-tdata}
 
   # Discord data theft
   - id: discord-theft
@@ -92,7 +92,7 @@ composite_rules:
     attack: "T1005"
     file_types: [shell, python, javascript, macho, elf, pe]
     requires_all:
-      - {type: trait, id: discord-leveldb}
+      - {id: discord-leveldb}
 
   # Multi-messenger theft
   - id: multi-messenger
@@ -103,8 +103,8 @@ composite_rules:
     file_types: [shell, python, applescript, macho, elf, pe]
     requires_count: 2
     conditions:
-      - {type: trait, id: telegram-tdata}
-      - {type: trait, id: discord-leveldb}
-      - {type: trait, id: signal-config}
-      - {type: trait, id: slack-storage}
-      - {type: trait, id: whatsapp-storage}
+      - {id: telegram-tdata}
+      - {id: discord-leveldb}
+      - {id: signal-config}
+      - {id: slack-storage}
+      - {id: whatsapp-storage}

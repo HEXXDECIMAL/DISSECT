@@ -248,22 +248,14 @@ composite_rules:
     file_types: [macho]
     requires_count: 3
     conditions:
-      - type: trait
-        id: backdoor/spectralblur/proc-upload
-      - type: trait
-        id: backdoor/spectralblur/proc-download
-      - type: trait
-        id: backdoor/spectralblur/proc-shell
-      - type: trait
-        id: backdoor/spectralblur/proc-rmfile
-      - type: trait
-        id: backdoor/spectralblur/proc-hibernate
-      - type: trait
-        id: backdoor/spectralblur/authchannel
-      - type: trait
-        id: backdoor/spectralblur/xcrypt
-      - type: trait
-        id: backdoor/spectralblur/yara-signature
+      - id: backdoor/spectralblur/proc-upload
+      - id: backdoor/spectralblur/proc-download
+      - id: backdoor/spectralblur/proc-shell
+      - id: backdoor/spectralblur/proc-rmfile
+      - id: backdoor/spectralblur/proc-hibernate
+      - id: backdoor/spectralblur/authchannel
+      - id: backdoor/spectralblur/xcrypt
+      - id: backdoor/spectralblur/yara-signature
 
   # Behavioral pattern - suspicious (could be similar legitimate tool)
   - id: backdoor/spectralblur/behavioral

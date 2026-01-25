@@ -12,26 +12,17 @@ composite_rules:
     mbc: "E1021"
     file_types: [shell]
     requires_all:
-      - type: trait
-        id: dot-ssh-ref
+      - id: dot-ssh-ref
     requires_count: 3
     conditions:
-      - type: trait
-        id: strict-host-disable
-      - type: trait
-        id: known-hosts-bypass
-      - type: trait
-        id: connect-timeout
-      - type: trait
-        id: remote-curl
-      - type: trait
-        id: remote-wget
-      - type: trait
-        id: authorized-keys
-      - type: trait
-        id: known-hosts-file
-      - type: trait
-        id: ssh-config-parse
+      - id: strict-host-disable
+      - id: known-hosts-bypass
+      - id: connect-timeout
+      - id: remote-curl
+      - id: remote-wget
+      - id: authorized-keys
+      - id: known-hosts-file
+      - id: ssh-config-parse
 
   # === SSH Attack Tool ===
   # NOTE: attack-ref is a single condition composite rule, moved to traits section
@@ -46,13 +37,10 @@ composite_rules:
     attack: "T1552.004"
     file_types: [elf, shell]
     requires_all:
-      - type: trait
-        id: dot-ssh-ref
+      - id: dot-ssh-ref
     requires_any:
-      - type: trait
-        id: key-id-rsa
-      - type: trait
-        id: key-pem
+      - id: key-id-rsa
+      - id: key-pem
 
   # === SSH Host Discovery ===
 
@@ -64,13 +52,8 @@ composite_rules:
     file_types: [elf, shell]
     requires_count: 2
     conditions:
-      - type: trait
-        id: authorized-keys
-      - type: trait
-        id: known-hosts-file
-      - type: trait
-        id: ssh-config-parse
-      - type: trait
-        id: bash-history-ssh
-      - type: trait
-        id: getent-hosts
+      - id: authorized-keys
+      - id: known-hosts-file
+      - id: ssh-config-parse
+      - id: bash-history-ssh
+      - id: getent-hosts

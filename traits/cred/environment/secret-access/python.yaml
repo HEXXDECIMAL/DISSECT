@@ -37,7 +37,5 @@ composite_rules:
     description: "Accesses sensitive environment variable"
     criticality: suspicious
     requires_any:
-      - type: trait
-        id: python-os-getenv
-      - type: trait
-        id: python-os-environ
+      - id: python-os-getenv
+      - id: python-os-environ

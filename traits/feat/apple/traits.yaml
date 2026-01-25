@@ -125,10 +125,8 @@ composite_rules:
     platforms: [macos]
     file_types: [macho]
     requires_any:
-      - type: trait
-        id: system-framework
-      - type: trait
-        id: private-framework
+      - id: system-framework
+      - id: private-framework
 
   # Bundle + Project combination
   - id: bundle-and-project
@@ -138,10 +136,8 @@ composite_rules:
     platforms: [macos]
     file_types: [macho]
     requires_all:
-      - type: trait
-        id: bundle-id
-      - type: trait
-        id: project-marker
+      - id: bundle-id
+      - id: project-marker
 
   # Bundle + Framework combination
   - id: bundle-and-framework
@@ -151,10 +147,8 @@ composite_rules:
     platforms: [macos]
     file_types: [macho]
     requires_all:
-      - type: trait
-        id: bundle-id
-      - type: trait
-        id: any-framework
+      - id: bundle-id
+      - id: any-framework
 
   # Project + Framework combination
   - id: project-and-framework
@@ -164,10 +158,8 @@ composite_rules:
     platforms: [macos]
     file_types: [macho]
     requires_all:
-      - type: trait
-        id: project-marker
-      - type: trait
-        id: any-framework
+      - id: project-marker
+      - id: any-framework
 
   # Main composite: Any valid combination
   - id: system-component
@@ -177,9 +169,6 @@ composite_rules:
     platforms: [macos]
     file_types: [macho]
     requires_any:
-      - type: trait
-        id: bundle-and-project
-      - type: trait
-        id: bundle-and-framework
-      - type: trait
-        id: project-and-framework
+      - id: bundle-and-project
+      - id: bundle-and-framework
+      - id: project-and-framework

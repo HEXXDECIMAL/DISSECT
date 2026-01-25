@@ -46,5 +46,4 @@ composite_rules:
     mbc: "B0009"
     file_types: [macho]
     requires_all:
-      - type: trait
-        id: virus/clapzok/macho-structure
+      - id: virus/clapzok/macho-structure

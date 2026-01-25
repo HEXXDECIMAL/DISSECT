@@ -13,30 +13,19 @@ composite_rules:
     requires_count: 4
     conditions:
       # Credential access
-      - type: trait
-        id: chrome-pass-string
-      - type: trait
-        id: firefox-pass-string
-      - type: trait
-        id: keylogger-string
-      - type: trait
-        id: all-pass-string
+      - id: chrome-pass-string
+      - id: firefox-pass-string
+      - id: keylogger-string
+      - id: all-pass-string
       # C2 commands
-      - type: trait
-        id: remote-cmd-string
-      - type: trait
-        id: power-shell-string
-      - type: trait
-        id: down-n-exec-string
-      - type: trait
-        id: up-n-exec-string
-      - type: trait
-        id: remote-screen-string
+      - id: remote-cmd-string
+      - id: power-shell-string
+      - id: down-n-exec-string
+      - id: up-n-exec-string
+      - id: remote-screen-string
       # Impact
-      - type: trait
-        id: reboot-string
-      - type: trait
-        id: uninstall-string
+      - id: reboot-string
+      - id: uninstall-string
 
   # Java credential stealer
   - id: java-credential-stealer
@@ -48,22 +37,14 @@ composite_rules:
     file_types: [class]
     requires_count: 2
     conditions:
-      - type: trait
-        id: chrome-pass-string
-      - type: trait
-        id: firefox-pass-string
-      - type: trait
-        id: ie-pass-string
-      - type: trait
-        id: outlook-pass-string
-      - type: trait
-        id: thunderbird-pass-string
-      - type: trait
-        id: foxmail-pass-string
-      - type: trait
-        id: all-pass-string
-      - type: trait
-        id: save-all-pass-string
+      - id: chrome-pass-string
+      - id: firefox-pass-string
+      - id: ie-pass-string
+      - id: outlook-pass-string
+      - id: thunderbird-pass-string
+      - id: foxmail-pass-string
+      - id: all-pass-string
+      - id: save-all-pass-string
 
   # Java keylogger
   - id: java-keylogger
@@ -74,10 +55,8 @@ composite_rules:
     confidence: 0.95
     file_types: [class]
     requires_any:
-      - type: trait
-        id: keylogger-string
-      - type: trait
-        id: o-keylogger-string
+      - id: keylogger-string
+      - id: o-keylogger-string
 
   # Java remote access
   - id: java-remote-access
@@ -89,16 +68,11 @@ composite_rules:
     file_types: [class]
     requires_count: 2
     conditions:
-      - type: trait
-        id: remote-screen-string
-      - type: trait
-        id: hrdp-new-string
-      - type: trait
-        id: hrdp-res-string
-      - type: trait
-        id: remote-cmd-string
-      - type: trait
-        id: power-shell-string
+      - id: remote-screen-string
+      - id: hrdp-new-string
+      - id: hrdp-res-string
+      - id: remote-cmd-string
+      - id: power-shell-string
 
   # Java dropper/downloader
   - id: java-dropper
@@ -109,10 +83,8 @@ composite_rules:
     confidence: 0.95
     file_types: [class]
     requires_any:
-      - type: trait
-        id: down-n-exec-string
-      - type: trait
-        id: up-n-exec-string
+      - id: down-n-exec-string
+      - id: up-n-exec-string
 
   # Java ransomware indicators
   - id: java-ransomware
@@ -123,10 +95,8 @@ composite_rules:
     confidence: 0.95
     file_types: [class]
     requires_all:
-      - type: trait
-        id: rw-encrypt-string
-      - type: trait
-        id: rw-decrypt-string
+      - id: rw-encrypt-string
+      - id: rw-decrypt-string
 
   # Allatori obfuscated Java (likely malware)
   - id: java-allatori-obfuscated

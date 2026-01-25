@@ -145,15 +145,9 @@ composite_rules:
     file_types: [elf]
     requires_count: 4
     conditions:
-      - type: trait
-        id: admin-password
-      - type: trait
-        id: root-password
-      - type: trait
-        id: numeric-123456
-      - type: trait
-        id: literal-password
-      - type: trait
-        id: admin123
-      - type: trait
-        id: literal-default
+      - id: admin-password
+      - id: root-password
+      - id: numeric-123456
+      - id: literal-password
+      - id: admin123
+      - id: literal-default

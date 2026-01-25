@@ -48,7 +48,5 @@ composite_rules:
     attack: "T1027"
     file_types: [elf]
     requires_all:
-      - type: trait
-        id: stripped-binary
-      - type: trait
-        id: static-linked
+      - id: stripped-binary
+      - id: static-linked

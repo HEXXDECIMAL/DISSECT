@@ -46,13 +46,9 @@ composite_rules:
     criticality: notable
     confidence: 0.7
     requires_all:
-      - type: trait
-        id: rdtsc
+      - id: rdtsc
     requires_count: 1
     conditions:
-      - type: trait
-        id: clock-gettime
-      - type: trait
-        id: gettimeofday
-      - type: trait
-        id: time-func
+      - id: clock-gettime
+      - id: gettimeofday
+      - id: time-func

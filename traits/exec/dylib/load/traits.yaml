@@ -134,6 +134,42 @@ traits:
       exact: "loadReplacementClass"
 
 composite_rules:
+  # Core dlopen + dlsym pattern (basic dynamic loading)
+  - id: dlopen-dlsym
+    description: Core dlopen/dlsym pattern
+    criticality: notable
+    confidence: 0.85
+    attack: "T1574.006"
+    file_types: [elf, macho]
+    requires_all:
+      - id: dlopen
+      - id: dlsym
+
+  # dl* family function
+  - id: dl-function
+    description: Any dl* function usage
+    criticality: notable
+    confidence: 0.7
+    attack: "T1574.006"
+    file_types: [elf, macho]
+    requires_count: 1
+    conditions:
+      - id: dlopen
+      - id: dlsym
+      - id: dlclose
+      - id: dlerror
+
+  # NSBundle with dynamic loading
+  - id: nsbundle-dynamic
+    description: NSBundle with dynamic loading APIs
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1574.006"
+    file_types: [macho]
+    requires_all:
+      - id: nsbundle
+      - id: dl-function
+
   - id: dynamic-loader-detected
     description: Dynamic code loading pattern
     criticality: suspicious
@@ -141,30 +177,7 @@ composite_rules:
     attack: "T1574.006"
     mbc: "B0023"
     file_types: [elf, macho]
-    requires_any:
-      - requires_all:
-          - type: trait
-            id: dlopen
-          - type: trait
-            id: dlsym
-      - requires_all:
-          - type: trait
-            id: dlopen
-          - type: trait
-            id: dlsym
-          - type: trait
-            id: dlclose
-          - type: trait
-            id: dlerror
-      - requires_all:
-          - type: trait
-            id: nsbundle
-          - requires_any:
-              - type: trait
-                id: dlopen
-              - type: trait
-                id: dlsym
-              - type: trait
-                id: dlclose
-              - type: trait
-                id: dlerror
+    requires_count: 1
+    conditions:
+      - id: dlopen-dlsym
+      - id: nsbundle-dynamic

@@ -196,10 +196,8 @@ composite_rules:
     confidence: 0.85
     attack: "T1555.003"
     requires_all:
-      - type: trait
-        id: chrome-path
-      - type: trait
-        id: cookies-path
+      - id: chrome-path
+      - id: cookies-path
 
   - id: master-decrypt
     description: Chromium master password decryption
@@ -208,12 +206,9 @@ composite_rules:
     attack: "T1555.003"
     mbc: "E1003"
     requires_all:
-      - type: trait
-        id: local-state
-      - type: trait
-        id: encrypted-key
-      - type: trait
-        id: os-crypt
+      - id: local-state
+      - id: encrypted-key
+      - id: os-crypt
 
   - id: password-theft
     description: Chromium password database theft
@@ -223,13 +218,10 @@ composite_rules:
     mbc: "B0028"
     file_types: [python, javascript, elf, pe, macho]
     requires_all:
-      - type: trait
-        id: chrome-path
+      - id: chrome-path
     requires_any:
-      - type: trait
-        id: password-sql
-      - type: trait
-        id: login-data
+      - id: password-sql
+      - id: login-data
 
   - id: credit-card-theft
     description: Chromium credit card data theft
@@ -239,12 +231,9 @@ composite_rules:
     mbc: "B0028"
     file_types: [python, javascript, elf, pe, macho]
     requires_all:
-      - type: trait
-        id: chrome-path
-      - type: trait
-        id: web-data
-      - type: trait
-        id: credit-cards-table
+      - id: chrome-path
+      - id: web-data
+      - id: credit-cards-table
 
   # Multi-browser targeting (stealer behavior)
   - id: multi-browser
@@ -256,10 +245,10 @@ composite_rules:
     file_types: [python, javascript, applescript, shell, elf, pe, macho]
     requires_count: 3
     conditions:
-      - {type: trait, id: chrome-path}
-      - {type: trait, id: brave-path}
-      - {type: trait, id: edge-path}
-      - {type: trait, id: opera-path}
-      - {type: trait, id: operagx-path}
-      - {type: trait, id: vivaldi-path}
-      - {type: trait, id: arc-path}
+      - {id: chrome-path}
+      - {id: brave-path}
+      - {id: edge-path}
+      - {id: opera-path}
+      - {id: operagx-path}
+      - {id: vivaldi-path}
+      - {id: arc-path}

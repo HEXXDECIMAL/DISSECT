@@ -24,15 +24,36 @@ traits:
       type: string
       regex: "exec(Sync)?\\(['\"]hostname['\"]"
 
-  - id: ifconfig
-    description: Shell ifconfig/ip command execution
-    criticality: notable
-    confidence: 0.85
+  # === ifconfig/ip atomic indicators ===
+  - id: exec-ifconfig
+    description: execSync ifconfig command
+    criticality: inert
+    confidence: 0.7
     attack: "T1016"
     file_types: [javascript, typescript]
     condition:
       type: string
-      regex: "exec(Sync)?\\(['\"](ifconfig|ip addr|ip a)['\"]"
+      regex: "exec(Sync)?\\(['\"]ifconfig['\"]"
+
+  - id: exec-ip-addr
+    description: execSync ip addr command
+    criticality: inert
+    confidence: 0.7
+    attack: "T1016"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "exec(Sync)?\\(['\"]ip addr['\"]"
+
+  - id: exec-ip-a
+    description: execSync ip a command
+    criticality: inert
+    confidence: 0.7
+    attack: "T1016"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "exec(Sync)?\\(['\"]ip a['\"]"
 
   - id: uname
     description: Shell uname command execution
@@ -86,6 +107,19 @@ traits:
       regex: "curl\\s+(-d|--data|-X\\s*POST)"
 
 composite_rules:
+  # ifconfig/ip composite
+  - id: ifconfig
+    description: Shell ifconfig/ip command execution
+    criticality: notable
+    confidence: 0.85
+    attack: "T1016"
+    file_types: [javascript, typescript]
+    requires_count: 1
+    conditions:
+      - id: exec-ifconfig
+      - id: exec-ip-addr
+      - id: exec-ip-a
+
   # Multiple system info commands
   - id: system-profiling
     description: Multiple system info commands (reconnaissance)
@@ -94,13 +128,8 @@ composite_rules:
     attack: "T1082"
     requires_count: 2
     conditions:
-      - type: trait
-        id: whoami
-      - type: trait
-        id: hostname
-      - type: trait
-        id: ifconfig
-      - type: trait
-        id: uname
-      - type: trait
-        id: id
+      - id: whoami
+      - id: hostname
+      - id: ifconfig
+      - id: uname
+      - id: id

@@ -3,10 +3,47 @@
 # ATT&CK: T1071.001
 
 traits:
+  # === Cookie atomic indicators ===
+  - id: cookie-header
+    description: Cookie header
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "Cookie:"
+
+  - id: set-cookie-header
+    description: Set-Cookie header
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "Set-Cookie:"
+
+  - id: cookiejar-ref
+    description: cookiejar reference
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "cookiejar"
+
+  - id: http-cookiejar
+    description: http.cookiejar module
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "http.cookiejar"
+
+composite_rules:
   - id: cookies
     description: HTTP cookie handling
     criticality: inert
     confidence: 0.66
-    condition:
-      type: string
-      regex: "(Cookie:|Set-Cookie:|cookiejar|http\\.cookiejar)"
+    requires_count: 1
+    conditions:
+      - id: cookie-header
+      - id: set-cookie-header
+      - id: cookiejar-ref
+      - id: http-cookiejar

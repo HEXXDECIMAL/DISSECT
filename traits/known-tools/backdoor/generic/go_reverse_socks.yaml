@@ -68,9 +68,6 @@ composite_rules:
     mbc: "B0022"
     file_types: [elf, macho]
     requires_all:
-      - type: trait
-        id: backdoor/generic/go-pty-shell
-      - type: trait
-        id: backdoor/generic/go-socks-proxy
-      - type: trait
-        id: backdoor/generic/go-reverse-connect
+      - id: backdoor/generic/go-pty-shell
+      - id: backdoor/generic/go-socks-proxy
+      - id: backdoor/generic/go-reverse-connect

@@ -161,12 +161,9 @@ composite_rules:
     platforms: [linux, macos]
     file_types: [shell]
     requires_all:
-      - type: trait
-        id: wget-download
-      - type: trait
-        id: chmod-777
-      - type: trait
-        id: execute-dot-slash
+      - id: wget-download
+      - id: chmod-777
+      - id: execute-dot-slash
 
   - id: curl-chmod-execute
     description: "Download via curl, chmod, and execute"
@@ -177,12 +174,9 @@ composite_rules:
     platforms: [linux, macos]
     file_types: [shell]
     requires_all:
-      - type: trait
-        id: curl-download
-      - type: trait
-        id: chmod-plus-x
-      - type: trait
-        id: execute-dot-slash
+      - id: curl-download
+      - id: chmod-plus-x
+      - id: execute-dot-slash
 
   - id: iot-multi-arch
     description: "IoT botnet: multi-architecture payload dropper"
@@ -194,12 +188,9 @@ composite_rules:
     file_types: [shell]
     requires_count: 2
     conditions:
-      - type: trait
-        id: iot-arch-mips
-      - type: trait
-        id: iot-arch-arm
-      - type: trait
-        id: iot-arch-mpsl
+      - id: iot-arch-mips
+      - id: iot-arch-arm
+      - id: iot-arch-mpsl
 
   - id: tmp-staging-cleanup
     description: "Payload staging in /tmp with cleanup"
@@ -210,10 +201,8 @@ composite_rules:
     platforms: [linux, macos]
     file_types: [shell]
     requires_all:
-      - type: trait
-        id: tmp-staging
-      - type: trait
-        id: rm-rf-cleanup
+      - id: tmp-staging
+      - id: rm-rf-cleanup
 
   - id: hardcoded-c2-download
     description: "Download from hardcoded C2 IP address"
@@ -224,7 +213,5 @@ composite_rules:
     platforms: [linux, macos]
     file_types: [shell]
     requires_all:
-      - type: trait
-        id: hardcoded-ip-url
-      - type: trait
-        id: wget-download
+      - id: hardcoded-ip-url
+      - id: wget-download

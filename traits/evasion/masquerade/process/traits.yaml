@@ -100,12 +100,8 @@ composite_rules:
     attack: "T1036.004"
     file_types: [elf]
     requires_all:
-      - type: trait
-        id: prctl-setname
+      - id: prctl-setname
     requires_any:
-      - type: trait
-        id: fake-abrtd
-      - type: trait
-        id: fake-system-process
-      - type: trait
-        id: argv0-manipulation
+      - id: fake-abrtd
+      - id: fake-system-process
+      - id: argv0-manipulation

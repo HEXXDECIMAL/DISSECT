@@ -145,13 +145,10 @@ composite_rules:
     platforms: [macos]
     file_types: [macho, dylib]
     requires_any:
-      - type: trait
-        id: find-generic
-      - type: trait
-        id: find-internet
+      - id: find-generic
+      - id: find-internet
     requires_all:
-      - type: trait
-        id: item-copy-content
+      - id: item-copy-content
 
   - id: cli-dump
     description: macOS Keychain dump via CLI
@@ -161,10 +158,7 @@ composite_rules:
     platforms: [macos]
     file_types: [shell, macho]
     requires_all:
-      - type: trait
-        id: security-cli
+      - id: security-cli
     requires_any:
-      - type: trait
-        id: find-generic-password-cli
-      - type: trait
-        id: dump-keychain-cli
+      - id: find-generic-password-cli
+      - id: dump-keychain-cli

@@ -62,15 +62,9 @@ composite_rules:
     confidence: 0.66
     requires_count: 1
     conditions:
-      - type: trait
-        id: doh-provider
-      - type: trait
-        id: doh-class
-      - type: trait
-        id: doh-content-type
-      - type: trait
-        id: doh-query-path
-      - type: trait
-        id: doh-cloudflare-ip
-      - type: trait
-        id: doh-google-ip
+      - id: doh-provider
+      - id: doh-class
+      - id: doh-content-type
+      - id: doh-query-path
+      - id: doh-cloudflare-ip
+      - id: doh-google-ip

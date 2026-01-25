@@ -79,13 +79,8 @@ composite_rules:
     file_types: [elf, macho, go]
     requires_count: 4
     conditions:
-      - type: trait
-        id: c2-framework/emp3r0r/brand-name
-      - type: trait
-        id: c2-framework/emp3r0r/shadowsocks-c2
-      - type: trait
-        id: c2-framework/emp3r0r/vaccine-handler
-      - type: trait
-        id: c2-framework/emp3r0r/guardian-shellcode
-      - type: trait
-        id: c2-framework/emp3r0r/magic-bytes
+      - id: c2-framework/emp3r0r/brand-name
+      - id: c2-framework/emp3r0r/shadowsocks-c2
+      - id: c2-framework/emp3r0r/vaccine-handler
+      - id: c2-framework/emp3r0r/guardian-shellcode
+      - id: c2-framework/emp3r0r/magic-bytes

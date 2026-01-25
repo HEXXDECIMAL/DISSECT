@@ -186,12 +186,9 @@ composite_rules:
     file_types: [pe, dll]
     requires_count: 2
     conditions:
-      - type: trait
-        id: windows-hook
-      - type: trait
-        id: windows-rawinput
-      - type: trait
-        id: windows-asynckey
+      - id: windows-hook
+      - id: windows-rawinput
+      - id: windows-asynckey
 
   - id: linux-keylogger
     description: Linux keylogger pattern (multiple input methods)
@@ -199,7 +196,5 @@ composite_rules:
     platforms: [linux]
     file_types: [elf]
     requires_all:
-      - type: trait
-        id: linux-input-device
-      - type: trait
-        id: x11-grab
+      - id: linux-input-device
+      - id: x11-grab

@@ -11,24 +11,15 @@ composite_rules:
       - ruby
     requires_count: 4
     conditions:
-      - type: trait
-        id: ruby-http-get-response
-      - type: trait
-        id: ruby-http-client
-      - type: trait
-        id: ruby-file-open-write-binary
-      - type: trait
-        id: ruby-file-binmode
-      - type: trait
-        id: ruby-file-chmod
-      - type: trait
-        id: ruby-chmod-777
-      - type: trait
-        id: ruby-system
-      - type: trait
-        id: ruby-exec
-      - type: trait
-        id: ruby-file-write-tmp
+      - id: ruby-http-get-response
+      - id: ruby-http-client
+      - id: ruby-file-open-write-binary
+      - id: ruby-file-binmode
+      - id: ruby-file-chmod
+      - id: ruby-chmod-777
+      - id: ruby-system
+      - id: ruby-exec
+      - id: ruby-file-write-tmp
 
   - id: ruby-obfuscated-c2
     description: "Obfuscated C2 with Base64 and DNS"
@@ -40,14 +31,10 @@ composite_rules:
       - ruby
     requires_count: 3
     conditions:
-      - type: trait
-        id: ruby-base64-decode
-      - type: trait
-        id: ruby-dns-resolve
-      - type: trait
-        id: ruby-http-client
-      - type: trait
-        id: ruby-http-get-response
+      - id: ruby-base64-decode
+      - id: ruby-dns-resolve
+      - id: ruby-http-client
+      - id: ruby-http-get-response
 
   - id: ruby-tmp-execution
     description: "Write to /tmp, chmod, and execute"
@@ -59,16 +46,11 @@ composite_rules:
       - ruby
     requires_count: 3
     conditions:
-      - type: trait
-        id: ruby-file-write-tmp
-      - type: trait
-        id: ruby-file-chmod
-      - type: trait
-        id: ruby-chmod-777
-      - type: trait
-        id: ruby-system
-      - type: trait
-        id: ruby-exec
+      - id: ruby-file-write-tmp
+      - id: ruby-file-chmod
+      - id: ruby-chmod-777
+      - id: ruby-system
+      - id: ruby-exec
 
   - id: ruby-reverse-shell
     description: "Reverse shell connection"
@@ -80,16 +62,11 @@ composite_rules:
       - ruby
     requires_count: 2
     conditions:
-      - type: trait
-        id: ruby-tcp-socket
-      - type: trait
-        id: ruby-system
-      - type: trait
-        id: ruby-exec
-      - type: trait
-        id: ruby-popen
-      - type: trait
-        id: ruby-pty
+      - id: ruby-tcp-socket
+      - id: ruby-system
+      - id: ruby-exec
+      - id: ruby-popen
+      - id: ruby-pty
 
   - id: ruby-binary-dropper
     description: "Downloads and writes binary payload"
@@ -101,14 +78,10 @@ composite_rules:
       - ruby
     requires_count: 3
     conditions:
-      - type: trait
-        id: ruby-http-get-response
-      - type: trait
-        id: ruby-file-binmode
-      - type: trait
-        id: ruby-file-open-write-binary
-      - type: trait
-        id: ruby-file-write-tmp
+      - id: ruby-http-get-response
+      - id: ruby-file-binmode
+      - id: ruby-file-open-write-binary
+      - id: ruby-file-write-tmp
 
 # Individual traits for requires (library imports)
 traits:

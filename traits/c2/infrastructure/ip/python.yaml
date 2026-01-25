@@ -64,7 +64,5 @@ composite_rules:
     description: "C2 URL constructed from host variable"
     confidence: 0.85
     requires_any:
-      - type: trait
-        id: python-fstring-url-with-port
-      - type: trait
-        id: python-string-concat-url
+      - id: python-fstring-url-with-port
+      - id: python-string-concat-url

@@ -108,12 +108,9 @@ composite_rules:
     attack: none
     requires_count: 1
     conditions:
-      - type: trait
-        id: private-ip-10
-      - type: trait
-        id: private-ip-172
-      - type: trait
-        id: private-ip-192
+      - id: private-ip-10
+      - id: private-ip-172
+      - id: private-ip-192
 
   - id: obfuscated-address
     description: "C2 address obfuscation (HTTP client + no visible IP)"
@@ -122,11 +119,9 @@ composite_rules:
     attack: "T1027"
     file_types: [elf]
     requires_all:
-      - type: trait
-        id: truncated-http-url
+      - id: truncated-http-url
     requires_none:
-      - type: trait
-        id: hardcoded-ipv4
+      - id: hardcoded-ipv4
 
   - id: dynamic-ip
     description: "Dynamic IP address construction"
@@ -134,8 +129,6 @@ composite_rules:
     mbc: "B0032"
     attack: "T1027"
     requires_all:
-      - type: trait
-        id: ip-format-string
+      - id: ip-format-string
     requires_none:
-      - type: trait
-        id: hardcoded-ipv4
+      - id: hardcoded-ipv4

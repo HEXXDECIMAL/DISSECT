@@ -366,12 +366,9 @@ composite_rules:
     platforms: [all]
     requires_count: 1
     conditions:
-      - type: trait
-        id: target-ip-upper
-      - type: trait
-        id: target-ip-lower
-      - type: trait
-        id: target-ip-camel
+      - id: target-ip-upper
+      - id: target-ip-lower
+      - id: target-ip-camel
 
   # Random target generation
   - id: random-target
@@ -381,16 +378,11 @@ composite_rules:
     platforms: [all]
     requires_count: 1
     conditions:
-      - type: trait
-        id: random-target-upper
-      - type: trait
-        id: random-target-lower
-      - type: trait
-        id: random-ip-upper
-      - type: trait
-        id: random-ip-lower
-      - type: trait
-        id: getrandip
+      - id: random-target-upper
+      - id: random-target-lower
+      - id: random-ip-upper
+      - id: random-ip-lower
+      - id: getrandip
 
   # Port scanning terminology
   - id: port-ref
@@ -400,12 +392,9 @@ composite_rules:
     platforms: [all]
     requires_count: 1
     conditions:
-      - type: trait
-        id: portscan-word
-      - type: trait
-        id: scan-port
-      - type: trait
-        id: port-scan
+      - id: portscan-word
+      - id: scan-port
+      - id: port-scan
 
   # Network probing
   - id: probe-ref
@@ -415,10 +404,8 @@ composite_rules:
     platforms: [all]
     requires_count: 1
     conditions:
-      - type: trait
-        id: probe-word
-      - type: trait
-        id: banner-grab
+      - id: probe-word
+      - id: banner-grab
 
   # Scan target terminology
   - id: target-ref
@@ -428,18 +415,12 @@ composite_rules:
     platforms: [all]
     requires_count: 1
     conditions:
-      - type: trait
-        id: target-host
-      - type: trait
-        id: target-port
-      - type: trait
-        id: target-range
-      - type: trait
-        id: target-list
-      - type: trait
-        id: target-addr
-      - type: trait
-        id: scan-target
+      - id: target-host
+      - id: target-port
+      - id: target-range
+      - id: target-list
+      - id: target-addr
+      - id: scan-target
 
   # Weak password admin123
   - id: weak-pass-admin123
@@ -450,10 +431,8 @@ composite_rules:
     platforms: [all]
     requires_count: 1
     conditions:
-      - type: trait
-        id: weak-pass-admin123-upper
-      - type: trait
-        id: weak-pass-admin123-lower
+      - id: weak-pass-admin123-upper
+      - id: weak-pass-admin123-lower
 
   # Weak password qwerty variants
   - id: weak-pass-qwerty-variants
@@ -464,10 +443,8 @@ composite_rules:
     platforms: [all]
     requires_count: 1
     conditions:
-      - type: trait
-        id: weak-pass-qwerty123
-      - type: trait
-        id: weak-pass-qwerty
+      - id: weak-pass-qwerty123
+      - id: weak-pass-qwerty
 
   # Root exploitation terminology
   - id: root-exploit-ref
@@ -478,10 +455,8 @@ composite_rules:
     platforms: [all]
     requires_count: 1
     conditions:
-      - type: trait
-        id: root-the-phrase
-      - type: trait
-        id: r00t-leet
+      - id: root-the-phrase
+      - id: r00t-leet
 
   # Hostname resolution symbols
   - id: sym-hostname-resolve
@@ -491,10 +466,8 @@ composite_rules:
     platforms: [all]
     requires_count: 1
     conditions:
-      - type: trait
-        id: sym-gethostbyname
-      - type: trait
-        id: sym-getaddrinfo
+      - id: sym-gethostbyname
+      - id: sym-getaddrinfo
 
   # Socket connection symbols
   - id: sym-socket-connect
@@ -504,7 +477,5 @@ composite_rules:
     platforms: [all]
     requires_count: 1
     conditions:
-      - type: trait
-        id: sym-socket
-      - type: trait
-        id: sym-connect
+      - id: sym-socket
+      - id: sym-connect

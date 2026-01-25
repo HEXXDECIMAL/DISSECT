@@ -106,9 +106,6 @@ composite_rules:
     mbc: "B0030"
     file_types: [elf]
     requires_any:
-      - type: trait
-        id: backdoor/fdm-backdoor/c2-domain
-      - type: trait
-        id: backdoor/fdm-backdoor/c2-ip
-      - type: trait
-        id: backdoor/fdm-backdoor/elf-indicators
+      - id: backdoor/fdm-backdoor/c2-domain
+      - id: backdoor/fdm-backdoor/c2-ip
+      - id: backdoor/fdm-backdoor/elf-indicators

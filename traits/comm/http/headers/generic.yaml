@@ -40,13 +40,30 @@ traits:
       type: string
       exact: "Python-urllib"
 
-  - id: headers-auth
-    description: HTTP Authorization header
-    criticality: notable
-    confidence: 0.66
+  # === Authorization header atomic indicators ===
+  - id: auth-header
+    description: Authorization header
+    criticality: inert
+    confidence: 0.5
     condition:
       type: string
-      regex: '(Authorization:|Bearer |Basic )'
+      exact: "Authorization:"
+
+  - id: bearer-token
+    description: Bearer token authentication
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "Bearer "
+
+  - id: basic-auth
+    description: Basic authentication
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "Basic "
 
   - id: headers-encoding
     description: Accept-Encoding header
@@ -57,17 +74,23 @@ traits:
       exact: Accept-Encoding
 
 composite_rules:
+  - id: headers-auth
+    description: HTTP Authorization header
+    criticality: notable
+    confidence: 0.66
+    requires_count: 1
+    conditions:
+      - id: auth-header
+      - id: bearer-token
+      - id: basic-auth
+
   - id: headers-useragent-fake
     description: Fake or suspicious User-Agent
     criticality: suspicious
     confidence: 0.66
     requires_count: 1
     conditions:
-      - type: trait
-        id: ua-mozilla-old
-      - type: trait
-        id: ua-curl
-      - type: trait
-        id: ua-wget
-      - type: trait
-        id: ua-python-urllib
+      - id: ua-mozilla-old
+      - id: ua-curl
+      - id: ua-wget
+      - id: ua-python-urllib

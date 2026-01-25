@@ -2,21 +2,78 @@
 # MBC: C0002 (HTTP Communication)
 # ATT&CK: T1071.001
 
+defaults:
+  mbc: "C0002"
+  attack: "T1071.001"
+
 traits:
+  # === HTTP POST atomic indicators ===
+  - id: post-method
+    description: POST HTTP method
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "POST"
+
+  - id: http-post-call
+    description: http.post call
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "http.post"
+
+  - id: requests-post-call
+    description: requests.post call
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "requests.post"
+
+  # === HTTP form data atomic indicators ===
+  - id: multipart-form
+    description: multipart/form-data content type
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "multipart/form-data"
+
+  - id: formdata-class
+    description: FormData class
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "FormData"
+
+  - id: enctype-attr
+    description: enctype attribute
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "enctype"
+
+composite_rules:
   - id: post
     description: Makes HTTP POST requests
     criticality: notable
     confidence: 0.66
-    mbc: "C0002"
-    attack: "T1071.001"
-    condition:
-      type: string
-      regex: "(POST|http\\.post|requests\\.post)"
+    requires_count: 1
+    conditions:
+      - id: post-method
+      - id: http-post-call
+      - id: requests-post-call
 
   - id: post-form
     description: HTTP form data upload
     criticality: notable
     confidence: 0.66
-    condition:
-      type: string
-      regex: "(multipart/form-data|FormData|enctype)"
+    requires_count: 1
+    conditions:
+      - id: multipart-form
+      - id: formdata-class
+      - id: enctype-attr

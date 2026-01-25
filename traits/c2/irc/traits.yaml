@@ -125,10 +125,8 @@ composite_rules:
     confidence: 0.7
     requires_count: 1
     conditions:
-      - type: trait
-        id: tsunami-name
-      - type: trait
-        id: kaiten-name
+      - id: tsunami-name
+      - id: kaiten-name
 
   # IRC bot C2 (all IRC + any command)
   - id: bot-logic
@@ -136,22 +134,15 @@ composite_rules:
     criticality: suspicious
     confidence: 0.8
     requires_all:
-      - type: trait
-        id: irc-privmsg
-      - type: trait
-        id: irc-nick
-      - type: trait
-        id: irc-user
+      - id: irc-privmsg
+      - id: irc-nick
+      - id: irc-user
     requires_count: 1
     conditions:
-      - type: trait
-        id: cmd-login
-      - type: trait
-        id: cmd-udp
-      - type: trait
-        id: cmd-tcp
-      - type: trait
-        id: cmd-shell
+      - id: cmd-login
+      - id: cmd-udp
+      - id: cmd-tcp
+      - id: cmd-shell
 
   # IRC DDoS (any IRC + 2 attack types + any ddos term)
   - id: irc-ddos
@@ -159,20 +150,14 @@ composite_rules:
     criticality: hostile
     confidence: 0.9
     requires_any:
-      - type: trait
-        id: irc-privmsg
-      - type: trait
-        id: irc-nick
+      - id: irc-privmsg
+      - id: irc-nick
     requires_count: 2
     conditions:
-      - type: trait
-        id: attack-pan
-      - type: trait
-        id: attack-udp
-      - type: trait
-        id: ddos-flood
-      - type: trait
-        id: ddos-attack
+      - id: attack-pan
+      - id: attack-udp
+      - id: ddos-flood
+      - id: ddos-attack
 
   # Tsunami IRC bot with C2 logic
   - id: tsunami-irc-bot
@@ -180,10 +165,8 @@ composite_rules:
     criticality: hostile
     confidence: 0.85
     requires_all:
-      - type: trait
-        id: c2/irc/tsunami-artifact
-      - type: trait
-        id: c2/irc/bot-logic
+      - id: c2/irc/tsunami-artifact
+      - id: c2/irc/bot-logic
 
   # Tsunami DDoS bot
   - id: tsunami-ddos-bot
@@ -191,10 +174,8 @@ composite_rules:
     criticality: hostile
     confidence: 0.9
     requires_all:
-      - type: trait
-        id: c2/irc/tsunami-artifact
-      - type: trait
-        id: c2/irc/irc-ddos
+      - id: c2/irc/tsunami-artifact
+      - id: c2/irc/irc-ddos
 
   # IRC bot with DDoS
   - id: irc-bot-ddos
@@ -202,7 +183,5 @@ composite_rules:
     criticality: hostile
     confidence: 0.85
     requires_all:
-      - type: trait
-        id: c2/irc/bot-logic
-      - type: trait
-        id: c2/irc/irc-ddos
+      - id: c2/irc/bot-logic
+      - id: c2/irc/irc-ddos

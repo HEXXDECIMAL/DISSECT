@@ -148,34 +148,17 @@ composite_rules:
     attack: "T1528"
     mbc: "B0028"
     file_types: [all]
-    condition:
-      type: composite
-      requires_all:
-        - type: trait
-          id: json-content-type
-        - type: trait
-          id: http-post-method
-      requires_any:
-        - type: trait
-          id: recon-computername
-        - type: trait
-          id: recon-userdomain
-        - type: trait
-          id: recon-ipinfo
-      requires_n:
-        count: 5
-        of:
-          - type: trait
-            id: google-token-endpoint
-          - type: trait
-            id: google-auth-endpoint
-          - type: trait
-            id: google-userinfo
-          - type: trait
-            id: gmail-client-id
-          - type: trait
-            id: microsoft-graph
-          - type: trait
-            id: microsoft-auth
-          - type: trait
-            id: o365-client-id
+    requires_all:
+      - id: json-content-type
+      - id: http-post-method
+    requires_any:
+      - id: recon-computername
+      - id: recon-userdomain
+      - id: recon-ipinfo
+      - id: google-token-endpoint
+      - id: google-auth-endpoint
+      - id: google-userinfo
+      - id: gmail-client-id
+      - id: microsoft-graph
+      - id: microsoft-auth
+      - id: o365-client-id

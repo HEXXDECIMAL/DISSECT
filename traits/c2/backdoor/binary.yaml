@@ -382,12 +382,9 @@ composite_rules:
     mbc: "B0025"
     requires_count: 2
     conditions:
-      - type: trait
-        id: unexpected-socket-ops
-      - type: trait
-        id: unexpected-process-ops
-      - type: trait
-        id: unexpected-crypto
+      - id: unexpected-socket-ops
+      - id: unexpected-process-ops
+      - id: unexpected-crypto
 
   - id: injected-code-pattern
     description: "Injected code pattern in library"
@@ -397,13 +394,10 @@ composite_rules:
     attack: "T1195.002"
     mbc: "B0025"
     requires_all:
-      - type: trait
-        id: data-obfuscation
+      - id: data-obfuscation
     requires_any:
-      - type: trait
-        id: unexpected-crypto
-      - type: trait
-        id: unexpected-socket-ops
+      - id: unexpected-crypto
+      - id: unexpected-socket-ops
 
   # === XZ-style Backdoor Detection ===
 
@@ -416,12 +410,9 @@ composite_rules:
     mbc: "B0025"
     requires_count: 2
     conditions:
-      - type: trait
-        id: many-huge-functions
-      - type: trait
-        id: cpuid-fingerprinting
-      - type: trait
-        id: xz-ifunc-pattern
+      - id: many-huge-functions
+      - id: cpuid-fingerprinting
+      - id: xz-ifunc-pattern
 
   - id: potential-code-injection
     description: "Potential code injection indicators"
@@ -431,13 +422,10 @@ composite_rules:
     attack: "T1195.002"
     mbc: "B0025"
     requires_all:
-      - type: trait
-        id: massive-code-blob
+      - id: massive-code-blob
     requires_any:
-      - type: trait
-        id: many-huge-functions
-      - type: trait
-        id: glibc-hijack
+      - id: many-huge-functions
+      - id: glibc-hijack
 
   - id: auth-bypass-indicator
     description: "Authentication bypass backdoor indicator"
@@ -447,10 +435,8 @@ composite_rules:
     attack: "T1195.002"
     mbc: "B0025"
     requires_any:
-      - type: trait
-        id: ssh-hook-pattern
-      - type: trait
-        id: rsa-in-compression-lib
+      - id: ssh-hook-pattern
+      - id: rsa-in-compression-lib
 
   - id: function-hooking-behavior
     description: "Dynamic function hooking patterns"
@@ -461,9 +447,6 @@ composite_rules:
     mbc: "B0025"
     requires_count: 2
     conditions:
-      - type: trait
-        id: xz-ifunc-pattern
-      - type: trait
-        id: glibc-hijack
-      - type: trait
-        id: cpuid-fingerprinting
+      - id: xz-ifunc-pattern
+      - id: glibc-hijack
+      - id: cpuid-fingerprinting

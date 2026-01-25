@@ -142,26 +142,16 @@ composite_rules:
     max_size: 153600     # 150KB
     requires_count: 6
     conditions:
-      - type: trait
-        id: proc-format
-      - type: trait
-        id: proc-cpuinfo
-      - type: trait
-        id: proc-self-fd
-      - type: trait
-        id: cnc-connect
-      - type: trait
-        id: scanner-cookie
-      - type: trait
-        id: anti-reinfect
-      - type: trait
-        id: read-module
-      - type: trait
-        id: write-module
-      - type: trait
-        id: killer-module
-      - type: trait
-        id: attack-module
+      - id: proc-format
+      - id: proc-cpuinfo
+      - id: proc-self-fd
+      - id: cnc-connect
+      - id: scanner-cookie
+      - id: anti-reinfect
+      - id: read-module
+      - id: write-module
+      - id: killer-module
+      - id: attack-module
 
   # Mirai DVR helper variant - requires brand + dvr + HTTP
   - id: dvr-helper-detected
@@ -173,10 +163,8 @@ composite_rules:
     mbc: "OB0004"
     file_types: [elf]
     requires_all:
-      - type: trait
-        id: brand-name
-      - type: trait
-        id: dvr-helper
+      - id: brand-name
+      - id: dvr-helper
       - type: string
         exact: "HTTP/1.0"
 
@@ -189,15 +177,10 @@ composite_rules:
     mbc: "OB0004"
     file_types: [elf]
     requires_all:
-      - type: trait
-        id: cnc-connect
+      - id: cnc-connect
     requires_count: 2
     conditions:
-      - type: trait
-        id: scanner-cookie
-      - type: trait
-        id: anti-reinfect
-      - type: trait
-        id: killer-module
-      - type: trait
-        id: attack-module
+      - id: scanner-cookie
+      - id: anti-reinfect
+      - id: killer-module
+      - id: attack-module

@@ -261,12 +261,9 @@ composite_rules:
     attack: "T1496"
     requires_count: 1
     conditions:
-      - type: trait
-        id: monero-word
-      - type: trait
-        id: monero-upper
-      - type: trait
-        id: xmr-ticker
+      - id: monero-word
+      - id: monero-upper
+      - id: xmr-ticker
 
   - id: cryptocurrency-miner
     description: Cryptocurrency miner detected
@@ -276,34 +273,20 @@ composite_rules:
     mbc: "B0036"
     requires_count: 2
     conditions:
-      - type: trait
-        id: stratum-protocol
-      - type: trait
-        id: pool-c3pool
-      - type: trait
-        id: pool-f2pool
-      - type: trait
-        id: pool-hashvault
-      - type: trait
-        id: pool-monerohash
-      - type: trait
-        id: pool-xmrpool
-      - type: trait
-        id: pool-supportxmr
-      - type: trait
-        id: pool-minergate
-      - type: trait
-        id: pool-crypto-pool
-      - type: trait
-        id: pool-moneropool
-      - type: trait
-        id: xmrig-ref
-      - type: trait
-        id: cryptonight
-      - type: trait
-        id: donate-level
-      - type: trait
-        id: miner-name
+      - id: stratum-protocol
+      - id: pool-c3pool
+      - id: pool-f2pool
+      - id: pool-hashvault
+      - id: pool-monerohash
+      - id: pool-xmrpool
+      - id: pool-supportxmr
+      - id: pool-minergate
+      - id: pool-crypto-pool
+      - id: pool-moneropool
+      - id: xmrig-ref
+      - id: cryptonight
+      - id: donate-level
+      - id: miner-name
 
   - id: memory-optimized-miner
     description: Memory-optimized cryptocurrency miner
@@ -313,15 +296,11 @@ composite_rules:
     mbc: "B0036"
     file_types: [elf]
     requires_all:
-      - type: trait
-        id: hugepages
+      - id: hugepages
     requires_any:
-      - type: trait
-        id: xmrig-ref
-      - type: composite
-        id: monero-ref
-      - type: trait
-        id: wallet-ref
+      - id: xmrig-ref
+      - id: monero-ref
+      - id: wallet-ref
 
   - id: argon2-miner
     description: Argon2-based cryptocurrency miner
@@ -331,9 +310,6 @@ composite_rules:
     mbc: "B0036"
     file_types: [elf]
     requires_all:
-      - type: trait
-        id: argon2d
-      - type: trait
-        id: proc-self-ref
-      - type: trait
-        id: numa-ref
+      - id: argon2d
+      - id: proc-self-ref
+      - id: numa-ref

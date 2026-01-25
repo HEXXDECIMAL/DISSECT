@@ -5,9 +5,253 @@ use anyhow::Result;
 use serde::Deserialize;
 use std::sync::Arc;
 
-/// Condition type in composite rules
+/// Intermediate type for deserializing conditions with shorthand support.
+/// Converts `{ id: my-trait }` to `Condition::Trait { id: "my-trait" }`.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(untagged)]
+enum ConditionDeser {
+    /// Shorthand for trait reference - just `id` field, no `type` needed
+    /// Must be listed first so serde tries it before the tagged variants
+    TraitShorthand { id: String },
+
+    /// All other condition types require explicit `type` field
+    Tagged(ConditionTagged),
+}
+
+/// Internal tagged enum for deserializing conditions with explicit `type` field
 #[derive(Debug, Clone, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
+enum ConditionTagged {
+    Symbol {
+        pattern: String,
+        platforms: Option<Vec<Platform>>,
+    },
+    String {
+        exact: Option<String>,
+        regex: Option<String>,
+        #[serde(default)]
+        case_insensitive: bool,
+        exclude_patterns: Option<Vec<String>>,
+        #[serde(default = "default_min_count")]
+        min_count: usize,
+        #[serde(default)]
+        search_raw: bool,
+    },
+    YaraMatch {
+        namespace: String,
+        rule: Option<String>,
+    },
+    Structure {
+        feature: String,
+        min_sections: Option<usize>,
+    },
+    SymbolOrString {
+        any: Vec<String>,
+    },
+    ImportsCount {
+        min: Option<usize>,
+        max: Option<usize>,
+        filter: Option<String>,
+    },
+    ExportsCount {
+        min: Option<usize>,
+        max: Option<usize>,
+    },
+    Trait {
+        id: String,
+    },
+    AstPattern {
+        node_type: String,
+        pattern: String,
+        #[serde(default)]
+        regex: bool,
+        #[serde(default)]
+        case_insensitive: bool,
+    },
+    AstQuery {
+        query: String,
+        language: Option<String>,
+    },
+    Yara {
+        source: String,
+    },
+    Syscall {
+        name: Option<Vec<String>>,
+        number: Option<Vec<u32>>,
+        arch: Option<Vec<String>>,
+        min_count: Option<usize>,
+    },
+    SectionRatio {
+        section: String,
+        #[serde(default = "default_compare_to")]
+        compare_to: String,
+        min_ratio: Option<f64>,
+        max_ratio: Option<f64>,
+    },
+    SectionEntropy {
+        section: String,
+        min_entropy: Option<f64>,
+        max_entropy: Option<f64>,
+    },
+    ImportCombination {
+        required: Option<Vec<String>>,
+        suspicious: Option<Vec<String>>,
+        min_suspicious: Option<usize>,
+        max_total: Option<usize>,
+    },
+    StringCount {
+        min: Option<usize>,
+        max: Option<usize>,
+        min_length: Option<usize>,
+    },
+    Metrics {
+        field: String,
+        min: Option<f64>,
+        max: Option<f64>,
+    },
+    Hex {
+        pattern: String,
+        offset: Option<usize>,
+        offset_range: Option<(usize, usize)>,
+        #[serde(default = "default_min_count")]
+        min_count: usize,
+    },
+}
+
+impl From<ConditionDeser> for Condition {
+    fn from(deser: ConditionDeser) -> Self {
+        match deser {
+            ConditionDeser::TraitShorthand { id } => Condition::Trait { id },
+            ConditionDeser::Tagged(tagged) => match tagged {
+                ConditionTagged::Symbol { pattern, platforms } => {
+                    Condition::Symbol { pattern, platforms }
+                }
+                ConditionTagged::String {
+                    exact,
+                    regex,
+                    case_insensitive,
+                    exclude_patterns,
+                    min_count,
+                    search_raw,
+                } => Condition::String {
+                    exact,
+                    regex,
+                    case_insensitive,
+                    exclude_patterns,
+                    min_count,
+                    search_raw,
+                },
+                ConditionTagged::YaraMatch { namespace, rule } => {
+                    Condition::YaraMatch { namespace, rule }
+                }
+                ConditionTagged::Structure {
+                    feature,
+                    min_sections,
+                } => Condition::Structure {
+                    feature,
+                    min_sections,
+                },
+                ConditionTagged::SymbolOrString { any } => Condition::SymbolOrString { any },
+                ConditionTagged::ImportsCount { min, max, filter } => {
+                    Condition::ImportsCount { min, max, filter }
+                }
+                ConditionTagged::ExportsCount { min, max } => Condition::ExportsCount { min, max },
+                ConditionTagged::Trait { id } => Condition::Trait { id },
+                ConditionTagged::AstPattern {
+                    node_type,
+                    pattern,
+                    regex,
+                    case_insensitive,
+                } => Condition::AstPattern {
+                    node_type,
+                    pattern,
+                    regex,
+                    case_insensitive,
+                },
+                ConditionTagged::AstQuery { query, language } => {
+                    Condition::AstQuery { query, language }
+                }
+                ConditionTagged::Yara { source } => Condition::Yara {
+                    source,
+                    compiled: None,
+                },
+                ConditionTagged::Syscall {
+                    name,
+                    number,
+                    arch,
+                    min_count,
+                } => Condition::Syscall {
+                    name,
+                    number,
+                    arch,
+                    min_count,
+                },
+                ConditionTagged::SectionRatio {
+                    section,
+                    compare_to,
+                    min_ratio,
+                    max_ratio,
+                } => Condition::SectionRatio {
+                    section,
+                    compare_to,
+                    min_ratio,
+                    max_ratio,
+                },
+                ConditionTagged::SectionEntropy {
+                    section,
+                    min_entropy,
+                    max_entropy,
+                } => Condition::SectionEntropy {
+                    section,
+                    min_entropy,
+                    max_entropy,
+                },
+                ConditionTagged::ImportCombination {
+                    required,
+                    suspicious,
+                    min_suspicious,
+                    max_total,
+                } => Condition::ImportCombination {
+                    required,
+                    suspicious,
+                    min_suspicious,
+                    max_total,
+                },
+                ConditionTagged::StringCount {
+                    min,
+                    max,
+                    min_length,
+                } => Condition::StringCount {
+                    min,
+                    max,
+                    min_length,
+                },
+                ConditionTagged::Metrics { field, min, max } => {
+                    Condition::Metrics { field, min, max }
+                }
+                ConditionTagged::Hex {
+                    pattern,
+                    offset,
+                    offset_range,
+                    min_count,
+                } => Condition::Hex {
+                    pattern,
+                    offset,
+                    offset_range,
+                    min_count,
+                },
+            },
+        }
+    }
+}
+
+/// Condition type in composite rules.
+///
+/// Supports two YAML formats:
+/// 1. Tagged: `{ type: string, exact: "foo" }` - explicit type field
+/// 2. Shorthand: `{ id: my-trait }` - defaults to Trait when only `id` is present
+#[derive(Debug, Clone, Deserialize)]
+#[serde(from = "ConditionDeser")]
 pub enum Condition {
     /// Match a symbol (import/export)
     Symbol {

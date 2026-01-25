@@ -91,5 +91,4 @@ composite_rules:
     mbc: "C0027"
     file_types: [elf]
     requires_any:
-      - type: trait
-        id: apt/gelsemium/rc4-key
+      - id: apt/gelsemium/rc4-key

@@ -17,9 +17,6 @@ composite_rules:
     confidence: 0.95
     near_lines: 50
     requires_all:
-      - type: trait
-        id: fs/file/open/generic
-      - type: trait
-        id: exec/command/subprocess/run
-      - type: trait
-        id: temp-dir-reference
+      - id: fs/file/open/generic
+      - id: exec/command/subprocess/run
+      - id: temp-dir-reference

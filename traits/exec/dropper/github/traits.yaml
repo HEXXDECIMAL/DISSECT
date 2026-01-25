@@ -26,7 +26,5 @@ composite_rules:
     mbc: "B0024"
     attack: "T1195.002"
     requires_all:
-      - type: trait
-        id: blob-api
-      - type: trait
-        id: python-exec-chmod
+      - id: blob-api
+      - id: python-exec-chmod

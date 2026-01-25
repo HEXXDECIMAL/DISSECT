@@ -183,12 +183,8 @@ composite_rules:
     mbc: "B0024"
     file_types: [javascript, typescript]
     requires_any:
-      - type: trait
-        id: python-interpreter-exec
-      - type: trait
-        id: node-interpreter-exec
+      - id: python-interpreter-exec
+      - id: node-interpreter-exec
     requires_all:
-      - type: trait
-        id: spawn-or-exec-call
-      - type: trait
-        id: child-process-import
+      - id: spawn-or-exec-call
+      - id: child-process-import

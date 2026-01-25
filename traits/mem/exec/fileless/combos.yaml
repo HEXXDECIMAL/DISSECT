@@ -63,13 +63,10 @@ composite_rules:
     platforms: [linux]
     file_types: [elf]
     requires_all:
-      - type: trait
-        id: mem/anonymous/create/memfd-create
+      - id: mem/anonymous/create/memfd-create
     requires_any:
-      - type: trait
-        id: execve-symbol
-      - type: trait
-        id: mem/protect/modify/mprotect
+      - id: execve-symbol
+      - id: mem/protect/modify/mprotect
 
   - id: python-shellcode
     description: Python shellcode injection via VirtualProtect
@@ -80,10 +77,7 @@ composite_rules:
     platforms: [windows]
     file_types: [python]
     requires_all:
-      - type: trait
-        id: mem/protect/modify/virtualprotect-ctypes
+      - id: mem/protect/modify/virtualprotect-ctypes
     requires_any:
-      - type: trait
-        id: python-encode-call
-      - type: trait
-        id: python-b64decode-call
+      - id: python-encode-call
+      - id: python-b64decode-call

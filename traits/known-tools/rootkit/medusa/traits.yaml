@@ -232,14 +232,10 @@ composite_rules:
     file_types: [elf]
     requires_count: 2
     conditions:
-      - type: trait
-        id: rootkit/medusa/sniff-ssh
-      - type: trait
-        id: rootkit/medusa/sshpass-file
-      - type: trait
-        id: rootkit/medusa/sshdone
-      - type: trait
-        id: rootkit/medusa/sshpass-var
+      - id: rootkit/medusa/sniff-ssh
+      - id: rootkit/medusa/sshpass-file
+      - id: rootkit/medusa/sshdone
+      - id: rootkit/medusa/sshpass-var
 
   # === Composite: Dynamic linker hijacking behavior ===
 
@@ -252,11 +248,7 @@ composite_rules:
     file_types: [elf]
     requires_count: 2
     conditions:
-      - type: trait
-        id: rootkit/medusa/libdsx
-      - type: trait
-        id: rootkit/medusa/backup-ld
-      - type: trait
-        id: rootkit/medusa/ldx-staging
-      - type: trait
-        id: rootkit/medusa/ld-preload-file
+      - id: rootkit/medusa/libdsx
+      - id: rootkit/medusa/backup-ld
+      - id: rootkit/medusa/ldx-staging
+      - id: rootkit/medusa/ld-preload-file

@@ -57,10 +57,8 @@ composite_rules:
     platforms: [linux]
     file_types: [elf]
     requires_any:
-      - type: trait
-        id: syscall-init-module
-      - type: trait
-        id: syscall-finit-module
+      - id: syscall-init-module
+      - id: syscall-finit-module
 
   - id: kernel-module-unload
     description: Unloads kernel module
@@ -69,8 +67,7 @@ composite_rules:
     platforms: [linux]
     file_types: [elf]
     requires_all:
-      - type: trait
-        id: syscall-delete-module
+      - id: syscall-delete-module
 
   - id: kexec
     description: Loads new kernel for kexec
@@ -79,7 +76,5 @@ composite_rules:
     platforms: [linux]
     file_types: [elf]
     requires_any:
-      - type: trait
-        id: syscall-kexec-load
-      - type: trait
-        id: syscall-kexec-file-load
+      - id: syscall-kexec-load
+      - id: syscall-kexec-file-load

@@ -11,10 +11,8 @@ composite_rules:
     confidence: 0.95
     file_types: [all]
     requires_all:
-      - type: trait
-        id: exec/process/current-process
-      - type: trait
-        id: exec/process/terminate
+      - id: exec/process/current-process
+      - id: exec/process/terminate
 
   # Probabilistic execution: Random number decides whether to execute
   - id: probabilistic-execution
@@ -25,8 +23,7 @@ composite_rules:
     confidence: 0.9
     file_types: [all]
     requires_all:
-      - type: trait
-        id: instantiation
+      - id: instantiation
 
   # Logic bomb with self-destruct
   - id: logic-bomb-self-destruct
@@ -37,12 +34,9 @@ composite_rules:
     confidence: 0.95
     file_types: [all]
     requires_all:
-      - type: trait
-        id: hardcoded-datetime
-      - type: trait
-        id: exec/process/current-process
-      - type: trait
-        id: exec/process/terminate
+      - id: hardcoded-datetime
+      - id: exec/process/current-process
+      - id: exec/process/terminate
 
   # Logic bomb with probabilistic self-destruct
   - id: logic-bomb-probabilistic-self-destruct
@@ -53,14 +47,10 @@ composite_rules:
     confidence: 0.95
     file_types: [all]
     requires_all:
-      - type: trait
-        id: hardcoded-datetime
-      - type: trait
-        id: instantiation
-      - type: trait
-        id: exec/process/current-process
-      - type: trait
-        id: exec/process/terminate
+      - id: hardcoded-datetime
+      - id: instantiation
+      - id: exec/process/current-process
+      - id: exec/process/terminate
 
   # Supply chain: SQL library with malicious payload
   - id: supply-chain-sql-backdoor
@@ -71,15 +61,11 @@ composite_rules:
     confidence: 0.95
     file_types: [all]
     requires_all:
-      - type: trait
-        id: sqlcommand
+      - id: sqlcommand
     requires_any:
-      - type: trait
-        id: exec/process/terminate
-      - type: trait
-        id: exec/process/start
-      - type: trait
-        id: exec/reflection/assembly-load
+      - id: exec/process/terminate
+      - id: exec/process/start
+      - id: exec/reflection/assembly-load
 
   # Concentrated malicious code: all behaviors within 30 lines (tight proximity)
   - id: concentrated-logic-bomb
@@ -91,7 +77,5 @@ composite_rules:
     file_types: [all]
     near_lines: 30              # All patterns must be within 30 lines
     requires_all:
-      - type: trait
-        id: hardcoded-datetime
-      - type: trait
-        id: exec/process/terminate
+      - id: hardcoded-datetime
+      - id: exec/process/terminate

@@ -133,10 +133,8 @@ composite_rules:
     attack: "T1499.004"
     mbc: "B0033"
     requires_all:
-      - type: trait
-        id: ntdll-reference
-      - type: trait
-        id: nt-raise-hard-error
+      - id: ntdll-reference
+      - id: nt-raise-hard-error
 
   # BSOD trigger via trait references (RtlAdjustPrivilege path)
   - id: bsod-adjust-privilege
@@ -146,12 +144,9 @@ composite_rules:
     attack: "T1499.004"
     mbc: "B0033"
     requires_all:
-      - type: trait
-        id: ntdll-reference
-      - type: trait
-        id: rtl-adjust-privilege
-      - type: trait
-        id: status-assertion-failure
+      - id: ntdll-reference
+      - id: rtl-adjust-privilege
+      - id: status-assertion-failure
 
   # Python BSOD via trait references
   - id: python-bsod-traits
@@ -161,14 +156,9 @@ composite_rules:
     file_types: [python]
     attack: "T1499.004"
     requires_all:
-      - type: trait
-        id: ctypes-import
-      - type: trait
-        id: windll-reference
-      - type: trait
-        id: ntdll-reference
+      - id: ctypes-import
+      - id: windll-reference
+      - id: ntdll-reference
     requires_any:
-      - type: trait
-        id: nt-raise-hard-error
-      - type: trait
-        id: rtl-adjust-privilege
+      - id: nt-raise-hard-error
+      - id: rtl-adjust-privilege

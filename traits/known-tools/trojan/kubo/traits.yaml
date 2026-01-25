@@ -71,13 +71,13 @@ composite_rules:
     requires_any_n:
       count: 3
       conditions:
-        - type: trait
+        - 
           id: injector/kubo/cloned-thread
-        - type: trait
+        - 
           id: injector/kubo/arch2name
-        - type: trait
+        - 
           id: injector/kubo/remote-vcall
-        - type: trait
+        - 
           id: injector/kubo/libc-info
-        - type: trait
+        - 
           id: injector/kubo/shellcode-size

@@ -11,10 +11,8 @@ composite_rules:
     attack: "T1059.004"
     file_types: [javascript]
     requires_all:
-      - type: trait
-        id: exec/javascript/getExecOutput
-      - type: trait
-        id: exec/javascript/silent-true
+      - id: exec/javascript/getExecOutput
+      - id: exec/javascript/silent-true
 
   # Base64 decode and execute pattern
   - id: base64-decode-exec
@@ -25,10 +23,8 @@ composite_rules:
     attack: "T1059"
     file_types: [javascript]
     requires_all:
-      - type: trait
-        id: exec/javascript/base64-decode-cli
-      - type: trait
-        id: exec/javascript/bash-string
+      - id: exec/javascript/base64-decode-cli
+      - id: exec/javascript/bash-string
 
   # Temp file dropper pattern
   - id: tmp-dropper
@@ -39,10 +35,8 @@ composite_rules:
     attack: "T1105"
     file_types: [javascript]
     requires_all:
-      - type: trait
-        id: exec/javascript/tmp-write
-      - type: trait
-        id: exec/javascript/tmp-execute
+      - id: exec/javascript/tmp-write
+      - id: exec/javascript/tmp-execute
 
   # Silent error suppression (stealth)
   - id: silent-error-suppression
@@ -53,12 +47,9 @@ composite_rules:
     file_types: [javascript]
     requires_count: 2
     conditions:
-      - type: trait
-        id: exec/javascript/silent-true
-      - type: trait
-        id: exec/javascript/ignoreReturnCode
-      - type: trait
-        id: exec/javascript/stderr-capture
+      - id: exec/javascript/silent-true
+      - id: exec/javascript/ignoreReturnCode
+      - id: exec/javascript/stderr-capture
 
   # Comprehensive supply chain attack pattern
   - id: supply-chain-exec
@@ -70,15 +61,9 @@ composite_rules:
     file_types: [javascript]
     requires_count: 3
     conditions:
-      - type: trait
-        id: exec/javascript/getExecOutput
-      - type: trait
-        id: exec/javascript/bash-string
-      - type: trait
-        id: exec/javascript/base64-decode-cli
-      - type: trait
-        id: exec/javascript/silent-true
-      - type: trait
-        id: exec/javascript/tmp-write
-      - type: trait
-        id: exec/javascript/echo-pipe
+      - id: exec/javascript/getExecOutput
+      - id: exec/javascript/bash-string
+      - id: exec/javascript/base64-decode-cli
+      - id: exec/javascript/silent-true
+      - id: exec/javascript/tmp-write
+      - id: exec/javascript/echo-pipe

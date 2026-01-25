@@ -56,12 +56,9 @@ composite_rules:
     platforms: [linux]
     file_types: [elf]
     requires_any:
-      - type: trait
-        id: setuid-syscall
-      - type: trait
-        id: setreuid-syscall
-      - type: trait
-        id: setresuid-syscall
+      - id: setuid-syscall
+      - id: setreuid-syscall
+      - id: setresuid-syscall
 
   - id: setgid
     description: Changes group identity
@@ -70,12 +67,9 @@ composite_rules:
     platforms: [linux]
     file_types: [elf]
     requires_any:
-      - type: trait
-        id: setgid-syscall
-      - type: trait
-        id: setregid-syscall
-      - type: trait
-        id: setresgid-syscall
+      - id: setgid-syscall
+      - id: setregid-syscall
+      - id: setresgid-syscall
 
   - id: capabilities
     description: Manipulates process capabilities
@@ -84,5 +78,4 @@ composite_rules:
     platforms: [linux]
     file_types: [elf]
     condition:
-      type: trait
       id: capset-syscall

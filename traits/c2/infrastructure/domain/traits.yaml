@@ -7,59 +7,6 @@ defaults:
   mbc: "C0002"
   attack: "T1071.001"
 
-composite_rules:
-  - id: hardcoded-domain-com
-    description: "Hardcoded .com domain"
-    criticality: notable
-    confidence: 0.7
-    requires_all:
-      - type: trait
-        id: hardcoded-domain-com-pattern
-
-  - id: hardcoded-domain-suspicious
-    description: "Hardcoded suspicious TLD domain (.ru, .cn, .xyz, .top, .pro)"
-    criticality: suspicious
-    confidence: 0.85
-    requires_all:
-      - type: trait
-        id: hardcoded-domain-suspicious-pattern
-
-  - id: dynamic-dns-domain
-    description: "Dynamic DNS domain (common C2 infrastructure)"
-    criticality: suspicious
-    confidence: 0.9
-    requires_all:
-      - type: trait
-        id: dynamic-dns-domain-pattern
-
-  - id: http-url-with-domain
-    description: "Network URL with domain name"
-    criticality: notable
-    confidence: 0.7
-    file_types: [all]
-    requires_all:
-      - type: trait
-        id: http-url-with-domain-pattern
-
-  - id: url-path-payload
-    description: "URL path suggesting payload download"
-    criticality: suspicious
-    confidence: 0.8
-    attack: "T1105"  # Override: Ingress Tool Transfer
-    requires_all:
-      - type: trait
-        id: url-path-payload-pattern
-
-  - id: c2-domain
-    description: "Likely C2 domain (suspicious TLD or dynamic DNS)"
-    criticality: suspicious
-    confidence: 0.85
-    requires_any:
-      - type: trait
-        id: hardcoded-domain-suspicious-pattern
-      - type: trait
-        id: dynamic-dns-domain-pattern
-
 traits:
   # Atomic traits for composite rules
   - id: hardcoded-domain-com-pattern
@@ -330,7 +277,7 @@ traits:
     file_types: [all]
     condition:
       type: string
-      regex: '/collect[_-]?(info|data|stats)?\\.php'
+      regex: '/collect[_-]?(info|data|stats)?\.php'
 
   - id: php-log
     description: PHP log endpoint
@@ -340,7 +287,7 @@ traits:
     file_types: [all]
     condition:
       type: string
-      regex: '/log[_-]?(info|data)?\\.php'
+      regex: '/log[_-]?(info|data)?\.php'
 
   - id: php-report
     description: PHP report endpoint
@@ -381,7 +328,7 @@ traits:
     file_types: [javascript, typescript]
     condition:
       type: string
-      regex: 'http://(internal|localhost|127\\.0\\.0\\.1|10\\.|192\\.168\\.|172\\.(1[6-9]|2[0-9]|3[01]))[-a-zA-Z0-9.]*/(api|ping|health|status)'
+      regex: 'http://(internal|localhost|127\.0\.0\.1|10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[01]))[-a-zA-Z0-9.]*/(api|ping|health|status)'
 
   # Hardcoded IP addresses
   - id: hardcoded-ip
@@ -403,7 +350,7 @@ traits:
     file_types: [all]
     condition:
       type: string
-      regex: 'execute-api\\.[a-z0-9-]+\\.amazonaws\\.com'
+      regex: 'execute-api\.[a-z0-9-]+\.amazonaws\.com'
 
   - id: azure-websites
     description: Azure Websites endpoint
@@ -413,7 +360,7 @@ traits:
     file_types: [all]
     condition:
       type: string
-      regex: '[a-z0-9-]+\\.azurewebsites\\.net'
+      regex: '[a-z0-9-]+\.azurewebsites\.net'
 
   - id: google-cloud-functions
     description: Google Cloud Functions endpoint
@@ -423,7 +370,7 @@ traits:
     file_types: [all]
     condition:
       type: string
-      regex: '[a-z0-9-]+\\.cloudfunctions\\.net'
+      regex: '[a-z0-9-]+\.cloudfunctions\.net'
 
   - id: vercel-app
     description: Vercel app endpoint
@@ -433,7 +380,7 @@ traits:
     file_types: [all]
     condition:
       type: string
-      regex: '[a-z0-9-]+\\.vercel\\.app'
+      regex: '[a-z0-9-]+\.vercel\.app'
 
   - id: netlify-app
     description: Netlify app endpoint
@@ -443,7 +390,7 @@ traits:
     file_types: [all]
     condition:
       type: string
-      regex: '[a-z0-9-]+\\.netlify\\.app'
+      regex: '[a-z0-9-]+\.netlify\.app'
 
   # === Ngrok tunnels (atomic) ===
   - id: ngrok-io
@@ -454,7 +401,7 @@ traits:
     file_types: [all]
     condition:
       type: string
-      regex: '[a-z0-9]+\\.ngrok\\.io'
+      regex: '[a-z0-9]+\.ngrok\.io'
 
   - id: ngrok-free-app
     description: Ngrok-free.app tunnel endpoint
@@ -464,7 +411,7 @@ traits:
     file_types: [all]
     condition:
       type: string
-      regex: '[a-z0-9]+\\.ngrok-free\\.app'
+      regex: '[a-z0-9]+\.ngrok-free\.app'
 
   # === Pastebin-like services (atomic) ===
   - id: pastebin-com
@@ -475,7 +422,7 @@ traits:
     file_types: [all]
     condition:
       type: string
-      regex: 'pastebin\\.com/[a-zA-Z0-9]+'
+      regex: 'pastebin\.com/[a-zA-Z0-9]+'
 
   - id: hastebin-com
     description: Hastebin.com with path
@@ -485,7 +432,7 @@ traits:
     file_types: [all]
     condition:
       type: string
-      regex: 'hastebin\\.com/[a-zA-Z0-9]+'
+      regex: 'hastebin\.com/[a-zA-Z0-9]+'
 
   - id: ghostbin-com
     description: Ghostbin.com with path
@@ -495,7 +442,7 @@ traits:
     file_types: [all]
     condition:
       type: string
-      regex: 'ghostbin\\.com/[a-zA-Z0-9]+'
+      regex: 'ghostbin\.com/[a-zA-Z0-9]+'
 
   - id: paste-ee
     description: Paste.ee with path
@@ -505,7 +452,7 @@ traits:
     file_types: [all]
     condition:
       type: string
-      regex: 'paste\\.ee/[a-zA-Z0-9]+'
+      regex: 'paste\.ee/[a-zA-Z0-9]+'
 
   - id: dpaste-com
     description: Dpaste.com with path
@@ -515,7 +462,7 @@ traits:
     file_types: [all]
     condition:
       type: string
-      regex: 'dpaste\\.com/[a-zA-Z0-9]+'
+      regex: 'dpaste\.com/[a-zA-Z0-9]+'
 
   - id: privatebin-net
     description: Privatebin.net with path
@@ -525,7 +472,7 @@ traits:
     file_types: [all]
     condition:
       type: string
-      regex: 'privatebin\\.net/[a-zA-Z0-9]+'
+      regex: 'privatebin\.net/[a-zA-Z0-9]+'
 
   - id: rentry-co
     description: Rentry.co with path
@@ -535,7 +482,7 @@ traits:
     file_types: [all]
     condition:
       type: string
-      regex: 'rentry\\.co/[a-zA-Z0-9]+'
+      regex: 'rentry\.co/[a-zA-Z0-9]+'
 
   # Vercel serverless C2 (elevated - commonly abused)
   - id: vercel-serverless
@@ -557,7 +504,7 @@ traits:
     file_types: [all]
     condition:
       type: string
-      regex: '[a-z0-9-]+\\.replit\\.dev'
+      regex: '[a-z0-9-]+\.replit\.dev'
 
   - id: repl-co
     description: Repl.co endpoint
@@ -567,7 +514,7 @@ traits:
     file_types: [all]
     condition:
       type: string
-      regex: '[a-z0-9-]+\\.repl\\.co'
+      regex: '[a-z0-9-]+\.repl\.co'
 
   # Glitch-hosted C2
   - id: glitch-hosted
@@ -666,7 +613,7 @@ traits:
     file_types: [all]
     condition:
       type: string
-      regex: 'chisel\\s+client'
+      regex: 'chisel\s+client'
 
   - id: chisel-server
     description: Chisel server command
@@ -676,7 +623,7 @@ traits:
     file_types: [all]
     condition:
       type: string
-      regex: 'chisel\\s+server'
+      regex: 'chisel\s+server'
 
   - id: chisel-github
     description: Chisel GitHub repo reference
@@ -689,6 +636,52 @@ traits:
       exact: "jpillora/chisel"
 
 composite_rules:
+  - id: hardcoded-domain-com
+    description: "Hardcoded .com domain"
+    criticality: notable
+    confidence: 0.7
+    requires_all:
+      - id: hardcoded-domain-com-pattern
+
+  - id: hardcoded-domain-suspicious
+    description: "Hardcoded suspicious TLD domain (.ru, .cn, .xyz, .top, .pro)"
+    criticality: suspicious
+    confidence: 0.85
+    requires_all:
+      - id: hardcoded-domain-suspicious-pattern
+
+  - id: dynamic-dns-domain
+    description: "Dynamic DNS domain (common C2 infrastructure)"
+    criticality: suspicious
+    confidence: 0.9
+    requires_all:
+      - id: dynamic-dns-domain-pattern
+
+  - id: http-url-with-domain
+    description: "Network URL with domain name"
+    criticality: notable
+    confidence: 0.7
+    file_types: [all]
+    requires_all:
+      - id: http-url-with-domain-pattern
+
+  - id: url-path-payload
+    description: "URL path suggesting payload download"
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1105"
+    requires_all:
+      - id: url-path-payload-pattern
+
+  - id: c2-domain
+    description: "Likely C2 domain (suspicious TLD or dynamic DNS)"
+    criticality: suspicious
+    confidence: 0.85
+    requires_count: 1
+    conditions:
+      - id: hardcoded-domain-suspicious-pattern
+      - id: dynamic-dns-domain-pattern
+
   # Malware hosting services
   - id: malware-hosting
     description: Contacts known malware/payload hosting service
@@ -698,28 +691,17 @@ composite_rules:
     file_types: [all]
     requires_count: 1
     conditions:
-      - type: trait
-        id: bullethost-cloud
-      - type: trait
-        id: anonfiles-com
-      - type: trait
-        id: gofile-io
-      - type: trait
-        id: transfer-sh
-      - type: trait
-        id: tmpfiles-org
-      - type: trait
-        id: catbox-moe
-      - type: trait
-        id: uguu-se
-      - type: trait
-        id: pomf-cat
-      - type: trait
-        id: 0x0-st
-      - type: trait
-        id: file-io
-      - type: trait
-        id: filedropper-com
+      - id: bullethost-cloud
+      - id: anonfiles-com
+      - id: gofile-io
+      - id: transfer-sh
+      - id: tmpfiles-org
+      - id: catbox-moe
+      - id: uguu-se
+      - id: pomf-cat
+      - id: 0x0-st
+      - id: file-io
+      - id: filedropper-com
 
   # PHP collector endpoints
   - id: php-collector
@@ -730,16 +712,11 @@ composite_rules:
     file_types: [all]
     requires_count: 1
     conditions:
-      - type: trait
-        id: php-collect
-      - type: trait
-        id: php-log
-      - type: trait
-        id: php-report
-      - type: trait
-        id: php-beacon
-      - type: trait
-        id: php-gate
+      - id: php-collect
+      - id: php-log
+      - id: php-report
+      - id: php-beacon
+      - id: php-gate
 
   # Serverless function endpoints
   - id: serverless-function
@@ -750,16 +727,11 @@ composite_rules:
     file_types: [all]
     requires_count: 1
     conditions:
-      - type: trait
-        id: aws-api-gateway
-      - type: trait
-        id: azure-websites
-      - type: trait
-        id: google-cloud-functions
-      - type: trait
-        id: vercel-app
-      - type: trait
-        id: netlify-app
+      - id: aws-api-gateway
+      - id: azure-websites
+      - id: google-cloud-functions
+      - id: vercel-app
+      - id: netlify-app
 
   # Ngrok tunnels
   - id: ngrok-tunnel
@@ -770,10 +742,8 @@ composite_rules:
     file_types: [all]
     requires_count: 1
     conditions:
-      - type: trait
-        id: ngrok-io
-      - type: trait
-        id: ngrok-free-app
+      - id: ngrok-io
+      - id: ngrok-free-app
 
   # Paste services
   - id: paste-service
@@ -784,20 +754,13 @@ composite_rules:
     file_types: [all]
     requires_count: 1
     conditions:
-      - type: trait
-        id: pastebin-com
-      - type: trait
-        id: hastebin-com
-      - type: trait
-        id: ghostbin-com
-      - type: trait
-        id: paste-ee
-      - type: trait
-        id: dpaste-com
-      - type: trait
-        id: privatebin-net
-      - type: trait
-        id: rentry-co
+      - id: pastebin-com
+      - id: hastebin-com
+      - id: ghostbin-com
+      - id: paste-ee
+      - id: dpaste-com
+      - id: privatebin-net
+      - id: rentry-co
 
   # Replit-hosted
   - id: replit-hosted
@@ -808,10 +771,8 @@ composite_rules:
     file_types: [all]
     requires_count: 1
     conditions:
-      - type: trait
-        id: replit-dev
-      - type: trait
-        id: repl-co
+      - id: replit-dev
+      - id: repl-co
 
   # Chisel tunnel
   - id: chisel-tunnel
@@ -822,9 +783,6 @@ composite_rules:
     file_types: [all]
     requires_count: 1
     conditions:
-      - type: trait
-        id: chisel-client
-      - type: trait
-        id: chisel-server
-      - type: trait
-        id: chisel-github
+      - id: chisel-client
+      - id: chisel-server
+      - id: chisel-github

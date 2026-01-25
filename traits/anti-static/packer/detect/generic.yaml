@@ -52,16 +52,11 @@ composite_rules:
     attack: "T1027.002"
     requires_count: 1
     conditions:
-      - type: trait
-        id: upx-marker
-      - type: trait
-        id: aspack-marker
-      - type: trait
-        id: petite-marker
-      - type: trait
-        id: themida-marker
-      - type: trait
-        id: vmprotect-marker
+      - id: upx-marker
+      - id: aspack-marker
+      - id: petite-marker
+      - id: themida-marker
+      - id: vmprotect-marker
 
   - id: upx
     description: "UPX packed binary (section)"

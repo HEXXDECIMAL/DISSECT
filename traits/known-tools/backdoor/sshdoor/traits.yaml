@@ -118,15 +118,9 @@ composite_rules:
     file_types: [elf]
     requires_count: 3
     conditions:
-      - type: trait
-        id: backdoor/sshdoor/krb5-ccname
-      - type: trait
-        id: backdoor/sshdoor/rm-var-tmp
-      - type: trait
-        id: backdoor/sshdoor/login-lock
-      - type: trait
-        id: backdoor/sshdoor/login-format
-      - type: trait
-        id: backdoor/sshdoor/server-locked
-      - type: trait
-        id: backdoor/sshdoor/yara-signature
+      - id: backdoor/sshdoor/krb5-ccname
+      - id: backdoor/sshdoor/rm-var-tmp
+      - id: backdoor/sshdoor/login-lock
+      - id: backdoor/sshdoor/login-format
+      - id: backdoor/sshdoor/server-locked
+      - id: backdoor/sshdoor/yara-signature

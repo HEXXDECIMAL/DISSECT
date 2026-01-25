@@ -100,9 +100,6 @@ composite_rules:
     criticality: hostile
     confidence: 0.95
     requires_any:
-      - type: trait
-        id: impact/ddos/syn-flood-logic
-      - type: trait
-        id: impact/ddos/udp-flood-logic
-      - type: trait
-        id: impact/ddos/dns-amp-logic
+      - id: impact/ddos/syn-flood-logic
+      - id: impact/ddos/udp-flood-logic
+      - id: impact/ddos/dns-amp-logic

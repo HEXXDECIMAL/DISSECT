@@ -237,12 +237,9 @@ composite_rules:
     platforms: [windows]
     requires_count: 1
     conditions:
-      - type: trait
-        id: import-pyhook
-      - type: trait
-        id: from-pyhook
-      - type: trait
-        id: pyhook-hookmanager
+      - id: import-pyhook
+      - id: from-pyhook
+      - id: pyhook-hookmanager
 
   # pyWinhook composite
   - id: python-pywinhook
@@ -251,12 +248,9 @@ composite_rules:
     platforms: [windows]
     requires_count: 1
     conditions:
-      - type: trait
-        id: import-pywinhook
-      - type: trait
-        id: from-pywinhook
-      - type: trait
-        id: pywinhook-hookmanager
+      - id: import-pywinhook
+      - id: from-pywinhook
+      - id: pywinhook-hookmanager
 
   # keyboard module composite
   - id: python-keyboard
@@ -264,14 +258,10 @@ composite_rules:
     confidence: 0.8
     requires_count: 1
     conditions:
-      - type: trait
-        id: import-keyboard
-      - type: trait
-        id: keyboard-on-press
-      - type: trait
-        id: keyboard-hook
-      - type: trait
-        id: keyboard-record
+      - id: import-keyboard
+      - id: keyboard-on-press
+      - id: keyboard-hook
+      - id: keyboard-record
 
   # pynput listener composite
   - id: python-pynput-listener
@@ -279,12 +269,9 @@ composite_rules:
     confidence: 0.8
     requires_count: 1
     conditions:
-      - type: trait
-        id: keyboard-listener
-      - type: trait
-        id: on-press-eq
-      - type: trait
-        id: on-release-eq
+      - id: keyboard-listener
+      - id: on-press-eq
+      - id: on-release-eq
 
   # Keylogger library imports composite
   - id: python-keylogger-import
@@ -293,14 +280,10 @@ composite_rules:
     confidence: 0.8
     requires_count: 1
     conditions:
-      - type: trait
-        id: import-pyhook
-      - type: trait
-        id: import-pywinhook
-      - type: trait
-        id: import-keyboard
-      - type: trait
-        id: pynput-keyboard
+      - id: import-pyhook
+      - id: import-pywinhook
+      - id: import-keyboard
+      - id: pynput-keyboard
 
   # File open for write/append composite
   - id: python-file-open-write
@@ -309,10 +292,8 @@ composite_rules:
     confidence: 0.7
     requires_count: 1
     conditions:
-      - type: trait
-        id: file-open-append
-      - type: trait
-        id: file-open-write
+      - id: file-open-append
+      - id: file-open-write
 
   # Write or key handler composite
   - id: python-write-or-key-handler
@@ -321,12 +302,9 @@ composite_rules:
     confidence: 0.7
     requires_count: 1
     conditions:
-      - type: trait
-        id: dot-write
-      - type: trait
-        id: keydown-keyword
-      - type: trait
-        id: on-press-keyword
+      - id: dot-write
+      - id: keydown-keyword
+      - id: on-press-keyword
 
   # Keyboard hook setup composite
   - id: python-keyboard-hook-setup
@@ -335,12 +313,9 @@ composite_rules:
     confidence: 0.85
     requires_count: 1
     conditions:
-      - type: trait
-        id: python-hook-keyboard
-      - type: trait
-        id: keyboard-listener
-      - type: trait
-        id: keyboard-hook
+      - id: python-hook-keyboard
+      - id: keyboard-listener
+      - id: keyboard-hook
 
   # Network exfil composite
   - id: python-network-exfil
@@ -349,14 +324,10 @@ composite_rules:
     confidence: 0.7
     requires_count: 1
     conditions:
-      - type: trait
-        id: requests-post
-      - type: trait
-        id: requests-get
-      - type: trait
-        id: urllib-module
-      - type: trait
-        id: socket-call
+      - id: requests-post
+      - id: requests-get
+      - id: urllib-module
+      - id: socket-call
 
   # Key event handlers composite
   - id: python-key-event-handlers
@@ -365,12 +336,9 @@ composite_rules:
     confidence: 0.8
     requires_count: 1
     conditions:
-      - type: trait
-        id: keydown-keyword
-      - type: trait
-        id: on-press-keyword
-      - type: trait
-        id: on-release-keyword
+      - id: keydown-keyword
+      - id: on-press-keyword
+      - id: on-release-keyword
 
   # Full keylogger pattern: hook + log to file
   - id: python-keylogger-file
@@ -381,12 +349,9 @@ composite_rules:
     mbc: "B0015"
     file_types: [python]
     requires_all:
-      - type: composite
-        id: python-keylogger-import
-      - type: composite
-        id: python-file-open-write
-      - type: composite
-        id: python-write-or-key-handler
+      - id: python-keylogger-import
+      - id: python-file-open-write
+      - id: python-write-or-key-handler
 
   # Windows keyboard hook with exfiltration
   - id: python-keylogger-exfil
@@ -397,9 +362,6 @@ composite_rules:
     mbc: "B0015"
     file_types: [python]
     requires_all:
-      - type: composite
-        id: python-keyboard-hook-setup
-      - type: composite
-        id: python-network-exfil
-      - type: composite
-        id: python-key-event-handlers
+      - id: python-keyboard-hook-setup
+      - id: python-network-exfil
+      - id: python-key-event-handlers

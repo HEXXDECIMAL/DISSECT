@@ -27,8 +27,7 @@ composite_rules:
     platforms: [linux]
     file_types: [elf]
     requires_all:
-      - type: trait
-        id: syscall-memfd-create
+      - id: syscall-memfd-create
 
   - id: fileless
     description: Fileless execution - memfd_create + execve
@@ -37,7 +36,5 @@ composite_rules:
     platforms: [linux]
     file_types: [elf]
     requires_all:
-      - type: trait
-        id: syscall-memfd-create
-      - type: trait
-        id: syscall-execve
+      - id: syscall-memfd-create
+      - id: syscall-execve

@@ -68,9 +68,6 @@ composite_rules:
     platforms: [windows]
     file_types: [pe, dll]
     requires_any:
-      - type: trait
-        id: c2-framework/havoc/amsi-dll-xor
-      - type: trait
-        id: c2-framework/havoc/demon-ref
-      - type: trait
-        id: c2-framework/havoc/config
+      - id: c2-framework/havoc/amsi-dll-xor
+      - id: c2-framework/havoc/demon-ref
+      - id: c2-framework/havoc/config

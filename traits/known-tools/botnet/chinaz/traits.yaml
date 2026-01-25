@@ -111,10 +111,7 @@ composite_rules:
     attack: "T1583.005"
     mbc: "B0030"
     requires_all:
-      - type: trait
-        id: botnet/chinaz/identifier
+      - id: botnet/chinaz/identifier
     requires_any:
-      - type: trait
-        id: c2/botnet/chinaz/commands
-      - type: trait
-        id: comm/attack/flood/iot-ddos
+      - id: c2/botnet/chinaz/commands
+      - id: comm/attack/flood/iot-ddos

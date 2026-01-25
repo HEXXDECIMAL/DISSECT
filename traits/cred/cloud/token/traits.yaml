@@ -150,12 +150,9 @@ composite_rules:
     file_types: [javascript, typescript, python, shell]
     requires_count: 1
     conditions:
-      - type: trait
-        id: aws-imds-ip
-      - type: trait
-        id: aws-imds-path
-      - type: trait
-        id: aws-iam-creds-path
+      - id: aws-imds-ip
+      - id: aws-imds-path
+      - id: aws-iam-creds-path
 
   # GCP metadata access
   - id: gcp-metadata-access
@@ -166,10 +163,8 @@ composite_rules:
     file_types: [javascript, typescript, python, shell]
     requires_count: 1
     conditions:
-      - type: trait
-        id: gcp-metadata-host
-      - type: trait
-        id: gcp-compute-metadata
+      - id: gcp-metadata-host
+      - id: gcp-compute-metadata
 
   # Azure IMDS access
   - id: azure-imds-access
@@ -180,29 +175,22 @@ composite_rules:
     file_types: [javascript, typescript, python, shell]
     requires_count: 1
     conditions:
-      - type: trait
-        id: azure-metadata-identity
-      - type: trait
-        id: azure-metadata-header
+      - id: azure-metadata-identity
+      - id: azure-metadata-header
 
   - id: aws-credential-theft
     description: AWS credential theft
     confidence: 0.85
     requires_any:
-      - type: trait
-        id: aws-credentials-file
-      - type: trait
-        id: aws-access-key
+      - id: aws-credentials-file
+      - id: aws-access-key
     requires_all:
-      - type: trait
-        id: aws-config
+      - id: aws-config
 
   - id: gcp-credential-theft
     description: GCP credential theft
     confidence: 0.85
     requires_all:
-      - type: trait
-        id: gcloud-config
+      - id: gcloud-config
     requires_any:
-      - type: trait
-        id: gcp-default-credentials
+      - id: gcp-default-credentials

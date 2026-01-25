@@ -11,15 +11,9 @@ composite_rules:
     file_types: [elf, macho, pe, python, go, javascript]
     requires_count: 2
     conditions:
-      - type: trait
-        id: "cred/browser/chromium"
-      - type: trait
-        id: "cred/browser/firefox"
-      - type: trait
-        id: "cred/browser/chromium"
-      - type: trait
-        id: "cred/browser/chromium"
-      - type: trait
-        id: "cred/browser"
-      - type: trait
-        id: "cred/browser"
+      - id: "cred/browser/chromium"
+      - id: "cred/browser/firefox"
+      - id: "cred/browser/chromium"
+      - id: "cred/browser/chromium"
+      - id: "cred/browser"
+      - id: "cred/browser"

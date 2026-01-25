@@ -165,9 +165,6 @@ composite_rules:
     criticality: suspicious
     confidence: 0.75
     requires_any:
-      - type: trait
-        id: libev
-      - type: trait
-        id: c-ares
-      - type: trait
-        id: libevent
+      - id: libev
+      - id: c-ares
+      - id: libevent

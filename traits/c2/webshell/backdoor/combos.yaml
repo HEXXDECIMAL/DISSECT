@@ -13,17 +13,12 @@ composite_rules:
     attack: "T1505.003"
     file_types: [all]
     requires_all:
-      - type: trait
-        id: persist/session
-      - type: trait
-        id: data/user-input
+      - id: persist/session
+      - id: data/user-input
     requires_any:
-      - type: trait
-        id: anti-static/obfuscation
-      - type: trait
-        id: fs/write
-      - type: trait
-        id: exec/command/exec
+      - id: anti-static/obfuscation
+      - id: fs/write
+      - id: exec/command/exec
 
   # Dropper webshell (writes decoded payloads)
   - id: php-dropper
@@ -34,15 +29,11 @@ composite_rules:
     attack: "T1105"
     file_types: [all]
     requires_all:
-      - type: trait
-        id: anti-static/obfuscation
-      - type: trait
-        id: fs/write
+      - id: anti-static/obfuscation
+      - id: fs/write
     requires_any:
-      - type: trait
-        id: data/user-input
-      - type: trait
-        id: data/user-input
+      - id: data/user-input
+      - id: data/user-input
 
   # Self-destructing webshell
   - id: php-self-destruct
@@ -53,10 +44,8 @@ composite_rules:
     attack: "T1070.004"
     file_types: [all]
     requires_all:
-      - type: trait
-        id: evasion/self-destruct
-      - type: trait
-        id: data/user-input
+      - id: evasion/self-destruct
+      - id: data/user-input
 
   # SSRF/Proxy webshell
   - id: php-proxy
@@ -67,21 +56,15 @@ composite_rules:
     attack: "T1090"
     file_types: [all]
     requires_all:
-      - type: trait
-        id: comm/http/curl/init
+      - id: comm/http/curl/init
     requires_any:
-      - type: trait
-        id: data/user-input
-      - type: trait
-        id: data/user-input
+      - id: data/user-input
+      - id: data/user-input
     requires_count: 1
     conditions:
-      - type: trait
-        id: comm/http/curl/ssl-verify-disable
-      - type: trait
-        id: comm/http/curl/ssl-host-disable
-      - type: trait
-        id: evasion/impersonate/ua-array
+      - id: comm/http/curl/ssl-verify-disable
+      - id: comm/http/curl/ssl-host-disable
+      - id: evasion/impersonate/ua-array
 
   # Bot impersonation webshell
   - id: php-bot-impersonate
@@ -92,13 +75,10 @@ composite_rules:
     attack: "T1036"
     file_types: [all]
     requires_all:
-      - type: trait
-        id: comm/http/curl/init
+      - id: comm/http/curl/init
     requires_any:
-      - type: trait
-        id: evasion/impersonate
-      - type: trait
-        id: evasion/impersonate/ua-array
+      - id: evasion/impersonate
+      - id: evasion/impersonate/ua-array
 
   # Timestamp manipulation (anti-forensic)
   - id: php-timestomp
@@ -109,10 +89,8 @@ composite_rules:
     attack: "T1070.006"
     file_types: [all]
     requires_all:
-      - type: trait
-        id: evasion/timestomp
-      - type: trait
-        id: fs/write
+      - id: evasion/timestomp
+      - id: fs/write
 
   # Hardcoded authentication backdoor
   - id: php-hardcoded-auth
@@ -123,10 +101,8 @@ composite_rules:
     attack: "T1505.003"
     file_types: [all]
     requires_any:
-      - type: trait
-        id: c2/webshell/hardcoded-hash-auth
-      - type: trait
-        id: c2/webshell/substr-hash-compare
+      - id: c2/webshell/hardcoded-hash-auth
+      - id: c2/webshell/substr-hash-compare
 
   # File upload webshell
   - id: php-uploader
@@ -137,16 +113,12 @@ composite_rules:
     attack: "T1105"
     file_types: [all]
     requires_any:
-      - type: trait
-        id: data/user-input
-      - type: trait
-        id: comm/http/curl/file-upload
+      - id: data/user-input
+      - id: comm/http/curl/file-upload
     requires_count: 1
     conditions:
-      - type: trait
-        id: fs/write
-      - type: trait
-        id: fs/write
+      - id: fs/write
+      - id: fs/write
 
   # Command execution webshell
   - id: php-rce
@@ -157,18 +129,13 @@ composite_rules:
     attack: "T1059.004"
     file_types: [all]
     requires_any:
-      - type: trait
-        id: exec/command/exec-user-input
-      - type: trait
-        id: anti-static/obfuscation
-      - type: trait
-        id: anti-static/obfuscation
+      - id: exec/command/exec-user-input
+      - id: anti-static/obfuscation
+      - id: anti-static/obfuscation
     requires_count: 1
     conditions:
-      - type: trait
-        id: data/user-input
-      - type: trait
-        id: data/user-input
+      - id: data/user-input
+      - id: data/user-input
 
   # Web UI webshell (has HTML interface)
   - id: php-web-ui
@@ -179,13 +146,10 @@ composite_rules:
     attack: "T1505.003"
     file_types: [all]
     requires_all:
-      - type: trait
-        id: c2/webshell/password-form
+      - id: c2/webshell/password-form
     requires_any:
-      - type: trait
-        id: persist/session
-      - type: trait
-        id: data/user-input
+      - id: persist/session
+      - id: data/user-input
 
   # Google scraping webshell (SEO spam tool)
   - id: php-seo-tool
@@ -196,10 +160,8 @@ composite_rules:
     attack: "T1505.003"
     file_types: [php]
     requires_all:
-      - type: trait
-        id: c2/webshell/google-search-scrape
-      - type: trait
-        id: comm/http/curl/init
+      - id: c2/webshell/google-search-scrape
+      - id: comm/http/curl/init
 
   # Obfuscated payload webshell
   - id: php-obfuscated
@@ -211,16 +173,11 @@ composite_rules:
     file_types: [all]
     requires_count: 2
     conditions:
-      - type: trait
-        id: anti-static/obfuscation
-      - type: trait
-        id: anti-static/obfuscation
-      - type: trait
-        id: anti-static/obfuscation
-      - type: trait
-        id: anti-static/obfuscation
-      - type: trait
-        id: anti-static/obfuscation
+      - id: anti-static/obfuscation
+      - id: anti-static/obfuscation
+      - id: anti-static/obfuscation
+      - id: anti-static/obfuscation
+      - id: anti-static/obfuscation
 
   # Decompressed code execution
   - id: php-gz-eval
@@ -231,10 +188,8 @@ composite_rules:
     attack: "T1027"
     file_types: [php]
     requires_all:
-      - type: trait
-        id: anti-static/obfuscation/encoding/gzinflate
-      - type: trait
-        id: anti-static/obfuscation/encoding/eval
+      - id: anti-static/obfuscation/encoding/gzinflate
+      - id: anti-static/obfuscation/encoding/eval
 
   # Obfuscated dynamic backdoor
   - id: php-obfuscated-dynamic-backdoor
@@ -245,15 +200,11 @@ composite_rules:
     attack: "T1027"
     file_types: [php]
     requires_all:
-      - type: trait
-        id: exec/dynamic-call
+      - id: exec/dynamic-call
     requires_any:
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/php-obfuscated-vars
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/php-encoded-strings
-      - type: trait
-        id: anti-static/obfuscation/encoding
+      - id: anti-static/obfuscation/code-metrics/php-obfuscated-vars
+      - id: anti-static/obfuscation/code-metrics/php-encoded-strings
+      - id: anti-static/obfuscation/encoding
 
   # Non-ASCII dynamic backdoor
   - id: php-non-ascii-backdoor
@@ -264,10 +215,8 @@ composite_rules:
     attack: "T1027"
     file_types: [php]
     requires_all:
-      - type: trait
-        id: exec/dynamic-call
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/php-high-non-ascii-ratio
+      - id: exec/dynamic-call
+      - id: anti-static/obfuscation/code-metrics/php-high-non-ascii-ratio
 
   - id: php-non-ascii-identifiers-backdoor
     description: "PHP: backdoor using non-ASCII identifiers"
@@ -277,12 +226,9 @@ composite_rules:
     attack: "T1027"
     file_types: [php]
     requires_any:
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/php-non-ascii-call
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/php-non-ascii-variable
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/php-non-ascii-name
+      - id: anti-static/obfuscation/code-metrics/php-non-ascii-call
+      - id: anti-static/obfuscation/code-metrics/php-non-ascii-variable
+      - id: anti-static/obfuscation/code-metrics/php-non-ascii-name
 
   - id: php-shell-functional
     description: "PHP: functional webshell (exec + input + obfuscation/file ops)"
@@ -292,27 +238,17 @@ composite_rules:
     attack: "T1505.003"
     file_types: [php]
     requires_all:
-      - type: trait
-        id: exec/dynamic-call
+      - id: exec/dynamic-call
     requires_any:
-      - type: trait
-        id: data/user-input/request/get
-      - type: trait
-        id: data/user-input/request/post
-      - type: trait
-        id: data/user-input/request/request
-      - type: trait
-        id: data/user-input/request/cookie
-      - type: trait
-        id: data/user-input/request/server
-      - type: trait
-        id: anti-static/obfuscation
-      - type: trait
-        id: anti-static/obfuscation
-      - type: trait
-        id: fs/read/file
-      - type: trait
-        id: fs/write/file
+      - id: data/user-input/request/get
+      - id: data/user-input/request/post
+      - id: data/user-input/request/request
+      - id: data/user-input/request/cookie
+      - id: data/user-input/request/server
+      - id: anti-static/obfuscation
+      - id: anti-static/obfuscation
+      - id: fs/read/file
+      - id: fs/write/file
 
   # Functional PHP shell
   - id: php-shell
@@ -323,14 +259,9 @@ composite_rules:
     attack: "T1505.003"
     file_types: [php]
     requires_all:
-      - type: trait
-        id: exec/command/shell
-      - type: trait
-        id: data/user-input/request
+      - id: exec/command/shell
+      - id: data/user-input/request
     requires_any:
-      - type: trait
-        id: fs/read/file
-      - type: trait
-        id: fs/write/file
-      - type: trait
-        id: anti-static/obfuscation/encoding
+      - id: fs/read/file
+      - id: fs/write/file
+      - id: anti-static/obfuscation/encoding

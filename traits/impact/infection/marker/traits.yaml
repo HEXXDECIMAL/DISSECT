@@ -90,7 +90,7 @@ traits:
             filesize < 1MB and
             (
               // Explicit infection terminology
-              any of ($infect, $virus, $parasite, $scan_elf, $find_target) or
+              any of ($infect, $virus, $parasite, $payload, $inject_elf, $scan_elf, $find_target) or
               // Embedded ELF payload (not at offset 0)
               ($embedded_elf and @embedded_elf[1] > 512)
             )
@@ -124,8 +124,7 @@ composite_rules:
     mbc: "B0009"
     file_types: [elf]
     requires_all:
-      - type: trait
-        id: elf-infector-yara
+      - id: elf-infector-yara
 
   - id: infected-xor-detected
     description: XOR obfuscated infection marker
@@ -134,5 +133,4 @@ composite_rules:
     attack: "T1027"
     file_types: [all]
     requires_all:
-      - type: trait
-        id: infected-xor-yara
+      - id: infected-xor-yara

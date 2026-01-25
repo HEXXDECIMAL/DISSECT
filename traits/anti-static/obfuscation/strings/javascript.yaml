@@ -39,15 +39,24 @@ traits:
       type: string
       regex: '(\\x[0-9a-fA-F]{2}){4,}'
 
-  # Buffer.from with encoding
-  - id: js-buffer-decode
-    description: Buffer.from used to decode strings at runtime
-    criticality: notable
-    confidence: 0.7
+  # Buffer.from with encoding (atomic)
+  - id: js-buffer-from-base64
+    description: Buffer.from with base64 encoding
+    criticality: inert
+    confidence: 0.6
     file_types: [javascript, typescript]
     condition:
       type: string
-      regex: "Buffer\\.from\\([^,]+,\\s*['\"](?:base64|hex)['\"]\\)"
+      regex: "Buffer\\.from\\([^,]+,\\s*['\"]base64['\"]\\)"
+
+  - id: js-buffer-from-hex
+    description: Buffer.from with hex encoding
+    criticality: inert
+    confidence: 0.6
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "Buffer\\.from\\([^,]+,\\s*['\"]hex['\"]\\)"
 
   # Hex-encoded URL in array (common npm malware pattern)
   # Pattern: array of hex strings that decode to URL parts
@@ -111,17 +120,39 @@ traits:
       type: string
       regex: "\\[['\"][^'\"]+['\"](?:,\\s*['\"][^'\"]+['\"]){5,}\\]\\.join"
 
-  # Dynamic code execution patterns (eval, Function constructor)
-  - id: js-dynamic-exec
-    description: Dynamic code execution via eval or Function constructor
-    criticality: notable
-    confidence: 0.7
+  # Dynamic code execution patterns (atomic)
+  - id: js-eval-call
+    description: eval() call
+    criticality: inert
+    confidence: 0.5
     mbc: "B0032"
     attack: "T1027"
     file_types: [javascript, typescript]
     condition:
       type: string
-      regex: 'eval\(|Function\(|new Function'
+      exact: "eval("
+
+  - id: js-function-call
+    description: Function() constructor
+    criticality: inert
+    confidence: 0.5
+    mbc: "B0032"
+    attack: "T1027"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "Function("
+
+  - id: js-new-function
+    description: new Function constructor
+    criticality: inert
+    confidence: 0.5
+    mbc: "B0032"
+    attack: "T1027"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "new Function"
 
   # Dynamic require with variable (non-literal) argument
   - id: js-dynamic-require-call
@@ -134,6 +165,31 @@ traits:
       regex: 'require\([^"'']'
 
 composite_rules:
+  # Buffer decode composite
+  - id: js-buffer-decode
+    description: Buffer.from used to decode strings at runtime
+    criticality: notable
+    confidence: 0.7
+    file_types: [javascript, typescript]
+    requires_count: 1
+    conditions:
+      - id: js-buffer-from-base64
+      - id: js-buffer-from-hex
+
+  # Dynamic exec composite
+  - id: js-dynamic-exec
+    description: Dynamic code execution via eval or Function constructor
+    criticality: notable
+    confidence: 0.7
+    mbc: "B0032"
+    attack: "T1027"
+    file_types: [javascript, typescript]
+    requires_count: 1
+    conditions:
+      - id: js-eval-call
+      - id: js-function-call
+      - id: js-new-function
+
   # Unicode obfuscation with execution
   - id: js-unicode-exec
     description: Unicode obfuscated string executed (evasion)
@@ -143,12 +199,9 @@ composite_rules:
     attack: "T1027"
     file_types: [javascript, typescript]
     requires_all:
-      - type: trait
-        id: anti-static/obfuscation/strings/js-unicode-escape
-      - type: trait
-        id: anti-static/obfuscation/strings/js-dynamic-exec
-      - type: trait
-        id: anti-static/obfuscation/strings/fromcharcode
+      - id: js-unicode-escape
+      - id: js-dynamic-exec
+      - id: fromcharcode
 
   # Dynamic require with obfuscation
   - id: js-dynamic-require
@@ -156,7 +209,5 @@ composite_rules:
     criticality: suspicious
     confidence: 0.85
     requires_all:
-      - type: trait
-        id: anti-static/obfuscation/strings/js-dynamic-require-call
-      - type: trait
-        id: anti-static/obfuscation/strings/js-unicode-escape
+      - id: js-dynamic-require-call
+      - id: js-unicode-escape

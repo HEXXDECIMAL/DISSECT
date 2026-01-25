@@ -107,15 +107,9 @@ composite_rules:
     confidence: 0.95
     requires_count: 2
     conditions:
-      - type: trait
-        id: ethereum-regex-short
-      - type: trait
-        id: bitcoin-legacy-regex-short
-      - type: trait
-        id: bitcoin-segwit-regex
-      - type: trait
-        id: bitcoin-cash-prefix
-      - type: trait
-        id: litecoin-regex
-      - type: trait
-        id: tron-regex
+      - id: ethereum-regex-short
+      - id: bitcoin-legacy-regex-short
+      - id: bitcoin-segwit-regex
+      - id: bitcoin-cash-prefix
+      - id: litecoin-regex
+      - id: tron-regex

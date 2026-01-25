@@ -73,15 +73,26 @@ traits:
       type: string
       exact: "/etc/sudoers"
 
-  - id: cap-get
-    description: Linux capability get
-    criticality: notable
-    confidence: 0.7
+  # === Linux capability atomic indicators ===
+  - id: cap-get-file
+    description: cap_get_file function
+    criticality: inert
+    confidence: 0.6
     attack: "T1069"
     file_types: [elf]
     condition:
       type: string
-      regex: "cap_(get|set)_(proc|file)"
+      exact: "cap_get_file"
+
+  - id: cap-set-file
+    description: cap_set_file function
+    criticality: inert
+    confidence: 0.6
+    attack: "T1069"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "cap_set_file"
 
   - id: sudo-l
     description: Sudo permission listing
@@ -114,6 +125,42 @@ traits:
       exact: "cap_set_proc"
 
 composite_rules:
+  # Linux capability get/set composite
+  - id: cap-get
+    description: Linux capability get/set
+    criticality: notable
+    confidence: 0.7
+    attack: "T1069"
+    file_types: [elf]
+    requires_count: 1
+    conditions:
+      - id: cap-get-proc
+      - id: cap-set-proc
+      - id: cap-get-file
+      - id: cap-set-file
+
+  # Linux capabilities via capsh + /proc/self/status
+  - id: linux-caps-via-capsh
+    description: Linux capabilities via capsh
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1069"
+    file_types: [elf, shell]
+    requires_all:
+      - id: capsh
+      - id: process-self-status
+
+  # Linux capabilities via cap_get/set_proc
+  - id: linux-caps-via-api
+    description: Linux capabilities via API
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1069"
+    file_types: [elf]
+    requires_all:
+      - id: cap-get-proc
+      - id: cap-set-proc
+
   - id: linux-caps-enum
     description: Linux capabilities enumeration
     criticality: suspicious
@@ -121,27 +168,7 @@ composite_rules:
     attack: "T1069"
     mbc: "B0046"
     file_types: [elf, shell]
-    condition:
-      type: yara
-      source: |
-        rule linux_caps_enum {
-          strings:
-            $capsh = "capsh" fullword
-            $proc_status = "/proc/self/status"
-            $cap_get = "cap_get_proc"
-            $cap_set = "cap_set_proc"
-          condition:
-            filesize < 10MB and
-            ($capsh and $proc_status) or 2 of ($cap*)
-        }
-    requires_any:
-      - requires_all:
-          - type: trait
-            id: capsh
-          - type: trait
-            id: process-self-status
-      - requires_all:
-          - type: trait
-            id: cap-get-proc
-          - type: trait
-            id: cap-set-proc
+    requires_count: 1
+    conditions:
+      - id: linux-caps-via-capsh
+      - id: linux-caps-via-api

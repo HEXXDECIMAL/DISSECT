@@ -62,25 +62,18 @@ composite_rules:
     criticality: suspicious
     confidence: 0.7
     requires_all:
-      - type: trait
-        id: http-protocol-string
+      - id: http-protocol-string
     requires_any:
-      - type: trait
-        id: http-method-get
-      - type: trait
-        id: http-method-post
+      - id: http-method-get
+      - id: http-method-post
 
   - id: custom-client
     description: "Custom HTTP client implementation"
     criticality: suspicious
     confidence: 0.65
     requires_all:
-      - type: trait
-        id: http-protocol-string
-      - type: trait
-        id: http-delimiter
+      - id: http-protocol-string
+      - id: http-delimiter
     requires_any:
-      - type: trait
-        id: http-user-agent
-      - type: trait
-        id: http-content-type
+      - id: http-user-agent
+      - id: http-content-type

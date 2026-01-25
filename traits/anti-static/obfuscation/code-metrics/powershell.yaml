@@ -61,26 +61,18 @@ composite_rules:
     confidence: 0.9
     requires_count: 2
     conditions:
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/ps-encoded-commands
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/ps-obfuscated-vars
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/ps-single-line-script
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/ps-many-single-char
+      - id: anti-static/obfuscation/code-metrics/ps-encoded-commands
+      - id: anti-static/obfuscation/code-metrics/ps-obfuscated-vars
+      - id: anti-static/obfuscation/code-metrics/ps-single-line-script
+      - id: anti-static/obfuscation/code-metrics/ps-many-single-char
 
   - id: ps-encoded-downloader
     description: "Encoded PowerShell downloader"
     criticality: hostile
     confidence: 0.9
     requires_all:
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/ps-encoded-commands
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/ps-no-comments
+      - id: anti-static/obfuscation/code-metrics/ps-encoded-commands
+      - id: anti-static/obfuscation/code-metrics/ps-no-comments
     requires_any:
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/ps-single-line-script
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/ps-obfuscated-vars
+      - id: anti-static/obfuscation/code-metrics/ps-single-line-script
+      - id: anti-static/obfuscation/code-metrics/ps-obfuscated-vars

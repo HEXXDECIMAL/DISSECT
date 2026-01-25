@@ -39,12 +39,9 @@ composite_rules:
     platforms: [linux]
     file_types: [elf]
     requires_all:
-      - type: trait
-        id: syscall-socket
-      - type: trait
-        id: syscall-bind
-      - type: trait
-        id: syscall-listen
+      - id: syscall-socket
+      - id: syscall-bind
+      - id: syscall-listen
 
   - id: server-accept
     description: Network server accepting connections
@@ -53,11 +50,7 @@ composite_rules:
     platforms: [linux]
     file_types: [elf]
     requires_all:
-      - type: trait
-        id: syscall-socket
-      - type: trait
-        id: syscall-bind
-      - type: trait
-        id: syscall-listen
-      - type: trait
-        id: syscall-accept
+      - id: syscall-socket
+      - id: syscall-bind
+      - id: syscall-listen
+      - id: syscall-accept

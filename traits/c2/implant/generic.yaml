@@ -281,54 +281,30 @@ composite_rules:
     confidence: 0.7
     requires_count: 1
     conditions:
-      - type: trait
-        id: malware-implant
-      - type: trait
-        id: c2-implant
-      - type: trait
-        id: rat-implant
-      - type: trait
-        id: backdoor-implant
-      - type: trait
-        id: malware-dropper
-      - type: trait
-        id: c2-dropper
-      - type: trait
-        id: rat-dropper
-      - type: trait
-        id: backdoor-dropper
-      - type: trait
-        id: malware-stager
-      - type: trait
-        id: c2-stager
-      - type: trait
-        id: rat-stager
-      - type: trait
-        id: backdoor-stager
-      - type: trait
-        id: implant-payload
-      - type: trait
-        id: dropper-payload
-      - type: trait
-        id: stager-payload
-      - type: trait
-        id: beacon-payload
-      - type: trait
-        id: malware-payload
-      - type: trait
-        id: shell-payload
-      - type: trait
-        id: implant-config
-      - type: trait
-        id: dropper-config
-      - type: trait
-        id: stager-config
-      - type: trait
-        id: implant-beacon
-      - type: trait
-        id: dropper-beacon
-      - type: trait
-        id: stager-beacon
+      - id: malware-implant
+      - id: c2-implant
+      - id: rat-implant
+      - id: backdoor-implant
+      - id: malware-dropper
+      - id: c2-dropper
+      - id: rat-dropper
+      - id: backdoor-dropper
+      - id: malware-stager
+      - id: c2-stager
+      - id: rat-stager
+      - id: backdoor-stager
+      - id: implant-payload
+      - id: dropper-payload
+      - id: stager-payload
+      - id: beacon-payload
+      - id: malware-payload
+      - id: shell-payload
+      - id: implant-config
+      - id: dropper-config
+      - id: stager-config
+      - id: implant-beacon
+      - id: dropper-beacon
+      - id: stager-beacon
 
   - id: trojan
     description: References a trojan
@@ -336,13 +312,8 @@ composite_rules:
     confidence: 0.66
     requires_count: 1
     conditions:
-      - type: trait
-        id: trojan-horse
-      - type: trait
-        id: trojan-malware
-      - type: trait
-        id: trojan-payload
-      - type: trait
-        id: trojan-downloader
-      - type: trait
-        id: trojan-surrounded
+      - id: trojan-horse
+      - id: trojan-malware
+      - id: trojan-payload
+      - id: trojan-downloader
+      - id: trojan-surrounded

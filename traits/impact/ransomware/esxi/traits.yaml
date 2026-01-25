@@ -173,10 +173,7 @@ composite_rules:
     criticality: hostile
     confidence: 0.95
     requires_all:
-      - type: trait
-        id: impact/ransomware/esxi/file-targeting
+      - id: impact/ransomware/esxi/file-targeting
     requires_any:
-      - type: trait
-        id: impact/ransomware/esxi/vm-kill
-      - type: trait
-        id: impact/ransomware/esxi/snapshot
+      - id: impact/ransomware/esxi/vm-kill
+      - id: impact/ransomware/esxi/snapshot

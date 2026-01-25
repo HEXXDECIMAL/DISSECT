@@ -52,26 +52,18 @@ composite_rules:
     confidence: 0.9
     requires_count: 3
     conditions:
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/high-entropy-identifiers
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/js-arrow-function-abuse
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/high-entropy-strings
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/no-comments
+      - id: anti-static/obfuscation/code-metrics/high-entropy-identifiers
+      - id: anti-static/obfuscation/code-metrics/js-arrow-function-abuse
+      - id: anti-static/obfuscation/code-metrics/high-entropy-strings
+      - id: anti-static/obfuscation/code-metrics/no-comments
 
   - id: js-npm-malware-pattern
     description: "npm malware obfuscation pattern (install script)"
     criticality: hostile
     confidence: 0.9
     requires_all:
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/high-entropy-identifiers
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/no-comments
+      - id: anti-static/obfuscation/code-metrics/high-entropy-identifiers
+      - id: anti-static/obfuscation/code-metrics/no-comments
     requires_any:
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/js-webpack-minified
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/very-long-lines
+      - id: anti-static/obfuscation/code-metrics/js-webpack-minified
+      - id: anti-static/obfuscation/code-metrics/very-long-lines

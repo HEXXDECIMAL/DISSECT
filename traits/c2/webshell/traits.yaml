@@ -186,23 +186,16 @@ composite_rules:
     criticality: suspicious
     confidence: 0.9
     requires_all:
-      - type: trait
-        id: php-tag
+      - id: php-tag
     requires_any:
-      - type: trait
-        id: php-system
-      - type: trait
-        id: php-exec
-      - type: trait
-        id: php-shell-exec
+      - id: php-system
+      - id: php-exec
+      - id: php-shell-exec
     requires_count: 1
     conditions:
-      - type: trait
-        id: php-get
-      - type: trait
-        id: php-post
-      - type: trait
-        id: php-request
+      - id: php-get
+      - id: php-post
+      - id: php-request
 
   # JSP webshell patterns
   - id: jsp-shell
@@ -210,12 +203,9 @@ composite_rules:
     criticality: suspicious
     confidence: 0.9
     requires_all:
-      - type: trait
-        id: jsp-runtime
-      - type: trait
-        id: jsp-exec
-      - type: trait
-        id: jsp-get-param
+      - id: jsp-runtime
+      - id: jsp-exec
+      - id: jsp-get-param
 
   # Known webshell family
   - id: specific-family
@@ -224,22 +214,14 @@ composite_rules:
     confidence: 0.9
     requires_count: 1
     conditions:
-      - type: trait
-        id: c99shell
-      - type: trait
-        id: r57shell
-      - type: trait
-        id: b374k
-      - type: trait
-        id: phpspy
-      - type: trait
-        id: wso-shell
-      - type: trait
-        id: filesman
-      - type: trait
-        id: china-chopper
-      - type: trait
-        id: weevely
+      - id: c99shell
+      - id: r57shell
+      - id: b374k
+      - id: phpspy
+      - id: wso-shell
+      - id: filesman
+      - id: china-chopper
+      - id: weevely
 
   # Family identified with generic terminology
   - id: family-identified
@@ -247,10 +229,8 @@ composite_rules:
     criticality: suspicious
     confidence: 0.85
     requires_all:
-      - type: trait
-        id: identifier
-      - type: trait
-        id: c2/webshell/specific-family
+      - id: identifier
+      - id: c2/webshell/specific-family
 
   # Webshell detection
   - id: detected
@@ -258,9 +238,6 @@ composite_rules:
     criticality: hostile
     confidence: 0.95
     requires_any:
-      - type: trait
-        id: c2/webshell/php-shell
-      - type: trait
-        id: c2/webshell/jsp-shell
-      - type: trait
-        id: c2/webshell/family-identified
+      - id: c2/webshell/php-shell
+      - id: c2/webshell/jsp-shell
+      - id: c2/webshell/family-identified

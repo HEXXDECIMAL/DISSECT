@@ -10,9 +10,6 @@ composite_rules:
     mbc: "E1041"
     file_types: [go]
     requires_all:
-      - type: trait
-        id: crypto/symmetric/aes/go-cfb-encrypter
-      - type: trait
-        id: comm/http/request/go-http-client-do
-      - type: trait
-        id: exfil/stealer/go-json-exfil-keys
+      - id: crypto/symmetric/aes/go-cfb-encrypter
+      - id: comm/http/request/go-http-client-do
+      - id: exfil/stealer/go-json-exfil-keys

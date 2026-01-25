@@ -207,9 +207,9 @@ composite_rules:
     confidence: 0.9
     file_types: [applescript]
     requires_any:
-      - {type: trait, id: var-password}
-      - {type: trait, id: var-passwd}
-      - {type: trait, id: var-credential}
+      - {id: var-password}
+      - {id: var-passwd}
+      - {id: var-credential}
 
   # ============================================
   # Token/Key Handling
@@ -220,10 +220,10 @@ composite_rules:
     confidence: 0.85
     file_types: [applescript]
     requires_any:
-      - {type: trait, id: var-token}
-      - {type: trait, id: var-apikey}
-      - {type: trait, id: var-secret}
-      - {type: trait, id: var-private-key}
+      - {id: var-token}
+      - {id: var-apikey}
+      - {id: var-secret}
+      - {id: var-private-key}
 
   # ============================================
   # Crypto Wallet Targeting
@@ -235,9 +235,9 @@ composite_rules:
     attack: "T1005"
     file_types: [applescript]
     requires_any:
-      - {type: trait, id: var-wallet}
-      - {type: trait, id: var-mnemonic}
-      - {type: trait, id: var-seed-phrase}
+      - {id: var-wallet}
+      - {id: var-mnemonic}
+      - {id: var-seed-phrase}
 
   # ============================================
   # Credential Exfiltration
@@ -249,11 +249,11 @@ composite_rules:
     attack: "T1555"
     file_types: [applescript]
     requires_all:
-      - {type: trait, id: handles-passwords}
+      - {id: handles-passwords}
     requires_any:
-      - {type: trait, id: var-url}
-      - {type: trait, id: var-server}
-      - {type: trait, id: exec/command/shell-execution}
+      - {id: var-url}
+      - {id: var-server}
+      - {id: exec/command/shell-execution}
 
   # ============================================
   # Wallet Theft
@@ -265,8 +265,8 @@ composite_rules:
     attack: "T1005"
     file_types: [applescript]
     requires_all:
-      - {type: trait, id: targets-wallet}
+      - {id: targets-wallet}
     requires_any:
-      - {type: trait, id: var-save-path}
-      - {type: trait, id: var-output-path}
-      - {type: trait, id: exec/command/shell-execution}
+      - {id: var-save-path}
+      - {id: var-output-path}
+      - {id: exec/command/shell-execution}

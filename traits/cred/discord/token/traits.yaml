@@ -244,14 +244,10 @@ composite_rules:
     mbc: "B0030"
     file_types: [javascript, python, elf, pe, macho]
     requires_any:
-      - type: trait
-        id: leveldb-ref
-      - type: trait
-        id: discord-path
-      - type: trait
-        id: regex-standard
-      - type: trait
-        id: webhook-exfil
+      - id: leveldb-ref
+      - id: discord-path
+      - id: regex-standard
+      - id: webhook-exfil
 
   # Discord token grabber with browser enumeration
   - id: browser-grabber
@@ -262,7 +258,5 @@ composite_rules:
     mbc: "B0030"
     file_types: [javascript, python, elf, pe, macho]
     requires_all:
-      - type: trait
-        id: discord-path
-      - type: trait
-        id: token-keyword
+      - id: discord-path
+      - id: token-keyword

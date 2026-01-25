@@ -72,12 +72,9 @@ composite_rules:
     confidence: 0.8
     requires_count: 1
     conditions:
-      - type: trait
-        id: subprocess-popen
-      - type: trait
-        id: subprocess-run
-      - type: trait
-        id: subprocess-call
+      - id: subprocess-popen
+      - id: subprocess-run
+      - id: subprocess-call
 
   - id: python
     description: Download to /tmp, chmod, execute (supply chain attack)
@@ -86,11 +83,7 @@ composite_rules:
     file_types: [python]
     requires_count: 3
     conditions:
-      - type: trait
-        id: tmp-path-short
-      - type: trait
-        id: os-chmod
-      - type: composite
-        id: subprocess-exec
-      - type: trait
-        id: os-remove
+      - id: tmp-path-short
+      - id: os-chmod
+      - id: subprocess-exec
+      - id: os-remove

@@ -40,7 +40,5 @@ composite_rules:
     criticality: suspicious
     confidence: 0.8
     requires_any:
-      - type: trait
-        id: anti-static/obfuscation/encoding/xor-decode-loop
-      - type: trait
-        id: anti-static/obfuscation/encoding/table-based-decode
+      - id: anti-static/obfuscation/encoding/xor-decode-loop
+      - id: anti-static/obfuscation/encoding/table-based-decode

@@ -78,7 +78,5 @@ composite_rules:
     criticality: suspicious
     confidence: 0.95
     requires_all:
-      - type: trait
-        id: win-start-pattern
-      - type: trait
-        id: pip-install-pattern
+      - id: win-start-pattern
+      - id: pip-install-pattern

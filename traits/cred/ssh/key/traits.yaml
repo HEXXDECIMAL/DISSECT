@@ -205,17 +205,12 @@ composite_rules:
     attack: "T1552.004"
     mbc: "E1552"
     requires_all:
-      - type: trait
-        id: dot-ssh-path
+      - id: dot-ssh-path
     requires_any:
-      - type: trait
-        id: id-rsa
-      - type: trait
-        id: id-dsa
-      - type: trait
-        id: id-ecdsa
-      - type: trait
-        id: id-ed25519
+      - id: id-rsa
+      - id: id-dsa
+      - id: id-ecdsa
+      - id: id-ed25519
 
   # === Composite: SSHD password tracing ===
   - id: sshd-password-trace
@@ -225,12 +220,9 @@ composite_rules:
     attack: "T1552.004"
     platforms: [linux]
     requires_all:
-      - type: trait
-        id: ptrace-tracer
-      - type: trait
-        id: password-pattern
-      - type: trait
-        id: sshd-ref
+      - id: ptrace-tracer
+      - id: password-pattern
+      - id: sshd-ref
 
   # === Composite: SSH credential theft behavior ===
   - id: credential-theft
@@ -242,10 +234,7 @@ composite_rules:
     platforms: [linux]
     file_types: [elf, so, python, shell]
     requires_any:
-      - type: trait
-        id: session-sniff
-      - type: trait
-        id: password-file-storage
+      - id: session-sniff
+      - id: password-file-storage
     requires_all:
-      - type: trait
-        id: sshd-ref
+      - id: sshd-ref

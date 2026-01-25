@@ -355,15 +355,9 @@ composite_rules:
     platforms: [macos]
     file_types: [macho]
     requires_any:
-      - type: trait
-        id: magic-variant-detected
-      - type: trait
-        id: base32-variant-detected
-      - type: trait
-        id: hex-obfuscated-detected
-      - type: trait
-        id: cipher-variant-detected
-      - type: trait
-        id: string-obfuscated-detected
-      - type: trait
-        id: custom-base64-charset
+      - id: magic-variant-detected
+      - id: base32-variant-detected
+      - id: hex-obfuscated-detected
+      - id: cipher-variant-detected
+      - id: string-obfuscated-detected
+      - id: custom-base64-charset

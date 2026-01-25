@@ -16,7 +16,7 @@ traits:
     criticality: inert
     confidence: 0.95
     condition:
-      type: symbol
+      type: string
       exact: "Finder"
 
   # ============================================
@@ -28,7 +28,7 @@ traits:
     confidence: 0.9
     attack: "T1082"
     condition:
-      type: symbol
+      type: string
       exact: "System Settings"
 
   - id: system-preferences
@@ -37,7 +37,7 @@ traits:
     confidence: 0.9
     attack: "T1082"
     condition:
-      type: symbol
+      type: string
       exact: "System Preferences"
 
   - id: system-events
@@ -45,7 +45,7 @@ traits:
     criticality: notable
     confidence: 0.9
     condition:
-      type: symbol
+      type: string
       exact: "System Events"
 
   - id: safari
@@ -54,7 +54,7 @@ traits:
     confidence: 0.85
     attack: "T1185"
     condition:
-      type: symbol
+      type: string
       exact: "Safari"
 
   # ============================================
@@ -66,7 +66,7 @@ traits:
     confidence: 0.9
     attack: "T1059.004"
     condition:
-      type: symbol
+      type: string
       exact: "Terminal"
 
   - id: keychain-access
@@ -75,7 +75,7 @@ traits:
     confidence: 0.95
     attack: "T1555.001"
     condition:
-      type: symbol
+      type: string
       exact: "Keychain Access"
 
   - id: security-agent
@@ -84,7 +84,7 @@ traits:
     confidence: 0.95
     attack: "T1548"
     condition:
-      type: symbol
+      type: string
       exact: "SecurityAgent"
 
 composite_rules:
@@ -97,8 +97,19 @@ composite_rules:
     confidence: 0.85
     file_types: [applescript]
     requires_any:
-      - {type: trait, id: system-settings}
-      - {type: trait, id: system-preferences}
+      - {id: system-settings}
+      - {id: system-preferences}
+
+  # Terminal automation commands group
+  - id: terminal-commands
+    description: Terminal automation commands
+    criticality: notable
+    confidence: 0.8
+    file_types: [applescript]
+    requires_count: 1
+    conditions:
+      - id: exec/command/do-script
+      - id: exec/command/activate
 
   # ============================================
   # Terminal Automation
@@ -110,10 +121,8 @@ composite_rules:
     attack: "T1059.004"
     file_types: [applescript]
     requires_all:
-      - {type: trait, id: terminal}
-    requires_any:
-      - {type: trait, id: exec/command/do-script}
-      - {type: trait, id: exec/command/activate}
+      - id: terminal
+      - id: terminal-commands
 
   # ============================================
   # Keychain Access
@@ -125,7 +134,7 @@ composite_rules:
     attack: "T1555.001"
     file_types: [applescript]
     requires_all:
-      - {type: trait, id: keychain-access}
+      - {id: keychain-access}
 
   # ============================================
   # Shell + Settings (suspicious combo)
@@ -136,5 +145,5 @@ composite_rules:
     confidence: 0.85
     file_types: [applescript]
     requires_all:
-      - {type: trait, id: automates-settings}
-      - {type: trait, id: exec/command/shell-execution}
+      - {id: automates-settings}
+      - {id: exec/command/shell-execution}

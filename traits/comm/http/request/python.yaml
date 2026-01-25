@@ -2,33 +2,58 @@
 # MBC: C0002 (HTTP Communication)
 # ATT&CK: T1071.001
 
+defaults:
+  file_types: [python]
+
 traits:
-  - id: request-python
-    description: "Performs HTTP request (urllib, requests, aiohttp, httpx)"
+  # === HTTP library atomic indicators ===
+  - id: requests-get
+    description: requests.get call
     criticality: inert
-    confidence: 0.9
-    file_types: [python]
+    confidence: 0.7
     condition:
       type: string
-      regex: "(requests\\.(get|post)|urllib\\.request\\.urlopen|aiohttp\\.ClientSession|httpx\\.(get|post))"
+      exact: "requests.get"
 
-  - id: get
-    description: "Performs HTTP GET request"
-    criticality: notable
-    confidence: 0.9
-    file_types: [python]
+  - id: requests-post
+    description: requests.post call
+    criticality: inert
+    confidence: 0.7
     condition:
       type: string
-      regex: '(requests|httpx)\\.get\('
+      exact: "requests.post"
 
-  - id: post
-    description: "Performs HTTP POST request (Exfiltration indicator)"
-    criticality: notable
-    confidence: 0.9
-    file_types: [python]
+  - id: urllib-urlopen
+    description: urllib.request.urlopen call
+    criticality: inert
+    confidence: 0.7
     condition:
       type: string
-      regex: '(requests|httpx)\\.post\('
+      exact: "urllib.request.urlopen"
+
+  - id: aiohttp-session
+    description: aiohttp.ClientSession usage
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "aiohttp.ClientSession"
+
+  - id: httpx-get
+    description: httpx.get call
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "httpx.get"
+
+  - id: httpx-post
+    description: httpx.post call
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "httpx.post"
 
   - id: url-literal
     description: "Direct URL literal in HTTP request"
@@ -47,5 +72,40 @@ traits:
             (string) @url))
         (#match? @obj "^(requests|urqt|urllib|urllib2|req|r|client|http|session|httpx)$")
         (#match? @meth "^(get|post|urlopen|urlretrieve|request)$")
+
+composite_rules:
+  # HTTP request composite
+  - id: request-python
+    description: "Performs HTTP request (urllib, requests, aiohttp, httpx)"
+    criticality: inert
+    confidence: 0.9
+    requires_count: 1
+    conditions:
+      - id: requests-get
+      - id: requests-post
+      - id: urllib-urlopen
+      - id: aiohttp-session
+      - id: httpx-get
+      - id: httpx-post
+
+  # HTTP GET composite
+  - id: get
+    description: "Performs HTTP GET request"
+    criticality: notable
+    confidence: 0.9
+    requires_count: 1
+    conditions:
+      - id: requests-get
+      - id: httpx-get
+
+  # HTTP POST composite
+  - id: post
+    description: "Performs HTTP POST request (Exfiltration indicator)"
+    criticality: notable
+    confidence: 0.9
+    requires_count: 1
+    conditions:
+      - id: requests-post
+      - id: httpx-post
 
 # Note: Exfiltration composite rule moved to exfil/http/python.yaml

@@ -12,20 +12,14 @@ composite_rules:
     mbc: "E1046"
     file_types: [all]
     requires_all:
-      - type: trait
-        id: sym-hostname-resolve
-      - type: trait
-        id: sym-socket-connect
+      - id: sym-hostname-resolve
+      - id: sym-socket-connect
     requires_count: 2
     conditions:
-      - type: trait
-        id: ip-format
-      - type: trait
-        id: port-ref
-      - type: trait
-        id: probe-ref
-      - type: trait
-        id: target-ref
+      - id: ip-format
+      - id: port-ref
+      - id: probe-ref
+      - id: target-ref
 
   - id: root-scanner
     description: Root exploitation scanner
@@ -35,13 +29,10 @@ composite_rules:
     mbc: "E1046"
     file_types: [all]
     requires_all:
-      - type: trait
-        id: root-exploit-ref
+      - id: root-exploit-ref
     requires_any:
-      - type: trait
-        id: target-ip-ref
-      - type: trait
-        id: random-target
+      - id: target-ip-ref
+      - id: random-target
 
   # === IoT Credential Brute Force ===
   # NOTE: IoT credential attack detection is defined in lateral/brute-force/iot-creds/traits.yaml
@@ -53,20 +44,14 @@ composite_rules:
     attack: "T1110.001"
     file_types: [all]
     requires_all:
-      - type: trait
-        id: ssh-dir-ref
-      - type: trait
-        id: etc-hosts-ref
+      - id: ssh-dir-ref
+      - id: etc-hosts-ref
     requires_count: 2
     conditions:
-      - type: trait
-        id: weak-pass-root123
-      - type: trait
-        id: weak-pass-admin123
-      - type: trait
-        id: weak-pass-passw0rd
-      - type: trait
-        id: weak-pass-qwerty
+      - id: weak-pass-root123
+      - id: weak-pass-admin123
+      - id: weak-pass-passw0rd
+      - id: weak-pass-qwerty
 
   # === Random IP Scanning ===
 
@@ -77,10 +62,7 @@ composite_rules:
     attack: "T1046"
     file_types: [all]
     requires_all:
-      - type: trait
-        id: random-target
+      - id: random-target
     requires_any:
-      - type: trait
-        id: sym-socket-connect
-      - type: trait
-        id: ip-format
+      - id: sym-socket-connect
+      - id: ip-format

@@ -101,10 +101,8 @@ composite_rules:
     attack: "T1105"
     mbc: "B0024"
     requires_all:
-      - type: trait
-        id: python-http-request
-      - type: trait
-        id: python-binary-write-pattern
+      - id: python-http-request
+      - id: python-binary-write-pattern
 
   # Write + make executable pattern
   - id: python-write-chmod-exec
@@ -113,7 +111,5 @@ composite_rules:
     criticality: suspicious
     attack: "T1222.002"
     requires_all:
-      - type: trait
-        id: python-open-write-binary
-      - type: trait
-        id: python-chmod-executable
+      - id: python-open-write-binary
+      - id: python-chmod-executable

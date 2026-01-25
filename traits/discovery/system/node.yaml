@@ -130,15 +130,9 @@ composite_rules:
     attack: "T1082"
     requires_count: 3
     conditions:
-      - type: trait
-        id: node-hostname
-      - type: trait
-        id: node-homedir
-      - type: trait
-        id: node-userinfo
-      - type: trait
-        id: node-platform
-      - type: trait
-        id: node-cwd
-      - type: trait
-        id: node-network
+      - id: node-hostname
+      - id: node-homedir
+      - id: node-userinfo
+      - id: node-platform
+      - id: node-cwd
+      - id: node-network

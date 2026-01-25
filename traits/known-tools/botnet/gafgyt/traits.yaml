@@ -69,11 +69,7 @@ composite_rules:
     file_types: [elf]
     requires_count: 2
     conditions:
-      - type: trait
-        id: impact/ddos/flood/udp-flood
-      - type: trait
-        id: botnet/gafgyt/tcpraw-flood
-      - type: trait
-        id: impact/ddos/flood/syn-flood
-      - type: trait
-        id: impact/ddos/flood/ack-flood
+      - id: impact/ddos/flood/udp-flood
+      - id: botnet/gafgyt/tcpraw-flood
+      - id: impact/ddos/flood/syn-flood
+      - id: impact/ddos/flood/ack-flood

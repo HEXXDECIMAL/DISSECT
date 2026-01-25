@@ -52,26 +52,18 @@ composite_rules:
     confidence: 0.85
     requires_count: 2
     conditions:
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/high-entropy-identifiers
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/py-lambda-abuse
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/py-encoded-strings
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/no-comments
+      - id: anti-static/obfuscation/code-metrics/high-entropy-identifiers
+      - id: anti-static/obfuscation/code-metrics/py-lambda-abuse
+      - id: anti-static/obfuscation/code-metrics/py-encoded-strings
+      - id: anti-static/obfuscation/code-metrics/no-comments
 
   - id: py-pypi-malware-pattern
     description: "PyPI malware obfuscation pattern"
     criticality: hostile
     confidence: 0.9
     requires_all:
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/py-encoded-strings
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/no-comments
+      - id: anti-static/obfuscation/code-metrics/py-encoded-strings
+      - id: anti-static/obfuscation/code-metrics/no-comments
     requires_any:
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/single-char-function-names
-      - type: trait
-        id: anti-static/obfuscation/code-metrics/high-entropy-identifiers
+      - id: anti-static/obfuscation/code-metrics/single-char-function-names
+      - id: anti-static/obfuscation/code-metrics/high-entropy-identifiers

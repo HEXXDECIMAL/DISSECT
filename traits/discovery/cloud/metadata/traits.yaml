@@ -171,9 +171,6 @@ composite_rules:
     mbc: "B0046"
     file_types: [all]
     requires_any:
-      - type: trait
-        id: aws-metadata-endpoint
-      - type: trait
-        id: gcp-metadata-endpoint
-      - type: trait
-        id: azure-metadata-endpoint
+      - id: aws-metadata-endpoint
+      - id: gcp-metadata-endpoint
+      - id: azure-metadata-endpoint

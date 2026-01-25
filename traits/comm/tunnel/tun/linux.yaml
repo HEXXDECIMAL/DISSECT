@@ -2,12 +2,42 @@
 # MBC: C0001 (Socket Communication)
 # ATT&CK: T1090
 
+defaults:
+  attack: "T1090"
+
 traits:
+  # === TUN/TAP atomic indicators ===
+  - id: dev-tun
+    description: /dev/tun device
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "/dev/tun"
+
+  - id: dev-tap
+    description: /dev/tap device
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "/dev/tap"
+
+  - id: tunsetiff-ioctl
+    description: TUNSETIFF ioctl
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "TUNSETIFF"
+
+composite_rules:
   - id: tun
     description: TUN/TAP device usage
     criticality: notable
     confidence: 0.66
-    attack: "T1090"
-    condition:
-      type: string
-      regex: "(/dev/tun|/dev/tap|TUNSETIFF)"
+    requires_count: 1
+    conditions:
+      - id: dev-tun
+      - id: dev-tap
+      - id: tunsetiff-ioctl

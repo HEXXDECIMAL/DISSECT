@@ -59,11 +59,7 @@ composite_rules:
     file_types: [elf, macho]
     requires_count: 3
     conditions:
-      - type: trait
-        id: backdoor/platypus/remove-self
-      - type: trait
-        id: backdoor/platypus/daemon-mode
-      - type: trait
-        id: backdoor/platypus/brand
-      - type: trait
-        id: backdoor/platypus/tunnel-connect
+      - id: backdoor/platypus/remove-self
+      - id: backdoor/platypus/daemon-mode
+      - id: backdoor/platypus/brand
+      - id: backdoor/platypus/tunnel-connect

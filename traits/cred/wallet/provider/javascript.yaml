@@ -35,7 +35,7 @@ traits:
       regex: "ethereum\\.request\\s*\\("
 
   - id: request-bracket-call
-    description: ["request"]() call pattern
+    description: '["request"]() call pattern'
     criticality: inert
     confidence: 0.5
     condition:
@@ -173,10 +173,8 @@ composite_rules:
     confidence: 0.75
     requires_count: 1
     conditions:
-      - type: trait
-        id: window-dot-ethereum
-      - type: trait
-        id: window-bracket-ethereum
+      - id: window-dot-ethereum
+      - id: window-bracket-ethereum
 
   # Ethereum request composite
   - id: ethereum-request
@@ -184,10 +182,8 @@ composite_rules:
     confidence: 0.8
     requires_count: 1
     conditions:
-      - type: trait
-        id: ethereum-request-call
-      - type: trait
-        id: request-bracket-call
+      - id: ethereum-request-call
+      - id: request-bracket-call
 
   # Ethereum provider or request composite
   - id: ethereum-provider-or-request
@@ -195,10 +191,8 @@ composite_rules:
     confidence: 0.75
     requires_count: 1
     conditions:
-      - type: composite
-        id: ethereum-provider
-      - type: composite
-        id: ethereum-request
+      - id: ethereum-provider
+      - id: ethereum-request
 
   # eth_requestAccounts composite
   - id: eth-request-accounts
@@ -206,10 +200,8 @@ composite_rules:
     confidence: 0.85
     requires_count: 1
     conditions:
-      - type: trait
-        id: eth-request-accounts-method
-      - type: trait
-        id: eth-accounts-method
+      - id: eth-request-accounts-method
+      - id: eth-accounts-method
 
   # eth_sendTransaction composite
   - id: eth-send-transaction
@@ -217,8 +209,7 @@ composite_rules:
     confidence: 0.9
     criticality: suspicious
     requires_all:
-      - type: trait
-        id: eth-send-transaction-method
+      - id: eth-send-transaction-method
 
   # Wallet transaction method composite
   - id: wallet-transaction-method
@@ -226,16 +217,11 @@ composite_rules:
     confidence: 0.8
     requires_count: 1
     conditions:
-      - type: trait
-        id: eth-send-transaction-method
-      - type: trait
-        id: erc20-approve
-      - type: trait
-        id: erc20-transfer
-      - type: trait
-        id: erc20-transferFrom
-      - type: trait
-        id: set-approval-for-all
+      - id: eth-send-transaction-method
+      - id: erc20-approve
+      - id: erc20-transfer
+      - id: erc20-transferFrom
+      - id: set-approval-for-all
 
   # Drainer function names composite
   - id: drainer-function-names
@@ -244,20 +230,13 @@ composite_rules:
     criticality: suspicious
     requires_count: 1
     conditions:
-      - type: trait
-        id: function-drain
-      - type: trait
-        id: function-steal
-      - type: trait
-        id: function-grab
-      - type: trait
-        id: function-hijack
-      - type: trait
-        id: runmask-function
-      - type: trait
-        id: newdlocal-function
-      - type: trait
-        id: checkethereumw-function
+      - id: function-drain
+      - id: function-steal
+      - id: function-grab
+      - id: function-hijack
+      - id: runmask-function
+      - id: newdlocal-function
+      - id: checkethereumw-function
 
   # Drainer action functions composite
   - id: drainer-action-functions
@@ -266,12 +245,9 @@ composite_rules:
     criticality: suspicious
     requires_count: 1
     conditions:
-      - type: trait
-        id: function-drain
-      - type: trait
-        id: function-steal
-      - type: trait
-        id: function-grab
+      - id: function-drain
+      - id: function-steal
+      - id: function-grab
 
   # Drainer indicator composite
   - id: drainer-indicator
@@ -279,12 +255,9 @@ composite_rules:
     confidence: 0.85
     requires_count: 1
     conditions:
-      - type: composite
-        id: drainer-function-names
-      - type: trait
-        id: max-uint256-approval
-      - type: trait
-        id: set-approval-for-all
+      - id: drainer-function-names
+      - id: max-uint256-approval
+      - id: set-approval-for-all
 
   # Wallet provider access + transaction sending = wallet drainer
   - id: wallet-drainer
@@ -295,9 +268,6 @@ composite_rules:
     mbc: "B0028"
     file_types: [javascript]
     requires_all:
-      - type: composite
-        id: ethereum-provider-or-request
-      - type: composite
-        id: wallet-transaction-method
-      - type: composite
-        id: drainer-indicator
+      - id: ethereum-provider-or-request
+      - id: wallet-transaction-method
+      - id: drainer-indicator

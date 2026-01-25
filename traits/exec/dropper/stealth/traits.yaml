@@ -41,13 +41,8 @@ composite_rules:
     file_types: [python]
     requires_count: 3
     conditions:
-      - type: trait
-        id: subprocess-popen
-      - type: trait
-        id: devnull
-      - type: trait
-        id: exec/command/setsid/python
-      - type: trait
-        id: close-fds
-      - type: trait
-        id: exec/command/setsid/preexec-fn
+      - id: subprocess-popen
+      - id: devnull
+      - id: exec/command/setsid/python
+      - id: close-fds
+      - id: exec/command/setsid/preexec-fn

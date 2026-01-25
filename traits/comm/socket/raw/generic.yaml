@@ -31,7 +31,5 @@ composite_rules:
     confidence: 0.8
     requires_count: 1
     conditions:
-      - type: trait
-        id: raw-socket-ref
-      - type: trait
-        id: proc-net-raw
+      - id: raw-socket-ref
+      - id: proc-net-raw

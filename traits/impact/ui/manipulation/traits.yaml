@@ -133,11 +133,11 @@ composite_rules:
     requires_any_n:
       count: 2
       conditions:
-        - type: trait
+        - 
           id: screen-locked
-        - type: trait
+        - 
           id: hid-idle-time
-        - type: trait
+        - 
           id: window-watcher
-        - type: trait
+        - 
           id: process-identifier

@@ -94,7 +94,5 @@ composite_rules:
     attack: "T1090"
     file_types: [elf, macho, pe]
     requires_any:
-      - type: trait
-        id: tools/tunnel/chisel/generic
-      - type: trait
-        id: tools/tunnel/chisel/reverse
+      - id: tools/tunnel/chisel/generic
+      - id: tools/tunnel/chisel/reverse

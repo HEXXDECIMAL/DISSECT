@@ -41,27 +41,86 @@ traits:
 
   # NOTE: /etc/passwd is defined in discovery/user/traits.yaml
 
-  # Shadow password access
+  # === Shadow password atomic indicators ===
+  - id: dslocal-db
+    description: /var/db/dslocal directory
+    criticality: inert
+    confidence: 0.7
+    attack: "T1003.008"
+    condition:
+      type: string
+      exact: "/var/db/dslocal"
+
+  - id: shadow-hash-data
+    description: ShadowHashData reference
+    criticality: inert
+    confidence: 0.7
+    attack: "T1003.008"
+    condition:
+      type: string
+      exact: "ShadowHashData"
+
+  - id: etc-shadow
+    description: /etc/shadow file
+    criticality: inert
+    confidence: 0.7
+    attack: "T1003.008"
+    condition:
+      type: string
+      exact: "/etc/shadow"
+
+  # === Credential keyword atomic indicators ===
+  - id: password-word
+    description: password keyword
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      exact: "password"
+      case_insensitive: true
+
+  - id: pwd-word
+    description: pwd keyword
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      exact: "pwd"
+      case_insensitive: true
+
+  - id: credential-word
+    description: credential keyword
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      exact: "credential"
+      case_insensitive: true
+
+composite_rules:
+  # Shadow hash access composite
   - id: shadow-hash
     description: "Access to shadow password hashes"
     criticality: suspicious
     confidence: 0.85
     attack: "T1003.008"
-    condition:
-      type: string
-      regex: "/var/db/dslocal|ShadowHashData|/etc/shadow"
+    requires_count: 1
+    conditions:
+      - id: dslocal-db
+      - id: shadow-hash-data
+      - id: etc-shadow
 
-  # Password/credential keyword reference
+  # Credential keyword composite
   - id: credential-keyword
     description: "Password or credential keyword reference"
     criticality: notable
     confidence: 0.6
-    condition:
-      type: string
-      regex: "password|pwd|credential"
-      case_insensitive: true
+    requires_count: 1
+    conditions:
+      - id: password-word
+      - id: pwd-word
+      - id: credential-word
 
-composite_rules:
   # Password validation + capture = credential theft
   - id: validation-theft
     description: "macOS credential capture and validation"
@@ -70,10 +129,7 @@ composite_rules:
     attack: "T1110.001"
     file_types: [shell, applescript, python]
     requires_all:
-      - type: trait
-        id: dscl-authonly
+      - id: dscl-authonly
     requires_any:
-      - type: trait
-        id: credential-keyword
-      - type: trait
-        id: evasion/applescript/password-dialog
+      - id: credential-keyword
+      - id: evasion/applescript/password-dialog

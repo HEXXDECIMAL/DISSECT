@@ -87,12 +87,8 @@ composite_rules:
     attack: "T1070.003"
     file_types: [shell, elf]
     requires_any:
-      - type: trait
-        id: evasion/anti-forensics/histfile-null
-      - type: trait
-        id: evasion/anti-forensics/mysql-histfile-null
-      - type: trait
-        id: evasion/anti-forensics/term-setup
+      - id: evasion/anti-forensics/histfile-null
+      - id: evasion/anti-forensics/mysql-histfile-null
+      - id: evasion/anti-forensics/term-setup
     requires_all:
-      - type: trait
-        id: evasion/anti-forensics/prompt-command-unset
+      - id: evasion/anti-forensics/prompt-command-unset

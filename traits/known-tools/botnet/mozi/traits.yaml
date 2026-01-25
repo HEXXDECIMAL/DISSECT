@@ -88,9 +88,6 @@ composite_rules:
     attack: "T1071"
     requires_count: 2
     conditions:
-      - type: trait
-        id: botnet/mozi/dht-p2p
-      - type: trait
-        id: botnet/mozi/xor-config
-      - type: trait
-        id: botnet/mozi/mirai-derived
+      - id: botnet/mozi/dht-p2p
+      - id: botnet/mozi/xor-config
+      - id: botnet/mozi/mirai-derived

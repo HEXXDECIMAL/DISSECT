@@ -46,11 +46,7 @@ composite_rules:
     confidence: 0.66
     requires_count: 1
     conditions:
-      - type: trait
-        id: socks4-proto
-      - type: trait
-        id: socks5-proto
-      - type: trait
-        id: socks-url
-      - type: trait
-        id: socks-port
+      - id: socks4-proto
+      - id: socks5-proto
+      - id: socks-url
+      - id: socks-port

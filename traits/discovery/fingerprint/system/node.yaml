@@ -183,7 +183,53 @@ traits:
             $env1 and any of ($json1, $keys1, $entries)
         }
 
-  # Process List
+  # === Process list atomic indicators ===
+  - id: tasklist-cmd
+    description: Windows tasklist command
+    criticality: inert
+    confidence: 0.7
+    mbc: "E1592"
+    attack: "T1057"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "tasklist"
+
+  - id: ps-aux-cmd
+    description: ps aux command
+    criticality: inert
+    confidence: 0.7
+    mbc: "E1592"
+    attack: "T1057"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "ps aux"
+
+  - id: ps-ef-cmd
+    description: ps -ef command
+    criticality: inert
+    confidence: 0.7
+    mbc: "E1592"
+    attack: "T1057"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "ps -ef"
+
+  - id: get-process-cmd
+    description: PowerShell Get-Process
+    criticality: inert
+    confidence: 0.7
+    mbc: "E1592"
+    attack: "T1057"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "Get-Process"
+
+composite_rules:
+  # Process list composite
   - id: process-list
     description: Running process enumeration
     criticality: suspicious
@@ -191,6 +237,9 @@ traits:
     mbc: "E1592"
     attack: "T1057"
     file_types: [javascript, typescript]
-    condition:
-      type: string
-      regex: "tasklist|ps aux|ps -ef|Get-Process"
+    requires_count: 1
+    conditions:
+      - id: tasklist-cmd
+      - id: ps-aux-cmd
+      - id: ps-ef-cmd
+      - id: get-process-cmd

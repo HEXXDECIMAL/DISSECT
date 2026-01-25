@@ -13,7 +13,5 @@ composite_rules:
     attack: "T1555"
     file_types: [python]
     requires_all:
-      - type: trait
-        id: discovery/system
-      - type: trait
-        id: exfil/http
+      - id: discovery/system
+      - id: exfil/http
