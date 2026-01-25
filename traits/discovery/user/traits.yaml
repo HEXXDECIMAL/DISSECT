@@ -11,7 +11,7 @@ traits:
     for: [all]
     if:
       type: string
-      regex: "getenv.*HOME"
+      regex: "getenv.{0,30}HOME"
 
   - id: env-dot-home
     desc: env.HOME lookup
@@ -94,10 +94,12 @@ traits:
       type: string
       exact: "LOGNAME"
 
+  # NOTE: Go runtime and standard library use getuid/getpwuid legitimately
+  # for user information. Downgraded to inert for atomic indicators.
   - id: getuid
     desc: Get user ID
-    crit: notable
-    conf: 0.7
+    crit: inert
+    conf: 0.4
     attack: "T1033"
     for: [elf, macho]
     if:
@@ -106,8 +108,8 @@ traits:
 
   - id: getpwuid
     desc: Get password entry by UID
-    crit: notable
-    conf: 0.75
+    crit: inert
+    conf: 0.4
     attack: "T1033"
     for: [elf, macho]
     if:
@@ -116,8 +118,8 @@ traits:
 
   - id: getpwnam
     desc: Get password entry by name
-    crit: notable
-    conf: 0.7
+    crit: inert
+    conf: 0.4
     attack: "T1033"
     for: [elf, macho]
     if:
@@ -239,10 +241,11 @@ composite_rules:
       - id: w-cmd
 
   # Passive user lookup functions
+  # NOTE: Go runtime uses these legitimately - downgraded to inert
   - id: passive-user-lookup
     desc: POSIX user lookup functions
-    crit: notable
-    conf: 0.7
+    crit: inert
+    conf: 0.4
     attack: "T1033"
     for: [elf, macho]
     requires_count: 1

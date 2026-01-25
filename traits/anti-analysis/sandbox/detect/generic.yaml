@@ -145,7 +145,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: "Date\\.now\\(\\).*setTimeout"
+      regex: "Date\\.now\\(\\).{0,50}setTimeout"
 
   - id: js-performance-now-timeout
     desc: performance.now with setTimeout
@@ -154,7 +154,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: "performance\\.now\\(\\).*setTimeout"
+      regex: "performance\\.now\\(\\).{0,50}setTimeout"
 
   # === JS debugger detection atomic indicators ===
   - id: js-debugger-stmt

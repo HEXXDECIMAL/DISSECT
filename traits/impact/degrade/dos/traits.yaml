@@ -43,6 +43,6 @@ traits:
     for: [macho, shell]
     if:
       type: string
-      regex: "osascript.*tell.*application.*quit"
+      regex: "osascript.{0,50}tell.{0,50}application.{0,50}quit"
 
 # NOTE: EDR bypass composite rule is defined in impact/degrade/edr/

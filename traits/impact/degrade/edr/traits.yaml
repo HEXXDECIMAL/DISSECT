@@ -124,13 +124,13 @@ traits:
       case_insensitive: true
 
   - id: eset-name
-    description: ESET reference
+    desc: ESET reference
     crit: inert
     conf: 0.5
     for: [pe, elf]
     if:
       type: string
-      exact: eset
+      regex: "\\beset\\b"
       case_insensitive: true
 
 composite_rules:

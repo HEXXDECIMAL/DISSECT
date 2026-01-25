@@ -36,7 +36,7 @@ traits:
     file_types: [vsixmanifest]
     condition:
       type: string
-      regex: 'Microsoft\.VisualStudio\.Code\.ExecutesCode.*Value="true"'
+      regex: 'Microsoft\.VisualStudio\.Code\.ExecutesCode.{0,50}Value="true"'
 
   - id: links
     description: Extension manifest contains external links

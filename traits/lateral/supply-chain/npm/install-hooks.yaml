@@ -156,7 +156,7 @@ traits:
     file_types: [packagejson]
     condition:
       type: string
-      regex: 'curl.*@/'
+      regex: 'curl.{0,100}@/'
       search_raw: true
 
   # Interpreter Execution

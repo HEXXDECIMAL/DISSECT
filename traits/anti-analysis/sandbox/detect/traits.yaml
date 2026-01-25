@@ -79,14 +79,15 @@ traits:
 
   - id: sleep-accel
     desc: Sleep acceleration detection (sandbox evasion)
-    crit: suspicious
+    crit: inert
     mbc: "B0007"
     attack: "T1497.003"
-    conf: 0.9
+    conf: 0.5
     for: [elf, macho, so, dylib, pe, dll, c]
     if:
       type: symbol
-      pattern: sleep|Sleep|usleep
+      # Use exact match to avoid matching Go runtime functions like runtime.notesleep
+      pattern: "^_?(sleep|Sleep|usleep|nanosleep)$"
 
   # === Sandbox artifact file path atomic indicators ===
   - id: path-c-analysis

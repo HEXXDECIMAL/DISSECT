@@ -91,7 +91,7 @@ traits:
     file_types: [javascript]
     condition:
       type: string
-      regex: 'typeof exports.*===.*object.*&&.*typeof module.*!==.*undefined|\\(function\\s*\\(root,\\s*factory\\)'
+      regex: 'typeof exports.{0,30}===.{0,30}object.{0,30}&&.{0,30}typeof module.{0,30}!==.{0,30}undefined|\\(function\\s*\\(root,\\s*factory\\)'
 
   # CommonJS2 export pattern
   - id: cjs2-export
@@ -812,7 +812,7 @@ traits:
     file_types: [packagejson]
     condition:
       type: string
-      regex: 'travis-ci\\.org|circleci\\.com|github\\.com/.*actions|codecov\\.io|coveralls\\.io'
+      regex: 'travis-ci\\.org|circleci\\.com|github\\.com/.{0,100}actions|codecov\\.io|coveralls\\.io'
 
   # Has conventional versioning
   - id: conventional-version
@@ -1224,7 +1224,7 @@ traits:
     file_types: [javascript, typescript]
     condition:
       type: string
-      regex: "from ['\"]vitest['\"]|import.*vitest|vi\\.mock|vi\\.fn"
+      regex: "from ['\"]vitest['\"]|import.{0,50}vitest|vi\\.mock|vi\\.fn"
 
   # Test file naming pattern
   - id: test-filename-pattern

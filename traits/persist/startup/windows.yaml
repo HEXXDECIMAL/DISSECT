@@ -52,7 +52,7 @@ traits:
     platforms: [windows]
     condition:
       type: string
-      regex: "HKCU.*Run"
+      regex: "HKCU.{0,50}Run"
 
   - id: hklm-run
     description: HKLM Run key reference
@@ -61,7 +61,7 @@ traits:
     platforms: [windows]
     condition:
       type: string
-      regex: "HKLM.*Run"
+      regex: "HKLM.{0,50}Run"
 
   - id: currentversion-run
     description: CurrentVersion Run path
@@ -130,7 +130,7 @@ traits:
     file_types: [python]
     condition:
       type: string
-      regex: "OpenKey.*HKEY"
+      regex: "OpenKey.{0,30}HKEY"
 
   - id: setvalueex
     description: SetValueEx call
@@ -169,7 +169,7 @@ traits:
     platforms: [windows]
     condition:
       type: string
-      regex: "schtasks\\.exe.*create"
+      regex: "schtasks\\.exe.{0,30}create"
 
   - id: itaskscheduler-iface
     description: ITaskScheduler interface
@@ -234,7 +234,7 @@ traits:
     platforms: [windows]
     condition:
       type: string
-      regex: "Set-ItemProperty.*Run"
+      regex: "Set-ItemProperty.{0,50}Run"
 
   - id: new-itemproperty-run
     description: New-ItemProperty Run
@@ -243,7 +243,7 @@ traits:
     platforms: [windows]
     condition:
       type: string
-      regex: "New-ItemProperty.*Run"
+      regex: "New-ItemProperty.{0,50}Run"
 
   - id: reg-add-run
     description: reg add Run
@@ -252,7 +252,7 @@ traits:
     platforms: [windows]
     condition:
       type: string
-      regex: "reg\\s+add.*Run"
+      regex: "reg\\s+add.{0,50}Run"
 
   # === WMI persistence atomic indicators ===
   - id: wmi-eventfilter

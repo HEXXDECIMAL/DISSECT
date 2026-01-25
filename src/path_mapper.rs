@@ -344,12 +344,16 @@ fn detect_privilege_requirements(paths: &[PathInfo]) -> Vec<Finding> {
     let mut traits = Vec::new();
 
     // Root-only paths
+    // NOTE: /sys/kernel/ is too broad - Go runtime reads /sys/kernel/mm/transparent_hugepage/
+    // for memory optimization. Only flag specific sensitive paths.
     let root_paths = [
         "/etc/shadow",
         "/proc/*/mem",
         "/dev/kmem",
-        "/boot/",
-        "/sys/kernel/",
+        "/boot/vmlinuz",
+        "/boot/initrd",
+        "/sys/kernel/debug/",
+        "/sys/kernel/security/",
     ];
 
     let requires_root: Vec<_> = paths

@@ -34,10 +34,12 @@ traits:
       regex: '\blldb\b'
 
 composite_rules:
+  # Debugger names alone aren't suspicious - many programs ship with debug info
+  # Only suspicious in combination with other anti-debug techniques
   - id: debugger-gdb
     desc: References gdb/lldb debugger
-    crit: notable
-    conf: 0.66
+    crit: inert
+    conf: 0.4
     count: 1
     any:
       - id: gdb-ref

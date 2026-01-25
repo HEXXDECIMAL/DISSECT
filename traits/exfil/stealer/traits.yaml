@@ -25,7 +25,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: 'curl.*-H.*user:'
+      regex: 'curl.{0,50}-H.{0,30}user:'
 
   - id: curl-buildid-header
     description: curl with BuildID header
@@ -33,7 +33,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: 'curl.*-H.*BuildID'
+      regex: 'curl.{0,50}-H.{0,30}BuildID'
 
   # === curl upload atomic ===
   - id: curl-form-upload
@@ -42,7 +42,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      regex: 'curl\s+.*-F\s+'
+      regex: 'curl\s+.{0,50}-F\s+'
 
   - id: curl-data-binary
     description: curl --data-binary
@@ -58,7 +58,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: 'curl.*@/tmp/'
+      regex: 'curl.{0,50}@/tmp/'
 
   # === Bot header atomic ===
   - id: header-user
@@ -184,7 +184,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: 'curl.*\.zip'
+      regex: 'curl.{0,100}\.zip'
 
   - id: post-zip
     description: POST with .zip
@@ -192,7 +192,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: 'POST.*\.zip'
+      regex: 'POST.{0,100}\.zip'
 
   - id: upload-zip
     description: upload .zip
@@ -200,7 +200,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: 'upload.*\.zip'
+      regex: 'upload.{0,50}\.zip'
 
   - id: send-zip
     description: send .zip
@@ -208,7 +208,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: 'send.*\.zip'
+      regex: 'send.{0,50}\.zip'
 
   # === Multipart upload atomic ===
   - id: multipart-form-data
@@ -236,7 +236,7 @@ traits:
     for: [shell, python, javascript]
     if:
       type: string
-      regex: 'Content-Disposition.*filename'
+      regex: 'Content-Disposition.{0,30}filename'
 
   # === HTTP client atomic ===
   - id: curl-cmd

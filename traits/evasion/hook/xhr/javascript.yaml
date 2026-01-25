@@ -23,7 +23,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: "XMLHttpRequest\\[.+\\]\\[.+\\]"
+      regex: "XMLHttpRequest\\[.{1,50}\\]\\[.{1,50}\\]"
 
   # === XMLHttpRequest.open hook atomic ===
   - id: xhr-prototype-open-eq
@@ -40,7 +40,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      regex: "XMLHttpRequest\\[.+\\]\\[.+open.+\\]\\s*="
+      regex: "XMLHttpRequest\\[.{1,50}\\]\\[.{1,50}open.{0,20}\\]\\s*="
 
   # === XMLHttpRequest.send hook atomic ===
   - id: xhr-prototype-send-eq
@@ -57,7 +57,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      regex: "XMLHttpRequest\\[.+\\]\\[.+send.+\\]\\s*="
+      regex: "XMLHttpRequest\\[.{1,50}\\]\\[.{1,50}send.{0,20}\\]\\s*="
 
   # === fetch API hook atomic ===
   - id: window-fetch-eq
@@ -90,7 +90,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      regex: "onreadystatechange\\s*=.*function"
+      regex: "onreadystatechange\\s*=.{0,30}function"
 
 composite_rules:
   # XMLHttpRequest prototype access composite

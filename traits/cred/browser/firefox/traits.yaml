@@ -153,7 +153,7 @@ traits:
     attack: "T1555.003"
     if:
       type: string
-      regex: "SELECT.*FROM\\s+moz_cookies"
+      regex: "SELECT.{0,50}FROM\\s+moz_cookies"
       case_insensitive: true
 
   - id: moz-logins-sql
@@ -164,7 +164,7 @@ traits:
     mbc: "B0028"
     if:
       type: string
-      regex: "SELECT.*FROM\\s+moz_logins"
+      regex: "SELECT.{0,50}FROM\\s+moz_logins"
       case_insensitive: true
 
 composite_rules:

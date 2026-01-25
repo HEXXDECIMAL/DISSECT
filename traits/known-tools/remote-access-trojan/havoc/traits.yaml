@@ -33,7 +33,7 @@ traits:
     file_types: [pe, dll]
     condition:
       type: string
-      regex: "(?i)havoc.*demon"
+      regex: "(?i)havoc.{0,50}demon"
 
   - id: havoc-demon-order2
     description: Havoc Demon reference (demon...havoc)
@@ -45,7 +45,7 @@ traits:
     file_types: [pe, dll]
     condition:
       type: string
-      regex: "(?i)demon.*havoc"
+      regex: "(?i)demon.{0,50}havoc"
 
   - id: havoc-framework-string
     description: HavocFramework string reference

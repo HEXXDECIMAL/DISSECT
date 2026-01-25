@@ -134,18 +134,21 @@ traits:
       regex: "sshd_?proc"
 
   # === Atomic: Tracing/Debugging ===
+  # ptrace is commonly used by debuggers and Go runtime - only suspicious in combination
   - id: ptrace-tracer
     desc: Process tracing reference
-    crit: notable
-    conf: 0.5
+    crit: inert
+    conf: 0.3
     if:
       type: symbol_or_string
       any: ["ptrace", "tracer"]
 
+  # NOTE: "passwd" alone is too generic - matches /etc/passwd, getpwnam, etc.
+  # Use composite rules with context for meaningful detection
   - id: password-pattern
     desc: Password pattern reference
-    crit: notable
-    conf: 0.5
+    crit: inert
+    conf: 0.3
     if:
       type: string
       regex: "passw(or)?d"

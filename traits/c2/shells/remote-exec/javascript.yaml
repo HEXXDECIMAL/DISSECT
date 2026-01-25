@@ -1,34 +1,18 @@
 # Remote Execution - JavaScript/Node.js
 # ATT&CK: T1059.003 (Command and Scripting Interpreter: Windows Command Shell)
 
-traits:
-  # === Output/command variable atomic indicators ===
-  - id: output-var
-    desc: output variable name
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      exact: "output"
-
-  - id: command-var
-    desc: command variable name
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      exact: "command"
+# Generic terms (output, command) moved to data/text/generic.yaml
 
 composite_rules:
-  # Output/command variable composite
+  # Output/command variable composite - references generic terms
   - id: c2/shells/remote-exec/js-output-command-var
     desc: Variable names suggesting command output handling
-    crit: notable
-    conf: 0.8
+    crit: inert
+    conf: 0.3
     count: 1
     any:
-      - id: output-var
-      - id: command-var
+      - id: data/text/generic/output
+      - id: data/text/generic/command
 
   - id: js-http-backdoor
     desc: Remote shell backdoor (Poll C2 + Execute + Exfil)

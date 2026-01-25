@@ -7,9 +7,9 @@ defaults:
 
 traits:
   - id: truncate
-    description: Truncate file
-    crit: notable
-    conf: 0.66
+    desc: Truncate file
+    crit: inert
+    conf: 0.5
     if:
       type: symbol
-      pattern: truncate|ftruncate
+      pattern: "^_?(truncate|ftruncate)$"

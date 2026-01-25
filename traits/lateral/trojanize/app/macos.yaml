@@ -24,7 +24,7 @@ traits:
     confidence: 0.7
     condition:
       type: string
-      regex: "pkill.*Ledger Live"
+      regex: "pkill.{0,30}Ledger Live"
 
   - id: killall-ledger
     description: killall Ledger
@@ -32,7 +32,7 @@ traits:
     confidence: 0.7
     condition:
       type: string
-      regex: "killall.*Ledger"
+      regex: "killall.{0,30}Ledger"
 
   # === Remove applications atomic indicators ===
   - id: rm-applications-dir
@@ -41,7 +41,7 @@ traits:
     confidence: 0.7
     condition:
       type: string
-      regex: "rm\\s+-r.*\"/Applications/"
+      regex: "rm\\s+-r.{0,50}\"/Applications/"
 
   - id: sudo-rm-app
     description: sudo rm .app
@@ -49,7 +49,7 @@ traits:
     confidence: 0.7
     condition:
       type: string
-      regex: "sudo.*rm.*\\.app"
+      regex: "sudo.{0,30}rm.{0,50}\\.app"
 
   # === Unzip applications atomic indicators ===
   - id: unzip-to-applications
@@ -58,7 +58,7 @@ traits:
     confidence: 0.7
     condition:
       type: string
-      regex: "unzip.*/Applications"
+      regex: "unzip.{0,50}/Applications"
 
   - id: unzip-d-applications
     description: unzip -d /Applications
@@ -66,7 +66,7 @@ traits:
     confidence: 0.7
     condition:
       type: string
-      regex: "unzip.*-d.*/Applications"
+      regex: "unzip.{0,30}-d.{0,30}/Applications"
 
   # === Download app atomic indicators ===
   - id: curl-app-zip
@@ -75,7 +75,7 @@ traits:
     confidence: 0.7
     condition:
       type: string
-      regex: "curl.*\\.app\\.zip"
+      regex: "curl.{0,100}\\.app\\.zip"
 
   - id: curl-app-archive
     description: curl app.zip download
@@ -83,7 +83,7 @@ traits:
     confidence: 0.7
     condition:
       type: string
-      regex: "curl.*app\\.zip"
+      regex: "curl.{0,100}app\\.zip"
 
   - id: wget-app-zip
     description: wget .app.zip download
@@ -91,7 +91,7 @@ traits:
     confidence: 0.7
     condition:
       type: string
-      regex: "wget.*\\.app\\.zip"
+      regex: "wget.{0,100}\\.app\\.zip"
 
   # === App replacement atomic indicators ===
   - id: rm-app-unzip
@@ -100,7 +100,7 @@ traits:
     confidence: 0.7
     condition:
       type: string
-      regex: "rm.*\\.app.*&&.*unzip"
+      regex: "rm.{0,50}\\.app.{0,30}&&.{0,30}unzip"
 
   - id: rm-app-cp
     description: rm .app && cp pattern
@@ -108,7 +108,7 @@ traits:
     confidence: 0.7
     condition:
       type: string
-      regex: "rm.*\\.app.*&&.*cp"
+      regex: "rm.{0,50}\\.app.{0,30}&&.{0,30}cp"
 
 composite_rules:
   - id: pkill-ledger

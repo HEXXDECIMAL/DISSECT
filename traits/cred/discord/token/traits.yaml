@@ -216,23 +216,16 @@ traits:
       type: string
       exact: ".ldb"
 
-  # Log file extension
+  # Log file extension - too generic, used as part of composite only
   - id: log-extension
     desc: Log file extension
-    crit: notable
-    conf: 0.5
+    crit: inert
+    conf: 0.3
     if:
       type: string
       exact: ".log"
 
-  # Token keyword
-  - id: token-keyword
-    desc: Token keyword reference
-    crit: notable
-    conf: 0.5
-    if:
-      type: string
-      regex: "(?i)token"
+  # Token keyword moved to data/text/generic.yaml
 
 composite_rules:
   # Discord token stealer composite
@@ -259,4 +252,4 @@ composite_rules:
     for: [javascript, python, elf, pe, macho]
     all:
       - id: discord-path
-      - id: token-keyword
+      - id: data/text/generic/token

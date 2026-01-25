@@ -54,7 +54,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      regex: "group\\.com\\.apple\\.notes.*Media"
+      regex: "group\\.com\\.apple\\.notes.{0,50}Media"
 
 composite_rules:
   # Access to Notes database files

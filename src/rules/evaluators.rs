@@ -906,8 +906,23 @@ pub fn eval_metrics(
     field: &str,
     min: Option<f64>,
     max: Option<f64>,
+    min_size: Option<u64>,
+    max_size: Option<u64>,
     ctx: &EvaluationContext,
 ) -> ConditionResult {
+    // Check file size constraints first
+    let file_size = ctx.report.target.size_bytes;
+    if let Some(min_sz) = min_size {
+        if file_size < min_sz {
+            return ConditionResult::no_match();
+        }
+    }
+    if let Some(max_sz) = max_size {
+        if file_size > max_sz {
+            return ConditionResult::no_match();
+        }
+    }
+
     let metrics = match &ctx.report.metrics {
         Some(m) => m,
         None => return ConditionResult::no_match(),
@@ -1431,7 +1446,7 @@ pub fn eval_condition(if: &Condition, ctx: &EvaluationContext) -> ConditionResul
             };
             eval_syscall(&params, ctx)
         }
-        Condition::Metrics { field, min, max } => eval_metrics(field, *min, *max, ctx),
+        Condition::Metrics { field, min, max, min_size, max_size } => eval_metrics(field, *min, *max, *min_size, *max_size, ctx),
     }
 }
 

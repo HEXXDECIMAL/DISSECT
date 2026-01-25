@@ -2,10 +2,12 @@
 # Detects common obfuscation/deobfuscation code patterns in binaries
 
 traits:
+  # XOR/stack obfuscation patterns - require multiple indicators
+  # Single byte patterns are too common in any binary
   - id: string-deobfuscation
     desc: "String obfuscation/deobfuscation pattern"
-    crit: notable
-    conf: 0.65
+    crit: inert
+    conf: 0.4
     attack: "T1027"
     for: [elf, macho, pe]
     if:
@@ -13,12 +15,8 @@ traits:
       source: |
         rule string_obfuscation {
           strings:
-            // XOR deobfuscation loop
-            $xor1 = { 30 ?? 4? FF C? 3? ?? 7? }  // xor byte, inc, cmp, jl
-            $xor2 = { 32 ?? 4? 83 ?? ?? 7? }     // xor byte, inc, cmp, jl
-            // Stack string construction
-            $stack1 = { C6 45 ?? ?? C6 45 ?? ?? C6 45 ?? ?? }  // mov [rbp-x], imm8
-            $stack2 = { C7 45 ?? ?? ?? ?? ?? C7 45 ?? ?? ?? ?? ?? }  // mov [rbp-x], imm32
+            // Stack string construction - require multiple in sequence
+            $stack1 = { C6 45 ?? ?? C6 45 ?? ?? C6 45 ?? ?? C6 45 ?? ?? C6 45 ?? ?? }  // 5+ mov [rbp-x], imm8
           condition:
-            any of them
+            $stack1
         }

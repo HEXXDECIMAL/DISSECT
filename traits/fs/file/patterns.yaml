@@ -29,10 +29,12 @@ traits:
 
 composite_rules:
   # Temp directory reference composite
+  # NOTE: "tmp" string is too generic - appears in Go runtime and many
+  # legitimate programs. Downgraded to inert.
   - id: temp-dir-reference
     description: "Reference to a temporary directory path or variable"
-    crit: notable
-    conf: 0.8
+    crit: inert
+    conf: 0.4
     requires_count: 1
     any:
       - id: tmp-ref

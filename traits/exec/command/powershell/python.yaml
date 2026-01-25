@@ -9,7 +9,7 @@ traits:
     for: [python]
     if:
       type: string
-      regex: "powershell.*curl\\.exe.*-o"
+      regex: "powershell.{0,50}curl\\.exe.{0,30}-o"
 
   - id: python-start-process
     desc: "Executes process via PowerShell Start-Process"
@@ -18,7 +18,7 @@ traits:
     for: [python]
     if:
       type: string
-      regex: "powershell.*Start-Process"
+      regex: "powershell.{0,50}Start-Process"
 
   # === System masquerade atomic indicators ===
   - id: masq-realtek

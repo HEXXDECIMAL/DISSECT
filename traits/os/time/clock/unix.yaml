@@ -1,5 +1,7 @@
 # Time and Clock Access
 # MBC: B0028 (Time Discovery)
+# NOTE: Go runtime uses all of these functions legitimately for its scheduler
+# and time package. Downgraded to inert to avoid false positives.
 
 defaults:
   file_types: [elf, macho, so, dylib, c]
@@ -7,24 +9,24 @@ defaults:
 traits:
   - id: get
     description: Get system time
-    crit: notable
-    confidence: 0.70
+    crit: inert
+    confidence: 0.3
     condition:
       type: symbol
       pattern: gettimeofday|clock_gettime|time
 
   - id: local
     description: Convert to local time
-    crit: notable
-    confidence: 0.65
+    crit: inert
+    confidence: 0.3
     condition:
       type: symbol
       pattern: localtime|gmtime|strftime
 
   - id: alarm
     description: Set alarm timer
-    crit: notable
-    confidence: 0.75
+    crit: inert
+    confidence: 0.3
     condition:
       type: symbol
       pattern: alarm|setitimer|timer_create

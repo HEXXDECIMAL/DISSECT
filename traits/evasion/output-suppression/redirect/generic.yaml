@@ -53,7 +53,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      regex: "2>&1.*>/dev/null"
+      regex: "2>&1.{0,30}>/dev/null"
       search_raw: true
 
   # === all output suppression atomic indicators ===

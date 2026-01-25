@@ -34,7 +34,7 @@ traits:
     file_types: [pe, dll]
     condition:
       type: string
-      regex: "(?i)brute.*ratel"
+      regex: "(?i)brute.{0,30}ratel"
 
   - id: c2-framework/brute-ratel/brc4-str
     description: BRC4 string reference

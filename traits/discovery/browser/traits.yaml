@@ -198,7 +198,7 @@ traits:
     for: [all]
     if:
       type: string
-      regex: "/Google/Chrome/.*Extensions"
+      regex: "/Google/Chrome/.{0,50}Extensions"
 
   - id: browser-support-extensions
     desc: BrowserSupport Extensions path
@@ -219,7 +219,7 @@ traits:
     for: [all]
     if:
       type: string
-      regex: "Opera.*Stable"
+      regex: "Opera.{0,30}Stable"
 
   - id: brave-software
     desc: Brave Software path
@@ -229,7 +229,7 @@ traits:
     for: [all]
     if:
       type: string
-      regex: "Brave.*Software"
+      regex: "Brave.{0,30}Software"
 
 composite_rules:
   # Browser names composite

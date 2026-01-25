@@ -183,7 +183,7 @@ traits:
     for: [shell, elf, macho, pe]
     if:
       type: string
-      regex: "(curl|wget).*(\\||&&).*(sh|bash|perl|python|ruby|node)"
+      regex: "(curl|wget).{0,100}(\\||&&).{0,20}(sh|bash|perl|python|ruby|node)"
       search_raw: true
 
 composite_rules:

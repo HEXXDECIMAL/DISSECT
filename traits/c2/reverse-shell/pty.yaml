@@ -122,7 +122,7 @@ traits:
     for: [shell, packagejson]
     if:
       type: string
-      regex: 'socat\s+.*EXEC.*sh'
+      regex: 'socat\s+.{0,50}EXEC.{0,20}sh'
 
   - id: socat-tcp-exec
     desc: socat TCP EXEC pattern
@@ -131,7 +131,7 @@ traits:
     for: [shell, packagejson]
     if:
       type: string
-      regex: 'socat\s+.*TCP.*EXEC'
+      regex: 'socat\s+.{0,50}TCP.{0,30}EXEC'
 
   - id: socat-pty
     desc: socat PTY pattern
@@ -140,7 +140,7 @@ traits:
     for: [shell, packagejson]
     if:
       type: string
-      regex: 'socat\s+.*PTY'
+      regex: 'socat\s+.{0,50}PTY'
 
   # === Telnet atomic indicators ===
   - id: telnet-pipe
@@ -150,7 +150,7 @@ traits:
     for: [shell, packagejson]
     if:
       type: string
-      regex: 'telnet\s+\S+\s+\d+\s*\|.*\|\s*telnet'
+      regex: 'telnet\s+\S+\s+\d+\s*\|.{0,50}\|\s*telnet'
 
   - id: mknod-telnet
     desc: mknod telnet reverse shell pattern
@@ -159,7 +159,7 @@ traits:
     for: [shell, packagejson]
     if:
       type: string
-      regex: "mknod.*telnet"
+      regex: "mknod.{0,30}telnet"
 
 composite_rules:
   - id: socat

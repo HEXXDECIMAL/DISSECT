@@ -6,4 +6,4 @@ traits:
     conf: 0.9
     if:
       type: string
-      regex: "node_modules.*archiver/index.js"
+      regex: "node_modules.{0,30}archiver/index.js"

@@ -42,7 +42,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      regex: "powershell.*-[Ww](indow)?[Ss](tyle)?\\s*[Hh]idden"
+      regex: "powershell.{0,50}-[Ww](indow)?[Ss](tyle)?\\s*[Hh]idden"
 
   # cmd.exe /c with start
   - id: cmd-start

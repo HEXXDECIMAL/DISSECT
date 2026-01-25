@@ -234,7 +234,7 @@ composite_rules:
   # Webshell detection
   - id: detected
     desc: Webshell implementation detected
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     any:
       - id: c2/webshell/php-shell

@@ -110,7 +110,7 @@ traits:
     platforms: [linux, macos, unix]
     condition:
       type: string
-      regex: "grep.*HostName.*/\\.ssh/config"
+      regex: "grep.{0,30}HostName.{0,30}/\\.ssh/config"
 
   # === Bash history SSH atomic indicators ===
   - id: ssh-bash-history

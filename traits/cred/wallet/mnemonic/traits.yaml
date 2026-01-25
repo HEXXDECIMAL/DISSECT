@@ -32,7 +32,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      regex: "bip39|bip-39|wordlist|word_list|english\\.txt.*mnemonic|mnemonic.*english\\.txt"
+      regex: "bip39|bip-39|wordlist|word_list|english\\.txt.{0,30}mnemonic|mnemonic.{0,30}english\\.txt"
 
   # Mnemonic validation patterns
   - id: validation-pattern
@@ -41,7 +41,7 @@ traits:
     crit: suspicious
     if:
       type: string
-      regex: "validate.*mnemonic|mnemonic.*valid|check.*seed.*phrase|verify.*recovery"
+      regex: "validate.{0,20}mnemonic|mnemonic.{0,20}valid|check.{0,20}seed.{0,20}phrase|verify.{0,20}recovery"
 
   # Private key extraction in wallet context (not general crypto)
   - id: private-key-hex
@@ -51,8 +51,8 @@ traits:
     if:
       type: string
       # Require wallet/crypto context, not just "private_key" which is used by SSH/TLS
-      # "dump.*private" removed - matches debug output like "dump: C192:%{private" in Bluetooth
-      regex: "(wallet|eth|btc|crypto|metamask|phantom).*private_?key|export.*(wallet|crypto|eth|btc).*key"
+      # Use {0,50} to limit gap between keywords, avoiding matches across concatenated strings
+      regex: "(wallet|eth|btc|crypto|metamask|phantom).{0,50}private_?key|export.{0,30}(wallet|crypto|eth|btc).{0,30}key"
 
   # Bitcoin WIF private key format detection
   - id: bitcoin-wif
@@ -62,7 +62,7 @@ traits:
     if:
       type: string
       # Require wallet/bitcoin context - "wif" alone matches wireless interface
-      regex: "wallet_import_format|WIF.*key|WIF.*private|bitcoin.*wif|wif.*bitcoin|decode.*wif|encode.*wif|to_?wif|from_?wif"
+      regex: "wallet_import_format|WIF.{0,20}key|WIF.{0,20}private|bitcoin.{0,20}wif|wif.{0,20}bitcoin|decode.{0,20}wif|encode.{0,20}wif|to_?wif|from_?wif"
 
   # HD wallet derivation path patterns
   - id: derivation-path
@@ -79,7 +79,7 @@ traits:
     if:
       type: string
       # Ethereum-specific patterns, avoid matching OS "keystore" services
-      regex: "UTC--.*--[a-fA-F0-9]{40}|ethereum.*keystore|keystore.*ethereum|web3.*keystore|\\.json.*wallet"
+      regex: "UTC--.{0,50}--[a-fA-F0-9]{40}|ethereum.{0,30}keystore|keystore.{0,30}ethereum|web3.{0,30}keystore|\\.json.{0,30}wallet"
 
   # === Mnemonic/seed phrase term atomic indicators ===
   - id: mnemonic-word
@@ -261,7 +261,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      regex: "derivation.*path"
+      regex: "derivation.{0,20}path"
 
   - id: bip44-path-prefix
     desc: BIP-44 derivation path prefix (m/44'/)

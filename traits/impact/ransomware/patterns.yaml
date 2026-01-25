@@ -384,7 +384,7 @@ traits:
     for: [javascript, powershell, shell]
     if:
       type: string
-      regex: "bcdedit.*recoveryenabled.*no"
+      regex: "bcdedit.{0,30}recoveryenabled.{0,30}no"
 
 composite_rules:
   # RSA key operations

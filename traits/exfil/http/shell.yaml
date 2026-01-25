@@ -16,7 +16,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: "curl .* -d "
+      regex: "curl .{0,50} -d "
       search_raw: true
 
   - id: curl-data-flag
@@ -25,7 +25,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: "curl .* --data"
+      regex: "curl .{0,50} --data"
       search_raw: true
 
   - id: curl-x-post
@@ -34,7 +34,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: "curl .* -X POST"
+      regex: "curl .{0,50} -X POST"
       search_raw: true
 
   # === curl upload atomic indicators ===
@@ -44,7 +44,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: "curl .* -F "
+      regex: "curl .{0,50} -F "
       search_raw: true
 
   - id: curl-form-flag
@@ -53,7 +53,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: "curl .* --form"
+      regex: "curl .{0,50} --form"
       search_raw: true
 
   - id: curl-t-flag
@@ -62,7 +62,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: "curl .* -T "
+      regex: "curl .{0,50} -T "
       search_raw: true
 
   - id: curl-upload-flag
@@ -71,7 +71,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: "curl .* --upload-file"
+      regex: "curl .{0,50} --upload-file"
       search_raw: true
 
   # === wget POST atomic indicators ===
@@ -81,7 +81,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: "wget .* --post-data"
+      regex: "wget .{0,50} --post-data"
       search_raw: true
 
   - id: wget-post-file
@@ -90,7 +90,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: "wget .* --post-file"
+      regex: "wget .{0,50} --post-file"
       search_raw: true
 
   # === netcat exfil atomic indicators ===
@@ -101,7 +101,7 @@ traits:
     attack: "T1048"
     if:
       type: string
-      regex: "nc .* < "
+      regex: "nc .{0,50} < "
       search_raw: true
 
   - id: cat-pipe-nc
@@ -111,7 +111,7 @@ traits:
     attack: "T1048"
     if:
       type: string
-      regex: "cat .* \\| nc "
+      regex: "cat .{0,50} \\| nc "
       search_raw: true
 
   - id: pipe-to-nc

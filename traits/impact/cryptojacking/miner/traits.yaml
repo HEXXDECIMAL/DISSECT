@@ -227,27 +227,33 @@ traits:
 
   # === Atomic: Mining Indicators ===
 
+  # NOTE: "wallet" is too generic - appears in many legitimate contexts.
+  # Only meaningful with other mining indicators.
   - id: wallet-ref
     description: Wallet reference (mining context)
-    crit: notable
-    conf: 0.5
+    crit: inert
+    conf: 0.3
     attack: "T1496"
     if:
       type: string
       exact: "wallet"
 
+  # NOTE: Go runtime uses /proc/self legitimately for memory management
+  # Moved to inert - only meaningful with other mining indicators
   - id: proc-self-ref
     description: Process self reference
-    crit: notable
-    conf: 0.5
+    crit: inert
+    conf: 0.3
     if:
       type: string
       exact: "/proc/self"
 
+  # NOTE: "NUMA" can appear in Go and other runtimes for memory optimization.
+  # Only meaningful with other mining indicators.
   - id: numa-ref
     description: NUMA memory architecture reference
-    crit: notable
-    conf: 0.5
+    crit: inert
+    conf: 0.3
     if:
       type: string
       exact: "NUMA"

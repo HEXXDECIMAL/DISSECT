@@ -70,13 +70,14 @@ traits:
 
   - id: ip-format-string
     desc: "IP address format string (dynamic IP construction)"
-    crit: notable
-    conf: 0.7
+    crit: inert
+    conf: 0.5
     mbc: "B0032"
     attack: "T1027"
     if:
       type: string
-      regex: "%[0-9]*h{0,2}[ud]\\.%[0-9]*h{0,2}[ud]"
+      # Require 4 octets for IP format, not just 2 (which matches dates/versions)
+      regex: "%[0-9]*h{0,2}[ud]\\.%[0-9]*h{0,2}[ud]\\.%[0-9]*h{0,2}[ud]\\.%[0-9]*h{0,2}[ud]"
 
   - id: truncated-http-url
     desc: "Truncated HTTP URL (C2 address likely obfuscated)"

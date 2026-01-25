@@ -74,7 +74,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: "pay.*bitcoin"
+      regex: "pay.{0,50}bitcoin"
       case_insensitive: true
 
   - id: decrypt-files-phrase
@@ -83,7 +83,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: "decrypt.*files"
+      regex: "decrypt.{0,50}files"
       case_insensitive: true
 
   # Go file encryption patterns (ransomware)

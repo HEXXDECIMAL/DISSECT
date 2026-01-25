@@ -21,7 +21,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      regex: "powershell.*Get-Clipboard"
+      regex: "powershell.{0,50}Get-Clipboard"
 
   - id: js-xclip
     desc: Accesses system clipboard via xclip (Linux)

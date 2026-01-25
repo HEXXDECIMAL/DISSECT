@@ -156,24 +156,26 @@ traits:
         }
 
   # Unit test presence (in production binary)
+  # NOTE: "test_" alone is too generic - Go runtime has internal test strings
+  # Require multiple test-related indicators
   - id: has-tests
     description: Binary includes test code (unusual for production)
-    crit: notable
-    conf: 0.8
+    crit: inert
+    conf: 0.5
     if:
       type: yara
       source: |
         rule has_test_code {
           strings:
             $test1 = "TestMain" ascii
-            $test2 = "test_" ascii
-            $test3 = "_test.go" ascii
-            $test4 = "_test.py" ascii
-            $test5 = "unittest" ascii
-            $test6 = "pytest" ascii
-            $test7 = "#[test]" ascii
+            $test2 = "_test.go" ascii
+            $test3 = "_test.py" ascii
+            $test4 = "unittest" ascii
+            $test5 = "pytest" ascii
+            $test6 = "#[test]" ascii
+            $test7 = "testing.T" ascii
           condition:
-            any of them
+            2 of them
         }
 
   # Metrics/telemetry

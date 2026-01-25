@@ -27,7 +27,7 @@ traits:
     attack: "T1105"
     if:
       type: string
-      regex: "wget .* -O "
+      regex: "wget .{0,100} -O "
       search_raw: true
 
   - id: wget-output-document
@@ -38,7 +38,7 @@ traits:
     attack: "T1105"
     if:
       type: string
-      regex: "wget .*--output-document"
+      regex: "wget .{0,100}--output-document"
       search_raw: true
 
   - id: curl-download
@@ -61,7 +61,7 @@ traits:
     attack: "T1105"
     if:
       type: string
-      regex: "curl .* -o "
+      regex: "curl .{0,100} -o "
       search_raw: true
 
   - id: curl-output-flag
@@ -72,7 +72,7 @@ traits:
     attack: "T1105"
     if:
       type: string
-      regex: "curl .*--output"
+      regex: "curl .{0,100}--output"
       search_raw: true
 
   - id: chmod-plus-x

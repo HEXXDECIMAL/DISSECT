@@ -42,4 +42,4 @@ traits:
     file_types: [javascript, typescript]
     condition:
       type: string
-      regex: 'function\*.*yield\s+eval\('
+      regex: 'function\*.{0,100}yield\s+eval\('

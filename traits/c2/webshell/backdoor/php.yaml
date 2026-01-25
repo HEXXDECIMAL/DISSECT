@@ -63,7 +63,7 @@ traits:
     if:
       type: ast_pattern
       node_type: error_suppression_expression
-      pattern: ".*"
+      pattern: ".{0,200}"
       regex: true
 
   # === Proxy port atomic indicators ===
@@ -140,7 +140,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      regex: "google\\.[a-z.]+/search\\?.*site:"
+      regex: "google\\.[a-z.]+/search\\?.{0,100}site:"
 
   - id: url-param-fetch
     desc: URL parameter fetched and executed

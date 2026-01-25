@@ -140,7 +140,7 @@ composite_rules:
   # Main Mirai detection - requires 6 of 12 indicators plus size constraints
   - id: detected
     description: Mirai IoT botnet detected
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     family: true
     reference: "https://www.cloudflare.com/learning/ddos/glossary/mirai-botnet/"

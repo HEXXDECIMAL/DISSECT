@@ -108,6 +108,8 @@ enum ConditionTagged {
         field: String,
         min: Option<f64>,
         max: Option<f64>,
+        min_size: Option<u64>,
+        max_size: Option<u64>,
     },
     Hex {
         pattern: String,
@@ -135,6 +137,18 @@ enum ConditionTagged {
         /// How to combine matches: "any" (default), "all", or count (e.g., "3")
         #[serde(default = "default_match_mode")]
         r#match: String,
+    },
+
+    /// Search raw file content (for source files or when you need to match
+    /// across string boundaries in binaries). Unlike `type: string` which only
+    /// searches properly extracted/bounded strings, this searches the raw bytes.
+    Raw {
+        exact: Option<String>,
+        regex: Option<String>,
+        #[serde(default)]
+        case_insensitive: bool,
+        #[serde(default = "default_min_count")]
+        min_count: usize,
     },
 }
 
@@ -250,8 +264,8 @@ impl From<ConditionDeser> for Condition {
                     max,
                     min_length,
                 },
-                ConditionTagged::Metrics { field, min, max } => {
-                    Condition::Metrics { field, min, max }
+                ConditionTagged::Metrics { field, min, max, min_size, max_size } => {
+                    Condition::Metrics { field, min, max, min_size, max_size }
                 }
                 ConditionTagged::Hex {
                     pattern,
@@ -268,6 +282,17 @@ impl From<ConditionDeser> for Condition {
                 ConditionTagged::TraitGlob { pattern, r#match } => {
                     Condition::TraitGlob { pattern, r#match }
                 }
+                ConditionTagged::Raw {
+                    exact,
+                    regex,
+                    case_insensitive,
+                    min_count,
+                } => Condition::Raw {
+                    exact,
+                    regex,
+                    case_insensitive,
+                    min_count,
+                },
             },
         }
     }
@@ -467,6 +492,12 @@ pub enum Condition {
         /// Maximum value threshold
         #[serde(skip_serializing_if = "Option::is_none")]
         max: Option<f64>,
+        /// Minimum file size in bytes (only apply this rule to files >= this size)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        min_size: Option<u64>,
+        /// Maximum file size in bytes (only apply this rule to files <= this size)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        max_size: Option<u64>,
     },
 
     /// Match hex byte patterns in binary data
@@ -510,6 +541,28 @@ pub enum Condition {
         #[serde(default = "default_match_mode")]
         r#match: String,
     },
+
+    /// Search raw file content directly (for source files or matching across
+    /// string boundaries in binaries). Unlike `type: string` which only searches
+    /// properly extracted/bounded strings, this searches the raw bytes as text.
+    /// Use this when you need to match patterns in source code or when string
+    /// extraction may not capture what you're looking for.
+    /// Example: { type: raw, exact: "eval(" }
+    /// Example: { type: raw, regex: "\\bpassword\\s*=", case_insensitive: true }
+    Raw {
+        /// Substring to find (uses contains/substring matching)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        exact: Option<String>,
+        /// Regex pattern to match
+        #[serde(skip_serializing_if = "Option::is_none")]
+        regex: Option<String>,
+        /// Case insensitive matching (default: false)
+        #[serde(default)]
+        case_insensitive: bool,
+        /// Minimum number of matches required (default: 1)
+        #[serde(default = "default_min_count")]
+        min_count: usize,
+    },
 }
 
 fn default_compare_to() -> String {
@@ -549,6 +602,7 @@ impl Condition {
             Condition::Hex { .. } => "hex",
             Condition::Filesize { .. } => "filesize",
             Condition::TraitGlob { .. } => "trait_glob",
+            Condition::Raw { .. } => "raw",
         }
     }
 
@@ -624,4 +678,70 @@ impl Condition {
             }
         }
     }
+
+    /// Check for unbounded greedy regex patterns (.*) that can cause performance issues.
+    /// Returns a warning message if found, None otherwise.
+    pub fn check_greedy_patterns(&self) -> Option<String> {
+        let regex_to_check = match self {
+            Condition::String { regex: Some(r), .. } => Some(r.as_str()),
+            Condition::Raw { regex: Some(r), .. } => Some(r.as_str()),
+            _ => None,
+        };
+
+        if let Some(regex) = regex_to_check {
+            if has_unbounded_greedy(regex) {
+                return Some(format!(
+                    "unbounded greedy pattern (.*) found - use bounded pattern like .{{0,50}} instead: {}",
+                    regex
+                ));
+            }
+        }
+        None
+    }
+}
+
+/// Check if a regex contains unbounded greedy patterns like .* or .+
+/// Returns true if found, false otherwise.
+/// Bounded patterns like .{0,50} or lazy patterns like .*? are acceptable.
+fn has_unbounded_greedy(regex: &str) -> bool {
+    let chars: Vec<char> = regex.chars().collect();
+    let len = chars.len();
+    let mut i = 0;
+
+    while i < len {
+        // Skip escaped characters
+        if chars[i] == '\\' {
+            i += 2;
+            continue;
+        }
+
+        // Check for character classes (skip them as .* inside [] is different)
+        if chars[i] == '[' {
+            while i < len && chars[i] != ']' {
+                if chars[i] == '\\' {
+                    i += 1;
+                }
+                i += 1;
+            }
+            i += 1;
+            continue;
+        }
+
+        // Check for . followed by * or +
+        if chars[i] == '.' && i + 1 < len {
+            let next = chars[i + 1];
+            if next == '*' || next == '+' {
+                // Check if it's lazy (followed by ?)
+                if i + 2 < len && chars[i + 2] == '?' {
+                    i += 3;
+                    continue;
+                }
+                // Check if there's a reasonable limit after (not truly unbounded)
+                // This is an unbounded greedy pattern
+                return true;
+            }
+        }
+        i += 1;
+    }
+    false
 }

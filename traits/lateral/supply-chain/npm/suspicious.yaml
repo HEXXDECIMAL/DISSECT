@@ -186,7 +186,7 @@ traits:
     file_types: [javascript, typescript]
     condition:
       type: string
-      regex: "stdio:\\s*\\[.*ignore"
+      regex: "stdio:\\s*\\[.{0,50}ignore"
 
   # Bug bounty / security research markers
   - id: bug-bounty-marker

@@ -322,6 +322,12 @@ pub enum Condition {
         /// Maximum value (inclusive)
         #[serde(skip_serializing_if = "Option::is_none")]
         max: Option<f64>,
+        /// Minimum file size in bytes (only apply this rule to files >= this size)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        min_size: Option<u64>,
+        /// Maximum file size in bytes (only apply this rule to files <= this size)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        max_size: Option<u64>,
     },
 }
 

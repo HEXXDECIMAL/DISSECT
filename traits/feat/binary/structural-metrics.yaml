@@ -15,14 +15,17 @@ traits:
 
   # === Linear Code Patterns ===
 
+  # NOTE: Go and Rust binaries have many linear functions due to compilation
+  # patterns (inlining, code generation). Raised threshold significantly -
+  # a typical Go binary has 500+ linear functions from runtime alone.
   - id: linear-code-ratio
     description: "High ratio of linear functions (monolithic or VM structure)"
-    crit: notable
-    conf: 0.65
+    crit: inert
+    conf: 0.4
     if:
       type: metrics
       field: binary.linear_functions
-      min: 100
+      min: 1000
 
   # === Complexity Metrics ===
 

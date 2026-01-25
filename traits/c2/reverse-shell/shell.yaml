@@ -63,7 +63,7 @@ traits:
     for: [shell, packagejson, python]
     if:
       type: string
-      regex: "python[23]?\\s+-c\\s+['\"]import socket.*subprocess.*connect"
+      regex: "python[23]?\\s+-c\\s+['\"]import socket.{0,100}subprocess.{0,50}connect"
 
   # Perl reverse shell
   - id: reverse-shell-perl
@@ -74,7 +74,7 @@ traits:
     for: [shell, packagejson]
     if:
       type: string
-      regex: "perl\\s+-e\\s+['\"].*socket.*connect.*exec"
+      regex: "perl\\s+-e\\s+['\"].{0,100}socket.{0,50}connect.{0,50}exec"
 
   # === Netcat reverse shell atomic indicators ===
   - id: nc-exec-sh
@@ -113,7 +113,7 @@ traits:
     for: [shell, packagejson, ruby]
     if:
       type: string
-      regex: "ruby\\s+-rsocket\\s+-e|TCPSocket\\.open.*exec"
+      regex: "ruby\\s+-rsocket\\s+-e|TCPSocket\\.open.{0,50}exec"
 
   # PHP reverse shell
   - id: reverse-shell-php
@@ -124,7 +124,7 @@ traits:
     for: [shell, packagejson, php]
     if:
       type: string
-      regex: "php\\s+-r\\s+['\"].*fsockopen.*shell_exec|\\$sock\\s*=\\s*fsockopen"
+      regex: "php\\s+-r\\s+['\"].{0,100}fsockopen.{0,50}shell_exec|\\$sock\\s*=\\s*fsockopen"
 
 composite_rules:
   # mkfifo + netcat reverse shell (all of them + small file)

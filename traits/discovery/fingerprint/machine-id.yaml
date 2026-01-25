@@ -88,7 +88,7 @@ traits:
     for: [javascript, typescript, shell, python, macho]
     if:
       type: string
-      regex: "ioreg.*IOPlatformSerialNumber"
+      regex: "ioreg.{0,50}IOPlatformSerialNumber"
 
   # === Windows machine GUID atomic indicators ===
   - id: hklm-cryptography-guid
@@ -98,7 +98,7 @@ traits:
     for: [javascript, typescript, powershell, pe]
     if:
       type: string
-      regex: "HKLM.*Cryptography.*MachineGuid"
+      regex: "HKLM.{0,30}Cryptography.{0,30}MachineGuid"
 
   - id: wmic-csproduct-uuid
     desc: wmic csproduct get uuid
@@ -126,7 +126,7 @@ traits:
     for: [javascript, typescript, python, shell, elf, pe]
     if:
       type: string
-      regex: "processor.*id"
+      regex: "processor.{0,30}id"
 
   - id: cpuid-instruction
     desc: cpuid instruction/function
@@ -145,7 +145,7 @@ traits:
     for: [javascript, typescript, shell, elf]
     if:
       type: string
-      regex: "hdparm.*-i"
+      regex: "hdparm.{0,20}-i"
 
   - id: smartctl-cmd
     desc: smartctl command
@@ -285,10 +285,12 @@ composite_rules:
       - id: wmic-csproduct-uuid
 
   # CPU ID composite
+  # NOTE: Go runtime uses cpuid instruction to check CPU features (AVX, SSE, etc.)
+  # Downgraded to inert for binaries to avoid false positives.
   - id: cpu-id
     desc: Collects CPU identifier
-    crit: notable
-    conf: 0.75
+    crit: inert
+    conf: 0.4
     for: [javascript, typescript, python, shell, elf, pe, macho]
     requires_count: 1
     any:

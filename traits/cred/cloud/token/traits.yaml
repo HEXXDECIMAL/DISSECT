@@ -59,13 +59,15 @@ traits:
       type: string
       exact: "GET /.env"
 
+  # .env file is common in development - only suspicious when reading/fetching it
   - id: dotenv-file
     desc: .env file reference
-    crit: notable
-    conf: 0.5
+    crit: inert
+    conf: 0.3
+    for: [javascript, typescript, python, shell]
     if:
       type: string
-      regex: "\\.env\\b"
+      regex: "\\/.env\\b|read.{0,30}\\.env|\\.env.{0,30}read"
 
   # === AWS IMDS (atomic) ===
   - id: aws-imds-ip
@@ -128,7 +130,7 @@ traits:
     for: [javascript, typescript, python, shell]
     if:
       type: string
-      regex: '169\.254\.169\.254.*metadata/identity'
+      regex: '169\.254\.169\.254.{0,50}metadata/identity'
 
   - id: azure-metadata-header
     desc: Azure Metadata header

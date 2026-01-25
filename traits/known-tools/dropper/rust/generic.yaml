@@ -100,7 +100,7 @@ traits:
     conf: 0.8
     condition:
       type: string
-      regex: "s3.*amazonaws.com"
+      regex: "s3.{0,50}amazonaws.com"
 
   - id: dropper/rust/stager/static-pie
     description: "Rust static PIE binary (evasive build type)"

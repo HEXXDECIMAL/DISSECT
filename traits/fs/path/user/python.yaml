@@ -65,7 +65,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      regex: "os\\.path\\.expanduser\\([^)]*~|Path\\.home\\(\\)|os\\.environ.*HOME"
+      regex: "os\\.path\\.expanduser\\([^)]*~|Path\\.home\\(\\)|os\\.environ.{0,30}HOME"
 
   # Hidden directory path construction via os.path.join
   - id: python-hidden-dir-join

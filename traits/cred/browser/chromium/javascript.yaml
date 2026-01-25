@@ -10,7 +10,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      regex: 'SELECT.*origin_url.*username_value.*password_value.*FROM\s+logins'
+      regex: 'SELECT.{0,30}origin_url.{0,30}username_value.{0,30}password_value.{0,30}FROM\s+logins'
       case_insensitive: true
 
 composite_rules:

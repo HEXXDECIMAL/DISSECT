@@ -32,7 +32,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      regex: "npm_config.*token"
+      regex: "npm_config.{0,30}token"
 
   - id: npm-config-token-upper
     desc: NPM_CONFIG TOKEN (uppercase)
@@ -42,7 +42,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      regex: "NPM_CONFIG.*TOKEN"
+      regex: "NPM_CONFIG.{0,30}TOKEN"
 
   # === npmrc access atomic indicators ===
   - id: dot-npmrc

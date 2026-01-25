@@ -62,7 +62,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      regex: "(?i)kill.*mysql"
+      regex: "(?i)kill.{0,30}mysql"
 
   - id: kill-mysql-stop
     description: MySQL stop command
@@ -70,7 +70,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      regex: "(?i)stop.*mysql"
+      regex: "(?i)stop.{0,30}mysql"
 
   - id: kill-postgres-kill
     description: PostgreSQL kill command
@@ -78,7 +78,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      regex: "(?i)kill.*postgres"
+      regex: "(?i)kill.{0,30}postgres"
 
   - id: kill-postgres-stop
     description: PostgreSQL stop command
@@ -86,7 +86,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      regex: "(?i)stop.*postgres"
+      regex: "(?i)stop.{0,30}postgres"
 
   - id: kill-oracle-kill
     description: Oracle kill command
@@ -94,7 +94,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      regex: "(?i)kill.*oracle"
+      regex: "(?i)kill.{0,30}oracle"
 
   - id: kill-oracle-stop
     description: Oracle stop command
@@ -102,7 +102,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      regex: "(?i)stop.*oracle"
+      regex: "(?i)stop.{0,30}oracle"
 
   - id: kill-mssql-kill
     description: MSSQL kill command
@@ -110,7 +110,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      regex: "(?i)kill.*mssql"
+      regex: "(?i)kill.{0,30}mssql"
 
   - id: kill-mssql-stop
     description: MSSQL stop command
@@ -118,7 +118,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      regex: "(?i)stop.*mssql"
+      regex: "(?i)stop.{0,30}mssql"
 
   - id: kill-mongodb-kill
     description: MongoDB kill command
@@ -126,7 +126,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      regex: "(?i)kill.*mongodb"
+      regex: "(?i)kill.{0,30}mongodb"
 
   - id: kill-mongodb-stop
     description: MongoDB stop command
@@ -134,7 +134,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      regex: "(?i)stop.*mongodb"
+      regex: "(?i)stop.{0,30}mongodb"
 
   # === ESXi ransomware atomic indicators ===
   - id: onion-domain

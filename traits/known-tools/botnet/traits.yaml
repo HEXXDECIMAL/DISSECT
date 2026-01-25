@@ -59,22 +59,24 @@ traits:
             $dht_node and $bootstrap and ($netgear or $huawei)
         }
 
-  # Generic DHT-based botnet
+  # Generic DHT-based botnet - require kademlia specifically or multiple DHT indicators
+  # "dht" and "bootstrap" alone are too common in legitimate P2P/networking code
   - id: comm/p2p/dht-network
-    description: Kademlia DHT networking
-    crit: notable
-    conf: 0.8
-    condition:
+    desc: Kademlia DHT networking
+    crit: inert
+    conf: 0.5
+    if:
       type: yara
       source: |
         rule dht_botnet {
           strings:
             $kademlia = "kademlia" ascii nocase
-            $dht = "dht" ascii nocase
-            $bootstrap = "bootstrap" ascii
+            $kad_dht = "kad-dht" ascii
+            $libp2p_dht = "go-libp2p-kad-dht" ascii
             $find_node = "find_node" ascii
+            $store_value = "store_value" ascii
           condition:
-            ($kademlia or $dht) and ($bootstrap or $find_node)
+            $kademlia or $kad_dht or $libp2p_dht or ($find_node and $store_value)
         }
 
   # FritzFrog SSH worm

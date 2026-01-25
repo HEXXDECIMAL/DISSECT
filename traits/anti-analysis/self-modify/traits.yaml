@@ -143,10 +143,11 @@ traits:
       exact: detour
       case_insensitive: true
 
+  # NOTE: Go runtime uses trampolines legitimately for function calls
   - id: trampoline-ref
     desc: Trampoline hook terminology
-    crit: notable
-    conf: 0.6
+    crit: inert
+    conf: 0.3
     if:
       type: string
       exact: trampoline
@@ -283,6 +284,7 @@ composite_rules:
       - id: nop-sled
 
   # Hook installation
+  # NOTE: Removed trampoline-ref since Go runtime uses trampolines legitimately
   - id: hook-install
     desc: Dynamic interposition hook patterns
     crit: notable
@@ -292,16 +294,16 @@ composite_rules:
       - id: setwindowshook
       - id: inline-hook-ref
       - id: detour-ref
-      - id: trampoline-ref
       - id: ld-preload
       - id: dyld-insert
 
-  # IAT/GOT hooking
+  # IAT/GOT hooking - require 2+ indicators to avoid false positives
+  # from standard ELF sections like .got.plt
   - id: iat-hook
     desc: Import Address Table hooking
-    crit: suspicious
-    conf: 0.85
-    count: 1
+    crit: notable
+    conf: 0.7
+    count: 2
     any:
       - id: import-descriptor
       - id: import-address-table

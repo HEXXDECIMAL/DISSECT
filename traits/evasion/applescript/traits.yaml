@@ -30,7 +30,7 @@ traits:
     attack: "T1564.003"
     if:
       type: string
-      regex: "tell application.*to set visible.*false|set visible of.*application"
+      regex: "tell application.{0,30}to set visible.{0,10}false|set visible of.{0,30}application"
 
   # osascript execution (inline AppleScript)
   - id: osascript-exec
@@ -59,7 +59,7 @@ traits:
     attack: "T1056.002"
     if:
       type: string
-      regex: "display dialog.*password"
+      regex: "display dialog.{0,50}password"
 
   - id: default-answer-password
     desc: default answer password prompt
@@ -68,7 +68,7 @@ traits:
     attack: "T1056.002"
     if:
       type: string
-      regex: "default answer.*password"
+      regex: "default answer.{0,30}password"
 
   - id: with-hidden-answer
     desc: with hidden answer directive
@@ -87,7 +87,7 @@ traits:
     attack: "T1056.002"
     if:
       type: string
-      regex: "with icon caution.*button"
+      regex: "with icon caution.{0,30}button"
 
   - id: icon-stop-button
     desc: icon stop with button
@@ -96,7 +96,7 @@ traits:
     attack: "T1056.002"
     if:
       type: string
-      regex: "with icon stop.*button"
+      regex: "with icon stop.{0,30}button"
 
   - id: icon-note-button
     desc: icon note with button
@@ -105,7 +105,7 @@ traits:
     attack: "T1056.002"
     if:
       type: string
-      regex: "with icon note.*button"
+      regex: "with icon note.{0,30}button"
 
   - id: dialog-enter-password
     desc: display dialog enter password
@@ -114,7 +114,7 @@ traits:
     attack: "T1056.002"
     if:
       type: string
-      regex: "display dialog.*enter.*password"
+      regex: "display dialog.{0,30}enter.{0,20}password"
 
   # Administrator privileges via do shell script
   - id: admin-privileges
@@ -152,7 +152,7 @@ traits:
     attack: "T1056.001"
     if:
       type: string
-      regex: "tell application.*System Events.*key"
+      regex: "tell application.{0,30}System Events.{0,30}key"
 
   # tell application pattern (AppleScript automation)
   - id: tell-application

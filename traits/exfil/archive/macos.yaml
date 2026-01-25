@@ -23,7 +23,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      regex: "ditto.*--keepParent.*-c"
+      regex: "ditto.{0,30}--keepParent.{0,30}-c"
 
   # === ditto sequester atomic indicators ===
   - id: ditto-sequesterrsrc
@@ -40,7 +40,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      regex: "ditto.*-rsrc"
+      regex: "ditto.{0,30}-rsrc"
 
   # === zip create atomic indicators ===
   - id: zip-recursive-quiet
@@ -57,7 +57,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: "\\bzip\\s+.*\\.zip"
+      regex: "\\bzip\\s+.{0,100}\\.zip"
 
   # === tmp archive atomic indicators ===
   - id: tmp-zip-path
@@ -66,7 +66,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: "/tmp/.*\\.zip"
+      regex: "/tmp/.{0,100}\\.zip"
 
   - id: tmp-out-zip
     desc: /tmp/out.zip file
@@ -82,7 +82,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: "/var/tmp/.*\\.zip"
+      regex: "/var/tmp/.{0,100}\\.zip"
 
 composite_rules:
   # ditto compress composite

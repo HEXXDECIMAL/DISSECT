@@ -55,10 +55,12 @@ traits:
       type: symbol
       pattern: "\\bchdir\\b"
 
+  # NOTE: Go runtime uses /proc/self legitimately for memory management
+  # and process introspection. Downgraded to inert.
   - id: daemon-proc-self
     description: "Reads /proc/self (process introspection)"
-    crit: notable
-    confidence: 0.5
+    crit: inert
+    confidence: 0.3
     file_types: [elf]
     platforms: [linux]
     condition:
@@ -66,10 +68,11 @@ traits:
       regex: "/proc/self(/|$)"
 
   # Signal handling for daemon persistence
+  # NOTE: Go runtime sets up signal handlers legitimately - downgraded to inert
   - id: signal-ignore-pattern
     description: "Signal handler setup (daemon persistence pattern)"
-    crit: notable
-    confidence: 0.6
+    crit: inert
+    confidence: 0.3
     attack: "T1543"
     file_types: [elf, macho]
     platforms: [linux, macos, unix]
@@ -162,10 +165,12 @@ composite_rules:
       - id: daemon-fork
       - id: daemon-setsid
 
+  # NOTE: Since daemon-proc-self is now inert (Go uses /proc/self legitimately),
+  # this composite needs additional indicators to be meaningful.
   - id: stealth-daemon
     description: "Stealthy daemon (daemon + proc introspection)"
-    crit: suspicious
-    confidence: 0.75
+    crit: notable
+    confidence: 0.5
     attack: "T1543"
     mbc: "F0006"
     file_types: [elf]

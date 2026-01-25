@@ -27,7 +27,7 @@ traits:
     mbc: "E1110"
     if:
       type: string
-      regex: "dscl.*-authonly"
+      regex: "dscl.{0,30}-authonly"
 
   # === dscl read atomic indicators ===
   - id: dscl-dot-read
@@ -46,7 +46,7 @@ traits:
     attack: "T1087.001"
     if:
       type: string
-      regex: "dscl.*-read"
+      regex: "dscl.{0,30}-read"
 
   # === dscl list atomic indicators ===
   - id: dscl-dot-list
@@ -97,33 +97,7 @@ traits:
       type: string
       exact: "/etc/shadow"
 
-  # === Credential keyword atomic indicators ===
-  - id: password-word
-    desc: password keyword
-    crit: inert
-    conf: 0.4
-    if:
-      type: string
-      exact: "password"
-      case_insensitive: true
-
-  - id: pwd-word
-    desc: pwd keyword
-    crit: inert
-    conf: 0.4
-    if:
-      type: string
-      exact: "pwd"
-      case_insensitive: true
-
-  - id: credential-word
-    desc: credential keyword
-    crit: inert
-    conf: 0.4
-    if:
-      type: string
-      exact: "credential"
-      case_insensitive: true
+  # Credential keyword atomic indicators moved to data/text/generic.yaml
 
 composite_rules:
   # dscl authonly composite
@@ -172,16 +146,16 @@ composite_rules:
       - id: shadow-hash-data
       - id: etc-shadow
 
-  # Credential keyword composite
+  # Credential keyword composite - references generic terms
   - id: credential-keyword
     desc: "Password or credential keyword reference"
-    crit: notable
-    conf: 0.6
+    crit: inert
+    conf: 0.3
     requires_count: 1
     any:
-      - id: password-word
-      - id: pwd-word
-      - id: credential-word
+      - id: data/text/generic/password
+      - id: data/text/generic/pwd
+      - id: data/text/generic/credential
 
   # Password validation + capture = credential theft
   - id: validation-theft

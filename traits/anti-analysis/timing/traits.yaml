@@ -32,19 +32,23 @@ traits:
       type: string
       regex: '\bgettimeofday\b'
 
+  # NOTE: "time" is far too generic - matches Go runtime, standard library, etc.
+  # Changed to more specific pattern
   - id: time-func
     desc: time function
     crit: inert
-    conf: 0.3
+    conf: 0.2
     if:
       type: string
-      regex: '\btime\b'
+      regex: '\btime\(\)'
 
 composite_rules:
+  # NOTE: Go runtime uses RDTSC and time functions legitimately for scheduling
+  # and performance. Downgraded to inert to avoid false positives.
   - id: primitive
     desc: "Hardware timing primitive (potential anti-analysis)"
-    crit: notable
-    conf: 0.7
+    crit: inert
+    conf: 0.4
     all:
       - id: rdtsc
     count: 1

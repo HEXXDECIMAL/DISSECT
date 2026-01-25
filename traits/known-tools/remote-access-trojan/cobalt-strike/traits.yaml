@@ -269,7 +269,7 @@ traits:
     file_types: [elf, macho, pe, so, dylib, dll]
     condition:
       type: string
-      regex: "cobaltstrike.*beacon|beacon.*cobaltstrike"
+      regex: "cobaltstrike.{0,50}beacon|beacon.{0,50}cobaltstrike"
 
   - id: reflectiveloader-beacon-ref
     description: ReflectiveLoader beacon reference
@@ -279,7 +279,7 @@ traits:
     file_types: [elf, macho, pe, so, dylib, dll]
     condition:
       type: string
-      regex: "ReflectiveLoader.*beacon"
+      regex: "ReflectiveLoader.{0,50}beacon"
 
 composite_rules:
   # Cobalt Strike beacon reference composite

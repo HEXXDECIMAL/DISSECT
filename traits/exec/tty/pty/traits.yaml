@@ -319,23 +319,23 @@ composite_rules:
       - id: import-pty
       - id: from-pty-import
 
-  # Interactive shell via PTY - uses openpty/pty.spawn with shell execution
+  # Interactive shell via PTY - requires PTY functions, not just fork/exec
+  # fork/exec alone is too common (any program using subprocess)
   - id: interactive-shell
     desc: Interactive shell via PTY
-    crit: suspicious
-    conf: 0.95
+    crit: notable
+    conf: 0.8
     attack: "T1059"
     mbc: "B0022"
     for: [elf, macho, python]
-    requires_count: 1
+    requires_count: 2
     any:
       - id: openpty
+      - id: posix-openpt
+      - id: grantpt
+      - id: unlockpt
       - id: pty-spawn
-      - id: exec/command/shell/bin-sh
-      - id: exec/command/shell/bin-bash
-      - id: dup2
-      - id: fork
-      - id: execve
+      - id: ptsname
   - id: posix-pty-shell
     desc: POSIX PTY shell (backdoor pattern)
     crit: suspicious

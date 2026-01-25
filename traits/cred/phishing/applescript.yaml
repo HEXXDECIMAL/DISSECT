@@ -18,7 +18,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      regex: "(?i)display dialog.*password"
+      regex: "(?i)display dialog.{0,50}password"
 
   - id: default-answer-password
     desc: "Default answer field for password"
@@ -26,7 +26,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      regex: "(?i)default answer.*password"
+      regex: "(?i)default answer.{0,30}password"
 
   - id: hidden-answer
     desc: "Hidden answer input (password masking)"
@@ -61,7 +61,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      regex: "(?i)enter.*password"
+      regex: "(?i)enter.{0,30}password"
 
   # ============================================
   # Keychain Password Prompts
@@ -73,7 +73,7 @@ traits:
     attack: "T1555.001"
     if:
       type: string
-      regex: "(?i)keychain.*password"
+      regex: "(?i)keychain.{0,30}password"
 
   - id: admin-password
     desc: "Asks for admin password"
@@ -81,7 +81,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      regex: "(?i)admin.*password"
+      regex: "(?i)admin.{0,30}password"
 
 composite_rules:
   # Password prompt patterns group
@@ -121,7 +121,7 @@ composite_rules:
   # ============================================
   - id: password-phishing
     desc: AppleScript password phishing dialog
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     all:
       - id: password-prompt-pattern

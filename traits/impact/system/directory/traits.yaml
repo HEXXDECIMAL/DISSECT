@@ -14,7 +14,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      regex: "(rmdir|del|remove|shutil\\.rmtree|os\\.remove).*[Ss]ystem32|[Ss]ystem32.*(rmdir|del|remove)"
+      regex: "(rmdir|del|remove|shutil\\.rmtree|os\\.remove).{0,100}[Ss]ystem32|[Ss]ystem32.{0,100}(rmdir|del|remove)"
 
   # Windows directory recursive deletion
   - id: windows-recursive-delete
@@ -23,7 +23,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      regex: "rd\\s+/s|rmdir\\s+/s.*Windows|del\\s+/f\\s+/q.*Windows"
+      regex: "rd\\s+/s|rmdir\\s+/s.{0,50}Windows|del\\s+/f\\s+/q.{0,50}Windows"
 
   # Linux critical directory targeting
   - id: linux-etc-delete
@@ -32,7 +32,7 @@ traits:
     platforms: [linux]
     if:
       type: string
-      regex: "rm\\s+-rf\\s+/etc|shutil\\.rmtree.*[\"']/etc"
+      regex: "rm\\s+-rf\\s+/etc|shutil\\.rmtree.{0,50}[\"']/etc"
 
   # Linux /usr directory targeting (binaries/libs)
   - id: linux-usr-delete
@@ -41,7 +41,7 @@ traits:
     platforms: [linux]
     if:
       type: string
-      regex: "rm\\s+-rf\\s+/usr|shutil\\.rmtree.*[\"']/usr"
+      regex: "rm\\s+-rf\\s+/usr|shutil\\.rmtree.{0,50}[\"']/usr"
 
   # Linux boot directory targeting
   - id: linux-boot-delete
@@ -50,7 +50,7 @@ traits:
     platforms: [linux]
     if:
       type: string
-      regex: "rm\\s+-rf\\s+/boot|shutil\\.rmtree.*[\"']/boot"
+      regex: "rm\\s+-rf\\s+/boot|shutil\\.rmtree.{0,50}[\"']/boot"
 
   # Root filesystem wipe
   - id: root-wipe
@@ -59,7 +59,7 @@ traits:
     attack: "T1561"
     if:
       type: string
-      regex: "rm\\s+-rf\\s+/\\s|rm\\s+-rf\\s+/\\*|shutil\\.rmtree.*[\"']/[\"']"
+      regex: "rm\\s+-rf\\s+/\\s|rm\\s+-rf\\s+/\\*|shutil\\.rmtree.{0,50}[\"']/[\"']"
 
   # macOS system directory targeting
   - id: macos-system-delete
@@ -68,7 +68,7 @@ traits:
     platforms: [macos]
     if:
       type: string
-      regex: "rm\\s+-rf.*(/System|/Library/System)|shutil\\.rmtree.*/System"
+      regex: "rm\\s+-rf.{0,50}(/System|/Library/System)|shutil\\.rmtree.{0,50}/System"
 
   # MBR/Boot sector targeting
   - id: mbr-target
@@ -102,7 +102,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: "rmdir.*(/s|/q)"
+      regex: "rmdir.{0,30}(/s|/q)"
 
   # === Iteration/loop atomic indicators ===
   - id: for-loop
@@ -200,10 +200,12 @@ composite_rules:
       - id: os-walk
       - id: glob-pattern
 
+  # NOTE: Go and many legitimate programs reference /etc, /usr, etc.
+  # These are too generic on their own - downgraded to inert.
   - id: system-dir-reference
     description: "Reference to critical system directories"
-    crit: notable
-    conf: 0.8
+    crit: inert
+    conf: 0.4
     requires_count: 1
     any:
       - id: windows-dir-ref

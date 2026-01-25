@@ -22,7 +22,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      regex: "s3.*\\.upload"
+      regex: "s3.{0,50}\\.upload"
 
   # === Dropbox atomic indicators ===
   - id: dropbox-api-domain
@@ -43,7 +43,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      regex: "dropbox.*upload"
+      regex: "dropbox.{0,50}upload"
 
   # === Google Drive atomic indicators ===
   - id: gdrive-domain
@@ -64,7 +64,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      regex: "googleapis.*drive"
+      regex: "googleapis.{0,50}drive"
 
 composite_rules:
   # S3 upload composite

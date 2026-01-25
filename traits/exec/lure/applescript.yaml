@@ -96,7 +96,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      regex: "(?i)Check.*updates"
+      regex: "(?i)Check.{0,50}updates"
 
   - id: install-components
     desc: "Install components lure text"
@@ -104,7 +104,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      regex: "(?i)install.*components"
+      regex: "(?i)install.{0,50}components"
 
   # ============================================
   # User Action Prompts
@@ -115,7 +115,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      regex: "(?i)click the.*button"
+      regex: "(?i)click the.{0,30}button"
 
   - id: press-continue
     desc: "Instructs user to press to continue"
@@ -123,7 +123,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      regex: "(?i)press.*to continue"
+      regex: "(?i)press.{0,30}to continue"
 
 composite_rules:
   # Missing message group

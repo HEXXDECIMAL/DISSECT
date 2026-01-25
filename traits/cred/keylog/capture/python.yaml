@@ -129,7 +129,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: "pynput.*keyboard"
+      regex: "pynput.{0,30}keyboard"
 
   # HookKeyboard method call
   - id: python-hook-keyboard

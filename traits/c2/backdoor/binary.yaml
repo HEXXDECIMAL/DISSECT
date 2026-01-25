@@ -10,6 +10,7 @@ defaults:
 traits:
   # === Unexpected Functionality in Libraries ===
 
+  # NOTE: Go runtime always includes socket primitives - exclude Go binaries
   - id: unexpected-socket-ops
     desc: "Socket operations in non-network library"
     crit: notable
@@ -31,15 +32,20 @@ traits:
             $net_lib2 = "libcrypto" ascii
             $net_lib3 = "libcurl" ascii
             $net_lib4 = "libssh" ascii
-            // Exclude coreutils and common system utilities (use NSS for lookups)
+            // Exclude coreutils and common system utilities
             $coreutils1 = "GNU coreutils" ascii
             $coreutils2 = "coreutils" ascii
             $coreutils3 = "glibc" ascii
             $systemd1 = "systemd" ascii
+            // Exclude Go runtime (Go always includes socket primitives)
+            $go1 = "runtime.goexit" ascii
+            $go2 = "go.runtime" ascii
+            $go3 = "runtime.main" ascii
           condition:
             (4 of ($sock*, $send*, $recv*)) and
             not any of ($net_lib*) and
-            not any of ($coreutils*, $systemd1)
+            not any of ($coreutils*, $systemd1) and
+            not any of ($go*)
         }
 
   - id: unexpected-process-ops
@@ -325,10 +331,12 @@ traits:
 
   # === Hidden Code Patterns ===
 
+  # CPUID/XGETBV are used by Go runtime for CPU feature detection
+  # Only suspicious with many more occurrences and other backdoor indicators
   - id: cpuid-fingerprinting
     desc: "CPUID fingerprinting in library (potential anti-analysis)"
-    crit: notable
-    conf: 0.75
+    crit: inert
+    conf: 0.4
     for: [elf]
     attack: "T1082"
     if:
@@ -340,7 +348,7 @@ traits:
             $xgetbv = { 0F 01 D0 }  // xgetbv instruction
           condition:
             uint32(0) == 0x464c457f and
-            #cpuid > 3 and $xgetbv
+            #cpuid > 20 and $xgetbv
         }
 
   - id: glibc-hijack

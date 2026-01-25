@@ -43,7 +43,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      regex: "push.*shift"
+      regex: "push.{0,50}shift"
 
   - id: shift-push-pattern
     desc: shift then push rotation pattern
@@ -53,7 +53,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      regex: "shift.*push"
+      regex: "shift.{0,50}push"
 
   # === Buffer hex encoding atomic indicators ===
   - id: buffer-from-hex-word
@@ -64,7 +64,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      regex: "Buffer\\.from.*hex"
+      regex: "Buffer\\.from.{0,30}hex"
 
   - id: buffer-from-hex-single
     desc: Buffer.from with 'hex' string

@@ -50,10 +50,12 @@ traits:
         }
 
   # CPU fingerprinting
+  # NOTE: Go runtime uses cpuid instruction to check CPU features (AVX, SSE, etc.)
+  # Require /proc/cpuinfo access or lscpu command - not just cpuid string
   - id: cpu-info
     desc: CPU information fingerprinting
-    crit: notable
-    conf: 0.7
+    crit: inert
+    conf: 0.4
     attack: "T1082"
     if:
       type: yara
@@ -65,11 +67,9 @@ traits:
             $cpu3 = "cpu family" ascii
             $cpu4 = "cpu cores" ascii
             $cpu5 = "processor" ascii
-            $cpuid1 = "cpuid" ascii
-            $cpuid2 = "__cpuid" ascii
             $lscpu = "lscpu" ascii
           condition:
-            ($cpu1 and any of ($cpu2, $cpu3, $cpu4, $cpu5)) or any of ($cpuid*) or $lscpu
+            ($cpu1 and any of ($cpu2, $cpu3, $cpu4, $cpu5)) or $lscpu
         }
 
   # Network interface fingerprinting

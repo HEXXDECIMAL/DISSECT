@@ -22,7 +22,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      regex: "axios\\[.*post"
+      regex: "axios\\[.{0,30}post"
 
   # === Fetch POST atomic indicators ===
   - id: fetch-with-post
@@ -33,7 +33,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      regex: "fetch\\(.*POST"
+      regex: "fetch\\(.{0,50}POST"
 
   - id: method-post-string
     description: method POST string
@@ -64,7 +64,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      regex: "request\\(.*method.*POST"
+      regex: "request\\(.{0,50}method.{0,20}POST"
 
   # === HTTP request atomic indicators ===
   - id: http-dot-request

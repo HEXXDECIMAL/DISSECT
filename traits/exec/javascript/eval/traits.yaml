@@ -195,7 +195,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      regex: "echo .* \\|"
+      regex: "echo .{0,100} \\|"
 
   # Temp file operations
   - id: tmp-write

@@ -72,7 +72,7 @@ traits:
     if:
       type: ast_pattern
       node_type: shell_command_expression
-      pattern: ".*"
+      pattern: ".{0,500}"
       regex: true
 
   - id: exec-user-input

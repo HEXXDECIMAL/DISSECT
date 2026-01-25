@@ -40,7 +40,7 @@ traits:
     if:
       type: string
       # Matches pattern in try/except blocks
-      regex: "except[^:]*:.*pip.*install|ImportError.*pip.*install"
+      regex: "except[^:]*:.{0,50}pip.{0,20}install|ImportError.{0,50}pip.{0,20}install"
 
   # pip.main() direct call
   - id: main-call
@@ -48,7 +48,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      regex: "pip\\.main\\(\\[.*install"
+      regex: "pip\\.main\\(\\[.{0,50}install"
 
   # ensurepip module usage
   - id: ensurepip

@@ -23,10 +23,11 @@ traits:
         }
 
   # Native module with network capability
+  # NOTE: Go binaries always include socket functions from runtime - exclude them
   - id: network-capable
     desc: Native module with network/socket capabilities
-    crit: suspicious
-    conf: 0.85
+    crit: notable
+    conf: 0.6
     attack: "T1071"
     for: [elf, macho, pe, dll]
     if:
@@ -42,8 +43,12 @@ traits:
             $http2 = "Content-Type" ascii
             $curl = "libcurl" ascii
             $ssl = "SSL_connect" ascii
+            // Go runtime markers (exclude - Go always has socket primitives)
+            $go1 = "runtime.goexit" ascii
+            $go2 = "go.runtime" ascii
+            $go3 = "runtime.main" ascii
           condition:
-            3 of them
+            not any of ($go*) and 3 of ($sock*, $http*, $curl, $ssl)
         }
 
   # Process inspection/injection patterns
@@ -189,7 +194,7 @@ traits:
             $pool2 = "stratum+ssl://" ascii
             $xmr1 = "cryptonight" ascii nocase
             $xmr2 = "randomx" ascii nocase
-            $wallet = /4[0-9AB][1-9A-HJ-NP-Za-km-z]{93}/ ascii  // Monero
+            $wallet = /4[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]{94}/ ascii  // Monero Base58
             $algo = "cn/r" ascii
           condition:
             any of ($pool*) or 2 of ($xmr*, $algo, $wallet)

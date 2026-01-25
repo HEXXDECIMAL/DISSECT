@@ -25,7 +25,7 @@ traits:
     crit: inert
     if:
       type: string
-      regex: "\\.electrum.*wallet"
+      regex: "\\.electrum.{0,30}wallet"
 
   - id: electrum-default
     desc: electrum default_wallet
@@ -50,7 +50,7 @@ traits:
     crit: inert
     if:
       type: string
-      regex: "Coinomi.*wallet\\.dat"
+      regex: "Coinomi.{0,30}wallet\\.dat"
 
   - id: coinomi-bundle
     desc: com.coinomi bundle
@@ -75,7 +75,7 @@ traits:
     crit: inert
     if:
       type: string
-      regex: "exodus.*passphrase"
+      regex: "exodus.{0,30}passphrase"
 
   - id: exodus-bundle
     desc: com.exodus bundle
@@ -175,7 +175,7 @@ traits:
     crit: inert
     if:
       type: string
-      regex: "tonkeeper.*config\\.json"
+      regex: "tonkeeper.{0,30}config\\.json"
 
   - id: tonkeeper-bundle
     desc: com.ton-keeper bundle
@@ -208,7 +208,7 @@ traits:
     crit: inert
     if:
       type: string
-      regex: "ledger.*accounts"
+      regex: "ledger.{0,30}accounts"
 
   # === Trezor atomic indicators ===
   - id: trezor-desktop
@@ -225,7 +225,7 @@ traits:
     crit: inert
     if:
       type: string
-      regex: "trezor.*suite"
+      regex: "trezor.{0,30}suite"
 
   # === Guarda atomic indicators ===
   - id: guarda-local-storage

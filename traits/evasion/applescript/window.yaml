@@ -16,7 +16,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      regex: "(?i)tell.*Terminal.*set visible.*false|Terminal.*visible.*false"
+      regex: "(?i)tell.{0,20}Terminal.{0,20}set visible.{0,10}false|Terminal.{0,20}visible.{0,10}false"
 
   # Hide any window
   - id: window-hide
@@ -25,7 +25,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      regex: "set visible.*to false|set visible of.*window.*false"
+      regex: "set visible.{0,10}to false|set visible of.{0,30}window.{0,10}false"
 
   # Minimize window
   - id: window-minimize
@@ -34,7 +34,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      regex: "set miniaturized.*true|set collapsed.*true"
+      regex: "set miniaturized.{0,10}true|set collapsed.{0,10}true"
 
   # Hide entire application
   - id: app-hide
@@ -43,7 +43,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      regex: "set visible of.*application.*false|tell application.*to hide"
+      regex: "set visible of.{0,30}application.{0,10}false|tell application.{0,30}to hide"
 
   # Set frontmost to false (push to back)
   - id: frontmost-false
@@ -52,7 +52,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      regex: "set frontmost.*false"
+      regex: "set frontmost.{0,10}false"
 
 composite_rules:
   # Terminal hiding with shell execution

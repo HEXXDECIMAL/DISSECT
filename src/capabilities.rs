@@ -806,6 +806,13 @@ impl CapabilityMapper {
                         trait_def.id, path
                     )
                 })?;
+                // Warn about greedy regex patterns
+                if let Some(warning) = trait_def.r#if.check_greedy_patterns() {
+                    eprintln!(
+                        "warning: trait '{}' in {:?}: {}",
+                        trait_def.id, path, warning
+                    );
+                }
                 trait_definitions.push(trait_def);
             }
 

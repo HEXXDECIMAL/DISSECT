@@ -11,7 +11,7 @@ traits:
     file_types: [javascript]
     condition:
       type: string
-      regex: "setInterval.*http"
+      regex: "setInterval.{0,100}http"
 
   - id: setInterval-axios
     description: setInterval with axios
@@ -20,7 +20,7 @@ traits:
     file_types: [javascript]
     condition:
       type: string
-      regex: "setInterval.*axios"
+      regex: "setInterval.{0,100}axios"
 
   - id: setInterval-fetch
     description: setInterval with fetch
@@ -29,7 +29,7 @@ traits:
     file_types: [javascript]
     condition:
       type: string
-      regex: "setInterval.*fetch"
+      regex: "setInterval.{0,100}fetch"
 
   - id: setInterval-function
     description: setInterval with function callback
@@ -47,7 +47,7 @@ traits:
     file_types: [javascript]
     condition:
       type: string
-      regex: "setTimeout.*setTimeout"
+      regex: "setTimeout.{0,100}setTimeout"
 
 composite_rules:
   - id: setInterval-http

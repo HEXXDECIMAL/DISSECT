@@ -420,7 +420,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: "Buffer\\.from.*base64"
+      regex: "Buffer\\.from.{0,50}base64"
 
   - id: atob-call
     desc: atob() call
@@ -620,7 +620,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      regex: "Shell\\.Application.*namespace"
+      regex: "Shell\\.Application.{0,50}namespace"
 
   # === MSXml2 Base64 atomic indicators ===
   - id: msxml2-base64
@@ -629,7 +629,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      regex: "MSXml2.*Base64"
+      regex: "MSXml2.{0,50}Base64"
 
   - id: bin-base64
     desc: bin.base64 reference

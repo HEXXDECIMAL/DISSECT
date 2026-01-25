@@ -131,7 +131,7 @@ traits:
     for: [python, shell]
     if:
       type: string
-      regex: '/proc/cpuinfo.*hypervisor|cpuid|hypervisor\s*flag'
+      regex: '/proc/cpuinfo.{0,50}hypervisor|cpuid|hypervisor\s*flag'
 
   # === DMI/SMBIOS checks (atomic) ===
   - id: dmi-dmidecode
@@ -341,7 +341,7 @@ traits:
     for: [python, shell]
     if:
       type: string
-      regex: "system_profiler.*Model|wmic.*computersystem.*model|/sys/devices/virtual"
+      regex: "system_profiler.{0,30}Model|wmic.{0,30}computersystem.{0,30}model|/sys/devices/virtual"
 
   # === Cloud provider metadata check ===
   - id: cloud-metadata

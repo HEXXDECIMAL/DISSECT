@@ -64,8 +64,9 @@ traits:
     conf: 0.85
     if:
       type: string
-      # Require subdomain or URL context to avoid matching Apple framework names
-      regex: "\\b[a-zA-Z0-9][-a-zA-Z0-9]{0,62}\\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62}\\.(ru|cn|xyz|top|cc|ws|tk|ml|ga|cf|gq|pw|biz|club|date|download|racing|win|party|review|accountant|science|trade|webcam|bid|loan|pro)\\b|https?://[a-zA-Z0-9][-a-zA-Z0-9]*\\.(ru|cn|xyz|top|cc|ws|tk|ml|ga|cf|gq|pw|biz|club|work|date|stream|download|racing|pro)"
+      # Require subdomain or URL context to avoid matching programming patterns like time.Time.date
+      # Removed: .date (matches Go time.Time.date), .pro (too common)
+      regex: "\\b[a-zA-Z0-9][-a-zA-Z0-9]{0,62}\\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62}\\.(ru|cn|xyz|top|cc|ws|tk|ml|ga|cf|gq|pw|biz|club|download|racing|win|party|review|accountant|science|trade|webcam|bid|loan)\\b|https?://[a-zA-Z0-9][-a-zA-Z0-9]*\\.(ru|cn|xyz|top|cc|ws|tk|ml|ga|cf|gq|pw|biz|club|work|stream|download|racing)"
 
   - id: dynamic-dns-domain-pattern
     desc: "Dynamic DNS domain pattern"

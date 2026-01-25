@@ -26,7 +26,7 @@ traits:
     condition:
       type: string
       # os.system or subprocess at top-level in __init__.py
-      regex: "^(import|from).*\\n.*os\\.system|^(import|from).*\\n.*subprocess\\."
+      regex: "^(import|from).{0,100}\\n.{0,100}os\\.system|^(import|from).{0,100}\\n.{0,100}subprocess\\."
 
   # Try-except ImportError with installation
   - id: import-fallback-install
@@ -35,7 +35,7 @@ traits:
     confidence: 0.9
     condition:
       type: string
-      regex: "except\\s*(ImportError)?.*:\\s*\\n?\\s*(os\\.system|subprocess)"
+      regex: "except\\s*(ImportError)?.{0,50}:\\s*\\n?\\s*(os\\.system|subprocess)"
 
   # Setup.py with external code execution or network activity (YARA)
   - id: setup-py-exec-yara

@@ -97,7 +97,7 @@ traits:
     conf: 0.4
     if:
       type: string
-      regex: 'os\\.environ.*HOME'
+      regex: 'os\\.environ.{0,30}HOME'
 
   # File operations
   - id: python-chmod

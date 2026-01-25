@@ -31,7 +31,7 @@ traits:
     confidence: 0.6
     condition:
       type: string
-      regex: "XDG_CONFIG_HOME.*autostart"
+      regex: "XDG_CONFIG_HOME.{0,50}autostart"
 
   # === Desktop entry atomic indicators ===
   - id: dot-desktop-ext
@@ -81,7 +81,7 @@ traits:
     confidence: 0.7
     condition:
       type: string
-      regex: "systemctl.*--user.*enable"
+      regex: "systemctl.{0,30}--user.{0,30}enable"
 
   # === rc.local atomic indicators ===
   - id: etc-rc-local

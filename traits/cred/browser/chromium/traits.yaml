@@ -183,7 +183,7 @@ traits:
     mbc: "B0028"
     if:
       type: string
-      regex: "SELECT.*origin_url.*username_value.*password_value.*FROM\\s+logins"
+      regex: "SELECT.{0,30}origin_url.{0,30}username_value.{0,30}password_value.{0,30}FROM\\s+logins"
       case_insensitive: true
 
   # === Cookie SQL atomic indicators ===
@@ -194,7 +194,7 @@ traits:
     attack: "T1555.003"
     if:
       type: string
-      regex: "SELECT.*host_key.*encrypted_value.*FROM\\s+cookies"
+      regex: "SELECT.{0,30}host_key.{0,30}encrypted_value.{0,30}FROM\\s+cookies"
       case_insensitive: true
 
   - id: firefox-cookie-sql
@@ -204,7 +204,7 @@ traits:
     attack: "T1555.003"
     if:
       type: string
-      regex: "SELECT.*host_key.*encrypted_value.*FROM\\s+moz_cookies"
+      regex: "SELECT.{0,30}host_key.{0,30}encrypted_value.{0,30}FROM\\s+moz_cookies"
       case_insensitive: true
 
   - id: credit-card-sql
@@ -215,7 +215,7 @@ traits:
     mbc: "B0028"
     if:
       type: string
-      regex: "SELECT.*card_number.*FROM\\s+credit_cards"
+      regex: "SELECT.{0,50}card_number.{0,30}FROM\\s+credit_cards"
       case_insensitive: true
 
 composite_rules:

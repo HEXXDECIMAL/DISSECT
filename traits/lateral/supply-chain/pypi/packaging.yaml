@@ -82,7 +82,7 @@ traits:
     file_types: [all]
     condition:
       type: string
-      regex: "os\\.path\\.join\\(.*\\.py.*\\)"
+      regex: "os\\.path\\.join\\(.{0,100}\\.py.{0,30}\\)"
 
   # === cmdclass override atomic indicators ===
   - id: cmdclass-dict

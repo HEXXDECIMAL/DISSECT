@@ -1,21 +1,24 @@
 # Process Identity Operations
+# NOTE: Go runtime uses getuid/getpid legitimately for process management
 
 defaults:
   file_types: [elf, macho, so, dylib, c]
 
 traits:
+  # NOTE: Go runtime uses getuid/geteuid legitimately - downgraded to inert
   - id: get-uid
     description: Get user/group identity
-    crit: notable
-    confidence: 0.70
+    crit: inert
+    confidence: 0.3
     condition:
       type: symbol
       pattern: getuid|geteuid|getgid|getegid
 
+  # NOTE: Go runtime uses getpid/getppid legitimately - downgraded to inert
   - id: get-pid
     description: Get process ID
-    crit: notable
-    confidence: 0.65
+    crit: inert
+    confidence: 0.3
     condition:
       type: symbol
       pattern: getpid|getppid

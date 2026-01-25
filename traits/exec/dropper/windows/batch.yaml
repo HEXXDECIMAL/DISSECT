@@ -14,7 +14,7 @@ traits:
     for: [shell, batch]
     if:
       type: string
-      regex: "curl\\s+.*-[sS].*-o\\s"
+      regex: "curl\\s+.{0,50}-[sS].{0,50}-o\\s"
 
   - id: curl-to-temp
     desc: Download to TEMP directory
@@ -36,7 +36,7 @@ traits:
     for: [shell, batch]
     if:
       type: string
-      regex: "powershell.*DownloadFile|Invoke-WebRequest|iwr\\s|wget\\s"
+      regex: "powershell.{0,50}DownloadFile|Invoke-WebRequest|iwr\\s|wget\\s"
 
   - id: certutil-download
     desc: Certutil download abuse (LOLBin technique)
@@ -47,7 +47,7 @@ traits:
     for: [shell, batch]
     if:
       type: string
-      regex: "certutil\\s+.*-urlcache.*-split.*-f"
+      regex: "certutil\\s+.{0,50}-urlcache.{0,30}-split.{0,30}-f"
 
   - id: bitsadmin-download
     desc: BitsAdmin download abuse (LOLBin technique)
@@ -58,7 +58,7 @@ traits:
     for: [shell, batch]
     if:
       type: string
-      regex: "bitsadmin\\s+.*\\/transfer"
+      regex: "bitsadmin\\s+.{0,50}\\/transfer"
 
   # Execution Patterns
   - id: start-hidden
@@ -100,7 +100,7 @@ traits:
     for: [shell, batch]
     if:
       type: string
-      regex: "if exist.*\\.done|echo\\.>.*\\.done|\\.installed|\\.complete"
+      regex: "if exist.{0,30}\\.done|echo\\.>.{0,30}\\.done|\\.installed|\\.complete"
 
   # Evasion
   - id: echo-off

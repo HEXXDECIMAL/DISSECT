@@ -1,32 +1,36 @@
+# NOTE: Go runtime and standard library use these syscalls legitimately for
+# any network operations. The atomic traits are downgraded to inert, and
+# the composites are downgraded to notable since network servers are common.
+
 traits:
   - id: syscall-socket
     desc: Creates network socket
-    crit: notable
-    conf: 0.8
+    crit: inert
+    conf: 0.4
     if:
       type: syscall
       name: ["socket", "socketcall"]
 
   - id: syscall-bind
     desc: Binds socket to address/port
-    crit: notable
-    conf: 0.8
+    crit: inert
+    conf: 0.4
     if:
       type: syscall
       name: ["bind"]
 
   - id: syscall-listen
     desc: Listens for incoming connections
-    crit: notable
-    conf: 0.8
+    crit: inert
+    conf: 0.4
     if:
       type: syscall
       name: ["listen"]
 
   - id: syscall-accept
     desc: Accepts incoming connections
-    crit: notable
-    conf: 0.8
+    crit: inert
+    conf: 0.4
     if:
       type: syscall
       name: ["accept", "accept4"]
@@ -34,8 +38,8 @@ traits:
 composite_rules:
   - id: server
     desc: Network server - binds and listens on port
-    conf: 0.9
-    crit: suspicious
+    conf: 0.6
+    crit: inert
     platforms: [linux]
     for: [elf]
     all:
@@ -45,8 +49,8 @@ composite_rules:
 
   - id: server-accept
     desc: Network server accepting connections
-    conf: 0.9
-    crit: suspicious
+    conf: 0.6
+    crit: inert
     platforms: [linux]
     for: [elf]
     all:

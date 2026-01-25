@@ -65,7 +65,7 @@ traits:
     file_types: [javascript, typescript]
     condition:
       type: string
-      regex: "export.*activate"
+      regex: "export.{0,30}activate"
 
   # === Extension Deactivation atomic indicators ===
   - id: function-deactivate
@@ -84,7 +84,7 @@ traits:
     file_types: [javascript, typescript]
     condition:
       type: string
-      regex: "export.*deactivate"
+      regex: "export.{0,30}deactivate"
 
   # Suspicious VSCode Extension Behaviors
   # IMPORTANT: Requires VSCode markers to avoid FPs on regular npm packages

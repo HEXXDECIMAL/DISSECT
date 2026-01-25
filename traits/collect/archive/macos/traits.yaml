@@ -33,7 +33,7 @@ traits:
     attack: "T1560.001"
     if:
       type: string
-      regex: "ditto.*\\.zip"
+      regex: "ditto.{0,50}\\.zip"
 
   # ditto for directory copy
   - id: ditto-copy
@@ -61,7 +61,7 @@ traits:
     attack: "T1560.001"
     if:
       type: string
-      regex: "hdiutil.*-format"
+      regex: "hdiutil.{0,30}-format"
 
   # === tar/gzip atomic indicators ===
   - id: tar-create-flag
@@ -118,7 +118,7 @@ traits:
     attack: "T1074.001"
     if:
       type: string
-      regex: "/tmp/.*\\.zip"
+      regex: "/tmp/.{0,50}\\.zip"
 
   - id: tmp-tar-file
     desc: .tar file in /tmp
@@ -127,7 +127,7 @@ traits:
     attack: "T1074.001"
     if:
       type: string
-      regex: "/tmp/.*\\.tar"
+      regex: "/tmp/.{0,50}\\.tar"
 
   - id: tmp-gz-file
     desc: .gz file in /tmp
@@ -136,7 +136,7 @@ traits:
     attack: "T1074.001"
     if:
       type: string
-      regex: "/tmp/.*\\.gz"
+      regex: "/tmp/.{0,50}\\.gz"
 
   - id: tmp-dmg-file
     desc: .dmg file in /tmp
@@ -145,7 +145,7 @@ traits:
     attack: "T1074.001"
     if:
       type: string
-      regex: "/tmp/.*\\.dmg"
+      regex: "/tmp/.{0,50}\\.dmg"
 
   - id: tmp-out-file
     desc: /tmp/out. output file
@@ -197,7 +197,7 @@ traits:
     attack: "T1074.001"
     if:
       type: string
-      regex: "/tmp/.*\\.zip"
+      regex: "/tmp/.{0,50}\\.zip"
 
 composite_rules:
   # hdiutil create composite

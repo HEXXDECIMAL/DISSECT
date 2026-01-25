@@ -7,9 +7,9 @@ defaults:
 
 traits:
   - id: hardlink
-    description: Create hard file links
-    crit: notable
-    conf: 0.66
+    desc: Create hard file links
+    crit: inert
+    conf: 0.5
     if:
       type: symbol
-      pattern: link|linkat
+      pattern: "^_?(link|linkat)$"

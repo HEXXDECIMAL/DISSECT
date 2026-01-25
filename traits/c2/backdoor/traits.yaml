@@ -95,15 +95,7 @@ traits:
       regex: "\\|\\s*nc\\s"
 
   # === Atomic: Socket + Shell (Generic) ===
-
-  - id: socket-ref
-    desc: Socket reference
-    crit: inert
-    conf: 0.5
-    platforms: [all]
-    if:
-      type: string
-      exact: "socket"
+  # Generic "socket" moved to data/text/generic.yaml
 
   - id: reverse-keyword
     desc: Reverse keyword reference
@@ -240,7 +232,7 @@ composite_rules:
     platforms: [all]
     all:
       - id: reverse-keyword
-      - id: socket-ref
+      - id: data/text/generic/socket
     any:
       - id: exec/command/shell/bin-bash
       - id: exec/command/shell/bin-sh

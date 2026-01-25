@@ -99,74 +99,20 @@ pub fn eval_symbol(
     }
 }
 
-/// Evaluate string condition
+/// Evaluate string condition - searches ONLY in properly extracted/bounded strings.
+/// For searching raw file content, use `eval_raw()` instead.
 pub fn eval_string(params: &StringParams, ctx: &EvaluationContext) -> ConditionResult {
     let mut evidence = Vec::new();
 
-    // If search_raw is true, count all occurrences in raw content
+    // Legacy support: if search_raw is true, delegate to eval_raw
     if params.search_raw {
-        if let Ok(content) = std::str::from_utf8(ctx.binary_data) {
-            if let Some(regex_pattern) = params.regex {
-                if let Ok(re) = build_regex(regex_pattern, params.case_insensitive) {
-                    let mut match_count = 0;
-                    let mut first_match = None;
-                    for mat in re.find_iter(content) {
-                        match_count += 1;
-                        if first_match.is_none() {
-                            first_match = Some(mat.as_str().to_string());
-                        }
-                    }
-                    if match_count >= params.min_count {
-                        // Add a single evidence entry with the count
-                        evidence.push(Evidence {
-                            method: "string".to_string(),
-                            source: "raw_content".to_string(),
-                            value: format!(
-                                "Found {} {}",
-                                match_count,
-                                first_match.unwrap_or_default()
-                            ),
-                            location: Some("file".to_string()),
-                        });
-                    }
-                }
-            } else if let Some(exact_str) = params.exact {
-                let search_content = if params.case_insensitive {
-                    content.to_lowercase()
-                } else {
-                    content.to_string()
-                };
-                let search_pattern = if params.case_insensitive {
-                    exact_str.to_lowercase()
-                } else {
-                    exact_str.clone()
-                };
-                let match_count = search_content.matches(&search_pattern).count();
-                // Debug: trace string matching
-                if exact_str == "vscode" {
-                    eprintln!(
-                        "DEBUG eval_string: exact={} match_count={} min_count={} content_len={}",
-                        exact_str,
-                        match_count,
-                        params.min_count,
-                        content.len()
-                    );
-                }
-                if match_count >= params.min_count {
-                    evidence.push(Evidence {
-                        method: "string".to_string(),
-                        source: "raw_content".to_string(),
-                        value: format!("Found {} {}", match_count, exact_str),
-                        location: Some("file".to_string()),
-                    });
-                }
-            }
-        }
-        return ConditionResult {
-            matched: !evidence.is_empty(),
-            evidence,
-            traits: Vec::new(),
-        };
+        return eval_raw(
+            params.exact,
+            params.regex,
+            params.case_insensitive,
+            params.min_count,
+            ctx,
+        );
     }
 
     // Pre-compile regex patterns ONCE before iterating strings
@@ -221,51 +167,84 @@ pub fn eval_string(params: &StringParams, ctx: &EvaluationContext) -> ConditionR
         }
     }
 
-    // For source files or when no strings were extracted, search binary_data directly
-    if ctx.report.strings.is_empty()
-        || matches!(
-            ctx.file_type,
-            FileType::Python | FileType::Ruby | FileType::JavaScript | FileType::Shell
-        )
-    {
-        // Convert binary data to string for source code matching
-        if let Ok(content) = std::str::from_utf8(ctx.binary_data) {
-            let mut matched = false;
-            let mut match_value = String::new();
+    ConditionResult {
+        matched: evidence.len() >= params.min_count,
+        evidence,
+        traits: Vec::new(),
+    }
+}
 
-            if let Some(exact_str) = params.exact {
-                matched = if params.case_insensitive {
-                    content.to_lowercase().contains(&exact_str.to_lowercase())
-                } else {
-                    content.contains(exact_str)
-                };
-                if matched {
-                    match_value = exact_str.clone();
-                }
-            } else if let Some(ref re) = compiled_regex {
-                if let Some(mat) = re.find(content) {
-                    matched = true;
-                    match_value = mat.as_str().to_string();
+/// Evaluate raw content condition - searches directly in raw file bytes as text.
+/// Use this for source files or when you need to match patterns that may span
+/// string boundaries in binaries.
+pub fn eval_raw(
+    exact: Option<&String>,
+    regex: Option<&String>,
+    case_insensitive: bool,
+    min_count: usize,
+    ctx: &EvaluationContext,
+) -> ConditionResult {
+    let mut evidence = Vec::new();
+
+    // Convert binary data to string
+    let content = match std::str::from_utf8(ctx.binary_data) {
+        Ok(s) => s,
+        Err(_) => {
+            return ConditionResult {
+                matched: false,
+                evidence: Vec::new(),
+                traits: Vec::new(),
+            }
+        }
+    };
+
+    if let Some(regex_pattern) = regex {
+        if let Ok(re) = build_regex(regex_pattern, case_insensitive) {
+            let mut match_count = 0;
+            let mut first_match = None;
+            for mat in re.find_iter(content) {
+                match_count += 1;
+                if first_match.is_none() {
+                    first_match = Some(mat.as_str().to_string());
                 }
             }
-
-            if matched {
-                // Check exclusion patterns (already compiled)
-                let excluded = compiled_excludes.iter().any(|re| re.is_match(&match_value));
-                if !excluded {
-                    evidence.push(Evidence {
-                        method: "string".to_string(),
-                        source: "source_code".to_string(),
-                        value: match_value,
-                        location: Some("file".to_string()),
-                    });
-                }
+            if match_count >= min_count {
+                evidence.push(Evidence {
+                    method: "raw".to_string(),
+                    source: "raw_content".to_string(),
+                    value: format!(
+                        "Found {} {}",
+                        match_count,
+                        first_match.unwrap_or_default()
+                    ),
+                    location: Some("file".to_string()),
+                });
             }
+        }
+    } else if let Some(exact_str) = exact {
+        let search_content = if case_insensitive {
+            content.to_lowercase()
+        } else {
+            content.to_string()
+        };
+        let search_pattern = if case_insensitive {
+            exact_str.to_lowercase()
+        } else {
+            exact_str.clone()
+        };
+        let match_count = search_content.matches(&search_pattern).count();
+        if match_count >= min_count {
+            evidence.push(Evidence {
+                method: "raw".to_string(),
+                source: "raw_content".to_string(),
+                value: format!("Found {} {}", match_count, exact_str),
+                location: Some("file".to_string()),
+            });
         }
     }
 
     ConditionResult {
-        matched: evidence.len() >= params.min_count,
+        matched: !evidence.is_empty(),
         evidence,
         traits: Vec::new(),
     }
@@ -1140,8 +1119,31 @@ pub fn eval_metrics(
     field: &str,
     min: Option<f64>,
     max: Option<f64>,
+    min_size: Option<u64>,
+    max_size: Option<u64>,
     ctx: &EvaluationContext,
 ) -> ConditionResult {
+    // Check file size constraints first
+    let file_size = ctx.report.target.size_bytes;
+    if let Some(min_sz) = min_size {
+        if file_size < min_sz {
+            return ConditionResult {
+                matched: false,
+                evidence: Vec::new(),
+                traits: Vec::new(),
+            };
+        }
+    }
+    if let Some(max_sz) = max_size {
+        if file_size > max_sz {
+            return ConditionResult {
+                matched: false,
+                evidence: Vec::new(),
+                traits: Vec::new(),
+            };
+        }
+    }
+
     let metrics = match &ctx.report.metrics {
         Some(m) => m,
         None => {
