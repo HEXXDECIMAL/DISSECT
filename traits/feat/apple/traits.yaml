@@ -52,21 +52,47 @@ traits:
 
   # === Apple Frameworks ===
 
-  - id: ad-framework
-    description: Apple advertising framework usage
-    criticality: notable
-    confidence: 0.9
+  # === Ad framework atomic indicators ===
+  - id: adcore-framework
+    description: AdCore.framework usage
+    criticality: inert
+    confidence: 0.7
     condition:
       type: string
-      regex: "/AdCore\\.framework/|/AdID\\.framework/|/LimitAdTracking\\.framework/"
+      exact: "/AdCore.framework/"
 
-  - id: privacy-framework
-    description: Apple privacy framework usage
-    criticality: notable
-    confidence: 0.9
+  - id: adid-framework
+    description: AdID.framework usage
+    criticality: inert
+    confidence: 0.7
     condition:
       type: string
-      regex: "/AppTrackingTransparency\\.framework/|/PrivacyContentPrediction\\.framework/"
+      exact: "/AdID.framework/"
+
+  - id: limitadtracking-framework
+    description: LimitAdTracking.framework usage
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "/LimitAdTracking.framework/"
+
+  # === Privacy framework atomic indicators ===
+  - id: apptrackingtransparency-framework
+    description: AppTrackingTransparency.framework usage
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "/AppTrackingTransparency.framework/"
+
+  - id: privacycontentprediction-framework
+    description: PrivacyContentPrediction.framework usage
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "/PrivacyContentPrediction.framework/"
 
   - id: private-framework
     description: Apple private framework usage
@@ -95,19 +121,39 @@ traits:
 
   # === Dispatch (GCD) ===
 
-  - id: dispatch-queue
-    description: Grand Central Dispatch queue usage
-    confidence: 0.8
+  # === Dispatch queue atomic indicators ===
+  - id: dispatch-queue-create
+    description: dispatch_queue_create symbol
+    criticality: inert
+    confidence: 0.6
     condition:
       type: symbol
-      pattern: "dispatch_queue_create|dispatch_get_global_queue"
+      pattern: "dispatch_queue_create"
 
-  - id: dispatch-async
-    description: Grand Central Dispatch async execution
-    confidence: 0.8
+  - id: dispatch-get-global-queue
+    description: dispatch_get_global_queue symbol
+    criticality: inert
+    confidence: 0.6
     condition:
       type: symbol
-      pattern: "dispatch_async|dispatch_sync"
+      pattern: "dispatch_get_global_queue"
+
+  # === Dispatch async atomic indicators ===
+  - id: dispatch-async-symbol
+    description: dispatch_async symbol
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: symbol
+      pattern: "dispatch_async"
+
+  - id: dispatch-sync-symbol
+    description: dispatch_sync symbol
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: symbol
+      pattern: "dispatch_sync"
 
   - id: dispatch-source
     description: Grand Central Dispatch source (event monitoring)
@@ -117,6 +163,41 @@ traits:
       pattern: "dispatch_source_create"
 
 composite_rules:
+  - id: ad-framework
+    description: Apple advertising framework usage
+    criticality: notable
+    confidence: 0.9
+    requires_count: 1
+    conditions:
+      - id: adcore-framework
+      - id: adid-framework
+      - id: limitadtracking-framework
+
+  - id: privacy-framework
+    description: Apple privacy framework usage
+    criticality: notable
+    confidence: 0.9
+    requires_count: 1
+    conditions:
+      - id: apptrackingtransparency-framework
+      - id: privacycontentprediction-framework
+
+  - id: dispatch-queue
+    description: Grand Central Dispatch queue usage
+    confidence: 0.8
+    requires_count: 1
+    conditions:
+      - id: dispatch-queue-create
+      - id: dispatch-get-global-queue
+
+  - id: dispatch-async
+    description: Grand Central Dispatch async execution
+    confidence: 0.8
+    requires_count: 1
+    conditions:
+      - id: dispatch-async-symbol
+      - id: dispatch-sync-symbol
+
   # Helper: Any Apple framework path detected
   - id: any-framework
     description: Any Apple framework path (system or private)

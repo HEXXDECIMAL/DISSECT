@@ -1,139 +1,498 @@
 # Node.js Environment Variable Access
 # ATT&CK: T1552.001 (Credentials In Files)
 
+defaults:
+  file_types: [javascript, typescript]
+  attack: "T1552.001"
+
 traits:
-  # Generic config file access
+  # === Config file access atomic indicators ===
+  - id: dotenv-file
+    description: .env file reference
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: ".env"
+
+  - id: ssh-id-rsa
+    description: SSH private key path
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: ".ssh/id_rsa"
+
+  - id: aws-credentials-file
+    description: AWS credentials file path
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: ".aws/credentials"
+
+  - id: kube-config-file
+    description: Kubernetes config path
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: ".kube/config"
+
+  # === AWS env atomic indicators ===
+  - id: env-aws-access-key
+    description: AWS_ACCESS_KEY env access
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "process.env.AWS_ACCESS_KEY"
+
+  - id: env-aws-secret
+    description: AWS_SECRET env access
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "process.env.AWS_SECRET"
+
+  - id: env-aws-session-token
+    description: AWS_SESSION_TOKEN env access
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "process.env.AWS_SESSION_TOKEN"
+
+  # === Git token atomic indicators ===
+  - id: env-github-token
+    description: GITHUB_TOKEN env access
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "process.env.GITHUB_TOKEN"
+
+  - id: env-gitlab-token
+    description: GITLAB_TOKEN env access
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "process.env.GITLAB_TOKEN"
+
+  - id: env-gh-token
+    description: GH_TOKEN env access
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "process.env.GH_TOKEN"
+
+  - id: env-bitbucket-token
+    description: BITBUCKET_TOKEN env access
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "process.env.BITBUCKET_TOKEN"
+
+  # === NPM token atomic indicators ===
+  - id: env-npm-token
+    description: NPM_TOKEN env access
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "process.env.NPM_TOKEN"
+
+  - id: env-npm-auth-token
+    description: NPM_AUTH_TOKEN env access
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "process.env.NPM_AUTH_TOKEN"
+
+  - id: env-node-auth-token
+    description: NODE_AUTH_TOKEN env access
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "process.env.NODE_AUTH_TOKEN"
+
+  # === Discord token atomic indicators ===
+  - id: env-discord-token
+    description: DISCORD_TOKEN env access
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "process.env.DISCORD_TOKEN"
+
+  - id: env-discord-bot-token
+    description: DISCORD_BOT_TOKEN env access
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "process.env.DISCORD_BOT_TOKEN"
+
+  - id: env-discord-client-secret
+    description: DISCORD_CLIENT_SECRET env access
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "process.env.DISCORD_CLIENT_SECRET"
+
+  # === Slack token atomic indicators ===
+  - id: env-slack-token
+    description: SLACK_TOKEN env access
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "process.env.SLACK_TOKEN"
+
+  - id: env-slack-bot-token
+    description: SLACK_BOT_TOKEN env access
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "process.env.SLACK_BOT_TOKEN"
+
+  - id: env-slack-webhook
+    description: SLACK_WEBHOOK env access
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "process.env.SLACK_WEBHOOK"
+
+  # === Database atomic indicators ===
+  - id: env-database-url
+    description: DATABASE_URL env access
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "process.env.DATABASE_URL"
+
+  - id: env-mongodb-uri
+    description: MONGODB_URI env access
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "process.env.MONGODB_URI"
+
+  - id: env-postgres-prefix
+    description: POSTGRES_ env prefix access
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      regex: "process\\.env\\.POSTGRES_"
+
+  - id: env-mysql-prefix
+    description: MYSQL_ env prefix access
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      regex: "process\\.env\\.MYSQL_"
+
+  - id: env-redis-url
+    description: REDIS_URL env access
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "process.env.REDIS_URL"
+
+  # === Crypto/wallet atomic indicators ===
+  - id: env-wallet-prefix
+    description: WALLET_ env prefix access
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "process\\.env\\.WALLET_"
+
+  - id: env-mnemonic
+    description: MNEMONIC env access
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "process.env.MNEMONIC"
+
+  - id: env-seed-phrase
+    description: SEED_PHRASE env access
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "process.env.SEED_PHRASE"
+
+  - id: env-private-key
+    description: PRIVATE_KEY env access
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "process.env.PRIVATE_KEY"
+
+  - id: env-eth-private
+    description: ETH_PRIVATE env access
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "process\\.env\\.ETH_PRIVATE"
+
+  # === CI/CD atomic indicators ===
+  - id: env-ci-token
+    description: CI_TOKEN env access
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "process.env.CI_TOKEN"
+
+  - id: env-circle-token
+    description: CIRCLE_TOKEN env access
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "process.env.CIRCLE_TOKEN"
+
+  - id: env-travis-token
+    description: TRAVIS_TOKEN env access
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "process.env.TRAVIS_TOKEN"
+
+  - id: env-jenkins-prefix
+    description: JENKINS_ env prefix access
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      regex: "process\\.env\\.JENKINS_"
+
+  - id: env-buildkite-prefix
+    description: BUILDKITE_ env prefix access
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      regex: "process\\.env\\.BUILDKITE_"
+
+  # === Cloud provider atomic indicators ===
+  - id: env-google-prefix
+    description: GOOGLE_ env prefix access
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      regex: "process\\.env\\.GOOGLE_"
+
+  - id: env-gcp-prefix
+    description: GCP_ env prefix access
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      regex: "process\\.env\\.GCP_"
+
+  - id: env-azure-prefix
+    description: AZURE_ env prefix access
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      regex: "process\\.env\\.AZURE_"
+
+  - id: env-digitalocean-prefix
+    description: DIGITALOCEAN_ env prefix access
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      regex: "process\\.env\\.DIGITALOCEAN_"
+
+  - id: env-heroku-api
+    description: HEROKU_API env access
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      regex: "process\\.env\\.HEROKU_API"
+
+  # === Env dump atomic indicators ===
+  - id: json-stringify-env
+    description: JSON.stringify(process.env)
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      regex: 'JSON\.stringify\(process\.env'
+
+  - id: object-keys-env
+    description: Object.keys(process.env)
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      regex: 'Object\.keys\(process\.env'
+
+  - id: object-entries-env
+    description: Object.entries(process.env)
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      regex: 'Object\.entries\(process\.env'
+
+composite_rules:
+  # Config file access composite
   - id: node-config
     description: Accessing sensitive configuration files
     criticality: suspicious
     confidence: 0.7
-    file_types: [javascript, typescript]
-    condition:
-      type: string
-      regex: '(\.env|\.ssh/id_rsa|\.aws/credentials|\.kube/config)'
+    requires_count: 1
+    conditions:
+      - id: dotenv-file
+      - id: ssh-id-rsa
+      - id: aws-credentials-file
+      - id: kube-config-file
 
-  # AWS credentials
+  # AWS credentials composite
   - id: node-aws
     description: Accesses AWS credentials from environment
     criticality: suspicious
     confidence: 0.9
-    attack: "T1552.001"
-    file_types: [javascript, typescript]
-    condition:
-      type: string
-      regex: "process\\.env\\.(AWS_ACCESS_KEY|AWS_SECRET|AWS_SESSION_TOKEN)"
+    requires_count: 1
+    conditions:
+      - id: env-aws-access-key
+      - id: env-aws-secret
+      - id: env-aws-session-token
 
-  # GitHub/GitLab tokens
+  # Git token composite
   - id: node-git-token
     description: Accesses Git service tokens from environment
     criticality: suspicious
     confidence: 0.9
-    attack: "T1552.001"
-    file_types: [javascript, typescript]
-    condition:
-      type: string
-      regex: "process\\.env\\.(GITHUB_TOKEN|GITLAB_TOKEN|GH_TOKEN|BITBUCKET_TOKEN)"
+    requires_count: 1
+    conditions:
+      - id: env-github-token
+      - id: env-gitlab-token
+      - id: env-gh-token
+      - id: env-bitbucket-token
 
-  # NPM tokens
+  # NPM token composite
   - id: node-npm-token
     description: Accesses NPM authentication tokens
     criticality: suspicious
     confidence: 0.95
-    attack: "T1552.001"
-    file_types: [javascript, typescript]
-    condition:
-      type: string
-      regex: "process\\.env\\.(NPM_TOKEN|NPM_AUTH_TOKEN|NODE_AUTH_TOKEN)"
+    requires_count: 1
+    conditions:
+      - id: env-npm-token
+      - id: env-npm-auth-token
+      - id: env-node-auth-token
 
-  # Discord tokens
+  # Discord token composite
   - id: node-discord
     description: Accesses Discord bot/user tokens
     criticality: suspicious
     confidence: 0.9
-    attack: "T1552.001"
-    file_types: [javascript, typescript]
-    condition:
-      type: string
-      regex: "process\\.env\\.(DISCORD_TOKEN|DISCORD_BOT_TOKEN|DISCORD_CLIENT_SECRET)"
+    requires_count: 1
+    conditions:
+      - id: env-discord-token
+      - id: env-discord-bot-token
+      - id: env-discord-client-secret
 
-  # Slack tokens
+  # Slack token composite
   - id: node-slack
     description: Accesses Slack tokens from environment
     criticality: suspicious
     confidence: 0.9
-    attack: "T1552.001"
-    file_types: [javascript, typescript]
-    condition:
-      type: string
-      regex: "process\\.env\\.(SLACK_TOKEN|SLACK_BOT_TOKEN|SLACK_WEBHOOK)"
+    requires_count: 1
+    conditions:
+      - id: env-slack-token
+      - id: env-slack-bot-token
+      - id: env-slack-webhook
 
-  # Database credentials
+  # Database composite
   - id: node-database
     description: Accesses database connection strings
     criticality: suspicious
     confidence: 0.85
-    attack: "T1552.001"
-    file_types: [javascript, typescript]
-    condition:
-      type: string
-      regex: "process\\.env\\.(DATABASE_URL|MONGODB_URI|POSTGRES_|MYSQL_|REDIS_URL)"
+    requires_count: 1
+    conditions:
+      - id: env-database-url
+      - id: env-mongodb-uri
+      - id: env-postgres-prefix
+      - id: env-mysql-prefix
+      - id: env-redis-url
 
-  # API keys (generic)
-  - id: node-api-key
-    description: Accesses API keys from environment
-    criticality: notable
-    confidence: 0.75
-    attack: "T1552.001"
-    file_types: [javascript, typescript]
-    condition:
-      type: string
-      regex: "process\\.env\\.[A-Z_]*(API_KEY|SECRET_KEY|PRIVATE_KEY|AUTH_KEY)"
-
-  # Crypto/Wallet keys
+  # Crypto/wallet composite
   - id: node-crypto
     description: Accesses cryptocurrency private keys
     criticality: suspicious
     confidence: 0.95
-    attack: "T1552.001"
-    file_types: [javascript, typescript]
-    condition:
-      type: string
-      regex: "process\\.env\\.(WALLET_|MNEMONIC|SEED_PHRASE|PRIVATE_KEY|ETH_PRIVATE)"
+    requires_count: 1
+    conditions:
+      - id: env-wallet-prefix
+      - id: env-mnemonic
+      - id: env-seed-phrase
+      - id: env-private-key
+      - id: env-eth-private
 
-  # CI/CD tokens
+  # CI/CD composite
   - id: node-cicd
     description: Accesses CI/CD pipeline tokens
     criticality: suspicious
     confidence: 0.85
-    attack: "T1552.001"
-    file_types: [javascript, typescript]
-    condition:
-      type: string
-      regex: "process\\.env\\.(CI_TOKEN|CIRCLE_TOKEN|TRAVIS_TOKEN|JENKINS_|BUILDKITE_)"
+    requires_count: 1
+    conditions:
+      - id: env-ci-token
+      - id: env-circle-token
+      - id: env-travis-token
+      - id: env-jenkins-prefix
+      - id: env-buildkite-prefix
 
-  # Cloud provider tokens
+  # Cloud provider composite
   - id: node-cloud
     description: Accesses cloud provider credentials
     criticality: suspicious
     confidence: 0.9
-    attack: "T1552.001"
-    file_types: [javascript, typescript]
-    condition:
-      type: string
-      regex: "process\\.env\\.(GOOGLE_|GCP_|AZURE_|DIGITALOCEAN_|HEROKU_API)"
+    requires_count: 1
+    conditions:
+      - id: env-google-prefix
+      - id: env-gcp-prefix
+      - id: env-azure-prefix
+      - id: env-digitalocean-prefix
+      - id: env-heroku-api
 
-  # Full process.env dump
+  # Env dump composite
   - id: node-env-dump
     description: Accesses entire process.env object
     criticality: suspicious
     confidence: 0.85
-    attack: "T1552.001"
-    file_types: [javascript, typescript]
-    condition:
-      type: string
-      regex: 'JSON\.stringify\(process\.env|Object\.keys\(process\.env|Object\.entries\(process\.env'
+    requires_count: 1
+    conditions:
+      - id: json-stringify-env
+      - id: object-keys-env
+      - id: object-entries-env
 
-composite_rules:
   # Multi-credential access
   - id: node-multi-cred
     description: Accesses multiple credential sources (credential harvesting)

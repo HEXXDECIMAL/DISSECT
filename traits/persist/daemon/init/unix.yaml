@@ -3,16 +3,26 @@
 # ATT&CK: T1543 (Create or Modify System Process)
 
 traits:
-  - id: daemon-fork
-    description: "Process forking for daemon behavior"
-    criticality: notable
-    confidence: 0.4
-    attack: "T1543"
+  # === daemon-fork atomic indicators ===
+  - id: fork-symbol
+    description: fork syscall symbol
+    criticality: inert
+    confidence: 0.3
     file_types: [elf, macho]
     platforms: [linux, macos]
     condition:
       type: symbol
-      pattern: "\\bfork\\b|\\bdaemon\\b"
+      pattern: "\\bfork\\b"
+
+  - id: daemon-symbol
+    description: daemon function symbol
+    criticality: inert
+    confidence: 0.4
+    file_types: [elf, macho]
+    platforms: [linux, macos]
+    condition:
+      type: symbol
+      pattern: "\\bdaemon\\b"
 
   - id: daemon-setsid
     description: "Session creation (setsid) for daemon"
@@ -81,6 +91,50 @@ traits:
             ($sig_ign or $sig_ign2)
         }
 
+  # === sigchld-handler atomic indicators ===
+  - id: sigchild-underscore
+    description: _sigchild string
+    criticality: inert
+    confidence: 0.5
+    file_types: [elf, macho]
+    platforms: [linux, macos, unix]
+    condition:
+      type: string
+      exact: "_sigchild"
+
+  - id: sigchld-handler-string
+    description: sigchld_handler string
+    criticality: inert
+    confidence: 0.5
+    file_types: [elf, macho]
+    platforms: [linux, macos, unix]
+    condition:
+      type: string
+      exact: "sigchld_handler"
+
+  - id: handle-sigchld-string
+    description: handle_sigchld string
+    criticality: inert
+    confidence: 0.5
+    file_types: [elf, macho]
+    platforms: [linux, macos, unix]
+    condition:
+      type: string
+      exact: "handle_sigchld"
+
+composite_rules:
+  - id: daemon-fork
+    description: "Process forking for daemon behavior"
+    criticality: notable
+    confidence: 0.4
+    attack: "T1543"
+    file_types: [elf, macho]
+    platforms: [linux, macos]
+    requires_count: 1
+    conditions:
+      - id: fork-symbol
+      - id: daemon-symbol
+
   - id: sigchld-handler
     description: "Custom SIGCHLD handler (child process reaping)"
     criticality: notable
@@ -88,11 +142,12 @@ traits:
     attack: "T1543"
     file_types: [elf, macho]
     platforms: [linux, macos, unix]
-    condition:
-      type: string
-      regex: "_sigchild|sigchld_handler|handle_sigchld"
+    requires_count: 1
+    conditions:
+      - id: sigchild-underscore
+      - id: sigchld-handler-string
+      - id: handle-sigchld-string
 
-composite_rules:
   - id: full-daemon
     description: "Full daemon behavior (fork + setsid + /dev/null)"
     criticality: suspicious

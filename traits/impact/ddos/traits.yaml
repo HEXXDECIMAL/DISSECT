@@ -97,7 +97,7 @@ composite_rules:
   # Multi-vector DDoS tool
   - id: multi-vector
     description: Multi-vector DDoS tool (multiple attack types)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     requires_any:
       - id: impact/ddos/syn-flood-logic

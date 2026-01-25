@@ -190,8 +190,8 @@ traits:
 
   # Typosquatting domain indicators
   - id: typosquat-domain
-    description: Typosquatting domain pattern
-    criticality: hostile
+    description: Typosquatting domain pattern (brand impersonation)
+    criticality: suspicious
     confidence: 0.85
     attack: "T1566.002"
     file_types: [javascript, html]
@@ -288,14 +288,112 @@ traits:
             ($value and $readonly) or $email_placeholder or (#pre_filled > 1)
         }
 
-  # Authentication required lure
+  # === Auth lure atomic indicators ===
+  - id: auth-required-phrase
+    description: Authentication required phrase
+    criticality: inert
+    confidence: 0.6
+    attack: "T1566"
+    file_types: [javascript, html]
+    condition:
+      type: string
+      regex: '(?i)authentication\s+required'
+
+  - id: auth-needed-phrase
+    description: Authentication needed phrase
+    criticality: inert
+    confidence: 0.6
+    attack: "T1566"
+    file_types: [javascript, html]
+    condition:
+      type: string
+      regex: '(?i)authentication\s+needed'
+
+  - id: verification-required-phrase
+    description: Verification required phrase
+    criticality: inert
+    confidence: 0.6
+    attack: "T1566"
+    file_types: [javascript, html]
+    condition:
+      type: string
+      regex: '(?i)verification\s+required'
+
+  - id: verification-needed-phrase
+    description: Verification needed phrase
+    criticality: inert
+    confidence: 0.6
+    attack: "T1566"
+    file_types: [javascript, html]
+    condition:
+      type: string
+      regex: '(?i)verification\s+needed'
+
+  - id: verify-email-phrase
+    description: Verify your email phrase
+    criticality: inert
+    confidence: 0.6
+    attack: "T1566"
+    file_types: [javascript, html]
+    condition:
+      type: string
+      regex: '(?i)verify\s+your\s+email'
+
+  - id: verify-identity-phrase
+    description: Verify your identity phrase
+    criticality: inert
+    confidence: 0.6
+    attack: "T1566"
+    file_types: [javascript, html]
+    condition:
+      type: string
+      regex: '(?i)verify\s+your\s+identity'
+
+  - id: verify-account-phrase
+    description: Verify your account phrase
+    criticality: inert
+    confidence: 0.6
+    attack: "T1566"
+    file_types: [javascript, html]
+    condition:
+      type: string
+      regex: '(?i)verify\s+your\s+account'
+
+  - id: confirm-email-phrase
+    description: Confirm your email phrase
+    criticality: inert
+    confidence: 0.6
+    attack: "T1566"
+    file_types: [javascript, html]
+    condition:
+      type: string
+      regex: '(?i)confirm\s+your\s+email'
+
+  - id: confirm-identity-phrase
+    description: Confirm your identity phrase
+    criticality: inert
+    confidence: 0.6
+    attack: "T1566"
+    file_types: [javascript, html]
+    condition:
+      type: string
+      regex: '(?i)confirm\s+your\s+identity'
+
+composite_rules:
   - id: auth-required-lure
     description: Fake authentication required message
     criticality: suspicious
     confidence: 0.85
     attack: "T1566"
     file_types: [javascript, html]
-    condition:
-      type: string
-      regex: |
-        (?i)(authentication|verification)\s+(required|needed)|verify\s+your\s+(email|identity|account)|confirm\s+your\s+(email|identity)
+    requires_count: 1
+    conditions:
+      - id: auth-required-phrase
+      - id: auth-needed-phrase
+      - id: verification-required-phrase
+      - id: verification-needed-phrase
+      - id: verify-email-phrase
+      - id: verify-identity-phrase
+      - id: verify-account-phrase
+      - id: confirm-email-phrase
+      - id: confirm-identity-phrase

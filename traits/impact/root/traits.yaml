@@ -34,8 +34,8 @@ traits:
 composite_rules:
   # Dummy Test Rule
   - id: test-dummy-rule
-    description: "Dummy test rule"
-    criticality: hostile
+    description: "Dummy test rule for validation"
+    criticality: suspicious
     confidence: 1.0
     requires_all:
       - id: impact/root/prepare-creds-string
@@ -43,7 +43,7 @@ composite_rules:
   # Become Root Flow
   - id: my-become-root
     description: Complete 'become root' flow (prepare_creds -> set to 0 -> commit_creds)
-    criticality: hostile
+    criticality: suspicious
     confidence: 1.0
     attack: "T1068"
     requires_all:

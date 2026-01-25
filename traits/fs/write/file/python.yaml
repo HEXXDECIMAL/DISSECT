@@ -59,30 +59,63 @@ traits:
       type: string
       regex: "open\\([^)]*['\"]?/tmp/"
 
-  # tempfile module usage
-  - id: python-tempfile
-    description: "Temporary file creation (tempfile module)"
+  # === tempfile module atomic indicators ===
+  - id: python-tempfile-named
+    description: "tempfile.NamedTemporaryFile usage"
+    confidence: 0.6
+    criticality: inert
+    condition:
+      type: string
+      exact: "tempfile.NamedTemporaryFile"
+
+  - id: python-tempfile-mkstemp
+    description: "tempfile.mkstemp usage"
+    confidence: 0.6
+    criticality: inert
+    condition:
+      type: string
+      exact: "tempfile.mkstemp"
+
+  - id: python-tempfile-mkdtemp
+    description: "tempfile.mkdtemp usage"
+    confidence: 0.6
+    criticality: inert
+    condition:
+      type: string
+      exact: "tempfile.mkdtemp"
+
+  # === HTTP request atomic indicators ===
+  - id: python-requests-get
+    description: "requests.get call"
     confidence: 0.7
     criticality: inert
     condition:
       type: string
-      regex: "tempfile\\.(NamedTemporaryFile|mkstemp|mkdtemp)"
+      regex: "requests\\.get\\("
 
-  # HTTP request pattern (requests or urllib)
-  - id: python-http-request
-    description: "HTTP request via requests or urllib"
-    confidence: 0.8
+  - id: python-requests-post
+    description: "requests.post call"
+    confidence: 0.7
+    criticality: inert
     condition:
       type: string
-      regex: "requests\\.(get|post)\\(|urllib\\.request\\.(urlopen|urlretrieve)"
+      regex: "requests\\.post\\("
 
-  # Binary write pattern (open wb or write_bytes)
-  - id: python-binary-write-pattern
-    description: "Binary file write pattern"
-    confidence: 0.85
+  - id: python-urllib-urlopen
+    description: "urllib.request.urlopen call"
+    confidence: 0.7
+    criticality: inert
     condition:
       type: string
-      regex: "open\\([^)]+['\"]wb['\"]\\)|write_bytes\\("
+      regex: "urllib\\.request\\.urlopen"
+
+  - id: python-urllib-urlretrieve
+    description: "urllib.request.urlretrieve call"
+    confidence: 0.7
+    criticality: inert
+    condition:
+      type: string
+      regex: "urllib\\.request\\.urlretrieve"
 
   # os.chmod with executable permission
   - id: python-chmod-executable
@@ -93,6 +126,34 @@ traits:
       regex: "os\\.chmod\\([^)]+0[o]?7"
 
 composite_rules:
+  - id: python-tempfile
+    description: "Temporary file creation (tempfile module)"
+    confidence: 0.7
+    criticality: inert
+    requires_count: 1
+    conditions:
+      - id: python-tempfile-named
+      - id: python-tempfile-mkstemp
+      - id: python-tempfile-mkdtemp
+
+  - id: python-http-request
+    description: "HTTP request via requests or urllib"
+    confidence: 0.8
+    requires_count: 1
+    conditions:
+      - id: python-requests-get
+      - id: python-requests-post
+      - id: python-urllib-urlopen
+      - id: python-urllib-urlretrieve
+
+  - id: python-binary-write-pattern
+    description: "Binary file write pattern"
+    confidence: 0.85
+    requires_count: 1
+    conditions:
+      - id: python-open-write-binary
+      - id: python-pathlib-write-bytes
+
   # Download and write pattern (dropper behavior)
   - id: python-download-write
     description: "Download content and write to file"

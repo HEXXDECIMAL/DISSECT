@@ -80,29 +80,56 @@ traits:
       type: string
       exact: "github.com/robotn/gohook"
 
-  - id: python-pynput
-    description: Python pynput keyboard listener
-    confidence: 0.7
+  # === Python pynput atomic indicators ===
+  - id: pynput-import-keyboard
+    description: from pynput import keyboard
+    confidence: 0.5
     file_types: [python]
     condition:
       type: string
-      regex: "(from pynput import keyboard|from pynput\\.keyboard)"
+      exact: "from pynput import keyboard"
 
-  - id: js-iohook
-    description: Node.js iohook global keyboard hook library
-    confidence: 0.75
+  - id: pynput-keyboard-import
+    description: from pynput.keyboard import
+    confidence: 0.5
+    file_types: [python]
+    condition:
+      type: string
+      regex: "from pynput\\.keyboard"
+
+  # === JS iohook atomic indicators ===
+  - id: require-iohook
+    description: require("iohook")
+    confidence: 0.6
     file_types: [javascript]
     condition:
       type: string
-      regex: "(require\\(['\"]iohook['\"]\\)|from ['\"]iohook['\"])"
+      regex: "require\\(['\"]iohook['\"]\\)"
 
-  - id: rust-rdev
-    description: Rust rdev keyboard event library
-    confidence: 0.65
+  - id: import-iohook
+    description: from "iohook" import
+    confidence: 0.6
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "from ['\"]iohook['\"]"
+
+  # === Rust rdev atomic indicators ===
+  - id: use-rdev
+    description: "use rdev:: import statement"
+    confidence: 0.5
     file_types: [rust]
     condition:
       type: string
-      regex: "(use rdev::|extern crate rdev)"
+      regex: "use rdev::"
+
+  - id: extern-crate-rdev
+    description: extern crate rdev
+    confidence: 0.5
+    file_types: [rust]
+    condition:
+      type: string
+      exact: "extern crate rdev"
 
   # === AppleScript Keystroke Capture ===
   # YARA rule with multiple string matches - can stay hostile with file_types
@@ -113,7 +140,8 @@ traits:
     mbc: "B0015"
     attack: "T1056.001"
     platforms: [macos]
-    file_types: [javascript, typescript, shell]
+    # osascript can be invoked from any language
+    file_types: [*]
     condition:
       type: yara
       source: |
@@ -176,7 +204,37 @@ traits:
         }
 
 composite_rules:
-  # === Composite Rules ===
+  # Python pynput composite
+  - id: python-pynput
+    description: Python pynput keyboard listener
+    confidence: 0.7
+    file_types: [python]
+    requires_count: 1
+    conditions:
+      - id: pynput-import-keyboard
+      - id: pynput-keyboard-import
+
+  # JS iohook composite
+  - id: js-iohook
+    description: Node.js iohook global keyboard hook library
+    confidence: 0.75
+    file_types: [javascript]
+    requires_count: 1
+    conditions:
+      - id: require-iohook
+      - id: import-iohook
+
+  # Rust rdev composite
+  - id: rust-rdev
+    description: Rust rdev keyboard event library
+    confidence: 0.65
+    file_types: [rust]
+    requires_count: 1
+    conditions:
+      - id: use-rdev
+      - id: extern-crate-rdev
+
+  # === Platform Composite Rules ===
   # Multiple keyboard-related indicators - still only suspicious
   # Hostile classification requires exfiltration indicators
   - id: windows-keylogger

@@ -429,7 +429,7 @@ composite_rules:
 
   - id: auth-bypass-indicator
     description: "Authentication bypass backdoor indicator"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     file_types: [elf, pe, macho]
     attack: "T1195.002"

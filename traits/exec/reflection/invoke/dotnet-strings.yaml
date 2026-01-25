@@ -21,26 +21,102 @@ traits:
       type: string
       exact: "Activator"
 
+  # === Property info atomic indicators ===
+  - id: property-info-class
+    description: PropertyInfo class reference
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "PropertyInfo"
+
+  - id: get-properties-method
+    description: GetProperties method reference
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "GetProperties"
+
+  # === Method info atomic indicators ===
+  - id: method-info-class
+    description: MethodInfo class reference
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "MethodInfo"
+
+  - id: get-method-call
+    description: GetMethod call reference
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "GetMethod"
+
+  - id: get-methods-call
+    description: GetMethods call reference
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "GetMethods"
+
+  # === Type info atomic indicators ===
+  - id: get-type-call
+    description: GetType( call reference
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "GetType("
+
+  - id: typeof-call
+    description: typeof( call reference
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "typeof("
+
+  - id: type-info-class
+    description: TypeInfo class reference
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "TypeInfo"
+
+composite_rules:
+  # Property info composite
   - id: property-info
     description: Reflection property access
     criticality: notable
     confidence: 0.70
-    condition:
-      type: string
-      regex: "PropertyInfo|GetProperties"
+    requires_count: 1
+    conditions:
+      - id: property-info-class
+      - id: get-properties-method
 
+  # Method info composite
   - id: method-info
     description: Reflection method access
     criticality: notable
     confidence: 0.70
-    condition:
-      type: string
-      regex: "MethodInfo|GetMethod|GetMethods"
+    requires_count: 1
+    conditions:
+      - id: method-info-class
+      - id: get-method-call
+      - id: get-methods-call
 
+  # Type info composite
   - id: type-info
     description: Runtime type inspection
     criticality: notable
     confidence: 0.70
-    condition:
-      type: string
-      regex: "GetType\\(|typeof\\(|TypeInfo"
+    requires_count: 1
+    conditions:
+      - id: get-type-call
+      - id: typeof-call
+      - id: type-info-class

@@ -14,14 +14,24 @@ traits:
       type: string
       regex: "gpio[a-z]?_daemon"
 
-  - id: busybox
-    description: BusyBox reference
-    criticality: notable
-    confidence: 0.70
+  # === BusyBox atomic indicators ===
+  - id: busybox-path
+    description: BusyBox binary path
+    criticality: inert
+    confidence: 0.6
     file_types: [elf, shell]
     condition:
       type: string
-      regex: "/bin/busybox|busybox\\s"
+      exact: "/bin/busybox"
+
+  - id: busybox-cmd
+    description: BusyBox command reference
+    criticality: inert
+    confidence: 0.6
+    file_types: [elf, shell]
+    condition:
+      type: string
+      regex: "busybox\\s"
 
   - id: iot-botnet/ssdp-discover
     description: SSDP M-SEARCH discovery (UPnP exploitation/scanning)
@@ -59,6 +69,17 @@ traits:
       case_insensitive: true
 
 composite_rules:
+  # BusyBox composite
+  - id: busybox
+    description: BusyBox reference
+    criticality: notable
+    confidence: 0.70
+    file_types: [elf, shell]
+    requires_count: 1
+    conditions:
+      - id: busybox-path
+      - id: busybox-cmd
+
   # IoT botnet detection - requires multiple indicators
   - id: iot-botnet-detected
     description: IoT botnet variant detected (multiple indicators)

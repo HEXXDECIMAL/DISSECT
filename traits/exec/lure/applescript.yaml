@@ -3,7 +3,8 @@
 # ATT&CK: T1204.002 (User Execution: Malicious File)
 
 defaults:
-  file_types: [applescript, shell]
+  # osascript can be invoked from any language: python subprocess, ruby system(), etc.
+  file_types: [applescript, shell, python, ruby, perl, javascript, elf, macho]
   platforms: [macos]
   attack: "T1204.002"
 
@@ -173,7 +174,7 @@ composite_rules:
   # ============================================
   - id: compat-wizard-attack
     description: "Compatibility Wizard user execution lure"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     file_types: [applescript, shell]
     requires_all:
@@ -185,7 +186,7 @@ composite_rules:
   # ============================================
   - id: fake-update-attack
     description: "Fake system update user execution lure"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     file_types: [applescript, shell]
     requires_all:
@@ -197,7 +198,7 @@ composite_rules:
   # ============================================
   - id: missing-components-attack
     description: "Missing components user execution lure"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     file_types: [applescript, shell]
     requires_all:
@@ -209,7 +210,7 @@ composite_rules:
   # ============================================
   - id: lure-with-shell
     description: "User execution lure with shell command"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     file_types: [applescript]
     requires_all:

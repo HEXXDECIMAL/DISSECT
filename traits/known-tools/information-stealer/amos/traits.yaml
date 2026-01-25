@@ -113,16 +113,14 @@ traits:
       section: "__const"
       min_entropy: 7.5
 
-composite_rules:
-  # AMOS magic variable variant
-  - id: stealer/amos/magic-variant-detected
-    description: AMOS infostealer (magic var variant)
+  # === YARA-based traits for variant detection ===
+
+  - id: stealer/amos/magic-variant-yara
+    description: AMOS magic var variant via YARA
     criticality: suspicious
     confidence: 0.95
     family: true
-    reference: "https://www.intego.com/mac-security-blog/poseidon-macos-malware-employs-new-tricks-targets-swiss-mac-users/"
     attack: "T1555"
-    mbc: "B0028"
     platforms: [macos]
     file_types: [macho]
     condition:
@@ -152,14 +150,12 @@ composite_rules:
             #word_with_spaces < 3
         }
 
-  # AMOS base32 variant
-  - id: stealer/amos/base32-variant-detected
-    description: AMOS infostealer (base32 variant)
+  - id: stealer/amos/base32-variant-yara
+    description: AMOS base32 variant via YARA
     criticality: suspicious
     confidence: 0.95
     family: true
     attack: "T1555"
-    mbc: "B0028"
     platforms: [macos]
     file_types: [macho]
     condition:
@@ -184,14 +180,12 @@ composite_rules:
             filesize > 40KB and filesize < 2MB and all of them
         }
 
-  # AMOS hex obfuscated variant
-  - id: stealer/amos/hex-obfuscated-detected
-    description: AMOS infostealer (hex obfuscated)
+  - id: stealer/amos/hex-obfuscated-yara
+    description: AMOS hex obfuscated variant via YARA
     criticality: suspicious
     confidence: 0.9
     family: true
     attack: "T1555"
-    mbc: "B0028"
     platforms: [macos]
     file_types: [macho]
     condition:
@@ -226,16 +220,12 @@ composite_rules:
             95% of ($f*) and math.entropy(20000, 50000) >= 4.5 and #x > 64
         }
 
-  # AMOS string-obfuscated variant (C++ with minimal readable strings)
-  # Sample: Cosmical_setup, FlaUI_Driver, setup (271KB universal binary)
-  # Characteristics: Very few readable strings, C++ RTTI, daemon imports
-  - id: stealer/amos/string-obfuscated-detected
-    description: "AMOS infostealer (string obfuscated variant)"
+  - id: stealer/amos/string-obfuscated-yara
+    description: AMOS string obfuscated variant via YARA
     criticality: suspicious
     confidence: 0.9
     family: true
     attack: "T1555"
-    mbc: "B0028"
     platforms: [macos]
     file_types: [macho]
     condition:
@@ -281,17 +271,12 @@ composite_rules:
             $cpp_delete
         }
 
-  # AMOS cipher variant (triple lookup table)
-  # Sample: 0a1b92f6f95e369c813f8bd67694cdb3a15a0c6faac9f2af44e2f3eeca0cef8c
-  # Obfuscation: plaintext[i] = (table1[i] - table2[i]) ^ table3[i]
-  - id: stealer/amos/cipher-variant-detected
-    description: "AMOS infostealer (cipher variant - triple lookup table)"
+  - id: stealer/amos/cipher-variant-yara
+    description: AMOS cipher variant via YARA
     criticality: suspicious
     confidence: 0.95
     family: true
-    reference: "https://www.sentinelone.com/blog/atomic-stealer-threat-actor-spawns-second-variant-of-macos-malware-sold-on-telegram/"
     attack: "T1555"
-    mbc: "B0028"
     platforms: [macos]
     file_types: [macho]
     condition:
@@ -336,13 +321,87 @@ composite_rules:
             none of ($not*) and
             // Size range for cipher variant (larger due to encrypted payload)
             filesize > 500KB and filesize < 3MB and
-            // Must have /dev/urandom and system
-            $dev_urandom and $f_system and
+            // Must have /dev/urandom and system and main entry point
+            $dev_urandom and $f_system and $main and $header and
             // Must have 4+ math functions (cipher fingerprint)
             4 of ($f_cos, $f_sin, $f_tan, $f_exp, $f_pow, $f_hypot, $f_log1p, $f_fmod) and
+            // Memory ops and random access
+            ($f_random or $f_memcpy or $f_memset) and
             // High entropy in data section (encrypted payload)
             math.entropy(0, filesize) > 6.0
         }
+
+composite_rules:
+  # AMOS magic variable variant
+  - id: stealer/amos/magic-variant-detected
+    description: AMOS infostealer (magic var variant)
+    criticality: suspicious
+    confidence: 0.95
+    family: true
+    reference: "https://www.intego.com/mac-security-blog/poseidon-macos-malware-employs-new-tricks-targets-swiss-mac-users/"
+    attack: "T1555"
+    mbc: "B0028"
+    platforms: [macos]
+    file_types: [macho]
+    requires_all:
+      - id: stealer/amos/magic-variant-yara
+
+  # AMOS base32 variant
+  - id: stealer/amos/base32-variant-detected
+    description: AMOS infostealer (base32 variant)
+    criticality: suspicious
+    confidence: 0.95
+    family: true
+    attack: "T1555"
+    mbc: "B0028"
+    platforms: [macos]
+    file_types: [macho]
+    requires_all:
+      - id: stealer/amos/base32-variant-yara
+
+  # AMOS hex obfuscated variant
+  - id: stealer/amos/hex-obfuscated-detected
+    description: AMOS infostealer (hex obfuscated)
+    criticality: suspicious
+    confidence: 0.9
+    family: true
+    attack: "T1555"
+    mbc: "B0028"
+    platforms: [macos]
+    file_types: [macho]
+    requires_all:
+      - id: stealer/amos/hex-obfuscated-yara
+
+  # AMOS string-obfuscated variant (C++ with minimal readable strings)
+  # Sample: Cosmical_setup, FlaUI_Driver, setup (271KB universal binary)
+  # Characteristics: Very few readable strings, C++ RTTI, daemon imports
+  - id: stealer/amos/string-obfuscated-detected
+    description: "AMOS infostealer (string obfuscated variant)"
+    criticality: suspicious
+    confidence: 0.9
+    family: true
+    attack: "T1555"
+    mbc: "B0028"
+    platforms: [macos]
+    file_types: [macho]
+    requires_all:
+      - id: stealer/amos/string-obfuscated-yara
+
+  # AMOS cipher variant (triple lookup table)
+  # Sample: 0a1b92f6f95e369c813f8bd67694cdb3a15a0c6faac9f2af44e2f3eeca0cef8c
+  # Obfuscation: plaintext[i] = (table1[i] - table2[i]) ^ table3[i]
+  - id: stealer/amos/cipher-variant-detected
+    description: "AMOS infostealer (cipher variant - triple lookup table)"
+    criticality: suspicious
+    confidence: 0.95
+    family: true
+    reference: "https://www.sentinelone.com/blog/atomic-stealer-threat-actor-spawns-second-variant-of-macos-malware-sold-on-telegram/"
+    attack: "T1555"
+    mbc: "B0028"
+    platforms: [macos]
+    file_types: [macho]
+    requires_all:
+      - id: stealer/amos/cipher-variant-yara
 
   # Generic AMOS detection combining multiple indicators
   - id: stealer/amos/detected
@@ -355,9 +414,9 @@ composite_rules:
     platforms: [macos]
     file_types: [macho]
     requires_any:
-      - id: magic-variant-detected
-      - id: base32-variant-detected
-      - id: hex-obfuscated-detected
-      - id: cipher-variant-detected
-      - id: string-obfuscated-detected
-      - id: custom-base64-charset
+      - id: stealer/amos/magic-variant-detected
+      - id: stealer/amos/base32-variant-detected
+      - id: stealer/amos/hex-obfuscated-detected
+      - id: stealer/amos/cipher-variant-detected
+      - id: stealer/amos/string-obfuscated-detected
+      - id: stealer/amos/custom-base64-charset

@@ -135,34 +135,59 @@ traits:
 
   # === INTERPRETER EXECUTION PATTERNS ===
 
-  # Python interpreter inline execution
-  - id: python-interpreter-exec
-    description: Python interpreter with inline code execution
-    criticality: suspicious
-    confidence: 0.8
+  # === Python interpreter atomic indicators ===
+  - id: python-c-flag
+    description: python -c flag
+    criticality: inert
+    confidence: 0.6
     condition:
       type: string
-      regex: "python3?\\s+-c|python3?\\s+-"
+      regex: "python3?\\s+-c"
 
-  # Node interpreter inline execution
-  - id: node-interpreter-exec
-    description: Node interpreter with inline code execution
-    criticality: suspicious
-    confidence: 0.8
+  - id: python-stdin-flag
+    description: python stdin flag
+    criticality: inert
+    confidence: 0.6
     condition:
       type: string
-      regex: "node\\s+-e|node\\s+--eval"
+      regex: "python3?\\s+-"
+
+  # === Node interpreter atomic indicators ===
+  - id: node-e-flag
+    description: node -e flag
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      regex: "node\\s+-e"
+
+  - id: node-eval-flag
+    description: node --eval flag
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      regex: "node\\s+--eval"
 
   # === CHILD PROCESS PATTERNS ===
 
-  # spawn or exec function call
-  - id: spawn-or-exec-call
-    description: Process spawn or exec function invocation
-    criticality: notable
-    confidence: 0.8
+  # spawn call
+  - id: spawn-call
+    description: Process spawn call
+    criticality: inert
+    confidence: 0.6
     condition:
       type: string
-      regex: "spawn\\(|exec\\("
+      regex: "spawn\\("
+
+  # exec call
+  - id: exec-call
+    description: Process exec call
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      regex: "exec\\("
 
   # child_process module reference
   - id: child-process-import
@@ -174,6 +199,36 @@ traits:
       exact: "child_process"
 
 composite_rules:
+  # Python interpreter exec composite
+  - id: python-interpreter-exec
+    description: Python interpreter with inline code execution
+    criticality: suspicious
+    confidence: 0.8
+    requires_count: 1
+    conditions:
+      - id: python-c-flag
+      - id: python-stdin-flag
+
+  # Node interpreter exec composite
+  - id: node-interpreter-exec
+    description: Node interpreter with inline code execution
+    criticality: suspicious
+    confidence: 0.8
+    requires_count: 1
+    conditions:
+      - id: node-e-flag
+      - id: node-eval-flag
+
+  # Spawn or exec composite
+  - id: spawn-or-exec-call
+    description: Process spawn or exec function invocation
+    criticality: notable
+    confidence: 0.8
+    requires_count: 1
+    conditions:
+      - id: spawn-call
+      - id: exec-call
+
   # npm package with interpreter dropper (hostile combination)
   - id: interpreter-dropper-package
     description: npm package that downloads and executes via external interpreter

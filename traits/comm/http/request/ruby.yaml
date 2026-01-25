@@ -3,12 +3,46 @@
 # ATT&CK: T1071.001
 
 traits:
+  # === Ruby HTTP atomic indicators ===
+  - id: net-http
+    description: Net::HTTP module
+    criticality: inert
+    confidence: 0.5
+    mbc: "C0002"
+    attack: "T1071.001"
+    condition:
+      type: string
+      exact: "Net::HTTP"
+
+  - id: http-get-ruby
+    description: HTTP.get call
+    criticality: inert
+    confidence: 0.5
+    mbc: "C0002"
+    attack: "T1071.001"
+    condition:
+      type: string
+      regex: "HTTP\\.get"
+
+  - id: open-uri
+    description: open-uri module
+    criticality: inert
+    confidence: 0.5
+    mbc: "C0002"
+    attack: "T1071.001"
+    condition:
+      type: string
+      exact: "open-uri"
+
+composite_rules:
   - id: request-ruby
     description: HTTP requests (Ruby)
     criticality: inert
     confidence: 0.66
     mbc: "C0002"
     attack: "T1071.001"
-    condition:
-      type: string
-      regex: "(Net::HTTP|HTTP\\.get|open-uri)"
+    requires_count: 1
+    conditions:
+      - id: net-http
+      - id: http-get-ruby
+      - id: open-uri

@@ -44,15 +44,24 @@ traits:
       type: string
       regex: "ditto\\s+[^-]"
 
-  # hdiutil for disk image creation
-  - id: hdiutil-create
-    description: "macOS disk image creation"
-    criticality: notable
-    confidence: 0.75
+  # === hdiutil create atomic indicators ===
+  - id: hdiutil-create-cmd
+    description: hdiutil create command
+    criticality: inert
+    confidence: 0.65
     attack: "T1560.001"
     condition:
       type: string
-      regex: "hdiutil\\s+create|hdiutil.*-format"
+      regex: "hdiutil\\s+create"
+
+  - id: hdiutil-format-flag
+    description: hdiutil -format flag
+    criticality: inert
+    confidence: 0.65
+    attack: "T1560.001"
+    condition:
+      type: string
+      regex: "hdiutil.*-format"
 
   # === tar/gzip atomic indicators ===
   - id: tar-create-flag
@@ -82,15 +91,24 @@ traits:
       type: string
       regex: "gzip\\s+-"
 
-  # zip command
-  - id: zip-compress
-    description: "zip archive creation"
-    criticality: notable
-    confidence: 0.65
+  # === zip compress atomic indicators ===
+  - id: zip-flags
+    description: zip with flags
+    criticality: inert
+    confidence: 0.55
     attack: "T1560.001"
     condition:
       type: string
-      regex: "\\bzip\\s+-[r0-9]|unzip\\s+-o"
+      regex: "\\bzip\\s+-[r0-9]"
+
+  - id: unzip-overwrite
+    description: unzip -o overwrite flag
+    criticality: inert
+    confidence: 0.55
+    attack: "T1560.001"
+    condition:
+      type: string
+      regex: "unzip\\s+-o"
 
   # === /tmp staging atomic indicators ===
   - id: tmp-zip-file
@@ -182,6 +200,28 @@ traits:
       regex: "/tmp/.*\\.zip"
 
 composite_rules:
+  # hdiutil create composite
+  - id: hdiutil-create
+    description: macOS disk image creation
+    criticality: notable
+    confidence: 0.75
+    attack: "T1560.001"
+    requires_count: 1
+    conditions:
+      - id: hdiutil-create-cmd
+      - id: hdiutil-format-flag
+
+  # zip compress composite
+  - id: zip-compress
+    description: zip archive creation
+    criticality: notable
+    confidence: 0.65
+    attack: "T1560.001"
+    requires_count: 1
+    conditions:
+      - id: zip-flags
+      - id: unzip-overwrite
+
   # ditto compression composite
   - id: ditto-compress
     description: "macOS ditto archive compression"

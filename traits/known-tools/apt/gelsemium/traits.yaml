@@ -58,13 +58,11 @@ traits:
       type: string
       exact: "8825FC47153E264D"
 
-composite_rules:
-  - id: apt/gelsemium/config-detected
-    description: Wolfsbane/Gelsemium (configuration)
+  - id: apt/gelsemium/config-yara
+    description: Wolfsbane config strings via YARA
     criticality: suspicious
     confidence: 0.95
     family: true
-    reference: "https://www.welivesecurity.com/en/eset-research/unveiling-wolfsbane-gelsemiums-linux-counterpart-to-gelsevirine/"
     attack: "T1071"
     mbc: "B0030"
     file_types: [elf]
@@ -82,6 +80,19 @@ composite_rules:
             filesize < 10MB and all of them
         }
 
+composite_rules:
+  - id: apt/gelsemium/config-detected
+    description: Wolfsbane/Gelsemium (configuration)
+    criticality: suspicious
+    confidence: 0.95
+    family: true
+    reference: "https://www.welivesecurity.com/en/eset-research/unveiling-wolfsbane-gelsemiums-linux-counterpart-to-gelsevirine/"
+    attack: "T1071"
+    mbc: "B0030"
+    file_types: [elf]
+    requires_all:
+      - id: apt/gelsemium/config-yara
+
   - id: apt/gelsemium/rc4-detected
     description: Wolfsbane/Gelsemium (RC4 key)
     criticality: suspicious
@@ -90,5 +101,5 @@ composite_rules:
     attack: "T1573"
     mbc: "C0027"
     file_types: [elf]
-    requires_any:
+    requires_all:
       - id: apt/gelsemium/rc4-key

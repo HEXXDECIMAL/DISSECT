@@ -95,16 +95,36 @@ traits:
       type: string
       regex: "exec(Sync)?\\(['\"]npm whoami['\"]"
 
-  # Curl/wget data exfiltration in shell
-  - id: curl-exfil
-    description: Curl command with data parameter (exfiltration)
-    criticality: suspicious
-    confidence: 0.9
+  # === Curl exfil atomic indicators ===
+  - id: curl-d-flag
+    description: curl -d flag
+    criticality: notable
+    confidence: 0.8
     attack: "T1041"
     file_types: [javascript, typescript, python, shell]
     condition:
       type: string
-      regex: "curl\\s+(-d|--data|-X\\s*POST)"
+      regex: "curl\\s+-d"
+
+  - id: curl-data-flag
+    description: curl --data flag
+    criticality: notable
+    confidence: 0.8
+    attack: "T1041"
+    file_types: [javascript, typescript, python, shell]
+    condition:
+      type: string
+      regex: "curl\\s+--data"
+
+  - id: curl-post-flag
+    description: curl -X POST flag
+    criticality: notable
+    confidence: 0.8
+    attack: "T1041"
+    file_types: [javascript, typescript, python, shell]
+    condition:
+      type: string
+      regex: "curl\\s+-X\\s*POST"
 
 composite_rules:
   # ifconfig/ip composite
@@ -119,6 +139,19 @@ composite_rules:
       - id: exec-ifconfig
       - id: exec-ip-addr
       - id: exec-ip-a
+
+  # curl exfil composite
+  - id: curl-exfil
+    description: Curl command with data parameter (exfiltration)
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1041"
+    file_types: [javascript, typescript, python, shell]
+    requires_count: 1
+    conditions:
+      - id: curl-d-flag
+      - id: curl-data-flag
+      - id: curl-post-flag
 
   # Multiple system info commands
   - id: system-profiling

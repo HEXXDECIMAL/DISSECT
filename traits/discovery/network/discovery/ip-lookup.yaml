@@ -123,6 +123,26 @@ traits:
       type: string
       exact: "aXBpbmZvLmlv"
 
+  - id: ip-recon-obfuscated-yara
+    description: Obfuscated IP reconnaissance via YARA
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1016.001"
+    mbc: "B0046"
+    file_types: [all]
+    condition:
+      type: yara
+      source: |
+        rule ip_recon_obfuscated {
+          strings:
+            $ipify_x = "ipify.org" xor(1-255)
+            $ipinfo_x = "ipinfo.io" xor(1-255)
+            $wtfismyip_x = "wtfismyip" xor(1-255)
+            $iplogger_x = "iplogger.org" xor(1-255)
+          condition:
+            filesize < 50MB and any of them
+        }
+
 composite_rules:
   - id: ip-recon-detected
     description: External IP address reconnaissance
@@ -153,15 +173,5 @@ composite_rules:
     attack: "T1016.001"
     mbc: "B0046"
     file_types: [all]
-    condition:
-      type: yara
-      source: |
-        rule ip_recon_obfuscated {
-          strings:
-            $ipify_x = "ipify.org" xor(1-255)
-            $ipinfo_x = "ipinfo.io" xor(1-255)
-            $wtfismyip_x = "wtfismyip" xor(1-255)
-            $iplogger_x = "iplogger.org" xor(1-255)
-          condition:
-            filesize < 50MB and any of them
-        }
+    requires_all:
+      - id: ip-recon-obfuscated-yara

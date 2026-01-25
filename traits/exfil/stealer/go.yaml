@@ -1,23 +1,56 @@
 # Data Exfiltration - Go
 # ATT&CK: T1041
 
+defaults:
+  # String patterns work in both source and compiled Go binaries
+  file_types: [go, elf, macho, pe]
+
 traits:
-  - id: go-json-exfil-keys
-    description: Marshals sensitive-looking keys into JSON for exfiltration
-    criticality: suspicious
-    confidence: 0.95
+  # === JSON exfil key atomic indicators ===
+  - id: json-key-aiv
+    description: aiv JSON key
+    criticality: inert
+    confidence: 0.7
     attack: "T1041"
-    file_types: [go]
     condition:
       type: string
-      regex: "\"aiv\"|\"crd\"|\"pwd\""
+      exact: "\"aiv\""
+
+  - id: json-key-crd
+    description: crd JSON key
+    criticality: inert
+    confidence: 0.7
+    attack: "T1041"
+    condition:
+      type: string
+      exact: "\"crd\""
+
+  - id: json-key-pwd
+    description: pwd JSON key
+    criticality: inert
+    confidence: 0.7
+    attack: "T1041"
+    condition:
+      type: string
+      exact: "\"pwd\""
 
   - id: go-dpaste-exfil
     description: Exfiltrates data to dpaste service
     criticality: suspicious
     confidence: 1.0
     attack: "T1041"
-    file_types: [go]
     condition:
       type: string
       exact: "https://dpaste.com/api/v2/"
+
+composite_rules:
+  - id: go-json-exfil-keys
+    description: Marshals sensitive-looking keys into JSON for exfiltration
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1041"
+    requires_count: 1
+    conditions:
+      - id: json-key-aiv
+      - id: json-key-crd
+      - id: json-key-pwd

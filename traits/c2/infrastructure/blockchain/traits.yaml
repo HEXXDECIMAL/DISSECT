@@ -3,16 +3,26 @@
 # Uses blockchain/smart contract storage for C2 URL retrieval
 
 traits:
-  # Etherscan API abuse for C2 retrieval
-  - id: etherscan-api
-    description: Uses Etherscan API (potential blockchain-based C2)
-    criticality: suspicious
-    confidence: 0.85
+  # === Etherscan atomic indicators ===
+  - id: etherscan-api-prefix
+    description: Etherscan API endpoint (api.etherscan.io)
+    criticality: notable
+    confidence: 0.8
     attack: "T1102"
     file_types: [javascript, typescript]
     condition:
       type: string
-      regex: "api\\.etherscan\\.io|etherscan\\.io/api"
+      exact: "api.etherscan.io"
+
+  - id: etherscan-api-suffix
+    description: Etherscan API path (etherscan.io/api)
+    criticality: notable
+    confidence: 0.8
+    attack: "T1102"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "etherscan.io/api"
 
   # BSCScan API (Binance Smart Chain)
   - id: bscscan-api
@@ -78,14 +88,49 @@ traits:
       type: string
       regex: "ipfs\\.io/ipfs/|gateway\\.pinata\\.cloud|cloudflare-ipfs\\.com|dweb\\.link"
 
-  # Arweave gateway (permanent storage C2)
+  # === Arweave atomic indicators ===
+  - id: arweave-net
+    description: Arweave.net gateway
+    criticality: inert
+    confidence: 0.6
+    attack: "T1102"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "arweave.net/"
+
+  - id: ar-io-net
+    description: AR-IO.net gateway
+    criticality: inert
+    confidence: 0.6
+    attack: "T1102"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "ar-io.net/"
+
+composite_rules:
+  # Etherscan API composite
+  - id: etherscan-api
+    description: Uses Etherscan API (potential blockchain-based C2)
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1102"
+    file_types: [javascript, typescript]
+    requires_count: 1
+    conditions:
+      - id: etherscan-api-prefix
+      - id: etherscan-api-suffix
+
+  # Arweave gateway composite
   - id: arweave-gateway
     description: Uses Arweave gateway (permanent content retrieval)
     criticality: notable
     confidence: 0.7
     attack: "T1102"
     file_types: [javascript, typescript]
-    condition:
-      type: string
-      regex: "arweave\\.net/|ar-io\\.net/"
+    requires_count: 1
+    conditions:
+      - id: arweave-net
+      - id: ar-io-net
 

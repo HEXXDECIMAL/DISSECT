@@ -3,15 +3,26 @@
 # ATT&CK: T1071.001 (Web Protocols)
 
 traits:
-  - id: http-template
-    description: HTTP request template with placeholders (C2 communication)
-    criticality: suspicious
-    confidence: 0.85
+  # === HTTP template atomic indicators ===
+  - id: post-template
+    description: POST template with placeholder
+    criticality: inert
+    confidence: 0.6
     mbc: "B0030"
     attack: "T1071.001"
     condition:
       type: string
-      regex: "(POST|GET)\\s+%s\\s+HTTP"
+      regex: "POST\\s+%s\\s+HTTP"
+
+  - id: get-template
+    description: GET template with placeholder
+    criticality: inert
+    confidence: 0.6
+    mbc: "B0030"
+    attack: "T1071.001"
+    condition:
+      type: string
+      regex: "GET\\s+%s\\s+HTTP"
 
   - id: hardcoded-ip
     description: Hardcoded IP address (potential C2 server)
@@ -43,15 +54,46 @@ traits:
       regex: "User-Agent:"
       min_count: 3
 
-  - id: bot-user-agent
-    description: Search engine bot User-Agent (DDoS/evasion)
-    criticality: suspicious
-    confidence: 0.85
-    mbc: "B0030"
-    attack: "T1071.001"
+  # === Bot User-Agent atomic indicators ===
+  - id: googlebot-ua
+    description: Googlebot User-Agent
+    criticality: inert
+    confidence: 0.7
     condition:
       type: string
-      regex: "(Googlebot|bingbot|Baiduspider|YandexBot|DuckDuckBot)"
+      exact: "Googlebot"
+
+  - id: bingbot-ua
+    description: bingbot User-Agent
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "bingbot"
+
+  - id: baiduspider-ua
+    description: Baiduspider User-Agent
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "Baiduspider"
+
+  - id: yandexbot-ua
+    description: YandexBot User-Agent
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "YandexBot"
+
+  - id: duckduckbot-ua
+    description: DuckDuckBot User-Agent
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "DuckDuckBot"
 
   - id: wget-download
     description: wget download command (payload fetching)
@@ -62,3 +104,30 @@ traits:
     condition:
       type: string
       regex: "wget\\s+https?://"
+
+composite_rules:
+  # HTTP template composite
+  - id: http-template
+    description: HTTP request template with placeholders (C2 communication)
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "B0030"
+    attack: "T1071.001"
+    requires_count: 1
+    conditions:
+      - id: post-template
+      - id: get-template
+
+  - id: bot-user-agent
+    description: Search engine bot User-Agent (DDoS/evasion)
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "B0030"
+    attack: "T1071.001"
+    requires_count: 1
+    conditions:
+      - id: googlebot-ua
+      - id: bingbot-ua
+      - id: baiduspider-ua
+      - id: yandexbot-ua
+      - id: duckduckbot-ua

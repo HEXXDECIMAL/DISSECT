@@ -5,7 +5,8 @@
 defaults:
   attack: "T1564.003"
   platforms: [macos]
-  file_types: [applescript, shell]
+  # osascript can be invoked from any language: python subprocess, ruby system(), etc.
+  file_types: [applescript, shell, python, ruby, perl, javascript, elf, macho]
 
 traits:
   # Hide Terminal window
@@ -57,7 +58,7 @@ composite_rules:
   # Terminal hiding with shell execution
   - id: hidden-terminal-exec
     description: "Hidden Terminal with shell execution"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1564.003"
     file_types: [applescript]

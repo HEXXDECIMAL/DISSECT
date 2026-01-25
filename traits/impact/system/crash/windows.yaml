@@ -73,11 +73,10 @@ traits:
       type: string
       exact: "windll"
 
-composite_rules:
-  # Full BSOD trigger pattern
-  - id: bsod-trigger
-    description: Windows BSOD trigger via ntdll
-    criticality: hostile
+  # YARA-based detection traits
+  - id: bsod-trigger-yara
+    description: Windows BSOD trigger via YARA
+    criticality: suspicious
     confidence: 0.99
     attack: "T1499.004"
     mbc: "B0033"
@@ -97,13 +96,12 @@ composite_rules:
           condition:
             filesize < 1MB and
             any of ($ntdll*) and
-            ($raise or ($adjust and $status))
+            ($raise or ($adjust and $status) or $priv19)
         }
 
-  # Python-specific BSOD via ctypes
-  - id: python-bsod
-    description: Python BSOD trigger via ctypes
-    criticality: hostile
+  - id: python-bsod-yara
+    description: Python BSOD trigger via YARA
+    criticality: suspicious
     confidence: 0.99
     file_types: [python]
     attack: "T1499.004"
@@ -125,10 +123,31 @@ composite_rules:
             ($raise or $adjust)
         }
 
+composite_rules:
+  # Full BSOD trigger pattern
+  - id: bsod-trigger
+    description: Windows BSOD trigger via ntdll
+    criticality: suspicious
+    confidence: 0.99
+    attack: "T1499.004"
+    mbc: "B0033"
+    requires_all:
+      - id: bsod-trigger-yara
+
+  # Python-specific BSOD via ctypes
+  - id: python-bsod
+    description: Python BSOD trigger via ctypes
+    criticality: suspicious
+    confidence: 0.99
+    file_types: [python]
+    attack: "T1499.004"
+    requires_all:
+      - id: python-bsod-yara
+
   # BSOD trigger via trait references (NtRaiseHardError path)
   - id: bsod-raise-error
     description: BSOD via NtRaiseHardError API call
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.99
     attack: "T1499.004"
     mbc: "B0033"

@@ -9,55 +9,95 @@ defaults:
   criticality: suspicious
 
 traits:
-  # HTTP library patterns
-  - id: python-http-lib
-    description: "Python HTTP library usage"
-    criticality: notable
-    confidence: 0.6
-    condition:
-      type: string
-      regex: "requests\\.(get|post)|urllib\\.request|http\\.client"
-
-  - id: python-http-download-call
-    description: "Python HTTP download function call"
-    criticality: notable
-    confidence: 0.6
-    condition:
-      type: string
-      regex: "requests\\.(get|post)\\(|urllib\\.request\\.(urlopen|urlretrieve)"
-
-  - id: python-http-download-generic
-    description: "Python HTTP download (generic)"
-    criticality: notable
-    confidence: 0.6
-    condition:
-      type: string
-      regex: "requests\\.(get|post)\\(|urllib\\.request|urlopen\\("
-
-  - id: python-http-requests-call
-    description: "Python requests library call"
-    criticality: notable
-    confidence: 0.6
-    condition:
-      type: string
-      regex: "requests\\.(get|post)\\("
-
-  # Directory patterns
-  - id: python-tmp-dir
-    description: "Temporary directory access"
-    criticality: notable
+  # === HTTP library atomic indicators ===
+  - id: requests-get
+    description: requests.get call
+    criticality: inert
     confidence: 0.5
     condition:
       type: string
-      regex: '"/tmp/|tempfile\\.'
+      exact: "requests.get"
 
-  - id: python-home-dir
-    description: "Home directory access"
-    criticality: notable
+  - id: requests-post
+    description: requests.post call
+    criticality: inert
     confidence: 0.5
     condition:
       type: string
-      regex: 'os\\.path\\.expanduser\\([^)]*~|Path\\.home\\(\\)|os\\.environ.*HOME'
+      exact: "requests.post"
+
+  - id: urllib-request
+    description: urllib.request module
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "urllib.request"
+
+  - id: http-client
+    description: http.client module
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "http.client"
+
+  - id: urlopen-call
+    description: urlopen call
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: "urlopen\\("
+
+  - id: urlretrieve-call
+    description: urlretrieve call
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: "urlretrieve\\("
+
+  # === Directory atomic indicators ===
+  - id: tmp-path
+    description: /tmp/ path literal
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      exact: '"/tmp/'
+
+  - id: tempfile-module
+    description: tempfile module
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      regex: "tempfile\\."
+
+  - id: expanduser-home
+    description: os.path.expanduser with ~
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      regex: 'os\\.path\\.expanduser\\([^)]*~'
+
+  - id: path-home-call
+    description: Path.home() call
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      exact: "Path.home()"
+
+  - id: environ-home
+    description: os.environ HOME access
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      regex: 'os\\.environ.*HOME'
 
   # File operations
   - id: python-chmod
@@ -84,54 +124,248 @@ traits:
       type: string
       regex: "\\.write\\([^)]*\\.content\\)|write_bytes\\("
 
-  # Execution patterns
-  - id: python-subprocess-exec
-    description: "Subprocess execution"
-    criticality: notable
+  # === Subprocess atomic indicators ===
+  - id: subprocess-popen
+    description: subprocess.Popen call
+    criticality: inert
     confidence: 0.5
     condition:
       type: string
-      regex: "subprocess\\.(Popen|run|call)\\("
+      regex: "subprocess\\.Popen\\("
 
-  - id: python-exec-any
-    description: "Code or process execution"
-    criticality: notable
+  - id: subprocess-run
+    description: subprocess.run call
+    criticality: inert
     confidence: 0.5
     condition:
       type: string
-      regex: "subprocess\\.(Popen|run|call)\\(|os\\.system\\(|exec\\("
+      regex: "subprocess\\.run\\("
 
-  # Multi-request pattern
-  - id: python-http-multi-request
-    description: "Multiple HTTP requests"
-    criticality: notable
-    confidence: 0.7
+  - id: subprocess-call
+    description: subprocess.call call
+    criticality: inert
+    confidence: 0.5
     condition:
       type: string
-      regex: "requests\\.(get|post)\\("
-      min_count: 2
+      regex: "subprocess\\.call\\("
 
-  # Single traits for component detection
-  - id: python-http-download
-    description: "HTTP content download"
-    confidence: 0.7
-    criticality: notable
+  - id: os-system-call
+    description: os.system call
+    criticality: inert
+    confidence: 0.5
     condition:
       type: string
-      regex: "requests\\.(get|post)\\([^)]+\\)\\.content"
+      regex: "os\\.system\\("
 
-  - id: python-endpoint-path
-    description: "Suspicious C2 endpoint paths (payload, brow, mclip)"
-    confidence: 0.85
-    criticality: suspicious
+  - id: exec-call
+    description: exec() call
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: "exec\\("
+
+  # === C2 endpoint path atomic indicators ===
+  - id: path-payload
+    description: /payload/ endpoint path
+    criticality: inert
+    confidence: 0.6
     attack: "T1105"
     condition:
       type: string
-      # Paths like /payload/, /brow/, /mclip/ etc - the actual URL paths
-      regex: "/(payload|stage|drop|brow|mclip|clip|steal|grab|exfil)/"
+      exact: "/payload/"
       search_raw: true
 
+  - id: path-stage
+    description: /stage/ endpoint path
+    criticality: inert
+    confidence: 0.6
+    attack: "T1105"
+    condition:
+      type: string
+      exact: "/stage/"
+      search_raw: true
+
+  - id: path-drop
+    description: /drop/ endpoint path
+    criticality: inert
+    confidence: 0.6
+    attack: "T1105"
+    condition:
+      type: string
+      exact: "/drop/"
+      search_raw: true
+
+  - id: path-brow
+    description: /brow/ endpoint path
+    criticality: inert
+    confidence: 0.6
+    attack: "T1105"
+    condition:
+      type: string
+      exact: "/brow/"
+      search_raw: true
+
+  - id: path-mclip
+    description: /mclip/ endpoint path
+    criticality: inert
+    confidence: 0.6
+    attack: "T1105"
+    condition:
+      type: string
+      exact: "/mclip/"
+      search_raw: true
+
+  - id: path-clip
+    description: /clip/ endpoint path
+    criticality: inert
+    confidence: 0.6
+    attack: "T1105"
+    condition:
+      type: string
+      exact: "/clip/"
+      search_raw: true
+
+  - id: path-steal
+    description: /steal/ endpoint path
+    criticality: inert
+    confidence: 0.6
+    attack: "T1105"
+    condition:
+      type: string
+      exact: "/steal/"
+      search_raw: true
+
+  - id: path-grab
+    description: /grab/ endpoint path
+    criticality: inert
+    confidence: 0.6
+    attack: "T1105"
+    condition:
+      type: string
+      exact: "/grab/"
+      search_raw: true
+
+  - id: path-exfil
+    description: /exfil/ endpoint path
+    criticality: inert
+    confidence: 0.6
+    attack: "T1105"
+    condition:
+      type: string
+      exact: "/exfil/"
+      search_raw: true
+
+  - id: python-staged-yara
+    description: "Staged payload dropper via YARA"
+    confidence: 0.9
+    criticality: suspicious
+    condition:
+      type: yara
+      source: |
+        rule staged_dropper {
+          meta:
+            description = "Multiple download functions or payload stages"
+          strings:
+            $download1 = /def download_\w+\(/ ascii
+            $download2 = /def fetch_\w+\(/ ascii
+            $payload = /payload|stage|phase/ ascii nocase
+            $requests = /requests\.(get|post)\(/ ascii
+            $write = /\.write\(/ ascii
+            $popen = /subprocess\.(Popen|run|call)\(/ ascii
+          condition:
+            (2 of ($download*)) or
+            ($requests and $write and $popen and $payload)
+        }
+
 composite_rules:
+  # HTTP library composite
+  - id: python-http-lib
+    description: Python HTTP library usage
+    criticality: notable
+    confidence: 0.6
+    requires_count: 1
+    conditions:
+      - id: requests-get
+      - id: requests-post
+      - id: urllib-request
+      - id: http-client
+
+  # HTTP download call composite
+  - id: python-http-download-call
+    description: Python HTTP download function call
+    criticality: notable
+    confidence: 0.6
+    requires_count: 1
+    conditions:
+      - id: requests-get
+      - id: requests-post
+      - id: urlopen-call
+      - id: urlretrieve-call
+
+  # Temp directory composite
+  - id: python-tmp-dir
+    description: Temporary directory access
+    criticality: notable
+    confidence: 0.5
+    requires_count: 1
+    conditions:
+      - id: tmp-path
+      - id: tempfile-module
+
+  # Home directory composite
+  - id: python-home-dir
+    description: Home directory access
+    criticality: notable
+    confidence: 0.5
+    requires_count: 1
+    conditions:
+      - id: expanduser-home
+      - id: path-home-call
+      - id: environ-home
+
+  # Subprocess execution composite
+  - id: python-subprocess-exec
+    description: Subprocess execution
+    criticality: notable
+    confidence: 0.5
+    requires_count: 1
+    conditions:
+      - id: subprocess-popen
+      - id: subprocess-run
+      - id: subprocess-call
+
+  # Code or process execution composite
+  - id: python-exec-any
+    description: Code or process execution
+    criticality: notable
+    confidence: 0.5
+    requires_count: 1
+    conditions:
+      - id: subprocess-popen
+      - id: subprocess-run
+      - id: subprocess-call
+      - id: os-system-call
+      - id: exec-call
+
+  # C2 endpoint path composite
+  - id: python-endpoint-path
+    description: Suspicious C2 endpoint paths
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1105"
+    requires_count: 1
+    conditions:
+      - id: path-payload
+      - id: path-stage
+      - id: path-drop
+      - id: path-brow
+      - id: path-mclip
+      - id: path-clip
+      - id: path-steal
+      - id: path-grab
+      - id: path-exfil
+
   # Original rule - tmp directory dropper
   - id: tmp-dropper
     description: "HTTP download to temp and execute"
@@ -160,36 +394,14 @@ composite_rules:
     description: "Download, write, and execute pattern"
     confidence: 0.9
     requires_all:
-      - id: python-http-download-generic
+      - id: python-http-lib
       - id: python-write-content
       - id: python-subprocess-exec
-
-  # Multi-payload dropper - downloads multiple files
-  - id: multi-payload
-    description: "Multi-payload dropper (downloads multiple files)"
-    confidence: 0.95
-    criticality: suspicious
-    requires_all:
-      - id: python-http-multi-request
 
   # Staged dropper - download function called multiple times
   - id: staged-dropper
     description: "Staged payload dropper"
     confidence: 0.9
     criticality: suspicious
-    condition:
-      type: yara
-      source: |
-        rule staged_dropper {
-          meta:
-            description = "Multiple download functions or payload stages"
-          strings:
-            $download = /def download_\w+\(/ ascii
-            $payload = /payload|stage|phase/ ascii nocase
-            $requests = /requests\.(get|post)\(/ ascii
-            $write = /\.write\(/ ascii
-            $popen = /subprocess\.(Popen|run|call)\(/ ascii
-          condition:
-            #$download >= 2 or
-            ($requests and $write and $popen and #$payload >= 2)
-        }
+    requires_all:
+      - id: python-staged-yara

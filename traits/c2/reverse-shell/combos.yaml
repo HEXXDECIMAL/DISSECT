@@ -30,7 +30,7 @@ composite_rules:
 
   - id: python-reverse-shell
     description: "Python reverse shell detected (socket + pty/dup2)"
-    criticality: hostile
+    criticality: suspicious
     mbc: "B0022"
     attack: "T1059"
     confidence: 0.98

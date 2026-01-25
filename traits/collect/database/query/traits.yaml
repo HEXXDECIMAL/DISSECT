@@ -26,17 +26,27 @@ traits:
       type: string
       exact: "mysql"
 
-  # === Atomic: PostgreSQL ===
+  # === PostgreSQL atomic indicators ===
 
-  - id: postgresql
-    description: PostgreSQL database access
-    criticality: notable
-    confidence: 0.7
+  - id: postgresql-str
+    description: postgresql string
+    criticality: inert
+    confidence: 0.6
     attack: "T1005"
     platforms: [all]
     condition:
       type: string
-      regex: "postgresql|github\\.com/go-pg"
+      exact: "postgresql"
+
+  - id: go-pg-import
+    description: github.com/go-pg import
+    criticality: inert
+    confidence: 0.6
+    attack: "T1005"
+    platforms: [all]
+    condition:
+      type: string
+      exact: "github.com/go-pg"
 
   # === Atomic: LevelDB ===
 
@@ -49,3 +59,16 @@ traits:
     condition:
       type: string
       regex: "\\b[Ll]evel[Dd][Bb]\\b"
+
+composite_rules:
+  # PostgreSQL composite
+  - id: postgresql
+    description: PostgreSQL database access
+    criticality: notable
+    confidence: 0.7
+    attack: "T1005"
+    platforms: [all]
+    requires_count: 1
+    conditions:
+      - id: postgresql-str
+      - id: go-pg-import

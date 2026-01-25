@@ -3,7 +3,8 @@
 # ATT&CK: T1056.002 (Input Capture: GUI Input Capture)
 
 defaults:
-  file_types: [applescript, shell]
+  # osascript can be invoked from any language: python subprocess, ruby system(), etc.
+  file_types: [applescript, shell, python, ruby, perl, javascript, elf, macho]
   platforms: [macos]
   attack: "T1056.002"
 
@@ -88,7 +89,6 @@ composite_rules:
     description: Password dialog prompt
     criticality: suspicious
     confidence: 0.8
-    file_types: [applescript, shell]
     requires_count: 1
     conditions:
       - id: display-dialog-password
@@ -100,7 +100,6 @@ composite_rules:
     description: Fake dialog UI element
     criticality: notable
     confidence: 0.7
-    file_types: [applescript, shell]
     requires_count: 1
     conditions:
       - id: hidden-answer
@@ -112,7 +111,6 @@ composite_rules:
     description: System credential prompt
     criticality: suspicious
     confidence: 0.85
-    file_types: [applescript, shell]
     requires_count: 1
     conditions:
       - id: keychain-password
@@ -125,7 +123,6 @@ composite_rules:
     description: AppleScript password phishing dialog
     criticality: hostile
     confidence: 0.95
-    file_types: [applescript, shell]
     requires_all:
       - id: password-prompt-pattern
       - id: fake-dialog-ui
@@ -134,10 +131,9 @@ composite_rules:
   # Fake System Password Prompt
   # ============================================
   - id: fake-system-prompt
-    description: Fake system password prompt
-    criticality: hostile
+    description: Fake system password prompt (credential phishing)
+    criticality: suspicious
     confidence: 0.9
-    file_types: [applescript, shell]
     requires_all:
       - id: system-cred-prompt
       - id: fake-dialog-ui

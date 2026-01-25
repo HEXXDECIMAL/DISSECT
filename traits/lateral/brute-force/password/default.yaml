@@ -95,15 +95,46 @@ traits:
       type: string
       exact: "vizxv"
 
-  - id: iot-zte
-    description: "Default IoT credential: Zte521 (ZTE router)"
+  # === IoT ZTE credential atomic indicators ===
+  - id: iot-zte521
+    description: "Default IoT credential: Zte521"
     criticality: suspicious
-    confidence: 0.95
+    confidence: 0.9
     attack: "T1110.001"
     file_types: [elf]
     condition:
       type: string
-      regex: "[ZP]te?521|Pon521|Zxic521"
+      exact: "Zte521"
+
+  - id: iot-pte521
+    description: "Default IoT credential: Pte521"
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1110.001"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "Pte521"
+
+  - id: iot-pon521
+    description: "Default IoT credential: Pon521"
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1110.001"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "Pon521"
+
+  - id: iot-zxic521
+    description: "Default IoT credential: Zxic521"
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1110.001"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "Zxic521"
 
   - id: iot-oelinux
     description: "Default IoT credential: oelinux123"
@@ -136,6 +167,20 @@ traits:
       regex: "\\b(root|admin|user|guest|support):(root|admin|[a-zA-Z0-9]{4,12})\\b"
 
 composite_rules:
+  # IoT ZTE credential composite
+  - id: iot-zte
+    description: "Default IoT credential: ZTE router variants"
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1110.001"
+    file_types: [elf]
+    requires_count: 1
+    conditions:
+      - id: iot-zte521
+      - id: iot-pte521
+      - id: iot-pon521
+      - id: iot-zxic521
+
   - id: dictionary
     description: "Embedded credential brute-force dictionary"
     criticality: suspicious

@@ -2,11 +2,72 @@
 # Detects when multiple standard libraries are aliased to obfuscate intent
 
 traits:
+  # === Python aliasing atomic indicators ===
+  - id: alias-os
+    description: os import aliased
+    criticality: inert
+    confidence: 0.6
+    file_types: [python]
+    condition:
+      type: string
+      regex: 'import\s+os\s+as\s+[a-z]{1,5}\b'
+
+  - id: alias-subprocess
+    description: subprocess import aliased
+    criticality: inert
+    confidence: 0.6
+    file_types: [python]
+    condition:
+      type: string
+      regex: 'import\s+subprocess\s+as\s+[a-z]{1,5}\b'
+
+  - id: alias-platform
+    description: platform import aliased
+    criticality: inert
+    confidence: 0.6
+    file_types: [python]
+    condition:
+      type: string
+      regex: 'import\s+platform\s+as\s+[a-z]{1,5}\b'
+
+  - id: alias-getpass
+    description: getpass import aliased
+    criticality: inert
+    confidence: 0.6
+    file_types: [python]
+    condition:
+      type: string
+      regex: 'import\s+getpass\s+as\s+[a-z]{1,5}\b'
+
+  - id: alias-base64
+    description: base64 import aliased
+    criticality: inert
+    confidence: 0.6
+    file_types: [python]
+    condition:
+      type: string
+      regex: 'import\s+base64\s+as\s+[a-z]{1,5}\b'
+
+  - id: alias-urllib
+    description: urllib import aliased
+    criticality: inert
+    confidence: 0.6
+    file_types: [python]
+    condition:
+      type: string
+      regex: 'import\s+urllib\s+as\s+[a-z]{1,5}\b'
+
+composite_rules:
   - id: python-std-alias
     description: "Suspicious standard library aliasing (potential evasion)"
     criticality: suspicious
     confidence: 0.8
     file_types: [python]
-    condition:
-      type: string
-      regex: 'import\s+(?:os|subprocess|platform|getpass|base64|urllib)\s+as\s+[a-z]{1,5}\b'
+    requires_count: 1
+    conditions:
+      - id: alias-os
+      - id: alias-subprocess
+      - id: alias-platform
+      - id: alias-getpass
+      - id: alias-base64
+      - id: alias-urllib

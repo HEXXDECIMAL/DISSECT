@@ -73,15 +73,22 @@ traits:
       # join with hidden dir
       regex: "os\\.path\\.join\\([^)]*[,]\\s*[\"']\\.[a-zA-Z]|/\\s*[\"']\\.[a-zA-Z]"
 
-  # File write or directory creation
-  - id: python-write-or-makedirs
-    description: "File write or directory creation"
-    criticality: notable
-    confidence: 0.8
+  # === File write atomic indicators ===
+  - id: python-os-makedirs
+    description: os.makedirs call
+    criticality: inert
+    confidence: 0.7
     condition:
       type: string
-      # file write or makedirs
-      regex: "os\\.makedirs\\(|open\\([^)]+[\"']w"
+      regex: "os\\.makedirs\\("
+
+  - id: python-open-write
+    description: open() with write mode
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "open\\([^)]+[\"']w"
 
   # Hidden directory with short cryptic name (.n2, .x, .tmp2)
   - id: python-cryptic-hidden
@@ -99,6 +106,16 @@ traits:
         - '".pyc"'
 
 composite_rules:
+  # File write or makedirs composite
+  - id: python-write-or-makedirs
+    description: File write or directory creation
+    criticality: notable
+    confidence: 0.8
+    requires_count: 1
+    conditions:
+      - id: python-os-makedirs
+      - id: python-open-write
+
   # Home + hidden directory - classic malware staging area
   - id: python-home-hidden-staging
     description: "Malware staging in hidden home directory"

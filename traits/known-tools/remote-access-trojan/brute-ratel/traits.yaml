@@ -22,10 +22,11 @@ traits:
             any of them
         }
 
-  - id: c2-framework/brute-ratel/badger-ref
-    description: Brute Ratel badger reference
-    criticality: suspicious
-    confidence: 0.9
+  # === Brute Ratel atomic indicators ===
+  - id: c2-framework/brute-ratel/brute-ratel-str
+    description: Brute Ratel string reference
+    criticality: notable
+    confidence: 0.85
     family: true
     mbc: "B0030"
     attack: "T1059"
@@ -33,7 +34,33 @@ traits:
     file_types: [pe, dll]
     condition:
       type: string
-      regex: "(?i)brute.*ratel|brc4|badger"
+      regex: "(?i)brute.*ratel"
+
+  - id: c2-framework/brute-ratel/brc4-str
+    description: BRC4 string reference
+    criticality: notable
+    confidence: 0.85
+    family: true
+    mbc: "B0030"
+    attack: "T1059"
+    platforms: [windows]
+    file_types: [pe, dll]
+    condition:
+      type: string
+      regex: "(?i)brc4"
+
+  - id: c2-framework/brute-ratel/badger-str
+    description: Badger string reference
+    criticality: notable
+    confidence: 0.8
+    family: true
+    mbc: "B0030"
+    attack: "T1059"
+    platforms: [windows]
+    file_types: [pe, dll]
+    condition:
+      type: string
+      regex: "(?i)badger"
 
   - id: c2-framework/brute-ratel/c4-config
     description: Brute Ratel C4 configuration patterns
@@ -57,6 +84,22 @@ traits:
         }
 
 composite_rules:
+  # Brute Ratel badger ref composite
+  - id: c2-framework/brute-ratel/badger-ref
+    description: Brute Ratel badger reference
+    criticality: suspicious
+    confidence: 0.9
+    family: true
+    mbc: "B0030"
+    attack: "T1059"
+    platforms: [windows]
+    file_types: [pe, dll]
+    requires_count: 1
+    conditions:
+      - id: c2-framework/brute-ratel/brute-ratel-str
+      - id: c2-framework/brute-ratel/brc4-str
+      - id: c2-framework/brute-ratel/badger-str
+
   - id: c2-framework/brute-ratel/detected
     description: Brute Ratel C4 framework
     criticality: hostile

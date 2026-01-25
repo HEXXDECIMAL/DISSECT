@@ -2,28 +2,102 @@
 # ATT&CK: T1059.004 (Unix Shell)
 # Detects curl/wget piped to shell interpreters - common dropper pattern
 
-traits:
-  # curl piped to shell
-  - id: curl-pipe-shell
-    description: Curl output piped to shell (dropper pattern)
-    criticality: suspicious
-    confidence: 0.95
-    attack: "T1059.004"
-    file_types: [shell, packagejson, javascript, python]
-    condition:
-      type: string
-      regex: 'curl\s+[^|]*\|\s*(sh|bash|zsh|ksh|dash)\b'
+defaults:
+  # These command strings can appear in any file type
+  file_types: [*]
 
-  # wget piped to shell
-  - id: wget-pipe-shell
-    description: Wget output piped to shell (dropper pattern)
-    criticality: suspicious
-    confidence: 0.95
+traits:
+  # === Curl pipe atomic indicators ===
+  - id: curl-pipe-sh
+    description: curl piped to sh
+    criticality: inert
+    confidence: 0.7
     attack: "T1059.004"
-    file_types: [shell, packagejson, javascript, python]
     condition:
       type: string
-      regex: 'wget\s+[^|]*\|\s*(sh|bash|zsh|ksh|dash)\b'
+      regex: 'curl\s+[^|]*\|\s*sh\b'
+
+  - id: curl-pipe-bash
+    description: curl piped to bash
+    criticality: inert
+    confidence: 0.7
+    attack: "T1059.004"
+    condition:
+      type: string
+      regex: 'curl\s+[^|]*\|\s*bash\b'
+
+  - id: curl-pipe-zsh
+    description: curl piped to zsh
+    criticality: inert
+    confidence: 0.7
+    attack: "T1059.004"
+    condition:
+      type: string
+      regex: 'curl\s+[^|]*\|\s*zsh\b'
+
+  - id: curl-pipe-ksh
+    description: curl piped to ksh
+    criticality: inert
+    confidence: 0.7
+    attack: "T1059.004"
+    condition:
+      type: string
+      regex: 'curl\s+[^|]*\|\s*ksh\b'
+
+  - id: curl-pipe-dash
+    description: curl piped to dash
+    criticality: inert
+    confidence: 0.7
+    attack: "T1059.004"
+    condition:
+      type: string
+      regex: 'curl\s+[^|]*\|\s*dash\b'
+
+  # === Wget pipe atomic indicators ===
+  - id: wget-pipe-sh
+    description: wget piped to sh
+    criticality: inert
+    confidence: 0.7
+    attack: "T1059.004"
+    condition:
+      type: string
+      regex: 'wget\s+[^|]*\|\s*sh\b'
+
+  - id: wget-pipe-bash
+    description: wget piped to bash
+    criticality: inert
+    confidence: 0.7
+    attack: "T1059.004"
+    condition:
+      type: string
+      regex: 'wget\s+[^|]*\|\s*bash\b'
+
+  - id: wget-pipe-zsh
+    description: wget piped to zsh
+    criticality: inert
+    confidence: 0.7
+    attack: "T1059.004"
+    condition:
+      type: string
+      regex: 'wget\s+[^|]*\|\s*zsh\b'
+
+  - id: wget-pipe-ksh
+    description: wget piped to ksh
+    criticality: inert
+    confidence: 0.7
+    attack: "T1059.004"
+    condition:
+      type: string
+      regex: 'wget\s+[^|]*\|\s*ksh\b'
+
+  - id: wget-pipe-dash
+    description: wget piped to dash
+    criticality: inert
+    confidence: 0.7
+    attack: "T1059.004"
+    condition:
+      type: string
+      regex: 'wget\s+[^|]*\|\s*dash\b'
 
   # Generic download and execute
   - id: download-pipe-exec
@@ -31,7 +105,6 @@ traits:
     criticality: suspicious
     confidence: 0.9
     attack: "T1059"
-    file_types: [shell, packagejson]
     condition:
       type: yara
       source: |
@@ -47,36 +120,182 @@ traits:
             any of them
         }
 
-  # Fetch and eval in shell
+  # === Fetch eval atomic indicators ===
+  - id: eval-curl-subshell
+    description: eval "$(curl ..."
+    criticality: inert
+    confidence: 0.7
+    attack: "T1059.004"
+    condition:
+      type: string
+      regex: 'eval\s*"\$\(curl'
+
+  - id: eval-curl-backtick
+    description: eval `curl ...`
+    criticality: inert
+    confidence: 0.7
+    attack: "T1059.004"
+    condition:
+      type: string
+      regex: 'eval\s*`curl'
+
+  - id: eval-wget-subshell
+    description: eval "$(wget ..."
+    criticality: inert
+    confidence: 0.7
+    attack: "T1059.004"
+    condition:
+      type: string
+      regex: 'eval\s*"\$\(wget'
+
+  - id: eval-wget-backtick
+    description: eval `wget ...`
+    criticality: inert
+    confidence: 0.7
+    attack: "T1059.004"
+    condition:
+      type: string
+      regex: 'eval\s*`wget'
+
+  # === Base64 decode exec atomic indicators ===
+  - id: base64-d-pipe-sh
+    description: base64 -d piped to sh
+    criticality: inert
+    confidence: 0.7
+    attack: "T1027"
+    condition:
+      type: string
+      regex: 'base64\s+-d\s*\|\s*sh'
+
+  - id: base64-d-pipe-bash
+    description: base64 -d piped to bash
+    criticality: inert
+    confidence: 0.7
+    attack: "T1027"
+    condition:
+      type: string
+      regex: 'base64\s+-d\s*\|\s*bash'
+
+  - id: base64-decode-pipe-sh
+    description: base64 --decode piped to sh
+    criticality: inert
+    confidence: 0.7
+    attack: "T1027"
+    condition:
+      type: string
+      regex: 'base64\s+--decode\s*\|\s*sh'
+
+  - id: base64-decode-pipe-bash
+    description: base64 --decode piped to bash
+    criticality: inert
+    confidence: 0.7
+    attack: "T1027"
+    condition:
+      type: string
+      regex: 'base64\s+--decode\s*\|\s*bash'
+
+  # === Process substitution atomic indicators ===
+  - id: bash-curl-process-sub
+    description: bash <(curl ...)
+    criticality: inert
+    confidence: 0.7
+    attack: "T1059.004"
+    condition:
+      type: string
+      regex: 'bash\s+<\(curl'
+
+  - id: sh-curl-process-sub
+    description: sh <(curl ...)
+    criticality: inert
+    confidence: 0.7
+    attack: "T1059.004"
+    condition:
+      type: string
+      regex: 'sh\s+<\(curl'
+
+  - id: source-curl-process-sub
+    description: source <(curl ...)
+    criticality: inert
+    confidence: 0.7
+    attack: "T1059.004"
+    condition:
+      type: string
+      regex: 'source\s+<\(curl'
+
+  - id: source-wget-process-sub
+    description: source <(wget ...)
+    criticality: inert
+    confidence: 0.7
+    attack: "T1059.004"
+    condition:
+      type: string
+      regex: 'source\s+<\(wget'
+
+composite_rules:
+  # Curl pipe shell composite
+  - id: curl-pipe-shell
+    description: Curl output piped to shell (dropper pattern)
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1059.004"
+    requires_count: 1
+    conditions:
+      - id: curl-pipe-sh
+      - id: curl-pipe-bash
+      - id: curl-pipe-zsh
+      - id: curl-pipe-ksh
+      - id: curl-pipe-dash
+
+  # Wget pipe shell composite
+  - id: wget-pipe-shell
+    description: Wget output piped to shell (dropper pattern)
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1059.004"
+    requires_count: 1
+    conditions:
+      - id: wget-pipe-sh
+      - id: wget-pipe-bash
+      - id: wget-pipe-zsh
+      - id: wget-pipe-ksh
+      - id: wget-pipe-dash
+
+  # Fetch eval composite
   - id: fetch-eval
     description: Remote script fetch and eval pattern
     criticality: suspicious
     confidence: 0.9
     attack: "T1059.004"
-    file_types: [shell]
-    condition:
-      type: string
-      regex: 'eval\s*"\$\(curl|eval\s*`curl|eval\s*"\$\(wget|eval\s*`wget'
+    requires_count: 1
+    conditions:
+      - id: eval-curl-subshell
+      - id: eval-curl-backtick
+      - id: eval-wget-subshell
+      - id: eval-wget-backtick
 
-  # Base64 decode and execute
+  # Base64 decode exec composite
   - id: base64-decode-exec
     description: Base64 decode piped to shell execution
     criticality: suspicious
     confidence: 0.95
     attack: "T1027"
-    file_types: [shell, packagejson]
-    condition:
-      type: string
-      regex: 'base64\s+(-d|--decode)\s*\|\s*(sh|bash)|echo\s+[A-Za-z0-9+/=]+\s*\|\s*base64\s+(-d|--decode)\s*\|\s*(sh|bash)'
+    requires_count: 1
+    conditions:
+      - id: base64-d-pipe-sh
+      - id: base64-d-pipe-bash
+      - id: base64-decode-pipe-sh
+      - id: base64-decode-pipe-bash
 
-  # Process substitution execution
+  # Process substitution composite
   - id: process-substitution
     description: Process substitution for remote execution
     criticality: suspicious
     confidence: 0.85
     attack: "T1059.004"
-    file_types: [shell]
-    condition:
-      type: string
-      regex: '(bash|sh)\s+<\(curl|source\s+<\(curl|source\s+<\(wget'
+    requires_count: 1
+    conditions:
+      - id: bash-curl-process-sub
+      - id: sh-curl-process-sub
+      - id: source-curl-process-sub
+      - id: source-wget-process-sub
 

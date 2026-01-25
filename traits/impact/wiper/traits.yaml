@@ -82,15 +82,26 @@ traits:
       type: string
       regex: '["'']/?(\\./)?src["'']'
 
-  - id: target-vscode
-    description: Targets .vscode configuration directory
-    criticality: notable
-    confidence: 0.85
+  # === IDE config atomic indicators ===
+  - id: target-vscode-dir
+    description: Targets .vscode directory
+    criticality: inert
+    confidence: 0.7
     attack: "T1485"
     file_types: [javascript, typescript]
     condition:
       type: string
-      regex: '["'']/?(\\./)?\\.(vscode|idea)["'']'
+      regex: '["'']/?(\\./)?\\.(vscode)["'']'
+
+  - id: target-idea-dir
+    description: Targets .idea directory
+    criticality: inert
+    confidence: 0.7
+    attack: "T1485"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: '["'']/?(\\./)?\\.(idea)["'']'
 
   # Conditional destruction based on environment
   - id: conditional-destroy
@@ -162,17 +173,68 @@ traits:
             any of ($walk*) and any of ($delete*)
         }
 
-  # HTTP callback pattern (Node.js)
+  # === HTTP callback atomic indicators ===
+  - id: axios-ref
+    description: axios library reference
+    criticality: inert
+    confidence: 0.6
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "axios"
+
+  - id: fetch-call
+    description: fetch() call
+    criticality: inert
+    confidence: 0.6
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "fetch\\("
+
+  - id: https-request
+    description: https.request call
+    criticality: inert
+    confidence: 0.6
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "https.request"
+
+  - id: http-request
+    description: http.request call
+    criticality: inert
+    confidence: 0.6
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "http.request"
+
+composite_rules:
+  # Target IDE config composite
+  - id: target-vscode
+    description: Targets .vscode configuration directory
+    criticality: notable
+    confidence: 0.85
+    attack: "T1485"
+    file_types: [javascript, typescript]
+    requires_count: 1
+    conditions:
+      - id: target-vscode-dir
+      - id: target-idea-dir
+
   - id: http-callback
     description: HTTP request pattern for callback/reporting
     criticality: notable
     confidence: 0.8
     file_types: [javascript, typescript]
-    condition:
-      type: string
-      regex: "axios|fetch\\(|https\\.request|http\\.request"
+    requires_count: 1
+    conditions:
+      - id: axios-ref
+      - id: fetch-call
+      - id: https-request
+      - id: http-request
 
-composite_rules:
   # Protestware pattern (env-conditional destruction)
   - id: protestware
     description: Protestware pattern - conditional destruction based on location/env

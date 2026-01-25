@@ -2,16 +2,26 @@
 # ATT&CK: T1059 (Command and Scripting Interpreter)
 
 traits:
-  # openpty is common in legitimate programs (terminal emulators, SSH, screen)
-  - id: openpty
-    description: Open pseudoterminal
-    criticality: notable
-    confidence: 0.85
+  # === Openpty atomic indicators ===
+  - id: openpty-call
+    description: openpty() call
+    criticality: inert
+    confidence: 0.7
     attack: "T1059"
     file_types: [elf, macho, python]
     condition:
       type: string
-      regex: "(openpty|pty\\.Open)"
+      exact: "openpty"
+
+  - id: pty-open-call
+    description: pty.Open call
+    criticality: inert
+    confidence: 0.7
+    attack: "T1059"
+    file_types: [elf, macho, python]
+    condition:
+      type: string
+      exact: "pty.Open"
 
   # POSIX pseudoterminal functions (used on macOS/BSD for PTY creation)
   # These are notable (not suspicious) because many legitimate programs use PTY:
@@ -46,15 +56,26 @@ traits:
       type: symbol
       pattern: unlockpt
 
-  - id: ptsname
-    description: Get slave pseudoterminal name
-    criticality: notable
-    confidence: 0.8
+  # === Ptsname atomic indicators ===
+  - id: ptsname-symbol
+    description: ptsname symbol
+    criticality: inert
+    confidence: 0.6
     attack: "T1059"
     file_types: [elf, macho]
     condition:
       type: symbol
-      pattern: ptsname|ptsname_r
+      pattern: ptsname
+
+  - id: ptsname-r-symbol
+    description: ptsname_r symbol
+    criticality: inert
+    confidence: 0.6
+    attack: "T1059"
+    file_types: [elf, macho]
+    condition:
+      type: symbol
+      pattern: ptsname_r
 
   - id: isatty
     description: Check if terminal
@@ -66,15 +87,26 @@ traits:
       type: symbol
       pattern: isatty
 
-  - id: ttyname
-    description: Get terminal device pathname
-    criticality: notable
-    confidence: 0.8
+  # === Ttyname atomic indicators ===
+  - id: ttyname-symbol
+    description: ttyname symbol
+    criticality: inert
+    confidence: 0.6
     attack: "T1059"
     file_types: [elf, macho]
     condition:
       type: symbol
-      pattern: ttyname|ttyname_r
+      pattern: ttyname
+
+  - id: ttyname-r-symbol
+    description: ttyname_r symbol
+    criticality: inert
+    confidence: 0.6
+    attack: "T1059"
+    file_types: [elf, macho]
+    condition:
+      type: symbol
+      pattern: ttyname_r
 
   - id: tcgetattr
     description: Get terminal attributes
@@ -126,15 +158,26 @@ traits:
       type: string
       exact: "setupterm"
 
-  - id: python-pty
-    description: Python PTY module
-    criticality: suspicious
-    confidence: 0.85
+  # === Python PTY atomic indicators ===
+  - id: import-pty
+    description: import pty statement
+    criticality: inert
+    confidence: 0.7
     attack: "T1059"
     file_types: [python]
     condition:
       type: string
-      regex: "(import pty|from pty import)"
+      exact: "import pty"
+
+  - id: from-pty-import
+    description: from pty import statement
+    criticality: inert
+    confidence: 0.7
+    attack: "T1059"
+    file_types: [python]
+    condition:
+      type: string
+      regex: "from pty import"
 
   - id: pty-spawn
     description: Python PTY spawn
@@ -228,6 +271,54 @@ traits:
       pattern: send
 
 composite_rules:
+  # Openpty composite
+  - id: openpty
+    description: Open pseudoterminal
+    criticality: notable
+    confidence: 0.85
+    attack: "T1059"
+    file_types: [elf, macho, python]
+    requires_count: 1
+    conditions:
+      - id: openpty-call
+      - id: pty-open-call
+
+  # Ptsname composite
+  - id: ptsname
+    description: Get slave pseudoterminal name
+    criticality: notable
+    confidence: 0.8
+    attack: "T1059"
+    file_types: [elf, macho]
+    requires_count: 1
+    conditions:
+      - id: ptsname-symbol
+      - id: ptsname-r-symbol
+
+  # Ttyname composite
+  - id: ttyname
+    description: Get terminal device pathname
+    criticality: notable
+    confidence: 0.8
+    attack: "T1059"
+    file_types: [elf, macho]
+    requires_count: 1
+    conditions:
+      - id: ttyname-symbol
+      - id: ttyname-r-symbol
+
+  # Python PTY composite
+  - id: python-pty
+    description: Python PTY module
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1059"
+    file_types: [python]
+    requires_count: 1
+    conditions:
+      - id: import-pty
+      - id: from-pty-import
+
   # Interactive shell via PTY - uses openpty/pty.spawn with shell execution
   - id: interactive-shell
     description: Interactive shell via PTY

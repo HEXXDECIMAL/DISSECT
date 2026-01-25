@@ -112,7 +112,20 @@ traits:
       pattern: ".Kill("
 ```
 
-**File types:** `all`, `elf`, `macho`, `pe`, `dll`, `so`, `dylib`, `shell`, `python`, `javascript`, `rust`, `java`, `class`, `ruby`, `c`, `go`, `csharp`, `php`
+**File types:** `all` (or `*`), `elf`, `macho`, `pe`, `dll`, `so`, `dylib`, `shell`, `python`, `javascript`, `rust`, `java`, `class`, `ruby`, `c`, `go`, `csharp`, `php`
+
+Use `*` to explicitly override a restrictive default and match all file types:
+```yaml
+defaults:
+  file_types: [elf, macho]  # Restrictive default for most rules
+
+traits:
+  - id: some-string-pattern
+    file_types: [*]  # Override: this string can appear in any file type
+    condition:
+      type: string
+      exact: "suspicious.domain.com"
+```
 
 ---
 

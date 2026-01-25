@@ -3,15 +3,26 @@
 # ATT&CK: T1059.007 (Command and Scripting Interpreter: JavaScript)
 
 traits:
-  - id: eval-function-reference
-    description: eval passed as function reference
-    criticality: suspicious
-    confidence: 0.95
+  # === Eval function reference atomic indicators ===
+  - id: eval-as-first-arg
+    description: eval as first argument (eval,
+    criticality: inert
+    confidence: 0.7
     attack: "T1059.007"
     file_types: [javascript]
     condition:
       type: string
-      regex: "\\(eval\\s*,|,\\s*eval\\)"
+      regex: "\\(eval\\s*,"
+
+  - id: eval-as-last-arg
+    description: eval as last argument ,eval)
+    criticality: inert
+    confidence: 0.7
+    attack: "T1059.007"
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: ",\\s*eval\\)"
 
   - id: eval-variable
     description: eval with variable argument
@@ -23,15 +34,80 @@ traits:
       type: string
       regex: "eval\\s*\\(\\s*[a-zA-Z_$][a-zA-Z0-9_$]*\\s*\\)"
 
+  # === Function constructor atomic indicators ===
+  - id: new-function-constructor
+    description: new Function() constructor
+    criticality: inert
+    confidence: 0.8
+    attack: "T1059.007"
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "new\\s+Function\\s*\\("
+
+  - id: function-constructor-call
+    description: Function() constructor call
+    criticality: inert
+    confidence: 0.8
+    attack: "T1059.007"
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "Function\\s*\\("
+
+  # === VM runIn atomic indicators ===
+  - id: vm-runIn-method
+    description: vm.runIn method
+    criticality: inert
+    confidence: 0.7
+    attack: "T1059.007"
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "vm\\.runIn"
+
+  - id: runInContext-call
+    description: runInContext call
+    criticality: inert
+    confidence: 0.7
+    attack: "T1059.007"
+    file_types: [javascript]
+    condition:
+      type: string
+      exact: "runInContext"
+
+  - id: runInNewContext-call
+    description: runInNewContext call
+    criticality: inert
+    confidence: 0.7
+    attack: "T1059.007"
+    file_types: [javascript]
+    condition:
+      type: string
+      exact: "runInNewContext"
+
+composite_rules:
+  - id: eval-function-reference
+    description: eval passed as function reference
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1059.007"
+    file_types: [javascript]
+    requires_count: 1
+    conditions:
+      - id: eval-as-first-arg
+      - id: eval-as-last-arg
+
   - id: Function-constructor
     description: Function constructor (dynamic code execution)
     criticality: suspicious
     confidence: 0.95
     attack: "T1059.007"
     file_types: [javascript]
-    condition:
-      type: string
-      regex: "new\\s+Function\\s*\\(|Function\\s*\\("
+    requires_count: 1
+    conditions:
+      - id: new-function-constructor
+      - id: function-constructor-call
 
   - id: vm-runInContext
     description: Node.js VM runInContext (sandboxed eval)
@@ -39,6 +115,8 @@ traits:
     confidence: 0.85
     attack: "T1059.007"
     file_types: [javascript]
-    condition:
-      type: string
-      regex: "vm\\.runIn|runInContext|runInNewContext"
+    requires_count: 1
+    conditions:
+      - id: vm-runIn-method
+      - id: runInContext-call
+      - id: runInNewContext-call

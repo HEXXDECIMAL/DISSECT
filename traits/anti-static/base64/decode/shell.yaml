@@ -3,7 +3,8 @@
 # ATT&CK: T1140
 
 defaults:
-  file_types: [shell]
+  # base64 command can be embedded in any file type
+  file_types: [*]
 
 traits:
   - id: decode-shell

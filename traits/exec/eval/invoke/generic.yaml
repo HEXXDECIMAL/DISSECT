@@ -3,20 +3,76 @@
 # ATT&CK: T1059
 
 traits:
-  # Suspicious for non-Python languages (JS, shell, etc.) where eval/exec is rare
+  # === Shell eval atomic indicators ===
+  - id: eval-call-shell
+    description: eval() call (shell/js)
+    criticality: inert
+    confidence: 0.5
+    mbc: "E1059"
+    attack: "T1059"
+    file_types: [shell, javascript]
+    condition:
+      type: string
+      regex: "eval\\("
+
+  - id: exec-call-shell
+    description: exec() call (shell/js)
+    criticality: inert
+    confidence: 0.5
+    mbc: "E1059"
+    attack: "T1059"
+    file_types: [shell, javascript]
+    condition:
+      type: string
+      regex: "exec\\("
+
+  # === Python eval atomic indicators ===
+  - id: eval-call-python
+    description: eval() call (Python)
+    criticality: inert
+    confidence: 0.4
+    mbc: "E1059"
+    attack: "T1059"
+    file_types: [python]
+    condition:
+      type: string
+      regex: "eval\\("
+
+  - id: exec-call-python
+    description: exec() call (Python)
+    criticality: inert
+    confidence: 0.4
+    mbc: "E1059"
+    attack: "T1059"
+    file_types: [python]
+    condition:
+      type: string
+      regex: "exec\\("
+
+  - id: compile-call-python
+    description: compile() call (Python)
+    criticality: inert
+    confidence: 0.4
+    mbc: "E1059"
+    attack: "T1059"
+    file_types: [python]
+    condition:
+      type: string
+      regex: "compile\\("
+
+composite_rules:
   - id: shell-eval
     description: Dynamic code evaluation
     criticality: suspicious
     confidence: 0.66
     mbc: "E1059"
     attack: "T1059"
-    # Exclude Python - exec/eval are common and often legitimate
     file_types: [shell, javascript]
-    condition:
-      type: string
-      regex: "(eval\\(|exec\\()"
+    requires_count: 1
+    conditions:
+      - id: eval-call-shell
+      - id: exec-call-shell
 
-  # Notable for Python - exec/eval are common for version parsing, setup scripts
   - id: python-eval
     description: Python dynamic code evaluation
     criticality: notable
@@ -24,6 +80,8 @@ traits:
     mbc: "E1059"
     attack: "T1059"
     file_types: [python]
-    condition:
-      type: string
-      regex: "(eval\\(|exec\\(|compile\\()"
+    requires_count: 1
+    conditions:
+      - id: eval-call-python
+      - id: exec-call-python
+      - id: compile-call-python

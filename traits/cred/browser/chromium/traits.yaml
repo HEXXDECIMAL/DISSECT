@@ -32,14 +32,24 @@ traits:
       type: string
       exact: "Microsoft Edge"
 
-  - id: opera-path
-    description: Opera browser profile path
-    criticality: suspicious
-    confidence: 0.7
+  # === Opera path atomic indicators ===
+  - id: opera-macos-path
+    description: Opera macOS profile path
+    criticality: notable
+    confidence: 0.6
     attack: "T1555.003"
     condition:
       type: string
-      regex: "com\\.operasoftware\\.Opera|Opera Software/Opera"
+      exact: "com.operasoftware.Opera"
+
+  - id: opera-windows-path
+    description: Opera Windows profile path
+    criticality: notable
+    confidence: 0.6
+    attack: "T1555.003"
+    condition:
+      type: string
+      exact: "Opera Software/Opera"
 
   - id: operagx-path
     description: Opera GX browser profile path
@@ -59,14 +69,24 @@ traits:
       type: string
       exact: "Vivaldi"
 
-  - id: arc-path
-    description: Arc browser profile path
-    criticality: suspicious
-    confidence: 0.7
+  # === Arc path atomic indicators ===
+  - id: arc-macos-path
+    description: Arc macOS profile path
+    criticality: notable
+    confidence: 0.6
     attack: "T1555.003"
     condition:
       type: string
-      regex: "/Arc/|Arc/User Data"
+      exact: "/Arc/"
+
+  - id: arc-userdata-path
+    description: Arc User Data path
+    criticality: notable
+    confidence: 0.6
+    attack: "T1555.003"
+    condition:
+      type: string
+      exact: "Arc/User Data"
 
   - id: coccoc-path
     description: Coccoc browser profile path
@@ -166,14 +186,25 @@ traits:
       regex: "SELECT.*origin_url.*username_value.*password_value.*FROM\\s+logins"
       case_insensitive: true
 
-  - id: cookie-sql
-    description: Chromium Cookies SQL query
-    criticality: suspicious
-    confidence: 0.9
+  # === Cookie SQL atomic indicators ===
+  - id: chromium-cookie-sql
+    description: Chromium cookies table SQL query
+    criticality: notable
+    confidence: 0.8
     attack: "T1555.003"
     condition:
       type: string
-      regex: "SELECT.*host_key.*encrypted_value.*FROM\\s+(cookies|moz_cookies)"
+      regex: "SELECT.*host_key.*encrypted_value.*FROM\\s+cookies"
+      case_insensitive: true
+
+  - id: firefox-cookie-sql
+    description: Firefox moz_cookies table SQL query
+    criticality: notable
+    confidence: 0.8
+    attack: "T1555.003"
+    condition:
+      type: string
+      regex: "SELECT.*host_key.*encrypted_value.*FROM\\s+moz_cookies"
       case_insensitive: true
 
   - id: credit-card-sql
@@ -188,6 +219,41 @@ traits:
       case_insensitive: true
 
 composite_rules:
+  # === Atomic Composites ===
+
+  # Opera path composite
+  - id: opera-path
+    description: Opera browser profile path
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1555.003"
+    requires_count: 1
+    conditions:
+      - id: opera-macos-path
+      - id: opera-windows-path
+
+  # Arc path composite
+  - id: arc-path
+    description: Arc browser profile path
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1555.003"
+    requires_count: 1
+    conditions:
+      - id: arc-macos-path
+      - id: arc-userdata-path
+
+  # Cookie SQL composite
+  - id: cookie-sql
+    description: Browser cookie SQL query
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1555.003"
+    requires_count: 1
+    conditions:
+      - id: chromium-cookie-sql
+      - id: firefox-cookie-sql
+
   # === Composite Detections ===
 
   - id: cookie-theft

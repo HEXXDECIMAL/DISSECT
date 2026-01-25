@@ -262,7 +262,7 @@ composite_rules:
   # ============================================
   - id: dropper
     description: "Loads external script then executes shell"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     file_types: [applescript]
     requires_all:

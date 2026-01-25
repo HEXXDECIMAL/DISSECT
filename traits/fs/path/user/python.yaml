@@ -17,13 +17,22 @@ traits:
       type: string
       regex: "os\\.path\\.expanduser\\([^)]*[\"']~"
 
-  # pathlib.Path.home()
-  - id: python-pathlib-home
-    description: "Home directory via pathlib (Path.home)"
-    confidence: 0.8
+  # === pathlib.Path.home() atomic indicators ===
+  - id: python-path-home-direct
+    description: "Path.home() direct call"
+    confidence: 0.7
+    criticality: inert
     condition:
       type: string
-      regex: "Path\\.home\\(\\)|Path\\(\\)\\s*\\.home\\(\\)"
+      exact: "Path.home()"
+
+  - id: python-path-home-method
+    description: "Path().home() method call"
+    confidence: 0.7
+    criticality: inert
+    condition:
+      type: string
+      regex: "Path\\(\\)\\s*\\.home\\(\\)"
 
   # os.environ['HOME'] or os.environ.get('HOME')
   - id: python-environ-home
@@ -67,6 +76,14 @@ traits:
       regex: "os\\.path\\.join\\([^)]*,\\s*[\"']\\.[a-zA-Z]"
 
 composite_rules:
+  - id: python-pathlib-home
+    description: "Home directory via pathlib (Path.home)"
+    confidence: 0.8
+    requires_count: 1
+    conditions:
+      - id: python-path-home-direct
+      - id: python-path-home-method
+
   # Home directory + hidden path construction
   - id: python-home-hidden-dir
     description: "Hidden directory in home (likely malware staging)"

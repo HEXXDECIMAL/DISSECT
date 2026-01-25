@@ -77,7 +77,7 @@ composite_rules:
   # Telegram data theft
   - id: telegram-theft
     description: "Telegram Desktop session/data theft"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1005"
     file_types: [shell, python, applescript, macho, elf, pe]
@@ -97,7 +97,7 @@ composite_rules:
   # Multi-messenger theft
   - id: multi-messenger
     description: "Multiple messaging apps targeted"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1005"
     file_types: [shell, python, applescript, macho, elf, pe]

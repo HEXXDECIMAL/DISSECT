@@ -20,19 +20,58 @@ traits:
       type: string
       regex: "powershell.*Start-Process"
 
-  - id: system-masquerade
-    description: "Masquerades as system process (e.g. Realtek, Windows Update)"
-    criticality: suspicious
-    confidence: 0.8
+  # === System masquerade atomic indicators ===
+  - id: masq-realtek
+    description: "Masquerades as Realtek audio process"
+    criticality: notable
+    confidence: 0.7
     condition:
       type: string
-      regex: "RealtekHDAudio|WindowsUpdate|lsass|svchost"
+      exact: "RealtekHDAudio"
+
+  - id: masq-windowsupdate
+    description: "Masquerades as Windows Update process"
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "WindowsUpdate"
+
+  - id: masq-lsass
+    description: "Masquerades as lsass process"
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "lsass"
+
+  - id: masq-svchost
+    description: "Masquerades as svchost process"
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "svchost"
 
 composite_rules:
+  # System masquerade composite
+  - id: system-masquerade
+    description: "Masquerades as system process"
+    criticality: suspicious
+    confidence: 0.8
+    requires_count: 1
+    conditions:
+      - id: masq-realtek
+      - id: masq-windowsupdate
+      - id: masq-lsass
+      - id: masq-svchost
+
   - id: powershell-dropper
     description: "PowerShell-based dropper (Download + Execute)"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.98
+    attack: "T1059.001"
+    mbc: "E1059"
     file_types: [python]
     requires_all:
       - id: exec/command/powershell/python-download

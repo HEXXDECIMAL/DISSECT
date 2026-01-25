@@ -54,8 +54,10 @@ composite_rules:
 
     // Run dissect pointing to the temp traits directory
     // We need to set the working directory so it finds "traits"
+    // Allow inline primitives since these tests are testing criticality downgrading, not inline validation
     assert_cmd::cargo_bin_cmd!("dissect")
         .current_dir(temp_dir.path())
+        .env("DISSECT_ALLOW_INLINE_PRIMITIVES", "1")
         .args(["analyze", target_file.to_str().unwrap()])
         .assert()
         .success()
@@ -95,8 +97,10 @@ composite_rules:
     fs::write(&target_file, "#!/bin/bash\n# dummy\n").unwrap();
 
     // Should NOT show downgrade warning for the valid rule
+    // Allow inline primitives since these tests are testing criticality downgrading, not inline validation
     assert_cmd::cargo_bin_cmd!("dissect")
         .current_dir(temp_dir.path())
+        .env("DISSECT_ALLOW_INLINE_PRIMITIVES", "1")
         .args(["analyze", target_file.to_str().unwrap()])
         .assert()
         .success()

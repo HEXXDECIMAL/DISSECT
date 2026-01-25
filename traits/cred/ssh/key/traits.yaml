@@ -6,14 +6,23 @@ defaults:
 
 traits:
   # === Atomic: SSH Directory ===
-  - id: dot-ssh-path
-    description: Accesses .ssh directory
-    criticality: notable
-    confidence: 0.6
+  - id: slash-dot-ssh
+    description: /.ssh path reference
+    criticality: inert
+    confidence: 0.5
     attack: "T1552.004"
     condition:
       type: string
-      regex: "/\\.ssh|\\.\\.ssh/"
+      exact: "/.ssh"
+
+  - id: dot-dot-ssh
+    description: ..ssh/ path reference
+    criticality: inert
+    confidence: 0.5
+    attack: "T1552.004"
+    condition:
+      type: string
+      exact: "..ssh/"
 
   # === Atomic: SSH Private Keys ===
   - id: id-rsa
@@ -99,13 +108,22 @@ traits:
       type: string
       exact: "/usr/bin/sshd"
 
-  - id: sshd-net-proc
-    description: SSHD network process reference
-    criticality: suspicious
-    confidence: 0.8
+  # === Atomic: SSHD network process indicators ===
+  - id: sshd-net-bracket
+    description: SSHD net process reference
+    criticality: notable
+    confidence: 0.7
     condition:
       type: string
-      regex: "sshd: \\[(net|accepted)\\]"
+      exact: "sshd: [net]"
+
+  - id: sshd-accepted-bracket
+    description: SSHD accepted process reference
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "sshd: [accepted]"
 
   - id: sshd-proc-ref
     description: SSHD process reference
@@ -197,6 +215,27 @@ traits:
       regex: "UserKnownHostsFile\\s*[=/]\\s*/dev/null"
 
 composite_rules:
+  # === Composite: SSH directory path ===
+  - id: dot-ssh-path
+    description: SSH directory path reference
+    criticality: notable
+    confidence: 0.6
+    attack: "T1552.004"
+    requires_count: 1
+    conditions:
+      - id: slash-dot-ssh
+      - id: dot-dot-ssh
+
+  # === Composite: SSHD network process ===
+  - id: sshd-net-proc
+    description: SSHD network process reference
+    criticality: suspicious
+    confidence: 0.8
+    requires_count: 1
+    conditions:
+      - id: sshd-net-bracket
+      - id: sshd-accepted-bracket
+
   # === Composite: SSH private key theft ===
   - id: private-key-theft
     description: SSH private key theft

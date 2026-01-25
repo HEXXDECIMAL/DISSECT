@@ -43,7 +43,7 @@ traits:
       regex: "(?i)\\bvirus\\b"
 
   - id: worm-marker
-    description: Worm reference
+    description: Worm malware type reference in code
     criticality: suspicious
     confidence: 0.7
     attack: "T1204"

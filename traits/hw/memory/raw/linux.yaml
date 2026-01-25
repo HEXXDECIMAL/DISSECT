@@ -22,12 +22,36 @@ traits:
       type: string
       exact: "/dev/mem"
 
+  # === Memdump atomic indicators ===
+  - id: memdump-cmd
+    description: memdump command reference
+    criticality: notable
+    confidence: 0.65
+    attack: "T1003"
+    platforms: [all]
+    condition:
+      type: string
+      regex: "\\bmemdump\\b"
+
+  - id: dumpmem-cmd
+    description: dumpmem command reference
+    criticality: notable
+    confidence: 0.65
+    attack: "T1003"
+    platforms: [all]
+    condition:
+      type: string
+      regex: "\\bdumpmem\\b"
+
+composite_rules:
+  # Memdump composite
   - id: memdump-ref
     description: Memory dump utility reference
     criticality: suspicious
     confidence: 0.75
     attack: "T1003"
     platforms: [all]
-    condition:
-      type: string
-      regex: "\\b(memdump|dumpmem)\\b"
+    requires_count: 1
+    conditions:
+      - id: memdump-cmd
+      - id: dumpmem-cmd

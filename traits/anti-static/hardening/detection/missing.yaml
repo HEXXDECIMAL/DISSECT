@@ -2,8 +2,8 @@
 # Binaries without standard security features are suspicious
 # ATT&CK: T1027 (Obfuscated Files or Information)
 
-composite_rules:
-  - id: stripped-binary
+traits:
+  - id: stripped-binary-struct
     description: "Binary has symbol table stripped"
     criticality: notable
     confidence: 0.7
@@ -12,7 +12,7 @@ composite_rules:
       type: structure
       feature: "binary/stripped"
 
-  - id: static-linked
+  - id: static-linked-struct
     description: "Statically linked binary (self-contained)"
     criticality: notable
     confidence: 0.7
@@ -21,7 +21,7 @@ composite_rules:
       type: structure
       feature: "binary/static"
 
-  - id: no-pie
+  - id: no-pie-struct
     description: "Binary not position-independent (no ASLR)"
     criticality: notable
     confidence: 0.6
@@ -30,7 +30,7 @@ composite_rules:
       type: structure
       feature: "binary/no-pie"
 
-  - id: no-nx
+  - id: no-nx-struct
     description: "Binary lacks NX/DEP protection (executable stack)"
     criticality: notable
     confidence: 0.7
@@ -39,6 +39,40 @@ composite_rules:
     condition:
       type: structure
       feature: "binary/no-nx"
+
+composite_rules:
+  - id: stripped-binary
+    description: "Binary has symbol table stripped"
+    criticality: notable
+    confidence: 0.7
+    file_types: [elf, macho, pe]
+    requires_all:
+      - id: stripped-binary-struct
+
+  - id: static-linked
+    description: "Statically linked binary (self-contained)"
+    criticality: notable
+    confidence: 0.7
+    file_types: [elf]
+    requires_all:
+      - id: static-linked-struct
+
+  - id: no-pie
+    description: "Binary not position-independent (no ASLR)"
+    criticality: notable
+    confidence: 0.6
+    file_types: [elf]
+    requires_all:
+      - id: no-pie-struct
+
+  - id: no-nx
+    description: "Binary lacks NX/DEP protection (executable stack)"
+    criticality: notable
+    confidence: 0.7
+    attack: "T1027"
+    file_types: [elf, macho]
+    requires_all:
+      - id: no-nx-struct
 
   - id: minimal
     description: "Binary lacks security hardening (stripped + static)"

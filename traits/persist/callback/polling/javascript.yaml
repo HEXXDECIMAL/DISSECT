@@ -3,15 +3,33 @@
 # ATT&CK: T1053 (Scheduled Task/Job)
 
 traits:
-  - id: setInterval-http
-    description: setInterval with HTTP calls (persistent polling)
-    criticality: suspicious
-    confidence: 0.85
-    attack: "T1053"
+  # === setInterval HTTP atomic indicators ===
+  - id: setInterval-http-call
+    description: setInterval with http
+    criticality: inert
+    confidence: 0.6
     file_types: [javascript]
     condition:
       type: string
-      regex: "setInterval.*http|setInterval.*axios|setInterval.*fetch"
+      regex: "setInterval.*http"
+
+  - id: setInterval-axios
+    description: setInterval with axios
+    criticality: inert
+    confidence: 0.6
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "setInterval.*axios"
+
+  - id: setInterval-fetch
+    description: setInterval with fetch
+    criticality: inert
+    confidence: 0.6
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "setInterval.*fetch"
 
   - id: setInterval-function
     description: setInterval with function callback
@@ -30,3 +48,16 @@ traits:
     condition:
       type: string
       regex: "setTimeout.*setTimeout"
+
+composite_rules:
+  - id: setInterval-http
+    description: setInterval with HTTP calls (persistent polling)
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1053"
+    file_types: [javascript]
+    requires_count: 1
+    conditions:
+      - id: setInterval-http-call
+      - id: setInterval-axios
+      - id: setInterval-fetch

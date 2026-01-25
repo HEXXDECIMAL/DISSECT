@@ -3,7 +3,8 @@
 # ATT&CK: T1548.004 (Abuse Elevation Control Mechanism)
 
 defaults:
-  file_types: [applescript, shell]
+  # osascript can be invoked from any language: python subprocess, ruby system(), etc.
+  file_types: [applescript, shell, python, ruby, perl, javascript, elf, macho]
   platforms: [macos]
   attack: "T1548.004"
 
@@ -54,7 +55,6 @@ composite_rules:
     description: "AppleScript admin privilege escalation"
     criticality: suspicious
     confidence: 0.9
-    file_types: [applescript, shell]
     requires_any:
       - {id: admin-privileges}
       - {id: with-admin-privileges}
@@ -64,9 +64,8 @@ composite_rules:
   # ============================================
   - id: shell-admin
     description: "Shell execution with admin privileges"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
-    file_types: [applescript, shell]
     requires_all:
       - {id: evasion/applescript/do-shell-script}
       - {id: with-admin-privileges}

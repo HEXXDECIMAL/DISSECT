@@ -26,10 +26,47 @@ traits:
             any of them
         }
 
+  # === Disk device atomic indicators ===
+  - id: dev-sda
+    description: /dev/sda device access
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "/dev/sda"
+
+  - id: dev-hda
+    description: /dev/hda device access
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "/dev/hda"
+
+  - id: dev-nvme
+    description: /dev/nvme device access
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: "/dev/nvme"
+
+  - id: dev-vda
+    description: /dev/vda device access
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "/dev/vda"
+
+composite_rules:
   - id: disk-device
     description: Direct disk device access
     criticality: suspicious
     confidence: 0.66
-    condition:
-      type: string
-      regex: "/dev/(sda|hda|nvme|vda)"
+    requires_count: 1
+    conditions:
+      - id: dev-sda
+      - id: dev-hda
+      - id: dev-nvme
+      - id: dev-vda

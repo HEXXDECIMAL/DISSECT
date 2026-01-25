@@ -167,8 +167,8 @@ traits:
 
   # Windows Script Host dropper
   - id: wsh-dropper
-    description: Windows Script Host dropper pattern
-    criticality: hostile
+    description: Windows Script Host dropper pattern (download and execute)
+    criticality: suspicious
     confidence: 0.95
     attack: "T1059.005"
     file_types: [javascript, typescript]

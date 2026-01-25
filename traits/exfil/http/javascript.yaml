@@ -3,42 +3,135 @@
 # ATT&CK: T1041 (Exfiltration Over C2 Channel)
 
 traits:
-  - id: axios-post
-    description: axios POST request (potential exfiltration)
-    criticality: suspicious
-    confidence: 0.8
-    attack: "T1041"
-    file_types: [javascript]
-    condition:
-      type: string
-      regex: "axios\\.post|axios\\[.*post"
-
-  - id: fetch-post
-    description: fetch POST request (potential exfiltration)
-    criticality: suspicious
-    confidence: 0.8
-    attack: "T1041"
-    file_types: [javascript]
-    condition:
-      type: string
-      regex: "fetch\\(.*POST|method:\\s*['\"]POST"
-
-  - id: request-post
-    description: request module POST (potential exfiltration)
-    criticality: suspicious
-    confidence: 0.8
-    attack: "T1041"
-    file_types: [javascript]
-    condition:
-      type: string
-      regex: "request\\.post|request\\(.*method.*POST"
-
-  - id: http-request
-    description: Node.js http.request (potential exfiltration)
+  # === Axios POST atomic indicators ===
+  - id: axios-dot-post
+    description: axios.post method call
     criticality: notable
     confidence: 0.7
     attack: "T1041"
     file_types: [javascript]
     condition:
       type: string
-      regex: "http\\.request|https\\.request"
+      exact: "axios.post"
+
+  - id: axios-bracket-post
+    description: axios bracket post access
+    criticality: notable
+    confidence: 0.7
+    attack: "T1041"
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "axios\\[.*post"
+
+  # === Fetch POST atomic indicators ===
+  - id: fetch-with-post
+    description: fetch with POST method
+    criticality: notable
+    confidence: 0.7
+    attack: "T1041"
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "fetch\\(.*POST"
+
+  - id: method-post-string
+    description: method POST string
+    criticality: notable
+    confidence: 0.7
+    attack: "T1041"
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "method:\\s*['\"]POST"
+
+  # === Request POST atomic indicators ===
+  - id: request-dot-post
+    description: request.post method call
+    criticality: notable
+    confidence: 0.7
+    attack: "T1041"
+    file_types: [javascript]
+    condition:
+      type: string
+      exact: "request.post"
+
+  - id: request-method-post
+    description: request with method POST
+    criticality: notable
+    confidence: 0.7
+    attack: "T1041"
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "request\\(.*method.*POST"
+
+  # === HTTP request atomic indicators ===
+  - id: http-dot-request
+    description: http.request method
+    criticality: inert
+    confidence: 0.6
+    attack: "T1041"
+    file_types: [javascript]
+    condition:
+      type: string
+      exact: "http.request"
+
+  - id: https-dot-request
+    description: https.request method
+    criticality: inert
+    confidence: 0.6
+    attack: "T1041"
+    file_types: [javascript]
+    condition:
+      type: string
+      exact: "https.request"
+
+composite_rules:
+  # Axios POST composite
+  - id: axios-post
+    description: axios POST request (potential exfiltration)
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1041"
+    file_types: [javascript]
+    requires_count: 1
+    conditions:
+      - id: axios-dot-post
+      - id: axios-bracket-post
+
+  # Fetch POST composite
+  - id: fetch-post
+    description: fetch POST request (potential exfiltration)
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1041"
+    file_types: [javascript]
+    requires_count: 1
+    conditions:
+      - id: fetch-with-post
+      - id: method-post-string
+
+  # Request POST composite
+  - id: request-post
+    description: request module POST (potential exfiltration)
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1041"
+    file_types: [javascript]
+    requires_count: 1
+    conditions:
+      - id: request-dot-post
+      - id: request-method-post
+
+  # HTTP request composite
+  - id: http-request
+    description: Node.js http.request (potential exfiltration)
+    criticality: notable
+    confidence: 0.7
+    attack: "T1041"
+    file_types: [javascript]
+    requires_count: 1
+    conditions:
+      - id: http-dot-request
+      - id: https-dot-request

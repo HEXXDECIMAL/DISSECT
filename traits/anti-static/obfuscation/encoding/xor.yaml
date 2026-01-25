@@ -8,37 +8,162 @@ defaults:
   attack: "T1027"
 
 traits:
+  # === XOR decode symbol atomic indicators ===
+  - id: xor-decode-symbol
+    description: xor_decode symbol
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: symbol
+      pattern: "xor_decode"
+
+  - id: decode-xor-symbol
+    description: decode_xor symbol
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: symbol
+      pattern: "decode_xor"
+
+  - id: xor-decrypt-symbol
+    description: xor_decrypt symbol
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: symbol
+      pattern: "xor_decrypt"
+
+  - id: decrypt-xor-symbol
+    description: decrypt_xor symbol
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: symbol
+      pattern: "decrypt_xor"
+
+  - id: xor-string-symbol
+    description: xor_string symbol
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: symbol
+      pattern: "xor_string"
+
+  # === Single-byte XOR key atomic indicators ===
+  - id: xor-key-0x37
+    description: XOR key 0x37 repeated
+    criticality: inert
+    confidence: 0.55
+    file_types: [elf]
+    condition:
+      type: string
+      regex: "\\x37{4,}"
+      search_raw: true
+
+  - id: xor-key-0x55
+    description: XOR key 0x55 repeated
+    criticality: inert
+    confidence: 0.55
+    file_types: [elf]
+    condition:
+      type: string
+      regex: "\\x55{4,}"
+      search_raw: true
+
+  - id: xor-key-0xAA
+    description: XOR key 0xAA repeated
+    criticality: inert
+    confidence: 0.55
+    file_types: [elf]
+    condition:
+      type: string
+      regex: "\\xAA{4,}"
+      search_raw: true
+
+  - id: xor-key-0xDE
+    description: XOR key 0xDE repeated
+    criticality: inert
+    confidence: 0.55
+    file_types: [elf]
+    condition:
+      type: string
+      regex: "\\xDE{4,}"
+      search_raw: true
+
+  # === Table-based decode atomic indicators ===
+  - id: decode-table-symbol
+    description: decode_table symbol
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: symbol
+      pattern: "decode_table"
+
+  - id: table-decode-symbol
+    description: table_decode symbol
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: symbol
+      pattern: "table_decode"
+
+  - id: lookup-decode-symbol
+    description: lookup_decode symbol
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: symbol
+      pattern: "lookup_decode"
+
+  - id: char-map-symbol
+    description: char_map symbol
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: symbol
+      pattern: "char_map"
+
+composite_rules:
+  # Single-byte XOR key composite
+  - id: single-byte-xor-key
+    description: Single-byte XOR key constant (0x37, 0x55, 0xAA, 0xDE)
+    criticality: notable
+    confidence: 0.65
+    file_types: [elf]
+    requires_count: 1
+    conditions:
+      - id: xor-key-0x37
+      - id: xor-key-0x55
+      - id: xor-key-0xAA
+      - id: xor-key-0xDE
+
   - id: xor-decode-loop
     description: "XOR decryption loop pattern"
     criticality: suspicious
     confidence: 0.8
-    condition:
-      type: symbol
-      pattern: "xor_decode|decode_xor|xor_decrypt|decrypt_xor|xor_string"
-
-  - id: single-byte-xor-key
-    description: "Single-byte XOR key constant (0x37, 0x55, 0xAA, 0xFF)"
-    criticality: notable
-    confidence: 0.65
-    file_types: [elf]  # Override: only ELF for this pattern
-    condition:
-      type: string
-      regex: "\\x37{4,}|\\x55{4,}|\\xAA{4,}|\\xDE{4,}"
-      search_raw: true
+    requires_count: 1
+    conditions:
+      - id: xor-decode-symbol
+      - id: decode-xor-symbol
+      - id: xor-decrypt-symbol
+      - id: decrypt-xor-symbol
+      - id: xor-string-symbol
 
   - id: table-based-decode
     description: "Table-based decoding function"
     criticality: notable
     confidence: 0.7
-    condition:
-      type: symbol
-      pattern: "decode_table|table_decode|lookup_decode|char_map"
+    requires_count: 1
+    conditions:
+      - id: decode-table-symbol
+      - id: table-decode-symbol
+      - id: lookup-decode-symbol
+      - id: char-map-symbol
 
-composite_rules:
   - id: string-decrypt
     description: "String decryption capability"
     criticality: suspicious
     confidence: 0.8
     requires_any:
-      - id: anti-static/obfuscation/encoding/xor-decode-loop
-      - id: anti-static/obfuscation/encoding/table-based-decode
+      - id: xor-decode-loop
+      - id: table-based-decode

@@ -24,13 +24,22 @@ traits:
       type: string
       exact: resolv.conf
 
-  - id: lookup-reverse
-    description: Reverse DNS lookup
+  # === Reverse lookup atomic indicators ===
+  - id: in-addr-arpa
+    description: in-addr.arpa reverse lookup
     criticality: inert
-    confidence: 0.66
+    confidence: 0.56
     condition:
       type: string
-      regex: "(\\.in-addr\\.arpa|ip6\\.arpa)"
+      exact: ".in-addr.arpa"
+
+  - id: ip6-arpa
+    description: ip6.arpa reverse lookup
+    criticality: inert
+    confidence: 0.56
+    condition:
+      type: string
+      exact: "ip6.arpa"
 
   - id: lookup-txt
     description: DNS TXT record queries
@@ -50,3 +59,14 @@ traits:
           condition:
             any of ($txt_query*)
         }
+
+composite_rules:
+  # Reverse lookup composite
+  - id: lookup-reverse
+    description: Reverse DNS lookup
+    criticality: inert
+    confidence: 0.66
+    requires_count: 1
+    conditions:
+      - id: in-addr-arpa
+      - id: ip6-arpa

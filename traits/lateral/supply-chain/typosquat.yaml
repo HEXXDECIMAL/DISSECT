@@ -20,24 +20,96 @@ traits:
       pattern: "pypihosted.org"
       case_insensitive: true
 
-  # Fake PyPI file hosting domains - raw search fallback
-  - id: fake-pypi-host-raw
-    description: "Typosquatted PyPI file hosting domain"
-    confidence: 0.95
-    criticality: suspicious
+  # === Fake PyPI host atomic indicators ===
+  - id: pypihosted-org
+    description: pypihosted.org typosquat
+    confidence: 0.9
+    criticality: notable
     condition:
       type: string
-      regex: "pypihosted\\.org|pythonhosted\\.com|pypi-files\\.|pypyhosted\\.|pythonhost\\."
+      exact: "pypihosted.org"
       search_raw: true
 
-  # Fake PyPI index domains
-  - id: fake-pypi-index
-    description: "Typosquatted PyPI index domain"
-    confidence: 0.95
-    criticality: suspicious
+  - id: pythonhosted-com
+    description: pythonhosted.com typosquat
+    confidence: 0.9
+    criticality: notable
     condition:
       type: string
-      regex: "pypii\\.org|pipy\\.org|pyp1\\.org|pypl\\.org|py-pi\\."
+      exact: "pythonhosted.com"
+      search_raw: true
+
+  - id: pypi-files-domain
+    description: pypi-files. typosquat
+    confidence: 0.9
+    criticality: notable
+    condition:
+      type: string
+      exact: "pypi-files."
+      search_raw: true
+
+  - id: pypyhosted-domain
+    description: pypyhosted. typosquat
+    confidence: 0.9
+    criticality: notable
+    condition:
+      type: string
+      exact: "pypyhosted."
+      search_raw: true
+
+  - id: pythonhost-domain
+    description: pythonhost. typosquat
+    confidence: 0.9
+    criticality: notable
+    condition:
+      type: string
+      exact: "pythonhost."
+      search_raw: true
+
+  # === Fake PyPI index atomic indicators ===
+  - id: pypii-org
+    description: pypii.org typosquat
+    confidence: 0.9
+    criticality: notable
+    condition:
+      type: string
+      exact: "pypii.org"
+      search_raw: true
+
+  - id: pipy-org
+    description: pipy.org typosquat
+    confidence: 0.9
+    criticality: notable
+    condition:
+      type: string
+      exact: "pipy.org"
+      search_raw: true
+
+  - id: pyp1-org
+    description: pyp1.org typosquat
+    confidence: 0.9
+    criticality: notable
+    condition:
+      type: string
+      exact: "pyp1.org"
+      search_raw: true
+
+  - id: pypl-org
+    description: pypl.org typosquat
+    confidence: 0.9
+    criticality: notable
+    condition:
+      type: string
+      exact: "pypl.org"
+      search_raw: true
+
+  - id: py-pi-domain
+    description: py-pi. typosquat
+    confidence: 0.9
+    criticality: notable
+    condition:
+      type: string
+      exact: "py-pi."
       search_raw: true
 
   # Suspicious package download from non-official source
@@ -80,6 +152,32 @@ traits:
       search_raw: true
 
 composite_rules:
+  # Fake PyPI host composite
+  - id: fake-pypi-host-raw
+    description: "Typosquatted PyPI file hosting domain"
+    confidence: 0.95
+    criticality: suspicious
+    requires_count: 1
+    conditions:
+      - id: pypihosted-org
+      - id: pythonhosted-com
+      - id: pypi-files-domain
+      - id: pypyhosted-domain
+      - id: pythonhost-domain
+
+  # Fake PyPI index composite
+  - id: fake-pypi-index
+    description: "Typosquatted PyPI index domain"
+    confidence: 0.95
+    criticality: suspicious
+    requires_count: 1
+    conditions:
+      - id: pypii-org
+      - id: pipy-org
+      - id: pyp1-org
+      - id: pypl-org
+      - id: py-pi-domain
+
   # URL pointing to tar.gz/whl on suspicious domain
   - id: fake-package-download
     description: "Package download URL from typosquatted domain"

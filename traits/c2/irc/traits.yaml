@@ -147,7 +147,7 @@ composite_rules:
   # IRC DDoS (any IRC + 2 attack types + any ddos term)
   - id: irc-ddos
     description: IRC-controlled DDoS attack logic
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     requires_any:
       - id: irc-privmsg
@@ -162,7 +162,7 @@ composite_rules:
   # Tsunami IRC bot with C2 logic
   - id: tsunami-irc-bot
     description: Tsunami/Kaiten IRC bot with C2 logic
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.85
     requires_all:
       - id: c2/irc/tsunami-artifact
@@ -171,7 +171,7 @@ composite_rules:
   # Tsunami DDoS bot
   - id: tsunami-ddos-bot
     description: Tsunami/Kaiten IRC bot with DDoS capabilities
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     requires_all:
       - id: c2/irc/tsunami-artifact
@@ -180,7 +180,7 @@ composite_rules:
   # IRC bot with DDoS
   - id: irc-bot-ddos
     description: IRC bot with DDoS attack capabilities
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.85
     requires_all:
       - id: c2/irc/bot-logic

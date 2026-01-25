@@ -79,34 +79,139 @@ traits:
       type: string
       regex: "/dev/sda|/dev/hda|PhysicalDrive0|\\\\\\\\\\\\.\\\\PhysicalDrive"
 
-  # Recursive deletion command
+  # === Recursive deletion atomic indicators ===
+  - id: rmtree-call
+    description: rmtree function call
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "rmtree"
+
+  - id: rm-rf-cmd
+    description: rm -rf command
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      regex: "rm\\s+-rf"
+
+  - id: rmdir-recursive
+    description: rmdir recursive command
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      regex: "rmdir.*(/s|/q)"
+
+  # === Iteration/loop atomic indicators ===
+  - id: for-loop
+    description: for loop pattern
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: "for\\s"
+
+  - id: while-loop
+    description: while loop pattern
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: "while\\s"
+
+  - id: os-walk
+    description: os.walk iteration
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "os.walk"
+
+  - id: glob-pattern
+    description: glob module pattern
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: "glob\\."
+
+  # === System directory atomic indicators ===
+  - id: windows-dir-ref
+    description: Windows directory reference
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "Windows"
+
+  - id: system32-ref
+    description: System32 directory reference
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "System32"
+
+  - id: etc-dir-ref
+    description: /etc directory reference
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "/etc"
+
+  - id: boot-dir-ref
+    description: /boot directory reference
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "/boot"
+
+  - id: usr-dir-ref
+    description: /usr directory reference
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "/usr"
+
+composite_rules:
   - id: recursive-delete-cmd
     description: "Recursive deletion command pattern"
     criticality: notable
     confidence: 0.8
-    condition:
-      type: string
-      regex: "rmtree|rm\\s+-rf|rmdir.*(/s|/q)"
+    requires_count: 1
+    conditions:
+      - id: rmtree-call
+      - id: rm-rf-cmd
+      - id: rmdir-recursive
 
-  # Iteration/loop pattern
   - id: iteration-loop-pattern
     description: "Iteration or loop pattern for file operations"
     criticality: notable
     confidence: 0.8
-    condition:
-      type: string
-      regex: "for\\s|while\\s|os\\.walk|glob\\."
+    requires_count: 1
+    conditions:
+      - id: for-loop
+      - id: while-loop
+      - id: os-walk
+      - id: glob-pattern
 
-  # System directory reference
   - id: system-dir-reference
     description: "Reference to critical system directories"
     criticality: notable
     confidence: 0.8
-    condition:
-      type: string
-      regex: "Windows|System32|/etc|/boot|/usr"
+    requires_count: 1
+    conditions:
+      - id: windows-dir-ref
+      - id: system32-ref
+      - id: etc-dir-ref
+      - id: boot-dir-ref
+      - id: usr-dir-ref
 
-composite_rules:
   # System destruction with iteration
   - id: mass-deletion
     description: "Mass system file deletion"

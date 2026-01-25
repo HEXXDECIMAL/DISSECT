@@ -70,16 +70,14 @@ traits:
       type: string
       exact: "Cannot connect to the server..."
 
-composite_rules:
-  # Main BrawlEarth detection
-  - id: stealer/brawlearth/detected
-    description: BrawlEarth macOS infostealer
+  # === YARA-based detection ===
+
+  - id: stealer/brawlearth/detected-yara
+    description: BrawlEarth stealer via YARA
     criticality: suspicious
     confidence: 0.95
     family: true
-    reference: "Rust-based macOS stealer targeting browser credentials and crypto wallets"
     attack: "T1555"
-    mbc: "B0028"
     platforms: [macos]
     file_types: [macho]
     condition:
@@ -113,10 +111,26 @@ composite_rules:
             $zipdata = "zipdata.zip" ascii
 
           condition:
-            uint32(0) == 0xFEEDFACF or uint32(0) == 0xCFFAEDFE or
-            uint32(0) == 0xCAFEBABE or uint32(0) == 0xBEBAFECA and
+            (uint32(0) == 0xFEEDFACF or uint32(0) == 0xCFFAEDFE or
+             uint32(0) == 0xCAFEBABE or uint32(0) == 0xBEBAFECA) and
             filesize > 1MB and filesize < 20MB and
             ($brand or $version) and
             2 of ($src*) and
-            any of ($kc, $screenshot, $zipdata)
+            any of ($kc, $screenshot, $zipdata) and
+            ($c2_msg or $build or $tokio)
         }
+
+composite_rules:
+  # Main BrawlEarth detection
+  - id: stealer/brawlearth/detected
+    description: BrawlEarth macOS infostealer
+    criticality: suspicious
+    confidence: 0.95
+    family: true
+    reference: "Rust-based macOS stealer targeting browser credentials and crypto wallets"
+    attack: "T1555"
+    mbc: "B0028"
+    platforms: [macos]
+    file_types: [macho]
+    requires_all:
+      - id: stealer/brawlearth/detected-yara

@@ -15,13 +15,11 @@ traits:
       type: string
       exact: "multipart/form-data;boundary=jeus"
 
-composite_rules:
-  - id: apt/applejeus/detected
-    description: AppleJeus cryptocurrency malware (Lazarus)
+  - id: apt/applejeus/yara
+    description: AppleJeus cryptocurrency malware via YARA
     criticality: suspicious
     confidence: 0.95
     family: true
-    reference: "https://www.cisa.gov/news-events/cybersecurity-advisories/aa21-048a"
     attack: "T1566"
     mbc: "B0030"
     file_types: [macho]
@@ -36,3 +34,16 @@ composite_rules:
              uint32(0) == 0xCEFAEDFE or uint32(0) == 0xCFFAEDFE) and
             filesize < 200KB and any of them
         }
+
+composite_rules:
+  - id: apt/applejeus/detected
+    description: AppleJeus cryptocurrency malware (Lazarus)
+    criticality: suspicious
+    confidence: 0.95
+    family: true
+    reference: "https://www.cisa.gov/news-events/cybersecurity-advisories/aa21-048a"
+    attack: "T1566"
+    mbc: "B0030"
+    file_types: [macho]
+    requires_all:
+      - id: apt/applejeus/yara

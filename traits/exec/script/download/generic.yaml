@@ -51,29 +51,126 @@ traits:
       regex: "node\\s+[/\\w.-]+"
       search_raw: true
 
-  - id: sh-execute
-    description: Shell script execution
-    criticality: notable
-    confidence: 0.7
+  # === Shell execute atomic indicators ===
+  - id: sh-execute-cmd
+    description: sh script execution
+    criticality: inert
+    confidence: 0.6
     mbc: "C0059"
     attack: "T1059.004"
     file_types: [all]
     condition:
       type: string
-      regex: "(sh|bash|zsh)\\s+[/\\w.-]+"
+      regex: "sh\\s+[/\\w.-]+"
       search_raw: true
 
-  - id: pipe-to-shell
-    description: Pipe to shell execution (very suspicious)
-    criticality: suspicious
-    confidence: 0.95
+  - id: bash-execute-cmd
+    description: bash script execution
+    criticality: inert
+    confidence: 0.6
+    mbc: "C0059"
+    attack: "T1059.004"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "bash\\s+[/\\w.-]+"
+      search_raw: true
+
+  - id: zsh-execute-cmd
+    description: zsh script execution
+    criticality: inert
+    confidence: 0.6
+    mbc: "C0059"
+    attack: "T1059.004"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "zsh\\s+[/\\w.-]+"
+      search_raw: true
+
+  # === Pipe to shell atomic indicators ===
+  - id: pipe-to-sh
+    description: Pipe to sh
+    criticality: notable
+    confidence: 0.85
     mbc: "B0024"
     attack: "T1059.004"
-    # Exclude JS - syntax highlighters have keyword lists with |bash that trigger false positives
     file_types: [shell, elf, macho, pe]
     condition:
       type: string
-      regex: "\\|\\s*(sh|bash|zsh|perl|python|ruby|node)"
+      regex: "\\|\\s*sh\\b"
+      search_raw: true
+
+  - id: pipe-to-bash
+    description: Pipe to bash
+    criticality: notable
+    confidence: 0.85
+    mbc: "B0024"
+    attack: "T1059.004"
+    file_types: [shell, elf, macho, pe]
+    condition:
+      type: string
+      regex: "\\|\\s*bash\\b"
+      search_raw: true
+
+  - id: pipe-to-zsh
+    description: Pipe to zsh
+    criticality: notable
+    confidence: 0.85
+    mbc: "B0024"
+    attack: "T1059.004"
+    file_types: [shell, elf, macho, pe]
+    condition:
+      type: string
+      regex: "\\|\\s*zsh\\b"
+      search_raw: true
+
+  - id: pipe-to-perl
+    description: Pipe to perl
+    criticality: notable
+    confidence: 0.85
+    mbc: "B0024"
+    attack: "T1059.006"
+    file_types: [shell, elf, macho, pe]
+    condition:
+      type: string
+      regex: "\\|\\s*perl\\b"
+      search_raw: true
+
+  - id: pipe-to-python
+    description: Pipe to python
+    criticality: notable
+    confidence: 0.85
+    mbc: "B0024"
+    attack: "T1059.006"
+    file_types: [shell, elf, macho, pe]
+    condition:
+      type: string
+      regex: "\\|\\s*python"
+      search_raw: true
+
+  - id: pipe-to-ruby
+    description: Pipe to ruby
+    criticality: notable
+    confidence: 0.85
+    mbc: "B0024"
+    attack: "T1059.005"
+    file_types: [shell, elf, macho, pe]
+    condition:
+      type: string
+      regex: "\\|\\s*ruby\\b"
+      search_raw: true
+
+  - id: pipe-to-node
+    description: Pipe to node
+    criticality: notable
+    confidence: 0.85
+    mbc: "B0024"
+    attack: "T1059.007"
+    file_types: [shell, elf, macho, pe]
+    condition:
+      type: string
+      regex: "\\|\\s*node\\b"
       search_raw: true
 
   - id: download-pipe-execute
@@ -88,3 +185,36 @@ traits:
       type: string
       regex: "(curl|wget).*(\\||&&).*(sh|bash|perl|python|ruby|node)"
       search_raw: true
+
+composite_rules:
+  # Shell execute composite
+  - id: sh-execute
+    description: Shell script execution
+    criticality: notable
+    confidence: 0.7
+    mbc: "C0059"
+    attack: "T1059.004"
+    file_types: [all]
+    requires_count: 1
+    conditions:
+      - id: sh-execute-cmd
+      - id: bash-execute-cmd
+      - id: zsh-execute-cmd
+
+  # Pipe to shell composite
+  - id: pipe-to-shell
+    description: Pipe to shell execution (very suspicious)
+    criticality: suspicious
+    confidence: 0.95
+    mbc: "B0024"
+    attack: "T1059.004"
+    file_types: [shell, elf, macho, pe]
+    requires_count: 1
+    conditions:
+      - id: pipe-to-sh
+      - id: pipe-to-bash
+      - id: pipe-to-zsh
+      - id: pipe-to-perl
+      - id: pipe-to-python
+      - id: pipe-to-ruby
+      - id: pipe-to-node

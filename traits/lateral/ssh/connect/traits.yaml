@@ -5,15 +5,36 @@
 traits:
   # === Atomic: SSH Attack Terminology ===
 
-  - id: attack-ref
-    description: SSH attack function/variable reference
-    criticality: suspicious
-    confidence: 0.9
+  # === Atomic: SSH Attack Terminology ===
+  - id: ssh-attack-suffix
+    description: SSH attack function/variable (ssh_attack, ssh-attack, sshattack)
+    criticality: notable
+    confidence: 0.8
     attack: "T1021.004"
     platforms: [all]
     condition:
       type: string
-      regex: "[Ss][Ss][Hh][_\\-]?[Aa]ttack|[Aa]ttack[_\\-]?[Ss][Ss][Hh]|ssh[_\\-]?boom"
+      regex: "[Ss][Ss][Hh][_\\-]?[Aa]ttack"
+
+  - id: attack-ssh-prefix
+    description: Attack SSH function/variable (attack_ssh, attack-ssh, attackssh)
+    criticality: notable
+    confidence: 0.8
+    attack: "T1021.004"
+    platforms: [all]
+    condition:
+      type: string
+      regex: "[Aa]ttack[_\\-]?[Ss][Ss][Hh]"
+
+  - id: ssh-boom
+    description: SSH boom function/variable reference
+    criticality: notable
+    confidence: 0.8
+    attack: "T1021.004"
+    platforms: [all]
+    condition:
+      type: string
+      regex: "ssh[_\\-]?boom"
 
   # === Atomic: SSH Configuration Abuse ===
 
@@ -91,15 +112,26 @@ traits:
       type: string
       regex: "grep.*HostName.*/\\.ssh/config"
 
-  - id: bash-history-ssh
-    description: Extracts SSH targets from bash history
-    criticality: suspicious
-    confidence: 0.85
+  # === Bash history SSH atomic indicators ===
+  - id: ssh-bash-history
+    description: ssh with bash_history
+    criticality: inert
+    confidence: 0.7
     attack: "T1021.004"
     platforms: [linux, macos, unix]
     condition:
       type: string
-      regex: "(scp|ssh).{2,64}bash_history"
+      regex: "ssh.{2,64}bash_history"
+
+  - id: scp-bash-history
+    description: scp with bash_history
+    criticality: inert
+    confidence: 0.7
+    attack: "T1021.004"
+    platforms: [linux, macos, unix]
+    condition:
+      type: string
+      regex: "scp.{2,64}bash_history"
 
   - id: getent-hosts
     description: Uses getent for host discovery
@@ -114,4 +146,29 @@ traits:
   # === Atomic: Remote Payload Delivery ===
 
   # Removed: remote-curl, remote-wget, remote-lwp (better covered by net/download/ traits)
+
+composite_rules:
+  # SSH attack terminology composite
+  - id: attack-ref
+    description: SSH attack function/variable reference
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1021.004"
+    platforms: [all]
+    requires_count: 1
+    conditions:
+      - id: ssh-attack-suffix
+      - id: attack-ssh-prefix
+      - id: ssh-boom
+
+  - id: bash-history-ssh
+    description: Extracts SSH targets from bash history
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1021.004"
+    platforms: [linux, macos, unix]
+    requires_count: 1
+    conditions:
+      - id: ssh-bash-history
+      - id: scp-bash-history
 

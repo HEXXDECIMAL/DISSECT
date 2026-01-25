@@ -182,7 +182,7 @@ composite_rules:
   # Decompressed code execution
   - id: php-gz-eval
     description: "PHP: decompresses and executes code (obfuscated backdoor)"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.98
     mbc: "B0032"
     attack: "T1027"
@@ -209,7 +209,7 @@ composite_rules:
   # Non-ASCII dynamic backdoor
   - id: php-non-ascii-backdoor
     description: "PHP: non-ASCII dynamic backdoor (dynamic calls + binary content)"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.98
     mbc: "B0032"
     attack: "T1027"

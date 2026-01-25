@@ -15,46 +15,144 @@ traits:
       type: string
       exact: "VMware"
 
+  # === VirtualBox atomic indicators ===
+  - id: virtualbox-word
+    description: VirtualBox string detection
+    criticality: inert
+    mbc: "B0009"
+    attack: "T1497.001"
+    confidence: 0.5
+    condition:
+      type: string
+      regex: "(?i)VirtualBox"
+
+  - id: vbox-string
+    description: VBOX string detection
+    criticality: inert
+    mbc: "B0009"
+    attack: "T1497.001"
+    confidence: 0.5
+    condition:
+      type: string
+      regex: "(?i)VBOX"
+
+  # === QEMU atomic indicators ===
+  - id: qemu-upper
+    description: QEMU uppercase string
+    criticality: inert
+    mbc: "B0009"
+    attack: "T1497.001"
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "QEMU"
+
+  - id: qemu-lower
+    description: qemu lowercase string
+    criticality: inert
+    mbc: "B0009"
+    attack: "T1497.001"
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "qemu"
+
+  # === VM hardware atomic indicators ===
+  - id: vmxh-string
+    description: VMXH hardware string
+    criticality: inert
+    mbc: "B0009"
+    attack: "T1497.001"
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "VMXH"
+
+  - id: virtio-string
+    description: virtio hardware string
+    criticality: inert
+    mbc: "B0009"
+    attack: "T1497.001"
+    confidence: 0.5
+    condition:
+      type: string
+      regex: "(?i)virtio"
+
+  - id: vmmouse-string
+    description: vmmouse hardware string
+    criticality: inert
+    mbc: "B0009"
+    attack: "T1497.001"
+    confidence: 0.5
+    condition:
+      type: string
+      regex: "(?i)vmmouse"
+
+  # === CPU vendor atomic indicators ===
+  - id: genuineintel
+    description: GenuineIntel CPU vendor string
+    criticality: inert
+    mbc: "B0009"
+    confidence: 0.4
+    condition:
+      type: string
+      exact: "GenuineIntel"
+
+  - id: authenticamd
+    description: AuthenticAMD CPU vendor string
+    criticality: inert
+    mbc: "B0009"
+    confidence: 0.4
+    condition:
+      type: string
+      exact: "AuthenticAMD"
+
+composite_rules:
+  # VirtualBox string composite
   - id: virtualbox-string
     description: VirtualBox vendor string detection
     criticality: notable
     mbc: "B0009"
     attack: "T1497.001"
     confidence: 0.6
-    condition:
-      type: string
-      regex: "(VirtualBox|VBOX)"
-      case_insensitive: true
+    requires_count: 1
+    conditions:
+      - id: virtualbox-word
+      - id: vbox-string
 
+  # QEMU string composite
   - id: qemu-string
     description: QEMU vendor string detection
     criticality: notable
     mbc: "B0009"
     attack: "T1497.001"
     confidence: 0.6
-    condition:
-      type: string
-      regex: "(QEMU|qemu)"
+    requires_count: 1
+    conditions:
+      - id: qemu-upper
+      - id: qemu-lower
 
+  # VM hardware composite
   - id: vm-hardware
     description: VM-specific hardware strings
     criticality: notable
     mbc: "B0009"
     attack: "T1497.001"
     confidence: 0.6
-    condition:
-      type: string
-      regex: "(VMXH|VBox|virtio|vmmouse)"
-      case_insensitive: true
+    requires_count: 1
+    conditions:
+      - id: vmxh-string
+      - id: vbox-string
+      - id: virtio-string
+      - id: vmmouse-string
 
-  # Removed: sysctl is a standard system API, not inherently VM detection
-  # macOS tools legitimately use sysctl for system information
-
+  # CPU vendor composite
   - id: cpu-vendor
     description: CPU vendor string checks (Intel/AMD vs VM)
     criticality: notable
     mbc: "B0009"
     confidence: 0.5
-    condition:
-      type: string
-      regex: "(GenuineIntel|AuthenticAMD)"
+    requires_count: 1
+    conditions:
+      - id: genuineintel
+      - id: authenticamd

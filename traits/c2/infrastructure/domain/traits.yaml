@@ -3,7 +3,8 @@
 # ATT&CK: T1071.001
 
 defaults:
-  file_types: [elf, macho, pe]
+  # Domain strings can appear in any file type
+  file_types: [*]
   mbc: "C0002"
   attack: "T1071.001"
 
@@ -78,7 +79,6 @@ traits:
     description: "Network URL with domain name pattern"
     criticality: notable
     confidence: 0.7
-    file_types: [all]
     condition:
       type: string
       regex: "(?:https?|wss?)://[a-zA-Z0-9][-a-zA-Z0-9]*\\.[a-zA-Z]{2,6}(?:/|$|:)"
@@ -132,7 +132,6 @@ traits:
     criticality: inert
     confidence: 0.7
     attack: "T1105"
-    file_types: [all]
     condition:
       type: string
       exact: "bullethost.cloud"
@@ -142,7 +141,6 @@ traits:
     criticality: inert
     confidence: 0.7
     attack: "T1105"
-    file_types: [all]
     condition:
       type: string
       exact: "anonfiles.com"
@@ -152,7 +150,6 @@ traits:
     criticality: inert
     confidence: 0.7
     attack: "T1105"
-    file_types: [all]
     condition:
       type: string
       exact: "gofile.io"
@@ -162,7 +159,6 @@ traits:
     criticality: inert
     confidence: 0.7
     attack: "T1105"
-    file_types: [all]
     condition:
       type: string
       exact: "transfer.sh"
@@ -172,7 +168,6 @@ traits:
     criticality: inert
     confidence: 0.7
     attack: "T1105"
-    file_types: [all]
     condition:
       type: string
       exact: "tmpfiles.org"
@@ -182,7 +177,6 @@ traits:
     criticality: inert
     confidence: 0.7
     attack: "T1105"
-    file_types: [all]
     condition:
       type: string
       exact: "catbox.moe"
@@ -192,7 +186,6 @@ traits:
     criticality: inert
     confidence: 0.7
     attack: "T1105"
-    file_types: [all]
     condition:
       type: string
       exact: "uguu.se"
@@ -202,7 +195,6 @@ traits:
     criticality: inert
     confidence: 0.7
     attack: "T1105"
-    file_types: [all]
     condition:
       type: string
       exact: "pomf.cat"
@@ -212,7 +204,6 @@ traits:
     criticality: inert
     confidence: 0.7
     attack: "T1105"
-    file_types: [all]
     condition:
       type: string
       exact: "0x0.st"
@@ -222,7 +213,6 @@ traits:
     criticality: inert
     confidence: 0.7
     attack: "T1105"
-    file_types: [all]
     condition:
       type: string
       exact: "file.io"
@@ -232,7 +222,6 @@ traits:
     criticality: inert
     confidence: 0.7
     attack: "T1105"
-    file_types: [all]
     condition:
       type: string
       exact: "filedropper.com"
@@ -243,7 +232,6 @@ traits:
     criticality: suspicious
     confidence: 0.85
     attack: "T1105"
-    file_types: [all]
     condition:
       type: string
       regex: '[a-z0-9-]+\.cloud\.appwrite\.io/v[0-9]+/storage/buckets/[a-z0-9]+/files/'
@@ -253,7 +241,6 @@ traits:
     criticality: notable
     confidence: 0.75
     attack: "T1105"
-    file_types: [all]
     condition:
       type: string
       regex: '[a-z0-9]+\.supabase\.co/storage/v[0-9]+/'
@@ -263,7 +250,6 @@ traits:
     criticality: notable
     confidence: 0.7
     attack: "T1105"
-    file_types: [all]
     condition:
       type: string
       regex: 'firebasestorage\.googleapis\.com/v[0-9]+/b/[^/]+/o/'
@@ -274,7 +260,6 @@ traits:
     criticality: inert
     confidence: 0.6
     attack: "T1041"
-    file_types: [all]
     condition:
       type: string
       regex: '/collect[_-]?(info|data|stats)?\.php'
@@ -284,7 +269,6 @@ traits:
     criticality: inert
     confidence: 0.6
     attack: "T1041"
-    file_types: [all]
     condition:
       type: string
       regex: '/log[_-]?(info|data)?\.php'
@@ -294,7 +278,6 @@ traits:
     criticality: inert
     confidence: 0.6
     attack: "T1041"
-    file_types: [all]
     condition:
       type: string
       exact: "/report.php"
@@ -304,7 +287,6 @@ traits:
     criticality: inert
     confidence: 0.6
     attack: "T1041"
-    file_types: [all]
     condition:
       type: string
       exact: "/beacon.php"
@@ -314,7 +296,6 @@ traits:
     criticality: inert
     confidence: 0.6
     attack: "T1041"
-    file_types: [all]
     condition:
       type: string
       exact: "/gate.php"
@@ -336,7 +317,6 @@ traits:
     criticality: suspicious
     confidence: 0.85
     attack: "T1071"
-    file_types: [all]
     condition:
       type: string
       regex: 'https?://\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}[:/]'
@@ -347,7 +327,6 @@ traits:
     criticality: inert
     confidence: 0.5
     attack: "T1071"
-    file_types: [all]
     condition:
       type: string
       regex: 'execute-api\.[a-z0-9-]+\.amazonaws\.com'
@@ -357,7 +336,6 @@ traits:
     criticality: inert
     confidence: 0.5
     attack: "T1071"
-    file_types: [all]
     condition:
       type: string
       regex: '[a-z0-9-]+\.azurewebsites\.net'
@@ -367,7 +345,6 @@ traits:
     criticality: inert
     confidence: 0.5
     attack: "T1071"
-    file_types: [all]
     condition:
       type: string
       regex: '[a-z0-9-]+\.cloudfunctions\.net'
@@ -377,7 +354,6 @@ traits:
     criticality: inert
     confidence: 0.5
     attack: "T1071"
-    file_types: [all]
     condition:
       type: string
       regex: '[a-z0-9-]+\.vercel\.app'
@@ -387,7 +363,6 @@ traits:
     criticality: inert
     confidence: 0.5
     attack: "T1071"
-    file_types: [all]
     condition:
       type: string
       regex: '[a-z0-9-]+\.netlify\.app'
@@ -398,7 +373,6 @@ traits:
     criticality: inert
     confidence: 0.7
     attack: "T1071"
-    file_types: [all]
     condition:
       type: string
       regex: '[a-z0-9]+\.ngrok\.io'
@@ -408,7 +382,6 @@ traits:
     criticality: inert
     confidence: 0.7
     attack: "T1071"
-    file_types: [all]
     condition:
       type: string
       regex: '[a-z0-9]+\.ngrok-free\.app'
@@ -419,7 +392,6 @@ traits:
     criticality: inert
     confidence: 0.6
     attack: "T1102"
-    file_types: [all]
     condition:
       type: string
       regex: 'pastebin\.com/[a-zA-Z0-9]+'
@@ -429,7 +401,6 @@ traits:
     criticality: inert
     confidence: 0.6
     attack: "T1102"
-    file_types: [all]
     condition:
       type: string
       regex: 'hastebin\.com/[a-zA-Z0-9]+'
@@ -439,7 +410,6 @@ traits:
     criticality: inert
     confidence: 0.6
     attack: "T1102"
-    file_types: [all]
     condition:
       type: string
       regex: 'ghostbin\.com/[a-zA-Z0-9]+'
@@ -449,7 +419,6 @@ traits:
     criticality: inert
     confidence: 0.6
     attack: "T1102"
-    file_types: [all]
     condition:
       type: string
       regex: 'paste\.ee/[a-zA-Z0-9]+'
@@ -459,7 +428,6 @@ traits:
     criticality: inert
     confidence: 0.6
     attack: "T1102"
-    file_types: [all]
     condition:
       type: string
       regex: 'dpaste\.com/[a-zA-Z0-9]+'
@@ -469,7 +437,6 @@ traits:
     criticality: inert
     confidence: 0.6
     attack: "T1102"
-    file_types: [all]
     condition:
       type: string
       regex: 'privatebin\.net/[a-zA-Z0-9]+'
@@ -479,7 +446,6 @@ traits:
     criticality: inert
     confidence: 0.6
     attack: "T1102"
-    file_types: [all]
     condition:
       type: string
       regex: 'rentry\.co/[a-zA-Z0-9]+'
@@ -490,7 +456,6 @@ traits:
     criticality: suspicious
     confidence: 0.85
     attack: "T1071"
-    file_types: [all]
     condition:
       type: string
       regex: '[a-z0-9-]+\.vercel\.app(?:/|$)'
@@ -501,7 +466,6 @@ traits:
     criticality: inert
     confidence: 0.6
     attack: "T1071"
-    file_types: [all]
     condition:
       type: string
       regex: '[a-z0-9-]+\.replit\.dev'
@@ -511,7 +475,6 @@ traits:
     criticality: inert
     confidence: 0.6
     attack: "T1071"
-    file_types: [all]
     condition:
       type: string
       regex: '[a-z0-9-]+\.repl\.co'
@@ -522,7 +485,6 @@ traits:
     criticality: suspicious
     confidence: 0.8
     attack: "T1071"
-    file_types: [all]
     condition:
       type: string
       regex: '[a-z0-9-]+\.glitch\.me'
@@ -533,7 +495,6 @@ traits:
     criticality: notable
     confidence: 0.75
     attack: "T1071"
-    file_types: [all]
     condition:
       type: string
       regex: '[a-z0-9-]+\.railway\.app'
@@ -544,7 +505,6 @@ traits:
     criticality: notable
     confidence: 0.75
     attack: "T1071"
-    file_types: [all]
     condition:
       type: string
       regex: '[a-z0-9-]+\.onrender\.com'
@@ -555,7 +515,6 @@ traits:
     criticality: notable
     confidence: 0.7
     attack: "T1071"
-    file_types: [all]
     condition:
       type: string
       regex: '[a-z0-9-]+\.herokuapp\.com'
@@ -563,10 +522,9 @@ traits:
   # Serveo SSH tunnel
   - id: serveo-tunnel
     description: Serveo SSH tunnel endpoint (reverse shell infrastructure)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1572"
-    file_types: [all]
     condition:
       type: string
       regex: 'serveo\.net'
@@ -577,7 +535,6 @@ traits:
     criticality: suspicious
     confidence: 0.85
     attack: "T1572"
-    file_types: [all]
     condition:
       type: string
       regex: '[a-z0-9-]+\.loca\.lt'
@@ -588,7 +545,6 @@ traits:
     criticality: suspicious
     confidence: 0.85
     attack: "T1572"
-    file_types: [all]
     condition:
       type: string
       regex: '[a-z0-9-]+\.localhost\.run'
@@ -599,7 +555,6 @@ traits:
     criticality: notable
     confidence: 0.7
     attack: "T1572"
-    file_types: [all]
     condition:
       type: string
       regex: '[a-z0-9-]+\.trycloudflare\.com'
@@ -610,7 +565,6 @@ traits:
     criticality: inert
     confidence: 0.7
     attack: "T1572"
-    file_types: [all]
     condition:
       type: string
       regex: 'chisel\s+client'
@@ -620,7 +574,6 @@ traits:
     criticality: inert
     confidence: 0.7
     attack: "T1572"
-    file_types: [all]
     condition:
       type: string
       regex: 'chisel\s+server'
@@ -630,7 +583,6 @@ traits:
     criticality: inert
     confidence: 0.7
     attack: "T1572"
-    file_types: [all]
     condition:
       type: string
       exact: "jpillora/chisel"
@@ -661,7 +613,6 @@ composite_rules:
     description: "Network URL with domain name"
     criticality: notable
     confidence: 0.7
-    file_types: [all]
     requires_all:
       - id: http-url-with-domain-pattern
 
@@ -685,10 +636,9 @@ composite_rules:
   # Malware hosting services
   - id: malware-hosting
     description: Contacts known malware/payload hosting service
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1105"
-    file_types: [all]
     requires_count: 1
     conditions:
       - id: bullethost-cloud
@@ -709,7 +659,6 @@ composite_rules:
     criticality: suspicious
     confidence: 0.85
     attack: "T1041"
-    file_types: [all]
     requires_count: 1
     conditions:
       - id: php-collect
@@ -724,7 +673,6 @@ composite_rules:
     criticality: notable
     confidence: 0.7
     attack: "T1071"
-    file_types: [all]
     requires_count: 1
     conditions:
       - id: aws-api-gateway
@@ -739,7 +687,6 @@ composite_rules:
     criticality: suspicious
     confidence: 0.9
     attack: "T1071"
-    file_types: [all]
     requires_count: 1
     conditions:
       - id: ngrok-io
@@ -751,7 +698,6 @@ composite_rules:
     criticality: suspicious
     confidence: 0.85
     attack: "T1102"
-    file_types: [all]
     requires_count: 1
     conditions:
       - id: pastebin-com
@@ -768,7 +714,6 @@ composite_rules:
     criticality: suspicious
     confidence: 0.85
     attack: "T1071"
-    file_types: [all]
     requires_count: 1
     conditions:
       - id: replit-dev
@@ -777,10 +722,9 @@ composite_rules:
   # Chisel tunnel
   - id: chisel-tunnel
     description: Chisel reverse tunnel infrastructure
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1572"
-    file_types: [all]
     requires_count: 1
     conditions:
       - id: chisel-client

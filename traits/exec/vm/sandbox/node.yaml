@@ -70,8 +70,8 @@ traits:
 
   # Remote Code Execution via VM
   - id: vm-with-http
-    description: VM execution combined with HTTP fetch (stage loader)
-    criticality: malicious
+    description: VM execution combined with HTTP fetch (stage loader pattern)
+    criticality: suspicious
     confidence: 0.95
     mbc: "B0024"
     attack: "T1105"
@@ -93,8 +93,8 @@ traits:
 
   # Sandbox Escape Patterns
   - id: constructor-escape
-    description: VM sandbox escape via constructor
-    criticality: malicious
+    description: VM sandbox escape via constructor technique
+    criticality: suspicious
     confidence: 0.95
     mbc: "B0024"
     attack: "T1059"
@@ -115,7 +115,7 @@ traits:
   # Remote Code Loading via Function Constructor
   - id: function-with-http
     description: Function constructor with HTTP fetch (remote code execution)
-    criticality: malicious
+    criticality: suspicious
     confidence: 0.95
     mbc: "B0024"
     attack: "T1105"

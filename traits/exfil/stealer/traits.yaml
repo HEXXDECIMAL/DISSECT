@@ -5,6 +5,8 @@
 defaults:
   attack: "T1041"
   criticality: suspicious
+  # curl/wget commands can be embedded in any file type
+  file_types: [*]
 
 traits:
   # === curl POST atomic ===
@@ -13,7 +15,6 @@ traits:
     criticality: inert
     confidence: 0.5
     mbc: "C0001"
-    file_types: [shell]
     condition:
       type: string
       regex: 'curl\s+-X\s+POST\s+-H'
@@ -22,7 +23,6 @@ traits:
     description: curl with user header
     criticality: inert
     confidence: 0.6
-    file_types: [shell]
     condition:
       type: string
       regex: 'curl.*-H.*user:'
@@ -31,7 +31,6 @@ traits:
     description: curl with BuildID header
     criticality: inert
     confidence: 0.6
-    file_types: [shell]
     condition:
       type: string
       regex: 'curl.*-H.*BuildID'
@@ -41,7 +40,6 @@ traits:
     description: curl -F form upload
     criticality: inert
     confidence: 0.5
-    file_types: [shell]
     condition:
       type: string
       regex: 'curl\s+.*-F\s+'
@@ -50,7 +48,6 @@ traits:
     description: curl --data-binary
     criticality: inert
     confidence: 0.5
-    file_types: [shell]
     condition:
       type: string
       exact: "--data-binary"
@@ -59,7 +56,6 @@ traits:
     description: curl @/tmp/ file upload
     criticality: inert
     confidence: 0.6
-    file_types: [shell]
     condition:
       type: string
       regex: 'curl.*@/tmp/'
@@ -69,7 +65,6 @@ traits:
     description: HTTP header user/userid
     criticality: inert
     confidence: 0.5
-    file_types: [shell]
     condition:
       type: string
       regex: "-H\\s+[\"']?(user|userid):"
@@ -78,7 +73,6 @@ traits:
     description: HTTP header client
     criticality: inert
     confidence: 0.5
-    file_types: [shell]
     condition:
       type: string
       regex: "-H\\s+[\"']?client:"
@@ -87,7 +81,6 @@ traits:
     description: HTTP header bot
     criticality: inert
     confidence: 0.6
-    file_types: [shell]
     condition:
       type: string
       regex: "-H\\s+[\"']?bot:"
@@ -96,7 +89,6 @@ traits:
     description: HTTP header build
     criticality: inert
     confidence: 0.5
-    file_types: [shell]
     condition:
       type: string
       regex: "-H\\s+[\"']?build:"
@@ -105,7 +97,6 @@ traits:
     description: HTTP header hwid
     criticality: inert
     confidence: 0.6
-    file_types: [shell]
     condition:
       type: string
       regex: "-H\\s+[\"']?hwid:"
@@ -114,7 +105,6 @@ traits:
     description: HTTP header machine
     criticality: inert
     confidence: 0.5
-    file_types: [shell]
     condition:
       type: string
       regex: "-H\\s+[\"']?machine:"
@@ -123,7 +113,6 @@ traits:
     description: X-User header
     criticality: inert
     confidence: 0.5
-    file_types: [shell]
     condition:
       type: string
       exact: "X-User"
@@ -132,7 +121,6 @@ traits:
     description: X-Client header
     criticality: inert
     confidence: 0.5
-    file_types: [shell]
     condition:
       type: string
       exact: "X-Client"
@@ -141,7 +129,6 @@ traits:
     description: X-Bot header
     criticality: inert
     confidence: 0.6
-    file_types: [shell]
     condition:
       type: string
       exact: "X-Bot"
@@ -150,7 +137,6 @@ traits:
     description: X-Build header
     criticality: inert
     confidence: 0.5
-    file_types: [shell]
     condition:
       type: string
       exact: "X-Build"
@@ -159,7 +145,6 @@ traits:
     description: X-HWID header
     criticality: inert
     confidence: 0.6
-    file_types: [shell]
     condition:
       type: string
       exact: "X-HWID"
@@ -197,7 +182,6 @@ traits:
     description: curl with .zip
     criticality: inert
     confidence: 0.6
-    file_types: [shell]
     condition:
       type: string
       regex: 'curl.*\.zip'
@@ -206,7 +190,6 @@ traits:
     description: POST with .zip
     criticality: inert
     confidence: 0.6
-    file_types: [shell]
     condition:
       type: string
       regex: 'POST.*\.zip'
@@ -215,7 +198,6 @@ traits:
     description: upload .zip
     criticality: inert
     confidence: 0.6
-    file_types: [shell]
     condition:
       type: string
       regex: 'upload.*\.zip'
@@ -224,7 +206,6 @@ traits:
     description: send .zip
     criticality: inert
     confidence: 0.6
-    file_types: [shell]
     condition:
       type: string
       regex: 'send.*\.zip'
@@ -262,7 +243,6 @@ traits:
     description: curl command
     criticality: inert
     confidence: 0.3
-    file_types: [shell]
     condition:
       type: string
       exact: "curl"
@@ -271,7 +251,6 @@ traits:
     description: wget command
     criticality: inert
     confidence: 0.3
-    file_types: [shell]
     condition:
       type: string
       exact: "wget"
@@ -280,7 +259,6 @@ traits:
     description: POST HTTP method
     criticality: inert
     confidence: 0.3
-    file_types: [shell]
     condition:
       type: string
       exact: "POST"

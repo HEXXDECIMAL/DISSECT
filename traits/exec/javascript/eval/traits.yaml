@@ -60,24 +60,60 @@ traits:
       type: string
       exact: "child_process"
 
-  # Shell invocation
-  - id: bash-string
-    description: Bash shell reference in string
-    criticality: notable
-    confidence: 0.75
+  # === Shell invocation atomic indicators ===
+  - id: bash-single-quote
+    description: Bash shell in single quotes
+    criticality: inert
+    confidence: 0.65
     file_types: [javascript]
     condition:
       type: string
-      regex: "'bash'|\"bash\""
+      exact: "'bash'"
 
-  - id: sh-string
-    description: Shell reference in string
-    criticality: notable
-    confidence: 0.7
+  - id: bash-double-quote
+    description: Bash shell in double quotes
+    criticality: inert
+    confidence: 0.65
     file_types: [javascript]
     condition:
       type: string
-      regex: "'/bin/sh'|\"/bin/sh\"|'sh'|\"sh\""
+      exact: "\"bash\""
+
+  - id: bin-sh-single-quote
+    description: /bin/sh in single quotes
+    criticality: inert
+    confidence: 0.6
+    file_types: [javascript]
+    condition:
+      type: string
+      exact: "'/bin/sh'"
+
+  - id: bin-sh-double-quote
+    description: /bin/sh in double quotes
+    criticality: inert
+    confidence: 0.6
+    file_types: [javascript]
+    condition:
+      type: string
+      exact: "\"/bin/sh\""
+
+  - id: sh-single-quote
+    description: sh in single quotes
+    criticality: inert
+    confidence: 0.6
+    file_types: [javascript]
+    condition:
+      type: string
+      exact: "'sh'"
+
+  - id: sh-double-quote
+    description: sh in double quotes
+    criticality: inert
+    confidence: 0.6
+    file_types: [javascript]
+    condition:
+      type: string
+      exact: "\"sh\""
 
   - id: bash-c-flag
     description: Bash -c command execution flag
@@ -129,17 +165,28 @@ traits:
       type: string
       exact: "ignoreReturnCode"
 
-  # Encoding/decoding
-  - id: base64-decode-cli
-    description: Base64 decode via CLI
-    criticality: suspicious
-    confidence: 0.9
+  # === Base64 decode atomic indicators ===
+  - id: base64-dash-d
+    description: Base64 decode short flag
+    criticality: notable
+    confidence: 0.8
     mbc: "C0026"
     attack: "T1140"
     file_types: [javascript]
     condition:
       type: string
-      regex: "base64 -d|base64 --decode"
+      exact: "base64 -d"
+
+  - id: base64-dash-decode
+    description: Base64 decode long flag
+    criticality: notable
+    confidence: 0.8
+    mbc: "C0026"
+    attack: "T1140"
+    file_types: [javascript]
+    condition:
+      type: string
+      exact: "base64 --decode"
 
   - id: echo-pipe
     description: Echo piped to command
@@ -162,28 +209,62 @@ traits:
       type: string
       regex: "> /tmp/|>/tmp/"
 
-  - id: tmp-execute
-    description: Execute from /tmp directory
+  # === Tmp execute atomic indicators ===
+  - id: tmp-bash-exec
+    description: Execute bash from /tmp
     criticality: suspicious
-    confidence: 0.9
+    confidence: 0.85
     mbc: "B0024"
     attack: "T1059"
     file_types: [javascript]
     condition:
       type: string
-      regex: "bash /tmp/|sh /tmp/|\\./tmp/"
+      exact: "bash /tmp/"
 
-  # Function constructor abuse (remote code execution)
-  - id: function-constructor
-    description: Function constructor code execution
+  - id: tmp-sh-exec
+    description: Execute sh from /tmp
     criticality: suspicious
-    confidence: 0.9
+    confidence: 0.85
+    mbc: "B0024"
+    attack: "T1059"
+    file_types: [javascript]
+    condition:
+      type: string
+      exact: "sh /tmp/"
+
+  - id: tmp-dot-exec
+    description: Execute ./tmp path
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "B0024"
+    attack: "T1059"
+    file_types: [javascript]
+    condition:
+      type: string
+      exact: "./tmp/"
+
+  # === Function constructor atomic indicators ===
+  - id: function-dot-constructor
+    description: Function.constructor abuse
+    criticality: suspicious
+    confidence: 0.85
     mbc: "B0024"
     attack: "T1059.007"
     file_types: [javascript, typescript]
     condition:
       type: string
-      regex: "new\\s+Function\\.constructor\\(|new\\s+Function\\s*\\("
+      regex: "new\\s+Function\\.constructor\\("
+
+  - id: new-function
+    description: new Function() code execution
+    criticality: suspicious
+    confidence: 0.85
+    mbc: "B0024"
+    attack: "T1059.007"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "new\\s+Function\\s*\\("
 
   # Detached child process (background execution)
   - id: detached-spawn
@@ -236,3 +317,68 @@ traits:
           condition:
             $spawn and any of ($import_meta, $process_argv, $file)
         }
+
+composite_rules:
+  # Bash string reference composite
+  - id: bash-string
+    description: Bash shell reference in string
+    criticality: notable
+    confidence: 0.75
+    file_types: [javascript]
+    requires_count: 1
+    conditions:
+      - id: bash-single-quote
+      - id: bash-double-quote
+
+  # Shell string reference composite
+  - id: sh-string
+    description: Shell reference in string
+    criticality: notable
+    confidence: 0.7
+    file_types: [javascript]
+    requires_count: 1
+    conditions:
+      - id: bin-sh-single-quote
+      - id: bin-sh-double-quote
+      - id: sh-single-quote
+      - id: sh-double-quote
+
+  # Base64 decode CLI composite
+  - id: base64-decode-cli
+    description: Base64 decode via CLI
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "C0026"
+    attack: "T1140"
+    file_types: [javascript]
+    requires_count: 1
+    conditions:
+      - id: base64-dash-d
+      - id: base64-dash-decode
+
+  # Tmp execute composite
+  - id: tmp-execute
+    description: Execute from /tmp directory
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "B0024"
+    attack: "T1059"
+    file_types: [javascript]
+    requires_count: 1
+    conditions:
+      - id: tmp-bash-exec
+      - id: tmp-sh-exec
+      - id: tmp-dot-exec
+
+  # Function constructor composite
+  - id: function-constructor
+    description: Function constructor code execution
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "B0024"
+    attack: "T1059.007"
+    file_types: [javascript, typescript]
+    requires_count: 1
+    conditions:
+      - id: function-dot-constructor
+      - id: new-function

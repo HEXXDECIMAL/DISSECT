@@ -2,25 +2,87 @@
 # ATT&CK: T1048 (Exfiltration Over Alternative Protocol)
 
 traits:
-  - id: interactsh
-    description: Exfiltrates data to Interactsh OOB domain
-    criticality: suspicious
-    confidence: 0.95
+  # === OOB domain atomic indicators ===
+  - id: interactsh-domain
+    description: Interactsh OOB domain
+    criticality: inert
+    confidence: 0.7
     attack: "T1048"
     file_types: [all]
     condition:
       type: string
-      regex: "[a-z0-9]{8,32}\\.(interactsh|burpcollaborator\\.net|oastify\\.com|oast\\.fun|m\\.pipedream\\.net)"
+      regex: "[a-z0-9]{8,32}\\.interactsh"
 
-  - id: ngrok
-    description: Communication with Ngrok (common C2 tunnel)
-    criticality: suspicious
-    confidence: 0.95
+  - id: burpcollaborator-domain
+    description: Burp Collaborator OOB domain
+    criticality: inert
+    confidence: 0.7
+    attack: "T1048"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "[a-z0-9]{8,32}\\.burpcollaborator\\.net"
+
+  - id: oastify-domain
+    description: Oastify OOB domain
+    criticality: inert
+    confidence: 0.7
+    attack: "T1048"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "[a-z0-9]{8,32}\\.oastify\\.com"
+
+  - id: oast-fun-domain
+    description: OAST.fun OOB domain
+    criticality: inert
+    confidence: 0.7
+    attack: "T1048"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "[a-z0-9]{8,32}\\.oast\\.fun"
+
+  - id: pipedream-domain
+    description: Pipedream OOB domain
+    criticality: inert
+    confidence: 0.7
+    attack: "T1048"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "[a-z0-9]{8,32}\\.m\\.pipedream\\.net"
+
+  # === Ngrok atomic indicators ===
+  - id: ngrok-tcp
+    description: Ngrok TCP tunnel
+    criticality: inert
+    confidence: 0.7
     attack: "T1572"
     file_types: [all]
     condition:
       type: string
-      regex: "[a-z0-9-]+\\.(tcp|http|https)\\.(eu|us|asia|au|sa|jp|in)\\.ngrok\\.io"
+      regex: "[a-z0-9-]+\\.tcp\\.[a-z]+\\.ngrok\\.io"
+
+  - id: ngrok-http
+    description: Ngrok HTTP tunnel
+    criticality: inert
+    confidence: 0.7
+    attack: "T1572"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "[a-z0-9-]+\\.http\\.[a-z]+\\.ngrok\\.io"
+
+  - id: ngrok-https
+    description: Ngrok HTTPS tunnel
+    criticality: inert
+    confidence: 0.7
+    attack: "T1572"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "[a-z0-9-]+\\.https\\.[a-z]+\\.ngrok\\.io"
 
   - id: bytedance-dast
     description: Exfiltrates data to Bytedance DAST testing domain
@@ -42,15 +104,26 @@ traits:
       type: string
       regex: "[a-z0-9-]+\\.workers\\.dev"
 
-  - id: requestbin
-    description: Exfiltrates data to RequestBin OOB endpoint
-    criticality: suspicious
-    confidence: 0.9
+  # === Requestbin atomic indicators ===
+  - id: requestbin-com
+    description: RequestBin.com OOB endpoint
+    criticality: inert
+    confidence: 0.7
     attack: "T1048"
     file_types: [all]
     condition:
       type: string
-      regex: "requestbin\\.(com|net)"
+      exact: "requestbin.com"
+
+  - id: requestbin-net
+    description: RequestBin.net OOB endpoint
+    criticality: inert
+    confidence: 0.7
+    attack: "T1048"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "requestbin.net"
 
   - id: webhook-site
     description: Exfiltrates data to Webhook.site OOB endpoint
@@ -190,6 +263,46 @@ traits:
         }
 
 composite_rules:
+  # Interactsh composite
+  - id: interactsh
+    description: Exfiltrates data to Interactsh OOB domain
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1048"
+    file_types: [all]
+    requires_count: 1
+    conditions:
+      - id: interactsh-domain
+      - id: burpcollaborator-domain
+      - id: oastify-domain
+      - id: oast-fun-domain
+      - id: pipedream-domain
+
+  # Ngrok composite
+  - id: ngrok
+    description: Communication with Ngrok (common C2 tunnel)
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1572"
+    file_types: [all]
+    requires_count: 1
+    conditions:
+      - id: ngrok-tcp
+      - id: ngrok-http
+      - id: ngrok-https
+
+  # Requestbin composite
+  - id: requestbin
+    description: Exfiltrates data to RequestBin OOB endpoint
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1048"
+    file_types: [all]
+    requires_count: 1
+    conditions:
+      - id: requestbin-com
+      - id: requestbin-net
+
   - id: multiple-encoded-indicators
     description: "Multiple base64-encoded indicators detected (potential evasion)"
     criticality: hostile

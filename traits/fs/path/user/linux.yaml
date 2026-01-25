@@ -19,10 +19,38 @@ traits:
       type: string
       regex: "/root/[\\w\\-/]+"
 
+  # === Home config directory atomic indicators ===
+  - id: config-dir-ref
+    description: Reference to .config directory
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      regex: "\\.config/[\\w\\-/]+"
+
+  - id: local-dir-ref
+    description: Reference to .local directory
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      regex: "\\.local/[\\w\\-/]+"
+
+  - id: cache-dir-ref
+    description: Reference to .cache directory
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      regex: "\\.cache/[\\w\\-/]+"
+
+composite_rules:
   - id: user-home-config
     description: Reference to home config directories
     criticality: inert
     confidence: 0.66
-    condition:
-      type: string
-      regex: "\\.(config|local|cache)/[\\w\\-/]+"
+    requires_count: 1
+    conditions:
+      - id: config-dir-ref
+      - id: local-dir-ref
+      - id: cache-dir-ref

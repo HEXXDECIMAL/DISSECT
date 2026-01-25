@@ -27,8 +27,8 @@ traits:
 
   # ESXi VM termination
   - id: vm-kill
-    description: ESXi virtual machine termination
-    criticality: hostile
+    description: ESXi virtual machine termination command
+    criticality: suspicious
     confidence: 0.9
     mbc: "C0027"
     attack: "T1489"
@@ -51,8 +51,8 @@ traits:
 
   # ESXi snapshot manipulation
   - id: snapshot
-    description: ESXi snapshot removal for encryption
-    criticality: hostile
+    description: ESXi snapshot removal command (ransomware preparation)
+    criticality: suspicious
     confidence: 0.9
     mbc: "C0027"
     attack: "T1490"
@@ -170,7 +170,7 @@ composite_rules:
   # Full ESXi ransomware targeting
   - id: full-attack
     description: ESXi-targeted ransomware attack chain
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     requires_all:
       - id: impact/ransomware/esxi/file-targeting

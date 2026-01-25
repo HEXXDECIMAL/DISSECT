@@ -29,7 +29,7 @@ traits:
   # YARA detection for fork bomb pattern
   - id: yara-fork-bomb
     description: YARA detection for Python fork bomb pattern
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.98
     condition:
       type: yara
@@ -81,7 +81,7 @@ composite_rules:
   # Fork bomb: os.fork() inside while True loop
   - id: infinite-fork
     description: Fork bomb - infinite process forking (DoS)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.98
     attack: "T1499.004"
     mbc: "B0033"

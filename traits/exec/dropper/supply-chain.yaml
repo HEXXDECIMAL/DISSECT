@@ -27,27 +27,147 @@ traits:
             any of ($extract*) and any of ($password*)
         }
 
-  # 7-zip binary usage
-  - id: 7zip-usage
-    description: Uses 7-zip for archive operations
-    criticality: notable
-    confidence: 0.8
+  # === 7-zip atomic indicators ===
+  - id: 7zip-bin-module
+    description: 7zip-bin module
+    criticality: inert
+    confidence: 0.6
     attack: "T1140"
     file_types: [javascript, typescript]
     condition:
       type: string
-      regex: "7zip-bin|node-7z|path7za|7z\\.exe"
+      exact: "7zip-bin"
 
-  # Executable file search pattern
-  - id: exe-search
-    description: Searches for executable files after extraction
-    criticality: suspicious
-    confidence: 0.9
+  - id: node-7z-module
+    description: node-7z module
+    criticality: inert
+    confidence: 0.6
+    attack: "T1140"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "node-7z"
+
+  - id: path7za
+    description: path7za reference
+    criticality: inert
+    confidence: 0.6
+    attack: "T1140"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "path7za"
+
+  - id: 7z-exe
+    description: 7z.exe reference
+    criticality: inert
+    confidence: 0.6
+    attack: "T1140"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "7z.exe"
+
+  # === Executable search atomic indicators ===
+  - id: endswith-exe
+    description: endsWith .exe check
+    criticality: inert
+    confidence: 0.6
     attack: "T1105"
     file_types: [javascript, typescript]
     condition:
       type: string
-      regex: "endsWith\\(['\"]\\.(exe|bat|cmd|ps1|sh|elf|bin)['\"]\\)|find\\([^)]*\\.(exe|bat|cmd)"
+      regex: "endsWith\\(['\"]\\.(exe)['\"]\\)"
+
+  - id: endswith-bat
+    description: endsWith .bat check
+    criticality: inert
+    confidence: 0.6
+    attack: "T1105"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "endsWith\\(['\"]\\.(bat)['\"]\\)"
+
+  - id: endswith-cmd
+    description: endsWith .cmd check
+    criticality: inert
+    confidence: 0.6
+    attack: "T1105"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "endsWith\\(['\"]\\.(cmd)['\"]\\)"
+
+  - id: endswith-ps1
+    description: endsWith .ps1 check
+    criticality: inert
+    confidence: 0.6
+    attack: "T1105"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "endsWith\\(['\"]\\.(ps1)['\"]\\)"
+
+  - id: endswith-sh
+    description: endsWith .sh check
+    criticality: inert
+    confidence: 0.6
+    attack: "T1105"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "endsWith\\(['\"]\\.(sh)['\"]\\)"
+
+  - id: endswith-elf
+    description: endsWith .elf check
+    criticality: inert
+    confidence: 0.6
+    attack: "T1105"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "endsWith\\(['\"]\\.(elf)['\"]\\)"
+
+  - id: endswith-bin
+    description: endsWith .bin check
+    criticality: inert
+    confidence: 0.6
+    attack: "T1105"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "endsWith\\(['\"]\\.(bin)['\"]\\)"
+
+  - id: find-exe-pattern
+    description: find() with .exe pattern
+    criticality: inert
+    confidence: 0.6
+    attack: "T1105"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "find\\([^)]*\\.exe"
+
+  - id: find-bat-pattern
+    description: find() with .bat pattern
+    criticality: inert
+    confidence: 0.6
+    attack: "T1105"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "find\\([^)]*\\.bat"
+
+  - id: find-cmd-pattern
+    description: find() with .cmd pattern
+    criticality: inert
+    confidence: 0.6
+    attack: "T1105"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "find\\([^)]*\\.cmd"
 
   # Download to temp then extract
   - id: temp-extract
@@ -124,16 +244,36 @@ traits:
             any of ($dl*) and any of ($zip*) and any of ($write*)
         }
 
-  # Python execution call
-  - id: python-exec-call
-    description: Python execution via os.system, exec, or subprocess
-    criticality: suspicious
-    confidence: 0.85
+  # === Python exec atomic indicators ===
+  - id: py-os-system
+    description: os.system() call
+    criticality: inert
+    confidence: 0.6
     attack: "T1059"
     file_types: [python]
     condition:
       type: string
-      regex: "os\\.system\\(|exec\\(|subprocess\\."
+      regex: "os\\.system\\("
+
+  - id: py-exec-call
+    description: exec() call
+    criticality: inert
+    confidence: 0.6
+    attack: "T1059"
+    file_types: [python]
+    condition:
+      type: string
+      regex: "exec\\("
+
+  - id: py-subprocess
+    description: subprocess module
+    criticality: inert
+    confidence: 0.6
+    attack: "T1059"
+    file_types: [python]
+    condition:
+      type: string
+      regex: "subprocess\\."
 
   # Python-build-standalone download (commonly abused)
   - id: python-standalone
@@ -272,15 +412,33 @@ traits:
             any of ($dl*) and any of ($interp*) and any of ($exec*) and any of ($exists*)
         }
 
-  # Base64 buffer operations
-  - id: base64-buffer
-    description: Base64 buffer operations
-    criticality: notable
-    confidence: 0.7
+  # === Base64 buffer atomic indicators ===
+  - id: buffer-from-base64
+    description: Buffer.from with base64
+    criticality: inert
+    confidence: 0.5
     file_types: [javascript, typescript]
     condition:
       type: string
-      regex: "Buffer\\.from.*base64|atob\\(|btoa\\("
+      regex: "Buffer\\.from.*base64"
+
+  - id: atob-call
+    description: atob() call
+    criticality: inert
+    confidence: 0.5
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "atob\\("
+
+  - id: btoa-call
+    description: btoa() call
+    criticality: inert
+    confidence: 0.5
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "btoa\\("
 
   # Download and write file (https.get/request with fs.write)
   - id: download-file
@@ -372,25 +530,61 @@ traits:
       type: string
       regex: "password:\\s*['\"][^'\"]+['\"]"
 
-  # Spawn or exec call
-  - id: spawn-exec-call
-    description: Spawn or exec function call
-    criticality: notable
-    confidence: 0.7
+  # === Spawn/exec atomic indicators ===
+  - id: spawn-call
+    description: spawn() call
+    criticality: inert
+    confidence: 0.5
     file_types: [javascript, typescript]
     condition:
       type: string
-      regex: "spawn\\(|exec\\(|execFile\\("
+      regex: "spawn\\("
 
-  # WScript.Shell or XMLHTTP
-  - id: wscript-xmlhttp
-    description: WScript.Shell or XMLHTTP object usage
-    criticality: suspicious
-    confidence: 0.85
+  - id: exec-call-js
+    description: exec() call
+    criticality: inert
+    confidence: 0.5
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "exec\\("
+
+  - id: execfile-call
+    description: execFile() call
+    criticality: inert
+    confidence: 0.5
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "execFile\\("
+
+  # === WScript/XMLHTTP atomic indicators ===
+  - id: wscript-shell
+    description: WScript.Shell object
+    criticality: inert
+    confidence: 0.7
     file_types: [javascript]
     condition:
       type: string
-      regex: "WScript\\.Shell|MSXML2\\.XMLHTTP|Microsoft\\.XMLHTTP"
+      exact: "WScript.Shell"
+
+  - id: msxml2-xmlhttp
+    description: MSXML2.XMLHTTP object
+    criticality: inert
+    confidence: 0.7
+    file_types: [javascript]
+    condition:
+      type: string
+      exact: "MSXML2.XMLHTTP"
+
+  - id: microsoft-xmlhttp
+    description: Microsoft.XMLHTTP object
+    criticality: inert
+    confidence: 0.7
+    file_types: [javascript]
+    condition:
+      type: string
+      exact: "Microsoft.XMLHTTP"
 
   # Batch file generation (echo >> pattern)
   - id: batch-echo
@@ -428,14 +622,22 @@ traits:
       type: string
       regex: "Shell\\.Application.*namespace"
 
-  # MSXml2 Base64 decode
-  - id: msxml-base64
-    description: MSXml2 Base64 decoding
-    criticality: suspicious
-    confidence: 0.85
+  # === MSXml2 Base64 atomic indicators ===
+  - id: msxml2-base64
+    description: MSXml2 Base64 reference
+    criticality: inert
+    confidence: 0.7
     condition:
       type: string
-      regex: "MSXml2.*Base64|bin\\.base64"
+      regex: "MSXml2.*Base64"
+
+  - id: bin-base64
+    description: bin.base64 reference
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "bin.base64"
 
   # Scripting.FileSystemObject
   - id: fso
@@ -455,14 +657,22 @@ traits:
       type: string
       regex: 'replace\\([^)]*"\\^"'
 
-  # %appdata% drop path
-  - id: appdata-drop
-    description: Payload drop to %appdata%
-    criticality: suspicious
-    confidence: 0.85
+  # === Appdata atomic indicators ===
+  - id: appdata-single
+    description: "%appdata% reference"
+    criticality: inert
+    confidence: 0.6
     condition:
       type: string
-      regex: "%appdata%|%%appdata%%"
+      exact: "%appdata%"
+
+  - id: appdata-double
+    description: "%%appdata%% reference"
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "%%appdata%%"
 
   # EXE to batch dropper builder
   - id: exe-to-batch
@@ -557,6 +767,109 @@ traits:
         }
 
 composite_rules:
+  # 7-zip usage composite
+  - id: 7zip-usage
+    description: Uses 7-zip for archive operations
+    criticality: notable
+    confidence: 0.8
+    attack: "T1140"
+    file_types: [javascript, typescript]
+    requires_count: 1
+    conditions:
+      - id: 7zip-bin-module
+      - id: node-7z-module
+      - id: path7za
+      - id: 7z-exe
+
+  # Executable search composite
+  - id: exe-search
+    description: Searches for executable files after extraction
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1105"
+    file_types: [javascript, typescript]
+    requires_count: 1
+    conditions:
+      - id: endswith-exe
+      - id: endswith-bat
+      - id: endswith-cmd
+      - id: endswith-ps1
+      - id: endswith-sh
+      - id: endswith-elf
+      - id: endswith-bin
+      - id: find-exe-pattern
+      - id: find-bat-pattern
+      - id: find-cmd-pattern
+
+  # Python exec composite
+  - id: python-exec-call
+    description: Python execution via os.system, exec, or subprocess
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1059"
+    file_types: [python]
+    requires_count: 1
+    conditions:
+      - id: py-os-system
+      - id: py-exec-call
+      - id: py-subprocess
+
+  # Spawn/exec composite
+  - id: spawn-exec-call
+    description: Spawn or exec function call
+    criticality: notable
+    confidence: 0.7
+    file_types: [javascript, typescript]
+    requires_count: 1
+    conditions:
+      - id: spawn-call
+      - id: exec-call-js
+      - id: execfile-call
+
+  # WScript/XMLHTTP composite
+  - id: wscript-xmlhttp
+    description: WScript.Shell or XMLHTTP object usage
+    criticality: suspicious
+    confidence: 0.85
+    file_types: [javascript]
+    requires_count: 1
+    conditions:
+      - id: wscript-shell
+      - id: msxml2-xmlhttp
+      - id: microsoft-xmlhttp
+
+  # Base64 buffer composite
+  - id: base64-buffer
+    description: Base64 buffer operations
+    criticality: notable
+    confidence: 0.7
+    file_types: [javascript, typescript]
+    requires_count: 1
+    conditions:
+      - id: buffer-from-base64
+      - id: atob-call
+      - id: btoa-call
+
+  # MSXml2 Base64 composite
+  - id: msxml-base64
+    description: MSXml2 Base64 decoding
+    criticality: suspicious
+    confidence: 0.85
+    requires_count: 1
+    conditions:
+      - id: msxml2-base64
+      - id: bin-base64
+
+  # Appdata drop composite
+  - id: appdata-drop
+    description: Payload drop to %appdata%
+    criticality: suspicious
+    confidence: 0.85
+    requires_count: 1
+    conditions:
+      - id: appdata-single
+      - id: appdata-double
+
   # Full dropper chain: download -> extract -> execute
   - id: full-chain
     description: Complete archive dropper (download + extract + execute)

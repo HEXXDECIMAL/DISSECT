@@ -4,7 +4,7 @@
 composite_rules:
   - id: dynamic-import-access
     description: "Dynamic module import followed by immediate attribute access (Shadowing)"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     file_types: [python]
     near_lines: 5

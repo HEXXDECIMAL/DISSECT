@@ -8,36 +8,64 @@ defaults:
   criticality: suspicious
 
 traits:
-  # dscl authonly - verify password without creating session
-  - id: dscl-authonly
-    description: "macOS dscl password validation (authonly)"
-    criticality: suspicious
-    confidence: 0.95
+  # === dscl authonly atomic indicators ===
+  - id: dscl-dot-authonly
+    description: dscl . authonly command
+    criticality: notable
+    confidence: 0.85
     attack: "T1110.001"
     mbc: "E1110"
     condition:
       type: string
-      regex: "dscl\\s+\\.\\s+authonly|dscl.*-authonly"
+      regex: "dscl\\s+\\.\\s+authonly"
 
-  # dscl read - enumerate user information
-  - id: dscl-read
-    description: "macOS Directory Services user enumeration"
+  - id: dscl-flag-authonly
+    description: dscl -authonly flag
     criticality: notable
-    confidence: 0.7
+    confidence: 0.85
+    attack: "T1110.001"
+    mbc: "E1110"
+    condition:
+      type: string
+      regex: "dscl.*-authonly"
+
+  # === dscl read atomic indicators ===
+  - id: dscl-dot-read
+    description: dscl . read command
+    criticality: inert
+    confidence: 0.6
     attack: "T1087.001"
     condition:
       type: string
-      regex: "dscl\\s+\\.\\s+read|dscl.*-read"
+      regex: "dscl\\s+\\.\\s+read"
 
-  # dscl list - list users/groups
-  - id: dscl-list
-    description: "macOS Directory Services listing"
-    criticality: notable
-    confidence: 0.65
+  - id: dscl-flag-read
+    description: dscl -read flag
+    criticality: inert
+    confidence: 0.6
     attack: "T1087.001"
     condition:
       type: string
-      regex: "dscl\\s+\\.\\s+list|dscl\\s+\\.\\s+-list"
+      regex: "dscl.*-read"
+
+  # === dscl list atomic indicators ===
+  - id: dscl-dot-list
+    description: dscl . list command
+    criticality: inert
+    confidence: 0.55
+    attack: "T1087.001"
+    condition:
+      type: string
+      regex: "dscl\\s+\\.\\s+list"
+
+  - id: dscl-flag-list
+    description: dscl . -list command
+    criticality: inert
+    confidence: 0.55
+    attack: "T1087.001"
+    condition:
+      type: string
+      regex: "dscl\\s+\\.\\s+-list"
 
   # NOTE: /etc/passwd is defined in discovery/user/traits.yaml
 
@@ -98,6 +126,40 @@ traits:
       case_insensitive: true
 
 composite_rules:
+  # dscl authonly composite
+  - id: dscl-authonly
+    description: macOS dscl password validation (authonly)
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1110.001"
+    mbc: "E1110"
+    requires_count: 1
+    conditions:
+      - id: dscl-dot-authonly
+      - id: dscl-flag-authonly
+
+  # dscl read composite
+  - id: dscl-read
+    description: macOS Directory Services user enumeration
+    criticality: notable
+    confidence: 0.7
+    attack: "T1087.001"
+    requires_count: 1
+    conditions:
+      - id: dscl-dot-read
+      - id: dscl-flag-read
+
+  # dscl list composite
+  - id: dscl-list
+    description: macOS Directory Services listing
+    criticality: notable
+    confidence: 0.65
+    attack: "T1087.001"
+    requires_count: 1
+    conditions:
+      - id: dscl-dot-list
+      - id: dscl-flag-list
+
   # Shadow hash access composite
   - id: shadow-hash
     description: "Access to shadow password hashes"

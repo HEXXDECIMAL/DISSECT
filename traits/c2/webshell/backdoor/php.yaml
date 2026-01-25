@@ -66,13 +66,62 @@ traits:
       pattern: ".*"
       regex: true
 
-  - id: proxy-port
-    description: High port number (proxy/backdoor indicator)
-    criticality: suspicious
-    confidence: 0.8
+  # === Proxy port atomic indicators ===
+  - id: port-30000
+    description: Port 30000
+    criticality: inert
+    confidence: 0.6
     condition:
       type: string
-      regex: "\\b(30000|31337|4444|5555|6666|8080|9999)\\b"
+      regex: "\\b30000\\b"
+
+  - id: port-31337-php
+    description: Port 31337 (leet)
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "\\b31337\\b"
+
+  - id: port-4444-php
+    description: Port 4444 (Metasploit)
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "\\b4444\\b"
+
+  - id: port-5555
+    description: Port 5555
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      regex: "\\b5555\\b"
+
+  - id: port-6666
+    description: Port 6666
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      regex: "\\b6666\\b"
+
+  - id: port-8080-php
+    description: Port 8080 (HTTP alt)
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: "\\b8080\\b"
+
+  - id: port-9999
+    description: Port 9999
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      regex: "\\b9999\\b"
 
   - id: ssrf-pattern
     description: Server-Side Request Forgery pattern (URL from user input)
@@ -113,3 +162,18 @@ traits:
       node_type: function_call_expression
       pattern: "\\$_(GET|POST|REQUEST|COOKIE|SERVER)\\s*\\[[^]]+\\]\\s*\\("
       regex: true
+
+composite_rules:
+  - id: proxy-port
+    description: High port number (proxy/backdoor indicator)
+    criticality: suspicious
+    confidence: 0.8
+    requires_count: 1
+    conditions:
+      - id: port-30000
+      - id: port-31337-php
+      - id: port-4444-php
+      - id: port-5555
+      - id: port-6666
+      - id: port-8080-php
+      - id: port-9999

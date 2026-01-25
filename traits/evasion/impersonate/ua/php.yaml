@@ -37,12 +37,36 @@ traits:
       type: string
       regex: "Mozilla/5\\.0.*Mozilla/5\\.0.*Mozilla/5\\.0"
 
+  # === array-rand UA atomic indicators ===
+  - id: array-rand-mozilla
+    description: array_rand followed by Mozilla
+    criticality: notable
+    confidence: 0.7
+    mbc: "B0032"
+    file_types: [php]
+    condition:
+      type: string
+      regex: "array_rand.*Mozilla"
+
+  - id: mozilla-array-rand
+    description: Mozilla followed by array_rand
+    criticality: notable
+    confidence: 0.7
+    mbc: "B0032"
+    file_types: [php]
+    condition:
+      type: string
+      regex: "Mozilla.*array_rand"
+
+composite_rules:
+  # array-rand UA composite
   - id: array-rand-ua
     description: Random User-Agent selection
     criticality: suspicious
     confidence: 0.8
     mbc: "B0032"
     file_types: [php]
-    condition:
-      type: string
-      regex: "array_rand.*Mozilla|Mozilla.*array_rand"
+    requires_count: 1
+    conditions:
+      - id: array-rand-mozilla
+      - id: mozilla-array-rand

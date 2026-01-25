@@ -127,6 +127,15 @@ traits:
       type: string
       exact: "/proc/self/fd"
 
+  - id: http-1-0
+    description: HTTP/1.0 protocol string
+    criticality: inert
+    confidence: 0.5
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "HTTP/1.0"
+
 composite_rules:
   # Main Mirai detection - requires 6 of 12 indicators plus size constraints
   - id: detected
@@ -165,8 +174,7 @@ composite_rules:
     requires_all:
       - id: brand-name
       - id: dvr-helper
-      - type: string
-        exact: "HTTP/1.0"
+      - id: http-1-0
 
   # Behavioral variant detection (no brand string required)
   - id: variant

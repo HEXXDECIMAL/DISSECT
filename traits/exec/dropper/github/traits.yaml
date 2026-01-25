@@ -10,15 +10,52 @@ traits:
       type: string
       regex: "api\\.github\\.com.*/git/blobs"
 
+  # === Python exec/chmod atomic indicators ===
+  - id: python-os-chmod
+    description: "Python os.chmod call"
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "os.chmod("
+
+  - id: python-subprocess-popen
+    description: "Python subprocess.Popen call"
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "subprocess.Popen("
+
+  - id: python-subprocess-run
+    description: "Python subprocess.run call"
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "subprocess.run("
+
+  - id: python-subprocess-call
+    description: "Python subprocess.call call"
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "subprocess.call("
+
+composite_rules:
+  # Python exec/chmod composite
   - id: python-exec-chmod
     description: "Python subprocess execution or chmod"
     criticality: notable
     confidence: 0.8
-    condition:
-      type: string
-      regex: "os\\.chmod\\(|subprocess\\.(Popen|run|call)\\("
+    requires_count: 1
+    conditions:
+      - id: python-os-chmod
+      - id: python-subprocess-popen
+      - id: python-subprocess-run
+      - id: python-subprocess-call
 
-composite_rules:
   - id: execute
     description: "Download from GitHub blob API and execute"
     confidence: 0.95

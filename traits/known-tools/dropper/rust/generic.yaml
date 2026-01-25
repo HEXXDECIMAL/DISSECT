@@ -117,6 +117,14 @@ traits:
             $rust and $static
         }
 
+  - id: dropper/rust/https-url
+    description: "HTTPS URL reference"
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "https://"
+
 composite_rules:
   - id: dropper/rust/stager-behavior
     description: "Rust-based Downloader/Stager behavior detected"
@@ -140,8 +148,8 @@ composite_rules:
     file_types: [elf, macho, pe]
     requires_all:
       - id: dropper/rust/http-client
-      - type: string
-        exact: "https://"
-    requires_any:
+      - id: dropper/rust/https-url
+    requires_count: 1
+    conditions:
       - id: dropper/rust/file-execution
       - id: dropper/rust/fs-ops

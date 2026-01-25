@@ -31,14 +31,33 @@ traits:
       type: string
       exact: "Pale Moon"
 
-  - id: profiles-path
-    description: Firefox/Gecko Profiles directory
-    criticality: notable
-    confidence: 0.7
+  # === Profiles path atomic indicators ===
+  - id: firefox-profiles
+    description: Firefox/Profiles path
+    criticality: inert
+    confidence: 0.6
     attack: "T1555.003"
     condition:
       type: string
-      regex: "Firefox/Profiles|Waterfox/Profiles|Pale Moon/Profiles"
+      exact: "Firefox/Profiles"
+
+  - id: waterfox-profiles
+    description: Waterfox/Profiles path
+    criticality: inert
+    confidence: 0.6
+    attack: "T1555.003"
+    condition:
+      type: string
+      exact: "Waterfox/Profiles"
+
+  - id: palemoon-profiles
+    description: Pale Moon/Profiles path
+    criticality: inert
+    confidence: 0.6
+    attack: "T1555.003"
+    condition:
+      type: string
+      exact: "Pale Moon/Profiles"
 
   - id: cookies-sqlite
     description: Firefox cookies.sqlite database
@@ -96,14 +115,24 @@ traits:
       type: string
       exact: "nssPrivate"
 
-  - id: nss3-lib
-    description: Firefox NSS3 library reference
-    criticality: suspicious
-    confidence: 0.85
+  # === NSS3 library atomic indicators ===
+  - id: nss3-word
+    description: nss3 word reference
+    criticality: notable
+    confidence: 0.75
     attack: "T1555.003"
     condition:
       type: string
-      regex: "\\bnss3\\b|libnss3"
+      regex: "\\bnss3\\b"
+
+  - id: libnss3-ref
+    description: libnss3 library reference
+    criticality: notable
+    confidence: 0.75
+    attack: "T1555.003"
+    condition:
+      type: string
+      exact: "libnss3"
 
   - id: pk11-decrypt
     description: Firefox PK11SDR_Decrypt function
@@ -139,6 +168,18 @@ traits:
       case_insensitive: true
 
 composite_rules:
+  # profiles path composite
+  - id: profiles-path
+    description: Firefox/Gecko Profiles directory
+    criticality: notable
+    confidence: 0.7
+    attack: "T1555.003"
+    requires_count: 1
+    conditions:
+      - id: firefox-profiles
+      - id: waterfox-profiles
+      - id: palemoon-profiles
+
   - id: cookie-theft
     description: Firefox cookie theft
     criticality: suspicious
@@ -160,6 +201,17 @@ composite_rules:
       - id: nss-private
       - id: logins-json
       - id: key4-db
+
+  # nss3 lib composite
+  - id: nss3-lib
+    description: Firefox NSS3 library reference
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1555.003"
+    requires_count: 1
+    conditions:
+      - id: nss3-word
+      - id: libnss3-ref
 
   - id: nss-decrypt
     description: Firefox NSS decryption (password extraction)

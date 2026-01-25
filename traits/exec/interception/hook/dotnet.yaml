@@ -2,18 +2,67 @@
 # Common in ORM, AOP, and dependency injection frameworks
 
 traits:
+  # === Dynamic proxy atomic indicators ===
+  - id: proxy-generator
+    description: ProxyGenerator class reference
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "ProxyGenerator"
+
+  - id: dynamic-proxy-class
+    description: DynamicProxy class reference
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "DynamicProxy"
+
+  # === Interceptor atomic indicators ===
+  - id: iinterceptor-interface
+    description: IInterceptor interface reference
+    criticality: inert
+    confidence: 0.65
+    condition:
+      type: string
+      exact: "IInterceptor"
+
+  - id: interceptor-class
+    description: Interceptor class reference
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "Interceptor"
+
+  - id: iinvocation-interface
+    description: IInvocation interface reference
+    criticality: inert
+    confidence: 0.65
+    condition:
+      type: string
+      exact: "IInvocation"
+
+composite_rules:
+  # Dynamic proxy composite
   - id: dynamic-proxy
     description: Dynamic proxy generation (Castle, etc.)
     criticality: notable
     confidence: 0.80
-    condition:
-      type: string
-      regex: "ProxyGenerator|IInterceptor|DynamicProxy"
+    requires_count: 1
+    conditions:
+      - id: proxy-generator
+      - id: iinterceptor-interface
+      - id: dynamic-proxy-class
 
+  # Interceptor composite
   - id: interceptor
     description: Method interception capability
     criticality: notable
     confidence: 0.75
-    condition:
-      type: string
-      regex: "IInterceptor|Interceptor|IInvocation"
+    requires_count: 1
+    conditions:
+      - id: iinterceptor-interface
+      - id: interceptor-class
+      - id: iinvocation-interface

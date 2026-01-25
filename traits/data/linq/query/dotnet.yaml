@@ -1,13 +1,30 @@
 # .NET LINQ and Expression Patterns
 
 traits:
-  - id: linq-expressions
-    description: LINQ expression tree manipulation
-    criticality: notable
-    confidence: 0.75
+  # === LINQ expressions atomic indicators ===
+  - id: system-linq-expressions
+    description: System.Linq.Expressions namespace
+    criticality: inert
+    confidence: 0.6
     condition:
       type: string
-      regex: "System\\.Linq\\.Expressions|ExpressionVisitor|LambdaExpression"
+      exact: "System.Linq.Expressions"
+
+  - id: expression-visitor
+    description: ExpressionVisitor class
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "ExpressionVisitor"
+
+  - id: lambda-expression
+    description: LambdaExpression class
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "LambdaExpression"
 
   - id: linq-queries
     description: LINQ query operations
@@ -17,10 +34,39 @@ traits:
       type: string
       exact: "System.Linq"
 
+  # === Expression compilation atomic indicators ===
+  - id: compile-call
+    description: Compile() call
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      regex: "Compile\\("
+
+  - id: expression-lambda
+    description: Expression.Lambda call
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "Expression.Lambda"
+
+composite_rules:
+  - id: linq-expressions
+    description: LINQ expression tree manipulation
+    criticality: notable
+    confidence: 0.75
+    requires_count: 1
+    conditions:
+      - id: system-linq-expressions
+      - id: expression-visitor
+      - id: lambda-expression
+
   - id: expression-compilation
     description: Runtime expression compilation
     criticality: notable
     confidence: 0.80
-    condition:
-      type: string
-      regex: "Compile\\(|Expression\\.Lambda"
+    requires_count: 1
+    conditions:
+      - id: compile-call
+      - id: expression-lambda

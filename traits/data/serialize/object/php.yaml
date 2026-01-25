@@ -40,6 +40,44 @@ traits:
       type: string
       regex: "\\bunserialize\\s*\\("
 
+  # === unserialize user input atomic indicators ===
+  - id: unserialize-get
+    description: unserialize from $_GET
+    criticality: inert
+    confidence: 0.8
+    file_types: [php]
+    condition:
+      type: string
+      regex: "unserialize\\s*\\(.*\\$_GET"
+
+  - id: unserialize-post
+    description: unserialize from $_POST
+    criticality: inert
+    confidence: 0.8
+    file_types: [php]
+    condition:
+      type: string
+      regex: "unserialize\\s*\\(.*\\$_POST"
+
+  - id: unserialize-request
+    description: unserialize from $_REQUEST
+    criticality: inert
+    confidence: 0.8
+    file_types: [php]
+    condition:
+      type: string
+      regex: "unserialize\\s*\\(.*\\$_REQUEST"
+
+  - id: unserialize-cookie
+    description: unserialize from $_COOKIE
+    criticality: inert
+    confidence: 0.8
+    file_types: [php]
+    condition:
+      type: string
+      regex: "unserialize\\s*\\(.*\\$_COOKIE"
+
+composite_rules:
   - id: unserialize-user-input
     description: Deserialization of user input (RCE vulnerability)
     criticality: suspicious
@@ -47,6 +85,9 @@ traits:
     mbc: "E1059"
     attack: "T1059"
     file_types: [php]
-    condition:
-      type: string
-      regex: "unserialize\\s*\\(.*\\$_(GET|POST|REQUEST|COOKIE)"
+    requires_count: 1
+    conditions:
+      - id: unserialize-get
+      - id: unserialize-post
+      - id: unserialize-request
+      - id: unserialize-cookie

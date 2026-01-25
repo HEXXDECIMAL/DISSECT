@@ -8,7 +8,8 @@ traits:
     criticality: suspicious
     confidence: 0.85
     attack: "T1069"
-    file_types: [elf, shell]
+    # Command can be embedded in any file type
+    file_types: [*]
     condition:
       type: string
       exact: "capsh"

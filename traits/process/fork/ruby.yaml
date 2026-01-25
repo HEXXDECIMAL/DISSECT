@@ -1,13 +1,68 @@
 # Process Lifecycle - Ruby
 
 traits:
+  # === Ruby fork atomic indicators ===
+  - id: process-fork
+    description: Process.fork call
+    criticality: inert
+    confidence: 0.7
+    platforms: [all]
+    file_types: [ruby]
+    condition:
+      type: string
+      exact: "Process.fork"
+
+  - id: fork-brace-block
+    description: fork with brace block
+    criticality: inert
+    confidence: 0.6
+    platforms: [all]
+    file_types: [ruby]
+    condition:
+      type: string
+      regex: "\\bfork\\s*\\{"
+
+  - id: fork-do-block
+    description: fork with do block
+    criticality: inert
+    confidence: 0.6
+    platforms: [all]
+    file_types: [ruby]
+    condition:
+      type: string
+      regex: "\\bfork\\s*do\\b"
+
+  - id: fork-paren
+    description: fork with parenthesis
+    criticality: inert
+    confidence: 0.6
+    platforms: [all]
+    file_types: [ruby]
+    condition:
+      type: string
+      regex: "\\bfork\\s*\\("
+
+composite_rules:
+  # Fork block composite
+  - id: fork-block
+    description: fork with block/do
+    criticality: notable
+    confidence: 0.7
+    platforms: [all]
+    file_types: [ruby]
+    requires_count: 1
+    conditions:
+      - id: fork-brace-block
+      - id: fork-do-block
+      - id: fork-paren
+
   - id: ruby-fork
     description: Fork process
     criticality: notable
     confidence: 0.88
     platforms: [all]
     file_types: [ruby]
-    condition:
-      type: string
-      # Require method call syntax to avoid matching "prefork" in module names
-      regex: "Process\\.fork|\\bfork\\s*(\\{|do\\b|\\()"
+    requires_count: 1
+    conditions:
+      - id: process-fork
+      - id: fork-block

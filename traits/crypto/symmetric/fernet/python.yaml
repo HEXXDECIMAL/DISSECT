@@ -8,14 +8,22 @@ defaults:
   mbc: "C0027"
 
 traits:
-  # Direct fernet import
-  - id: import
-    description: "Fernet symmetric encryption library import"
-    criticality: notable
-    confidence: 0.9
+  # === Fernet import atomic indicators ===
+  - id: import-fernet-direct
+    description: Direct fernet import
+    criticality: inert
+    confidence: 0.8
     condition:
       type: string
-      regex: "\\bimport\\s+fernet\\b|\\bfrom\\s+cryptography\\.fernet\\s+import"
+      regex: "\\bimport\\s+fernet\\b"
+
+  - id: from-cryptography-fernet
+    description: From cryptography.fernet import
+    criticality: inert
+    confidence: 0.8
+    condition:
+      type: string
+      regex: "\\bfrom\\s+cryptography\\.fernet\\s+import"
 
   # Fernet class usage
   - id: class-usage
@@ -82,3 +90,14 @@ traits:
           condition:
             $fernet and $b64_key
         }
+
+composite_rules:
+  # Fernet import composite
+  - id: import
+    description: Fernet symmetric encryption library import
+    criticality: notable
+    confidence: 0.9
+    requires_count: 1
+    conditions:
+      - id: import-fernet-direct
+      - id: from-cryptography-fernet

@@ -36,7 +36,7 @@ composite_rules:
   # Detected via brand string or prefix+rust-panic combination
   - id: detected
     description: Manjusaka C2 framework detected
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     reference: "https://blog.talosintelligence.com/manjusaka-offensive-framework/"

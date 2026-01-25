@@ -136,27 +136,57 @@ traits:
       type: string
       exact: "telecomadmin"
 
-  # Telnet bruteforce indicators
-  - id: telnet-connect
-    description: Telnet connection string
-    criticality: suspicious
+  # === Telnet bruteforce atomic indicators ===
+  - id: telnet-connect-str
+    description: Telnet connect string
+    criticality: notable
+    confidence: 0.6
+    attack: "T1110.001"
+    file_types: [elf]
+    condition:
+      type: string
+      regex: "(?i)telnet connect"
+
+  - id: telnet-scanner-str
+    description: Telnet scanner string
+    criticality: notable
+    confidence: 0.6
+    attack: "T1110.001"
+    file_types: [elf]
+    condition:
+      type: string
+      regex: "(?i)telnet scanner"
+
+  - id: telnet-brute-str
+    description: Telnet brute string
+    criticality: notable
+    confidence: 0.6
+    attack: "T1110.001"
+    file_types: [elf]
+    condition:
+      type: string
+      regex: "(?i)telnet brute"
+
+  # === BusyBox download atomic indicators ===
+  - id: busybox-wget
+    description: BusyBox wget download
+    criticality: notable
     confidence: 0.7
     attack: "T1110.001"
     file_types: [elf]
     condition:
       type: string
-      regex: "telnet (connect|scanner|brute)"
-      case_insensitive: true
+      exact: "busybox wget"
 
-  - id: busybox-download
-    description: BusyBox download exploitation
-    criticality: suspicious
-    confidence: 0.8
+  - id: busybox-tftp
+    description: BusyBox tftp download
+    criticality: notable
+    confidence: 0.7
     attack: "T1110.001"
     file_types: [elf]
     condition:
       type: string
-      regex: "busybox (wget|tftp)"
+      exact: "busybox tftp"
 
   - id: mirai-cred-prefix
     description: Mirai credential prefix (7ujMko0)
@@ -190,6 +220,31 @@ traits:
       exact: "enable\nshell\nsh"
 
 composite_rules:
+  # Telnet bruteforce composite
+  - id: telnet-connect
+    description: Telnet connection string
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1110.001"
+    file_types: [elf]
+    requires_count: 1
+    conditions:
+      - id: telnet-connect-str
+      - id: telnet-scanner-str
+      - id: telnet-brute-str
+
+  # BusyBox download composite
+  - id: busybox-download
+    description: BusyBox download exploitation
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1110.001"
+    file_types: [elf]
+    requires_count: 1
+    conditions:
+      - id: busybox-wget
+      - id: busybox-tftp
+
   # Mirai default credentials - requires 3+ credential strings
   - id: mirai-creds
     description: Mirai botnet default credential list detected

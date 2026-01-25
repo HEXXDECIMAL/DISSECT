@@ -111,20 +111,121 @@ traits:
       type: string
       exact: "HTTP_REFERER"
 
+  # === extract atomic indicators ===
+  - id: extract-get
+    description: extract from $_GET
+    criticality: inert
+    confidence: 0.7
+    file_types: [php]
+    condition:
+      type: string
+      regex: "extract\\s*\\(\\s*\\$_GET"
+
+  - id: extract-post
+    description: extract from $_POST
+    criticality: inert
+    confidence: 0.7
+    file_types: [php]
+    condition:
+      type: string
+      regex: "extract\\s*\\(\\s*\\$_POST"
+
+  - id: extract-request
+    description: extract from $_REQUEST
+    criticality: inert
+    confidence: 0.7
+    file_types: [php]
+    condition:
+      type: string
+      regex: "extract\\s*\\(\\s*\\$_REQUEST"
+
+  - id: extract-cookie
+    description: extract from $_COOKIE
+    criticality: inert
+    confidence: 0.7
+    file_types: [php]
+    condition:
+      type: string
+      regex: "extract\\s*\\(\\s*\\$_COOKIE"
+
+  - id: extract-server
+    description: extract from $_SERVER
+    criticality: inert
+    confidence: 0.7
+    file_types: [php]
+    condition:
+      type: string
+      regex: "extract\\s*\\(\\s*\\$_SERVER"
+
+  # === parse_str atomic indicators ===
+  - id: parse-str-get
+    description: parse_str from $_GET
+    criticality: inert
+    confidence: 0.7
+    file_types: [php]
+    condition:
+      type: string
+      regex: "parse_str\\s*\\(\\s*\\$_GET"
+
+  - id: parse-str-post
+    description: parse_str from $_POST
+    criticality: inert
+    confidence: 0.7
+    file_types: [php]
+    condition:
+      type: string
+      regex: "parse_str\\s*\\(\\s*\\$_POST"
+
+  - id: parse-str-request
+    description: parse_str from $_REQUEST
+    criticality: inert
+    confidence: 0.7
+    file_types: [php]
+    condition:
+      type: string
+      regex: "parse_str\\s*\\(\\s*\\$_REQUEST"
+
+  - id: parse-str-cookie
+    description: parse_str from $_COOKIE
+    criticality: inert
+    confidence: 0.7
+    file_types: [php]
+    condition:
+      type: string
+      regex: "parse_str\\s*\\(\\s*\\$_COOKIE"
+
+  - id: parse-str-server
+    description: parse_str from $_SERVER
+    criticality: inert
+    confidence: 0.7
+    file_types: [php]
+    condition:
+      type: string
+      regex: "parse_str\\s*\\(\\s*\\$_SERVER"
+
+composite_rules:
   - id: extract-input
     description: Extracts variables from user input (potential backdoor)
     criticality: suspicious
     confidence: 0.9
     file_types: [php]
-    condition:
-      type: string
-      regex: "extract\\s*\\(\\s*\\$_(GET|POST|REQUEST|COOKIE|SERVER)"
+    requires_count: 1
+    conditions:
+      - id: extract-get
+      - id: extract-post
+      - id: extract-request
+      - id: extract-cookie
+      - id: extract-server
 
   - id: parse-str-input
     description: Parses user input into variables
     criticality: suspicious
     confidence: 0.9
     file_types: [php]
-    condition:
-      type: string
-      regex: "parse_str\\s*\\(\\s*\\$_(GET|POST|REQUEST|COOKIE|SERVER)"
+    requires_count: 1
+    conditions:
+      - id: parse-str-get
+      - id: parse-str-post
+      - id: parse-str-request
+      - id: parse-str-cookie
+      - id: parse-str-server

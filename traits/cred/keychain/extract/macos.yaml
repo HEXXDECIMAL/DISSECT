@@ -76,18 +76,83 @@ traits:
 
   # === Atomic: Command Line Tools ===
 
-  - id: security-cli
-    description: macOS security command line tool
-    criticality: suspicious
-    confidence: 0.75
+  # === security CLI atomic indicators ===
+  - id: security-find
+    description: security find- commands
+    criticality: inert
+    confidence: 0.6
     attack: "T1555.001"
     platforms: [macos]
     file_types: [shell, macho]
     condition:
       type: string
-      # Require security command with keychain-related subcommands
-      # Excludes false positives like "SECURITY_MESSAGES" or "security.framework"
-      regex: "\\bsecurity\\s+(find-|dump-|delete-|add-|export|import|unlock)"
+      regex: "\\bsecurity\\s+find-"
+
+  - id: security-dump
+    description: security dump- commands
+    criticality: inert
+    confidence: 0.7
+    attack: "T1555.001"
+    platforms: [macos]
+    file_types: [shell, macho]
+    condition:
+      type: string
+      regex: "\\bsecurity\\s+dump-"
+
+  - id: security-delete
+    description: security delete- commands
+    criticality: inert
+    confidence: 0.6
+    attack: "T1555.001"
+    platforms: [macos]
+    file_types: [shell, macho]
+    condition:
+      type: string
+      regex: "\\bsecurity\\s+delete-"
+
+  - id: security-add
+    description: security add- commands
+    criticality: inert
+    confidence: 0.5
+    attack: "T1555.001"
+    platforms: [macos]
+    file_types: [shell, macho]
+    condition:
+      type: string
+      regex: "\\bsecurity\\s+add-"
+
+  - id: security-export
+    description: security export command
+    criticality: inert
+    confidence: 0.6
+    attack: "T1555.001"
+    platforms: [macos]
+    file_types: [shell, macho]
+    condition:
+      type: string
+      regex: "\\bsecurity\\s+export"
+
+  - id: security-import
+    description: security import command
+    criticality: inert
+    confidence: 0.5
+    attack: "T1555.001"
+    platforms: [macos]
+    file_types: [shell, macho]
+    condition:
+      type: string
+      regex: "\\bsecurity\\s+import"
+
+  - id: security-unlock
+    description: security unlock command
+    criticality: inert
+    confidence: 0.6
+    attack: "T1555.001"
+    platforms: [macos]
+    file_types: [shell, macho]
+    condition:
+      type: string
+      regex: "\\bsecurity\\s+unlock"
 
   - id: find-generic-password-cli
     description: security find-generic-password command
@@ -136,6 +201,24 @@ traits:
       exact: "/Library/Keychains/System.keychain"
 
 composite_rules:
+  # security CLI composite
+  - id: security-cli
+    description: macOS security command line tool
+    criticality: suspicious
+    confidence: 0.75
+    attack: "T1555.001"
+    platforms: [macos]
+    file_types: [shell, macho]
+    requires_count: 1
+    conditions:
+      - id: security-find
+      - id: security-dump
+      - id: security-delete
+      - id: security-add
+      - id: security-export
+      - id: security-import
+      - id: security-unlock
+
   - id: password-extraction
     description: macOS Keychain password extraction
     criticality: suspicious

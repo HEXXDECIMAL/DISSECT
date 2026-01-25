@@ -17,51 +17,145 @@ traits:
       type: string
       exact: "/Applications/Ledger Live.app"
 
-  # pkill of legitimate app
+  # === pkill atomic indicators ===
+  - id: pkill-ledger-live
+    description: pkill Ledger Live
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "pkill.*Ledger Live"
+
+  - id: killall-ledger
+    description: killall Ledger
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "killall.*Ledger"
+
+  # === Remove applications atomic indicators ===
+  - id: rm-applications-dir
+    description: rm -r /Applications/
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "rm\\s+-r.*\"/Applications/"
+
+  - id: sudo-rm-app
+    description: sudo rm .app
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "sudo.*rm.*\\.app"
+
+  # === Unzip applications atomic indicators ===
+  - id: unzip-to-applications
+    description: unzip to /Applications
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "unzip.*/Applications"
+
+  - id: unzip-d-applications
+    description: unzip -d /Applications
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "unzip.*-d.*/Applications"
+
+  # === Download app atomic indicators ===
+  - id: curl-app-zip
+    description: curl .app.zip download
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "curl.*\\.app\\.zip"
+
+  - id: curl-app-archive
+    description: curl app.zip download
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "curl.*app\\.zip"
+
+  - id: wget-app-zip
+    description: wget .app.zip download
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "wget.*\\.app\\.zip"
+
+  # === App replacement atomic indicators ===
+  - id: rm-app-unzip
+    description: rm .app && unzip pattern
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "rm.*\\.app.*&&.*unzip"
+
+  - id: rm-app-cp
+    description: rm .app && cp pattern
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "rm.*\\.app.*&&.*cp"
+
+composite_rules:
   - id: pkill-ledger
     description: "Kill Ledger Live process"
     confidence: 0.9
-    condition:
-      type: string
-      regex: "pkill.*Ledger Live|killall.*Ledger"
+    requires_count: 1
+    conditions:
+      - id: pkill-ledger-live
+      - id: killall-ledger
 
-  # Remove legitimate app
   - id: rm-applications
     description: "Remove application from /Applications"
     criticality: suspicious
     confidence: 0.9
-    condition:
-      type: string
-      regex: "rm\\s+-r.*\"/Applications/|sudo.*rm.*\\.app"
+    requires_count: 1
+    conditions:
+      - id: rm-applications-dir
+      - id: sudo-rm-app
 
-  # Unzip to Applications
   - id: unzip-applications
     description: "Unzip to /Applications directory"
     criticality: suspicious
     confidence: 0.85
-    condition:
-      type: string
-      regex: "unzip.*/Applications|unzip.*-d.*/Applications"
+    requires_count: 1
+    conditions:
+      - id: unzip-to-applications
+      - id: unzip-d-applications
 
-  # Download replacement app
   - id: download-app-zip
     description: "Download application archive"
     criticality: suspicious
     confidence: 0.85
-    condition:
-      type: string
-      regex: "curl.*\\.app\\.zip|curl.*app\\.zip|wget.*\\.app\\.zip"
+    requires_count: 1
+    conditions:
+      - id: curl-app-zip
+      - id: curl-app-archive
+      - id: wget-app-zip
 
-  # Generic app replacement pattern
   - id: app-replacement
     description: "Application replacement pattern"
     criticality: suspicious
     confidence: 0.8
-    condition:
-      type: string
-      regex: "rm.*\\.app.*&&.*unzip|rm.*\\.app.*&&.*cp"
+    requires_count: 1
+    conditions:
+      - id: rm-app-unzip
+      - id: rm-app-cp
 
-composite_rules:
   # App termination group
   - id: app-termination
     description: App termination or removal
@@ -99,7 +193,7 @@ composite_rules:
   # Generic app replacement
   - id: app-trojanize
     description: "macOS application replacement attack"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     attack: "T1574.001"
     file_types: [shell, applescript, python]

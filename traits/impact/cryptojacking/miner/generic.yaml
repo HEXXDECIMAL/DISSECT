@@ -28,7 +28,7 @@ traits:
         }
 
   - id: miner-xmrig
-    description: XMRig miner
+    description: XMRig cryptocurrency miner reference
     criticality: suspicious
     confidence: 0.66
     condition:

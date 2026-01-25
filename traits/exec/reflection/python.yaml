@@ -23,8 +23,10 @@ traits:
 composite_rules:
   - id: obfuscated-import
     description: "Obfuscated module import (Dynamic Import + Encoding)"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
+    attack: "T1027"
+    mbc: "F0001"
     file_types: [python]
     requires_all:
       - id: exec/reflection/dynamic-import

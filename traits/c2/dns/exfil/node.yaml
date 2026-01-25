@@ -4,26 +4,70 @@
 # ATT&CK: T1071.004 (DNS), T1048 (Exfiltration Over Alternative Protocol)
 
 traits:
-  # DNS Module Usage
-  - id: dns-resolve
-    description: Node.js DNS resolve function (potential DNS tunneling)
-    criticality: notable
-    confidence: 0.8
+  # === DNS resolve atomic indicators ===
+  - id: dns-resolve-call
+    description: dns.resolve call
+    criticality: inert
+    confidence: 0.6
     file_types: [javascript, typescript]
     condition:
       type: string
-      regex: "dns\\.resolve|dns\\.resolve4|dns\\.resolve6"
+      exact: "dns.resolve"
 
-  - id: dns-resolve-txt
-    description: DNS TXT record resolution (common C2 channel)
-    criticality: suspicious
-    confidence: 0.9
-    mbc: "C0002"
-    attack: "T1071.004"
+  - id: dns-resolve4-call
+    description: dns.resolve4 call
+    criticality: inert
+    confidence: 0.6
     file_types: [javascript, typescript]
     condition:
       type: string
-      regex: "dns\\.resolveTxt|resolveTxt\\(|'TXT'|\"TXT\""
+      exact: "dns.resolve4"
+
+  - id: dns-resolve6-call
+    description: dns.resolve6 call
+    criticality: inert
+    confidence: 0.6
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "dns.resolve6"
+
+  # === DNS TXT resolve atomic indicators ===
+  - id: dns-resolveTxt-method
+    description: dns.resolveTxt method
+    criticality: inert
+    confidence: 0.7
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "dns.resolveTxt"
+
+  - id: resolveTxt-call
+    description: resolveTxt call
+    criticality: inert
+    confidence: 0.7
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "resolveTxt\\("
+
+  - id: txt-record-single-quote
+    description: "TXT string (single quoted)"
+    criticality: inert
+    confidence: 0.5
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "'TXT'"
+
+  - id: txt-record-double-quote
+    description: "TXT string (double quoted)"
+    criticality: inert
+    confidence: 0.5
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "\"TXT\""
 
   - id: dns-promises
     description: DNS promises API (async DNS operations)
@@ -96,3 +140,29 @@ traits:
           condition:
             $dns and any of ($interval*, $loop)
         }
+
+composite_rules:
+  - id: dns-resolve
+    description: Node.js DNS resolve function (potential DNS tunneling)
+    criticality: notable
+    confidence: 0.8
+    file_types: [javascript, typescript]
+    requires_count: 1
+    conditions:
+      - id: dns-resolve-call
+      - id: dns-resolve4-call
+      - id: dns-resolve6-call
+
+  - id: dns-resolve-txt
+    description: DNS TXT record resolution (common C2 channel)
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "C0002"
+    attack: "T1071.004"
+    file_types: [javascript, typescript]
+    requires_count: 1
+    conditions:
+      - id: dns-resolveTxt-method
+      - id: resolveTxt-call
+      - id: txt-record-single-quote
+      - id: txt-record-double-quote

@@ -1,6 +1,16 @@
 # Java RAT Behavior Detection
 # Composite rules that combine traits to detect RAT capabilities
 
+traits:
+  - id: allatori-demo
+    description: Allatori obfuscator demo marker
+    criticality: notable
+    confidence: 0.9
+    file_types: [class]
+    condition:
+      type: string
+      exact: "ALLATORIxDEMO"
+
 composite_rules:
   # Full-featured Java RAT (STRRat-style)
   - id: java-rat-comprehensive
@@ -54,7 +64,8 @@ composite_rules:
     attack: "T1056.001"
     confidence: 0.95
     file_types: [class]
-    requires_any:
+    requires_count: 1
+    conditions:
       - id: keylogger-string
       - id: o-keylogger-string
 
@@ -82,7 +93,8 @@ composite_rules:
     attack: "T1105"
     confidence: 0.95
     file_types: [class]
-    requires_any:
+    requires_count: 1
+    conditions:
       - id: down-n-exec-string
       - id: up-n-exec-string
 
@@ -107,5 +119,4 @@ composite_rules:
     attack: "T1027"
     file_types: [class]
     requires_all:
-      - type: string
-        exact: "ALLATORIxDEMO"
+      - id: allatori-demo

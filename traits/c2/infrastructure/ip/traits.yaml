@@ -3,7 +3,8 @@
 # ATT&CK: T1071.001
 
 defaults:
-  file_types: [elf, macho, pe]
+  # IP address strings can appear in any file type
+  file_types: [*]
   mbc: "C0002"
   attack: "T1071.001"
   criticality: suspicious
@@ -31,7 +32,6 @@ traits:
   - id: http-url-with-ip
     description: "HTTP URL with hardcoded IP address"
     confidence: 0.9
-    file_types: [all]  # Override: applies to all file types
     condition:
       type: string
       # HTTP(S) URL with strict IPv4 (no leading zeros)
@@ -89,17 +89,80 @@ traits:
       regex: "wget http://[^0-9a-zA-Z]|curl http://[^0-9a-zA-Z]|http://\\x00"
       search_raw: true
 
+  # === Port number atomic indicators ===
+  - id: port-23
+    description: "Port 23 (telnet)"
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: ":23\\b"
+
+  - id: port-80
+    description: "Port 80 (HTTP)"
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      regex: ":80\\b"
+
+  - id: port-443
+    description: "Port 443 (HTTPS)"
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      regex: ":443\\b"
+
+  - id: port-8080
+    description: "Port 8080 (HTTP alt)"
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: ":8080\\b"
+
+  - id: port-4444
+    description: "Port 4444 (Metasploit default)"
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      regex: ":4444\\b"
+
+  - id: port-1337
+    description: "Port 1337 (leet)"
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: ":1337\\b"
+
+  - id: port-31337
+    description: "Port 31337 (eleet)"
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      regex: ":31337\\b"
+
+composite_rules:
   - id: port-number-constant
     description: "Common C2 port number (23, 80, 443, 8080, 4444)"
     criticality: notable
     confidence: 0.6
-    mbc: none  # Override: port alone isn't C2
+    mbc: none
     attack: none
-    condition:
-      type: string
-      regex: ":(?:23|80|443|8080|4444|1337|31337)\\b"
+    requires_count: 1
+    conditions:
+      - id: port-23
+      - id: port-80
+      - id: port-443
+      - id: port-8080
+      - id: port-4444
+      - id: port-1337
+      - id: port-31337
 
-composite_rules:
   - id: private-ip-reference
     description: "Private/internal IP address reference"
     criticality: notable

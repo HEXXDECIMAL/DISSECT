@@ -228,29 +228,35 @@ fn apply_trait_defaults(raw: RawTraitDefinition, defaults: &TraitDefaults) -> Tr
 fn parse_file_types(types: &[String]) -> Vec<RuleFileType> {
     types
         .iter()
-        .filter_map(|ft| match ft.to_lowercase().as_str() {
-            "all" => Some(RuleFileType::All),
-            "elf" => Some(RuleFileType::Elf),
-            "macho" => Some(RuleFileType::Macho),
-            "pe" => Some(RuleFileType::Pe),
-            "dylib" => Some(RuleFileType::Dylib),
-            "so" => Some(RuleFileType::So),
-            "dll" => Some(RuleFileType::Dll),
-            "shell" | "shellscript" => Some(RuleFileType::Shell),
-            "batch" | "bat" | "cmd" => Some(RuleFileType::Batch),
-            "python" => Some(RuleFileType::Python),
-            "javascript" | "js" => Some(RuleFileType::JavaScript),
-            "typescript" | "ts" => Some(RuleFileType::TypeScript),
-            "java" => Some(RuleFileType::Java),
-            "class" => Some(RuleFileType::Class),
-            "c" => Some(RuleFileType::C),
-            "rust" => Some(RuleFileType::Rust),
-            "go" => Some(RuleFileType::Go),
-            "ruby" => Some(RuleFileType::Ruby),
-            "php" => Some(RuleFileType::Php),
-            "csharp" | "cs" => Some(RuleFileType::CSharp),
-            "packagejson" | "package.json" => Some(RuleFileType::PackageJson),
-            _ => None,
+        .filter_map(|ft| {
+            // Handle "*" separately (exact match), then lowercase for the rest
+            if ft == "*" {
+                return Some(RuleFileType::All);
+            }
+            match ft.to_lowercase().as_str() {
+                "all" => Some(RuleFileType::All),
+                "elf" => Some(RuleFileType::Elf),
+                "macho" => Some(RuleFileType::Macho),
+                "pe" => Some(RuleFileType::Pe),
+                "dylib" => Some(RuleFileType::Dylib),
+                "so" => Some(RuleFileType::So),
+                "dll" => Some(RuleFileType::Dll),
+                "shell" | "shellscript" => Some(RuleFileType::Shell),
+                "batch" | "bat" | "cmd" => Some(RuleFileType::Batch),
+                "python" => Some(RuleFileType::Python),
+                "javascript" | "js" => Some(RuleFileType::JavaScript),
+                "typescript" | "ts" => Some(RuleFileType::TypeScript),
+                "java" => Some(RuleFileType::Java),
+                "class" => Some(RuleFileType::Class),
+                "c" => Some(RuleFileType::C),
+                "rust" => Some(RuleFileType::Rust),
+                "go" => Some(RuleFileType::Go),
+                "ruby" => Some(RuleFileType::Ruby),
+                "php" => Some(RuleFileType::Php),
+                "csharp" | "cs" => Some(RuleFileType::CSharp),
+                "packagejson" | "package.json" => Some(RuleFileType::PackageJson),
+                _ => None,
+            }
         })
         .collect()
 }
@@ -754,9 +760,9 @@ impl CapabilityMapper {
         }
 
         // Validate that composite rules only contain trait references (not inline primitives)
-        // During migration, the default allows inline primitives
-        // Set DISSECT_STRICT_COMPOSITES=1 to enforce trait-only composites
-        let allow_inline = std::env::var("DISSECT_STRICT_COMPOSITES").is_err();
+        // Strict mode is the default - composite rules must only reference traits
+        // Set DISSECT_ALLOW_INLINE_PRIMITIVES=1 to temporarily allow inline primitives
+        let allow_inline = std::env::var("DISSECT_ALLOW_INLINE_PRIMITIVES").is_ok();
         if !allow_inline {
             let mut inline_errors = Vec::new();
             for rule in &composite_rules {
@@ -777,7 +783,7 @@ impl CapabilityMapper {
                 }
                 eprintln!("\n   Composite rules must only reference traits (type: trait).");
                 eprintln!("   Convert inline conditions (string, symbol, yara, etc.) to atomic traits.");
-                eprintln!("   Unset DISSECT_STRICT_COMPOSITES to allow inline primitives during migration.\n");
+                eprintln!("   Set DISSECT_ALLOW_INLINE_PRIMITIVES=1 to temporarily bypass this check.\n");
                 std::process::exit(1);
             }
         }

@@ -2,15 +2,42 @@
 # ATT&CK: T1546.004 (Event Triggered Execution: Unix Shell Configuration Modification)
 
 traits:
-  - id: js-source-profile
-    description: Sources shell profile files to reload environment
-    criticality: suspicious
-    confidence: 0.85
-    attack: "T1546.004"
+  # === Shell profile source atomic indicators ===
+  - id: source-bashrc
+    description: source .bashrc
+    criticality: inert
+    confidence: 0.7
     file_types: [javascript]
     condition:
       type: string
-      regex: 'source\s+\.(bashrc|bash_profile|profile|zshrc)'
+      regex: 'source\s+\.bashrc'
+
+  - id: source-bash-profile
+    description: source .bash_profile
+    criticality: inert
+    confidence: 0.7
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: 'source\s+\.bash_profile'
+
+  - id: source-profile
+    description: source .profile
+    criticality: inert
+    confidence: 0.7
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: 'source\s+\.profile'
+
+  - id: source-zshrc
+    description: source .zshrc
+    criticality: inert
+    confidence: 0.7
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: 'source\s+\.zshrc'
 
   - id: js-path-manipulation
     description: Manually manipulates PATH environment variable
@@ -20,3 +47,17 @@ traits:
     condition:
       type: string
       regex: 'process\.env\.PATH\s*='
+
+composite_rules:
+  - id: js-source-profile
+    description: Sources shell profile files to reload environment
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1546.004"
+    file_types: [javascript]
+    requires_count: 1
+    conditions:
+      - id: source-bashrc
+      - id: source-bash-profile
+      - id: source-profile
+      - id: source-zshrc

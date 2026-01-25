@@ -227,7 +227,7 @@ composite_rules:
 
   # freegeoip API composite
   - id: freegeoip-api
-    description: freegeoip API
+    description: freegeoip geolocation API usage
     criticality: suspicious
     confidence: 0.85
     attack: "T1016"

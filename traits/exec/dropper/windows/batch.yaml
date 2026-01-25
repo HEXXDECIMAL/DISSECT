@@ -39,8 +39,8 @@ traits:
       regex: "powershell.*DownloadFile|Invoke-WebRequest|iwr\\s|wget\\s"
 
   - id: certutil-download
-    description: Certutil download (LOLBin)
-    criticality: malicious
+    description: Certutil download abuse (LOLBin technique)
+    criticality: suspicious
     confidence: 0.95
     mbc: "C0002"
     attack: "T1105"
@@ -50,8 +50,8 @@ traits:
       regex: "certutil\\s+.*-urlcache.*-split.*-f"
 
   - id: bitsadmin-download
-    description: BitsAdmin download (LOLBin)
-    criticality: malicious
+    description: BitsAdmin download abuse (LOLBin technique)
+    criticality: suspicious
     confidence: 0.95
     mbc: "C0002"
     attack: "T1105"
@@ -134,7 +134,7 @@ traits:
   # Download + Execute Combo
   - id: download-and-execute
     description: Download and execute pattern (dropper behavior)
-    criticality: malicious
+    criticality: suspicious
     confidence: 0.95
     mbc: "C0002"
     attack: "T1105"

@@ -28,6 +28,38 @@ traits:
       type: string
       exact: "cEEE8max_sizeB8ue170006IS2_vEEmRKS2_"
 
+  - id: stealer/poseidon/detected-yara
+    description: Poseidon stealer via YARA
+    criticality: suspicious
+    confidence: 0.9
+    family: true
+    attack: "T1555"
+    platforms: [macos]
+    file_types: [macho]
+    condition:
+      type: yara
+      source: |
+        import "math"
+        rule poseidon_stealer {
+          strings:
+            $not_jar = "META-INF/"
+            $not_dwarf = "_DWARF"
+            $not_kext = "_.SYMDEF SORTED"
+            $le = "cEEE8max_sizeB8ue170006IS2_vEEmRKS2_" fullword
+            $sy = "@_system" fullword
+            $sy2 = "_system" fullword
+            $bs = "basic_string" fullword
+            $ve = "vector" fullword
+          condition:
+            filesize > 190KB and filesize < 400KB and
+            (uint32(0) == 4277009102 or uint32(0) == 3472551422 or
+             uint32(0) == 4277009103 or uint32(0) == 3489328638 or
+             uint32(0) == 3405691582 or uint32(0) == 3199925962 or
+             uint32(0) == 3405691583 or uint32(0) == 3216703178) and
+            none of ($not*) and all of ($le, $sy, $sy2, $bs, $ve) and
+            math.entropy(20000, 50000) >= 2.5
+        }
+
 composite_rules:
   # URL-based detection (high confidence)
   - id: stealer/poseidon/url-detected
@@ -54,26 +86,5 @@ composite_rules:
     mbc: "B0028"
     platforms: [macos]
     file_types: [macho]
-    condition:
-      type: yara
-      source: |
-        import "math"
-        rule poseidon_stealer {
-          strings:
-            $not_jar = "META-INF/"
-            $not_dwarf = "_DWARF"
-            $not_kext = "_.SYMDEF SORTED"
-            $le = "cEEE8max_sizeB8ue170006IS2_vEEmRKS2_" fullword
-            $sy = "@_system" fullword
-            $sy2 = "_system" fullword
-            $bs = "basic_string" fullword
-            $ve = "vector" fullword
-          condition:
-            filesize > 190KB and filesize < 400KB and
-            (uint32(0) == 4277009102 or uint32(0) == 3472551422 or
-             uint32(0) == 4277009103 or uint32(0) == 3489328638 or
-             uint32(0) == 3405691582 or uint32(0) == 3199925962 or
-             uint32(0) == 3405691583 or uint32(0) == 3216703178) and
-            none of ($not*) and all of ($le, $sy, $sy2, $bs, $ve) and
-            math.entropy(20000, 50000) >= 2.5
-        }
+    requires_all:
+      - id: stealer/poseidon/detected-yara

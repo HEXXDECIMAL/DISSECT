@@ -3,45 +3,109 @@
 # ATT&CK: T1027 (Obfuscated Files or Information)
 
 traits:
-  - id: infinite-loop
-    description: Obfuscated infinite loop (while(!![]) pattern)
-    criticality: suspicious
-    confidence: 0.9
-    attack: "T1027"
-    file_types: [javascript]
-    condition:
-      type: string
-      regex: "while\\s*\\(\\s*!!\\[\\]\\s*\\)|while\\s*\\(\\s*!0\\s*\\)|while\\s*\\(\\s*!\\s*0\\s*\\)"
-
-  - id: string-array-rotation
-    description: String array with rotation decoder (obfuscation)
-    criticality: suspicious
+  # === Infinite loop atomic indicators ===
+  - id: while-not-not-array
+    description: while(!![]) infinite loop pattern
+    criticality: notable
     confidence: 0.85
     attack: "T1027"
     file_types: [javascript]
     condition:
       type: string
-      regex: "push.*shift|shift.*push"
+      regex: "while\\s*\\(\\s*!!\\[\\]\\s*\\)"
 
-  - id: buffer-hex-encoding
-    description: Buffer with hex encoding (obfuscation)
-    criticality: suspicious
-    confidence: 0.8
-    attack: "T1027"
-    file_types: [javascript]
-    condition:
-      type: string
-      regex: "Buffer\\.from.*hex|Buffer\\.from.*'hex'|Buffer\\.from.*\"hex\""
-
-  - id: fromCharCode
-    description: String.fromCharCode obfuscation
-    criticality: suspicious
+  - id: while-not-zero
+    description: while(!0) infinite loop pattern
+    criticality: notable
     confidence: 0.85
     attack: "T1027"
     file_types: [javascript]
     condition:
       type: string
-      regex: "String\\.fromCharCode|fromCharCode\\("
+      regex: "while\\s*\\(\\s*!0\\s*\\)"
+
+  - id: while-not-space-zero
+    description: while(! 0) infinite loop pattern
+    criticality: notable
+    confidence: 0.85
+    attack: "T1027"
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "while\\s*\\(\\s*!\\s*0\\s*\\)"
+
+  # === String array rotation atomic indicators ===
+  - id: push-shift-pattern
+    description: push then shift rotation pattern
+    criticality: inert
+    confidence: 0.75
+    attack: "T1027"
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "push.*shift"
+
+  - id: shift-push-pattern
+    description: shift then push rotation pattern
+    criticality: inert
+    confidence: 0.75
+    attack: "T1027"
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "shift.*push"
+
+  # === Buffer hex encoding atomic indicators ===
+  - id: buffer-from-hex-word
+    description: Buffer.from with hex word
+    criticality: notable
+    confidence: 0.7
+    attack: "T1027"
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "Buffer\\.from.*hex"
+
+  - id: buffer-from-hex-single
+    description: Buffer.from with 'hex' string
+    criticality: notable
+    confidence: 0.7
+    attack: "T1027"
+    file_types: [javascript]
+    condition:
+      type: string
+      exact: "Buffer.from.*'hex'"
+
+  - id: buffer-from-hex-double
+    description: Buffer.from with "hex" string
+    criticality: notable
+    confidence: 0.7
+    attack: "T1027"
+    file_types: [javascript]
+    condition:
+      type: string
+      exact: "Buffer.from.*\"hex\""
+
+  # === fromCharCode atomic indicators ===
+  - id: string-fromcharcode
+    description: String.fromCharCode method
+    criticality: notable
+    confidence: 0.75
+    attack: "T1027"
+    file_types: [javascript]
+    condition:
+      type: string
+      exact: "String.fromCharCode"
+
+  - id: fromcharcode-call
+    description: fromCharCode( call
+    criticality: notable
+    confidence: 0.75
+    attack: "T1027"
+    file_types: [javascript]
+    condition:
+      type: string
+      exact: "fromCharCode("
 
   - id: obfuscator-variables
     description: JavaScript obfuscator tool signature (_0x naming pattern)
@@ -66,3 +130,54 @@ traits:
       regex: "0x[a-fA-F0-9]+"
       min_count: 50
       search_raw: true
+
+composite_rules:
+  # Infinite loop composite
+  - id: infinite-loop
+    description: Obfuscated infinite loop (while(!![]) pattern)
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1027"
+    file_types: [javascript]
+    requires_count: 1
+    conditions:
+      - id: while-not-not-array
+      - id: while-not-zero
+      - id: while-not-space-zero
+
+  # String array rotation composite
+  - id: string-array-rotation
+    description: String array with rotation decoder (obfuscation)
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1027"
+    file_types: [javascript]
+    requires_count: 1
+    conditions:
+      - id: push-shift-pattern
+      - id: shift-push-pattern
+
+  # Buffer hex encoding composite
+  - id: buffer-hex-encoding
+    description: Buffer with hex encoding (obfuscation)
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1027"
+    file_types: [javascript]
+    requires_count: 1
+    conditions:
+      - id: buffer-from-hex-word
+      - id: buffer-from-hex-single
+      - id: buffer-from-hex-double
+
+  # fromCharCode composite
+  - id: fromCharCode
+    description: String.fromCharCode obfuscation
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1027"
+    file_types: [javascript]
+    requires_count: 1
+    conditions:
+      - id: string-fromcharcode
+      - id: fromcharcode-call

@@ -14,7 +14,7 @@ traits:
 
   - id: sensitive-path
     description: "Accesses sensitive browser or wallet files"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     file_types: [python]
     condition:

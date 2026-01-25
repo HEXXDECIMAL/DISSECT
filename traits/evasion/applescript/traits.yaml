@@ -215,7 +215,7 @@ composite_rules:
   # Password phishing pattern
   - id: password-phishing
     description: "AppleScript password phishing attack"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1056.002"
     file_types: [shell, applescript]

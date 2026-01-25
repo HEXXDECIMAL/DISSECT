@@ -114,25 +114,74 @@ traits:
             2 of them
         }
 
-  # Socat reverse shell
+  # === Socat atomic indicators ===
+  - id: socat-exec-sh
+    description: socat EXEC shell pattern
+    criticality: inert
+    confidence: 0.8
+    file_types: [shell, packagejson]
+    condition:
+      type: string
+      regex: 'socat\s+.*EXEC.*sh'
+
+  - id: socat-tcp-exec
+    description: socat TCP EXEC pattern
+    criticality: inert
+    confidence: 0.8
+    file_types: [shell, packagejson]
+    condition:
+      type: string
+      regex: 'socat\s+.*TCP.*EXEC'
+
+  - id: socat-pty
+    description: socat PTY pattern
+    criticality: inert
+    confidence: 0.8
+    file_types: [shell, packagejson]
+    condition:
+      type: string
+      regex: 'socat\s+.*PTY'
+
+  # === Telnet atomic indicators ===
+  - id: telnet-pipe
+    description: telnet piped reverse shell pattern
+    criticality: inert
+    confidence: 0.8
+    file_types: [shell, packagejson]
+    condition:
+      type: string
+      regex: 'telnet\s+\S+\s+\d+\s*\|.*\|\s*telnet'
+
+  - id: mknod-telnet
+    description: mknod telnet reverse shell pattern
+    criticality: inert
+    confidence: 0.8
+    file_types: [shell, packagejson]
+    condition:
+      type: string
+      regex: 'mknod.*telnet'
+
+composite_rules:
   - id: socat
     description: Socat reverse shell pattern
     criticality: suspicious
     confidence: 0.95
     attack: "T1059.004"
     file_types: [shell, packagejson]
-    condition:
-      type: string
-      regex: 'socat\s+.*EXEC.*sh|socat\s+.*TCP.*EXEC|socat\s+.*PTY'
+    requires_count: 1
+    conditions:
+      - id: socat-exec-sh
+      - id: socat-tcp-exec
+      - id: socat-pty
 
-  # Telnet reverse shell
   - id: telnet
     description: Telnet-based reverse shell
     criticality: suspicious
     confidence: 0.9
     attack: "T1059.004"
     file_types: [shell, packagejson]
-    condition:
-      type: string
-      regex: 'telnet\s+\S+\s+\d+\s*\|.*\|\s*telnet|mknod.*telnet'
+    requires_count: 1
+    conditions:
+      - id: telnet-pipe
+      - id: mknod-telnet
 

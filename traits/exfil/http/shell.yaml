@@ -5,7 +5,8 @@
 defaults:
   mbc: "E1041"
   attack: "T1041"
-  file_types: [shell]
+  # curl/wget/nc commands can be embedded in any file type
+  file_types: [*]
 
 traits:
   # === curl POST atomic indicators ===

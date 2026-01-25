@@ -23,19 +23,37 @@ traits:
             $net and $cp and ($spawn or $exec) and $pipe
         }
 
-  # Socket-based Reverse Shell
-  - id: net-socket
-    description: Net socket creation (potential reverse shell)
-    criticality: notable
-    confidence: 0.8
+  # === Net socket atomic indicators ===
+  - id: new-net-socket
+    description: new net.Socket creation
+    criticality: inert
+    confidence: 0.6
     file_types: [javascript, typescript]
     condition:
       type: string
-      regex: "new net\\.Socket|net\\.createConnection|net\\.connect"
+      exact: "new net.Socket"
+
+  - id: net-createConnection
+    description: net.createConnection call
+    criticality: inert
+    confidence: 0.6
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "net.createConnection"
+
+  - id: net-connect
+    description: net.connect call
+    criticality: inert
+    confidence: 0.6
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "net.connect"
 
   - id: socket-with-exec
-    description: Socket combined with command execution
-    criticality: malicious
+    description: Socket combined with command execution (reverse shell indicator)
+    criticality: suspicious
     confidence: 0.95
     mbc: "B0032"
     attack: "T1059"
@@ -55,27 +73,70 @@ traits:
             any of ($socket*) and any of ($exec*)
         }
 
-  # Ngrok/Tunnel Services
-  - id: ngrok-tunnel
-    description: Ngrok tunnel endpoint (C2 tunneling)
-    criticality: malicious
-    confidence: 0.95
-    mbc: "C0002"
-    attack: "T1572"
+  # === Ngrok atomic indicators ===
+  - id: ngrok-io
+    description: ngrok.io domain
+    criticality: inert
+    confidence: 0.7
     file_types: [javascript, typescript]
     condition:
       type: string
-      regex: "ngrok\\.io|ngrok\\.com|tcp\\.ngrok"
+      exact: "ngrok.io"
 
-  - id: tunnel-service
-    description: Tunneling service endpoint
-    criticality: suspicious
-    confidence: 0.85
-    attack: "T1572"
+  - id: ngrok-com
+    description: ngrok.com domain
+    criticality: inert
+    confidence: 0.7
     file_types: [javascript, typescript]
     condition:
       type: string
-      regex: "serveo\\.net|localtunnel\\.me|localhost\\.run|pinggy\\.io"
+      exact: "ngrok.com"
+
+  - id: tcp-ngrok
+    description: tcp.ngrok endpoint
+    criticality: inert
+    confidence: 0.8
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "tcp.ngrok"
+
+  # === Tunnel service atomic indicators ===
+  - id: serveo-net
+    description: serveo.net tunnel service
+    criticality: inert
+    confidence: 0.7
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "serveo.net"
+
+  - id: localtunnel-me
+    description: localtunnel.me tunnel service
+    criticality: inert
+    confidence: 0.7
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "localtunnel.me"
+
+  - id: localhost-run
+    description: localhost.run tunnel service
+    criticality: inert
+    confidence: 0.7
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "localhost.run"
+
+  - id: pinggy-io
+    description: pinggy.io tunnel service
+    criticality: inert
+    confidence: 0.7
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "pinggy.io"
 
   # Lock File Pattern (single instance)
   - id: lock-file
@@ -132,3 +193,41 @@ traits:
           condition:
             any of ($socket*) and any of ($event*) and any of ($exec*) and none of ($http_res*)
         }
+
+composite_rules:
+  - id: net-socket
+    description: Net socket creation (potential reverse shell)
+    criticality: notable
+    confidence: 0.8
+    file_types: [javascript, typescript]
+    requires_count: 1
+    conditions:
+      - id: new-net-socket
+      - id: net-createConnection
+      - id: net-connect
+
+  - id: ngrok-tunnel
+    description: Ngrok tunnel endpoint (C2 tunneling)
+    criticality: malicious
+    confidence: 0.95
+    mbc: "C0002"
+    attack: "T1572"
+    file_types: [javascript, typescript]
+    requires_count: 1
+    conditions:
+      - id: ngrok-io
+      - id: ngrok-com
+      - id: tcp-ngrok
+
+  - id: tunnel-service
+    description: Tunneling service endpoint
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1572"
+    file_types: [javascript, typescript]
+    requires_count: 1
+    conditions:
+      - id: serveo-net
+      - id: localtunnel-me
+      - id: localhost-run
+      - id: pinggy-io

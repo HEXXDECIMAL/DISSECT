@@ -186,10 +186,8 @@ traits:
       type: string
       regex: "(?i)\\.electrum/wallets"
 
-composite_rules:
-  # Detects multiple wallet extension IDs (strong indicator of wallet stealer)
-  - id: multi-wallet-targeting
-    description: Multiple crypto wallet extensions targeted (wallet stealer)
+  - id: multi-wallet-yara
+    description: Multiple wallet extensions via YARA
     criticality: suspicious
     confidence: 0.95
     attack: "T1555.003"
@@ -224,3 +222,15 @@ composite_rules:
           condition:
             3 of them
         }
+
+composite_rules:
+  # Detects multiple wallet extension IDs (strong indicator of wallet stealer)
+  - id: multi-wallet-targeting
+    description: Multiple crypto wallet extensions targeted (wallet stealer)
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1555.003"
+    mbc: "B0028"
+    file_types: [python, javascript, elf, pe, macho]
+    requires_all:
+      - id: multi-wallet-yara

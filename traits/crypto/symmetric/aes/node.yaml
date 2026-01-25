@@ -37,36 +37,68 @@ traits:
       node_type: call_expression
       pattern: "createDecipheriv"
 
-  # Specific AES Modes
-  - id: aes-128-ctr
-    description: AES-128-CTR encryption (stream cipher mode)
-    criticality: notable
-    confidence: 0.85
+  # === AES-128-CTR atomic indicators ===
+  - id: aes-128-ctr-dash
+    description: AES-128-CTR with dashes
+    criticality: inert
+    confidence: 0.75
     mbc: "C0027"
     file_types: [javascript, typescript]
     condition:
       type: string
-      regex: "aes-128-ctr|aes128ctr"
+      exact: "aes-128-ctr"
 
-  - id: aes-256-cbc
-    description: AES-256-CBC encryption
-    criticality: notable
-    confidence: 0.85
+  - id: aes128ctr-nodash
+    description: AES-128-CTR without dashes
+    criticality: inert
+    confidence: 0.75
     mbc: "C0027"
     file_types: [javascript, typescript]
     condition:
       type: string
-      regex: "aes-256-cbc|aes256cbc"
+      exact: "aes128ctr"
 
-  - id: aes-256-gcm
-    description: AES-256-GCM authenticated encryption
-    criticality: notable
-    confidence: 0.85
+  # === AES-256-CBC atomic indicators ===
+  - id: aes-256-cbc-dash
+    description: AES-256-CBC with dashes
+    criticality: inert
+    confidence: 0.75
     mbc: "C0027"
     file_types: [javascript, typescript]
     condition:
       type: string
-      regex: "aes-256-gcm|aes256gcm"
+      exact: "aes-256-cbc"
+
+  - id: aes256cbc-nodash
+    description: AES-256-CBC without dashes
+    criticality: inert
+    confidence: 0.75
+    mbc: "C0027"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "aes256cbc"
+
+  # === AES-256-GCM atomic indicators ===
+  - id: aes-256-gcm-dash
+    description: AES-256-GCM with dashes
+    criticality: inert
+    confidence: 0.75
+    mbc: "C0027"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "aes-256-gcm"
+
+  - id: aes256gcm-nodash
+    description: AES-256-GCM without dashes
+    criticality: inert
+    confidence: 0.75
+    mbc: "C0027"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "aes256gcm"
 
   # Encryption with Network Activity
   - id: encrypted-c2
@@ -135,3 +167,40 @@ traits:
           condition:
             any of ($gzip*) and any of ($crypto*)
         }
+
+composite_rules:
+  # AES-128-CTR composite
+  - id: aes-128-ctr
+    description: AES-128-CTR encryption (stream cipher mode)
+    criticality: notable
+    confidence: 0.85
+    mbc: "C0027"
+    file_types: [javascript, typescript]
+    requires_count: 1
+    conditions:
+      - id: aes-128-ctr-dash
+      - id: aes128ctr-nodash
+
+  # AES-256-CBC composite
+  - id: aes-256-cbc
+    description: AES-256-CBC encryption
+    criticality: notable
+    confidence: 0.85
+    mbc: "C0027"
+    file_types: [javascript, typescript]
+    requires_count: 1
+    conditions:
+      - id: aes-256-cbc-dash
+      - id: aes256cbc-nodash
+
+  # AES-256-GCM composite
+  - id: aes-256-gcm
+    description: AES-256-GCM authenticated encryption
+    criticality: notable
+    confidence: 0.85
+    mbc: "C0027"
+    file_types: [javascript, typescript]
+    requires_count: 1
+    conditions:
+      - id: aes-256-gcm-dash
+      - id: aes256gcm-nodash

@@ -35,16 +35,26 @@ traits:
       type: string
       exact: "browser_cookie3"
 
-  - id: hackbrowserdata
-    description: HackBrowserData tool reference
-    criticality: suspicious
-    confidence: 0.95
+  # === HackBrowserData atomic indicators ===
+  - id: hackbrowserdata-lower
+    description: hackbrowserdata lowercase reference
+    criticality: notable
+    confidence: 0.85
     attack: "T1555.003"
     mbc: "B0028"
     condition:
       type: string
-      regex: "\\bhackbrowserdata\\b|HackBrowserData"
-      case_insensitive: true
+      regex: "\\bhackbrowserdata\\b"
+
+  - id: hackbrowserdata-camel
+    description: HackBrowserData camelcase reference
+    criticality: notable
+    confidence: 0.85
+    attack: "T1555.003"
+    mbc: "B0028"
+    condition:
+      type: string
+      exact: "HackBrowserData"
 
   # === YARA-based Detection Traits ===
 
@@ -86,7 +96,7 @@ traits:
 
   - id: full-stealer-detected-yara
     description: YARA pattern for complete browser stealer
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.98
     attack: "T1555.003"
     mbc: "B0028"
@@ -169,6 +179,18 @@ traits:
         }
 
 composite_rules:
+  # HackBrowserData composite
+  - id: hackbrowserdata
+    description: HackBrowserData tool reference
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1555.003"
+    mbc: "B0028"
+    requires_count: 1
+    conditions:
+      - id: hackbrowserdata-lower
+      - id: hackbrowserdata-camel
+
   # Multi-browser targeting detection
   - id: multi-browser-theft
     description: Multi-browser credential theft
@@ -183,7 +205,7 @@ composite_rules:
   # Full browser stealer with decryption and exfiltration
   - id: full-stealer-detected
     description: Complete browser credential stealer (theft + decrypt + exfil)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.98
     attack: "T1555.003"
     mbc: "B0028"

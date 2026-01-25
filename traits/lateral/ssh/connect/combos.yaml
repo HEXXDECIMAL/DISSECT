@@ -1,6 +1,10 @@
 # Lateral Movement - SSH Worm Composite Rules
 # ATT&CK: T1021.004 (Remote Services: SSH)
 
+defaults:
+  # SSH-related strings can be embedded in any file type
+  file_types: [*]
+
 composite_rules:
   # === SSH Worm Detection ===
 
@@ -10,7 +14,6 @@ composite_rules:
     confidence: 0.95
     attack: "T1021.004"
     mbc: "E1021"
-    file_types: [shell]
     requires_all:
       - id: dot-ssh-ref
     requires_count: 3
@@ -35,7 +38,6 @@ composite_rules:
     criticality: suspicious
     confidence: 0.85
     attack: "T1552.004"
-    file_types: [elf, shell]
     requires_all:
       - id: dot-ssh-ref
     requires_any:
@@ -49,7 +51,6 @@ composite_rules:
     criticality: suspicious
     confidence: 0.8
     attack: "T1018"
-    file_types: [elf, shell]
     requires_count: 2
     conditions:
       - id: authorized-keys

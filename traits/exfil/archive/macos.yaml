@@ -8,32 +8,56 @@ defaults:
   criticality: notable
 
 traits:
-  # ditto with compression
-  - id: ditto-compress
-    description: "ditto archive creation with compression"
-    criticality: suspicious
-    confidence: 0.85
-    condition:
-      type: string
-      regex: "ditto\\s+-c\\s+-k|ditto.*--keepParent.*-c"
-
-  # ditto with sequesterRsrc (common in stealers)
-  - id: ditto-sequester
-    description: "ditto with resource fork handling"
-    criticality: suspicious
-    confidence: 0.9
-    condition:
-      type: string
-      regex: "ditto.*--sequesterRsrc|ditto.*-rsrc"
-
-  # zip command
-  - id: zip-create
-    description: "zip archive creation"
+  # === ditto compress atomic indicators ===
+  - id: ditto-ck-flags
+    description: ditto -c -k compression flags
     criticality: notable
-    confidence: 0.7
+    confidence: 0.75
     condition:
       type: string
-      regex: "\\bzip\\s+-[rq]|\\bzip\\s+.*\\.zip"
+      regex: "ditto\\s+-c\\s+-k"
+
+  - id: ditto-keepparent
+    description: ditto --keepParent compression
+    criticality: notable
+    confidence: 0.75
+    condition:
+      type: string
+      regex: "ditto.*--keepParent.*-c"
+
+  # === ditto sequester atomic indicators ===
+  - id: ditto-sequesterrsrc
+    description: ditto --sequesterRsrc flag
+    criticality: notable
+    confidence: 0.8
+    condition:
+      type: string
+      exact: "--sequesterRsrc"
+
+  - id: ditto-rsrc-flag
+    description: ditto -rsrc flag
+    criticality: notable
+    confidence: 0.8
+    condition:
+      type: string
+      regex: "ditto.*-rsrc"
+
+  # === zip create atomic indicators ===
+  - id: zip-recursive-quiet
+    description: zip -r or -q flag
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      regex: "\\bzip\\s+-[rq]"
+
+  - id: zip-output-file
+    description: zip with .zip output
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      regex: "\\bzip\\s+.*\\.zip"
 
   # === tmp archive atomic indicators ===
   - id: tmp-zip-path
@@ -61,6 +85,36 @@ traits:
       regex: "/var/tmp/.*\\.zip"
 
 composite_rules:
+  # ditto compress composite
+  - id: ditto-compress
+    description: ditto archive creation with compression
+    criticality: suspicious
+    confidence: 0.85
+    requires_count: 1
+    conditions:
+      - id: ditto-ck-flags
+      - id: ditto-keepparent
+
+  # ditto sequester composite
+  - id: ditto-sequester
+    description: ditto with resource fork handling
+    criticality: suspicious
+    confidence: 0.9
+    requires_count: 1
+    conditions:
+      - id: ditto-sequesterrsrc
+      - id: ditto-rsrc-flag
+
+  # zip create composite
+  - id: zip-create
+    description: zip archive creation
+    criticality: notable
+    confidence: 0.7
+    requires_count: 1
+    conditions:
+      - id: zip-recursive-quiet
+      - id: zip-output-file
+
   # tmp archive composite
   - id: tmp-archive
     description: "Archive creation in /tmp"
