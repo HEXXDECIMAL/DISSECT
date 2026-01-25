@@ -3,14 +3,22 @@
 # MBC: B0030 (Remote Access)
 
 traits:
-  # Family specific artifact
-  - id: backdoor/systembc/artifact
-    description: SystemBC backdoor identifier
-    criticality: notable
-    confidence: 0.7
+  # === SystemBC artifact atomic indicators ===
+  - id: backdoor/systembc/name
+    description: systembc string reference
+    criticality: inert
+    confidence: 0.6
     condition:
       type: string
-      regex: "systembc|socks5_proxy"
+      exact: "systembc"
+
+  - id: backdoor/systembc/socks5
+    description: socks5_proxy string reference
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "socks5_proxy"
 
   # SystemBC SOCKS5 proxy capability
   - id: comm/proxy/socks5-server
@@ -83,6 +91,16 @@ traits:
         }
 
 composite_rules:
+  # SystemBC artifact composite
+  - id: backdoor/systembc/artifact
+    description: SystemBC backdoor identifier
+    criticality: notable
+    confidence: 0.7
+    requires_count: 1
+    conditions:
+      - id: backdoor/systembc/name
+      - id: backdoor/systembc/socks5
+
   - id: backdoor/systembc/proxy-shell
     description: SystemBC proxy shell behavior
     criticality: hostile

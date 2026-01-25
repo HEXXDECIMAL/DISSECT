@@ -81,63 +81,304 @@ traits:
       # Ethereum-specific patterns, avoid matching OS "keystore" services
       regex: "UTC--.*--[a-fA-F0-9]{40}|ethereum.*keystore|keystore.*ethereum|web3.*keystore|\\.json.*wallet"
 
-  # Mnemonic/seed phrase terms (for composite rules)
-  - id: mnemonic-terms
-    description: "Mnemonic or seed phrase terminology"
-    confidence: 0.7
+  # === Mnemonic/seed phrase term atomic indicators ===
+  - id: mnemonic-word
+    description: mnemonic term
+    criticality: inert
+    confidence: 0.5
     condition:
       type: string
-      regex: "mnemonic|seed_phrase|seedphrase|recovery_phrase|secret_words"
+      exact: "mnemonic"
 
-  # Network exfiltration patterns
-  - id: network-exfil
-    description: "Network request patterns for exfiltration"
-    confidence: 0.7
+  - id: seed-phrase-underscore
+    description: seed_phrase term
+    criticality: inert
+    confidence: 0.5
     condition:
       type: string
-      regex: "requests\\.(post|get)|urllib|socket\\.|fetch\\(|XMLHttpRequest"
+      exact: "seed_phrase"
 
-  # Wallet/crypto context terms
-  - id: wallet-context
-    description: "Wallet or cryptocurrency context"
-    confidence: 0.7
+  - id: seedphrase-word
+    description: seedphrase term
+    criticality: inert
+    confidence: 0.5
     condition:
       type: string
-      regex: "wallet|crypto|metamask|phantom|browser"
+      exact: "seedphrase"
 
-  # Private key variable patterns
-  - id: private-key-var
-    description: "Private key variable or property"
-    confidence: 0.7
+  - id: recovery-phrase-word
+    description: recovery_phrase term
+    criticality: inert
+    confidence: 0.5
     condition:
       type: string
-      regex: "private_?key|privateKey"
+      exact: "recovery_phrase"
 
-  # Keystore reference patterns
-  - id: keystore-ref
-    description: "Keystore reference"
-    confidence: 0.7
+  - id: secret-words-word
+    description: secret_words term
+    criticality: inert
+    confidence: 0.5
     condition:
       type: string
-      regex: "keystore|keystores"
+      exact: "secret_words"
 
-  # Derivation path patterns (for composite rules)
-  - id: derivation-pattern
-    description: "Wallet derivation path pattern"
-    confidence: 0.7
+  # === Network exfiltration atomic indicators ===
+  - id: requests-post
+    description: Python requests.post call
+    criticality: inert
+    confidence: 0.5
     condition:
       type: string
-      regex: "derivation.*path|m/44'/"
+      regex: "requests\\.post"
 
-  # BIP-39 reference patterns (for composite rules)
-  - id: bip39-ref
-    description: "BIP-39 or wordlist reference"
-    confidence: 0.7
+  - id: requests-get
+    description: Python requests.get call
+    criticality: inert
+    confidence: 0.4
     condition:
       type: string
-      regex: "bip39|bip-39|wordlist"
+      regex: "requests\\.get"
+
+  - id: urllib-word
+    description: urllib reference
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      exact: "urllib"
+
+  - id: socket-dot
+    description: socket module usage
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      regex: "socket\\."
+
+  - id: fetch-call
+    description: JavaScript fetch call
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      regex: "fetch\\("
+
+  - id: xmlhttprequest-word
+    description: XMLHttpRequest reference
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      exact: "XMLHttpRequest"
+
+  # === Wallet/crypto context atomic indicators ===
+  - id: wallet-word
+    description: wallet term
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "wallet"
+
+  - id: crypto-word
+    description: crypto term
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "crypto"
+
+  - id: metamask-word
+    description: MetaMask reference
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "metamask"
+
+  - id: phantom-word
+    description: Phantom wallet reference
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "phantom"
+
+  - id: browser-word
+    description: browser term
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      exact: "browser"
+
+  # === Private key variable atomic indicators ===
+  - id: private-key-underscore
+    description: private_key variable
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "private_key"
+
+  - id: privatekey-nospace
+    description: privatekey variable (no separator)
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "privatekey"
+
+  - id: privatekey-camel
+    description: privateKey variable (camelCase)
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "privateKey"
+
+  # === Keystore reference atomic indicators ===
+  - id: keystore-singular
+    description: keystore reference
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "keystore"
+
+  - id: keystores-plural
+    description: keystores reference (plural)
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "keystores"
+
+  # === Derivation path atomic indicators ===
+  - id: derivation-path-words
+    description: derivation path words
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: "derivation.*path"
+
+  - id: bip44-path-prefix
+    description: BIP-44 derivation path prefix (m/44'/)
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "m/44'/"
+
+  # === BIP-39 reference atomic indicators ===
+  - id: bip39-exact
+    description: bip39 reference
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "bip39"
+
+  - id: bip-39-hyphen
+    description: bip-39 reference (hyphenated)
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "bip-39"
+
+  - id: wordlist-word
+    description: wordlist reference
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      exact: "wordlist"
 
 composite_rules:
+  # Mnemonic terms composite
+  - id: mnemonic-terms
+    description: Mnemonic or seed phrase terminology
+    criticality: notable
+    confidence: 0.7
+    requires_count: 1
+    conditions:
+      - id: mnemonic-word
+      - id: seed-phrase-underscore
+      - id: seedphrase-word
+      - id: recovery-phrase-word
+      - id: secret-words-word
+
+  # Wallet context composite
+  - id: wallet-context
+    description: Wallet or cryptocurrency context
+    criticality: notable
+    confidence: 0.7
+    requires_count: 1
+    conditions:
+      - id: wallet-word
+      - id: crypto-word
+      - id: metamask-word
+      - id: phantom-word
+      - id: browser-word
+
+  # Network exfiltration composite
+  - id: network-exfil
+    description: Network request patterns for exfiltration
+    criticality: notable
+    confidence: 0.7
+    requires_count: 1
+    conditions:
+      - id: requests-post
+      - id: requests-get
+      - id: urllib-word
+      - id: socket-dot
+      - id: fetch-call
+      - id: xmlhttprequest-word
+
+  # Private key variable composite
+  - id: private-key-var
+    description: Private key variable or property
+    criticality: notable
+    confidence: 0.7
+    requires_count: 1
+    conditions:
+      - id: private-key-underscore
+      - id: privatekey-nospace
+      - id: privatekey-camel
+
+  # Keystore reference composite
+  - id: keystore-ref
+    description: Keystore reference
+    criticality: notable
+    confidence: 0.7
+    requires_count: 1
+    conditions:
+      - id: keystore-singular
+      - id: keystores-plural
+
+  # Derivation path composite
+  - id: derivation-pattern
+    description: Wallet derivation path pattern
+    criticality: notable
+    confidence: 0.7
+    requires_count: 1
+    conditions:
+      - id: derivation-path-words
+      - id: bip44-path-prefix
+
+  # BIP-39 reference composite
+  - id: bip39-ref
+    description: BIP-39 or wordlist reference
+    criticality: notable
+    confidence: 0.7
+    requires_count: 1
+    conditions:
+      - id: bip39-exact
+      - id: bip-39-hyphen
+      - id: wordlist-word
+
   # Mnemonic extraction with file/network operations
   - id: stealer-pattern
     description: "Mnemonic phrase theft (extraction + exfiltration)"

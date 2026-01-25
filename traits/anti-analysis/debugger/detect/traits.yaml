@@ -29,16 +29,28 @@ traits:
       pattern: getpid
     platforms: [linux, unix, macos]
 
-  - id: ptrace-traceme-or-deny
-    description: PTRACE_TRACEME or PT_DENY_ATTACH anti-debugging constants
-    criticality: suspicious
+  # === ptrace constant atomic indicators ===
+  - id: ptrace-traceme
+    description: PTRACE_TRACEME constant
+    criticality: notable
     mbc: "B0001.m01"
     attack: "T1622"
-    confidence: 0.8
+    confidence: 0.7
     condition:
       type: string
-      regex: "PTRACE_TRACEME|PT_DENY_ATTACH"
-    platforms: [linux, unix, macos]
+      exact: "PTRACE_TRACEME"
+    platforms: [linux, unix]
+
+  - id: pt-deny-attach
+    description: PT_DENY_ATTACH constant
+    criticality: notable
+    mbc: "B0001.m01"
+    attack: "T1622"
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "PT_DENY_ATTACH"
+    platforms: [macos]
 
   - id: isatty
     description: Detect if running in terminal
@@ -137,3 +149,16 @@ traits:
       type: string
       exact: "QueryPerformanceCounter"
     platforms: [windows]
+
+composite_rules:
+  # ptrace constant composite
+  - id: ptrace-traceme-or-deny
+    description: PTRACE_TRACEME or PT_DENY_ATTACH anti-debugging constants
+    criticality: suspicious
+    mbc: "B0001.m01"
+    attack: "T1622"
+    confidence: 0.8
+    requires_count: 1
+    conditions:
+      - id: ptrace-traceme
+      - id: pt-deny-attach

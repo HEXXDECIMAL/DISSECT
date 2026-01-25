@@ -9,14 +9,22 @@ defaults:
   criticality: suspicious
 
 traits:
-  # Ethereum address regex pattern
-  - id: ethereum-regex
-    description: "Ethereum address regex pattern (0x...40 hex)"
-    confidence: 0.9
-    criticality: suspicious
+  # === Ethereum regex atomic indicators ===
+  - id: ethereum-regex-40
+    description: Ethereum 40-char hex regex
+    confidence: 0.8
+    criticality: notable
     condition:
       type: string
-      regex: "0x\\[a-fA-F0-9\\]\\{40\\}|\\\\b0x\\[a-fA-F0-9\\]"
+      regex: "0x\\[a-fA-F0-9\\]\\{40\\}"
+
+  - id: ethereum-regex-boundary
+    description: Ethereum regex with word boundary
+    confidence: 0.8
+    criticality: notable
+    condition:
+      type: string
+      regex: "\\\\b0x\\[a-fA-F0-9\\]"
 
   # Bitcoin Legacy address regex (1xxx)
   - id: bitcoin-legacy-regex
@@ -45,14 +53,22 @@ traits:
       type: string
       regex: "bitcoincash:\\[qp\\]\\[a-zA-Z0-9\\]"
 
-  # Litecoin address regex
-  - id: litecoin-regex
-    description: "Litecoin address regex pattern"
-    confidence: 0.9
-    criticality: suspicious
+  # === Litecoin regex atomic indicators ===
+  - id: litecoin-segwit-regex
+    description: Litecoin SegWit address regex (ltc1)
+    confidence: 0.8
+    criticality: notable
     condition:
       type: string
-      regex: "ltc1\\[qpzry9x8gf2tvdw0s3jn54khce6mua7l\\]|\\[mlML\\]\\[a-km-zA-HJ-NP-Z1-9\\]"
+      regex: "ltc1\\[qpzry9x8gf2tvdw0s3jn54khce6mua7l\\]"
+
+  - id: litecoin-legacy-regex
+    description: Litecoin legacy address regex (m/M/l/L)
+    confidence: 0.8
+    criticality: notable
+    condition:
+      type: string
+      regex: "\\[mlML\\]\\[a-km-zA-HJ-NP-Z1-9\\]"
 
   # TRON address regex (Txxx)
   - id: tron-regex
@@ -100,6 +116,26 @@ traits:
       regex: "bitcoincash:"
 
 composite_rules:
+  # Ethereum regex composite
+  - id: ethereum-regex
+    description: Ethereum address regex pattern (0x...40 hex)
+    confidence: 0.9
+    criticality: suspicious
+    requires_count: 1
+    conditions:
+      - id: ethereum-regex-40
+      - id: ethereum-regex-boundary
+
+  # Litecoin regex composite
+  - id: litecoin-regex
+    description: Litecoin address regex pattern
+    confidence: 0.9
+    criticality: suspicious
+    requires_count: 1
+    conditions:
+      - id: litecoin-segwit-regex
+      - id: litecoin-legacy-regex
+
   # Multiple cryptocurrency address patterns = clipboard hijacker
   - id: multi-crypto-regex
     description: "Multiple cryptocurrency address regex patterns (clipboard hijacker)"

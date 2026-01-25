@@ -3,16 +3,66 @@
 # ATT&CK: T1497.001 (Virtualization/Sandbox Evasion: System Checks)
 
 traits:
-  - id: hostname-sandbox
-    description: Common sandbox hostnames
-    criticality: suspicious
+  # === Sandbox hostname atomic indicators ===
+  - id: hostname-19olltd
+    description: DESKTOP-19OLLTD sandbox hostname
+    criticality: notable
     mbc: "B0007"
     attack: "T1497.001"
-    confidence: 0.8
+    confidence: 0.7
     condition:
       type: string
-      regex: "(DESKTOP-19OLLTD|DESKTOP-B0T93D6|DESKTOP-VRSQLAG|JOHN-PC|JULIA-PC|LISA-PC)"
-      case_insensitive: true
+      exact: "DESKTOP-19OLLTD"
+
+  - id: hostname-b0t93d6
+    description: DESKTOP-B0T93D6 sandbox hostname
+    criticality: notable
+    mbc: "B0007"
+    attack: "T1497.001"
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "DESKTOP-B0T93D6"
+
+  - id: hostname-vrsqlag
+    description: DESKTOP-VRSQLAG sandbox hostname
+    criticality: notable
+    mbc: "B0007"
+    attack: "T1497.001"
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "DESKTOP-VRSQLAG"
+
+  - id: hostname-john-pc
+    description: JOHN-PC sandbox hostname
+    criticality: notable
+    mbc: "B0007"
+    attack: "T1497.001"
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "JOHN-PC"
+
+  - id: hostname-julia-pc
+    description: JULIA-PC sandbox hostname
+    criticality: notable
+    mbc: "B0007"
+    attack: "T1497.001"
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "JULIA-PC"
+
+  - id: hostname-lisa-pc
+    description: LISA-PC sandbox hostname
+    criticality: notable
+    mbc: "B0007"
+    attack: "T1497.001"
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "LISA-PC"
 
   - id: username-sandbox
     description: Common sandbox usernames
@@ -38,12 +88,63 @@ traits:
       type: symbol
       pattern: sleep|Sleep|usleep
 
+  # === Sandbox artifact file path atomic indicators ===
+  - id: path-c-analysis
+    description: C:\analysis sandbox path
+    criticality: notable
+    mbc: "B0007"
+    attack: "T1497.001"
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "C:\\analysis"
+
+  - id: path-c-sandbox
+    description: C:\sandbox sandbox path
+    criticality: notable
+    mbc: "B0007"
+    attack: "T1497.001"
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "C:\\sandbox"
+
+  - id: path-tmp-analysis
+    description: /tmp/analysis sandbox path
+    criticality: notable
+    mbc: "B0007"
+    attack: "T1497.001"
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "/tmp/analysis"
+
+composite_rules:
+  # Sandbox hostname composite
+  - id: hostname-sandbox
+    description: Common sandbox hostnames
+    criticality: suspicious
+    mbc: "B0007"
+    attack: "T1497.001"
+    confidence: 0.8
+    requires_count: 1
+    conditions:
+      - id: hostname-19olltd
+      - id: hostname-b0t93d6
+      - id: hostname-vrsqlag
+      - id: hostname-john-pc
+      - id: hostname-julia-pc
+      - id: hostname-lisa-pc
+
+  # Sandbox file path composite
   - id: file-check-sandbox
     description: Sandbox artifact file checks
     criticality: suspicious
     mbc: "B0007"
     attack: "T1497.001"
     confidence: 0.7
-    condition:
-      type: string
-      regex: "(C:\\\\analysis|C:\\\\sandbox|/tmp/analysis)"
+    requires_count: 1
+    conditions:
+      - id: path-c-analysis
+      - id: path-c-sandbox
+      - id: path-tmp-analysis

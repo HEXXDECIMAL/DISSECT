@@ -23,22 +23,69 @@ traits:
       type: string
       exact: "NODE_AUTH_TOKEN"
 
+  # === npm config token atomic indicators ===
+  - id: npm-config-token-lower
+    description: npm_config token (lowercase)
+    criticality: notable
+    confidence: 0.8
+    attack: "T1552.001"
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "npm_config.*token"
+
+  - id: npm-config-token-upper
+    description: NPM_CONFIG TOKEN (uppercase)
+    criticality: notable
+    confidence: 0.8
+    attack: "T1552.001"
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: "NPM_CONFIG.*TOKEN"
+
+  # === npmrc access atomic indicators ===
+  - id: dot-npmrc
+    description: .npmrc file reference
+    criticality: notable
+    confidence: 0.8
+    attack: "T1552.001"
+    file_types: [javascript]
+    condition:
+      type: string
+      exact: ".npmrc"
+
+  - id: npmrc-word
+    description: npmrc word reference
+    criticality: notable
+    confidence: 0.8
+    attack: "T1552.001"
+    file_types: [javascript]
+    condition:
+      type: string
+      exact: "npmrc"
+
+composite_rules:
+  # npm config token composite
   - id: npm-config-token
     description: npm_config token access
     criticality: suspicious
     confidence: 0.9
     attack: "T1552.001"
     file_types: [javascript]
-    condition:
-      type: string
-      regex: "npm_config.*token|NPM_CONFIG.*TOKEN"
+    requires_count: 1
+    conditions:
+      - id: npm-config-token-lower
+      - id: npm-config-token-upper
 
+  # npmrc access composite
   - id: npmrc-access
     description: .npmrc file access (contains tokens)
     criticality: suspicious
     confidence: 0.9
     attack: "T1552.001"
     file_types: [javascript]
-    condition:
-      type: string
-      regex: "\\.npmrc|npmrc"
+    requires_count: 1
+    conditions:
+      - id: dot-npmrc
+      - id: npmrc-word

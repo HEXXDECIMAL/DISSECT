@@ -3,14 +3,24 @@
 # ATT&CK: T1552.001 (Credentials In Files)
 
 traits:
-  - id: github-token
-    description: GITHUB_TOKEN environment variable access
-    criticality: suspicious
-    confidence: 0.95
+  # === GitHub token atomic indicators ===
+  - id: github-token-var
+    description: GITHUB_TOKEN environment variable
+    criticality: notable
+    confidence: 0.85
     attack: "T1552.001"
     condition:
       type: string
-      regex: "GITHUB_TOKEN|GH_TOKEN"
+      exact: "GITHUB_TOKEN"
+
+  - id: gh-token-var
+    description: GH_TOKEN environment variable
+    criticality: notable
+    confidence: 0.85
+    attack: "T1552.001"
+    condition:
+      type: string
+      exact: "GH_TOKEN"
 
   - id: aws-access-key
     description: AWS_ACCESS_KEY environment variable access
@@ -83,3 +93,15 @@ traits:
     condition:
       type: string
       exact: "ANTHROPIC_API_KEY"
+
+composite_rules:
+  # GitHub token composite
+  - id: github-token
+    description: GitHub token environment variable access
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1552.001"
+    requires_count: 1
+    conditions:
+      - id: github-token-var
+      - id: gh-token-var
