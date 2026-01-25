@@ -78,16 +78,7 @@ traits:
             any of ($o_pipe*)
         }
 
-  - id: mirai-credential
-    description: "Mirai botnet default credential (7ujMko0admin)"
-    criticality: suspicious
-    confidence: 0.99
-    attack: "T1110.001"
-    file_types: [elf]
-    platforms: [linux]
-    condition:
-      type: string
-      exact: "7ujMko0admin"
+  # NOTE: Mirai credentials are defined in lateral/brute-force/iot-creds/traits.yaml
 
   - id: telnet-target
     description: "Telnet service targeting"
@@ -137,7 +128,7 @@ composite_rules:
     requires_count: 2
     conditions:
       - type: trait
-        id: mirai-credential
+        id: lateral/brute-force/iot-creds/mirai-cred-admin
       - type: trait
         id: busybox
       - type: trait

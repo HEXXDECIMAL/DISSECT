@@ -92,7 +92,7 @@ traits:
   # Crypto/Wallet keys
   - id: node-crypto
     description: Accesses cryptocurrency private keys
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1552.001"
     file_types: [javascript, typescript]
@@ -140,17 +140,19 @@ composite_rules:
     criticality: hostile
     confidence: 0.95
     attack: "T1552.001"
-    requires_count: 2
+    mbc: "B0028"
+    file_types: [javascript, typescript]
+    requires_count: 3
     conditions:
       - type: trait
-        id: credential/environment/secret-access/node-aws
+        id: node-aws
       - type: trait
-        id: credential/environment/secret-access/node-git-token
+        id: node-git-token
       - type: trait
-        id: credential/environment/secret-access/node-npm-token
+        id: node-npm-token
       - type: trait
-        id: credential/environment/secret-access/node-discord
+        id: node-discord
       - type: trait
-        id: credential/environment/secret-access/node-database
+        id: node-database
       - type: trait
-        id: credential/environment/secret-access/node-crypto
+        id: node-crypto

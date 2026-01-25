@@ -2,6 +2,9 @@
 # MBC: C0047 (Delete File)
 # ATT&CK: T1070.004
 
+defaults:
+  file_types: [elf, macho, so, dylib, c]
+
 traits:
   - id: rmdir
     description: Remove directories

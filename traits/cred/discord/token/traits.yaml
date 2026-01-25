@@ -29,7 +29,7 @@ traits:
   # Discord token literal pattern (actual token format)
   - id: literal-pattern
     description: Discord token in code
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     condition:
       type: string
@@ -57,7 +57,7 @@ traits:
   # Discord billing endpoint (payment theft)
   - id: api-billing
     description: Discord billing/payment API endpoint
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     condition:
       type: string
@@ -66,7 +66,7 @@ traits:
   # Discord payment sources endpoint
   - id: api-payment-sources
     description: Discord payment sources API endpoint
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     condition:
       type: string
@@ -94,10 +94,11 @@ composite_rules:
   # Discord token stealer composite
   - id: stealer-detected
     description: Discord token stealer detected
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.98
     attack: "T1555.003"
     mbc: "B0030"
+    file_types: [javascript, python, elf, pe, macho]
     condition:
       type: yara
       source: |
@@ -131,9 +132,11 @@ composite_rules:
   # Discord token grabber with browser enumeration
   - id: browser-grabber
     description: Discord token grabber targeting multiple browsers
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1555.003"
+    mbc: "B0030"
+    file_types: [javascript, python, elf, pe, macho]
     condition:
       type: yara
       source: |

@@ -7,6 +7,7 @@ traits:
     description: SSL/TLS connection
     criticality: inert
     confidence: 0.66
+    file_types: [elf, macho, so, dylib, c]
     condition:
       type: symbol
       pattern: SSL_connect|SSL_new|SSL_CTX_new|TLS_client_method

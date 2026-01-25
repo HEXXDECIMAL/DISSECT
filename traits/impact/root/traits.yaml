@@ -5,7 +5,7 @@ traits:
   # Become Root Pattern (AST Structural)
   - id: credential-manipulation
     description: Structural pattern of resetting multiple credential fields to 0 (root)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.99
     attack: "T1068"
     file_types: [c]

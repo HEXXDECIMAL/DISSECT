@@ -163,7 +163,7 @@ traits:
   # Comprehensive VM evasion
   - id: comprehensive-evasion
     description: Multiple VM detection techniques (evasion attempt)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1497.001"
     file_types: [python, shell, javascript]

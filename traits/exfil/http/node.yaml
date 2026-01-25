@@ -129,9 +129,10 @@ composite_rules:
   # Collect and exfil pattern
   - id: node-collect-exfil
     description: Collects system info and exfiltrates via HTTP
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1041"
+    file_types: [javascript, typescript]
     requires_all:
       - type: trait
         id: discovery/system/node

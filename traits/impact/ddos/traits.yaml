@@ -6,7 +6,7 @@ traits:
   # SYN Flood attack
   - id: syn-flood-logic
     description: SYN flood attack implementation
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     attack: "T1498"
     file_types: [elf, macho, pe, so, dylib]
@@ -33,7 +33,7 @@ traits:
   # UDP Flood attack
   - id: udp-flood-logic
     description: UDP flood attack implementation
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     attack: "T1498"
     file_types: [elf, macho, pe, so, dylib]
@@ -52,7 +52,7 @@ traits:
   # DNS Amplification attack
   - id: dns-amp-logic
     description: DNS amplification attack implementation
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     attack: "T1498"
     file_types: [elf, macho, pe, so, dylib]

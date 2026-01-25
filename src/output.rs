@@ -204,26 +204,37 @@ fn namespace_long_name(ns: &str) -> &str {
 }
 
 /// Format evidence string (minimal, deduplicated)
+/// Maximum width for evidence display (truncate if longer)
+const EVIDENCE_MAX_WIDTH: usize = 80;
+
 fn format_evidence(finding: &Finding) -> String {
     let mut seen = std::collections::HashSet::new();
     let values: Vec<String> = finding
         .evidence
         .iter()
         .filter_map(|e| {
-            if e.value.len() <= 50 && !finding.description.contains(&e.value) {
-                Some(e.value.clone())
-            } else {
+            // Skip if evidence is already in the description
+            if finding.description.contains(&e.value) {
                 None
+            } else {
+                Some(e.value.clone())
             }
         })
         .filter(|v| seen.insert(v.clone()))
-        .take(3)
+        .take(5)
         .collect();
 
     if values.is_empty() {
-        String::new()
+        return String::new();
+    }
+
+    let joined = values.join(", ");
+
+    // Truncate if too long for display
+    if joined.len() > EVIDENCE_MAX_WIDTH {
+        format!("{}...", &joined[..EVIDENCE_MAX_WIDTH - 3])
     } else {
-        values.join(", ")
+        joined
     }
 }
 

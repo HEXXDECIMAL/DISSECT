@@ -2,7 +2,7 @@
 # Detects daemon/background process behavior common in malware
 # ATT&CK: T1543 (Create or Modify System Process)
 
-composite_rules:
+traits:
   - id: daemon-fork
     description: "Process forking for daemon behavior"
     criticality: notable
@@ -55,38 +55,6 @@ composite_rules:
       type: string
       regex: "/proc/self(/|$)"
 
-  - id: full-daemon
-    description: "Full daemon behavior (fork + setsid + /dev/null)"
-    criticality: suspicious
-    confidence: 0.8
-    attack: "T1543"
-    file_types: [elf]
-    platforms: [linux]
-    requires_all:
-      - type: trait
-        id: daemon-dev-null
-    requires_any:
-      - type: trait
-        id: daemon-fork
-      - type: trait
-        id: daemon-setsid
-
-  - id: stealth-daemon
-    description: "Stealthy daemon (daemon + proc introspection)"
-    criticality: suspicious
-    confidence: 0.75
-    attack: "T1543"
-    file_types: [elf]
-    platforms: [linux]
-    requires_all:
-      - type: trait
-        id: daemon-proc-self
-    requires_any:
-      - type: trait
-        id: daemon-fork
-      - type: trait
-        id: daemon-setsid
-
   # Signal handling for daemon persistence
   - id: signal-ignore-pattern
     description: "Signal handler setup (daemon persistence pattern)"
@@ -123,3 +91,38 @@ composite_rules:
     condition:
       type: string
       regex: "_sigchild|sigchld_handler|handle_sigchld"
+
+composite_rules:
+  - id: full-daemon
+    description: "Full daemon behavior (fork + setsid + /dev/null)"
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1543"
+    mbc: "F0006"
+    file_types: [elf]
+    platforms: [linux]
+    requires_all:
+      - type: trait
+        id: daemon-dev-null
+    requires_any:
+      - type: trait
+        id: daemon-fork
+      - type: trait
+        id: daemon-setsid
+
+  - id: stealth-daemon
+    description: "Stealthy daemon (daemon + proc introspection)"
+    criticality: suspicious
+    confidence: 0.75
+    attack: "T1543"
+    mbc: "F0006"
+    file_types: [elf]
+    platforms: [linux]
+    requires_all:
+      - type: trait
+        id: daemon-proc-self
+    requires_any:
+      - type: trait
+        id: daemon-fork
+      - type: trait
+        id: daemon-setsid

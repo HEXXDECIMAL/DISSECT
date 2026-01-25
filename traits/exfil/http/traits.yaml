@@ -2,6 +2,9 @@
 # MBC: OB0010 (Exfiltration) → E1041 (Exfiltration Over C2 Channel)
 # ATT&CK: T1041 (Exfiltration Over C2 Channel)
 
+defaults:
+  file_types: [elf, macho, so, dylib, pe, dll, c]
+
 traits:
   - id: http-upload
     description: HTTP file upload (potential exfiltration)

@@ -1,3 +1,7 @@
+defaults:
+  file_types: [elf, macho]
+  platforms: [linux, macos]
+
 traits:
   - id: behavior/syscall/pipe2
     description: "Uses pipe2 syscall (inter-process communication)"

@@ -2,7 +2,7 @@ use crate::analyzers::Analyzer;
 use crate::analyzers::{
     comment_metrics::{self, CommentStyle},
     function_metrics::{self, FunctionInfo},
-    identifier_metrics, string_metrics, text_metrics,
+    identifier_metrics, string_metrics, symbol_extraction, text_metrics,
 };
 use crate::capabilities::CapabilityMapper;
 use crate::types::*;
@@ -76,6 +76,14 @@ impl GoAnalyzer {
 
         // Extract functions
         self.extract_functions(&root, content.as_bytes(), &mut report);
+
+        // Extract function calls as symbols for symbol-based rule matching
+        symbol_extraction::extract_symbols(
+            content,
+            tree_sitter_go::LANGUAGE.into(),
+            &["call_expression"],
+            &mut report,
+        );
 
         // Detect Go idioms
         let go_idioms = self.detect_go_idioms(&root, content.as_bytes());

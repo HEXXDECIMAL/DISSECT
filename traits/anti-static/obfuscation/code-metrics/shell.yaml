@@ -61,12 +61,14 @@ composite_rules:
     confidence: 0.9
     requires_all:
       - type: trait
-        id: sh-encoded-payload
+        id: anti-static/obfuscation/code-metrics/sh-encoded-payload
+      - type: trait
+        id: anti-static/obfuscation/code-metrics/no-comments
     requires_any:
       - type: trait
-        id: sh-long-lines
+        id: anti-static/obfuscation/code-metrics/sh-long-lines
       - type: trait
-        id: sh-obfuscated-identifiers
+        id: anti-static/obfuscation/code-metrics/sh-obfuscated-identifiers
 
   - id: sh-compact-malware
     description: "Compacted shell malware pattern"
@@ -75,10 +77,10 @@ composite_rules:
     requires_count: 2
     conditions:
       - type: trait
-        id: sh-single-char-vars
+        id: anti-static/obfuscation/code-metrics/sh-single-char-vars
       - type: trait
-        id: sh-long-lines
+        id: anti-static/obfuscation/code-metrics/sh-long-lines
       - type: trait
         id: anti-static/obfuscation/code-metrics/no-comments
       - type: trait
-        id: sh-no-functions
+        id: anti-static/obfuscation/code-metrics/sh-no-functions

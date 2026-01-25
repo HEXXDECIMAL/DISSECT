@@ -5,7 +5,7 @@ traits:
   # ICMP Magic Packet Trigger
   - id: icmp-magic-packet
     description: Detects ICMP packet inspection for magic values (C2 trigger)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1205.001"
     file_types: [c, go, python]

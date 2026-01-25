@@ -9,6 +9,7 @@ traits:
     criticality: suspicious
     confidence: 0.9
     attack: "T1090"
+    file_types: [elf, macho, pe]
     condition:
       type: yara
       source: |
@@ -36,6 +37,7 @@ traits:
     criticality: suspicious
     confidence: 0.85
     attack: "T1090.001"
+    file_types: [elf, macho, pe]
     condition:
       type: yara
       source: |
@@ -63,6 +65,7 @@ traits:
     criticality: suspicious
     confidence: 0.85
     attack: "T1090.003"
+    file_types: [elf, macho, pe]
     condition:
       type: yara
       source: |
@@ -88,6 +91,8 @@ composite_rules:
     description: Chisel tunneling tool detected
     criticality: suspicious
     confidence: 0.95
+    attack: "T1090"
+    file_types: [elf, macho, pe]
     requires_any:
       - type: trait
         id: tools/tunnel/chisel/generic

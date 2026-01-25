@@ -16,11 +16,13 @@ traits:
 composite_rules:
   - id: js-stealer
     description: Chromium browser credential stealer (SQLite + Exfil)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.98
     attack: "T1555.003"
+    mbc: "B0028"
+    file_types: [javascript]
     requires_all:
       - type: trait
-        id: credential/browser/chromium/js-sqlite-logins
+        id: js-sqlite-logins
       - type: trait
         id: comm/http/request/js-axios-post

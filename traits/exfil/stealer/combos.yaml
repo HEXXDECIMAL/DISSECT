@@ -7,6 +7,8 @@ composite_rules:
     criticality: hostile
     confidence: 0.98
     attack: "T1041"
+    mbc: "E1041"
+    file_types: [go]
     requires_all:
       - type: trait
         id: crypto/symmetric/aes/go-cfb-encrypter

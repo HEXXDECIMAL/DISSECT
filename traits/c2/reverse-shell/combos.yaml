@@ -1,6 +1,6 @@
 # Composite Shell Capabilities
 
-capabilities:
+composite_rules:
   - id: reverse-shell
     description: Classic reverse shell pattern (socket + dup2 + shell)
     criticality: suspicious
@@ -10,11 +10,14 @@ capabilities:
     platforms: [linux, macos, unix]
     requires_all:
       - type: trait
-        id: socket-connect
+        id: comm/socket/connect/connect
       - type: trait
         id: dup2-redirect
+    requires_any:
       - type: trait
-        id: shell-ref
+        id: exec/command/shell/bin-sh
+      - type: trait
+        id: exec/command/shell/bin-bash
 
   - id: bind-shell
     description: Bind shell pattern (socket + bind + listen + shell)
@@ -24,15 +27,20 @@ capabilities:
     confidence: 0.95
     requires_all:
       - type: trait
-        id: socket-bind
+        id: comm/socket/bind/bind
       - type: trait
-        id: socket-listen
+        id: comm/socket/listen/listen
+    requires_any:
       - type: trait
-        id: shell-ref
+        id: exec/command/shell/bin-sh
+      - type: trait
+        id: exec/command/shell/bin-bash
 
   - id: python-reverse-shell
     description: "Python reverse shell detected (socket + pty/dup2)"
     criticality: hostile
+    mbc: "B0022"
+    attack: "T1059"
     confidence: 0.98
     file_types: [python]
     near_lines: 20
@@ -40,7 +48,7 @@ capabilities:
       - type: trait
         id: python-socket-connect
       - type: trait
-        id: c2/shells/reverse/python-redirection
+        id: c2/reverse-shell/python-redirection
 
   - id: python-redirection
     description: "Python shell redirection (pty/dup2)"

@@ -1,6 +1,6 @@
 # Composite VM/Emulator Detection Capabilities
 
-capabilities:
+composite_rules:
   - id: detect-vendors
     description: VM detection via vendor/product strings
     criticality: suspicious

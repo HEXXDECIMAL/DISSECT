@@ -1,8 +1,8 @@
 # Collection - Archive Operations
 # ATT&CK: T1560 (Archive Collected Data)
 
-composite_rules:
-  # === Atomic: Tar Operations ===
+traits:
+  # === Tar Operations ===
 
   - id: tar-create
     description: Creates tar archive
@@ -37,7 +37,7 @@ composite_rules:
       type: string
       regex: "tar\\s+-[rT]"
 
-  # === Atomic: Zip Operations ===
+  # === Zip Operations ===
 
   - id: zip-create
     description: Creates zip archive
@@ -59,7 +59,7 @@ composite_rules:
       type: string
       regex: "archive/zip|zip_writer|zipfile|ZIP64"
 
-  # === Atomic: Unarchive ===
+  # === Unarchive ===
 
   - id: unarchive
     description: Unarchive operation
@@ -70,6 +70,7 @@ composite_rules:
       type: string
       regex: "[Uu]narchive"
 
+composite_rules:
   - id: binary-tar-exec
     description: Binary executes tar command (not script)
     criticality: suspicious
@@ -79,6 +80,6 @@ composite_rules:
     file_types: [elf, macho]
     requires_any:
       - type: trait
-        id: collect/archive/tar-create
+        id: tar-create
       - type: trait
-        id: collect/archive/tar-from-file
+        id: tar-from-file

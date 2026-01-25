@@ -55,7 +55,7 @@ composite_rules:
       - type: trait
         id: anti-static/obfuscation/code-metrics/high-entropy-identifiers
       - type: trait
-        id: js-arrow-function-abuse
+        id: anti-static/obfuscation/code-metrics/js-arrow-function-abuse
       - type: trait
         id: anti-static/obfuscation/code-metrics/high-entropy-strings
       - type: trait
@@ -68,8 +68,10 @@ composite_rules:
     requires_all:
       - type: trait
         id: anti-static/obfuscation/code-metrics/high-entropy-identifiers
+      - type: trait
+        id: anti-static/obfuscation/code-metrics/no-comments
     requires_any:
       - type: trait
-        id: js-webpack-minified
+        id: anti-static/obfuscation/code-metrics/js-webpack-minified
       - type: trait
         id: anti-static/obfuscation/code-metrics/very-long-lines

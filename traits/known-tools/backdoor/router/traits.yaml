@@ -9,8 +9,9 @@ traits:
   # VPNFilter modular malware
   - id: router/vpnfilter
     description: VPNFilter router malware indicators
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
+    attack: "T1584.008"
     condition:
       type: yara
       source: |
@@ -47,8 +48,9 @@ traits:
   # Router reboot/brick patterns
   - id: router/destructive
     description: Router destructive capabilities
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
+    attack: "T1485"
     condition:
       type: yara
       source: |

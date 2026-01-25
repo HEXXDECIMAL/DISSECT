@@ -1,5 +1,6 @@
 # Intelligence Gathering - Browser Discovery
 # ATT&CK: T1217 (Browser Information Discovery)
+# NOTE: "Web Data" is defined in cred/browser/chromium/traits.yaml (web-data)
 
 traits:
   - id: chrome-history
@@ -72,16 +73,6 @@ traits:
       type: string
       # Require browser-specific extension paths, not just "Extensions"
       regex: "chrome-extension://|/Extensions/[a-z]{32}|/Google/Chrome/.*Extensions|/BrowserSupport/Extensions"
-
-  - id: webdata
-    description: Chrome Web Data access
-    criticality: suspicious
-    confidence: 0.85
-    attack: "T1217"
-    file_types: [all]
-    condition:
-      type: string
-      exact: "Web Data"
 
   - id: opera
     description: Opera browser data

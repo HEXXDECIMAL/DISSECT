@@ -1,13 +1,16 @@
 # Raw Memory Access - Windows
 # ATT&CK: T1003.001 (LSASS Memory)
 
+defaults:
+  file_types: [pe, dll, shell, python]
+  platforms: [windows]
+
 traits:
   - id: comsvcs-dump
     description: Dump process memory via comsvcs.dll
     criticality: suspicious
     confidence: 0.95
     attack: "T1003.001"
-    platforms: [windows]
     condition:
       type: string
       regex: "comsvcs(\\.dll)?[,\\s]+(MiniDump|#24)"

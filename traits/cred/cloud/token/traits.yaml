@@ -73,28 +73,28 @@ composite_rules:
     confidence: 0.85
     requires_any:
       - type: trait
-        id: credential/cloud/aws-credentials-file
+        id: aws-credentials-file
       - type: trait
-        id: credential/cloud/aws-access-key
+        id: aws-access-key
     requires_all:
       - type: trait
-        id: credential/cloud/aws-config
+        id: aws-config
 
   - id: gcp-credential-theft
     description: GCP credential theft
     confidence: 0.85
     requires_all:
       - type: trait
-        id: credential/cloud/gcloud-config
+        id: gcloud-config
     requires_any:
       - type: trait
-        id: credential/cloud/gcp-default-credentials
+        id: gcp-default-credentials
 
 traits:
   # AWS Instance Metadata Service (IMDS) access
   - id: aws-imds-access
     description: AWS metadata service access (credential theft)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1552.005"
     file_types: [javascript, typescript, python, shell]
@@ -105,7 +105,7 @@ traits:
   # GCP metadata service access
   - id: gcp-metadata-access
     description: GCP metadata service access (credential theft)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1552.005"
     file_types: [javascript, typescript, python, shell]
@@ -116,7 +116,7 @@ traits:
   # Azure IMDS access
   - id: azure-imds-access
     description: Azure metadata service access (credential theft)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1552.005"
     file_types: [javascript, typescript, python, shell]

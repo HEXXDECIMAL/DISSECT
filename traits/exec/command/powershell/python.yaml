@@ -33,9 +33,12 @@ composite_rules:
     description: "PowerShell-based dropper (Download + Execute)"
     criticality: hostile
     confidence: 0.98
+    file_types: [python]
     requires_all:
       - type: trait
         id: exec/command/powershell/python-download
       - type: trait
         id: exec/command/powershell/python-start-process
+      - type: trait
+        id: exec/command/powershell/system-masquerade
 

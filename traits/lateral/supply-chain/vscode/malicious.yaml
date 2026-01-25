@@ -25,7 +25,7 @@ traits:
   # Post-Install Code Execution
   - id: post-install-exec
     description: Post-install script execution (dropper pattern)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     mbc: "B0024"
     attack: "T1059"
@@ -46,7 +46,7 @@ traits:
   # Extension Credential Theft
   - id: credential-theft
     description: VSCode extension accessing sensitive credentials
-    criticality: malicious
+    criticality: suspicious
     confidence: 0.9
     mbc: "E1519"
     attack: "T1555"
@@ -76,11 +76,14 @@ composite_rules:
     confidence: 0.99
     mbc: "B0032"
     attack: "T1027"
+    file_types: [javascript, typescript]
     requires_all:
       - type: trait
-        id: known-tools/dropper/js-decrypt-eval
+        id: js-decrypt-eval
       - type: trait
-        id: marker/api-usage
+        id: api-usage
+      - type: string
+        regex: "vscode\\."
 
   # Extension Persistence via well-known hooks
   - id: persistence
@@ -89,9 +92,10 @@ composite_rules:
     confidence: 0.95
     mbc: "F0011"
     attack: "T1547"
+    file_types: [javascript, typescript]
     requires_all:
       - type: trait
-        id: marker/api-usage
+        id: api-usage
       - type: string
         regex: 'APPDATA|Startup|crontab|launchd|systemd'
       - type: string

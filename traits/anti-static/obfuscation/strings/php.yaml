@@ -2,6 +2,9 @@
 # MBC: B0032 (Obfuscated Files or Information)
 # ATT&CK: T1027
 
+defaults:
+  file_types: [php]
+
 traits:
   - id: strings-chr-concat
     description: String obfuscation via chr() concatenation

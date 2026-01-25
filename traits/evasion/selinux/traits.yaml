@@ -89,10 +89,11 @@ traits:
   # SELinux disable via kernel parameters
   - id: kernel-disable
     description: SELinux kernel parameter disable
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     attack: "T1562.001"
     platforms: [linux]
+    file_types: [shell, elf]
     condition:
       type: yara
       source: |
@@ -109,7 +110,7 @@ traits:
   # SELinux runtime state memory patching
   - id: runtime-patch
     description: Direct kernel memory manipulation of SELinux enforcement state
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1562.001"
     platforms: [linux]
@@ -136,6 +137,7 @@ composite_rules:
     confidence: 0.9
     attack: "T1562.001"
     platforms: [linux]
+    file_types: [shell, c, elf]
     requires_count: 2
     conditions:
       - type: trait
@@ -146,3 +148,5 @@ composite_rules:
         id: evasion/selinux/setenforce
       - type: trait
         id: evasion/selinux/kernel-disable
+      - type: trait
+        id: evasion/selinux/runtime-patch

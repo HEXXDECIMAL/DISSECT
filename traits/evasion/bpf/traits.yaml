@@ -33,9 +33,10 @@ traits:
   # BPFDoor-style backdoor
   - id: bpfdoor-style
     description: BPFDoor-style packet filter backdoor
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     attack: "T1205"
+    file_types: [elf, c]
     condition:
       type: yara
       source: |

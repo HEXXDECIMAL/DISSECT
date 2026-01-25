@@ -26,10 +26,11 @@ traits:
   # TCP connection hiding via tcp4_seq_show hook
   - id: tcp-hiding
     description: Hooks TCP sequence show function to hide connections
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     mbc: "F0015"
     attack: "T1014"
+    file_types: [elf, c]
     condition:
       type: yara
       source: |
@@ -48,10 +49,11 @@ traits:
   # Process hiding via proc filesystem hooks
   - id: proc-hiding
     description: Hooks proc filesystem to hide processes
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     mbc: "F0015"
     attack: "T1014"
+    file_types: [elf, c]
     condition:
       type: yara
       source: |
@@ -70,10 +72,11 @@ traits:
   # Syscall table hooking
   - id: syscall-hook
     description: Syscall table manipulation patterns
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     mbc: "F0015"
     attack: "T1014"
+    file_types: [elf, c]
     condition:
       type: yara
       source: |
@@ -139,10 +142,11 @@ traits:
   # File hiding via VFS hooks
   - id: vfs-hook
     description: VFS layer hooking for file hiding
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     mbc: "F0015"
     attack: "T1014"
+    file_types: [elf, c]
     condition:
       type: yara
       source: |
@@ -162,10 +166,11 @@ traits:
   # Diamorphine rootkit patterns
   - id: diamorphine
     description: Diamorphine kernel rootkit indicators
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     mbc: "F0015"
     attack: "T1014"
+    file_types: [elf, c]
     condition:
       type: yara
       source: |
@@ -186,10 +191,11 @@ traits:
   # Reptile rootkit patterns
   - id: reptile
     description: Reptile kernel rootkit indicators
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     mbc: "F0015"
     attack: "T1014"
+    file_types: [elf, c]
     condition:
       type: yara
       source: |
@@ -208,10 +214,11 @@ traits:
   # Syslogk rootkit patterns
   - id: syslogk
     description: Syslogk kernel rootkit indicators
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     mbc: "F0015"
     attack: "T1014"
+    file_types: [elf, c]
     condition:
       type: yara
       source: |
@@ -231,6 +238,9 @@ composite_rules:
     description: Linux Kernel Module rootkit detected
     criticality: hostile
     confidence: 0.95
+    mbc: "F0015"
+    attack: "T1014"
+    file_types: [elf, c]
     requires_all:
       - type: trait
         id: module-format
@@ -241,3 +251,5 @@ composite_rules:
         id: proc-hiding
       - type: trait
         id: tcp-hiding
+      - type: trait
+        id: vfs-hook

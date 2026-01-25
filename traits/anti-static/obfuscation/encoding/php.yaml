@@ -146,7 +146,7 @@ traits:
 
   - id: xor-loop
     description: Loop performing XOR on user input (deobfuscation)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     mbc: "B0032"
     condition:
@@ -227,7 +227,7 @@ traits:
 
   - id: dynamic-variable-call
     description: Dynamic variable function call (e.g. ${$v}())
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     condition:
       type: ast_pattern
@@ -237,7 +237,7 @@ traits:
 
   - id: dynamic-superglobal-call
     description: Superglobal used as function (obfuscated backdoor)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.98
     mbc: "B0032"
     condition:
@@ -270,7 +270,7 @@ traits:
 
   - id: dynamic-superglobal-simple
     description: Superglobal used as function (obfuscated backdoor)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.98
     mbc: "B0032"
     condition:

@@ -13,8 +13,10 @@ traits:
 
   - id: keyboard-logger
     description: "Monitors keyboard input (potential keylogger)"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
+    mbc: "F0002"
+    attack: "T1056.001"
     file_types: [python]
     condition:
       type: string

@@ -5,7 +5,7 @@
 traits:
   - id: injector/kubo/cloned-thread
     description: Kubo cloned thread injection
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     attack: "T1055"
@@ -16,7 +16,7 @@ traits:
 
   - id: injector/kubo/arch2name
     description: Kubo architecture name resolver
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     family: true
     attack: "T1055"
@@ -27,7 +27,7 @@ traits:
 
   - id: injector/kubo/remote-vcall
     description: Kubo remote virtual call
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     attack: "T1055"
@@ -38,7 +38,7 @@ traits:
 
   - id: injector/kubo/libc-info
     description: Kubo libc information collector
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     family: true
     attack: "T1055"
@@ -49,7 +49,7 @@ traits:
 
   - id: injector/kubo/shellcode-size
     description: Kubo shellcode size marker
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     family: true
     attack: "T1055"
@@ -61,7 +61,7 @@ traits:
 composite_rules:
   - id: injector/kubo/detected
     description: Kubo process injector
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     reference: "https://github.com/kubo/injector"

@@ -2,12 +2,16 @@
 # MBC: B0032 (Obfuscated Files or Information)
 # ATT&CK: T1027
 
+defaults:
+  file_types: [python]
+  mbc: "B0032"
+  attack: "T1027"
+
 traits:
   - id: python-hex
     description: "Detects hex-encoded string patterns"
     criticality: notable
     confidence: 0.7
-    file_types: [python]
     condition:
       type: yara
       source: |
@@ -22,7 +26,6 @@ traits:
     description: "Detects octal-encoded string patterns"
     criticality: notable
     confidence: 0.7
-    file_types: [python]
     condition:
       type: yara
       source: |
@@ -37,10 +40,26 @@ traits:
     description: "Character code manipulation (chr/ord)"
     criticality: notable
     confidence: 0.6
-    file_types: [python]
     condition:
       type: string
       regex: '\\b(chr|ord)\('
+
+  - id: concatenated-execution
+    description: "String concatenation in execution sink (Evasion)"
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: ast_query
+      language: python
+      query: |
+        (call
+          function: (identifier) @func
+          arguments: (argument_list
+            (binary_operator
+              left: (_)
+              operator: "+"
+              right: (_))))
+        (#match? @func "^(exec|eval|b64decode|system|compile)$")
 
 composite_rules:
   - id: execute-decoded-content
@@ -52,6 +71,8 @@ composite_rules:
         regex: 'exec\(|eval\('
       - type: string
         regex: 'b64decode|fromhex|bytes\.fromhex|bz2\.decompress|zlib\.decompress|marshal\.loads'
+      - type: trait
+        id: anti-static/obfuscation/strings/python-chr
 
   - id: python-encoded-pattern
     description: "Detects encoded string patterns (hex or octal)"
@@ -71,20 +92,5 @@ composite_rules:
         regex: 'exec\(|eval\('
       - type: trait
         id: anti-static/obfuscation/strings/python-encoded-pattern
-
-  - id: concatenated-execution
-    description: "String concatenation in execution sink (Evasion)"
-    criticality: suspicious
-    confidence: 0.85
-    condition:
-      type: ast_query
-      language: python
-      query: |
-        (call
-          function: (identifier) @func
-          arguments: (argument_list
-            (binary_operator
-              left: (_)
-              operator: "+"
-              right: (_))))
-        (#match? @func "^(exec|eval|b64decode|system|compile)$")
+      - type: trait
+        id: anti-static/obfuscation/strings/python-chr

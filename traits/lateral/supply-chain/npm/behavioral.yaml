@@ -141,6 +141,7 @@ composite_rules:
     confidence: 0.95
     attack: "T1195.002"
     mbc: "B0024"
+    file_types: [javascript, typescript]
     requires_any:
       - type: string
         regex: "python3?\\s+-c|python3?\\s+-"
@@ -149,3 +150,5 @@ composite_rules:
     requires_all:
       - type: string
         regex: "spawn\\(|exec\\("
+      - type: string
+        regex: "child_process"

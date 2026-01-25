@@ -6,7 +6,7 @@ traits:
   # Python PTY spawn
   - id: python-pty
     description: Python PTY spawn reverse shell
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1059.006"
     file_types: [python]
@@ -27,7 +27,7 @@ traits:
   # Python socket + subprocess shell
   - id: python-socket-shell
     description: Python socket-based reverse shell
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1059.006"
     file_types: [python]
@@ -49,7 +49,7 @@ traits:
   # Node.js PTY reverse shell
   - id: node-pty
     description: Node.js PTY-based reverse shell
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1059.007"
     file_types: [javascript, typescript]
@@ -71,7 +71,7 @@ traits:
   # Stdin/stdout socket piping
   - id: stdio-socket
     description: Stdin/stdout piped to socket (reverse shell)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     attack: "T1059"
     file_types: [python, javascript, typescript]
@@ -117,7 +117,7 @@ traits:
   # Socat reverse shell
   - id: socat
     description: Socat reverse shell pattern
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1059.004"
     file_types: [shell, packagejson]
@@ -128,7 +128,7 @@ traits:
   # Telnet reverse shell
   - id: telnet
     description: Telnet-based reverse shell
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     attack: "T1059.004"
     file_types: [shell, packagejson]

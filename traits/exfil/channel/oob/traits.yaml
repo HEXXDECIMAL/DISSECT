@@ -83,8 +83,8 @@ traits:
       exact: "canarytokens.com"
 
   - id: oastify-b64
-    description: Exfiltrates data to base64-encoded Oastify OOB domain
-    criticality: hostile
+    description: Base64-encoded Oastify OOB domain indicator
+    criticality: suspicious
     confidence: 0.9
     file_types: [python, javascript]
     condition:
@@ -92,35 +92,17 @@ traits:
       exact: "b2FzdGlmeS5jb20"
 
   - id: oast-fun-b64
-    description: Exfiltrates data to base64-encoded OAST.fun OOB domain
-    criticality: hostile
+    description: Base64-encoded OAST.fun OOB domain indicator
+    criticality: suspicious
     confidence: 0.9
     file_types: [python, javascript]
     condition:
       type: string
       exact: "b2FzdC5mdW4"
 
-  # Discord webhook exfiltration
-  - id: discord-webhook
-    description: Discord webhook exfiltration endpoint
-    criticality: suspicious
-    confidence: 0.9
-    attack: "T1567.004"
-    file_types: [javascript, typescript, python]
-    condition:
-      type: string
-      regex: "discord\\.com/api/webhooks/[0-9]+/[A-Za-z0-9_-]+"
-
-  # Telegram bot exfiltration
-  - id: telegram-bot
-    description: Telegram bot API exfiltration
-    criticality: suspicious
-    confidence: 0.9
-    attack: "T1567"
-    file_types: [javascript, typescript, python]
-    condition:
-      type: string
-      regex: "api\\.telegram\\.org/bot[0-9]+:[A-Za-z0-9_-]+"
+  # NOTE: Discord webhook traits are defined in exfil/channel/discord/
+  # NOTE: Telegram bot traits are defined in exfil/channel/telegram/
+  # Use those directory references in composite rules
 
   # Slack webhook exfiltration
   - id: slack-webhook
@@ -144,24 +126,7 @@ traits:
       type: string
       regex: "[a-z0-9-]+\\.ngrok-free\\.app"
 
-composite_rules:
-  - id: multiple-encoded-indicators
-    description: "Multiple base64-encoded indicators detected (potential evasion)"
-    criticality: hostile
-    confidence: 0.9
-    requires_count: 2
-    conditions:
-      - type: string
-        exact: "aHR0cDovL" # http://
-      - type: string
-        exact: "aHR0cHM6Ly" # https://
-      - type: trait
-        id: exfil/oob/oastify-b64
-      - type: trait
-        id: exfil/oob/oast-fun-b64
-      - type: trait
-        id: exfil/oob/interactsh
-
+  # OOB exfiltration from npm preinstall
   - id: preinstall-exfil
     description: OOB exfiltration from npm preinstall
     criticality: suspicious
@@ -184,6 +149,7 @@ composite_rules:
             filesize < 5KB and $preinstall and any of ($oob*)
         }
 
+  # Encrypted OOB exfiltration
   - id: crypto-exfil
     description: Encrypted OOB exfiltration
     criticality: suspicious
@@ -204,3 +170,40 @@ composite_rules:
           condition:
             filesize < 24KB and $crypto and any of ($oob*)
         }
+
+composite_rules:
+  - id: multiple-encoded-indicators
+    description: "Multiple base64-encoded indicators detected (potential evasion)"
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1048"
+    mbc: "B0030"
+    file_types: [python, javascript]
+    requires_count: 2
+    conditions:
+      - type: string
+        exact: "aHR0cDovL" # http://
+      - type: string
+        exact: "aHR0cHM6Ly" # https://
+      - type: trait
+        id: oastify-b64
+      - type: trait
+        id: oast-fun-b64
+      - type: trait
+        id: interactsh
+
+  - id: encoded-oob-exfil
+    description: "Base64-encoded OOB domain with HTTP exfiltration"
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1048"
+    mbc: "B0030"
+    file_types: [python, javascript]
+    requires_all:
+      - type: trait
+        id: comm/http/request
+    requires_any:
+      - type: trait
+        id: oastify-b64
+      - type: trait
+        id: oast-fun-b64

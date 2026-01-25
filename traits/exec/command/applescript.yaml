@@ -1,20 +1,7 @@
+# NOTE: "do shell script" is defined in evasion/applescript/traits.yaml (do-shell-script)
+# NOTE: "tell application" is defined in evasion/applescript/traits.yaml (tell-application)
+
 traits:
-  - id: applescript
-    description: "Executes shell commands via AppleScript"
-    criticality: notable
-    confidence: 1.0
-    condition:
-      type: string
-      exact: "do shell script"
-
-  - id: tell
-    description: "Controls other applications via AppleScript"
-    criticality: notable
-    confidence: 1.0
-    condition:
-      type: string
-      exact: "tell application"
-
   - id: lure
     description: "AppleScript social engineering lure (Compatibility Wizard)"
     criticality: hostile

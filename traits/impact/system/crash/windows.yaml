@@ -10,7 +10,7 @@ traits:
   # NtRaiseHardError - forces BSOD
   - id: nt-raise-hard-error
     description: NtRaiseHardError API (BSOD trigger)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.98
     condition:
       type: string

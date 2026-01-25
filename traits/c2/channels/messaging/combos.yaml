@@ -1,6 +1,6 @@
 # Composite C2 Channel Capabilities
 
-capabilities:
+composite_rules:
   - id: telegram
     description: Data exfiltration via Telegram
     criticality: suspicious
@@ -19,6 +19,7 @@ capabilities:
     mbc: "B0030.001"
     attack: "T1567.001"
     confidence: 0.9
+    file_types: [javascript, python, powershell, shell]
     requires_any:
       - type: trait
         id: discord-webhook

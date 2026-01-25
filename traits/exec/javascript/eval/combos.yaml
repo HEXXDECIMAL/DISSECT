@@ -1,7 +1,7 @@
 # JavaScript Supply Chain Attack Detection
 # Composite rules combining traits to detect malicious patterns
 
-capabilities:
+composite_rules:
   # Hidden shell execution (common in supply chain attacks)
   - id: hidden-shell-exec
     description: Shell execution with output suppression

@@ -41,7 +41,9 @@ composite_rules:
     description: JavaScript screenshot capture with exfiltration
     criticality: hostile
     confidence: 0.95
+    mbc: "B0002"
     attack: "T1113"
+    file_types: [javascript]
     requires_all:
       - type: trait
         id: comm/http/request/js-axios-post

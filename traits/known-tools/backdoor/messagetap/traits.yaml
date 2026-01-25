@@ -5,7 +5,7 @@
 traits:
   - id: backdoor/messagetap/global-code-tag
     description: MessageTap operation tag
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.99
     family: true
     attack: "T1040"
@@ -16,7 +16,7 @@ traits:
 
   - id: backdoor/messagetap/sms-intercept
     description: MessageTap SMS intercept log
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     attack: "T1040"
@@ -27,7 +27,7 @@ traits:
 
   - id: backdoor/messagetap/tcap-parse
     description: MessageTap TCAP dialogue parser
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     attack: "T1040"
@@ -46,15 +46,10 @@ composite_rules:
     attack: "T1040"
     mbc: "B0022"
     file_types: [elf]
-    condition:
-      type: yara
-      source: |
-        rule messagetap {
-          strings:
-            $tag = "Operation_Global_Code_tag"
-            $sms = "send sms from %s imsi:%s"
-            $dialog = "tcap parse begin Dialogue"
-          condition:
-            uint32(0) == 0x464C457F and
-            filesize < 512KB and all of them
-        }
+    requires_all:
+      - type: trait
+        id: backdoor/messagetap/global-code-tag
+      - type: trait
+        id: backdoor/messagetap/sms-intercept
+      - type: trait
+        id: backdoor/messagetap/tcap-parse

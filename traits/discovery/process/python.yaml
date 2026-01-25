@@ -27,6 +27,6 @@ composite_rules:
     confidence: 0.9
     requires_all:
       - type: trait
-        id: process/psutil-enum
+        id: psutil-enum
       - type: string
         regex: 'Wireshark|vbox|vmware|charles|fiddler'

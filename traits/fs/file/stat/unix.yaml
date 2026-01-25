@@ -2,6 +2,9 @@
 # MBC: E1083 (File and Directory Discovery)
 # ATT&CK: T1083
 
+defaults:
+  file_types: [elf, macho, so, dylib, c]
+
 traits:
   - id: stat
     description: Get file status/metadata

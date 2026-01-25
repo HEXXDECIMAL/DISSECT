@@ -146,14 +146,12 @@ traits:
       type: string
       regex: "/[\\w./]{0,32}/\\.bashrc"
 
-composite_rules:
+  # Composite patterns (moved to traits due to single YARA condition)
   - id: multi-file-access
     description: Multiple shell config file access (persistence)
     criticality: suspicious
     confidence: 0.9
     attack: "T1546.004"
-    mbc: "F0006"
-    file_types: [all]
     condition:
       type: yara
       source: |
@@ -179,7 +177,6 @@ composite_rules:
     criticality: suspicious
     confidence: 0.95
     attack: "T1546.004"
-    mbc: "F0006"
     file_types: [elf]
     condition:
       type: yara

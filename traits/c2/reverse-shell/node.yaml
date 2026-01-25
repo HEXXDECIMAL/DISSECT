@@ -6,7 +6,7 @@
 traits:
   - id: node
     description: Node.js reverse shell pattern (net + child_process)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.85
     file_types: [javascript, typescript]
     condition:
@@ -101,7 +101,7 @@ traits:
   # HTTP responses also use .on('data') but are not reverse shells
   - id: data-event-exec
     description: Socket data event with command execution
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     mbc: "B0032"
     attack: "T1059"

@@ -14,7 +14,7 @@ traits:
   - id: electrum
     description: "Electrum wallet data path"
     confidence: 0.85
-    criticality: hostile
+    criticality: suspicious
     condition:
       type: string
       regex: "\\.electrum/wallets?|\\.electrum.*wallet|electrum.*default_wallet"
@@ -23,7 +23,7 @@ traits:
   - id: coinomi
     description: "Coinomi wallet data path"
     confidence: 0.85
-    criticality: hostile
+    criticality: suspicious
     condition:
       type: string
       regex: "Coinomi/wallets?|Coinomi.*wallet\\.dat|com\\.coinomi"
@@ -32,7 +32,7 @@ traits:
   - id: exodus
     description: "Exodus wallet data path"
     confidence: 0.85
-    criticality: hostile
+    criticality: suspicious
     condition:
       type: string
       regex: "Exodus/exodus\\.wallet|exodus.*passphrase|com\\.exodus"
@@ -41,7 +41,7 @@ traits:
   - id: atomic
     description: "Atomic Wallet data path"
     confidence: 0.85
-    criticality: hostile
+    criticality: suspicious
     condition:
       type: string
       regex: "atomic/Local Storage|Atomic Wallet|com\\.atomicwallet"
@@ -50,7 +50,7 @@ traits:
   - id: wasabi
     description: "Wasabi Bitcoin wallet data path"
     confidence: 0.85
-    criticality: hostile
+    criticality: suspicious
     condition:
       type: string
       regex: "\\.walletwasabi|\\.WalletWasabi|WasabiWallet"
@@ -59,7 +59,7 @@ traits:
   - id: binance
     description: "Binance desktop app data"
     confidence: 0.85
-    criticality: hostile
+    criticality: suspicious
     condition:
       type: string
       regex: "Binance/app-store\\.json|@aspect-binance|com\\.binance"
@@ -68,7 +68,7 @@ traits:
   - id: tonkeeper
     description: "TonKeeper wallet data"
     confidence: 0.85
-    criticality: hostile
+    criticality: suspicious
     condition:
       type: string
       regex: "@tonkeeper/desktop|tonkeeper.*config\\.json|com\\.ton-keeper"
@@ -77,7 +77,7 @@ traits:
   - id: ledger
     description: "Ledger Live application data"
     confidence: 0.85
-    criticality: hostile
+    criticality: suspicious
     condition:
       type: string
       regex: "Ledger Live/|@ledgerhq|ledger.*accounts"
@@ -86,7 +86,7 @@ traits:
   - id: trezor
     description: "Trezor Suite application data"
     confidence: 0.85
-    criticality: hostile
+    criticality: suspicious
     condition:
       type: string
       regex: "@trezor/suite-desktop|trezor.*suite"
@@ -95,7 +95,7 @@ traits:
   - id: guarda
     description: "Guarda wallet data path"
     confidence: 0.85
-    criticality: hostile
+    criticality: suspicious
     condition:
       type: string
       regex: "Guarda/Local Storage|com\\.guarda"
@@ -104,7 +104,7 @@ traits:
   - id: bitcoin-core
     description: "Bitcoin Core wallet data"
     confidence: 0.85
-    criticality: hostile
+    criticality: suspicious
     condition:
       type: string
       regex: "\\.bitcoin/wallet\\.dat|\\.bitcoin/wallets|Bitcoin/wallets"
@@ -113,7 +113,7 @@ traits:
   - id: mist
     description: "Ethereum Mist/Wallet data"
     confidence: 0.8
-    criticality: hostile
+    criticality: suspicious
     condition:
       type: string
       regex: "Ethereum/keystore|Mist/keystore|\\.ethereum/keystore"
@@ -124,7 +124,10 @@ composite_rules:
     description: "Desktop cryptocurrency wallet stealer"
     criticality: hostile
     confidence: 0.95
-    requires_count: 2
+    attack: "T1555"
+    mbc: "B0028"
+    file_types: [python, javascript, elf, pe, macho]
+    requires_count: 3
     conditions:
       - type: trait
         id: electrum

@@ -6,7 +6,7 @@ traits:
   # Medusa ransomware indicators
   - id: ransomware/medusa/generic
     description: Medusa ransomware patterns
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     mbc: "C0027"
     attack: "T1486"
@@ -36,7 +36,7 @@ traits:
   # Medusa encryption
   - id: ransomware/medusa/encryption
     description: Medusa encryption patterns
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.85
     mbc: "C0027"
     attack: "T1486"
@@ -65,7 +65,7 @@ traits:
   # Medusa Linux variant
   - id: ransomware/medusa/linux
     description: Medusa Linux/ESXi targeting
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     mbc: "C0027"
     attack: "T1486"
@@ -92,8 +92,10 @@ traits:
 composite_rules:
   - id: ransomware/medusa/detected
     description: Medusa ransomware detected
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
+    mbc: "C0027"
+    attack: "T1486"
     file_types: [elf, macho, pe, so, dylib, dll]
     requires_any:
       - type: trait

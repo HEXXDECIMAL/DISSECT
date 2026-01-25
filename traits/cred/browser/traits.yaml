@@ -20,6 +20,7 @@ traits:
     criticality: suspicious
     confidence: 0.85
     attack: "T1555.003"
+    file_types: [go, elf]
     condition:
       type: string
       exact: "browserutils/kooky"
@@ -36,7 +37,7 @@ traits:
 
   - id: hackbrowserdata
     description: HackBrowserData tool reference
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1555.003"
     mbc: "B0028"
@@ -49,10 +50,11 @@ composite_rules:
   # Multi-browser targeting detection
   - id: multi-browser-theft
     description: Multi-browser credential theft
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     attack: "T1555.003"
     mbc: "B0028"
+    file_types: [python, javascript, elf, pe, macho]
     condition:
       type: yara
       source: |
@@ -89,6 +91,7 @@ composite_rules:
     confidence: 0.98
     attack: "T1555.003"
     mbc: "B0028"
+    file_types: [python, javascript, elf, pe, macho]
     condition:
       type: yara
       source: |
@@ -130,7 +133,7 @@ composite_rules:
   # Python browser stealer pattern
   - id: python-stealer
     description: Python-based browser credential stealer
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1555.003"
     mbc: "B0028"

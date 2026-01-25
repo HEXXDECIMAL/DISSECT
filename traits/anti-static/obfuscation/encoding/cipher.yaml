@@ -3,10 +3,10 @@
 # ATT&CK: T1027 (Obfuscated Files or Information)
 
 defaults:
-  file_types: [elf, pe, macho]
+  file_types: [elf, pe, macho, dll, so, dylib]
   attack: "T1027"
 
-composite_rules:
+traits:
   - id: rc4-sbox-init
     description: "RC4 S-box initialization pattern (256-byte permutation)"
     criticality: notable
@@ -64,6 +64,7 @@ composite_rules:
       type: string
       regex: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789\\+/"
 
+composite_rules:
   - id: rc4-cipher
     description: "RC4 or RC4-like stream cipher detected"
     criticality: notable
@@ -71,12 +72,12 @@ composite_rules:
     mbc: "C0027.001"
     requires_any:
       - type: trait
-        id: rc4-sbox-init
+        id: anti-static/obfuscation/encoding/rc4-sbox-init
       - type: trait
-        id: stream-cipher-decrypt
+        id: anti-static/obfuscation/encoding/stream-cipher-decrypt
     requires_count: 1
     conditions:
       - type: trait
-        id: cipher-key-schedule
+        id: anti-static/obfuscation/encoding/cipher-key-schedule
       - type: trait
-        id: hardcoded-hex-charset
+        id: anti-static/obfuscation/encoding/hardcoded-hex-charset

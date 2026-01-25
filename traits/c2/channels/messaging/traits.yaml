@@ -4,34 +4,9 @@
 
 traits:
   # Messaging platforms
-  - id: telegram-api
-    description: Telegram Bot API
-    criticality: notable
-    mbc: "B0030.001"
-    attack: "T1567.001"
-    confidence: 1.0
-    condition:
-      type: string
-      exact: "api.telegram.org"
-
-  - id: telegram-send
-    description: Telegram send methods
-    criticality: notable
-    mbc: "B0030.001"
-    confidence: 0.9
-    condition:
-      type: string
-      regex: "/(sendMessage|sendDocument|sendPhoto)"
-
-  - id: discord-webhook
-    description: Discord webhook URL
-    criticality: notable
-    mbc: "B0030.001"
-    attack: "T1567.001"
-    confidence: 1.0
-    condition:
-      type: string
-      regex: "(discordapp\\.com|discord\\.com)/api/webhooks"
+  # NOTE: Telegram API traits are defined in exfil/channel/telegram/
+  # NOTE: Discord webhook traits are defined in exfil/channel/discord/
+  # Use those directory references in composite rules
 
   - id: discord-invite
     description: Discord invite URL (potential C2/support)
@@ -69,6 +44,7 @@ traits:
     mbc: "B0030"
     attack: "T1071.004"
     confidence: 0.4
+    file_types: [elf, macho, so, dylib, c]
     condition:
       type: symbol
       pattern: res_query|dns_query

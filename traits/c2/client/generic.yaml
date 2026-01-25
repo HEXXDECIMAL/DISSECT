@@ -2,7 +2,7 @@
 traits:
   - id: marker
     description: "Explicit 'c2-client' string marker"
-    criticality: hostile
+    criticality: suspicious
     confidence: 1.0
     condition:
       type: string

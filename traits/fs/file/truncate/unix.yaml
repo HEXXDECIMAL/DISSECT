@@ -2,6 +2,9 @@
 # MBC: C0052 (Write File)
 # ATT&CK: T1565
 
+defaults:
+  file_types: [elf, macho, so, dylib, c]
+
 traits:
   - id: truncate
     description: Truncate file

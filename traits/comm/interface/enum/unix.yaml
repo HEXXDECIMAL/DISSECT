@@ -1,6 +1,9 @@
 # Network Interface Operations
 # MBC: C0001 (Network Communication)
 
+defaults:
+  file_types: [elf, macho, so, dylib, c]
+
 traits:
   - id: enumerate
     description: Enumerate network interfaces

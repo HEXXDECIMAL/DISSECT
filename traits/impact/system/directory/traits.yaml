@@ -4,7 +4,7 @@
 
 defaults:
   attack: "T1485"
-  criticality: hostile
+  criticality: suspicious
 
 traits:
   # Windows System32 deletion

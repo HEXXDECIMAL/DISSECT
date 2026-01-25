@@ -1,4 +1,8 @@
 # macOS XPC Communication
+
+defaults:
+  file_types: [macho, dylib, c]
+
 traits:
   - id: xpc-connection
     description: XPC connection symbol

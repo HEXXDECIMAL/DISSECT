@@ -2,6 +2,9 @@
 # MBC: OB0009 (Operating System) → Various time-related operations
 # ATT&CK: T1124 (System Time Discovery), T1070.006 (Timestomp)
 
+defaults:
+  file_types: [elf, macho, so, dylib, c]
+
 traits:
   # Time retrieval
   - id: time

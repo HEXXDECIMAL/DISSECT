@@ -10,7 +10,7 @@ traits:
     attack: "T1055"
     mbc: "B0033"
     platforms: [linux]
-    file_types: [elf]
+    file_types: [elf, c]
     condition:
       type: symbol
       pattern: "memfd_create"

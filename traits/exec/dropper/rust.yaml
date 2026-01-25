@@ -4,9 +4,10 @@
 traits:
   - id: rust-download-exec
     description: Downloads and executes a file
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1105"
+    mbc: "B0024"
     file_types: [rust]
     condition:
       type: yara

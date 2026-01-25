@@ -1,30 +1,22 @@
 # Remote Shell Detection
 # MBC: OB0004 (Command & Control) → B0030 (C2 Communication)
 # ATT&CK: T1059 (Command and Scripting Interpreter)
+# NOTE: Socket connect/bind/listen are defined in comm/socket/*/unix.yaml
 
 traits:
-  # Reverse shell components
-  - id: socket-connect
-    description: Network socket connection (potential reverse shell)
-    criticality: notable
-    mbc: "B0030.002"
-    attack: "T1071"
-    confidence: 0.6
-    condition:
-      type: symbol
-      pattern: connect
-    platforms: [all]
-
+  # Reverse shell components - dup2 for I/O redirection
   - id: dup2-redirect
     description: File descriptor duplication (I/O redirection)
     criticality: notable
     mbc: "B0030.002"
     confidence: 0.5
+    file_types: [elf, macho, so, dylib, c]
     condition:
       type: symbol
       pattern: dup2
     platforms: [unix, linux, macos]
 
+  # Python-specific reverse shell patterns
   - id: python-socket-connect
     description: Python socket connection
     criticality: notable
@@ -54,27 +46,5 @@ traits:
       type: ast_pattern
       node_type: call
       pattern: "pty.spawn"
-
-  # Bind shell components
-  - id: socket-bind
-    description: Socket binding (potential bind shell)
-    criticality: notable
-    mbc: "B0030.003"
-    attack: "T1071"
-    confidence: 0.6
-    condition:
-      type: symbol
-      pattern: bind
-    platforms: [all]
-
-  - id: socket-listen
-    description: Socket listening (potential bind shell)
-    criticality: notable
-    mbc: "B0030.003"
-    confidence: 0.6
-    condition:
-      type: symbol
-      pattern: listen
-    platforms: [all]
 
 

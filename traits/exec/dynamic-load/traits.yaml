@@ -8,6 +8,8 @@ traits:
     description: Runtime library loading via dlopen
     criticality: notable
     confidence: 0.9
+    platforms: [linux, macos, unix]
+    file_types: [elf, macho, so, dylib]
     condition:
       type: yara
       source: |
@@ -26,6 +28,8 @@ traits:
     description: Runtime library loading via LoadLibrary
     criticality: notable
     confidence: 0.9
+    platforms: [windows]
+    file_types: [pe, dll]
     condition:
       type: yara
       source: |
@@ -45,6 +49,7 @@ traits:
     description: Python dynamic import patterns
     criticality: notable
     confidence: 0.85
+    file_types: [python]
     condition:
       type: yara
       source: |
@@ -63,6 +68,7 @@ traits:
     description: Java reflection class loading
     criticality: notable
     confidence: 0.85
+    file_types: [class, java]
     condition:
       type: yara
       source: |
@@ -82,6 +88,8 @@ traits:
     description: .NET reflection assembly loading
     criticality: notable
     confidence: 0.85
+    platforms: [windows]
+    file_types: [pe, dll, csharp]
     condition:
       type: yara
       source: |
@@ -101,6 +109,7 @@ traits:
     description: Go plugin dynamic loading
     criticality: notable
     confidence: 0.9
+    file_types: [elf, macho, pe, go]
     condition:
       type: yara
       source: |
@@ -118,6 +127,7 @@ traits:
     description: JIT compilation patterns
     criticality: notable
     confidence: 0.8
+    file_types: [pe, elf, macho, dll, so, dylib]
     condition:
       type: yara
       source: |

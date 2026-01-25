@@ -3,33 +3,63 @@
 # Reference: https://github.com/Ne0nd0g/merlin
 
 traits:
-  - id: c2-framework/merlin
-    description: Merlin C2 agent indicators
-    criticality: hostile
+  - id: c2-framework/merlin/github-ref
+    description: Merlin GitHub import path
+    criticality: suspicious
     confidence: 0.95
+    mbc: "B0030"
+    attack: "T1071"
+    file_types: [elf, macho, pe, so, dylib, dll, go]
+    condition:
+      type: string
+      exact: "github.com/Ne0nd0g/merlin"
+
+  - id: c2-framework/merlin/agent-ref
+    description: Merlin agent reference
+    criticality: suspicious
+    confidence: 0.95
+    mbc: "B0030"
+    attack: "T1071"
+    file_types: [elf, macho, pe, so, dylib, dll, go]
+    condition:
+      type: string
+      regex: "merlin-agent|MerlinAgent"
+
+  - id: c2-framework/merlin/pkg-messages
+    description: Merlin package messages reference
+    criticality: suspicious
+    confidence: 0.95
+    mbc: "B0030"
+    attack: "T1071"
+    file_types: [elf, macho, pe, so, dylib, dll, go]
+    condition:
+      type: string
+      exact: "merlin/pkg/messages"
+
+  - id: c2-framework/merlin/execute-commands
+    description: Merlin shellcode/assembly execution
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "B0030"
+    attack: "T1059"
     file_types: [elf, macho, pe, so, dylib, dll, go]
     condition:
       type: yara
       source: |
-        rule merlin_c2 {
-          meta:
-            description = "Merlin C2 agent"
-            reference = "https://github.com/Ne0nd0g/merlin"
+        rule merlin_execute {
           strings:
-            $merlin1 = "github.com/Ne0nd0g/merlin" ascii
-            $merlin2 = "merlin-agent" ascii
-            $merlin3 = "MerlinAgent" ascii
-            $merlin4 = "merlin/pkg/messages" ascii
             $execute_shellcode = "execute-shellcode" ascii
             $execute_assembly = "execute-assembly" ascii
           condition:
-            2 of ($merlin*) or ($execute_shellcode and $execute_assembly)
+            $execute_shellcode and $execute_assembly
         }
 
-  - id: c2-framework/merlin-http2
+  - id: c2-framework/merlin/http2
     description: Merlin HTTP/2 C2 communication
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
+    mbc: "B0030"
+    attack: "T1071"
     file_types: [elf, macho, pe, so, dylib, dll, go]
     condition:
       type: yara
@@ -43,3 +73,26 @@ traits:
           condition:
             $h2 and $merlin and ($proto or $jwt)
         }
+
+composite_rules:
+  - id: c2-framework/merlin/detected
+    description: Merlin C2 agent detected
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    reference: "https://github.com/Ne0nd0g/merlin"
+    mbc: "B0030"
+    attack: "T1071"
+    file_types: [elf, macho, pe, so, dylib, dll, go]
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: c2-framework/merlin/github-ref
+      - type: trait
+        id: c2-framework/merlin/agent-ref
+      - type: trait
+        id: c2-framework/merlin/pkg-messages
+      - type: trait
+        id: c2-framework/merlin/execute-commands
+      - type: trait
+        id: c2-framework/merlin/http2

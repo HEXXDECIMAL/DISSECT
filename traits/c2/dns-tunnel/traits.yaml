@@ -6,7 +6,7 @@ traits:
   # dnscat2 protocol
   - id: dnscat
     description: dnscat2 DNS tunneling tool
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     mbc: "C0001"
     attack: "T1071.004"
@@ -26,7 +26,7 @@ traits:
   # iodine DNS tunnel
   - id: iodine
     description: iodine DNS tunneling tool
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     mbc: "C0001"
     attack: "T1071.004"

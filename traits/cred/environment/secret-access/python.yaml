@@ -38,6 +38,6 @@ composite_rules:
     criticality: suspicious
     requires_any:
       - type: trait
-        id: credential/environment/secret-access/python-os-getenv
+        id: python-os-getenv
       - type: trait
-        id: credential/environment/secret-access/python-os-environ
+        id: python-os-environ

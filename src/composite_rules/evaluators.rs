@@ -286,12 +286,35 @@ pub fn eval_yara_match(
         let rule_match = rule.is_none_or(|r| &yara_match.rule == r);
 
         if namespace_match && rule_match {
-            evidence.push(Evidence {
-                method: "yara".to_string(),
-                source: "yara-x".to_string(),
-                value: format!("{}:{}", yara_match.namespace, yara_match.rule),
-                location: Some(yara_match.namespace.clone()),
-            });
+            // Extract actual matched content from matched_strings
+            if yara_match.matched_strings.is_empty() {
+                evidence.push(Evidence {
+                    method: "yara".to_string(),
+                    source: "yara-x".to_string(),
+                    value: yara_match.rule.clone(),
+                    location: Some(yara_match.namespace.clone()),
+                });
+            } else {
+                for ms in &yara_match.matched_strings {
+                    // Use actual value if printable, otherwise use identifier
+                    let is_printable = ms
+                        .value
+                        .bytes()
+                        .all(|b| b >= 0x20 && b < 0x7f || b == b'\n' || b == b'\t');
+                    let evidence_value = if is_printable && !ms.value.is_empty() {
+                        ms.value.clone()
+                    } else {
+                        ms.identifier.clone()
+                    };
+
+                    evidence.push(Evidence {
+                        method: "yara".to_string(),
+                        source: "yara-x".to_string(),
+                        value: evidence_value,
+                        location: Some(format!("0x{:x}", ms.offset)),
+                    });
+                }
+            }
         }
     }
 
@@ -371,25 +394,36 @@ pub fn eval_imports_count(
     filter: Option<&String>,
     ctx: &EvaluationContext,
 ) -> ConditionResult {
-    let count = if let Some(filter_pattern) = filter {
+    let matching_imports: Vec<&str> = if let Some(filter_pattern) = filter {
         ctx.report
             .imports
             .iter()
             .filter(|imp| imp.symbol.contains(filter_pattern))
-            .count()
+            .map(|imp| imp.symbol.as_str())
+            .collect()
     } else {
-        ctx.report.imports.len()
+        ctx.report
+            .imports
+            .iter()
+            .map(|imp| imp.symbol.as_str())
+            .collect()
     };
 
+    let count = matching_imports.len();
     let matched = min.is_none_or(|m| count >= m) && max.is_none_or(|m| count <= m);
 
     ConditionResult {
         matched,
         evidence: if matched {
+            // Deduplicate and take first few for display
+            let mut unique: Vec<&str> = matching_imports.clone();
+            unique.sort();
+            unique.dedup();
+            let sample: Vec<&str> = unique.into_iter().take(5).collect();
             vec![Evidence {
                 method: "imports_count".to_string(),
                 source: "analysis".to_string(),
-                value: count.to_string(),
+                value: format!("({}) {}", count, sample.join(", ")),
                 location: None,
             }]
         } else {
@@ -411,10 +445,20 @@ pub fn eval_exports_count(
     ConditionResult {
         matched,
         evidence: if matched {
+            // Deduplicate and take first few for display
+            let mut symbols: Vec<&str> = ctx
+                .report
+                .exports
+                .iter()
+                .map(|exp| exp.symbol.as_str())
+                .collect();
+            symbols.sort();
+            symbols.dedup();
+            let sample: Vec<&str> = symbols.into_iter().take(5).collect();
             vec![Evidence {
                 method: "exports_count".to_string(),
                 source: "analysis".to_string(),
-                value: count.to_string(),
+                value: format!("({}) {}", count, sample.join(", ")),
                 location: None,
             }]
         } else {
@@ -1038,13 +1082,15 @@ pub fn eval_string_count(
     ctx: &EvaluationContext,
 ) -> ConditionResult {
     let min_len = min_length.unwrap_or(0);
-    let count = ctx
+    let matching_strings: Vec<&str> = ctx
         .report
         .strings
         .iter()
         .filter(|s| s.value.len() >= min_len)
-        .count();
+        .map(|s| s.value.as_str())
+        .collect();
 
+    let count = matching_strings.len();
     let min_ok = min.is_none_or(|m| count >= m);
     let max_ok = max.is_none_or(|m| count <= m);
     let matched = min_ok && max_ok;
@@ -1052,10 +1098,15 @@ pub fn eval_string_count(
     ConditionResult {
         matched,
         evidence: if matched {
+            // Deduplicate and take first few for display
+            let mut unique: Vec<&str> = matching_strings;
+            unique.sort();
+            unique.dedup();
+            let sample: Vec<&str> = unique.into_iter().take(5).collect();
             vec![Evidence {
                 method: "string_count".to_string(),
                 source: "binary".to_string(),
-                value: format!("{} strings (>= {} chars)", count, min_len),
+                value: format!("({}) {}", count, sample.join(", ")),
                 location: None,
             }]
         } else {
@@ -1342,13 +1393,34 @@ pub fn eval_metrics(
 }
 
 /// Evaluate trait reference condition - check if a trait has already been matched
+///
+/// Reference formats:
+/// - Short names (e.g., "terminate"): suffix match within same directory
+/// - Directory paths (e.g., "anti-static/obfuscation/strings"): matches ANY trait
+///   within that directory (prefix match). Cross-directory references cannot
+///   specify exact trait IDs - they can only reference the directory.
 pub fn eval_trait(id: &str, ctx: &EvaluationContext) -> ConditionResult {
     let mut evidence = Vec::new();
     let mut matched = false;
 
+    // Count slashes to determine if this is a directory path or a short name
+    let slash_count = id.matches('/').count();
+
     for finding in &ctx.report.findings {
-        // Support exact match or suffix match (e.g. "net/socket" matches "legitimate/net/socket")
-        if finding.id == id || finding.id.ends_with(&format!("/{}", id)) {
+        let finding_match = if slash_count == 0 {
+            // Short name: suffix match for same-directory relative reference
+            // e.g., "terminate" matches "exec/process/terminate"
+            finding.id.ends_with(&format!("/{}", id))
+        } else {
+            // Directory path: prefix match (any trait within that directory)
+            // e.g., "anti-static/obfuscation/strings" matches
+            // "anti-static/obfuscation/strings/python-hex"
+            // Note: We match if the finding starts with the path followed by /
+            // This prevents "exec/command" from matching "exec/command-shell"
+            finding.id.starts_with(&format!("{}/", id)) || finding.id == id // Also allow exact match for the rare case of directory-named traits
+        };
+
+        if finding_match {
             matched = true;
             evidence.extend(finding.evidence.clone());
         }

@@ -2,12 +2,16 @@
 # Detects peer-to-peer botnet artifacts and behaviors
 # ATT&CK: T1090.003 (Multi-hop Proxy)
 
+defaults:
+  file_types: [elf]
+
 traits:
   # IPStorm botnet
   - id: p2p-botnet/ipstorm
     description: IPStorm P2P botnet indicators
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
+    attack: "T1090.003"
     condition:
       type: yara
       source: |
@@ -41,6 +45,7 @@ traits:
     description: P2P DHT bootstrapping for IoT devices
     criticality: suspicious
     confidence: 0.8
+    attack: "T1090.003"
     condition:
       type: yara
       source: |
@@ -75,8 +80,9 @@ traits:
   # FritzFrog SSH worm
   - id: p2p-botnet/fritzfrog
     description: FritzFrog P2P SSH worm
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
+    attack: "T1110"
     condition:
       type: yara
       source: |

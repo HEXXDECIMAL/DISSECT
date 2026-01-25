@@ -28,7 +28,7 @@ composite_rules:
   - id: home-dropper
     description: "HTTP download to home directory and execute"
     confidence: 0.95
-    criticality: hostile
+    criticality: suspicious
     requires_count: 3
     conditions:
       - type: string
@@ -63,7 +63,7 @@ composite_rules:
   - id: multi-payload
     description: "Multi-payload dropper (downloads multiple files)"
     confidence: 0.95
-    criticality: hostile
+    criticality: suspicious
     condition:
       type: string
       # Multiple requests.get or similar patterns
@@ -74,7 +74,7 @@ composite_rules:
   - id: staged-dropper
     description: "Staged payload dropper"
     confidence: 0.9
-    criticality: hostile
+    criticality: suspicious
     condition:
       type: yara
       source: |
@@ -105,7 +105,8 @@ traits:
   - id: python-endpoint-path
     description: "Suspicious C2 endpoint paths (payload, brow, mclip)"
     confidence: 0.85
-    criticality: hostile
+    criticality: suspicious
+    attack: "T1105"
     condition:
       type: string
       # Paths like /payload/, /brow/, /mclip/ etc - the actual URL paths

@@ -24,8 +24,9 @@ traits:
 
   - id: c2/botnet/chinaz/commands
     description: Specific ChinaZ C2 command logic
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
+    attack: "T1583.005"
     condition:
       type: yara
       source: |
@@ -107,6 +108,8 @@ composite_rules:
     description: ChinaZ botnet detected
     criticality: hostile
     confidence: 0.95
+    attack: "T1583.005"
+    mbc: "B0030"
     requires_all:
       - type: trait
         id: botnet/chinaz/identifier

@@ -1,5 +1,6 @@
 # Intelligence Gathering - Permissions Discovery
 # ATT&CK: T1069 (Permission Groups Discovery)
+# NOTE: /proc/self/status is defined in fs/proc/process/linux.yaml (process-self-status)
 
 traits:
   - id: capsh
@@ -11,16 +12,6 @@ traits:
     condition:
       type: string
       exact: "capsh"
-
-  - id: proc-status
-    description: Process status file access
-    criticality: suspicious
-    confidence: 0.8
-    attack: "T1069"
-    file_types: [elf, shell]
-    condition:
-      type: string
-      exact: "/proc/self/status"
 
   - id: getgroups
     description: Get group list

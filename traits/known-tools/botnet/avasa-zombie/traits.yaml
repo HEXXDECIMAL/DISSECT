@@ -5,7 +5,7 @@
 traits:
   - id: botnet/avasa-zombie/brand
     description: Avasa-Zombie botnet identifier
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.99
     family: true
     attack: "T1498"
@@ -16,7 +16,7 @@ traits:
 
   - id: botnet/avasa-zombie/motd-method
     description: Avasa-Zombie Minecraft MOTD method
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     attack: "T1498"
@@ -27,7 +27,7 @@ traits:
 
   - id: botnet/avasa-zombie/convert-attack
     description: Avasa-Zombie attack converter
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     attack: "T1498"
@@ -38,7 +38,7 @@ traits:
 
   - id: botnet/avasa-zombie/local-attack
     description: Avasa-Zombie local attack storage
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     attack: "T1498"

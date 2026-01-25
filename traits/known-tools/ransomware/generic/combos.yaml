@@ -5,7 +5,9 @@ composite_rules:
     description: "Suspicious symbols or artifacts indicating ransomware activity"
     criticality: suspicious
     confidence: 0.8
+    mbc: "C0027"
     attack: "T1486"
+    file_types: [elf, macho, pe, so, dylib, dll]
     requires_any:
       - type: trait
         id: ransomware/generic/symbol/encrypt_file

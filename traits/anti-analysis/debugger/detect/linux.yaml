@@ -13,13 +13,7 @@ traits:
       type: string
       exact: PTRACE_TRACEME
 
-  - id: debugger-proc
-    description: Debugger detection via /proc/self/status
-    criticality: suspicious
-    confidence: 0.66
-    condition:
-      type: string
-      exact: /proc/self/status
+  # NOTE: /proc/self/status detection is in traits.yaml as 'proc-status'
 
   - id: debugger-gdb
     description: References gdb debugger

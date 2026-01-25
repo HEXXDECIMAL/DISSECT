@@ -2,6 +2,9 @@
 # MBC: F0006 (Timestomp)
 # ATT&CK: T1070.006
 
+defaults:
+  file_types: [pe, dll]
+
 traits:
   - id: timestomp-windows
     description: Modify file timestamps via SetFileTime

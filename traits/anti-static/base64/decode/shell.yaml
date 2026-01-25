@@ -2,6 +2,9 @@
 # MBC: B0032 (Obfuscated Files or Information)
 # ATT&CK: T1140
 
+defaults:
+  file_types: [shell]
+
 traits:
   - id: decode-shell
     description: Base64 decoding via shell command

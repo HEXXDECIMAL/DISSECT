@@ -1,12 +1,13 @@
 # Reverse Shell Detection - Shell/Bash
 # MBC: B0033 (Adversary-in-the-Middle)
 # ATT&CK: T1059.004 (Unix Shell)
+# NOTE: stdin-redirect (0>&1) is defined in c2/backdoor/traits.yaml
 
 traits:
-  # Complete bash reverse shell pattern (HOSTILE - no legitimate use)
+  # Complete bash reverse shell pattern (no legitimate use)
   - id: reverse-shell-bash-complete
     description: Bash reverse shell via /dev/tcp (complete pattern)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.98
     attack: "T1059.004"
     file_types: [shell, packagejson, javascript]
@@ -16,7 +17,7 @@ traits:
 
   - id: reverse-shell-bash
     description: Bash reverse shell via /dev/tcp
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1059.004"
     file_types: [shell, packagejson, javascript]
@@ -24,18 +25,9 @@ traits:
       type: string
       regex: "bash\\s+-i\\s+>&\\s*/dev/tcp/"
 
-  - id: reverse-shell-redirect
-    description: Shell reverse shell stdin redirect
-    criticality: notable
-    confidence: 0.6
-    file_types: [shell, packagejson]
-    condition:
-      type: string
-      exact: "0>&1"
-
   - id: reverse-shell-mkfifo
     description: Reverse shell using mkfifo and netcat
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1059.004"
     file_types: [shell, packagejson]
@@ -54,7 +46,7 @@ traits:
   # Python reverse shell
   - id: reverse-shell-python
     description: Python reverse shell pattern
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1059.006"
     file_types: [shell, packagejson, python]
@@ -65,7 +57,7 @@ traits:
   # Perl reverse shell
   - id: reverse-shell-perl
     description: Perl reverse shell pattern
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1059"
     file_types: [shell, packagejson]
@@ -76,7 +68,7 @@ traits:
   # Netcat reverse shell
   - id: reverse-shell-netcat
     description: Netcat reverse shell pattern
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     attack: "T1059.004"
     file_types: [shell, packagejson]
@@ -95,7 +87,7 @@ traits:
   # Ruby reverse shell
   - id: reverse-shell-ruby
     description: Ruby reverse shell pattern
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1059"
     file_types: [shell, packagejson, ruby]
@@ -106,7 +98,7 @@ traits:
   # PHP reverse shell
   - id: reverse-shell-php
     description: PHP reverse shell pattern
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1059"
     file_types: [shell, packagejson, php]

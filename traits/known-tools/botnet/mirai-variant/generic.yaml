@@ -5,10 +5,11 @@
 traits:
   - id: iot-botnet/gpio-daemon
     description: GPIO daemon naming (IoT botnet indicator)
-    criticality: hostile
-    confidence: 0.90
+    criticality: suspicious
+    confidence: 0.75
     mbc: "OB0004"
     attack: "T1583.005"
+    file_types: [elf]
     condition:
       type: string
       regex: "gpio[a-z]?_daemon"
@@ -17,44 +18,64 @@ traits:
     description: BusyBox reference
     criticality: notable
     confidence: 0.70
+    file_types: [elf, shell]
     condition:
       type: string
       regex: "/bin/busybox|busybox\\s"
 
   - id: iot-botnet/ssdp-discover
     description: SSDP M-SEARCH discovery (UPnP exploitation/scanning)
-    criticality: hostile
-    confidence: 0.85
+    criticality: suspicious
+    confidence: 0.75
     mbc: "E1018"
     attack: "T1046"
+    file_types: [elf]
     condition:
       type: string
       regex: "M-SEARCH.*ssdp:discover"
 
   - id: iot-botnet/telnet-brute
     description: Telnet credentials (IoT device compromise)
-    criticality: hostile
-    confidence: 0.90
+    criticality: suspicious
+    confidence: 0.8
     mbc: "T1110"
     attack: "T1110.001"
-    file_types: [elf]  # IoT botnets target Linux, not macOS/Windows
+    file_types: [elf]
     condition:
       type: string
-      # Require multiple default credential pairs or root/admin specific
-      # Exclude generic "user:password" which appears in documentation
       regex: "(root|admin):(root|admin|toor|password|1234|12345|default|123456)|guest:guest"
       min_count: 2
 
   - id: iot-botnet/mirai-strings
-    description: Mirai botnet-style strings
+    description: Mirai botnet-style brand strings
+    criticality: suspicious
+    confidence: 0.8
+    mbc: "OB0004"
+    attack: "T1583.005"
+    file_types: [elf]
+    condition:
+      type: string
+      regex: "\\b(LZRD|SORA|OWARI|MIRAI|BASHLITE|QBOT|TSUNAMI|GAFGYT)\\b"
+      case_insensitive: true
+
+composite_rules:
+  # IoT botnet detection - requires multiple indicators
+  - id: iot-botnet-detected
+    description: IoT botnet variant detected (multiple indicators)
     criticality: hostile
     confidence: 0.95
     mbc: "OB0004"
     attack: "T1583.005"
-    file_types: [elf]  # Mirai variants target Linux/IoT, not macOS/Windows
-    condition:
-      type: string
-      # Word boundaries prevent matching Unicode script names like "Sora_Sompeng"
-      # from regex-syntax library in Rust binaries
-      regex: "\\b(LZRD|SORA|OWARI|MIRAI|BASHLITE|QBOT|TSUNAMI|GAFGYT)\\b"
-      case_insensitive: true
+    file_types: [elf]
+    requires_count: 3
+    conditions:
+      - type: trait
+        id: iot-botnet/gpio-daemon
+      - type: trait
+        id: iot-botnet/ssdp-discover
+      - type: trait
+        id: iot-botnet/telnet-brute
+      - type: trait
+        id: iot-botnet/mirai-strings
+      - type: trait
+        id: busybox

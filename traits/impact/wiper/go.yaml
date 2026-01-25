@@ -95,6 +95,8 @@ composite_rules:
     criticality: suspicious
     confidence: 0.99
     attack: "T1485"
+    mbc: "B0031"
+    file_types: [go]
     requires_count: 2
     conditions:
       - type: trait

@@ -6,7 +6,7 @@ traits:
   # PHP webshell patterns
   - id: php-shell
     description: PHP webshell implementation patterns
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     mbc: "B0030"
     attack: "T1505.003"
@@ -32,7 +32,7 @@ traits:
   # JSP webshell patterns
   - id: jsp-shell
     description: JSP webshell implementation patterns
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     mbc: "B0030"
     attack: "T1505.003"

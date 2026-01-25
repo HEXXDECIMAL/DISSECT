@@ -107,9 +107,10 @@ traits:
   # Unique identifier generation with exfil
   - id: unique-id-exfil
     description: Generates unique identifier and sends to network
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1082"
+    mbc: "E1082"
     file_types: [javascript, typescript]
     condition:
       type: yara

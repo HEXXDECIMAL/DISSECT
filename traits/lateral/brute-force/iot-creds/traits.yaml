@@ -3,95 +3,226 @@
 # ATT&CK: T1110.001 (Brute Force: Password Guessing)
 
 traits:
-  # Mirai default credentials
+  # Mirai credential indicators - individual strings are suspicious
+  - id: mirai-cred-admin
+    description: Mirai credential variant (7ujMko0admin)
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1110.001"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "7ujMko0admin"
+
+  - id: mirai-cred-vizxv
+    description: Mirai credential variant (7ujMko0vizxv)
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1110.001"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "7ujMko0vizxv"
+
+  - id: mirai-cred-juantech
+    description: Mirai credential variant (juantech)
+    criticality: suspicious
+    confidence: 0.75
+    attack: "T1110.001"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "juantech"
+
+  - id: mirai-cred-xc3511
+    description: Mirai credential variant (xc3511)
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1110.001"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "xc3511"
+
+  - id: mirai-cred-jvbzd
+    description: Mirai credential variant (jvbzd)
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1110.001"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "jvbzd"
+
+  - id: mirai-cred-smcadmin
+    description: Mirai credential variant (smcadmin)
+    criticality: suspicious
+    confidence: 0.75
+    attack: "T1110.001"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "smcadmin"
+
+  - id: mirai-cred-gm8182
+    description: Mirai credential variant (GM8182)
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1110.001"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "GM8182"
+
+  - id: mirai-cred-oelinux
+    description: Mirai credential variant (oelinux123)
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1110.001"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "oelinux123"
+
+  - id: mirai-cred-hi3518
+    description: Mirai credential variant (hi3518)
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1110.001"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "hi3518"
+
+  # Dahua/Hikvision camera credentials
+  - id: camera-cred-vizxv
+    description: IP camera credential (vizxv)
+    criticality: suspicious
+    confidence: 0.75
+    attack: "T1110.001"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "vizxv"
+
+  - id: camera-cred-xmhdipc
+    description: IP camera credential (xmhdipc)
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1110.001"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "xmhdipc"
+
+  # Router default credentials
+  - id: router-cred-zte
+    description: Router credential (Zte521)
+    criticality: suspicious
+    confidence: 0.75
+    attack: "T1110.001"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "Zte521"
+
+  - id: router-cred-huawei
+    description: Router credential (telecomadmin)
+    criticality: suspicious
+    confidence: 0.75
+    attack: "T1110.001"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "telecomadmin"
+
+  # Telnet bruteforce indicators
+  - id: telnet-connect
+    description: Telnet connection string
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1110.001"
+    file_types: [elf]
+    condition:
+      type: string
+      regex: "telnet (connect|scanner|brute)"
+      case_insensitive: true
+
+  - id: busybox-download
+    description: BusyBox download exploitation
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1110.001"
+    file_types: [elf]
+    condition:
+      type: string
+      regex: "busybox (wget|tftp)"
+
+composite_rules:
+  # Mirai default credentials - requires 3+ credential strings
   - id: mirai-creds
-    description: Mirai botnet default credential list
+    description: Mirai botnet default credential list detected
     criticality: hostile
     confidence: 0.95
     attack: "T1110.001"
-    condition:
-      type: yara
-      source: |
-        rule mirai_creds {
-          strings:
-            $cred1 = "7ujMko0admin" ascii
-            $cred2 = "7ujMko0vizxv" ascii
-            $cred3 = "admin1234" ascii
-            $cred4 = "juantech" ascii
-            $cred5 = "xc3511" ascii
-            $cred6 = "jvbzd" ascii
-            $cred7 = "anko" ascii
-            $cred8 = "smcadmin" ascii
-            $cred9 = "GM8182" ascii
-            $cred10 = "oelinux123" ascii
-            $cred11 = "hi3518" ascii
-          condition:
-            3 of them
-        }
+    mbc: "E1017"
+    file_types: [elf]
+    requires_count: 3
+    conditions:
+      - type: trait
+        id: mirai-cred-admin
+      - type: trait
+        id: mirai-cred-vizxv
+      - type: trait
+        id: mirai-cred-juantech
+      - type: trait
+        id: mirai-cred-xc3511
+      - type: trait
+        id: mirai-cred-jvbzd
+      - type: trait
+        id: mirai-cred-smcadmin
+      - type: trait
+        id: mirai-cred-gm8182
+      - type: trait
+        id: mirai-cred-oelinux
+      - type: trait
+        id: mirai-cred-hi3518
 
-  # Dahua/Hikvision camera credentials
+  # Camera credential list detection
   - id: camera-creds
-    description: IP camera default credentials
-    criticality: suspicious
+    description: IP camera default credentials detected
+    criticality: hostile
     confidence: 0.9
     attack: "T1110.001"
-    condition:
-      type: yara
-      source: |
-        rule camera_creds {
-          strings:
-            $dahua1 = "vizxv" ascii
-            $dahua2 = "7ujMko0" ascii
-            $xmhdipc = "xmhdipc" ascii
-          condition:
-            any of them
-        }
+    mbc: "E1017"
+    file_types: [elf]
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: camera-cred-vizxv
+      - type: trait
+        id: camera-cred-xmhdipc
+      - type: trait
+        id: mirai-cred-vizxv
+      - type: string
+        exact: "7ujMko0"
 
-  # Router default credentials
-  - id: router-creds
-    description: Router default credentials
-    criticality: suspicious
-    confidence: 0.85
-    attack: "T1110.001"
-    condition:
-      type: yara
-      source: |
-        rule router_creds {
-          strings:
-            $zte1 = "Zte521" ascii
-            $zte2 = "Pon521" ascii
-            $huawei = "telecomadmin" ascii
-            $ubnt = "ubnt" ascii
-          condition:
-            any of them
-        }
-
-  # Telnet bruteforce patterns
+  # Telnet bruteforce attack pattern
   - id: telnet-attack
-    description: Telnet bruteforce attack patterns
-    criticality: suspicious
-    confidence: 0.85
+    description: Telnet bruteforce attack pattern detected
+    criticality: hostile
+    confidence: 0.9
     attack: "T1110.001"
-    condition:
-      type: yara
-      source: |
-        rule telnet_brute {
-          strings:
-            // Telnet connection strings
-            $telnet_conn = "telnet connect" ascii nocase
-            $telnet_scan = "telnet scanner" ascii nocase
-            $telnet_brute = "telnet brute" ascii nocase
-            // BusyBox exploitation
-            $busybox_cmd = "busybox echo" ascii
-            $busybox_wget = "busybox wget" ascii
-            $busybox_tftp = "busybox tftp" ascii
-            // IoT exploitation patterns
-            $enable_cmd = "enable\nshell\nsh" ascii
-            $enable_system = "system\nshell\nsh" ascii
-            // Scanner output
-            $scanner1 = "port 23 open" ascii nocase
-            $scanner2 = "telnet_scan" ascii
-          condition:
-            any of ($telnet_*) or any of ($busybox_*) or
-            any of ($enable_*) or any of ($scanner*)
-        }
+    mbc: "E1017"
+    file_types: [elf]
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: telnet-connect
+      - type: trait
+        id: busybox-download
+      - type: string
+        regex: "port 23 open"
+        case_insensitive: true
+      - type: string
+        exact: "enable\nshell\nsh"

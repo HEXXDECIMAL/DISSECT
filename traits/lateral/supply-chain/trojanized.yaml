@@ -66,9 +66,10 @@ traits:
   # Discord library trojanization
   - id: discord-library
     description: Trojanized Discord library patterns
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     attack: "T1195.001"
+    mbc: "B0024"
     file_types: [javascript, typescript]
     condition:
       type: yara
@@ -93,9 +94,10 @@ traits:
   # Telegram library trojanization
   - id: telegram-library
     description: Trojanized Telegram library patterns
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     attack: "T1195.001"
+    mbc: "B0024"
     file_types: [javascript, typescript]
     condition:
       type: yara
@@ -173,9 +175,10 @@ traits:
   # Crypto/blockchain library trojanization
   - id: crypto-library
     description: Trojanized cryptocurrency library
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     attack: "T1195.001"
+    mbc: "B0024"
     file_types: [javascript, typescript]
     condition:
       type: yara

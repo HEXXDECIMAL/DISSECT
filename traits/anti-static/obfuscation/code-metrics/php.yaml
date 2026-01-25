@@ -56,7 +56,7 @@ traits:
 
   - id: php-high-non-ascii-ratio
     description: "High non-ASCII byte ratio (packed/obfuscated)"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     condition:
       type: metrics
@@ -65,7 +65,7 @@ traits:
 
   - id: php-non-ascii-call
     description: "Function call with non-ASCII name (obfuscation)"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.98
     condition:
       type: ast_pattern
@@ -75,7 +75,7 @@ traits:
 
   - id: php-non-ascii-variable
     description: "Variable with non-ASCII name (obfuscation)"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.98
     condition:
       type: ast_pattern
@@ -85,7 +85,7 @@ traits:
 
   - id: php-non-ascii-name
     description: "Identifier with non-ASCII characters (obfuscation)"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.98
     condition:
       type: ast_pattern
@@ -95,7 +95,7 @@ traits:
 
   - id: php-non-ascii-subscript
     description: "Subscript with non-ASCII characters (obfuscation)"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.98
     condition:
       type: ast_pattern
@@ -111,11 +111,11 @@ composite_rules:
     requires_count: 2
     conditions:
       - type: trait
-        id: php-encoded-strings
+        id: anti-static/obfuscation/code-metrics/php-encoded-strings
       - type: trait
-        id: php-single-long-line
+        id: anti-static/obfuscation/code-metrics/php-single-long-line
       - type: trait
-        id: php-obfuscated-vars
+        id: anti-static/obfuscation/code-metrics/php-obfuscated-vars
       - type: trait
         id: anti-static/obfuscation/code-metrics/no-comments
 
@@ -125,9 +125,9 @@ composite_rules:
     confidence: 0.85
     requires_all:
       - type: trait
-        id: php-encoded-strings
+        id: anti-static/obfuscation/code-metrics/php-encoded-strings
     requires_any:
       - type: trait
-        id: php-obfuscated-vars
+        id: anti-static/obfuscation/code-metrics/php-obfuscated-vars
       - type: trait
-        id: php-many-short-functions
+        id: anti-static/obfuscation/code-metrics/php-many-short-functions

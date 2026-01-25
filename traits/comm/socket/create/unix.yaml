@@ -1,11 +1,13 @@
 # Socket Creation
 # MBC: C0001 (Socket Communication)
 
+defaults:
+  file_types: [elf, macho, so, dylib, c]
+
 traits:
   - id: create
     description: Create network socket
     criticality: notable
-    file_types: [elf, aout, perl, python]
     confidence: 0.75
     condition:
       type: symbol
@@ -24,7 +26,6 @@ traits:
   - id: connect
     description: Connect socket to remote host
     criticality: notable
-    file_types: [elf]
     confidence: 0.85
     condition:
       type: symbol

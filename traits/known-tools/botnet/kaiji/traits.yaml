@@ -3,12 +3,12 @@
 # Reference: https://intezer.com/blog/research/kaiji-new-chinese-linux-malware-turning-to-golang/
 # ATT&CK: T1583.005 (Botnet)
 
-composite_rules:
-  # === Atomic Traits ===
+traits:
+  # === Atomic Traits (moved from composite_rules) ===
 
   - id: botnet/kaiji/systemctl-service
     description: Kaiji systemd service startup
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     attack: "T1543.002"
@@ -19,7 +19,7 @@ composite_rules:
 
   - id: botnet/kaiji/audit-selinux
     description: Kaiji SELinux audit bypass
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     attack: "T1562.001"
@@ -30,7 +30,7 @@ composite_rules:
 
   - id: botnet/kaiji/chaos-cve
     description: Kaiji CVE exploitation function
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     attack: "T1190"
@@ -43,7 +43,7 @@ composite_rules:
 
   - id: botnet/kaiji/beat-heart
     description: Kaiji heartbeat function (old)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     family: true
     attack: "T1071"
@@ -54,7 +54,7 @@ composite_rules:
 
   - id: botnet/kaiji/make-packet
     description: Kaiji packet crafting (old)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     family: true
     attack: "T1498"
@@ -65,7 +65,7 @@ composite_rules:
 
   - id: botnet/kaiji/decrypt-cfb
     description: Kaiji CFB decryption (old)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     family: true
     attack: "T1140"
@@ -74,6 +74,7 @@ composite_rules:
       type: string
       exact: "main.DecryptCFB"
 
+composite_rules:
   # Modern Kaiji detection
   - id: botnet/kaiji/detected
     description: Kaiji IoT botnet
@@ -93,7 +94,7 @@ composite_rules:
       - type: trait
         id: botnet/kaiji/chaos-cve
 
-  # Old variant detection
+  # Old variant detection - requires_any with 3+ conditions is fine
   - id: botnet/kaiji/old-variant-detected
     description: Kaiji IoT botnet (old variant)
     criticality: hostile

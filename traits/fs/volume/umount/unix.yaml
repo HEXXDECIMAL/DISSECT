@@ -2,6 +2,9 @@
 # MBC: E1222 (File Permission Modification)
 # ATT&CK: T1222
 
+defaults:
+  file_types: [elf, macho, so, dylib, c]
+
 traits:
   - id: umount
     description: Unmount file system

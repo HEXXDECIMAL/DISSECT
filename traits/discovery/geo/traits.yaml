@@ -68,32 +68,9 @@ traits:
       type: string
       regex: "freegeoip\\.(app|net|io)"
 
-  - id: checkip-aws
-    description: AWS checkip service
-    criticality: notable
-    confidence: 0.7
-    attack: "T1016"
-    condition:
-      type: string
-      exact: "checkip.amazonaws.com"
-
-  - id: icanhazip
-    description: icanhazip.com IP lookup
-    criticality: notable
-    confidence: 0.7
-    attack: "T1016"
-    condition:
-      type: string
-      exact: "icanhazip.com"
-
-  - id: ifconfig-me
-    description: ifconfig.me IP lookup
-    criticality: notable
-    confidence: 0.7
-    attack: "T1016"
-    condition:
-      type: string
-      exact: "ifconfig.me"
+  # NOTE: Generic IP lookup services (checkip.amazonaws.com, icanhazip.com, ifconfig.me, etc.)
+  # are defined in discovery/network/discovery/ip-lookup.yaml
+  # Use discovery/network/discovery directory reference for IP lookup detection
 
   # === Response Fields (JSON parsing) ===
 

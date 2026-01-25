@@ -166,8 +166,8 @@ composite_rules:
     confidence: 0.75
     requires_any:
       - type: trait
-        id: async/libev
+        id: libev
       - type: trait
-        id: async/c-ares
+        id: c-ares
       - type: trait
-        id: async/libevent
+        id: libevent

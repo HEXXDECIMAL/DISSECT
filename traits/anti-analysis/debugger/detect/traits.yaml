@@ -1,6 +1,7 @@
 # Debugger Detection
 # MBC: OB0001 (Anti-Behavioral Analysis) → B0001 (Debugger Detection)
 # ATT&CK: T1622 (Debugger Evasion)
+# NOTE: /proc/self/status is defined in fs/proc/process/linux.yaml (process-self-status)
 
 traits:
   # Unix/Linux
@@ -10,6 +11,7 @@ traits:
     mbc: "B0001"
     attack: "T1622"
     confidence: 0.7
+    file_types: [elf, macho, so, dylib, c]
     condition:
       type: symbol
       pattern: ptrace
@@ -21,21 +23,11 @@ traits:
     mbc: "B0001"
     attack: "T1622"
     confidence: 0.5
+    file_types: [elf, macho, so, dylib, c]
     condition:
       type: symbol
       pattern: isatty
     platforms: [all]
-
-  - id: proc-status
-    description: Reading /proc/self/status for TracerPid
-    criticality: notable
-    mbc: "B0001"
-    attack: "T1622"
-    confidence: 0.8
-    condition:
-      type: string
-      exact: "/proc/self/status"
-    platforms: [linux]
 
   - id: process-inspection
     description: "Process inspection pattern (potential anti-debug)"

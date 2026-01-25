@@ -11,9 +11,10 @@ traits:
   # FDM backdoor C2 domain
   - id: backdoor/fdm-backdoor/c2-domain
     description: FDM backdoor C2 domain
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.98
     family: true
+    attack: "T1071"
     condition:
       type: string
       exact: "u.fdmpkg.org"
@@ -21,9 +22,10 @@ traits:
   # FDM backdoor C2 IP
   - id: backdoor/fdm-backdoor/c2-ip
     description: FDM backdoor C2 IP address
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
+    attack: "T1071"
     condition:
       type: string
       exact: "45.88.3.6"
@@ -72,9 +74,10 @@ traits:
   # FDM backdoor ELF indicators
   - id: backdoor/fdm-backdoor/elf-indicators
     description: FDM backdoor ELF binary indicators
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
+    attack: "T1195.002"
     file_types: [elf]
     condition:
       type: yara
@@ -99,6 +102,9 @@ composite_rules:
     criticality: hostile
     confidence: 0.98
     family: true
+    attack: "T1195.002"
+    mbc: "B0030"
+    file_types: [elf]
     requires_any:
       - type: trait
         id: backdoor/fdm-backdoor/c2-domain

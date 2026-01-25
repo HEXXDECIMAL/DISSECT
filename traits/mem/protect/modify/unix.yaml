@@ -8,7 +8,7 @@ traits:
     confidence: 1.0
     attack: "T1055"
     platforms: [linux, macos, unix]
-    file_types: [elf, macho, so, dylib]
+    file_types: [elf, macho, so, dylib, c]
     condition:
       type: symbol
       pattern: "^_?mprotect$"

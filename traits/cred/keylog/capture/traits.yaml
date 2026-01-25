@@ -115,11 +115,11 @@ composite_rules:
     requires_count: 2
     conditions:
       - type: trait
-        id: credential/keylog/windows-hook
+        id: windows-hook
       - type: trait
-        id: credential/keylog/windows-rawinput
+        id: windows-rawinput
       - type: trait
-        id: credential/keylog/windows-asynckey
+        id: windows-asynckey
 
   - id: linux-keylogger
     description: Linux keylogger pattern (multiple input methods)
@@ -128,15 +128,16 @@ composite_rules:
     file_types: [elf]
     requires_all:
       - type: trait
-        id: credential/keylog/linux-input-device
+        id: linux-input-device
       - type: trait
-        id: credential/keylog/x11-grab
+        id: x11-grab
 
 traits:
   # === AppleScript Keystroke Capture ===
+  # YARA rule with multiple string matches - can stay hostile with file_types
   - id: applescript-keystroke
     description: AppleScript keystroke capture
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     mbc: "B0015"
     attack: "T1056.001"
@@ -157,9 +158,10 @@ traits:
         }
 
   # JXA (JavaScript for Automation) keystroke capture
+  # YARA rule with multiple string matches - can stay hostile with file_types
   - id: jxa-keystroke
     description: JXA (JavaScript for Automation) keystroke capture
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     mbc: "B0015"
     attack: "T1056.001"

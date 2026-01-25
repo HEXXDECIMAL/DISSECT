@@ -127,8 +127,9 @@ traits:
   # Runtime dependency injection
   - id: dependency-injection
     description: Package installs additional dependencies at runtime
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
+    mbc: "B0024"
     condition:
       type: yara
       source: |

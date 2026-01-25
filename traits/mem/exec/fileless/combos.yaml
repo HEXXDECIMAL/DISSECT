@@ -2,6 +2,25 @@
 # ATT&CK: T1055 (Process Injection)
 # MBC: B0033
 
+traits:
+  - id: remote-injection
+    description: Remote process memory manipulation
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1055"
+    platforms: [windows]
+    file_types: [pe, dll]
+    condition:
+      type: yara
+      source: |
+        rule remote_injection {
+          strings:
+            $vpe = "VirtualProtectEx" ascii wide
+            $vqe = "VirtualQueryEx" ascii wide
+          condition:
+            any of them
+        }
+
 composite_rules:
   - id: linux-memfd
     description: Fileless execution via anonymous memory
@@ -25,6 +44,7 @@ composite_rules:
     criticality: suspicious
     confidence: 0.95
     attack: "T1055"
+    mbc: "B0033"
     platforms: [windows]
     file_types: [python]
     requires_all:
@@ -37,16 +57,3 @@ composite_rules:
       - type: ast_pattern
         node_type: call
         pattern: "b64decode"
-
-  - id: remote-injection
-    description: Remote process memory manipulation
-    criticality: suspicious
-    confidence: 0.9
-    attack: "T1055"
-    platforms: [windows]
-    file_types: [pe, dll]
-    requires_any:
-      - type: trait
-        id: mem/protect/modify/virtualprotect-ex
-      - type: trait
-        id: mem/query/info/virtualquery-ex

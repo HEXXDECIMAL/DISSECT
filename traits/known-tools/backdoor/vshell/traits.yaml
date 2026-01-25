@@ -5,7 +5,7 @@
 traits:
   - id: backdoor/vshell/send-vshell
     description: VShell send function marker
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     attack: "T1059"
@@ -16,7 +16,7 @@ traits:
 
   - id: backdoor/vshell/sockopt-fprog
     description: VShell BPF socket filter
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     family: true
     attack: "T1205"
@@ -25,13 +25,12 @@ traits:
       type: string
       exact: ".SetsockoptSockFprog"
 
-composite_rules:
-  - id: backdoor/vshell/detected
-    description: VShell / Agent-CNO Trojan
-    criticality: hostile
+  # VShell YARA signature trait
+  - id: backdoor/vshell/yara-signature
+    description: VShell YARA signature
+    criticality: suspicious
     confidence: 0.95
     family: true
-    reference: "https://malpedia.caad.fkie.fraunhofer.de/details/elf.vshell"
     attack: "T1059"
     mbc: "B0022"
     file_types: [elf]
@@ -46,3 +45,21 @@ composite_rules:
             uint32(0) == 0x464C457F and
             filesize < 20MB and all of them
         }
+
+composite_rules:
+  - id: backdoor/vshell/detected
+    description: VShell / Agent-CNO Trojan
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    reference: "https://malpedia.caad.fkie.fraunhofer.de/details/elf.vshell"
+    attack: "T1059"
+    mbc: "B0022"
+    file_types: [elf]
+    requires_all:
+      - type: trait
+        id: backdoor/vshell/send-vshell
+      - type: trait
+        id: backdoor/vshell/sockopt-fprog
+      - type: trait
+        id: backdoor/vshell/yara-signature

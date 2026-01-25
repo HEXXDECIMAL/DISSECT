@@ -80,28 +80,5 @@ traits:
       type: string
       regex: "navigator\\.webdriver|navigator\\.plugins\\.length\\s*===?\\s*0|window\\.outerWidth\\s*===?\\s*0"
 
-  - id: vm-detect
-    description: Virtual machine detection
-    criticality: suspicious
-    confidence: 0.85
-    mbc: "B0009"
-    attack: "T1497.001"
-    file_types: [javascript, typescript, python, shell]
-    condition:
-      type: yara
-      source: |
-        rule vm_detection {
-          strings:
-            $vm1 = "VirtualBox" nocase
-            $vm2 = "VMware" nocase
-            $vm3 = "QEMU" nocase
-            $vm4 = "Xen" nocase
-            $vm5 = "KVM" nocase
-            $vm6 = "Hyper-V" nocase
-            $vm7 = "Parallels" nocase
-            $mac1 = "00:0c:29" ascii
-            $mac2 = "00:50:56" ascii
-            $mac3 = "08:00:27" ascii
-          condition:
-            any of them
-        }
+  # NOTE: VM detection traits are in anti-analysis/vm/
+  # Use anti-analysis/vm directory reference for VM/hypervisor detection

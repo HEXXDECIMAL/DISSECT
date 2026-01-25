@@ -1171,9 +1171,10 @@ traits:
 
   - id: fileless-lkm-loading
     description: Fileless kernel module loading (memfd_create + finit_module)
-    criticality: hostile
+    criticality: suspicious
     confidence: 1.0
     attack: "T1620"
+    file_types: [elf, c]
     condition:
       type: yara
       source: |
@@ -1193,8 +1194,9 @@ traits:
 
   - id: pte-manipulation
     description: Direct PTE manipulation to bypass memory protection
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
+    attack: "T1014"
     file_types: [c]
     condition:
       type: yara
@@ -1214,7 +1216,7 @@ traits:
 
   - id: elf-patching
     description: ELF binary structural patching (Infection)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1542.001"
     file_types: [c]
@@ -1237,8 +1239,12 @@ composite_rules:
     description: Advanced LKM rootkit with fileless loading or PTE manipulation
     criticality: hostile
     confidence: 1.0
+    attack: "T1014"
+    file_types: [elf, c]
     requires_any:
       - type: trait
         id: fileless-lkm-loading
       - type: trait
         id: pte-manipulation
+      - type: trait
+        id: elf-patching

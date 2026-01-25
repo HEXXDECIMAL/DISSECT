@@ -8,6 +8,7 @@ pub mod comment_metrics;
 pub mod function_metrics;
 pub mod identifier_metrics;
 pub mod string_metrics;
+pub mod symbol_extraction;
 pub mod text_metrics;
 
 pub mod elf;

@@ -56,7 +56,7 @@ composite_rules:
   - id: stealth-subprocess
     description: "Stealthy subprocess creation (hidden + detached)"
     confidence: 0.95
-    criticality: hostile
+    criticality: suspicious
     requires_all:
       - type: string
         regex: "subprocess\\.(Popen|run|call)\\("

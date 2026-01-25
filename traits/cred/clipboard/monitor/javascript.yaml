@@ -39,13 +39,15 @@ composite_rules:
     criticality: hostile
     confidence: 0.98
     attack: "T1553"
+    mbc: "B0014"
+    file_types: [javascript]
     requires_all:
       - type: trait
         id: comm/http/request/js-axios-post
     requires_any:
       - type: trait
-        id: credential/clipboard/monitor/js-pbpaste
+        id: js-pbpaste
       - type: trait
-        id: credential/clipboard/monitor/js-powershell-clipboard
+        id: js-powershell-clipboard
       - type: trait
-        id: credential/clipboard/monitor/js-xclip
+        id: js-xclip

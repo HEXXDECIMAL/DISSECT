@@ -44,6 +44,7 @@ impl MachOAnalyzer {
 
     fn analyze_single(&self, file_path: &Path, data: &[u8]) -> Result<AnalysisReport> {
         let start = std::time::Instant::now();
+        let timing = std::env::var("DISSECT_TIMING").is_ok();
 
         // Parse with goblin
         let macho = match goblin::mach::Mach::parse(data)? {
@@ -84,18 +85,30 @@ impl MachOAnalyzer {
         // AMOS cipher detection and decryption
         self.analyze_amos_cipher(data, &mut report, &mut tools_used);
 
-        // Use radare2 for deep analysis if available
+        // Use radare2 for deep analysis if available - use batched extraction for speed
+        let t_r2 = std::time::Instant::now();
         if Radare2Analyzer::is_available() {
             tools_used.push("radare2".to_string());
 
-            if let Ok(functions) = self.radare2.extract_functions(file_path) {
-                report.functions = functions;
-            }
+            // Use batched extraction - single r2 session for functions and sections
+            if let Ok(batched) = self.radare2.extract_batched(file_path) {
+                // Compute metrics from batched data first (before consuming functions)
+                let binary_metrics = self.radare2.compute_metrics_from_batched(&batched);
+                report.metrics = Some(Metrics {
+                    binary: Some(binary_metrics),
+                    ..Default::default()
+                });
 
-            // Extract syscalls for binary analysis
-            if let Ok(syscalls) = self.radare2.extract_syscalls(file_path) {
-                report.syscalls = syscalls;
+                // Convert R2Functions to Functions for the report
+                report.functions = batched
+                    .functions
+                    .into_iter()
+                    .map(Function::from)
+                    .collect();
             }
+        }
+        if timing {
+            eprintln!("[TIMING] radare2 batched analysis: {:?}", t_r2.elapsed());
         }
 
         // Run YARA scan if engine is loaded
@@ -144,29 +157,20 @@ impl MachOAnalyzer {
             }
         }
 
-        // Generate structural traits from analysis
-        self.generate_structural_traits(&macho, data, &mut report)?;
-
-        // Compute binary metrics using radare2 (BEFORE trait evaluation)
-        if Radare2Analyzer::is_available() {
-            if let Ok(binary_metrics) = self.radare2.compute_binary_metrics(file_path) {
-                report.metrics = Some(Metrics {
-                    binary: Some(binary_metrics),
-                    ..Default::default()
-                });
-                tools_used.push("radare2".to_string());
-            }
-        }
-
         // Evaluate trait definitions from YAML (parallelized)
+        let t_traits = std::time::Instant::now();
         let trait_findings = self.capability_mapper.evaluate_traits(&report, data);
         for f in trait_findings {
             if !report.findings.iter().any(|existing| existing.id == f.id) {
                 report.findings.push(f);
             }
         }
+        if timing {
+            eprintln!("[TIMING] evaluate_traits: {:?}", t_traits.elapsed());
+        }
 
         // Evaluate composite rules (after traits are merged)
+        let t_composite = std::time::Instant::now();
         let composite_findings = self
             .capability_mapper
             .evaluate_composite_rules(&report, data);
@@ -174,6 +178,9 @@ impl MachOAnalyzer {
             if !report.findings.iter().any(|existing| existing.id == f.id) {
                 report.findings.push(f);
             }
+        }
+        if timing {
+            eprintln!("[TIMING] evaluate_composite_rules: {:?}", t_composite.elapsed());
         }
 
         report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;

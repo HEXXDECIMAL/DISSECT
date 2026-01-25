@@ -55,17 +55,7 @@ composite_rules:
       regex: "/etc/(shadow|gshadow|master.passwd)"
 
 
-  - id: passwd-file
-    description: Password file access (/etc/passwd)
-    criticality: inert
-    confidence: 0.6
-    mbc: "E1003.008"
-    attack: "T1003.008"
-    platforms: [unix, linux, macos]
-    file_types: [elf, macho, shell, perl, python, ruby]
-    condition:
-      type: string
-      exact: "/etc/passwd"
+  # NOTE: /etc/passwd is defined in discovery/user/traits.yaml as etc-passwd
 
   # NOTE: System utilities like busybox legitimately access gshadow
   - id: gshadow-file
@@ -100,6 +90,6 @@ composite_rules:
     file_types: [elf]
     requires_any:
       - type: trait
-        id: credential/dump/getspnam
+        id: getspnam
       - type: trait
-        id: credential/dump/shadow-file
+        id: shadow-file

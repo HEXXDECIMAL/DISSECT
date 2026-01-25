@@ -7,7 +7,7 @@ defaults:
   mbc: "B0032"
   attack: "T1027"
 
-composite_rules:
+traits:
   - id: xor-decode-loop
     description: "XOR decryption loop pattern"
     criticality: suspicious
@@ -34,12 +34,13 @@ composite_rules:
       type: symbol
       pattern: "decode_table|table_decode|lookup_decode|char_map"
 
+composite_rules:
   - id: string-decrypt
     description: "String decryption capability"
     criticality: suspicious
     confidence: 0.8
     requires_any:
       - type: trait
-        id: xor-decode-loop
+        id: anti-static/obfuscation/encoding/xor-decode-loop
       - type: trait
-        id: table-based-decode
+        id: anti-static/obfuscation/encoding/table-based-decode

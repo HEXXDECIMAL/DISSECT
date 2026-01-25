@@ -2,7 +2,7 @@ use crate::analyzers::Analyzer;
 use crate::analyzers::{
     comment_metrics::{self, CommentStyle},
     function_metrics::{self, FunctionInfo},
-    identifier_metrics, string_metrics, text_metrics,
+    identifier_metrics, string_metrics, symbol_extraction, text_metrics,
 };
 use crate::types::*;
 use anyhow::{Context, Result};
@@ -68,6 +68,14 @@ impl CSharpAnalyzer {
 
         self.detect_capabilities(&root, content.as_bytes(), &mut report);
         self.extract_functions(&root, content.as_bytes(), &mut report);
+
+        // Extract method calls as symbols for symbol-based rule matching
+        symbol_extraction::extract_symbols(
+            content,
+            tree_sitter_c_sharp::LANGUAGE.into(),
+            &["invocation_expression"],
+            &mut report,
+        );
 
         crate::path_mapper::analyze_and_link_paths(&mut report);
         crate::env_mapper::analyze_and_link_env_vars(&mut report);

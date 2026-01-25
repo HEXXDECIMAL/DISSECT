@@ -64,7 +64,7 @@ traits:
 
   - id: pipe-to-shell
     description: npm script pipes content to shell interpreter
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     mbc: "B0024"
     attack: "T1059"
@@ -76,7 +76,7 @@ traits:
 
   - id: download-execute
     description: npm script downloads and executes code (dropper pattern)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     mbc: "B0024"
     attack: "T1105"
@@ -149,7 +149,7 @@ traits:
 
   - id: file-upload
     description: npm script uploads local file via curl
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     mbc: "E1591"
     attack: "T1041"

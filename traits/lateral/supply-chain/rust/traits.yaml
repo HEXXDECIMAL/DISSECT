@@ -73,8 +73,12 @@ composite_rules:
     criticality: hostile
     confidence: 0.85
     attack: "T1195.001"
+    mbc: "B0024"
+    file_types: [rust]
     requires_all:
       - type: trait
-        id: rust/internal-lib-pattern
+        id: internal-lib-pattern
       - type: trait
-        id: rust/suspicious-crate-call
+        id: suspicious-crate-call
+      - type: trait
+        id: misspelled-common-words

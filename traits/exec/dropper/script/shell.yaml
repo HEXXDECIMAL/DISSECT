@@ -2,7 +2,7 @@
 # Detects download-chmod-execute patterns common in supply chain attacks
 # ATT&CK: T1059.004 (Command and Scripting Interpreter: Unix Shell)
 
-composite_rules:
+traits:
   - id: wget-download
     description: "Download via wget"
     criticality: notable
@@ -151,6 +151,7 @@ composite_rules:
       regex: "mpsl|mipsel|MIPSEL"
       search_raw: true
 
+composite_rules:
   - id: download-chmod-execute
     description: "Download, chmod, and execute in one command"
     confidence: 0.95

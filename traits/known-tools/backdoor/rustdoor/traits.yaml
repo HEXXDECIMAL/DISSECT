@@ -5,21 +5,11 @@
 
 traits:
   # === Atomic Traits ===
-
-  - id: backdoor/rustdoor/botkill
-    description: Rustdoor botkill function
-    criticality: hostile
-    confidence: 0.85
-    family: true
-    attack: "T1562"
-    file_types: [macho]
-    condition:
-      type: string
-      exact: "botkill"
+  # NOTE: botkill is defined in c2/botkill/traits.yaml
 
   - id: backdoor/rustdoor/ziptask
     description: Rustdoor ziptask dialog
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     family: true
     attack: "T1059"
@@ -30,7 +20,7 @@ traits:
 
   - id: backdoor/rustdoor/upload-files
     description: Rustdoor file upload function
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.85
     family: true
     attack: "T1041"
@@ -41,7 +31,7 @@ traits:
 
   - id: backdoor/rustdoor/launch-agents
     description: Rustdoor LaunchAgents persistence
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.8
     family: true
     attack: "T1543.001"
@@ -56,7 +46,7 @@ traits:
 
   - id: backdoor/rustdoor/cfg-check-cron
     description: Rustdoor v2 cron check config
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     family: true
     attack: "T1053.003"
@@ -67,7 +57,7 @@ traits:
 
   - id: backdoor/rustdoor/cfg-lock-cron
     description: Rustdoor v2 cron lock config
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     family: true
     attack: "T1053.003"
@@ -78,7 +68,7 @@ traits:
 
   - id: backdoor/rustdoor/cfg-lock-dock
     description: Rustdoor v2 dock lock config
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     family: true
     attack: "T1543.001"
@@ -89,7 +79,7 @@ traits:
 
   - id: backdoor/rustdoor/cfg-lock-launch
     description: Rustdoor v2 launch lock config
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     family: true
     attack: "T1543.001"
@@ -110,7 +100,7 @@ traits:
       exact: "copy_files"
 
 composite_rules:
-  # Rustdoor v1 detection - with Mach-O magic check
+  # Rustdoor v1 detection
   - id: backdoor/rustdoor/v1-detected
     description: Rustdoor macOS backdoor v1
     criticality: hostile
@@ -120,21 +110,15 @@ composite_rules:
     attack: "T1059"
     mbc: "B0022"
     file_types: [macho]
-    condition:
-      type: yara
-      source: |
-        rule rustdoor_v1 {
-          strings:
-            $botkill = "botkill"
-            $dialog = "ziptask"
-            $upload = "upload_filesrc"
-            $launchagents = "LaunchAgents.plist"
-          condition:
-            (uint32(0) == 0xFEEDFACE or uint32(0) == 0xFEEDFACF or
-             uint32(0) == 0xCEFAEDFE or uint32(0) == 0xCFFAEDFE or
-             uint32(0) == 0xBEBAFECA or uint32(0) == 0xCAFEBABE) and
-            filesize > 1MB and filesize < 10MB and all of them
-        }
+    requires_all:
+      - type: trait
+        id: c2/botkill/botkill
+      - type: trait
+        id: backdoor/rustdoor/ziptask
+      - type: trait
+        id: backdoor/rustdoor/upload-files
+      - type: trait
+        id: backdoor/rustdoor/launch-agents
 
   # Rustdoor v2 detection
   - id: backdoor/rustdoor/v2-detected
@@ -145,20 +129,15 @@ composite_rules:
     attack: "T1059"
     mbc: "B0022"
     file_types: [macho]
-    condition:
-      type: yara
-      source: |
-        rule rustdoor_v2 {
-          strings:
-            $cfg_daemonize = "daemonize"
-            $cfg_cron = "check_cron_asked"
-            $cfg_lock_in_cron = "lock_in_cron"
-            $cfg_lock_in_dock = "lock_in_dock"
-            $cfg_lock_in_launch = "lock_in_launch"
-            $cfg_copy_files = "copy_files"
-          condition:
-            (uint32(0) == 0xFEEDFACE or uint32(0) == 0xFEEDFACF or
-             uint32(0) == 0xCEFAEDFE or uint32(0) == 0xCFFAEDFE or
-             uint32(0) == 0xBEBAFECA or uint32(0) == 0xCAFEBABE) and
-            filesize > 1MB and filesize < 10MB and 4 of them
-        }
+    requires_count: 4
+    conditions:
+      - type: trait
+        id: backdoor/rustdoor/cfg-check-cron
+      - type: trait
+        id: backdoor/rustdoor/cfg-lock-cron
+      - type: trait
+        id: backdoor/rustdoor/cfg-lock-dock
+      - type: trait
+        id: backdoor/rustdoor/cfg-lock-launch
+      - type: trait
+        id: backdoor/rustdoor/cfg-copy-files

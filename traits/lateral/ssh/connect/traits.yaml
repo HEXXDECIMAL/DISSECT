@@ -58,16 +58,8 @@ traits:
       exact: "ConnectTimeout"
 
   # === Atomic: SSH Key Files ===
-
-  - id: key-id-rsa
-    description: References id_rsa private key
-    criticality: suspicious
-    confidence: 0.7
-    attack: "T1552.004"
-    platforms: [linux, macos, unix]
-    condition:
-      type: string
-      exact: "id_rsa"
+  # NOTE: id_rsa, authorized_keys, known_hosts are defined in cred/ssh/key/
+  # Use cred/ssh/key directory reference in composite rules for those traits
 
   - id: key-pem
     description: References .pem key file
@@ -88,28 +80,6 @@ traits:
     condition:
       type: string
       exact: "IdentityFile"
-
-  # === Atomic: SSH Target Discovery ===
-
-  - id: authorized-keys
-    description: References authorized_keys file
-    criticality: notable
-    confidence: 0.6
-    attack: "T1021.004"
-    platforms: [linux, macos, unix]
-    condition:
-      type: string
-      exact: "authorized_keys"
-
-  - id: known-hosts-file
-    description: References known_hosts file
-    criticality: notable
-    confidence: 0.6
-    attack: "T1021.004"
-    platforms: [linux, macos, unix]
-    condition:
-      type: string
-      exact: "known_hosts"
 
   - id: ssh-config-parse
     description: Parses SSH config for hostnames

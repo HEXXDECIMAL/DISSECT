@@ -2,6 +2,9 @@
 # MBC: C0046 (Create File)
 # ATT&CK: T1083
 
+defaults:
+  file_types: [elf, macho, so, dylib, c]
+
 traits:
   - id: mkdir
     description: Create directories

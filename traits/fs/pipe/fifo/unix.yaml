@@ -2,6 +2,9 @@
 # MBC: C0046 (Create File)
 # ATT&CK: T1071
 
+defaults:
+  file_types: [elf, macho, so, dylib, c]
+
 traits:
   - id: fifo
     description: Create FIFO special file (named pipe)

@@ -131,14 +131,14 @@ composite_rules:
     requires_count: 3
     conditions:
       - type: trait
-        id: system/node-hostname
+        id: node-hostname
       - type: trait
-        id: system/node-homedir
+        id: node-homedir
       - type: trait
-        id: system/node-userinfo
+        id: node-userinfo
       - type: trait
-        id: system/node-platform
+        id: node-platform
       - type: trait
-        id: system/node-cwd
+        id: node-cwd
       - type: trait
-        id: system/node-network
+        id: node-network

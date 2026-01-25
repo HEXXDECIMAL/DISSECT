@@ -2,6 +2,9 @@
 # MBC: C0017 (Create Process)
 # ATT&CK: T1106
 
+defaults:
+  file_types: [elf, macho, so, dylib, c]
+
 traits:
   - id: fork
     description: Process forking

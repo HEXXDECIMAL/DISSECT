@@ -2,6 +2,9 @@
 # These patterns indicate code that modifies itself at runtime
 # Can be legitimate (JIT, hot-patching) or malicious (polymorphic malware)
 
+defaults:
+  file_types: [pe, elf, macho, dll, so, dylib]
+
 traits:
   # Memory protection changes
   - id: mprotect

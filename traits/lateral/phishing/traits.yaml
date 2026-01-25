@@ -65,7 +65,7 @@ traits:
   # Microsoft brand impersonation
   - id: microsoft-impersonation
     description: Microsoft brand impersonation
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     attack: "T1566.002"
     file_types: [javascript, html]
@@ -88,7 +88,7 @@ traits:
   # Google brand impersonation
   - id: google-impersonation
     description: Google brand impersonation
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     attack: "T1566.002"
     file_types: [javascript, html]

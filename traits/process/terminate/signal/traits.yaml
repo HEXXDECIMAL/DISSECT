@@ -2,6 +2,9 @@
 # MBC: OC0003 (Defense Evasion) / OB0006 (Execution)
 # ATT&CK: T1562 (Impair Defenses) / T1059 (Command and Scripting Interpreter)
 
+defaults:
+  file_types: [elf, macho, so, dylib, c]
+
 traits:
   # Signal sending
   - id: kill

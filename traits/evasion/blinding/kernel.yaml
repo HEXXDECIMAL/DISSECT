@@ -5,7 +5,7 @@ traits:
   # LKRG Blinding
   - id: lkrg
     description: Targets Linux Kernel Runtime Guard (LKRG) integrity checks
-    criticality: hostile
+    criticality: suspicious
     confidence: 1.0
     attack: "T1562.001"
     file_types: [c]
@@ -27,9 +27,10 @@ traits:
   # Generic Kernel Security Blinding
   - id: kernel-integrity
     description: Targets kernel integrity or exploit detection functions
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     attack: "T1562.001"
+    file_types: [c, elf]
     condition:
       type: yara
       source: |
@@ -47,8 +48,9 @@ traits:
   # Hooking Security functions (AST)
   - id: hook-security-logic
     description: Structural detection of hooking kernel integrity checks
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
+    attack: "T1562.001"
     file_types: [c]
     condition:
       type: ast_pattern
@@ -63,6 +65,7 @@ composite_rules:
     criticality: hostile
     confidence: 0.99
     attack: "T1562.001"
+    file_types: [c]
     requires_count: 2
     conditions:
       - type: trait

@@ -2,6 +2,9 @@
 # MBC: B0032 (Obfuscated Files or Information)
 # ATT&CK: T1027
 
+defaults:
+  file_types: [pe, elf, macho, python, javascript, shell]
+
 traits:
   - id: encode
     description: XOR encoding patterns

@@ -2,16 +2,16 @@
 # Reference: https://github.com/HavocFramework/Havoc
 # ATT&CK: T1059 (Command and Scripting Interpreter)
 
-composite_rules:
-  # === Atomic Traits ===
-
+traits:
   - id: c2-framework/havoc/amsi-dll-xor
     description: Havoc XOR'ed AMSI DLL reference
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
+    mbc: "B0030"
     attack: "T1562.001"
     platforms: [windows]
+    file_types: [pe, dll]
     condition:
       type: yara
       source: |
@@ -22,6 +22,41 @@ composite_rules:
             any of them
         }
 
+  - id: c2-framework/havoc/demon-ref
+    description: Havoc Demon agent reference
+    criticality: suspicious
+    confidence: 0.9
+    family: true
+    mbc: "B0030"
+    attack: "T1059"
+    platforms: [windows]
+    file_types: [pe, dll]
+    condition:
+      type: string
+      regex: "(?i)havoc.*demon|demon.*havoc|HavocFramework"
+
+  - id: c2-framework/havoc/config
+    description: Havoc configuration patterns
+    criticality: suspicious
+    confidence: 0.85
+    family: true
+    mbc: "B0030"
+    attack: "T1059"
+    platforms: [windows]
+    file_types: [pe, dll]
+    condition:
+      type: yara
+      source: |
+        rule havoc_config {
+          strings:
+            $cfg1 = "Demon" ascii
+            $cfg2 = "Havoc" ascii
+            $teamserver = "teamserver" ascii
+          condition:
+            ($cfg1 and $cfg2) or $teamserver
+        }
+
+composite_rules:
   - id: c2-framework/havoc/detected
     description: Havoc C2 framework implant
     criticality: hostile
@@ -31,6 +66,11 @@ composite_rules:
     attack: "T1059"
     mbc: "B0030"
     platforms: [windows]
+    file_types: [pe, dll]
     requires_any:
       - type: trait
         id: c2-framework/havoc/amsi-dll-xor
+      - type: trait
+        id: c2-framework/havoc/demon-ref
+      - type: trait
+        id: c2-framework/havoc/config

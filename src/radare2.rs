@@ -36,6 +36,14 @@ pub struct SyscallInfo {
     pub arch: String,
 }
 
+/// Batched analysis result containing all data from a single r2 session
+#[derive(Debug, Default)]
+pub struct BatchedAnalysis {
+    pub functions: Vec<R2Function>,
+    pub sections: Vec<R2Section>,
+    pub syscalls: Vec<SyscallInfo>,
+}
+
 /// Radare2 integration for deep binary analysis
 pub struct Radare2Analyzer {
     timeout_seconds: u64,
@@ -535,6 +543,168 @@ impl Radare2Analyzer {
         }
 
         Ok(None)
+    }
+
+    /// Extract functions, sections, and prepare for metrics in a SINGLE r2 session
+    /// This significantly reduces overhead compared to calling each method separately
+    pub fn extract_batched(&self, file_path: &Path) -> Result<BatchedAnalysis> {
+        let timing = std::env::var("DISSECT_TIMING").is_ok();
+        let t_start = std::time::Instant::now();
+
+        // Run a single r2 session with batched commands separated by "echo SEPARATOR"
+        // Commands: aa (analyze), aflj (functions), iSj (sections)
+        let output = Command::new("r2")
+            .arg("-q")
+            .arg("-e")
+            .arg("scr.color=0")
+            .arg("-e")
+            .arg("log.level=0")
+            .arg("-c")
+            .arg("aa; aflj; echo SEPARATOR; iSj")
+            .arg(file_path)
+            .output()
+            .context("Failed to execute radare2")?;
+
+        if !output.status.success() {
+            return Ok(BatchedAnalysis::default());
+        }
+
+        let output_str = String::from_utf8_lossy(&output.stdout);
+        let parts: Vec<&str> = output_str.split("SEPARATOR").collect();
+
+        // Parse functions (first part, after aa output)
+        let functions: Vec<R2Function> = parts
+            .first()
+            .and_then(|p| {
+                let json_start = p.find('[')?;
+                serde_json::from_str(&p[json_start..]).ok()
+            })
+            .unwrap_or_default();
+
+        // Parse sections (second part)
+        let sections: Vec<R2Section> = parts
+            .get(1)
+            .and_then(|p| {
+                let json_start = p.find('[')?;
+                serde_json::from_str(&p[json_start..]).ok()
+            })
+            .unwrap_or_default();
+
+        if timing {
+            eprintln!(
+                "[TIMING] radare2 batched (functions+sections): {:?}",
+                t_start.elapsed()
+            );
+        }
+
+        Ok(BatchedAnalysis {
+            functions,
+            sections,
+            syscalls: Vec::new(), // Syscalls can be extracted separately if needed
+        })
+    }
+
+    /// Compute binary metrics from pre-extracted batched analysis
+    /// Much faster than compute_binary_metrics as it doesn't spawn new r2 processes
+    pub fn compute_metrics_from_batched(&self, batched: &BatchedAnalysis) -> BinaryMetrics {
+        let mut metrics = BinaryMetrics::default();
+
+        // Process sections
+        metrics.section_count = batched.sections.len() as u32;
+        let mut entropies: Vec<f32> = Vec::new();
+        let mut total_size: u64 = 0;
+        let mut largest_size: u64 = 0;
+        let mut section_name_chars: Vec<char> = Vec::new();
+
+        for section in &batched.sections {
+            let entropy = section.entropy as f32;
+            entropies.push(entropy);
+            total_size += section.size;
+
+            if section.size > largest_size {
+                largest_size = section.size;
+            }
+
+            if let Some(ref perm) = section.perm {
+                if perm.contains('x') {
+                    metrics.executable_sections += 1;
+                }
+                if perm.contains('w') {
+                    metrics.writable_sections += 1;
+                }
+                if perm.contains('x') && perm.contains('w') {
+                    metrics.wx_sections += 1;
+                }
+            }
+
+            if entropy > 7.5 {
+                metrics.high_entropy_regions += 1;
+            }
+
+            section_name_chars.extend(section.name.chars());
+
+            if section.name == ".text" || section.name.contains("code") {
+                metrics.code_entropy = entropy;
+            }
+            if section.name == ".data" || section.name == ".rodata" {
+                metrics.data_entropy = entropy;
+            }
+        }
+
+        if !entropies.is_empty() {
+            metrics.overall_entropy = entropies.iter().sum::<f32>() / entropies.len() as f32;
+            let mean = metrics.overall_entropy;
+            let variance: f32 =
+                entropies.iter().map(|e| (e - mean).powi(2)).sum::<f32>() / entropies.len() as f32;
+            metrics.entropy_variance = variance.sqrt();
+        }
+
+        if total_size > 0 {
+            metrics.largest_section_ratio = largest_size as f32 / total_size as f32;
+        }
+
+        if !section_name_chars.is_empty() {
+            metrics.section_name_entropy = calculate_char_entropy(&section_name_chars);
+        }
+
+        // Process functions
+        metrics.function_count = batched.functions.len() as u32;
+
+        if !batched.functions.is_empty() {
+            let sizes: Vec<u64> = batched.functions.iter().filter_map(|f| f.size).collect();
+
+            if !sizes.is_empty() {
+                metrics.avg_function_size = sizes.iter().sum::<u64>() as f32 / sizes.len() as f32;
+                metrics.tiny_functions = sizes.iter().filter(|&&s| s < 16).count() as u32;
+                metrics.huge_functions = sizes.iter().filter(|&&s| s > 65536).count() as u32;
+            }
+
+            let complexities: Vec<u32> =
+                batched.functions.iter().filter_map(|f| f.complexity).collect();
+
+            if !complexities.is_empty() {
+                metrics.avg_complexity =
+                    complexities.iter().sum::<u32>() as f32 / complexities.len() as f32;
+                metrics.max_complexity = *complexities.iter().max().unwrap_or(&0);
+                metrics.high_complexity_functions = complexities.iter().filter(|&&c| c > 50).count() as u32;
+            }
+
+            // Count noreturn functions
+            metrics.noreturn_functions = batched
+                .functions
+                .iter()
+                .filter(|f| f.noreturn.unwrap_or(false))
+                .count() as u32;
+
+            // Count linear functions (no branches)
+            metrics.linear_functions = batched
+                .functions
+                .iter()
+                .filter(|f| f.nbbs.unwrap_or(0) <= 1)
+                .count() as u32;
+        }
+
+        metrics
     }
 
     /// Compute binary metrics using radare2 analysis

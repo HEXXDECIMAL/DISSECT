@@ -196,7 +196,7 @@ fn apply_trait_defaults(raw: RawTraitDefinition, defaults: &TraitDefaults) -> Tr
     // Stricter validation for HOSTILE traits: atomic traits cannot be HOSTILE
     if criticality == Criticality::Hostile {
         eprintln!(
-            "⚠️  WARNING: Trait '{}' is atomic but marked HOSTILE. Downgrading to SUSPICIOUS. (Only composite traits can be HOSTILE)",
+            "⚠️  WARNING: Trait '{}' is atomic but marked HOSTILE. Downgrading to SUSPICIOUS.",
             raw.id
         );
         criticality = Criticality::Suspicious;
@@ -206,28 +206,8 @@ fn apply_trait_defaults(raw: RawTraitDefinition, defaults: &TraitDefaults) -> Tr
     if criticality >= Criticality::Suspicious {
         if raw.description.len() < 15 {
             eprintln!(
-                "⚠️  WARNING: Trait '{}' has an overly short description for its criticality. Please provide more context.",
+                "⚠️  WARNING: Trait '{}' has an overly short description for its criticality.",
                 raw.id
-            );
-        }
-        if criticality >= Criticality::Hostile
-            && raw.mbc.is_none()
-            && raw.attack.is_none()
-            && defaults.mbc.is_none()
-            && defaults.attack.is_none()
-        {
-            eprintln!(
-                "⚠️  WARNING: Trait '{}' is marked {:?} but lacks an MBC or MITRE ATT&CK mapping.",
-                raw.id, criticality
-            );
-        }
-        if criticality >= Criticality::Hostile
-            && platforms.contains(&Platform::All)
-            && file_types.contains(&RuleFileType::All)
-        {
-            eprintln!(
-                "⚠️  WARNING: Trait '{}' is marked {:?} but targets all platforms and file types. Consider narrowing the scope.",
-                raw.id, criticality
             );
         }
     }
@@ -347,8 +327,8 @@ fn apply_composite_defaults(raw: RawCompositeRule, defaults: &TraitDefaults) -> 
 
         if condition_count < 3 || !has_file_type_filter {
             eprintln!(
-                "⚠️  WARNING: Composite trait '{}' is marked HOSTILE but does not meet strictness requirements (conditions: {}, has_file_type_filter: {}). Downgrading to SUSPICIOUS.",
-                raw.id, condition_count, has_file_type_filter
+                "⚠️  WARNING: Composite trait '{}' is marked HOSTILE but does not meet strictness requirements. Downgrading to SUSPICIOUS.",
+                raw.id
             );
             criticality = Criticality::Suspicious;
         }
@@ -358,7 +338,7 @@ fn apply_composite_defaults(raw: RawCompositeRule, defaults: &TraitDefaults) -> 
     if criticality >= Criticality::Suspicious {
         if raw.description.len() < 15 {
             eprintln!(
-                "⚠️  WARNING: Composite trait '{}' has an overly short description for its criticality. Please provide more context.",
+                "⚠️  WARNING: Composite trait '{}' has an overly short description for its criticality.",
                 raw.id
             );
         }
@@ -370,15 +350,6 @@ fn apply_composite_defaults(raw: RawCompositeRule, defaults: &TraitDefaults) -> 
         {
             eprintln!(
                 "⚠️  WARNING: Composite trait '{}' is marked {:?} but lacks an MBC or MITRE ATT&CK mapping.",
-                raw.id, criticality
-            );
-        }
-        if criticality >= Criticality::Hostile
-            && platforms.contains(&Platform::All)
-            && file_types.contains(&RuleFileType::All)
-        {
-            eprintln!(
-                "⚠️  WARNING: Composite trait '{}' is marked {:?} but targets all platforms and file types. Consider narrowing the scope.",
                 raw.id, criticality
             );
         }
@@ -490,7 +461,9 @@ impl CapabilityMapper {
     /// Load capability mappings from directory of YAML files (recursively)
     pub fn from_directory<P: AsRef<Path>>(dir_path: P) -> Result<Self> {
         let debug = std::env::var("DISSECT_DEBUG").is_ok();
+        let timing = std::env::var("DISSECT_TIMING").is_ok();
         let dir_path = dir_path.as_ref();
+        let t_start = std::time::Instant::now();
 
         if debug {
             eprintln!("🔍 Loading capabilities from: {}", dir_path.display());
@@ -516,6 +489,11 @@ impl CapabilityMapper {
             anyhow::bail!("No YAML files found in {}", dir_path.display());
         }
 
+        if timing {
+            eprintln!("[TIMING] Collected {} YAML files: {:?}", yaml_files.len(), t_start.elapsed());
+        }
+        let t_parse = std::time::Instant::now();
+
         // Load all YAML files in parallel, preserving path for prefix calculation
         let results: Vec<_> = yaml_files
             .par_iter()
@@ -534,10 +512,16 @@ impl CapabilityMapper {
             })
             .collect();
 
+        if timing {
+            eprintln!("[TIMING] Parsed YAML files: {:?}", t_parse.elapsed());
+        }
+        let t_merge = std::time::Instant::now();
+
         // Merge all results
         let mut symbol_map = HashMap::new();
         let mut trait_definitions = Vec::new();
         let mut composite_rules = Vec::new();
+        let mut rule_source_files: HashMap<String, String> = HashMap::new(); // rule_id -> file_path
         let mut files_processed = 0;
 
         for result in results {
@@ -648,6 +632,8 @@ impl CapabilityMapper {
                         rule.id = format!("{}/{}", prefix, rule.id);
                     }
                 }
+                // Track source file for error reporting
+                rule_source_files.insert(rule.id.clone(), path.display().to_string());
                 composite_rules.push(rule);
             }
 
@@ -665,27 +651,111 @@ impl CapabilityMapper {
             eprintln!("   ✅ Processed {} YAML files", files_processed);
         }
 
-        // Pre-compile all YARA rules for faster evaluation
+        if timing {
+            eprintln!("[TIMING] Merged results: {:?}", t_merge.elapsed());
+        }
+        let t_yara = std::time::Instant::now();
+
+        // Pre-compile all YARA rules for faster evaluation (parallelized)
         let yara_count_traits = trait_definitions
-            .iter_mut()
+            .iter()
             .filter(|t| matches!(t.condition, crate::composite_rules::Condition::Yara { .. }))
-            .map(|t| {
-                t.compile_yara();
-            })
             .count();
 
-        let yara_count_composite = composite_rules
-            .iter_mut()
-            .map(|r| {
-                r.compile_yara();
-            })
-            .count();
+        // Use rayon's par_iter_mut for parallel YARA compilation
+        trait_definitions.par_iter_mut().for_each(|t| {
+            if matches!(t.condition, crate::composite_rules::Condition::Yara { .. }) {
+                t.compile_yara();
+            }
+        });
+
+        let yara_count_composite = composite_rules.len();
+        composite_rules.par_iter_mut().for_each(|r| {
+            r.compile_yara();
+        });
 
         if debug && (yara_count_traits > 0 || yara_count_composite > 0) {
             eprintln!(
                 "   ⚡ Pre-compiled YARA rules in {} traits, {} composite rules",
                 yara_count_traits, yara_count_composite
             );
+        }
+
+        if timing {
+            eprintln!("[TIMING] Pre-compiled YARA: {:?}", t_yara.elapsed());
+        }
+        let t_validate = std::time::Instant::now();
+
+        // Validate trait references in composite rules
+        // Cross-directory references (containing '/') must match an existing directory prefix
+        // Include both trait definition prefixes AND composite rule prefixes (rules can reference rules)
+        let mut known_prefixes: std::collections::HashSet<String> = trait_definitions
+            .iter()
+            .filter_map(|t| {
+                // Extract the directory prefix from trait IDs (everything before the last '/')
+                t.id.rfind('/').map(|idx| t.id[..idx].to_string())
+            })
+            .collect();
+
+        // Also add composite rule prefixes (composite rules can reference other composite rules)
+        for rule in &composite_rules {
+            if let Some(idx) = rule.id.rfind('/') {
+                known_prefixes.insert(rule.id[..idx].to_string());
+            }
+        }
+
+        let mut invalid_refs = Vec::new();
+        for rule in &composite_rules {
+            let trait_refs = collect_trait_refs_from_rule(rule);
+            for (ref_id, rule_id) in trait_refs {
+                // Only validate cross-directory references (those with slashes)
+                if ref_id.contains('/') {
+                    // Check if this matches any known prefix
+                    let matches_prefix = known_prefixes
+                        .iter()
+                        .any(|prefix| prefix.starts_with(&ref_id) || ref_id.starts_with(prefix));
+                    if !matches_prefix {
+                        let source_file = rule_source_files
+                            .get(&rule_id)
+                            .map(|s| s.as_str())
+                            .unwrap_or("unknown");
+                        invalid_refs.push((rule_id.clone(), ref_id, source_file.to_string()));
+                    }
+                }
+            }
+        }
+
+        if !invalid_refs.is_empty() {
+            eprintln!(
+                "\n⚠️  WARNING: {} invalid trait references found in composite rules",
+                invalid_refs.len()
+            );
+            if debug {
+                for (rule_id, ref_id, source_file) in &invalid_refs {
+                    // Try to find line number by searching the file
+                    let line_hint = find_line_number(source_file, ref_id);
+                    if let Some(line) = line_hint {
+                        eprintln!(
+                            "   {}:{}: Rule '{}' references unknown path: '{}'",
+                            source_file, line, rule_id, ref_id
+                        );
+                    } else {
+                        eprintln!(
+                            "   {}: Rule '{}' references unknown path: '{}'",
+                            source_file, rule_id, ref_id
+                        );
+                    }
+                }
+                eprintln!("\n   Cross-directory references must use directory paths (e.g., 'discovery/system')");
+                eprintln!("   that match existing trait directories, not exact trait IDs.\n");
+            } else {
+                eprintln!("   Set DISSECT_DEBUG=1 to see details\n");
+            }
+        }
+
+        if timing {
+            eprintln!("[TIMING] Validated refs: {:?}", t_validate.elapsed());
+            eprintln!("[TIMING] Total from_directory: {:?}", t_start.elapsed());
         }
 
         Ok(Self {
@@ -1008,6 +1078,51 @@ fn simple_rule_to_composite_rule(rule: SimpleRule) -> CompositeTrait {
         conditions: None,
         requires_none: None,
     }
+}
+
+/// Try to find the line number where a string appears in a file
+fn find_line_number(file_path: &str, search_str: &str) -> Option<usize> {
+    let content = std::fs::read_to_string(file_path).ok()?;
+    for (line_num, line) in content.lines().enumerate() {
+        if line.contains(search_str) {
+            return Some(line_num + 1); // 1-indexed
+        }
+    }
+    None
+}
+
+/// Collect all trait reference IDs from a composite rule's conditions
+fn collect_trait_refs_from_rule(rule: &CompositeTrait) -> Vec<(String, String)> {
+    use crate::composite_rules::Condition;
+
+    let mut refs = Vec::new();
+
+    fn collect_from_conditions(
+        conditions: &[Condition],
+        rule_id: &str,
+        refs: &mut Vec<(String, String)>,
+    ) {
+        for cond in conditions {
+            if let Condition::Trait { id } = cond {
+                refs.push((id.clone(), rule_id.to_string()));
+            }
+        }
+    }
+
+    if let Some(ref conditions) = rule.requires_all {
+        collect_from_conditions(conditions, &rule.id, &mut refs);
+    }
+    if let Some(ref conditions) = rule.requires_any {
+        collect_from_conditions(conditions, &rule.id, &mut refs);
+    }
+    if let Some(ref conditions) = rule.conditions {
+        collect_from_conditions(conditions, &rule.id, &mut refs);
+    }
+    if let Some(ref conditions) = rule.requires_none {
+        collect_from_conditions(conditions, &rule.id, &mut refs);
+    }
+
+    refs
 }
 
 impl Default for CapabilityMapper {

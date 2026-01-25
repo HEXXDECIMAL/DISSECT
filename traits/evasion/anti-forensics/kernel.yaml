@@ -5,7 +5,7 @@ traits:
   # Kernel Taint Erasure
   - id: kernel-taint-reset
     description: Resets kernel tainted_mask to hide out-of-tree modules
-    criticality: hostile
+    criticality: suspicious
     confidence: 1.0
     attack: "T1562.001"
     file_types: [c]
@@ -23,8 +23,9 @@ traits:
   # Kernel Taint Erasure (AST)
   - id: kernel-taint-assign
     description: Direct assignment to kernel taint mask (structural)
-    criticality: hostile
+    criticality: suspicious
     confidence: 1.0
+    attack: "T1562.001"
     file_types: [c]
     condition:
       type: ast_pattern
@@ -34,7 +35,7 @@ traits:
   # Real-time Log Sanitization
   - id: log-sanitization
     description: Real-time filtering of dmesg or kmsg output
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1562.001"
     file_types: [c]
@@ -59,8 +60,9 @@ traits:
   # TaskStats Forensic Deception
   - id: taskstats-deception
     description: Blinds TaskStats netlink API to hide processes from forensic tools
-    criticality: hostile
+    criticality: suspicious
     confidence: 1.0
+    attack: "T1562.001"
     file_types: [c]
     condition:
       type: yara
@@ -77,8 +79,9 @@ traits:
   # Audit System Blinding
   - id: audit-blinding
     description: Intercepts and drops Linux Auditing System (auditd) records
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
+    attack: "T1562.001"
     file_types: [c]
     condition:
       type: yara
@@ -97,8 +100,9 @@ traits:
   # Fake Capability/State (Read-Write Divergence)
   - id: fake-state-logic
     description: Divergent logic where READ returns a fake state while WRITE is ignored (Deception)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
+    attack: "T1562.001"
     file_types: [c]
     condition:
       type: yara
@@ -116,8 +120,9 @@ traits:
   # Structural Deception Pattern (AST)
   - id: deception-read-hook
     description: Structural pattern of a read hook returning a hardcoded buffer/variable (Deception)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
+    attack: "T1562.001"
     file_types: [c]
     condition:
       type: ast_query
@@ -138,6 +143,7 @@ composite_rules:
     criticality: hostile
     confidence: 1.0
     attack: "T1562.001"
+    file_types: [c]
     requires_count: 2
     conditions:
       - type: trait

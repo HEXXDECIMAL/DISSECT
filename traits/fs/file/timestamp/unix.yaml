@@ -2,6 +2,9 @@
 # MBC: F0006 (Timestomp)
 # ATT&CK: T1070.006
 
+defaults:
+  file_types: [elf, macho, so, dylib, c]
+
 traits:
   - id: timestamp
     description: Modify file timestamps

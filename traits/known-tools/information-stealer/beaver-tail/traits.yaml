@@ -5,7 +5,7 @@
 traits:
   - id: stealer/beaver-tail/pdown
     description: Beaver Tail download endpoint
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     attack: "T1105"
@@ -16,7 +16,7 @@ traits:
 
   - id: stealer/beaver-tail/upload-ldb
     description: Beaver Tail LDB upload marker
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     attack: "T1041"
@@ -27,7 +27,7 @@ traits:
 
   - id: stealer/beaver-tail/python-download
     description: Beaver Tail Python download success
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     attack: "T1105"
@@ -38,7 +38,7 @@ traits:
 
   - id: stealer/beaver-tail/pyp-python
     description: Beaver Tail hidden Python path
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     family: true
     attack: "T1059.006"
@@ -49,7 +49,7 @@ traits:
 
   - id: stealer/beaver-tail/keychain-log
     description: Beaver Tail keychain logging
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     attack: "T1555.001"
@@ -60,7 +60,7 @@ traits:
 
   - id: stealer/beaver-tail/client-99
     description: Beaver Tail client endpoint
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     family: true
     attack: "T1071"
@@ -71,7 +71,7 @@ traits:
 
   - id: stealer/beaver-tail/ldb-glob
     description: Beaver Tail LDB file glob
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     family: true
     attack: "T1555.003"
@@ -82,7 +82,7 @@ traits:
 
   - id: stealer/beaver-tail/pdown-finished
     description: Beaver Tail pDown callback
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     attack: "T1105"
@@ -93,7 +93,7 @@ traits:
 
   - id: stealer/beaver-tail/browser-url
     description: Beaver Tail browser URL setter
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     attack: "T1555.003"

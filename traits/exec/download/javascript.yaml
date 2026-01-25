@@ -28,6 +28,8 @@ composite_rules:
     criticality: hostile
     confidence: 0.95
     attack: "T1105"
+    mbc: "B0024"
+    file_types: [javascript]
     requires_all:
       - type: trait
         id: exec/command/shell/js-execsync

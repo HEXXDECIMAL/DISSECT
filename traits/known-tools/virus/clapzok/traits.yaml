@@ -5,7 +5,7 @@
 traits:
   - id: virus/clapzok/sfc-protected
     description: Clapzok SfcIsFileProtected marker
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     attack: "T1204"
@@ -17,7 +17,7 @@ traits:
 composite_rules:
   - id: virus/clapzok/detected
     description: Clapzok multi-platform virus
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     reference: "https://www.virusbulletin.com/virusbulletin/2013/06/multiplatform-madness"

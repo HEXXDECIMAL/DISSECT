@@ -105,7 +105,7 @@ traits:
 
   - id: dynamic-user-input-call
     description: User input used as function name (dynamic backdoor)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.98
     attack: "T1505.003"
     condition:

@@ -7,44 +7,48 @@ traits:
 
   - id: c2-framework/geacon/coded-ref
     description: Geacon coded reference
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     attack: "T1071"
     platforms: [all]
+    file_types: [elf, macho, pe, go]
     condition:
       type: string
       exact: "geacon coded"
 
   - id: c2-framework/geacon/path-ref
     description: Geacon package path reference
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     family: true
     attack: "T1071"
     platforms: [all]
+    file_types: [elf, macho, pe, go]
     condition:
       type: string
       exact: "geacon/"
 
   - id: c2-framework/geacon/author-darkr4y
     description: Geacon author reference
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     attack: "T1071"
     platforms: [all]
+    file_types: [elf, macho, pe, go]
     condition:
       type: string
       exact: "darkr4y"
 
   - id: c2-framework/geacon/motto
     description: Geacon author motto
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     family: true
     attack: "T1071"
     platforms: [all]
+    file_types: [elf, macho, pe, go]
     condition:
       type: string
       exact: "cuz life is shit"
@@ -89,18 +93,18 @@ composite_rules:
     attack: "T1071"
     mbc: "B0030"
     platforms: [all]
-    condition:
-      type: yara
-      source: |
-        rule geacon_cobalt_strike {
-          strings:
-            $geacon_coded = "geacon coded"
-            $geacon = "geacon/"
-            $darkr4y = "darkr4y"
-            $cuz = "cuz life is shit"
-            $packet_change = "packet.ChangeCurrentDir"
-            $convert_str = "ConvertStr2GBK"
-            $fake_ie = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
-          condition:
-            filesize < 20971520 and 2 of them
-        }
+    file_types: [elf, macho, pe, go]
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: c2-framework/geacon/coded-ref
+      - type: trait
+        id: c2-framework/geacon/path-ref
+      - type: trait
+        id: c2-framework/geacon/author-darkr4y
+      - type: trait
+        id: c2-framework/geacon/motto
+      - type: trait
+        id: c2-framework/geacon/change-dir
+      - type: trait
+        id: c2-framework/geacon/gbk-convert

@@ -80,7 +80,7 @@ traits:
 
   - id: pk11-decrypt
     description: Firefox PK11SDR_Decrypt function
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1555.003"
     mbc: "B0028"
@@ -102,7 +102,7 @@ traits:
 
   - id: moz-logins-sql
     description: Firefox moz_logins SQL query
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1555.003"
     mbc: "B0028"
@@ -119,9 +119,9 @@ composite_rules:
     attack: "T1555.003"
     requires_all:
       - type: trait
-        id: credential/browser/firefox/path
+        id: path
       - type: trait
-        id: credential/browser/firefox/cookies-sqlite
+        id: cookies-sqlite
 
   - id: password-theft
     description: Firefox password/form history theft
@@ -130,16 +130,16 @@ composite_rules:
     attack: "T1555.003"
     requires_all:
       - type: trait
-        id: credential/browser/firefox/path
+        id: path
     requires_any:
       - type: trait
-        id: credential/browser/firefox/formhistory-sqlite
+        id: formhistory-sqlite
       - type: trait
-        id: credential/browser/firefox/nss-private
+        id: nss-private
       - type: trait
-        id: credential/browser/firefox/logins-json
+        id: logins-json
       - type: trait
-        id: credential/browser/firefox/key4-db
+        id: key4-db
 
   - id: nss-decrypt
     description: Firefox NSS decryption (password extraction)
@@ -147,11 +147,12 @@ composite_rules:
     confidence: 0.95
     attack: "T1555.003"
     mbc: "B0028"
+    file_types: [python, javascript, elf, pe, macho, so, dll]
     requires_any:
       - type: trait
-        id: credential/browser/firefox/pk11-decrypt
+        id: pk11-decrypt
       - type: trait
-        id: credential/browser/firefox/nss3-lib
+        id: nss3-lib
     requires_all:
       - type: trait
-        id: credential/browser/firefox/path
+        id: path

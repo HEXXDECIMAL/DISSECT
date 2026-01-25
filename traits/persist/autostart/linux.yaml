@@ -12,7 +12,7 @@ traits:
   - id: linux-xdg-autostart
     description: "XDG autostart directory access"
     confidence: 0.85
-    criticality: hostile
+    criticality: suspicious
     condition:
       type: string
       regex: "\\.config/autostart|/etc/xdg/autostart|XDG_CONFIG_HOME.*autostart"
@@ -38,7 +38,7 @@ traits:
   - id: linux-rc-local
     description: "rc.local persistence mechanism"
     confidence: 0.9
-    criticality: hostile
+    criticality: suspicious
     attack: "T1037.004"
     condition:
       type: string
@@ -59,8 +59,11 @@ composite_rules:
   # XDG autostart with executable
   - id: linux-xdg-executable
     description: "XDG autostart with executable command"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
+    attack: "T1547.013"
+    mbc: "F0006"
+    file_types: [shell, python, elf]
     requires_all:
       - type: string
         regex: "\\.config/autostart|/etc/xdg/autostart"

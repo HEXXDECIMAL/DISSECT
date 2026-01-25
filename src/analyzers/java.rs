@@ -2,7 +2,7 @@ use crate::analyzers::Analyzer;
 use crate::analyzers::{
     comment_metrics::{self, CommentStyle},
     function_metrics::{self, FunctionInfo},
-    identifier_metrics, string_metrics, text_metrics,
+    identifier_metrics, string_metrics, symbol_extraction, text_metrics,
 };
 use crate::types::*;
 use anyhow::{Context, Result};
@@ -68,6 +68,14 @@ impl JavaAnalyzer {
 
         // Extract functions
         self.extract_functions(&root, content.as_bytes(), &mut report);
+
+        // Extract method calls as symbols for symbol-based rule matching
+        symbol_extraction::extract_symbols(
+            content,
+            tree_sitter_java::LANGUAGE.into(),
+            &["method_invocation"],
+            &mut report,
+        );
 
         // Compute metrics for ML analysis
         let metrics = self.compute_metrics(&root, content);

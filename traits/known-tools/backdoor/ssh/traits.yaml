@@ -8,7 +8,7 @@ traits:
   # SSH backdoor generic
   - id: backdoor/ssh/generic
     description: SSH backdoor patterns
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.85
     attack: "T1556.004"
     condition:
@@ -61,7 +61,7 @@ traits:
   # SSH credential logging
   - id: backdoor/ssh/cred-log
     description: SSH credential logging backdoor
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     attack: "T1556.004"
     condition:
@@ -88,7 +88,7 @@ traits:
   # PAM-based SSH backdoor
   - id: backdoor/ssh/pam
     description: PAM-based SSH authentication backdoor
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.85
     attack: "T1556.003"
     condition:

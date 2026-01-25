@@ -1,14 +1,19 @@
 # Python Infostealer Narratives
 # High-confidence rules for identifying stealing behavior
+#
+# Note: Cross-directory references use directory paths which match ANY trait
+# within that directory.
 
 composite_rules:
   - id: infostealer/python-profiler
     description: "System Profiler & Exfiltrator (MAC + User + Network)"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.98
+    mbc: "B0028"
+    attack: "T1555"
     file_types: [python]
     requires_all:
       - type: trait
-        id: discovery/system/python-enumeration
+        id: discovery/system
       - type: trait
-        id: comm/http/python-exfiltration
+        id: exfil/http

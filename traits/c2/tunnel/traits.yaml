@@ -6,7 +6,7 @@ traits:
   # Earthworm (EW) tunneling tool
   - id: earthworm
     description: Earthworm tunneling tool (APT lateral movement)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1572"
     condition:
@@ -57,7 +57,7 @@ traits:
   # reGeorg/Tunna web tunnel
   - id: regeorg
     description: reGeorg/Tunna web tunneling
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     attack: "T1572"
     condition:

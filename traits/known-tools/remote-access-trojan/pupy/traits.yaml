@@ -6,7 +6,7 @@ traits:
   # Pupy reflective DLL/SO loader
   - id: c2-framework/pupy/reflective-loader
     description: Pupy reflective loader patterns
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     mbc: "B0030"
     attack: "T1620"
@@ -31,7 +31,7 @@ traits:
   # Pupy Python stager
   - id: c2-framework/pupy/python-stager
     description: Pupy Python stager patterns
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.85
     mbc: "B0030"
     attack: "T1059.006"
@@ -161,6 +161,8 @@ composite_rules:
     description: Pupy RAT detected
     criticality: hostile
     confidence: 0.95
+    mbc: "B0030"
+    attack: "T1071"
     file_types: [elf, macho, pe, so, dylib, dll, python]
     requires_any:
       - type: trait

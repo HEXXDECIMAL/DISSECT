@@ -42,8 +42,9 @@ traits:
 
   - id: backdoor/nodejs/suspicious-c2
     description: "Suspicious NodeJS C2 endpoint (securitytrails.pro)"
-    criticality: hostile
+    criticality: suspicious
     confidence: 1.0
+    attack: "T1071"
     condition:
       type: string
       exact: "ws://securitytrails.pro:2052"
@@ -69,6 +70,8 @@ composite_rules:
     description: "NodeJS-based Backdoor detected"
     criticality: hostile
     confidence: 0.95
+    attack: "T1059.003"
+    mbc: "B0022"
     requires_all:
       - type: trait
         id: nodejs/pkg-marker

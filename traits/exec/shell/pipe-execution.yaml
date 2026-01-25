@@ -6,7 +6,7 @@ traits:
   # curl piped to shell
   - id: curl-pipe-shell
     description: Curl output piped to shell (dropper pattern)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1059.004"
     file_types: [shell, packagejson, javascript, python]
@@ -17,7 +17,7 @@ traits:
   # wget piped to shell
   - id: wget-pipe-shell
     description: Wget output piped to shell (dropper pattern)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1059.004"
     file_types: [shell, packagejson, javascript, python]
@@ -28,7 +28,7 @@ traits:
   # Generic download and execute
   - id: download-pipe-exec
     description: Download piped to interpreter (dropper pattern)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     attack: "T1059"
     file_types: [shell, packagejson]
@@ -50,7 +50,7 @@ traits:
   # Fetch and eval in shell
   - id: fetch-eval
     description: Remote script fetch and eval pattern
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     attack: "T1059.004"
     file_types: [shell]
@@ -61,7 +61,7 @@ traits:
   # Base64 decode and execute
   - id: base64-decode-exec
     description: Base64 decode piped to shell execution
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1027"
     file_types: [shell, packagejson]

@@ -95,12 +95,12 @@ composite_rules:
     requires_count: 2
     conditions:
       - type: trait
-        id: shell/whoami
+        id: whoami
       - type: trait
-        id: shell/hostname
+        id: hostname
       - type: trait
-        id: shell/ifconfig
+        id: ifconfig
       - type: trait
-        id: shell/uname
+        id: uname
       - type: trait
-        id: shell/id
+        id: id

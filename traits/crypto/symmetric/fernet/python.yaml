@@ -44,11 +44,10 @@ traits:
       type: string
       regex: "Fernet\\.generate_key\\s*\\("
 
-composite_rules:
   # Runtime fernet installation (very suspicious - why install crypto at runtime?)
   - id: runtime-install
     description: "Runtime installation of fernet encryption library"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     condition:
       type: yara
@@ -69,7 +68,7 @@ composite_rules:
   # Fernet with hardcoded key (payload decryption)
   - id: hardcoded-key
     description: "Fernet encryption with hardcoded key pattern"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     condition:
       type: yara

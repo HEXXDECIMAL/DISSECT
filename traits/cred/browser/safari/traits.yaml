@@ -64,8 +64,8 @@ composite_rules:
     platforms: [macos]
     requires_any:
       - type: trait
-        id: credential/browser/safari/cookies-path
+        id: cookies-path
       - type: trait
-        id: credential/browser/safari/binarycookies
+        id: binarycookies
       - type: trait
-        id: credential/browser/safari/cookies-binarycookies
+        id: cookies-binarycookies

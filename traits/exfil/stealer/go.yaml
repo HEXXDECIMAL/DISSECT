@@ -4,7 +4,7 @@
 traits:
   - id: go-json-exfil-keys
     description: Marshals sensitive-looking keys into JSON for exfiltration
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1041"
     file_types: [go]
@@ -14,7 +14,7 @@ traits:
 
   - id: go-dpaste-exfil
     description: Exfiltrates data to dpaste service
-    criticality: hostile
+    criticality: suspicious
     confidence: 1.0
     attack: "T1041"
     file_types: [go]

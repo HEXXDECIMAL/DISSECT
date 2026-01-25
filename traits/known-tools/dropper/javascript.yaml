@@ -4,8 +4,9 @@
 traits:
   - id: dropper/js-decrypt-eval
     description: Decrypts a hardcoded payload and executes it via eval
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
+    mbc: "C0025"
     attack: "T1027"
     file_types: [javascript, typescript]
     condition:

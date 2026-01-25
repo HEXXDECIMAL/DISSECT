@@ -8,7 +8,7 @@ traits:
 
   - id: stealer/brawlearth/brand-name
     description: BrawlEarth stealer brand string
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     attack: "T1555"
@@ -20,7 +20,7 @@ traits:
 
   - id: stealer/brawlearth/version-string
     description: BrawlEarth version identifier
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     attack: "T1555"
@@ -34,7 +34,7 @@ traits:
 
   - id: stealer/brawlearth/src-path-browsers
     description: BrawlEarth browser module source path
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     family: true
     attack: "T1555"
@@ -46,7 +46,7 @@ traits:
 
   - id: stealer/brawlearth/src-path-decryptors
     description: BrawlEarth decryptor module source path
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     attack: "T1555"
@@ -60,7 +60,7 @@ traits:
 
   - id: stealer/brawlearth/c2-connect-msg
     description: BrawlEarth C2 connection error message
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     attack: "T1071"
@@ -74,7 +74,7 @@ composite_rules:
   # Main BrawlEarth detection
   - id: stealer/brawlearth/detected
     description: BrawlEarth macOS infostealer
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     reference: "Rust-based macOS stealer targeting browser credentials and crypto wallets"

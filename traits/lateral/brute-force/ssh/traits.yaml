@@ -92,11 +92,14 @@ composite_rules:
     description: SSH brute-force botnet detected
     criticality: hostile
     confidence: 0.9
+    mbc: "E1110"
+    attack: "T1110.001"
+    file_types: [elf]
     requires_all:
       - type: trait
-        id: lateral/bruteforce/ssh/scanner
+        id: scanner
+      - type: trait
+        id: iot-creds
     requires_any:
       - type: trait
-        id: lateral/bruteforce/ssh/auth-spray
-      - type: trait
-        id: lateral/bruteforce/ssh/iot-creds
+        id: auth-spray

@@ -2,11 +2,15 @@
 # Linux DDoS trojan using XOR encryption
 # Reference: https://www.microsoft.com/security/blog/2022/05/19/rise-in-xorddos/
 
+defaults:
+  file_types: [elf]
+
 traits:
   - id: botnet/xorddos
     description: XorDDoS botnet indicators
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
+    attack: "T1498"
     condition:
       type: yara
       source: |
@@ -40,8 +44,9 @@ traits:
 
   - id: botnet/xorddos-persistence
     description: XorDDoS persistence mechanism
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
+    attack: "T1543.002"
     condition:
       type: yara
       source: |

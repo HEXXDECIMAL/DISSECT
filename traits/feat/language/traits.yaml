@@ -1,6 +1,9 @@
 # Programming Language Detection
 # Useful for ML feature extraction and contextual analysis
 
+defaults:
+  file_types: [elf, macho, pe, dll, so, dylib, class]
+
 traits:
   # Go language binary
   - id: go

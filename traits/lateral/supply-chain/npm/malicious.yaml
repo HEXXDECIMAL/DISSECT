@@ -6,9 +6,10 @@ traits:
   # NPM preinstall/postinstall abuse with dropper behavior
   - id: lifecycle-dropper
     description: NPM lifecycle script with dropper pattern
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1195.002"
+    mbc: "B0024"
     file_types: [packagejson]
     condition:
       type: yara
@@ -32,9 +33,10 @@ traits:
   # NPM package with inline node eval in hooks
   - id: hook-node-eval
     description: NPM install hook with node -e inline execution
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1059.007"
+    mbc: "B0024"
     file_types: [packagejson]
     condition:
       type: yara

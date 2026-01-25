@@ -86,10 +86,11 @@ traits:
   # Symbiote-specific patterns
   - id: symbiote
     description: Symbiote rootkit indicators
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     mbc: "F0015"
     attack: "T1574.006"
+    file_types: [elf]
     condition:
       type: yara
       source: |
@@ -109,10 +110,11 @@ traits:
   # /proc filesystem hiding
   - id: proc-hiding
     description: Patterns for hiding processes via /proc manipulation
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     mbc: "F0015"
     attack: "T1574.006"
+    file_types: [elf, c]
     condition:
       type: yara
       source: |
@@ -143,7 +145,7 @@ traits:
   # ld.so.preload file path (rootkit installation target)
   - id: ld-so-preload-file
     description: References /etc/ld.so.preload file
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     mbc: "F0015"
     attack: "T1574.006"
@@ -155,7 +157,7 @@ traits:
   # Backup ld.so pattern (rootkit hijacking original loader)
   - id: ld-backup-pattern
     description: Dynamic linker backup/restore pattern
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     mbc: "F0015"
     attack: "T1574.006"
@@ -192,6 +194,9 @@ composite_rules:
     description: LD_PRELOAD userspace rootkit (Symbiote-style)
     criticality: hostile
     confidence: 0.95
+    mbc: "F0015"
+    attack: "T1574.006"
+    file_types: [elf]
     requires_all:
       - type: trait
         id: dlsym-rtld-next
@@ -200,6 +205,8 @@ composite_rules:
         id: libc-hook-targets
       - type: trait
         id: proc-hiding
+      - type: trait
+        id: symbiote
 
   # LD_PRELOAD installation rootkit
   - id: ld-preload-installer

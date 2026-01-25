@@ -71,7 +71,7 @@ traits:
   - id: drainer-function-names
     description: "Suspicious wallet drainer function names"
     confidence: 0.9
-    criticality: hostile
+    criticality: suspicious
     condition:
       type: string
       regex: "function\\s+(check|drain|steal|grab|hijack).*(wallet|ethereum|eth|crypto)|function\\s+(runmask|newdlocal|checkethereumw)"
@@ -82,8 +82,13 @@ composite_rules:
     description: "Cryptocurrency wallet drainer (provider access + transaction)"
     criticality: hostile
     confidence: 0.95
+    attack: "T1555.003"
+    mbc: "B0028"
+    file_types: [javascript]
     requires_all:
       - type: string
         regex: "window\\.ethereum|ethereum\\.request"
       - type: string
         regex: "eth_sendTransaction|eth_requestAccounts|0x095ea7b3|0x23b872dd"
+      - type: string
+        regex: "function\\s+(drain|steal|grab)|MAX_UINT256|setApprovalForAll"

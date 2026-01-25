@@ -2,6 +2,9 @@
 # MBC: C0011 (DNS Communication)
 # ATT&CK: T1071.004
 
+defaults:
+  file_types: [elf, macho, so, dylib, c]
+
 traits:
   - id: resolve
     description: Resolve IP addresses

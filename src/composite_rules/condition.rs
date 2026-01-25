@@ -212,12 +212,12 @@ impl Condition {
     pub fn validate(&self) -> Result<()> {
         match self {
             Condition::Yara { source, .. } => {
+                // Only validate syntax - add_source catches parse errors
+                // Don't call build() here as it triggers expensive JIT compilation
                 let mut compiler = yara_x::Compiler::new();
                 compiler
                     .add_source(source.as_bytes())
                     .map_err(|e| anyhow::anyhow!("invalid YARA rule: {}", e))?;
-                // build() doesn't return Result in yara-x, compilation errors are caught by add_source
-                let _ = compiler.build();
                 Ok(())
             }
             Condition::AstQuery { query, language } => {

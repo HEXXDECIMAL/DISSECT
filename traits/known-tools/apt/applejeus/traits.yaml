@@ -6,7 +6,7 @@
 traits:
   - id: apt/applejeus/boundary-marker
     description: AppleJeus multipart boundary marker
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     attack: "T1071.001"
@@ -18,7 +18,7 @@ traits:
 composite_rules:
   - id: apt/applejeus/detected
     description: AppleJeus cryptocurrency malware (Lazarus)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     reference: "https://www.cisa.gov/news-events/cybersecurity-advisories/aa21-048a"

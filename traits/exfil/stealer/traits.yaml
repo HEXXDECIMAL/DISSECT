@@ -10,10 +10,11 @@ traits:
   # curl POST with custom headers (common in stealers)
   - id: curl-post-headers
     description: "curl POST with custom identification headers"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     attack: "T1041"
     mbc: "C0001"
+    file_types: [shell]
     condition:
       type: string
       regex: "curl\\s+-X\\s+POST\\s+-H|curl.*-H.*user:|curl.*-H.*BuildID"
@@ -23,6 +24,8 @@ traits:
     description: "curl file upload"
     criticality: suspicious
     confidence: 0.8
+    attack: "T1041"
+    file_types: [shell]
     condition:
       type: string
       regex: "curl\\s+.*-F\\s+|curl\\s+.*--data-binary|curl.*@/tmp/"
@@ -30,8 +33,10 @@ traits:
   # Bot/stealer identification headers
   - id: bot-headers
     description: "Bot identification HTTP headers"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
+    attack: "T1041"
+    file_types: [shell]
     condition:
       type: string
       regex: "-H\\s+[\"']?(user|userid|client|bot|build|hwid|machine):|X-(User|Client|Bot|Build|HWID)"
@@ -39,8 +44,10 @@ traits:
   # Hardcoded gate/C2 URL
   - id: gate-url
     description: "Hardcoded gate/C2 URL variable"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.85
+    attack: "T1041"
+    file_types: [shell, python, javascript]
     condition:
       type: string
       regex: "\\bgate\\s*=\\s*[\"']http|\\bc2\\s*=\\s*[\"']http|\\bpanel\\s*=\\s*[\"']http"
@@ -48,8 +55,10 @@ traits:
   # ZIP upload pattern
   - id: zip-upload
     description: "ZIP archive upload for exfiltration"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
+    attack: "T1041"
+    file_types: [shell]
     condition:
       type: string
       regex: "curl.*\\.zip|POST.*\\.zip|upload.*\\.zip|send.*\\.zip"
@@ -59,6 +68,8 @@ traits:
     description: "Multipart form data upload"
     criticality: suspicious
     confidence: 0.75
+    attack: "T1041"
+    file_types: [shell, python, javascript]
     condition:
       type: string
       regex: "multipart/form-data|boundary=|Content-Disposition.*filename"
@@ -69,6 +80,9 @@ composite_rules:
     description: "Stealer data exfiltration pattern"
     criticality: hostile
     confidence: 0.95
+    attack: "T1041"
+    mbc: "C0001"
+    file_types: [shell]
     requires_all:
       - type: string
         regex: "curl|wget|POST"

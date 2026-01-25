@@ -5,32 +5,40 @@
 traits:
   - id: backdoor/gosocks/unique-path
     description: "Unique Go package path for SOCKS5/Shell logic"
-    criticality: hostile
+    criticality: suspicious
     confidence: 1.0
+    attack: "T1090"
+    file_types: [elf, macho]
     condition:
       type: string
       exact: "src/mode/httpAndTcp/socket5Quick"
 
   - id: backdoor/gosocks/shell-module
     description: "GoSocks shell execution module"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
+    attack: "T1059"
+    file_types: [elf, macho]
     condition:
       type: string
       exact: "src/mode/httpAndTcp/shell/ShellLinux.Exec_shell"
 
   - id: backdoor/gosocks/proxy-module
     description: "GoSocks SOCKS5 proxy startup function"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
+    attack: "T1090"
+    file_types: [elf, macho]
     condition:
       type: string
       exact: "src/mode/httpAndTcp/socket5Quick.StartProxy"
 
   - id: backdoor/gosocks/forward-module
     description: "GoSocks port forwarding module"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
+    attack: "T1090"
+    file_types: [elf, macho]
     condition:
       type: string
       exact: "src/mode/httpAndTcp/inForward.Start"
@@ -41,6 +49,8 @@ composite_rules:
     criticality: hostile
     confidence: 1.0
     attack: "T1090"
+    mbc: "B0022"
+    file_types: [elf, macho]
     requires_any:
       - type: trait
         id: backdoor/gosocks/unique-path
@@ -48,3 +58,5 @@ composite_rules:
         id: backdoor/gosocks/shell-module
       - type: trait
         id: backdoor/gosocks/proxy-module
+      - type: trait
+        id: backdoor/gosocks/forward-module

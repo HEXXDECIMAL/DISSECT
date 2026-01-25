@@ -81,3 +81,19 @@ opt-level = 1  # Faster test execution
 [profile.dev]
 opt-level = 0
 debug = "line-tables-only"  # Faster builds, still debuggable
+
+# Optimize heavy dependencies in debug builds for faster test execution
+[profile.dev.package.yara-x]
+opt-level = 3
+
+[profile.dev.package.regex-syntax]
+opt-level = 3
+
+[profile.dev.package.wasmtime]
+opt-level = 3
+
+[profile.dev.package.cranelift-codegen]
+opt-level = 3
+
+[profile.dev.package.regalloc2]
+opt-level = 3

@@ -156,7 +156,6 @@ traits:
 # These patterns are typically PRESENT in legitimate code and ABSENT in malware
 # Useful for differential ML analysis
 
-traits:
   # Has module.exports (CommonJS export)
   - id: has-cjs-export
     description: Code exports functionality via CommonJS
@@ -551,7 +550,6 @@ traits:
 # These patterns detect file references that indicate professional package structure
 # Useful for differential ML analysis
 
-traits:
   # References README file
   - id: references-readme
     description: Package references README file
@@ -716,7 +714,6 @@ traits:
 # These patterns indicate professional development practices
 # Useful for differential ML analysis
 
-traits:
   # Has README file (detected via package.json main pointing to index)
   - id: has-index-entry
     description: Package has standard index entry point
@@ -911,7 +908,6 @@ traits:
 # These patterns are typically PRESENT in legitimate packages and ABSENT in malware
 # Useful for differential ML analysis
 
-traits:
   # Has test script defined
   - id: has-test-script
     description: Package has test script (legitimate pattern)
@@ -1175,7 +1171,6 @@ traits:
 # These patterns indicate code is in a test context
 # Helps reduce false positives from test fixtures
 
-traits:
   # Jest test file
   - id: jest-test-file
     description: Jest test file markers

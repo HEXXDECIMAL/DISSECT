@@ -68,9 +68,10 @@ traits:
 
   - id: dropper/rust/vget-specific
     description: "Rust-based downloader (ureq) with specific artifacts"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1105"
+    file_types: [elf, macho, pe]
     condition:
       type: yara
       source: |
@@ -121,6 +122,9 @@ composite_rules:
     description: "Rust-based Downloader/Stager behavior detected"
     criticality: hostile
     confidence: 0.9
+    mbc: "B0030"
+    attack: "T1105"
+    file_types: [elf, macho, pe]
     requires_all:
       - type: trait
         id: dropper/rust/http-client
@@ -134,6 +138,9 @@ composite_rules:
     description: "Likely Rust-based stager (small binary with HTTP/exec capabilities)"
     criticality: hostile
     confidence: 0.95
+    mbc: "B0030"
+    attack: "T1105"
+    file_types: [elf, macho, pe]
     requires_all:
       - type: trait
         id: dropper/rust/http-client

@@ -1,30 +1,11 @@
 # Malware Family - Gafgyt IoT Botnet
 # Reference: https://www.trendmicro.com/vinfo/us/threat-encyclopedia/malware/gafgyt
 # ATT&CK: T1583.005 (Botnet)
+# NOTE: DDoS flood traits (udp_flood, syn_flood, etc.) are defined in impact/ddos/flood/generic.yaml
+# NOTE: botkill is defined in c2/botkill/traits.yaml
+# NOTE: /bin/bash is defined in exec/command/shell/generic.yaml
 
 traits:
-  # === Atomic Traits (decomposed for ML) ===
-
-  - id: botnet/gafgyt/botkill
-    description: Gafgyt bot killer function
-    criticality: hostile
-    confidence: 0.9
-    family: true
-    attack: "T1562"
-    file_types: [elf]
-    condition:
-      type: string
-      exact: "botkill"
-
-  - id: botnet/gafgyt/bash-ref
-    description: Bash shell reference
-    criticality: notable
-    confidence: 0.3
-    file_types: [elf]
-    condition:
-      type: string
-      exact: "/bin/bash"
-
   # NOTE: /sys/devices/system/cpu is present in glibc - this trait alone is NOT
   # a reliable botnet indicator. Only meaningful when combined with other Gafgyt indicators.
   - id: botnet/gafgyt/cpu-enumeration
@@ -37,20 +18,10 @@ traits:
       type: string
       exact: "/sys/devices/system/cpu"
 
-  - id: botnet/gafgyt/udp-flood
-    description: Gafgyt UDP flood function
-    criticality: hostile
-    confidence: 0.95
-    family: true
-    attack: "T1498"
-    file_types: [elf]
-    condition:
-      type: string
-      exact: "udp_flood"
-
-  - id: botnet/gafgyt/tcp-flood
-    description: Gafgyt TCP flood function
-    criticality: hostile
+  # Gafgyt-specific: tcpraw_flood (not in generic DDoS traits)
+  - id: botnet/gafgyt/tcpraw-flood
+    description: Gafgyt TCP raw flood function
+    criticality: suspicious
     confidence: 0.95
     family: true
     attack: "T1498"
@@ -59,33 +30,10 @@ traits:
       type: string
       exact: "tcpraw_flood"
 
-  - id: botnet/gafgyt/syn-flood
-    description: Gafgyt SYN flood function
-    criticality: hostile
-    confidence: 0.95
-    family: true
-    attack: "T1498"
-    file_types: [elf]
-    condition:
-      type: string
-      exact: "syn_flood"
-
-  - id: botnet/gafgyt/ack-flood
-    description: Gafgyt ACK flood function
-    criticality: hostile
-    confidence: 0.95
-    family: true
-    attack: "T1498"
-    file_types: [elf]
-    condition:
-      type: string
-      exact: "ack_flood"
-
-composite_rules:
   # Main detection via YARA with ELF magic check
   - id: botnet/gafgyt/detected
     description: Gafgyt IoT botnet
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     reference: "https://www.trendmicro.com/vinfo/us/threat-encyclopedia/malware/gafgyt"
@@ -110,20 +58,22 @@ composite_rules:
             $botkill and 3 of them
         }
 
-  # DDoS capability detection
+composite_rules:
+  # DDoS capability detection - references generic DDoS traits
   - id: botnet/gafgyt/ddos-capability
     description: Gafgyt DDoS capability
     criticality: hostile
     confidence: 0.9
     attack: "T1498"
+    mbc: "B0008"
     file_types: [elf]
     requires_count: 2
     conditions:
       - type: trait
-        id: botnet/gafgyt/udp-flood
+        id: impact/ddos/flood/udp-flood
       - type: trait
-        id: botnet/gafgyt/tcp-flood
+        id: botnet/gafgyt/tcpraw-flood
       - type: trait
-        id: botnet/gafgyt/syn-flood
+        id: impact/ddos/flood/syn-flood
       - type: trait
-        id: botnet/gafgyt/ack-flood
+        id: impact/ddos/flood/ack-flood

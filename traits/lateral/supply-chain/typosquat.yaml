@@ -13,7 +13,7 @@ traits:
   - id: fake-pypi-host
     description: "Typosquatted PyPI file hosting domain"
     confidence: 0.98
-    criticality: hostile
+    criticality: suspicious
     condition:
       type: ast_pattern
       node_type: string
@@ -24,7 +24,7 @@ traits:
   - id: fake-pypi-host-raw
     description: "Typosquatted PyPI file hosting domain"
     confidence: 0.95
-    criticality: hostile
+    criticality: suspicious
     condition:
       type: string
       regex: "pypihosted\\.org|pythonhosted\\.com|pypi-files\\.|pypyhosted\\.|pythonhost\\."
@@ -34,7 +34,7 @@ traits:
   - id: fake-pypi-index
     description: "Typosquatted PyPI index domain"
     confidence: 0.95
-    criticality: hostile
+    criticality: suspicious
     condition:
       type: string
       regex: "pypii\\.org|pipy\\.org|pyp1\\.org|pypl\\.org|py-pi\\."
@@ -54,8 +54,9 @@ composite_rules:
   # URL pointing to tar.gz/whl on suspicious domain
   - id: fake-package-download
     description: "Package download URL from typosquatted domain"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
+    mbc: "B0030"
     condition:
       type: yara
       source: |

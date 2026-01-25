@@ -2,6 +2,10 @@
 # MBC: B0033 (Process Injection)
 # ATT&CK: T1055
 
+defaults:
+  file_types: [pe, dll]
+  platforms: [windows]
+
 traits:
   - id: process-inject-api
     description: Process injection via Windows API

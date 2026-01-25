@@ -671,12 +671,15 @@ fn analyze_file_with_shared_mapper(
     zip_passwords: &[String],
     disabled: &cli::DisabledComponents,
 ) -> Result<String> {
+    let timing = std::env::var("DISSECT_TIMING").is_ok();
+    let t_start = std::time::Instant::now();
     let path = Path::new(target);
 
     if !path.exists() {
         anyhow::bail!("File does not exist: {}", target);
     }
 
+    let t_yara = std::time::Instant::now();
     // Load YARA rules (unless YARA is disabled)
     let mut yara_engine = if disabled.yara {
         None
@@ -690,8 +693,18 @@ fn analyze_file_with_shared_mapper(
         }
     };
 
+    if timing {
+        eprintln!("[TIMING] YARA engine setup: {:?}", t_yara.elapsed());
+    }
+    let t_detect = std::time::Instant::now();
+
     // Detect file type
     let file_type = detect_file_type(path)?;
+
+    if timing {
+        eprintln!("[TIMING] File type detection: {:?}", t_detect.elapsed());
+    }
+    let t_analyze = std::time::Instant::now();
 
     // Route to appropriate analyzer
     // Binary analyzers (MachO, Elf, Pe, Archive, Jar) handle YARA internally with specialized filtering
@@ -835,6 +848,10 @@ fn analyze_file_with_shared_mapper(
         }
     };
 
+    if timing {
+        eprintln!("[TIMING] Analysis: {:?}", t_analyze.elapsed());
+    }
+
     // Run YARA universally for file types that didn't handle it internally
     // This ensures all program files get scanned with YARA rules
     if let Some(ref engine) = yara_engine {
@@ -868,6 +885,10 @@ fn analyze_file_with_shared_mapper(
                 }
             }
         }
+    }
+
+    if timing {
+        eprintln!("[TIMING] Total analyze_file_with_shared_mapper: {:?}", t_start.elapsed());
     }
 
     // Always output JSON for parallel scanning

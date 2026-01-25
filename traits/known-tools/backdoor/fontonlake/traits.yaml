@@ -5,7 +5,7 @@
 traits:
   - id: backdoor/fontonlake/hidden-proc
     description: FontOnLake hidden proc path
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     family: true
     attack: "T1564.001"
@@ -16,7 +16,7 @@ traits:
 
   - id: backdoor/fontonlake/x11-socket
     description: FontOnLake X11 socket path
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.85
     family: true
     attack: "T1071"
@@ -27,7 +27,7 @@ traits:
 
   - id: backdoor/fontonlake/insmod
     description: FontOnLake kernel module loading
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     family: true
     attack: "T1547.006"
@@ -38,7 +38,7 @@ traits:
 
   - id: backdoor/fontonlake/ssh-known-hosts
     description: FontOnLake SSH known_hosts2 access
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.85
     family: true
     attack: "T1552.004"
@@ -49,7 +49,7 @@ traits:
 
   - id: backdoor/fontonlake/dmesg-clear
     description: FontOnLake dmesg clearing
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     family: true
     attack: "T1070"

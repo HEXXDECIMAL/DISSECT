@@ -1,6 +1,6 @@
 # Composite Debugger Detection Capabilities
 
-capabilities:
+composite_rules:
   - id: win-basic
     description: Windows debugger detection (basic)
     criticality: suspicious

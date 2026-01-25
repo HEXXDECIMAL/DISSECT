@@ -17,7 +17,7 @@ traits:
 
   - id: backdoor/sshdoor/rm-var-tmp
     description: SSHDoor temp file cleanup pattern
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.85
     family: true
     attack: "T1070.004"
@@ -50,7 +50,7 @@ traits:
 
   - id: backdoor/sshdoor/login-lock
     description: SSHDoor login lock file
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     family: true
     attack: "T1556.003"
@@ -61,7 +61,7 @@ traits:
 
   - id: backdoor/sshdoor/login-format
     description: SSHDoor login format string
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     attack: "T1556.003"
@@ -72,7 +72,7 @@ traits:
 
   - id: backdoor/sshdoor/server-locked
     description: SSHDoor server locked message
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     attack: "T1556.003"
@@ -81,10 +81,10 @@ traits:
       type: string
       exact: "ssh server is locked"
 
-composite_rules:
-  - id: backdoor/sshdoor/detected
-    description: SSHDoor backdoored SSH daemon
-    criticality: hostile
+  # SSHDoor detection - YARA-based trait for comprehensive detection
+  - id: backdoor/sshdoor/yara-signature
+    description: SSHDoor backdoored SSH daemon YARA signature
+    criticality: suspicious
     confidence: 0.95
     family: true
     attack: "T1556.003"
@@ -106,3 +106,27 @@ composite_rules:
             uint32(0) == 0x464C457F and
             filesize < 2MB and $KRB5CCNAME and 2 of ($o*)
         }
+
+composite_rules:
+  - id: backdoor/sshdoor/detected
+    description: SSHDoor backdoored SSH daemon
+    criticality: hostile
+    confidence: 0.95
+    family: true
+    attack: "T1556.003"
+    mbc: "B0022"
+    file_types: [elf]
+    requires_count: 3
+    conditions:
+      - type: trait
+        id: backdoor/sshdoor/krb5-ccname
+      - type: trait
+        id: backdoor/sshdoor/rm-var-tmp
+      - type: trait
+        id: backdoor/sshdoor/login-lock
+      - type: trait
+        id: backdoor/sshdoor/login-format
+      - type: trait
+        id: backdoor/sshdoor/server-locked
+      - type: trait
+        id: backdoor/sshdoor/yara-signature

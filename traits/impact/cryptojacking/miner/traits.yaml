@@ -2,7 +2,7 @@
 # ATT&CK: T1496 (Resource Hijacking)
 # MBC: B0036 (Cryptomining)
 
-composite_rules:
+traits:
   # === Atomic: Mining Protocols ===
 
   - id: stratum-protocol
@@ -10,7 +10,6 @@ composite_rules:
     criticality: suspicious
     confidence: 0.85
     attack: "T1496"
-    file_types: [all]
     condition:
       type: string
       regex: "stratum(\\+(tcp|ssl|tls))?://"
@@ -22,7 +21,6 @@ composite_rules:
     criticality: suspicious
     confidence: 0.9
     attack: "T1496"
-    file_types: [all]
     condition:
       type: string
       exact: "c3pool"
@@ -32,7 +30,6 @@ composite_rules:
     criticality: suspicious
     confidence: 0.9
     attack: "T1496"
-    file_types: [all]
     condition:
       type: string
       exact: "f2pool"
@@ -42,7 +39,6 @@ composite_rules:
     criticality: suspicious
     confidence: 0.9
     attack: "T1496"
-    file_types: [all]
     condition:
       type: string
       exact: "hashvault"
@@ -52,7 +48,6 @@ composite_rules:
     criticality: suspicious
     confidence: 0.9
     attack: "T1496"
-    file_types: [all]
     condition:
       type: string
       exact: "monerohash"
@@ -62,7 +57,6 @@ composite_rules:
     criticality: suspicious
     confidence: 0.9
     attack: "T1496"
-    file_types: [all]
     condition:
       type: string
       exact: "xmrpool"
@@ -72,7 +66,6 @@ composite_rules:
     criticality: suspicious
     confidence: 0.9
     attack: "T1496"
-    file_types: [all]
     condition:
       type: string
       exact: "supportxmr"
@@ -82,7 +75,6 @@ composite_rules:
     criticality: suspicious
     confidence: 0.9
     attack: "T1496"
-    file_types: [all]
     condition:
       type: string
       exact: "minergate"
@@ -92,7 +84,6 @@ composite_rules:
     criticality: suspicious
     confidence: 0.7
     attack: "T1496"
-    file_types: [all]
     condition:
       type: string
       regex: "crypto-pool|moneropool"
@@ -104,7 +95,6 @@ composite_rules:
     criticality: suspicious
     confidence: 0.9
     attack: "T1496"
-    file_types: [all]
     condition:
       type: string
       exact: "xmrig"
@@ -115,7 +105,6 @@ composite_rules:
     criticality: suspicious
     confidence: 0.85
     attack: "T1496"
-    file_types: [all]
     condition:
       type: string
       regex: "[Cc]rypto[Nn]ight"
@@ -125,7 +114,6 @@ composite_rules:
     criticality: notable
     confidence: 0.6
     attack: "T1496"
-    file_types: [all]
     condition:
       type: string
       regex: "\\b[Mm]onero\\b|\\bMONERO\\b|\\bXMR\\b"
@@ -137,7 +125,6 @@ composite_rules:
     criticality: suspicious
     confidence: 0.85
     attack: "T1496"
-    file_types: [all]
     condition:
       type: string
       exact: "--donate-level"
@@ -147,7 +134,6 @@ composite_rules:
     criticality: suspicious
     confidence: 0.8
     attack: "T1496"
-    file_types: [all]
     condition:
       type: string
       exact: "--tls-fingerprint"
@@ -157,7 +143,6 @@ composite_rules:
     criticality: suspicious
     confidence: 0.75
     attack: "T1496"
-    file_types: [all]
     condition:
       type: string
       exact: "miner_name"
@@ -167,7 +152,6 @@ composite_rules:
     criticality: suspicious
     confidence: 0.75
     attack: "T1496"
-    file_types: [all]
     condition:
       type: string
       exact: "miner_url"
@@ -177,7 +161,6 @@ composite_rules:
     criticality: suspicious
     confidence: 0.8
     attack: "T1496"
-    file_types: [all]
     condition:
       type: string
       exact: "\"normalHashing\": true,"
@@ -211,44 +194,43 @@ composite_rules:
     criticality: suspicious
     confidence: 0.7
     attack: "T1496"
-    file_types: [all]
     condition:
       type: string
       exact: "argon2d"
 
+composite_rules:
   - id: cryptocurrency-miner
     description: Cryptocurrency miner detected
     criticality: suspicious
     confidence: 0.95
     attack: "T1496"
     mbc: "B0036"
-    file_types: [all]
     requires_count: 2
     conditions:
       - type: trait
-        id: impact/cryptojacking/stratum-protocol
+        id: stratum-protocol
       - type: trait
-        id: impact/cryptojacking/pool-c3pool
+        id: pool-c3pool
       - type: trait
-        id: impact/cryptojacking/pool-f2pool
+        id: pool-f2pool
       - type: trait
-        id: impact/cryptojacking/pool-hashvault
+        id: pool-hashvault
       - type: trait
-        id: impact/cryptojacking/pool-monerohash
+        id: pool-monerohash
       - type: trait
-        id: impact/cryptojacking/pool-xmrpool
+        id: pool-xmrpool
       - type: trait
-        id: impact/cryptojacking/pool-supportxmr
+        id: pool-supportxmr
       - type: trait
-        id: impact/cryptojacking/pool-minergate
+        id: pool-minergate
       - type: trait
-        id: impact/cryptojacking/xmrig-ref
+        id: xmrig-ref
       - type: trait
-        id: impact/cryptojacking/cryptonight
+        id: cryptonight
       - type: trait
-        id: impact/cryptojacking/donate-level
+        id: donate-level
       - type: trait
-        id: impact/cryptojacking/miner-name
+        id: miner-name
 
   - id: memory-optimized-miner
     description: Memory-optimized cryptocurrency miner
@@ -259,12 +241,12 @@ composite_rules:
     file_types: [elf]
     requires_all:
       - type: trait
-        id: impact/cryptojacking/hugepages
+        id: hugepages
     requires_any:
       - type: trait
-        id: impact/cryptojacking/xmrig-ref
+        id: xmrig-ref
       - type: trait
-        id: impact/cryptojacking/monero-ref
+        id: monero-ref
       - type: string
         exact: "wallet"
 
@@ -273,10 +255,11 @@ composite_rules:
     criticality: suspicious
     confidence: 0.85
     attack: "T1496"
-    file_types: [all]
+    mbc: "B0036"
+    file_types: [elf]
     requires_all:
       - type: trait
-        id: impact/cryptojacking/argon2d
+        id: argon2d
       - type: string
         exact: "/proc/self"
       - type: string

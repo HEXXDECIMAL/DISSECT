@@ -1,6 +1,6 @@
 # Composite Command Execution Capabilities
 
-capabilities:
+composite_rules:
   - id: shell-execution
     description: Shell command execution capability detected
     criticality: notable

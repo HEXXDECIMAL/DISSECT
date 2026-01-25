@@ -192,51 +192,14 @@ traits:
             $dlsym and any of ($rtld, $rtld2, $versym)
         }
 
-composite_rules:
-  # === Unexpected Capability Combination ===
-
-  - id: unexpected-capabilities
-    description: "Unexpected capability combination in library"
-    criticality: suspicious
-    confidence: 0.8
-    requires_count: 2
-    conditions:
-      - type: trait
-        id: unexpected-socket-ops
-      - type: trait
-        id: unexpected-process-ops
-      - type: trait
-        id: unexpected-crypto
-
-  - id: injected-code-pattern
-    description: "Injected code pattern in library"
-    criticality: hostile
-    confidence: 0.85
-    requires_all:
-      - type: trait
-        id: data-obfuscation
-    requires_any:
-      - type: trait
-        id: unexpected-crypto
-      - type: trait
-        id: unexpected-socket-ops
-
-# Supply Chain Binary Backdoor Detection
-# Detects patterns consistent with supply chain attacks like XZ Utils (CVE-2024-3094)
-# ATT&CK: T1195.002 (Supply Chain Compromise: Compromise Software Supply Chain)
-# MBC: B0025 (Compromise Software Supply Chain)
-
-defaults:
-  file_types: [elf, pe, macho]
-  attack: "T1195.002"
-  mbc: "B0025"
-
-traits:
   # === Massive Code Injection Indicators ===
 
   - id: massive-code-blob
+    file_types: [elf, pe, macho]
+    attack: "T1195.002"
+    mbc: "B0025"
     description: "Extremely large average function size (massive code injection)"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.85
     condition:
       type: metrics
@@ -245,8 +208,11 @@ traits:
 
   - id: many-huge-functions
     description: "Many huge functions (>64KB) - potential XZ-style injection"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
+    file_types: [elf, pe, macho]
+    attack: "T1195.002"
+    mbc: "B0025"
     condition:
       type: metrics
       field: binary.huge_functions
@@ -256,9 +222,11 @@ traits:
 
   - id: xz-backdoor-signature
     description: "XZ Utils backdoor signature (CVE-2024-3094)"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.99
+    file_types: [elf]
     attack: "T1195.002"
+    mbc: "B0025"
     condition:
       type: yara
       source: |
@@ -285,6 +253,9 @@ traits:
     description: "IFUNC resolver pattern (potential function hooking)"
     criticality: suspicious
     confidence: 0.8
+    file_types: [elf]
+    attack: "T1195.002"
+    mbc: "B0025"
     condition:
       type: yara
       source: |
@@ -305,8 +276,11 @@ traits:
 
   - id: rsa-in-compression-lib
     description: "RSA operations in non-crypto library (backdoor indicator)"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
+    file_types: [elf, pe, macho]
+    attack: "T1195.002"
+    mbc: "B0025"
     condition:
       type: yara
       source: |
@@ -329,8 +303,11 @@ traits:
 
   - id: ssh-hook-pattern
     description: "SSH authentication hooking pattern"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.85
+    file_types: [elf, pe, macho]
+    attack: "T1195.002"
+    mbc: "B0025"
     condition:
       type: yara
       source: |
@@ -352,6 +329,7 @@ traits:
     description: "CPUID fingerprinting in library (potential anti-analysis)"
     criticality: notable
     confidence: 0.75
+    file_types: [elf]
     attack: "T1082"
     condition:
       type: yara
@@ -369,6 +347,9 @@ traits:
     description: "glibc function hijacking patterns"
     criticality: suspicious
     confidence: 0.7
+    file_types: [elf]
+    attack: "T1195.002"
+    mbc: "B0025"
     condition:
       type: yara
       source: |
@@ -384,14 +365,55 @@ traits:
             2 of them
         }
 
+# Supply Chain Binary Backdoor Detection
+# Detects patterns consistent with supply chain attacks like XZ Utils (CVE-2024-3094)
+# ATT&CK: T1195.002 (Supply Chain Compromise: Compromise Software Supply Chain)
+# MBC: B0025 (Compromise Software Supply Chain)
+
 composite_rules:
+  # === Unexpected Capability Combination ===
+
+  - id: unexpected-capabilities
+    description: "Unexpected capability combination in library"
+    criticality: suspicious
+    confidence: 0.8
+    file_types: [elf, pe, macho]
+    attack: "T1195.002"
+    mbc: "B0025"
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: unexpected-socket-ops
+      - type: trait
+        id: unexpected-process-ops
+      - type: trait
+        id: unexpected-crypto
+
+  - id: injected-code-pattern
+    description: "Injected code pattern in library"
+    criticality: hostile
+    confidence: 0.85
+    file_types: [elf, pe, macho]
+    attack: "T1195.002"
+    mbc: "B0025"
+    requires_all:
+      - type: trait
+        id: data-obfuscation
+    requires_any:
+      - type: trait
+        id: unexpected-crypto
+      - type: trait
+        id: unexpected-socket-ops
+
   # === XZ-style Backdoor Detection ===
 
   - id: xz-style-attack
     description: "XZ-style supply chain backdoor pattern"
     criticality: hostile
     confidence: 0.9
+    file_types: [elf, pe, macho]
     attack: "T1195.002"
+    mbc: "B0025"
     requires_count: 2
     conditions:
       - type: trait
@@ -405,6 +427,9 @@ composite_rules:
     description: "Potential code injection indicators"
     criticality: suspicious
     confidence: 0.8
+    file_types: [elf, pe, macho]
+    attack: "T1195.002"
+    mbc: "B0025"
     requires_all:
       - type: trait
         id: massive-code-blob
@@ -418,6 +443,9 @@ composite_rules:
     description: "Authentication bypass backdoor indicator"
     criticality: hostile
     confidence: 0.95
+    file_types: [elf, pe, macho]
+    attack: "T1195.002"
+    mbc: "B0025"
     requires_any:
       - type: trait
         id: ssh-hook-pattern
@@ -428,6 +456,9 @@ composite_rules:
     description: "Dynamic function hooking patterns"
     criticality: suspicious
     confidence: 0.8
+    file_types: [elf, pe, macho]
+    attack: "T1195.002"
+    mbc: "B0025"
     requires_count: 2
     conditions:
       - type: trait

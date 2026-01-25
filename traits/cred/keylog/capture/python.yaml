@@ -65,19 +65,29 @@ composite_rules:
     description: "Keylogger writing to file"
     confidence: 0.95
     criticality: hostile
+    attack: "T1056.001"
+    mbc: "B0015"
+    file_types: [python]
     requires_all:
       - type: string
         regex: "import pyHook|import pyWinhook|import keyboard|pynput.*keyboard"
       - type: string
         regex: "open\\([^)]+[\"'](?:a|w)[\"']"
+      - type: string
+        regex: "\\.write\\(|KeyDown|on_press"
 
   # Windows keyboard hook with exfiltration
   - id: python-keylogger-exfil
     description: "Keylogger with network exfiltration"
     confidence: 0.95
     criticality: hostile
+    attack: "T1056.001"
+    mbc: "B0015"
+    file_types: [python]
     requires_all:
       - type: string
         regex: "HookKeyboard\\(\\)|keyboard\\.Listener|keyboard\\.hook"
       - type: string
         regex: "requests\\.(post|get)|urllib|socket\\."
+      - type: string
+        regex: "KeyDown|on_press|on_release"

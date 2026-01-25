@@ -574,10 +574,21 @@ impl YaraEngine {
         let mut evidence = Vec::new();
 
         for matched_str in &yara_match.matched_strings {
+            // Use actual matched value if printable, otherwise use identifier
+            let is_printable = matched_str
+                .value
+                .bytes()
+                .all(|b| b >= 0x20 && b < 0x7f || b == b'\n' || b == b'\t');
+            let evidence_value = if is_printable && !matched_str.value.is_empty() {
+                matched_str.value.clone()
+            } else {
+                matched_str.identifier.clone()
+            };
+
             evidence.push(Evidence {
                 method: "yara".to_string(),
                 source: "yara-x".to_string(),
-                value: format!("{}:{}", yara_match.rule, matched_str.identifier),
+                value: evidence_value,
                 location: Some(format!("offset:0x{:x}", matched_str.offset)),
             });
         }
@@ -956,7 +967,7 @@ rule test_rule : medium {
         assert_eq!(evidence.len(), 1);
         assert_eq!(evidence[0].method, "yara");
         assert_eq!(evidence[0].source, "yara-x");
-        assert_eq!(evidence[0].value, "test_rule:$pattern");
+        assert_eq!(evidence[0].value, "test"); // Uses actual matched value
         assert_eq!(evidence[0].location, Some("offset:0x1000".to_string()));
     }
 

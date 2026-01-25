@@ -10,6 +10,7 @@ traits:
     mbc: "E1083"
     attack: "T1083"
     confidence: 0.5
+    file_types: [elf, macho, so, dylib, c]
     condition:
       type: symbol
       pattern: readlink
@@ -21,6 +22,7 @@ traits:
     mbc: "E1083"
     attack: "T1083"
     confidence: 0.5
+    file_types: [elf, macho, so, dylib, c]
     condition:
       type: symbol
       pattern: realpath
@@ -32,6 +34,7 @@ traits:
     mbc: "E1222"
     attack: "T1222"
     confidence: 0.6
+    file_types: [elf, macho, so, dylib, c]
     condition:
       type: symbol
       pattern: symlink
@@ -43,6 +46,7 @@ traits:
     mbc: "E1222"
     attack: "T1222"
     confidence: 0.6
+    file_types: [elf, macho, so, dylib, c]
     condition:
       type: symbol
       pattern: link
@@ -55,6 +59,7 @@ traits:
     mbc: "E1083"
     attack: "T1083"
     confidence: 0.4
+    file_types: [elf, macho, so, dylib, c]
     condition:
       type: symbol
       pattern: stat|lstat|fstat
@@ -66,6 +71,7 @@ traits:
     mbc: "E1083"
     attack: "T1083"
     confidence: 0.5
+    file_types: [elf, macho, so, dylib, c]
     condition:
       type: symbol
       pattern: access
@@ -78,6 +84,7 @@ traits:
     mbc: "E1083"
     attack: "T1083"
     confidence: 0.5
+    file_types: [elf, macho, so, dylib, c]
     condition:
       type: symbol
       pattern: getxattr
@@ -89,6 +96,7 @@ traits:
     mbc: "E1083"
     attack: "T1083"
     confidence: 0.5
+    file_types: [elf, macho, so, dylib, c]
     condition:
       type: symbol
       pattern: listxattr
@@ -100,6 +108,7 @@ traits:
     mbc: "E1222"
     attack: "T1222"
     confidence: 0.6
+    file_types: [elf, macho, so, dylib, c]
     condition:
       type: symbol
       pattern: setxattr
@@ -111,6 +120,7 @@ traits:
     mbc: "E1222"
     attack: "T1222"
     confidence: 0.6
+    file_types: [elf, macho, so, dylib, c]
     condition:
       type: symbol
       pattern: removexattr
@@ -123,6 +133,7 @@ traits:
     mbc: "E1083"
     attack: "T1083"
     confidence: 0.4
+    file_types: [elf, macho, so, dylib, c]
     condition:
       type: symbol
       pattern: flock
@@ -134,6 +145,7 @@ traits:
     mbc: "E1083"
     attack: "T1083"
     confidence: 0.4
+    file_types: [elf, macho, so, dylib, c]
     condition:
       type: symbol
       pattern: fcntl

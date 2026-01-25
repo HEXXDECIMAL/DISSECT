@@ -13,7 +13,7 @@ traits:
   - id: word-count-check
     description: "Mnemonic word count validation (12/15/18/21/24)"
     confidence: 0.85
-    criticality: hostile
+    criticality: suspicious
     condition:
       type: string
       regex: "split\\([^)]*\\)\\s*\\.\\s*length\\s*[=!<>]+\\s*(12|15|18|21|24)|len\\([^)]*split[^)]*\\)\\s*[=!<>]+\\s*(12|15|18|21|24)|words?_?count\\s*[=!<>]+\\s*(12|15|18|21|24)"
@@ -38,7 +38,7 @@ traits:
   - id: validation-pattern
     description: "Mnemonic phrase validation logic"
     confidence: 0.85
-    criticality: hostile
+    criticality: suspicious
     condition:
       type: string
       regex: "validate.*mnemonic|mnemonic.*valid|check.*seed.*phrase|verify.*recovery"
@@ -47,7 +47,7 @@ traits:
   - id: private-key-hex
     description: "Wallet private key extraction"
     confidence: 0.85
-    criticality: hostile
+    criticality: suspicious
     condition:
       type: string
       # Require wallet/crypto context, not just "private_key" which is used by SSH/TLS
@@ -58,7 +58,7 @@ traits:
   - id: bitcoin-wif
     description: "Bitcoin WIF private key format reference"
     confidence: 0.85
-    criticality: hostile
+    criticality: suspicious
     condition:
       type: string
       # Require wallet/bitcoin context - "wif" alone matches wireless interface
@@ -87,17 +87,25 @@ composite_rules:
     description: "Mnemonic phrase theft (extraction + exfiltration)"
     criticality: hostile
     confidence: 0.95
+    attack: "T1555"
+    mbc: "B0028"
+    file_types: [python, javascript]
     requires_all:
       - type: string
         regex: "mnemonic|seed_phrase|seedphrase|recovery_phrase|secret_words"
       - type: string
         regex: "requests\\.(post|get)|urllib|socket\\.|fetch\\(|XMLHttpRequest"
+      - type: string
+        regex: "wallet|crypto|metamask|phantom|browser"
 
   # Multiple wallet-related patterns = wallet stealer
   - id: comprehensive-stealer
     description: "Comprehensive wallet credential theft"
     criticality: hostile
     confidence: 0.95
+    attack: "T1555"
+    mbc: "B0028"
+    file_types: [python, javascript, elf, pe, macho]
     requires_count: 3
     conditions:
       - type: string

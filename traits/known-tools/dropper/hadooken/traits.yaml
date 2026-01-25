@@ -6,10 +6,11 @@ traits:
   # Hadooken dropper
   - id: dropper/hadooken/generic
     description: Hadooken malware dropper patterns
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     mbc: "B0030"
     attack: "T1059"
+    file_types: [elf, macho, pe, so, dylib, dll, shell]
     condition:
       type: yara
       source: |
@@ -33,10 +34,11 @@ traits:
   # Hadooken cryptominer deployment
   - id: dropper/hadooken/miner
     description: Hadooken cryptominer deployment
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.85
     mbc: "B0030"
     attack: "T1496"
+    file_types: [elf, macho, pe, so, dylib, dll, shell]
     condition:
       type: yara
       source: |
@@ -62,10 +64,11 @@ traits:
   # Hadooken webshell component
   - id: dropper/hadooken/webshell
     description: Hadooken webshell deployment
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.85
     mbc: "B0030"
     attack: "T1505.003"
+    file_types: [elf, macho, pe, so, dylib, dll, shell]
     condition:
       type: yara
       source: |
@@ -92,6 +95,9 @@ composite_rules:
     description: Hadooken malware detected
     criticality: hostile
     confidence: 0.95
+    mbc: "B0030"
+    attack: "T1059"
+    file_types: [elf, macho, pe, so, dylib, dll, shell]
     requires_any:
       - type: trait
         id: dropper/hadooken/generic

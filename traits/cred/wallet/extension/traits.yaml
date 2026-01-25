@@ -180,10 +180,11 @@ composite_rules:
   # Detects multiple wallet extension IDs (strong indicator of wallet stealer)
   - id: multi-wallet-targeting
     description: Multiple crypto wallet extensions targeted (wallet stealer)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1555.003"
     mbc: "B0028"
+    file_types: [python, javascript, elf, pe, macho]
     condition:
       type: yara
       source: |

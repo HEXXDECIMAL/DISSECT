@@ -1,6 +1,7 @@
 # Impact - Remote Access / Reverse Shells
 # ATT&CK: T1059 (Command and Scripting Interpreter)
 # MBC: B0022 (Remote Access)
+# NOTE: Shell path traits (bin-sh, bin-bash) are defined in exec/command/shell/generic.yaml
 
 composite_rules:
   # === Atomic: Reverse Shell Indicators ===
@@ -104,24 +105,6 @@ composite_rules:
       type: string
       exact: "socket"
 
-  - id: bin-bash
-    description: /bin/bash path reference
-    criticality: inert
-    confidence: 0.4
-    platforms: [linux, macos, unix]
-    condition:
-      type: string
-      exact: "/bin/bash"
-
-  - id: bin-sh
-    description: /bin/sh path reference
-    criticality: inert
-    confidence: 0.4
-    platforms: [linux, macos, unix]
-    condition:
-      type: string
-      exact: "/bin/sh"
-
   # === Atomic: Perl Reverse Shell ===
 
   - id: perl-socket-open
@@ -219,11 +202,11 @@ composite_rules:
     platforms: [linux, macos, unix]
     requires_all:
       - type: trait
-        id: impact/remote-access/mkfifo
+        id: mkfifo
       - type: trait
-        id: impact/remote-access/sh-interactive
+        id: sh-interactive
       - type: trait
-        id: impact/remote-access/nc-pipe
+        id: nc-pipe
 
   - id: go-reverse-shell
     description: Go reverse shell pattern
@@ -235,18 +218,18 @@ composite_rules:
     file_types: [elf, macho]
     requires_any:
       - type: trait
-        id: impact/remote-access/bin-bash
+        id: exec/command/shell/bin-bash
       - type: trait
-        id: impact/remote-access/bin-sh
+        id: exec/command/shell/bin-sh
     requires_all:
       - type: trait
-        id: impact/remote-access/go-cmd-run
+        id: go-cmd-run
       - type: trait
-        id: impact/remote-access/go-net-conn
+        id: go-net-conn
       - type: trait
-        id: impact/remote-access/go-child-stdin
+        id: go-child-stdin
       - type: trait
-        id: impact/remote-access/go-dial-tcp
+        id: go-dial-tcp
 
   - id: generic-reverse-shell
     description: Generic reverse shell pattern (socket + shell)
@@ -258,9 +241,9 @@ composite_rules:
       - type: string
         exact: "reverse"
       - type: trait
-        id: impact/remote-access/socket-ref
+        id: socket-ref
     requires_any:
       - type: trait
-        id: impact/remote-access/bin-bash
+        id: exec/command/shell/bin-bash
       - type: trait
-        id: impact/remote-access/bin-sh
+        id: exec/command/shell/bin-sh

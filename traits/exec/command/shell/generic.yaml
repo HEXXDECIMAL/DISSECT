@@ -68,6 +68,7 @@ traits:
       type: symbol
       pattern: ShellExecuteA|ShellExecuteW|ShellExecuteExA|ShellExecuteExW
     platforms: [windows]
+    file_types: [pe, dll]
 
   # Go
   - id: go-os-exec
@@ -150,6 +151,18 @@ traits:
     condition:
       type: string
       exact: "/bin/sh"
+    platforms: [unix, linux, macos]
+    file_types: [pe, elf, macho, dll, so, dylib]
+
+  - id: bin-bash
+    description: References /bin/bash (Bash shell)
+    criticality: notable
+    mbc: "E1059.004"
+    attack: "T1059.004"
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "/bin/bash"
     platforms: [unix, linux, macos]
     file_types: [pe, elf, macho, dll, so, dylib]
 

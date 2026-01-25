@@ -1,6 +1,9 @@
 # Time and Clock Access
 # MBC: B0028 (Time Discovery)
 
+defaults:
+  file_types: [elf, macho, so, dylib, c]
+
 traits:
   - id: get
     description: Get system time

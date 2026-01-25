@@ -5,7 +5,7 @@ traits:
   # memfd_create syscall for anonymous memory-backed file
   - id: memfd-create
     description: Creates anonymous memory-backed file (memfd_create syscall)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1620"
     file_types: [python, c, shell]
@@ -27,7 +27,7 @@ traits:
   # Execution from /proc/self/fd (fileless execution)
   - id: proc-fd-exec
     description: Executes binary from /proc/self/fd (fileless execution)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1620"
     file_types: [python, c, shell]
@@ -70,7 +70,7 @@ traits:
   # Download and memfd execution chain
   - id: download-memfd-exec
     description: Downloads binary and executes via memfd (fileless dropper)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.98
     attack: "T1620"
     file_types: [python, c, shell]
@@ -121,7 +121,7 @@ traits:
   # shm_open for shared memory execution
   - id: shm-exec
     description: Uses shared memory for fileless execution
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     attack: "T1620"
     file_types: [python, c, shell]
@@ -144,8 +144,11 @@ composite_rules:
     description: Linux fileless dropper (download + memfd + exec)
     criticality: hostile
     confidence: 0.99
+    file_types: [python, elf]
     requires_all:
       - type: trait
         id: exec/fileless/memfd-create
       - type: string
         regex: 'requests\.get|urllib|http\.client'
+      - type: string
+        regex: 'os\.write|write\('

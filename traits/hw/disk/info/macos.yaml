@@ -8,6 +8,7 @@ traits:
     confidence: 0.7
     attack: "T1082"
     platforms: [macos]
+    file_types: [macho, dylib, c]
     condition:
       type: symbol_or_string
       any:

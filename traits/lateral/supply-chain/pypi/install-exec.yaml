@@ -41,8 +41,9 @@ composite_rules:
   # Setup.py with external code execution or network activity
   - id: setup-py-exec
     description: "setup.py with suspicious code execution or network activity"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
+    mbc: "B0030"
     condition:
       type: yara
       source: |
@@ -88,8 +89,9 @@ composite_rules:
   # __init__.py with code execution (very suspicious)
   - id: init-py-exec
     description: "__init__.py with immediate code execution"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
+    mbc: "B0030"
     condition:
       type: yara
       source: |
@@ -125,8 +127,9 @@ composite_rules:
   # Package that installs other packages at runtime
   - id: dependency-injection
     description: "Package installs additional dependencies at runtime"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
+    mbc: "B0030"
     condition:
       type: yara
       source: |

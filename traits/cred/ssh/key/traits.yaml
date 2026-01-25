@@ -124,16 +124,16 @@ composite_rules:
     mbc: "E1552"
     requires_all:
       - type: trait
-        id: credential/ssh/dot-ssh-path
+        id: dot-ssh-path
     requires_any:
       - type: trait
-        id: credential/ssh/id-rsa
+        id: id-rsa
       - type: trait
-        id: credential/ssh/id-dsa
+        id: id-dsa
       - type: trait
-        id: credential/ssh/id-ecdsa
+        id: id-ecdsa
       - type: trait
-        id: credential/ssh/id-ed25519
+        id: id-ed25519
 
   - id: sshd-password-trace
     description: SSHD memory tracing for passwords
@@ -147,16 +147,18 @@ composite_rules:
       - type: string
         regex: "passw(or)?d"
       - type: trait
-        id: credential/ssh/sshd-ref
+        id: sshd-ref
 
   # === SSH session/password sniffing ===
 
   - id: session-sniff
     description: SSH session sniffing indicators
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     attack: "T1557"
+    mbc: "E1056"
     platforms: [linux]
+    file_types: [elf, so, python, shell]
     condition:
       type: yara
       source: |
@@ -174,10 +176,12 @@ composite_rules:
 
   - id: password-file-storage
     description: SSH password file storage
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.85
     attack: "T1552.001"
+    mbc: "E1056"
     platforms: [linux]
+    file_types: [elf, so, python, shell]
     condition:
       type: yara
       source: |
@@ -220,11 +224,12 @@ composite_rules:
     attack: "T1556"
     mbc: "E1056"
     platforms: [linux]
+    file_types: [elf, so, python, shell]
     requires_any:
       - type: trait
-        id: credential/ssh/session-sniff
+        id: session-sniff
       - type: trait
-        id: credential/ssh/password-file-storage
+        id: password-file-storage
     requires_all:
       - type: trait
-        id: credential/ssh/sshd-ref
+        id: sshd-ref

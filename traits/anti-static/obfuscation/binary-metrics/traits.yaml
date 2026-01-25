@@ -21,7 +21,7 @@ traits:
 
   - id: very-high-entropy
     description: "Very high entropy (strongly indicates packing/encryption)"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1045"
     condition:
@@ -71,7 +71,7 @@ traits:
 
   - id: many-wx-sections
     description: "Multiple W+X sections (packer pattern)"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1045"
     condition:
@@ -229,7 +229,7 @@ traits:
 
   - id: very-high-avg-complexity
     description: "Very high average complexity (heavy obfuscation)"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.85
     attack: "T1027.002"
     condition:
@@ -394,15 +394,15 @@ composite_rules:
     requires_count: 2
     conditions:
       - type: trait
-        id: high-overall-entropy
+        id: anti-static/obfuscation/binary-metrics/high-overall-entropy
       - type: trait
-        id: no-strings
+        id: anti-static/obfuscation/binary-metrics/no-strings
       - type: trait
-        id: few-imports
+        id: anti-static/obfuscation/binary-metrics/few-imports
       - type: trait
-        id: no-functions
+        id: anti-static/obfuscation/binary-metrics/no-functions
       - type: trait
-        id: dominant-section
+        id: anti-static/obfuscation/binary-metrics/dominant-section
 
   - id: binary-heavily-packed
     description: "Binary is heavily packed/encrypted"
@@ -412,15 +412,15 @@ composite_rules:
     requires_count: 3
     conditions:
       - type: trait
-        id: very-high-entropy
+        id: anti-static/obfuscation/binary-metrics/very-high-entropy
       - type: trait
-        id: no-strings
+        id: anti-static/obfuscation/binary-metrics/no-strings
       - type: trait
-        id: no-functions
+        id: anti-static/obfuscation/binary-metrics/no-functions
       - type: trait
-        id: wx-sections
+        id: anti-static/obfuscation/binary-metrics/wx-sections
       - type: trait
-        id: few-imports
+        id: anti-static/obfuscation/binary-metrics/few-imports
 
   - id: binary-encrypted-overlay
     description: "Binary with encrypted overlay payload"
@@ -429,9 +429,9 @@ composite_rules:
     attack: "T1027.009"
     requires_all:
       - type: trait
-        id: has-overlay
+        id: anti-static/obfuscation/binary-metrics/has-overlay
       - type: trait
-        id: high-entropy-overlay
+        id: anti-static/obfuscation/binary-metrics/high-entropy-overlay
 
   - id: packer-signature
     description: "Packer signature pattern detected"
@@ -441,13 +441,13 @@ composite_rules:
     requires_count: 2
     conditions:
       - type: trait
-        id: high-section-name-entropy
+        id: anti-static/obfuscation/binary-metrics/high-section-name-entropy
       - type: trait
-        id: few-sections
+        id: anti-static/obfuscation/binary-metrics/few-sections
       - type: trait
-        id: dominant-section
+        id: anti-static/obfuscation/binary-metrics/dominant-section
       - type: trait
-        id: wx-sections
+        id: anti-static/obfuscation/binary-metrics/wx-sections
 
   # === Control Flow Obfuscation Detection ===
 
@@ -459,13 +459,13 @@ composite_rules:
     requires_count: 2
     conditions:
       - type: trait
-        id: high-avg-complexity
+        id: anti-static/obfuscation/binary-metrics/high-avg-complexity
       - type: trait
-        id: many-complex-functions
+        id: anti-static/obfuscation/binary-metrics/many-complex-functions
       - type: trait
-        id: many-basic-blocks
+        id: anti-static/obfuscation/binary-metrics/many-basic-blocks
       - type: trait
-        id: extreme-max-complexity
+        id: anti-static/obfuscation/binary-metrics/extreme-max-complexity
 
   - id: heavy-control-flow-obfuscation
     description: "Heavy control flow obfuscation"
@@ -474,9 +474,11 @@ composite_rules:
     attack: "T1027.002"
     requires_all:
       - type: trait
-        id: very-high-avg-complexity
+        id: anti-static/obfuscation/binary-metrics/very-high-avg-complexity
       - type: trait
-        id: very-complex-functions
+        id: anti-static/obfuscation/binary-metrics/very-complex-functions
+      - type: trait
+        id: anti-static/obfuscation/binary-metrics/many-complex-functions
 
   - id: vm-based-obfuscation
     description: "VM-based obfuscation pattern"
@@ -486,13 +488,13 @@ composite_rules:
     requires_count: 2
     conditions:
       - type: trait
-        id: few-functions
+        id: anti-static/obfuscation/binary-metrics/few-functions
       - type: trait
-        id: extreme-max-complexity
+        id: anti-static/obfuscation/binary-metrics/extreme-max-complexity
       - type: trait
-        id: huge-stack-frame
+        id: anti-static/obfuscation/binary-metrics/huge-stack-frame
       - type: trait
-        id: many-linear-functions
+        id: anti-static/obfuscation/binary-metrics/many-linear-functions
 
   - id: anti-analysis-pattern
     description: "Anti-analysis pattern detected"
@@ -502,10 +504,10 @@ composite_rules:
     requires_count: 2
     conditions:
       - type: trait
-        id: many-noreturn-functions
+        id: anti-static/obfuscation/binary-metrics/many-noreturn-functions
       - type: trait
-        id: many-complex-functions
+        id: anti-static/obfuscation/binary-metrics/many-complex-functions
       - type: trait
-        id: few-leaf-functions
+        id: anti-static/obfuscation/binary-metrics/few-leaf-functions
       - type: trait
-        id: large-stack-frames
+        id: anti-static/obfuscation/binary-metrics/large-stack-frames

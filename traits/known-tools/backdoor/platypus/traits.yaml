@@ -5,7 +5,7 @@
 traits:
   - id: backdoor/platypus/remove-self
     description: Platypus self-removal function
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     attack: "T1070.004"
@@ -16,7 +16,7 @@ traits:
 
   - id: backdoor/platypus/daemon-mode
     description: Platypus daemon mode startup
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     attack: "T1543"
@@ -27,7 +27,7 @@ traits:
 
   - id: backdoor/platypus/brand
     description: Platypus GitHub reference
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.99
     family: true
     attack: "T1059"
@@ -38,7 +38,7 @@ traits:
 
   - id: backdoor/platypus/tunnel-connect
     description: Platypus tunnel connection
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     attack: "T1572"

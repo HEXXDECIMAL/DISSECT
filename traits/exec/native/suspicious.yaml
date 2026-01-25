@@ -107,7 +107,7 @@ traits:
   # Shellcode patterns
   - id: shellcode
     description: Native binary with shellcode patterns
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     attack: "T1055.001"
     file_types: [pe, dll, elf, macho]
@@ -130,7 +130,7 @@ traits:
   # Cobalt Strike beacon patterns
   - id: cobalt-strike
     description: Cobalt Strike beacon indicators
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1071.001"
     file_types: [pe, dll, elf, macho]
@@ -154,7 +154,7 @@ traits:
   # Metasploit patterns
   - id: metasploit
     description: Metasploit payload indicators
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     attack: "T1059"
     file_types: [pe, dll, elf, macho]
@@ -176,7 +176,7 @@ traits:
   # Cryptocurrency miner in native code
   - id: cryptominer
     description: Native cryptocurrency miner binary
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1496"
     file_types: [elf, macho, pe]

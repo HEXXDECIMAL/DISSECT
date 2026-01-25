@@ -1,6 +1,7 @@
 # Fileless Execution / Memory-only Staging
 # Patterns for avoiding disk-based detection
 # ATT&CK: T1055, T1620
+# NOTE: memfd_create is defined in mem/anonymous/create/linux.yaml
 
 traits:
   - id: dev-shm
@@ -14,18 +15,6 @@ traits:
     condition:
       type: string
       exact: "/dev/shm/"
-
-  - id: memfd-create
-    description: "memfd_create for anonymous memory-backed file"
-    criticality: suspicious
-    confidence: 0.9
-    mbc: "F0012"
-    attack: "T1620"
-    file_types: [elf]
-    platforms: [linux]
-    condition:
-      type: symbol
-      pattern: "memfd_create"
 
   - id: proc-self-fd
     description: "Access /proc/self/fd for file descriptor manipulation"

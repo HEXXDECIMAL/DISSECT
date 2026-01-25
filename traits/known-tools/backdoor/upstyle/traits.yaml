@@ -9,7 +9,7 @@ traits:
   # Upstyle backdoor indicators
   - id: backdoor/upstyle/generic
     description: PAN-OS Upstyle backdoor patterns
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     attack: "T1505"
     condition:
@@ -34,7 +34,7 @@ traits:
   # Upstyle command execution
   - id: backdoor/upstyle/cmd-exec
     description: Upstyle command execution capability
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.85
     attack: "T1059"
     condition:
@@ -62,7 +62,7 @@ traits:
   # Upstyle persistence
   - id: backdoor/upstyle/persistence
     description: Upstyle persistence mechanism
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.85
     attack: "T1546"
     condition:
@@ -90,8 +90,12 @@ composite_rules:
     description: PAN-OS Upstyle backdoor detected
     criticality: hostile
     confidence: 0.95
+    attack: "T1505"
+    mbc: "B0022"
     requires_any:
       - type: trait
         id: backdoor/upstyle/generic
       - type: trait
         id: backdoor/upstyle/cmd-exec
+      - type: trait
+        id: backdoor/upstyle/persistence

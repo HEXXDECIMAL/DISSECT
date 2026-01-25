@@ -26,7 +26,7 @@ composite_rules:
     file_types: [all]
     requires_all:
       - type: trait
-        id: anti-analysis/randomness/instantiation
+        id: instantiation
 
   # Logic bomb with self-destruct
   - id: logic-bomb-self-destruct
@@ -38,7 +38,7 @@ composite_rules:
     file_types: [all]
     requires_all:
       - type: trait
-        id: time/trigger/hardcoded-datetime
+        id: hardcoded-datetime
       - type: trait
         id: exec/process/current-process
       - type: trait
@@ -54,9 +54,9 @@ composite_rules:
     file_types: [all]
     requires_all:
       - type: trait
-        id: time/trigger/hardcoded-datetime
+        id: hardcoded-datetime
       - type: trait
-        id: anti-analysis/randomness/instantiation
+        id: instantiation
       - type: trait
         id: exec/process/current-process
       - type: trait
@@ -72,7 +72,7 @@ composite_rules:
     file_types: [all]
     requires_all:
       - type: trait
-        id: data/sql/sqlcommand
+        id: sqlcommand
     requires_any:
       - type: trait
         id: exec/process/terminate
@@ -92,6 +92,6 @@ composite_rules:
     near_lines: 30              # All patterns must be within 30 lines
     requires_all:
       - type: trait
-        id: time/trigger/hardcoded-datetime
+        id: hardcoded-datetime
       - type: trait
         id: exec/process/terminate

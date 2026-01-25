@@ -63,8 +63,8 @@ traits:
     attack: "T1059"
     file_types: [elf, macho]
     condition:
-      type: string
-      exact: "isatty"
+      type: symbol
+      pattern: isatty
 
   - id: ttyname
     description: Get terminal device pathname
@@ -73,8 +73,8 @@ traits:
     attack: "T1059"
     file_types: [elf, macho]
     condition:
-      type: string
-      exact: "ttyname"
+      type: symbol
+      pattern: ttyname|ttyname_r
 
   - id: tcgetattr
     description: Get terminal attributes
@@ -83,8 +83,8 @@ traits:
     attack: "T1059"
     file_types: [elf, macho]
     condition:
-      type: string
-      exact: "tcgetattr"
+      type: symbol
+      pattern: tcgetattr
 
   - id: tcsetattr
     description: Set terminal attributes
@@ -93,8 +93,8 @@ traits:
     attack: "T1059"
     file_types: [elf, macho]
     condition:
-      type: string
-      exact: "tcsetattr"
+      type: symbol
+      pattern: tcsetattr
 
   - id: vhangup
     description: Virtual terminal hangup

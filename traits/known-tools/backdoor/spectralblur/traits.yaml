@@ -186,15 +186,12 @@ traits:
       type: string
       regex: "_mainprocess|_mainthread"
 
-composite_rules:
-  # This is the ONLY hostile rule - requires multiple indicators
-  # "Definitively malicious with no reasonable alternative explanation"
-  - id: backdoor/spectralblur/detected
-    description: SpectralBlur macOS backdoor (DPRK/Lazarus)
-    criticality: hostile
+  # SpectralBlur YARA signature - comprehensive detection
+  - id: backdoor/spectralblur/yara-signature
+    description: SpectralBlur macOS backdoor YARA signature
+    criticality: suspicious
     confidence: 0.98
     family: true
-    reference: "https://objective-see.org/blog/blog_0x7A.html"
     attack: "T1059.004"
     mbc: "B0022"
     file_types: [macho]
@@ -215,12 +212,6 @@ composite_rules:
             $proc_dir = "_proc_dir"
             $proc_rmfile = "_proc_rmfile"
             $proc_hibernate = "_proc_hibernate"
-            $proc_getcfg = "_proc_getcfg"
-            $proc_setcfg = "_proc_setcfg"
-            $proc_testconn = "_proc_testconn"
-            $proc_sleep = "_proc_sleep"
-            $proc_die = "_proc_die"
-            $proc_restart = "_proc_restart"
             // PTY backdoor pattern
             $posix_openpt = "posix_openpt"
             $grantpt = "grantpt"
@@ -237,11 +228,42 @@ composite_rules:
               // Strong match: multiple proc handlers
               (4 of ($proc_*)) or
               // Alternative: proc handlers with PTY pattern
-              (2 of ($proc_*) and $posix_openpt and $grantpt) or
+              (2 of ($proc_*) and $posix_openpt and $grantpt and $unlockpt and $bin_sh) or
               // Alternative: key proc handlers with GPL string
               ($proc_shell and $proc_upload and $gpl)
             )
         }
+
+composite_rules:
+  # This is the ONLY hostile rule - requires multiple indicators
+  # "Definitively malicious with no reasonable alternative explanation"
+  - id: backdoor/spectralblur/detected
+    description: SpectralBlur macOS backdoor (DPRK/Lazarus)
+    criticality: hostile
+    confidence: 0.98
+    family: true
+    reference: "https://objective-see.org/blog/blog_0x7A.html"
+    attack: "T1059.004"
+    mbc: "B0022"
+    file_types: [macho]
+    requires_count: 3
+    conditions:
+      - type: trait
+        id: backdoor/spectralblur/proc-upload
+      - type: trait
+        id: backdoor/spectralblur/proc-download
+      - type: trait
+        id: backdoor/spectralblur/proc-shell
+      - type: trait
+        id: backdoor/spectralblur/proc-rmfile
+      - type: trait
+        id: backdoor/spectralblur/proc-hibernate
+      - type: trait
+        id: backdoor/spectralblur/authchannel
+      - type: trait
+        id: backdoor/spectralblur/xcrypt
+      - type: trait
+        id: backdoor/spectralblur/yara-signature
 
   # Behavioral pattern - suspicious (could be similar legitimate tool)
   - id: backdoor/spectralblur/behavioral

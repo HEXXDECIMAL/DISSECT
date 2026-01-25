@@ -3,40 +3,39 @@
 # Reference: https://github.com/hackirby/skuld
 # ATT&CK: T1555 (Credentials from Password Stores)
 
-composite_rules:
-  # === Atomic Traits ===
-
+traits:
   - id: stealer/skuld/brand-name
     description: Skuld stealer brand string
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     family: true
     attack: "T1555"
-    platforms: [all]
+    file_types: [elf, macho, pe]
     condition:
       type: string
       exact: "skuld"
 
   - id: stealer/skuld/wallet-injection
     description: Skuld wallet injection function
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     attack: "T1055"
-    platforms: [all]
+    file_types: [elf, macho, pe]
     condition:
       type: string
       exact: "walletsinjection"
 
+composite_rules:
   - id: stealer/skuld/detected
     description: Skuld cryptocurrency stealer
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     reference: "https://github.com/hackirby/skuld"
     attack: "T1555"
     mbc: "B0028"
-    platforms: [all]
+    file_types: [elf, macho, pe]
     requires_all:
       - type: trait
         id: stealer/skuld/brand-name

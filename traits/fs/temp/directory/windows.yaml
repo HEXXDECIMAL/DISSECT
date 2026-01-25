@@ -7,6 +7,7 @@ traits:
     description: Look up temp directory via GetTempPath
     criticality: inert
     confidence: 0.66
+    file_types: [pe, dll, c]
     condition:
       type: symbol
       pattern: GetTempPath|GetTempPathA|GetTempPathW

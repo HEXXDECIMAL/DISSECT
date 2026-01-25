@@ -2,6 +2,9 @@
 # MBC: OB0007 (Discovery) → E1057 (Process Discovery)
 # ATT&CK: T1057 (Process Discovery)
 
+defaults:
+  file_types: [elf, macho, so, dylib, c]
+
 traits:
   # User ID functions
   - id: getuid

@@ -2,7 +2,7 @@ use crate::analyzers::Analyzer;
 use crate::analyzers::{
     comment_metrics::{self, CommentStyle},
     function_metrics::{self, FunctionInfo},
-    identifier_metrics, string_metrics, text_metrics,
+    identifier_metrics, string_metrics, symbol_extraction, text_metrics,
 };
 use crate::types::*;
 use anyhow::{Context, Result};
@@ -59,6 +59,14 @@ impl TypeScriptAnalyzer {
             let root = tree.root_node();
             self.analyze_ast(&root, content.as_bytes(), &mut report);
         }
+
+        // Extract function calls as symbols for symbol-based rule matching
+        symbol_extraction::extract_symbols(
+            content,
+            tree_sitter_typescript::LANGUAGE_TYPESCRIPT.into(),
+            &["call_expression"],
+            &mut report,
+        );
 
         // Analyze paths and environment variables
         crate::path_mapper::analyze_and_link_paths(&mut report);

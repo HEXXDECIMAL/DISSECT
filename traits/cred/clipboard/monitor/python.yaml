@@ -47,7 +47,7 @@ traits:
   - id: python-clipboard-viewer
     description: "Windows clipboard viewer chain (real-time monitoring)"
     confidence: 0.9
-    criticality: hostile
+    criticality: suspicious
     platforms: [windows]
     condition:
       type: string
@@ -57,7 +57,7 @@ traits:
   - id: python-clipboard-change
     description: "Clipboard change notification handler"
     confidence: 0.9
-    criticality: hostile
+    criticality: suspicious
     platforms: [windows]
     condition:
       type: string
@@ -77,19 +77,29 @@ composite_rules:
     description: "Clipboard theft with exfiltration"
     confidence: 0.95
     criticality: hostile
+    attack: "T1115"
+    mbc: "E1510"
+    file_types: [python]
     requires_all:
       - type: string
         regex: "win32clipboard|pyperclip|wx\\.Clipboard|clipboard_get"
       - type: string
         regex: "requests\\.(post|get)|urllib|socket\\."
+      - type: string
+        regex: "while|loop|schedule|time\\.sleep"
 
   # Real-time clipboard monitoring (chain viewer)
   - id: python-realtime-monitor
     description: "Real-time clipboard monitoring"
     confidence: 0.9
     criticality: hostile
+    attack: "T1115"
+    mbc: "E1510"
+    file_types: [python]
     requires_all:
       - type: string
         regex: "SetClipboardViewer|WM_DRAWCLIPBOARD"
       - type: string
         regex: "GetClipboardData|clipboard\\.GetData"
+      - type: string
+        regex: "while|WndProc|message loop"

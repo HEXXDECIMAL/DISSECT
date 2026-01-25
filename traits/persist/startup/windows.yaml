@@ -11,7 +11,7 @@ traits:
   - id: windows-startup-folder
     description: "Targets Windows Startup folder for persistence"
     confidence: 0.85
-    criticality: hostile
+    criticality: suspicious
     platforms: [windows]
     condition:
       type: string
@@ -21,7 +21,7 @@ traits:
   - id: windows-registry-run
     description: "Accesses Windows registry Run key for persistence"
     confidence: 0.9
-    criticality: hostile
+    criticality: suspicious
     platforms: [windows]
     condition:
       type: string
@@ -31,7 +31,7 @@ traits:
   - id: windows-registry-runonce
     description: "Accesses Windows registry RunOnce key for persistence"
     confidence: 0.9
-    criticality: hostile
+    criticality: suspicious
     platforms: [windows]
     condition:
       type: string
@@ -51,7 +51,7 @@ traits:
   - id: windows-schtasks
     description: "Creates scheduled task for persistence"
     confidence: 0.85
-    criticality: hostile
+    criticality: suspicious
     attack: "T1053.005"
     platforms: [windows]
     condition:
@@ -72,7 +72,7 @@ traits:
   - id: windows-powershell-registry
     description: "Modifies registry for persistence via PowerShell"
     confidence: 0.9
-    criticality: hostile
+    criticality: suspicious
     platforms: [windows]
     condition:
       type: string
@@ -82,7 +82,7 @@ traits:
   - id: windows-wmi-persistence
     description: "Sets up WMI event subscription for persistence"
     confidence: 0.9
-    criticality: hostile
+    criticality: suspicious
     attack: "T1546.003"
     platforms: [windows]
     condition:
@@ -93,8 +93,10 @@ composite_rules:
   # Python registry persistence pattern
   - id: windows-python-reg-persistence
     description: "Python Windows registry persistence"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
+    attack: "T1547.001"
+    mbc: "F0006"
     platforms: [windows]
     file_types: [python]
     requires_all:
@@ -106,9 +108,10 @@ composite_rules:
   # Scheduled task with suspicious payload
   - id: windows-schtasks-payload
     description: "Scheduled task with executable payload"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1053.005"
+    mbc: "F0006"
     platforms: [windows]
     requires_all:
       - type: string

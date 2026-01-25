@@ -1,0 +1,16 @@
+# HTTP Exfiltration - Python
+# MBC: C0002 (HTTP Communication)
+# ATT&CK: T1041 (Exfiltration Over C2 Channel)
+
+composite_rules:
+  - id: exfiltration
+    description: "Gathers system info and exfiltrates via HTTP"
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1041"
+    file_types: [python]
+    requires_all:
+      - type: trait
+        id: discovery/system
+      - type: trait
+        id: comm/http/request

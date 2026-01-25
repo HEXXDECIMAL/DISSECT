@@ -69,10 +69,10 @@ composite_rules:
     requires_count: 3
     conditions:
       - type: trait
-        id: system/python-platform-system
+        id: python-platform-system
       - type: trait
-        id: system/python-mac-discovery
+        id: python-mac-discovery
       - type: trait
-        id: system/python-getpass-user
+        id: python-getpass-user
       - type: trait
-        id: comm/http/request-python
+        id: comm/http/request

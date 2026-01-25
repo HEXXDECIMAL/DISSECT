@@ -1,33 +1,67 @@
 # Python Behavioral Narratives
 # Aggregates atomic traits into high-level intent descriptions
+#
+# Note: Cross-directory references use directory paths (e.g., "discovery/system")
+# which match ANY trait within that directory. This is intentional loose coupling.
 
 composite_rules:
   - id: infostealer
     description: "Infostealer behavior: Collects system/user info and transmits to C2"
     criticality: hostile
     confidence: 0.95
+    mbc: "OB0003"
+    attack: "T1041"
+    file_types: [python]
     requires_all:
       - type: trait
-        id: discovery/system/python-enumeration
+        id: discovery/system
       - type: trait
-        id: comm/http/request-python
+        id: comm/http/request
+      - type: trait
+        id: fs/file/write
 
   - id: dynamic-dropper
     description: "Dynamic Dropper behavior: Fetches, writes, and executes obfuscated code"
     criticality: hostile
     confidence: 0.98
+    mbc: "B0023"
+    attack: "T1059"
+    file_types: [python]
     requires_all:
       - type: trait
-        id: anti-static/obfuscation/strings/execute-decoded-content
+        id: anti-static/obfuscation/strings
       - type: trait
-        id: lateral/supply-chain/dropper/fetch-write-execute
+        id: lateral/supply-chain
+      - type: trait
+        id: exec
 
   - id: evasive-profiler
     description: "Evasive Profiler: Uses module aliasing to hide system enumeration"
     criticality: hostile
     confidence: 0.95
+    mbc: "E1082"
+    attack: "T1082"
+    file_types: [python]
     requires_all:
       - type: trait
-        id: evasion/aliasing/python-std-alias
+        id: evasion/aliasing
       - type: trait
-        id: discovery/system/python-platform-system
+        id: discovery/system
+      - type: trait
+        id: comm/http/request
+
+  - id: data-staging
+    description: "Data staging for exfiltration (Collect + Encode + Transmit)"
+    criticality: hostile
+    confidence: 0.98
+    mbc: "B0030"
+    attack: "T1074"
+    file_types: [python]
+    near_lines: 100
+    requires_all:
+      - type: trait
+        id: discovery/system
+      - type: trait
+        id: anti-static/obfuscation/strings
+      - type: trait
+        id: exfil/http

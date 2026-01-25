@@ -1,6 +1,9 @@
 # .NET Reflection Patterns (string-based for compiled assemblies)
 # These complement the AST-based csharp.yaml traits
 
+defaults:
+  file_types: [pe, dll, csharp]
+
 traits:
   - id: namespace-import
     description: System.Reflection namespace usage

@@ -57,7 +57,7 @@ composite_rules:
   # Background pip install on Windows (common malware pattern)
   - id: hidden-pip-install
     description: "Background pip install via Windows start command"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     condition:
       type: yara

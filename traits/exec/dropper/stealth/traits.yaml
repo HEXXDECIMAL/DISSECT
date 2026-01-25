@@ -1,5 +1,6 @@
 # Stealth execution patterns (output hiding, process detachment)
 # MBC: F0003 (Process Detach), F0005 (Hide Output)
+# NOTE: os.setsid and preexec_fn= traits are defined in exec/command/setsid/traits.yaml
 
 traits:
   - id: devnull
@@ -21,6 +22,15 @@ traits:
       type: string
       exact: "close_fds=True"
 
+  - id: subprocess-popen
+    description: "subprocess.Popen call"
+    criticality: notable
+    confidence: 0.6
+    file_types: [python]
+    condition:
+      type: string
+      regex: "subprocess\\.Popen\\("
+
 composite_rules:
   - id: python
     description: "Process execution with output hiding and detachment"
@@ -31,13 +41,13 @@ composite_rules:
     file_types: [python]
     requires_count: 3
     conditions:
-      - type: string
-        regex: "subprocess\\.Popen\\("
-      - type: string
-        exact: "subprocess.DEVNULL"
-      - type: string
-        exact: "os.setsid"
-      - type: string
-        exact: "close_fds=True"
-      - type: string
-        exact: "preexec_fn="
+      - type: trait
+        id: subprocess-popen
+      - type: trait
+        id: devnull
+      - type: trait
+        id: exec/command/setsid/python
+      - type: trait
+        id: close-fds
+      - type: trait
+        id: exec/command/setsid/preexec-fn

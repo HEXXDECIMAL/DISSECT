@@ -1,5 +1,8 @@
 # Process Identity Operations
 
+defaults:
+  file_types: [elf, macho, so, dylib, c]
+
 traits:
   - id: get-uid
     description: Get user/group identity

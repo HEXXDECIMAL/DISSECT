@@ -2,10 +2,13 @@
 # Detects malicious AppleScript techniques used by macOS malware
 # ATT&CK: T1059.002 (AppleScript), T1564.003 (Hidden Window)
 # MBC: E1564 (Hide Artifacts)
+# Note: These traits apply to any file type that can invoke osascript
 
 defaults:
   attack: "T1059.002"
   platforms: [macos]
+  # Include all file types that can invoke osascript
+  file_types: [shell, applescript, python, elf, macho, ruby, perl, javascript]
 
 traits:
   # Window hiding via AppleScript
@@ -51,7 +54,7 @@ traits:
   # Password dialog phishing
   - id: password-dialog
     description: "AppleScript password input dialog"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1056.002"
     mbc: "E1056.002"
@@ -62,7 +65,7 @@ traits:
   # Fake system dialog (password phishing)
   - id: fake-system-dialog
     description: "AppleScript fake system prompt"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     attack: "T1056.002"
     condition:
@@ -82,12 +85,31 @@ traits:
   # Keystroke logging via System Events
   - id: keystroke-logging
     description: "AppleScript keystroke monitoring"
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     attack: "T1056.001"
     condition:
       type: string
       regex: "keystroke|key code|tell application.*System Events.*key"
+
+  # tell application pattern (AppleScript automation)
+  - id: tell-application
+    description: "AppleScript tell application block"
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "tell application|osascript"
+
+  # Hidden answer input (password masking)
+  - id: hidden-answer
+    description: "AppleScript hidden input field"
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1056.002"
+    condition:
+      type: string
+      regex: "default answer|with hidden answer"
 
 composite_rules:
   # Password phishing pattern
@@ -96,24 +118,29 @@ composite_rules:
     criticality: hostile
     confidence: 0.95
     attack: "T1056.002"
+    file_types: [shell, applescript]
     requires_all:
-      - type: string
-        regex: "display dialog|osascript"
-      - type: string
-        regex: "password|credential|authenticate"
+      - type: trait
+        id: tell-application
+      - type: trait
+        id: password-dialog
     requires_any:
-      - type: string
-        regex: "default answer|with hidden answer"
-      - type: string
-        regex: "with icon caution|with icon stop"
+      - type: trait
+        id: hidden-answer
+      - type: trait
+        id: fake-system-dialog
 
   # Stealthy AppleScript execution
   - id: stealthy-execution
     description: "Hidden AppleScript execution"
     criticality: hostile
     confidence: 0.9
+    attack: "T1564.003"
+    file_types: [shell, applescript]
     requires_all:
       - type: trait
         id: hide-window
       - type: trait
         id: do-shell-script
+      - type: trait
+        id: tell-application

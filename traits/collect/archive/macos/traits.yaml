@@ -72,9 +72,12 @@ composite_rules:
     description: "Data collection and archiving for exfiltration"
     criticality: hostile
     confidence: 0.9
+    mbc: "B0030"
+    attack: "T1560.001"
+    file_types: [shell]
     requires_all:
       - type: trait
-        id: collect/archive/ditto-compress
+        id: ditto-compress
     requires_any:
       - type: string
         regex: "curl|wget|POST|upload"

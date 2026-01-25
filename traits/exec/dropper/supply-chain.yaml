@@ -76,7 +76,7 @@ traits:
   # Spawn executable after extraction
   - id: extract-execute
     description: Extracts archive then executes contents
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1105"
     file_types: [javascript, typescript]
@@ -131,19 +131,25 @@ composite_rules:
     criticality: hostile
     confidence: 0.98
     attack: "T1105"
+    mbc: "B0024"
+    file_types: [javascript, typescript]
     requires_all:
       - type: trait
         id: dropper/archive/download-zip
       - type: trait
         id: dropper/archive/exe-search
+      - type: trait
+        id: dropper/archive/extract-execute
 # Dropper Logic Detection
 # Detects the pattern of downloading, writing, and executing a file
 
-composite_rules:
   - id: fetch-write-execute
     description: "Complete dropper lifecycle (Fetch + Write + Execute)"
     criticality: hostile
     confidence: 0.98
+    mbc: "B0024"
+    attack: "T1105"
+    file_types: [python]
     requires_all:
       - type: trait
         id: comm/http/request/get
@@ -156,7 +162,6 @@ composite_rules:
 # a standalone interpreter (Python, Node, etc.) to execute payloads
 # ATT&CK: T1059 (Command Execution), T1105 (Ingress Tool Transfer)
 
-traits:
   # Python-build-standalone download (commonly abused)
   - id: python-standalone
     description: Downloads python-build-standalone (interpreter dropper pattern)
@@ -294,7 +299,6 @@ traits:
             any of ($dl*) and any of ($interp*) and any of ($exec*) and any of ($exists*)
         }
 
-composite_rules:
   # Full interpreter dropper: download + extract + stdin exec
   - id: full-stager
     description: Complete interpreter-based stager (download interpreter + execute payload)
@@ -311,6 +315,8 @@ composite_rules:
     requires_all:
       - type: trait
         id: stdin-exec
+      - type: trait
+        id: stream-tar-extract
 
   # Download interpreter + remote payload fetch + execute
   - id: remote-payload-stager
@@ -318,10 +324,13 @@ composite_rules:
     criticality: hostile
     confidence: 0.95
     attack: "T1105"
+    mbc: "B0024"
     file_types: [javascript, typescript]
     requires_all:
       - type: trait
         id: download-and-exec
+      - type: trait
+        id: stdin-exec
       - type: string
         regex: "Buffer\\.from.*base64|atob\\(|btoa\\("
 
@@ -337,12 +346,13 @@ composite_rules:
       - type: trait
         id: python-standalone
       - type: trait
+        id: stdin-exec
+      - type: trait
         id: hex-url-array
 # Supply Chain - Node.js Dropper Patterns
 # Detects JavaScript/Node.js dropper patterns in npm packages
 # ATT&CK: T1105 (Ingress Tool Transfer), T1059 (Command Execution)
 
-traits:
   # Download and write file (https.get/request with fs.write)
   - id: download-file
     description: Node.js HTTPS download to file
@@ -433,7 +443,6 @@ traits:
       type: string
       regex: "password:\\s*['\"][^'\"]+['\"]"
 
-composite_rules:
   # Full dropper lifecycle: download + extract + execute
   - id: full-dropper
     description: Complete Node.js dropper (download + extract + execute)
@@ -441,6 +450,7 @@ composite_rules:
     confidence: 0.98
     attack: "T1105"
     mbc: "B0024"
+    file_types: [javascript, typescript]
     requires_all:
       - type: trait
         id: dropper/node/download-file
@@ -455,172 +465,38 @@ composite_rules:
     criticality: hostile
     confidence: 0.95
     attack: "T1105"
+    mbc: "B0024"
+    file_types: [javascript, typescript]
     requires_all:
       - type: trait
         id: dropper/node/download-file
       - type: trait
         id: dropper/node/detached-spawn
-# Archive-based Dropper Patterns
-# Detects download and extraction of password-protected archives
-# ATT&CK: T1105 (Ingress Tool Transfer), T1140 (Deobfuscate/Decode)
-
-traits:
-  # Password-protected archive extraction
-  - id: password-extract
-    description: Extracts password-protected archive
-    criticality: suspicious
-    confidence: 0.9
-    attack: "T1140"
-    file_types: [javascript, typescript]
-    condition:
-      type: yara
-      source: |
-        rule password_archive_extract {
-          strings:
-            $extract1 = "extractFull" ascii
-            $extract2 = "extract(" ascii
-            $extract3 = "unzip" ascii
-            $extract4 = "7z" ascii
-            $extract5 = "node-7z" ascii
-            $password1 = "password:" ascii
-            $password2 = "password=" ascii
-            $password3 = "-p" ascii
-          condition:
-            any of ($extract*) and any of ($password*)
-        }
-
-  # 7-zip binary usage
-  - id: 7zip-usage
-    description: Uses 7-zip for archive operations
-    criticality: notable
-    confidence: 0.8
-    attack: "T1140"
-    file_types: [javascript, typescript]
-    condition:
-      type: string
-      regex: "7zip-bin|node-7z|path7za|7z\\.exe"
-
-  # Executable file search pattern
-  - id: exe-search
-    description: Searches for executable files after extraction
-    criticality: suspicious
-    confidence: 0.9
-    attack: "T1105"
-    file_types: [javascript, typescript]
-    condition:
-      type: string
-      regex: "endsWith\\(['\"]\\.(exe|bat|cmd|ps1|sh|elf|bin)['\"]\\)|find\\([^)]*\\.(exe|bat|cmd)"
-
-  # Download to temp then extract
-  - id: temp-extract
-    description: Downloads archive to temp directory then extracts
-    criticality: suspicious
-    confidence: 0.85
-    attack: "T1105"
-    file_types: [javascript, typescript]
-    condition:
-      type: yara
-      source: |
-        rule temp_archive_extract {
-          strings:
-            $temp1 = "process.env.TEMP" ascii
-            $temp2 = "process.env.TMP" ascii
-            $temp3 = "os.tmpdir()" ascii
-            $temp4 = "/tmp/" ascii
-            $archive1 = ".zip" ascii
-            $archive2 = ".7z" ascii
-            $archive3 = ".tar" ascii
-            $archive4 = ".rar" ascii
-          condition:
-            any of ($temp*) and any of ($archive*)
-        }
-
-  # Spawn executable after extraction
-  - id: extract-execute
-    description: Extracts archive then executes contents
-    criticality: hostile
-    confidence: 0.95
-    attack: "T1105"
-    file_types: [javascript, typescript]
-    condition:
-      type: yara
-      source: |
-        rule extract_and_execute {
-          strings:
-            $extract1 = "extractFull" ascii fullword
-            $extract2 = "extract(" ascii
-            $extract3 = "unzip" ascii fullword
-            $spawn1 = "spawn(" ascii
-            $spawn2 = "exec(" ascii
-            $spawn3 = "execFile(" ascii
-            $exe1 = ".exe" ascii fullword
-            $exe2 = "exePath" ascii fullword
-            $exe3 = "exeFile" ascii fullword
-          condition:
-            any of ($extract*) and any of ($spawn*) and any of ($exe*)
-        }
-
-  # Download zip file
-  - id: download-zip
-    description: Downloads zip archive from remote URL
-    criticality: suspicious
-    confidence: 0.85
-    attack: "T1105"
-    file_types: [javascript, typescript]
-    condition:
-      type: yara
-      source: |
-        rule download_zip {
-          strings:
-            $dl1 = "https.get" ascii
-            $dl2 = "http.get" ascii
-            $dl3 = "fetch(" ascii
-            $dl4 = "axios.get" ascii
-            $dl5 = "request(" ascii
-            $zip1 = ".zip" ascii
-            $zip2 = ".7z" ascii
-            $zip3 = "application/zip" ascii
-            $write1 = "createWriteStream" ascii
-            $write2 = "writeFileSync" ascii
-          condition:
-            any of ($dl*) and any of ($zip*) and any of ($write*)
-        }
-
-composite_rules:
-  # Full dropper chain: download -> extract -> execute
-  - id: full-chain
-    description: Complete archive dropper (download + extract + execute)
-    criticality: hostile
-    confidence: 0.98
-    attack: "T1105"
-    requires_all:
       - type: trait
-        id: dropper/archive/download-zip
-      - type: trait
-        id: dropper/archive/exe-search
+        id: dropper/node/exec-downloaded
 # JScript/VBScript Dropper Composite Rules
 # Detects combinations of ActiveX usage typical of droppers/downloaders
 # ATT&CK: T1105 (Ingress Tool Transfer)
 
-composite_rules:
   # ActiveXObject + WScript.Shell/ADODB.Stream/XMLHTTP (Classic Dropper)
   - id: activex-dropper
     description: "Classic JScript/VBScript dropper pattern (ActiveXObject + Shell/Network)"
     criticality: hostile
     confidence: 0.95
+    attack: "T1105"
+    mbc: "B0024"
+    file_types: [javascript]
     requires_all:
       - type: trait
         id: dropper/builder/activex-object
+      - type: trait
+        id: dropper/builder/adodb-stream
       - type: string
-        regex: "WScript\\.Shell|ADODB\\.Stream|MSXML2\\.XMLHTTP|Microsoft\\.XMLHTTP"
+        regex: "WScript\\.Shell|MSXML2\\.XMLHTTP|Microsoft\\.XMLHTTP"
 # Supply Chain - Dropper/Packer Builder
 # Tools that convert executables into obfuscated droppers
 # ATT&CK: T1027.002 (Software Packing)
 
-defaults:
-  attack: "T1027.002"
-
-traits:
   # Batch file generation (echo >> pattern)
   - id: batch-echo
     description: Batch file generation via echo commands
@@ -693,11 +569,10 @@ traits:
       type: string
       regex: "%appdata%|%%appdata%%"
 
-composite_rules:
   # EXE to batch dropper builder
   - id: exe-to-batch
     description: EXE to batch file converter (dropper builder)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1027.002"
     mbc: "F0001"
@@ -736,9 +611,10 @@ composite_rules:
   # JScript dropper generation
   - id: jscript-dropper
     description: JScript-based dropper generator
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1027.002"
+    mbc: "F0001"
     condition:
       type: yara
       source: |
@@ -784,327 +660,3 @@ composite_rules:
             $marshal and $exec and
             ($loads or $compressed)
         }
-# Dropper Logic Detection
-# Detects the pattern of downloading, writing, and executing a file
-
-composite_rules:
-  - id: fetch-write-execute
-    description: "Complete dropper lifecycle (Fetch + Write + Execute)"
-    criticality: hostile
-    confidence: 0.98
-    requires_all:
-      - type: trait
-        id: comm/http/request/get
-      - type: trait
-        id: fs/file/write/generic
-      - type: string
-        regex: "os\\.system\\(|exec\\(|subprocess\\."
-# Supply Chain - Interpreter Dropper Patterns
-# Detects "bring your own interpreter" patterns where malware downloads
-# a standalone interpreter (Python, Node, etc.) to execute payloads
-# ATT&CK: T1059 (Command Execution), T1105 (Ingress Tool Transfer)
-
-traits:
-  # Python-build-standalone download (commonly abused)
-  - id: python-standalone
-    description: Downloads python-build-standalone (interpreter dropper pattern)
-    criticality: suspicious
-    confidence: 0.9
-    attack: "T1105"
-    file_types: [javascript, typescript, shell]
-    condition:
-      type: yara
-      source: |
-        rule python_standalone_dropper {
-          strings:
-            $repo1 = "indygreg/python-build-standalone" ascii
-            $repo2 = "python-build-standalone/releases" ascii
-            $url1 = "cpython-" ascii
-            $url2 = "-install_only.tar.gz" ascii
-            $url3 = "python.org/ftp/python" ascii
-          condition:
-            any of ($repo*) or ($url1 and $url2) or $url3
-        }
-
-  # Node.js portable/standalone download
-  - id: node-standalone
-    description: Downloads standalone Node.js interpreter
-    criticality: suspicious
-    confidence: 0.85
-    attack: "T1105"
-    file_types: [javascript, typescript, shell]
-    condition:
-      type: yara
-      source: |
-        rule node_standalone_dropper {
-          strings:
-            $url1 = "nodejs.org/dist" ascii
-            $url2 = "node-v" ascii
-            $tar = ".tar.gz" ascii
-            $zip = ".zip" ascii
-            $exec1 = "spawn(" ascii
-            $exec2 = "exec(" ascii
-          condition:
-            ($url1 or $url2) and ($tar or $zip) and any of ($exec*)
-        }
-
-  # Stdin piping to interpreter (common payload execution)
-  - id: stdin-exec
-    description: Pipes code to interpreter via stdin (payload execution)
-    criticality: suspicious
-    confidence: 0.9
-    attack: "T1059"
-    file_types: [javascript, typescript]
-    condition:
-      type: yara
-      source: |
-        rule stdin_interpreter_exec {
-          strings:
-            // spawn with stdin pipe - Node.js pattern (includes .spawn for method calls)
-            $spawn1 = "spawn(" ascii
-            $spawn2 = ".spawn(" ascii
-            $stdin1 = "stdin.write" ascii
-            $stdin2 = "stdin.end" ascii
-            // Interpreter flags that read from stdin
-            $flag1 = "['-']" ascii  // python -, node -
-            $flag2 = "[\"-\"]" ascii
-            $flag3 = ", ['-']" ascii
-            $flag4 = ", [\"-\"]" ascii
-            // Interpreter binaries (in paths or variable names)
-            $py1 = "python" ascii nocase
-            $py2 = "bin/python" ascii
-            $node1 = "/node" ascii
-            $ruby1 = "ruby" ascii nocase
-            $perl1 = "perl" ascii nocase
-          condition:
-            any of ($spawn*) and any of ($stdin*) and
-            any of ($flag*) and any of ($py*, $node*, $ruby*, $perl*)
-        }
-
-  # Stream directly to tar extraction (in-memory dropper)
-  - id: stream-tar-extract
-    description: Streams HTTP response directly to tar extraction
-    criticality: suspicious
-    confidence: 0.9
-    attack: "T1105"
-    file_types: [javascript, typescript]
-    condition:
-      type: yara
-      source: |
-        rule stream_tar_extract {
-          strings:
-            // HTTP get with pipe
-            $http1 = "https.get" ascii
-            $http2 = "http.get" ascii
-            $http3 = "https.request" ascii
-            // Pipe to process
-            $pipe1 = ".pipe(" ascii
-            $pipe2 = "res.pipe" ascii
-            // Tar command
-            $tar1 = "spawn" ascii
-            $tar2 = "'tar'" ascii
-            $tar3 = "\"tar\"" ascii
-            $tar4 = "-x" ascii
-          condition:
-            any of ($http*) and any of ($pipe*) and any of ($tar*)
-        }
-
-  # Generic "download interpreter + execute payload" pattern
-  - id: download-and-exec
-    description: Downloads interpreter binary then executes payload
-    criticality: suspicious
-    confidence: 0.85
-    attack: "T1105"
-    file_types: [javascript, typescript]
-    condition:
-      type: yara
-      source: |
-        rule download_interpreter_exec {
-          strings:
-            // Downloading binary
-            $dl1 = "https.get" ascii
-            $dl2 = "http.get" ascii
-            $dl3 = "fetch(" ascii
-            // Interpreter paths/binaries
-            $interp1 = "bin/python" ascii
-            $interp2 = "python.exe" ascii
-            $interp3 = "bin/node" ascii
-            $interp4 = "node.exe" ascii
-            $interp5 = "bin/ruby" ascii
-            // Execution
-            $exec1 = "spawn(" ascii
-            $exec2 = "execFile(" ascii
-            $exec3 = "exec(" ascii
-            // File existence check (typical dropper pattern)
-            $exists1 = "existsSync" ascii
-            $exists2 = "access(" ascii
-          condition:
-            any of ($dl*) and any of ($interp*) and any of ($exec*) and any of ($exists*)
-        }
-
-composite_rules:
-  # Full interpreter dropper: download + extract + stdin exec
-  - id: full-stager
-    description: Complete interpreter-based stager (download interpreter + execute payload)
-    criticality: hostile
-    confidence: 0.95
-    attack: "T1059"
-    mbc: "B0024"
-    file_types: [javascript, typescript]
-    requires_any:
-      - type: trait
-        id: python-standalone
-      - type: trait
-        id: node-standalone
-    requires_all:
-      - type: trait
-        id: stdin-exec
-
-  # Download interpreter + remote payload fetch + execute
-  - id: remote-payload-stager
-    description: Downloads interpreter and fetches remote payload for execution
-    criticality: hostile
-    confidence: 0.95
-    attack: "T1105"
-    file_types: [javascript, typescript]
-    requires_all:
-      - type: trait
-        id: download-and-exec
-      - type: string
-        regex: "Buffer\\.from.*base64|atob\\(|btoa\\("
-
-  # Python stager with obfuscated payload URL
-  - id: python-obfuscated-stager
-    description: Python dropper with obfuscated payload URL (npm malware pattern)
-    criticality: hostile
-    confidence: 0.95
-    attack: "T1105"
-    mbc: "B0024"
-    file_types: [javascript, typescript]
-    requires_all:
-      - type: trait
-        id: python-standalone
-      - type: trait
-        id: hex-url-array
-# Supply Chain - Node.js Dropper Patterns
-# Detects JavaScript/Node.js dropper patterns in npm packages
-# ATT&CK: T1105 (Ingress Tool Transfer), T1059 (Command Execution)
-
-traits:
-  # Download and write file (https.get/request with fs.write)
-  - id: download-file
-    description: Node.js HTTPS download to file
-    criticality: notable
-    confidence: 0.8
-    attack: "T1105"
-    file_types: [javascript, typescript]
-    condition:
-      type: yara
-      source: |
-        rule node_download_file {
-          strings:
-            $dl1 = "https.get" ascii
-            $dl2 = "http.get" ascii
-            $dl3 = "https.request" ascii
-            $dl4 = "http.request" ascii
-            $write1 = "createWriteStream" ascii
-            $write2 = "writeFileSync" ascii
-            $write3 = ".pipe(" ascii
-          condition:
-            any of ($dl*) and any of ($write*)
-        }
-
-  # Spawn with detached process (persistence)
-  - id: detached-spawn
-    description: Detached process spawning (backgrounding)
-    criticality: suspicious
-    confidence: 0.9
-    attack: "T1059"
-    mbc: "F0011"
-    file_types: [javascript, typescript]
-    condition:
-      type: string
-      regex: "spawn\\([^)]*\\{[^}]*detached:\\s*true"
-
-  # Execute downloaded file
-  - id: exec-downloaded
-    description: Execution of file from temp directory
-    criticality: suspicious
-    confidence: 0.85
-    attack: "T1059"
-    file_types: [javascript, typescript]
-    condition:
-      type: yara
-      source: |
-        rule node_exec_temp {
-          strings:
-            $temp1 = "process.env.TEMP" ascii
-            $temp2 = "process.env.TMP" ascii
-            $temp3 = "/tmp" ascii
-            $exec1 = "spawn(" ascii
-            $exec2 = "execFile(" ascii
-            $exec3 = "execSync(" ascii
-          condition:
-            any of ($temp*) and any of ($exec*)
-        }
-
-  # Archive extraction before execution
-  - id: archive-extract
-    description: Archive extraction (potential payload delivery)
-    criticality: notable
-    confidence: 0.75
-    file_types: [javascript, typescript]
-    condition:
-      type: yara
-      source: |
-        rule node_archive_extract {
-          strings:
-            $lib1 = "node-7z" ascii
-            $lib2 = "7zip-bin" ascii
-            $lib3 = "adm-zip" ascii
-            $lib4 = "unzipper" ascii
-            $lib5 = "extract-zip" ascii
-            $op1 = "extractFull" ascii
-            $op2 = "extract(" ascii
-            $op3 = "unzip" ascii
-          condition:
-            any of ($lib*) or 2 of ($op*)
-        }
-
-  # Password-protected archive extraction
-  - id: password-archive
-    description: Password-protected archive extraction
-    criticality: suspicious
-    confidence: 0.85
-    file_types: [javascript, typescript]
-    condition:
-      type: string
-      regex: "password:\\s*['\"][^'\"]+['\"]"
-
-composite_rules:
-  # Full dropper lifecycle: download + extract + execute
-  - id: full-dropper
-    description: Complete Node.js dropper (download + extract + execute)
-    criticality: hostile
-    confidence: 0.98
-    attack: "T1105"
-    mbc: "B0024"
-    requires_all:
-      - type: trait
-        id: dropper/node/download-file
-      - type: trait
-        id: dropper/node/archive-extract
-      - type: string
-        regex: "spawn\\(|exec\\(|execFile\\("
-
-  # Download and detached execute
-  - id: download-detached-exec
-    description: Download file and execute detached (stealth dropper)
-    criticality: hostile
-    confidence: 0.95
-    attack: "T1105"
-    requires_all:
-      - type: trait
-        id: dropper/node/download-file
-      - type: trait
-        id: dropper/node/detached-spawn

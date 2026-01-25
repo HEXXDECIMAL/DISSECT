@@ -7,6 +7,7 @@ traits:
     description: Modify file permissions
     criticality: notable
     confidence: 0.66
+    file_types: [elf, macho, so, dylib, c]
     condition:
       type: symbol
       pattern: chmod|fchmod|fchmodat|lchmod
@@ -15,6 +16,7 @@ traits:
     description: Modify file permissions (string match)
     criticality: notable
     confidence: 0.7
+    file_types: [javascript]
     condition:
       type: string
       regex: "chmod(Sync)?\\s*\\("

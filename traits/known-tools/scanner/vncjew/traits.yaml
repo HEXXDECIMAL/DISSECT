@@ -4,7 +4,7 @@
 traits:
   - id: scanner/vncjew/read-vncs
     description: VNCJew VNC reader function
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     attack: "T1046"
@@ -16,7 +16,7 @@ traits:
 composite_rules:
   - id: scanner/vncjew/detected
     description: VNCJew VNC scanner
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     family: true
     attack: "T1046"

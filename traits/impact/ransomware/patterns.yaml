@@ -29,7 +29,7 @@ traits:
   # File encryption loop pattern
   - id: file-encryption-loop
     description: File iteration with encryption (ransomware pattern)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
     attack: "T1486"
     file_types: [javascript, typescript, python]
@@ -60,7 +60,7 @@ traits:
   # Ransom note indicators
   - id: ransom-note
     description: Ransom note text patterns
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1486"
     file_types: [javascript, typescript, python, shell]
@@ -134,7 +134,7 @@ traits:
   # Shadow copy deletion (Windows ransomware)
   - id: shadow-delete
     description: Shadow copy deletion (ransomware preparation)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1490"
     file_types: [javascript, powershell, shell]

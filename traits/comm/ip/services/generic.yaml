@@ -3,25 +3,9 @@
 # ATT&CK: T1567.001
 
 traits:
-  - id: services-telegram
-    description: May communicate with Telegram
-    criticality: suspicious
-    confidence: 0.66
-    mbc: "B0030"
-    attack: "T1567.001"
-    condition:
-      type: string
-      regex: "(telegram\\.org|api\\.telegram)"
-
-  - id: services-discord
-    description: May communicate with Discord
-    criticality: suspicious
-    confidence: 0.66
-    mbc: "B0030"
-    attack: "T1567.001"
-    condition:
-      type: string
-      regex: "(discordapp\\.com|discord\\.com/api)"
+  # NOTE: Telegram traits are defined in exfil/channel/telegram/
+  # NOTE: Discord traits are defined in exfil/channel/discord/
+  # Use those directory references in composite rules
 
   - id: services-tor
     description: Contains TOR onion address

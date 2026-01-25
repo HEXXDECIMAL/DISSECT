@@ -21,7 +21,7 @@ traits:
   - id: open-hook
     description: "XMLHttpRequest.open method hooking"
     confidence: 0.85
-    criticality: hostile
+    criticality: suspicious
     condition:
       type: string
       regex: "XMLHttpRequest\\.prototype\\.open\\s*=|XMLHttpRequest\\[.+\\]\\[.+open.+\\]\\s*="
@@ -30,7 +30,7 @@ traits:
   - id: send-hook
     description: "XMLHttpRequest.send method hooking"
     confidence: 0.85
-    criticality: hostile
+    criticality: suspicious
     condition:
       type: string
       regex: "XMLHttpRequest\\.prototype\\.send\\s*=|XMLHttpRequest\\[.+\\]\\[.+send.+\\]\\s*="
@@ -39,7 +39,7 @@ traits:
   - id: fetch-hook
     description: "fetch API hooking"
     confidence: 0.85
-    criticality: hostile
+    criticality: suspicious
     condition:
       type: string
       regex: "window\\.fetch\\s*=|globalThis\\.fetch\\s*=|self\\.fetch\\s*="
@@ -58,6 +58,8 @@ composite_rules:
     description: "HTTP request interceptor (XHR/fetch hooking)"
     criticality: hostile
     confidence: 0.9
+    attack: "T1557"
+    file_types: [javascript]
     requires_count: 2
     conditions:
       - type: string

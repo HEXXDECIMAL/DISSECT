@@ -25,8 +25,11 @@ composite_rules:
     description: "Obfuscated module import (Dynamic Import + Encoding)"
     criticality: hostile
     confidence: 0.95
+    file_types: [python]
     requires_all:
       - type: trait
         id: exec/reflection/dynamic-import
       - type: trait
         id: anti-static/obfuscation/strings/python-hex
+      - type: trait
+        id: exec/reflection/getattr-module

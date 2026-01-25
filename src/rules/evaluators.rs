@@ -58,6 +58,7 @@ pub fn eval_symbol(
 
     let mut evidence = Vec::new();
 
+    // Check imports (populated from binary symbols OR source AST function calls)
     for import in &ctx.report.imports {
         if symbol_matches(&import.symbol, pattern) {
             evidence.push(Evidence {
@@ -65,12 +66,13 @@ pub fn eval_symbol(
                 source: import.source.clone(),
                 value: import.symbol.clone(),
                 location: Some("import".to_string()),
-                span: None, analysis_layer: None,
-                    analysis_layer: None,
+                span: None,
+                analysis_layer: None,
             });
         }
     }
 
+    // Check exports (binary only)
     for export in &ctx.report.exports {
         if symbol_matches(&export.symbol, pattern) {
             evidence.push(Evidence {
@@ -78,8 +80,8 @@ pub fn eval_symbol(
                 source: export.source.clone(),
                 value: export.symbol.clone(),
                 location: export.offset.clone(),
-                span: None, analysis_layer: None,
-                    analysis_layer: None,
+                span: None,
+                analysis_layer: None,
             });
         }
     }
@@ -291,14 +293,39 @@ pub fn eval_yara_match(
         let rule_match = rule.is_none_or(|r| &yara_match.rule == r);
 
         if namespace_match && rule_match {
-            evidence.push(Evidence {
-                method: "yara".to_string(),
-                source: "yara-x".to_string(),
-                value: format!("{}:{}", yara_match.namespace, yara_match.rule),
-                location: Some(yara_match.namespace.clone()),
-                span: None, analysis_layer: None,
+            // Extract actual matched content from matched_strings
+            if yara_match.matched_strings.is_empty() {
+                evidence.push(Evidence {
+                    method: "yara".to_string(),
+                    source: "yara-x".to_string(),
+                    value: yara_match.rule.clone(),
+                    location: Some(yara_match.namespace.clone()),
+                    span: None,
                     analysis_layer: None,
-            });
+                });
+            } else {
+                for ms in &yara_match.matched_strings {
+                    // Use actual value if printable, otherwise use identifier
+                    let is_printable = ms
+                        .value
+                        .bytes()
+                        .all(|b| b >= 0x20 && b < 0x7f || b == b'\n' || b == b'\t');
+                    let evidence_value = if is_printable && !ms.value.is_empty() {
+                        ms.value.clone()
+                    } else {
+                        ms.identifier.clone()
+                    };
+
+                    evidence.push(Evidence {
+                        method: "yara".to_string(),
+                        source: "yara-x".to_string(),
+                        value: evidence_value,
+                        location: Some(format!("0x{:x}", ms.offset)),
+                        span: None,
+                        analysis_layer: None,
+                    });
+                }
+            }
         }
     }
 
@@ -369,28 +396,39 @@ pub fn eval_imports_count(
     filter: Option<&String>,
     ctx: &EvaluationContext,
 ) -> ConditionResult {
-    let count = if let Some(filter_pattern) = filter {
+    let matching_imports: Vec<&str> = if let Some(filter_pattern) = filter {
         ctx.report
             .imports
             .iter()
             .filter(|imp| imp.symbol.contains(filter_pattern))
-            .count()
+            .map(|imp| imp.symbol.as_str())
+            .collect()
     } else {
-        ctx.report.imports.len()
+        ctx.report
+            .imports
+            .iter()
+            .map(|imp| imp.symbol.as_str())
+            .collect()
     };
 
+    let count = matching_imports.len();
     let matched = min.is_none_or(|m| count >= m) && max.is_none_or(|m| count <= m);
 
     ConditionResult {
         matched,
         evidence: if matched {
+            // Deduplicate and take first few for display
+            let mut unique: Vec<&str> = matching_imports.clone();
+            unique.sort();
+            unique.dedup();
+            let sample: Vec<&str> = unique.into_iter().take(5).collect();
             vec![Evidence {
                 method: "imports_count".to_string(),
                 source: "analysis".to_string(),
-                value: count.to_string(),
+                value: format!("({}) {}", count, sample.join(", ")),
                 location: None,
-                span: None, analysis_layer: None,
-                    analysis_layer: None,
+                span: None,
+                analysis_layer: None,
             }]
         } else {
             Vec::new()
@@ -410,13 +448,23 @@ pub fn eval_exports_count(
     ConditionResult {
         matched,
         evidence: if matched {
+            // Deduplicate and take first few for display
+            let mut symbols: Vec<&str> = ctx
+                .report
+                .exports
+                .iter()
+                .map(|exp| exp.symbol.as_str())
+                .collect();
+            symbols.sort();
+            symbols.dedup();
+            let sample: Vec<&str> = symbols.into_iter().take(5).collect();
             vec![Evidence {
                 method: "exports_count".to_string(),
                 source: "analysis".to_string(),
-                value: count.to_string(),
+                value: format!("({}) {}", count, sample.join(", ")),
                 location: None,
-                span: None, analysis_layer: None,
-                    analysis_layer: None,
+                span: None,
+                analysis_layer: None,
             }]
         } else {
             Vec::new()

@@ -87,22 +87,32 @@ composite_rules:
     description: SystemBC proxy shell behavior
     criticality: hostile
     confidence: 0.9
+    attack: "T1090.001"
+    mbc: "B0030"
+    file_types: [elf, macho, pe, so, dylib, dll]
     requires_all:
       - type: trait
         id: comm/proxy/socks5-server
       - type: trait
         id: exec/remote-shell/socks-context
+      - type: trait
+        id: crypto/rc4/communication
 
   # Full SystemBC detection
   - id: backdoor/systembc/detected
     description: SystemBC backdoor detected
     criticality: hostile
     confidence: 0.95
+    attack: "T1090.001"
+    mbc: "B0030"
     file_types: [elf, macho, pe, so, dylib, dll]
-    requires_any:
+    requires_count: 2
+    conditions:
       - type: trait
         id: backdoor/systembc/artifact
       - type: trait
         id: crypto/rc4/communication
       - type: trait
-        id: backdoor/systembc/proxy-shell
+        id: comm/proxy/socks5-server
+      - type: trait
+        id: exec/remote-shell/socks-context

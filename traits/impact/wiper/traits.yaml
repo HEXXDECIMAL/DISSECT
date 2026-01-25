@@ -95,7 +95,7 @@ traits:
   # Conditional destruction based on environment
   - id: conditional-destroy
     description: Conditional destruction based on environment check
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1485"
     file_types: [javascript, typescript]
@@ -116,7 +116,7 @@ traits:
   # Android/mobile storage targeting
   - id: target-android-storage
     description: Targets Android storage directories
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1485"
     file_types: [javascript, typescript, shell]
@@ -166,9 +166,11 @@ composite_rules:
   # Protestware pattern (env-conditional destruction)
   - id: protestware
     description: Protestware pattern - conditional destruction based on location/env
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.98
     attack: "T1485"
+    mbc: "B0031"
+    file_types: [javascript, typescript]
     requires_all:
       - type: trait
         id: impact/wiper/conditional-destroy
@@ -178,9 +180,11 @@ composite_rules:
   # Full wiper with HTTP callback (report success)
   - id: with-callback
     description: Wiper with HTTP callback (potential coordinated attack)
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.95
     attack: "T1485"
+    mbc: "B0031"
+    file_types: [javascript, typescript]
     requires_all:
       - type: trait
         id: impact/wiper/node/recursive-delete

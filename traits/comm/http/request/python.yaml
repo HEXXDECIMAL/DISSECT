@@ -48,13 +48,4 @@ traits:
         (#match? @obj "^(requests|urqt|urllib|urllib2|req|r|client|http|session|httpx)$")
         (#match? @meth "^(get|post|urlopen|urlretrieve|request)$")
 
-composite_rules:
-  - id: python-exfiltration
-    description: "Gathers system info and exfiltrates via HTTP"
-    criticality: hostile
-    confidence: 0.9
-    requires_all:
-      - type: trait
-        id: discovery/system/python-platform-fingerprint
-      - type: trait
-        id: http/request-python
+# Note: Exfiltration composite rule moved to exfil/http/python.yaml

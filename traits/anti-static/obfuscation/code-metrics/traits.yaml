@@ -237,17 +237,17 @@ composite_rules:
     requires_count: 3
     conditions:
       - type: trait
-        id: high-function-density
+        id: anti-static/obfuscation/code-metrics/high-function-density
       - type: trait
-        id: many-one-liner-functions
+        id: anti-static/obfuscation/code-metrics/many-one-liner-functions
       - type: trait
-        id: very-long-lines
+        id: anti-static/obfuscation/code-metrics/very-long-lines
       - type: trait
-        id: low-whitespace
+        id: anti-static/obfuscation/code-metrics/low-whitespace
       - type: trait
-        id: no-comments
+        id: anti-static/obfuscation/code-metrics/no-comments
       - type: trait
-        id: sequential-identifiers
+        id: anti-static/obfuscation/code-metrics/sequential-identifiers
 
   - id: identifier-obfuscation
     description: "Identifier obfuscation (random/encoded names)"
@@ -257,13 +257,13 @@ composite_rules:
     requires_count: 2
     conditions:
       - type: trait
-        id: high-entropy-identifiers
+        id: anti-static/obfuscation/code-metrics/high-entropy-identifiers
       - type: trait
-        id: many-high-entropy-identifiers
+        id: anti-static/obfuscation/code-metrics/many-high-entropy-identifiers
       - type: trait
-        id: high-entropy-function-names
+        id: anti-static/obfuscation/code-metrics/high-entropy-function-names
       - type: trait
-        id: low-identifier-reuse
+        id: anti-static/obfuscation/code-metrics/low-identifier-reuse
 
   - id: generated-code
     description: "Machine-generated or transformed code"
@@ -273,13 +273,13 @@ composite_rules:
     requires_count: 2
     conditions:
       - type: trait
-        id: numeric-suffix-identifiers
+        id: anti-static/obfuscation/code-metrics/numeric-suffix-identifiers
       - type: trait
-        id: single-char-function-names
+        id: anti-static/obfuscation/code-metrics/single-char-function-names
       - type: trait
-        id: excessive-single-char-vars
+        id: anti-static/obfuscation/code-metrics/excessive-single-char-vars
       - type: trait
-        id: single-char-params
+        id: anti-static/obfuscation/code-metrics/single-char-params
 
   - id: string-hiding
     description: "String concealment/encoding"
@@ -288,9 +288,9 @@ composite_rules:
     attack: "T1027"
     requires_all:
       - type: trait
-        id: high-entropy-strings
+        id: anti-static/obfuscation/code-metrics/high-entropy-strings
     requires_any:
       - type: trait
-        id: few-strings
+        id: anti-static/obfuscation/code-metrics/few-strings
       - type: trait
-        id: high-text-entropy
+        id: anti-static/obfuscation/code-metrics/high-text-entropy

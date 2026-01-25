@@ -46,6 +46,28 @@ pub enum FileType {
     PackageJson,
 }
 
+impl FileType {
+    /// Returns true if this file type is source code (not a compiled binary)
+    /// Symbol matching for source files should fall back to string matching
+    pub fn is_source_code(&self) -> bool {
+        matches!(
+            self,
+            FileType::Shell
+                | FileType::Batch
+                | FileType::Python
+                | FileType::JavaScript
+                | FileType::TypeScript
+                | FileType::Rust
+                | FileType::Java
+                | FileType::Ruby
+                | FileType::C
+                | FileType::Go
+                | FileType::CSharp
+                | FileType::Php
+        )
+    }
+}
+
 /// Scope level for proximity constraints
 #[derive(Debug, Clone, Deserialize, PartialEq, Default)]
 #[serde(rename_all = "lowercase")]

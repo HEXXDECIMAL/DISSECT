@@ -2,6 +2,10 @@
 # MBC: B0001 (Debugger Detection)
 # ATT&CK: T1622
 
+defaults:
+  file_types: [pe, dll]
+  platforms: [windows]
+
 traits:
   - id: debugger-api
     description: Debugger detection via Windows API

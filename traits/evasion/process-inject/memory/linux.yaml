@@ -2,6 +2,10 @@
 # MBC: B0033 (Process Injection)
 # ATT&CK: T1055
 
+defaults:
+  file_types: [elf]
+  platforms: [linux]
+
 traits:
   - id: process-inject-ptrace
     description: Process injection via ptrace

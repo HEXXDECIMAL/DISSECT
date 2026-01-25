@@ -25,9 +25,13 @@ composite_rules:
     description: JavaScript system profiling with exfiltration
     criticality: hostile
     confidence: 0.98
+    mbc: "E1082"
     attack: "T1020"
+    file_types: [javascript]
     requires_all:
       - type: trait
-        id: system/js-profiling
+        id: js-profiling
       - type: trait
         id: comm/http/request/js-axios-post
+      - type: trait
+        id: fs/file/read

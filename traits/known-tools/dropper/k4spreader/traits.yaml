@@ -9,8 +9,10 @@ traits:
   # K4Spreader identifiers
   - id: dropper/k4spreader/generic
     description: K4Spreader malware detected
-    criticality: hostile
+    criticality: suspicious
     confidence: 0.9
+    mbc: "B0030"
+    attack: "T1583.005"
     condition:
       type: yara
       source: |

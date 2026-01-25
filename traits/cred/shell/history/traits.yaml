@@ -35,31 +35,7 @@ composite_rules:
       type: string
       regex: "\\.local/share/fish/fish_history"
 
-  # === Atomic: Shell RC Files ===
-  - id: bashrc
-    description: Bashrc configuration file access
-    criticality: notable
-    confidence: 0.5
-    condition:
-      type: string
-      exact: ".bashrc"
-
-  - id: zshrc
-    description: Zshrc configuration file access
-    criticality: notable
-    confidence: 0.5
-    condition:
-      type: string
-      exact: ".zshrc"
-
-  - id: profile
-    description: Shell profile file access
-    criticality: notable
-    confidence: 0.5
-    condition:
-      type: string
-      # Require word boundary to avoid matching .profiled, .profiles, etc.
-      regex: "\\.(bash_)?profile\\b"
+  # NOTE: Shell RC files (.bashrc, .zshrc, .profile) are defined in persist/shell/config/traits.yaml
 
   - id: history-theft
     description: Shell history file theft
@@ -69,8 +45,8 @@ composite_rules:
     mbc: "E1552"
     requires_any:
       - type: trait
-        id: credential/shell/bash-history
+        id: bash-history
       - type: trait
-        id: credential/shell/zsh-history
+        id: zsh-history
       - type: trait
-        id: credential/shell/fish-history
+        id: fish-history

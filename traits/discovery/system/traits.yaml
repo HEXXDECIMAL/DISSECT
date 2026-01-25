@@ -2,6 +2,9 @@
 # MBC: OB0007 (Discovery) → E1082 (System Information Discovery)
 # ATT&CK: T1082 (System Information Discovery)
 
+defaults:
+  file_types: [elf, macho, so, dylib, c]
+
 traits:
   # System control and configuration
   - id: sysctl
