@@ -607,10 +607,10 @@ impl Radare2Analyzer {
     /// Compute binary metrics from pre-extracted batched analysis
     /// Much faster than compute_binary_metrics as it doesn't spawn new r2 processes
     pub fn compute_metrics_from_batched(&self, batched: &BatchedAnalysis) -> BinaryMetrics {
-        let mut metrics = BinaryMetrics::default();
-
-        // Process sections
-        metrics.section_count = batched.sections.len() as u32;
+        let mut metrics = BinaryMetrics {
+            section_count: batched.sections.len() as u32,
+            ..Default::default()
+        };
         let mut entropies: Vec<f32> = Vec::new();
         let mut total_size: u64 = 0;
         let mut largest_size: u64 = 0;

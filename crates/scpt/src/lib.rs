@@ -195,12 +195,9 @@ impl<'a> ScptParser<'a> {
 
     fn find_footer(&self) -> Option<usize> {
         // Search backwards from end for "ascr"
-        for i in (0..self.data.len().saturating_sub(4)).rev() {
-            if &self.data[i..i + 4] == SCPT_FOOTER {
-                return Some(i);
-            }
-        }
-        None
+        (0..self.data.len().saturating_sub(4))
+            .rev()
+            .find(|&i| self.data[i..i + 4] == *SCPT_FOOTER)
     }
 
     fn find_terminator(&self) -> Option<usize> {
@@ -208,12 +205,9 @@ impl<'a> ScptParser<'a> {
         if self.data.len() < 4 {
             return None;
         }
-        for i in (0..=self.data.len() - 4).rev() {
-            if &self.data[i..i + 4] == &SCPT_TERMINATOR {
-                return Some(i);
-            }
-        }
-        None
+        (0..=self.data.len() - 4)
+            .rev()
+            .find(|&i| self.data[i..i + 4] == SCPT_TERMINATOR)
     }
 
     /// Extract all symbols from the compiled AppleScript

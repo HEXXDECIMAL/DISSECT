@@ -4,7 +4,7 @@
 
 defaults:
   # IP address strings can appear in any file type
-  file_types: [*]
+  file_types: ["*"]
   mbc: "C0002"
   attack: "T1071.001"
   criticality: suspicious

@@ -6,7 +6,7 @@ defaults:
   attack: "T1041"
   criticality: suspicious
   # curl/wget commands can be embedded in any file type
-  file_types: [*]
+  file_types: ["*"]
 
 traits:
   # === curl POST atomic ===

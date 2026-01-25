@@ -13,7 +13,7 @@ fn main() {
     for entry in fs::read_dir(&dir).unwrap() {
         let entry = entry.unwrap();
         let path = entry.path();
-        if path.extension().map_or(false, |e| e == "scpt") {
+        if path.extension().is_some_and(|e| e == "scpt") {
             let filename = path.file_name().unwrap().to_string_lossy().to_string();
             let short_name = &filename[..8];
             let data = fs::read(&path).unwrap();

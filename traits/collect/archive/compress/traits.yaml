@@ -3,7 +3,7 @@
 
 defaults:
   # Archive commands can be embedded in any file type
-  file_types: [*]
+  file_types: ["*"]
 
 traits:
   # === Tar Operations ===

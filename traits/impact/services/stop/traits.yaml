@@ -4,7 +4,7 @@
 defaults:
   attack: "T1489"
   # Service command strings can be embedded in any file type
-  file_types: [*]
+  file_types: ["*"]
 
 traits:
   - id: esxcli

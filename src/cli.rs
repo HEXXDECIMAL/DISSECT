@@ -21,7 +21,7 @@ pub struct DisabledComponents {
 
 impl DisabledComponents {
     /// Parse comma-separated list of components to disable
-    pub fn from_str(s: &str) -> Self {
+    pub fn parse(s: &str) -> Self {
         let mut disabled = Self::default();
         for component in s.split(',').map(|c| c.trim().to_lowercase()) {
             match component.as_str() {
@@ -128,7 +128,7 @@ impl Args {
         if self.enable_all {
             DisabledComponents::default()
         } else {
-            DisabledComponents::from_str(&self.disable)
+            DisabledComponents::parse(&self.disable)
         }
     }
 
@@ -498,7 +498,7 @@ mod tests {
 
     #[test]
     fn test_disabled_components_from_str() {
-        let disabled = DisabledComponents::from_str("yara,upx");
+        let disabled = DisabledComponents::parse("yara,upx");
         assert!(disabled.yara);
         assert!(disabled.upx);
         assert!(!disabled.radare2);
@@ -507,7 +507,7 @@ mod tests {
 
     #[test]
     fn test_disabled_components_from_str_with_spaces() {
-        let disabled = DisabledComponents::from_str("yara, radare2 , upx");
+        let disabled = DisabledComponents::parse("yara, radare2 , upx");
         assert!(disabled.yara);
         assert!(disabled.radare2);
         assert!(disabled.upx);
@@ -516,7 +516,7 @@ mod tests {
 
     #[test]
     fn test_disabled_components_from_str_ignores_unknown() {
-        let disabled = DisabledComponents::from_str("yara,unknown,radare2");
+        let disabled = DisabledComponents::parse("yara,unknown,radare2");
         assert!(disabled.yara);
         assert!(disabled.radare2);
         assert!(!disabled.upx);
@@ -528,13 +528,13 @@ mod tests {
         let disabled = DisabledComponents::default();
         assert!(!disabled.any_disabled());
 
-        let disabled = DisabledComponents::from_str("yara");
+        let disabled = DisabledComponents::parse("yara");
         assert!(disabled.any_disabled());
     }
 
     #[test]
     fn test_disabled_components_disabled_names() {
-        let disabled = DisabledComponents::from_str("yara,upx");
+        let disabled = DisabledComponents::parse("yara,upx");
         let names = disabled.disabled_names();
         assert_eq!(names.len(), 2);
         assert!(names.contains(&"yara"));

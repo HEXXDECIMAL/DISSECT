@@ -141,7 +141,7 @@ traits:
     attack: "T1056.001"
     platforms: [macos]
     # osascript can be invoked from any language
-    file_types: [*]
+    file_types: ["*"]
     condition:
       type: yara
       source: |

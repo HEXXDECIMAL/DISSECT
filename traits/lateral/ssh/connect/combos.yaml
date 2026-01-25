@@ -3,7 +3,7 @@
 
 defaults:
   # SSH-related strings can be embedded in any file type
-  file_types: [*]
+  file_types: ["*"]
 
 composite_rules:
   # === SSH Worm Detection ===

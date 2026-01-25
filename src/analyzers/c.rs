@@ -18,6 +18,12 @@ pub struct CAnalyzer {
     capability_mapper: CapabilityMapper,
 }
 
+impl Default for CAnalyzer {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl CAnalyzer {
     pub fn new() -> Self {
         let mut parser = Parser::new();

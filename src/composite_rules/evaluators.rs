@@ -300,7 +300,7 @@ pub fn eval_yara_match(
                     let is_printable = ms
                         .value
                         .bytes()
-                        .all(|b| b >= 0x20 && b < 0x7f || b == b'\n' || b == b'\t');
+                        .all(|b| (0x20..0x7f).contains(&b) || b == b'\n' || b == b'\t');
                     let evidence_value = if is_printable && !ms.value.is_empty() {
                         ms.value.clone()
                     } else {
@@ -780,7 +780,7 @@ pub fn eval_yara_inline(
                         // Check if printable ASCII
                         let is_printable = bytes
                             .iter()
-                            .all(|&b| b >= 0x20 && b < 0x7f || b == b'\n' || b == b'\t');
+                            .all(|&b| (0x20..0x7f).contains(&b) || b == b'\n' || b == b'\t');
                         if is_printable {
                             if let Ok(s) = std::str::from_utf8(bytes) {
                                 truncate_evidence(s, 50)

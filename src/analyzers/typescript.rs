@@ -16,6 +16,12 @@ pub struct TypeScriptAnalyzer {
     parser: RefCell<Parser>,
 }
 
+impl Default for TypeScriptAnalyzer {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl TypeScriptAnalyzer {
     pub fn new() -> Self {
         let mut parser = Parser::new();

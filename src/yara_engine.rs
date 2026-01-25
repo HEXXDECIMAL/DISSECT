@@ -578,7 +578,7 @@ impl YaraEngine {
             let is_printable = matched_str
                 .value
                 .bytes()
-                .all(|b| b >= 0x20 && b < 0x7f || b == b'\n' || b == b'\t');
+                .all(|b| (0x20..0x7f).contains(&b) || b == b'\n' || b == b'\t');
             let evidence_value = if is_printable && !matched_str.value.is_empty() {
                 matched_str.value.clone()
             } else {

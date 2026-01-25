@@ -4,7 +4,7 @@
 
 defaults:
   # Shell command strings can be embedded in any language (subprocess, system(), etc.)
-  file_types: [*]
+  file_types: ["*"]
 
 traits:
   - id: wget-download

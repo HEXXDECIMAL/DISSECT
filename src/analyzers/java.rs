@@ -16,6 +16,12 @@ pub struct JavaAnalyzer {
     parser: RefCell<Parser>,
 }
 
+impl Default for JavaAnalyzer {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl JavaAnalyzer {
     pub fn new() -> Self {
         let mut parser = Parser::new();

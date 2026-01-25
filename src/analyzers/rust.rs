@@ -18,6 +18,12 @@ pub struct RustAnalyzer {
     capability_mapper: CapabilityMapper,
 }
 
+impl Default for RustAnalyzer {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl RustAnalyzer {
     pub fn new() -> Self {
         let mut parser = Parser::new();
