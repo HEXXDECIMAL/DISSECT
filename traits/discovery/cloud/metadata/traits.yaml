@@ -84,6 +84,16 @@ traits:
       type: string
       exact: "/computeMetadata/v1/instance/service-accounts/default/token"
 
+  - id: gcp-service-accounts-path
+    description: GCP service accounts metadata path
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1552.005"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "/computeMetadata/v1/instance/service-accounts"
+
   # Azure Metadata
   - id: azure-metadata-endpoint
     description: Azure IMDS endpoint
@@ -115,6 +125,43 @@ traits:
       type: string
       exact: "/metadata/identity/oauth2/token"
 
+  # HTTP Request Primitives
+  - id: http-get-method
+    description: HTTP GET method keyword
+    criticality: notable
+    confidence: 0.3
+    file_types: [all]
+    condition:
+      type: string
+      fullword: "GET"
+
+  - id: curl-command
+    description: curl command line tool
+    criticality: notable
+    confidence: 0.3
+    file_types: [all]
+    condition:
+      type: string
+      fullword: "curl"
+
+  - id: wget-command
+    description: wget command line tool
+    criticality: notable
+    confidence: 0.3
+    file_types: [all]
+    condition:
+      type: string
+      fullword: "wget"
+
+  - id: python-requests-get
+    description: Python requests.get method
+    criticality: notable
+    confidence: 0.3
+    file_types: [all]
+    condition:
+      type: string
+      exact: "requests.get"
+
 composite_rules:
   - id: metadata-harvesting
     description: Cloud metadata harvesting
@@ -123,25 +170,10 @@ composite_rules:
     attack: "T1552.005"
     mbc: "B0046"
     file_types: [all]
-    condition:
-      type: yara
-      source: |
-        rule cloud_metadata_harvesting {
-          strings:
-            $aws_token = "X-aws-ec2-metadata-token"
-            $aws_ip = "169.254.169.254"
-            $aws_iam = "/latest/meta-data/iam/security-credentials"
-            $gcp_flavor = "Metadata-Flavor"
-            $gcp_host = "metadata.google.internal"
-            $gcp_token = "/computeMetadata/v1/instance/service-accounts"
-            $azure_meta = "Metadata:true"
-            $azure_token = "/metadata/identity/oauth2/token"
-            $http_get = "GET" fullword
-            $curl = "curl" fullword
-            $wget = "wget" fullword
-            $requests = "requests.get"
-          condition:
-            filesize < 10MB and
-            (any of ($http_get, $curl, $wget, $requests)) and
-            (2 of ($aws*) or 2 of ($gcp*) or 2 of ($azure*))
-        }
+    requires_any:
+      - type: trait
+        id: aws-metadata-endpoint
+      - type: trait
+        id: gcp-metadata-endpoint
+      - type: trait
+        id: azure-metadata-endpoint

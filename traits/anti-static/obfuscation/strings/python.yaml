@@ -61,16 +61,32 @@ traits:
               right: (_))))
         (#match? @func "^(exec|eval|b64decode|system|compile)$")
 
+  - id: python-exec-eval
+    description: "Dynamic code execution via exec() or eval()"
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      regex: 'exec\(|eval\('
+
+  - id: python-decode-functions
+    description: "Decoding functions for encoded payloads"
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      regex: 'b64decode|fromhex|bytes\.fromhex|bz2\.decompress|zlib\.decompress|marshal\.loads'
+
 composite_rules:
   - id: execute-decoded-content
     description: "Direct execution of decoded content (Dynamic Dropper)"
     criticality: hostile
     confidence: 0.98
     requires_all:
-      - type: string
-        regex: 'exec\(|eval\('
-      - type: string
-        regex: 'b64decode|fromhex|bytes\.fromhex|bz2\.decompress|zlib\.decompress|marshal\.loads'
+      - type: trait
+        id: anti-static/obfuscation/strings/python-exec-eval
+      - type: trait
+        id: anti-static/obfuscation/strings/python-decode-functions
       - type: trait
         id: anti-static/obfuscation/strings/python-chr
 
@@ -88,8 +104,8 @@ composite_rules:
     criticality: hostile
     confidence: 0.95
     requires_all:
-      - type: string
-        regex: 'exec\(|eval\('
+      - type: trait
+        id: anti-static/obfuscation/strings/python-exec-eval
       - type: trait
         id: anti-static/obfuscation/strings/python-encoded-pattern
       - type: trait

@@ -4,22 +4,55 @@
 
 defaults:
   file_types: [elf, macho, pe, dll]
+  mbc: "B0001.032"
+  attack: "T1497.001"
 
 traits:
+  - id: rdtsc
+    description: RDTSC instruction (hardware timestamp)
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: hex
+      pattern: "0F 31"
+
+  - id: clock-gettime
+    description: clock_gettime function
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      regex: '\bclock_gettime\b'
+
+  - id: gettimeofday
+    description: gettimeofday function
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      regex: '\bgettimeofday\b'
+
+  - id: time-func
+    description: time function
+    criticality: inert
+    confidence: 0.3
+    condition:
+      type: string
+      regex: '\btime\b'
+
+composite_rules:
   - id: primitive
     description: "Hardware timing primitive (potential anti-analysis)"
     criticality: notable
     confidence: 0.7
-    condition:
-      type: yara
-      source: |
-        rule timing_primitive {
-          strings:
-            $rdtsc = { 0F 31 }  // rdtsc instruction
-            $clock1 = "clock_gettime" ascii fullword
-            $clock2 = "gettimeofday" ascii fullword
-            $time1 = "time" ascii fullword
-          condition:
-            ($rdtsc and any of ($clock*, $time*)) or
-            #rdtsc > 3
-        }
+    requires_all:
+      - type: trait
+        id: rdtsc
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: clock-gettime
+      - type: trait
+        id: gettimeofday
+      - type: trait
+        id: time-func

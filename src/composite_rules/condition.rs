@@ -196,6 +196,26 @@ pub enum Condition {
         #[serde(skip_serializing_if = "Option::is_none")]
         max: Option<f64>,
     },
+
+    /// Match hex byte patterns in binary data
+    /// Supports wildcards (??) and variable-length gaps ([N] or [N-M])
+    /// Example: { type: hex, pattern: "7F 45 4C 46" }  # ELF magic
+    /// Example: { type: hex, pattern: "31 ?? 48 83" }  # With wildcards
+    /// Example: { type: hex, pattern: "00 03 [4] 00 04" }  # With 4-byte gap
+    Hex {
+        /// Hex pattern with optional wildcards (??) and gaps ([N] or [N-M])
+        /// Format: space-separated hex bytes, ?? for any byte, [N] for N-byte gap
+        pattern: String,
+        /// Only check at specific offset (e.g., 0 for file header)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        offset: Option<usize>,
+        /// Only check within offset range [start, end)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        offset_range: Option<(usize, usize)>,
+        /// Minimum number of matches required (default: 1)
+        #[serde(default = "default_min_count")]
+        min_count: usize,
+    },
 }
 
 fn default_compare_to() -> String {
@@ -207,6 +227,35 @@ pub fn default_min_count() -> usize {
 }
 
 impl Condition {
+    /// Returns true if this condition is a trait reference
+    pub fn is_trait_reference(&self) -> bool {
+        matches!(self, Condition::Trait { .. })
+    }
+
+    /// Returns a description of the condition type for error messages
+    pub fn type_name(&self) -> &'static str {
+        match self {
+            Condition::Symbol { .. } => "symbol",
+            Condition::String { .. } => "string",
+            Condition::YaraMatch { .. } => "yara_match",
+            Condition::Structure { .. } => "structure",
+            Condition::SymbolOrString { .. } => "symbol_or_string",
+            Condition::ImportsCount { .. } => "imports_count",
+            Condition::ExportsCount { .. } => "exports_count",
+            Condition::Trait { .. } => "trait",
+            Condition::AstPattern { .. } => "ast_pattern",
+            Condition::AstQuery { .. } => "ast_query",
+            Condition::Yara { .. } => "yara",
+            Condition::Syscall { .. } => "syscall",
+            Condition::SectionRatio { .. } => "section_ratio",
+            Condition::SectionEntropy { .. } => "section_entropy",
+            Condition::ImportCombination { .. } => "import_combination",
+            Condition::StringCount { .. } => "string_count",
+            Condition::Metrics { .. } => "metrics",
+            Condition::Hex { .. } => "hex",
+        }
+    }
+
     /// Validate that condition can be compiled (for YARA/AST rules)
     /// Call this at load time to catch syntax errors early
     pub fn validate(&self) -> Result<()> {
@@ -223,7 +272,7 @@ impl Condition {
             Condition::AstQuery { query, language } => {
                 // Validate tree-sitter query syntax against the specified language
                 // If no language specified, skip validation (will be validated at runtime)
-                let lang = match language.as_deref() {
+                let lang: tree_sitter::Language = match language.as_deref() {
                     Some("c") => tree_sitter_c::LANGUAGE.into(),
                     Some("python") => tree_sitter_python::LANGUAGE.into(),
                     Some("javascript") | Some("js") => tree_sitter_javascript::LANGUAGE.into(),
@@ -237,6 +286,15 @@ impl Condition {
                     Some("shell") | Some("bash") => tree_sitter_bash::LANGUAGE.into(),
                     Some("php") => tree_sitter_php::LANGUAGE_PHP.into(),
                     Some("csharp") | Some("c#") => tree_sitter_c_sharp::LANGUAGE.into(),
+                    Some("lua") => tree_sitter_lua::LANGUAGE.into(),
+                    Some("perl") => tree_sitter_perl::LANGUAGE.into(),
+                    Some("powershell") | Some("ps1") => tree_sitter_powershell::LANGUAGE.into(),
+                    Some("swift") => tree_sitter_swift::LANGUAGE.into(),
+                    Some("objc") | Some("objective-c") => tree_sitter_objc::LANGUAGE.into(),
+                    Some("groovy") => tree_sitter_groovy::LANGUAGE.into(),
+                    Some("scala") => tree_sitter_scala::LANGUAGE.into(),
+                    Some("zig") => tree_sitter_zig::LANGUAGE.into(),
+                    Some("elixir") => tree_sitter_elixir::LANGUAGE.into(),
                     Some(other) => {
                         return Err(anyhow::anyhow!(
                             "unsupported language for ast_query: {}",

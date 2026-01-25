@@ -1,0 +1,73 @@
+# macOS Archive Utilities for Exfiltration
+# Detects use of macOS-specific compression for data staging
+# ATT&CK: T1560.001 (Archive Collected Data: Archive via Utility)
+
+defaults:
+  attack: "T1560.001"
+  platforms: [macos]
+  criticality: notable
+
+traits:
+  # ditto with compression
+  - id: ditto-compress
+    description: "ditto archive creation with compression"
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: string
+      regex: "ditto\\s+-c\\s+-k|ditto.*--keepParent.*-c"
+
+  # ditto with sequesterRsrc (common in stealers)
+  - id: ditto-sequester
+    description: "ditto with resource fork handling"
+    criticality: suspicious
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "ditto.*--sequesterRsrc|ditto.*-rsrc"
+
+  # zip command
+  - id: zip-create
+    description: "zip archive creation"
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "\\bzip\\s+-[rq]|\\bzip\\s+.*\\.zip"
+
+  # Output to tmp directory (staging)
+  - id: tmp-archive
+    description: "Archive creation in /tmp"
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: string
+      regex: "/tmp/.*\\.zip|/tmp/out\\.zip|/var/tmp/.*\\.zip"
+
+composite_rules:
+  # ditto staging for exfil
+  - id: ditto-staging
+    description: "macOS data staging via ditto"
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1560.001"
+    file_types: [shell, applescript, python]
+    requires_any:
+      - {type: trait, id: ditto-compress}
+      - {type: trait, id: ditto-sequester}
+    requires_all:
+      - {type: trait, id: tmp-archive}
+
+  # Archive with curl exfil
+  - id: archive-exfil
+    description: "Archive creation with HTTP exfiltration"
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1560.001"
+    file_types: [shell, applescript, python]
+    requires_all:
+      - {type: trait, id: tmp-archive}
+    requires_any:
+      - {type: trait, id: ditto-compress}
+      - {type: trait, id: ditto-sequester}
+      - {type: trait, id: zip-create}

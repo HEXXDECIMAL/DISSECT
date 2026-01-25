@@ -2,84 +2,219 @@
 # MBC: C0001 (Command and Control)
 # ATT&CK: T1071.004 (Application Layer Protocol: DNS)
 
+defaults:
+  mbc: "C0001"
+  attack: "T1071.004"
+
 traits:
+  # === dnscat2 atomic indicators ===
+  - id: dnscat-secret
+    description: dnscat2 secret environment variable
+    criticality: inert
+    confidence: 0.9
+    condition:
+      type: string
+      exact: DNSCAT_SECRET
+
+  - id: dnscat-name
+    description: dnscat2 tool name reference
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: dnscat
+      case_insensitive: true
+
+  - id: dnscat-session
+    description: dnscat2 session state constant
+    criticality: inert
+    confidence: 0.9
+    condition:
+      type: string
+      exact: SESSION_STATE_ESTABLISHED
+
+  - id: dnscat-packet
+    description: dnscat2 packet debug message
+    criticality: inert
+    confidence: 0.8
+    condition:
+      type: string
+      exact: "MSG packet"
+
+  # === iodine atomic indicators ===
+  - id: iodine-name
+    description: iodine tool name reference
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: iodine
+
+  - id: tun-device
+    description: TUN device access for tunneling
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: /dev/net/tun
+
+  - id: dns-tunnel-phrase
+    description: DNS tunnel terminology
+    criticality: suspicious
+    confidence: 0.9
+    condition:
+      type: string
+      exact: "dns tunnel"
+      case_insensitive: true
+
+  # === Generic DNS tunnel indicators ===
+  - id: dns-exfil
+    description: DNS exfiltration terminology
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: string
+      exact: "dns exfil"
+      case_insensitive: true
+
+  - id: dns-c2
+    description: DNS C2 terminology
+    criticality: suspicious
+    confidence: 0.9
+    condition:
+      type: string
+      exact: "dns c2"
+      case_insensitive: true
+
+  - id: subdomain-encode
+    description: Long subdomain encoding pattern
+    criticality: suspicious
+    confidence: 0.75
+    condition:
+      type: string
+      regex: '[a-z0-9]{30,}\.[a-z]+\.(com|net|org|io)'
+
+  - id: txt-record
+    description: TXT record reference (DNS exfil)
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "TXT record"
+
+  - id: dns-beacon
+    description: DNS beacon terminology
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: string
+      exact: "dns beacon"
+      case_insensitive: true
+
+  # === DoH C2 indicators ===
+  - id: doh-cloudflare
+    description: Cloudflare DoH endpoint
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: cloudflare-dns.com/dns-query
+
+  - id: doh-google
+    description: Google DoH endpoint
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: dns.google/dns-query
+
+  - id: doh-quad9
+    description: Quad9 DoH endpoint
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: dns.quad9.net/dns-query
+
+  - id: doh-content-type
+    description: DoH content type header
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: application/dns-message
+
+  - id: doh-json-content
+    description: DoH JSON content type
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: application/dns-json
+
+composite_rules:
   # dnscat2 protocol
   - id: dnscat
     description: dnscat2 DNS tunneling tool
     criticality: suspicious
     confidence: 0.95
-    mbc: "C0001"
-    attack: "T1071.004"
-    condition:
-      type: yara
-      source: |
-        rule dnscat2 {
-          strings:
-            $secret = "DNSCAT_SECRET" ascii
-            $dnscat = "dnscat" ascii nocase
-            $session_state = "SESSION_STATE_ESTABLISHED" ascii
-            $msg_packet = "MSG packet" ascii
-          condition:
-            any of them
-        }
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: dnscat-secret
+      - type: trait
+        id: dnscat-name
+      - type: trait
+        id: dnscat-session
+      - type: trait
+        id: dnscat-packet
 
   # iodine DNS tunnel
   - id: iodine
     description: iodine DNS tunneling tool
     criticality: suspicious
     confidence: 0.95
-    mbc: "C0001"
-    attack: "T1071.004"
-    condition:
-      type: yara
-      source: |
-        rule iodine_tunnel {
-          strings:
-            $iodine = "iodine" ascii
-            $tun_device = "/dev/net/tun" ascii
-            $dns_tunnel = "dns tunnel" ascii nocase
-          condition:
-            ($iodine and $tun_device) or $dns_tunnel
-        }
+    requires_any:
+      - type: trait
+        id: dns-tunnel-phrase
+    requires_all:
+      - type: trait
+        id: iodine-name
+      - type: trait
+        id: tun-device
 
   # Generic DNS tunnel patterns
   - id: generic
     description: Generic DNS tunneling patterns
     criticality: suspicious
     confidence: 0.8
-    mbc: "C0001"
-    attack: "T1071.004"
-    condition:
-      type: yara
-      source: |
-        rule dns_tunnel_generic {
-          strings:
-            $dns_exfil = "dns exfil" ascii nocase
-            $dns_c2 = "dns c2" ascii nocase
-            $subdomain_encode = /[a-z0-9]{30,}\.[a-z]+\.(com|net|org|io)/ ascii
-            $txt_record = "TXT record" ascii
-            $dns_beacon = "dns beacon" ascii nocase
-          condition:
-            any of them
-        }
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: dns-exfil
+      - type: trait
+        id: dns-c2
+      - type: trait
+        id: subdomain-encode
+      - type: trait
+        id: txt-record
+      - type: trait
+        id: dns-beacon
 
   # DNS over HTTPS for C2
   - id: doh-c2
     description: DNS over HTTPS potential C2 channel
     criticality: suspicious
     confidence: 0.75
-    mbc: "C0001"
-    attack: "T1071.004"
-    condition:
-      type: yara
-      source: |
-        rule doh_c2 {
-          strings:
-            $cloudflare_doh = "cloudflare-dns.com/dns-query" ascii
-            $google_doh = "dns.google/dns-query" ascii
-            $quad9_doh = "dns.quad9.net/dns-query" ascii
-            $doh_content = "application/dns-message" ascii
-            $doh_json = "application/dns-json" ascii
-          condition:
-            any of them
-        }
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: doh-cloudflare
+      - type: trait
+        id: doh-google
+      - type: trait
+        id: doh-quad9
+      - type: trait
+        id: doh-content-type
+      - type: trait
+        id: doh-json-content

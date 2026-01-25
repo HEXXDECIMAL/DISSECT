@@ -1,3 +1,54 @@
+traits:
+  - id: syscall-setns
+    description: Uses setns syscall to change namespace
+    criticality: notable
+    confidence: 0.8
+    platforms: [linux]
+    file_types: [elf]
+    condition:
+      type: syscall
+      name: ["setns"]
+
+  - id: syscall-unshare
+    description: Uses unshare syscall to create new namespace
+    criticality: notable
+    confidence: 0.8
+    platforms: [linux]
+    file_types: [elf]
+    condition:
+      type: syscall
+      name: ["unshare"]
+
+  - id: syscall-clone
+    description: Uses clone/clone3 syscall to create new process
+    criticality: notable
+    confidence: 0.8
+    platforms: [linux]
+    file_types: [elf]
+    condition:
+      type: syscall
+      name: ["clone", "clone3"]
+
+  - id: syscall-chroot
+    description: Uses chroot syscall to change root directory
+    criticality: notable
+    confidence: 0.8
+    platforms: [linux]
+    file_types: [elf]
+    condition:
+      type: syscall
+      name: ["chroot"]
+
+  - id: syscall-chdir
+    description: Uses chdir/fchdir syscall to change directory
+    criticality: notable
+    confidence: 0.7
+    platforms: [linux]
+    file_types: [elf]
+    condition:
+      type: syscall
+      name: ["chdir", "fchdir"]
+
 composite_rules:
   - id: namespace-manipulation
     description: Manipulates Linux namespaces
@@ -6,10 +57,10 @@ composite_rules:
     platforms: [linux]
     file_types: [elf]
     requires_any:
-      - type: syscall
-        name: ["setns"]
-      - type: syscall
-        name: ["unshare"]
+      - type: trait
+        id: syscall-setns
+      - type: trait
+        id: syscall-unshare
 
   - id: container-escape
     description: Container escape pattern - clone + setns
@@ -18,10 +69,10 @@ composite_rules:
     platforms: [linux]
     file_types: [elf]
     requires_all:
-      - type: syscall
-        name: ["clone", "clone3"]
-      - type: syscall
-        name: ["setns"]
+      - type: trait
+        id: syscall-clone
+      - type: trait
+        id: syscall-setns
 
   - id: chroot-escape
     description: Potential chroot escape - chdir + chroot combination
@@ -30,8 +81,7 @@ composite_rules:
     platforms: [linux]
     file_types: [elf]
     requires_all:
-      - type: syscall
-        name: ["chroot"]
-      - type: syscall
-        name: ["chdir", "fchdir"]
-        min_count: 2
+      - type: trait
+        id: syscall-chroot
+      - type: trait
+        id: syscall-chdir

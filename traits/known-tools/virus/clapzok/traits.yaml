@@ -14,13 +14,11 @@ traits:
       type: string
       exact: "SfcIsFileProtected"
 
-composite_rules:
-  - id: virus/clapzok/detected
-    description: Clapzok multi-platform virus
+  - id: virus/clapzok/macho-structure
+    description: Clapzok virus YARA pattern for Mach-O binaries
     criticality: suspicious
     confidence: 0.95
     family: true
-    reference: "https://www.virusbulletin.com/virusbulletin/2013/06/multiplatform-madness"
     attack: "T1204"
     mbc: "B0009"
     file_types: [macho]
@@ -36,3 +34,17 @@ composite_rules:
              uint32(0) == 0xBEBAFECA or uint32(0) == 0xCAFEBABE) and
             filesize < 10MB and $ref in (filesize - 2200..filesize - 100)
         }
+
+composite_rules:
+  - id: virus/clapzok/detected
+    description: Clapzok multi-platform virus
+    criticality: suspicious
+    confidence: 0.95
+    family: true
+    reference: "https://www.virusbulletin.com/virusbulletin/2013/06/multiplatform-madness"
+    attack: "T1204"
+    mbc: "B0009"
+    file_types: [macho]
+    requires_all:
+      - type: trait
+        id: virus/clapzok/macho-structure

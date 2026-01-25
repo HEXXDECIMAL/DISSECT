@@ -173,6 +173,21 @@ pub fn get_language_config(
             tree_sitter_powershell::LANGUAGE.into(),
             vec!["command_expression", "invocation_expression"],
         )),
+        FileType::Swift => Some((tree_sitter_swift::LANGUAGE.into(), vec!["call_expression"])),
+        FileType::ObjectiveC => Some((
+            tree_sitter_objc::LANGUAGE.into(),
+            vec!["message_expression", "call_expression"],
+        )),
+        FileType::Groovy => Some((
+            tree_sitter_groovy::LANGUAGE.into(),
+            vec!["method_call", "function_call"],
+        )),
+        FileType::Scala => Some((
+            tree_sitter_scala::LANGUAGE.into(),
+            vec!["call_expression", "apply_expression"],
+        )),
+        FileType::Zig => Some((tree_sitter_zig::LANGUAGE.into(), vec!["call_expression"])),
+        FileType::Elixir => Some((tree_sitter_elixir::LANGUAGE.into(), vec!["call"])),
         _ => None,
     }
 }

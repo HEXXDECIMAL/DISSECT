@@ -13,6 +13,33 @@ traits:
       type: string
       exact: "Firefox"
 
+  - id: waterfox-path
+    description: Waterfox browser profile path
+    criticality: notable
+    confidence: 0.6
+    attack: "T1555.003"
+    condition:
+      type: string
+      exact: "Waterfox"
+
+  - id: palemoon-path
+    description: Pale Moon browser profile path
+    criticality: notable
+    confidence: 0.6
+    attack: "T1555.003"
+    condition:
+      type: string
+      exact: "Pale Moon"
+
+  - id: profiles-path
+    description: Firefox/Gecko Profiles directory
+    criticality: notable
+    confidence: 0.7
+    attack: "T1555.003"
+    condition:
+      type: string
+      regex: "Firefox/Profiles|Waterfox/Profiles|Pale Moon/Profiles"
+
   - id: cookies-sqlite
     description: Firefox cookies.sqlite database
     criticality: suspicious

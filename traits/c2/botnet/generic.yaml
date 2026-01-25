@@ -2,31 +2,141 @@
 # MBC: B0030 (C2 Communication)
 # ATT&CK: T1583
 
+defaults:
+  attack: "T1583"
+
 traits:
+  # === Botnet terminology ===
+  - id: botnet-term
+    description: Botnet keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: botnet
+      case_insensitive: true
+
+  - id: bot-net-term
+    description: Bot.net keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bbot[_.\s-]?net\b'
+      case_insensitive: true
+
+  - id: c2-server-term
+    description: C2 server keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bc2[_.\s-]?server\b'
+      case_insensitive: true
+
+  - id: command-control-term
+    description: Command and control keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bcommand[_.\s-]?and[_.\s-]?control\b'
+      case_insensitive: true
+
+  # === Zombie botnet terminology ===
+  - id: zombie-bot
+    description: Zombie bot keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bzombie[_\s]?(bot|net|army|horde|node)\b'
+      case_insensitive: true
+
+  - id: bot-zombie
+    description: Bot zombie keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bbot[_\s]?zombie\b'
+      case_insensitive: true
+
+  # === Bot agent terminology ===
+  - id: bot-agent
+    description: Bot agent keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bbot[_.\s-]?agent\b'
+      case_insensitive: true
+
+  - id: agent-bot
+    description: Agent bot keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bagent[_.\s-]?bot\b'
+      case_insensitive: true
+
+  - id: slave-term
+    description: Slave keyword
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      exact: slave
+      case_insensitive: true
+
+  - id: master-node
+    description: Master node keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bmaster[_.\s-]?node\b'
+      case_insensitive: true
+
+composite_rules:
   - id: botnet
     description: Botnet-related patterns
     criticality: suspicious
     confidence: 0.75
-    attack: "T1583"
-    condition:
-      type: string
-      # Note: "zombie" removed - it's a legitimate Unix process state term
-      regex: "(botnet|bot.?net|c2.?server|command.?and.?control)"
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: botnet-term
+      - type: trait
+        id: bot-net-term
+      - type: trait
+        id: c2-server-term
+      - type: trait
+        id: command-control-term
 
   - id: zombie-botnet
     description: Zombie botnet specific patterns
     criticality: suspicious
     confidence: 0.6
-    attack: "T1583"
-    condition:
-      type: string
-      # Only match zombie in clearly botnet-related contexts
-      regex: "(zombie[_\\s]?(bot|net|army|horde|node)|bot[_\\s]?zombie)"
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: zombie-bot
+      - type: trait
+        id: bot-zombie
 
   - id: botnet-agent
     description: Bot agent patterns
     criticality: suspicious
     confidence: 0.66
-    condition:
-      type: string
-      regex: "(bot.?agent|agent.?bot|slave|master.?node)"
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: bot-agent
+      - type: trait
+        id: agent-bot
+      - type: trait
+        id: slave-term
+      - type: trait
+        id: master-node

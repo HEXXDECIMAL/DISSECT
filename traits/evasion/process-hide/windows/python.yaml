@@ -51,6 +51,32 @@ traits:
       type: string
       regex: "creationflags\\s*="
 
+  # subprocess module calls for process creation
+  - id: subprocess-call
+    description: "Subprocess module process creation call"
+    confidence: 0.7
+    criticality: notable
+    condition:
+      type: string
+      regex: "subprocess\\.(Popen|run|call)\\("
+
+  # Hidden or detached window flags
+  - id: hidden-window-flag
+    description: "Hidden or detached process window flag"
+    confidence: 0.85
+    condition:
+      type: string
+      regex: "CREATE_NO_WINDOW|DETACHED_PROCESS"
+
+  # Combined creation flags with bitwise OR
+  - id: combined-creationflags
+    description: "Multiple process creation flags combined with bitwise OR"
+    confidence: 0.9
+    condition:
+      type: string
+      # Matches: creationflags=FLAG1 | FLAG2
+      regex: "creationflags\\s*=\\s*[^,)]+\\|"
+
 composite_rules:
   # Combined: CREATE_NO_WINDOW + CREATE_NEW_PROCESS_GROUP
   - id: stealth-subprocess
@@ -58,16 +84,15 @@ composite_rules:
     confidence: 0.95
     criticality: suspicious
     requires_all:
-      - type: string
-        regex: "subprocess\\.(Popen|run|call)\\("
-      - type: string
-        regex: "CREATE_NO_WINDOW|DETACHED_PROCESS"
+      - type: trait
+        id: subprocess-call
+      - type: trait
+        id: hidden-window-flag
 
   # creationflags with bitwise OR - combining multiple flags
   - id: combined-flags
     description: "Multiple process creation flags combined"
     confidence: 0.9
-    condition:
-      type: string
-      # Matches: creationflags=FLAG1 | FLAG2
-      regex: "creationflags\\s*=\\s*[^,)]+\\|"
+    requires_all:
+      - type: trait
+        id: combined-creationflags

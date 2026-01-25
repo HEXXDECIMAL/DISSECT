@@ -17,6 +17,29 @@ traits:
       pattern: ptrace
     platforms: [linux, unix, macos]
 
+  - id: getpid
+    description: getpid system call (process ID retrieval)
+    criticality: notable
+    mbc: "B0001"
+    attack: "T1622"
+    confidence: 0.5
+    file_types: [elf, macho, so, dylib, c]
+    condition:
+      type: symbol
+      pattern: getpid
+    platforms: [linux, unix, macos]
+
+  - id: ptrace-traceme-or-deny
+    description: PTRACE_TRACEME or PT_DENY_ATTACH anti-debugging constants
+    criticality: suspicious
+    mbc: "B0001.m01"
+    attack: "T1622"
+    confidence: 0.8
+    condition:
+      type: string
+      regex: "PTRACE_TRACEME|PT_DENY_ATTACH"
+    platforms: [linux, unix, macos]
+
   - id: isatty
     description: Detect if running in terminal
     criticality: notable

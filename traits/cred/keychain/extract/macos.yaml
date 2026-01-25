@@ -2,7 +2,7 @@
 # MBC: E1555 (Credentials from Password Stores)
 # ATT&CK: T1555.001
 
-composite_rules:
+traits:
   # === Atomic: Security Framework Symbols ===
 
   - id: find-generic
@@ -135,6 +135,7 @@ composite_rules:
       type: string
       exact: "/Library/Keychains/System.keychain"
 
+composite_rules:
   - id: password-extraction
     description: macOS Keychain password extraction
     criticality: suspicious

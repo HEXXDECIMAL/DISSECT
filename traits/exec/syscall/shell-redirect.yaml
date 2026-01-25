@@ -1,3 +1,88 @@
+traits:
+  # Linux syscall traits
+  - id: syscall-execve-linux
+    description: Linux execve/execveat syscall for program execution
+    criticality: notable
+    confidence: 0.8
+    platforms: [linux]
+    file_types: [elf]
+    condition:
+      type: syscall
+      name: ["execve", "execveat"]
+
+  - id: syscall-dup-redirect-linux
+    description: Linux dup2/dup3 syscall for file descriptor redirection (multiple calls)
+    criticality: notable
+    confidence: 0.8
+    platforms: [linux]
+    file_types: [elf]
+    condition:
+      type: syscall
+      name: ["dup2", "dup3"]
+      min_count: 2
+
+  - id: syscall-socket-linux
+    description: Linux socket/socketcall syscall for network socket creation
+    criticality: notable
+    confidence: 0.8
+    platforms: [linux]
+    file_types: [elf]
+    condition:
+      type: syscall
+      name: ["socket", "socketcall"]
+
+  - id: syscall-connect-linux
+    description: Linux connect syscall for establishing network connection
+    criticality: notable
+    confidence: 0.8
+    platforms: [linux]
+    file_types: [elf]
+    condition:
+      type: syscall
+      name: ["connect"]
+
+  # macOS syscall traits
+  - id: syscall-execve-macos
+    description: macOS execve syscall for program execution
+    criticality: notable
+    confidence: 0.8
+    platforms: [macos]
+    file_types: [macho]
+    condition:
+      type: syscall
+      name: ["execve"]
+
+  - id: syscall-dup-redirect-macos
+    description: macOS dup2 syscall for file descriptor redirection (multiple calls)
+    criticality: notable
+    confidence: 0.8
+    platforms: [macos]
+    file_types: [macho]
+    condition:
+      type: syscall
+      name: ["dup2"]
+      min_count: 2
+
+  - id: syscall-socket-macos
+    description: macOS socket syscall for network socket creation
+    criticality: notable
+    confidence: 0.8
+    platforms: [macos]
+    file_types: [macho]
+    condition:
+      type: syscall
+      name: ["socket"]
+
+  - id: syscall-connect-macos
+    description: macOS connect syscall for establishing network connection
+    criticality: notable
+    confidence: 0.8
+    platforms: [macos]
+    file_types: [macho]
+    condition:
+      type: syscall
+      name: ["connect"]
+
 composite_rules:
   - id: shell-redirect
     description: Executes program with file descriptor redirection
@@ -6,11 +91,10 @@ composite_rules:
     platforms: [linux]
     file_types: [elf]
     requires_all:
-      - type: syscall
-        name: ["execve", "execveat"]
-      - type: syscall
-        name: ["dup2", "dup3"]
-        min_count: 2
+      - type: trait
+        id: syscall-execve-linux
+      - type: trait
+        id: syscall-dup-redirect-linux
 
   - id: reverse-shell-pattern
     description: Reverse shell pattern - socket + dup2 + execve
@@ -19,15 +103,14 @@ composite_rules:
     platforms: [linux]
     file_types: [elf]
     requires_all:
-      - type: syscall
-        name: ["socket", "socketcall"]
-      - type: syscall
-        name: ["connect"]
-      - type: syscall
-        name: ["dup2", "dup3"]
-        min_count: 2
-      - type: syscall
-        name: ["execve", "execveat"]
+      - type: trait
+        id: syscall-socket-linux
+      - type: trait
+        id: syscall-connect-linux
+      - type: trait
+        id: syscall-dup-redirect-linux
+      - type: trait
+        id: syscall-execve-linux
 
   - id: shell-redirect-macos
     description: macOS program execution with FD redirection
@@ -36,11 +119,10 @@ composite_rules:
     platforms: [macos]
     file_types: [macho]
     requires_all:
-      - type: syscall
-        name: ["execve"]
-      - type: syscall
-        name: ["dup2"]
-        min_count: 2
+      - type: trait
+        id: syscall-execve-macos
+      - type: trait
+        id: syscall-dup-redirect-macos
 
   - id: reverse-shell-pattern-macos
     description: macOS reverse shell pattern - socket + dup2 + execve
@@ -49,12 +131,11 @@ composite_rules:
     platforms: [macos]
     file_types: [macho]
     requires_all:
-      - type: syscall
-        name: ["socket"]
-      - type: syscall
-        name: ["connect"]
-      - type: syscall
-        name: ["dup2"]
-        min_count: 2
-      - type: syscall
-        name: ["execve"]
+      - type: trait
+        id: syscall-socket-macos
+      - type: trait
+        id: syscall-connect-macos
+      - type: trait
+        id: syscall-dup-redirect-macos
+      - type: trait
+        id: syscall-execve-macos

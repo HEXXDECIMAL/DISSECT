@@ -62,11 +62,8 @@ traits:
       type: string
       regex: "(?i)\\btrojan\\b"
 
-composite_rules:
-  # NOTE: Simple libc function references are too common in statically linked binaries
-  # Require explicit infection markers or embedded ELF payloads at non-zero offset
-  - id: elf-infector-detected
-    description: ELF file infector
+  - id: elf-infector-yara
+    description: ELF file infector pattern via YARA
     criticality: suspicious
     confidence: 0.95
     attack: "T1204"
@@ -99,8 +96,8 @@ composite_rules:
             )
         }
 
-  - id: infected-xor-detected
-    description: XOR obfuscated infection marker
+  - id: infected-xor-yara
+    description: XOR obfuscated infection marker pattern via YARA
     criticality: suspicious
     confidence: 0.95
     attack: "T1027"
@@ -115,3 +112,27 @@ composite_rules:
           condition:
             filesize < 5MB and any of them
         }
+
+composite_rules:
+  # NOTE: Simple libc function references are too common in statically linked binaries
+  # Require explicit infection markers or embedded ELF payloads at non-zero offset
+  - id: elf-infector-detected
+    description: ELF file infector
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1204"
+    mbc: "B0009"
+    file_types: [elf]
+    requires_all:
+      - type: trait
+        id: elf-infector-yara
+
+  - id: infected-xor-detected
+    description: XOR obfuscated infection marker
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1027"
+    file_types: [all]
+    requires_all:
+      - type: trait
+        id: infected-xor-yara

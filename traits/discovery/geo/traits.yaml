@@ -5,23 +5,32 @@
 traits:
   # === IP Geolocation APIs ===
 
-  - id: db-ip-api
-    description: db-ip.com geolocation API
-    criticality: suspicious
-    confidence: 0.85
+  - id: api-db-ip
+    description: api.db-ip.com endpoint
+    criticality: inert
+    confidence: 0.7
     attack: "T1016"
     condition:
       type: string
-      regex: "api\\.db-ip\\.com|db-ip\\.com/v2"
+      exact: "api.db-ip.com"
 
-  - id: ipinfo-api
-    description: ipinfo.io geolocation API
-    criticality: suspicious
-    confidence: 0.85
+  - id: db-ip-v2
+    description: db-ip.com/v2 endpoint
+    criticality: inert
+    confidence: 0.7
     attack: "T1016"
     condition:
       type: string
-      regex: "ipinfo\\.io|ip-api\\.com"
+      exact: "db-ip.com/v2"
+
+  - id: ipinfo-io
+    description: ipinfo.io geolocation API
+    criticality: inert
+    confidence: 0.7
+    attack: "T1016"
+    condition:
+      type: string
+      exact: "ipinfo.io"
 
   - id: ipapi-api
     description: ip-api.com geolocation API
@@ -32,14 +41,23 @@ traits:
       type: string
       exact: "ip-api.com"
 
-  - id: ipify-api
-    description: ipify.org IP address API
-    criticality: suspicious
-    confidence: 0.8
+  - id: api-ipify
+    description: api.ipify.org endpoint
+    criticality: inert
+    confidence: 0.7
     attack: "T1016"
     condition:
       type: string
-      regex: "api\\.ipify\\.org|ipify\\.org"
+      exact: "api.ipify.org"
+
+  - id: ipify-org
+    description: ipify.org domain
+    criticality: inert
+    confidence: 0.6
+    attack: "T1016"
+    condition:
+      type: string
+      exact: "ipify.org"
 
   - id: ipgeolocation-api
     description: ipgeolocation.io API
@@ -50,23 +68,50 @@ traits:
       type: string
       exact: "ipgeolocation.io"
 
-  - id: maxmind-api
-    description: MaxMind GeoIP API
-    criticality: notable
+  - id: geoip-maxmind
+    description: geoip.maxmind.com endpoint
+    criticality: inert
+    confidence: 0.6
+    attack: "T1016"
+    condition:
+      type: string
+      exact: "geoip.maxmind.com"
+
+  - id: maxmind-geoip
+    description: maxmind.com/geoip endpoint
+    criticality: inert
+    confidence: 0.6
+    attack: "T1016"
+    condition:
+      type: string
+      exact: "maxmind.com/geoip"
+
+  - id: freegeoip-app
+    description: freegeoip.app domain
+    criticality: inert
     confidence: 0.7
     attack: "T1016"
     condition:
       type: string
-      regex: "geoip\\.maxmind\\.com|maxmind\\.com/geoip"
+      exact: "freegeoip.app"
 
-  - id: freegeoip-api
-    description: freegeoip.app API
-    criticality: suspicious
-    confidence: 0.85
+  - id: freegeoip-net
+    description: freegeoip.net domain
+    criticality: inert
+    confidence: 0.7
     attack: "T1016"
     condition:
       type: string
-      regex: "freegeoip\\.(app|net|io)"
+      exact: "freegeoip.net"
+
+  - id: freegeoip-io
+    description: freegeoip.io domain
+    criticality: inert
+    confidence: 0.7
+    attack: "T1016"
+    condition:
+      type: string
+      exact: "freegeoip.io"
 
   # NOTE: Generic IP lookup services (checkip.amazonaws.com, icanhazip.com, ifconfig.me, etc.)
   # are defined in discovery/network/discovery/ip-lookup.yaml
@@ -74,50 +119,188 @@ traits:
 
   # === Response Fields (JSON parsing) ===
 
-  - id: country-code-field
-    description: Country code JSON field (geo profiling)
-    criticality: notable
-    confidence: 0.6
+  - id: country-code-camel
+    description: countryCode field (camelCase)
+    criticality: inert
+    confidence: 0.5
     attack: "T1016"
     condition:
       type: string
-      regex: "\\bcountryCode\\b|\\bcountry_code\\b"
+      regex: "\\bcountryCode\\b"
 
-  - id: ip-address-field
-    description: IP address JSON field (geo profiling)
+  - id: country-code-snake
+    description: country_code field (snake_case)
+    criticality: inert
+    confidence: 0.5
+    attack: "T1016"
+    condition:
+      type: string
+      regex: "\\bcountry_code\\b"
+
+  - id: ip-address-camel
+    description: ipAddress field (camelCase)
+    criticality: inert
+    confidence: 0.4
+    attack: "T1016"
+    condition:
+      type: string
+      regex: "\\bipAddress\\b"
+
+  - id: ip-address-snake
+    description: ip_address field (snake_case)
+    criticality: inert
+    confidence: 0.4
+    attack: "T1016"
+    condition:
+      type: string
+      regex: "\\bip_address\\b"
+
+  - id: ip-json-field
+    description: "ip" JSON field
+    criticality: inert
+    confidence: 0.4
+    attack: "T1016"
+    condition:
+      type: string
+      exact: '"ip":'
+
+  - id: city-field
+    description: City JSON field (geo profiling)
     criticality: notable
     confidence: 0.5
     attack: "T1016"
     condition:
       type: string
-      regex: "\\bipAddress\\b|\\bip_address\\b|\"ip\":"
+      exact: '"city":'
+
+  - id: region-field
+    description: Region JSON field (geo profiling)
+    criticality: notable
+    confidence: 0.5
+    attack: "T1016"
+    condition:
+      type: string
+      exact: '"region":'
+
+  - id: freegeoip-generic
+    description: freegeoip reference (generic)
+    criticality: notable
+    confidence: 0.7
+    attack: "T1016"
+    condition:
+      type: string
+      exact: "freegeoip"
 
 composite_rules:
+  # DB-IP API composite
+  - id: db-ip-api
+    description: db-ip.com geolocation API
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1016"
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: api-db-ip
+      - type: trait
+        id: db-ip-v2
+
+  # ipify API composite
+  - id: ipify-api
+    description: ipify.org IP address API
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1016"
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: api-ipify
+      - type: trait
+        id: ipify-org
+
+  # MaxMind API composite
+  - id: maxmind-api
+    description: MaxMind GeoIP API
+    criticality: notable
+    confidence: 0.7
+    attack: "T1016"
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: geoip-maxmind
+      - type: trait
+        id: maxmind-geoip
+
+  # freegeoip API composite
+  - id: freegeoip-api
+    description: freegeoip API
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1016"
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: freegeoip-app
+      - type: trait
+        id: freegeoip-net
+      - type: trait
+        id: freegeoip-io
+
+  # Country code field composite
+  - id: country-code-field
+    description: Country code JSON field (geo profiling)
+    criticality: notable
+    confidence: 0.6
+    attack: "T1016"
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: country-code-camel
+      - type: trait
+        id: country-code-snake
+
+  # IP address field composite
+  - id: ip-address-field
+    description: IP address JSON field (geo profiling)
+    criticality: notable
+    confidence: 0.5
+    attack: "T1016"
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: ip-address-camel
+      - type: trait
+        id: ip-address-snake
+      - type: trait
+        id: ip-json-field
+
   - id: victim-profiling
     description: Victim geolocation profiling via IP API
     criticality: suspicious
     confidence: 0.9
     attack: "T1016"
-    condition:
-      type: yara
-      source: |
-        rule victim_geo_profiling {
-          meta:
-            description = "Uses IP geolocation API to profile victims"
-          strings:
-            // Common geo APIs
-            $api1 = "api.db-ip.com" ascii
-            $api2 = "ipinfo.io" ascii
-            $api3 = "ip-api.com" ascii
-            $api4 = "ipgeolocation.io" ascii
-            $api5 = "freegeoip" ascii
-            $api6 = "api.ipify.org" ascii
-            // JSON response fields
-            $field1 = "countryCode" ascii
-            $field2 = "country_code" ascii
-            $field3 = "ipAddress" ascii
-            $field4 = "\"city\":" ascii
-            $field5 = "\"region\":" ascii
-          condition:
-            any of ($api*) and any of ($field*)
-        }
+    requires_all:
+      - requires_any:
+          - type: composite
+            id: db-ip-api
+          - type: trait
+            id: ipinfo-io
+          - type: trait
+            id: ipapi-api
+          - type: trait
+            id: ipgeolocation-api
+          - type: composite
+            id: freegeoip-api
+          - type: trait
+            id: freegeoip-generic
+          - type: composite
+            id: ipify-api
+      - requires_any:
+          - type: composite
+            id: country-code-field
+          - type: composite
+            id: ip-address-field
+          - type: trait
+            id: city-field
+          - type: trait
+            id: region-field

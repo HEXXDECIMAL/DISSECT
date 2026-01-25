@@ -65,6 +65,15 @@ traits:
       regex: "entering sandbox"
       case_insensitive: true
 
+  - id: sandbox-failed
+    description: Sandbox entry failure message
+    confidence: 0.85
+    platforms: [macos]
+    file_types: [macho]
+    condition:
+      type: string
+      exact: "Failed to enter sandbox"
+
   # === Hardened Runtime (macOS) ===
 
   - id: hardened-runtime
@@ -114,6 +123,15 @@ traits:
       type: string
       exact: "PR_SET_SECCOMP"
 
+  - id: seccomp-mode-filter
+    description: Linux seccomp filter mode constant
+    confidence: 0.85
+    platforms: [linux]
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "SECCOMP_MODE_FILTER"
+
   # === Pledge/Unveil (OpenBSD) ===
 
   - id: pledge
@@ -161,26 +179,20 @@ composite_rules:
     confidence: 0.95
     platforms: [macos]
     file_types: [macho, dylib]
-    condition:
-      type: yara
-      source: |
-        rule macos_sandboxed {
-          meta:
-            description = "macOS application using App Sandbox"
-          strings:
-            // Sandbox initialization symbols
-            $sandbox_init = "sandbox_init" ascii
-            $sandbox_init_params = "sandbox_init_with_parameters" ascii
-            // Sandbox extension handling
-            $ext_consume = "sandbox_extension_consume" ascii
-            $ext_issue = "sandbox_extension_issue" ascii
-            // Log messages indicating sandbox entry
-            $entering = "entering sandbox" nocase ascii
-            $failed = "Failed to enter sandbox" ascii
-          condition:
-            filesize < 100MB and
-            (1 of ($sandbox_init*) or 2 of ($ext_*) or any of ($entering, $failed))
-        }
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: sandbox-init
+      - type: trait
+        id: sandbox-init-params
+      - type: trait
+        id: sandbox-extension-consume
+      - type: trait
+        id: sandbox-extension-issue
+      - type: trait
+        id: sandbox-entering
+      - type: trait
+        id: sandbox-failed
 
   - id: linux-seccomp
     description: Linux seccomp sandbox enabled
@@ -188,18 +200,15 @@ composite_rules:
     confidence: 0.95
     platforms: [linux]
     file_types: [elf]
-    condition:
-      type: yara
-      source: |
-        rule linux_seccomp {
-          meta:
-            description = "Linux application using seccomp sandbox"
-          strings:
-            $seccomp_init = "seccomp_init" ascii
-            $seccomp_load = "seccomp_load" ascii
-            $seccomp_rule = "seccomp_rule_add" ascii
-            $prctl_seccomp = "PR_SET_SECCOMP" ascii
-            $seccomp_mode = "SECCOMP_MODE_FILTER" ascii
-          condition:
-            filesize < 100MB and 2 of them
-        }
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: seccomp-init
+      - type: trait
+        id: seccomp-load
+      - type: trait
+        id: seccomp-rule-add
+      - type: trait
+        id: prctl-seccomp
+      - type: trait
+        id: seccomp-mode-filter

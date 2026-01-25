@@ -3,102 +3,279 @@
 # This is a technique where malware authors use legitimate services to track their malware's health
 # ATT&CK: T1102 (Web Service)
 
+defaults:
+  attack: "T1102"
+
 traits:
   # === Sentry Error Tracking ===
-
   - id: sentry-dsn
     description: Sentry DSN configuration (operator telemetry)
     criticality: suspicious
     confidence: 0.85
-    attack: "T1102"
     condition:
       type: string
       # Sentry DSN format: https://<key>@<org>.ingest.sentry.io/<project>
       regex: "https://[a-f0-9]+@[a-z0-9.-]+\\.ingest\\.sentry\\.io/\\d+"
 
+  - id: sentry-sdk-pkg
+    description: Sentry SDK package reference
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bsentry[_-]sdk\b'
+
+  - id: sentry-js-import
+    description: Sentry JavaScript import
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "@sentry/"
+
+  - id: sentry-io-domain
+    description: Sentry.io domain
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "sentry.io"
+
+  - id: sentry-init-js
+    description: Sentry.init JavaScript
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "Sentry.init"
+
+  - id: sentry-init-py
+    description: sentry.init Python
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "sentry.init"
+
+  - id: sentry-init-c
+    description: sentry_init C/Rust
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "sentry_init"
+
+  - id: capture-exception
+    description: capture_exception function
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      exact: "capture_exception"
+
+  - id: capture-message
+    description: capture_message function
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      exact: "capture_message"
+
+  - id: capture-exception-js
+    description: captureException JavaScript
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      exact: "captureException"
+
+  - id: capture-message-js
+    description: captureMessage JavaScript
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      exact: "captureMessage"
+
+  # === Bugsnag ===
+  - id: bugsnag-domain
+    description: Bugsnag domain
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "bugsnag.com"
+
+  - id: bugsnag-notify
+    description: Bugsnag.notify function
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "Bugsnag.notify"
+
+  # === Rollbar ===
+  - id: rollbar-domain
+    description: Rollbar domain
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "rollbar.com"
+
+  - id: rollbar-error
+    description: Rollbar.error function
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "Rollbar.error"
+
+  # === Raygun ===
+  - id: raygun-com
+    description: Raygun.com domain
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "raygun.com"
+
+  - id: raygun-io
+    description: Raygun.io domain
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "raygun.io"
+
+  # === Stacktrace Keywords ===
+  - id: stacktrace-attach
+    description: Attach stacktrace configuration
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      exact: "attach-stacktrace"
+
+  - id: stacktrace-process
+    description: Process stacktrace function
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      exact: "process-stacktrace"
+
+composite_rules:
   - id: sentry-sdk
     description: Sentry SDK integration
     criticality: notable
     confidence: 0.7
-    attack: "T1102"
-    condition:
-      type: string
-      regex: "sentry[_-]sdk|@sentry/|sentry\\.io"
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: sentry-sdk-pkg
+      - type: trait
+        id: sentry-js-import
+      - type: trait
+        id: sentry-io-domain
 
   - id: sentry-init
     description: Sentry initialization function
     criticality: notable
     confidence: 0.7
-    attack: "T1102"
-    condition:
-      type: string
-      regex: "sentry\\.init|Sentry\\.init|sentry_init"
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: sentry-init-js
+      - type: trait
+        id: sentry-init-py
+      - type: trait
+        id: sentry-init-c
 
   - id: sentry-capture
     description: Sentry error capture
     criticality: notable
     confidence: 0.6
-    attack: "T1102"
-    condition:
-      type: string
-      regex: "capture_exception|capture_message|captureException|captureMessage"
-
-  # === Other Telemetry Services ===
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: capture-exception
+      - type: trait
+        id: capture-message
+      - type: trait
+        id: capture-exception-js
+      - type: trait
+        id: capture-message-js
 
   - id: bugsnag
     description: Bugsnag error tracking
     criticality: notable
     confidence: 0.7
-    attack: "T1102"
-    condition:
-      type: string
-      regex: "bugsnag\\.com|Bugsnag\\.notify"
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: bugsnag-domain
+      - type: trait
+        id: bugsnag-notify
 
   - id: rollbar
     description: Rollbar error tracking
     criticality: notable
     confidence: 0.7
-    attack: "T1102"
-    condition:
-      type: string
-      regex: "rollbar\\.com|Rollbar\\.error"
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: rollbar-domain
+      - type: trait
+        id: rollbar-error
 
   - id: raygun
     description: Raygun error tracking
     criticality: notable
     confidence: 0.7
-    attack: "T1102"
-    condition:
-      type: string
-      regex: "raygun\\.com|raygun\\.io"
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: raygun-com
+      - type: trait
+        id: raygun-io
 
-composite_rules:
+  - id: sentry-operator-monitoring
+    description: Sentry error tracking for operator monitoring
+    criticality: suspicious
+    confidence: 0.85
+    requires_any:
+      - type: trait
+        id: sentry-dsn
+      - type: composite
+        id: sentry-sdk
+      - type: composite
+        id: sentry-init
+
+  - id: bugsnag-operator-monitoring
+    description: Bugsnag error tracking with stacktrace capture
+    criticality: suspicious
+    confidence: 0.8
+    requires_any:
+      - type: composite
+        id: bugsnag
+
+  - id: rollbar-operator-monitoring
+    description: Rollbar error tracking with stacktrace capture
+    criticality: suspicious
+    confidence: 0.8
+    requires_any:
+      - type: composite
+        id: rollbar
+
   - id: operator-monitoring
     description: Malware operator monitoring via error tracking service
     criticality: suspicious
     confidence: 0.85
-    attack: "T1102"
-    condition:
-      type: yara
-      source: |
-        rule operator_telemetry {
-          meta:
-            description = "Uses error tracking service for operator monitoring"
-          strings:
-            // Sentry
-            $sentry_dsn = /https:\/\/[a-f0-9]+@[a-z0-9.-]+\.ingest\.sentry\.io\/\d+/
-            $sentry_sdk = "sentry" ascii nocase
-            $sentry_init = "sentry.init" ascii nocase
-            // Bugsnag
-            $bugsnag = "bugsnag" ascii nocase
-            // Rollbar
-            $rollbar = "rollbar" ascii nocase
-            // Stacktrace keywords (common in error reporting)
-            $stacktrace1 = "attach-stacktrace" ascii
-            $stacktrace2 = "process-stacktrace" ascii
-            $stacktrace3 = "capture_exception" ascii
-          condition:
-            ($sentry_dsn or ($sentry_sdk and $sentry_init)) or
-            ($bugsnag and any of ($stacktrace*)) or
-            ($rollbar and any of ($stacktrace*))
-        }
+    requires_any:
+      - type: composite
+        id: sentry-operator-monitoring
+      - type: composite
+        id: bugsnag-operator-monitoring
+      - type: composite
+        id: rollbar-operator-monitoring

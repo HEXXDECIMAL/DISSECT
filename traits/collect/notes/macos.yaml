@@ -1,0 +1,72 @@
+# Apple Notes Database Collection (macOS)
+# Detects theft of Apple Notes data which may contain sensitive information
+# ATT&CK: T1005 (Data from Local System)
+
+defaults:
+  attack: "T1005"
+  platforms: [macos]
+  criticality: suspicious
+
+traits:
+  # NoteStore.sqlite - main Notes database
+  - id: notestore-db
+    description: "Apple Notes SQLite database file"
+    confidence: 0.9
+    condition:
+      type: string
+      exact: "NoteStore.sqlite"
+
+  # NoteStore write-ahead log
+  - id: notestore-wal
+    description: "Apple Notes write-ahead log"
+    confidence: 0.85
+    condition:
+      type: string
+      exact: "NoteStore.sqlite-wal"
+
+  # NoteStore shared memory
+  - id: notestore-shm
+    description: "Apple Notes shared memory file"
+    confidence: 0.85
+    condition:
+      type: string
+      exact: "NoteStore.sqlite-shm"
+
+  # Notes group container path
+  - id: notes-container
+    description: "Apple Notes group container path"
+    confidence: 0.9
+    condition:
+      type: string
+      exact: "group.com.apple.notes"
+
+  # Notes Accounts directory
+  - id: notes-accounts
+    description: "Apple Notes Accounts directory"
+    confidence: 0.85
+    condition:
+      type: string
+      regex: "group\\.com\\.apple\\.notes/Accounts"
+
+  # Notes Media directory (attachments)
+  - id: notes-media
+    description: "Apple Notes Media/attachments directory"
+    confidence: 0.85
+    condition:
+      type: string
+      regex: "group\\.com\\.apple\\.notes.*Media"
+
+composite_rules:
+  # Access to Notes database files
+  - id: notes-theft
+    description: "Apple Notes data collection"
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1005"
+    file_types: [shell, python, applescript, macho]
+    requires_all:
+      - {type: trait, id: notestore-db}
+    requires_any:
+      - {type: trait, id: notestore-wal}
+      - {type: trait, id: notestore-shm}
+      - {type: trait, id: notes-container}

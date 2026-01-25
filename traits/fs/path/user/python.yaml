@@ -50,6 +50,22 @@ traits:
       type: string
       regex: "os\\.getenv\\(['\"]HOME['\"]"
 
+  # Home directory access via any method (for composite rules)
+  - id: python-home-access-any
+    description: "Home directory access via expanduser, pathlib, or environ"
+    confidence: 0.75
+    condition:
+      type: string
+      regex: "os\\.path\\.expanduser\\([^)]*~|Path\\.home\\(\\)|os\\.environ.*HOME"
+
+  # Hidden directory path construction via os.path.join
+  - id: python-hidden-dir-join
+    description: "Path join with hidden directory component"
+    confidence: 0.75
+    condition:
+      type: string
+      regex: "os\\.path\\.join\\([^)]*,\\s*[\"']\\.[a-zA-Z]"
+
 composite_rules:
   # Home directory + hidden path construction
   - id: python-home-hidden-dir
@@ -57,7 +73,7 @@ composite_rules:
     confidence: 0.9
     criticality: suspicious
     requires_all:
-      - type: string
-        regex: "os\\.path\\.expanduser\\([^)]*~|Path\\.home\\(\\)|os\\.environ.*HOME"
-      - type: string
-        regex: "os\\.path\\.join\\([^)]*,\\s*[\"']\\.[a-zA-Z]"
+      - type: trait
+        id: python-home-access-any
+      - type: trait
+        id: python-hidden-dir-join

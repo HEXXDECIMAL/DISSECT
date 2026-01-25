@@ -22,6 +22,15 @@ traits:
       type: string
       regex: 'powershell.*(irm|iwr).*\|.*iex'
 
+  - id: js-stdio-ignore
+    description: Suppresses standard I/O output (silent execution)
+    criticality: notable
+    confidence: 0.8
+    file_types: [javascript]
+    condition:
+      type: string
+      regex: 'stdio:\s*[''"]ignore[''"]'
+
 composite_rules:
   - id: js-silent-installer
     description: Silent download and execute installer
@@ -33,8 +42,8 @@ composite_rules:
     requires_all:
       - type: trait
         id: exec/command/shell/js-execsync
-      - type: string
-        regex: 'stdio:\s*[''"]ignore[''"]'
+      - type: trait
+        id: exec/download/js-stdio-ignore
     requires_any:
       - type: trait
         id: exec/download/js-installer-sh

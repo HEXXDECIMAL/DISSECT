@@ -3,13 +3,15 @@
 # ATT&CK: T1059.004 (Unix Shell)
 # NOTE: stdin-redirect (0>&1) is defined in c2/backdoor/traits.yaml
 
+defaults:
+  attack: "T1059.004"
+
 traits:
   # Complete bash reverse shell pattern (no legitimate use)
   - id: reverse-shell-bash-complete
     description: Bash reverse shell via /dev/tcp (complete pattern)
     criticality: suspicious
     confidence: 0.98
-    attack: "T1059.004"
     file_types: [shell, packagejson, javascript]
     condition:
       type: string
@@ -19,29 +21,38 @@ traits:
     description: Bash reverse shell via /dev/tcp
     criticality: suspicious
     confidence: 0.95
-    attack: "T1059.004"
     file_types: [shell, packagejson, javascript]
     condition:
       type: string
       regex: "bash\\s+-i\\s+>&\\s*/dev/tcp/"
 
-  - id: reverse-shell-mkfifo
-    description: Reverse shell using mkfifo and netcat
-    criticality: suspicious
-    confidence: 0.95
-    attack: "T1059.004"
+  # === mkfifo netcat atomic indicators ===
+  - id: mkfifo-cmd
+    description: mkfifo command for named pipe
+    criticality: inert
+    confidence: 0.5
     file_types: [shell, packagejson]
     condition:
-      type: yara
-      source: |
-        rule mkfifo_netcat {
-          strings:
-            $mkfifo = "mkfifo" fullword
-            $sh_i = "sh -i"
-            $nc = /\| {0,2}nc /
-          condition:
-            filesize < 16384 and all of them
-        }
+      type: string
+      regex: '\bmkfifo\b'
+
+  - id: sh-interactive
+    description: Interactive shell invocation
+    criticality: inert
+    confidence: 0.5
+    file_types: [shell, packagejson]
+    condition:
+      type: string
+      exact: "sh -i"
+
+  - id: nc-pipe
+    description: Netcat with pipe
+    criticality: inert
+    confidence: 0.5
+    file_types: [shell, packagejson]
+    condition:
+      type: string
+      regex: '\| {0,2}nc '
 
   # Python reverse shell
   - id: reverse-shell-python
@@ -65,24 +76,33 @@ traits:
       type: string
       regex: "perl\\s+-e\\s+['\"].*socket.*connect.*exec"
 
-  # Netcat reverse shell
-  - id: reverse-shell-netcat
-    description: Netcat reverse shell pattern
+  # === Netcat reverse shell atomic indicators ===
+  - id: nc-exec-sh
+    description: nc -e /bin/sh pattern
     criticality: suspicious
     confidence: 0.9
-    attack: "T1059.004"
     file_types: [shell, packagejson]
     condition:
-      type: yara
-      source: |
-        rule netcat_reverse_shell {
-          strings:
-            $nc1 = /nc\s+-e\s+\/bin\/(ba)?sh/ ascii
-            $nc2 = /ncat\s+-e\s+\/bin\/(ba)?sh/ ascii
-            $nc3 = /netcat\s+-e\s+\/bin\/(ba)?sh/ ascii
-          condition:
-            any of them
-        }
+      type: string
+      regex: 'nc\s+-e\s+/bin/(ba)?sh'
+
+  - id: ncat-exec-sh
+    description: ncat -e /bin/sh pattern
+    criticality: suspicious
+    confidence: 0.9
+    file_types: [shell, packagejson]
+    condition:
+      type: string
+      regex: 'ncat\s+-e\s+/bin/(ba)?sh'
+
+  - id: netcat-exec-sh
+    description: netcat -e /bin/sh pattern
+    criticality: suspicious
+    confidence: 0.9
+    file_types: [shell, packagejson]
+    condition:
+      type: string
+      regex: 'netcat\s+-e\s+/bin/(ba)?sh'
 
   # Ruby reverse shell
   - id: reverse-shell-ruby
@@ -105,3 +125,33 @@ traits:
     condition:
       type: string
       regex: "php\\s+-r\\s+['\"].*fsockopen.*shell_exec|\\$sock\\s*=\\s*fsockopen"
+
+composite_rules:
+  # mkfifo + netcat reverse shell (all of them + small file)
+  - id: reverse-shell-mkfifo
+    description: Reverse shell using mkfifo and netcat
+    criticality: suspicious
+    confidence: 0.95
+    file_types: [shell, packagejson]
+    requires_all:
+      - type: trait
+        id: mkfifo-cmd
+      - type: trait
+        id: sh-interactive
+      - type: trait
+        id: nc-pipe
+
+  # Netcat reverse shell variants
+  - id: reverse-shell-netcat
+    description: Netcat reverse shell pattern
+    criticality: suspicious
+    confidence: 0.9
+    file_types: [shell, packagejson]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: nc-exec-sh
+      - type: trait
+        id: ncat-exec-sh
+      - type: trait
+        id: netcat-exec-sh

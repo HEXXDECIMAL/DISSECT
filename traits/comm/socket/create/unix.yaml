@@ -31,6 +31,16 @@ traits:
       type: symbol
       pattern: connect
 
+  - id: socket-connect
+    description: Connects socket to remote host
+    confidence: 0.9
+    criticality: inert
+    platforms: [linux]
+    file_types: [elf]
+    condition:
+      type: syscall
+      name: ["connect"]
+
 composite_rules:
   - id: client
     description: Network client - connects to remote host
@@ -38,7 +48,7 @@ composite_rules:
     criticality: notable
     platforms: [linux]
     requires_all:
-      - type: syscall
-        name: ["socket", "socketcall"]
-      - type: syscall
-        name: ["connect"]
+      - type: trait
+        id: socket-create
+      - type: trait
+        id: socket-connect

@@ -158,6 +158,37 @@ traits:
       type: string
       regex: "busybox (wget|tftp)"
 
+  - id: mirai-cred-prefix
+    description: Mirai credential prefix (7ujMko0)
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1110.001"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "7ujMko0"
+
+  - id: telnet-port-scan
+    description: Telnet port 23 scanning indicator
+    criticality: suspicious
+    confidence: 0.75
+    attack: "T1110.001"
+    file_types: [elf]
+    condition:
+      type: string
+      regex: "port 23 open"
+      case_insensitive: true
+
+  - id: router-shell-enable
+    description: Router shell enable sequence
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1110.001"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "enable\nshell\nsh"
+
 composite_rules:
   # Mirai default credentials - requires 3+ credential strings
   - id: mirai-creds
@@ -204,8 +235,8 @@ composite_rules:
         id: camera-cred-xmhdipc
       - type: trait
         id: mirai-cred-vizxv
-      - type: string
-        exact: "7ujMko0"
+      - type: trait
+        id: mirai-cred-prefix
 
   # Telnet bruteforce attack pattern
   - id: telnet-attack
@@ -221,8 +252,7 @@ composite_rules:
         id: telnet-connect
       - type: trait
         id: busybox-download
-      - type: string
-        regex: "port 23 open"
-        case_insensitive: true
-      - type: string
-        exact: "enable\nshell\nsh"
+      - type: trait
+        id: telnet-port-scan
+      - type: trait
+        id: router-shell-enable

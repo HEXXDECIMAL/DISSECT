@@ -23,6 +23,48 @@ impl AppleScriptAnalyzer {
         self.capability_mapper = capability_mapper;
         self
     }
+
+    /// Extract symbols from compiled AppleScript using the scpt parser
+    fn extract_scpt_symbols(&self, data: &[u8], report: &mut AnalysisReport) {
+        if let Ok(parser) = scpt::ScptParser::new(data) {
+            // Extract all symbols
+            for symbol in parser.symbols() {
+                let (source, library) = match symbol.kind {
+                    scpt::SymbolKind::Variable => ("scpt_variable", None),
+                    scpt::SymbolKind::AppleEvent => ("scpt_event", Some("AppleEvents")),
+                    scpt::SymbolKind::FourCharCode => ("scpt_fourcc", Some("OSType")),
+                    scpt::SymbolKind::Application => ("scpt_app", Some("Applications")),
+                    scpt::SymbolKind::Handler => ("scpt_handler", None),
+                    scpt::SymbolKind::StringLiteral => continue, // Skip string literals for imports
+                };
+
+                report.imports.push(Import {
+                    symbol: symbol.name,
+                    library: library.map(String::from),
+                    source: source.to_string(),
+                });
+            }
+
+            // Add Apple Event details as special imports for rule matching
+            for event in parser.apple_events() {
+                // Add the combined class.event format
+                report.imports.push(Import {
+                    symbol: format!("{}.{}", event.class_code, event.event_code),
+                    library: Some("AppleEvents".to_string()),
+                    source: "scpt_event".to_string(),
+                });
+
+                // Also add the description for easier rule matching
+                if event.description != "unknown" {
+                    report.imports.push(Import {
+                        symbol: event.description.to_string(),
+                        library: Some("AppleScript".to_string()),
+                        source: "scpt_command".to_string(),
+                    });
+                }
+            }
+        }
+    }
 }
 
 impl Default for AppleScriptAnalyzer {
@@ -64,6 +106,9 @@ impl Analyzer for AppleScriptAnalyzer {
         };
 
         let mut report = AnalysisReport::new(target);
+
+        // Extract symbols from compiled AppleScript
+        self.extract_scpt_symbols(&data, &mut report);
 
         // Use intelligent string extraction
         report.strings = self.string_extractor.extract_smart(&data);

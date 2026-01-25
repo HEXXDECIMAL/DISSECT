@@ -66,6 +66,25 @@ traits:
       type: string
       regex: "/tmp/.*\\.(zip|tar|gz|dmg)|/tmp/out\\."
 
+  # Network upload/exfiltration indicators
+  - id: network-upload
+    description: "Network upload or exfiltration command"
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "curl|wget|POST|upload"
+
+  # Temp zip file staging
+  - id: tmp-zip-staging
+    description: "Zip file staged in /tmp directory"
+    criticality: notable
+    confidence: 0.7
+    attack: "T1074.001"
+    condition:
+      type: string
+      regex: "/tmp/.*\\.zip"
+
 composite_rules:
   # Archive + exfiltration pattern
   - id: stealer-pattern
@@ -79,7 +98,7 @@ composite_rules:
       - type: trait
         id: ditto-compress
     requires_any:
-      - type: string
-        regex: "curl|wget|POST|upload"
-      - type: string
-        regex: "/tmp/.*\\.zip"
+      - type: trait
+        id: network-upload
+      - type: trait
+        id: tmp-zip-staging

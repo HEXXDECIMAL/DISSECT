@@ -162,6 +162,16 @@ traits:
             any of ($walk*) and any of ($delete*)
         }
 
+  # HTTP callback pattern (Node.js)
+  - id: http-callback
+    description: HTTP request pattern for callback/reporting
+    criticality: notable
+    confidence: 0.8
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "axios|fetch\\(|https\\.request|http\\.request"
+
 composite_rules:
   # Protestware pattern (env-conditional destruction)
   - id: protestware
@@ -187,6 +197,6 @@ composite_rules:
     file_types: [javascript, typescript]
     requires_all:
       - type: trait
-        id: impact/wiper/node/recursive-delete
-      - type: string
-        regex: "axios|fetch\\(|https\\.request|http\\.request"
+        id: impact/wiper/recursive-delete
+      - type: trait
+        id: impact/wiper/http-callback

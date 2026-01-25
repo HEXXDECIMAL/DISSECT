@@ -1,51 +1,357 @@
 # Linux Fileless Execution Techniques
 # ATT&CK: T1620 (Reflective Code Loading)
 
+defaults:
+  attack: "T1620"
+
 traits:
-  # memfd_create syscall for anonymous memory-backed file
+  # === memfd_create indicators (atomic) ===
+  - id: memfd-create-fn
+    description: memfd_create function call
+    criticality: inert
+    confidence: 0.6
+    file_types: [python, c, shell]
+    condition:
+      type: string
+      exact: "memfd_create"
+
+  - id: sys-memfd-create
+    description: SYS_memfd_create constant
+    criticality: inert
+    confidence: 0.6
+    file_types: [python, c, shell]
+    condition:
+      type: string
+      exact: "SYS_memfd_create"
+
+  - id: syscall-319
+    description: memfd_create syscall number 319
+    criticality: inert
+    confidence: 0.4
+    file_types: [python, c, shell]
+    condition:
+      type: string
+      exact: "319"
+
+  - id: mfd-cloexec
+    description: MFD_CLOEXEC flag
+    criticality: inert
+    confidence: 0.5
+    file_types: [python, c, shell]
+    condition:
+      type: string
+      exact: "MFD_CLOEXEC"
+
+  - id: libc-syscall
+    description: libc.syscall call
+    criticality: inert
+    confidence: 0.5
+    file_types: [python, c, shell]
+    condition:
+      type: string
+      exact: "libc.syscall"
+
+  - id: syscall-paren
+    description: syscall( invocation
+    criticality: inert
+    confidence: 0.4
+    file_types: [python, c, shell]
+    condition:
+      type: string
+      exact: "syscall("
+
+  # === proc/self/fd indicators (atomic) ===
+  - id: proc-self-fd
+    description: /proc/self/fd path
+    criticality: inert
+    confidence: 0.5
+    file_types: [python, c, shell]
+    condition:
+      type: string
+      exact: "/proc/self/fd"
+
+  - id: proc-self-fd-slash
+    description: /proc/self/fd/ path
+    criticality: inert
+    confidence: 0.5
+    file_types: [python, c, shell]
+    condition:
+      type: string
+      exact: "/proc/self/fd/"
+
+  # === exec indicators (atomic) ===
+  - id: execv-fn
+    description: execv function call
+    criticality: inert
+    confidence: 0.4
+    file_types: [python, c, shell]
+    condition:
+      type: string
+      exact: "execv"
+
+  - id: execve-fn
+    description: execve function call
+    criticality: inert
+    confidence: 0.4
+    file_types: [python, c, shell]
+    condition:
+      type: string
+      exact: "execve"
+
+  - id: execl-fn
+    description: execl function call
+    criticality: inert
+    confidence: 0.4
+    file_types: [python, c, shell]
+    condition:
+      type: string
+      exact: "execl"
+
+  - id: os-exec
+    description: os.exec Python call
+    criticality: inert
+    confidence: 0.5
+    file_types: [python]
+    condition:
+      type: string
+      exact: "os.exec"
+
+  - id: subprocess-mod
+    description: subprocess module
+    criticality: inert
+    confidence: 0.3
+    file_types: [python]
+    condition:
+      type: string
+      exact: "subprocess"
+
+  # === ctypes indicators (atomic) ===
+  - id: ctypes-mod
+    description: ctypes module
+    criticality: inert
+    confidence: 0.4
+    file_types: [python]
+    condition:
+      type: string
+      exact: "ctypes"
+
+  - id: ctypes-cdll
+    description: CDLL ctypes class
+    criticality: inert
+    confidence: 0.5
+    file_types: [python]
+    condition:
+      type: string
+      exact: "CDLL"
+
+  - id: libc-so
+    description: libc.so reference
+    criticality: inert
+    confidence: 0.4
+    file_types: [python, c]
+    condition:
+      type: string
+      exact: "libc.so"
+
+  - id: dot-syscall
+    description: .syscall( call
+    criticality: inert
+    confidence: 0.5
+    file_types: [python]
+    condition:
+      type: string
+      exact: ".syscall("
+
+  # === download indicators (atomic) ===
+  - id: requests-get
+    description: requests.get HTTP call
+    criticality: inert
+    confidence: 0.4
+    file_types: [python]
+    condition:
+      type: string
+      exact: "requests.get"
+
+  - id: urllib-mod
+    description: urllib module
+    criticality: inert
+    confidence: 0.3
+    file_types: [python]
+    condition:
+      type: string
+      exact: "urllib"
+
+  - id: http-client
+    description: http.client module
+    criticality: inert
+    confidence: 0.3
+    file_types: [python]
+    condition:
+      type: string
+      exact: "http.client"
+
+  - id: dot-content
+    description: .content response attribute
+    criticality: inert
+    confidence: 0.3
+    file_types: [python]
+    condition:
+      type: string
+      exact: ".content"
+
+  # === write indicators (atomic) ===
+  - id: os-write
+    description: os.write function
+    criticality: inert
+    confidence: 0.4
+    file_types: [python]
+    condition:
+      type: string
+      exact: "os.write("
+
+  - id: write-fd
+    description: write(fd call
+    criticality: inert
+    confidence: 0.4
+    file_types: [python, c]
+    condition:
+      type: string
+      exact: "write(fd"
+
+  - id: os-lseek
+    description: os.lseek function
+    criticality: inert
+    confidence: 0.4
+    file_types: [python]
+    condition:
+      type: string
+      exact: "os.lseek("
+
+  - id: seek-set
+    description: SEEK_SET constant
+    criticality: inert
+    confidence: 0.3
+    file_types: [python, c]
+    condition:
+      type: string
+      exact: "SEEK_SET"
+
+  # === shared memory indicators (atomic) ===
+  - id: shm-open
+    description: shm_open function
+    criticality: inert
+    confidence: 0.5
+    file_types: [python, c, shell]
+    condition:
+      type: string
+      exact: "shm_open"
+
+  - id: mmap-fn
+    description: mmap function
+    criticality: inert
+    confidence: 0.4
+    file_types: [python, c]
+    condition:
+      type: string
+      exact: "mmap"
+
+  - id: dev-shm
+    description: /dev/shm path
+    criticality: inert
+    confidence: 0.5
+    file_types: [python, c, shell]
+    condition:
+      type: string
+      exact: "/dev/shm"
+
+composite_rules:
+  # Exec function composite
+  - id: exec-function
+    description: Execution function calls
+    criticality: inert
+    confidence: 0.5
+    file_types: [python, c, shell]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: execv-fn
+      - type: trait
+        id: execve-fn
+      - type: trait
+        id: execl-fn
+      - type: trait
+        id: os-exec
+      - type: trait
+        id: subprocess-mod
+
+  # Download indicators composite
+  - id: http-download-python
+    description: Python HTTP download libraries for fetching remote content
+    criticality: notable
+    confidence: 0.8
+    attack: "T1105"
+    file_types: [python]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: requests-get
+      - type: trait
+        id: urllib-mod
+      - type: trait
+        id: http-client
+      - type: trait
+        id: dot-content
+
+  # Write to fd composite
+  - id: fd-write-raw
+    description: Writes data to file descriptor (os.write or write syscall)
+    criticality: notable
+    confidence: 0.8
+    file_types: [python, c]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: os-write
+      - type: trait
+        id: write-fd
+
+  # memfd_create syscall
   - id: memfd-create
     description: Creates anonymous memory-backed file (memfd_create syscall)
     criticality: suspicious
     confidence: 0.95
-    attack: "T1620"
     file_types: [python, c, shell]
-    condition:
-      type: yara
-      source: |
-        rule memfd_create {
-          strings:
-            $memfd1 = "memfd_create" ascii
-            $memfd2 = "SYS_memfd_create" ascii
-            $syscall_num = "319" ascii
-            $mfd_cloexec = "MFD_CLOEXEC" ascii
-            $libc_syscall = "libc.syscall" ascii
-            $syscall = "syscall(" ascii
-          condition:
-            any of ($memfd*) or ($syscall_num and any of ($mfd_cloexec, $libc_syscall, $syscall))
-        }
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: memfd-create-fn
+      - type: trait
+        id: sys-memfd-create
 
-  # Execution from /proc/self/fd (fileless execution)
+  # proc/self/fd path
+  - id: proc-fd-path
+    description: References /proc/self/fd path
+    criticality: inert
+    confidence: 0.5
+    file_types: [python, c, shell]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: proc-self-fd
+      - type: trait
+        id: proc-self-fd-slash
+
+  # Execution from /proc/self/fd
   - id: proc-fd-exec
     description: Executes binary from /proc/self/fd (fileless execution)
     criticality: suspicious
     confidence: 0.95
-    attack: "T1620"
     file_types: [python, c, shell]
-    condition:
-      type: yara
-      source: |
-        rule proc_fd_exec {
-          strings:
-            $proc_fd = "/proc/self/fd" ascii
-            $proc_fd2 = "/proc/self/fd/" ascii
-            $execv = "execv" ascii
-            $execve = "execve" ascii
-            $execl = "execl" ascii
-            $os_exec = "os.exec" ascii
-            $subprocess = "subprocess" ascii
-          condition:
-            any of ($proc_fd*) and any of ($execv, $execve, $execl, $os_exec, $subprocess)
-        }
+    requires_all:
+      - type: composite
+        id: proc-fd-path
+      - type: composite
+        id: exec-function
 
   # ctypes syscall invocation
   - id: ctypes-syscall
@@ -54,91 +360,69 @@ traits:
     confidence: 0.9
     attack: "T1106"
     file_types: [python]
-    condition:
-      type: yara
-      source: |
-        rule ctypes_syscall {
-          strings:
-            $cdll = "CDLL" ascii
-            $libc = "libc.so" ascii
-            $syscall = ".syscall(" ascii
-            $ctypes = "ctypes" ascii
-          condition:
-            $ctypes and ($cdll or $libc) and $syscall
-        }
+    requires_all:
+      - type: trait
+        id: ctypes-mod
+      - type: trait
+        id: dot-syscall
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: ctypes-cdll
+      - type: trait
+        id: libc-so
+
+  # Write to fd with seek
+  - id: fd-write
+    description: Writes binary data to file descriptor with seek
+    criticality: notable
+    confidence: 0.8
+    file_types: [python]
+    requires_all:
+      - type: trait
+        id: os-write
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: os-lseek
+      - type: trait
+        id: seek-set
 
   # Download and memfd execution chain
   - id: download-memfd-exec
     description: Downloads binary and executes via memfd (fileless dropper)
     criticality: suspicious
     confidence: 0.98
-    attack: "T1620"
     file_types: [python, c, shell]
-    condition:
-      type: yara
-      source: |
-        rule download_memfd_exec {
-          strings:
-            // Download indicators
-            $dl1 = "requests.get" ascii
-            $dl2 = "urllib" ascii
-            $dl3 = "http.client" ascii
-            $dl4 = ".content" ascii
-            // memfd indicators
-            $memfd1 = "memfd_create" ascii
-            $memfd2 = "SYS_memfd_create" ascii
-            $memfd3 = "MFD_CLOEXEC" ascii
-            // Execution indicators
-            $exec1 = "execv" ascii
-            $exec2 = "os.exec" ascii
-            $exec3 = "/proc/self/fd" ascii
-            // Write to fd
-            $write1 = "os.write" ascii
-            $write2 = "write(fd" ascii
-          condition:
-            any of ($dl*) and any of ($memfd*) and (any of ($exec*) or any of ($write*))
-        }
-
-  # os.write to file descriptor
-  - id: fd-write
-    description: Writes binary data to file descriptor
-    criticality: notable
-    confidence: 0.8
-    attack: "T1620"
-    file_types: [python]
-    condition:
-      type: yara
-      source: |
-        rule fd_write {
-          strings:
-            $os_write = "os.write(" ascii
-            $os_lseek = "os.lseek(" ascii
-            $seek_set = "SEEK_SET" ascii
-          condition:
-            $os_write and ($os_lseek or $seek_set)
-        }
+    requires_all:
+      - type: composite
+        id: http-download-python
+      - type: composite
+        id: memfd-create
+    requires_count: 1
+    conditions:
+      - type: composite
+        id: exec-function
+      - type: composite
+        id: fd-write-raw
 
   # shm_open for shared memory execution
   - id: shm-exec
     description: Uses shared memory for fileless execution
     criticality: suspicious
     confidence: 0.9
-    attack: "T1620"
     file_types: [python, c, shell]
-    condition:
-      type: yara
-      source: |
-        rule shm_exec {
-          strings:
-            $shm_open = "shm_open" ascii
-            $mmap = "mmap" ascii
-            $execv = "execv" ascii
-            $dev_shm = "/dev/shm" ascii
-          condition:
-            ($shm_open and $mmap) or ($dev_shm and any of ($execv, $mmap))
-        }
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: shm-open
+      - type: trait
+        id: mmap-fn
+      - type: trait
+        id: dev-shm
+      - type: trait
+        id: execv-fn
 
-composite_rules:
   # Complete fileless dropper pattern
   - id: linux-dropper
     description: Linux fileless dropper (download + memfd + exec)
@@ -146,9 +430,9 @@ composite_rules:
     confidence: 0.99
     file_types: [python, elf]
     requires_all:
-      - type: trait
-        id: exec/fileless/memfd-create
-      - type: string
-        regex: 'requests\.get|urllib|http\.client'
-      - type: string
-        regex: 'os\.write|write\('
+      - type: composite
+        id: memfd-create
+      - type: composite
+        id: http-download-python
+      - type: composite
+        id: fd-write-raw

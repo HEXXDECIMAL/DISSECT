@@ -4,7 +4,7 @@
 defaults:
   platforms: [linux, macos, unix]
 
-composite_rules:
+traits:
   # === Atomic: Bash History ===
   - id: bash-history
     description: Bash shell history file access
@@ -37,6 +37,7 @@ composite_rules:
 
   # NOTE: Shell RC files (.bashrc, .zshrc, .profile) are defined in persist/shell/config/traits.yaml
 
+composite_rules:
   - id: history-theft
     description: Shell history file theft
     criticality: suspicious

@@ -50,13 +50,11 @@ traits:
       regex: "pip\\s+install\\s+https?://(?!pypi\\.org|files\\.pythonhosted\\.org)[a-zA-Z0-9.-]+/"
       search_raw: true
 
-composite_rules:
-  # URL pointing to tar.gz/whl on suspicious domain
-  - id: fake-package-download
-    description: "Package download URL from typosquatted domain"
+  # Fake PyPI-like domains in URLs (YARA-based)
+  - id: fake-pypi-url-domain
+    description: "URL containing fake PyPI-like domain"
+    confidence: 0.90
     criticality: suspicious
-    confidence: 0.95
-    mbc: "B0030"
     condition:
       type: yara
       source: |
@@ -70,3 +68,30 @@ composite_rules:
           condition:
             ($fake_host or $fake_python) and $package_ext
         }
+
+  # Python package file extensions
+  - id: python-package-extension
+    description: "Python package file extension"
+    confidence: 0.70
+    criticality: notable
+    condition:
+      type: string
+      regex: "\\.(tar\\.gz|whl|zip)"
+      search_raw: true
+
+composite_rules:
+  # URL pointing to tar.gz/whl on suspicious domain
+  - id: fake-package-download
+    description: "Package download URL from typosquatted domain"
+    criticality: suspicious
+    confidence: 0.95
+    mbc: "B0030"
+    requires_any:
+      - type: trait
+        id: fake-pypi-host
+      - type: trait
+        id: fake-pypi-host-raw
+      - type: trait
+        id: fake-pypi-index
+      - type: trait
+        id: fake-pypi-url-domain

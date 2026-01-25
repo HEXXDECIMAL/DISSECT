@@ -1,0 +1,270 @@
+# Compiled AppleScript (.scpt) Symbol-Based Detection
+# Uses symbols extracted by the scpt parser
+# ATT&CK: T1059.002 (AppleScript)
+
+defaults:
+  file_types: [applescript]
+  platforms: [macos]
+  attack: "T1059.002"
+
+traits:
+  # ============================================
+  # Shell Execution (syso.exec)
+  # ============================================
+  - id: shell
+    description: "do shell script (Apple Event)"
+    criticality: notable
+    confidence: 0.95
+    attack: "T1059.004"
+    condition:
+      type: symbol
+      pattern: "^syso\\.exec$"
+
+  - id: shell-cmd
+    description: "do shell script (command)"
+    criticality: notable
+    confidence: 0.95
+    attack: "T1059.004"
+    condition:
+      type: symbol
+      exact: "do shell script"
+
+  # ============================================
+  # Timing (syso.dela)
+  # ============================================
+  - id: delay
+    description: "delay command"
+    criticality: inert
+    confidence: 0.95
+    condition:
+      type: symbol
+      pattern: "^syso\\.dela$"
+
+  # ============================================
+  # External Script Loading (syso.load)
+  # ============================================
+  - id: load-script
+    description: "load script (Apple Event)"
+    criticality: notable
+    confidence: 0.9
+    condition:
+      type: symbol
+      pattern: "^syso\\.load$"
+
+  - id: load-script-cmd
+    description: "load script (command)"
+    criticality: notable
+    confidence: 0.9
+    condition:
+      type: symbol
+      exact: "load script"
+
+  # ============================================
+  # URL/Location Opening
+  # ============================================
+  - id: open-location
+    description: "open location (Apple Event)"
+    criticality: notable
+    confidence: 0.9
+    attack: "T1204.001"
+    condition:
+      type: symbol
+      pattern: "^syso\\.open$"
+
+  - id: open-url
+    description: "open URL (Apple Event)"
+    criticality: notable
+    confidence: 0.9
+    attack: "T1204.001"
+    condition:
+      type: symbol
+      pattern: "^syso\\.surl$"
+
+  - id: get-url
+    description: "get URL (Apple Event)"
+    criticality: notable
+    confidence: 0.9
+    condition:
+      type: symbol
+      pattern: "^syso\\.GUrl$"
+
+  - id: open-location-cmd
+    description: "open location (command)"
+    criticality: notable
+    confidence: 0.9
+    condition:
+      type: symbol
+      exact: "open location"
+
+  - id: open-url-cmd
+    description: "open URL (command)"
+    criticality: notable
+    confidence: 0.9
+    condition:
+      type: symbol
+      exact: "open URL"
+
+  # ============================================
+  # Application Control
+  # ============================================
+  - id: run-app
+    description: "run/open application (Apple Event)"
+    criticality: notable
+    confidence: 0.85
+    condition:
+      type: symbol
+      pattern: "^aevt\\.oapp$"
+
+  - id: quit-app
+    description: "quit application (Apple Event)"
+    criticality: notable
+    confidence: 0.85
+    condition:
+      type: symbol
+      pattern: "^aevt\\.quit$"
+
+  - id: reopen-app
+    description: "reopen application (Apple Event)"
+    criticality: inert
+    confidence: 0.85
+    condition:
+      type: symbol
+      pattern: "^aevt\\.rapp$"
+
+  # ============================================
+  # UI Automation
+  # ============================================
+  - id: activate
+    description: "activate application"
+    criticality: inert
+    confidence: 0.9
+    condition:
+      type: symbol
+      pattern: "^misc\\.actv$"
+
+  - id: do-script
+    description: "do script in application"
+    criticality: notable
+    confidence: 0.9
+    condition:
+      type: symbol
+      pattern: "^misc\\.dosc$"
+
+  - id: select
+    description: "select UI element"
+    criticality: inert
+    confidence: 0.85
+    condition:
+      type: symbol
+      pattern: "^misc\\.slct$"
+
+  # ============================================
+  # File Operations
+  # ============================================
+  - id: folder-ref
+    description: "folder/file reference"
+    criticality: inert
+    confidence: 0.9
+    condition:
+      type: symbol
+      pattern: "^ears\\.ffdr$"
+
+  - id: count
+    description: "count items"
+    criticality: inert
+    confidence: 0.9
+    condition:
+      type: symbol
+      pattern: "^core\\.cnte$"
+
+  - id: delete
+    description: "delete items"
+    criticality: notable
+    confidence: 0.9
+    attack: "T1070.004"
+    condition:
+      type: symbol
+      pattern: "^core\\.dele$"
+
+  - id: move
+    description: "move items"
+    criticality: notable
+    confidence: 0.85
+    condition:
+      type: symbol
+      pattern: "^core\\.move$"
+
+  - id: duplicate
+    description: "duplicate items"
+    criticality: inert
+    confidence: 0.85
+    condition:
+      type: symbol
+      pattern: "^core\\.clon$"
+
+composite_rules:
+  # ============================================
+  # Shell Execution (any method)
+  # ============================================
+  - id: shell-execution
+    description: "Compiled AppleScript executes shell commands"
+    criticality: notable
+    confidence: 0.9
+    attack: "T1059.004"
+    file_types: [applescript]
+    requires_any:
+      - {type: trait, id: shell}
+      - {type: trait, id: shell-cmd}
+
+  # ============================================
+  # Delayed Execution (evasion pattern)
+  # ============================================
+  - id: delayed-shell
+    description: "Shell execution with delay (sandbox evasion)"
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1497"
+    file_types: [applescript]
+    requires_all:
+      - {type: trait, id: delay}
+      - {type: trait, id: shell-execution}
+
+  # ============================================
+  # External Code Loading
+  # ============================================
+  - id: external-script
+    description: "Loads external AppleScript code"
+    criticality: suspicious
+    confidence: 0.85
+    file_types: [applescript]
+    requires_any:
+      - {type: trait, id: load-script}
+      - {type: trait, id: load-script-cmd}
+
+  # ============================================
+  # URL Opening (any method)
+  # ============================================
+  - id: opens-url
+    description: "Opens URL or location"
+    criticality: notable
+    confidence: 0.85
+    attack: "T1204.001"
+    file_types: [applescript]
+    requires_any:
+      - {type: trait, id: open-location}
+      - {type: trait, id: open-url}
+      - {type: trait, id: get-url}
+      - {type: trait, id: open-location-cmd}
+      - {type: trait, id: open-url-cmd}
+
+  # ============================================
+  # Dropper Pattern
+  # ============================================
+  - id: dropper
+    description: "Loads external script then executes shell"
+    criticality: hostile
+    confidence: 0.9
+    file_types: [applescript]
+    requires_all:
+      - {type: trait, id: external-script}
+      - {type: trait, id: shell-execution}

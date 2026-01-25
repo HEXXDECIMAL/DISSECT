@@ -102,6 +102,26 @@ traits:
       type: string
       exact: "Xsession"
 
+  - id: hid-idle-time
+    description: macOS HID idle time detection
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1010"
+    file_types: [macho]
+    condition:
+      type: string
+      exact: "HIDIdleTime"
+
+  - id: process-identifier
+    description: macOS process identifier access
+    criticality: notable
+    confidence: 0.7
+    attack: "T1010"
+    file_types: [macho]
+    condition:
+      type: string
+      exact: "processIdentifier"
+
 composite_rules:
   - id: macos-spy-detected
     description: macOS UI spying
@@ -110,17 +130,14 @@ composite_rules:
     attack: "T1010"
     mbc: "B0042"
     file_types: [macho]
-    condition:
-      type: yara
-      source: |
-        rule macos_ui_spy {
-          strings:
-            $locked = "CGSSessionScreenIsLocked"
-            $idle = "HIDIdleTime"
-            $frontmost = "frontmostApplication"
-            $proc = "processIdentifier"
-          condition:
-            (uint32(0) == 0xFEEDFACE or uint32(0) == 0xFEEDFACF or
-             uint32(0) == 0xCEFAEDFE or uint32(0) == 0xCFFAEDFE) and
-            filesize < 10MB and 2 of them
-        }
+    requires_any_n:
+      count: 2
+      conditions:
+        - type: trait
+          id: screen-locked
+        - type: trait
+          id: hid-idle-time
+        - type: trait
+          id: window-watcher
+        - type: trait
+          id: process-identifier

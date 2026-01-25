@@ -6,120 +6,352 @@ defaults:
   file_types: [pe, elf, macho, dll, so, dylib]
 
 traits:
+  # === Memory protection (atomic) ===
+  - id: mprotect-unix
+    description: Unix mprotect system call
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      regex: '\bmprotect\b'
+
+  - id: virtualprotect-win
+    description: Windows VirtualProtect API
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: VirtualProtect
+
+  - id: virtualprotectex-win
+    description: Windows VirtualProtectEx API
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: VirtualProtectEx
+
+  - id: prot-write
+    description: PROT_WRITE memory protection constant
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      regex: '\bPROT_WRITE\b'
+
+  - id: prot-exec
+    description: PROT_EXEC memory protection constant
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      regex: '\bPROT_EXEC\b'
+
+  - id: page-rwx
+    description: PAGE_EXECUTE_READWRITE constant
+    criticality: notable
+    confidence: 0.8
+    condition:
+      type: string
+      exact: PAGE_EXECUTE_READWRITE
+
+  # === Self-overwriting (atomic) ===
+  - id: proc-self-mem
+    description: /proc/self/mem access for self-modification
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: string
+      exact: /proc/self/mem
+
+  - id: proc-self-maps
+    description: /proc/self/maps memory map access
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: /proc/self/maps
+
+  - id: writeprocessmemory
+    description: Windows WriteProcessMemory API
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      exact: WriteProcessMemory
+
+  - id: self-patch-ref
+    description: Self-patch terminology
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: string
+      exact: "self-patch"
+      case_insensitive: true
+
+  # === Code cave (atomic) ===
+  - id: codecave-ref
+    description: Code cave terminology
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: string
+      regex: '\bcodecave\b|code cave'
+      case_insensitive: true
+
+  - id: slack-space-ref
+    description: Slack space terminology
+    criticality: suspicious
+    confidence: 0.75
+    condition:
+      type: string
+      exact: "slack space"
+      case_insensitive: true
+
+  - id: nop-sled
+    description: NOP sled byte sequence
+    criticality: suspicious
+    confidence: 0.7
+    condition:
+      type: hex
+      pattern: "90 90 90 90 90 90 90 90"
+
+  # === Hook installation (atomic) ===
+  - id: setwindowshook
+    description: Windows SetWindowsHookEx API
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      exact: SetWindowsHookEx
+
+  - id: inline-hook-ref
+    description: Inline hook terminology
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: string
+      exact: "inline hook"
+      case_insensitive: true
+
+  - id: detour-ref
+    description: Detour/hooking terminology
+    criticality: notable
+    confidence: 0.6
+    condition:
+      type: string
+      exact: detour
+      case_insensitive: true
+
+  - id: trampoline-ref
+    description: Trampoline hook terminology
+    criticality: notable
+    confidence: 0.6
+    condition:
+      type: string
+      exact: trampoline
+      case_insensitive: true
+
+  - id: ld-preload
+    description: LD_PRELOAD library injection
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      regex: '\bLD_PRELOAD\b'
+
+  - id: dyld-insert
+    description: macOS DYLD_INSERT_LIBRARIES injection
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      regex: '\bDYLD_INSERT_LIBRARIES\b'
+
+  # === IAT/GOT hooking (atomic) ===
+  - id: import-descriptor
+    description: PE IMAGE_IMPORT_DESCRIPTOR structure
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: IMAGE_IMPORT_DESCRIPTOR
+
+  - id: import-address-table
+    description: Import Address Table reference
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: ImportAddressTable
+
+  - id: iat-ref
+    description: IAT abbreviation reference
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      regex: '\bIAT\b'
+
+  - id: got-plt-section
+    description: ELF .got.plt section reference
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: .got.plt
+
+  - id: got-ref
+    description: GOT abbreviation reference
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      regex: '\bGOT\b'
+
+  # === Polymorphic/metamorphic (atomic) ===
+  - id: polymorphic-ref
+    description: Polymorphic code terminology
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: string
+      exact: polymorphic
+      case_insensitive: true
+
+  - id: metamorphic-ref
+    description: Metamorphic code terminology
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: string
+      exact: metamorphic
+      case_insensitive: true
+
+  - id: self-modifying-ref
+    description: Self-modifying code terminology
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: string
+      exact: "self-modifying"
+      case_insensitive: true
+
+  - id: xor-loop-pattern
+    description: XOR decryption loop byte pattern
+    criticality: suspicious
+    confidence: 0.7
+    condition:
+      type: hex
+      pattern: "30 ?? 4? 83 ?? ?? 7?"
+
+composite_rules:
   # Memory protection changes
   - id: mprotect
     description: Memory protection modification (mprotect/VirtualProtect)
     criticality: notable
     confidence: 0.85
-    condition:
-      type: yara
-      source: |
-        rule mprotect_modify {
-          strings:
-            $mp1 = "mprotect" ascii fullword
-            $mp2 = "VirtualProtect" ascii wide fullword
-            $mp3 = "VirtualProtectEx" ascii wide fullword
-            $prot1 = "PROT_WRITE" ascii fullword
-            $prot2 = "PROT_EXEC" ascii fullword
-            $prot3 = "PAGE_EXECUTE_READWRITE" ascii wide fullword
-          condition:
-            any of ($mp*) or any of ($prot*)
-        }
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: mprotect-unix
+      - type: trait
+        id: virtualprotect-win
+      - type: trait
+        id: virtualprotectex-win
+      - type: trait
+        id: prot-write
+      - type: trait
+        id: prot-exec
+      - type: trait
+        id: page-rwx
 
   # Self-overwriting code
   - id: self-overwrite
     description: Self-overwriting code patterns
     criticality: suspicious
     confidence: 0.8
-    condition:
-      type: yara
-      source: |
-        rule self_overwrite {
-          strings:
-            $proc_self = "/proc/self/mem" ascii
-            $proc_maps = "/proc/self/maps" ascii
-            $write_mem = "WriteProcessMemory" ascii wide fullword
-            $patch = "self-patch" ascii nocase
-          condition:
-            $proc_self or ($proc_maps and any of ($write_mem, $patch))
-        }
+    requires_any:
+      - type: trait
+        id: proc-self-mem
+    requires_all:
+      - type: trait
+        id: proc-self-maps
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: writeprocessmemory
+      - type: trait
+        id: self-patch-ref
 
   # Code cave injection
   - id: code-cave
     description: Code cave or slack space usage
     criticality: suspicious
     confidence: 0.75
-    condition:
-      type: yara
-      source: |
-        rule code_cave {
-          strings:
-            $cave1 = "codecave" ascii nocase
-            $cave2 = "code cave" ascii nocase
-            $slack = "slack space" ascii nocase
-            $nop_sled = { 90 90 90 90 90 90 90 90 }
-          condition:
-            any of ($cave*, $slack) or $nop_sled
-        }
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: codecave-ref
+      - type: trait
+        id: slack-space-ref
+      - type: trait
+        id: nop-sled
 
   # Hook installation
   - id: hook-install
     description: Dynamic interposition hook patterns
     criticality: notable
     confidence: 0.7
-    condition:
-      type: yara
-      source: |
-        rule hook_patterns {
-          strings:
-            $hook1 = "SetWindowsHookEx" ascii wide fullword
-            $hook2 = "inline hook" ascii nocase
-            $hook3 = "detour" ascii nocase
-            $hook4 = "trampoline" ascii nocase
-            $hook5 = "LD_PRELOAD" ascii fullword
-            $hook6 = "DYLD_INSERT_LIBRARIES" ascii fullword
-          condition:
-            any of them
-        }
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: setwindowshook
+      - type: trait
+        id: inline-hook-ref
+      - type: trait
+        id: detour-ref
+      - type: trait
+        id: trampoline-ref
+      - type: trait
+        id: ld-preload
+      - type: trait
+        id: dyld-insert
 
-  # Import Address Table modification
+  # IAT/GOT hooking
   - id: iat-hook
     description: Import Address Table hooking
     criticality: suspicious
     confidence: 0.85
-    condition:
-      type: yara
-      source: |
-        rule iat_hook {
-          strings:
-            $iat1 = "IMAGE_IMPORT_DESCRIPTOR" ascii
-            $iat2 = "ImportAddressTable" ascii
-            $iat3 = "IAT" ascii fullword
-            $got1 = ".got.plt" ascii
-            $got2 = "GOT" ascii fullword
-          condition:
-            any of ($iat*) or any of ($got*)
-        }
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: import-descriptor
+      - type: trait
+        id: import-address-table
+      - type: trait
+        id: iat-ref
+      - type: trait
+        id: got-plt-section
+      - type: trait
+        id: got-ref
 
   # Polymorphic/metamorphic indicators
   - id: polymorphic
     description: Polymorphic or metamorphic code indicators
     criticality: suspicious
     confidence: 0.75
-    condition:
-      type: yara
-      source: |
-        rule polymorphic_code {
-          strings:
-            $poly1 = "polymorphic" ascii nocase
-            $poly2 = "metamorphic" ascii nocase
-            $poly3 = "self-modifying" ascii nocase
-            $xor_loop = { 30 ?? 4? 83 ?? ?? 7? }
-          condition:
-            any of ($poly*) or $xor_loop
-        }
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: polymorphic-ref
+      - type: trait
+        id: metamorphic-ref
+      - type: trait
+        id: self-modifying-ref
+      - type: trait
+        id: xor-loop-pattern
 
-composite_rules:
   # Active self-modification
   - id: active
     description: Active self-modification behavior
@@ -127,9 +359,9 @@ composite_rules:
     confidence: 0.9
     requires_all:
       - type: trait
-        id: mprotect
+        id: anti-analysis/self-modify/mprotect
     requires_any:
       - type: trait
-        id: self-overwrite
+        id: anti-analysis/self-modify/self-overwrite
       - type: trait
-        id: hook-install
+        id: anti-analysis/self-modify/hook-install

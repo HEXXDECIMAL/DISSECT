@@ -2,24 +2,75 @@
 # MBC: C0011 (DNS Communication)
 # ATT&CK: T1071.004
 
+defaults:
+  mbc: "C0011"
+  attack: "T1071.004"
+
 traits:
+  - id: doh-provider
+    description: DoH provider class reference
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "doh.Provider"
+
+  - id: doh-class
+    description: DnsOverHttps class reference
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: DnsOverHttps
+
+  - id: doh-content-type
+    description: DoH content type header
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: application/dns-message
+
+  - id: doh-query-path
+    description: DoH dns-query path
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: dns-query
+
+  - id: doh-cloudflare-ip
+    description: Cloudflare DoH IP endpoint
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      exact: 9.9.9.9/dns-query
+
+  - id: doh-google-ip
+    description: Google DoH IP endpoint
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      exact: 8.8.8.8/dns-query
+
+composite_rules:
   - id: doh
     description: DNS over HTTPS support
     criticality: notable
     confidence: 0.66
-    mbc: "C0011"
-    attack: "T1071.004"
-    condition:
-      type: yara
-      source: |
-        rule doh {
-          strings:
-            $provider = "doh.Provider"
-            $class = "DnsOverHttps"
-            $content = "application/dns-message"
-            $url = "dns-query"
-            $cloudflare = "9.9.9.9/dns-query"
-            $google = "8.8.8.8/dns-query"
-          condition:
-            any of them
-        }
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: doh-provider
+      - type: trait
+        id: doh-class
+      - type: trait
+        id: doh-content-type
+      - type: trait
+        id: doh-query-path
+      - type: trait
+        id: doh-cloudflare-ip
+      - type: trait
+        id: doh-google-ip

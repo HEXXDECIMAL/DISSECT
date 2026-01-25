@@ -71,7 +71,61 @@ traits:
       type: string
       regex: 'new URLSearchParams\('
 
+  # HTTP request patterns for exfiltration detection (atomic)
+  - id: node-http-req
+    description: http.request method
+    criticality: inert
+    confidence: 0.5
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "http.request"
+
+  - id: node-https-req
+    description: https.request method
+    criticality: inert
+    confidence: 0.5
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "https.request"
+
+  - id: node-axios
+    description: axios library
+    criticality: inert
+    confidence: 0.5
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "axios"
+
+  - id: node-fetch-call
+    description: fetch() call
+    criticality: inert
+    confidence: 0.5
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "fetch("
+
 composite_rules:
+  # HTTP request composite
+  - id: node-http-request
+    description: HTTP request capable of sending data
+    criticality: notable
+    confidence: 0.75
+    file_types: [javascript, typescript]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: node-http-req
+      - type: trait
+        id: node-https-req
+      - type: trait
+        id: node-axios
+      - type: trait
+        id: node-fetch-call
+
   # Encode then exfil pattern
   - id: node-encode-exfil
     description: Encodes data then sends via HTTP (exfiltration)
@@ -80,6 +134,6 @@ composite_rules:
     attack: "T1041"
     requires_all:
       - type: trait
-        id: exfil/encoding/node-base64-encode
-      - type: string
-        regex: 'http\.request|https\.request|axios|fetch\('
+        id: node-base64-encode
+      - type: trait
+        id: comm/http/request/node-http-request

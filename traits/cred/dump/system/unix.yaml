@@ -2,7 +2,7 @@
 # MBC: E1003 (OS Credential Dumping)
 # ATT&CK: T1003 (OS Credential Dumping)
 
-composite_rules:
+traits:
   # === Atomic: Password Database Functions ===
 
   - id: getpwnam
@@ -80,6 +80,7 @@ composite_rules:
       type: string
       exact: "/etc/master.passwd"
 
+composite_rules:
   - id: shadow-extraction
     description: Shadow file credential extraction
     criticality: suspicious

@@ -1,0 +1,140 @@
+# Compiled AppleScript Application Automation Detection
+# Detects which applications are targeted by compiled AppleScript
+# ATT&CK: T1059.002 (AppleScript)
+
+defaults:
+  file_types: [applescript]
+  platforms: [macos]
+  attack: "T1059.002"
+
+traits:
+  # ============================================
+  # Common Applications (inert)
+  # ============================================
+  - id: finder
+    description: "Targets Finder"
+    criticality: inert
+    confidence: 0.95
+    condition:
+      type: symbol
+      exact: "Finder"
+
+  # ============================================
+  # System Applications (notable)
+  # ============================================
+  - id: system-settings
+    description: "Targets System Settings"
+    criticality: notable
+    confidence: 0.9
+    attack: "T1082"
+    condition:
+      type: symbol
+      exact: "System Settings"
+
+  - id: system-preferences
+    description: "Targets System Preferences"
+    criticality: notable
+    confidence: 0.9
+    attack: "T1082"
+    condition:
+      type: symbol
+      exact: "System Preferences"
+
+  - id: system-events
+    description: "Targets System Events"
+    criticality: notable
+    confidence: 0.9
+    condition:
+      type: symbol
+      exact: "System Events"
+
+  - id: safari
+    description: "Targets Safari"
+    criticality: notable
+    confidence: 0.85
+    attack: "T1185"
+    condition:
+      type: symbol
+      exact: "Safari"
+
+  # ============================================
+  # Sensitive Applications (suspicious)
+  # ============================================
+  - id: terminal
+    description: "Targets Terminal"
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1059.004"
+    condition:
+      type: symbol
+      exact: "Terminal"
+
+  - id: keychain-access
+    description: "Targets Keychain Access"
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1555.001"
+    condition:
+      type: symbol
+      exact: "Keychain Access"
+
+  - id: security-agent
+    description: "Targets Security Agent"
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1548"
+    condition:
+      type: symbol
+      exact: "SecurityAgent"
+
+composite_rules:
+  # ============================================
+  # System Settings Automation
+  # ============================================
+  - id: automates-settings
+    description: "Automates System Settings/Preferences"
+    criticality: notable
+    confidence: 0.85
+    file_types: [applescript]
+    requires_any:
+      - {type: trait, id: system-settings}
+      - {type: trait, id: system-preferences}
+
+  # ============================================
+  # Terminal Automation
+  # ============================================
+  - id: automates-terminal
+    description: "Automates Terminal application"
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1059.004"
+    file_types: [applescript]
+    requires_all:
+      - {type: trait, id: terminal}
+    requires_any:
+      - {type: trait, id: exec/command/do-script}
+      - {type: trait, id: exec/command/activate}
+
+  # ============================================
+  # Keychain Access
+  # ============================================
+  - id: accesses-keychain
+    description: "Interacts with Keychain Access"
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1555.001"
+    file_types: [applescript]
+    requires_all:
+      - {type: trait, id: keychain-access}
+
+  # ============================================
+  # Shell + Settings (suspicious combo)
+  # ============================================
+  - id: shell-with-settings
+    description: "Shell execution with System Settings automation"
+    criticality: suspicious
+    confidence: 0.85
+    file_types: [applescript]
+    requires_all:
+      - {type: trait, id: automates-settings}
+      - {type: trait, id: exec/command/shell-execution}

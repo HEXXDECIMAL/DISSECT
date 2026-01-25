@@ -1,52 +1,202 @@
 # Impact - EDR/Antivirus Degradation
 # ATT&CK: T1562.001 (Impair Defenses: Disable or Modify Tools)
 
+defaults:
+  attack: "T1562.001"
+
 traits:
   - id: stopper
     description: EDR/Antivirus service stopper
     criticality: suspicious
     confidence: 0.95
-    attack: "T1562.001"
     file_types: [pe, shell]
     condition:
       type: string
       exact: "stopservice"
 
+  - id: terminate-process-api
+    description: Windows TerminateProcess API call
+    criticality: notable
+    confidence: 0.85
+    file_types: [pe]
+    condition:
+      type: string
+      exact: "TerminateProcess"
+
+  # === EDR/AV process termination verbs (atomic) ===
+  - id: kill-keyword
+    description: kill keyword
+    criticality: inert
+    confidence: 0.4
+    file_types: [elf, pe]
+    condition:
+      type: string
+      exact: "kill"
+
+  - id: terminate-keyword
+    description: terminate keyword
+    criticality: inert
+    confidence: 0.4
+    file_types: [elf, pe]
+    condition:
+      type: string
+      exact: "terminate"
+
+  # === EDR/AV product names (atomic) ===
+  - id: defender-name
+    description: Windows Defender reference
+    criticality: inert
+    confidence: 0.5
+    file_types: [pe, elf]
+    condition:
+      type: string
+      exact: defender
+      case_insensitive: true
+
+  - id: malwarebytes-name
+    description: Malwarebytes reference
+    criticality: inert
+    confidence: 0.5
+    file_types: [pe, elf]
+    condition:
+      type: string
+      exact: malwarebytes
+      case_insensitive: true
+
+  - id: kaspersky-name
+    description: Kaspersky reference
+    criticality: inert
+    confidence: 0.5
+    file_types: [pe, elf]
+    condition:
+      type: string
+      exact: kaspersky
+      case_insensitive: true
+
+  - id: bitdefender-name
+    description: Bitdefender reference
+    criticality: inert
+    confidence: 0.5
+    file_types: [pe, elf]
+    condition:
+      type: string
+      exact: bitdefender
+      case_insensitive: true
+
+  - id: avast-name
+    description: Avast reference
+    criticality: inert
+    confidence: 0.5
+    file_types: [pe, elf]
+    condition:
+      type: string
+      exact: avast
+      case_insensitive: true
+
+  - id: norton-name
+    description: Norton reference
+    criticality: inert
+    confidence: 0.5
+    file_types: [pe, elf]
+    condition:
+      type: string
+      exact: norton
+      case_insensitive: true
+
+  - id: mcafee-name
+    description: McAfee reference
+    criticality: inert
+    confidence: 0.5
+    file_types: [pe, elf]
+    condition:
+      type: string
+      exact: mcafee
+      case_insensitive: true
+
+  - id: sophos-name
+    description: Sophos reference
+    criticality: inert
+    confidence: 0.5
+    file_types: [pe, elf]
+    condition:
+      type: string
+      exact: sophos
+      case_insensitive: true
+
+  - id: eset-name
+    description: ESET reference
+    criticality: inert
+    confidence: 0.5
+    file_types: [pe, elf]
+    condition:
+      type: string
+      exact: eset
+      case_insensitive: true
+
+composite_rules:
+  # EDR/AV product names composite
+  - id: edr-product-name
+    description: EDR/Antivirus product name reference
+    criticality: notable
+    confidence: 0.8
+    file_types: [pe, elf]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: defender-name
+      - type: trait
+        id: malwarebytes-name
+      - type: trait
+        id: kaspersky-name
+      - type: trait
+        id: bitdefender-name
+      - type: trait
+        id: avast-name
+      - type: trait
+        id: norton-name
+      - type: trait
+        id: mcafee-name
+      - type: trait
+        id: sophos-name
+      - type: trait
+        id: eset-name
+
+  # EDR termination verbs composite
+  - id: termination-verbs
+    description: Process termination verbs
+    criticality: inert
+    confidence: 0.5
+    file_types: [elf, pe]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: kill-keyword
+      - type: trait
+        id: terminate-keyword
+
+  # EDR process termination (verb + product name)
   - id: kill
     description: EDR process termination
     criticality: suspicious
     confidence: 0.9
-    attack: "T1562.001"
     file_types: [elf, pe]
-    condition:
-      type: string
-      regex: "(?i)(kill|terminate).*(defender|malwarebytes|kaspersky|avast|norton|mcafee|bitdefender|eset|sophos)"
+    requires_all:
+      - type: composite
+        id: termination-verbs
+      - type: composite
+        id: edr-product-name
 
-composite_rules:
   - id: bypass-detected
     description: EDR/Antivirus bypass attempt
     criticality: suspicious
     confidence: 0.95
-    attack: "T1562.001"
     mbc: "F0004"
     file_types: [pe, elf]
-    condition:
-      type: yara
-      source: |
-        rule edr_bypass {
-          strings:
-            $stop = "stopservice" nocase
-            $kill = "TerminateProcess"
-            $edr1 = "malwarebytes" nocase
-            $edr2 = "defender" nocase
-            $edr3 = "kaspersky" nocase
-            $edr4 = "bitdefender" nocase
-            $edr5 = "avast" nocase
-            $edr6 = "norton" nocase
-            $edr7 = "mcafee" nocase
-            $edr8 = "sophos" nocase
-            $edr9 = "eset" nocase
-          condition:
-            filesize < 5MB and
-            any of ($stop, $kill) and any of ($edr*)
-        }
+    requires_any:
+      - type: trait
+        id: stopper
+      - type: trait
+        id: terminate-process-api
+    requires_all:
+      - type: composite
+        id: edr-product-name

@@ -44,6 +44,35 @@ traits:
       type: string
       regex: "0x[Cc]000007[Bb]|3221226363"
 
+  # ntdll library reference
+  - id: ntdll-reference
+    description: Reference to ntdll library
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "ntdll|windll\\.ntdll"
+
+  # Python ctypes import
+  - id: ctypes-import
+    description: Python ctypes import statement
+    criticality: notable
+    confidence: 0.6
+    file_types: [python]
+    condition:
+      type: string
+      exact: "from ctypes import"
+
+  # windll reference
+  - id: windll-reference
+    description: Python windll reference
+    criticality: notable
+    confidence: 0.6
+    file_types: [python]
+    condition:
+      type: string
+      exact: "windll"
+
 composite_rules:
   # Full BSOD trigger pattern
   - id: bsod-trigger
@@ -95,3 +124,51 @@ composite_rules:
             $ctypes and $windll and $ntdll and
             ($raise or $adjust)
         }
+
+  # BSOD trigger via trait references (NtRaiseHardError path)
+  - id: bsod-raise-error
+    description: BSOD via NtRaiseHardError API call
+    criticality: hostile
+    confidence: 0.99
+    attack: "T1499.004"
+    mbc: "B0033"
+    requires_all:
+      - type: trait
+        id: ntdll-reference
+      - type: trait
+        id: nt-raise-hard-error
+
+  # BSOD trigger via trait references (RtlAdjustPrivilege path)
+  - id: bsod-adjust-privilege
+    description: BSOD via privilege adjustment with status code
+    criticality: hostile
+    confidence: 0.98
+    attack: "T1499.004"
+    mbc: "B0033"
+    requires_all:
+      - type: trait
+        id: ntdll-reference
+      - type: trait
+        id: rtl-adjust-privilege
+      - type: trait
+        id: status-assertion-failure
+
+  # Python BSOD via trait references
+  - id: python-bsod-traits
+    description: Python BSOD trigger via ctypes (trait-based)
+    criticality: hostile
+    confidence: 0.99
+    file_types: [python]
+    attack: "T1499.004"
+    requires_all:
+      - type: trait
+        id: ctypes-import
+      - type: trait
+        id: windll-reference
+      - type: trait
+        id: ntdll-reference
+    requires_any:
+      - type: trait
+        id: nt-raise-hard-error
+      - type: trait
+        id: rtl-adjust-privilege

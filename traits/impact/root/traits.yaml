@@ -21,6 +21,16 @@ traits:
           (#eq? @val "0")
           (#match? @field "^(uid|gid|euid|egid|suid|sgid|fsuid|fsgid|val)$"))
 
+  - id: prepare-creds-string
+    description: "Reference to prepare_creds kernel function for credential preparation"
+    criticality: notable
+    confidence: 0.8
+    file_types: [c]
+    platforms: [linux]
+    condition:
+      type: string
+      exact: "prepare_creds"
+
 composite_rules:
   # Dummy Test Rule
   - id: test-dummy-rule
@@ -28,8 +38,8 @@ composite_rules:
     criticality: hostile
     confidence: 1.0
     requires_all:
-      - type: string
-        exact: "prepare_creds"
+      - type: trait
+        id: impact/root/prepare-creds-string
 
   # Become Root Flow
   - id: my-become-root
@@ -38,8 +48,8 @@ composite_rules:
     confidence: 1.0
     attack: "T1068"
     requires_all:
-      - type: string
-        exact: "prepare_creds"
+      - type: trait
+        id: impact/root/prepare-creds-string
       - type: trait
         id: kernel/rootkit/prepare-creds-call
       - type: trait

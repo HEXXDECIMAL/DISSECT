@@ -75,6 +75,22 @@ traits:
       type: string
       exact: "/System/Library/PrivateFrameworks"
 
+  - id: system-framework
+    description: Apple system framework path
+    criticality: inert
+    confidence: 0.85
+    condition:
+      type: string
+      exact: "/System/Library/Frameworks"
+
+  - id: launchd-plist
+    description: launchd plist embedding
+    criticality: inert
+    confidence: 0.85
+    condition:
+      type: string
+      exact: "launchd.plist"
+
   # === IPC Mechanisms ===
 
   # === Dispatch (GCD) ===
@@ -101,30 +117,69 @@ traits:
       pattern: "dispatch_source_create"
 
 composite_rules:
+  # Helper: Any Apple framework path detected
+  - id: any-framework
+    description: Any Apple framework path (system or private)
+    criticality: inert
+    confidence: 0.85
+    platforms: [macos]
+    file_types: [macho]
+    requires_any:
+      - type: trait
+        id: system-framework
+      - type: trait
+        id: private-framework
+
+  # Bundle + Project combination
+  - id: bundle-and-project
+    description: Apple bundle identifier with project marker
+    criticality: inert
+    confidence: 0.95
+    platforms: [macos]
+    file_types: [macho]
+    requires_all:
+      - type: trait
+        id: bundle-id
+      - type: trait
+        id: project-marker
+
+  # Bundle + Framework combination
+  - id: bundle-and-framework
+    description: Apple bundle identifier with framework path
+    criticality: inert
+    confidence: 0.9
+    platforms: [macos]
+    file_types: [macho]
+    requires_all:
+      - type: trait
+        id: bundle-id
+      - type: trait
+        id: any-framework
+
+  # Project + Framework combination
+  - id: project-and-framework
+    description: Apple project marker with framework path
+    criticality: inert
+    confidence: 0.9
+    platforms: [macos]
+    file_types: [macho]
+    requires_all:
+      - type: trait
+        id: project-marker
+      - type: trait
+        id: any-framework
+
+  # Main composite: Any valid combination
   - id: system-component
     description: Apple system component (legitimate macOS binary)
     criticality: inert
     confidence: 0.95
     platforms: [macos]
     file_types: [macho]
-    condition:
-      type: yara
-      source: |
-        rule apple_system_component {
-          meta:
-            description = "Legitimate Apple macOS system component"
-          strings:
-            // Bundle identifier
-            $bundle = /com\.apple\.[a-z][a-z0-9.-]+/ ascii
-            // Project marker
-            $project = /@\(#\)PROGRAM:\w+\s+PROJECT:\w+-\d+/ ascii
-            // Common Apple framework paths
-            $framework1 = "/System/Library/Frameworks" ascii
-            $framework2 = "/System/Library/PrivateFrameworks" ascii
-            // launchd plist embedding
-            $launchd = "launchd.plist" ascii
-          condition:
-            ($bundle and $project) or
-            ($bundle and any of ($framework*)) or
-            ($project and any of ($framework*))
-        }
+    requires_any:
+      - type: trait
+        id: bundle-and-project
+      - type: trait
+        id: bundle-and-framework
+      - type: trait
+        id: project-and-framework

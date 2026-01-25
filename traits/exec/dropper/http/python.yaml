@@ -8,6 +8,129 @@ defaults:
   attack: "T1105"
   criticality: suspicious
 
+traits:
+  # HTTP library patterns
+  - id: python-http-lib
+    description: "Python HTTP library usage"
+    criticality: notable
+    confidence: 0.6
+    condition:
+      type: string
+      regex: "requests\\.(get|post)|urllib\\.request|http\\.client"
+
+  - id: python-http-download-call
+    description: "Python HTTP download function call"
+    criticality: notable
+    confidence: 0.6
+    condition:
+      type: string
+      regex: "requests\\.(get|post)\\(|urllib\\.request\\.(urlopen|urlretrieve)"
+
+  - id: python-http-download-generic
+    description: "Python HTTP download (generic)"
+    criticality: notable
+    confidence: 0.6
+    condition:
+      type: string
+      regex: "requests\\.(get|post)\\(|urllib\\.request|urlopen\\("
+
+  - id: python-http-requests-call
+    description: "Python requests library call"
+    criticality: notable
+    confidence: 0.6
+    condition:
+      type: string
+      regex: "requests\\.(get|post)\\("
+
+  # Directory patterns
+  - id: python-tmp-dir
+    description: "Temporary directory access"
+    criticality: notable
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '"/tmp/|tempfile\\.'
+
+  - id: python-home-dir
+    description: "Home directory access"
+    criticality: notable
+    confidence: 0.5
+    condition:
+      type: string
+      regex: 'os\\.path\\.expanduser\\([^)]*~|Path\\.home\\(\\)|os\\.environ.*HOME'
+
+  # File operations
+  - id: python-chmod
+    description: "File permission change"
+    criticality: notable
+    confidence: 0.5
+    condition:
+      type: string
+      regex: "os\\.chmod\\("
+
+  - id: python-write-binary
+    description: "Binary file write"
+    criticality: notable
+    confidence: 0.5
+    condition:
+      type: string
+      regex: "open\\([^)]+['\"]wb['\"]\\)|write_bytes\\("
+
+  - id: python-write-content
+    description: "Write downloaded content to file"
+    criticality: notable
+    confidence: 0.6
+    condition:
+      type: string
+      regex: "\\.write\\([^)]*\\.content\\)|write_bytes\\("
+
+  # Execution patterns
+  - id: python-subprocess-exec
+    description: "Subprocess execution"
+    criticality: notable
+    confidence: 0.5
+    condition:
+      type: string
+      regex: "subprocess\\.(Popen|run|call)\\("
+
+  - id: python-exec-any
+    description: "Code or process execution"
+    criticality: notable
+    confidence: 0.5
+    condition:
+      type: string
+      regex: "subprocess\\.(Popen|run|call)\\(|os\\.system\\(|exec\\("
+
+  # Multi-request pattern
+  - id: python-http-multi-request
+    description: "Multiple HTTP requests"
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "requests\\.(get|post)\\("
+      min_count: 2
+
+  # Single traits for component detection
+  - id: python-http-download
+    description: "HTTP content download"
+    confidence: 0.7
+    criticality: notable
+    condition:
+      type: string
+      regex: "requests\\.(get|post)\\([^)]+\\)\\.content"
+
+  - id: python-endpoint-path
+    description: "Suspicious C2 endpoint paths (payload, brow, mclip)"
+    confidence: 0.85
+    criticality: suspicious
+    attack: "T1105"
+    condition:
+      type: string
+      # Paths like /payload/, /brow/, /mclip/ etc - the actual URL paths
+      regex: "/(payload|stage|drop|brow|mclip|clip|steal|grab|exfil)/"
+      search_raw: true
+
 composite_rules:
   # Original rule - tmp directory dropper
   - id: tmp-dropper
@@ -15,14 +138,14 @@ composite_rules:
     confidence: 0.9
     requires_count: 3
     conditions:
-      - type: string
-        regex: "requests\\.(get|post)|urllib\\.request|http\\.client"
-      - type: string
-        regex: '"/tmp/|tempfile\\.'
-      - type: string
-        regex: "os\\.chmod\\("
-      - type: string
-        regex: "subprocess\\.(Popen|run|call)\\("
+      - type: trait
+        id: python-http-lib
+      - type: trait
+        id: python-tmp-dir
+      - type: trait
+        id: python-chmod
+      - type: trait
+        id: python-subprocess-exec
 
   # Home directory dropper - downloads to hidden dir in home
   - id: home-dropper
@@ -31,44 +154,35 @@ composite_rules:
     criticality: suspicious
     requires_count: 3
     conditions:
-      - type: string
-        # HTTP download
-        regex: "requests\\.(get|post)\\(|urllib\\.request\\.(urlopen|urlretrieve)"
-      - type: string
-        # Home directory access
-        regex: 'os\\.path\\.expanduser\\([^)]*~|Path\\.home\\(\\)|os\\.environ.*HOME'
-      - type: string
-        # File write (binary)
-        regex: "open\\([^)]+['\"]wb['\"]\\)|write_bytes\\("
-      - type: string
-        # Execute
-        regex: "subprocess\\.(Popen|run|call)\\(|os\\.system\\(|exec\\("
+      - type: trait
+        id: python-http-download-call
+      - type: trait
+        id: python-home-dir
+      - type: trait
+        id: python-write-binary
+      - type: trait
+        id: python-exec-any
 
   # Generic download + write + execute (any location)
   - id: generic-dropper
     description: "Download, write, and execute pattern"
     confidence: 0.9
     requires_all:
-      - type: string
-        # HTTP download
-        regex: "requests\\.(get|post)\\(|urllib\\.request|urlopen\\("
-      - type: string
-        # Write content to file
-        regex: "\\.write\\([^)]*\\.content\\)|write_bytes\\("
-      - type: string
-        # Execute the written file
-        regex: "subprocess\\.(Popen|run|call)\\("
+      - type: trait
+        id: python-http-download-generic
+      - type: trait
+        id: python-write-content
+      - type: trait
+        id: python-subprocess-exec
 
   # Multi-payload dropper - downloads multiple files
   - id: multi-payload
     description: "Multi-payload dropper (downloads multiple files)"
     confidence: 0.95
     criticality: suspicious
-    condition:
-      type: string
-      # Multiple requests.get or similar patterns
-      regex: "requests\\.(get|post)\\("
-      min_count: 2
+    requires_all:
+      - type: trait
+        id: python-http-multi-request
 
   # Staged dropper - download function called multiple times
   - id: staged-dropper
@@ -91,24 +205,3 @@ composite_rules:
             #$download >= 2 or
             ($requests and $write and $popen and #$payload >= 2)
         }
-
-traits:
-  # Single traits for component detection
-  - id: python-http-download
-    description: "HTTP content download"
-    confidence: 0.7
-    criticality: notable
-    condition:
-      type: string
-      regex: "requests\\.(get|post)\\([^)]+\\)\\.content"
-
-  - id: python-endpoint-path
-    description: "Suspicious C2 endpoint paths (payload, brow, mclip)"
-    confidence: 0.85
-    criticality: suspicious
-    attack: "T1105"
-    condition:
-      type: string
-      # Paths like /payload/, /brow/, /mclip/ etc - the actual URL paths
-      regex: "/(payload|stage|drop|brow|mclip|clip|steal|grab|exfil)/"
-      search_raw: true

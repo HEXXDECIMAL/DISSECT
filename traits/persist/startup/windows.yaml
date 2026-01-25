@@ -89,6 +89,48 @@ traits:
       type: string
       regex: "__EventFilter|__FilterToConsumerBinding|CommandLineEventConsumer|ActiveScriptEventConsumer"
 
+  # Python winreg import pattern (for composite rules)
+  - id: windows-python-winreg-import
+    description: "Imports Python winreg module for registry access"
+    confidence: 0.7
+    criticality: notable
+    platforms: [windows]
+    file_types: [python]
+    condition:
+      type: string
+      regex: "import winreg|from winreg|_winreg"
+
+  # Registry Run key access pattern (for composite rules)
+  - id: windows-registry-run-access
+    description: "Accesses Windows registry Run key"
+    confidence: 0.8
+    criticality: notable
+    platforms: [windows]
+    condition:
+      type: string
+      regex: "CurrentVersion\\\\Run|OpenKey.*HKEY.*Run"
+
+  # Scheduled task creation pattern (for composite rules)
+  - id: windows-schtasks-create
+    description: "Creates Windows scheduled task"
+    confidence: 0.8
+    criticality: notable
+    attack: "T1053.005"
+    platforms: [windows]
+    condition:
+      type: string
+      regex: "schtasks.*create|ITaskScheduler"
+
+  # Executable payload pattern (for composite rules)
+  - id: windows-executable-payload
+    description: "References executable file types or interpreters"
+    confidence: 0.6
+    criticality: notable
+    platforms: [windows]
+    condition:
+      type: string
+      regex: "\\.exe|\\.bat|\\.ps1|\\.vbs|powershell|cmd\\.exe"
+
 composite_rules:
   # Python registry persistence pattern
   - id: windows-python-reg-persistence
@@ -100,10 +142,10 @@ composite_rules:
     platforms: [windows]
     file_types: [python]
     requires_all:
-      - type: string
-        regex: "import winreg|from winreg|_winreg"
-      - type: string
-        regex: "CurrentVersion\\\\Run|OpenKey.*HKEY.*Run"
+      - type: trait
+        id: windows-python-winreg-import
+      - type: trait
+        id: windows-registry-run-access
 
   # Scheduled task with suspicious payload
   - id: windows-schtasks-payload
@@ -114,7 +156,7 @@ composite_rules:
     mbc: "F0006"
     platforms: [windows]
     requires_all:
-      - type: string
-        regex: "schtasks.*create|ITaskScheduler"
-      - type: string
-        regex: "\\.exe|\\.bat|\\.ps1|\\.vbs|powershell|cmd\\.exe"
+      - type: trait
+        id: windows-schtasks-create
+      - type: trait
+        id: windows-executable-payload

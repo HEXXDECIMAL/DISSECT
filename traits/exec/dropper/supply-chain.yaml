@@ -124,43 +124,16 @@ traits:
             any of ($dl*) and any of ($zip*) and any of ($write*)
         }
 
-composite_rules:
-  # Full dropper chain: download -> extract -> execute
-  - id: full-chain
-    description: Complete archive dropper (download + extract + execute)
-    criticality: hostile
-    confidence: 0.98
-    attack: "T1105"
-    mbc: "B0024"
-    file_types: [javascript, typescript]
-    requires_all:
-      - type: trait
-        id: dropper/archive/download-zip
-      - type: trait
-        id: dropper/archive/exe-search
-      - type: trait
-        id: dropper/archive/extract-execute
-# Dropper Logic Detection
-# Detects the pattern of downloading, writing, and executing a file
-
-  - id: fetch-write-execute
-    description: "Complete dropper lifecycle (Fetch + Write + Execute)"
-    criticality: hostile
-    confidence: 0.98
-    mbc: "B0024"
-    attack: "T1105"
+  # Python execution call
+  - id: python-exec-call
+    description: Python execution via os.system, exec, or subprocess
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1059"
     file_types: [python]
-    requires_all:
-      - type: trait
-        id: comm/http/request/get
-      - type: trait
-        id: fs/file/write/generic
-      - type: string
-        regex: "os\\.system\\(|exec\\(|subprocess\\."
-# Supply Chain - Interpreter Dropper Patterns
-# Detects "bring your own interpreter" patterns where malware downloads
-# a standalone interpreter (Python, Node, etc.) to execute payloads
-# ATT&CK: T1059 (Command Execution), T1105 (Ingress Tool Transfer)
+    condition:
+      type: string
+      regex: "os\\.system\\(|exec\\(|subprocess\\."
 
   # Python-build-standalone download (commonly abused)
   - id: python-standalone
@@ -299,59 +272,15 @@ composite_rules:
             any of ($dl*) and any of ($interp*) and any of ($exec*) and any of ($exists*)
         }
 
-  # Full interpreter dropper: download + extract + stdin exec
-  - id: full-stager
-    description: Complete interpreter-based stager (download interpreter + execute payload)
-    criticality: hostile
-    confidence: 0.95
-    attack: "T1059"
-    mbc: "B0024"
+  # Base64 buffer operations
+  - id: base64-buffer
+    description: Base64 buffer operations
+    criticality: notable
+    confidence: 0.7
     file_types: [javascript, typescript]
-    requires_any:
-      - type: trait
-        id: python-standalone
-      - type: trait
-        id: node-standalone
-    requires_all:
-      - type: trait
-        id: stdin-exec
-      - type: trait
-        id: stream-tar-extract
-
-  # Download interpreter + remote payload fetch + execute
-  - id: remote-payload-stager
-    description: Downloads interpreter and fetches remote payload for execution
-    criticality: hostile
-    confidence: 0.95
-    attack: "T1105"
-    mbc: "B0024"
-    file_types: [javascript, typescript]
-    requires_all:
-      - type: trait
-        id: download-and-exec
-      - type: trait
-        id: stdin-exec
-      - type: string
-        regex: "Buffer\\.from.*base64|atob\\(|btoa\\("
-
-  # Python stager with obfuscated payload URL
-  - id: python-obfuscated-stager
-    description: Python dropper with obfuscated payload URL (npm malware pattern)
-    criticality: hostile
-    confidence: 0.95
-    attack: "T1105"
-    mbc: "B0024"
-    file_types: [javascript, typescript]
-    requires_all:
-      - type: trait
-        id: python-standalone
-      - type: trait
-        id: stdin-exec
-      - type: trait
-        id: hex-url-array
-# Supply Chain - Node.js Dropper Patterns
-# Detects JavaScript/Node.js dropper patterns in npm packages
-# ATT&CK: T1105 (Ingress Tool Transfer), T1059 (Command Execution)
+    condition:
+      type: string
+      regex: "Buffer\\.from.*base64|atob\\(|btoa\\("
 
   # Download and write file (https.get/request with fs.write)
   - id: download-file
@@ -443,59 +372,25 @@ composite_rules:
       type: string
       regex: "password:\\s*['\"][^'\"]+['\"]"
 
-  # Full dropper lifecycle: download + extract + execute
-  - id: full-dropper
-    description: Complete Node.js dropper (download + extract + execute)
-    criticality: hostile
-    confidence: 0.98
-    attack: "T1105"
-    mbc: "B0024"
+  # Spawn or exec call
+  - id: spawn-exec-call
+    description: Spawn or exec function call
+    criticality: notable
+    confidence: 0.7
     file_types: [javascript, typescript]
-    requires_all:
-      - type: trait
-        id: dropper/node/download-file
-      - type: trait
-        id: dropper/node/archive-extract
-      - type: string
-        regex: "spawn\\(|exec\\(|execFile\\("
+    condition:
+      type: string
+      regex: "spawn\\(|exec\\(|execFile\\("
 
-  # Download and detached execute
-  - id: download-detached-exec
-    description: Download file and execute detached (stealth dropper)
-    criticality: hostile
-    confidence: 0.95
-    attack: "T1105"
-    mbc: "B0024"
-    file_types: [javascript, typescript]
-    requires_all:
-      - type: trait
-        id: dropper/node/download-file
-      - type: trait
-        id: dropper/node/detached-spawn
-      - type: trait
-        id: dropper/node/exec-downloaded
-# JScript/VBScript Dropper Composite Rules
-# Detects combinations of ActiveX usage typical of droppers/downloaders
-# ATT&CK: T1105 (Ingress Tool Transfer)
-
-  # ActiveXObject + WScript.Shell/ADODB.Stream/XMLHTTP (Classic Dropper)
-  - id: activex-dropper
-    description: "Classic JScript/VBScript dropper pattern (ActiveXObject + Shell/Network)"
-    criticality: hostile
-    confidence: 0.95
-    attack: "T1105"
-    mbc: "B0024"
+  # WScript.Shell or XMLHTTP
+  - id: wscript-xmlhttp
+    description: WScript.Shell or XMLHTTP object usage
+    criticality: suspicious
+    confidence: 0.85
     file_types: [javascript]
-    requires_all:
-      - type: trait
-        id: dropper/builder/activex-object
-      - type: trait
-        id: dropper/builder/adodb-stream
-      - type: string
-        regex: "WScript\\.Shell|MSXML2\\.XMLHTTP|Microsoft\\.XMLHTTP"
-# Supply Chain - Dropper/Packer Builder
-# Tools that convert executables into obfuscated droppers
-# ATT&CK: T1027.002 (Software Packing)
+    condition:
+      type: string
+      regex: "WScript\\.Shell|MSXML2\\.XMLHTTP|Microsoft\\.XMLHTTP"
 
   # Batch file generation (echo >> pattern)
   - id: batch-echo
@@ -660,3 +555,135 @@ composite_rules:
             $marshal and $exec and
             ($loads or $compressed)
         }
+
+composite_rules:
+  # Full dropper chain: download -> extract -> execute
+  - id: full-chain
+    description: Complete archive dropper (download + extract + execute)
+    criticality: hostile
+    confidence: 0.98
+    attack: "T1105"
+    mbc: "B0024"
+    file_types: [javascript, typescript]
+    requires_all:
+      - type: trait
+        id: dropper/archive/download-zip
+      - type: trait
+        id: dropper/archive/exe-search
+      - type: trait
+        id: dropper/archive/extract-execute
+
+  # Complete dropper lifecycle (Fetch + Write + Execute)
+  - id: fetch-write-execute
+    description: "Complete dropper lifecycle (Fetch + Write + Execute)"
+    criticality: hostile
+    confidence: 0.98
+    mbc: "B0024"
+    attack: "T1105"
+    file_types: [python]
+    requires_all:
+      - type: trait
+        id: comm/http/request/get
+      - type: trait
+        id: fs/file/write/generic
+      - type: trait
+        id: python-exec-call
+
+  # Full interpreter dropper: download + extract + stdin exec
+  - id: full-stager
+    description: Complete interpreter-based stager (download interpreter + execute payload)
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1059"
+    mbc: "B0024"
+    file_types: [javascript, typescript]
+    requires_any:
+      - type: trait
+        id: python-standalone
+      - type: trait
+        id: node-standalone
+    requires_all:
+      - type: trait
+        id: stdin-exec
+      - type: trait
+        id: stream-tar-extract
+
+  # Download interpreter + remote payload fetch + execute
+  - id: remote-payload-stager
+    description: Downloads interpreter and fetches remote payload for execution
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1105"
+    mbc: "B0024"
+    file_types: [javascript, typescript]
+    requires_all:
+      - type: trait
+        id: download-and-exec
+      - type: trait
+        id: stdin-exec
+      - type: trait
+        id: base64-buffer
+
+  # Python stager with obfuscated payload URL
+  - id: python-obfuscated-stager
+    description: Python dropper with obfuscated payload URL (npm malware pattern)
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1105"
+    mbc: "B0024"
+    file_types: [javascript, typescript]
+    requires_all:
+      - type: trait
+        id: python-standalone
+      - type: trait
+        id: stdin-exec
+      - type: trait
+        id: hex-url-array
+
+  # Full dropper lifecycle: download + extract + execute
+  - id: full-dropper
+    description: Complete Node.js dropper (download + extract + execute)
+    criticality: hostile
+    confidence: 0.98
+    attack: "T1105"
+    mbc: "B0024"
+    file_types: [javascript, typescript]
+    requires_all:
+      - type: trait
+        id: dropper/node/download-file
+      - type: trait
+        id: dropper/node/archive-extract
+      - type: trait
+        id: spawn-exec-call
+
+  # Download and detached execute
+  - id: download-detached-exec
+    description: Download file and execute detached (stealth dropper)
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1105"
+    mbc: "B0024"
+    file_types: [javascript, typescript]
+    requires_all:
+      - type: trait
+        id: dropper/node/download-file
+      - type: trait
+        id: dropper/node/detached-spawn
+      - type: trait
+        id: dropper/node/exec-downloaded
+
+  # ActiveXObject + WScript.Shell/ADODB.Stream/XMLHTTP (Classic Dropper)
+  - id: activex-dropper
+    description: "Classic JScript/VBScript dropper pattern (ActiveXObject + Shell/Network)"
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1105"
+    mbc: "B0024"
+    file_types: [javascript]
+    requires_all:
+      - type: trait
+        id: dropper/builder/activex-object
+      - type: trait
+        id: dropper/builder/adodb-stream
+      - type: trait
+        id: wscript-xmlhttp

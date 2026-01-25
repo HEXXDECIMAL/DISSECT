@@ -53,22 +53,32 @@ traits:
       type: string
       regex: "cmd(\\.exe)?\\s*/[cC]\\s+start"
 
+  # Windows start command pattern (case insensitive)
+  - id: win-start-pattern
+    description: "Windows start command pattern"
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      iregex: "start\\s+"
+
+  # pip install command pattern
+  - id: pip-install-pattern
+    description: "pip install command pattern"
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      iregex: "pip\\s+install"
+
 composite_rules:
   # Background pip install on Windows (common malware pattern)
   - id: hidden-pip-install
     description: "Background pip install via Windows start command"
     criticality: suspicious
     confidence: 0.95
-    condition:
-      type: yara
-      source: |
-        rule windows_hidden_pip_install {
-          meta:
-            description = "Hidden pip install using Windows start command"
-          strings:
-            $start = /start\s+/ ascii nocase
-            $pip = /pip\s+install/ ascii nocase
-            $executable = /sys\.executable|python/ ascii
-          condition:
-            $start and $pip
-        }
+    requires_all:
+      - type: trait
+        id: win-start-pattern
+      - type: trait
+        id: pip-install-pattern

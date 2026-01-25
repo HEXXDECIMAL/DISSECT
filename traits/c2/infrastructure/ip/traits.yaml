@@ -8,7 +8,7 @@ defaults:
   attack: "T1071.001"
   criticality: suspicious
 
-composite_rules:
+traits:
   - id: hardcoded-ipv4
     description: "Hardcoded IPv4 address"
     confidence: 0.8
@@ -37,27 +37,36 @@ composite_rules:
       # HTTP(S) URL with strict IPv4 (no leading zeros)
       regex: "https?://(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])"
 
-  - id: private-ip-reference
-    description: "Private/internal IP address reference"
+  # === Private IP atomic indicators ===
+  - id: private-ip-10
+    description: "10.x.x.x Class A private IP"
     criticality: notable
     confidence: 0.75
-    mbc: none  # Override: not C2 related
+    mbc: none
     attack: none
     condition:
-      type: yara
-      # Use YARA for cleaner private IP detection with proper octet validation
-      source: |
-        rule private_ipv4 {
-          strings:
-            // 10.x.x.x - Class A private
-            $ten = /\b10\.([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\b/
-            // 172.16-31.x.x - Class B private
-            $oneseventwo = /\b172\.(1[6-9]|2[0-9]|3[01])\.([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\b/
-            // 192.168.x.x - Class C private
-            $onenine = /\b192\.168\.([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\b/
-          condition:
-            any of them
-        }
+      type: string
+      regex: '\b10\.(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\b'
+
+  - id: private-ip-172
+    description: "172.16-31.x.x Class B private IP"
+    criticality: notable
+    confidence: 0.75
+    mbc: none
+    attack: none
+    condition:
+      type: string
+      regex: '\b172\.(?:1[6-9]|2[0-9]|3[01])\.(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\b'
+
+  - id: private-ip-192
+    description: "192.168.x.x Class C private IP"
+    criticality: notable
+    confidence: 0.75
+    mbc: none
+    attack: none
+    condition:
+      type: string
+      regex: '\b192\.168\.(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\b'
 
   - id: ip-format-string
     description: "IP address format string (dynamic IP construction)"
@@ -89,6 +98,22 @@ composite_rules:
     condition:
       type: string
       regex: ":(?:23|80|443|8080|4444|1337|31337)\\b"
+
+composite_rules:
+  - id: private-ip-reference
+    description: "Private/internal IP address reference"
+    criticality: notable
+    confidence: 0.75
+    mbc: none
+    attack: none
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: private-ip-10
+      - type: trait
+        id: private-ip-172
+      - type: trait
+        id: private-ip-192
 
   - id: obfuscated-address
     description: "C2 address obfuscation (HTTP client + no visible IP)"

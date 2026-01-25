@@ -231,6 +231,24 @@ pub fn detect_file_type(file_path: &Path) -> Result<FileType> {
         if ext_str == "cs" {
             return Ok(FileType::CSharp);
         }
+        if ext_str == "swift" {
+            return Ok(FileType::Swift);
+        }
+        if matches!(ext_str, "m" | "mm") {
+            return Ok(FileType::ObjectiveC);
+        }
+        if matches!(ext_str, "groovy" | "gradle") {
+            return Ok(FileType::Groovy);
+        }
+        if matches!(ext_str, "scala" | "sc") {
+            return Ok(FileType::Scala);
+        }
+        if ext_str == "zig" {
+            return Ok(FileType::Zig);
+        }
+        if matches!(ext_str, "ex" | "exs") {
+            return Ok(FileType::Elixir);
+        }
         if ext_str == "scpt" || ext_str == "applescript" {
             return Ok(FileType::AppleScript);
         }
@@ -310,6 +328,12 @@ pub enum FileType {
     Lua,
     CSharp,
     PowerShell,
+    Swift,
+    ObjectiveC,
+    Groovy,
+    Scala,
+    Zig,
+    Elixir,
     C,
     PackageJson,  // npm package.json manifest
     VsixManifest, // VSCode extension.vsixmanifest
@@ -342,6 +366,12 @@ impl FileType {
             | FileType::Lua
             | FileType::CSharp
             | FileType::PowerShell
+            | FileType::Swift
+            | FileType::ObjectiveC
+            | FileType::Groovy
+            | FileType::Scala
+            | FileType::Zig
+            | FileType::Elixir
             | FileType::C
             | FileType::PackageJson
             | FileType::VsixManifest
@@ -376,6 +406,12 @@ impl FileType {
             FileType::Lua => vec!["lua"],
             FileType::CSharp => vec!["cs", "csharp"],
             FileType::PowerShell => vec!["ps1", "psm1", "psd1"],
+            FileType::Swift => vec!["swift"],
+            FileType::ObjectiveC => vec!["m", "mm", "objc"],
+            FileType::Groovy => vec!["groovy", "gradle"],
+            FileType::Scala => vec!["scala", "sc"],
+            FileType::Zig => vec!["zig"],
+            FileType::Elixir => vec!["ex", "exs"],
             FileType::C => vec!["c", "h", "hh"],
             FileType::PackageJson => vec!["json", "package.json", "npm"],
             FileType::VsixManifest => vec!["xml", "vsix", "vscode"],

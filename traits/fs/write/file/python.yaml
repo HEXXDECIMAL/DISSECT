@@ -68,6 +68,30 @@ traits:
       type: string
       regex: "tempfile\\.(NamedTemporaryFile|mkstemp|mkdtemp)"
 
+  # HTTP request pattern (requests or urllib)
+  - id: python-http-request
+    description: "HTTP request via requests or urllib"
+    confidence: 0.8
+    condition:
+      type: string
+      regex: "requests\\.(get|post)\\(|urllib\\.request\\.(urlopen|urlretrieve)"
+
+  # Binary write pattern (open wb or write_bytes)
+  - id: python-binary-write-pattern
+    description: "Binary file write pattern"
+    confidence: 0.85
+    condition:
+      type: string
+      regex: "open\\([^)]+['\"]wb['\"]\\)|write_bytes\\("
+
+  # os.chmod with executable permission
+  - id: python-chmod-executable
+    description: "Make file executable with os.chmod"
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "os\\.chmod\\([^)]+0[o]?7"
+
 composite_rules:
   # Download and write pattern (dropper behavior)
   - id: python-download-write
@@ -77,10 +101,10 @@ composite_rules:
     attack: "T1105"
     mbc: "B0024"
     requires_all:
-      - type: string
-        regex: "requests\\.(get|post)\\(|urllib\\.request\\.(urlopen|urlretrieve)"
-      - type: string
-        regex: "open\\([^)]+['\"]wb['\"]\\)|write_bytes\\("
+      - type: trait
+        id: python-http-request
+      - type: trait
+        id: python-binary-write-pattern
 
   # Write + make executable pattern
   - id: python-write-chmod-exec
@@ -89,7 +113,7 @@ composite_rules:
     criticality: suspicious
     attack: "T1222.002"
     requires_all:
-      - type: string
-        regex: "open\\([^)]+['\"]wb['\"]\\)"
-      - type: string
-        regex: "os\\.chmod\\([^)]+0[o]?7"
+      - type: trait
+        id: python-open-write-binary
+      - type: trait
+        id: python-chmod-executable

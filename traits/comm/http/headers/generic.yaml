@@ -2,23 +2,43 @@
 # MBC: C0002 (HTTP Communication)
 # ATT&CK: T1071.001
 
+defaults:
+  mbc: "C0002"
+  attack: "T1071.001"
+
 traits:
-  - id: headers-useragent-fake
-    description: Fake or suspicious User-Agent
-    criticality: suspicious
-    confidence: 0.66
+  # === User-Agent indicators ===
+  - id: ua-mozilla-old
+    description: Old Mozilla 4.0 User-Agent
+    criticality: inert
+    confidence: 0.5
     condition:
-      type: yara
-      source: |
-        rule fake_user_agent {
-          strings:
-            $mozilla_old = "Mozilla/4.0"
-            $curl = "curl/" fullword
-            $wget = "Wget/" fullword
-            $python_urllib = "Python-urllib"
-          condition:
-            any of them
-        }
+      type: string
+      exact: "Mozilla/4.0"
+
+  - id: ua-curl
+    description: curl User-Agent
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bcurl/'
+
+  - id: ua-wget
+    description: wget User-Agent
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bWget/'
+
+  - id: ua-python-urllib
+    description: Python urllib User-Agent
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "Python-urllib"
 
   - id: headers-auth
     description: HTTP Authorization header
@@ -26,7 +46,7 @@ traits:
     confidence: 0.66
     condition:
       type: string
-      regex: "(Authorization:|Bearer |Basic )"
+      regex: '(Authorization:|Bearer |Basic )'
 
   - id: headers-encoding
     description: Accept-Encoding header
@@ -35,3 +55,19 @@ traits:
     condition:
       type: string
       exact: Accept-Encoding
+
+composite_rules:
+  - id: headers-useragent-fake
+    description: Fake or suspicious User-Agent
+    criticality: suspicious
+    confidence: 0.66
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: ua-mozilla-old
+      - type: trait
+        id: ua-curl
+      - type: trait
+        id: ua-wget
+      - type: trait
+        id: ua-python-urllib

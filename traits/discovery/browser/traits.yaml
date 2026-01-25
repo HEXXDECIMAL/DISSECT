@@ -3,91 +3,228 @@
 # NOTE: "Web Data" is defined in cred/browser/chromium/traits.yaml (web-data)
 
 traits:
-  - id: chrome-history
-    description: Chrome browser history
-    criticality: suspicious
-    confidence: 0.85
+  # === Browser name atomic indicators ===
+  - id: chrome-name
+    description: Chrome browser name
+    criticality: inert
+    confidence: 0.4
     attack: "T1217"
     file_types: [all]
     condition:
       type: string
-      regex: "Chrome.*(History|Cookies|Login Data)"
+      exact: "Chrome"
 
-  - id: firefox-history
-    description: Firefox browser history
-    criticality: suspicious
-    confidence: 0.85
+  - id: firefox-name
+    description: Firefox browser name
+    criticality: inert
+    confidence: 0.4
     attack: "T1217"
     file_types: [all]
     condition:
       type: string
-      regex: "(places\\.sqlite|cookies\\.sqlite|logins\\.json)"
+      exact: "Firefox"
 
-  - id: safari-history
-    description: Safari browser history
-    criticality: suspicious
-    confidence: 0.85
+  - id: safari-name
+    description: Safari browser name
+    criticality: inert
+    confidence: 0.4
     attack: "T1217"
     file_types: [all]
     condition:
       type: string
-      regex: "Safari.*(History|Cookies)"
+      exact: "Safari"
 
-  - id: edge-history
-    description: Edge browser history
-    criticality: suspicious
-    confidence: 0.85
+  - id: edge-name
+    description: Edge browser name
+    criticality: inert
+    confidence: 0.4
     attack: "T1217"
     file_types: [all]
     condition:
       type: string
-      regex: "Microsoft.*Edge.*(History|Cookies)"
+      exact: "Edge"
 
-  - id: bookmarks
-    description: Browser bookmarks access
-    criticality: suspicious
-    confidence: 0.8
+  - id: opera-name
+    description: Opera browser name
+    criticality: inert
+    confidence: 0.4
     attack: "T1217"
     file_types: [all]
     condition:
       type: string
-      regex: "(?i)(bookmarks|Bookmarks\\.plist)"
+      exact: "Opera"
 
-  - id: local-storage
-    description: Browser local storage access
-    criticality: suspicious
-    confidence: 0.8
+  - id: brave-name
+    description: Brave browser name
+    criticality: inert
+    confidence: 0.4
     attack: "T1217"
     file_types: [all]
     condition:
       type: string
-      regex: "Local Storage|leveldb"
+      exact: "Brave"
 
-  - id: extensions
-    description: Browser extensions access
-    criticality: suspicious
-    confidence: 0.8
+  # === Browser data file atomic indicators ===
+  - id: history-file
+    description: History file reference
+    criticality: inert
+    confidence: 0.5
     attack: "T1217"
     file_types: [all]
     condition:
       type: string
-      # Require browser-specific extension paths, not just "Extensions"
-      regex: "chrome-extension://|/Extensions/[a-z]{32}|/Google/Chrome/.*Extensions|/BrowserSupport/Extensions"
+      exact: "History"
 
-  - id: opera
-    description: Opera browser data
-    criticality: suspicious
-    confidence: 0.85
+  - id: cookies-file
+    description: Cookies file reference
+    criticality: inert
+    confidence: 0.5
     attack: "T1217"
     file_types: [all]
     condition:
       type: string
-      regex: "Opera.*(Stable|History)"
+      exact: "Cookies"
 
-  - id: brave
-    description: Brave browser data
-    criticality: suspicious
-    confidence: 0.85
+  - id: login-data-file
+    description: Login Data file reference
+    criticality: inert
+    confidence: 0.6
+    attack: "T1217"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "Login Data"
+
+  # === Firefox-specific files ===
+  - id: places-sqlite
+    description: Firefox places.sqlite
+    criticality: inert
+    confidence: 0.7
+    attack: "T1217"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "places.sqlite"
+
+  - id: cookies-sqlite
+    description: Firefox cookies.sqlite
+    criticality: inert
+    confidence: 0.7
+    attack: "T1217"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "cookies.sqlite"
+
+  - id: logins-json
+    description: Firefox logins.json
+    criticality: inert
+    confidence: 0.7
+    attack: "T1217"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "logins.json"
+
+  # === Bookmarks ===
+  - id: bookmarks-word
+    description: bookmarks keyword
+    criticality: inert
+    confidence: 0.4
+    attack: "T1217"
+    file_types: [all]
+    condition:
+      type: string
+      exact: bookmarks
+      case_insensitive: true
+
+  - id: bookmarks-plist
+    description: Bookmarks.plist file
+    criticality: inert
+    confidence: 0.6
+    attack: "T1217"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "Bookmarks.plist"
+
+  # === Local storage ===
+  - id: local-storage-dir
+    description: Local Storage directory
+    criticality: inert
+    confidence: 0.5
+    attack: "T1217"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "Local Storage"
+
+  - id: leveldb-storage
+    description: leveldb storage
+    criticality: inert
+    confidence: 0.5
+    attack: "T1217"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "leveldb"
+
+  # === Extensions ===
+  - id: chrome-extension-url
+    description: chrome-extension:// URL
+    criticality: inert
+    confidence: 0.6
+    attack: "T1217"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "chrome-extension://"
+
+  - id: extensions-hash-path
+    description: Extensions path with hash
+    criticality: inert
+    confidence: 0.6
+    attack: "T1217"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "/Extensions/[a-z]{32}"
+
+  - id: chrome-extensions-path
+    description: Chrome Extensions path
+    criticality: inert
+    confidence: 0.6
+    attack: "T1217"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "/Google/Chrome/.*Extensions"
+
+  - id: browser-support-extensions
+    description: BrowserSupport Extensions path
+    criticality: inert
+    confidence: 0.6
+    attack: "T1217"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "/BrowserSupport/Extensions"
+
+  # === Opera/Brave specific ===
+  - id: opera-stable
+    description: Opera Stable
+    criticality: inert
+    confidence: 0.6
+    attack: "T1217"
+    file_types: [all]
+    condition:
+      type: string
+      regex: "Opera.*Stable"
+
+  - id: brave-software
+    description: Brave Software path
+    criticality: inert
+    confidence: 0.6
     attack: "T1217"
     file_types: [all]
     condition:
@@ -95,6 +232,184 @@ traits:
       regex: "Brave.*Software"
 
 composite_rules:
+  # Browser names composite
+  - id: browser-names
+    description: Browser name references
+    criticality: inert
+    confidence: 0.5
+    attack: "T1217"
+    file_types: [all]
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: chrome-name
+      - type: trait
+        id: firefox-name
+      - type: trait
+        id: safari-name
+      - type: trait
+        id: edge-name
+      - type: trait
+        id: opera-name
+      - type: trait
+        id: brave-name
+
+  # Browser data files composite
+  - id: browser-data-files
+    description: Browser data file references
+    criticality: notable
+    confidence: 0.7
+    attack: "T1217"
+    file_types: [all]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: history-file
+      - type: trait
+        id: cookies-file
+      - type: trait
+        id: login-data-file
+      - type: trait
+        id: places-sqlite
+
+  # Chrome history composite
+  - id: chrome-history
+    description: Chrome browser history
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1217"
+    file_types: [all]
+    requires_all:
+      - type: trait
+        id: chrome-name
+    requires_any:
+      - type: trait
+        id: history-file
+      - type: trait
+        id: cookies-file
+      - type: trait
+        id: login-data-file
+
+  # Firefox history composite
+  - id: firefox-history
+    description: Firefox browser history
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1217"
+    file_types: [all]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: places-sqlite
+      - type: trait
+        id: cookies-sqlite
+      - type: trait
+        id: logins-json
+
+  # Safari history composite
+  - id: safari-history
+    description: Safari browser history
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1217"
+    file_types: [all]
+    requires_all:
+      - type: trait
+        id: safari-name
+    requires_any:
+      - type: trait
+        id: history-file
+      - type: trait
+        id: cookies-file
+
+  # Edge history composite
+  - id: edge-history
+    description: Edge browser history
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1217"
+    file_types: [all]
+    requires_all:
+      - type: trait
+        id: edge-name
+    requires_any:
+      - type: trait
+        id: history-file
+      - type: trait
+        id: cookies-file
+
+  # Bookmarks composite
+  - id: bookmarks
+    description: Browser bookmarks access
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1217"
+    file_types: [all]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: bookmarks-word
+      - type: trait
+        id: bookmarks-plist
+
+  # Local storage composite
+  - id: local-storage
+    description: Browser local storage access
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1217"
+    file_types: [all]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: local-storage-dir
+      - type: trait
+        id: leveldb-storage
+
+  # Extensions composite
+  - id: extensions
+    description: Browser extensions access
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1217"
+    file_types: [all]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: chrome-extension-url
+      - type: trait
+        id: extensions-hash-path
+      - type: trait
+        id: chrome-extensions-path
+      - type: trait
+        id: browser-support-extensions
+
+  # Opera composite
+  - id: opera
+    description: Opera browser data
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1217"
+    file_types: [all]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: opera-stable
+      - type: trait
+        id: opera-name
+
+  # Brave composite
+  - id: brave
+    description: Brave browser data
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1217"
+    file_types: [all]
+    requires_all:
+      - type: trait
+        id: brave-software
+
+  # Multi-browser enumeration
   - id: multi-browser-enum
     description: Multiple browser data access
     criticality: suspicious
@@ -102,23 +417,8 @@ composite_rules:
     attack: "T1217"
     mbc: "B0046"
     file_types: [all]
-    condition:
-      type: yara
-      source: |
-        rule multi_browser_enum {
-          strings:
-            $chrome = "Chrome" fullword
-            $firefox = "Firefox" fullword
-            $safari = "Safari" fullword
-            $edge = "Edge" fullword
-            $opera = "Opera" fullword
-            $brave = "Brave" fullword
-            $history = "History" fullword
-            $cookies = "Cookies" fullword
-            $logins = "Login Data"
-            $places = "places.sqlite"
-          condition:
-            filesize < 20MB and
-            2 of ($chrome, $firefox, $safari, $edge, $opera, $brave) and
-            any of ($history, $cookies, $logins, $places)
-        }
+    requires_all:
+      - type: composite
+        id: browser-names
+      - type: composite
+        id: browser-data-files

@@ -1,59 +1,208 @@
 # IRC Bot/C2 Detection Patterns
 # ATT&CK: T1071.001 (Application Layer Protocol: Web Protocols)
 
+defaults:
+  attack: "T1071.001"
+
 traits:
-  # IRC bot C2
-  - id: bot-logic
-    description: IRC-based command and control logic
+  # === IRC protocol indicators ===
+  - id: irc-privmsg
+    description: IRC PRIVMSG command
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: PRIVMSG
+
+  - id: irc-nick
+    description: IRC NICK command
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      exact: "NICK "
+
+  - id: irc-user
+    description: IRC USER command
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      exact: "USER "
+
+  # === Bot command indicators ===
+  - id: cmd-login
+    description: Bot login command
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: ".login"
+
+  - id: cmd-udp
+    description: Bot UDP attack command
     criticality: suspicious
     confidence: 0.8
     condition:
-      type: yara
-      source: |
-        rule irc_bot_logic {
-          strings:
-            $irc1 = "PRIVMSG" ascii
-            $irc2 = "NICK " ascii
-            $irc3 = "USER " ascii
-            $cmd1 = ".login" ascii
-            $cmd2 = ".udp" ascii
-            $cmd3 = ".tcp" ascii
-            $cmd4 = ".shell" ascii
-          condition:
-            (all of ($irc*)) and any of ($cmd*)
-        }
+      type: string
+      exact: ".udp"
 
-  # Tsunami/Kaiten IRC bot artifacts
+  - id: cmd-tcp
+    description: Bot TCP attack command
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: string
+      exact: ".tcp"
+
+  - id: cmd-shell
+    description: Bot shell command
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: string
+      exact: ".shell"
+
+  # === Tsunami/Kaiten identifiers ===
+  - id: tsunami-name
+    description: Tsunami bot name
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      regex: '\btsunami\b'
+      case_insensitive: true
+
+  - id: kaiten-name
+    description: Kaiten bot name
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      regex: '\bkaiten\b'
+      case_insensitive: true
+
+  # === DDoS indicators ===
+  - id: attack-pan
+    description: PAN attack type indicator
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: PAN
+
+  - id: attack-udp
+    description: UDP attack type indicator
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: UDP
+
+  - id: ddos-flood
+    description: Flood attack terminology
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: flood
+      case_insensitive: true
+
+  - id: ddos-attack
+    description: Attack terminology
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      exact: attack
+      case_insensitive: true
+
+composite_rules:
+  # Tsunami/Kaiten identifier
   - id: tsunami-artifact
     description: Tsunami/Kaiten IRC bot identifier
     criticality: notable
     confidence: 0.7
-    condition:
-      type: yara
-      source: |
-        rule tsunami_id {
-          strings:
-            $name1 = "tsunami" ascii nocase fullword
-            $name2 = "kaiten" ascii nocase fullword
-          condition:
-            any of them
-        }
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: tsunami-name
+      - type: trait
+        id: kaiten-name
 
+  # IRC bot C2 (all IRC + any command)
+  - id: bot-logic
+    description: IRC-based command and control logic
+    criticality: suspicious
+    confidence: 0.8
+    requires_all:
+      - type: trait
+        id: irc-privmsg
+      - type: trait
+        id: irc-nick
+      - type: trait
+        id: irc-user
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: cmd-login
+      - type: trait
+        id: cmd-udp
+      - type: trait
+        id: cmd-tcp
+      - type: trait
+        id: cmd-shell
+
+  # IRC DDoS (any IRC + 2 attack types + any ddos term)
   - id: irc-ddos
     description: IRC-controlled DDoS attack logic
     criticality: hostile
     confidence: 0.9
-    condition:
-      type: yara
-      source: |
-        rule irc_ddos {
-          strings:
-            $irc1 = "PRIVMSG" ascii
-            $irc2 = "NICK" ascii
-            $atk1 = "PAN" ascii
-            $atk2 = "UDP" ascii
-            $ddos1 = "flood" ascii nocase
-            $ddos2 = "attack" ascii nocase
-          condition:
-            any of ($irc*) and 2 of ($atk*) and any of ($ddos*)
-        }
+    requires_any:
+      - type: trait
+        id: irc-privmsg
+      - type: trait
+        id: irc-nick
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: attack-pan
+      - type: trait
+        id: attack-udp
+      - type: trait
+        id: ddos-flood
+      - type: trait
+        id: ddos-attack
+
+  # Tsunami IRC bot with C2 logic
+  - id: tsunami-irc-bot
+    description: Tsunami/Kaiten IRC bot with C2 logic
+    criticality: hostile
+    confidence: 0.85
+    requires_all:
+      - type: trait
+        id: c2/irc/tsunami-artifact
+      - type: trait
+        id: c2/irc/bot-logic
+
+  # Tsunami DDoS bot
+  - id: tsunami-ddos-bot
+    description: Tsunami/Kaiten IRC bot with DDoS capabilities
+    criticality: hostile
+    confidence: 0.9
+    requires_all:
+      - type: trait
+        id: c2/irc/tsunami-artifact
+      - type: trait
+        id: c2/irc/irc-ddos
+
+  # IRC bot with DDoS
+  - id: irc-bot-ddos
+    description: IRC bot with DDoS attack capabilities
+    criticality: hostile
+    confidence: 0.85
+    requires_all:
+      - type: trait
+        id: c2/irc/bot-logic
+      - type: trait
+        id: c2/irc/irc-ddos

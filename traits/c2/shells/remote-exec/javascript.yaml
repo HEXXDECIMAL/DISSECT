@@ -1,6 +1,15 @@
 # Remote Execution - JavaScript/Node.js
 # ATT&CK: T1059.003 (Command and Scripting Interpreter: Windows Command Shell)
 
+traits:
+  - id: c2/shells/remote-exec/js-output-command-var
+    description: "Variable names suggesting command output handling"
+    criticality: notable
+    confidence: 0.8
+    condition:
+      type: string
+      regex: "output|command"
+
 composite_rules:
   - id: js-http-backdoor
     description: Remote shell backdoor (Poll C2 + Execute + Exfil)
@@ -14,5 +23,5 @@ composite_rules:
         id: exec/command/shell/js-execsync
       - type: trait
         id: comm/http/request/js-axios-post
-      - type: string
-        regex: "output|command"
+      - type: trait
+        id: c2/shells/remote-exec/js-output-command-var

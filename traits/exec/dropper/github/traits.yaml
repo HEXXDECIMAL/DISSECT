@@ -10,6 +10,14 @@ traits:
       type: string
       regex: "api\\.github\\.com.*/git/blobs"
 
+  - id: python-exec-chmod
+    description: "Python subprocess execution or chmod"
+    criticality: notable
+    confidence: 0.8
+    condition:
+      type: string
+      regex: "os\\.chmod\\(|subprocess\\.(Popen|run|call)\\("
+
 composite_rules:
   - id: execute
     description: "Download from GitHub blob API and execute"
@@ -17,9 +25,8 @@ composite_rules:
     criticality: suspicious
     mbc: "B0024"
     attack: "T1195.002"
-    requires_count: 2
-    conditions:
-      - type: string
-        regex: "api\\.github\\.com.*/git/blobs"
-      - type: string
-        regex: "os\\.chmod\\(|subprocess\\.(Popen|run|call)\\("
+    requires_all:
+      - type: trait
+        id: blob-api
+      - type: trait
+        id: python-exec-chmod

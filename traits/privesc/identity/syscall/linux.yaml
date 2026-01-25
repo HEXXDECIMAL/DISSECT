@@ -1,3 +1,53 @@
+traits:
+  - id: setuid-syscall
+    description: Sets user ID via setuid/seteuid
+    criticality: notable
+    condition:
+      type: syscall
+      name: ["setuid", "setuid32", "seteuid"]
+
+  - id: setreuid-syscall
+    description: Sets real and effective user ID
+    criticality: notable
+    condition:
+      type: syscall
+      name: ["setreuid", "setreuid32"]
+
+  - id: setresuid-syscall
+    description: Sets real, effective, and saved user ID
+    criticality: notable
+    condition:
+      type: syscall
+      name: ["setresuid", "setresuid32"]
+
+  - id: setgid-syscall
+    description: Sets group ID via setgid/setegid
+    criticality: notable
+    condition:
+      type: syscall
+      name: ["setgid", "setgid32", "setegid"]
+
+  - id: setregid-syscall
+    description: Sets real and effective group ID
+    criticality: notable
+    condition:
+      type: syscall
+      name: ["setregid", "setregid32"]
+
+  - id: setresgid-syscall
+    description: Sets real, effective, and saved group ID
+    criticality: notable
+    condition:
+      type: syscall
+      name: ["setresgid", "setresgid32"]
+
+  - id: capset-syscall
+    description: Sets process capabilities
+    criticality: suspicious
+    condition:
+      type: syscall
+      name: ["capset"]
+
 composite_rules:
   - id: setuid
     description: Changes user identity
@@ -6,12 +56,12 @@ composite_rules:
     platforms: [linux]
     file_types: [elf]
     requires_any:
-      - type: syscall
-        name: ["setuid", "setuid32", "seteuid"]
-      - type: syscall
-        name: ["setreuid", "setreuid32"]
-      - type: syscall
-        name: ["setresuid", "setresuid32"]
+      - type: trait
+        id: setuid-syscall
+      - type: trait
+        id: setreuid-syscall
+      - type: trait
+        id: setresuid-syscall
 
   - id: setgid
     description: Changes group identity
@@ -20,12 +70,12 @@ composite_rules:
     platforms: [linux]
     file_types: [elf]
     requires_any:
-      - type: syscall
-        name: ["setgid", "setgid32", "setegid"]
-      - type: syscall
-        name: ["setregid", "setregid32"]
-      - type: syscall
-        name: ["setresgid", "setresgid32"]
+      - type: trait
+        id: setgid-syscall
+      - type: trait
+        id: setregid-syscall
+      - type: trait
+        id: setresgid-syscall
 
   - id: capabilities
     description: Manipulates process capabilities
@@ -34,5 +84,5 @@ composite_rules:
     platforms: [linux]
     file_types: [elf]
     condition:
-      type: syscall
-      name: ["capset"]
+      type: trait
+      id: capset-syscall

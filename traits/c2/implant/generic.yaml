@@ -2,22 +2,347 @@
 # MBC: B0033 (Adversary-in-the-Middle)
 # ATT&CK: T1543
 
+defaults:
+  attack: "T1543"
+
 traits:
+  # === Implant-related terminology ===
+  - id: malware-implant
+    description: Malware implant keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bmalware[_\s]?implant\b'
+      case_insensitive: true
+
+  - id: c2-implant
+    description: C2 implant keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bc2[_\s]?implant\b'
+      case_insensitive: true
+
+  - id: rat-implant
+    description: RAT implant keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\brat[_\s]?implant\b'
+      case_insensitive: true
+
+  - id: backdoor-implant
+    description: Backdoor implant keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bbackdoor[_\s]?implant\b'
+      case_insensitive: true
+
+  # === Dropper terminology ===
+  - id: malware-dropper
+    description: Malware dropper keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bmalware[_\s]?dropper\b'
+      case_insensitive: true
+
+  - id: c2-dropper
+    description: C2 dropper keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bc2[_\s]?dropper\b'
+      case_insensitive: true
+
+  - id: rat-dropper
+    description: RAT dropper keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\brat[_\s]?dropper\b'
+      case_insensitive: true
+
+  - id: backdoor-dropper
+    description: Backdoor dropper keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bbackdoor[_\s]?dropper\b'
+      case_insensitive: true
+
+  # === Stager terminology ===
+  - id: malware-stager
+    description: Malware stager keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bmalware[_\s]?stager\b'
+      case_insensitive: true
+
+  - id: c2-stager
+    description: C2 stager keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bc2[_\s]?stager\b'
+      case_insensitive: true
+
+  - id: rat-stager
+    description: RAT stager keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\brat[_\s]?stager\b'
+      case_insensitive: true
+
+  - id: backdoor-stager
+    description: Backdoor stager keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bbackdoor[_\s]?stager\b'
+      case_insensitive: true
+
+  # === Payload terminology ===
+  - id: implant-payload
+    description: Implant payload keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bimplant[_\s]?payload\b'
+      case_insensitive: true
+
+  - id: dropper-payload
+    description: Dropper payload keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bdropper[_\s]?payload\b'
+      case_insensitive: true
+
+  - id: stager-payload
+    description: Stager payload keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bstager[_\s]?payload\b'
+      case_insensitive: true
+
+  - id: beacon-payload
+    description: Beacon payload keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bbeacon[_\s]?payload\b'
+      case_insensitive: true
+
+  - id: malware-payload
+    description: Malware payload keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bmalware[_\s]?payload\b'
+      case_insensitive: true
+
+  - id: shell-payload
+    description: Shell payload keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bshell[_\s]?payload\b'
+      case_insensitive: true
+
+  # === Config terminology ===
+  - id: implant-config
+    description: Implant config keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bimplant[_\s]?config\b'
+      case_insensitive: true
+
+  - id: dropper-config
+    description: Dropper config keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bdropper[_\s]?config\b'
+      case_insensitive: true
+
+  - id: stager-config
+    description: Stager config keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bstager[_\s]?config\b'
+      case_insensitive: true
+
+  # === Beacon terminology ===
+  - id: implant-beacon
+    description: Implant beacon keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bimplant[_\s]?beacon\b'
+      case_insensitive: true
+
+  - id: dropper-beacon
+    description: Dropper beacon keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bdropper[_\s]?beacon\b'
+      case_insensitive: true
+
+  - id: stager-beacon
+    description: Stager beacon keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bstager[_\s]?beacon\b'
+      case_insensitive: true
+
+  # === Trojan terminology ===
+  - id: trojan-horse
+    description: Trojan horse keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\btrojan[_\s]?horse\b'
+      case_insensitive: true
+
+  - id: trojan-malware
+    description: Trojan malware keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\btrojan[_\s]?malware\b'
+      case_insensitive: true
+
+  - id: trojan-payload
+    description: Trojan payload keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\btrojan[_\s]?payload\b'
+      case_insensitive: true
+
+  - id: trojan-downloader
+    description: Trojan downloader keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\btrojan[_\s]?downloader\b'
+      case_insensitive: true
+
+  - id: trojan-surrounded
+    description: Trojan in context
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '[_\s]trojan[_\s]'
+      case_insensitive: true
+
+composite_rules:
   - id: implant
     description: References an implant
     criticality: suspicious
     confidence: 0.7
-    condition:
-      type: string
-      # Require malware/C2 context - standalone words like "dropper" match DNS-SD records
-      regex: "(malware|c2|rat|backdoor)[_\\s]?(implant|dropper|stager)|(implant|dropper|stager)[_\\s]?(payload|config|beacon)|beacon[_\\s]?payload|malware[_\\s]?payload|shell[_\\s]?payload"
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: malware-implant
+      - type: trait
+        id: c2-implant
+      - type: trait
+        id: rat-implant
+      - type: trait
+        id: backdoor-implant
+      - type: trait
+        id: malware-dropper
+      - type: trait
+        id: c2-dropper
+      - type: trait
+        id: rat-dropper
+      - type: trait
+        id: backdoor-dropper
+      - type: trait
+        id: malware-stager
+      - type: trait
+        id: c2-stager
+      - type: trait
+        id: rat-stager
+      - type: trait
+        id: backdoor-stager
+      - type: trait
+        id: implant-payload
+      - type: trait
+        id: dropper-payload
+      - type: trait
+        id: stager-payload
+      - type: trait
+        id: beacon-payload
+      - type: trait
+        id: malware-payload
+      - type: trait
+        id: shell-payload
+      - type: trait
+        id: implant-config
+      - type: trait
+        id: dropper-config
+      - type: trait
+        id: stager-config
+      - type: trait
+        id: implant-beacon
+      - type: trait
+        id: dropper-beacon
+      - type: trait
+        id: stager-beacon
 
   - id: trojan
     description: References a trojan
     criticality: suspicious
     confidence: 0.66
-    condition:
-      type: string
-      # Require context - "trojan" alone can appear in documentation
-      regex: "trojan[_\\s]?(horse|malware|payload|downloader)|[_\\s]trojan[_\\s]"
-      case_insensitive: true
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: trojan-horse
+      - type: trait
+        id: trojan-malware
+      - type: trait
+        id: trojan-payload
+      - type: trait
+        id: trojan-downloader
+      - type: trait
+        id: trojan-surrounded

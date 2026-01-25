@@ -79,15 +79,42 @@ traits:
       type: string
       regex: "/dev/sda|/dev/hda|PhysicalDrive0|\\\\\\\\\\\\.\\\\PhysicalDrive"
 
+  # Recursive deletion command
+  - id: recursive-delete-cmd
+    description: "Recursive deletion command pattern"
+    criticality: notable
+    confidence: 0.8
+    condition:
+      type: string
+      regex: "rmtree|rm\\s+-rf|rmdir.*(/s|/q)"
+
+  # Iteration/loop pattern
+  - id: iteration-loop-pattern
+    description: "Iteration or loop pattern for file operations"
+    criticality: notable
+    confidence: 0.8
+    condition:
+      type: string
+      regex: "for\\s|while\\s|os\\.walk|glob\\."
+
+  # System directory reference
+  - id: system-dir-reference
+    description: "Reference to critical system directories"
+    criticality: notable
+    confidence: 0.8
+    condition:
+      type: string
+      regex: "Windows|System32|/etc|/boot|/usr"
+
 composite_rules:
   # System destruction with iteration
   - id: mass-deletion
     description: "Mass system file deletion"
     confidence: 0.95
     requires_all:
-      - type: string
-        regex: "rmtree|rm\\s+-rf|rmdir.*(/s|/q)"
-      - type: string
-        regex: "for\\s|while\\s|os\\.walk|glob\\."
-      - type: string
-        regex: "Windows|System32|/etc|/boot|/usr"
+      - type: trait
+        id: recursive-delete-cmd
+      - type: trait
+        id: iteration-loop-pattern
+      - type: trait
+        id: system-dir-reference

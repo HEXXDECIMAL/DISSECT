@@ -2,128 +2,365 @@
 # Detects port forwarding and tunneling tools used in APT attacks
 # ATT&CK: T1572 (Protocol Tunneling)
 
+defaults:
+  attack: "T1572"
+
 traits:
-  # Earthworm (EW) tunneling tool
+  # === Earthworm (EW) atomic indicators ===
+  - id: ew-ssocksd
+    description: Earthworm ssocksd component
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: ssocksd
+
+  - id: ew-rcsocks
+    description: Earthworm rcsocks component
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: rcsocks
+
+  - id: ew-rssocks
+    description: Earthworm rssocks component
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: rssocks
+
+  - id: ew-lcx-listen
+    description: Earthworm lcx_listen function
+    criticality: inert
+    confidence: 0.8
+    condition:
+      type: string
+      exact: lcx_listen
+
+  - id: ew-lcx-tran
+    description: Earthworm lcx_tran function
+    criticality: inert
+    confidence: 0.8
+    condition:
+      type: string
+      exact: lcx_tran
+
+  - id: ew-lcx-slave
+    description: Earthworm lcx_slave function
+    criticality: inert
+    confidence: 0.8
+    condition:
+      type: string
+      exact: lcx_slave
+
+  - id: ew-rootkiter
+    description: Earthworm author domain
+    criticality: suspicious
+    confidence: 0.95
+    condition:
+      type: string
+      exact: rootkiter.com
+
+  # === LCX port forwarder atomic indicators ===
+  - id: lcx-tran-flag
+    description: LCX -tran flag
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "-tran"
+
+  - id: lcx-slave-flag
+    description: LCX -slave flag
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "-slave"
+
+  - id: lcx-listen-flag
+    description: LCX -listen flag
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "-listen"
+
+  - id: listen-port
+    description: Port forwarding listenport config
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: listenport
+      case_insensitive: true
+
+  - id: conn-port
+    description: Port forwarding connport config
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: connport
+      case_insensitive: true
+
+  - id: local-port
+    description: Port forwarding localport config
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: localport
+      case_insensitive: true
+
+  - id: remote-host
+    description: Port forwarding remotehost config
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: remotehost
+      case_insensitive: true
+
+  # === reGeorg/Tunna atomic indicators ===
+  - id: regeorg-name
+    description: reGeorg tool name
+    criticality: suspicious
+    confidence: 0.9
+    condition:
+      type: string
+      exact: reGeorg
+      case_insensitive: true
+
+  - id: tunna-name
+    description: Tunna tool name
+    criticality: suspicious
+    confidence: 0.9
+    condition:
+      type: string
+      exact: Tunna
+      case_insensitive: true
+
+  - id: neo-regeorg
+    description: neo-reGeorg tool name
+    criticality: suspicious
+    confidence: 0.9
+    condition:
+      type: string
+      exact: neo-reGeorg
+
+  - id: xcmd-header
+    description: Web tunnel X-CMD header
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: string
+      exact: X-CMD
+
+  # === Chisel atomic indicators ===
+  - id: chisel-import
+    description: Chisel Go import path
+    criticality: suspicious
+    confidence: 0.95
+    condition:
+      type: string
+      exact: github.com/jpillora/chisel
+
+  - id: chisel-client
+    description: Chisel client mode
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "chisel client"
+
+  - id: chisel-server
+    description: Chisel server mode
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "chisel server"
+
+  # === Ngrok atomic indicators ===
+  - id: ngrok-name
+    description: Ngrok tool name
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: ngrok
+      case_insensitive: true
+
+  - id: ngrok-io
+    description: Ngrok tunnel domain (ngrok.io)
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: string
+      exact: ngrok.io
+
+  - id: ngrok-com
+    description: Ngrok service domain
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      exact: ngrok.com
+
+  # === SOCKS proxy atomic indicators ===
+  - id: socks4-proto
+    description: SOCKS4 protocol reference
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: SOCKS4
+
+  - id: socks5-proto
+    description: SOCKS5 protocol reference
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: SOCKS5
+
+  - id: socks-default-port
+    description: SOCKS default port 1080
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      exact: ":1080"
+
+  - id: socks-server-ref
+    description: SOCKS server terminology
+    criticality: notable
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "socks server"
+      case_insensitive: true
+
+composite_rules:
+  # Earthworm (EW) tunneling tool (3 of ew* or rootkiter)
   - id: earthworm
     description: Earthworm tunneling tool (APT lateral movement)
     criticality: suspicious
     confidence: 0.95
-    attack: "T1572"
-    condition:
-      type: yara
-      source: |
-        rule earthworm {
-          strings:
-            $ew1 = "ssocksd" ascii
-            $ew2 = "rcsocks" ascii
-            $ew3 = "rssocks" ascii
-            $ew4 = "lcx_listen" ascii
-            $ew5 = "lcx_tran" ascii
-            $ew6 = "lcx_slave" ascii
-            $rootkiter = "rootkiter.com" ascii
-          condition:
-            3 of ($ew*) or $rootkiter
-        }
+    requires_any:
+      - type: trait
+        id: ew-rootkiter
+    requires_count: 3
+    conditions:
+      - type: trait
+        id: ew-ssocksd
+      - type: trait
+        id: ew-rcsocks
+      - type: trait
+        id: ew-rssocks
+      - type: trait
+        id: ew-lcx-listen
+      - type: trait
+        id: ew-lcx-tran
+      - type: trait
+        id: ew-lcx-slave
 
   # LCX port forwarder
   - id: lcx
     description: LCX-style port forwarding tool
     criticality: suspicious
     confidence: 0.85
-    attack: "T1572"
-    condition:
-      type: yara
-      source: |
-        rule lcx_forwarder {
-          strings:
-            // Full LCX command patterns
-            $lcx_tran = "lcx_tran" ascii
-            $lcx_slave = "lcx_slave" ascii
-            $lcx_listen = "lcx_listen" ascii
-            // Usage strings
-            $lcx_usage1 = "-tran" ascii
-            $lcx_usage2 = "-slave" ascii
-            $lcx_usage3 = "-listen" ascii
-            // Port forwarding config strings
-            $listen_port = "listenport" ascii nocase
-            $conn_port = "connport" ascii nocase
-            $local_port = "localport" ascii nocase
-            $remote_host = "remotehost" ascii nocase
-          condition:
-            any of ($lcx_*) or
-            (($listen_port or $local_port) and ($conn_port or $remote_host))
-        }
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: ew-lcx-listen
+      - type: trait
+        id: ew-lcx-tran
+      - type: trait
+        id: ew-lcx-slave
+      - type: trait
+        id: lcx-tran-flag
+      - type: trait
+        id: lcx-slave-flag
+      - type: trait
+        id: lcx-listen-flag
+
+  # LCX via port config (listen/local + conn/remote)
+  - id: lcx-config
+    description: LCX-style port forwarding configuration
+    criticality: suspicious
+    confidence: 0.8
+    requires_any:
+      - type: trait
+        id: listen-port
+      - type: trait
+        id: local-port
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: conn-port
+      - type: trait
+        id: remote-host
 
   # reGeorg/Tunna web tunnel
   - id: regeorg
     description: reGeorg/Tunna web tunneling
     criticality: suspicious
     confidence: 0.9
-    attack: "T1572"
-    condition:
-      type: yara
-      source: |
-        rule regeorg {
-          strings:
-            $regeorg = "reGeorg" ascii nocase
-            $tunna = "Tunna" ascii nocase
-            $neo = "neo-reGeorg" ascii nocase
-            $webshell_tunnel = "X-CMD" ascii
-          condition:
-            any of them
-        }
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: regeorg-name
+      - type: trait
+        id: tunna-name
+      - type: trait
+        id: neo-regeorg
+      - type: trait
+        id: xcmd-header
 
   # Chisel tunneling
   - id: chisel
     description: Chisel HTTP tunneling tool
     criticality: suspicious
     confidence: 0.9
-    attack: "T1572"
-    condition:
-      type: yara
-      source: |
-        rule chisel {
-          strings:
-            $chisel1 = "github.com/jpillora/chisel" ascii
-            $chisel2 = "chisel client" ascii
-            $chisel3 = "chisel server" ascii
-          condition:
-            any of them
-        }
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: chisel-import
+      - type: trait
+        id: chisel-client
+      - type: trait
+        id: chisel-server
 
   # Ngrok tunneling
   - id: ngrok
     description: Ngrok tunneling service
     criticality: suspicious
     confidence: 0.85
-    attack: "T1572"
-    condition:
-      type: yara
-      source: |
-        rule ngrok {
-          strings:
-            $ngrok = "ngrok" ascii nocase
-            $ngrok_io = "ngrok.io" ascii
-            $ngrok_com = "ngrok.com" ascii
-          condition:
-            any of them
-        }
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: ngrok-name
+      - type: trait
+        id: ngrok-io
+      - type: trait
+        id: ngrok-com
 
-  # Generic SOCKS proxy behavior
+  # Generic SOCKS proxy behavior (2 of them)
   - id: socks-server
     description: SOCKS proxy server implementation
     criticality: suspicious
     confidence: 0.8
-    attack: "T1572"
-    condition:
-      type: yara
-      source: |
-        rule socks_server {
-          strings:
-            $socks4 = "SOCKS4" ascii
-            $socks5 = "SOCKS5" ascii
-            $socks_port = ":1080" ascii
-            $sock_server = "socks server" ascii nocase
-          condition:
-            2 of them
-        }
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: socks4-proto
+      - type: trait
+        id: socks5-proto
+      - type: trait
+        id: socks-default-port
+      - type: trait
+        id: socks-server-ref

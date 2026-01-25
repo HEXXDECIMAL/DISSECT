@@ -1,0 +1,72 @@
+# AppleScript Privilege Escalation Detection
+# Detects attempts to gain admin privileges via AppleScript
+# ATT&CK: T1548.004 (Abuse Elevation Control Mechanism)
+
+defaults:
+  file_types: [applescript, shell]
+  platforms: [macos]
+  attack: "T1548.004"
+
+traits:
+  # ============================================
+  # Admin Privilege Requests
+  # ============================================
+  - id: admin-privileges
+    description: "Requests administrator privileges"
+    criticality: suspicious
+    confidence: 0.9
+    condition:
+      type: string
+      exact: "administrator privileges"
+
+  - id: with-admin-privileges
+    description: "do shell script with admin privileges"
+    criticality: suspicious
+    confidence: 0.9
+    condition:
+      type: string
+      exact: "with administrator privileges"
+
+  # ============================================
+  # Sudo/Root Patterns
+  # ============================================
+  - id: sudo-in-script
+    description: "Uses sudo in shell script"
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: string
+      regex: "do shell script.*sudo"
+
+  - id: run-as-root
+    description: "Attempts to run as root"
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: string
+      regex: "(?i)run.*as.*root"
+
+composite_rules:
+  # ============================================
+  # Admin Privilege Escalation
+  # ============================================
+  - id: admin-privesc
+    description: "AppleScript admin privilege escalation"
+    criticality: suspicious
+    confidence: 0.9
+    file_types: [applescript, shell]
+    requires_any:
+      - {type: trait, id: admin-privileges}
+      - {type: trait, id: with-admin-privileges}
+
+  # ============================================
+  # Shell with Admin Privileges
+  # ============================================
+  - id: shell-admin
+    description: "Shell execution with admin privileges"
+    criticality: hostile
+    confidence: 0.9
+    file_types: [applescript, shell]
+    requires_all:
+      - {type: trait, id: evasion/applescript/do-shell-script}
+      - {type: trait, id: with-admin-privileges}

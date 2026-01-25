@@ -2,45 +2,214 @@
 # MBC: B0033 (Adversary-in-the-Middle)
 # ATT&CK: T1543
 
+defaults:
+  attack: "T1543"
+
 traits:
+  # === Backdoor base term ===
+  - id: backdoor-ref
+    description: Backdoor keyword reference
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\b[bB]ackdoor\b'
+
+  # === Known false positive exclusions ===
+  - id: vcpu-backdoor
+    description: VCPU backdoor (VMware legitimate)
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: string
+      exact: VCPUInfoBackdoor
+
+  - id: guest-backdoor-ops
+    description: Guest backdoor ops (VMware legitimate)
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: string
+      exact: gGuestBackdoorOps
+
+  - id: backdoor-comment
+    description: Backdoor comment (documentation)
+    criticality: benign
+    confidence: 0.9
+    condition:
+      type: string
+      exact: "# backdoor:"
+
+  # === Backdoor shell variants ===
+  - id: backdoor-shell-ref
+    description: Backdoor shell keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\b[bB]ackdoor[_.\s-]?[sS]hell\b'
+
+  # === Leet speak variants ===
+  - id: backdoor-leet
+    description: Backdoor leet speak (backd00r)
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\b[bB][a4]ckd00r\b'
+
+  # === Context-specific backdoor references ===
+  - id: hidden-backdoor
+    description: Hidden backdoor keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bhidden[_ ]backdoor\b'
+      case_insensitive: true
+
+  - id: hide-backdoor
+    description: Hide backdoor keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bhide[_ ]backdoor\b'
+      case_insensitive: true
+
+  - id: icmp-backdoor
+    description: ICMP backdoor keyword
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      regex: '\bicmp[_ ]backdoor\b'
+      case_insensitive: true
+
+  - id: pam-backdoor
+    description: PAM backdoor keyword
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      regex: '\bpam[_ ]backdoor\b'
+      case_insensitive: true
+
+  - id: ssh-backdoor
+    description: SSH backdoor keyword
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      regex: '\bssh[_ ]backdoor\b'
+      case_insensitive: true
+
+  - id: sshd-backdoor
+    description: SSHD backdoor keyword
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      regex: '\bsshd[_ ]backdoor\b'
+      case_insensitive: true
+
+  - id: backdoor-task
+    description: Backdoor task keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bbackdoor[_ ]task\b'
+      case_insensitive: true
+
+  - id: backdoor-process
+    description: Backdoor process keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bbackdoor[_ ]process\b'
+      case_insensitive: true
+
+  - id: backdoor-shell-ctx
+    description: Backdoor shell context keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bbackdoor[_ ]shell\b'
+      case_insensitive: true
+
+  - id: backdoor-login
+    description: Backdoor login keyword
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      regex: '\bbackdoor[_ ]login\b'
+      case_insensitive: true
+
+  - id: backdoor-pass
+    description: Backdoor password keyword
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      regex: '\bbackdoor[_ ]pass\b'
+      case_insensitive: true
+
+composite_rules:
   - id: backdoor
     description: References a backdoor
     criticality: suspicious
     confidence: 0.66
-    attack: "T1543"
-    condition:
-      type: yara
-      source: |
-        rule backdoor {
-          strings:
-            $ref = /[bB]ackdoor/
-            $not_vcpu = "VCPUInfoBackdoor"
-            $not_vmware = "gGuestBackdoorOps"
-            $not_comment = "# backdoor:"
-          condition:
-            filesize < 40MB and $ref and none of ($not*)
-        }
+    requires_all:
+      - type: trait
+        id: backdoor-ref
+    requires_none:
+      - type: trait
+        id: vcpu-backdoor
+      - type: trait
+        id: guest-backdoor-ops
+      - type: trait
+        id: backdoor-comment
 
   - id: backdoor-shell
     description: References a backdoor shell
     criticality: suspicious
     confidence: 0.66
-    condition:
-      type: string
-      regex: "[bB]ackdoor.?[sS]hell"
-
-  - id: backdoor-leet
-    description: References backd00r (leet speak)
-    criticality: suspicious
-    confidence: 0.66
-    condition:
-      type: string
-      regex: "[bB][a4]ckd00r"
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: backdoor-shell-ref
+      - type: trait
+        id: backdoor-leet
 
   - id: backdoor-hidden
     description: Suspicious backdoor reference
     criticality: suspicious
     confidence: 0.66
-    condition:
-      type: string
-      regex: "(hidden|hide|icmp|pam|ssh|sshd)[_ ]backdoor|backdoor[_ ](task|process|shell|login|pass)"
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: hidden-backdoor
+      - type: trait
+        id: hide-backdoor
+      - type: trait
+        id: icmp-backdoor
+      - type: trait
+        id: pam-backdoor
+      - type: trait
+        id: ssh-backdoor
+      - type: trait
+        id: sshd-backdoor
+      - type: trait
+        id: backdoor-task
+      - type: trait
+        id: backdoor-process
+      - type: trait
+        id: backdoor-shell-ctx
+      - type: trait
+        id: backdoor-login
+      - type: trait
+        id: backdoor-pass

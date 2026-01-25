@@ -1,0 +1,116 @@
+# AppleScript Credential Phishing Detection
+# Detects fake password dialogs and credential harvesting
+# ATT&CK: T1056.002 (Input Capture: GUI Input Capture)
+
+defaults:
+  file_types: [applescript, shell]
+  platforms: [macos]
+  attack: "T1056.002"
+
+traits:
+  # ============================================
+  # Password Dialog Patterns
+  # ============================================
+  - id: display-dialog-password
+    description: "Display dialog asking for password"
+    criticality: suspicious
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "(?i)display dialog.*password"
+
+  - id: default-answer-password
+    description: "Default answer field for password"
+    criticality: suspicious
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "(?i)default answer.*password"
+
+  - id: hidden-answer
+    description: "Hidden answer input (password masking)"
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: string
+      exact: "with hidden answer"
+
+  # ============================================
+  # Fake System Dialog
+  # ============================================
+  - id: icon-caution
+    description: "Dialog with caution icon"
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "with icon caution"
+
+  - id: icon-stop
+    description: "Dialog with stop icon"
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "with icon stop"
+
+  - id: enter-password-prompt
+    description: "Prompts user to enter password"
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: string
+      regex: "(?i)enter.*password"
+
+  # ============================================
+  # Keychain Password Prompts
+  # ============================================
+  - id: keychain-password
+    description: "Asks for keychain password"
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1555.001"
+    condition:
+      type: string
+      regex: "(?i)keychain.*password"
+
+  - id: admin-password
+    description: "Asks for admin password"
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: string
+      regex: "(?i)admin.*password"
+
+composite_rules:
+  # ============================================
+  # Password Phishing Dialog
+  # ============================================
+  - id: password-phishing
+    description: "AppleScript password phishing dialog"
+    criticality: hostile
+    confidence: 0.95
+    file_types: [applescript, shell]
+    requires_any:
+      - {type: trait, id: display-dialog-password}
+      - {type: trait, id: default-answer-password}
+      - {type: trait, id: enter-password-prompt}
+    requires_any:
+      - {type: trait, id: hidden-answer}
+      - {type: trait, id: icon-caution}
+      - {type: trait, id: icon-stop}
+
+  # ============================================
+  # Fake System Password Prompt
+  # ============================================
+  - id: fake-system-prompt
+    description: "Fake system password prompt"
+    criticality: hostile
+    confidence: 0.9
+    file_types: [applescript, shell]
+    requires_any:
+      - {type: trait, id: keychain-password}
+      - {type: trait, id: admin-password}
+    requires_any:
+      - {type: trait, id: hidden-answer}
+      - {type: trait, id: icon-caution}

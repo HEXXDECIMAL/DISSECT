@@ -111,6 +111,28 @@ traits:
       type: string
       regex: "\\[['\"][^'\"]+['\"](?:,\\s*['\"][^'\"]+['\"]){5,}\\]\\.join"
 
+  # Dynamic code execution patterns (eval, Function constructor)
+  - id: js-dynamic-exec
+    description: Dynamic code execution via eval or Function constructor
+    criticality: notable
+    confidence: 0.7
+    mbc: "B0032"
+    attack: "T1027"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: 'eval\(|Function\(|new Function'
+
+  # Dynamic require with variable (non-literal) argument
+  - id: js-dynamic-require-call
+    description: Dynamic require with non-literal module name
+    criticality: notable
+    confidence: 0.7
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: 'require\([^"'']'
+
 composite_rules:
   # Unicode obfuscation with execution
   - id: js-unicode-exec
@@ -123,8 +145,8 @@ composite_rules:
     requires_all:
       - type: trait
         id: anti-static/obfuscation/strings/js-unicode-escape
-      - type: string
-        regex: 'eval\(|Function\(|new Function'
+      - type: trait
+        id: anti-static/obfuscation/strings/js-dynamic-exec
       - type: trait
         id: anti-static/obfuscation/strings/fromcharcode
 
@@ -134,7 +156,7 @@ composite_rules:
     criticality: suspicious
     confidence: 0.85
     requires_all:
-      - type: string
-        regex: 'require\([^"'']'
+      - type: trait
+        id: anti-static/obfuscation/strings/js-dynamic-require-call
       - type: trait
         id: anti-static/obfuscation/strings/js-unicode-escape

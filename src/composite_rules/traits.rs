@@ -6,7 +6,7 @@
 use super::condition::Condition;
 use super::context::{ConditionResult, EvaluationContext, StringParams};
 use super::evaluators::{
-    eval_ast_pattern, eval_ast_query, eval_exports_count, eval_import_combination,
+    eval_ast_pattern, eval_ast_query, eval_exports_count, eval_hex, eval_import_combination,
     eval_imports_count, eval_metrics, eval_section_entropy, eval_section_ratio, eval_string,
     eval_string_count, eval_structure, eval_symbol, eval_symbol_or_string, eval_syscall,
     eval_trait, eval_yara_inline, eval_yara_match,
@@ -194,6 +194,12 @@ impl TraitDefinition {
                 min_length,
             } => eval_string_count(*min, *max, *min_length, ctx),
             Condition::Metrics { field, min, max } => eval_metrics(field, *min, *max, ctx),
+            Condition::Hex {
+                pattern,
+                offset,
+                offset_range,
+                min_count,
+            } => eval_hex(pattern, *offset, *offset_range, *min_count, ctx),
         }
     }
 }
@@ -528,6 +534,12 @@ impl CompositeTrait {
                 min_length,
             } => eval_string_count(*min, *max, *min_length, ctx),
             Condition::Metrics { field, min, max } => eval_metrics(field, *min, *max, ctx),
+            Condition::Hex {
+                pattern,
+                offset,
+                offset_range,
+                min_count,
+            } => eval_hex(pattern, *offset, *offset_range, *min_count, ctx),
         }
     }
 

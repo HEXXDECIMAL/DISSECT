@@ -2,52 +2,348 @@
 # MBC: B0007 (Sandbox Detection)
 # ATT&CK: T1497
 
+defaults:
+  mbc: "B0007"
+  attack: "T1497"
+
 traits:
-  - id: sandbox
-    description: Sandbox detection techniques
-    criticality: suspicious
-    confidence: 0.66
-    mbc: "B0007"
-    attack: "T1497"
-    # Exclude JS - data libraries like faker.js have random words that match
+  # === Sandbox product names ===
+  - id: cuckoo
+    description: Cuckoo sandbox reference
+    criticality: inert
+    confidence: 0.7
     file_types: [elf, macho, pe, shell, python]
     condition:
-      type: yara
-      source: |
-        rule sandbox_detect {
-          strings:
-            // Specific sandbox product names (not generic "sandbox" word)
-            $cuckoo = "cuckoo" nocase fullword
-            $joe = "joe sandbox" nocase
-            $any_run = "any.run"
-            $hybrid = "hybrid-analysis" nocase
-            $virustotal = "virustotal" nocase
-            // Analysis tools commonly checked for
-            $wireshark = "wireshark" nocase fullword
-            $fiddler = "fiddler" nocase fullword
-            $procmon = "procmon" nocase fullword
-            $processhacker = "process hacker" nocase
-            $x64dbg = "x64dbg" nocase fullword
-            $ollydbg = "ollydbg" nocase fullword
-            // Sandbox detection file paths
-            $sandbox_path = /C:\\(sandbox|analysis|malware)/i
-          condition:
-            // Require 2+ indicators to avoid false positives on single words
-            2 of them
-        }
+      type: string
+      regex: '\bcuckoo\b'
+      case_insensitive: true
 
-  # JavaScript/Node.js sandbox detection
+  - id: joe-sandbox
+    description: Joe Sandbox reference
+    criticality: inert
+    confidence: 0.7
+    file_types: [elf, macho, pe, shell, python]
+    condition:
+      type: string
+      exact: "joe sandbox"
+      case_insensitive: true
+
+  - id: any-run
+    description: Any.run sandbox reference
+    criticality: inert
+    confidence: 0.7
+    file_types: [elf, macho, pe, shell, python]
+    condition:
+      type: string
+      exact: "any.run"
+
+  - id: hybrid-analysis
+    description: Hybrid Analysis sandbox reference
+    criticality: inert
+    confidence: 0.7
+    file_types: [elf, macho, pe, shell, python]
+    condition:
+      type: string
+      exact: "hybrid-analysis"
+      case_insensitive: true
+
+  - id: virustotal
+    description: VirusTotal reference
+    criticality: inert
+    confidence: 0.6
+    file_types: [elf, macho, pe, shell, python]
+    condition:
+      type: string
+      exact: virustotal
+      case_insensitive: true
+
+  # === Analysis tools ===
+  - id: wireshark
+    description: Wireshark network analyzer
+    criticality: inert
+    confidence: 0.5
+    file_types: [elf, macho, pe, shell, python]
+    condition:
+      type: string
+      regex: '\bwireshark\b'
+      case_insensitive: true
+
+  - id: fiddler
+    description: Fiddler proxy tool
+    criticality: inert
+    confidence: 0.6
+    file_types: [elf, macho, pe, shell, python]
+    condition:
+      type: string
+      regex: '\bfiddler\b'
+      case_insensitive: true
+
+  - id: procmon
+    description: Process Monitor tool
+    criticality: inert
+    confidence: 0.6
+    file_types: [elf, macho, pe, shell, python]
+    condition:
+      type: string
+      regex: '\bprocmon\b'
+      case_insensitive: true
+
+  - id: process-hacker
+    description: Process Hacker tool
+    criticality: inert
+    confidence: 0.6
+    file_types: [elf, macho, pe, shell, python]
+    condition:
+      type: string
+      exact: "process hacker"
+      case_insensitive: true
+
+  - id: x64dbg
+    description: x64dbg debugger
+    criticality: inert
+    confidence: 0.6
+    file_types: [elf, macho, pe, shell, python]
+    condition:
+      type: string
+      regex: '\bx64dbg\b'
+      case_insensitive: true
+
+  - id: ollydbg
+    description: OllyDbg debugger
+    criticality: inert
+    confidence: 0.6
+    file_types: [elf, macho, pe, shell, python]
+    condition:
+      type: string
+      regex: '\bollydbg\b'
+      case_insensitive: true
+
+  - id: sandbox-path
+    description: Sandbox/analysis file path
+    criticality: notable
+    confidence: 0.75
+    file_types: [elf, macho, pe, shell, python]
+    condition:
+      type: string
+      regex: 'C:\\(sandbox|analysis|malware)'
+      case_insensitive: true
+
+  # JavaScript/Node.js sandbox detection (atomic)
+  - id: js-atomic-sleep
+    description: atomic-sleep module
+    criticality: inert
+    confidence: 0.6
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "atomic-sleep"
+
+  - id: js-date-now-timeout
+    description: Date.now with setTimeout
+    criticality: inert
+    confidence: 0.5
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "Date\\.now\\(\\).*setTimeout"
+
+  - id: js-performance-now-timeout
+    description: performance.now with setTimeout
+    criticality: inert
+    confidence: 0.5
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "performance\\.now\\(\\).*setTimeout"
+
+  # === JS debugger detection atomic indicators ===
+  - id: js-debugger-stmt
+    description: JavaScript debugger statement
+    criticality: inert
+    confidence: 0.4
+    mbc: "B0001"
+    attack: "T1622"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: debugger
+
+  - id: js-func-tostring
+    description: Function.toString check
+    criticality: inert
+    confidence: 0.5
+    mbc: "B0001"
+    attack: "T1622"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: function.toString
+
+  - id: js-console-log-tostring
+    description: console.log.toString check
+    criticality: inert
+    confidence: 0.5
+    mbc: "B0001"
+    attack: "T1622"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "console.log.toString"
+
+  - id: js-console-warn-tostring
+    description: console.warn.toString check
+    criticality: inert
+    confidence: 0.5
+    mbc: "B0001"
+    attack: "T1622"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "console.warn.toString"
+
+  - id: js-console-error-tostring
+    description: console.error.toString check
+    criticality: inert
+    confidence: 0.5
+    mbc: "B0001"
+    attack: "T1622"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "console.error.toString"
+
+  - id: js-react-devtools
+    description: React DevTools detection
+    criticality: inert
+    confidence: 0.5
+    mbc: "B0001"
+    attack: "T1622"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: __REACT_DEVTOOLS
+
+  - id: js-vue-devtools
+    description: Vue DevTools detection
+    criticality: inert
+    confidence: 0.5
+    mbc: "B0001"
+    attack: "T1622"
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: __VUE_DEVTOOLS
+
+  # Headless browser detection (atomic)
+  - id: js-navigator-webdriver
+    description: navigator.webdriver check
+    criticality: inert
+    confidence: 0.6
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "navigator.webdriver"
+
+  - id: js-plugins-length-zero
+    description: navigator.plugins.length zero check
+    criticality: inert
+    confidence: 0.5
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "navigator\\.plugins\\.length\\s*===?\\s*0"
+
+  - id: js-outerwidth-zero
+    description: window.outerWidth zero check
+    criticality: inert
+    confidence: 0.5
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "window\\.outerWidth\\s*===?\\s*0"
+
+composite_rules:
+  # JS timing detection composite
   - id: js-timing
     description: Sleep acceleration detection (sandbox evasion)
     criticality: suspicious
     confidence: 0.8
-    mbc: "B0007"
-    attack: "T1497"
     file_types: [javascript, typescript]
-    condition:
-      type: string
-      regex: "atomic-sleep|Date\\.now\\(\\).*setTimeout|performance\\.now\\(\\).*setTimeout"
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: js-atomic-sleep
+      - type: trait
+        id: js-date-now-timeout
+      - type: trait
+        id: js-performance-now-timeout
 
+  # JS headless browser detection composite
+  - id: js-headless
+    description: Headless browser detection
+    criticality: suspicious
+    confidence: 0.8
+    file_types: [javascript, typescript]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: js-navigator-webdriver
+      - type: trait
+        id: js-plugins-length-zero
+      - type: trait
+        id: js-outerwidth-zero
+
+  # Sandbox detection (2+ indicators)
+  - id: sandbox
+    description: Sandbox detection techniques
+    criticality: suspicious
+    confidence: 0.66
+    file_types: [elf, macho, pe, shell, python]
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: cuckoo
+      - type: trait
+        id: joe-sandbox
+      - type: trait
+        id: any-run
+      - type: trait
+        id: hybrid-analysis
+      - type: trait
+        id: virustotal
+      - type: trait
+        id: wireshark
+      - type: trait
+        id: fiddler
+      - type: trait
+        id: procmon
+      - type: trait
+        id: process-hacker
+      - type: trait
+        id: x64dbg
+      - type: trait
+        id: ollydbg
+      - type: trait
+        id: sandbox-path
+
+  # Console toString composite
+  - id: js-console-tostring
+    description: Console method toString check
+    criticality: notable
+    confidence: 0.7
+    mbc: "B0001"
+    attack: "T1622"
+    file_types: [javascript, typescript]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: js-console-log-tostring
+      - type: trait
+        id: js-console-warn-tostring
+      - type: trait
+        id: js-console-error-tostring
+
+  # JS debugger detection (2+ indicators)
   - id: js-debugger
     description: JavaScript debugger detection
     criticality: suspicious
@@ -55,30 +351,18 @@ traits:
     mbc: "B0001"
     attack: "T1622"
     file_types: [javascript, typescript]
-    condition:
-      type: yara
-      source: |
-        rule js_debugger_detect {
-          strings:
-            $debug1 = "debugger" ascii
-            $func_check = "function.toString" ascii
-            $console_check = /console\.(log|warn|error)\.toString/
-            $devtools1 = "__REACT_DEVTOOLS" ascii
-            $devtools2 = "__VUE_DEVTOOLS" ascii
-          condition:
-            2 of them
-        }
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: js-debugger-stmt
+      - type: trait
+        id: js-func-tostring
+      - type: composite
+        id: js-console-tostring
+      - type: trait
+        id: js-react-devtools
+      - type: trait
+        id: js-vue-devtools
 
-  - id: js-headless
-    description: Headless browser detection
-    criticality: suspicious
-    confidence: 0.8
-    mbc: "B0007"
-    attack: "T1497"
-    file_types: [javascript, typescript]
-    condition:
-      type: string
-      regex: "navigator\\.webdriver|navigator\\.plugins\\.length\\s*===?\\s*0|window\\.outerWidth\\s*===?\\s*0"
-
-  # NOTE: VM detection traits are in anti-analysis/vm/
-  # Use anti-analysis/vm directory reference for VM/hypervisor detection
+# NOTE: VM detection traits are in anti-analysis/vm/
+# Use anti-analysis/vm directory reference for VM/hypervisor detection

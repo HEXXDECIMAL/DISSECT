@@ -1,3 +1,36 @@
+traits:
+  - id: syscall-socket
+    description: Creates network socket
+    criticality: notable
+    confidence: 0.8
+    condition:
+      type: syscall
+      name: ["socket", "socketcall"]
+
+  - id: syscall-bind
+    description: Binds socket to address/port
+    criticality: notable
+    confidence: 0.8
+    condition:
+      type: syscall
+      name: ["bind"]
+
+  - id: syscall-listen
+    description: Listens for incoming connections
+    criticality: notable
+    confidence: 0.8
+    condition:
+      type: syscall
+      name: ["listen"]
+
+  - id: syscall-accept
+    description: Accepts incoming connections
+    criticality: notable
+    confidence: 0.8
+    condition:
+      type: syscall
+      name: ["accept", "accept4"]
+
 composite_rules:
   - id: server
     description: Network server - binds and listens on port
@@ -6,12 +39,12 @@ composite_rules:
     platforms: [linux]
     file_types: [elf]
     requires_all:
-      - type: syscall
-        name: ["socket", "socketcall"]
-      - type: syscall
-        name: ["bind"]
-      - type: syscall
-        name: ["listen"]
+      - type: trait
+        id: syscall-socket
+      - type: trait
+        id: syscall-bind
+      - type: trait
+        id: syscall-listen
 
   - id: server-accept
     description: Network server accepting connections
@@ -20,11 +53,11 @@ composite_rules:
     platforms: [linux]
     file_types: [elf]
     requires_all:
-      - type: syscall
-        name: ["socket", "socketcall"]
-      - type: syscall
-        name: ["bind"]
-      - type: syscall
-        name: ["listen"]
-      - type: syscall
-        name: ["accept", "accept4"]
+      - type: trait
+        id: syscall-socket
+      - type: trait
+        id: syscall-bind
+      - type: trait
+        id: syscall-listen
+      - type: trait
+        id: syscall-accept

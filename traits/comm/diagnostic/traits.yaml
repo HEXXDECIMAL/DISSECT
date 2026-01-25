@@ -1,109 +1,340 @@
 # Network Diagnostic Tools Detection
 # Benign baseline for ML differentiation
 
+defaults:
+  criticality: benign
+  confidence: 0.9
+
 traits:
+  # === Ping/traceroute ===
+  - id: ping
+    description: ping command
+    condition:
+      type: string
+      regex: '\bping\s+'
+
+  - id: ping6
+    description: ping6 command
+    condition:
+      type: string
+      regex: '\bping6\b'
+
+  - id: traceroute
+    description: traceroute command
+    condition:
+      type: string
+      regex: '\btraceroute\b'
+
+  - id: tracepath
+    description: tracepath command
+    condition:
+      type: string
+      regex: '\btracepath\b'
+
+  - id: mtr
+    description: mtr network diagnostic
+    condition:
+      type: string
+      regex: '\bmtr\b'
+
+  # === DNS tools ===
+  - id: nslookup
+    description: nslookup command
+    condition:
+      type: string
+      regex: '\bnslookup\b'
+
+  - id: dig
+    description: dig DNS command
+    condition:
+      type: string
+      regex: '\bdig\s+'
+
+  - id: host
+    description: host DNS command
+    condition:
+      type: string
+      regex: '\bhost\s+'
+
+  # === Connection testing ===
+  - id: nc
+    description: nc/netcat command
+    condition:
+      type: string
+      regex: '\bnc\s+'
+
+  - id: netcat
+    description: netcat command
+    condition:
+      type: string
+      regex: '\bnetcat\b'
+
+  - id: telnet
+    description: telnet command
+    condition:
+      type: string
+      regex: '\btelnet\s+'
+
+  # === Traffic capture ===
+  - id: tcpdump
+    description: tcpdump packet capture
+    condition:
+      type: string
+      exact: tcpdump
+
+  - id: wireshark
+    description: Wireshark analyzer
+    condition:
+      type: string
+      exact: wireshark
+
+  - id: tshark
+    description: tshark CLI analyzer
+    condition:
+      type: string
+      exact: tshark
+
+  # === Connection info ===
+  - id: netstat
+    description: netstat command
+    condition:
+      type: string
+      exact: netstat
+
+  - id: ss
+    description: ss socket statistics
+    condition:
+      type: string
+      exact: "ss "
+
+  - id: lsof-i
+    description: lsof network listing
+    condition:
+      type: string
+      exact: "lsof -i"
+
+  # === Interface info ===
+  - id: ifconfig
+    description: ifconfig command
+    condition:
+      type: string
+      exact: ifconfig
+
+  - id: ip-addr
+    description: ip addr command
+    condition:
+      type: string
+      exact: "ip addr"
+
+  - id: ip-link
+    description: ip link command
+    condition:
+      type: string
+      exact: "ip link"
+
+  # === Bandwidth testing ===
+  - id: iperf
+    description: iperf bandwidth test
+    condition:
+      type: string
+      exact: iperf
+
+  - id: iperf3
+    description: iperf3 bandwidth test
+    condition:
+      type: string
+      exact: iperf3
+
+  - id: speedtest
+    description: speedtest utility
+    condition:
+      type: string
+      exact: speedtest
+
+  # === Latency testing ===
+  - id: hping
+    description: hping packet tool
+    condition:
+      type: string
+      exact: hping
+
+  - id: fping
+    description: fping fast ping
+    condition:
+      type: string
+      exact: fping
+
+  # === HTTP testing ===
+  - id: curl
+    description: curl HTTP client
+    condition:
+      type: string
+      exact: "curl "
+
+  - id: wget
+    description: wget download utility
+    condition:
+      type: string
+      exact: "wget "
+
+  - id: ab
+    description: Apache Bench (ab) tool
+    condition:
+      type: string
+      exact: "ab "
+
+  - id: wrk
+    description: wrk HTTP benchmark
+    condition:
+      type: string
+      exact: "wrk "
+
+  # === Firewall: iptables ===
+  - id: iptables
+    description: iptables command
+    condition:
+      type: string
+      exact: iptables
+
+  - id: ip6tables
+    description: ip6tables command
+    condition:
+      type: string
+      exact: ip6tables
+
+  - id: iptables-save
+    description: iptables-save command
+    condition:
+      type: string
+      exact: iptables-save
+
+  # === Firewall: nftables ===
+  - id: nft
+    description: nft command
+    condition:
+      type: string
+      exact: "nft "
+
+  - id: nftables
+    description: nftables reference
+    condition:
+      type: string
+      exact: nftables
+
+  # === Firewall: firewalld/ufw ===
+  - id: firewall-cmd
+    description: firewall-cmd utility
+    condition:
+      type: string
+      exact: firewall-cmd
+
+  - id: firewalld
+    description: firewalld service
+    condition:
+      type: string
+      exact: firewalld
+
+  - id: ufw
+    description: ufw firewall
+    condition:
+      type: string
+      exact: "ufw "
+
+composite_rules:
   # Network troubleshooting tools
   - id: troubleshoot
     description: Network troubleshooting utilities
-    criticality: benign
-    confidence: 0.9
-    condition:
-      type: yara
-      source: |
-        rule network_troubleshoot {
-          strings:
-            // Ping/traceroute
-            $ping1 = /\bping\s+/ ascii
-            $ping2 = /\bping6\b/ ascii
-            $trace1 = /\btraceroute\b/ ascii
-            $trace2 = /\btracepath\b/ ascii
-            $trace3 = /\bmtr\b/ ascii
-            // DNS
-            $dns1 = /\bnslookup\b/ ascii
-            $dns2 = /\bdig\s+/ ascii
-            $dns3 = /\bhost\s+/ ascii
-            // Connection testing - word boundaries prevent matching 'sync' or 'func'
-            $conn1 = /\bnc\s+/ ascii
-            $conn2 = /\bnetcat\b/ ascii
-            $conn3 = /\btelnet\s+/ ascii
-          condition:
-            any of them
-        }
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: ping
+      - type: trait
+        id: ping6
+      - type: trait
+        id: traceroute
+      - type: trait
+        id: tracepath
+      - type: trait
+        id: mtr
+      - type: trait
+        id: nslookup
+      - type: trait
+        id: dig
+      - type: trait
+        id: host
+      - type: trait
+        id: nc
+      - type: trait
+        id: netcat
+      - type: trait
+        id: telnet
 
   # Network monitoring
   - id: monitoring
     description: Network monitoring utilities
-    criticality: benign
-    confidence: 0.9
-    condition:
-      type: yara
-      source: |
-        rule network_monitoring {
-          strings:
-            // Traffic capture
-            $cap1 = "tcpdump" ascii
-            $cap2 = "wireshark" ascii
-            $cap3 = "tshark" ascii
-            // Connection info
-            $info1 = "netstat" ascii
-            $info2 = "ss " ascii
-            $info3 = "lsof -i" ascii
-            // Interface info
-            $if1 = "ifconfig" ascii
-            $if2 = "ip addr" ascii
-            $if3 = "ip link" ascii
-          condition:
-            any of them
-        }
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: tcpdump
+      - type: trait
+        id: wireshark
+      - type: trait
+        id: tshark
+      - type: trait
+        id: netstat
+      - type: trait
+        id: ss
+      - type: trait
+        id: lsof-i
+      - type: trait
+        id: ifconfig
+      - type: trait
+        id: ip-addr
+      - type: trait
+        id: ip-link
 
   # Network performance
   - id: performance
     description: Network performance testing
-    criticality: benign
-    confidence: 0.9
-    condition:
-      type: yara
-      source: |
-        rule network_performance {
-          strings:
-            // Bandwidth testing
-            $bw1 = "iperf" ascii
-            $bw2 = "iperf3" ascii
-            $bw3 = "speedtest" ascii
-            // Latency testing
-            $lat1 = "hping" ascii
-            $lat2 = "fping" ascii
-            // HTTP testing
-            $http1 = "curl " ascii
-            $http2 = "wget " ascii
-            $http3 = "ab " ascii
-            $http4 = "wrk " ascii
-          condition:
-            any of them
-        }
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: iperf
+      - type: trait
+        id: iperf3
+      - type: trait
+        id: speedtest
+      - type: trait
+        id: hping
+      - type: trait
+        id: fping
+      - type: trait
+        id: curl
+      - type: trait
+        id: wget
+      - type: trait
+        id: ab
+      - type: trait
+        id: wrk
 
   # Firewall management
   - id: firewall
     description: Firewall management utilities
-    criticality: benign
-    confidence: 0.9
-    condition:
-      type: yara
-      source: |
-        rule firewall_mgmt {
-          strings:
-            // iptables
-            $ipt1 = "iptables" ascii
-            $ipt2 = "ip6tables" ascii
-            $ipt3 = "iptables-save" ascii
-            // nftables
-            $nft1 = "nft " ascii
-            $nft2 = "nftables" ascii
-            // firewalld
-            $fw1 = "firewall-cmd" ascii
-            $fw2 = "firewalld" ascii
-            // ufw
-            $ufw1 = "ufw " ascii
-          condition:
-            any of them
-        }
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: iptables
+      - type: trait
+        id: ip6tables
+      - type: trait
+        id: iptables-save
+      - type: trait
+        id: nft
+      - type: trait
+        id: nftables
+      - type: trait
+        id: firewall-cmd
+      - type: trait
+        id: firewalld
+      - type: trait
+        id: ufw

@@ -133,6 +133,46 @@ traits:
             filesize > 500 and filesize < 5000 and not any of ($func, $arrow, $class)
         }
 
+  # === INTERPRETER EXECUTION PATTERNS ===
+
+  # Python interpreter inline execution
+  - id: python-interpreter-exec
+    description: Python interpreter with inline code execution
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: string
+      regex: "python3?\\s+-c|python3?\\s+-"
+
+  # Node interpreter inline execution
+  - id: node-interpreter-exec
+    description: Node interpreter with inline code execution
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: string
+      regex: "node\\s+-e|node\\s+--eval"
+
+  # === CHILD PROCESS PATTERNS ===
+
+  # spawn or exec function call
+  - id: spawn-or-exec-call
+    description: Process spawn or exec function invocation
+    criticality: notable
+    confidence: 0.8
+    condition:
+      type: string
+      regex: "spawn\\(|exec\\("
+
+  # child_process module reference
+  - id: child-process-import
+    description: Node child_process module usage
+    criticality: notable
+    confidence: 0.9
+    condition:
+      type: string
+      exact: "child_process"
+
 composite_rules:
   # npm package with interpreter dropper (hostile combination)
   - id: interpreter-dropper-package
@@ -143,12 +183,12 @@ composite_rules:
     mbc: "B0024"
     file_types: [javascript, typescript]
     requires_any:
-      - type: string
-        regex: "python3?\\s+-c|python3?\\s+-"
-      - type: string
-        regex: "node\\s+-e|node\\s+--eval"
+      - type: trait
+        id: python-interpreter-exec
+      - type: trait
+        id: node-interpreter-exec
     requires_all:
-      - type: string
-        regex: "spawn\\(|exec\\("
-      - type: string
-        regex: "child_process"
+      - type: trait
+        id: spawn-or-exec-call
+      - type: trait
+        id: child-process-import

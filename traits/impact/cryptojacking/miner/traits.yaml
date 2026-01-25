@@ -79,14 +79,23 @@ traits:
       type: string
       exact: "minergate"
 
-  - id: pool-generic
-    description: Generic mining pool reference
+  - id: pool-crypto-pool
+    description: Crypto-pool mining pool
     criticality: suspicious
     confidence: 0.7
     attack: "T1496"
     condition:
       type: string
-      regex: "crypto-pool|moneropool"
+      exact: "crypto-pool"
+
+  - id: pool-moneropool
+    description: Moneropool mining pool
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1496"
+    condition:
+      type: string
+      exact: "moneropool"
 
   # === Atomic: Mining Software ===
 
@@ -109,14 +118,32 @@ traits:
       type: string
       regex: "[Cc]rypto[Nn]ight"
 
-  - id: monero-ref
-    description: Monero cryptocurrency reference
-    criticality: notable
-    confidence: 0.6
+  - id: monero-word
+    description: Monero word
+    criticality: inert
+    confidence: 0.5
     attack: "T1496"
     condition:
       type: string
-      regex: "\\b[Mm]onero\\b|\\bMONERO\\b|\\bXMR\\b"
+      regex: "\\b[Mm]onero\\b"
+
+  - id: monero-upper
+    description: MONERO uppercase
+    criticality: inert
+    confidence: 0.5
+    attack: "T1496"
+    condition:
+      type: string
+      exact: "MONERO"
+
+  - id: xmr-ticker
+    description: XMR ticker symbol
+    criticality: inert
+    confidence: 0.5
+    attack: "T1496"
+    condition:
+      type: string
+      regex: "\\bXMR\\b"
 
   # === Atomic: Mining Configuration ===
 
@@ -198,7 +225,49 @@ traits:
       type: string
       exact: "argon2d"
 
+  # === Atomic: Mining Indicators ===
+
+  - id: wallet-ref
+    description: Wallet reference (mining context)
+    criticality: notable
+    confidence: 0.5
+    attack: "T1496"
+    condition:
+      type: string
+      exact: "wallet"
+
+  - id: proc-self-ref
+    description: Process self reference
+    criticality: notable
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "/proc/self"
+
+  - id: numa-ref
+    description: NUMA memory architecture reference
+    criticality: notable
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "NUMA"
+
 composite_rules:
+  # Monero reference composite
+  - id: monero-ref
+    description: Monero cryptocurrency reference
+    criticality: notable
+    confidence: 0.6
+    attack: "T1496"
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: monero-word
+      - type: trait
+        id: monero-upper
+      - type: trait
+        id: xmr-ticker
+
   - id: cryptocurrency-miner
     description: Cryptocurrency miner detected
     criticality: suspicious
@@ -224,6 +293,10 @@ composite_rules:
       - type: trait
         id: pool-minergate
       - type: trait
+        id: pool-crypto-pool
+      - type: trait
+        id: pool-moneropool
+      - type: trait
         id: xmrig-ref
       - type: trait
         id: cryptonight
@@ -245,10 +318,10 @@ composite_rules:
     requires_any:
       - type: trait
         id: xmrig-ref
-      - type: trait
+      - type: composite
         id: monero-ref
-      - type: string
-        exact: "wallet"
+      - type: trait
+        id: wallet-ref
 
   - id: argon2-miner
     description: Argon2-based cryptocurrency miner
@@ -260,7 +333,7 @@ composite_rules:
     requires_all:
       - type: trait
         id: argon2d
-      - type: string
-        exact: "/proc/self"
-      - type: string
-        exact: "NUMA"
+      - type: trait
+        id: proc-self-ref
+      - type: trait
+        id: numa-ref

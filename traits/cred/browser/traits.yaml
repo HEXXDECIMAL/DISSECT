@@ -46,10 +46,10 @@ traits:
       regex: "\\bhackbrowserdata\\b|HackBrowserData"
       case_insensitive: true
 
-composite_rules:
-  # Multi-browser targeting detection
-  - id: multi-browser-theft
-    description: Multi-browser credential theft
+  # === YARA-based Detection Traits ===
+
+  - id: multi-browser-theft-yara
+    description: YARA pattern for targeting multiple browsers
     criticality: suspicious
     confidence: 0.9
     attack: "T1555.003"
@@ -84,9 +84,8 @@ composite_rules:
             1 of ($login_data, $cookies_sqlite, $local_state)
         }
 
-  # Full browser stealer with decryption and exfiltration
-  - id: full-stealer-detected
-    description: Complete browser credential stealer (theft + decrypt + exfil)
+  - id: full-stealer-detected-yara
+    description: YARA pattern for complete browser stealer
     criticality: hostile
     confidence: 0.98
     attack: "T1555.003"
@@ -130,9 +129,8 @@ composite_rules:
             ($sqlite or any of ($exfil*))
         }
 
-  # Python browser stealer pattern
-  - id: python-stealer
-    description: Python-based browser credential stealer
+  - id: python-stealer-yara
+    description: YARA pattern for Python browser stealer
     criticality: suspicious
     confidence: 0.95
     attack: "T1555.003"
@@ -169,3 +167,40 @@ composite_rules:
             2 of ($pwd*) and
             any of ($exfil*)
         }
+
+composite_rules:
+  # Multi-browser targeting detection
+  - id: multi-browser-theft
+    description: Multi-browser credential theft
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1555.003"
+    mbc: "B0028"
+    file_types: [python, javascript, elf, pe, macho]
+    requires_all:
+      - type: trait
+        id: multi-browser-theft-yara
+
+  # Full browser stealer with decryption and exfiltration
+  - id: full-stealer-detected
+    description: Complete browser credential stealer (theft + decrypt + exfil)
+    criticality: hostile
+    confidence: 0.98
+    attack: "T1555.003"
+    mbc: "B0028"
+    file_types: [python, javascript, elf, pe, macho]
+    requires_all:
+      - type: trait
+        id: full-stealer-detected-yara
+
+  # Python browser stealer pattern
+  - id: python-stealer
+    description: Python-based browser credential stealer
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1555.003"
+    mbc: "B0028"
+    file_types: [python]
+    requires_all:
+      - type: trait
+        id: python-stealer-yara

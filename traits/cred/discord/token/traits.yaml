@@ -90,6 +90,150 @@ traits:
       type: string
       regex: "users/@me/channels"
 
+  # LevelDB storage reference
+  - id: leveldb-ref
+    description: LevelDB storage reference
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "leveldb"
+
+  # Local Storage reference
+  - id: local-storage-ref
+    description: Local Storage directory reference
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "Local Storage"
+
+  # Discord application path
+  - id: discord-path
+    description: Discord application path reference
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "Discord"
+
+  # Discord Canary path
+  - id: discord-canary-path
+    description: Discord Canary application path reference
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "(?i)discordcanary"
+
+  # Discord PTB path
+  - id: discord-ptb-path
+    description: Discord PTB application path reference
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "(?i)discordptb"
+
+  # MFA token prefix
+  - id: mfa-prefix
+    description: MFA token prefix indicator
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "mfa."
+
+  # Users/@me API path
+  - id: users-me-path
+    description: Discord users/@me API path
+    criticality: notable
+    confidence: 0.75
+    condition:
+      type: string
+      exact: "users/@me"
+
+  # Discord webhook exfil
+  - id: webhook-exfil
+    description: Discord webhook exfiltration endpoint
+    criticality: suspicious
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "discord(app)?\\.com/api/webhooks/"
+
+  # Telegram API exfil
+  - id: telegram-exfil
+    description: Telegram API exfiltration endpoint
+    criticality: suspicious
+    confidence: 0.9
+    condition:
+      type: string
+      exact: "api.telegram.org"
+
+  # Chrome browser path
+  - id: chrome-browser
+    description: Chrome browser reference
+    criticality: notable
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "Chrome"
+
+  # Opera browser path
+  - id: opera-browser
+    description: Opera browser reference
+    criticality: notable
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "Opera"
+
+  # Brave browser path
+  - id: brave-browser
+    description: Brave browser reference
+    criticality: notable
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "Brave"
+
+  # Edge browser path
+  - id: edge-browser
+    description: Edge browser reference
+    criticality: notable
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "Edge"
+
+  # LDB file extension
+  - id: ldb-extension
+    description: LevelDB file extension
+    criticality: notable
+    confidence: 0.6
+    condition:
+      type: string
+      exact: ".ldb"
+
+  # Log file extension
+  - id: log-extension
+    description: Log file extension
+    criticality: notable
+    confidence: 0.5
+    condition:
+      type: string
+      exact: ".log"
+
+  # Token keyword
+  - id: token-keyword
+    description: Token keyword reference
+    criticality: notable
+    confidence: 0.5
+    condition:
+      type: string
+      regex: "(?i)token"
+
 composite_rules:
   # Discord token stealer composite
   - id: stealer-detected
@@ -99,35 +243,15 @@ composite_rules:
     attack: "T1555.003"
     mbc: "B0030"
     file_types: [javascript, python, elf, pe, macho]
-    condition:
-      type: yara
-      source: |
-        rule discord_token_stealer {
-          meta:
-            description = "Detects Discord token stealing malware"
-          strings:
-            // Token extraction patterns
-            $leveldb = "leveldb" ascii nocase
-            $localstorage = "Local Storage" ascii
-            // Discord paths
-            $discord_path1 = "Discord" ascii
-            $discord_path2 = "discordcanary" ascii nocase
-            $discord_path3 = "discordptb" ascii nocase
-            // Token regex patterns
-            $token_regex1 = /\[\\w-\]\{24\}\.\[\\w-\]\{6\}/ ascii
-            $token_regex2 = "mfa." ascii
-            // API validation
-            $api_me = "users/@me" ascii
-            // Exfil indicators
-            $webhook = /discord(app)?\.com\/api\/webhooks\// ascii
-            $telegram = "api.telegram.org" ascii
-          condition:
-            filesize < 10MB and
-            ($leveldb or $localstorage) and
-            any of ($discord_path*) and
-            (any of ($token_regex*) or $api_me) and
-            any of ($webhook, $telegram)
-        }
+    requires_any:
+      - type: trait
+        id: leveldb-ref
+      - type: trait
+        id: discord-path
+      - type: trait
+        id: regex-standard
+      - type: trait
+        id: webhook-exfil
 
   # Discord token grabber with browser enumeration
   - id: browser-grabber
@@ -137,26 +261,8 @@ composite_rules:
     attack: "T1555.003"
     mbc: "B0030"
     file_types: [javascript, python, elf, pe, macho]
-    condition:
-      type: yara
-      source: |
-        rule discord_browser_token_grabber {
-          meta:
-            description = "Discord token grabber enumerating browsers"
-          strings:
-            $discord = "Discord" ascii
-            $chrome = "Chrome" ascii
-            $opera = "Opera" ascii
-            $brave = "Brave" ascii
-            $edge = "Edge" ascii
-            $leveldb = "leveldb" ascii
-            $ldb = ".ldb" ascii
-            $log = ".log" ascii
-            $token = "token" ascii nocase
-          condition:
-            filesize < 10MB and
-            $discord and
-            2 of ($chrome, $opera, $brave, $edge) and
-            ($leveldb or $ldb or $log) and
-            $token
-        }
+    requires_all:
+      - type: trait
+        id: discord-path
+      - type: trait
+        id: token-keyword

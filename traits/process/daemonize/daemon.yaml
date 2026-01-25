@@ -1,3 +1,48 @@
+traits:
+  - id: process-fork
+    description: Process forking syscall (fork, vfork, or clone)
+    criticality: notable
+    condition:
+      type: syscall
+      name: ["fork", "vfork", "clone"]
+
+  - id: process-fork-macos
+    description: Process forking syscall on macOS
+    criticality: notable
+    condition:
+      type: syscall
+      name: ["fork"]
+
+  - id: process-setsid
+    description: Create new session and become session leader
+    criticality: notable
+    condition:
+      type: syscall
+      name: ["setsid"]
+
+  - id: fd-redirect
+    description: File descriptor redirection (dup2 or dup3)
+    criticality: notable
+    condition:
+      type: syscall
+      name: ["dup2", "dup3"]
+
+  - id: fd-redirect-multiple
+    description: Multiple file descriptor redirections
+    criticality: notable
+    condition:
+      type: syscall
+      name: ["dup2", "dup3"]
+      min_count: 2
+
+  - id: fd-redirect-macos
+    description: File descriptor redirection on macOS (dup2)
+    criticality: notable
+    condition:
+      type: syscall
+      name: ["dup2"]
+      min_count: 2
+
 composite_rules:
   - id: daemon
     description: Daemon behavior - detaches from controlling terminal
@@ -6,10 +51,10 @@ composite_rules:
     platforms: [linux]
     file_types: [elf]
     requires_all:
-      - type: syscall
-        name: ["fork", "vfork", "clone"]
-      - type: syscall
-        name: ["setsid"]
+      - type: trait
+        id: process-fork
+      - type: trait
+        id: process-setsid
 
   - id: daemon-full
     description: Full daemon pattern with stdin/stdout redirection
@@ -18,13 +63,12 @@ composite_rules:
     platforms: [linux]
     file_types: [elf]
     requires_all:
-      - type: syscall
-        name: ["fork", "vfork", "clone"]
-      - type: syscall
-        name: ["setsid"]
-      - type: syscall
-        name: ["dup2", "dup3"]
-        min_count: 2
+      - type: trait
+        id: process-fork
+      - type: trait
+        id: process-setsid
+      - type: trait
+        id: fd-redirect-multiple
 
   - id: daemon-macos
     description: macOS daemon behavior - detaches from terminal
@@ -33,10 +77,10 @@ composite_rules:
     platforms: [macos]
     file_types: [macho]
     requires_all:
-      - type: syscall
-        name: ["fork"]
-      - type: syscall
-        name: ["setsid"]
+      - type: trait
+        id: process-fork-macos
+      - type: trait
+        id: process-setsid
 
   - id: daemon-macos-full
     description: Full macOS daemon pattern with I/O redirection
@@ -45,10 +89,9 @@ composite_rules:
     platforms: [macos]
     file_types: [macho]
     requires_all:
-      - type: syscall
-        name: ["fork"]
-      - type: syscall
-        name: ["setsid"]
-      - type: syscall
-        name: ["dup2"]
-        min_count: 2
+      - type: trait
+        id: process-fork-macos
+      - type: trait
+        id: process-setsid
+      - type: trait
+        id: fd-redirect-macos

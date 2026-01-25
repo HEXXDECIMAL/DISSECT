@@ -1,0 +1,15 @@
+[package]
+name = "scpt"
+version = "0.1.0"
+edition = "2021"
+authors = ["DISSECT Team"]
+description = "Parser and symbol extractor for compiled AppleScript (.scpt) files"
+license = "Apache-2.0"
+repository = "https://github.com/dissect/scpt"
+keywords = ["applescript", "scpt", "parser", "macos", "binary"]
+categories = ["parsing", "development-tools"]
+
+[dependencies]
+thiserror = "1.0"
+
+[dev-dependencies]

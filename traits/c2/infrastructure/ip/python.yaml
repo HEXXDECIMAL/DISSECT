@@ -42,12 +42,29 @@ traits:
       type: string
       regex: "urlopen\\([^)]*https?://(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.){3}"
 
+  # Match URL construction pattern: f-string with host and port
+  - id: python-fstring-url-with-port
+    description: "f-string URL construction with host variable and port"
+    confidence: 0.85
+    condition:
+      type: string
+      regex: "f[\"']https?://\\{\\w+\\}:\\d+"
+
+  # Match URL construction pattern: string concatenation with host
+  - id: python-string-concat-url
+    description: "URL constructed via string concatenation with host variable"
+    confidence: 0.85
+    condition:
+      type: string
+      regex: "[\"']https?://[\"']\\s*\\+\\s*\\w+"
+
 composite_rules:
   # Match URL construction pattern: host + port concatenation
   - id: python-url-construction
     description: "C2 URL constructed from host variable"
     confidence: 0.85
-    condition:
-      type: string
-      # f'http://{host}:port' or "http://" + host patterns
-      regex: "(f[\"']https?://\\{\\w+\\}:\\d+|[\"']https?://[\"']\\s*\\+\\s*\\w+)"
+    requires_any:
+      - type: trait
+        id: python-fstring-url-with-port
+      - type: trait
+        id: python-string-concat-url

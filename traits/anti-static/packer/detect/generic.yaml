@@ -3,27 +3,65 @@
 # ATT&CK: T1027.002
 
 traits:
+  - id: upx-marker
+    description: UPX packer marker string
+    criticality: inert
+    confidence: 0.8
+    condition:
+      type: string
+      regex: 'UPX[!01]'
+
+  - id: aspack-marker
+    description: ASPack packer marker
+    criticality: inert
+    confidence: 0.8
+    condition:
+      type: string
+      exact: aPack
+
+  - id: petite-marker
+    description: Petite packer marker
+    criticality: inert
+    confidence: 0.8
+    condition:
+      type: string
+      exact: petite
+
+  - id: themida-marker
+    description: Themida packer marker
+    criticality: inert
+    confidence: 0.8
+    condition:
+      type: string
+      exact: Themida
+
+  - id: vmprotect-marker
+    description: VMProtect packer marker
+    criticality: inert
+    confidence: 0.8
+    condition:
+      type: string
+      exact: VMProtect
+
+composite_rules:
   - id: detect
     description: Packed/compressed executable
     criticality: notable
     confidence: 0.66
     mbc: "F0001"
     attack: "T1027.002"
-    condition:
-      type: yara
-      source: |
-        rule packer {
-          strings:
-            $upx = "UPX!"
-            $upx0 = "UPX0"
-            $upx1 = "UPX1"
-            $aspack = "aPack"
-            $petite = "petite"
-            $themida = "Themida"
-            $vmprotect = "VMProtect"
-          condition:
-            any of them
-        }
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: upx-marker
+      - type: trait
+        id: aspack-marker
+      - type: trait
+        id: petite-marker
+      - type: trait
+        id: themida-marker
+      - type: trait
+        id: vmprotect-marker
 
   - id: upx
     description: "UPX packed binary (section)"
@@ -37,7 +75,7 @@ traits:
         import "pe"
         import "elf"
         import "macho"
-        
+
         rule upx_section {
           condition:
             (pe.is_pe and for any section in pe.sections : (section.name matches /^(UPX\d+|\.UPX\d+)$/)) or

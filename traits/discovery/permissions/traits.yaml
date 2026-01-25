@@ -93,6 +93,26 @@ traits:
       type: string
       regex: "sudo\\s+-l"
 
+  - id: cap-get-proc
+    description: Get process capabilities
+    criticality: notable
+    confidence: 0.75
+    attack: "T1069"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "cap_get_proc"
+
+  - id: cap-set-proc
+    description: Set process capabilities
+    criticality: notable
+    confidence: 0.75
+    attack: "T1069"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "cap_set_proc"
+
 composite_rules:
   - id: linux-caps-enum
     description: Linux capabilities enumeration
@@ -114,3 +134,14 @@ composite_rules:
             filesize < 10MB and
             ($capsh and $proc_status) or 2 of ($cap*)
         }
+    requires_any:
+      - requires_all:
+          - type: trait
+            id: capsh
+          - type: trait
+            id: process-self-status
+      - requires_all:
+          - type: trait
+            id: cap-get-proc
+          - type: trait
+            id: cap-set-proc

@@ -6,9 +6,15 @@ authors = ["DISSECT Team"]
 description = "Deep static analysis tool for extracting features from binaries and source code"
 license = "Apache-2.0"
 
+[workspace]
+members = [".", "crates/scpt"]
+
 [dependencies]
 # Binary parsing
 goblin = "0.8"
+
+# AppleScript parsing
+scpt = { path = "crates/scpt" }
 
 # YARA pattern matching
 yara-x = "0.10"
@@ -30,6 +36,12 @@ tree-sitter-perl = "1.1"
 tree-sitter-lua = "0.4"
 tree-sitter-c-sharp = "0.23"
 tree-sitter-powershell = "0.25"
+tree-sitter-swift = "0.7"
+tree-sitter-objc = "3.0"
+tree-sitter-groovy = "0.1"
+tree-sitter-scala = "0.24"
+tree-sitter-zig = "1.1"
+tree-sitter-elixir = "0.3"
 
 # Serialization
 serde = { version = "1.0", features = ["derive"] }
@@ -56,6 +68,7 @@ rayon = "1.10"
 # Utilities
 sha2 = "0.10"
 regex = "1.11"
+memchr = "2.7"
 anyhow = "1.0"
 thiserror = "1.0"
 chrono = { version = "0.4", features = ["serde"] }

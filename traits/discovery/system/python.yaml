@@ -11,7 +11,7 @@ defaults:
 traits:
   # Platform module - OS detection (Alias-resistant AST)
   - id: python-platform-system
-    description: "Profiles the host operating system type"
+    description: Profiles the host operating system type
     confidence: 0.8
     condition:
       type: ast_pattern
@@ -19,7 +19,7 @@ traits:
       pattern: ".system()"
 
   - id: python-platform-machine
-    description: "Identifies the host CPU architecture"
+    description: Identifies the host CPU architecture
     confidence: 0.75
     condition:
       type: ast_pattern
@@ -27,7 +27,7 @@ traits:
       pattern: ".machine()"
 
   - id: python-platform-node
-    description: "Retrieves the system hostname"
+    description: Retrieves the system hostname
     confidence: 0.7
     condition:
       type: ast_pattern
@@ -35,7 +35,7 @@ traits:
       pattern: ".node()"
 
   - id: python-platform-uname
-    description: "Collects comprehensive system hardware and OS information"
+    description: Collects comprehensive system hardware and OS information
     confidence: 0.8
     condition:
       type: ast_pattern
@@ -44,25 +44,56 @@ traits:
 
   # User lookup (Alias-resistant)
   - id: python-getpass-user
-    description: "Identifies the current logged-in user"
+    description: Identifies the current logged-in user
     confidence: 0.85
     condition:
       type: ast_pattern
       node_type: call
       pattern: ".getuser()"
 
-  # MAC address discovery
-  - id: python-mac-discovery
-    description: "Collects hardware MAC addresses for system fingerprinting"
-    confidence: 0.8
+  # === MAC address discovery (atomic) ===
+  - id: getmac-module
+    description: getmac module for MAC address discovery
+    criticality: inert
+    confidence: 0.6
     condition:
       type: string
-      regex: 'getmac|ifconfig|uuid\.getnode\(\)'
+      exact: "getmac"
+
+  - id: ifconfig-cmd
+    description: ifconfig command for network info
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "ifconfig"
+
+  - id: uuid-getnode
+    description: uuid.getnode() for MAC address
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "uuid.getnode()"
 
 composite_rules:
+  # MAC address discovery
+  - id: python-mac-discovery
+    description: Collects hardware MAC addresses for system fingerprinting
+    criticality: notable
+    confidence: 0.8
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: getmac-module
+      - type: trait
+        id: ifconfig-cmd
+      - type: trait
+        id: uuid-getnode
+
   # Composite: Intensive system enumeration (Alias-resistant)
   - id: python-enumeration
-    description: "Performs intensive system enumeration (multiple info leaks)"
+    description: Performs intensive system enumeration (multiple info leaks)
     criticality: suspicious
     confidence: 0.95
     near_lines: 80
@@ -70,7 +101,7 @@ composite_rules:
     conditions:
       - type: trait
         id: python-platform-system
-      - type: trait
+      - type: composite
         id: python-mac-discovery
       - type: trait
         id: python-getpass-user

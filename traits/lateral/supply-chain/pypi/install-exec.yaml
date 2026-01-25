@@ -37,9 +37,8 @@ traits:
       type: string
       regex: "except\\s*(ImportError)?.*:\\s*\\n?\\s*(os\\.system|subprocess)"
 
-composite_rules:
-  # Setup.py with external code execution or network activity
-  - id: setup-py-exec
+  # Setup.py with external code execution or network activity (YARA)
+  - id: setup-py-exec-yara
     description: "setup.py with suspicious code execution or network activity"
     criticality: suspicious
     confidence: 0.95
@@ -86,8 +85,8 @@ composite_rules:
             not any of ($legit*)
         }
 
-  # __init__.py with code execution (very suspicious)
-  - id: init-py-exec
+  # __init__.py with code execution (YARA)
+  - id: init-py-exec-yara
     description: "__init__.py with immediate code execution"
     criticality: suspicious
     confidence: 0.9
@@ -105,7 +104,7 @@ composite_rules:
             $subprocess_call = "subprocess.call(" ascii
             $subprocess_popen = "subprocess.Popen(" ascii
             $pip = "pip install" ascii nocase
-            $http = /https?:\/\/// ascii
+            $http = /https?:\/\// ascii
             // Legitimate patterns (excludes)
             $legit_sdist = "setup.py sdist" ascii nocase
             $legit_bdist = "bdist_wheel" ascii nocase
@@ -124,8 +123,8 @@ composite_rules:
             not any of ($legit*)
         }
 
-  # Package that installs other packages at runtime
-  - id: dependency-injection
+  # Package that installs other packages at runtime (YARA)
+  - id: dependency-injection-yara
     description: "Package installs additional dependencies at runtime"
     criticality: suspicious
     confidence: 0.95
@@ -145,3 +144,34 @@ composite_rules:
           condition:
             $try and $except and $import and ($pip_install or $sys_exec)
         }
+
+composite_rules:
+  # Setup.py with external code execution or network activity
+  - id: setup-py-exec
+    description: "setup.py with suspicious code execution or network activity"
+    criticality: suspicious
+    confidence: 0.95
+    mbc: "B0030"
+    requires_all:
+      - type: trait
+        id: setup-py-exec-yara
+
+  # __init__.py with code execution (very suspicious)
+  - id: init-py-exec
+    description: "__init__.py with immediate code execution"
+    criticality: suspicious
+    confidence: 0.9
+    mbc: "B0030"
+    requires_all:
+      - type: trait
+        id: init-py-exec-yara
+
+  # Package that installs other packages at runtime
+  - id: dependency-injection
+    description: "Package installs additional dependencies at runtime"
+    criticality: suspicious
+    confidence: 0.95
+    mbc: "B0030"
+    requires_all:
+      - type: trait
+        id: dependency-injection-yara

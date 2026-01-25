@@ -92,6 +92,54 @@ traits:
       type: string
       exact: "code_challenge"
 
+  - id: json-content-type
+    description: JSON content type header
+    criticality: info
+    confidence: 0.5
+    file_types: [all]
+    condition:
+      type: string
+      exact: "application/json"
+
+  - id: http-post-method
+    description: HTTP POST method
+    criticality: info
+    confidence: 0.5
+    file_types: [all]
+    condition:
+      type: string
+      exact: "POST"
+
+  - id: recon-computername
+    description: COMPUTERNAME environment variable
+    criticality: notable
+    confidence: 0.7
+    attack: "T1082"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "COMPUTERNAME"
+
+  - id: recon-userdomain
+    description: USERDOMAIN environment variable
+    criticality: notable
+    confidence: 0.7
+    attack: "T1082"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "USERDOMAIN"
+
+  - id: recon-ipinfo
+    description: ipinfo.io IP lookup service
+    criticality: notable
+    confidence: 0.7
+    attack: "T1016"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "ipinfo.io"
+
 composite_rules:
   - id: stealer-detected
     description: OAuth credential stealer
@@ -101,24 +149,33 @@ composite_rules:
     mbc: "B0028"
     file_types: [all]
     condition:
-      type: yara
-      source: |
-        rule oauth_stealer {
-          strings:
-            $json = "application/json"
-            $post = "POST"
-            $o_google1 = "googleapis.com/oauth2/v4/token"
-            $o_google2 = "accounts.google.com/o/oauth2/auth"
-            $o_google3 = "googleapis.com/oauth2/v1/userinfo"
-            $o_google4 = "GMAIL_CLIENT_ID"
-            $o_microsoft1 = "graph.microsoft.com/v1.0/me"
-            $o_microsoft2 = "login.microsoftonline.com/common/oauth2/v2.0/authorize"
-            $o_microsoft3 = "O365_CLIENT_ID"
-            $recon1 = "COMPUTERNAME"
-            $recon2 = "USERDOMAIN"
-            $recon3 = "ipinfo.io"
-          condition:
-            filesize < 10MB and
-            $json and $post and
-            5 of ($o*) and any of ($recon*)
-        }
+      type: composite
+      requires_all:
+        - type: trait
+          id: json-content-type
+        - type: trait
+          id: http-post-method
+      requires_any:
+        - type: trait
+          id: recon-computername
+        - type: trait
+          id: recon-userdomain
+        - type: trait
+          id: recon-ipinfo
+      requires_n:
+        count: 5
+        of:
+          - type: trait
+            id: google-token-endpoint
+          - type: trait
+            id: google-auth-endpoint
+          - type: trait
+            id: google-userinfo
+          - type: trait
+            id: gmail-client-id
+          - type: trait
+            id: microsoft-graph
+          - type: trait
+            id: microsoft-auth
+          - type: trait
+            id: o365-client-id

@@ -62,6 +62,51 @@ traits:
       type: string
       exact: "import disnake"
 
+  - id: ip-lookup-ipify
+    description: "ipify.org IP lookup service"
+    criticality: notable
+    confidence: 0.8
+    file_types: [all]
+    condition:
+      type: string
+      exact: "ipify.org"
+
+  - id: ip-lookup-ipinfo
+    description: "ipinfo.io IP lookup service"
+    criticality: notable
+    confidence: 0.8
+    file_types: [all]
+    condition:
+      type: string
+      exact: "ipinfo.io"
+
+  - id: ip-lookup-ifconfig
+    description: "ifconfig.me IP lookup service"
+    criticality: notable
+    confidence: 0.8
+    file_types: [all]
+    condition:
+      type: string
+      exact: "ifconfig.me"
+
+  - id: ip-lookup-icanhazip
+    description: "icanhazip IP lookup service"
+    criticality: notable
+    confidence: 0.8
+    file_types: [all]
+    condition:
+      type: string
+      exact: "icanhazip"
+
+  - id: ip-lookup-wtfismyip
+    description: "wtfismyip IP lookup service"
+    criticality: notable
+    confidence: 0.8
+    file_types: [all]
+    condition:
+      type: string
+      exact: "wtfismyip"
+
 composite_rules:
   - id: webhook-exfil
     description: Discord webhook exfiltration
@@ -71,18 +116,22 @@ composite_rules:
     mbc: "B0030"
     file_types: [all]
     condition:
-      type: yara
-      source: |
-        rule discord_webhook_exfil {
-          strings:
-            $webhook1 = /discord\.com\/api\/webhooks\/[\d]{10,22}/
-            $webhook2 = /discordapp\.com\/api\/webhooks\/[\d]{10,22}/
-            $ip_ipify = "ipify.org"
-            $ip_ipinfo = "ipinfo.io"
-            $ip_ifconfig = "ifconfig.me"
-            $ip_icanhazip = "icanhazip"
-            $ip_wtfismyip = "wtfismyip"
-          condition:
-            filesize < 100MB and
-            any of ($webhook*) and any of ($ip*)
-        }
+      type: composite
+      requires_any:
+        - type: trait
+          id: webhook-endpoint
+        - type: trait
+          id: webhook-endpoint-legacy
+      requires_n:
+        count: 1
+        of:
+          - type: trait
+            id: ip-lookup-ipify
+          - type: trait
+            id: ip-lookup-ipinfo
+          - type: trait
+            id: ip-lookup-ifconfig
+          - type: trait
+            id: ip-lookup-icanhazip
+          - type: trait
+            id: ip-lookup-wtfismyip

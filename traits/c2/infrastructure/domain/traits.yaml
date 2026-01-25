@@ -12,6 +12,60 @@ composite_rules:
     description: "Hardcoded .com domain"
     criticality: notable
     confidence: 0.7
+    requires_all:
+      - type: trait
+        id: hardcoded-domain-com-pattern
+
+  - id: hardcoded-domain-suspicious
+    description: "Hardcoded suspicious TLD domain (.ru, .cn, .xyz, .top, .pro)"
+    criticality: suspicious
+    confidence: 0.85
+    requires_all:
+      - type: trait
+        id: hardcoded-domain-suspicious-pattern
+
+  - id: dynamic-dns-domain
+    description: "Dynamic DNS domain (common C2 infrastructure)"
+    criticality: suspicious
+    confidence: 0.9
+    requires_all:
+      - type: trait
+        id: dynamic-dns-domain-pattern
+
+  - id: http-url-with-domain
+    description: "Network URL with domain name"
+    criticality: notable
+    confidence: 0.7
+    file_types: [all]
+    requires_all:
+      - type: trait
+        id: http-url-with-domain-pattern
+
+  - id: url-path-payload
+    description: "URL path suggesting payload download"
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1105"  # Override: Ingress Tool Transfer
+    requires_all:
+      - type: trait
+        id: url-path-payload-pattern
+
+  - id: c2-domain
+    description: "Likely C2 domain (suspicious TLD or dynamic DNS)"
+    criticality: suspicious
+    confidence: 0.85
+    requires_any:
+      - type: trait
+        id: hardcoded-domain-suspicious-pattern
+      - type: trait
+        id: dynamic-dns-domain-pattern
+
+traits:
+  # Atomic traits for composite rules
+  - id: hardcoded-domain-com-pattern
+    description: "Hardcoded .com/.org/.net domain pattern"
+    criticality: notable
+    confidence: 0.7
     condition:
       type: yara
       source: |
@@ -56,8 +110,8 @@ composite_rules:
             $domain and not any of ($legit*)
         }
 
-  - id: hardcoded-domain-suspicious
-    description: "Hardcoded suspicious TLD domain (.ru, .cn, .xyz, .top, .pro)"
+  - id: hardcoded-domain-suspicious-pattern
+    description: "Hardcoded suspicious TLD domain pattern"
     criticality: suspicious
     confidence: 0.85
     condition:
@@ -65,16 +119,16 @@ composite_rules:
       # Require subdomain or URL context to avoid matching Apple framework names
       regex: "\\b[a-zA-Z0-9][-a-zA-Z0-9]{0,62}\\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62}\\.(ru|cn|xyz|top|cc|ws|tk|ml|ga|cf|gq|pw|biz|club|date|download|racing|win|party|review|accountant|science|trade|webcam|bid|loan|pro)\\b|https?://[a-zA-Z0-9][-a-zA-Z0-9]*\\.(ru|cn|xyz|top|cc|ws|tk|ml|ga|cf|gq|pw|biz|club|work|date|stream|download|racing|pro)"
 
-  - id: dynamic-dns-domain
-    description: "Dynamic DNS domain (common C2 infrastructure)"
+  - id: dynamic-dns-domain-pattern
+    description: "Dynamic DNS domain pattern"
     criticality: suspicious
     confidence: 0.9
     condition:
       type: string
       regex: "\\b[a-zA-Z0-9][-a-zA-Z0-9]*\\.(duckdns|no-ip|dynu|freedns|afraid|hopto|zapto|sytes|ddns|servebeer|servehttp|serveftp|servegame|servequake|redirectme|bounceme|myftp|myvnc)\\.[a-z]{2,6}\\b"
 
-  - id: http-url-with-domain
-    description: "Network URL with domain name"
+  - id: http-url-with-domain-pattern
+    description: "Network URL with domain name pattern"
     criticality: notable
     confidence: 0.7
     file_types: [all]
@@ -116,8 +170,8 @@ composite_rules:
         - "amazon\\.com"
         - "aws\\.amazon\\.com"
 
-  - id: url-path-payload
-    description: "URL path suggesting payload download"
+  - id: url-path-payload-pattern
+    description: "URL path suggesting payload download pattern"
     criticality: suspicious
     confidence: 0.8
     attack: "T1105"  # Override: Ingress Tool Transfer
@@ -125,27 +179,116 @@ composite_rules:
       type: string
       regex: "(?:GET|POST|PUT)\\s+/[a-zA-Z0-9_./-]*\\.(bin|exe|sh|elf|dll|so|dat|payload|bot|drop)"
 
-  - id: c2-domain
-    description: "Likely C2 domain (suspicious TLD or dynamic DNS)"
-    criticality: suspicious
-    confidence: 0.85
-    requires_any:
-      - type: trait
-        id: hardcoded-domain-suspicious
-      - type: trait
-        id: dynamic-dns-domain
-
-traits:
-  # Malicious file hosting domains
-  - id: malware-hosting
-    description: Contacts known malware/payload hosting service
-    criticality: hostile
-    confidence: 0.95
+  # === Malicious file hosting domains (atomic) ===
+  - id: bullethost-cloud
+    description: Bullethost.cloud file hosting
+    criticality: inert
+    confidence: 0.7
     attack: "T1105"
     file_types: [all]
     condition:
       type: string
-      regex: '(bullethost\.cloud|anonfiles\.com|gofile\.io|transfer\.sh|tmpfiles\.org|catbox\.moe|uguu\.se|pomf\.cat|0x0\.st|file\.io|filedropper\.com)'
+      exact: "bullethost.cloud"
+
+  - id: anonfiles-com
+    description: Anonfiles.com file hosting
+    criticality: inert
+    confidence: 0.7
+    attack: "T1105"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "anonfiles.com"
+
+  - id: gofile-io
+    description: Gofile.io file hosting
+    criticality: inert
+    confidence: 0.7
+    attack: "T1105"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "gofile.io"
+
+  - id: transfer-sh
+    description: Transfer.sh file hosting
+    criticality: inert
+    confidence: 0.7
+    attack: "T1105"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "transfer.sh"
+
+  - id: tmpfiles-org
+    description: Tmpfiles.org file hosting
+    criticality: inert
+    confidence: 0.7
+    attack: "T1105"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "tmpfiles.org"
+
+  - id: catbox-moe
+    description: Catbox.moe file hosting
+    criticality: inert
+    confidence: 0.7
+    attack: "T1105"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "catbox.moe"
+
+  - id: uguu-se
+    description: Uguu.se file hosting
+    criticality: inert
+    confidence: 0.7
+    attack: "T1105"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "uguu.se"
+
+  - id: pomf-cat
+    description: Pomf.cat file hosting
+    criticality: inert
+    confidence: 0.7
+    attack: "T1105"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "pomf.cat"
+
+  - id: 0x0-st
+    description: 0x0.st file hosting
+    criticality: inert
+    confidence: 0.7
+    attack: "T1105"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "0x0.st"
+
+  - id: file-io
+    description: File.io file hosting
+    criticality: inert
+    confidence: 0.7
+    attack: "T1105"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "file.io"
+
+  - id: filedropper-com
+    description: Filedropper.com file hosting
+    criticality: inert
+    confidence: 0.7
+    attack: "T1105"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "filedropper.com"
 
   # Cloud storage abuse for payload hosting
   - id: appwrite-storage
@@ -178,16 +321,56 @@ traits:
       type: string
       regex: 'firebasestorage\.googleapis\.com/v[0-9]+/b/[^/]+/o/'
 
-  # PHP collector scripts (common exfil pattern)
-  - id: php-collector
-    description: Contacts PHP data collection endpoint
-    criticality: suspicious
-    confidence: 0.85
+  # === PHP collector scripts (atomic) ===
+  - id: php-collect
+    description: PHP collect endpoint
+    criticality: inert
+    confidence: 0.6
     attack: "T1041"
     file_types: [all]
     condition:
       type: string
-      regex: '/collect[_-]?(info|data|stats)?\.php|/log[_-]?(info|data)?\.php|/report\.php|/beacon\.php|/gate\.php'
+      regex: '/collect[_-]?(info|data|stats)?\\.php'
+
+  - id: php-log
+    description: PHP log endpoint
+    criticality: inert
+    confidence: 0.6
+    attack: "T1041"
+    file_types: [all]
+    condition:
+      type: string
+      regex: '/log[_-]?(info|data)?\\.php'
+
+  - id: php-report
+    description: PHP report endpoint
+    criticality: inert
+    confidence: 0.6
+    attack: "T1041"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "/report.php"
+
+  - id: php-beacon
+    description: PHP beacon endpoint
+    criticality: inert
+    confidence: 0.6
+    attack: "T1041"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "/beacon.php"
+
+  - id: php-gate
+    description: PHP gate endpoint
+    criticality: inert
+    confidence: 0.6
+    attack: "T1041"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "/gate.php"
 
   # Internal API probing
   - id: internal-api-probe
@@ -211,38 +394,148 @@ traits:
       type: string
       regex: 'https?://\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}[:/]'
 
-  # Serverless function URLs (common C2 vector)
-  - id: serverless-function
-    description: Contacts serverless function endpoint (Lambda, Azure, etc.)
-    criticality: notable
+  # === Serverless function URLs (atomic) ===
+  - id: aws-api-gateway
+    description: AWS API Gateway endpoint
+    criticality: inert
+    confidence: 0.5
+    attack: "T1071"
+    file_types: [all]
+    condition:
+      type: string
+      regex: 'execute-api\\.[a-z0-9-]+\\.amazonaws\\.com'
+
+  - id: azure-websites
+    description: Azure Websites endpoint
+    criticality: inert
+    confidence: 0.5
+    attack: "T1071"
+    file_types: [all]
+    condition:
+      type: string
+      regex: '[a-z0-9-]+\\.azurewebsites\\.net'
+
+  - id: google-cloud-functions
+    description: Google Cloud Functions endpoint
+    criticality: inert
+    confidence: 0.5
+    attack: "T1071"
+    file_types: [all]
+    condition:
+      type: string
+      regex: '[a-z0-9-]+\\.cloudfunctions\\.net'
+
+  - id: vercel-app
+    description: Vercel app endpoint
+    criticality: inert
+    confidence: 0.5
+    attack: "T1071"
+    file_types: [all]
+    condition:
+      type: string
+      regex: '[a-z0-9-]+\\.vercel\\.app'
+
+  - id: netlify-app
+    description: Netlify app endpoint
+    criticality: inert
+    confidence: 0.5
+    attack: "T1071"
+    file_types: [all]
+    condition:
+      type: string
+      regex: '[a-z0-9-]+\\.netlify\\.app'
+
+  # === Ngrok tunnels (atomic) ===
+  - id: ngrok-io
+    description: Ngrok.io tunnel endpoint
+    criticality: inert
     confidence: 0.7
     attack: "T1071"
     file_types: [all]
     condition:
       type: string
-      regex: '(execute-api\.[a-z0-9-]+\.amazonaws\.com|[a-z0-9-]+\.azurewebsites\.net|[a-z0-9-]+\.cloudfunctions\.net|[a-z0-9-]+\.vercel\.app|[a-z0-9-]+\.netlify\.app)'
+      regex: '[a-z0-9]+\\.ngrok\\.io'
 
-  # Ngrok tunnels
-  - id: ngrok-tunnel
-    description: Contacts ngrok tunnel endpoint
-    criticality: suspicious
-    confidence: 0.9
+  - id: ngrok-free-app
+    description: Ngrok-free.app tunnel endpoint
+    criticality: inert
+    confidence: 0.7
     attack: "T1071"
     file_types: [all]
     condition:
       type: string
-      regex: '[a-z0-9]+\.ngrok\.io|[a-z0-9]+\.ngrok-free\.app'
+      regex: '[a-z0-9]+\\.ngrok-free\\.app'
 
-  # Pastebin-like services
-  - id: paste-service
-    description: Contacts paste/bin service (common payload host)
-    criticality: suspicious
-    confidence: 0.85
+  # === Pastebin-like services (atomic) ===
+  - id: pastebin-com
+    description: Pastebin.com with path
+    criticality: inert
+    confidence: 0.6
     attack: "T1102"
     file_types: [all]
     condition:
       type: string
-      regex: '(pastebin\.com|hastebin\.com|ghostbin\.com|paste\.ee|dpaste\.com|privatebin\.net|rentry\.co)/[a-zA-Z0-9]+'
+      regex: 'pastebin\\.com/[a-zA-Z0-9]+'
+
+  - id: hastebin-com
+    description: Hastebin.com with path
+    criticality: inert
+    confidence: 0.6
+    attack: "T1102"
+    file_types: [all]
+    condition:
+      type: string
+      regex: 'hastebin\\.com/[a-zA-Z0-9]+'
+
+  - id: ghostbin-com
+    description: Ghostbin.com with path
+    criticality: inert
+    confidence: 0.6
+    attack: "T1102"
+    file_types: [all]
+    condition:
+      type: string
+      regex: 'ghostbin\\.com/[a-zA-Z0-9]+'
+
+  - id: paste-ee
+    description: Paste.ee with path
+    criticality: inert
+    confidence: 0.6
+    attack: "T1102"
+    file_types: [all]
+    condition:
+      type: string
+      regex: 'paste\\.ee/[a-zA-Z0-9]+'
+
+  - id: dpaste-com
+    description: Dpaste.com with path
+    criticality: inert
+    confidence: 0.6
+    attack: "T1102"
+    file_types: [all]
+    condition:
+      type: string
+      regex: 'dpaste\\.com/[a-zA-Z0-9]+'
+
+  - id: privatebin-net
+    description: Privatebin.net with path
+    criticality: inert
+    confidence: 0.6
+    attack: "T1102"
+    file_types: [all]
+    condition:
+      type: string
+      regex: 'privatebin\\.net/[a-zA-Z0-9]+'
+
+  - id: rentry-co
+    description: Rentry.co with path
+    criticality: inert
+    confidence: 0.6
+    attack: "T1102"
+    file_types: [all]
+    condition:
+      type: string
+      regex: 'rentry\\.co/[a-zA-Z0-9]+'
 
   # Vercel serverless C2 (elevated - commonly abused)
   - id: vercel-serverless
@@ -255,16 +548,26 @@ traits:
       type: string
       regex: '[a-z0-9-]+\.vercel\.app(?:/|$)'
 
-  # Replit-hosted C2
-  - id: replit-hosted
-    description: Contacts Replit-hosted endpoint (commonly abused)
-    criticality: suspicious
-    confidence: 0.85
+  # === Replit-hosted (atomic) ===
+  - id: replit-dev
+    description: Replit.dev endpoint
+    criticality: inert
+    confidence: 0.6
     attack: "T1071"
     file_types: [all]
     condition:
       type: string
-      regex: '[a-z0-9-]+\.replit\.dev|[a-z0-9-]+\.repl\.co'
+      regex: '[a-z0-9-]+\\.replit\\.dev'
+
+  - id: repl-co
+    description: Repl.co endpoint
+    criticality: inert
+    confidence: 0.6
+    attack: "T1071"
+    file_types: [all]
+    condition:
+      type: string
+      regex: '[a-z0-9-]+\\.repl\\.co'
 
   # Glitch-hosted C2
   - id: glitch-hosted
@@ -354,13 +657,174 @@ traits:
       type: string
       regex: '[a-z0-9-]+\.trycloudflare\.com'
 
-  # Chisel tunnel binary
+  # === Chisel tunnel (atomic) ===
+  - id: chisel-client
+    description: Chisel client command
+    criticality: inert
+    confidence: 0.7
+    attack: "T1572"
+    file_types: [all]
+    condition:
+      type: string
+      regex: 'chisel\\s+client'
+
+  - id: chisel-server
+    description: Chisel server command
+    criticality: inert
+    confidence: 0.7
+    attack: "T1572"
+    file_types: [all]
+    condition:
+      type: string
+      regex: 'chisel\\s+server'
+
+  - id: chisel-github
+    description: Chisel GitHub repo reference
+    criticality: inert
+    confidence: 0.7
+    attack: "T1572"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "jpillora/chisel"
+
+composite_rules:
+  # Malware hosting services
+  - id: malware-hosting
+    description: Contacts known malware/payload hosting service
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1105"
+    file_types: [all]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: bullethost-cloud
+      - type: trait
+        id: anonfiles-com
+      - type: trait
+        id: gofile-io
+      - type: trait
+        id: transfer-sh
+      - type: trait
+        id: tmpfiles-org
+      - type: trait
+        id: catbox-moe
+      - type: trait
+        id: uguu-se
+      - type: trait
+        id: pomf-cat
+      - type: trait
+        id: 0x0-st
+      - type: trait
+        id: file-io
+      - type: trait
+        id: filedropper-com
+
+  # PHP collector endpoints
+  - id: php-collector
+    description: Contacts PHP data collection endpoint
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1041"
+    file_types: [all]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: php-collect
+      - type: trait
+        id: php-log
+      - type: trait
+        id: php-report
+      - type: trait
+        id: php-beacon
+      - type: trait
+        id: php-gate
+
+  # Serverless function endpoints
+  - id: serverless-function
+    description: Contacts serverless function endpoint (Lambda, Azure, etc.)
+    criticality: notable
+    confidence: 0.7
+    attack: "T1071"
+    file_types: [all]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: aws-api-gateway
+      - type: trait
+        id: azure-websites
+      - type: trait
+        id: google-cloud-functions
+      - type: trait
+        id: vercel-app
+      - type: trait
+        id: netlify-app
+
+  # Ngrok tunnels
+  - id: ngrok-tunnel
+    description: Contacts ngrok tunnel endpoint
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1071"
+    file_types: [all]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: ngrok-io
+      - type: trait
+        id: ngrok-free-app
+
+  # Paste services
+  - id: paste-service
+    description: Contacts paste/bin service (common payload host)
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1102"
+    file_types: [all]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: pastebin-com
+      - type: trait
+        id: hastebin-com
+      - type: trait
+        id: ghostbin-com
+      - type: trait
+        id: paste-ee
+      - type: trait
+        id: dpaste-com
+      - type: trait
+        id: privatebin-net
+      - type: trait
+        id: rentry-co
+
+  # Replit-hosted
+  - id: replit-hosted
+    description: Contacts Replit-hosted endpoint (commonly abused)
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1071"
+    file_types: [all]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: replit-dev
+      - type: trait
+        id: repl-co
+
+  # Chisel tunnel
   - id: chisel-tunnel
     description: Chisel reverse tunnel infrastructure
     criticality: hostile
     confidence: 0.95
     attack: "T1572"
     file_types: [all]
-    condition:
-      type: string
-      regex: 'chisel\\s+(client|server)|jpillora/chisel'
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: chisel-client
+      - type: trait
+        id: chisel-server
+      - type: trait
+        id: chisel-github

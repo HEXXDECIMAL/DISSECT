@@ -5,7 +5,7 @@ defaults:
   attack: "T1552.001"
   criticality: suspicious
 
-composite_rules:
+traits:
   # === Atomic: AWS ===
   - id: aws-config
     description: AWS configuration directory
@@ -67,7 +67,124 @@ composite_rules:
       type: string
       regex: "\\.env\\b"
 
-  # === Composite Rules ===
+  # === AWS IMDS (atomic) ===
+  - id: aws-imds-ip
+    description: AWS metadata service IP
+    criticality: inert
+    confidence: 0.7
+    attack: "T1552.005"
+    file_types: [javascript, typescript, python, shell]
+    condition:
+      type: string
+      exact: "169.254.169.254"
+
+  - id: aws-imds-path
+    description: AWS instance metadata path
+    criticality: inert
+    confidence: 0.7
+    attack: "T1552.005"
+    file_types: [javascript, typescript, python, shell]
+    condition:
+      type: string
+      exact: "instance-data/latest/meta-data"
+
+  - id: aws-iam-creds-path
+    description: AWS IAM security credentials path
+    criticality: inert
+    confidence: 0.7
+    attack: "T1552.005"
+    file_types: [javascript, typescript, python, shell]
+    condition:
+      type: string
+      exact: "iam/security-credentials"
+
+  # === GCP metadata (atomic) ===
+  - id: gcp-metadata-host
+    description: GCP metadata internal hostname
+    criticality: inert
+    confidence: 0.7
+    attack: "T1552.005"
+    file_types: [javascript, typescript, python, shell]
+    condition:
+      type: string
+      exact: "metadata.google.internal"
+
+  - id: gcp-compute-metadata
+    description: GCP compute metadata path
+    criticality: inert
+    confidence: 0.7
+    attack: "T1552.005"
+    file_types: [javascript, typescript, python, shell]
+    condition:
+      type: string
+      exact: "computeMetadata/v1"
+
+  # === Azure IMDS (atomic) ===
+  - id: azure-metadata-identity
+    description: Azure metadata identity path
+    criticality: inert
+    confidence: 0.7
+    attack: "T1552.005"
+    file_types: [javascript, typescript, python, shell]
+    condition:
+      type: string
+      regex: '169\.254\.169\.254.*metadata/identity'
+
+  - id: azure-metadata-header
+    description: Azure Metadata header
+    criticality: inert
+    confidence: 0.7
+    attack: "T1552.005"
+    file_types: [javascript, typescript, python, shell]
+    condition:
+      type: string
+      regex: 'Metadata:\s*true'
+
+composite_rules:
+  # AWS IMDS access
+  - id: aws-imds-access
+    description: AWS metadata service access (credential theft)
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1552.005"
+    file_types: [javascript, typescript, python, shell]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: aws-imds-ip
+      - type: trait
+        id: aws-imds-path
+      - type: trait
+        id: aws-iam-creds-path
+
+  # GCP metadata access
+  - id: gcp-metadata-access
+    description: GCP metadata service access (credential theft)
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1552.005"
+    file_types: [javascript, typescript, python, shell]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: gcp-metadata-host
+      - type: trait
+        id: gcp-compute-metadata
+
+  # Azure IMDS access
+  - id: azure-imds-access
+    description: Azure metadata service access (credential theft)
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1552.005"
+    file_types: [javascript, typescript, python, shell]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: azure-metadata-identity
+      - type: trait
+        id: azure-metadata-header
+
   - id: aws-credential-theft
     description: AWS credential theft
     confidence: 0.85
@@ -89,37 +206,3 @@ composite_rules:
     requires_any:
       - type: trait
         id: gcp-default-credentials
-
-traits:
-  # AWS Instance Metadata Service (IMDS) access
-  - id: aws-imds-access
-    description: AWS metadata service access (credential theft)
-    criticality: suspicious
-    confidence: 0.95
-    attack: "T1552.005"
-    file_types: [javascript, typescript, python, shell]
-    condition:
-      type: string
-      regex: "169\\.254\\.169\\.254|instance-data/latest/meta-data|iam/security-credentials"
-
-  # GCP metadata service access
-  - id: gcp-metadata-access
-    description: GCP metadata service access (credential theft)
-    criticality: suspicious
-    confidence: 0.95
-    attack: "T1552.005"
-    file_types: [javascript, typescript, python, shell]
-    condition:
-      type: string
-      regex: "metadata\\.google\\.internal|computeMetadata/v1"
-
-  # Azure IMDS access
-  - id: azure-imds-access
-    description: Azure metadata service access (credential theft)
-    criticality: suspicious
-    confidence: 0.95
-    attack: "T1552.005"
-    file_types: [javascript, typescript, python, shell]
-    condition:
-      type: string
-      regex: "169\\.254\\.169\\.254.*metadata/identity|Metadata:\\s*true"

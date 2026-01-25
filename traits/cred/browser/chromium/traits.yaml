@@ -14,6 +14,69 @@ traits:
       type: string
       exact: "/Google/Chrome"
 
+  - id: brave-path
+    description: Brave browser profile path
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1555.003"
+    condition:
+      type: string
+      exact: "BraveSoftware/Brave-Browser"
+
+  - id: edge-path
+    description: Microsoft Edge browser profile path
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1555.003"
+    condition:
+      type: string
+      exact: "Microsoft Edge"
+
+  - id: opera-path
+    description: Opera browser profile path
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1555.003"
+    condition:
+      type: string
+      regex: "com\\.operasoftware\\.Opera|Opera Software/Opera"
+
+  - id: operagx-path
+    description: Opera GX browser profile path
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1555.003"
+    condition:
+      type: string
+      exact: "com.operasoftware.OperaGX"
+
+  - id: vivaldi-path
+    description: Vivaldi browser profile path
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1555.003"
+    condition:
+      type: string
+      exact: "Vivaldi"
+
+  - id: arc-path
+    description: Arc browser profile path
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1555.003"
+    condition:
+      type: string
+      regex: "/Arc/|Arc/User Data"
+
+  - id: coccoc-path
+    description: Coccoc browser profile path
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1555.003"
+    condition:
+      type: string
+      exact: "Coccoc"
+
   - id: cookies-path
     description: Chromium Cookies file path
     criticality: suspicious
@@ -182,3 +245,21 @@ composite_rules:
         id: web-data
       - type: trait
         id: credit-cards-table
+
+  # Multi-browser targeting (stealer behavior)
+  - id: multi-browser
+    description: Multiple Chromium browsers targeted (stealer behavior)
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1555.003"
+    mbc: "B0028"
+    file_types: [python, javascript, applescript, shell, elf, pe, macho]
+    requires_count: 3
+    conditions:
+      - {type: trait, id: chrome-path}
+      - {type: trait, id: brave-path}
+      - {type: trait, id: edge-path}
+      - {type: trait, id: opera-path}
+      - {type: trait, id: operagx-path}
+      - {type: trait, id: vivaldi-path}
+      - {type: trait, id: arc-path}

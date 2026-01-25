@@ -26,14 +26,11 @@ traits:
       type: string
       regex: "multiprocessing\\.(Process|Pool)"
 
-composite_rules:
-  # Fork bomb: os.fork() inside while True loop
-  - id: infinite-fork
-    description: Fork bomb - infinite process forking (DoS)
+  # YARA detection for fork bomb pattern
+  - id: yara-fork-bomb
+    description: YARA detection for Python fork bomb pattern
     criticality: hostile
     confidence: 0.98
-    attack: "T1499.004"
-    mbc: "B0033"
     condition:
       type: yara
       source: |
@@ -53,12 +50,11 @@ composite_rules:
             any of ($while_true, $while_1, $for_ever)
         }
 
-  # Fork without rate limiting in tight loop (suspicious)
-  - id: rapid-fork
-    description: Rapid process forking without delay
+  # YARA detection for rapid forking without delay
+  - id: yara-rapid-fork
+    description: YARA detection for rapid forking without sleep/delay
     criticality: suspicious
     confidence: 0.85
-    attack: "T1499.004"
     condition:
       type: yara
       source: |
@@ -80,3 +76,25 @@ composite_rules:
             any of ($while, $for) and
             not any of ($sleep, $worker, $pool, $daemon)
         }
+
+composite_rules:
+  # Fork bomb: os.fork() inside while True loop
+  - id: infinite-fork
+    description: Fork bomb - infinite process forking (DoS)
+    criticality: hostile
+    confidence: 0.98
+    attack: "T1499.004"
+    mbc: "B0033"
+    requires_all:
+      - type: trait
+        id: yara-fork-bomb
+
+  # Fork without rate limiting in tight loop (suspicious)
+  - id: rapid-fork
+    description: Rapid process forking without delay
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1499.004"
+    requires_all:
+      - type: trait
+        id: yara-rapid-fork

@@ -147,6 +147,16 @@ traits:
       type: string
       exact: "acmacodkjbdgmoleebolmdjonilkdbch"
 
+  - id: brave
+    description: Brave Wallet extension ID
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1555.003"
+    mbc: "B0028"
+    condition:
+      type: string
+      exact: "odbfpeeihdkbihmopkbjmoonfanlbfcl"
+
   # === Desktop/Universal Wallets (referenced in strings) ===
 
   - id: coinomi

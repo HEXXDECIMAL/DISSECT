@@ -55,6 +55,24 @@ traits:
       type: string
       regex: "/etc/init\\.d/|update-rc\\.d|chkconfig"
 
+  # XDG autostart directory path (for composite rules)
+  - id: linux-xdg-autostart-dir
+    description: "XDG autostart directory path"
+    confidence: 0.8
+    criticality: notable
+    condition:
+      type: string
+      regex: "\\.config/autostart|/etc/xdg/autostart"
+
+  # Desktop entry executable directive
+  - id: linux-desktop-entry-exec
+    description: "Desktop entry executable directive"
+    confidence: 0.8
+    criticality: notable
+    condition:
+      type: string
+      regex: "Exec=|Hidden=false|Type=Application"
+
 composite_rules:
   # XDG autostart with executable
   - id: linux-xdg-executable
@@ -65,7 +83,7 @@ composite_rules:
     mbc: "F0006"
     file_types: [shell, python, elf]
     requires_all:
-      - type: string
-        regex: "\\.config/autostart|/etc/xdg/autostart"
-      - type: string
-        regex: "Exec=|Hidden=false|Type=Application"
+      - type: trait
+        id: linux-xdg-autostart-dir
+      - type: trait
+        id: linux-desktop-entry-exec

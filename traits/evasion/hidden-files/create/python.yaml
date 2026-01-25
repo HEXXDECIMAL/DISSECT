@@ -53,22 +53,35 @@ traits:
       type: string
       regex: "\\.mkdir\\([^)]*\\)"
 
-composite_rules:
-  # Home + hidden directory - classic malware staging area
-  - id: python-home-hidden-staging
-    description: "Malware staging in hidden home directory"
-    confidence: 0.95
-    criticality: hostile
-    requires_all:
-      - type: string
-        # expanduser or Path.home
-        regex: 'os\\.path\\.expanduser\\([^)]*~|Path\\.home\\(\\)'
-      - type: string
-        # join with hidden dir
-        regex: "os\\.path\\.join\\([^)]*[,]\\s*[\"']\\.[a-zA-Z]|/\\s*[\"']\\.[a-zA-Z]"
-      - type: string
-        # file write or makedirs
-        regex: "os\\.makedirs\\(|open\\([^)]+[\"']w"
+  # Home directory expansion: expanduser or Path.home
+  - id: python-home-expansion
+    description: "Home directory path expansion"
+    criticality: notable
+    confidence: 0.8
+    condition:
+      type: string
+      # expanduser or Path.home
+      regex: 'os\.path\.expanduser\([^)]*~|Path\.home\(\)'
+
+  # Hidden directory join pattern
+  - id: python-hidden-join-pattern
+    description: "Join with hidden directory pattern"
+    criticality: notable
+    confidence: 0.8
+    condition:
+      type: string
+      # join with hidden dir
+      regex: "os\\.path\\.join\\([^)]*[,]\\s*[\"']\\.[a-zA-Z]|/\\s*[\"']\\.[a-zA-Z]"
+
+  # File write or directory creation
+  - id: python-write-or-makedirs
+    description: "File write or directory creation"
+    criticality: notable
+    confidence: 0.8
+    condition:
+      type: string
+      # file write or makedirs
+      regex: "os\\.makedirs\\(|open\\([^)]+[\"']w"
 
   # Hidden directory with short cryptic name (.n2, .x, .tmp2)
   - id: python-cryptic-hidden
@@ -84,3 +97,17 @@ composite_rules:
         - '".aws"'
         - '".npm"'
         - '".pyc"'
+
+composite_rules:
+  # Home + hidden directory - classic malware staging area
+  - id: python-home-hidden-staging
+    description: "Malware staging in hidden home directory"
+    confidence: 0.95
+    criticality: hostile
+    requires_all:
+      - type: trait
+        id: python-home-expansion
+      - type: trait
+        id: python-hidden-join-pattern
+      - type: trait
+        id: python-write-or-makedirs

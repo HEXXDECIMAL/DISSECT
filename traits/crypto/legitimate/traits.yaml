@@ -4,225 +4,796 @@
 
 defaults:
   file_types: [pe, elf, macho, dll, so, dylib]
+  criticality: benign
 
 traits:
-  # OpenSSL library usage (legitimate TLS)
+  # === OpenSSL atomic indicators ===
+  - id: ssl-library-init
+    description: OpenSSL SSL_library_init
+    confidence: 0.7
+    condition:
+      type: string
+      exact: SSL_library_init
+
+  - id: ssl-ctx-new
+    description: OpenSSL SSL_CTX_new
+    confidence: 0.7
+    condition:
+      type: string
+      exact: SSL_CTX_new
+
+  - id: ssl-new
+    description: OpenSSL SSL_new
+    confidence: 0.7
+    condition:
+      type: string
+      exact: SSL_new
+
+  - id: ssl-connect
+    description: OpenSSL SSL_connect
+    confidence: 0.7
+    condition:
+      type: string
+      exact: SSL_connect
+
+  - id: ssl-read
+    description: OpenSSL SSL_read
+    confidence: 0.7
+    condition:
+      type: string
+      exact: SSL_read
+
+  - id: ssl-write
+    description: OpenSSL SSL_write
+    confidence: 0.7
+    condition:
+      type: string
+      exact: SSL_write
+
+  - id: tls-v1-method
+    description: TLSv1_method
+    confidence: 0.8
+    condition:
+      type: string
+      exact: TLSv1_method
+
+  - id: tls-v1-2-method
+    description: TLSv1_2_method
+    confidence: 0.8
+    condition:
+      type: string
+      exact: TLSv1_2_method
+
+  - id: tls-method
+    description: TLS_method
+    confidence: 0.8
+    condition:
+      type: string
+      exact: TLS_method
+
+  - id: openssl-version
+    description: OpenSSL version string
+    confidence: 0.9
+    condition:
+      type: string
+      exact: "OpenSSL "
+
+  # === Hash function atomic indicators ===
+  - id: md5-init
+    description: MD5_Init function
+    confidence: 0.6
+    condition:
+      type: string
+      exact: MD5_Init
+
+  - id: md5-update
+    description: MD5_Update function
+    confidence: 0.6
+    condition:
+      type: string
+      exact: MD5_Update
+
+  - id: md5-final
+    description: MD5_Final function
+    confidence: 0.6
+    condition:
+      type: string
+      exact: MD5_Final
+
+  - id: sha1-init
+    description: SHA1_Init function
+    confidence: 0.6
+    condition:
+      type: string
+      exact: SHA1_Init
+
+  - id: sha1-update
+    description: SHA1_Update function
+    confidence: 0.6
+    condition:
+      type: string
+      exact: SHA1_Update
+
+  - id: sha256-init
+    description: SHA256_Init function
+    confidence: 0.6
+    condition:
+      type: string
+      exact: SHA256_Init
+
+  - id: sha256-update
+    description: SHA256_Update function
+    confidence: 0.6
+    condition:
+      type: string
+      exact: SHA256_Update
+
+  - id: sha512-init
+    description: SHA512_Init function
+    confidence: 0.6
+    condition:
+      type: string
+      exact: SHA512_Init
+
+  - id: go-crypto-sha256
+    description: Go crypto/sha256 package
+    confidence: 0.8
+    condition:
+      type: string
+      exact: crypto/sha256
+
+  - id: go-crypto-sha512
+    description: Go crypto/sha512 package
+    confidence: 0.8
+    condition:
+      type: string
+      exact: crypto/sha512
+
+  - id: go-crypto-md5
+    description: Go crypto/md5 package
+    confidence: 0.8
+    condition:
+      type: string
+      exact: crypto/md5
+
+  # === GnuTLS atomic indicators ===
+  - id: gnutls-init
+    description: gnutls_init function
+    confidence: 0.7
+    condition:
+      type: string
+      exact: gnutls_init
+
+  - id: gnutls-handshake
+    description: gnutls_handshake function
+    confidence: 0.7
+    condition:
+      type: string
+      exact: gnutls_handshake
+
+  - id: gnutls-record-send
+    description: gnutls_record_send function
+    confidence: 0.7
+    condition:
+      type: string
+      exact: gnutls_record_send
+
+  - id: gnutls-record-recv
+    description: gnutls_record_recv function
+    confidence: 0.7
+    condition:
+      type: string
+      exact: gnutls_record_recv
+
+  - id: gnutls-certificate
+    description: gnutls_certificate_ prefix
+    confidence: 0.7
+    condition:
+      type: string
+      regex: 'gnutls_certificate_'
+
+  - id: gnutls-x509
+    description: gnutls_x509_ prefix
+    confidence: 0.7
+    condition:
+      type: string
+      regex: 'gnutls_x509_'
+
+  - id: gnutls-version
+    description: GnuTLS version string
+    confidence: 0.9
+    condition:
+      type: string
+      exact: GnuTLS
+
+  # === NSS atomic indicators ===
+  - id: nss-init
+    description: NSS_Init function
+    confidence: 0.7
+    condition:
+      type: string
+      exact: NSS_Init
+
+  - id: nss-pk11
+    description: PK11_ prefix
+    confidence: 0.7
+    condition:
+      type: string
+      regex: 'PK11_'
+
+  - id: nss-cert
+    description: CERT_ prefix
+    confidence: 0.7
+    condition:
+      type: string
+      regex: '\bCERT_'
+
+  - id: nss-sec
+    description: SEC_ prefix
+    confidence: 0.7
+    condition:
+      type: string
+      regex: '\bSEC_'
+
+  - id: nss-secmod
+    description: SECMOD_ prefix
+    confidence: 0.7
+    condition:
+      type: string
+      regex: 'SECMOD_'
+
+  - id: libnss
+    description: libnss library
+    confidence: 0.8
+    condition:
+      type: string
+      exact: libnss
+
+  # === libsodium atomic indicators ===
+  - id: sodium-init
+    description: sodium_init function
+    confidence: 0.8
+    condition:
+      type: string
+      exact: sodium_init
+
+  - id: sodium-secretbox
+    description: crypto_secretbox function
+    confidence: 0.8
+    condition:
+      type: string
+      exact: crypto_secretbox
+
+  - id: sodium-box
+    description: crypto_box function
+    confidence: 0.8
+    condition:
+      type: string
+      exact: crypto_box
+
+  - id: sodium-sign
+    description: crypto_sign function
+    confidence: 0.8
+    condition:
+      type: string
+      exact: crypto_sign
+
+  - id: sodium-hash
+    description: crypto_hash function
+    confidence: 0.8
+    condition:
+      type: string
+      exact: crypto_hash
+
+  - id: sodium-pwhash
+    description: crypto_pwhash function
+    confidence: 0.8
+    condition:
+      type: string
+      exact: crypto_pwhash
+
+  - id: sodium-randombytes
+    description: randombytes function
+    confidence: 0.7
+    condition:
+      type: string
+      exact: randombytes
+
+  - id: libsodium
+    description: libsodium library
+    confidence: 0.9
+    condition:
+      type: string
+      exact: libsodium
+
+  # === Rust crypto atomic indicators ===
+  - id: rust-ring
+    description: Rust ring crate
+    confidence: 0.8
+    condition:
+      type: string
+      exact: "ring::"
+
+  - id: rust-rustls
+    description: Rust rustls crate
+    confidence: 0.8
+    condition:
+      type: string
+      exact: "rustls::"
+
+  - id: rust-aes
+    description: Rust aes crate
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "aes::"
+
+  - id: rust-chacha
+    description: Rust chacha20poly1305
+    confidence: 0.8
+    condition:
+      type: string
+      exact: chacha20poly1305
+
+  - id: rust-rsa
+    description: Rust rsa crate
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "rsa::"
+
+  - id: rust-ed25519
+    description: Rust ed25519
+    confidence: 0.8
+    condition:
+      type: string
+      exact: ed25519
+
+  - id: cargo-registry
+    description: Cargo registry path
+    confidence: 0.6
+    condition:
+      type: string
+      exact: /cargo/registry/src/
+
+  # === Go crypto atomic indicators ===
+  - id: go-crypto-tls
+    description: Go crypto/tls package
+    confidence: 0.8
+    condition:
+      type: string
+      exact: crypto/tls
+
+  - id: go-crypto-x509
+    description: Go crypto/x509 package
+    confidence: 0.8
+    condition:
+      type: string
+      exact: crypto/x509
+
+  - id: go-crypto-rsa
+    description: Go crypto/rsa package
+    confidence: 0.8
+    condition:
+      type: string
+      exact: crypto/rsa
+
+  - id: go-crypto-ecdsa
+    description: Go crypto/ecdsa package
+    confidence: 0.8
+    condition:
+      type: string
+      exact: crypto/ecdsa
+
+  - id: go-crypto-aes
+    description: Go crypto/aes package
+    confidence: 0.8
+    condition:
+      type: string
+      exact: crypto/aes
+
+  - id: go-crypto-cipher
+    description: Go crypto/cipher package
+    confidence: 0.8
+    condition:
+      type: string
+      exact: crypto/cipher
+
+  - id: go-crypto-rand
+    description: Go crypto/rand package
+    confidence: 0.8
+    condition:
+      type: string
+      exact: crypto/rand
+
+  - id: go-x-crypto
+    description: Go golang.org/x/crypto
+    confidence: 0.8
+    condition:
+      type: string
+      exact: golang.org/x/crypto
+
+  # === Certificate handling atomic indicators ===
+  - id: x509-prefix
+    description: X509_ function prefix
+    confidence: 0.7
+    condition:
+      type: string
+      regex: 'X509_'
+
+  - id: x509-string
+    description: x509 string reference
+    confidence: 0.6
+    condition:
+      type: string
+      regex: '\bx509\b'
+      case_insensitive: true
+
+  - id: certificate-ref
+    description: certificate string reference
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bcertificate\b'
+      case_insensitive: true
+
+  - id: pem-begin
+    description: PEM begin marker
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "-----BEGIN"
+
+  - id: pem-end
+    description: PEM end marker
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "-----END"
+
+  - id: ssl-certs-path
+    description: System SSL certs path
+    confidence: 0.8
+    condition:
+      type: string
+      exact: /etc/ssl/certs
+
+  - id: ca-certificates
+    description: CA certificates reference
+    confidence: 0.8
+    condition:
+      type: string
+      exact: ca-certificates
+
+  # === Secure random atomic indicators ===
+  - id: dev-urandom
+    description: /dev/urandom access
+    confidence: 0.7
+    condition:
+      type: string
+      exact: /dev/urandom
+
+  - id: dev-random
+    description: /dev/random access
+    confidence: 0.7
+    condition:
+      type: string
+      exact: /dev/random
+
+  - id: rand-bytes
+    description: RAND_bytes function
+    confidence: 0.8
+    condition:
+      type: string
+      exact: RAND_bytes
+
+  - id: getrandom
+    description: getrandom syscall
+    confidence: 0.8
+    condition:
+      type: string
+      exact: getrandom
+
+  - id: arc4random
+    description: arc4random function
+    confidence: 0.8
+    condition:
+      type: string
+      exact: arc4random
+
+  - id: getentropy
+    description: getentropy function
+    confidence: 0.8
+    condition:
+      type: string
+      exact: getentropy
+
+  - id: secrandomcopybytes
+    description: SecRandomCopyBytes (macOS)
+    confidence: 0.8
+    condition:
+      type: string
+      exact: SecRandomCopyBytes
+
+  # === KDF atomic indicators ===
+  - id: pbkdf2
+    description: PBKDF2 key derivation
+    confidence: 0.75
+    condition:
+      type: string
+      exact: PBKDF2
+      case_insensitive: true
+
+  - id: scrypt
+    description: scrypt key derivation
+    confidence: 0.75
+    condition:
+      type: string
+      exact: scrypt
+      case_insensitive: true
+
+  - id: argon2
+    description: argon2 key derivation
+    confidence: 0.75
+    condition:
+      type: string
+      exact: argon2
+      case_insensitive: true
+
+  - id: bcrypt
+    description: bcrypt password hashing
+    confidence: 0.75
+    condition:
+      type: string
+      exact: bcrypt
+      case_insensitive: true
+
+  - id: hkdf
+    description: HKDF key derivation
+    confidence: 0.75
+    condition:
+      type: string
+      exact: HKDF
+
+  - id: evp-pkey-derive
+    description: EVP_PKEY_derive function
+    confidence: 0.75
+    condition:
+      type: string
+      exact: EVP_PKEY_derive
+
+  - id: pkcs5-pbkdf2
+    description: PKCS5_PBKDF2_HMAC function
+    confidence: 0.75
+    condition:
+      type: string
+      exact: PKCS5_PBKDF2_HMAC
+
+composite_rules:
+  # OpenSSL TLS (3+ SSL functions or any TLS method or version string)
   - id: openssl-tls
     description: OpenSSL TLS library usage (legitimate)
-    criticality: benign
     confidence: 0.8
-    condition:
-      type: yara
-      source: |
-        rule openssl_tls {
-          strings:
-            $ssl1 = "SSL_library_init" ascii
-            $ssl2 = "SSL_CTX_new" ascii
-            $ssl3 = "SSL_new" ascii
-            $ssl4 = "SSL_connect" ascii
-            $ssl5 = "SSL_read" ascii
-            $ssl6 = "SSL_write" ascii
-            $tls1 = "TLSv1_method" ascii
-            $tls2 = "TLSv1_2_method" ascii
-            $tls3 = "TLS_method" ascii
-            $version = "OpenSSL " ascii
-          condition:
-            3 of ($ssl*) or any of ($tls*) or $version
-        }
+    requires_any:
+      - type: trait
+        id: tls-v1-method
+      - type: trait
+        id: tls-v1-2-method
+      - type: trait
+        id: tls-method
+      - type: trait
+        id: openssl-version
+    requires_count: 3
+    conditions:
+      - type: trait
+        id: ssl-library-init
+      - type: trait
+        id: ssl-ctx-new
+      - type: trait
+        id: ssl-new
+      - type: trait
+        id: ssl-connect
+      - type: trait
+        id: ssl-read
+      - type: trait
+        id: ssl-write
 
-  # Standard hash functions (normal usage)
+  # Hash functions (2+ MD5 or 2+ SHA or any Go crypto)
   - id: hash-functions
     description: Standard cryptographic hash function usage
-    criticality: benign
     confidence: 0.75
-    condition:
-      type: yara
-      source: |
-        rule standard_hash {
-          strings:
-            $md5_1 = "MD5_Init" ascii
-            $md5_2 = "MD5_Update" ascii
-            $md5_3 = "MD5_Final" ascii
-            $sha1_1 = "SHA1_Init" ascii
-            $sha1_2 = "SHA1_Update" ascii
-            $sha256_1 = "SHA256_Init" ascii
-            $sha256_2 = "SHA256_Update" ascii
-            $sha512_1 = "SHA512_Init" ascii
-            // Go crypto
-            $go1 = "crypto/sha256" ascii
-            $go2 = "crypto/sha512" ascii
-            $go3 = "crypto/md5" ascii
-          condition:
-            2 of ($md5_*) or 2 of ($sha*) or any of ($go*)
-        }
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: md5-init
+      - type: trait
+        id: md5-update
+      - type: trait
+        id: md5-final
+      - type: trait
+        id: sha1-init
+      - type: trait
+        id: sha1-update
+      - type: trait
+        id: sha256-init
+      - type: trait
+        id: sha256-update
+      - type: trait
+        id: sha512-init
+      - type: trait
+        id: go-crypto-sha256
+      - type: trait
+        id: go-crypto-sha512
+      - type: trait
+        id: go-crypto-md5
 
-  # GnuTLS library (legitimate)
+  # GnuTLS (2+ functions or version string)
   - id: gnutls
     description: GnuTLS library usage (legitimate)
-    criticality: benign
     confidence: 0.8
-    condition:
-      type: yara
-      source: |
-        rule gnutls_usage {
-          strings:
-            $gnu1 = "gnutls_init" ascii
-            $gnu2 = "gnutls_handshake" ascii
-            $gnu3 = "gnutls_record_send" ascii
-            $gnu4 = "gnutls_record_recv" ascii
-            $gnu5 = "gnutls_certificate_" ascii
-            $gnu6 = "gnutls_x509_" ascii
-            $version = "GnuTLS" ascii
-          condition:
-            2 of them or $version
-        }
+    requires_any:
+      - type: trait
+        id: gnutls-version
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: gnutls-init
+      - type: trait
+        id: gnutls-handshake
+      - type: trait
+        id: gnutls-record-send
+      - type: trait
+        id: gnutls-record-recv
+      - type: trait
+        id: gnutls-certificate
+      - type: trait
+        id: gnutls-x509
 
-  # NSS (Mozilla) crypto library
+  # NSS (2+ indicators)
   - id: nss
     description: Mozilla NSS crypto library usage
-    criticality: benign
     confidence: 0.8
-    condition:
-      type: yara
-      source: |
-        rule nss_crypto {
-          strings:
-            $nss1 = "NSS_Init" ascii
-            $nss2 = "PK11_" ascii
-            $nss3 = "CERT_" ascii
-            $nss4 = "SEC_" ascii
-            $nss5 = "SECMOD_" ascii
-            $nss6 = "libnss" ascii
-          condition:
-            2 of them
-        }
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: nss-init
+      - type: trait
+        id: nss-pk11
+      - type: trait
+        id: nss-cert
+      - type: trait
+        id: nss-sec
+      - type: trait
+        id: nss-secmod
+      - type: trait
+        id: libnss
 
-  # libsodium (modern crypto library)
+  # libsodium (2+ functions or library name)
   - id: libsodium
     description: libsodium modern crypto library usage
-    criticality: benign
     confidence: 0.8
-    condition:
-      type: yara
-      source: |
-        rule libsodium_usage {
-          strings:
-            $sodium1 = "sodium_init" ascii
-            $sodium2 = "crypto_secretbox" ascii
-            $sodium3 = "crypto_box" ascii
-            $sodium4 = "crypto_sign" ascii
-            $sodium5 = "crypto_hash" ascii
-            $sodium6 = "crypto_pwhash" ascii
-            $sodium7 = "randombytes" ascii
-            $lib = "libsodium" ascii
-          condition:
-            2 of them or $lib
-        }
+    requires_any:
+      - type: trait
+        id: crypto/legitimate/libsodium
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: sodium-init
+      - type: trait
+        id: sodium-secretbox
+      - type: trait
+        id: sodium-box
+      - type: trait
+        id: sodium-sign
+      - type: trait
+        id: sodium-hash
+      - type: trait
+        id: sodium-pwhash
+      - type: trait
+        id: sodium-randombytes
 
-  # Rust crypto crates
+  # Rust crypto
   - id: rust-crypto
     description: Rust cryptographic crate usage
-    criticality: benign
     confidence: 0.75
-    condition:
-      type: yara
-      source: |
-        rule rust_crypto {
-          strings:
-            $ring = "ring::" ascii
-            $rustls = "rustls::" ascii
-            $aes = "aes::" ascii
-            $chacha = "chacha20poly1305" ascii
-            $rsa = "rsa::" ascii
-            $ed25519 = "ed25519" ascii
-            $cargo1 = "/cargo/registry/src/" ascii
-            $cargo2 = "crypto" ascii
-          condition:
-            any of ($ring, $rustls, $chacha) or (($cargo1 or $cargo2) and any of them)
-        }
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: rust-ring
+      - type: trait
+        id: rust-rustls
+      - type: trait
+        id: rust-chacha
+      - type: trait
+        id: rust-aes
+      - type: trait
+        id: rust-rsa
+      - type: trait
+        id: rust-ed25519
 
-  # Go crypto packages
+  # Go crypto (2+ packages)
   - id: go-crypto
     description: Go standard crypto package usage
-    criticality: benign
     confidence: 0.8
-    condition:
-      type: yara
-      source: |
-        rule go_crypto {
-          strings:
-            $pkg1 = "crypto/tls" ascii
-            $pkg2 = "crypto/x509" ascii
-            $pkg3 = "crypto/rsa" ascii
-            $pkg4 = "crypto/ecdsa" ascii
-            $pkg5 = "crypto/aes" ascii
-            $pkg6 = "crypto/cipher" ascii
-            $pkg7 = "crypto/rand" ascii
-            $pkg8 = "golang.org/x/crypto" ascii
-          condition:
-            2 of them
-        }
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: go-crypto-tls
+      - type: trait
+        id: go-crypto-x509
+      - type: trait
+        id: go-crypto-rsa
+      - type: trait
+        id: go-crypto-ecdsa
+      - type: trait
+        id: go-crypto-aes
+      - type: trait
+        id: go-crypto-cipher
+      - type: trait
+        id: go-crypto-rand
+      - type: trait
+        id: go-x-crypto
 
-  # Certificate handling (legitimate)
+  # Certificate handling
   - id: certificate-handling
     description: X.509 certificate handling (legitimate)
-    criticality: benign
     confidence: 0.8
-    condition:
-      type: yara
-      source: |
-        rule cert_handling {
-          strings:
-            $x509_1 = "X509_" ascii
-            $x509_2 = "x509" ascii nocase
-            $cert1 = "certificate" ascii nocase
-            $cert2 = "CERTIFICATE" ascii
-            $pem1 = "-----BEGIN" ascii
-            $pem2 = "-----END" ascii
-            $ca1 = "/etc/ssl/certs" ascii
-            $ca2 = "ca-certificates" ascii
-          condition:
-            2 of ($x509_*, $cert*) or ($pem1 and $pem2) or any of ($ca*)
-        }
+    requires_any:
+      - type: trait
+        id: ssl-certs-path
+      - type: trait
+        id: ca-certificates
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: x509-prefix
+      - type: trait
+        id: x509-string
+      - type: trait
+        id: certificate-ref
+      - type: trait
+        id: pem-begin
+      - type: trait
+        id: pem-end
 
-  # Random number generation (legitimate)
+  # Secure random
   - id: secure-random
     description: Secure random number generation
-    criticality: benign
     confidence: 0.8
-    condition:
-      type: yara
-      source: |
-        rule secure_random {
-          strings:
-            $dev1 = "/dev/urandom" ascii
-            $dev2 = "/dev/random" ascii
-            $rand1 = "RAND_bytes" ascii
-            $rand2 = "getrandom" ascii
-            $rand3 = "arc4random" ascii
-            $rand4 = "getentropy" ascii
-            $rand5 = "SecRandomCopyBytes" ascii
-          condition:
-            any of them
-        }
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: dev-urandom
+      - type: trait
+        id: dev-random
+      - type: trait
+        id: rand-bytes
+      - type: trait
+        id: getrandom
+      - type: trait
+        id: arc4random
+      - type: trait
+        id: getentropy
+      - type: trait
+        id: secrandomcopybytes
 
-  # Key derivation functions (legitimate)
+  # Key derivation
   - id: key-derivation
     description: Key derivation function usage
-    criticality: benign
     confidence: 0.75
-    condition:
-      type: yara
-      source: |
-        rule kdf_usage {
-          strings:
-            $pbkdf2 = "PBKDF2" ascii nocase
-            $scrypt = "scrypt" ascii nocase
-            $argon2 = "argon2" ascii nocase
-            $bcrypt = "bcrypt" ascii nocase
-            $hkdf = "HKDF" ascii
-            $kdf1 = "EVP_PKEY_derive" ascii
-            $kdf2 = "PKCS5_PBKDF2_HMAC" ascii
-          condition:
-            any of them
-        }
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: pbkdf2
+      - type: trait
+        id: scrypt
+      - type: trait
+        id: argon2
+      - type: trait
+        id: bcrypt
+      - type: trait
+        id: hkdf
+      - type: trait
+        id: evp-pkey-derive
+      - type: trait
+        id: pkcs5-pbkdf2

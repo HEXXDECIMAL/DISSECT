@@ -2,7 +2,7 @@
 # Patterns for network reconnaissance and enumeration
 # ATT&CK: T1016 (System Network Configuration Discovery)
 
-composite_rules:
+traits:
   - id: tcp-connections
     description: "Enumerate TCP connections via /proc/net/tcp"
     criticality: suspicious
@@ -63,6 +63,7 @@ composite_rules:
       type: string
       exact: "/proc/net/route"
 
+composite_rules:
   - id: scanner
     description: "Network connection enumeration (target scanning)"
     criticality: suspicious

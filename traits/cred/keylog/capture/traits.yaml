@@ -12,7 +12,7 @@ defaults:
   attack: "T1056.001"
   criticality: suspicious
 
-composite_rules:
+traits:
   # === Atomic: Windows Keyboard Hooks ===
   - id: windows-hook
     description: Windows keyboard hooking via SetWindowsHookEx
@@ -104,35 +104,6 @@ composite_rules:
       type: string
       regex: "(use rdev::|extern crate rdev)"
 
-  # === Composite Rules ===
-  # Multiple keyboard-related indicators - still only suspicious
-  # Hostile classification requires exfiltration indicators
-  - id: windows-keylogger
-    description: Windows keylogger pattern (multiple keyboard APIs)
-    confidence: 0.85
-    platforms: [windows]
-    file_types: [pe, dll]
-    requires_count: 2
-    conditions:
-      - type: trait
-        id: windows-hook
-      - type: trait
-        id: windows-rawinput
-      - type: trait
-        id: windows-asynckey
-
-  - id: linux-keylogger
-    description: Linux keylogger pattern (multiple input methods)
-    confidence: 0.85
-    platforms: [linux]
-    file_types: [elf]
-    requires_all:
-      - type: trait
-        id: linux-input-device
-      - type: trait
-        id: x11-grab
-
-traits:
   # === AppleScript Keystroke Capture ===
   # YARA rule with multiple string matches - can stay hostile with file_types
   - id: applescript-keystroke
@@ -203,3 +174,32 @@ traits:
           condition:
             any of ($require*) or ($osascript and $exec) or $run
         }
+
+composite_rules:
+  # === Composite Rules ===
+  # Multiple keyboard-related indicators - still only suspicious
+  # Hostile classification requires exfiltration indicators
+  - id: windows-keylogger
+    description: Windows keylogger pattern (multiple keyboard APIs)
+    confidence: 0.85
+    platforms: [windows]
+    file_types: [pe, dll]
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: windows-hook
+      - type: trait
+        id: windows-rawinput
+      - type: trait
+        id: windows-asynckey
+
+  - id: linux-keylogger
+    description: Linux keylogger pattern (multiple input methods)
+    confidence: 0.85
+    platforms: [linux]
+    file_types: [elf]
+    requires_all:
+      - type: trait
+        id: linux-input-device
+      - type: trait
+        id: x11-grab

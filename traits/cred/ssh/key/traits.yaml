@@ -4,7 +4,7 @@
 defaults:
   platforms: [linux, macos, unix]
 
-composite_rules:
+traits:
   # === Atomic: SSH Directory ===
   - id: dot-ssh-path
     description: Accesses .ssh directory
@@ -115,42 +115,24 @@ composite_rules:
       type: string
       regex: "sshd_?proc"
 
-  # === Composite Rules ===
-  - id: private-key-theft
-    description: SSH private key theft
-    criticality: suspicious
-    confidence: 0.85
-    attack: "T1552.004"
-    mbc: "E1552"
-    requires_all:
-      - type: trait
-        id: dot-ssh-path
-    requires_any:
-      - type: trait
-        id: id-rsa
-      - type: trait
-        id: id-dsa
-      - type: trait
-        id: id-ecdsa
-      - type: trait
-        id: id-ed25519
+  # === Atomic: Tracing/Debugging ===
+  - id: ptrace-tracer
+    description: Process tracing reference
+    criticality: notable
+    confidence: 0.5
+    condition:
+      type: symbol_or_string
+      any: ["ptrace", "tracer"]
 
-  - id: sshd-password-trace
-    description: SSHD memory tracing for passwords
-    criticality: suspicious
-    confidence: 0.85
-    attack: "T1552.004"
-    platforms: [linux]
-    requires_all:
-      - type: symbol_or_string
-        any: ["ptrace", "tracer"]
-      - type: string
-        regex: "passw(or)?d"
-      - type: trait
-        id: sshd-ref
+  - id: password-pattern
+    description: Password pattern reference
+    criticality: notable
+    confidence: 0.5
+    condition:
+      type: string
+      regex: "passw(or)?d"
 
-  # === SSH session/password sniffing ===
-
+  # === Atomic: Session Sniffing ===
   - id: session-sniff
     description: SSH session sniffing indicators
     criticality: suspicious
@@ -195,8 +177,7 @@ composite_rules:
             any of them
         }
 
-  # === SSH host verification bypass ===
-
+  # === Atomic: SSH host verification bypass ===
   - id: stricthostkey-bypass
     description: SSH StrictHostKeyChecking bypass
     criticality: suspicious
@@ -215,8 +196,43 @@ composite_rules:
       type: string
       regex: "UserKnownHostsFile\\s*[=/]\\s*/dev/null"
 
-  # === Composite: SSH credential theft behavior ===
+composite_rules:
+  # === Composite: SSH private key theft ===
+  - id: private-key-theft
+    description: SSH private key theft
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1552.004"
+    mbc: "E1552"
+    requires_all:
+      - type: trait
+        id: dot-ssh-path
+    requires_any:
+      - type: trait
+        id: id-rsa
+      - type: trait
+        id: id-dsa
+      - type: trait
+        id: id-ecdsa
+      - type: trait
+        id: id-ed25519
 
+  # === Composite: SSHD password tracing ===
+  - id: sshd-password-trace
+    description: SSHD memory tracing for passwords
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1552.004"
+    platforms: [linux]
+    requires_all:
+      - type: trait
+        id: ptrace-tracer
+      - type: trait
+        id: password-pattern
+      - type: trait
+        id: sshd-ref
+
+  # === Composite: SSH credential theft behavior ===
   - id: credential-theft
     description: SSH credential theft behavior
     criticality: hostile

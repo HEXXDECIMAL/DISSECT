@@ -3,7 +3,7 @@
 # MBC: B0022 (Remote Access)
 # NOTE: Shell path traits (bin-sh, bin-bash) are defined in exec/command/shell/generic.yaml
 
-composite_rules:
+traits:
   # === Atomic: Reverse Shell Indicators ===
 
   - id: reverse-shell-ref
@@ -105,6 +105,15 @@ composite_rules:
       type: string
       exact: "socket"
 
+  - id: reverse-keyword
+    description: Reverse keyword reference
+    criticality: inert
+    confidence: 0.3
+    platforms: [all]
+    condition:
+      type: string
+      exact: "reverse"
+
   # === Atomic: Perl Reverse Shell ===
 
   - id: perl-socket-open
@@ -193,6 +202,7 @@ composite_rules:
       type: string
       exact: "dialTCP"
 
+composite_rules:
   - id: mkfifo-netcat-shell
     description: Reverse shell via mkfifo and netcat
     criticality: suspicious
@@ -238,8 +248,8 @@ composite_rules:
     attack: "T1059"
     platforms: [all]
     requires_all:
-      - type: string
-        exact: "reverse"
+      - type: trait
+        id: reverse-keyword
       - type: trait
         id: socket-ref
     requires_any:

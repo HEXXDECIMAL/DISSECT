@@ -131,26 +131,33 @@ composite_rules:
     attack: "T1016.001"
     mbc: "B0046"
     file_types: [all]
-    condition:
-      type: yara
-      source: |
-        rule ip_recon {
-          strings:
-            $ipify = "ipify.org"
-            $ipinfo = "ipinfo.io"
-            $ifconfig_me = "ifconfig.me"
-            $icanhazip = "icanhazip"
-            $wtfismyip = "wtfismyip"
-            $iplogger = "iplogger.org"
-            $ifconfig_io = "ifconfig.io"
-            $ifconfig_co = "ifconfig.co"
-            $ident_me = "ident.me"
-            $checkip = "checkip.amazonaws.com"
-            $ipify_b64 = "aXBpZnkub3Jn"
-            $ipinfo_b64 = "aXBpbmZvLmlv"
-          condition:
-            filesize < 50MB and 2 of them
-        }
+    requires_any:
+      minimum: 2
+      conditions:
+        - type: trait
+          id: ipify
+        - type: trait
+          id: ipinfo
+        - type: trait
+          id: ifconfig-me
+        - type: trait
+          id: icanhazip
+        - type: trait
+          id: wtfismyip
+        - type: trait
+          id: iplogger
+        - type: trait
+          id: ifconfig-io
+        - type: trait
+          id: ifconfig-co
+        - type: trait
+          id: ident-me
+        - type: trait
+          id: checkip-amazonaws
+        - type: trait
+          id: ipify-b64
+        - type: trait
+          id: ipinfo-b64
 
   - id: ip-recon-obfuscated
     description: Obfuscated IP reconnaissance

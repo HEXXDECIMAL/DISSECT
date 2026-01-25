@@ -2,19 +2,36 @@
 # MBC: C0001 (Socket Communication)
 # ATT&CK: T1071
 
+defaults:
+  mbc: "C0001"
+  attack: "T1011"
+
 traits:
+  - id: raw-socket-ref
+    description: Raw socket terminology
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      exact: "raw socket"
+      case_insensitive: true
+
+  - id: proc-net-raw
+    description: /proc/net/raw access
+    criticality: notable
+    confidence: 0.8
+    condition:
+      type: string
+      exact: /proc/net/raw
+
+composite_rules:
   - id: raw
     description: Create raw network sockets
     criticality: notable
     confidence: 0.8
-    attack: "T1011"
-    condition:
-      type: yara
-      source: |
-        rule raw_sockets {
-          strings:
-            $ref = "raw socket" ascii nocase
-            $proc_net_raw = "/proc/net/raw" ascii
-          condition:
-            any of them
-        }
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: raw-socket-ref
+      - type: trait
+        id: proc-net-raw

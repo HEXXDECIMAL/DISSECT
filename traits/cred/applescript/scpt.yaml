@@ -1,0 +1,272 @@
+# Compiled AppleScript Credential Variable Detection
+# Detects variable names indicative of credential handling
+# ATT&CK: T1555 (Credentials from Password Stores)
+
+defaults:
+  file_types: [applescript]
+  platforms: [macos]
+  attack: "T1555"
+
+traits:
+  # ============================================
+  # Password Variables
+  # ============================================
+  - id: var-password
+    description: "Variable named 'password'"
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: symbol
+      pattern: "(?i)^password$"
+
+  - id: var-passwd
+    description: "Variable named 'passwd'"
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: symbol
+      pattern: "(?i)^passwd$"
+
+  - id: var-pwd
+    description: "Variable named 'pwd'"
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: symbol
+      pattern: "(?i)^pwd$"
+
+  # ============================================
+  # Credential Variables
+  # ============================================
+  - id: var-credential
+    description: "Variable named 'credential'"
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: symbol
+      pattern: "(?i)^credentials?$"
+
+  - id: var-auth
+    description: "Variable contains 'auth'"
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: symbol
+      pattern: "(?i)auth"
+
+  # ============================================
+  # Token/Key Variables
+  # ============================================
+  - id: var-token
+    description: "Variable named 'token'"
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1528"
+    condition:
+      type: symbol
+      pattern: "(?i)^token$"
+
+  - id: var-apikey
+    description: "Variable named 'apikey'"
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1528"
+    condition:
+      type: symbol
+      pattern: "(?i)^api_?key$"
+
+  - id: var-secret
+    description: "Variable named 'secret'"
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: symbol
+      pattern: "(?i)^secret$"
+
+  - id: var-private-key
+    description: "Variable for private key"
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: symbol
+      pattern: "(?i)^private_?key$"
+
+  # ============================================
+  # Wallet/Crypto Variables
+  # ============================================
+  - id: var-wallet
+    description: "Variable named 'wallet'"
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1005"
+    condition:
+      type: symbol
+      pattern: "(?i)^wallet$"
+
+  - id: var-mnemonic
+    description: "Variable named 'mnemonic'"
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1005"
+    condition:
+      type: symbol
+      pattern: "(?i)^mnemonic$"
+
+  - id: var-seed-phrase
+    description: "Variable for seed phrase"
+    criticality: suspicious
+    confidence: 0.95
+    attack: "T1005"
+    condition:
+      type: symbol
+      pattern: "(?i)^seed_?phrase$"
+
+  # ============================================
+  # Path Variables (notable - context needed)
+  # ============================================
+  - id: var-save-path
+    description: "Variable for save path"
+    criticality: notable
+    confidence: 0.75
+    condition:
+      type: symbol
+      pattern: "(?i)^save_?path$"
+
+  - id: var-output-path
+    description: "Variable for output path"
+    criticality: notable
+    confidence: 0.7
+    condition:
+      type: symbol
+      pattern: "(?i)^(output|dest)_?path$"
+
+  # ============================================
+  # Network Variables
+  # ============================================
+  - id: var-url
+    description: "Variable named 'url'"
+    criticality: notable
+    confidence: 0.75
+    condition:
+      type: symbol
+      pattern: "(?i)^url$"
+
+  - id: var-server
+    description: "Variable named 'server'"
+    criticality: notable
+    confidence: 0.75
+    condition:
+      type: symbol
+      pattern: "(?i)^server$"
+
+  - id: var-endpoint
+    description: "Variable named 'endpoint'"
+    criticality: notable
+    confidence: 0.75
+    condition:
+      type: symbol
+      pattern: "(?i)^endpoint$"
+
+  # ============================================
+  # C2-like Variables
+  # ============================================
+  - id: var-c2
+    description: "Variable suggests C2"
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1071"
+    condition:
+      type: symbol
+      pattern: "(?i)^c2"
+
+  - id: var-beacon
+    description: "Variable named 'beacon'"
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1071"
+    condition:
+      type: symbol
+      pattern: "(?i)^beacon$"
+
+  - id: var-exfil
+    description: "Variable suggests exfiltration"
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1041"
+    condition:
+      type: symbol
+      pattern: "(?i)^exfil"
+
+composite_rules:
+  # ============================================
+  # Password Handling
+  # ============================================
+  - id: handles-passwords
+    description: "Script handles password data"
+    criticality: suspicious
+    confidence: 0.9
+    file_types: [applescript]
+    requires_any:
+      - {type: trait, id: var-password}
+      - {type: trait, id: var-passwd}
+      - {type: trait, id: var-credential}
+
+  # ============================================
+  # Token/Key Handling
+  # ============================================
+  - id: handles-secrets
+    description: "Script handles tokens or keys"
+    criticality: suspicious
+    confidence: 0.85
+    file_types: [applescript]
+    requires_any:
+      - {type: trait, id: var-token}
+      - {type: trait, id: var-apikey}
+      - {type: trait, id: var-secret}
+      - {type: trait, id: var-private-key}
+
+  # ============================================
+  # Crypto Wallet Targeting
+  # ============================================
+  - id: targets-wallet
+    description: "Script targets crypto wallet"
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1005"
+    file_types: [applescript]
+    requires_any:
+      - {type: trait, id: var-wallet}
+      - {type: trait, id: var-mnemonic}
+      - {type: trait, id: var-seed-phrase}
+
+  # ============================================
+  # Credential Exfiltration
+  # ============================================
+  - id: credential-exfil
+    description: "Credentials with network activity"
+    criticality: hostile
+    confidence: 0.85
+    attack: "T1555"
+    file_types: [applescript]
+    requires_all:
+      - {type: trait, id: handles-passwords}
+    requires_any:
+      - {type: trait, id: var-url}
+      - {type: trait, id: var-server}
+      - {type: trait, id: exec/command/shell-execution}
+
+  # ============================================
+  # Wallet Theft
+  # ============================================
+  - id: wallet-theft
+    description: "Wallet data with save/exfil"
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1005"
+    file_types: [applescript]
+    requires_all:
+      - {type: trait, id: targets-wallet}
+    requires_any:
+      - {type: trait, id: var-save-path}
+      - {type: trait, id: var-output-path}
+      - {type: trait, id: exec/command/shell-execution}

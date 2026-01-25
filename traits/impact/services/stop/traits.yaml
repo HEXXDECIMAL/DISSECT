@@ -1,12 +1,14 @@
 # Impact - Service Manipulation
 # ATT&CK: T1489 (Service Stop)
 
+defaults:
+  attack: "T1489"
+
 traits:
   - id: esxcli
     description: VMware ESXi CLI usage
     criticality: suspicious
     confidence: 0.9
-    attack: "T1489"
     file_types: [elf, shell]
     condition:
       type: string
@@ -16,7 +18,6 @@ traits:
     description: Systemd service stop
     criticality: suspicious
     confidence: 0.8
-    attack: "T1489"
     file_types: [elf, shell]
     condition:
       type: string
@@ -26,7 +27,6 @@ traits:
     description: SysV service stop
     criticality: suspicious
     confidence: 0.8
-    attack: "T1489"
     file_types: [elf, shell]
     condition:
       type: string
@@ -36,7 +36,6 @@ traits:
     description: Windows service control stop
     criticality: suspicious
     confidence: 0.8
-    attack: "T1489"
     file_types: [pe, shell]
     condition:
       type: string
@@ -46,7 +45,6 @@ traits:
     description: Windows net stop command
     criticality: suspicious
     confidence: 0.8
-    attack: "T1489"
     file_types: [pe, shell]
     condition:
       type: string
@@ -56,23 +54,154 @@ traits:
     description: VMware VM enumeration
     criticality: suspicious
     confidence: 0.9
-    attack: "T1489"
     file_types: [elf, shell]
     condition:
       type: string
       exact: "vmsvc/getallvms"
 
+  # === Database service termination (atomic) ===
+  - id: kill-mysql
+    description: MySQL service termination
+    criticality: inert
+    confidence: 0.6
+    file_types: [all]
+    condition:
+      type: string
+      regex: '(?i)(kill|stop).*mysql'
+
+  - id: kill-postgres
+    description: PostgreSQL service termination
+    criticality: inert
+    confidence: 0.6
+    file_types: [all]
+    condition:
+      type: string
+      regex: '(?i)(kill|stop).*postgres'
+
+  - id: kill-oracle
+    description: Oracle service termination
+    criticality: inert
+    confidence: 0.6
+    file_types: [all]
+    condition:
+      type: string
+      regex: '(?i)(kill|stop).*oracle'
+
+  - id: kill-mssql
+    description: MSSQL service termination
+    criticality: inert
+    confidence: 0.6
+    file_types: [all]
+    condition:
+      type: string
+      regex: '(?i)(kill|stop).*mssql'
+
+  - id: kill-mongodb
+    description: MongoDB service termination
+    criticality: inert
+    confidence: 0.6
+    file_types: [all]
+    condition:
+      type: string
+      regex: '(?i)(kill|stop).*mongodb'
+
+  # === ESXi ransomware atomic indicators ===
+  - id: onion-domain
+    description: .onion domain reference
+    criticality: inert
+    confidence: 0.6
+    file_types: [all]
+    condition:
+      type: string
+      exact: ".onion"
+
+  - id: word-encrypted
+    description: Encrypted keyword
+    criticality: inert
+    confidence: 0.4
+    file_types: [all]
+    condition:
+      type: string
+      exact: encrypted
+      case_insensitive: true
+
+  - id: word-ransom
+    description: Ransom keyword
+    criticality: inert
+    confidence: 0.5
+    file_types: [all]
+    condition:
+      type: string
+      exact: ransom
+      case_insensitive: true
+
+  - id: word-tor
+    description: Tor keyword
+    criticality: inert
+    confidence: 0.4
+    file_types: [all]
+    condition:
+      type: string
+      exact: tor
+      case_insensitive: true
+
+  - id: word-bitcoin
+    description: Bitcoin keyword
+    criticality: inert
+    confidence: 0.4
+    file_types: [all]
+    condition:
+      type: string
+      exact: bitcoin
+      case_insensitive: true
+
+  - id: word-victim
+    description: Victim keyword
+    criticality: inert
+    confidence: 0.4
+    file_types: [all]
+    condition:
+      type: string
+      exact: victim
+      case_insensitive: true
+
+  - id: word-company
+    description: Company keyword
+    criticality: inert
+    confidence: 0.3
+    file_types: [all]
+    condition:
+      type: string
+      exact: company
+
+  - id: phrase-your-data
+    description: Your data phrase
+    criticality: inert
+    confidence: 0.4
+    file_types: [all]
+    condition:
+      type: string
+      exact: "your data"
+
+composite_rules:
   - id: kill-database
     description: Database service termination
     criticality: suspicious
     confidence: 0.9
-    attack: "T1489"
     file_types: [all]
-    condition:
-      type: string
-      regex: "(?i)(kill|stop).*(mysql|postgres|oracle|mssql|mongodb)"
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: kill-mysql
+      - type: trait
+        id: kill-postgres
+      - type: trait
+        id: kill-oracle
+      - type: trait
+        id: kill-mssql
+      - type: trait
+        id: kill-mongodb
 
-composite_rules:
   - id: esxi-ransomware
     description: VMware ESXi ransomware
     criticality: suspicious
@@ -80,22 +209,24 @@ composite_rules:
     attack: "T1486"
     mbc: "B0040"
     file_types: [elf]
-    condition:
-      type: yara
-      source: |
-        rule esxi_ransomware {
-          strings:
-            $esxcli = "esxcli"
-            $onion = ".onion"
-            $w_encrypted = "encrypted" nocase
-            $w_ransom = "ransom" nocase
-            $w_tor = "tor" fullword nocase
-            $w_bitcoin = "bitcoin" nocase
-            $w_victim = "victim" nocase
-            $w_company = "company" fullword
-            $w_data = "your data"
-          condition:
-            uint32(0) == 0x464C457F and
-            filesize < 5MB and
-            $esxcli and $onion and any of ($w_*)
-        }
+    requires_all:
+      - type: trait
+        id: esxcli
+      - type: trait
+        id: onion-domain
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: word-encrypted
+      - type: trait
+        id: word-ransom
+      - type: trait
+        id: word-tor
+      - type: trait
+        id: word-bitcoin
+      - type: trait
+        id: word-victim
+      - type: trait
+        id: word-company
+      - type: trait
+        id: phrase-your-data

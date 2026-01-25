@@ -1,3 +1,54 @@
+traits:
+  - id: syscall-init-module
+    description: "init_module syscall for loading kernel module"
+    criticality: notable
+    confidence: 0.8
+    platforms: [linux]
+    file_types: [elf]
+    condition:
+      type: syscall
+      name: ["init_module"]
+
+  - id: syscall-finit-module
+    description: "finit_module syscall for loading kernel module from file descriptor"
+    criticality: notable
+    confidence: 0.8
+    platforms: [linux]
+    file_types: [elf]
+    condition:
+      type: syscall
+      name: ["finit_module"]
+
+  - id: syscall-delete-module
+    description: "delete_module syscall for unloading kernel module"
+    criticality: notable
+    confidence: 0.8
+    platforms: [linux]
+    file_types: [elf]
+    condition:
+      type: syscall
+      name: ["delete_module"]
+
+  - id: syscall-kexec-load
+    description: "kexec_load syscall for loading new kernel"
+    criticality: notable
+    confidence: 0.8
+    platforms: [linux]
+    file_types: [elf]
+    condition:
+      type: syscall
+      name: ["kexec_load"]
+
+  - id: syscall-kexec-file-load
+    description: "kexec_file_load syscall for loading new kernel from file"
+    criticality: notable
+    confidence: 0.8
+    platforms: [linux]
+    file_types: [elf]
+    condition:
+      type: syscall
+      name: ["kexec_file_load"]
+
 composite_rules:
   - id: kernel-module-load
     description: Loads kernel module
@@ -6,10 +57,10 @@ composite_rules:
     platforms: [linux]
     file_types: [elf]
     requires_any:
-      - type: syscall
-        name: ["init_module"]
-      - type: syscall
-        name: ["finit_module"]
+      - type: trait
+        id: syscall-init-module
+      - type: trait
+        id: syscall-finit-module
 
   - id: kernel-module-unload
     description: Unloads kernel module
@@ -17,9 +68,9 @@ composite_rules:
     criticality: suspicious
     platforms: [linux]
     file_types: [elf]
-    condition:
-      type: syscall
-      name: ["delete_module"]
+    requires_all:
+      - type: trait
+        id: syscall-delete-module
 
   - id: kexec
     description: Loads new kernel for kexec
@@ -28,7 +79,7 @@ composite_rules:
     platforms: [linux]
     file_types: [elf]
     requires_any:
-      - type: syscall
-        name: ["kexec_load"]
-      - type: syscall
-        name: ["kexec_file_load"]
+      - type: trait
+        id: syscall-kexec-load
+      - type: trait
+        id: syscall-kexec-file-load

@@ -9,39 +9,127 @@ defaults:
   criticality: suspicious
 
 traits:
-  # pyHook - Windows keyboard hook library
-  - id: python-pyhook
-    description: "Windows keyboard hooking (pyHook)"
-    confidence: 0.85
+  # === pyHook atomic indicators ===
+  - id: import-pyhook
+    description: import pyHook statement
+    criticality: inert
+    confidence: 0.6
     platforms: [windows]
     condition:
       type: string
-      regex: "import pyHook|from pyHook|pyHook\\.HookManager"
+      exact: "import pyHook"
 
-  # pyWinhook - maintained fork of pyHook
-  - id: python-pywinhook
-    description: "Windows keyboard hooking (pyWinhook)"
-    confidence: 0.85
+  - id: from-pyhook
+    description: from pyHook import
+    criticality: inert
+    confidence: 0.6
     platforms: [windows]
     condition:
       type: string
-      regex: "import pyWinhook|from pyWinhook|pyWinhook\\.HookManager"
+      exact: "from pyHook"
 
-  # keyboard module - cross-platform
-  - id: python-keyboard
-    description: "Cross-platform keyboard capture (keyboard module)"
-    confidence: 0.8
+  - id: pyhook-hookmanager
+    description: pyHook.HookManager
+    criticality: inert
+    confidence: 0.7
+    platforms: [windows]
     condition:
       type: string
-      regex: "import keyboard|keyboard\\.on_press|keyboard\\.hook|keyboard\\.record"
+      exact: "pyHook.HookManager"
 
-  # pynput keyboard listener (more specific than existing trait)
-  - id: python-pynput-listener
-    description: "Keyboard listener via pynput"
-    confidence: 0.8
+  # === pyWinhook atomic indicators ===
+  - id: import-pywinhook
+    description: import pyWinhook statement
+    criticality: inert
+    confidence: 0.6
+    platforms: [windows]
     condition:
       type: string
-      regex: "keyboard\\.Listener\\(|on_press\\s*=|on_release\\s*="
+      exact: "import pyWinhook"
+
+  - id: from-pywinhook
+    description: from pyWinhook import
+    criticality: inert
+    confidence: 0.6
+    platforms: [windows]
+    condition:
+      type: string
+      exact: "from pyWinhook"
+
+  - id: pywinhook-hookmanager
+    description: pyWinhook.HookManager
+    criticality: inert
+    confidence: 0.7
+    platforms: [windows]
+    condition:
+      type: string
+      exact: "pyWinhook.HookManager"
+
+  # === keyboard module atomic indicators ===
+  - id: import-keyboard
+    description: import keyboard statement
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "import keyboard"
+
+  - id: keyboard-on-press
+    description: keyboard.on_press function
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "keyboard.on_press"
+
+  - id: keyboard-hook
+    description: keyboard.hook function
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "keyboard.hook"
+
+  - id: keyboard-record
+    description: keyboard.record function
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "keyboard.record"
+
+  # === pynput atomic indicators ===
+  - id: keyboard-listener
+    description: keyboard.Listener class
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: "keyboard.Listener("
+
+  - id: on-press-eq
+    description: on_press= parameter
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: "on_press\\s*="
+
+  - id: on-release-eq
+    description: on_release= parameter
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: "on_release\\s*="
+
+  - id: pynput-keyboard
+    description: pynput keyboard import
+    criticality: inert
+    confidence: 0.6
+    condition:
+      type: string
+      regex: "pynput.*keyboard"
 
   # HookKeyboard method call
   - id: python-hook-keyboard
@@ -49,7 +137,7 @@ traits:
     confidence: 0.9
     condition:
       type: string
-      regex: "\\.HookKeyboard\\(\\)"
+      exact: ".HookKeyboard()"
 
   # KeyDown event handler
   - id: python-keydown-handler
@@ -59,7 +147,231 @@ traits:
       type: string
       regex: "\\.KeyDown\\s*="
 
+  # === File write atomic indicators ===
+  - id: file-open-append
+    description: File open for appending
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: "open\\([^)]+[\"']a[\"']"
+
+  - id: file-open-write
+    description: File open for writing
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: "open\\([^)]+[\"']w[\"']"
+
+  - id: dot-write
+    description: .write() method call
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      exact: ".write("
+
+  - id: keydown-keyword
+    description: KeyDown keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "KeyDown"
+
+  - id: on-press-keyword
+    description: on_press keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "on_press"
+
+  - id: on-release-keyword
+    description: on_release keyword
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "on_release"
+
+  # === Network exfil atomic indicators ===
+  - id: requests-post
+    description: requests.post call
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      exact: "requests.post"
+
+  - id: requests-get
+    description: requests.get call
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      exact: "requests.get"
+
+  - id: urllib-module
+    description: urllib module
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      exact: "urllib"
+
+  - id: socket-call
+    description: socket. call
+    criticality: inert
+    confidence: 0.4
+    condition:
+      type: string
+      regex: "socket\\."
+
 composite_rules:
+  # pyHook composite
+  - id: python-pyhook
+    description: "Windows keyboard hooking (pyHook)"
+    confidence: 0.85
+    platforms: [windows]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: import-pyhook
+      - type: trait
+        id: from-pyhook
+      - type: trait
+        id: pyhook-hookmanager
+
+  # pyWinhook composite
+  - id: python-pywinhook
+    description: "Windows keyboard hooking (pyWinhook)"
+    confidence: 0.85
+    platforms: [windows]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: import-pywinhook
+      - type: trait
+        id: from-pywinhook
+      - type: trait
+        id: pywinhook-hookmanager
+
+  # keyboard module composite
+  - id: python-keyboard
+    description: "Cross-platform keyboard capture (keyboard module)"
+    confidence: 0.8
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: import-keyboard
+      - type: trait
+        id: keyboard-on-press
+      - type: trait
+        id: keyboard-hook
+      - type: trait
+        id: keyboard-record
+
+  # pynput listener composite
+  - id: python-pynput-listener
+    description: "Keyboard listener via pynput"
+    confidence: 0.8
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: keyboard-listener
+      - type: trait
+        id: on-press-eq
+      - type: trait
+        id: on-release-eq
+
+  # Keylogger library imports composite
+  - id: python-keylogger-import
+    description: "Import of keylogging library"
+    criticality: notable
+    confidence: 0.8
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: import-pyhook
+      - type: trait
+        id: import-pywinhook
+      - type: trait
+        id: import-keyboard
+      - type: trait
+        id: pynput-keyboard
+
+  # File open for write/append composite
+  - id: python-file-open-write
+    description: "File open for writing or appending"
+    criticality: notable
+    confidence: 0.7
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: file-open-append
+      - type: trait
+        id: file-open-write
+
+  # Write or key handler composite
+  - id: python-write-or-key-handler
+    description: "Write call or key event handler"
+    criticality: notable
+    confidence: 0.7
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: dot-write
+      - type: trait
+        id: keydown-keyword
+      - type: trait
+        id: on-press-keyword
+
+  # Keyboard hook setup composite
+  - id: python-keyboard-hook-setup
+    description: "Keyboard hook setup method"
+    criticality: notable
+    confidence: 0.85
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: python-hook-keyboard
+      - type: trait
+        id: keyboard-listener
+      - type: trait
+        id: keyboard-hook
+
+  # Network exfil composite
+  - id: python-network-exfil
+    description: "Network library for potential exfiltration"
+    criticality: notable
+    confidence: 0.7
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: requests-post
+      - type: trait
+        id: requests-get
+      - type: trait
+        id: urllib-module
+      - type: trait
+        id: socket-call
+
+  # Key event handlers composite
+  - id: python-key-event-handlers
+    description: "Key event handler callbacks"
+    criticality: notable
+    confidence: 0.8
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: keydown-keyword
+      - type: trait
+        id: on-press-keyword
+      - type: trait
+        id: on-release-keyword
+
   # Full keylogger pattern: hook + log to file
   - id: python-keylogger-file
     description: "Keylogger writing to file"
@@ -69,12 +381,12 @@ composite_rules:
     mbc: "B0015"
     file_types: [python]
     requires_all:
-      - type: string
-        regex: "import pyHook|import pyWinhook|import keyboard|pynput.*keyboard"
-      - type: string
-        regex: "open\\([^)]+[\"'](?:a|w)[\"']"
-      - type: string
-        regex: "\\.write\\(|KeyDown|on_press"
+      - type: composite
+        id: python-keylogger-import
+      - type: composite
+        id: python-file-open-write
+      - type: composite
+        id: python-write-or-key-handler
 
   # Windows keyboard hook with exfiltration
   - id: python-keylogger-exfil
@@ -85,9 +397,9 @@ composite_rules:
     mbc: "B0015"
     file_types: [python]
     requires_all:
-      - type: string
-        regex: "HookKeyboard\\(\\)|keyboard\\.Listener|keyboard\\.hook"
-      - type: string
-        regex: "requests\\.(post|get)|urllib|socket\\."
-      - type: string
-        regex: "KeyDown|on_press|on_release"
+      - type: composite
+        id: python-keyboard-hook-setup
+      - type: composite
+        id: python-network-exfil
+      - type: composite
+        id: python-key-event-handlers

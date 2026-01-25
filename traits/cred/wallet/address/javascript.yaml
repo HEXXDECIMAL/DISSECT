@@ -72,6 +72,33 @@ traits:
       type: string
       regex: "\\[1-9A-HJ-NP-Za-km-z\\]\\{32,44\\}"
 
+  # Ethereum address regex for composite (shorter pattern)
+  - id: ethereum-regex-short
+    description: "Ethereum address regex pattern (0x + 40 hex)"
+    confidence: 0.9
+    criticality: suspicious
+    condition:
+      type: string
+      regex: "0x\\[a-fA-F0-9\\]\\{40\\}"
+
+  # Bitcoin Legacy address regex for composite (shorter pattern)
+  - id: bitcoin-legacy-regex-short
+    description: "Bitcoin legacy address regex pattern (1xxx)"
+    confidence: 0.9
+    criticality: suspicious
+    condition:
+      type: string
+      regex: "1\\[a-km-zA-HJ-NP-Z1-9\\]"
+
+  # Bitcoin Cash prefix detection
+  - id: bitcoin-cash-prefix
+    description: "Bitcoin Cash address prefix"
+    confidence: 0.85
+    criticality: suspicious
+    condition:
+      type: string
+      regex: "bitcoincash:"
+
 composite_rules:
   # Multiple cryptocurrency address patterns = clipboard hijacker
   - id: multi-crypto-regex
@@ -80,15 +107,15 @@ composite_rules:
     confidence: 0.95
     requires_count: 2
     conditions:
-      - type: string
-        regex: "0x\\[a-fA-F0-9\\]\\{40\\}"
-      - type: string
-        regex: "1\\[a-km-zA-HJ-NP-Z1-9\\]"
-      - type: string
-        regex: "bc1\\[qpzry9x8gf2tvdw0s3jn54khce6mua7l\\]"
-      - type: string
-        regex: "bitcoincash:"
-      - type: string
-        regex: "ltc1\\[qpzry9x8gf2tvdw0s3jn54khce6mua7l\\]"
-      - type: string
-        regex: "\\[T\\]\\[1-9A-HJ-NP-Za-km-z\\]\\{33\\}"
+      - type: trait
+        id: ethereum-regex-short
+      - type: trait
+        id: bitcoin-legacy-regex-short
+      - type: trait
+        id: bitcoin-segwit-regex
+      - type: trait
+        id: bitcoin-cash-prefix
+      - type: trait
+        id: litecoin-regex
+      - type: trait
+        id: tron-regex

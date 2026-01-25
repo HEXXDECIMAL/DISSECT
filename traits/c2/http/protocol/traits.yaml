@@ -7,9 +7,10 @@ defaults:
   attack: "T1071.001"
   criticality: notable
 
-composite_rules:
+traits:
   - id: http-protocol-string
     description: "HTTP protocol version string"
+    criticality: notable
     confidence: 0.3
     condition:
       type: string
@@ -17,6 +18,7 @@ composite_rules:
 
   - id: http-method-get
     description: "HTTP GET method string"
+    criticality: notable
     confidence: 0.25
     condition:
       type: string
@@ -24,6 +26,7 @@ composite_rules:
 
   - id: http-method-post
     description: "HTTP POST method string"
+    criticality: notable
     confidence: 0.35
     condition:
       type: string
@@ -31,6 +34,7 @@ composite_rules:
 
   - id: http-user-agent
     description: "HTTP User-Agent header"
+    criticality: notable
     confidence: 0.3
     condition:
       type: string
@@ -38,6 +42,7 @@ composite_rules:
 
   - id: http-content-type
     description: "HTTP Content-Type header"
+    criticality: notable
     confidence: 0.25
     condition:
       type: string
@@ -45,11 +50,13 @@ composite_rules:
 
   - id: http-delimiter
     description: "HTTP header/body delimiter (CRLF CRLF)"
+    criticality: notable
     confidence: 0.2
     condition:
       type: string
       exact: "\r\n\r\n"
 
+composite_rules:
   - id: hardcoded-request
     description: "Hardcoded HTTP request in binary"
     criticality: suspicious

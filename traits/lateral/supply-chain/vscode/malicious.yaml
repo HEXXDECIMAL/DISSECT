@@ -68,6 +68,36 @@ traits:
             any of ($cred*) and $read and any of ($send*)
         }
 
+  # VSCode namespace usage pattern
+  - id: vscode-namespace
+    description: Uses VSCode namespace
+    criticality: inert
+    confidence: 1.0
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "vscode\\."
+
+  # Persistence location references
+  - id: persistence-locations
+    description: References persistence locations (startup/autorun paths)
+    criticality: notable
+    confidence: 0.8
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: 'APPDATA|Startup|crontab|launchd|systemd'
+
+  # File write operations
+  - id: file-write-ops
+    description: File write or copy operations
+    criticality: inert
+    confidence: 1.0
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: 'write(File|FileSync)|copy(File|FileSync)'
+
 composite_rules:
   # Staged Decryption and Execution inside a VSCode Extension
   - id: staged-dropper
@@ -82,8 +112,8 @@ composite_rules:
         id: js-decrypt-eval
       - type: trait
         id: api-usage
-      - type: string
-        regex: "vscode\\."
+      - type: trait
+        id: vscode-namespace
 
   # Extension Persistence via well-known hooks
   - id: persistence
@@ -96,7 +126,7 @@ composite_rules:
     requires_all:
       - type: trait
         id: api-usage
-      - type: string
-        regex: 'APPDATA|Startup|crontab|launchd|systemd'
-      - type: string
-        regex: 'write(File|FileSync)|copy(File|FileSync)'
+      - type: trait
+        id: persistence-locations
+      - type: trait
+        id: file-write-ops

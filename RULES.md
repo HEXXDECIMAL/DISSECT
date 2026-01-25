@@ -165,9 +165,11 @@ Match function imports/exports in binaries.
 ```yaml
 condition:
   type: symbol
-  pattern: "socket|connect|bind"    # Regex
+  pattern: "socket.*connect.*bind"    # Regex
   platforms: [linux, macos]
 ```
+
+NOTE: avoid using regexes like "a|b|c|d" to match multiple possible strings. Instead, make traits for each string and use composite rules to bring them together. These tiny traits easier to analyze using ML pipelines.
 
 ### string
 Match strings in binaries or source.
@@ -191,6 +193,38 @@ condition:
   type: symbol_or_string
   any: ["CreateProcess", "ShellExecute", "WinExec"]
 ```
+
+### hex
+
+Match hex byte patterns in binary data. Supports wildcards and gaps.
+
+```yaml
+# Simple pattern (e.g., ELF magic)
+condition:
+  type: hex
+  pattern: "7F 45 4C 46"
+  offset: 0                    # Only check at file start
+
+# With wildcards (?? = any byte)
+condition:
+  type: hex
+  pattern: "31 ?? 48 83 ?? ??"
+
+# With gaps ([N] = skip N bytes, [N-M] = skip N to M bytes)
+condition:
+  type: hex
+  pattern: "00 03 [4] 00 04"   # Fixed 4-byte gap
+  pattern: "00 03 [2-8] 00 04" # Variable 2-8 byte gap
+
+# Search within range
+condition:
+  type: hex
+  pattern: "50 4B 03 04"       # ZIP magic
+  offset_range: [0, 1024]      # Only in first 1KB
+  min_count: 1
+```
+
+**Performance:** Uses YARA-style atom extraction—extracts the longest fixed byte sequence, searches for that using fast `memmem`, then verifies the full pattern only at candidate positions.
 
 ### yara / yara_match
 
@@ -341,6 +375,48 @@ For relative trait references, use the short name:
 ```
 
 It is intentionally not possible to reference an exact trait in another directory.
+
+### Composites Referencing Composites
+
+Composite rules can reference other composite rules, enabling multi-level detection chains. The evaluation engine uses **iterative evaluation** to resolve dependencies:
+
+1. Evaluate all composites against current findings
+2. Add newly matched composites to the findings
+3. Repeat until no new findings (fixed point)
+
+This allows building hierarchical detection patterns:
+
+```yaml
+# Level 1: Atomic traits detect basic capabilities
+traits:
+  - id: socket-create
+    condition: {type: symbol, pattern: "socket"}
+  - id: dup2-call
+    condition: {type: symbol, pattern: "dup2"}
+  - id: exec-call
+    condition: {type: symbol, pattern: "execve"}
+
+composite_rules:
+  # Level 2: Combine atomics into behavioral pattern
+  - id: fd-redirect
+    description: "File descriptor redirection"
+    requires_all:
+      - {type: trait, id: socket-create}
+      - {type: trait, id: dup2-call}
+
+  # Level 3: Reference composite to build higher-level detection
+  - id: reverse-shell
+    description: "Reverse shell pattern"
+    criticality: hostile
+    requires_all:
+      - {type: trait, id: fd-redirect}  # References composite!
+      - {type: trait, id: exec-call}
+```
+
+**Notes:**
+- Circular dependencies are handled gracefully (they simply don't match)
+- Maximum 10 iterations prevents infinite loops
+- Order of rule definitions doesn't matter—dependencies resolve automatically
 
 ---
 

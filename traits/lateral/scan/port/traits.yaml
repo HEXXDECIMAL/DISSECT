@@ -2,6 +2,10 @@
 # ATT&CK: T1046 (Network Service Discovery)
 # MBC: E1046
 
+defaults:
+  attack: "T1046"
+  mbc: "E1046"
+
 traits:
   # === Atomic: Network Scanning Indicators ===
 
@@ -9,62 +13,192 @@ traits:
     description: IP address format string (scanning indicator)
     criticality: notable
     confidence: 0.6
-    attack: "T1046"
     platforms: [all]
     condition:
       type: string
       exact: "%d.%d.%d.%d"
 
-  - id: target-ip-ref
-    description: References target IP concept
-    criticality: suspicious
-    confidence: 0.75
-    attack: "T1046"
-    platforms: [all]
-    condition:
-      type: string
-      regex: "[Tt]arget[_\\s]?[Ii][Pp]|targetIP"
-
-  - id: random-target
-    description: Random target/IP generation
-    criticality: suspicious
-    confidence: 0.8
-    attack: "T1046"
-    platforms: [all]
-    condition:
-      type: string
-      regex: "[Rr]andom[_\\s]?[Tt]arget|[Rr]andom[_\\s]?IP|getrandip"
-
-  - id: port-ref
-    description: Port scanning terminology
-    criticality: notable
+  # === target IP atomic ===
+  - id: target-ip-upper
+    description: Target IP (uppercase T)
+    criticality: inert
     confidence: 0.5
-    attack: "T1046"
     platforms: [all]
     condition:
       type: string
-      regex: "\\b[Pp]ort[Ss]can|scan[_\\s]?[Pp]ort|[Pp]ort[_\\s]?[Ss]can"
+      regex: 'Target[_\s]?[Ii][Pp]'
 
-  - id: probe-ref
-    description: Network probing terminology
-    criticality: notable
-    confidence: 0.6
-    attack: "T1046"
+  - id: target-ip-lower
+    description: Target IP (lowercase)
+    criticality: inert
+    confidence: 0.5
     platforms: [all]
     condition:
       type: string
-      regex: "\\b[Pp]robe\\b|[Bb]anner[_\\s]?[Gg]rab"
+      regex: 'target[_\s]?[Ii][Pp]'
 
-  - id: target-ref
-    description: Scan target terminology
-    criticality: notable
-    confidence: 0.6
-    attack: "T1046"
+  - id: target-ip-camel
+    description: targetIP camelCase
+    criticality: inert
+    confidence: 0.5
     platforms: [all]
     condition:
       type: string
-      # Require scanning context, not just standalone "target"
-      regex: "target[_\\s]*(host|ip|port|range|list|addr)|scan[_\\s]*target"
+      exact: "targetIP"
+
+  # === random target atomic ===
+  - id: random-target-upper
+    description: Random Target (uppercase R)
+    criticality: inert
+    confidence: 0.6
+    platforms: [all]
+    condition:
+      type: string
+      regex: 'Random[_\s]?[Tt]arget'
+
+  - id: random-target-lower
+    description: random target (lowercase)
+    criticality: inert
+    confidence: 0.6
+    platforms: [all]
+    condition:
+      type: string
+      regex: 'random[_\s]?[Tt]arget'
+
+  - id: random-ip-upper
+    description: Random IP (uppercase R)
+    criticality: inert
+    confidence: 0.6
+    platforms: [all]
+    condition:
+      type: string
+      regex: 'Random[_\s]?IP'
+
+  - id: random-ip-lower
+    description: random IP (lowercase)
+    criticality: inert
+    confidence: 0.6
+    platforms: [all]
+    condition:
+      type: string
+      regex: 'random[_\s]?IP'
+
+  - id: getrandip
+    description: getrandip function
+    criticality: inert
+    confidence: 0.6
+    platforms: [all]
+    condition:
+      type: string
+      exact: "getrandip"
+
+  # === port scanning atomic ===
+  - id: portscan-word
+    description: PortScan keyword
+    criticality: inert
+    confidence: 0.4
+    platforms: [all]
+    condition:
+      type: string
+      regex: '\b[Pp]ort[Ss]can\b'
+
+  - id: scan-port
+    description: scan port keyword
+    criticality: inert
+    confidence: 0.4
+    platforms: [all]
+    condition:
+      type: string
+      regex: 'scan[_\s]?[Pp]ort'
+
+  - id: port-scan
+    description: port scan keyword
+    criticality: inert
+    confidence: 0.4
+    platforms: [all]
+    condition:
+      type: string
+      regex: '[Pp]ort[_\s]?[Ss]can'
+
+  # === probing atomic ===
+  - id: probe-word
+    description: Probe keyword
+    criticality: inert
+    confidence: 0.4
+    platforms: [all]
+    condition:
+      type: string
+      regex: '\b[Pp]robe\b'
+
+  - id: banner-grab
+    description: Banner grab keyword
+    criticality: inert
+    confidence: 0.5
+    platforms: [all]
+    condition:
+      type: string
+      regex: '[Bb]anner[_\s]?[Gg]rab'
+
+  # === target context atomic ===
+  - id: target-host
+    description: target host keyword
+    criticality: inert
+    confidence: 0.4
+    platforms: [all]
+    condition:
+      type: string
+      regex: 'target[_\s]*host'
+      case_insensitive: true
+
+  - id: target-port
+    description: target port keyword
+    criticality: inert
+    confidence: 0.4
+    platforms: [all]
+    condition:
+      type: string
+      regex: 'target[_\s]*port'
+      case_insensitive: true
+
+  - id: target-range
+    description: target range keyword
+    criticality: inert
+    confidence: 0.5
+    platforms: [all]
+    condition:
+      type: string
+      regex: 'target[_\s]*range'
+      case_insensitive: true
+
+  - id: target-list
+    description: target list keyword
+    criticality: inert
+    confidence: 0.4
+    platforms: [all]
+    condition:
+      type: string
+      regex: 'target[_\s]*list'
+      case_insensitive: true
+
+  - id: target-addr
+    description: target addr keyword
+    criticality: inert
+    confidence: 0.4
+    platforms: [all]
+    condition:
+      type: string
+      regex: 'target[_\s]*addr'
+      case_insensitive: true
+
+  - id: scan-target
+    description: scan target keyword
+    criticality: inert
+    confidence: 0.4
+    platforms: [all]
+    condition:
+      type: string
+      regex: 'scan[_\s]*target'
+      case_insensitive: true
 
   # === Atomic: Brute Force Indicators ===
 
@@ -92,15 +226,25 @@ traits:
       type: string
       exact: "root123"
 
-  - id: weak-pass-admin123
-    description: Weak password admin123
-    criticality: suspicious
-    confidence: 0.7
+  - id: weak-pass-admin123-upper
+    description: Weak password Admin123
+    criticality: inert
+    confidence: 0.5
     attack: "T1110.001"
     platforms: [all]
     condition:
       type: string
-      regex: "[Aa]dmin123"
+      exact: "Admin123"
+
+  - id: weak-pass-admin123-lower
+    description: Weak password admin123
+    criticality: inert
+    confidence: 0.5
+    attack: "T1110.001"
+    platforms: [all]
+    condition:
+      type: string
+      exact: "admin123"
 
   - id: weak-pass-passw0rd
     description: Weak password Passw0rd
@@ -112,27 +256,255 @@ traits:
       type: string
       exact: "Passw0rd"
 
+  - id: weak-pass-qwerty123
+    description: Weak password qwerty123
+    criticality: inert
+    confidence: 0.5
+    attack: "T1110.001"
+    platforms: [all]
+    condition:
+      type: string
+      exact: "qwerty123"
+
   - id: weak-pass-qwerty
+    description: Weak password qwerty
+    criticality: inert
+    confidence: 0.5
+    attack: "T1110.001"
+    platforms: [all]
+    condition:
+      type: string
+      exact: "qwerty"
+
+  # === Atomic: Root/Exploit Terminology ===
+
+  - id: root-the-phrase
+    description: Root the phrase (hacker slang)
+    criticality: inert
+    confidence: 0.6
+    attack: "T1068"
+    platforms: [all]
+    condition:
+      type: string
+      exact: "root the "
+
+  - id: r00t-leet
+    description: r00t leetspeak
+    criticality: inert
+    confidence: 0.6
+    attack: "T1068"
+    platforms: [all]
+    condition:
+      type: string
+      regex: 'r00t[^a-zA-Z]'
+
+  # === Atomic: Network Function Symbols ===
+
+  - id: sym-gethostbyname
+    description: gethostbyname function symbol
+    criticality: inert
+    confidence: 0.4
+    platforms: [all]
+    condition:
+      type: symbol
+      pattern: "^_?gethostbyname$"
+
+  - id: sym-getaddrinfo
+    description: getaddrinfo function symbol
+    criticality: inert
+    confidence: 0.4
+    platforms: [all]
+    condition:
+      type: symbol
+      pattern: "^_?getaddrinfo$"
+
+  - id: sym-socket
+    description: socket function symbol
+    criticality: inert
+    confidence: 0.4
+    platforms: [all]
+    condition:
+      type: symbol
+      pattern: "^_?socket$"
+
+  - id: sym-connect
+    description: connect function symbol
+    criticality: inert
+    confidence: 0.4
+    platforms: [all]
+    condition:
+      type: symbol
+      pattern: "^_?connect$"
+
+  # === Atomic: File Path References ===
+
+  - id: ssh-dir-ref
+    description: Reference to .ssh directory
+    criticality: notable
+    confidence: 0.5
+    attack: "T1110.001"
+    platforms: [all]
+    condition:
+      type: string
+      exact: ".ssh"
+
+  - id: etc-hosts-ref
+    description: Reference to /etc/hosts file
+    criticality: notable
+    confidence: 0.5
+    platforms: [all]
+    condition:
+      type: string
+      exact: "/etc/hosts"
+
+composite_rules:
+  # Target IP reference
+  - id: target-ip-ref
+    description: References target IP concept
+    criticality: suspicious
+    confidence: 0.75
+    platforms: [all]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: target-ip-upper
+      - type: trait
+        id: target-ip-lower
+      - type: trait
+        id: target-ip-camel
+
+  # Random target generation
+  - id: random-target
+    description: Random target/IP generation
+    criticality: suspicious
+    confidence: 0.8
+    platforms: [all]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: random-target-upper
+      - type: trait
+        id: random-target-lower
+      - type: trait
+        id: random-ip-upper
+      - type: trait
+        id: random-ip-lower
+      - type: trait
+        id: getrandip
+
+  # Port scanning terminology
+  - id: port-ref
+    description: Port scanning terminology
+    criticality: notable
+    confidence: 0.5
+    platforms: [all]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: portscan-word
+      - type: trait
+        id: scan-port
+      - type: trait
+        id: port-scan
+
+  # Network probing
+  - id: probe-ref
+    description: Network probing terminology
+    criticality: notable
+    confidence: 0.6
+    platforms: [all]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: probe-word
+      - type: trait
+        id: banner-grab
+
+  # Scan target terminology
+  - id: target-ref
+    description: Scan target terminology
+    criticality: notable
+    confidence: 0.6
+    platforms: [all]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: target-host
+      - type: trait
+        id: target-port
+      - type: trait
+        id: target-range
+      - type: trait
+        id: target-list
+      - type: trait
+        id: target-addr
+      - type: trait
+        id: scan-target
+
+  # Weak password admin123
+  - id: weak-pass-admin123
+    description: Weak password admin123
+    criticality: suspicious
+    confidence: 0.7
+    attack: "T1110.001"
+    platforms: [all]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: weak-pass-admin123-upper
+      - type: trait
+        id: weak-pass-admin123-lower
+
+  # Weak password qwerty variants
+  - id: weak-pass-qwerty-variants
     description: Weak password qwerty variants
     criticality: suspicious
     confidence: 0.7
     attack: "T1110.001"
     platforms: [all]
-    condition:
-      type: string
-      regex: "qwerty123|qwerty"
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: weak-pass-qwerty123
+      - type: trait
+        id: weak-pass-qwerty
 
-  # === Atomic: Root/Exploit Terminology ===
-
+  # Root exploitation terminology
   - id: root-exploit-ref
     description: Root exploitation terminology (leetspeak/hacker slang)
     criticality: suspicious
     confidence: 0.85
     attack: "T1068"
     platforms: [all]
-    condition:
-      type: string
-      # "root the " = hacker slang for compromising a device
-      # "r00t" = leetspeak for root (clearly malicious intent)
-      # Note: "get_root" removed - legitimate function name in system utilities
-      regex: "root the |r00t[^a-zA-Z]"
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: root-the-phrase
+      - type: trait
+        id: r00t-leet
+
+  # Hostname resolution symbols
+  - id: sym-hostname-resolve
+    description: Hostname resolution function symbols
+    criticality: notable
+    confidence: 0.6
+    platforms: [all]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: sym-gethostbyname
+      - type: trait
+        id: sym-getaddrinfo
+
+  # Socket connection symbols
+  - id: sym-socket-connect
+    description: Socket connection function symbols
+    criticality: notable
+    confidence: 0.6
+    platforms: [all]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: sym-socket
+      - type: trait
+        id: sym-connect

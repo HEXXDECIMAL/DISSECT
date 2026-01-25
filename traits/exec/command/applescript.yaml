@@ -1,27 +1,104 @@
-# NOTE: "do shell script" is defined in evasion/applescript/traits.yaml (do-shell-script)
-# NOTE: "tell application" is defined in evasion/applescript/traits.yaml (tell-application)
+# AppleScript Command Execution Detection (Source Files)
+# For string-based detection in shell scripts invoking osascript
+# Symbol-based detection for .scpt files is in scpt.yaml
+# Social engineering lures are in evasion/social-engineering/applescript.yaml
+# ATT&CK: T1059.002 (AppleScript)
+
+defaults:
+  file_types: [shell, python, ruby, perl]
+  platforms: [macos]
+  attack: "T1059.002"
 
 traits:
-  - id: lure
-    description: "AppleScript social engineering lure (Compatibility Wizard)"
-    criticality: hostile
-    confidence: 1.0
+  # ============================================
+  # Low-Level Apple Event Indicators (in strings)
+  # ============================================
+  - id: sysoexec-string
+    description: "sysoexec Apple Event in string"
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1059.004"
     condition:
       type: string
-      regex: "(?i)Compatibility Wizard|compatibility issue|Missing required extensions"
+      exact: "sysoexec"
 
-  - id: system-exec
-    description: "AppleScript low-level system execution indicator"
-    criticality: suspicious
+  - id: sysoload-string
+    description: "sysoload Apple Event in string"
+    criticality: notable
     confidence: 0.8
     condition:
       type: string
-      regex: "sysoexec|sysoopen"
+      exact: "sysoload"
 
-  - id: app-reference
-    description: "AppleScript references system applications"
-    criticality: notable
-    confidence: 0.7
+  - id: sysodela-string
+    description: "sysodela Apple Event in string"
+    criticality: inert
+    confidence: 0.8
     condition:
       type: string
-      regex: "System Settings\\.app|System Preferences\\.app|Keychain Access\\.app"
+      exact: "sysodela"
+
+  # ============================================
+  # Application References (in source)
+  # ============================================
+  - id: ref-system-settings
+    description: "References System Settings"
+    criticality: notable
+    confidence: 0.85
+    condition:
+      type: string
+      exact: "System Settings"
+
+  - id: ref-system-prefs
+    description: "References System Preferences"
+    criticality: notable
+    confidence: 0.85
+    condition:
+      type: string
+      exact: "System Preferences"
+
+  - id: ref-keychain
+    description: "References Keychain Access"
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1555.001"
+    condition:
+      type: string
+      exact: "Keychain Access"
+
+  - id: ref-terminal
+    description: "References Terminal"
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1059.004"
+    condition:
+      type: string
+      regex: "\"Terminal\""
+
+composite_rules:
+  # ============================================
+  # Shell Execution via osascript
+  # ============================================
+  - id: osascript-shell
+    description: "osascript invoking shell command"
+    criticality: suspicious
+    confidence: 0.85
+    attack: "T1059.004"
+    file_types: [shell, python, ruby, perl]
+    requires_all:
+      - {type: trait, id: evasion/applescript/osascript-exec}
+      - {type: trait, id: sysoexec-string}
+
+  # ============================================
+  # Settings Automation via osascript
+  # ============================================
+  - id: osascript-settings
+    description: "osascript automating System Settings"
+    criticality: notable
+    confidence: 0.8
+    file_types: [shell, python, ruby, perl]
+    requires_all:
+      - {type: trait, id: evasion/applescript/osascript-exec}
+    requires_any:
+      - {type: trait, id: ref-system-settings}
+      - {type: trait, id: ref-system-prefs}

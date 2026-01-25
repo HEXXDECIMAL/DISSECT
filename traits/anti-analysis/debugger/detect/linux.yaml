@@ -2,30 +2,45 @@
 # MBC: B0001 (Debugger Detection)
 # ATT&CK: T1622
 
+defaults:
+  mbc: "B0001"
+  attack: "T1622"
+
 traits:
   - id: debugger-ptrace
     description: Debugger detection via ptrace
     criticality: suspicious
     confidence: 0.66
-    mbc: "B0001"
-    attack: "T1622"
     condition:
       type: string
       exact: PTRACE_TRACEME
 
   # NOTE: /proc/self/status detection is in traits.yaml as 'proc-status'
 
+  - id: gdb-ref
+    description: GDB debugger reference
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\bgdb\b'
+
+  - id: lldb-ref
+    description: LLDB debugger reference
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: '\blldb\b'
+
+composite_rules:
   - id: debugger-gdb
-    description: References gdb debugger
+    description: References gdb/lldb debugger
     criticality: notable
     confidence: 0.66
-    condition:
-      type: yara
-      source: |
-        rule gdb_ref {
-          strings:
-            $gdb = "gdb" fullword
-            $lldb = "lldb" fullword
-          condition:
-            any of them
-        }
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: gdb-ref
+      - type: trait
+        id: lldb-ref

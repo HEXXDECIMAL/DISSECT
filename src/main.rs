@@ -164,6 +164,57 @@ fn main() -> Result<()> {
     Ok(())
 }
 
+/// Analyze source code files for languages with AST support but no dedicated analyzer
+/// Performs basic analysis with symbol extraction
+fn analyze_generic_source(path: &Path, file_type: &FileType) -> Result<types::AnalysisReport> {
+    use analyzers::symbol_extraction;
+    use sha2::{Digest, Sha256};
+
+    let start = std::time::Instant::now();
+    let content = fs::read_to_string(path)?;
+
+    let file_type_str = format!("{:?}", file_type).to_lowercase();
+    let mut hasher = Sha256::new();
+    hasher.update(content.as_bytes());
+    let sha256 = format!("{:x}", hasher.finalize());
+
+    let target = types::TargetInfo {
+        path: path.display().to_string(),
+        file_type: file_type_str.clone(),
+        size_bytes: content.len() as u64,
+        sha256,
+        architectures: None,
+    };
+
+    let mut report = types::AnalysisReport::new(target);
+
+    // Add structure to indicate AST parsing is supported
+    report.structure.push(types::StructuralFeature {
+        id: format!("source/language/{}", file_type_str),
+        description: format!("{} source code", file_type_str),
+        evidence: vec![types::Evidence {
+            method: "parser".to_string(),
+            source: "tree-sitter".to_string(),
+            value: file_type_str.clone(),
+            location: Some("AST".to_string()),
+        }],
+    });
+
+    // Extract symbols using tree-sitter if we have a language config
+    if let Some((lang, call_types)) = symbol_extraction::get_language_config(file_type) {
+        symbol_extraction::extract_symbols(&content, lang, &call_types, &mut report);
+    }
+
+    // Analyze paths and environment variables
+    path_mapper::analyze_and_link_paths(&mut report);
+    env_mapper::analyze_and_link_env_vars(&mut report);
+
+    report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;
+    report.metadata.tools_used = vec!["tree-sitter".to_string()];
+
+    Ok(report)
+}
+
 fn analyze_file(
     target: &str,
     enable_third_party_yara: bool,
@@ -355,6 +406,17 @@ fn analyze_file(
                 analyzer = analyzer.with_yara(engine);
             }
             analyzer.analyze(path)?
+        }
+        // Languages with AST support but no dedicated analyzer yet
+        // Use generic source code analysis with symbol extraction
+        FileType::Swift
+        | FileType::ObjectiveC
+        | FileType::Groovy
+        | FileType::Scala
+        | FileType::Zig
+        | FileType::Elixir
+        | FileType::AppleScript => {
+            analyze_generic_source(path, &file_type)?
         }
         _ => {
             anyhow::bail!("Unsupported file type: {:?}", file_type);

@@ -12,10 +12,10 @@ composite_rules:
     mbc: "E1046"
     file_types: [all]
     requires_all:
-      - type: symbol
-        pattern: "^_?(gethostbyname|getaddrinfo)$"
-      - type: symbol
-        pattern: "^_?(socket|connect)$"
+      - type: trait
+        id: sym-hostname-resolve
+      - type: trait
+        id: sym-socket-connect
     requires_count: 2
     conditions:
       - type: trait
@@ -53,10 +53,10 @@ composite_rules:
     attack: "T1110.001"
     file_types: [all]
     requires_all:
-      - type: string
-        exact: ".ssh"
-      - type: string
-        exact: "/etc/hosts"
+      - type: trait
+        id: ssh-dir-ref
+      - type: trait
+        id: etc-hosts-ref
     requires_count: 2
     conditions:
       - type: trait
@@ -80,7 +80,7 @@ composite_rules:
       - type: trait
         id: random-target
     requires_any:
-      - type: symbol
-        pattern: "^_?(socket|connect)$"
+      - type: trait
+        id: sym-socket-connect
       - type: trait
         id: ip-format

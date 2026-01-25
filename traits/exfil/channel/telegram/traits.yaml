@@ -73,6 +73,16 @@ traits:
       type: string
       regex: "\\d{8,10}:[A-Za-z0-9_-]{35}"
 
+  - id: form-data-header
+    description: HTTP multipart form-data header
+    criticality: notable
+    confidence: 0.7
+    attack: "T1567.002"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "Content-Disposition: form-data"
+
 composite_rules:
   - id: bot-exfil
     description: Telegram bot exfiltration
@@ -81,21 +91,25 @@ composite_rules:
     attack: "T1567.002"
     mbc: "B0030"
     file_types: [all]
-    condition:
-      type: yara
-      source: |
-        rule telegram_exfil {
-          strings:
-            $api = "api.telegram.org"
-            $api_b64 = "YXBpLnRlbGVncmFtLm9yZw=="
-            $send_msg = "/sendMessage"
-            $send_doc = "/sendDocument"
-            $send_loc = "/sendLocation"
-            $send_photo = "/sendPhoto"
-            $form_data = "Content-Disposition: form-data"
-            $bot_token = /\d{8,10}:[A-Za-z0-9_-]{35}/
-          condition:
-            filesize < 50MB and
-            ($api or $api_b64) and
-            (2 of ($send*) or $bot_token)
-        }
+    requires_all:
+      - type: any
+        conditions:
+          - type: trait
+            id: api-endpoint
+          - type: trait
+            id: api-endpoint-b64
+      - type: any
+        conditions:
+          - type: all
+            min_count: 2
+            conditions:
+              - type: trait
+                id: send-message
+              - type: trait
+                id: send-document
+              - type: trait
+                id: send-location
+              - type: trait
+                id: send-photo
+          - type: trait
+            id: bot-token

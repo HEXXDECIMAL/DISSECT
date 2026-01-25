@@ -100,6 +100,24 @@ traits:
       type: string
       exact: "b2FzdC5mdW4"
 
+  - id: http-b64
+    description: Base64-encoded HTTP protocol indicator
+    criticality: notable
+    confidence: 0.7
+    file_types: [python, javascript]
+    condition:
+      type: string
+      exact: "aHR0cDovL"
+
+  - id: https-b64
+    description: Base64-encoded HTTPS protocol indicator
+    criticality: notable
+    confidence: 0.7
+    file_types: [python, javascript]
+    condition:
+      type: string
+      exact: "aHR0cHM6Ly"
+
   # NOTE: Discord webhook traits are defined in exfil/channel/discord/
   # NOTE: Telegram bot traits are defined in exfil/channel/telegram/
   # Use those directory references in composite rules
@@ -181,10 +199,10 @@ composite_rules:
     file_types: [python, javascript]
     requires_count: 2
     conditions:
-      - type: string
-        exact: "aHR0cDovL" # http://
-      - type: string
-        exact: "aHR0cHM6Ly" # https://
+      - type: trait
+        id: http-b64
+      - type: trait
+        id: https-b64
       - type: trait
         id: oastify-b64
       - type: trait

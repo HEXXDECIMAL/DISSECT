@@ -1,0 +1,90 @@
+# macOS Application Trojanization
+# Detects replacement of legitimate applications with malicious versions
+# ATT&CK: T1574.001 (Hijack Execution Flow: DLL Search Order Hijacking)
+# Note: Conceptually similar - replacing legitimate executables
+
+defaults:
+  attack: "T1574.001"
+  platforms: [macos]
+  criticality: suspicious
+
+traits:
+  # Ledger Live application path
+  - id: ledger-app-path
+    description: "Ledger Live application path reference"
+    confidence: 0.85
+    condition:
+      type: string
+      exact: "/Applications/Ledger Live.app"
+
+  # pkill of legitimate app
+  - id: pkill-ledger
+    description: "Kill Ledger Live process"
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "pkill.*Ledger Live|killall.*Ledger"
+
+  # Remove legitimate app
+  - id: rm-applications
+    description: "Remove application from /Applications"
+    criticality: suspicious
+    confidence: 0.9
+    condition:
+      type: string
+      regex: "rm\\s+-r.*\"/Applications/|sudo.*rm.*\\.app"
+
+  # Unzip to Applications
+  - id: unzip-applications
+    description: "Unzip to /Applications directory"
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: string
+      regex: "unzip.*/Applications|unzip.*-d.*/Applications"
+
+  # Download replacement app
+  - id: download-app-zip
+    description: "Download application archive"
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: string
+      regex: "curl.*\\.app\\.zip|curl.*app\\.zip|wget.*\\.app\\.zip"
+
+  # Generic app replacement pattern
+  - id: app-replacement
+    description: "Application replacement pattern"
+    criticality: suspicious
+    confidence: 0.8
+    condition:
+      type: string
+      regex: "rm.*\\.app.*&&.*unzip|rm.*\\.app.*&&.*cp"
+
+composite_rules:
+  # Ledger Live replacement attack
+  - id: ledger-trojanize
+    description: "Ledger Live application replacement attack"
+    criticality: hostile
+    confidence: 0.95
+    attack: "T1574.001"
+    file_types: [shell, applescript, python]
+    requires_all:
+      - {type: trait, id: ledger-app-path}
+    requires_any:
+      - {type: trait, id: pkill-ledger}
+      - {type: trait, id: rm-applications}
+    requires_any:
+      - {type: trait, id: unzip-applications}
+      - {type: trait, id: download-app-zip}
+
+  # Generic app replacement
+  - id: app-trojanize
+    description: "macOS application replacement attack"
+    criticality: hostile
+    confidence: 0.9
+    attack: "T1574.001"
+    file_types: [shell, applescript, python]
+    requires_all:
+      - {type: trait, id: rm-applications}
+      - {type: trait, id: unzip-applications}

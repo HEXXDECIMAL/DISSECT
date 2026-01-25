@@ -155,6 +155,17 @@ traits:
       type: string
       exact: "unconfined_exec"
 
+  - id: rootkit/medusa/ld-preload-file
+    description: Medusa ld.so.preload configuration file access
+    criticality: suspicious
+    confidence: 0.85
+    family: true
+    attack: "T1574.006"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "/etc/ld.so.preload"
+
 composite_rules:
   # === Composite: Full Medusa rootkit detection ===
 
@@ -247,5 +258,5 @@ composite_rules:
         id: rootkit/medusa/backup-ld
       - type: trait
         id: rootkit/medusa/ldx-staging
-      - type: string
-        exact: "/etc/ld.so.preload"
+      - type: trait
+        id: rootkit/medusa/ld-preload-file

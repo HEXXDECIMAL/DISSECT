@@ -1,0 +1,188 @@
+# AppleScript User Execution Lures
+# Social engineering to trick users into running malicious AppleScript
+# ATT&CK: T1204.002 (User Execution: Malicious File)
+
+defaults:
+  file_types: [applescript, shell]
+  platforms: [macos]
+  attack: "T1204.002"
+
+traits:
+  # ============================================
+  # Compatibility Wizard Lure (common in AMOS)
+  # ============================================
+  - id: compat-wizard
+    description: "Compatibility Wizard lure text"
+    criticality: suspicious
+    confidence: 0.95
+    condition:
+      type: string
+      regex: "(?i)Compatibility Wizard"
+
+  - id: compat-issue
+    description: "Compatibility issue lure text"
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: string
+      regex: "(?i)compatibility issue"
+
+  - id: file-not-opened
+    description: "File couldn't be opened lure"
+    criticality: notable
+    confidence: 0.8
+    condition:
+      type: string
+      regex: "(?i)couldn't be opened"
+
+  # ============================================
+  # Missing Components Lure
+  # ============================================
+  - id: missing-extensions
+    description: "Missing extensions lure text"
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: string
+      regex: "(?i)extensions are missing"
+
+  - id: missing-required-ext
+    description: "Missing required extensions lure"
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: string
+      regex: "(?i)Missing required extensions"
+
+  - id: missing-required-comp
+    description: "Missing required components lure"
+    criticality: suspicious
+    confidence: 0.85
+    condition:
+      type: string
+      regex: "(?i)Missing required components"
+
+  - id: required-components
+    description: "Required components lure text"
+    criticality: notable
+    confidence: 0.8
+    condition:
+      type: string
+      regex: "(?i)required components"
+
+  - id: required-extensions
+    description: "Required extensions lure text"
+    criticality: notable
+    confidence: 0.8
+    condition:
+      type: string
+      regex: "(?i)required extensions"
+
+  # ============================================
+  # System Update Lure
+  # ============================================
+  - id: system-update
+    description: "System update lure text"
+    criticality: notable
+    confidence: 0.8
+    condition:
+      type: string
+      regex: "(?i)System update"
+
+  - id: check-updates
+    description: "Check updates lure text"
+    criticality: notable
+    confidence: 0.75
+    condition:
+      type: string
+      regex: "(?i)Check.*updates"
+
+  - id: install-components
+    description: "Install components lure text"
+    criticality: notable
+    confidence: 0.8
+    condition:
+      type: string
+      regex: "(?i)install.*components"
+
+  # ============================================
+  # User Action Prompts
+  # ============================================
+  - id: click-button
+    description: "Instructs user to click button"
+    criticality: notable
+    confidence: 0.75
+    condition:
+      type: string
+      regex: "(?i)click the.*button"
+
+  - id: press-continue
+    description: "Instructs user to press to continue"
+    criticality: notable
+    confidence: 0.75
+    condition:
+      type: string
+      regex: "(?i)press.*to continue"
+
+composite_rules:
+  # ============================================
+  # Compatibility Wizard Attack
+  # ============================================
+  - id: compat-wizard-attack
+    description: "Compatibility Wizard user execution lure"
+    criticality: hostile
+    confidence: 0.95
+    file_types: [applescript, shell]
+    requires_all:
+      - {type: trait, id: compat-wizard}
+    requires_any:
+      - {type: trait, id: compat-issue}
+      - {type: trait, id: missing-extensions}
+      - {type: trait, id: missing-required-ext}
+      - {type: trait, id: missing-required-comp}
+
+  # ============================================
+  # Fake Update Attack
+  # ============================================
+  - id: fake-update-attack
+    description: "Fake system update user execution lure"
+    criticality: hostile
+    confidence: 0.9
+    file_types: [applescript, shell]
+    requires_any:
+      - {type: trait, id: system-update}
+      - {type: trait, id: check-updates}
+    requires_all:
+      - {type: trait, id: install-components}
+
+  # ============================================
+  # Missing Components Attack
+  # ============================================
+  - id: missing-components-attack
+    description: "Missing components user execution lure"
+    criticality: hostile
+    confidence: 0.9
+    file_types: [applescript, shell]
+    requires_any:
+      - {type: trait, id: missing-extensions}
+      - {type: trait, id: missing-required-ext}
+      - {type: trait, id: missing-required-comp}
+    requires_any:
+      - {type: trait, id: click-button}
+      - {type: trait, id: press-continue}
+
+  # ============================================
+  # Lure with Shell Execution
+  # ============================================
+  - id: lure-with-shell
+    description: "User execution lure with shell command"
+    criticality: hostile
+    confidence: 0.95
+    file_types: [applescript]
+    requires_any:
+      - {type: trait, id: compat-wizard}
+      - {type: trait, id: compat-issue}
+      - {type: trait, id: missing-extensions}
+      - {type: trait, id: missing-required-ext}
+    requires_all:
+      - {type: trait, id: exec/command/shell-execution}

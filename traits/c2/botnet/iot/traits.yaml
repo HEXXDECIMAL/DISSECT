@@ -116,6 +116,17 @@ traits:
             $proc_exe and (any of ($send*) or any of ($tftp, $wget, $curl))
         }
 
+  - id: curl-http-download
+    description: "Curl HTTP payload download"
+    criticality: suspicious
+    confidence: 0.9
+    attack: "T1105"
+    file_types: [elf]
+    platforms: [linux]
+    condition:
+      type: string
+      exact: "curl http://"
+
 composite_rules:
   - id: mirai-variant
     description: "Mirai-like IoT botnet (credential brute-force + shell dropper)"
@@ -150,5 +161,5 @@ composite_rules:
         id: busybox-tftp
       - type: trait
         id: busybox-ftpget
-      - type: string
-        exact: "curl http://"
+      - type: trait
+        id: curl-http-download

@@ -2,83 +2,255 @@
 # ATT&CK: T1486 (Data Encrypted for Impact)
 # Detects file encryption, key generation, and ransom note patterns
 
+defaults:
+  attack: "T1486"
+
 traits:
-  # RSA key generation/handling
-  - id: rsa-key-handling
-    description: RSA key generation or handling (potential ransomware)
-    criticality: notable
-    confidence: 0.8
-    attack: "T1486"
+  # === RSA key handling (atomic) ===
+  - id: rsa-keyword
+    description: RSA keyword
+    criticality: inert
+    confidence: 0.4
     file_types: [javascript, typescript, python]
     condition:
-      type: yara
-      source: |
-        rule rsa_key_handling {
-          strings:
-            $rsa1 = "RSA" ascii
-            $rsa2 = "generateKeyPair" ascii
-            $rsa3 = "publicEncrypt" ascii
-            $rsa4 = "privateDecrypt" ascii
-            $rsa5 = "-----BEGIN RSA" ascii
-            $rsa6 = "-----BEGIN PUBLIC KEY" ascii
-            $crypto = "crypto" ascii
-          condition:
-            $crypto and 2 of ($rsa*)
-        }
+      type: string
+      exact: "RSA"
 
-  # File encryption loop pattern
-  - id: file-encryption-loop
-    description: File iteration with encryption (ransomware pattern)
-    criticality: suspicious
-    confidence: 0.9
-    attack: "T1486"
+  - id: generate-keypair
+    description: generateKeyPair function
+    criticality: inert
+    confidence: 0.5
     file_types: [javascript, typescript, python]
     condition:
-      type: yara
-      source: |
-        rule file_encryption_loop {
-          strings:
-            // File iteration
-            $iter1 = "readdirSync" ascii
-            $iter2 = "walkSync" ascii
-            $iter3 = "glob" ascii
-            $iter4 = "readdir" ascii
-            $iter5 = "os.walk" ascii
-            // Encryption
-            $enc1 = "encrypt" ascii
-            $enc2 = "cipher" ascii
-            $enc3 = "createCipheriv" ascii
-            $enc4 = "AES" ascii
-            // File write
-            $write1 = "writeFileSync" ascii
-            $write2 = "writeFile" ascii
-            $write3 = "open(" ascii
-          condition:
-            any of ($iter*) and any of ($enc*) and any of ($write*)
-        }
+      type: string
+      exact: "generateKeyPair"
 
-  # Ransom note indicators
-  - id: ransom-note
-    description: Ransom note text patterns
-    criticality: suspicious
-    confidence: 0.95
-    attack: "T1486"
+  - id: public-encrypt
+    description: publicEncrypt function
+    criticality: inert
+    confidence: 0.5
+    file_types: [javascript, typescript, python]
+    condition:
+      type: string
+      exact: "publicEncrypt"
+
+  - id: private-decrypt
+    description: privateDecrypt function
+    criticality: inert
+    confidence: 0.5
+    file_types: [javascript, typescript, python]
+    condition:
+      type: string
+      exact: "privateDecrypt"
+
+  - id: begin-rsa-key
+    description: BEGIN RSA key header
+    criticality: inert
+    confidence: 0.5
+    file_types: [javascript, typescript, python]
+    condition:
+      type: string
+      exact: "-----BEGIN RSA"
+
+  - id: begin-public-key
+    description: BEGIN PUBLIC KEY header
+    criticality: inert
+    confidence: 0.5
+    file_types: [javascript, typescript, python]
+    condition:
+      type: string
+      exact: "-----BEGIN PUBLIC KEY"
+
+  - id: crypto-module
+    description: crypto module
+    criticality: inert
+    confidence: 0.3
+    file_types: [javascript, typescript, python]
+    condition:
+      type: string
+      exact: "crypto"
+
+  # === File iteration (atomic) ===
+  - id: readdir-sync
+    description: readdirSync function
+    criticality: inert
+    confidence: 0.4
+    file_types: [javascript, typescript, python]
+    condition:
+      type: string
+      exact: "readdirSync"
+
+  - id: walk-sync
+    description: walkSync function
+    criticality: inert
+    confidence: 0.4
+    file_types: [javascript, typescript, python]
+    condition:
+      type: string
+      exact: "walkSync"
+
+  - id: glob-module
+    description: glob module
+    criticality: inert
+    confidence: 0.4
+    file_types: [javascript, typescript, python]
+    condition:
+      type: string
+      exact: "glob"
+
+  - id: readdir-fn
+    description: readdir function
+    criticality: inert
+    confidence: 0.4
+    file_types: [javascript, typescript, python]
+    condition:
+      type: string
+      exact: "readdir"
+
+  - id: os-walk
+    description: os.walk function
+    criticality: inert
+    confidence: 0.4
+    file_types: [javascript, typescript, python]
+    condition:
+      type: string
+      exact: "os.walk"
+
+  # === Encryption (atomic) ===
+  - id: encrypt-fn
+    description: encrypt function
+    criticality: inert
+    confidence: 0.4
+    file_types: [javascript, typescript, python]
+    condition:
+      type: string
+      exact: "encrypt"
+
+  - id: cipher-keyword
+    description: cipher keyword
+    criticality: inert
+    confidence: 0.4
+    file_types: [javascript, typescript, python]
+    condition:
+      type: string
+      exact: "cipher"
+
+  - id: create-cipheriv
+    description: createCipheriv function
+    criticality: inert
+    confidence: 0.5
+    file_types: [javascript, typescript, python]
+    condition:
+      type: string
+      exact: "createCipheriv"
+
+  - id: aes-keyword
+    description: AES keyword
+    criticality: inert
+    confidence: 0.4
+    file_types: [javascript, typescript, python]
+    condition:
+      type: string
+      exact: "AES"
+
+  # === File write (atomic) ===
+  - id: writefile-sync
+    description: writeFileSync function
+    criticality: inert
+    confidence: 0.4
+    file_types: [javascript, typescript, python]
+    condition:
+      type: string
+      exact: "writeFileSync"
+
+  - id: writefile-fn
+    description: writeFile function
+    criticality: inert
+    confidence: 0.4
+    file_types: [javascript, typescript, python]
+    condition:
+      type: string
+      exact: "writeFile"
+
+  - id: open-paren
+    description: open( function
+    criticality: inert
+    confidence: 0.3
+    file_types: [javascript, typescript, python]
+    condition:
+      type: string
+      exact: "open("
+
+  # === Ransom note (atomic) ===
+  - id: files-encrypted-msg
+    description: Files encrypted message
+    criticality: inert
+    confidence: 0.7
     file_types: [javascript, typescript, python, shell]
     condition:
-      type: yara
-      source: |
-        rule ransom_note {
-          strings:
-            $s1 = "your files have been encrypted" ascii nocase
-            $s2 = "pay bitcoin" ascii nocase
-            $s3 = "pay btc" ascii nocase
-            $s4 = "decrypt your files" ascii nocase
-            $s5 = "bitcoin wallet" ascii nocase
-            $s6 = "restore your files" ascii nocase
-            $s7 = "send payment" ascii nocase
-          condition:
-            2 of them
-        }
+      type: string
+      exact: "your files have been encrypted"
+      case_insensitive: true
+
+  - id: pay-bitcoin-msg
+    description: Pay bitcoin message
+    criticality: inert
+    confidence: 0.7
+    file_types: [javascript, typescript, python, shell]
+    condition:
+      type: string
+      exact: "pay bitcoin"
+      case_insensitive: true
+
+  - id: pay-btc-msg
+    description: Pay BTC message
+    criticality: inert
+    confidence: 0.7
+    file_types: [javascript, typescript, python, shell]
+    condition:
+      type: string
+      exact: "pay btc"
+      case_insensitive: true
+
+  - id: decrypt-files-msg
+    description: Decrypt files message
+    criticality: inert
+    confidence: 0.7
+    file_types: [javascript, typescript, python, shell]
+    condition:
+      type: string
+      exact: "decrypt your files"
+      case_insensitive: true
+
+  - id: bitcoin-wallet-msg
+    description: Bitcoin wallet message
+    criticality: inert
+    confidence: 0.7
+    file_types: [javascript, typescript, python, shell]
+    condition:
+      type: string
+      exact: "bitcoin wallet"
+      case_insensitive: true
+
+  - id: restore-files-msg
+    description: Restore files message
+    criticality: inert
+    confidence: 0.7
+    file_types: [javascript, typescript, python, shell]
+    condition:
+      type: string
+      exact: "restore your files"
+      case_insensitive: true
+
+  - id: send-payment-msg
+    description: Send payment message
+    criticality: inert
+    confidence: 0.7
+    file_types: [javascript, typescript, python, shell]
+    condition:
+      type: string
+      exact: "send payment"
+      case_insensitive: true
 
   - id: ransom-identifier
     description: Ransom-related terminology
@@ -88,56 +260,328 @@ traits:
       type: string
       regex: "(?i)\\bransom\\b"
 
-  # File extension change pattern
+  # === File rename (atomic) ===
+  - id: rename-sync
+    description: renameSync function
+    criticality: inert
+    confidence: 0.4
+    file_types: [javascript, typescript, python]
+    condition:
+      type: string
+      exact: "renameSync"
+
+  - id: rename-fn
+    description: rename( function
+    criticality: inert
+    confidence: 0.4
+    file_types: [javascript, typescript, python]
+    condition:
+      type: string
+      exact: "rename("
+
+  - id: os-rename
+    description: os.rename function
+    criticality: inert
+    confidence: 0.4
+    file_types: [javascript, typescript, python]
+    condition:
+      type: string
+      exact: "os.rename"
+
+  # === Encrypted extensions (atomic) ===
+  - id: ext-encrypted
+    description: .encrypted extension
+    criticality: inert
+    confidence: 0.6
+    file_types: [javascript, typescript, python]
+    condition:
+      type: string
+      exact: ".encrypted"
+
+  - id: ext-locked
+    description: .locked extension
+    criticality: inert
+    confidence: 0.6
+    file_types: [javascript, typescript, python]
+    condition:
+      type: string
+      exact: ".locked"
+
+  - id: ext-enc
+    description: .enc extension
+    criticality: inert
+    confidence: 0.6
+    file_types: [javascript, typescript, python]
+    condition:
+      type: string
+      exact: ".enc"
+
+  - id: ext-crypt
+    description: .crypt extension
+    criticality: inert
+    confidence: 0.6
+    file_types: [javascript, typescript, python]
+    condition:
+      type: string
+      exact: ".crypt"
+
+  # === Medusa ransomware (atomic) ===
+  - id: medusa-name
+    description: Medusa name
+    criticality: inert
+    confidence: 0.5
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: medusa
+      case_insensitive: true
+
+  - id: polymorphic-keyword
+    description: polymorphic keyword
+    criticality: inert
+    confidence: 0.5
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: polymorphic
+      case_insensitive: true
+
+  - id: mutate-keyword
+    description: mutate keyword
+    criticality: inert
+    confidence: 0.4
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: mutate
+
+  # === Shadow copy deletion (atomic) ===
+  - id: vssadmin-delete
+    description: vssadmin delete shadows
+    criticality: inert
+    confidence: 0.7
+    attack: "T1490"
+    file_types: [javascript, powershell, shell]
+    condition:
+      type: string
+      regex: 'vssadmin\s+delete\s+shadows'
+
+  - id: wmic-shadowcopy
+    description: wmic shadowcopy delete
+    criticality: inert
+    confidence: 0.7
+    attack: "T1490"
+    file_types: [javascript, powershell, shell]
+    condition:
+      type: string
+      regex: 'wmic\s+shadowcopy\s+delete'
+
+  - id: bcdedit-recovery
+    description: bcdedit recoveryenabled no
+    criticality: inert
+    confidence: 0.7
+    attack: "T1490"
+    file_types: [javascript, powershell, shell]
+    condition:
+      type: string
+      regex: 'bcdedit.*recoveryenabled.*no'
+
+composite_rules:
+  # RSA key operations
+  - id: rsa-key-operations
+    description: RSA key operations
+    criticality: inert
+    confidence: 0.6
+    file_types: [javascript, typescript, python]
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: rsa-keyword
+      - type: trait
+        id: generate-keypair
+      - type: trait
+        id: public-encrypt
+      - type: trait
+        id: private-decrypt
+      - type: trait
+        id: begin-rsa-key
+      - type: trait
+        id: begin-public-key
+
+  # RSA key handling with crypto
+  - id: rsa-key-handling
+    description: RSA key generation or handling (potential ransomware)
+    criticality: notable
+    confidence: 0.8
+    file_types: [javascript, typescript, python]
+    requires_all:
+      - type: trait
+        id: crypto-module
+      - type: composite
+        id: rsa-key-operations
+
+  # File iteration
+  - id: file-iteration
+    description: File iteration functions
+    criticality: inert
+    confidence: 0.5
+    file_types: [javascript, typescript, python]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: readdir-sync
+      - type: trait
+        id: walk-sync
+      - type: trait
+        id: glob-module
+      - type: trait
+        id: readdir-fn
+      - type: trait
+        id: os-walk
+
+  # Encryption functions
+  - id: encryption-functions
+    description: Encryption functions
+    criticality: inert
+    confidence: 0.5
+    file_types: [javascript, typescript, python]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: encrypt-fn
+      - type: trait
+        id: cipher-keyword
+      - type: trait
+        id: create-cipheriv
+      - type: trait
+        id: aes-keyword
+
+  # File write functions
+  - id: file-write-functions
+    description: File write functions
+    criticality: inert
+    confidence: 0.4
+    file_types: [javascript, typescript, python]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: writefile-sync
+      - type: trait
+        id: writefile-fn
+      - type: trait
+        id: open-paren
+
+  # File encryption loop
+  - id: file-encryption-loop
+    description: File iteration with encryption (ransomware pattern)
+    criticality: suspicious
+    confidence: 0.9
+    file_types: [javascript, typescript, python]
+    requires_all:
+      - type: composite
+        id: file-iteration
+      - type: composite
+        id: encryption-functions
+      - type: composite
+        id: file-write-functions
+
+  # Ransom note
+  - id: ransom-note
+    description: Ransom note text patterns
+    criticality: suspicious
+    confidence: 0.95
+    file_types: [javascript, typescript, python, shell]
+    requires_count: 2
+    conditions:
+      - type: trait
+        id: files-encrypted-msg
+      - type: trait
+        id: pay-bitcoin-msg
+      - type: trait
+        id: pay-btc-msg
+      - type: trait
+        id: decrypt-files-msg
+      - type: trait
+        id: bitcoin-wallet-msg
+      - type: trait
+        id: restore-files-msg
+      - type: trait
+        id: send-payment-msg
+
+  # Rename functions
+  - id: rename-functions
+    description: File rename functions
+    criticality: inert
+    confidence: 0.4
+    file_types: [javascript, typescript, python]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: rename-sync
+      - type: trait
+        id: rename-fn
+      - type: trait
+        id: os-rename
+
+  # Encrypted extensions
+  - id: encrypted-extensions
+    description: Encrypted file extensions
+    criticality: inert
+    confidence: 0.6
+    file_types: [javascript, typescript, python]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: ext-encrypted
+      - type: trait
+        id: ext-locked
+      - type: trait
+        id: ext-enc
+      - type: trait
+        id: ext-crypt
+
+  # Extension change
   - id: extension-change
     description: Changes file extensions (potential ransomware)
     criticality: suspicious
     confidence: 0.85
-    attack: "T1486"
     file_types: [javascript, typescript, python]
-    condition:
-      type: yara
-      source: |
-        rule extension_change {
-          strings:
-            $rename1 = "renameSync" ascii
-            $rename2 = "rename(" ascii
-            $rename3 = "os.rename" ascii
-            $ext1 = ".encrypted" ascii
-            $ext2 = ".locked" ascii
-            $ext3 = ".enc" ascii
-            $ext4 = ".crypt" ascii
-          condition:
-            any of ($rename*) and any of ($ext*)
-        }
+    requires_all:
+      - type: composite
+        id: rename-functions
+      - type: composite
+        id: encrypted-extensions
 
-  # Medusa ransomware patterns
+  # Medusa pattern
   - id: medusa-pattern
     description: Medusa ransomware implementation indicators
     criticality: notable
     confidence: 0.95
-    attack: "T1486"
     file_types: [javascript, typescript]
-    condition:
-      type: yara
-      source: |
-        rule medusa_ransomware {
-          strings:
-            $medusa1 = "medusa" ascii nocase fullword
-            $poly = "polymorphic" ascii nocase fullword
-            $mutate = "mutate" ascii fullword
-            $rsa = "RSA" ascii fullword
-          condition:
-            ($medusa1 and any of ($poly, $mutate, $rsa)) or ($poly and $mutate and $rsa)
-        }
+    requires_all:
+      - type: trait
+        id: medusa-name
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: polymorphic-keyword
+      - type: trait
+        id: mutate-keyword
+      - type: trait
+        id: rsa-keyword
 
-  # Shadow copy deletion (Windows ransomware)
+  # Shadow copy deletion
   - id: shadow-delete
     description: Shadow copy deletion (ransomware preparation)
     criticality: suspicious
     confidence: 0.95
     attack: "T1490"
     file_types: [javascript, powershell, shell]
-    condition:
-      type: string
-      regex: 'vssadmin\s+delete\s+shadows|wmic\s+shadowcopy\s+delete|bcdedit.*recoveryenabled.*no'
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: vssadmin-delete
+      - type: trait
+        id: wmic-shadowcopy
+      - type: trait
+        id: bcdedit-recovery

@@ -60,7 +60,7 @@ composite_rules:
     requires_all:
       - type: trait
         id: ptrace
-      - type: symbol
-        pattern: getpid
-      - type: string
-        regex: "PTRACE_TRACEME|PT_DENY_ATTACH"
+      - type: trait
+        id: getpid
+      - type: trait
+        id: ptrace-traceme-or-deny

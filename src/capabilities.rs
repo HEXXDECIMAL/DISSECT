@@ -753,6 +753,35 @@ impl CapabilityMapper {
             }
         }
 
+        // Validate that composite rules only contain trait references (not inline primitives)
+        // During migration, the default allows inline primitives
+        // Set DISSECT_STRICT_COMPOSITES=1 to enforce trait-only composites
+        let allow_inline = std::env::var("DISSECT_STRICT_COMPOSITES").is_err();
+        if !allow_inline {
+            let mut inline_errors = Vec::new();
+            for rule in &composite_rules {
+                let source = rule_source_files
+                    .get(&rule.id)
+                    .map(|s| s.as_str())
+                    .unwrap_or("unknown");
+                inline_errors.extend(validate_composite_trait_only(rule, source));
+            }
+
+            if !inline_errors.is_empty() {
+                eprintln!(
+                    "\n❌ FATAL: {} composite rules have inline primitives\n",
+                    inline_errors.len()
+                );
+                for err in &inline_errors {
+                    eprintln!("   {}", err);
+                }
+                eprintln!("\n   Composite rules must only reference traits (type: trait).");
+                eprintln!("   Convert inline conditions (string, symbol, yara, etc.) to atomic traits.");
+                eprintln!("   Unset DISSECT_STRICT_COMPOSITES to allow inline primitives during migration.\n");
+                std::process::exit(1);
+            }
+        }
+
         if timing {
             eprintln!("[TIMING] Validated refs: {:?}", t_validate.elapsed());
             eprintln!("[TIMING] Total from_directory: {:?}", t_start.elapsed());
@@ -996,6 +1025,15 @@ impl CapabilityMapper {
             "ruby" | "rb" => RuleFileType::Ruby,
             "php" => RuleFileType::Php,
             "csharp" | "cs" => RuleFileType::CSharp,
+            "lua" => RuleFileType::Lua,
+            "perl" | "pl" => RuleFileType::Perl,
+            "powershell" | "ps1" => RuleFileType::PowerShell,
+            "swift" => RuleFileType::Swift,
+            "objectivec" | "objc" | "m" => RuleFileType::ObjectiveC,
+            "groovy" | "gradle" => RuleFileType::Groovy,
+            "scala" | "sc" => RuleFileType::Scala,
+            "zig" => RuleFileType::Zig,
+            "elixir" | "ex" | "exs" => RuleFileType::Elixir,
             "package.json" | "packagejson" => RuleFileType::PackageJson,
             "applescript" | "scpt" => RuleFileType::AppleScript,
             _ => RuleFileType::All,
@@ -1053,7 +1091,17 @@ fn simple_rule_to_composite_rule(rule: SimpleRule) -> CompositeTrait {
                 "ruby" => Some(RuleFileType::Ruby),
                 "php" => Some(RuleFileType::Php),
                 "csharp" | "cs" => Some(RuleFileType::CSharp),
+                "lua" => Some(RuleFileType::Lua),
+                "perl" | "pl" => Some(RuleFileType::Perl),
+                "powershell" | "ps1" => Some(RuleFileType::PowerShell),
+                "swift" => Some(RuleFileType::Swift),
+                "objectivec" | "objc" | "m" => Some(RuleFileType::ObjectiveC),
+                "groovy" | "gradle" => Some(RuleFileType::Groovy),
+                "scala" | "sc" => Some(RuleFileType::Scala),
+                "zig" => Some(RuleFileType::Zig),
+                "elixir" | "ex" | "exs" => Some(RuleFileType::Elixir),
                 "packagejson" | "package.json" => Some(RuleFileType::PackageJson),
+                "applescript" | "scpt" => Some(RuleFileType::AppleScript),
                 _ => None,
             })
             .collect()
@@ -1089,6 +1137,49 @@ fn find_line_number(file_path: &str, search_str: &str) -> Option<usize> {
         }
     }
     None
+}
+
+/// Validate that all conditions in a composite rule are trait references only.
+/// Composite rules should combine traits, not contain inline primitives.
+fn validate_composite_trait_only(rule: &CompositeTrait, source_file: &str) -> Vec<String> {
+    use crate::composite_rules::Condition;
+
+    let mut errors = Vec::new();
+
+    fn check_conditions(
+        conditions: &[Condition],
+        rule_id: &str,
+        field_name: &str,
+        source_file: &str,
+        errors: &mut Vec<String>,
+    ) {
+        for cond in conditions {
+            if !cond.is_trait_reference() {
+                errors.push(format!(
+                    "{}: Composite rule '{}' has inline '{}' in {}. Convert to a trait.",
+                    source_file,
+                    rule_id,
+                    cond.type_name(),
+                    field_name
+                ));
+            }
+        }
+    }
+
+    if let Some(ref c) = rule.requires_all {
+        check_conditions(c, &rule.id, "requires_all", source_file, &mut errors);
+    }
+    if let Some(ref c) = rule.requires_any {
+        check_conditions(c, &rule.id, "requires_any", source_file, &mut errors);
+    }
+    if let Some(ref c) = rule.conditions {
+        check_conditions(c, &rule.id, "conditions", source_file, &mut errors);
+    }
+    if let Some(ref c) = rule.requires_none {
+        check_conditions(c, &rule.id, "requires_none", source_file, &mut errors);
+    }
+
+    errors
 }
 
 /// Collect all trait reference IDs from a composite rule's conditions
@@ -1705,5 +1796,307 @@ composite_rules:
         // Second rule unsets attack
         assert_eq!(rules[1].attack, None);
         assert_eq!(rules[1].criticality, Criticality::Notable); // Still uses default
+    }
+
+    // ==================== Iterative Composite Evaluation Tests ====================
+
+    use crate::composite_rules::Condition;
+    use crate::types::{AnalysisReport, Finding, FindingKind, TargetInfo};
+
+    /// Helper to create a minimal analysis report for testing
+    fn test_report_with_findings(findings: Vec<Finding>) -> AnalysisReport {
+        let mut report = AnalysisReport::new(TargetInfo {
+            path: "/test/file".to_string(),
+            file_type: "elf".to_string(),
+            size_bytes: 1000,
+            sha256: "abc123".to_string(),
+            architectures: None,
+        });
+        report.findings = findings;
+        report
+    }
+
+    /// Helper to create a test finding
+    fn test_finding(id: &str) -> Finding {
+        Finding {
+            id: id.to_string(),
+            kind: FindingKind::Capability,
+            description: format!("Test finding {}", id),
+            confidence: 0.9,
+            criticality: Criticality::Notable,
+            mbc: None,
+            attack: None,
+            trait_refs: vec![],
+            evidence: vec![],
+        }
+    }
+
+    #[test]
+    fn test_iterative_eval_single_pass() {
+        // Test that simple composites work in a single pass
+        let mapper = CapabilityMapper::empty();
+        let report = test_report_with_findings(vec![test_finding("atomic/trait-a")]);
+        let findings = mapper.evaluate_composite_rules(&report, &[]);
+        assert!(findings.is_empty()); // Empty mapper returns no findings
+    }
+
+    #[test]
+    fn test_iterative_eval_max_iterations_protection() {
+        // Test that MAX_ITERATIONS limit prevents infinite loops
+        let report = test_report_with_findings(vec![]);
+        let mapper = CapabilityMapper::empty();
+
+        let start = std::time::Instant::now();
+        let _ = mapper.evaluate_composite_rules(&report, &[]);
+        let elapsed = start.elapsed();
+
+        assert!(elapsed.as_secs() < 1, "Evaluation took too long: {:?}", elapsed);
+    }
+
+    #[test]
+    fn test_composite_referencing_atomic_trait() {
+        use crate::composite_rules::CompositeTrait;
+
+        let composite = CompositeTrait {
+            id: "test/composite".to_string(),
+            description: "Test composite".to_string(),
+            confidence: 0.9,
+            criticality: Criticality::Suspicious,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            file_types: vec![RuleFileType::All],
+            requires_all: Some(vec![Condition::Trait {
+                id: "test/atomic-trait".to_string(),
+            }]),
+            requires_any: None,
+            requires_count: None,
+            conditions: None,
+            requires_none: None,
+        };
+
+        let report = test_report_with_findings(vec![test_finding("test/atomic-trait")]);
+        let mut mapper = CapabilityMapper::empty();
+        mapper.composite_rules.push(composite);
+
+        let findings = mapper.evaluate_composite_rules(&report, &[]);
+        assert_eq!(findings.len(), 1);
+        assert_eq!(findings[0].id, "test/composite");
+    }
+
+    #[test]
+    fn test_composite_of_composites_two_levels() {
+        // Level 1: atomic-trait -> Level 2: composite-a -> Level 3: composite-b
+        use crate::composite_rules::CompositeTrait;
+
+        let composite_a = CompositeTrait {
+            id: "test/composite-a".to_string(),
+            description: "First level".to_string(),
+            confidence: 0.9,
+            criticality: Criticality::Notable,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            file_types: vec![RuleFileType::All],
+            requires_all: Some(vec![Condition::Trait {
+                id: "test/atomic-trait".to_string(),
+            }]),
+            requires_any: None,
+            requires_count: None,
+            conditions: None,
+            requires_none: None,
+        };
+
+        let composite_b = CompositeTrait {
+            id: "test/composite-b".to_string(),
+            description: "Second level".to_string(),
+            confidence: 0.95,
+            criticality: Criticality::Suspicious,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            file_types: vec![RuleFileType::All],
+            requires_all: Some(vec![Condition::Trait {
+                id: "test/composite-a".to_string(),
+            }]),
+            requires_any: None,
+            requires_count: None,
+            conditions: None,
+            requires_none: None,
+        };
+
+        let report = test_report_with_findings(vec![test_finding("test/atomic-trait")]);
+        let mut mapper = CapabilityMapper::empty();
+        mapper.composite_rules.push(composite_a);
+        mapper.composite_rules.push(composite_b);
+
+        let findings = mapper.evaluate_composite_rules(&report, &[]);
+
+        // Both composites should be found due to iterative evaluation
+        assert_eq!(findings.len(), 2);
+        let ids: Vec<_> = findings.iter().map(|f| f.id.as_str()).collect();
+        assert!(ids.contains(&"test/composite-a"), "Missing composite-a");
+        assert!(ids.contains(&"test/composite-b"), "Missing composite-b");
+    }
+
+    #[test]
+    fn test_composite_three_level_chain() {
+        // Test 3-level chain: atomic -> A -> B -> C
+        use crate::composite_rules::CompositeTrait;
+
+        let make_composite = |id: &str, requires: &str| CompositeTrait {
+            id: id.to_string(),
+            description: format!("Composite {}", id),
+            confidence: 0.9,
+            criticality: Criticality::Notable,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            file_types: vec![RuleFileType::All],
+            requires_all: Some(vec![Condition::Trait {
+                id: requires.to_string(),
+            }]),
+            requires_any: None,
+            requires_count: None,
+            conditions: None,
+            requires_none: None,
+        };
+
+        let report = test_report_with_findings(vec![test_finding("level/zero")]);
+        let mut mapper = CapabilityMapper::empty();
+        mapper.composite_rules.push(make_composite("level/one", "level/zero"));
+        mapper.composite_rules.push(make_composite("level/two", "level/one"));
+        mapper.composite_rules.push(make_composite("level/three", "level/two"));
+
+        let findings = mapper.evaluate_composite_rules(&report, &[]);
+
+        assert_eq!(findings.len(), 3);
+        let ids: Vec<_> = findings.iter().map(|f| f.id.as_str()).collect();
+        assert!(ids.contains(&"level/one"));
+        assert!(ids.contains(&"level/two"));
+        assert!(ids.contains(&"level/three"));
+    }
+
+    #[test]
+    fn test_composite_circular_dependency_handled() {
+        // Test that circular dependencies don't cause infinite loops
+        use crate::composite_rules::CompositeTrait;
+
+        let composite_a = CompositeTrait {
+            id: "circular/a".to_string(),
+            description: "Circular A".to_string(),
+            confidence: 0.9,
+            criticality: Criticality::Notable,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            file_types: vec![RuleFileType::All],
+            requires_all: Some(vec![Condition::Trait {
+                id: "circular/b".to_string(),
+            }]),
+            requires_any: None,
+            requires_count: None,
+            conditions: None,
+            requires_none: None,
+        };
+
+        let composite_b = CompositeTrait {
+            id: "circular/b".to_string(),
+            description: "Circular B".to_string(),
+            confidence: 0.9,
+            criticality: Criticality::Notable,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            file_types: vec![RuleFileType::All],
+            requires_all: Some(vec![Condition::Trait {
+                id: "circular/a".to_string(),
+            }]),
+            requires_any: None,
+            requires_count: None,
+            conditions: None,
+            requires_none: None,
+        };
+
+        let report = test_report_with_findings(vec![]);
+        let mut mapper = CapabilityMapper::empty();
+        mapper.composite_rules.push(composite_a);
+        mapper.composite_rules.push(composite_b);
+
+        let start = std::time::Instant::now();
+        let findings = mapper.evaluate_composite_rules(&report, &[]);
+        let elapsed = start.elapsed();
+
+        assert!(elapsed.as_millis() < 100, "Took too long: {:?}", elapsed);
+        assert!(findings.is_empty(), "Circular deps shouldn't match");
+    }
+
+    #[test]
+    fn test_composite_prefix_matching_in_chain() {
+        // Test prefix matching works in composite chains
+        use crate::composite_rules::CompositeTrait;
+
+        let composite = CompositeTrait {
+            id: "test/uses-discovery".to_string(),
+            description: "Uses discovery".to_string(),
+            confidence: 0.9,
+            criticality: Criticality::Notable,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            file_types: vec![RuleFileType::All],
+            requires_all: Some(vec![Condition::Trait {
+                id: "discovery/system".to_string(), // Prefix match
+            }]),
+            requires_any: None,
+            requires_count: None,
+            conditions: None,
+            requires_none: None,
+        };
+
+        // Report has specific trait under discovery/system/
+        let report = test_report_with_findings(vec![test_finding("discovery/system/hostname")]);
+        let mut mapper = CapabilityMapper::empty();
+        mapper.composite_rules.push(composite);
+
+        let findings = mapper.evaluate_composite_rules(&report, &[]);
+        assert_eq!(findings.len(), 1);
+        assert_eq!(findings[0].id, "test/uses-discovery");
+    }
+
+    #[test]
+    fn test_composite_requires_count_in_chain() {
+        use crate::composite_rules::CompositeTrait;
+
+        let composite = CompositeTrait {
+            id: "test/needs-two".to_string(),
+            description: "Needs 2 of 3".to_string(),
+            confidence: 0.9,
+            criticality: Criticality::Notable,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            file_types: vec![RuleFileType::All],
+            requires_all: None,
+            requires_any: None,
+            requires_count: Some(2),
+            conditions: Some(vec![
+                Condition::Trait { id: "feat/a".to_string() },
+                Condition::Trait { id: "feat/b".to_string() },
+                Condition::Trait { id: "feat/c".to_string() },
+            ]),
+            requires_none: None,
+        };
+
+        let report = test_report_with_findings(vec![
+            test_finding("feat/a"),
+            test_finding("feat/c"),
+        ]);
+        let mut mapper = CapabilityMapper::empty();
+        mapper.composite_rules.push(composite);
+
+        let findings = mapper.evaluate_composite_rules(&report, &[]);
+        assert_eq!(findings.len(), 1);
+        assert_eq!(findings[0].id, "test/needs-two");
     }
 }

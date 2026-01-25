@@ -118,6 +118,60 @@ traits:
       type: string
       regex: "Ethereum/keystore|Mist/keystore|\\.ethereum/keystore"
 
+  # Monero wallet
+  - id: monero
+    description: "Monero wallet data path"
+    confidence: 0.85
+    criticality: suspicious
+    condition:
+      type: string
+      regex: "Monero/wallets|\\.bitmonero/wallets"
+
+  # Litecoin Core
+  - id: litecoin-core
+    description: "Litecoin Core wallet data"
+    confidence: 0.85
+    criticality: suspicious
+    condition:
+      type: string
+      regex: "\\.litecoin/wallet\\.dat|Litecoin/wallets"
+
+  # Dash Core
+  - id: dash-core
+    description: "Dash Core wallet data"
+    confidence: 0.85
+    criticality: suspicious
+    condition:
+      type: string
+      regex: "DashCore/wallets|\\.dashcore/wallet\\.dat"
+
+  # Electrum-LTC
+  - id: electrum-ltc
+    description: "Electrum-LTC wallet data path"
+    confidence: 0.85
+    criticality: suspicious
+    condition:
+      type: string
+      regex: "\\.electrum-ltc/wallets"
+
+  # Electron Cash (BCH)
+  - id: electron-cash
+    description: "Electron Cash wallet data path"
+    confidence: 0.85
+    criticality: suspicious
+    condition:
+      type: string
+      regex: "\\.electron-cash/wallets"
+
+  # Dogecoin Core
+  - id: dogecoin-core
+    description: "Dogecoin Core wallet data"
+    confidence: 0.85
+    criticality: suspicious
+    condition:
+      type: string
+      regex: "Dogecoin/wallets|\\.dogecoin/wallet\\.dat"
+
 composite_rules:
   # Multiple desktop wallet targets = stealer
   - id: stealer
@@ -126,7 +180,7 @@ composite_rules:
     confidence: 0.95
     attack: "T1555"
     mbc: "B0028"
-    file_types: [python, javascript, elf, pe, macho]
+    file_types: [python, javascript, elf, pe, macho, applescript, shell]
     requires_count: 3
     conditions:
       - type: trait
@@ -141,3 +195,15 @@ composite_rules:
         id: binance
       - type: trait
         id: tonkeeper
+      - type: trait
+        id: monero
+      - type: trait
+        id: litecoin-core
+      - type: trait
+        id: dash-core
+      - type: trait
+        id: dogecoin-core
+      - type: trait
+        id: ledger
+      - type: trait
+        id: trezor

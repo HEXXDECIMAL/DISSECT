@@ -8,41 +8,81 @@ defaults:
   criticality: suspicious
 
 traits:
-  # XMLHttpRequest.prototype hooking
-  - id: prototype-access
-    description: "XMLHttpRequest prototype access (potential hooking)"
-    confidence: 0.8
+  # === XMLHttpRequest prototype atomic ===
+  - id: xhr-prototype-access
+    description: XMLHttpRequest.prototype access
+    criticality: inert
+    confidence: 0.6
     condition:
       type: string
-      # Match both direct .prototype access and obfuscated bracket notation
-      regex: "XMLHttpRequest\\.prototype|XMLHttpRequest\\[.+\\]\\[.+\\]"
+      exact: "XMLHttpRequest.prototype"
 
-  # Hooking XMLHttpRequest.open
-  - id: open-hook
-    description: "XMLHttpRequest.open method hooking"
-    confidence: 0.85
-    criticality: suspicious
+  - id: xhr-bracket-access
+    description: XMLHttpRequest bracket notation access
+    criticality: inert
+    confidence: 0.6
     condition:
       type: string
-      regex: "XMLHttpRequest\\.prototype\\.open\\s*=|XMLHttpRequest\\[.+\\]\\[.+open.+\\]\\s*="
+      regex: "XMLHttpRequest\\[.+\\]\\[.+\\]"
 
-  # Hooking XMLHttpRequest.send
-  - id: send-hook
-    description: "XMLHttpRequest.send method hooking"
-    confidence: 0.85
-    criticality: suspicious
+  # === XMLHttpRequest.open hook atomic ===
+  - id: xhr-prototype-open-eq
+    description: XMLHttpRequest.prototype.open assignment
+    criticality: inert
+    confidence: 0.7
     condition:
       type: string
-      regex: "XMLHttpRequest\\.prototype\\.send\\s*=|XMLHttpRequest\\[.+\\]\\[.+send.+\\]\\s*="
+      regex: "XMLHttpRequest\\.prototype\\.open\\s*="
 
-  # Hooking fetch API
-  - id: fetch-hook
-    description: "fetch API hooking"
-    confidence: 0.85
-    criticality: suspicious
+  - id: xhr-bracket-open-eq
+    description: XMLHttpRequest bracket open assignment
+    criticality: inert
+    confidence: 0.7
     condition:
       type: string
-      regex: "window\\.fetch\\s*=|globalThis\\.fetch\\s*=|self\\.fetch\\s*="
+      regex: "XMLHttpRequest\\[.+\\]\\[.+open.+\\]\\s*="
+
+  # === XMLHttpRequest.send hook atomic ===
+  - id: xhr-prototype-send-eq
+    description: XMLHttpRequest.prototype.send assignment
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "XMLHttpRequest\\.prototype\\.send\\s*="
+
+  - id: xhr-bracket-send-eq
+    description: XMLHttpRequest bracket send assignment
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "XMLHttpRequest\\[.+\\]\\[.+send.+\\]\\s*="
+
+  # === fetch API hook atomic ===
+  - id: window-fetch-eq
+    description: window.fetch assignment
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "window\\.fetch\\s*="
+
+  - id: globalthis-fetch-eq
+    description: globalThis.fetch assignment
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "globalThis\\.fetch\\s*="
+
+  - id: self-fetch-eq
+    description: self.fetch assignment
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "self\\.fetch\\s*="
 
   # onreadystatechange interception
   - id: readystate-intercept
@@ -53,6 +93,55 @@ traits:
       regex: "onreadystatechange\\s*=.*function"
 
 composite_rules:
+  # XMLHttpRequest prototype access composite
+  - id: prototype-access
+    description: "XMLHttpRequest prototype access (potential hooking)"
+    confidence: 0.8
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: xhr-prototype-access
+      - type: trait
+        id: xhr-bracket-access
+
+  # XMLHttpRequest.open hook composite
+  - id: open-hook
+    description: "XMLHttpRequest.open method hooking"
+    confidence: 0.85
+    criticality: suspicious
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: xhr-prototype-open-eq
+      - type: trait
+        id: xhr-bracket-open-eq
+
+  # XMLHttpRequest.send hook composite
+  - id: send-hook
+    description: "XMLHttpRequest.send method hooking"
+    confidence: 0.85
+    criticality: suspicious
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: xhr-prototype-send-eq
+      - type: trait
+        id: xhr-bracket-send-eq
+
+  # fetch API hook composite
+  - id: fetch-hook
+    description: "fetch API hooking"
+    confidence: 0.85
+    criticality: suspicious
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: window-fetch-eq
+      - type: trait
+        id: globalthis-fetch-eq
+      - type: trait
+        id: self-fetch-eq
+
   # Multiple XHR hooks = request interceptor
   - id: request-interceptor
     description: "HTTP request interceptor (XHR/fetch hooking)"
@@ -62,9 +151,9 @@ composite_rules:
     file_types: [javascript]
     requires_count: 2
     conditions:
-      - type: string
-        regex: "XMLHttpRequest\\.prototype\\.open"
-      - type: string
-        regex: "XMLHttpRequest\\.prototype\\.send"
-      - type: string
-        regex: "window\\.fetch\\s*="
+      - type: composite
+        id: open-hook
+      - type: composite
+        id: send-hook
+      - type: composite
+        id: fetch-hook

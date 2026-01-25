@@ -2,15 +2,36 @@
 # ATT&CK: T1033 (System Owner/User Discovery)
 
 traits:
-  - id: home-env
-    description: HOME environment variable lookup
-    criticality: notable
-    confidence: 0.7
+  # === HOME environment atomic indicators ===
+  - id: getenv-home
+    description: getenv HOME lookup
+    criticality: inert
+    confidence: 0.5
     attack: "T1033"
     file_types: [all]
     condition:
       type: string
-      regex: "(getenv.*HOME|env\\.HOME|\\$HOME)"
+      regex: "getenv.*HOME"
+
+  - id: env-dot-home
+    description: env.HOME lookup
+    criticality: inert
+    confidence: 0.5
+    attack: "T1033"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "env.HOME"
+
+  - id: dollar-home
+    description: $HOME variable reference
+    criticality: inert
+    confidence: 0.5
+    attack: "T1033"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "$HOME"
 
   - id: appdata
     description: Windows APPDATA lookup
@@ -42,15 +63,36 @@ traits:
       type: string
       exact: "USERPROFILE"
 
-  - id: username-env
+  # === Username environment atomic indicators ===
+  - id: username-var
     description: USERNAME environment variable
-    criticality: notable
-    confidence: 0.75
+    criticality: inert
+    confidence: 0.5
     attack: "T1033"
     file_types: [all]
     condition:
       type: string
-      regex: "(USERNAME|USER|LOGNAME)"
+      exact: "USERNAME"
+
+  - id: user-var
+    description: USER environment variable
+    criticality: inert
+    confidence: 0.5
+    attack: "T1033"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "USER"
+
+  - id: logname-var
+    description: LOGNAME environment variable
+    criticality: inert
+    confidence: 0.5
+    attack: "T1033"
+    file_types: [all]
+    condition:
+      type: string
+      exact: "LOGNAME"
 
   - id: getuid
     description: Get user ID
@@ -123,40 +165,122 @@ traits:
       type: string
       exact: "/etc/passwd"
 
+  - id: finger
+    description: Finger command for user info
+    criticality: suspicious
+    confidence: 0.75
+    attack: "T1033"
+    file_types: [shell, elf, macho]
+    condition:
+      type: string
+      exact: "finger"
+
+  - id: last-cmd
+    description: Last command for login history
+    criticality: suspicious
+    confidence: 0.8
+    attack: "T1033"
+    file_types: [shell, elf, macho]
+    condition:
+      type: string
+      exact: "/usr/bin/last"
+
+  - id: w-cmd
+    description: W command for user sessions
+    criticality: suspicious
+    confidence: 0.75
+    attack: "T1033"
+    file_types: [shell, elf, macho]
+    condition:
+      type: string
+      exact: "/usr/bin/w"
+
 composite_rules:
+  # HOME environment composite
+  - id: home-env
+    description: HOME environment variable lookup
+    criticality: notable
+    confidence: 0.7
+    attack: "T1033"
+    file_types: [all]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: getenv-home
+      - type: trait
+        id: env-dot-home
+      - type: trait
+        id: dollar-home
+
+  # Username environment composite
+  - id: username-env
+    description: USERNAME environment variable
+    criticality: notable
+    confidence: 0.75
+    attack: "T1033"
+    file_types: [all]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: username-var
+      - type: trait
+        id: user-var
+      - type: trait
+        id: logname-var
+
+  # Active enumeration commands
+  - id: active-enum-cmds
+    description: Active user enumeration commands
+    criticality: notable
+    confidence: 0.8
+    attack: "T1033"
+    file_types: [shell, elf, macho, pe, python]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: whoami
+      - type: trait
+        id: etc-passwd
+      - type: trait
+        id: dscl
+      - type: trait
+        id: finger
+      - type: trait
+        id: last-cmd
+      - type: trait
+        id: w-cmd
+
+  # Passive user lookup functions
+  - id: passive-user-lookup
+    description: POSIX user lookup functions
+    criticality: notable
+    confidence: 0.7
+    attack: "T1033"
+    file_types: [elf, macho]
+    requires_count: 1
+    conditions:
+      - type: trait
+        id: getpwnam
+      - type: trait
+        id: getuid
+      - type: trait
+        id: getpwuid
+
+  # User enumeration detected (active commands + context)
   - id: enumeration-detected
     description: User enumeration activity
     criticality: suspicious
     confidence: 0.9
     attack: "T1033"
     mbc: "B0046"
-    # Exclude JS - syntax highlighters have shell command keywords
     file_types: [shell, elf, macho, pe, python]
-    condition:
-      type: yara
-      source: |
-        rule user_enumeration {
-          strings:
-            // Active enumeration commands (more suspicious - shell commands)
-            $whoami = "whoami" fullword
-            $etc_passwd = "/etc/passwd"
-            $dscl = "dscl" fullword
-            $finger = "finger" fullword
-            $last_cmd = "/usr/bin/last"
-            $w_cmd = "/usr/bin/w" ascii
-            // POSIX user lookup functions (common in auth software)
-            $getpwnam = "getpwnam" fullword
-            $getuid = "getuid" fullword
-            $getpwuid = "getpwuid" fullword
-            // Environment variables (very common)
-            $username = "USERNAME" fullword
-            $user = "USER" fullword
-            $logname = "LOGNAME" fullword
-          condition:
-            filesize < 20MB and (
-              // Require active shell commands + additional context
-              (1 of ($whoami, $etc_passwd, $dscl, $finger, $last_cmd, $w_cmd) and 2 of them) or
-              // Or require many indicators if only passive functions
-              (5 of them)
-            )
-        }
+    requires_all:
+      - type: composite
+        id: active-enum-cmds
+    requires_any:
+      - type: composite
+        id: passive-user-lookup
+      - type: composite
+        id: username-env
+      - type: composite
+        id: home-env

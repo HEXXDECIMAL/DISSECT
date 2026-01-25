@@ -81,6 +81,62 @@ traits:
       # Ethereum-specific patterns, avoid matching OS "keystore" services
       regex: "UTC--.*--[a-fA-F0-9]{40}|ethereum.*keystore|keystore.*ethereum|web3.*keystore|\\.json.*wallet"
 
+  # Mnemonic/seed phrase terms (for composite rules)
+  - id: mnemonic-terms
+    description: "Mnemonic or seed phrase terminology"
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "mnemonic|seed_phrase|seedphrase|recovery_phrase|secret_words"
+
+  # Network exfiltration patterns
+  - id: network-exfil
+    description: "Network request patterns for exfiltration"
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "requests\\.(post|get)|urllib|socket\\.|fetch\\(|XMLHttpRequest"
+
+  # Wallet/crypto context terms
+  - id: wallet-context
+    description: "Wallet or cryptocurrency context"
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "wallet|crypto|metamask|phantom|browser"
+
+  # Private key variable patterns
+  - id: private-key-var
+    description: "Private key variable or property"
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "private_?key|privateKey"
+
+  # Keystore reference patterns
+  - id: keystore-ref
+    description: "Keystore reference"
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "keystore|keystores"
+
+  # Derivation path patterns (for composite rules)
+  - id: derivation-pattern
+    description: "Wallet derivation path pattern"
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "derivation.*path|m/44'/"
+
+  # BIP-39 reference patterns (for composite rules)
+  - id: bip39-ref
+    description: "BIP-39 or wordlist reference"
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "bip39|bip-39|wordlist"
+
 composite_rules:
   # Mnemonic extraction with file/network operations
   - id: stealer-pattern
@@ -91,12 +147,12 @@ composite_rules:
     mbc: "B0028"
     file_types: [python, javascript]
     requires_all:
-      - type: string
-        regex: "mnemonic|seed_phrase|seedphrase|recovery_phrase|secret_words"
-      - type: string
-        regex: "requests\\.(post|get)|urllib|socket\\.|fetch\\(|XMLHttpRequest"
-      - type: string
-        regex: "wallet|crypto|metamask|phantom|browser"
+      - type: trait
+        id: mnemonic-terms
+      - type: trait
+        id: network-exfil
+      - type: trait
+        id: wallet-context
 
   # Multiple wallet-related patterns = wallet stealer
   - id: comprehensive-stealer
@@ -108,13 +164,13 @@ composite_rules:
     file_types: [python, javascript, elf, pe, macho]
     requires_count: 3
     conditions:
-      - type: string
-        regex: "mnemonic|seed_phrase|recovery_phrase"
-      - type: string
-        regex: "private_?key|privateKey"
-      - type: string
-        regex: "keystore|keystores"
-      - type: string
-        regex: "derivation.*path|m/44'/"
-      - type: string
-        regex: "bip39|bip-39|wordlist"
+      - type: trait
+        id: mnemonic-terms
+      - type: trait
+        id: private-key-var
+      - type: trait
+        id: keystore-ref
+      - type: trait
+        id: derivation-pattern
+      - type: trait
+        id: bip39-ref
