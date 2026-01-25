@@ -51,29 +51,17 @@ fn main() -> Result<()> {
         upx::disable_upx();
     }
 
-    // Print banner to stderr if JSON mode, stdout otherwise
-    match args.format {
-        cli::OutputFormat::Json => {
-            eprintln!("DISSECT v{}", env!("CARGO_PKG_VERSION"));
-            eprintln!("Deep static analysis tool\n");
-            if disabled.any_disabled() {
-                eprintln!(
-                    "Disabled components: {}",
-                    disabled.disabled_names().join(", ")
-                );
-            }
-        }
-        cli::OutputFormat::Terminal => {
-            println!("DISSECT v{}", env!("CARGO_PKG_VERSION"));
-            println!("Deep static analysis tool\n");
-            if disabled.any_disabled() {
-                println!(
-                    "Disabled components: {}",
-                    disabled.disabled_names().join(", ")
-                );
-            }
-        }
+    // Print banner to stderr (status info never goes to stdout)
+    eprintln!("DISSECT v{}", env!("CARGO_PKG_VERSION"));
+    eprintln!("Deep static analysis tool\n");
+    if disabled.any_disabled() {
+        eprintln!(
+            "Disabled components: {}",
+            disabled.disabled_names().join(", ")
+        );
     }
+
+    let format = args.format();
 
     // Collect zip passwords (default + custom, unless disabled)
     let zip_passwords: Vec<String> = if args.no_zip_passwords {
@@ -107,7 +95,7 @@ fn main() -> Result<()> {
                 analyze_file(
                     &targets[0],
                     enable_third_party,
-                    &args.format,
+                    &format,
                     &zip_passwords,
                     &disabled,
                 )?
@@ -116,7 +104,7 @@ fn main() -> Result<()> {
                 scan_paths(
                     targets,
                     enable_third_party,
-                    &args.format,
+                    &format,
                     &zip_passwords,
                     &disabled,
                 )?
@@ -128,13 +116,13 @@ fn main() -> Result<()> {
         }) => scan_paths(
             paths,
             (enable_third_party_global || cmd_third_party) && !disabled.third_party,
-            &args.format,
+            &format,
             &zip_passwords,
             &disabled,
         )?,
         Some(cli::Command::Diff { old, new }) => diff_analysis(&old, &new)?,
         Some(cli::Command::Strings { target, min_length }) => {
-            extract_strings(&target, min_length, &args.format)?
+            extract_strings(&target, min_length, &format)?
         }
         None => {
             // No subcommand - use paths from top-level args
@@ -144,7 +132,7 @@ fn main() -> Result<()> {
             scan_paths(
                 args.paths,
                 enable_third_party_global,
-                &args.format,
+                &format,
                 &zip_passwords,
                 &disabled,
             )?
@@ -155,9 +143,9 @@ fn main() -> Result<()> {
     if let Some(output_path) = args.output {
         fs::write(&output_path, &result)
             .context(format!("Failed to write output to {}", output_path))?;
-        println!("Results written to: {}", output_path);
+        eprintln!("Results written to: {}", output_path);
     } else {
-        // For terminal output, don't include the newlines from analyze functions
+        // Results go to stdout
         print!("{}", result);
     }
 
@@ -240,18 +228,12 @@ fn analyze_file(
         );
     }
 
-    // Print to stderr in JSON mode
-    match format {
-        cli::OutputFormat::Json => eprintln!("Analyzing: {}", target),
-        cli::OutputFormat::Terminal => println!("Analyzing: {}", target),
-    }
+    // Status messages go to stderr
+    eprintln!("Analyzing: {}", target);
 
     // Detect file type first (fast - just reads magic bytes)
     let file_type = detect_file_type(path)?;
-    match format {
-        cli::OutputFormat::Json => eprintln!("Detected file type: {:?}", file_type),
-        cli::OutputFormat::Terminal => println!("Detected file type: {:?}", file_type),
-    }
+    eprintln!("Detected file type: {:?}", file_type);
 
     // Load capability mapper
     let t1 = std::time::Instant::now();
@@ -415,9 +397,7 @@ fn analyze_file(
         | FileType::Scala
         | FileType::Zig
         | FileType::Elixir
-        | FileType::AppleScript => {
-            analyze_generic_source(path, &file_type)?
-        }
+        | FileType::AppleScript => analyze_generic_source(path, &file_type)?,
         _ => {
             anyhow::bail!("Unsupported file type: {:?}", file_type);
         }
@@ -481,7 +461,7 @@ fn scan_paths(
     use indicatif::{ProgressBar, ProgressStyle};
     use walkdir::WalkDir;
 
-    println!("Scanning {} path(s)...\n", paths.len());
+    eprintln!("Scanning {} path(s)...\n", paths.len());
 
     // Load capability mapper once and share across all threads
     let capability_mapper = Arc::new(crate::capabilities::CapabilityMapper::new());
@@ -526,7 +506,7 @@ fn scan_paths(
         }
     }
 
-    println!(
+    eprintln!(
         "Found {} files and {} archives to analyze\n",
         all_files.len(),
         archives_found.len()
@@ -950,7 +930,10 @@ fn analyze_file_with_shared_mapper(
     }
 
     if timing {
-        eprintln!("[TIMING] Total analyze_file_with_shared_mapper: {:?}", t_start.elapsed());
+        eprintln!(
+            "[TIMING] Total analyze_file_with_shared_mapper: {:?}",
+            t_start.elapsed()
+        );
     }
 
     // Always output JSON for parallel scanning

@@ -7,13 +7,22 @@ defaults:
   criticality: notable
 
 traits:
-  # setuptools usage
-  - id: setuptools
-    description: "Python package distribution (setuptools)"
-    confidence: 0.8
+  # === setuptools atomic indicators ===
+  - id: from-setuptools-import
+    description: from setuptools import statement
+    criticality: inert
+    confidence: 0.7
     condition:
       type: string
-      regex: "from\\s+setuptools\\s+import|import\\s+setuptools"
+      regex: "from\\s+setuptools\\s+import"
+
+  - id: import-setuptools
+    description: import setuptools statement
+    criticality: inert
+    confidence: 0.7
+    condition:
+      type: string
+      regex: "import\\s+setuptools"
 
   # distutils usage (older)
   - id: distutils
@@ -32,13 +41,38 @@ traits:
       node_type: call
       pattern: "setup("
 
-  # Package metadata
-  - id: metadata
-    description: "Python package metadata definition"
-    confidence: 0.7
+  # === Package metadata atomic indicators ===
+  - id: metadata-author
+    description: author= metadata field
+    criticality: inert
+    confidence: 0.5
     condition:
       type: string
-      regex: "author\\s*=|version\\s*=|description\\s*=|packages\\s*="
+      regex: "author\\s*="
+
+  - id: metadata-version
+    description: version= metadata field
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: "version\\s*="
+
+  - id: metadata-description
+    description: description= metadata field
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: "description\\s*="
+
+  - id: metadata-packages
+    description: packages= metadata field
+    criticality: inert
+    confidence: 0.5
+    condition:
+      type: string
+      regex: "packages\\s*="
 
   # Directory masquerading (evasion technique)
   - id: directory-masquerade
@@ -50,11 +84,52 @@ traits:
       type: string
       regex: "os\\.path\\.join\\(.*\\.py.*\\)"
 
-  # cmdclass override (custom install commands)
+  # === cmdclass override atomic indicators ===
+  - id: cmdclass-dict
+    description: cmdclass dict assignment
+    criticality: notable
+    confidence: 0.75
+    condition:
+      type: string
+      regex: "cmdclass\\s*=\\s*\\{"
+
+  - id: install-class-inherit
+    description: class inheriting from install
+    criticality: notable
+    confidence: 0.75
+    condition:
+      type: string
+      regex: "class\\s+\\w+\\(install\\)"
+
+composite_rules:
+  # setuptools composite
+  - id: setuptools
+    description: Python package distribution (setuptools)
+    criticality: notable
+    confidence: 0.8
+    requires_count: 1
+    conditions:
+      - id: from-setuptools-import
+      - id: import-setuptools
+
+  # metadata composite
+  - id: metadata
+    description: Python package metadata definition
+    criticality: notable
+    confidence: 0.7
+    requires_count: 1
+    conditions:
+      - id: metadata-author
+      - id: metadata-version
+      - id: metadata-description
+      - id: metadata-packages
+
+  # cmdclass override composite
   - id: cmdclass-override
     description: Custom install command class override
     criticality: suspicious
     confidence: 0.85
-    condition:
-      type: string
-      regex: "cmdclass\\s*=\\s*\\{|class\\s+\\w+\\(install\\)"
+    requires_count: 1
+    conditions:
+      - id: cmdclass-dict
+      - id: install-class-inherit

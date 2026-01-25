@@ -32,17 +32,28 @@ traits:
 
   # === Source Code Paths (developer signature) ===
 
-  - id: stealer/brawlearth/src-path-browsers
-    description: BrawlEarth browser module source path
-    criticality: suspicious
-    confidence: 0.9
-    family: true
+  # === Browser module source path atomic indicators ===
+  - id: src-path-chromium
+    description: BrawlEarth chromium module source path
+    criticality: notable
+    confidence: 0.8
     attack: "T1555"
     platforms: [macos]
     file_types: [macho]
     condition:
       type: string
-      regex: "src/browsers/(chromium|firefox)/modules"
+      exact: "src/browsers/chromium/modules"
+
+  - id: src-path-firefox
+    description: BrawlEarth firefox module source path
+    criticality: notable
+    confidence: 0.8
+    attack: "T1555"
+    platforms: [macos]
+    file_types: [macho]
+    condition:
+      type: string
+      exact: "src/browsers/firefox/modules"
 
   - id: stealer/brawlearth/src-path-decryptors
     description: BrawlEarth decryptor module source path
@@ -121,6 +132,20 @@ traits:
         }
 
 composite_rules:
+  # Browser source path composite
+  - id: stealer/brawlearth/src-path-browsers
+    description: BrawlEarth browser module source path
+    criticality: suspicious
+    confidence: 0.9
+    family: true
+    attack: "T1555"
+    platforms: [macos]
+    file_types: [macho]
+    requires_count: 1
+    conditions:
+      - id: src-path-chromium
+      - id: src-path-firefox
+
   # Main BrawlEarth detection
   - id: stealer/brawlearth/detected
     description: BrawlEarth macOS infostealer

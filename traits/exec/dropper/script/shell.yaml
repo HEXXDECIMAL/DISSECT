@@ -151,13 +151,23 @@ traits:
       exact: "rm -rf"
       search_raw: true
 
-  - id: iot-arch-mips
-    description: "MIPS architecture binary (IoT target)"
-    criticality: suspicious
-    confidence: 0.85
+  # === MIPS architecture atomic indicators ===
+  - id: mips-lower
+    description: mips architecture string (lowercase)
+    criticality: notable
+    confidence: 0.75
     condition:
       type: string
-      regex: "mips|MIPS"
+      exact: "mips"
+      search_raw: true
+
+  - id: mips-upper
+    description: MIPS architecture string (uppercase)
+    criticality: notable
+    confidence: 0.75
+    condition:
+      type: string
+      exact: "MIPS"
       search_raw: true
 
   - id: iot-arch-arm
@@ -169,13 +179,32 @@ traits:
       regex: "arm[0-9]?|ARM"
       search_raw: true
 
-  - id: iot-arch-mpsl
-    description: "MIPSEL architecture binary (IoT target)"
-    criticality: suspicious
-    confidence: 0.85
+  # === MIPSEL architecture atomic indicators ===
+  - id: mpsl-short
+    description: mpsl architecture string (short)
+    criticality: notable
+    confidence: 0.75
     condition:
       type: string
-      regex: "mpsl|mipsel|MIPSEL"
+      exact: "mpsl"
+      search_raw: true
+
+  - id: mipsel-lower
+    description: mipsel architecture string (lowercase)
+    criticality: notable
+    confidence: 0.75
+    condition:
+      type: string
+      exact: "mipsel"
+      search_raw: true
+
+  - id: mipsel-upper
+    description: MIPSEL architecture string (uppercase)
+    criticality: notable
+    confidence: 0.75
+    condition:
+      type: string
+      exact: "MIPSEL"
       search_raw: true
 
 composite_rules:
@@ -238,6 +267,27 @@ composite_rules:
       - id: curl-download
       - id: chmod-plus-x
       - id: execute-dot-slash
+
+  # MIPS architecture composite
+  - id: iot-arch-mips
+    description: "MIPS architecture binary (IoT target)"
+    criticality: suspicious
+    confidence: 0.85
+    requires_count: 1
+    conditions:
+      - id: mips-lower
+      - id: mips-upper
+
+  # MIPSEL architecture composite
+  - id: iot-arch-mpsl
+    description: "MIPSEL architecture binary (IoT target)"
+    criticality: suspicious
+    confidence: 0.85
+    requires_count: 1
+    conditions:
+      - id: mpsl-short
+      - id: mipsel-lower
+      - id: mipsel-upper
 
   - id: iot-multi-arch
     description: "IoT botnet: multi-architecture payload dropper"

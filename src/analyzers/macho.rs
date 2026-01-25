@@ -100,11 +100,7 @@ impl MachOAnalyzer {
                 });
 
                 // Convert R2Functions to Functions for the report
-                report.functions = batched
-                    .functions
-                    .into_iter()
-                    .map(Function::from)
-                    .collect();
+                report.functions = batched.functions.into_iter().map(Function::from).collect();
             }
         }
         if timing {
@@ -180,7 +176,10 @@ impl MachOAnalyzer {
             }
         }
         if timing {
-            eprintln!("[TIMING] evaluate_composite_rules: {:?}", t_composite.elapsed());
+            eprintln!(
+                "[TIMING] evaluate_composite_rules: {:?}",
+                t_composite.elapsed()
+            );
         }
 
         report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;

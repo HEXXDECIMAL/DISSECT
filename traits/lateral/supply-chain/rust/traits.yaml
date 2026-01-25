@@ -40,14 +40,24 @@ traits:
             any of them
         }
 
-  - id: dummy-keys-hashmap
-    description: Usage of dummy keys in a HashMap (potential test/placeholder for malicious data)
-    criticality: notable
-    confidence: 0.6
+  # === Dummy key/value atomic indicators ===
+  - id: dummy-key-word
+    description: dummy_key reference
+    criticality: inert
+    confidence: 0.5
     file_types: [rust]
     condition:
       type: string
-      regex: "dummy_key|dummy_value"
+      exact: "dummy_key"
+
+  - id: dummy-value-word
+    description: dummy_value reference
+    criticality: inert
+    confidence: 0.5
+    file_types: [rust]
+    condition:
+      type: string
+      exact: "dummy_value"
 
   - id: internal-lib-pattern
     description: Generic indicator of legitimate library code (traits, structs, impls)
@@ -68,6 +78,17 @@ traits:
         }
 
 composite_rules:
+  # Dummy keys composite
+  - id: dummy-keys-hashmap
+    description: Usage of dummy keys in a HashMap (potential test/placeholder)
+    criticality: notable
+    confidence: 0.6
+    file_types: [rust]
+    requires_count: 1
+    conditions:
+      - id: dummy-key-word
+      - id: dummy-value-word
+
   - id: trojanized-lib
     description: Potential trojanized library (legitimate library code + suspicious crate calls)
     criticality: hostile

@@ -679,14 +679,18 @@ impl Radare2Analyzer {
                 metrics.huge_functions = sizes.iter().filter(|&&s| s > 65536).count() as u32;
             }
 
-            let complexities: Vec<u32> =
-                batched.functions.iter().filter_map(|f| f.complexity).collect();
+            let complexities: Vec<u32> = batched
+                .functions
+                .iter()
+                .filter_map(|f| f.complexity)
+                .collect();
 
             if !complexities.is_empty() {
                 metrics.avg_complexity =
                     complexities.iter().sum::<u32>() as f32 / complexities.len() as f32;
                 metrics.max_complexity = *complexities.iter().max().unwrap_or(&0);
-                metrics.high_complexity_functions = complexities.iter().filter(|&&c| c > 50).count() as u32;
+                metrics.high_complexity_functions =
+                    complexities.iter().filter(|&&c| c > 50).count() as u32;
             }
 
             // Count noreturn functions

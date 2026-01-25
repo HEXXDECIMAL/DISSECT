@@ -237,7 +237,11 @@ impl<'a> ScptParser<'a> {
     }
 
     /// Extract variable names from the symbol table
-    fn extract_variables(&self, symbols: &mut Vec<Symbol>, seen: &mut HashSet<(String, SymbolKind)>) {
+    fn extract_variables(
+        &self,
+        symbols: &mut Vec<Symbol>,
+        seen: &mut HashSet<(String, SymbolKind)>,
+    ) {
         // Pattern: 0b <id:2> 00 <len:1> 30 00 <namelen:1> <name> ...
         // The 0b prefix marks variable name entries
         let mut i = 16; // Skip header
@@ -308,7 +312,11 @@ impl<'a> ScptParser<'a> {
     }
 
     /// Extract Apple Event codes
-    fn extract_apple_events(&self, symbols: &mut Vec<Symbol>, seen: &mut HashSet<(String, SymbolKind)>) {
+    fn extract_apple_events(
+        &self,
+        symbols: &mut Vec<Symbol>,
+        seen: &mut HashSet<(String, SymbolKind)>,
+    ) {
         // Pattern: 0a <id:2> 00 18 2e <class:4> <event:4> ...
         // Or: 0a <id:2> 00 04 0a <fourcc:4>
         let mut i = 16;
@@ -383,7 +391,11 @@ impl<'a> ScptParser<'a> {
         self.extract_utf16_strings(symbols, seen);
     }
 
-    fn extract_ascii_strings(&self, symbols: &mut Vec<Symbol>, seen: &mut HashSet<(String, SymbolKind)>) {
+    fn extract_ascii_strings(
+        &self,
+        symbols: &mut Vec<Symbol>,
+        seen: &mut HashSet<(String, SymbolKind)>,
+    ) {
         // Find ASCII strings that look like paths, URLs, or commands
         let min_len = 6;
         let mut current_start = None;
@@ -416,7 +428,11 @@ impl<'a> ScptParser<'a> {
         }
     }
 
-    fn extract_utf16_strings(&self, symbols: &mut Vec<Symbol>, seen: &mut HashSet<(String, SymbolKind)>) {
+    fn extract_utf16_strings(
+        &self,
+        symbols: &mut Vec<Symbol>,
+        seen: &mut HashSet<(String, SymbolKind)>,
+    ) {
         // Look for UTF-16LE strings (common in scpt for display text)
         let mut i = 0;
         while i + 2 < self.data.len() {
@@ -458,7 +474,11 @@ impl<'a> ScptParser<'a> {
     }
 
     /// Extract application names from tell blocks
-    fn extract_applications(&self, symbols: &mut Vec<Symbol>, seen: &mut HashSet<(String, SymbolKind)>) {
+    fn extract_applications(
+        &self,
+        symbols: &mut Vec<Symbol>,
+        seen: &mut HashSet<(String, SymbolKind)>,
+    ) {
         // Look for common application reference patterns
         let app_patterns = [
             b"System Settings".as_slice(),

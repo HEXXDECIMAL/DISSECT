@@ -44,29 +44,249 @@ traits:
       type: string
       regex: "M-SEARCH.*ssdp:discover"
 
-  - id: iot-botnet/telnet-brute
-    description: Telnet credentials (IoT device compromise)
-    criticality: suspicious
-    confidence: 0.8
+  # === Telnet default credential atomic indicators ===
+  - id: cred-root-root
+    description: root:root default credential
+    criticality: notable
+    confidence: 0.6
     mbc: "T1110"
     attack: "T1110.001"
     file_types: [elf]
     condition:
       type: string
-      regex: "(root|admin):(root|admin|toor|password|1234|12345|default|123456)|guest:guest"
-      min_count: 2
+      exact: "root:root"
 
-  - id: iot-botnet/mirai-strings
-    description: Mirai botnet-style brand strings
-    criticality: suspicious
-    confidence: 0.8
+  - id: cred-root-admin
+    description: root:admin default credential
+    criticality: notable
+    confidence: 0.6
+    mbc: "T1110"
+    attack: "T1110.001"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "root:admin"
+
+  - id: cred-root-toor
+    description: root:toor default credential
+    criticality: notable
+    confidence: 0.6
+    mbc: "T1110"
+    attack: "T1110.001"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "root:toor"
+
+  - id: cred-root-password
+    description: root:password default credential
+    criticality: notable
+    confidence: 0.6
+    mbc: "T1110"
+    attack: "T1110.001"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "root:password"
+
+  - id: cred-root-1234
+    description: root:1234 default credential
+    criticality: notable
+    confidence: 0.6
+    mbc: "T1110"
+    attack: "T1110.001"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "root:1234"
+
+  - id: cred-root-12345
+    description: root:12345 default credential
+    criticality: notable
+    confidence: 0.6
+    mbc: "T1110"
+    attack: "T1110.001"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "root:12345"
+
+  - id: cred-root-default
+    description: root:default default credential
+    criticality: notable
+    confidence: 0.6
+    mbc: "T1110"
+    attack: "T1110.001"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "root:default"
+
+  - id: cred-root-123456
+    description: root:123456 default credential
+    criticality: notable
+    confidence: 0.6
+    mbc: "T1110"
+    attack: "T1110.001"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "root:123456"
+
+  - id: cred-admin-root
+    description: admin:root default credential
+    criticality: notable
+    confidence: 0.6
+    mbc: "T1110"
+    attack: "T1110.001"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "admin:root"
+
+  - id: cred-admin-admin
+    description: admin:admin default credential
+    criticality: notable
+    confidence: 0.6
+    mbc: "T1110"
+    attack: "T1110.001"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "admin:admin"
+
+  - id: cred-admin-password
+    description: admin:password default credential
+    criticality: notable
+    confidence: 0.6
+    mbc: "T1110"
+    attack: "T1110.001"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "admin:password"
+
+  - id: cred-admin-1234
+    description: admin:1234 default credential
+    criticality: notable
+    confidence: 0.6
+    mbc: "T1110"
+    attack: "T1110.001"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "admin:1234"
+
+  - id: cred-admin-default
+    description: admin:default default credential
+    criticality: notable
+    confidence: 0.6
+    mbc: "T1110"
+    attack: "T1110.001"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "admin:default"
+
+  - id: cred-guest-guest
+    description: guest:guest default credential
+    criticality: notable
+    confidence: 0.6
+    mbc: "T1110"
+    attack: "T1110.001"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "guest:guest"
+
+  # === Mirai botnet brand string atomic indicators ===
+  - id: mirai-brand-lzrd
+    description: LZRD botnet brand string
+    criticality: notable
+    confidence: 0.7
     mbc: "OB0004"
     attack: "T1583.005"
     file_types: [elf]
     condition:
       type: string
-      regex: "\\b(LZRD|SORA|OWARI|MIRAI|BASHLITE|QBOT|TSUNAMI|GAFGYT)\\b"
-      case_insensitive: true
+      exact: "LZRD"
+
+  - id: mirai-brand-sora
+    description: SORA botnet brand string
+    criticality: notable
+    confidence: 0.7
+    mbc: "OB0004"
+    attack: "T1583.005"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "SORA"
+
+  - id: mirai-brand-owari
+    description: OWARI botnet brand string
+    criticality: notable
+    confidence: 0.7
+    mbc: "OB0004"
+    attack: "T1583.005"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "OWARI"
+
+  - id: mirai-brand-mirai
+    description: MIRAI botnet brand string
+    criticality: notable
+    confidence: 0.7
+    mbc: "OB0004"
+    attack: "T1583.005"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "MIRAI"
+
+  - id: mirai-brand-bashlite
+    description: BASHLITE botnet brand string
+    criticality: notable
+    confidence: 0.7
+    mbc: "OB0004"
+    attack: "T1583.005"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "BASHLITE"
+
+  - id: mirai-brand-qbot
+    description: QBOT botnet brand string
+    criticality: notable
+    confidence: 0.7
+    mbc: "OB0004"
+    attack: "T1583.005"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "QBOT"
+
+  - id: mirai-brand-tsunami
+    description: TSUNAMI botnet brand string
+    criticality: notable
+    confidence: 0.7
+    mbc: "OB0004"
+    attack: "T1583.005"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "TSUNAMI"
+
+  - id: mirai-brand-gafgyt
+    description: GAFGYT botnet brand string
+    criticality: notable
+    confidence: 0.7
+    mbc: "OB0004"
+    attack: "T1583.005"
+    file_types: [elf]
+    condition:
+      type: string
+      exact: "GAFGYT"
 
 composite_rules:
   # BusyBox composite
@@ -79,6 +299,50 @@ composite_rules:
     conditions:
       - id: busybox-path
       - id: busybox-cmd
+
+  # Telnet default credentials composite (requires 2+ matches)
+  - id: iot-botnet/telnet-brute
+    description: Telnet credentials (IoT device compromise)
+    criticality: suspicious
+    confidence: 0.8
+    mbc: "T1110"
+    attack: "T1110.001"
+    file_types: [elf]
+    requires_count: 2
+    conditions:
+      - id: cred-root-root
+      - id: cred-root-admin
+      - id: cred-root-toor
+      - id: cred-root-password
+      - id: cred-root-1234
+      - id: cred-root-12345
+      - id: cred-root-default
+      - id: cred-root-123456
+      - id: cred-admin-root
+      - id: cred-admin-admin
+      - id: cred-admin-password
+      - id: cred-admin-1234
+      - id: cred-admin-default
+      - id: cred-guest-guest
+
+  # Mirai brand strings composite
+  - id: iot-botnet/mirai-strings
+    description: Mirai botnet-style brand strings
+    criticality: suspicious
+    confidence: 0.8
+    mbc: "OB0004"
+    attack: "T1583.005"
+    file_types: [elf]
+    requires_count: 1
+    conditions:
+      - id: mirai-brand-lzrd
+      - id: mirai-brand-sora
+      - id: mirai-brand-owari
+      - id: mirai-brand-mirai
+      - id: mirai-brand-bashlite
+      - id: mirai-brand-qbot
+      - id: mirai-brand-tsunami
+      - id: mirai-brand-gafgyt
 
   # IoT botnet detection - requires multiple indicators
   - id: iot-botnet-detected

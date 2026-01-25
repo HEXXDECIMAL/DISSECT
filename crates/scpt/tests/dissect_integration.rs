@@ -48,25 +48,33 @@ fn test_dissect_integration_shell_script() {
     let imports = extract_imports(SHELL_SCRIPT_SCPT);
 
     // Check variables are extracted
-    assert!(imports.iter().any(|(name, _, source)| name == "userName" && source == "scpt_variable"));
-    assert!(imports.iter().any(|(name, _, source)| name == "hostName" && source == "scpt_variable"));
-    assert!(imports.iter().any(|(name, _, source)| name == "currentDir" && source == "scpt_variable"));
+    assert!(imports
+        .iter()
+        .any(|(name, _, source)| name == "userName" && source == "scpt_variable"));
+    assert!(imports
+        .iter()
+        .any(|(name, _, source)| name == "hostName" && source == "scpt_variable"));
+    assert!(imports
+        .iter()
+        .any(|(name, _, source)| name == "currentDir" && source == "scpt_variable"));
 
     // Check Apple Events are extracted
-    assert!(imports.iter().any(|(name, lib, source)|
-        name == "syso.exec" && lib.as_deref() == Some("AppleEvents") && source == "scpt_event"
-    ));
-    assert!(imports.iter().any(|(name, lib, source)|
-        name == "syso.dela" && lib.as_deref() == Some("AppleEvents") && source == "scpt_event"
-    ));
+    assert!(imports.iter().any(|(name, lib, source)| name == "syso.exec"
+        && lib.as_deref() == Some("AppleEvents")
+        && source == "scpt_event"));
+    assert!(imports.iter().any(|(name, lib, source)| name == "syso.dela"
+        && lib.as_deref() == Some("AppleEvents")
+        && source == "scpt_event"));
 
     // Check command descriptions are extracted
-    assert!(imports.iter().any(|(name, lib, source)|
-        name == "do shell script" && lib.as_deref() == Some("AppleScript") && source == "scpt_command"
-    ));
-    assert!(imports.iter().any(|(name, lib, source)|
-        name == "delay" && lib.as_deref() == Some("AppleScript") && source == "scpt_command"
-    ));
+    assert!(imports
+        .iter()
+        .any(|(name, lib, source)| name == "do shell script"
+            && lib.as_deref() == Some("AppleScript")
+            && source == "scpt_command"));
+    assert!(imports.iter().any(|(name, lib, source)| name == "delay"
+        && lib.as_deref() == Some("AppleScript")
+        && source == "scpt_command"));
 }
 
 #[test]
@@ -74,16 +82,22 @@ fn test_dissect_integration_tell_app() {
     let imports = extract_imports(TELL_APP_SCPT);
 
     // Check variables
-    assert!(imports.iter().any(|(name, _, source)| name == "desktopFolder" && source == "scpt_variable"));
-    assert!(imports.iter().any(|(name, _, source)| name == "processCount" && source == "scpt_variable"));
+    assert!(imports
+        .iter()
+        .any(|(name, _, source)| name == "desktopFolder" && source == "scpt_variable"));
+    assert!(imports
+        .iter()
+        .any(|(name, _, source)| name == "processCount" && source == "scpt_variable"));
 
     // Check applications
-    assert!(imports.iter().any(|(name, lib, source)|
-        name == "Finder" && lib.as_deref() == Some("Applications") && source == "scpt_app"
-    ));
-    assert!(imports.iter().any(|(name, lib, source)|
-        name == "System Events" && lib.as_deref() == Some("Applications") && source == "scpt_app"
-    ));
+    assert!(imports.iter().any(|(name, lib, source)| name == "Finder"
+        && lib.as_deref() == Some("Applications")
+        && source == "scpt_app"));
+    assert!(imports
+        .iter()
+        .any(|(name, lib, source)| name == "System Events"
+            && lib.as_deref() == Some("Applications")
+            && source == "scpt_app"));
 
     // Check Apple Events
     assert!(imports.iter().any(|(name, _, _)| name == "misc.actv"));
@@ -99,10 +113,19 @@ fn test_import_count() {
     let imports = extract_imports(SHELL_SCRIPT_SCPT);
 
     // Should have a reasonable number of imports
-    assert!(imports.len() >= 10, "Expected at least 10 imports, got {}", imports.len());
+    assert!(
+        imports.len() >= 10,
+        "Expected at least 10 imports, got {}",
+        imports.len()
+    );
 
     // Print all imports for debugging
     for (name, lib, source) in &imports {
-        println!("{}: {} ({})", source, name, lib.as_deref().unwrap_or("none"));
+        println!(
+            "{}: {} ({})",
+            source,
+            name,
+            lib.as_deref().unwrap_or("none")
+        );
     }
 }

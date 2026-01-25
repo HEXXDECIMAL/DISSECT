@@ -180,20 +180,129 @@ traits:
       type: string
       exact: "%s as %s\\%s: %d"
 
+  # === Cobalt Strike beacon reference atomic indicators ===
+  - id: beacon-dll-file
+    description: beacon.dll file reference
+    criticality: notable
+    confidence: 0.8
+    attack: "T1071"
+    file_types: [elf, macho, pe, so, dylib, dll]
+    condition:
+      type: string
+      exact: "beacon.dll"
+
+  - id: beacon-exe-file
+    description: beacon.exe file reference
+    criticality: notable
+    confidence: 0.8
+    attack: "T1071"
+    file_types: [elf, macho, pe, so, dylib, dll]
+    condition:
+      type: string
+      exact: "beacon.exe"
+
+  - id: beacon-bin-file
+    description: beacon.bin file reference
+    criticality: notable
+    confidence: 0.8
+    attack: "T1071"
+    file_types: [elf, macho, pe, so, dylib, dll]
+    condition:
+      type: string
+      exact: "beacon.bin"
+
+  - id: beacon-config-ref
+    description: beacon_config or beacon config reference
+    criticality: notable
+    confidence: 0.8
+    attack: "T1071"
+    file_types: [elf, macho, pe, so, dylib, dll]
+    condition:
+      type: string
+      regex: "beacon[_\\s]?config"
+
+  - id: beacon-metadata-ref
+    description: beacon_metadata reference
+    criticality: notable
+    confidence: 0.8
+    attack: "T1071"
+    file_types: [elf, macho, pe, so, dylib, dll]
+    condition:
+      type: string
+      regex: "beacon[_\\s]?metadata"
+
+  - id: beacon-payload-ref
+    description: beacon_payload reference
+    criticality: notable
+    confidence: 0.8
+    attack: "T1071"
+    file_types: [elf, macho, pe, so, dylib, dll]
+    condition:
+      type: string
+      regex: "beacon[_\\s]?payload"
+
+  - id: beacon-command-ref
+    description: beacon_command reference
+    criticality: notable
+    confidence: 0.8
+    attack: "T1071"
+    file_types: [elf, macho, pe, so, dylib, dll]
+    condition:
+      type: string
+      regex: "beacon[_\\s]?command"
+
+  - id: beacon-task-ref
+    description: beacon_task reference
+    criticality: notable
+    confidence: 0.8
+    attack: "T1071"
+    file_types: [elf, macho, pe, so, dylib, dll]
+    condition:
+      type: string
+      regex: "beacon[_\\s]?task"
+
+  - id: cobaltstrike-beacon-combo
+    description: cobaltstrike and beacon combined reference
+    criticality: notable
+    confidence: 0.85
+    attack: "T1071"
+    file_types: [elf, macho, pe, so, dylib, dll]
+    condition:
+      type: string
+      regex: "cobaltstrike.*beacon|beacon.*cobaltstrike"
+
+  - id: reflectiveloader-beacon-ref
+    description: ReflectiveLoader beacon reference
+    criticality: notable
+    confidence: 0.85
+    attack: "T1071"
+    file_types: [elf, macho, pe, so, dylib, dll]
+    condition:
+      type: string
+      regex: "ReflectiveLoader.*beacon"
+
+composite_rules:
+  # Cobalt Strike beacon reference composite
   - id: c2-framework/cobalt-strike/beacon-ref
     description: Cobalt Strike beacon reference
     criticality: suspicious
     confidence: 0.9
     family: true
     attack: "T1071"
-    platforms: [all]
     file_types: [elf, macho, pe, so, dylib, dll]
-    condition:
-      type: string
-      # Require Cobalt Strike specific context - "beacon" alone matches 802.11, BLE, etc.
-      regex: "beacon\\.(dll|exe|bin)|beacon[_\\s]?(config|metadata|payload|command|task)|cobaltstrike.*beacon|beacon.*cobaltstrike|ReflectiveLoader.*beacon"
+    requires_count: 1
+    conditions:
+      - id: beacon-dll-file
+      - id: beacon-exe-file
+      - id: beacon-bin-file
+      - id: beacon-config-ref
+      - id: beacon-metadata-ref
+      - id: beacon-payload-ref
+      - id: beacon-command-ref
+      - id: beacon-task-ref
+      - id: cobaltstrike-beacon-combo
+      - id: reflectiveloader-beacon-ref
 
-composite_rules:
   # Full Cobalt Strike beacon detection
   - id: c2-framework/cobalt-strike/beacon
     description: Cobalt Strike beacon detected

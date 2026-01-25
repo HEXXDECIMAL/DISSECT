@@ -22,18 +22,42 @@ traits:
             any of them
         }
 
-  - id: c2-framework/havoc/demon-ref
-    description: Havoc Demon agent reference
-    criticality: suspicious
-    confidence: 0.9
-    family: true
+  # === Havoc Demon agent atomic indicators ===
+  - id: havoc-demon-order1
+    description: Havoc Demon reference (havoc...demon)
+    criticality: notable
+    confidence: 0.8
     mbc: "B0030"
     attack: "T1059"
     platforms: [windows]
     file_types: [pe, dll]
     condition:
       type: string
-      regex: "(?i)havoc.*demon|demon.*havoc|HavocFramework"
+      regex: "(?i)havoc.*demon"
+
+  - id: havoc-demon-order2
+    description: Havoc Demon reference (demon...havoc)
+    criticality: notable
+    confidence: 0.8
+    mbc: "B0030"
+    attack: "T1059"
+    platforms: [windows]
+    file_types: [pe, dll]
+    condition:
+      type: string
+      regex: "(?i)demon.*havoc"
+
+  - id: havoc-framework-string
+    description: HavocFramework string reference
+    criticality: notable
+    confidence: 0.85
+    mbc: "B0030"
+    attack: "T1059"
+    platforms: [windows]
+    file_types: [pe, dll]
+    condition:
+      type: string
+      exact: "HavocFramework"
 
   - id: c2-framework/havoc/config
     description: Havoc configuration patterns
@@ -57,6 +81,22 @@ traits:
         }
 
 composite_rules:
+  # Havoc Demon agent reference composite
+  - id: c2-framework/havoc/demon-ref
+    description: Havoc Demon agent reference
+    criticality: suspicious
+    confidence: 0.9
+    family: true
+    mbc: "B0030"
+    attack: "T1059"
+    platforms: [windows]
+    file_types: [pe, dll]
+    requires_count: 1
+    conditions:
+      - id: havoc-demon-order1
+      - id: havoc-demon-order2
+      - id: havoc-framework-string
+
   - id: c2-framework/havoc/detected
     description: Havoc C2 framework implant
     criticality: hostile

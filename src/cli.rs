@@ -88,9 +88,9 @@ pub struct Args {
     #[arg(value_name = "PATH")]
     pub paths: Vec<String>,
 
-    /// Output format (json, terminal)
-    #[arg(short, long, default_value = "terminal")]
-    pub format: OutputFormat,
+    /// Output as JSON (machine-readable)
+    #[arg(long)]
+    pub json: bool,
 
     /// Write output to file
     #[arg(short, long)]
@@ -129,6 +129,15 @@ impl Args {
             DisabledComponents::default()
         } else {
             DisabledComponents::from_str(&self.disable)
+        }
+    }
+
+    /// Get the output format based on --json flag
+    pub fn format(&self) -> OutputFormat {
+        if self.json {
+            OutputFormat::Json
+        } else {
+            OutputFormat::Terminal
         }
     }
 }
@@ -292,21 +301,17 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_format_json() {
-        let args = Args::try_parse_from(["dissect", "-f", "json", "file.bin"]).unwrap();
-        assert!(matches!(args.format, OutputFormat::Json));
+    fn test_parse_json_flag() {
+        let args = Args::try_parse_from(["dissect", "--json", "file.bin"]).unwrap();
+        assert!(args.json);
+        assert!(matches!(args.format(), OutputFormat::Json));
     }
 
     #[test]
-    fn test_parse_format_terminal() {
-        let args = Args::try_parse_from(["dissect", "-f", "terminal", "file.bin"]).unwrap();
-        assert!(matches!(args.format, OutputFormat::Terminal));
-    }
-
-    #[test]
-    fn test_parse_format_default() {
+    fn test_parse_no_json_flag() {
         let args = Args::try_parse_from(["dissect", "file.bin"]).unwrap();
-        assert!(matches!(args.format, OutputFormat::Terminal));
+        assert!(!args.json);
+        assert!(matches!(args.format(), OutputFormat::Terminal));
     }
 
     #[test]
@@ -331,8 +336,7 @@ mod tests {
     fn test_parse_all_options_together() {
         let args = Args::try_parse_from([
             "dissect",
-            "-f",
-            "json",
+            "--json",
             "-o",
             "output.json",
             "-v",
@@ -342,7 +346,8 @@ mod tests {
         ])
         .unwrap();
 
-        assert!(matches!(args.format, OutputFormat::Json));
+        assert!(args.json);
+        assert!(matches!(args.format(), OutputFormat::Json));
         assert_eq!(args.output, Some("output.json".to_string()));
         assert!(args.verbose);
         assert!(args.third_party_yara); // Third-party YARA explicitly enabled
@@ -361,12 +366,6 @@ mod tests {
         let result = Args::try_parse_from(["dissect"]);
         assert!(result.is_ok());
         assert!(result.unwrap().paths.is_empty());
-    }
-
-    #[test]
-    fn test_parse_invalid_format_fails() {
-        let result = Args::try_parse_from(["dissect", "-f", "xml", "file.bin"]);
-        assert!(result.is_err());
     }
 
     #[test]

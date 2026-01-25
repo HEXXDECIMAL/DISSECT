@@ -496,7 +496,11 @@ impl CapabilityMapper {
         }
 
         if timing {
-            eprintln!("[TIMING] Collected {} YAML files: {:?}", yaml_files.len(), t_start.elapsed());
+            eprintln!(
+                "[TIMING] Collected {} YAML files: {:?}",
+                yaml_files.len(),
+                t_start.elapsed()
+            );
         }
         let t_parse = std::time::Instant::now();
 
@@ -782,8 +786,12 @@ impl CapabilityMapper {
                     eprintln!("   {}", err);
                 }
                 eprintln!("\n   Composite rules must only reference traits (type: trait).");
-                eprintln!("   Convert inline conditions (string, symbol, yara, etc.) to atomic traits.");
-                eprintln!("   Set DISSECT_ALLOW_INLINE_PRIMITIVES=1 to temporarily bypass this check.\n");
+                eprintln!(
+                    "   Convert inline conditions (string, symbol, yara, etc.) to atomic traits."
+                );
+                eprintln!(
+                    "   Set DISSECT_ALLOW_INLINE_PRIMITIVES=1 to temporarily bypass this check.\n"
+                );
                 std::process::exit(1);
             }
         }
@@ -1856,7 +1864,11 @@ composite_rules:
         let _ = mapper.evaluate_composite_rules(&report, &[]);
         let elapsed = start.elapsed();
 
-        assert!(elapsed.as_secs() < 1, "Evaluation took too long: {:?}", elapsed);
+        assert!(
+            elapsed.as_secs() < 1,
+            "Evaluation took too long: {:?}",
+            elapsed
+        );
     }
 
     #[test]
@@ -1970,9 +1982,15 @@ composite_rules:
 
         let report = test_report_with_findings(vec![test_finding("level/zero")]);
         let mut mapper = CapabilityMapper::empty();
-        mapper.composite_rules.push(make_composite("level/one", "level/zero"));
-        mapper.composite_rules.push(make_composite("level/two", "level/one"));
-        mapper.composite_rules.push(make_composite("level/three", "level/two"));
+        mapper
+            .composite_rules
+            .push(make_composite("level/one", "level/zero"));
+        mapper
+            .composite_rules
+            .push(make_composite("level/two", "level/one"));
+        mapper
+            .composite_rules
+            .push(make_composite("level/three", "level/two"));
 
         let findings = mapper.evaluate_composite_rules(&report, &[]);
 
@@ -2087,17 +2105,21 @@ composite_rules:
             requires_any: None,
             requires_count: Some(2),
             conditions: Some(vec![
-                Condition::Trait { id: "feat/a".to_string() },
-                Condition::Trait { id: "feat/b".to_string() },
-                Condition::Trait { id: "feat/c".to_string() },
+                Condition::Trait {
+                    id: "feat/a".to_string(),
+                },
+                Condition::Trait {
+                    id: "feat/b".to_string(),
+                },
+                Condition::Trait {
+                    id: "feat/c".to_string(),
+                },
             ]),
             requires_none: None,
         };
 
-        let report = test_report_with_findings(vec![
-            test_finding("feat/a"),
-            test_finding("feat/c"),
-        ]);
+        let report =
+            test_report_with_findings(vec![test_finding("feat/a"), test_finding("feat/c")]);
         let mut mapper = CapabilityMapper::empty();
         mapper.composite_rules.push(composite);
 
