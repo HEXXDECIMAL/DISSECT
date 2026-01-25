@@ -13,6 +13,7 @@ pub struct PackageJsonAnalyzer {
     capability_mapper: CapabilityMapper,
 }
 
+#[allow(dead_code)]
 #[derive(Deserialize, Default)]
 struct PackageJson {
     name: Option<String>,
@@ -36,6 +37,7 @@ struct PackageJson {
     bin: serde_json::Value,
 }
 
+#[allow(dead_code)]
 #[derive(Deserialize)]
 #[serde(untagged)]
 enum Repository {

@@ -1,6 +1,7 @@
 use crate::lang_strings::{extract_lang_strings, is_go_binary, ExtractedString};
 use crate::types::{StringInfo, StringType};
 use regex::Regex;
+use rustc_hash::FxHashSet;
 use std::collections::{HashMap, HashSet};
 
 /// Extract and classify strings from binary data
@@ -38,11 +39,13 @@ impl StringExtractor {
             .to_string()
     }
 
+    #[allow(dead_code)]
     pub fn with_min_length(mut self, min_length: usize) -> Self {
         self.min_length = min_length;
         self
     }
 
+    #[allow(dead_code)]
     pub fn with_symbols(mut self, functions: HashSet<String>) -> Self {
         for func in &functions {
             let normalized = Self::normalize_symbol(func);
@@ -53,6 +56,7 @@ impl StringExtractor {
         self
     }
 
+    #[allow(dead_code)]
     pub fn with_functions(mut self, functions: HashSet<String>) -> Self {
         for func in &functions {
             let normalized = Self::normalize_symbol(func);
@@ -63,6 +67,7 @@ impl StringExtractor {
         self
     }
 
+    #[allow(dead_code)]
     pub fn with_imports(mut self, imports: HashSet<String>) -> Self {
         for imp in &imports {
             let normalized = Self::normalize_symbol(imp);
@@ -72,6 +77,7 @@ impl StringExtractor {
         self
     }
 
+    #[allow(dead_code)]
     pub fn with_import_libraries(mut self, import_libraries: HashMap<String, String>) -> Self {
         // Update existing imports in symbol_map with library info
         for (imp, lib) in import_libraries {
@@ -82,6 +88,7 @@ impl StringExtractor {
         self
     }
 
+    #[allow(dead_code)]
     pub fn with_exports(mut self, exports: HashSet<String>) -> Self {
         for exp in &exports {
             let normalized = Self::normalize_symbol(exp);
@@ -154,8 +161,12 @@ impl StringExtractor {
             || self.extract(data, None),
         );
 
-        let mut seen: HashSet<String> = HashSet::new();
-        let mut strings = Vec::new();
+        // Pre-size based on expected string count (roughly 1 string per 20 bytes)
+        let estimated_count = data.len() / 20;
+        // Use FxHashSet for faster hashing (non-cryptographic, ~10x faster than SipHash)
+        let mut seen: FxHashSet<String> =
+            FxHashSet::with_capacity_and_hasher(estimated_count, Default::default());
+        let mut strings = Vec::with_capacity(estimated_count);
 
         for es in lang_strings {
             if !seen.contains(&es.value) {
@@ -175,6 +186,7 @@ impl StringExtractor {
     }
 
     /// Check if the binary is a Go binary (useful for conditional processing)
+    #[allow(dead_code)]
     pub fn is_go_binary(&self, data: &[u8]) -> bool {
         is_go_binary(data)
     }
@@ -251,6 +263,7 @@ impl StringExtractor {
         }
     }
 
+    #[allow(dead_code)]
     fn find_symbol_type(&self, value: &str) -> Option<StringType> {
         let normalized = Self::normalize_symbol(value);
         self.symbol_map.get(&normalized).map(|(t, _)| *t)
@@ -263,6 +276,7 @@ impl StringExtractor {
             .and_then(|(_, l)| l.clone())
     }
 
+    #[allow(dead_code)]
     fn matches_symbol_set(&self, _set: &HashSet<String>, value: &str) -> bool {
         let normalized = Self::normalize_symbol(value);
         self.symbol_map.contains_key(&normalized)

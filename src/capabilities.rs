@@ -1,13 +1,201 @@
 use crate::composite_rules::{
-    CompositeTrait, EvaluationContext, FileType as RuleFileType, Platform, TraitDefinition,
+    CompositeTrait, Condition, EvaluationContext, FileType as RuleFileType, Platform,
+    TraitDefinition,
 };
 use crate::types::{AnalysisReport, Criticality, Evidence, Finding, FindingKind};
+use aho_corasick::AhoCorasick;
 use anyhow::{Context, Result};
 use rayon::prelude::*;
+use rustc_hash::{FxHashMap, FxHashSet};
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
+
+/// Index of trait indices by file type for fast lookup.
+/// Maps FileType -> Vec of indices into trait_definitions.
+#[derive(Clone, Default)]
+struct TraitIndex {
+    /// Traits that apply to each specific file type
+    by_file_type: FxHashMap<RuleFileType, Vec<usize>>,
+    /// Traits that apply to all file types (Platform::All)
+    universal: Vec<usize>,
+}
+
+impl TraitIndex {
+    fn new() -> Self {
+        Self {
+            by_file_type: FxHashMap::default(),
+            universal: Vec::new(),
+        }
+    }
+
+    /// Build index from trait definitions
+    fn build(traits: &[TraitDefinition]) -> Self {
+        let mut index = Self::new();
+
+        for (i, trait_def) in traits.iter().enumerate() {
+            let has_all = trait_def.file_types.contains(&RuleFileType::All);
+
+            if has_all {
+                // Trait applies to all file types
+                index.universal.push(i);
+            } else {
+                // Trait applies to specific file types
+                for ft in &trait_def.file_types {
+                    index.by_file_type.entry(ft.clone()).or_default().push(i);
+                }
+            }
+        }
+
+        index
+    }
+
+    /// Get trait indices applicable to a given file type
+    fn get_applicable(&self, file_type: &RuleFileType) -> impl Iterator<Item = usize> + '_ {
+        // Universal traits + specific file type traits
+        let specific = self
+            .by_file_type
+            .get(file_type)
+            .map(|v| v.as_slice())
+            .unwrap_or(&[]);
+
+        self.universal
+            .iter()
+            .copied()
+            .chain(specific.iter().copied())
+    }
+
+    /// Get count of applicable traits for a file type
+    #[allow(dead_code)]
+    fn applicable_count(&self, file_type: &RuleFileType) -> usize {
+        let specific_count = self
+            .by_file_type
+            .get(file_type)
+            .map(|v: &Vec<usize>| v.len())
+            .unwrap_or(0);
+        self.universal.len() + specific_count
+    }
+}
+
+/// Index for fast batched string matching using Aho-Corasick.
+/// Pre-computes an automaton from all exact string patterns in traits,
+/// enabling single-pass matching across thousands of patterns.
+#[derive(Clone)]
+struct StringMatchIndex {
+    /// Aho-Corasick automaton for all exact string patterns (case-sensitive)
+    automaton: Option<AhoCorasick>,
+    /// Maps pattern index -> trait indices that use this pattern
+    pattern_to_traits: Vec<Vec<usize>>,
+    /// Total number of traits with exact string patterns
+    total_patterns: usize,
+}
+
+impl Default for StringMatchIndex {
+    fn default() -> Self {
+        Self {
+            automaton: None,
+            pattern_to_traits: Vec::new(),
+            total_patterns: 0,
+        }
+    }
+}
+
+impl StringMatchIndex {
+    /// Build the string match index from trait definitions.
+    /// Extracts all exact string patterns (case-sensitive only) and builds an AC automaton.
+    fn build(traits: &[TraitDefinition]) -> Self {
+        let mut patterns: Vec<String> = Vec::new();
+        let mut pattern_to_traits: Vec<Vec<usize>> = Vec::new();
+        let mut pattern_map: FxHashMap<String, usize> = FxHashMap::default();
+
+        for (trait_idx, trait_def) in traits.iter().enumerate() {
+            // Extract exact string pattern if present
+            if let Condition::String {
+                exact: Some(ref exact_str),
+                case_insensitive: false,
+                ..
+            } = trait_def.condition
+            {
+                // Check if we already have this pattern
+                if let Some(&pattern_idx) = pattern_map.get(exact_str) {
+                    pattern_to_traits[pattern_idx].push(trait_idx);
+                } else {
+                    // New pattern
+                    let pattern_idx = patterns.len();
+                    pattern_map.insert(exact_str.clone(), pattern_idx);
+                    patterns.push(exact_str.clone());
+                    pattern_to_traits.push(vec![trait_idx]);
+                }
+            }
+        }
+
+        let total_patterns = patterns.len();
+
+        // Build Aho-Corasick automaton if we have patterns
+        let automaton = if !patterns.is_empty() {
+            AhoCorasick::builder()
+                .ascii_case_insensitive(false)
+                .build(&patterns)
+                .ok()
+        } else {
+            None
+        };
+
+        Self {
+            automaton,
+            pattern_to_traits,
+            total_patterns,
+        }
+    }
+
+    /// Find all trait indices whose exact string patterns match in the given text.
+    /// Returns a set of trait indices that could potentially match.
+    fn find_matching_traits(&self, text: &str) -> FxHashSet<usize> {
+        let mut matching_traits = FxHashSet::default();
+
+        if let Some(ref ac) = self.automaton {
+            for mat in ac.find_iter(text) {
+                let pattern_idx = mat.pattern().as_usize();
+                if let Some(trait_indices) = self.pattern_to_traits.get(pattern_idx) {
+                    for &trait_idx in trait_indices {
+                        matching_traits.insert(trait_idx);
+                    }
+                }
+            }
+        }
+
+        matching_traits
+    }
+
+    /// Find matching traits in binary data (for extracted strings).
+    fn find_matching_traits_in_strings<'a, I>(&self, strings: I) -> FxHashSet<usize>
+    where
+        I: Iterator<Item = &'a str>,
+    {
+        let mut matching_traits = FxHashSet::default();
+
+        if let Some(ref ac) = self.automaton {
+            for s in strings {
+                for mat in ac.find_iter(s) {
+                    let pattern_idx = mat.pattern().as_usize();
+                    if let Some(trait_indices) = self.pattern_to_traits.get(pattern_idx) {
+                        for &trait_idx in trait_indices {
+                            matching_traits.insert(trait_idx);
+                        }
+                    }
+                }
+            }
+        }
+
+        matching_traits
+    }
+
+    /// Returns true if the index has patterns to match
+    fn has_patterns(&self) -> bool {
+        self.total_patterns > 0
+    }
+}
 
 /// Maps symbols (function names, library calls) to capability IDs
 /// Also supports trait definitions and composite rules that combine traits
@@ -16,6 +204,10 @@ pub struct CapabilityMapper {
     symbol_map: HashMap<String, TraitInfo>,
     trait_definitions: Vec<TraitDefinition>,
     composite_rules: Vec<CompositeTrait>,
+    /// Index for fast trait lookup by file type
+    trait_index: TraitIndex,
+    /// Index for fast batched string matching
+    string_match_index: StringMatchIndex,
 }
 
 #[derive(Clone)]
@@ -136,6 +328,7 @@ struct SymbolMapping {
 }
 
 /// Check if a string value is the special "none" keyword to unset a default
+#[allow(dead_code)]
 fn is_unset(value: &Option<String>) -> bool {
     value
         .as_ref()
@@ -388,6 +581,8 @@ impl CapabilityMapper {
             symbol_map: HashMap::new(),
             trait_definitions: Vec::new(),
             composite_rules: Vec::new(),
+            trait_index: TraitIndex::new(),
+            string_match_index: StringMatchIndex::default(),
         }
     }
 
@@ -801,10 +996,26 @@ impl CapabilityMapper {
             eprintln!("[TIMING] Total from_directory: {:?}", t_start.elapsed());
         }
 
+        // Build trait index for fast lookup by file type
+        let trait_index = TraitIndex::build(&trait_definitions);
+
+        // Build string match index for batched AC matching
+        let t_string_index = std::time::Instant::now();
+        let string_match_index = StringMatchIndex::build(&trait_definitions);
+        if timing {
+            eprintln!(
+                "[TIMING] Built string index ({} patterns): {:?}",
+                string_match_index.total_patterns,
+                t_string_index.elapsed()
+            );
+        }
+
         Ok(Self {
             symbol_map,
             trait_definitions,
             composite_rules,
+            trait_index,
+            string_match_index,
         })
     }
 
@@ -856,10 +1067,18 @@ impl CapabilityMapper {
             .map(|raw| apply_composite_defaults(raw, &mappings.defaults))
             .collect();
 
+        // Build trait index for fast lookup by file type
+        let trait_index = TraitIndex::build(&trait_definitions);
+
+        // Build string match index for batched AC matching
+        let string_match_index = StringMatchIndex::build(&trait_definitions);
+
         Ok(Self {
             symbol_map,
             trait_definitions,
             composite_rules,
+            trait_index,
+            string_match_index,
         })
     }
 
@@ -948,6 +1167,8 @@ impl CapabilityMapper {
     /// Evaluate trait definitions against an analysis report
     /// Returns findings detected from trait definitions
     pub fn evaluate_traits(&self, report: &AnalysisReport, binary_data: &[u8]) -> Vec<Finding> {
+        let timing = std::env::var("DISSECT_TIMING").is_ok();
+
         // Determine platform and file type from report
         let platform = self.detect_platform(&report.target.file_type);
         let file_type = self.detect_file_type(&report.target.file_type);
@@ -955,16 +1176,72 @@ impl CapabilityMapper {
         let ctx = EvaluationContext {
             report,
             binary_data,
-            file_type,
+            file_type: file_type.clone(),
             platform,
+            additional_findings: None,
         };
 
-        // Evaluate traits in parallel and collect results
-        let all_findings: Vec<Finding> = self
-            .trait_definitions
+        // Use trait index to only evaluate applicable traits
+        // This dramatically reduces work for specific file types
+        let applicable_indices: Vec<usize> = self.trait_index.get_applicable(&file_type).collect();
+
+        // Pre-filter using batched Aho-Corasick string matching
+        // This identifies which traits could possibly match based on their exact string patterns
+        let t_prematch = std::time::Instant::now();
+        let string_matched_traits: FxHashSet<usize> = if self.string_match_index.has_patterns() {
+            // Search in extracted strings first
+            let mut matched = self
+                .string_match_index
+                .find_matching_traits_in_strings(report.strings.iter().map(|s| s.value.as_str()));
+
+            // Also search in raw binary data (for source files)
+            if let Ok(content) = std::str::from_utf8(binary_data) {
+                matched.extend(self.string_match_index.find_matching_traits(content));
+            }
+
+            matched
+        } else {
+            FxHashSet::default()
+        };
+
+        if timing {
+            eprintln!(
+                "[TIMING] String pre-match: {:?} ({} traits matched)",
+                t_prematch.elapsed(),
+                string_matched_traits.len()
+            );
+        }
+
+        // Evaluate only applicable traits in parallel
+        // Skip traits with exact string patterns that didn't match in pre-filter
+        let t_eval = std::time::Instant::now();
+        let all_findings: Vec<Finding> = applicable_indices
             .par_iter()
-            .filter_map(|trait_def| trait_def.evaluate(&ctx))
+            .filter_map(|&idx| {
+                // Check if this trait was excluded by string pre-filter
+                // Traits with no exact string pattern (or with regex) are always evaluated
+                let trait_def = &self.trait_definitions[idx];
+                let has_exact_string = matches!(
+                    trait_def.condition,
+                    Condition::String {
+                        exact: Some(_),
+                        case_insensitive: false,
+                        ..
+                    }
+                );
+
+                // If trait has an exact string pattern and it wasn't matched, skip it
+                if has_exact_string && !string_matched_traits.contains(&idx) {
+                    return None;
+                }
+
+                trait_def.evaluate(&ctx)
+            })
             .collect();
+
+        if timing {
+            eprintln!("[TIMING] Trait evaluation: {:?}", t_eval.elapsed());
+        }
 
         // Deduplicate findings (keep first occurrence of each ID)
         let mut seen = std::collections::HashSet::new();
@@ -985,26 +1262,53 @@ impl CapabilityMapper {
         let platform = self.detect_platform(&report.target.file_type);
         let file_type = self.detect_file_type(&report.target.file_type);
 
-        let ctx = EvaluationContext {
-            report,
-            binary_data,
-            file_type,
-            platform,
-        };
+        // Iterative evaluation to support composite rules referencing other composites
+        // On each iteration, newly matched composites become available for subsequent evaluations
+        let mut all_findings: Vec<Finding> = Vec::new();
+        let mut seen_ids: std::collections::HashSet<String> = std::collections::HashSet::new();
 
-        // Evaluate composite rules in parallel and collect results
-        let all_findings: Vec<Finding> = self
-            .composite_rules
-            .par_iter()
-            .filter_map(|rule| rule.evaluate(&ctx))
-            .collect();
+        // Track which composite IDs have already matched (including original findings)
+        for finding in &report.findings {
+            seen_ids.insert(finding.id.clone());
+        }
 
-        // Deduplicate findings (keep first occurrence of each ID)
-        let mut seen = std::collections::HashSet::new();
+        // Maximum iterations to prevent infinite loops (should converge quickly)
+        const MAX_ITERATIONS: usize = 10;
+
+        for _ in 0..MAX_ITERATIONS {
+            let ctx = EvaluationContext {
+                report,
+                binary_data,
+                file_type: file_type.clone(),
+                platform: platform.clone(),
+                additional_findings: if all_findings.is_empty() {
+                    None
+                } else {
+                    Some(&all_findings)
+                },
+            };
+
+            // Evaluate composite rules in parallel
+            let new_findings: Vec<Finding> = self
+                .composite_rules
+                .par_iter()
+                .filter_map(|rule| rule.evaluate(&ctx))
+                .filter(|f| !seen_ids.contains(&f.id))
+                .collect();
+
+            if new_findings.is_empty() {
+                // Fixed point reached - no new composites found
+                break;
+            }
+
+            // Add new findings to the accumulated set
+            for finding in new_findings {
+                seen_ids.insert(finding.id.clone());
+                all_findings.push(finding);
+            }
+        }
+
         all_findings
-            .into_iter()
-            .filter(|f| seen.insert(f.id.clone()))
-            .collect()
     }
 
     /// Detect platform from file type string

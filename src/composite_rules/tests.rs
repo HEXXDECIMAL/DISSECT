@@ -47,6 +47,7 @@ fn test_symbol_condition() {
         binary_data: &data,
         file_type: FileType::Elf,
         platform: Platform::Linux,
+        additional_findings: None,
     };
 
     let rule = CompositeTrait {
@@ -84,6 +85,7 @@ fn test_requires_all() {
         binary_data: &data,
         file_type: FileType::Elf,
         platform: Platform::Linux,
+        additional_findings: None,
     };
 
     let rule = CompositeTrait {
@@ -127,6 +129,7 @@ fn test_requires_count() {
         binary_data: &data,
         file_type: FileType::Elf,
         platform: Platform::Linux,
+        additional_findings: None,
     };
 
     let rule = CompositeTrait {
@@ -170,6 +173,7 @@ fn test_string_exact_condition() {
         binary_data: &data,
         file_type: FileType::Elf,
         platform: Platform::Linux,
+        additional_findings: None,
     };
 
     let rule = CompositeTrait {
@@ -207,6 +211,7 @@ fn test_requires_any() {
         binary_data: &data,
         file_type: FileType::Elf,
         platform: Platform::Linux,
+        additional_findings: None,
     };
 
     let rule = CompositeTrait {

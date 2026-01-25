@@ -189,6 +189,7 @@ impl MachOAnalyzer {
     }
 
     /// Generate structural traits (file format, architecture, signing, etc.)
+    #[allow(dead_code)]
     fn generate_structural_traits(
         &self,
         macho: &MachO,

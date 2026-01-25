@@ -29,25 +29,6 @@ pub fn calculate_entropy(data: &[u8]) -> f64 {
     entropy
 }
 
-/// Calculate entropy using a sliding window
-/// Returns Vec of (offset, entropy) tuples
-pub fn sliding_window_entropy(data: &[u8], window_size: usize) -> Vec<(usize, f64)> {
-    if data.len() < window_size {
-        return vec![(0, calculate_entropy(data))];
-    }
-
-    let mut results = Vec::new();
-    let step_size = window_size / 2; // 50% overlap
-
-    for offset in (0..=data.len() - window_size).step_by(step_size) {
-        let window = &data[offset..offset + window_size];
-        let entropy = calculate_entropy(window);
-        results.push((offset, entropy));
-    }
-
-    results
-}
-
 /// Classify entropy level
 #[derive(Debug, PartialEq)]
 pub enum EntropyLevel {
@@ -131,28 +112,6 @@ mod tests {
     }
 
     #[test]
-    fn test_sliding_window_entropy() {
-        let data = vec![0u8; 200];
-        let results = sliding_window_entropy(&data, 100);
-
-        assert!(!results.is_empty());
-        // All windows should have zero entropy since all bytes are the same
-        for (_offset, entropy) in results {
-            assert_eq!(entropy, 0.0);
-        }
-    }
-
-    #[test]
-    fn test_sliding_window_small_data() {
-        let data = vec![1, 2, 3];
-        let results = sliding_window_entropy(&data, 100);
-
-        // Window larger than data should return single result
-        assert_eq!(results.len(), 1);
-        assert_eq!(results[0].0, 0);
-    }
-
-    #[test]
     fn test_entropy_level_as_str() {
         assert_eq!(EntropyLevel::VeryLow.as_str(), "very_low");
         assert_eq!(EntropyLevel::Normal.as_str(), "normal");
@@ -176,20 +135,6 @@ mod tests {
         assert_eq!(EntropyLevel::from_value(6.0), EntropyLevel::Elevated);
         assert_eq!(EntropyLevel::from_value(7.19), EntropyLevel::Elevated);
         assert_eq!(EntropyLevel::from_value(7.2), EntropyLevel::High);
-    }
-
-    #[test]
-    fn test_sliding_window_overlap() {
-        let data: Vec<u8> = (0..=255).cycle().take(500).collect();
-        let results = sliding_window_entropy(&data, 100);
-
-        // With 50% overlap, we should have multiple windows
-        assert!(results.len() > 2);
-
-        // Check that offsets are properly spaced
-        if results.len() >= 2 {
-            assert_eq!(results[1].0 - results[0].0, 50); // window_size / 2
-        }
     }
 
     #[test]

@@ -6,6 +6,7 @@ use std::collections::HashSet;
 #[derive(Debug, Clone)]
 pub struct StringStruct {
     /// Offset in the section where this structure was found
+    #[allow(dead_code)]
     pub struct_offset: u64,
     /// Virtual address of the string data
     pub ptr: u64,
@@ -23,6 +24,7 @@ pub struct ExtractedString {
     /// Section name where the string was found
     pub section: Option<String>,
     /// How the string was found
+    #[allow(dead_code)]
     pub method: StringMethod,
 }
 
@@ -48,6 +50,7 @@ pub struct BinaryInfo {
 }
 
 impl BinaryInfo {
+    #[allow(dead_code)]
     pub fn new_64bit_le() -> Self {
         Self {
             is_64bit: true,
@@ -56,6 +59,7 @@ impl BinaryInfo {
         }
     }
 
+    #[allow(dead_code)]
     pub fn new_32bit_le() -> Self {
         Self {
             is_64bit: false,
@@ -64,6 +68,7 @@ impl BinaryInfo {
         }
     }
 
+    #[allow(dead_code)]
     pub fn new_64bit_be() -> Self {
         Self {
             is_64bit: true,
@@ -72,6 +77,7 @@ impl BinaryInfo {
         }
     }
 
+    #[allow(dead_code)]
     pub fn new_32bit_be() -> Self {
         Self {
             is_64bit: false,
@@ -228,6 +234,7 @@ pub fn extract_from_structures(
 }
 
 /// Check if a byte sequence looks like valid UTF-8 with reasonable content.
+#[allow(dead_code)]
 pub fn is_valid_string(bytes: &[u8], min_length: usize) -> bool {
     if bytes.len() < min_length {
         return false;

@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use crate::types::DecodedValue;
 use std::net::Ipv4Addr;
 

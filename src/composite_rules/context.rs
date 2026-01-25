@@ -1,7 +1,7 @@
 //! Evaluation context and result types for composite rules.
 
 use super::types::{FileType, Platform};
-use crate::types::{AnalysisReport, Evidence};
+use crate::types::{AnalysisReport, Evidence, Finding};
 
 /// Context for evaluating composite rules
 pub struct EvaluationContext<'a> {
@@ -9,9 +9,12 @@ pub struct EvaluationContext<'a> {
     pub binary_data: &'a [u8],
     pub file_type: FileType,
     pub platform: Platform,
+    /// Additional findings from previous evaluation iterations (for composite chaining)
+    pub additional_findings: Option<&'a [Finding]>,
 }
 
 /// Result of evaluating a condition
+#[allow(dead_code)]
 #[derive(Debug)]
 pub struct ConditionResult {
     pub matched: bool,
@@ -19,6 +22,7 @@ pub struct ConditionResult {
     pub traits: Vec<String>, // Trait IDs referenced
 }
 
+#[allow(dead_code)]
 impl ConditionResult {
     pub fn no_match() -> Self {
         Self {

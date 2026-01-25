@@ -6,10 +6,11 @@
 use super::condition::Condition;
 use super::context::{ConditionResult, EvaluationContext, StringParams};
 use super::evaluators::{
-    eval_ast_pattern, eval_ast_query, eval_exports_count, eval_hex, eval_import_combination,
-    eval_imports_count, eval_metrics, eval_section_entropy, eval_section_ratio, eval_string,
-    eval_string_count, eval_structure, eval_symbol, eval_symbol_or_string, eval_syscall,
-    eval_trait, eval_yara_inline, eval_yara_match,
+    eval_ast_pattern, eval_ast_query, eval_exports_count, eval_filesize, eval_hex,
+    eval_import_combination, eval_imports_count, eval_metrics, eval_section_entropy,
+    eval_section_ratio, eval_string, eval_string_count, eval_structure, eval_symbol,
+    eval_symbol_or_string, eval_syscall, eval_trait, eval_trait_glob, eval_yara_inline,
+    eval_yara_match,
 };
 use super::types::{default_file_types, default_platforms, FileType, Platform};
 use crate::types::{Criticality, Evidence, Finding, FindingKind};
@@ -200,6 +201,8 @@ impl TraitDefinition {
                 offset_range,
                 min_count,
             } => eval_hex(pattern, *offset, *offset_range, *min_count, ctx),
+            Condition::Filesize { min, max } => eval_filesize(*min, *max, ctx),
+            Condition::TraitGlob { pattern, r#match } => eval_trait_glob(pattern, r#match, ctx),
         }
     }
 }
@@ -231,31 +234,31 @@ pub struct CompositeTrait {
     pub file_types: Vec<FileType>,
 
     // Boolean operators (only one should be set)
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub requires_all: Option<Vec<Condition>>,
+    #[serde(alias = "requires_all", skip_serializing_if = "Option::is_none")]
+    pub all: Option<Vec<Condition>>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub requires_any: Option<Vec<Condition>>,
+    #[serde(alias = "requires_any", skip_serializing_if = "Option::is_none")]
+    pub any: Option<Vec<Condition>>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub requires_count: Option<usize>,
+    #[serde(alias = "requires_count", skip_serializing_if = "Option::is_none")]
+    pub count: Option<usize>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub conditions: Option<Vec<Condition>>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub requires_none: Option<Vec<Condition>>,
+    #[serde(alias = "requires_none", skip_serializing_if = "Option::is_none")]
+    pub none: Option<Vec<Condition>>,
 }
 
 impl CompositeTrait {
     /// Pre-compile YARA rules in all conditions
     pub fn compile_yara(&mut self) {
-        if let Some(ref mut conditions) = self.requires_all {
+        if let Some(ref mut conditions) = self.all {
             for cond in conditions.iter_mut() {
                 cond.compile_yara();
             }
         }
-        if let Some(ref mut conditions) = self.requires_any {
+        if let Some(ref mut conditions) = self.any {
             for cond in conditions.iter_mut() {
                 cond.compile_yara();
             }
@@ -265,7 +268,7 @@ impl CompositeTrait {
                 cond.compile_yara();
             }
         }
-        if let Some(ref mut conditions) = self.requires_none {
+        if let Some(ref mut conditions) = self.none {
             for cond in conditions.iter_mut() {
                 cond.compile_yara();
             }
@@ -279,15 +282,19 @@ impl CompositeTrait {
             return None;
         }
 
-        // Evaluate conditions based on the boolean operator(s)
-        // Support combined requires_all + requires_any (both must be satisfied)
-        let result = if self.requires_all.is_some() && self.requires_any.is_some() {
+        // Evaluate positive conditions based on the boolean operator(s)
+        // Support combining requires_all, requires_any, requires_count
+        let has_positive = self.all.is_some()
+            || self.any.is_some()
+            || self.count.is_some();
+
+        let positive_result = if self.all.is_some() && self.any.is_some() {
             // Both requires_all AND requires_any: all must match AND any must match
-            let all_result = self.eval_requires_all(self.requires_all.as_ref().unwrap(), ctx);
+            let all_result = self.eval_requires_all(self.all.as_ref().unwrap(), ctx);
             if !all_result.matched {
                 return None;
             }
-            let any_result = self.eval_requires_any(self.requires_any.as_ref().unwrap(), ctx);
+            let any_result = self.eval_requires_any(self.any.as_ref().unwrap(), ctx);
             if !any_result.matched {
                 return None;
             }
@@ -299,20 +306,49 @@ impl CompositeTrait {
                 evidence: combined_evidence,
                 traits: Vec::new(),
             }
-        } else if let Some(ref conditions) = self.requires_all {
+        } else if let Some(ref conditions) = self.all {
             self.eval_requires_all(conditions, ctx)
-        } else if let Some(ref conditions) = self.requires_any {
+        } else if let Some(ref conditions) = self.any {
             self.eval_requires_any(conditions, ctx)
-        } else if let Some(count) = self.requires_count {
+        } else if let Some(count) = self.count {
             if let Some(ref conditions) = self.conditions {
                 self.eval_requires_count(conditions, count, ctx)
             } else {
                 return None;
             }
-        } else if let Some(ref conditions) = self.requires_none {
-            self.eval_requires_none(conditions, ctx)
         } else {
+            // No positive conditions - will check requires_none below
+            ConditionResult {
+                matched: true,
+                evidence: Vec::new(),
+                traits: Vec::new(),
+            }
+        };
+
+        if !positive_result.matched {
             return None;
+        }
+
+        // Evaluate requires_none (can be combined with positive conditions)
+        // If requires_none is present, none of its conditions can match
+        let result = if let Some(ref none_conditions) = self.none {
+            let none_result = self.eval_requires_none(none_conditions, ctx);
+            if !none_result.matched {
+                return None; // A "none" condition matched, so rule fails
+            }
+            // Combine evidence
+            let mut combined_evidence = positive_result.evidence;
+            combined_evidence.extend(none_result.evidence);
+            ConditionResult {
+                matched: true,
+                evidence: combined_evidence,
+                traits: Vec::new(),
+            }
+        } else if !has_positive {
+            // No positive conditions and no requires_none - invalid rule
+            return None;
+        } else {
+            positive_result
         };
 
         if result.matched {
@@ -373,21 +409,26 @@ impl CompositeTrait {
     }
 
     /// Evaluate at least ONE condition must match (OR)
+    /// Collects evidence from ALL matching conditions, not just the first
     fn eval_requires_any(
         &self,
         conditions: &[Condition],
         ctx: &EvaluationContext,
     ) -> ConditionResult {
+        let mut any_matched = false;
+        let mut all_evidence = Vec::new();
+
         for condition in conditions {
             let result = self.eval_condition(condition, ctx);
             if result.matched {
-                return result;
+                any_matched = true;
+                all_evidence.extend(result.evidence);
             }
         }
 
         ConditionResult {
-            matched: false,
-            evidence: Vec::new(),
+            matched: any_matched,
+            evidence: all_evidence,
             traits: Vec::new(),
         }
     }
@@ -540,6 +581,8 @@ impl CompositeTrait {
                 offset_range,
                 min_count,
             } => eval_hex(pattern, *offset, *offset_range, *min_count, ctx),
+            Condition::Filesize { min, max } => eval_filesize(*min, *max, ctx),
+            Condition::TraitGlob { pattern, r#match } => eval_trait_glob(pattern, r#match, ctx),
         }
     }
 

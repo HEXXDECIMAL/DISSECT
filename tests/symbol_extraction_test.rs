@@ -9,7 +9,7 @@ use tempfile::TempDir;
 /// Helper to analyze a file and check for specific traits/symbols
 fn analyze_file_for_traits(file_path: &str) -> serde_json::Value {
     let output = assert_cmd::cargo_bin_cmd!("dissect")
-        .args(["-f", "json", "analyze", file_path])
+        .args(["--json", "analyze", file_path])
         .output()
         .expect("Failed to run dissect");
 

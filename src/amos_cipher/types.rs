@@ -39,12 +39,8 @@ pub struct DecryptedPayload {
     pub plaintext: Vec<u8>,
     /// Original offset in binary.
     pub source_offset: usize,
-    /// Size of encrypted data.
-    pub encrypted_size: usize,
     /// Cipher variant used for decryption.
     pub variant: CipherVariant,
-    /// Whether post-processing (Base64/hex) was applied.
-    pub post_processed: bool,
     /// Decrypted string (if valid UTF-8).
     pub as_string: Option<String>,
 }
@@ -62,23 +58,6 @@ pub struct LookupTables {
     pub offset: usize,
     /// Total size of encrypted payload (entries count).
     pub payload_size: usize,
-}
-
-/// Information about a decrypted AMOS string.
-#[derive(Debug)]
-pub struct DecryptedString {
-    /// Index of this string (0-based).
-    pub index: usize,
-    /// Table offsets used for decryption.
-    pub table1_offset: usize,
-    pub table2_offset: usize,
-    pub table3_offset: usize,
-    /// Raw decrypted bytes.
-    pub raw_bytes: Vec<u8>,
-    /// Decoded string (if successful).
-    pub decoded: Option<String>,
-    /// Whether this is the main payload.
-    pub is_main_payload: bool,
 }
 
 /// Quality assessment of decryption output.

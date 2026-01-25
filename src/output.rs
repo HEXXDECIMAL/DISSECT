@@ -239,6 +239,7 @@ fn format_evidence(finding: &Finding) -> String {
 }
 
 /// Format size in human-readable format
+#[allow(dead_code)]
 fn format_size(bytes: u64) -> String {
     if bytes < 1024 {
         format!("{} B", bytes)

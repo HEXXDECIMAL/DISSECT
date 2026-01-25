@@ -116,6 +116,30 @@ enum ConditionTagged {
         #[serde(default = "default_min_count")]
         min_count: usize,
     },
+
+    /// Check file size constraints
+    /// Example: { type: filesize, max: 10485760 }  # max 10MB
+    Filesize {
+        /// Minimum file size in bytes
+        #[serde(skip_serializing_if = "Option::is_none")]
+        min: Option<usize>,
+        /// Maximum file size in bytes
+        #[serde(skip_serializing_if = "Option::is_none")]
+        max: Option<usize>,
+    },
+    /// Match multiple traits by glob pattern
+    /// Example: { type: trait_glob, pattern: "xdp-*", match: any }
+    TraitGlob {
+        /// Glob pattern to match trait IDs (e.g., "xdp-*", "socket-*")
+        pattern: String,
+        /// How to combine matches: "any" (default), "all", or count (e.g., "3")
+        #[serde(default = "default_match_mode")]
+        r#match: String,
+    },
+}
+
+fn default_match_mode() -> String {
+    "any".to_string()
 }
 
 impl From<ConditionDeser> for Condition {
@@ -240,6 +264,10 @@ impl From<ConditionDeser> for Condition {
                     offset_range,
                     min_count,
                 },
+                ConditionTagged::Filesize { min, max } => Condition::Filesize { min, max },
+                ConditionTagged::TraitGlob { pattern, r#match } => {
+                    Condition::TraitGlob { pattern, r#match }
+                }
             },
         }
     }
@@ -460,6 +488,28 @@ pub enum Condition {
         #[serde(default = "default_min_count")]
         min_count: usize,
     },
+
+    /// Check file size constraints
+    /// Example: { type: filesize, max: 10485760 }  # max 10MB
+    Filesize {
+        /// Minimum file size in bytes
+        #[serde(skip_serializing_if = "Option::is_none")]
+        min: Option<usize>,
+        /// Maximum file size in bytes
+        #[serde(skip_serializing_if = "Option::is_none")]
+        max: Option<usize>,
+    },
+
+    /// Match multiple traits by glob pattern
+    /// Example: { type: trait_glob, pattern: "xdp-*", match: any }
+    /// Example: { type: trait_glob, pattern: "socket-*", match: "3" }
+    TraitGlob {
+        /// Glob pattern to match trait IDs (e.g., "xdp-*", "socket-*")
+        pattern: String,
+        /// How to combine matches: "any" (at least 1), "all", or a number (e.g., "3")
+        #[serde(default = "default_match_mode")]
+        r#match: String,
+    },
 }
 
 fn default_compare_to() -> String {
@@ -497,6 +547,8 @@ impl Condition {
             Condition::StringCount { .. } => "string_count",
             Condition::Metrics { .. } => "metrics",
             Condition::Hex { .. } => "hex",
+            Condition::Filesize { .. } => "filesize",
+            Condition::TraitGlob { .. } => "trait_glob",
         }
     }
 

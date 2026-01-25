@@ -139,42 +139,6 @@ fn has_null_terminated_strings(data: &[u8]) -> bool {
     string_count >= 3
 }
 
-/// Check if decryption output looks like garbage.
-pub fn is_garbage_output(plaintext: &[u8]) -> bool {
-    if plaintext.is_empty() {
-        return true;
-    }
-
-    let printable = plaintext
-        .iter()
-        .filter(|&&b| {
-            (0x20..=0x7e).contains(&b) || b == b'\n' || b == b'\r' || b == b'\t' || b == 0
-        })
-        .count();
-
-    let ratio = printable as f32 / plaintext.len() as f32;
-
-    // For valid AMOS output, expect high printable ratio
-    ratio < 0.3 && !has_structure_markers(plaintext)
-}
-
-/// Check for common file signatures that indicate valid binary data.
-fn has_structure_markers(data: &[u8]) -> bool {
-    if data.len() < 4 {
-        return false;
-    }
-
-    data.starts_with(b"PK")     // ZIP
-        || data.starts_with(b"MZ")     // PE
-        || data.starts_with(b"\x7fELF") // ELF
-        || data.starts_with(b"<?xml")  // XML
-        || data.starts_with(b"{")      // JSON
-        || data.starts_with(b"#!")     // Shebang
-        || data.starts_with(b"tell ")  // AppleScript
-        || data.starts_with(b"on ")    // AppleScript
-        || data.starts_with(b"set ") // AppleScript
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -207,20 +171,6 @@ mod tests {
     fn test_validate_garbage() {
         let bad: Vec<u8> = (0..100).map(|i| ((i * 7) % 256) as u8).collect();
         assert_eq!(validate_decryption(&bad), DecryptionQuality::Low);
-    }
-
-    #[test]
-    fn test_is_garbage_on_printable() {
-        let good = b"Hello, World!";
-        assert!(!is_garbage_output(good));
-    }
-
-    #[test]
-    fn test_has_structure_markers() {
-        assert!(has_structure_markers(b"#!/bin/bash"));
-        assert!(has_structure_markers(b"tell application"));
-        assert!(has_structure_markers(b"{\"key\": \"value\"}"));
-        assert!(!has_structure_markers(b"\x00\x01\x02\x03"));
     }
 
     #[test]
@@ -282,37 +232,6 @@ mod tests {
         data.extend_from_slice(&[0x00, 0x01, 0x02, 0x03, 0x04, 0x05]);
         let quality = validate_decryption(&data);
         assert!(quality == DecryptionQuality::High || quality == DecryptionQuality::Medium);
-    }
-
-    #[test]
-    fn test_is_garbage_on_binary() {
-        // Use bytes outside printable ASCII range (control chars and high bytes)
-        // Avoiding 0x20-0x7e, 0x00, 0x09, 0x0A, 0x0D
-        let garbage: Vec<u8> = (1u8..32)
-            .filter(|&b| b != 9 && b != 10 && b != 13)
-            .chain(128u8..255)
-            .collect();
-        assert!(is_garbage_output(&garbage));
-    }
-
-    #[test]
-    fn test_is_garbage_empty() {
-        assert!(is_garbage_output(b""));
-    }
-
-    #[test]
-    fn test_structure_markers_zip() {
-        assert!(has_structure_markers(b"PK\x03\x04"));
-    }
-
-    #[test]
-    fn test_structure_markers_pe() {
-        assert!(has_structure_markers(b"MZ\x90\x00"));
-    }
-
-    #[test]
-    fn test_structure_markers_elf() {
-        assert!(has_structure_markers(b"\x7fELF\x02\x01"));
     }
 
     #[test]

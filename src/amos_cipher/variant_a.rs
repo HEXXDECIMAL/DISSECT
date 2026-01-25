@@ -90,9 +90,7 @@ pub fn decrypt(tables: &LookupTables) -> Result<DecryptedPayload, AMOSError> {
     Ok(DecryptedPayload {
         plaintext: post_processed,
         source_offset: tables.offset,
-        encrypted_size: entry_count * 4 * 3, // 3 tables of u32
         variant: CipherVariant::TripleLookupTable,
-        post_processed: true,
         as_string,
     })
 }
@@ -119,9 +117,7 @@ where
         Some(DecryptedPayload {
             plaintext: post_processed,
             source_offset: tables.offset,
-            encrypted_size: entry_count * 4 * 3,
             variant: CipherVariant::TripleLookupTable,
-            post_processed: true,
             as_string,
         })
     } else {
@@ -209,9 +205,7 @@ pub fn try_decrypt_variants(tables: &LookupTables) -> Vec<DecryptedPayload> {
             results.push(DecryptedPayload {
                 plaintext: raw.clone(),
                 source_offset: tables.offset,
-                encrypted_size: tables.payload_size * 4 * 3,
                 variant: CipherVariant::TripleLookupTable,
-                post_processed: false,
                 as_string: String::from_utf8(raw).ok(),
             });
         }
@@ -261,9 +255,7 @@ fn decrypt_as_bytes(tables: &LookupTables) -> Option<DecryptedPayload> {
         Some(DecryptedPayload {
             plaintext: post_processed.clone(),
             source_offset: tables.offset,
-            encrypted_size: len,
             variant: CipherVariant::TripleLookupTable,
-            post_processed: true,
             as_string: String::from_utf8(post_processed).ok(),
         })
     } else {
@@ -273,9 +265,7 @@ fn decrypt_as_bytes(tables: &LookupTables) -> Option<DecryptedPayload> {
             Some(DecryptedPayload {
                 plaintext: stripped.clone(),
                 source_offset: tables.offset,
-                encrypted_size: len,
                 variant: CipherVariant::TripleLookupTable,
-                post_processed: false,
                 as_string: String::from_utf8(stripped).ok(),
             })
         } else {

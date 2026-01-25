@@ -56,12 +56,6 @@ impl PRNGState {
         // Extract byte and apply post-addition
         x.wrapping_add(POST_XOR_ADDEND as u64) as u8
     }
-
-    /// Reset state to initial seed.
-    fn reset(&mut self, seed: u64) {
-        self.state = seed;
-        self.counter = 0;
-    }
 }
 
 /// Decrypt using PRNG-based stream cipher (Variant B).
@@ -87,9 +81,7 @@ pub fn decrypt(encrypted: &[u8], seed: u64) -> Result<DecryptedPayload, AMOSErro
     Ok(DecryptedPayload {
         plaintext,
         source_offset: 0,
-        encrypted_size: encrypted.len(),
         variant: CipherVariant::PRNGStreamCipher,
-        post_processed: false,
         as_string,
     })
 }
@@ -152,38 +144,6 @@ pub fn try_decrypt_with_seeds(
     None
 }
 
-/// Brute-force seed search (slow, use as last resort).
-pub fn brute_force_seed(
-    encrypted: &[u8],
-    sample_size: usize,
-    expected_prefix: &[u8],
-) -> Option<u64> {
-    let sample = &encrypted[..sample_size.min(encrypted.len())];
-
-    // Try common seed patterns
-    for seed in 0..0x10000u64 {
-        let mut prng = PRNGState::new(seed);
-        let mut matches = true;
-
-        for (i, &expected) in expected_prefix.iter().enumerate() {
-            if i >= sample.len() {
-                break;
-            }
-            let decrypted = sample[i] ^ prng.next();
-            if decrypted != expected {
-                matches = false;
-                break;
-            }
-        }
-
-        if matches {
-            return Some(seed);
-        }
-    }
-
-    None
-}
-
 /// Strip trailing zeros/padding.
 fn strip_padding(data: &[u8]) -> Vec<u8> {
     let mut end = data.len();
@@ -216,27 +176,28 @@ fn validate_quality(data: &[u8]) -> DecryptionQuality {
 }
 
 /// Check if binary contains PRNG constants (detection helper).
+/// Uses SIMD-accelerated memmem for fast searching instead of byte-by-byte scan.
 pub fn contains_prng_constants(data: &[u8]) -> Vec<(usize, u64)> {
+    use memchr::memmem::Finder;
+
     let constants = [PRNG_CONST_1, PRNG_CONST_2, PRNG_CONST_3, PRNG_CONST_4];
     let mut found = Vec::new();
 
-    for offset in (0..data.len().saturating_sub(8)).step_by(4) {
-        let value = u64::from_le_bytes([
-            data[offset],
-            data.get(offset + 1).copied().unwrap_or(0),
-            data.get(offset + 2).copied().unwrap_or(0),
-            data.get(offset + 3).copied().unwrap_or(0),
-            data.get(offset + 4).copied().unwrap_or(0),
-            data.get(offset + 5).copied().unwrap_or(0),
-            data.get(offset + 6).copied().unwrap_or(0),
-            data.get(offset + 7).copied().unwrap_or(0),
-        ]);
+    // Pre-build finders for each constant's byte pattern
+    for constant in &constants {
+        let pattern = constant.to_le_bytes();
+        let finder = Finder::new(&pattern);
 
-        if constants.contains(&value) {
-            found.push((offset, value));
+        for offset in finder.find_iter(data) {
+            // Only count 4-byte aligned matches (typical for compiled code)
+            if offset % 4 == 0 {
+                found.push((offset, *constant));
+            }
         }
     }
 
+    // Sort by offset for consistent ordering
+    found.sort_by_key(|(offset, _)| *offset);
     found
 }
 

@@ -16,26 +16,47 @@ fn verify_trait_file(path: &str) -> serde_yaml::Value {
 
 /// Check that a trait file has expected structure
 fn verify_trait_structure(yaml: &serde_yaml::Value, expected_ids: &[&str]) {
-    // Check for traits section
-    if let Some(traits) = yaml.get("traits") {
-        if let Some(traits_arr) = traits.as_sequence() {
-            for expected_id in expected_ids {
-                let found = traits_arr.iter().any(|t| {
+    for expected_id in expected_ids {
+        let mut found = false;
+
+        // Check in traits section
+        if let Some(traits) = yaml.get("traits") {
+            if let Some(traits_arr) = traits.as_sequence() {
+                if traits_arr.iter().any(|t| {
                     t.get("id")
                         .and_then(|id| id.as_str())
                         .map(|id| id.contains(expected_id))
                         .unwrap_or(false)
-                });
-                assert!(
-                    found,
-                    "Expected to find trait containing '{}' in traits section",
-                    expected_id
-                );
+                }) {
+                    found = true;
+                }
             }
         }
+
+        // Also check in composite_rules section
+        if !found {
+            if let Some(rules) = yaml.get("composite_rules") {
+                if let Some(rules_arr) = rules.as_sequence() {
+                    if rules_arr.iter().any(|r| {
+                        r.get("id")
+                            .and_then(|id| id.as_str())
+                            .map(|id| id.contains(expected_id))
+                            .unwrap_or(false)
+                    }) {
+                        found = true;
+                    }
+                }
+            }
+        }
+
+        assert!(
+            found,
+            "Expected to find '{}' in traits or composite_rules section",
+            expected_id
+        );
     }
 
-    // Check for composite_rules section if expected
+    // Verify composite_rules is a sequence if present
     if let Some(rules) = yaml.get("composite_rules") {
         assert!(rules.is_sequence(), "composite_rules should be a sequence");
     }

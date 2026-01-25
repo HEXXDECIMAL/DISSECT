@@ -1,5 +1,5 @@
 use anyhow::{Context, Result};
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::sync::Arc;
 
 use crate::analyzers::{archive::ArchiveAnalyzer, Analyzer};
@@ -33,30 +33,6 @@ pub fn extract_and_scan_archive(
     Ok(vec![report])
 }
 
-/// RAII guard for temporary directories that ensures cleanup
-pub struct TempDirGuard {
-    _temp_dir: tempfile::TempDir,
-    path: PathBuf,
-}
-
-impl TempDirGuard {
-    pub fn new(prefix: &str) -> Result<Self> {
-        let temp_dir = tempfile::Builder::new()
-            .prefix(prefix)
-            .tempdir()
-            .context("Failed to create temporary directory")?;
-        let path = temp_dir.path().to_path_buf();
-        Ok(Self {
-            _temp_dir: temp_dir,
-            path,
-        })
-    }
-
-    pub fn path(&self) -> &Path {
-        &self.path
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -81,35 +57,5 @@ mod tests {
         assert!(!is_archive(Path::new("test.txt")));
         assert!(!is_archive(Path::new("test.py")));
         assert!(!is_archive(Path::new("test.elf")));
-    }
-
-    #[test]
-    fn test_temp_dir_guard() {
-        let guard = TempDirGuard::new("dissect-test").unwrap();
-        let path = guard.path().to_path_buf();
-
-        // Directory should exist while guard is in scope
-        assert!(path.exists());
-
-        drop(guard);
-
-        // Directory should be cleaned up after drop
-        // Note: This might be flaky depending on OS cleanup timing
-        // so we'll just check that the guard was created successfully
-    }
-
-    #[test]
-    fn test_temp_dir_guard_cleanup() {
-        let _path = {
-            let guard = TempDirGuard::new("dissect-test").unwrap();
-            guard.path().to_path_buf()
-        };
-
-        // After guard goes out of scope, directory should be cleaned up
-        // Adding a small delay to ensure filesystem operations complete
-        std::thread::sleep(std::time::Duration::from_millis(100));
-
-        // Note: On some systems, temp cleanup might be deferred
-        // So we primarily test that the guard was created and can be dropped without panic
     }
 }

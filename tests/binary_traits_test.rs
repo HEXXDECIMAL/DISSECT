@@ -24,7 +24,7 @@ fn test_daemon_dev_null_trait() {
     fs::write(&elf_path, &elf_data).unwrap();
 
     let output = assert_cmd::cargo_bin_cmd!("dissect")
-        .args(["-f", "json", "analyze", elf_path.to_str().unwrap()])
+        .args(["--json", "analyze", elf_path.to_str().unwrap()])
         .output()
         .unwrap();
 
@@ -90,7 +90,7 @@ fn test_http_protocol_trait() {
     fs::write(&elf_path, &elf_data).unwrap();
 
     let output = assert_cmd::cargo_bin_cmd!("dissect")
-        .args(["-f", "json", "analyze", elf_path.to_str().unwrap()])
+        .args(["--json", "analyze", elf_path.to_str().unwrap()])
         .output()
         .unwrap();
 
@@ -154,7 +154,7 @@ fn test_hex_charset_cipher_trait() {
     fs::write(&elf_path, &elf_data).unwrap();
 
     let output = assert_cmd::cargo_bin_cmd!("dissect")
-        .args(["-f", "json", "analyze", elf_path.to_str().unwrap()])
+        .args(["--json", "analyze", elf_path.to_str().unwrap()])
         .output()
         .unwrap();
 
@@ -229,7 +229,7 @@ fn test_exotic_arch_mips_trait() {
     fs::write(&elf_path, &elf_data).unwrap();
 
     let output = assert_cmd::cargo_bin_cmd!("dissect")
-        .args(["-f", "json", "analyze", elf_path.to_str().unwrap()])
+        .args(["--json", "analyze", elf_path.to_str().unwrap()])
         .output()
         .unwrap();
 
@@ -299,7 +299,7 @@ fn test_big_endian_trait() {
     fs::write(&elf_path, &elf_data).unwrap();
 
     let output = assert_cmd::cargo_bin_cmd!("dissect")
-        .args(["-f", "json", "analyze", elf_path.to_str().unwrap()])
+        .args(["--json", "analyze", elf_path.to_str().unwrap()])
         .output()
         .unwrap();
 
@@ -332,7 +332,7 @@ fn test_big_endian_trait() {
 fn test_static_binary_trait() {
     // Use the test fixture ELF which should be a normal dynamically linked binary
     let output = assert_cmd::cargo_bin_cmd!("dissect")
-        .args(["-f", "json", "analyze", "tests/fixtures/test.elf"])
+        .args(["--json", "analyze", "tests/fixtures/test.elf"])
         .output()
         .unwrap();
 
@@ -386,7 +386,7 @@ fn test_daemon_composite_trait() {
     fs::write(&elf_path, &elf_data).unwrap();
 
     let output = assert_cmd::cargo_bin_cmd!("dissect")
-        .args(["-f", "json", "analyze", elf_path.to_str().unwrap()])
+        .args(["--json", "analyze", elf_path.to_str().unwrap()])
         .output()
         .unwrap();
 
@@ -445,7 +445,7 @@ fn test_http_composite_trait() {
     fs::write(&elf_path, &elf_data).unwrap();
 
     let output = assert_cmd::cargo_bin_cmd!("dissect")
-        .args(["-f", "json", "analyze", elf_path.to_str().unwrap()])
+        .args(["--json", "analyze", elf_path.to_str().unwrap()])
         .output()
         .unwrap();
 
@@ -510,7 +510,7 @@ fn test_iot_target_composite_trait() {
     fs::write(&elf_path, &elf_data).unwrap();
 
     let output = assert_cmd::cargo_bin_cmd!("dissect")
-        .args(["-f", "json", "analyze", elf_path.to_str().unwrap()])
+        .args(["--json", "analyze", elf_path.to_str().unwrap()])
         .output()
         .unwrap();
 
@@ -570,7 +570,7 @@ fn test_exotic_arch_arm32_trait() {
     fs::write(&elf_path, &elf_data).unwrap();
 
     let output = assert_cmd::cargo_bin_cmd!("dissect")
-        .args(["-f", "json", "analyze", elf_path.to_str().unwrap()])
+        .args(["--json", "analyze", elf_path.to_str().unwrap()])
         .output()
         .unwrap();
 
@@ -619,7 +619,7 @@ fn test_exotic_arch_ppc_trait() {
     fs::write(&elf_path, &elf_data).unwrap();
 
     let output = assert_cmd::cargo_bin_cmd!("dissect")
-        .args(["-f", "json", "analyze", elf_path.to_str().unwrap()])
+        .args(["--json", "analyze", elf_path.to_str().unwrap()])
         .output()
         .unwrap();
 

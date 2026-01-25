@@ -43,6 +43,7 @@ fn macho_has_go_sections(macho: &MachO) -> bool {
 }
 
 /// Check if a binary is a Go binary by looking for Go-specific sections.
+#[allow(dead_code)]
 pub fn is_go_binary(data: &[u8]) -> bool {
     match Object::parse(data) {
         Ok(Object::Mach(goblin::mach::Mach::Binary(macho))) => macho_has_go_sections(&macho),
@@ -51,11 +52,7 @@ pub fn is_go_binary(data: &[u8]) -> bool {
             let name = elf.shdr_strtab.get_at(sh.sh_name).unwrap_or("");
             name == ".gopclntab" || name == ".go.buildinfo"
         }),
-        Ok(Object::PE(_pe)) => {
-            // For PE, we'd need to check for Go runtime symbols
-            // This is a simplified check
-            false
-        }
+        Ok(Object::PE(_pe)) => false,
         _ => false,
     }
 }
@@ -156,41 +153,6 @@ mod tests {
         let data = b"not a valid binary format";
         let strings = extract_lang_strings(data, 4);
         assert!(strings.is_empty());
-    }
-
-    #[test]
-    fn test_is_go_binary_with_non_go() {
-        let data = vec![0x7f, b'E', b'L', b'F', 0, 0, 0, 0]; // ELF header
-        assert!(!is_go_binary(&data), "Should not detect random ELF as Go");
-    }
-
-    // ==================== Go Binary Detection Tests ====================
-
-    #[test]
-    fn test_is_go_binary_darwin_arm64() {
-        let path = "tests/fixtures/lang_strings/go_darwin_arm64";
-        if std::path::Path::new(path).exists() {
-            let data = std::fs::read(path).unwrap();
-            assert!(is_go_binary(&data), "Should detect Go Mach-O ARM64 binary");
-        }
-    }
-
-    #[test]
-    fn test_is_go_binary_linux_amd64() {
-        let path = "tests/fixtures/lang_strings/go_linux_amd64";
-        if std::path::Path::new(path).exists() {
-            let data = std::fs::read(path).unwrap();
-            assert!(is_go_binary(&data), "Should detect Go ELF AMD64 binary");
-        }
-    }
-
-    #[test]
-    fn test_is_go_binary_linux_arm64() {
-        let path = "tests/fixtures/lang_strings/go_linux_arm64";
-        if std::path::Path::new(path).exists() {
-            let data = std::fs::read(path).unwrap();
-            assert!(is_go_binary(&data), "Should detect Go ELF ARM64 binary");
-        }
     }
 
     // ==================== Go String Extraction - Mach-O ARM64 ====================

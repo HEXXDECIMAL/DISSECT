@@ -210,6 +210,7 @@ impl YaraEngine {
     }
 
     /// Extract namespace from file path with prefix
+    #[allow(dead_code)]
     fn extract_namespace_with_prefix(&self, path: &Path, prefix: &str) -> String {
         let path_str = path.to_string_lossy();
 
@@ -239,6 +240,7 @@ impl YaraEngine {
 
     /// Normalize a filetype string for use as a cache suffix
     /// Simplifies types like "application/x-sh" to "sh"
+    #[allow(dead_code)]
     fn normalize_filetype_for_cache(filetype: &str) -> &str {
         // Remove MIME type prefixes
         if let Some(suffix) = filetype.strip_prefix("application/x-") {
@@ -253,6 +255,7 @@ impl YaraEngine {
 
     /// Check if a YARA rule matches the given file types
     /// Parses the metadata section for "filetype" or "filetypes" fields
+    #[allow(dead_code)]
     fn rule_matches_filetypes(source: &str, filter_types: &[&str]) -> bool {
         // If no metadata section, include the rule (no type restriction)
         if !source.contains("meta:") {

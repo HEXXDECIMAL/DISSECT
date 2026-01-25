@@ -760,10 +760,12 @@ pub fn format_diff_terminal(report: &DiffReport) -> String {
     output
 }
 
+#[allow(dead_code)]
 fn is_high_risk(capability: &Finding) -> bool {
     is_high_risk_id(&capability.id)
 }
 
+#[allow(dead_code)]
 fn is_high_risk_id(id: &str) -> bool {
     id.starts_with("exec/")
         || id.starts_with("anti-analysis/")
@@ -776,10 +778,12 @@ fn is_high_risk_id(id: &str) -> bool {
         || id.starts_with("data/secret")
 }
 
+#[allow(dead_code)]
 fn is_medium_risk(capability: &Finding) -> bool {
     is_medium_risk_id(&capability.id)
 }
 
+#[allow(dead_code)]
 fn is_medium_risk_id(id: &str) -> bool {
     id.starts_with("net/")
         || id.starts_with("credential/")

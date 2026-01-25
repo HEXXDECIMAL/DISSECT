@@ -619,6 +619,9 @@ impl ArchiveAnalyzer {
             "xz" => self.extract_compressed(archive_path, dest_dir, "xz"),
             "gz" => self.extract_compressed(archive_path, dest_dir, "gzip"),
             "bz2" => self.extract_compressed(archive_path, dest_dir, "bzip2"),
+            "deb" => self.extract_deb(archive_path, dest_dir),
+            "rpm" => self.extract_rpm(archive_path, dest_dir),
+            "rar" => self.extract_rar(archive_path, dest_dir),
             _ => anyhow::bail!("Unsupported archive type: {}", archive_type),
         }
     }
@@ -768,6 +771,299 @@ impl ArchiveAnalyzer {
         archive
             .unpack(dest_dir)
             .context("Failed to extract TAR archive")?;
+
+        Ok(())
+    }
+
+    /// Extract a Debian package (.deb)
+    /// Debian packages are AR archives containing:
+    /// - debian-binary: version file
+    /// - control.tar.{gz,xz,zst}: package metadata
+    /// - data.tar.{gz,xz,zst}: actual files
+    fn extract_deb(&self, archive_path: &Path, dest_dir: &Path) -> Result<()> {
+        let file = File::open(archive_path)?;
+        let mut archive = ar::Archive::new(file);
+
+        while let Some(entry_result) = archive.next_entry() {
+            let mut entry = entry_result.context("Failed to read AR entry")?;
+            let name = String::from_utf8_lossy(entry.header().identifier()).to_string();
+
+            // We're mainly interested in data.tar.* which contains the actual files
+            if name.starts_with("data.tar") {
+                let sub_dest = dest_dir.join("data");
+                fs::create_dir_all(&sub_dest)?;
+
+                if name.ends_with(".gz") {
+                    let decoder = flate2::read::GzDecoder::new(&mut entry);
+                    let mut tar = tar::Archive::new(decoder);
+                    tar.unpack(&sub_dest)
+                        .context("Failed to extract data.tar.gz from deb")?;
+                } else if name.ends_with(".xz") {
+                    let decoder = xz2::read::XzDecoder::new(&mut entry);
+                    let mut tar = tar::Archive::new(decoder);
+                    tar.unpack(&sub_dest)
+                        .context("Failed to extract data.tar.xz from deb")?;
+                } else if name.ends_with(".zst") {
+                    let decoder = zstd::stream::read::Decoder::new(&mut entry)
+                        .context("Failed to create zstd decoder")?;
+                    let mut tar = tar::Archive::new(decoder);
+                    tar.unpack(&sub_dest)
+                        .context("Failed to extract data.tar.zst from deb")?;
+                } else if name == "data.tar" {
+                    let mut tar = tar::Archive::new(&mut entry);
+                    tar.unpack(&sub_dest)
+                        .context("Failed to extract data.tar from deb")?;
+                } else if name.ends_with(".bz2") {
+                    let decoder = bzip2::read::BzDecoder::new(&mut entry);
+                    let mut tar = tar::Archive::new(decoder);
+                    tar.unpack(&sub_dest)
+                        .context("Failed to extract data.tar.bz2 from deb")?;
+                }
+            } else if name.starts_with("control.tar") {
+                // Also extract control files for analysis
+                let sub_dest = dest_dir.join("control");
+                fs::create_dir_all(&sub_dest)?;
+
+                if name.ends_with(".gz") {
+                    let decoder = flate2::read::GzDecoder::new(&mut entry);
+                    let mut tar = tar::Archive::new(decoder);
+                    tar.unpack(&sub_dest)
+                        .context("Failed to extract control.tar.gz from deb")?;
+                } else if name.ends_with(".xz") {
+                    let decoder = xz2::read::XzDecoder::new(&mut entry);
+                    let mut tar = tar::Archive::new(decoder);
+                    tar.unpack(&sub_dest)
+                        .context("Failed to extract control.tar.xz from deb")?;
+                } else if name.ends_with(".zst") {
+                    let decoder = zstd::stream::read::Decoder::new(&mut entry)
+                        .context("Failed to create zstd decoder")?;
+                    let mut tar = tar::Archive::new(decoder);
+                    tar.unpack(&sub_dest)
+                        .context("Failed to extract control.tar.zst from deb")?;
+                } else if name == "control.tar" {
+                    let mut tar = tar::Archive::new(&mut entry);
+                    tar.unpack(&sub_dest)
+                        .context("Failed to extract control.tar from deb")?;
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Extract an RPM package (.rpm)
+    /// RPM packages contain a lead, signature, header, and CPIO archive
+    fn extract_rpm(&self, archive_path: &Path, dest_dir: &Path) -> Result<()> {
+        let file = File::open(archive_path)?;
+        let mut reader = BufReader::new(file);
+
+        // RPM magic: 0xedabeedb
+        let mut magic = [0u8; 4];
+        reader.read_exact(&mut magic)?;
+        if magic != [0xed, 0xab, 0xee, 0xdb] {
+            anyhow::bail!("Not a valid RPM file (invalid magic)");
+        }
+
+        // Read RPM lead (96 bytes total, we already read 4)
+        let mut lead_rest = [0u8; 92];
+        reader.read_exact(&mut lead_rest)?;
+
+        // Skip signature header and get its size
+        let sig_size = self.skip_rpm_header(&mut reader)?;
+
+        // Align to 8-byte boundary after signature
+        let pos = sig_size;
+        let padding = (8 - (pos % 8)) % 8;
+        if padding > 0 {
+            let mut pad = vec![0u8; padding];
+            reader.read_exact(&mut pad)?;
+        }
+
+        // Skip main header
+        self.skip_rpm_header(&mut reader)?;
+
+        // The rest is the CPIO archive, possibly compressed
+        // Try to detect compression by reading first bytes
+        let mut peek = [0u8; 6];
+        reader.read_exact(&mut peek)?;
+
+        // Create a chain reader with the peeked bytes
+        let peek_cursor = std::io::Cursor::new(peek.to_vec());
+        let chained = peek_cursor.chain(reader);
+
+        // Detect compression and extract
+        if peek[0..2] == [0x1f, 0x8b] {
+            // gzip
+            let decoder = flate2::read::GzDecoder::new(chained);
+            self.extract_cpio(decoder, dest_dir)?;
+        } else if peek[0..3] == [0xfd, 0x37, 0x7a] {
+            // xz
+            let decoder = xz2::read::XzDecoder::new(chained);
+            self.extract_cpio(decoder, dest_dir)?;
+        } else if peek[0..4] == [0x28, 0xb5, 0x2f, 0xfd] {
+            // zstd
+            let decoder = zstd::stream::read::Decoder::new(chained)
+                .context("Failed to create zstd decoder")?;
+            self.extract_cpio(decoder, dest_dir)?;
+        } else if peek[0..3] == [0x42, 0x5a, 0x68] {
+            // bzip2
+            let decoder = bzip2::read::BzDecoder::new(chained);
+            self.extract_cpio(decoder, dest_dir)?;
+        } else if peek[0..2] == [0x5d, 0x00] {
+            // LZMA (legacy) - try xz decoder
+            let decoder = xz2::read::XzDecoder::new(chained);
+            self.extract_cpio(decoder, dest_dir)?;
+        } else {
+            // Uncompressed CPIO
+            self.extract_cpio(chained, dest_dir)?;
+        }
+
+        Ok(())
+    }
+
+    fn skip_rpm_header<R: Read>(&self, reader: &mut R) -> Result<usize> {
+        // Header magic
+        let mut magic = [0u8; 3];
+        reader.read_exact(&mut magic)?;
+        if magic != [0x8e, 0xad, 0xe8] {
+            anyhow::bail!("Invalid RPM header magic");
+        }
+
+        let mut version = [0u8; 1];
+        reader.read_exact(&mut version)?;
+
+        // Reserved
+        let mut reserved = [0u8; 4];
+        reader.read_exact(&mut reserved)?;
+
+        // Number of index entries (big-endian)
+        let mut nindex = [0u8; 4];
+        reader.read_exact(&mut nindex)?;
+        let nindex = u32::from_be_bytes(nindex);
+
+        // Size of data section (big-endian)
+        let mut hsize = [0u8; 4];
+        reader.read_exact(&mut hsize)?;
+        let hsize = u32::from_be_bytes(hsize);
+
+        // Skip index entries (16 bytes each)
+        let index_size = nindex as usize * 16;
+        let mut index_data = vec![0u8; index_size];
+        reader.read_exact(&mut index_data)?;
+
+        // Skip data section
+        let mut data = vec![0u8; hsize as usize];
+        reader.read_exact(&mut data)?;
+
+        // Return total header size (16 for header + index + data)
+        Ok(16 + index_size + hsize as usize)
+    }
+
+    fn extract_cpio<R: Read>(&self, mut reader: R, dest_dir: &Path) -> Result<()> {
+        loop {
+            // Try to read next CPIO entry
+            let entry_reader = match cpio::newc::Reader::new(&mut reader) {
+                Ok(r) => r,
+                Err(e) => {
+                    // End of archive or invalid entry
+                    if e.kind() == std::io::ErrorKind::InvalidData {
+                        break;
+                    }
+                    return Err(e.into());
+                }
+            };
+
+            let entry = entry_reader.entry();
+            let name = entry.name().to_string();
+
+            if name == "TRAILER!!!" {
+                break;
+            }
+
+            // Skip . and empty entries
+            if name.is_empty() || name == "." {
+                // Consume remaining data to advance reader
+                let mut sink = std::io::sink();
+                std::io::copy(&mut { entry_reader }, &mut sink).ok();
+                continue;
+            }
+
+            // Clean up path (remove leading ./ or /)
+            let clean_name = name.trim_start_matches("./").trim_start_matches('/');
+            if clean_name.is_empty() {
+                let mut sink = std::io::sink();
+                std::io::copy(&mut { entry_reader }, &mut sink).ok();
+                continue;
+            }
+
+            let out_path = dest_dir.join(clean_name);
+            let mode = entry.mode();
+
+            if mode & 0o170000 == 0o040000 {
+                // Directory
+                fs::create_dir_all(&out_path).ok();
+                // Consume remaining data
+                let mut sink = std::io::sink();
+                std::io::copy(&mut { entry_reader }, &mut sink).ok();
+            } else if mode & 0o170000 == 0o100000 {
+                // Regular file
+                if let Some(parent) = out_path.parent() {
+                    fs::create_dir_all(parent)?;
+                }
+                let mut file = File::create(&out_path)?;
+                std::io::copy(&mut { entry_reader }, &mut file)?;
+            } else {
+                // Skip other types (symlinks, devices, etc.)
+                let mut sink = std::io::sink();
+                std::io::copy(&mut { entry_reader }, &mut sink).ok();
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Extract a RAR archive (.rar)
+    fn extract_rar(&self, archive_path: &Path, dest_dir: &Path) -> Result<()> {
+        let mut archive = unrar::Archive::new(archive_path)
+            .open_for_processing()
+            .context("Failed to open RAR archive")?;
+
+        loop {
+            // Read the next header
+            let header_result = archive.read_header();
+            match header_result {
+                Ok(Some(file_archive)) => {
+                    let header = file_archive.entry();
+
+                    if header.is_file() {
+                        // Determine output path
+                        let filename = header.filename.to_string_lossy();
+                        let out_path = dest_dir.join(filename.as_ref());
+
+                        // Create parent directories
+                        if let Some(parent) = out_path.parent() {
+                            fs::create_dir_all(parent)?;
+                        }
+
+                        // Extract the file
+                        archive = file_archive
+                            .extract_to(&out_path)
+                            .context("Failed to extract RAR entry")?;
+                    } else if header.is_directory() {
+                        let dirname = header.filename.to_string_lossy();
+                        let dir_path = dest_dir.join(dirname.as_ref());
+                        fs::create_dir_all(&dir_path)?;
+                        archive = file_archive
+                            .skip()
+                            .context("Failed to skip RAR directory")?;
+                    } else {
+                        archive = file_archive.skip().context("Failed to skip RAR entry")?;
+                    }
+                }
+                Ok(None) => break, // No more entries
+                Err(e) => return Err(e.into()),
+            }
+        }
 
         Ok(())
     }
@@ -940,6 +1236,12 @@ impl ArchiveAnalyzer {
             "gz"
         } else if path_str.ends_with(".bz2") {
             "bz2"
+        } else if path_str.ends_with(".deb") {
+            "deb"
+        } else if path_str.ends_with(".rpm") {
+            "rpm"
+        } else if path_str.ends_with(".rar") {
+            "rar"
         } else {
             "unknown"
         }
@@ -982,6 +1284,9 @@ impl Analyzer for ArchiveAnalyzer {
             || (path_str.ends_with(".xz") && !path_str.ends_with(".tar.xz"))
             || (path_str.ends_with(".gz") && !path_str.ends_with(".tar.gz"))
             || (path_str.ends_with(".bz2") && !path_str.ends_with(".tar.bz2"))
+            || path_str.ends_with(".deb")
+            || path_str.ends_with(".rpm")
+            || path_str.ends_with(".rar")
     }
 }
 
@@ -1104,6 +1409,57 @@ mod tests {
             "tar.xz"
         );
         assert_eq!(analyzer.detect_archive_type(Path::new("test.txz")), "txz");
+    }
+
+    #[test]
+    fn test_detect_archive_type_deb() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert_eq!(analyzer.detect_archive_type(Path::new("test.deb")), "deb");
+        assert_eq!(
+            analyzer.detect_archive_type(Path::new("package.deb")),
+            "deb"
+        );
+    }
+
+    #[test]
+    fn test_detect_archive_type_rpm() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert_eq!(analyzer.detect_archive_type(Path::new("test.rpm")), "rpm");
+        assert_eq!(
+            analyzer.detect_archive_type(Path::new("package.rpm")),
+            "rpm"
+        );
+    }
+
+    #[test]
+    fn test_detect_archive_type_rar() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert_eq!(analyzer.detect_archive_type(Path::new("test.rar")), "rar");
+        assert_eq!(
+            analyzer.detect_archive_type(Path::new("archive.rar")),
+            "rar"
+        );
+    }
+
+    #[test]
+    fn test_can_analyze_deb() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert!(analyzer.can_analyze(Path::new("test.deb")));
+        assert!(analyzer.can_analyze(Path::new("TEST.DEB")));
+    }
+
+    #[test]
+    fn test_can_analyze_rpm() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert!(analyzer.can_analyze(Path::new("test.rpm")));
+        assert!(analyzer.can_analyze(Path::new("TEST.RPM")));
+    }
+
+    #[test]
+    fn test_can_analyze_rar() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert!(analyzer.can_analyze(Path::new("test.rar")));
+        assert!(analyzer.can_analyze(Path::new("TEST.RAR")));
     }
 
     #[test]

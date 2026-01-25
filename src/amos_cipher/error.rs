@@ -5,9 +5,6 @@ use thiserror::Error;
 /// Errors that can occur during AMOS cipher detection and decryption.
 #[derive(Debug, Error)]
 pub enum AMOSError {
-    #[error("failed to parse Mach-O binary: {0}")]
-    MachOParseError(String),
-
     #[error("section not found: {0}")]
     SectionNotFound(String),
 
@@ -19,9 +16,6 @@ pub enum AMOSError {
 
     #[error("invalid alignment for table extraction")]
     InvalidAlignment,
-
-    #[error("could not determine table size")]
-    TableSizeUnknown,
 
     #[error("invalid format: {0}")]
     InvalidFormat(String),
@@ -35,9 +29,6 @@ pub enum AMOSError {
         table_size: usize,
     },
 
-    #[error("table index out of bounds: {index} >= {table_size}")]
-    IndexOutOfBounds { index: usize, table_size: usize },
-
     #[error("custom Base64 decode error: {0}")]
     Base64DecodeError(String),
 
@@ -46,9 +37,6 @@ pub enum AMOSError {
 
     #[error("PRNG seed not found")]
     SeedNotFound,
-
-    #[error("decryption produced garbage output")]
-    DecryptionFailed,
 
     #[error("no AMOS cipher detected in binary")]
     NotAMOSEncrypted,

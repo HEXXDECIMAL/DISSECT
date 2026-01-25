@@ -160,31 +160,6 @@ impl AMOSCipherAnalyzer {
             Ok(payloads)
         }
     }
-
-    /// Decrypt raw data with a known variant (for advanced use).
-    pub fn decrypt_with_variant(
-        &self,
-        data: &[u8],
-        variant: CipherVariant,
-    ) -> Result<Vec<DecryptedPayload>, AMOSError> {
-        match variant {
-            CipherVariant::TripleLookupTable => self.decrypt_variant_a(data),
-            CipherVariant::PRNGStreamCipher => {
-                let detection = self.detect(data)?;
-                self.decrypt_variant_b(data, &detection)
-            }
-        }
-    }
-}
-
-/// Standalone function for quick AMOS detection.
-pub fn is_amos_encrypted(data: &[u8]) -> bool {
-    detection::is_amos_encrypted(data)
-}
-
-/// Get the custom Base64 alphabet used by AMOS.
-pub fn get_amos_base64_alphabet() -> &'static str {
-    "Hbe1MtN?UT9jksJIE7D=VK&-XBA*h6y2i%p<!PqFw#@lR+vo$(Qd>_gxcmzY3af4"
 }
 
 #[cfg(test)]
@@ -199,22 +174,8 @@ mod tests {
     }
 
     #[test]
-    fn test_is_amos_encrypted_empty() {
-        assert!(!is_amos_encrypted(&[]));
-    }
-
-    #[test]
-    fn test_base64_alphabet() {
-        let alphabet = get_amos_base64_alphabet();
-        assert_eq!(alphabet.len(), 64);
-        assert!(alphabet.starts_with('H'));
-        assert!(alphabet.ends_with('4'));
-    }
-
-    #[test]
     fn test_default_impl() {
         let analyzer: AMOSCipherAnalyzer = Default::default();
-        assert!(!is_amos_encrypted(&[])); // Just verify it works
-        let _ = analyzer; // Use the variable
+        let _ = analyzer.detect(&[]); // Just verify it works
     }
 }

@@ -62,7 +62,7 @@ fn test_analyze_json_output() {
     fs::write(&script_path, "#!/bin/bash\necho 'hello'\n").unwrap();
 
     assert_cmd::cargo_bin_cmd!("dissect")
-        .args(["-f", "json", "analyze", script_path.to_str().unwrap()])
+        .args(["--json", "analyze", script_path.to_str().unwrap()])
         .assert()
         .success()
         .stdout(predicate::str::contains("schema_version"));
@@ -80,8 +80,7 @@ fn test_analyze_output_to_file() {
 
     assert_cmd::cargo_bin_cmd!("dissect")
         .args([
-            "-f",
-            "json",
+            "--json",
             "-o",
             output_path.to_str().unwrap(),
             "analyze",
@@ -90,7 +89,7 @@ fn test_analyze_output_to_file() {
         ])
         .assert()
         .success()
-        .stdout(predicate::str::contains("Results written to"));
+        .stderr(predicate::str::contains("Results written to"));
 
     // Verify output file was created and contains JSON
     let content = fs::read_to_string(&output_path).unwrap();
@@ -184,16 +183,16 @@ fn test_missing_subcommand() {
         .stderr(predicate::str::contains("Usage"));
 }
 
-/// Test invalid format argument
+/// Test invalid argument
 #[test]
 
-fn test_invalid_format() {
+fn test_invalid_argument() {
     let temp_dir = TempDir::new().unwrap();
     let script = temp_dir.path().join("test.sh");
     fs::write(&script, "#!/bin/bash\n").unwrap();
 
     assert_cmd::cargo_bin_cmd!("dissect")
-        .args(["-f", "xml", "analyze", script.to_str().unwrap()])
+        .args(["--invalid-arg", "analyze", script.to_str().unwrap()])
         .assert()
         .failure();
 }
@@ -253,7 +252,7 @@ fn test_scan_json_output() {
     fs::write(&script, "#!/bin/bash\n").unwrap();
 
     assert_cmd::cargo_bin_cmd!("dissect")
-        .args(["-f", "json", "scan", temp_dir.path().to_str().unwrap()])
+        .args(["--json", "scan", temp_dir.path().to_str().unwrap()])
         .assert()
         .success()
         .stdout(predicate::str::contains("["));

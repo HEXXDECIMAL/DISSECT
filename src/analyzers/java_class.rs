@@ -1313,6 +1313,7 @@ struct ClassInfo {
     access_flags: u16,
 }
 
+#[allow(dead_code)]
 struct MethodInfo {
     name: String,
     descriptor: String,
@@ -1326,6 +1327,7 @@ struct MethodInfo {
     complexity: u32,
 }
 
+#[allow(dead_code)]
 struct FieldInfo {
     name: String,
     descriptor: String,
@@ -1335,6 +1337,7 @@ struct FieldInfo {
     constant_value: Option<String>,
 }
 
+#[allow(dead_code)]
 #[derive(Clone)]
 enum ConstantPoolEntry {
     Empty,

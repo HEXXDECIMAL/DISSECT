@@ -16,7 +16,7 @@ pub enum Platform {
 }
 
 /// File type specifier for rule targeting
-#[derive(Debug, Clone, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, PartialEq, Eq, Hash)]
 #[serde(rename_all = "lowercase")]
 pub enum FileType {
     All,

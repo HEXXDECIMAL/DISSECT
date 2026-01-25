@@ -12,7 +12,7 @@
 //! let report = analyze_file("suspicious.py", &options).unwrap();
 //!
 //! for finding in &report.findings {
-//!     println!("{}: {} ({})", finding.id, finding.description, finding.criticality);
+//!     println!("{}: {} ({:?})", finding.id, finding.description, finding.criticality);
 //! }
 //! ```
 

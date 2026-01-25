@@ -14,8 +14,42 @@ const MIN_CONST_SECTION_SIZE: usize = 500_000;
 /// Detection confidence threshold.
 const DETECTION_THRESHOLD: f32 = 0.5;
 
+/// Mach-O magic numbers for quick format detection.
+const MH_MAGIC: u32 = 0xfeedface; // 32-bit
+const MH_MAGIC_64: u32 = 0xfeedfacf; // 64-bit
+const MH_CIGAM: u32 = 0xcefaedfe; // 32-bit swapped
+const MH_CIGAM_64: u32 = 0xcffaedfe; // 64-bit swapped
+const FAT_MAGIC: u32 = 0xcafebabe; // Fat/universal
+const FAT_CIGAM: u32 = 0xbebafeca; // Fat swapped
+
+/// Quick check if data looks like a Mach-O binary.
+/// This avoids expensive parsing for non-Mach-O files.
+#[inline]
+fn is_macho(data: &[u8]) -> bool {
+    if data.len() < 4 {
+        return false;
+    }
+    let magic = u32::from_le_bytes([data[0], data[1], data[2], data[3]]);
+    matches!(
+        magic,
+        MH_MAGIC | MH_MAGIC_64 | MH_CIGAM | MH_CIGAM_64 | FAT_MAGIC | FAT_CIGAM
+    )
+}
+
 /// Detect AMOS cipher variant in binary data.
 pub fn detect(data: &[u8]) -> Result<AMOSDetectionResult, AMOSError> {
+    // Quick check: AMOS only targets Mach-O binaries
+    // Skip analysis for non-Mach-O to save significant CPU time
+    if !is_macho(data) {
+        return Ok(AMOSDetectionResult {
+            detected: false,
+            variant: None,
+            confidence: 0.0,
+            payload_locations: vec![],
+            evidence: vec![],
+        });
+    }
+
     let mut evidence = Vec::new();
     let mut variant_a_score = 0.0f32;
     let mut variant_b_score = 0.0f32;
@@ -160,28 +194,9 @@ pub fn detect(data: &[u8]) -> Result<AMOSDetectionResult, AMOSError> {
     })
 }
 
-/// Quick detection check without full analysis.
-pub fn is_amos_encrypted(data: &[u8]) -> bool {
-    // Quick checks for AMOS indicators
-    if let Some(size) = table_extractor::get_const_section_size(data) {
-        if size >= MIN_CONST_SECTION_SIZE {
-            // Check for /dev/urandom (Variant A indicator)
-            if find_string(data, b"/dev/urandom").is_some() {
-                return true;
-            }
-            // Check for PRNG constants (Variant B indicator)
-            if !variant_b::contains_prng_constants(data).is_empty() {
-                return true;
-            }
-        }
-    }
-    false
-}
-
-/// Find a byte string in data.
+/// Find a byte string in data using SIMD-accelerated search.
 fn find_string(data: &[u8], pattern: &[u8]) -> Option<usize> {
-    data.windows(pattern.len())
-        .position(|window| window == pattern)
+    memchr::memmem::find(data, pattern)
 }
 
 /// Calculate readable string density in binary.
@@ -308,10 +323,5 @@ mod tests {
         let data: Vec<u8> = (0..1000).map(|i| (128 + (i % 128)) as u8).collect();
         let density = calculate_string_density(&data);
         assert!(density < 0.1);
-    }
-
-    #[test]
-    fn test_is_amos_encrypted_empty() {
-        assert!(!is_amos_encrypted(&[]));
     }
 }

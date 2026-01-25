@@ -7,9 +7,13 @@ use serde::{Deserialize, Serialize};
 use std::path::Path;
 use std::process::Command;
 use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::OnceLock;
 
 /// Global flag to disable radare2 analysis
 static RADARE2_DISABLED: AtomicBool = AtomicBool::new(false);
+
+/// Cached result of radare2 availability check (avoids subprocess per file)
+static RADARE2_AVAILABLE: OnceLock<bool> = OnceLock::new();
 
 /// Disable radare2 analysis globally
 pub fn disable_radare2() {
@@ -41,11 +45,13 @@ pub struct SyscallInfo {
 pub struct BatchedAnalysis {
     pub functions: Vec<R2Function>,
     pub sections: Vec<R2Section>,
+    #[allow(dead_code)]
     pub syscalls: Vec<SyscallInfo>,
 }
 
 /// Radare2 integration for deep binary analysis
 pub struct Radare2Analyzer {
+    #[allow(dead_code)]
     timeout_seconds: u64,
 }
 
@@ -57,11 +63,12 @@ impl Radare2Analyzer {
     }
 
     /// Check if radare2 is available (and not disabled)
+    /// Result is cached after first check to avoid subprocess spawn per file.
     pub fn is_available() -> bool {
         if is_disabled() {
             return false;
         }
-        Command::new("r2").arg("-v").output().is_ok()
+        *RADARE2_AVAILABLE.get_or_init(|| Command::new("r2").arg("-v").output().is_ok())
     }
 
     /// Extract functions with complexity metrics
@@ -193,6 +200,7 @@ impl Radare2Analyzer {
     }
 
     /// Extract all symbols (imports, exports, and internal symbols) in a single session
+    #[allow(dead_code)]
     pub fn extract_all_symbols(
         &self,
         file_path: &Path,
@@ -357,6 +365,7 @@ impl Radare2Analyzer {
     }
 
     /// Get architecture string from binary
+    #[allow(dead_code)]
     fn get_architecture(&self, file_path: &Path) -> Result<String> {
         let output = Command::new("r2")
             .arg("-q")
@@ -397,6 +406,7 @@ impl Radare2Analyzer {
     }
 
     /// Find syscall instruction addresses based on architecture
+    #[allow(dead_code)]
     fn find_syscall_instructions(&self, file_path: &Path, arch: &str) -> Result<Vec<u64>> {
         // Architecture-specific syscall instruction patterns
         let pattern = match arch {
@@ -459,6 +469,7 @@ impl Radare2Analyzer {
     }
 
     /// Find syscall number by backtracking from syscall instruction
+    #[allow(dead_code)]
     fn find_syscall_number(&self, file_path: &Path, arch: &str, addr: u64) -> Result<Option<u32>> {
         // Disassemble backwards to find the register load
         let output = Command::new("r2")
@@ -1212,6 +1223,7 @@ pub struct R2Export {
     pub export_type: Option<String>,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Deserialize, Serialize)]
 pub struct R2Symbol {
     pub name: String,
