@@ -64,7 +64,7 @@ impl ShellAnalyzer {
         // Add structural feature
         report.structure.push(StructuralFeature {
             id: "source/language/shell".to_string(),
-            description: "Shell script".to_string(),
+            desc: "Shell script".to_string(),
             evidence: vec![Evidence {
                 method: "shebang".to_string(),
                 source: "tree-sitter-bash".to_string(),
@@ -474,9 +474,9 @@ impl ShellAnalyzer {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: cap_id.to_string(),
-                    description: description.to_string(),
-                    confidence: 1.0,
-                    criticality,
+                    desc: description.to_string(),
+                    conf: 1.0,
+                    crit: criticality,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {
@@ -508,9 +508,9 @@ impl ShellAnalyzer {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: "anti-analysis/obfuscation/base64".to_string(),
-                    description: "Uses base64 encoding/decoding".to_string(),
-                    confidence: 0.9,
-                    criticality: Criticality::Suspicious,
+                    desc: "Uses base64 encoding/decoding".to_string(),
+                    conf: 0.9,
+                    crit: Criticality::Suspicious,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {
@@ -534,9 +534,9 @@ impl ShellAnalyzer {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: "anti-analysis/obfuscation/hex".to_string(),
-                    description: "Uses hex-encoded strings".to_string(),
-                    confidence: 0.9,
-                    criticality: Criticality::Suspicious,
+                    desc: "Uses hex-encoded strings".to_string(),
+                    conf: 0.9,
+                    crit: Criticality::Suspicious,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {
@@ -560,9 +560,9 @@ impl ShellAnalyzer {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: "anti-analysis/obfuscation/dynamic-eval".to_string(),
-                    description: "Executes dynamically constructed code".to_string(),
-                    confidence: 0.95,
-                    criticality: Criticality::Suspicious,
+                    desc: "Executes dynamically constructed code".to_string(),
+                    conf: 0.95,
+                    crit: Criticality::Suspicious,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {

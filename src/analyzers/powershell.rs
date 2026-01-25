@@ -57,7 +57,7 @@ impl PowerShellAnalyzer {
 
         report.structure.push(StructuralFeature {
             id: "source/language/powershell".to_string(),
-            description: "PowerShell script".to_string(),
+            desc: "PowerShell script".to_string(),
             evidence: vec![Evidence {
                 method: "parser".to_string(),
                 source: "tree-sitter-powershell".to_string(),
@@ -399,9 +399,9 @@ impl PowerShellAnalyzer {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: cap_id.to_string(),
-                description: desc.to_string(),
-                confidence: conf,
-                criticality,
+                desc: desc.to_string(),
+                conf: conf,
+                crit: criticality,
                 mbc: None,
                 attack: None,
                 evidence: vec![Evidence {
@@ -427,9 +427,9 @@ impl PowerShellAnalyzer {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: "anti-analysis/obfuscation/base64".to_string(),
-                description: "Base64 encoded command".to_string(),
-                confidence: 0.95,
-                criticality: Criticality::Suspicious,
+                desc: "Base64 encoded command".to_string(),
+                conf: 0.95,
+                crit: Criticality::Suspicious,
                 mbc: None,
                 attack: None,
                 evidence: vec![Evidence {
@@ -447,9 +447,9 @@ impl PowerShellAnalyzer {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: "evasion/stealthy-execution".to_string(),
-                description: "Stealthy execution flags".to_string(),
-                confidence: 0.95,
-                criticality: Criticality::Hostile,
+                desc: "Stealthy execution flags".to_string(),
+                conf: 0.95,
+                crit: Criticality::Hostile,
                 mbc: None,
                 attack: None,
                 evidence: vec![Evidence {

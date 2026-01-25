@@ -5,8 +5,8 @@
 traits:
   - id: mkdir-python
     description: Create directories (Python os.makedirs)
-    criticality: inert
-    confidence: 0.66
-    condition:
+    crit: inert
+    conf: 0.66
+    if:
       type: string
       exact: os.makedirs

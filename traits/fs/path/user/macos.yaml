@@ -5,16 +5,16 @@
 traits:
   - id: user-users
     description: Reference to /Users directories (macOS)
-    criticality: inert
-    confidence: 0.66
-    condition:
+    crit: inert
+    conf: 0.66
+    if:
       type: string
       regex: "/Users/[\\w\\-/]+"
 
   - id: user-home-library
     description: Reference to ~/Library (macOS)
-    criticality: inert
-    confidence: 0.66
-    condition:
+    crit: inert
+    conf: 0.66
+    if:
       type: string
       regex: "Library/[\\w\\-\\s/]+"

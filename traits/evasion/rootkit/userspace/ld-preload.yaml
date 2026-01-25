@@ -5,10 +5,10 @@
 traits:
   # LD_PRELOAD environment variable manipulation
   - id: ld-preload
-    description: References LD_PRELOAD environment variable
-    criticality: notable
-    confidence: 0.8
-    condition:
+    desc: References LD_PRELOAD environment variable
+    crit: notable
+    conf: 0.8
+    if:
       type: yara
       source: |
         rule ld_preload_env {
@@ -23,12 +23,12 @@ traits:
   # NOTE: This trait alone is not sufficient - many legitimate binaries use these
   # functions. It becomes suspicious only when combined with dlsym/RTLD_NEXT or LD_PRELOAD
   - id: libc-hook-targets
-    description: References multiple libc functions commonly hooked by rootkits
-    criticality: notable
-    confidence: 0.5
+    desc: References multiple libc functions commonly hooked by rootkits
+    crit: notable
+    conf: 0.5
     mbc: "F0015"
     attack: "T1574.006"
-    condition:
+    if:
       type: yara
       source: |
         rule libc_hook_targets {
@@ -65,12 +65,12 @@ traits:
 
   # dlsym RTLD_NEXT pattern (hook chaining)
   - id: dlsym-rtld-next
-    description: Uses dlsym with RTLD_NEXT (function hooking pattern)
-    criticality: suspicious
-    confidence: 0.9
+    desc: Uses dlsym with RTLD_NEXT (function hooking pattern)
+    crit: suspicious
+    conf: 0.9
     mbc: "F0015"
     attack: "T1574.006"
-    condition:
+    if:
       type: yara
       source: |
         rule dlsym_rtld_next {
@@ -85,13 +85,13 @@ traits:
 
   # Symbiote-specific patterns
   - id: symbiote
-    description: Symbiote rootkit indicators
-    criticality: suspicious
-    confidence: 0.95
+    desc: Symbiote rootkit indicators
+    crit: suspicious
+    conf: 0.95
     mbc: "F0015"
     attack: "T1574.006"
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: yara
       source: |
         rule symbiote_rootkit {
@@ -109,13 +109,13 @@ traits:
 
   # /proc filesystem hiding
   - id: proc-hiding
-    description: Patterns for hiding processes via /proc manipulation
-    criticality: suspicious
-    confidence: 0.9
+    desc: Patterns for hiding processes via /proc manipulation
+    crit: suspicious
+    conf: 0.9
     mbc: "F0015"
     attack: "T1574.006"
-    file_types: [elf, c]
-    condition:
+    for: [elf, c]
+    if:
       type: yara
       source: |
         rule proc_hiding {
@@ -132,37 +132,37 @@ traits:
   # Dynamic linker hook symbol (_dlfcn_hook)
   # This glibc internal symbol indicates dynamic linker hooking capability
   - id: dlfcn-hook-symbol
-    description: Contains _dlfcn_hook symbol (dynamic linker hook)
-    criticality: suspicious
-    confidence: 0.85
+    desc: Contains _dlfcn_hook symbol (dynamic linker hook)
+    crit: suspicious
+    conf: 0.85
     mbc: "F0015"
     attack: "T1574.006"
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: string
       exact: "_dlfcn_hook"
 
   # ld.so.preload file path (rootkit installation target)
   - id: ld-so-preload-file
-    description: References /etc/ld.so.preload file
-    criticality: suspicious
-    confidence: 0.9
+    desc: References /etc/ld.so.preload file
+    crit: suspicious
+    conf: 0.9
     mbc: "F0015"
     attack: "T1574.006"
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: string
       exact: "/etc/ld.so.preload"
 
   # Backup ld.so pattern (rootkit hijacking original loader)
   - id: ld-backup-pattern
-    description: Dynamic linker backup/restore pattern
-    criticality: suspicious
-    confidence: 0.9
+    desc: Dynamic linker backup/restore pattern
+    crit: suspicious
+    conf: 0.9
     mbc: "F0015"
     attack: "T1574.006"
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: yara
       source: |
         rule ld_backup_pattern {
@@ -178,43 +178,43 @@ traits:
 
   # __libc_dlopen_mode (internal glibc dynamic loading)
   - id: libc-dlopen-mode
-    description: Uses __libc_dlopen_mode (internal glibc loader)
-    criticality: suspicious
-    confidence: 0.8
+    desc: Uses __libc_dlopen_mode (internal glibc loader)
+    crit: suspicious
+    conf: 0.8
     mbc: "F0015"
     attack: "T1574.006"
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: string
       exact: "__libc_dlopen_mode"
 
 composite_rules:
   # Full LD_PRELOAD rootkit
   - id: ld-preload-rootkit
-    description: LD_PRELOAD userspace rootkit (Symbiote-style)
-    criticality: hostile
-    confidence: 0.95
+    desc: LD_PRELOAD userspace rootkit (Symbiote-style)
+    crit: hostile
+    conf: 0.95
     mbc: "F0015"
     attack: "T1574.006"
-    file_types: [elf]
-    requires_all:
+    for: [elf]
+    all:
       - id: dlsym-rtld-next
-    requires_any:
+    any:
       - id: libc-hook-targets
       - id: proc-hiding
       - id: symbiote
 
   # LD_PRELOAD installation rootkit
   - id: ld-preload-installer
-    description: LD_PRELOAD rootkit installer (modifies ld.so.preload)
-    criticality: hostile
-    confidence: 0.95
+    desc: LD_PRELOAD rootkit installer (modifies ld.so.preload)
+    crit: hostile
+    conf: 0.95
     mbc: "F0015"
     attack: "T1574.006"
-    file_types: [elf]
-    requires_all:
+    for: [elf]
+    all:
       - id: ld-so-preload-file
-    requires_any:
+    any:
       - id: ld-backup-pattern
       - id: libc-dlopen-mode
       - id: dlsym-rtld-next

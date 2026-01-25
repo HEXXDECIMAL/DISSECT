@@ -4,46 +4,46 @@
 
 traits:
   - id: js-pbpaste
-    description: Accesses system clipboard via pbpaste (macOS)
-    criticality: suspicious
-    confidence: 0.95
+    desc: Accesses system clipboard via pbpaste (macOS)
+    crit: suspicious
+    conf: 0.95
     attack: "T1553"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       exact: "pbpaste"
 
   - id: js-powershell-clipboard
-    description: Accesses system clipboard via PowerShell (Windows)
-    criticality: suspicious
-    confidence: 0.95
+    desc: Accesses system clipboard via PowerShell (Windows)
+    crit: suspicious
+    conf: 0.95
     attack: "T1553"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
-      regex: 'powershell.*Get-Clipboard'
+      regex: "powershell.*Get-Clipboard"
 
   - id: js-xclip
-    description: Accesses system clipboard via xclip (Linux)
-    criticality: suspicious
-    confidence: 0.95
+    desc: Accesses system clipboard via xclip (Linux)
+    crit: suspicious
+    conf: 0.95
     attack: "T1553"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       exact: "xclip"
 
 composite_rules:
   - id: js-clipboard-exfil
-    description: JavaScript clipboard theft with exfiltration
-    criticality: hostile
-    confidence: 0.98
+    desc: JavaScript clipboard theft with exfiltration
+    crit: hostile
+    conf: 0.98
     attack: "T1553"
     mbc: "B0014"
-    file_types: [javascript]
-    requires_all:
+    for: [javascript]
+    all:
       - id: comm/http/request/js-axios-post
-    requires_any:
+    any:
       - id: js-pbpaste
       - id: js-powershell-clipboard
       - id: js-xclip

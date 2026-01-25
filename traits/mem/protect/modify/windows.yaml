@@ -4,7 +4,7 @@
 traits:
   - id: virtualprotect
     description: Change memory protection (VirtualProtect)
-    criticality: notable
+    crit: notable
     confidence: 0.9
     attack: "T1055"
     platforms: [windows]
@@ -15,7 +15,7 @@ traits:
 
   - id: virtualprotect-ex
     description: Change memory protection in other process (VirtualProtectEx)
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     attack: "T1055"
     platforms: [windows]

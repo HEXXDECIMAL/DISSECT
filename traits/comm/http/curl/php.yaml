@@ -4,108 +4,108 @@
 
 traits:
   - id: init
-    description: cURL session initialization
-    criticality: notable
-    confidence: 0.8
+    desc: cURL session initialization
+    crit: notable
+    conf: 0.8
     mbc: "C0002"
     attack: "T1071.001"
-    file_types: [php]
-    condition:
+    for: [php]
+    if:
       type: ast_pattern
       node_type: function_call_expression
       pattern: "curl_init"
 
   - id: exec
-    description: cURL request execution
-    criticality: notable
-    confidence: 0.8
+    desc: cURL request execution
+    crit: notable
+    conf: 0.8
     mbc: "C0002"
     attack: "T1071.001"
-    file_types: [php]
-    condition:
+    for: [php]
+    if:
       type: ast_pattern
       node_type: function_call_expression
       pattern: "curl_exec"
 
   - id: setopt
-    description: cURL option configuration
-    criticality: inert
-    confidence: 0.7
-    file_types: [php]
-    condition:
+    desc: cURL option configuration
+    crit: inert
+    conf: 0.7
+    for: [php]
+    if:
       type: ast_pattern
       node_type: function_call_expression
       pattern: "curl_setopt"
 
   - id: ssl-verify-disable
-    description: SSL certificate verification disabled (security bypass)
-    criticality: suspicious
-    confidence: 0.9
+    desc: SSL certificate verification disabled (security bypass)
+    crit: suspicious
+    conf: 0.9
     mbc: "B0032"
     attack: "T1553"
-    file_types: [php]
-    condition:
+    for: [php]
+    if:
       type: ast_pattern
       node_type: function_call_expression
       pattern: "curl_setopt\\s*\\([^,]+,\\s*CURLOPT_SSL_VERIFYPEER\\s*,\\s*(false|0|FALSE)"
       regex: true
 
   - id: ssl-host-disable
-    description: SSL host verification disabled (security bypass)
-    criticality: suspicious
-    confidence: 0.9
+    desc: SSL host verification disabled (security bypass)
+    crit: suspicious
+    conf: 0.9
     mbc: "B0032"
     attack: "T1553"
-    file_types: [php]
-    condition:
+    for: [php]
+    if:
       type: ast_pattern
       node_type: function_call_expression
       pattern: "curl_setopt\\s*\\([^,]+,\\s*CURLOPT_SSL_VERIFYHOST\\s*,\\s*(0|false|FALSE)"
       regex: true
 
   - id: follow-redirects
-    description: cURL follows HTTP redirects
-    criticality: inert
-    confidence: 0.6
-    file_types: [php]
-    condition:
+    desc: cURL follows HTTP redirects
+    crit: inert
+    conf: 0.6
+    for: [php]
+    if:
       type: string
       exact: CURLOPT_FOLLOWLOCATION
 
   - id: file-upload
-    description: cURL file upload capability (CURLFile)
-    criticality: suspicious
-    confidence: 0.85
+    desc: cURL file upload capability (CURLFile)
+    crit: suspicious
+    conf: 0.85
     mbc: "B0030"
     attack: "T1041"
-    file_types: [php]
-    condition:
+    for: [php]
+    if:
       type: string
       regex: "\\bCURLFile\\b"
 
   - id: post-data
-    description: cURL POST data configuration
-    criticality: notable
-    confidence: 0.7
-    file_types: [php]
-    condition:
+    desc: cURL POST data configuration
+    crit: notable
+    conf: 0.7
+    for: [php]
+    if:
       type: string
       exact: CURLOPT_POSTFIELDS
 
   - id: user-agent-set
-    description: Custom User-Agent header configuration
-    criticality: notable
-    confidence: 0.75
-    file_types: [php]
-    condition:
+    desc: Custom User-Agent header configuration
+    crit: notable
+    conf: 0.75
+    for: [php]
+    if:
       type: string
       exact: CURLOPT_USERAGENT
 
   - id: referer-set
-    description: Custom Referer header configuration
-    criticality: notable
-    confidence: 0.7
-    file_types: [php]
-    condition:
+    desc: Custom Referer header configuration
+    crit: notable
+    conf: 0.7
+    for: [php]
+    if:
       type: string
       exact: CURLOPT_REFERER

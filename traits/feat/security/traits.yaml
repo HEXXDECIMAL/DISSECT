@@ -3,53 +3,53 @@
 # These traits indicate the program is using security features, not evading them
 
 defaults:
-  criticality: notable
+  crit: notable
 
 traits:
   # === Sandbox Entry (macOS) ===
 
   - id: sandbox-init
     description: macOS sandbox initialization
-    confidence: 0.95
+    conf: 0.95
     platforms: [macos]
-    file_types: [macho, dylib]
-    condition:
+    for: [macho, dylib]
+    if:
       type: symbol
       pattern: "sandbox_init"
 
   - id: sandbox-init-params
     description: macOS sandbox initialization with parameters
-    confidence: 0.95
+    conf: 0.95
     platforms: [macos]
-    file_types: [macho, dylib]
-    condition:
+    for: [macho, dylib]
+    if:
       type: symbol
       pattern: "sandbox_init_with_parameters"
 
   - id: sandbox-extension-consume
     description: macOS sandbox extension consumption
-    confidence: 0.9
+    conf: 0.9
     platforms: [macos]
-    file_types: [macho, dylib]
-    condition:
+    for: [macho, dylib]
+    if:
       type: symbol
       pattern: "sandbox_extension_consume"
 
   - id: sandbox-extension-issue
     description: macOS sandbox extension issuance
-    confidence: 0.9
+    conf: 0.9
     platforms: [macos]
-    file_types: [macho, dylib]
-    condition:
+    for: [macho, dylib]
+    if:
       type: symbol
       pattern: "sandbox_extension_issue"
 
   - id: sandbox-check
     description: macOS sandbox check function
-    confidence: 0.9
+    conf: 0.9
     platforms: [macos]
-    file_types: [macho, dylib]
-    condition:
+    for: [macho, dylib]
+    if:
       type: symbol
       pattern: "sandbox_check"
 
@@ -57,20 +57,20 @@ traits:
 
   - id: sandbox-entering
     description: Sandbox entry log message
-    confidence: 0.85
+    conf: 0.85
     platforms: [macos]
-    file_types: [macho]
-    condition:
+    for: [macho]
+    if:
       type: string
       regex: "entering sandbox"
       case_insensitive: true
 
   - id: sandbox-failed
     description: Sandbox entry failure message
-    confidence: 0.85
+    conf: 0.85
     platforms: [macos]
-    file_types: [macho]
-    condition:
+    for: [macho]
+    if:
       type: string
       exact: "Failed to enter sandbox"
 
@@ -78,10 +78,10 @@ traits:
 
   - id: hardened-runtime
     description: macOS Hardened Runtime enabled
-    confidence: 0.9
+    conf: 0.9
     platforms: [macos]
-    file_types: [macho]
-    condition:
+    for: [macho]
+    if:
       type: string
       exact: "runtime"
 
@@ -89,46 +89,46 @@ traits:
 
   - id: seccomp-init
     description: Linux seccomp sandbox initialization
-    confidence: 0.95
+    conf: 0.95
     platforms: [linux]
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: symbol
       pattern: "seccomp_init"
 
   - id: seccomp-rule-add
     description: Linux seccomp rule addition
-    confidence: 0.9
+    conf: 0.9
     platforms: [linux]
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: symbol
       pattern: "seccomp_rule_add"
 
   - id: seccomp-load
     description: Linux seccomp profile loading
-    confidence: 0.95
+    conf: 0.95
     platforms: [linux]
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: symbol
       pattern: "seccomp_load"
 
   - id: prctl-seccomp
     description: Linux prctl seccomp mode
-    confidence: 0.85
+    conf: 0.85
     platforms: [linux]
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: string
       exact: "PR_SET_SECCOMP"
 
   - id: seccomp-mode-filter
     description: Linux seccomp filter mode constant
-    confidence: 0.85
+    conf: 0.85
     platforms: [linux]
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: string
       exact: "SECCOMP_MODE_FILTER"
 
@@ -136,19 +136,19 @@ traits:
 
   - id: pledge
     description: OpenBSD pledge syscall restriction
-    confidence: 0.95
+    conf: 0.95
     platforms: [openbsd]
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: symbol
       pattern: "^pledge$"
 
   - id: unveil
     description: OpenBSD unveil filesystem restriction
-    confidence: 0.95
+    conf: 0.95
     platforms: [openbsd]
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: symbol
       pattern: "^unveil$"
 
@@ -156,31 +156,31 @@ traits:
 
   - id: cap-enter
     description: FreeBSD Capsicum capability mode
-    confidence: 0.95
+    conf: 0.95
     platforms: [freebsd]
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: symbol
       pattern: "cap_enter"
 
   - id: cap-rights-limit
     description: FreeBSD Capsicum rights limiting
-    confidence: 0.9
+    conf: 0.9
     platforms: [freebsd]
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: symbol
       pattern: "cap_rights_limit"
 
 composite_rules:
   - id: macos-sandboxed
     description: macOS App Sandbox enabled
-    criticality: notable
-    confidence: 0.95
+    crit: notable
+    conf: 0.95
     platforms: [macos]
-    file_types: [macho, dylib]
+    for: [macho, dylib]
     requires_count: 1
-    conditions:
+    any:
       - id: sandbox-init
       - id: sandbox-init-params
       - id: sandbox-extension-consume
@@ -190,12 +190,12 @@ composite_rules:
 
   - id: linux-seccomp
     description: Linux seccomp sandbox enabled
-    criticality: notable
-    confidence: 0.95
+    crit: notable
+    conf: 0.95
     platforms: [linux]
-    file_types: [elf]
+    for: [elf]
     requires_count: 2
-    conditions:
+    any:
       - id: seccomp-init
       - id: seccomp-load
       - id: seccomp-rule-add

@@ -4,12 +4,12 @@
 traits:
   # SELinux extended attribute manipulation
   - id: xattr-manipulation
-    description: SELinux extended attribute manipulation
-    criticality: suspicious
-    confidence: 0.75
+    desc: SELinux extended attribute manipulation
+    crit: suspicious
+    conf: 0.75
     attack: "T1562.001"
     platforms: [linux]
-    condition:
+    if:
       type: yara
       source: |
         rule selinux_xattr {
@@ -24,12 +24,12 @@ traits:
 
   # Unconfined context assignment
   - id: unconfined-context
-    description: SELinux unconfined context assignment
-    criticality: suspicious
-    confidence: 0.8
+    desc: SELinux unconfined context assignment
+    crit: suspicious
+    conf: 0.8
     attack: "T1562.001"
     platforms: [linux]
-    condition:
+    if:
       type: yara
       source: |
         rule selinux_unconfined {
@@ -44,12 +44,12 @@ traits:
 
   # SELinux setenforce/getenforce manipulation
   - id: setenforce
-    description: SELinux enforcement mode manipulation
-    criticality: suspicious
-    confidence: 0.85
+    desc: SELinux enforcement mode manipulation
+    crit: suspicious
+    conf: 0.85
     attack: "T1562.001"
     platforms: [linux]
-    condition:
+    if:
       type: yara
       source: |
         rule selinux_enforce {
@@ -66,12 +66,12 @@ traits:
 
   # SELinux policy manipulation
   - id: policy-manipulation
-    description: SELinux policy load or manipulation
-    criticality: suspicious
-    confidence: 0.8
+    desc: SELinux policy load or manipulation
+    crit: suspicious
+    conf: 0.8
     attack: "T1562.001"
     platforms: [linux]
-    condition:
+    if:
       type: yara
       source: |
         rule selinux_policy {
@@ -88,13 +88,13 @@ traits:
 
   # SELinux disable via kernel parameters
   - id: kernel-disable
-    description: SELinux kernel parameter disable
-    criticality: suspicious
-    confidence: 0.9
+    desc: SELinux kernel parameter disable
+    crit: suspicious
+    conf: 0.9
     attack: "T1562.001"
     platforms: [linux]
-    file_types: [shell, elf]
-    condition:
+    for: [shell, elf]
+    if:
       type: yara
       source: |
         rule selinux_kernel_disable {
@@ -109,13 +109,13 @@ traits:
 
   # SELinux runtime state memory patching
   - id: runtime-patch
-    description: Direct kernel memory manipulation of SELinux enforcement state
-    criticality: suspicious
-    confidence: 0.95
+    desc: Direct kernel memory manipulation of SELinux enforcement state
+    crit: suspicious
+    conf: 0.95
     attack: "T1562.001"
     platforms: [linux]
-    file_types: [c]
-    condition:
+    for: [c]
+    if:
       type: yara
       source: |
         rule selinux_runtime_patch {
@@ -132,14 +132,14 @@ traits:
 composite_rules:
   # Active SELinux bypass
   - id: bypass
-    description: Active SELinux bypass behavior
-    criticality: hostile
-    confidence: 0.9
+    desc: Active SELinux bypass behavior
+    crit: hostile
+    conf: 0.9
     attack: "T1562.001"
     platforms: [linux]
-    file_types: [shell, c, elf]
+    for: [shell, c, elf]
     requires_count: 2
-    conditions:
+    any:
       - id: evasion/selinux/xattr-manipulation
       - id: evasion/selinux/unconfined-context
       - id: evasion/selinux/setenforce

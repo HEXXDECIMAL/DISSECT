@@ -5,16 +5,16 @@
 traits:
   - id: container-pid1-cgroup
     description: Check PID 1 cgroup to detect container environment
-    criticality: notable
-    confidence: 0.66
-    condition:
+    crit: notable
+    conf: 0.66
+    if:
       type: string
       exact: /proc/1/cgroup
 
   - id: container-self-cgroup
     description: Check own cgroup to detect container environment
-    criticality: inert
-    confidence: 0.66
-    condition:
+    crit: inert
+    conf: 0.66
+    if:
       type: string
       exact: /proc/self/cgroup

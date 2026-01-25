@@ -6,7 +6,7 @@ traits:
   # SSH authentication brute-force
   - id: auth-spray
     description: SSH authentication credential spraying
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     mbc: "E1110"
     attack: "T1110.001"
@@ -30,7 +30,7 @@ traits:
   # Default IoT credential lists
   - id: iot-creds
     description: Default IoT device credentials for brute-force
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     mbc: "E1110"
     attack: "T1078.001"
@@ -64,7 +64,7 @@ traits:
   # SSH scanner patterns
   - id: scanner
     description: SSH network scanner for brute-force attacks
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.8
     mbc: "E1110"
     attack: "T1046"
@@ -90,7 +90,7 @@ composite_rules:
   # SSH brute-force botnet
   - id: botnet
     description: SSH brute-force botnet detected
-    criticality: hostile
+    crit: hostile
     confidence: 0.9
     mbc: "E1110"
     attack: "T1110.001"

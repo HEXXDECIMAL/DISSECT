@@ -11,7 +11,7 @@ traits:
   # setup.py abuse - core supply-chain pattern
   - id: setup-abuse
     description: Malicious setup.py execution
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     condition:
       type: yara
@@ -36,7 +36,7 @@ traits:
   # PyPI typosquatting with execution
   - id: typosquat-exec
     description: PyPI typosquatting with code execution
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.8
     condition:
       type: yara
@@ -60,7 +60,7 @@ traits:
   # Install-triggered network activity
   - id: install-network
     description: Network activity triggered by package import/install
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     condition:
       type: yara
@@ -86,7 +86,7 @@ traits:
   # Author impersonation with malicious code
   - id: author-impersonation
     description: Impersonates package author with malicious code
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.8
     condition:
       type: yara
@@ -106,7 +106,7 @@ traits:
   # Gzip JSON payload loading (supply-chain specific pattern)
   - id: gzip-json-payload
     description: Loads code payload from gzipped JSON resource
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     condition:
       type: yara
@@ -127,7 +127,7 @@ traits:
   # Runtime dependency injection
   - id: dependency-injection
     description: Package installs additional dependencies at runtime
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.95
     mbc: "B0024"
     condition:

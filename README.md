@@ -103,7 +103,7 @@ Edit `capabilities.yaml` to add symbol-to-capability mappings:
 symbols:
   - symbol: sqlite3_open
     capability: database/sqlite/connect
-    description: Open SQLite database
+    desc: Open SQLite database
     confidence: 1.0
 ```
 

@@ -6,8 +6,8 @@ traits:
   # Fog ransomware indicators
   - id: ransomware/fog/generic
     description: Fog ransomware patterns
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     mbc: "C0027"
     attack: "T1486"
     file_types: [elf, macho, pe, so, dylib, dll]
@@ -36,8 +36,8 @@ traits:
   # Fog Linux/ESXi variant
   - id: ransomware/fog/linux
     description: Fog ransomware Linux targeting
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     mbc: "C0027"
     attack: "T1486"
     file_types: [elf, so]
@@ -72,8 +72,8 @@ traits:
 composite_rules:
   - id: ransomware/fog/detected
     description: Fog ransomware detected
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     mbc: "C0027"
     attack: "T1486"
     file_types: [elf, macho, pe, so, dylib, dll]

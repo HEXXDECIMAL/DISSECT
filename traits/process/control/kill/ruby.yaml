@@ -3,7 +3,7 @@
 traits:
   - id: ruby-kill
     description: Kill process
-    criticality: notable
+    crit: notable
     confidence: 0.90
     platforms: [all]
     file_types: [ruby]

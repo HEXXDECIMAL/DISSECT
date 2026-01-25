@@ -3,49 +3,49 @@
 # ATT&CK: T1071.004
 
 defaults:
-  file_types: [elf, macho, so, dylib, c]
+  for: [elf, macho, so, dylib, c]
 
 traits:
   - id: lookup
-    description: Uses DNS (Domain Name Service)
-    criticality: inert
-    confidence: 0.66
+    desc: Uses DNS (Domain Name Service)
+    crit: inert
+    conf: 0.66
     mbc: "C0011"
     attack: "T1071.004"
-    condition:
+    if:
       type: symbol
       pattern: res_query|res_search|getaddrinfo|gethostbyname
 
   - id: lookup-resolv
-    description: Reads DNS resolver configuration
-    criticality: inert
-    confidence: 0.66
-    condition:
+    desc: Reads DNS resolver configuration
+    crit: inert
+    conf: 0.66
+    if:
       type: string
       exact: resolv.conf
 
   # === Reverse lookup atomic indicators ===
   - id: in-addr-arpa
-    description: in-addr.arpa reverse lookup
-    criticality: inert
-    confidence: 0.56
-    condition:
+    desc: in-addr.arpa reverse lookup
+    crit: inert
+    conf: 0.56
+    if:
       type: string
       exact: ".in-addr.arpa"
 
   - id: ip6-arpa
-    description: ip6.arpa reverse lookup
-    criticality: inert
-    confidence: 0.56
-    condition:
+    desc: ip6.arpa reverse lookup
+    crit: inert
+    conf: 0.56
+    if:
       type: string
       exact: "ip6.arpa"
 
   - id: lookup-txt
-    description: DNS TXT record queries
-    criticality: notable
-    confidence: 0.66
-    condition:
+    desc: DNS TXT record queries
+    crit: notable
+    conf: 0.66
+    if:
       type: yara
       source: |
         rule dns_txt {
@@ -63,10 +63,10 @@ traits:
 composite_rules:
   # Reverse lookup composite
   - id: lookup-reverse
-    description: Reverse DNS lookup
-    criticality: inert
-    confidence: 0.66
-    requires_count: 1
-    conditions:
+    desc: Reverse DNS lookup
+    crit: inert
+    conf: 0.66
+    count: 1
+    any:
       - id: in-addr-arpa
       - id: ip6-arpa

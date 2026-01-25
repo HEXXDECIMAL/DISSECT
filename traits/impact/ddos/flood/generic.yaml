@@ -5,190 +5,190 @@
 traits:
   - id: ddos-reference
     description: References DDoS attack
-    criticality: suspicious
-    confidence: 0.7
+    crit: suspicious
+    conf: 0.7
     mbc: "B0042"
     attack: "T1499"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       regex: "(?i)ddos|dd0s"
 
   - id: syn-flood
     description: SYN flood attack reference
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     mbc: "B0042"
     attack: "T1499"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       regex: "(?i)syn.?flood"
 
   - id: ack-flood
     description: ACK flood attack reference
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     mbc: "B0042"
     attack: "T1499"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       regex: "(?i)ack.?flood"
 
   - id: udp-flood
     description: UDP flood attack function
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     mbc: "B0042"
     attack: "T1499"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "udp_flood"
 
   - id: tcp-flood
     description: TCP flood attack function
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     mbc: "B0042"
     attack: "T1499"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "tcp_flood"
 
   - id: tcpraw-flood
     description: TCP raw flood attack function
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     mbc: "B0042"
     attack: "T1499"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "tcpraw_flood"
 
   - id: flooder
     description: Flooder tool reference
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     mbc: "B0042"
     attack: "T1499"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       regex: "(?i)flooder"
 
   - id: stresser
     description: Stresser tool reference
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     mbc: "B0042"
     attack: "T1499"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "stresser"
 
   - id: tsource-engine
     description: TSource Engine Query (DDoS amplification)
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     mbc: "B0042"
     attack: "T1499"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "TSource Engine Query"
 
   - id: icmp-flood
     description: ICMP flood attack
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     mbc: "B0042"
     attack: "T1499"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "ICMPFLOOD"
 
   - id: blacknurse
     description: BlackNurse ICMP attack
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     mbc: "B0042"
     attack: "T1499"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "BLACKNURSE"
 
   - id: hydrasyn
     description: HYDRASYN DDoS attack
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     mbc: "B0042"
     attack: "T1499"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "HYDRASYN"
 
   - id: flood-operation
     description: Flood operation message
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     mbc: "B0042"
     attack: "T1499"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "Flood operation"
 
   - id: starting-flood
     description: Starting flood message
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     mbc: "B0042"
     attack: "T1499"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "Starting Flood"
 
 composite_rules:
   - id: syn-ack-flood-combo
     description: SYN and ACK flood attack combination
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     mbc: "B0042"
     attack: "T1499"
-    file_types: [all]
+    for: [all]
     requires_all:
       - id: syn-flood
       - id: ack-flood
 
   - id: tcp-flood-combo
     description: Multiple TCP flood functions detected
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     mbc: "B0042"
     attack: "T1499"
-    file_types: [all]
+    for: [all]
     requires_count: 2
-    conditions:
+    any:
       - id: udp-flood
       - id: tcp-flood
       - id: tcpraw-flood
 
   - id: amplification-attack
     description: DDoS amplification attack detected
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     mbc: "B0042"
     attack: "T1499"
-    file_types: [all]
+    for: [all]
     requires_any:
       - id: tsource-engine
       - id: icmp-flood
@@ -197,11 +197,11 @@ composite_rules:
 
   - id: flood-messaging
     description: Flood operation messaging detected
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     mbc: "B0042"
     attack: "T1499"
-    file_types: [all]
+    for: [all]
     requires_any:
       - id: flood-operation
       - id: starting-flood

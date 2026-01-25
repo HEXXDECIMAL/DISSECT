@@ -10,14 +10,14 @@ composite_rules:
 
   - id: shell-worm
     description: SSH worm implemented in shell script
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.95
     attack: "T1021.004"
     mbc: "E1021"
     requires_all:
       - id: dot-ssh-ref
     requires_count: 3
-    conditions:
+    any:
       - id: strict-host-disable
       - id: known-hosts-bypass
       - id: connect-timeout
@@ -35,7 +35,7 @@ composite_rules:
 
   - id: key-based-spread
     description: SSH key theft for lateral movement
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     attack: "T1552.004"
     requires_all:
@@ -48,11 +48,11 @@ composite_rules:
 
   - id: host-discovery
     description: SSH target host discovery
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.8
     attack: "T1018"
     requires_count: 2
-    conditions:
+    any:
       - id: authorized-keys
       - id: known-hosts-file
       - id: ssh-config-parse

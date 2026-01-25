@@ -5,34 +5,34 @@
 traits:
   # === Log clear atomic indicators ===
   - id: wevtutil-cl
-    description: wevtutil cl command
-    criticality: notable
-    confidence: 0.56
+    desc: wevtutil cl command
+    crit: notable
+    conf: 0.56
     mbc: "F0005"
     attack: "T1070.001"
-    condition:
+    if:
       type: string
       regex: "wevtutil\\s+cl"
 
   - id: clear-eventlog
-    description: Clear-EventLog cmdlet
-    criticality: notable
-    confidence: 0.56
+    desc: Clear-EventLog cmdlet
+    crit: notable
+    conf: 0.56
     mbc: "F0005"
     attack: "T1070.001"
-    condition:
+    if:
       type: string
       exact: "Clear-EventLog"
 
 composite_rules:
   # Log clear composite
   - id: log-clear-windows
-    description: Clear Windows event logs
-    criticality: suspicious
-    confidence: 0.66
+    desc: Clear Windows event logs
+    crit: suspicious
+    conf: 0.66
     mbc: "F0005"
     attack: "T1070.001"
     requires_count: 1
-    conditions:
+    any:
       - id: wevtutil-cl
       - id: clear-eventlog

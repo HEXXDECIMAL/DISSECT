@@ -5,9 +5,9 @@ traits:
   # GCC compiler
   - id: gcc
     description: Compiled with GCC
-    criticality: benign
-    confidence: 0.9
-    condition:
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule gcc_compiler {
@@ -24,9 +24,9 @@ traits:
   # Clang/LLVM compiler
   - id: clang
     description: Compiled with Clang/LLVM
-    criticality: benign
-    confidence: 0.9
-    condition:
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule clang_compiler {
@@ -42,9 +42,9 @@ traits:
   # MSVC compiler
   - id: msvc
     description: Compiled with Microsoft Visual C++
-    criticality: benign
-    confidence: 0.9
-    condition:
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule msvc_compiler {
@@ -61,9 +61,9 @@ traits:
   # Intel compiler
   - id: intel
     description: Compiled with Intel compiler
-    criticality: benign
-    confidence: 0.9
-    condition:
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule intel_compiler {
@@ -79,9 +79,9 @@ traits:
   # musl libc (Alpine, static builds)
   - id: musl
     description: Linked with musl libc
-    criticality: benign
-    confidence: 0.9
-    condition:
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule musl_libc {
@@ -96,9 +96,9 @@ traits:
   # Static linking indicator
   - id: static-linked
     description: Statically linked binary
-    criticality: benign
-    confidence: 0.8
-    condition:
+    crit: benign
+    conf: 0.8
+    if:
       type: yara
       source: |
         rule static_linked {
@@ -113,9 +113,9 @@ traits:
   # Debug symbols present
   - id: debug-symbols
     description: Binary contains debug symbols
-    criticality: benign
-    confidence: 0.85
-    condition:
+    crit: benign
+    conf: 0.85
+    if:
       type: yara
       source: |
         rule debug_symbols {
@@ -132,9 +132,9 @@ traits:
   # LTO (Link Time Optimization) used
   - id: lto
     description: Link Time Optimization enabled
-    criticality: benign
-    confidence: 0.8
-    condition:
+    crit: benign
+    conf: 0.8
+    if:
       type: yara
       source: |
         rule lto_enabled {
@@ -150,9 +150,9 @@ traits:
   # Position Independent Executable
   - id: pie
     description: Position Independent Executable (PIE)
-    criticality: benign
-    confidence: 0.85
-    condition:
+    crit: benign
+    conf: 0.85
+    if:
       type: yara
       source: |
         rule pie_binary {
@@ -167,9 +167,9 @@ traits:
   # Stack protector enabled
   - id: stack-protector
     description: Stack protector/canary enabled
-    criticality: benign
-    confidence: 0.9
-    condition:
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule stack_protector {
@@ -184,9 +184,9 @@ traits:
   # FORTIFY_SOURCE enabled
   - id: fortify
     description: FORTIFY_SOURCE hardening enabled
-    criticality: benign
-    confidence: 0.85
-    condition:
+    crit: benign
+    conf: 0.85
+    if:
       type: yara
       source: |
         rule fortify_source {
@@ -203,9 +203,9 @@ traits:
   # RELRO enabled
   - id: relro
     description: RELRO hardening enabled
-    criticality: benign
-    confidence: 0.8
-    condition:
+    crit: benign
+    conf: 0.8
+    if:
       type: yara
       source: |
         rule relro_enabled {
@@ -219,9 +219,9 @@ traits:
   # Cross-compilation indicator
   - id: cross-compiled
     description: Cross-compiled binary (different target arch)
-    criticality: notable
-    confidence: 0.75
-    condition:
+    crit: notable
+    conf: 0.75
+    if:
       type: yara
       source: |
         rule cross_compiled {

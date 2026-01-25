@@ -5,8 +5,8 @@
 traits:
   - id: loopback
     description: Access virtual block devices (loopback)
-    criticality: notable
-    confidence: 0.66
-    condition:
+    crit: notable
+    conf: 0.66
+    if:
       type: string
       regex: "/dev/loop[\\$%\\w\\{\\}]{0,16}"

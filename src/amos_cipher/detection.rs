@@ -44,7 +44,7 @@ pub fn detect(data: &[u8]) -> Result<AMOSDetectionResult, AMOSError> {
         return Ok(AMOSDetectionResult {
             detected: false,
             variant: None,
-            confidence: 0.0,
+            conf: 0.0,
             payload_locations: vec![],
             evidence: vec![],
         });
@@ -143,7 +143,7 @@ pub fn detect(data: &[u8]) -> Result<AMOSDetectionResult, AMOSError> {
 
     // Determine final result - prefer Variant A if tables were successfully extracted
     // since that's a much stronger indicator than finding magic constants in data
-    let (detected, variant, confidence) = if variant_a_score >= DETECTION_THRESHOLD {
+    let (detected, variant, conf) = if variant_a_score >= DETECTION_THRESHOLD {
         // If we could extract valid tables, it's definitely Variant A
         // regardless of any PRNG constants found (which are likely false positives)
         let has_valid_tables = evidence
@@ -188,7 +188,7 @@ pub fn detect(data: &[u8]) -> Result<AMOSDetectionResult, AMOSError> {
     Ok(AMOSDetectionResult {
         detected,
         variant,
-        confidence,
+        conf,
         payload_locations,
         evidence,
     })

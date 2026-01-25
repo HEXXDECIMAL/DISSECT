@@ -132,9 +132,9 @@ impl MachOAnalyzer {
                                         kind: FindingKind::Capability,
                                         trait_refs: vec![],
                                         id: cap_id,
-                                        description: yara_match.description.clone(),
-                                        confidence: 0.9, // YARA matches are high confidence
-                                        criticality: crate::types::Criticality::Inert,
+                                        desc: yara_match.desc.clone(),
+                                        conf: 0.9, // YARA matches are high confidence
+                                        crit: crate::types::Criticality::Inert,
                                         mbc: None,
                                         attack: None,
                                         evidence,
@@ -201,9 +201,9 @@ impl MachOAnalyzer {
             kind: FindingKind::Capability,
             trait_refs: vec![],
             id: "meta/format/macho".to_string(),
-            description: "Mach-O executable format".to_string(),
-            confidence: 1.0,
-            criticality: Criticality::Inert,
+            desc: "Mach-O executable format".to_string(),
+            conf: 1.0,
+            crit: Criticality::Inert,
             mbc: None,
             attack: None,
             evidence: vec![Evidence {
@@ -220,9 +220,9 @@ impl MachOAnalyzer {
             kind: FindingKind::Capability,
             trait_refs: vec![],
             id: format!("meta/arch/{}", arch),
-            description: format!("{} architecture", arch),
-            confidence: 1.0,
-            criticality: Criticality::Inert,
+            desc: format!("{} architecture", arch),
+            conf: 1.0,
+            crit: Criticality::Inert,
             mbc: None,
             attack: None,
             evidence: vec![Evidence {
@@ -246,9 +246,9 @@ impl MachOAnalyzer {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: "meta/signed".to_string(),
-                description: "Code-signed binary".to_string(),
-                confidence: 1.0,
-                criticality: Criticality::Inert,
+                desc: "Code-signed binary".to_string(),
+                conf: 1.0,
+                crit: Criticality::Inert,
                 mbc: None,
                 attack: None,
                 evidence: vec![Evidence {
@@ -267,9 +267,9 @@ impl MachOAnalyzer {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: "meta/cli-tool".to_string(),
-                    description: "Command-line tool with usage string".to_string(),
-                    confidence: 0.9,
-                    criticality: Criticality::Inert,
+                    desc: "Command-line tool with usage string".to_string(),
+                    conf: 0.9,
+                    crit: Criticality::Inert,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {
@@ -290,9 +290,9 @@ impl MachOAnalyzer {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: "meta/origin/freebsd".to_string(),
-                description: "Contains FreeBSD version tags".to_string(),
-                confidence: 0.95,
-                criticality: Criticality::Inert,
+                desc: "Contains FreeBSD version tags".to_string(),
+                conf: 0.95,
+                crit: Criticality::Inert,
                 mbc: None,
                 attack: None,
                 evidence: vec![Evidence {
@@ -323,9 +323,9 @@ impl MachOAnalyzer {
                         kind: FindingKind::Capability,
                         trait_refs: vec![],
                         id: format!("meta/library/{}", base_name),
-                        description: format!("Links to {} library", lib_name),
-                        confidence: 1.0,
-                        criticality: Criticality::Inert,
+                        desc: format!("Links to {} library", lib_name),
+                        conf: 1.0,
+                        crit: Criticality::Inert,
                         mbc: None,
                         attack: None,
                         evidence: vec![Evidence {
@@ -346,9 +346,9 @@ impl MachOAnalyzer {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: "meta/high-entropy".to_string(),
-                    description: format!("High entropy section ({})", section.name),
-                    confidence: 0.8,
-                    criticality: Criticality::Notable,
+                    desc: format!("High entropy section ({})", section.name),
+                    conf: 0.8,
+                    crit: Criticality::Notable,
                     mbc: Some("F0001".to_string()), // Anti-static analysis
                     attack: None,
                     evidence: vec![Evidence {
@@ -380,9 +380,9 @@ impl MachOAnalyzer {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: "meta/complex-code".to_string(),
-                description: format!("{} highly complex functions", high_complexity.len()),
-                confidence: 0.7,
-                criticality: Criticality::Notable,
+                desc: format!("{} highly complex functions", high_complexity.len()),
+                conf: 0.7,
+                crit: Criticality::Notable,
                 mbc: Some("F0001".to_string()),
                 attack: None,
                 evidence: vec![Evidence {
@@ -401,7 +401,7 @@ impl MachOAnalyzer {
         // Binary format
         report.structure.push(StructuralFeature {
             id: "binary/format/macho".to_string(),
-            description: "Mach-O binary format".to_string(),
+            desc: "Mach-O binary format".to_string(),
             evidence: vec![Evidence {
                 method: "magic".to_string(),
                 source: "goblin".to_string(),
@@ -414,7 +414,7 @@ impl MachOAnalyzer {
         let arch = self.arch_name(macho);
         report.structure.push(StructuralFeature {
             id: format!("binary/arch/{}", arch),
-            description: format!("{} architecture", arch),
+            desc: format!("{} architecture", arch),
             evidence: vec![Evidence {
                 method: "header".to_string(),
                 source: "goblin".to_string(),
@@ -434,7 +434,7 @@ impl MachOAnalyzer {
         if has_signature {
             report.structure.push(StructuralFeature {
                 id: "binary/signed".to_string(),
-                description: "Binary has code signature".to_string(),
+                desc: "Binary has code signature".to_string(),
                 evidence: vec![Evidence {
                     method: "load_command".to_string(),
                     source: "goblin".to_string(),
@@ -560,7 +560,7 @@ impl MachOAnalyzer {
                     if level == EntropyLevel::High {
                         report.structure.push(StructuralFeature {
                             id: "entropy/high".to_string(),
-                            description: "High entropy section (possibly packed/encrypted)"
+                            desc: "High entropy section (possibly packed/encrypted)"
                                 .to_string(),
                             evidence: vec![Evidence {
                                 method: "entropy".to_string(),
@@ -671,13 +671,13 @@ impl MachOAnalyzer {
             kind: FindingKind::Capability,
             trait_refs: vec![],
             id: "malware/stealer/amos/encrypted".to_string(),
-            description: format!(
-                "AMOS stealer encrypted payload detected ({}), confidence: {:.0}%",
+            desc: format!(
+                "AMOS stealer encrypted payload detected ({}), conf: {:.0}%",
                 variant_name,
-                detection.confidence * 100.0
+                detection.conf * 100.0
             ),
-            confidence: detection.confidence,
-            criticality: Criticality::Hostile,
+            conf: detection.conf,
+            crit: Criticality::Hostile,
             mbc: Some("C0027".to_string()), // Obfuscated Files or Information
             attack: Some("T1027".to_string()),
             evidence: evidence.clone(),
@@ -756,16 +756,16 @@ impl MachOAnalyzer {
                         kind: FindingKind::Capability,
                         trait_refs: vec![],
                         id: "malware/stealer/amos/decrypted".to_string(),
-                        description: format!(
+                        desc: format!(
                             "AMOS payload decrypted successfully ({} bytes)",
                             payload.plaintext.len()
                         ),
-                        confidence: match payload.quality() {
+                        conf: match payload.quality() {
                             crate::amos_cipher::DecryptionQuality::High => 0.95,
                             crate::amos_cipher::DecryptionQuality::Medium => 0.75,
                             crate::amos_cipher::DecryptionQuality::Low => 0.5,
                         },
-                        criticality: Criticality::Hostile,
+                        crit: Criticality::Hostile,
                         mbc: Some("C0027".to_string()),
                         attack: Some("T1027".to_string()),
                         evidence: decrypt_evidence,

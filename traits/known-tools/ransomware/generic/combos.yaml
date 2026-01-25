@@ -3,8 +3,8 @@
 composite_rules:
   - id: ransomware/generic/suspicious_symbols
     description: "Suspicious symbols or artifacts indicating ransomware activity"
-    criticality: suspicious
-    confidence: 0.8
+    crit: suspicious
+    conf: 0.8
     mbc: "C0027"
     attack: "T1486"
     file_types: [elf, macho, pe, so, dylib, dll]

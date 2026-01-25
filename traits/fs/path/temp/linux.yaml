@@ -5,16 +5,16 @@
 traits:
   - id: temp-tmp
     description: Reference to /tmp
-    criticality: inert
-    confidence: 0.66
-    condition:
+    crit: inert
+    conf: 0.66
+    if:
       type: string
       regex: "/tmp/[\\w\\.\\-/]+"
 
   - id: temp-var-tmp
     description: Reference to /var/tmp
-    criticality: inert
-    confidence: 0.66
-    condition:
+    crit: inert
+    conf: 0.66
+    if:
       type: string
       regex: "/var/tmp/[\\w\\.\\-/]+"

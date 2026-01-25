@@ -8,183 +8,183 @@ defaults:
 traits:
   # === Backdoor base term ===
   - id: backdoor-ref
-    description: Backdoor keyword reference
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: Backdoor keyword reference
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: '\b[bB]ackdoor\b'
 
   # === Known false positive exclusions ===
   - id: vcpu-backdoor
-    description: VCPU backdoor (VMware legitimate)
-    criticality: benign
-    confidence: 0.9
-    condition:
+    desc: VCPU backdoor (VMware legitimate)
+    crit: benign
+    conf: 0.9
+    if:
       type: string
       exact: VCPUInfoBackdoor
 
   - id: guest-backdoor-ops
-    description: Guest backdoor ops (VMware legitimate)
-    criticality: benign
-    confidence: 0.9
-    condition:
+    desc: Guest backdoor ops (VMware legitimate)
+    crit: benign
+    conf: 0.9
+    if:
       type: string
       exact: gGuestBackdoorOps
 
   - id: backdoor-comment
-    description: Backdoor comment (documentation)
-    criticality: benign
-    confidence: 0.9
-    condition:
+    desc: Backdoor comment (documentation)
+    crit: benign
+    conf: 0.9
+    if:
       type: string
       exact: "# backdoor:"
 
   # === Backdoor shell variants ===
   - id: backdoor-shell-ref
-    description: Backdoor shell keyword
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: Backdoor shell keyword
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: '\b[bB]ackdoor[_.\s-]?[sS]hell\b'
 
   # === Leet speak variants ===
   - id: backdoor-leet
-    description: Backdoor leet speak (backd00r)
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: Backdoor leet speak (backd00r)
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: '\b[bB][a4]ckd00r\b'
 
   # === Context-specific backdoor references ===
   - id: hidden-backdoor
-    description: Hidden backdoor keyword
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: Hidden backdoor keyword
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: '\bhidden[_ ]backdoor\b'
       case_insensitive: true
 
   - id: hide-backdoor
-    description: Hide backdoor keyword
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: Hide backdoor keyword
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: '\bhide[_ ]backdoor\b'
       case_insensitive: true
 
   - id: icmp-backdoor
-    description: ICMP backdoor keyword
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: ICMP backdoor keyword
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: '\bicmp[_ ]backdoor\b'
       case_insensitive: true
 
   - id: pam-backdoor
-    description: PAM backdoor keyword
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: PAM backdoor keyword
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: '\bpam[_ ]backdoor\b'
       case_insensitive: true
 
   - id: ssh-backdoor
-    description: SSH backdoor keyword
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: SSH backdoor keyword
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: '\bssh[_ ]backdoor\b'
       case_insensitive: true
 
   - id: sshd-backdoor
-    description: SSHD backdoor keyword
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: SSHD backdoor keyword
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: '\bsshd[_ ]backdoor\b'
       case_insensitive: true
 
   - id: backdoor-task
-    description: Backdoor task keyword
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: Backdoor task keyword
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: '\bbackdoor[_ ]task\b'
       case_insensitive: true
 
   - id: backdoor-process
-    description: Backdoor process keyword
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: Backdoor process keyword
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: '\bbackdoor[_ ]process\b'
       case_insensitive: true
 
   - id: backdoor-shell-ctx
-    description: Backdoor shell context keyword
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: Backdoor shell context keyword
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: '\bbackdoor[_ ]shell\b'
       case_insensitive: true
 
   - id: backdoor-login
-    description: Backdoor login keyword
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: Backdoor login keyword
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: '\bbackdoor[_ ]login\b'
       case_insensitive: true
 
   - id: backdoor-pass
-    description: Backdoor password keyword
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: Backdoor password keyword
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: '\bbackdoor[_ ]pass\b'
       case_insensitive: true
 
 composite_rules:
   - id: backdoor
-    description: References a backdoor
-    criticality: suspicious
-    confidence: 0.66
-    requires_all:
+    desc: References a backdoor
+    crit: suspicious
+    conf: 0.66
+    all:
       - id: backdoor-ref
-    requires_none:
+    none:
       - id: vcpu-backdoor
       - id: guest-backdoor-ops
       - id: backdoor-comment
 
   - id: backdoor-shell
-    description: References a backdoor shell
-    criticality: suspicious
-    confidence: 0.66
-    requires_count: 1
-    conditions:
+    desc: References a backdoor shell
+    crit: suspicious
+    conf: 0.66
+    count: 1
+    any:
       - id: backdoor-shell-ref
       - id: backdoor-leet
 
   - id: backdoor-hidden
-    description: Suspicious backdoor reference
-    criticality: suspicious
-    confidence: 0.66
-    requires_count: 1
-    conditions:
+    desc: Suspicious backdoor reference
+    crit: suspicious
+    conf: 0.66
+    count: 1
+    any:
       - id: hidden-backdoor
       - id: hide-backdoor
       - id: icmp-backdoor

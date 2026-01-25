@@ -2,15 +2,15 @@
 # Ruby malware dropper composite patterns
 composite_rules:
   - id: ruby-http-dropper
-    description: "HTTP dropper: downloads and executes payload"
-    confidence: 0.95
-    criticality: suspicious
+    desc: "HTTP dropper: downloads and executes payload"
+    conf: 0.95
+    crit: suspicious
     platforms:
       - all
-    file_types:
+    for:
       - ruby
     requires_count: 4
-    conditions:
+    any:
       - id: ruby-http-get-response
       - id: ruby-http-client
       - id: ruby-file-open-write-binary
@@ -22,30 +22,30 @@ composite_rules:
       - id: ruby-file-write-tmp
 
   - id: ruby-obfuscated-c2
-    description: "Obfuscated C2 with Base64 and DNS"
-    confidence: 0.92
-    criticality: suspicious
+    desc: "Obfuscated C2 with Base64 and DNS"
+    conf: 0.92
+    crit: suspicious
     platforms:
       - all
-    file_types:
+    for:
       - ruby
     requires_count: 3
-    conditions:
+    any:
       - id: ruby-base64-decode
       - id: ruby-dns-resolve
       - id: ruby-http-client
       - id: ruby-http-get-response
 
   - id: ruby-tmp-execution
-    description: "Write to /tmp, chmod, and execute"
-    confidence: 0.93
-    criticality: suspicious
+    desc: "Write to /tmp, chmod, and execute"
+    conf: 0.93
+    crit: suspicious
     platforms:
       - all
-    file_types:
+    for:
       - ruby
     requires_count: 3
-    conditions:
+    any:
       - id: ruby-file-write-tmp
       - id: ruby-file-chmod
       - id: ruby-chmod-777
@@ -53,15 +53,15 @@ composite_rules:
       - id: ruby-exec
 
   - id: ruby-reverse-shell
-    description: "Reverse shell connection"
-    confidence: 0.90
-    criticality: suspicious
+    desc: "Reverse shell connection"
+    conf: 0.90
+    crit: suspicious
     platforms:
       - all
-    file_types:
+    for:
       - ruby
     requires_count: 2
-    conditions:
+    any:
       - id: ruby-tcp-socket
       - id: ruby-system
       - id: ruby-exec
@@ -69,15 +69,15 @@ composite_rules:
       - id: ruby-pty
 
   - id: ruby-binary-dropper
-    description: "Downloads and writes binary payload"
-    confidence: 0.94
-    criticality: suspicious
+    desc: "Downloads and writes binary payload"
+    conf: 0.94
+    crit: suspicious
     platforms:
       - all
-    file_types:
+    for:
       - ruby
     requires_count: 3
-    conditions:
+    any:
       - id: ruby-http-get-response
       - id: ruby-file-binmode
       - id: ruby-file-open-write-binary
@@ -86,113 +86,112 @@ composite_rules:
 # Individual traits for requires (library imports)
 traits:
   - id: ruby-require-net-http
-    description: "Imports HTTP client library"
-    criticality: notable
-    confidence: 0.80
+    desc: "Imports HTTP client library"
+    crit: notable
+    conf: 0.80
     platforms:
       - all
-    file_types:
+    for:
       - ruby
-    condition:
+    if:
       type: symbol_or_string
       any:
         - "'net/http'"
         - '"net/http"'
 
   - id: ruby-require-uri
-    description: "Imports URI parsing library"
-    criticality: notable
-    confidence: 0.75
+    desc: "Imports URI parsing library"
+    crit: notable
+    conf: 0.75
     platforms:
       - all
-    file_types:
+    for:
       - ruby
-    condition:
+    if:
       type: symbol_or_string
       any:
         - "'uri'"
         - '"uri"'
 
   - id: ruby-require-base64
-    description: "Imports Base64 library"
-    criticality: notable
-    confidence: 0.80
+    desc: "Imports Base64 library"
+    crit: notable
+    conf: 0.80
     platforms:
       - all
-    file_types:
+    for:
       - ruby
-    condition:
+    if:
       type: symbol_or_string
       any:
         - "'base64'"
         - '"base64"'
 
   - id: ruby-require-resolv
-    description: "Imports DNS resolution library"
-    criticality: notable
-    confidence: 0.80
+    desc: "Imports DNS resolution library"
+    crit: notable
+    conf: 0.80
     platforms:
       - all
-    file_types:
+    for:
       - ruby
-    condition:
+    if:
       type: symbol_or_string
       any:
         - "'resolv'"
         - '"resolv"'
 
   - id: ruby-require-socket
-    description: "Imports socket library"
-    criticality: notable
-    confidence: 0.85
+    desc: "Imports socket library"
+    crit: notable
+    conf: 0.85
     platforms:
       - all
-    file_types:
+    for:
       - ruby
-    condition:
+    if:
       type: symbol_or_string
       any:
         - "'socket'"
         - '"socket"'
 
-
   - id: ruby-require-tempfile
-    description: "Imports temporary file library"
-    criticality: notable
-    confidence: 0.80
+    desc: "Imports temporary file library"
+    crit: notable
+    conf: 0.80
     platforms:
       - all
-    file_types:
+    for:
       - ruby
-    condition:
+    if:
       type: symbol_or_string
       any:
         - "'tempfile'"
         - '"tempfile"'
 
   - id: ruby-require-open-uri
-    description: "Imports Open-URI library"
-    criticality: notable
-    confidence: 0.85
+    desc: "Imports Open-URI library"
+    crit: notable
+    conf: 0.85
     platforms:
       - all
-    file_types:
+    for:
       - ruby
-    condition:
+    if:
       type: symbol_or_string
       any:
         - "'open-uri'"
         - '"open-uri"'
 
   - id: ruby-require-pty
-    description: "Imports PTY (pseudo-terminal) library"
-    criticality: notable
-    confidence: 0.85
+    desc: "Imports PTY (pseudo-terminal) library"
+    crit: notable
+    conf: 0.85
     platforms:
       - all
-    file_types:
+    for:
       - ruby
-    condition:
+    if:
       type: symbol_or_string
       any:
         - "'pty'"

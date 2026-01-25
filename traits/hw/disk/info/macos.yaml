@@ -4,12 +4,12 @@
 traits:
   - id: diskarbitration
     description: macOS DiskArbitration framework
-    criticality: notable
-    confidence: 0.7
+    crit: notable
+    conf: 0.7
     attack: "T1082"
     platforms: [macos]
-    file_types: [macho, dylib, c]
-    condition:
+    for: [macho, dylib, c]
+    if:
       type: symbol_or_string
       any:
         - "DADiskCopyDescription"

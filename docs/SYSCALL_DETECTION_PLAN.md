@@ -248,66 +248,66 @@ pub fn eval_syscall(cond: &SyscallCondition, ctx: &EvaluationContext) -> Conditi
 # traits/syscall/network/socket.yaml
 traits:
   - id: syscall/network/socket-create
-    description: "Creates network socket"
-    criticality: notable
+    desc: "Creates network socket"
+    crit: notable
     confidence: 0.8
     attack: "T1071"
-    file_types: [elf, macho]
-    condition:
+    for: [elf, macho]
+    if:
       type: syscall
       name: ["socket", "socketcall"]
 
   - id: syscall/network/connect
-    description: "Connects to remote host"
-    criticality: notable
+    desc: "Connects to remote host"
+    crit: notable
     confidence: 0.8
     attack: "T1071"
-    file_types: [elf, macho]
-    condition:
+    for: [elf, macho]
+    if:
       type: syscall
       name: ["connect"]
 
 # traits/syscall/process/daemon.yaml
 traits:
   - id: syscall/process/fork
-    description: "Forks child process"
-    criticality: notable
+    desc: "Forks child process"
+    crit: notable
     confidence: 0.7
-    file_types: [elf, macho]
-    condition:
+    for: [elf, macho]
+    if:
       type: syscall
       name: ["fork", "vfork", "clone"]
 
   - id: syscall/process/setsid
-    description: "Creates new session (daemon behavior)"
-    criticality: notable
+    desc: "Creates new session (daemon behavior)"
+    crit: notable
     confidence: 0.8
     attack: "T1543"
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: syscall
       name: ["setsid"]
 
 # traits/syscall/exec/shell.yaml
 traits:
   - id: syscall/exec/execve
-    description: "Executes program"
-    criticality: notable
+    desc: "Executes program"
+    crit: notable
     confidence: 0.7
     attack: "T1059"
-    file_types: [elf, macho]
-    condition:
+    for: [elf, macho]
+    if:
       type: syscall
       name: ["execve", "execl", "execv"]
 
 composite_rules:
   - id: syscall/reverse-shell
-    description: "Reverse shell pattern (socket + dup2 + exec)"
-    criticality: hostile
+    desc: "Reverse shell pattern (socket + dup2 + exec)"
+    crit: hostile
     confidence: 0.95
     attack: "T1059"
-    file_types: [elf, macho]
-    requires_all:
+    for: [elf, macho]
+    all:
       - type: syscall
         name: ["socket", "socketcall"]
       - type: syscall

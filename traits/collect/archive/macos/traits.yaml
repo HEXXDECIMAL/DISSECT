@@ -9,251 +9,251 @@ defaults:
 traits:
   # === ditto compression atomic indicators ===
   - id: ditto-ck-flags
-    description: ditto -c -k compression flags
-    criticality: inert
-    confidence: 0.7
+    desc: ditto -c -k compression flags
+    crit: inert
+    conf: 0.7
     attack: "T1560.001"
-    condition:
+    if:
       type: string
       regex: "ditto\\s+-c\\s+-k"
 
   - id: ditto-sequester
-    description: ditto --sequesterRsrc flag
-    criticality: inert
-    confidence: 0.7
+    desc: ditto --sequesterRsrc flag
+    crit: inert
+    conf: 0.7
     attack: "T1560.001"
-    condition:
+    if:
       type: string
       exact: "--sequesterRsrc"
 
   - id: ditto-zip-output
-    description: ditto with .zip output
-    criticality: inert
-    confidence: 0.7
+    desc: ditto with .zip output
+    crit: inert
+    conf: 0.7
     attack: "T1560.001"
-    condition:
+    if:
       type: string
       regex: "ditto.*\\.zip"
 
   # ditto for directory copy
   - id: ditto-copy
-    description: "macOS ditto directory copy"
-    criticality: notable
-    confidence: 0.7
-    condition:
+    desc: "macOS ditto directory copy"
+    crit: notable
+    conf: 0.7
+    if:
       type: string
       regex: "ditto\\s+[^-]"
 
   # === hdiutil create atomic indicators ===
   - id: hdiutil-create-cmd
-    description: hdiutil create command
-    criticality: inert
-    confidence: 0.65
+    desc: hdiutil create command
+    crit: inert
+    conf: 0.65
     attack: "T1560.001"
-    condition:
+    if:
       type: string
       regex: "hdiutil\\s+create"
 
   - id: hdiutil-format-flag
-    description: hdiutil -format flag
-    criticality: inert
-    confidence: 0.65
+    desc: hdiutil -format flag
+    crit: inert
+    conf: 0.65
     attack: "T1560.001"
-    condition:
+    if:
       type: string
       regex: "hdiutil.*-format"
 
   # === tar/gzip atomic indicators ===
   - id: tar-create-flag
-    description: tar create/compress flags
-    criticality: inert
-    confidence: 0.5
+    desc: tar create/compress flags
+    crit: inert
+    conf: 0.5
     attack: "T1560.001"
-    condition:
+    if:
       type: string
       regex: "tar\\s+-[a-z]*[cz]"
 
   - id: tar-create-long
-    description: tar --create long option
-    criticality: inert
-    confidence: 0.5
+    desc: tar --create long option
+    crit: inert
+    conf: 0.5
     attack: "T1560.001"
-    condition:
+    if:
       type: string
       exact: "tar --create"
 
   - id: gzip-compress
-    description: gzip compression
-    criticality: inert
-    confidence: 0.5
+    desc: gzip compression
+    crit: inert
+    conf: 0.5
     attack: "T1560.001"
-    condition:
+    if:
       type: string
       regex: "gzip\\s+-"
 
   # === zip compress atomic indicators ===
   - id: zip-flags
-    description: zip with flags
-    criticality: inert
-    confidence: 0.55
+    desc: zip with flags
+    crit: inert
+    conf: 0.55
     attack: "T1560.001"
-    condition:
+    if:
       type: string
       regex: "\\bzip\\s+-[r0-9]"
 
   - id: unzip-overwrite
-    description: unzip -o overwrite flag
-    criticality: inert
-    confidence: 0.55
+    desc: unzip -o overwrite flag
+    crit: inert
+    conf: 0.55
     attack: "T1560.001"
-    condition:
+    if:
       type: string
       regex: "unzip\\s+-o"
 
   # === /tmp staging atomic indicators ===
   - id: tmp-zip-file
-    description: .zip file in /tmp
-    criticality: inert
-    confidence: 0.6
+    desc: .zip file in /tmp
+    crit: inert
+    conf: 0.6
     attack: "T1074.001"
-    condition:
+    if:
       type: string
       regex: "/tmp/.*\\.zip"
 
   - id: tmp-tar-file
-    description: .tar file in /tmp
-    criticality: inert
-    confidence: 0.6
+    desc: .tar file in /tmp
+    crit: inert
+    conf: 0.6
     attack: "T1074.001"
-    condition:
+    if:
       type: string
       regex: "/tmp/.*\\.tar"
 
   - id: tmp-gz-file
-    description: .gz file in /tmp
-    criticality: inert
-    confidence: 0.6
+    desc: .gz file in /tmp
+    crit: inert
+    conf: 0.6
     attack: "T1074.001"
-    condition:
+    if:
       type: string
       regex: "/tmp/.*\\.gz"
 
   - id: tmp-dmg-file
-    description: .dmg file in /tmp
-    criticality: inert
-    confidence: 0.6
+    desc: .dmg file in /tmp
+    crit: inert
+    conf: 0.6
     attack: "T1074.001"
-    condition:
+    if:
       type: string
       regex: "/tmp/.*\\.dmg"
 
   - id: tmp-out-file
-    description: /tmp/out. output file
-    criticality: inert
-    confidence: 0.6
+    desc: /tmp/out. output file
+    crit: inert
+    conf: 0.6
     attack: "T1074.001"
-    condition:
+    if:
       type: string
       exact: "/tmp/out."
 
   # === Network upload atomic indicators ===
   - id: curl-cmd
-    description: curl command
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: curl command
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       exact: "curl"
 
   - id: wget-cmd
-    description: wget command
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: wget command
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       exact: "wget"
 
   - id: http-post-method
-    description: HTTP POST method
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: HTTP POST method
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       exact: "POST"
 
   - id: upload-keyword
-    description: upload keyword
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: upload keyword
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       exact: "upload"
 
   # Temp zip file staging
   - id: tmp-zip-staging
-    description: "Zip file staged in /tmp directory"
-    criticality: notable
-    confidence: 0.7
+    desc: "Zip file staged in /tmp directory"
+    crit: notable
+    conf: 0.7
     attack: "T1074.001"
-    condition:
+    if:
       type: string
       regex: "/tmp/.*\\.zip"
 
 composite_rules:
   # hdiutil create composite
   - id: hdiutil-create
-    description: macOS disk image creation
-    criticality: notable
-    confidence: 0.75
+    desc: macOS disk image creation
+    crit: notable
+    conf: 0.75
     attack: "T1560.001"
-    requires_count: 1
-    conditions:
+    count: 1
+    any:
       - id: hdiutil-create-cmd
       - id: hdiutil-format-flag
 
   # zip compress composite
   - id: zip-compress
-    description: zip archive creation
-    criticality: notable
-    confidence: 0.65
+    desc: zip archive creation
+    crit: notable
+    conf: 0.65
     attack: "T1560.001"
-    requires_count: 1
-    conditions:
+    count: 1
+    any:
       - id: zip-flags
       - id: unzip-overwrite
 
   # ditto compression composite
   - id: ditto-compress
-    description: "macOS ditto archive compression"
-    criticality: suspicious
-    confidence: 0.85
+    desc: "macOS ditto archive compression"
+    crit: suspicious
+    conf: 0.85
     attack: "T1560.001"
-    requires_count: 1
-    conditions:
+    count: 1
+    any:
       - id: ditto-ck-flags
       - id: ditto-sequester
       - id: ditto-zip-output
 
   # tar/gzip compression composite
   - id: tar-compress
-    description: "tar archive creation"
-    criticality: notable
-    confidence: 0.6
+    desc: "tar archive creation"
+    crit: notable
+    conf: 0.6
     attack: "T1560.001"
-    requires_count: 1
-    conditions:
+    count: 1
+    any:
       - id: tar-create-flag
       - id: tar-create-long
       - id: gzip-compress
 
   # /tmp staging composite
   - id: tmp-directory
-    description: "Data staging in /tmp"
-    criticality: notable
-    confidence: 0.7
+    desc: "Data staging in /tmp"
+    crit: notable
+    conf: 0.7
     attack: "T1074.001"
-    requires_count: 1
-    conditions:
+    count: 1
+    any:
       - id: tmp-zip-file
       - id: tmp-tar-file
       - id: tmp-gz-file
@@ -262,11 +262,11 @@ composite_rules:
 
   # Network upload composite
   - id: network-upload
-    description: "Network upload or exfiltration command"
-    criticality: notable
-    confidence: 0.7
-    requires_count: 1
-    conditions:
+    desc: "Network upload or exfiltration command"
+    crit: notable
+    conf: 0.7
+    count: 1
+    any:
       - id: curl-cmd
       - id: wget-cmd
       - id: http-post-method
@@ -274,14 +274,14 @@ composite_rules:
 
   # Archive + exfiltration pattern
   - id: stealer-pattern
-    description: "Data collection and archiving for exfiltration"
-    criticality: hostile
-    confidence: 0.9
+    desc: "Data collection and archiving for exfiltration"
+    crit: hostile
+    conf: 0.9
     mbc: "B0030"
     attack: "T1560.001"
-    file_types: [shell]
-    requires_all:
+    for: [shell]
+    all:
       - id: ditto-compress
-    requires_any:
+    any:
       - id: network-upload
       - id: tmp-zip-staging

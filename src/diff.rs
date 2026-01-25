@@ -640,14 +640,14 @@ pub fn format_diff_terminal(report: &DiffReport) -> String {
 
         // Sort by criticality (highest first), then by name
         aggregated_new.sort_by(|a, b| {
-            b.criticality
-                .cmp(&a.criticality)
+            b.crit
+                .cmp(&a.crit)
                 .then_with(|| a.id.cmp(&b.id))
         });
 
         // Show new capabilities (one line each, aggregated by directory)
         for cap in &aggregated_new {
-            let risk_icon = match cap.criticality {
+            let risk_icon = match cap.crit {
                 crate::types::Criticality::Hostile => "🔴",
                 crate::types::Criticality::Suspicious => "🟠",
                 crate::types::Criticality::Notable => "🟡",
@@ -673,7 +673,7 @@ pub fn format_diff_terminal(report: &DiffReport) -> String {
 
             output.push_str(&format!(
                 "   + {} {}: {}{}\n",
-                risk_icon, cap.id, cap.description, evidence_str
+                risk_icon, cap.id, cap.desc, evidence_str
             ));
         }
 
@@ -683,8 +683,8 @@ pub fn format_diff_terminal(report: &DiffReport) -> String {
 
         // Sort by criticality (highest first), then by name
         aggregated_removed.sort_by(|a, b| {
-            b.criticality
-                .cmp(&a.criticality)
+            b.crit
+                .cmp(&a.crit)
                 .then_with(|| a.id.cmp(&b.id))
         });
 
@@ -804,9 +804,9 @@ mod tests {
             .map(|id| Finding {
                 id: id.to_string(),
                 kind: FindingKind::Capability,
-                description: format!("Test {}", id),
-                confidence: 0.8,
-                criticality: if id.starts_with("exec/") {
+                desc: format!("Test {}", id),
+                conf: 0.8,
+                crit: if id.starts_with("exec/") {
                     Criticality::Hostile
                 } else {
                     Criticality::Notable
@@ -941,9 +941,9 @@ mod tests {
         Finding {
             id: id.to_string(),
             kind: FindingKind::Capability,
-            description: format!("Test {}", id),
-            confidence: 0.9,
-            criticality: Criticality::Notable,
+            desc: format!("Test {}", id),
+            conf: 0.9,
+            crit: Criticality::Notable,
             mbc: None,
             attack: None,
             trait_refs: vec![],

@@ -6,71 +6,71 @@ traits:
   # === Atomic: Security Framework Symbols ===
 
   - id: find-generic
-    description: Read passwords from macOS Keychain (SecKeychainFindGenericPassword)
-    criticality: suspicious
-    confidence: 0.9
+    desc: Read passwords from macOS Keychain (SecKeychainFindGenericPassword)
+    crit: suspicious
+    conf: 0.9
     mbc: "E1555.001"
     attack: "T1555.001"
     platforms: [macos]
-    file_types: [macho, dylib]
-    condition:
+    for: [macho, dylib]
+    if:
       type: symbol
       pattern: "SecKeychainFindGenericPassword"
 
   - id: find-internet
-    description: Read internet passwords from macOS Keychain (SecKeychainFindInternetPassword)
-    criticality: suspicious
-    confidence: 0.9
+    desc: Read internet passwords from macOS Keychain (SecKeychainFindInternetPassword)
+    crit: suspicious
+    conf: 0.9
     mbc: "E1555.001"
     attack: "T1555.001"
     platforms: [macos]
-    file_types: [macho, dylib]
-    condition:
+    for: [macho, dylib]
+    if:
       type: symbol
       pattern: "SecKeychainFindInternetPassword"
 
   - id: item-copy-content
-    description: Copy Keychain item contents (SecKeychainItemCopyContent)
-    criticality: suspicious
-    confidence: 0.95
+    desc: Copy Keychain item contents (SecKeychainItemCopyContent)
+    crit: suspicious
+    conf: 0.95
     mbc: "E1555.001"
     attack: "T1555.001"
     platforms: [macos]
-    file_types: [macho, dylib]
-    condition:
+    for: [macho, dylib]
+    if:
       type: symbol
       pattern: "SecKeychainItemCopyContent"
 
   - id: open
-    description: Open Keychain database (SecKeychainOpen)
-    criticality: suspicious
-    confidence: 0.8
+    desc: Open Keychain database (SecKeychainOpen)
+    crit: suspicious
+    conf: 0.8
     attack: "T1555.001"
     platforms: [macos]
-    file_types: [macho, dylib]
-    condition:
+    for: [macho, dylib]
+    if:
       type: symbol
       pattern: "SecKeychainOpen"
 
   - id: copy-default
-    description: Copy default Keychain reference (SecKeychainCopyDefault)
-    criticality: notable
-    confidence: 0.7
+    desc: Copy default Keychain reference (SecKeychainCopyDefault)
+    crit: notable
+    conf: 0.7
     attack: "T1555.001"
     platforms: [macos]
-    file_types: [macho, dylib]
-    condition:
+    for: [macho, dylib]
+    if:
       type: symbol
       pattern: "SecKeychainCopyDefault"
 
   - id: sec-item-copy
-    description: Copy keychain item attributes (SecItemCopyMatching)
-    criticality: suspicious
-    confidence: 0.85
+    desc: Copy keychain item attributes (SecItemCopyMatching)
+    crit: suspicious
+    conf: 0.85
     attack: "T1555.001"
     platforms: [macos]
-    file_types: [macho, dylib]
-    condition:
+    for: [macho, dylib]
+    if:
       type: symbol
       pattern: "SecItemCopy"
 
@@ -78,139 +78,139 @@ traits:
 
   # === security CLI atomic indicators ===
   - id: security-find
-    description: security find- commands
-    criticality: inert
-    confidence: 0.6
+    desc: security find- commands
+    crit: inert
+    conf: 0.6
     attack: "T1555.001"
     platforms: [macos]
-    file_types: [shell, macho]
-    condition:
+    for: [shell, macho]
+    if:
       type: string
       regex: "\\bsecurity\\s+find-"
 
   - id: security-dump
-    description: security dump- commands
-    criticality: inert
-    confidence: 0.7
+    desc: security dump- commands
+    crit: inert
+    conf: 0.7
     attack: "T1555.001"
     platforms: [macos]
-    file_types: [shell, macho]
-    condition:
+    for: [shell, macho]
+    if:
       type: string
       regex: "\\bsecurity\\s+dump-"
 
   - id: security-delete
-    description: security delete- commands
-    criticality: inert
-    confidence: 0.6
+    desc: security delete- commands
+    crit: inert
+    conf: 0.6
     attack: "T1555.001"
     platforms: [macos]
-    file_types: [shell, macho]
-    condition:
+    for: [shell, macho]
+    if:
       type: string
       regex: "\\bsecurity\\s+delete-"
 
   - id: security-add
-    description: security add- commands
-    criticality: inert
-    confidence: 0.5
+    desc: security add- commands
+    crit: inert
+    conf: 0.5
     attack: "T1555.001"
     platforms: [macos]
-    file_types: [shell, macho]
-    condition:
+    for: [shell, macho]
+    if:
       type: string
       regex: "\\bsecurity\\s+add-"
 
   - id: security-export
-    description: security export command
-    criticality: inert
-    confidence: 0.6
+    desc: security export command
+    crit: inert
+    conf: 0.6
     attack: "T1555.001"
     platforms: [macos]
-    file_types: [shell, macho]
-    condition:
+    for: [shell, macho]
+    if:
       type: string
       regex: "\\bsecurity\\s+export"
 
   - id: security-import
-    description: security import command
-    criticality: inert
-    confidence: 0.5
+    desc: security import command
+    crit: inert
+    conf: 0.5
     attack: "T1555.001"
     platforms: [macos]
-    file_types: [shell, macho]
-    condition:
+    for: [shell, macho]
+    if:
       type: string
       regex: "\\bsecurity\\s+import"
 
   - id: security-unlock
-    description: security unlock command
-    criticality: inert
-    confidence: 0.6
+    desc: security unlock command
+    crit: inert
+    conf: 0.6
     attack: "T1555.001"
     platforms: [macos]
-    file_types: [shell, macho]
-    condition:
+    for: [shell, macho]
+    if:
       type: string
       regex: "\\bsecurity\\s+unlock"
 
   - id: find-generic-password-cli
-    description: security find-generic-password command
-    criticality: suspicious
-    confidence: 0.85
+    desc: security find-generic-password command
+    crit: suspicious
+    conf: 0.85
     attack: "T1555.001"
     platforms: [macos]
-    file_types: [shell, macho]
-    condition:
+    for: [shell, macho]
+    if:
       type: string
       exact: "find-generic-password"
 
   - id: dump-keychain-cli
-    description: security dump-keychain command
-    criticality: suspicious
-    confidence: 0.9
+    desc: security dump-keychain command
+    crit: suspicious
+    conf: 0.9
     attack: "T1555.001"
     platforms: [macos]
-    file_types: [shell, macho]
-    condition:
+    for: [shell, macho]
+    if:
       type: string
       exact: "dump-keychain"
 
   # === Atomic: Keychain File Paths ===
 
   - id: login-path
-    description: User login keychain path
-    criticality: notable
-    confidence: 0.7
+    desc: User login keychain path
+    crit: notable
+    conf: 0.7
     attack: "T1555.001"
     platforms: [macos]
-    file_types: [macho, shell, perl, python, ruby]
-    condition:
+    for: [macho, shell, perl, python, ruby]
+    if:
       type: string
       exact: "login.keychain"
 
   - id: system-path
-    description: System keychain path
-    criticality: notable
-    confidence: 0.7
+    desc: System keychain path
+    crit: notable
+    conf: 0.7
     attack: "T1555.001"
     platforms: [macos]
-    file_types: [macho, shell, perl, python, ruby]
-    condition:
+    for: [macho, shell, perl, python, ruby]
+    if:
       type: string
       exact: "/Library/Keychains/System.keychain"
 
 composite_rules:
   # security CLI composite
   - id: security-cli
-    description: macOS security command line tool
-    criticality: suspicious
-    confidence: 0.75
+    desc: macOS security command line tool
+    crit: suspicious
+    conf: 0.75
     attack: "T1555.001"
     platforms: [macos]
-    file_types: [shell, macho]
+    for: [shell, macho]
     requires_count: 1
-    conditions:
+    any:
       - id: security-find
       - id: security-dump
       - id: security-delete
@@ -220,28 +220,28 @@ composite_rules:
       - id: security-unlock
 
   - id: password-extraction
-    description: macOS Keychain password extraction
-    criticality: suspicious
-    confidence: 0.9
+    desc: macOS Keychain password extraction
+    crit: suspicious
+    conf: 0.9
     attack: "T1555.001"
     mbc: "E1555.001"
     platforms: [macos]
-    file_types: [macho, dylib]
-    requires_any:
+    for: [macho, dylib]
+    any:
       - id: find-generic
       - id: find-internet
-    requires_all:
+    all:
       - id: item-copy-content
 
   - id: cli-dump
-    description: macOS Keychain dump via CLI
-    criticality: suspicious
-    confidence: 0.9
+    desc: macOS Keychain dump via CLI
+    crit: suspicious
+    conf: 0.9
     attack: "T1555.001"
     platforms: [macos]
-    file_types: [shell, macho]
-    requires_all:
+    for: [shell, macho]
+    all:
       - id: security-cli
-    requires_any:
+    any:
       - id: find-generic-password-cli
       - id: dump-keychain-cli

@@ -4,233 +4,233 @@
 traits:
   # === HOME environment atomic indicators ===
   - id: getenv-home
-    description: getenv HOME lookup
-    criticality: inert
-    confidence: 0.5
+    desc: getenv HOME lookup
+    crit: inert
+    conf: 0.5
     attack: "T1033"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       regex: "getenv.*HOME"
 
   - id: env-dot-home
-    description: env.HOME lookup
-    criticality: inert
-    confidence: 0.5
+    desc: env.HOME lookup
+    crit: inert
+    conf: 0.5
     attack: "T1033"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "env.HOME"
 
   - id: dollar-home
-    description: $HOME variable reference
-    criticality: inert
-    confidence: 0.5
+    desc: $HOME variable reference
+    crit: inert
+    conf: 0.5
     attack: "T1033"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "$HOME"
 
   - id: appdata
-    description: Windows APPDATA lookup
-    criticality: notable
-    confidence: 0.75
+    desc: Windows APPDATA lookup
+    crit: notable
+    conf: 0.75
     attack: "T1033"
-    file_types: [pe, python, javascript]
-    condition:
+    for: [pe, python, javascript]
+    if:
       type: string
       exact: "APPDATA"
 
   - id: localappdata
-    description: Windows LOCALAPPDATA lookup
-    criticality: notable
-    confidence: 0.75
+    desc: Windows LOCALAPPDATA lookup
+    crit: notable
+    conf: 0.75
     attack: "T1033"
-    file_types: [pe, python, javascript]
-    condition:
+    for: [pe, python, javascript]
+    if:
       type: string
       exact: "LOCALAPPDATA"
 
   - id: userprofile
-    description: Windows USERPROFILE lookup
-    criticality: notable
-    confidence: 0.75
+    desc: Windows USERPROFILE lookup
+    crit: notable
+    conf: 0.75
     attack: "T1033"
-    file_types: [pe, python, javascript]
-    condition:
+    for: [pe, python, javascript]
+    if:
       type: string
       exact: "USERPROFILE"
 
   # === Username environment atomic indicators ===
   - id: username-var
-    description: USERNAME environment variable
-    criticality: inert
-    confidence: 0.5
+    desc: USERNAME environment variable
+    crit: inert
+    conf: 0.5
     attack: "T1033"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "USERNAME"
 
   - id: user-var
-    description: USER environment variable
-    criticality: inert
-    confidence: 0.5
+    desc: USER environment variable
+    crit: inert
+    conf: 0.5
     attack: "T1033"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "USER"
 
   - id: logname-var
-    description: LOGNAME environment variable
-    criticality: inert
-    confidence: 0.5
+    desc: LOGNAME environment variable
+    crit: inert
+    conf: 0.5
     attack: "T1033"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "LOGNAME"
 
   - id: getuid
-    description: Get user ID
-    criticality: notable
-    confidence: 0.7
+    desc: Get user ID
+    crit: notable
+    conf: 0.7
     attack: "T1033"
-    file_types: [elf, macho]
-    condition:
+    for: [elf, macho]
+    if:
       type: string
       exact: "getuid"
 
   - id: getpwuid
-    description: Get password entry by UID
-    criticality: notable
-    confidence: 0.75
+    desc: Get password entry by UID
+    crit: notable
+    conf: 0.75
     attack: "T1033"
-    file_types: [elf, macho]
-    condition:
+    for: [elf, macho]
+    if:
       type: string
       exact: "getpwuid"
 
   - id: getpwnam
-    description: Get password entry by name
-    criticality: notable
-    confidence: 0.7
+    desc: Get password entry by name
+    crit: notable
+    conf: 0.7
     attack: "T1033"
-    file_types: [elf, macho]
-    condition:
+    for: [elf, macho]
+    if:
       type: string
       exact: "getpwnam"
 
   - id: dscl
-    description: macOS Directory Service CLI
-    criticality: suspicious
-    confidence: 0.85
+    desc: macOS Directory Service CLI
+    crit: suspicious
+    conf: 0.85
     attack: "T1087.001"
-    file_types: [macho, shell]
-    condition:
+    for: [macho, shell]
+    if:
       type: string
       regex: "dscl\\s+\\."
 
   - id: dsenableroot
-    description: macOS enable root user
-    criticality: suspicious
-    confidence: 0.85
+    desc: macOS enable root user
+    crit: suspicious
+    conf: 0.85
     attack: "T1087.001"
-    file_types: [macho, shell]
-    condition:
+    for: [macho, shell]
+    if:
       type: string
       exact: "dsenableroot"
 
   - id: whoami
-    description: Current user lookup
-    criticality: suspicious
-    confidence: 0.75
+    desc: Current user lookup
+    crit: suspicious
+    conf: 0.75
     attack: "T1033"
     # Exclude JS - syntax highlighters have shell keywords
-    file_types: [shell, elf, macho, pe, python]
-    condition:
+    for: [shell, elf, macho, pe, python]
+    if:
       type: string
       exact: "whoami"
 
   - id: etc-passwd
-    description: Password file access
-    criticality: suspicious
-    confidence: 0.8
+    desc: Password file access
+    crit: suspicious
+    conf: 0.8
     attack: "T1087.001"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "/etc/passwd"
 
   - id: finger
-    description: Finger command for user info
-    criticality: suspicious
-    confidence: 0.75
+    desc: Finger command for user info
+    crit: suspicious
+    conf: 0.75
     attack: "T1033"
-    file_types: [shell, elf, macho]
-    condition:
+    for: [shell, elf, macho]
+    if:
       type: string
       exact: "finger"
 
   - id: last-cmd
-    description: Last command for login history
-    criticality: suspicious
-    confidence: 0.8
+    desc: Last command for login history
+    crit: suspicious
+    conf: 0.8
     attack: "T1033"
-    file_types: [shell, elf, macho]
-    condition:
+    for: [shell, elf, macho]
+    if:
       type: string
       exact: "/usr/bin/last"
 
   - id: w-cmd
-    description: W command for user sessions
-    criticality: suspicious
-    confidence: 0.75
+    desc: W command for user sessions
+    crit: suspicious
+    conf: 0.75
     attack: "T1033"
-    file_types: [shell, elf, macho]
-    condition:
+    for: [shell, elf, macho]
+    if:
       type: string
       exact: "/usr/bin/w"
 
 composite_rules:
   # HOME environment composite
   - id: home-env
-    description: HOME environment variable lookup
-    criticality: notable
-    confidence: 0.7
+    desc: HOME environment variable lookup
+    crit: notable
+    conf: 0.7
     attack: "T1033"
-    file_types: [all]
+    for: [all]
     requires_count: 1
-    conditions:
+    any:
       - id: getenv-home
       - id: env-dot-home
       - id: dollar-home
 
   # Username environment composite
   - id: username-env
-    description: USERNAME environment variable
-    criticality: notable
-    confidence: 0.75
+    desc: USERNAME environment variable
+    crit: notable
+    conf: 0.75
     attack: "T1033"
-    file_types: [all]
+    for: [all]
     requires_count: 1
-    conditions:
+    any:
       - id: username-var
       - id: user-var
       - id: logname-var
 
   # Active enumeration commands
   - id: active-enum-cmds
-    description: Active user enumeration commands
-    criticality: notable
-    confidence: 0.8
+    desc: Active user enumeration commands
+    crit: notable
+    conf: 0.8
     attack: "T1033"
-    file_types: [shell, elf, macho, pe, python]
+    for: [shell, elf, macho, pe, python]
     requires_count: 1
-    conditions:
+    any:
       - id: whoami
       - id: etc-passwd
       - id: dscl
@@ -240,28 +240,28 @@ composite_rules:
 
   # Passive user lookup functions
   - id: passive-user-lookup
-    description: POSIX user lookup functions
-    criticality: notable
-    confidence: 0.7
+    desc: POSIX user lookup functions
+    crit: notable
+    conf: 0.7
     attack: "T1033"
-    file_types: [elf, macho]
+    for: [elf, macho]
     requires_count: 1
-    conditions:
+    any:
       - id: getpwnam
       - id: getuid
       - id: getpwuid
 
   # User enumeration detected (active commands + context)
   - id: enumeration-detected
-    description: User enumeration activity
-    criticality: suspicious
-    confidence: 0.9
+    desc: User enumeration activity
+    crit: suspicious
+    conf: 0.9
     attack: "T1033"
     mbc: "B0046"
-    file_types: [shell, elf, macho, pe, python]
-    requires_all:
+    for: [shell, elf, macho, pe, python]
+    all:
       - id: active-enum-cmds
-    requires_any:
+    any:
       - id: passive-user-lookup
       - id: username-env
       - id: home-env

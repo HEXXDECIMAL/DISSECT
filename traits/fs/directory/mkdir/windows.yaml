@@ -5,9 +5,9 @@
 traits:
   - id: mkdir-win
     description: Create directories (Windows API)
-    criticality: inert
-    confidence: 0.66
-    file_types: [pe, dll, c]
-    condition:
+    crit: inert
+    conf: 0.66
+    for: [pe, dll, c]
+    if:
       type: symbol
       pattern: CreateDirectory|CreateDirectoryA|CreateDirectoryW|CreateDirectoryEx

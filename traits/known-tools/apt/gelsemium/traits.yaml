@@ -5,67 +5,67 @@
 traits:
   - id: apt/gelsemium/clientpath
     description: Wolfsbane clientpath config
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1071"
-    file_types: [elf]
+    for: [elf]
     condition:
       type: string
       exact: "clientpath"
 
   - id: apt/gelsemium/hiderpath
     description: Wolfsbane hiderpath config
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1564"
-    file_types: [elf]
+    for: [elf]
     condition:
       type: string
       exact: "hiderpath"
 
   - id: apt/gelsemium/pluginkey
     description: Wolfsbane pluginkey config
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1071"
-    file_types: [elf]
+    for: [elf]
     condition:
       type: string
       exact: "pluginkey"
 
   - id: apt/gelsemium/mainpath
     description: Wolfsbane mainpath config
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     family: true
     attack: "T1071"
-    file_types: [elf]
+    for: [elf]
     condition:
       type: string
       exact: "mainpath"
 
   - id: apt/gelsemium/rc4-key
     description: Wolfsbane RC4 encryption key
-    criticality: suspicious
-    confidence: 0.99
+    crit: suspicious
+    conf: 0.99
     family: true
     attack: "T1573"
-    file_types: [elf]
+    for: [elf]
     condition:
       type: string
       exact: "8825FC47153E264D"
 
   - id: apt/gelsemium/config-yara
     description: Wolfsbane config strings via YARA
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1071"
     mbc: "B0030"
-    file_types: [elf]
+    for: [elf]
     condition:
       type: yara
       source: |
@@ -83,23 +83,23 @@ traits:
 composite_rules:
   - id: apt/gelsemium/config-detected
     description: Wolfsbane/Gelsemium (configuration)
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     reference: "https://www.welivesecurity.com/en/eset-research/unveiling-wolfsbane-gelsemiums-linux-counterpart-to-gelsevirine/"
     attack: "T1071"
     mbc: "B0030"
-    file_types: [elf]
+    for: [elf]
     requires_all:
       - id: apt/gelsemium/config-yara
 
   - id: apt/gelsemium/rc4-detected
     description: Wolfsbane/Gelsemium (RC4 key)
-    criticality: suspicious
-    confidence: 0.99
+    crit: suspicious
+    conf: 0.99
     family: true
     attack: "T1573"
     mbc: "C0027"
-    file_types: [elf]
+    for: [elf]
     requires_all:
       - id: apt/gelsemium/rc4-key

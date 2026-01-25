@@ -3,11 +3,11 @@
 
 traits:
   - id: rust-360-check
-    description: Checks for 360 Safe Tray (AV evasion)
-    criticality: suspicious
-    confidence: 1.0
+    desc: Checks for 360 Safe Tray (AV evasion)
+    crit: suspicious
+    conf: 1.0
     attack: "T1036"
-    file_types: [rust]
-    condition:
+    for: [rust]
+    if:
       type: string
       exact: "qhsafetray.exe"

@@ -3,134 +3,134 @@
 
 traits:
   - id: ipify
-    description: ipify.org IP lookup service
-    criticality: suspicious
-    confidence: 0.85
+    desc: ipify.org IP lookup service
+    crit: suspicious
+    conf: 0.85
     attack: "T1016.001"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "ipify.org"
 
   - id: ipinfo
-    description: ipinfo.io IP lookup service
-    criticality: suspicious
-    confidence: 0.85
+    desc: ipinfo.io IP lookup service
+    crit: suspicious
+    conf: 0.85
     attack: "T1016.001"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "ipinfo.io"
 
   - id: ifconfig-me
-    description: ifconfig.me IP lookup service
-    criticality: suspicious
-    confidence: 0.85
+    desc: ifconfig.me IP lookup service
+    crit: suspicious
+    conf: 0.85
     attack: "T1016.001"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "ifconfig.me"
 
   - id: icanhazip
-    description: icanhazip.com IP lookup service
-    criticality: suspicious
-    confidence: 0.85
+    desc: icanhazip.com IP lookup service
+    crit: suspicious
+    conf: 0.85
     attack: "T1016.001"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "icanhazip"
 
   - id: wtfismyip
-    description: wtfismyip.com IP lookup service
-    criticality: suspicious
-    confidence: 0.85
+    desc: wtfismyip.com IP lookup service
+    crit: suspicious
+    conf: 0.85
     attack: "T1016.001"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "wtfismyip"
 
   - id: iplogger
-    description: iplogger.org IP logging service
-    criticality: suspicious
-    confidence: 0.9
+    desc: iplogger.org IP logging service
+    crit: suspicious
+    conf: 0.9
     attack: "T1016.001"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "iplogger.org"
 
   - id: ifconfig-io
-    description: ifconfig.io IP lookup service
-    criticality: suspicious
-    confidence: 0.85
+    desc: ifconfig.io IP lookup service
+    crit: suspicious
+    conf: 0.85
     attack: "T1016.001"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "ifconfig.io"
 
   - id: ifconfig-co
-    description: ifconfig.co IP lookup service
-    criticality: suspicious
-    confidence: 0.85
+    desc: ifconfig.co IP lookup service
+    crit: suspicious
+    conf: 0.85
     attack: "T1016.001"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "ifconfig.co"
 
   - id: ident-me
-    description: ident.me IP lookup service
-    criticality: suspicious
-    confidence: 0.85
+    desc: ident.me IP lookup service
+    crit: suspicious
+    conf: 0.85
     attack: "T1016.001"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "ident.me"
 
   - id: checkip-amazonaws
-    description: AWS checkip service
-    criticality: suspicious
-    confidence: 0.85
+    desc: AWS checkip service
+    crit: suspicious
+    conf: 0.85
     attack: "T1016.001"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "checkip.amazonaws.com"
 
   # Base64 encoded variants (common evasion)
   - id: ipify-b64
-    description: ipify.org (base64 encoded)
-    criticality: suspicious
-    confidence: 0.9
+    desc: ipify.org (base64 encoded)
+    crit: suspicious
+    conf: 0.9
     attack: "T1016.001"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "aXBpZnkub3Jn"
 
   - id: ipinfo-b64
-    description: ipinfo.io (base64 encoded)
-    criticality: suspicious
-    confidence: 0.9
+    desc: ipinfo.io (base64 encoded)
+    crit: suspicious
+    conf: 0.9
     attack: "T1016.001"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "aXBpbmZvLmlv"
 
   - id: ip-recon-obfuscated-yara
-    description: Obfuscated IP reconnaissance via YARA
-    criticality: suspicious
-    confidence: 0.9
+    desc: Obfuscated IP reconnaissance via YARA
+    crit: suspicious
+    conf: 0.9
     attack: "T1016.001"
     mbc: "B0046"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: yara
       source: |
         rule ip_recon_obfuscated {
@@ -145,14 +145,14 @@ traits:
 
 composite_rules:
   - id: ip-recon-detected
-    description: External IP address reconnaissance
-    criticality: suspicious
-    confidence: 0.9
+    desc: External IP address reconnaissance
+    crit: suspicious
+    conf: 0.9
     attack: "T1016.001"
     mbc: "B0046"
-    file_types: [all]
+    for: [all]
     requires_count: 2
-    conditions:
+    any:
       - id: ipify
       - id: ipinfo
       - id: ifconfig-me
@@ -167,11 +167,11 @@ composite_rules:
       - id: ipinfo-b64
 
   - id: ip-recon-obfuscated
-    description: Obfuscated IP reconnaissance
-    criticality: suspicious
-    confidence: 0.9
+    desc: Obfuscated IP reconnaissance
+    crit: suspicious
+    conf: 0.9
     attack: "T1016.001"
     mbc: "B0046"
-    file_types: [all]
-    requires_all:
+    for: [all]
+    all:
       - id: ip-recon-obfuscated-yara

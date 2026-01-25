@@ -6,80 +6,80 @@
 traits:
   # Download Patterns
   - id: curl-silent-download
-    description: Silent curl download with output redirect
-    criticality: suspicious
-    confidence: 0.85
+    desc: Silent curl download with output redirect
+    crit: suspicious
+    conf: 0.85
     mbc: "C0002"
     attack: "T1105"
-    file_types: [shell, batch]
-    condition:
+    for: [shell, batch]
+    if:
       type: string
       regex: "curl\\s+.*-[sS].*-o\\s"
 
   - id: curl-to-temp
-    description: Download to TEMP directory
-    criticality: suspicious
-    confidence: 0.9
+    desc: Download to TEMP directory
+    crit: suspicious
+    conf: 0.9
     mbc: "C0002"
     attack: "T1074.001"
-    file_types: [shell, batch]
-    condition:
+    for: [shell, batch]
+    if:
       type: string
       regex: "%TEMP%|%TMP%|\\\\Temp\\\\"
 
   - id: powershell-download
-    description: PowerShell download cradle in batch
-    criticality: suspicious
-    confidence: 0.9
+    desc: PowerShell download cradle in batch
+    crit: suspicious
+    conf: 0.9
     mbc: "C0002"
     attack: "T1059.001"
-    file_types: [shell, batch]
-    condition:
+    for: [shell, batch]
+    if:
       type: string
       regex: "powershell.*DownloadFile|Invoke-WebRequest|iwr\\s|wget\\s"
 
   - id: certutil-download
-    description: Certutil download abuse (LOLBin technique)
-    criticality: suspicious
-    confidence: 0.95
+    desc: Certutil download abuse (LOLBin technique)
+    crit: suspicious
+    conf: 0.95
     mbc: "C0002"
     attack: "T1105"
-    file_types: [shell, batch]
-    condition:
+    for: [shell, batch]
+    if:
       type: string
       regex: "certutil\\s+.*-urlcache.*-split.*-f"
 
   - id: bitsadmin-download
-    description: BitsAdmin download abuse (LOLBin technique)
-    criticality: suspicious
-    confidence: 0.95
+    desc: BitsAdmin download abuse (LOLBin technique)
+    crit: suspicious
+    conf: 0.95
     mbc: "C0002"
     attack: "T1105"
-    file_types: [shell, batch]
-    condition:
+    for: [shell, batch]
+    if:
       type: string
       regex: "bitsadmin\\s+.*\\/transfer"
 
   # Execution Patterns
   - id: start-hidden
-    description: Start process hidden (/B flag)
-    criticality: suspicious
-    confidence: 0.85
+    desc: Start process hidden (/B flag)
+    crit: suspicious
+    conf: 0.85
     mbc: "F0005"
     attack: "T1564"
-    file_types: [shell, batch]
-    condition:
+    for: [shell, batch]
+    if:
       type: string
       regex: "start\\s+[\"']?[\"']?\\s*/[Bb]"
 
   - id: run-from-temp
-    description: Execute binary from TEMP directory
-    criticality: suspicious
-    confidence: 0.9
+    desc: Execute binary from TEMP directory
+    crit: suspicious
+    conf: 0.9
     mbc: "B0024"
     attack: "T1059.003"
-    file_types: [shell, batch]
-    condition:
+    for: [shell, batch]
+    if:
       type: yara
       source: |
         rule run_from_temp {
@@ -94,52 +94,52 @@ traits:
 
   # Persistence/Markers
   - id: done-marker
-    description: Execution marker file (run-once pattern)
-    criticality: notable
-    confidence: 0.75
-    file_types: [shell, batch]
-    condition:
+    desc: Execution marker file (run-once pattern)
+    crit: notable
+    conf: 0.75
+    for: [shell, batch]
+    if:
       type: string
       regex: "if exist.*\\.done|echo\\.>.*\\.done|\\.installed|\\.complete"
 
   # Evasion
   - id: echo-off
-    description: Echo off (hide command output)
-    criticality: inert
-    confidence: 0.6
-    file_types: [shell, batch]
-    condition:
+    desc: Echo off (hide command output)
+    crit: inert
+    conf: 0.6
+    for: [shell, batch]
+    if:
       type: string
       regex: "@echo\\s+off"
 
   - id: redirect-null
-    description: Redirect output to null (hide output)
-    criticality: notable
-    confidence: 0.7
+    desc: Redirect output to null (hide output)
+    crit: notable
+    conf: 0.7
     mbc: "F0005"
-    file_types: [shell, batch]
-    condition:
+    for: [shell, batch]
+    if:
       type: string
       regex: ">nul|2>nul|>NUL|2>&1"
 
   - id: delayed-expansion
-    description: Delayed expansion enabled (advanced scripting)
-    criticality: inert
-    confidence: 0.5
-    file_types: [shell, batch]
-    condition:
+    desc: Delayed expansion enabled (advanced scripting)
+    crit: inert
+    conf: 0.5
+    for: [shell, batch]
+    if:
       type: string
       exact: "EnableDelayedExpansion"
 
   # Download + Execute Combo
   - id: download-and-execute
-    description: Download and execute pattern (dropper behavior)
-    criticality: suspicious
-    confidence: 0.95
+    desc: Download and execute pattern (dropper behavior)
+    crit: suspicious
+    conf: 0.95
     mbc: "C0002"
     attack: "T1105"
-    file_types: [shell, batch]
-    condition:
+    for: [shell, batch]
+    if:
       type: yara
       source: |
         rule download_and_execute {

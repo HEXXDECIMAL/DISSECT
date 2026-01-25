@@ -13,9 +13,9 @@ fn test_hostile_trait_downgrade_warning() {
     let atomic_yaml = r##"
 traits:
   - id: hostile/atomic
-    description: "Short"
-    criticality: hostile
-    condition:
+    desc: "Short"
+    crit: hostile
+    if:
       type: symbol
       pattern: "evil_func"
 "##;
@@ -25,9 +25,9 @@ traits:
     let composite_yaml = r##"
 composite_rules:
   - id: hostile/weak-composite
-    description: "Composite trait marked HOSTILE but too weak"
-    criticality: hostile
-    requires_all:
+    desc: "Composite trait marked HOSTILE but too weak"
+    crit: hostile
+    all:
       - type: symbol
         pattern: "func1"
 "##;
@@ -37,9 +37,9 @@ composite_rules:
     let composite_no_filter_yaml = r##"
 composite_rules:
   - id: hostile/no-filter
-    description: "Composite trait marked HOSTILE but no file_type filter"
-    criticality: hostile
-    requires_all:
+    desc: "Composite trait marked HOSTILE but no file_type filter"
+    crit: hostile
+    all:
       - type: symbol
         pattern: "func1"
       - type: symbol
@@ -79,11 +79,11 @@ fn test_hostile_trait_valid() {
     let valid_yaml = r##"
 composite_rules:
   - id: hostile/valid
-    description: "Valid HOSTILE trait with enough context"
-    criticality: hostile
+    desc: "Valid HOSTILE trait with enough context"
+    crit: hostile
     mbc: B0001
-    file_types: [shell]
-    requires_all:
+    for: [shell]
+    all:
       - type: symbol
         pattern: "func1"
       - type: symbol
@@ -117,9 +117,9 @@ fn test_suspicious_trait_no_mapping_no_warning() {
     let suspicious_yaml = r##"
 traits:
   - id: suspicious/no-mapping
-    description: "Suspicious trait with no mapping"
-    criticality: suspicious
-    condition:
+    desc: "Suspicious trait with no mapping"
+    crit: suspicious
+    if:
       type: symbol
       pattern: "some_func"
 "##;

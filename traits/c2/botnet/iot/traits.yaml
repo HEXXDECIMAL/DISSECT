@@ -6,58 +6,58 @@ traits:
   # NOTE: Individual "/bin/busybox" string is notable, not suspicious
   # Real IoT malware detection requires multiple indicators (see composite rules)
   - id: busybox
-    description: "BusyBox reference (IoT device targeting)"
-    criticality: notable
-    confidence: 0.5
+    desc: "BusyBox reference (IoT device targeting)"
+    crit: notable
+    conf: 0.5
     attack: "T1059.004"
-    file_types: [elf]
+    for: [elf]
     platforms: [linux]
-    condition:
+    if:
       type: string
       exact: "/bin/busybox"
 
   - id: busybox-wget
-    description: "BusyBox wget payload download"
-    criticality: suspicious
-    confidence: 0.9
+    desc: "BusyBox wget payload download"
+    crit: suspicious
+    conf: 0.9
     attack: "T1105"
-    file_types: [elf]
+    for: [elf]
     platforms: [linux]
-    condition:
+    if:
       type: string
       regex: "busybox wget"
 
   - id: busybox-tftp
-    description: "BusyBox tftp payload download"
-    criticality: suspicious
-    confidence: 0.9
+    desc: "BusyBox tftp payload download"
+    crit: suspicious
+    conf: 0.9
     attack: "T1105"
-    file_types: [elf]
+    for: [elf]
     platforms: [linux]
-    condition:
+    if:
       type: string
       regex: "busybox tftp"
 
   - id: busybox-ftpget
-    description: "BusyBox ftpget payload download"
-    criticality: suspicious
-    confidence: 0.9
+    desc: "BusyBox ftpget payload download"
+    crit: suspicious
+    conf: 0.9
     attack: "T1105"
-    file_types: [elf]
+    for: [elf]
     platforms: [linux]
-    condition:
+    if:
       type: string
       regex: "busybox ftpget"
 
   - id: pipe-to-shell
-    description: "Download and pipe to shell execution"
-    criticality: suspicious
-    confidence: 0.95
+    desc: "Download and pipe to shell execution"
+    crit: suspicious
+    conf: 0.95
     mbc: "B0024"
     attack: "T1059.004"
-    file_types: [elf]
+    for: [elf]
     platforms: [linux]
-    condition:
+    if:
       type: yara
       source: |
         rule pipe_to_shell {
@@ -81,25 +81,25 @@ traits:
   # NOTE: Mirai credentials are defined in lateral/brute-force/iot-creds/traits.yaml
 
   - id: telnet-target
-    description: "Telnet service targeting"
-    criticality: suspicious
-    confidence: 0.8
+    desc: "Telnet service targeting"
+    crit: suspicious
+    conf: 0.8
     attack: "T1021.007"
-    file_types: [elf]
+    for: [elf]
     platforms: [linux]
-    condition:
+    if:
       type: string
       regex: "telnetadmin|:23[^0-9]"
 
   - id: self-propagate
-    description: "Read own executable for propagation"
-    criticality: suspicious
-    confidence: 0.8
+    desc: "Read own executable for propagation"
+    crit: suspicious
+    conf: 0.8
     mbc: "E1036"
     attack: "T1105"
-    file_types: [elf]
+    for: [elf]
     platforms: [linux]
-    condition:
+    if:
       type: yara
       source: |
         rule self_propagate {
@@ -117,41 +117,41 @@ traits:
         }
 
   - id: curl-http-download
-    description: "Curl HTTP payload download"
-    criticality: suspicious
-    confidence: 0.9
+    desc: "Curl HTTP payload download"
+    crit: suspicious
+    conf: 0.9
     attack: "T1105"
-    file_types: [elf]
+    for: [elf]
     platforms: [linux]
-    condition:
+    if:
       type: string
       exact: "curl http://"
 
 composite_rules:
   - id: mirai-variant
-    description: "Mirai-like IoT botnet (credential brute-force + shell dropper)"
-    criticality: suspicious
-    confidence: 0.95
+    desc: "Mirai-like IoT botnet (credential brute-force + shell dropper)"
+    crit: suspicious
+    conf: 0.95
     mbc: "B0030"
     attack: "T1110.001"
-    file_types: [elf]
+    for: [elf]
     platforms: [linux]
-    requires_count: 2
-    conditions:
+    count: 2
+    any:
       - id: lateral/brute-force/iot-creds/mirai-cred-admin
       - id: busybox
       - id: pipe-to-shell
 
   - id: multi-protocol
-    description: "Multi-protocol payload dropper (wget/tftp/ftpget/curl)"
-    criticality: suspicious
-    confidence: 0.9
+    desc: "Multi-protocol payload dropper (wget/tftp/ftpget/curl)"
+    crit: suspicious
+    conf: 0.9
     mbc: "B0024"
     attack: "T1105"
-    file_types: [elf]
+    for: [elf]
     platforms: [linux]
-    requires_count: 2
-    conditions:
+    count: 2
+    any:
       - id: busybox-wget
       - id: busybox-tftp
       - id: busybox-ftpget

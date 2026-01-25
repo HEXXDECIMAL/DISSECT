@@ -22,7 +22,7 @@ rule malware_sqroot_code {
         $filename3 = "8714c42184" ascii wide
         $filename4 = "6eadde753d" ascii wide
 
-     condition:
+     if:
        uint16(0) == 0x5A4D and
        uint32(uint32(0x3c)) == 0x00004550 and
        (7 of ($str*) or all of ($filename*))
@@ -35,7 +35,7 @@ rule malware_sqroot_code {
 //        author = "JPCERT/CC Incident Response Group"
 //        hash = "e65f5683ad6272feff5a59175ef55525e0c873c373cf030fd937e2527f53efd1"
 
-//     condition:
+//     if:
 //       uint16(0) == 0x5A4D and
 //       uint32(uint32(0x3c)) == 0x00004550 and
 //       pe.number_of_sections >= 6 and
@@ -64,7 +64,7 @@ rule malware_sqroot_lnk {
        $command7 = ".position = .size-12" wide
        $command8 = "AscW(.read(2))=^&" wide
 
-     condition:
+     if:
        uint16(0) == 0x004c and
        filesize>1MB and
        4 of ($command*)
@@ -87,7 +87,7 @@ rule malware_sqroot_webphp {
        $func8 = "mylog($flag)" ascii
        $func9 = "get_remote_ip()" ascii
 
-     condition:
+     if:
        uint32(0) == 0x68703f3c and
        4 of ($func*)
 }
@@ -103,7 +103,7 @@ rule malware_sqroot_cat {
      $s3 = "[%04d/%02d/%02d %02d:%02d:%02d] %s\n" wide
      $s4 = {2A 00 6C 00 6F 00 67 00  00 00 00 00 23 00 21 00}
 
-   condition:
+   if:
      uint16(0) == 0x5A4D and
      uint32(uint32(0x3c)) == 0x00004550 and
      3 of them
@@ -124,7 +124,7 @@ rule malware_sqroot_snapshot {
      $s7 = "cf_pakdir" wide
      $s8 = "DoGdiCapture" ascii
 
-   condition:
+   if:
      uint16(0) == 0x5A4D and
      uint32(uint32(0x3c)) == 0x00004550 and
      4 of them
@@ -141,7 +141,7 @@ rule malware_sqroot_keylogger {
      $s3 = "OCR_INI_DEBUG.abc" ascii
      $s4 = {59 6F 75 27 72 65 20 61  63 74 69 76 61 74 65 64 00 00 00 00 52 33 32 41 63 74 69 76 65}
 
-   condition:
+   if:
      uint16(0) == 0x5A4D and
      uint32(uint32(0x3c)) == 0x00004550 and
      2 of them
@@ -163,7 +163,7 @@ rule malware_sqroot_pluginloader {
      $c2 = "SignalS2" ascii
      $c3 = "SignalS3" ascii
 
-   condition:
+   if:
      uint16(0) == 0x5A4D and
      uint32(uint32(0x3c)) == 0x00004550 and
      5 of them
@@ -178,7 +178,7 @@ rule malware_sqroot_coreloader {
      $query = "%s?hid=%s&uid=%s&cid=%x" ascii
      $decode_routine = {8A 8A ?? ?? ?? ?? 02 C1 32 C1 2A C1 0F B6 8E ?? ?? ?? ?? 88 86 ?? ?? ?? ?? 8D 46 ?? 99 F7 FF 8A 82 ?? ?? ?? ?? 02 C8 32 C8 2A C8 88 8E ?? ?? ?? ?? 83 C6 02 81 FE 0A 04 00 00}
 
-   condition:
+   if:
      uint16(0) == 0x5A4D and
      uint32(uint32(0x3c)) == 0x00004550 and
      all of them
@@ -198,9 +198,8 @@ rule malware_sqroot_corerat {
      $b1 = {68 24 11 00 00 E8}
      $b2 = {C7 03 37 11 00 00}
 
-   condition:
+   if:
      uint16(0) == 0x5A4D and
      uint32(uint32(0x3c)) == 0x00004550 and
      (all of ($a*) or all of ($b*))
 }
-

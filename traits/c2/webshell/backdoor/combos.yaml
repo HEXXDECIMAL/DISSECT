@@ -6,173 +6,170 @@
 composite_rules:
   # High-confidence webshell detection
   - id: php-backdoor
-    description: "PHP webshell: session-based backdoor with user input handling"
-    criticality: suspicious
-    confidence: 0.95
+    desc: "PHP webshell: session-based backdoor with user input handling"
+    crit: suspicious
+    conf: 0.95
     mbc: "B0030"
     attack: "T1505.003"
-    file_types: [all]
-    requires_all:
+    for: [all]
+    all:
       - id: persist/session
       - id: data/user-input
-    requires_any:
+    any:
       - id: anti-static/obfuscation
       - id: fs/write
       - id: exec/command/exec
 
   # Dropper webshell (writes decoded payloads)
   - id: php-dropper
-    description: "PHP dropper: decodes and writes payload files"
-    criticality: suspicious
-    confidence: 0.95
+    desc: "PHP dropper: decodes and writes payload files"
+    crit: suspicious
+    conf: 0.95
     mbc: "B0030"
     attack: "T1105"
-    file_types: [all]
-    requires_all:
+    for: [all]
+    all:
       - id: anti-static/obfuscation
       - id: fs/write
-    requires_any:
+    any:
       - id: data/user-input
       - id: data/user-input
 
   # Self-destructing webshell
   - id: php-self-destruct
-    description: "PHP webshell with self-deletion capability"
-    criticality: suspicious
-    confidence: 0.95
+    desc: "PHP webshell with self-deletion capability"
+    crit: suspicious
+    conf: 0.95
     mbc: "F0006"
     attack: "T1070.004"
-    file_types: [all]
-    requires_all:
+    for: [all]
+    all:
       - id: evasion/self-destruct
       - id: data/user-input
 
   # SSRF/Proxy webshell
   - id: php-proxy
-    description: "PHP proxy/SSRF webshell for fetching remote URLs"
-    criticality: suspicious
-    confidence: 0.9
+    desc: "PHP proxy/SSRF webshell for fetching remote URLs"
+    crit: suspicious
+    conf: 0.9
     mbc: "B0030"
     attack: "T1090"
-    file_types: [all]
-    requires_all:
+    for: [all]
+    all:
       - id: comm/http/curl/init
-    requires_any:
+    any:
       - id: data/user-input
       - id: data/user-input
-    requires_count: 1
-    conditions:
       - id: comm/http/curl/ssl-verify-disable
       - id: comm/http/curl/ssl-host-disable
       - id: evasion/impersonate/ua-array
 
+    count: 1
   # Bot impersonation webshell
   - id: php-bot-impersonate
-    description: "PHP webshell with search engine bot impersonation"
-    criticality: suspicious
-    confidence: 0.9
+    desc: "PHP webshell with search engine bot impersonation"
+    crit: suspicious
+    conf: 0.9
     mbc: "B0032"
     attack: "T1036"
-    file_types: [all]
-    requires_all:
+    for: [all]
+    all:
       - id: comm/http/curl/init
-    requires_any:
+    any:
       - id: evasion/impersonate
       - id: evasion/impersonate/ua-array
 
   # Timestamp manipulation (anti-forensic)
   - id: php-timestomp
-    description: "PHP webshell with timestamp manipulation for evasion"
-    criticality: suspicious
-    confidence: 0.9
+    desc: "PHP webshell with timestamp manipulation for evasion"
+    crit: suspicious
+    conf: 0.9
     mbc: "F0006"
     attack: "T1070.006"
-    file_types: [all]
-    requires_all:
+    for: [all]
+    all:
       - id: evasion/timestomp
       - id: fs/write
 
   # Hardcoded authentication backdoor
   - id: php-hardcoded-auth
-    description: "PHP webshell with hardcoded hash authentication"
-    criticality: suspicious
-    confidence: 0.95
+    desc: "PHP webshell with hardcoded hash authentication"
+    crit: suspicious
+    conf: 0.95
     mbc: "B0030"
     attack: "T1505.003"
-    file_types: [all]
-    requires_any:
+    for: [all]
+    any:
       - id: c2/webshell/hardcoded-hash-auth
       - id: c2/webshell/substr-hash-compare
 
   # File upload webshell
   - id: php-uploader
-    description: "PHP webshell with file upload capability"
-    criticality: suspicious
-    confidence: 0.9
+    desc: "PHP webshell with file upload capability"
+    crit: suspicious
+    conf: 0.9
     mbc: "B0030"
     attack: "T1105"
-    file_types: [all]
-    requires_any:
+    for: [all]
+    any:
       - id: data/user-input
       - id: comm/http/curl/file-upload
-    requires_count: 1
-    conditions:
       - id: fs/write
       - id: fs/write
 
+    count: 1
   # Command execution webshell
   - id: php-rce
-    description: "PHP webshell with remote command execution"
-    criticality: suspicious
-    confidence: 0.95
+    desc: "PHP webshell with remote command execution"
+    crit: suspicious
+    conf: 0.95
     mbc: "E1059"
     attack: "T1059.004"
-    file_types: [all]
-    requires_any:
+    for: [all]
+    any:
       - id: exec/command/exec-user-input
       - id: anti-static/obfuscation
       - id: anti-static/obfuscation
-    requires_count: 1
-    conditions:
       - id: data/user-input
       - id: data/user-input
 
+    count: 1
   # Web UI webshell (has HTML interface)
   - id: php-web-ui
-    description: "PHP webshell with web-based user interface"
-    criticality: suspicious
-    confidence: 0.85
+    desc: "PHP webshell with web-based user interface"
+    crit: suspicious
+    conf: 0.85
     mbc: "B0030"
     attack: "T1505.003"
-    file_types: [all]
-    requires_all:
+    for: [all]
+    all:
       - id: c2/webshell/password-form
-    requires_any:
+    any:
       - id: persist/session
       - id: data/user-input
 
   # Google scraping webshell (SEO spam tool)
   - id: php-seo-tool
-    description: "PHP SEO spam tool with Google scraping capability"
-    criticality: suspicious
-    confidence: 0.85
+    desc: "PHP SEO spam tool with Google scraping capability"
+    crit: suspicious
+    conf: 0.85
     mbc: "B0030"
     attack: "T1505.003"
-    file_types: [php]
-    requires_all:
+    for: [php]
+    all:
       - id: c2/webshell/google-search-scrape
       - id: comm/http/curl/init
 
   # Obfuscated payload webshell
   - id: php-obfuscated
-    description: "PHP webshell with heavily obfuscated payload"
-    criticality: suspicious
-    confidence: 0.9
+    desc: "PHP webshell with heavily obfuscated payload"
+    crit: suspicious
+    conf: 0.9
     mbc: "B0032"
     attack: "T1027"
-    file_types: [all]
-    requires_count: 2
-    conditions:
+    for: [all]
+    count: 2
+    any:
       - id: anti-static/obfuscation
       - id: anti-static/obfuscation
       - id: anti-static/obfuscation
@@ -181,65 +178,65 @@ composite_rules:
 
   # Decompressed code execution
   - id: php-gz-eval
-    description: "PHP: decompresses and executes code (obfuscated backdoor)"
-    criticality: suspicious
-    confidence: 0.98
+    desc: "PHP: decompresses and executes code (obfuscated backdoor)"
+    crit: suspicious
+    conf: 0.98
     mbc: "B0032"
     attack: "T1027"
-    file_types: [php]
-    requires_all:
+    for: [php]
+    all:
       - id: anti-static/obfuscation/encoding/gzinflate
       - id: anti-static/obfuscation/encoding/eval
 
   # Obfuscated dynamic backdoor
   - id: php-obfuscated-dynamic-backdoor
-    description: "PHP: obfuscated dynamic backdoor (dynamic calls + obfuscation metrics)"
-    criticality: hostile
-    confidence: 0.98
+    desc: "PHP: obfuscated dynamic backdoor (dynamic calls + obfuscation metrics)"
+    crit: hostile
+    conf: 0.98
     mbc: "B0032"
     attack: "T1027"
-    file_types: [php]
-    requires_all:
+    for: [php]
+    all:
       - id: exec/dynamic-call
-    requires_any:
+    any:
       - id: anti-static/obfuscation/code-metrics/php-obfuscated-vars
       - id: anti-static/obfuscation/code-metrics/php-encoded-strings
       - id: anti-static/obfuscation/encoding
 
   # Non-ASCII dynamic backdoor
   - id: php-non-ascii-backdoor
-    description: "PHP: non-ASCII dynamic backdoor (dynamic calls + binary content)"
-    criticality: suspicious
-    confidence: 0.98
+    desc: "PHP: non-ASCII dynamic backdoor (dynamic calls + binary content)"
+    crit: suspicious
+    conf: 0.98
     mbc: "B0032"
     attack: "T1027"
-    file_types: [php]
-    requires_all:
+    for: [php]
+    all:
       - id: exec/dynamic-call
       - id: anti-static/obfuscation/code-metrics/php-high-non-ascii-ratio
 
   - id: php-non-ascii-identifiers-backdoor
-    description: "PHP: backdoor using non-ASCII identifiers"
-    criticality: hostile
-    confidence: 0.98
+    desc: "PHP: backdoor using non-ASCII identifiers"
+    crit: hostile
+    conf: 0.98
     mbc: "B0032"
     attack: "T1027"
-    file_types: [php]
-    requires_any:
+    for: [php]
+    any:
       - id: anti-static/obfuscation/code-metrics/php-non-ascii-call
       - id: anti-static/obfuscation/code-metrics/php-non-ascii-variable
       - id: anti-static/obfuscation/code-metrics/php-non-ascii-name
 
   - id: php-shell-functional
-    description: "PHP: functional webshell (exec + input + obfuscation/file ops)"
-    criticality: hostile
-    confidence: 0.98
+    desc: "PHP: functional webshell (exec + input + obfuscation/file ops)"
+    crit: hostile
+    conf: 0.98
     mbc: "B0030"
     attack: "T1505.003"
-    file_types: [php]
-    requires_all:
+    for: [php]
+    all:
       - id: exec/dynamic-call
-    requires_any:
+    any:
       - id: data/user-input/request/get
       - id: data/user-input/request/post
       - id: data/user-input/request/request
@@ -252,16 +249,16 @@ composite_rules:
 
   # Functional PHP shell
   - id: php-shell
-    description: "PHP: functional webshell (exec + user input + file ops)"
-    criticality: hostile
-    confidence: 0.98
+    desc: "PHP: functional webshell (exec + user input + file ops)"
+    crit: hostile
+    conf: 0.98
     mbc: "B0030"
     attack: "T1505.003"
-    file_types: [php]
-    requires_all:
+    for: [php]
+    all:
       - id: exec/command/shell
       - id: data/user-input/request
-    requires_any:
+    any:
       - id: fs/read/file
       - id: fs/write/file
       - id: anti-static/obfuscation/encoding

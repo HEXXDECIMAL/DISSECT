@@ -4,12 +4,12 @@
 
 traits:
   - id: request-axios
-    description: HTTP requests via axios
-    criticality: inert
-    confidence: 0.66
+    desc: HTTP requests via axios
+    crit: inert
+    conf: 0.66
     mbc: "C0002"
     attack: "T1071.001"
-    condition:
+    if:
       type: yara
       source: |
         rule axios_request {

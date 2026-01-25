@@ -3,10 +3,10 @@
 
 traits:
   - id: blankobf
-    description: "Obfuscated with BlankOBF"
-    criticality: suspicious
-    confidence: 1.0
+    desc: "Obfuscated with BlankOBF"
+    crit: suspicious
+    conf: 1.0
     attack: "T1027"
-    condition:
+    if:
       type: string
       exact: "BlankOBF"

@@ -3,84 +3,84 @@
 # ATT&CK: T1499.004 (Application or System Exploitation)
 
 defaults:
-  file_types: [python, pe]
+  for: [python, pe]
   attack: "T1499.004"
 
 traits:
   # NtRaiseHardError - forces BSOD
   - id: nt-raise-hard-error
     description: NtRaiseHardError API (BSOD trigger)
-    criticality: suspicious
-    confidence: 0.98
-    condition:
+    crit: suspicious
+    conf: 0.98
+    if:
       type: string
       exact: "NtRaiseHardError"
 
   # RtlAdjustPrivilege - enables shutdown privilege
   - id: rtl-adjust-privilege
     description: RtlAdjustPrivilege API (privilege escalation)
-    criticality: suspicious
-    confidence: 0.9
-    condition:
+    crit: suspicious
+    conf: 0.9
+    if:
       type: string
       exact: "RtlAdjustPrivilege"
 
   # Shutdown privilege constant (19)
   - id: shutdown-privilege
     description: SeShutdownPrivilege constant
-    criticality: notable
-    confidence: 0.7
-    file_types: [python]
-    condition:
+    crit: notable
+    conf: 0.7
+    for: [python]
+    if:
       type: string
       regex: "RtlAdjustPrivilege\\s*\\(\\s*(c_uint\\()?19"
 
   # STATUS_ASSERTION_FAILURE error code
   - id: status-assertion-failure
     description: STATUS_ASSERTION_FAILURE error code (BSOD)
-    criticality: suspicious
-    confidence: 0.85
-    condition:
+    crit: suspicious
+    conf: 0.85
+    if:
       type: string
       regex: "0x[Cc]000007[Bb]|3221226363"
 
   # ntdll library reference
   - id: ntdll-reference
     description: Reference to ntdll library
-    criticality: notable
-    confidence: 0.7
-    condition:
+    crit: notable
+    conf: 0.7
+    if:
       type: string
       regex: "ntdll|windll\\.ntdll"
 
   # Python ctypes import
   - id: ctypes-import
     description: Python ctypes import statement
-    criticality: notable
-    confidence: 0.6
-    file_types: [python]
-    condition:
+    crit: notable
+    conf: 0.6
+    for: [python]
+    if:
       type: string
       exact: "from ctypes import"
 
   # windll reference
   - id: windll-reference
     description: Python windll reference
-    criticality: notable
-    confidence: 0.6
-    file_types: [python]
-    condition:
+    crit: notable
+    conf: 0.6
+    for: [python]
+    if:
       type: string
       exact: "windll"
 
   # YARA-based detection traits
   - id: bsod-trigger-yara
     description: Windows BSOD trigger via YARA
-    criticality: suspicious
-    confidence: 0.99
+    crit: suspicious
+    conf: 0.99
     attack: "T1499.004"
     mbc: "B0033"
-    condition:
+    if:
       type: yara
       source: |
         rule windows_bsod_trigger {
@@ -101,11 +101,11 @@ traits:
 
   - id: python-bsod-yara
     description: Python BSOD trigger via YARA
-    criticality: suspicious
-    confidence: 0.99
-    file_types: [python]
+    crit: suspicious
+    conf: 0.99
+    for: [python]
     attack: "T1499.004"
-    condition:
+    if:
       type: yara
       source: |
         rule python_bsod_trigger {
@@ -127,8 +127,8 @@ composite_rules:
   # Full BSOD trigger pattern
   - id: bsod-trigger
     description: Windows BSOD trigger via ntdll
-    criticality: suspicious
-    confidence: 0.99
+    crit: suspicious
+    conf: 0.99
     attack: "T1499.004"
     mbc: "B0033"
     requires_all:
@@ -137,9 +137,9 @@ composite_rules:
   # Python-specific BSOD via ctypes
   - id: python-bsod
     description: Python BSOD trigger via ctypes
-    criticality: suspicious
-    confidence: 0.99
-    file_types: [python]
+    crit: suspicious
+    conf: 0.99
+    for: [python]
     attack: "T1499.004"
     requires_all:
       - id: python-bsod-yara
@@ -147,8 +147,8 @@ composite_rules:
   # BSOD trigger via trait references (NtRaiseHardError path)
   - id: bsod-raise-error
     description: BSOD via NtRaiseHardError API call
-    criticality: suspicious
-    confidence: 0.99
+    crit: suspicious
+    conf: 0.99
     attack: "T1499.004"
     mbc: "B0033"
     requires_all:
@@ -158,8 +158,8 @@ composite_rules:
   # BSOD trigger via trait references (RtlAdjustPrivilege path)
   - id: bsod-adjust-privilege
     description: BSOD via privilege adjustment with status code
-    criticality: hostile
-    confidence: 0.98
+    crit: hostile
+    conf: 0.98
     attack: "T1499.004"
     mbc: "B0033"
     requires_all:
@@ -170,9 +170,9 @@ composite_rules:
   # Python BSOD via trait references
   - id: python-bsod-traits
     description: Python BSOD trigger via ctypes (trait-based)
-    criticality: hostile
-    confidence: 0.99
-    file_types: [python]
+    crit: hostile
+    conf: 0.99
+    for: [python]
     attack: "T1499.004"
     requires_all:
       - id: ctypes-import

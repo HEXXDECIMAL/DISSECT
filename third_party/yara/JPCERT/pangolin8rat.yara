@@ -54,7 +54,7 @@ rule malware_Pangolin8RAT {
         .text:00000001400047B2 90                          nop                                      nop
         */
 		$func2 = { 48 89 5D ?? 48 C7 45 ?? 07 00 00 00 66 89 5D ?? 41 B8 01 00 00 00 48 8D 15 ?? ?? 08 00 48 8D 4D ?? E8 ?? ?? ?? ?? 90 }
-		
+
         /* .text:00007FF6887E1700 set_same_filetime_from_ntd_dlll
 		.text:00007FF6887E1729 41 B8 08 02 00 00           mov     r8d, 208h
         .text:00007FF6887E172F E8 4C A1 03 00              call    do_memset
@@ -87,9 +87,9 @@ rule malware_Pangolin8RAT {
         $str01 = "smcache.dat" ascii wide
         $str04 = "file:///" ascii wide
 
-    condition:
+    if:
         (uint16(0) == 0x5A4D)
-        and (filesize < 2MB)	
+        and (filesize < 2MB)
         and ( ( 3 of ($func*) )
 		    or ( 2 of ($str*) ) )
 }

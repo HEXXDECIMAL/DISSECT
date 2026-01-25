@@ -8,7 +8,7 @@ defaults:
 traits:
   - id: fork
     description: Process forking
-    criticality: inert
+    crit: inert
     confidence: 0.66
     condition:
       type: symbol
@@ -16,7 +16,7 @@ traits:
 
   - id: daemon
     description: Daemonize process
-    criticality: notable
+    crit: notable
     confidence: 0.66
     condition:
       type: symbol

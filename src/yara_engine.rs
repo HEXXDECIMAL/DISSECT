@@ -556,7 +556,7 @@ impl YaraEngine {
                 rule: rule_name,
                 namespace: namespace.clone(),
                 severity,
-                description,
+                desc: description,
                 matched_strings,
                 is_capability,
                 mbc: mbc_code,
@@ -666,9 +666,9 @@ impl YaraEngine {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: cap_id,
-                    description: yara_match.description.clone(),
-                    confidence: 0.9, // YARA matches are high confidence
-                    criticality,
+                    desc: yara_match.desc.clone(),
+                    conf: 0.9, // YARA matches are high confidence
+                    crit: criticality,
                     mbc: yara_match.mbc.clone(),
                     attack: yara_match.attack.clone(),
                     evidence,
@@ -915,7 +915,7 @@ rule test_rule {
         let matches = engine.scan_bytes(test_data).unwrap();
 
         assert_eq!(matches.len(), 1);
-        assert_eq!(matches[0].description, "Test description");
+        assert_eq!(matches[0].desc, "Test description");
         assert_eq!(matches[0].severity, "high");
         assert!(matches[0].is_capability);
         assert_eq!(matches[0].mbc, Some("B0001".to_string()));
@@ -954,7 +954,7 @@ rule test_rule : medium {
             rule: "test_rule".to_string(),
             namespace: "test.namespace".to_string(),
             severity: "high".to_string(),
-            description: "Test".to_string(),
+            desc: "Test".to_string(),
             matched_strings: vec![MatchedString {
                 identifier: "$pattern".to_string(),
                 offset: 0x1000,
@@ -982,7 +982,7 @@ rule test_rule : medium {
             rule: "test_rule".to_string(),
             namespace: "test.namespace".to_string(),
             severity: "high".to_string(),
-            description: "Test".to_string(),
+            desc: "Test".to_string(),
             matched_strings: vec![],
             is_capability: false,
             mbc: None,

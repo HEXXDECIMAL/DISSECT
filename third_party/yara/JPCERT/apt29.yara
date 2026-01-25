@@ -17,7 +17,7 @@ rule APT29_wellmess_pe {
         $dotnet3 = "<;title;><;service;>" ascii wide
         $dotnet4 = "AES_Encrypt" ascii
 
-      condition: (uint16(0) == 0x5A4D) and (all of ($botlib*) or all of ($dotnet*))
+      if: (uint16(0) == 0x5A4D) and (all of ($botlib*) or all of ($dotnet*))
 }
 
 rule APT29_wellmess_elf {
@@ -32,7 +32,7 @@ rule APT29_wellmess_elf {
         $botlib3 = "botlib.Download" ascii
         $botlib4 = "botlib.AES_Encrypt" ascii
 
-      condition: (uint32(0) == 0x464C457F) and all of ($botlib*)
+      if: (uint32(0) == 0x464C457F) and all of ($botlib*)
 }
 
 rule APT29_csloader_code {
@@ -52,7 +52,7 @@ rule APT29_csloader_code {
         $command2 = "C:\\Windows\\System32\\cmd.exe /k ping 8.8.8.8 -n 3  && del /F \"%s\"" wide
         $pdb = "C:\\Users\\jack\\viewer\\bin\\viewer.pdb" ascii
 
-      condition:
+      if:
         uint16(0) == 0x5A4D and
         uint32(uint32(0x3c)) == 0x00004550 and
         ((#size >= 4 and $process and 1 of ($command*) and 1 of ($resource*)) or
@@ -78,7 +78,7 @@ rule malware_cobaltstrike_workersdevloader {
         $opt4 = "--parent_id=" ascii wide
         $opt5 = "--auto=" ascii wide
 
-     condition:
+     if:
        uint16(0) == 0x5A4D and
        uint32(uint32(0x3c)) == 0x00004550 and
        (

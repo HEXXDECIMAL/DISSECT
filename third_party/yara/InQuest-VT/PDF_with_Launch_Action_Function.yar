@@ -11,11 +11,11 @@ rule PDF_with_Launch_Action_Function
         samples        = "a9fbb50dedfd84e1f4a3507d45b1b16baa43123f5ae98dae6aa9a5bebeb956a8"
 
 	strings:
-			
+
 		$pdf_header = "%PDF-"
 		$a = "<</S/Launch/Type/Action/Win<</F"
-	condition:
-			
+	if:
+
 		$pdf_header in (0..1024) and $a
 
 }

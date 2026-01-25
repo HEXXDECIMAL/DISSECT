@@ -7,8 +7,8 @@ traits:
 
   - id: backdoor/sshdoor/krb5-ccname
     description: SSHDoor Kerberos credential cache reference
-    criticality: suspicious
-    confidence: 0.5
+    crit: suspicious
+    conf: 0.5
     attack: "T1558"
     file_types: [elf]
     condition:
@@ -17,8 +17,8 @@ traits:
 
   - id: backdoor/sshdoor/rm-var-tmp
     description: SSHDoor temp file cleanup pattern
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     family: true
     attack: "T1070.004"
     file_types: [elf]
@@ -28,30 +28,30 @@ traits:
 
   - id: backdoor/sshdoor/group-json
     description: SSHDoor group JSON key
-    criticality: suspicious
-    confidence: 0.6
+    crit: suspicious
+    conf: 0.6
     family: true
     attack: "T1556.003"
     file_types: [elf]
     condition:
       type: string
-      exact: "\"Group\""
+      exact: '"Group"'
 
   - id: backdoor/sshdoor/password-json
     description: SSHDoor password JSON key
-    criticality: suspicious
-    confidence: 0.6
+    crit: suspicious
+    conf: 0.6
     family: true
     attack: "T1556.003"
     file_types: [elf]
     condition:
       type: string
-      exact: "\"Password\""
+      exact: '"Password"'
 
   - id: backdoor/sshdoor/login-lock
     description: SSHDoor login lock file
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     family: true
     attack: "T1556.003"
     file_types: [elf]
@@ -61,8 +61,8 @@ traits:
 
   - id: backdoor/sshdoor/login-format
     description: SSHDoor login format string
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1556.003"
     file_types: [elf]
@@ -72,8 +72,8 @@ traits:
 
   - id: backdoor/sshdoor/server-locked
     description: SSHDoor server locked message
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1556.003"
     file_types: [elf]
@@ -84,8 +84,8 @@ traits:
   # SSHDoor detection - YARA-based trait for comprehensive detection
   - id: backdoor/sshdoor/yara-signature
     description: SSHDoor backdoored SSH daemon YARA signature
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1556.003"
     mbc: "B0022"
@@ -110,14 +110,14 @@ traits:
 composite_rules:
   - id: backdoor/sshdoor/detected
     description: SSHDoor backdoored SSH daemon
-    criticality: hostile
-    confidence: 0.95
+    crit: hostile
+    conf: 0.95
     family: true
     attack: "T1556.003"
     mbc: "B0022"
     file_types: [elf]
     requires_count: 3
-    conditions:
+    any:
       - id: backdoor/sshdoor/krb5-ccname
       - id: backdoor/sshdoor/rm-var-tmp
       - id: backdoor/sshdoor/login-lock

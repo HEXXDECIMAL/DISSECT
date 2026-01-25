@@ -7,272 +7,272 @@ defaults:
 traits:
   # === memfd_create indicators (atomic) ===
   - id: memfd-create-fn
-    description: memfd_create function call
-    criticality: inert
-    confidence: 0.6
-    file_types: [python, c, shell]
-    condition:
+    desc: memfd_create function call
+    crit: inert
+    conf: 0.6
+    for: [python, c, shell]
+    if:
       type: string
       exact: "memfd_create"
 
   - id: sys-memfd-create
-    description: SYS_memfd_create constant
-    criticality: inert
-    confidence: 0.6
-    file_types: [python, c, shell]
-    condition:
+    desc: SYS_memfd_create constant
+    crit: inert
+    conf: 0.6
+    for: [python, c, shell]
+    if:
       type: string
       exact: "SYS_memfd_create"
 
   - id: syscall-319
-    description: memfd_create syscall number 319
-    criticality: inert
-    confidence: 0.4
-    file_types: [python, c, shell]
-    condition:
+    desc: memfd_create syscall number 319
+    crit: inert
+    conf: 0.4
+    for: [python, c, shell]
+    if:
       type: string
       exact: "319"
 
   - id: mfd-cloexec
-    description: MFD_CLOEXEC flag
-    criticality: inert
-    confidence: 0.5
-    file_types: [python, c, shell]
-    condition:
+    desc: MFD_CLOEXEC flag
+    crit: inert
+    conf: 0.5
+    for: [python, c, shell]
+    if:
       type: string
       exact: "MFD_CLOEXEC"
 
   - id: libc-syscall
-    description: libc.syscall call
-    criticality: inert
-    confidence: 0.5
-    file_types: [python, c, shell]
-    condition:
+    desc: libc.syscall call
+    crit: inert
+    conf: 0.5
+    for: [python, c, shell]
+    if:
       type: string
       exact: "libc.syscall"
 
   - id: syscall-paren
-    description: syscall( invocation
-    criticality: inert
-    confidence: 0.4
-    file_types: [python, c, shell]
-    condition:
+    desc: syscall( invocation
+    crit: inert
+    conf: 0.4
+    for: [python, c, shell]
+    if:
       type: string
       exact: "syscall("
 
   # === proc/self/fd indicators (atomic) ===
   - id: proc-self-fd
-    description: /proc/self/fd path
-    criticality: inert
-    confidence: 0.5
-    file_types: [python, c, shell]
-    condition:
+    desc: /proc/self/fd path
+    crit: inert
+    conf: 0.5
+    for: [python, c, shell]
+    if:
       type: string
       exact: "/proc/self/fd"
 
   - id: proc-self-fd-slash
-    description: /proc/self/fd/ path
-    criticality: inert
-    confidence: 0.5
-    file_types: [python, c, shell]
-    condition:
+    desc: /proc/self/fd/ path
+    crit: inert
+    conf: 0.5
+    for: [python, c, shell]
+    if:
       type: string
       exact: "/proc/self/fd/"
 
   # === exec indicators (atomic) ===
   - id: execv-fn
-    description: execv function call
-    criticality: inert
-    confidence: 0.4
-    file_types: [python, c, shell]
-    condition:
+    desc: execv function call
+    crit: inert
+    conf: 0.4
+    for: [python, c, shell]
+    if:
       type: string
       exact: "execv"
 
   - id: execve-fn
-    description: execve function call
-    criticality: inert
-    confidence: 0.4
-    file_types: [python, c, shell]
-    condition:
+    desc: execve function call
+    crit: inert
+    conf: 0.4
+    for: [python, c, shell]
+    if:
       type: string
       exact: "execve"
 
   - id: execl-fn
-    description: execl function call
-    criticality: inert
-    confidence: 0.4
-    file_types: [python, c, shell]
-    condition:
+    desc: execl function call
+    crit: inert
+    conf: 0.4
+    for: [python, c, shell]
+    if:
       type: string
       exact: "execl"
 
   - id: os-exec
-    description: os.exec Python call
-    criticality: inert
-    confidence: 0.5
-    file_types: [python]
-    condition:
+    desc: os.exec Python call
+    crit: inert
+    conf: 0.5
+    for: [python]
+    if:
       type: string
       exact: "os.exec"
 
   - id: subprocess-mod
-    description: subprocess module
-    criticality: inert
-    confidence: 0.3
-    file_types: [python]
-    condition:
+    desc: subprocess module
+    crit: inert
+    conf: 0.3
+    for: [python]
+    if:
       type: string
       exact: "subprocess"
 
   # === ctypes indicators (atomic) ===
   - id: ctypes-mod
-    description: ctypes module
-    criticality: inert
-    confidence: 0.4
-    file_types: [python]
-    condition:
+    desc: ctypes module
+    crit: inert
+    conf: 0.4
+    for: [python]
+    if:
       type: string
       exact: "ctypes"
 
   - id: ctypes-cdll
-    description: CDLL ctypes class
-    criticality: inert
-    confidence: 0.5
-    file_types: [python]
-    condition:
+    desc: CDLL ctypes class
+    crit: inert
+    conf: 0.5
+    for: [python]
+    if:
       type: string
       exact: "CDLL"
 
   - id: libc-so
-    description: libc.so reference
-    criticality: inert
-    confidence: 0.4
-    file_types: [python, c]
-    condition:
+    desc: libc.so reference
+    crit: inert
+    conf: 0.4
+    for: [python, c]
+    if:
       type: string
       exact: "libc.so"
 
   - id: dot-syscall
-    description: .syscall( call
-    criticality: inert
-    confidence: 0.5
-    file_types: [python]
-    condition:
+    desc: .syscall( call
+    crit: inert
+    conf: 0.5
+    for: [python]
+    if:
       type: string
       exact: ".syscall("
 
   # === download indicators (atomic) ===
   - id: requests-get
-    description: requests.get HTTP call
-    criticality: inert
-    confidence: 0.4
-    file_types: [python]
-    condition:
+    desc: requests.get HTTP call
+    crit: inert
+    conf: 0.4
+    for: [python]
+    if:
       type: string
       exact: "requests.get"
 
   - id: urllib-mod
-    description: urllib module
-    criticality: inert
-    confidence: 0.3
-    file_types: [python]
-    condition:
+    desc: urllib module
+    crit: inert
+    conf: 0.3
+    for: [python]
+    if:
       type: string
       exact: "urllib"
 
   - id: http-client
-    description: http.client module
-    criticality: inert
-    confidence: 0.3
-    file_types: [python]
-    condition:
+    desc: http.client module
+    crit: inert
+    conf: 0.3
+    for: [python]
+    if:
       type: string
       exact: "http.client"
 
   - id: dot-content
-    description: .content response attribute
-    criticality: inert
-    confidence: 0.3
-    file_types: [python]
-    condition:
+    desc: .content response attribute
+    crit: inert
+    conf: 0.3
+    for: [python]
+    if:
       type: string
       exact: ".content"
 
   # === write indicators (atomic) ===
   - id: os-write
-    description: os.write function
-    criticality: inert
-    confidence: 0.4
-    file_types: [python]
-    condition:
+    desc: os.write function
+    crit: inert
+    conf: 0.4
+    for: [python]
+    if:
       type: string
       exact: "os.write("
 
   - id: write-fd
-    description: write(fd call
-    criticality: inert
-    confidence: 0.4
-    file_types: [python, c]
-    condition:
+    desc: write(fd call
+    crit: inert
+    conf: 0.4
+    for: [python, c]
+    if:
       type: string
       exact: "write(fd"
 
   - id: os-lseek
-    description: os.lseek function
-    criticality: inert
-    confidence: 0.4
-    file_types: [python]
-    condition:
+    desc: os.lseek function
+    crit: inert
+    conf: 0.4
+    for: [python]
+    if:
       type: string
       exact: "os.lseek("
 
   - id: seek-set
-    description: SEEK_SET constant
-    criticality: inert
-    confidence: 0.3
-    file_types: [python, c]
-    condition:
+    desc: SEEK_SET constant
+    crit: inert
+    conf: 0.3
+    for: [python, c]
+    if:
       type: string
       exact: "SEEK_SET"
 
   # === shared memory indicators (atomic) ===
   - id: shm-open
-    description: shm_open function
-    criticality: inert
-    confidence: 0.5
-    file_types: [python, c, shell]
-    condition:
+    desc: shm_open function
+    crit: inert
+    conf: 0.5
+    for: [python, c, shell]
+    if:
       type: string
       exact: "shm_open"
 
   - id: mmap-fn
-    description: mmap function
-    criticality: inert
-    confidence: 0.4
-    file_types: [python, c]
-    condition:
+    desc: mmap function
+    crit: inert
+    conf: 0.4
+    for: [python, c]
+    if:
       type: string
       exact: "mmap"
 
   - id: dev-shm
-    description: /dev/shm path
-    criticality: inert
-    confidence: 0.5
-    file_types: [python, c, shell]
-    condition:
+    desc: /dev/shm path
+    crit: inert
+    conf: 0.5
+    for: [python, c, shell]
+    if:
       type: string
       exact: "/dev/shm"
 
 composite_rules:
   # Exec function composite
   - id: exec-function
-    description: Execution function calls
-    criticality: inert
-    confidence: 0.5
-    file_types: [python, c, shell]
+    desc: Execution function calls
+    crit: inert
+    conf: 0.5
+    for: [python, c, shell]
     requires_count: 1
-    conditions:
+    any:
       - id: execv-fn
       - id: execve-fn
       - id: execl-fn
@@ -281,13 +281,13 @@ composite_rules:
 
   # Download indicators composite
   - id: http-download-python
-    description: Python HTTP download libraries for fetching remote content
-    criticality: notable
-    confidence: 0.8
+    desc: Python HTTP download libraries for fetching remote content
+    crit: notable
+    conf: 0.8
     attack: "T1105"
-    file_types: [python]
+    for: [python]
     requires_count: 1
-    conditions:
+    any:
       - id: requests-get
       - id: urllib-mod
       - id: http-client
@@ -295,97 +295,97 @@ composite_rules:
 
   # Write to fd composite
   - id: fd-write-raw
-    description: Writes data to file descriptor (os.write or write syscall)
-    criticality: notable
-    confidence: 0.8
-    file_types: [python, c]
+    desc: Writes data to file descriptor (os.write or write syscall)
+    crit: notable
+    conf: 0.8
+    for: [python, c]
     requires_count: 1
-    conditions:
+    any:
       - id: os-write
       - id: write-fd
 
   # memfd_create syscall
   - id: memfd-create
-    description: Creates anonymous memory-backed file (memfd_create syscall)
-    criticality: suspicious
-    confidence: 0.95
-    file_types: [python, c, shell]
+    desc: Creates anonymous memory-backed file (memfd_create syscall)
+    crit: suspicious
+    conf: 0.95
+    for: [python, c, shell]
     requires_count: 1
-    conditions:
+    any:
       - id: memfd-create-fn
       - id: sys-memfd-create
 
   # proc/self/fd path
   - id: proc-fd-path
-    description: References /proc/self/fd path
-    criticality: inert
-    confidence: 0.5
-    file_types: [python, c, shell]
+    desc: References /proc/self/fd path
+    crit: inert
+    conf: 0.5
+    for: [python, c, shell]
     requires_count: 1
-    conditions:
+    any:
       - id: proc-self-fd
       - id: proc-self-fd-slash
 
   # Execution from /proc/self/fd
   - id: proc-fd-exec
-    description: Executes binary from /proc/self/fd (fileless execution)
-    criticality: suspicious
-    confidence: 0.95
-    file_types: [python, c, shell]
+    desc: Executes binary from /proc/self/fd (fileless execution)
+    crit: suspicious
+    conf: 0.95
+    for: [python, c, shell]
     requires_all:
       - id: proc-fd-path
       - id: exec-function
 
   # ctypes syscall invocation
   - id: ctypes-syscall
-    description: Direct syscall invocation via ctypes
-    criticality: suspicious
-    confidence: 0.9
+    desc: Direct syscall invocation via ctypes
+    crit: suspicious
+    conf: 0.9
     attack: "T1106"
-    file_types: [python]
+    for: [python]
     requires_all:
       - id: ctypes-mod
       - id: dot-syscall
     requires_count: 1
-    conditions:
+    any:
       - id: ctypes-cdll
       - id: libc-so
 
   # Write to fd with seek
   - id: fd-write
-    description: Writes binary data to file descriptor with seek
-    criticality: notable
-    confidence: 0.8
-    file_types: [python]
+    desc: Writes binary data to file descriptor with seek
+    crit: notable
+    conf: 0.8
+    for: [python]
     requires_all:
       - id: os-write
     requires_count: 1
-    conditions:
+    any:
       - id: os-lseek
       - id: seek-set
 
   # Download and memfd execution chain
   - id: download-memfd-exec
-    description: Downloads binary and executes via memfd (fileless dropper)
-    criticality: suspicious
-    confidence: 0.98
-    file_types: [python, c, shell]
+    desc: Downloads binary and executes via memfd (fileless dropper)
+    crit: suspicious
+    conf: 0.98
+    for: [python, c, shell]
     requires_all:
       - id: http-download-python
       - id: memfd-create
     requires_count: 1
-    conditions:
+    any:
       - id: exec-function
       - id: fd-write-raw
 
   # shm_open for shared memory execution
   - id: shm-exec
-    description: Uses shared memory for fileless execution
-    criticality: suspicious
-    confidence: 0.9
-    file_types: [python, c, shell]
+    desc: Uses shared memory for fileless execution
+    crit: suspicious
+    conf: 0.9
+    for: [python, c, shell]
     requires_count: 2
-    conditions:
+    any:
       - id: shm-open
       - id: mmap-fn
       - id: dev-shm
@@ -393,10 +393,10 @@ composite_rules:
 
   # Complete fileless dropper pattern
   - id: linux-dropper
-    description: Linux fileless dropper (download + memfd + exec)
-    criticality: hostile
-    confidence: 0.99
-    file_types: [python, elf]
+    desc: Linux fileless dropper (download + memfd + exec)
+    crit: hostile
+    conf: 0.99
+    for: [python, elf]
     requires_all:
       - id: memfd-create
       - id: http-download-python

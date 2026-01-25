@@ -5,7 +5,7 @@ traits:
   # PAM library usage
   - id: client
     description: PAM client library usage
-    criticality: benign
+    crit: benign
     confidence: 0.9
     condition:
       type: yara
@@ -26,7 +26,7 @@ traits:
   # PAM module development
   - id: module
     description: PAM module implementation
-    criticality: benign
+    crit: benign
     confidence: 0.85
     condition:
       type: yara
@@ -47,7 +47,7 @@ traits:
   # PAM configuration
   - id: config
     description: PAM configuration patterns
-    criticality: benign
+    crit: benign
     confidence: 0.9
     condition:
       type: yara

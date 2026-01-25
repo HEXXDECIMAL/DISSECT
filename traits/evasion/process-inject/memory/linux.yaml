@@ -3,17 +3,17 @@
 # ATT&CK: T1055
 
 defaults:
-  file_types: [elf]
+  for: [elf]
   platforms: [linux]
 
 traits:
   - id: process-inject-ptrace
-    description: Process injection via ptrace
-    criticality: suspicious
-    confidence: 0.66
+    desc: Process injection via ptrace
+    crit: suspicious
+    conf: 0.66
     mbc: "B0033"
     attack: "T1055"
-    condition:
+    if:
       type: yara
       source: |
         rule ptrace_injection {

@@ -3,77 +3,77 @@
 # ATT&CK: T1071.001 (Application Layer Protocol: Web Protocols)
 
 defaults:
-  file_types: [elf, pe, macho]
+  for: [elf, pe, macho]
   attack: "T1071.001"
-  criticality: notable
+  crit: notable
 
 traits:
   - id: http-protocol-string
-    description: "HTTP protocol version string"
-    criticality: notable
-    confidence: 0.3
-    condition:
+    desc: "HTTP protocol version string"
+    crit: notable
+    conf: 0.3
+    if:
       type: string
       regex: "HTTP/[012]\\.[0-9]"
 
   - id: http-method-get
-    description: "HTTP GET method string"
-    criticality: notable
-    confidence: 0.25
-    condition:
+    desc: "HTTP GET method string"
+    crit: notable
+    conf: 0.25
+    if:
       type: string
       regex: "GET /[^ ]+ HTTP"
 
   - id: http-method-post
-    description: "HTTP POST method string"
-    criticality: notable
-    confidence: 0.35
-    condition:
+    desc: "HTTP POST method string"
+    crit: notable
+    conf: 0.35
+    if:
       type: string
       regex: "POST /[^ ]+ HTTP"
 
   - id: http-user-agent
-    description: "HTTP User-Agent header"
-    criticality: notable
-    confidence: 0.3
-    condition:
+    desc: "HTTP User-Agent header"
+    crit: notable
+    conf: 0.3
+    if:
       type: string
       regex: "User-Agent:"
 
   - id: http-content-type
-    description: "HTTP Content-Type header"
-    criticality: notable
-    confidence: 0.25
-    condition:
+    desc: "HTTP Content-Type header"
+    crit: notable
+    conf: 0.25
+    if:
       type: string
       regex: "Content-Type:"
 
   - id: http-delimiter
-    description: "HTTP header/body delimiter (CRLF CRLF)"
-    criticality: notable
-    confidence: 0.2
-    condition:
+    desc: "HTTP header/body delimiter (CRLF CRLF)"
+    crit: notable
+    conf: 0.2
+    if:
       type: string
       exact: "\r\n\r\n"
 
 composite_rules:
   - id: hardcoded-request
-    description: "Hardcoded HTTP request in binary"
-    criticality: suspicious
-    confidence: 0.7
-    requires_all:
+    desc: "Hardcoded HTTP request in binary"
+    crit: suspicious
+    conf: 0.7
+    all:
       - id: http-protocol-string
-    requires_any:
+    any:
       - id: http-method-get
       - id: http-method-post
 
   - id: custom-client
-    description: "Custom HTTP client implementation"
-    criticality: suspicious
-    confidence: 0.65
-    requires_all:
+    desc: "Custom HTTP client implementation"
+    crit: suspicious
+    conf: 0.65
+    all:
       - id: http-protocol-string
       - id: http-delimiter
-    requires_any:
+    any:
       - id: http-user-agent
       - id: http-content-type

@@ -5,9 +5,9 @@
 traits:
   - id: delete-win
     description: Delete files (Windows API)
-    criticality: notable
-    confidence: 0.66
-    file_types: [pe, dll, c]
-    condition:
+    crit: notable
+    conf: 0.66
+    for: [pe, dll, c]
+    if:
       type: symbol
       pattern: DeleteFile|DeleteFileA|DeleteFileW

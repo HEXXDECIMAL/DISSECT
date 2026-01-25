@@ -3,23 +3,23 @@
 
 traits:
   - id: instantiation
-    description: Random number generator instantiation
-    criticality: notable
+    desc: Random number generator instantiation
+    crit: notable
     mbc: "B0009"
-    confidence: 0.7
-    file_types: [csharp]
-    condition:
+    conf: 0.7
+    for: [csharp]
+    if:
       type: ast_pattern
       node_type: object_creation_expression
       pattern: "new Random"
 
   - id: next
-    description: Random number generation (potential probabilistic execution)
-    criticality: notable
+    desc: Random number generation (potential probabilistic execution)
+    crit: notable
     mbc: "B0009"
-    confidence: 0.7
-    file_types: [csharp]
-    condition:
+    conf: 0.7
+    for: [csharp]
+    if:
       type: ast_pattern
       node_type: invocation_expression
       pattern: ".Next("

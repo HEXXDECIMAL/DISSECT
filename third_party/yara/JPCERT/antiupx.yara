@@ -3,7 +3,7 @@ rule upx_antiunpack_elf32 {
         description = "UPX Anti-Unpacking technique to magic renamed for ELF32"
         author = "JPCERT/CC Incident Response Group"
 
-     condition:
+     if:
        uint32(0) == 0x464C457F and
        uint8(4) == 1 and
        (
@@ -26,7 +26,7 @@ rule upx_antiunpack_elf64 {
         description = "UPX Anti-Unpacking technique to magic renamed for ELF64"
         author = "JPCERT/CC Incident Response Group"
 
-     condition:
+     if:
        uint32(0) == 0x464C457F and
        uint8(4) == 2 and
        (

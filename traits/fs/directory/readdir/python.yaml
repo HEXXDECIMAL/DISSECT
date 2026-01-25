@@ -5,8 +5,8 @@
 traits:
   - id: readdir-python
     description: List directory contents (Python)
-    criticality: inert
-    confidence: 0.66
-    condition:
+    crit: inert
+    conf: 0.66
+    if:
       type: string
       exact: .listdir(

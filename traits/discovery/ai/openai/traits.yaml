@@ -1,31 +1,31 @@
 traits:
   # === OpenAI atomic indicators ===
   - id: azure-ai-openai
-    description: Azure.AI.OpenAI library reference
-    criticality: inert
-    confidence: 0.7
-    file_types: [pe, elf, macho, python, javascript]
-    condition:
+    desc: Azure.AI.OpenAI library reference
+    crit: inert
+    conf: 0.7
+    for: [pe, elf, macho, python, javascript]
+    if:
       type: string
       exact: "Azure.AI.OpenAI"
 
   - id: openai-ref
-    description: OpenAI reference
-    criticality: inert
-    confidence: 0.6
-    file_types: [pe, elf, macho, python, javascript]
-    condition:
+    desc: OpenAI reference
+    crit: inert
+    conf: 0.6
+    for: [pe, elf, macho, python, javascript]
+    if:
       type: string
       exact: "OpenAI"
 
 composite_rules:
   # OpenAI client composite
   - id: client
-    description: Integration with OpenAI/Azure AI libraries
-    criticality: notable
-    confidence: 0.8
-    file_types: [pe, elf, macho, python, javascript]
+    desc: Integration with OpenAI/Azure AI libraries
+    crit: notable
+    conf: 0.8
+    for: [pe, elf, macho, python, javascript]
     requires_count: 1
-    conditions:
+    any:
       - id: azure-ai-openai
       - id: openai-ref

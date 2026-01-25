@@ -3,118 +3,118 @@
 
 traits:
   - id: webhook-endpoint
-    description: Discord webhook API endpoint
-    criticality: suspicious
-    confidence: 0.9
+    desc: Discord webhook API endpoint
+    crit: suspicious
+    conf: 0.9
     attack: "T1567.002"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       regex: "discord\\.com/api/webhooks/\\d+"
 
   - id: webhook-endpoint-legacy
-    description: Discord webhook API endpoint (legacy)
-    criticality: suspicious
-    confidence: 0.9
+    desc: Discord webhook API endpoint (legacy)
+    crit: suspicious
+    conf: 0.9
     attack: "T1567.002"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       regex: "discordapp\\.com/api/webhooks/\\d+"
 
   - id: lib-js
-    description: Discord.js library usage
-    criticality: notable
-    confidence: 0.7
+    desc: Discord.js library usage
+    crit: notable
+    conf: 0.7
     attack: "T1567.002"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       exact: "discord.js"
 
   - id: lib-go
-    description: DiscordGo library usage
-    criticality: notable
-    confidence: 0.7
+    desc: DiscordGo library usage
+    crit: notable
+    conf: 0.7
     attack: "T1567.002"
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: string
       exact: "discordgo"
 
   - id: lib-python
-    description: Discord Python library usage
-    criticality: notable
-    confidence: 0.7
+    desc: Discord Python library usage
+    crit: notable
+    conf: 0.7
     attack: "T1567.002"
-    file_types: [python]
-    condition:
+    for: [python]
+    if:
       type: string
       exact: "import discord"
 
   - id: lib-disnake
-    description: Disnake Python library usage
-    criticality: notable
-    confidence: 0.7
+    desc: Disnake Python library usage
+    crit: notable
+    conf: 0.7
     attack: "T1567.002"
-    file_types: [python]
-    condition:
+    for: [python]
+    if:
       type: string
       exact: "import disnake"
 
   - id: ip-lookup-ipify
-    description: "ipify.org IP lookup service"
-    criticality: notable
-    confidence: 0.8
-    file_types: [all]
-    condition:
+    desc: "ipify.org IP lookup service"
+    crit: notable
+    conf: 0.8
+    for: [all]
+    if:
       type: string
       exact: "ipify.org"
 
   - id: ip-lookup-ipinfo
-    description: "ipinfo.io IP lookup service"
-    criticality: notable
-    confidence: 0.8
-    file_types: [all]
-    condition:
+    desc: "ipinfo.io IP lookup service"
+    crit: notable
+    conf: 0.8
+    for: [all]
+    if:
       type: string
       exact: "ipinfo.io"
 
   - id: ip-lookup-ifconfig
-    description: "ifconfig.me IP lookup service"
-    criticality: notable
-    confidence: 0.8
-    file_types: [all]
-    condition:
+    desc: "ifconfig.me IP lookup service"
+    crit: notable
+    conf: 0.8
+    for: [all]
+    if:
       type: string
       exact: "ifconfig.me"
 
   - id: ip-lookup-icanhazip
-    description: "icanhazip IP lookup service"
-    criticality: notable
-    confidence: 0.8
-    file_types: [all]
-    condition:
+    desc: "icanhazip IP lookup service"
+    crit: notable
+    conf: 0.8
+    for: [all]
+    if:
       type: string
       exact: "icanhazip"
 
   - id: ip-lookup-wtfismyip
-    description: "wtfismyip IP lookup service"
-    criticality: notable
-    confidence: 0.8
-    file_types: [all]
-    condition:
+    desc: "wtfismyip IP lookup service"
+    crit: notable
+    conf: 0.8
+    for: [all]
+    if:
       type: string
       exact: "wtfismyip"
 
 composite_rules:
   - id: webhook-exfil
-    description: Discord webhook exfiltration
-    criticality: suspicious
-    confidence: 0.9
+    desc: Discord webhook exfiltration
+    crit: suspicious
+    conf: 0.9
     attack: "T1567.002"
     mbc: "B0030"
-    file_types: [all]
+    for: [all]
     requires_all:
       - id: webhook-endpoint
     requires_any:

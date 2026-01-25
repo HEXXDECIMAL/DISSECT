@@ -4,16 +4,16 @@
 
 defaults:
   # IP address strings can appear in any file type
-  file_types: ["*"]
+  for: ["*"]
   mbc: "C0002"
   attack: "T1071.001"
-  criticality: suspicious
+  crit: suspicious
 
 traits:
   - id: hardcoded-ipv4
-    description: "Hardcoded IPv4 address"
-    confidence: 0.8
-    condition:
+    desc: "Hardcoded IPv4 address"
+    conf: 0.8
+    if:
       type: string
       # Strict IPv4 regex that:
       # - Rejects leading zeros
@@ -22,139 +22,139 @@ traits:
       regex: "(?<![0-9./vV])(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])(?![0-9.])"
 
   - id: ipv4-with-port
-    description: "IPv4 address with port number"
-    confidence: 0.9
-    condition:
+    desc: "IPv4 address with port number"
+    conf: 0.9
+    if:
       type: string
       # Strict IPv4:port - no leading zeros in octets, port 1-65535
       regex: "\\b(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9]):[1-9][0-9]{0,4}\\b"
 
   - id: http-url-with-ip
-    description: "HTTP URL with hardcoded IP address"
-    confidence: 0.9
-    condition:
+    desc: "HTTP URL with hardcoded IP address"
+    conf: 0.9
+    if:
       type: string
       # HTTP(S) URL with strict IPv4 (no leading zeros)
       regex: "https?://(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])"
 
   # === Private IP atomic indicators ===
   - id: private-ip-10
-    description: "10.x.x.x Class A private IP"
-    criticality: notable
-    confidence: 0.75
+    desc: "10.x.x.x Class A private IP"
+    crit: notable
+    conf: 0.75
     mbc: none
     attack: none
-    condition:
+    if:
       type: string
       regex: '\b10\.(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\b'
 
   - id: private-ip-172
-    description: "172.16-31.x.x Class B private IP"
-    criticality: notable
-    confidence: 0.75
+    desc: "172.16-31.x.x Class B private IP"
+    crit: notable
+    conf: 0.75
     mbc: none
     attack: none
-    condition:
+    if:
       type: string
       regex: '\b172\.(?:1[6-9]|2[0-9]|3[01])\.(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\b'
 
   - id: private-ip-192
-    description: "192.168.x.x Class C private IP"
-    criticality: notable
-    confidence: 0.75
+    desc: "192.168.x.x Class C private IP"
+    crit: notable
+    conf: 0.75
     mbc: none
     attack: none
-    condition:
+    if:
       type: string
       regex: '\b192\.168\.(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\b'
 
   - id: ip-format-string
-    description: "IP address format string (dynamic IP construction)"
-    criticality: notable
-    confidence: 0.7
+    desc: "IP address format string (dynamic IP construction)"
+    crit: notable
+    conf: 0.7
     mbc: "B0032"
     attack: "T1027"
-    condition:
+    if:
       type: string
       regex: "%[0-9]*h{0,2}[ud]\\.%[0-9]*h{0,2}[ud]"
 
   - id: truncated-http-url
-    description: "Truncated HTTP URL (C2 address likely obfuscated)"
-    confidence: 0.85
+    desc: "Truncated HTTP URL (C2 address likely obfuscated)"
+    conf: 0.85
     mbc: "B0032"
     attack: "T1027"
-    file_types: [elf]  # Override: ELF only
-    condition:
+    for: [elf] # Override: ELF only
+    if:
       type: string
       regex: "wget http://[^0-9a-zA-Z]|curl http://[^0-9a-zA-Z]|http://\\x00"
       search_raw: true
 
   # === Port number atomic indicators ===
   - id: port-23
-    description: "Port 23 (telnet)"
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: "Port 23 (telnet)"
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: ":23\\b"
 
   - id: port-80
-    description: "Port 80 (HTTP)"
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: "Port 80 (HTTP)"
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       regex: ":80\\b"
 
   - id: port-443
-    description: "Port 443 (HTTPS)"
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: "Port 443 (HTTPS)"
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       regex: ":443\\b"
 
   - id: port-8080
-    description: "Port 8080 (HTTP alt)"
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: "Port 8080 (HTTP alt)"
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: ":8080\\b"
 
   - id: port-4444
-    description: "Port 4444 (Metasploit default)"
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: "Port 4444 (Metasploit default)"
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: ":4444\\b"
 
   - id: port-1337
-    description: "Port 1337 (leet)"
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: "Port 1337 (leet)"
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: ":1337\\b"
 
   - id: port-31337
-    description: "Port 31337 (eleet)"
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: "Port 31337 (eleet)"
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: ":31337\\b"
 
 composite_rules:
   - id: port-number-constant
-    description: "Common C2 port number (23, 80, 443, 8080, 4444)"
-    criticality: notable
-    confidence: 0.6
+    desc: "Common C2 port number (23, 80, 443, 8080, 4444)"
+    crit: notable
+    conf: 0.6
     mbc: none
     attack: none
-    requires_count: 1
-    conditions:
+    count: 1
+    any:
       - id: port-23
       - id: port-80
       - id: port-443
@@ -164,34 +164,34 @@ composite_rules:
       - id: port-31337
 
   - id: private-ip-reference
-    description: "Private/internal IP address reference"
-    criticality: notable
-    confidence: 0.75
+    desc: "Private/internal IP address reference"
+    crit: notable
+    conf: 0.75
     mbc: none
     attack: none
-    requires_count: 1
-    conditions:
+    count: 1
+    any:
       - id: private-ip-10
       - id: private-ip-172
       - id: private-ip-192
 
   - id: obfuscated-address
-    description: "C2 address obfuscation (HTTP client + no visible IP)"
-    confidence: 0.85
+    desc: "C2 address obfuscation (HTTP client + no visible IP)"
+    conf: 0.85
     mbc: "B0032"
     attack: "T1027"
-    file_types: [elf]
-    requires_all:
+    for: [elf]
+    all:
       - id: truncated-http-url
-    requires_none:
+    none:
       - id: hardcoded-ipv4
 
   - id: dynamic-ip
-    description: "Dynamic IP address construction"
-    confidence: 0.8
+    desc: "Dynamic IP address construction"
+    conf: 0.8
     mbc: "B0032"
     attack: "T1027"
-    requires_all:
+    all:
       - id: ip-format-string
-    requires_none:
+    none:
       - id: hardcoded-ipv4

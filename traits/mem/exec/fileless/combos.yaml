@@ -5,7 +5,7 @@
 traits:
   - id: remote-injection
     description: Remote process memory manipulation
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     attack: "T1055"
     platforms: [windows]
@@ -23,7 +23,7 @@ traits:
 
   - id: execve-symbol
     description: Linux execve/fexecve symbol reference
-    criticality: notable
+    crit: notable
     confidence: 0.8
     platforms: [linux]
     file_types: [elf]
@@ -33,7 +33,7 @@ traits:
 
   - id: python-encode-call
     description: Python encode method call
-    criticality: notable
+    crit: notable
     confidence: 0.8
     platforms: [windows, linux, macos]
     file_types: [python]
@@ -44,7 +44,7 @@ traits:
 
   - id: python-b64decode-call
     description: Python base64 decode call
-    criticality: notable
+    crit: notable
     confidence: 0.8
     platforms: [windows, linux, macos]
     file_types: [python]
@@ -56,7 +56,7 @@ traits:
 composite_rules:
   - id: linux-memfd
     description: Fileless execution via anonymous memory
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     attack: "T1055"
     mbc: "B0033"
@@ -70,7 +70,7 @@ composite_rules:
 
   - id: python-shellcode
     description: Python shellcode injection via VirtualProtect
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.95
     attack: "T1055"
     mbc: "B0033"

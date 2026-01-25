@@ -1,11 +1,11 @@
 traits:
   - id: section
-    description: VMProtect detected via section names
-    criticality: suspicious
-    confidence: 0.95
-    file_types: [pe, elf, macho]
+    desc: VMProtect detected via section names
+    crit: suspicious
+    conf: 0.95
+    for: [pe, elf, macho]
     attack: "T1027.002"
-    condition:
+    if:
       type: yara
       source: |
         rule vmprotect_section {

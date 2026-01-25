@@ -15,6 +15,6 @@ rule malware_asyncrat {
         $s2 = "pong" wide
         $s3 = "Stub.exe" ascii wide
 
-    condition:
+    if:
         ($salt and (2 of ($s*) or 1 of ($b*))) or (all of ($b*) and 2 of ($s*))
 }

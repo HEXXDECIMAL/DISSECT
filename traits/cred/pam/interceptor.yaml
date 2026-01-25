@@ -3,11 +3,11 @@
 
 traits:
   - id: interceptor
-    description: "Accesses PAM authentication tokens (potential credential stealer)"
-    criticality: suspicious
-    confidence: 0.8
+    desc: "Accesses PAM authentication tokens (potential credential stealer)"
+    crit: suspicious
+    conf: 0.8
     attack: "T1556.003"
-    condition:
+    if:
       type: yara
       source: |
         rule pam_interceptor {

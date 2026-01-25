@@ -6,7 +6,7 @@ traits:
   # Webpack bundled
   - id: webpack-bundled
     description: Code bundled with webpack (legitimate minification)
-    criticality: inert
+    crit: inert
     confidence: 0.95
     file_types: [javascript]
     condition:
@@ -16,7 +16,7 @@ traits:
   # Rollup bundled
   - id: rollup-bundled
     description: Code bundled with rollup (legitimate minification)
-    criticality: inert
+    crit: inert
     confidence: 0.95
     file_types: [javascript]
     condition:
@@ -26,7 +26,7 @@ traits:
   # esbuild bundled
   - id: esbuild-bundled
     description: Code bundled with esbuild (legitimate minification)
-    criticality: inert
+    crit: inert
     confidence: 0.95
     file_types: [javascript]
     condition:
@@ -36,7 +36,7 @@ traits:
   # Parcel bundled
   - id: parcel-bundled
     description: Code bundled with Parcel (legitimate minification)
-    criticality: inert
+    crit: inert
     confidence: 0.95
     file_types: [javascript]
     condition:
@@ -46,7 +46,7 @@ traits:
   # Vite bundled
   - id: vite-bundled
     description: Code bundled with Vite (legitimate minification)
-    criticality: inert
+    crit: inert
     confidence: 0.95
     file_types: [javascript]
     condition:
@@ -56,7 +56,7 @@ traits:
   # TypeScript compiled marker
   - id: typescript-compiled
     description: Code compiled from TypeScript
-    criticality: inert
+    crit: inert
     confidence: 0.9
     file_types: [javascript]
     condition:
@@ -66,7 +66,7 @@ traits:
   # Babel transpiled
   - id: babel-transpiled
     description: Code transpiled with Babel
-    criticality: inert
+    crit: inert
     confidence: 0.9
     file_types: [javascript]
     condition:
@@ -76,7 +76,7 @@ traits:
   # Source map reference
   - id: has-sourcemap
     description: Code has source map reference (professional build)
-    criticality: inert
+    crit: inert
     confidence: 0.9
     file_types: [javascript]
     condition:
@@ -86,7 +86,7 @@ traits:
   # UMD module pattern
   - id: umd-pattern
     description: Universal Module Definition pattern
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [javascript]
     condition:
@@ -96,7 +96,7 @@ traits:
   # CommonJS2 export pattern
   - id: cjs2-export
     description: CommonJS2 module export pattern
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [javascript]
     condition:
@@ -106,7 +106,7 @@ traits:
   # React production build
   - id: react-production
     description: React production build markers
-    criticality: inert
+    crit: inert
     confidence: 0.9
     file_types: [javascript]
     condition:
@@ -116,7 +116,7 @@ traits:
   # Vue production build
   - id: vue-production
     description: Vue production build markers
-    criticality: inert
+    crit: inert
     confidence: 0.9
     file_types: [javascript]
     condition:
@@ -126,7 +126,7 @@ traits:
   # Angular production build
   - id: angular-production
     description: Angular production build markers
-    criticality: inert
+    crit: inert
     confidence: 0.9
     file_types: [javascript]
     condition:
@@ -136,7 +136,7 @@ traits:
   # Known legitimate minifier output
   - id: terser-output
     description: Terser/UglifyJS minified output markers
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [javascript]
     condition:
@@ -159,7 +159,7 @@ traits:
   # Has module.exports (CommonJS export)
   - id: has-cjs-export
     description: Code exports functionality via CommonJS
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [javascript]
     condition:
@@ -169,7 +169,7 @@ traits:
   # Has ES module export
   - id: has-esm-export
     description: Code exports functionality via ES modules
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [javascript, typescript]
     condition:
@@ -179,7 +179,7 @@ traits:
   # Has class definition
   - id: has-class
     description: Code defines classes
-    criticality: inert
+    crit: inert
     confidence: 0.8
     file_types: [javascript, typescript]
     condition:
@@ -189,7 +189,7 @@ traits:
   # Has JSDoc comments
   - id: has-jsdoc
     description: Code has JSDoc documentation
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [javascript, typescript]
     condition:
@@ -199,7 +199,7 @@ traits:
   # Has proper error handling
   - id: has-try-catch
     description: Code has try-catch error handling
-    criticality: inert
+    crit: inert
     confidence: 0.75
     file_types: [javascript, typescript]
     condition:
@@ -209,7 +209,7 @@ traits:
   # Has async/await
   - id: has-async-await
     description: Code uses async/await patterns
-    criticality: inert
+    crit: inert
     confidence: 0.7
     file_types: [javascript, typescript]
     condition:
@@ -219,7 +219,7 @@ traits:
   # Has Promise usage
   - id: has-promise
     description: Code uses Promises
-    criticality: inert
+    crit: inert
     confidence: 0.7
     file_types: [javascript, typescript]
     condition:
@@ -229,7 +229,7 @@ traits:
   # Has named function definitions
   - id: has-named-functions
     description: Code has named function definitions
-    criticality: inert
+    crit: inert
     confidence: 0.8
     file_types: [javascript, typescript]
     condition:
@@ -239,7 +239,7 @@ traits:
   # Imports from node_modules
   - id: imports-dependencies
     description: Code imports from external packages
-    criticality: inert
+    crit: inert
     confidence: 0.8
     file_types: [javascript, typescript]
     condition:
@@ -249,7 +249,7 @@ traits:
   # Has TypeScript types
   - id: has-typescript-types
     description: Code has TypeScript type annotations
-    criticality: inert
+    crit: inert
     confidence: 0.9
     file_types: [typescript]
     condition:
@@ -259,7 +259,7 @@ traits:
   # Has interface/type definitions
   - id: has-type-definitions
     description: Code defines TypeScript interfaces or types
-    criticality: inert
+    crit: inert
     confidence: 0.9
     file_types: [typescript]
     condition:
@@ -269,7 +269,7 @@ traits:
   # Has EventEmitter pattern
   - id: has-eventemitter
     description: Code uses EventEmitter pattern
-    criticality: inert
+    crit: inert
     confidence: 0.8
     file_types: [javascript, typescript]
     condition:
@@ -279,7 +279,7 @@ traits:
   # Has Stream usage
   - id: has-stream
     description: Code uses Node.js streams
-    criticality: inert
+    crit: inert
     confidence: 0.75
     file_types: [javascript, typescript]
     condition:
@@ -289,7 +289,7 @@ traits:
   # Has Buffer with encoding (legitimate usage)
   - id: has-buffer-encoding
     description: Code uses Buffer with explicit encoding
-    criticality: inert
+    crit: inert
     confidence: 0.7
     file_types: [javascript, typescript]
     condition:
@@ -299,7 +299,7 @@ traits:
   # Has callback pattern
   - id: has-callback-pattern
     description: Code uses Node.js callback pattern
-    criticality: inert
+    crit: inert
     confidence: 0.7
     file_types: [javascript, typescript]
     condition:
@@ -309,7 +309,7 @@ traits:
   # Has configuration object pattern
   - id: has-config-object
     description: Code uses configuration objects
-    criticality: inert
+    crit: inert
     confidence: 0.75
     file_types: [javascript, typescript]
     condition:
@@ -319,7 +319,7 @@ traits:
   # Has default export
   - id: has-default-export
     description: Code has default export
-    criticality: inert
+    crit: inert
     confidence: 0.8
     file_types: [javascript, typescript]
     condition:
@@ -329,7 +329,7 @@ traits:
   # Uses 'use strict'
   - id: use-strict
     description: Code uses strict mode
-    criticality: inert
+    crit: inert
     confidence: 0.75
     file_types: [javascript]
     condition:
@@ -339,7 +339,7 @@ traits:
   # Has test blocks (describe/it/test)
   - id: has-test-blocks
     description: Code contains test definitions
-    criticality: inert
+    crit: inert
     confidence: 0.95
     file_types: [javascript, typescript]
     condition:
@@ -362,7 +362,7 @@ traits:
   # Has assertion library usage
   - id: has-assertions
     description: Code uses assertion patterns
-    criticality: inert
+    crit: inert
     confidence: 0.9
     file_types: [javascript, typescript]
     condition:
@@ -372,7 +372,7 @@ traits:
   # Uses popular web framework
   - id: uses-web-framework
     description: Code uses established web framework
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [javascript, typescript]
     condition:
@@ -382,7 +382,7 @@ traits:
   # Has middleware pattern
   - id: has-middleware
     description: Code uses middleware pattern
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [javascript, typescript]
     condition:
@@ -392,7 +392,7 @@ traits:
   # Has route definitions
   - id: has-routes
     description: Code defines HTTP routes
-    criticality: inert
+    crit: inert
     confidence: 0.8
     file_types: [javascript, typescript]
     condition:
@@ -402,7 +402,7 @@ traits:
   # Has proper logging
   - id: has-logging
     description: Code uses logging library
-    criticality: inert
+    crit: inert
     confidence: 0.8
     file_types: [javascript, typescript]
     condition:
@@ -412,7 +412,7 @@ traits:
   # Has schema validation
   - id: has-validation
     description: Code uses schema validation
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [javascript, typescript]
     condition:
@@ -422,7 +422,7 @@ traits:
   # Has database interaction
   - id: has-database
     description: Code interacts with database
-    criticality: inert
+    crit: inert
     confidence: 0.8
     file_types: [javascript, typescript]
     condition:
@@ -432,7 +432,7 @@ traits:
   # Has React/Vue/Angular patterns
   - id: has-frontend-framework
     description: Code uses frontend framework patterns
-    criticality: inert
+    crit: inert
     confidence: 0.9
     file_types: [javascript, typescript]
     condition:
@@ -442,7 +442,7 @@ traits:
   # Has decorator patterns
   - id: has-decorators
     description: Code uses TypeScript/ES decorators
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [javascript, typescript]
     condition:
@@ -452,7 +452,7 @@ traits:
   # Has dependency injection
   - id: has-di-pattern
     description: Code uses dependency injection
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [javascript, typescript]
     condition:
@@ -462,7 +462,7 @@ traits:
   # Has CLI argument parsing
   - id: has-cli-args
     description: Code parses CLI arguments
-    criticality: inert
+    crit: inert
     confidence: 0.8
     file_types: [javascript, typescript]
     condition:
@@ -472,7 +472,7 @@ traits:
   # Has proper error class
   - id: has-error-class
     description: Code defines custom error classes
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [javascript, typescript]
     condition:
@@ -482,7 +482,7 @@ traits:
   # Has getter/setter
   - id: has-accessors
     description: Code uses getters/setters
-    criticality: inert
+    crit: inert
     confidence: 0.8
     file_types: [javascript, typescript]
     condition:
@@ -492,7 +492,7 @@ traits:
   # Has symbol usage
   - id: has-symbols
     description: Code uses Symbol for private properties
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [javascript, typescript]
     condition:
@@ -502,7 +502,7 @@ traits:
   # Has WeakMap/WeakSet (private data pattern)
   - id: has-weak-collections
     description: Code uses WeakMap/WeakSet patterns
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [javascript, typescript]
     condition:
@@ -512,7 +512,7 @@ traits:
   # Has Proxy usage
   - id: has-proxy
     description: Code uses Proxy for metaprogramming
-    criticality: inert
+    crit: inert
     confidence: 0.8
     file_types: [javascript, typescript]
     condition:
@@ -522,7 +522,7 @@ traits:
   # Has generator functions
   - id: has-generators
     description: Code uses generator functions
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [javascript, typescript]
     condition:
@@ -532,7 +532,7 @@ traits:
   # Multiple named exports
   - id: has-multiple-exports
     description: Code has multiple named exports
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [javascript, typescript]
     condition:
@@ -553,7 +553,7 @@ traits:
   # References README file
   - id: references-readme
     description: Package references README file
-    criticality: inert
+    crit: inert
     confidence: 0.8
     file_types: [packagejson]
     condition:
@@ -563,7 +563,7 @@ traits:
   # References LICENSE file
   - id: references-license
     description: Package references LICENSE file
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [packagejson]
     condition:
@@ -573,7 +573,7 @@ traits:
   # References CHANGELOG
   - id: references-changelog
     description: Package references CHANGELOG
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [packagejson]
     condition:
@@ -583,7 +583,7 @@ traits:
   # Has dist/lib output directory
   - id: has-build-output
     description: Package has build output directory
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [packagejson]
     condition:
@@ -593,7 +593,7 @@ traits:
   # Has src directory structure
   - id: has-src-directory
     description: Package has src directory structure
-    criticality: inert
+    crit: inert
     confidence: 0.8
     file_types: [packagejson]
     condition:
@@ -603,7 +603,7 @@ traits:
   # Has test directory
   - id: has-test-directory
     description: Package references test directory
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [packagejson]
     condition:
@@ -613,7 +613,7 @@ traits:
   # Has examples directory
   - id: has-examples
     description: Package has examples directory
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [packagejson]
     condition:
@@ -623,7 +623,7 @@ traits:
   # Has docs directory
   - id: has-docs
     description: Package has documentation directory
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [packagejson]
     condition:
@@ -633,7 +633,7 @@ traits:
   # Has .github directory (CI/CD)
   - id: has-github-config
     description: Package references GitHub configuration
-    criticality: inert
+    crit: inert
     confidence: 0.9
     file_types: [packagejson]
     condition:
@@ -643,7 +643,7 @@ traits:
   # Has TypeScript config
   - id: has-tsconfig
     description: Package has TypeScript configuration
-    criticality: inert
+    crit: inert
     confidence: 0.9
     file_types: [packagejson]
     condition:
@@ -653,7 +653,7 @@ traits:
   # Has ESLint config
   - id: has-eslint-config
     description: Package has ESLint configuration
-    criticality: inert
+    crit: inert
     confidence: 0.9
     file_types: [packagejson]
     condition:
@@ -663,7 +663,7 @@ traits:
   # Has Prettier config
   - id: has-prettier-config
     description: Package has Prettier configuration
-    criticality: inert
+    crit: inert
     confidence: 0.9
     file_types: [packagejson]
     condition:
@@ -673,7 +673,7 @@ traits:
   # Has Jest config
   - id: has-jest-config
     description: Package has Jest configuration
-    criticality: inert
+    crit: inert
     confidence: 0.9
     file_types: [packagejson]
     condition:
@@ -683,7 +683,7 @@ traits:
   # Has Babel config
   - id: has-babel-config
     description: Package has Babel configuration
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [packagejson]
     condition:
@@ -693,7 +693,7 @@ traits:
   # Has editor config
   - id: has-editorconfig
     description: Package has editor configuration
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [packagejson]
     condition:
@@ -703,7 +703,7 @@ traits:
   # Has .npmignore or files field (publishing awareness)
   - id: has-publish-config
     description: Package has publishing configuration
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [packagejson]
     condition:
@@ -717,7 +717,7 @@ traits:
   # Has README file (detected via package.json main pointing to index)
   - id: has-index-entry
     description: Package has standard index entry point
-    criticality: inert
+    crit: inert
     confidence: 0.8
     file_types: [packagejson]
     condition:
@@ -727,7 +727,7 @@ traits:
   # Has types entry point
   - id: has-types-entry
     description: Package has TypeScript types entry
-    criticality: inert
+    crit: inert
     confidence: 0.9
     file_types: [packagejson]
     condition:
@@ -737,7 +737,7 @@ traits:
   # Has module entry (ESM)
   - id: has-module-entry
     description: Package has ESM module entry
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [packagejson]
     condition:
@@ -747,7 +747,7 @@ traits:
   # Has sideEffects field
   - id: has-side-effects
     description: Package declares sideEffects (tree-shaking support)
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [packagejson]
     condition:
@@ -757,7 +757,7 @@ traits:
   # Has browserslist
   - id: has-browserslist
     description: Package has browser target configuration
-    criticality: inert
+    crit: inert
     confidence: 0.8
     file_types: [packagejson]
     condition:
@@ -767,7 +767,7 @@ traits:
   # Has multiple entry points
   - id: has-multiple-entries
     description: Package has multiple entry points (complex library)
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [packagejson]
     condition:
@@ -786,7 +786,7 @@ traits:
   # Uses npm scripts for development workflow
   - id: has-dev-workflow
     description: Package has development workflow scripts
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [packagejson]
     condition:
@@ -807,7 +807,7 @@ traits:
   # Has CI badge indicators (usually in description or homepage)
   - id: ci-badge-reference
     description: References CI service (professional project)
-    criticality: inert
+    crit: inert
     confidence: 0.8
     file_types: [packagejson]
     condition:
@@ -817,7 +817,7 @@ traits:
   # Has conventional versioning
   - id: conventional-version
     description: Uses conventional version format
-    criticality: inert
+    crit: inert
     confidence: 0.75
     file_types: [packagejson]
     condition:
@@ -827,7 +827,7 @@ traits:
   # Has release/publish workflow scripts
   - id: has-release-scripts
     description: Package has release management scripts
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [packagejson]
     condition:
@@ -837,7 +837,7 @@ traits:
   # Has changeset or conventional commits tooling
   - id: has-changelog-tooling
     description: Package uses changelog/versioning tooling
-    criticality: inert
+    crit: inert
     confidence: 0.9
     file_types: [packagejson]
     condition:
@@ -847,7 +847,7 @@ traits:
   # Has peer dependency range (well-designed library)
   - id: peer-range
     description: Uses version ranges for peer dependencies
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [packagejson]
     condition:
@@ -857,7 +857,7 @@ traits:
   # Has optional dependencies
   - id: has-optional-deps
     description: Package has optional dependencies
-    criticality: inert
+    crit: inert
     confidence: 0.8
     file_types: [packagejson]
     condition:
@@ -867,7 +867,7 @@ traits:
   # Has cpu/os restrictions
   - id: has-platform-restrictions
     description: Package specifies platform restrictions
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [packagejson]
     condition:
@@ -877,7 +877,7 @@ traits:
   # Uses scoped name from known org
   - id: scoped-known-org
     description: Package from known organization scope
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [packagejson]
     condition:
@@ -887,7 +887,7 @@ traits:
   # Has npm scripts that reference node_modules/.bin
   - id: uses-bin-scripts
     description: Scripts reference node_modules binaries
-    criticality: inert
+    crit: inert
     confidence: 0.8
     file_types: [packagejson]
     condition:
@@ -897,7 +897,7 @@ traits:
   # Has husky/lint-staged (pre-commit tooling)
   - id: has-git-hooks
     description: Package uses git hooks tooling
-    criticality: inert
+    crit: inert
     confidence: 0.9
     file_types: [packagejson]
     condition:
@@ -911,7 +911,7 @@ traits:
   # Has test script defined
   - id: has-test-script
     description: Package has test script (legitimate pattern)
-    criticality: inert
+    crit: inert
     confidence: 0.9
     file_types: [packagejson]
     condition:
@@ -921,7 +921,7 @@ traits:
   # Has TypeScript configuration
   - id: has-typescript
     description: Package has TypeScript support
-    criticality: inert
+    crit: inert
     confidence: 0.9
     file_types: [packagejson]
     condition:
@@ -931,7 +931,7 @@ traits:
   # Has build script
   - id: has-build-script
     description: Package has build script (compiled package)
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [packagejson]
     condition:
@@ -941,7 +941,7 @@ traits:
   # Has lint script
   - id: has-lint-script
     description: Package has linting configured
-    criticality: inert
+    crit: inert
     confidence: 0.9
     file_types: [packagejson]
     condition:
@@ -951,7 +951,7 @@ traits:
   # Has prepublishOnly (good practice)
   - id: has-prepublish-only
     description: Package has prepublishOnly script (publish safety)
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [packagejson]
     condition:
@@ -961,7 +961,7 @@ traits:
   # Has repository field
   - id: has-repository
     description: Package has repository URL
-    criticality: inert
+    crit: inert
     confidence: 0.8
     file_types: [packagejson]
     condition:
@@ -971,7 +971,7 @@ traits:
   # Has proper author with email
   - id: has-author-email
     description: Package has author with email address
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [packagejson]
     condition:
@@ -981,7 +981,7 @@ traits:
   # Has license field
   - id: has-license
     description: Package has license field
-    criticality: inert
+    crit: inert
     confidence: 0.8
     file_types: [packagejson]
     condition:
@@ -991,7 +991,7 @@ traits:
   # Has keywords
   - id: has-keywords
     description: Package has keywords array
-    criticality: inert
+    crit: inert
     confidence: 0.75
     file_types: [packagejson]
     condition:
@@ -1001,7 +1001,7 @@ traits:
   # Has engines field
   - id: has-engines
     description: Package specifies Node.js engine version
-    criticality: inert
+    crit: inert
     confidence: 0.8
     file_types: [packagejson]
     condition:
@@ -1011,7 +1011,7 @@ traits:
   # Has exports field (modern ESM)
   - id: has-exports-field
     description: Package has modern exports field
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [packagejson]
     condition:
@@ -1021,7 +1021,7 @@ traits:
   # Has peerDependencies (library pattern)
   - id: has-peer-deps
     description: Package has peerDependencies (framework plugin pattern)
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [packagejson]
     condition:
@@ -1031,7 +1031,7 @@ traits:
   # Has devDependencies (development tooling)
   - id: has-dev-deps
     description: Package has devDependencies
-    criticality: inert
+    crit: inert
     confidence: 0.8
     file_types: [packagejson]
     condition:
@@ -1041,7 +1041,7 @@ traits:
   # Uses established test framework
   - id: uses-test-framework
     description: Package uses established testing framework
-    criticality: inert
+    crit: inert
     confidence: 0.9
     file_types: [packagejson]
     condition:
@@ -1051,7 +1051,7 @@ traits:
   # Has files field (explicit inclusion)
   - id: has-files-field
     description: Package explicitly lists published files
-    criticality: inert
+    crit: inert
     confidence: 0.8
     file_types: [packagejson]
     condition:
@@ -1061,7 +1061,7 @@ traits:
   # Mature version (not 0.0.1 or 1.0.0)
   - id: mature-version
     description: Package has mature version number
-    criticality: inert
+    crit: inert
     confidence: 0.7
     file_types: [packagejson]
     condition:
@@ -1071,7 +1071,7 @@ traits:
   # Has meaningful description (> 20 chars)
   - id: has-description
     description: Package has meaningful description
-    criticality: inert
+    crit: inert
     confidence: 0.75
     file_types: [packagejson]
     condition:
@@ -1081,7 +1081,7 @@ traits:
   # Has bin field (CLI tool)
   - id: has-bin-field
     description: Package provides CLI binary
-    criticality: inert
+    crit: inert
     confidence: 0.8
     file_types: [packagejson]
     condition:
@@ -1091,7 +1091,7 @@ traits:
   # Has funding field
   - id: has-funding
     description: Package has funding information
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [packagejson]
     condition:
@@ -1101,7 +1101,7 @@ traits:
   # Has bugs/issues URL
   - id: has-bugs-url
     description: Package has bugs/issues URL
-    criticality: inert
+    crit: inert
     confidence: 0.8
     file_types: [packagejson]
     condition:
@@ -1111,7 +1111,7 @@ traits:
   # Has homepage
   - id: has-homepage
     description: Package has homepage URL
-    criticality: inert
+    crit: inert
     confidence: 0.8
     file_types: [packagejson]
     condition:
@@ -1121,7 +1121,7 @@ traits:
   # Has contributors
   - id: has-contributors
     description: Package has contributors list
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [packagejson]
     condition:
@@ -1131,7 +1131,7 @@ traits:
   # Has workspaces (monorepo)
   - id: has-workspaces
     description: Package uses workspaces (monorepo pattern)
-    criticality: inert
+    crit: inert
     confidence: 0.9
     file_types: [packagejson]
     condition:
@@ -1141,7 +1141,7 @@ traits:
   # Has private field
   - id: is-private
     description: Package marked as private
-    criticality: inert
+    crit: inert
     confidence: 0.8
     file_types: [packagejson]
     condition:
@@ -1151,7 +1151,7 @@ traits:
   # Uses semantic versioning dependencies
   - id: semver-deps
     description: Uses semantic versioning for dependencies
-    criticality: inert
+    crit: inert
     confidence: 0.75
     file_types: [packagejson]
     condition:
@@ -1161,7 +1161,7 @@ traits:
   # Has publishConfig
   - id: has-publish-config
     description: Has publish configuration
-    criticality: inert
+    crit: inert
     confidence: 0.85
     file_types: [packagejson]
     condition:
@@ -1174,7 +1174,7 @@ traits:
   # Jest test file
   - id: jest-test-file
     description: Jest test file markers
-    criticality: inert
+    crit: inert
     confidence: 0.95
     file_types: [javascript, typescript]
     condition:
@@ -1197,7 +1197,7 @@ traits:
   # Mocha test file
   - id: mocha-test-file
     description: Mocha test file markers
-    criticality: inert
+    crit: inert
     confidence: 0.95
     file_types: [javascript, typescript]
     condition:
@@ -1219,7 +1219,7 @@ traits:
   # Vitest test file
   - id: vitest-test-file
     description: Vitest test file markers
-    criticality: inert
+    crit: inert
     confidence: 0.95
     file_types: [javascript, typescript]
     condition:
@@ -1229,7 +1229,7 @@ traits:
   # Test file naming pattern
   - id: test-filename-pattern
     description: File follows test naming convention
-    criticality: inert
+    crit: inert
     confidence: 0.9
     file_types: [javascript, typescript]
     condition:
@@ -1250,7 +1250,7 @@ traits:
   # Test fixture/mock data
   - id: test-fixtures
     description: Test fixture or mock data markers
-    criticality: inert
+    crit: inert
     confidence: 0.9
     file_types: [javascript, typescript]
     condition:
@@ -1272,7 +1272,7 @@ traits:
   # Snapshot testing
   - id: snapshot-test
     description: Snapshot testing patterns
-    criticality: inert
+    crit: inert
     confidence: 0.95
     file_types: [javascript, typescript]
     condition:
@@ -1282,7 +1282,7 @@ traits:
   # E2E test frameworks
   - id: e2e-test
     description: E2E test framework markers
-    criticality: inert
+    crit: inert
     confidence: 0.9
     file_types: [javascript, typescript]
     condition:
@@ -1311,7 +1311,7 @@ traits:
   # Testing library patterns
   - id: testing-library
     description: Testing Library patterns
-    criticality: inert
+    crit: inert
     confidence: 0.95
     file_types: [javascript, typescript]
     condition:
@@ -1338,7 +1338,7 @@ traits:
   # Test configuration files
   - id: test-config
     description: Test configuration file
-    criticality: inert
+    crit: inert
     confidence: 0.95
     file_types: [javascript, typescript]
     condition:
@@ -1359,7 +1359,7 @@ traits:
   # Coverage markers
   - id: coverage-markers
     description: Code coverage markers
-    criticality: inert
+    crit: inert
     confidence: 0.9
     file_types: [javascript, typescript]
     condition:

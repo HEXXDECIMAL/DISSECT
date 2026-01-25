@@ -1,20 +1,20 @@
 traits:
   - id: ptrace
-    description: Uses ptrace - debugger or anti-debug technique
-    confidence: 0.85
-    criticality: suspicious
+    desc: Uses ptrace - debugger or anti-debug technique
+    conf: 0.85
+    crit: suspicious
     platforms: [linux]
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: syscall
       name: ["ptrace"]
 
   - id: process-memory-access
-    description: Reads or writes another process memory
-    confidence: 0.9
-    criticality: suspicious
+    desc: Reads or writes another process memory
+    conf: 0.9
+    crit: suspicious
     platforms: [linux]
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: syscall
       name: ["process_vm_readv", "process_vm_writev"]

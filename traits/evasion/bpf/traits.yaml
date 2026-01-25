@@ -4,11 +4,11 @@
 traits:
   # Malicious BPF usage (backdoor patterns)
   - id: backdoor
-    description: BPF packet filtering for backdoor activation
-    criticality: suspicious
-    confidence: 0.8
+    desc: BPF packet filtering for backdoor activation
+    crit: suspicious
+    conf: 0.8
     attack: "T1205"
-    condition:
+    if:
       type: yara
       source: |
         rule bpf_backdoor {
@@ -32,12 +32,12 @@ traits:
 
   # BPFDoor-style backdoor
   - id: bpfdoor-style
-    description: BPFDoor-style packet filter backdoor
-    criticality: suspicious
-    confidence: 0.9
+    desc: BPFDoor-style packet filter backdoor
+    crit: suspicious
+    conf: 0.9
     attack: "T1205"
-    file_types: [elf, c]
-    condition:
+    for: [elf, c]
+    if:
       type: yara
       source: |
         rule bpfdoor_style {
@@ -62,10 +62,10 @@ traits:
 
   # Legitimate eBPF tracing
   - id: tracing
-    description: Legitimate eBPF tracing/observability
-    criticality: benign
-    confidence: 0.85
-    condition:
+    desc: Legitimate eBPF tracing/observability
+    crit: benign
+    conf: 0.85
+    if:
       type: yara
       source: |
         rule ebpf_tracing {

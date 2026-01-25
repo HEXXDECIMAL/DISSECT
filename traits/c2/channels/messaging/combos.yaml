@@ -2,21 +2,21 @@
 
 composite_rules:
   - id: telegram
-    description: Data exfiltration via Telegram
-    criticality: suspicious
+    desc: Data exfiltration via Telegram
+    crit: suspicious
     mbc: "B0030.001"
     attack: "T1567.001"
-    confidence: 0.95
-    requires_all:
+    conf: 0.95
+    all:
       - id: telegram-api
       - id: telegram-send
 
   - id: discord
-    description: Data exfiltration via Discord webhook
-    criticality: suspicious
+    desc: Data exfiltration via Discord webhook
+    crit: suspicious
     mbc: "B0030.001"
     attack: "T1567.001"
-    confidence: 0.9
-    file_types: [javascript, python, powershell, shell]
-    requires_any:
+    conf: 0.9
+    for: [javascript, python, powershell, shell]
+    any:
       - id: discord-webhook

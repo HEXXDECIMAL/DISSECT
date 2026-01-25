@@ -4,88 +4,88 @@
 
 traits:
   - id: npm-token
-    description: NPM_TOKEN environment variable access
-    criticality: suspicious
-    confidence: 0.95
+    desc: NPM_TOKEN environment variable access
+    crit: suspicious
+    conf: 0.95
     attack: "T1552.001"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       exact: "NPM_TOKEN"
 
   - id: node-auth-token
-    description: NODE_AUTH_TOKEN environment variable access
-    criticality: suspicious
-    confidence: 0.95
+    desc: NODE_AUTH_TOKEN environment variable access
+    crit: suspicious
+    conf: 0.95
     attack: "T1552.001"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       exact: "NODE_AUTH_TOKEN"
 
   # === npm config token atomic indicators ===
   - id: npm-config-token-lower
-    description: npm_config token (lowercase)
-    criticality: notable
-    confidence: 0.8
+    desc: npm_config token (lowercase)
+    crit: notable
+    conf: 0.8
     attack: "T1552.001"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       regex: "npm_config.*token"
 
   - id: npm-config-token-upper
-    description: NPM_CONFIG TOKEN (uppercase)
-    criticality: notable
-    confidence: 0.8
+    desc: NPM_CONFIG TOKEN (uppercase)
+    crit: notable
+    conf: 0.8
     attack: "T1552.001"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       regex: "NPM_CONFIG.*TOKEN"
 
   # === npmrc access atomic indicators ===
   - id: dot-npmrc
-    description: .npmrc file reference
-    criticality: notable
-    confidence: 0.8
+    desc: .npmrc file reference
+    crit: notable
+    conf: 0.8
     attack: "T1552.001"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       exact: ".npmrc"
 
   - id: npmrc-word
-    description: npmrc word reference
-    criticality: notable
-    confidence: 0.8
+    desc: npmrc word reference
+    crit: notable
+    conf: 0.8
     attack: "T1552.001"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       exact: "npmrc"
 
 composite_rules:
   # npm config token composite
   - id: npm-config-token
-    description: npm_config token access
-    criticality: suspicious
-    confidence: 0.9
+    desc: npm_config token access
+    crit: suspicious
+    conf: 0.9
     attack: "T1552.001"
-    file_types: [javascript]
+    for: [javascript]
     requires_count: 1
-    conditions:
+    any:
       - id: npm-config-token-lower
       - id: npm-config-token-upper
 
   # npmrc access composite
   - id: npmrc-access
-    description: .npmrc file access (contains tokens)
-    criticality: suspicious
-    confidence: 0.9
+    desc: .npmrc file access (contains tokens)
+    crit: suspicious
+    conf: 0.9
     attack: "T1552.001"
-    file_types: [javascript]
+    for: [javascript]
     requires_count: 1
-    conditions:
+    any:
       - id: dot-npmrc
       - id: npmrc-word

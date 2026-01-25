@@ -4,10 +4,10 @@
 
 traits:
   - id: nodejs-title
-    description: "Modify process title in NodeJS (masquerading)"
-    criticality: notable
-    confidence: 0.9
-    condition:
+    desc: "Modify process title in NodeJS (masquerading)"
+    crit: notable
+    conf: 0.9
+    if:
       type: string
       regex: |
         process\.title\s*=

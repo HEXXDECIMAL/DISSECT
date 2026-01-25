@@ -5,127 +5,127 @@
 traits:
   # === Infinite loop atomic indicators ===
   - id: while-not-not-array
-    description: while(!![]) infinite loop pattern
-    criticality: notable
-    confidence: 0.85
+    desc: while(!![]) infinite loop pattern
+    crit: notable
+    conf: 0.85
     attack: "T1027"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       regex: "while\\s*\\(\\s*!!\\[\\]\\s*\\)"
 
   - id: while-not-zero
-    description: while(!0) infinite loop pattern
-    criticality: notable
-    confidence: 0.85
+    desc: while(!0) infinite loop pattern
+    crit: notable
+    conf: 0.85
     attack: "T1027"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       regex: "while\\s*\\(\\s*!0\\s*\\)"
 
   - id: while-not-space-zero
-    description: while(! 0) infinite loop pattern
-    criticality: notable
-    confidence: 0.85
+    desc: while(! 0) infinite loop pattern
+    crit: notable
+    conf: 0.85
     attack: "T1027"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       regex: "while\\s*\\(\\s*!\\s*0\\s*\\)"
 
   # === String array rotation atomic indicators ===
   - id: push-shift-pattern
-    description: push then shift rotation pattern
-    criticality: inert
-    confidence: 0.75
+    desc: push then shift rotation pattern
+    crit: inert
+    conf: 0.75
     attack: "T1027"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       regex: "push.*shift"
 
   - id: shift-push-pattern
-    description: shift then push rotation pattern
-    criticality: inert
-    confidence: 0.75
+    desc: shift then push rotation pattern
+    crit: inert
+    conf: 0.75
     attack: "T1027"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       regex: "shift.*push"
 
   # === Buffer hex encoding atomic indicators ===
   - id: buffer-from-hex-word
-    description: Buffer.from with hex word
-    criticality: notable
-    confidence: 0.7
+    desc: Buffer.from with hex word
+    crit: notable
+    conf: 0.7
     attack: "T1027"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       regex: "Buffer\\.from.*hex"
 
   - id: buffer-from-hex-single
-    description: Buffer.from with 'hex' string
-    criticality: notable
-    confidence: 0.7
+    desc: Buffer.from with 'hex' string
+    crit: notable
+    conf: 0.7
     attack: "T1027"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       exact: "Buffer.from.*'hex'"
 
   - id: buffer-from-hex-double
-    description: Buffer.from with "hex" string
-    criticality: notable
-    confidence: 0.7
+    desc: Buffer.from with "hex" string
+    crit: notable
+    conf: 0.7
     attack: "T1027"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
-      exact: "Buffer.from.*\"hex\""
+      exact: 'Buffer.from.*"hex"'
 
   # === fromCharCode atomic indicators ===
   - id: string-fromcharcode
-    description: String.fromCharCode method
-    criticality: notable
-    confidence: 0.75
+    desc: String.fromCharCode method
+    crit: notable
+    conf: 0.75
     attack: "T1027"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       exact: "String.fromCharCode"
 
   - id: fromcharcode-call
-    description: fromCharCode( call
-    criticality: notable
-    confidence: 0.75
+    desc: fromCharCode( call
+    crit: notable
+    conf: 0.75
     attack: "T1027"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       exact: "fromCharCode("
 
   - id: obfuscator-variables
-    description: JavaScript obfuscator tool signature (_0x naming pattern)
-    criticality: suspicious
-    confidence: 0.95
+    desc: JavaScript obfuscator tool signature (_0x naming pattern)
+    crit: suspicious
+    conf: 0.95
     attack: "T1027"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       regex: "_0x[a-fA-F0-9]{4,8}"
       min_count: 10
       search_raw: true
 
   - id: hex-literal-density
-    description: High density of hex literals (obfuscated arithmetic)
-    criticality: suspicious
-    confidence: 0.85
+    desc: High density of hex literals (obfuscated arithmetic)
+    crit: suspicious
+    conf: 0.85
     attack: "T1027"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       regex: "0x[a-fA-F0-9]+"
       min_count: 50
@@ -134,50 +134,50 @@ traits:
 composite_rules:
   # Infinite loop composite
   - id: infinite-loop
-    description: Obfuscated infinite loop (while(!![]) pattern)
-    criticality: suspicious
-    confidence: 0.9
+    desc: Obfuscated infinite loop (while(!![]) pattern)
+    crit: suspicious
+    conf: 0.9
     attack: "T1027"
-    file_types: [javascript]
-    requires_count: 1
-    conditions:
+    for: [javascript]
+    count: 1
+    any:
       - id: while-not-not-array
       - id: while-not-zero
       - id: while-not-space-zero
 
   # String array rotation composite
   - id: string-array-rotation
-    description: String array with rotation decoder (obfuscation)
-    criticality: suspicious
-    confidence: 0.85
+    desc: String array with rotation decoder (obfuscation)
+    crit: suspicious
+    conf: 0.85
     attack: "T1027"
-    file_types: [javascript]
-    requires_count: 1
-    conditions:
+    for: [javascript]
+    count: 1
+    any:
       - id: push-shift-pattern
       - id: shift-push-pattern
 
   # Buffer hex encoding composite
   - id: buffer-hex-encoding
-    description: Buffer with hex encoding (obfuscation)
-    criticality: suspicious
-    confidence: 0.8
+    desc: Buffer with hex encoding (obfuscation)
+    crit: suspicious
+    conf: 0.8
     attack: "T1027"
-    file_types: [javascript]
-    requires_count: 1
-    conditions:
+    for: [javascript]
+    count: 1
+    any:
       - id: buffer-from-hex-word
       - id: buffer-from-hex-single
       - id: buffer-from-hex-double
 
   # fromCharCode composite
   - id: fromCharCode
-    description: String.fromCharCode obfuscation
-    criticality: suspicious
-    confidence: 0.85
+    desc: String.fromCharCode obfuscation
+    crit: suspicious
+    conf: 0.85
     attack: "T1027"
-    file_types: [javascript]
-    requires_count: 1
-    conditions:
+    for: [javascript]
+    count: 1
+    any:
       - id: string-fromcharcode
       - id: fromcharcode-call

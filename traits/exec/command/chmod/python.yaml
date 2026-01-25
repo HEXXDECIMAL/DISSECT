@@ -3,23 +3,23 @@
 
 traits:
   - id: call
-    description: "Modifies file permissions via os.chmod"
-    criticality: notable
-    confidence: 0.85
+    desc: "Modifies file permissions via os.chmod"
+    crit: notable
+    conf: 0.85
     mbc: "C0047"
     attack: "T1222.002"
-    file_types: [python]
-    condition:
+    for: [python]
+    if:
       type: string
       regex: "os\\.chmod\\("
 
   - id: executable
-    description: "Sets executable permissions via chmod (0o7xx)"
-    criticality: suspicious
-    confidence: 0.9
+    desc: "Sets executable permissions via chmod (0o7xx)"
+    crit: suspicious
+    conf: 0.9
     mbc: "C0047"
     attack: "T1222.002"
-    file_types: [python]
-    condition:
+    for: [python]
+    if:
       type: string
       regex: "0o7[0-7][0-7]"

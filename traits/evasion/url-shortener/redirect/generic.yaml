@@ -5,85 +5,85 @@
 
 traits:
   - id: url-shortener-bitly
-    description: URL shortened via bit.ly (hides true destination)
-    criticality: suspicious
-    confidence: 0.9
+    desc: URL shortened via bit.ly (hides true destination)
+    crit: suspicious
+    conf: 0.9
     mbc: "C0036"
     attack: "T1027"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       regex: "bit\\.ly/[A-Za-z0-9]+"
       search_raw: true
 
   - id: url-shortener-tinyurl
-    description: URL shortened via tinyurl.com (hides true destination)
-    criticality: suspicious
-    confidence: 0.9
+    desc: URL shortened via tinyurl.com (hides true destination)
+    crit: suspicious
+    conf: 0.9
     mbc: "C0036"
     attack: "T1027"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       regex: "tinyurl\\.com/[A-Za-z0-9]+"
       search_raw: true
 
   - id: url-shortener-goo-gl
-    description: URL shortened via goo.gl (hides true destination)
-    criticality: suspicious
-    confidence: 0.9
+    desc: URL shortened via goo.gl (hides true destination)
+    crit: suspicious
+    conf: 0.9
     mbc: "C0036"
     attack: "T1027"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       regex: "goo\\.gl/[A-Za-z0-9]+"
       search_raw: true
 
   - id: url-shortener-t-co
-    description: URL shortened via t.co (hides true destination)
-    criticality: notable
-    confidence: 0.85
+    desc: URL shortened via t.co (hides true destination)
+    crit: notable
+    conf: 0.85
     mbc: "C0036"
     attack: "T1027"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       regex: "t\\.co/[A-Za-z0-9]+"
       search_raw: true
 
   - id: url-shortener-is-gd
-    description: URL shortened via is.gd (hides true destination)
-    criticality: suspicious
-    confidence: 0.9
+    desc: URL shortened via is.gd (hides true destination)
+    crit: suspicious
+    conf: 0.9
     mbc: "C0036"
     attack: "T1027"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       regex: "is\\.gd/[A-Za-z0-9]+"
       search_raw: true
 
   - id: url-shortener-cutt-ly
-    description: URL shortened via cutt.ly (hides true destination)
-    criticality: suspicious
-    confidence: 0.9
+    desc: URL shortened via cutt.ly (hides true destination)
+    crit: suspicious
+    conf: 0.9
     mbc: "C0036"
     attack: "T1027"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       regex: "cutt\\.ly/[A-Za-z0-9]+"
       search_raw: true
 
   - id: url-shortener-rebrand-ly
-    description: URL shortened via rebrand.ly (hides true destination)
-    criticality: suspicious
-    confidence: 0.9
+    desc: URL shortened via rebrand.ly (hides true destination)
+    crit: suspicious
+    conf: 0.9
     mbc: "C0036"
     attack: "T1027"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       regex: "rebrand\\.ly/[A-Za-z0-9]+"
       search_raw: true

@@ -5,9 +5,9 @@
 traits:
   - id: chattr
     description: Modify Linux file attributes
-    criticality: notable
-    confidence: 0.66
-    condition:
+    crit: notable
+    conf: 0.66
+    if:
       type: yara
       source: |
         rule chattr {
@@ -19,9 +19,9 @@ traits:
 
   - id: chattr-immutable
     description: Modify immutability of a file
-    criticality: suspicious
-    confidence: 0.66
-    condition:
+    crit: suspicious
+    conf: 0.66
+    if:
       type: yara
       source: |
         rule chattr_immutable {
@@ -34,9 +34,9 @@ traits:
 
   - id: chattr-immutable-recursive
     description: Recursively remove immutability of a directory
-    criticality: suspicious
-    confidence: 0.66
-    condition:
+    crit: suspicious
+    conf: 0.66
+    if:
       type: yara
       source: |
         rule chattr_immutable_recursive {

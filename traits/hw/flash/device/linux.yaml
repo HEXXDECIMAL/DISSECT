@@ -3,27 +3,27 @@
 traits:
   - id: mtd
     description: Access raw flash memory (MTD)
-    criticality: suspicious
-    confidence: 0.8
+    crit: suspicious
+    conf: 0.8
     platforms: [linux]
-    condition:
+    if:
       type: string
       regex: "/dev/(block/)?mtd"
 
   - id: mmc
     description: Access raw SD/MMC devices
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     platforms: [linux]
-    condition:
+    if:
       type: string
       regex: "/dev/(block/)?mmcblk"
 
   - id: ubi
     description: Access raw unsorted block images (UBI)
-    criticality: suspicious
-    confidence: 0.8
+    crit: suspicious
+    conf: 0.8
     platforms: [linux]
-    condition:
+    if:
       type: string
       regex: "/dev/ubi"

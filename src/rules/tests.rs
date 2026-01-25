@@ -147,18 +147,18 @@ fn test_composite_requires_all() {
 
     let rule = CompositeTrait {
         id: "test/requires-all".to_string(),
-        description: "Test requires all".to_string(),
-        confidence: 0.9,
-        criticality: Criticality::Notable,
+        desc: "Test requires all".to_string(),
+        conf: 0.9,
+        crit: Criticality::Notable,
         mbc: None,
         attack: None,
         platforms: vec![Platform::All],
-        file_types: vec![FileType::All],
+        for: vec![FileType::All],
         scope: ScopeLevel::None,
         near: None,
         near_lines: None,
         within: None,
-        requires_all: Some(vec![
+        all: Some(vec![
             Condition::Symbol {
                 pattern: "socket".to_string(),
                 platforms: None,
@@ -168,10 +168,10 @@ fn test_composite_requires_all() {
                 platforms: None,
             },
         ]),
-        requires_any: None,
-        requires_count: None,
-        conditions: None,
-        requires_none: None,
+        any: None,
+        count: None,
+        any: None,
+        none: None,
     };
 
     let result = rule.evaluate(&ctx);
@@ -190,19 +190,19 @@ fn test_composite_requires_any() {
 
     let rule = CompositeTrait {
         id: "test/requires-any".to_string(),
-        description: "Test requires any".to_string(),
-        confidence: 0.9,
-        criticality: Criticality::Notable,
+        desc: "Test requires any".to_string(),
+        conf: 0.9,
+        crit: Criticality::Notable,
         mbc: None,
         attack: None,
         platforms: vec![Platform::All],
-        file_types: vec![FileType::All],
+        for: vec![FileType::All],
         scope: ScopeLevel::None,
         near: None,
         near_lines: None,
         within: None,
-        requires_all: None,
-        requires_any: Some(vec![
+        all: None,
+        any: Some(vec![
             Condition::Symbol {
                 pattern: "nonexistent".to_string(),
                 platforms: None,
@@ -212,9 +212,9 @@ fn test_composite_requires_any() {
                 platforms: None,
             },
         ]),
-        requires_count: None,
-        conditions: None,
-        requires_none: None,
+        count: None,
+        any: None,
+        none: None,
     };
 
     let result = rule.evaluate(&ctx);
@@ -234,22 +234,22 @@ fn test_composite_requires_none() {
     // Should fail because socket IS present
     let rule = CompositeTrait {
         id: "test/requires-none".to_string(),
-        description: "Test requires none".to_string(),
-        confidence: 0.9,
-        criticality: Criticality::Notable,
+        desc: "Test requires none".to_string(),
+        conf: 0.9,
+        crit: Criticality::Notable,
         mbc: None,
         attack: None,
         platforms: vec![Platform::All],
-        file_types: vec![FileType::All],
+        for: vec![FileType::All],
         scope: ScopeLevel::None,
         near: None,
         near_lines: None,
         within: None,
-        requires_all: None,
-        requires_any: None,
-        requires_count: None,
-        conditions: None,
-        requires_none: Some(vec![Condition::Symbol {
+        all: None,
+        any: None,
+        count: None,
+        any: None,
+        none: Some(vec![Condition::Symbol {
             pattern: "socket".to_string(),
             platforms: None,
         }]),
@@ -315,14 +315,14 @@ int main() {
 
     let trait_def = TraitDefinition {
         id: "exec/command/system".to_string(),
-        description: "System command execution".to_string(),
-        confidence: 0.95,
-        criticality: Criticality::Suspicious,
+        desc: "System command execution".to_string(),
+        conf: 0.95,
+        crit: Criticality::Suspicious,
         mbc: Some("E1059".to_string()),
         attack: Some("T1059".to_string()),
         platforms: vec![Platform::All],
-        file_types: vec![FileType::C],
-        condition: Condition::AstPattern {
+        for: vec![FileType::C],
+        if: Condition::AstPattern {
             node_type: "call_expression".to_string(),
             pattern: "system".to_string(),
             regex: false,
@@ -642,14 +642,14 @@ fn test_syscall_trait_definition() {
 
     let trait_def = TraitDefinition {
         id: "syscall/process/daemon".to_string(),
-        description: "Daemon behavior via syscalls".to_string(),
-        confidence: 0.9,
-        criticality: Criticality::Suspicious,
+        desc: "Daemon behavior via syscalls".to_string(),
+        conf: 0.9,
+        crit: Criticality::Suspicious,
         mbc: None,
         attack: Some("T1543".to_string()),
         platforms: vec![Platform::Linux],
-        file_types: vec![FileType::Elf],
-        condition: Condition::Syscall {
+        for: vec![FileType::Elf],
+        if: Condition::Syscall {
             name: Some(vec!["fork".to_string(), "setsid".to_string()]),
             number: None,
             arch: None,
@@ -676,7 +676,7 @@ arch:
   - x86_64
 min_count: 2
 "#;
-    let condition: Condition = serde_yaml::from_str(yaml).unwrap();
+    let if: Condition = serde_yaml::from_str(yaml).unwrap();
     match condition {
         Condition::Syscall {
             name,
@@ -700,7 +700,7 @@ type: syscall
 name:
   - execve
 "#;
-    let condition: Condition = serde_yaml::from_str(yaml).unwrap();
+    let if: Condition = serde_yaml::from_str(yaml).unwrap();
     match condition {
         Condition::Syscall {
             name,

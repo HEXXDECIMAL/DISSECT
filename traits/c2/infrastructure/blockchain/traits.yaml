@@ -5,55 +5,55 @@
 traits:
   # === Etherscan atomic indicators ===
   - id: etherscan-api-prefix
-    description: Etherscan API endpoint (api.etherscan.io)
-    criticality: notable
-    confidence: 0.8
+    desc: Etherscan API endpoint (api.etherscan.io)
+    crit: notable
+    conf: 0.8
     attack: "T1102"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "api.etherscan.io"
 
   - id: etherscan-api-suffix
-    description: Etherscan API path (etherscan.io/api)
-    criticality: notable
-    confidence: 0.8
+    desc: Etherscan API path (etherscan.io/api)
+    crit: notable
+    conf: 0.8
     attack: "T1102"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "etherscan.io/api"
 
   # BSCScan API (Binance Smart Chain)
   - id: bscscan-api
-    description: Uses BSCScan API (potential blockchain-based C2)
-    criticality: suspicious
-    confidence: 0.85
+    desc: Uses BSCScan API (potential blockchain-based C2)
+    crit: suspicious
+    conf: 0.85
     attack: "T1102"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "api\\.bscscan\\.com|bscscan\\.com/api"
 
   # PolygonScan API
   - id: polygonscan-api
-    description: Uses PolygonScan API (potential blockchain-based C2)
-    criticality: suspicious
-    confidence: 0.85
+    desc: Uses PolygonScan API (potential blockchain-based C2)
+    crit: suspicious
+    conf: 0.85
     attack: "T1102"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "api\\.polygonscan\\.com|polygonscan\\.com/api"
 
   # Generic blockchain explorer with contract read
   - id: contract-read
-    description: Reads smart contract storage (potential C2 retrieval)
-    criticality: notable
-    confidence: 0.75
+    desc: Reads smart contract storage (potential C2 retrieval)
+    crit: notable
+    conf: 0.75
     attack: "T1102"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule contract_storage_read {
@@ -68,69 +68,68 @@ traits:
 
   # Infura/Alchemy RPC with suspicious patterns
   - id: rpc-provider
-    description: Uses blockchain RPC provider (monitor for C2 abuse)
-    criticality: notable
-    confidence: 0.6
+    desc: Uses blockchain RPC provider (monitor for C2 abuse)
+    crit: notable
+    conf: 0.6
     attack: "T1102"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "infura\\.io/v3/|alchemy\\.com/v2/|quicknode\\.com|ankr\\.com"
 
   # IPFS gateway (decentralized payload hosting)
   - id: ipfs-gateway
-    description: Uses IPFS gateway (decentralized content retrieval)
-    criticality: notable
-    confidence: 0.7
+    desc: Uses IPFS gateway (decentralized content retrieval)
+    crit: notable
+    conf: 0.7
     attack: "T1102"
-    file_types: [javascript, typescript, shell]
-    condition:
+    for: [javascript, typescript, shell]
+    if:
       type: string
       regex: "ipfs\\.io/ipfs/|gateway\\.pinata\\.cloud|cloudflare-ipfs\\.com|dweb\\.link"
 
   # === Arweave atomic indicators ===
   - id: arweave-net
-    description: Arweave.net gateway
-    criticality: inert
-    confidence: 0.6
+    desc: Arweave.net gateway
+    crit: inert
+    conf: 0.6
     attack: "T1102"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "arweave.net/"
 
   - id: ar-io-net
-    description: AR-IO.net gateway
-    criticality: inert
-    confidence: 0.6
+    desc: AR-IO.net gateway
+    crit: inert
+    conf: 0.6
     attack: "T1102"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "ar-io.net/"
 
 composite_rules:
   # Etherscan API composite
   - id: etherscan-api
-    description: Uses Etherscan API (potential blockchain-based C2)
-    criticality: suspicious
-    confidence: 0.85
+    desc: Uses Etherscan API (potential blockchain-based C2)
+    crit: suspicious
+    conf: 0.85
     attack: "T1102"
-    file_types: [javascript, typescript]
-    requires_count: 1
-    conditions:
+    for: [javascript, typescript]
+    count: 1
+    any:
       - id: etherscan-api-prefix
       - id: etherscan-api-suffix
 
   # Arweave gateway composite
   - id: arweave-gateway
-    description: Uses Arweave gateway (permanent content retrieval)
-    criticality: notable
-    confidence: 0.7
+    desc: Uses Arweave gateway (permanent content retrieval)
+    crit: notable
+    conf: 0.7
     attack: "T1102"
-    file_types: [javascript, typescript]
-    requires_count: 1
-    conditions:
+    for: [javascript, typescript]
+    count: 1
+    any:
       - id: arweave-net
       - id: ar-io-net
-

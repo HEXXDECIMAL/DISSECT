@@ -5,7 +5,7 @@ composite_rules:
   # Self-termination: GetCurrentProcess + Kill
   - id: self-termination
     description: "Self-destruct: terminates own process"
-    criticality: suspicious
+    crit: suspicious
     mbc: "E1562"
     attack: "T1562"
     confidence: 0.95
@@ -17,7 +17,7 @@ composite_rules:
   # Probabilistic execution: Random number decides whether to execute
   - id: probabilistic-execution
     description: "Probabilistic execution: uses randomness to evade consistent detection"
-    criticality: suspicious
+    crit: suspicious
     mbc: "B0009"
     attack: "T1497"
     confidence: 0.9
@@ -28,7 +28,7 @@ composite_rules:
   # Logic bomb with self-destruct
   - id: logic-bomb-self-destruct
     description: "Logic bomb: time-triggered self-destruct with date-based activation"
-    criticality: suspicious
+    crit: suspicious
     mbc: "B0003"
     attack: "T1480.001"
     confidence: 0.95
@@ -41,7 +41,7 @@ composite_rules:
   # Logic bomb with probabilistic self-destruct
   - id: logic-bomb-probabilistic-self-destruct
     description: "Logic bomb: time-triggered probabilistic self-destruct (activates after date with random chance)"
-    criticality: suspicious
+    crit: suspicious
     mbc: "B0003"
     attack: "T1480.001"
     confidence: 0.95
@@ -55,7 +55,7 @@ composite_rules:
   # Supply chain: SQL library with malicious payload
   - id: supply-chain-sql-backdoor
     description: "Supply chain attack: malicious code hidden in SQL database extension"
-    criticality: suspicious
+    crit: suspicious
     mbc: "B0003"
     attack: "T1195.001"
     confidence: 0.95
@@ -70,7 +70,7 @@ composite_rules:
   # Concentrated malicious code: all behaviors within 30 lines (tight proximity)
   - id: concentrated-logic-bomb
     description: "Concentrated logic bomb: all malicious behaviors in close proximity"
-    criticality: suspicious
+    crit: suspicious
     mbc: "B0003"
     attack: "T1480.001"
     confidence: 0.98

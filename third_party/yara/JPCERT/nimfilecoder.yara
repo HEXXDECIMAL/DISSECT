@@ -8,7 +8,7 @@ rule malware_NimFilecoder {
       $str1 = ":wtfbbq" ascii wide
       $lib  = "clr.nim"  ascii wide
 
-    condition:
+    if:
       uint16(0) == 0x5A4D and all of them
 }
 
@@ -44,7 +44,7 @@ rule malware_NimFilecoder02 {
       $s8 = "[GC] cannot register thread local variable" fullword ascii
       $s9 = "streams.nim" fullword ascii
 
-    condition:
+    if:
       uint16(0) == 0x5A4D and
       uint32(uint32(0x3c)) == 0x00004550 and
       all of them

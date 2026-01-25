@@ -5,11 +5,11 @@
 traits:
   # Machine ID collection
   - id: machine-id
-    description: Machine ID collection for victim identification
-    criticality: suspicious
-    confidence: 0.8
+    desc: Machine ID collection for victim identification
+    crit: suspicious
+    conf: 0.8
     attack: "T1082"
-    condition:
+    if:
       type: yara
       source: |
         rule machine_id {
@@ -27,11 +27,11 @@ traits:
 
   # DMI/SMBIOS data collection
   - id: dmi-smbios
-    description: DMI/SMBIOS hardware information collection
-    criticality: notable
-    confidence: 0.75
+    desc: DMI/SMBIOS hardware information collection
+    crit: notable
+    conf: 0.75
     attack: "T1082"
-    condition:
+    if:
       type: yara
       source: |
         rule dmi_smbios {
@@ -51,11 +51,11 @@ traits:
 
   # CPU fingerprinting
   - id: cpu-info
-    description: CPU information fingerprinting
-    criticality: notable
-    confidence: 0.7
+    desc: CPU information fingerprinting
+    crit: notable
+    conf: 0.7
     attack: "T1082"
-    condition:
+    if:
       type: yara
       source: |
         rule cpu_fingerprint {
@@ -74,11 +74,11 @@ traits:
 
   # Network interface fingerprinting
   - id: network-interfaces
-    description: Network interface fingerprinting (MAC address)
-    criticality: notable
-    confidence: 0.75
+    desc: Network interface fingerprinting (MAC address)
+    crit: notable
+    conf: 0.75
     attack: "T1082"
-    condition:
+    if:
       type: yara
       source: |
         rule network_fingerprint {
@@ -97,11 +97,11 @@ traits:
 
   # Disk/Storage fingerprinting
   - id: disk-serial
-    description: Disk serial number fingerprinting
-    criticality: notable
-    confidence: 0.75
+    desc: Disk serial number fingerprinting
+    crit: notable
+    conf: 0.75
     attack: "T1082"
-    condition:
+    if:
       type: yara
       source: |
         rule disk_fingerprint {
@@ -120,11 +120,11 @@ traits:
 
   # OS fingerprinting
   - id: os-info
-    description: Operating system fingerprinting
-    criticality: notable
-    confidence: 0.7
+    desc: Operating system fingerprinting
+    crit: notable
+    conf: 0.7
     attack: "T1082"
-    condition:
+    if:
       type: yara
       source: |
         rule os_fingerprint {
@@ -143,11 +143,11 @@ traits:
 
   # Hostname collection
   - id: hostname
-    description: Hostname collection for identification
-    criticality: notable
-    confidence: 0.7
+    desc: Hostname collection for identification
+    crit: notable
+    conf: 0.7
     attack: "T1082"
-    condition:
+    if:
       type: yara
       source: |
         rule hostname_collect {
@@ -163,11 +163,11 @@ traits:
 
   # User fingerprinting
   - id: user-info
-    description: User information fingerprinting
-    criticality: notable
-    confidence: 0.7
+    desc: User information fingerprinting
+    crit: notable
+    conf: 0.7
     attack: "T1033"
-    condition:
+    if:
       type: yara
       source: |
         rule user_fingerprint {
@@ -185,11 +185,11 @@ traits:
 
   # Hardware UUID generation
   - id: hardware-uuid
-    description: Hardware-based UUID generation
-    criticality: suspicious
-    confidence: 0.8
+    desc: Hardware-based UUID generation
+    crit: suspicious
+    conf: 0.8
     attack: "T1082"
-    condition:
+    if:
       type: yara
       source: |
         rule hardware_uuid {
@@ -209,11 +209,11 @@ traits:
 composite_rules:
   # Full system fingerprinting
   - id: full-system
-    description: Comprehensive system fingerprinting (malware behavior)
-    criticality: suspicious
-    confidence: 0.85
+    desc: Comprehensive system fingerprinting (malware behavior)
+    crit: suspicious
+    conf: 0.85
     requires_count: 3
-    conditions:
+    any:
       - id: machine-id
       - id: cpu-info
       - id: network-interfaces

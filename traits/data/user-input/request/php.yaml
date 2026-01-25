@@ -4,213 +4,213 @@
 
 traits:
   - id: get
-    description: HTTP GET parameter access ($_GET)
-    criticality: notable
-    confidence: 0.85
+    desc: HTTP GET parameter access ($_GET)
+    crit: notable
+    conf: 0.85
     attack: "T1059"
-    file_types: [php]
-    condition:
+    for: [php]
+    if:
       type: ast_pattern
       node_type: variable_name
       pattern: "\\$_GET"
       regex: true
 
   - id: post
-    description: HTTP POST parameter access ($_POST)
-    criticality: notable
-    confidence: 0.85
+    desc: HTTP POST parameter access ($_POST)
+    crit: notable
+    conf: 0.85
     attack: "T1059"
-    file_types: [php]
-    condition:
+    for: [php]
+    if:
       type: ast_pattern
       node_type: variable_name
       pattern: "\\$_POST"
       regex: true
 
   - id: request
-    description: HTTP REQUEST parameter access ($_REQUEST)
-    criticality: suspicious
-    confidence: 0.85
+    desc: HTTP REQUEST parameter access ($_REQUEST)
+    crit: suspicious
+    conf: 0.85
     attack: "T1059"
-    file_types: [php]
-    condition:
+    for: [php]
+    if:
       type: ast_pattern
       node_type: variable_name
       pattern: "\\$_REQUEST"
       regex: true
 
   - id: cookie
-    description: HTTP Cookie access ($_COOKIE)
-    criticality: notable
-    confidence: 0.8
-    file_types: [php]
-    condition:
+    desc: HTTP Cookie access ($_COOKIE)
+    crit: notable
+    conf: 0.8
+    for: [php]
+    if:
       type: ast_pattern
       node_type: variable_name
       pattern: "\\$_COOKIE"
       regex: true
 
   - id: server
-    description: Server variable access ($_SERVER)
-    criticality: notable
-    confidence: 0.75
-    file_types: [php]
-    condition:
+    desc: Server variable access ($_SERVER)
+    crit: notable
+    conf: 0.75
+    for: [php]
+    if:
       type: ast_pattern
       node_type: variable_name
       pattern: "\\$_SERVER"
       regex: true
 
   - id: files
-    description: File upload access ($_FILES)
-    criticality: suspicious
-    confidence: 0.85
+    desc: File upload access ($_FILES)
+    crit: suspicious
+    conf: 0.85
     attack: "T1105"
-    file_types: [php]
-    condition:
+    for: [php]
+    if:
       type: ast_pattern
       node_type: variable_name
       pattern: "\\$_FILES"
       regex: true
 
   - id: session
-    description: Session variable access ($_SESSION)
-    criticality: notable
-    confidence: 0.75
-    file_types: [php]
-    condition:
+    desc: Session variable access ($_SESSION)
+    crit: notable
+    conf: 0.75
+    for: [php]
+    if:
       type: ast_pattern
       node_type: variable_name
       pattern: "\\$_SESSION"
       regex: true
 
   - id: script-filename
-    description: Access to script filename (self-reference)
-    criticality: suspicious
-    confidence: 0.85
-    file_types: [php]
-    condition:
+    desc: Access to script filename (self-reference)
+    crit: suspicious
+    conf: 0.85
+    for: [php]
+    if:
       type: string
       exact: "SCRIPT_FILENAME"
 
   - id: http-user-agent
-    description: Access to HTTP User-Agent header
-    criticality: notable
-    confidence: 0.7
-    file_types: [php]
-    condition:
+    desc: Access to HTTP User-Agent header
+    crit: notable
+    conf: 0.7
+    for: [php]
+    if:
       type: string
       exact: "HTTP_USER_AGENT"
 
   - id: http-referer
-    description: Access to HTTP Referer header
-    criticality: notable
-    confidence: 0.7
-    file_types: [php]
-    condition:
+    desc: Access to HTTP Referer header
+    crit: notable
+    conf: 0.7
+    for: [php]
+    if:
       type: string
       exact: "HTTP_REFERER"
 
   # === extract atomic indicators ===
   - id: extract-get
-    description: extract from $_GET
-    criticality: inert
-    confidence: 0.7
-    file_types: [php]
-    condition:
+    desc: extract from $_GET
+    crit: inert
+    conf: 0.7
+    for: [php]
+    if:
       type: string
       regex: "extract\\s*\\(\\s*\\$_GET"
 
   - id: extract-post
-    description: extract from $_POST
-    criticality: inert
-    confidence: 0.7
-    file_types: [php]
-    condition:
+    desc: extract from $_POST
+    crit: inert
+    conf: 0.7
+    for: [php]
+    if:
       type: string
       regex: "extract\\s*\\(\\s*\\$_POST"
 
   - id: extract-request
-    description: extract from $_REQUEST
-    criticality: inert
-    confidence: 0.7
-    file_types: [php]
-    condition:
+    desc: extract from $_REQUEST
+    crit: inert
+    conf: 0.7
+    for: [php]
+    if:
       type: string
       regex: "extract\\s*\\(\\s*\\$_REQUEST"
 
   - id: extract-cookie
-    description: extract from $_COOKIE
-    criticality: inert
-    confidence: 0.7
-    file_types: [php]
-    condition:
+    desc: extract from $_COOKIE
+    crit: inert
+    conf: 0.7
+    for: [php]
+    if:
       type: string
       regex: "extract\\s*\\(\\s*\\$_COOKIE"
 
   - id: extract-server
-    description: extract from $_SERVER
-    criticality: inert
-    confidence: 0.7
-    file_types: [php]
-    condition:
+    desc: extract from $_SERVER
+    crit: inert
+    conf: 0.7
+    for: [php]
+    if:
       type: string
       regex: "extract\\s*\\(\\s*\\$_SERVER"
 
   # === parse_str atomic indicators ===
   - id: parse-str-get
-    description: parse_str from $_GET
-    criticality: inert
-    confidence: 0.7
-    file_types: [php]
-    condition:
+    desc: parse_str from $_GET
+    crit: inert
+    conf: 0.7
+    for: [php]
+    if:
       type: string
       regex: "parse_str\\s*\\(\\s*\\$_GET"
 
   - id: parse-str-post
-    description: parse_str from $_POST
-    criticality: inert
-    confidence: 0.7
-    file_types: [php]
-    condition:
+    desc: parse_str from $_POST
+    crit: inert
+    conf: 0.7
+    for: [php]
+    if:
       type: string
       regex: "parse_str\\s*\\(\\s*\\$_POST"
 
   - id: parse-str-request
-    description: parse_str from $_REQUEST
-    criticality: inert
-    confidence: 0.7
-    file_types: [php]
-    condition:
+    desc: parse_str from $_REQUEST
+    crit: inert
+    conf: 0.7
+    for: [php]
+    if:
       type: string
       regex: "parse_str\\s*\\(\\s*\\$_REQUEST"
 
   - id: parse-str-cookie
-    description: parse_str from $_COOKIE
-    criticality: inert
-    confidence: 0.7
-    file_types: [php]
-    condition:
+    desc: parse_str from $_COOKIE
+    crit: inert
+    conf: 0.7
+    for: [php]
+    if:
       type: string
       regex: "parse_str\\s*\\(\\s*\\$_COOKIE"
 
   - id: parse-str-server
-    description: parse_str from $_SERVER
-    criticality: inert
-    confidence: 0.7
-    file_types: [php]
-    condition:
+    desc: parse_str from $_SERVER
+    crit: inert
+    conf: 0.7
+    for: [php]
+    if:
       type: string
       regex: "parse_str\\s*\\(\\s*\\$_SERVER"
 
 composite_rules:
   - id: extract-input
-    description: Extracts variables from user input (potential backdoor)
-    criticality: suspicious
-    confidence: 0.9
-    file_types: [php]
+    desc: Extracts variables from user input (potential backdoor)
+    crit: suspicious
+    conf: 0.9
+    for: [php]
     requires_count: 1
-    conditions:
+    any:
       - id: extract-get
       - id: extract-post
       - id: extract-request
@@ -218,12 +218,12 @@ composite_rules:
       - id: extract-server
 
   - id: parse-str-input
-    description: Parses user input into variables
-    criticality: suspicious
-    confidence: 0.9
-    file_types: [php]
+    desc: Parses user input into variables
+    crit: suspicious
+    conf: 0.9
+    for: [php]
     requires_count: 1
-    conditions:
+    any:
       - id: parse-str-get
       - id: parse-str-post
       - id: parse-str-request

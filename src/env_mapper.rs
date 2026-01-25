@@ -256,12 +256,12 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Finding> {
             kind: FindingKind::Capability,
             trait_refs: vec![],
             id: "credential/env/access".to_string(),
-            description: format!(
+            desc: format!(
                 "Accesses {} environment variables containing credentials/secrets",
                 credential_vars.len()
             ),
-            confidence: 0.95,
-            criticality: Criticality::Hostile,
+            conf: 0.95,
+            crit: Criticality::Hostile,
             mbc: None,
             attack: Some("T1552.001".to_string()), // Unsecured Credentials
             evidence: credential_vars
@@ -307,9 +307,9 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Finding> {
             kind: FindingKind::Capability,
             trait_refs: vec![],
             id: trait_id.to_string(),
-            description: description.to_string(),
-            confidence: 0.75,
-            criticality: Criticality::Suspicious,
+            desc: description.to_string(),
+            conf: 0.75,
+            crit: Criticality::Suspicious,
             mbc: None,
             attack: Some(attack_id.to_string()),
             evidence: vec![Evidence {
@@ -332,9 +332,9 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Finding> {
             kind: FindingKind::Capability,
             trait_refs: vec![],
             id: "discovery/env/user".to_string(),
-            description: "Discovers user information via environment variables".to_string(),
-            confidence: 0.8,
-            criticality: Criticality::Notable,
+            desc: "Discovers user information via environment variables".to_string(),
+            conf: 0.8,
+            crit: Criticality::Notable,
             mbc: None,
             attack: Some("T1033".to_string()), // System Owner/User Discovery
             evidence: user_vars
@@ -360,9 +360,9 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Finding> {
             kind: FindingKind::Capability,
             trait_refs: vec![],
             id: "discovery/env/system".to_string(),
-            description: "Discovers system information via environment variables".to_string(),
-            confidence: 0.8,
-            criticality: Criticality::Notable,
+            desc: "Discovers system information via environment variables".to_string(),
+            conf: 0.8,
+            crit: Criticality::Notable,
             mbc: None,
             attack: Some("T1082".to_string()), // System Information Discovery
             evidence: system_vars
@@ -388,9 +388,9 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Finding> {
             kind: FindingKind::Capability,
             trait_refs: vec![],
             id: "persistence/env/path_manipulation".to_string(),
-            description: "Modifies PATH environment variable for persistence/hijacking".to_string(),
-            confidence: 0.9,
-            criticality: Criticality::Hostile,
+            desc: "Modifies PATH environment variable for persistence/hijacking".to_string(),
+            conf: 0.9,
+            crit: Criticality::Hostile,
             mbc: None,
             attack: Some("T1574.007".to_string()), // Hijack Execution Flow: Path Interception
             evidence: path_write
@@ -416,9 +416,9 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Finding> {
             kind: FindingKind::Capability,
             trait_refs: vec![],
             id: "platform/mobile/android_env".to_string(),
-            description: "Android platform detected via environment variables".to_string(),
-            confidence: 0.9,
-            criticality: Criticality::Notable,
+            desc: "Android platform detected via environment variables".to_string(),
+            conf: 0.9,
+            crit: Criticality::Notable,
             mbc: None,
             attack: None,
             evidence: android_vars
@@ -444,9 +444,9 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Finding> {
             kind: FindingKind::Capability,
             trait_refs: vec![],
             id: "anti-analysis/env/display_check".to_string(),
-            description: "Checks DISPLAY variable (potential sandbox detection)".to_string(),
-            confidence: 0.6,
-            criticality: Criticality::Suspicious,
+            desc: "Checks DISPLAY variable (potential sandbox detection)".to_string(),
+            conf: 0.6,
+            crit: Criticality::Suspicious,
             mbc: None,
             attack: Some("T1497".to_string()), // Virtualization/Sandbox Evasion
             evidence: display_vars
@@ -472,9 +472,9 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Finding> {
             kind: FindingKind::Capability,
             trait_refs: vec![],
             id: "anti-analysis/env/ssh_check".to_string(),
-            description: "Checks SSH variables (remote session detection)".to_string(),
-            confidence: 0.7,
-            criticality: Criticality::Suspicious,
+            desc: "Checks SSH variables (remote session detection)".to_string(),
+            conf: 0.7,
+            crit: Criticality::Suspicious,
             mbc: None,
             attack: Some("T1497".to_string()), // Virtualization/Sandbox Evasion
             evidence: ssh_vars
@@ -516,9 +516,9 @@ pub fn analyze_and_link_env_vars(report: &mut AnalysisReport) {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: trait_id.to_string(),
-                description: format!("Uses {} to access environment variables", api_name),
-                confidence: 1.0,
-                criticality: Criticality::Inert,
+                desc: format!("Uses {} to access environment variables", api_name),
+                conf: 1.0,
+                crit: Criticality::Inert,
                 mbc: None,
                 attack: None,
                 evidence: vec![Evidence {

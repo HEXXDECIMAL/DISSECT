@@ -6,38 +6,38 @@ traits:
   # === Atomic: Password Database Functions ===
 
   - id: getpwnam
-    description: Read user password database (getpwnam)
-    criticality: inert
-    confidence: 0.7
+    desc: Read user password database (getpwnam)
+    crit: inert
+    conf: 0.7
     mbc: "E1003.008"
     attack: "T1003.008"
     platforms: [unix, linux, macos]
-    file_types: [elf, macho, so, dylib]
-    condition:
+    for: [elf, macho, so, dylib]
+    if:
       type: symbol
       pattern: "getpwnam"
 
   - id: getpwuid
-    description: Read user password database by UID (getpwuid)
-    criticality: inert
-    confidence: 0.7
+    desc: Read user password database by UID (getpwuid)
+    crit: inert
+    conf: 0.7
     mbc: "E1003.008"
     attack: "T1003.008"
     platforms: [unix, linux, macos]
-    file_types: [elf, macho, so, dylib]
-    condition:
+    for: [elf, macho, so, dylib]
+    if:
       type: symbol
       pattern: "getpwuid"
 
   - id: getspnam
-    description: Read shadow password file (getspnam)
-    criticality: notable
-    confidence: 0.8
+    desc: Read shadow password file (getspnam)
+    crit: notable
+    conf: 0.8
     mbc: "E1003.008"
     attack: "T1003.008"
     platforms: [linux, unix]
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: symbol
       pattern: "getspnam"
 
@@ -47,79 +47,78 @@ traits:
   # Real credential dumping detection requires additional context
   # === shadow file atomic indicators ===
   - id: etc-shadow
-    description: /etc/shadow file
-    criticality: inert
-    confidence: 0.7
+    desc: /etc/shadow file
+    crit: inert
+    conf: 0.7
     attack: "T1003.008"
-    condition:
+    if:
       type: string
       exact: "/etc/shadow"
 
   - id: etc-gshadow
-    description: /etc/gshadow file
-    criticality: inert
-    confidence: 0.7
+    desc: /etc/gshadow file
+    crit: inert
+    conf: 0.7
     attack: "T1003.008"
-    condition:
+    if:
       type: string
       exact: "/etc/gshadow"
 
   - id: etc-master-passwd
-    description: /etc/master.passwd file
-    criticality: inert
-    confidence: 0.7
+    desc: /etc/master.passwd file
+    crit: inert
+    conf: 0.7
     attack: "T1003.008"
-    condition:
+    if:
       type: string
       exact: "/etc/master.passwd"
-
 
   # NOTE: /etc/passwd is defined in discovery/user/traits.yaml as etc-passwd
 
   # NOTE: System utilities like busybox legitimately access gshadow
   - id: gshadow-file
-    description: Group shadow file access (/etc/gshadow)
-    criticality: notable
-    confidence: 0.6
+    desc: Group shadow file access (/etc/gshadow)
+    crit: notable
+    conf: 0.6
     attack: "T1003.008"
     platforms: [linux]
-    file_types: [elf, macho, shell, perl, python, ruby]
-    condition:
+    for: [elf, macho, shell, perl, python, ruby]
+    if:
       type: string
       exact: "/etc/gshadow"
 
   - id: master-passwd
-    description: BSD master.passwd file access
-    criticality: suspicious
-    confidence: 0.9
+    desc: BSD master.passwd file access
+    crit: suspicious
+    conf: 0.9
     attack: "T1003.008"
     platforms: [macos, unix]
-    file_types: [elf, macho, shell, perl, python, ruby]
-    condition:
+    for: [elf, macho, shell, perl, python, ruby]
+    if:
       type: string
       exact: "/etc/master.passwd"
 
 composite_rules:
   # shadow file composite
   - id: shadow-file
-    description: Access to system shadow password file
-    criticality: notable
-    confidence: 0.9
+    desc: Access to system shadow password file
+    crit: notable
+    conf: 0.9
     attack: "T1003.008"
     requires_count: 1
-    conditions:
+    any:
       - id: etc-shadow
       - id: etc-gshadow
       - id: etc-master-passwd
 
   - id: shadow-extraction
-    description: Shadow file credential extraction
-    criticality: suspicious
-    confidence: 0.9
+    desc: Shadow file credential extraction
+    crit: suspicious
+    conf: 0.9
     attack: "T1003.008"
     mbc: "E1003.008"
     platforms: [linux, unix]
-    file_types: [elf]
-    requires_any:
+    for: [elf]
+    any:
       - id: getspnam
       - id: shadow-file

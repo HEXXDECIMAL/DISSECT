@@ -5,10 +5,10 @@
 composite_rules:
   - id: exfiltration
     description: "Gathers system info and exfiltrates via HTTP"
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     attack: "T1041"
-    file_types: [python]
+    for: [python]
     requires_all:
       - id: discovery/system
       - id: comm/http/request

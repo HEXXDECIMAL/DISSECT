@@ -1,9 +1,9 @@
 # Remote Command Execution
 traits:
   - id: generic
-    description: "Function to execute remote commands"
-    criticality: suspicious
-    confidence: 0.8
-    condition:
+    desc: "Function to execute remote commands"
+    crit: suspicious
+    conf: 0.8
+    if:
       type: string
       exact: "executeCommand"

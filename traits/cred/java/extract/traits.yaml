@@ -6,113 +6,113 @@
 traits:
   # Browser password stealing
   - id: chrome-pass-string
-    description: Chrome password stealing indicator
-    criticality: suspicious
-    confidence: 0.95
+    desc: Chrome password stealing indicator
+    crit: suspicious
+    conf: 0.95
     mbc: "T1555.003"
     attack: "T1555.003"
-    file_types: [class]
-    condition:
+    for: [class]
+    if:
       type: string
       exact: "chrome-pass"
 
   - id: firefox-pass-string
-    description: Firefox password stealing indicator
-    criticality: suspicious
-    confidence: 0.95
+    desc: Firefox password stealing indicator
+    crit: suspicious
+    conf: 0.95
     mbc: "T1555.003"
     attack: "T1555.003"
-    file_types: [class]
-    condition:
+    for: [class]
+    if:
       type: string
       exact: "fox-pass"
 
   - id: ie-pass-string
-    description: Internet Explorer password stealing indicator
-    criticality: suspicious
-    confidence: 0.95
+    desc: Internet Explorer password stealing indicator
+    crit: suspicious
+    conf: 0.95
     mbc: "T1555.003"
     attack: "T1555.003"
-    file_types: [class]
-    condition:
+    for: [class]
+    if:
       type: string
       exact: "ie-pass"
 
   - id: all-pass-string
-    description: All passwords collection indicator
-    criticality: suspicious
-    confidence: 0.9
+    desc: All passwords collection indicator
+    crit: suspicious
+    conf: 0.9
     mbc: "T1555"
     attack: "T1555"
-    file_types: [class]
-    condition:
+    for: [class]
+    if:
       type: string
       exact: "all-pass"
 
   - id: save-all-pass-string
-    description: Save all passwords indicator
-    criticality: suspicious
-    confidence: 0.95
+    desc: Save all passwords indicator
+    crit: suspicious
+    conf: 0.95
     mbc: "T1555"
     attack: "T1555"
-    file_types: [class]
-    condition:
+    for: [class]
+    if:
       type: string
       exact: "save-all-pass"
 
   # Email client passwords
   - id: outlook-pass-string
-    description: Outlook password stealing indicator
-    criticality: suspicious
-    confidence: 0.95
+    desc: Outlook password stealing indicator
+    crit: suspicious
+    conf: 0.95
     mbc: "T1555"
     attack: "T1555"
-    file_types: [class]
-    condition:
+    for: [class]
+    if:
       type: string
       exact: "outlook-pass"
 
   - id: thunderbird-pass-string
-    description: Thunderbird password stealing indicator
-    criticality: suspicious
-    confidence: 0.95
+    desc: Thunderbird password stealing indicator
+    crit: suspicious
+    conf: 0.95
     mbc: "T1555"
     attack: "T1555"
-    file_types: [class]
-    condition:
+    for: [class]
+    if:
       type: string
       exact: "tb-pass"
 
   - id: foxmail-pass-string
-    description: Foxmail password stealing indicator
-    criticality: suspicious
-    confidence: 0.95
+    desc: Foxmail password stealing indicator
+    crit: suspicious
+    conf: 0.95
     mbc: "T1555"
     attack: "T1555"
-    file_types: [class]
-    condition:
+    for: [class]
+    if:
       type: string
       exact: "foxmail-pass"
 
   # Keylogging
   - id: keylogger-string
-    description: Keylogger command indicator
-    criticality: suspicious
-    confidence: 0.95
+    desc: Keylogger command indicator
+    crit: suspicious
+    conf: 0.95
     mbc: "T1056.001"
     attack: "T1056.001"
-    file_types: [class]
-    condition:
+    for: [class]
+    if:
       type: string
       exact: "keylogger"
 
   - id: o-keylogger-string
-    description: Keylogger toggle command
-    criticality: suspicious
-    confidence: 0.95
+    desc: Keylogger toggle command
+    crit: suspicious
+    conf: 0.95
     mbc: "T1056.001"
     attack: "T1056.001"
-    file_types: [class]
-    condition:
+    for: [class]
+    if:
       type: string
       exact: "o-keylogger"

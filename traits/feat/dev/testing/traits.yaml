@@ -5,9 +5,9 @@ traits:
   # Google Test (C++)
   - id: gtest
     description: Google Test framework
-    criticality: benign
-    confidence: 0.95
-    condition:
+    crit: benign
+    conf: 0.95
+    if:
       type: yara
       source: |
         rule gtest_framework {
@@ -25,9 +25,9 @@ traits:
   # Catch2 (C++)
   - id: catch2
     description: Catch2 test framework
-    criticality: benign
-    confidence: 0.95
-    condition:
+    crit: benign
+    conf: 0.95
+    if:
       type: yara
       source: |
         rule catch2_framework {
@@ -44,9 +44,9 @@ traits:
   # JUnit (Java)
   - id: junit
     description: JUnit test framework
-    criticality: benign
-    confidence: 0.95
-    condition:
+    crit: benign
+    conf: 0.95
+    if:
       type: yara
       source: |
         rule junit_framework {
@@ -63,9 +63,9 @@ traits:
   # pytest (Python)
   - id: pytest
     description: pytest test framework
-    criticality: benign
-    confidence: 0.95
-    condition:
+    crit: benign
+    conf: 0.95
+    if:
       type: yara
       source: |
         rule pytest_framework {
@@ -82,9 +82,9 @@ traits:
   # Go testing
   - id: go-test
     description: Go testing package
-    criticality: benign
-    confidence: 0.95
-    condition:
+    crit: benign
+    conf: 0.95
+    if:
       type: yara
       source: |
         rule go_testing {
@@ -102,9 +102,9 @@ traits:
   # Rust testing
   - id: rust-test
     description: Rust test framework
-    criticality: benign
-    confidence: 0.95
-    condition:
+    crit: benign
+    conf: 0.95
+    if:
       type: yara
       source: |
         rule rust_testing {
@@ -121,9 +121,9 @@ traits:
   # Jest (JavaScript)
   - id: jest
     description: Jest test framework
-    criticality: benign
-    confidence: 0.95
-    condition:
+    crit: benign
+    conf: 0.95
+    if:
       type: yara
       source: |
         rule jest_framework {
@@ -141,9 +141,9 @@ traits:
   # Mocha (JavaScript)
   - id: mocha
     description: Mocha test framework
-    criticality: benign
-    confidence: 0.95
-    condition:
+    crit: benign
+    conf: 0.95
+    if:
       type: yara
       source: |
         rule mocha_framework {
@@ -160,9 +160,9 @@ traits:
   # RSpec (Ruby)
   - id: rspec
     description: RSpec test framework
-    criticality: benign
-    confidence: 0.95
-    condition:
+    crit: benign
+    conf: 0.95
+    if:
       type: yara
       source: |
         rule rspec_framework {
@@ -179,9 +179,9 @@ traits:
   # Fuzzing frameworks
   - id: fuzzing
     description: Fuzzing test framework
-    criticality: benign
-    confidence: 0.9
-    condition:
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule fuzzing_framework {
@@ -199,9 +199,9 @@ traits:
   # Benchmark frameworks
   - id: benchmark
     description: Benchmark test framework
-    criticality: benign
-    confidence: 0.9
-    condition:
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule benchmark_framework {

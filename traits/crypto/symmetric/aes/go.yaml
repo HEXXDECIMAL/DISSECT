@@ -4,23 +4,23 @@
 
 traits:
   - id: go-new-cipher
-    description: Creates a new AES cipher in Go
-    criticality: notable
-    confidence: 0.9
+    desc: Creates a new AES cipher in Go
+    crit: notable
+    conf: 0.9
     mbc: "C0021.001"
-    file_types: [go]
-    condition:
+    for: [go]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: "aes.NewCipher"
 
   - id: go-cfb-encrypter
-    description: Creates a new AES-CFB encrypter in Go
-    criticality: notable
-    confidence: 0.9
+    desc: Creates a new AES-CFB encrypter in Go
+    crit: notable
+    conf: 0.9
     mbc: "C0021.001"
-    file_types: [go]
-    condition:
+    for: [go]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: "cipher.NewCFBEncrypter"

@@ -3,24 +3,24 @@
 
 traits:
   - id: js-sqlite-logins
-    description: SQL query for Chromium login data in JS
-    criticality: suspicious
-    confidence: 0.95
+    desc: SQL query for Chromium login data in JS
+    crit: suspicious
+    conf: 0.95
     attack: "T1555.003"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       regex: 'SELECT.*origin_url.*username_value.*password_value.*FROM\s+logins'
       case_insensitive: true
 
 composite_rules:
   - id: js-stealer
-    description: Chromium browser credential stealer (SQLite + Exfil)
-    criticality: suspicious
-    confidence: 0.98
+    desc: Chromium browser credential stealer (SQLite + Exfil)
+    crit: suspicious
+    conf: 0.98
     attack: "T1555.003"
     mbc: "B0028"
-    file_types: [javascript]
-    requires_all:
+    for: [javascript]
+    all:
       - id: js-sqlite-logins
       - id: comm/http/request/js-axios-post

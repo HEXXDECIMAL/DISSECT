@@ -2,8 +2,8 @@
 # ATT&CK: T1105 (Ingress Tool Transfer), T1027 (Obfuscated Files)
 
 defaults:
-  file_types: [python]
-  criticality: notable
+  for: [python]
+  crit: notable
   mbc: "C0016"
   attack: "T1105"
 
@@ -11,8 +11,8 @@ traits:
   # Binary file write - open with 'wb' mode
   - id: python-open-write-binary
     description: "Write binary file (open with 'wb')"
-    confidence: 0.85
-    condition:
+    conf: 0.85
+    if:
       type: string
       # Matches: open(..., 'wb'), open(..., "wb"), with open(..., 'wb')
       regex: "open\\([^)]+['\"]wb['\"]\\)"
@@ -20,24 +20,24 @@ traits:
   # Binary append mode
   - id: python-open-append-binary
     description: "Append to binary file (open with 'ab')"
-    confidence: 0.8
-    condition:
+    conf: 0.8
+    if:
       type: string
       regex: "open\\([^)]+['\"]ab['\"]\\)"
 
   # Write with pathlib
   - id: python-pathlib-write-bytes
     description: "Write bytes via pathlib"
-    confidence: 0.85
-    condition:
+    conf: 0.85
+    if:
       type: string
       regex: "\\.write_bytes\\("
 
   # File content from HTTP response
   - id: python-write-response-content
     description: "Write HTTP response content to file"
-    confidence: 0.9
-    condition:
+    conf: 0.9
+    if:
       type: string
       # Matches: f.write(response.content) or write(r.content)
       regex: "\\.write\\([^)]*\\.content\\)"
@@ -45,102 +45,102 @@ traits:
   # shutil.copyfileobj - streaming copy
   - id: python-shutil-copy
     description: "Copy file object (shutil.copyfileobj)"
-    confidence: 0.75
-    criticality: inert
-    condition:
+    conf: 0.75
+    crit: inert
+    if:
       type: string
       regex: "shutil\\.copyfileobj\\("
 
   # Write to temp directory
   - id: python-write-tmp
     description: "Write to /tmp directory"
-    confidence: 0.85
-    condition:
+    conf: 0.85
+    if:
       type: string
       regex: "open\\([^)]*['\"]?/tmp/"
 
   # === tempfile module atomic indicators ===
   - id: python-tempfile-named
     description: "tempfile.NamedTemporaryFile usage"
-    confidence: 0.6
-    criticality: inert
-    condition:
+    conf: 0.6
+    crit: inert
+    if:
       type: string
       exact: "tempfile.NamedTemporaryFile"
 
   - id: python-tempfile-mkstemp
     description: "tempfile.mkstemp usage"
-    confidence: 0.6
-    criticality: inert
-    condition:
+    conf: 0.6
+    crit: inert
+    if:
       type: string
       exact: "tempfile.mkstemp"
 
   - id: python-tempfile-mkdtemp
     description: "tempfile.mkdtemp usage"
-    confidence: 0.6
-    criticality: inert
-    condition:
+    conf: 0.6
+    crit: inert
+    if:
       type: string
       exact: "tempfile.mkdtemp"
 
   # === HTTP request atomic indicators ===
   - id: python-requests-get
     description: "requests.get call"
-    confidence: 0.7
-    criticality: inert
-    condition:
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       regex: "requests\\.get\\("
 
   - id: python-requests-post
     description: "requests.post call"
-    confidence: 0.7
-    criticality: inert
-    condition:
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       regex: "requests\\.post\\("
 
   - id: python-urllib-urlopen
     description: "urllib.request.urlopen call"
-    confidence: 0.7
-    criticality: inert
-    condition:
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       regex: "urllib\\.request\\.urlopen"
 
   - id: python-urllib-urlretrieve
     description: "urllib.request.urlretrieve call"
-    confidence: 0.7
-    criticality: inert
-    condition:
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       regex: "urllib\\.request\\.urlretrieve"
 
   # os.chmod with executable permission
   - id: python-chmod-executable
     description: "Make file executable with os.chmod"
-    confidence: 0.9
-    condition:
+    conf: 0.9
+    if:
       type: string
       regex: "os\\.chmod\\([^)]+0[o]?7"
 
 composite_rules:
   - id: python-tempfile
     description: "Temporary file creation (tempfile module)"
-    confidence: 0.7
-    criticality: inert
+    conf: 0.7
+    crit: inert
     requires_count: 1
-    conditions:
+    any:
       - id: python-tempfile-named
       - id: python-tempfile-mkstemp
       - id: python-tempfile-mkdtemp
 
   - id: python-http-request
     description: "HTTP request via requests or urllib"
-    confidence: 0.8
+    conf: 0.8
     requires_count: 1
-    conditions:
+    any:
       - id: python-requests-get
       - id: python-requests-post
       - id: python-urllib-urlopen
@@ -148,17 +148,17 @@ composite_rules:
 
   - id: python-binary-write-pattern
     description: "Binary file write pattern"
-    confidence: 0.85
+    conf: 0.85
     requires_count: 1
-    conditions:
+    any:
       - id: python-open-write-binary
       - id: python-pathlib-write-bytes
 
   # Download and write pattern (dropper behavior)
   - id: python-download-write
     description: "Download content and write to file"
-    confidence: 0.9
-    criticality: suspicious
+    conf: 0.9
+    crit: suspicious
     attack: "T1105"
     mbc: "B0024"
     requires_all:
@@ -168,8 +168,8 @@ composite_rules:
   # Write + make executable pattern
   - id: python-write-chmod-exec
     description: "Write file and make executable"
-    confidence: 0.95
-    criticality: suspicious
+    conf: 0.95
+    crit: suspicious
     attack: "T1222.002"
     requires_all:
       - id: python-open-write-binary

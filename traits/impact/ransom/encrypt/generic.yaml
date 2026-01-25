@@ -5,11 +5,11 @@
 traits:
   - id: encrypt
     description: Ransomware encryption patterns
-    criticality: suspicious
-    confidence: 0.75
+    crit: suspicious
+    conf: 0.75
     mbc: "B0040"
     attack: "T1486"
-    condition:
+    if:
       type: yara
       source: |
         rule ransomware {
@@ -39,9 +39,9 @@ traits:
 
   - id: encrypt-decryptor
     description: References decryptor
-    criticality: suspicious
-    confidence: 0.66
-    condition:
+    crit: suspicious
+    conf: 0.66
+    if:
       type: string
       # Match "decryptor" in ransom context, not browser password decryptor code
       # Real ransomware: "decryptor.exe", "your decryptor", "run decryptor"
@@ -52,36 +52,36 @@ traits:
   # === Ransom note atomic indicators ===
   - id: your-files-phrase
     description: '"your files" ransom phrase'
-    criticality: inert
-    confidence: 0.5
-    condition:
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "your files"
       case_insensitive: true
 
   - id: files-have-been-phrase
     description: '"files have been" ransom phrase'
-    criticality: inert
-    confidence: 0.5
-    condition:
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "files have been"
       case_insensitive: true
 
   - id: pay-bitcoin-phrase
     description: '"pay...bitcoin" ransom phrase'
-    criticality: inert
-    confidence: 0.6
-    condition:
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: "pay.*bitcoin"
       case_insensitive: true
 
   - id: decrypt-files-phrase
     description: '"decrypt...files" ransom phrase'
-    criticality: inert
-    confidence: 0.6
-    condition:
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: "decrypt.*files"
       case_insensitive: true
@@ -89,9 +89,9 @@ traits:
   # Go file encryption patterns (ransomware)
   - id: file-encrypt
     description: Go file encryption patterns (potential ransomware)
-    criticality: suspicious
-    confidence: 0.8
-    condition:
+    crit: suspicious
+    conf: 0.8
+    if:
       type: yara
       source: |
         rule go_file_encrypt {
@@ -113,8 +113,8 @@ traits:
 composite_rules:
   - id: encrypt-note
     description: Ransom note patterns
-    criticality: suspicious
-    confidence: 0.66
+    crit: suspicious
+    conf: 0.66
     requires_count: 1
     conditions:
       - id: your-files-phrase

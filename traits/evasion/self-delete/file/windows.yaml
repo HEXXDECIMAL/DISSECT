@@ -4,11 +4,11 @@
 
 traits:
   - id: self-delete-windows
-    description: Self-deleting via DeleteFile
-    criticality: suspicious
-    confidence: 0.66
+    desc: Self-deleting via DeleteFile
+    crit: suspicious
+    conf: 0.66
     mbc: "F0007"
     attack: "T1070.004"
-    condition:
+    if:
       type: string
       exact: "DeleteFile(argv[0])"

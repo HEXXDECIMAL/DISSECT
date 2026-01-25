@@ -6,87 +6,87 @@
 traits:
   # === DNS resolve atomic indicators ===
   - id: dns-resolve-call
-    description: dns.resolve call
-    criticality: inert
-    confidence: 0.6
-    file_types: [javascript, typescript]
-    condition:
+    desc: dns.resolve call
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "dns.resolve"
 
   - id: dns-resolve4-call
-    description: dns.resolve4 call
-    criticality: inert
-    confidence: 0.6
-    file_types: [javascript, typescript]
-    condition:
+    desc: dns.resolve4 call
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "dns.resolve4"
 
   - id: dns-resolve6-call
-    description: dns.resolve6 call
-    criticality: inert
-    confidence: 0.6
-    file_types: [javascript, typescript]
-    condition:
+    desc: dns.resolve6 call
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "dns.resolve6"
 
   # === DNS TXT resolve atomic indicators ===
   - id: dns-resolveTxt-method
-    description: dns.resolveTxt method
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript, typescript]
-    condition:
+    desc: dns.resolveTxt method
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "dns.resolveTxt"
 
   - id: resolveTxt-call
-    description: resolveTxt call
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript, typescript]
-    condition:
+    desc: resolveTxt call
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "resolveTxt\\("
 
   - id: txt-record-single-quote
-    description: "TXT string (single quoted)"
-    criticality: inert
-    confidence: 0.5
-    file_types: [javascript, typescript]
-    condition:
+    desc: "TXT string (single quoted)"
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "'TXT'"
 
   - id: txt-record-double-quote
-    description: "TXT string (double quoted)"
-    criticality: inert
-    confidence: 0.5
-    file_types: [javascript, typescript]
-    condition:
+    desc: "TXT string (double quoted)"
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
       type: string
-      exact: "\"TXT\""
+      exact: '"TXT"'
 
   - id: dns-promises
-    description: DNS promises API (async DNS operations)
-    criticality: notable
-    confidence: 0.75
-    file_types: [javascript, typescript]
-    condition:
+    desc: DNS promises API (async DNS operations)
+    crit: notable
+    conf: 0.75
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "dns/promises"
 
   # DNS Tunneling Patterns
   - id: subdomain-encoding
-    description: Subdomain-based data encoding pattern
-    criticality: suspicious
-    confidence: 0.85
+    desc: Subdomain-based data encoding pattern
+    crit: suspicious
+    conf: 0.85
     mbc: "C0002"
     attack: "T1048"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule dns_subdomain_encoding {
@@ -100,13 +100,13 @@ traits:
         }
 
   - id: dns-with-crypto
-    description: DNS combined with encryption (encrypted C2 channel)
-    criticality: suspicious
-    confidence: 0.9
+    desc: DNS combined with encryption (encrypted C2 channel)
+    crit: suspicious
+    conf: 0.9
     mbc: "C0002"
     attack: "T1573"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule dns_encrypted_c2 {
@@ -122,13 +122,13 @@ traits:
         }
 
   - id: dns-polling-loop
-    description: DNS polling loop (C2 beacon pattern)
-    criticality: suspicious
-    confidence: 0.85
+    desc: DNS polling loop (C2 beacon pattern)
+    crit: suspicious
+    conf: 0.85
     mbc: "C0002"
     attack: "T1071.004"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule dns_polling {
@@ -143,25 +143,25 @@ traits:
 
 composite_rules:
   - id: dns-resolve
-    description: Node.js DNS resolve function (potential DNS tunneling)
-    criticality: notable
-    confidence: 0.8
-    file_types: [javascript, typescript]
-    requires_count: 1
-    conditions:
+    desc: Node.js DNS resolve function (potential DNS tunneling)
+    crit: notable
+    conf: 0.8
+    for: [javascript, typescript]
+    count: 1
+    any:
       - id: dns-resolve-call
       - id: dns-resolve4-call
       - id: dns-resolve6-call
 
   - id: dns-resolve-txt
-    description: DNS TXT record resolution (common C2 channel)
-    criticality: suspicious
-    confidence: 0.9
+    desc: DNS TXT record resolution (common C2 channel)
+    crit: suspicious
+    conf: 0.9
     mbc: "C0002"
     attack: "T1071.004"
-    file_types: [javascript, typescript]
-    requires_count: 1
-    conditions:
+    for: [javascript, typescript]
+    count: 1
+    any:
       - id: dns-resolveTxt-method
       - id: resolveTxt-call
       - id: txt-record-single-quote

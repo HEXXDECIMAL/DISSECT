@@ -1,9 +1,9 @@
 # NodeJS 'ws' Library
 traits:
   - id: ws
-    description: "NodeJS binary using 'ws' (WebSockets) library"
-    criticality: notable
-    confidence: 0.9
-    condition:
+    desc: "NodeJS binary using 'ws' (WebSockets) library"
+    crit: notable
+    conf: 0.9
+    if:
       type: string
       regex: "node_modules.*ws/index.js"

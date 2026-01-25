@@ -4,11 +4,11 @@
 
 traits:
   - id: reverse-shell-perl
-    description: Reverse shell in Perl
-    criticality: suspicious
-    confidence: 0.66
+    desc: Reverse shell in Perl
+    crit: suspicious
+    conf: 0.66
     attack: "T1059"
-    condition:
+    if:
       type: yara
       source: |
         rule perl_reverse_shell {

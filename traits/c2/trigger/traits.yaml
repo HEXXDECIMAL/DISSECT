@@ -4,12 +4,12 @@
 traits:
   # ICMP Magic Packet Trigger
   - id: icmp-magic-packet
-    description: Detects ICMP packet inspection for magic values (C2 trigger)
-    criticality: suspicious
-    confidence: 0.95
+    desc: Detects ICMP packet inspection for magic values (C2 trigger)
+    crit: suspicious
+    conf: 0.95
     attack: "T1205.001"
-    file_types: [c, go, python]
-    condition:
+    for: [c, go, python]
+    if:
       type: yara
       source: |
         rule icmp_magic_trigger {

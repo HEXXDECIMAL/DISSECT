@@ -3,25 +3,25 @@
 
 traits:
   - id: allatori-demo
-    description: Allatori obfuscator demo marker
-    criticality: notable
-    confidence: 0.9
-    file_types: [class]
-    condition:
+    desc: Allatori obfuscator demo marker
+    crit: notable
+    conf: 0.9
+    for: [class]
+    if:
       type: string
       exact: "ALLATORIxDEMO"
 
 composite_rules:
   # Full-featured Java RAT (STRRat-style)
   - id: java-rat-comprehensive
-    description: Comprehensive Java RAT with multiple capabilities
-    criticality: suspicious
+    desc: Comprehensive Java RAT with multiple capabilities
+    crit: suspicious
     mbc: "B0022"
     attack: "T1219"
-    confidence: 0.98
-    file_types: [class]
-    requires_count: 4
-    conditions:
+    conf: 0.98
+    for: [class]
+    count: 4
+    any:
       # Credential access
       - id: chrome-pass-string
       - id: firefox-pass-string
@@ -39,14 +39,14 @@ composite_rules:
 
   # Java credential stealer
   - id: java-credential-stealer
-    description: Java-based credential stealing capability
-    criticality: suspicious
+    desc: Java-based credential stealing capability
+    crit: suspicious
     mbc: "T1555"
     attack: "T1555"
-    confidence: 0.95
-    file_types: [class]
-    requires_count: 2
-    conditions:
+    conf: 0.95
+    for: [class]
+    count: 2
+    any:
       - id: chrome-pass-string
       - id: firefox-pass-string
       - id: ie-pass-string
@@ -58,27 +58,27 @@ composite_rules:
 
   # Java keylogger
   - id: java-keylogger
-    description: Java keylogging capability
-    criticality: suspicious
+    desc: Java keylogging capability
+    crit: suspicious
     mbc: "T1056.001"
     attack: "T1056.001"
-    confidence: 0.95
-    file_types: [class]
-    requires_count: 1
-    conditions:
+    conf: 0.95
+    for: [class]
+    count: 1
+    any:
       - id: keylogger-string
       - id: o-keylogger-string
 
   # Java remote access
   - id: java-remote-access
-    description: Java remote access capability
-    criticality: suspicious
+    desc: Java remote access capability
+    crit: suspicious
     mbc: "B0022"
     attack: "T1021"
-    confidence: 0.95
-    file_types: [class]
-    requires_count: 2
-    conditions:
+    conf: 0.95
+    for: [class]
+    count: 2
+    any:
       - id: remote-screen-string
       - id: hrdp-new-string
       - id: hrdp-res-string
@@ -87,36 +87,36 @@ composite_rules:
 
   # Java dropper/downloader
   - id: java-dropper
-    description: Java download and execute capability
-    criticality: suspicious
+    desc: Java download and execute capability
+    crit: suspicious
     mbc: "B0025"
     attack: "T1105"
-    confidence: 0.95
-    file_types: [class]
-    requires_count: 1
-    conditions:
+    conf: 0.95
+    for: [class]
+    count: 1
+    any:
       - id: down-n-exec-string
       - id: up-n-exec-string
 
   # Java ransomware indicators
   - id: java-ransomware
-    description: Java ransomware capability
-    criticality: suspicious
+    desc: Java ransomware capability
+    crit: suspicious
     mbc: "B0031"
     attack: "T1486"
-    confidence: 0.95
-    file_types: [class]
-    requires_all:
+    conf: 0.95
+    for: [class]
+    all:
       - id: rw-encrypt-string
       - id: rw-decrypt-string
 
   # Allatori obfuscated Java (likely malware)
   - id: java-allatori-obfuscated
-    description: Java obfuscated with Allatori (common in malware)
-    criticality: suspicious
-    confidence: 0.9
+    desc: Java obfuscated with Allatori (common in malware)
+    crit: suspicious
+    conf: 0.9
     mbc: "B0032"
     attack: "T1027"
-    file_types: [class]
-    requires_all:
+    for: [class]
+    all:
       - id: allatori-demo

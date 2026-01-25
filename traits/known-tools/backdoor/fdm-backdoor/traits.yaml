@@ -11,8 +11,8 @@ traits:
   # FDM backdoor C2 domain
   - id: backdoor/fdm-backdoor/c2-domain
     description: FDM backdoor C2 domain
-    criticality: suspicious
-    confidence: 0.98
+    crit: suspicious
+    conf: 0.98
     family: true
     attack: "T1071"
     condition:
@@ -22,8 +22,8 @@ traits:
   # FDM backdoor C2 IP
   - id: backdoor/fdm-backdoor/c2-ip
     description: FDM backdoor C2 IP address
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1071"
     condition:
@@ -33,8 +33,8 @@ traits:
   # FDM specific temp file pattern
   - id: backdoor/fdm-backdoor/temp-file
     description: FDM backdoor specific temp file pattern
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     condition:
       type: yara
       source: |
@@ -49,9 +49,9 @@ traits:
   # FDM postinst script patterns
   - id: backdoor/fdm-backdoor/postinst-pattern
     description: FDM backdoor postinst script patterns
-    criticality: suspicious
-    confidence: 0.9
-    file_types: [shell, text]
+    crit: suspicious
+    conf: 0.9
+    for: [shell, text]
     condition:
       type: yara
       source: |
@@ -74,11 +74,11 @@ traits:
   # FDM backdoor ELF indicators
   - id: backdoor/fdm-backdoor/elf-indicators
     description: FDM backdoor ELF binary indicators
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1195.002"
-    file_types: [elf]
+    for: [elf]
     condition:
       type: yara
       source: |
@@ -99,12 +99,12 @@ composite_rules:
   # Full FDM backdoor detection
   - id: backdoor/fdm-backdoor/detected
     description: FreeDownloadManager supply chain backdoor
-    criticality: hostile
-    confidence: 0.98
+    crit: hostile
+    conf: 0.98
     family: true
     attack: "T1195.002"
     mbc: "B0030"
-    file_types: [elf]
+    for: [elf]
     requires_any:
       - id: backdoor/fdm-backdoor/c2-domain
       - id: backdoor/fdm-backdoor/c2-ip

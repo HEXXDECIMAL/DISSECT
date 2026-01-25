@@ -4,12 +4,12 @@
 traits:
   # Kernel Taint Erasure
   - id: kernel-taint-reset
-    description: Resets kernel tainted_mask to hide out-of-tree modules
-    criticality: suspicious
-    confidence: 1.0
+    desc: Resets kernel tainted_mask to hide out-of-tree modules
+    crit: suspicious
+    conf: 1.0
     attack: "T1562.001"
-    file_types: [c]
-    condition:
+    for: [c]
+    if:
       type: yara
       source: |
         rule kernel_taint_reset {
@@ -22,24 +22,24 @@ traits:
 
   # Kernel Taint Erasure (AST)
   - id: kernel-taint-assign
-    description: Direct assignment to kernel taint mask (structural)
-    criticality: suspicious
-    confidence: 1.0
+    desc: Direct assignment to kernel taint mask (structural)
+    crit: suspicious
+    conf: 1.0
     attack: "T1562.001"
-    file_types: [c]
-    condition:
+    for: [c]
+    if:
       type: ast_pattern
       node_type: assignment_expression
       pattern: "*taint_mask_ptr = 0"
 
   # Real-time Log Sanitization
   - id: log-sanitization
-    description: Real-time filtering of dmesg or kmsg output
-    criticality: suspicious
-    confidence: 0.95
+    desc: Real-time filtering of dmesg or kmsg output
+    crit: suspicious
+    conf: 0.95
     attack: "T1562.001"
-    file_types: [c]
-    condition:
+    for: [c]
+    if:
       type: yara
       source: |
         rule log_sanitization {
@@ -59,12 +59,12 @@ traits:
 
   # TaskStats Forensic Deception
   - id: taskstats-deception
-    description: Blinds TaskStats netlink API to hide processes from forensic tools
-    criticality: suspicious
-    confidence: 1.0
+    desc: Blinds TaskStats netlink API to hide processes from forensic tools
+    crit: suspicious
+    conf: 1.0
     attack: "T1562.001"
-    file_types: [c]
-    condition:
+    for: [c]
+    if:
       type: yara
       source: |
         rule taskstats_deception {
@@ -78,12 +78,12 @@ traits:
 
   # Audit System Blinding
   - id: audit-blinding
-    description: Intercepts and drops Linux Auditing System (auditd) records
-    criticality: suspicious
-    confidence: 0.95
+    desc: Intercepts and drops Linux Auditing System (auditd) records
+    crit: suspicious
+    conf: 0.95
     attack: "T1562.001"
-    file_types: [c]
-    condition:
+    for: [c]
+    if:
       type: yara
       source: |
         rule audit_blinding {
@@ -99,12 +99,12 @@ traits:
 
   # Fake Capability/State (Read-Write Divergence)
   - id: fake-state-logic
-    description: Divergent logic where READ returns a fake state while WRITE is ignored (Deception)
-    criticality: suspicious
-    confidence: 0.9
+    desc: Divergent logic where READ returns a fake state while WRITE is ignored (Deception)
+    crit: suspicious
+    conf: 0.9
     attack: "T1562.001"
-    file_types: [c]
-    condition:
+    for: [c]
+    if:
       type: yara
       source: |
         rule fake_state_logic {
@@ -119,12 +119,12 @@ traits:
 
   # Structural Deception Pattern (AST)
   - id: deception-read-hook
-    description: Structural pattern of a read hook returning a hardcoded buffer/variable (Deception)
-    criticality: suspicious
-    confidence: 0.95
+    desc: Structural pattern of a read hook returning a hardcoded buffer/variable (Deception)
+    crit: suspicious
+    conf: 0.95
     attack: "T1562.001"
-    file_types: [c]
-    condition:
+    for: [c]
+    if:
       type: ast_query
       language: c
       query: |
@@ -139,13 +139,13 @@ traits:
 composite_rules:
   # Fake State Deception (Faking disabled state while keeping active hooks)
   - id: fake-state-deception
-    description: High-confidence detection of faking a disabled state for kernel security features
-    criticality: hostile
-    confidence: 1.0
+    desc: High-confidence detection of faking a disabled state for kernel security features
+    crit: hostile
+    conf: 1.0
     attack: "T1562.001"
-    file_types: [c]
+    for: [c]
     requires_count: 2
-    conditions:
+    any:
       - id: evasion/anti-forensics/fake-state-logic
       - id: evasion/anti-forensics/deception-read-hook
       - id: kernel/rootkit/copy-to-user-call

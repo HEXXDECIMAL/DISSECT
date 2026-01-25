@@ -4,197 +4,197 @@
 
 defaults:
   attack: "T1485"
-  criticality: suspicious
+  crit: suspicious
 
 traits:
   # Windows System32 deletion
   - id: windows-system32-delete
     description: "Windows System32 directory deletion"
-    confidence: 0.95
+    conf: 0.95
     platforms: [windows]
-    condition:
+    if:
       type: string
       regex: "(rmdir|del|remove|shutil\\.rmtree|os\\.remove).*[Ss]ystem32|[Ss]ystem32.*(rmdir|del|remove)"
 
   # Windows directory recursive deletion
   - id: windows-recursive-delete
     description: "Windows system directory recursive deletion"
-    confidence: 0.9
+    conf: 0.9
     platforms: [windows]
-    condition:
+    if:
       type: string
       regex: "rd\\s+/s|rmdir\\s+/s.*Windows|del\\s+/f\\s+/q.*Windows"
 
   # Linux critical directory targeting
   - id: linux-etc-delete
     description: "Linux /etc directory deletion attempt"
-    confidence: 0.95
+    conf: 0.95
     platforms: [linux]
-    condition:
+    if:
       type: string
       regex: "rm\\s+-rf\\s+/etc|shutil\\.rmtree.*[\"']/etc"
 
   # Linux /usr directory targeting (binaries/libs)
   - id: linux-usr-delete
     description: "Linux /usr directory deletion attempt"
-    confidence: 0.95
+    conf: 0.95
     platforms: [linux]
-    condition:
+    if:
       type: string
       regex: "rm\\s+-rf\\s+/usr|shutil\\.rmtree.*[\"']/usr"
 
   # Linux boot directory targeting
   - id: linux-boot-delete
     description: "Linux /boot directory deletion attempt"
-    confidence: 0.95
+    conf: 0.95
     platforms: [linux]
-    condition:
+    if:
       type: string
       regex: "rm\\s+-rf\\s+/boot|shutil\\.rmtree.*[\"']/boot"
 
   # Root filesystem wipe
   - id: root-wipe
     description: "Root filesystem wipe attempt"
-    confidence: 0.95
+    conf: 0.95
     attack: "T1561"
-    condition:
+    if:
       type: string
       regex: "rm\\s+-rf\\s+/\\s|rm\\s+-rf\\s+/\\*|shutil\\.rmtree.*[\"']/[\"']"
 
   # macOS system directory targeting
   - id: macos-system-delete
     description: "macOS system directory deletion"
-    confidence: 0.95
+    conf: 0.95
     platforms: [macos]
-    condition:
+    if:
       type: string
       regex: "rm\\s+-rf.*(/System|/Library/System)|shutil\\.rmtree.*/System"
 
   # MBR/Boot sector targeting
   - id: mbr-target
     description: "MBR/Boot sector targeting"
-    confidence: 0.95
+    conf: 0.95
     attack: "T1561.002"
-    condition:
+    if:
       type: string
       regex: "/dev/sda|/dev/hda|PhysicalDrive0|\\\\\\\\\\\\.\\\\PhysicalDrive"
 
   # === Recursive deletion atomic indicators ===
   - id: rmtree-call
     description: rmtree function call
-    criticality: inert
-    confidence: 0.6
-    condition:
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "rmtree"
 
   - id: rm-rf-cmd
     description: rm -rf command
-    criticality: inert
-    confidence: 0.6
-    condition:
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: "rm\\s+-rf"
 
   - id: rmdir-recursive
     description: rmdir recursive command
-    criticality: inert
-    confidence: 0.6
-    condition:
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: "rmdir.*(/s|/q)"
 
   # === Iteration/loop atomic indicators ===
   - id: for-loop
     description: for loop pattern
-    criticality: inert
-    confidence: 0.5
-    condition:
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: "for\\s"
 
   - id: while-loop
     description: while loop pattern
-    criticality: inert
-    confidence: 0.5
-    condition:
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: "while\\s"
 
   - id: os-walk
     description: os.walk iteration
-    criticality: inert
-    confidence: 0.6
-    condition:
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "os.walk"
 
   - id: glob-pattern
     description: glob module pattern
-    criticality: inert
-    confidence: 0.5
-    condition:
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: "glob\\."
 
   # === System directory atomic indicators ===
   - id: windows-dir-ref
     description: Windows directory reference
-    criticality: inert
-    confidence: 0.5
-    condition:
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "Windows"
 
   - id: system32-ref
     description: System32 directory reference
-    criticality: inert
-    confidence: 0.6
-    condition:
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "System32"
 
   - id: etc-dir-ref
     description: /etc directory reference
-    criticality: inert
-    confidence: 0.5
-    condition:
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "/etc"
 
   - id: boot-dir-ref
     description: /boot directory reference
-    criticality: inert
-    confidence: 0.6
-    condition:
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "/boot"
 
   - id: usr-dir-ref
     description: /usr directory reference
-    criticality: inert
-    confidence: 0.5
-    condition:
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "/usr"
 
 composite_rules:
   - id: recursive-delete-cmd
     description: "Recursive deletion command pattern"
-    criticality: notable
-    confidence: 0.8
+    crit: notable
+    conf: 0.8
     requires_count: 1
-    conditions:
+    any:
       - id: rmtree-call
       - id: rm-rf-cmd
       - id: rmdir-recursive
 
   - id: iteration-loop-pattern
     description: "Iteration or loop pattern for file operations"
-    criticality: notable
-    confidence: 0.8
+    crit: notable
+    conf: 0.8
     requires_count: 1
-    conditions:
+    any:
       - id: for-loop
       - id: while-loop
       - id: os-walk
@@ -202,10 +202,10 @@ composite_rules:
 
   - id: system-dir-reference
     description: "Reference to critical system directories"
-    criticality: notable
-    confidence: 0.8
+    crit: notable
+    conf: 0.8
     requires_count: 1
-    conditions:
+    any:
       - id: windows-dir-ref
       - id: system32-ref
       - id: etc-dir-ref
@@ -215,7 +215,7 @@ composite_rules:
   # System destruction with iteration
   - id: mass-deletion
     description: "Mass system file deletion"
-    confidence: 0.95
+    conf: 0.95
     requires_all:
       - id: recursive-delete-cmd
       - id: iteration-loop-pattern

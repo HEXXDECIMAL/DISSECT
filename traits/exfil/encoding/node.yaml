@@ -5,106 +5,106 @@ traits:
   # Base64 encoding
   - id: node-base64-encode
     description: Base64 encodes data (pre-exfiltration)
-    criticality: notable
-    confidence: 0.8
+    crit: notable
+    conf: 0.8
     attack: "T1132"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "toString\\(['\"]base64['\"]\\)"
 
   - id: node-buffer-base64
     description: Buffer to base64 conversion
-    criticality: notable
-    confidence: 0.85
+    crit: notable
+    conf: 0.85
     attack: "T1132"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "Buffer\\.from\\([^)]+\\)\\.toString\\(['\"]base64['\"]\\)"
 
   - id: node-base64-decode
     description: Base64 decodes data
-    criticality: notable
-    confidence: 0.75
-    file_types: [javascript, typescript]
-    condition:
+    crit: notable
+    conf: 0.75
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "Buffer\\.from\\([^,]+,\\s*['\"]base64['\"]\\)"
 
   # Hex encoding
   - id: node-hex-encode
     description: Hex encodes data
-    criticality: notable
-    confidence: 0.75
-    file_types: [javascript, typescript]
-    condition:
+    crit: notable
+    conf: 0.75
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "toString\\(['\"]hex['\"]\\)"
 
   # JSON serialization
   - id: node-json-stringify
     description: JSON serializes data for transmission
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript, typescript]
-    condition:
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
       type: string
       regex: 'JSON\.stringify\('
 
   # URL encoding
   - id: node-querystring
     description: URL-encodes data using querystring
-    criticality: notable
-    confidence: 0.8
-    file_types: [javascript, typescript]
-    condition:
+    crit: notable
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
       type: string
       regex: 'querystring\.stringify\('
 
   - id: node-url-params
     description: Creates URLSearchParams for data
-    criticality: notable
-    confidence: 0.75
-    file_types: [javascript, typescript]
-    condition:
+    crit: notable
+    conf: 0.75
+    for: [javascript, typescript]
+    if:
       type: string
       regex: 'new URLSearchParams\('
 
   # HTTP request patterns for exfiltration detection (atomic)
   - id: node-http-req
     description: http.request method
-    criticality: inert
-    confidence: 0.5
-    file_types: [javascript, typescript]
-    condition:
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "http.request"
 
   - id: node-https-req
     description: https.request method
-    criticality: inert
-    confidence: 0.5
-    file_types: [javascript, typescript]
-    condition:
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "https.request"
 
   - id: node-axios
     description: axios library
-    criticality: inert
-    confidence: 0.5
-    file_types: [javascript, typescript]
-    condition:
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "axios"
 
   - id: node-fetch-call
     description: fetch() call
-    criticality: inert
-    confidence: 0.5
-    file_types: [javascript, typescript]
-    condition:
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "fetch("
 
@@ -112,11 +112,11 @@ composite_rules:
   # HTTP request composite
   - id: node-http-request
     description: HTTP request capable of sending data
-    criticality: notable
-    confidence: 0.75
-    file_types: [javascript, typescript]
+    crit: notable
+    conf: 0.75
+    for: [javascript, typescript]
     requires_count: 1
-    conditions:
+    any:
       - id: node-http-req
       - id: node-https-req
       - id: node-axios
@@ -125,8 +125,8 @@ composite_rules:
   # Encode then exfil pattern
   - id: node-encode-exfil
     description: Encodes data then sends via HTTP (exfiltration)
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     attack: "T1041"
     requires_all:
       - id: node-base64-encode

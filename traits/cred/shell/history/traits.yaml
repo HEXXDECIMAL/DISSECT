@@ -7,31 +7,31 @@ defaults:
 traits:
   # === Atomic: Bash History ===
   - id: bash-history
-    description: Bash shell history file access
-    criticality: suspicious
-    confidence: 0.8
+    desc: Bash shell history file access
+    crit: suspicious
+    conf: 0.8
     attack: "T1552.003"
-    condition:
+    if:
       type: string
       exact: ".bash_history"
 
   # === Atomic: Zsh History ===
   - id: zsh-history
-    description: Zsh shell history file access
-    criticality: suspicious
-    confidence: 0.8
+    desc: Zsh shell history file access
+    crit: suspicious
+    conf: 0.8
     attack: "T1552.003"
-    condition:
+    if:
       type: string
       exact: ".zsh_history"
 
   # === Atomic: Fish History ===
   - id: fish-history
-    description: Fish shell history file access
-    criticality: suspicious
-    confidence: 0.8
+    desc: Fish shell history file access
+    crit: suspicious
+    conf: 0.8
     attack: "T1552.003"
-    condition:
+    if:
       type: string
       regex: "\\.local/share/fish/fish_history"
 
@@ -39,12 +39,12 @@ traits:
 
 composite_rules:
   - id: history-theft
-    description: Shell history file theft
-    criticality: suspicious
-    confidence: 0.8
+    desc: Shell history file theft
+    crit: suspicious
+    conf: 0.8
     attack: "T1552.003"
     mbc: "E1552"
-    requires_any:
+    any:
       - id: bash-history
       - id: zsh-history
       - id: fish-history

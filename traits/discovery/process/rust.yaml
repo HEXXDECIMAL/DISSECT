@@ -4,13 +4,13 @@
 
 traits:
   - id: rust-sysinfo
-    description: Discover processes using sysinfo
-    criticality: notable
-    confidence: 0.9
+    desc: Discover processes using sysinfo
+    crit: notable
+    conf: 0.9
     mbc: "B0007"
     attack: "T1057"
-    file_types: [rust]
-    condition:
+    for: [rust]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: "processes_by_name"

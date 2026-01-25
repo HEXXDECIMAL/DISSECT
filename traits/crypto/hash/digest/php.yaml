@@ -3,59 +3,59 @@
 
 traits:
   - id: md5
-    description: MD5 hash computation
-    criticality: inert
-    confidence: 0.7
+    desc: MD5 hash computation
+    crit: inert
+    conf: 0.7
     mbc: "C0029"
-    file_types: [php]
-    condition:
+    for: [php]
+    if:
       type: string
       regex: "\\bmd5\\s*\\("
 
   - id: sha1
-    description: SHA1 hash computation
-    criticality: inert
-    confidence: 0.7
+    desc: SHA1 hash computation
+    crit: inert
+    conf: 0.7
     mbc: "C0029"
-    file_types: [php]
-    condition:
+    for: [php]
+    if:
       type: string
       regex: "\\bsha1\\s*\\("
 
   - id: sha256
-    description: SHA256 hash computation
-    criticality: inert
-    confidence: 0.7
+    desc: SHA256 hash computation
+    crit: inert
+    conf: 0.7
     mbc: "C0029"
-    file_types: [php]
-    condition:
+    for: [php]
+    if:
       type: string
       regex: "hash\\s*\\(['\"]sha256['\"]"
 
   - id: hash-generic
-    description: Generic hash function usage
-    criticality: inert
-    confidence: 0.65
+    desc: Generic hash function usage
+    crit: inert
+    conf: 0.65
     mbc: "C0029"
-    file_types: [php]
-    condition:
+    for: [php]
+    if:
       type: string
       regex: "\\bhash\\s*\\("
 
   - id: password-hash
-    description: Password hashing (bcrypt/argon2)
-    criticality: inert
-    confidence: 0.6
-    file_types: [php]
-    condition:
+    desc: Password hashing (bcrypt/argon2)
+    crit: inert
+    conf: 0.6
+    for: [php]
+    if:
       type: string
       exact: password_hash
 
   - id: password-verify
-    description: Password verification
-    criticality: notable
-    confidence: 0.7
-    file_types: [php]
-    condition:
+    desc: Password verification
+    crit: notable
+    conf: 0.7
+    for: [php]
+    if:
       type: string
       exact: password_verify

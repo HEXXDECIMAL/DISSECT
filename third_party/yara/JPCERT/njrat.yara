@@ -9,6 +9,6 @@ rule malware_Njrat_strings {
             $reg = "SEE_MASK_NOZONECHECKS" wide fullword
             $msg = "Execute ERROR" wide fullword
             $ping = "cmd.exe /c ping 0 -n 2 & del" wide fullword
-          condition:
+          if:
             all of them
 }

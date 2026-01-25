@@ -6,11 +6,11 @@ traits:
   # ESXi VM enumeration
   - id: vm-enumeration
     description: ESXi virtual machine enumeration
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     mbc: "C0027"
     attack: "T1486"
-    condition:
+    if:
       type: yara
       source: |
         rule esxi_vm_enum {
@@ -28,11 +28,11 @@ traits:
   # ESXi VM termination
   - id: vm-kill
     description: ESXi virtual machine termination command
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     mbc: "C0027"
     attack: "T1489"
-    condition:
+    if:
       type: yara
       source: |
         rule esxi_vm_kill {
@@ -52,11 +52,11 @@ traits:
   # ESXi snapshot manipulation
   - id: snapshot
     description: ESXi snapshot removal command (ransomware preparation)
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     mbc: "C0027"
     attack: "T1490"
-    condition:
+    if:
       type: yara
       source: |
         rule esxi_snapshot {
@@ -76,11 +76,11 @@ traits:
   # ESXi file targeting
   - id: file-targeting
     description: ESXi-specific file extension targeting
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     mbc: "C0027"
     attack: "T1486"
-    condition:
+    if:
       type: yara
       source: |
         rule esxi_file_targeting {
@@ -104,11 +104,11 @@ traits:
   # ESXi CLI tools usage
   - id: cli-tools
     description: ESXi CLI tools for attack operations
-    criticality: suspicious
-    confidence: 0.8
+    crit: suspicious
+    conf: 0.8
     mbc: "C0027"
     attack: "T1486"
-    condition:
+    if:
       type: yara
       source: |
         rule esxi_cli_tools {
@@ -127,11 +127,11 @@ traits:
   # ESXi version detection
   - id: version-detect
     description: ESXi version detection for compatibility
-    criticality: notable
-    confidence: 0.7
+    crit: notable
+    conf: 0.7
     mbc: "C0027"
     attack: "T1486"
-    condition:
+    if:
       type: yara
       source: |
         rule esxi_version {
@@ -148,11 +148,11 @@ traits:
   # ESXi datastore access
   - id: datastore-access
     description: ESXi datastore enumeration and access
-    criticality: suspicious
-    confidence: 0.8
+    crit: suspicious
+    conf: 0.8
     mbc: "C0027"
     attack: "T1486"
-    condition:
+    if:
       type: yara
       source: |
         rule esxi_datastore {
@@ -170,8 +170,8 @@ composite_rules:
   # Full ESXi ransomware targeting
   - id: full-attack
     description: ESXi-targeted ransomware attack chain
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     requires_all:
       - id: impact/ransomware/esxi/file-targeting
     requires_any:

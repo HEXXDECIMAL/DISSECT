@@ -5,44 +5,44 @@
 traits:
   # === Cookie atomic indicators ===
   - id: cookie-header
-    description: Cookie header
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: Cookie header
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "Cookie:"
 
   - id: set-cookie-header
-    description: Set-Cookie header
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: Set-Cookie header
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "Set-Cookie:"
 
   - id: cookiejar-ref
-    description: cookiejar reference
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: cookiejar reference
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "cookiejar"
 
   - id: http-cookiejar
-    description: http.cookiejar module
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: http.cookiejar module
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "http.cookiejar"
 
 composite_rules:
   - id: cookies
-    description: HTTP cookie handling
-    criticality: inert
-    confidence: 0.66
-    requires_count: 1
-    conditions:
+    desc: HTTP cookie handling
+    crit: inert
+    conf: 0.66
+    count: 1
+    any:
       - id: cookie-header
       - id: set-cookie-header
       - id: cookiejar-ref

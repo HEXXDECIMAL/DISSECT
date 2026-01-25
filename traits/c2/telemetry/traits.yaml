@@ -9,249 +9,249 @@ defaults:
 traits:
   # === Sentry Error Tracking ===
   - id: sentry-dsn
-    description: Sentry DSN configuration (operator telemetry)
-    criticality: suspicious
-    confidence: 0.85
-    condition:
+    desc: Sentry DSN configuration (operator telemetry)
+    crit: suspicious
+    conf: 0.85
+    if:
       type: string
       # Sentry DSN format: https://<key>@<org>.ingest.sentry.io/<project>
       regex: "https://[a-f0-9]+@[a-z0-9.-]+\\.ingest\\.sentry\\.io/\\d+"
 
   - id: sentry-sdk-pkg
-    description: Sentry SDK package reference
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: Sentry SDK package reference
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: '\bsentry[_-]sdk\b'
 
   - id: sentry-js-import
-    description: Sentry JavaScript import
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: Sentry JavaScript import
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "@sentry/"
 
   - id: sentry-io-domain
-    description: Sentry.io domain
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: Sentry.io domain
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "sentry.io"
 
   - id: sentry-init-js
-    description: Sentry.init JavaScript
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: Sentry.init JavaScript
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "Sentry.init"
 
   - id: sentry-init-py
-    description: sentry.init Python
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: sentry.init Python
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "sentry.init"
 
   - id: sentry-init-c
-    description: sentry_init C/Rust
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: sentry_init C/Rust
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "sentry_init"
 
   - id: capture-exception
-    description: capture_exception function
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: capture_exception function
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       exact: "capture_exception"
 
   - id: capture-message
-    description: capture_message function
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: capture_message function
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       exact: "capture_message"
 
   - id: capture-exception-js
-    description: captureException JavaScript
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: captureException JavaScript
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       exact: "captureException"
 
   - id: capture-message-js
-    description: captureMessage JavaScript
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: captureMessage JavaScript
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       exact: "captureMessage"
 
   # === Bugsnag ===
   - id: bugsnag-domain
-    description: Bugsnag domain
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: Bugsnag domain
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "bugsnag.com"
 
   - id: bugsnag-notify
-    description: Bugsnag.notify function
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: Bugsnag.notify function
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "Bugsnag.notify"
 
   # === Rollbar ===
   - id: rollbar-domain
-    description: Rollbar domain
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: Rollbar domain
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "rollbar.com"
 
   - id: rollbar-error
-    description: Rollbar.error function
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: Rollbar.error function
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "Rollbar.error"
 
   # === Raygun ===
   - id: raygun-com
-    description: Raygun.com domain
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: Raygun.com domain
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "raygun.com"
 
   - id: raygun-io
-    description: Raygun.io domain
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: Raygun.io domain
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "raygun.io"
 
   # === Stacktrace Keywords ===
   - id: stacktrace-attach
-    description: Attach stacktrace configuration
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: Attach stacktrace configuration
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       exact: "attach-stacktrace"
 
   - id: stacktrace-process
-    description: Process stacktrace function
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: Process stacktrace function
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       exact: "process-stacktrace"
 
 composite_rules:
   - id: sentry-sdk
-    description: Sentry SDK integration
-    criticality: notable
-    confidence: 0.7
-    requires_count: 1
-    conditions:
+    desc: Sentry SDK integration
+    crit: notable
+    conf: 0.7
+    count: 1
+    any:
       - id: sentry-sdk-pkg
       - id: sentry-js-import
       - id: sentry-io-domain
 
   - id: sentry-init
-    description: Sentry initialization function
-    criticality: notable
-    confidence: 0.7
-    requires_count: 1
-    conditions:
+    desc: Sentry initialization function
+    crit: notable
+    conf: 0.7
+    count: 1
+    any:
       - id: sentry-init-js
       - id: sentry-init-py
       - id: sentry-init-c
 
   - id: sentry-capture
-    description: Sentry error capture
-    criticality: notable
-    confidence: 0.6
-    requires_count: 1
-    conditions:
+    desc: Sentry error capture
+    crit: notable
+    conf: 0.6
+    count: 1
+    any:
       - id: capture-exception
       - id: capture-message
       - id: capture-exception-js
       - id: capture-message-js
 
   - id: bugsnag
-    description: Bugsnag error tracking
-    criticality: notable
-    confidence: 0.7
-    requires_count: 1
-    conditions:
+    desc: Bugsnag error tracking
+    crit: notable
+    conf: 0.7
+    count: 1
+    any:
       - id: bugsnag-domain
       - id: bugsnag-notify
 
   - id: rollbar
-    description: Rollbar error tracking
-    criticality: notable
-    confidence: 0.7
-    requires_count: 1
-    conditions:
+    desc: Rollbar error tracking
+    crit: notable
+    conf: 0.7
+    count: 1
+    any:
       - id: rollbar-domain
       - id: rollbar-error
 
   - id: raygun
-    description: Raygun error tracking
-    criticality: notable
-    confidence: 0.7
-    requires_count: 1
-    conditions:
+    desc: Raygun error tracking
+    crit: notable
+    conf: 0.7
+    count: 1
+    any:
       - id: raygun-com
       - id: raygun-io
 
   - id: sentry-operator-monitoring
-    description: Sentry error tracking for operator monitoring
-    criticality: suspicious
-    confidence: 0.85
-    requires_any:
+    desc: Sentry error tracking for operator monitoring
+    crit: suspicious
+    conf: 0.85
+    any:
       - id: sentry-dsn
       - id: sentry-sdk
       - id: sentry-init
 
   - id: bugsnag-operator-monitoring
-    description: Bugsnag error tracking with stacktrace capture
-    criticality: suspicious
-    confidence: 0.8
-    requires_any:
+    desc: Bugsnag error tracking with stacktrace capture
+    crit: suspicious
+    conf: 0.8
+    any:
       - id: bugsnag
 
   - id: rollbar-operator-monitoring
-    description: Rollbar error tracking with stacktrace capture
-    criticality: suspicious
-    confidence: 0.8
-    requires_any:
+    desc: Rollbar error tracking with stacktrace capture
+    crit: suspicious
+    conf: 0.8
+    any:
       - id: rollbar
 
   - id: operator-monitoring
-    description: Malware operator monitoring via error tracking service
-    criticality: suspicious
-    confidence: 0.85
-    requires_any:
+    desc: Malware operator monitoring via error tracking service
+    crit: suspicious
+    conf: 0.85
+    any:
       - id: sentry-operator-monitoring
       - id: bugsnag-operator-monitoring
       - id: rollbar-operator-monitoring

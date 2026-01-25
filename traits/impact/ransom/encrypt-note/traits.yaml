@@ -3,19 +3,19 @@
 
 traits:
   - id: completion_msg
-    description: "Declarative encryption completion message"
-    criticality: suspicious
-    confidence: 0.7
+    desc: "Declarative encryption completion message"
+    crit: suspicious
+    conf: 0.7
     attack: "T1486"
-    condition:
+    if:
       type: string
       exact: "Encryption complete. Your files have been encrypted."
 
   - id: generic_msg
-    description: "Generic ransom note string"
-    criticality: suspicious
-    confidence: 0.6
-    condition:
+    desc: "Generic ransom note string"
+    crit: suspicious
+    conf: 0.6
+    if:
       type: yara
       source: |
         rule ransom_note_strings {

@@ -4,19 +4,19 @@
 
 traits:
   - id: decode-python
-    description: Base64 decoding in Python
-    criticality: notable
-    confidence: 0.66
+    desc: Base64 decoding in Python
+    crit: notable
+    conf: 0.66
     mbc: "B0032"
     attack: "T1140"
-    condition:
+    if:
       type: string
       exact: b64decode
 
   - id: decode-exec-python
-    description: Base64 decode and execute in Python
-    criticality: suspicious
-    confidence: 0.66
-    condition:
+    desc: Base64 decode and execute in Python
+    crit: suspicious
+    conf: 0.66
+    if:
       type: string
       regex: "b64decode.{0,64}exec"

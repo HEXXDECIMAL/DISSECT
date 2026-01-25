@@ -3,94 +3,94 @@
 
 traits:
   - id: assembly-load
-    description: Runtime assembly loading
-    criticality: suspicious
+    desc: Runtime assembly loading
+    crit: suspicious
     mbc: "F0004.001"
     attack: "T1620"
-    confidence: 0.95
-    condition:
+    conf: 0.95
+    if:
       type: ast_pattern
       node_type: invocation_expression
       pattern: "Assembly.Load"
-    file_types: [csharp]
+    for: [csharp]
 
   - id: assembly-load-file
-    description: Assembly loaded from file
-    criticality: suspicious
+    desc: Assembly loaded from file
+    crit: suspicious
     mbc: "F0004.001"
     attack: "T1620"
-    confidence: 0.95
-    condition:
+    conf: 0.95
+    if:
       type: ast_pattern
       node_type: invocation_expression
       pattern: "Assembly.LoadFile"
-    file_types: [csharp]
+    for: [csharp]
 
   - id: activator-create
-    description: Dynamic object creation via reflection
-    criticality: suspicious
+    desc: Dynamic object creation via reflection
+    crit: suspicious
     mbc: "F0004"
     attack: "T1620"
-    confidence: 0.9
-    condition:
+    conf: 0.9
+    if:
       type: ast_pattern
       node_type: invocation_expression
       pattern: "Activator.CreateInstance"
-    file_types: [csharp]
+    for: [csharp]
 
   - id: method-invoke
-    description: Reflective method invocation
-    criticality: suspicious
+    desc: Reflective method invocation
+    crit: suspicious
     mbc: "F0004"
     attack: "T1620"
-    confidence: 0.95
-    condition:
+    conf: 0.95
+    if:
       type: ast_pattern
       node_type: invocation_expression
       pattern: ".Invoke("
-    file_types: [csharp]
+    for: [csharp]
 
   - id: get-method
-    description: Reflection API to get method info
-    criticality: notable
+    desc: Reflection API to get method info
+    crit: notable
     mbc: "F0004"
-    confidence: 0.75
-    condition:
+    conf: 0.75
+    if:
       type: ast_pattern
       node_type: invocation_expression
       pattern: "GetMethod"
-    file_types: [csharp]
+    for: [csharp]
 
   - id: get-type
-    description: Reflection API to get type info
-    criticality: notable
+    desc: Reflection API to get type info
+    crit: notable
     mbc: "F0004"
-    confidence: 0.75
-    condition:
+    conf: 0.75
+    if:
       type: ast_pattern
       node_type: invocation_expression
       pattern: "GetType"
-    file_types: [csharp]
+    for: [csharp]
 
   - id: marshal
-    description: Marshal operations (memory/native interop)
-    criticality: notable
+    desc: Marshal operations (memory/native interop)
+    crit: notable
     mbc: "F0004"
-    confidence: 0.8
-    condition:
+    conf: 0.8
+    if:
       type: ast_pattern
       node_type: invocation_expression
       pattern: "Marshal."
-    file_types: [csharp]
+    for: [csharp]
 
   - id: dllimport
-    description: P/Invoke native function import
-    criticality: suspicious
+    desc: P/Invoke native function import
+    crit: suspicious
     mbc: "F0004"
     attack: "T1106"
-    confidence: 0.9
-    condition:
+    conf: 0.9
+    if:
       type: ast_pattern
       node_type: attribute
       pattern: "DllImport"
-    file_types: [csharp]
+    for: [csharp]

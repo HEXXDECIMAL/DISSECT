@@ -81,7 +81,7 @@ impl ArchiveAnalyzer {
         // Add structural feature
         report.structure.push(StructuralFeature {
             id: format!("archive/{}", self.detect_archive_type(file_path)),
-            description: format!("{} archive", self.detect_archive_type(file_path)),
+            desc: format!("{} archive", self.detect_archive_type(file_path)),
             evidence: vec![Evidence {
                 method: "extension".to_string(),
                 source: "archive_analyzer".to_string(),

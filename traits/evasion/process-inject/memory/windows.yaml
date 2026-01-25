@@ -3,16 +3,16 @@
 # ATT&CK: T1055
 
 defaults:
-  file_types: [pe, dll]
+  for: [pe, dll]
   platforms: [windows]
 
 traits:
   - id: process-inject-api
-    description: Process injection via Windows API
-    criticality: suspicious
-    confidence: 0.66
+    desc: Process injection via Windows API
+    crit: suspicious
+    conf: 0.66
     mbc: "B0033"
     attack: "T1055"
-    condition:
+    if:
       type: symbol
       pattern: CreateRemoteThread|WriteProcessMemory|VirtualAllocEx|NtWriteVirtualMemory

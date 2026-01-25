@@ -5,7 +5,7 @@ traits:
   # Anti-copy/paste mechanisms (hiding content from analysis)
   - id: anti-copy
     description: Anti-copy mechanism (prevents text selection/copying)
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     attack: "T1566"
     file_types: [javascript, html]
@@ -31,7 +31,7 @@ traits:
   # Honeypot form fields (bot detection)
   - id: honeypot-field
     description: Honeypot form field for bot detection
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     attack: "T1566"
     file_types: [javascript, html]
@@ -43,7 +43,7 @@ traits:
   # Human interaction verification
   - id: human-verification
     description: Requires human interaction before enabling actions
-    criticality: notable
+    crit: notable
     confidence: 0.8
     file_types: [javascript, html]
     condition:
@@ -65,7 +65,7 @@ traits:
   # Microsoft brand impersonation
   - id: microsoft-impersonation
     description: Microsoft brand impersonation
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     attack: "T1566.002"
     file_types: [javascript, html]
@@ -88,7 +88,7 @@ traits:
   # Google brand impersonation
   - id: google-impersonation
     description: Google brand impersonation
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     attack: "T1566.002"
     file_types: [javascript, html]
@@ -110,7 +110,7 @@ traits:
   # Generic login form phishing
   - id: login-form
     description: Suspicious login form with credential inputs
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     attack: "T1566"
     file_types: [javascript, html]
@@ -135,7 +135,7 @@ traits:
   # Document sharing lure
   - id: document-lure
     description: Fake document sharing lure
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     attack: "T1566.002"
     file_types: [javascript, html]
@@ -161,7 +161,7 @@ traits:
   # Suspicious external domain in form action
   - id: external-form-action
     description: Form submits to suspicious external domain
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     attack: "T1566"
     file_types: [javascript, html]
@@ -191,7 +191,7 @@ traits:
   # Typosquatting domain indicators
   - id: typosquat-domain
     description: Typosquatting domain pattern (brand impersonation)
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     attack: "T1566.002"
     file_types: [javascript, html]
@@ -224,7 +224,7 @@ traits:
   # Bot detection evasion (webdriver check)
   - id: bot-detection
     description: Bot/automation detection for phishing evasion
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     attack: "T1566"
     file_types: [javascript, html]
@@ -249,7 +249,7 @@ traits:
   # External icon/image CDN for brand impersonation
   - id: brand-cdn-icons
     description: External CDN icons for brand impersonation
-    criticality: notable
+    crit: notable
     confidence: 0.8
     attack: "T1566.002"
     file_types: [javascript, html]
@@ -271,7 +271,7 @@ traits:
   # Pre-filled email target
   - id: targeted-email
     description: Pre-filled target email address
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     attack: "T1566.001"
     file_types: [javascript, html]
@@ -291,7 +291,7 @@ traits:
   # === Auth lure atomic indicators ===
   - id: auth-required-phrase
     description: Authentication required phrase
-    criticality: inert
+    crit: inert
     confidence: 0.6
     attack: "T1566"
     file_types: [javascript, html]
@@ -301,7 +301,7 @@ traits:
 
   - id: auth-needed-phrase
     description: Authentication needed phrase
-    criticality: inert
+    crit: inert
     confidence: 0.6
     attack: "T1566"
     file_types: [javascript, html]
@@ -311,7 +311,7 @@ traits:
 
   - id: verification-required-phrase
     description: Verification required phrase
-    criticality: inert
+    crit: inert
     confidence: 0.6
     attack: "T1566"
     file_types: [javascript, html]
@@ -321,7 +321,7 @@ traits:
 
   - id: verification-needed-phrase
     description: Verification needed phrase
-    criticality: inert
+    crit: inert
     confidence: 0.6
     attack: "T1566"
     file_types: [javascript, html]
@@ -331,7 +331,7 @@ traits:
 
   - id: verify-email-phrase
     description: Verify your email phrase
-    criticality: inert
+    crit: inert
     confidence: 0.6
     attack: "T1566"
     file_types: [javascript, html]
@@ -341,7 +341,7 @@ traits:
 
   - id: verify-identity-phrase
     description: Verify your identity phrase
-    criticality: inert
+    crit: inert
     confidence: 0.6
     attack: "T1566"
     file_types: [javascript, html]
@@ -351,7 +351,7 @@ traits:
 
   - id: verify-account-phrase
     description: Verify your account phrase
-    criticality: inert
+    crit: inert
     confidence: 0.6
     attack: "T1566"
     file_types: [javascript, html]
@@ -361,7 +361,7 @@ traits:
 
   - id: confirm-email-phrase
     description: Confirm your email phrase
-    criticality: inert
+    crit: inert
     confidence: 0.6
     attack: "T1566"
     file_types: [javascript, html]
@@ -371,7 +371,7 @@ traits:
 
   - id: confirm-identity-phrase
     description: Confirm your identity phrase
-    criticality: inert
+    crit: inert
     confidence: 0.6
     attack: "T1566"
     file_types: [javascript, html]
@@ -382,12 +382,12 @@ traits:
 composite_rules:
   - id: auth-required-lure
     description: Fake authentication required message
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     attack: "T1566"
     file_types: [javascript, html]
     requires_count: 1
-    conditions:
+    any:
       - id: auth-required-phrase
       - id: auth-needed-phrase
       - id: verification-required-phrase

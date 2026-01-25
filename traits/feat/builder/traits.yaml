@@ -5,9 +5,9 @@ traits:
   # CMake build system
   - id: cmake
     description: Built with CMake
-    criticality: benign
-    confidence: 0.85
-    condition:
+    crit: benign
+    conf: 0.85
+    if:
       type: yara
       source: |
         rule cmake_build {
@@ -23,9 +23,9 @@ traits:
   # Meson build system
   - id: meson
     description: Built with Meson
-    criticality: benign
-    confidence: 0.85
-    condition:
+    crit: benign
+    conf: 0.85
+    if:
       type: yara
       source: |
         rule meson_build {
@@ -40,9 +40,9 @@ traits:
   # Bazel build system
   - id: bazel
     description: Built with Bazel
-    criticality: benign
-    confidence: 0.85
-    condition:
+    crit: benign
+    conf: 0.85
+    if:
       type: yara
       source: |
         rule bazel_build {
@@ -58,9 +58,9 @@ traits:
   # Autotools build system
   - id: autotools
     description: Built with Autotools (autoconf/automake)
-    criticality: benign
-    confidence: 0.8
-    condition:
+    crit: benign
+    conf: 0.8
+    if:
       type: yara
       source: |
         rule autotools_build {
@@ -77,9 +77,9 @@ traits:
   # Cargo (Rust) build
   - id: cargo
     description: Built with Cargo (Rust)
-    criticality: benign
-    confidence: 0.9
-    condition:
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule cargo_build {
@@ -95,9 +95,9 @@ traits:
   # Go modules build
   - id: go-modules
     description: Built with Go modules
-    criticality: benign
-    confidence: 0.9
-    condition:
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule go_modules {
@@ -113,9 +113,9 @@ traits:
   # npm/yarn build
   - id: npm
     description: Built with npm/yarn (Node.js)
-    criticality: benign
-    confidence: 0.85
-    condition:
+    crit: benign
+    conf: 0.85
+    if:
       type: yara
       source: |
         rule npm_build {
@@ -131,9 +131,9 @@ traits:
   # pip/setuptools build
   - id: pip
     description: Built with pip/setuptools (Python)
-    criticality: benign
-    confidence: 0.85
-    condition:
+    crit: benign
+    conf: 0.85
+    if:
       type: yara
       source: |
         rule pip_build {
@@ -149,9 +149,9 @@ traits:
   # GitHub Actions CI
   - id: github-actions
     description: GitHub Actions CI artifacts
-    criticality: benign
-    confidence: 0.9
-    condition:
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule github_actions {
@@ -168,9 +168,9 @@ traits:
   # GitLab CI
   - id: gitlab-ci
     description: GitLab CI artifacts
-    criticality: benign
-    confidence: 0.9
-    condition:
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule gitlab_ci {
@@ -186,9 +186,9 @@ traits:
   # Jenkins CI
   - id: jenkins
     description: Jenkins CI artifacts
-    criticality: benign
-    confidence: 0.85
-    condition:
+    crit: benign
+    conf: 0.85
+    if:
       type: yara
       source: |
         rule jenkins_ci {
@@ -204,9 +204,9 @@ traits:
   # CircleCI
   - id: circleci
     description: CircleCI artifacts
-    criticality: benign
-    confidence: 0.9
-    condition:
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule circleci {
@@ -221,9 +221,9 @@ traits:
   # Docker build
   - id: docker
     description: Built in Docker container
-    criticality: benign
-    confidence: 0.8
-    condition:
+    crit: benign
+    conf: 0.8
+    if:
       type: yara
       source: |
         rule docker_build {
@@ -239,9 +239,9 @@ traits:
   # Reproducible build markers
   - id: reproducible
     description: Reproducible build markers
-    criticality: benign
-    confidence: 0.85
-    condition:
+    crit: benign
+    conf: 0.85
+    if:
       type: yara
       source: |
         rule reproducible_build {

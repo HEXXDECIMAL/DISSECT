@@ -3,7 +3,7 @@
 traits:
   - id: ruby-daemon
     description: Daemonize process (background)
-    criticality: notable
+    crit: notable
     confidence: 0.93
     platforms: [all]
     file_types: [ruby]

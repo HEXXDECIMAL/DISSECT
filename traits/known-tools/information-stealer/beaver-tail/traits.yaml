@@ -5,8 +5,8 @@
 traits:
   - id: stealer/beaver-tail/pdown
     description: Beaver Tail download endpoint
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1105"
     file_types: [elf, macho]
@@ -16,8 +16,8 @@ traits:
 
   - id: stealer/beaver-tail/upload-ldb
     description: Beaver Tail LDB upload marker
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1041"
     file_types: [elf, macho]
@@ -27,8 +27,8 @@ traits:
 
   - id: stealer/beaver-tail/python-download
     description: Beaver Tail Python download success
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1105"
     file_types: [elf, macho]
@@ -38,8 +38,8 @@ traits:
 
   - id: stealer/beaver-tail/pyp-python
     description: Beaver Tail hidden Python path
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     family: true
     attack: "T1059.006"
     file_types: [elf, macho]
@@ -49,8 +49,8 @@ traits:
 
   - id: stealer/beaver-tail/keychain-log
     description: Beaver Tail keychain logging
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1555.001"
     file_types: [elf, macho]
@@ -60,8 +60,8 @@ traits:
 
   - id: stealer/beaver-tail/client-99
     description: Beaver Tail client endpoint
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     family: true
     attack: "T1071"
     file_types: [elf, macho]
@@ -71,8 +71,8 @@ traits:
 
   - id: stealer/beaver-tail/ldb-glob
     description: Beaver Tail LDB file glob
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     family: true
     attack: "T1555.003"
     file_types: [elf, macho]
@@ -82,8 +82,8 @@ traits:
 
   - id: stealer/beaver-tail/pdown-finished
     description: Beaver Tail pDown callback
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1105"
     file_types: [elf, macho]
@@ -93,8 +93,8 @@ traits:
 
   - id: stealer/beaver-tail/browser-url
     description: Beaver Tail browser URL setter
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1555.003"
     file_types: [elf, macho]
@@ -105,15 +105,15 @@ traits:
 composite_rules:
   - id: stealer/beaver-tail/detected
     description: Beaver Tail Infostealer
-    criticality: hostile
-    confidence: 0.95
+    crit: hostile
+    conf: 0.95
     family: true
     reference: "https://objective-see.org/blog/blog_0x7A.html"
     attack: "T1555"
     mbc: "B0028"
     file_types: [elf, macho]
     requires_count: 3
-    conditions:
+    any:
       - id: stealer/beaver-tail/pdown
       - id: stealer/beaver-tail/upload-ldb
       - id: stealer/beaver-tail/python-download

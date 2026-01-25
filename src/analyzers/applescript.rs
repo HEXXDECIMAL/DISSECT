@@ -55,9 +55,9 @@ impl AppleScriptAnalyzer {
                 });
 
                 // Also add the description for easier rule matching
-                if event.description != "unknown" {
+                if event.desc != "unknown" {
                     report.imports.push(Import {
-                        symbol: event.description.to_string(),
+                        symbol: event.desc.to_string(),
                         library: Some("AppleScript".to_string()),
                         source: "scpt_command".to_string(),
                     });

@@ -4,10 +4,10 @@
 traits:
   # Protocol Buffers
   - id: protobuf
-    description: Google Protocol Buffers
-    criticality: benign
-    confidence: 0.9
-    condition:
+    desc: Google Protocol Buffers
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule protobuf_serialization {
@@ -24,10 +24,10 @@ traits:
 
   # JSON libraries
   - id: json
-    description: JSON serialization libraries
-    criticality: benign
-    confidence: 0.85
-    condition:
+    desc: JSON serialization libraries
+    crit: benign
+    conf: 0.85
+    if:
       type: yara
       source: |
         rule json_serialization {
@@ -46,10 +46,10 @@ traits:
 
   # YAML libraries
   - id: yaml
-    description: YAML serialization libraries
-    criticality: benign
-    confidence: 0.85
-    condition:
+    desc: YAML serialization libraries
+    crit: benign
+    conf: 0.85
+    if:
       type: yara
       source: |
         rule yaml_serialization {
@@ -66,10 +66,10 @@ traits:
 
   # XML libraries
   - id: xml
-    description: XML serialization libraries
-    criticality: benign
-    confidence: 0.85
-    condition:
+    desc: XML serialization libraries
+    crit: benign
+    conf: 0.85
+    if:
       type: yara
       source: |
         rule xml_serialization {
@@ -87,10 +87,10 @@ traits:
 
   # MessagePack
   - id: msgpack
-    description: MessagePack serialization
-    criticality: benign
-    confidence: 0.9
-    condition:
+    desc: MessagePack serialization
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule msgpack_serialization {
@@ -104,10 +104,10 @@ traits:
 
   # CBOR
   - id: cbor
-    description: CBOR serialization
-    criticality: benign
-    confidence: 0.9
-    condition:
+    desc: CBOR serialization
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule cbor_serialization {
@@ -120,10 +120,10 @@ traits:
 
   # Apache Avro
   - id: avro
-    description: Apache Avro serialization
-    criticality: benign
-    confidence: 0.9
-    condition:
+    desc: Apache Avro serialization
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule avro_serialization {
@@ -137,10 +137,10 @@ traits:
 
   # Apache Thrift
   - id: thrift
-    description: Apache Thrift serialization
-    criticality: benign
-    confidence: 0.9
-    condition:
+    desc: Apache Thrift serialization
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule thrift_serialization {
@@ -154,10 +154,10 @@ traits:
 
   # FlatBuffers
   - id: flatbuffers
-    description: Google FlatBuffers
-    criticality: benign
-    confidence: 0.9
-    condition:
+    desc: Google FlatBuffers
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule flatbuffers_serialization {
@@ -171,10 +171,10 @@ traits:
 
   # Cap'n Proto
   - id: capnproto
-    description: Cap'n Proto serialization
-    criticality: benign
-    confidence: 0.9
-    condition:
+    desc: Cap'n Proto serialization
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule capnproto_serialization {
@@ -188,10 +188,10 @@ traits:
 
   # BSON (MongoDB)
   - id: bson
-    description: BSON serialization (MongoDB)
-    criticality: benign
-    confidence: 0.9
-    condition:
+    desc: BSON serialization (MongoDB)
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule bson_serialization {
@@ -205,10 +205,10 @@ traits:
 
   # pickle (Python - potentially dangerous)
   - id: pickle
-    description: Python pickle serialization
-    criticality: notable
-    confidence: 0.9
-    condition:
+    desc: Python pickle serialization
+    crit: notable
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule pickle_serialization {
@@ -223,10 +223,10 @@ traits:
 
   # Gob (Go)
   - id: gob
-    description: Go gob serialization
-    criticality: benign
-    confidence: 0.9
-    condition:
+    desc: Go gob serialization
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule gob_serialization {

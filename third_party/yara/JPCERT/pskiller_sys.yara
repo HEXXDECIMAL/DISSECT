@@ -116,7 +116,7 @@ rule malware_PSKiller_sys {
       $str124 = "RepUtils.exe" fullword ascii
       $str125 = "VHostComms.exe" fullword ascii
 
-    condition:
+    if:
       (uint16(0) == 0x5A4D)
       and (filesize < 1MB)
       and pe.imports("ntoskrnl.exe", "PsGetProcessId")

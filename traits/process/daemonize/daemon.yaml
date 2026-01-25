@@ -1,35 +1,35 @@
 traits:
   - id: process-fork
     description: Process forking syscall (fork, vfork, or clone)
-    criticality: notable
+    crit: notable
     condition:
       type: syscall
       name: ["fork", "vfork", "clone"]
 
   - id: process-fork-macos
     description: Process forking syscall on macOS
-    criticality: notable
+    crit: notable
     condition:
       type: syscall
       name: ["fork"]
 
   - id: process-setsid
     description: Create new session and become session leader
-    criticality: notable
+    crit: notable
     condition:
       type: syscall
       name: ["setsid"]
 
   - id: fd-redirect
     description: File descriptor redirection (dup2 or dup3)
-    criticality: notable
+    crit: notable
     condition:
       type: syscall
       name: ["dup2", "dup3"]
 
   - id: fd-redirect-multiple
     description: Multiple file descriptor redirections
-    criticality: notable
+    crit: notable
     condition:
       type: syscall
       name: ["dup2", "dup3"]
@@ -37,7 +37,7 @@ traits:
 
   - id: fd-redirect-macos
     description: File descriptor redirection on macOS (dup2)
-    criticality: notable
+    crit: notable
     condition:
       type: syscall
       name: ["dup2"]
@@ -47,7 +47,7 @@ composite_rules:
   - id: daemon
     description: Daemon behavior - detaches from controlling terminal
     confidence: 0.85
-    criticality: notable
+    crit: notable
     platforms: [linux]
     file_types: [elf]
     requires_all:
@@ -57,7 +57,7 @@ composite_rules:
   - id: daemon-full
     description: Full daemon pattern with stdin/stdout redirection
     confidence: 0.9
-    criticality: notable
+    crit: notable
     platforms: [linux]
     file_types: [elf]
     requires_all:
@@ -68,7 +68,7 @@ composite_rules:
   - id: daemon-macos
     description: macOS daemon behavior - detaches from terminal
     confidence: 0.85
-    criticality: notable
+    crit: notable
     platforms: [macos]
     file_types: [macho]
     requires_all:
@@ -78,7 +78,7 @@ composite_rules:
   - id: daemon-macos-full
     description: Full macOS daemon pattern with I/O redirection
     confidence: 0.9
-    criticality: notable
+    crit: notable
     platforms: [macos]
     file_types: [macho]
     requires_all:

@@ -82,7 +82,7 @@ rule malware_shellcode_hash {
         $rol5XorHash32_GetProcAddress = { DB B6 B6 E5 }
         $rol5XorHash32_LoadLibraryA = { 3B 00 A1 B4 }
 
-    condition:
+    if:
         all of ($addRol5HashOncemore32*) or
         all of ($imul21hAddHash32*) or
         all of ($ror7AddHash32*) or

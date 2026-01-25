@@ -5,103 +5,103 @@
 traits:
   # === GitHub token atomic indicators ===
   - id: github-token-var
-    description: GITHUB_TOKEN environment variable
-    criticality: notable
-    confidence: 0.85
+    desc: GITHUB_TOKEN environment variable
+    crit: notable
+    conf: 0.85
     attack: "T1552.001"
-    condition:
+    if:
       type: string
       exact: "GITHUB_TOKEN"
 
   - id: gh-token-var
-    description: GH_TOKEN environment variable
-    criticality: notable
-    confidence: 0.85
+    desc: GH_TOKEN environment variable
+    crit: notable
+    conf: 0.85
     attack: "T1552.001"
-    condition:
+    if:
       type: string
       exact: "GH_TOKEN"
 
   - id: aws-access-key
-    description: AWS_ACCESS_KEY environment variable access
-    criticality: suspicious
-    confidence: 0.95
+    desc: AWS_ACCESS_KEY environment variable access
+    crit: suspicious
+    conf: 0.95
     attack: "T1552.001"
-    condition:
+    if:
       type: string
       regex: "AWS_ACCESS_KEY"
 
   - id: aws-secret
-    description: AWS_SECRET environment variable access
-    criticality: suspicious
-    confidence: 0.95
+    desc: AWS_SECRET environment variable access
+    crit: suspicious
+    conf: 0.95
     attack: "T1552.001"
-    condition:
+    if:
       type: string
       regex: "AWS_SECRET"
 
   - id: api-key-generic
-    description: Generic API_KEY environment variable access
-    criticality: suspicious
-    confidence: 0.8
+    desc: Generic API_KEY environment variable access
+    crit: suspicious
+    conf: 0.8
     attack: "T1552.001"
-    condition:
+    if:
       type: string
       exact: "API_KEY"
 
   - id: secret-key-generic
-    description: Generic SECRET_KEY environment variable access
-    criticality: suspicious
-    confidence: 0.8
+    desc: Generic SECRET_KEY environment variable access
+    crit: suspicious
+    conf: 0.8
     attack: "T1552.001"
-    condition:
+    if:
       type: string
       exact: "SECRET_KEY"
 
   - id: discord-token
-    description: DISCORD_TOKEN environment variable access
-    criticality: suspicious
-    confidence: 0.95
+    desc: DISCORD_TOKEN environment variable access
+    crit: suspicious
+    conf: 0.95
     attack: "T1552.001"
-    condition:
+    if:
       type: string
       exact: "DISCORD_TOKEN"
 
   - id: slack-token
-    description: SLACK_TOKEN environment variable access
-    criticality: suspicious
-    confidence: 0.95
+    desc: SLACK_TOKEN environment variable access
+    crit: suspicious
+    conf: 0.95
     attack: "T1552.001"
-    condition:
+    if:
       type: string
       exact: "SLACK_TOKEN"
 
   - id: openai-api-key
-    description: OPENAI_API_KEY environment variable access
-    criticality: suspicious
-    confidence: 0.95
+    desc: OPENAI_API_KEY environment variable access
+    crit: suspicious
+    conf: 0.95
     attack: "T1552.001"
-    condition:
+    if:
       type: string
       exact: "OPENAI_API_KEY"
 
   - id: anthropic-api-key
-    description: ANTHROPIC_API_KEY environment variable access
-    criticality: suspicious
-    confidence: 0.95
+    desc: ANTHROPIC_API_KEY environment variable access
+    crit: suspicious
+    conf: 0.95
     attack: "T1552.001"
-    condition:
+    if:
       type: string
       exact: "ANTHROPIC_API_KEY"
 
 composite_rules:
   # GitHub token composite
   - id: github-token
-    description: GitHub token environment variable access
-    criticality: suspicious
-    confidence: 0.95
+    desc: GitHub token environment variable access
+    crit: suspicious
+    conf: 0.95
     attack: "T1552.001"
     requires_count: 1
-    conditions:
+    any:
       - id: github-token-var
       - id: gh-token-var

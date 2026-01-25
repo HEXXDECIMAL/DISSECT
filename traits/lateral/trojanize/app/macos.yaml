@@ -6,7 +6,7 @@
 defaults:
   attack: "T1574.001"
   platforms: [macos]
-  criticality: suspicious
+  crit: suspicious
 
 traits:
   # Ledger Live application path
@@ -20,7 +20,7 @@ traits:
   # === pkill atomic indicators ===
   - id: pkill-ledger-live
     description: pkill Ledger Live
-    criticality: inert
+    crit: inert
     confidence: 0.7
     condition:
       type: string
@@ -28,7 +28,7 @@ traits:
 
   - id: killall-ledger
     description: killall Ledger
-    criticality: inert
+    crit: inert
     confidence: 0.7
     condition:
       type: string
@@ -37,7 +37,7 @@ traits:
   # === Remove applications atomic indicators ===
   - id: rm-applications-dir
     description: rm -r /Applications/
-    criticality: inert
+    crit: inert
     confidence: 0.7
     condition:
       type: string
@@ -45,7 +45,7 @@ traits:
 
   - id: sudo-rm-app
     description: sudo rm .app
-    criticality: inert
+    crit: inert
     confidence: 0.7
     condition:
       type: string
@@ -54,7 +54,7 @@ traits:
   # === Unzip applications atomic indicators ===
   - id: unzip-to-applications
     description: unzip to /Applications
-    criticality: inert
+    crit: inert
     confidence: 0.7
     condition:
       type: string
@@ -62,7 +62,7 @@ traits:
 
   - id: unzip-d-applications
     description: unzip -d /Applications
-    criticality: inert
+    crit: inert
     confidence: 0.7
     condition:
       type: string
@@ -71,7 +71,7 @@ traits:
   # === Download app atomic indicators ===
   - id: curl-app-zip
     description: curl .app.zip download
-    criticality: inert
+    crit: inert
     confidence: 0.7
     condition:
       type: string
@@ -79,7 +79,7 @@ traits:
 
   - id: curl-app-archive
     description: curl app.zip download
-    criticality: inert
+    crit: inert
     confidence: 0.7
     condition:
       type: string
@@ -87,7 +87,7 @@ traits:
 
   - id: wget-app-zip
     description: wget .app.zip download
-    criticality: inert
+    crit: inert
     confidence: 0.7
     condition:
       type: string
@@ -96,7 +96,7 @@ traits:
   # === App replacement atomic indicators ===
   - id: rm-app-unzip
     description: rm .app && unzip pattern
-    criticality: inert
+    crit: inert
     confidence: 0.7
     condition:
       type: string
@@ -104,7 +104,7 @@ traits:
 
   - id: rm-app-cp
     description: rm .app && cp pattern
-    criticality: inert
+    crit: inert
     confidence: 0.7
     condition:
       type: string
@@ -115,73 +115,73 @@ composite_rules:
     description: "Kill Ledger Live process"
     confidence: 0.9
     requires_count: 1
-    conditions:
+    any:
       - id: pkill-ledger-live
       - id: killall-ledger
 
   - id: rm-applications
     description: "Remove application from /Applications"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     requires_count: 1
-    conditions:
+    any:
       - id: rm-applications-dir
       - id: sudo-rm-app
 
   - id: unzip-applications
     description: "Unzip to /Applications directory"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     requires_count: 1
-    conditions:
+    any:
       - id: unzip-to-applications
       - id: unzip-d-applications
 
   - id: download-app-zip
     description: "Download application archive"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     requires_count: 1
-    conditions:
+    any:
       - id: curl-app-zip
       - id: curl-app-archive
       - id: wget-app-zip
 
   - id: app-replacement
     description: "Application replacement pattern"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.8
     requires_count: 1
-    conditions:
+    any:
       - id: rm-app-unzip
       - id: rm-app-cp
 
   # App termination group
   - id: app-termination
     description: App termination or removal
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.8
     file_types: [shell, applescript, python]
     requires_count: 1
-    conditions:
+    any:
       - id: pkill-ledger
       - id: rm-applications
 
   # App replacement group
   - id: app-replace-action
     description: App replacement action
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.8
     file_types: [shell, applescript, python]
     requires_count: 1
-    conditions:
+    any:
       - id: unzip-applications
       - id: download-app-zip
 
   # Ledger Live replacement attack
   - id: ledger-trojanize
     description: "Ledger Live application replacement attack"
-    criticality: hostile
+    crit: hostile
     confidence: 0.95
     attack: "T1574.001"
     file_types: [shell, applescript, python]
@@ -193,7 +193,7 @@ composite_rules:
   # Generic app replacement
   - id: app-trojanize
     description: "macOS application replacement attack"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     attack: "T1574.001"
     file_types: [shell, applescript, python]

@@ -4,11 +4,11 @@
 
 traits:
   - id: connect
-    description: SSH connection
-    criticality: notable
-    confidence: 0.66
+    desc: SSH connection
+    crit: notable
+    conf: 0.66
     attack: "T1021.004"
-    condition:
+    if:
       type: yara
       source: |
         rule ssh_connect {

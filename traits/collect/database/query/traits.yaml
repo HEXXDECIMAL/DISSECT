@@ -5,70 +5,70 @@ traits:
   # === Atomic: SQLite ===
 
   - id: sqlite
-    description: SQLite database access
-    criticality: notable
-    confidence: 0.7
+    desc: SQLite database access
+    crit: notable
+    conf: 0.7
     attack: "T1005"
     platforms: [all]
-    condition:
+    if:
       type: string
       regex: "\\bsqlite3?\\b"
 
   # === Atomic: MySQL ===
 
   - id: mysql
-    description: MySQL database access
-    criticality: notable
-    confidence: 0.7
+    desc: MySQL database access
+    crit: notable
+    conf: 0.7
     attack: "T1005"
     platforms: [all]
-    condition:
+    if:
       type: string
       exact: "mysql"
 
   # === PostgreSQL atomic indicators ===
 
   - id: postgresql-str
-    description: postgresql string
-    criticality: inert
-    confidence: 0.6
+    desc: postgresql string
+    crit: inert
+    conf: 0.6
     attack: "T1005"
     platforms: [all]
-    condition:
+    if:
       type: string
       exact: "postgresql"
 
   - id: go-pg-import
-    description: github.com/go-pg import
-    criticality: inert
-    confidence: 0.6
+    desc: github.com/go-pg import
+    crit: inert
+    conf: 0.6
     attack: "T1005"
     platforms: [all]
-    condition:
+    if:
       type: string
       exact: "github.com/go-pg"
 
   # === Atomic: LevelDB ===
 
   - id: leveldb
-    description: LevelDB database access
-    criticality: notable
-    confidence: 0.7
+    desc: LevelDB database access
+    crit: notable
+    conf: 0.7
     attack: "T1005"
     platforms: [all]
-    condition:
+    if:
       type: string
       regex: "\\b[Ll]evel[Dd][Bb]\\b"
 
 composite_rules:
   # PostgreSQL composite
   - id: postgresql
-    description: PostgreSQL database access
-    criticality: notable
-    confidence: 0.7
+    desc: PostgreSQL database access
+    crit: notable
+    conf: 0.7
     attack: "T1005"
     platforms: [all]
-    requires_count: 1
-    conditions:
+    count: 1
+    any:
       - id: postgresql-str
       - id: go-pg-import

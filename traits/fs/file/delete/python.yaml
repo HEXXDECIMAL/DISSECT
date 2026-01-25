@@ -5,48 +5,48 @@
 traits:
   - id: os-remove
     description: Deletes file via os.remove
-    criticality: notable
-    confidence: 0.9
+    crit: notable
+    conf: 0.9
     mbc: "C0047"
     attack: "T1070.004"
-    file_types: [python]
-    condition:
+    for: [python]
+    if:
       type: ast_pattern
       node_type: call
       pattern: "os.remove"
 
   - id: os-unlink
     description: Deletes file via os.unlink
-    criticality: notable
-    confidence: 0.9
+    crit: notable
+    conf: 0.9
     mbc: "C0047"
     attack: "T1070.004"
-    file_types: [python]
-    condition:
+    for: [python]
+    if:
       type: ast_pattern
       node_type: call
       pattern: "os.unlink"
 
   - id: shutil-rmtree
     description: Deletes directory recursively via shutil.rmtree
-    criticality: notable
-    confidence: 0.9
+    crit: notable
+    conf: 0.9
     mbc: "C0047"
     attack: "T1070.004"
-    file_types: [python]
-    condition:
+    for: [python]
+    if:
       type: ast_pattern
       node_type: call
       pattern: "shutil.rmtree"
 
   - id: pathlib-unlink
     description: Deletes file via pathlib.unlink
-    criticality: notable
-    confidence: 0.9
+    crit: notable
+    conf: 0.9
     mbc: "C0047"
     attack: "T1070.004"
-    file_types: [python]
-    condition:
+    for: [python]
+    if:
       type: ast_pattern
       node_type: call
       pattern: ".unlink("

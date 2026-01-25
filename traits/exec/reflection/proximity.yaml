@@ -3,10 +3,10 @@
 
 composite_rules:
   - id: dynamic-import-access
-    description: "Dynamic module import followed by immediate attribute access (Shadowing)"
-    criticality: suspicious
-    confidence: 0.95
-    file_types: [python]
+    desc: "Dynamic module import followed by immediate attribute access (Shadowing)"
+    crit: suspicious
+    conf: 0.95
+    for: [python]
     near_lines: 5
     requires_all:
       - id: exec/reflection/dynamic-import

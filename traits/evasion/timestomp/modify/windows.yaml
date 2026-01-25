@@ -3,15 +3,15 @@
 # ATT&CK: T1070.006
 
 defaults:
-  file_types: [pe, dll]
+  for: [pe, dll]
 
 traits:
   - id: timestomp-windows
-    description: Modify file timestamps via SetFileTime
-    criticality: suspicious
-    confidence: 0.66
+    desc: Modify file timestamps via SetFileTime
+    crit: suspicious
+    conf: 0.66
     mbc: "F0006"
     attack: "T1070.006"
-    condition:
+    if:
       type: symbol
       pattern: SetFileTime|SetFileInformationByHandle

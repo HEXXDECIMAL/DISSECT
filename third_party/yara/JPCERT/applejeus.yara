@@ -11,7 +11,7 @@ rule AppleJeus_UnionCrypto_code {
         $http4 = "Windows %d(%d)-%s" ascii
         $key = "vG2eZ1KOeGd2n5fr" ascii
 
-     condition:
+     if:
        uint16(0) == 0x5A4D and
        uint32(uint32(0x3c)) == 0x00004550 and
        (all of ($http*) or $key)
@@ -27,7 +27,7 @@ rule AppleJeus_UnionCrypto_loader {
         $xorcode = { 33 D2 4D ?? ?? 01 8B C7 FF C7 F7 F6 42 0F B? ?? ?? 41 3? 4? FF 3B FB }
         $callcode = { 48 8? ?? E8 ?? ?? 00 00 FF D3 4C }
 
-     condition:
+     if:
        uint16(0) == 0x5A4D and
        uint32(uint32(0x3c)) == 0x00004550 and
        all of them

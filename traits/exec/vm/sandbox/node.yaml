@@ -6,77 +6,77 @@
 traits:
   # VM Module Imports
   - id: vm-require
-    description: Node.js vm module import
-    criticality: notable
-    confidence: 0.85
-    file_types: [javascript, typescript]
-    condition:
+    desc: Node.js vm module import
+    crit: notable
+    conf: 0.85
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "require\\(['\"]vm['\"]\\)|from ['\"]vm['\"]"
 
   - id: vm-createContext
-    description: VM createContext (sandbox creation)
-    criticality: notable
-    confidence: 0.8
-    file_types: [javascript, typescript]
-    condition:
+    desc: VM createContext (sandbox creation)
+    crit: notable
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: "createContext"
 
   - id: vm-runInContext
-    description: VM runInContext (execute code in sandbox)
-    criticality: suspicious
-    confidence: 0.9
+    desc: VM runInContext (execute code in sandbox)
+    crit: suspicious
+    conf: 0.9
     mbc: "B0024"
     attack: "T1059"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: "runInContext"
 
   - id: vm-runInNewContext
-    description: VM runInNewContext (execute in isolated context)
-    criticality: suspicious
-    confidence: 0.9
+    desc: VM runInNewContext (execute in isolated context)
+    crit: suspicious
+    conf: 0.9
     mbc: "B0024"
     attack: "T1059"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: "runInNewContext"
 
   - id: vm-runInThisContext
-    description: VM runInThisContext (execute in current context)
-    criticality: suspicious
-    confidence: 0.85
+    desc: VM runInThisContext (execute in current context)
+    crit: suspicious
+    conf: 0.85
     attack: "T1059"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: "runInThisContext"
 
   - id: vm-Script
-    description: VM Script compilation
-    criticality: notable
-    confidence: 0.8
-    file_types: [javascript, typescript]
-    condition:
+    desc: VM Script compilation
+    crit: notable
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "new vm\\.Script|vm\\.Script\\("
 
   # Remote Code Execution via VM
   - id: vm-with-http
-    description: VM execution combined with HTTP fetch (stage loader pattern)
-    criticality: suspicious
-    confidence: 0.95
+    desc: VM execution combined with HTTP fetch (stage loader pattern)
+    crit: suspicious
+    conf: 0.95
     mbc: "B0024"
     attack: "T1105"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule vm_remote_code_exec {
@@ -93,34 +93,34 @@ traits:
 
   # Sandbox Escape Patterns
   - id: constructor-escape
-    description: VM sandbox escape via constructor technique
-    criticality: suspicious
-    confidence: 0.95
+    desc: VM sandbox escape via constructor technique
+    crit: suspicious
+    conf: 0.95
     mbc: "B0024"
     attack: "T1059"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "constructor\\s*\\(\\s*['\"]return this['\"]\\s*\\)|this\\.constructor\\.constructor"
 
   - id: process-binding
-    description: Access to process.binding (internal Node API)
-    criticality: suspicious
-    confidence: 0.9
-    file_types: [javascript, typescript]
-    condition:
+    desc: Access to process.binding (internal Node API)
+    crit: suspicious
+    conf: 0.9
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "process.binding"
 
   # Remote Code Loading via Function Constructor
   - id: function-with-http
-    description: Function constructor with HTTP fetch (remote code execution)
-    criticality: suspicious
-    confidence: 0.95
+    desc: Function constructor with HTTP fetch (remote code execution)
+    crit: suspicious
+    conf: 0.95
     mbc: "B0024"
     attack: "T1105"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule function_remote_code_exec {
@@ -140,13 +140,13 @@ traits:
 
   # Base64 encoded URL patterns (evasion)
   - id: base64-url
-    description: Base64 encoded URL (potential C2 obfuscation)
-    criticality: suspicious
-    confidence: 0.85
+    desc: Base64 encoded URL (potential C2 obfuscation)
+    crit: suspicious
+    conf: 0.85
     mbc: "C0026"
     attack: "T1027"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule base64_url_pattern {

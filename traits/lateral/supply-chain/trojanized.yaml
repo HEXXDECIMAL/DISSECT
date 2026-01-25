@@ -6,7 +6,7 @@ traits:
   # Legitimate library with install hooks added
   - id: popular-lib-with-hooks
     description: Popular library pattern with unusual install hooks
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     attack: "T1195.001"
     file_types: [packagejson]
@@ -38,7 +38,7 @@ traits:
   # Clone with additional requires
   - id: additional-requires
     description: Library clone with suspicious additional requires
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     attack: "T1195.001"
     file_types: [javascript]
@@ -66,7 +66,7 @@ traits:
   # Discord library trojanization
   - id: discord-library
     description: Trojanized Discord library patterns
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     attack: "T1195.001"
     mbc: "B0024"
@@ -94,7 +94,7 @@ traits:
   # Telegram library trojanization
   - id: telegram-library
     description: Trojanized Telegram library patterns
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     attack: "T1195.001"
     mbc: "B0024"
@@ -121,7 +121,7 @@ traits:
   # Logging library trojanization
   - id: logging-library
     description: Trojanized logging library patterns
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     attack: "T1195.001"
     file_types: [javascript, typescript]
@@ -147,7 +147,7 @@ traits:
   # SDK/API client trojanization
   - id: sdk-client
     description: Trojanized SDK or API client
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.8
     attack: "T1195.001"
     file_types: [javascript, typescript, packagejson]
@@ -175,7 +175,7 @@ traits:
   # Crypto/blockchain library trojanization
   - id: crypto-library
     description: Trojanized cryptocurrency library
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     attack: "T1195.001"
     mbc: "B0024"

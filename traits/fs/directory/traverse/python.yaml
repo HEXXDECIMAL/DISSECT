@@ -5,8 +5,8 @@
 traits:
   - id: traverse-walk
     description: Traverse filesystem hierarchy (os.walk)
-    criticality: notable
-    confidence: 0.66
-    condition:
+    crit: notable
+    conf: 0.66
+    if:
       type: string
       exact: os.walk

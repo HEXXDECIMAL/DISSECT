@@ -6,214 +6,214 @@ traits:
   # === Path/File References ===
 
   - id: chrome-path
-    description: Chrome browser profile path
-    criticality: suspicious
-    confidence: 0.7
+    desc: Chrome browser profile path
+    crit: suspicious
+    conf: 0.7
     attack: "T1555.003"
-    condition:
+    if:
       type: string
       exact: "/Google/Chrome"
 
   - id: brave-path
-    description: Brave browser profile path
-    criticality: suspicious
-    confidence: 0.7
+    desc: Brave browser profile path
+    crit: suspicious
+    conf: 0.7
     attack: "T1555.003"
-    condition:
+    if:
       type: string
       exact: "BraveSoftware/Brave-Browser"
 
   - id: edge-path
-    description: Microsoft Edge browser profile path
-    criticality: suspicious
-    confidence: 0.7
+    desc: Microsoft Edge browser profile path
+    crit: suspicious
+    conf: 0.7
     attack: "T1555.003"
-    condition:
+    if:
       type: string
       exact: "Microsoft Edge"
 
   # === Opera path atomic indicators ===
   - id: opera-macos-path
-    description: Opera macOS profile path
-    criticality: notable
-    confidence: 0.6
+    desc: Opera macOS profile path
+    crit: notable
+    conf: 0.6
     attack: "T1555.003"
-    condition:
+    if:
       type: string
       exact: "com.operasoftware.Opera"
 
   - id: opera-windows-path
-    description: Opera Windows profile path
-    criticality: notable
-    confidence: 0.6
+    desc: Opera Windows profile path
+    crit: notable
+    conf: 0.6
     attack: "T1555.003"
-    condition:
+    if:
       type: string
       exact: "Opera Software/Opera"
 
   - id: operagx-path
-    description: Opera GX browser profile path
-    criticality: suspicious
-    confidence: 0.7
+    desc: Opera GX browser profile path
+    crit: suspicious
+    conf: 0.7
     attack: "T1555.003"
-    condition:
+    if:
       type: string
       exact: "com.operasoftware.OperaGX"
 
   - id: vivaldi-path
-    description: Vivaldi browser profile path
-    criticality: suspicious
-    confidence: 0.7
+    desc: Vivaldi browser profile path
+    crit: suspicious
+    conf: 0.7
     attack: "T1555.003"
-    condition:
+    if:
       type: string
       exact: "Vivaldi"
 
   # === Arc path atomic indicators ===
   - id: arc-macos-path
-    description: Arc macOS profile path
-    criticality: notable
-    confidence: 0.6
+    desc: Arc macOS profile path
+    crit: notable
+    conf: 0.6
     attack: "T1555.003"
-    condition:
+    if:
       type: string
       exact: "/Arc/"
 
   - id: arc-userdata-path
-    description: Arc User Data path
-    criticality: notable
-    confidence: 0.6
+    desc: Arc User Data path
+    crit: notable
+    conf: 0.6
     attack: "T1555.003"
-    condition:
+    if:
       type: string
       exact: "Arc/User Data"
 
   - id: coccoc-path
-    description: Coccoc browser profile path
-    criticality: suspicious
-    confidence: 0.7
+    desc: Coccoc browser profile path
+    crit: suspicious
+    conf: 0.7
     attack: "T1555.003"
-    condition:
+    if:
       type: string
       exact: "Coccoc"
 
   - id: cookies-path
-    description: Chromium Cookies file path
-    criticality: suspicious
-    confidence: 0.75
+    desc: Chromium Cookies file path
+    crit: suspicious
+    conf: 0.75
     attack: "T1555.003"
-    condition:
+    if:
       type: string
       exact: "/Cookies"
 
   - id: local-state
-    description: Chromium Local State file
-    criticality: suspicious
-    confidence: 0.8
+    desc: Chromium Local State file
+    crit: suspicious
+    conf: 0.8
     attack: "T1555.003"
-    condition:
+    if:
       type: string
       exact: "Local State"
 
   - id: login-data
-    description: Chromium Login Data file reference
-    criticality: suspicious
-    confidence: 0.8
+    desc: Chromium Login Data file reference
+    crit: suspicious
+    conf: 0.8
     attack: "T1555.003"
-    condition:
+    if:
       type: string
       exact: "Login Data"
 
   - id: web-data
-    description: Chromium Web Data file (passwords, cards)
-    criticality: suspicious
-    confidence: 0.8
+    desc: Chromium Web Data file (passwords, cards)
+    crit: suspicious
+    conf: 0.8
     attack: "T1555.003"
-    condition:
+    if:
       type: string
       exact: "Web Data"
 
   # === Encryption/Decryption Keys ===
 
   - id: encrypted-key
-    description: Chromium encrypted_key field
-    criticality: suspicious
-    confidence: 0.85
+    desc: Chromium encrypted_key field
+    crit: suspicious
+    conf: 0.85
     attack: "T1555.003"
-    condition:
+    if:
       type: string
       exact: "encrypted_key"
 
   - id: os-crypt
-    description: Chromium os_crypt structure
-    criticality: suspicious
-    confidence: 0.85
+    desc: Chromium os_crypt structure
+    crit: suspicious
+    conf: 0.85
     attack: "T1555.003"
-    condition:
+    if:
       type: string
       exact: "os_crypt"
 
   # === Database Tables ===
 
   - id: credit-cards-table
-    description: Chromium credit_cards table
-    criticality: suspicious
-    confidence: 0.8
+    desc: Chromium credit_cards table
+    crit: suspicious
+    conf: 0.8
     attack: "T1555.003"
-    condition:
+    if:
       type: string
       exact: "credit_cards"
 
   - id: logins-table
-    description: Chromium logins table reference
-    criticality: suspicious
-    confidence: 0.8
+    desc: Chromium logins table reference
+    crit: suspicious
+    conf: 0.8
     attack: "T1555.003"
-    condition:
+    if:
       type: string
       regex: "\\blogins\\b"
 
   # === SQL Queries (high confidence) ===
 
   - id: password-sql
-    description: Chromium Login Data SQL query (password theft)
-    criticality: suspicious
-    confidence: 0.95
+    desc: Chromium Login Data SQL query (password theft)
+    crit: suspicious
+    conf: 0.95
     attack: "T1555.003"
     mbc: "B0028"
-    condition:
+    if:
       type: string
       regex: "SELECT.*origin_url.*username_value.*password_value.*FROM\\s+logins"
       case_insensitive: true
 
   # === Cookie SQL atomic indicators ===
   - id: chromium-cookie-sql
-    description: Chromium cookies table SQL query
-    criticality: notable
-    confidence: 0.8
+    desc: Chromium cookies table SQL query
+    crit: notable
+    conf: 0.8
     attack: "T1555.003"
-    condition:
+    if:
       type: string
       regex: "SELECT.*host_key.*encrypted_value.*FROM\\s+cookies"
       case_insensitive: true
 
   - id: firefox-cookie-sql
-    description: Firefox moz_cookies table SQL query
-    criticality: notable
-    confidence: 0.8
+    desc: Firefox moz_cookies table SQL query
+    crit: notable
+    conf: 0.8
     attack: "T1555.003"
-    condition:
+    if:
       type: string
       regex: "SELECT.*host_key.*encrypted_value.*FROM\\s+moz_cookies"
       case_insensitive: true
 
   - id: credit-card-sql
-    description: Chromium credit card SQL query
-    criticality: suspicious
-    confidence: 0.95
+    desc: Chromium credit card SQL query
+    crit: suspicious
+    conf: 0.95
     attack: "T1555.003"
     mbc: "B0028"
-    condition:
+    if:
       type: string
       regex: "SELECT.*card_number.*FROM\\s+credit_cards"
       case_insensitive: true
@@ -223,98 +223,98 @@ composite_rules:
 
   # Opera path composite
   - id: opera-path
-    description: Opera browser profile path
-    criticality: suspicious
-    confidence: 0.7
+    desc: Opera browser profile path
+    crit: suspicious
+    conf: 0.7
     attack: "T1555.003"
     requires_count: 1
-    conditions:
+    any:
       - id: opera-macos-path
       - id: opera-windows-path
 
   # Arc path composite
   - id: arc-path
-    description: Arc browser profile path
-    criticality: suspicious
-    confidence: 0.7
+    desc: Arc browser profile path
+    crit: suspicious
+    conf: 0.7
     attack: "T1555.003"
     requires_count: 1
-    conditions:
+    any:
       - id: arc-macos-path
       - id: arc-userdata-path
 
   # Cookie SQL composite
   - id: cookie-sql
-    description: Browser cookie SQL query
-    criticality: suspicious
-    confidence: 0.9
+    desc: Browser cookie SQL query
+    crit: suspicious
+    conf: 0.9
     attack: "T1555.003"
     requires_count: 1
-    conditions:
+    any:
       - id: chromium-cookie-sql
       - id: firefox-cookie-sql
 
   # === Composite Detections ===
 
   - id: cookie-theft
-    description: Chrome cookie file access
-    criticality: suspicious
-    confidence: 0.85
+    desc: Chrome cookie file access
+    crit: suspicious
+    conf: 0.85
     attack: "T1555.003"
-    requires_all:
+    all:
       - id: chrome-path
       - id: cookies-path
 
   - id: master-decrypt
-    description: Chromium master password decryption
-    criticality: suspicious
-    confidence: 0.9
+    desc: Chromium master password decryption
+    crit: suspicious
+    conf: 0.9
     attack: "T1555.003"
     mbc: "E1003"
-    requires_all:
+    all:
       - id: local-state
       - id: encrypted-key
       - id: os-crypt
 
   - id: password-theft
-    description: Chromium password database theft
-    criticality: hostile
-    confidence: 0.95
+    desc: Chromium password database theft
+    crit: hostile
+    conf: 0.95
     attack: "T1555.003"
     mbc: "B0028"
-    file_types: [python, javascript, elf, pe, macho]
-    requires_all:
+    for: [python, javascript, elf, pe, macho]
+    all:
       - id: chrome-path
-    requires_any:
+    any:
       - id: password-sql
       - id: login-data
 
   - id: credit-card-theft
-    description: Chromium credit card data theft
-    criticality: hostile
-    confidence: 0.9
+    desc: Chromium credit card data theft
+    crit: hostile
+    conf: 0.9
     attack: "T1555.003"
     mbc: "B0028"
-    file_types: [python, javascript, elf, pe, macho]
-    requires_all:
+    for: [python, javascript, elf, pe, macho]
+    all:
       - id: chrome-path
       - id: web-data
       - id: credit-cards-table
 
   # Multi-browser targeting (stealer behavior)
   - id: multi-browser
-    description: Multiple Chromium browsers targeted (stealer behavior)
-    criticality: hostile
-    confidence: 0.95
+    desc: Multiple Chromium browsers targeted (stealer behavior)
+    crit: hostile
+    conf: 0.95
     attack: "T1555.003"
     mbc: "B0028"
-    file_types: [python, javascript, applescript, shell, elf, pe, macho]
+    for: [python, javascript, applescript, shell, elf, pe, macho]
     requires_count: 3
-    conditions:
-      - {id: chrome-path}
-      - {id: brave-path}
-      - {id: edge-path}
-      - {id: opera-path}
-      - {id: operagx-path}
-      - {id: vivaldi-path}
-      - {id: arc-path}
+    any:
+      - { id: chrome-path }
+      - { id: brave-path }
+      - { id: edge-path }
+      - { id: opera-path }
+      - { id: operagx-path }
+      - { id: vivaldi-path }
+      - { id: arc-path }

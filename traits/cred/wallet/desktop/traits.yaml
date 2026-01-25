@@ -6,547 +6,547 @@
 defaults:
   attack: "T1555"
   mbc: "B0028"
-  criticality: suspicious
+  crit: suspicious
   platforms: [macos, windows, linux]
 
 traits:
   # === Electrum atomic indicators ===
   - id: electrum-wallets-dir
-    description: .electrum/wallets directory
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: .electrum/wallets directory
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       regex: "\\.electrum/wallets?"
 
   - id: electrum-wallet-file
-    description: .electrum wallet file
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: .electrum wallet file
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       regex: "\\.electrum.*wallet"
 
   - id: electrum-default
-    description: electrum default_wallet
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: electrum default_wallet
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       exact: "default_wallet"
 
   # === Coinomi atomic indicators ===
   - id: coinomi-wallets-dir
-    description: Coinomi/wallets directory
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: Coinomi/wallets directory
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       regex: "Coinomi/wallets?"
 
   - id: coinomi-wallet-dat
-    description: Coinomi wallet.dat
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: Coinomi wallet.dat
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       regex: "Coinomi.*wallet\\.dat"
 
   - id: coinomi-bundle
-    description: com.coinomi bundle
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: com.coinomi bundle
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       exact: "com.coinomi"
 
   # === Exodus atomic indicators ===
   - id: exodus-wallet-dir
-    description: Exodus/exodus.wallet
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: Exodus/exodus.wallet
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       exact: "Exodus/exodus.wallet"
 
   - id: exodus-passphrase
-    description: exodus passphrase
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: exodus passphrase
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       regex: "exodus.*passphrase"
 
   - id: exodus-bundle
-    description: com.exodus bundle
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: com.exodus bundle
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       exact: "com.exodus"
 
   # === Atomic Wallet atomic indicators ===
   - id: atomic-local-storage
-    description: atomic/Local Storage
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: atomic/Local Storage
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       exact: "atomic/Local Storage"
 
   - id: atomic-wallet-name
-    description: Atomic Wallet name
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: Atomic Wallet name
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       exact: "Atomic Wallet"
 
   - id: atomic-bundle
-    description: com.atomicwallet bundle
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: com.atomicwallet bundle
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       exact: "com.atomicwallet"
 
   # === Wasabi atomic indicators ===
   - id: walletwasabi-lower
-    description: .walletwasabi directory
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: .walletwasabi directory
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       exact: ".walletwasabi"
 
   - id: walletwasabi-upper
-    description: .WalletWasabi directory
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: .WalletWasabi directory
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       exact: ".WalletWasabi"
 
   - id: wasabiwallet-name
-    description: WasabiWallet name
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: WasabiWallet name
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       exact: "WasabiWallet"
 
   # === Binance atomic indicators ===
   - id: binance-app-store
-    description: Binance/app-store.json
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: Binance/app-store.json
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       exact: "Binance/app-store.json"
 
   - id: binance-aspect
-    description: "@aspect-binance package"
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: "@aspect-binance package"
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       exact: "@aspect-binance"
 
   - id: binance-bundle
-    description: com.binance bundle
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: com.binance bundle
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       exact: "com.binance"
 
   # === TonKeeper atomic indicators ===
   - id: tonkeeper-desktop
-    description: "@tonkeeper/desktop package"
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: "@tonkeeper/desktop package"
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       exact: "@tonkeeper/desktop"
 
   - id: tonkeeper-config
-    description: tonkeeper config.json
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: tonkeeper config.json
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       regex: "tonkeeper.*config\\.json"
 
   - id: tonkeeper-bundle
-    description: com.ton-keeper bundle
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: com.ton-keeper bundle
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       exact: "com.ton-keeper"
 
   # === Ledger atomic indicators ===
   - id: ledger-live-dir
-    description: Ledger Live/ directory
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: Ledger Live/ directory
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       exact: "Ledger Live/"
 
   - id: ledgerhq-package
-    description: "@ledgerhq package"
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: "@ledgerhq package"
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       exact: "@ledgerhq"
 
   - id: ledger-accounts
-    description: ledger accounts
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: ledger accounts
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       regex: "ledger.*accounts"
 
   # === Trezor atomic indicators ===
   - id: trezor-desktop
-    description: "@trezor/suite-desktop package"
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: "@trezor/suite-desktop package"
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       exact: "@trezor/suite-desktop"
 
   - id: trezor-suite
-    description: trezor suite
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: trezor suite
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       regex: "trezor.*suite"
 
   # === Guarda atomic indicators ===
   - id: guarda-local-storage
-    description: Guarda/Local Storage
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: Guarda/Local Storage
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       exact: "Guarda/Local Storage"
 
   - id: guarda-bundle
-    description: com.guarda bundle
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: com.guarda bundle
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       exact: "com.guarda"
 
   # === Bitcoin Core atomic indicators ===
   - id: bitcoin-wallet-dat
-    description: .bitcoin/wallet.dat
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: .bitcoin/wallet.dat
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       exact: ".bitcoin/wallet.dat"
 
   - id: bitcoin-wallets-dir
-    description: .bitcoin/wallets directory
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: .bitcoin/wallets directory
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       exact: ".bitcoin/wallets"
 
   - id: bitcoin-app-wallets
-    description: Bitcoin/wallets directory
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: Bitcoin/wallets directory
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       exact: "Bitcoin/wallets"
 
   # === Ethereum/Mist atomic indicators ===
   - id: ethereum-keystore
-    description: Ethereum/keystore
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: Ethereum/keystore
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       exact: "Ethereum/keystore"
 
   - id: mist-keystore
-    description: Mist/keystore
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: Mist/keystore
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       exact: "Mist/keystore"
 
   - id: doteth-keystore
-    description: .ethereum/keystore
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: .ethereum/keystore
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       exact: ".ethereum/keystore"
 
   # === Monero atomic indicators ===
   - id: monero-wallets
-    description: Monero/wallets
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: Monero/wallets
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       exact: "Monero/wallets"
 
   - id: bitmonero-wallets
-    description: .bitmonero/wallets
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: .bitmonero/wallets
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       exact: ".bitmonero/wallets"
 
   # === Litecoin atomic indicators ===
   - id: litecoin-wallet-dat
-    description: .litecoin/wallet.dat
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: .litecoin/wallet.dat
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       exact: ".litecoin/wallet.dat"
 
   - id: litecoin-wallets
-    description: Litecoin/wallets
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: Litecoin/wallets
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       exact: "Litecoin/wallets"
 
   # === Dash atomic indicators ===
   - id: dashcore-wallets
-    description: DashCore/wallets
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: DashCore/wallets
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       exact: "DashCore/wallets"
 
   - id: dash-wallet-dat
-    description: .dashcore/wallet.dat
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: .dashcore/wallet.dat
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       exact: ".dashcore/wallet.dat"
 
   # Electrum-LTC
   - id: electrum-ltc
-    description: "Electrum-LTC wallet data path"
-    confidence: 0.85
-    criticality: suspicious
-    condition:
+    desc: "Electrum-LTC wallet data path"
+    conf: 0.85
+    crit: suspicious
+    if:
       type: string
       exact: ".electrum-ltc/wallets"
 
   # Electron Cash (BCH)
   - id: electron-cash
-    description: "Electron Cash wallet data path"
-    confidence: 0.85
-    criticality: suspicious
-    condition:
+    desc: "Electron Cash wallet data path"
+    conf: 0.85
+    crit: suspicious
+    if:
       type: string
       exact: ".electron-cash/wallets"
 
   # === Dogecoin atomic indicators ===
   - id: dogecoin-wallets
-    description: Dogecoin/wallets
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: Dogecoin/wallets
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       exact: "Dogecoin/wallets"
 
   - id: dogecoin-wallet-dat
-    description: .dogecoin/wallet.dat
-    confidence: 0.7
-    criticality: inert
-    condition:
+    desc: .dogecoin/wallet.dat
+    conf: 0.7
+    crit: inert
+    if:
       type: string
       exact: ".dogecoin/wallet.dat"
 
 composite_rules:
   # === Wallet composites ===
   - id: electrum
-    description: Electrum wallet targeting
-    criticality: suspicious
-    confidence: 0.85
+    desc: Electrum wallet targeting
+    crit: suspicious
+    conf: 0.85
     requires_count: 1
-    conditions:
+    any:
       - id: electrum-wallets-dir
       - id: electrum-wallet-file
       - id: electrum-default
 
   - id: coinomi
-    description: Coinomi wallet targeting
-    criticality: suspicious
-    confidence: 0.85
+    desc: Coinomi wallet targeting
+    crit: suspicious
+    conf: 0.85
     requires_count: 1
-    conditions:
+    any:
       - id: coinomi-wallets-dir
       - id: coinomi-wallet-dat
       - id: coinomi-bundle
 
   - id: exodus
-    description: Exodus wallet targeting
-    criticality: suspicious
-    confidence: 0.85
+    desc: Exodus wallet targeting
+    crit: suspicious
+    conf: 0.85
     requires_count: 1
-    conditions:
+    any:
       - id: exodus-wallet-dir
       - id: exodus-passphrase
       - id: exodus-bundle
 
   - id: atomic
-    description: Atomic Wallet targeting
-    criticality: suspicious
-    confidence: 0.85
+    desc: Atomic Wallet targeting
+    crit: suspicious
+    conf: 0.85
     requires_count: 1
-    conditions:
+    any:
       - id: atomic-local-storage
       - id: atomic-wallet-name
       - id: atomic-bundle
 
   - id: wasabi
-    description: Wasabi wallet targeting
-    criticality: suspicious
-    confidence: 0.85
+    desc: Wasabi wallet targeting
+    crit: suspicious
+    conf: 0.85
     requires_count: 1
-    conditions:
+    any:
       - id: walletwasabi-lower
       - id: walletwasabi-upper
       - id: wasabiwallet-name
 
   - id: binance
-    description: Binance wallet targeting
-    criticality: suspicious
-    confidence: 0.85
+    desc: Binance wallet targeting
+    crit: suspicious
+    conf: 0.85
     requires_count: 1
-    conditions:
+    any:
       - id: binance-app-store
       - id: binance-aspect
       - id: binance-bundle
 
   - id: tonkeeper
-    description: TonKeeper wallet targeting
-    criticality: suspicious
-    confidence: 0.85
+    desc: TonKeeper wallet targeting
+    crit: suspicious
+    conf: 0.85
     requires_count: 1
-    conditions:
+    any:
       - id: tonkeeper-desktop
       - id: tonkeeper-config
       - id: tonkeeper-bundle
 
   - id: ledger
-    description: Ledger wallet targeting
-    criticality: suspicious
-    confidence: 0.85
+    desc: Ledger wallet targeting
+    crit: suspicious
+    conf: 0.85
     requires_count: 1
-    conditions:
+    any:
       - id: ledger-live-dir
       - id: ledgerhq-package
       - id: ledger-accounts
 
   - id: trezor
-    description: Trezor wallet targeting
-    criticality: suspicious
-    confidence: 0.85
+    desc: Trezor wallet targeting
+    crit: suspicious
+    conf: 0.85
     requires_count: 1
-    conditions:
+    any:
       - id: trezor-desktop
       - id: trezor-suite
 
   - id: guarda
-    description: Guarda wallet targeting
-    criticality: suspicious
-    confidence: 0.85
+    desc: Guarda wallet targeting
+    crit: suspicious
+    conf: 0.85
     requires_count: 1
-    conditions:
+    any:
       - id: guarda-local-storage
       - id: guarda-bundle
 
   - id: bitcoin-core
-    description: Bitcoin Core wallet targeting
-    criticality: suspicious
-    confidence: 0.85
+    desc: Bitcoin Core wallet targeting
+    crit: suspicious
+    conf: 0.85
     requires_count: 1
-    conditions:
+    any:
       - id: bitcoin-wallet-dat
       - id: bitcoin-wallets-dir
       - id: bitcoin-app-wallets
 
   - id: ethereum
-    description: Ethereum wallet targeting
-    criticality: suspicious
-    confidence: 0.85
+    desc: Ethereum wallet targeting
+    crit: suspicious
+    conf: 0.85
     requires_count: 1
-    conditions:
+    any:
       - id: ethereum-keystore
       - id: mist-keystore
       - id: doteth-keystore
 
   - id: monero
-    description: Monero wallet targeting
-    criticality: suspicious
-    confidence: 0.85
+    desc: Monero wallet targeting
+    crit: suspicious
+    conf: 0.85
     requires_count: 1
-    conditions:
+    any:
       - id: monero-wallets
       - id: bitmonero-wallets
 
   - id: litecoin-core
-    description: Litecoin wallet targeting
-    criticality: suspicious
-    confidence: 0.85
+    desc: Litecoin wallet targeting
+    crit: suspicious
+    conf: 0.85
     requires_count: 1
-    conditions:
+    any:
       - id: litecoin-wallet-dat
       - id: litecoin-wallets
       - id: electrum-ltc
 
   - id: dash-core
-    description: Dash wallet targeting
-    criticality: suspicious
-    confidence: 0.85
+    desc: Dash wallet targeting
+    crit: suspicious
+    conf: 0.85
     requires_count: 1
-    conditions:
+    any:
       - id: dashcore-wallets
       - id: dash-wallet-dat
 
   - id: dogecoin-core
-    description: Dogecoin wallet targeting
-    criticality: suspicious
-    confidence: 0.85
+    desc: Dogecoin wallet targeting
+    crit: suspicious
+    conf: 0.85
     requires_count: 1
-    conditions:
+    any:
       - id: dogecoin-wallets
       - id: dogecoin-wallet-dat
 
   # Multiple desktop wallet targets = stealer
   - id: stealer
-    description: "Desktop cryptocurrency wallet stealer"
-    criticality: hostile
-    confidence: 0.95
+    desc: "Desktop cryptocurrency wallet stealer"
+    crit: hostile
+    conf: 0.95
     attack: "T1555"
     mbc: "B0028"
-    file_types: [python, javascript, elf, pe, macho, applescript, shell]
+    for: [python, javascript, elf, pe, macho, applescript, shell]
     requires_count: 3
-    conditions:
+    any:
       - id: electrum
       - id: coinomi
       - id: exodus

@@ -8,477 +8,477 @@ defaults:
 traits:
   # === Xen hypervisor atomic indicators ===
   - id: vendor-xen-upper
-    description: XEN hypervisor (uppercase)
-    criticality: inert
-    confidence: 0.6
-    file_types: [javascript, typescript, python, shell]
-    condition:
+    desc: XEN hypervisor (uppercase)
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript, python, shell]
+    if:
       type: string
       exact: "XEN"
 
   - id: vendor-xen-title
-    description: Xen hypervisor (titlecase)
-    criticality: inert
-    confidence: 0.6
-    file_types: [javascript, typescript, python, shell]
-    condition:
+    desc: Xen hypervisor (titlecase)
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript, python, shell]
+    if:
       type: string
       exact: "Xen"
 
   # === KVM hypervisor atomic indicators ===
   - id: vendor-kvm-upper
-    description: KVM hypervisor (uppercase)
-    criticality: inert
-    confidence: 0.6
-    file_types: [javascript, typescript, python, shell]
-    condition:
+    desc: KVM hypervisor (uppercase)
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript, python, shell]
+    if:
       type: string
       exact: "KVM"
 
   - id: vendor-kvm-repeat
-    description: KVMKVMKVM hypervisor signature
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript, typescript, python, shell]
-    condition:
+    desc: KVMKVMKVM hypervisor signature
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript, python, shell]
+    if:
       type: string
       exact: "KVMKVMKVM"
 
   - id: vendor-vmware
-    description: VMware hypervisor vendor string
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript, typescript, python, shell]
-    condition:
+    desc: VMware hypervisor vendor string
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript, python, shell]
+    if:
       type: string
       exact: VMware
       case_insensitive: true
 
   # === VirtualBox hypervisor atomic indicators ===
   - id: vendor-virtualbox
-    description: VirtualBox hypervisor vendor string
-    criticality: inert
-    confidence: 0.6
-    file_types: [javascript, typescript, python, shell]
-    condition:
+    desc: VirtualBox hypervisor vendor string
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript, python, shell]
+    if:
       type: string
       exact: VirtualBox
       case_insensitive: true
 
   - id: vendor-vbox-short
-    description: VBOX hypervisor short string
-    criticality: inert
-    confidence: 0.6
-    file_types: [javascript, typescript, python, shell]
-    condition:
+    desc: VBOX hypervisor short string
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript, python, shell]
+    if:
       type: string
       exact: VBOX
       case_insensitive: true
 
   # === Hyper-V hypervisor atomic indicators ===
   - id: vendor-hyperv-dash
-    description: Hyper-V hypervisor vendor string
-    criticality: inert
-    confidence: 0.6
-    file_types: [javascript, typescript, python, shell]
-    condition:
+    desc: Hyper-V hypervisor vendor string
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript, python, shell]
+    if:
       type: string
       exact: "Hyper-V"
       case_insensitive: true
 
   - id: vendor-microsoft-hv
-    description: Microsoft Hv hypervisor string
-    criticality: inert
-    confidence: 0.6
-    file_types: [javascript, typescript, python, shell]
-    condition:
+    desc: Microsoft Hv hypervisor string
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript, python, shell]
+    if:
       type: string
       exact: "Microsoft Hv"
       case_insensitive: true
 
   - id: vendor-qemu
-    description: QEMU hypervisor vendor string
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript, typescript, python, shell]
-    condition:
+    desc: QEMU hypervisor vendor string
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript, python, shell]
+    if:
       type: string
       exact: QEMU
 
   - id: vendor-parallels
-    description: Parallels hypervisor vendor string
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript, typescript, python, shell]
-    condition:
+    desc: Parallels hypervisor vendor string
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript, python, shell]
+    if:
       type: string
       exact: Parallels
 
   - id: vendor-bhyve
-    description: bhyve hypervisor vendor string
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript, typescript, python, shell]
-    condition:
+    desc: bhyve hypervisor vendor string
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript, python, shell]
+    if:
       type: string
       exact: bhyve
 
   # === CPUID hypervisor bit check ===
   - id: cpuid-check
-    description: CPUID instruction for hypervisor detection
-    criticality: suspicious
-    confidence: 0.9
-    file_types: [python, shell]
-    condition:
+    desc: CPUID instruction for hypervisor detection
+    crit: suspicious
+    conf: 0.9
+    for: [python, shell]
+    if:
       type: string
       regex: '/proc/cpuinfo.*hypervisor|cpuid|hypervisor\s*flag'
 
   # === DMI/SMBIOS checks (atomic) ===
   - id: dmi-dmidecode
-    description: dmidecode command for hardware info
-    criticality: inert
-    confidence: 0.5
-    file_types: [python, shell]
-    condition:
+    desc: dmidecode command for hardware info
+    crit: inert
+    conf: 0.5
+    for: [python, shell]
+    if:
       type: string
       exact: dmidecode
 
   - id: dmi-sysfs
-    description: DMI sysfs path access
-    criticality: inert
-    confidence: 0.6
-    file_types: [python, shell]
-    condition:
+    desc: DMI sysfs path access
+    crit: inert
+    conf: 0.6
+    for: [python, shell]
+    if:
       type: string
       exact: /sys/class/dmi
 
   - id: dmi-product-name
-    description: DMI product_name field
-    criticality: inert
-    confidence: 0.5
-    file_types: [python, shell]
-    condition:
+    desc: DMI product_name field
+    crit: inert
+    conf: 0.5
+    for: [python, shell]
+    if:
       type: string
       exact: product_name
 
   - id: dmi-sys-vendor
-    description: DMI sys_vendor field
-    criticality: inert
-    confidence: 0.5
-    file_types: [python, shell]
-    condition:
+    desc: DMI sys_vendor field
+    crit: inert
+    conf: 0.5
+    for: [python, shell]
+    if:
       type: string
       exact: sys_vendor
 
   - id: dmi-bios-vendor
-    description: DMI bios_vendor field
-    criticality: inert
-    confidence: 0.5
-    file_types: [python, shell]
-    condition:
+    desc: DMI bios_vendor field
+    crit: inert
+    conf: 0.5
+    for: [python, shell]
+    if:
       type: string
       exact: bios_vendor
 
   # === VM-specific files (atomic) ===
   - id: file-vbox-guest
-    description: VirtualBox guest additions file
-    criticality: inert
-    confidence: 0.8
-    file_types: [python, shell, javascript]
-    condition:
+    desc: VirtualBox guest additions file
+    crit: inert
+    conf: 0.8
+    for: [python, shell, javascript]
+    if:
       type: string
       exact: VBoxGuest
 
   - id: file-vbox-mouse
-    description: VirtualBox mouse driver file
-    criticality: inert
-    confidence: 0.8
-    file_types: [python, shell, javascript]
-    condition:
+    desc: VirtualBox mouse driver file
+    crit: inert
+    conf: 0.8
+    for: [python, shell, javascript]
+    if:
       type: string
       exact: VBoxMouse
 
   - id: file-vbox-sf
-    description: VirtualBox shared folders file
-    criticality: inert
-    confidence: 0.8
-    file_types: [python, shell, javascript]
-    condition:
+    desc: VirtualBox shared folders file
+    crit: inert
+    conf: 0.8
+    for: [python, shell, javascript]
+    if:
       type: string
       exact: VBoxSF
 
   - id: file-vmware-tools
-    description: VMware tools binary
-    criticality: inert
-    confidence: 0.8
-    file_types: [python, shell, javascript]
-    condition:
+    desc: VMware tools binary
+    crit: inert
+    conf: 0.8
+    for: [python, shell, javascript]
+    if:
       type: string
       exact: vmware-tools
 
   - id: file-vmtoolsd
-    description: VMware tools daemon
-    criticality: inert
-    confidence: 0.8
-    file_types: [python, shell, javascript]
-    condition:
+    desc: VMware tools daemon
+    crit: inert
+    conf: 0.8
+    for: [python, shell, javascript]
+    if:
       type: string
       exact: vmtoolsd
 
   - id: file-vmhgfs
-    description: VMware host-guest filesystem
-    criticality: inert
-    confidence: 0.8
-    file_types: [python, shell, javascript]
-    condition:
+    desc: VMware host-guest filesystem
+    crit: inert
+    conf: 0.8
+    for: [python, shell, javascript]
+    if:
       type: string
       exact: /vmhgfs
 
   - id: file-qemu-ga
-    description: QEMU guest agent
-    criticality: inert
-    confidence: 0.8
-    file_types: [python, shell, javascript]
-    condition:
+    desc: QEMU guest agent
+    crit: inert
+    conf: 0.8
+    for: [python, shell, javascript]
+    if:
       type: string
       exact: qemu-ga
 
   - id: file-dev-vda
-    description: QEMU/KVM virtio disk device
-    criticality: inert
-    confidence: 0.7
-    file_types: [python, shell, javascript]
-    condition:
+    desc: QEMU/KVM virtio disk device
+    crit: inert
+    conf: 0.7
+    for: [python, shell, javascript]
+    if:
       type: string
       exact: /dev/vda
 
   # === VM MAC address prefixes (atomic) ===
   - id: mac-vmware-1
-    description: VMware MAC prefix 00:0c:29
-    criticality: inert
-    confidence: 0.8
-    file_types: [javascript, typescript, python, shell]
-    condition:
+    desc: VMware MAC prefix 00:0c:29
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript, python, shell]
+    if:
       type: string
       exact: "00:0c:29"
       case_insensitive: true
 
   - id: mac-vmware-2
-    description: VMware MAC prefix 00:50:56
-    criticality: inert
-    confidence: 0.8
-    file_types: [javascript, typescript, python, shell]
-    condition:
+    desc: VMware MAC prefix 00:50:56
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript, python, shell]
+    if:
       type: string
       exact: "00:50:56"
       case_insensitive: true
 
   - id: mac-vmware-3
-    description: VMware MAC prefix 00:05:69
-    criticality: inert
-    confidence: 0.8
-    file_types: [javascript, typescript, python, shell]
-    condition:
+    desc: VMware MAC prefix 00:05:69
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript, python, shell]
+    if:
       type: string
       exact: "00:05:69"
       case_insensitive: true
 
   - id: mac-vbox
-    description: VirtualBox MAC prefix 08:00:27
-    criticality: inert
-    confidence: 0.8
-    file_types: [javascript, typescript, python, shell]
-    condition:
+    desc: VirtualBox MAC prefix 08:00:27
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript, python, shell]
+    if:
       type: string
       exact: "08:00:27"
       case_insensitive: true
 
   - id: mac-xen
-    description: Xen MAC prefix 00:16:3e
-    criticality: inert
-    confidence: 0.8
-    file_types: [javascript, typescript, python, shell]
-    condition:
+    desc: Xen MAC prefix 00:16:3e
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript, python, shell]
+    if:
       type: string
       exact: "00:16:3e"
       case_insensitive: true
 
   - id: mac-hyperv
-    description: Hyper-V MAC prefix 00:15:5d
-    criticality: inert
-    confidence: 0.8
-    file_types: [javascript, typescript, python, shell]
-    condition:
+    desc: Hyper-V MAC prefix 00:15:5d
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript, python, shell]
+    if:
       type: string
       exact: "00:15:5d"
       case_insensitive: true
 
   - id: mac-parallels
-    description: Parallels MAC prefix 00:1c:42
-    criticality: inert
-    confidence: 0.8
-    file_types: [javascript, typescript, python, shell]
-    condition:
+    desc: Parallels MAC prefix 00:1c:42
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript, python, shell]
+    if:
       type: string
       exact: "00:1c:42"
       case_insensitive: true
 
   - id: mac-qemu
-    description: QEMU/KVM MAC prefix 52:54:00
-    criticality: inert
-    confidence: 0.8
-    file_types: [javascript, typescript, python, shell]
-    condition:
+    desc: QEMU/KVM MAC prefix 52:54:00
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript, python, shell]
+    if:
       type: string
       exact: "52:54:00"
       case_insensitive: true
 
   # === Hardware model VM check ===
   - id: hardware-model
-    description: Checks hardware model for VM indicators
-    criticality: suspicious
-    confidence: 0.8
-    file_types: [python, shell]
-    condition:
+    desc: Checks hardware model for VM indicators
+    crit: suspicious
+    conf: 0.8
+    for: [python, shell]
+    if:
       type: string
-      regex: 'system_profiler.*Model|wmic.*computersystem.*model|/sys/devices/virtual'
+      regex: "system_profiler.*Model|wmic.*computersystem.*model|/sys/devices/virtual"
 
   # === Cloud provider metadata check ===
   - id: cloud-metadata
-    description: Cloud provider metadata access (VM detection)
-    criticality: notable
-    confidence: 0.7
-    file_types: [javascript, typescript, python, shell]
-    condition:
+    desc: Cloud provider metadata access (VM detection)
+    crit: notable
+    conf: 0.7
+    for: [javascript, typescript, python, shell]
+    if:
       type: string
       regex: '169\.254\.169\.254|metadata\.google\.internal|169\.254\.169\.123'
 
   # === Container detection (atomic) ===
   - id: docker-env
-    description: Docker environment file
-    criticality: inert
-    confidence: 0.7
-    file_types: [python, shell, javascript]
-    condition:
+    desc: Docker environment file
+    crit: inert
+    conf: 0.7
+    for: [python, shell, javascript]
+    if:
       type: string
       exact: /.dockerenv
 
   - id: docker-sock
-    description: Docker socket path
-    criticality: inert
-    confidence: 0.7
-    file_types: [python, shell, javascript]
-    condition:
+    desc: Docker socket path
+    crit: inert
+    conf: 0.7
+    for: [python, shell, javascript]
+    if:
       type: string
       exact: /run/docker.sock
 
   - id: cgroup-check
-    description: Process cgroup check
-    criticality: inert
-    confidence: 0.6
-    file_types: [python, shell, javascript]
-    condition:
+    desc: Process cgroup check
+    crit: inert
+    conf: 0.6
+    for: [python, shell, javascript]
+    if:
       type: string
       exact: /proc/1/cgroup
 
   - id: k8s-service
-    description: Kubernetes service environment variable
-    criticality: inert
-    confidence: 0.7
-    file_types: [python, shell, javascript]
-    condition:
+    desc: Kubernetes service environment variable
+    crit: inert
+    conf: 0.7
+    for: [python, shell, javascript]
+    if:
       type: string
       exact: KUBERNETES_SERVICE
 
   - id: k8s-secrets
-    description: Kubernetes secrets path
-    criticality: inert
-    confidence: 0.7
-    file_types: [python, shell, javascript]
-    condition:
+    desc: Kubernetes secrets path
+    crit: inert
+    conf: 0.7
+    for: [python, shell, javascript]
+    if:
       type: string
       exact: /var/run/secrets/kubernetes
 
   # === Exit indicators for evasion ===
   - id: exit-call
-    description: Generic exit call
-    criticality: inert
-    confidence: 0.3
-    file_types: [python, shell, javascript]
-    condition:
+    desc: Generic exit call
+    crit: inert
+    conf: 0.3
+    for: [python, shell, javascript]
+    if:
       type: string
       exact: exit
 
   - id: sys-exit
-    description: Python sys.exit call
-    criticality: inert
-    confidence: 0.3
-    file_types: [python]
-    condition:
+    desc: Python sys.exit call
+    crit: inert
+    conf: 0.3
+    for: [python]
+    if:
       type: string
       exact: sys.exit
 
   - id: process-exit
-    description: Node.js process.exit call
-    criticality: inert
-    confidence: 0.3
-    file_types: [javascript, typescript]
-    condition:
+    desc: Node.js process.exit call
+    crit: inert
+    conf: 0.3
+    for: [javascript, typescript]
+    if:
       type: string
       exact: process.exit
 
 composite_rules:
   # Xen vendor composite
   - id: vendor-xen
-    description: Xen hypervisor vendor string
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript, typescript, python, shell]
-    requires_count: 1
-    conditions:
+    desc: Xen hypervisor vendor string
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript, python, shell]
+    count: 1
+    any:
       - id: vendor-xen-upper
       - id: vendor-xen-title
 
   # KVM vendor composite
   - id: vendor-kvm
-    description: KVM hypervisor vendor string
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript, typescript, python, shell]
-    requires_count: 1
-    conditions:
+    desc: KVM hypervisor vendor string
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript, python, shell]
+    count: 1
+    any:
       - id: vendor-kvm-upper
       - id: vendor-kvm-repeat
 
   # VirtualBox vendor composite
   - id: vendor-vbox
-    description: VirtualBox hypervisor vendor string
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript, typescript, python, shell]
-    requires_count: 1
-    conditions:
+    desc: VirtualBox hypervisor vendor string
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript, python, shell]
+    count: 1
+    any:
       - id: vendor-virtualbox
       - id: vendor-vbox-short
 
   # Hyper-V vendor composite
   - id: vendor-hyperv
-    description: Hyper-V hypervisor vendor string
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript, typescript, python, shell]
-    requires_count: 1
-    conditions:
+    desc: Hyper-V hypervisor vendor string
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript, python, shell]
+    count: 1
+    any:
       - id: vendor-hyperv-dash
       - id: vendor-microsoft-hv
 
   # Hypervisor vendor strings
   - id: hypervisor-vendor
-    description: Checks for hypervisor vendor strings
-    criticality: suspicious
-    confidence: 0.85
-    requires_count: 1
-    conditions:
+    desc: Checks for hypervisor vendor strings
+    crit: suspicious
+    conf: 0.85
+    count: 1
+    any:
       - id: vendor-xen
       - id: vendor-kvm
       - id: vendor-vmware
@@ -490,26 +490,23 @@ composite_rules:
 
   # DMI/SMBIOS VM detection
   - id: dmi-check
-    description: DMI/SMBIOS check for VM detection
-    criticality: suspicious
-    confidence: 0.85
-    requires_any:
-      - id: dmi-dmidecode
-    requires_all:
+    desc: DMI/SMBIOS check for VM detection
+    crit: suspicious
+    conf: 0.85
+    count: 1
+  # VM-specific file checks
+    any:
       - id: dmi-sysfs
-    requires_count: 1
-    conditions:
+      - id: dmi-dmidecode
       - id: dmi-product-name
       - id: dmi-sys-vendor
       - id: dmi-bios-vendor
-
-  # VM-specific file checks
   - id: file-check
-    description: Checks for VM-specific files
-    criticality: suspicious
-    confidence: 0.85
-    requires_count: 1
-    conditions:
+    desc: Checks for VM-specific files
+    crit: suspicious
+    conf: 0.85
+    count: 1
+    any:
       - id: file-vbox-guest
       - id: file-vbox-mouse
       - id: file-vbox-sf
@@ -521,11 +518,11 @@ composite_rules:
 
   # VM MAC address prefixes
   - id: mac-prefix
-    description: Checks for VM MAC address prefixes
-    criticality: suspicious
-    confidence: 0.85
-    requires_count: 1
-    conditions:
+    desc: Checks for VM MAC address prefixes
+    crit: suspicious
+    conf: 0.85
+    count: 1
+    any:
       - id: mac-vmware-1
       - id: mac-vmware-2
       - id: mac-vmware-3
@@ -537,11 +534,11 @@ composite_rules:
 
   # Docker/container detection
   - id: container-check
-    description: Container environment detection
-    criticality: notable
-    confidence: 0.75
-    requires_count: 1
-    conditions:
+    desc: Container environment detection
+    crit: notable
+    conf: 0.75
+    count: 1
+    any:
       - id: docker-env
       - id: docker-sock
       - id: cgroup-check
@@ -550,11 +547,11 @@ composite_rules:
 
   # Comprehensive VM evasion (3+ VM indicators + exit)
   - id: comprehensive-evasion
-    description: Multiple VM detection techniques (evasion attempt)
-    criticality: suspicious
-    confidence: 0.95
-    requires_count: 3
-    conditions:
+    desc: Multiple VM detection techniques (evasion attempt)
+    crit: suspicious
+    conf: 0.95
+    count: 3
+    any:
       - id: vendor-vmware
       - id: vendor-vbox
       - id: vendor-qemu
@@ -563,7 +560,6 @@ composite_rules:
       - id: mac-vbox
       - id: docker-env
       - id: file-vmtoolsd
-    requires_any:
       - id: exit-call
       - id: sys-exit
       - id: process-exit

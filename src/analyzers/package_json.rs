@@ -18,7 +18,7 @@ pub struct PackageJsonAnalyzer {
 struct PackageJson {
     name: Option<String>,
     version: Option<String>,
-    description: Option<String>,
+    desc: Option<String>,
     main: Option<String>,
     #[serde(default)]
     scripts: HashMap<String, String>,
@@ -76,7 +76,7 @@ impl PackageJsonAnalyzer {
         // Add structural feature
         report.structure.push(StructuralFeature {
             id: "manifest/npm/package.json".to_string(),
-            description: format!(
+            desc: format!(
                 "npm package manifest: {} v{}",
                 pkg.name.as_deref().unwrap_or("unknown"),
                 pkg.version.as_deref().unwrap_or("unknown")

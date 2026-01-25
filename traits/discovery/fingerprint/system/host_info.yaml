@@ -3,11 +3,11 @@
 
 traits:
   - id: host_info_strings
-    description: "Detailed system information gathering strings"
-    criticality: suspicious
-    confidence: 0.8
+    desc: "Detailed system information gathering strings"
+    crit: suspicious
+    conf: 0.8
     attack: "T1082"
-    condition:
+    if:
       type: yara
       source: |
         rule host_info_strings {

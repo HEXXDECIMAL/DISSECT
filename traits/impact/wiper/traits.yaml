@@ -6,10 +6,10 @@ traits:
   # Recursive directory deletion (Node.js)
   - id: recursive-delete
     description: Recursive directory deletion function
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     attack: "T1485"
-    file_types: [javascript, typescript]
+    for: [javascript, typescript]
     condition:
       type: yara
       source: |
@@ -27,10 +27,10 @@ traits:
   # Targets development directories
   - id: target-dev-dirs
     description: Targets development directories for deletion
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     attack: "T1485"
-    file_types: [javascript, typescript, python]
+    for: [javascript, typescript, python]
     condition:
       type: yara
       source: |
@@ -54,30 +54,30 @@ traits:
   # Individual directory targeting
   - id: target-git
     description: Targets .git directory (version control)
-    criticality: notable
-    confidence: 0.85
+    crit: notable
+    conf: 0.85
     attack: "T1485"
-    file_types: [javascript, typescript, python, shell]
+    for: [javascript, typescript, python, shell]
     condition:
       type: string
       regex: '["'']\\./?\\.git["'']'
 
   - id: target-node-modules
     description: Targets node_modules directory
-    criticality: notable
-    confidence: 0.8
+    crit: notable
+    conf: 0.8
     attack: "T1485"
-    file_types: [javascript, typescript]
+    for: [javascript, typescript]
     condition:
       type: string
       regex: '["'']/?(\\./)?node_modules["'']'
 
   - id: target-src
     description: Targets source code directory
-    criticality: notable
-    confidence: 0.85
+    crit: notable
+    conf: 0.85
     attack: "T1485"
-    file_types: [javascript, typescript, python]
+    for: [javascript, typescript, python]
     condition:
       type: string
       regex: '["'']/?(\\./)?src["'']'
@@ -85,20 +85,20 @@ traits:
   # === IDE config atomic indicators ===
   - id: target-vscode-dir
     description: Targets .vscode directory
-    criticality: inert
-    confidence: 0.7
+    crit: inert
+    conf: 0.7
     attack: "T1485"
-    file_types: [javascript, typescript]
+    for: [javascript, typescript]
     condition:
       type: string
       regex: '["'']/?(\\./)?\\.(vscode)["'']'
 
   - id: target-idea-dir
     description: Targets .idea directory
-    criticality: inert
-    confidence: 0.7
+    crit: inert
+    conf: 0.7
     attack: "T1485"
-    file_types: [javascript, typescript]
+    for: [javascript, typescript]
     condition:
       type: string
       regex: '["'']/?(\\./)?\\.(idea)["'']'
@@ -106,10 +106,10 @@ traits:
   # Conditional destruction based on environment
   - id: conditional-destroy
     description: Conditional destruction based on environment check
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     attack: "T1485"
-    file_types: [javascript, typescript]
+    for: [javascript, typescript]
     condition:
       type: yara
       source: |
@@ -127,10 +127,10 @@ traits:
   # Android/mobile storage targeting
   - id: target-android-storage
     description: Targets Android storage directories
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     attack: "T1485"
-    file_types: [javascript, typescript, shell]
+    for: [javascript, typescript, shell]
     condition:
       type: yara
       source: |
@@ -151,10 +151,10 @@ traits:
   # Mass file deletion
   - id: mass-delete
     description: Mass file deletion pattern
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     attack: "T1485"
-    file_types: [javascript, typescript, python, shell]
+    for: [javascript, typescript, python, shell]
     condition:
       type: yara
       source: |
@@ -176,36 +176,36 @@ traits:
   # === HTTP callback atomic indicators ===
   - id: axios-ref
     description: axios library reference
-    criticality: inert
-    confidence: 0.6
-    file_types: [javascript, typescript]
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
     condition:
       type: string
       exact: "axios"
 
   - id: fetch-call
     description: fetch() call
-    criticality: inert
-    confidence: 0.6
-    file_types: [javascript, typescript]
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
     condition:
       type: string
       regex: "fetch\\("
 
   - id: https-request
     description: https.request call
-    criticality: inert
-    confidence: 0.6
-    file_types: [javascript, typescript]
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
     condition:
       type: string
       exact: "https.request"
 
   - id: http-request
     description: http.request call
-    criticality: inert
-    confidence: 0.6
-    file_types: [javascript, typescript]
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
     condition:
       type: string
       exact: "http.request"
@@ -214,22 +214,22 @@ composite_rules:
   # Target IDE config composite
   - id: target-vscode
     description: Targets .vscode configuration directory
-    criticality: notable
-    confidence: 0.85
+    crit: notable
+    conf: 0.85
     attack: "T1485"
-    file_types: [javascript, typescript]
+    for: [javascript, typescript]
     requires_count: 1
-    conditions:
+    any:
       - id: target-vscode-dir
       - id: target-idea-dir
 
   - id: http-callback
     description: HTTP request pattern for callback/reporting
-    criticality: notable
-    confidence: 0.8
-    file_types: [javascript, typescript]
+    crit: notable
+    conf: 0.8
+    for: [javascript, typescript]
     requires_count: 1
-    conditions:
+    any:
       - id: axios-ref
       - id: fetch-call
       - id: https-request
@@ -238,11 +238,11 @@ composite_rules:
   # Protestware pattern (env-conditional destruction)
   - id: protestware
     description: Protestware pattern - conditional destruction based on location/env
-    criticality: suspicious
-    confidence: 0.98
+    crit: suspicious
+    conf: 0.98
     attack: "T1485"
     mbc: "B0031"
-    file_types: [javascript, typescript]
+    for: [javascript, typescript]
     requires_all:
       - id: impact/wiper/conditional-destroy
       - id: impact/wiper/target-dev-dirs
@@ -250,11 +250,11 @@ composite_rules:
   # Full wiper with HTTP callback (report success)
   - id: with-callback
     description: Wiper with HTTP callback (potential coordinated attack)
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     attack: "T1485"
     mbc: "B0031"
-    file_types: [javascript, typescript]
+    for: [javascript, typescript]
     requires_all:
       - id: impact/wiper/recursive-delete
       - id: impact/wiper/http-callback

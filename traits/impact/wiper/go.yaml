@@ -5,10 +5,10 @@ traits:
   # Overwrite and remove pattern (Secure Wipe)
   - id: secure-wipe-pattern
     description: Opens file for read-write and then removes it (secure wipe pattern)
-    criticality: notable
-    confidence: 0.8
+    crit: notable
+    conf: 0.8
     attack: "T1485"
-    file_types: [go]
+    for: [go]
     condition:
       type: yara
       source: |
@@ -24,8 +24,8 @@ traits:
   # Known Wiper Standards
   - id: standards-reference
     description: References to secure wiping standards (Gutmann, DoD 5220.22-M, etc.)
-    criticality: notable
-    confidence: 0.9
+    crit: notable
+    conf: 0.9
     attack: "T1485"
     condition:
       type: yara
@@ -43,8 +43,8 @@ traits:
   # Specific overwriting patterns (Gutmann)
   - id: gutmann-patterns
     description: Uses Gutmann secure deletion overwrite patterns
-    criticality: notable
-    confidence: 0.95
+    crit: notable
+    conf: 0.95
     attack: "T1485"
     condition:
       type: yara
@@ -71,10 +71,10 @@ traits:
   # Mass file destruction (Go)
   - id: mass-destruction
     description: Recursively walks filesystem and deletes/overwrites files
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     attack: "T1485"
-    file_types: [go]
+    for: [go]
     condition:
       type: yara
       source: |
@@ -92,13 +92,13 @@ composite_rules:
   # Secure wiper detection
   - id: secure-wiper
     description: Highly confident secure wiper (recursive overwrite and delete)
-    criticality: suspicious
-    confidence: 0.99
+    crit: suspicious
+    conf: 0.99
     attack: "T1485"
     mbc: "B0031"
-    file_types: [go]
+    for: [go]
     requires_count: 2
-    conditions:
+    any:
       - id: impact/wiper/go/secure-wipe-pattern
       - id: impact/wiper/go/mass-destruction
       - id: impact/wiper/standards-reference

@@ -5,8 +5,8 @@
 traits:
   - id: backdoor/vshell/send-vshell
     description: VShell send function marker
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1059"
     file_types: [elf]
@@ -16,8 +16,8 @@ traits:
 
   - id: backdoor/vshell/sockopt-fprog
     description: VShell BPF socket filter
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     family: true
     attack: "T1205"
     file_types: [elf]
@@ -28,8 +28,8 @@ traits:
   # VShell YARA signature trait
   - id: backdoor/vshell/yara-signature
     description: VShell YARA signature
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1059"
     mbc: "B0022"
@@ -49,8 +49,8 @@ traits:
 composite_rules:
   - id: backdoor/vshell/detected
     description: VShell / Agent-CNO Trojan
-    criticality: hostile
-    confidence: 0.95
+    crit: hostile
+    conf: 0.95
     family: true
     reference: "https://malpedia.caad.fkie.fraunhofer.de/details/elf.vshell"
     attack: "T1059"

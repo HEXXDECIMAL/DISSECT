@@ -8,28 +8,28 @@ defaults:
 
 traits:
   - id: raw-socket-ref
-    description: Raw socket terminology
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: Raw socket terminology
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "raw socket"
       case_insensitive: true
 
   - id: proc-net-raw
-    description: /proc/net/raw access
-    criticality: notable
-    confidence: 0.8
-    condition:
+    desc: /proc/net/raw access
+    crit: notable
+    conf: 0.8
+    if:
       type: string
       exact: /proc/net/raw
 
 composite_rules:
   - id: raw
-    description: Create raw network sockets
-    criticality: notable
-    confidence: 0.8
-    requires_count: 1
-    conditions:
+    desc: Create raw network sockets
+    crit: notable
+    conf: 0.8
+    count: 1
+    any:
       - id: raw-socket-ref
       - id: proc-net-raw

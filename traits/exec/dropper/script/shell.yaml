@@ -4,205 +4,205 @@
 
 defaults:
   # Shell command strings can be embedded in any language (subprocess, system(), etc.)
-  file_types: ["*"]
+  for: ["*"]
 
 traits:
   - id: wget-download
-    description: "Download via wget"
-    criticality: notable
-    confidence: 0.7
+    desc: "Download via wget"
+    crit: notable
+    conf: 0.7
     mbc: "C0002"
     attack: "T1105"
-    condition:
+    if:
       type: string
       exact: "wget "
       search_raw: true
 
   # === Wget output atomic indicators ===
   - id: wget-output-dash-O
-    description: "Wget with -O flag"
-    criticality: inert
-    confidence: 0.7
+    desc: "Wget with -O flag"
+    crit: inert
+    conf: 0.7
     mbc: "C0002"
     attack: "T1105"
-    condition:
+    if:
       type: string
       regex: "wget .* -O "
       search_raw: true
 
   - id: wget-output-document
-    description: "Wget with --output-document"
-    criticality: inert
-    confidence: 0.7
+    desc: "Wget with --output-document"
+    crit: inert
+    conf: 0.7
     mbc: "C0002"
     attack: "T1105"
-    condition:
+    if:
       type: string
       regex: "wget .*--output-document"
       search_raw: true
 
   - id: curl-download
-    description: "Download via curl"
-    criticality: notable
-    confidence: 0.7
+    desc: "Download via curl"
+    crit: notable
+    conf: 0.7
     mbc: "C0002"
     attack: "T1105"
-    condition:
+    if:
       type: string
       exact: "curl "
       search_raw: true
 
   # === Curl output atomic indicators ===
   - id: curl-output-dash-o
-    description: "Curl with -o flag"
-    criticality: inert
-    confidence: 0.7
+    desc: "Curl with -o flag"
+    crit: inert
+    conf: 0.7
     mbc: "C0002"
     attack: "T1105"
-    condition:
+    if:
       type: string
       regex: "curl .* -o "
       search_raw: true
 
   - id: curl-output-flag
-    description: "Curl with --output"
-    criticality: inert
-    confidence: 0.7
+    desc: "Curl with --output"
+    crit: inert
+    conf: 0.7
     mbc: "C0002"
     attack: "T1105"
-    condition:
+    if:
       type: string
       regex: "curl .*--output"
       search_raw: true
 
   - id: chmod-plus-x
-    description: "Making file executable"
-    criticality: notable
-    confidence: 0.75
+    desc: "Making file executable"
+    crit: notable
+    conf: 0.75
     mbc: "C0047"
     attack: "T1222.002"
-    condition:
+    if:
       type: string
       regex: "chmod \\+x"
       search_raw: true
 
   - id: chmod-777
-    description: "chmod 777 (world-writable executable)"
-    criticality: suspicious
-    confidence: 0.85
+    desc: "chmod 777 (world-writable executable)"
+    crit: suspicious
+    conf: 0.85
     mbc: "C0047"
     attack: "T1222.002"
-    condition:
+    if:
       type: string
       exact: "chmod 777"
       search_raw: true
 
   - id: execute-dot-slash
-    description: "Execute file in current directory"
-    criticality: notable
-    confidence: 0.7
-    condition:
+    desc: "Execute file in current directory"
+    crit: notable
+    conf: 0.7
+    if:
       type: string
       regex: "\\./[a-zA-Z0-9_-]+"
       search_raw: true
 
   - id: hardcoded-ip-url
-    description: "Hardcoded IP address in URL"
-    criticality: suspicious
-    confidence: 0.9
+    desc: "Hardcoded IP address in URL"
+    crit: suspicious
+    conf: 0.9
     mbc: "C0002"
     attack: "T1071.001"
-    condition:
+    if:
       type: string
       regex: "https?://\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}"
       search_raw: true
 
   # === Tmp staging atomic indicators ===
   - id: cd-tmp
-    description: "cd /tmp command"
-    criticality: notable
-    confidence: 0.7
+    desc: "cd /tmp command"
+    crit: notable
+    conf: 0.7
     mbc: "C0047"
     attack: "T1074.001"
-    condition:
+    if:
       type: string
       exact: "cd /tmp"
       search_raw: true
 
   - id: tmp-path
-    description: "/tmp/ path reference"
-    criticality: inert
-    confidence: 0.6
+    desc: "/tmp/ path reference"
+    crit: inert
+    conf: 0.6
     mbc: "C0047"
     attack: "T1074.001"
-    condition:
+    if:
       type: string
       exact: "/tmp/"
       search_raw: true
 
   - id: rm-rf-cleanup
-    description: "Force remove files (cleanup/anti-forensics)"
-    criticality: notable
-    confidence: 0.7
+    desc: "Force remove files (cleanup/anti-forensics)"
+    crit: notable
+    conf: 0.7
     mbc: "F0007"
     attack: "T1070.004"
-    condition:
+    if:
       type: string
       exact: "rm -rf"
       search_raw: true
 
   # === MIPS architecture atomic indicators ===
   - id: mips-lower
-    description: mips architecture string (lowercase)
-    criticality: notable
-    confidence: 0.75
-    condition:
+    desc: mips architecture string (lowercase)
+    crit: notable
+    conf: 0.75
+    if:
       type: string
       exact: "mips"
       search_raw: true
 
   - id: mips-upper
-    description: MIPS architecture string (uppercase)
-    criticality: notable
-    confidence: 0.75
-    condition:
+    desc: MIPS architecture string (uppercase)
+    crit: notable
+    conf: 0.75
+    if:
       type: string
       exact: "MIPS"
       search_raw: true
 
   - id: iot-arch-arm
-    description: "ARM architecture binary (IoT target)"
-    criticality: suspicious
-    confidence: 0.85
-    condition:
+    desc: "ARM architecture binary (IoT target)"
+    crit: suspicious
+    conf: 0.85
+    if:
       type: string
       regex: "arm[0-9]?|ARM"
       search_raw: true
 
   # === MIPSEL architecture atomic indicators ===
   - id: mpsl-short
-    description: mpsl architecture string (short)
-    criticality: notable
-    confidence: 0.75
-    condition:
+    desc: mpsl architecture string (short)
+    crit: notable
+    conf: 0.75
+    if:
       type: string
       exact: "mpsl"
       search_raw: true
 
   - id: mipsel-lower
-    description: mipsel architecture string (lowercase)
-    criticality: notable
-    confidence: 0.75
-    condition:
+    desc: mipsel architecture string (lowercase)
+    crit: notable
+    conf: 0.75
+    if:
       type: string
       exact: "mipsel"
       search_raw: true
 
   - id: mipsel-upper
-    description: MIPSEL architecture string (uppercase)
-    criticality: notable
-    confidence: 0.75
-    condition:
+    desc: MIPSEL architecture string (uppercase)
+    crit: notable
+    conf: 0.75
+    if:
       type: string
       exact: "MIPSEL"
       search_raw: true
@@ -210,44 +210,44 @@ traits:
 composite_rules:
   # Wget output file composite
   - id: wget-output-file
-    description: "Wget downloading to specific file"
-    criticality: notable
-    confidence: 0.8
+    desc: "Wget downloading to specific file"
+    crit: notable
+    conf: 0.8
     mbc: "C0002"
     attack: "T1105"
     requires_count: 1
-    conditions:
+    any:
       - id: wget-output-dash-O
       - id: wget-output-document
 
   # Curl output file composite
   - id: curl-output-file
-    description: "Curl downloading to file"
-    criticality: notable
-    confidence: 0.8
+    desc: "Curl downloading to file"
+    crit: notable
+    conf: 0.8
     mbc: "C0002"
     attack: "T1105"
     requires_count: 1
-    conditions:
+    any:
       - id: curl-output-dash-o
       - id: curl-output-flag
 
   # Tmp staging composite
   - id: tmp-staging
-    description: "/tmp staging directory usage"
-    criticality: suspicious
-    confidence: 0.8
+    desc: "/tmp staging directory usage"
+    crit: suspicious
+    conf: 0.8
     mbc: "C0047"
     attack: "T1074.001"
     requires_count: 1
-    conditions:
+    any:
       - id: cd-tmp
       - id: tmp-path
 
   - id: download-chmod-execute
-    description: "Download, chmod, and execute in one command"
-    confidence: 0.95
-    criticality: suspicious
+    desc: "Download, chmod, and execute in one command"
+    conf: 0.95
+    crit: suspicious
     mbc: "B0024"
     attack: "T1059.004"
     platforms: [linux, macos]
@@ -257,9 +257,9 @@ composite_rules:
       - id: execute-dot-slash
 
   - id: curl-chmod-execute
-    description: "Download via curl, chmod, and execute"
-    confidence: 0.95
-    criticality: suspicious
+    desc: "Download via curl, chmod, and execute"
+    conf: 0.95
+    crit: suspicious
     mbc: "B0024"
     attack: "T1059.004"
     platforms: [linux, macos]
@@ -270,42 +270,42 @@ composite_rules:
 
   # MIPS architecture composite
   - id: iot-arch-mips
-    description: "MIPS architecture binary (IoT target)"
-    criticality: suspicious
-    confidence: 0.85
+    desc: "MIPS architecture binary (IoT target)"
+    crit: suspicious
+    conf: 0.85
     requires_count: 1
-    conditions:
+    any:
       - id: mips-lower
       - id: mips-upper
 
   # MIPSEL architecture composite
   - id: iot-arch-mpsl
-    description: "MIPSEL architecture binary (IoT target)"
-    criticality: suspicious
-    confidence: 0.85
+    desc: "MIPSEL architecture binary (IoT target)"
+    crit: suspicious
+    conf: 0.85
     requires_count: 1
-    conditions:
+    any:
       - id: mpsl-short
       - id: mipsel-lower
       - id: mipsel-upper
 
   - id: iot-multi-arch
-    description: "IoT botnet: multi-architecture payload dropper"
-    confidence: 0.95
-    criticality: suspicious
+    desc: "IoT botnet: multi-architecture payload dropper"
+    conf: 0.95
+    crit: suspicious
     mbc: "B0024"
     attack: "T1059.004"
     platforms: [linux]
     requires_count: 2
-    conditions:
+    any:
       - id: iot-arch-mips
       - id: iot-arch-arm
       - id: iot-arch-mpsl
 
   - id: tmp-staging-cleanup
-    description: "Payload staging in /tmp with cleanup"
-    confidence: 0.9
-    criticality: suspicious
+    desc: "Payload staging in /tmp with cleanup"
+    conf: 0.9
+    crit: suspicious
     mbc: "C0047"
     attack: "T1074.001"
     platforms: [linux, macos]
@@ -314,9 +314,9 @@ composite_rules:
       - id: rm-rf-cleanup
 
   - id: hardcoded-c2-download
-    description: "Download from hardcoded C2 IP address"
-    confidence: 0.95
-    criticality: suspicious
+    desc: "Download from hardcoded C2 IP address"
+    conf: 0.95
+    crit: suspicious
     mbc: "C0002"
     attack: "T1105"
     platforms: [linux, macos]

@@ -11,7 +11,7 @@ traits:
   # Executes immediately on require (no export call needed)
   - id: auto-execute
     description: Code auto-executes on require/import
-    criticality: notable
+    crit: notable
     confidence: 0.8
     condition:
       type: yara
@@ -28,7 +28,7 @@ traits:
   # Side-effect only module (no exports)
   - id: side-effect-only
     description: Module produces side effects without exports
-    criticality: notable
+    crit: notable
     confidence: 0.8
     condition:
       type: yara
@@ -49,7 +49,7 @@ traits:
   # Network activity at module load time
   - id: network-on-load
     description: Network request during module initialization
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     condition:
       type: yara
@@ -68,7 +68,7 @@ traits:
   # File write at module load time
   - id: write-on-load
     description: File write during module initialization
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     condition:
       type: yara
@@ -86,7 +86,7 @@ traits:
   # Process spawn at module load time
   - id: spawn-on-load
     description: Process spawned during module initialization
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     condition:
       type: yara
@@ -106,7 +106,7 @@ traits:
   # Very small file (< 500 bytes)
   - id: tiny-file
     description: Very small code file
-    criticality: notable
+    crit: notable
     confidence: 0.6
     condition:
       type: yara
@@ -119,7 +119,7 @@ traits:
   # Medium file with no functions
   - id: script-blob
     description: Medium-sized file with no function definitions
-    criticality: notable
+    crit: notable
     confidence: 0.7
     condition:
       type: yara
@@ -138,7 +138,7 @@ traits:
   # === Python interpreter atomic indicators ===
   - id: python-c-flag
     description: python -c flag
-    criticality: inert
+    crit: inert
     confidence: 0.6
     condition:
       type: string
@@ -146,7 +146,7 @@ traits:
 
   - id: python-stdin-flag
     description: python stdin flag
-    criticality: inert
+    crit: inert
     confidence: 0.6
     condition:
       type: string
@@ -155,7 +155,7 @@ traits:
   # === Node interpreter atomic indicators ===
   - id: node-e-flag
     description: node -e flag
-    criticality: inert
+    crit: inert
     confidence: 0.6
     condition:
       type: string
@@ -163,7 +163,7 @@ traits:
 
   - id: node-eval-flag
     description: node --eval flag
-    criticality: inert
+    crit: inert
     confidence: 0.6
     condition:
       type: string
@@ -174,7 +174,7 @@ traits:
   # spawn call
   - id: spawn-call
     description: Process spawn call
-    criticality: inert
+    crit: inert
     confidence: 0.6
     condition:
       type: string
@@ -183,7 +183,7 @@ traits:
   # exec call
   - id: exec-call
     description: Process exec call
-    criticality: inert
+    crit: inert
     confidence: 0.6
     condition:
       type: string
@@ -192,7 +192,7 @@ traits:
   # child_process module reference
   - id: child-process-import
     description: Node child_process module usage
-    criticality: notable
+    crit: notable
     confidence: 0.9
     condition:
       type: string
@@ -202,37 +202,37 @@ composite_rules:
   # Python interpreter exec composite
   - id: python-interpreter-exec
     description: Python interpreter with inline code execution
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.8
     requires_count: 1
-    conditions:
+    any:
       - id: python-c-flag
       - id: python-stdin-flag
 
   # Node interpreter exec composite
   - id: node-interpreter-exec
     description: Node interpreter with inline code execution
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.8
     requires_count: 1
-    conditions:
+    any:
       - id: node-e-flag
       - id: node-eval-flag
 
   # Spawn or exec composite
   - id: spawn-or-exec-call
     description: Process spawn or exec function invocation
-    criticality: notable
+    crit: notable
     confidence: 0.8
     requires_count: 1
-    conditions:
+    any:
       - id: spawn-call
       - id: exec-call
 
   # npm package with interpreter dropper (hostile combination)
   - id: interpreter-dropper-package
     description: npm package that downloads and executes via external interpreter
-    criticality: hostile
+    crit: hostile
     confidence: 0.95
     attack: "T1195.002"
     mbc: "B0024"

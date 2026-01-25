@@ -4,205 +4,205 @@
 defaults:
   attack: "T1489"
   # Service command strings can be embedded in any file type
-  file_types: ["*"]
+  for: ["*"]
 
 traits:
   - id: esxcli
     description: VMware ESXi CLI usage
-    criticality: suspicious
-    confidence: 0.9
-    condition:
+    crit: suspicious
+    conf: 0.9
+    if:
       type: string
       exact: "esxcli"
 
   - id: systemctl-stop
     description: Systemd service stop
-    criticality: suspicious
-    confidence: 0.8
-    condition:
+    crit: suspicious
+    conf: 0.8
+    if:
       type: string
       regex: "systemctl\\s+stop"
 
   - id: service-stop
     description: SysV service stop
-    criticality: suspicious
-    confidence: 0.8
-    condition:
+    crit: suspicious
+    conf: 0.8
+    if:
       type: string
       regex: "service\\s+\\w+\\s+stop"
 
   - id: sc-stop
     description: Windows service control stop
-    criticality: suspicious
-    confidence: 0.8
-    condition:
+    crit: suspicious
+    conf: 0.8
+    if:
       type: string
       regex: "sc\\s+stop"
 
   - id: net-stop
     description: Windows net stop command
-    criticality: suspicious
-    confidence: 0.8
-    condition:
+    crit: suspicious
+    conf: 0.8
+    if:
       type: string
       regex: "net\\s+stop"
 
   - id: vmsvc-getallvms
     description: VMware VM enumeration
-    criticality: suspicious
-    confidence: 0.9
-    condition:
+    crit: suspicious
+    conf: 0.9
+    if:
       type: string
       exact: "vmsvc/getallvms"
 
   # === Database service termination (atomic) ===
   - id: kill-mysql-kill
     description: MySQL kill command
-    criticality: inert
-    confidence: 0.5
-    condition:
+    crit: inert
+    conf: 0.5
+    if:
       type: string
-      regex: '(?i)kill.*mysql'
+      regex: "(?i)kill.*mysql"
 
   - id: kill-mysql-stop
     description: MySQL stop command
-    criticality: inert
-    confidence: 0.5
-    condition:
+    crit: inert
+    conf: 0.5
+    if:
       type: string
-      regex: '(?i)stop.*mysql'
+      regex: "(?i)stop.*mysql"
 
   - id: kill-postgres-kill
     description: PostgreSQL kill command
-    criticality: inert
-    confidence: 0.5
-    condition:
+    crit: inert
+    conf: 0.5
+    if:
       type: string
-      regex: '(?i)kill.*postgres'
+      regex: "(?i)kill.*postgres"
 
   - id: kill-postgres-stop
     description: PostgreSQL stop command
-    criticality: inert
-    confidence: 0.5
-    condition:
+    crit: inert
+    conf: 0.5
+    if:
       type: string
-      regex: '(?i)stop.*postgres'
+      regex: "(?i)stop.*postgres"
 
   - id: kill-oracle-kill
     description: Oracle kill command
-    criticality: inert
-    confidence: 0.5
-    condition:
+    crit: inert
+    conf: 0.5
+    if:
       type: string
-      regex: '(?i)kill.*oracle'
+      regex: "(?i)kill.*oracle"
 
   - id: kill-oracle-stop
     description: Oracle stop command
-    criticality: inert
-    confidence: 0.5
-    condition:
+    crit: inert
+    conf: 0.5
+    if:
       type: string
-      regex: '(?i)stop.*oracle'
+      regex: "(?i)stop.*oracle"
 
   - id: kill-mssql-kill
     description: MSSQL kill command
-    criticality: inert
-    confidence: 0.5
-    condition:
+    crit: inert
+    conf: 0.5
+    if:
       type: string
-      regex: '(?i)kill.*mssql'
+      regex: "(?i)kill.*mssql"
 
   - id: kill-mssql-stop
     description: MSSQL stop command
-    criticality: inert
-    confidence: 0.5
-    condition:
+    crit: inert
+    conf: 0.5
+    if:
       type: string
-      regex: '(?i)stop.*mssql'
+      regex: "(?i)stop.*mssql"
 
   - id: kill-mongodb-kill
     description: MongoDB kill command
-    criticality: inert
-    confidence: 0.5
-    condition:
+    crit: inert
+    conf: 0.5
+    if:
       type: string
-      regex: '(?i)kill.*mongodb'
+      regex: "(?i)kill.*mongodb"
 
   - id: kill-mongodb-stop
     description: MongoDB stop command
-    criticality: inert
-    confidence: 0.5
-    condition:
+    crit: inert
+    conf: 0.5
+    if:
       type: string
-      regex: '(?i)stop.*mongodb'
+      regex: "(?i)stop.*mongodb"
 
   # === ESXi ransomware atomic indicators ===
   - id: onion-domain
     description: .onion domain reference
-    criticality: inert
-    confidence: 0.6
-    condition:
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: ".onion"
 
   - id: word-encrypted
     description: Encrypted keyword
-    criticality: inert
-    confidence: 0.4
-    condition:
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       exact: encrypted
       case_insensitive: true
 
   - id: word-ransom
     description: Ransom keyword
-    criticality: inert
-    confidence: 0.5
-    condition:
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: ransom
       case_insensitive: true
 
   - id: word-tor
     description: Tor keyword
-    criticality: inert
-    confidence: 0.4
-    condition:
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       exact: tor
       case_insensitive: true
 
   - id: word-bitcoin
     description: Bitcoin keyword
-    criticality: inert
-    confidence: 0.4
-    condition:
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       exact: bitcoin
       case_insensitive: true
 
   - id: word-victim
     description: Victim keyword
-    criticality: inert
-    confidence: 0.4
-    condition:
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       exact: victim
       case_insensitive: true
 
   - id: word-company
     description: Company keyword
-    criticality: inert
-    confidence: 0.3
-    condition:
+    crit: inert
+    conf: 0.3
+    if:
       type: string
       exact: company
 
   - id: phrase-your-data
     description: Your data phrase
-    criticality: inert
-    confidence: 0.4
-    condition:
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       exact: "your data"
 
@@ -210,55 +210,55 @@ composite_rules:
   # Individual database kill composites
   - id: kill-mysql
     description: MySQL service termination
-    criticality: notable
-    confidence: 0.6
+    crit: notable
+    conf: 0.6
     requires_count: 1
-    conditions:
+    any:
       - id: kill-mysql-kill
       - id: kill-mysql-stop
 
   - id: kill-postgres
     description: PostgreSQL service termination
-    criticality: notable
-    confidence: 0.6
+    crit: notable
+    conf: 0.6
     requires_count: 1
-    conditions:
+    any:
       - id: kill-postgres-kill
       - id: kill-postgres-stop
 
   - id: kill-oracle
     description: Oracle service termination
-    criticality: notable
-    confidence: 0.6
+    crit: notable
+    conf: 0.6
     requires_count: 1
-    conditions:
+    any:
       - id: kill-oracle-kill
       - id: kill-oracle-stop
 
   - id: kill-mssql
     description: MSSQL service termination
-    criticality: notable
-    confidence: 0.6
+    crit: notable
+    conf: 0.6
     requires_count: 1
-    conditions:
+    any:
       - id: kill-mssql-kill
       - id: kill-mssql-stop
 
   - id: kill-mongodb
     description: MongoDB service termination
-    criticality: notable
-    confidence: 0.6
+    crit: notable
+    conf: 0.6
     requires_count: 1
-    conditions:
+    any:
       - id: kill-mongodb-kill
       - id: kill-mongodb-stop
 
   - id: kill-database
     description: Database service termination
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     requires_count: 1
-    conditions:
+    any:
       - id: kill-mysql
       - id: kill-postgres
       - id: kill-oracle
@@ -267,16 +267,16 @@ composite_rules:
 
   - id: esxi-ransomware
     description: VMware ESXi ransomware
-    criticality: suspicious
-    confidence: 0.99
+    crit: suspicious
+    conf: 0.99
     attack: "T1486"
     mbc: "B0040"
-    file_types: [elf]
+    for: [elf]
     requires_all:
       - id: esxcli
       - id: onion-domain
     requires_count: 1
-    conditions:
+    any:
       - id: word-encrypted
       - id: word-ransom
       - id: word-tor

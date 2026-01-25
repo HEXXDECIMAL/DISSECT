@@ -35,7 +35,7 @@ impl ConstantDecoder {
             decoded.push(DecodedValue {
                 value_type: "port".to_string(),
                 decoded_value: value.to_string(),
-                confidence: 0.6,
+                conf: 0.6,
             });
         }
 
@@ -68,7 +68,7 @@ impl ConstantDecoder {
                 results.push(DecodedValue {
                     value_type: "ip_port".to_string(),
                     decoded_value: format!("{}:{}", ipv4, port),
-                    confidence: 0.8,
+                    conf: 0.8,
                 });
             }
         }
@@ -86,7 +86,7 @@ impl ConstantDecoder {
             results.push(DecodedValue {
                 value_type: "ip_address".to_string(),
                 decoded_value: ipv4_be.to_string(),
-                confidence: 0.7,
+                conf: 0.7,
             });
         }
 
@@ -96,7 +96,7 @@ impl ConstantDecoder {
             results.push(DecodedValue {
                 value_type: "ip_address".to_string(),
                 decoded_value: ipv4_le.to_string(),
-                confidence: 0.7,
+                conf: 0.7,
             });
         }
 
@@ -131,7 +131,7 @@ impl ConstantDecoder {
             results.push(DecodedValue {
                 value_type: "port".to_string(),
                 decoded_value: lower_16.to_string(),
-                confidence: 0.5,
+                conf: 0.5,
             });
         }
 
@@ -141,7 +141,7 @@ impl ConstantDecoder {
             results.push(DecodedValue {
                 value_type: "port".to_string(),
                 decoded_value: next_16.to_string(),
-                confidence: 0.5,
+                conf: 0.5,
             });
         }
 
@@ -176,7 +176,7 @@ impl ConstantDecoder {
                 results.push(DecodedValue {
                     value_type: "timestamp".to_string(),
                     decoded_value: datetime.format("%Y-%m-%d %H:%M:%S UTC").to_string(),
-                    confidence: 0.6,
+                    conf: 0.6,
                 });
             }
         }
@@ -196,7 +196,7 @@ impl ConstantDecoder {
                     results.push(DecodedValue {
                         value_type: "ip_address".to_string(),
                         decoded_value: ip.to_string(),
-                        confidence: 0.8,
+                        conf: 0.8,
                     });
                 }
             }
@@ -216,7 +216,7 @@ impl ConstantDecoder {
                         results.push(DecodedValue {
                             value_type: "base64_decoded".to_string(),
                             decoded_value: utf8,
-                            confidence: 0.7,
+                            conf: 0.7,
                         });
                     }
                 }

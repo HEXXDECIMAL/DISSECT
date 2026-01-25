@@ -9,44 +9,44 @@ defaults:
 traits:
   # === WebSocket atomic indicators ===
   - id: websocket-class
-    description: WebSocket class reference
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: WebSocket class reference
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "WebSocket"
 
   - id: websocket-lower
-    description: websocket lowercase reference
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: websocket lowercase reference
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "websocket"
 
   - id: ws-scheme
-    description: ws:// URL scheme
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: ws:// URL scheme
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "ws://"
 
   - id: wss-scheme
-    description: wss:// URL scheme
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: wss:// URL scheme
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "wss://"
 
 composite_rules:
   - id: websocket
-    description: WebSocket communication
-    criticality: notable
-    confidence: 0.66
-    requires_count: 1
-    conditions:
+    desc: WebSocket communication
+    crit: notable
+    conf: 0.66
+    count: 1
+    any:
       - id: websocket-class
       - id: websocket-lower
       - id: ws-scheme

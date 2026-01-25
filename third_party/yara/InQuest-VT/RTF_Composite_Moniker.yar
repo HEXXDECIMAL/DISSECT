@@ -16,6 +16,6 @@ rule RTF_Composite_Moniker
         $st2 = "0303000000000000C000000000000046" nocase // File Moniker
         $st3 = "C6AFABEC197FD211978E0000F8757E2A" nocase // "new" Moniker
         $st4 = "01004F006C0065" nocase // "\x01Ole"
-	condition:
+	if:
 			$magic_rtf at 0 and all of ( $st* )
 }

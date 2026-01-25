@@ -2,7 +2,7 @@
 # Detects Python obfuscation patterns common in PyPI malware
 
 defaults:
-  file_types: [python]
+  for: [python]
   attack: "T1027"
   mbc: "B0032"
 
@@ -10,60 +10,60 @@ traits:
   # === Python-Specific Obfuscation Patterns ===
 
   - id: py-lambda-abuse
-    description: "Excessive lambda functions (obfuscation via lambdas)"
-    criticality: suspicious
-    confidence: 0.8
-    condition:
+    desc: "Excessive lambda functions (obfuscation via lambdas)"
+    crit: suspicious
+    conf: 0.8
+    if:
       type: metrics
       field: functions.anonymous
       min: 15
 
   - id: py-single-line-heavy
-    description: "Many one-liner functions (compressed code)"
-    criticality: notable
-    confidence: 0.75
-    condition:
+    desc: "Many one-liner functions (compressed code)"
+    crit: notable
+    conf: 0.75
+    if:
       type: metrics
       field: functions.one_liners
       min: 10
 
   - id: py-nested-functions
-    description: "Nested function definitions (closure obfuscation)"
-    criticality: notable
-    confidence: 0.7
-    condition:
+    desc: "Nested function definitions (closure obfuscation)"
+    crit: notable
+    conf: 0.7
+    if:
       type: metrics
       field: functions.nested_functions
       min: 5
 
   - id: py-encoded-strings
-    description: "High string entropy (base64/hex encoded payloads)"
-    criticality: suspicious
-    confidence: 0.85
-    condition:
+    desc: "High string entropy (base64/hex encoded payloads)"
+    crit: suspicious
+    conf: 0.85
+    if:
       type: metrics
       field: strings.avg_entropy
       min: 4.5
 
 composite_rules:
   - id: py-pyobfuscate-pattern
-    description: "Python obfuscator tool output"
-    criticality: suspicious
-    confidence: 0.85
-    requires_count: 2
-    conditions:
+    desc: "Python obfuscator tool output"
+    crit: suspicious
+    conf: 0.85
+    count: 2
+    any:
       - id: anti-static/obfuscation/code-metrics/high-entropy-identifiers
       - id: anti-static/obfuscation/code-metrics/py-lambda-abuse
       - id: anti-static/obfuscation/code-metrics/py-encoded-strings
       - id: anti-static/obfuscation/code-metrics/no-comments
 
   - id: py-pypi-malware-pattern
-    description: "PyPI malware obfuscation pattern"
-    criticality: hostile
-    confidence: 0.9
-    requires_all:
+    desc: "PyPI malware obfuscation pattern"
+    crit: hostile
+    conf: 0.9
+    all:
       - id: anti-static/obfuscation/code-metrics/py-encoded-strings
       - id: anti-static/obfuscation/code-metrics/no-comments
-    requires_any:
+    any:
       - id: anti-static/obfuscation/code-metrics/single-char-function-names
       - id: anti-static/obfuscation/code-metrics/high-entropy-identifiers

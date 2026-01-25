@@ -6,8 +6,8 @@
 traits:
   - id: stealer/poseidon/c2-url
     description: Poseidon C2 update check URL
-    criticality: suspicious
-    confidence: 0.99
+    crit: suspicious
+    conf: 0.99
     family: true
     attack: "T1071.001"
     platforms: [macos]
@@ -18,8 +18,8 @@ traits:
 
   - id: stealer/poseidon/mangled-string
     description: Poseidon mangled C++ string pattern
-    criticality: suspicious
-    confidence: 0.7
+    crit: suspicious
+    conf: 0.7
     family: true
     attack: "T1555"
     platforms: [macos]
@@ -30,8 +30,8 @@ traits:
 
   - id: stealer/poseidon/detected-yara
     description: Poseidon stealer via YARA
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     family: true
     attack: "T1555"
     platforms: [macos]
@@ -64,8 +64,8 @@ composite_rules:
   # URL-based detection (high confidence)
   - id: stealer/poseidon/url-detected
     description: Poseidon infostealer (C2 URL)
-    criticality: suspicious
-    confidence: 0.99
+    crit: suspicious
+    conf: 0.99
     family: true
     reference: "https://www.intego.com/mac-security-blog/poseidon-macos-malware-employs-new-tricks-targets-swiss-mac-users/"
     attack: "T1555"
@@ -78,8 +78,8 @@ composite_rules:
   # Behavioral detection via YARA (filesize + entropy)
   - id: stealer/poseidon/detected
     description: Poseidon macOS infostealer
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     family: true
     reference: "https://www.intego.com/mac-security-blog/poseidon-macos-malware-employs-new-tricks-targets-swiss-mac-users/"
     attack: "T1555"

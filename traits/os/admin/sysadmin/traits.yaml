@@ -5,7 +5,7 @@ traits:
   # System monitoring tools
   - id: monitoring
     description: System monitoring utilities
-    criticality: benign
+    crit: benign
     confidence: 0.9
     condition:
       type: yara
@@ -34,7 +34,7 @@ traits:
   # Package management
   - id: package-mgmt
     description: Package management utilities
-    criticality: benign
+    crit: benign
     confidence: 0.9
     condition:
       type: yara
@@ -60,7 +60,7 @@ traits:
   # System configuration
   - id: config
     description: System configuration utilities
-    criticality: benign
+    crit: benign
     confidence: 0.9
     condition:
       type: yara
@@ -86,7 +86,7 @@ traits:
   # Log analysis
   - id: logs
     description: Log analysis utilities
-    criticality: benign
+    crit: benign
     confidence: 0.9
     condition:
       type: yara

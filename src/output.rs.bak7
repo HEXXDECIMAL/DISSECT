@@ -58,7 +58,7 @@ fn yara_to_traits(yara_matches: &[YaraMatch]) -> Vec<Trait> {
 
         Trait {
             id,
-            description: m.description.clone(),
+            desc: m.description.clone(),
             confidence: 0.7, // Default for YARA matches
             criticality,
             capability: true,
@@ -74,7 +74,7 @@ fn yara_to_traits(yara_matches: &[YaraMatch]) -> Vec<Trait> {
 }
 
 /// Get risk emoji based on criticality
-fn risk_emoji(criticality: &Criticality) -> &'static str {
+fn risk_emoji(crit: &Criticality) -> &'static str {
     match criticality {
         Criticality::None => "⚪",
         Criticality::Low => "🔵",
@@ -84,7 +84,7 @@ fn risk_emoji(criticality: &Criticality) -> &'static str {
 }
 
 /// Get risk level name
-fn risk_name(criticality: &Criticality) -> &'static str {
+fn risk_name(crit: &Criticality) -> &'static str {
     match criticality {
         Criticality::None => "NONE",
         Criticality::Low => "LOW",
@@ -185,9 +185,9 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
     // Combine traits from report (stored as capabilities) and YARA matches
     let mut all_traits: Vec<Trait> = report.capabilities.iter().map(|cap| Trait {
         id: cap.id.clone(),
-        description: cap.description.clone(),
+        desc: cap.description.clone(),
         confidence: cap.confidence,
-        criticality: cap.criticality,
+        crit: cap.criticality,
         capability: true,  // Capabilities are high-level behaviors
         mbc: cap.mbc.clone(),
         attack: cap.attack.clone(),
@@ -214,7 +214,7 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
 
     // Group by namespace
     let mut by_namespace: HashMap<String, Vec<&Trait>> = HashMap::new();
-    let mut ns_max_criticality: HashMap<String, Criticality> = HashMap::new();
+    let mut ns_max_crit: HashMap<String, Criticality> = HashMap::new();
 
     for trait_item in &filtered {
         let (ns, _) = split_trait_id(&trait_item.id);

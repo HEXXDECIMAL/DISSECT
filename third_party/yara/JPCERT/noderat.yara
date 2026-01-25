@@ -10,6 +10,6 @@ rule malware_Noderat_strings {
             $key = "/config/.regeditKey.rc"
             $message = "uninstall error when readFileSync: "
 
-          condition:
+          if:
             all of them
 }

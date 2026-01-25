@@ -7,8 +7,8 @@ traits:
 
   - id: c2-framework/geacon/coded-ref
     description: Geacon coded reference
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1071"
     platforms: [all]
@@ -19,8 +19,8 @@ traits:
 
   - id: c2-framework/geacon/path-ref
     description: Geacon package path reference
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     family: true
     attack: "T1071"
     platforms: [all]
@@ -31,8 +31,8 @@ traits:
 
   - id: c2-framework/geacon/author-darkr4y
     description: Geacon author reference
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1071"
     platforms: [all]
@@ -43,8 +43,8 @@ traits:
 
   - id: c2-framework/geacon/motto
     description: Geacon author motto
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     family: true
     attack: "T1071"
     platforms: [all]
@@ -55,8 +55,8 @@ traits:
 
   - id: c2-framework/geacon/change-dir
     description: Geacon change directory packet
-    criticality: suspicious
-    confidence: 0.7
+    crit: suspicious
+    conf: 0.7
     attack: "T1083"
     platforms: [all]
     condition:
@@ -65,8 +65,8 @@ traits:
 
   - id: c2-framework/geacon/gbk-convert
     description: Geacon GBK string conversion
-    criticality: suspicious
-    confidence: 0.75
+    crit: suspicious
+    conf: 0.75
     family: true
     attack: "T1071"
     platforms: [all]
@@ -76,8 +76,8 @@ traits:
 
   - id: c2-framework/geacon/fake-ie-ua
     description: Geacon fake IE user agent
-    criticality: suspicious
-    confidence: 0.5
+    crit: suspicious
+    conf: 0.5
     attack: "T1071.001"
     platforms: [all]
     condition:
@@ -87,15 +87,15 @@ traits:
 composite_rules:
   - id: c2-framework/geacon/detected
     description: Geacon Go-based Cobalt Strike beacon
-    criticality: hostile
-    confidence: 0.95
+    crit: hostile
+    conf: 0.95
     family: true
     attack: "T1071"
     mbc: "B0030"
     platforms: [all]
     file_types: [elf, macho, pe, go]
     requires_count: 2
-    conditions:
+    any:
       - id: c2-framework/geacon/coded-ref
       - id: c2-framework/geacon/path-ref
       - id: c2-framework/geacon/author-darkr4y

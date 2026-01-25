@@ -5,9 +5,9 @@
 traits:
   - id: swapon
     description: Start swapping to a file/device
-    criticality: notable
-    confidence: 0.66
-    file_types: [elf, so, c]
-    condition:
+    crit: notable
+    conf: 0.66
+    for: [elf, so, c]
+    if:
       type: symbol
       pattern: swapon

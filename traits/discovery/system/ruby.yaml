@@ -2,42 +2,42 @@
 # Ruby system information gathering
 traits:
   - id: ruby-dns-resolve
-    description: "DNS hostname resolution"
-    criticality: notable
-    confidence: 0.85
+    desc: "DNS hostname resolution"
+    crit: notable
+    conf: 0.85
     platforms:
       - all
-    file_types:
+    for:
       - ruby
-    condition:
+    if:
       type: symbol_or_string
       any:
         - Resolv.getaddress
         - Resolv.getname
 
   - id: ruby-env-read
-    description: "Read environment variables"
-    criticality: notable
-    confidence: 0.75
+    desc: "Read environment variables"
+    crit: notable
+    conf: 0.75
     platforms:
       - all
-    file_types:
+    for:
       - ruby
-    condition:
+    if:
       type: symbol_or_string
       any:
         - "ENV["
         - ENV.fetch
 
   - id: ruby-process-info
-    description: "Process information access"
-    criticality: notable
-    confidence: 0.75
+    desc: "Process information access"
+    crit: notable
+    conf: 0.75
     platforms:
       - all
-    file_types:
+    for:
       - ruby
-    condition:
+    if:
       type: symbol_or_string
       any:
         - Process.pid

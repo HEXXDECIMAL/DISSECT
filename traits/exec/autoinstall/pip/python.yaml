@@ -3,67 +3,67 @@
 # ATT&CK: T1059.006 (Command and Scripting Interpreter: Python)
 
 defaults:
-  file_types: [python]
+  for: [python]
   mbc: "B0024"
   attack: "T1059.006"
-  criticality: suspicious
+  crit: suspicious
 
 traits:
   # subprocess pip install - most common pattern
   - id: subprocess-install
-    description: "Runtime pip install via subprocess"
-    confidence: 0.9
-    condition:
+    desc: "Runtime pip install via subprocess"
+    conf: 0.9
+    if:
       type: string
       regex: "subprocess\\.[a-z_]+\\([^)]*pip[^)]*install"
 
   # sys.executable -m pip pattern
   - id: sys-executable
-    description: "pip install using sys.executable"
-    confidence: 0.95
-    condition:
+    desc: "pip install using sys.executable"
+    conf: 0.95
+    if:
       type: string
       regex: "sys\\.executable[^)]*-m[^)]*pip[^)]*install"
 
   # os.system pip install
   - id: os-system
-    description: "Runtime pip install via os.system"
-    confidence: 0.9
-    condition:
+    desc: "Runtime pip install via os.system"
+    conf: 0.9
+    if:
       type: string
       regex: "os\\.system\\([^)]*pip[^)]*install"
 
   # importlib fallback pattern (try import, except install)
   - id: try-import-install
-    description: "Try-except import with fallback pip install"
-    confidence: 0.85
-    condition:
+    desc: "Try-except import with fallback pip install"
+    conf: 0.85
+    if:
       type: string
       # Matches pattern in try/except blocks
       regex: "except[^:]*:.*pip.*install|ImportError.*pip.*install"
 
   # pip.main() direct call
   - id: main-call
-    description: "Direct pip.main() installation"
-    confidence: 0.9
-    condition:
+    desc: "Direct pip.main() installation"
+    conf: 0.9
+    if:
       type: string
       regex: "pip\\.main\\(\\[.*install"
 
   # ensurepip module usage
   - id: ensurepip
-    description: "pip bootstrapping via ensurepip"
-    confidence: 0.8
-    criticality: notable
-    condition:
+    desc: "pip bootstrapping via ensurepip"
+    conf: 0.8
+    crit: notable
+    if:
       type: string
       regex: "ensurepip"
 
   # YARA-based try/except import with pip install detection
   - id: yara-pip-fallback-install
-    description: "YARA detection for try import with pip install fallback"
-    confidence: 0.95
-    condition:
+    desc: "YARA detection for try import with pip install fallback"
+    conf: 0.95
+    if:
       type: yara
       source: |
         rule pip_fallback_install {
@@ -81,8 +81,8 @@ traits:
 composite_rules:
   # Combination: try/except import with immediate pip install
   - id: fallback-install
-    description: "Import fallback with automatic pip install"
-    confidence: 0.95
-    criticality: suspicious
+    desc: "Import fallback with automatic pip install"
+    conf: 0.95
+    crit: suspicious
     requires_all:
       - id: yara-pip-fallback-install

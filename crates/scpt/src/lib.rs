@@ -106,7 +106,7 @@ pub struct AppleEventInfo {
     pub class: AppleEventClass,
     pub class_code: String,
     pub event_code: String,
-    pub description: &'static str,
+    pub desc: &'static str,
 }
 
 impl AppleEventInfo {
@@ -151,7 +151,7 @@ impl AppleEventInfo {
             class,
             class_code: class_str,
             event_code: event_str,
-            description,
+            desc: description,
         }
     }
 }

@@ -2,102 +2,102 @@
 # Detects Python code that enumerates or introspects running processes
 
 defaults:
-  file_types: [python]
+  for: [python]
 
 traits:
   - id: psutil-enum
-    description: Enumerates running processes via psutil
-    criticality: notable
-    confidence: 0.9
-    condition:
+    desc: Enumerates running processes via psutil
+    crit: notable
+    conf: 0.9
+    if:
       type: string
       regex: 'psutil\.process_iter\('
 
   # === Shell process enumeration (atomic) ===
   - id: tasklist-cmd
-    description: Windows tasklist command
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: Windows tasklist command
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "tasklist"
 
   - id: pgrep-cmd
-    description: pgrep command for process grep
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: pgrep command for process grep
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "pgrep"
 
   - id: ps-ef-cmd
-    description: ps -ef command for process listing
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: ps -ef command for process listing
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "ps -ef"
 
   # === Analysis tool process names (atomic) ===
   - id: wireshark-proc
-    description: Wireshark process name
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: Wireshark process name
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "Wireshark"
 
   - id: vbox-proc
-    description: VirtualBox process name
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: VirtualBox process name
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "vbox"
 
   - id: vmware-proc
-    description: VMware process name
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: VMware process name
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "vmware"
 
   - id: charles-proc
-    description: Charles proxy process name
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: Charles proxy process name
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "charles"
 
   - id: fiddler-proc
-    description: Fiddler proxy process name
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: Fiddler proxy process name
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "fiddler"
 
 composite_rules:
   # Shell process enumeration
   - id: tasklist-shell
-    description: Enumerates processes via shell command (tasklist/pgrep)
-    criticality: notable
-    confidence: 0.8
+    desc: Enumerates processes via shell command (tasklist/pgrep)
+    crit: notable
+    conf: 0.8
     requires_count: 1
-    conditions:
+    any:
       - id: tasklist-cmd
       - id: pgrep-cmd
       - id: ps-ef-cmd
 
   # Analysis tool detection
   - id: analysis-tool-names
-    description: References analysis/debugging tool process names
-    criticality: notable
-    confidence: 0.8
+    desc: References analysis/debugging tool process names
+    crit: notable
+    conf: 0.8
     requires_count: 1
-    conditions:
+    any:
       - id: wireshark-proc
       - id: vbox-proc
       - id: vmware-proc
@@ -105,9 +105,9 @@ composite_rules:
       - id: fiddler-proc
 
   - id: anti-analysis-recon
-    description: Process-based anti-analysis/recon (psutil + sensitive process)
-    criticality: suspicious
-    confidence: 0.9
-    requires_all:
+    desc: Process-based anti-analysis/recon (psutil + sensitive process)
+    crit: suspicious
+    conf: 0.9
+    all:
       - id: psutil-enum
       - id: analysis-tool-names

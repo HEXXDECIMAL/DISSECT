@@ -6,8 +6,8 @@ traits:
   # TellYouThePass ransomware indicators
   - id: ransomware/tellyouthepass/generic
     description: TellYouThePass ransomware patterns
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     mbc: "C0027"
     attack: "T1486"
     file_types: [elf, macho, pe, so, dylib, dll]
@@ -36,8 +36,8 @@ traits:
   # TellYouThePass Linux variant
   - id: ransomware/tellyouthepass/linux
     description: TellYouThePass Linux targeting
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     mbc: "C0027"
     attack: "T1486"
     file_types: [elf, so]
@@ -65,8 +65,8 @@ traits:
 composite_rules:
   - id: ransomware/tellyouthepass/detected
     description: TellYouThePass ransomware detected
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     mbc: "C0027"
     attack: "T1486"
     file_types: [elf, macho, pe, so, dylib, dll]

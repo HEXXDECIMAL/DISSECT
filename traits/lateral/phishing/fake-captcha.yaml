@@ -4,7 +4,7 @@
 traits:
   - id: cloudflare-turnstile
     description: Fake Cloudflare Turnstile implementation (social engineering)
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.95
     mbc: "B0021"
     attack: "T1204.001"
@@ -27,7 +27,7 @@ traits:
 
   - id: recaptcha
     description: Fake Google reCAPTCHA implementation
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     mbc: "B0021"
     attack: "T1204.001"

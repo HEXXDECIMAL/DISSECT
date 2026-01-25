@@ -4,137 +4,137 @@
 
 traits:
   - id: capsh
-    description: Linux capability shell
-    criticality: suspicious
-    confidence: 0.85
+    desc: Linux capability shell
+    crit: suspicious
+    conf: 0.85
     attack: "T1069"
     # Command can be embedded in any file type
-    file_types: ["*"]
-    condition:
+    for: ["*"]
+    if:
       type: string
       exact: "capsh"
 
   - id: getgroups
-    description: Get group list
-    criticality: notable
-    confidence: 0.75
+    desc: Get group list
+    crit: notable
+    conf: 0.75
     attack: "T1069"
-    file_types: [elf, macho]
-    condition:
+    for: [elf, macho]
+    if:
       type: string
       exact: "getgroups"
 
   - id: getgid
-    description: Get group ID
-    criticality: notable
-    confidence: 0.7
+    desc: Get group ID
+    crit: notable
+    conf: 0.7
     attack: "T1069"
-    file_types: [elf, macho]
-    condition:
+    for: [elf, macho]
+    if:
       type: string
       exact: "getgid"
 
   - id: getegid
-    description: Get effective group ID
-    criticality: notable
-    confidence: 0.75
+    desc: Get effective group ID
+    crit: notable
+    conf: 0.75
     attack: "T1069"
-    file_types: [elf, macho]
-    condition:
+    for: [elf, macho]
+    if:
       type: string
       exact: "getegid"
 
   - id: geteuid
-    description: Get effective user ID
-    criticality: notable
-    confidence: 0.7
+    desc: Get effective user ID
+    crit: notable
+    conf: 0.7
     attack: "T1033"
-    file_types: [elf, macho]
-    condition:
+    for: [elf, macho]
+    if:
       type: string
       exact: "geteuid"
 
   - id: etc-group
-    description: Group file access
-    criticality: suspicious
-    confidence: 0.8
+    desc: Group file access
+    crit: suspicious
+    conf: 0.8
     attack: "T1069"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "/etc/group"
 
   - id: etc-sudoers
-    description: Sudoers file access
-    criticality: suspicious
-    confidence: 0.85
+    desc: Sudoers file access
+    crit: suspicious
+    conf: 0.85
     attack: "T1069"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "/etc/sudoers"
 
   # === Linux capability atomic indicators ===
   - id: cap-get-file
-    description: cap_get_file function
-    criticality: inert
-    confidence: 0.6
+    desc: cap_get_file function
+    crit: inert
+    conf: 0.6
     attack: "T1069"
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: string
       exact: "cap_get_file"
 
   - id: cap-set-file
-    description: cap_set_file function
-    criticality: inert
-    confidence: 0.6
+    desc: cap_set_file function
+    crit: inert
+    conf: 0.6
     attack: "T1069"
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: string
       exact: "cap_set_file"
 
   - id: sudo-l
-    description: Sudo permission listing
-    criticality: suspicious
-    confidence: 0.85
+    desc: Sudo permission listing
+    crit: suspicious
+    conf: 0.85
     attack: "T1069"
-    file_types: [shell]
-    condition:
+    for: [shell]
+    if:
       type: string
       regex: "sudo\\s+-l"
 
   - id: cap-get-proc
-    description: Get process capabilities
-    criticality: notable
-    confidence: 0.75
+    desc: Get process capabilities
+    crit: notable
+    conf: 0.75
     attack: "T1069"
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: string
       exact: "cap_get_proc"
 
   - id: cap-set-proc
-    description: Set process capabilities
-    criticality: notable
-    confidence: 0.75
+    desc: Set process capabilities
+    crit: notable
+    conf: 0.75
     attack: "T1069"
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: string
       exact: "cap_set_proc"
 
 composite_rules:
   # Linux capability get/set composite
   - id: cap-get
-    description: Linux capability get/set
-    criticality: notable
-    confidence: 0.7
+    desc: Linux capability get/set
+    crit: notable
+    conf: 0.7
     attack: "T1069"
-    file_types: [elf]
+    for: [elf]
     requires_count: 1
-    conditions:
+    any:
       - id: cap-get-proc
       - id: cap-set-proc
       - id: cap-get-file
@@ -142,34 +142,34 @@ composite_rules:
 
   # Linux capabilities via capsh + /proc/self/status
   - id: linux-caps-via-capsh
-    description: Linux capabilities via capsh
-    criticality: suspicious
-    confidence: 0.85
+    desc: Linux capabilities via capsh
+    crit: suspicious
+    conf: 0.85
     attack: "T1069"
-    file_types: [elf, shell]
-    requires_all:
+    for: [elf, shell]
+    all:
       - id: capsh
       - id: process-self-status
 
   # Linux capabilities via cap_get/set_proc
   - id: linux-caps-via-api
-    description: Linux capabilities via API
-    criticality: suspicious
-    confidence: 0.85
+    desc: Linux capabilities via API
+    crit: suspicious
+    conf: 0.85
     attack: "T1069"
-    file_types: [elf]
-    requires_all:
+    for: [elf]
+    all:
       - id: cap-get-proc
       - id: cap-set-proc
 
   - id: linux-caps-enum
-    description: Linux capabilities enumeration
-    criticality: suspicious
-    confidence: 0.9
+    desc: Linux capabilities enumeration
+    crit: suspicious
+    conf: 0.9
     attack: "T1069"
     mbc: "B0046"
-    file_types: [elf, shell]
+    for: [elf, shell]
     requires_count: 1
-    conditions:
+    any:
       - id: linux-caps-via-capsh
       - id: linux-caps-via-api

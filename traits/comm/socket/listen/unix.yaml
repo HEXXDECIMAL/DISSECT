@@ -4,12 +4,12 @@
 
 traits:
   - id: listen
-    description: Listen on a socket
-    criticality: notable
-    confidence: 0.66
+    desc: Listen on a socket
+    crit: notable
+    conf: 0.66
     mbc: "C0001"
     attack: "T1071"
-    condition:
+    if:
       type: yara
       source: |
         rule socket_listen {

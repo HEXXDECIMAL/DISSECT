@@ -6,11 +6,11 @@ traits:
   # SYN Flood attack
   - id: syn-flood-logic
     description: SYN flood attack implementation
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     attack: "T1498"
-    file_types: [elf, macho, pe, so, dylib]
-    condition:
+    for: [elf, macho, pe, so, dylib]
+    if:
       type: yara
       source: |
         rule syn_flood_logic {
@@ -24,20 +24,20 @@ traits:
 
   - id: syn-flood
     description: SYN flood identifier string
-    criticality: notable
-    confidence: 0.7
-    condition:
+    crit: notable
+    conf: 0.7
+    if:
       type: string
       regex: "(?i)syn[ _]?flood"
 
   # UDP Flood attack
   - id: udp-flood-logic
     description: UDP flood attack implementation
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     attack: "T1498"
-    file_types: [elf, macho, pe, so, dylib]
-    condition:
+    for: [elf, macho, pe, so, dylib]
+    if:
       type: yara
       source: |
         rule udp_flood_logic {
@@ -52,11 +52,11 @@ traits:
   # DNS Amplification attack
   - id: dns-amp-logic
     description: DNS amplification attack implementation
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     attack: "T1498"
-    file_types: [elf, macho, pe, so, dylib]
-    condition:
+    for: [elf, macho, pe, so, dylib]
+    if:
       type: yara
       source: |
         rule dns_amp_logic {
@@ -70,18 +70,18 @@ traits:
 
   - id: dns-amp
     description: DNS amplification identifier string
-    criticality: notable
-    confidence: 0.7
-    condition:
+    crit: notable
+    conf: 0.7
+    if:
       type: string
       regex: "(?i)dns[ _]?amp"
 
   # HTTP Flood (Layer 7)
   - id: http-flood-identifier
     description: Layer 7 DDoS identifier string
-    criticality: notable
-    confidence: 0.7
-    condition:
+    crit: notable
+    conf: 0.7
+    if:
       type: yara
       source: |
         rule l7_ddos_id {
@@ -97,8 +97,8 @@ composite_rules:
   # Multi-vector DDoS tool
   - id: multi-vector
     description: Multi-vector DDoS tool (multiple attack types)
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     requires_any:
       - id: impact/ddos/syn-flood-logic
       - id: impact/ddos/udp-flood-logic

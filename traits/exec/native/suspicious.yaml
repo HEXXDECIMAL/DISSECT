@@ -5,11 +5,11 @@
 traits:
   # Native .node module in npm package
   - id: node-addon
-    description: Package contains native Node.js addon (.node binary)
-    criticality: notable
-    confidence: 0.7
-    file_types: [javascript, typescript, packagejson]
-    condition:
+    desc: Package contains native Node.js addon (.node binary)
+    crit: notable
+    conf: 0.7
+    for: [javascript, typescript, packagejson]
+    if:
       type: yara
       source: |
         rule node_addon {
@@ -24,12 +24,12 @@ traits:
 
   # Native module with network capability
   - id: network-capable
-    description: Native module with network/socket capabilities
-    criticality: suspicious
-    confidence: 0.85
+    desc: Native module with network/socket capabilities
+    crit: suspicious
+    conf: 0.85
     attack: "T1071"
-    file_types: [elf, macho, pe, dll]
-    condition:
+    for: [elf, macho, pe, dll]
+    if:
       type: yara
       source: |
         rule native_network {
@@ -48,13 +48,13 @@ traits:
 
   # Process inspection/injection patterns
   - id: process-inspection
-    description: Native binary with process inspection or injection capabilities
-    criticality: notable
-    confidence: 0.8
+    desc: Native binary with process inspection or injection capabilities
+    crit: notable
+    conf: 0.8
     mbc: "C0043"
     attack: "T1055"
-    file_types: [pe, dll, elf, macho]
-    condition:
+    for: [pe, dll, elf, macho]
+    if:
       type: yara
       source: |
         rule process_inspection {
@@ -78,13 +78,13 @@ traits:
 
   # Anti-debugging or process status checks
   - id: process-status-check
-    description: Native binary checking process status (potential anti-debug)
-    criticality: notable
-    confidence: 0.7
+    desc: Native binary checking process status (potential anti-debug)
+    crit: notable
+    conf: 0.7
     mbc: "B0001"
     attack: "T1622"
-    file_types: [pe, dll, elf, macho]
-    condition:
+    for: [pe, dll, elf, macho]
+    if:
       type: yara
       source: |
         rule process_status_check {
@@ -106,12 +106,12 @@ traits:
 
   # Shellcode patterns
   - id: shellcode
-    description: Native binary with shellcode patterns
-    criticality: suspicious
-    confidence: 0.9
+    desc: Native binary with shellcode patterns
+    crit: suspicious
+    conf: 0.9
     attack: "T1055.001"
-    file_types: [pe, dll, elf, macho]
-    condition:
+    for: [pe, dll, elf, macho]
+    if:
       type: yara
       source: |
         rule shellcode_patterns {
@@ -129,12 +129,12 @@ traits:
 
   # Cobalt Strike beacon patterns
   - id: cobalt-strike
-    description: Cobalt Strike beacon indicators
-    criticality: suspicious
-    confidence: 0.95
+    desc: Cobalt Strike beacon indicators
+    crit: suspicious
+    conf: 0.95
     attack: "T1071.001"
-    file_types: [pe, dll, elf, macho]
-    condition:
+    for: [pe, dll, elf, macho]
+    if:
       type: yara
       source: |
         rule cobalt_strike_beacon {
@@ -153,12 +153,12 @@ traits:
 
   # Metasploit patterns
   - id: metasploit
-    description: Metasploit payload indicators
-    criticality: suspicious
-    confidence: 0.9
+    desc: Metasploit payload indicators
+    crit: suspicious
+    conf: 0.9
     attack: "T1059"
-    file_types: [pe, dll, elf, macho]
-    condition:
+    for: [pe, dll, elf, macho]
+    if:
       type: yara
       source: |
         rule metasploit_payload {
@@ -175,12 +175,12 @@ traits:
 
   # Cryptocurrency miner in native code
   - id: cryptominer
-    description: Native cryptocurrency miner binary
-    criticality: suspicious
-    confidence: 0.95
+    desc: Native cryptocurrency miner binary
+    crit: suspicious
+    conf: 0.95
     attack: "T1496"
-    file_types: [elf, macho, pe]
-    condition:
+    for: [elf, macho, pe]
+    if:
       type: yara
       source: |
         rule native_cryptominer {

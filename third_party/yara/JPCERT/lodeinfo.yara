@@ -13,7 +13,7 @@ rule malware_lodeinfo_pdb {
         $func4 = "displayPNGInfo"
         $func5 = "get_shellcode"
         $docCMG = "BBB975150319031903190319"
-     condition:
+     if:
         (all of ($pdb*) or all of ($func*)) and uint16(0) == 0x5A4D or $docCMG
 }
 
@@ -283,7 +283,7 @@ rule malware_lodeinfo_c2_cmd_xor_bruteforce
     $xor_FF = { 8c 9a 91 9b [3-20] 8d 9a 9c 89 [3-20] 92 9a 92 90 [3-20] 94 96 93 93 }
 
 
-  condition:
+  if:
     (uint16(0) == 0x5a4d) and any of them
 }
 
@@ -553,6 +553,6 @@ rule malware_lodeinfo_network_decode_process_xor_bruteforce
     $xor_FF = { 75 b1 cb cf b1 cf cf b1 ce cf b1 cd cf b1 cc 09 b9 cf f0 }
 
 
-  condition:
+  if:
     (uint16(0) == 0x5a4d) and any of them
 }

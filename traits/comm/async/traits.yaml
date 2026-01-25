@@ -5,10 +5,10 @@
 traits:
   # libev event loop (common in Mirai variants)
   - id: libev
-    description: libev event loop library usage
-    criticality: notable
-    confidence: 0.7
-    condition:
+    desc: libev event loop library usage
+    crit: notable
+    conf: 0.7
+    if:
       type: yara
       source: |
         rule libev_usage {
@@ -30,10 +30,10 @@ traits:
 
   # libuv async I/O (Node.js, common in cryptominers)
   - id: libuv
-    description: libuv async I/O library usage
-    criticality: notable
-    confidence: 0.7
-    condition:
+    desc: libuv async I/O library usage
+    crit: notable
+    conf: 0.7
+    if:
       type: yara
       source: |
         rule libuv_usage {
@@ -54,10 +54,10 @@ traits:
 
   # c-ares async DNS (common in botnets)
   - id: c-ares
-    description: c-ares async DNS resolver library
-    criticality: notable
-    confidence: 0.7
-    condition:
+    desc: c-ares async DNS resolver library
+    crit: notable
+    conf: 0.7
+    if:
       type: yara
       source: |
         rule cares_usage {
@@ -77,10 +77,10 @@ traits:
 
   # libevent async I/O
   - id: libevent
-    description: libevent async I/O library usage
-    criticality: notable
-    confidence: 0.7
-    condition:
+    desc: libevent async I/O library usage
+    crit: notable
+    conf: 0.7
+    if:
       type: yara
       source: |
         rule libevent_usage {
@@ -99,10 +99,10 @@ traits:
 
   # Boost.Asio async I/O
   - id: boost-asio
-    description: Boost.Asio async I/O library usage
-    criticality: notable
-    confidence: 0.7
-    condition:
+    desc: Boost.Asio async I/O library usage
+    crit: notable
+    conf: 0.7
+    if:
       type: yara
       source: |
         rule boost_asio_usage {
@@ -120,10 +120,10 @@ traits:
 
   # Tokio async runtime (Rust)
   - id: tokio
-    description: Tokio async runtime (Rust) usage
-    criticality: notable
-    confidence: 0.7
-    condition:
+    desc: Tokio async runtime (Rust) usage
+    crit: notable
+    conf: 0.7
+    if:
       type: yara
       source: |
         rule tokio_usage {
@@ -141,10 +141,10 @@ traits:
 
   # High-performance networking with epoll/kqueue
   - id: epoll-kqueue
-    description: Direct epoll/kqueue usage for async I/O
-    criticality: notable
-    confidence: 0.65
-    condition:
+    desc: Direct epoll/kqueue usage for async I/O
+    crit: notable
+    conf: 0.65
+    if:
       type: yara
       source: |
         rule epoll_kqueue {
@@ -161,10 +161,10 @@ traits:
 composite_rules:
   # Botnet-style async networking
   - id: botnet-style
-    description: High-performance async networking (botnet pattern)
-    criticality: suspicious
-    confidence: 0.75
-    requires_any:
+    desc: High-performance async networking (botnet pattern)
+    crit: suspicious
+    conf: 0.75
+    any:
       - id: libev
       - id: c-ares
       - id: libevent

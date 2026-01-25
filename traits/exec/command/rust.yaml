@@ -4,25 +4,25 @@
 
 traits:
   - id: rust-spawn
-    description: Spawns a new process
-    criticality: notable
-    confidence: 0.9
+    desc: Spawns a new process
+    crit: notable
+    conf: 0.9
     mbc: "E1059"
     attack: "T1059"
-    file_types: [rust]
-    condition:
+    for: [rust]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: ".spawn()"
 
   - id: rust-async-process
-    description: Executes process using async-process
-    criticality: notable
-    confidence: 0.9
+    desc: Executes process using async-process
+    crit: notable
+    conf: 0.9
     mbc: "E1059"
     attack: "T1059"
-    file_types: [rust]
-    condition:
+    for: [rust]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: "Command::new"

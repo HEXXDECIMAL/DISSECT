@@ -5,11 +5,11 @@ traits:
   # HTTP POST with JSON body
   - id: node-post-json
     description: HTTP POST request with JSON body
-    criticality: notable
-    confidence: 0.75
+    crit: notable
+    conf: 0.75
     attack: "T1041"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule http_post_json {
@@ -25,132 +25,132 @@ traits:
   # HTTP GET with query params (data in URL)
   - id: node-get-params
     description: HTTP GET with data in query parameters
-    criticality: notable
-    confidence: 0.8
+    crit: notable
+    conf: 0.8
     attack: "T1041"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "path:\\s*[`\"'][^`\"']*\\$\\{"
 
   # axios POST
   - id: node-axios-post
     description: Sends data via axios POST request
-    criticality: notable
-    confidence: 0.8
+    crit: notable
+    conf: 0.8
     attack: "T1041"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "axios\\.post\\("
 
   # axios with data
   - id: node-axios-data
     description: axios request with data payload
-    criticality: notable
-    confidence: 0.75
-    file_types: [javascript, typescript]
-    condition:
+    crit: notable
+    conf: 0.75
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "axios\\(\\{[^}]*data:"
 
   # fetch POST
   - id: node-fetch-post
     description: Sends data via fetch POST request
-    criticality: notable
-    confidence: 0.8
+    crit: notable
+    conf: 0.8
     attack: "T1041"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "fetch\\([^)]+\\{[^}]*method:\\s*['\"]POST['\"]"
 
   # http.request
   - id: node-http-request
     description: Makes HTTP request using http module
-    criticality: notable
-    confidence: 0.7
-    file_types: [javascript, typescript]
-    condition:
+    crit: notable
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "http\\.request\\("
 
   # https.request
   - id: node-https-request
     description: Makes HTTPS request using https module
-    criticality: notable
-    confidence: 0.7
-    file_types: [javascript, typescript]
-    condition:
+    crit: notable
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "https\\.request\\("
 
   # https.get
   - id: node-https-get
     description: Makes HTTPS GET request
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript, typescript]
-    condition:
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "https\\.get\\("
 
   # Request write (sending body)
   - id: node-req-write
     description: Writes data to HTTP request body
-    criticality: notable
-    confidence: 0.8
-    file_types: [javascript, typescript]
-    condition:
+    crit: notable
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "req\\.write\\("
 
   # Silent error handling (hiding exfil failures)
   - id: node-silent-error
     description: Silent error handling (hides network failures)
-    criticality: notable
-    confidence: 0.7
-    file_types: [javascript, typescript]
-    condition:
+    crit: notable
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "\\.on\\(['\"]error['\"],\\s*\\(\\)\\s*=>\\s*\\{\\s*\\}\\)"
 
   # Timeout handling
   - id: node-request-timeout
     description: HTTP request with timeout handling
-    criticality: inert
-    confidence: 0.6
-    file_types: [javascript, typescript]
-    condition:
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "\\.setTimeout\\(\\d+,"
 
   # === HTTP method atomic indicators ===
   - id: axios-post-call
     description: axios.post() call
-    criticality: inert
-    confidence: 0.6
-    file_types: [javascript, typescript]
-    condition:
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "axios.post"
 
   - id: fetch-call
     description: fetch() call
-    criticality: inert
-    confidence: 0.5
-    file_types: [javascript, typescript]
-    condition:
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "fetch("
 
   # === HTTP library atomic indicators ===
   - id: axios-import
     description: axios library usage
-    criticality: inert
-    confidence: 0.5
-    file_types: [javascript, typescript]
-    condition:
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "axios"
 
@@ -158,11 +158,11 @@ composite_rules:
   # HTTP request methods composite
   - id: node-http-methods
     description: Node.js HTTP request methods
-    criticality: notable
-    confidence: 0.7
-    file_types: [javascript, typescript]
+    crit: notable
+    conf: 0.7
+    for: [javascript, typescript]
     requires_count: 1
-    conditions:
+    any:
       - id: axios-post-call
       - id: node-https-request
       - id: node-http-request
@@ -171,11 +171,11 @@ composite_rules:
   # HTTP libraries composite
   - id: node-http-libs
     description: Node.js HTTP request libraries
-    criticality: notable
-    confidence: 0.7
-    file_types: [javascript, typescript]
+    crit: notable
+    conf: 0.7
+    for: [javascript, typescript]
     requires_count: 1
-    conditions:
+    any:
       - id: axios-import
       - id: node-https-request
       - id: node-http-request
@@ -184,10 +184,10 @@ composite_rules:
   # Collect and exfil pattern
   - id: node-collect-exfil
     description: Collects system info and exfiltrates via HTTP
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     attack: "T1041"
-    file_types: [javascript, typescript]
+    for: [javascript, typescript]
     requires_all:
       - id: discovery/system/node
       - id: node-http-methods
@@ -195,8 +195,8 @@ composite_rules:
   # Stealthy exfil (silent errors)
   - id: node-stealthy-exfil
     description: Stealthy exfiltration with silent error handling
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     attack: "T1041"
     requires_all:
       - id: node-silent-error

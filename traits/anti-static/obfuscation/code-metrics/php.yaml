@@ -2,7 +2,7 @@
 # Detects PHP webshell and malware obfuscation patterns
 
 defaults:
-  file_types: [php]
+  for: [php]
   attack: "T1027"
   mbc: "B0032"
 
@@ -10,94 +10,94 @@ traits:
   # === PHP-Specific Obfuscation Patterns ===
 
   - id: php-encoded-strings
-    description: "High entropy strings (base64/gzinflate encoded)"
-    criticality: suspicious
-    confidence: 0.85
-    condition:
+    desc: "High entropy strings (base64/gzinflate encoded)"
+    crit: suspicious
+    conf: 0.85
+    if:
       type: metrics
       field: strings.avg_entropy
       min: 4.5
 
   - id: php-obfuscated-vars
-    description: "Obfuscated PHP variable names"
-    criticality: suspicious
-    confidence: 0.8
-    condition:
+    desc: "Obfuscated PHP variable names"
+    crit: suspicious
+    conf: 0.8
+    if:
       type: metrics
       field: identifiers.avg_entropy
       min: 3.2
 
   - id: php-single-long-line
-    description: "Single very long line (webshell pattern)"
-    criticality: suspicious
-    confidence: 0.9
-    condition:
+    desc: "Single very long line (webshell pattern)"
+    crit: suspicious
+    conf: 0.9
+    if:
       type: metrics
       field: text.max_line_length
       min: 1000
 
   - id: php-many-short-functions
-    description: "Many short functions (deobfuscation layers)"
-    criticality: notable
-    confidence: 0.75
-    condition:
+    desc: "Many short functions (deobfuscation layers)"
+    crit: notable
+    conf: 0.75
+    if:
       type: metrics
       field: functions.one_liners
       min: 8
 
   - id: php-non-ascii-identifiers
-    description: "Many non-ASCII identifiers (obfuscation)"
-    criticality: suspicious
-    confidence: 0.9
-    condition:
+    desc: "Many non-ASCII identifiers (obfuscation)"
+    crit: suspicious
+    conf: 0.9
+    if:
       type: metrics
       field: identifiers.avg_entropy
       min: 0.8
 
   - id: php-high-non-ascii-ratio
-    description: "High non-ASCII byte ratio (packed/obfuscated)"
-    criticality: suspicious
-    confidence: 0.95
-    condition:
+    desc: "High non-ASCII byte ratio (packed/obfuscated)"
+    crit: suspicious
+    conf: 0.95
+    if:
       type: metrics
       field: text.non_ascii_ratio
       min: 0.5
 
   - id: php-non-ascii-call
-    description: "Function call with non-ASCII name (obfuscation)"
-    criticality: suspicious
-    confidence: 0.98
-    condition:
+    desc: "Function call with non-ASCII name (obfuscation)"
+    crit: suspicious
+    conf: 0.98
+    if:
       type: ast_pattern
       node_type: function_call_expression
       pattern: "[^\\x00-\\x7F]"
       regex: true
 
   - id: php-non-ascii-variable
-    description: "Variable with non-ASCII name (obfuscation)"
-    criticality: suspicious
-    confidence: 0.98
-    condition:
+    desc: "Variable with non-ASCII name (obfuscation)"
+    crit: suspicious
+    conf: 0.98
+    if:
       type: ast_pattern
       node_type: variable_name
       pattern: "[^\\x00-\\x7F]"
       regex: true
 
   - id: php-non-ascii-name
-    description: "Identifier with non-ASCII characters (obfuscation)"
-    criticality: suspicious
-    confidence: 0.98
-    condition:
+    desc: "Identifier with non-ASCII characters (obfuscation)"
+    crit: suspicious
+    conf: 0.98
+    if:
       type: ast_pattern
       node_type: name
       pattern: "[^\\x00-\\x7F]"
       regex: true
 
   - id: php-non-ascii-subscript
-    description: "Subscript with non-ASCII characters (obfuscation)"
-    criticality: suspicious
-    confidence: 0.98
-    condition:
+    desc: "Subscript with non-ASCII characters (obfuscation)"
+    crit: suspicious
+    conf: 0.98
+    if:
       type: ast_pattern
       node_type: subscript_expression
       pattern: "[^\\x00-\\x7F]"
@@ -105,22 +105,22 @@ traits:
 
 composite_rules:
   - id: php-webshell-pattern
-    description: "PHP webshell obfuscation pattern"
-    criticality: hostile
-    confidence: 0.9
-    requires_count: 2
-    conditions:
+    desc: "PHP webshell obfuscation pattern"
+    crit: hostile
+    conf: 0.9
+    count: 2
+    any:
       - id: anti-static/obfuscation/code-metrics/php-encoded-strings
       - id: anti-static/obfuscation/code-metrics/php-single-long-line
       - id: anti-static/obfuscation/code-metrics/php-obfuscated-vars
       - id: anti-static/obfuscation/code-metrics/no-comments
 
   - id: php-encoded-payload
-    description: "PHP with encoded payload"
-    criticality: suspicious
-    confidence: 0.85
-    requires_all:
+    desc: "PHP with encoded payload"
+    crit: suspicious
+    conf: 0.85
+    all:
       - id: anti-static/obfuscation/code-metrics/php-encoded-strings
-    requires_any:
+    any:
       - id: anti-static/obfuscation/code-metrics/php-obfuscated-vars
       - id: anti-static/obfuscation/code-metrics/php-many-short-functions

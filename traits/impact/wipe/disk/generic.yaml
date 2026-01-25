@@ -5,11 +5,11 @@
 traits:
   - id: disk-terms
     description: Disk wiper terminology
-    criticality: suspicious
-    confidence: 0.75
+    crit: suspicious
+    conf: 0.75
     mbc: "E1561"
     attack: "T1561"
-    condition:
+    if:
       type: yara
       source: |
         rule disk_wiper_terms {

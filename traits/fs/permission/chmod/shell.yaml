@@ -5,9 +5,9 @@
 traits:
   - id: chmod-world-write
     description: Makes file world-writable (666)
-    criticality: suspicious
-    confidence: 0.66
-    condition:
+    crit: suspicious
+    conf: 0.66
+    if:
       type: yara
       source: |
         rule chmod_world_write {
@@ -20,9 +20,9 @@ traits:
 
   - id: chmod-world-exec
     description: Makes file world-writable and executable (777)
-    criticality: suspicious
-    confidence: 0.66
-    condition:
+    crit: suspicious
+    conf: 0.66
+    if:
       type: yara
       source: |
         rule chmod_world_exec {

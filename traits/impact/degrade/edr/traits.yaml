@@ -7,128 +7,128 @@ defaults:
 traits:
   - id: stopper
     description: EDR/Antivirus service stopper
-    criticality: suspicious
-    confidence: 0.95
-    file_types: [pe, shell]
-    condition:
+    crit: suspicious
+    conf: 0.95
+    for: [pe, shell]
+    if:
       type: string
       exact: "stopservice"
 
   - id: terminate-process-api
     description: Windows TerminateProcess API call
-    criticality: notable
-    confidence: 0.85
-    file_types: [pe]
-    condition:
+    crit: notable
+    conf: 0.85
+    for: [pe]
+    if:
       type: string
       exact: "TerminateProcess"
 
   # === EDR/AV process termination verbs (atomic) ===
   - id: kill-keyword
     description: kill keyword
-    criticality: inert
-    confidence: 0.4
-    file_types: [elf, pe]
-    condition:
+    crit: inert
+    conf: 0.4
+    for: [elf, pe]
+    if:
       type: string
       exact: "kill"
 
   - id: terminate-keyword
     description: terminate keyword
-    criticality: inert
-    confidence: 0.4
-    file_types: [elf, pe]
-    condition:
+    crit: inert
+    conf: 0.4
+    for: [elf, pe]
+    if:
       type: string
       exact: "terminate"
 
   # === EDR/AV product names (atomic) ===
   - id: defender-name
     description: Windows Defender reference
-    criticality: inert
-    confidence: 0.5
-    file_types: [pe, elf]
-    condition:
+    crit: inert
+    conf: 0.5
+    for: [pe, elf]
+    if:
       type: string
       exact: defender
       case_insensitive: true
 
   - id: malwarebytes-name
     description: Malwarebytes reference
-    criticality: inert
-    confidence: 0.5
-    file_types: [pe, elf]
-    condition:
+    crit: inert
+    conf: 0.5
+    for: [pe, elf]
+    if:
       type: string
       exact: malwarebytes
       case_insensitive: true
 
   - id: kaspersky-name
     description: Kaspersky reference
-    criticality: inert
-    confidence: 0.5
-    file_types: [pe, elf]
-    condition:
+    crit: inert
+    conf: 0.5
+    for: [pe, elf]
+    if:
       type: string
       exact: kaspersky
       case_insensitive: true
 
   - id: bitdefender-name
     description: Bitdefender reference
-    criticality: inert
-    confidence: 0.5
-    file_types: [pe, elf]
-    condition:
+    crit: inert
+    conf: 0.5
+    for: [pe, elf]
+    if:
       type: string
       exact: bitdefender
       case_insensitive: true
 
   - id: avast-name
     description: Avast reference
-    criticality: inert
-    confidence: 0.5
-    file_types: [pe, elf]
-    condition:
+    crit: inert
+    conf: 0.5
+    for: [pe, elf]
+    if:
       type: string
       exact: avast
       case_insensitive: true
 
   - id: norton-name
     description: Norton reference
-    criticality: inert
-    confidence: 0.5
-    file_types: [pe, elf]
-    condition:
+    crit: inert
+    conf: 0.5
+    for: [pe, elf]
+    if:
       type: string
       exact: norton
       case_insensitive: true
 
   - id: mcafee-name
     description: McAfee reference
-    criticality: inert
-    confidence: 0.5
-    file_types: [pe, elf]
-    condition:
+    crit: inert
+    conf: 0.5
+    for: [pe, elf]
+    if:
       type: string
       exact: mcafee
       case_insensitive: true
 
   - id: sophos-name
     description: Sophos reference
-    criticality: inert
-    confidence: 0.5
-    file_types: [pe, elf]
-    condition:
+    crit: inert
+    conf: 0.5
+    for: [pe, elf]
+    if:
       type: string
       exact: sophos
       case_insensitive: true
 
   - id: eset-name
     description: ESET reference
-    criticality: inert
-    confidence: 0.5
-    file_types: [pe, elf]
-    condition:
+    crit: inert
+    conf: 0.5
+    for: [pe, elf]
+    if:
       type: string
       exact: eset
       case_insensitive: true
@@ -137,11 +137,11 @@ composite_rules:
   # EDR/AV product names composite
   - id: edr-product-name
     description: EDR/Antivirus product name reference
-    criticality: notable
-    confidence: 0.8
-    file_types: [pe, elf]
+    crit: notable
+    conf: 0.8
+    for: [pe, elf]
     requires_count: 1
-    conditions:
+    any:
       - id: defender-name
       - id: malwarebytes-name
       - id: kaspersky-name
@@ -155,30 +155,30 @@ composite_rules:
   # EDR termination verbs composite
   - id: termination-verbs
     description: Process termination verbs
-    criticality: inert
-    confidence: 0.5
-    file_types: [elf, pe]
+    crit: inert
+    conf: 0.5
+    for: [elf, pe]
     requires_count: 1
-    conditions:
+    any:
       - id: kill-keyword
       - id: terminate-keyword
 
   # EDR process termination (verb + product name)
   - id: kill
     description: EDR process termination
-    criticality: suspicious
-    confidence: 0.9
-    file_types: [elf, pe]
+    crit: suspicious
+    conf: 0.9
+    for: [elf, pe]
     requires_all:
       - id: termination-verbs
       - id: edr-product-name
 
   - id: bypass-detected
     description: EDR/Antivirus bypass attempt
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     mbc: "F0004"
-    file_types: [pe, elf]
+    for: [pe, elf]
     requires_any:
       - id: stopper
       - id: terminate-process-api

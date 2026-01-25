@@ -27,6 +27,6 @@ rule malware_Ursnif_strings {
             $f2 = { 35 8F E3 B7 3F }
             $f3 = { 35 0A 60 2E 51 }
 
-          condition:
+          if:
             $a1 or ($b1 and 3 of ($c*)) or (5 of ($c*)) or ($b1 and all of ($d*)) or all of ($e*) or all of ($f*)
 }

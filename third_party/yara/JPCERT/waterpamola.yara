@@ -9,7 +9,7 @@ rule WaterPamola_eccube_injection {
         $code2 = "Bootstrap v3.3.4 (http://getbootstrap.com)" ascii
         $code3 = "https://gist.github.com/a36e28ee268bb8a3c6c2" ascii
 
-     condition:
+     if:
         all of them
 }
 
@@ -27,7 +27,7 @@ rule WaterPamola_webshell_str {
         $str5 = "Language and charset conversion settings"
         $str6 = "This is a necessary key"
 
-     condition:
+     if:
        uint32(0) == 0x68703F3C and all of them
 }
 
@@ -49,7 +49,7 @@ rule WaterPamola_stealjs_str {
         $str9 = "admin_template"
         $str10 = "ec_ver"
 
-     condition:
+     if:
        6 of ($str*)
 }
 
@@ -67,7 +67,7 @@ rule WaterPamola_webshell_eval {
         $str2 = " str_replace"
         $str3 = "$vbl"
 
-     condition:
+     if:
         uint32(0) == 0x68703F3C and 4 of them
 }
 
@@ -84,7 +84,7 @@ rule WaterPamola_cookieswebshell_php {
         $func5 = "@create_function"
         $pubkey1 = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCPYZ72hGKjj5T+NBa7Y18yuRBC"
 
-    condition:
+    if:
         uint32(0) == 0x68703F3C and (4 of ($func*) or 1 of ($pubkey*))
 }
 
@@ -96,7 +96,7 @@ rule WaterPamola_includewebshell_php {
     strings:
         $func1 = "@INCLUDE_ONCE($_FILES['only_pcd']['tmp_name']);"
 
-    condition:
+    if:
         uint32(0) == 0x68703F3C and all of them
 }
 
@@ -111,7 +111,7 @@ rule WaterPamola_javascriptstealer_encode {
         $func3 = "RegExp('\\b'+e(c)+'\\b','g'),k[c]);"
         $func4 = "while(c--)if(k[c])"
 
-     condition:
+     if:
        all of them
 }
 
@@ -126,6 +126,6 @@ rule WaterPamola_phpstealer_encode {
         $func3 = "@$errlogs=fopen(pack('H*'"
         $func4 = "@$write=fwrite($errlogs,$mode);"
 
-     condition:
+     if:
        uint32(0) == 0x68703F3C and all of them
 }

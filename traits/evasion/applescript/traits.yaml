@@ -8,193 +8,193 @@ defaults:
   attack: "T1059.002"
   platforms: [macos]
   # Include all file types that can invoke osascript
-  file_types: [shell, applescript, python, elf, macho, ruby, perl, javascript]
+  for: [shell, applescript, python, elf, macho, ruby, perl, javascript]
 
 traits:
   # Window hiding via AppleScript
   - id: hide-window
-    description: "AppleScript Terminal window hiding"
-    criticality: suspicious
-    confidence: 0.9
+    desc: "AppleScript Terminal window hiding"
+    crit: suspicious
+    conf: 0.9
     mbc: "E1564.003"
     attack: "T1564.003"
-    condition:
+    if:
       type: string
       regex: "set visible of (the )?front window to false|set visible to false"
 
   # Hide all windows of application
   - id: hide-application
-    description: "AppleScript application hiding"
-    criticality: suspicious
-    confidence: 0.85
+    desc: "AppleScript application hiding"
+    crit: suspicious
+    conf: 0.85
     attack: "T1564.003"
-    condition:
+    if:
       type: string
       regex: "tell application.*to set visible.*false|set visible of.*application"
 
   # osascript execution (inline AppleScript)
   - id: osascript-exec
-    description: "osascript command execution"
-    criticality: notable
-    confidence: 0.8
-    condition:
+    desc: "osascript command execution"
+    crit: notable
+    conf: 0.8
+    if:
       type: string
       regex: "osascript\\s+-e\\s+['\"]"
 
   # do shell script execution
   - id: do-shell-script
-    description: "AppleScript shell command execution"
-    criticality: suspicious
-    confidence: 0.85
+    desc: "AppleScript shell command execution"
+    crit: suspicious
+    conf: 0.85
     attack: "T1059.004"
-    condition:
+    if:
       type: string
       exact: "do shell script"
 
   # === Password dialog atomic indicators ===
   - id: dialog-password
-    description: display dialog with password
-    criticality: inert
-    confidence: 0.7
+    desc: display dialog with password
+    crit: inert
+    conf: 0.7
     attack: "T1056.002"
-    condition:
+    if:
       type: string
       regex: "display dialog.*password"
 
   - id: default-answer-password
-    description: default answer password prompt
-    criticality: inert
-    confidence: 0.7
+    desc: default answer password prompt
+    crit: inert
+    conf: 0.7
     attack: "T1056.002"
-    condition:
+    if:
       type: string
       regex: "default answer.*password"
 
   - id: with-hidden-answer
-    description: with hidden answer directive
-    criticality: inert
-    confidence: 0.7
+    desc: with hidden answer directive
+    crit: inert
+    conf: 0.7
     attack: "T1056.002"
-    condition:
+    if:
       type: string
       exact: "with hidden answer"
 
   # === Fake system dialog atomic indicators ===
   - id: icon-caution-button
-    description: icon caution with button
-    criticality: inert
-    confidence: 0.6
+    desc: icon caution with button
+    crit: inert
+    conf: 0.6
     attack: "T1056.002"
-    condition:
+    if:
       type: string
       regex: "with icon caution.*button"
 
   - id: icon-stop-button
-    description: icon stop with button
-    criticality: inert
-    confidence: 0.6
+    desc: icon stop with button
+    crit: inert
+    conf: 0.6
     attack: "T1056.002"
-    condition:
+    if:
       type: string
       regex: "with icon stop.*button"
 
   - id: icon-note-button
-    description: icon note with button
-    criticality: inert
-    confidence: 0.6
+    desc: icon note with button
+    crit: inert
+    conf: 0.6
     attack: "T1056.002"
-    condition:
+    if:
       type: string
       regex: "with icon note.*button"
 
   - id: dialog-enter-password
-    description: display dialog enter password
-    criticality: inert
-    confidence: 0.7
+    desc: display dialog enter password
+    crit: inert
+    conf: 0.7
     attack: "T1056.002"
-    condition:
+    if:
       type: string
       regex: "display dialog.*enter.*password"
 
   # Administrator privileges via do shell script
   - id: admin-privileges
-    description: "AppleScript privilege escalation"
-    criticality: suspicious
-    confidence: 0.9
+    desc: "AppleScript privilege escalation"
+    crit: suspicious
+    conf: 0.9
     attack: "T1548.004"
-    condition:
+    if:
       type: string
       regex: "with administrator privileges|administrator privileges"
 
   # === Keystroke logging atomic indicators ===
   - id: keystroke-cmd
-    description: keystroke command
-    criticality: inert
-    confidence: 0.6
+    desc: keystroke command
+    crit: inert
+    conf: 0.6
     attack: "T1056.001"
-    condition:
+    if:
       type: string
       exact: "keystroke"
 
   - id: key-code-cmd
-    description: key code command
-    criticality: inert
-    confidence: 0.6
+    desc: key code command
+    crit: inert
+    conf: 0.6
     attack: "T1056.001"
-    condition:
+    if:
       type: string
       exact: "key code"
 
   - id: system-events-key
-    description: System Events key manipulation
-    criticality: inert
-    confidence: 0.7
+    desc: System Events key manipulation
+    crit: inert
+    conf: 0.7
     attack: "T1056.001"
-    condition:
+    if:
       type: string
       regex: "tell application.*System Events.*key"
 
   # tell application pattern (AppleScript automation)
   - id: tell-application
-    description: "AppleScript tell application block"
-    criticality: notable
-    confidence: 0.7
-    condition:
+    desc: "AppleScript tell application block"
+    crit: notable
+    conf: 0.7
+    if:
       type: string
       regex: "tell application|osascript"
 
   # Hidden answer input (password masking)
   - id: hidden-answer
-    description: "AppleScript hidden input field"
-    criticality: suspicious
-    confidence: 0.85
+    desc: "AppleScript hidden input field"
+    crit: suspicious
+    conf: 0.85
     attack: "T1056.002"
-    condition:
+    if:
       type: string
       regex: "default answer|with hidden answer"
 
 composite_rules:
   # Password dialog composite
   - id: password-dialog
-    description: "AppleScript password input dialog"
-    criticality: suspicious
-    confidence: 0.95
+    desc: "AppleScript password input dialog"
+    crit: suspicious
+    conf: 0.95
     attack: "T1056.002"
     mbc: "E1056.002"
     requires_count: 1
-    conditions:
+    any:
       - id: dialog-password
       - id: default-answer-password
       - id: with-hidden-answer
 
   # Fake system dialog composite
   - id: fake-system-dialog
-    description: "AppleScript fake system prompt"
-    criticality: suspicious
-    confidence: 0.9
+    desc: "AppleScript fake system prompt"
+    crit: suspicious
+    conf: 0.9
     attack: "T1056.002"
     requires_count: 1
-    conditions:
+    any:
       - id: icon-caution-button
       - id: icon-stop-button
       - id: icon-note-button
@@ -202,37 +202,37 @@ composite_rules:
 
   # Keystroke logging composite
   - id: keystroke-logging
-    description: "AppleScript keystroke monitoring"
-    criticality: suspicious
-    confidence: 0.9
+    desc: "AppleScript keystroke monitoring"
+    crit: suspicious
+    conf: 0.9
     attack: "T1056.001"
     requires_count: 1
-    conditions:
+    any:
       - id: keystroke-cmd
       - id: key-code-cmd
       - id: system-events-key
 
   # Password phishing pattern
   - id: password-phishing
-    description: "AppleScript password phishing attack"
-    criticality: suspicious
-    confidence: 0.95
+    desc: "AppleScript password phishing attack"
+    crit: suspicious
+    conf: 0.95
     attack: "T1056.002"
-    file_types: [shell, applescript]
+    for: [shell, applescript]
     requires_all:
       - id: tell-application
       - id: password-dialog
-    requires_any:
+    any:
       - id: hidden-answer
       - id: fake-system-dialog
 
   # Stealthy AppleScript execution
   - id: stealthy-execution
-    description: "Hidden AppleScript execution"
-    criticality: hostile
-    confidence: 0.9
+    desc: "Hidden AppleScript execution"
+    crit: hostile
+    conf: 0.9
     attack: "T1564.003"
-    file_types: [shell, applescript]
+    for: [shell, applescript]
     requires_all:
       - id: hide-window
       - id: do-shell-script

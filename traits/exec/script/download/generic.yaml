@@ -4,184 +4,184 @@
 
 traits:
   - id: perl-execute
-    description: Perl script execution
-    criticality: notable
-    confidence: 0.75
+    desc: Perl script execution
+    crit: notable
+    conf: 0.75
     mbc: "C0059"
     attack: "T1059.006"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       regex: "perl\\s+[/\\w.-]+"
       search_raw: true
 
   - id: python-execute
-    description: Python script execution
-    criticality: notable
-    confidence: 0.7
+    desc: Python script execution
+    crit: notable
+    conf: 0.7
     mbc: "C0059"
     attack: "T1059.006"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       regex: "python[23]?\\s+[/\\w.-]+"
       search_raw: true
 
   - id: ruby-execute
-    description: Ruby script execution
-    criticality: notable
-    confidence: 0.7
+    desc: Ruby script execution
+    crit: notable
+    conf: 0.7
     mbc: "C0059"
     attack: "T1059.005"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       regex: "ruby\\s+[/\\w.-]+"
       search_raw: true
 
   - id: node-execute
-    description: Node.js script execution
-    criticality: notable
-    confidence: 0.7
+    desc: Node.js script execution
+    crit: notable
+    conf: 0.7
     mbc: "C0059"
     attack: "T1059.007"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       regex: "node\\s+[/\\w.-]+"
       search_raw: true
 
   # === Shell execute atomic indicators ===
   - id: sh-execute-cmd
-    description: sh script execution
-    criticality: inert
-    confidence: 0.6
+    desc: sh script execution
+    crit: inert
+    conf: 0.6
     mbc: "C0059"
     attack: "T1059.004"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       regex: "sh\\s+[/\\w.-]+"
       search_raw: true
 
   - id: bash-execute-cmd
-    description: bash script execution
-    criticality: inert
-    confidence: 0.6
+    desc: bash script execution
+    crit: inert
+    conf: 0.6
     mbc: "C0059"
     attack: "T1059.004"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       regex: "bash\\s+[/\\w.-]+"
       search_raw: true
 
   - id: zsh-execute-cmd
-    description: zsh script execution
-    criticality: inert
-    confidence: 0.6
+    desc: zsh script execution
+    crit: inert
+    conf: 0.6
     mbc: "C0059"
     attack: "T1059.004"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       regex: "zsh\\s+[/\\w.-]+"
       search_raw: true
 
   # === Pipe to shell atomic indicators ===
   - id: pipe-to-sh
-    description: Pipe to sh
-    criticality: notable
-    confidence: 0.85
+    desc: Pipe to sh
+    crit: notable
+    conf: 0.85
     mbc: "B0024"
     attack: "T1059.004"
-    file_types: [shell, elf, macho, pe]
-    condition:
+    for: [shell, elf, macho, pe]
+    if:
       type: string
       regex: "\\|\\s*sh\\b"
       search_raw: true
 
   - id: pipe-to-bash
-    description: Pipe to bash
-    criticality: notable
-    confidence: 0.85
+    desc: Pipe to bash
+    crit: notable
+    conf: 0.85
     mbc: "B0024"
     attack: "T1059.004"
-    file_types: [shell, elf, macho, pe]
-    condition:
+    for: [shell, elf, macho, pe]
+    if:
       type: string
       regex: "\\|\\s*bash\\b"
       search_raw: true
 
   - id: pipe-to-zsh
-    description: Pipe to zsh
-    criticality: notable
-    confidence: 0.85
+    desc: Pipe to zsh
+    crit: notable
+    conf: 0.85
     mbc: "B0024"
     attack: "T1059.004"
-    file_types: [shell, elf, macho, pe]
-    condition:
+    for: [shell, elf, macho, pe]
+    if:
       type: string
       regex: "\\|\\s*zsh\\b"
       search_raw: true
 
   - id: pipe-to-perl
-    description: Pipe to perl
-    criticality: notable
-    confidence: 0.85
+    desc: Pipe to perl
+    crit: notable
+    conf: 0.85
     mbc: "B0024"
     attack: "T1059.006"
-    file_types: [shell, elf, macho, pe]
-    condition:
+    for: [shell, elf, macho, pe]
+    if:
       type: string
       regex: "\\|\\s*perl\\b"
       search_raw: true
 
   - id: pipe-to-python
-    description: Pipe to python
-    criticality: notable
-    confidence: 0.85
+    desc: Pipe to python
+    crit: notable
+    conf: 0.85
     mbc: "B0024"
     attack: "T1059.006"
-    file_types: [shell, elf, macho, pe]
-    condition:
+    for: [shell, elf, macho, pe]
+    if:
       type: string
       regex: "\\|\\s*python"
       search_raw: true
 
   - id: pipe-to-ruby
-    description: Pipe to ruby
-    criticality: notable
-    confidence: 0.85
+    desc: Pipe to ruby
+    crit: notable
+    conf: 0.85
     mbc: "B0024"
     attack: "T1059.005"
-    file_types: [shell, elf, macho, pe]
-    condition:
+    for: [shell, elf, macho, pe]
+    if:
       type: string
       regex: "\\|\\s*ruby\\b"
       search_raw: true
 
   - id: pipe-to-node
-    description: Pipe to node
-    criticality: notable
-    confidence: 0.85
+    desc: Pipe to node
+    crit: notable
+    conf: 0.85
     mbc: "B0024"
     attack: "T1059.007"
-    file_types: [shell, elf, macho, pe]
-    condition:
+    for: [shell, elf, macho, pe]
+    if:
       type: string
       regex: "\\|\\s*node\\b"
       search_raw: true
 
   - id: download-pipe-execute
-    description: Download and pipe to interpreter
-    criticality: suspicious
-    confidence: 0.95
+    desc: Download and pipe to interpreter
+    crit: suspicious
+    conf: 0.95
     mbc: "B0024"
     attack: "T1059"
     # Exclude JS - syntax highlighters have keyword lists that trigger false positives
-    file_types: [shell, elf, macho, pe]
-    condition:
+    for: [shell, elf, macho, pe]
+    if:
       type: string
       regex: "(curl|wget).*(\\||&&).*(sh|bash|perl|python|ruby|node)"
       search_raw: true
@@ -189,28 +189,28 @@ traits:
 composite_rules:
   # Shell execute composite
   - id: sh-execute
-    description: Shell script execution
-    criticality: notable
-    confidence: 0.7
+    desc: Shell script execution
+    crit: notable
+    conf: 0.7
     mbc: "C0059"
     attack: "T1059.004"
-    file_types: [all]
+    for: [all]
     requires_count: 1
-    conditions:
+    any:
       - id: sh-execute-cmd
       - id: bash-execute-cmd
       - id: zsh-execute-cmd
 
   # Pipe to shell composite
   - id: pipe-to-shell
-    description: Pipe to shell execution (very suspicious)
-    criticality: suspicious
-    confidence: 0.95
+    desc: Pipe to shell execution (very suspicious)
+    crit: suspicious
+    conf: 0.95
     mbc: "B0024"
     attack: "T1059.004"
-    file_types: [shell, elf, macho, pe]
+    for: [shell, elf, macho, pe]
     requires_count: 1
-    conditions:
+    any:
       - id: pipe-to-sh
       - id: pipe-to-bash
       - id: pipe-to-zsh

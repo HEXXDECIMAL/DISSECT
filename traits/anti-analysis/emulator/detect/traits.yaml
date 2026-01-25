@@ -6,141 +6,141 @@ traits:
   # Single VM vendor strings are notable - network tools legitimately know about VMware
   # Multiple vendor checks indicate deliberate VM detection (see combos.yaml)
   - id: vmware-string
-    description: VMware vendor string detection
-    criticality: notable
+    desc: VMware vendor string detection
+    crit: notable
     mbc: "B0009"
     attack: "T1497.001"
-    confidence: 0.6
-    condition:
+    conf: 0.6
+    if:
       type: string
       exact: "VMware"
 
   # === VirtualBox atomic indicators ===
   - id: virtualbox-word
-    description: VirtualBox string detection
-    criticality: inert
+    desc: VirtualBox string detection
+    crit: inert
     mbc: "B0009"
     attack: "T1497.001"
-    confidence: 0.5
-    condition:
+    conf: 0.5
+    if:
       type: string
       regex: "(?i)VirtualBox"
 
   - id: vbox-string
-    description: VBOX string detection
-    criticality: inert
+    desc: VBOX string detection
+    crit: inert
     mbc: "B0009"
     attack: "T1497.001"
-    confidence: 0.5
-    condition:
+    conf: 0.5
+    if:
       type: string
       regex: "(?i)VBOX"
 
   # === QEMU atomic indicators ===
   - id: qemu-upper
-    description: QEMU uppercase string
-    criticality: inert
+    desc: QEMU uppercase string
+    crit: inert
     mbc: "B0009"
     attack: "T1497.001"
-    confidence: 0.5
-    condition:
+    conf: 0.5
+    if:
       type: string
       exact: "QEMU"
 
   - id: qemu-lower
-    description: qemu lowercase string
-    criticality: inert
+    desc: qemu lowercase string
+    crit: inert
     mbc: "B0009"
     attack: "T1497.001"
-    confidence: 0.5
-    condition:
+    conf: 0.5
+    if:
       type: string
       exact: "qemu"
 
   # === VM hardware atomic indicators ===
   - id: vmxh-string
-    description: VMXH hardware string
-    criticality: inert
+    desc: VMXH hardware string
+    crit: inert
     mbc: "B0009"
     attack: "T1497.001"
-    confidence: 0.5
-    condition:
+    conf: 0.5
+    if:
       type: string
       exact: "VMXH"
 
   - id: virtio-string
-    description: virtio hardware string
-    criticality: inert
+    desc: virtio hardware string
+    crit: inert
     mbc: "B0009"
     attack: "T1497.001"
-    confidence: 0.5
-    condition:
+    conf: 0.5
+    if:
       type: string
       regex: "(?i)virtio"
 
   - id: vmmouse-string
-    description: vmmouse hardware string
-    criticality: inert
+    desc: vmmouse hardware string
+    crit: inert
     mbc: "B0009"
     attack: "T1497.001"
-    confidence: 0.5
-    condition:
+    conf: 0.5
+    if:
       type: string
       regex: "(?i)vmmouse"
 
   # === CPU vendor atomic indicators ===
   - id: genuineintel
-    description: GenuineIntel CPU vendor string
-    criticality: inert
+    desc: GenuineIntel CPU vendor string
+    crit: inert
     mbc: "B0009"
-    confidence: 0.4
-    condition:
+    conf: 0.4
+    if:
       type: string
       exact: "GenuineIntel"
 
   - id: authenticamd
-    description: AuthenticAMD CPU vendor string
-    criticality: inert
+    desc: AuthenticAMD CPU vendor string
+    crit: inert
     mbc: "B0009"
-    confidence: 0.4
-    condition:
+    conf: 0.4
+    if:
       type: string
       exact: "AuthenticAMD"
 
 composite_rules:
   # VirtualBox string composite
   - id: virtualbox-string
-    description: VirtualBox vendor string detection
-    criticality: notable
+    desc: VirtualBox vendor string detection
+    crit: notable
     mbc: "B0009"
     attack: "T1497.001"
-    confidence: 0.6
-    requires_count: 1
-    conditions:
+    conf: 0.6
+    count: 1
+    any:
       - id: virtualbox-word
       - id: vbox-string
 
   # QEMU string composite
   - id: qemu-string
-    description: QEMU vendor string detection
-    criticality: notable
+    desc: QEMU vendor string detection
+    crit: notable
     mbc: "B0009"
     attack: "T1497.001"
-    confidence: 0.6
-    requires_count: 1
-    conditions:
+    conf: 0.6
+    count: 1
+    any:
       - id: qemu-upper
       - id: qemu-lower
 
   # VM hardware composite
   - id: vm-hardware
-    description: VM-specific hardware strings
-    criticality: notable
+    desc: VM-specific hardware strings
+    crit: notable
     mbc: "B0009"
     attack: "T1497.001"
-    confidence: 0.6
-    requires_count: 1
-    conditions:
+    conf: 0.6
+    count: 1
+    any:
       - id: vmxh-string
       - id: vbox-string
       - id: virtio-string
@@ -148,11 +148,11 @@ composite_rules:
 
   # CPU vendor composite
   - id: cpu-vendor
-    description: CPU vendor string checks (Intel/AMD vs VM)
-    criticality: notable
+    desc: CPU vendor string checks (Intel/AMD vs VM)
+    crit: notable
     mbc: "B0009"
-    confidence: 0.5
-    requires_count: 1
-    conditions:
+    conf: 0.5
+    count: 1
+    any:
       - id: genuineintel
       - id: authenticamd

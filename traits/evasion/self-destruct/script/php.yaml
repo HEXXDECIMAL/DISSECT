@@ -4,23 +4,23 @@
 
 traits:
   - id: unlink
-    description: File deletion capability
-    criticality: notable
-    confidence: 0.8
+    desc: File deletion capability
+    crit: notable
+    conf: 0.8
     mbc: "F0006"
     attack: "T1070.004"
-    file_types: [php]
-    condition:
+    for: [php]
+    if:
       type: string
       exact: unlink
 
   - id: script-self-delete
-    description: Script self-deletion pattern (SCRIPT_FILENAME + unlink)
-    criticality: suspicious
-    confidence: 0.95
+    desc: Script self-deletion pattern (SCRIPT_FILENAME + unlink)
+    crit: suspicious
+    conf: 0.95
     mbc: "F0006"
     attack: "T1070.004"
-    file_types: [php]
-    condition:
+    for: [php]
+    if:
       type: string
       regex: "unlink\\s*\\(\\s*\\$_SERVER\\s*\\[\\s*['\"]SCRIPT_FILENAME['\"]\\s*\\]"

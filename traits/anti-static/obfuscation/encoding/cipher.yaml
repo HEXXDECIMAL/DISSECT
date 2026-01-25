@@ -3,16 +3,16 @@
 # ATT&CK: T1027 (Obfuscated Files or Information)
 
 defaults:
-  file_types: [elf, pe, macho, dll, so, dylib]
+  for: [elf, pe, macho, dll, so, dylib]
   attack: "T1027"
 
 traits:
   - id: rc4-sbox-init
-    description: "RC4 S-box initialization pattern (256-byte permutation)"
-    criticality: notable
-    confidence: 0.6
+    desc: "RC4 S-box initialization pattern (256-byte permutation)"
+    crit: notable
+    conf: 0.6
     mbc: "C0027.001"
-    condition:
+    if:
       type: yara
       source: |
         rule rc4_sbox_init {
@@ -29,51 +29,51 @@ traits:
         }
 
   - id: cipher-key-schedule
-    description: "Cipher key schedule function"
-    criticality: notable
-    confidence: 0.7
+    desc: "Cipher key schedule function"
+    crit: notable
+    conf: 0.7
     mbc: "C0027"
-    condition:
+    if:
       type: symbol
       pattern: "key_schedule|ksa|init_key|setup_key|expand_key"
 
   - id: stream-cipher-decrypt
-    description: "Stream cipher decryption function"
-    criticality: notable
-    confidence: 0.6
+    desc: "Stream cipher decryption function"
+    crit: notable
+    conf: 0.6
     mbc: "C0027"
-    condition:
+    if:
       type: symbol
       pattern: "stream_decrypt|prga|rc4_crypt|arc4|cipher_stream"
 
   - id: hardcoded-hex-charset
-    description: "Hardcoded hex encoding charset (encoding/decoding)"
-    criticality: notable
-    confidence: 0.5
+    desc: "Hardcoded hex encoding charset (encoding/decoding)"
+    crit: notable
+    conf: 0.5
     mbc: "C0026"
-    condition:
+    if:
       type: string
       exact: "0123456789abcdef"
 
   - id: hardcoded-base64-charset
-    description: "Hardcoded Base64 charset"
-    criticality: notable
-    confidence: 0.4
+    desc: "Hardcoded Base64 charset"
+    crit: notable
+    conf: 0.4
     mbc: "C0026"
-    condition:
+    if:
       type: string
       regex: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789\\+/"
 
 composite_rules:
   - id: rc4-cipher
-    description: "RC4 or RC4-like stream cipher detected"
-    criticality: notable
-    confidence: 0.7
+    desc: "RC4 or RC4-like stream cipher detected"
+    crit: notable
+    conf: 0.7
     mbc: "C0027.001"
-    requires_any:
+    any:
       - id: anti-static/obfuscation/encoding/rc4-sbox-init
       - id: anti-static/obfuscation/encoding/stream-cipher-decrypt
-    requires_count: 1
-    conditions:
       - id: anti-static/obfuscation/encoding/cipher-key-schedule
       - id: anti-static/obfuscation/encoding/hardcoded-hex-charset
+
+    count: 1

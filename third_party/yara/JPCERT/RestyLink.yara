@@ -26,7 +26,7 @@ rule malware_droplink_str {
         $data18 = "DWrite.dll" ascii wide
         $pdb1 = "\\\\daddev\\office10\\2609.0\\setup\\x86\\ship\\program files\\common files\\microsoft shared\\office10\\1033\\DWINTLO.PDB" ascii
 
-     condition:
+     if:
        uint16(0) == 0x5A4D and
        uint32(uint32(0x3c)) == 0x00004550 and
        filesize<1MB and
@@ -49,7 +49,7 @@ rule malware_RestyLink_lnk {
         $command3 = "-appvscript explorer.exe https://" wide
         $command4 = "-appvscript curl.exe -s https://" wide
 
-     condition:
+     if:
        uint16(0) == 0x004c and
        filesize<100KB and
        1 of ($cmd*) and
@@ -100,7 +100,7 @@ rule restylink_Secur32_dll_downloader {
         */
         $func3 = { 61 62 63 2E 6D 62 75 73 61 62 63 2E 63 6F 6D 00}
 
-    condition:
+    if:
         (uint16(0) == 0x5A4D)
         and (filesize < 1MB)
         and ( 1 of ($func*) )

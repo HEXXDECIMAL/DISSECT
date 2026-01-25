@@ -3,13 +3,13 @@
 # ATT&CK: T1083
 
 defaults:
-  file_types: [elf, macho, so, dylib, c]
+  for: [elf, macho, so, dylib, c]
 
 traits:
   - id: flock
     description: Apply or remove advisory lock on file
-    criticality: inert
-    confidence: 0.66
-    condition:
+    crit: inert
+    conf: 0.66
+    if:
       type: symbol
       pattern: flock|lockf

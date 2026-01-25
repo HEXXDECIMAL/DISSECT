@@ -26,6 +26,6 @@ rule malware_pulsesecure_webshell {
         $webshellC4 = "HTTP_X_CMD"
         $webshellC5 = "HTTP_X_CNT"
 
-     condition:
+     if:
        all of ($webshellA*) or 4 of ($webshellB*) or all of ($webshellC*)
 }

@@ -57,7 +57,7 @@ impl CSharpAnalyzer {
 
         report.structure.push(StructuralFeature {
             id: "source/language/csharp".to_string(),
-            description: "C# source code".to_string(),
+            desc: "C# source code".to_string(),
             evidence: vec![Evidence {
                 method: "parser".to_string(),
                 source: "tree-sitter-c-sharp".to_string(),
@@ -597,9 +597,9 @@ impl CSharpAnalyzer {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: cap_id.to_string(),
-                description: desc.to_string(),
-                confidence: conf,
-                criticality,
+                desc: desc.to_string(),
+                conf: conf,
+                crit: criticality,
                 mbc: None,
                 attack: None,
                 evidence: vec![Evidence {
@@ -676,9 +676,9 @@ impl CSharpAnalyzer {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: cap_id.to_string(),
-                description: desc.to_string(),
-                confidence: conf,
-                criticality,
+                desc: desc.to_string(),
+                conf: conf,
+                crit: criticality,
                 mbc: None,
                 attack: None,
                 evidence: vec![Evidence {
@@ -750,9 +750,9 @@ impl CSharpAnalyzer {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: cap_id.to_string(),
-                description: desc.to_string(),
-                confidence: conf,
-                criticality,
+                desc: desc.to_string(),
+                conf: conf,
+                crit: criticality,
                 mbc: None,
                 attack: None,
                 evidence: vec![Evidence {
@@ -783,9 +783,9 @@ impl CSharpAnalyzer {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: "exec/pinvoke".to_string(),
-                description: "P/Invoke native function import".to_string(),
-                confidence: 0.9,
-                criticality: Criticality::Suspicious,
+                desc: "P/Invoke native function import".to_string(),
+                conf: 0.9,
+                crit: Criticality::Suspicious,
                 mbc: None,
                 attack: None,
                 evidence: vec![Evidence {

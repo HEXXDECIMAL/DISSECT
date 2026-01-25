@@ -4,262 +4,262 @@
 
 defaults:
   attack: "T1041"
-  criticality: suspicious
+  crit: suspicious
   # curl/wget commands can be embedded in any file type
-  file_types: ["*"]
+  for: ["*"]
 
 traits:
   # === curl POST atomic ===
   - id: curl-post-x
     description: curl -X POST
-    criticality: inert
-    confidence: 0.5
+    crit: inert
+    conf: 0.5
     mbc: "C0001"
-    condition:
+    if:
       type: string
       regex: 'curl\s+-X\s+POST\s+-H'
 
   - id: curl-user-header
     description: curl with user header
-    criticality: inert
-    confidence: 0.6
-    condition:
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: 'curl.*-H.*user:'
 
   - id: curl-buildid-header
     description: curl with BuildID header
-    criticality: inert
-    confidence: 0.6
-    condition:
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: 'curl.*-H.*BuildID'
 
   # === curl upload atomic ===
   - id: curl-form-upload
     description: curl -F form upload
-    criticality: inert
-    confidence: 0.5
-    condition:
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: 'curl\s+.*-F\s+'
 
   - id: curl-data-binary
     description: curl --data-binary
-    criticality: inert
-    confidence: 0.5
-    condition:
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "--data-binary"
 
   - id: curl-at-tmp
     description: curl @/tmp/ file upload
-    criticality: inert
-    confidence: 0.6
-    condition:
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: 'curl.*@/tmp/'
 
   # === Bot header atomic ===
   - id: header-user
     description: HTTP header user/userid
-    criticality: inert
-    confidence: 0.5
-    condition:
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: "-H\\s+[\"']?(user|userid):"
 
   - id: header-client
     description: HTTP header client
-    criticality: inert
-    confidence: 0.5
-    condition:
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: "-H\\s+[\"']?client:"
 
   - id: header-bot
     description: HTTP header bot
-    criticality: inert
-    confidence: 0.6
-    condition:
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: "-H\\s+[\"']?bot:"
 
   - id: header-build
     description: HTTP header build
-    criticality: inert
-    confidence: 0.5
-    condition:
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: "-H\\s+[\"']?build:"
 
   - id: header-hwid
     description: HTTP header hwid
-    criticality: inert
-    confidence: 0.6
-    condition:
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: "-H\\s+[\"']?hwid:"
 
   - id: header-machine
     description: HTTP header machine
-    criticality: inert
-    confidence: 0.5
-    condition:
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: "-H\\s+[\"']?machine:"
 
   - id: x-header-user
     description: X-User header
-    criticality: inert
-    confidence: 0.5
-    condition:
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "X-User"
 
   - id: x-header-client
     description: X-Client header
-    criticality: inert
-    confidence: 0.5
-    condition:
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "X-Client"
 
   - id: x-header-bot
     description: X-Bot header
-    criticality: inert
-    confidence: 0.6
-    condition:
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "X-Bot"
 
   - id: x-header-build
     description: X-Build header
-    criticality: inert
-    confidence: 0.5
-    condition:
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "X-Build"
 
   - id: x-header-hwid
     description: X-HWID header
-    criticality: inert
-    confidence: 0.6
-    condition:
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "X-HWID"
 
   # === Gate URL atomic ===
   - id: gate-var-http
     description: gate = http variable
-    criticality: inert
-    confidence: 0.6
-    file_types: [shell, python, javascript]
-    condition:
+    crit: inert
+    conf: 0.6
+    for: [shell, python, javascript]
+    if:
       type: string
       regex: "\\bgate\\s*=\\s*[\"']http"
 
   - id: c2-var-http
     description: c2 = http variable
-    criticality: inert
-    confidence: 0.6
-    file_types: [shell, python, javascript]
-    condition:
+    crit: inert
+    conf: 0.6
+    for: [shell, python, javascript]
+    if:
       type: string
       regex: "\\bc2\\s*=\\s*[\"']http"
 
   - id: panel-var-http
     description: panel = http variable
-    criticality: inert
-    confidence: 0.6
-    file_types: [shell, python, javascript]
-    condition:
+    crit: inert
+    conf: 0.6
+    for: [shell, python, javascript]
+    if:
       type: string
       regex: "\\bpanel\\s*=\\s*[\"']http"
 
   # === ZIP upload atomic ===
   - id: curl-zip
     description: curl with .zip
-    criticality: inert
-    confidence: 0.6
-    condition:
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: 'curl.*\.zip'
 
   - id: post-zip
     description: POST with .zip
-    criticality: inert
-    confidence: 0.6
-    condition:
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: 'POST.*\.zip'
 
   - id: upload-zip
     description: upload .zip
-    criticality: inert
-    confidence: 0.6
-    condition:
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: 'upload.*\.zip'
 
   - id: send-zip
     description: send .zip
-    criticality: inert
-    confidence: 0.6
-    condition:
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: 'send.*\.zip'
 
   # === Multipart upload atomic ===
   - id: multipart-form-data
     description: multipart/form-data content type
-    criticality: inert
-    confidence: 0.5
-    file_types: [shell, python, javascript]
-    condition:
+    crit: inert
+    conf: 0.5
+    for: [shell, python, javascript]
+    if:
       type: string
       exact: "multipart/form-data"
 
   - id: boundary-param
     description: boundary= parameter
-    criticality: inert
-    confidence: 0.5
-    file_types: [shell, python, javascript]
-    condition:
+    crit: inert
+    conf: 0.5
+    for: [shell, python, javascript]
+    if:
       type: string
       regex: 'boundary='
 
   - id: content-disposition-filename
     description: Content-Disposition filename
-    criticality: inert
-    confidence: 0.5
-    file_types: [shell, python, javascript]
-    condition:
+    crit: inert
+    conf: 0.5
+    for: [shell, python, javascript]
+    if:
       type: string
       regex: 'Content-Disposition.*filename'
 
   # === HTTP client atomic ===
   - id: curl-cmd
     description: curl command
-    criticality: inert
-    confidence: 0.3
-    condition:
+    crit: inert
+    conf: 0.3
+    if:
       type: string
       exact: "curl"
 
   - id: wget-cmd
     description: wget command
-    criticality: inert
-    confidence: 0.3
-    condition:
+    crit: inert
+    conf: 0.3
+    if:
       type: string
       exact: "wget"
 
   - id: post-method
     description: POST HTTP method
-    criticality: inert
-    confidence: 0.3
-    condition:
+    crit: inert
+    conf: 0.3
+    if:
       type: string
       exact: "POST"
 
@@ -267,12 +267,12 @@ composite_rules:
   # curl POST with custom headers
   - id: curl-post-headers
     description: curl POST with custom identification headers
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     mbc: "C0001"
-    file_types: [shell]
+    for: [shell]
     requires_count: 1
-    conditions:
+    any:
       - id: curl-post-x
       - id: curl-user-header
       - id: curl-buildid-header
@@ -280,11 +280,11 @@ composite_rules:
   # curl file upload
   - id: curl-upload
     description: curl file upload
-    criticality: suspicious
-    confidence: 0.8
-    file_types: [shell]
+    crit: suspicious
+    conf: 0.8
+    for: [shell]
     requires_count: 1
-    conditions:
+    any:
       - id: curl-form-upload
       - id: curl-data-binary
       - id: curl-at-tmp
@@ -292,11 +292,11 @@ composite_rules:
   # Bot identification headers
   - id: bot-headers
     description: Bot identification HTTP headers
-    criticality: suspicious
-    confidence: 0.9
-    file_types: [shell]
+    crit: suspicious
+    conf: 0.9
+    for: [shell]
     requires_count: 1
-    conditions:
+    any:
       - id: header-user
       - id: header-client
       - id: header-bot
@@ -312,11 +312,11 @@ composite_rules:
   # Gate URL
   - id: gate-url
     description: Hardcoded gate/C2 URL variable
-    criticality: suspicious
-    confidence: 0.85
-    file_types: [shell, python, javascript]
+    crit: suspicious
+    conf: 0.85
+    for: [shell, python, javascript]
     requires_count: 1
-    conditions:
+    any:
       - id: gate-var-http
       - id: c2-var-http
       - id: panel-var-http
@@ -324,11 +324,11 @@ composite_rules:
   # ZIP upload
   - id: zip-upload
     description: ZIP archive upload for exfiltration
-    criticality: suspicious
-    confidence: 0.9
-    file_types: [shell]
+    crit: suspicious
+    conf: 0.9
+    for: [shell]
     requires_count: 1
-    conditions:
+    any:
       - id: curl-zip
       - id: post-zip
       - id: upload-zip
@@ -337,11 +337,11 @@ composite_rules:
   # Multipart upload
   - id: multipart-upload
     description: Multipart form data upload
-    criticality: suspicious
-    confidence: 0.75
-    file_types: [shell, python, javascript]
+    crit: suspicious
+    conf: 0.75
+    for: [shell, python, javascript]
     requires_count: 1
-    conditions:
+    any:
       - id: multipart-form-data
       - id: boundary-param
       - id: content-disposition-filename
@@ -349,11 +349,11 @@ composite_rules:
   # HTTP client/POST
   - id: http-client-post
     description: HTTP client tool or POST method
-    criticality: notable
-    confidence: 0.8
-    file_types: [shell]
+    crit: notable
+    conf: 0.8
+    for: [shell]
     requires_count: 1
-    conditions:
+    any:
       - id: curl-cmd
       - id: wget-cmd
       - id: post-method
@@ -361,10 +361,10 @@ composite_rules:
   # Full exfiltration pattern: archive + upload
   - id: stealer-exfil
     description: Stealer data exfiltration pattern
-    criticality: hostile
-    confidence: 0.95
+    crit: hostile
+    conf: 0.95
     mbc: "C0001"
-    file_types: [shell]
+    for: [shell]
     requires_all:
       - id: http-client-post
     requires_any:

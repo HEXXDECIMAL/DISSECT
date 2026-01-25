@@ -8,44 +8,44 @@ defaults:
 
 traits:
   - id: socks4-proto
-    description: SOCKS4 protocol reference
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: SOCKS4 protocol reference
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: SOCKS4
 
   - id: socks5-proto
-    description: SOCKS5 protocol reference
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: SOCKS5 protocol reference
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: SOCKS5
 
   - id: socks-url
-    description: SOCKS URL scheme
-    criticality: notable
-    confidence: 0.7
-    condition:
+    desc: SOCKS URL scheme
+    crit: notable
+    conf: 0.7
+    if:
       type: string
       exact: "socks://"
 
   - id: socks-port
-    description: SOCKS default port 1080
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: SOCKS default port 1080
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       exact: "1080"
 
 composite_rules:
   - id: socks
-    description: SOCKS proxy usage
-    criticality: notable
-    confidence: 0.66
-    requires_count: 1
-    conditions:
+    desc: SOCKS proxy usage
+    crit: notable
+    conf: 0.66
+    count: 1
+    any:
       - id: socks4-proto
       - id: socks5-proto
       - id: socks-url

@@ -64,7 +64,7 @@ impl JavaClassAnalyzer {
         // Add structural feature for Java class
         report.structure.push(StructuralFeature {
             id: "bytecode/java/class".to_string(),
-            description: format!(
+            desc: format!(
                 "Java class file (Java {}, version {}.{})",
                 java_version, major_version, minor_version
             ),
@@ -80,7 +80,7 @@ impl JavaClassAnalyzer {
         if matches!(entropy_level, EntropyLevel::Elevated | EntropyLevel::High) {
             report.structure.push(StructuralFeature {
                 id: format!("entropy/{}", entropy_level.as_str()),
-                description: entropy_level.description().to_string(),
+                desc: entropy_level.description().to_string(),
                 evidence: vec![Evidence {
                     method: "entropy".to_string(),
                     source: "file".to_string(),
@@ -104,7 +104,7 @@ impl JavaClassAnalyzer {
             if let Some(class_name) = &class_info.this_class {
                 report.structure.push(StructuralFeature {
                     id: "bytecode/java/class-name".to_string(),
-                    description: format!("Class: {}", class_name),
+                    desc: format!("Class: {}", class_name),
                     evidence: vec![Evidence {
                         method: "constant_pool".to_string(),
                         source: "class_info".to_string(),
@@ -119,7 +119,7 @@ impl JavaClassAnalyzer {
                 if super_class != "java/lang/Object" {
                     report.structure.push(StructuralFeature {
                         id: "bytecode/java/superclass".to_string(),
-                        description: format!("Extends: {}", super_class),
+                        desc: format!("Extends: {}", super_class),
                         evidence: vec![Evidence {
                             method: "constant_pool".to_string(),
                             source: "class_info".to_string(),
@@ -134,7 +134,7 @@ impl JavaClassAnalyzer {
             for iface in &class_info.interfaces {
                 report.structure.push(StructuralFeature {
                     id: "bytecode/java/interface".to_string(),
-                    description: format!("Implements: {}", iface),
+                    desc: format!("Implements: {}", iface),
                     evidence: vec![Evidence {
                         method: "constant_pool".to_string(),
                         source: "class_info".to_string(),
@@ -181,7 +181,7 @@ impl JavaClassAnalyzer {
                 if let Some(ref value) = field.constant_value {
                     report.structure.push(StructuralFeature {
                         id: "bytecode/java/field-value".to_string(),
-                        description: format!("Field {} = {}", field.name, value),
+                        desc: format!("Field {} = {}", field.name, value),
                         evidence: vec![Evidence {
                             method: "constant_pool".to_string(),
                             source: "field_info".to_string(),
@@ -988,9 +988,9 @@ impl JavaClassAnalyzer {
                             kind: FindingKind::Capability,
                             trait_refs: vec![],
                             id: cap_id.to_string(),
-                            description: description.to_string(),
-                            confidence: 0.9,
-                            criticality: if cap_id.contains("exec") || cap_id.contains("unsafe") {
+                            desc: description.to_string(),
+                            conf: 0.9,
+                            crit: if cap_id.contains("exec") || cap_id.contains("unsafe") {
                                 Criticality::Hostile
                             } else if cap_id.contains("net") || cap_id.contains("reflect") {
                                 Criticality::Suspicious
@@ -1252,18 +1252,18 @@ impl JavaClassAnalyzer {
         &self,
         report: &mut AnalysisReport,
         id: &str,
-        description: &str,
+        desc: &str,
         evidence_value: &str,
-        criticality: Criticality,
+        crit: Criticality,
     ) {
         if !report.findings.iter().any(|c| c.id == id) {
             report.findings.push(Finding {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: id.to_string(),
-                description: description.to_string(),
-                confidence: 0.85,
-                criticality,
+                desc: desc.to_string(),
+                conf: 0.85,
+                crit,
                 mbc: None,
                 attack: None,
                 evidence: vec![Evidence {

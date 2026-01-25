@@ -3,24 +3,24 @@
 
 traits:
   - id: js-keyboard-listener
-    description: Global keyboard listener implementation
-    criticality: suspicious
-    confidence: 0.9
+    desc: Global keyboard listener implementation
+    crit: suspicious
+    conf: 0.9
     mbc: "B0015"
     attack: "T1056.001"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       regex: "GlobalKeyboardListener"
 
 composite_rules:
   - id: js-keylogger-exfil
-    description: JavaScript keylogger with exfiltration
-    criticality: suspicious
-    confidence: 0.95
+    desc: JavaScript keylogger with exfiltration
+    crit: suspicious
+    conf: 0.95
     attack: "T1056.001"
     mbc: "B0015"
-    file_types: [javascript]
-    requires_all:
+    for: [javascript]
+    all:
       - id: js-keyboard-listener
       - id: comm/http/request/js-axios-post

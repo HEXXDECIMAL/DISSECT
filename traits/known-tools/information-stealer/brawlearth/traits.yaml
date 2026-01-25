@@ -8,8 +8,8 @@ traits:
 
   - id: stealer/brawlearth/brand-name
     description: BrawlEarth stealer brand string
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1555"
     platforms: [macos]
@@ -20,8 +20,8 @@ traits:
 
   - id: stealer/brawlearth/version-string
     description: BrawlEarth version identifier
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1555"
     platforms: [macos]
@@ -35,8 +35,8 @@ traits:
   # === Browser module source path atomic indicators ===
   - id: src-path-chromium
     description: BrawlEarth chromium module source path
-    criticality: notable
-    confidence: 0.8
+    crit: notable
+    conf: 0.8
     attack: "T1555"
     platforms: [macos]
     file_types: [macho]
@@ -46,8 +46,8 @@ traits:
 
   - id: src-path-firefox
     description: BrawlEarth firefox module source path
-    criticality: notable
-    confidence: 0.8
+    crit: notable
+    conf: 0.8
     attack: "T1555"
     platforms: [macos]
     file_types: [macho]
@@ -57,8 +57,8 @@ traits:
 
   - id: stealer/brawlearth/src-path-decryptors
     description: BrawlEarth decryptor module source path
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1555"
     platforms: [macos]
@@ -71,8 +71,8 @@ traits:
 
   - id: stealer/brawlearth/c2-connect-msg
     description: BrawlEarth C2 connection error message
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1071"
     platforms: [macos]
@@ -85,8 +85,8 @@ traits:
 
   - id: stealer/brawlearth/detected-yara
     description: BrawlEarth stealer via YARA
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1555"
     platforms: [macos]
@@ -135,22 +135,22 @@ composite_rules:
   # Browser source path composite
   - id: stealer/brawlearth/src-path-browsers
     description: BrawlEarth browser module source path
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     family: true
     attack: "T1555"
     platforms: [macos]
     file_types: [macho]
     requires_count: 1
-    conditions:
+    any:
       - id: src-path-chromium
       - id: src-path-firefox
 
   # Main BrawlEarth detection
   - id: stealer/brawlearth/detected
     description: BrawlEarth macOS infostealer
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     reference: "Rust-based macOS stealer targeting browser credentials and crypto wallets"
     attack: "T1555"

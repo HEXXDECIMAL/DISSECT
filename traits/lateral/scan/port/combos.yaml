@@ -6,7 +6,7 @@ composite_rules:
 
   - id: generic-scanner
     description: Generic network scanning tool
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     attack: "T1046"
     mbc: "E1046"
@@ -15,7 +15,7 @@ composite_rules:
       - id: sym-hostname-resolve
       - id: sym-socket-connect
     requires_count: 2
-    conditions:
+    any:
       - id: ip-format
       - id: port-ref
       - id: probe-ref
@@ -23,7 +23,7 @@ composite_rules:
 
   - id: root-scanner
     description: Root exploitation scanner
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     attack: "T1046"
     mbc: "E1046"
@@ -39,7 +39,7 @@ composite_rules:
 
   - id: router-brute-force
     description: Router credential brute force attack
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     attack: "T1110.001"
     file_types: [all]
@@ -47,7 +47,7 @@ composite_rules:
       - id: ssh-dir-ref
       - id: etc-hosts-ref
     requires_count: 2
-    conditions:
+    any:
       - id: weak-pass-root123
       - id: weak-pass-admin123
       - id: weak-pass-passw0rd
@@ -57,7 +57,7 @@ composite_rules:
 
   - id: random-ip-scanner
     description: Random IP address scanning
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.8
     attack: "T1046"
     file_types: [all]

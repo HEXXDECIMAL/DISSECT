@@ -10,7 +10,7 @@ rule malware_MedusaLocker3_str {
         $s3 = "sMasterPublicKey" ascii
         $s4 = "[+] Keys retrieved from registry" wide
 
-     condition:
+     if:
        uint16(0) == 0x5A4D and
        uint32(uint32(0x3c)) == 0x00004550 and
        3 of them

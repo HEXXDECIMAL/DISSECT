@@ -3,13 +3,13 @@
 # ATT&CK: T1222
 
 defaults:
-  file_types: [elf, macho, so, dylib, c]
+  for: [elf, macho, so, dylib, c]
 
 traits:
   - id: hardlink
     description: Create hard file links
-    criticality: notable
-    confidence: 0.66
-    condition:
+    crit: notable
+    conf: 0.66
+    if:
       type: symbol
       pattern: link|linkat

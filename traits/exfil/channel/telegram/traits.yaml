@@ -4,93 +4,93 @@
 
 traits:
   - id: api-endpoint
-    description: Telegram Bot API endpoint
-    criticality: suspicious
-    confidence: 0.9
+    desc: Telegram Bot API endpoint
+    crit: suspicious
+    conf: 0.9
     attack: "T1567.002"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "api.telegram.org"
 
   - id: api-endpoint-b64
-    description: Telegram Bot API endpoint (base64)
-    criticality: suspicious
-    confidence: 0.95
+    desc: Telegram Bot API endpoint (base64)
+    crit: suspicious
+    conf: 0.95
     attack: "T1567.002"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "YXBpLnRlbGVncmFtLm9yZw=="
 
   - id: send-message
-    description: Telegram sendMessage API
-    criticality: suspicious
-    confidence: 0.85
+    desc: Telegram sendMessage API
+    crit: suspicious
+    conf: 0.85
     attack: "T1567.002"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "/sendMessage"
 
   - id: send-document
-    description: Telegram sendDocument API
-    criticality: suspicious
-    confidence: 0.9
+    desc: Telegram sendDocument API
+    crit: suspicious
+    conf: 0.9
     attack: "T1567.002"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "/sendDocument"
 
   - id: send-location
-    description: Telegram sendLocation API
-    criticality: suspicious
-    confidence: 0.9
+    desc: Telegram sendLocation API
+    crit: suspicious
+    conf: 0.9
     attack: "T1567.002"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "/sendLocation"
 
   - id: send-photo
-    description: Telegram sendPhoto API
-    criticality: suspicious
-    confidence: 0.9
+    desc: Telegram sendPhoto API
+    crit: suspicious
+    conf: 0.9
     attack: "T1567.002"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "/sendPhoto"
 
   - id: bot-token
-    description: Telegram bot token pattern
-    criticality: suspicious
-    confidence: 0.95
+    desc: Telegram bot token pattern
+    crit: suspicious
+    conf: 0.95
     attack: "T1567.002"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       regex: "\\d{8,10}:[A-Za-z0-9_-]{35}"
 
   - id: form-data-header
-    description: HTTP multipart form-data header
-    criticality: notable
-    confidence: 0.7
+    desc: HTTP multipart form-data header
+    crit: notable
+    conf: 0.7
     attack: "T1567.002"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "Content-Disposition: form-data"
 
 composite_rules:
   - id: bot-exfil
-    description: Telegram bot exfiltration
-    criticality: suspicious
-    confidence: 0.9
+    desc: Telegram bot exfiltration
+    crit: suspicious
+    conf: 0.9
     attack: "T1567.002"
     mbc: "B0030"
-    file_types: [all]
+    for: [all]
     requires_any:
       - id: api-endpoint
       - id: api-endpoint-b64

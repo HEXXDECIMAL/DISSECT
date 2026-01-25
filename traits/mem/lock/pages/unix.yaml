@@ -3,7 +3,7 @@
 traits:
   - id: mlock
     description: Lock memory pages (mlock)
-    criticality: inert
+    crit: inert
     confidence: 1.0
     platforms: [linux, macos, unix]
     file_types: [elf, macho, so, dylib, c]
@@ -13,7 +13,7 @@ traits:
 
   - id: mlockall
     description: Lock all memory pages (mlockall)
-    criticality: notable
+    crit: notable
     confidence: 0.7
     platforms: [linux, macos, unix]
     file_types: [elf, macho, so, dylib, c]

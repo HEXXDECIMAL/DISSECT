@@ -21,6 +21,6 @@ rule Microsoft_Outlook_Phish
         /* [pP]rovide [pP]assword */
         $phish_marker_03 = /([Uc]HJvdmlkZSB[Qw]YXNzd29yZ[A-P]|[\x2b\x2f-9A-Za-z][13FHVXln]Byb3ZpZGUg[Uc]GFzc3dvcm[Q-T]|[\x2b\x2f-9A-Za-z]{2}[159BFJNRVZdhlptx][Qw]cm92aWRlI[FH]Bhc3N3b3Jk)/
 
-    condition:
-        $ole_marker at 0 and any of ($phish_marker_*) 
+    if:
+        $ole_marker at 0 and any of ($phish_marker_*)
 }

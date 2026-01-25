@@ -2,11 +2,11 @@
 
 composite_rules:
   - id: shell-execution
-    description: Shell command execution capability detected
-    criticality: notable
+    desc: Shell command execution capability detected
+    crit: notable
     mbc: "E1059"
     attack: "T1059"
-    confidence: 0.9
+    conf: 0.9
     requires_any:
       - id: c-system
       - id: c-popen

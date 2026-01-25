@@ -3,49 +3,49 @@
 
 traits:
   - id: js-node-screenshots
-    description: usage of node-screenshots library
-    criticality: suspicious
-    confidence: 0.95
+    desc: usage of node-screenshots library
+    crit: suspicious
+    conf: 0.95
     mbc: "B0002"
     attack: "T1113"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: "require('node-screenshots')"
 
   - id: js-desktop-screenshot
-    description: usage of desktop-screenshot library
-    criticality: suspicious
-    confidence: 0.95
+    desc: usage of desktop-screenshot library
+    crit: suspicious
+    conf: 0.95
     mbc: "B0002"
     attack: "T1113"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: "require('desktop-screenshot')"
 
   - id: js-sharp-image-processing
-    description: usage of sharp for image processing (often used with screenshots)
-    criticality: notable
-    confidence: 0.8
-    file_types: [javascript]
-    condition:
+    desc: usage of sharp for image processing (often used with screenshots)
+    crit: notable
+    conf: 0.8
+    for: [javascript]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: "require('sharp')"
 
 composite_rules:
   - id: js-screenshot-exfil
-    description: JavaScript screenshot capture with exfiltration
-    criticality: hostile
-    confidence: 0.95
+    desc: JavaScript screenshot capture with exfiltration
+    crit: hostile
+    conf: 0.95
     mbc: "B0002"
     attack: "T1113"
-    file_types: [javascript]
-    requires_all:
+    for: [javascript]
+    all:
       - id: comm/http/request/js-axios-post
-    requires_any:
+    any:
       - id: collect/monitor/js-node-screenshots
       - id: collect/monitor/js-desktop-screenshot

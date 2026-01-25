@@ -5,40 +5,40 @@
 traits:
   - id: system-boot
     description: Reference to /boot
-    criticality: notable
-    confidence: 0.66
-    condition:
+    crit: notable
+    conf: 0.66
+    if:
       type: string
       regex: "/boot/[\\%\\w\\.\\-/]{4,32}"
 
   - id: system-var
     description: Reference to /var
-    criticality: inert
-    confidence: 0.66
-    condition:
+    crit: inert
+    conf: 0.66
+    if:
       type: string
       regex: "/var/[\\w\\.\\-/]+"
 
   - id: system-lib64
     description: Reference to /lib64
-    criticality: inert
-    confidence: 0.66
-    condition:
+    crit: inert
+    conf: 0.66
+    if:
       type: string
       regex: "/lib64/[\\w\\.\\-/]+"
 
   - id: system-lib-python
     description: Reference to Python library paths
-    criticality: inert
-    confidence: 0.66
-    condition:
+    crit: inert
+    conf: 0.66
+    if:
       type: string
       regex: "/usr/lib/python[\\d\\.]+/[\\w\\.\\-/]+"
 
   - id: system-var-containers
     description: Reference to container paths
-    criticality: notable
-    confidence: 0.66
-    condition:
+    crit: notable
+    conf: 0.66
+    if:
       type: string
       regex: "/var/(lib/)?(docker|containers)/[\\w\\.\\-/]+"

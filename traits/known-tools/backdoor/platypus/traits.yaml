@@ -5,8 +5,8 @@
 traits:
   - id: backdoor/platypus/remove-self
     description: Platypus self-removal function
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1070.004"
     file_types: [elf, macho]
@@ -16,8 +16,8 @@ traits:
 
   - id: backdoor/platypus/daemon-mode
     description: Platypus daemon mode startup
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1543"
     file_types: [elf, macho]
@@ -27,8 +27,8 @@ traits:
 
   - id: backdoor/platypus/brand
     description: Platypus GitHub reference
-    criticality: suspicious
-    confidence: 0.99
+    crit: suspicious
+    conf: 0.99
     family: true
     attack: "T1059"
     file_types: [elf, macho]
@@ -38,8 +38,8 @@ traits:
 
   - id: backdoor/platypus/tunnel-connect
     description: Platypus tunnel connection
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1572"
     file_types: [elf, macho]
@@ -50,15 +50,15 @@ traits:
 composite_rules:
   - id: backdoor/platypus/detected
     description: Platypus reverse shell backdoor
-    criticality: hostile
-    confidence: 0.95
+    crit: hostile
+    conf: 0.95
     family: true
     reference: "https://github.com/WangYihang/Platypus"
     attack: "T1059"
     mbc: "B0022"
     file_types: [elf, macho]
     requires_count: 3
-    conditions:
+    any:
       - id: backdoor/platypus/remove-self
       - id: backdoor/platypus/daemon-mode
       - id: backdoor/platypus/brand

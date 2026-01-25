@@ -14,7 +14,7 @@ traits:
   # ============================================
   - id: admin-privileges
     description: "Requests administrator privileges"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     condition:
       type: string
@@ -22,7 +22,7 @@ traits:
 
   - id: with-admin-privileges
     description: "do shell script with admin privileges"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     condition:
       type: string
@@ -33,7 +33,7 @@ traits:
   # ============================================
   - id: sudo-in-script
     description: "Uses sudo in shell script"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     condition:
       type: string
@@ -41,7 +41,7 @@ traits:
 
   - id: run-as-root
     description: "Attempts to run as root"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     condition:
       type: string
@@ -53,7 +53,7 @@ composite_rules:
   # ============================================
   - id: admin-privesc
     description: "AppleScript admin privilege escalation"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     requires_any:
       - {id: admin-privileges}
@@ -64,7 +64,7 @@ composite_rules:
   # ============================================
   - id: shell-admin
     description: "Shell execution with admin privileges"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     requires_all:
       - {id: evasion/applescript/do-shell-script}

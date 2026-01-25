@@ -4,13 +4,13 @@
 
 traits:
   - id: decode-rust
-    description: Base64 decoding in Rust
-    criticality: notable
-    confidence: 0.9
+    desc: Base64 decoding in Rust
+    crit: notable
+    conf: 0.9
     mbc: "B0032"
     attack: "T1140"
-    file_types: [rust]
-    condition:
+    for: [rust]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: "DecoderReader::new"

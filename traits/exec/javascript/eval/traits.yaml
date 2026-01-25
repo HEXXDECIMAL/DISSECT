@@ -6,306 +6,306 @@
 traits:
   # Process execution functions
   - id: getExecOutput
-    description: Node.js exec output capture (GitHub Actions)
-    criticality: notable
-    confidence: 0.8
-    file_types: [javascript]
-    condition:
+    desc: Node.js exec output capture (GitHub Actions)
+    crit: notable
+    conf: 0.8
+    for: [javascript]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: "getExecOutput"
 
   - id: child-process-exec
-    description: Node.js child_process exec
-    criticality: notable
-    confidence: 0.85
+    desc: Node.js child_process exec
+    crit: notable
+    conf: 0.85
     mbc: "C0017"
     attack: "T1059"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: "exec"
 
   - id: child-process-spawn
-    description: Node.js child_process spawn
-    criticality: notable
-    confidence: 0.85
+    desc: Node.js child_process spawn
+    crit: notable
+    conf: 0.85
     mbc: "C0017"
     attack: "T1059"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: "spawn"
 
   - id: child-process-execSync
-    description: Node.js synchronous exec
-    criticality: notable
-    confidence: 0.85
+    desc: Node.js synchronous exec
+    crit: notable
+    conf: 0.85
     mbc: "C0017"
     attack: "T1059"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: "execSync"
 
   - id: child-process-require
-    description: Node.js child_process module import
-    criticality: notable
-    confidence: 0.8
-    file_types: [javascript]
-    condition:
+    desc: Node.js child_process module import
+    crit: notable
+    conf: 0.8
+    for: [javascript]
+    if:
       type: string
       exact: "child_process"
 
   # === Shell invocation atomic indicators ===
   - id: bash-single-quote
-    description: Bash shell in single quotes
-    criticality: inert
-    confidence: 0.65
-    file_types: [javascript]
-    condition:
+    desc: Bash shell in single quotes
+    crit: inert
+    conf: 0.65
+    for: [javascript]
+    if:
       type: string
       exact: "'bash'"
 
   - id: bash-double-quote
-    description: Bash shell in double quotes
-    criticality: inert
-    confidence: 0.65
-    file_types: [javascript]
-    condition:
+    desc: Bash shell in double quotes
+    crit: inert
+    conf: 0.65
+    for: [javascript]
+    if:
       type: string
-      exact: "\"bash\""
+      exact: '"bash"'
 
   - id: bin-sh-single-quote
-    description: /bin/sh in single quotes
-    criticality: inert
-    confidence: 0.6
-    file_types: [javascript]
-    condition:
+    desc: /bin/sh in single quotes
+    crit: inert
+    conf: 0.6
+    for: [javascript]
+    if:
       type: string
       exact: "'/bin/sh'"
 
   - id: bin-sh-double-quote
-    description: /bin/sh in double quotes
-    criticality: inert
-    confidence: 0.6
-    file_types: [javascript]
-    condition:
+    desc: /bin/sh in double quotes
+    crit: inert
+    conf: 0.6
+    for: [javascript]
+    if:
       type: string
-      exact: "\"/bin/sh\""
+      exact: '"/bin/sh"'
 
   - id: sh-single-quote
-    description: sh in single quotes
-    criticality: inert
-    confidence: 0.6
-    file_types: [javascript]
-    condition:
+    desc: sh in single quotes
+    crit: inert
+    conf: 0.6
+    for: [javascript]
+    if:
       type: string
       exact: "'sh'"
 
   - id: sh-double-quote
-    description: sh in double quotes
-    criticality: inert
-    confidence: 0.6
-    file_types: [javascript]
-    condition:
+    desc: sh in double quotes
+    crit: inert
+    conf: 0.6
+    for: [javascript]
+    if:
       type: string
-      exact: "\"sh\""
+      exact: '"sh"'
 
   - id: bash-c-flag
-    description: Bash -c command execution flag
-    criticality: suspicious
-    confidence: 0.85
+    desc: Bash -c command execution flag
+    crit: suspicious
+    conf: 0.85
     mbc: "C0017"
     attack: "T1059.004"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       exact: "'-c'"
 
   # Output/error handling (stealth indicators)
   - id: stdout-capture
-    description: Standard output capture
-    criticality: inert
-    confidence: 0.6
-    file_types: [javascript]
-    condition:
+    desc: Standard output capture
+    crit: inert
+    conf: 0.6
+    for: [javascript]
+    if:
       type: string
       exact: "stdout"
 
   - id: stderr-capture
-    description: Standard error capture
-    criticality: inert
-    confidence: 0.6
-    file_types: [javascript]
-    condition:
+    desc: Standard error capture
+    crit: inert
+    conf: 0.6
+    for: [javascript]
+    if:
       type: string
       exact: "stderr"
 
   - id: silent-true
-    description: Silent execution flag (hides output)
-    criticality: suspicious
-    confidence: 0.85
+    desc: Silent execution flag (hides output)
+    crit: suspicious
+    conf: 0.85
     mbc: "F0005"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       regex: "silent:\\s*true"
 
   - id: ignoreReturnCode
-    description: Ignore return code (hides errors)
-    criticality: suspicious
-    confidence: 0.8
+    desc: Ignore return code (hides errors)
+    crit: suspicious
+    conf: 0.8
     mbc: "F0005"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       exact: "ignoreReturnCode"
 
   # === Base64 decode atomic indicators ===
   - id: base64-dash-d
-    description: Base64 decode short flag
-    criticality: notable
-    confidence: 0.8
+    desc: Base64 decode short flag
+    crit: notable
+    conf: 0.8
     mbc: "C0026"
     attack: "T1140"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       exact: "base64 -d"
 
   - id: base64-dash-decode
-    description: Base64 decode long flag
-    criticality: notable
-    confidence: 0.8
+    desc: Base64 decode long flag
+    crit: notable
+    conf: 0.8
     mbc: "C0026"
     attack: "T1140"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       exact: "base64 --decode"
 
   - id: echo-pipe
-    description: Echo piped to command
-    criticality: notable
-    confidence: 0.75
-    file_types: [javascript]
-    condition:
+    desc: Echo piped to command
+    crit: notable
+    conf: 0.75
+    for: [javascript]
+    if:
       type: string
       regex: "echo .* \\|"
 
   # Temp file operations
   - id: tmp-write
-    description: Write to /tmp directory
-    criticality: suspicious
-    confidence: 0.85
+    desc: Write to /tmp directory
+    crit: suspicious
+    conf: 0.85
     mbc: "C0016"
     attack: "T1074.001"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       regex: "> /tmp/|>/tmp/"
 
   # === Tmp execute atomic indicators ===
   - id: tmp-bash-exec
-    description: Execute bash from /tmp
-    criticality: suspicious
-    confidence: 0.85
+    desc: Execute bash from /tmp
+    crit: suspicious
+    conf: 0.85
     mbc: "B0024"
     attack: "T1059"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       exact: "bash /tmp/"
 
   - id: tmp-sh-exec
-    description: Execute sh from /tmp
-    criticality: suspicious
-    confidence: 0.85
+    desc: Execute sh from /tmp
+    crit: suspicious
+    conf: 0.85
     mbc: "B0024"
     attack: "T1059"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       exact: "sh /tmp/"
 
   - id: tmp-dot-exec
-    description: Execute ./tmp path
-    criticality: suspicious
-    confidence: 0.85
+    desc: Execute ./tmp path
+    crit: suspicious
+    conf: 0.85
     mbc: "B0024"
     attack: "T1059"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       exact: "./tmp/"
 
   # === Function constructor atomic indicators ===
   - id: function-dot-constructor
-    description: Function.constructor abuse
-    criticality: suspicious
-    confidence: 0.85
+    desc: Function.constructor abuse
+    crit: suspicious
+    conf: 0.85
     mbc: "B0024"
     attack: "T1059.007"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "new\\s+Function\\.constructor\\("
 
   - id: new-function
-    description: new Function() code execution
-    criticality: suspicious
-    confidence: 0.85
+    desc: new Function() code execution
+    crit: suspicious
+    conf: 0.85
     mbc: "B0024"
     attack: "T1059.007"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "new\\s+Function\\s*\\("
 
   # Detached child process (background execution)
   - id: detached-spawn
-    description: Detached child process (background execution)
-    criticality: suspicious
-    confidence: 0.85
+    desc: Detached child process (background execution)
+    crit: suspicious
+    conf: 0.85
     mbc: "F0011"
     attack: "T1059"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "detached:\\s*true"
 
   # Signal handler abuse (prevent termination)
   - id: sigint-handler
-    description: SIGINT handler (may prevent CTRL+C)
-    criticality: notable
-    confidence: 0.7
-    file_types: [javascript, typescript]
-    condition:
+    desc: SIGINT handler (may prevent CTRL+C)
+    crit: notable
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "process\\.on\\s*\\(['\"]SIGINT['\"]"
 
   - id: sigterm-handler
-    description: SIGTERM handler (may prevent kill)
-    criticality: notable
-    confidence: 0.7
-    file_types: [javascript, typescript]
-    condition:
+    desc: SIGTERM handler (may prevent kill)
+    crit: notable
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "process\\.on\\s*\\(['\"]SIGTERM['\"]"
 
   # Process respawning (persistence via self-restart)
   - id: self-respawn
-    description: Self-respawning process
-    criticality: suspicious
-    confidence: 0.85
+    desc: Self-respawning process
+    crit: suspicious
+    conf: 0.85
     mbc: "F0011"
     attack: "T1547"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule self_respawn {
@@ -321,23 +321,23 @@ traits:
 composite_rules:
   # Bash string reference composite
   - id: bash-string
-    description: Bash shell reference in string
-    criticality: notable
-    confidence: 0.75
-    file_types: [javascript]
+    desc: Bash shell reference in string
+    crit: notable
+    conf: 0.75
+    for: [javascript]
     requires_count: 1
-    conditions:
+    any:
       - id: bash-single-quote
       - id: bash-double-quote
 
   # Shell string reference composite
   - id: sh-string
-    description: Shell reference in string
-    criticality: notable
-    confidence: 0.7
-    file_types: [javascript]
+    desc: Shell reference in string
+    crit: notable
+    conf: 0.7
+    for: [javascript]
     requires_count: 1
-    conditions:
+    any:
       - id: bin-sh-single-quote
       - id: bin-sh-double-quote
       - id: sh-single-quote
@@ -345,40 +345,40 @@ composite_rules:
 
   # Base64 decode CLI composite
   - id: base64-decode-cli
-    description: Base64 decode via CLI
-    criticality: suspicious
-    confidence: 0.9
+    desc: Base64 decode via CLI
+    crit: suspicious
+    conf: 0.9
     mbc: "C0026"
     attack: "T1140"
-    file_types: [javascript]
+    for: [javascript]
     requires_count: 1
-    conditions:
+    any:
       - id: base64-dash-d
       - id: base64-dash-decode
 
   # Tmp execute composite
   - id: tmp-execute
-    description: Execute from /tmp directory
-    criticality: suspicious
-    confidence: 0.9
+    desc: Execute from /tmp directory
+    crit: suspicious
+    conf: 0.9
     mbc: "B0024"
     attack: "T1059"
-    file_types: [javascript]
+    for: [javascript]
     requires_count: 1
-    conditions:
+    any:
       - id: tmp-bash-exec
       - id: tmp-sh-exec
       - id: tmp-dot-exec
 
   # Function constructor composite
   - id: function-constructor
-    description: Function constructor code execution
-    criticality: suspicious
-    confidence: 0.9
+    desc: Function constructor code execution
+    crit: suspicious
+    conf: 0.9
     mbc: "B0024"
     attack: "T1059.007"
-    file_types: [javascript, typescript]
+    for: [javascript, typescript]
     requires_count: 1
-    conditions:
+    any:
       - id: function-dot-constructor
       - id: new-function

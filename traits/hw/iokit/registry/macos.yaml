@@ -3,9 +3,9 @@
 traits:
   - id: access
     description: Access IOKit device driver registry
-    criticality: notable
-    confidence: 0.6
+    crit: notable
+    conf: 0.6
     platforms: [macos]
-    condition:
+    if:
       type: string
       exact: "IORegistry"

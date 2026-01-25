@@ -25,13 +25,14 @@ fn default_confidence() -> f32 {
 #[derive(Debug, Clone, Deserialize)]
 pub struct TraitDefinition {
     pub id: String,
-    pub description: String,
-    #[serde(default = "default_confidence")]
-    pub confidence: f32,
+    #[serde(alias = "description")]
+    pub desc: String,
+    #[serde(default = "default_confidence", alias = "confidence")]
+    pub conf: f32,
 
     /// Criticality level (defaults to None = internal only)
-    #[serde(default)]
-    pub criticality: Criticality,
+    #[serde(default, alias = "criticality")]
+    pub crit: Criticality,
 
     /// MBC (Malware Behavior Catalog) ID - most specific available (e.g., "B0015.001")
     #[serde(skip_serializing_if = "Option::is_none", default)]
@@ -44,17 +45,18 @@ pub struct TraitDefinition {
     #[serde(default = "default_platforms")]
     pub platforms: Vec<Platform>,
 
-    #[serde(default = "default_file_types")]
-    pub file_types: Vec<FileType>,
+    #[serde(default = "default_file_types", alias = "file_types", alias = "files")]
+    pub r#for: Vec<FileType>,
 
     // Detection condition - just one condition per trait (atomic!)
-    pub condition: Condition,
+    #[serde(alias = "condition")]
+    pub r#if: Condition,
 }
 
 impl TraitDefinition {
     /// Pre-compile YARA rules in this trait's condition
     pub fn compile_yara(&mut self) {
-        self.condition.compile_yara();
+        self.r#if.compile_yara();
     }
 
     /// Evaluate this trait definition against the analysis context
@@ -65,7 +67,7 @@ impl TraitDefinition {
         }
 
         // Evaluate the condition (traits only have one atomic condition)
-        let result = self.eval_condition(&self.condition, ctx);
+        let result = self.eval_condition(&self.r#if, ctx);
 
         // Debug: trace evaluation result for eco/npm traits
         if self.id.contains("eco/npm/metadata/vscode") {
@@ -81,9 +83,9 @@ impl TraitDefinition {
             Some(Finding {
                 id: self.id.clone(),
                 kind: FindingKind::Capability,
-                description: self.description.clone(),
-                confidence: self.confidence,
-                criticality: self.criticality,
+                desc: self.desc.clone(),
+                conf: self.conf,
+                crit: self.crit,
                 mbc: self.mbc.clone(),
                 attack: self.attack.clone(),
                 trait_refs: vec![],
@@ -100,9 +102,9 @@ impl TraitDefinition {
             || ctx.platform == Platform::All
             || self.platforms.contains(&ctx.platform);
 
-        let file_type_match = self.file_types.contains(&FileType::All)
+        let file_type_match = self.r#for.contains(&FileType::All)
             || ctx.file_type == FileType::All
-            || self.file_types.contains(&ctx.file_type);
+            || self.r#for.contains(&ctx.file_type);
 
         platform_match && file_type_match
     }
@@ -212,12 +214,14 @@ impl TraitDefinition {
 pub struct CompositeTrait {
     #[serde(alias = "capability")]
     pub id: String,
-    pub description: String,
-    pub confidence: f32,
+    #[serde(alias = "description")]
+    pub desc: String,
+    #[serde(alias = "confidence")]
+    pub conf: f32,
 
     /// Criticality level (defaults to None)
-    #[serde(default)]
-    pub criticality: Criticality,
+    #[serde(default, alias = "criticality")]
+    pub crit: Criticality,
 
     /// MBC (Malware Behavior Catalog) ID - most specific available (e.g., "B0015.001")
     #[serde(skip_serializing_if = "Option::is_none", default)]
@@ -230,21 +234,28 @@ pub struct CompositeTrait {
     #[serde(default = "default_platforms")]
     pub platforms: Vec<Platform>,
 
-    #[serde(default = "default_file_types")]
-    pub file_types: Vec<FileType>,
+    #[serde(default = "default_file_types", alias = "file_types", alias = "files")]
+    pub r#for: Vec<FileType>,
 
-    // Boolean operators (only one should be set)
+    // Boolean operators
     #[serde(alias = "requires_all", skip_serializing_if = "Option::is_none")]
     pub all: Option<Vec<Condition>>,
 
-    #[serde(alias = "requires_any", skip_serializing_if = "Option::is_none")]
+    /// List of conditions - use count/min_count/max_count to control how many must match
+    #[serde(alias = "requires_any", alias = "conditions", skip_serializing_if = "Option::is_none")]
     pub any: Option<Vec<Condition>>,
 
+    /// Exactly this many conditions from `any` must match
     #[serde(alias = "requires_count", skip_serializing_if = "Option::is_none")]
     pub count: Option<usize>,
 
+    /// At least this many conditions from `any` must match
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub conditions: Option<Vec<Condition>>,
+    pub min_count: Option<usize>,
+
+    /// At most this many conditions from `any` can match
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_count: Option<usize>,
 
     #[serde(alias = "requires_none", skip_serializing_if = "Option::is_none")]
     pub none: Option<Vec<Condition>>,
@@ -253,23 +264,18 @@ pub struct CompositeTrait {
 impl CompositeTrait {
     /// Pre-compile YARA rules in all conditions
     pub fn compile_yara(&mut self) {
-        if let Some(ref mut conditions) = self.all {
-            for cond in conditions.iter_mut() {
+        if let Some(ref mut conds) = self.all {
+            for cond in conds.iter_mut() {
                 cond.compile_yara();
             }
         }
-        if let Some(ref mut conditions) = self.any {
-            for cond in conditions.iter_mut() {
+        if let Some(ref mut conds) = self.any {
+            for cond in conds.iter_mut() {
                 cond.compile_yara();
             }
         }
-        if let Some(ref mut conditions) = self.conditions {
-            for cond in conditions.iter_mut() {
-                cond.compile_yara();
-            }
-        }
-        if let Some(ref mut conditions) = self.none {
-            for cond in conditions.iter_mut() {
+        if let Some(ref mut conds) = self.none {
+            for cond in conds.iter_mut() {
                 cond.compile_yara();
             }
         }
@@ -283,13 +289,10 @@ impl CompositeTrait {
         }
 
         // Evaluate positive conditions based on the boolean operator(s)
-        // Support combining requires_all, requires_any, requires_count
-        let has_positive = self.all.is_some()
-            || self.any.is_some()
-            || self.count.is_some();
+        let has_positive = self.all.is_some() || self.any.is_some();
 
         let positive_result = if self.all.is_some() && self.any.is_some() {
-            // Both requires_all AND requires_any: all must match AND any must match
+            // Both all AND any: all must match AND any must match
             let all_result = self.eval_requires_all(self.all.as_ref().unwrap(), ctx);
             if !all_result.matched {
                 return None;
@@ -306,18 +309,19 @@ impl CompositeTrait {
                 evidence: combined_evidence,
                 traits: Vec::new(),
             }
-        } else if let Some(ref conditions) = self.all {
-            self.eval_requires_all(conditions, ctx)
-        } else if let Some(ref conditions) = self.any {
-            self.eval_requires_any(conditions, ctx)
-        } else if let Some(count) = self.count {
-            if let Some(ref conditions) = self.conditions {
-                self.eval_requires_count(conditions, count, ctx)
+        } else if let Some(ref conds) = self.all {
+            self.eval_requires_all(conds, ctx)
+        } else if let Some(ref conds) = self.any {
+            // Handle count constraints on `any` conditions
+            let has_count_constraint =
+                self.count.is_some() || self.min_count.is_some() || self.max_count.is_some();
+            if has_count_constraint {
+                self.eval_count_constraints(conds, self.count, self.min_count, self.max_count, ctx)
             } else {
-                return None;
+                self.eval_requires_any(conds, ctx)
             }
         } else {
-            // No positive conditions - will check requires_none below
+            // No positive conditions - will check none below
             ConditionResult {
                 matched: true,
                 evidence: Vec::new(),
@@ -329,10 +333,10 @@ impl CompositeTrait {
             return None;
         }
 
-        // Evaluate requires_none (can be combined with positive conditions)
-        // If requires_none is present, none of its conditions can match
-        let result = if let Some(ref none_conditions) = self.none {
-            let none_result = self.eval_requires_none(none_conditions, ctx);
+        // Evaluate none (can be combined with positive conditions)
+        // If none is present, none of its conditions can match
+        let result = if let Some(ref none_conds) = self.none {
+            let none_result = self.eval_requires_none(none_conds, ctx);
             if !none_result.matched {
                 return None; // A "none" condition matched, so rule fails
             }
@@ -345,7 +349,7 @@ impl CompositeTrait {
                 traits: Vec::new(),
             }
         } else if !has_positive {
-            // No positive conditions and no requires_none - invalid rule
+            // No positive conditions and no none - invalid rule
             return None;
         } else {
             positive_result
@@ -355,9 +359,9 @@ impl CompositeTrait {
             Some(Finding {
                 id: self.id.clone(),
                 kind: FindingKind::Capability,
-                description: self.description.clone(),
-                confidence: self.confidence,
-                criticality: self.criticality,
+                desc: self.desc.clone(),
+                conf: self.conf,
+                crit: self.crit,
                 mbc: self.mbc.clone(),
                 attack: self.attack.clone(),
                 trait_refs: vec![],
@@ -374,9 +378,9 @@ impl CompositeTrait {
             || ctx.platform == Platform::All
             || self.platforms.contains(&ctx.platform);
 
-        let file_type_match = self.file_types.contains(&FileType::All)
+        let file_type_match = self.r#for.contains(&FileType::All)
             || ctx.file_type == FileType::All
-            || self.file_types.contains(&ctx.file_type);
+            || self.r#for.contains(&ctx.file_type);
 
         platform_match && file_type_match
     }
@@ -384,12 +388,12 @@ impl CompositeTrait {
     /// Evaluate ALL conditions must match (AND)
     fn eval_requires_all(
         &self,
-        conditions: &[Condition],
+        conds: &[Condition],
         ctx: &EvaluationContext,
     ) -> ConditionResult {
         let mut all_evidence = Vec::new();
 
-        for condition in conditions {
+        for condition in conds {
             let result = self.eval_condition(condition, ctx);
             if !result.matched {
                 return ConditionResult {
@@ -412,13 +416,13 @@ impl CompositeTrait {
     /// Collects evidence from ALL matching conditions, not just the first
     fn eval_requires_any(
         &self,
-        conditions: &[Condition],
+        conds: &[Condition],
         ctx: &EvaluationContext,
     ) -> ConditionResult {
         let mut any_matched = false;
         let mut all_evidence = Vec::new();
 
-        for condition in conditions {
+        for condition in conds {
             let result = self.eval_condition(condition, ctx);
             if result.matched {
                 any_matched = true;
@@ -433,17 +437,19 @@ impl CompositeTrait {
         }
     }
 
-    /// Evaluate at least N conditions must match
-    fn eval_requires_count(
+    /// Evaluate with count constraints: exact count, min_count, max_count
+    fn eval_count_constraints(
         &self,
-        conditions: &[Condition],
-        count: usize,
+        conds: &[Condition],
+        exact: Option<usize>,
+        min: Option<usize>,
+        max: Option<usize>,
         ctx: &EvaluationContext,
     ) -> ConditionResult {
         let mut matched_count = 0;
         let mut all_evidence = Vec::new();
 
-        for condition in conditions {
+        for condition in conds {
             let result = self.eval_condition(condition, ctx);
             if result.matched {
                 matched_count += 1;
@@ -451,9 +457,19 @@ impl CompositeTrait {
             }
         }
 
+        let matched = if let Some(exact_count) = exact {
+            // Exact match required
+            matched_count == exact_count
+        } else {
+            // Range check
+            let min_ok = min.map_or(true, |m| matched_count >= m);
+            let max_ok = max.map_or(true, |m| matched_count <= m);
+            min_ok && max_ok
+        };
+
         ConditionResult {
-            matched: matched_count >= count,
-            evidence: all_evidence,
+            matched,
+            evidence: if matched { all_evidence } else { Vec::new() },
             traits: Vec::new(),
         }
     }
@@ -461,10 +477,10 @@ impl CompositeTrait {
     /// Evaluate NONE of the conditions can match (NOT)
     fn eval_requires_none(
         &self,
-        conditions: &[Condition],
+        conds: &[Condition],
         ctx: &EvaluationContext,
     ) -> ConditionResult {
-        for condition in conditions {
+        for condition in conds {
             let result = self.eval_condition(condition, ctx);
             if result.matched {
                 return ConditionResult {

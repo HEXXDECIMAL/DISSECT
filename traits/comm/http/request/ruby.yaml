@@ -5,44 +5,44 @@
 traits:
   # === Ruby HTTP atomic indicators ===
   - id: net-http
-    description: Net::HTTP module
-    criticality: inert
-    confidence: 0.5
+    desc: Net::HTTP module
+    crit: inert
+    conf: 0.5
     mbc: "C0002"
     attack: "T1071.001"
-    condition:
+    if:
       type: string
       exact: "Net::HTTP"
 
   - id: http-get-ruby
-    description: HTTP.get call
-    criticality: inert
-    confidence: 0.5
+    desc: HTTP.get call
+    crit: inert
+    conf: 0.5
     mbc: "C0002"
     attack: "T1071.001"
-    condition:
+    if:
       type: string
       regex: "HTTP\\.get"
 
   - id: open-uri
-    description: open-uri module
-    criticality: inert
-    confidence: 0.5
+    desc: open-uri module
+    crit: inert
+    conf: 0.5
     mbc: "C0002"
     attack: "T1071.001"
-    condition:
+    if:
       type: string
       exact: "open-uri"
 
 composite_rules:
   - id: request-ruby
-    description: HTTP requests (Ruby)
-    criticality: inert
-    confidence: 0.66
+    desc: HTTP requests (Ruby)
+    crit: inert
+    conf: 0.66
     mbc: "C0002"
     attack: "T1071.001"
-    requires_count: 1
-    conditions:
+    count: 1
+    any:
       - id: net-http
       - id: http-get-ruby
       - id: open-uri

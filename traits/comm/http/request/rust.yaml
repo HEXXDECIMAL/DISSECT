@@ -4,25 +4,25 @@
 
 traits:
   - id: rust-reqwest
-    description: Makes HTTP requests using reqwest
-    criticality: notable
-    confidence: 0.9
+    desc: Makes HTTP requests using reqwest
+    crit: notable
+    conf: 0.9
     mbc: "C0002"
     attack: "T1071.001"
-    file_types: [rust]
-    condition:
+    for: [rust]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: "client.get"
 
   - id: rust-reqwest-builder
-    description: HTTP client builder with invalid cert acceptance
-    criticality: suspicious
-    confidence: 0.95
+    desc: HTTP client builder with invalid cert acceptance
+    crit: suspicious
+    conf: 0.95
     mbc: "C0002"
     attack: "T1071.001"
-    file_types: [rust]
-    condition:
+    for: [rust]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: "danger_accept_invalid_certs"

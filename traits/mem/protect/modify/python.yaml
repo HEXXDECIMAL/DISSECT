@@ -4,7 +4,7 @@
 traits:
   - id: virtualprotect-ctypes
     description: VirtualProtect via Python ctypes
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     attack: "T1055"
     platforms: [windows]

@@ -6,50 +6,50 @@
 
 composite_rules:
   - id: infostealer
-    description: "Infostealer behavior: Collects system/user info and transmits to C2"
-    criticality: hostile
-    confidence: 0.95
+    desc: "Infostealer behavior: Collects system/user info and transmits to C2"
+    crit: hostile
+    conf: 0.95
     mbc: "OB0003"
     attack: "T1041"
-    file_types: [python]
-    requires_all:
+    for: [python]
+    all:
       - id: discovery/system
       - id: comm/http/request
       - id: fs/file/write
 
   - id: dynamic-dropper
-    description: "Dynamic Dropper behavior: Fetches, writes, and executes obfuscated code"
-    criticality: hostile
-    confidence: 0.98
+    desc: "Dynamic Dropper behavior: Fetches, writes, and executes obfuscated code"
+    crit: hostile
+    conf: 0.98
     mbc: "B0023"
     attack: "T1059"
-    file_types: [python]
-    requires_all:
+    for: [python]
+    all:
       - id: anti-static/obfuscation/strings
       - id: lateral/supply-chain
       - id: exec
 
   - id: evasive-profiler
-    description: "Evasive Profiler: Uses module aliasing to hide system enumeration"
-    criticality: hostile
-    confidence: 0.95
+    desc: "Evasive Profiler: Uses module aliasing to hide system enumeration"
+    crit: hostile
+    conf: 0.95
     mbc: "E1082"
     attack: "T1082"
-    file_types: [python]
-    requires_all:
+    for: [python]
+    all:
       - id: evasion/aliasing
       - id: discovery/system
       - id: comm/http/request
 
   - id: data-staging
-    description: "Data staging for exfiltration (Collect + Encode + Transmit)"
-    criticality: hostile
-    confidence: 0.98
+    desc: "Data staging for exfiltration (Collect + Encode + Transmit)"
+    crit: hostile
+    conf: 0.98
     mbc: "B0030"
     attack: "T1074"
-    file_types: [python]
+    for: [python]
     near_lines: 100
-    requires_all:
+    all:
       - id: discovery/system
       - id: anti-static/obfuscation/strings
       - id: exfil/http

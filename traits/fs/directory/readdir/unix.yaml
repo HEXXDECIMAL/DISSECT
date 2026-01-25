@@ -3,13 +3,13 @@
 # ATT&CK: T1083
 
 defaults:
-  file_types: [elf, macho, so, dylib, c]
+  for: [elf, macho, so, dylib, c]
 
 traits:
   - id: readdir
     description: List directory contents
-    criticality: inert
-    confidence: 0.66
-    condition:
+    crit: inert
+    conf: 0.66
+    if:
       type: symbol
       pattern: opendir|readdir|readdir64|fdopendir|closedir|rewinddir|seekdir|telldir

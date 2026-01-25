@@ -6,8 +6,8 @@
 traits:
   - id: stealer/skuld/brand-name
     description: Skuld stealer brand string
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     family: true
     attack: "T1555"
     file_types: [elf, macho, pe]
@@ -17,8 +17,8 @@ traits:
 
   - id: stealer/skuld/wallet-injection
     description: Skuld wallet injection function
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1055"
     file_types: [elf, macho, pe]
@@ -29,8 +29,8 @@ traits:
 composite_rules:
   - id: stealer/skuld/detected
     description: Skuld cryptocurrency stealer
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     reference: "https://github.com/hackirby/skuld"
     attack: "T1555"

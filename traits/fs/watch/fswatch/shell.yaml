@@ -5,8 +5,8 @@
 traits:
   - id: fswatch
     description: Filesystem watcher utilities
-    criticality: inert
-    confidence: 0.66
-    condition:
+    crit: inert
+    conf: 0.66
+    if:
       type: string
       regex: "fswatch(er)?"

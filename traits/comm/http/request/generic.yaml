@@ -4,12 +4,12 @@
 
 traits:
   - id: request
-    description: Makes HTTP requests
-    criticality: inert
-    confidence: 0.66
+    desc: Makes HTTP requests
+    crit: inert
+    conf: 0.66
     mbc: "C0002"
     attack: "T1071.001"
-    condition:
+    if:
       type: yara
       source: |
         rule http_request {

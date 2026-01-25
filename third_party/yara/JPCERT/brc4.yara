@@ -11,7 +11,7 @@ rule malware_BRC4_code {
         $func2 = { 50 68 ?? ?? 00 00 B8 00 00 00 00 50 B8 00 00 00 00 50 B8 00 00 00 00 }
         $func3 = { 50 B8 00 00 00 00 50 B8 00 00 00 00 50 B8 00 00 00 00 50 B8 00 00 00 00 50 B8 (02|01) 00 00 00 }
 
-     condition:
+     if:
        uint16(0) == 0x5A4D and
        uint32(uint32(0x3c)) == 0x00004550 and
        filesize<500KB and

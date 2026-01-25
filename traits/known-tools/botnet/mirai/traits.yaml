@@ -8,8 +8,8 @@ traits:
 
   - id: cnc-connect
     description: Mirai C2 connection function signature
-    criticality: suspicious
-    confidence: 0.8
+    crit: suspicious
+    conf: 0.8
     attack: "T1071"
     file_types: [elf]
     condition:
@@ -18,8 +18,8 @@ traits:
 
   - id: scanner-cookie
     description: Mirai scanner module reference
-    criticality: suspicious
-    confidence: 0.75
+    crit: suspicious
+    conf: 0.75
     attack: "T1046"
     file_types: [elf]
     condition:
@@ -28,8 +28,8 @@ traits:
 
   - id: anti-reinfect
     description: Mirai anti-reinfection marker
-    criticality: suspicious
-    confidence: 0.8
+    crit: suspicious
+    conf: 0.8
     attack: "T1480"
     file_types: [elf]
     condition:
@@ -38,8 +38,8 @@ traits:
 
   - id: dvr-helper
     description: Mirai DVR exploitation helper function
-    criticality: suspicious
-    confidence: 0.8
+    crit: suspicious
+    conf: 0.8
     attack: "T1190"
     file_types: [elf]
     condition:
@@ -48,8 +48,8 @@ traits:
 
   - id: brand-name
     description: Mirai botnet brand string
-    criticality: suspicious
-    confidence: 0.7
+    crit: suspicious
+    conf: 0.7
     family: true
     attack: "T1583.005"
     file_types: [elf]
@@ -59,8 +59,8 @@ traits:
 
   - id: read-module
     description: Mirai _READ.c module reference
-    criticality: suspicious
-    confidence: 0.7
+    crit: suspicious
+    conf: 0.7
     family: true
     file_types: [elf]
     condition:
@@ -69,8 +69,8 @@ traits:
 
   - id: write-module
     description: Mirai _WRITE.c module reference
-    criticality: suspicious
-    confidence: 0.7
+    crit: suspicious
+    conf: 0.7
     family: true
     file_types: [elf]
     condition:
@@ -79,8 +79,8 @@ traits:
 
   - id: killer-module
     description: Mirai killer module initialization
-    criticality: suspicious
-    confidence: 0.75
+    crit: suspicious
+    conf: 0.75
     family: true
     attack: "T1489"
     file_types: [elf]
@@ -90,8 +90,8 @@ traits:
 
   - id: attack-module
     description: Mirai attack module initialization
-    criticality: suspicious
-    confidence: 0.75
+    crit: suspicious
+    conf: 0.75
     family: true
     attack: "T1498"
     file_types: [elf]
@@ -102,8 +102,8 @@ traits:
   # === Proc filesystem indicators ===
   - id: proc-format
     description: Mirai proc format string
-    criticality: inert
-    confidence: 0.5
+    crit: inert
+    conf: 0.5
     file_types: [elf]
     condition:
       type: string
@@ -111,8 +111,8 @@ traits:
 
   - id: proc-cpuinfo
     description: Mirai proc cpuinfo access
-    criticality: inert
-    confidence: 0.5
+    crit: inert
+    conf: 0.5
     file_types: [elf]
     condition:
       type: string
@@ -120,8 +120,8 @@ traits:
 
   - id: proc-self-fd
     description: Mirai proc self fd access
-    criticality: inert
-    confidence: 0.5
+    crit: inert
+    conf: 0.5
     file_types: [elf]
     condition:
       type: string
@@ -129,8 +129,8 @@ traits:
 
   - id: http-1-0
     description: HTTP/1.0 protocol string
-    criticality: inert
-    confidence: 0.5
+    crit: inert
+    conf: 0.5
     file_types: [elf]
     condition:
       type: string
@@ -140,8 +140,8 @@ composite_rules:
   # Main Mirai detection - requires 6 of 12 indicators plus size constraints
   - id: detected
     description: Mirai IoT botnet detected
-    criticality: hostile
-    confidence: 0.95
+    crit: hostile
+    conf: 0.95
     family: true
     reference: "https://www.cloudflare.com/learning/ddos/glossary/mirai-botnet/"
     attack: "T1583.005"
@@ -150,7 +150,7 @@ composite_rules:
     min_size: 40960      # 40KB - Mirai binaries are typically 40-150KB
     max_size: 153600     # 150KB
     requires_count: 6
-    conditions:
+    any:
       - id: proc-format
       - id: proc-cpuinfo
       - id: proc-self-fd
@@ -165,8 +165,8 @@ composite_rules:
   # Mirai DVR helper variant - requires brand + dvr + HTTP
   - id: dvr-helper-detected
     description: Mirai DVR exploitation helper variant
-    criticality: hostile
-    confidence: 0.95
+    crit: hostile
+    conf: 0.95
     family: true
     attack: "T1190"
     mbc: "OB0004"
@@ -179,15 +179,15 @@ composite_rules:
   # Behavioral variant detection (no brand string required)
   - id: variant
     description: Mirai botnet variant (behavioral match)
-    criticality: hostile
-    confidence: 0.9
+    crit: hostile
+    conf: 0.9
     attack: "T1583.005"
     mbc: "OB0004"
     file_types: [elf]
     requires_all:
       - id: cnc-connect
     requires_count: 2
-    conditions:
+    any:
       - id: scanner-cookie
       - id: anti-reinfect
       - id: killer-module

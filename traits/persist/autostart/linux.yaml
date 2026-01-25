@@ -4,14 +4,14 @@
 
 defaults:
   attack: "T1547.013"
-  criticality: suspicious
+  crit: suspicious
   platforms: [linux]
 
 traits:
   # === XDG autostart atomic indicators ===
   - id: config-autostart
     description: .config/autostart directory
-    criticality: inert
+    crit: inert
     confidence: 0.7
     condition:
       type: string
@@ -19,7 +19,7 @@ traits:
 
   - id: etc-xdg-autostart
     description: /etc/xdg/autostart directory
-    criticality: inert
+    crit: inert
     confidence: 0.7
     condition:
       type: string
@@ -27,7 +27,7 @@ traits:
 
   - id: xdg-config-autostart
     description: XDG_CONFIG_HOME autostart
-    criticality: inert
+    crit: inert
     confidence: 0.6
     condition:
       type: string
@@ -36,7 +36,7 @@ traits:
   # === Desktop entry atomic indicators ===
   - id: dot-desktop-ext
     description: .desktop file extension
-    criticality: inert
+    crit: inert
     confidence: 0.5
     condition:
       type: string
@@ -44,7 +44,7 @@ traits:
 
   - id: desktop-entry-header
     description: "[Desktop Entry] header"
-    criticality: inert
+    crit: inert
     confidence: 0.6
     condition:
       type: string
@@ -52,7 +52,7 @@ traits:
 
   - id: x-gnome-autostart
     description: X-GNOME-Autostart directive
-    criticality: inert
+    crit: inert
     confidence: 0.7
     condition:
       type: string
@@ -61,7 +61,7 @@ traits:
   # === User systemd atomic indicators ===
   - id: config-systemd-user
     description: .config/systemd/user directory
-    criticality: inert
+    crit: inert
     confidence: 0.7
     condition:
       type: string
@@ -69,7 +69,7 @@ traits:
 
   - id: local-share-systemd-user
     description: .local/share/systemd/user directory
-    criticality: inert
+    crit: inert
     confidence: 0.7
     condition:
       type: string
@@ -77,7 +77,7 @@ traits:
 
   - id: systemctl-user-enable
     description: systemctl --user enable
-    criticality: inert
+    crit: inert
     confidence: 0.7
     condition:
       type: string
@@ -86,7 +86,7 @@ traits:
   # === rc.local atomic indicators ===
   - id: etc-rc-local
     description: /etc/rc.local file
-    criticality: inert
+    crit: inert
     confidence: 0.8
     attack: "T1037.004"
     condition:
@@ -95,7 +95,7 @@ traits:
 
   - id: etc-rc-d-rc-local
     description: /etc/rc.d/rc.local file
-    criticality: inert
+    crit: inert
     confidence: 0.8
     attack: "T1037.004"
     condition:
@@ -105,7 +105,7 @@ traits:
   # === init.d atomic indicators ===
   - id: etc-init-d
     description: /etc/init.d/ directory
-    criticality: inert
+    crit: inert
     confidence: 0.6
     attack: "T1037.004"
     file_types: [shell, elf, macho, python]
@@ -115,7 +115,7 @@ traits:
 
   - id: update-rc-d-cmd
     description: update-rc.d command
-    criticality: inert
+    crit: inert
     confidence: 0.7
     attack: "T1037.004"
     file_types: [shell, elf, macho, python]
@@ -125,7 +125,7 @@ traits:
 
   - id: chkconfig-cmd
     description: chkconfig command
-    criticality: inert
+    crit: inert
     confidence: 0.7
     attack: "T1037.004"
     file_types: [shell, elf, macho, python]
@@ -136,7 +136,7 @@ traits:
   # === Desktop entry exec atomic indicators ===
   - id: exec-eq-directive
     description: Exec= directive
-    criticality: inert
+    crit: inert
     confidence: 0.6
     condition:
       type: string
@@ -144,7 +144,7 @@ traits:
 
   - id: hidden-false-directive
     description: Hidden=false directive
-    criticality: inert
+    crit: inert
     confidence: 0.5
     condition:
       type: string
@@ -152,7 +152,7 @@ traits:
 
   - id: type-application-directive
     description: Type=Application directive
-    criticality: inert
+    crit: inert
     confidence: 0.5
     condition:
       type: string
@@ -163,9 +163,9 @@ composite_rules:
   - id: linux-xdg-autostart
     description: "XDG autostart directory access"
     confidence: 0.85
-    criticality: suspicious
+    crit: suspicious
     requires_count: 1
-    conditions:
+    any:
       - id: config-autostart
       - id: etc-xdg-autostart
       - id: xdg-config-autostart
@@ -175,7 +175,7 @@ composite_rules:
     description: "Desktop entry file creation (.desktop)"
     confidence: 0.8
     requires_count: 1
-    conditions:
+    any:
       - id: dot-desktop-ext
       - id: desktop-entry-header
       - id: x-gnome-autostart
@@ -186,7 +186,7 @@ composite_rules:
     confidence: 0.85
     attack: "T1543.002"
     requires_count: 1
-    conditions:
+    any:
       - id: config-systemd-user
       - id: local-share-systemd-user
       - id: systemctl-user-enable
@@ -195,10 +195,10 @@ composite_rules:
   - id: linux-rc-local
     description: "rc.local persistence mechanism"
     confidence: 0.9
-    criticality: suspicious
+    crit: suspicious
     attack: "T1037.004"
     requires_count: 1
-    conditions:
+    any:
       - id: etc-rc-local
       - id: etc-rc-d-rc-local
 
@@ -209,7 +209,7 @@ composite_rules:
     attack: "T1037.004"
     file_types: [shell, elf, macho, python]
     requires_count: 1
-    conditions:
+    any:
       - id: etc-init-d
       - id: update-rc-d-cmd
       - id: chkconfig-cmd
@@ -218,9 +218,9 @@ composite_rules:
   - id: linux-xdg-autostart-dir
     description: "XDG autostart directory path"
     confidence: 0.8
-    criticality: notable
+    crit: notable
     requires_count: 1
-    conditions:
+    any:
       - id: config-autostart
       - id: etc-xdg-autostart
 
@@ -228,9 +228,9 @@ composite_rules:
   - id: linux-desktop-entry-exec
     description: "Desktop entry executable directive"
     confidence: 0.8
-    criticality: notable
+    crit: notable
     requires_count: 1
-    conditions:
+    any:
       - id: exec-eq-directive
       - id: hidden-false-directive
       - id: type-application-directive
@@ -238,7 +238,7 @@ composite_rules:
   # XDG autostart with executable
   - id: linux-xdg-executable
     description: "XDG autostart with executable command"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.95
     attack: "T1547.013"
     mbc: "F0006"

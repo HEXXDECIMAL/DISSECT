@@ -1,11 +1,11 @@
 # Dynamic Library Iteration
 traits:
   - id: dl-iterate-phdr
-    description: Iterate shared object list
-    criticality: suspicious
-    confidence: 0.85
+    desc: Iterate shared object list
+    crit: suspicious
+    conf: 0.85
     attack: "T1574.006"
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: string
       exact: "dl_iterate_phdr"

@@ -3,48 +3,48 @@
 
 traits:
   - id: start
-    description: Process execution via Process.Start
-    criticality: suspicious
+    desc: Process execution via Process.Start
+    crit: suspicious
     mbc: "OB0006"
     attack: "T1059"
-    confidence: 0.95
-    condition:
+    conf: 0.95
+    if:
       type: ast_pattern
       node_type: invocation_expression
       pattern: "Process.Start"
-    file_types: [csharp]
+    for: [csharp]
 
   - id: start-info
-    description: Process start configuration
-    criticality: notable
+    desc: Process start configuration
+    crit: notable
     mbc: "OB0006"
     attack: "T1059"
-    confidence: 0.85
-    condition:
+    conf: 0.85
+    if:
       type: ast_pattern
       node_type: object_creation_expression
       pattern: "ProcessStartInfo"
-    file_types: [csharp]
+    for: [csharp]
 
   - id: current-process
-    description: Acquires handle to current process (often precedes self-termination)
-    criticality: notable
+    desc: Acquires handle to current process (often precedes self-termination)
+    crit: notable
     mbc: "OB0006"
-    confidence: 0.85
-    condition:
+    conf: 0.85
+    if:
       type: ast_pattern
       node_type: invocation_expression
       pattern: "GetCurrentProcess"
-    file_types: [csharp]
+    for: [csharp]
 
   - id: terminate
-    description: Process termination via Kill()
-    criticality: suspicious
+    desc: Process termination via Kill()
+    crit: suspicious
     mbc: "E1562"
     attack: "T1562"
-    confidence: 0.95
-    condition:
+    conf: 0.95
+    if:
       type: ast_pattern
       node_type: invocation_expression
       pattern: ".Kill("
-    file_types: [csharp]
+    for: [csharp]

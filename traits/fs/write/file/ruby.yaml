@@ -3,55 +3,55 @@
 traits:
   - id: ruby-file-open-write-binary
     description: "Write binary file"
-    criticality: notable
-    confidence: 0.92
+    crit: notable
+    conf: 0.92
     platforms:
       - all
-    file_types:
+    for:
       - ruby
-    condition:
+    if:
       type: symbol_or_string
       any:
         - "'wb"
-        - "\"wb"
+        - '"wb'
         - "'wb+"
-        - "\"wb+"
+        - '"wb+'
 
   - id: ruby-file-binmode
     description: "Binary file mode"
-    criticality: notable
-    confidence: 0.90
+    crit: notable
+    conf: 0.90
     platforms:
       - all
-    file_types:
+    for:
       - ruby
-    condition:
+    if:
       type: symbol_or_string
       any:
         - .binmode
 
   - id: ruby-file-write-tmp
     description: "Write to /tmp directory"
-    criticality: notable
-    confidence: 0.88
+    crit: notable
+    conf: 0.88
     platforms:
       - all
-    file_types:
+    for:
       - ruby
-    condition:
+    if:
       type: symbol_or_string
       any:
         - /tmp/
 
   - id: ruby-file-chmod
     description: "Modify file permissions"
-    criticality: notable
-    confidence: 0.90
+    crit: notable
+    conf: 0.90
     platforms:
       - all
-    file_types:
+    for:
       - ruby
-    condition:
+    if:
       type: symbol_or_string
       any:
         - File.chmod
@@ -59,13 +59,13 @@ traits:
 
   - id: ruby-chmod-777
     description: "Make file world-executable (chmod 777)"
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     platforms:
       - all
-    file_types:
+    for:
       - ruby
-    condition:
+    if:
       type: symbol_or_string
       any:
         - chmod(0777)
@@ -74,13 +74,13 @@ traits:
 
   - id: ruby-file-delete
     description: "Delete file"
-    criticality: notable
-    confidence: 0.90
+    crit: notable
+    conf: 0.90
     platforms:
       - all
-    file_types:
+    for:
       - ruby
-    condition:
+    if:
       type: symbol_or_string
       any:
         - File.delete
@@ -88,26 +88,26 @@ traits:
 
   - id: ruby-rm-rf
     description: "Recursive directory deletion"
-    criticality: notable
-    confidence: 0.93
+    crit: notable
+    conf: 0.93
     platforms:
       - all
-    file_types:
+    for:
       - ruby
-    condition:
+    if:
       type: symbol_or_string
       any:
         - FileUtils.rm_rf
 
   - id: ruby-fileutils
     description: "Imports FileUtils library (mkdir, cp, mv, rm, touch)"
-    criticality: notable
-    confidence: 0.6
+    crit: notable
+    conf: 0.6
     platforms:
       - all
-    file_types:
+    for:
       - ruby
-    condition:
+    if:
       type: symbol_or_string
       any:
         - "'fileutils'"

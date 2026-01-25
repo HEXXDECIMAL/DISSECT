@@ -11,6 +11,6 @@ rule Microsoft_LNK_with_WMI
         samples        = "104ba824c47a87601d7c70e4b35cfb1cb609b0905e4e4b67bb8873ce3b5e7c33"
     strings:
         $wmi    = /GetObject[ \t]*\([ \t]*['"][ \t]*winmgmts:[\x5c\x2e]/ nocase wide ascii
-    condition:
+    if:
             (uint32be(0x0) == 0x4c000000 and uint32be(0x4) == 0x1140200) and $wmi
 }

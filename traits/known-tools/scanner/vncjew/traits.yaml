@@ -4,7 +4,7 @@
 traits:
   - id: scanner/vncjew/read-vncs
     description: VNCJew VNC reader function
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.95
     family: true
     attack: "T1046"
@@ -15,7 +15,7 @@ traits:
 
   - id: scanner/vncjew/iptables-ref
     description: Reference to iptables firewall utility
-    criticality: notable
+    crit: notable
     confidence: 0.7
     file_types: [elf]
     condition:
@@ -24,7 +24,7 @@ traits:
 
   - id: scanner/vncjew/masscan-ref
     description: Reference to masscan network scanner
-    criticality: notable
+    crit: notable
     confidence: 0.7
     file_types: [elf]
     condition:
@@ -34,7 +34,7 @@ traits:
 composite_rules:
   - id: scanner/vncjew/detected
     description: VNCJew VNC scanner
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.95
     family: true
     attack: "T1046"

@@ -4,10 +4,10 @@
 traits:
   # LZMA/XZ compression
   - id: lzma
-    description: LZMA/XZ compression library
-    criticality: benign
-    confidence: 0.9
-    condition:
+    desc: LZMA/XZ compression library
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule lzma_lib {
@@ -24,10 +24,10 @@ traits:
 
   # Zlib compression
   - id: zlib
-    description: Zlib compression library
-    criticality: benign
-    confidence: 0.9
-    condition:
+    desc: Zlib compression library
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule zlib_lib {
@@ -43,10 +43,10 @@ traits:
 
   # Bzip2 compression
   - id: bzip2
-    description: Bzip2 compression library
-    criticality: benign
-    confidence: 0.9
-    condition:
+    desc: Bzip2 compression library
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule bzip2_lib {
@@ -61,10 +61,10 @@ traits:
 
   # Zstd compression
   - id: zstd
-    description: Zstandard compression library
-    criticality: benign
-    confidence: 0.9
-    condition:
+    desc: Zstandard compression library
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule zstd_lib {
@@ -79,10 +79,10 @@ traits:
 
   # LZ4 compression
   - id: lz4
-    description: LZ4 compression library
-    criticality: benign
-    confidence: 0.9
-    condition:
+    desc: LZ4 compression library
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule lz4_lib {

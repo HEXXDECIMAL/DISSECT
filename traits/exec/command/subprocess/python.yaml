@@ -3,13 +3,13 @@
 
 traits:
   - id: run
-    description: "Executes external system command"
-    criticality: notable
-    confidence: 0.85
+    desc: "Executes external system command"
+    crit: notable
+    conf: 0.85
     mbc: "C0017"
     attack: "T1059.006"
-    file_types: [python]
-    condition:
+    for: [python]
+    if:
       type: ast_query
       language: python
       query: |

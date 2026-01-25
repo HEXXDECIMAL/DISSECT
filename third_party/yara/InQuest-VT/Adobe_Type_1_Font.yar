@@ -15,6 +15,6 @@ rule Adobe_Type_1_Font
 	        $magic_classic = "%!FontType1-1."
             $magic_next_generation1 = /obj\s*<<[^>]*\/Type\s*\/Font[^>]*\/Subtype\s*\/Type1/
             $magic_next_generation2 = /obj\s*<<[^>]*\/Subtype\s*\/Type1[^>]*\/Type\s*\/Font/
-	condition:
+	if:
 			$magic_classic in (0..1024) or ($pdf in (0..1024) and any of ($magic_next_generation*))
 }

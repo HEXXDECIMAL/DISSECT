@@ -9,8 +9,8 @@ traits:
   # IPStorm botnet
   - id: p2p-botnet/ipstorm
     description: IPStorm P2P botnet indicators
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     attack: "T1090.003"
     condition:
       type: yara
@@ -29,8 +29,8 @@ traits:
   # Mozi botnet
   - id: p2p-botnet/mozi-artifact
     description: Mozi botnet identifier string
-    criticality: notable
-    confidence: 0.7
+    crit: notable
+    conf: 0.7
     condition:
       type: yara
       source: |
@@ -43,8 +43,8 @@ traits:
 
   - id: p2p-botnet/dht-iot-bootstrap
     description: P2P DHT bootstrapping for IoT devices
-    criticality: suspicious
-    confidence: 0.8
+    crit: suspicious
+    conf: 0.8
     attack: "T1090.003"
     condition:
       type: yara
@@ -62,8 +62,8 @@ traits:
   # Generic DHT-based botnet
   - id: comm/p2p/dht-network
     description: Kademlia DHT networking
-    criticality: notable
-    confidence: 0.8
+    crit: notable
+    conf: 0.8
     condition:
       type: yara
       source: |
@@ -80,8 +80,8 @@ traits:
   # FritzFrog SSH worm
   - id: p2p-botnet/fritzfrog
     description: FritzFrog P2P SSH worm
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     attack: "T1110"
     condition:
       type: yara

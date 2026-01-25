@@ -11,6 +11,6 @@ rule malware_Remcos_strings {
             $url2 = "BreakingSecurity.Net" ascii fullword
             $resource = "SETTINGS" ascii wide fullword
 
-          condition:
+          if:
             1 of ($url*) and $remcos and $resource
 }

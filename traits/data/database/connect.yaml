@@ -4,10 +4,10 @@
 traits:
   # PostgreSQL
   - id: postgresql
-    description: PostgreSQL database connectivity
-    criticality: benign
-    confidence: 0.9
-    condition:
+    desc: PostgreSQL database connectivity
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule postgresql_db {
@@ -25,10 +25,10 @@ traits:
 
   # MySQL/MariaDB
   - id: mysql
-    description: MySQL/MariaDB database connectivity
-    criticality: benign
-    confidence: 0.9
-    condition:
+    desc: MySQL/MariaDB database connectivity
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule mysql_db {
@@ -45,10 +45,10 @@ traits:
 
   # SQLite
   - id: sqlite
-    description: SQLite database
-    criticality: benign
-    confidence: 0.9
-    condition:
+    desc: SQLite database
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule sqlite_db {
@@ -64,10 +64,10 @@ traits:
 
   # MongoDB
   - id: mongodb
-    description: MongoDB database connectivity
-    criticality: benign
-    confidence: 0.9
-    condition:
+    desc: MongoDB database connectivity
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule mongodb_db {
@@ -83,10 +83,10 @@ traits:
 
   # Redis
   - id: redis
-    description: Redis database connectivity
-    criticality: benign
-    confidence: 0.9
-    condition:
+    desc: Redis database connectivity
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule redis_db {
@@ -103,10 +103,10 @@ traits:
 
   # Elasticsearch
   - id: elasticsearch
-    description: Elasticsearch connectivity
-    criticality: benign
-    confidence: 0.9
-    condition:
+    desc: Elasticsearch connectivity
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule elasticsearch_db {
@@ -122,10 +122,10 @@ traits:
 
   # Cassandra
   - id: cassandra
-    description: Apache Cassandra connectivity
-    criticality: benign
-    confidence: 0.9
-    condition:
+    desc: Apache Cassandra connectivity
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule cassandra_db {
@@ -140,10 +140,10 @@ traits:
 
   # DynamoDB
   - id: dynamodb
-    description: AWS DynamoDB connectivity
-    criticality: benign
-    confidence: 0.9
-    condition:
+    desc: AWS DynamoDB connectivity
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule dynamodb_db {
@@ -157,10 +157,10 @@ traits:
 
   # InfluxDB
   - id: influxdb
-    description: InfluxDB time series database
-    criticality: benign
-    confidence: 0.9
-    condition:
+    desc: InfluxDB time series database
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule influxdb_db {
@@ -174,10 +174,10 @@ traits:
 
   # Generic SQL patterns
   - id: sql-generic
-    description: Generic SQL database patterns
-    criticality: benign
-    confidence: 0.8
-    condition:
+    desc: Generic SQL database patterns
+    crit: benign
+    conf: 0.8
+    if:
       type: yara
       source: |
         rule sql_generic {
@@ -195,10 +195,10 @@ traits:
 
   # ORM frameworks
   - id: orm
-    description: ORM framework usage
-    criticality: benign
-    confidence: 0.85
-    condition:
+    desc: ORM framework usage
+    crit: benign
+    conf: 0.85
+    if:
       type: yara
       source: |
         rule orm_framework {
@@ -216,10 +216,10 @@ traits:
 
   # Connection pooling
   - id: connection-pool
-    description: Database connection pooling
-    criticality: benign
-    confidence: 0.85
-    condition:
+    desc: Database connection pooling
+    crit: benign
+    conf: 0.85
+    if:
       type: yara
       source: |
         rule connection_pool {

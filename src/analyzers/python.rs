@@ -64,7 +64,7 @@ impl PythonAnalyzer {
         // Add structural feature
         report.structure.push(StructuralFeature {
             id: "source/language/python".to_string(),
-            description: "Python script".to_string(),
+            desc: "Python script".to_string(),
             evidence: vec![Evidence {
                 method: "parser".to_string(),
                 source: "tree-sitter-python".to_string(),
@@ -653,9 +653,9 @@ impl PythonAnalyzer {
                         kind: FindingKind::Capability,
                         trait_refs: vec![],
                         id: cap_id.to_string(),
-                        description: description.to_string(),
-                        confidence: 1.0,
-                        criticality,
+                        desc: description.to_string(),
+                        conf: 1.0,
+                        crit: criticality,
                         mbc: None,
                         attack: None,
                         evidence: vec![Evidence {
@@ -718,9 +718,9 @@ impl PythonAnalyzer {
                         kind: FindingKind::Capability,
                         trait_refs: vec![],
                         id: cap_id.to_string(),
-                        description: description.to_string(),
-                        confidence: 0.7, // Import alone is not definitive
-                        criticality,
+                        desc: description.to_string(),
+                        conf: 0.7, // Import alone is not definitive
+                        crit: criticality,
                         mbc: None,
                         attack: None,
                         evidence: vec![Evidence {
@@ -754,9 +754,9 @@ impl PythonAnalyzer {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: "anti-analysis/obfuscation/base64-eval".to_string(),
-                    description: "Base64 decode followed by eval (obfuscation)".to_string(),
-                    confidence: 0.95,
-                    criticality: Criticality::Suspicious,
+                    desc: "Base64 decode followed by eval (obfuscation)".to_string(),
+                    conf: 0.95,
+                    crit: Criticality::Suspicious,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {
@@ -780,9 +780,9 @@ impl PythonAnalyzer {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: "anti-analysis/obfuscation/hex".to_string(),
-                    description: "Hex-encoded strings".to_string(),
-                    confidence: 0.9,
-                    criticality: crate::types::Criticality::Suspicious,
+                    desc: "Hex-encoded strings".to_string(),
+                    conf: 0.9,
+                    crit: crate::types::Criticality::Suspicious,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {
@@ -806,9 +806,9 @@ impl PythonAnalyzer {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: "anti-analysis/obfuscation/string-construct".to_string(),
-                    description: "Constructs strings via chr/ord".to_string(),
-                    confidence: 0.9,
-                    criticality: crate::types::Criticality::Suspicious,
+                    desc: "Constructs strings via chr/ord".to_string(),
+                    conf: 0.9,
+                    crit: crate::types::Criticality::Suspicious,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {
@@ -872,15 +872,15 @@ impl PythonAnalyzer {
                         kind: FindingKind::Capability,
                         trait_refs: vec![],
                         id: "env/api/environ".to_string(),
-                        description: "Accesses os.environ dictionary".to_string(),
-                        confidence: 1.0,
+                        desc: "Accesses os.environ dictionary".to_string(),
+                        conf: 1.0,
                         evidence: vec![crate::types::Evidence {
                             method: "ast".to_string(),
                             source: "tree-sitter-python".to_string(),
                             value: format!("os.environ['{}']", var_name),
                             location: Some(format!("line:{}", line_num)),
                         }],
-                        criticality: crate::types::Criticality::Suspicious,
+                        crit: crate::types::Criticality::Suspicious,
                         mbc: None,
                         attack: None,
                     });
@@ -912,15 +912,15 @@ impl PythonAnalyzer {
                         kind: FindingKind::Capability,
                         trait_refs: vec![],
                         id: "env/api/getenv".to_string(),
-                        description: "Reads environment variable".to_string(),
-                        confidence: 1.0,
+                        desc: "Reads environment variable".to_string(),
+                        conf: 1.0,
                         evidence: vec![crate::types::Evidence {
                             method: "ast".to_string(),
                             source: "tree-sitter-python".to_string(),
                             value: format!("os.getenv('{}')", var_name),
                             location: Some(format!("line:{}", line_num)),
                         }],
-                        criticality: crate::types::Criticality::Suspicious,
+                        crit: crate::types::Criticality::Suspicious,
                         mbc: None,
                         attack: None,
                     });
@@ -951,15 +951,15 @@ impl PythonAnalyzer {
                         kind: FindingKind::Capability,
                         trait_refs: vec![],
                         id: "env/api/environ".to_string(),
-                        description: "Accesses os.environ dictionary".to_string(),
-                        confidence: 1.0,
+                        desc: "Accesses os.environ dictionary".to_string(),
+                        conf: 1.0,
                         evidence: vec![crate::types::Evidence {
                             method: "ast".to_string(),
                             source: "tree-sitter-python".to_string(),
                             value: format!("os.environ['{}'", var_name),
                             location: Some(format!("line:{}", line_num)),
                         }],
-                        criticality: crate::types::Criticality::Suspicious,
+                        crit: crate::types::Criticality::Suspicious,
                         mbc: None,
                         attack: None,
                     });
@@ -990,15 +990,15 @@ impl PythonAnalyzer {
                         kind: FindingKind::Capability,
                         trait_refs: vec![],
                         id: "env/api/setenv".to_string(),
-                        description: "Modifies environment variable".to_string(),
-                        confidence: 1.0,
+                        desc: "Modifies environment variable".to_string(),
+                        conf: 1.0,
                         evidence: vec![crate::types::Evidence {
                             method: "ast".to_string(),
                             source: "tree-sitter-python".to_string(),
                             value: format!("os.putenv('{}')", var_name),
                             location: Some(format!("line:{}", line_num)),
                         }],
-                        criticality: crate::types::Criticality::Suspicious,
+                        crit: crate::types::Criticality::Suspicious,
                         mbc: None,
                         attack: None,
                     });
@@ -1029,15 +1029,15 @@ impl PythonAnalyzer {
                         kind: FindingKind::Capability,
                         trait_refs: vec![],
                         id: "env/api/unsetenv".to_string(),
-                        description: "Deletes environment variable".to_string(),
-                        confidence: 1.0,
+                        desc: "Deletes environment variable".to_string(),
+                        conf: 1.0,
                         evidence: vec![crate::types::Evidence {
                             method: "ast".to_string(),
                             source: "tree-sitter-python".to_string(),
                             value: format!("os.unsetenv('{}')", var_name),
                             location: Some(format!("line:{}", line_num)),
                         }],
-                        criticality: crate::types::Criticality::Suspicious,
+                        crit: crate::types::Criticality::Suspicious,
                         mbc: None,
                         attack: None,
                     });
@@ -1215,7 +1215,7 @@ x = eval("1+1")
         assert!(report
             .findings
             .iter()
-            .any(|c| c.id == "exec/script/eval" && c.description.contains("Evaluates")));
+            .any(|c| c.id == "exec/script/eval" && c.desc.contains("Evaluates")));
     }
 
     #[test]
@@ -1228,7 +1228,7 @@ exec("print('hello')")
         assert!(report
             .findings
             .iter()
-            .any(|c| c.id == "exec/script/eval" && c.description.contains("Executes")));
+            .any(|c| c.id == "exec/script/eval" && c.desc.contains("Executes")));
     }
 
     #[test]
@@ -1241,7 +1241,7 @@ code = compile("x = 1", "<string>", "exec")
         assert!(report
             .findings
             .iter()
-            .any(|c| c.id == "exec/script/eval" && c.description.contains("Compiles")));
+            .any(|c| c.id == "exec/script/eval" && c.desc.contains("Compiles")));
     }
 
     #[test]
@@ -1333,7 +1333,7 @@ result = eval(base64.b64decode('cHJpbnQoImhlbGxvIik='))
                 .iter()
                 .find(|c| c.id == "anti-analysis/obfuscation/base64-eval")
                 .unwrap()
-                .confidence,
+                .conf,
             0.95
         );
     }
@@ -1374,7 +1374,7 @@ import subprocess
         assert!(report
             .findings
             .iter()
-            .any(|c| c.id == "exec/command/shell" && c.confidence == 0.7));
+            .any(|c| c.id == "exec/command/shell" && c.conf == 0.7));
     }
 
     #[test]

@@ -4,7 +4,7 @@
 traits:
   - id: identity
     description: VSCode extension identity metadata
-    criticality: inert
+    crit: inert
     confidence: 1.0
     file_types: [vsixmanifest]
     condition:
@@ -22,7 +22,7 @@ traits:
 
   - id: engine
     description: VSCode engine requirement
-    criticality: inert
+    crit: inert
     confidence: 1.0
     file_types: [vsixmanifest]
     condition:
@@ -31,7 +31,7 @@ traits:
 
   - id: executes-code
     description: Extension explicitly marks that it executes code
-    criticality: notable
+    crit: notable
     confidence: 1.0
     file_types: [vsixmanifest]
     condition:
@@ -40,7 +40,7 @@ traits:
 
   - id: links
     description: Extension manifest contains external links
-    criticality: inert
+    crit: inert
     confidence: 0.8
     file_types: [vsixmanifest]
     condition:

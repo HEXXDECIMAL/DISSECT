@@ -4,22 +4,22 @@
 
 traits:
   - id: timestomp-touch
-    description: Modify timestamps via touch command
-    criticality: suspicious
-    confidence: 0.66
+    desc: Modify timestamps via touch command
+    crit: suspicious
+    conf: 0.66
     mbc: "F0006"
     attack: "T1070.006"
-    condition:
+    if:
       type: string
       regex: "touch\\s+-[amdt]"
 
   - id: timestomp-touch-specific
-    description: Set specific timestamp via touch -t
-    criticality: suspicious
-    confidence: 0.8
+    desc: Set specific timestamp via touch -t
+    crit: suspicious
+    conf: 0.8
     mbc: "F0006"
     attack: "T1070.006"
-    condition:
+    if:
       type: yara
       source: |
         rule touch_timestamp {

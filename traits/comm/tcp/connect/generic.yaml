@@ -4,10 +4,10 @@
 
 traits:
   - id: connect
-    description: TCP connection operations
-    criticality: inert
-    confidence: 0.66
-    condition:
+    desc: TCP connection operations
+    crit: inert
+    conf: 0.66
+    if:
       type: yara
       source: |
         rule tcp_connect {

@@ -370,7 +370,7 @@ pub enum Condition {
     },
 
     /// Inline YARA rule for pattern matching
-    /// Example: { type: yara, source: "rule test { strings: $a = \"test\" condition: $a }" }
+    /// Example: { type: yara, source: "rule test { strings: $a = \"test\" if: $a }" }
     Yara {
         /// YARA rule source code
         source: String,

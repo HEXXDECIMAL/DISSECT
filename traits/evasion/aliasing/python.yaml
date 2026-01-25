@@ -4,67 +4,67 @@
 traits:
   # === Python aliasing atomic indicators ===
   - id: alias-os
-    description: os import aliased
-    criticality: inert
-    confidence: 0.6
-    file_types: [python]
-    condition:
+    desc: os import aliased
+    crit: inert
+    conf: 0.6
+    for: [python]
+    if:
       type: string
       regex: 'import\s+os\s+as\s+[a-z]{1,5}\b'
 
   - id: alias-subprocess
-    description: subprocess import aliased
-    criticality: inert
-    confidence: 0.6
-    file_types: [python]
-    condition:
+    desc: subprocess import aliased
+    crit: inert
+    conf: 0.6
+    for: [python]
+    if:
       type: string
       regex: 'import\s+subprocess\s+as\s+[a-z]{1,5}\b'
 
   - id: alias-platform
-    description: platform import aliased
-    criticality: inert
-    confidence: 0.6
-    file_types: [python]
-    condition:
+    desc: platform import aliased
+    crit: inert
+    conf: 0.6
+    for: [python]
+    if:
       type: string
       regex: 'import\s+platform\s+as\s+[a-z]{1,5}\b'
 
   - id: alias-getpass
-    description: getpass import aliased
-    criticality: inert
-    confidence: 0.6
-    file_types: [python]
-    condition:
+    desc: getpass import aliased
+    crit: inert
+    conf: 0.6
+    for: [python]
+    if:
       type: string
       regex: 'import\s+getpass\s+as\s+[a-z]{1,5}\b'
 
   - id: alias-base64
-    description: base64 import aliased
-    criticality: inert
-    confidence: 0.6
-    file_types: [python]
-    condition:
+    desc: base64 import aliased
+    crit: inert
+    conf: 0.6
+    for: [python]
+    if:
       type: string
       regex: 'import\s+base64\s+as\s+[a-z]{1,5}\b'
 
   - id: alias-urllib
-    description: urllib import aliased
-    criticality: inert
-    confidence: 0.6
-    file_types: [python]
-    condition:
+    desc: urllib import aliased
+    crit: inert
+    conf: 0.6
+    for: [python]
+    if:
       type: string
       regex: 'import\s+urllib\s+as\s+[a-z]{1,5}\b'
 
 composite_rules:
   - id: python-std-alias
-    description: "Suspicious standard library aliasing (potential evasion)"
-    criticality: suspicious
-    confidence: 0.8
-    file_types: [python]
+    desc: "Suspicious standard library aliasing (potential evasion)"
+    crit: suspicious
+    conf: 0.8
+    for: [python]
     requires_count: 1
-    conditions:
+    any:
       - id: alias-os
       - id: alias-subprocess
       - id: alias-platform

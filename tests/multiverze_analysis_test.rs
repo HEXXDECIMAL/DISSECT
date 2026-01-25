@@ -51,7 +51,7 @@ fn test_multiverze_detection() -> Result<(), Box<dyn std::error::Error>> {
         "Missing directory traversal detection"
     );
     assert!(
-        stdout.contains("Declarative encryption completion message"),
+        stdout.contains("Generic ransom note string") || stdout.contains("Ransomware encryption patterns"),
         "Missing ransom note detection"
     );
 

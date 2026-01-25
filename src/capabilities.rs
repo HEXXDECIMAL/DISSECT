@@ -35,14 +35,14 @@ impl TraitIndex {
         let mut index = Self::new();
 
         for (i, trait_def) in traits.iter().enumerate() {
-            let has_all = trait_def.file_types.contains(&RuleFileType::All);
+            let has_all = trait_def.r#for.contains(&RuleFileType::All);
 
             if has_all {
                 // Trait applies to all file types
                 index.universal.push(i);
             } else {
                 // Trait applies to specific file types
-                for ft in &trait_def.file_types {
+                for ft in &trait_def.r#for {
                     index.by_file_type.entry(ft.clone()).or_default().push(i);
                 }
             }
@@ -115,7 +115,7 @@ impl StringMatchIndex {
                 exact: Some(ref exact_str),
                 case_insensitive: false,
                 ..
-            } = trait_def.condition
+            } = trait_def.r#if
             {
                 // Check if we already have this pattern
                 if let Some(&pattern_idx) = pattern_map.get(exact_str) {
@@ -213,21 +213,21 @@ pub struct CapabilityMapper {
 #[derive(Clone)]
 struct TraitInfo {
     id: String,
-    description: String,
-    confidence: f32,
+    desc: String,
+    conf: f32,
 }
 
 /// File-level defaults that apply to all traits in a file
 #[derive(Debug, Deserialize, Default, Clone)]
 struct TraitDefaults {
-    #[serde(default)]
-    file_types: Option<Vec<String>>,
+    #[serde(default, alias = "for", alias = "file_types")]
+    r#for: Option<Vec<String>>,
     #[serde(default)]
     platforms: Option<Vec<String>>,
-    #[serde(default)]
-    criticality: Option<String>,
-    #[serde(default)]
-    confidence: Option<f32>,
+    #[serde(default, alias = "criticality")]
+    crit: Option<String>,
+    #[serde(default, alias = "confidence")]
+    conf: Option<f32>,
     #[serde(default)]
     mbc: Option<String>,
     #[serde(default)]
@@ -238,19 +238,21 @@ struct TraitDefaults {
 #[derive(Debug, Deserialize)]
 struct RawTraitDefinition {
     id: String,
-    description: String,
-    #[serde(default)]
-    confidence: Option<f32>,
-    #[serde(default)]
-    criticality: Option<String>,
+    #[serde(alias = "description")]
+    desc: String,
+    #[serde(default, alias = "confidence")]
+    conf: Option<f32>,
+    #[serde(default, alias = "criticality")]
+    crit: Option<String>,
     #[serde(default)]
     mbc: Option<String>,
     #[serde(default)]
     attack: Option<String>,
     #[serde(default)]
     platforms: Option<Vec<String>>,
-    #[serde(default)]
+    #[serde(default, alias = "for", alias = "files")]
     file_types: Option<Vec<String>>,
+    #[serde(alias = "if")]
     condition: crate::composite_rules::Condition,
 }
 
@@ -259,32 +261,35 @@ struct RawTraitDefinition {
 struct RawCompositeRule {
     #[serde(alias = "capability")]
     id: String,
-    description: String,
-    #[serde(default)]
-    confidence: Option<f32>,
-    #[serde(default)]
-    criticality: Option<String>,
+    #[serde(alias = "description")]
+    desc: String,
+    #[serde(default, alias = "confidence")]
+    conf: Option<f32>,
+    #[serde(default, alias = "criticality")]
+    crit: Option<String>,
     #[serde(default)]
     mbc: Option<String>,
     #[serde(default)]
     attack: Option<String>,
     #[serde(default)]
     platforms: Option<Vec<String>>,
-    #[serde(default)]
+    #[serde(default, alias = "for", alias = "files")]
     file_types: Option<Vec<String>>,
     // Boolean operators
+    #[serde(default, alias = "requires_all")]
+    all: Option<Vec<crate::composite_rules::Condition>>,
+    #[serde(default, alias = "requires_any", alias = "conditions")]
+    any: Option<Vec<crate::composite_rules::Condition>>,
+    #[serde(default, alias = "requires_count")]
+    count: Option<usize>,
     #[serde(default)]
-    requires_all: Option<Vec<crate::composite_rules::Condition>>,
+    min_count: Option<usize>,
     #[serde(default)]
-    requires_any: Option<Vec<crate::composite_rules::Condition>>,
-    #[serde(default)]
-    requires_count: Option<usize>,
-    #[serde(default)]
-    conditions: Option<Vec<crate::composite_rules::Condition>>,
-    #[serde(default)]
-    requires_none: Option<Vec<crate::composite_rules::Condition>>,
+    max_count: Option<usize>,
+    #[serde(default, alias = "requires_none")]
+    none: Option<Vec<crate::composite_rules::Condition>>,
     // Single condition (for simple composite rules)
-    #[serde(default)]
+    #[serde(default, alias = "if")]
     condition: Option<crate::composite_rules::Condition>,
 }
 
@@ -311,11 +316,13 @@ struct TraitMappings {
 struct SimpleRule {
     symbol: String,
     capability: String,
-    description: String,
-    confidence: f32,
+    #[serde(alias = "description")]
+    desc: String,
+    #[serde(alias = "confidence")]
+    conf: f32,
     #[serde(default)]
     platforms: Vec<String>,
-    #[serde(default)]
+    #[serde(default, alias = "for")]
     file_types: Vec<String>,
 }
 
@@ -323,8 +330,10 @@ struct SimpleRule {
 struct SymbolMapping {
     symbol: String,
     capability: String,
-    description: String,
-    confidence: f32,
+    #[serde(alias = "description")]
+    desc: String,
+    #[serde(alias = "confidence")]
+    conf: f32,
 }
 
 /// Check if a string value is the special "none" keyword to unset a default
@@ -366,7 +375,7 @@ fn apply_vec_default(
 /// Convert a raw trait definition to a final TraitDefinition, applying file-level defaults
 fn apply_trait_defaults(raw: RawTraitDefinition, defaults: &TraitDefaults) -> TraitDefinition {
     // Parse file_types: use trait-specific if present (unless "none"), else defaults, else [All]
-    let file_types = apply_vec_default(raw.file_types, &defaults.file_types)
+    let file_types = apply_vec_default(raw.file_types, &defaults.r#for)
         .map(|types| parse_file_types(&types))
         .unwrap_or_else(|| vec![RuleFileType::All]);
 
@@ -376,11 +385,11 @@ fn apply_trait_defaults(raw: RawTraitDefinition, defaults: &TraitDefaults) -> Tr
         .unwrap_or_else(|| vec![Platform::All]);
 
     // Parse criticality: "none" means Inert
-    let mut criticality = match &raw.criticality {
+    let mut criticality = match &raw.crit {
         Some(v) if v.eq_ignore_ascii_case("none") => Criticality::Inert,
         Some(v) => parse_criticality(v),
         None => defaults
-            .criticality
+            .crit
             .as_deref()
             .map(parse_criticality)
             .unwrap_or(Criticality::Inert),
@@ -397,7 +406,7 @@ fn apply_trait_defaults(raw: RawTraitDefinition, defaults: &TraitDefaults) -> Tr
 
     // Additional strictness for SUSPICIOUS/HOSTILE traits
     if criticality >= Criticality::Suspicious {
-        if raw.description.len() < 15 {
+        if raw.desc.len() < 15 {
             eprintln!(
                 "⚠️  WARNING: Trait '{}' has an overly short description for its criticality.",
                 raw.id
@@ -407,14 +416,14 @@ fn apply_trait_defaults(raw: RawTraitDefinition, defaults: &TraitDefaults) -> Tr
 
     TraitDefinition {
         id: raw.id,
-        description: raw.description,
-        confidence: raw.confidence.or(defaults.confidence).unwrap_or(1.0),
-        criticality,
+        desc: raw.desc,
+        conf: raw.conf.or(defaults.conf).unwrap_or(1.0),
+        crit: criticality,
         mbc: apply_string_default(raw.mbc, &defaults.mbc),
         attack: apply_string_default(raw.attack, &defaults.attack),
         platforms,
-        file_types,
-        condition: raw.condition,
+        r#for: file_types,
+        r#if: raw.condition,
     }
 }
 
@@ -483,7 +492,7 @@ fn parse_criticality(s: &str) -> Criticality {
 /// Convert a raw composite rule to a final CompositeTrait, applying file-level defaults
 fn apply_composite_defaults(raw: RawCompositeRule, defaults: &TraitDefaults) -> CompositeTrait {
     // Parse file_types: use rule-specific if present (unless "none"), else defaults, else [All]
-    let file_types = apply_vec_default(raw.file_types, &defaults.file_types)
+    let file_types = apply_vec_default(raw.file_types, &defaults.r#for)
         .map(|types| parse_file_types(&types))
         .unwrap_or_else(|| vec![RuleFileType::All]);
 
@@ -493,11 +502,11 @@ fn apply_composite_defaults(raw: RawCompositeRule, defaults: &TraitDefaults) -> 
         .unwrap_or_else(|| vec![Platform::All]);
 
     // Parse criticality: "none" means Inert
-    let mut criticality = match &raw.criticality {
+    let mut criticality = match &raw.crit {
         Some(v) if v.eq_ignore_ascii_case("none") => Criticality::Inert,
         Some(v) => parse_criticality(v),
         None => defaults
-            .criticality
+            .crit
             .as_deref()
             .map(parse_criticality)
             .unwrap_or(Criticality::Inert),
@@ -506,16 +515,16 @@ fn apply_composite_defaults(raw: RawCompositeRule, defaults: &TraitDefaults) -> 
     // Stricter validation for HOSTILE traits: composite traits must have at least 3 conditions and a file_type filter
     if criticality == Criticality::Hostile {
         let mut condition_count = 0;
-        if let Some(ref c) = raw.requires_all {
+        if let Some(ref c) = raw.all {
             condition_count += c.len();
         }
-        if let Some(ref c) = raw.requires_any {
+        if let Some(ref c) = raw.any {
             condition_count += c.len();
         }
-        if let Some(ref c) = raw.conditions {
+        if let Some(ref c) = raw.any {
             condition_count += c.len();
         }
-        if let Some(ref c) = raw.requires_none {
+        if let Some(ref c) = raw.none {
             condition_count += c.len();
         }
         if raw.condition.is_some() {
@@ -535,7 +544,7 @@ fn apply_composite_defaults(raw: RawCompositeRule, defaults: &TraitDefaults) -> 
 
     // Additional strictness for SUSPICIOUS/HOSTILE composite rules
     if criticality >= Criticality::Suspicious {
-        if raw.description.len() < 15 {
+        if raw.desc.len() < 15 {
             eprintln!(
                 "⚠️  WARNING: Composite trait '{}' has an overly short description for its criticality.",
                 raw.id
@@ -555,22 +564,23 @@ fn apply_composite_defaults(raw: RawCompositeRule, defaults: &TraitDefaults) -> 
     }
 
     // Handle single condition by converting to requires_all
-    let requires_all = raw.requires_all.or_else(|| raw.condition.map(|c| vec![c]));
+    let requires_all = raw.all.or_else(|| raw.condition.map(|c| vec![c]));
 
     CompositeTrait {
         id: raw.id,
-        description: raw.description,
-        confidence: raw.confidence.or(defaults.confidence).unwrap_or(1.0),
-        criticality,
+        desc: raw.desc,
+        conf: raw.conf.or(defaults.conf).unwrap_or(1.0),
+        crit: criticality,
         mbc: apply_string_default(raw.mbc, &defaults.mbc),
         attack: apply_string_default(raw.attack, &defaults.attack),
         platforms,
-        file_types,
-        requires_all,
-        requires_any: raw.requires_any,
-        requires_count: raw.requires_count,
-        conditions: raw.conditions,
-        requires_none: raw.requires_none,
+        r#for: file_types,
+        all: requires_all,
+        any: raw.any,
+        count: raw.count,
+        min_count: raw.min_count,
+        max_count: raw.max_count,
+        none: raw.none,
     }
 }
 
@@ -752,8 +762,8 @@ impl CapabilityMapper {
                     mapping.symbol.clone(),
                     TraitInfo {
                         id: mapping.capability,
-                        description: mapping.description,
-                        confidence: mapping.confidence,
+                        desc: mapping.desc,
+                        conf: mapping.conf,
                     },
                 );
             }
@@ -770,8 +780,8 @@ impl CapabilityMapper {
                         rule.symbol.clone(),
                         TraitInfo {
                             id: rule.capability,
-                            description: rule.description,
-                            confidence: rule.confidence,
+                            desc: rule.desc,
+                            conf: rule.conf,
                         },
                     );
                 }
@@ -790,7 +800,7 @@ impl CapabilityMapper {
                     }
                 }
                 // Validate YARA/AST conditions at load time
-                trait_def.condition.validate().with_context(|| {
+                trait_def.r#if.validate().with_context(|| {
                     format!(
                         "invalid condition in trait '{}' from {:?}",
                         trait_def.id, path
@@ -807,7 +817,7 @@ impl CapabilityMapper {
                 if let crate::composite_rules::Condition::Symbol {
                     pattern,
                     platforms: _,
-                } = &trait_def.condition
+                } = &trait_def.r#if
                 {
                     // Check if there are no platform constraints, or add anyway for lookup
                     // (platform filtering will happen later during evaluation)
@@ -819,8 +829,8 @@ impl CapabilityMapper {
                         // Only add if not already present (first match wins)
                         symbol_map.entry(symbol).or_insert_with(|| TraitInfo {
                             id: trait_def.id.clone(),
-                            description: trait_def.description.clone(),
-                            confidence: trait_def.confidence,
+                            desc: trait_def.desc.clone(),
+                            conf: trait_def.conf,
                         });
                     }
                 }
@@ -864,12 +874,12 @@ impl CapabilityMapper {
         // Pre-compile all YARA rules for faster evaluation (parallelized)
         let yara_count_traits = trait_definitions
             .iter()
-            .filter(|t| matches!(t.condition, crate::composite_rules::Condition::Yara { .. }))
+            .filter(|t| matches!(t.r#if, crate::composite_rules::Condition::Yara { .. }))
             .count();
 
         // Use rayon's par_iter_mut for parallel YARA compilation
         trait_definitions.par_iter_mut().for_each(|t| {
-            if matches!(t.condition, crate::composite_rules::Condition::Yara { .. }) {
+            if matches!(t.r#if, crate::composite_rules::Condition::Yara { .. }) {
                 t.compile_yara();
             }
         });
@@ -1035,8 +1045,8 @@ impl CapabilityMapper {
                 mapping.symbol.clone(),
                 TraitInfo {
                     id: mapping.capability,
-                    description: mapping.description,
-                    confidence: mapping.confidence,
+                    desc: mapping.desc,
+                    conf: mapping.conf,
                 },
             );
         }
@@ -1047,8 +1057,8 @@ impl CapabilityMapper {
                 rule.symbol.clone(),
                 TraitInfo {
                     id: rule.capability,
-                    description: rule.description,
-                    confidence: rule.confidence,
+                    desc: rule.desc,
+                    conf: rule.conf,
                 },
             );
         }
@@ -1093,9 +1103,9 @@ impl CapabilityMapper {
             return Some(Finding {
                 id: info.id.clone(),
                 kind: FindingKind::Capability,
-                description: info.description.clone(),
-                confidence: info.confidence,
-                criticality: Criticality::Inert,
+                desc: info.desc.clone(),
+                conf: info.conf,
+                crit: Criticality::Inert,
                 mbc: None,
                 attack: None,
                 trait_refs: vec![],
@@ -1222,7 +1232,7 @@ impl CapabilityMapper {
                 // Traits with no exact string pattern (or with regex) are always evaluated
                 let trait_def = &self.trait_definitions[idx];
                 let has_exact_string = matches!(
-                    trait_def.condition,
+                    trait_def.r#if,
                     Condition::String {
                         exact: Some(_),
                         case_insensitive: false,
@@ -1428,21 +1438,22 @@ fn simple_rule_to_composite_rule(rule: SimpleRule) -> CompositeTrait {
     // Create a composite trait with a single symbol condition
     CompositeTrait {
         id: rule.capability,
-        description: rule.description,
-        confidence: rule.confidence,
-        criticality: Criticality::Inert,
+        desc: rule.desc,
+        conf: rule.conf,
+        crit: Criticality::Inert,
         mbc: None,
         attack: None,
         platforms,
-        file_types,
-        requires_all: Some(vec![Condition::Symbol {
+        r#for: file_types,
+        all: Some(vec![Condition::Symbol {
             pattern: rule.symbol,
             platforms: None,
         }]),
-        requires_any: None,
-        requires_count: None,
-        conditions: None,
-        requires_none: None,
+        any: None,
+        count: None,
+        min_count: None,
+        max_count: None,
+        none: None,
     }
 }
 
@@ -1484,17 +1495,14 @@ fn validate_composite_trait_only(rule: &CompositeTrait, source_file: &str) -> Ve
         }
     }
 
-    if let Some(ref c) = rule.requires_all {
-        check_conditions(c, &rule.id, "requires_all", source_file, &mut errors);
+    if let Some(ref c) = rule.all {
+        check_conditions(c, &rule.id, "all", source_file, &mut errors);
     }
-    if let Some(ref c) = rule.requires_any {
-        check_conditions(c, &rule.id, "requires_any", source_file, &mut errors);
+    if let Some(ref c) = rule.any {
+        check_conditions(c, &rule.id, "any", source_file, &mut errors);
     }
-    if let Some(ref c) = rule.conditions {
-        check_conditions(c, &rule.id, "conditions", source_file, &mut errors);
-    }
-    if let Some(ref c) = rule.requires_none {
-        check_conditions(c, &rule.id, "requires_none", source_file, &mut errors);
+    if let Some(ref c) = rule.none {
+        check_conditions(c, &rule.id, "none", source_file, &mut errors);
     }
 
     errors
@@ -1518,16 +1526,13 @@ fn collect_trait_refs_from_rule(rule: &CompositeTrait) -> Vec<(String, String)> 
         }
     }
 
-    if let Some(ref conditions) = rule.requires_all {
+    if let Some(ref conditions) = rule.all {
         collect_from_conditions(conditions, &rule.id, &mut refs);
     }
-    if let Some(ref conditions) = rule.requires_any {
+    if let Some(ref conditions) = rule.any {
         collect_from_conditions(conditions, &rule.id, &mut refs);
     }
-    if let Some(ref conditions) = rule.conditions {
-        collect_from_conditions(conditions, &rule.id, &mut refs);
-    }
-    if let Some(ref conditions) = rule.requires_none {
+    if let Some(ref conditions) = rule.none {
         collect_from_conditions(conditions, &rule.id, &mut refs);
     }
 
@@ -1725,19 +1730,19 @@ mod tests {
         use crate::composite_rules::Condition;
 
         let defaults = TraitDefaults {
-            file_types: Some(vec!["php".to_string()]),
+            r#for: Some(vec!["php".to_string()]),
             platforms: Some(vec!["linux".to_string()]),
-            criticality: Some("suspicious".to_string()),
-            confidence: Some(0.85),
+            crit: Some("suspicious".to_string()),
+            conf: Some(0.85),
             mbc: Some("B0001".to_string()),
             attack: Some("T1059".to_string()),
         };
 
         let raw = RawTraitDefinition {
             id: "test/trait".to_string(),
-            description: "Test trait".to_string(),
-            confidence: None,
-            criticality: None,
+            desc: "Test trait".to_string(),
+            conf: None,
+            crit: None,
             mbc: None,
             attack: None,
             platforms: None,
@@ -1754,12 +1759,12 @@ mod tests {
 
         let result = apply_trait_defaults(raw, &defaults);
 
-        assert_eq!(result.confidence, 0.85);
-        assert_eq!(result.criticality, Criticality::Suspicious);
+        assert_eq!(result.conf, 0.85);
+        assert_eq!(result.crit, Criticality::Suspicious);
         assert_eq!(result.mbc, Some("B0001".to_string()));
         assert_eq!(result.attack, Some("T1059".to_string()));
         assert_eq!(result.platforms, vec![Platform::Linux]);
-        assert_eq!(result.file_types, vec![RuleFileType::Php]);
+        assert_eq!(result.r#for, vec![RuleFileType::Php]);
     }
 
     #[test]
@@ -1767,19 +1772,19 @@ mod tests {
         use crate::composite_rules::Condition;
 
         let defaults = TraitDefaults {
-            file_types: Some(vec!["php".to_string()]),
+            r#for: Some(vec!["php".to_string()]),
             platforms: Some(vec!["linux".to_string()]),
-            criticality: Some("suspicious".to_string()),
-            confidence: Some(0.85),
+            crit: Some("suspicious".to_string()),
+            conf: Some(0.85),
             mbc: Some("B0001".to_string()),
             attack: Some("T1059".to_string()),
         };
 
         let raw = RawTraitDefinition {
             id: "test/trait".to_string(),
-            description: "Test trait".to_string(),
-            confidence: Some(0.99),
-            criticality: Some("hostile".to_string()),
+            desc: "Test trait".to_string(),
+            conf: Some(0.99),
+            crit: Some("hostile".to_string()),
             mbc: Some("B0002".to_string()),
             attack: Some("T1234".to_string()),
             platforms: Some(vec!["windows".to_string()]),
@@ -1796,13 +1801,13 @@ mod tests {
 
         let result = apply_trait_defaults(raw, &defaults);
 
-        assert_eq!(result.confidence, 0.99);
+        assert_eq!(result.conf, 0.99);
         // Atomic traits cannot be HOSTILE, so they get downgraded to SUSPICIOUS
-        assert_eq!(result.criticality, Criticality::Suspicious);
+        assert_eq!(result.crit, Criticality::Suspicious);
         assert_eq!(result.mbc, Some("B0002".to_string()));
         assert_eq!(result.attack, Some("T1234".to_string()));
         assert_eq!(result.platforms, vec![Platform::Windows]);
-        assert_eq!(result.file_types, vec![RuleFileType::Pe]);
+        assert_eq!(result.r#for, vec![RuleFileType::Pe]);
     }
 
     #[test]
@@ -1810,19 +1815,19 @@ mod tests {
         use crate::composite_rules::Condition;
 
         let defaults = TraitDefaults {
-            file_types: None,
+            r#for: None,
             platforms: None,
-            criticality: None,
-            confidence: None,
+            crit: None,
+            conf: None,
             mbc: Some("B0001".to_string()),
             attack: Some("T1059".to_string()),
         };
 
         let raw = RawTraitDefinition {
             id: "test/trait".to_string(),
-            description: "Test trait".to_string(),
-            confidence: None,
-            criticality: None,
+            desc: "Test trait".to_string(),
+            conf: None,
+            crit: None,
             mbc: Some("none".to_string()), // Explicitly unset
             attack: None,                  // Use default
             platforms: None,
@@ -1848,19 +1853,19 @@ mod tests {
         use crate::composite_rules::Condition;
 
         let defaults = TraitDefaults {
-            file_types: None,
+            r#for: None,
             platforms: None,
-            criticality: None,
-            confidence: None,
+            crit: None,
+            conf: None,
             mbc: Some("B0001".to_string()),
             attack: Some("T1059".to_string()),
         };
 
         let raw = RawTraitDefinition {
             id: "test/trait".to_string(),
-            description: "Test trait".to_string(),
-            confidence: None,
-            criticality: None,
+            desc: "Test trait".to_string(),
+            conf: None,
+            crit: None,
             mbc: None,                        // Use default
             attack: Some("NONE".to_string()), // Explicitly unset (uppercase)
             platforms: None,
@@ -1886,19 +1891,19 @@ mod tests {
         use crate::composite_rules::Condition;
 
         let defaults = TraitDefaults {
-            file_types: Some(vec!["php".to_string()]),
+            r#for: Some(vec!["php".to_string()]),
             platforms: None,
-            criticality: None,
-            confidence: None,
+            crit: None,
+            conf: None,
             mbc: None,
             attack: None,
         };
 
         let raw = RawTraitDefinition {
             id: "test/trait".to_string(),
-            description: "Test trait".to_string(),
-            confidence: None,
-            criticality: None,
+            desc: "Test trait".to_string(),
+            conf: None,
+            crit: None,
             mbc: None,
             attack: None,
             platforms: None,
@@ -1916,7 +1921,7 @@ mod tests {
         let result = apply_trait_defaults(raw, &defaults);
 
         // When unset, file_types defaults to [All]
-        assert_eq!(result.file_types, vec![RuleFileType::All]);
+        assert_eq!(result.r#for, vec![RuleFileType::All]);
     }
 
     #[test]
@@ -1924,28 +1929,29 @@ mod tests {
         use crate::composite_rules::Condition;
 
         let defaults = TraitDefaults {
-            file_types: Some(vec!["elf".to_string(), "macho".to_string()]),
+            r#for: Some(vec!["elf".to_string(), "macho".to_string()]),
             platforms: Some(vec!["linux".to_string(), "macos".to_string()]),
-            criticality: Some("notable".to_string()),
-            confidence: Some(0.75),
+            crit: Some("notable".to_string()),
+            conf: Some(0.75),
             mbc: Some("B0030".to_string()),
             attack: Some("T1071.001".to_string()),
         };
 
         let raw = RawCompositeRule {
             id: "test/rule".to_string(),
-            description: "Test rule".to_string(),
-            confidence: None,
-            criticality: None,
+            desc: "Test rule".to_string(),
+            conf: None,
+            crit: None,
             mbc: None,
             attack: None,
             platforms: None,
             file_types: None,
-            requires_all: None,
-            requires_any: None,
-            requires_count: None,
-            conditions: None,
-            requires_none: None,
+            all: None,
+            any: None,
+            count: None,
+            min_count: None,
+            max_count: None,
+            none: None,
             condition: Some(Condition::String {
                 exact: Some("test".to_string()),
                 regex: None,
@@ -1958,13 +1964,13 @@ mod tests {
 
         let result = apply_composite_defaults(raw, &defaults);
 
-        assert_eq!(result.confidence, 0.75);
-        assert_eq!(result.criticality, Criticality::Notable);
+        assert_eq!(result.conf, 0.75);
+        assert_eq!(result.crit, Criticality::Notable);
         assert_eq!(result.mbc, Some("B0030".to_string()));
         assert_eq!(result.attack, Some("T1071.001".to_string()));
         assert_eq!(result.platforms, vec![Platform::Linux, Platform::MacOS]);
         assert_eq!(
-            result.file_types,
+            result.r#for,
             vec![RuleFileType::Elf, RuleFileType::Macho]
         );
     }
@@ -1974,28 +1980,29 @@ mod tests {
         use crate::composite_rules::Condition;
 
         let defaults = TraitDefaults {
-            file_types: Some(vec!["elf".to_string()]),
+            r#for: Some(vec!["elf".to_string()]),
             platforms: Some(vec!["linux".to_string()]),
-            criticality: Some("suspicious".to_string()),
-            confidence: Some(0.9),
+            crit: Some("suspicious".to_string()),
+            conf: Some(0.9),
             mbc: Some("B0030".to_string()),
             attack: Some("T1071".to_string()),
         };
 
         let raw = RawCompositeRule {
             id: "test/rule".to_string(),
-            description: "Test rule".to_string(),
-            confidence: None,
-            criticality: None,
+            desc: "Test rule".to_string(),
+            conf: None,
+            crit: None,
             mbc: Some("none".to_string()),             // Unset
             attack: Some("none".to_string()),          // Unset
             platforms: Some(vec!["none".to_string()]), // Unset
             file_types: None,                          // Use default
-            requires_all: None,
-            requires_any: None,
-            requires_count: None,
-            conditions: None,
-            requires_none: None,
+            all: None,
+            any: None,
+            count: None,
+            min_count: None,
+            max_count: None,
+            none: None,
             condition: Some(Condition::String {
                 exact: Some("test".to_string()),
                 regex: None,
@@ -2011,7 +2018,7 @@ mod tests {
         assert_eq!(result.mbc, None);
         assert_eq!(result.attack, None);
         assert_eq!(result.platforms, vec![Platform::All]); // Fallback when unset
-        assert_eq!(result.file_types, vec![RuleFileType::Elf]); // Default applied
+        assert_eq!(result.r#for, vec![RuleFileType::Elf]); // Default applied
     }
 
     #[test]
@@ -2064,8 +2071,8 @@ traits:
         );
         assert_eq!(t1.mbc, Some("B0001".to_string()));
         assert_eq!(t1.attack, Some("T1059".to_string()));
-        assert_eq!(t1.criticality, Criticality::Suspicious);
-        assert_eq!(t1.file_types, vec![RuleFileType::Php]);
+        assert_eq!(t1.crit, Criticality::Suspicious);
+        assert_eq!(t1.r#for, vec![RuleFileType::Php]);
     }
 
     #[test]
@@ -2105,15 +2112,15 @@ composite_rules:
 
         // First rule uses defaults
         assert_eq!(rules[0].attack, Some("T1071.001".to_string()));
-        assert_eq!(rules[0].criticality, Criticality::Notable);
+        assert_eq!(rules[0].crit, Criticality::Notable);
         assert_eq!(
-            rules[0].file_types,
+            rules[0].r#for,
             vec![RuleFileType::Elf, RuleFileType::Macho, RuleFileType::Pe]
         );
 
         // Second rule unsets attack
         assert_eq!(rules[1].attack, None);
-        assert_eq!(rules[1].criticality, Criticality::Notable); // Still uses default
+        assert_eq!(rules[1].crit, Criticality::Notable); // Still uses default
     }
 
     // ==================== Iterative Composite Evaluation Tests ====================
@@ -2139,9 +2146,9 @@ composite_rules:
         Finding {
             id: id.to_string(),
             kind: FindingKind::Capability,
-            description: format!("Test finding {}", id),
-            confidence: 0.9,
-            criticality: Criticality::Notable,
+            desc: format!("Test finding {}", id),
+            conf: 0.9,
+            crit: Criticality::Notable,
             mbc: None,
             attack: None,
             trait_refs: vec![],
@@ -2181,20 +2188,21 @@ composite_rules:
 
         let composite = CompositeTrait {
             id: "test/composite".to_string(),
-            description: "Test composite".to_string(),
-            confidence: 0.9,
-            criticality: Criticality::Suspicious,
+            desc: "Test composite".to_string(),
+            conf: 0.9,
+            crit: Criticality::Suspicious,
             mbc: None,
             attack: None,
             platforms: vec![Platform::All],
-            file_types: vec![RuleFileType::All],
-            requires_all: Some(vec![Condition::Trait {
+            r#for: vec![RuleFileType::All],
+            all: Some(vec![Condition::Trait {
                 id: "test/atomic-trait".to_string(),
             }]),
-            requires_any: None,
-            requires_count: None,
-            conditions: None,
-            requires_none: None,
+            any: None,
+            count: None,
+            min_count: None,
+            max_count: None,
+            none: None,
         };
 
         let report = test_report_with_findings(vec![test_finding("test/atomic-trait")]);
@@ -2213,38 +2221,40 @@ composite_rules:
 
         let composite_a = CompositeTrait {
             id: "test/composite-a".to_string(),
-            description: "First level".to_string(),
-            confidence: 0.9,
-            criticality: Criticality::Notable,
+            desc: "First level".to_string(),
+            conf: 0.9,
+            crit: Criticality::Notable,
             mbc: None,
             attack: None,
             platforms: vec![Platform::All],
-            file_types: vec![RuleFileType::All],
-            requires_all: Some(vec![Condition::Trait {
+            r#for: vec![RuleFileType::All],
+            all: Some(vec![Condition::Trait {
                 id: "test/atomic-trait".to_string(),
             }]),
-            requires_any: None,
-            requires_count: None,
-            conditions: None,
-            requires_none: None,
+            any: None,
+            count: None,
+            min_count: None,
+            max_count: None,
+            none: None,
         };
 
         let composite_b = CompositeTrait {
             id: "test/composite-b".to_string(),
-            description: "Second level".to_string(),
-            confidence: 0.95,
-            criticality: Criticality::Suspicious,
+            desc: "Second level".to_string(),
+            conf: 0.95,
+            crit: Criticality::Suspicious,
             mbc: None,
             attack: None,
             platforms: vec![Platform::All],
-            file_types: vec![RuleFileType::All],
-            requires_all: Some(vec![Condition::Trait {
+            r#for: vec![RuleFileType::All],
+            all: Some(vec![Condition::Trait {
                 id: "test/composite-a".to_string(),
             }]),
-            requires_any: None,
-            requires_count: None,
-            conditions: None,
-            requires_none: None,
+            any: None,
+            count: None,
+            min_count: None,
+            max_count: None,
+            none: None,
         };
 
         let report = test_report_with_findings(vec![test_finding("test/atomic-trait")]);
@@ -2268,20 +2278,21 @@ composite_rules:
 
         let make_composite = |id: &str, requires: &str| CompositeTrait {
             id: id.to_string(),
-            description: format!("Composite {}", id),
-            confidence: 0.9,
-            criticality: Criticality::Notable,
+            desc: format!("Composite {}", id),
+            conf: 0.9,
+            crit: Criticality::Notable,
             mbc: None,
             attack: None,
             platforms: vec![Platform::All],
-            file_types: vec![RuleFileType::All],
-            requires_all: Some(vec![Condition::Trait {
+            r#for: vec![RuleFileType::All],
+            all: Some(vec![Condition::Trait {
                 id: requires.to_string(),
             }]),
-            requires_any: None,
-            requires_count: None,
-            conditions: None,
-            requires_none: None,
+            any: None,
+            count: None,
+            min_count: None,
+            max_count: None,
+            none: None,
         };
 
         let report = test_report_with_findings(vec![test_finding("level/zero")]);
@@ -2312,38 +2323,40 @@ composite_rules:
 
         let composite_a = CompositeTrait {
             id: "circular/a".to_string(),
-            description: "Circular A".to_string(),
-            confidence: 0.9,
-            criticality: Criticality::Notable,
+            desc: "Circular A".to_string(),
+            conf: 0.9,
+            crit: Criticality::Notable,
             mbc: None,
             attack: None,
             platforms: vec![Platform::All],
-            file_types: vec![RuleFileType::All],
-            requires_all: Some(vec![Condition::Trait {
+            r#for: vec![RuleFileType::All],
+            all: Some(vec![Condition::Trait {
                 id: "circular/b".to_string(),
             }]),
-            requires_any: None,
-            requires_count: None,
-            conditions: None,
-            requires_none: None,
+            any: None,
+            count: None,
+            min_count: None,
+            max_count: None,
+            none: None,
         };
 
         let composite_b = CompositeTrait {
             id: "circular/b".to_string(),
-            description: "Circular B".to_string(),
-            confidence: 0.9,
-            criticality: Criticality::Notable,
+            desc: "Circular B".to_string(),
+            conf: 0.9,
+            crit: Criticality::Notable,
             mbc: None,
             attack: None,
             platforms: vec![Platform::All],
-            file_types: vec![RuleFileType::All],
-            requires_all: Some(vec![Condition::Trait {
+            r#for: vec![RuleFileType::All],
+            all: Some(vec![Condition::Trait {
                 id: "circular/a".to_string(),
             }]),
-            requires_any: None,
-            requires_count: None,
-            conditions: None,
-            requires_none: None,
+            any: None,
+            count: None,
+            min_count: None,
+            max_count: None,
+            none: None,
         };
 
         let report = test_report_with_findings(vec![]);
@@ -2366,20 +2379,21 @@ composite_rules:
 
         let composite = CompositeTrait {
             id: "test/uses-discovery".to_string(),
-            description: "Uses discovery".to_string(),
-            confidence: 0.9,
-            criticality: Criticality::Notable,
+            desc: "Uses discovery".to_string(),
+            conf: 0.9,
+            crit: Criticality::Notable,
             mbc: None,
             attack: None,
             platforms: vec![Platform::All],
-            file_types: vec![RuleFileType::All],
-            requires_all: Some(vec![Condition::Trait {
+            r#for: vec![RuleFileType::All],
+            all: Some(vec![Condition::Trait {
                 id: "discovery/system".to_string(), // Prefix match
             }]),
-            requires_any: None,
-            requires_count: None,
-            conditions: None,
-            requires_none: None,
+            any: None,
+            count: None,
+            min_count: None,
+            max_count: None,
+            none: None,
         };
 
         // Report has specific trait under discovery/system/
@@ -2398,17 +2412,15 @@ composite_rules:
 
         let composite = CompositeTrait {
             id: "test/needs-two".to_string(),
-            description: "Needs 2 of 3".to_string(),
-            confidence: 0.9,
-            criticality: Criticality::Notable,
+            desc: "Needs 2 of 3".to_string(),
+            conf: 0.9,
+            crit: Criticality::Notable,
             mbc: None,
             attack: None,
             platforms: vec![Platform::All],
-            file_types: vec![RuleFileType::All],
-            requires_all: None,
-            requires_any: None,
-            requires_count: Some(2),
-            conditions: Some(vec![
+            r#for: vec![RuleFileType::All],
+            all: None,
+            any: Some(vec![
                 Condition::Trait {
                     id: "feat/a".to_string(),
                 },
@@ -2419,7 +2431,10 @@ composite_rules:
                     id: "feat/c".to_string(),
                 },
             ]),
-            requires_none: None,
+            count: Some(2),
+            min_count: None,
+            max_count: None,
+            none: None,
         };
 
         let report =

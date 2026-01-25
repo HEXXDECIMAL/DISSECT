@@ -6,7 +6,7 @@ traits:
   # Legitimate systemd service management
   - id: systemd-management
     description: Legitimate systemd service management
-    criticality: benign
+    crit: benign
     confidence: 0.75
     condition:
       type: yara
@@ -30,7 +30,7 @@ traits:
   # Legitimate cron job management
   - id: cron-management
     description: Legitimate cron job management
-    criticality: benign
+    crit: benign
     confidence: 0.7
     condition:
       type: yara
@@ -55,7 +55,7 @@ traits:
   # Legitimate package management
   - id: package-management
     description: Legitimate package management operations
-    criticality: benign
+    crit: benign
     confidence: 0.85
     condition:
       type: yara
@@ -85,7 +85,7 @@ traits:
   # Legitimate log management
   - id: log-management
     description: Legitimate log file management
-    criticality: benign
+    crit: benign
     confidence: 0.8
     condition:
       type: yara
@@ -107,7 +107,7 @@ traits:
   # Legitimate user management
   - id: user-management
     description: Legitimate user account management
-    criticality: benign
+    crit: benign
     confidence: 0.75
     condition:
       type: yara
@@ -129,7 +129,7 @@ traits:
   # Legitimate network configuration
   - id: network-config
     description: Legitimate network configuration
-    criticality: benign
+    crit: benign
     confidence: 0.8
     condition:
       type: yara
@@ -156,7 +156,7 @@ traits:
   # Legitimate file system operations
   - id: filesystem-ops
     description: Legitimate filesystem administration
-    criticality: benign
+    crit: benign
     confidence: 0.75
     condition:
       type: yara
@@ -181,7 +181,7 @@ traits:
   # Legitimate backup operations
   - id: backup-ops
     description: Legitimate backup and restore operations
-    criticality: benign
+    crit: benign
     confidence: 0.85
     condition:
       type: yara
@@ -205,7 +205,7 @@ traits:
   # Legitimate process management
   - id: process-management
     description: Legitimate process management
-    criticality: benign
+    crit: benign
     confidence: 0.8
     condition:
       type: yara
@@ -229,7 +229,7 @@ traits:
   # Legitimate SSH administration
   - id: ssh-admin
     description: Legitimate SSH server administration
-    criticality: benign
+    crit: benign
     confidence: 0.8
     condition:
       type: yara
@@ -251,7 +251,7 @@ traits:
   # Legitimate container management
   - id: container-management
     description: Legitimate container management (Docker/Podman)
-    criticality: benign
+    crit: benign
     confidence: 0.85
     condition:
       type: yara
@@ -274,7 +274,7 @@ traits:
   # Legitimate monitoring/observability
   - id: monitoring
     description: Legitimate system monitoring tools
-    criticality: benign
+    crit: benign
     confidence: 0.85
     condition:
       type: yara

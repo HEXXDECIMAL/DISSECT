@@ -6,43 +6,43 @@
 traits:
   # Reverse shell components - dup2 for I/O redirection
   - id: dup2-redirect
-    description: File descriptor duplication (I/O redirection)
-    criticality: notable
+    desc: File descriptor duplication (I/O redirection)
+    crit: notable
     mbc: "B0030.002"
-    confidence: 0.5
-    file_types: [elf, macho, so, dylib, c]
-    condition:
+    conf: 0.5
+    for: [elf, macho, so, dylib, c]
+    if:
       type: symbol
       pattern: dup2
     platforms: [unix, linux, macos]
 
   # Python-specific reverse shell patterns
   - id: python-socket-connect
-    description: Python socket connection
-    criticality: notable
-    confidence: 0.8
-    file_types: [python]
-    condition:
+    desc: Python socket connection
+    crit: notable
+    conf: 0.8
+    for: [python]
+    if:
       type: ast_pattern
       node_type: call
       pattern: ".connect("
 
   - id: python-dup2
-    description: Python file descriptor duplication (os.dup2)
-    criticality: notable
-    confidence: 0.85
-    file_types: [python]
-    condition:
+    desc: Python file descriptor duplication (os.dup2)
+    crit: notable
+    conf: 0.85
+    for: [python]
+    if:
       type: ast_pattern
       node_type: call
       pattern: "os.dup2"
 
   - id: python-pty-spawn
-    description: Python PTY spawn (interactive shell)
-    criticality: suspicious
-    confidence: 0.9
-    file_types: [python]
-    condition:
+    desc: Python PTY spawn (interactive shell)
+    crit: suspicious
+    conf: 0.9
+    for: [python]
+    if:
       type: ast_pattern
       node_type: call
       pattern: "pty.spawn"

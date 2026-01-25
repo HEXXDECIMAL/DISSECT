@@ -4,11 +4,11 @@
 
 traits:
   - id: server-go
-    description: Go HTTP server
-    criticality: notable
-    confidence: 0.66
+    desc: Go HTTP server
+    crit: notable
+    conf: 0.66
     mbc: "C0002"
     attack: "T1071.001"
-    condition:
+    if:
       type: string
       exact: ListenAndServe

@@ -5,16 +5,16 @@
 traits:
   - id: network-dev
     description: Read network device statistics from /proc/net/dev
-    criticality: inert
-    confidence: 0.66
-    condition:
+    crit: inert
+    conf: 0.66
+    if:
       type: string
       exact: /proc/net/dev
 
   - id: network-route
     description: Read routing table from /proc/net/route
-    criticality: notable
-    confidence: 0.66
-    condition:
+    crit: notable
+    conf: 0.66
+    if:
       type: string
       exact: /proc/net/route

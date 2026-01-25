@@ -5,7 +5,7 @@
 traits:
   - id: start
     description: PHP session initialization for state persistence
-    criticality: notable
+    crit: notable
     confidence: 0.7
     mbc: "B0028"
     file_types: [php]
@@ -15,7 +15,7 @@ traits:
 
   - id: destroy
     description: PHP session destruction
-    criticality: notable
+    crit: notable
     confidence: 0.7
     file_types: [php]
     condition:
@@ -24,7 +24,7 @@ traits:
 
   - id: regenerate
     description: PHP session ID regeneration
-    criticality: notable
+    crit: notable
     confidence: 0.75
     file_types: [php]
     condition:
@@ -33,7 +33,7 @@ traits:
 
   - id: id-access
     description: Direct session ID manipulation
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.8
     mbc: "B0028"
     file_types: [php]
@@ -43,7 +43,7 @@ traits:
 
   - id: no-time-limit
     description: Disables PHP script time limit (webshell indicator)
-    criticality: notable
+    crit: notable
     confidence: 0.85
     condition:
       type: ast_pattern
@@ -52,7 +52,7 @@ traits:
 
   - id: ignore-abort
     description: Ignores client abort (webshell indicator)
-    criticality: notable
+    crit: notable
     confidence: 0.85
     condition:
       type: ast_pattern
@@ -61,7 +61,7 @@ traits:
 
   - id: output-buffering
     description: Uses output buffering (potential evasion)
-    criticality: notable
+    crit: notable
     confidence: 0.7
     condition:
       type: ast_pattern
@@ -70,7 +70,7 @@ traits:
 
   - id: error-reporting-off
     description: Disables error reporting (stealth)
-    criticality: notable
+    crit: notable
     confidence: 0.8
     condition:
       type: ast_pattern
@@ -79,7 +79,7 @@ traits:
 
   - id: display-errors-off
     description: Disables error display (stealth)
-    criticality: notable
+    crit: notable
     confidence: 0.8
     condition:
       type: ast_pattern

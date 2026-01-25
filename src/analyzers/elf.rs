@@ -78,9 +78,9 @@ impl ElfAnalyzer {
                 report.findings.push(Finding {
                     kind: FindingKind::Structural,
                     id: "anti-analysis/malformed/elf-header".to_string(),
-                    description: format!("Malformed ELF header or section headers: {}", e),
-                    confidence: 1.0,
-                    criticality: Criticality::Hostile,
+                    desc: format!("Malformed ELF header or section headers: {}", e),
+                    conf: 1.0,
+                    crit: Criticality::Hostile,
                     mbc: Some("B0001".to_string()), // Defense Evasion: Software Packing/Obfuscation
                     attack: Some("T1027".to_string()), // Obfuscated Files or Information
                     evidence: vec![],
@@ -149,9 +149,9 @@ impl ElfAnalyzer {
                                         kind: FindingKind::Capability,
                                         trait_refs: vec![],
                                         id: cap_id,
-                                        description: yara_match.description.clone(),
-                                        confidence: 0.9,
-                                        criticality,
+                                        desc: yara_match.desc.clone(),
+                                        conf: 0.9,
+                                        crit: criticality,
                                         mbc: yara_match.mbc.clone(),
                                         attack: yara_match.attack.clone(),
                                         evidence,
@@ -215,7 +215,7 @@ impl ElfAnalyzer {
         // Binary format
         report.structure.push(StructuralFeature {
             id: "binary/format/elf".to_string(),
-            description: "ELF binary format".to_string(),
+            desc: "ELF binary format".to_string(),
             evidence: vec![Evidence {
                 method: "magic".to_string(),
                 source: "goblin".to_string(),
@@ -228,7 +228,7 @@ impl ElfAnalyzer {
         let arch = self.arch_name(elf);
         report.structure.push(StructuralFeature {
             id: format!("binary/arch/{}", arch),
-            description: format!("{} architecture", arch),
+            desc: format!("{} architecture", arch),
             evidence: vec![Evidence {
                 method: "header".to_string(),
                 source: "goblin".to_string(),
@@ -241,7 +241,7 @@ impl ElfAnalyzer {
         if elf.syms.is_empty() {
             report.structure.push(StructuralFeature {
                 id: "binary/stripped".to_string(),
-                description: "Symbol table stripped".to_string(),
+                desc: "Symbol table stripped".to_string(),
                 evidence: vec![Evidence {
                     method: "symbols".to_string(),
                     source: "goblin".to_string(),
@@ -255,7 +255,7 @@ impl ElfAnalyzer {
         if elf.header.e_type == goblin::elf::header::ET_DYN {
             report.structure.push(StructuralFeature {
                 id: "binary/pie".to_string(),
-                description: "Position Independent Executable".to_string(),
+                desc: "Position Independent Executable".to_string(),
                 evidence: vec![Evidence {
                     method: "header".to_string(),
                     source: "goblin".to_string(),
@@ -333,7 +333,7 @@ impl ElfAnalyzer {
                     if level == EntropyLevel::High {
                         report.structure.push(StructuralFeature {
                             id: "entropy/high".to_string(),
-                            description: "High entropy section (possibly packed/encrypted)"
+                            desc: "High entropy section (possibly packed/encrypted)"
                                 .to_string(),
                             evidence: vec![Evidence {
                                 method: "entropy".to_string(),
@@ -398,8 +398,8 @@ impl ElfAnalyzer {
                 // Merge evidence
                 existing.evidence.extend(unpacked_finding.evidence);
                 // Keep higher criticality
-                if unpacked_finding.criticality > existing.criticality {
-                    existing.criticality = unpacked_finding.criticality;
+                if unpacked_finding.crit > existing.crit {
+                    existing.crit = unpacked_finding.crit;
                 }
             } else {
                 packed.findings.push(unpacked_finding);
@@ -744,7 +744,7 @@ mod tests {
 
         // Should have only one finding with higher criticality
         assert_eq!(packed.findings.len(), 1);
-        assert_eq!(packed.findings[0].criticality, Criticality::Suspicious);
+        assert_eq!(packed.findings[0].crit, Criticality::Suspicious);
     }
 
     #[test]
@@ -1013,7 +1013,7 @@ mod tests {
             rule: "suspicious_strings".to_string(),
             namespace: "malware".to_string(),
             severity: "high".to_string(),
-            description: "Suspicious strings detected".to_string(),
+            desc: "Suspicious strings detected".to_string(),
             matched_strings: vec![],
             is_capability: false,
             mbc: None,
@@ -1024,7 +1024,7 @@ mod tests {
             rule: "suspicious_strings".to_string(),
             namespace: "malware".to_string(),
             severity: "high".to_string(),
-            description: "Suspicious strings detected".to_string(),
+            desc: "Suspicious strings detected".to_string(),
             matched_strings: vec![],
             is_capability: false,
             mbc: None,
@@ -1035,7 +1035,7 @@ mod tests {
             rule: "crypto_constants".to_string(),
             namespace: "crypto".to_string(),
             severity: "medium".to_string(),
-            description: "Crypto constants found".to_string(),
+            desc: "Crypto constants found".to_string(),
             matched_strings: vec![],
             is_capability: false,
             mbc: None,
@@ -1112,7 +1112,7 @@ mod tests {
         analyzer.merge_reports(&mut packed, unpacked);
 
         // Should keep Hostile (higher)
-        assert_eq!(packed.findings[0].criticality, Criticality::Hostile);
+        assert_eq!(packed.findings[0].crit, Criticality::Hostile);
     }
 
     #[test]
@@ -1136,6 +1136,6 @@ mod tests {
         analyzer.merge_reports(&mut packed, unpacked);
 
         // Should upgrade to Hostile
-        assert_eq!(packed.findings[0].criticality, Criticality::Hostile);
+        assert_eq!(packed.findings[0].crit, Criticality::Hostile);
     }
 }

@@ -5,12 +5,12 @@
 traits:
   # WScript.Shell execution
   - id: wscript-shell
-    description: WScript.Shell command execution
-    criticality: suspicious
-    confidence: 0.9
+    desc: WScript.Shell command execution
+    crit: suspicious
+    conf: 0.9
     attack: "T1059.005"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule wscript_shell {
@@ -22,12 +22,12 @@ traits:
 
   # Scripting.FileSystemObject
   - id: filesystem-object
-    description: Scripting.FileSystemObject usage
-    criticality: suspicious
-    confidence: 0.85
+    desc: Scripting.FileSystemObject usage
+    crit: suspicious
+    conf: 0.85
     attack: "T1059.005"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule filesystem_object {
@@ -39,12 +39,12 @@ traits:
 
   # ActiveXObject creation
   - id: activex-object
-    description: ActiveXObject instantiation
-    criticality: notable
-    confidence: 0.8
+    desc: ActiveXObject instantiation
+    crit: notable
+    conf: 0.8
     attack: "T1559.001"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule activex_object {
@@ -56,12 +56,12 @@ traits:
 
   # Shell.Application (explorer shell)
   - id: shell-application
-    description: Shell.Application COM object
-    criticality: suspicious
-    confidence: 0.85
+    desc: Shell.Application COM object
+    crit: suspicious
+    conf: 0.85
     attack: "T1559.001"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule shell_application {
@@ -73,12 +73,12 @@ traits:
 
   # MSXML HTTP request
   - id: msxml-http
-    description: MSXML HTTP request object
-    criticality: notable
-    confidence: 0.75
+    desc: MSXML HTTP request object
+    crit: notable
+    conf: 0.75
     attack: "T1071.001"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule msxml_http {
@@ -92,12 +92,12 @@ traits:
 
   # WMI scripting
   - id: wmi-scripting
-    description: WMI scripting access
-    criticality: suspicious
-    confidence: 0.85
+    desc: WMI scripting access
+    crit: suspicious
+    conf: 0.85
     attack: "T1047"
-    file_types: [javascript, typescript, powershell]
-    condition:
+    for: [javascript, typescript, powershell]
+    if:
       type: yara
       source: |
         rule wmi_scripting {
@@ -110,12 +110,12 @@ traits:
 
   # ADODB stream (file operations)
   - id: adodb-stream
-    description: ADODB.Stream for file operations
-    criticality: suspicious
-    confidence: 0.85
+    desc: ADODB.Stream for file operations
+    crit: suspicious
+    conf: 0.85
     attack: "T1059.005"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule adodb_stream {
@@ -127,12 +127,12 @@ traits:
 
   # Schedule.Service (task scheduler)
   - id: schedule-service
-    description: Task Scheduler COM object access
-    criticality: suspicious
-    confidence: 0.9
+    desc: Task Scheduler COM object access
+    crit: suspicious
+    conf: 0.9
     attack: "T1053.005"
-    file_types: [javascript, typescript, powershell]
-    condition:
+    for: [javascript, typescript, powershell]
+    if:
       type: yara
       source: |
         rule schedule_service {
@@ -145,12 +145,12 @@ traits:
 
   # Registry manipulation via scripting
   - id: registry-scripting
-    description: Registry manipulation via scripting
-    criticality: suspicious
-    confidence: 0.85
+    desc: Registry manipulation via scripting
+    crit: suspicious
+    conf: 0.85
     attack: "T1112"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule registry_scripting {
@@ -167,12 +167,12 @@ traits:
 
   # Windows Script Host dropper
   - id: wsh-dropper
-    description: Windows Script Host dropper pattern (download and execute)
-    criticality: suspicious
-    confidence: 0.95
+    desc: Windows Script Host dropper pattern (download and execute)
+    crit: suspicious
+    conf: 0.95
     attack: "T1059.005"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule wsh_dropper {

@@ -6,49 +6,49 @@
 defaults:
   attack: "T1555"
   mbc: "B0028"
-  criticality: suspicious
+  crit: suspicious
 
 traits:
   # BIP-39 word count patterns (12, 15, 18, 21, 24 words)
   - id: word-count-check
-    description: "Mnemonic word count validation (12/15/18/21/24)"
-    confidence: 0.85
-    criticality: suspicious
-    condition:
+    desc: "Mnemonic word count validation (12/15/18/21/24)"
+    conf: 0.85
+    crit: suspicious
+    if:
       type: string
       regex: "split\\([^)]*\\)\\s*\\.\\s*length\\s*[=!<>]+\\s*(12|15|18|21|24)|len\\([^)]*split[^)]*\\)\\s*[=!<>]+\\s*(12|15|18|21|24)|words?_?count\\s*[=!<>]+\\s*(12|15|18|21|24)"
 
   # Common mnemonic-related variable/function names
   - id: variable-names
-    description: "Mnemonic-related variable or function names"
-    confidence: 0.8
-    condition:
+    desc: "Mnemonic-related variable or function names"
+    conf: 0.8
+    if:
       type: string
       regex: "\\b(mnemonic|seed_phrase|seedphrase|recovery_phrase|recoveryPhrase|secret_words|secretWords|wallet_words|walletWords)\\s*[=:]"
 
   # BIP-39 wordlist references
   - id: bip39-wordlist
-    description: "BIP-39 wordlist reference"
-    confidence: 0.85
-    condition:
+    desc: "BIP-39 wordlist reference"
+    conf: 0.85
+    if:
       type: string
       regex: "bip39|bip-39|wordlist|word_list|english\\.txt.*mnemonic|mnemonic.*english\\.txt"
 
   # Mnemonic validation patterns
   - id: validation-pattern
-    description: "Mnemonic phrase validation logic"
-    confidence: 0.85
-    criticality: suspicious
-    condition:
+    desc: "Mnemonic phrase validation logic"
+    conf: 0.85
+    crit: suspicious
+    if:
       type: string
       regex: "validate.*mnemonic|mnemonic.*valid|check.*seed.*phrase|verify.*recovery"
 
   # Private key extraction in wallet context (not general crypto)
   - id: private-key-hex
-    description: "Wallet private key extraction"
-    confidence: 0.85
-    criticality: suspicious
-    condition:
+    desc: "Wallet private key extraction"
+    conf: 0.85
+    crit: suspicious
+    if:
       type: string
       # Require wallet/crypto context, not just "private_key" which is used by SSH/TLS
       # "dump.*private" removed - matches debug output like "dump: C192:%{private" in Bluetooth
@@ -56,254 +56,254 @@ traits:
 
   # Bitcoin WIF private key format detection
   - id: bitcoin-wif
-    description: "Bitcoin WIF private key format reference"
-    confidence: 0.85
-    criticality: suspicious
-    condition:
+    desc: "Bitcoin WIF private key format reference"
+    conf: 0.85
+    crit: suspicious
+    if:
       type: string
       # Require wallet/bitcoin context - "wif" alone matches wireless interface
       regex: "wallet_import_format|WIF.*key|WIF.*private|bitcoin.*wif|wif.*bitcoin|decode.*wif|encode.*wif|to_?wif|from_?wif"
 
   # HD wallet derivation path patterns
   - id: derivation-path
-    description: "HD wallet derivation path (BIP-44/49/84)"
-    confidence: 0.8
-    condition:
+    desc: "HD wallet derivation path (BIP-44/49/84)"
+    conf: 0.8
+    if:
       type: string
       regex: "m/44'/|m/49'/|m/84'/|m/86'/|derivation_?path|derivationPath"
 
   # Keystore/JSON wallet file patterns
   - id: keystore-file
-    description: "Ethereum keystore file reference"
-    confidence: 0.8
-    condition:
+    desc: "Ethereum keystore file reference"
+    conf: 0.8
+    if:
       type: string
       # Ethereum-specific patterns, avoid matching OS "keystore" services
       regex: "UTC--.*--[a-fA-F0-9]{40}|ethereum.*keystore|keystore.*ethereum|web3.*keystore|\\.json.*wallet"
 
   # === Mnemonic/seed phrase term atomic indicators ===
   - id: mnemonic-word
-    description: mnemonic term
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: mnemonic term
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "mnemonic"
 
   - id: seed-phrase-underscore
-    description: seed_phrase term
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: seed_phrase term
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "seed_phrase"
 
   - id: seedphrase-word
-    description: seedphrase term
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: seedphrase term
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "seedphrase"
 
   - id: recovery-phrase-word
-    description: recovery_phrase term
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: recovery_phrase term
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "recovery_phrase"
 
   - id: secret-words-word
-    description: secret_words term
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: secret_words term
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "secret_words"
 
   # === Network exfiltration atomic indicators ===
   - id: requests-post
-    description: Python requests.post call
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: Python requests.post call
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: "requests\\.post"
 
   - id: requests-get
-    description: Python requests.get call
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: Python requests.get call
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       regex: "requests\\.get"
 
   - id: urllib-word
-    description: urllib reference
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: urllib reference
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       exact: "urllib"
 
   - id: socket-dot
-    description: socket module usage
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: socket module usage
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       regex: "socket\\."
 
   - id: fetch-call
-    description: JavaScript fetch call
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: JavaScript fetch call
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       regex: "fetch\\("
 
   - id: xmlhttprequest-word
-    description: XMLHttpRequest reference
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: XMLHttpRequest reference
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       exact: "XMLHttpRequest"
 
   # === Wallet/crypto context atomic indicators ===
   - id: wallet-word
-    description: wallet term
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: wallet term
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "wallet"
 
   - id: crypto-word
-    description: crypto term
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: crypto term
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "crypto"
 
   - id: metamask-word
-    description: MetaMask reference
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: MetaMask reference
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "metamask"
 
   - id: phantom-word
-    description: Phantom wallet reference
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: Phantom wallet reference
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "phantom"
 
   - id: browser-word
-    description: browser term
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: browser term
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       exact: "browser"
 
   # === Private key variable atomic indicators ===
   - id: private-key-underscore
-    description: private_key variable
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: private_key variable
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "private_key"
 
   - id: privatekey-nospace
-    description: privatekey variable (no separator)
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: privatekey variable (no separator)
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "privatekey"
 
   - id: privatekey-camel
-    description: privateKey variable (camelCase)
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: privateKey variable (camelCase)
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "privateKey"
 
   # === Keystore reference atomic indicators ===
   - id: keystore-singular
-    description: keystore reference
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: keystore reference
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "keystore"
 
   - id: keystores-plural
-    description: keystores reference (plural)
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: keystores reference (plural)
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "keystores"
 
   # === Derivation path atomic indicators ===
   - id: derivation-path-words
-    description: derivation path words
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: derivation path words
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: "derivation.*path"
 
   - id: bip44-path-prefix
-    description: BIP-44 derivation path prefix (m/44'/)
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: BIP-44 derivation path prefix (m/44'/)
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "m/44'/"
 
   # === BIP-39 reference atomic indicators ===
   - id: bip39-exact
-    description: bip39 reference
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: bip39 reference
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "bip39"
 
   - id: bip-39-hyphen
-    description: bip-39 reference (hyphenated)
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: bip-39 reference (hyphenated)
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "bip-39"
 
   - id: wordlist-word
-    description: wordlist reference
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: wordlist reference
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       exact: "wordlist"
 
 composite_rules:
   # Mnemonic terms composite
   - id: mnemonic-terms
-    description: Mnemonic or seed phrase terminology
-    criticality: notable
-    confidence: 0.7
+    desc: Mnemonic or seed phrase terminology
+    crit: notable
+    conf: 0.7
     requires_count: 1
-    conditions:
+    any:
       - id: mnemonic-word
       - id: seed-phrase-underscore
       - id: seedphrase-word
@@ -312,11 +312,11 @@ composite_rules:
 
   # Wallet context composite
   - id: wallet-context
-    description: Wallet or cryptocurrency context
-    criticality: notable
-    confidence: 0.7
+    desc: Wallet or cryptocurrency context
+    crit: notable
+    conf: 0.7
     requires_count: 1
-    conditions:
+    any:
       - id: wallet-word
       - id: crypto-word
       - id: metamask-word
@@ -325,11 +325,11 @@ composite_rules:
 
   # Network exfiltration composite
   - id: network-exfil
-    description: Network request patterns for exfiltration
-    criticality: notable
-    confidence: 0.7
+    desc: Network request patterns for exfiltration
+    crit: notable
+    conf: 0.7
     requires_count: 1
-    conditions:
+    any:
       - id: requests-post
       - id: requests-get
       - id: urllib-word
@@ -339,69 +339,69 @@ composite_rules:
 
   # Private key variable composite
   - id: private-key-var
-    description: Private key variable or property
-    criticality: notable
-    confidence: 0.7
+    desc: Private key variable or property
+    crit: notable
+    conf: 0.7
     requires_count: 1
-    conditions:
+    any:
       - id: private-key-underscore
       - id: privatekey-nospace
       - id: privatekey-camel
 
   # Keystore reference composite
   - id: keystore-ref
-    description: Keystore reference
-    criticality: notable
-    confidence: 0.7
+    desc: Keystore reference
+    crit: notable
+    conf: 0.7
     requires_count: 1
-    conditions:
+    any:
       - id: keystore-singular
       - id: keystores-plural
 
   # Derivation path composite
   - id: derivation-pattern
-    description: Wallet derivation path pattern
-    criticality: notable
-    confidence: 0.7
+    desc: Wallet derivation path pattern
+    crit: notable
+    conf: 0.7
     requires_count: 1
-    conditions:
+    any:
       - id: derivation-path-words
       - id: bip44-path-prefix
 
   # BIP-39 reference composite
   - id: bip39-ref
-    description: BIP-39 or wordlist reference
-    criticality: notable
-    confidence: 0.7
+    desc: BIP-39 or wordlist reference
+    crit: notable
+    conf: 0.7
     requires_count: 1
-    conditions:
+    any:
       - id: bip39-exact
       - id: bip-39-hyphen
       - id: wordlist-word
 
   # Mnemonic extraction with file/network operations
   - id: stealer-pattern
-    description: "Mnemonic phrase theft (extraction + exfiltration)"
-    criticality: hostile
-    confidence: 0.95
+    desc: "Mnemonic phrase theft (extraction + exfiltration)"
+    crit: hostile
+    conf: 0.95
     attack: "T1555"
     mbc: "B0028"
-    file_types: [python, javascript]
-    requires_all:
+    for: [python, javascript]
+    all:
       - id: mnemonic-terms
       - id: network-exfil
       - id: wallet-context
 
   # Multiple wallet-related patterns = wallet stealer
   - id: comprehensive-stealer
-    description: "Comprehensive wallet credential theft"
-    criticality: hostile
-    confidence: 0.95
+    desc: "Comprehensive wallet credential theft"
+    crit: hostile
+    conf: 0.95
     attack: "T1555"
     mbc: "B0028"
-    file_types: [python, javascript, elf, pe, macho]
+    for: [python, javascript, elf, pe, macho]
     requires_count: 3
-    conditions:
+    any:
       - id: mnemonic-terms
       - id: private-key-var
       - id: keystore-ref

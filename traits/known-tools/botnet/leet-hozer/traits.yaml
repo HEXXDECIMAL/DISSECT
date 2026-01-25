@@ -5,8 +5,8 @@
 traits:
   - id: botnet/leet-hozer/xor-key
     description: LeetHozer XOR encryption key
-    criticality: suspicious
-    confidence: 0.99
+    crit: suspicious
+    conf: 0.99
     family: true
     attack: "T1027"
     file_types: [elf]
@@ -18,8 +18,8 @@ traits:
   # This trait should only trigger alongside the XOR key
   - id: botnet/leet-hozer/dev-full
     description: LeetHozer /dev/full usage (requires XOR key)
-    criticality: notable
-    confidence: 0.3
+    crit: notable
+    conf: 0.3
     family: true
     attack: "T1498"
     file_types: [elf]
@@ -30,8 +30,8 @@ traits:
   # Moved from composite_rules - YARA with magic bytes + filesize + strings
   - id: botnet/leet-hozer/detected
     description: LeetHozer botnet client
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     reference: "https://blog.netlab.360.com/the-leethozer-botnet-en/"
     attack: "T1498"

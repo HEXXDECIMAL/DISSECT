@@ -269,12 +269,13 @@ pub struct Finding {
     #[serde(default)]
     pub kind: FindingKind,
     /// Human-readable description
-    pub description: String,
+    pub desc: String,
     /// Confidence score (0.5 = heuristic, 1.0 = definitive)
-    pub confidence: f32,
+    #[serde(alias = "confidence")]
+    pub conf: f32,
     /// Criticality level
     #[serde(default)]
-    pub criticality: Criticality,
+    pub crit: Criticality,
     /// MBC (Malware Behavior Catalog) ID
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub mbc: Option<String>,
@@ -290,13 +291,13 @@ pub struct Finding {
 }
 
 impl Finding {
-    pub fn new(id: String, kind: FindingKind, description: String, confidence: f32) -> Self {
+    pub fn new(id: String, kind: FindingKind, desc: String, conf: f32) -> Self {
         Self {
             id,
             kind,
-            description,
-            confidence,
-            criticality: Criticality::Inert,
+            desc,
+            conf,
+            crit: Criticality::Inert,
             mbc: None,
             attack: None,
             trait_refs: Vec::new(),
@@ -305,27 +306,27 @@ impl Finding {
     }
 
     /// Create a capability finding
-    pub fn capability(id: String, description: String, confidence: f32) -> Self {
-        Self::new(id, FindingKind::Capability, description, confidence)
+    pub fn capability(id: String, desc: String, conf: f32) -> Self {
+        Self::new(id, FindingKind::Capability, desc, conf)
     }
 
     /// Create a structural finding (obfuscation, packing, etc.)
-    pub fn structural(id: String, description: String, confidence: f32) -> Self {
-        Self::new(id, FindingKind::Structural, description, confidence)
+    pub fn structural(id: String, desc: String, conf: f32) -> Self {
+        Self::new(id, FindingKind::Structural, desc, conf)
     }
 
     /// Create an indicator finding (threat signals)
-    pub fn indicator(id: String, description: String, confidence: f32) -> Self {
-        Self::new(id, FindingKind::Indicator, description, confidence)
+    pub fn indicator(id: String, desc: String, conf: f32) -> Self {
+        Self::new(id, FindingKind::Indicator, desc, conf)
     }
 
     /// Create a weakness finding (vulnerabilities)
-    pub fn weakness(id: String, description: String, confidence: f32) -> Self {
-        Self::new(id, FindingKind::Weakness, description, confidence)
+    pub fn weakness(id: String, desc: String, conf: f32) -> Self {
+        Self::new(id, FindingKind::Weakness, desc, conf)
     }
 
-    pub fn with_criticality(mut self, criticality: Criticality) -> Self {
-        self.criticality = criticality;
+    pub fn with_criticality(mut self, crit: Criticality) -> Self {
+        self.crit = crit;
         self
     }
 
@@ -356,7 +357,7 @@ pub struct StructuralFeature {
     /// Feature identifier using / delimiter (e.g., "binary/format/macho")
     pub id: String,
     /// Human-readable description
-    pub description: String,
+    pub desc: String,
     /// Evidence supporting this feature
     pub evidence: Vec<Evidence>,
 }
@@ -663,7 +664,7 @@ pub struct YaraMatch {
     pub rule: String,
     pub namespace: String,
     pub severity: String,
-    pub description: String,
+    pub desc: String,
     #[serde(default)]
     pub matched_strings: Vec<MatchedString>,
     /// Whether this match should be upgraded to a capability
@@ -887,7 +888,7 @@ pub struct DecodedValue {
     pub decoded_value: String,
     /// Confidence in this interpretation (0.0-1.0)
     #[serde(default, skip_serializing_if = "is_zero_f32")]
-    pub confidence: f32,
+    pub conf: f32,
 }
 
 /// Function-level properties
@@ -1046,7 +1047,7 @@ pub struct BinaryAnomaly {
     /// Anomaly type (no_section_header, overlapping_functions, etc)
     pub anomaly_type: String,
     /// Description
-    pub description: String,
+    pub desc: String,
     /// Severity (low, medium, high)
     pub severity: String,
 }
@@ -1071,7 +1072,7 @@ pub struct OverlayMetrics {
     pub embedded_file_count: u32,
     /// Types of embedded files found (zstd, gzip, elf, etc)
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub embedded_file_types: Vec<String>,
+    pub embedded_for: Vec<String>,
     /// Offset where overlay begins
     #[serde(default, skip_serializing_if = "is_zero_u64")]
     pub overlay_start: u64,
@@ -3626,7 +3627,7 @@ pub struct ObfuscationScore {
     pub score: f32,
     /// Confidence in the score
     #[serde(default, skip_serializing_if = "is_zero_f32")]
-    pub confidence: f32,
+    pub conf: f32,
 
     // === Component Scores ===
     /// Naming obfuscation score
@@ -3658,7 +3659,7 @@ pub struct PackingScore {
     pub score: f32,
     /// Confidence in the score
     #[serde(default, skip_serializing_if = "is_zero_f32")]
-    pub confidence: f32,
+    pub conf: f32,
 
     // === Component Scores ===
     /// Entropy-based score
@@ -3690,7 +3691,7 @@ pub struct SupplyChainScore {
     pub score: f32,
     /// Confidence in the score
     #[serde(default, skip_serializing_if = "is_zero_f32")]
-    pub confidence: f32,
+    pub conf: f32,
 
     // === Component Scores ===
     /// Install script risk
@@ -3914,9 +3915,9 @@ mod tests {
         let finding = Finding {
             id: "net/socket".to_string(),
             kind: FindingKind::Capability,
-            description: "Network socket".to_string(),
-            confidence: 1.0,
-            criticality: Criticality::Inert,
+            desc: "Network socket".to_string(),
+            conf: 1.0,
+            crit: Criticality::Inert,
             mbc: None,
             attack: None,
             trait_refs: vec![],
@@ -3924,7 +3925,7 @@ mod tests {
         };
 
         assert_eq!(finding.id, "net/socket");
-        assert_eq!(finding.confidence, 1.0);
+        assert_eq!(finding.conf, 1.0);
         assert!(finding.evidence.len() == 1);
     }
 
@@ -4063,7 +4064,7 @@ mod tests {
             rule: "malware_rule".to_string(),
             namespace: "malware".to_string(),
             severity: "high".to_string(),
-            description: "Malware detected".to_string(),
+            desc: "Malware detected".to_string(),
             matched_strings: vec![],
             is_capability: false,
             mbc: None,
@@ -4088,7 +4089,7 @@ mod tests {
     fn test_structural_feature_serialization() {
         let feature = StructuralFeature {
             id: "binary/stripped".to_string(),
-            description: "Binary is stripped".to_string(),
+            desc: "Binary is stripped".to_string(),
             evidence: vec![],
         };
 
@@ -4096,7 +4097,7 @@ mod tests {
         let deserialized: StructuralFeature = serde_json::from_str(&json).unwrap();
 
         assert_eq!(deserialized.id, "binary/stripped");
-        assert_eq!(deserialized.description, "Binary is stripped");
+        assert_eq!(deserialized.desc, "Binary is stripped");
     }
 
     #[test]

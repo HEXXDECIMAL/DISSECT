@@ -3,64 +3,64 @@
 # ATT&CK: T1071.001
 
 defaults:
-  file_types: [python]
+  for: [python]
 
 traits:
   # === HTTP library atomic indicators ===
   - id: requests-get
-    description: requests.get call
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: requests.get call
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "requests.get"
 
   - id: requests-post
-    description: requests.post call
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: requests.post call
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "requests.post"
 
   - id: urllib-urlopen
-    description: urllib.request.urlopen call
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: urllib.request.urlopen call
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "urllib.request.urlopen"
 
   - id: aiohttp-session
-    description: aiohttp.ClientSession usage
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: aiohttp.ClientSession usage
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "aiohttp.ClientSession"
 
   - id: httpx-get
-    description: httpx.get call
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: httpx.get call
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "httpx.get"
 
   - id: httpx-post
-    description: httpx.post call
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: httpx.post call
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "httpx.post"
 
   - id: url-literal
-    description: "Direct URL literal in HTTP request"
-    criticality: notable
-    confidence: 0.8
-    file_types: [python]
-    condition:
+    desc: "Direct URL literal in HTTP request"
+    crit: notable
+    conf: 0.8
+    for: [python]
+    if:
       type: ast_query
       language: python
       query: |
@@ -76,11 +76,11 @@ traits:
 composite_rules:
   # HTTP request composite
   - id: request-python
-    description: "Performs HTTP request (urllib, requests, aiohttp, httpx)"
-    criticality: inert
-    confidence: 0.9
-    requires_count: 1
-    conditions:
+    desc: "Performs HTTP request (urllib, requests, aiohttp, httpx)"
+    crit: inert
+    conf: 0.9
+    count: 1
+    any:
       - id: requests-get
       - id: requests-post
       - id: urllib-urlopen
@@ -90,21 +90,21 @@ composite_rules:
 
   # HTTP GET composite
   - id: get
-    description: "Performs HTTP GET request"
-    criticality: notable
-    confidence: 0.9
-    requires_count: 1
-    conditions:
+    desc: "Performs HTTP GET request"
+    crit: notable
+    conf: 0.9
+    count: 1
+    any:
       - id: requests-get
       - id: httpx-get
 
   # HTTP POST composite
   - id: post
-    description: "Performs HTTP POST request (Exfiltration indicator)"
-    criticality: notable
-    confidence: 0.9
-    requires_count: 1
-    conditions:
+    desc: "Performs HTTP POST request (Exfiltration indicator)"
+    crit: notable
+    conf: 0.9
+    count: 1
+    any:
       - id: requests-post
       - id: httpx-post
 

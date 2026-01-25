@@ -7,7 +7,7 @@ defaults:
 traits:
   - id: get
     description: Get system time
-    criticality: notable
+    crit: notable
     confidence: 0.70
     condition:
       type: symbol
@@ -15,7 +15,7 @@ traits:
 
   - id: local
     description: Convert to local time
-    criticality: notable
+    crit: notable
     confidence: 0.65
     condition:
       type: symbol
@@ -23,7 +23,7 @@ traits:
 
   - id: alarm
     description: Set alarm timer
-    criticality: notable
+    crit: notable
     confidence: 0.75
     condition:
       type: symbol

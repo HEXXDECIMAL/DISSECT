@@ -7,123 +7,123 @@ traits:
   # === Atomic: Reverse Shell Indicators ===
 
   - id: reverse-shell-ref
-    description: Reverse shell terminology reference
-    criticality: suspicious
-    confidence: 0.9
+    desc: Reverse shell terminology reference
+    crit: suspicious
+    conf: 0.9
     attack: "T1059"
     platforms: [all]
-    condition:
+    if:
       type: string
       regex: "reverse[_\\s]?shell|revshell|r[e3]v[e3]rs[e3][_\\s]*sh[e3]ll"
       case_insensitive: true
 
   - id: webshell-ref
-    description: Web shell terminology reference
-    criticality: suspicious
-    confidence: 0.9
+    desc: Web shell terminology reference
+    crit: suspicious
+    conf: 0.9
     attack: "T1505.003"
     platforms: [all]
-    condition:
+    if:
       type: string
       regex: "w[3e]b[_\\s]*sh[e3]ll"
       case_insensitive: true
 
   - id: backdoor-ref
-    description: Backdoor terminology reference
-    criticality: suspicious
-    confidence: 0.75
+    desc: Backdoor terminology reference
+    crit: suspicious
+    conf: 0.75
     attack: "T1059"
     platforms: [all]
-    condition:
+    if:
       type: string
       regex: "\\b[Bb]ackdoor\\b"
 
   # === Atomic: Bash Reverse Shell ===
 
   - id: bash-dev-tcp
-    description: Bash /dev/tcp reverse shell
-    criticality: suspicious
-    confidence: 0.95
+    desc: Bash /dev/tcp reverse shell
+    crit: suspicious
+    conf: 0.95
     attack: "T1059.004"
     platforms: [linux, macos, unix]
-    condition:
+    if:
       type: string
       regex: "bash\\s+-i\\s+>&\\s*/dev/tcp/"
 
   - id: stdin-redirect
-    description: Stdin redirection (reverse shell indicator)
-    criticality: suspicious
-    confidence: 0.7
+    desc: Stdin redirection (reverse shell indicator)
+    crit: suspicious
+    conf: 0.7
     attack: "T1059"
     platforms: [all]
-    condition:
+    if:
       type: string
       exact: "0>&1"
 
   # === Atomic: mkfifo + Netcat ===
 
   - id: mkfifo
-    description: mkfifo command (named pipe for shell)
-    criticality: suspicious
-    confidence: 0.6
+    desc: mkfifo command (named pipe for shell)
+    crit: suspicious
+    conf: 0.6
     attack: "T1059"
     platforms: [linux, macos, unix]
     # Exclude JS - syntax highlighters have shell command keywords
-    file_types: [shell, elf, macho, python]
-    condition:
+    for: [shell, elf, macho, python]
+    if:
       type: string
       exact: "mkfifo"
 
   - id: sh-interactive
-    description: Interactive shell invocation
-    criticality: notable
-    confidence: 0.5
+    desc: Interactive shell invocation
+    crit: notable
+    conf: 0.5
     attack: "T1059"
     platforms: [linux, macos, unix]
-    condition:
+    if:
       type: string
       exact: "sh -i"
 
   - id: nc-pipe
-    description: Netcat with pipe
-    criticality: suspicious
-    confidence: 0.7
+    desc: Netcat with pipe
+    crit: suspicious
+    conf: 0.7
     attack: "T1059"
     platforms: [linux, macos, unix]
-    condition:
+    if:
       type: string
       regex: "\\|\\s*nc\\s"
 
   # === Atomic: Socket + Shell (Generic) ===
 
   - id: socket-ref
-    description: Socket reference
-    criticality: inert
-    confidence: 0.5
+    desc: Socket reference
+    crit: inert
+    conf: 0.5
     platforms: [all]
-    condition:
+    if:
       type: string
       exact: "socket"
 
   - id: reverse-keyword
-    description: Reverse keyword reference
-    criticality: inert
-    confidence: 0.3
+    desc: Reverse keyword reference
+    crit: inert
+    conf: 0.3
     platforms: [all]
-    condition:
+    if:
       type: string
       exact: "reverse"
 
   # === Atomic: Perl Reverse Shell ===
 
   - id: perl-socket-open
-    description: Perl socket with open (reverse shell pattern)
-    criticality: suspicious
-    confidence: 0.8
+    desc: Perl socket with open (reverse shell pattern)
+    crit: suspicious
+    conf: 0.8
     attack: "T1059.006"
     platforms: [all]
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: yara
       source: |
         rule perl_rev_shell {
@@ -139,108 +139,108 @@ traits:
   # === Atomic: Ruby Reverse Shell ===
 
   - id: ruby-tcpsocket-spawn
-    description: Ruby TCPSocket with spawn (reverse shell)
-    criticality: suspicious
-    confidence: 0.9
+    desc: Ruby TCPSocket with spawn (reverse shell)
+    crit: suspicious
+    conf: 0.9
     attack: "T1059.006"
     platforms: [all]
-    file_types: [ruby]
-    condition:
+    for: [ruby]
+    if:
       type: string
       regex: "spawn\\([\"']/bin/sh[\"'],.{0,64}TCPSocket"
 
   - id: ruby-tcpsocket-popen
-    description: Ruby TCPSocket with popen (reverse shell)
-    criticality: suspicious
-    confidence: 0.9
+    desc: Ruby TCPSocket with popen (reverse shell)
+    crit: suspicious
+    conf: 0.9
     attack: "T1059.006"
     platforms: [all]
-    file_types: [ruby]
-    condition:
+    for: [ruby]
+    if:
       type: string
       regex: "TCPSocket.{0,64}\\.gets.{0,64}IO.popen"
 
   # === Atomic: Go Reverse Shell Functions ===
 
   - id: go-cmd-run
-    description: Go os/exec.Cmd.Run
-    criticality: notable
-    confidence: 0.5
+    desc: Go os/exec.Cmd.Run
+    crit: notable
+    conf: 0.5
     platforms: [all]
-    file_types: [elf, macho]
-    condition:
+    for: [elf, macho]
+    if:
       type: string
       exact: "os/exec.(*Cmd).Run"
 
   - id: go-net-conn
-    description: Go net.conn.Write
-    criticality: notable
-    confidence: 0.5
+    desc: Go net.conn.Write
+    crit: notable
+    conf: 0.5
     platforms: [all]
-    file_types: [elf, macho]
-    condition:
+    for: [elf, macho]
+    if:
       type: string
       exact: "net.(*conn).Write"
 
   - id: go-child-stdin
-    description: Go exec.Cmd.childStdin
-    criticality: suspicious
-    confidence: 0.7
+    desc: Go exec.Cmd.childStdin
+    crit: suspicious
+    conf: 0.7
     platforms: [all]
-    file_types: [elf, macho]
-    condition:
+    for: [elf, macho]
+    if:
       type: string
       exact: "os/exec.(*Cmd).childStdin"
 
   - id: go-dial-tcp
-    description: Go dialTCP
-    criticality: notable
-    confidence: 0.5
+    desc: Go dialTCP
+    crit: notable
+    conf: 0.5
     platforms: [all]
-    file_types: [elf, macho]
-    condition:
+    for: [elf, macho]
+    if:
       type: string
       exact: "dialTCP"
 
 composite_rules:
   - id: mkfifo-netcat-shell
-    description: Reverse shell via mkfifo and netcat
-    criticality: suspicious
-    confidence: 0.95
+    desc: Reverse shell via mkfifo and netcat
+    crit: suspicious
+    conf: 0.95
     attack: "T1059.004"
     mbc: "B0022"
     platforms: [linux, macos, unix]
-    requires_all:
+    all:
       - id: mkfifo
       - id: sh-interactive
       - id: nc-pipe
 
   - id: go-reverse-shell
-    description: Go reverse shell pattern
-    criticality: suspicious
-    confidence: 0.9
+    desc: Go reverse shell pattern
+    crit: suspicious
+    conf: 0.9
     attack: "T1059"
     mbc: "B0022"
     platforms: [all]
-    file_types: [elf, macho]
-    requires_any:
+    for: [elf, macho]
+    any:
       - id: exec/command/shell/bin-bash
       - id: exec/command/shell/bin-sh
-    requires_all:
+    all:
       - id: go-cmd-run
       - id: go-net-conn
       - id: go-child-stdin
       - id: go-dial-tcp
 
   - id: generic-reverse-shell
-    description: Generic reverse shell pattern (socket + shell)
-    criticality: suspicious
-    confidence: 0.8
+    desc: Generic reverse shell pattern (socket + shell)
+    crit: suspicious
+    conf: 0.8
     attack: "T1059"
     platforms: [all]
-    requires_all:
+    all:
       - id: reverse-keyword
       - id: socket-ref
-    requires_any:
+    any:
       - id: exec/command/shell/bin-bash
       - id: exec/command/shell/bin-sh

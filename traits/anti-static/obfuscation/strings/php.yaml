@@ -3,15 +3,15 @@
 # ATT&CK: T1027
 
 defaults:
-  file_types: [php]
+  for: [php]
 
 traits:
   - id: strings-chr-concat
-    description: String obfuscation via chr() concatenation
-    criticality: notable
-    confidence: 0.66
+    desc: String obfuscation via chr() concatenation
+    crit: notable
+    conf: 0.66
     mbc: "B0032"
     attack: "T1027"
-    condition:
+    if:
       type: string
       regex: "chr\\(\\d+\\)\\s*\\.\\s*chr\\(\\d+\\)"

@@ -4,7 +4,7 @@
 traits:
   - id: mprotect
     description: Change memory protection (mprotect)
-    criticality: inert
+    crit: inert
     confidence: 1.0
     attack: "T1055"
     platforms: [linux, macos, unix]
@@ -15,7 +15,7 @@ traits:
 
   - id: mprotect-string
     description: mprotect reference in source/script
-    criticality: notable
+    crit: notable
     confidence: 0.7
     attack: "T1055"
     platforms: [linux, macos, unix]

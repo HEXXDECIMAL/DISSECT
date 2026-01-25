@@ -4,7 +4,7 @@
 
 defaults:
   # osascript can be invoked from any language: python subprocess, ruby system(), etc.
-  file_types: [applescript, shell, python, ruby, perl, javascript, elf, macho]
+  for: [applescript, shell, python, ruby, perl, javascript, elf, macho]
   platforms: [macos]
   attack: "T1056.002"
 
@@ -13,26 +13,26 @@ traits:
   # Password Dialog Patterns
   # ============================================
   - id: display-dialog-password
-    description: "Display dialog asking for password"
-    criticality: suspicious
-    confidence: 0.9
-    condition:
+    desc: "Display dialog asking for password"
+    crit: suspicious
+    conf: 0.9
+    if:
       type: string
       regex: "(?i)display dialog.*password"
 
   - id: default-answer-password
-    description: "Default answer field for password"
-    criticality: suspicious
-    confidence: 0.9
-    condition:
+    desc: "Default answer field for password"
+    crit: suspicious
+    conf: 0.9
+    if:
       type: string
       regex: "(?i)default answer.*password"
 
   - id: hidden-answer
-    description: "Hidden answer input (password masking)"
-    criticality: suspicious
-    confidence: 0.85
-    condition:
+    desc: "Hidden answer input (password masking)"
+    crit: suspicious
+    conf: 0.85
+    if:
       type: string
       exact: "with hidden answer"
 
@@ -40,26 +40,26 @@ traits:
   # Fake System Dialog
   # ============================================
   - id: icon-caution
-    description: "Dialog with caution icon"
-    criticality: notable
-    confidence: 0.7
-    condition:
+    desc: "Dialog with caution icon"
+    crit: notable
+    conf: 0.7
+    if:
       type: string
       regex: "with icon caution"
 
   - id: icon-stop
-    description: "Dialog with stop icon"
-    criticality: notable
-    confidence: 0.7
-    condition:
+    desc: "Dialog with stop icon"
+    crit: notable
+    conf: 0.7
+    if:
       type: string
       regex: "with icon stop"
 
   - id: enter-password-prompt
-    description: "Prompts user to enter password"
-    criticality: suspicious
-    confidence: 0.85
-    condition:
+    desc: "Prompts user to enter password"
+    crit: suspicious
+    conf: 0.85
+    if:
       type: string
       regex: "(?i)enter.*password"
 
@@ -67,52 +67,52 @@ traits:
   # Keychain Password Prompts
   # ============================================
   - id: keychain-password
-    description: "Asks for keychain password"
-    criticality: suspicious
-    confidence: 0.9
+    desc: "Asks for keychain password"
+    crit: suspicious
+    conf: 0.9
     attack: "T1555.001"
-    condition:
+    if:
       type: string
       regex: "(?i)keychain.*password"
 
   - id: admin-password
-    description: "Asks for admin password"
-    criticality: suspicious
-    confidence: 0.85
-    condition:
+    desc: "Asks for admin password"
+    crit: suspicious
+    conf: 0.85
+    if:
       type: string
       regex: "(?i)admin.*password"
 
 composite_rules:
   # Password prompt patterns group
   - id: password-prompt-pattern
-    description: Password dialog prompt
-    criticality: suspicious
-    confidence: 0.8
+    desc: Password dialog prompt
+    crit: suspicious
+    conf: 0.8
     requires_count: 1
-    conditions:
+    any:
       - id: display-dialog-password
       - id: default-answer-password
       - id: enter-password-prompt
 
   # Fake dialog UI elements group
   - id: fake-dialog-ui
-    description: Fake dialog UI element
-    criticality: notable
-    confidence: 0.7
+    desc: Fake dialog UI element
+    crit: notable
+    conf: 0.7
     requires_count: 1
-    conditions:
+    any:
       - id: hidden-answer
       - id: icon-caution
       - id: icon-stop
 
   # System credential prompts group
   - id: system-cred-prompt
-    description: System credential prompt
-    criticality: suspicious
-    confidence: 0.85
+    desc: System credential prompt
+    crit: suspicious
+    conf: 0.85
     requires_count: 1
-    conditions:
+    any:
       - id: keychain-password
       - id: admin-password
 
@@ -120,10 +120,10 @@ composite_rules:
   # Password Phishing Dialog
   # ============================================
   - id: password-phishing
-    description: AppleScript password phishing dialog
-    criticality: hostile
-    confidence: 0.95
-    requires_all:
+    desc: AppleScript password phishing dialog
+    crit: hostile
+    conf: 0.95
+    all:
       - id: password-prompt-pattern
       - id: fake-dialog-ui
 
@@ -131,9 +131,9 @@ composite_rules:
   # Fake System Password Prompt
   # ============================================
   - id: fake-system-prompt
-    description: Fake system password prompt (credential phishing)
-    criticality: suspicious
-    confidence: 0.9
-    requires_all:
+    desc: Fake system password prompt (credential phishing)
+    crit: suspicious
+    conf: 0.9
+    all:
       - id: system-cred-prompt
       - id: fake-dialog-ui

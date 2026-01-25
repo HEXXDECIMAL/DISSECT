@@ -11,6 +11,6 @@ rule malware_Lokibot_strings {
             $param = "MAC=%02X%02X%02XINSTALL=%08X%08X"
             $string = { 2d 00 75 00 00 00 46 75 63 6b 61 76 2e 72 75 00 00}
 
-          condition:
+          if:
             all of them
 }

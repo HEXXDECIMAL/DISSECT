@@ -4,20 +4,20 @@
 traits:
   - id: macro
     description: Inline assembly macro
-    criticality: notable
-    confidence: 1.0
-    file_types: [rust]
-    condition:
+    crit: notable
+    conf: 1.0
+    for: [rust]
+    if:
       type: ast_pattern
       node_type: macro_invocation
       pattern: "asm!"
 
   - id: global-macro
     description: Global inline assembly macro
-    criticality: notable
-    confidence: 1.0
-    file_types: [rust]
-    condition:
+    crit: notable
+    conf: 1.0
+    for: [rust]
+    if:
       type: ast_pattern
       node_type: macro_invocation
       pattern: "global_asm!"

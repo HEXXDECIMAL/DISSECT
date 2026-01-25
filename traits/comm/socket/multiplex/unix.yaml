@@ -3,13 +3,13 @@
 # ATT&CK: T1071
 
 defaults:
-  file_types: [elf, macho, so, dylib, c]
+  for: [elf, macho, so, dylib, c]
 
 traits:
   - id: multiplex
-    description: I/O multiplexing on sockets
-    criticality: inert
-    confidence: 0.66
-    condition:
+    desc: I/O multiplexing on sockets
+    crit: inert
+    conf: 0.66
+    if:
       type: symbol
       pattern: select|poll|epoll_create|epoll_ctl|epoll_wait|kqueue|kevent

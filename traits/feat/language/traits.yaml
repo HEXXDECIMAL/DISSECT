@@ -2,15 +2,15 @@
 # Useful for ML feature extraction and contextual analysis
 
 defaults:
-  file_types: [elf, macho, pe, dll, so, dylib, class]
+  for: [elf, macho, pe, dll, so, dylib, class]
 
 traits:
   # Go language binary
   - id: go
     description: Go language compiled binary
-    criticality: benign
-    confidence: 0.95
-    condition:
+    crit: benign
+    conf: 0.95
+    if:
       type: yara
       source: |
         rule go_binary {
@@ -35,9 +35,9 @@ traits:
   # Rust language binary
   - id: rust
     description: Rust language compiled binary
-    criticality: benign
-    confidence: 0.95
-    condition:
+    crit: benign
+    conf: 0.95
+    if:
       type: yara
       source: |
         rule rust_binary {
@@ -60,9 +60,9 @@ traits:
   # C/C++ binary (GCC/Clang compiled)
   - id: c-cpp
     description: C/C++ compiled binary
-    criticality: benign
-    confidence: 0.8
-    condition:
+    crit: benign
+    conf: 0.8
+    if:
       type: yara
       source: |
         rule c_cpp_binary {
@@ -82,9 +82,9 @@ traits:
   # Python (embedded or PyInstaller)
   - id: python-embedded
     description: Embedded Python interpreter or PyInstaller binary
-    criticality: benign
-    confidence: 0.9
-    condition:
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule python_embedded {
@@ -104,9 +104,9 @@ traits:
   # Java/JVM bytecode
   - id: java
     description: Java/JVM bytecode or native
-    criticality: benign
-    confidence: 0.9
-    condition:
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule java_binary {
@@ -124,9 +124,9 @@ traits:
   # .NET/Mono binary
   - id: dotnet
     description: .NET or Mono compiled binary
-    criticality: benign
-    confidence: 0.9
-    condition:
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule dotnet_binary {
@@ -144,9 +144,9 @@ traits:
   # Node.js/V8 binary
   - id: nodejs
     description: Node.js or V8 JavaScript binary
-    criticality: benign
-    confidence: 0.85
-    condition:
+    crit: benign
+    conf: 0.85
+    if:
       type: yara
       source: |
         rule nodejs_binary {
@@ -165,9 +165,9 @@ traits:
   # Nim language binary
   - id: nim
     description: Nim language compiled binary
-    criticality: benign
-    confidence: 0.9
-    condition:
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule nim_binary {
@@ -184,9 +184,9 @@ traits:
   # Zig language binary
   - id: zig
     description: Zig language compiled binary
-    criticality: benign
-    confidence: 0.9
-    condition:
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule zig_binary {
@@ -203,9 +203,9 @@ traits:
   # Assembly/hand-crafted binary
   - id: assembly
     description: Hand-crafted or assembly-only binary
-    criticality: notable
-    confidence: 0.7
-    condition:
+    crit: notable
+    conf: 0.7
+    if:
       type: yara
       source: |
         rule assembly_binary {

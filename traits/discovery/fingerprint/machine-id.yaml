@@ -8,190 +8,190 @@ defaults:
 traits:
   # === Machine ID atomic indicators ===
   - id: etc-machine-id
-    description: /etc/machine-id file
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript, typescript, python, shell, elf, macho]
-    condition:
+    desc: /etc/machine-id file
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript, python, shell, elf, macho]
+    if:
       type: string
       exact: "/etc/machine-id"
 
   - id: dbus-machine-id
-    description: /var/lib/dbus/machine-id file
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript, typescript, python, shell, elf, macho]
-    condition:
+    desc: /var/lib/dbus/machine-id file
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript, python, shell, elf, macho]
+    if:
       type: string
       exact: "/var/lib/dbus/machine-id"
 
   - id: windows-machine-guid
-    description: Windows MachineGuid reference
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript, typescript, powershell, pe]
-    condition:
+    desc: Windows MachineGuid reference
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript, powershell, pe]
+    if:
       type: string
       exact: "MachineGuid"
 
   # === Node.js machine-id package atomic indicators ===
   - id: require-node-machine-id
-    description: require node-machine-id
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript, typescript]
-    condition:
+    desc: require node-machine-id
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "require\\(['\"]node-machine-id['\"]\\)"
 
   - id: require-machine-id
-    description: require machine-id
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript, typescript]
-    condition:
+    desc: require machine-id
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "require\\(['\"]machine-id['\"]\\)"
 
   - id: import-node-machine-id
-    description: import from node-machine-id
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript, typescript]
-    condition:
+    desc: import from node-machine-id
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
       type: string
-      regex: "from ['\"]node-machine-id['\"]"
+      regex: 'from [''"]node-machine-id[''"]'
 
   # === macOS hardware UUID atomic indicators ===
   - id: system-profiler-hardware
-    description: system_profiler SPHardwareDataType
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript, typescript, shell, python, macho]
-    condition:
+    desc: system_profiler SPHardwareDataType
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript, shell, python, macho]
+    if:
       type: string
       exact: "system_profiler SPHardwareDataType"
 
   - id: ioplatform-uuid
-    description: IOPlatformUUID reference
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript, typescript, shell, python, macho]
-    condition:
+    desc: IOPlatformUUID reference
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript, shell, python, macho]
+    if:
       type: string
       exact: "IOPlatformUUID"
 
   - id: ioreg-serial
-    description: ioreg IOPlatformSerialNumber
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript, typescript, shell, python, macho]
-    condition:
+    desc: ioreg IOPlatformSerialNumber
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript, shell, python, macho]
+    if:
       type: string
       regex: "ioreg.*IOPlatformSerialNumber"
 
   # === Windows machine GUID atomic indicators ===
   - id: hklm-cryptography-guid
-    description: HKLM Cryptography MachineGuid
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript, typescript, powershell, pe]
-    condition:
+    desc: HKLM Cryptography MachineGuid
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript, powershell, pe]
+    if:
       type: string
       regex: "HKLM.*Cryptography.*MachineGuid"
 
   - id: wmic-csproduct-uuid
-    description: wmic csproduct get uuid
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript, typescript, powershell, shell]
-    condition:
+    desc: wmic csproduct get uuid
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript, powershell, shell]
+    if:
       type: string
       exact: "wmic csproduct get uuid"
 
   # === CPU ID atomic indicators ===
   - id: proc-cpuinfo
-    description: /proc/cpuinfo file
-    criticality: inert
-    confidence: 0.6
-    file_types: [javascript, typescript, python, shell, elf]
-    condition:
+    desc: /proc/cpuinfo file
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript, python, shell, elf]
+    if:
       type: string
       exact: "/proc/cpuinfo"
 
   - id: processor-id
-    description: processor id reference
-    criticality: inert
-    confidence: 0.5
-    file_types: [javascript, typescript, python, shell, elf, pe]
-    condition:
+    desc: processor id reference
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript, python, shell, elf, pe]
+    if:
       type: string
       regex: "processor.*id"
 
   - id: cpuid-instruction
-    description: cpuid instruction/function
-    criticality: inert
-    confidence: 0.6
-    file_types: [javascript, typescript, python, shell, elf, pe, macho]
-    condition:
+    desc: cpuid instruction/function
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript, python, shell, elf, pe, macho]
+    if:
       type: string
       exact: "cpuid"
 
   # === Disk serial atomic indicators ===
   - id: hdparm-info
-    description: hdparm -i command
-    criticality: inert
-    confidence: 0.6
-    file_types: [javascript, typescript, shell, elf]
-    condition:
+    desc: hdparm -i command
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript, shell, elf]
+    if:
       type: string
       regex: "hdparm.*-i"
 
   - id: smartctl-cmd
-    description: smartctl command
-    criticality: inert
-    confidence: 0.6
-    file_types: [javascript, typescript, shell, elf]
-    condition:
+    desc: smartctl command
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript, shell, elf]
+    if:
       type: string
       exact: "smartctl"
 
   - id: wmic-diskdrive-serial
-    description: wmic diskdrive get serialnumber
-    criticality: inert
-    confidence: 0.6
-    file_types: [javascript, typescript, shell, powershell, pe]
-    condition:
+    desc: wmic diskdrive get serialnumber
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript, shell, powershell, pe]
+    if:
       type: string
       exact: "wmic diskdrive get serialnumber"
 
   # === BIOS serial atomic indicators ===
   - id: dmidecode-cmd
-    description: dmidecode command
-    criticality: inert
-    confidence: 0.6
-    file_types: [javascript, typescript, shell, elf]
-    condition:
+    desc: dmidecode command
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript, shell, elf]
+    if:
       type: string
       exact: "dmidecode"
 
   - id: wmic-bios-serial
-    description: wmic bios get serialnumber
-    criticality: inert
-    confidence: 0.6
-    file_types: [javascript, typescript, shell, powershell, pe]
-    condition:
+    desc: wmic bios get serialnumber
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript, shell, powershell, pe]
+    if:
       type: string
       exact: "wmic bios get serialnumber"
 
   # Comprehensive hardware fingerprint
   - id: hardware-comprehensive
-    description: Comprehensive hardware fingerprinting (multiple vectors)
-    criticality: suspicious
-    confidence: 0.9
+    desc: Comprehensive hardware fingerprinting (multiple vectors)
+    crit: suspicious
+    conf: 0.9
     attack: "T1082"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule comprehensive_fingerprint {
@@ -210,13 +210,13 @@ traits:
 
   # Unique identifier generation with exfil
   - id: unique-id-exfil
-    description: Generates unique identifier and sends to network
-    criticality: suspicious
-    confidence: 0.95
+    desc: Generates unique identifier and sends to network
+    crit: suspicious
+    conf: 0.95
     attack: "T1082"
     mbc: "E1082"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule unique_id_exfil {
@@ -239,84 +239,83 @@ traits:
 composite_rules:
   # Machine ID file access composite
   - id: machine-id-file
-    description: Accesses machine-id file (unique system identifier)
-    criticality: suspicious
-    confidence: 0.85
-    file_types: [javascript, typescript, python, shell, elf, macho, pe]
+    desc: Accesses machine-id file (unique system identifier)
+    crit: suspicious
+    conf: 0.85
+    for: [javascript, typescript, python, shell, elf, macho, pe]
     requires_count: 1
-    conditions:
+    any:
       - id: etc-machine-id
       - id: dbus-machine-id
       - id: windows-machine-guid
 
   # Node.js machine-id package composite
   - id: machine-id-package
-    description: Uses machine-id npm package
-    criticality: notable
-    confidence: 0.8
-    file_types: [javascript, typescript]
+    desc: Uses machine-id npm package
+    crit: notable
+    conf: 0.8
+    for: [javascript, typescript]
     requires_count: 1
-    conditions:
+    any:
       - id: require-node-machine-id
       - id: require-machine-id
       - id: import-node-machine-id
 
   # macOS hardware UUID composite
   - id: hardware-uuid-macos
-    description: Collects macOS hardware UUID
-    criticality: suspicious
-    confidence: 0.85
-    file_types: [javascript, typescript, shell, python, macho]
+    desc: Collects macOS hardware UUID
+    crit: suspicious
+    conf: 0.85
+    for: [javascript, typescript, shell, python, macho]
     requires_count: 1
-    conditions:
+    any:
       - id: system-profiler-hardware
       - id: ioplatform-uuid
       - id: ioreg-serial
 
   # Windows machine GUID composite
   - id: machine-guid-windows
-    description: Collects Windows machine GUID
-    criticality: suspicious
-    confidence: 0.85
-    file_types: [javascript, typescript, powershell, pe]
+    desc: Collects Windows machine GUID
+    crit: suspicious
+    conf: 0.85
+    for: [javascript, typescript, powershell, pe]
     requires_count: 1
-    conditions:
+    any:
       - id: hklm-cryptography-guid
       - id: wmic-csproduct-uuid
 
   # CPU ID composite
   - id: cpu-id
-    description: Collects CPU identifier
-    criticality: notable
-    confidence: 0.75
-    file_types: [javascript, typescript, python, shell, elf, pe, macho]
+    desc: Collects CPU identifier
+    crit: notable
+    conf: 0.75
+    for: [javascript, typescript, python, shell, elf, pe, macho]
     requires_count: 1
-    conditions:
+    any:
       - id: proc-cpuinfo
       - id: processor-id
       - id: cpuid-instruction
 
   # Disk serial composite
   - id: disk-serial
-    description: Collects disk serial number
-    criticality: notable
-    confidence: 0.75
-    file_types: [javascript, typescript, shell, elf, pe]
+    desc: Collects disk serial number
+    crit: notable
+    conf: 0.75
+    for: [javascript, typescript, shell, elf, pe]
     requires_count: 1
-    conditions:
+    any:
       - id: hdparm-info
       - id: smartctl-cmd
       - id: wmic-diskdrive-serial
 
   # BIOS serial composite
   - id: bios-serial
-    description: Collects BIOS/firmware serial
-    criticality: notable
-    confidence: 0.75
-    file_types: [javascript, typescript, shell, elf, pe, macho]
+    desc: Collects BIOS/firmware serial
+    crit: notable
+    conf: 0.75
+    for: [javascript, typescript, shell, elf, pe, macho]
     requires_count: 1
-    conditions:
+    any:
       - id: dmidecode-cmd
       - id: wmic-bios-serial
       - id: system-profiler-hardware
-

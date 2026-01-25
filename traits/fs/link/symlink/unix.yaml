@@ -3,29 +3,29 @@
 # ATT&CK: T1222
 
 defaults:
-  file_types: [elf, macho, so, dylib, c]
+  for: [elf, macho, so, dylib, c]
 
 traits:
   - id: symlink-create
     description: Create symbolic links
-    criticality: inert
-    confidence: 0.66
-    condition:
+    crit: inert
+    conf: 0.66
+    if:
       type: symbol
       pattern: symlink|symlinkat
 
   - id: symlink-read
     description: Read value of symbolic link
-    criticality: inert
-    confidence: 0.66
-    condition:
+    crit: inert
+    conf: 0.66
+    if:
       type: symbol
       pattern: readlink|readlinkat
 
   - id: symlink-resolve
     description: Resolve symbolic links to canonical path
-    criticality: inert
-    confidence: 0.66
-    condition:
+    crit: inert
+    conf: 0.66
+    if:
       type: symbol
       pattern: realpath

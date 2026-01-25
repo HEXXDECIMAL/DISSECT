@@ -5,8 +5,8 @@
 traits:
   - id: botnet/yakuza/brand
     description: Yakuza botnet identifier
-    criticality: suspicious
-    confidence: 0.99
+    crit: suspicious
+    conf: 0.99
     family: true
     attack: "T1498"
     file_types: [elf]
@@ -17,8 +17,8 @@ traits:
   # Moved from composite_rules - YARA with magic bytes + filesize + string
   - id: botnet/yakuza/detected
     description: Yakuza botnet (Gafgyt variant)
-    criticality: suspicious
-    confidence: 0.99
+    crit: suspicious
+    conf: 0.99
     family: true
     reference: "https://cujo.com/blog/mirai-gafgyt-with-new-ddos-modules-discovered/"
     attack: "T1498"

@@ -6,110 +6,110 @@ traits:
   # === IP Geolocation APIs ===
 
   - id: api-db-ip
-    description: api.db-ip.com endpoint
-    criticality: inert
-    confidence: 0.7
+    desc: api.db-ip.com endpoint
+    crit: inert
+    conf: 0.7
     attack: "T1016"
-    condition:
+    if:
       type: string
       exact: "api.db-ip.com"
 
   - id: db-ip-v2
-    description: db-ip.com/v2 endpoint
-    criticality: inert
-    confidence: 0.7
+    desc: db-ip.com/v2 endpoint
+    crit: inert
+    conf: 0.7
     attack: "T1016"
-    condition:
+    if:
       type: string
       exact: "db-ip.com/v2"
 
   - id: ipinfo-io
-    description: ipinfo.io geolocation API
-    criticality: inert
-    confidence: 0.7
+    desc: ipinfo.io geolocation API
+    crit: inert
+    conf: 0.7
     attack: "T1016"
-    condition:
+    if:
       type: string
       exact: "ipinfo.io"
 
   - id: ipapi-api
-    description: ip-api.com geolocation API
-    criticality: suspicious
-    confidence: 0.85
+    desc: ip-api.com geolocation API
+    crit: suspicious
+    conf: 0.85
     attack: "T1016"
-    condition:
+    if:
       type: string
       exact: "ip-api.com"
 
   - id: api-ipify
-    description: api.ipify.org endpoint
-    criticality: inert
-    confidence: 0.7
+    desc: api.ipify.org endpoint
+    crit: inert
+    conf: 0.7
     attack: "T1016"
-    condition:
+    if:
       type: string
       exact: "api.ipify.org"
 
   - id: ipify-org
-    description: ipify.org domain
-    criticality: inert
-    confidence: 0.6
+    desc: ipify.org domain
+    crit: inert
+    conf: 0.6
     attack: "T1016"
-    condition:
+    if:
       type: string
       exact: "ipify.org"
 
   - id: ipgeolocation-api
-    description: ipgeolocation.io API
-    criticality: suspicious
-    confidence: 0.85
+    desc: ipgeolocation.io API
+    crit: suspicious
+    conf: 0.85
     attack: "T1016"
-    condition:
+    if:
       type: string
       exact: "ipgeolocation.io"
 
   - id: geoip-maxmind
-    description: geoip.maxmind.com endpoint
-    criticality: inert
-    confidence: 0.6
+    desc: geoip.maxmind.com endpoint
+    crit: inert
+    conf: 0.6
     attack: "T1016"
-    condition:
+    if:
       type: string
       exact: "geoip.maxmind.com"
 
   - id: maxmind-geoip
-    description: maxmind.com/geoip endpoint
-    criticality: inert
-    confidence: 0.6
+    desc: maxmind.com/geoip endpoint
+    crit: inert
+    conf: 0.6
     attack: "T1016"
-    condition:
+    if:
       type: string
       exact: "maxmind.com/geoip"
 
   - id: freegeoip-app
-    description: freegeoip.app domain
-    criticality: inert
-    confidence: 0.7
+    desc: freegeoip.app domain
+    crit: inert
+    conf: 0.7
     attack: "T1016"
-    condition:
+    if:
       type: string
       exact: "freegeoip.app"
 
   - id: freegeoip-net
-    description: freegeoip.net domain
-    criticality: inert
-    confidence: 0.7
+    desc: freegeoip.net domain
+    crit: inert
+    conf: 0.7
     attack: "T1016"
-    condition:
+    if:
       type: string
       exact: "freegeoip.net"
 
   - id: freegeoip-io
-    description: freegeoip.io domain
-    criticality: inert
-    confidence: 0.7
+    desc: freegeoip.io domain
+    crit: inert
+    conf: 0.7
     attack: "T1016"
-    condition:
+    if:
       type: string
       exact: "freegeoip.io"
 
@@ -120,154 +120,154 @@ traits:
   # === Response Fields (JSON parsing) ===
 
   - id: country-code-camel
-    description: countryCode field (camelCase)
-    criticality: inert
-    confidence: 0.5
+    desc: countryCode field (camelCase)
+    crit: inert
+    conf: 0.5
     attack: "T1016"
-    condition:
+    if:
       type: string
       regex: "\\bcountryCode\\b"
 
   - id: country-code-snake
-    description: country_code field (snake_case)
-    criticality: inert
-    confidence: 0.5
+    desc: country_code field (snake_case)
+    crit: inert
+    conf: 0.5
     attack: "T1016"
-    condition:
+    if:
       type: string
       regex: "\\bcountry_code\\b"
 
   - id: ip-address-camel
-    description: ipAddress field (camelCase)
-    criticality: inert
-    confidence: 0.4
+    desc: ipAddress field (camelCase)
+    crit: inert
+    conf: 0.4
     attack: "T1016"
-    condition:
+    if:
       type: string
       regex: "\\bipAddress\\b"
 
   - id: ip-address-snake
-    description: ip_address field (snake_case)
-    criticality: inert
-    confidence: 0.4
+    desc: ip_address field (snake_case)
+    crit: inert
+    conf: 0.4
     attack: "T1016"
-    condition:
+    if:
       type: string
       regex: "\\bip_address\\b"
 
   - id: ip-json-field
-    description: '"ip" JSON field'
-    criticality: inert
-    confidence: 0.4
+    desc: '"ip" JSON field'
+    crit: inert
+    conf: 0.4
     attack: "T1016"
-    condition:
+    if:
       type: string
       exact: '"ip":'
 
   - id: city-field
-    description: City JSON field (geo profiling)
-    criticality: notable
-    confidence: 0.5
+    desc: City JSON field (geo profiling)
+    crit: notable
+    conf: 0.5
     attack: "T1016"
-    condition:
+    if:
       type: string
       exact: '"city":'
 
   - id: region-field
-    description: Region JSON field (geo profiling)
-    criticality: notable
-    confidence: 0.5
+    desc: Region JSON field (geo profiling)
+    crit: notable
+    conf: 0.5
     attack: "T1016"
-    condition:
+    if:
       type: string
       exact: '"region":'
 
   - id: freegeoip-generic
-    description: freegeoip reference (generic)
-    criticality: notable
-    confidence: 0.7
+    desc: freegeoip reference (generic)
+    crit: notable
+    conf: 0.7
     attack: "T1016"
-    condition:
+    if:
       type: string
       exact: "freegeoip"
 
 composite_rules:
   # DB-IP API composite
   - id: db-ip-api
-    description: db-ip.com geolocation API
-    criticality: suspicious
-    confidence: 0.85
+    desc: db-ip.com geolocation API
+    crit: suspicious
+    conf: 0.85
     attack: "T1016"
     requires_count: 1
-    conditions:
+    any:
       - id: api-db-ip
       - id: db-ip-v2
 
   # ipify API composite
   - id: ipify-api
-    description: ipify.org IP address API
-    criticality: suspicious
-    confidence: 0.8
+    desc: ipify.org IP address API
+    crit: suspicious
+    conf: 0.8
     attack: "T1016"
     requires_count: 1
-    conditions:
+    any:
       - id: api-ipify
       - id: ipify-org
 
   # MaxMind API composite
   - id: maxmind-api
-    description: MaxMind GeoIP API
-    criticality: notable
-    confidence: 0.7
+    desc: MaxMind GeoIP API
+    crit: notable
+    conf: 0.7
     attack: "T1016"
     requires_count: 1
-    conditions:
+    any:
       - id: geoip-maxmind
       - id: maxmind-geoip
 
   # freegeoip API composite
   - id: freegeoip-api
-    description: freegeoip geolocation API usage
-    criticality: suspicious
-    confidence: 0.85
+    desc: freegeoip geolocation API usage
+    crit: suspicious
+    conf: 0.85
     attack: "T1016"
     requires_count: 1
-    conditions:
+    any:
       - id: freegeoip-app
       - id: freegeoip-net
       - id: freegeoip-io
 
   # Country code field composite
   - id: country-code-field
-    description: Country code JSON field (geo profiling)
-    criticality: notable
-    confidence: 0.6
+    desc: Country code JSON field (geo profiling)
+    crit: notable
+    conf: 0.6
     attack: "T1016"
     requires_count: 1
-    conditions:
+    any:
       - id: country-code-camel
       - id: country-code-snake
 
   # IP address field composite
   - id: ip-address-field
-    description: IP address JSON field (geo profiling)
-    criticality: notable
-    confidence: 0.5
+    desc: IP address JSON field (geo profiling)
+    crit: notable
+    conf: 0.5
     attack: "T1016"
     requires_count: 1
-    conditions:
+    any:
       - id: ip-address-camel
       - id: ip-address-snake
       - id: ip-json-field
 
   # Geo API composite (any one of these APIs)
   - id: geo-api
-    description: Geolocation API endpoint
-    criticality: notable
-    confidence: 0.7
+    desc: Geolocation API endpoint
+    crit: notable
+    conf: 0.7
     attack: "T1016"
     requires_count: 1
-    conditions:
+    any:
       - id: db-ip-api
       - id: ipinfo-io
       - id: ipapi-api
@@ -278,22 +278,22 @@ composite_rules:
 
   # Geo response field composite (any one of these fields)
   - id: geo-response-field
-    description: Geolocation response field
-    criticality: notable
-    confidence: 0.5
+    desc: Geolocation response field
+    crit: notable
+    conf: 0.5
     attack: "T1016"
     requires_count: 1
-    conditions:
+    any:
       - id: country-code-field
       - id: ip-address-field
       - id: city-field
       - id: region-field
 
   - id: victim-profiling
-    description: Victim geolocation profiling via IP API
-    criticality: suspicious
-    confidence: 0.9
+    desc: Victim geolocation profiling via IP API
+    crit: suspicious
+    conf: 0.9
     attack: "T1016"
-    requires_all:
+    all:
       - id: geo-api
       - id: geo-response-field

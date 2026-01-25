@@ -179,7 +179,7 @@ fn analyze_generic_source(path: &Path, file_type: &FileType) -> Result<types::An
     // Add structure to indicate AST parsing is supported
     report.structure.push(types::StructuralFeature {
         id: format!("source/language/{}", file_type_str),
-        description: format!("{} source code", file_type_str),
+        desc: format!("{} source code", file_type_str),
         evidence: vec![types::Evidence {
             method: "parser".to_string(),
             source: "tree-sitter".to_string(),

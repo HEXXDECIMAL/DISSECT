@@ -3,52 +3,52 @@
 # ATT&CK: T1497.001 (Virtualization/Sandbox Evasion: System Checks)
 
 defaults:
-  file_types: [elf, macho, pe, dll]
+  for: [elf, macho, pe, dll]
   mbc: "B0001.032"
   attack: "T1497.001"
 
 traits:
   - id: rdtsc
-    description: RDTSC instruction (hardware timestamp)
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: RDTSC instruction (hardware timestamp)
+    crit: inert
+    conf: 0.5
+    if:
       type: hex
       pattern: "0F 31"
 
   - id: clock-gettime
-    description: clock_gettime function
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: clock_gettime function
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       regex: '\bclock_gettime\b'
 
   - id: gettimeofday
-    description: gettimeofday function
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: gettimeofday function
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       regex: '\bgettimeofday\b'
 
   - id: time-func
-    description: time function
-    criticality: inert
-    confidence: 0.3
-    condition:
+    desc: time function
+    crit: inert
+    conf: 0.3
+    if:
       type: string
       regex: '\btime\b'
 
 composite_rules:
   - id: primitive
-    description: "Hardware timing primitive (potential anti-analysis)"
-    criticality: notable
-    confidence: 0.7
-    requires_all:
+    desc: "Hardware timing primitive (potential anti-analysis)"
+    crit: notable
+    conf: 0.7
+    all:
       - id: rdtsc
-    requires_count: 1
-    conditions:
+    count: 1
+    any:
       - id: clock-gettime
       - id: gettimeofday
       - id: time-func

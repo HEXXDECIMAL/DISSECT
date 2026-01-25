@@ -4,52 +4,52 @@
 
 traits:
   - id: upx-marker
-    description: UPX packer marker string
-    criticality: inert
-    confidence: 0.8
-    condition:
+    desc: UPX packer marker string
+    crit: inert
+    conf: 0.8
+    if:
       type: string
-      regex: 'UPX[!01]'
+      regex: "UPX[!01]"
 
   - id: aspack-marker
-    description: ASPack packer marker
-    criticality: inert
-    confidence: 0.8
-    condition:
+    desc: ASPack packer marker
+    crit: inert
+    conf: 0.8
+    if:
       type: string
       exact: aPack
 
   - id: petite-marker
-    description: Petite packer marker
-    criticality: inert
-    confidence: 0.8
-    condition:
+    desc: Petite packer marker
+    crit: inert
+    conf: 0.8
+    if:
       type: string
       exact: petite
 
   - id: themida-marker
-    description: Themida packer marker
-    criticality: inert
-    confidence: 0.8
-    condition:
+    desc: Themida packer marker
+    crit: inert
+    conf: 0.8
+    if:
       type: string
       exact: Themida
 
   - id: vmprotect-marker
-    description: VMProtect packer marker
-    criticality: inert
-    confidence: 0.8
-    condition:
+    desc: VMProtect packer marker
+    crit: inert
+    conf: 0.8
+    if:
       type: string
       exact: VMProtect
 
   - id: upx-section-yara
-    description: UPX packed binary section via YARA
-    criticality: suspicious
-    confidence: 0.95
+    desc: UPX packed binary section via YARA
+    crit: suspicious
+    conf: 0.95
     mbc: "F0001.008"
-    file_types: [pe, elf, macho]
-    condition:
+    for: [pe, elf, macho]
+    if:
       type: yara
       source: |
         import "pe"
@@ -64,12 +64,12 @@ traits:
         }
 
   - id: vmprotect-section-yara
-    description: VMProtect packed binary section via YARA
-    criticality: suspicious
-    confidence: 0.95
+    desc: VMProtect packed binary section via YARA
+    crit: suspicious
+    conf: 0.95
     mbc: "F0001"
-    file_types: [pe, elf, macho]
-    condition:
+    for: [pe, elf, macho]
+    if:
       type: yara
       source: |
         import "pe"
@@ -85,13 +85,13 @@ traits:
 
 composite_rules:
   - id: detect
-    description: Packed/compressed executable
-    criticality: notable
-    confidence: 0.66
+    desc: Packed/compressed executable
+    crit: notable
+    conf: 0.66
     mbc: "F0001"
     attack: "T1027.002"
-    requires_count: 1
-    conditions:
+    count: 1
+    any:
       - id: upx-marker
       - id: aspack-marker
       - id: petite-marker
@@ -99,19 +99,19 @@ composite_rules:
       - id: vmprotect-marker
 
   - id: upx
-    description: "UPX packed binary (section)"
-    criticality: suspicious
-    confidence: 0.95
+    desc: "UPX packed binary (section)"
+    crit: suspicious
+    conf: 0.95
     mbc: "F0001.008"
-    file_types: [pe, elf, macho]
-    requires_all:
+    for: [pe, elf, macho]
+    all:
       - id: upx-section-yara
 
   - id: vmprotect
-    description: "VMProtect packed binary (section)"
-    criticality: suspicious
-    confidence: 0.95
+    desc: "VMProtect packed binary (section)"
+    crit: suspicious
+    conf: 0.95
     mbc: "F0001"
-    file_types: [pe, elf, macho]
-    requires_all:
+    for: [pe, elf, macho]
+    all:
       - id: vmprotect-section-yara

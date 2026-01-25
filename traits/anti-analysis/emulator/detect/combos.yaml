@@ -2,26 +2,26 @@
 
 composite_rules:
   - id: detect-vendors
-    description: VM detection via vendor/product strings
-    criticality: suspicious
+    desc: VM detection via vendor/product strings
+    crit: suspicious
     mbc: "B0009"
     attack: "T1497.001"
-    confidence: 0.9
-    requires_count: 2
-    conditions:
+    conf: 0.9
+    count: 2
+    any:
       - id: vmware-string
       - id: virtualbox-string
       - id: qemu-string
       - id: cpu-vendor
 
   - id: comprehensive
-    description: Virtual machine environment detection
-    criticality: suspicious
+    desc: Virtual machine environment detection
+    crit: suspicious
     mbc: "B0009"
     attack: "T1497.001"
-    confidence: 0.9
-    requires_count: 2
-    conditions:
+    conf: 0.9
+    count: 2
+    any:
       - id: vmware-string
       - id: virtualbox-string
       - id: qemu-string

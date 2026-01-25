@@ -4,72 +4,72 @@
 traits:
   - id: infected-marker
     description: References being infected
-    criticality: suspicious
-    confidence: 0.7
+    crit: suspicious
+    conf: 0.7
     attack: "T1204"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       regex: "(?i)\\binfected\\b"
 
   - id: infection-marker
     description: References infection
-    criticality: suspicious
-    confidence: 0.7
+    crit: suspicious
+    conf: 0.7
     attack: "T1204"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "infection"
 
   - id: infected-with
     description: Infection notification pattern
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     attack: "T1204"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       regex: ".{3,16} infected with .{3,16}"
 
   - id: virus-marker
     description: Virus reference
-    criticality: suspicious
-    confidence: 0.7
+    crit: suspicious
+    conf: 0.7
     attack: "T1204"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       regex: "(?i)\\bvirus\\b"
 
   - id: worm-marker
     description: Worm malware type reference in code
-    criticality: suspicious
-    confidence: 0.7
+    crit: suspicious
+    conf: 0.7
     attack: "T1204"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       regex: "(?i)\\bworm\\b"
 
   - id: trojan-marker
     description: Trojan reference
-    criticality: suspicious
-    confidence: 0.7
+    crit: suspicious
+    conf: 0.7
     attack: "T1204"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       regex: "(?i)\\btrojan\\b"
 
   - id: elf-infector-yara
     description: ELF file infector pattern via YARA
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     attack: "T1204"
     mbc: "B0009"
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: yara
       source: |
         rule elf_infector {
@@ -98,11 +98,11 @@ traits:
 
   - id: infected-xor-yara
     description: XOR obfuscated infection marker pattern via YARA
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     attack: "T1027"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: yara
       source: |
         rule infected_xor {
@@ -118,19 +118,19 @@ composite_rules:
   # Require explicit infection markers or embedded ELF payloads at non-zero offset
   - id: elf-infector-detected
     description: ELF file infector
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     attack: "T1204"
     mbc: "B0009"
-    file_types: [elf]
+    for: [elf]
     requires_all:
       - id: elf-infector-yara
 
   - id: infected-xor-detected
     description: XOR obfuscated infection marker
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     attack: "T1027"
-    file_types: [all]
+    for: [all]
     requires_all:
       - id: infected-xor-yara

@@ -6,66 +6,66 @@ traits:
   # === Cookie Theft Libraries ===
 
   - id: pycookiecheat
-    description: Python cookie theft library (pycookiecheat)
-    criticality: suspicious
-    confidence: 0.85
+    desc: Python cookie theft library (pycookiecheat)
+    crit: suspicious
+    conf: 0.85
     attack: "T1555.003"
-    file_types: [python]
-    condition:
+    for: [python]
+    if:
       type: string
       exact: "pycookiecheat"
 
   - id: kooky
-    description: Go cookie theft library (kooky)
-    criticality: suspicious
-    confidence: 0.85
+    desc: Go cookie theft library (kooky)
+    crit: suspicious
+    conf: 0.85
     attack: "T1555.003"
-    file_types: [go, elf]
-    condition:
+    for: [go, elf]
+    if:
       type: string
       exact: "browserutils/kooky"
 
   - id: browser-cookie3
-    description: Python browser-cookie3 library
-    criticality: suspicious
-    confidence: 0.85
+    desc: Python browser-cookie3 library
+    crit: suspicious
+    conf: 0.85
     attack: "T1555.003"
-    file_types: [python]
-    condition:
+    for: [python]
+    if:
       type: string
       exact: "browser_cookie3"
 
   # === HackBrowserData atomic indicators ===
   - id: hackbrowserdata-lower
-    description: hackbrowserdata lowercase reference
-    criticality: notable
-    confidence: 0.85
+    desc: hackbrowserdata lowercase reference
+    crit: notable
+    conf: 0.85
     attack: "T1555.003"
     mbc: "B0028"
-    condition:
+    if:
       type: string
       regex: "\\bhackbrowserdata\\b"
 
   - id: hackbrowserdata-camel
-    description: HackBrowserData camelcase reference
-    criticality: notable
-    confidence: 0.85
+    desc: HackBrowserData camelcase reference
+    crit: notable
+    conf: 0.85
     attack: "T1555.003"
     mbc: "B0028"
-    condition:
+    if:
       type: string
       exact: "HackBrowserData"
 
   # === YARA-based Detection Traits ===
 
   - id: multi-browser-theft-yara
-    description: YARA pattern for targeting multiple browsers
-    criticality: suspicious
-    confidence: 0.9
+    desc: YARA pattern for targeting multiple browsers
+    crit: suspicious
+    conf: 0.9
     attack: "T1555.003"
     mbc: "B0028"
-    file_types: [python, javascript, elf, pe, macho]
-    condition:
+    for: [python, javascript, elf, pe, macho]
+    if:
       type: yara
       source: |
         rule multi_browser_credential_theft {
@@ -95,13 +95,13 @@ traits:
         }
 
   - id: full-stealer-detected-yara
-    description: YARA pattern for complete browser stealer
-    criticality: suspicious
-    confidence: 0.98
+    desc: YARA pattern for complete browser stealer
+    crit: suspicious
+    conf: 0.98
     attack: "T1555.003"
     mbc: "B0028"
-    file_types: [python, javascript, elf, pe, macho]
-    condition:
+    for: [python, javascript, elf, pe, macho]
+    if:
       type: yara
       source: |
         rule complete_browser_stealer {
@@ -140,13 +140,13 @@ traits:
         }
 
   - id: python-stealer-yara
-    description: YARA pattern for Python browser stealer
-    criticality: suspicious
-    confidence: 0.95
+    desc: YARA pattern for Python browser stealer
+    crit: suspicious
+    conf: 0.95
     attack: "T1555.003"
     mbc: "B0028"
-    file_types: [python]
-    condition:
+    for: [python]
+    if:
       type: yara
       source: |
         rule python_browser_stealer {
@@ -181,45 +181,45 @@ traits:
 composite_rules:
   # HackBrowserData composite
   - id: hackbrowserdata
-    description: HackBrowserData tool reference
-    criticality: suspicious
-    confidence: 0.95
+    desc: HackBrowserData tool reference
+    crit: suspicious
+    conf: 0.95
     attack: "T1555.003"
     mbc: "B0028"
     requires_count: 1
-    conditions:
+    any:
       - id: hackbrowserdata-lower
       - id: hackbrowserdata-camel
 
   # Multi-browser targeting detection
   - id: multi-browser-theft
-    description: Multi-browser credential theft
-    criticality: suspicious
-    confidence: 0.9
+    desc: Multi-browser credential theft
+    crit: suspicious
+    conf: 0.9
     attack: "T1555.003"
     mbc: "B0028"
-    file_types: [python, javascript, elf, pe, macho]
-    requires_all:
+    for: [python, javascript, elf, pe, macho]
+    all:
       - id: multi-browser-theft-yara
 
   # Full browser stealer with decryption and exfiltration
   - id: full-stealer-detected
-    description: Complete browser credential stealer (theft + decrypt + exfil)
-    criticality: suspicious
-    confidence: 0.98
+    desc: Complete browser credential stealer (theft + decrypt + exfil)
+    crit: suspicious
+    conf: 0.98
     attack: "T1555.003"
     mbc: "B0028"
-    file_types: [python, javascript, elf, pe, macho]
-    requires_all:
+    for: [python, javascript, elf, pe, macho]
+    all:
       - id: full-stealer-detected-yara
 
   # Python browser stealer pattern
   - id: python-stealer
-    description: Python-based browser credential stealer
-    criticality: suspicious
-    confidence: 0.95
+    desc: Python-based browser credential stealer
+    crit: suspicious
+    conf: 0.95
     attack: "T1555.003"
     mbc: "B0028"
-    file_types: [python]
-    requires_all:
+    for: [python]
+    all:
       - id: python-stealer-yara

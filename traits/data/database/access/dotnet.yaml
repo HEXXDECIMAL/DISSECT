@@ -4,153 +4,153 @@
 traits:
   # === SQL connection atomic indicators ===
   - id: sql-connection-class
-    description: SqlConnection class
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: SqlConnection class
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "SqlConnection"
 
   - id: db-connection-class
-    description: DbConnection class
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: DbConnection class
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "DbConnection"
 
   - id: oledb-connection-class
-    description: OleDbConnection class
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: OleDbConnection class
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "OleDbConnection"
 
   - id: odbc-connection-class
-    description: OdbcConnection class
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: OdbcConnection class
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "OdbcConnection"
 
   # === SQL command atomic indicators ===
   - id: execute-nonquery
-    description: ExecuteNonQuery method
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: ExecuteNonQuery method
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "ExecuteNonQuery"
 
   - id: execute-scalar
-    description: ExecuteScalar method
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: ExecuteScalar method
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "ExecuteScalar"
 
   - id: execute-reader
-    description: ExecuteReader method
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: ExecuteReader method
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "ExecuteReader"
 
   - id: sql-command-class
-    description: SqlCommand class
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: SqlCommand class
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "SqlCommand"
 
   - id: db-command-class
-    description: DbCommand class
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: DbCommand class
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "DbCommand"
 
   # === Connection string atomic indicators ===
   - id: connection-string-singular
-    description: ConnectionString property
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: ConnectionString property
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "ConnectionString"
 
   - id: connection-strings-plural
-    description: ConnectionStrings property
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: ConnectionStrings property
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "ConnectionStrings"
 
   # === SQL parameter atomic indicators ===
   - id: sql-parameter-class
-    description: SqlParameter class
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: SqlParameter class
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "SqlParameter"
 
   - id: db-parameter-class
-    description: DbParameter class
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: DbParameter class
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "DbParameter"
 
   - id: add-with-value
-    description: AddWithValue method
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: AddWithValue method
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "AddWithValue"
 
   # === Data adapter atomic indicators ===
   - id: sql-data-adapter-class
-    description: SqlDataAdapter class
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: SqlDataAdapter class
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "SqlDataAdapter"
 
   - id: data-adapter-class
-    description: DataAdapter class
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: DataAdapter class
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "DataAdapter"
 
   - id: fill-method
-    description: Fill method
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: Fill method
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: "Fill\\("
 
 composite_rules:
   # SQL connection composite
   - id: sql-connection
-    description: SQL database connection capability
-    criticality: notable
-    confidence: 0.85
+    desc: SQL database connection capability
+    crit: notable
+    conf: 0.85
     requires_count: 1
-    conditions:
+    any:
       - id: sql-connection-class
       - id: db-connection-class
       - id: oledb-connection-class
@@ -158,11 +158,11 @@ composite_rules:
 
   # SQL command composite
   - id: sql-command
-    description: SQL command execution
-    criticality: notable
-    confidence: 0.85
+    desc: SQL command execution
+    crit: notable
+    conf: 0.85
     requires_count: 1
-    conditions:
+    any:
       - id: execute-nonquery
       - id: execute-scalar
       - id: execute-reader
@@ -171,32 +171,32 @@ composite_rules:
 
   # Connection string composite
   - id: connection-string
-    description: Database connection string handling
-    criticality: notable
-    confidence: 0.80
+    desc: Database connection string handling
+    crit: notable
+    conf: 0.80
     requires_count: 1
-    conditions:
+    any:
       - id: connection-string-singular
       - id: connection-strings-plural
 
   # SQL parameter composite
   - id: sql-parameter
-    description: Parameterized SQL queries (good practice)
-    criticality: notable
-    confidence: 0.75
+    desc: Parameterized SQL queries (good practice)
+    crit: notable
+    conf: 0.75
     requires_count: 1
-    conditions:
+    any:
       - id: sql-parameter-class
       - id: db-parameter-class
       - id: add-with-value
 
   # Data adapter composite
   - id: data-adapter
-    description: ADO.NET data adapter usage
-    criticality: notable
-    confidence: 0.75
+    desc: ADO.NET data adapter usage
+    crit: notable
+    conf: 0.75
     requires_count: 1
-    conditions:
+    any:
       - id: sql-data-adapter-class
       - id: data-adapter-class
       - id: fill-method

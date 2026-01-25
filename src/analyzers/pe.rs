@@ -103,9 +103,9 @@ impl PEAnalyzer {
                                     kind: FindingKind::Capability,
                                     trait_refs: vec![],
                                     id: cap_id.clone(),
-                                    description: format!("Matched YARA rule: {}", yara_match.rule),
-                                    confidence: 0.95,
-                                    criticality: Criticality::Inert,
+                                    desc: format!("Matched YARA rule: {}", yara_match.rule),
+                                    conf: 0.95,
+                                    crit: Criticality::Inert,
                                     mbc: None,
                                     attack: None,
                                     evidence: vec![Evidence {
@@ -163,7 +163,7 @@ impl PEAnalyzer {
     fn analyze_structure(&self, pe: &PE, report: &mut AnalysisReport) -> Result<()> {
         report.structure.push(StructuralFeature {
             id: "pe/header".to_string(),
-            description: format!(
+            desc: format!(
                 "PE file (machine: {}, subsystem: {:?})",
                 self.arch_name(pe),
                 pe.header
@@ -183,7 +183,7 @@ impl PEAnalyzer {
         if pe.is_lib {
             report.structure.push(StructuralFeature {
                 id: "pe/dll".to_string(),
-                description: "Dynamic Link Library (DLL)".to_string(),
+                desc: "Dynamic Link Library (DLL)".to_string(),
                 evidence: vec![Evidence {
                     method: "header".to_string(),
                     source: "goblin".to_string(),
@@ -197,7 +197,7 @@ impl PEAnalyzer {
         if pe.header.optional_header.is_some() {
             report.structure.push(StructuralFeature {
                 id: "pe/optional_header".to_string(),
-                description: "Has optional header (standard Windows executable)".to_string(),
+                desc: "Has optional header (standard Windows executable)".to_string(),
                 evidence: vec![Evidence {
                     method: "header".to_string(),
                     source: "goblin".to_string(),
@@ -290,12 +290,12 @@ impl PEAnalyzer {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: "anti-analysis/packing".to_string(),
-                    description: format!(
+                    desc: format!(
                         "High entropy ({:.2}) in executable section '{}' (possible packing)",
                         entropy, name
                     ),
-                    confidence: 0.85,
-                    criticality: Criticality::Suspicious,
+                    conf: 0.85,
+                    crit: Criticality::Suspicious,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {
@@ -312,9 +312,9 @@ impl PEAnalyzer {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: "exec/memory/wx".to_string(),
-                    description: format!("Writable+executable section '{}'", name),
-                    confidence: 1.0,
-                    criticality: Criticality::Suspicious,
+                    desc: format!("Writable+executable section '{}'", name),
+                    conf: 1.0,
+                    crit: Criticality::Suspicious,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {

@@ -12,7 +12,7 @@ rule malware_CobaltStrike_v3v4 {
             $config3 = { 69 69 69 69 69 69 69 69 }
             $config4 = { 2E 2E 2E 2E 2E 2E 2E 2E }
 
-          condition:
+          if:
             $v1 and 1 of ($config*)
 }
 
@@ -27,7 +27,7 @@ rule malware_CobaltStrike_beacon {
         $code1 = { 5? 8B ?? 83 C? 04 8B ?? 31 ?? 83 C? 04 5? 8B ?? 31 ?? 89 ?? 31 ?? 83 C? 04 83 E? 04 31 ?? 39 ?? 74 02 EB E? 5? FF E? E8 ?? FF FF FF }
         $code2 = { 5D 8B ?? 00 83 C? 04 8B ?? 00 31 ?? 83 C? 04 5? 8B ?? 00 31 ?? 89 ?? 00 31 ?? 83 C? 04 83 E? 04 31 ?? 39 ?? 74 02 EB E? 5? FF E? E8 ?? FF FF FF }
 
-     condition:
+     if:
         uint16(0) == 0xE8FC and
         $code1 in (6..200) or $code2 in (6..200)
 }

@@ -11,12 +11,12 @@ rule RTF_Objupdate
         samples        = "eaaefa41eaaeac943dede195f3a00b1e424d152cf08243d023009fafdfa6c52b"
 
 	strings:
-			
+
         $magic1= {7b 5c 72 74 (7B | 66)} // {\rtf{ or {\rt{
         $upd = "\\objupdate" nocase
 
-	condition:
-			
+	if:
+
         $magic1 in (0..30) and $upd and filesize > 50KB and filesize < 500KB
 
 }

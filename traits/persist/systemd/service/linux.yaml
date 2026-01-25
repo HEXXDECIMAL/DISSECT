@@ -5,7 +5,7 @@
 traits:
   - id: systemd
     description: Linux systemd persistence
-    criticality: notable
+    crit: notable
     confidence: 0.66
     attack: "T1543.002"
     condition:

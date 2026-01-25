@@ -11,12 +11,12 @@ rule PDF_Containing_JavaScript
         samples        = "c82e29dcaed3c71e05449cb9463f3efb7114ea22b6f45b16e09eae32db9f5bef"
 
 	strings:
-			
+
 		$pdf_tag1 = /\x25\x50\x44\x46\x2d/
 		$js_tag1  = "/JavaScript" fullword
 		$js_tag2  = "/JS"		  fullword
-	condition:
-			
+	if:
+
 		$pdf_tag1 in (0..1024) and ($js_tag1 or $js_tag2)
 
 }

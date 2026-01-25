@@ -4,12 +4,12 @@
 
 traits:
   - id: connect-php
-    description: Initiate socket connection (PHP fsockopen)
-    criticality: notable
-    confidence: 0.66
+    desc: Initiate socket connection (PHP fsockopen)
+    crit: notable
+    conf: 0.66
     mbc: "C0001"
     attack: "T1071"
-    condition:
+    if:
       type: ast_pattern
       node_type: function_call_expression
       pattern: "fsockopen"

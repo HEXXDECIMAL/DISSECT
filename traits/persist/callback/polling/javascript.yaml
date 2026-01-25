@@ -6,7 +6,7 @@ traits:
   # === setInterval HTTP atomic indicators ===
   - id: setInterval-http-call
     description: setInterval with http
-    criticality: inert
+    crit: inert
     confidence: 0.6
     file_types: [javascript]
     condition:
@@ -15,7 +15,7 @@ traits:
 
   - id: setInterval-axios
     description: setInterval with axios
-    criticality: inert
+    crit: inert
     confidence: 0.6
     file_types: [javascript]
     condition:
@@ -24,7 +24,7 @@ traits:
 
   - id: setInterval-fetch
     description: setInterval with fetch
-    criticality: inert
+    crit: inert
     confidence: 0.6
     file_types: [javascript]
     condition:
@@ -33,7 +33,7 @@ traits:
 
   - id: setInterval-function
     description: setInterval with function callback
-    criticality: inert
+    crit: inert
     confidence: 0.7
     file_types: [javascript]
     condition:
@@ -42,7 +42,7 @@ traits:
 
   - id: setTimeout-recursive
     description: setTimeout in recursive pattern
-    criticality: notable
+    crit: notable
     confidence: 0.7
     file_types: [javascript]
     condition:
@@ -52,12 +52,12 @@ traits:
 composite_rules:
   - id: setInterval-http
     description: setInterval with HTTP calls (persistent polling)
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     attack: "T1053"
     file_types: [javascript]
     requires_count: 1
-    conditions:
+    any:
       - id: setInterval-http-call
       - id: setInterval-axios
       - id: setInterval-fetch

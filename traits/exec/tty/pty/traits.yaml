@@ -4,22 +4,22 @@
 traits:
   # === Openpty atomic indicators ===
   - id: openpty-call
-    description: openpty() call
-    criticality: inert
-    confidence: 0.7
+    desc: openpty() call
+    crit: inert
+    conf: 0.7
     attack: "T1059"
-    file_types: [elf, macho, python]
-    condition:
+    for: [elf, macho, python]
+    if:
       type: string
       exact: "openpty"
 
   - id: pty-open-call
-    description: pty.Open call
-    criticality: inert
-    confidence: 0.7
+    desc: pty.Open call
+    crit: inert
+    conf: 0.7
     attack: "T1059"
-    file_types: [elf, macho, python]
-    condition:
+    for: [elf, macho, python]
+    if:
       type: string
       exact: "pty.Open"
 
@@ -27,325 +27,322 @@ traits:
   # These are notable (not suspicious) because many legitimate programs use PTY:
   # terminal emulators, SSH clients, screen/tmux, expect, etc.
   - id: posix-openpt
-    description: POSIX open pseudoterminal master
-    criticality: notable
-    confidence: 0.85
+    desc: POSIX open pseudoterminal master
+    crit: notable
+    conf: 0.85
     attack: "T1059"
-    file_types: [elf, macho]
-    condition:
+    for: [elf, macho]
+    if:
       type: symbol
       pattern: posix_openpt
 
   - id: grantpt
-    description: Grant access to slave pseudoterminal
-    criticality: notable
-    confidence: 0.8
+    desc: Grant access to slave pseudoterminal
+    crit: notable
+    conf: 0.8
     attack: "T1059"
-    file_types: [elf, macho]
-    condition:
+    for: [elf, macho]
+    if:
       type: symbol
       pattern: grantpt
 
   - id: unlockpt
-    description: Unlock slave pseudoterminal
-    criticality: notable
-    confidence: 0.8
+    desc: Unlock slave pseudoterminal
+    crit: notable
+    conf: 0.8
     attack: "T1059"
-    file_types: [elf, macho]
-    condition:
+    for: [elf, macho]
+    if:
       type: symbol
       pattern: unlockpt
 
   # === Ptsname atomic indicators ===
   - id: ptsname-symbol
-    description: ptsname symbol
-    criticality: inert
-    confidence: 0.6
+    desc: ptsname symbol
+    crit: inert
+    conf: 0.6
     attack: "T1059"
-    file_types: [elf, macho]
-    condition:
+    for: [elf, macho]
+    if:
       type: symbol
       pattern: ptsname
 
   - id: ptsname-r-symbol
-    description: ptsname_r symbol
-    criticality: inert
-    confidence: 0.6
+    desc: ptsname_r symbol
+    crit: inert
+    conf: 0.6
     attack: "T1059"
-    file_types: [elf, macho]
-    condition:
+    for: [elf, macho]
+    if:
       type: symbol
       pattern: ptsname_r
 
   - id: isatty
-    description: Check if terminal
-    criticality: notable
-    confidence: 0.7
+    desc: Check if terminal
+    crit: notable
+    conf: 0.7
     attack: "T1059"
-    file_types: [elf, macho]
-    condition:
+    for: [elf, macho]
+    if:
       type: symbol
       pattern: isatty
 
   # === Ttyname atomic indicators ===
   - id: ttyname-symbol
-    description: ttyname symbol
-    criticality: inert
-    confidence: 0.6
+    desc: ttyname symbol
+    crit: inert
+    conf: 0.6
     attack: "T1059"
-    file_types: [elf, macho]
-    condition:
+    for: [elf, macho]
+    if:
       type: symbol
       pattern: ttyname
 
   - id: ttyname-r-symbol
-    description: ttyname_r symbol
-    criticality: inert
-    confidence: 0.6
+    desc: ttyname_r symbol
+    crit: inert
+    conf: 0.6
     attack: "T1059"
-    file_types: [elf, macho]
-    condition:
+    for: [elf, macho]
+    if:
       type: symbol
       pattern: ttyname_r
 
   - id: tcgetattr
-    description: Get terminal attributes
-    criticality: notable
-    confidence: 0.75
+    desc: Get terminal attributes
+    crit: notable
+    conf: 0.75
     attack: "T1059"
-    file_types: [elf, macho]
-    condition:
+    for: [elf, macho]
+    if:
       type: symbol
       pattern: tcgetattr
 
   - id: tcsetattr
-    description: Set terminal attributes
-    criticality: notable
-    confidence: 0.75
+    desc: Set terminal attributes
+    crit: notable
+    conf: 0.75
     attack: "T1059"
-    file_types: [elf, macho]
-    condition:
+    for: [elf, macho]
+    if:
       type: symbol
       pattern: tcsetattr
 
   - id: vhangup
-    description: Virtual terminal hangup
-    criticality: suspicious
-    confidence: 0.85
+    desc: Virtual terminal hangup
+    crit: suspicious
+    conf: 0.85
     attack: "T1059"
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: string
       exact: "vhangup"
 
   - id: getpass
-    description: Terminal password prompt
-    criticality: suspicious
-    confidence: 0.8
+    desc: Terminal password prompt
+    crit: suspicious
+    conf: 0.8
     attack: "T1056"
-    file_types: [elf, macho]
-    condition:
+    for: [elf, macho]
+    if:
       type: string
       exact: "getpass"
 
   - id: setupterm
-    description: Terminal initialization
-    criticality: notable
-    confidence: 0.7
+    desc: Terminal initialization
+    crit: notable
+    conf: 0.7
     attack: "T1059"
-    file_types: [elf, macho]
-    condition:
+    for: [elf, macho]
+    if:
       type: string
       exact: "setupterm"
 
   # === Python PTY atomic indicators ===
   - id: import-pty
-    description: import pty statement
-    criticality: inert
-    confidence: 0.7
+    desc: import pty statement
+    crit: inert
+    conf: 0.7
     attack: "T1059"
-    file_types: [python]
-    condition:
+    for: [python]
+    if:
       type: string
       exact: "import pty"
 
   - id: from-pty-import
-    description: from pty import statement
-    criticality: inert
-    confidence: 0.7
+    desc: from pty import statement
+    crit: inert
+    conf: 0.7
     attack: "T1059"
-    file_types: [python]
-    condition:
+    for: [python]
+    if:
       type: string
       regex: "from pty import"
 
   - id: pty-spawn
-    description: Python PTY spawn
-    criticality: suspicious
-    confidence: 0.9
+    desc: Python PTY spawn
+    crit: suspicious
+    conf: 0.9
     attack: "T1059"
-    file_types: [python]
-    condition:
+    for: [python]
+    if:
       type: string
       exact: "pty.spawn"
 
   # Additional atomic traits for composite rules
   - id: dup2
-    description: File descriptor duplication
-    criticality: notable
-    confidence: 0.7
+    desc: File descriptor duplication
+    crit: notable
+    conf: 0.7
     attack: "T1059"
-    file_types: [elf, macho]
-    condition:
+    for: [elf, macho]
+    if:
       type: symbol
       pattern: dup2
 
   - id: fork
-    description: Process fork
-    criticality: notable
-    confidence: 0.7
+    desc: Process fork
+    crit: notable
+    conf: 0.7
     attack: "T1059"
-    file_types: [elf, macho]
-    condition:
+    for: [elf, macho]
+    if:
       type: symbol
       pattern: fork
 
   - id: execve
-    description: Execute program
-    criticality: notable
-    confidence: 0.8
+    desc: Execute program
+    crit: notable
+    conf: 0.8
     attack: "T1059"
-    file_types: [elf, macho]
-    condition:
+    for: [elf, macho]
+    if:
       type: symbol
       pattern: execve
 
   - id: setsid
-    description: Create new session
-    criticality: notable
-    confidence: 0.75
+    desc: Create new session
+    crit: notable
+    conf: 0.75
     attack: "T1059"
-    file_types: [elf, macho]
-    condition:
+    for: [elf, macho]
+    if:
       type: symbol
       pattern: setsid
 
   - id: socket
-    description: Network socket creation
-    criticality: notable
-    confidence: 0.7
+    desc: Network socket creation
+    crit: notable
+    conf: 0.7
     attack: "T1059"
-    file_types: [elf, macho]
-    condition:
+    for: [elf, macho]
+    if:
       type: symbol
       pattern: socket
 
   - id: socket-connect
-    description: Socket connect
-    criticality: notable
-    confidence: 0.75
+    desc: Socket connect
+    crit: notable
+    conf: 0.75
     attack: "T1059"
-    file_types: [elf, macho]
-    condition:
+    for: [elf, macho]
+    if:
       type: symbol
       pattern: connect
 
   - id: socket-recv
-    description: Socket receive
-    criticality: notable
-    confidence: 0.7
+    desc: Socket receive
+    crit: notable
+    conf: 0.7
     attack: "T1059"
-    file_types: [elf, macho]
-    condition:
+    for: [elf, macho]
+    if:
       type: symbol
       pattern: recv
 
   - id: socket-send
-    description: Socket send
-    criticality: notable
-    confidence: 0.7
+    desc: Socket send
+    crit: notable
+    conf: 0.7
     attack: "T1059"
-    file_types: [elf, macho]
-    condition:
+    for: [elf, macho]
+    if:
       type: symbol
       pattern: send
 
 composite_rules:
   # Openpty composite
   - id: openpty
-    description: Open pseudoterminal
-    criticality: notable
-    confidence: 0.85
+    desc: Open pseudoterminal
+    crit: notable
+    conf: 0.85
     attack: "T1059"
-    file_types: [elf, macho, python]
+    for: [elf, macho, python]
     requires_count: 1
-    conditions:
+    any:
       - id: openpty-call
       - id: pty-open-call
 
   # Ptsname composite
   - id: ptsname
-    description: Get slave pseudoterminal name
-    criticality: notable
-    confidence: 0.8
+    desc: Get slave pseudoterminal name
+    crit: notable
+    conf: 0.8
     attack: "T1059"
-    file_types: [elf, macho]
+    for: [elf, macho]
     requires_count: 1
-    conditions:
+    any:
       - id: ptsname-symbol
       - id: ptsname-r-symbol
 
   # Ttyname composite
   - id: ttyname
-    description: Get terminal device pathname
-    criticality: notable
-    confidence: 0.8
+    desc: Get terminal device pathname
+    crit: notable
+    conf: 0.8
     attack: "T1059"
-    file_types: [elf, macho]
+    for: [elf, macho]
     requires_count: 1
-    conditions:
+    any:
       - id: ttyname-symbol
       - id: ttyname-r-symbol
 
   # Python PTY composite
   - id: python-pty
-    description: Python PTY module
-    criticality: suspicious
-    confidence: 0.85
+    desc: Python PTY module
+    crit: suspicious
+    conf: 0.85
     attack: "T1059"
-    file_types: [python]
+    for: [python]
     requires_count: 1
-    conditions:
+    any:
       - id: import-pty
       - id: from-pty-import
 
   # Interactive shell via PTY - uses openpty/pty.spawn with shell execution
   - id: interactive-shell
-    description: Interactive shell via PTY
-    criticality: suspicious
-    confidence: 0.95
+    desc: Interactive shell via PTY
+    crit: suspicious
+    conf: 0.95
     attack: "T1059"
     mbc: "B0022"
-    file_types: [elf, macho, python]
-    requires_any:
+    for: [elf, macho, python]
+    requires_count: 1
+    any:
       - id: openpty
       - id: pty-spawn
-    requires_count: 1
-    conditions:
       - id: exec/command/shell/bin-sh
       - id: exec/command/shell/bin-bash
       - id: dup2
       - id: fork
       - id: execve
-
-  # POSIX PTY shell - full POSIX PTY creation pattern
   - id: posix-pty-shell
-    description: POSIX PTY shell (backdoor pattern)
-    criticality: suspicious
-    confidence: 0.95
+    desc: POSIX PTY shell (backdoor pattern)
+    crit: suspicious
+    conf: 0.95
     attack: "T1059"
     mbc: "B0022"
-    file_types: [elf, macho]
+    for: [elf, macho]
     platforms: [macos, linux, unix]
     requires_all:
       - id: posix-openpt
@@ -359,22 +356,21 @@ composite_rules:
 
   # PTY-based network backdoor - combines PTY with network operations
   - id: pty-network-backdoor
-    description: PTY-based network backdoor
-    criticality: suspicious
-    confidence: 0.95
+    desc: PTY-based network backdoor
+    crit: suspicious
+    conf: 0.95
     attack: "T1059"
     mbc: "B0022"
-    file_types: [elf, macho]
+    for: [elf, macho]
     platforms: [macos, linux, unix]
     requires_all:
       - id: socket
       - id: socket-connect
       - id: fork
-    requires_any:
+    requires_count: 1
+    any:
       - id: posix-openpt
       - id: openpty
-    requires_count: 1
-    conditions:
       - id: grantpt
       - id: unlockpt
       - id: socket-recv

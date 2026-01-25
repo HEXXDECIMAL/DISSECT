@@ -7,7 +7,7 @@ rule malware_TokyoX_Loader {
     strings:
         $str =  "NtAllocateVirtuaNtWriteVirtualMeNtCreateThreadEx"
 
-    condition:
+    if:
         (uint16(0) == 0x5A4D) and all of them
 }
 
@@ -23,6 +23,6 @@ rule malware_TokyoX_RAT {
         $format2 = "%d-%d-%d %d:%d:%d" wide
         $uniq_path = "C:\\Windows\\SysteSOFTWARE\\Microsoft\\Windows NT\\Cu"
 
-    condition:
+    if:
         ($mz at 0 and all of ($format*)) or $uniq_path
 }

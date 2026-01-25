@@ -3,41 +3,41 @@
 
 traits:
   - id: sqlcommand
-    description: SQL command construction or execution
-    criticality: inert
-    confidence: 0.8
-    condition:
+    desc: SQL command construction or execution
+    crit: inert
+    conf: 0.8
+    if:
       type: ast_pattern
       node_type: identifier
       pattern: "SqlCommand"
-    file_types: [csharp]
+    for: [csharp]
 
   - id: sqlconnection
-    description: SQL database connection
-    criticality: inert
-    confidence: 0.8
-    condition:
+    desc: SQL database connection
+    crit: inert
+    conf: 0.8
+    if:
       type: ast_pattern
       node_type: identifier
       pattern: "SqlConnection"
-    file_types: [csharp]
+    for: [csharp]
 
   - id: sqldatareader
-    description: SQL data reader
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: SQL data reader
+    crit: inert
+    conf: 0.7
+    if:
       type: ast_pattern
       node_type: identifier
       pattern: "SqlDataReader"
-    file_types: [csharp]
+    for: [csharp]
 
   - id: extension-method
-    description: Extension method definition (can extend existing types)
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: Extension method definition (can extend existing types)
+    crit: inert
+    conf: 0.7
+    if:
       type: ast_pattern
       node_type: parameter
       pattern: "this SqlCommand"
-    file_types: [csharp]
+    for: [csharp]

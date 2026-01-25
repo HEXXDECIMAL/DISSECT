@@ -11,6 +11,6 @@ rule webshell_DSLog_str {
         $str4 = "system(${res[1]});" ascii
         $str5 = "$res[1] =~ tr/!-~/P-~!-O/;" ascii
 
-    condition:
+    if:
     	all of them
 }

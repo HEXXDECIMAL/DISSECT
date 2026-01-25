@@ -3,70 +3,70 @@
 traits:
   # === LINQ expressions atomic indicators ===
   - id: system-linq-expressions
-    description: System.Linq.Expressions namespace
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: System.Linq.Expressions namespace
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "System.Linq.Expressions"
 
   - id: expression-visitor
-    description: ExpressionVisitor class
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: ExpressionVisitor class
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "ExpressionVisitor"
 
   - id: lambda-expression
-    description: LambdaExpression class
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: LambdaExpression class
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "LambdaExpression"
 
   - id: linq-queries
-    description: LINQ query operations
-    criticality: notable
-    confidence: 0.70
-    condition:
+    desc: LINQ query operations
+    crit: notable
+    conf: 0.70
+    if:
       type: string
       exact: "System.Linq"
 
   # === Expression compilation atomic indicators ===
   - id: compile-call
-    description: Compile() call
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: Compile() call
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: "Compile\\("
 
   - id: expression-lambda
-    description: Expression.Lambda call
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: Expression.Lambda call
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "Expression.Lambda"
 
 composite_rules:
   - id: linq-expressions
-    description: LINQ expression tree manipulation
-    criticality: notable
-    confidence: 0.75
+    desc: LINQ expression tree manipulation
+    crit: notable
+    conf: 0.75
     requires_count: 1
-    conditions:
+    any:
       - id: system-linq-expressions
       - id: expression-visitor
       - id: lambda-expression
 
   - id: expression-compilation
-    description: Runtime expression compilation
-    criticality: notable
-    confidence: 0.80
+    desc: Runtime expression compilation
+    crit: notable
+    conf: 0.80
     requires_count: 1
-    conditions:
+    any:
       - id: compile-call
       - id: expression-lambda

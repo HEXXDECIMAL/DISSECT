@@ -16,7 +16,7 @@ rule Microsoft_Excel_Hidden_Macrosheet
     $macro_sheet_h2 = {85 00 ?? ?? ?? ?? ?? ?? 02 01}
     $hidden_xlsx_01 = /hidden\s*=\s*["'][12]["']/ nocase
     $hidden_xlsx_02 = /state\s*=\s*["'](very)?Hidden["']/ nocase
-	condition:
+	if:
 			($ole_marker at 0 and 1 of ($macro_sheet_h*))
     or
 	 any of ($hidden_xlsx*)

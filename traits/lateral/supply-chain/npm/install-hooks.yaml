@@ -7,7 +7,7 @@ traits:
   # Install Hooks
   - id: preinstall-hook
     description: Package has 'preinstall' hook that runs before install
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     mbc: "B0024"
     attack: "T1059"
@@ -19,7 +19,7 @@ traits:
 
   - id: postinstall-hook
     description: Package has 'postinstall' hook that runs after install
-    criticality: notable
+    crit: notable
     confidence: 0.8
     file_types: [packagejson]
     condition:
@@ -29,7 +29,7 @@ traits:
 
   - id: prepare-hook
     description: Package has 'prepare' hook that runs during install
-    criticality: notable
+    crit: notable
     confidence: 0.75
     file_types: [packagejson]
     condition:
@@ -40,7 +40,7 @@ traits:
   # Download and Execute Patterns
   - id: curl-in-script
     description: npm script uses curl for downloading
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     mbc: "C0002"
     attack: "T1105"
@@ -52,7 +52,7 @@ traits:
 
   - id: wget-in-script
     description: npm script uses wget for downloading
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     mbc: "C0002"
     attack: "T1105"
@@ -64,7 +64,7 @@ traits:
 
   - id: pipe-to-shell
     description: npm script pipes content to shell interpreter
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.95
     mbc: "B0024"
     attack: "T1059"
@@ -76,7 +76,7 @@ traits:
 
   - id: download-execute
     description: npm script downloads and executes code (dropper pattern)
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.95
     mbc: "B0024"
     attack: "T1105"
@@ -101,7 +101,7 @@ traits:
   # Obfuscation in Scripts
   - id: base64-in-script
     description: npm script uses base64 encoding
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.8
     mbc: "C0026"
     attack: "T1027"
@@ -113,7 +113,7 @@ traits:
 
   - id: eval-in-script
     description: npm script uses eval for code execution
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     attack: "T1059"
     file_types: [packagejson]
@@ -125,7 +125,7 @@ traits:
   # Environment Variable Access
   - id: env-access
     description: npm script accesses environment variables
-    criticality: notable
+    crit: notable
     confidence: 0.7
     attack: "T1082"
     file_types: [packagejson]
@@ -137,7 +137,7 @@ traits:
   # Data Exfiltration
   - id: curl-post
     description: npm script sends data via HTTP POST
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     mbc: "E1591"
     attack: "T1041"
@@ -149,7 +149,7 @@ traits:
 
   - id: file-upload
     description: npm script uploads local file via curl
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.95
     mbc: "E1591"
     attack: "T1041"
@@ -162,7 +162,7 @@ traits:
   # Interpreter Execution
   - id: perl-exec
     description: npm script executes perl interpreter
-    criticality: notable
+    crit: notable
     confidence: 0.85
     attack: "T1059.006"
     file_types: [packagejson]
@@ -173,7 +173,7 @@ traits:
 
   - id: python-exec
     description: npm script executes python interpreter
-    criticality: notable
+    crit: notable
     confidence: 0.8
     attack: "T1059.006"
     file_types: [packagejson]

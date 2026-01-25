@@ -4,67 +4,67 @@
 traits:
   # === Clipboard access atomic indicators ===
   - id: pyperclip-paste
-    description: pyperclip.paste() call
-    criticality: notable
-    confidence: 0.7
-    file_types: [python]
-    condition:
+    desc: pyperclip.paste() call
+    crit: notable
+    conf: 0.7
+    for: [python]
+    if:
       type: string
       regex: 'pyperclip\.paste\('
 
   - id: clipboard-get
-    description: clipboard.get() call
-    criticality: notable
-    confidence: 0.7
-    file_types: [python]
-    condition:
+    desc: clipboard.get() call
+    crit: notable
+    conf: 0.7
+    for: [python]
+    if:
       type: string
       regex: 'clipboard\.get\('
 
   # === Keyboard logger atomic indicators ===
   - id: pynput-keyboard
-    description: pynput.keyboard import
-    criticality: notable
-    confidence: 0.7
+    desc: pynput.keyboard import
+    crit: notable
+    conf: 0.7
     mbc: "F0002"
     attack: "T1056.001"
-    file_types: [python]
-    condition:
+    for: [python]
+    if:
       type: string
       exact: "pynput.keyboard"
 
   - id: keyboard-on-press
-    description: keyboard.on_press hook
-    criticality: notable
-    confidence: 0.7
+    desc: keyboard.on_press hook
+    crit: notable
+    conf: 0.7
     mbc: "F0002"
     attack: "T1056.001"
-    file_types: [python]
-    condition:
+    for: [python]
+    if:
       type: string
       exact: "keyboard.on_press"
 
 composite_rules:
   # Clipboard access composite
   - id: clipboard-access
-    description: Accesses system clipboard (potential stealer)
-    criticality: suspicious
-    confidence: 0.9
-    file_types: [python]
-    requires_count: 1
-    conditions:
+    desc: Accesses system clipboard (potential stealer)
+    crit: suspicious
+    conf: 0.9
+    for: [python]
+    count: 1
+    any:
       - id: pyperclip-paste
       - id: clipboard-get
 
   # Keyboard logger composite
   - id: keyboard-logger
-    description: Monitors keyboard input (potential keylogger)
-    criticality: suspicious
-    confidence: 0.9
+    desc: Monitors keyboard input (potential keylogger)
+    crit: suspicious
+    conf: 0.9
     mbc: "F0002"
     attack: "T1056.001"
-    file_types: [python]
-    requires_count: 1
-    conditions:
+    for: [python]
+    count: 1
+    any:
       - id: pynput-keyboard
       - id: keyboard-on-press

@@ -2,34 +2,34 @@
 
 traits:
   - id: json-newtonsoft
-    description: Newtonsoft.Json serialization library
-    criticality: notable
-    confidence: 0.85
-    condition:
+    desc: Newtonsoft.Json serialization library
+    crit: notable
+    conf: 0.85
+    if:
       type: string
       exact: "Newtonsoft.Json"
 
   - id: json-system
-    description: System.Text.Json serialization
-    criticality: notable
-    confidence: 0.85
-    condition:
+    desc: System.Text.Json serialization
+    crit: notable
+    conf: 0.85
+    if:
       type: string
       exact: "System.Text.Json"
 
   - id: xml-serializer
-    description: XML serialization capability
-    criticality: notable
-    confidence: 0.75
-    condition:
+    desc: XML serialization capability
+    crit: notable
+    conf: 0.75
+    if:
       type: string
       regex: "XmlSerializer|System\\.Xml\\.Serialization"
 
   - id: binary-formatter
-    description: Binary serialization (security risk)
-    criticality: suspicious
-    confidence: 0.90
+    desc: Binary serialization (security risk)
+    crit: suspicious
+    conf: 0.90
     mbc: "C0026"
-    condition:
+    if:
       type: string
       exact: "BinaryFormatter"

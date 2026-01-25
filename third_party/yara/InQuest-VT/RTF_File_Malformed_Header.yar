@@ -14,6 +14,6 @@ rule RTF_File_Malformed_Header
         $rtf_header1 = /^.{0,10}{\\rtf[a-z0-9\x5c]+[@='"\x2f()~!#$%^&*_+=|;:,<.>?\x80-\xff\x2d\x5b\x5d\x60]+[a-z0-9]+[@='"\x2f()~!#$%^&*_+=|;:,<.>?\x80-\xff\x2d\x5b\x5d\x60]+[a-z0-9]+[@='"\x2f()~!#$%^&*_+=|;:,<.>?\x80-\xff\x2d\x5b\x5d\x60]/ nocase
 
         $rtf_header2 = /^.{0,10}{\\rtf[a-z0-9]+[^\{\}\x0d\x0a]{100,}/ nocase  // note that {\rtf1 is not required
-	condition:
+	if:
 			all of ($rtf_header*)
 }

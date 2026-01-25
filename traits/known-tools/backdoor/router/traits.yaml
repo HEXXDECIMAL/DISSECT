@@ -9,8 +9,8 @@ traits:
   # VPNFilter modular malware
   - id: router/vpnfilter
     description: VPNFilter router malware indicators
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     attack: "T1584.008"
     condition:
       type: yara
@@ -29,8 +29,8 @@ traits:
   # Router firmware paths
   - id: router/firmware-access
     description: Accesses router firmware paths
-    criticality: notable
-    confidence: 0.8
+    crit: notable
+    conf: 0.8
     condition:
       type: yara
       source: |
@@ -48,8 +48,8 @@ traits:
   # Router reboot/brick patterns
   - id: router/destructive
     description: Router destructive capabilities
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     attack: "T1485"
     condition:
       type: yara
@@ -68,8 +68,8 @@ traits:
   # MikroTik targeting
   - id: router/mikrotik
     description: Targets MikroTik routers
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     condition:
       type: yara
       source: |
@@ -86,8 +86,8 @@ traits:
   # Ubiquiti targeting
   - id: router/ubiquiti
     description: Targets Ubiquiti devices
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     condition:
       type: yara
       source: |

@@ -10,8 +10,8 @@ traits:
   # a reliable botnet indicator. Only meaningful when combined with other Gafgyt indicators.
   - id: botnet/gafgyt/cpu-enumeration
     description: CPU device enumeration (requires context)
-    criticality: notable
-    confidence: 0.3
+    crit: notable
+    conf: 0.3
     attack: "T1082"
     file_types: [elf]
     condition:
@@ -21,8 +21,8 @@ traits:
   # Gafgyt-specific: tcpraw_flood (not in generic DDoS traits)
   - id: botnet/gafgyt/tcpraw-flood
     description: Gafgyt TCP raw flood function
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1498"
     file_types: [elf]
@@ -33,8 +33,8 @@ traits:
   # Main detection via YARA with ELF magic check
   - id: botnet/gafgyt/detected
     description: Gafgyt IoT botnet
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     reference: "https://www.trendmicro.com/vinfo/us/threat-encyclopedia/malware/gafgyt"
     attack: "T1583.005"
@@ -62,13 +62,13 @@ composite_rules:
   # DDoS capability detection - references generic DDoS traits
   - id: botnet/gafgyt/ddos-capability
     description: Gafgyt DDoS capability
-    criticality: hostile
-    confidence: 0.9
+    crit: hostile
+    conf: 0.9
     attack: "T1498"
     mbc: "B0008"
     file_types: [elf]
     requires_count: 2
-    conditions:
+    any:
       - id: impact/ddos/flood/udp-flood
       - id: botnet/gafgyt/tcpraw-flood
       - id: impact/ddos/flood/syn-flood

@@ -4,51 +4,51 @@
 
 traits:
   - id: express-router
-    description: Express Router creation (potential C2 receiver)
-    criticality: suspicious
-    confidence: 0.75
+    desc: Express Router creation (potential C2 receiver)
+    crit: suspicious
+    conf: 0.75
     attack: "T1071.001"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       regex: "express\\.Router|express\\(\\)"
 
   - id: express-post-endpoint
-    description: Express POST endpoint (potential command receiver)
-    criticality: suspicious
-    confidence: 0.8
+    desc: Express POST endpoint (potential command receiver)
+    crit: suspicious
+    conf: 0.8
     attack: "T1071.001"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       regex: "\\.post\\s*\\(|app\\.post"
 
   - id: express-get-endpoint
-    description: Express GET endpoint
-    criticality: notable
-    confidence: 0.7
+    desc: Express GET endpoint
+    crit: notable
+    conf: 0.7
     attack: "T1071.001"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       regex: "\\.get\\s*\\(|app\\.get"
 
   - id: http-createServer
-    description: Node.js HTTP server creation
-    criticality: notable
-    confidence: 0.7
+    desc: Node.js HTTP server creation
+    crit: notable
+    conf: 0.7
     attack: "T1071.001"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       regex: "createServer|http\\.Server"
 
   - id: socket-io
-    description: Socket.io server (real-time C2 potential)
-    criticality: suspicious
-    confidence: 0.8
+    desc: Socket.io server (real-time C2 potential)
+    crit: suspicious
+    conf: 0.8
     attack: "T1071.001"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       regex: "socket\\.io|socketio"

@@ -4,40 +4,40 @@
 
 traits:
   - id: touch
-    description: PHP touch() file timestamp modification
-    criticality: notable
-    confidence: 0.6
+    desc: PHP touch() file timestamp modification
+    crit: notable
+    conf: 0.6
     mbc: "F0006"
     attack: "T1070.006"
-    file_types: [php]
-    condition:
+    for: [php]
+    if:
       type: string
       # PHP touch() function call, not just the word "touch"
       regex: "touch\\s*\\("
 
   - id: filemtime
-    description: File modification time access
-    criticality: inert
-    confidence: 0.6
-    file_types: [php]
-    condition:
+    desc: File modification time access
+    crit: inert
+    conf: 0.6
+    for: [php]
+    if:
       type: string
       exact: filemtime
 
   - id: fileatime
-    description: File access time access
-    criticality: inert
-    confidence: 0.6
-    file_types: [php]
-    condition:
+    desc: File access time access
+    crit: inert
+    conf: 0.6
+    for: [php]
+    if:
       type: string
       exact: fileatime
 
   - id: filectime
-    description: File change time access
-    criticality: inert
-    confidence: 0.6
-    file_types: [php]
-    condition:
+    desc: File change time access
+    crit: inert
+    conf: 0.6
+    for: [php]
+    if:
       type: string
       exact: filectime

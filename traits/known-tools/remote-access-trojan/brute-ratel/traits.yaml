@@ -5,8 +5,8 @@
 traits:
   - id: c2-framework/brute-ratel/shellcode-xor
     description: Brute Ratel XOR'ed shellcode pattern
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     mbc: "B0030"
     attack: "T1059"
@@ -25,8 +25,8 @@ traits:
   # === Brute Ratel atomic indicators ===
   - id: c2-framework/brute-ratel/brute-ratel-str
     description: Brute Ratel string reference
-    criticality: notable
-    confidence: 0.85
+    crit: notable
+    conf: 0.85
     family: true
     mbc: "B0030"
     attack: "T1059"
@@ -38,8 +38,8 @@ traits:
 
   - id: c2-framework/brute-ratel/brc4-str
     description: BRC4 string reference
-    criticality: notable
-    confidence: 0.85
+    crit: notable
+    conf: 0.85
     family: true
     mbc: "B0030"
     attack: "T1059"
@@ -51,8 +51,8 @@ traits:
 
   - id: c2-framework/brute-ratel/badger-str
     description: Badger string reference
-    criticality: notable
-    confidence: 0.8
+    crit: notable
+    conf: 0.8
     family: true
     mbc: "B0030"
     attack: "T1059"
@@ -64,8 +64,8 @@ traits:
 
   - id: c2-framework/brute-ratel/c4-config
     description: Brute Ratel C4 configuration patterns
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     family: true
     mbc: "B0030"
     attack: "T1059"
@@ -87,23 +87,23 @@ composite_rules:
   # Brute Ratel badger ref composite
   - id: c2-framework/brute-ratel/badger-ref
     description: Brute Ratel badger reference
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     family: true
     mbc: "B0030"
     attack: "T1059"
     platforms: [windows]
     file_types: [pe, dll]
     requires_count: 1
-    conditions:
+    any:
       - id: c2-framework/brute-ratel/brute-ratel-str
       - id: c2-framework/brute-ratel/brc4-str
       - id: c2-framework/brute-ratel/badger-str
 
   - id: c2-framework/brute-ratel/detected
     description: Brute Ratel C4 framework
-    criticality: hostile
-    confidence: 0.95
+    crit: hostile
+    conf: 0.95
     family: true
     attack: "T1059"
     mbc: "B0030"

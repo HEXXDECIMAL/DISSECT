@@ -9,24 +9,24 @@ traits:
   
   - id: nodejs/pkg-marker
     description: "NodeJS binary packaged with 'pkg'"
-    criticality: notable
-    confidence: 1.0
+    crit: notable
+    conf: 1.0
     condition:
       type: string
       exact: "/snapshot/"
 
   - id: nodejs/nexe-marker
     description: "NodeJS binary packaged with 'nexe'"
-    criticality: notable
-    confidence: 1.0
+    crit: notable
+    conf: 1.0
     condition:
       type: string
       exact: "nexe.js"
 
   - id: nodejs/lpstub-section
     description: "NodeJS binary with 'lpstub' (hugepages support) section"
-    criticality: inert
-    confidence: 1.0
+    crit: inert
+    conf: 1.0
     condition:
       type: yara
       source: |
@@ -42,8 +42,8 @@ traits:
 
   - id: backdoor/nodejs/suspicious-c2
     description: "Suspicious NodeJS C2 endpoint (securitytrails.pro)"
-    criticality: suspicious
-    confidence: 1.0
+    crit: suspicious
+    conf: 1.0
     attack: "T1071"
     condition:
       type: string
@@ -51,8 +51,8 @@ traits:
 
   - id: backdoor/nodejs/exfil-pattern
     description: "NodeJS combination of WebSockets and Archiver (likely exfiltration)"
-    criticality: suspicious
-    confidence: 0.8
+    crit: suspicious
+    conf: 0.8
     condition:
       type: yara
       source: |
@@ -68,8 +68,8 @@ traits:
 composite_rules:
   - id: backdoor/nodejs/detected
     description: "NodeJS-based Backdoor detected"
-    criticality: hostile
-    confidence: 0.95
+    crit: hostile
+    conf: 0.95
     attack: "T1059.003"
     mbc: "B0022"
     requires_all:

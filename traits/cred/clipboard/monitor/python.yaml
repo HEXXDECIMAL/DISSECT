@@ -3,262 +3,262 @@
 # ATT&CK: T1115 (Clipboard Data)
 
 defaults:
-  file_types: [python]
+  for: [python]
   mbc: "E1510"
   attack: "T1115"
-  criticality: suspicious
+  crit: suspicious
 
 traits:
   # === win32clipboard atomic indicators ===
   - id: import-win32clipboard
-    description: import win32clipboard
-    criticality: inert
-    confidence: 0.6
+    desc: import win32clipboard
+    crit: inert
+    conf: 0.6
     platforms: [windows]
-    condition:
+    if:
       type: string
       exact: "import win32clipboard"
 
   - id: win32-get-clipboard
-    description: win32clipboard.GetClipboardData
-    criticality: inert
-    confidence: 0.7
+    desc: win32clipboard.GetClipboardData
+    crit: inert
+    conf: 0.7
     platforms: [windows]
-    condition:
+    if:
       type: string
       exact: "win32clipboard.GetClipboardData"
 
   - id: win32-set-clipboard
-    description: win32clipboard.SetClipboardData
-    criticality: inert
-    confidence: 0.6
+    desc: win32clipboard.SetClipboardData
+    crit: inert
+    conf: 0.6
     platforms: [windows]
-    condition:
+    if:
       type: string
       exact: "win32clipboard.SetClipboardData"
 
   - id: win32-open-clipboard
-    description: win32clipboard.OpenClipboard
-    criticality: inert
-    confidence: 0.6
+    desc: win32clipboard.OpenClipboard
+    crit: inert
+    conf: 0.6
     platforms: [windows]
-    condition:
+    if:
       type: string
       exact: "win32clipboard.OpenClipboard"
 
   # === pyperclip atomic indicators ===
   - id: import-pyperclip
-    description: import pyperclip
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: import pyperclip
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "import pyperclip"
 
   - id: pyperclip-paste
-    description: pyperclip.paste
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: pyperclip.paste
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "pyperclip.paste"
 
   - id: pyperclip-copy
-    description: pyperclip.copy
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: pyperclip.copy
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "pyperclip.copy"
 
   # === wxPython clipboard atomic indicators ===
   - id: wx-clipboard
-    description: wx.Clipboard
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: wx.Clipboard
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "wx.Clipboard"
 
   - id: clipboard-getdata
-    description: clipboard.GetData
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: clipboard.GetData
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "clipboard.GetData"
 
   - id: wx-theclipboard
-    description: wx.TheClipboard
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: wx.TheClipboard
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "wx.TheClipboard"
 
   # === tkinter clipboard atomic indicators ===
   - id: clipboard-get-method
-    description: .clipboard_get() method
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: .clipboard_get() method
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: ".clipboard_get()"
 
   - id: clipboard-clear-method
-    description: .clipboard_clear() method
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: .clipboard_clear() method
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: ".clipboard_clear()"
 
   # === Windows clipboard chain atomic ===
   - id: set-clipboard-viewer
-    description: SetClipboardViewer function
-    criticality: inert
-    confidence: 0.8
+    desc: SetClipboardViewer function
+    crit: inert
+    conf: 0.8
     platforms: [windows]
-    condition:
+    if:
       type: string
       exact: "SetClipboardViewer("
 
   - id: wm-drawclipboard
-    description: WM_DRAWCLIPBOARD message
-    criticality: inert
-    confidence: 0.8
+    desc: WM_DRAWCLIPBOARD message
+    crit: inert
+    conf: 0.8
     platforms: [windows]
-    condition:
+    if:
       type: string
       exact: "WM_DRAWCLIPBOARD"
 
   - id: wm-changecbchain
-    description: WM_CHANGECBCHAIN message
-    criticality: inert
-    confidence: 0.7
+    desc: WM_CHANGECBCHAIN message
+    crit: inert
+    conf: 0.7
     platforms: [windows]
-    condition:
+    if:
       type: string
       exact: "WM_CHANGECBCHAIN"
 
   # === pynput clipboard atomic ===
   - id: pynput-import-clipboard
-    description: from pynput import clipboard
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: from pynput import clipboard
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "from pynput import clipboard"
 
   - id: pynput-clipboard-mod
-    description: pynput.clipboard module
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: pynput.clipboard module
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "pynput.clipboard"
 
   # === Network exfil atomic ===
   - id: requests-post-clip
-    description: requests.post call
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: requests.post call
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "requests.post"
 
   - id: requests-get-clip
-    description: requests.get call
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: requests.get call
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       exact: "requests.get"
 
   - id: urllib-clip
-    description: urllib module
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: urllib module
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       exact: "urllib"
 
   - id: socket-clip
-    description: socket call
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: socket call
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       regex: "socket\\."
 
   # === Loop/persistence atomic ===
   - id: while-keyword
-    description: while keyword
-    criticality: inert
-    confidence: 0.3
-    condition:
+    desc: while keyword
+    crit: inert
+    conf: 0.3
+    if:
       type: string
       exact: "while"
 
   - id: loop-keyword
-    description: loop keyword
-    criticality: inert
-    confidence: 0.3
-    condition:
+    desc: loop keyword
+    crit: inert
+    conf: 0.3
+    if:
       type: string
       exact: "loop"
 
   - id: schedule-keyword
-    description: schedule keyword
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: schedule keyword
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       exact: "schedule"
 
   - id: time-sleep
-    description: time.sleep function
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: time.sleep function
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       exact: "time.sleep"
 
   # === Message loop atomic ===
   - id: wndproc-keyword
-    description: WndProc keyword
-    criticality: inert
-    confidence: 0.5
+    desc: WndProc keyword
+    crit: inert
+    conf: 0.5
     platforms: [windows]
-    condition:
+    if:
       type: string
       exact: "WndProc"
 
   - id: message-loop-str
-    description: '"message loop" string'
-    criticality: inert
-    confidence: 0.5
+    desc: '"message loop" string'
+    crit: inert
+    conf: 0.5
     platforms: [windows]
-    condition:
+    if:
       type: string
       exact: "message loop"
 
   - id: getclipboarddata-fn
-    description: GetClipboardData function
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: GetClipboardData function
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "GetClipboardData"
 
 composite_rules:
   # win32clipboard composite
   - id: python-win32clipboard
-    description: "Windows clipboard access (win32clipboard)"
-    confidence: 0.8
+    desc: "Windows clipboard access (win32clipboard)"
+    conf: 0.8
     platforms: [windows]
     requires_count: 1
-    conditions:
+    any:
       - id: import-win32clipboard
       - id: win32-get-clipboard
       - id: win32-set-clipboard
@@ -266,70 +266,70 @@ composite_rules:
 
   # pyperclip composite
   - id: python-pyperclip
-    description: "Clipboard access (pyperclip)"
-    confidence: 0.7
+    desc: "Clipboard access (pyperclip)"
+    conf: 0.7
     requires_count: 1
-    conditions:
+    any:
       - id: import-pyperclip
       - id: pyperclip-paste
       - id: pyperclip-copy
 
   # wxPython clipboard composite
   - id: python-wx-clipboard
-    description: "Clipboard access (wxPython)"
-    confidence: 0.75
+    desc: "Clipboard access (wxPython)"
+    conf: 0.75
     requires_count: 1
-    conditions:
+    any:
       - id: wx-clipboard
       - id: clipboard-getdata
       - id: wx-theclipboard
 
   # tkinter clipboard composite
   - id: python-tkinter-clipboard
-    description: "Clipboard access (tkinter)"
-    confidence: 0.65
-    criticality: notable
+    desc: "Clipboard access (tkinter)"
+    conf: 0.65
+    crit: notable
     requires_count: 1
-    conditions:
+    any:
       - id: clipboard-get-method
       - id: clipboard-clear-method
 
   # Windows clipboard chain composite
   - id: python-clipboard-viewer
-    description: "Windows clipboard viewer chain (real-time monitoring)"
-    confidence: 0.9
-    criticality: suspicious
+    desc: "Windows clipboard viewer chain (real-time monitoring)"
+    conf: 0.9
+    crit: suspicious
     platforms: [windows]
-    requires_all:
+    all:
       - id: set-clipboard-viewer
 
   # Clipboard change notification composite
   - id: python-clipboard-change
-    description: "Clipboard change notification handler"
-    confidence: 0.9
-    criticality: suspicious
+    desc: "Clipboard change notification handler"
+    conf: 0.9
+    crit: suspicious
     platforms: [windows]
     requires_count: 1
-    conditions:
+    any:
       - id: wm-drawclipboard
       - id: wm-changecbchain
 
   # pynput clipboard composite
   - id: python-pynput-clipboard
-    description: "Clipboard monitoring via pynput"
-    confidence: 0.75
+    desc: "Clipboard monitoring via pynput"
+    conf: 0.75
     requires_count: 1
-    conditions:
+    any:
       - id: pynput-import-clipboard
       - id: pynput-clipboard-mod
 
   # Clipboard access any library composite
   - id: python-clipboard-access-any
-    description: "Clipboard access via any library"
-    confidence: 0.7
-    criticality: notable
+    desc: "Clipboard access via any library"
+    conf: 0.7
+    crit: notable
     requires_count: 1
-    conditions:
+    any:
       - id: python-win32clipboard
       - id: python-pyperclip
       - id: python-wx-clipboard
@@ -337,11 +337,11 @@ composite_rules:
 
   # Network exfil composite
   - id: python-network-exfil
-    description: "Network communication for potential exfiltration"
-    confidence: 0.6
-    criticality: notable
+    desc: "Network communication for potential exfiltration"
+    conf: 0.6
+    crit: notable
     requires_count: 1
-    conditions:
+    any:
       - id: requests-post-clip
       - id: requests-get-clip
       - id: urllib-clip
@@ -349,11 +349,11 @@ composite_rules:
 
   # Loop persistence composite
   - id: python-loop-persistence
-    description: "Loop or scheduled execution pattern"
-    confidence: 0.5
-    criticality: notable
+    desc: "Loop or scheduled execution pattern"
+    conf: 0.5
+    crit: notable
     requires_count: 1
-    conditions:
+    any:
       - id: while-keyword
       - id: loop-keyword
       - id: schedule-keyword
@@ -361,59 +361,59 @@ composite_rules:
 
   # Clipboard viewer notification composite
   - id: python-clipboard-viewer-notify
-    description: "Clipboard viewer or change notification"
-    confidence: 0.85
-    criticality: suspicious
+    desc: "Clipboard viewer or change notification"
+    conf: 0.85
+    crit: suspicious
     platforms: [windows]
     requires_count: 1
-    conditions:
+    any:
       - id: set-clipboard-viewer
       - id: wm-drawclipboard
 
   # Clipboard data retrieval composite
   - id: python-clipboard-get-data
-    description: "Clipboard data retrieval function"
-    confidence: 0.8
-    criticality: notable
+    desc: "Clipboard data retrieval function"
+    conf: 0.8
+    crit: notable
     requires_count: 1
-    conditions:
+    any:
       - id: getclipboarddata-fn
       - id: clipboard-getdata
 
   # Message loop composite
   - id: python-message-loop
-    description: "Windows message loop or window procedure"
-    confidence: 0.6
-    criticality: notable
+    desc: "Windows message loop or window procedure"
+    conf: 0.6
+    crit: notable
     platforms: [windows]
     requires_count: 1
-    conditions:
+    any:
       - id: while-keyword
       - id: wndproc-keyword
       - id: message-loop-str
 
   # Clipboard monitoring with exfiltration
   - id: python-clipboard-exfil
-    description: "Clipboard theft with exfiltration"
-    confidence: 0.95
-    criticality: hostile
+    desc: "Clipboard theft with exfiltration"
+    conf: 0.95
+    crit: hostile
     attack: "T1115"
     mbc: "E1510"
-    file_types: [python]
-    requires_all:
+    for: [python]
+    all:
       - id: python-clipboard-access-any
       - id: python-network-exfil
       - id: python-loop-persistence
 
   # Real-time clipboard monitoring (chain viewer)
   - id: python-realtime-monitor
-    description: "Real-time clipboard monitoring"
-    confidence: 0.9
-    criticality: hostile
+    desc: "Real-time clipboard monitoring"
+    conf: 0.9
+    crit: hostile
     attack: "T1115"
     mbc: "E1510"
-    file_types: [python]
-    requires_all:
+    for: [python]
+    all:
       - id: python-clipboard-viewer-notify
       - id: python-clipboard-get-data
       - id: python-message-loop

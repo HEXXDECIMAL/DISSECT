@@ -17,7 +17,7 @@ pub struct AMOSDetectionResult {
     /// Detected cipher variant (if any).
     pub variant: Option<CipherVariant>,
     /// Confidence score (0.0 - 1.0).
-    pub confidence: f32,
+    pub conf: f32,
     /// Location of encrypted payload(s) as (offset, size) pairs.
     pub payload_locations: Vec<(usize, usize)>,
     /// Additional detection evidence for reporting.

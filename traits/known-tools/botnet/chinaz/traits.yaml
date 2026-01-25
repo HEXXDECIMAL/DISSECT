@@ -9,8 +9,8 @@ traits:
   # ChinaZ botnet identifiers
   - id: botnet/chinaz/identifier
     description: ChinaZ botnet identifier string
-    criticality: notable
-    confidence: 0.7
+    crit: notable
+    conf: 0.7
     condition:
       type: yara
       source: |
@@ -24,8 +24,8 @@ traits:
 
   - id: c2/botnet/chinaz/commands
     description: Specific ChinaZ C2 command logic
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     attack: "T1583.005"
     condition:
       type: yara
@@ -44,8 +44,8 @@ traits:
   # ChinaZ DDoS capability
   - id: comm/attack/flood/raw-sockets
     description: Raw socket network flood capability
-    criticality: notable
-    confidence: 0.8
+    crit: notable
+    conf: 0.8
     condition:
       type: yara
       source: |
@@ -64,8 +64,8 @@ traits:
 
   - id: comm/attack/flood/iot-ddos
     description: IoT-targeted DDoS flood logic
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     condition:
       type: yara
       source: |
@@ -84,8 +84,8 @@ traits:
   # ChinaZ spreading mechanism
   - id: botnet/spread/telnet-scanner
     description: Automated telnet credential scanner
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     condition:
       type: yara
       source: |
@@ -106,8 +106,8 @@ composite_rules:
   # ChinaZ botnet detection
   - id: botnet/chinaz/detected
     description: ChinaZ botnet detected
-    criticality: hostile
-    confidence: 0.95
+    crit: hostile
+    conf: 0.95
     attack: "T1583.005"
     mbc: "B0030"
     requires_all:

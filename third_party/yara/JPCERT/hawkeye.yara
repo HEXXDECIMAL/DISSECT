@@ -10,6 +10,6 @@ rule malware_Hawkeye_strings {
             $hawkstr2 = "Dear HawkEye Customers!" wide
             $hawkstr3 = "HawkEye Logger Details:" wide
 
-          condition:
+          if:
             all of them
 }

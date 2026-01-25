@@ -3,145 +3,145 @@
 # ATT&CK: T1557 (Adversary-in-the-Middle), T1185 (Browser Session Hijacking)
 
 defaults:
-  file_types: [javascript]
+  for: [javascript]
   attack: "T1557"
-  criticality: suspicious
+  crit: suspicious
 
 traits:
   # === XMLHttpRequest prototype atomic ===
   - id: xhr-prototype-access
-    description: XMLHttpRequest.prototype access
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: XMLHttpRequest.prototype access
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "XMLHttpRequest.prototype"
 
   - id: xhr-bracket-access
-    description: XMLHttpRequest bracket notation access
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: XMLHttpRequest bracket notation access
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: "XMLHttpRequest\\[.+\\]\\[.+\\]"
 
   # === XMLHttpRequest.open hook atomic ===
   - id: xhr-prototype-open-eq
-    description: XMLHttpRequest.prototype.open assignment
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: XMLHttpRequest.prototype.open assignment
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       regex: "XMLHttpRequest\\.prototype\\.open\\s*="
 
   - id: xhr-bracket-open-eq
-    description: XMLHttpRequest bracket open assignment
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: XMLHttpRequest bracket open assignment
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       regex: "XMLHttpRequest\\[.+\\]\\[.+open.+\\]\\s*="
 
   # === XMLHttpRequest.send hook atomic ===
   - id: xhr-prototype-send-eq
-    description: XMLHttpRequest.prototype.send assignment
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: XMLHttpRequest.prototype.send assignment
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       regex: "XMLHttpRequest\\.prototype\\.send\\s*="
 
   - id: xhr-bracket-send-eq
-    description: XMLHttpRequest bracket send assignment
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: XMLHttpRequest bracket send assignment
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       regex: "XMLHttpRequest\\[.+\\]\\[.+send.+\\]\\s*="
 
   # === fetch API hook atomic ===
   - id: window-fetch-eq
-    description: window.fetch assignment
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: window.fetch assignment
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       regex: "window\\.fetch\\s*="
 
   - id: globalthis-fetch-eq
-    description: globalThis.fetch assignment
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: globalThis.fetch assignment
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       regex: "globalThis\\.fetch\\s*="
 
   - id: self-fetch-eq
-    description: self.fetch assignment
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: self.fetch assignment
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       regex: "self\\.fetch\\s*="
 
   # onreadystatechange interception
   - id: readystate-intercept
-    description: "XMLHttpRequest readystate interception"
-    confidence: 0.7
-    condition:
+    desc: "XMLHttpRequest readystate interception"
+    conf: 0.7
+    if:
       type: string
       regex: "onreadystatechange\\s*=.*function"
 
 composite_rules:
   # XMLHttpRequest prototype access composite
   - id: prototype-access
-    description: "XMLHttpRequest prototype access (potential hooking)"
-    confidence: 0.8
+    desc: "XMLHttpRequest prototype access (potential hooking)"
+    conf: 0.8
     requires_count: 1
-    conditions:
+    any:
       - id: xhr-prototype-access
       - id: xhr-bracket-access
 
   # XMLHttpRequest.open hook composite
   - id: open-hook
-    description: "XMLHttpRequest.open method hooking"
-    confidence: 0.85
-    criticality: suspicious
+    desc: "XMLHttpRequest.open method hooking"
+    conf: 0.85
+    crit: suspicious
     requires_count: 1
-    conditions:
+    any:
       - id: xhr-prototype-open-eq
       - id: xhr-bracket-open-eq
 
   # XMLHttpRequest.send hook composite
   - id: send-hook
-    description: "XMLHttpRequest.send method hooking"
-    confidence: 0.85
-    criticality: suspicious
+    desc: "XMLHttpRequest.send method hooking"
+    conf: 0.85
+    crit: suspicious
     requires_count: 1
-    conditions:
+    any:
       - id: xhr-prototype-send-eq
       - id: xhr-bracket-send-eq
 
   # fetch API hook composite
   - id: fetch-hook
-    description: "fetch API hooking"
-    confidence: 0.85
-    criticality: suspicious
+    desc: "fetch API hooking"
+    conf: 0.85
+    crit: suspicious
     requires_count: 1
-    conditions:
+    any:
       - id: window-fetch-eq
       - id: globalthis-fetch-eq
       - id: self-fetch-eq
 
   # Multiple XHR hooks = request interceptor
   - id: request-interceptor
-    description: "HTTP request interceptor (XHR/fetch hooking)"
-    criticality: hostile
-    confidence: 0.9
+    desc: "HTTP request interceptor (XHR/fetch hooking)"
+    crit: hostile
+    conf: 0.9
     attack: "T1557"
-    file_types: [javascript]
+    for: [javascript]
     requires_count: 2
-    conditions:
+    any:
       - id: open-hook
       - id: send-hook
       - id: fetch-hook

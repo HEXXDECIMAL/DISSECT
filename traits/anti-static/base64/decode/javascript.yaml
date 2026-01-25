@@ -4,19 +4,19 @@
 
 traits:
   - id: decode-js
-    description: Base64 decoding in JavaScript
-    criticality: notable
-    confidence: 0.66
+    desc: Base64 decoding in JavaScript
+    crit: notable
+    conf: 0.66
     mbc: "B0032"
     attack: "T1140"
-    condition:
+    if:
       type: string
       exact: "atob("
 
   - id: decode-exec-js
-    description: Base64 decode and execute in JavaScript
-    criticality: suspicious
-    confidence: 0.66
-    condition:
+    desc: Base64 decode and execute in JavaScript
+    crit: suspicious
+    conf: 0.66
+    if:
       type: string
       exact: "eval(atob("

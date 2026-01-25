@@ -6,7 +6,7 @@ traits:
   # Mirai credential indicators - individual strings are suspicious
   - id: mirai-cred-admin
     description: Mirai credential variant (7ujMko0admin)
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.8
     attack: "T1110.001"
     file_types: [elf]
@@ -16,7 +16,7 @@ traits:
 
   - id: mirai-cred-vizxv
     description: Mirai credential variant (7ujMko0vizxv)
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.8
     attack: "T1110.001"
     file_types: [elf]
@@ -26,7 +26,7 @@ traits:
 
   - id: mirai-cred-juantech
     description: Mirai credential variant (juantech)
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.75
     attack: "T1110.001"
     file_types: [elf]
@@ -36,7 +36,7 @@ traits:
 
   - id: mirai-cred-xc3511
     description: Mirai credential variant (xc3511)
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.8
     attack: "T1110.001"
     file_types: [elf]
@@ -46,7 +46,7 @@ traits:
 
   - id: mirai-cred-jvbzd
     description: Mirai credential variant (jvbzd)
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.8
     attack: "T1110.001"
     file_types: [elf]
@@ -56,7 +56,7 @@ traits:
 
   - id: mirai-cred-smcadmin
     description: Mirai credential variant (smcadmin)
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.75
     attack: "T1110.001"
     file_types: [elf]
@@ -66,7 +66,7 @@ traits:
 
   - id: mirai-cred-gm8182
     description: Mirai credential variant (GM8182)
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.8
     attack: "T1110.001"
     file_types: [elf]
@@ -76,7 +76,7 @@ traits:
 
   - id: mirai-cred-oelinux
     description: Mirai credential variant (oelinux123)
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.8
     attack: "T1110.001"
     file_types: [elf]
@@ -86,7 +86,7 @@ traits:
 
   - id: mirai-cred-hi3518
     description: Mirai credential variant (hi3518)
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.8
     attack: "T1110.001"
     file_types: [elf]
@@ -97,7 +97,7 @@ traits:
   # Dahua/Hikvision camera credentials
   - id: camera-cred-vizxv
     description: IP camera credential (vizxv)
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.75
     attack: "T1110.001"
     file_types: [elf]
@@ -107,7 +107,7 @@ traits:
 
   - id: camera-cred-xmhdipc
     description: IP camera credential (xmhdipc)
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.8
     attack: "T1110.001"
     file_types: [elf]
@@ -118,7 +118,7 @@ traits:
   # Router default credentials
   - id: router-cred-zte
     description: Router credential (Zte521)
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.75
     attack: "T1110.001"
     file_types: [elf]
@@ -128,7 +128,7 @@ traits:
 
   - id: router-cred-huawei
     description: Router credential (telecomadmin)
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.75
     attack: "T1110.001"
     file_types: [elf]
@@ -139,7 +139,7 @@ traits:
   # === Telnet bruteforce atomic indicators ===
   - id: telnet-connect-str
     description: Telnet connect string
-    criticality: notable
+    crit: notable
     confidence: 0.6
     attack: "T1110.001"
     file_types: [elf]
@@ -149,7 +149,7 @@ traits:
 
   - id: telnet-scanner-str
     description: Telnet scanner string
-    criticality: notable
+    crit: notable
     confidence: 0.6
     attack: "T1110.001"
     file_types: [elf]
@@ -159,7 +159,7 @@ traits:
 
   - id: telnet-brute-str
     description: Telnet brute string
-    criticality: notable
+    crit: notable
     confidence: 0.6
     attack: "T1110.001"
     file_types: [elf]
@@ -170,7 +170,7 @@ traits:
   # === BusyBox download atomic indicators ===
   - id: busybox-wget
     description: BusyBox wget download
-    criticality: notable
+    crit: notable
     confidence: 0.7
     attack: "T1110.001"
     file_types: [elf]
@@ -180,7 +180,7 @@ traits:
 
   - id: busybox-tftp
     description: BusyBox tftp download
-    criticality: notable
+    crit: notable
     confidence: 0.7
     attack: "T1110.001"
     file_types: [elf]
@@ -190,7 +190,7 @@ traits:
 
   - id: mirai-cred-prefix
     description: Mirai credential prefix (7ujMko0)
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.8
     attack: "T1110.001"
     file_types: [elf]
@@ -200,7 +200,7 @@ traits:
 
   - id: telnet-port-scan
     description: Telnet port 23 scanning indicator
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.75
     attack: "T1110.001"
     file_types: [elf]
@@ -211,7 +211,7 @@ traits:
 
   - id: router-shell-enable
     description: Router shell enable sequence
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.8
     attack: "T1110.001"
     file_types: [elf]
@@ -223,12 +223,12 @@ composite_rules:
   # Telnet bruteforce composite
   - id: telnet-connect
     description: Telnet connection string
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.7
     attack: "T1110.001"
     file_types: [elf]
     requires_count: 1
-    conditions:
+    any:
       - id: telnet-connect-str
       - id: telnet-scanner-str
       - id: telnet-brute-str
@@ -236,25 +236,25 @@ composite_rules:
   # BusyBox download composite
   - id: busybox-download
     description: BusyBox download exploitation
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.8
     attack: "T1110.001"
     file_types: [elf]
     requires_count: 1
-    conditions:
+    any:
       - id: busybox-wget
       - id: busybox-tftp
 
   # Mirai default credentials - requires 3+ credential strings
   - id: mirai-creds
     description: Mirai botnet default credential list detected
-    criticality: hostile
+    crit: hostile
     confidence: 0.95
     attack: "T1110.001"
     mbc: "E1017"
     file_types: [elf]
     requires_count: 3
-    conditions:
+    any:
       - id: mirai-cred-admin
       - id: mirai-cred-vizxv
       - id: mirai-cred-juantech
@@ -268,13 +268,13 @@ composite_rules:
   # Camera credential list detection
   - id: camera-creds
     description: IP camera default credentials detected
-    criticality: hostile
+    crit: hostile
     confidence: 0.9
     attack: "T1110.001"
     mbc: "E1017"
     file_types: [elf]
     requires_count: 2
-    conditions:
+    any:
       - id: camera-cred-vizxv
       - id: camera-cred-xmhdipc
       - id: mirai-cred-vizxv
@@ -283,13 +283,13 @@ composite_rules:
   # Telnet bruteforce attack pattern
   - id: telnet-attack
     description: Telnet bruteforce attack pattern detected
-    criticality: hostile
+    crit: hostile
     confidence: 0.9
     attack: "T1110.001"
     mbc: "E1017"
     file_types: [elf]
     requires_count: 2
-    conditions:
+    any:
       - id: telnet-connect
       - id: busybox-download
       - id: telnet-port-scan

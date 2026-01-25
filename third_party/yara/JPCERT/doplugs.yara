@@ -30,7 +30,7 @@ rule malware_DOPLUGS {
         */
         $enc2 = {8B 14 24 89 D0 80 E2 ?? F6 D0 24 ?? 08 ??}
 
-    condition:
+    if:
         uint16(0) == 0x5A4D and all of them
 }
 
@@ -50,6 +50,6 @@ rule malware_DOPLUGSLoader {
         */
         $enc = {8b b4 b5 e8 fb ff ff 0f b6 44 3b 08 31 f0 3d ff 00 00 00}
 
-    condition:
+    if:
         uint16(0) == 0x5A4D and all of them
 }

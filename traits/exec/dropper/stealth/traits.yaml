@@ -4,43 +4,43 @@
 
 traits:
   - id: devnull
-    description: "subprocess.DEVNULL to hide output"
-    criticality: notable
-    confidence: 0.75
+    desc: "subprocess.DEVNULL to hide output"
+    crit: notable
+    conf: 0.75
     mbc: "F0005"
-    file_types: [python]
-    condition:
+    for: [python]
+    if:
       type: string
       exact: "subprocess.DEVNULL"
 
   - id: close-fds
-    description: "close_fds=True for file descriptor isolation"
-    criticality: notable
-    confidence: 0.7
-    file_types: [python]
-    condition:
+    desc: "close_fds=True for file descriptor isolation"
+    crit: notable
+    conf: 0.7
+    for: [python]
+    if:
       type: string
       exact: "close_fds=True"
 
   - id: subprocess-popen
-    description: "subprocess.Popen call"
-    criticality: notable
-    confidence: 0.6
-    file_types: [python]
-    condition:
+    desc: "subprocess.Popen call"
+    crit: notable
+    conf: 0.6
+    for: [python]
+    if:
       type: string
       regex: "subprocess\\.Popen\\("
 
 composite_rules:
   - id: python
-    description: "Process execution with output hiding and detachment"
-    confidence: 0.92
-    criticality: suspicious
+    desc: "Process execution with output hiding and detachment"
+    conf: 0.92
+    crit: suspicious
     mbc: "F0003"
     attack: "T1036"
-    file_types: [python]
+    for: [python]
     requires_count: 3
-    conditions:
+    any:
       - id: subprocess-popen
       - id: devnull
       - id: exec/command/setsid/python

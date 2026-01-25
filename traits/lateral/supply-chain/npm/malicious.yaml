@@ -6,7 +6,7 @@ traits:
   # NPM preinstall/postinstall abuse with dropper behavior
   - id: lifecycle-dropper
     description: NPM lifecycle script with dropper pattern
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.95
     attack: "T1195.002"
     mbc: "B0024"
@@ -33,7 +33,7 @@ traits:
   # NPM package with inline node eval in hooks
   - id: hook-node-eval
     description: NPM install hook with node -e inline execution
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.95
     attack: "T1059.007"
     mbc: "B0024"
@@ -54,7 +54,7 @@ traits:
   # Install hook spawns child process
   - id: hook-child-process
     description: NPM install hook using child_process module
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     attack: "T1195.002"
     file_types: [packagejson]

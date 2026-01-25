@@ -7,8 +7,8 @@ traits:
 
   - id: c2-framework/sliver/sliverpb
     description: Sliver protobuf package reference
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1071"
     platforms: [all]
@@ -19,8 +19,8 @@ traits:
 
   - id: c2-framework/sliver/bishopfox
     description: BishopFox vendor reference
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1071"
     platforms: [all]
@@ -31,8 +31,8 @@ traits:
 
   - id: c2-framework/sliver/proto-ref
     description: Sliver proto definition reference
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1071"
     platforms: [all]
@@ -43,8 +43,8 @@ traits:
 
   - id: c2-framework/sliver/implant-builds
     description: Sliver implant build function
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1071"
     platforms: [all]
@@ -55,8 +55,8 @@ traits:
 
   - id: c2-framework/sliver/beacon-jitter
     description: Sliver beacon jitter function
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1071"
     platforms: [all]
@@ -67,8 +67,8 @@ traits:
 
   - id: c2-framework/sliver/obfuscate-symbols
     description: Sliver symbol obfuscation function
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     family: true
     attack: "T1027"
     platforms: [all]
@@ -79,8 +79,8 @@ traits:
 
   - id: c2-framework/sliver/beacon-id
     description: Sliver beacon ID function
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1071"
     platforms: [all]
@@ -93,8 +93,8 @@ traits:
 
   - id: c2-framework/sliver/coredump
     description: Sliver CoreDump reference
-    criticality: suspicious
-    confidence: 0.6
+    crit: suspicious
+    conf: 0.6
     attack: "T1071"
     platforms: [linux]
     file_types: [elf]
@@ -104,8 +104,8 @@ traits:
 
   - id: c2-framework/sliver/gvisor-gso
     description: Sliver gVisor GSO capability check
-    criticality: suspicious
-    confidence: 0.7
+    crit: suspicious
+    conf: 0.7
     attack: "T1071"
     platforms: [linux]
     file_types: [elf]
@@ -115,8 +115,8 @@ traits:
 
   - id: c2-framework/sliver/proxy-func
     description: Sliver proxy function reference
-    criticality: suspicious
-    confidence: 0.5
+    crit: suspicious
+    conf: 0.5
     attack: "T1090"
     platforms: [all]
     condition:
@@ -125,8 +125,8 @@ traits:
 
   - id: c2-framework/sliver/set-spoofing
     description: Sliver spoofing function
-    criticality: suspicious
-    confidence: 0.7
+    crit: suspicious
+    conf: 0.7
     attack: "T1090"
     platforms: [all]
     condition:
@@ -137,15 +137,15 @@ composite_rules:
   # Main Sliver detection via explicit markers
   - id: c2-framework/sliver/detected
     description: Sliver C2 framework implant
-    criticality: hostile
-    confidence: 0.95
+    crit: hostile
+    conf: 0.95
     family: true
     reference: "https://github.com/BishopFox/sliver"
     attack: "T1071"
     mbc: "B0030"
     file_types: [elf, macho, pe, go]
     requires_count: 2
-    conditions:
+    any:
       - id: c2-framework/sliver/sliverpb
       - id: c2-framework/sliver/bishopfox
       - id: c2-framework/sliver/proto-ref
@@ -156,14 +156,14 @@ composite_rules:
   # Sliver functions detection
   - id: c2-framework/sliver/functions-detected
     description: Sliver C2 implant functions
-    criticality: hostile
-    confidence: 0.95
+    crit: hostile
+    conf: 0.95
     family: true
     mbc: "B0030"
     attack: "T1071"
     file_types: [elf, macho, pe, go]
     requires_count: 2
-    conditions:
+    any:
       - id: c2-framework/sliver/implant-builds
       - id: c2-framework/sliver/beacon-jitter
       - id: c2-framework/sliver/obfuscate-symbols
@@ -172,8 +172,8 @@ composite_rules:
   # Obfuscated variant detection via YARA (needs filesize constraints)
   - id: c2-framework/sliver/obfuscated-detected
     description: Sliver C2 obfuscated Linux implant
-    criticality: hostile
-    confidence: 0.9
+    crit: hostile
+    conf: 0.9
     family: true
     mbc: "B0030"
     attack: "T1071"

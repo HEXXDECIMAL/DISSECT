@@ -69,7 +69,7 @@ impl RubyAnalyzer {
         // Add structural feature
         report.structure.push(StructuralFeature {
             id: "source/language/ruby".to_string(),
-            description: "Ruby source code".to_string(),
+            desc: "Ruby source code".to_string(),
             evidence: vec![Evidence {
                 method: "parser".to_string(),
                 source: "tree-sitter-ruby".to_string(),
@@ -757,9 +757,9 @@ impl RubyAnalyzer {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: cap_id.to_string(),
-                    description: desc.to_string(),
-                    confidence: conf,
-                    criticality,
+                    desc: desc.to_string(),
+                    conf: conf,
+                    crit: criticality,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {
@@ -789,9 +789,9 @@ impl RubyAnalyzer {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: "exec/command/shell".to_string(),
-                description: "Shell command execution".to_string(),
-                confidence: 0.95,
-                criticality: Criticality::Notable,
+                desc: "Shell command execution".to_string(),
+                conf: 0.95,
+                crit: Criticality::Notable,
 
                 mbc: None,
 
@@ -934,9 +934,9 @@ impl RubyAnalyzer {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: cap_id.to_string(),
-                    description: desc.to_string(),
-                    confidence: conf,
-                    criticality,
+                    desc: desc.to_string(),
+                    conf: conf,
+                    crit: criticality,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {

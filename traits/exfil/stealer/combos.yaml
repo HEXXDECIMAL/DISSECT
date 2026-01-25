@@ -4,11 +4,11 @@
 composite_rules:
   - id: go-crypto-exfil
     description: Go program with crypto-based exfiltration
-    criticality: hostile
-    confidence: 0.98
+    crit: hostile
+    conf: 0.98
     attack: "T1041"
     mbc: "E1041"
-    file_types: [go]
+    for: [go]
     requires_all:
       - id: crypto/symmetric/aes/go-cfb-encrypter
       - id: comm/http/request/go-http-client-do

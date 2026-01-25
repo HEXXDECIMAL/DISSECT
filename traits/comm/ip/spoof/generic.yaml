@@ -4,10 +4,10 @@
 
 traits:
   - id: spoof
-    description: IP address spoofing capabilities
-    criticality: suspicious
-    confidence: 0.66
-    condition:
+    desc: IP address spoofing capabilities
+    crit: suspicious
+    conf: 0.66
+    if:
       type: yara
       source: |
         rule ip_spoof {
@@ -22,36 +22,36 @@ traits:
 
   # === SYN cookie atomic indicators ===
   - id: syncookie-word
-    description: syncookie word
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: syncookie word
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "syncookie"
 
   - id: syn-cookie-lower
-    description: syn_cookie or syncookie
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: syn_cookie or syncookie
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: "syn.?cookie"
 
   - id: syn-cookie-upper
-    description: SYN_cookie or SYNcookie
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: SYN_cookie or SYNcookie
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: "SYN.?cookie"
 
 composite_rules:
   - id: syncookie
-    description: SYN cookie manipulation
-    criticality: suspicious
-    confidence: 0.66
-    requires_count: 1
-    conditions:
+    desc: SYN cookie manipulation
+    crit: suspicious
+    conf: 0.66
+    count: 1
+    any:
       - id: syncookie-word
       - id: syn-cookie-lower
       - id: syn-cookie-upper

@@ -5,25 +5,25 @@ traits:
   # === Temp directory atomic indicators ===
   - id: tmp-ref
     description: "Reference to tmp path"
-    criticality: inert
-    confidence: 0.6
-    condition:
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "tmp"
 
   - id: tempfile-ref
     description: "Reference to tempfile module"
-    criticality: inert
-    confidence: 0.7
-    condition:
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "tempfile"
 
   - id: environ-tmp
     description: "Reference to TMP environment variable"
-    criticality: inert
-    confidence: 0.7
-    condition:
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       regex: 'environ\[[''"]TMP'
 
@@ -31,18 +31,18 @@ composite_rules:
   # Temp directory reference composite
   - id: temp-dir-reference
     description: "Reference to a temporary directory path or variable"
-    criticality: notable
-    confidence: 0.8
+    crit: notable
+    conf: 0.8
     requires_count: 1
-    conditions:
+    any:
       - id: tmp-ref
       - id: tempfile-ref
       - id: environ-tmp
 
   - id: execute-temp-file
     description: "Creates and executes a file from a temporary directory (Staging)"
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     near_lines: 50
     requires_all:
       - id: fs/file/open/generic

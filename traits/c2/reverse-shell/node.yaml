@@ -5,11 +5,11 @@
 
 traits:
   - id: node
-    description: Node.js reverse shell pattern (net + child_process)
-    criticality: suspicious
-    confidence: 0.85
-    file_types: [javascript, typescript]
-    condition:
+    desc: Node.js reverse shell pattern (net + child_process)
+    crit: suspicious
+    conf: 0.85
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule node_reverse_shell {
@@ -25,40 +25,40 @@ traits:
 
   # === Net socket atomic indicators ===
   - id: new-net-socket
-    description: new net.Socket creation
-    criticality: inert
-    confidence: 0.6
-    file_types: [javascript, typescript]
-    condition:
+    desc: new net.Socket creation
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "new net.Socket"
 
   - id: net-createConnection
-    description: net.createConnection call
-    criticality: inert
-    confidence: 0.6
-    file_types: [javascript, typescript]
-    condition:
+    desc: net.createConnection call
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "net.createConnection"
 
   - id: net-connect
-    description: net.connect call
-    criticality: inert
-    confidence: 0.6
-    file_types: [javascript, typescript]
-    condition:
+    desc: net.connect call
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "net.connect"
 
   - id: socket-with-exec
-    description: Socket combined with command execution (reverse shell indicator)
-    criticality: suspicious
-    confidence: 0.95
+    desc: Socket combined with command execution (reverse shell indicator)
+    crit: suspicious
+    conf: 0.95
     mbc: "B0032"
     attack: "T1059"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule socket_exec_combo {
@@ -75,76 +75,76 @@ traits:
 
   # === Ngrok atomic indicators ===
   - id: ngrok-io
-    description: ngrok.io domain
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript, typescript]
-    condition:
+    desc: ngrok.io domain
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "ngrok.io"
 
   - id: ngrok-com
-    description: ngrok.com domain
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript, typescript]
-    condition:
+    desc: ngrok.com domain
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "ngrok.com"
 
   - id: tcp-ngrok
-    description: tcp.ngrok endpoint
-    criticality: inert
-    confidence: 0.8
-    file_types: [javascript, typescript]
-    condition:
+    desc: tcp.ngrok endpoint
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "tcp.ngrok"
 
   # === Tunnel service atomic indicators ===
   - id: serveo-net
-    description: serveo.net tunnel service
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript, typescript]
-    condition:
+    desc: serveo.net tunnel service
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "serveo.net"
 
   - id: localtunnel-me
-    description: localtunnel.me tunnel service
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript, typescript]
-    condition:
+    desc: localtunnel.me tunnel service
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "localtunnel.me"
 
   - id: localhost-run
-    description: localhost.run tunnel service
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript, typescript]
-    condition:
+    desc: localhost.run tunnel service
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "localhost.run"
 
   - id: pinggy-io
-    description: pinggy.io tunnel service
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript, typescript]
-    condition:
+    desc: pinggy.io tunnel service
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "pinggy.io"
 
   # Lock File Pattern (single instance)
   - id: lock-file
-    description: Lock file for single instance (RAT pattern)
-    criticality: notable
-    confidence: 0.7
-    file_types: [javascript, typescript]
-    condition:
+    desc: Lock file for single instance (RAT pattern)
+    crit: notable
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule rat_lock_file {
@@ -161,13 +161,13 @@ traits:
   # NOTE: Requires net.Socket context to avoid FPs from HTTP response streaming
   # HTTP responses also use .on('data') but are not reverse shells
   - id: data-event-exec
-    description: Socket data event with command execution
-    criticality: suspicious
-    confidence: 0.95
+    desc: Socket data event with command execution
+    crit: suspicious
+    conf: 0.95
     mbc: "B0032"
     attack: "T1059"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule socket_data_exec {
@@ -196,37 +196,37 @@ traits:
 
 composite_rules:
   - id: net-socket
-    description: Net socket creation (potential reverse shell)
-    criticality: notable
-    confidence: 0.8
-    file_types: [javascript, typescript]
-    requires_count: 1
-    conditions:
+    desc: Net socket creation (potential reverse shell)
+    crit: notable
+    conf: 0.8
+    for: [javascript, typescript]
+    count: 1
+    any:
       - id: new-net-socket
       - id: net-createConnection
       - id: net-connect
 
   - id: ngrok-tunnel
-    description: Ngrok tunnel endpoint (C2 tunneling)
-    criticality: malicious
-    confidence: 0.95
+    desc: Ngrok tunnel endpoint (C2 tunneling)
+    crit: malicious
+    conf: 0.95
     mbc: "C0002"
     attack: "T1572"
-    file_types: [javascript, typescript]
-    requires_count: 1
-    conditions:
+    for: [javascript, typescript]
+    count: 1
+    any:
       - id: ngrok-io
       - id: ngrok-com
       - id: tcp-ngrok
 
   - id: tunnel-service
-    description: Tunneling service endpoint
-    criticality: suspicious
-    confidence: 0.85
+    desc: Tunneling service endpoint
+    crit: suspicious
+    conf: 0.85
     attack: "T1572"
-    file_types: [javascript, typescript]
-    requires_count: 1
-    conditions:
+    for: [javascript, typescript]
+    count: 1
+    any:
       - id: serveo-net
       - id: localtunnel-me
       - id: localhost-run

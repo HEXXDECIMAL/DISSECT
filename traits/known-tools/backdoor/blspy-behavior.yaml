@@ -1,12 +1,12 @@
 defaults:
-  file_types: [elf, macho]
+  for: [elf, macho]
   platforms: [linux, macos]
 
 traits:
   - id: behavior/syscall/pipe2
     description: "Uses pipe2 syscall (inter-process communication)"
-    criticality: notable
-    confidence: 1.0
+    crit: notable
+    conf: 1.0
     condition:
       type: yara
       source: |
@@ -19,8 +19,8 @@ traits:
 
   - id: behavior/syscall/direct
     description: "Makes direct system calls (evading libc hooks)"
-    criticality: suspicious
-    confidence: 1.0
+    crit: suspicious
+    conf: 1.0
     condition:
       type: yara
       source: |

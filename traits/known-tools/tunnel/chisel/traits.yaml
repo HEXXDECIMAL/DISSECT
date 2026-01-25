@@ -6,7 +6,7 @@ traits:
   # Chisel tunneling tool
   - id: tools/tunnel/chisel/generic
     description: Chisel TCP/UDP tunneling tool
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     attack: "T1090"
     file_types: [elf, macho, pe]
@@ -34,7 +34,7 @@ traits:
   # Chisel reverse tunneling
   - id: tools/tunnel/chisel/reverse
     description: Chisel reverse tunnel capability
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     attack: "T1090.001"
     file_types: [elf, macho, pe]
@@ -62,7 +62,7 @@ traits:
   # Chisel SOCKS proxy
   - id: tools/tunnel/chisel/socks
     description: Chisel SOCKS5 proxy capability
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     attack: "T1090.003"
     file_types: [elf, macho, pe]
@@ -89,7 +89,7 @@ composite_rules:
   # Chisel detection
   - id: tools/tunnel/chisel/detected
     description: Chisel tunneling tool detected
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.95
     attack: "T1090"
     file_types: [elf, macho, pe]

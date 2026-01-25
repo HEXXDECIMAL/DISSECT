@@ -9,392 +9,392 @@ traits:
   # === RSA key handling (atomic) ===
   - id: rsa-keyword
     description: RSA keyword
-    criticality: inert
-    confidence: 0.4
-    file_types: [javascript, typescript, python]
-    condition:
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript, python]
+    if:
       type: string
       exact: "RSA"
 
   - id: generate-keypair
     description: generateKeyPair function
-    criticality: inert
-    confidence: 0.5
-    file_types: [javascript, typescript, python]
-    condition:
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript, python]
+    if:
       type: string
       exact: "generateKeyPair"
 
   - id: public-encrypt
     description: publicEncrypt function
-    criticality: inert
-    confidence: 0.5
-    file_types: [javascript, typescript, python]
-    condition:
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript, python]
+    if:
       type: string
       exact: "publicEncrypt"
 
   - id: private-decrypt
     description: privateDecrypt function
-    criticality: inert
-    confidence: 0.5
-    file_types: [javascript, typescript, python]
-    condition:
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript, python]
+    if:
       type: string
       exact: "privateDecrypt"
 
   - id: begin-rsa-key
     description: BEGIN RSA key header
-    criticality: inert
-    confidence: 0.5
-    file_types: [javascript, typescript, python]
-    condition:
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript, python]
+    if:
       type: string
       exact: "-----BEGIN RSA"
 
   - id: begin-public-key
     description: BEGIN PUBLIC KEY header
-    criticality: inert
-    confidence: 0.5
-    file_types: [javascript, typescript, python]
-    condition:
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript, python]
+    if:
       type: string
       exact: "-----BEGIN PUBLIC KEY"
 
   - id: crypto-module
     description: crypto module
-    criticality: inert
-    confidence: 0.3
-    file_types: [javascript, typescript, python]
-    condition:
+    crit: inert
+    conf: 0.3
+    for: [javascript, typescript, python]
+    if:
       type: string
       exact: "crypto"
 
   # === File iteration (atomic) ===
   - id: readdir-sync
     description: readdirSync function
-    criticality: inert
-    confidence: 0.4
-    file_types: [javascript, typescript, python]
-    condition:
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript, python]
+    if:
       type: string
       exact: "readdirSync"
 
   - id: walk-sync
     description: walkSync function
-    criticality: inert
-    confidence: 0.4
-    file_types: [javascript, typescript, python]
-    condition:
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript, python]
+    if:
       type: string
       exact: "walkSync"
 
   - id: glob-module
     description: glob module
-    criticality: inert
-    confidence: 0.4
-    file_types: [javascript, typescript, python]
-    condition:
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript, python]
+    if:
       type: string
       exact: "glob"
 
   - id: readdir-fn
     description: readdir function
-    criticality: inert
-    confidence: 0.4
-    file_types: [javascript, typescript, python]
-    condition:
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript, python]
+    if:
       type: string
       exact: "readdir"
 
   - id: os-walk
     description: os.walk function
-    criticality: inert
-    confidence: 0.4
-    file_types: [javascript, typescript, python]
-    condition:
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript, python]
+    if:
       type: string
       exact: "os.walk"
 
   # === Encryption (atomic) ===
   - id: encrypt-fn
     description: encrypt function
-    criticality: inert
-    confidence: 0.4
-    file_types: [javascript, typescript, python]
-    condition:
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript, python]
+    if:
       type: string
       exact: "encrypt"
 
   - id: cipher-keyword
     description: cipher keyword
-    criticality: inert
-    confidence: 0.4
-    file_types: [javascript, typescript, python]
-    condition:
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript, python]
+    if:
       type: string
       exact: "cipher"
 
   - id: create-cipheriv
     description: createCipheriv function
-    criticality: inert
-    confidence: 0.5
-    file_types: [javascript, typescript, python]
-    condition:
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript, python]
+    if:
       type: string
       exact: "createCipheriv"
 
   - id: aes-keyword
     description: AES keyword
-    criticality: inert
-    confidence: 0.4
-    file_types: [javascript, typescript, python]
-    condition:
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript, python]
+    if:
       type: string
       exact: "AES"
 
   # === File write (atomic) ===
   - id: writefile-sync
     description: writeFileSync function
-    criticality: inert
-    confidence: 0.4
-    file_types: [javascript, typescript, python]
-    condition:
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript, python]
+    if:
       type: string
       exact: "writeFileSync"
 
   - id: writefile-fn
     description: writeFile function
-    criticality: inert
-    confidence: 0.4
-    file_types: [javascript, typescript, python]
-    condition:
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript, python]
+    if:
       type: string
       exact: "writeFile"
 
   - id: open-paren
     description: open( function
-    criticality: inert
-    confidence: 0.3
-    file_types: [javascript, typescript, python]
-    condition:
+    crit: inert
+    conf: 0.3
+    for: [javascript, typescript, python]
+    if:
       type: string
       exact: "open("
 
   # === Ransom note (atomic) ===
   - id: files-encrypted-msg
     description: Files encrypted message
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript, typescript, python, shell]
-    condition:
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript, python, shell]
+    if:
       type: string
       exact: "your files have been encrypted"
       case_insensitive: true
 
   - id: pay-bitcoin-msg
     description: Pay bitcoin message
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript, typescript, python, shell]
-    condition:
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript, python, shell]
+    if:
       type: string
       exact: "pay bitcoin"
       case_insensitive: true
 
   - id: pay-btc-msg
     description: Pay BTC message
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript, typescript, python, shell]
-    condition:
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript, python, shell]
+    if:
       type: string
       exact: "pay btc"
       case_insensitive: true
 
   - id: decrypt-files-msg
     description: Decrypt files message
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript, typescript, python, shell]
-    condition:
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript, python, shell]
+    if:
       type: string
       exact: "decrypt your files"
       case_insensitive: true
 
   - id: bitcoin-wallet-msg
     description: Bitcoin wallet message
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript, typescript, python, shell]
-    condition:
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript, python, shell]
+    if:
       type: string
       exact: "bitcoin wallet"
       case_insensitive: true
 
   - id: restore-files-msg
     description: Restore files message
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript, typescript, python, shell]
-    condition:
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript, python, shell]
+    if:
       type: string
       exact: "restore your files"
       case_insensitive: true
 
   - id: send-payment-msg
     description: Send payment message
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript, typescript, python, shell]
-    condition:
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript, python, shell]
+    if:
       type: string
       exact: "send payment"
       case_insensitive: true
 
   - id: ransom-identifier
     description: Ransom-related terminology
-    criticality: notable
-    confidence: 0.6
-    condition:
+    crit: notable
+    conf: 0.6
+    if:
       type: string
       regex: "(?i)\\bransom\\b"
 
   # === File rename (atomic) ===
   - id: rename-sync
     description: renameSync function
-    criticality: inert
-    confidence: 0.4
-    file_types: [javascript, typescript, python]
-    condition:
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript, python]
+    if:
       type: string
       exact: "renameSync"
 
   - id: rename-fn
     description: rename( function
-    criticality: inert
-    confidence: 0.4
-    file_types: [javascript, typescript, python]
-    condition:
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript, python]
+    if:
       type: string
       exact: "rename("
 
   - id: os-rename
     description: os.rename function
-    criticality: inert
-    confidence: 0.4
-    file_types: [javascript, typescript, python]
-    condition:
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript, python]
+    if:
       type: string
       exact: "os.rename"
 
   # === Encrypted extensions (atomic) ===
   - id: ext-encrypted
     description: .encrypted extension
-    criticality: inert
-    confidence: 0.6
-    file_types: [javascript, typescript, python]
-    condition:
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript, python]
+    if:
       type: string
       exact: ".encrypted"
 
   - id: ext-locked
     description: .locked extension
-    criticality: inert
-    confidence: 0.6
-    file_types: [javascript, typescript, python]
-    condition:
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript, python]
+    if:
       type: string
       exact: ".locked"
 
   - id: ext-enc
     description: .enc extension
-    criticality: inert
-    confidence: 0.6
-    file_types: [javascript, typescript, python]
-    condition:
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript, python]
+    if:
       type: string
       exact: ".enc"
 
   - id: ext-crypt
     description: .crypt extension
-    criticality: inert
-    confidence: 0.6
-    file_types: [javascript, typescript, python]
-    condition:
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript, python]
+    if:
       type: string
       exact: ".crypt"
 
   # === Medusa ransomware (atomic) ===
   - id: medusa-name
     description: Medusa name
-    criticality: inert
-    confidence: 0.5
-    file_types: [javascript, typescript]
-    condition:
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
       type: string
       exact: medusa
       case_insensitive: true
 
   - id: polymorphic-keyword
     description: polymorphic keyword
-    criticality: inert
-    confidence: 0.5
-    file_types: [javascript, typescript]
-    condition:
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
       type: string
       exact: polymorphic
       case_insensitive: true
 
   - id: mutate-keyword
     description: mutate keyword
-    criticality: inert
-    confidence: 0.4
-    file_types: [javascript, typescript]
-    condition:
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript]
+    if:
       type: string
       exact: mutate
 
   # === Shadow copy deletion (atomic) ===
   - id: vssadmin-delete
     description: vssadmin delete shadows
-    criticality: inert
-    confidence: 0.7
+    crit: inert
+    conf: 0.7
     attack: "T1490"
-    file_types: [javascript, powershell, shell]
-    condition:
+    for: [javascript, powershell, shell]
+    if:
       type: string
       regex: 'vssadmin\s+delete\s+shadows'
 
   - id: wmic-shadowcopy
     description: wmic shadowcopy delete
-    criticality: inert
-    confidence: 0.7
+    crit: inert
+    conf: 0.7
     attack: "T1490"
-    file_types: [javascript, powershell, shell]
-    condition:
+    for: [javascript, powershell, shell]
+    if:
       type: string
       regex: 'wmic\s+shadowcopy\s+delete'
 
   - id: bcdedit-recovery
     description: bcdedit recoveryenabled no
-    criticality: inert
-    confidence: 0.7
+    crit: inert
+    conf: 0.7
     attack: "T1490"
-    file_types: [javascript, powershell, shell]
-    condition:
+    for: [javascript, powershell, shell]
+    if:
       type: string
-      regex: 'bcdedit.*recoveryenabled.*no'
+      regex: "bcdedit.*recoveryenabled.*no"
 
 composite_rules:
   # RSA key operations
   - id: rsa-key-operations
     description: RSA key operations
-    criticality: inert
-    confidence: 0.6
-    file_types: [javascript, typescript, python]
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript, python]
     requires_count: 2
-    conditions:
+    any:
       - id: rsa-keyword
       - id: generate-keypair
       - id: public-encrypt
@@ -405,9 +405,9 @@ composite_rules:
   # RSA key handling with crypto
   - id: rsa-key-handling
     description: RSA key generation or handling (potential ransomware)
-    criticality: notable
-    confidence: 0.8
-    file_types: [javascript, typescript, python]
+    crit: notable
+    conf: 0.8
+    for: [javascript, typescript, python]
     requires_all:
       - id: crypto-module
       - id: rsa-key-operations
@@ -415,11 +415,11 @@ composite_rules:
   # File iteration
   - id: file-iteration
     description: File iteration functions
-    criticality: inert
-    confidence: 0.5
-    file_types: [javascript, typescript, python]
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript, python]
     requires_count: 1
-    conditions:
+    any:
       - id: readdir-sync
       - id: walk-sync
       - id: glob-module
@@ -429,11 +429,11 @@ composite_rules:
   # Encryption functions
   - id: encryption-functions
     description: Encryption functions
-    criticality: inert
-    confidence: 0.5
-    file_types: [javascript, typescript, python]
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript, python]
     requires_count: 1
-    conditions:
+    any:
       - id: encrypt-fn
       - id: cipher-keyword
       - id: create-cipheriv
@@ -442,11 +442,11 @@ composite_rules:
   # File write functions
   - id: file-write-functions
     description: File write functions
-    criticality: inert
-    confidence: 0.4
-    file_types: [javascript, typescript, python]
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript, python]
     requires_count: 1
-    conditions:
+    any:
       - id: writefile-sync
       - id: writefile-fn
       - id: open-paren
@@ -454,9 +454,9 @@ composite_rules:
   # File encryption loop
   - id: file-encryption-loop
     description: File iteration with encryption (ransomware pattern)
-    criticality: suspicious
-    confidence: 0.9
-    file_types: [javascript, typescript, python]
+    crit: suspicious
+    conf: 0.9
+    for: [javascript, typescript, python]
     requires_all:
       - id: file-iteration
       - id: encryption-functions
@@ -465,11 +465,11 @@ composite_rules:
   # Ransom note
   - id: ransom-note
     description: Ransom note text patterns
-    criticality: suspicious
-    confidence: 0.95
-    file_types: [javascript, typescript, python, shell]
+    crit: suspicious
+    conf: 0.95
+    for: [javascript, typescript, python, shell]
     requires_count: 2
-    conditions:
+    any:
       - id: files-encrypted-msg
       - id: pay-bitcoin-msg
       - id: pay-btc-msg
@@ -481,11 +481,11 @@ composite_rules:
   # Rename functions
   - id: rename-functions
     description: File rename functions
-    criticality: inert
-    confidence: 0.4
-    file_types: [javascript, typescript, python]
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript, python]
     requires_count: 1
-    conditions:
+    any:
       - id: rename-sync
       - id: rename-fn
       - id: os-rename
@@ -493,11 +493,11 @@ composite_rules:
   # Encrypted extensions
   - id: encrypted-extensions
     description: Encrypted file extensions
-    criticality: inert
-    confidence: 0.6
-    file_types: [javascript, typescript, python]
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript, python]
     requires_count: 1
-    conditions:
+    any:
       - id: ext-encrypted
       - id: ext-locked
       - id: ext-enc
@@ -506,9 +506,9 @@ composite_rules:
   # Extension change
   - id: extension-change
     description: Changes file extensions (potential ransomware)
-    criticality: suspicious
-    confidence: 0.85
-    file_types: [javascript, typescript, python]
+    crit: suspicious
+    conf: 0.85
+    for: [javascript, typescript, python]
     requires_all:
       - id: rename-functions
       - id: encrypted-extensions
@@ -516,13 +516,13 @@ composite_rules:
   # Medusa pattern
   - id: medusa-pattern
     description: Medusa ransomware implementation indicators
-    criticality: notable
-    confidence: 0.95
-    file_types: [javascript, typescript]
+    crit: notable
+    conf: 0.95
+    for: [javascript, typescript]
     requires_all:
       - id: medusa-name
     requires_count: 1
-    conditions:
+    any:
       - id: polymorphic-keyword
       - id: mutate-keyword
       - id: rsa-keyword
@@ -530,12 +530,12 @@ composite_rules:
   # Shadow copy deletion
   - id: shadow-delete
     description: Shadow copy deletion (ransomware preparation)
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     attack: "T1490"
-    file_types: [javascript, powershell, shell]
+    for: [javascript, powershell, shell]
     requires_count: 1
-    conditions:
+    any:
       - id: vssadmin-delete
       - id: wmic-shadowcopy
       - id: bcdedit-recovery

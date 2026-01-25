@@ -3,151 +3,151 @@
 
 traits:
   - id: google-token-endpoint
-    description: Google OAuth2 token endpoint
-    criticality: notable
-    confidence: 0.8
+    desc: Google OAuth2 token endpoint
+    crit: notable
+    conf: 0.8
     attack: "T1528"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "googleapis.com/oauth2/v4/token"
 
   - id: google-auth-endpoint
-    description: Google OAuth2 auth endpoint
-    criticality: notable
-    confidence: 0.8
+    desc: Google OAuth2 auth endpoint
+    crit: notable
+    conf: 0.8
     attack: "T1528"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "accounts.google.com/o/oauth2/auth"
 
   - id: google-userinfo
-    description: Google OAuth2 userinfo endpoint
-    criticality: suspicious
-    confidence: 0.85
+    desc: Google OAuth2 userinfo endpoint
+    crit: suspicious
+    conf: 0.85
     attack: "T1528"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "googleapis.com/oauth2/v1/userinfo"
 
   - id: gmail-client-id
-    description: Gmail client ID variable
-    criticality: suspicious
-    confidence: 0.9
+    desc: Gmail client ID variable
+    crit: suspicious
+    conf: 0.9
     attack: "T1528"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "GMAIL_CLIENT_ID"
 
   - id: microsoft-graph
-    description: Microsoft Graph API endpoint
-    criticality: notable
-    confidence: 0.8
+    desc: Microsoft Graph API endpoint
+    crit: notable
+    conf: 0.8
     attack: "T1528"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "graph.microsoft.com/v1.0/me"
 
   - id: microsoft-auth
-    description: Microsoft OAuth2 auth endpoint
-    criticality: notable
-    confidence: 0.8
+    desc: Microsoft OAuth2 auth endpoint
+    crit: notable
+    conf: 0.8
     attack: "T1528"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "login.microsoftonline.com/common/oauth2/v2.0/authorize"
 
   - id: o365-client-id
-    description: Office 365 client ID variable
-    criticality: suspicious
-    confidence: 0.9
+    desc: Office 365 client ID variable
+    crit: suspicious
+    conf: 0.9
     attack: "T1528"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "O365_CLIENT_ID"
 
   - id: code-verifier
-    description: OAuth PKCE code verifier
-    criticality: notable
-    confidence: 0.7
+    desc: OAuth PKCE code verifier
+    crit: notable
+    conf: 0.7
     attack: "T1528"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "code_verifier"
 
   - id: code-challenge
-    description: OAuth PKCE code challenge
-    criticality: notable
-    confidence: 0.7
+    desc: OAuth PKCE code challenge
+    crit: notable
+    conf: 0.7
     attack: "T1528"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "code_challenge"
 
   - id: json-content-type
-    description: JSON content type header
-    criticality: info
-    confidence: 0.5
-    file_types: [all]
-    condition:
+    desc: JSON content type header
+    crit: info
+    conf: 0.5
+    for: [all]
+    if:
       type: string
       exact: "application/json"
 
   - id: http-post-method
-    description: HTTP POST method
-    criticality: info
-    confidence: 0.5
-    file_types: [all]
-    condition:
+    desc: HTTP POST method
+    crit: info
+    conf: 0.5
+    for: [all]
+    if:
       type: string
       exact: "POST"
 
   - id: recon-computername
-    description: COMPUTERNAME environment variable
-    criticality: notable
-    confidence: 0.7
+    desc: COMPUTERNAME environment variable
+    crit: notable
+    conf: 0.7
     attack: "T1082"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "COMPUTERNAME"
 
   - id: recon-userdomain
-    description: USERDOMAIN environment variable
-    criticality: notable
-    confidence: 0.7
+    desc: USERDOMAIN environment variable
+    crit: notable
+    conf: 0.7
     attack: "T1082"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "USERDOMAIN"
 
   - id: recon-ipinfo
-    description: ipinfo.io IP lookup service
-    criticality: notable
-    confidence: 0.7
+    desc: ipinfo.io IP lookup service
+    crit: notable
+    conf: 0.7
     attack: "T1016"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "ipinfo.io"
 
 composite_rules:
   - id: stealer-detected
-    description: OAuth credential stealer
-    criticality: suspicious
-    confidence: 0.9
+    desc: OAuth credential stealer
+    crit: suspicious
+    conf: 0.9
     attack: "T1528"
     mbc: "B0028"
-    file_types: [all]
+    for: [all]
     requires_all:
       - id: json-content-type
       - id: http-post-method

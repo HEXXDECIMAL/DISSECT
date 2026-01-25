@@ -4,19 +4,19 @@
 
 traits:
   - id: connect
-    description: SSL/TLS connection
-    criticality: inert
-    confidence: 0.66
-    file_types: [elf, macho, so, dylib, c]
-    condition:
+    desc: SSL/TLS connection
+    crit: inert
+    conf: 0.66
+    for: [elf, macho, so, dylib, c]
+    if:
       type: symbol
       pattern: SSL_connect|SSL_new|SSL_CTX_new|TLS_client_method
 
   - id: verify-skip
-    description: Skip SSL certificate verification
-    criticality: suspicious
-    confidence: 0.66
-    condition:
+    desc: Skip SSL certificate verification
+    crit: suspicious
+    conf: 0.66
+    if:
       type: yara
       source: |
         rule ssl_verify_skip {

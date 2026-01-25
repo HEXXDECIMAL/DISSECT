@@ -6,7 +6,7 @@ traits:
   # VSCode-specific markers for contextual analysis
   - id: api-usage
     description: Uses VSCode API (extension marker)
-    criticality: inert
+    crit: inert
     confidence: 1.0
     file_types: [javascript, typescript]
     condition:
@@ -25,7 +25,7 @@ traits:
   # Post-Install Code Execution
   - id: post-install-exec
     description: Post-install script execution (dropper pattern)
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.95
     mbc: "B0024"
     attack: "T1059"
@@ -46,7 +46,7 @@ traits:
   # Extension Credential Theft
   - id: credential-theft
     description: VSCode extension accessing sensitive credentials
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     mbc: "E1519"
     attack: "T1555"
@@ -71,7 +71,7 @@ traits:
   # VSCode namespace usage pattern
   - id: vscode-namespace
     description: Uses VSCode namespace
-    criticality: inert
+    crit: inert
     confidence: 1.0
     file_types: [javascript, typescript]
     condition:
@@ -81,7 +81,7 @@ traits:
   # Persistence location references
   - id: persistence-locations
     description: References persistence locations (startup/autorun paths)
-    criticality: notable
+    crit: notable
     confidence: 0.8
     file_types: [javascript, typescript]
     condition:
@@ -91,7 +91,7 @@ traits:
   # File write operations
   - id: file-write-ops
     description: File write or copy operations
-    criticality: inert
+    crit: inert
     confidence: 1.0
     file_types: [javascript, typescript]
     condition:
@@ -102,7 +102,7 @@ composite_rules:
   # Staged Decryption and Execution inside a VSCode Extension
   - id: staged-dropper
     description: VSCode extension with staged decryption and execution (Dropper)
-    criticality: hostile
+    crit: hostile
     confidence: 0.99
     mbc: "B0032"
     attack: "T1027"
@@ -115,7 +115,7 @@ composite_rules:
   # Extension Persistence via well-known hooks
   - id: persistence
     description: Extension establishing persistence
-    criticality: hostile
+    crit: hostile
     confidence: 0.95
     mbc: "F0011"
     attack: "T1547"

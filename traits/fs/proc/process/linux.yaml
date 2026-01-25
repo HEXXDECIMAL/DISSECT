@@ -5,96 +5,96 @@
 traits:
   - id: process-arbitrary
     description: Access /proc for arbitrary PIDs
-    criticality: notable
-    confidence: 0.66
-    condition:
+    crit: notable
+    conf: 0.66
+    if:
       type: string
       regex: "/proc/[%{$][/\\$\\w\\}]{0,12}"
 
   - id: process-self-exe
     description: Read own executable path via /proc/self/exe
-    criticality: inert
-    confidence: 0.66
-    condition:
+    crit: inert
+    conf: 0.66
+    if:
       type: string
       exact: /proc/self/exe
 
   - id: process-self-cmdline
     description: Read own command line via /proc/self/cmdline
-    criticality: inert
-    confidence: 0.66
-    condition:
+    crit: inert
+    conf: 0.66
+    if:
       type: string
       exact: /proc/self/cmdline
 
   - id: process-self-status
     description: Read own process status via /proc/self/status
-    criticality: inert
-    confidence: 0.66
-    condition:
+    crit: inert
+    conf: 0.66
+    if:
       type: string
       exact: /proc/self/status
 
   - id: process-pid-maps
     description: Read process memory maps via /proc/*/maps
-    criticality: notable
-    confidence: 0.66
-    condition:
+    crit: notable
+    conf: 0.66
+    if:
       type: string
       regex: "/proc/[^/]+/maps"
 
   - id: process-pid-cmdline
     description: Read process command line via /proc/*/cmdline
-    criticality: notable
-    confidence: 0.66
-    condition:
+    crit: notable
+    conf: 0.66
+    if:
       type: string
       regex: "/proc/[^/]+/cmdline"
 
   - id: process-pid-environ
     description: Read process environment via /proc/*/environ
-    criticality: suspicious
-    confidence: 0.66
-    condition:
+    crit: suspicious
+    conf: 0.66
+    if:
       type: string
       regex: "/proc/[^/]+/environ"
 
   - id: process-pid-fd
     description: Access process file descriptors via /proc/*/fd
-    criticality: notable
-    confidence: 0.66
-    condition:
+    crit: notable
+    conf: 0.66
+    if:
       type: string
       regex: "/proc/[^/]+/fd"
 
   - id: process-pid-exe
     description: Read process executable path via /proc/*/exe
-    criticality: notable
-    confidence: 0.66
-    condition:
+    crit: notable
+    conf: 0.66
+    if:
       type: string
       regex: "/proc/[^/]+/exe"
 
   - id: process-pid-status
     description: Read process status via /proc/*/status
-    criticality: notable
-    confidence: 0.66
-    condition:
+    crit: notable
+    conf: 0.66
+    if:
       type: string
       regex: "/proc/[^/]+/status"
 
   - id: process-pid-stat
     description: Read process statistics via /proc/*/stat
-    criticality: notable
-    confidence: 0.66
-    condition:
+    crit: notable
+    conf: 0.66
+    if:
       type: string
       regex: "/proc/[^/]+/stat[^u]"
 
   - id: process-oom
     description: Adjust OOM killer score via /proc/*/oom_score_adj
-    criticality: suspicious
-    confidence: 0.66
-    condition:
+    crit: suspicious
+    conf: 0.66
+    if:
       type: string
       regex: "/proc/[^/]+/oom_score_adj"

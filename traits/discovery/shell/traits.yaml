@@ -5,162 +5,162 @@
 traits:
   # execSync with system info commands
   - id: whoami
-    description: Shell whoami command execution
-    criticality: notable
-    confidence: 0.85
+    desc: Shell whoami command execution
+    crit: notable
+    conf: 0.85
     attack: "T1033"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "exec(Sync)?\\(['\"]whoami['\"]"
 
   - id: hostname
-    description: Shell hostname command execution
-    criticality: notable
-    confidence: 0.8
+    desc: Shell hostname command execution
+    crit: notable
+    conf: 0.8
     attack: "T1082"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "exec(Sync)?\\(['\"]hostname['\"]"
 
   # === ifconfig/ip atomic indicators ===
   - id: exec-ifconfig
-    description: execSync ifconfig command
-    criticality: inert
-    confidence: 0.7
+    desc: execSync ifconfig command
+    crit: inert
+    conf: 0.7
     attack: "T1016"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "exec(Sync)?\\(['\"]ifconfig['\"]"
 
   - id: exec-ip-addr
-    description: execSync ip addr command
-    criticality: inert
-    confidence: 0.7
+    desc: execSync ip addr command
+    crit: inert
+    conf: 0.7
     attack: "T1016"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "exec(Sync)?\\(['\"]ip addr['\"]"
 
   - id: exec-ip-a
-    description: execSync ip a command
-    criticality: inert
-    confidence: 0.7
+    desc: execSync ip a command
+    crit: inert
+    conf: 0.7
     attack: "T1016"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "exec(Sync)?\\(['\"]ip a['\"]"
 
   - id: uname
-    description: Shell uname command execution
-    criticality: notable
-    confidence: 0.75
+    desc: Shell uname command execution
+    crit: notable
+    conf: 0.75
     attack: "T1082"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "exec(Sync)?\\(['\"]uname['\"]"
 
   - id: id
-    description: Shell id command execution
-    criticality: notable
-    confidence: 0.85
+    desc: Shell id command execution
+    crit: notable
+    conf: 0.85
     attack: "T1033"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "exec(Sync)?\\(['\"]id['\"]"
 
   - id: pwd
-    description: Shell pwd command execution
-    criticality: inert
-    confidence: 0.7
+    desc: Shell pwd command execution
+    crit: inert
+    conf: 0.7
     attack: "T1083"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "exec(Sync)?\\(['\"]pwd['\"]"
 
   - id: npm-whoami
-    description: npm whoami command execution (npm user discovery)
-    criticality: suspicious
-    confidence: 0.9
+    desc: npm whoami command execution (npm user discovery)
+    crit: suspicious
+    conf: 0.9
     attack: "T1033"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "exec(Sync)?\\(['\"]npm whoami['\"]"
 
   # === Curl exfil atomic indicators ===
   - id: curl-d-flag
-    description: curl -d flag
-    criticality: notable
-    confidence: 0.8
+    desc: curl -d flag
+    crit: notable
+    conf: 0.8
     attack: "T1041"
-    file_types: [javascript, typescript, python, shell]
-    condition:
+    for: [javascript, typescript, python, shell]
+    if:
       type: string
       regex: "curl\\s+-d"
 
   - id: curl-data-flag
-    description: curl --data flag
-    criticality: notable
-    confidence: 0.8
+    desc: curl --data flag
+    crit: notable
+    conf: 0.8
     attack: "T1041"
-    file_types: [javascript, typescript, python, shell]
-    condition:
+    for: [javascript, typescript, python, shell]
+    if:
       type: string
       regex: "curl\\s+--data"
 
   - id: curl-post-flag
-    description: curl -X POST flag
-    criticality: notable
-    confidence: 0.8
+    desc: curl -X POST flag
+    crit: notable
+    conf: 0.8
     attack: "T1041"
-    file_types: [javascript, typescript, python, shell]
-    condition:
+    for: [javascript, typescript, python, shell]
+    if:
       type: string
       regex: "curl\\s+-X\\s*POST"
 
 composite_rules:
   # ifconfig/ip composite
   - id: ifconfig
-    description: Shell ifconfig/ip command execution
-    criticality: notable
-    confidence: 0.85
+    desc: Shell ifconfig/ip command execution
+    crit: notable
+    conf: 0.85
     attack: "T1016"
-    file_types: [javascript, typescript]
+    for: [javascript, typescript]
     requires_count: 1
-    conditions:
+    any:
       - id: exec-ifconfig
       - id: exec-ip-addr
       - id: exec-ip-a
 
   # curl exfil composite
   - id: curl-exfil
-    description: Curl command with data parameter (exfiltration)
-    criticality: suspicious
-    confidence: 0.9
+    desc: Curl command with data parameter (exfiltration)
+    crit: suspicious
+    conf: 0.9
     attack: "T1041"
-    file_types: [javascript, typescript, python, shell]
+    for: [javascript, typescript, python, shell]
     requires_count: 1
-    conditions:
+    any:
       - id: curl-d-flag
       - id: curl-data-flag
       - id: curl-post-flag
 
   # Multiple system info commands
   - id: system-profiling
-    description: Multiple system info commands (reconnaissance)
-    criticality: suspicious
-    confidence: 0.95
+    desc: Multiple system info commands (reconnaissance)
+    crit: suspicious
+    conf: 0.95
     attack: "T1082"
     requires_count: 2
-    conditions:
+    any:
       - id: whoami
       - id: hostname
       - id: ifconfig

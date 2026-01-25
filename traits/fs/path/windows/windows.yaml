@@ -5,9 +5,9 @@
 traits:
   - id: windows-appdata
     description: Reference to Windows Application Data
-    criticality: notable
-    confidence: 0.66
-    condition:
+    crit: notable
+    conf: 0.66
+    if:
       type: yara
       source: |
         rule windows_appdata {
@@ -21,16 +21,16 @@ traits:
 
   - id: windows-root
     description: Reference to Windows system root
-    criticality: inert
-    confidence: 0.66
-    condition:
+    crit: inert
+    conf: 0.66
+    if:
       type: string
       regex: "[Cc]:\\\\Windows\\\\[\\w\\\\]+"
 
   - id: windows-system32
     description: Reference to Windows System32
-    criticality: notable
-    confidence: 0.66
-    condition:
+    crit: notable
+    conf: 0.66
+    if:
       type: string
       regex: "[Cc]:\\\\Windows\\\\System32\\\\[\\w\\.]+"

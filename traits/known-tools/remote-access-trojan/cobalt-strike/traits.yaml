@@ -6,8 +6,8 @@
 traits:
   - id: c2-framework/cobalt-strike/config-block
     description: Cobalt Strike beacon configuration block
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     mbc: "C0001"
     attack: "T1071"
     file_types: [elf, macho, pe, so, dylib, dll]
@@ -28,8 +28,8 @@ traits:
 
   - id: c2-framework/cobalt-strike/named-pipe
     description: Cobalt Strike default named pipe patterns
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     mbc: "C0001"
     attack: "T1071"
     file_types: [pe, dll]
@@ -51,8 +51,8 @@ traits:
 
   - id: c2-framework/cobalt-strike/sleep-mask
     description: Cobalt Strike sleep mask obfuscation
-    criticality: suspicious
-    confidence: 0.8
+    crit: suspicious
+    conf: 0.8
     mbc: "C0001"
     attack: "T1071"
     file_types: [elf, macho, pe, so, dylib, dll]
@@ -72,8 +72,8 @@ traits:
 
   - id: c2-framework/cobalt-strike/malleable-c2
     description: Cobalt Strike malleable C2 profile patterns
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     mbc: "C0001"
     attack: "T1071"
     file_types: [elf, macho, pe, so, dylib, dll]
@@ -96,8 +96,8 @@ traits:
 
   - id: c2-framework/cobalt-strike/vermilionstrike
     description: VermilionStrike Linux Cobalt Strike beacon
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     mbc: "C0001"
     attack: "T1071"
     file_types: [elf, so]
@@ -126,8 +126,8 @@ traits:
 
   - id: c2-framework/cobalt-strike/reflective-load
     description: Cobalt Strike reflective DLL loading patterns
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     mbc: "C0001"
     attack: "T1620"
     file_types: [pe, dll]
@@ -147,8 +147,8 @@ traits:
 
   - id: c2-framework/cobalt-strike/process-inject
     description: Cobalt Strike process injection patterns
-    criticality: suspicious
-    confidence: 0.8
+    crit: suspicious
+    conf: 0.8
     mbc: "C0001"
     attack: "T1055"
     file_types: [elf, macho, pe, so, dylib, dll]
@@ -170,8 +170,8 @@ traits:
 
   - id: c2-framework/cobalt-strike/format-string
     description: Cobalt Strike format string indicator
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1071"
     platforms: [all]
@@ -183,8 +183,8 @@ traits:
   # === Cobalt Strike beacon reference atomic indicators ===
   - id: beacon-dll-file
     description: beacon.dll file reference
-    criticality: notable
-    confidence: 0.8
+    crit: notable
+    conf: 0.8
     attack: "T1071"
     file_types: [elf, macho, pe, so, dylib, dll]
     condition:
@@ -193,8 +193,8 @@ traits:
 
   - id: beacon-exe-file
     description: beacon.exe file reference
-    criticality: notable
-    confidence: 0.8
+    crit: notable
+    conf: 0.8
     attack: "T1071"
     file_types: [elf, macho, pe, so, dylib, dll]
     condition:
@@ -203,8 +203,8 @@ traits:
 
   - id: beacon-bin-file
     description: beacon.bin file reference
-    criticality: notable
-    confidence: 0.8
+    crit: notable
+    conf: 0.8
     attack: "T1071"
     file_types: [elf, macho, pe, so, dylib, dll]
     condition:
@@ -213,8 +213,8 @@ traits:
 
   - id: beacon-config-ref
     description: beacon_config or beacon config reference
-    criticality: notable
-    confidence: 0.8
+    crit: notable
+    conf: 0.8
     attack: "T1071"
     file_types: [elf, macho, pe, so, dylib, dll]
     condition:
@@ -223,8 +223,8 @@ traits:
 
   - id: beacon-metadata-ref
     description: beacon_metadata reference
-    criticality: notable
-    confidence: 0.8
+    crit: notable
+    conf: 0.8
     attack: "T1071"
     file_types: [elf, macho, pe, so, dylib, dll]
     condition:
@@ -233,8 +233,8 @@ traits:
 
   - id: beacon-payload-ref
     description: beacon_payload reference
-    criticality: notable
-    confidence: 0.8
+    crit: notable
+    conf: 0.8
     attack: "T1071"
     file_types: [elf, macho, pe, so, dylib, dll]
     condition:
@@ -243,8 +243,8 @@ traits:
 
   - id: beacon-command-ref
     description: beacon_command reference
-    criticality: notable
-    confidence: 0.8
+    crit: notable
+    conf: 0.8
     attack: "T1071"
     file_types: [elf, macho, pe, so, dylib, dll]
     condition:
@@ -253,8 +253,8 @@ traits:
 
   - id: beacon-task-ref
     description: beacon_task reference
-    criticality: notable
-    confidence: 0.8
+    crit: notable
+    conf: 0.8
     attack: "T1071"
     file_types: [elf, macho, pe, so, dylib, dll]
     condition:
@@ -263,8 +263,8 @@ traits:
 
   - id: cobaltstrike-beacon-combo
     description: cobaltstrike and beacon combined reference
-    criticality: notable
-    confidence: 0.85
+    crit: notable
+    conf: 0.85
     attack: "T1071"
     file_types: [elf, macho, pe, so, dylib, dll]
     condition:
@@ -273,8 +273,8 @@ traits:
 
   - id: reflectiveloader-beacon-ref
     description: ReflectiveLoader beacon reference
-    criticality: notable
-    confidence: 0.85
+    crit: notable
+    conf: 0.85
     attack: "T1071"
     file_types: [elf, macho, pe, so, dylib, dll]
     condition:
@@ -285,13 +285,13 @@ composite_rules:
   # Cobalt Strike beacon reference composite
   - id: c2-framework/cobalt-strike/beacon-ref
     description: Cobalt Strike beacon reference
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     family: true
     attack: "T1071"
     file_types: [elf, macho, pe, so, dylib, dll]
     requires_count: 1
-    conditions:
+    any:
       - id: beacon-dll-file
       - id: beacon-exe-file
       - id: beacon-bin-file
@@ -306,8 +306,8 @@ composite_rules:
   # Full Cobalt Strike beacon detection
   - id: c2-framework/cobalt-strike/beacon
     description: Cobalt Strike beacon detected
-    criticality: hostile
-    confidence: 0.95
+    crit: hostile
+    conf: 0.95
     family: true
     attack: "T1071"
     mbc: "B0030"
@@ -323,8 +323,8 @@ composite_rules:
   # macOS beacon detection via syscall combination + entropy
   - id: c2-framework/cobalt-strike/macos-beacon
     description: Cobalt Strike macOS beacon
-    criticality: hostile
-    confidence: 0.9
+    crit: hostile
+    conf: 0.9
     family: true
     mbc: "B0030"
     attack: "T1071"

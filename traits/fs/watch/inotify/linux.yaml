@@ -5,9 +5,9 @@
 traits:
   - id: inotify
     description: Monitor filesystem events via inotify
-    criticality: inert
-    confidence: 0.66
-    file_types: [elf, so, c]
-    condition:
+    crit: inert
+    conf: 0.66
+    for: [elf, so, c]
+    if:
       type: symbol
       pattern: inotify_init|inotify_init1|inotify_add_watch|inotify_rm_watch

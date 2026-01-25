@@ -3,11 +3,11 @@
 
 traits:
   - id: large-encoded-string
-    description: "Large high-entropy string literal (likely payload)"
-    criticality: suspicious
-    confidence: 0.85
-    file_types: [python]
-    condition:
+    desc: "Large high-entropy string literal (likely payload)"
+    crit: suspicious
+    conf: 0.85
+    for: [python]
+    if:
       type: yara
       source: |
         rule large_encoded_string {

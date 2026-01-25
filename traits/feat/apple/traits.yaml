@@ -3,38 +3,38 @@
 # These traits help contextualize findings for known-good system components
 
 defaults:
-  criticality: inert
+  crit: inert
   platforms: [macos]
-  file_types: [macho, dylib]
+  for: [macho, dylib]
 
 traits:
   # === Bundle Identifiers ===
 
   - id: bundle-id
     description: Apple bundle identifier (com.apple.*)
-    criticality: inert
-    confidence: 0.95
-    condition:
+    crit: inert
+    conf: 0.95
+    if:
       type: string
       regex: "com\\.apple\\.[a-z][a-z0-9.-]+"
 
   - id: system-daemon
     description: Apple system daemon (libexec)
-    criticality: inert
-    confidence: 0.9
+    crit: inert
+    conf: 0.9
     platforms: [macos]
-    file_types: [macho]
-    condition:
+    for: [macho]
+    if:
       type: string
       regex: "/usr/libexec/[a-z][a-z0-9_-]+d\\b"
 
   - id: xpc-service
     description: Apple XPC service
-    criticality: inert
-    confidence: 0.9
+    crit: inert
+    conf: 0.9
     platforms: [macos]
-    file_types: [macho]
-    condition:
+    for: [macho]
+    if:
       type: string
       regex: "\\.xpc/Contents/MacOS/"
 
@@ -44,8 +44,8 @@ traits:
 
   - id: project-marker
     description: Apple internal project marker
-    confidence: 0.95
-    condition:
+    conf: 0.95
+    if:
       type: string
       # Apple internal PROJECT: marker in binary
       regex: "@\\(#\\)PROGRAM:[a-z]+\\s+PROJECT:[A-Za-z]+-[0-9]+"
@@ -55,65 +55,65 @@ traits:
   # === Ad framework atomic indicators ===
   - id: adcore-framework
     description: AdCore.framework usage
-    criticality: inert
-    confidence: 0.7
-    condition:
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "/AdCore.framework/"
 
   - id: adid-framework
     description: AdID.framework usage
-    criticality: inert
-    confidence: 0.7
-    condition:
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "/AdID.framework/"
 
   - id: limitadtracking-framework
     description: LimitAdTracking.framework usage
-    criticality: inert
-    confidence: 0.7
-    condition:
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "/LimitAdTracking.framework/"
 
   # === Privacy framework atomic indicators ===
   - id: apptrackingtransparency-framework
     description: AppTrackingTransparency.framework usage
-    criticality: inert
-    confidence: 0.7
-    condition:
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "/AppTrackingTransparency.framework/"
 
   - id: privacycontentprediction-framework
     description: PrivacyContentPrediction.framework usage
-    criticality: inert
-    confidence: 0.7
-    condition:
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "/PrivacyContentPrediction.framework/"
 
   - id: private-framework
     description: Apple private framework usage
-    confidence: 0.85
-    condition:
+    conf: 0.85
+    if:
       type: string
       exact: "/System/Library/PrivateFrameworks"
 
   - id: system-framework
     description: Apple system framework path
-    criticality: inert
-    confidence: 0.85
-    condition:
+    crit: inert
+    conf: 0.85
+    if:
       type: string
       exact: "/System/Library/Frameworks"
 
   - id: launchd-plist
     description: launchd plist embedding
-    criticality: inert
-    confidence: 0.85
-    condition:
+    crit: inert
+    conf: 0.85
+    if:
       type: string
       exact: "launchd.plist"
 
@@ -124,87 +124,87 @@ traits:
   # === Dispatch queue atomic indicators ===
   - id: dispatch-queue-create
     description: dispatch_queue_create symbol
-    criticality: inert
-    confidence: 0.6
-    condition:
+    crit: inert
+    conf: 0.6
+    if:
       type: symbol
       pattern: "dispatch_queue_create"
 
   - id: dispatch-get-global-queue
     description: dispatch_get_global_queue symbol
-    criticality: inert
-    confidence: 0.6
-    condition:
+    crit: inert
+    conf: 0.6
+    if:
       type: symbol
       pattern: "dispatch_get_global_queue"
 
   # === Dispatch async atomic indicators ===
   - id: dispatch-async-symbol
     description: dispatch_async symbol
-    criticality: inert
-    confidence: 0.6
-    condition:
+    crit: inert
+    conf: 0.6
+    if:
       type: symbol
       pattern: "dispatch_async"
 
   - id: dispatch-sync-symbol
     description: dispatch_sync symbol
-    criticality: inert
-    confidence: 0.6
-    condition:
+    crit: inert
+    conf: 0.6
+    if:
       type: symbol
       pattern: "dispatch_sync"
 
   - id: dispatch-source
     description: Grand Central Dispatch source (event monitoring)
-    confidence: 0.85
-    condition:
+    conf: 0.85
+    if:
       type: symbol
       pattern: "dispatch_source_create"
 
 composite_rules:
   - id: ad-framework
     description: Apple advertising framework usage
-    criticality: notable
-    confidence: 0.9
+    crit: notable
+    conf: 0.9
     requires_count: 1
-    conditions:
+    any:
       - id: adcore-framework
       - id: adid-framework
       - id: limitadtracking-framework
 
   - id: privacy-framework
     description: Apple privacy framework usage
-    criticality: notable
-    confidence: 0.9
+    crit: notable
+    conf: 0.9
     requires_count: 1
-    conditions:
+    any:
       - id: apptrackingtransparency-framework
       - id: privacycontentprediction-framework
 
   - id: dispatch-queue
     description: Grand Central Dispatch queue usage
-    confidence: 0.8
+    conf: 0.8
     requires_count: 1
-    conditions:
+    any:
       - id: dispatch-queue-create
       - id: dispatch-get-global-queue
 
   - id: dispatch-async
     description: Grand Central Dispatch async execution
-    confidence: 0.8
+    conf: 0.8
     requires_count: 1
-    conditions:
+    any:
       - id: dispatch-async-symbol
       - id: dispatch-sync-symbol
 
   # Helper: Any Apple framework path detected
   - id: any-framework
     description: Any Apple framework path (system or private)
-    criticality: inert
-    confidence: 0.85
+    crit: inert
+    conf: 0.85
     platforms: [macos]
-    file_types: [macho]
+    for: [macho]
     requires_any:
       - id: system-framework
       - id: private-framework
@@ -212,10 +212,10 @@ composite_rules:
   # Bundle + Project combination
   - id: bundle-and-project
     description: Apple bundle identifier with project marker
-    criticality: inert
-    confidence: 0.95
+    crit: inert
+    conf: 0.95
     platforms: [macos]
-    file_types: [macho]
+    for: [macho]
     requires_all:
       - id: bundle-id
       - id: project-marker
@@ -223,10 +223,10 @@ composite_rules:
   # Bundle + Framework combination
   - id: bundle-and-framework
     description: Apple bundle identifier with framework path
-    criticality: inert
-    confidence: 0.9
+    crit: inert
+    conf: 0.9
     platforms: [macos]
-    file_types: [macho]
+    for: [macho]
     requires_all:
       - id: bundle-id
       - id: any-framework
@@ -234,10 +234,10 @@ composite_rules:
   # Project + Framework combination
   - id: project-and-framework
     description: Apple project marker with framework path
-    criticality: inert
-    confidence: 0.9
+    crit: inert
+    conf: 0.9
     platforms: [macos]
-    file_types: [macho]
+    for: [macho]
     requires_all:
       - id: project-marker
       - id: any-framework
@@ -245,10 +245,10 @@ composite_rules:
   # Main composite: Any valid combination
   - id: system-component
     description: Apple system component (legitimate macOS binary)
-    criticality: inert
-    confidence: 0.95
+    crit: inert
+    conf: 0.95
     platforms: [macos]
-    file_types: [macho]
+    for: [macho]
     requires_any:
       - id: bundle-and-project
       - id: bundle-and-framework

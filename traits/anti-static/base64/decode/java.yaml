@@ -4,11 +4,11 @@
 
 traits:
   - id: decode-java
-    description: Base64 decoding in Java
-    criticality: notable
-    confidence: 0.66
+    desc: Base64 decoding in Java
+    crit: notable
+    conf: 0.66
     mbc: "B0032"
     attack: "T1140"
-    condition:
+    if:
       type: string
       exact: Base64.decode

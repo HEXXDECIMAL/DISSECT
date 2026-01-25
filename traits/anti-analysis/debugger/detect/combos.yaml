@@ -2,54 +2,54 @@
 
 composite_rules:
   - id: win-basic
-    description: Windows debugger detection (basic)
-    criticality: suspicious
+    desc: Windows debugger detection (basic)
+    crit: suspicious
     mbc: "B0001"
     attack: "T1622"
-    confidence: 0.85
+    conf: 0.85
     platforms: [windows]
-    file_types: [pe, dll]
-    requires_any:
+    for: [pe, dll]
+    any:
       - id: win-isdebuggerpresent
       - id: win-unhandledexception
 
   - id: win-comprehensive
-    description: Windows debugger/VM detection (multiple signals)
-    criticality: suspicious
+    desc: Windows debugger/VM detection (multiple signals)
+    crit: suspicious
     mbc: "B0001"
     attack: "T1622"
-    confidence: 0.9
+    conf: 0.9
     platforms: [windows]
-    file_types: [pe, dll]
-    requires_count: 2
-    conditions:
+    for: [pe, dll]
+    count: 2
+    any:
       - id: win-isdebuggerpresent
       - id: win-unhandledexception
       - id: win-queryperformance
 
   - id: linux-comprehensive
-    description: Linux debugger detection across multiple methods
-    criticality: suspicious
+    desc: Linux debugger detection across multiple methods
+    crit: suspicious
     mbc: "B0001"
     attack: "T1622"
-    confidence: 0.95
+    conf: 0.95
     platforms: [linux]
-    file_types: [elf]
-    requires_count: 2
-    conditions:
+    for: [elf]
+    count: 2
+    any:
       - id: ld-debug
       - id: proc-status
       - id: ptrace
 
   - id: ptrace-self
-    description: Anti-debugging via ptrace self-attachment
-    criticality: suspicious
+    desc: Anti-debugging via ptrace self-attachment
+    crit: suspicious
     mbc: "B0001.m01"
     attack: "T1622"
-    confidence: 0.95
+    conf: 0.95
     platforms: [linux, unix]
-    file_types: [elf]
-    requires_all:
+    for: [elf]
+    all:
       - id: ptrace
       - id: getpid
       - id: ptrace-traceme-or-deny

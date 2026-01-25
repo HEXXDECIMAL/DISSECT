@@ -2,33 +2,33 @@
 # Metrics-based detection of network operations in Go code
 
 defaults:
-  file_types: [go]
+  for: [go]
   attack: "T1071"
 
 traits:
   - id: go-network-dial
-    description: Creates network connections via net.Dial
-    criticality: notable
-    confidence: 0.75
-    condition:
+    desc: Creates network connections via net.Dial
+    crit: notable
+    conf: 0.75
+    if:
       type: metrics
       field: go_metrics.net_dial_count
       min: 1
 
   - id: go-raw-sockets
-    description: Uses raw socket operations
-    criticality: suspicious
-    confidence: 0.85
-    condition:
+    desc: Uses raw socket operations
+    crit: suspicious
+    conf: 0.85
+    if:
       type: metrics
       field: go_metrics.raw_socket_count
       min: 1
 
   - id: go-http-operations
-    description: Performs HTTP client/server operations
-    criticality: notable
-    confidence: 0.7
-    condition:
+    desc: Performs HTTP client/server operations
+    crit: notable
+    conf: 0.7
+    if:
       type: metrics
       field: go_metrics.http_usage
       min: 1

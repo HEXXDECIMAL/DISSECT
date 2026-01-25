@@ -99,14 +99,14 @@ Inert → Notable → Suspicious → Hostile
 ```yaml
 traits:
   - id: exec/process/terminate
-    description: Process termination via Kill()
-    criticality: suspicious
+    desc: Process termination via Kill()
+    crit: suspicious
     confidence: 0.95
     mbc: "E1562"                  # Optional: MBC ID
     attack: "T1562"               # Optional: ATT&CK ID
-    file_types: [csharp]
+    for: [csharp]
     platforms: [all]             # linux, macos, windows, unix, android, ios, all
-    condition:
+    if:
       type: ast_pattern
       node_type: invocation_expression
       pattern: ".Kill("
@@ -117,12 +117,12 @@ traits:
 Use `*` to explicitly override a restrictive default and match all file types:
 ```yaml
 defaults:
-  file_types: [elf, macho]  # Restrictive default for most rules
+  for: [elf, macho]  # Restrictive default for most rules
 
 traits:
   - id: some-string-pattern
-    file_types: [*]  # Override: this string can appear in any file type
-    condition:
+    for: [*]  # Override: this string can appear in any file type
+    if:
       type: string
       exact: "suspicious.domain.com"
 ```
@@ -135,7 +135,7 @@ traits:
 Match text patterns within AST node types.
 
 ```yaml
-condition:
+if:
   type: ast_pattern
   node_type: invocation_expression  # Tree-sitter node type
   pattern: "Process.Start"
@@ -157,7 +157,7 @@ condition:
 Full tree-sitter query syntax. Optionally specify a `language` for validation.
 
 ```yaml
-condition:
+if:
   type: ast_query
   language: javascript  # Optional: validates query syntax at load time
   query: |
@@ -176,7 +176,7 @@ condition:
 Match function imports/exports in binaries.
 
 ```yaml
-condition:
+if:
   type: symbol
   pattern: "socket.*connect.*bind"    # Regex
   platforms: [linux, macos]
@@ -188,7 +188,7 @@ NOTE: avoid using regexes like "a|b|c|d" to match multiple possible strings. Ins
 Match strings in binaries or source.
 
 ```yaml
-condition:
+if:
   type: string
   exact: "http://"                  # OR regex: "https?://[^/]+"
   case_insensitive: false
@@ -202,7 +202,7 @@ condition:
 Match if pattern found as either symbol OR string. Prefer symbol where possible.
 
 ```yaml
-condition:
+if:
   type: symbol_or_string
   any: ["CreateProcess", "ShellExecute", "WinExec"]
 ```
@@ -213,24 +213,24 @@ Match hex byte patterns in binary data. Supports wildcards and gaps.
 
 ```yaml
 # Simple pattern (e.g., ELF magic)
-condition:
+if:
   type: hex
   pattern: "7F 45 4C 46"
   offset: 0                    # Only check at file start
 
 # With wildcards (?? = any byte)
-condition:
+if:
   type: hex
   pattern: "31 ?? 48 83 ?? ??"
 
 # With gaps ([N] = skip N bytes, [N-M] = skip N to M bytes)
-condition:
+if:
   type: hex
   pattern: "00 03 [4] 00 04"   # Fixed 4-byte gap
   pattern: "00 03 [2-8] 00 04" # Variable 2-8 byte gap
 
 # Search within range
-condition:
+if:
   type: hex
   pattern: "50 4B 03 04"       # ZIP magic
   offset_range: [0, 1024]      # Only in first 1KB
@@ -249,13 +249,13 @@ YARA rules should always have filetypes associated to them.
 
 ```yaml
 # Inline
-condition:
+if:
   type: yara
   source: |
-    rule detect_packed { strings: $upx = "UPX!" condition: $upx at 0 }
+    rule detect_packed { strings: $upx = "UPX!" if: $upx at 0 }
 
 # Reference
-condition:
+if:
   type: yara_match
   namespace: "crypto"
   rule: "sha256_hash"
@@ -265,7 +265,7 @@ condition:
 Match structural features.
 
 ```yaml
-condition:
+if:
   type: structure
   feature: "executable/packed"
 ```
@@ -274,7 +274,7 @@ condition:
 Count imports or exports with thresholds.
 
 ```yaml
-condition:
+if:
   type: imports_count
   min: 10
   max: 50
@@ -291,7 +291,7 @@ For `elf`, `macho`, `pe`, `dll`, `so`, `dylib` only.
 Match binary header properties.
 
 ```yaml
-condition:
+if:
   type: binary
   section_count:
     max: 0                          # No sections (packed/stripped)
@@ -312,7 +312,7 @@ condition:
 Match sections by entropy (0.0-8.0). >7.0 indicates encryption/packing.
 
 ```yaml
-condition:
+if:
   type: entropy
   section: "^(\\.text|CODE)"
   min: 7.0
@@ -322,7 +322,7 @@ condition:
 Match functions by complexity.
 
 ```yaml
-condition:
+if:
   type: function_metrics
   cyclomatic_complexity:
     min: 50
@@ -342,27 +342,27 @@ Combine traits using boolean logic.
 ```yaml
 composite_rules:
   - id: c2/reverse-shell
-    description: "Reverse shell: socket + dup2 + exec"
-    criticality: hostile
+    desc: "Reverse shell: socket + dup2 + exec"
+    crit: hostile
     confidence: 0.95
     mbc: "B0022"
     attack: "T1059"
-    file_types: [elf, macho]
+    for: [elf, macho]
 
-    requires_all:                   # AND
+    all:                   # AND
       - ...
 ```
 
 ### Boolean Operators
 
 ```yaml
-requires_all:    # AND - all must match
-requires_any:    # OR - at least one must match
-requires_none:   # NOT - none can match
+all:    # AND - all must match
+any:    # OR - at least one must match
+none:   # NOT - none can match
 
 # N of M
-requires_count: 2
-conditions:
+count: 2
+any:
   - type: trait
     id: crypto/aes
   - type: trait
@@ -403,25 +403,25 @@ This allows building hierarchical detection patterns:
 # Level 1: Atomic traits detect basic capabilities
 traits:
   - id: socket-create
-    condition: {type: symbol, pattern: "socket"}
+    if: {type: symbol, pattern: "socket"}
   - id: dup2-call
-    condition: {type: symbol, pattern: "dup2"}
+    if: {type: symbol, pattern: "dup2"}
   - id: exec-call
-    condition: {type: symbol, pattern: "execve"}
+    if: {type: symbol, pattern: "execve"}
 
 composite_rules:
   # Level 2: Combine atomics into behavioral pattern
   - id: fd-redirect
-    description: "File descriptor redirection"
-    requires_all:
+    desc: "File descriptor redirection"
+    all:
       - {type: trait, id: socket-create}
       - {type: trait, id: dup2-call}
 
   # Level 3: Reference composite to build higher-level detection
   - id: reverse-shell
-    description: "Reverse shell pattern"
-    criticality: hostile
-    requires_all:
+    desc: "Reverse shell pattern"
+    crit: hostile
+    all:
       - {type: trait, id: fd-redirect}  # References composite!
       - {type: trait, id: exec-call}
 ```
@@ -440,7 +440,7 @@ Require traits within the same code scope.
 
 ```yaml
 scope: method              # method, class, or block
-requires_all:
+all:
   - type: trait
     id: exec/reflection/assembly-load
   - type: trait
@@ -452,7 +452,7 @@ Require patterns within N bytes.
 
 ```yaml
 near: 100
-requires_all:
+all:
   - type: string
     regex: "socket"
   - type: string
@@ -464,7 +464,7 @@ Require patterns within N lines.
 
 ```yaml
 near_lines: 10
-requires_all:
+all:
   - type: trait
     id: exec/process/start
   - type: trait
@@ -476,7 +476,7 @@ Require traits inside another trait's span.
 
 ```yaml
 within: exec/eval
-requires_all:
+all:
   - type: trait
     id: encoding/base64/decode
 ```

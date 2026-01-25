@@ -8,37 +8,37 @@ defaults:
 
 traits:
   - id: debugger-ptrace
-    description: Debugger detection via ptrace
-    criticality: suspicious
-    confidence: 0.66
-    condition:
+    desc: Debugger detection via ptrace
+    crit: suspicious
+    conf: 0.66
+    if:
       type: string
       exact: PTRACE_TRACEME
 
   # NOTE: /proc/self/status detection is in traits.yaml as 'proc-status'
 
   - id: gdb-ref
-    description: GDB debugger reference
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: GDB debugger reference
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: '\bgdb\b'
 
   - id: lldb-ref
-    description: LLDB debugger reference
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: LLDB debugger reference
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: '\blldb\b'
 
 composite_rules:
   - id: debugger-gdb
-    description: References gdb/lldb debugger
-    criticality: notable
-    confidence: 0.66
-    requires_count: 1
-    conditions:
+    desc: References gdb/lldb debugger
+    crit: notable
+    conf: 0.66
+    count: 1
+    any:
       - id: gdb-ref
       - id: lldb-ref

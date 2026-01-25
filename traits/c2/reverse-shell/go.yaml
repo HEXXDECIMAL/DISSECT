@@ -1,10 +1,10 @@
 # Go reverse shell patterns
 traits:
   - id: reverse-shell
-    description: Go reverse shell implementation patterns
-    criticality: suspicious
-    confidence: 0.85
-    condition:
+    desc: Go reverse shell implementation patterns
+    crit: suspicious
+    conf: 0.85
+    if:
       type: yara
       source: |
         rule go_reverse_shell {

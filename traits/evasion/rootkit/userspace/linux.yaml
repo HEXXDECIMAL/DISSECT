@@ -4,12 +4,12 @@
 
 traits:
   - id: rootkit
-    description: Linux rootkit patterns
-    criticality: suspicious
-    confidence: 0.66
+    desc: Linux rootkit patterns
+    crit: suspicious
+    conf: 0.66
     mbc: "B0003"
     attack: "T1014"
-    condition:
+    if:
       type: yara
       source: |
         rule linux_rootkit {

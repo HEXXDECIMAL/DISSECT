@@ -2,48 +2,48 @@
 
 traits:
   - id: base64-decode
-    description: "Base64 decode (potential obfuscation)"
-    criticality: notable
-    confidence: 0.88
+    desc: "Base64 decode (potential obfuscation)"
+    crit: notable
+    conf: 0.88
     attack: "T1027"
-    file_types: [ruby]
-    condition:
+    for: [ruby]
+    if:
       type: symbol_or_string
       any:
         - Base64.decode64
         - Base64.strict_decode64
 
   - id: base64-encode
-    description: "Base64 encode"
-    criticality: notable
-    confidence: 0.88
+    desc: "Base64 encode"
+    crit: notable
+    conf: 0.88
     attack: "T1027"
-    file_types: [ruby]
-    condition:
+    for: [ruby]
+    if:
       type: symbol_or_string
       any:
         - Base64.encode64
         - Base64.strict_encode64
 
   - id: marshal-load
-    description: "Marshal deserialization (RCE risk)"
-    criticality: suspicious
-    confidence: 0.93
+    desc: "Marshal deserialization (RCE risk)"
+    crit: suspicious
+    conf: 0.93
     attack: "T1059"
-    file_types: [ruby]
-    condition:
+    for: [ruby]
+    if:
       type: symbol_or_string
       any:
         - Marshal.load
         - Marshal.restore
 
   - id: yaml-unsafe-load
-    description: "YAML unsafe deserialization"
-    criticality: suspicious
-    confidence: 0.90
+    desc: "YAML unsafe deserialization"
+    crit: suspicious
+    conf: 0.90
     attack: "T1059"
-    file_types: [ruby]
-    condition:
+    for: [ruby]
+    if:
       type: symbol_or_string
       any:
         - YAML.load
@@ -51,46 +51,46 @@ traits:
         - YAML.safe_load
 
   - id: reflection-send
-    description: "Dynamic method invocation"
-    criticality: notable
-    confidence: 0.85
+    desc: "Dynamic method invocation"
+    crit: notable
+    conf: 0.85
     attack: "T1027"
-    file_types: [ruby]
-    condition:
+    for: [ruby]
+    if:
       type: symbol_or_string
       any:
         - .send(
         - .send
 
   - id: const-get
-    description: "Dynamic constant access"
-    criticality: notable
-    confidence: 0.90
+    desc: "Dynamic constant access"
+    crit: notable
+    conf: 0.90
     attack: "T1027"
-    file_types: [ruby]
-    condition:
+    for: [ruby]
+    if:
       type: symbol_or_string
       any:
         - const_get
 
   - id: const-set
-    description: "Dynamic constant definition"
-    criticality: notable
-    confidence: 0.90
+    desc: "Dynamic constant definition"
+    crit: notable
+    conf: 0.90
     attack: "T1027"
-    file_types: [ruby]
-    condition:
+    for: [ruby]
+    if:
       type: symbol_or_string
       any:
         - const_set
 
   - id: define-method
-    description: "Dynamic method definition"
-    criticality: notable
-    confidence: 0.90
+    desc: "Dynamic method definition"
+    crit: notable
+    conf: 0.90
     attack: "T1027"
-    file_types: [ruby]
-    condition:
+    for: [ruby]
+    if:
       type: symbol_or_string
       any:
         - define_method

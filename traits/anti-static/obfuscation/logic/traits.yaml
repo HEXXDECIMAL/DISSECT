@@ -3,12 +3,12 @@
 
 traits:
   - id: string-deobfuscation
-    description: "String obfuscation/deobfuscation pattern"
-    criticality: notable
-    confidence: 0.65
+    desc: "String obfuscation/deobfuscation pattern"
+    crit: notable
+    conf: 0.65
     attack: "T1027"
-    file_types: [elf, macho, pe]
-    condition:
+    for: [elf, macho, pe]
+    if:
       type: yara
       source: |
         rule string_obfuscation {

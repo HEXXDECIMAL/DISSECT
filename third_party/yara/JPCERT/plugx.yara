@@ -20,6 +20,6 @@ rule malware_PlugX_config {
             $enc3 = { B? 33 33 33 33 }
             $enc4 = { B? 44 44 44 44 }
 
-          condition:
+          if:
             $v1 at 0 or ($v2a and $v2b and $enc1) or ($v2c and $v2b and $enc1) or ($v2d and $v2b and $enc2) or ($v2d and $v2e and $enc2) or ($v2f and $v2g and $enc3 and $enc4) or ($v2h and $v2g and $enc3 and $enc4)
 }

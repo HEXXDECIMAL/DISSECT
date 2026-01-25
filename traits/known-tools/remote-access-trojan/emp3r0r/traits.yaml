@@ -8,8 +8,8 @@ traits:
 
   - id: c2-framework/emp3r0r/brand-name
     description: emp3r0r brand string
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     family: true
     attack: "T1071"
     platforms: [linux, macos]
@@ -20,8 +20,8 @@ traits:
 
   - id: c2-framework/emp3r0r/shadowsocks-c2
     description: emp3r0r Shadowsocks C2 client
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1090.003"
     platforms: [linux, macos]
@@ -32,8 +32,8 @@ traits:
 
   - id: c2-framework/emp3r0r/vaccine-handler
     description: emp3r0r vaccine handler (anti-AV)
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1562.001"
     platforms: [linux, macos]
@@ -44,8 +44,8 @@ traits:
 
   - id: c2-framework/emp3r0r/guardian-shellcode
     description: emp3r0r guardian shellcode
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1055"
     platforms: [linux, macos]
@@ -56,8 +56,8 @@ traits:
 
   - id: c2-framework/emp3r0r/magic-bytes
     description: emp3r0r one-time magic bytes
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     family: true
     attack: "T1071"
     platforms: [linux, macos]
@@ -69,8 +69,8 @@ traits:
 composite_rules:
   - id: c2-framework/emp3r0r/detected
     description: emp3r0r post-exploitation agent
-    criticality: hostile
-    confidence: 0.95
+    crit: hostile
+    conf: 0.95
     family: true
     reference: "https://github.com/jm33-m0/emp3r0r"
     attack: "T1071"
@@ -78,7 +78,7 @@ composite_rules:
     platforms: [linux, macos]
     file_types: [elf, macho, go]
     requires_count: 4
-    conditions:
+    any:
       - id: c2-framework/emp3r0r/brand-name
       - id: c2-framework/emp3r0r/shadowsocks-c2
       - id: c2-framework/emp3r0r/vaccine-handler

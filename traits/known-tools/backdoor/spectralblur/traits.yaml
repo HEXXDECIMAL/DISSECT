@@ -14,8 +14,8 @@ traits:
   # These are suspicious individually but hostile when combined
   - id: backdoor/spectralblur/proc-upload
     description: SpectralBlur-style file upload handler
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     family: true
     attack: "T1041"
     file_types: [macho]
@@ -25,8 +25,8 @@ traits:
 
   - id: backdoor/spectralblur/proc-download
     description: SpectralBlur-style file download handler
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     family: true
     attack: "T1105"
     file_types: [macho]
@@ -36,8 +36,8 @@ traits:
 
   - id: backdoor/spectralblur/proc-shell
     description: SpectralBlur-style shell command handler
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     family: true
     attack: "T1059.004"
     file_types: [macho]
@@ -47,8 +47,8 @@ traits:
 
   - id: backdoor/spectralblur/proc-dir
     description: SpectralBlur-style directory listing handler
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     family: true
     attack: "T1083"
     file_types: [macho]
@@ -58,8 +58,8 @@ traits:
 
   - id: backdoor/spectralblur/proc-rmfile
     description: SpectralBlur-style file deletion handler
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     family: true
     attack: "T1070.004"
     file_types: [macho]
@@ -69,8 +69,8 @@ traits:
 
   - id: backdoor/spectralblur/proc-hibernate
     description: SpectralBlur-style hibernation handler
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     family: true
     attack: "T1029"
     file_types: [macho]
@@ -81,8 +81,8 @@ traits:
   # === SpectralBlur config atomic indicators ===
   - id: backdoor/spectralblur/proc-getcfg
     description: SpectralBlur get config handler
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     family: true
     attack: "T1071"
     file_types: [macho]
@@ -92,8 +92,8 @@ traits:
 
   - id: backdoor/spectralblur/proc-setcfg
     description: SpectralBlur set config handler
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     family: true
     attack: "T1071"
     file_types: [macho]
@@ -103,8 +103,8 @@ traits:
 
   - id: backdoor/spectralblur/proc-sleep
     description: SpectralBlur-style sleep handler
-    criticality: notable
-    confidence: 0.8
+    crit: notable
+    conf: 0.8
     attack: "T1029"
     file_types: [macho]
     condition:
@@ -113,8 +113,8 @@ traits:
 
   - id: backdoor/spectralblur/proc-testconn
     description: SpectralBlur-style connection test handler
-    criticality: notable
-    confidence: 0.8
+    crit: notable
+    conf: 0.8
     attack: "T1071"
     file_types: [macho]
     condition:
@@ -124,8 +124,8 @@ traits:
   # === SpectralBlur lifecycle atomic indicators ===
   - id: backdoor/spectralblur/proc-die
     description: SpectralBlur die handler
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     family: true
     attack: "T1059"
     file_types: [macho]
@@ -135,8 +135,8 @@ traits:
 
   - id: backdoor/spectralblur/proc-stop
     description: SpectralBlur stop handler
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     family: true
     attack: "T1059"
     file_types: [macho]
@@ -146,8 +146,8 @@ traits:
 
   - id: backdoor/spectralblur/proc-restart
     description: SpectralBlur restart handler
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     family: true
     attack: "T1059"
     file_types: [macho]
@@ -157,8 +157,8 @@ traits:
 
   - id: backdoor/spectralblur/proc-none
     description: SpectralBlur none handler
-    criticality: notable
-    confidence: 0.7
+    crit: notable
+    conf: 0.7
     family: true
     attack: "T1059"
     file_types: [macho]
@@ -169,8 +169,8 @@ traits:
   # Internal communication functions - suspicious patterns
   - id: backdoor/spectralblur/authchannel
     description: SpectralBlur-style authentication channel
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     family: true
     attack: "T1071"
     file_types: [macho]
@@ -180,8 +180,8 @@ traits:
 
   - id: backdoor/spectralblur/openchannel
     description: SpectralBlur-style channel open function
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     family: true
     attack: "T1071"
     file_types: [macho]
@@ -191,8 +191,8 @@ traits:
 
   - id: backdoor/spectralblur/xcrypt
     description: SpectralBlur-style encryption wrapper
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     family: true
     attack: "T1573"
     file_types: [macho]
@@ -203,8 +203,8 @@ traits:
   # === SpectralBlur packet I/O atomic indicators ===
   - id: backdoor/spectralblur/read-packet
     description: SpectralBlur read packet function
-    criticality: inert
-    confidence: 0.7
+    crit: inert
+    conf: 0.7
     family: true
     attack: "T1071"
     file_types: [macho]
@@ -214,8 +214,8 @@ traits:
 
   - id: backdoor/spectralblur/write-packet
     description: SpectralBlur write packet function
-    criticality: inert
-    confidence: 0.7
+    crit: inert
+    conf: 0.7
     family: true
     attack: "T1071"
     file_types: [macho]
@@ -226,8 +226,8 @@ traits:
   # === Generic behaviors atomic indicators ===
   - id: backdoor/spectralblur/load-config
     description: Load config function
-    criticality: inert
-    confidence: 0.6
+    crit: inert
+    conf: 0.6
     attack: "T1027"
     file_types: [macho]
     condition:
@@ -236,8 +236,8 @@ traits:
 
   - id: backdoor/spectralblur/save-config
     description: Save config function
-    criticality: inert
-    confidence: 0.6
+    crit: inert
+    conf: 0.6
     attack: "T1027"
     file_types: [macho]
     condition:
@@ -246,8 +246,8 @@ traits:
 
   - id: backdoor/spectralblur/mainprocess
     description: Main process loop function
-    criticality: inert
-    confidence: 0.6
+    crit: inert
+    conf: 0.6
     attack: "T1059"
     file_types: [macho]
     condition:
@@ -256,8 +256,8 @@ traits:
 
   - id: backdoor/spectralblur/mainthread
     description: Main thread loop function
-    criticality: inert
-    confidence: 0.6
+    crit: inert
+    conf: 0.6
     attack: "T1059"
     file_types: [macho]
     condition:
@@ -267,8 +267,8 @@ traits:
   # SpectralBlur YARA signature - comprehensive detection
   - id: backdoor/spectralblur/yara-signature
     description: SpectralBlur macOS backdoor YARA signature
-    criticality: suspicious
-    confidence: 0.98
+    crit: suspicious
+    conf: 0.98
     family: true
     attack: "T1059.004"
     mbc: "B0022"
@@ -315,8 +315,8 @@ traits:
   # Behavioral pattern - YARA based detection
   - id: backdoor/spectralblur/behavioral-yara
     description: SpectralBlur-like C2 backdoor behavior via YARA
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     attack: "T1059.004"
     mbc: "B0022"
     file_types: [macho]
@@ -362,26 +362,26 @@ composite_rules:
   # SpectralBlur config handler composite
   - id: backdoor/spectralblur/proc-config
     description: SpectralBlur-style configuration handler
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     family: true
     attack: "T1071"
     file_types: [macho]
     requires_count: 1
-    conditions:
+    any:
       - id: backdoor/spectralblur/proc-getcfg
       - id: backdoor/spectralblur/proc-setcfg
 
   # SpectralBlur lifecycle composite
   - id: backdoor/spectralblur/proc-lifecycle
     description: SpectralBlur-style lifecycle control handler
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     family: true
     attack: "T1059"
     file_types: [macho]
     requires_count: 1
-    conditions:
+    any:
       - id: backdoor/spectralblur/proc-die
       - id: backdoor/spectralblur/proc-stop
       - id: backdoor/spectralblur/proc-restart
@@ -390,37 +390,37 @@ composite_rules:
   # SpectralBlur packet I/O composite
   - id: backdoor/spectralblur/packet-io
     description: SpectralBlur-style packet communication
-    criticality: notable
-    confidence: 0.8
+    crit: notable
+    conf: 0.8
     family: true
     attack: "T1071"
     file_types: [macho]
     requires_count: 1
-    conditions:
+    any:
       - id: backdoor/spectralblur/read-packet
       - id: backdoor/spectralblur/write-packet
 
   # Config persist composite
   - id: backdoor/spectralblur/config-persist
     description: Configuration load/save functions
-    criticality: notable
-    confidence: 0.7
+    crit: notable
+    conf: 0.7
     attack: "T1027"
     file_types: [macho]
     requires_count: 1
-    conditions:
+    any:
       - id: backdoor/spectralblur/load-config
       - id: backdoor/spectralblur/save-config
 
   # Mainloop composite
   - id: backdoor/spectralblur/mainloop
     description: Main processing loop functions
-    criticality: notable
-    confidence: 0.7
+    crit: notable
+    conf: 0.7
     attack: "T1059"
     file_types: [macho]
     requires_count: 1
-    conditions:
+    any:
       - id: backdoor/spectralblur/mainprocess
       - id: backdoor/spectralblur/mainthread
 
@@ -428,15 +428,15 @@ composite_rules:
   # "Definitively malicious with no reasonable alternative explanation"
   - id: backdoor/spectralblur/detected
     description: SpectralBlur macOS backdoor (DPRK/Lazarus)
-    criticality: hostile
-    confidence: 0.98
+    crit: hostile
+    conf: 0.98
     family: true
     reference: "https://objective-see.org/blog/blog_0x7A.html"
     attack: "T1059.004"
     mbc: "B0022"
     file_types: [macho]
     requires_count: 3
-    conditions:
+    any:
       - id: backdoor/spectralblur/proc-upload
       - id: backdoor/spectralblur/proc-download
       - id: backdoor/spectralblur/proc-shell
@@ -449,8 +449,8 @@ composite_rules:
   # Behavioral pattern - suspicious (could be similar legitimate tool)
   - id: backdoor/spectralblur/behavioral
     description: SpectralBlur-like C2 backdoor behavior
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     attack: "T1059.004"
     mbc: "B0022"
     file_types: [macho]

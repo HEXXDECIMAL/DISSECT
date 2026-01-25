@@ -6,48 +6,48 @@ traits:
   # Symbolic link operations
   - id: readlink
     description: Read value of symbolic link
-    criticality: inert
+    crit: inert
     mbc: "E1083"
     attack: "T1083"
-    confidence: 0.5
-    file_types: [elf, macho, so, dylib, c]
-    condition:
+    conf: 0.5
+    for: [elf, macho, so, dylib, c]
+    if:
       type: symbol
       pattern: readlink
     platforms: [unix, linux, macos]
 
   - id: realpath
     description: Resolve absolute pathname (follows symlinks)
-    criticality: inert
+    crit: inert
     mbc: "E1083"
     attack: "T1083"
-    confidence: 0.5
-    file_types: [elf, macho, so, dylib, c]
-    condition:
+    conf: 0.5
+    for: [elf, macho, so, dylib, c]
+    if:
       type: symbol
       pattern: realpath
     platforms: [unix, linux, macos]
 
   - id: symlink
     description: Create symbolic link
-    criticality: notable
+    crit: notable
     mbc: "E1222"
     attack: "T1222"
-    confidence: 0.6
-    file_types: [elf, macho, so, dylib, c]
-    condition:
+    conf: 0.6
+    for: [elf, macho, so, dylib, c]
+    if:
       type: symbol
       pattern: symlink
     platforms: [unix, linux, macos]
 
   - id: link
     description: Create hard link to file
-    criticality: notable
+    crit: notable
     mbc: "E1222"
     attack: "T1222"
-    confidence: 0.6
-    file_types: [elf, macho, so, dylib, c]
-    condition:
+    conf: 0.6
+    for: [elf, macho, so, dylib, c]
+    if:
       type: symbol
       pattern: link
     platforms: [unix, linux, macos]
@@ -55,24 +55,24 @@ traits:
   # File metadata operations
   - id: stat
     description: Get file status and metadata
-    criticality: inert
+    crit: inert
     mbc: "E1083"
     attack: "T1083"
-    confidence: 0.4
-    file_types: [elf, macho, so, dylib, c]
-    condition:
+    conf: 0.4
+    for: [elf, macho, so, dylib, c]
+    if:
       type: symbol
       pattern: stat|lstat|fstat
     platforms: [unix, linux, macos]
 
   - id: access
     description: Check file accessibility and permissions
-    criticality: inert
+    crit: inert
     mbc: "E1083"
     attack: "T1083"
-    confidence: 0.5
-    file_types: [elf, macho, so, dylib, c]
-    condition:
+    conf: 0.5
+    for: [elf, macho, so, dylib, c]
+    if:
       type: symbol
       pattern: access
     platforms: [unix, linux, macos]
@@ -80,48 +80,48 @@ traits:
   # Extended attributes (macOS/Linux)
   - id: getxattr
     description: Get extended file attributes
-    criticality: inert
+    crit: inert
     mbc: "E1083"
     attack: "T1083"
-    confidence: 0.5
-    file_types: [elf, macho, so, dylib, c]
-    condition:
+    conf: 0.5
+    for: [elf, macho, so, dylib, c]
+    if:
       type: symbol
       pattern: getxattr
     platforms: [macos, linux]
 
   - id: listxattr
     description: List extended file attributes
-    criticality: inert
+    crit: inert
     mbc: "E1083"
     attack: "T1083"
-    confidence: 0.5
-    file_types: [elf, macho, so, dylib, c]
-    condition:
+    conf: 0.5
+    for: [elf, macho, so, dylib, c]
+    if:
       type: symbol
       pattern: listxattr
     platforms: [macos, linux]
 
   - id: setxattr
     description: Set extended file attributes
-    criticality: notable
+    crit: notable
     mbc: "E1222"
     attack: "T1222"
-    confidence: 0.6
-    file_types: [elf, macho, so, dylib, c]
-    condition:
+    conf: 0.6
+    for: [elf, macho, so, dylib, c]
+    if:
       type: symbol
       pattern: setxattr
     platforms: [macos, linux]
 
   - id: removexattr
     description: Remove extended file attributes
-    criticality: notable
+    crit: notable
     mbc: "E1222"
     attack: "T1222"
-    confidence: 0.6
-    file_types: [elf, macho, so, dylib, c]
-    condition:
+    conf: 0.6
+    for: [elf, macho, so, dylib, c]
+    if:
       type: symbol
       pattern: removexattr
     platforms: [macos, linux]
@@ -129,24 +129,24 @@ traits:
   # File locking
   - id: flock
     description: Apply or remove advisory lock on file
-    criticality: inert
+    crit: inert
     mbc: "E1083"
     attack: "T1083"
-    confidence: 0.4
-    file_types: [elf, macho, so, dylib, c]
-    condition:
+    conf: 0.4
+    for: [elf, macho, so, dylib, c]
+    if:
       type: symbol
       pattern: flock
     platforms: [unix, linux, macos]
 
   - id: fcntl
     description: File descriptor manipulation and control
-    criticality: inert
+    crit: inert
     mbc: "E1083"
     attack: "T1083"
-    confidence: 0.4
-    file_types: [elf, macho, so, dylib, c]
-    condition:
+    conf: 0.4
+    for: [elf, macho, so, dylib, c]
+    if:
       type: symbol
       pattern: fcntl
     platforms: [unix, linux, macos]

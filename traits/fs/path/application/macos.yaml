@@ -5,17 +5,17 @@
 traits:
   - id: application-macos
     description: Reference to /Applications
-    criticality: notable
-    confidence: 0.66
-    condition:
+    crit: notable
+    conf: 0.66
+    if:
       type: string
       regex: "/Applications/[\\w\\s\\.\\-]+\\.app/Contents/MacOS/[\\w\\.\\-]+"
 
   - id: application-browser-extensions
     description: Reference to browser extension paths
-    criticality: suspicious
-    confidence: 0.66
-    condition:
+    crit: suspicious
+    conf: 0.66
+    if:
       type: yara
       source: |
         rule browser_extensions {

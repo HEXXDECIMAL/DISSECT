@@ -4,13 +4,13 @@
 
 defaults:
   attack: "T1547.001"
-  criticality: suspicious
+  crit: suspicious
 
 traits:
   # === Startup folder atomic indicators ===
   - id: start-menu-startup
     description: Start Menu Programs Startup path
-    criticality: inert
+    crit: inert
     confidence: 0.7
     platforms: [windows]
     condition:
@@ -19,7 +19,7 @@ traits:
 
   - id: appdata-startup
     description: AppData Roaming Startup path
-    criticality: inert
+    crit: inert
     confidence: 0.7
     platforms: [windows]
     condition:
@@ -28,7 +28,7 @@ traits:
 
   - id: shell-startup
     description: shell:startup special folder
-    criticality: inert
+    crit: inert
     confidence: 0.7
     platforms: [windows]
     condition:
@@ -38,7 +38,7 @@ traits:
   # === Registry Run key atomic indicators ===
   - id: software-run-key
     description: SOFTWARE CurrentVersion Run path
-    criticality: inert
+    crit: inert
     confidence: 0.7
     platforms: [windows]
     condition:
@@ -47,7 +47,7 @@ traits:
 
   - id: hkcu-run
     description: HKCU Run key reference
-    criticality: inert
+    crit: inert
     confidence: 0.6
     platforms: [windows]
     condition:
@@ -56,7 +56,7 @@ traits:
 
   - id: hklm-run
     description: HKLM Run key reference
-    criticality: inert
+    crit: inert
     confidence: 0.6
     platforms: [windows]
     condition:
@@ -65,7 +65,7 @@ traits:
 
   - id: currentversion-run
     description: CurrentVersion Run path
-    criticality: inert
+    crit: inert
     confidence: 0.7
     platforms: [windows]
     condition:
@@ -75,7 +75,7 @@ traits:
   # === RunOnce atomic indicators ===
   - id: currentversion-runonce
     description: CurrentVersion RunOnce path
-    criticality: inert
+    crit: inert
     confidence: 0.7
     platforms: [windows]
     condition:
@@ -84,7 +84,7 @@ traits:
 
   - id: runonce-word
     description: RunOnce keyword
-    criticality: inert
+    crit: inert
     confidence: 0.5
     platforms: [windows]
     condition:
@@ -94,7 +94,7 @@ traits:
   # === Python winreg atomic indicators ===
   - id: import-winreg
     description: import winreg statement
-    criticality: inert
+    crit: inert
     confidence: 0.5
     platforms: [windows]
     file_types: [python]
@@ -104,7 +104,7 @@ traits:
 
   - id: from-winreg
     description: from winreg import
-    criticality: inert
+    crit: inert
     confidence: 0.5
     platforms: [windows]
     file_types: [python]
@@ -114,7 +114,7 @@ traits:
 
   - id: underscore-winreg
     description: _winreg module (Python 2)
-    criticality: inert
+    crit: inert
     confidence: 0.5
     platforms: [windows]
     file_types: [python]
@@ -124,7 +124,7 @@ traits:
 
   - id: openkey-hkey
     description: OpenKey HKEY call
-    criticality: inert
+    crit: inert
     confidence: 0.6
     platforms: [windows]
     file_types: [python]
@@ -134,7 +134,7 @@ traits:
 
   - id: setvalueex
     description: SetValueEx call
-    criticality: inert
+    crit: inert
     confidence: 0.6
     platforms: [windows]
     file_types: [python]
@@ -144,7 +144,7 @@ traits:
 
   - id: createkey
     description: CreateKey call
-    criticality: inert
+    crit: inert
     confidence: 0.6
     platforms: [windows]
     file_types: [python]
@@ -155,7 +155,7 @@ traits:
   # === Scheduled tasks atomic indicators ===
   - id: schtasks-create-cmd
     description: schtasks /create command
-    criticality: inert
+    crit: inert
     confidence: 0.7
     platforms: [windows]
     condition:
@@ -164,7 +164,7 @@ traits:
 
   - id: schtasks-exe-create
     description: schtasks.exe create
-    criticality: inert
+    crit: inert
     confidence: 0.7
     platforms: [windows]
     condition:
@@ -173,7 +173,7 @@ traits:
 
   - id: itaskscheduler-iface
     description: ITaskScheduler interface
-    criticality: inert
+    crit: inert
     confidence: 0.7
     platforms: [windows]
     condition:
@@ -182,7 +182,7 @@ traits:
 
   - id: taskscheduler-word
     description: TaskScheduler keyword
-    criticality: inert
+    crit: inert
     confidence: 0.6
     platforms: [windows]
     condition:
@@ -192,7 +192,7 @@ traits:
   # === Service installation atomic indicators ===
   - id: sc-create-cmd
     description: sc create command
-    criticality: inert
+    crit: inert
     confidence: 0.7
     platforms: [windows]
     condition:
@@ -201,7 +201,7 @@ traits:
 
   - id: createservice-api
     description: CreateService API
-    criticality: inert
+    crit: inert
     confidence: 0.7
     platforms: [windows]
     condition:
@@ -210,7 +210,7 @@ traits:
 
   - id: installservice-fn
     description: InstallService function
-    criticality: inert
+    crit: inert
     confidence: 0.7
     platforms: [windows]
     condition:
@@ -219,7 +219,7 @@ traits:
 
   - id: win32serviceutil-mod
     description: win32serviceutil module
-    criticality: inert
+    crit: inert
     confidence: 0.7
     platforms: [windows]
     condition:
@@ -229,7 +229,7 @@ traits:
   # === PowerShell registry atomic indicators ===
   - id: set-itemproperty-run
     description: Set-ItemProperty Run
-    criticality: inert
+    crit: inert
     confidence: 0.7
     platforms: [windows]
     condition:
@@ -238,7 +238,7 @@ traits:
 
   - id: new-itemproperty-run
     description: New-ItemProperty Run
-    criticality: inert
+    crit: inert
     confidence: 0.7
     platforms: [windows]
     condition:
@@ -247,7 +247,7 @@ traits:
 
   - id: reg-add-run
     description: reg add Run
-    criticality: inert
+    crit: inert
     confidence: 0.7
     platforms: [windows]
     condition:
@@ -257,7 +257,7 @@ traits:
   # === WMI persistence atomic indicators ===
   - id: wmi-eventfilter
     description: __EventFilter class
-    criticality: inert
+    crit: inert
     confidence: 0.7
     platforms: [windows]
     condition:
@@ -266,7 +266,7 @@ traits:
 
   - id: wmi-filtertoconsumer
     description: __FilterToConsumerBinding class
-    criticality: inert
+    crit: inert
     confidence: 0.7
     platforms: [windows]
     condition:
@@ -275,7 +275,7 @@ traits:
 
   - id: wmi-commandlineconsumer
     description: CommandLineEventConsumer class
-    criticality: inert
+    crit: inert
     confidence: 0.7
     platforms: [windows]
     condition:
@@ -284,7 +284,7 @@ traits:
 
   - id: wmi-activescriptconsumer
     description: ActiveScriptEventConsumer class
-    criticality: inert
+    crit: inert
     confidence: 0.7
     platforms: [windows]
     condition:
@@ -294,7 +294,7 @@ traits:
   # === Executable payload atomic indicators ===
   - id: exe-extension
     description: .exe file extension
-    criticality: inert
+    crit: inert
     confidence: 0.4
     platforms: [windows]
     condition:
@@ -303,7 +303,7 @@ traits:
 
   - id: bat-extension
     description: .bat file extension
-    criticality: inert
+    crit: inert
     confidence: 0.4
     platforms: [windows]
     condition:
@@ -312,7 +312,7 @@ traits:
 
   - id: ps1-extension
     description: .ps1 file extension
-    criticality: inert
+    crit: inert
     confidence: 0.5
     platforms: [windows]
     condition:
@@ -321,7 +321,7 @@ traits:
 
   - id: vbs-extension
     description: .vbs file extension
-    criticality: inert
+    crit: inert
     confidence: 0.5
     platforms: [windows]
     condition:
@@ -330,7 +330,7 @@ traits:
 
   - id: powershell-word
     description: powershell keyword
-    criticality: inert
+    crit: inert
     confidence: 0.4
     platforms: [windows]
     condition:
@@ -339,7 +339,7 @@ traits:
 
   - id: cmd-exe
     description: cmd.exe reference
-    criticality: inert
+    crit: inert
     confidence: 0.4
     platforms: [windows]
     condition:
@@ -351,10 +351,10 @@ composite_rules:
   - id: windows-startup-folder
     description: "Targets Windows Startup folder for persistence"
     confidence: 0.85
-    criticality: suspicious
+    crit: suspicious
     platforms: [windows]
     requires_count: 1
-    conditions:
+    any:
       - id: start-menu-startup
       - id: appdata-startup
       - id: shell-startup
@@ -363,10 +363,10 @@ composite_rules:
   - id: windows-registry-run
     description: "Accesses Windows registry Run key for persistence"
     confidence: 0.9
-    criticality: suspicious
+    crit: suspicious
     platforms: [windows]
     requires_count: 1
-    conditions:
+    any:
       - id: software-run-key
       - id: hkcu-run
       - id: hklm-run
@@ -376,10 +376,10 @@ composite_rules:
   - id: windows-registry-runonce
     description: "Accesses Windows registry RunOnce key for persistence"
     confidence: 0.9
-    criticality: suspicious
+    crit: suspicious
     platforms: [windows]
     requires_count: 1
-    conditions:
+    any:
       - id: currentversion-runonce
       - id: runonce-word
 
@@ -387,11 +387,11 @@ composite_rules:
   - id: windows-python-winreg-import
     description: "Imports Python winreg module for registry access"
     confidence: 0.7
-    criticality: notable
+    crit: notable
     platforms: [windows]
     file_types: [python]
     requires_count: 1
-    conditions:
+    any:
       - id: import-winreg
       - id: from-winreg
       - id: underscore-winreg
@@ -403,7 +403,7 @@ composite_rules:
     platforms: [windows]
     file_types: [python]
     requires_count: 1
-    conditions:
+    any:
       - id: import-winreg
       - id: from-winreg
       - id: underscore-winreg
@@ -415,10 +415,10 @@ composite_rules:
   - id: windows-registry-run-access
     description: "Accesses Windows registry Run key"
     confidence: 0.8
-    criticality: notable
+    crit: notable
     platforms: [windows]
     requires_count: 1
-    conditions:
+    any:
       - id: currentversion-run
       - id: openkey-hkey
 
@@ -426,11 +426,11 @@ composite_rules:
   - id: windows-schtasks
     description: "Creates scheduled task for persistence"
     confidence: 0.85
-    criticality: suspicious
+    crit: suspicious
     attack: "T1053.005"
     platforms: [windows]
     requires_count: 1
-    conditions:
+    any:
       - id: schtasks-create-cmd
       - id: schtasks-exe-create
       - id: itaskscheduler-iface
@@ -440,11 +440,11 @@ composite_rules:
   - id: windows-schtasks-create
     description: "Creates Windows scheduled task"
     confidence: 0.8
-    criticality: notable
+    crit: notable
     attack: "T1053.005"
     platforms: [windows]
     requires_count: 1
-    conditions:
+    any:
       - id: schtasks-create-cmd
       - id: schtasks-exe-create
       - id: itaskscheduler-iface
@@ -456,7 +456,7 @@ composite_rules:
     attack: "T1543.003"
     platforms: [windows]
     requires_count: 1
-    conditions:
+    any:
       - id: sc-create-cmd
       - id: createservice-api
       - id: installservice-fn
@@ -466,10 +466,10 @@ composite_rules:
   - id: windows-powershell-registry
     description: "Modifies registry for persistence via PowerShell"
     confidence: 0.9
-    criticality: suspicious
+    crit: suspicious
     platforms: [windows]
     requires_count: 1
-    conditions:
+    any:
       - id: set-itemproperty-run
       - id: new-itemproperty-run
       - id: reg-add-run
@@ -478,11 +478,11 @@ composite_rules:
   - id: windows-wmi-persistence
     description: "Sets up WMI event subscription for persistence"
     confidence: 0.9
-    criticality: suspicious
+    crit: suspicious
     attack: "T1546.003"
     platforms: [windows]
     requires_count: 1
-    conditions:
+    any:
       - id: wmi-eventfilter
       - id: wmi-filtertoconsumer
       - id: wmi-commandlineconsumer
@@ -492,10 +492,10 @@ composite_rules:
   - id: windows-executable-payload
     description: "References executable file types or interpreters"
     confidence: 0.6
-    criticality: notable
+    crit: notable
     platforms: [windows]
     requires_count: 1
-    conditions:
+    any:
       - id: exe-extension
       - id: bat-extension
       - id: ps1-extension
@@ -506,7 +506,7 @@ composite_rules:
   # Python registry persistence pattern
   - id: windows-python-reg-persistence
     description: "Python Windows registry persistence"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.95
     attack: "T1547.001"
     mbc: "F0006"
@@ -519,7 +519,7 @@ composite_rules:
   # Scheduled task with suspicious payload
   - id: windows-schtasks-payload
     description: "Scheduled task with executable payload"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.95
     attack: "T1053.005"
     mbc: "F0006"

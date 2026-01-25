@@ -4,11 +4,11 @@
 
 traits:
   - id: reverse-shell-ruby
-    description: Reverse shell in Ruby
-    criticality: suspicious
-    confidence: 0.66
+    desc: Reverse shell in Ruby
+    crit: suspicious
+    conf: 0.66
     attack: "T1059"
-    condition:
+    if:
       type: yara
       source: |
         rule ruby_reverse_shell {

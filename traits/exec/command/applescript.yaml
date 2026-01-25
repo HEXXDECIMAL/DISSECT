@@ -5,7 +5,7 @@
 # ATT&CK: T1059.002 (AppleScript)
 
 defaults:
-  file_types: [shell, python, ruby, perl]
+  for: [shell, python, ruby, perl]
   platforms: [macos]
   attack: "T1059.002"
 
@@ -14,27 +14,27 @@ traits:
   # Low-Level Apple Event Indicators (in strings)
   # ============================================
   - id: sysoexec-string
-    description: "sysoexec Apple Event in string"
-    criticality: suspicious
-    confidence: 0.8
+    desc: "sysoexec Apple Event in string"
+    crit: suspicious
+    conf: 0.8
     attack: "T1059.004"
-    condition:
+    if:
       type: string
       exact: "sysoexec"
 
   - id: sysoload-string
-    description: "sysoload Apple Event in string"
-    criticality: notable
-    confidence: 0.8
-    condition:
+    desc: "sysoload Apple Event in string"
+    crit: notable
+    conf: 0.8
+    if:
       type: string
       exact: "sysoload"
 
   - id: sysodela-string
-    description: "sysodela Apple Event in string"
-    criticality: inert
-    confidence: 0.8
-    condition:
+    desc: "sysodela Apple Event in string"
+    crit: inert
+    conf: 0.8
+    if:
       type: string
       exact: "sysodela"
 
@@ -42,63 +42,63 @@ traits:
   # Application References (in source)
   # ============================================
   - id: ref-system-settings
-    description: "References System Settings"
-    criticality: notable
-    confidence: 0.85
-    condition:
+    desc: "References System Settings"
+    crit: notable
+    conf: 0.85
+    if:
       type: string
       exact: "System Settings"
 
   - id: ref-system-prefs
-    description: "References System Preferences"
-    criticality: notable
-    confidence: 0.85
-    condition:
+    desc: "References System Preferences"
+    crit: notable
+    conf: 0.85
+    if:
       type: string
       exact: "System Preferences"
 
   - id: ref-keychain
-    description: "References Keychain Access"
-    criticality: suspicious
-    confidence: 0.9
+    desc: "References Keychain Access"
+    crit: suspicious
+    conf: 0.9
     attack: "T1555.001"
-    condition:
+    if:
       type: string
       exact: "Keychain Access"
 
   - id: ref-terminal
-    description: "References Terminal"
-    criticality: suspicious
-    confidence: 0.85
+    desc: "References Terminal"
+    crit: suspicious
+    conf: 0.85
     attack: "T1059.004"
-    condition:
+    if:
       type: string
-      regex: "\"Terminal\""
+      regex: '"Terminal"'
 
 composite_rules:
   # ============================================
   # Shell Execution via osascript
   # ============================================
   - id: osascript-shell
-    description: "osascript invoking shell command"
-    criticality: suspicious
-    confidence: 0.85
+    desc: "osascript invoking shell command"
+    crit: suspicious
+    conf: 0.85
     attack: "T1059.004"
-    file_types: [shell, python, ruby, perl]
+    for: [shell, python, ruby, perl]
     requires_all:
-      - {id: evasion/applescript/osascript-exec}
-      - {id: sysoexec-string}
+      - { id: evasion/applescript/osascript-exec }
+      - { id: sysoexec-string }
 
   # ============================================
   # Settings Automation via osascript
   # ============================================
   - id: osascript-settings
-    description: "osascript automating System Settings"
-    criticality: notable
-    confidence: 0.8
-    file_types: [shell, python, ruby, perl]
+    desc: "osascript automating System Settings"
+    crit: notable
+    conf: 0.8
+    for: [shell, python, ruby, perl]
     requires_all:
-      - {id: evasion/applescript/osascript-exec}
-    requires_any:
-      - {id: ref-system-settings}
-      - {id: ref-system-prefs}
+      - { id: evasion/applescript/osascript-exec }
+    any:
+      - { id: ref-system-settings }
+      - { id: ref-system-prefs }

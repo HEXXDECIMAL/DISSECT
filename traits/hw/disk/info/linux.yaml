@@ -4,21 +4,21 @@
 traits:
   - id: dmidecode
     description: Hardware info via dmidecode
-    criticality: suspicious
-    confidence: 0.75
+    crit: suspicious
+    conf: 0.75
     attack: "T1082"
     platforms: [linux]
-    condition:
+    if:
       type: string
       regex: "dmidecode[\\s-]"
 
   - id: gopsutil
     description: Go disk info via gopsutil
-    criticality: notable
-    confidence: 0.6
+    crit: notable
+    conf: 0.6
     attack: "T1082"
     platforms: [all]
-    file_types: [elf, macho]
-    condition:
+    for: [elf, macho]
+    if:
       type: string
       exact: "gopsutil/v3/disk"

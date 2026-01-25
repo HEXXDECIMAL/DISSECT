@@ -5,9 +5,9 @@
 traits:
   - id: backdoor/generic/go-pty-shell
     description: "Go PTY interactive shell capability"
-    criticality: suspicious
-    confidence: 0.8
-    file_types: [elf, macho, go]
+    crit: suspicious
+    conf: 0.8
+    for: [elf, macho, go]
     condition:
       type: yara
       source: |
@@ -24,9 +24,9 @@ traits:
 
   - id: backdoor/generic/go-socks-proxy
     description: "Go SOCKS5 proxy implementation"
-    criticality: suspicious
-    confidence: 0.8
-    file_types: [go]
+    crit: suspicious
+    conf: 0.8
+    for: [go]
     condition:
       type: yara
       source: |
@@ -43,9 +43,9 @@ traits:
 
   - id: backdoor/generic/go-reverse-connect
     description: "Go reverse connection capability"
-    criticality: notable
-    confidence: 0.7
-    file_types: [go]
+    crit: notable
+    conf: 0.7
+    for: [go]
     condition:
       type: yara
       source: |
@@ -62,11 +62,11 @@ traits:
 composite_rules:
   - id: backdoor/generic/go-reverse-socks
     description: "Go-based Reverse Shell with SOCKS Proxy"
-    criticality: hostile
-    confidence: 0.9
+    crit: hostile
+    conf: 0.9
     attack: "T1090"
     mbc: "B0022"
-    file_types: [elf, macho]
+    for: [elf, macho]
     requires_all:
       - id: backdoor/generic/go-pty-shell
       - id: backdoor/generic/go-socks-proxy

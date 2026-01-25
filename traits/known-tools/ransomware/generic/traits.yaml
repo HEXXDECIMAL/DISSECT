@@ -4,8 +4,8 @@
 traits:
   - id: ransomware/generic/symbol/encrypt_file
     description: "Symbol: encrypt_file"
-    criticality: notable
-    confidence: 0.6
+    crit: notable
+    conf: 0.6
     file_types: [elf, macho, pe, so, dylib, dll]
     condition:
       type: symbol_or_string
@@ -13,8 +13,8 @@ traits:
 
   - id: ransomware/generic/symbol/encrypt_directory
     description: "Symbol: encrypt_directory"
-    criticality: notable
-    confidence: 0.6
+    crit: notable
+    conf: 0.6
     file_types: [elf, macho, pe, so, dylib, dll]
     condition:
       type: symbol_or_string
@@ -22,8 +22,8 @@ traits:
 
   - id: ransomware/generic/symbol/encrypt_disk
     description: "Symbol: encrypt_disk"
-    criticality: notable
-    confidence: 0.6
+    crit: notable
+    conf: 0.6
     file_types: [elf, macho, pe, so, dylib, dll]
     condition:
       type: symbol_or_string
@@ -31,8 +31,8 @@ traits:
 
   - id: ransomware/generic/source/ransomware_c
     description: "Source file artifact: ransomware.c"
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     file_types: [elf, macho, pe, so, dylib, dll]
     condition:
       type: string
@@ -40,8 +40,8 @@ traits:
 
   - id: ransomware/generic/source/crypter_c
     description: "Source file artifact: crypter.c"
-    criticality: suspicious
-    confidence: 0.8
+    crit: suspicious
+    conf: 0.8
     file_types: [elf, macho, pe, so, dylib, dll]
     condition:
       type: string

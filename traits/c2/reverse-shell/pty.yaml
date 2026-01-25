@@ -5,12 +5,12 @@
 traits:
   # Python PTY spawn
   - id: python-pty
-    description: Python PTY spawn reverse shell
-    criticality: suspicious
-    confidence: 0.95
+    desc: Python PTY spawn reverse shell
+    crit: suspicious
+    conf: 0.95
     attack: "T1059.006"
-    file_types: [python]
-    condition:
+    for: [python]
+    if:
       type: yara
       source: |
         rule python_pty_shell {
@@ -26,12 +26,12 @@ traits:
 
   # Python socket + subprocess shell
   - id: python-socket-shell
-    description: Python socket-based reverse shell
-    criticality: suspicious
-    confidence: 0.95
+    desc: Python socket-based reverse shell
+    crit: suspicious
+    conf: 0.95
     attack: "T1059.006"
-    file_types: [python]
-    condition:
+    for: [python]
+    if:
       type: yara
       source: |
         rule python_socket_shell {
@@ -48,12 +48,12 @@ traits:
 
   # Node.js PTY reverse shell
   - id: node-pty
-    description: Node.js PTY-based reverse shell
-    criticality: suspicious
-    confidence: 0.95
+    desc: Node.js PTY-based reverse shell
+    crit: suspicious
+    conf: 0.95
     attack: "T1059.007"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule node_pty_shell {
@@ -70,12 +70,12 @@ traits:
 
   # Stdin/stdout socket piping
   - id: stdio-socket
-    description: Stdin/stdout piped to socket (reverse shell)
-    criticality: suspicious
-    confidence: 0.9
+    desc: Stdin/stdout piped to socket (reverse shell)
+    crit: suspicious
+    conf: 0.9
     attack: "T1059"
-    file_types: [python, javascript, typescript]
-    condition:
+    for: [python, javascript, typescript]
+    if:
       type: yara
       source: |
         rule stdio_socket_pipe {
@@ -93,12 +93,12 @@ traits:
 
   # Interactive shell markers
   - id: interactive-markers
-    description: Interactive shell session markers
-    criticality: suspicious
-    confidence: 0.85
+    desc: Interactive shell session markers
+    crit: suspicious
+    conf: 0.85
     attack: "T1059"
-    file_types: [python, javascript, shell]
-    condition:
+    for: [python, javascript, shell]
+    if:
       type: yara
       source: |
         rule interactive_shell {
@@ -116,72 +116,71 @@ traits:
 
   # === Socat atomic indicators ===
   - id: socat-exec-sh
-    description: socat EXEC shell pattern
-    criticality: inert
-    confidence: 0.8
-    file_types: [shell, packagejson]
-    condition:
+    desc: socat EXEC shell pattern
+    crit: inert
+    conf: 0.8
+    for: [shell, packagejson]
+    if:
       type: string
       regex: 'socat\s+.*EXEC.*sh'
 
   - id: socat-tcp-exec
-    description: socat TCP EXEC pattern
-    criticality: inert
-    confidence: 0.8
-    file_types: [shell, packagejson]
-    condition:
+    desc: socat TCP EXEC pattern
+    crit: inert
+    conf: 0.8
+    for: [shell, packagejson]
+    if:
       type: string
       regex: 'socat\s+.*TCP.*EXEC'
 
   - id: socat-pty
-    description: socat PTY pattern
-    criticality: inert
-    confidence: 0.8
-    file_types: [shell, packagejson]
-    condition:
+    desc: socat PTY pattern
+    crit: inert
+    conf: 0.8
+    for: [shell, packagejson]
+    if:
       type: string
       regex: 'socat\s+.*PTY'
 
   # === Telnet atomic indicators ===
   - id: telnet-pipe
-    description: telnet piped reverse shell pattern
-    criticality: inert
-    confidence: 0.8
-    file_types: [shell, packagejson]
-    condition:
+    desc: telnet piped reverse shell pattern
+    crit: inert
+    conf: 0.8
+    for: [shell, packagejson]
+    if:
       type: string
       regex: 'telnet\s+\S+\s+\d+\s*\|.*\|\s*telnet'
 
   - id: mknod-telnet
-    description: mknod telnet reverse shell pattern
-    criticality: inert
-    confidence: 0.8
-    file_types: [shell, packagejson]
-    condition:
+    desc: mknod telnet reverse shell pattern
+    crit: inert
+    conf: 0.8
+    for: [shell, packagejson]
+    if:
       type: string
-      regex: 'mknod.*telnet'
+      regex: "mknod.*telnet"
 
 composite_rules:
   - id: socat
-    description: Socat reverse shell pattern
-    criticality: suspicious
-    confidence: 0.95
+    desc: Socat reverse shell pattern
+    crit: suspicious
+    conf: 0.95
     attack: "T1059.004"
-    file_types: [shell, packagejson]
-    requires_count: 1
-    conditions:
+    for: [shell, packagejson]
+    count: 1
+    any:
       - id: socat-exec-sh
       - id: socat-tcp-exec
       - id: socat-pty
 
   - id: telnet
-    description: Telnet-based reverse shell
-    criticality: suspicious
-    confidence: 0.9
+    desc: Telnet-based reverse shell
+    crit: suspicious
+    conf: 0.9
     attack: "T1059.004"
-    file_types: [shell, packagejson]
-    requires_count: 1
-    conditions:
+    for: [shell, packagejson]
+    count: 1
+    any:
       - id: telnet-pipe
       - id: mknod-telnet
-

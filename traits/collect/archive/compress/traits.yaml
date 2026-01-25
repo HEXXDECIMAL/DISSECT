@@ -3,130 +3,130 @@
 
 defaults:
   # Archive commands can be embedded in any file type
-  file_types: ["*"]
+  for: ["*"]
 
 traits:
   # === Tar Operations ===
 
   - id: tar-create
-    description: Creates tar archive
-    criticality: notable
-    confidence: 0.6
+    desc: Creates tar archive
+    crit: notable
+    conf: 0.6
     attack: "T1560"
     platforms: [linux, macos, unix]
-    condition:
+    if:
       type: string
       regex: "tar\\s+-c"
 
   - id: tar-current-dir
-    description: Archives current directory
-    criticality: suspicious
-    confidence: 0.75
+    desc: Archives current directory
+    crit: suspicious
+    conf: 0.75
     attack: "T1560"
     platforms: [linux, macos, unix]
-    condition:
+    if:
       type: string
       regex: "tar\\s+-c\\w*\\s+\\."
 
   - id: tar-from-file
-    description: Tar with file list input
-    criticality: suspicious
-    confidence: 0.7
+    desc: Tar with file list input
+    crit: suspicious
+    conf: 0.7
     attack: "T1560"
     platforms: [linux, macos, unix]
-    condition:
+    if:
       type: string
       regex: "tar\\s+-[rT]"
 
   # === Zip Operations ===
 
   - id: zip-create
-    description: Creates zip archive
-    criticality: notable
-    confidence: 0.6
+    desc: Creates zip archive
+    crit: notable
+    conf: 0.6
     attack: "T1560"
     platforms: [all]
-    condition:
+    if:
       type: string
       regex: "zip\\s+-[rX]"
 
   # === Zip library atomic indicators ===
   - id: go-archive-zip
-    description: Go archive/zip package
-    criticality: inert
-    confidence: 0.5
+    desc: Go archive/zip package
+    crit: inert
+    conf: 0.5
     attack: "T1560"
     platforms: [all]
-    file_types: [go, elf, macho, pe]
-    condition:
+    for: [go, elf, macho, pe]
+    if:
       type: string
       exact: "archive/zip"
 
   - id: rust-zip-writer
-    description: Rust zip_writer usage
-    criticality: inert
-    confidence: 0.5
+    desc: Rust zip_writer usage
+    crit: inert
+    conf: 0.5
     attack: "T1560"
     platforms: [all]
-    file_types: [rust, elf, macho, pe]
-    condition:
+    for: [rust, elf, macho, pe]
+    if:
       type: string
       exact: "zip_writer"
 
   - id: python-zipfile
-    description: Python zipfile module
-    criticality: inert
-    confidence: 0.5
+    desc: Python zipfile module
+    crit: inert
+    conf: 0.5
     attack: "T1560"
     platforms: [all]
-    file_types: [python, elf, macho, pe]
-    condition:
+    for: [python, elf, macho, pe]
+    if:
       type: string
       exact: "zipfile"
 
   - id: zip64-format
-    description: ZIP64 format reference
-    criticality: inert
-    confidence: 0.5
+    desc: ZIP64 format reference
+    crit: inert
+    conf: 0.5
     attack: "T1560"
     platforms: [all]
-    condition:
+    if:
       type: string
       exact: "ZIP64"
 
   # === Unarchive ===
 
   - id: unarchive
-    description: Unarchive operation
-    criticality: notable
-    confidence: 0.5
+    desc: Unarchive operation
+    crit: notable
+    conf: 0.5
     platforms: [all]
-    condition:
+    if:
       type: string
       regex: "[Uu]narchive"
 
 composite_rules:
   # Zip library composite
   - id: zip-library
-    description: ZIP library usage
-    criticality: notable
-    confidence: 0.6
+    desc: ZIP library usage
+    crit: notable
+    conf: 0.6
     attack: "T1560"
     platforms: [all]
-    requires_count: 1
-    conditions:
+    count: 1
+    any:
       - id: go-archive-zip
       - id: rust-zip-writer
       - id: python-zipfile
       - id: zip64-format
 
   - id: binary-tar-exec
-    description: Binary executes tar command (not script)
-    criticality: suspicious
-    confidence: 0.8
+    desc: Binary executes tar command (not script)
+    crit: suspicious
+    conf: 0.8
     attack: "T1560"
     platforms: [linux, macos, unix]
-    file_types: [elf, macho]
-    requires_any:
+    for: [elf, macho]
+    any:
       - id: tar-create
       - id: tar-from-file

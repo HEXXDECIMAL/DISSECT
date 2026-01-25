@@ -4,7 +4,7 @@
 traits:
   - id: mmap-exec
     description: Memory mapping with execute permission
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.75
     attack: "T1055"
     platforms: [linux, macos, unix]

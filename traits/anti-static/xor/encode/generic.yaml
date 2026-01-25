@@ -3,50 +3,50 @@
 # ATT&CK: T1027
 
 defaults:
-  file_types: [pe, elf, macho, python, javascript, shell]
+  for: [pe, elf, macho, python, javascript, shell]
 
 traits:
   - id: xor-key
-    description: XOR key variable reference
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: XOR key variable reference
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: xor_key
 
   - id: xor-encrypt
-    description: XOR encrypt function reference
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: XOR encrypt function reference
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: xor_encrypt
 
   - id: xor-decode
-    description: XOR decode function reference
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: XOR decode function reference
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: xor_decode
 
   - id: xor-loop
-    description: XOR operation with hex byte constant
-    criticality: notable
-    confidence: 0.7
-    condition:
+    desc: XOR operation with hex byte constant
+    crit: notable
+    conf: 0.7
+    if:
       type: string
       regex: '\^\s*0x[0-9a-fA-F]{2}'
 
 composite_rules:
   - id: encode
-    description: XOR encoding patterns
-    criticality: notable
-    confidence: 0.66
+    desc: XOR encoding patterns
+    crit: notable
+    conf: 0.66
     mbc: "B0032"
     attack: "T1027"
-    requires_count: 1
-    conditions:
+    count: 1
+    any:
       - id: xor-key
       - id: xor-encrypt
       - id: xor-decode

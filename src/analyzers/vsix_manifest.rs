@@ -49,7 +49,7 @@ impl VsixManifestAnalyzer {
         // Add structural feature
         report.structure.push(StructuralFeature {
             id: "manifest/vscode/vsixmanifest".to_string(),
-            description: format!("VSCode extension manifest: {}", identity),
+            desc: format!("VSCode extension manifest: {}", identity),
             evidence: vec![Evidence {
                 method: "parser".to_string(),
                 source: "roxmltree".to_string(),

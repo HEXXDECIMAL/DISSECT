@@ -2,7 +2,7 @@
 # Detects shell script obfuscation patterns
 
 defaults:
-  file_types: [shell]
+  for: [shell]
   attack: "T1027"
   mbc: "B0032"
 
@@ -10,68 +10,68 @@ traits:
   # === Shell-Specific Obfuscation Patterns ===
 
   - id: sh-single-char-vars
-    description: "Excessive single-character variables in shell"
-    criticality: suspicious
-    confidence: 0.8
-    condition:
+    desc: "Excessive single-character variables in shell"
+    crit: suspicious
+    conf: 0.8
+    if:
       type: metrics
       field: identifiers.single_char_ratio
       min: 0.40
 
   - id: sh-obfuscated-identifiers
-    description: "Obfuscated shell variable names"
-    criticality: suspicious
-    confidence: 0.85
-    condition:
+    desc: "Obfuscated shell variable names"
+    crit: suspicious
+    conf: 0.85
+    if:
       type: metrics
       field: identifiers.avg_entropy
       min: 3.0
 
   - id: sh-encoded-payload
-    description: "Shell script with encoded payload strings"
-    criticality: suspicious
-    confidence: 0.85
-    condition:
+    desc: "Shell script with encoded payload strings"
+    crit: suspicious
+    conf: 0.85
+    if:
       type: metrics
       field: strings.avg_entropy
       min: 4.0
 
   - id: sh-long-lines
-    description: "Very long shell lines (compressed/obfuscated)"
-    criticality: suspicious
-    confidence: 0.8
-    condition:
+    desc: "Very long shell lines (compressed/obfuscated)"
+    crit: suspicious
+    conf: 0.8
+    if:
       type: metrics
       field: text.max_line_length
       min: 300
 
   - id: sh-no-functions
-    description: "No shell functions (inline obfuscation)"
-    criticality: notable
-    confidence: 0.6
-    condition:
+    desc: "No shell functions (inline obfuscation)"
+    crit: notable
+    conf: 0.6
+    if:
       type: metrics
       field: functions.total
       max: 0
 
 composite_rules:
   - id: sh-encoded-dropper
-    description: "Shell script with encoded payload dropper"
-    criticality: hostile
-    confidence: 0.9
-    requires_all:
+    desc: "Shell script with encoded payload dropper"
+    crit: hostile
+    conf: 0.9
+    all:
       - id: anti-static/obfuscation/code-metrics/sh-encoded-payload
       - id: anti-static/obfuscation/code-metrics/no-comments
-    requires_any:
+    any:
       - id: anti-static/obfuscation/code-metrics/sh-long-lines
       - id: anti-static/obfuscation/code-metrics/sh-obfuscated-identifiers
 
   - id: sh-compact-malware
-    description: "Compacted shell malware pattern"
-    criticality: suspicious
-    confidence: 0.85
-    requires_count: 2
-    conditions:
+    desc: "Compacted shell malware pattern"
+    crit: suspicious
+    conf: 0.85
+    count: 2
+    any:
       - id: anti-static/obfuscation/code-metrics/sh-single-char-vars
       - id: anti-static/obfuscation/code-metrics/sh-long-lines
       - id: anti-static/obfuscation/code-metrics/no-comments

@@ -5,83 +5,83 @@
 traits:
   # === Shell eval atomic indicators ===
   - id: eval-call-shell
-    description: eval() call (shell/js)
-    criticality: inert
-    confidence: 0.5
+    desc: eval() call (shell/js)
+    crit: inert
+    conf: 0.5
     mbc: "E1059"
     attack: "T1059"
-    file_types: [shell, javascript]
-    condition:
+    for: [shell, javascript]
+    if:
       type: string
       regex: "eval\\("
 
   - id: exec-call-shell
-    description: exec() call (shell/js)
-    criticality: inert
-    confidence: 0.5
+    desc: exec() call (shell/js)
+    crit: inert
+    conf: 0.5
     mbc: "E1059"
     attack: "T1059"
-    file_types: [shell, javascript]
-    condition:
+    for: [shell, javascript]
+    if:
       type: string
       regex: "exec\\("
 
   # === Python eval atomic indicators ===
   - id: eval-call-python
-    description: eval() call (Python)
-    criticality: inert
-    confidence: 0.4
+    desc: eval() call (Python)
+    crit: inert
+    conf: 0.4
     mbc: "E1059"
     attack: "T1059"
-    file_types: [python]
-    condition:
+    for: [python]
+    if:
       type: string
       regex: "eval\\("
 
   - id: exec-call-python
-    description: exec() call (Python)
-    criticality: inert
-    confidence: 0.4
+    desc: exec() call (Python)
+    crit: inert
+    conf: 0.4
     mbc: "E1059"
     attack: "T1059"
-    file_types: [python]
-    condition:
+    for: [python]
+    if:
       type: string
       regex: "exec\\("
 
   - id: compile-call-python
-    description: compile() call (Python)
-    criticality: inert
-    confidence: 0.4
+    desc: compile() call (Python)
+    crit: inert
+    conf: 0.4
     mbc: "E1059"
     attack: "T1059"
-    file_types: [python]
-    condition:
+    for: [python]
+    if:
       type: string
       regex: "compile\\("
 
 composite_rules:
   - id: shell-eval
-    description: Dynamic code evaluation
-    criticality: suspicious
-    confidence: 0.66
+    desc: Dynamic code evaluation
+    crit: suspicious
+    conf: 0.66
     mbc: "E1059"
     attack: "T1059"
-    file_types: [shell, javascript]
+    for: [shell, javascript]
     requires_count: 1
-    conditions:
+    any:
       - id: eval-call-shell
       - id: exec-call-shell
 
   - id: python-eval
-    description: Python dynamic code evaluation
-    criticality: notable
-    confidence: 0.5
+    desc: Python dynamic code evaluation
+    crit: notable
+    conf: 0.5
     mbc: "E1059"
     attack: "T1059"
-    file_types: [python]
+    for: [python]
     requires_count: 1
-    conditions:
+    any:
       - id: eval-call-python
       - id: exec-call-python
       - id: compile-call-python

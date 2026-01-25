@@ -3,14 +3,14 @@
 # MBC: B0030 (Remote Access)
 
 defaults:
-  file_types: [elf, macho, so, dylib]
+  for: [elf, macho, so, dylib]
 
 traits:
   # Melofee backdoor artifacts
   - id: backdoor/melofee/artifact
     description: Melofee backdoor identifier string
-    criticality: notable
-    confidence: 0.7
+    crit: notable
+    conf: 0.7
     condition:
       type: yara
       source: |
@@ -27,8 +27,8 @@ traits:
   # Generic Kernel Process Hiding
   - id: kernel/rootkit/process-hiding
     description: Kernel-level process hiding logic
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     mbc: "B0030"
     attack: "T1014"
     condition:
@@ -47,8 +47,8 @@ traits:
   # Generic Heartbeat C2
   - id: comm/c2/heartbeat-protocol
     description: C2 heartbeat/beacon protocol implementation
-    criticality: suspicious
-    confidence: 0.8
+    crit: suspicious
+    conf: 0.8
     condition:
       type: yara
       source: |
@@ -68,8 +68,8 @@ composite_rules:
   # Melofee detection
   - id: backdoor/melofee/detected
     description: Melofee backdoor detected
-    criticality: hostile
-    confidence: 0.95
+    crit: hostile
+    conf: 0.95
     attack: "T1071"
     mbc: "B0030"
     requires_all:

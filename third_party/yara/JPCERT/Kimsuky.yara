@@ -1,9 +1,9 @@
 rule Kimsuky_downloader_vbs
 {
     meta:
-        description = "VBS file to download Powershell used by Kimsuky" 
-        author = "JPCERT/CC Incident Response Group" 
-        hash = "36997232fc97040b099fedc4f0c5bf7aed5d468533a27924dc981b94ca208d71" 
+        description = "VBS file to download Powershell used by Kimsuky"
+        author = "JPCERT/CC Incident Response Group"
+        hash = "36997232fc97040b099fedc4f0c5bf7aed5d468533a27924dc981b94ca208d71"
 
     strings:
         $s1 = "PokDoc -Slyer 'xxx'" ascii
@@ -11,16 +11,16 @@ rule Kimsuky_downloader_vbs
         $s3 = "iex (wget xxx" ascii
         $s4 = "pow_cmd = Replace(pow_cmd, \"xxx\", uri)" ascii
 
-    condition:
+    if:
         3 of them
 }
 
 rule Kimsuky_PokDoc_ps1
 {
     meta:
-        description = "Powershell file to collect device information used by Kimsuky" 
-        author = "JPCERT/CC Incident Response Group" 
-        hash = "82dbc9cb6bf046846046497334c9cc28082f151e4cb9290ef192a85bdb7cc6c8" 
+        description = "Powershell file to collect device information used by Kimsuky"
+        author = "JPCERT/CC Incident Response Group"
+        hash = "82dbc9cb6bf046846046497334c9cc28082f151e4cb9290ef192a85bdb7cc6c8"
 
     strings:
         $s1 = "Function PokDoc {" ascii
@@ -28,16 +28,16 @@ rule Kimsuky_PokDoc_ps1
         $s3 = "boundary`r`nContent-Disposition: form-data; name=\";" ascii
         $s4 = "$conDisp`\"file`\"; filename=`\"" ascii
 
-    condition:
+    if:
         3 of them
 }
 
 rule Kimsuky_InfoKey_ps1
 {
     meta:
-        description = "Powershell file with keylogger functionality used by Kimsuky" 
-        author = "JPCERT/CC Incident Response Group" 
-        hash = "cc2355edb2e2888bae37925ec3ddce2c4c7a91973e89ee385074c337107175ca" 
+        description = "Powershell file with keylogger functionality used by Kimsuky"
+        author = "JPCERT/CC Incident Response Group"
+        hash = "cc2355edb2e2888bae37925ec3ddce2c4c7a91973e89ee385074c337107175ca"
 
     strings:
         $s1 = "Global\\AlreadyRunning19122345" ascii
@@ -45,7 +45,7 @@ rule Kimsuky_InfoKey_ps1
         $s3 = "`n----- [Clipboard] -----`n\" + [Windows.Clipboard]::GetText()"
         $s4 = "`n----- [\" + $t + \"] [\" + $curWnd.ToString() + \"] -----`n"
 
-    condition:
+    if:
         3 of them
 }
 
@@ -65,7 +65,7 @@ rule kimsuky_downloader_pe
         $s4 = "D:\\work\\Virus\\1_troy\\c#\\pack_2023\\2023-06\\work\\obj\\Debug\\ConsoleApplication1.pdb" ascii
         $s5 = {00 07 11 ?? 25 17 59 13 ?? 91 20 92 00 00 00 40 ?? ?? 00 00 07 11 ?? 91 20 F0 00 00 00 40}
 
-    condition:
+    if:
         uint16(0) == 0x5A4D and
         uint32(uint32(0x3c)) == 0x00004550 and
         all of ($dotnet*) and

@@ -4,12 +4,12 @@
 traits:
   # LKRG Blinding
   - id: lkrg
-    description: Targets Linux Kernel Runtime Guard (LKRG) integrity checks
-    criticality: suspicious
-    confidence: 1.0
+    desc: Targets Linux Kernel Runtime Guard (LKRG) integrity checks
+    crit: suspicious
+    conf: 1.0
     attack: "T1562.001"
-    file_types: [c]
-    condition:
+    for: [c]
+    if:
       type: yara
       source: |
         rule target_lkrg {
@@ -26,12 +26,12 @@ traits:
 
   # Generic Kernel Security Blinding
   - id: kernel-integrity
-    description: Targets kernel integrity or exploit detection functions
-    criticality: suspicious
-    confidence: 0.9
+    desc: Targets kernel integrity or exploit detection functions
+    crit: suspicious
+    conf: 0.9
     attack: "T1562.001"
-    file_types: [c, elf]
-    condition:
+    for: [c, elf]
+    if:
       type: yara
       source: |
         rule kernel_security_blinding {
@@ -47,12 +47,12 @@ traits:
 
   # Hooking Security functions (AST)
   - id: hook-security-logic
-    description: Structural detection of hooking kernel integrity checks
-    criticality: suspicious
-    confidence: 0.95
+    desc: Structural detection of hooking kernel integrity checks
+    crit: suspicious
+    conf: 0.95
     attack: "T1562.001"
-    file_types: [c]
-    condition:
+    for: [c]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: "HOOK(.*integrity|.*exploit|.*pcfi)"
@@ -61,13 +61,13 @@ traits:
 composite_rules:
   # Active security software blinding (e.g. LKRG, EDR)
   - id: security-software-blinding
-    description: High-confidence detection of security software blinding (LKRG/EDR)
-    criticality: hostile
-    confidence: 0.99
+    desc: High-confidence detection of security software blinding (LKRG/EDR)
+    crit: hostile
+    conf: 0.99
     attack: "T1562.001"
-    file_types: [c]
+    for: [c]
     requires_count: 2
-    conditions:
+    any:
       - id: evasion/blinding/lkrg
       - id: evasion/blinding/hook-security-logic
       - id: evasion/blinding/kernel-integrity

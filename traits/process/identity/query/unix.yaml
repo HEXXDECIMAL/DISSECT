@@ -6,7 +6,7 @@ defaults:
 traits:
   - id: get-uid
     description: Get user/group identity
-    criticality: notable
+    crit: notable
     confidence: 0.70
     condition:
       type: symbol
@@ -14,7 +14,7 @@ traits:
 
   - id: get-pid
     description: Get process ID
-    criticality: notable
+    crit: notable
     confidence: 0.65
     condition:
       type: symbol

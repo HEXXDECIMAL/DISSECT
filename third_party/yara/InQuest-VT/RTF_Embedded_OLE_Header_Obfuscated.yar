@@ -12,11 +12,11 @@ rule RTF_Embedded_OLE_Header_Obfuscated
 
 	strings:
 	$rtf_magic = "{\\rt"  // note that {\rtf1 is not required
-	
+
 	$obfuscated = /\x7b[^\x7d]*\\object[^\x7d]*\\objemb[^\x7d]*\\objdata[^\x7d]+D[\x09-\x7f]*0[\x09-\x7f]*C[\x09-\x7f]*F[\x09-\x7f]*1[\x09-\x7f]*1[\x09-\x7f]*E[\x09-\x7f]*0[\x09-\x7f]*A[\x09-\x7f]*1[\x09-\x7f]*B[\x09-\x7f]*1[\x09-\x7f]*1[\x09-\x7f]*A[\x09-\x7f]*E[\x09-\x7f]*1/ nocase wide ascii
-	
+
 	$normal = /\x7b[^\x7d]*\\object[^\x7d]*\\objemb[^\x7d]*\\objdata[^\x7d]+D0CF11E0A1B11AE1/ nocase wide ascii
-	
-	condition:
+
+	if:
 			$rtf_magic in (0..10) and $obfuscated and not $normal
 }

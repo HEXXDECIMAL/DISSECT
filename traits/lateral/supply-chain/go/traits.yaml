@@ -7,7 +7,7 @@ defaults:
 traits:
   - id: many-init-functions
     description: Multiple init() functions (auto-execute on import)
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     attack: "T1195.001"
     condition:
@@ -17,7 +17,7 @@ traits:
 
   - id: blank-imports
     description: Uses blank imports for side effects
-    criticality: notable
+    crit: notable
     confidence: 0.7
     condition:
       type: metrics
@@ -26,7 +26,7 @@ traits:
 
   - id: many-blank-imports
     description: Many blank imports (suspicious side-effect loading)
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     condition:
       type: metrics
@@ -35,7 +35,7 @@ traits:
 
   - id: cgo-usage
     description: Uses CGo for C interoperability (evasion vector)
-    criticality: notable
+    crit: notable
     confidence: 0.75
     condition:
       type: metrics
@@ -44,7 +44,7 @@ traits:
 
   - id: embed-directive
     description: Embeds files via //go:embed (payload embedding)
-    criticality: notable
+    crit: notable
     confidence: 0.7
     condition:
       type: metrics
@@ -55,7 +55,7 @@ composite_rules:
   # Detect potential backdoor patterns
   - id: backdoor-indicators
     description: Go code with backdoor-like characteristics
-    criticality: hostile
+    crit: hostile
     confidence: 0.9
     attack: "T1195.001"
     mbc: "B0024"
@@ -68,7 +68,7 @@ composite_rules:
   # Detect supply chain attack patterns
   - id: suspicious-init
     description: Multiple init functions with network/exec capability
-    criticality: hostile
+    crit: hostile
     confidence: 0.9
     attack: "T1195.001"
     mbc: "B0024"

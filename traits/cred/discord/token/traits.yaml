@@ -8,242 +8,242 @@ defaults:
 traits:
   # Discord token regex pattern (standard)
   - id: regex-standard
-    description: Discord token regex pattern
-    criticality: suspicious
-    confidence: 0.95
-    condition:
+    desc: Discord token regex pattern
+    crit: suspicious
+    conf: 0.95
+    if:
       type: string
       # Matches: [A-Za-z0-9_-]{24}.[A-Za-z0-9_-]{6}.[A-Za-z0-9_-]{27}
       regex: '\\[\\\\w-\\]\\{24\\}\\.\\[\\\\w-\\]\\{6\\}\\.\\[\\\\w-\\]\\{27\\}'
 
   # Discord MFA token pattern
   - id: regex-mfa
-    description: Discord MFA token regex pattern
-    criticality: suspicious
-    confidence: 0.95
-    condition:
+    desc: Discord MFA token regex pattern
+    crit: suspicious
+    conf: 0.95
+    if:
       type: string
       # Matches: mfa.[A-Za-z0-9_-]{84}
       regex: 'mfa\\.\\[\\\\w-\\]\\{84\\}'
 
   # Discord token literal pattern (actual token format)
   - id: literal-pattern
-    description: Discord token in code
-    criticality: suspicious
-    confidence: 0.9
-    condition:
+    desc: Discord token in code
+    crit: suspicious
+    conf: 0.9
+    if:
       type: string
       # Actual token format: MTIzNDU2Nzg5.Gh1234.abcdef...
       regex: "[MN][A-Za-z0-9]{23,}\\.[A-Za-z0-9_-]{6}\\.[A-Za-z0-9_-]{27}"
 
   # Discord Local Storage path
   - id: localstorage-path
-    description: Discord Local Storage directory access
-    criticality: suspicious
-    confidence: 0.9
-    condition:
+    desc: Discord Local Storage directory access
+    crit: suspicious
+    conf: 0.9
+    if:
       type: string
       regex: "(?i)(discord|discordcanary|discordptb)[/\\\\]+(Local Storage|leveldb)"
 
   # Discord API user endpoint (token validation)
   - id: api-users-me
-    description: Discord API user validation endpoint
-    criticality: suspicious
-    confidence: 0.85
-    condition:
+    desc: Discord API user validation endpoint
+    crit: suspicious
+    conf: 0.85
+    if:
       type: string
       regex: "discord(app)?\\.com/api/(v[0-9]+/)?users/@me"
 
   # Discord billing endpoint (payment theft)
   - id: api-billing
-    description: Discord billing/payment API endpoint
-    criticality: suspicious
-    confidence: 0.95
-    condition:
+    desc: Discord billing/payment API endpoint
+    crit: suspicious
+    conf: 0.95
+    if:
       type: string
       regex: "discord(app)?\\.com/api/(v[0-9]+/)?users/@me/billing"
 
   # Discord payment sources endpoint
   - id: api-payment-sources
-    description: Discord payment sources API endpoint
-    criticality: suspicious
-    confidence: 0.95
-    condition:
+    desc: Discord payment sources API endpoint
+    crit: suspicious
+    conf: 0.95
+    if:
       type: string
       exact: "payment-sources"
 
   # Discord relationships endpoint (friends list)
   - id: api-relationships
-    description: Discord relationships API endpoint
-    criticality: suspicious
-    confidence: 0.85
-    condition:
+    desc: Discord relationships API endpoint
+    crit: suspicious
+    conf: 0.85
+    if:
       type: string
       regex: "users/@me/relationships"
 
   # Discord channels endpoint (DM access)
   - id: api-channels
-    description: Discord channels API endpoint
-    criticality: suspicious
-    confidence: 0.8
-    condition:
+    desc: Discord channels API endpoint
+    crit: suspicious
+    conf: 0.8
+    if:
       type: string
       regex: "users/@me/channels"
 
   # LevelDB storage reference
   - id: leveldb-ref
-    description: LevelDB storage reference
-    criticality: notable
-    confidence: 0.7
-    condition:
+    desc: LevelDB storage reference
+    crit: notable
+    conf: 0.7
+    if:
       type: string
       exact: "leveldb"
 
   # Local Storage reference
   - id: local-storage-ref
-    description: Local Storage directory reference
-    criticality: notable
-    confidence: 0.7
-    condition:
+    desc: Local Storage directory reference
+    crit: notable
+    conf: 0.7
+    if:
       type: string
       exact: "Local Storage"
 
   # Discord application path
   - id: discord-path
-    description: Discord application path reference
-    criticality: notable
-    confidence: 0.7
-    condition:
+    desc: Discord application path reference
+    crit: notable
+    conf: 0.7
+    if:
       type: string
       exact: "Discord"
 
   # Discord Canary path
   - id: discord-canary-path
-    description: Discord Canary application path reference
-    criticality: notable
-    confidence: 0.7
-    condition:
+    desc: Discord Canary application path reference
+    crit: notable
+    conf: 0.7
+    if:
       type: string
       regex: "(?i)discordcanary"
 
   # Discord PTB path
   - id: discord-ptb-path
-    description: Discord PTB application path reference
-    criticality: notable
-    confidence: 0.7
-    condition:
+    desc: Discord PTB application path reference
+    crit: notable
+    conf: 0.7
+    if:
       type: string
       regex: "(?i)discordptb"
 
   # MFA token prefix
   - id: mfa-prefix
-    description: MFA token prefix indicator
-    criticality: notable
-    confidence: 0.7
-    condition:
+    desc: MFA token prefix indicator
+    crit: notable
+    conf: 0.7
+    if:
       type: string
       exact: "mfa."
 
   # Users/@me API path
   - id: users-me-path
-    description: Discord users/@me API path
-    criticality: notable
-    confidence: 0.75
-    condition:
+    desc: Discord users/@me API path
+    crit: notable
+    conf: 0.75
+    if:
       type: string
       exact: "users/@me"
 
   # Discord webhook exfil
   - id: webhook-exfil
-    description: Discord webhook exfiltration endpoint
-    criticality: suspicious
-    confidence: 0.9
-    condition:
+    desc: Discord webhook exfiltration endpoint
+    crit: suspicious
+    conf: 0.9
+    if:
       type: string
       regex: "discord(app)?\\.com/api/webhooks/"
 
   # Telegram API exfil
   - id: telegram-exfil
-    description: Telegram API exfiltration endpoint
-    criticality: suspicious
-    confidence: 0.9
-    condition:
+    desc: Telegram API exfiltration endpoint
+    crit: suspicious
+    conf: 0.9
+    if:
       type: string
       exact: "api.telegram.org"
 
   # Chrome browser path
   - id: chrome-browser
-    description: Chrome browser reference
-    criticality: notable
-    confidence: 0.6
-    condition:
+    desc: Chrome browser reference
+    crit: notable
+    conf: 0.6
+    if:
       type: string
       exact: "Chrome"
 
   # Opera browser path
   - id: opera-browser
-    description: Opera browser reference
-    criticality: notable
-    confidence: 0.6
-    condition:
+    desc: Opera browser reference
+    crit: notable
+    conf: 0.6
+    if:
       type: string
       exact: "Opera"
 
   # Brave browser path
   - id: brave-browser
-    description: Brave browser reference
-    criticality: notable
-    confidence: 0.6
-    condition:
+    desc: Brave browser reference
+    crit: notable
+    conf: 0.6
+    if:
       type: string
       exact: "Brave"
 
   # Edge browser path
   - id: edge-browser
-    description: Edge browser reference
-    criticality: notable
-    confidence: 0.6
-    condition:
+    desc: Edge browser reference
+    crit: notable
+    conf: 0.6
+    if:
       type: string
       exact: "Edge"
 
   # LDB file extension
   - id: ldb-extension
-    description: LevelDB file extension
-    criticality: notable
-    confidence: 0.6
-    condition:
+    desc: LevelDB file extension
+    crit: notable
+    conf: 0.6
+    if:
       type: string
       exact: ".ldb"
 
   # Log file extension
   - id: log-extension
-    description: Log file extension
-    criticality: notable
-    confidence: 0.5
-    condition:
+    desc: Log file extension
+    crit: notable
+    conf: 0.5
+    if:
       type: string
       exact: ".log"
 
   # Token keyword
   - id: token-keyword
-    description: Token keyword reference
-    criticality: notable
-    confidence: 0.5
-    condition:
+    desc: Token keyword reference
+    crit: notable
+    conf: 0.5
+    if:
       type: string
       regex: "(?i)token"
 
 composite_rules:
   # Discord token stealer composite
   - id: stealer-detected
-    description: Discord token stealer detected
-    criticality: suspicious
-    confidence: 0.98
+    desc: Discord token stealer detected
+    crit: suspicious
+    conf: 0.98
     attack: "T1555.003"
     mbc: "B0030"
-    file_types: [javascript, python, elf, pe, macho]
-    requires_any:
+    for: [javascript, python, elf, pe, macho]
+    any:
       - id: leveldb-ref
       - id: discord-path
       - id: regex-standard
@@ -251,12 +251,12 @@ composite_rules:
 
   # Discord token grabber with browser enumeration
   - id: browser-grabber
-    description: Discord token grabber targeting multiple browsers
-    criticality: suspicious
-    confidence: 0.95
+    desc: Discord token grabber targeting multiple browsers
+    crit: suspicious
+    conf: 0.95
     attack: "T1555.003"
     mbc: "B0030"
-    file_types: [javascript, python, elf, pe, macho]
-    requires_all:
+    for: [javascript, python, elf, pe, macho]
+    all:
       - id: discord-path
       - id: token-keyword

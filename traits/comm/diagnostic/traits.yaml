@@ -2,250 +2,250 @@
 # Benign baseline for ML differentiation
 
 defaults:
-  criticality: benign
-  confidence: 0.9
+  crit: benign
+  conf: 0.9
 
 traits:
   # === Ping/traceroute ===
   - id: ping
-    description: ping command
-    condition:
+    desc: ping command
+    if:
       type: string
       regex: '\bping\s+'
 
   - id: ping6
-    description: ping6 command
-    condition:
+    desc: ping6 command
+    if:
       type: string
       regex: '\bping6\b'
 
   - id: traceroute
-    description: traceroute command
-    condition:
+    desc: traceroute command
+    if:
       type: string
       regex: '\btraceroute\b'
 
   - id: tracepath
-    description: tracepath command
-    condition:
+    desc: tracepath command
+    if:
       type: string
       regex: '\btracepath\b'
 
   - id: mtr
-    description: mtr network diagnostic
-    condition:
+    desc: mtr network diagnostic
+    if:
       type: string
       regex: '\bmtr\b'
 
   # === DNS tools ===
   - id: nslookup
-    description: nslookup command
-    condition:
+    desc: nslookup command
+    if:
       type: string
       regex: '\bnslookup\b'
 
   - id: dig
-    description: dig DNS command
-    condition:
+    desc: dig DNS command
+    if:
       type: string
       regex: '\bdig\s+'
 
   - id: host
-    description: host DNS command
-    condition:
+    desc: host DNS command
+    if:
       type: string
       regex: '\bhost\s+'
 
   # === Connection testing ===
   - id: nc
-    description: nc/netcat command
-    condition:
+    desc: nc/netcat command
+    if:
       type: string
       regex: '\bnc\s+'
 
   - id: netcat
-    description: netcat command
-    condition:
+    desc: netcat command
+    if:
       type: string
       regex: '\bnetcat\b'
 
   - id: telnet
-    description: telnet command
-    condition:
+    desc: telnet command
+    if:
       type: string
       regex: '\btelnet\s+'
 
   # === Traffic capture ===
   - id: tcpdump
-    description: tcpdump packet capture
-    condition:
+    desc: tcpdump packet capture
+    if:
       type: string
       exact: tcpdump
 
   - id: wireshark
-    description: Wireshark analyzer
-    condition:
+    desc: Wireshark analyzer
+    if:
       type: string
       exact: wireshark
 
   - id: tshark
-    description: tshark CLI analyzer
-    condition:
+    desc: tshark CLI analyzer
+    if:
       type: string
       exact: tshark
 
   # === Connection info ===
   - id: netstat
-    description: netstat command
-    condition:
+    desc: netstat command
+    if:
       type: string
       exact: netstat
 
   - id: ss
-    description: ss socket statistics
-    condition:
+    desc: ss socket statistics
+    if:
       type: string
       exact: "ss "
 
   - id: lsof-i
-    description: lsof network listing
-    condition:
+    desc: lsof network listing
+    if:
       type: string
       exact: "lsof -i"
 
   # === Interface info ===
   - id: ifconfig
-    description: ifconfig command
-    condition:
+    desc: ifconfig command
+    if:
       type: string
       exact: ifconfig
 
   - id: ip-addr
-    description: ip addr command
-    condition:
+    desc: ip addr command
+    if:
       type: string
       exact: "ip addr"
 
   - id: ip-link
-    description: ip link command
-    condition:
+    desc: ip link command
+    if:
       type: string
       exact: "ip link"
 
   # === Bandwidth testing ===
   - id: iperf
-    description: iperf bandwidth test
-    condition:
+    desc: iperf bandwidth test
+    if:
       type: string
       exact: iperf
 
   - id: iperf3
-    description: iperf3 bandwidth test
-    condition:
+    desc: iperf3 bandwidth test
+    if:
       type: string
       exact: iperf3
 
   - id: speedtest
-    description: speedtest utility
-    condition:
+    desc: speedtest utility
+    if:
       type: string
       exact: speedtest
 
   # === Latency testing ===
   - id: hping
-    description: hping packet tool
-    condition:
+    desc: hping packet tool
+    if:
       type: string
       exact: hping
 
   - id: fping
-    description: fping fast ping
-    condition:
+    desc: fping fast ping
+    if:
       type: string
       exact: fping
 
   # === HTTP testing ===
   - id: curl
-    description: curl HTTP client
-    condition:
+    desc: curl HTTP client
+    if:
       type: string
       exact: "curl "
 
   - id: wget
-    description: wget download utility
-    condition:
+    desc: wget download utility
+    if:
       type: string
       exact: "wget "
 
   - id: ab
-    description: Apache Bench (ab) tool
-    condition:
+    desc: Apache Bench (ab) tool
+    if:
       type: string
       exact: "ab "
 
   - id: wrk
-    description: wrk HTTP benchmark
-    condition:
+    desc: wrk HTTP benchmark
+    if:
       type: string
       exact: "wrk "
 
   # === Firewall: iptables ===
   - id: iptables
-    description: iptables command
-    condition:
+    desc: iptables command
+    if:
       type: string
       exact: iptables
 
   - id: ip6tables
-    description: ip6tables command
-    condition:
+    desc: ip6tables command
+    if:
       type: string
       exact: ip6tables
 
   - id: iptables-save
-    description: iptables-save command
-    condition:
+    desc: iptables-save command
+    if:
       type: string
       exact: iptables-save
 
   # === Firewall: nftables ===
   - id: nft
-    description: nft command
-    condition:
+    desc: nft command
+    if:
       type: string
       exact: "nft "
 
   - id: nftables
-    description: nftables reference
-    condition:
+    desc: nftables reference
+    if:
       type: string
       exact: nftables
 
   # === Firewall: firewalld/ufw ===
   - id: firewall-cmd
-    description: firewall-cmd utility
-    condition:
+    desc: firewall-cmd utility
+    if:
       type: string
       exact: firewall-cmd
 
   - id: firewalld
-    description: firewalld service
-    condition:
+    desc: firewalld service
+    if:
       type: string
       exact: firewalld
 
   - id: ufw
-    description: ufw firewall
-    condition:
+    desc: ufw firewall
+    if:
       type: string
       exact: "ufw "
 
 composite_rules:
   # Network troubleshooting tools
   - id: troubleshoot
-    description: Network troubleshooting utilities
-    requires_count: 1
-    conditions:
+    desc: Network troubleshooting utilities
+    count: 1
+    any:
       - id: ping
       - id: ping6
       - id: traceroute
@@ -260,9 +260,9 @@ composite_rules:
 
   # Network monitoring
   - id: monitoring
-    description: Network monitoring utilities
-    requires_count: 1
-    conditions:
+    desc: Network monitoring utilities
+    count: 1
+    any:
       - id: tcpdump
       - id: wireshark
       - id: tshark
@@ -275,9 +275,9 @@ composite_rules:
 
   # Network performance
   - id: performance
-    description: Network performance testing
-    requires_count: 1
-    conditions:
+    desc: Network performance testing
+    count: 1
+    any:
       - id: iperf
       - id: iperf3
       - id: speedtest
@@ -290,9 +290,9 @@ composite_rules:
 
   # Firewall management
   - id: firewall
-    description: Firewall management utilities
-    requires_count: 1
-    conditions:
+    desc: Firewall management utilities
+    count: 1
+    any:
       - id: iptables
       - id: ip6tables
       - id: iptables-save

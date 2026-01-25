@@ -4,190 +4,190 @@
 traits:
   # === OOB domain atomic indicators ===
   - id: interactsh-domain
-    description: Interactsh OOB domain
-    criticality: inert
-    confidence: 0.7
+    desc: Interactsh OOB domain
+    crit: inert
+    conf: 0.7
     attack: "T1048"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       regex: "[a-z0-9]{8,32}\\.interactsh"
 
   - id: burpcollaborator-domain
-    description: Burp Collaborator OOB domain
-    criticality: inert
-    confidence: 0.7
+    desc: Burp Collaborator OOB domain
+    crit: inert
+    conf: 0.7
     attack: "T1048"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       regex: "[a-z0-9]{8,32}\\.burpcollaborator\\.net"
 
   - id: oastify-domain
-    description: Oastify OOB domain
-    criticality: inert
-    confidence: 0.7
+    desc: Oastify OOB domain
+    crit: inert
+    conf: 0.7
     attack: "T1048"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       regex: "[a-z0-9]{8,32}\\.oastify\\.com"
 
   - id: oast-fun-domain
-    description: OAST.fun OOB domain
-    criticality: inert
-    confidence: 0.7
+    desc: OAST.fun OOB domain
+    crit: inert
+    conf: 0.7
     attack: "T1048"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       regex: "[a-z0-9]{8,32}\\.oast\\.fun"
 
   - id: pipedream-domain
-    description: Pipedream OOB domain
-    criticality: inert
-    confidence: 0.7
+    desc: Pipedream OOB domain
+    crit: inert
+    conf: 0.7
     attack: "T1048"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       regex: "[a-z0-9]{8,32}\\.m\\.pipedream\\.net"
 
   # === Ngrok atomic indicators ===
   - id: ngrok-tcp
-    description: Ngrok TCP tunnel
-    criticality: inert
-    confidence: 0.7
+    desc: Ngrok TCP tunnel
+    crit: inert
+    conf: 0.7
     attack: "T1572"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       regex: "[a-z0-9-]+\\.tcp\\.[a-z]+\\.ngrok\\.io"
 
   - id: ngrok-http
-    description: Ngrok HTTP tunnel
-    criticality: inert
-    confidence: 0.7
+    desc: Ngrok HTTP tunnel
+    crit: inert
+    conf: 0.7
     attack: "T1572"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       regex: "[a-z0-9-]+\\.http\\.[a-z]+\\.ngrok\\.io"
 
   - id: ngrok-https
-    description: Ngrok HTTPS tunnel
-    criticality: inert
-    confidence: 0.7
+    desc: Ngrok HTTPS tunnel
+    crit: inert
+    conf: 0.7
     attack: "T1572"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       regex: "[a-z0-9-]+\\.https\\.[a-z]+\\.ngrok\\.io"
 
   - id: bytedance-dast
-    description: Exfiltrates data to Bytedance DAST testing domain
-    criticality: suspicious
-    confidence: 0.95
+    desc: Exfiltrates data to Bytedance DAST testing domain
+    crit: suspicious
+    conf: 0.95
     attack: "T1048"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       regex: "[a-z0-9-]+\\.byted-dast\\.com"
 
   - id: workers-dev
-    description: Communication with Cloudflare Workers (common C2 vector)
-    criticality: notable
-    confidence: 0.7
+    desc: Communication with Cloudflare Workers (common C2 vector)
+    crit: notable
+    conf: 0.7
     attack: "T1071"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       regex: "[a-z0-9-]+\\.workers\\.dev"
 
   # === Requestbin atomic indicators ===
   - id: requestbin-com
-    description: RequestBin.com OOB endpoint
-    criticality: inert
-    confidence: 0.7
+    desc: RequestBin.com OOB endpoint
+    crit: inert
+    conf: 0.7
     attack: "T1048"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "requestbin.com"
 
   - id: requestbin-net
-    description: RequestBin.net OOB endpoint
-    criticality: inert
-    confidence: 0.7
+    desc: RequestBin.net OOB endpoint
+    crit: inert
+    conf: 0.7
     attack: "T1048"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "requestbin.net"
 
   - id: webhook-site
-    description: Exfiltrates data to Webhook.site OOB endpoint
-    criticality: suspicious
-    confidence: 0.9
+    desc: Exfiltrates data to Webhook.site OOB endpoint
+    crit: suspicious
+    conf: 0.9
     attack: "T1048"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "webhook.site"
 
   - id: dnslog-cn
-    description: Exfiltrates data to DNSLog.cn OOB domain
-    criticality: suspicious
-    confidence: 0.95
+    desc: Exfiltrates data to DNSLog.cn OOB domain
+    crit: suspicious
+    conf: 0.95
     attack: "T1048"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "dnslog.cn"
 
   - id: canarytokens
-    description: Accesses Canarytokens OOB domain (potential probe)
-    criticality: suspicious
-    confidence: 0.9
+    desc: Accesses Canarytokens OOB domain (potential probe)
+    crit: suspicious
+    conf: 0.9
     attack: "T1048"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       exact: "canarytokens.com"
 
   - id: oastify-b64
-    description: Base64-encoded Oastify OOB domain indicator
-    criticality: suspicious
-    confidence: 0.9
-    file_types: [python, javascript]
-    condition:
+    desc: Base64-encoded Oastify OOB domain indicator
+    crit: suspicious
+    conf: 0.9
+    for: [python, javascript]
+    if:
       type: string
       exact: "b2FzdGlmeS5jb20"
 
   - id: oast-fun-b64
-    description: Base64-encoded OAST.fun OOB domain indicator
-    criticality: suspicious
-    confidence: 0.9
-    file_types: [python, javascript]
-    condition:
+    desc: Base64-encoded OAST.fun OOB domain indicator
+    crit: suspicious
+    conf: 0.9
+    for: [python, javascript]
+    if:
       type: string
       exact: "b2FzdC5mdW4"
 
   - id: http-b64
-    description: Base64-encoded HTTP protocol indicator
-    criticality: notable
-    confidence: 0.7
-    file_types: [python, javascript]
-    condition:
+    desc: Base64-encoded HTTP protocol indicator
+    crit: notable
+    conf: 0.7
+    for: [python, javascript]
+    if:
       type: string
       exact: "aHR0cDovL"
 
   - id: https-b64
-    description: Base64-encoded HTTPS protocol indicator
-    criticality: notable
-    confidence: 0.7
-    file_types: [python, javascript]
-    condition:
+    desc: Base64-encoded HTTPS protocol indicator
+    crit: notable
+    conf: 0.7
+    for: [python, javascript]
+    if:
       type: string
       exact: "aHR0cHM6Ly"
 
@@ -197,35 +197,35 @@ traits:
 
   # Slack webhook exfiltration
   - id: slack-webhook
-    description: Slack webhook exfiltration endpoint
-    criticality: notable
-    confidence: 0.8
+    desc: Slack webhook exfiltration endpoint
+    crit: notable
+    conf: 0.8
     attack: "T1567"
-    file_types: [javascript, typescript, python]
-    condition:
+    for: [javascript, typescript, python]
+    if:
       type: string
       regex: "hooks\\.slack\\.com/services/T[A-Z0-9]+/B[A-Z0-9]+/[A-Za-z0-9]+"
 
   # Ngrok free tunnel detection
   - id: ngrok-free
-    description: Ngrok free tunnel endpoint
-    criticality: suspicious
-    confidence: 0.9
+    desc: Ngrok free tunnel endpoint
+    crit: suspicious
+    conf: 0.9
     attack: "T1572"
-    file_types: [all]
-    condition:
+    for: [all]
+    if:
       type: string
       regex: "[a-z0-9-]+\\.ngrok-free\\.app"
 
   # OOB exfiltration from npm preinstall
   - id: preinstall-exfil
-    description: OOB exfiltration from npm preinstall
-    criticality: suspicious
-    confidence: 0.99
+    desc: OOB exfiltration from npm preinstall
+    crit: suspicious
+    conf: 0.99
     attack: "T1048"
     mbc: "B0030"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: yara
       source: |
         rule oob_preinstall_exfil {
@@ -242,13 +242,13 @@ traits:
 
   # Encrypted OOB exfiltration
   - id: crypto-exfil
-    description: Encrypted OOB exfiltration
-    criticality: suspicious
-    confidence: 0.95
+    desc: Encrypted OOB exfiltration
+    crit: suspicious
+    conf: 0.95
     attack: "T1048"
     mbc: "B0030"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: yara
       source: |
         rule oob_crypto_exfil {
@@ -265,13 +265,13 @@ traits:
 composite_rules:
   # Interactsh composite
   - id: interactsh
-    description: Exfiltrates data to Interactsh OOB domain
-    criticality: suspicious
-    confidence: 0.95
+    desc: Exfiltrates data to Interactsh OOB domain
+    crit: suspicious
+    conf: 0.95
     attack: "T1048"
-    file_types: [all]
+    for: [all]
     requires_count: 1
-    conditions:
+    any:
       - id: interactsh-domain
       - id: burpcollaborator-domain
       - id: oastify-domain
@@ -280,38 +280,38 @@ composite_rules:
 
   # Ngrok composite
   - id: ngrok
-    description: Communication with Ngrok (common C2 tunnel)
-    criticality: suspicious
-    confidence: 0.95
+    desc: Communication with Ngrok (common C2 tunnel)
+    crit: suspicious
+    conf: 0.95
     attack: "T1572"
-    file_types: [all]
+    for: [all]
     requires_count: 1
-    conditions:
+    any:
       - id: ngrok-tcp
       - id: ngrok-http
       - id: ngrok-https
 
   # Requestbin composite
   - id: requestbin
-    description: Exfiltrates data to RequestBin OOB endpoint
-    criticality: suspicious
-    confidence: 0.9
+    desc: Exfiltrates data to RequestBin OOB endpoint
+    crit: suspicious
+    conf: 0.9
     attack: "T1048"
-    file_types: [all]
+    for: [all]
     requires_count: 1
-    conditions:
+    any:
       - id: requestbin-com
       - id: requestbin-net
 
   - id: multiple-encoded-indicators
-    description: "Multiple base64-encoded indicators detected (potential evasion)"
-    criticality: hostile
-    confidence: 0.9
+    desc: "Multiple base64-encoded indicators detected (potential evasion)"
+    crit: hostile
+    conf: 0.9
     attack: "T1048"
     mbc: "B0030"
-    file_types: [python, javascript]
+    for: [python, javascript]
     requires_count: 2
-    conditions:
+    any:
       - id: http-b64
       - id: https-b64
       - id: oastify-b64
@@ -319,12 +319,12 @@ composite_rules:
       - id: interactsh
 
   - id: encoded-oob-exfil
-    description: "Base64-encoded OOB domain with HTTP exfiltration"
-    criticality: hostile
-    confidence: 0.95
+    desc: "Base64-encoded OOB domain with HTTP exfiltration"
+    crit: hostile
+    conf: 0.95
     attack: "T1048"
     mbc: "B0030"
-    file_types: [python, javascript]
+    for: [python, javascript]
     requires_all:
       - id: comm/http/request
     requires_any:

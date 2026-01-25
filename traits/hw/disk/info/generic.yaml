@@ -4,10 +4,10 @@
 traits:
   - id: freespace
     description: Disk free space query
-    criticality: inert
-    confidence: 0.5
+    crit: inert
+    conf: 0.5
     attack: "T1082"
     platforms: [all]
-    condition:
+    if:
       type: string
       exact: "DiskFreeSpace"

@@ -5,31 +5,31 @@
 traits:
   # === HTTP template atomic indicators ===
   - id: post-template
-    description: POST template with placeholder
-    criticality: inert
-    confidence: 0.6
+    desc: POST template with placeholder
+    crit: inert
+    conf: 0.6
     mbc: "B0030"
     attack: "T1071.001"
-    condition:
+    if:
       type: string
       regex: "POST\\s+%s\\s+HTTP"
 
   - id: get-template
-    description: GET template with placeholder
-    criticality: inert
-    confidence: 0.6
+    desc: GET template with placeholder
+    crit: inert
+    conf: 0.6
     mbc: "B0030"
     attack: "T1071.001"
-    condition:
+    if:
       type: string
       regex: "GET\\s+%s\\s+HTTP"
 
   - id: hardcoded-ip
-    description: Hardcoded IP address (potential C2 server)
-    criticality: suspicious
-    confidence: 0.75
+    desc: Hardcoded IP address (potential C2 server)
+    crit: suspicious
+    conf: 0.75
     mbc: "B0030"
-    condition:
+    if:
       type: string
       # Strict IPv4 regex: no leading zeros allowed (prevents FP from version strings)
       # Each octet: 0-9, 10-99, 100-199, 200-249, 250-255
@@ -44,88 +44,88 @@ traits:
         - "^172\\.(1[6-9]|2[0-9]|3[01])\\."
 
   - id: user-agent-rotation
-    description: Multiple User-Agent strings (evasion technique)
-    criticality: suspicious
-    confidence: 0.80
+    desc: Multiple User-Agent strings (evasion technique)
+    crit: suspicious
+    conf: 0.80
     mbc: "F0001.004"
     attack: "T1036"
-    condition:
+    if:
       type: string
       regex: "User-Agent:"
       min_count: 3
 
   # === Bot User-Agent atomic indicators ===
   - id: googlebot-ua
-    description: Googlebot User-Agent
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: Googlebot User-Agent
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "Googlebot"
 
   - id: bingbot-ua
-    description: bingbot User-Agent
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: bingbot User-Agent
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "bingbot"
 
   - id: baiduspider-ua
-    description: Baiduspider User-Agent
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: Baiduspider User-Agent
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "Baiduspider"
 
   - id: yandexbot-ua
-    description: YandexBot User-Agent
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: YandexBot User-Agent
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "YandexBot"
 
   - id: duckduckbot-ua
-    description: DuckDuckBot User-Agent
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: DuckDuckBot User-Agent
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "DuckDuckBot"
 
   - id: wget-download
-    description: wget download command (payload fetching)
-    criticality: suspicious
-    confidence: 0.80
+    desc: wget download command (payload fetching)
+    crit: suspicious
+    conf: 0.80
     mbc: "E1105"
     attack: "T1105"
-    condition:
+    if:
       type: string
       regex: "wget\\s+https?://"
 
 composite_rules:
   # HTTP template composite
   - id: http-template
-    description: HTTP request template with placeholders (C2 communication)
-    criticality: suspicious
-    confidence: 0.85
+    desc: HTTP request template with placeholders (C2 communication)
+    crit: suspicious
+    conf: 0.85
     mbc: "B0030"
     attack: "T1071.001"
-    requires_count: 1
-    conditions:
+    count: 1
+    any:
       - id: post-template
       - id: get-template
 
   - id: bot-user-agent
-    description: Search engine bot User-Agent (DDoS/evasion)
-    criticality: suspicious
-    confidence: 0.85
+    desc: Search engine bot User-Agent (DDoS/evasion)
+    crit: suspicious
+    conf: 0.85
     mbc: "B0030"
     attack: "T1071.001"
-    requires_count: 1
-    conditions:
+    count: 1
+    any:
       - id: googlebot-ua
       - id: bingbot-ua
       - id: baiduspider-ua

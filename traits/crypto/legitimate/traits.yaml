@@ -3,584 +3,583 @@
 # Useful for differential analysis to distinguish malware from legitimate software
 
 defaults:
-  file_types: [pe, elf, macho, dll, so, dylib]
-  criticality: benign
+  for: [pe, elf, macho, dll, so, dylib]
+  crit: benign
 
 traits:
   # === OpenSSL atomic indicators ===
   - id: ssl-library-init
-    description: OpenSSL SSL_library_init
-    confidence: 0.7
-    condition:
+    desc: OpenSSL SSL_library_init
+    conf: 0.7
+    if:
       type: string
       exact: SSL_library_init
 
   - id: ssl-ctx-new
-    description: OpenSSL SSL_CTX_new
-    confidence: 0.7
-    condition:
+    desc: OpenSSL SSL_CTX_new
+    conf: 0.7
+    if:
       type: string
       exact: SSL_CTX_new
 
   - id: ssl-new
-    description: OpenSSL SSL_new
-    confidence: 0.7
-    condition:
+    desc: OpenSSL SSL_new
+    conf: 0.7
+    if:
       type: string
       exact: SSL_new
 
   - id: ssl-connect
-    description: OpenSSL SSL_connect
-    confidence: 0.7
-    condition:
+    desc: OpenSSL SSL_connect
+    conf: 0.7
+    if:
       type: string
       exact: SSL_connect
 
   - id: ssl-read
-    description: OpenSSL SSL_read
-    confidence: 0.7
-    condition:
+    desc: OpenSSL SSL_read
+    conf: 0.7
+    if:
       type: string
       exact: SSL_read
 
   - id: ssl-write
-    description: OpenSSL SSL_write
-    confidence: 0.7
-    condition:
+    desc: OpenSSL SSL_write
+    conf: 0.7
+    if:
       type: string
       exact: SSL_write
 
   - id: tls-v1-method
-    description: TLSv1_method
-    confidence: 0.8
-    condition:
+    desc: TLSv1_method
+    conf: 0.8
+    if:
       type: string
       exact: TLSv1_method
 
   - id: tls-v1-2-method
-    description: TLSv1_2_method
-    confidence: 0.8
-    condition:
+    desc: TLSv1_2_method
+    conf: 0.8
+    if:
       type: string
       exact: TLSv1_2_method
 
   - id: tls-method
-    description: TLS_method
-    confidence: 0.8
-    condition:
+    desc: TLS_method
+    conf: 0.8
+    if:
       type: string
       exact: TLS_method
 
   - id: openssl-version
-    description: OpenSSL version string
-    confidence: 0.9
-    condition:
+    desc: OpenSSL version string
+    conf: 0.9
+    if:
       type: string
       exact: "OpenSSL "
 
   # === Hash function atomic indicators ===
   - id: md5-init
-    description: MD5_Init function
-    confidence: 0.6
-    condition:
+    desc: MD5_Init function
+    conf: 0.6
+    if:
       type: string
       exact: MD5_Init
 
   - id: md5-update
-    description: MD5_Update function
-    confidence: 0.6
-    condition:
+    desc: MD5_Update function
+    conf: 0.6
+    if:
       type: string
       exact: MD5_Update
 
   - id: md5-final
-    description: MD5_Final function
-    confidence: 0.6
-    condition:
+    desc: MD5_Final function
+    conf: 0.6
+    if:
       type: string
       exact: MD5_Final
 
   - id: sha1-init
-    description: SHA1_Init function
-    confidence: 0.6
-    condition:
+    desc: SHA1_Init function
+    conf: 0.6
+    if:
       type: string
       exact: SHA1_Init
 
   - id: sha1-update
-    description: SHA1_Update function
-    confidence: 0.6
-    condition:
+    desc: SHA1_Update function
+    conf: 0.6
+    if:
       type: string
       exact: SHA1_Update
 
   - id: sha256-init
-    description: SHA256_Init function
-    confidence: 0.6
-    condition:
+    desc: SHA256_Init function
+    conf: 0.6
+    if:
       type: string
       exact: SHA256_Init
 
   - id: sha256-update
-    description: SHA256_Update function
-    confidence: 0.6
-    condition:
+    desc: SHA256_Update function
+    conf: 0.6
+    if:
       type: string
       exact: SHA256_Update
 
   - id: sha512-init
-    description: SHA512_Init function
-    confidence: 0.6
-    condition:
+    desc: SHA512_Init function
+    conf: 0.6
+    if:
       type: string
       exact: SHA512_Init
 
   - id: go-crypto-sha256
-    description: Go crypto/sha256 package
-    confidence: 0.8
-    condition:
+    desc: Go crypto/sha256 package
+    conf: 0.8
+    if:
       type: string
       exact: crypto/sha256
 
   - id: go-crypto-sha512
-    description: Go crypto/sha512 package
-    confidence: 0.8
-    condition:
+    desc: Go crypto/sha512 package
+    conf: 0.8
+    if:
       type: string
       exact: crypto/sha512
 
   - id: go-crypto-md5
-    description: Go crypto/md5 package
-    confidence: 0.8
-    condition:
+    desc: Go crypto/md5 package
+    conf: 0.8
+    if:
       type: string
       exact: crypto/md5
 
   # === GnuTLS atomic indicators ===
   - id: gnutls-init
-    description: gnutls_init function
-    confidence: 0.7
-    condition:
+    desc: gnutls_init function
+    conf: 0.7
+    if:
       type: string
       exact: gnutls_init
 
   - id: gnutls-handshake
-    description: gnutls_handshake function
-    confidence: 0.7
-    condition:
+    desc: gnutls_handshake function
+    conf: 0.7
+    if:
       type: string
       exact: gnutls_handshake
 
   - id: gnutls-record-send
-    description: gnutls_record_send function
-    confidence: 0.7
-    condition:
+    desc: gnutls_record_send function
+    conf: 0.7
+    if:
       type: string
       exact: gnutls_record_send
 
   - id: gnutls-record-recv
-    description: gnutls_record_recv function
-    confidence: 0.7
-    condition:
+    desc: gnutls_record_recv function
+    conf: 0.7
+    if:
       type: string
       exact: gnutls_record_recv
 
   - id: gnutls-certificate
-    description: gnutls_certificate_ prefix
-    confidence: 0.7
-    condition:
+    desc: gnutls_certificate_ prefix
+    conf: 0.7
+    if:
       type: string
-      regex: 'gnutls_certificate_'
+      regex: "gnutls_certificate_"
 
   - id: gnutls-x509
-    description: gnutls_x509_ prefix
-    confidence: 0.7
-    condition:
+    desc: gnutls_x509_ prefix
+    conf: 0.7
+    if:
       type: string
-      regex: 'gnutls_x509_'
+      regex: "gnutls_x509_"
 
   - id: gnutls-version
-    description: GnuTLS version string
-    confidence: 0.9
-    condition:
+    desc: GnuTLS version string
+    conf: 0.9
+    if:
       type: string
       exact: GnuTLS
 
   # === NSS atomic indicators ===
   - id: nss-init
-    description: NSS_Init function
-    confidence: 0.7
-    condition:
+    desc: NSS_Init function
+    conf: 0.7
+    if:
       type: string
       exact: NSS_Init
 
   - id: nss-pk11
-    description: PK11_ prefix
-    confidence: 0.7
-    condition:
+    desc: PK11_ prefix
+    conf: 0.7
+    if:
       type: string
-      regex: 'PK11_'
+      regex: "PK11_"
 
   - id: nss-cert
-    description: CERT_ prefix
-    confidence: 0.7
-    condition:
+    desc: CERT_ prefix
+    conf: 0.7
+    if:
       type: string
       regex: '\bCERT_'
 
   - id: nss-sec
-    description: SEC_ prefix
-    confidence: 0.7
-    condition:
+    desc: SEC_ prefix
+    conf: 0.7
+    if:
       type: string
       regex: '\bSEC_'
 
   - id: nss-secmod
-    description: SECMOD_ prefix
-    confidence: 0.7
-    condition:
+    desc: SECMOD_ prefix
+    conf: 0.7
+    if:
       type: string
-      regex: 'SECMOD_'
+      regex: "SECMOD_"
 
   - id: libnss
-    description: libnss library
-    confidence: 0.8
-    condition:
+    desc: libnss library
+    conf: 0.8
+    if:
       type: string
       exact: libnss
 
   # === libsodium atomic indicators ===
   - id: sodium-init
-    description: sodium_init function
-    confidence: 0.8
-    condition:
+    desc: sodium_init function
+    conf: 0.8
+    if:
       type: string
       exact: sodium_init
 
   - id: sodium-secretbox
-    description: crypto_secretbox function
-    confidence: 0.8
-    condition:
+    desc: crypto_secretbox function
+    conf: 0.8
+    if:
       type: string
       exact: crypto_secretbox
 
   - id: sodium-box
-    description: crypto_box function
-    confidence: 0.8
-    condition:
+    desc: crypto_box function
+    conf: 0.8
+    if:
       type: string
       exact: crypto_box
 
   - id: sodium-sign
-    description: crypto_sign function
-    confidence: 0.8
-    condition:
+    desc: crypto_sign function
+    conf: 0.8
+    if:
       type: string
       exact: crypto_sign
 
   - id: sodium-hash
-    description: crypto_hash function
-    confidence: 0.8
-    condition:
+    desc: crypto_hash function
+    conf: 0.8
+    if:
       type: string
       exact: crypto_hash
 
   - id: sodium-pwhash
-    description: crypto_pwhash function
-    confidence: 0.8
-    condition:
+    desc: crypto_pwhash function
+    conf: 0.8
+    if:
       type: string
       exact: crypto_pwhash
 
   - id: sodium-randombytes
-    description: randombytes function
-    confidence: 0.7
-    condition:
+    desc: randombytes function
+    conf: 0.7
+    if:
       type: string
       exact: randombytes
 
   - id: libsodium
-    description: libsodium library
-    confidence: 0.9
-    condition:
+    desc: libsodium library
+    conf: 0.9
+    if:
       type: string
       exact: libsodium
 
   # === Rust crypto atomic indicators ===
   - id: rust-ring
-    description: Rust ring crate
-    confidence: 0.8
-    condition:
+    desc: Rust ring crate
+    conf: 0.8
+    if:
       type: string
       exact: "ring::"
 
   - id: rust-rustls
-    description: Rust rustls crate
-    confidence: 0.8
-    condition:
+    desc: Rust rustls crate
+    conf: 0.8
+    if:
       type: string
       exact: "rustls::"
 
   - id: rust-aes
-    description: Rust aes crate
-    confidence: 0.7
-    condition:
+    desc: Rust aes crate
+    conf: 0.7
+    if:
       type: string
       exact: "aes::"
 
   - id: rust-chacha
-    description: Rust chacha20poly1305
-    confidence: 0.8
-    condition:
+    desc: Rust chacha20poly1305
+    conf: 0.8
+    if:
       type: string
       exact: chacha20poly1305
 
   - id: rust-rsa
-    description: Rust rsa crate
-    confidence: 0.7
-    condition:
+    desc: Rust rsa crate
+    conf: 0.7
+    if:
       type: string
       exact: "rsa::"
 
   - id: rust-ed25519
-    description: Rust ed25519
-    confidence: 0.8
-    condition:
+    desc: Rust ed25519
+    conf: 0.8
+    if:
       type: string
       exact: ed25519
 
   - id: cargo-registry
-    description: Cargo registry path
-    confidence: 0.6
-    condition:
+    desc: Cargo registry path
+    conf: 0.6
+    if:
       type: string
       exact: /cargo/registry/src/
 
   # === Go crypto atomic indicators ===
   - id: go-crypto-tls
-    description: Go crypto/tls package
-    confidence: 0.8
-    condition:
+    desc: Go crypto/tls package
+    conf: 0.8
+    if:
       type: string
       exact: crypto/tls
 
   - id: go-crypto-x509
-    description: Go crypto/x509 package
-    confidence: 0.8
-    condition:
+    desc: Go crypto/x509 package
+    conf: 0.8
+    if:
       type: string
       exact: crypto/x509
 
   - id: go-crypto-rsa
-    description: Go crypto/rsa package
-    confidence: 0.8
-    condition:
+    desc: Go crypto/rsa package
+    conf: 0.8
+    if:
       type: string
       exact: crypto/rsa
 
   - id: go-crypto-ecdsa
-    description: Go crypto/ecdsa package
-    confidence: 0.8
-    condition:
+    desc: Go crypto/ecdsa package
+    conf: 0.8
+    if:
       type: string
       exact: crypto/ecdsa
 
   - id: go-crypto-aes
-    description: Go crypto/aes package
-    confidence: 0.8
-    condition:
+    desc: Go crypto/aes package
+    conf: 0.8
+    if:
       type: string
       exact: crypto/aes
 
   - id: go-crypto-cipher
-    description: Go crypto/cipher package
-    confidence: 0.8
-    condition:
+    desc: Go crypto/cipher package
+    conf: 0.8
+    if:
       type: string
       exact: crypto/cipher
 
   - id: go-crypto-rand
-    description: Go crypto/rand package
-    confidence: 0.8
-    condition:
+    desc: Go crypto/rand package
+    conf: 0.8
+    if:
       type: string
       exact: crypto/rand
 
   - id: go-x-crypto
-    description: Go golang.org/x/crypto
-    confidence: 0.8
-    condition:
+    desc: Go golang.org/x/crypto
+    conf: 0.8
+    if:
       type: string
       exact: golang.org/x/crypto
 
   # === Certificate handling atomic indicators ===
   - id: x509-prefix
-    description: X509_ function prefix
-    confidence: 0.7
-    condition:
+    desc: X509_ function prefix
+    conf: 0.7
+    if:
       type: string
-      regex: 'X509_'
+      regex: "X509_"
 
   - id: x509-string
-    description: x509 string reference
-    confidence: 0.6
-    condition:
+    desc: x509 string reference
+    conf: 0.6
+    if:
       type: string
       regex: '\bx509\b'
       case_insensitive: true
 
   - id: certificate-ref
-    description: certificate string reference
-    confidence: 0.5
-    condition:
+    desc: certificate string reference
+    conf: 0.5
+    if:
       type: string
       regex: '\bcertificate\b'
       case_insensitive: true
 
   - id: pem-begin
-    description: PEM begin marker
-    confidence: 0.7
-    condition:
+    desc: PEM begin marker
+    conf: 0.7
+    if:
       type: string
       exact: "-----BEGIN"
 
   - id: pem-end
-    description: PEM end marker
-    confidence: 0.7
-    condition:
+    desc: PEM end marker
+    conf: 0.7
+    if:
       type: string
       exact: "-----END"
 
   - id: ssl-certs-path
-    description: System SSL certs path
-    confidence: 0.8
-    condition:
+    desc: System SSL certs path
+    conf: 0.8
+    if:
       type: string
       exact: /etc/ssl/certs
 
   - id: ca-certificates
-    description: CA certificates reference
-    confidence: 0.8
-    condition:
+    desc: CA certificates reference
+    conf: 0.8
+    if:
       type: string
       exact: ca-certificates
 
   # === Secure random atomic indicators ===
   - id: dev-urandom
-    description: /dev/urandom access
-    confidence: 0.7
-    condition:
+    desc: /dev/urandom access
+    conf: 0.7
+    if:
       type: string
       exact: /dev/urandom
 
   - id: dev-random
-    description: /dev/random access
-    confidence: 0.7
-    condition:
+    desc: /dev/random access
+    conf: 0.7
+    if:
       type: string
       exact: /dev/random
 
   - id: rand-bytes
-    description: RAND_bytes function
-    confidence: 0.8
-    condition:
+    desc: RAND_bytes function
+    conf: 0.8
+    if:
       type: string
       exact: RAND_bytes
 
   - id: getrandom
-    description: getrandom syscall
-    confidence: 0.8
-    condition:
+    desc: getrandom syscall
+    conf: 0.8
+    if:
       type: string
       exact: getrandom
 
   - id: arc4random
-    description: arc4random function
-    confidence: 0.8
-    condition:
+    desc: arc4random function
+    conf: 0.8
+    if:
       type: string
       exact: arc4random
 
   - id: getentropy
-    description: getentropy function
-    confidence: 0.8
-    condition:
+    desc: getentropy function
+    conf: 0.8
+    if:
       type: string
       exact: getentropy
 
   - id: secrandomcopybytes
-    description: SecRandomCopyBytes (macOS)
-    confidence: 0.8
-    condition:
+    desc: SecRandomCopyBytes (macOS)
+    conf: 0.8
+    if:
       type: string
       exact: SecRandomCopyBytes
 
   # === KDF atomic indicators ===
   - id: pbkdf2
-    description: PBKDF2 key derivation
-    confidence: 0.75
-    condition:
+    desc: PBKDF2 key derivation
+    conf: 0.75
+    if:
       type: string
       exact: PBKDF2
       case_insensitive: true
 
   - id: scrypt
-    description: scrypt key derivation
-    confidence: 0.75
-    condition:
+    desc: scrypt key derivation
+    conf: 0.75
+    if:
       type: string
       exact: scrypt
       case_insensitive: true
 
   - id: argon2
-    description: argon2 key derivation
-    confidence: 0.75
-    condition:
+    desc: argon2 key derivation
+    conf: 0.75
+    if:
       type: string
       exact: argon2
       case_insensitive: true
 
   - id: bcrypt
-    description: bcrypt password hashing
-    confidence: 0.75
-    condition:
+    desc: bcrypt password hashing
+    conf: 0.75
+    if:
       type: string
       exact: bcrypt
       case_insensitive: true
 
   - id: hkdf
-    description: HKDF key derivation
-    confidence: 0.75
-    condition:
+    desc: HKDF key derivation
+    conf: 0.75
+    if:
       type: string
       exact: HKDF
 
   - id: evp-pkey-derive
-    description: EVP_PKEY_derive function
-    confidence: 0.75
-    condition:
+    desc: EVP_PKEY_derive function
+    conf: 0.75
+    if:
       type: string
       exact: EVP_PKEY_derive
 
   - id: pkcs5-pbkdf2
-    description: PKCS5_PBKDF2_HMAC function
-    confidence: 0.75
-    condition:
+    desc: PKCS5_PBKDF2_HMAC function
+    conf: 0.75
+    if:
       type: string
       exact: PKCS5_PBKDF2_HMAC
 
 composite_rules:
   # OpenSSL TLS (3+ SSL functions or any TLS method or version string)
   - id: openssl-tls
-    description: OpenSSL TLS library usage (legitimate)
-    confidence: 0.8
-    requires_any:
+    desc: OpenSSL TLS library usage (legitimate)
+    conf: 0.8
+    requires_count: 3
+    any:
       - id: tls-v1-method
       - id: tls-v1-2-method
       - id: tls-method
       - id: openssl-version
-    requires_count: 3
-    conditions:
       - id: ssl-library-init
       - id: ssl-ctx-new
       - id: ssl-new
@@ -590,10 +589,10 @@ composite_rules:
 
   # Hash functions (2+ MD5 or 2+ SHA or any Go crypto)
   - id: hash-functions
-    description: Standard cryptographic hash function usage
-    confidence: 0.75
+    desc: Standard cryptographic hash function usage
+    conf: 0.75
     requires_count: 2
-    conditions:
+    any:
       - id: md5-init
       - id: md5-update
       - id: md5-final
@@ -608,12 +607,11 @@ composite_rules:
 
   # GnuTLS (2+ functions or version string)
   - id: gnutls
-    description: GnuTLS library usage (legitimate)
-    confidence: 0.8
-    requires_any:
-      - id: gnutls-version
+    desc: GnuTLS library usage (legitimate)
+    conf: 0.8
     requires_count: 2
-    conditions:
+    any:
+      - id: gnutls-version
       - id: gnutls-init
       - id: gnutls-handshake
       - id: gnutls-record-send
@@ -623,10 +621,10 @@ composite_rules:
 
   # NSS (2+ indicators)
   - id: nss
-    description: Mozilla NSS crypto library usage
-    confidence: 0.8
+    desc: Mozilla NSS crypto library usage
+    conf: 0.8
     requires_count: 2
-    conditions:
+    any:
       - id: nss-init
       - id: nss-pk11
       - id: nss-cert
@@ -636,12 +634,11 @@ composite_rules:
 
   # libsodium (2+ functions or library name)
   - id: libsodium
-    description: libsodium modern crypto library usage
-    confidence: 0.8
-    requires_any:
-      - id: crypto/legitimate/libsodium
+    desc: libsodium modern crypto library usage
+    conf: 0.8
     requires_count: 2
-    conditions:
+    any:
+      - id: crypto/legitimate/libsodium
       - id: sodium-init
       - id: sodium-secretbox
       - id: sodium-box
@@ -652,10 +649,10 @@ composite_rules:
 
   # Rust crypto
   - id: rust-crypto
-    description: Rust cryptographic crate usage
-    confidence: 0.75
+    desc: Rust cryptographic crate usage
+    conf: 0.75
     requires_count: 1
-    conditions:
+    any:
       - id: rust-ring
       - id: rust-rustls
       - id: rust-chacha
@@ -665,10 +662,10 @@ composite_rules:
 
   # Go crypto (2+ packages)
   - id: go-crypto
-    description: Go standard crypto package usage
-    confidence: 0.8
+    desc: Go standard crypto package usage
+    conf: 0.8
     requires_count: 2
-    conditions:
+    any:
       - id: go-crypto-tls
       - id: go-crypto-x509
       - id: go-crypto-rsa
@@ -680,13 +677,12 @@ composite_rules:
 
   # Certificate handling
   - id: certificate-handling
-    description: X.509 certificate handling (legitimate)
-    confidence: 0.8
-    requires_any:
+    desc: X.509 certificate handling (legitimate)
+    conf: 0.8
+    requires_count: 2
+    any:
       - id: ssl-certs-path
       - id: ca-certificates
-    requires_count: 2
-    conditions:
       - id: x509-prefix
       - id: x509-string
       - id: certificate-ref
@@ -695,10 +691,10 @@ composite_rules:
 
   # Secure random
   - id: secure-random
-    description: Secure random number generation
-    confidence: 0.8
+    desc: Secure random number generation
+    conf: 0.8
     requires_count: 1
-    conditions:
+    any:
       - id: dev-urandom
       - id: dev-random
       - id: rand-bytes
@@ -709,10 +705,10 @@ composite_rules:
 
   # Key derivation
   - id: key-derivation
-    description: Key derivation function usage
-    confidence: 0.75
+    desc: Key derivation function usage
+    conf: 0.75
     requires_count: 1
-    conditions:
+    any:
       - id: pbkdf2
       - id: scrypt
       - id: argon2

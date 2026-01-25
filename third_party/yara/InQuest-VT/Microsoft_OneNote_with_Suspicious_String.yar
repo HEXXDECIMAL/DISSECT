@@ -27,6 +27,6 @@ rule Microsoft_OneNote_with_Suspicious_String
         $suspicious_13 = "winmgmts" nocase ascii wide
         $suspicious_14 = "Wscript" nocase ascii wide
         $suspicious_15 = "WshShell" nocase ascii wide
-    condition:
+    if:
         uint32be(0) == 0xE4525C7B and any of ($suspicious*)
 }

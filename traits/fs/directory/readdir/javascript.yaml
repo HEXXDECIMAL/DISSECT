@@ -5,8 +5,8 @@
 traits:
   - id: readdir-node
     description: List directory contents (Node.js)
-    criticality: inert
-    confidence: 0.66
-    condition:
+    crit: inert
+    conf: 0.66
+    if:
       type: string
       regex: "\\.readdir(Sync)?\\("

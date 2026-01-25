@@ -4,21 +4,21 @@
 traits:
   - id: forkbomb
     description: Fork bomb pattern
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     attack: "T1499"
-    file_types: [shell]
-    condition:
+    for: [shell]
+    if:
       type: string
       regex: ":\\(\\) \\{\\s*:\\|:&\\s*\\\\};:"
 
   - id: bluescreen
     description: Windows BSOD trigger
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     attack: "T1499"
-    file_types: [python, pe]
-    condition:
+    for: [python, pe]
+    if:
       type: string
       exact: "RtlAdjustPrivilege(19, 1,"
 
@@ -27,21 +27,21 @@ traits:
 
   - id: terminate-process
     description: TerminateProcess API
-    criticality: suspicious
-    confidence: 0.8
+    crit: suspicious
+    conf: 0.8
     attack: "T1489"
-    file_types: [pe]
-    condition:
+    for: [pe]
+    if:
       type: string
       exact: "TerminateProcess"
 
   - id: osascript-quit
     description: macOS application quit via osascript
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     attack: "T1489"
-    file_types: [macho, shell]
-    condition:
+    for: [macho, shell]
+    if:
       type: string
       regex: "osascript.*tell.*application.*quit"
 

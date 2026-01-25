@@ -1,9 +1,9 @@
 traits:
   - id: node-vm
-    description: Executing code via Node.js VM module (sandbox escape/obfuscation)
-    criticality: suspicious
-    confidence: 0.9
-    file_types: [javascript, typescript]
-    condition:
+    desc: Executing code via Node.js VM module (sandbox escape/obfuscation)
+    crit: suspicious
+    conf: 0.9
+    for: [javascript, typescript]
+    if:
       type: string
       regex: 'vm\.runIn(New)?Context'

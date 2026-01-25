@@ -51,7 +51,7 @@ impl TypeScriptAnalyzer {
         // Add structural feature
         report.structure.push(StructuralFeature {
             id: "source/language/typescript".to_string(),
-            description: "TypeScript source code".to_string(),
+            desc: "TypeScript source code".to_string(),
             evidence: vec![Evidence {
                 method: "parser".to_string(),
                 source: "tree-sitter-typescript".to_string(),
@@ -432,9 +432,9 @@ impl TypeScriptAnalyzer {
                                     kind: FindingKind::Capability,
                                     trait_refs: vec![],
                                     id: full_trait_id,
-                                    description: description.to_string(),
-                                    confidence: 1.0,
-                                    criticality,
+                                    desc: description.to_string(),
+                                    conf: 1.0,
+                                    crit: criticality,
                                     mbc: None,
                                     attack: None,
                                     evidence: vec![Evidence {
@@ -465,9 +465,9 @@ impl TypeScriptAnalyzer {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: "exec/script/eval/typescript".to_string(),
-                    description: "Dynamic code evaluation".to_string(),
-                    confidence: 1.0,
-                    criticality: Criticality::Hostile,
+                    desc: "Dynamic code evaluation".to_string(),
+                    conf: 1.0,
+                    crit: Criticality::Hostile,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {
@@ -494,9 +494,9 @@ impl TypeScriptAnalyzer {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: "anti-analysis/dynamic-import/typescript".to_string(),
-                    description: "Dynamic import (possible obfuscation)".to_string(),
-                    confidence: 0.7,
-                    criticality: Criticality::Suspicious,
+                    desc: "Dynamic import (possible obfuscation)".to_string(),
+                    conf: 0.7,
+                    crit: Criticality::Suspicious,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {
@@ -530,9 +530,9 @@ impl TypeScriptAnalyzer {
                         kind: FindingKind::Capability,
                         trait_refs: vec![],
                         id: trait_id.to_string(),
-                        description: description.to_string(),
-                        confidence: 0.6,
-                        criticality: Criticality::Notable,
+                        desc: description.to_string(),
+                        conf: 0.6,
+                        crit: Criticality::Notable,
                         mbc: None,
                         attack: None,
                         evidence: vec![Evidence {
@@ -565,9 +565,9 @@ impl TypeScriptAnalyzer {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: "impact/prototype-pollution/typescript".to_string(),
-                    description: "Prototype pollution pattern detected".to_string(),
-                    confidence: 0.8,
-                    criticality: Criticality::Hostile,
+                    desc: "Prototype pollution pattern detected".to_string(),
+                    conf: 0.8,
+                    crit: Criticality::Hostile,
                     mbc: None,
                     attack: Some("T1059".to_string()),
                     evidence: vec![Evidence {
@@ -598,9 +598,9 @@ impl TypeScriptAnalyzer {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: "impact/prototype-pollution/typescript".to_string(),
-                    description: "Prototype pollution via __proto__ access".to_string(),
-                    confidence: 0.9,
-                    criticality: Criticality::Hostile,
+                    desc: "Prototype pollution via __proto__ access".to_string(),
+                    conf: 0.9,
+                    crit: Criticality::Hostile,
                     mbc: None,
                     attack: Some("T1059".to_string()),
                     evidence: vec![Evidence {
@@ -632,9 +632,9 @@ impl TypeScriptAnalyzer {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: "exec/script/function-constructor/typescript".to_string(),
-                    description: "Function constructor (dynamic code execution)".to_string(),
-                    confidence: 1.0,
-                    criticality: Criticality::Hostile,
+                    desc: "Function constructor (dynamic code execution)".to_string(),
+                    conf: 1.0,
+                    crit: Criticality::Hostile,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {
@@ -718,7 +718,7 @@ mod tests {
             .iter()
             .find(|t| t.id.contains("eval"))
             .unwrap();
-        assert_eq!(eval_trait.criticality, Criticality::Hostile);
+        assert_eq!(eval_trait.crit, Criticality::Hostile);
     }
 
     #[test]
@@ -765,7 +765,7 @@ mod tests {
             .iter()
             .find(|t| t.id.contains("http"))
             .unwrap();
-        assert_eq!(http_trait.criticality, Criticality::Notable);
+        assert_eq!(http_trait.crit, Criticality::Notable);
     }
 
     #[test]
@@ -850,7 +850,7 @@ mod tests {
             .iter()
             .find(|t| t.id.contains("prototype-pollution"))
             .unwrap();
-        assert_eq!(pollution_trait.criticality, Criticality::Hostile);
+        assert_eq!(pollution_trait.crit, Criticality::Hostile);
     }
 
     #[test]
@@ -885,7 +885,7 @@ mod tests {
             .iter()
             .find(|t| t.id.contains("function-constructor"))
             .unwrap();
-        assert_eq!(fn_trait.criticality, Criticality::Hostile);
+        assert_eq!(fn_trait.crit, Criticality::Hostile);
     }
 
     #[test]

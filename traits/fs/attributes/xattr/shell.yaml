@@ -5,9 +5,9 @@
 traits:
   - id: xattr-command
     description: Modify extended filesystem attributes using xattr command
-    criticality: notable
-    confidence: 0.66
-    condition:
+    crit: notable
+    conf: 0.66
+    if:
       type: yara
       source: |
         rule xattr_command {

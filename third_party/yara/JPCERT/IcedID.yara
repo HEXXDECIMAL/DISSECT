@@ -13,7 +13,7 @@ rule malware_IcedID_loader {
         $b2 = {C7 ?? ?? C5 9D 1C 81} // FNV1a
         $b3 = {69 ?? ?? 93 01 00 01} // FNV1a
 
-     condition:
+     if:
        uint16(0) == 0x5A4D and
        uint32(uint32(0x3c)) == 0x00004550 and
        (all of ($a*) or all of ($b*))

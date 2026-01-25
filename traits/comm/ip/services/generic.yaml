@@ -8,46 +8,46 @@ traits:
   # Use those directory references in composite rules
 
   - id: services-tor
-    description: Contains TOR onion address
-    criticality: suspicious
-    confidence: 0.66
+    desc: Contains TOR onion address
+    crit: suspicious
+    conf: 0.66
     mbc: "B0030"
-    condition:
+    if:
       type: string
       regex: "[a-z0-9]{56}\\.onion"
 
   # === ICMP atomic indicators ===
   - id: icmp-upper
-    description: ICMP uppercase
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: ICMP uppercase
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "ICMP"
 
   - id: icmp-lower
-    description: icmp lowercase
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: icmp lowercase
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "icmp"
 
   - id: ipproto-icmp
-    description: IPPROTO_ICMP constant
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: IPPROTO_ICMP constant
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "IPPROTO_ICMP"
 
 composite_rules:
   - id: services-icmp
-    description: ICMP communication
-    criticality: notable
-    confidence: 0.66
-    requires_count: 1
-    conditions:
+    desc: ICMP communication
+    crit: notable
+    conf: 0.66
+    count: 1
+    any:
       - id: icmp-upper
       - id: icmp-lower
       - id: ipproto-icmp

@@ -3,220 +3,220 @@
 # ATT&CK: T1555.003 (Credentials from Password Stores), T1539 (Steal Web Session Cookie)
 
 defaults:
-  file_types: [javascript]
+  for: [javascript]
   attack: "T1555.003"
-  criticality: suspicious
+  crit: suspicious
 
 traits:
   # === window.ethereum atomic indicators ===
   - id: window-dot-ethereum
-    description: window.ethereum access
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: window.ethereum access
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "window.ethereum"
 
   - id: window-bracket-ethereum
-    description: window["ethereum"] access
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: window["ethereum"] access
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: "window\\[['\"]ethereum['\"]\\]"
 
   # === ethereum.request atomic ===
   - id: ethereum-request-call
-    description: ethereum.request() call
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: ethereum.request() call
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: "ethereum\\.request\\s*\\("
 
   - id: request-bracket-call
-    description: '["request"]() call pattern'
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: '["request"]() call pattern'
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: "\\['\"]request['\"]\\]\\s*\\("
 
   # === eth methods atomic ===
   - id: eth-request-accounts-method
-    description: eth_requestAccounts method
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: eth_requestAccounts method
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "eth_requestAccounts"
 
   - id: eth-accounts-method
-    description: eth_accounts method
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: eth_accounts method
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "eth_accounts"
 
   - id: eth-send-transaction-method
-    description: eth_sendTransaction method
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: eth_sendTransaction method
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "eth_sendTransaction"
 
   # ERC-20 function selectors
   - id: erc20-approve
-    description: "ERC-20 token approve function selector"
-    confidence: 0.85
-    criticality: suspicious
-    condition:
+    desc: "ERC-20 token approve function selector"
+    conf: 0.85
+    crit: suspicious
+    if:
       type: string
       exact: "0x095ea7b3"
 
   - id: erc20-transfer
-    description: "ERC-20 token transfer function selector"
-    confidence: 0.8
-    condition:
+    desc: "ERC-20 token transfer function selector"
+    conf: 0.8
+    if:
       type: string
       exact: "0xa9059cbb"
 
   - id: erc20-transferFrom
-    description: "ERC-20 token transferFrom function selector"
-    confidence: 0.85
-    criticality: suspicious
-    condition:
+    desc: "ERC-20 token transferFrom function selector"
+    conf: 0.85
+    crit: suspicious
+    if:
       type: string
       exact: "0x23b872dd"
 
   # === Drainer function atomic ===
   - id: function-drain
-    description: function drain
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: function drain
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       regex: "function\\s+drain"
 
   - id: function-steal
-    description: function steal
-    criticality: inert
-    confidence: 0.8
-    condition:
+    desc: function steal
+    crit: inert
+    conf: 0.8
+    if:
       type: string
       regex: "function\\s+steal"
 
   - id: function-grab
-    description: function grab
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: function grab
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       regex: "function\\s+grab"
 
   - id: function-hijack
-    description: function hijack
-    criticality: inert
-    confidence: 0.8
-    condition:
+    desc: function hijack
+    crit: inert
+    conf: 0.8
+    if:
       type: string
       regex: "function\\s+hijack"
 
   - id: runmask-function
-    description: runmask function
-    criticality: inert
-    confidence: 0.8
-    condition:
+    desc: runmask function
+    crit: inert
+    conf: 0.8
+    if:
       type: string
       exact: "runmask"
 
   - id: newdlocal-function
-    description: newdlocal function
-    criticality: inert
-    confidence: 0.8
-    condition:
+    desc: newdlocal function
+    crit: inert
+    conf: 0.8
+    if:
       type: string
       exact: "newdlocal"
 
   - id: checkethereumw-function
-    description: checkethereumw function
-    criticality: inert
-    confidence: 0.8
-    condition:
+    desc: checkethereumw function
+    crit: inert
+    conf: 0.8
+    if:
       type: string
       exact: "checkethereumw"
 
   # MAX_UINT256 constant - used for unlimited token approval
   - id: max-uint256-approval
-    description: "MAX_UINT256 constant for unlimited approval"
-    confidence: 0.8
-    criticality: suspicious
-    condition:
+    desc: "MAX_UINT256 constant for unlimited approval"
+    conf: 0.8
+    crit: suspicious
+    if:
       type: string
       exact: "MAX_UINT256"
 
   # setApprovalForAll - NFT bulk approval
   - id: set-approval-for-all
-    description: "NFT setApprovalForAll function call"
-    confidence: 0.85
-    criticality: suspicious
-    condition:
+    desc: "NFT setApprovalForAll function call"
+    conf: 0.85
+    crit: suspicious
+    if:
       type: string
       exact: "setApprovalForAll"
 
 composite_rules:
   # Ethereum provider composite
   - id: ethereum-provider
-    description: "Web3 wallet provider access (window.ethereum)"
-    confidence: 0.75
+    desc: "Web3 wallet provider access (window.ethereum)"
+    conf: 0.75
     requires_count: 1
-    conditions:
+    any:
       - id: window-dot-ethereum
       - id: window-bracket-ethereum
 
   # Ethereum request composite
   - id: ethereum-request
-    description: "Ethereum wallet request API"
-    confidence: 0.8
+    desc: "Ethereum wallet request API"
+    conf: 0.8
     requires_count: 1
-    conditions:
+    any:
       - id: ethereum-request-call
       - id: request-bracket-call
 
   # Ethereum provider or request composite
   - id: ethereum-provider-or-request
-    description: "Ethereum provider access or request API"
-    confidence: 0.75
+    desc: "Ethereum provider access or request API"
+    conf: 0.75
     requires_count: 1
-    conditions:
+    any:
       - id: ethereum-provider
       - id: ethereum-request
 
   # eth_requestAccounts composite
   - id: eth-request-accounts
-    description: "Request wallet accounts (eth_requestAccounts)"
-    confidence: 0.85
+    desc: "Request wallet accounts (eth_requestAccounts)"
+    conf: 0.85
     requires_count: 1
-    conditions:
+    any:
       - id: eth-request-accounts-method
       - id: eth-accounts-method
 
   # eth_sendTransaction composite
   - id: eth-send-transaction
-    description: "Send Ethereum transaction (eth_sendTransaction)"
-    confidence: 0.9
-    criticality: suspicious
-    requires_all:
+    desc: "Send Ethereum transaction (eth_sendTransaction)"
+    conf: 0.9
+    crit: suspicious
+    all:
       - id: eth-send-transaction-method
 
   # Wallet transaction method composite
   - id: wallet-transaction-method
-    description: "Wallet transaction methods"
-    confidence: 0.8
+    desc: "Wallet transaction methods"
+    conf: 0.8
     requires_count: 1
-    conditions:
+    any:
       - id: eth-send-transaction-method
       - id: erc20-approve
       - id: erc20-transfer
@@ -225,11 +225,11 @@ composite_rules:
 
   # Drainer function names composite
   - id: drainer-function-names
-    description: "Suspicious wallet drainer function names"
-    confidence: 0.9
-    criticality: suspicious
+    desc: "Suspicious wallet drainer function names"
+    conf: 0.9
+    crit: suspicious
     requires_count: 1
-    conditions:
+    any:
       - id: function-drain
       - id: function-steal
       - id: function-grab
@@ -240,34 +240,34 @@ composite_rules:
 
   # Drainer action functions composite
   - id: drainer-action-functions
-    description: "Drainer action function patterns"
-    confidence: 0.85
-    criticality: suspicious
+    desc: "Drainer action function patterns"
+    conf: 0.85
+    crit: suspicious
     requires_count: 1
-    conditions:
+    any:
       - id: function-drain
       - id: function-steal
       - id: function-grab
 
   # Drainer indicator composite
   - id: drainer-indicator
-    description: "Wallet drainer indicators"
-    confidence: 0.85
+    desc: "Wallet drainer indicators"
+    conf: 0.85
     requires_count: 1
-    conditions:
+    any:
       - id: drainer-function-names
       - id: max-uint256-approval
       - id: set-approval-for-all
 
   # Wallet provider access + transaction sending = wallet drainer
   - id: wallet-drainer
-    description: "Cryptocurrency wallet drainer (provider access + transaction)"
-    criticality: hostile
-    confidence: 0.95
+    desc: "Cryptocurrency wallet drainer (provider access + transaction)"
+    crit: hostile
+    conf: 0.95
     attack: "T1555.003"
     mbc: "B0028"
-    file_types: [javascript]
-    requires_all:
+    for: [javascript]
+    all:
       - id: ethereum-provider-or-request
       - id: wallet-transaction-method
       - id: drainer-indicator

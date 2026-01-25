@@ -4,13 +4,13 @@
 composite_rules:
   - id: stealer/browser/composite
     description: "Comprehensive Browser Data Stealer (Targeting Chrome, Firefox, Opera, etc.)"
-    criticality: hostile
-    confidence: 0.95
+    crit: hostile
+    conf: 0.95
     mbc: "E1005"
     attack: "T1555.003"
     file_types: [elf, macho, pe, python, go, javascript]
     requires_count: 2
-    conditions:
+    any:
       - id: "cred/browser/chromium"
       - id: "cred/browser/firefox"
       - id: "cred/browser/chromium"

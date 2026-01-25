@@ -4,10 +4,10 @@
 traits:
   - id: macos-cpuinfo
     description: macOS CPU information query
-    criticality: notable
-    confidence: 0.7
+    crit: notable
+    conf: 0.7
     attack: "T1082"
     platforms: [macos]
-    condition:
+    if:
       type: string
       exact: "CpuInfoAndModel"

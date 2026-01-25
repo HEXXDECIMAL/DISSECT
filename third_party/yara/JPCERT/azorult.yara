@@ -10,6 +10,6 @@ rule malware_Azorult {
             $v2 = "http://ip-api.com/json"
             $v3 = { c6 07 1e c6 47 01 15 c6 47 02 34 }
 
-          condition:
+          if:
             all of them
 }

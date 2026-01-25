@@ -8,12 +8,12 @@ traits:
   # ============================================================
 
   - id: syscall-hooking
-    description: eBPF program hooking syscall tracepoints
-    criticality: suspicious
-    confidence: 0.95
+    desc: eBPF program hooking syscall tracepoints
+    crit: suspicious
+    conf: 0.95
     attack: "T1014"
-    file_types: [c, elf]
-    condition:
+    for: [c, elf]
+    if:
       type: yara
       source: |
         rule ebpf_syscall_hooking {
@@ -27,12 +27,12 @@ traits:
         }
 
   - id: xdp-backdoor
-    description: XDP-based network backdoor or packet interception
-    criticality: suspicious
-    confidence: 0.95
+    desc: XDP-based network backdoor or packet interception
+    crit: suspicious
+    conf: 0.95
     attack: "T1205"
-    file_types: [c, elf]
-    condition:
+    for: [c, elf]
+    if:
       type: yara
       source: |
         rule ebpf_xdp_backdoor {
@@ -59,11 +59,11 @@ traits:
   # ============================================================
 
   - id: go-loader
-    description: Go-based eBPF program loader using common libraries
-    criticality: notable
-    confidence: 0.9
-    file_types: [go]
-    condition:
+    desc: Go-based eBPF program loader using common libraries
+    crit: notable
+    conf: 0.9
+    for: [go]
+    if:
       type: yara
       source: |
         rule ebpf_go_loader {
@@ -79,12 +79,12 @@ traits:
         }
 
   - id: go-offensive-program
-    description: Go loader referencing offensive eBPF sections
-    criticality: suspicious
-    confidence: 0.95
+    desc: Go loader referencing offensive eBPF sections
+    crit: suspicious
+    conf: 0.95
     attack: "T1014"
-    file_types: [go]
-    condition:
+    for: [go]
+    if:
       type: yara
       source: |
         rule ebpf_go_offensive_sections {
@@ -107,12 +107,12 @@ traits:
   # ============================================================
 
   - id: probe-write-user
-    description: eBPF program writing to user-space memory (PATCHING)
-    criticality: suspicious
-    confidence: 1.0
+    desc: eBPF program writing to user-space memory (PATCHING)
+    crit: suspicious
+    conf: 1.0
     attack: "T1562.001"
-    file_types: [c, elf]
-    condition:
+    for: [c, elf]
+    if:
       type: yara
       source: |
         rule ebpf_probe_write_user {
@@ -123,12 +123,12 @@ traits:
         }
 
   - id: sudoers-manipulation
-    description: eBPF-based runtime manipulation of sudoers or shadow in memory
-    criticality: suspicious
-    confidence: 1.0
+    desc: eBPF-based runtime manipulation of sudoers or shadow in memory
+    crit: suspicious
+    conf: 1.0
     attack: "T1068"
-    file_types: [c, elf]
-    condition:
+    for: [c, elf]
+    if:
       type: yara
       source: |
         rule ebpf_sensitive_file_patch {
@@ -142,12 +142,12 @@ traits:
         }
 
   - id: dirent-hiding
-    description: eBPF-based file/directory hiding via getdents record length manipulation
-    criticality: suspicious
-    confidence: 0.95
+    desc: eBPF-based file/directory hiding via getdents record length manipulation
+    crit: suspicious
+    conf: 0.95
     attack: "T1014"
-    file_types: [c, elf]
-    condition:
+    for: [c, elf]
+    if:
       type: yara
       source: |
         rule ebpf_dirent_hiding {
@@ -160,12 +160,12 @@ traits:
         }
 
   - id: uprobe-hooking
-    description: eBPF program hooking user-space functions (uprobes)
-    criticality: suspicious
-    confidence: 0.95
+    desc: eBPF program hooking user-space functions (uprobes)
+    crit: suspicious
+    conf: 0.95
     attack: "T1014"
-    file_types: [c, elf]
-    condition:
+    for: [c, elf]
+    if:
       type: yara
       source: |
         rule ebpf_uprobe_hooking {
@@ -178,12 +178,12 @@ traits:
         }
 
   - id: http-manipulation
-    description: eBPF program performing HTTP traffic manipulation (XDP)
-    criticality: suspicious
-    confidence: 0.95
+    desc: eBPF program performing HTTP traffic manipulation (XDP)
+    crit: suspicious
+    conf: 0.95
     attack: "T1557"
-    file_types: [c, elf]
-    condition:
+    for: [c, elf]
+    if:
       type: yara
       source: |
         rule ebpf_http_manipulation {
@@ -200,13 +200,13 @@ traits:
 composite_rules:
   # High-Confidence eBPF Rootkit
   - id: advanced-rootkit
-    description: Highly confident eBPF-based offensive rootkit (TripleCross style)
-    criticality: hostile
-    confidence: 0.99
+    desc: Highly confident eBPF-based offensive rootkit (TripleCross style)
+    crit: hostile
+    conf: 0.99
     attack: "T1014"
-    file_types: [c, elf, go]
+    for: [c, elf, go]
     requires_count: 2
-    conditions:
+    any:
       - id: syscall-hooking
       - id: xdp-backdoor
       - id: probe-write-user

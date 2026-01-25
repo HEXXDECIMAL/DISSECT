@@ -4,98 +4,98 @@
 traits:
   # === Shell installer atomic indicators ===
   - id: curl-pipe-bash-js
-    description: curl piped to bash
-    criticality: inert
-    confidence: 0.7
+    desc: curl piped to bash
+    crit: inert
+    conf: 0.7
     attack: "T1105"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       regex: 'curl.*\|.*bash'
 
   - id: curl-pipe-sh-js
-    description: curl piped to sh
-    criticality: inert
-    confidence: 0.7
+    desc: curl piped to sh
+    crit: inert
+    conf: 0.7
     attack: "T1105"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       regex: 'curl.*\|.*sh'
 
   - id: curl-pipe-zsh-js
-    description: curl piped to zsh
-    criticality: inert
-    confidence: 0.7
+    desc: curl piped to zsh
+    crit: inert
+    conf: 0.7
     attack: "T1105"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       regex: 'curl.*\|.*zsh'
 
   # === PowerShell installer atomic indicators ===
   - id: powershell-irm-iex
-    description: PowerShell irm piped to iex
-    criticality: inert
-    confidence: 0.7
+    desc: PowerShell irm piped to iex
+    crit: inert
+    conf: 0.7
     attack: "T1105"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       regex: 'powershell.*irm.*\|.*iex'
 
   - id: powershell-iwr-iex
-    description: PowerShell iwr piped to iex
-    criticality: inert
-    confidence: 0.7
+    desc: PowerShell iwr piped to iex
+    crit: inert
+    conf: 0.7
     attack: "T1105"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       regex: 'powershell.*iwr.*\|.*iex'
 
   - id: js-stdio-ignore
-    description: Suppresses standard I/O output (silent execution)
-    criticality: notable
-    confidence: 0.8
-    file_types: [javascript]
-    condition:
+    desc: Suppresses standard I/O output (silent execution)
+    crit: notable
+    conf: 0.8
+    for: [javascript]
+    if:
       type: string
       regex: 'stdio:\s*[''"]ignore[''"]'
 
 composite_rules:
   # Shell installer composite
   - id: js-installer-sh
-    description: Downloads and executes shell script (installer pattern)
-    criticality: suspicious
-    confidence: 0.9
+    desc: Downloads and executes shell script (installer pattern)
+    crit: suspicious
+    conf: 0.9
     attack: "T1105"
-    file_types: [javascript]
+    for: [javascript]
     requires_count: 1
-    conditions:
+    any:
       - id: curl-pipe-bash-js
       - id: curl-pipe-sh-js
       - id: curl-pipe-zsh-js
 
   # PowerShell installer composite
   - id: js-installer-ps1
-    description: Downloads and executes PowerShell script (installer pattern)
-    criticality: suspicious
-    confidence: 0.9
+    desc: Downloads and executes PowerShell script (installer pattern)
+    crit: suspicious
+    conf: 0.9
     attack: "T1105"
-    file_types: [javascript]
+    for: [javascript]
     requires_count: 1
-    conditions:
+    any:
       - id: powershell-irm-iex
       - id: powershell-iwr-iex
 
   - id: js-silent-installer
-    description: Silent download and execute installer
-    criticality: hostile
-    confidence: 0.95
+    desc: Silent download and execute installer
+    crit: hostile
+    conf: 0.95
     attack: "T1105"
     mbc: "B0024"
-    file_types: [javascript]
+    for: [javascript]
     requires_all:
       - id: exec/command/shell/js-execsync
       - id: exec/download/js-stdio-ignore

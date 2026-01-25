@@ -5,8 +5,8 @@
 traits:
   - id: log-var
     description: Reference to /var/log
-    criticality: notable
-    confidence: 0.66
-    condition:
+    crit: notable
+    conf: 0.66
+    if:
       type: string
       regex: "/var/log/[\\w\\.\\-/]+"

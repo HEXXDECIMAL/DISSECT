@@ -23,7 +23,7 @@ rule malware_webview2loader {
       $vmdetect2 = "SystemManufacturer" ascii
       $vmdetect3 = "SystemProductName" ascii
 
-     condition:
+     if:
       (uint16(0) == 0x5A4D) and
       (uint32(uint32(0x3c)) == 0x00004550) and
       (all of ($vmdetect*)) and

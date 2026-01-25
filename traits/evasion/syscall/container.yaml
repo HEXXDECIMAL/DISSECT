@@ -1,81 +1,81 @@
 traits:
   - id: syscall-setns
-    description: Uses setns syscall to change namespace
-    criticality: notable
-    confidence: 0.8
+    desc: Uses setns syscall to change namespace
+    crit: notable
+    conf: 0.8
     platforms: [linux]
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: syscall
       name: ["setns"]
 
   - id: syscall-unshare
-    description: Uses unshare syscall to create new namespace
-    criticality: notable
-    confidence: 0.8
+    desc: Uses unshare syscall to create new namespace
+    crit: notable
+    conf: 0.8
     platforms: [linux]
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: syscall
       name: ["unshare"]
 
   - id: syscall-clone
-    description: Uses clone/clone3 syscall to create new process
-    criticality: notable
-    confidence: 0.8
+    desc: Uses clone/clone3 syscall to create new process
+    crit: notable
+    conf: 0.8
     platforms: [linux]
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: syscall
       name: ["clone", "clone3"]
 
   - id: syscall-chroot
-    description: Uses chroot syscall to change root directory
-    criticality: notable
-    confidence: 0.8
+    desc: Uses chroot syscall to change root directory
+    crit: notable
+    conf: 0.8
     platforms: [linux]
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: syscall
       name: ["chroot"]
 
   - id: syscall-chdir
-    description: Uses chdir/fchdir syscall to change directory
-    criticality: notable
-    confidence: 0.7
+    desc: Uses chdir/fchdir syscall to change directory
+    crit: notable
+    conf: 0.7
     platforms: [linux]
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: syscall
       name: ["chdir", "fchdir"]
 
 composite_rules:
   - id: namespace-manipulation
-    description: Manipulates Linux namespaces
-    confidence: 0.85
-    criticality: suspicious
+    desc: Manipulates Linux namespaces
+    conf: 0.85
+    crit: suspicious
     platforms: [linux]
-    file_types: [elf]
-    requires_any:
+    for: [elf]
+    any:
       - id: syscall-setns
       - id: syscall-unshare
 
   - id: container-escape
-    description: Container escape pattern - clone + setns
-    confidence: 0.9
-    criticality: suspicious
+    desc: Container escape pattern - clone + setns
+    conf: 0.9
+    crit: suspicious
     platforms: [linux]
-    file_types: [elf]
+    for: [elf]
     requires_all:
       - id: syscall-clone
       - id: syscall-setns
 
   - id: chroot-escape
-    description: Potential chroot escape - chdir + chroot combination
-    confidence: 0.8
-    criticality: suspicious
+    desc: Potential chroot escape - chdir + chroot combination
+    conf: 0.8
+    crit: suspicious
     platforms: [linux]
-    file_types: [elf]
+    for: [elf]
     requires_all:
       - id: syscall-chroot
       - id: syscall-chdir

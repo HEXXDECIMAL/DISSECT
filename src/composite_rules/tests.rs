@@ -52,21 +52,22 @@ fn test_symbol_condition() {
 
     let rule = CompositeTrait {
         id: "test/capability".to_string(),
-        description: "Test".to_string(),
-        confidence: 0.9,
-        criticality: Criticality::Inert,
+        desc: "Test".to_string(),
+        conf: 0.9,
+        crit: Criticality::Inert,
         mbc: None,
         attack: None,
         platforms: vec![Platform::All],
-        file_types: vec![FileType::All],
-        requires_all: Some(vec![Condition::Symbol {
+        r#for: vec![FileType::All],
+        all: Some(vec![Condition::Symbol {
             pattern: "socket".to_string(),
             platforms: None,
         }]),
-        requires_any: None,
-        requires_count: None,
-        conditions: None,
-        requires_none: None,
+        any: None,
+        count: None,
+        min_count: None,
+        max_count: None,
+        none: None,
     };
 
     let result = rule.evaluate(&ctx);
@@ -78,7 +79,7 @@ fn test_symbol_condition() {
 }
 
 #[test]
-fn test_requires_all() {
+fn test_all() {
     let (report, data) = create_test_context();
     let ctx = EvaluationContext {
         report: &report,
@@ -90,14 +91,14 @@ fn test_requires_all() {
 
     let rule = CompositeTrait {
         id: "net/reverse-shell".to_string(),
-        description: "Reverse shell".to_string(),
-        confidence: 0.9,
-        criticality: Criticality::Inert,
+        desc: "Reverse shell".to_string(),
+        conf: 0.9,
+        crit: Criticality::Inert,
         mbc: None,
         attack: None,
         platforms: vec![Platform::All],
-        file_types: vec![FileType::All],
-        requires_all: Some(vec![
+        r#for: vec![FileType::All],
+        all: Some(vec![
             Condition::Symbol {
                 pattern: "socket".to_string(),
                 platforms: None,
@@ -111,10 +112,11 @@ fn test_requires_all() {
                 search_raw: false,
             },
         ]),
-        requires_any: None,
-        requires_count: None,
-        conditions: None,
-        requires_none: None,
+        any: None,
+        count: None,
+        min_count: None,
+        max_count: None,
+        none: None,
     };
 
     let result = rule.evaluate(&ctx);
@@ -122,7 +124,7 @@ fn test_requires_all() {
 }
 
 #[test]
-fn test_requires_count() {
+fn test_count() {
     let (report, data) = create_test_context();
     let ctx = EvaluationContext {
         report: &report,
@@ -134,17 +136,15 @@ fn test_requires_count() {
 
     let rule = CompositeTrait {
         id: "test/multi".to_string(),
-        description: "Multiple conditions".to_string(),
-        confidence: 0.85,
-        criticality: Criticality::Inert,
+        desc: "Multiple conditions".to_string(),
+        conf: 0.85,
+        crit: Criticality::Inert,
         mbc: None,
         attack: None,
         platforms: vec![Platform::All],
-        file_types: vec![FileType::All],
-        requires_all: None,
-        requires_any: None,
-        requires_count: Some(2),
-        conditions: Some(vec![
+        r#for: vec![FileType::All],
+        all: None,
+        any: Some(vec![
             Condition::Symbol {
                 pattern: "socket".to_string(),
                 platforms: None,
@@ -158,7 +158,10 @@ fn test_requires_count() {
                 platforms: None,
             },
         ]),
-        requires_none: None,
+        count: Some(2),
+        min_count: None,
+        max_count: None,
+        none: None,
     };
 
     let result = rule.evaluate(&ctx);
@@ -178,14 +181,14 @@ fn test_string_exact_condition() {
 
     let rule = CompositeTrait {
         id: "test/string-exact".to_string(),
-        description: "Exact string match".to_string(),
-        confidence: 0.9,
-        criticality: Criticality::Inert,
+        desc: "Exact string match".to_string(),
+        conf: 0.9,
+        crit: Criticality::Inert,
         mbc: None,
         attack: None,
         platforms: vec![Platform::All],
-        file_types: vec![FileType::All],
-        requires_all: Some(vec![Condition::String {
+        r#for: vec![FileType::All],
+        all: Some(vec![Condition::String {
             exact: Some("/bin/sh".to_string()),
             regex: None,
             case_insensitive: false,
@@ -193,10 +196,11 @@ fn test_string_exact_condition() {
             min_count: 1,
             search_raw: false,
         }]),
-        requires_any: None,
-        requires_count: None,
-        conditions: None,
-        requires_none: None,
+        any: None,
+        count: None,
+        min_count: None,
+        max_count: None,
+        none: None,
     };
 
     let result = rule.evaluate(&ctx);
@@ -204,7 +208,7 @@ fn test_string_exact_condition() {
 }
 
 #[test]
-fn test_requires_any() {
+fn test_any() {
     let (report, data) = create_test_context();
     let ctx = EvaluationContext {
         report: &report,
@@ -216,15 +220,15 @@ fn test_requires_any() {
 
     let rule = CompositeTrait {
         id: "test/requires-any".to_string(),
-        description: "Requires any condition".to_string(),
-        confidence: 0.9,
-        criticality: Criticality::Inert,
+        desc: "Requires any condition".to_string(),
+        conf: 0.9,
+        crit: Criticality::Inert,
         mbc: None,
         attack: None,
         platforms: vec![Platform::All],
-        file_types: vec![FileType::All],
-        requires_all: None,
-        requires_any: Some(vec![
+        r#for: vec![FileType::All],
+        all: None,
+        any: Some(vec![
             Condition::Symbol {
                 pattern: "nonexistent".to_string(),
                 platforms: None,
@@ -234,9 +238,10 @@ fn test_requires_any() {
                 platforms: None,
             },
         ]),
-        requires_count: None,
-        conditions: None,
-        requires_none: None,
+        count: None,
+        min_count: None,
+        max_count: None,
+        none: None,
     };
 
     let result = rule.evaluate(&ctx);

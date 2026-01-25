@@ -5,23 +5,23 @@
 
 traits:
   - id: dev-shm
-    description: "/dev/shm staging (fileless execution)"
-    criticality: suspicious
-    confidence: 0.85
+    desc: "/dev/shm staging (fileless execution)"
+    crit: suspicious
+    conf: 0.85
     mbc: "F0012"
     attack: "T1055"
-    file_types: [elf]
+    for: [elf]
     platforms: [linux]
-    condition:
+    if:
       type: string
       exact: "/dev/shm/"
 
   - id: proc-self-fd
-    description: "Access /proc/self/fd for file descriptor manipulation"
-    criticality: notable
-    confidence: 0.7
-    file_types: [elf]
+    desc: "Access /proc/self/fd for file descriptor manipulation"
+    crit: notable
+    conf: 0.7
+    for: [elf]
     platforms: [linux]
-    condition:
+    if:
       type: string
       regex: "/proc/self/fd/"

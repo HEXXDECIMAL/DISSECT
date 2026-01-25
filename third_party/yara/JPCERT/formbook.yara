@@ -10,6 +10,6 @@ rule malware_Formbook_strings {
             $sqlite3text = { 68 38 2a 90 c5 }
             $sqlite3blob = { 68 53 d8 7f 8c }
 
-          condition:
+          if:
             all of them
 }

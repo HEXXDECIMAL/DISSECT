@@ -3,256 +3,256 @@
 # Can be legitimate (JIT, hot-patching) or malicious (polymorphic malware)
 
 defaults:
-  file_types: [pe, elf, macho, dll, so, dylib]
+  for: [pe, elf, macho, dll, so, dylib]
 
 traits:
   # === Memory protection (atomic) ===
   - id: mprotect-unix
-    description: Unix mprotect system call
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: Unix mprotect system call
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: '\bmprotect\b'
 
   - id: virtualprotect-win
-    description: Windows VirtualProtect API
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: Windows VirtualProtect API
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: VirtualProtect
 
   - id: virtualprotectex-win
-    description: Windows VirtualProtectEx API
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: Windows VirtualProtectEx API
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: VirtualProtectEx
 
   - id: prot-write
-    description: PROT_WRITE memory protection constant
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: PROT_WRITE memory protection constant
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: '\bPROT_WRITE\b'
 
   - id: prot-exec
-    description: PROT_EXEC memory protection constant
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: PROT_EXEC memory protection constant
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: '\bPROT_EXEC\b'
 
   - id: page-rwx
-    description: PAGE_EXECUTE_READWRITE constant
-    criticality: notable
-    confidence: 0.8
-    condition:
+    desc: PAGE_EXECUTE_READWRITE constant
+    crit: notable
+    conf: 0.8
+    if:
       type: string
       exact: PAGE_EXECUTE_READWRITE
 
   # === Self-overwriting (atomic) ===
   - id: proc-self-mem
-    description: /proc/self/mem access for self-modification
-    criticality: suspicious
-    confidence: 0.85
-    condition:
+    desc: /proc/self/mem access for self-modification
+    crit: suspicious
+    conf: 0.85
+    if:
       type: string
       exact: /proc/self/mem
 
   - id: proc-self-maps
-    description: /proc/self/maps memory map access
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: /proc/self/maps memory map access
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: /proc/self/maps
 
   - id: writeprocessmemory
-    description: Windows WriteProcessMemory API
-    criticality: notable
-    confidence: 0.7
-    condition:
+    desc: Windows WriteProcessMemory API
+    crit: notable
+    conf: 0.7
+    if:
       type: string
       exact: WriteProcessMemory
 
   - id: self-patch-ref
-    description: Self-patch terminology
-    criticality: suspicious
-    confidence: 0.85
-    condition:
+    desc: Self-patch terminology
+    crit: suspicious
+    conf: 0.85
+    if:
       type: string
       exact: "self-patch"
       case_insensitive: true
 
   # === Code cave (atomic) ===
   - id: codecave-ref
-    description: Code cave terminology
-    criticality: suspicious
-    confidence: 0.8
-    condition:
+    desc: Code cave terminology
+    crit: suspicious
+    conf: 0.8
+    if:
       type: string
       regex: '\bcodecave\b|code cave'
       case_insensitive: true
 
   - id: slack-space-ref
-    description: Slack space terminology
-    criticality: suspicious
-    confidence: 0.75
-    condition:
+    desc: Slack space terminology
+    crit: suspicious
+    conf: 0.75
+    if:
       type: string
       exact: "slack space"
       case_insensitive: true
 
   - id: nop-sled
-    description: NOP sled byte sequence
-    criticality: suspicious
-    confidence: 0.7
-    condition:
+    desc: NOP sled byte sequence
+    crit: suspicious
+    conf: 0.7
+    if:
       type: hex
       pattern: "90 90 90 90 90 90 90 90"
 
   # === Hook installation (atomic) ===
   - id: setwindowshook
-    description: Windows SetWindowsHookEx API
-    criticality: notable
-    confidence: 0.7
-    condition:
+    desc: Windows SetWindowsHookEx API
+    crit: notable
+    conf: 0.7
+    if:
       type: string
       exact: SetWindowsHookEx
 
   - id: inline-hook-ref
-    description: Inline hook terminology
-    criticality: suspicious
-    confidence: 0.8
-    condition:
+    desc: Inline hook terminology
+    crit: suspicious
+    conf: 0.8
+    if:
       type: string
       exact: "inline hook"
       case_insensitive: true
 
   - id: detour-ref
-    description: Detour/hooking terminology
-    criticality: notable
-    confidence: 0.6
-    condition:
+    desc: Detour/hooking terminology
+    crit: notable
+    conf: 0.6
+    if:
       type: string
       exact: detour
       case_insensitive: true
 
   - id: trampoline-ref
-    description: Trampoline hook terminology
-    criticality: notable
-    confidence: 0.6
-    condition:
+    desc: Trampoline hook terminology
+    crit: notable
+    conf: 0.6
+    if:
       type: string
       exact: trampoline
       case_insensitive: true
 
   - id: ld-preload
-    description: LD_PRELOAD library injection
-    criticality: notable
-    confidence: 0.7
-    condition:
+    desc: LD_PRELOAD library injection
+    crit: notable
+    conf: 0.7
+    if:
       type: string
       regex: '\bLD_PRELOAD\b'
 
   - id: dyld-insert
-    description: macOS DYLD_INSERT_LIBRARIES injection
-    criticality: notable
-    confidence: 0.7
-    condition:
+    desc: macOS DYLD_INSERT_LIBRARIES injection
+    crit: notable
+    conf: 0.7
+    if:
       type: string
       regex: '\bDYLD_INSERT_LIBRARIES\b'
 
   # === IAT/GOT hooking (atomic) ===
   - id: import-descriptor
-    description: PE IMAGE_IMPORT_DESCRIPTOR structure
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: PE IMAGE_IMPORT_DESCRIPTOR structure
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: IMAGE_IMPORT_DESCRIPTOR
 
   - id: import-address-table
-    description: Import Address Table reference
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: Import Address Table reference
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: ImportAddressTable
 
   - id: iat-ref
-    description: IAT abbreviation reference
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: IAT abbreviation reference
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       regex: '\bIAT\b'
 
   - id: got-plt-section
-    description: ELF .got.plt section reference
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: ELF .got.plt section reference
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: .got.plt
 
   - id: got-ref
-    description: GOT abbreviation reference
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: GOT abbreviation reference
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       regex: '\bGOT\b'
 
   # === Polymorphic/metamorphic (atomic) ===
   - id: polymorphic-ref
-    description: Polymorphic code terminology
-    criticality: suspicious
-    confidence: 0.8
-    condition:
+    desc: Polymorphic code terminology
+    crit: suspicious
+    conf: 0.8
+    if:
       type: string
       exact: polymorphic
       case_insensitive: true
 
   - id: metamorphic-ref
-    description: Metamorphic code terminology
-    criticality: suspicious
-    confidence: 0.8
-    condition:
+    desc: Metamorphic code terminology
+    crit: suspicious
+    conf: 0.8
+    if:
       type: string
       exact: metamorphic
       case_insensitive: true
 
   - id: self-modifying-ref
-    description: Self-modifying code terminology
-    criticality: suspicious
-    confidence: 0.8
-    condition:
+    desc: Self-modifying code terminology
+    crit: suspicious
+    conf: 0.8
+    if:
       type: string
       exact: "self-modifying"
       case_insensitive: true
 
   - id: xor-loop-pattern
-    description: XOR decryption loop byte pattern
-    criticality: suspicious
-    confidence: 0.7
-    condition:
+    desc: XOR decryption loop byte pattern
+    crit: suspicious
+    conf: 0.7
+    if:
       type: hex
       pattern: "30 ?? 4? 83 ?? ?? 7?"
 
 composite_rules:
   # Memory protection changes
   - id: mprotect
-    description: Memory protection modification (mprotect/VirtualProtect)
-    criticality: notable
-    confidence: 0.85
-    requires_count: 1
-    conditions:
+    desc: Memory protection modification (mprotect/VirtualProtect)
+    crit: notable
+    conf: 0.85
+    count: 1
+    any:
       - id: mprotect-unix
       - id: virtualprotect-win
       - id: virtualprotectex-win
@@ -262,36 +262,33 @@ composite_rules:
 
   # Self-overwriting code
   - id: self-overwrite
-    description: Self-overwriting code patterns
-    criticality: suspicious
-    confidence: 0.8
-    requires_any:
-      - id: proc-self-mem
-    requires_all:
+    desc: Self-overwriting code patterns
+    crit: suspicious
+    conf: 0.8
+    count: 1
+  # Code cave injection
+    any:
       - id: proc-self-maps
-    requires_count: 1
-    conditions:
+      - id: proc-self-mem
       - id: writeprocessmemory
       - id: self-patch-ref
-
-  # Code cave injection
   - id: code-cave
-    description: Code cave or slack space usage
-    criticality: suspicious
-    confidence: 0.75
-    requires_count: 1
-    conditions:
+    desc: Code cave or slack space usage
+    crit: suspicious
+    conf: 0.75
+    count: 1
+    any:
       - id: codecave-ref
       - id: slack-space-ref
       - id: nop-sled
 
   # Hook installation
   - id: hook-install
-    description: Dynamic interposition hook patterns
-    criticality: notable
-    confidence: 0.7
-    requires_count: 1
-    conditions:
+    desc: Dynamic interposition hook patterns
+    crit: notable
+    conf: 0.7
+    count: 1
+    any:
       - id: setwindowshook
       - id: inline-hook-ref
       - id: detour-ref
@@ -301,11 +298,11 @@ composite_rules:
 
   # IAT/GOT hooking
   - id: iat-hook
-    description: Import Address Table hooking
-    criticality: suspicious
-    confidence: 0.85
-    requires_count: 1
-    conditions:
+    desc: Import Address Table hooking
+    crit: suspicious
+    conf: 0.85
+    count: 1
+    any:
       - id: import-descriptor
       - id: import-address-table
       - id: iat-ref
@@ -314,11 +311,11 @@ composite_rules:
 
   # Polymorphic/metamorphic indicators
   - id: polymorphic
-    description: Polymorphic or metamorphic code indicators
-    criticality: suspicious
-    confidence: 0.75
-    requires_count: 1
-    conditions:
+    desc: Polymorphic or metamorphic code indicators
+    crit: suspicious
+    conf: 0.75
+    count: 1
+    any:
       - id: polymorphic-ref
       - id: metamorphic-ref
       - id: self-modifying-ref
@@ -326,11 +323,11 @@ composite_rules:
 
   # Active self-modification
   - id: active
-    description: Active self-modification behavior
-    criticality: notable
-    confidence: 0.9
-    requires_all:
+    desc: Active self-modification behavior
+    crit: notable
+    conf: 0.9
+    all:
       - id: anti-analysis/self-modify/mprotect
-    requires_any:
+    any:
       - id: anti-analysis/self-modify/self-overwrite
       - id: anti-analysis/self-modify/hook-install

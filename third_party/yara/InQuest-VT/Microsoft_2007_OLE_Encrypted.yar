@@ -16,6 +16,6 @@ rule Microsoft_2007_OLE_Encrypted
         $enc_marker1    = "EncryptedPackage" nocase ascii wide
         $enc_marker2    = "StrongEncryptionDataSpace" nocase ascii wide
         $enc_marker3    = "<encryption xmlns="
-	condition:
+	if:
 			$ole_marker at 0 and all of ($enc_marker*)
 }

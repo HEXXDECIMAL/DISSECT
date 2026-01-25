@@ -4,8 +4,8 @@
 traits:
   - id: dropper/js-decrypt-eval
     description: Decrypts a hardcoded payload and executes it via eval
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     mbc: "C0025"
     attack: "T1027"
     file_types: [javascript, typescript]
@@ -37,8 +37,8 @@ traits:
 
   - id: dropper/js-staged-generator
     description: Uses a generator function to staged-evaluate code (obfuscation)
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     file_types: [javascript, typescript]
     condition:
       type: string

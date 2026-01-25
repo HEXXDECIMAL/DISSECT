@@ -11,7 +11,7 @@ rule tick_xxmm_parts {
         $sa = "IsLogAllAccess"
         $sb = "allaccess.log"
 
-      condition:
+      if:
         ($pdb1 or $pdb2 or $pdb3 or all of ($s*)) and uint16(0) == 0x5A4D and
         uint32(uint32(0x3c)) == 0x00004550
 }
@@ -28,7 +28,7 @@ rule tick_xxmm_strings {
         $v2 = "loaderParameter:"
         $v3 = "parameter:"
 
-      condition:
+      if:
         all of them
 }
 
@@ -48,7 +48,7 @@ rule tick_Datper {
         $push7530h64 = { C7 C1 30 75 00 00 }
         $push7530h = { 68 30 75 00 00 }
 
-      condition:
+      if:
         $a1 and $b1 and $c1 and $delphi and ($push7530h64 or $push7530h)
 }
 
@@ -65,7 +65,7 @@ rule tick_daserf_mmid {
         $ccaacmds = "ccaacmds"
         $php = ".php"
 
-      condition:
+      if:
         $ua and $delphi and #php > 3 and $mmid and $ccaacmds
 }
 
@@ -80,7 +80,7 @@ rule tick_daserf_1_5_mini {
       $version = "n:1.5"
       $mini = "Mini"
 
-    condition:
+    if:
     	all of them
 }
 
@@ -96,7 +96,7 @@ rule tick_daserf_1_5_not_mini {
       $s3 = ".asp"
       $s4 = "DRIVE_" wide
 
-    condition:
+    if:
     	all of them
 }
 
@@ -109,7 +109,7 @@ rule tick_Gofarer_ua {
 	  strings:
         $ua = "Mozilla/4.0+(compatible;+MSIE+8.0;+Windows+NT+6.1;+Trident/4.0;+SLCC2;+.NET+CLR+2.0.50727;+.NET4.0E)"
 
-    condition:
+    if:
         all of them
 }
 
@@ -127,7 +127,7 @@ rule tick_xxmm_panel {
         $sf = "sss_"
         $sg = "|||"
 
-    condition:
+    if:
     	all of them
 }
 
@@ -141,7 +141,7 @@ rule tick_SKYSEA_downloader {
       	$sa = "c:\\Projects\\vs2013\\phc-tools\\Release\\loader.pdb"
         $sb = "%s\\config\\.regeditKey.rc"
 
-      condition:
+      if:
       	all of them
 }
 
@@ -158,7 +158,7 @@ rule tick_Datper_RSAtype {
          $push7530h64 = { C7 C1 30 75 00 00 }
          $push7530h = { 68 30 75 00 00 }
 
-      condition:
+      if:
         $a1 and $b1 and $c1 and $d1 and ($push7530h64 or $push7530h)
 }
 
@@ -173,7 +173,7 @@ rule tick_app_js {
         $sb = "/tools/uninstaller.sh"
         $sc = "./npm stop"
 
-      condition:
+      if:
       	all of them
 }
 
@@ -186,7 +186,7 @@ rule tick_app_js {
 //        hash1 = "c2e87e5c0ed40806949628ab7d66caaf4be06cab997b78a46f096e53a6f49ffc"
 //        hash2 = "4149da63e78c47fd7f2d49d210f9230b94bf7935699a47e26e5d99836b9fdd11"
 
-//      condition:
+//      if:
 //        cuckoo.sync.mutex(/d4fy3ykdk2ddssr/) or
 //        cuckoo.sync.mutex(/gyusbaihysezhrj/) or
 //        cuckoo.sync.mutex(/edc1icnmfgj9UJ\(1G63K/)
@@ -203,7 +203,7 @@ rule tick_DALBOTDRPR_strings {
         $mac = "%.2x%.2x%.2x%.2x%.2x%.2x"
         $aacmd = "AAAAA"
 
-      condition:
+      if:
         $pdb or ($comment and $mac and $aacmd)
 }
 
@@ -218,7 +218,7 @@ rule tick_DALBOT_strings {
         $message = "CreatePipe(cmd) failed!!!"
         $url = "&uc=go"
 
-      condition:
+      if:
         $pdb or ($message and $url)
 }
 
@@ -236,7 +236,7 @@ rule tick_ABK_pdb {
         $pdb4 = "C:\\Users\\Frank\\Documents\\Visual Studio 2010\\Projects\\avenger\\Release\\avenger.pdb"
         $pdb5 = "C:\\Users\\Frank\\Desktop\\ABK\\Release\\ABK.pdb"
 
-      condition:
+      if:
 //        ($pdb1 or $pdb2 or $pdb3 or $pdb4 or $pdb5) and uint16(0) == 0x5A4D
         ($pdb3 or $pdb4 or $pdb5) and uint16(0) == 0x5A4D
 }
@@ -251,7 +251,7 @@ rule tick_ABK_downloader {
         $a1 = "PccNT.exe" wide
         $bytecode = {	50 63 63 00 4e 54 2e 00 65 78 65 00 }
 
-      condition:
+      if:
         (uint16(0) == 0x5A4D) and
         (filesize>10MB) and
         ((any of ($a1)) or $bytecode)
@@ -268,7 +268,7 @@ rule tick_ABK_downloader_susp_ua {
       strings:
         $UA= "Mozilla/4.0(compatible;MSIE8.0;WindowsNT6.0;Trident/4.0)"
 
-      condition:
+      if:
         (uint16(0) == 0x5A4D) and
         (filesize<50MB) and
         $UA
@@ -282,7 +282,7 @@ rule tick_ABK_downloader_susp_ua {
 //        hash2 = "32dbfc069a6871b2f6cc54484c86b21e2f13956e3666d08077afa97d410185d2"
 //        hash3 = "d1307937bd2397d92bb200b29eeaace562b10474ff19f0013335e37a80265be6"
 
-//      condition:
+//      if:
 //        (uint16(0) == 0x5A4D) and
 //        (filesize<50MB) and
 //        (cuckoo.sync.mutex(/PPGword/) or cuckoo.sync.mutex(/CQFB/))
@@ -318,6 +318,6 @@ rule malware_gokcpdoor_golang {
         $gofile4 = "exec_lin.go" ascii wide
         $gofile5 = "gokcpdoor[0-9]" ascii wide
 
-     condition:
+     if:
         6 of ($gofunc*) or 5 of ($log*) or all of ($str*) or all of ($gofile*)
 }

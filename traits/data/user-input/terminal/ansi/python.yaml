@@ -3,42 +3,42 @@
 # These are benign terminal output formatting mechanisms
 
 defaults:
-  file_types: [python]
-  criticality: inert
+  for: [python]
+  crit: inert
 
 traits:
   # ANSI escape code usage
   - id: escape-codes
-    description: "ANSI terminal escape codes"
-    confidence: 0.8
-    condition:
+    desc: "ANSI terminal escape codes"
+    conf: 0.8
+    if:
       type: string
       regex: "\\\\x1b\\[|\\\\033\\[|\\\\e\\["
       search_raw: true
 
   # colorama library
   - id: colorama
-    description: "Terminal color library (colorama)"
-    confidence: 0.9
-    condition:
+    desc: "Terminal color library (colorama)"
+    conf: 0.9
+    if:
       type: string
       regex: "colorama|from\\s+\\.ansi\\s+import|Fore,\\s*Back,\\s*Style"
       search_raw: true
 
   # Terminal color classes
   - id: color-classes
-    description: "Terminal color/style classes"
-    confidence: 0.85
-    condition:
+    desc: "Terminal color/style classes"
+    conf: 0.85
+    if:
       type: string
       regex: "\\bFore\\b|\\bBack\\b|\\bStyle\\b|\\bCursor\\b"
       search_raw: true
 
   # Windows console handling
   - id: windows-console
-    description: "Windows console color compatibility"
-    confidence: 0.8
-    condition:
+    desc: "Windows console color compatibility"
+    conf: 0.8
+    if:
       type: string
       regex: "AnsiToWin32|just_fix_windows_console|colorama_text"
       search_raw: true

@@ -5,7 +5,7 @@ traits:
   # Bash persistence
   - id: bash-profile
     description: Accesses .bash_profile for shell persistence
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.7
     attack: "T1546.004"
     file_types: [all]
@@ -15,7 +15,7 @@ traits:
 
   - id: bashrc
     description: Accesses .bashrc for shell persistence
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.7
     attack: "T1546.004"
     file_types: [all]
@@ -25,7 +25,7 @@ traits:
 
   - id: bash-login
     description: Accesses .bash_login for shell persistence
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.75
     attack: "T1546.004"
     file_types: [all]
@@ -35,7 +35,7 @@ traits:
 
   - id: bash-logout
     description: Accesses .bash_logout for shell persistence
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     attack: "T1546.004"
     file_types: [all]
@@ -45,7 +45,7 @@ traits:
 
   - id: profile
     description: Accesses .profile for shell persistence
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.7
     attack: "T1546.004"
     file_types: [all]
@@ -56,7 +56,7 @@ traits:
 
   - id: etc-profile
     description: Accesses /etc/profile for system-wide shell persistence
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.75
     attack: "T1546.004"
     file_types: [all]
@@ -66,7 +66,7 @@ traits:
 
   - id: etc-bashrc
     description: Accesses /etc/bashrc for system-wide shell persistence
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.75
     attack: "T1546.004"
     file_types: [all]
@@ -77,7 +77,7 @@ traits:
   # Zsh persistence
   - id: zshrc
     description: Accesses .zshrc for shell persistence
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.7
     attack: "T1546.004"
     file_types: [all]
@@ -87,7 +87,7 @@ traits:
 
   - id: zprofile
     description: Accesses .zprofile for shell persistence
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.7
     attack: "T1546.004"
     file_types: [all]
@@ -97,7 +97,7 @@ traits:
 
   - id: zlogin
     description: Accesses .zlogin for shell persistence
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.75
     attack: "T1546.004"
     file_types: [all]
@@ -107,7 +107,7 @@ traits:
 
   - id: zlogout
     description: Accesses .zlogout for shell persistence
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     attack: "T1546.004"
     file_types: [all]
@@ -117,7 +117,7 @@ traits:
 
   - id: etc-zshrc
     description: Accesses /etc/zshrc for system-wide shell persistence
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.75
     attack: "T1546.004"
     file_types: [all]
@@ -128,7 +128,7 @@ traits:
   # Hardcoded paths (more suspicious)
   - id: hardcoded-profile
     description: Hardcoded path to .profile
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     attack: "T1546.004"
     file_types: [elf]
@@ -138,7 +138,7 @@ traits:
 
   - id: hardcoded-bashrc
     description: Hardcoded path to .bashrc
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     attack: "T1546.004"
     file_types: [elf]
@@ -149,7 +149,7 @@ traits:
   # Composite patterns (moved to traits due to single YARA condition)
   - id: multi-file-access
     description: Multiple shell config file access (persistence)
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     attack: "T1546.004"
     condition:
@@ -174,7 +174,7 @@ traits:
 
   - id: elf-hardcoded
     description: ELF binary with hardcoded shell config paths
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.95
     attack: "T1546.004"
     file_types: [elf]

@@ -2,113 +2,113 @@
 # Ruby command execution patterns
 traits:
   - id: ruby-system
-    description: "system() command execution"
-    criticality: suspicious
-    confidence: 0.95
+    desc: "system() command execution"
+    crit: suspicious
+    conf: 0.95
     platforms:
       - all
-    file_types:
+    for:
       - ruby
-    condition:
+    if:
       type: symbol_or_string
       any:
         - system(
     requires_all:
       - type: file_type
-        file_types: [ruby]
+        for: [ruby]
 
   - id: ruby-exec
-    description: "exec() replaces current process"
-    criticality: suspicious
-    confidence: 0.95
+    desc: "exec() replaces current process"
+    crit: suspicious
+    conf: 0.95
     platforms:
       - all
-    file_types:
+    for:
       - ruby
-    condition:
+    if:
       type: symbol_or_string
       any:
         - exec(
         - exec
 
   - id: ruby-spawn
-    description: "spawn() creates new process"
-    criticality: notable
-    confidence: 0.90
+    desc: "spawn() creates new process"
+    crit: notable
+    conf: 0.90
     platforms:
       - all
-    file_types:
+    for:
       - ruby
-    condition:
+    if:
       type: symbol_or_string
       any:
         - spawn(
         - spawn
 
   - id: ruby-popen
-    description: "popen pipes to/from command"
-    criticality: notable
-    confidence: 0.92
+    desc: "popen pipes to/from command"
+    crit: notable
+    conf: 0.92
     platforms:
       - all
-    file_types:
+    for:
       - ruby
-    condition:
+    if:
       type: symbol_or_string
       any:
         - IO.popen
         - popen
 
   - id: ruby-backtick
-    description: "Backtick command execution"
-    criticality: notable
-    confidence: 0.93
+    desc: "Backtick command execution"
+    crit: notable
+    conf: 0.93
     platforms:
       - all
-    file_types:
+    for:
       - ruby
-    condition:
+    if:
       type: symbol_or_string
       any:
         - "`"
         - "%x"
 
   - id: ruby-eval
-    description: "eval() dynamic code execution"
-    criticality: notable
-    confidence: 0.90
+    desc: "eval() dynamic code execution"
+    crit: notable
+    conf: 0.90
     platforms:
       - all
-    file_types:
+    for:
       - ruby
-    condition:
+    if:
       type: symbol_or_string
       any:
         - eval(
         - eval
 
   - id: ruby-instance-eval
-    description: "instance_eval dynamic execution"
-    criticality: notable
-    confidence: 0.93
+    desc: "instance_eval dynamic execution"
+    crit: notable
+    conf: 0.93
     platforms:
       - all
-    file_types:
+    for:
       - ruby
-    condition:
+    if:
       type: symbol_or_string
       any:
         - instance_eval
 
   - id: ruby-class-eval
-    description: "class/module_eval dynamic execution"
-    criticality: notable
-    confidence: 0.93
+    desc: "class/module_eval dynamic execution"
+    crit: notable
+    conf: 0.93
     platforms:
       - all
-    file_types:
+    for:
       - ruby
-    condition:
+    if:
       type: symbol_or_string
       any:
         - class_eval

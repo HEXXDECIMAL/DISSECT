@@ -9,8 +9,8 @@ traits:
 
   - id: backdoor/rustdoor/ziptask
     description: Rustdoor ziptask dialog
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     family: true
     attack: "T1059"
     file_types: [macho]
@@ -20,8 +20,8 @@ traits:
 
   - id: backdoor/rustdoor/upload-files
     description: Rustdoor file upload function
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     family: true
     attack: "T1041"
     file_types: [macho]
@@ -31,8 +31,8 @@ traits:
 
   - id: backdoor/rustdoor/launch-agents
     description: Rustdoor LaunchAgents persistence
-    criticality: suspicious
-    confidence: 0.8
+    crit: suspicious
+    conf: 0.8
     family: true
     attack: "T1543.001"
     file_types: [macho]
@@ -46,8 +46,8 @@ traits:
 
   - id: backdoor/rustdoor/cfg-check-cron
     description: Rustdoor v2 cron check config
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     family: true
     attack: "T1053.003"
     file_types: [macho]
@@ -57,8 +57,8 @@ traits:
 
   - id: backdoor/rustdoor/cfg-lock-cron
     description: Rustdoor v2 cron lock config
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     family: true
     attack: "T1053.003"
     file_types: [macho]
@@ -68,8 +68,8 @@ traits:
 
   - id: backdoor/rustdoor/cfg-lock-dock
     description: Rustdoor v2 dock lock config
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     family: true
     attack: "T1543.001"
     file_types: [macho]
@@ -79,8 +79,8 @@ traits:
 
   - id: backdoor/rustdoor/cfg-lock-launch
     description: Rustdoor v2 launch lock config
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     family: true
     attack: "T1543.001"
     file_types: [macho]
@@ -90,8 +90,8 @@ traits:
 
   - id: backdoor/rustdoor/cfg-copy-files
     description: Rustdoor v2 file copy config
-    criticality: suspicious
-    confidence: 0.5
+    crit: suspicious
+    conf: 0.5
     family: true
     attack: "T1105"
     file_types: [macho]
@@ -103,8 +103,8 @@ composite_rules:
   # Rustdoor v1 detection
   - id: backdoor/rustdoor/v1-detected
     description: Rustdoor macOS backdoor v1
-    criticality: hostile
-    confidence: 0.95
+    crit: hostile
+    conf: 0.95
     family: true
     reference: "https://medium.com/s2wblog/rustdoor-and-gatedoor-a-new-pair-of-weapons-disguised-as-legitimate-software-by-suspected-34c94e558b40"
     attack: "T1059"
@@ -119,14 +119,14 @@ composite_rules:
   # Rustdoor v2 detection
   - id: backdoor/rustdoor/v2-detected
     description: Rustdoor macOS backdoor v2
-    criticality: hostile
-    confidence: 0.95
+    crit: hostile
+    conf: 0.95
     family: true
     attack: "T1059"
     mbc: "B0022"
     file_types: [macho]
     requires_count: 4
-    conditions:
+    any:
       - id: backdoor/rustdoor/cfg-check-cron
       - id: backdoor/rustdoor/cfg-lock-cron
       - id: backdoor/rustdoor/cfg-lock-dock

@@ -5,8 +5,8 @@
 traits:
   - id: directory-python
     description: Look up temp directory via tempfile.gettempdir
-    criticality: inert
-    confidence: 0.66
-    condition:
+    crit: inert
+    conf: 0.66
+    if:
       type: string
       exact: gettempdir

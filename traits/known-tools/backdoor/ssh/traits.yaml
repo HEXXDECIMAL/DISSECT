@@ -8,8 +8,8 @@ traits:
   # SSH backdoor generic
   - id: backdoor/ssh/generic
     description: SSH backdoor patterns
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     attack: "T1556.004"
     condition:
       type: yara
@@ -35,8 +35,8 @@ traits:
   # SSH key injection
   - id: backdoor/ssh/key-inject
     description: SSH authorized_keys injection
-    criticality: suspicious
-    confidence: 0.8
+    crit: suspicious
+    conf: 0.8
     attack: "T1098.004"
     condition:
       type: yara
@@ -61,8 +61,8 @@ traits:
   # SSH credential logging
   - id: backdoor/ssh/cred-log
     description: SSH credential logging backdoor
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     attack: "T1556.004"
     condition:
       type: yara
@@ -88,8 +88,8 @@ traits:
   # PAM-based SSH backdoor
   - id: backdoor/ssh/pam
     description: PAM-based SSH authentication backdoor
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     attack: "T1556.003"
     condition:
       type: yara

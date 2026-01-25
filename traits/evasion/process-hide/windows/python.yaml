@@ -3,84 +3,84 @@
 # ATT&CK: T1564.003 (Hide Artifacts: Hidden Window)
 
 defaults:
-  file_types: [python]
+  for: [python]
   mbc: "F0005"
   attack: "T1564.003"
-  criticality: suspicious
+  crit: suspicious
   platforms: [windows]
 
 traits:
   # CREATE_NO_WINDOW flag - hides console window
   - id: create-no-window
-    description: "Process creation with hidden window (CREATE_NO_WINDOW)"
-    confidence: 0.9
-    condition:
+    desc: "Process creation with hidden window (CREATE_NO_WINDOW)"
+    conf: 0.9
+    if:
       type: string
       regex: "CREATE_NO_WINDOW"
 
   # CREATE_NEW_PROCESS_GROUP - detaches from parent
   - id: create-new-process-group
-    description: "Process creation detached from parent (CREATE_NEW_PROCESS_GROUP)"
-    confidence: 0.8
-    condition:
+    desc: "Process creation detached from parent (CREATE_NEW_PROCESS_GROUP)"
+    conf: 0.8
+    if:
       type: string
       regex: "CREATE_NEW_PROCESS_GROUP"
 
   # DETACHED_PROCESS - runs without console
   - id: detached-process
-    description: "Detached process creation (DETACHED_PROCESS)"
-    confidence: 0.85
-    condition:
+    desc: "Detached process creation (DETACHED_PROCESS)"
+    conf: 0.85
+    if:
       type: string
       regex: "DETACHED_PROCESS"
 
   # SW_HIDE - hidden window via startupinfo
   - id: sw-hide
-    description: "Hidden window via STARTUPINFO (SW_HIDE)"
-    confidence: 0.9
-    condition:
+    desc: "Hidden window via STARTUPINFO (SW_HIDE)"
+    conf: 0.9
+    if:
       type: string
       regex: "SW_HIDE"
 
   # creationflags parameter in subprocess
   - id: creationflags
-    description: "Process creation with custom flags"
-    confidence: 0.75
-    criticality: notable
-    condition:
+    desc: "Process creation with custom flags"
+    conf: 0.75
+    crit: notable
+    if:
       type: string
       regex: "creationflags\\s*="
 
   # === subprocess call atomic indicators ===
   - id: subprocess-popen
-    description: subprocess.Popen call
-    confidence: 0.6
-    criticality: inert
-    condition:
+    desc: subprocess.Popen call
+    conf: 0.6
+    crit: inert
+    if:
       type: string
       exact: "subprocess.Popen("
 
   - id: subprocess-run
-    description: subprocess.run call
-    confidence: 0.6
-    criticality: inert
-    condition:
+    desc: subprocess.run call
+    conf: 0.6
+    crit: inert
+    if:
       type: string
       exact: "subprocess.run("
 
   - id: subprocess-call-fn
-    description: subprocess.call call
-    confidence: 0.6
-    criticality: inert
-    condition:
+    desc: subprocess.call call
+    conf: 0.6
+    crit: inert
+    if:
       type: string
       exact: "subprocess.call("
 
   # Combined creation flags with bitwise OR
   - id: combined-creationflags
-    description: "Multiple process creation flags combined with bitwise OR"
-    confidence: 0.9
-    condition:
+    desc: "Multiple process creation flags combined with bitwise OR"
+    conf: 0.9
+    if:
       type: string
       # Matches: creationflags=FLAG1 | FLAG2
       regex: "creationflags\\s*=\\s*[^,)]+\\|"
@@ -88,36 +88,36 @@ traits:
 composite_rules:
   # subprocess call composite
   - id: subprocess-call
-    description: "Subprocess module process creation call"
-    confidence: 0.7
-    criticality: notable
+    desc: "Subprocess module process creation call"
+    conf: 0.7
+    crit: notable
     requires_count: 1
-    conditions:
+    any:
       - id: subprocess-popen
       - id: subprocess-run
       - id: subprocess-call-fn
 
   # hidden window flag composite
   - id: hidden-window-flag
-    description: "Hidden or detached process window flag"
-    confidence: 0.85
+    desc: "Hidden or detached process window flag"
+    conf: 0.85
     requires_count: 1
-    conditions:
+    any:
       - id: create-no-window
       - id: detached-process
 
   # Combined: CREATE_NO_WINDOW + CREATE_NEW_PROCESS_GROUP
   - id: stealth-subprocess
-    description: "Stealthy subprocess creation (hidden + detached)"
-    confidence: 0.95
-    criticality: suspicious
+    desc: "Stealthy subprocess creation (hidden + detached)"
+    conf: 0.95
+    crit: suspicious
     requires_all:
       - id: subprocess-call
       - id: hidden-window-flag
 
   # creationflags with bitwise OR - combining multiple flags
   - id: combined-flags
-    description: "Multiple process creation flags combined"
-    confidence: 0.9
+    desc: "Multiple process creation flags combined"
+    conf: 0.9
     requires_all:
       - id: combined-creationflags

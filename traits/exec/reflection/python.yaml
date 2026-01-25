@@ -3,31 +3,31 @@
 
 traits:
   - id: dynamic-import
-    description: "Dynamic module import via __import__"
-    criticality: suspicious
-    confidence: 0.8
-    file_types: [python]
-    condition:
+    desc: "Dynamic module import via __import__"
+    crit: suspicious
+    conf: 0.8
+    for: [python]
+    if:
       type: string
       regex: "__import__("
 
   - id: getattr-module
-    description: "Dynamic attribute access on modules (potential shadowing)"
-    criticality: suspicious
-    confidence: 0.7
-    file_types: [python]
-    condition:
+    desc: "Dynamic attribute access on modules (potential shadowing)"
+    crit: suspicious
+    conf: 0.7
+    for: [python]
+    if:
       type: string
       regex: "getattr(.*? ,.*?)"
 
 composite_rules:
   - id: obfuscated-import
-    description: "Obfuscated module import (Dynamic Import + Encoding)"
-    criticality: suspicious
-    confidence: 0.95
+    desc: "Obfuscated module import (Dynamic Import + Encoding)"
+    crit: suspicious
+    conf: 0.95
     attack: "T1027"
     mbc: "F0001"
-    file_types: [python]
+    for: [python]
     requires_all:
       - id: exec/reflection/dynamic-import
       - id: anti-static/obfuscation/strings/python-hex

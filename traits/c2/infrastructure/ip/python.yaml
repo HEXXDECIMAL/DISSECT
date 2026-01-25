@@ -3,66 +3,66 @@
 # ATT&CK: T1071.001
 
 defaults:
-  file_types: [python]
+  for: [python]
   mbc: "C0002"
   attack: "T1071.001"
-  criticality: suspicious
+  crit: suspicious
 
 traits:
   # Match IP assigned to a variable: host = "1.2.3.4" or ip = '10.0.0.1'
   - id: python-assigned-ipv4
-    description: "Hardcoded IPv4 address assigned to variable"
-    confidence: 0.9
-    condition:
+    desc: "Hardcoded IPv4 address assigned to variable"
+    conf: 0.9
+    if:
       type: string
       # Matches: var = "IP" or var = 'IP' with optional quotes
       regex: "\\w+\\s*=\\s*[\"'](?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])[\"']"
 
   # Match IP in f-string URL construction: f"http://{host}" or f'http://{ip}:1234'
   - id: python-fstring-url
-    description: "URL constructed with f-string variable interpolation"
-    confidence: 0.85
-    condition:
+    desc: "URL constructed with f-string variable interpolation"
+    conf: 0.85
+    if:
       type: string
       regex: "f[\"']https?://\\{\\w+\\}"
 
   # Match requests.get/post with IP-based URL
   - id: python-requests-ip-url
-    description: "HTTP request to IP-based URL"
-    confidence: 0.9
-    condition:
+    desc: "HTTP request to IP-based URL"
+    conf: 0.9
+    if:
       type: string
       regex: "requests\\.(get|post)\\([^)]*https?://(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.){3}"
 
   # Match urllib with IP-based URL
   - id: python-urllib-ip-url
-    description: "urllib request to IP-based URL"
-    confidence: 0.9
-    condition:
+    desc: "urllib request to IP-based URL"
+    conf: 0.9
+    if:
       type: string
       regex: "urlopen\\([^)]*https?://(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.){3}"
 
   # Match URL construction pattern: f-string with host and port
   - id: python-fstring-url-with-port
-    description: "f-string URL construction with host variable and port"
-    confidence: 0.85
-    condition:
+    desc: "f-string URL construction with host variable and port"
+    conf: 0.85
+    if:
       type: string
       regex: "f[\"']https?://\\{\\w+\\}:\\d+"
 
   # Match URL construction pattern: string concatenation with host
   - id: python-string-concat-url
-    description: "URL constructed via string concatenation with host variable"
-    confidence: 0.85
-    condition:
+    desc: "URL constructed via string concatenation with host variable"
+    conf: 0.85
+    if:
       type: string
       regex: "[\"']https?://[\"']\\s*\\+\\s*\\w+"
 
 composite_rules:
   # Match URL construction pattern: host + port concatenation
   - id: python-url-construction
-    description: "C2 URL constructed from host variable"
-    confidence: 0.85
-    requires_any:
+    desc: "C2 URL constructed from host variable"
+    conf: 0.85
+    any:
       - id: python-fstring-url-with-port
       - id: python-string-concat-url

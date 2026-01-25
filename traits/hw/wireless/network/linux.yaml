@@ -4,18 +4,18 @@
 traits:
   - id: wpa-supplicant
     description: WPA supplicant wireless access
-    criticality: notable
-    confidence: 0.6
+    crit: notable
+    conf: 0.6
     platforms: [linux]
-    condition:
+    if:
       type: string
       exact: "wpa_supplicant"
 
   - id: wps-supplicant
     description: WPS supplicant wireless access
-    criticality: notable
-    confidence: 0.6
+    crit: notable
+    conf: 0.6
     platforms: [linux]
-    condition:
+    if:
       type: string
       exact: "wps_supplicant"

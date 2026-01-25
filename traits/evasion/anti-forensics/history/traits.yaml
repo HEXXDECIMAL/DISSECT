@@ -5,12 +5,12 @@
 traits:
   # Bash history file clearing
   - id: histfile-null
-    description: Redirects shell history to /dev/null
-    criticality: suspicious
-    confidence: 0.9
+    desc: Redirects shell history to /dev/null
+    crit: suspicious
+    conf: 0.9
     mbc: "F0005"
     attack: "T1070.003"
-    condition:
+    if:
       type: yara
       source: |
         rule histfile_null {
@@ -26,12 +26,12 @@ traits:
 
   # MySQL history clearing
   - id: mysql-histfile-null
-    description: Clears MySQL command history
-    criticality: suspicious
-    confidence: 0.9
+    desc: Clears MySQL command history
+    crit: suspicious
+    conf: 0.9
     mbc: "F0005"
     attack: "T1070.003"
-    condition:
+    if:
       type: yara
       source: |
         rule mysql_histfile_null {
@@ -44,12 +44,12 @@ traits:
 
   # Prompt command clearing (prevents logging)
   - id: prompt-command-unset
-    description: Unsets PROMPT_COMMAND to evade logging
-    criticality: suspicious
-    confidence: 0.85
+    desc: Unsets PROMPT_COMMAND to evade logging
+    crit: suspicious
+    conf: 0.85
     mbc: "F0005"
     attack: "T1070.003"
-    condition:
+    if:
       type: yara
       source: |
         rule prompt_command_unset {
@@ -63,10 +63,10 @@ traits:
 
   # Terminal setup for backdoor shell
   - id: term-setup
-    description: Sets TERM variable (backdoor shell setup)
-    criticality: notable
-    confidence: 0.7
-    condition:
+    desc: Sets TERM variable (backdoor shell setup)
+    crit: notable
+    conf: 0.7
+    if:
       type: yara
       source: |
         rule term_setup {
@@ -81,14 +81,14 @@ traits:
 composite_rules:
   # BPFDoor-style anti-forensics setup
   - id: backdoor-shell-setup
-    description: Multiple anti-forensics techniques (backdoor indicator)
-    criticality: hostile
-    confidence: 0.95
+    desc: Multiple anti-forensics techniques (backdoor indicator)
+    crit: hostile
+    conf: 0.95
     attack: "T1070.003"
-    file_types: [shell, elf]
-    requires_any:
+    for: [shell, elf]
+    any:
       - id: evasion/anti-forensics/histfile-null
       - id: evasion/anti-forensics/mysql-histfile-null
       - id: evasion/anti-forensics/term-setup
-    requires_all:
+    all:
       - id: evasion/anti-forensics/prompt-command-unset

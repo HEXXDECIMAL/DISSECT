@@ -19,9 +19,9 @@ impl TraitDefinition {
             Some(Finding {
                 id: self.id.clone(),
                 kind: FindingKind::Capability,
-                description: self.description.clone(),
-                confidence: self.confidence,
-                criticality: self.criticality,
+                desc: self.description.clone(),
+                conf: self.conf,
+                crit: self.criticality,
                 mbc: self.mbc.clone(),
                 attack: self.attack.clone(),
                 trait_refs: vec![],

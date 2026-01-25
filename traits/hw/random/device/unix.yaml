@@ -3,9 +3,9 @@
 traits:
   - id: urandom
     description: Access /dev/urandom
-    criticality: inert
-    confidence: 1.0
+    crit: inert
+    conf: 1.0
     platforms: [linux, macos, unix]
-    condition:
+    if:
       type: string
       exact: "/dev/urandom"

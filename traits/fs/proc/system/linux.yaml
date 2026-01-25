@@ -5,32 +5,32 @@
 traits:
   - id: system-cpuinfo
     description: Get CPU info from /proc/cpuinfo
-    criticality: inert
-    confidence: 0.66
-    condition:
+    crit: inert
+    conf: 0.66
+    if:
       type: string
       exact: /proc/cpuinfo
 
   - id: system-meminfo
     description: Get memory info from /proc/meminfo
-    criticality: inert
-    confidence: 0.66
-    condition:
+    crit: inert
+    conf: 0.66
+    if:
       type: string
       exact: /proc/meminfo
 
   - id: system-stat
     description: Get system statistics from /proc/stat
-    criticality: inert
-    confidence: 0.66
-    condition:
+    crit: inert
+    conf: 0.66
+    if:
       type: string
       exact: /proc/stat
 
   - id: system-osrelease
     description: Get kernel version from /proc/sys/kernel/osrelease
-    criticality: inert
-    confidence: 0.66
-    condition:
+    crit: inert
+    conf: 0.66
+    if:
       type: string
       exact: /proc/sys/kernel/osrelease

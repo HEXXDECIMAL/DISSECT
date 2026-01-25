@@ -5,8 +5,8 @@
 traits:
   - id: backdoor/messagetap/global-code-tag
     description: MessageTap operation tag
-    criticality: suspicious
-    confidence: 0.99
+    crit: suspicious
+    conf: 0.99
     family: true
     attack: "T1040"
     file_types: [elf]
@@ -16,8 +16,8 @@ traits:
 
   - id: backdoor/messagetap/sms-intercept
     description: MessageTap SMS intercept log
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1040"
     file_types: [elf]
@@ -27,8 +27,8 @@ traits:
 
   - id: backdoor/messagetap/tcap-parse
     description: MessageTap TCAP dialogue parser
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1040"
     file_types: [elf]
@@ -39,8 +39,8 @@ traits:
 composite_rules:
   - id: backdoor/messagetap/detected
     description: MessageTap SMS interception malware
-    criticality: hostile
-    confidence: 0.99
+    crit: hostile
+    conf: 0.99
     family: true
     reference: "https://malpedia.caad.fkie.fraunhofer.de/details/elf.messagetap"
     attack: "T1040"

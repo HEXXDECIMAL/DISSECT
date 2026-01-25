@@ -3,16 +3,16 @@
 # ATT&CK: T1499.004 (Application or System Exploitation)
 
 defaults:
-  file_types: [python]
+  for: [python]
   attack: "T1499.004"
 
 traits:
   # os.fork() call - notable on its own, hostile in loop
   - id: os-fork
     description: Process forking via os.fork()
-    criticality: notable
-    confidence: 0.8
-    condition:
+    crit: notable
+    conf: 0.8
+    if:
       type: ast_pattern
       node_type: call
       pattern: "os.fork"
@@ -20,18 +20,18 @@ traits:
   # multiprocessing.Process - legitimate parallel processing
   - id: multiprocessing
     description: Multiprocessing for parallel execution
-    criticality: inert
-    confidence: 0.9
-    condition:
+    crit: inert
+    conf: 0.9
+    if:
       type: string
       regex: "multiprocessing\\.(Process|Pool)"
 
   # YARA detection for fork bomb pattern
   - id: yara-fork-bomb
     description: YARA detection for Python fork bomb pattern
-    criticality: suspicious
-    confidence: 0.98
-    condition:
+    crit: suspicious
+    conf: 0.98
+    if:
       type: yara
       source: |
         rule python_fork_bomb {
@@ -53,9 +53,9 @@ traits:
   # YARA detection for rapid forking without delay
   - id: yara-rapid-fork
     description: YARA detection for rapid forking without sleep/delay
-    criticality: suspicious
-    confidence: 0.85
-    condition:
+    crit: suspicious
+    conf: 0.85
+    if:
       type: yara
       source: |
         rule python_rapid_fork {
@@ -81,8 +81,8 @@ composite_rules:
   # Fork bomb: os.fork() inside while True loop
   - id: infinite-fork
     description: Fork bomb - infinite process forking (DoS)
-    criticality: suspicious
-    confidence: 0.98
+    crit: suspicious
+    conf: 0.98
     attack: "T1499.004"
     mbc: "B0033"
     requires_all:
@@ -91,8 +91,8 @@ composite_rules:
   # Fork without rate limiting in tight loop (suspicious)
   - id: rapid-fork
     description: Rapid process forking without delay
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     attack: "T1499.004"
     requires_all:
       - id: yara-rapid-fork

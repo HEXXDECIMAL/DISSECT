@@ -10,6 +10,6 @@ rule malware_Nanocore_strings {
             $v2 = "PluginCommand"
             $v3 = "CommandType"
 
-          condition:
+          if:
             all of them
 }

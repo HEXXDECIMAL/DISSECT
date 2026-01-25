@@ -11,7 +11,7 @@ traits:
 
   - id: ip-format
     description: IP address format string (scanning indicator)
-    criticality: notable
+    crit: notable
     confidence: 0.6
     platforms: [all]
     condition:
@@ -21,7 +21,7 @@ traits:
   # === target IP atomic ===
   - id: target-ip-upper
     description: Target IP (uppercase T)
-    criticality: inert
+    crit: inert
     confidence: 0.5
     platforms: [all]
     condition:
@@ -30,7 +30,7 @@ traits:
 
   - id: target-ip-lower
     description: Target IP (lowercase)
-    criticality: inert
+    crit: inert
     confidence: 0.5
     platforms: [all]
     condition:
@@ -39,7 +39,7 @@ traits:
 
   - id: target-ip-camel
     description: targetIP camelCase
-    criticality: inert
+    crit: inert
     confidence: 0.5
     platforms: [all]
     condition:
@@ -49,7 +49,7 @@ traits:
   # === random target atomic ===
   - id: random-target-upper
     description: Random Target (uppercase R)
-    criticality: inert
+    crit: inert
     confidence: 0.6
     platforms: [all]
     condition:
@@ -58,7 +58,7 @@ traits:
 
   - id: random-target-lower
     description: random target (lowercase)
-    criticality: inert
+    crit: inert
     confidence: 0.6
     platforms: [all]
     condition:
@@ -67,7 +67,7 @@ traits:
 
   - id: random-ip-upper
     description: Random IP (uppercase R)
-    criticality: inert
+    crit: inert
     confidence: 0.6
     platforms: [all]
     condition:
@@ -76,7 +76,7 @@ traits:
 
   - id: random-ip-lower
     description: random IP (lowercase)
-    criticality: inert
+    crit: inert
     confidence: 0.6
     platforms: [all]
     condition:
@@ -85,7 +85,7 @@ traits:
 
   - id: getrandip
     description: getrandip function
-    criticality: inert
+    crit: inert
     confidence: 0.6
     platforms: [all]
     condition:
@@ -95,7 +95,7 @@ traits:
   # === port scanning atomic ===
   - id: portscan-word
     description: PortScan keyword
-    criticality: inert
+    crit: inert
     confidence: 0.4
     platforms: [all]
     condition:
@@ -104,7 +104,7 @@ traits:
 
   - id: scan-port
     description: scan port keyword
-    criticality: inert
+    crit: inert
     confidence: 0.4
     platforms: [all]
     condition:
@@ -113,7 +113,7 @@ traits:
 
   - id: port-scan
     description: port scan keyword
-    criticality: inert
+    crit: inert
     confidence: 0.4
     platforms: [all]
     condition:
@@ -123,7 +123,7 @@ traits:
   # === probing atomic ===
   - id: probe-word
     description: Probe keyword
-    criticality: inert
+    crit: inert
     confidence: 0.4
     platforms: [all]
     condition:
@@ -132,7 +132,7 @@ traits:
 
   - id: banner-grab
     description: Banner grab keyword
-    criticality: inert
+    crit: inert
     confidence: 0.5
     platforms: [all]
     condition:
@@ -142,7 +142,7 @@ traits:
   # === target context atomic ===
   - id: target-host
     description: target host keyword
-    criticality: inert
+    crit: inert
     confidence: 0.4
     platforms: [all]
     condition:
@@ -152,7 +152,7 @@ traits:
 
   - id: target-port
     description: target port keyword
-    criticality: inert
+    crit: inert
     confidence: 0.4
     platforms: [all]
     condition:
@@ -162,7 +162,7 @@ traits:
 
   - id: target-range
     description: target range keyword
-    criticality: inert
+    crit: inert
     confidence: 0.5
     platforms: [all]
     condition:
@@ -172,7 +172,7 @@ traits:
 
   - id: target-list
     description: target list keyword
-    criticality: inert
+    crit: inert
     confidence: 0.4
     platforms: [all]
     condition:
@@ -182,7 +182,7 @@ traits:
 
   - id: target-addr
     description: target addr keyword
-    criticality: inert
+    crit: inert
     confidence: 0.4
     platforms: [all]
     condition:
@@ -192,7 +192,7 @@ traits:
 
   - id: scan-target
     description: scan target keyword
-    criticality: inert
+    crit: inert
     confidence: 0.4
     platforms: [all]
     condition:
@@ -204,7 +204,7 @@ traits:
 
   - id: brute-force-ref
     description: Brute force attack reference
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     attack: "T1110"
     platforms: [all]
@@ -218,7 +218,7 @@ traits:
 
   - id: weak-pass-root123
     description: Weak password root123
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.7
     attack: "T1110.001"
     platforms: [all]
@@ -228,7 +228,7 @@ traits:
 
   - id: weak-pass-admin123-upper
     description: Weak password Admin123
-    criticality: inert
+    crit: inert
     confidence: 0.5
     attack: "T1110.001"
     platforms: [all]
@@ -238,7 +238,7 @@ traits:
 
   - id: weak-pass-admin123-lower
     description: Weak password admin123
-    criticality: inert
+    crit: inert
     confidence: 0.5
     attack: "T1110.001"
     platforms: [all]
@@ -248,7 +248,7 @@ traits:
 
   - id: weak-pass-passw0rd
     description: Weak password Passw0rd
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.7
     attack: "T1110.001"
     platforms: [all]
@@ -258,7 +258,7 @@ traits:
 
   - id: weak-pass-qwerty123
     description: Weak password qwerty123
-    criticality: inert
+    crit: inert
     confidence: 0.5
     attack: "T1110.001"
     platforms: [all]
@@ -268,7 +268,7 @@ traits:
 
   - id: weak-pass-qwerty
     description: Weak password qwerty
-    criticality: inert
+    crit: inert
     confidence: 0.5
     attack: "T1110.001"
     platforms: [all]
@@ -280,7 +280,7 @@ traits:
 
   - id: root-the-phrase
     description: Root the phrase (hacker slang)
-    criticality: inert
+    crit: inert
     confidence: 0.6
     attack: "T1068"
     platforms: [all]
@@ -290,7 +290,7 @@ traits:
 
   - id: r00t-leet
     description: r00t leetspeak
-    criticality: inert
+    crit: inert
     confidence: 0.6
     attack: "T1068"
     platforms: [all]
@@ -302,7 +302,7 @@ traits:
 
   - id: sym-gethostbyname
     description: gethostbyname function symbol
-    criticality: inert
+    crit: inert
     confidence: 0.4
     platforms: [all]
     condition:
@@ -311,7 +311,7 @@ traits:
 
   - id: sym-getaddrinfo
     description: getaddrinfo function symbol
-    criticality: inert
+    crit: inert
     confidence: 0.4
     platforms: [all]
     condition:
@@ -320,7 +320,7 @@ traits:
 
   - id: sym-socket
     description: socket function symbol
-    criticality: inert
+    crit: inert
     confidence: 0.4
     platforms: [all]
     condition:
@@ -329,7 +329,7 @@ traits:
 
   - id: sym-connect
     description: connect function symbol
-    criticality: inert
+    crit: inert
     confidence: 0.4
     platforms: [all]
     condition:
@@ -340,7 +340,7 @@ traits:
 
   - id: ssh-dir-ref
     description: Reference to .ssh directory
-    criticality: notable
+    crit: notable
     confidence: 0.5
     attack: "T1110.001"
     platforms: [all]
@@ -350,7 +350,7 @@ traits:
 
   - id: etc-hosts-ref
     description: Reference to /etc/hosts file
-    criticality: notable
+    crit: notable
     confidence: 0.5
     platforms: [all]
     condition:
@@ -361,11 +361,11 @@ composite_rules:
   # Target IP reference
   - id: target-ip-ref
     description: References target IP concept
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.75
     platforms: [all]
     requires_count: 1
-    conditions:
+    any:
       - id: target-ip-upper
       - id: target-ip-lower
       - id: target-ip-camel
@@ -373,11 +373,11 @@ composite_rules:
   # Random target generation
   - id: random-target
     description: Random target/IP generation
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.8
     platforms: [all]
     requires_count: 1
-    conditions:
+    any:
       - id: random-target-upper
       - id: random-target-lower
       - id: random-ip-upper
@@ -387,11 +387,11 @@ composite_rules:
   # Port scanning terminology
   - id: port-ref
     description: Port scanning terminology
-    criticality: notable
+    crit: notable
     confidence: 0.5
     platforms: [all]
     requires_count: 1
-    conditions:
+    any:
       - id: portscan-word
       - id: scan-port
       - id: port-scan
@@ -399,22 +399,22 @@ composite_rules:
   # Network probing
   - id: probe-ref
     description: Network probing terminology
-    criticality: notable
+    crit: notable
     confidence: 0.6
     platforms: [all]
     requires_count: 1
-    conditions:
+    any:
       - id: probe-word
       - id: banner-grab
 
   # Scan target terminology
   - id: target-ref
     description: Scan target terminology
-    criticality: notable
+    crit: notable
     confidence: 0.6
     platforms: [all]
     requires_count: 1
-    conditions:
+    any:
       - id: target-host
       - id: target-port
       - id: target-range
@@ -425,57 +425,57 @@ composite_rules:
   # Weak password admin123
   - id: weak-pass-admin123
     description: Weak password admin123
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.7
     attack: "T1110.001"
     platforms: [all]
     requires_count: 1
-    conditions:
+    any:
       - id: weak-pass-admin123-upper
       - id: weak-pass-admin123-lower
 
   # Weak password qwerty variants
   - id: weak-pass-qwerty-variants
     description: Weak password qwerty variants
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.7
     attack: "T1110.001"
     platforms: [all]
     requires_count: 1
-    conditions:
+    any:
       - id: weak-pass-qwerty123
       - id: weak-pass-qwerty
 
   # Root exploitation terminology
   - id: root-exploit-ref
     description: Root exploitation terminology (leetspeak/hacker slang)
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     attack: "T1068"
     platforms: [all]
     requires_count: 1
-    conditions:
+    any:
       - id: root-the-phrase
       - id: r00t-leet
 
   # Hostname resolution symbols
   - id: sym-hostname-resolve
     description: Hostname resolution function symbols
-    criticality: notable
+    crit: notable
     confidence: 0.6
     platforms: [all]
     requires_count: 1
-    conditions:
+    any:
       - id: sym-gethostbyname
       - id: sym-getaddrinfo
 
   # Socket connection symbols
   - id: sym-socket-connect
     description: Socket connection function symbols
-    criticality: notable
+    crit: notable
     confidence: 0.6
     platforms: [all]
     requires_count: 1
-    conditions:
+    any:
       - id: sym-socket
       - id: sym-connect

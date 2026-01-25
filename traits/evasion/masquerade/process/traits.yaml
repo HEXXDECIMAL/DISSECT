@@ -3,18 +3,18 @@
 # ATT&CK: T1036.004 (Masquerade Task or Service)
 
 defaults:
-  file_types: [elf]
+  for: [elf]
   platforms: [linux]
 
 traits:
   # prctl PR_SET_NAME for process renaming
   - id: prctl-setname
-    description: Uses prctl to change process name
-    criticality: suspicious
-    confidence: 0.8
+    desc: Uses prctl to change process name
+    crit: suspicious
+    conf: 0.8
     mbc: "F0004"
     attack: "T1036.004"
-    condition:
+    if:
       type: yara
       source: |
         rule prctl_setname {
@@ -29,12 +29,12 @@ traits:
 
   # Masquerade as system daemon (abrtd - BPFDoor pattern)
   - id: fake-abrtd
-    description: Masquerades as abrtd daemon (BPFDoor indicator)
-    criticality: suspicious
-    confidence: 0.95
+    desc: Masquerades as abrtd daemon (BPFDoor indicator)
+    crit: suspicious
+    conf: 0.95
     mbc: "F0004"
     attack: "T1036.004"
-    condition:
+    if:
       type: yara
       source: |
         rule fake_abrtd {
@@ -47,12 +47,12 @@ traits:
 
   # Masquerade as common system processes
   - id: fake-system-process
-    description: Contains names of system processes (potential masquerading)
-    criticality: suspicious
-    confidence: 0.75
+    desc: Contains names of system processes (potential masquerading)
+    crit: suspicious
+    conf: 0.75
     mbc: "F0004"
     attack: "T1036.004"
-    condition:
+    if:
       type: yara
       source: |
         rule fake_system_process {
@@ -73,12 +73,12 @@ traits:
 
   # argv[0] manipulation
   - id: argv0-manipulation
-    description: Manipulates argv[0] to hide process name
-    criticality: suspicious
-    confidence: 0.8
+    desc: Manipulates argv[0] to hide process name
+    crit: suspicious
+    conf: 0.8
     mbc: "F0004"
     attack: "T1036.004"
-    condition:
+    if:
       type: yara
       source: |
         rule argv0_manipulation {
@@ -93,15 +93,15 @@ traits:
 composite_rules:
   # BPFDoor-style process masquerading
   - id: bpfdoor-style
-    description: BPFDoor-style process masquerading with anti-forensics
-    criticality: hostile
-    confidence: 0.98
+    desc: BPFDoor-style process masquerading with anti-forensics
+    crit: hostile
+    conf: 0.98
     mbc: "F0004"
     attack: "T1036.004"
-    file_types: [elf]
+    for: [elf]
     requires_all:
       - id: prctl-setname
-    requires_any:
+    any:
       - id: fake-abrtd
       - id: fake-system-process
       - id: argv0-manipulation

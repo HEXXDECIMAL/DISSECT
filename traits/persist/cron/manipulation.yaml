@@ -4,7 +4,7 @@
 traits:
   - id: blind_append
     description: "Appends to crontab by piping echo to crontab -"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     attack: "T1053.003"
     condition:
@@ -21,7 +21,7 @@ traits:
 
   - id: filtered_rewrite
     description: "Rewrites crontab by filtering output of crontab -l"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     attack: "T1053.003"
     condition:

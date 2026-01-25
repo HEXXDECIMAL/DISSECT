@@ -3,32 +3,32 @@
 
 traits:
   - id: python
-    description: "Detaches process via os.setsid"
-    criticality: suspicious
-    confidence: 0.9
+    desc: "Detaches process via os.setsid"
+    crit: suspicious
+    conf: 0.9
     mbc: "F0003"
     attack: "T1036"
-    file_types: [python]
-    condition:
+    for: [python]
+    if:
       type: string
       exact: "os.setsid"
 
   - id: preexec-fn
-    description: "Manipulates process via subprocess preexec_fn"
-    criticality: suspicious
-    confidence: 0.85
+    desc: "Manipulates process via subprocess preexec_fn"
+    crit: suspicious
+    conf: 0.85
     mbc: "F0003"
-    file_types: [python]
-    condition:
+    for: [python]
+    if:
       type: string
       exact: "preexec_fn="
 
   - id: c
-    description: "Calls setsid() system call"
-    criticality: notable
-    confidence: 0.8
+    desc: "Calls setsid() system call"
+    crit: notable
+    conf: 0.8
     mbc: "F0003"
-    file_types: [c]
-    condition:
+    for: [c]
+    if:
       type: symbol
       pattern: setsid

@@ -5,9 +5,9 @@
 traits:
   - id: blkid
     description: Works with block device attributes
-    criticality: inert
-    confidence: 0.66
-    file_types: [elf, so, c]
-    condition:
+    crit: inert
+    conf: 0.66
+    for: [elf, so, c]
+    if:
       type: symbol
       pattern: blkid

@@ -4,7 +4,7 @@
 traits:
   - id: suspicious-crate-call
     description: Call to a suspicious-looking crate (potential typosquat or malicious)
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.8
     attack: "T1195"
     file_types: [rust]
@@ -24,7 +24,7 @@ traits:
 
   - id: misspelled-common-words
     description: Misspelled common words in identifiers (indicator of low quality/malicious)
-    criticality: notable
+    crit: notable
     confidence: 0.7
     file_types: [rust]
     condition:
@@ -43,7 +43,7 @@ traits:
   # === Dummy key/value atomic indicators ===
   - id: dummy-key-word
     description: dummy_key reference
-    criticality: inert
+    crit: inert
     confidence: 0.5
     file_types: [rust]
     condition:
@@ -52,7 +52,7 @@ traits:
 
   - id: dummy-value-word
     description: dummy_value reference
-    criticality: inert
+    crit: inert
     confidence: 0.5
     file_types: [rust]
     condition:
@@ -61,7 +61,7 @@ traits:
 
   - id: internal-lib-pattern
     description: Generic indicator of legitimate library code (traits, structs, impls)
-    criticality: inert
+    crit: inert
     confidence: 0.5
     file_types: [rust]
     condition:
@@ -81,17 +81,17 @@ composite_rules:
   # Dummy keys composite
   - id: dummy-keys-hashmap
     description: Usage of dummy keys in a HashMap (potential test/placeholder)
-    criticality: notable
+    crit: notable
     confidence: 0.6
     file_types: [rust]
     requires_count: 1
-    conditions:
+    any:
       - id: dummy-key-word
       - id: dummy-value-word
 
   - id: trojanized-lib
     description: Potential trojanized library (legitimate library code + suspicious crate calls)
-    criticality: hostile
+    crit: hostile
     confidence: 0.85
     attack: "T1195.001"
     mbc: "B0024"

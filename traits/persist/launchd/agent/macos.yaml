@@ -5,7 +5,7 @@
 traits:
   - id: launchd
     description: macOS launchd persistence
-    criticality: notable
+    crit: notable
     confidence: 0.66
     attack: "T1543.004"
     condition:

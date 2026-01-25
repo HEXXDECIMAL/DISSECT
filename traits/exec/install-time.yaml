@@ -3,17 +3,17 @@
 # ATT&CK: T1195.002 (Supply Chain Compromise: Compromise Software Supply Chain)
 
 defaults:
-  file_types: [shell, text]
+  for: [shell, text]
   mbc: "B0030"
   attack: "T1195.002"
 
 traits:
   # Base64-encoded binary embedding in shell
   - id: base64-binary-embed
-    description: Base64-encoded binary embedded in shell script
-    criticality: suspicious
-    confidence: 0.9
-    condition:
+    desc: Base64-encoded binary embedded in shell script
+    crit: suspicious
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule base64_binary_embed {
@@ -35,10 +35,10 @@ traits:
 
   # Bot directory selection pattern (multiple fallback paths)
   - id: botdir-selection
-    description: Bot directory selection with multiple fallback paths
-    criticality: suspicious
-    confidence: 0.85
-    condition:
+    desc: Bot directory selection with multiple fallback paths
+    crit: suspicious
+    conf: 0.85
+    if:
       type: yara
       source: |
         rule botdir_selection {
@@ -62,10 +62,10 @@ traits:
 
   # Cron persistence via echo redirect
   - id: echo-cron
-    description: Cron persistence via echo redirect
-    criticality: suspicious
-    confidence: 0.9
-    condition:
+    desc: Cron persistence via echo redirect
+    crit: suspicious
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule echo_cron_persist {
@@ -82,10 +82,10 @@ traits:
 
   # Writability test before deployment
   - id: writability-test
-    description: Tests directory writability before malware deployment
-    criticality: suspicious
-    confidence: 0.8
-    condition:
+    desc: Tests directory writability before malware deployment
+    crit: suspicious
+    conf: 0.8
+    if:
       type: yara
       source: |
         rule writability_test {
@@ -101,10 +101,10 @@ traits:
 
   # Mtime preservation pattern (for timestomping)
   - id: mtime-preservation
-    description: Preserves directory timestamps to hide modifications
-    criticality: suspicious
-    confidence: 0.85
-    condition:
+    desc: Preserves directory timestamps to hide modifications
+    crit: suspicious
+    conf: 0.85
+    if:
       type: yara
       source: |
         rule mtime_preservation {
@@ -123,12 +123,12 @@ traits:
 composite_rules:
   # Full supply chain dropper in shell
   - id: shell-dropper
-    description: Supply chain dropper in package install script
-    criticality: hostile
-    confidence: 0.95
+    desc: Supply chain dropper in package install script
+    crit: hostile
+    conf: 0.95
     mbc: "B0030"
     attack: "T1195.002"
-    file_types: [shell, text]
+    for: [shell, text]
     requires_all:
       - id: base64-binary-embed
       - id: echo-cron

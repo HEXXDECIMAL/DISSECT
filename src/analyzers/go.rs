@@ -62,7 +62,7 @@ impl GoAnalyzer {
         // Add structural feature
         report.structure.push(StructuralFeature {
             id: "source/language/go".to_string(),
-            description: "Go source code".to_string(),
+            desc: "Go source code".to_string(),
             evidence: vec![Evidence {
                 method: "parser".to_string(),
                 source: "tree-sitter-go".to_string(),
@@ -785,15 +785,15 @@ impl GoAnalyzer {
             }
 
             // Add all detected capabilities
-            for (cap_id, description, pattern, confidence, criticality) in capabilities {
+            for (cap_id, description, pattern, conf, criticality) in capabilities {
                 if !report.findings.iter().any(|c| c.id == cap_id) {
                     report.findings.push(Finding {
                         kind: FindingKind::Capability,
                         trait_refs: vec![],
                         id: cap_id.to_string(),
-                        description: description.to_string(),
-                        confidence,
-                        criticality,
+                        desc: description.to_string(),
+                        conf,
+                        crit: criticality,
                         mbc: None,
                         attack: None,
                         evidence: vec![Evidence {
@@ -871,9 +871,9 @@ impl GoAnalyzer {
                         kind: FindingKind::Capability,
                         trait_refs: vec![],
                         id: cap_id.to_string(),
-                        description: description.to_string(),
-                        confidence,
-                        criticality: Criticality::Notable,
+                        desc: description.to_string(),
+                        conf: confidence,
+                        crit: Criticality::Notable,
                         mbc: None,
                         attack: None,
                         evidence: vec![Evidence {
@@ -907,9 +907,9 @@ impl GoAnalyzer {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: "anti-analysis/obfuscation/base64-exec".to_string(),
-                    description: "Base64 decode followed by exec (obfuscation)".to_string(),
-                    confidence: 0.95,
-                    criticality: Criticality::Suspicious,
+                    desc: "Base64 decode followed by exec (obfuscation)".to_string(),
+                    conf: 0.95,
+                    crit: Criticality::Suspicious,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {
@@ -933,9 +933,9 @@ impl GoAnalyzer {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: "anti-analysis/obfuscation/hex-strings".to_string(),
-                    description: "Hex-encoded strings".to_string(),
-                    confidence: 0.9,
-                    criticality: Criticality::Suspicious,
+                    desc: "Hex-encoded strings".to_string(),
+                    conf: 0.9,
+                    crit: Criticality::Suspicious,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {
@@ -959,9 +959,9 @@ impl GoAnalyzer {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: "anti-analysis/build-tags".to_string(),
-                    description: "Conditional build tags (platform evasion)".to_string(),
-                    confidence: 0.75,
-                    criticality: Criticality::Notable,
+                    desc: "Conditional build tags (platform evasion)".to_string(),
+                    conf: 0.75,
+                    crit: Criticality::Notable,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {

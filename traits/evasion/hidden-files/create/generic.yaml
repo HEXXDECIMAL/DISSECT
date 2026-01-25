@@ -3,132 +3,132 @@
 # ATT&CK: T1564.001 (Hide Artifacts: Hidden Files and Directories)
 
 defaults:
-  file_types: [all]
+  for: [all]
 
 traits:
   # === Hidden file write atomic indicators ===
   - id: curl-o-hidden
-    description: curl -O to hidden dotfile
-    criticality: inert
-    confidence: 0.7
+    desc: curl -O to hidden dotfile
+    crit: inert
+    conf: 0.7
     mbc: "F0005"
     attack: "T1564.001"
-    condition:
+    if:
       type: string
       regex: "-O \\./\\.[a-zA-Z]"
       search_raw: true
 
   - id: redirect-hidden-space
-    description: redirect to hidden dotfile (with space)
-    criticality: inert
-    confidence: 0.7
+    desc: redirect to hidden dotfile (with space)
+    crit: inert
+    conf: 0.7
     mbc: "F0005"
     attack: "T1564.001"
-    condition:
+    if:
       type: string
       regex: "> \\./\\.[a-zA-Z]"
       search_raw: true
 
   - id: redirect-hidden-nospace
-    description: redirect to hidden dotfile (no space)
-    criticality: inert
-    confidence: 0.7
+    desc: redirect to hidden dotfile (no space)
+    crit: inert
+    conf: 0.7
     mbc: "F0005"
     attack: "T1564.001"
-    condition:
+    if:
       type: string
       regex: ">\\./\\.[a-zA-Z]"
       search_raw: true
 
   # === Hidden file execute atomic indicators ===
   - id: exec-hidden-space
-    description: execute hidden dotfile (followed by space)
-    criticality: inert
-    confidence: 0.7
+    desc: execute hidden dotfile (followed by space)
+    crit: inert
+    conf: 0.7
     mbc: "B0024"
     attack: "T1059"
-    condition:
+    if:
       type: string
       regex: "\\./\\.[a-zA-Z][a-zA-Z0-9_-]*\\s"
       search_raw: true
 
   - id: exec-hidden-eol
-    description: execute hidden dotfile (end of line)
-    criticality: inert
-    confidence: 0.7
+    desc: execute hidden dotfile (end of line)
+    crit: inert
+    conf: 0.7
     mbc: "B0024"
     attack: "T1059"
-    condition:
+    if:
       type: string
       regex: "\\./\\.[a-zA-Z][a-zA-Z0-9_-]*$"
       search_raw: true
 
   - id: exec-hidden-semi
-    description: execute hidden dotfile (followed by semicolon)
-    criticality: inert
-    confidence: 0.7
+    desc: execute hidden dotfile (followed by semicolon)
+    crit: inert
+    conf: 0.7
     mbc: "B0024"
     attack: "T1059"
-    condition:
+    if:
       type: string
       regex: "\\./\\.[a-zA-Z][a-zA-Z0-9_-]*;"
       search_raw: true
 
   # === chmod hidden file atomic indicators ===
   - id: chmod-x-hidden
-    description: chmod +x on hidden file
-    criticality: inert
-    confidence: 0.7
+    desc: chmod +x on hidden file
+    crit: inert
+    conf: 0.7
     mbc: "C0047"
     attack: "T1222.002"
-    condition:
+    if:
       type: string
       regex: "chmod \\+x \\.[a-zA-Z]"
       search_raw: true
 
   - id: chmod-7xx-hidden
-    description: chmod 7xx on hidden file
-    criticality: inert
-    confidence: 0.7
+    desc: chmod 7xx on hidden file
+    crit: inert
+    conf: 0.7
     mbc: "C0047"
     attack: "T1222.002"
-    condition:
+    if:
       type: string
       regex: "chmod 7[0-9][0-9] \\.[a-zA-Z]"
       search_raw: true
 
 composite_rules:
   - id: hidden-file-write
-    description: Writing to hidden dotfile (malware hiding)
-    criticality: suspicious
-    confidence: 0.85
+    desc: Writing to hidden dotfile (malware hiding)
+    crit: suspicious
+    conf: 0.85
     mbc: "F0005"
     attack: "T1564.001"
     requires_count: 1
-    conditions:
+    any:
       - id: curl-o-hidden
       - id: redirect-hidden-space
       - id: redirect-hidden-nospace
 
   - id: hidden-file-execute
-    description: Executing hidden dotfile
-    criticality: suspicious
-    confidence: 0.9
+    desc: Executing hidden dotfile
+    crit: suspicious
+    conf: 0.9
     mbc: "B0024"
     attack: "T1059"
     requires_count: 1
-    conditions:
+    any:
       - id: exec-hidden-space
       - id: exec-hidden-eol
       - id: exec-hidden-semi
 
   - id: chmod-hidden-file
-    description: Making hidden file executable
-    criticality: suspicious
-    confidence: 0.9
+    desc: Making hidden file executable
+    crit: suspicious
+    conf: 0.9
     mbc: "C0047"
     attack: "T1222.002"
     requires_count: 1
-    conditions:
+    any:
       - id: chmod-x-hidden
       - id: chmod-7xx-hidden

@@ -4,145 +4,145 @@
 # ATT&CK: T1556 (Modify Authentication Process), T1557 (Adversary-in-the-Middle)
 
 defaults:
-  file_types: [javascript]
+  for: [javascript]
   attack: "T1557"
-  criticality: suspicious
+  crit: suspicious
 
 traits:
   # === Ethereum regex atomic indicators ===
   - id: ethereum-regex-40
-    description: Ethereum 40-char hex regex
-    confidence: 0.8
-    criticality: notable
-    condition:
+    desc: Ethereum 40-char hex regex
+    conf: 0.8
+    crit: notable
+    if:
       type: string
       regex: "0x\\[a-fA-F0-9\\]\\{40\\}"
 
   - id: ethereum-regex-boundary
-    description: Ethereum regex with word boundary
-    confidence: 0.8
-    criticality: notable
-    condition:
+    desc: Ethereum regex with word boundary
+    conf: 0.8
+    crit: notable
+    if:
       type: string
       regex: "\\\\b0x\\[a-fA-F0-9\\]"
 
   # Bitcoin Legacy address regex (1xxx)
   - id: bitcoin-legacy-regex
-    description: "Bitcoin legacy address regex pattern"
-    confidence: 0.9
-    criticality: suspicious
-    condition:
+    desc: "Bitcoin legacy address regex pattern"
+    conf: 0.9
+    crit: suspicious
+    if:
       type: string
       regex: "1\\[a-km-zA-HJ-NP-Z1-9\\]\\{25,34\\}"
 
   # Bitcoin SegWit address regex (bc1xxx)
   - id: bitcoin-segwit-regex
-    description: "Bitcoin SegWit address regex pattern"
-    confidence: 0.9
-    criticality: suspicious
-    condition:
+    desc: "Bitcoin SegWit address regex pattern"
+    conf: 0.9
+    crit: suspicious
+    if:
       type: string
       regex: "bc1\\[qpzry9x8gf2tvdw0s3jn54khce6mua7l\\]"
 
   # Bitcoin Cash address regex
   - id: bitcoin-cash-regex
-    description: "Bitcoin Cash address regex pattern"
-    confidence: 0.9
-    criticality: suspicious
-    condition:
+    desc: "Bitcoin Cash address regex pattern"
+    conf: 0.9
+    crit: suspicious
+    if:
       type: string
       regex: "bitcoincash:\\[qp\\]\\[a-zA-Z0-9\\]"
 
   # === Litecoin regex atomic indicators ===
   - id: litecoin-segwit-regex
-    description: Litecoin SegWit address regex (ltc1)
-    confidence: 0.8
-    criticality: notable
-    condition:
+    desc: Litecoin SegWit address regex (ltc1)
+    conf: 0.8
+    crit: notable
+    if:
       type: string
       regex: "ltc1\\[qpzry9x8gf2tvdw0s3jn54khce6mua7l\\]"
 
   - id: litecoin-legacy-regex
-    description: Litecoin legacy address regex (m/M/l/L)
-    confidence: 0.8
-    criticality: notable
-    condition:
+    desc: Litecoin legacy address regex (m/M/l/L)
+    conf: 0.8
+    crit: notable
+    if:
       type: string
       regex: "\\[mlML\\]\\[a-km-zA-HJ-NP-Z1-9\\]"
 
   # TRON address regex (Txxx)
   - id: tron-regex
-    description: "TRON address regex pattern"
-    confidence: 0.9
-    criticality: suspicious
-    condition:
+    desc: "TRON address regex pattern"
+    conf: 0.9
+    crit: suspicious
+    if:
       type: string
       regex: "\\[T\\]\\[1-9A-HJ-NP-Za-km-z\\]\\{33\\}"
 
   # Solana address regex
   - id: solana-regex
-    description: "Solana address regex pattern"
-    confidence: 0.85
-    criticality: suspicious
-    condition:
+    desc: "Solana address regex pattern"
+    conf: 0.85
+    crit: suspicious
+    if:
       type: string
       regex: "\\[1-9A-HJ-NP-Za-km-z\\]\\{32,44\\}"
 
   # Ethereum address regex for composite (shorter pattern)
   - id: ethereum-regex-short
-    description: "Ethereum address regex pattern (0x + 40 hex)"
-    confidence: 0.9
-    criticality: suspicious
-    condition:
+    desc: "Ethereum address regex pattern (0x + 40 hex)"
+    conf: 0.9
+    crit: suspicious
+    if:
       type: string
       regex: "0x\\[a-fA-F0-9\\]\\{40\\}"
 
   # Bitcoin Legacy address regex for composite (shorter pattern)
   - id: bitcoin-legacy-regex-short
-    description: "Bitcoin legacy address regex pattern (1xxx)"
-    confidence: 0.9
-    criticality: suspicious
-    condition:
+    desc: "Bitcoin legacy address regex pattern (1xxx)"
+    conf: 0.9
+    crit: suspicious
+    if:
       type: string
       regex: "1\\[a-km-zA-HJ-NP-Z1-9\\]"
 
   # Bitcoin Cash prefix detection
   - id: bitcoin-cash-prefix
-    description: "Bitcoin Cash address prefix"
-    confidence: 0.85
-    criticality: suspicious
-    condition:
+    desc: "Bitcoin Cash address prefix"
+    conf: 0.85
+    crit: suspicious
+    if:
       type: string
       regex: "bitcoincash:"
 
 composite_rules:
   # Ethereum regex composite
   - id: ethereum-regex
-    description: Ethereum address regex pattern (0x...40 hex)
-    confidence: 0.9
-    criticality: suspicious
+    desc: Ethereum address regex pattern (0x...40 hex)
+    conf: 0.9
+    crit: suspicious
     requires_count: 1
-    conditions:
+    any:
       - id: ethereum-regex-40
       - id: ethereum-regex-boundary
 
   # Litecoin regex composite
   - id: litecoin-regex
-    description: Litecoin address regex pattern
-    confidence: 0.9
-    criticality: suspicious
+    desc: Litecoin address regex pattern
+    conf: 0.9
+    crit: suspicious
     requires_count: 1
-    conditions:
+    any:
       - id: litecoin-segwit-regex
       - id: litecoin-legacy-regex
 
   # Multiple cryptocurrency address patterns = clipboard hijacker
   - id: multi-crypto-regex
-    description: "Multiple cryptocurrency address regex patterns (clipboard hijacker)"
-    criticality: hostile
-    confidence: 0.95
+    desc: "Multiple cryptocurrency address regex patterns (clipboard hijacker)"
+    crit: hostile
+    conf: 0.95
     requires_count: 2
-    conditions:
+    any:
       - id: ethereum-regex-short
       - id: bitcoin-legacy-regex-short
       - id: bitcoin-segwit-regex

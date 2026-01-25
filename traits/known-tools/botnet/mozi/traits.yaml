@@ -9,8 +9,8 @@ traits:
   # Mozi DHT-based communication
   - id: botnet/mozi/dht-p2p
     description: Mozi DHT-based P2P communication patterns
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     mbc: "B0030"
     attack: "T1071"
     condition:
@@ -34,8 +34,8 @@ traits:
   # Mozi XOR encryption
   - id: botnet/mozi/xor-config
     description: Mozi XOR encrypted configuration
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     mbc: "B0030"
     attack: "T1027"
     condition:
@@ -58,8 +58,8 @@ traits:
   # Mozi Mirai-derived functionality
   - id: botnet/mozi/mirai-derived
     description: Mozi Mirai-derived attack capabilities
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     mbc: "B0030"
     attack: "T1498"
     condition:
@@ -82,12 +82,12 @@ composite_rules:
   # Full Mozi detection
   - id: botnet/mozi/detected
     description: Mozi P2P botnet detected
-    criticality: hostile
-    confidence: 0.95
+    crit: hostile
+    conf: 0.95
     mbc: "B0030"
     attack: "T1071"
     requires_count: 2
-    conditions:
+    any:
       - id: botnet/mozi/dht-p2p
       - id: botnet/mozi/xor-config
       - id: botnet/mozi/mirai-derived

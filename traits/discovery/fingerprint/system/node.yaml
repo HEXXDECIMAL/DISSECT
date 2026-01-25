@@ -6,102 +6,102 @@
 traits:
   # OS Module - Basic System Info
   - id: os-hostname
-    description: Hostname collection via os module
-    criticality: notable
-    confidence: 0.8
+    desc: Hostname collection via os module
+    crit: notable
+    conf: 0.8
     attack: "T1082"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: "os.hostname"
 
   - id: os-platform
-    description: Platform detection via os module
-    criticality: notable
-    confidence: 0.75
+    desc: Platform detection via os module
+    crit: notable
+    conf: 0.75
     attack: "T1082"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: "os.platform"
 
   - id: os-arch
-    description: Architecture detection via os module
-    criticality: notable
-    confidence: 0.75
+    desc: Architecture detection via os module
+    crit: notable
+    conf: 0.75
     attack: "T1082"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: "os.arch"
 
   - id: os-release
-    description: OS release version collection
-    criticality: notable
-    confidence: 0.75
+    desc: OS release version collection
+    crit: notable
+    conf: 0.75
     attack: "T1082"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: "os.release"
 
   - id: os-userInfo
-    description: User information collection
-    criticality: suspicious
-    confidence: 0.85
+    desc: User information collection
+    crit: suspicious
+    conf: 0.85
     attack: "T1033"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: "os.userInfo"
 
   - id: os-cpus
-    description: CPU information collection
-    criticality: notable
-    confidence: 0.7
+    desc: CPU information collection
+    crit: notable
+    conf: 0.7
     attack: "T1082"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: "os.cpus"
 
   - id: os-totalmem
-    description: Total memory collection
-    criticality: notable
-    confidence: 0.7
+    desc: Total memory collection
+    crit: notable
+    conf: 0.7
     attack: "T1082"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: "os.totalmem"
 
   - id: os-networkInterfaces
-    description: Network interface enumeration
-    criticality: suspicious
-    confidence: 0.85
+    desc: Network interface enumeration
+    crit: suspicious
+    conf: 0.85
     attack: "T1016"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: "os.networkInterfaces"
 
   # MAC Address Collection
   - id: mac-address
-    description: MAC address extraction pattern
-    criticality: suspicious
-    confidence: 0.9
+    desc: MAC address extraction pattern
+    crit: suspicious
+    conf: 0.9
     mbc: "E1592"
     attack: "T1016"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule mac_address_collection {
@@ -116,13 +116,13 @@ traits:
 
   # Machine ID / Unique Identifier
   - id: machine-id
-    description: Machine unique identifier generation
-    criticality: suspicious
-    confidence: 0.85
+    desc: Machine unique identifier generation
+    crit: suspicious
+    conf: 0.85
     mbc: "E1592"
     attack: "T1082"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule machine_id_generation {
@@ -139,13 +139,13 @@ traits:
 
   # Comprehensive Fingerprinting
   - id: full-fingerprint
-    description: Comprehensive system fingerprinting (multiple vectors)
-    criticality: suspicious
-    confidence: 0.9
+    desc: Comprehensive system fingerprinting (multiple vectors)
+    crit: suspicious
+    conf: 0.9
     mbc: "E1592"
     attack: "T1082"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule full_system_fingerprint {
@@ -164,13 +164,13 @@ traits:
 
   # Process Environment
   - id: process-env-dump
-    description: Full environment variable dump
-    criticality: suspicious
-    confidence: 0.85
+    desc: Full environment variable dump
+    crit: suspicious
+    conf: 0.85
     mbc: "E1592"
     attack: "T1082"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule env_dump {
@@ -185,60 +185,60 @@ traits:
 
   # === Process list atomic indicators ===
   - id: tasklist-cmd
-    description: Windows tasklist command
-    criticality: inert
-    confidence: 0.7
+    desc: Windows tasklist command
+    crit: inert
+    conf: 0.7
     mbc: "E1592"
     attack: "T1057"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "tasklist"
 
   - id: ps-aux-cmd
-    description: ps aux command
-    criticality: inert
-    confidence: 0.7
+    desc: ps aux command
+    crit: inert
+    conf: 0.7
     mbc: "E1592"
     attack: "T1057"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "ps aux"
 
   - id: ps-ef-cmd
-    description: ps -ef command
-    criticality: inert
-    confidence: 0.7
+    desc: ps -ef command
+    crit: inert
+    conf: 0.7
     mbc: "E1592"
     attack: "T1057"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "ps -ef"
 
   - id: get-process-cmd
-    description: PowerShell Get-Process
-    criticality: inert
-    confidence: 0.7
+    desc: PowerShell Get-Process
+    crit: inert
+    conf: 0.7
     mbc: "E1592"
     attack: "T1057"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "Get-Process"
 
 composite_rules:
   # Process list composite
   - id: process-list
-    description: Running process enumeration
-    criticality: suspicious
-    confidence: 0.9
+    desc: Running process enumeration
+    crit: suspicious
+    conf: 0.9
     mbc: "E1592"
     attack: "T1057"
-    file_types: [javascript, typescript]
+    for: [javascript, typescript]
     requires_count: 1
-    conditions:
+    any:
       - id: tasklist-cmd
       - id: ps-aux-cmd
       - id: ps-ef-cmd

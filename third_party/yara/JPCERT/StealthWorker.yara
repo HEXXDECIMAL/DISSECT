@@ -9,6 +9,6 @@ rule malware_StealthWorker {
       $a2 = "/bots/knock?worker=%s&os=%s&version=%s"
       $a3 = "/project/saveGood"
 
-    condition:
+    if:
       all of them
 }

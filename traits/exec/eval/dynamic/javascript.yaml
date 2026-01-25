@@ -5,118 +5,118 @@
 traits:
   # === Eval function reference atomic indicators ===
   - id: eval-as-first-arg
-    description: eval as first argument (eval,
-    criticality: inert
-    confidence: 0.7
+    desc: eval as first argument (eval,
+    crit: inert
+    conf: 0.7
     attack: "T1059.007"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       regex: "\\(eval\\s*,"
 
   - id: eval-as-last-arg
-    description: eval as last argument ,eval)
-    criticality: inert
-    confidence: 0.7
+    desc: eval as last argument ,eval)
+    crit: inert
+    conf: 0.7
     attack: "T1059.007"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       regex: ",\\s*eval\\)"
 
   - id: eval-variable
-    description: eval with variable argument
-    criticality: suspicious
-    confidence: 0.9
+    desc: eval with variable argument
+    crit: suspicious
+    conf: 0.9
     attack: "T1059.007"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       regex: "eval\\s*\\(\\s*[a-zA-Z_$][a-zA-Z0-9_$]*\\s*\\)"
 
   # === Function constructor atomic indicators ===
   - id: new-function-constructor
-    description: new Function() constructor
-    criticality: inert
-    confidence: 0.8
+    desc: new Function() constructor
+    crit: inert
+    conf: 0.8
     attack: "T1059.007"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       regex: "new\\s+Function\\s*\\("
 
   - id: function-constructor-call
-    description: Function() constructor call
-    criticality: inert
-    confidence: 0.8
+    desc: Function() constructor call
+    crit: inert
+    conf: 0.8
     attack: "T1059.007"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       regex: "Function\\s*\\("
 
   # === VM runIn atomic indicators ===
   - id: vm-runIn-method
-    description: vm.runIn method
-    criticality: inert
-    confidence: 0.7
+    desc: vm.runIn method
+    crit: inert
+    conf: 0.7
     attack: "T1059.007"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       regex: "vm\\.runIn"
 
   - id: runInContext-call
-    description: runInContext call
-    criticality: inert
-    confidence: 0.7
+    desc: runInContext call
+    crit: inert
+    conf: 0.7
     attack: "T1059.007"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       exact: "runInContext"
 
   - id: runInNewContext-call
-    description: runInNewContext call
-    criticality: inert
-    confidence: 0.7
+    desc: runInNewContext call
+    crit: inert
+    conf: 0.7
     attack: "T1059.007"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: string
       exact: "runInNewContext"
 
 composite_rules:
   - id: eval-function-reference
-    description: eval passed as function reference
-    criticality: suspicious
-    confidence: 0.95
+    desc: eval passed as function reference
+    crit: suspicious
+    conf: 0.95
     attack: "T1059.007"
-    file_types: [javascript]
+    for: [javascript]
     requires_count: 1
-    conditions:
+    any:
       - id: eval-as-first-arg
       - id: eval-as-last-arg
 
   - id: Function-constructor
-    description: Function constructor (dynamic code execution)
-    criticality: suspicious
-    confidence: 0.95
+    desc: Function constructor (dynamic code execution)
+    crit: suspicious
+    conf: 0.95
     attack: "T1059.007"
-    file_types: [javascript]
+    for: [javascript]
     requires_count: 1
-    conditions:
+    any:
       - id: new-function-constructor
       - id: function-constructor-call
 
   - id: vm-runInContext
-    description: Node.js VM runInContext (sandboxed eval)
-    criticality: suspicious
-    confidence: 0.85
+    desc: Node.js VM runInContext (sandboxed eval)
+    crit: suspicious
+    conf: 0.85
     attack: "T1059.007"
-    file_types: [javascript]
+    for: [javascript]
     requires_count: 1
-    conditions:
+    any:
       - id: vm-runIn-method
       - id: runInContext-call
       - id: runInNewContext-call

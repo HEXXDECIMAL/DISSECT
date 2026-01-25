@@ -252,9 +252,9 @@ fn detect_platform_from_paths(paths: &[PathInfo]) -> Vec<Finding> {
             kind: FindingKind::Capability,
             trait_refs: vec![],
             id: "platform/embedded/mtd_device".to_string(),
-            description: "Targets embedded device with MTD flash storage".to_string(),
-            confidence: 0.9,
-            criticality: Criticality::Suspicious,
+            desc: "Targets embedded device with MTD flash storage".to_string(),
+            conf: 0.9,
+            crit: Criticality::Suspicious,
             mbc: None,
             attack: None,
             evidence: mtd_paths
@@ -284,9 +284,9 @@ fn detect_platform_from_paths(paths: &[PathInfo]) -> Vec<Finding> {
             kind: FindingKind::Capability,
             trait_refs: vec![],
             id: "platform/mobile/android".to_string(),
-            description: "Android platform-specific paths detected".to_string(),
-            confidence: 0.95,
-            criticality: Criticality::Notable,
+            desc: "Android platform-specific paths detected".to_string(),
+            conf: 0.95,
+            crit: Criticality::Notable,
             mbc: None,
             attack: None,
             evidence: android_paths
@@ -322,9 +322,9 @@ fn detect_anomalous_paths(paths: &[PathInfo]) -> Vec<Finding> {
             kind: FindingKind::Capability,
             trait_refs: vec![],
             id: "persistence/hidden_file".to_string(),
-            description: format!("Hidden file in system directory: {}", path.path),
-            confidence: 0.8,
-            criticality: Criticality::Hostile,
+            desc: format!("Hidden file in system directory: {}", path.path),
+            conf: 0.8,
+            crit: Criticality::Hostile,
             mbc: None,
             attack: Some("T1564.001".to_string()), // Hide Artifacts: Hidden Files
             evidence: vec![Evidence {
@@ -362,9 +362,9 @@ fn detect_privilege_requirements(paths: &[PathInfo]) -> Vec<Finding> {
             kind: FindingKind::Capability,
             trait_refs: vec![],
             id: "os/privilege/root-access".to_string(),
-            description: "Accesses paths that typically require root privileges".to_string(),
-            confidence: 1.0,
-            criticality: Criticality::Notable,
+            desc: "Accesses paths that typically require root privileges".to_string(),
+            conf: 1.0,
+            crit: Criticality::Notable,
             mbc: None,
             attack: None,
             evidence: requires_root
@@ -405,13 +405,13 @@ pub fn generate_traits_from_directories(directories: &[DirectoryAccess]) -> Vec<
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: "credential/backdoor/config_directory".to_string(),
-                    description: format!(
+                    desc: format!(
                         "Systematically accesses {} credential files in {}",
                         cred_files.len(),
                         dir.directory
                     ),
-                    confidence: 0.95,
-                    criticality: Criticality::Hostile,
+                    conf: 0.95,
+                    crit: Criticality::Hostile,
                     mbc: None,
                     attack: Some("T1552".to_string()), // Unsecured Credentials
                     evidence: vec![Evidence {
@@ -434,12 +434,12 @@ pub fn generate_traits_from_directories(directories: &[DirectoryAccess]) -> Vec<
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: "evasion/logging/system_logs".to_string(),
-                description: format!(
+                desc: format!(
                     "Accesses {} log files in {} (potential cleanup)",
                     dir.file_count, dir.directory
                 ),
-                confidence: 0.7,
-                criticality: Criticality::Suspicious,
+                conf: 0.7,
+                crit: Criticality::Suspicious,
                 mbc: None,
                 attack: Some("T1070.002".to_string()), // Clear Linux Logs
                 evidence: vec![Evidence {

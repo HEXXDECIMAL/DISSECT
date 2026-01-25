@@ -3,64 +3,64 @@
 # ATT&CK: T1505.003 (Web Shell)
 
 defaults:
-  file_types: [php]
+  for: [php]
   mbc: "B0030"
 
 traits:
   - id: password-form
-    description: HTML password form in PHP (webshell login)
-    criticality: suspicious
-    confidence: 0.85
+    desc: HTML password form in PHP (webshell login)
+    crit: suspicious
+    conf: 0.85
     attack: "T1505.003"
-    condition:
+    if:
       type: string
       regex: "<input[^>]*type=['\"]password['\"]"
 
   - id: ajax-handler
-    description: AJAX request handler pattern
-    criticality: notable
-    confidence: 0.7
-    condition:
+    desc: AJAX request handler pattern
+    crit: notable
+    conf: 0.7
+    if:
       type: ast_pattern
       node_type: subscript_expression
       pattern: "\\$_(GET|POST)"
       regex: true
 
   - id: json-response
-    description: JSON API response pattern
-    criticality: notable
-    confidence: 0.7
-    condition:
+    desc: JSON API response pattern
+    crit: notable
+    conf: 0.7
+    if:
       type: ast_pattern
       node_type: function_call_expression
       pattern: "json_encode"
 
   - id: hardcoded-hash-auth
-    description: Hardcoded MD5 hash authentication (backdoor)
-    criticality: suspicious
-    confidence: 0.95
+    desc: Hardcoded MD5 hash authentication (backdoor)
+    crit: suspicious
+    conf: 0.95
     attack: "T1505.003"
-    condition:
+    if:
       type: ast_pattern
       node_type: binary_expression
       pattern: "md5"
 
   - id: substr-hash-compare
-    description: Partial hash comparison (weak authentication)
-    criticality: suspicious
-    confidence: 0.9
+    desc: Partial hash comparison (weak authentication)
+    crit: suspicious
+    conf: 0.9
     attack: "T1505.003"
-    condition:
+    if:
       type: ast_pattern
       node_type: function_call_expression
       pattern: "substr"
 
   - id: error-suppress-prefix
-    description: Error suppression operator usage (@)
-    criticality: notable
-    confidence: 0.7
+    desc: Error suppression operator usage (@)
+    crit: notable
+    conf: 0.7
     mbc: "B0032"
-    condition:
+    if:
       type: ast_pattern
       node_type: error_suppression_expression
       pattern: ".*"
@@ -68,96 +68,96 @@ traits:
 
   # === Proxy port atomic indicators ===
   - id: port-30000
-    description: Port 30000
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: Port 30000
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: "\\b30000\\b"
 
   - id: port-31337-php
-    description: Port 31337 (leet)
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: Port 31337 (leet)
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       regex: "\\b31337\\b"
 
   - id: port-4444-php
-    description: Port 4444 (Metasploit)
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: Port 4444 (Metasploit)
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       regex: "\\b4444\\b"
 
   - id: port-5555
-    description: Port 5555
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: Port 5555
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: "\\b5555\\b"
 
   - id: port-6666
-    description: Port 6666
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: Port 6666
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: "\\b6666\\b"
 
   - id: port-8080-php
-    description: Port 8080 (HTTP alt)
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: Port 8080 (HTTP alt)
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: "\\b8080\\b"
 
   - id: port-9999
-    description: Port 9999
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: Port 9999
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: "\\b9999\\b"
 
   - id: ssrf-pattern
-    description: Server-Side Request Forgery pattern (URL from user input)
-    criticality: suspicious
-    confidence: 0.85
+    desc: Server-Side Request Forgery pattern (URL from user input)
+    crit: suspicious
+    conf: 0.85
     attack: "T1090"
-    condition:
+    if:
       type: ast_pattern
       node_type: function_call_expression
       pattern: "curl_init\\s*\\(.*\\$_(GET|POST|REQUEST)"
       regex: true
 
   - id: google-search-scrape
-    description: Google search results scraping
-    criticality: suspicious
-    confidence: 0.85
-    condition:
+    desc: Google search results scraping
+    crit: suspicious
+    conf: 0.85
+    if:
       type: string
       regex: "google\\.[a-z.]+/search\\?.*site:"
 
   - id: url-param-fetch
-    description: URL parameter fetched and executed
-    criticality: suspicious
-    confidence: 0.8
-    condition:
+    desc: URL parameter fetched and executed
+    crit: suspicious
+    conf: 0.8
+    if:
       type: ast_pattern
       node_type: function_call_expression
       pattern: "(curl_init|file_get_contents|fopen)\\s*\\(.*\\$_(GET|POST)"
       regex: true
 
   - id: dynamic-user-input-call
-    description: User input used as function name (dynamic backdoor)
-    criticality: suspicious
-    confidence: 0.98
+    desc: User input used as function name (dynamic backdoor)
+    crit: suspicious
+    conf: 0.98
     attack: "T1505.003"
-    condition:
+    if:
       type: ast_pattern
       node_type: function_call_expression
       pattern: "\\$_(GET|POST|REQUEST|COOKIE|SERVER)\\s*\\[[^]]+\\]\\s*\\("
@@ -165,11 +165,11 @@ traits:
 
 composite_rules:
   - id: proxy-port
-    description: High port number (proxy/backdoor indicator)
-    criticality: suspicious
-    confidence: 0.8
-    requires_count: 1
-    conditions:
+    desc: High port number (proxy/backdoor indicator)
+    crit: suspicious
+    conf: 0.8
+    count: 1
+    any:
       - id: port-30000
       - id: port-31337-php
       - id: port-4444-php

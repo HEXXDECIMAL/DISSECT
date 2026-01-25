@@ -8,8 +8,8 @@ traits:
 
   - id: stealer/amos/magic-var
     description: AMOS magic variable marker
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1555"
     platforms: [macos]
@@ -20,8 +20,8 @@ traits:
 
   - id: stealer/amos/base32-invalid
     description: AMOS base32 decoding error
-    criticality: suspicious
-    confidence: 0.6
+    crit: suspicious
+    conf: 0.6
     family: true
     attack: "T1140"
     platforms: [macos]
@@ -32,8 +32,8 @@ traits:
 
   - id: stealer/amos/base32-charset
     description: AMOS base32 charset
-    criticality: suspicious
-    confidence: 0.5
+    crit: suspicious
+    conf: 0.5
     attack: "T1140"
     platforms: [macos]
     file_types: [macho]
@@ -48,8 +48,8 @@ traits:
 
   - id: stealer/amos/custom-base64-charset
     description: "Custom Base64 alphabet (cipher variant)"
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1140"
     platforms: [macos]
@@ -61,8 +61,8 @@ traits:
 
   - id: stealer/amos/cipher-math-imports
     description: "Math function imports (cipher indicator)"
-    criticality: notable
-    confidence: 0.7
+    crit: notable
+    conf: 0.7
     attack: "T1027"
     platforms: [macos]
     file_types: [macho]
@@ -76,8 +76,8 @@ traits:
 
   - id: stealer/amos/minimal-cstring
     description: "Minimal __cstring section (<100 bytes)"
-    criticality: notable
-    confidence: 0.7
+    crit: notable
+    conf: 0.7
     attack: "T1027"
     platforms: [macos]
     file_types: [macho]
@@ -89,8 +89,8 @@ traits:
 
   - id: stealer/amos/large-const-payload
     description: "Large __const section (>90% of binary)"
-    criticality: suspicious
-    confidence: 0.75
+    crit: suspicious
+    conf: 0.75
     attack: "T1027"
     platforms: [macos]
     file_types: [macho]
@@ -102,8 +102,8 @@ traits:
 
   - id: stealer/amos/high-const-entropy
     description: "High entropy __const section (encrypted payload)"
-    criticality: suspicious
-    confidence: 0.8
+    crit: suspicious
+    conf: 0.8
     attack: "T1027"
     mbc: "C0027"
     platforms: [macos]
@@ -117,8 +117,8 @@ traits:
 
   - id: stealer/amos/magic-variant-yara
     description: AMOS magic var variant via YARA
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1555"
     platforms: [macos]
@@ -152,8 +152,8 @@ traits:
 
   - id: stealer/amos/base32-variant-yara
     description: AMOS base32 variant via YARA
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1555"
     platforms: [macos]
@@ -182,8 +182,8 @@ traits:
 
   - id: stealer/amos/hex-obfuscated-yara
     description: AMOS hex obfuscated variant via YARA
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     family: true
     attack: "T1555"
     platforms: [macos]
@@ -222,8 +222,8 @@ traits:
 
   - id: stealer/amos/string-obfuscated-yara
     description: AMOS string obfuscated variant via YARA
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     family: true
     attack: "T1555"
     platforms: [macos]
@@ -273,8 +273,8 @@ traits:
 
   - id: stealer/amos/cipher-variant-yara
     description: AMOS cipher variant via YARA
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1555"
     platforms: [macos]
@@ -335,8 +335,8 @@ composite_rules:
   # AMOS magic variable variant
   - id: stealer/amos/magic-variant-detected
     description: AMOS infostealer (magic var variant)
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     reference: "https://www.intego.com/mac-security-blog/poseidon-macos-malware-employs-new-tricks-targets-swiss-mac-users/"
     attack: "T1555"
@@ -349,8 +349,8 @@ composite_rules:
   # AMOS base32 variant
   - id: stealer/amos/base32-variant-detected
     description: AMOS infostealer (base32 variant)
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1555"
     mbc: "B0028"
@@ -362,8 +362,8 @@ composite_rules:
   # AMOS hex obfuscated variant
   - id: stealer/amos/hex-obfuscated-detected
     description: AMOS infostealer (hex obfuscated)
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     family: true
     attack: "T1555"
     mbc: "B0028"
@@ -377,8 +377,8 @@ composite_rules:
   # Characteristics: Very few readable strings, C++ RTTI, daemon imports
   - id: stealer/amos/string-obfuscated-detected
     description: "AMOS infostealer (string obfuscated variant)"
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     family: true
     attack: "T1555"
     mbc: "B0028"
@@ -392,8 +392,8 @@ composite_rules:
   # Obfuscation: plaintext[i] = (table1[i] - table2[i]) ^ table3[i]
   - id: stealer/amos/cipher-variant-detected
     description: "AMOS infostealer (cipher variant - triple lookup table)"
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     reference: "https://www.sentinelone.com/blog/atomic-stealer-threat-actor-spawns-second-variant-of-macos-malware-sold-on-telegram/"
     attack: "T1555"
@@ -406,8 +406,8 @@ composite_rules:
   # Generic AMOS detection combining multiple indicators
   - id: stealer/amos/detected
     description: "AMOS infostealer detected (any variant)"
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     attack: "T1555"
     mbc: "B0028"

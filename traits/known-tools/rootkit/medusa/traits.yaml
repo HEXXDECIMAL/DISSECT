@@ -8,7 +8,7 @@ traits:
 
   - id: rootkit/medusa/libseconf-dir
     description: Medusa hidden configuration directory
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.95
     family: true
     attack: "T1574.006"
@@ -19,7 +19,7 @@ traits:
 
   - id: rootkit/medusa/sshpass-file
     description: Medusa SSH credential storage file
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.98
     family: true
     attack: "T1556"
@@ -30,7 +30,7 @@ traits:
 
   - id: rootkit/medusa/boot-script
     description: Medusa boot persistence script
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.95
     family: true
     attack: "T1547.006"
@@ -41,7 +41,7 @@ traits:
 
   - id: rootkit/medusa/logpam
     description: Medusa PAM logging file
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.95
     family: true
     attack: "T1556.003"
@@ -52,7 +52,7 @@ traits:
 
   - id: rootkit/medusa/ports-file
     description: Medusa ports configuration file
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     family: true
     attack: "T1571"
@@ -65,7 +65,7 @@ traits:
 
   - id: rootkit/medusa/libdsx
     description: Medusa malicious library (libdsx.so)
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.95
     family: true
     attack: "T1574.006"
@@ -76,7 +76,7 @@ traits:
 
   - id: rootkit/medusa/backup-ld
     description: Medusa ld.so backup pattern
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     family: true
     attack: "T1574.006"
@@ -87,7 +87,7 @@ traits:
 
   - id: rootkit/medusa/ldx-staging
     description: Medusa /dev/shm/ldx staging directory
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     family: true
     attack: "T1574.006"
@@ -100,7 +100,7 @@ traits:
 
   - id: rootkit/medusa/sniff-ssh
     description: Medusa SSH session sniffing function
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.98
     family: true
     attack: "T1557"
@@ -111,7 +111,7 @@ traits:
 
   - id: rootkit/medusa/sshdone
     description: Medusa SSH completion marker
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     family: true
     attack: "T1556"
@@ -122,7 +122,7 @@ traits:
 
   - id: rootkit/medusa/sshpass-var
     description: Medusa sshpass variable
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.75
     family: true
     attack: "T1556"
@@ -135,7 +135,7 @@ traits:
 
   - id: rootkit/medusa/selinux-context
     description: Medusa SELinux context manipulation
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     family: true
     attack: "T1562.001"
@@ -146,7 +146,7 @@ traits:
 
   - id: rootkit/medusa/unconfined-exec
     description: Medusa unconfined execution
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.7
     family: true
     attack: "T1562.001"
@@ -157,7 +157,7 @@ traits:
 
   - id: rootkit/medusa/ld-preload-file
     description: Medusa ld.so.preload configuration file access
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     family: true
     attack: "T1574.006"
@@ -170,7 +170,7 @@ traits:
 
   - id: rootkit/medusa/yara
     description: Medusa rootkit via YARA
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.98
     family: true
     attack: "T1574.006"
@@ -226,7 +226,7 @@ composite_rules:
 
   - id: rootkit/medusa/detected
     description: Medusa LD_PRELOAD rootkit with SSH credential theft
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.98
     family: true
     reference: "https://www.elastic.co/security-labs/unveiling-medusa"
@@ -240,13 +240,13 @@ composite_rules:
 
   - id: rootkit/medusa/ssh-theft
     description: Medusa SSH credential theft capability
-    criticality: hostile
+    crit: hostile
     confidence: 0.95
     attack: "T1556"
     mbc: "E1056"
     file_types: [elf]
     requires_count: 2
-    conditions:
+    any:
       - id: rootkit/medusa/sniff-ssh
       - id: rootkit/medusa/sshpass-file
       - id: rootkit/medusa/sshdone
@@ -256,13 +256,13 @@ composite_rules:
 
   - id: rootkit/medusa/ld-hijack
     description: Medusa dynamic linker hijacking
-    criticality: hostile
+    crit: hostile
     confidence: 0.95
     attack: "T1574.006"
     mbc: "F0015"
     file_types: [elf]
     requires_count: 2
-    conditions:
+    any:
       - id: rootkit/medusa/libdsx
       - id: rootkit/medusa/backup-ld
       - id: rootkit/medusa/ldx-staging

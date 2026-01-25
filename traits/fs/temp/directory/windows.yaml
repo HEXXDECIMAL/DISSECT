@@ -5,9 +5,9 @@
 traits:
   - id: directory-windows
     description: Look up temp directory via GetTempPath
-    criticality: inert
-    confidence: 0.66
-    file_types: [pe, dll, c]
-    condition:
+    crit: inert
+    conf: 0.66
+    for: [pe, dll, c]
+    if:
       type: symbol
       pattern: GetTempPath|GetTempPathA|GetTempPathW

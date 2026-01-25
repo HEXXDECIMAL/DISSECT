@@ -6,14 +6,14 @@ defaults:
   file_types: [python]
   mbc: "B0030"
   attack: "T1195.002"
-  criticality: suspicious
+  crit: suspicious
 
 traits:
   # Fake PyPI file hosting domains (AST-based for accuracy)
   - id: fake-pypi-host
     description: "Typosquatted PyPI file hosting domain"
     confidence: 0.98
-    criticality: suspicious
+    crit: suspicious
     condition:
       type: ast_pattern
       node_type: string
@@ -24,7 +24,7 @@ traits:
   - id: pypihosted-org
     description: pypihosted.org typosquat
     confidence: 0.9
-    criticality: notable
+    crit: notable
     condition:
       type: string
       exact: "pypihosted.org"
@@ -33,7 +33,7 @@ traits:
   - id: pythonhosted-com
     description: pythonhosted.com typosquat
     confidence: 0.9
-    criticality: notable
+    crit: notable
     condition:
       type: string
       exact: "pythonhosted.com"
@@ -42,7 +42,7 @@ traits:
   - id: pypi-files-domain
     description: pypi-files. typosquat
     confidence: 0.9
-    criticality: notable
+    crit: notable
     condition:
       type: string
       exact: "pypi-files."
@@ -51,7 +51,7 @@ traits:
   - id: pypyhosted-domain
     description: pypyhosted. typosquat
     confidence: 0.9
-    criticality: notable
+    crit: notable
     condition:
       type: string
       exact: "pypyhosted."
@@ -60,7 +60,7 @@ traits:
   - id: pythonhost-domain
     description: pythonhost. typosquat
     confidence: 0.9
-    criticality: notable
+    crit: notable
     condition:
       type: string
       exact: "pythonhost."
@@ -70,7 +70,7 @@ traits:
   - id: pypii-org
     description: pypii.org typosquat
     confidence: 0.9
-    criticality: notable
+    crit: notable
     condition:
       type: string
       exact: "pypii.org"
@@ -79,7 +79,7 @@ traits:
   - id: pipy-org
     description: pipy.org typosquat
     confidence: 0.9
-    criticality: notable
+    crit: notable
     condition:
       type: string
       exact: "pipy.org"
@@ -88,7 +88,7 @@ traits:
   - id: pyp1-org
     description: pyp1.org typosquat
     confidence: 0.9
-    criticality: notable
+    crit: notable
     condition:
       type: string
       exact: "pyp1.org"
@@ -97,7 +97,7 @@ traits:
   - id: pypl-org
     description: pypl.org typosquat
     confidence: 0.9
-    criticality: notable
+    crit: notable
     condition:
       type: string
       exact: "pypl.org"
@@ -106,7 +106,7 @@ traits:
   - id: py-pi-domain
     description: py-pi. typosquat
     confidence: 0.9
-    criticality: notable
+    crit: notable
     condition:
       type: string
       exact: "py-pi."
@@ -126,7 +126,7 @@ traits:
   - id: fake-pypi-url-domain
     description: "URL containing fake PyPI-like domain"
     confidence: 0.90
-    criticality: suspicious
+    crit: suspicious
     condition:
       type: yara
       source: |
@@ -145,7 +145,7 @@ traits:
   - id: ext-tar-gz
     description: .tar.gz package extension
     confidence: 0.6
-    criticality: inert
+    crit: inert
     condition:
       type: string
       exact: ".tar.gz"
@@ -154,7 +154,7 @@ traits:
   - id: ext-whl
     description: .whl package extension
     confidence: 0.6
-    criticality: inert
+    crit: inert
     condition:
       type: string
       exact: ".whl"
@@ -163,7 +163,7 @@ traits:
   - id: ext-zip
     description: .zip package extension
     confidence: 0.5
-    criticality: inert
+    crit: inert
     condition:
       type: string
       exact: ".zip"
@@ -174,9 +174,9 @@ composite_rules:
   - id: python-package-extension
     description: Python package file extension
     confidence: 0.70
-    criticality: notable
+    crit: notable
     requires_count: 1
-    conditions:
+    any:
       - id: ext-tar-gz
       - id: ext-whl
       - id: ext-zip
@@ -185,9 +185,9 @@ composite_rules:
   - id: fake-pypi-host-raw
     description: "Typosquatted PyPI file hosting domain"
     confidence: 0.95
-    criticality: suspicious
+    crit: suspicious
     requires_count: 1
-    conditions:
+    any:
       - id: pypihosted-org
       - id: pythonhosted-com
       - id: pypi-files-domain
@@ -198,9 +198,9 @@ composite_rules:
   - id: fake-pypi-index
     description: "Typosquatted PyPI index domain"
     confidence: 0.95
-    criticality: suspicious
+    crit: suspicious
     requires_count: 1
-    conditions:
+    any:
       - id: pypii-org
       - id: pipy-org
       - id: pyp1-org
@@ -210,7 +210,7 @@ composite_rules:
   # URL pointing to tar.gz/whl on suspicious domain
   - id: fake-package-download
     description: "Package download URL from typosquatted domain"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.95
     mbc: "B0030"
     requires_any:

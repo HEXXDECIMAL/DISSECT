@@ -1328,7 +1328,7 @@ pub fn eval_syscall(params: &SyscallParams, ctx: &EvaluationContext) -> Conditio
 }
 
 /// Evaluate a condition based on its type
-pub fn eval_condition(condition: &Condition, ctx: &EvaluationContext) -> ConditionResult {
+pub fn eval_condition(if: &Condition, ctx: &EvaluationContext) -> ConditionResult {
     match condition {
         Condition::Symbol { pattern, platforms } => eval_symbol(pattern, platforms.as_ref(), ctx),
         Condition::String {

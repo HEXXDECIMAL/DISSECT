@@ -356,11 +356,11 @@ fn default_min_count() -> usize {
 #[derive(Debug, Clone, Deserialize)]
 pub struct TraitDefinition {
     pub id: String,
-    pub description: String,
+    pub desc: String,
     #[serde(default = "default_confidence")]
-    pub confidence: f32,
+    pub conf: f32,
     #[serde(default)]
-    pub criticality: Criticality,
+    pub crit: Criticality,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub mbc: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
@@ -368,8 +368,8 @@ pub struct TraitDefinition {
     #[serde(default = "default_platforms")]
     pub platforms: Vec<Platform>,
     #[serde(default = "default_file_types")]
-    pub file_types: Vec<FileType>,
-    pub condition: Condition,
+    pub for: Vec<FileType>,
+    pub if: Condition,
 }
 
 fn default_confidence() -> f32 {
@@ -381,10 +381,10 @@ fn default_confidence() -> f32 {
 pub struct CompositeTrait {
     #[serde(alias = "capability")]
     pub id: String,
-    pub description: String,
-    pub confidence: f32,
+    pub desc: String,
+    pub conf: f32,
     #[serde(default)]
-    pub criticality: Criticality,
+    pub crit: Criticality,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub mbc: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
@@ -392,7 +392,7 @@ pub struct CompositeTrait {
     #[serde(default = "default_platforms")]
     pub platforms: Vec<Platform>,
     #[serde(default = "default_file_types")]
-    pub file_types: Vec<FileType>,
+    pub for: Vec<FileType>,
 
     // File size constraints
     #[serde(skip_serializing_if = "Option::is_none", default)]
@@ -412,15 +412,15 @@ pub struct CompositeTrait {
 
     // Boolean operators (only one should be set)
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub requires_all: Option<Vec<Condition>>,
+    pub all: Option<Vec<Condition>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub requires_any: Option<Vec<Condition>>,
+    pub any: Option<Vec<Condition>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub requires_count: Option<usize>,
+    pub count: Option<usize>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub conditions: Option<Vec<Condition>>,
+    pub any: Option<Vec<Condition>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub requires_none: Option<Vec<Condition>>,
+    pub none: Option<Vec<Condition>>,
 }
 
 pub fn default_platforms() -> Vec<Platform> {

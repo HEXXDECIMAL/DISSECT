@@ -3,90 +3,90 @@
 
 traits:
   - id: json-encode
-    description: JSON encoding for data output
-    criticality: inert
-    confidence: 0.6
-    file_types: [php]
-    condition:
+    desc: JSON encoding for data output
+    crit: inert
+    conf: 0.6
+    for: [php]
+    if:
       type: string
       exact: json_encode
 
   - id: json-decode
-    description: JSON decoding for data input
-    criticality: inert
-    confidence: 0.6
-    file_types: [php]
-    condition:
+    desc: JSON decoding for data input
+    crit: inert
+    conf: 0.6
+    for: [php]
+    if:
       type: string
       exact: json_decode
 
   - id: serialize
-    description: PHP object serialization
-    criticality: notable
-    confidence: 0.7
-    file_types: [php]
-    condition:
+    desc: PHP object serialization
+    crit: notable
+    conf: 0.7
+    for: [php]
+    if:
       type: string
       regex: "\\bserialize\\s*\\("
 
   - id: unserialize
-    description: PHP object deserialization (potential RCE vector)
-    criticality: suspicious
-    confidence: 0.9
+    desc: PHP object deserialization (potential RCE vector)
+    crit: suspicious
+    conf: 0.9
     mbc: "E1059"
     attack: "T1059"
-    file_types: [php]
-    condition:
+    for: [php]
+    if:
       type: string
       regex: "\\bunserialize\\s*\\("
 
   # === unserialize user input atomic indicators ===
   - id: unserialize-get
-    description: unserialize from $_GET
-    criticality: inert
-    confidence: 0.8
-    file_types: [php]
-    condition:
+    desc: unserialize from $_GET
+    crit: inert
+    conf: 0.8
+    for: [php]
+    if:
       type: string
       regex: "unserialize\\s*\\(.*\\$_GET"
 
   - id: unserialize-post
-    description: unserialize from $_POST
-    criticality: inert
-    confidence: 0.8
-    file_types: [php]
-    condition:
+    desc: unserialize from $_POST
+    crit: inert
+    conf: 0.8
+    for: [php]
+    if:
       type: string
       regex: "unserialize\\s*\\(.*\\$_POST"
 
   - id: unserialize-request
-    description: unserialize from $_REQUEST
-    criticality: inert
-    confidence: 0.8
-    file_types: [php]
-    condition:
+    desc: unserialize from $_REQUEST
+    crit: inert
+    conf: 0.8
+    for: [php]
+    if:
       type: string
       regex: "unserialize\\s*\\(.*\\$_REQUEST"
 
   - id: unserialize-cookie
-    description: unserialize from $_COOKIE
-    criticality: inert
-    confidence: 0.8
-    file_types: [php]
-    condition:
+    desc: unserialize from $_COOKIE
+    crit: inert
+    conf: 0.8
+    for: [php]
+    if:
       type: string
       regex: "unserialize\\s*\\(.*\\$_COOKIE"
 
 composite_rules:
   - id: unserialize-user-input
-    description: Deserialization of user input (RCE vulnerability)
-    criticality: suspicious
-    confidence: 0.95
+    desc: Deserialization of user input (RCE vulnerability)
+    crit: suspicious
+    conf: 0.95
     mbc: "E1059"
     attack: "T1059"
-    file_types: [php]
+    for: [php]
     requires_count: 1
-    conditions:
+    any:
       - id: unserialize-get
       - id: unserialize-post
       - id: unserialize-request

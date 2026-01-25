@@ -5,97 +5,97 @@
 traits:
   # === OAuth atomic indicators ===
   - id: oauth-lower
-    description: oauth lowercase
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: oauth lowercase
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "oauth"
 
   - id: oauth-upper
-    description: OAuth capitalized
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: OAuth capitalized
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "OAuth"
 
   - id: access-token
-    description: access_token reference
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: access_token reference
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "access_token"
 
   - id: refresh-token
-    description: refresh_token reference
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: refresh_token reference
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "refresh_token"
 
   # === Google OAuth atomic indicators ===
   - id: google-accounts
-    description: accounts.google.com domain
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: accounts.google.com domain
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "accounts.google.com"
 
   - id: googleapis-oauth
-    description: googleapis.com/oauth path
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: googleapis.com/oauth path
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "googleapis.com/oauth"
 
   # === Office365 OAuth atomic indicators ===
   - id: microsoft-login
-    description: login.microsoftonline.com domain
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: login.microsoftonline.com domain
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "login.microsoftonline.com"
 
   - id: microsoft-graph
-    description: graph.microsoft.com domain
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: graph.microsoft.com domain
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "graph.microsoft.com"
 
 composite_rules:
   - id: oauth
-    description: OAuth authentication
-    criticality: notable
-    confidence: 0.66
-    requires_count: 1
-    conditions:
+    desc: OAuth authentication
+    crit: notable
+    conf: 0.66
+    count: 1
+    any:
       - id: oauth-lower
       - id: oauth-upper
       - id: access-token
       - id: refresh-token
 
   - id: oauth-google
-    description: Google OAuth
-    criticality: notable
-    confidence: 0.66
-    requires_count: 1
-    conditions:
+    desc: Google OAuth
+    crit: notable
+    conf: 0.66
+    count: 1
+    any:
       - id: google-accounts
       - id: googleapis-oauth
 
   - id: oauth-office365
-    description: Office365 OAuth
-    criticality: notable
-    confidence: 0.66
-    requires_count: 1
-    conditions:
+    desc: Office365 OAuth
+    crit: notable
+    conf: 0.66
+    count: 1
+    any:
       - id: microsoft-login
       - id: microsoft-graph

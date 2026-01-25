@@ -3,11 +3,11 @@
 
 traits:
   - id: python-os-getenv
-    description: "Accesses sensitive environment variable via os.getenv"
-    criticality: suspicious
-    confidence: 0.9
-    file_types: [python]
-    condition:
+    desc: "Accesses sensitive environment variable via os.getenv"
+    crit: suspicious
+    conf: 0.9
+    for: [python]
+    if:
       type: yara
       source: |
         rule python_os_getenv_secret {
@@ -18,11 +18,11 @@ traits:
         }
 
   - id: python-os-environ
-    description: "Accesses sensitive environment variable via os.environ"
-    criticality: suspicious
-    confidence: 0.9
-    file_types: [python]
-    condition:
+    desc: "Accesses sensitive environment variable via os.environ"
+    crit: suspicious
+    conf: 0.9
+    for: [python]
+    if:
       type: yara
       source: |
         rule python_os_environ_secret {
@@ -34,8 +34,8 @@ traits:
 
 composite_rules:
   - id: python-env-key
-    description: "Accesses sensitive environment variable"
-    criticality: suspicious
-    requires_any:
+    desc: "Accesses sensitive environment variable"
+    crit: suspicious
+    any:
       - id: python-os-getenv
       - id: python-os-environ

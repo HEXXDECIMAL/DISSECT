@@ -5,65 +5,65 @@
 defaults:
   attack: "T1110"
   platforms: [macos]
-  criticality: suspicious
+  crit: suspicious
 
 traits:
   # === dscl authonly atomic indicators ===
   - id: dscl-dot-authonly
-    description: dscl . authonly command
-    criticality: notable
-    confidence: 0.85
+    desc: dscl . authonly command
+    crit: notable
+    conf: 0.85
     attack: "T1110.001"
     mbc: "E1110"
-    condition:
+    if:
       type: string
       regex: "dscl\\s+\\.\\s+authonly"
 
   - id: dscl-flag-authonly
-    description: dscl -authonly flag
-    criticality: notable
-    confidence: 0.85
+    desc: dscl -authonly flag
+    crit: notable
+    conf: 0.85
     attack: "T1110.001"
     mbc: "E1110"
-    condition:
+    if:
       type: string
       regex: "dscl.*-authonly"
 
   # === dscl read atomic indicators ===
   - id: dscl-dot-read
-    description: dscl . read command
-    criticality: inert
-    confidence: 0.6
+    desc: dscl . read command
+    crit: inert
+    conf: 0.6
     attack: "T1087.001"
-    condition:
+    if:
       type: string
       regex: "dscl\\s+\\.\\s+read"
 
   - id: dscl-flag-read
-    description: dscl -read flag
-    criticality: inert
-    confidence: 0.6
+    desc: dscl -read flag
+    crit: inert
+    conf: 0.6
     attack: "T1087.001"
-    condition:
+    if:
       type: string
       regex: "dscl.*-read"
 
   # === dscl list atomic indicators ===
   - id: dscl-dot-list
-    description: dscl . list command
-    criticality: inert
-    confidence: 0.55
+    desc: dscl . list command
+    crit: inert
+    conf: 0.55
     attack: "T1087.001"
-    condition:
+    if:
       type: string
       regex: "dscl\\s+\\.\\s+list"
 
   - id: dscl-flag-list
-    description: dscl . -list command
-    criticality: inert
-    confidence: 0.55
+    desc: dscl . -list command
+    crit: inert
+    conf: 0.55
     attack: "T1087.001"
-    condition:
+    if:
       type: string
       regex: "dscl\\s+\\.\\s+-list"
 
@@ -71,56 +71,56 @@ traits:
 
   # === Shadow password atomic indicators ===
   - id: dslocal-db
-    description: /var/db/dslocal directory
-    criticality: inert
-    confidence: 0.7
+    desc: /var/db/dslocal directory
+    crit: inert
+    conf: 0.7
     attack: "T1003.008"
-    condition:
+    if:
       type: string
       exact: "/var/db/dslocal"
 
   - id: shadow-hash-data
-    description: ShadowHashData reference
-    criticality: inert
-    confidence: 0.7
+    desc: ShadowHashData reference
+    crit: inert
+    conf: 0.7
     attack: "T1003.008"
-    condition:
+    if:
       type: string
       exact: "ShadowHashData"
 
   - id: etc-shadow
-    description: /etc/shadow file
-    criticality: inert
-    confidence: 0.7
+    desc: /etc/shadow file
+    crit: inert
+    conf: 0.7
     attack: "T1003.008"
-    condition:
+    if:
       type: string
       exact: "/etc/shadow"
 
   # === Credential keyword atomic indicators ===
   - id: password-word
-    description: password keyword
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: password keyword
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       exact: "password"
       case_insensitive: true
 
   - id: pwd-word
-    description: pwd keyword
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: pwd keyword
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       exact: "pwd"
       case_insensitive: true
 
   - id: credential-word
-    description: credential keyword
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: credential keyword
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       exact: "credential"
       case_insensitive: true
@@ -128,70 +128,70 @@ traits:
 composite_rules:
   # dscl authonly composite
   - id: dscl-authonly
-    description: macOS dscl password validation (authonly)
-    criticality: suspicious
-    confidence: 0.95
+    desc: macOS dscl password validation (authonly)
+    crit: suspicious
+    conf: 0.95
     attack: "T1110.001"
     mbc: "E1110"
     requires_count: 1
-    conditions:
+    any:
       - id: dscl-dot-authonly
       - id: dscl-flag-authonly
 
   # dscl read composite
   - id: dscl-read
-    description: macOS Directory Services user enumeration
-    criticality: notable
-    confidence: 0.7
+    desc: macOS Directory Services user enumeration
+    crit: notable
+    conf: 0.7
     attack: "T1087.001"
     requires_count: 1
-    conditions:
+    any:
       - id: dscl-dot-read
       - id: dscl-flag-read
 
   # dscl list composite
   - id: dscl-list
-    description: macOS Directory Services listing
-    criticality: notable
-    confidence: 0.65
+    desc: macOS Directory Services listing
+    crit: notable
+    conf: 0.65
     attack: "T1087.001"
     requires_count: 1
-    conditions:
+    any:
       - id: dscl-dot-list
       - id: dscl-flag-list
 
   # Shadow hash access composite
   - id: shadow-hash
-    description: "Access to shadow password hashes"
-    criticality: suspicious
-    confidence: 0.85
+    desc: "Access to shadow password hashes"
+    crit: suspicious
+    conf: 0.85
     attack: "T1003.008"
     requires_count: 1
-    conditions:
+    any:
       - id: dslocal-db
       - id: shadow-hash-data
       - id: etc-shadow
 
   # Credential keyword composite
   - id: credential-keyword
-    description: "Password or credential keyword reference"
-    criticality: notable
-    confidence: 0.6
+    desc: "Password or credential keyword reference"
+    crit: notable
+    conf: 0.6
     requires_count: 1
-    conditions:
+    any:
       - id: password-word
       - id: pwd-word
       - id: credential-word
 
   # Password validation + capture = credential theft
   - id: validation-theft
-    description: "macOS credential capture and validation"
-    criticality: hostile
-    confidence: 0.95
+    desc: "macOS credential capture and validation"
+    crit: hostile
+    conf: 0.95
     attack: "T1110.001"
-    file_types: [shell, applescript, python]
-    requires_all:
+    for: [shell, applescript, python]
+    all:
       - id: dscl-authonly
-    requires_any:
+    any:
       - id: credential-keyword
       - id: evasion/applescript/password-dialog

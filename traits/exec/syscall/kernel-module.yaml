@@ -1,80 +1,80 @@
 traits:
   - id: syscall-init-module
-    description: "init_module syscall for loading kernel module"
-    criticality: notable
-    confidence: 0.8
+    desc: "init_module syscall for loading kernel module"
+    crit: notable
+    conf: 0.8
     platforms: [linux]
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: syscall
       name: ["init_module"]
 
   - id: syscall-finit-module
-    description: "finit_module syscall for loading kernel module from file descriptor"
-    criticality: notable
-    confidence: 0.8
+    desc: "finit_module syscall for loading kernel module from file descriptor"
+    crit: notable
+    conf: 0.8
     platforms: [linux]
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: syscall
       name: ["finit_module"]
 
   - id: syscall-delete-module
-    description: "delete_module syscall for unloading kernel module"
-    criticality: notable
-    confidence: 0.8
+    desc: "delete_module syscall for unloading kernel module"
+    crit: notable
+    conf: 0.8
     platforms: [linux]
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: syscall
       name: ["delete_module"]
 
   - id: syscall-kexec-load
-    description: "kexec_load syscall for loading new kernel"
-    criticality: notable
-    confidence: 0.8
+    desc: "kexec_load syscall for loading new kernel"
+    crit: notable
+    conf: 0.8
     platforms: [linux]
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: syscall
       name: ["kexec_load"]
 
   - id: syscall-kexec-file-load
-    description: "kexec_file_load syscall for loading new kernel from file"
-    criticality: notable
-    confidence: 0.8
+    desc: "kexec_file_load syscall for loading new kernel from file"
+    crit: notable
+    conf: 0.8
     platforms: [linux]
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: syscall
       name: ["kexec_file_load"]
 
 composite_rules:
   - id: kernel-module-load
-    description: Loads kernel module
-    confidence: 0.95
-    criticality: suspicious
+    desc: Loads kernel module
+    conf: 0.95
+    crit: suspicious
     platforms: [linux]
-    file_types: [elf]
+    for: [elf]
     requires_any:
       - id: syscall-init-module
       - id: syscall-finit-module
 
   - id: kernel-module-unload
-    description: Unloads kernel module
-    confidence: 0.9
-    criticality: suspicious
+    desc: Unloads kernel module
+    conf: 0.9
+    crit: suspicious
     platforms: [linux]
-    file_types: [elf]
+    for: [elf]
     requires_all:
       - id: syscall-delete-module
 
   - id: kexec
-    description: Loads new kernel for kexec
-    confidence: 0.95
-    criticality: suspicious
+    desc: Loads new kernel for kexec
+    conf: 0.95
+    crit: suspicious
     platforms: [linux]
-    file_types: [elf]
+    for: [elf]
     requires_any:
       - id: syscall-kexec-load
       - id: syscall-kexec-file-load

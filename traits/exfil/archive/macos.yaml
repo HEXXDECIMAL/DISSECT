@@ -5,134 +5,134 @@
 defaults:
   attack: "T1560.001"
   platforms: [macos]
-  criticality: notable
+  crit: notable
 
 traits:
   # === ditto compress atomic indicators ===
   - id: ditto-ck-flags
-    description: ditto -c -k compression flags
-    criticality: notable
-    confidence: 0.75
-    condition:
+    desc: ditto -c -k compression flags
+    crit: notable
+    conf: 0.75
+    if:
       type: string
       regex: "ditto\\s+-c\\s+-k"
 
   - id: ditto-keepparent
-    description: ditto --keepParent compression
-    criticality: notable
-    confidence: 0.75
-    condition:
+    desc: ditto --keepParent compression
+    crit: notable
+    conf: 0.75
+    if:
       type: string
       regex: "ditto.*--keepParent.*-c"
 
   # === ditto sequester atomic indicators ===
   - id: ditto-sequesterrsrc
-    description: ditto --sequesterRsrc flag
-    criticality: notable
-    confidence: 0.8
-    condition:
+    desc: ditto --sequesterRsrc flag
+    crit: notable
+    conf: 0.8
+    if:
       type: string
       exact: "--sequesterRsrc"
 
   - id: ditto-rsrc-flag
-    description: ditto -rsrc flag
-    criticality: notable
-    confidence: 0.8
-    condition:
+    desc: ditto -rsrc flag
+    crit: notable
+    conf: 0.8
+    if:
       type: string
       regex: "ditto.*-rsrc"
 
   # === zip create atomic indicators ===
   - id: zip-recursive-quiet
-    description: zip -r or -q flag
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: zip -r or -q flag
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: "\\bzip\\s+-[rq]"
 
   - id: zip-output-file
-    description: zip with .zip output
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: zip with .zip output
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: "\\bzip\\s+.*\\.zip"
 
   # === tmp archive atomic indicators ===
   - id: tmp-zip-path
-    description: zip file in /tmp
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: zip file in /tmp
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: "/tmp/.*\\.zip"
 
   - id: tmp-out-zip
-    description: /tmp/out.zip file
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: /tmp/out.zip file
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "/tmp/out.zip"
 
   - id: var-tmp-zip
-    description: zip file in /var/tmp
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: zip file in /var/tmp
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: "/var/tmp/.*\\.zip"
 
 composite_rules:
   # ditto compress composite
   - id: ditto-compress
-    description: ditto archive creation with compression
-    criticality: suspicious
-    confidence: 0.85
+    desc: ditto archive creation with compression
+    crit: suspicious
+    conf: 0.85
     requires_count: 1
-    conditions:
+    any:
       - id: ditto-ck-flags
       - id: ditto-keepparent
 
   # ditto sequester composite
   - id: ditto-sequester
-    description: ditto with resource fork handling
-    criticality: suspicious
-    confidence: 0.9
+    desc: ditto with resource fork handling
+    crit: suspicious
+    conf: 0.9
     requires_count: 1
-    conditions:
+    any:
       - id: ditto-sequesterrsrc
       - id: ditto-rsrc-flag
 
   # zip create composite
   - id: zip-create
-    description: zip archive creation
-    criticality: notable
-    confidence: 0.7
+    desc: zip archive creation
+    crit: notable
+    conf: 0.7
     requires_count: 1
-    conditions:
+    any:
       - id: zip-recursive-quiet
       - id: zip-output-file
 
   # tmp archive composite
   - id: tmp-archive
-    description: "Archive creation in /tmp"
-    criticality: suspicious
-    confidence: 0.8
+    desc: "Archive creation in /tmp"
+    crit: suspicious
+    conf: 0.8
     requires_count: 1
-    conditions:
+    any:
       - id: tmp-zip-path
       - id: tmp-out-zip
       - id: var-tmp-zip
 
   # ditto staging for exfil
   - id: ditto-staging
-    description: "macOS data staging via ditto"
-    criticality: suspicious
-    confidence: 0.9
+    desc: "macOS data staging via ditto"
+    crit: suspicious
+    conf: 0.9
     attack: "T1560.001"
-    file_types: [shell, applescript, python]
+    for: [shell, applescript, python]
     requires_any:
       - id: ditto-compress
       - id: ditto-sequester
@@ -141,11 +141,11 @@ composite_rules:
 
   # Archive with curl exfil
   - id: archive-exfil
-    description: "Archive creation with HTTP exfiltration"
-    criticality: hostile
-    confidence: 0.95
+    desc: "Archive creation with HTTP exfiltration"
+    crit: hostile
+    conf: 0.95
     attack: "T1560.001"
-    file_types: [shell, applescript, python]
+    for: [shell, applescript, python]
     requires_all:
       - id: tmp-archive
     requires_any:

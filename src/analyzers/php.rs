@@ -114,7 +114,7 @@ impl PhpAnalyzer {
 
         report.structure.push(StructuralFeature {
             id: "source/language/php".to_string(),
-            description: "PHP source code".to_string(),
+            desc: "PHP source code".to_string(),
             evidence: vec![Evidence {
                 method: "parser".to_string(),
                 source: "tree-sitter-php".to_string(),
@@ -240,10 +240,10 @@ impl PhpAnalyzer {
                                 kind: FindingKind::Capability,
                                 trait_refs: vec![],
                                 id: "anti-analysis/obfuscation/long-identifier".to_string(),
-                                description: "Unusually long identifier (potential obfuscation)"
+                                desc: "Unusually long identifier (potential obfuscation)"
                                     .to_string(),
-                                confidence: 0.8,
-                                criticality: Criticality::Notable,
+                                conf: 0.8,
+                                crit: Criticality::Notable,
                                 mbc: None,
                                 attack: None,
                                 evidence: vec![Evidence {
@@ -470,9 +470,9 @@ impl PhpAnalyzer {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: "anti-analysis/obfuscation/non-ascii-call".to_string(),
-                description: "Function call with non-ASCII name (obfuscation)".to_string(),
-                confidence: 0.98,
-                criticality: Criticality::Hostile,
+                desc: "Function call with non-ASCII name (obfuscation)".to_string(),
+                conf: 0.98,
+                crit: Criticality::Hostile,
                 mbc: None,
                 attack: None,
                 evidence: vec![Evidence {
@@ -493,9 +493,9 @@ impl PhpAnalyzer {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: "exec/dynamic-call".to_string(),
-                description: "Dynamic function call (potential webshell indicator)".to_string(),
-                confidence: 0.9,
-                criticality: Criticality::Suspicious,
+                desc: "Dynamic function call (potential webshell indicator)".to_string(),
+                conf: 0.9,
+                crit: Criticality::Suspicious,
                 mbc: None,
                 attack: None,
                 evidence: vec![Evidence {
@@ -845,9 +845,9 @@ impl PhpAnalyzer {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: cap_id.to_string(),
-                description: desc.to_string(),
-                confidence: conf,
-                criticality,
+                desc: desc.to_string(),
+                conf: conf,
+                crit: criticality,
                 mbc: None,
                 attack: None,
                 evidence: vec![Evidence {
@@ -901,9 +901,9 @@ impl PhpAnalyzer {
             kind: FindingKind::Capability,
             trait_refs: vec![],
             id: "fs/include".to_string(),
-            description: format!("File inclusion ({})", include_type),
-            confidence,
-            criticality,
+            desc: format!("File inclusion ({})", include_type),
+            conf: confidence,
+            crit: criticality,
             mbc: None,
             attack: None,
             evidence: vec![Evidence {
@@ -979,9 +979,9 @@ impl PhpAnalyzer {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: cap_id.to_string(),
-                description: desc.to_string(),
-                confidence: conf,
-                criticality,
+                desc: desc.to_string(),
+                conf: conf,
+                crit: criticality,
                 mbc: None,
                 attack: None,
                 evidence: vec![Evidence {
@@ -1012,9 +1012,9 @@ impl PhpAnalyzer {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: "database/query".to_string(),
-                description: "Database prepared statement".to_string(),
-                confidence: 0.8,
-                criticality: Criticality::Notable,
+                desc: "Database prepared statement".to_string(),
+                conf: 0.8,
+                crit: Criticality::Notable,
                 mbc: None,
                 attack: None,
                 evidence: vec![Evidence {
@@ -1233,7 +1233,7 @@ mod tests {
             .iter()
             .find(|c| c.id == "fs/include")
             .unwrap();
-        assert_eq!(cap.criticality, Criticality::Hostile);
+        assert_eq!(cap.crit, Criticality::Hostile);
     }
 
     #[test]

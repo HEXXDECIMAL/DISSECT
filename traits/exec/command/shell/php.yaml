@@ -3,82 +3,82 @@
 # ATT&CK: T1059.004 (Unix Shell)
 
 defaults:
-  file_types: [php]
-  criticality: suspicious
+  for: [php]
+  crit: suspicious
   mbc: "E1059"
   attack: "T1059.004"
 
 traits:
   - id: exec
-    description: Shell command execution via exec()
-    confidence: 0.95
-    condition:
+    desc: Shell command execution via exec()
+    conf: 0.95
+    if:
       type: ast_pattern
       node_type: function_call_expression
       pattern: "exec"
 
   - id: shell-exec
-    description: Shell command execution via shell_exec()
-    confidence: 0.95
-    condition:
+    desc: Shell command execution via shell_exec()
+    conf: 0.95
+    if:
       type: ast_pattern
       node_type: function_call_expression
       pattern: "shell_exec"
 
   - id: system
-    description: Shell command execution via system()
-    confidence: 0.95
-    condition:
+    desc: Shell command execution via system()
+    conf: 0.95
+    if:
       type: ast_pattern
       node_type: function_call_expression
       pattern: "system"
 
   - id: passthru
-    description: Shell command execution via passthru()
-    confidence: 0.95
-    condition:
+    desc: Shell command execution via passthru()
+    conf: 0.95
+    if:
       type: ast_pattern
       node_type: function_call_expression
       pattern: "passthru"
 
   - id: popen
-    description: Process open via popen()
-    confidence: 0.9
-    condition:
+    desc: Process open via popen()
+    conf: 0.9
+    if:
       type: ast_pattern
       node_type: function_call_expression
       pattern: "popen"
 
   - id: proc-open
-    description: Process execution via proc_open()
-    confidence: 0.9
-    condition:
+    desc: Process execution via proc_open()
+    conf: 0.9
+    if:
       type: ast_pattern
       node_type: function_call_expression
       pattern: "proc_open"
 
   - id: pcntl-exec
-    description: Direct process execution via pcntl_exec()
-    confidence: 0.95
+    desc: Direct process execution via pcntl_exec()
+    conf: 0.95
     attack: "T1059"  # Override: generic T1059 instead of T1059.004
-    condition:
+    if:
       type: ast_pattern
       node_type: function_call_expression
       pattern: "pcntl_exec"
 
   - id: backtick
-    description: Shell command execution via backticks
-    confidence: 0.9
-    condition:
+    desc: Shell command execution via backticks
+    conf: 0.9
+    if:
       type: ast_pattern
       node_type: shell_command_expression
       pattern: ".*"
       regex: true
 
   - id: exec-user-input
-    description: Command execution with user input (RCE)
-    confidence: 0.9
-    condition:
+    desc: Command execution with user input (RCE)
+    conf: 0.9
+    if:
       type: ast_pattern
       node_type: function_call_expression
       pattern: "(exec|system|shell_exec|passthru|popen)\\s*\\([^)]*\\$_(GET|POST|REQUEST)"

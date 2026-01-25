@@ -11,7 +11,7 @@ rule malware_webrcs_lnk {
         $s2 = "-I D;saps $f;cp desktop.ini " ascii wide
         $s3 = ";if(Test-Path $n){saps $" ascii wide
 
-    condition:
+    if:
         (uint32(0) == 0x0000004C) and
         2 of them
 }
@@ -23,7 +23,7 @@ rule malware_webrcs {
         hash = "74aa2eedaa6594efa2075ea2f4617ed3206d228b8fae5fc54382630764bdb5ad"
 
     strings:
-        $s1 = "C:\\boringssl_x86\\ssl\\encrypted_client_hello.cc" ascii 
+        $s1 = "C:\\boringssl_x86\\ssl\\encrypted_client_hello.cc" ascii
         $s2 = "_rloader@4" ascii
         $s3 = "shell" wide
         $s4 = {
@@ -37,7 +37,7 @@ rule malware_webrcs {
 		}
         $s5 = "cqWKroElukZpUd7X2FRJhAC3IS05j6efzDmaVwv4igGtTY89sOx1QHPNBMLybn+-" ascii
 
-    condition:
+    if:
         uint16(0) == 0x5A4D and
         uint32(uint32(0x3c)) == 0x00004550 and
         (pe.overlay.size > 512000 and

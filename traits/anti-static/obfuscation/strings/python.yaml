@@ -3,16 +3,16 @@
 # ATT&CK: T1027
 
 defaults:
-  file_types: [python]
+  for: [python]
   mbc: "B0032"
   attack: "T1027"
 
 traits:
   - id: python-hex
-    description: "Detects hex-encoded string patterns"
-    criticality: notable
-    confidence: 0.7
-    condition:
+    desc: "Detects hex-encoded string patterns"
+    crit: notable
+    conf: 0.7
+    if:
       type: yara
       source: |
         rule python_hex_obfuscation {
@@ -23,10 +23,10 @@ traits:
         }
 
   - id: python-octal
-    description: "Detects octal-encoded string patterns"
-    criticality: notable
-    confidence: 0.7
-    condition:
+    desc: "Detects octal-encoded string patterns"
+    crit: notable
+    conf: 0.7
+    if:
       type: yara
       source: |
         rule python_octal_obfuscation {
@@ -37,18 +37,18 @@ traits:
         }
 
   - id: python-chr
-    description: "Character code manipulation (chr/ord)"
-    criticality: notable
-    confidence: 0.6
-    condition:
+    desc: "Character code manipulation (chr/ord)"
+    crit: notable
+    conf: 0.6
+    if:
       type: string
       regex: '\\b(chr|ord)\('
 
   - id: concatenated-execution
-    description: "String concatenation in execution sink (Evasion)"
-    criticality: suspicious
-    confidence: 0.85
-    condition:
+    desc: "String concatenation in execution sink (Evasion)"
+    crit: suspicious
+    conf: 0.85
+    if:
       type: ast_query
       language: python
       query: |
@@ -62,70 +62,70 @@ traits:
         (#match? @func "^(exec|eval|b64decode|system|compile)$")
 
   - id: python-exec-eval
-    description: "Dynamic code execution via exec() or eval()"
-    criticality: notable
-    confidence: 0.7
-    condition:
+    desc: "Dynamic code execution via exec() or eval()"
+    crit: notable
+    conf: 0.7
+    if:
       type: string
       regex: 'exec\(|eval\('
 
   # === Decoding function atomic indicators ===
   - id: b64decode-call
-    description: base64 b64decode function
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: base64 b64decode function
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "b64decode"
 
   - id: fromhex-call
-    description: fromhex function
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: fromhex function
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "fromhex"
 
   - id: bytes-fromhex-call
-    description: bytes.fromhex function
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: bytes.fromhex function
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "bytes.fromhex"
 
   - id: bz2-decompress-call
-    description: bz2.decompress function
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: bz2.decompress function
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "bz2.decompress"
 
   - id: zlib-decompress-call
-    description: zlib.decompress function
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: zlib.decompress function
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "zlib.decompress"
 
   - id: marshal-loads-call
-    description: marshal.loads function
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: marshal.loads function
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "marshal.loads"
 
 composite_rules:
   # Decode functions composite
   - id: python-decode-functions
-    description: "Decoding functions for encoded payloads"
-    criticality: notable
-    confidence: 0.7
-    requires_count: 1
-    conditions:
+    desc: "Decoding functions for encoded payloads"
+    crit: notable
+    conf: 0.7
+    count: 1
+    any:
       - id: b64decode-call
       - id: fromhex-call
       - id: bytes-fromhex-call
@@ -134,26 +134,26 @@ composite_rules:
       - id: marshal-loads-call
 
   - id: execute-decoded-content
-    description: "Direct execution of decoded content (Dynamic Dropper)"
-    criticality: hostile
-    confidence: 0.98
-    requires_all:
+    desc: "Direct execution of decoded content (Dynamic Dropper)"
+    crit: hostile
+    conf: 0.98
+    all:
       - id: python-exec-eval
       - id: python-decode-functions
       - id: python-chr
 
   - id: python-encoded-pattern
-    description: "Detects encoded string patterns (hex or octal)"
-    criticality: notable
-    requires_any:
+    desc: "Detects encoded string patterns (hex or octal)"
+    crit: notable
+    any:
       - id: python-hex
       - id: python-octal
 
   - id: obfuscated-execution
-    description: "Direct execution of encoded string (Dynamic Dropper)"
-    criticality: hostile
-    confidence: 0.95
-    requires_all:
+    desc: "Direct execution of encoded string (Dynamic Dropper)"
+    crit: hostile
+    conf: 0.95
+    all:
       - id: python-exec-eval
       - id: python-encoded-pattern
       - id: python-chr

@@ -7,8 +7,8 @@
 composite_rules:
   - id: infostealer/python-profiler
     description: "System Profiler & Exfiltrator (MAC + User + Network)"
-    criticality: suspicious
-    confidence: 0.98
+    crit: suspicious
+    conf: 0.98
     mbc: "B0028"
     attack: "T1555"
     file_types: [python]

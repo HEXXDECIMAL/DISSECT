@@ -4,7 +4,7 @@
 
 defaults:
   # osascript can be invoked from any language: python subprocess, ruby system(), etc.
-  file_types: [applescript, shell, python, ruby, perl, javascript, elf, macho]
+  for: [applescript, shell, python, ruby, perl, javascript, elf, macho]
   platforms: [macos]
   attack: "T1204.002"
 
@@ -13,26 +13,26 @@ traits:
   # Compatibility Wizard Lure (common in AMOS)
   # ============================================
   - id: compat-wizard
-    description: "Compatibility Wizard lure text"
-    criticality: suspicious
-    confidence: 0.95
-    condition:
+    desc: "Compatibility Wizard lure text"
+    crit: suspicious
+    conf: 0.95
+    if:
       type: string
       regex: "(?i)Compatibility Wizard"
 
   - id: compat-issue
-    description: "Compatibility issue lure text"
-    criticality: suspicious
-    confidence: 0.85
-    condition:
+    desc: "Compatibility issue lure text"
+    crit: suspicious
+    conf: 0.85
+    if:
       type: string
       regex: "(?i)compatibility issue"
 
   - id: file-not-opened
-    description: "File couldn't be opened lure"
-    criticality: notable
-    confidence: 0.8
-    condition:
+    desc: "File couldn't be opened lure"
+    crit: notable
+    conf: 0.8
+    if:
       type: string
       regex: "(?i)couldn't be opened"
 
@@ -40,42 +40,42 @@ traits:
   # Missing Components Lure
   # ============================================
   - id: missing-extensions
-    description: "Missing extensions lure text"
-    criticality: suspicious
-    confidence: 0.85
-    condition:
+    desc: "Missing extensions lure text"
+    crit: suspicious
+    conf: 0.85
+    if:
       type: string
       regex: "(?i)extensions are missing"
 
   - id: missing-required-ext
-    description: "Missing required extensions lure"
-    criticality: suspicious
-    confidence: 0.85
-    condition:
+    desc: "Missing required extensions lure"
+    crit: suspicious
+    conf: 0.85
+    if:
       type: string
       regex: "(?i)Missing required extensions"
 
   - id: missing-required-comp
-    description: "Missing required components lure"
-    criticality: suspicious
-    confidence: 0.85
-    condition:
+    desc: "Missing required components lure"
+    crit: suspicious
+    conf: 0.85
+    if:
       type: string
       regex: "(?i)Missing required components"
 
   - id: required-components
-    description: "Required components lure text"
-    criticality: notable
-    confidence: 0.8
-    condition:
+    desc: "Required components lure text"
+    crit: notable
+    conf: 0.8
+    if:
       type: string
       regex: "(?i)required components"
 
   - id: required-extensions
-    description: "Required extensions lure text"
-    criticality: notable
-    confidence: 0.8
-    condition:
+    desc: "Required extensions lure text"
+    crit: notable
+    conf: 0.8
+    if:
       type: string
       regex: "(?i)required extensions"
 
@@ -83,26 +83,26 @@ traits:
   # System Update Lure
   # ============================================
   - id: system-update
-    description: "System update lure text"
-    criticality: notable
-    confidence: 0.8
-    condition:
+    desc: "System update lure text"
+    crit: notable
+    conf: 0.8
+    if:
       type: string
       regex: "(?i)System update"
 
   - id: check-updates
-    description: "Check updates lure text"
-    criticality: notable
-    confidence: 0.75
-    condition:
+    desc: "Check updates lure text"
+    crit: notable
+    conf: 0.75
+    if:
       type: string
       regex: "(?i)Check.*updates"
 
   - id: install-components
-    description: "Install components lure text"
-    criticality: notable
-    confidence: 0.8
-    condition:
+    desc: "Install components lure text"
+    crit: notable
+    conf: 0.8
+    if:
       type: string
       regex: "(?i)install.*components"
 
@@ -110,60 +110,60 @@ traits:
   # User Action Prompts
   # ============================================
   - id: click-button
-    description: "Instructs user to click button"
-    criticality: notable
-    confidence: 0.75
-    condition:
+    desc: "Instructs user to click button"
+    crit: notable
+    conf: 0.75
+    if:
       type: string
       regex: "(?i)click the.*button"
 
   - id: press-continue
-    description: "Instructs user to press to continue"
-    criticality: notable
-    confidence: 0.75
-    condition:
+    desc: "Instructs user to press to continue"
+    crit: notable
+    conf: 0.75
+    if:
       type: string
       regex: "(?i)press.*to continue"
 
 composite_rules:
   # Missing message group
   - id: missing-message
-    description: Missing components/extensions message
-    criticality: suspicious
-    confidence: 0.85
+    desc: Missing components/extensions message
+    crit: suspicious
+    conf: 0.85
     requires_count: 1
-    conditions:
+    any:
       - id: missing-extensions
       - id: missing-required-ext
       - id: missing-required-comp
 
   # User action prompt group
   - id: user-action-prompt
-    description: User action prompt text
-    criticality: notable
-    confidence: 0.75
+    desc: User action prompt text
+    crit: notable
+    conf: 0.75
     requires_count: 1
-    conditions:
+    any:
       - id: click-button
       - id: press-continue
 
   # Update message group
   - id: update-message
-    description: Update-related lure message
-    criticality: notable
-    confidence: 0.8
+    desc: Update-related lure message
+    crit: notable
+    conf: 0.8
     requires_count: 1
-    conditions:
+    any:
       - id: system-update
       - id: check-updates
 
   # Compatibility lure group
   - id: compat-lure
-    description: Compatibility-related lure message
-    criticality: suspicious
-    confidence: 0.9
+    desc: Compatibility-related lure message
+    crit: suspicious
+    conf: 0.9
     requires_count: 1
-    conditions:
+    any:
       - id: compat-wizard
       - id: compat-issue
       - id: missing-extensions
@@ -173,10 +173,10 @@ composite_rules:
   # Compatibility Wizard Attack
   # ============================================
   - id: compat-wizard-attack
-    description: "Compatibility Wizard user execution lure"
-    criticality: suspicious
-    confidence: 0.95
-    file_types: [applescript, shell]
+    desc: "Compatibility Wizard user execution lure"
+    crit: suspicious
+    conf: 0.95
+    for: [applescript, shell]
     requires_all:
       - id: compat-wizard
       - id: missing-message
@@ -185,10 +185,10 @@ composite_rules:
   # Fake Update Attack
   # ============================================
   - id: fake-update-attack
-    description: "Fake system update user execution lure"
-    criticality: suspicious
-    confidence: 0.9
-    file_types: [applescript, shell]
+    desc: "Fake system update user execution lure"
+    crit: suspicious
+    conf: 0.9
+    for: [applescript, shell]
     requires_all:
       - id: update-message
       - id: install-components
@@ -197,10 +197,10 @@ composite_rules:
   # Missing Components Attack
   # ============================================
   - id: missing-components-attack
-    description: "Missing components user execution lure"
-    criticality: suspicious
-    confidence: 0.9
-    file_types: [applescript, shell]
+    desc: "Missing components user execution lure"
+    crit: suspicious
+    conf: 0.9
+    for: [applescript, shell]
     requires_all:
       - id: missing-message
       - id: user-action-prompt
@@ -209,10 +209,10 @@ composite_rules:
   # Lure with Shell Execution
   # ============================================
   - id: lure-with-shell
-    description: "User execution lure with shell command"
-    criticality: suspicious
-    confidence: 0.95
-    file_types: [applescript]
+    desc: "User execution lure with shell command"
+    crit: suspicious
+    conf: 0.95
+    for: [applescript]
     requires_all:
       - id: compat-lure
       - id: exec/command/shell-execution

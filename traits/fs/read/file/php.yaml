@@ -4,57 +4,57 @@
 traits:
   - id: file-get-contents
     description: File read via file_get_contents
-    criticality: notable
-    confidence: 0.75
+    crit: notable
+    conf: 0.75
     mbc: "C0051"
-    file_types: [php]
-    condition:
+    for: [php]
+    if:
       type: string
       exact: file_get_contents
 
   - id: fread
     description: File read via fread
-    criticality: notable
-    confidence: 0.75
+    crit: notable
+    conf: 0.75
     mbc: "C0051"
-    file_types: [php]
-    condition:
+    for: [php]
+    if:
       type: string
       regex: "\\bfread\\s*\\("
 
   - id: fgets
     description: Line read via fgets
-    criticality: inert
-    confidence: 0.6
-    file_types: [php]
-    condition:
+    crit: inert
+    conf: 0.6
+    for: [php]
+    if:
       type: string
       regex: "\\bfgets\\s*\\("
 
   - id: readfile
     description: Output file contents via readfile
-    criticality: notable
-    confidence: 0.75
+    crit: notable
+    conf: 0.75
     mbc: "C0051"
-    file_types: [php]
-    condition:
+    for: [php]
+    if:
       type: string
       exact: readfile
 
   - id: fopen
     description: File open operation
-    criticality: inert
-    confidence: 0.6
-    file_types: [php]
-    condition:
+    crit: inert
+    conf: 0.6
+    for: [php]
+    if:
       type: string
       regex: "\\bfopen\\s*\\("
 
   - id: realpath
     description: Resolve real file path
-    criticality: inert
-    confidence: 0.6
-    file_types: [php]
-    condition:
+    crit: inert
+    conf: 0.6
+    for: [php]
+    if:
       type: string
       exact: realpath

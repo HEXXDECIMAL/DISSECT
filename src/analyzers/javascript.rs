@@ -64,7 +64,7 @@ impl JavaScriptAnalyzer {
         // Add structural feature
         report.structure.push(StructuralFeature {
             id: "source/language/javascript".to_string(),
-            description: "JavaScript source code".to_string(),
+            desc: "JavaScript source code".to_string(),
             evidence: vec![Evidence {
                 method: "parser".to_string(),
                 source: "tree-sitter-javascript".to_string(),
@@ -522,9 +522,9 @@ impl JavaScriptAnalyzer {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: "anti-analysis/obfuscation/deep-ast".to_string(),
-                    description: "Extremely deep AST nesting (>500 levels)".to_string(),
-                    confidence: 0.95,
-                    criticality: Criticality::Suspicious,
+                    desc: "Extremely deep AST nesting (>500 levels)".to_string(),
+                    conf: 0.95,
+                    crit: Criticality::Suspicious,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {
@@ -682,9 +682,9 @@ impl JavaScriptAnalyzer {
                         kind: FindingKind::Capability,
                         trait_refs: vec![],
                         id: cap_id.to_string(),
-                        description: description.to_string(),
-                        confidence: 1.0,
-                        criticality,
+                        desc: description.to_string(),
+                        conf: 1.0,
+                        crit: criticality,
                         mbc: None,
                         attack: None,
                         evidence: vec![Evidence {
@@ -753,9 +753,9 @@ impl JavaScriptAnalyzer {
                         kind: FindingKind::Capability,
                         trait_refs: vec![],
                         id: cap_id.to_string(),
-                        description: description.to_string(),
-                        confidence: 0.7, // Import alone is not definitive
-                        criticality,
+                        desc: description.to_string(),
+                        conf: 0.7, // Import alone is not definitive
+                        crit: criticality,
                         mbc: None,
                         attack: None,
                         evidence: vec![Evidence {
@@ -787,9 +787,9 @@ impl JavaScriptAnalyzer {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: "anti-analysis/obfuscation/base64-eval".to_string(),
-                description: "Base64 decode followed by eval (obfuscation)".to_string(),
-                confidence: 0.95,
-                criticality: Criticality::Suspicious,
+                desc: "Base64 decode followed by eval (obfuscation)".to_string(),
+                conf: 0.95,
+                crit: Criticality::Suspicious,
                 mbc: None,
                 attack: None,
                 evidence: vec![Evidence {
@@ -945,8 +945,8 @@ impl JavaScriptAnalyzer {
         &self,
         report: &mut AnalysisReport,
         cap_id: &str,
-        description: &str,
-        criticality: Criticality,
+        desc: &str,
+        crit: Criticality,
         evidence_value: &str,
     ) {
         if !report.findings.iter().any(|c| c.id == cap_id) {
@@ -954,9 +954,9 @@ impl JavaScriptAnalyzer {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: cap_id.to_string(),
-                description: description.to_string(),
-                confidence: 0.9,
-                criticality,
+                desc: desc.to_string(),
+                conf: 0.9,
+                crit,
                 mbc: None,
                 attack: None,
                 evidence: vec![Evidence {
@@ -1058,9 +1058,9 @@ impl JavaScriptAnalyzer {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: "anti-analysis/obfuscation/base64-eval".to_string(),
-                    description: "Base64 decode followed by eval (obfuscation)".to_string(),
-                    confidence: 0.95,
-                    criticality: Criticality::Suspicious,
+                    desc: "Base64 decode followed by eval (obfuscation)".to_string(),
+                    conf: 0.95,
+                    crit: Criticality::Suspicious,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {
@@ -1084,9 +1084,9 @@ impl JavaScriptAnalyzer {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: "anti-analysis/obfuscation/hex".to_string(),
-                    description: "Hex-encoded strings".to_string(),
-                    confidence: 0.9,
-                    criticality: Criticality::Suspicious,
+                    desc: "Hex-encoded strings".to_string(),
+                    conf: 0.9,
+                    crit: Criticality::Suspicious,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {
@@ -1111,9 +1111,9 @@ impl JavaScriptAnalyzer {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: "anti-analysis/obfuscation/string-construct".to_string(),
-                    description: "String manipulation obfuscation".to_string(),
-                    confidence: 0.9,
-                    criticality: Criticality::Suspicious,
+                    desc: "String manipulation obfuscation".to_string(),
+                    conf: 0.9,
+                    crit: Criticality::Suspicious,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {
@@ -1137,9 +1137,9 @@ impl JavaScriptAnalyzer {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: "anti-analysis/obfuscation/string-construct".to_string(),
-                    description: "Character-by-character string construction".to_string(),
-                    confidence: 0.85,
-                    criticality: Criticality::Suspicious,
+                    desc: "Character-by-character string construction".to_string(),
+                    conf: 0.85,
+                    crit: Criticality::Suspicious,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {

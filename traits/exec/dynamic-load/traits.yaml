@@ -5,12 +5,12 @@
 traits:
   # dlopen/dlsym (Linux/macOS)
   - id: dlopen
-    description: Runtime library loading via dlopen
-    criticality: notable
-    confidence: 0.9
+    desc: Runtime library loading via dlopen
+    crit: notable
+    conf: 0.9
     platforms: [linux, macos, unix]
     file_types: [elf, macho, so, dylib]
-    condition:
+    if:
       type: yara
       source: |
         rule dlopen_load {
@@ -25,12 +25,12 @@ traits:
 
   # LoadLibrary (Windows)
   - id: loadlibrary
-    description: Runtime library loading via LoadLibrary
-    criticality: notable
-    confidence: 0.9
+    desc: Runtime library loading via LoadLibrary
+    crit: notable
+    conf: 0.9
     platforms: [windows]
     file_types: [pe, dll]
-    condition:
+    if:
       type: yara
       source: |
         rule loadlibrary_load {
@@ -46,11 +46,11 @@ traits:
 
   # Python dynamic import
   - id: python-import
-    description: Python dynamic import patterns
-    criticality: notable
-    confidence: 0.85
+    desc: Python dynamic import patterns
+    crit: notable
+    conf: 0.85
     file_types: [python]
-    condition:
+    if:
       type: yara
       source: |
         rule python_dynamic_import {
@@ -65,11 +65,11 @@ traits:
 
   # Java reflection loading
   - id: java-reflection
-    description: Java reflection class loading
-    criticality: notable
-    confidence: 0.85
+    desc: Java reflection class loading
+    crit: notable
+    conf: 0.85
     file_types: [class, java]
-    condition:
+    if:
       type: yara
       source: |
         rule java_reflection_load {
@@ -85,12 +85,12 @@ traits:
 
   # .NET reflection loading
   - id: dotnet-reflection
-    description: .NET reflection assembly loading
-    criticality: notable
-    confidence: 0.85
+    desc: .NET reflection assembly loading
+    crit: notable
+    conf: 0.85
     platforms: [windows]
     file_types: [pe, dll, csharp]
-    condition:
+    if:
       type: yara
       source: |
         rule dotnet_reflection_load {
@@ -106,11 +106,11 @@ traits:
 
   # Go plugin loading
   - id: go-plugin
-    description: Go plugin dynamic loading
-    criticality: notable
-    confidence: 0.9
+    desc: Go plugin dynamic loading
+    crit: notable
+    conf: 0.9
     file_types: [elf, macho, pe, go]
-    condition:
+    if:
       type: yara
       source: |
         rule go_plugin_load {
@@ -124,11 +124,11 @@ traits:
 
   # JIT compilation indicators
   - id: jit
-    description: JIT compilation patterns
-    criticality: notable
-    confidence: 0.8
+    desc: JIT compilation patterns
+    crit: notable
+    conf: 0.8
     file_types: [pe, elf, macho, dll, so, dylib]
-    condition:
+    if:
       type: yara
       source: |
         rule jit_compilation {
@@ -146,9 +146,9 @@ traits:
 composite_rules:
   # Suspicious dynamic loading with memory execution
   - id: memory-exec
-    description: Dynamic loading with executable memory allocation
-    criticality: suspicious
-    confidence: 0.85
+    desc: Dynamic loading with executable memory allocation
+    crit: suspicious
+    conf: 0.85
     requires_all:
       - id: jit
     requires_any:

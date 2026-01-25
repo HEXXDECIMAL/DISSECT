@@ -3,7 +3,7 @@
 traits:
   - id: ruby-pty
     description: Pseudo-terminal (PTY) manipulation
-    criticality: notable
+    crit: notable
     confidence: 0.93
     platforms: [all]
     file_types: [ruby]

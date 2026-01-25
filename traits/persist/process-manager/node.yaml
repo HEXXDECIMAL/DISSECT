@@ -6,7 +6,7 @@ traits:
   # PM2 process manager spawn
   - id: pm2-spawn
     description: Spawns PM2 process manager (potential persistence)
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     attack: "T1543"
     file_types: [javascript, typescript]
@@ -17,7 +17,7 @@ traits:
   # PM2 start command
   - id: pm2-start
     description: Starts process via PM2 (persistence mechanism)
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     attack: "T1543"
     file_types: [javascript, typescript]
@@ -28,7 +28,7 @@ traits:
   # Forever process manager
   - id: forever-spawn
     description: Uses forever process manager (persistence)
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.8
     attack: "T1543"
     file_types: [javascript, typescript]
@@ -39,7 +39,7 @@ traits:
   # Nodemon for persistence
   - id: nodemon-spawn
     description: Uses nodemon for process persistence
-    criticality: notable
+    crit: notable
     confidence: 0.7
     attack: "T1543"
     file_types: [javascript, typescript]
@@ -50,7 +50,7 @@ traits:
   # PM2 with detached mode
   - id: pm2-detached
     description: PM2 spawned in detached mode (background persistence)
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     attack: "T1543"
     file_types: [javascript, typescript]

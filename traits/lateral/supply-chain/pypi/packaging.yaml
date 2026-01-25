@@ -4,13 +4,13 @@
 
 defaults:
   file_types: [python]
-  criticality: notable
+  crit: notable
 
 traits:
   # === setuptools atomic indicators ===
   - id: from-setuptools-import
     description: from setuptools import statement
-    criticality: inert
+    crit: inert
     confidence: 0.7
     condition:
       type: string
@@ -18,7 +18,7 @@ traits:
 
   - id: import-setuptools
     description: import setuptools statement
-    criticality: inert
+    crit: inert
     confidence: 0.7
     condition:
       type: string
@@ -44,7 +44,7 @@ traits:
   # === Package metadata atomic indicators ===
   - id: metadata-author
     description: author= metadata field
-    criticality: inert
+    crit: inert
     confidence: 0.5
     condition:
       type: string
@@ -52,7 +52,7 @@ traits:
 
   - id: metadata-version
     description: version= metadata field
-    criticality: inert
+    crit: inert
     confidence: 0.5
     condition:
       type: string
@@ -60,7 +60,7 @@ traits:
 
   - id: metadata-description
     description: description= metadata field
-    criticality: inert
+    crit: inert
     confidence: 0.5
     condition:
       type: string
@@ -68,7 +68,7 @@ traits:
 
   - id: metadata-packages
     description: packages= metadata field
-    criticality: inert
+    crit: inert
     confidence: 0.5
     condition:
       type: string
@@ -77,7 +77,7 @@ traits:
   # Directory masquerading (evasion technique)
   - id: directory-masquerade
     description: Directory masquerading as file (e.g. file.py/file.py)
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.8
     file_types: [all]
     condition:
@@ -87,7 +87,7 @@ traits:
   # === cmdclass override atomic indicators ===
   - id: cmdclass-dict
     description: cmdclass dict assignment
-    criticality: notable
+    crit: notable
     confidence: 0.75
     condition:
       type: string
@@ -95,7 +95,7 @@ traits:
 
   - id: install-class-inherit
     description: class inheriting from install
-    criticality: notable
+    crit: notable
     confidence: 0.75
     condition:
       type: string
@@ -105,20 +105,20 @@ composite_rules:
   # setuptools composite
   - id: setuptools
     description: Python package distribution (setuptools)
-    criticality: notable
+    crit: notable
     confidence: 0.8
     requires_count: 1
-    conditions:
+    any:
       - id: from-setuptools-import
       - id: import-setuptools
 
   # metadata composite
   - id: metadata
     description: Python package metadata definition
-    criticality: notable
+    crit: notable
     confidence: 0.7
     requires_count: 1
-    conditions:
+    any:
       - id: metadata-author
       - id: metadata-version
       - id: metadata-description
@@ -127,9 +127,9 @@ composite_rules:
   # cmdclass override composite
   - id: cmdclass-override
     description: Custom install command class override
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     requires_count: 1
-    conditions:
+    any:
       - id: cmdclass-dict
       - id: install-class-inherit

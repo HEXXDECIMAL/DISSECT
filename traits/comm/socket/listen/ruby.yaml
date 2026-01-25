@@ -4,11 +4,11 @@
 
 traits:
   - id: listen-ruby
-    description: Listen on TCP socket (Ruby)
-    criticality: notable
-    confidence: 0.66
+    desc: Listen on TCP socket (Ruby)
+    crit: notable
+    conf: 0.66
     mbc: "C0001"
     attack: "T1071"
-    condition:
+    if:
       type: string
       exact: Socket.tcp_server

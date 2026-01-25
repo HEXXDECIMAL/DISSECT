@@ -20,6 +20,6 @@ rule malware_Ares_str {
         $data11 = "get_install_dir" ascii wide
         $data12 = "command_or_file" ascii wide
 
-     condition:
+     if:
        5 of ($data*)
 }

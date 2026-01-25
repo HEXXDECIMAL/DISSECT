@@ -7,7 +7,7 @@ rule APT10_ANEL_InitRoutine {
     	strings:
     		$GetAddress = { C7 45 ?? ?? 69 72 74 C7 45 ?? 75 61 6C 50 C7 45 ?? 72 6F 74 65 66 C7 45 ?? 63 74 [3-4] C7 45 ?? ?? 65 72 6E C7 45 ?? 65 6C 33 32 C7 45 ?? 2E 64 6C 6C [3-4] FF 15 ?? ?? ?? ?? 50 FF 15 ?? ?? ?? ?? }
 
-    	condition:
+    	if:
     		$GetAddress
 }
 
@@ -21,7 +21,7 @@ rule APT10_redleaves_strings {
     		$v1a = "red_autumnal_leaves_dllmain.dll"
         $w1a = "RedLeavesCMDSimulatorMutex" wide
 
-    	condition:
+    	if:
     		$v1a or $w1a
 }
 
@@ -39,7 +39,7 @@ rule APT10_redleaves_dropper1 {
         $d2a = {83 C2 02 88 0E 83 FA 08}
         $d2b = {83 C2 02 88 0E 83 FA 10}
 
-     condition:
+     if:
         all of them
 }
 
@@ -56,7 +56,7 @@ rule APT10_redleaves_dropper2 {
         $c2a = {B8 CD CC CC CC F7 E1 C1 EA 03}
         $c2b = {68 80 00 00 00 6A 01 6A 01 6A 01 6A 01 6A FF 50}
 
-     condition:
+     if:
         all of them
 }
 
@@ -69,7 +69,7 @@ rule APT10_redleaves_dll {
      strings:
         $a2a = {40 3D ?? ?? 06 00 7C EA 6A 40 68 00 10 00 00 68 ?? ?? 06 00 6A 00 FF 15 ?? ?? ?? ?? 85 C0}
 
-     condition:
+     if:
         all of them
 }
 
@@ -86,7 +86,7 @@ rule APT10_Himawari_strings {
         $h2 = "himawariB"
         $h3 = "HimawariDemo"
 
-      condition: all of them
+      if: all of them
 }
 
 rule APT10_Lavender_strings {
@@ -101,7 +101,7 @@ rule APT10_Lavender_strings {
         $a1 = { C7 ?? ?? 4C 41 56 45 }
         $a2 = { C7 ?? ?? 4E 44 45 52 }
 
-      condition: all of them
+      if: all of them
 }
 
 rule APT10_Armadill_strings {
@@ -115,7 +115,7 @@ rule APT10_Armadill_strings {
         $a1 = { C7 ?? ?? 41 72 6D 61 }
         $a2 = { C7 ?? ?? 64 69 6C 6C }
 
-      condition: all of them
+      if: all of them
 }
 
 rule APT10_zark20rk_strings {
@@ -130,7 +130,7 @@ rule APT10_zark20rk_strings {
         $a1 = { C7 ?? ?? 7A 61 72 6B }
         $a2 = { C7 ?? ?? 32 30 72 6B }
 
-      condition: all of them
+      if: all of them
 }
 
 rule APT10_HTSrl_signed {
@@ -146,7 +146,7 @@ rule APT10_HTSrl_signed {
             $ou="Digital ID Class 3 - Microsoft Software Validation v2"
             $cn="HT Srl"
 
-    	condition:
+    	if:
         	all of them
 }
 
@@ -163,7 +163,7 @@ rule APT10_ChChes_lnk {
         $v1d = "t-user-nb"
         $v1e = "C:\\Users\\suzuki\\Documents\\my\\card.rtf" wide
 
-    	condition:
+    	if:
     		$v1a and ($v1b or $v1c or $v1d) or $v1e
 }
 
@@ -182,7 +182,7 @@ rule APT10_ChChes_strings
     		$v1e = "_nextafter"
     		$d1a = { 68 04 E1 00 00 }
 
-    	condition:
+    	if:
     		all of them
 }
 
@@ -197,7 +197,7 @@ rule APT10_ChChes_powershell {
     		$v1b = "Invoke-shCdpot"
     		$v1c = "invoke-ExEDoc"
 
-    	condition:
+    	if:
     		$v1c and ($v1a or $v1b)
 }
 
@@ -211,7 +211,7 @@ rule APT10_ANEL_dll {
 	$text_b = {3c 3e 44 3e 4c 3e 54 3e 5c 3e 64 3e 6c 3e 74 3e}
         $text_s = "hprOBnaeloheSredDyrctbuo"
 
-    condition:
+    if:
         uint16(0) == 0x5a4d and
 		uint32(uint32(0x3c)) == 0x00004550 and
 		filesize < 1000KB and
@@ -230,7 +230,7 @@ rule APT10_ANEL_lnk {
         $s3 = "Invoke-Item -Path $docPath;Remove-Item -Path $cabPath -Force" ascii wide
         $cab_sig = {4D 53 43 46 00 00 00 00}
 
-    condition:
+    if:
         (uint32(0) == 0x0000004C) and
         3 of them
 }
@@ -247,7 +247,7 @@ rule APT10_ANEL_str {
         $s3 = "WARNING: loading PE file without .reloc section!"
         $s4 = "x86 version supports x86 shellcode only!"
 
-    condition:
+    if:
         uint16(0) == 0x5A4D and
         uint32(uint32(0x3c)) == 0x00004550 and
         3 of them

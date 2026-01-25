@@ -5,8 +5,8 @@
 traits:
   - id: c2-framework/merlin/github-ref
     description: Merlin GitHub import path
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     mbc: "B0030"
     attack: "T1071"
     file_types: [elf, macho, pe, so, dylib, dll, go]
@@ -17,8 +17,8 @@ traits:
   # === Merlin agent atomic indicators ===
   - id: c2-framework/merlin/agent-dash
     description: merlin-agent reference
-    criticality: notable
-    confidence: 0.85
+    crit: notable
+    conf: 0.85
     mbc: "B0030"
     attack: "T1071"
     file_types: [elf, macho, pe, so, dylib, dll, go]
@@ -28,8 +28,8 @@ traits:
 
   - id: c2-framework/merlin/agent-camel
     description: MerlinAgent reference
-    criticality: notable
-    confidence: 0.85
+    crit: notable
+    conf: 0.85
     mbc: "B0030"
     attack: "T1071"
     file_types: [elf, macho, pe, so, dylib, dll, go]
@@ -39,8 +39,8 @@ traits:
 
   - id: c2-framework/merlin/pkg-messages
     description: Merlin package messages reference
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     mbc: "B0030"
     attack: "T1071"
     file_types: [elf, macho, pe, so, dylib, dll, go]
@@ -50,8 +50,8 @@ traits:
 
   - id: c2-framework/merlin/execute-commands
     description: Merlin shellcode/assembly execution
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     mbc: "B0030"
     attack: "T1059"
     file_types: [elf, macho, pe, so, dylib, dll, go]
@@ -68,8 +68,8 @@ traits:
 
   - id: c2-framework/merlin/http2
     description: Merlin HTTP/2 C2 communication
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     mbc: "B0030"
     attack: "T1071"
     file_types: [elf, macho, pe, so, dylib, dll, go]
@@ -90,27 +90,27 @@ composite_rules:
   # Merlin agent ref composite
   - id: c2-framework/merlin/agent-ref
     description: Merlin agent reference
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     mbc: "B0030"
     attack: "T1071"
     file_types: [elf, macho, pe, so, dylib, dll, go]
     requires_count: 1
-    conditions:
+    any:
       - id: c2-framework/merlin/agent-dash
       - id: c2-framework/merlin/agent-camel
 
   - id: c2-framework/merlin/detected
     description: Merlin C2 agent detected
-    criticality: hostile
-    confidence: 0.95
+    crit: hostile
+    conf: 0.95
     family: true
     reference: "https://github.com/Ne0nd0g/merlin"
     mbc: "B0030"
     attack: "T1071"
     file_types: [elf, macho, pe, so, dylib, dll, go]
     requires_count: 2
-    conditions:
+    any:
       - id: c2-framework/merlin/github-ref
       - id: c2-framework/merlin/agent-ref
       - id: c2-framework/merlin/pkg-messages

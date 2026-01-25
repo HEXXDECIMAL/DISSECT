@@ -3,13 +3,13 @@
 # ATT&CK: T1071
 
 defaults:
-  file_types: [elf, macho, so, dylib, c]
+  for: [elf, macho, so, dylib, c]
 
 traits:
   - id: fifo
     description: Create FIFO special file (named pipe)
-    criticality: inert
-    confidence: 0.66
-    condition:
+    crit: inert
+    conf: 0.66
+    if:
       type: symbol
       pattern: mkfifo|mkfifoat

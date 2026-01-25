@@ -4,140 +4,140 @@
 
 traits:
   - id: no-section-headers
-    description: "ELF binary has no section headers (stripped or packed)"
-    criticality: suspicious
+    desc: "ELF binary has no section headers (stripped or packed)"
+    crit: suspicious
     confidence: 0.8
     mbc: "F0001"
     attack: "T1027.002"
-    file_types: [elf]
+    for: [elf]
     condition:
       type: binary
       section_count:
         max: 0
 
   - id: high-file-entropy
-    description: "ELF binary has high entropy (likely packed/encrypted)"
-    criticality: suspicious
+    desc: "ELF binary has high entropy (likely packed/encrypted)"
+    crit: suspicious
     confidence: 0.75
     mbc: "F0001"
     attack: "T1027.002"
-    file_types: [elf]
+    for: [elf]
     condition:
       type: binary
       file_entropy:
         min: 7.0
 
   - id: rwx-segment
-    description: "ELF has writable+executable segment (W^X violation)"
-    criticality: suspicious
+    desc: "ELF has writable+executable segment (W^X violation)"
+    crit: suspicious
     confidence: 0.7
     attack: "T1055"
-    file_types: [elf]
+    for: [elf]
     condition:
       type: binary
       has_rwx_segments: true
 
   - id: exotic-arch-mips
-    description: "MIPS architecture (common in IoT malware)"
-    criticality: notable
+    desc: "MIPS architecture (common in IoT malware)"
+    crit: notable
     confidence: 0.6
-    file_types: [elf]
+    for: [elf]
     condition:
       type: binary
       machine_type: [8, 10]  # EM_MIPS, EM_MIPS_RS3_LE
 
   - id: exotic-arch-ppc
-    description: "PowerPC architecture (common in IoT malware)"
-    criticality: notable
+    desc: "PowerPC architecture (common in IoT malware)"
+    crit: notable
     confidence: 0.6
-    file_types: [elf]
+    for: [elf]
     condition:
       type: binary
       machine_type: [20, 21]  # EM_PPC, EM_PPC64
 
   - id: exotic-arch-superh
-    description: "SuperH architecture (common in IoT malware)"
-    criticality: notable
+    desc: "SuperH architecture (common in IoT malware)"
+    crit: notable
     confidence: 0.6
-    file_types: [elf]
+    for: [elf]
     condition:
       type: binary
       machine_type: [42]  # EM_SH
 
   - id: exotic-arch-sparc
-    description: "SPARC architecture (uncommon, possibly IoT)"
-    criticality: notable
+    desc: "SPARC architecture (uncommon, possibly IoT)"
+    crit: notable
     confidence: 0.5
-    file_types: [elf]
+    for: [elf]
     condition:
       type: binary
       machine_type: [2, 43]  # EM_SPARC, EM_SPARCV9
 
   - id: exotic-arch-arm32
-    description: "32-bit ARM architecture (common in IoT malware)"
-    criticality: notable
+    desc: "32-bit ARM architecture (common in IoT malware)"
+    crit: notable
     confidence: 0.5
-    file_types: [elf]
+    for: [elf]
     condition:
       type: binary
       machine_type: [40]  # EM_ARM
 
   - id: exotic-arch-riscv
-    description: "RISC-V architecture (emerging IoT target)"
-    criticality: notable
+    desc: "RISC-V architecture (emerging IoT target)"
+    crit: notable
     confidence: 0.5
-    file_types: [elf]
+    for: [elf]
     condition:
       type: binary
       machine_type: [243]  # EM_RISCV
 
   - id: big-endian
-    description: "Big-endian byte order (MIPS, PPC, SPARC)"
-    criticality: notable
+    desc: "Big-endian byte order (MIPS, PPC, SPARC)"
+    crit: notable
     confidence: 0.4
-    file_types: [elf]
+    for: [elf]
     condition:
       type: binary
       is_big_endian: true
 
   - id: static-no-interp
-    description: "Statically linked (no dynamic interpreter)"
-    criticality: notable
+    desc: "Statically linked (no dynamic interpreter)"
+    crit: notable
     confidence: 0.5
-    file_types: [elf]
+    for: [elf]
     condition:
       type: binary
       has_interpreter: false
 
 composite_rules:
   - id: anti-static/packer/elf/stripped-packed
-    description: "Packed ELF: no sections + high entropy"
-    criticality: suspicious
+    desc: "Packed ELF: no sections + high entropy"
+    crit: suspicious
     confidence: 0.85
     mbc: "F0001"
     attack: "T1027.002"
-    file_types: [elf]
-    requires_all:
+    for: [elf]
+    all:
       - type: trait
         id: no-section-headers
       - type: trait
         id: high-file-entropy
 
   - id: anti-static/packer/elf/mirai-like
-    description: "Mirai-like IoT malware pattern: static + stripped + exotic arch + packed"
-    criticality: hostile
+    desc: "Mirai-like IoT malware pattern: static + stripped + exotic arch + packed"
+    crit: hostile
     confidence: 0.9
     mbc: "F0001"
     attack: "T1027.002"
-    file_types: [elf]
-    requires_all:
+    for: [elf]
+    all:
       - type: structure
         feature: "binary/static"
       - type: structure
         feature: "binary/stripped"
       - type: trait
         id: no-section-headers
-    requires_any:
+    any:
       - type: trait
         id: exotic-arch-mips
       - type: trait
@@ -150,15 +150,15 @@ composite_rules:
         id: exotic-arch-riscv
 
   - id: anti-static/packer/elf/iot-target
-    description: "IoT target architecture (exotic arch + static)"
-    criticality: suspicious
+    desc: "IoT target architecture (exotic arch + static)"
+    crit: suspicious
     confidence: 0.7
     attack: "T1583.005"
-    file_types: [elf]
-    requires_all:
+    for: [elf]
+    all:
       - type: trait
         id: static-no-interp
-    requires_any:
+    any:
       - type: trait
         id: exotic-arch-mips
       - type: trait

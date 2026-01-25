@@ -4,19 +4,19 @@
 
 traits:
   - id: strings-char-array
-    description: String obfuscation via char array
-    criticality: notable
-    confidence: 0.66
+    desc: String obfuscation via char array
+    crit: notable
+    conf: 0.66
     mbc: "B0032"
     attack: "T1027"
-    condition:
+    if:
       type: string
       regex: "char\\s+\\w+\\[\\]\\s*=\\s*\\{[0-9, ]+\\}"
 
   - id: strings-hex
-    description: Hex-encoded string patterns
-    criticality: notable
-    confidence: 0.66
-    condition:
+    desc: Hex-encoded string patterns
+    crit: notable
+    conf: 0.66
+    if:
       type: string
       regex: "\\\\x[0-9a-fA-F]{2}\\\\x[0-9a-fA-F]{2}\\\\x[0-9a-fA-F]{2}"

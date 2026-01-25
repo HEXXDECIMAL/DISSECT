@@ -4,140 +4,136 @@
 traits:
   - id: dock-hide
     description: macOS dock hiding
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     attack: "T1564.003"
-    file_types: [macho]
-    condition:
+    for: [macho]
+    if:
       type: string
       regex: "(?i)(hideDock|applicationWillHide)"
 
   - id: screencapture
     description: macOS screencapture command
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     attack: "T1113"
-    file_types: [macho, shell]
-    condition:
+    for: [macho, shell]
+    if:
       type: string
       exact: "screencapture"
 
   - id: pil-imagegrab
     description: Python PIL screenshot capture
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     attack: "T1113"
-    file_types: [python]
-    condition:
+    for: [python]
+    if:
       type: string
       exact: "ImageGrab"
 
   - id: cg-window-capture
     description: macOS CGWindow capture
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     attack: "T1113"
-    file_types: [macho]
-    condition:
+    for: [macho]
+    if:
       type: string
       exact: "CGWindowListCreateImageFromArray"
 
   - id: screensaver-engine
     description: macOS ScreenSaver control
-    criticality: suspicious
-    confidence: 0.8
+    crit: suspicious
+    conf: 0.8
     attack: "T1491"
-    file_types: [macho, shell]
-    condition:
+    for: [macho, shell]
+    if:
       type: string
       exact: "ScreenSaverEngine"
 
   - id: system-events
     description: macOS System Events control
-    criticality: suspicious
-    confidence: 0.8
+    crit: suspicious
+    conf: 0.8
     attack: "T1059.002"
-    file_types: [macho, shell]
-    condition:
+    for: [macho, shell]
+    if:
       type: string
-      exact: "tell application \"System Events\""
+      exact: 'tell application "System Events"'
 
   - id: window-watcher
     description: macOS window/application monitoring
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     attack: "T1010"
-    file_types: [macho]
-    condition:
+    for: [macho]
+    if:
       type: string
       exact: "frontmostApplication"
 
   - id: screen-locked
     description: macOS screen lock detection
-    criticality: suspicious
-    confidence: 0.8
+    crit: suspicious
+    conf: 0.8
     attack: "T1010"
-    file_types: [macho]
-    condition:
+    for: [macho]
+    if:
       type: string
       exact: "CGSSessionScreenIsLocked"
 
   - id: x11-auth
     description: X11 authentication cookie
-    criticality: suspicious
-    confidence: 0.8
+    crit: suspicious
+    conf: 0.8
     attack: "T1056"
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: string
       exact: "MIT-MAGIC-COOKIE-1"
 
   - id: xsession
     description: Xsession reference
-    criticality: suspicious
-    confidence: 0.75
+    crit: suspicious
+    conf: 0.75
     attack: "T1056"
-    file_types: [elf, shell]
-    condition:
+    for: [elf, shell]
+    if:
       type: string
       exact: "Xsession"
 
   - id: hid-idle-time
     description: macOS HID idle time detection
-    criticality: suspicious
-    confidence: 0.8
+    crit: suspicious
+    conf: 0.8
     attack: "T1010"
-    file_types: [macho]
-    condition:
+    for: [macho]
+    if:
       type: string
       exact: "HIDIdleTime"
 
   - id: process-identifier
     description: macOS process identifier access
-    criticality: notable
-    confidence: 0.7
+    crit: notable
+    conf: 0.7
     attack: "T1010"
-    file_types: [macho]
-    condition:
+    for: [macho]
+    if:
       type: string
       exact: "processIdentifier"
 
 composite_rules:
   - id: macos-spy-detected
     description: macOS UI spying
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     attack: "T1010"
     mbc: "B0042"
-    file_types: [macho]
+    for: [macho]
     requires_any_n:
       count: 2
-      conditions:
-        - 
-          id: screen-locked
-        - 
-          id: hid-idle-time
-        - 
-          id: window-watcher
-        - 
-          id: process-identifier
+      any:
+        - id: screen-locked
+        - id: hid-idle-time
+        - id: window-watcher
+        - id: process-identifier

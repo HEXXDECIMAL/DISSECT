@@ -13,6 +13,6 @@ rule malware_flubot_webshell {
         $message03 = "S1QtVkFMSUQtT0s="                            // KT-VALID-OK
         $message04 = "S1QtSU5WQUxJRC1F"                            // KT-INVALID-E
 
-     condition:
+     if:
        all of ($message*) or all of ($param*) or $token
 }

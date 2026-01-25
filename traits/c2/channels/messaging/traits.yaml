@@ -9,42 +9,42 @@ traits:
   # Use those directory references in composite rules
 
   - id: discord-invite
-    description: Discord invite URL (potential C2/support)
-    criticality: notable
-    confidence: 0.8
-    condition:
+    desc: Discord invite URL (potential C2/support)
+    crit: notable
+    conf: 0.8
+    if:
       type: string
       regex: "discord\\.gg/[a-zA-Z0-9]+"
 
   # HTTP C2
   - id: http-post
-    description: HTTP POST requests (potential C2)
-    criticality: inert
+    desc: HTTP POST requests (potential C2)
+    crit: inert
     mbc: "B0030"
     attack: "T1071.001"
-    confidence: 0.5
-    condition:
+    conf: 0.5
+    if:
       type: symbol
       pattern: http_post|POST|HttpPost
 
   - id: user-agent-custom
-    description: Custom User-Agent string (C2 indicator)
-    criticality: notable
+    desc: Custom User-Agent string (C2 indicator)
+    crit: notable
     mbc: "B0030"
     attack: "T1071.001"
-    confidence: 0.6
-    condition:
+    conf: 0.6
+    if:
       type: string
       regex: "User-Agent:"
 
   # DNS C2
   - id: dns-query
-    description: DNS queries (potential C2 channel)
-    criticality: inert
+    desc: DNS queries (potential C2 channel)
+    crit: inert
     mbc: "B0030"
     attack: "T1071.004"
-    confidence: 0.4
-    file_types: [elf, macho, so, dylib, c]
-    condition:
+    conf: 0.4
+    for: [elf, macho, so, dylib, c]
+    if:
       type: symbol
       pattern: res_query|dns_query

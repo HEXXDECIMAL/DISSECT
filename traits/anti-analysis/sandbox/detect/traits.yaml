@@ -5,72 +5,72 @@
 traits:
   # === Sandbox hostname atomic indicators ===
   - id: hostname-19olltd
-    description: DESKTOP-19OLLTD sandbox hostname
-    criticality: notable
+    desc: DESKTOP-19OLLTD sandbox hostname
+    crit: notable
     mbc: "B0007"
     attack: "T1497.001"
-    confidence: 0.7
-    condition:
+    conf: 0.7
+    if:
       type: string
       exact: "DESKTOP-19OLLTD"
 
   - id: hostname-b0t93d6
-    description: DESKTOP-B0T93D6 sandbox hostname
-    criticality: notable
+    desc: DESKTOP-B0T93D6 sandbox hostname
+    crit: notable
     mbc: "B0007"
     attack: "T1497.001"
-    confidence: 0.7
-    condition:
+    conf: 0.7
+    if:
       type: string
       exact: "DESKTOP-B0T93D6"
 
   - id: hostname-vrsqlag
-    description: DESKTOP-VRSQLAG sandbox hostname
-    criticality: notable
+    desc: DESKTOP-VRSQLAG sandbox hostname
+    crit: notable
     mbc: "B0007"
     attack: "T1497.001"
-    confidence: 0.7
-    condition:
+    conf: 0.7
+    if:
       type: string
       exact: "DESKTOP-VRSQLAG"
 
   - id: hostname-john-pc
-    description: JOHN-PC sandbox hostname
-    criticality: notable
+    desc: JOHN-PC sandbox hostname
+    crit: notable
     mbc: "B0007"
     attack: "T1497.001"
-    confidence: 0.7
-    condition:
+    conf: 0.7
+    if:
       type: string
       exact: "JOHN-PC"
 
   - id: hostname-julia-pc
-    description: JULIA-PC sandbox hostname
-    criticality: notable
+    desc: JULIA-PC sandbox hostname
+    crit: notable
     mbc: "B0007"
     attack: "T1497.001"
-    confidence: 0.7
-    condition:
+    conf: 0.7
+    if:
       type: string
       exact: "JULIA-PC"
 
   - id: hostname-lisa-pc
-    description: LISA-PC sandbox hostname
-    criticality: notable
+    desc: LISA-PC sandbox hostname
+    crit: notable
     mbc: "B0007"
     attack: "T1497.001"
-    confidence: 0.7
-    condition:
+    conf: 0.7
+    if:
       type: string
       exact: "LISA-PC"
 
   - id: username-sandbox
-    description: Common sandbox usernames
-    criticality: suspicious
+    desc: Common sandbox usernames
+    crit: suspicious
     mbc: "B0007"
     attack: "T1497.001"
-    confidence: 0.8
-    condition:
+    conf: 0.8
+    if:
       type: string
       # Use word boundaries and require username-like context
       # Excludes legitimate uses like "entering sandbox" or "sandbox.sb" profiles
@@ -78,57 +78,57 @@ traits:
       case_insensitive: true
 
   - id: sleep-accel
-    description: Sleep acceleration detection (sandbox evasion)
-    criticality: suspicious
+    desc: Sleep acceleration detection (sandbox evasion)
+    crit: suspicious
     mbc: "B0007"
     attack: "T1497.003"
-    confidence: 0.9
-    file_types: [elf, macho, so, dylib, pe, dll, c]
-    condition:
+    conf: 0.9
+    for: [elf, macho, so, dylib, pe, dll, c]
+    if:
       type: symbol
       pattern: sleep|Sleep|usleep
 
   # === Sandbox artifact file path atomic indicators ===
   - id: path-c-analysis
-    description: C:\analysis sandbox path
-    criticality: notable
+    desc: C:\analysis sandbox path
+    crit: notable
     mbc: "B0007"
     attack: "T1497.001"
-    confidence: 0.6
-    condition:
+    conf: 0.6
+    if:
       type: string
       exact: "C:\\analysis"
 
   - id: path-c-sandbox
-    description: C:\sandbox sandbox path
-    criticality: notable
+    desc: C:\sandbox sandbox path
+    crit: notable
     mbc: "B0007"
     attack: "T1497.001"
-    confidence: 0.6
-    condition:
+    conf: 0.6
+    if:
       type: string
       exact: "C:\\sandbox"
 
   - id: path-tmp-analysis
-    description: /tmp/analysis sandbox path
-    criticality: notable
+    desc: /tmp/analysis sandbox path
+    crit: notable
     mbc: "B0007"
     attack: "T1497.001"
-    confidence: 0.6
-    condition:
+    conf: 0.6
+    if:
       type: string
       exact: "/tmp/analysis"
 
 composite_rules:
   # Sandbox hostname composite
   - id: hostname-sandbox
-    description: Common sandbox hostnames
-    criticality: suspicious
+    desc: Common sandbox hostnames
+    crit: suspicious
     mbc: "B0007"
     attack: "T1497.001"
-    confidence: 0.8
-    requires_count: 1
-    conditions:
+    conf: 0.8
+    count: 1
+    any:
       - id: hostname-19olltd
       - id: hostname-b0t93d6
       - id: hostname-vrsqlag
@@ -138,13 +138,13 @@ composite_rules:
 
   # Sandbox file path composite
   - id: file-check-sandbox
-    description: Sandbox artifact file checks
-    criticality: suspicious
+    desc: Sandbox artifact file checks
+    crit: suspicious
     mbc: "B0007"
     attack: "T1497.001"
-    confidence: 0.7
-    requires_count: 1
-    conditions:
+    conf: 0.7
+    count: 1
+    any:
       - id: path-c-analysis
       - id: path-c-sandbox
       - id: path-tmp-analysis

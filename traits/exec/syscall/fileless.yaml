@@ -1,40 +1,40 @@
 traits:
   - id: syscall-memfd-create
-    description: Calls memfd_create syscall
-    criticality: notable
-    confidence: 0.8
+    desc: Calls memfd_create syscall
+    crit: notable
+    conf: 0.8
     platforms: [linux]
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: syscall
       name: ["memfd_create"]
 
   - id: syscall-execve
-    description: Calls execve or execveat syscall
-    criticality: notable
-    confidence: 0.8
+    desc: Calls execve or execveat syscall
+    crit: notable
+    conf: 0.8
     platforms: [linux]
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: syscall
       name: ["execve", "execveat"]
 
 composite_rules:
   - id: memfd
-    description: Creates anonymous file in memory
-    confidence: 0.9
-    criticality: suspicious
+    desc: Creates anonymous file in memory
+    conf: 0.9
+    crit: suspicious
     platforms: [linux]
-    file_types: [elf]
+    for: [elf]
     requires_all:
       - id: syscall-memfd-create
 
   - id: fileless
-    description: Fileless execution - memfd_create + execve
-    confidence: 0.95
-    criticality: suspicious
+    desc: Fileless execution - memfd_create + execve
+    conf: 0.95
+    crit: suspicious
     platforms: [linux]
-    file_types: [elf]
+    for: [elf]
     requires_all:
       - id: syscall-memfd-create
       - id: syscall-execve

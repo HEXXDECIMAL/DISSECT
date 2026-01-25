@@ -4,7 +4,7 @@ traits:
   # === Ruby fork atomic indicators ===
   - id: process-fork
     description: Process.fork call
-    criticality: inert
+    crit: inert
     confidence: 0.7
     platforms: [all]
     file_types: [ruby]
@@ -14,7 +14,7 @@ traits:
 
   - id: fork-brace-block
     description: fork with brace block
-    criticality: inert
+    crit: inert
     confidence: 0.6
     platforms: [all]
     file_types: [ruby]
@@ -24,7 +24,7 @@ traits:
 
   - id: fork-do-block
     description: fork with do block
-    criticality: inert
+    crit: inert
     confidence: 0.6
     platforms: [all]
     file_types: [ruby]
@@ -34,7 +34,7 @@ traits:
 
   - id: fork-paren
     description: fork with parenthesis
-    criticality: inert
+    crit: inert
     confidence: 0.6
     platforms: [all]
     file_types: [ruby]
@@ -46,23 +46,23 @@ composite_rules:
   # Fork block composite
   - id: fork-block
     description: fork with block/do
-    criticality: notable
+    crit: notable
     confidence: 0.7
     platforms: [all]
     file_types: [ruby]
     requires_count: 1
-    conditions:
+    any:
       - id: fork-brace-block
       - id: fork-do-block
       - id: fork-paren
 
   - id: ruby-fork
     description: Fork process
-    criticality: notable
+    crit: notable
     confidence: 0.88
     platforms: [all]
     file_types: [ruby]
     requires_count: 1
-    conditions:
+    any:
       - id: process-fork
       - id: fork-block

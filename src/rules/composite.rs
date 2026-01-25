@@ -42,9 +42,9 @@ impl CompositeTrait {
         Some(Finding {
             id: self.id.clone(),
             kind: FindingKind::Capability,
-            description: self.description.clone(),
-            confidence: self.confidence,
-            criticality: self.criticality,
+            desc: self.description.clone(),
+            conf: self.conf,
+            crit: self.criticality,
             mbc: self.mbc.clone(),
             attack: self.attack.clone(),
             trait_refs: result.traits,
@@ -178,7 +178,7 @@ impl CompositeTrait {
 
     fn eval_requires_all(
         &self,
-        conditions: &[Condition],
+        any: &[Condition],
         ctx: &EvaluationContext,
     ) -> ConditionResult {
         let mut all_evidence = Vec::new();
@@ -198,7 +198,7 @@ impl CompositeTrait {
 
     fn eval_requires_any(
         &self,
-        conditions: &[Condition],
+        any: &[Condition],
         ctx: &EvaluationContext,
     ) -> ConditionResult {
         for condition in conditions {
@@ -213,7 +213,7 @@ impl CompositeTrait {
 
     fn eval_requires_count(
         &self,
-        conditions: &[Condition],
+        any: &[Condition],
         count: usize,
         ctx: &EvaluationContext,
     ) -> ConditionResult {
@@ -239,7 +239,7 @@ impl CompositeTrait {
 
     fn eval_requires_none(
         &self,
-        conditions: &[Condition],
+        any: &[Condition],
         ctx: &EvaluationContext,
     ) -> ConditionResult {
         for condition in conditions {

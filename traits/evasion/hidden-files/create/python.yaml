@@ -3,98 +3,98 @@
 # ATT&CK: T1564.001 (Hide Artifacts: Hidden Files and Directories)
 
 defaults:
-  file_types: [python]
+  for: [python]
   mbc: "F0005"
   attack: "T1564.001"
-  criticality: suspicious
+  crit: suspicious
 
 traits:
   # Hidden directory in path join: os.path.join(..., ".hidden")
   - id: python-join-hidden
-    description: "Hidden directory construction via os.path.join"
-    confidence: 0.9
-    condition:
+    desc: "Hidden directory construction via os.path.join"
+    conf: 0.9
+    if:
       type: string
       # Matches: os.path.join(..., ".xyz") or join(foo, ".bar")
       regex: "os\\.path\\.join\\([^)]*[,]\\s*[\"']\\.[a-zA-Z][a-zA-Z0-9_-]*[\"']"
 
   # Pathlib hidden directory: Path(...) / ".hidden"
   - id: python-pathlib-hidden
-    description: "Hidden directory construction via pathlib"
-    confidence: 0.9
-    condition:
+    desc: "Hidden directory construction via pathlib"
+    conf: 0.9
+    if:
       type: string
       # Matches: Path(...) / ".xyz" or path / ".bar"
       regex: "/\\s*[\"']\\.[a-zA-Z][a-zA-Z0-9_-]*[\"']"
 
   # String literal hidden path: "/.hidden" or "~/.config"
   - id: python-string-hidden-path
-    description: "Hidden path string literal"
-    confidence: 0.75
-    criticality: notable
-    condition:
+    desc: "Hidden path string literal"
+    conf: 0.75
+    crit: notable
+    if:
       type: string
       # Matches: "/." or "~/." patterns in strings (not comments)
       regex: "[\"'][^\"']*[/~]\\.[a-zA-Z][a-zA-Z0-9_-]*"
 
   # makedirs with hidden directory
   - id: python-makedirs-hidden
-    description: "Create hidden directory (os.makedirs)"
-    confidence: 0.9
-    condition:
+    desc: "Create hidden directory (os.makedirs)"
+    conf: 0.9
+    if:
       type: string
       regex: "os\\.makedirs\\([^)]*\\.[a-zA-Z][a-zA-Z0-9_-]*"
 
   # mkdir with hidden directory (pathlib)
   - id: python-mkdir-hidden
-    description: "Create hidden directory (pathlib mkdir)"
-    confidence: 0.9
-    condition:
+    desc: "Create hidden directory (pathlib mkdir)"
+    conf: 0.9
+    if:
       type: string
       regex: "\\.mkdir\\([^)]*\\)"
 
   # Home directory expansion: expanduser or Path.home
   - id: python-home-expansion
-    description: "Home directory path expansion"
-    criticality: notable
-    confidence: 0.8
-    condition:
+    desc: "Home directory path expansion"
+    crit: notable
+    conf: 0.8
+    if:
       type: string
       # expanduser or Path.home
       regex: 'os\.path\.expanduser\([^)]*~|Path\.home\(\)'
 
   # Hidden directory join pattern
   - id: python-hidden-join-pattern
-    description: "Join with hidden directory pattern"
-    criticality: notable
-    confidence: 0.8
-    condition:
+    desc: "Join with hidden directory pattern"
+    crit: notable
+    conf: 0.8
+    if:
       type: string
       # join with hidden dir
       regex: "os\\.path\\.join\\([^)]*[,]\\s*[\"']\\.[a-zA-Z]|/\\s*[\"']\\.[a-zA-Z]"
 
   # === File write atomic indicators ===
   - id: python-os-makedirs
-    description: os.makedirs call
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: os.makedirs call
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       regex: "os\\.makedirs\\("
 
   - id: python-open-write
-    description: open() with write mode
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: open() with write mode
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       regex: "open\\([^)]+[\"']w"
 
   # Hidden directory with short cryptic name (.n2, .x, .tmp2)
   - id: python-cryptic-hidden
-    description: "Cryptic hidden directory name (likely malware)"
-    confidence: 0.85
-    condition:
+    desc: "Cryptic hidden directory name (likely malware)"
+    conf: 0.85
+    if:
       type: string
       # Short hidden names that don't match known config dirs
       regex: "[\"']\\.[a-z][a-z0-9]?[\"']"
@@ -108,19 +108,19 @@ traits:
 composite_rules:
   # File write or makedirs composite
   - id: python-write-or-makedirs
-    description: File write or directory creation
-    criticality: notable
-    confidence: 0.8
+    desc: File write or directory creation
+    crit: notable
+    conf: 0.8
     requires_count: 1
-    conditions:
+    any:
       - id: python-os-makedirs
       - id: python-open-write
 
   # Home + hidden directory - classic malware staging area
   - id: python-home-hidden-staging
-    description: "Malware staging in hidden home directory"
-    confidence: 0.95
-    criticality: hostile
+    desc: "Malware staging in hidden home directory"
+    conf: 0.95
+    crit: hostile
     requires_all:
       - id: python-home-expansion
       - id: python-hidden-join-pattern

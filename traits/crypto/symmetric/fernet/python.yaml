@@ -3,61 +3,61 @@
 # ATT&CK: T1027 (Obfuscated Files or Information)
 
 defaults:
-  file_types: [python]
+  for: [python]
   attack: "T1027"
   mbc: "C0027"
 
 traits:
   # === Fernet import atomic indicators ===
   - id: import-fernet-direct
-    description: Direct fernet import
-    criticality: inert
-    confidence: 0.8
-    condition:
+    desc: Direct fernet import
+    crit: inert
+    conf: 0.8
+    if:
       type: string
       regex: "\\bimport\\s+fernet\\b"
 
   - id: from-cryptography-fernet
-    description: From cryptography.fernet import
-    criticality: inert
-    confidence: 0.8
-    condition:
+    desc: From cryptography.fernet import
+    crit: inert
+    conf: 0.8
+    if:
       type: string
       regex: "\\bfrom\\s+cryptography\\.fernet\\s+import"
 
   # Fernet class usage
   - id: class-usage
-    description: "Fernet encryption class instantiation"
-    criticality: notable
-    confidence: 0.85
-    condition:
+    desc: "Fernet encryption class instantiation"
+    crit: notable
+    conf: 0.85
+    if:
       type: string
       regex: "Fernet\\s*\\("
 
   # Fernet decrypt operation
   - id: decrypt
-    description: "Fernet decryption operation"
-    criticality: notable
-    confidence: 0.9
-    condition:
+    desc: "Fernet decryption operation"
+    crit: notable
+    conf: 0.9
+    if:
       type: string
       regex: "\\.decrypt\\s*\\("
 
   # Fernet key generation
   - id: keygen
-    description: "Fernet key generation"
-    criticality: notable
-    confidence: 0.85
-    condition:
+    desc: "Fernet key generation"
+    crit: notable
+    conf: 0.85
+    if:
       type: string
       regex: "Fernet\\.generate_key\\s*\\("
 
   # Runtime fernet installation (very suspicious - why install crypto at runtime?)
   - id: runtime-install
-    description: "Runtime installation of fernet encryption library"
-    criticality: suspicious
-    confidence: 0.95
-    condition:
+    desc: "Runtime installation of fernet encryption library"
+    crit: suspicious
+    conf: 0.95
+    if:
       type: yara
       source: |
         rule fernet_runtime_install {
@@ -75,10 +75,10 @@ traits:
 
   # Fernet with hardcoded key (payload decryption)
   - id: hardcoded-key
-    description: "Fernet encryption with hardcoded key pattern"
-    criticality: suspicious
-    confidence: 0.9
-    condition:
+    desc: "Fernet encryption with hardcoded key pattern"
+    crit: suspicious
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule fernet_hardcoded_key {
@@ -94,10 +94,10 @@ traits:
 composite_rules:
   # Fernet import composite
   - id: import
-    description: Fernet symmetric encryption library import
-    criticality: notable
-    confidence: 0.9
+    desc: Fernet symmetric encryption library import
+    crit: notable
+    conf: 0.9
     requires_count: 1
-    conditions:
+    any:
       - id: import-fernet-direct
       - id: from-cryptography-fernet

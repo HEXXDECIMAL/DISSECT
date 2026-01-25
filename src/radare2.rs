@@ -35,7 +35,7 @@ pub struct SyscallInfo {
     /// Resolved syscall name (e.g., "read", "write", "socket")
     pub name: String,
     /// Brief description of what this syscall does
-    pub description: String,
+    pub desc: String,
     /// Architecture (e.g., "x86", "x86_64", "mips", "arm")
     pub arch: String,
 }
@@ -355,7 +355,7 @@ impl Radare2Analyzer {
                     address: syscall_addrs[i],
                     number: num,
                     name,
-                    description,
+                    desc: description,
                     arch: arch.to_string(),
                 });
             }
@@ -1658,14 +1658,14 @@ mod tests {
             address: 0x400123,
             number: 4004,
             name: "write".to_string(),
-            description: "writes to file".to_string(),
+            desc: "writes to file".to_string(),
             arch: "mips".to_string(),
         };
         let json = serde_json::to_string(&syscall).unwrap();
         assert!(json.contains("\"address\":4194595"));
         assert!(json.contains("\"number\":4004"));
         assert!(json.contains("\"name\":\"write\""));
-        assert!(json.contains("\"description\":\"writes to file\""));
+        assert!(json.contains("\"desc\":\"writes to file\""));
         assert!(json.contains("\"arch\":\"mips\""));
     }
 

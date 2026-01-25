@@ -5,164 +5,164 @@ traits:
   # === Path/File References ===
 
   - id: path
-    description: Firefox browser reference
-    criticality: notable
-    confidence: 0.6
+    desc: Firefox browser reference
+    crit: notable
+    conf: 0.6
     attack: "T1555.003"
-    condition:
+    if:
       type: string
       exact: "Firefox"
 
   - id: waterfox-path
-    description: Waterfox browser profile path
-    criticality: notable
-    confidence: 0.6
+    desc: Waterfox browser profile path
+    crit: notable
+    conf: 0.6
     attack: "T1555.003"
-    condition:
+    if:
       type: string
       exact: "Waterfox"
 
   - id: palemoon-path
-    description: Pale Moon browser profile path
-    criticality: notable
-    confidence: 0.6
+    desc: Pale Moon browser profile path
+    crit: notable
+    conf: 0.6
     attack: "T1555.003"
-    condition:
+    if:
       type: string
       exact: "Pale Moon"
 
   # === Profiles path atomic indicators ===
   - id: firefox-profiles
-    description: Firefox/Profiles path
-    criticality: inert
-    confidence: 0.6
+    desc: Firefox/Profiles path
+    crit: inert
+    conf: 0.6
     attack: "T1555.003"
-    condition:
+    if:
       type: string
       exact: "Firefox/Profiles"
 
   - id: waterfox-profiles
-    description: Waterfox/Profiles path
-    criticality: inert
-    confidence: 0.6
+    desc: Waterfox/Profiles path
+    crit: inert
+    conf: 0.6
     attack: "T1555.003"
-    condition:
+    if:
       type: string
       exact: "Waterfox/Profiles"
 
   - id: palemoon-profiles
-    description: Pale Moon/Profiles path
-    criticality: inert
-    confidence: 0.6
+    desc: Pale Moon/Profiles path
+    crit: inert
+    conf: 0.6
     attack: "T1555.003"
-    condition:
+    if:
       type: string
       exact: "Pale Moon/Profiles"
 
   - id: cookies-sqlite
-    description: Firefox cookies.sqlite database
-    criticality: suspicious
-    confidence: 0.8
+    desc: Firefox cookies.sqlite database
+    crit: suspicious
+    conf: 0.8
     attack: "T1555.003"
-    condition:
+    if:
       type: string
       exact: "cookies.sqlite"
 
   - id: formhistory-sqlite
-    description: Firefox formhistory.sqlite database
-    criticality: suspicious
-    confidence: 0.85
+    desc: Firefox formhistory.sqlite database
+    crit: suspicious
+    conf: 0.85
     attack: "T1555.003"
-    condition:
+    if:
       type: string
       exact: "formhistory.sqlite"
 
   - id: logins-json
-    description: Firefox logins.json file
-    criticality: suspicious
-    confidence: 0.85
+    desc: Firefox logins.json file
+    crit: suspicious
+    conf: 0.85
     attack: "T1555.003"
-    condition:
+    if:
       type: string
       exact: "logins.json"
 
   - id: key4-db
-    description: Firefox key4.db (master password database)
-    criticality: suspicious
-    confidence: 0.9
+    desc: Firefox key4.db (master password database)
+    crit: suspicious
+    conf: 0.9
     attack: "T1555.003"
-    condition:
+    if:
       type: string
       exact: "key4.db"
 
   - id: cert9-db
-    description: Firefox cert9.db certificate store
-    criticality: suspicious
-    confidence: 0.8
+    desc: Firefox cert9.db certificate store
+    crit: suspicious
+    conf: 0.8
     attack: "T1555.003"
-    condition:
+    if:
       type: string
       exact: "cert9.db"
 
   # === NSS Library (used for decryption) ===
 
   - id: nss-private
-    description: Firefox NSS private key database
-    criticality: suspicious
-    confidence: 0.8
+    desc: Firefox NSS private key database
+    crit: suspicious
+    conf: 0.8
     attack: "T1555.003"
-    condition:
+    if:
       type: string
       exact: "nssPrivate"
 
   # === NSS3 library atomic indicators ===
   - id: nss3-word
-    description: nss3 word reference
-    criticality: notable
-    confidence: 0.75
+    desc: nss3 word reference
+    crit: notable
+    conf: 0.75
     attack: "T1555.003"
-    condition:
+    if:
       type: string
       regex: "\\bnss3\\b"
 
   - id: libnss3-ref
-    description: libnss3 library reference
-    criticality: notable
-    confidence: 0.75
+    desc: libnss3 library reference
+    crit: notable
+    conf: 0.75
     attack: "T1555.003"
-    condition:
+    if:
       type: string
       exact: "libnss3"
 
   - id: pk11-decrypt
-    description: Firefox PK11SDR_Decrypt function
-    criticality: suspicious
-    confidence: 0.95
+    desc: Firefox PK11SDR_Decrypt function
+    crit: suspicious
+    conf: 0.95
     attack: "T1555.003"
     mbc: "B0028"
-    condition:
+    if:
       type: string
       exact: "PK11SDR_Decrypt"
 
   # === SQL Queries ===
 
   - id: moz-cookies-sql
-    description: Firefox moz_cookies SQL query
-    criticality: suspicious
-    confidence: 0.9
+    desc: Firefox moz_cookies SQL query
+    crit: suspicious
+    conf: 0.9
     attack: "T1555.003"
-    condition:
+    if:
       type: string
       regex: "SELECT.*FROM\\s+moz_cookies"
       case_insensitive: true
 
   - id: moz-logins-sql
-    description: Firefox moz_logins SQL query
-    criticality: suspicious
-    confidence: 0.95
+    desc: Firefox moz_logins SQL query
+    crit: suspicious
+    conf: 0.95
     attack: "T1555.003"
     mbc: "B0028"
-    condition:
+    if:
       type: string
       regex: "SELECT.*FROM\\s+moz_logins"
       case_insensitive: true
@@ -170,33 +170,33 @@ traits:
 composite_rules:
   # profiles path composite
   - id: profiles-path
-    description: Firefox/Gecko Profiles directory
-    criticality: notable
-    confidence: 0.7
+    desc: Firefox/Gecko Profiles directory
+    crit: notable
+    conf: 0.7
     attack: "T1555.003"
     requires_count: 1
-    conditions:
+    any:
       - id: firefox-profiles
       - id: waterfox-profiles
       - id: palemoon-profiles
 
   - id: cookie-theft
-    description: Firefox cookie theft
-    criticality: suspicious
-    confidence: 0.85
+    desc: Firefox cookie theft
+    crit: suspicious
+    conf: 0.85
     attack: "T1555.003"
-    requires_all:
+    all:
       - id: path
       - id: cookies-sqlite
 
   - id: password-theft
-    description: Firefox password/form history theft
-    criticality: suspicious
-    confidence: 0.85
+    desc: Firefox password/form history theft
+    crit: suspicious
+    conf: 0.85
     attack: "T1555.003"
-    requires_all:
+    all:
       - id: path
-    requires_any:
+    any:
       - id: formhistory-sqlite
       - id: nss-private
       - id: logins-json
@@ -204,24 +204,24 @@ composite_rules:
 
   # nss3 lib composite
   - id: nss3-lib
-    description: Firefox NSS3 library reference
-    criticality: suspicious
-    confidence: 0.85
+    desc: Firefox NSS3 library reference
+    crit: suspicious
+    conf: 0.85
     attack: "T1555.003"
     requires_count: 1
-    conditions:
+    any:
       - id: nss3-word
       - id: libnss3-ref
 
   - id: nss-decrypt
-    description: Firefox NSS decryption (password extraction)
-    criticality: hostile
-    confidence: 0.95
+    desc: Firefox NSS decryption (password extraction)
+    crit: hostile
+    conf: 0.95
     attack: "T1555.003"
     mbc: "B0028"
-    file_types: [python, javascript, elf, pe, macho, so, dll]
-    requires_any:
+    for: [python, javascript, elf, pe, macho, so, dll]
+    any:
       - id: pk11-decrypt
       - id: nss3-lib
-    requires_all:
+    all:
       - id: path

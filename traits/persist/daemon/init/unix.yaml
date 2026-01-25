@@ -6,7 +6,7 @@ traits:
   # === daemon-fork atomic indicators ===
   - id: fork-symbol
     description: fork syscall symbol
-    criticality: inert
+    crit: inert
     confidence: 0.3
     file_types: [elf, macho]
     platforms: [linux, macos]
@@ -16,7 +16,7 @@ traits:
 
   - id: daemon-symbol
     description: daemon function symbol
-    criticality: inert
+    crit: inert
     confidence: 0.4
     file_types: [elf, macho]
     platforms: [linux, macos]
@@ -26,7 +26,7 @@ traits:
 
   - id: daemon-setsid
     description: "Session creation (setsid) for daemon"
-    criticality: notable
+    crit: notable
     confidence: 0.5
     attack: "T1543"
     file_types: [elf]
@@ -37,7 +37,7 @@ traits:
 
   - id: daemon-dev-null
     description: "Redirects I/O to /dev/null (daemon behavior)"
-    criticality: notable
+    crit: notable
     confidence: 0.4
     file_types: [elf, macho]
     platforms: [linux, macos]
@@ -47,7 +47,7 @@ traits:
 
   - id: daemon-chdir-root
     description: "Change directory to root (daemon behavior)"
-    criticality: notable
+    crit: notable
     confidence: 0.3
     file_types: [elf, macho]
     platforms: [linux, macos]
@@ -57,7 +57,7 @@ traits:
 
   - id: daemon-proc-self
     description: "Reads /proc/self (process introspection)"
-    criticality: notable
+    crit: notable
     confidence: 0.5
     file_types: [elf]
     platforms: [linux]
@@ -68,7 +68,7 @@ traits:
   # Signal handling for daemon persistence
   - id: signal-ignore-pattern
     description: "Signal handler setup (daemon persistence pattern)"
-    criticality: notable
+    crit: notable
     confidence: 0.6
     attack: "T1543"
     file_types: [elf, macho]
@@ -94,7 +94,7 @@ traits:
   # === sigchld-handler atomic indicators ===
   - id: sigchild-underscore
     description: _sigchild string
-    criticality: inert
+    crit: inert
     confidence: 0.5
     file_types: [elf, macho]
     platforms: [linux, macos, unix]
@@ -104,7 +104,7 @@ traits:
 
   - id: sigchld-handler-string
     description: sigchld_handler string
-    criticality: inert
+    crit: inert
     confidence: 0.5
     file_types: [elf, macho]
     platforms: [linux, macos, unix]
@@ -114,7 +114,7 @@ traits:
 
   - id: handle-sigchld-string
     description: handle_sigchld string
-    criticality: inert
+    crit: inert
     confidence: 0.5
     file_types: [elf, macho]
     platforms: [linux, macos, unix]
@@ -125,38 +125,38 @@ traits:
 composite_rules:
   - id: daemon-fork
     description: "Process forking for daemon behavior"
-    criticality: notable
+    crit: notable
     confidence: 0.4
     attack: "T1543"
     file_types: [elf, macho]
     platforms: [linux, macos]
     requires_count: 1
-    conditions:
+    any:
       - id: fork-symbol
       - id: daemon-symbol
 
   - id: sigchld-handler
     description: "Custom SIGCHLD handler (child process reaping)"
-    criticality: notable
+    crit: notable
     confidence: 0.6
     attack: "T1543"
     file_types: [elf, macho]
     platforms: [linux, macos, unix]
     requires_count: 1
-    conditions:
+    any:
       - id: sigchild-underscore
       - id: sigchld-handler-string
       - id: handle-sigchld-string
 
   - id: full-daemon
     description: "Full daemon behavior (fork + setsid + /dev/null)"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.8
     attack: "T1543"
     mbc: "F0006"
     file_types: [elf]
     platforms: [linux]
-    requires_all:
+    all:
       - id: daemon-dev-null
     requires_any:
       - id: daemon-fork
@@ -164,13 +164,13 @@ composite_rules:
 
   - id: stealth-daemon
     description: "Stealthy daemon (daemon + proc introspection)"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.75
     attack: "T1543"
     mbc: "F0006"
     file_types: [elf]
     platforms: [linux]
-    requires_all:
+    all:
       - id: daemon-proc-self
     requires_any:
       - id: daemon-fork

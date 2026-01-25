@@ -12,7 +12,7 @@
 //! let report = analyze_file("suspicious.py", &options).unwrap();
 //!
 //! for finding in &report.findings {
-//!     println!("{}: {} ({:?})", finding.id, finding.description, finding.criticality);
+//!     println!("{}: {} ({:?})", finding.id, finding.desc, finding.crit);
 //! }
 //! ```
 
@@ -318,7 +318,7 @@ fn analyze_generic_source(path: &Path, file_type: &FileType) -> Result<AnalysisR
 
     report.structure.push(types::StructuralFeature {
         id: format!("source/language/{}", file_type_str),
-        description: format!("{} source code", file_type_str),
+        desc: format!("{} source code", file_type_str),
         evidence: vec![Evidence {
             method: "parser".to_string(),
             source: "tree-sitter".to_string(),

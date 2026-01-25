@@ -2,13 +2,13 @@
 # ATT&CK: T1059 (Command and Scripting Interpreter)
 
 defaults:
-  file_types: [php]
-  criticality: suspicious
+  for: [php]
+  crit: suspicious
 
 traits:
   - id: php-input
-    description: Access to php://input (raw POST data)
-    confidence: 0.95
-    condition:
+    desc: Access to php://input (raw POST data)
+    conf: 0.95
+    if:
       type: string
       regex: "php://input"

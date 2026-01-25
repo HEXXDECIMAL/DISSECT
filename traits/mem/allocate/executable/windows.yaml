@@ -4,7 +4,7 @@
 traits:
   - id: virtualalloc
     description: Allocate executable memory (VirtualAlloc)
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.8
     attack: "T1055"
     platforms: [windows]

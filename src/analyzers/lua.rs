@@ -57,7 +57,7 @@ impl LuaAnalyzer {
 
         report.structure.push(StructuralFeature {
             id: "source/language/lua".to_string(),
-            description: "Lua source code".to_string(),
+            desc: "Lua source code".to_string(),
             evidence: vec![Evidence {
                 method: "parser".to_string(),
                 source: "tree-sitter-lua".to_string(),
@@ -556,9 +556,9 @@ impl LuaAnalyzer {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: cap_id.to_string(),
-                description: desc.to_string(),
-                confidence: conf,
-                criticality,
+                desc: desc.to_string(),
+                conf: conf,
+                crit: criticality,
                 mbc: None,
                 attack: None,
                 evidence: vec![Evidence {
@@ -584,9 +584,9 @@ impl LuaAnalyzer {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: "net/socket/io".to_string(),
-                description: "Socket I/O operation".to_string(),
-                confidence: 0.8,
-                criticality: Criticality::Notable,
+                desc: "Socket I/O operation".to_string(),
+                conf: 0.8,
+                crit: Criticality::Notable,
                 mbc: None,
                 attack: None,
                 evidence: vec![Evidence {

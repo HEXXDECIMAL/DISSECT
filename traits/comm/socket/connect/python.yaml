@@ -4,12 +4,12 @@
 
 traits:
   - id: connect-python
-    description: Initiate socket connection (Python)
-    criticality: notable
-    confidence: 0.66
+    desc: Initiate socket connection (Python)
+    crit: notable
+    conf: 0.66
     mbc: "C0001"
     attack: "T1071"
-    condition:
+    if:
       type: yara
       source: |
         rule py_connect {

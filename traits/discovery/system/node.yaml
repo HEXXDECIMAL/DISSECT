@@ -4,11 +4,11 @@
 traits:
   # Combined system profiling (existing)
   - id: node
-    description: Extensive system profiling (user, net, host)
-    criticality: suspicious
-    confidence: 0.8
-    file_types: [javascript, typescript]
-    condition:
+    desc: Extensive system profiling (user, net, host)
+    crit: suspicious
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule system_profiling {
@@ -23,113 +23,113 @@ traits:
 
   # Individual system info functions
   - id: node-hostname
-    description: Collects system hostname
-    criticality: notable
-    confidence: 0.9
+    desc: Collects system hostname
+    crit: notable
+    conf: 0.9
     attack: "T1082"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: 'os\.hostname\(\)'
 
   - id: node-homedir
-    description: Collects user home directory path
-    criticality: notable
-    confidence: 0.85
+    desc: Collects user home directory path
+    crit: notable
+    conf: 0.85
     attack: "T1082"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: 'os\.homedir\(\)'
 
   - id: node-userinfo
-    description: Collects user account information
-    criticality: notable
-    confidence: 0.85
+    desc: Collects user account information
+    crit: notable
+    conf: 0.85
     attack: "T1033"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: 'os\.userInfo\(\)'
 
   - id: node-platform
-    description: Collects operating system platform
-    criticality: inert
-    confidence: 0.9
+    desc: Collects operating system platform
+    crit: inert
+    conf: 0.9
     attack: "T1082"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: 'os\.platform\(\)'
 
   - id: node-arch
-    description: Collects CPU architecture
-    criticality: inert
-    confidence: 0.9
+    desc: Collects CPU architecture
+    crit: inert
+    conf: 0.9
     attack: "T1082"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: 'os\.arch\(\)'
 
   - id: node-release
-    description: Collects OS release/version
-    criticality: inert
-    confidence: 0.9
+    desc: Collects OS release/version
+    crit: inert
+    conf: 0.9
     attack: "T1082"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: 'os\.release\(\)'
 
   - id: node-tmpdir
-    description: Collects temp directory path
-    criticality: inert
-    confidence: 0.85
-    file_types: [javascript, typescript]
-    condition:
+    desc: Collects temp directory path
+    crit: inert
+    conf: 0.85
+    for: [javascript, typescript]
+    if:
       type: string
       regex: 'os\.tmpdir\(\)'
 
   - id: node-cwd
-    description: Collects current working directory
-    criticality: notable
-    confidence: 0.8
+    desc: Collects current working directory
+    crit: notable
+    conf: 0.8
     attack: "T1083"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: 'process\.cwd\(\)'
 
   - id: node-dirname
-    description: Collects script directory path
-    criticality: inert
-    confidence: 0.75
-    file_types: [javascript, typescript]
-    condition:
+    desc: Collects script directory path
+    crit: inert
+    conf: 0.75
+    for: [javascript, typescript]
+    if:
       type: string
       exact: __dirname
 
   # Network interfaces
   - id: node-network
-    description: Enumerates network interfaces
-    criticality: notable
-    confidence: 0.85
+    desc: Enumerates network interfaces
+    crit: notable
+    conf: 0.85
     attack: "T1016"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: 'os\.networkInterfaces\(\)'
 
 composite_rules:
   # Data aggregation for exfil
   - id: node-data-aggregation
-    description: Aggregates system data into object (pre-exfiltration)
-    criticality: suspicious
-    confidence: 0.9
+    desc: Aggregates system data into object (pre-exfiltration)
+    crit: suspicious
+    conf: 0.9
     attack: "T1082"
     requires_count: 3
-    conditions:
+    any:
       - id: node-hostname
       - id: node-homedir
       - id: node-userinfo

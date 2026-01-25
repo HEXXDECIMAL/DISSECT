@@ -3,34 +3,34 @@
 # ATT&CK: T1041 (Exfiltration Over C2 Channel)
 
 defaults:
-  file_types: [elf, macho, so, dylib, pe, dll, c]
+  for: [elf, macho, so, dylib, pe, dll, c]
 
 traits:
   - id: http-upload
     description: HTTP file upload (potential exfiltration)
-    criticality: notable
+    crit: notable
     mbc: "E1041"
     attack: "T1041"
-    confidence: 0.6
-    condition:
+    conf: 0.6
+    if:
       type: symbol
       pattern: http_upload|upload|PUT
 
   - id: ftp-upload
     description: FTP upload
-    criticality: notable
+    crit: notable
     mbc: "E1041"
     attack: "T1048.002"
-    confidence: 0.7
-    condition:
+    conf: 0.7
+    if:
       type: symbol
       pattern: ftp_put|STOR
 
   - id: large-buffer
     description: Large network send buffer (bulk exfiltration)
-    criticality: inert
+    crit: inert
     mbc: "E1041"
-    confidence: 0.4
-    condition:
+    conf: 0.4
+    if:
       type: symbol
       pattern: send|sendto|write

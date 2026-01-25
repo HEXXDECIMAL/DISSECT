@@ -2,67 +2,67 @@
 
 defaults:
   platforms: [macos]
-  file_types: [macho]
+  for: [macho]
 
 traits:
   # === Apple signature atomic indicators ===
   - id: apple-development
     description: Apple Development certificate
-    criticality: inert
-    confidence: 0.7
-    condition:
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "Apple Development"
 
   - id: apple-distribution
     description: Apple Distribution certificate
-    criticality: inert
-    confidence: 0.7
-    condition:
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "Apple Distribution"
 
   - id: developer-id
     description: Developer ID certificate
-    criticality: inert
-    confidence: 0.7
-    condition:
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "Developer ID"
 
   # === Codesign requirement atomic indicators ===
   - id: anchor-apple
     description: anchor apple requirement
-    criticality: inert
-    confidence: 0.7
-    condition:
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "anchor apple"
 
   - id: certificate-leaf
     description: certificate leaf requirement
-    criticality: inert
-    confidence: 0.7
-    condition:
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "certificate leaf"
 
 composite_rules:
   - id: signed
     description: Apple code signature markers
-    criticality: inert
-    confidence: 0.85
+    crit: inert
+    conf: 0.85
     requires_count: 1
-    conditions:
+    any:
       - id: apple-development
       - id: apple-distribution
       - id: developer-id
 
   - id: codesign-requirement
     description: Code signature requirement blob
-    criticality: inert
-    confidence: 0.9
+    crit: inert
+    conf: 0.9
     requires_count: 1
-    conditions:
+    any:
       - id: anchor-apple
       - id: certificate-leaf

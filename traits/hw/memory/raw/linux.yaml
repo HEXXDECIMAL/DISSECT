@@ -4,42 +4,42 @@
 traits:
   - id: kmem
     description: Access raw kernel memory (/dev/kmem)
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     attack: "T1003"
     platforms: [linux, unix]
-    condition:
+    if:
       type: string
       exact: "/dev/kmem"
 
   - id: dev-mem
     description: Access raw system memory (/dev/mem)
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     attack: "T1003"
     platforms: [linux]
-    condition:
+    if:
       type: string
       exact: "/dev/mem"
 
   # === Memdump atomic indicators ===
   - id: memdump-cmd
     description: memdump command reference
-    criticality: notable
-    confidence: 0.65
+    crit: notable
+    conf: 0.65
     attack: "T1003"
     platforms: [all]
-    condition:
+    if:
       type: string
       regex: "\\bmemdump\\b"
 
   - id: dumpmem-cmd
     description: dumpmem command reference
-    criticality: notable
-    confidence: 0.65
+    crit: notable
+    conf: 0.65
     attack: "T1003"
     platforms: [all]
-    condition:
+    if:
       type: string
       regex: "\\bdumpmem\\b"
 
@@ -47,11 +47,11 @@ composite_rules:
   # Memdump composite
   - id: memdump-ref
     description: Memory dump utility reference
-    criticality: suspicious
-    confidence: 0.75
+    crit: suspicious
+    conf: 0.75
     attack: "T1003"
     platforms: [all]
     requires_count: 1
-    conditions:
+    any:
       - id: memdump-cmd
       - id: dumpmem-cmd

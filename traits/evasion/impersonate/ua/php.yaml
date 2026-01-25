@@ -5,68 +5,68 @@
 
 traits:
   - id: googlebot
-    description: Googlebot User-Agent impersonation
-    criticality: suspicious
-    confidence: 0.9
+    desc: Googlebot User-Agent impersonation
+    crit: suspicious
+    conf: 0.9
     mbc: "B0032"
     attack: "T1036"
-    file_types: [php]
-    condition:
+    for: [php]
+    if:
       type: string
       regex: "Googlebot/\\d"
 
   - id: bingbot
-    description: Bingbot User-Agent impersonation
-    criticality: suspicious
-    confidence: 0.9
+    desc: Bingbot User-Agent impersonation
+    crit: suspicious
+    conf: 0.9
     mbc: "B0032"
     attack: "T1036"
-    file_types: [php]
-    condition:
+    for: [php]
+    if:
       type: string
       regex: "bingbot/\\d"
 
   - id: ua-array
-    description: User-Agent string array (rotation for evasion)
-    criticality: suspicious
-    confidence: 0.85
+    desc: User-Agent string array (rotation for evasion)
+    crit: suspicious
+    conf: 0.85
     mbc: "B0032"
     attack: "T1036"
-    file_types: [php]
-    condition:
+    for: [php]
+    if:
       type: string
       regex: "Mozilla/5\\.0.*Mozilla/5\\.0.*Mozilla/5\\.0"
 
   # === array-rand UA atomic indicators ===
   - id: array-rand-mozilla
-    description: array_rand followed by Mozilla
-    criticality: notable
-    confidence: 0.7
+    desc: array_rand followed by Mozilla
+    crit: notable
+    conf: 0.7
     mbc: "B0032"
-    file_types: [php]
-    condition:
+    for: [php]
+    if:
       type: string
       regex: "array_rand.*Mozilla"
 
   - id: mozilla-array-rand
-    description: Mozilla followed by array_rand
-    criticality: notable
-    confidence: 0.7
+    desc: Mozilla followed by array_rand
+    crit: notable
+    conf: 0.7
     mbc: "B0032"
-    file_types: [php]
-    condition:
+    for: [php]
+    if:
       type: string
       regex: "Mozilla.*array_rand"
 
 composite_rules:
   # array-rand UA composite
   - id: array-rand-ua
-    description: Random User-Agent selection
-    criticality: suspicious
-    confidence: 0.8
+    desc: Random User-Agent selection
+    crit: suspicious
+    conf: 0.8
     mbc: "B0032"
-    file_types: [php]
+    for: [php]
     requires_count: 1
-    conditions:
+    any:
       - id: array-rand-mozilla
       - id: mozilla-array-rand

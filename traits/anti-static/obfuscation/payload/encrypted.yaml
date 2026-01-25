@@ -3,7 +3,7 @@
 # ATT&CK: T1027 (Obfuscated Files or Information)
 
 defaults:
-  file_types: [macho, elf, pe]
+  for: [macho, elf, pe]
   attack: "T1027"
   mbc: "B0032"
 
@@ -11,44 +11,44 @@ traits:
   # === Section Ratio Indicators ===
 
   - id: large-const-section
-    description: "Large __const section (>80% of binary)"
-    criticality: suspicious
-    confidence: 0.8
-    file_types: [macho]
-    condition:
+    desc: "Large __const section (>80% of binary)"
+    crit: suspicious
+    conf: 0.8
+    for: [macho]
+    if:
       type: section_ratio
       section: "__const"
       compare_to: "total"
       min_ratio: 0.80
 
   - id: large-data-section
-    description: "Large .data section (>70% of binary)"
-    criticality: suspicious
-    confidence: 0.75
-    file_types: [elf, pe]
-    condition:
+    desc: "Large .data section (>70% of binary)"
+    crit: suspicious
+    conf: 0.75
+    for: [elf, pe]
+    if:
       type: section_ratio
       section: "\\.(data|rdata)"
       compare_to: "total"
       min_ratio: 0.70
 
   - id: tiny-cstring
-    description: "Tiny __cstring section (<0.1% of binary)"
-    criticality: notable
-    confidence: 0.7
-    file_types: [macho]
-    condition:
+    desc: "Tiny __cstring section (<0.1% of binary)"
+    crit: notable
+    conf: 0.7
+    for: [macho]
+    if:
       type: section_ratio
       section: "__cstring"
       compare_to: "total"
       max_ratio: 0.001
 
   - id: minimal-text
-    description: "Small code section (<5% of binary)"
-    criticality: notable
-    confidence: 0.65
-    file_types: [macho]
-    condition:
+    desc: "Small code section (<5% of binary)"
+    crit: notable
+    conf: 0.65
+    for: [macho]
+    if:
       type: section_ratio
       section: "__text"
       compare_to: "total"
@@ -57,33 +57,33 @@ traits:
   # === Entropy Indicators ===
 
   - id: high-entropy-const
-    description: "High entropy in __const section (likely encrypted)"
-    criticality: suspicious
-    confidence: 0.85
+    desc: "High entropy in __const section (likely encrypted)"
+    crit: suspicious
+    conf: 0.85
     mbc: "C0027"
-    file_types: [macho]
-    condition:
+    for: [macho]
+    if:
       type: section_entropy
       section: "__const"
       min_entropy: 7.5
 
   - id: high-entropy-data
-    description: "High entropy in data section (likely encrypted)"
-    criticality: suspicious
-    confidence: 0.85
+    desc: "High entropy in data section (likely encrypted)"
+    crit: suspicious
+    conf: 0.85
     mbc: "C0027"
-    file_types: [elf, pe]
-    condition:
+    for: [elf, pe]
+    if:
       type: section_entropy
       section: "\\.(data|rdata|rodata)"
       min_entropy: 7.5
 
   - id: high-entropy-text
-    description: "High entropy in code section (packed/encrypted)"
-    criticality: suspicious
-    confidence: 0.9
+    desc: "High entropy in code section (packed/encrypted)"
+    crit: suspicious
+    conf: 0.9
     mbc: "B0032.002"
-    condition:
+    if:
       type: section_entropy
       section: "(__text|\\.text)"
       min_entropy: 7.0
@@ -91,20 +91,20 @@ traits:
   # === String Concealment ===
 
   - id: string-concealment
-    description: "Very few visible strings (<10)"
-    criticality: notable
-    confidence: 0.7
-    condition:
+    desc: "Very few visible strings (<10)"
+    crit: notable
+    conf: 0.7
+    if:
       type: string_count
       max: 10
       min_length: 4
 
   - id: no-strings
-    description: "No visible strings in binary"
-    criticality: suspicious
-    confidence: 0.8
-    file_types: [macho, elf, pe]
-    condition:
+    desc: "No visible strings in binary"
+    crit: suspicious
+    conf: 0.8
+    for: [macho, elf, pe]
+    if:
       type: string_count
       max: 0
       min_length: 4
@@ -112,11 +112,11 @@ traits:
   # === Import Patterns ===
 
   - id: math-cipher-imports
-    description: "Math functions (cipher indicator) with system() import"
-    criticality: suspicious
-    confidence: 0.85
-    file_types: [macho]
-    condition:
+    desc: "Math functions (cipher indicator) with system() import"
+    crit: suspicious
+    conf: 0.85
+    for: [macho]
+    if:
       type: import_combination
       required:
         - "^_?system$"
@@ -125,10 +125,10 @@ traits:
       min_suspicious: 4
 
   - id: minimal-imports
-    description: "Very few imports (<50) with system() present"
-    criticality: notable
-    confidence: 0.7
-    condition:
+    desc: "Very few imports (<50) with system() present"
+    crit: notable
+    conf: 0.7
+    if:
       type: import_combination
       required:
         - "^_?system$"
@@ -138,14 +138,14 @@ composite_rules:
   # === Encrypted Dropper Detection ===
 
   - id: encrypted-payload-dropper
-    description: "Encrypted payload dropper (large encrypted section + minimal strings)"
-    criticality: suspicious
-    confidence: 0.9
+    desc: "Encrypted payload dropper (large encrypted section + minimal strings)"
+    crit: suspicious
+    conf: 0.9
     attack: "T1027"
     mbc: "B0032"
-    file_types: [macho]
-    requires_count: 3
-    conditions:
+    for: [macho]
+    count: 3
+    any:
       - id: large-const-section
       - id: high-entropy-const
       - id: tiny-cstring
@@ -153,28 +153,28 @@ composite_rules:
       - id: string-concealment
 
   - id: cipher-dropper
-    description: "Cipher-based dropper (math imports + encrypted payload)"
-    criticality: suspicious
-    confidence: 0.9
+    desc: "Cipher-based dropper (math imports + encrypted payload)"
+    crit: suspicious
+    conf: 0.9
     attack: "T1027"
     mbc: "C0027"
-    file_types: [macho]
-    requires_all:
+    for: [macho]
+    all:
       - id: math-cipher-imports
       - id: high-entropy-const
-    requires_any:
+    any:
       - id: string-concealment
       - id: tiny-cstring
 
   - id: elf-encrypted-dropper
-    description: "Encrypted payload dropper (ELF)"
-    criticality: suspicious
-    confidence: 0.85
+    desc: "Encrypted payload dropper (ELF)"
+    crit: suspicious
+    conf: 0.85
     attack: "T1027"
     mbc: "B0032"
-    file_types: [elf]
-    requires_count: 2
-    conditions:
+    for: [elf]
+    count: 2
+    any:
       - id: large-data-section
       - id: high-entropy-data
       - id: string-concealment

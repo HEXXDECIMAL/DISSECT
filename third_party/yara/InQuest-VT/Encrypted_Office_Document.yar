@@ -14,6 +14,6 @@ rule Encrypted_Office_Document
 	    $a = {04 00 00 00 00 00 00 00 01 68 00 00 04 80 00 00 (80|28) 00 00 00 01 00 00 00 ?? ?? ?? ?? 00 00 00 00 4D 00 69 00 63 00 72 00 6F 00 73 00 6F 00 66 00 74 00 20 00 }
         $b = "EncryptedPackage" wide
         $magic = { D0 CF 11 E0 A1 B1 1A E1 00 00 00 }
-	condition:
+	if:
 	    $a or ($magic in (0..1024) and $b)
 }

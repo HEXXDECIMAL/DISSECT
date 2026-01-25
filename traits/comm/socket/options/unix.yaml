@@ -3,37 +3,37 @@
 # ATT&CK: T1071
 
 defaults:
-  file_types: [elf, macho, so, dylib, c]
+  for: [elf, macho, so, dylib, c]
 
 traits:
   - id: options-get
-    description: Get socket options
-    criticality: inert
-    confidence: 0.66
-    condition:
+    desc: Get socket options
+    crit: inert
+    conf: 0.66
+    if:
       type: symbol
       pattern: getsockopt
 
   - id: options-set
-    description: Set socket options
-    criticality: inert
-    confidence: 0.66
-    condition:
+    desc: Set socket options
+    crit: inert
+    conf: 0.66
+    if:
       type: symbol
       pattern: setsockopt
 
   - id: options-reuseport
-    description: Enable socket port reuse
-    criticality: notable
-    confidence: 0.66
-    condition:
+    desc: Enable socket port reuse
+    crit: notable
+    conf: 0.66
+    if:
       type: string
       exact: SO_REUSEPORT
 
   - id: options-filter
-    description: Socket packet filtering
-    criticality: notable
-    confidence: 0.66
-    condition:
+    desc: Socket packet filtering
+    crit: notable
+    conf: 0.66
+    if:
       type: string
       exact: SO_ATTACH_FILTER

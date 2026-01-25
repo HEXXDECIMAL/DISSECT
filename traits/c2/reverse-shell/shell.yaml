@@ -9,143 +9,143 @@ defaults:
 traits:
   # Complete bash reverse shell pattern (no legitimate use)
   - id: reverse-shell-bash-complete
-    description: Bash reverse shell via /dev/tcp (complete pattern)
-    criticality: suspicious
-    confidence: 0.98
-    file_types: [shell, packagejson, javascript]
-    condition:
+    desc: Bash reverse shell via /dev/tcp (complete pattern)
+    crit: suspicious
+    conf: 0.98
+    for: [shell, packagejson, javascript]
+    if:
       type: string
       regex: "bash\\s+-i\\s+>&\\s*/dev/tcp/[0-9.]+/[0-9]+\\s+0>&1"
 
   - id: reverse-shell-bash
-    description: Bash reverse shell via /dev/tcp
-    criticality: suspicious
-    confidence: 0.95
-    file_types: [shell, packagejson, javascript]
-    condition:
+    desc: Bash reverse shell via /dev/tcp
+    crit: suspicious
+    conf: 0.95
+    for: [shell, packagejson, javascript]
+    if:
       type: string
       regex: "bash\\s+-i\\s+>&\\s*/dev/tcp/"
 
   # === mkfifo netcat atomic indicators ===
   - id: mkfifo-cmd
-    description: mkfifo command for named pipe
-    criticality: inert
-    confidence: 0.5
-    file_types: [shell, packagejson]
-    condition:
+    desc: mkfifo command for named pipe
+    crit: inert
+    conf: 0.5
+    for: [shell, packagejson]
+    if:
       type: string
       regex: '\bmkfifo\b'
 
   - id: sh-interactive
-    description: Interactive shell invocation
-    criticality: inert
-    confidence: 0.5
-    file_types: [shell, packagejson]
-    condition:
+    desc: Interactive shell invocation
+    crit: inert
+    conf: 0.5
+    for: [shell, packagejson]
+    if:
       type: string
       exact: "sh -i"
 
   - id: nc-pipe
-    description: Netcat with pipe
-    criticality: inert
-    confidence: 0.5
-    file_types: [shell, packagejson]
-    condition:
+    desc: Netcat with pipe
+    crit: inert
+    conf: 0.5
+    for: [shell, packagejson]
+    if:
       type: string
       regex: '\| {0,2}nc '
 
   # Python reverse shell
   - id: reverse-shell-python
-    description: Python reverse shell pattern
-    criticality: suspicious
-    confidence: 0.95
+    desc: Python reverse shell pattern
+    crit: suspicious
+    conf: 0.95
     attack: "T1059.006"
-    file_types: [shell, packagejson, python]
-    condition:
+    for: [shell, packagejson, python]
+    if:
       type: string
       regex: "python[23]?\\s+-c\\s+['\"]import socket.*subprocess.*connect"
 
   # Perl reverse shell
   - id: reverse-shell-perl
-    description: Perl reverse shell pattern
-    criticality: suspicious
-    confidence: 0.95
+    desc: Perl reverse shell pattern
+    crit: suspicious
+    conf: 0.95
     attack: "T1059"
-    file_types: [shell, packagejson]
-    condition:
+    for: [shell, packagejson]
+    if:
       type: string
       regex: "perl\\s+-e\\s+['\"].*socket.*connect.*exec"
 
   # === Netcat reverse shell atomic indicators ===
   - id: nc-exec-sh
-    description: nc -e /bin/sh pattern
-    criticality: suspicious
-    confidence: 0.9
-    file_types: [shell, packagejson]
-    condition:
+    desc: nc -e /bin/sh pattern
+    crit: suspicious
+    conf: 0.9
+    for: [shell, packagejson]
+    if:
       type: string
       regex: 'nc\s+-e\s+/bin/(ba)?sh'
 
   - id: ncat-exec-sh
-    description: ncat -e /bin/sh pattern
-    criticality: suspicious
-    confidence: 0.9
-    file_types: [shell, packagejson]
-    condition:
+    desc: ncat -e /bin/sh pattern
+    crit: suspicious
+    conf: 0.9
+    for: [shell, packagejson]
+    if:
       type: string
       regex: 'ncat\s+-e\s+/bin/(ba)?sh'
 
   - id: netcat-exec-sh
-    description: netcat -e /bin/sh pattern
-    criticality: suspicious
-    confidence: 0.9
-    file_types: [shell, packagejson]
-    condition:
+    desc: netcat -e /bin/sh pattern
+    crit: suspicious
+    conf: 0.9
+    for: [shell, packagejson]
+    if:
       type: string
       regex: 'netcat\s+-e\s+/bin/(ba)?sh'
 
   # Ruby reverse shell
   - id: reverse-shell-ruby
-    description: Ruby reverse shell pattern
-    criticality: suspicious
-    confidence: 0.95
+    desc: Ruby reverse shell pattern
+    crit: suspicious
+    conf: 0.95
     attack: "T1059"
-    file_types: [shell, packagejson, ruby]
-    condition:
+    for: [shell, packagejson, ruby]
+    if:
       type: string
       regex: "ruby\\s+-rsocket\\s+-e|TCPSocket\\.open.*exec"
 
   # PHP reverse shell
   - id: reverse-shell-php
-    description: PHP reverse shell pattern
-    criticality: suspicious
-    confidence: 0.95
+    desc: PHP reverse shell pattern
+    crit: suspicious
+    conf: 0.95
     attack: "T1059"
-    file_types: [shell, packagejson, php]
-    condition:
+    for: [shell, packagejson, php]
+    if:
       type: string
       regex: "php\\s+-r\\s+['\"].*fsockopen.*shell_exec|\\$sock\\s*=\\s*fsockopen"
 
 composite_rules:
   # mkfifo + netcat reverse shell (all of them + small file)
   - id: reverse-shell-mkfifo
-    description: Reverse shell using mkfifo and netcat
-    criticality: suspicious
-    confidence: 0.95
-    file_types: [shell, packagejson]
-    requires_all:
+    desc: Reverse shell using mkfifo and netcat
+    crit: suspicious
+    conf: 0.95
+    for: [shell, packagejson]
+    all:
       - id: mkfifo-cmd
       - id: sh-interactive
       - id: nc-pipe
 
   # Netcat reverse shell variants
   - id: reverse-shell-netcat
-    description: Netcat reverse shell pattern
-    criticality: suspicious
-    confidence: 0.9
-    file_types: [shell, packagejson]
-    requires_count: 1
-    conditions:
+    desc: Netcat reverse shell pattern
+    crit: suspicious
+    conf: 0.9
+    for: [shell, packagejson]
+    count: 1
+    any:
       - id: nc-exec-sh
       - id: ncat-exec-sh
       - id: netcat-exec-sh

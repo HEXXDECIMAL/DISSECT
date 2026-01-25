@@ -3,146 +3,146 @@
 # ATT&CK: T1027 (Obfuscated Files or Information)
 
 defaults:
-  file_types: [elf, macho, pe]
+  for: [elf, macho, pe]
   mbc: "B0032"
   attack: "T1027"
 
 traits:
   # === XOR decode symbol atomic indicators ===
   - id: xor-decode-symbol
-    description: xor_decode symbol
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: xor_decode symbol
+    crit: inert
+    conf: 0.6
+    if:
       type: symbol
       pattern: "xor_decode"
 
   - id: decode-xor-symbol
-    description: decode_xor symbol
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: decode_xor symbol
+    crit: inert
+    conf: 0.6
+    if:
       type: symbol
       pattern: "decode_xor"
 
   - id: xor-decrypt-symbol
-    description: xor_decrypt symbol
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: xor_decrypt symbol
+    crit: inert
+    conf: 0.6
+    if:
       type: symbol
       pattern: "xor_decrypt"
 
   - id: decrypt-xor-symbol
-    description: decrypt_xor symbol
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: decrypt_xor symbol
+    crit: inert
+    conf: 0.6
+    if:
       type: symbol
       pattern: "decrypt_xor"
 
   - id: xor-string-symbol
-    description: xor_string symbol
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: xor_string symbol
+    crit: inert
+    conf: 0.6
+    if:
       type: symbol
       pattern: "xor_string"
 
   # === Single-byte XOR key atomic indicators ===
   - id: xor-key-0x37
-    description: XOR key 0x37 repeated
-    criticality: inert
-    confidence: 0.55
-    file_types: [elf]
-    condition:
+    desc: XOR key 0x37 repeated
+    crit: inert
+    conf: 0.55
+    for: [elf]
+    if:
       type: string
       regex: "\\x37{4,}"
       search_raw: true
 
   - id: xor-key-0x55
-    description: XOR key 0x55 repeated
-    criticality: inert
-    confidence: 0.55
-    file_types: [elf]
-    condition:
+    desc: XOR key 0x55 repeated
+    crit: inert
+    conf: 0.55
+    for: [elf]
+    if:
       type: string
       regex: "\\x55{4,}"
       search_raw: true
 
   - id: xor-key-0xAA
-    description: XOR key 0xAA repeated
-    criticality: inert
-    confidence: 0.55
-    file_types: [elf]
-    condition:
+    desc: XOR key 0xAA repeated
+    crit: inert
+    conf: 0.55
+    for: [elf]
+    if:
       type: string
       regex: "\\xAA{4,}"
       search_raw: true
 
   - id: xor-key-0xDE
-    description: XOR key 0xDE repeated
-    criticality: inert
-    confidence: 0.55
-    file_types: [elf]
-    condition:
+    desc: XOR key 0xDE repeated
+    crit: inert
+    conf: 0.55
+    for: [elf]
+    if:
       type: string
       regex: "\\xDE{4,}"
       search_raw: true
 
   # === Table-based decode atomic indicators ===
   - id: decode-table-symbol
-    description: decode_table symbol
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: decode_table symbol
+    crit: inert
+    conf: 0.5
+    if:
       type: symbol
       pattern: "decode_table"
 
   - id: table-decode-symbol
-    description: table_decode symbol
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: table_decode symbol
+    crit: inert
+    conf: 0.5
+    if:
       type: symbol
       pattern: "table_decode"
 
   - id: lookup-decode-symbol
-    description: lookup_decode symbol
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: lookup_decode symbol
+    crit: inert
+    conf: 0.5
+    if:
       type: symbol
       pattern: "lookup_decode"
 
   - id: char-map-symbol
-    description: char_map symbol
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: char_map symbol
+    crit: inert
+    conf: 0.5
+    if:
       type: symbol
       pattern: "char_map"
 
 composite_rules:
   # Single-byte XOR key composite
   - id: single-byte-xor-key
-    description: Single-byte XOR key constant (0x37, 0x55, 0xAA, 0xDE)
-    criticality: notable
-    confidence: 0.65
-    file_types: [elf]
-    requires_count: 1
-    conditions:
+    desc: Single-byte XOR key constant (0x37, 0x55, 0xAA, 0xDE)
+    crit: notable
+    conf: 0.65
+    for: [elf]
+    count: 1
+    any:
       - id: xor-key-0x37
       - id: xor-key-0x55
       - id: xor-key-0xAA
       - id: xor-key-0xDE
 
   - id: xor-decode-loop
-    description: "XOR decryption loop pattern"
-    criticality: suspicious
-    confidence: 0.8
-    requires_count: 1
-    conditions:
+    desc: "XOR decryption loop pattern"
+    crit: suspicious
+    conf: 0.8
+    count: 1
+    any:
       - id: xor-decode-symbol
       - id: decode-xor-symbol
       - id: xor-decrypt-symbol
@@ -150,20 +150,20 @@ composite_rules:
       - id: xor-string-symbol
 
   - id: table-based-decode
-    description: "Table-based decoding function"
-    criticality: notable
-    confidence: 0.7
-    requires_count: 1
-    conditions:
+    desc: "Table-based decoding function"
+    crit: notable
+    conf: 0.7
+    count: 1
+    any:
       - id: decode-table-symbol
       - id: table-decode-symbol
       - id: lookup-decode-symbol
       - id: char-map-symbol
 
   - id: string-decrypt
-    description: "String decryption capability"
-    criticality: suspicious
-    confidence: 0.8
-    requires_any:
+    desc: "String decryption capability"
+    crit: suspicious
+    conf: 0.8
+    any:
       - id: xor-decode-loop
       - id: table-based-decode

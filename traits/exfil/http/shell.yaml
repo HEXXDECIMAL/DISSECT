@@ -6,33 +6,33 @@ defaults:
   mbc: "E1041"
   attack: "T1041"
   # curl/wget/nc commands can be embedded in any file type
-  file_types: ["*"]
+  for: ["*"]
 
 traits:
   # === curl POST atomic indicators ===
   - id: curl-d-flag
     description: curl -d data flag
-    criticality: inert
-    confidence: 0.6
-    condition:
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: "curl .* -d "
       search_raw: true
 
   - id: curl-data-flag
     description: curl --data flag
-    criticality: inert
-    confidence: 0.6
-    condition:
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: "curl .* --data"
       search_raw: true
 
   - id: curl-x-post
     description: curl -X POST flag
-    criticality: inert
-    confidence: 0.6
-    condition:
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: "curl .* -X POST"
       search_raw: true
@@ -40,36 +40,36 @@ traits:
   # === curl upload atomic indicators ===
   - id: curl-f-flag
     description: curl -F form flag
-    criticality: inert
-    confidence: 0.6
-    condition:
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: "curl .* -F "
       search_raw: true
 
   - id: curl-form-flag
     description: curl --form flag
-    criticality: inert
-    confidence: 0.6
-    condition:
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: "curl .* --form"
       search_raw: true
 
   - id: curl-t-flag
     description: curl -T upload flag
-    criticality: inert
-    confidence: 0.6
-    condition:
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: "curl .* -T "
       search_raw: true
 
   - id: curl-upload-flag
     description: curl --upload-file flag
-    criticality: inert
-    confidence: 0.6
-    condition:
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: "curl .* --upload-file"
       search_raw: true
@@ -77,18 +77,18 @@ traits:
   # === wget POST atomic indicators ===
   - id: wget-post-data
     description: wget --post-data flag
-    criticality: inert
-    confidence: 0.6
-    condition:
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: "wget .* --post-data"
       search_raw: true
 
   - id: wget-post-file
     description: wget --post-file flag
-    criticality: inert
-    confidence: 0.6
-    condition:
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       regex: "wget .* --post-file"
       search_raw: true
@@ -96,30 +96,30 @@ traits:
   # === netcat exfil atomic indicators ===
   - id: nc-stdin-redirect
     description: netcat with stdin redirect
-    criticality: inert
-    confidence: 0.6
+    crit: inert
+    conf: 0.6
     attack: "T1048"
-    condition:
+    if:
       type: string
       regex: "nc .* < "
       search_raw: true
 
   - id: cat-pipe-nc
     description: cat piped to netcat
-    criticality: inert
-    confidence: 0.6
+    crit: inert
+    conf: 0.6
     attack: "T1048"
-    condition:
+    if:
       type: string
       regex: "cat .* \\| nc "
       search_raw: true
 
   - id: pipe-to-nc
     description: pipe to netcat
-    criticality: inert
-    confidence: 0.6
+    crit: inert
+    conf: 0.6
     attack: "T1048"
-    condition:
+    if:
       type: string
       regex: "\\| nc "
       search_raw: true
@@ -127,20 +127,20 @@ traits:
 composite_rules:
   - id: curl-post-data
     description: Curl POST with data (potential exfiltration)
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     requires_count: 1
-    conditions:
+    any:
       - id: curl-d-flag
       - id: curl-data-flag
       - id: curl-x-post
 
   - id: curl-upload-file
     description: Curl file upload
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     requires_count: 1
-    conditions:
+    any:
       - id: curl-f-flag
       - id: curl-form-flag
       - id: curl-t-flag
@@ -148,20 +148,20 @@ composite_rules:
 
   - id: wget-post
     description: Wget POST request (potential exfiltration)
-    criticality: suspicious
-    confidence: 0.8
+    crit: suspicious
+    conf: 0.8
     requires_count: 1
-    conditions:
+    any:
       - id: wget-post-data
       - id: wget-post-file
 
   - id: nc-exfil
     description: Netcat exfiltration
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     attack: "T1048"
     requires_count: 1
-    conditions:
+    any:
       - id: nc-stdin-redirect
       - id: cat-pipe-nc
       - id: pipe-to-nc

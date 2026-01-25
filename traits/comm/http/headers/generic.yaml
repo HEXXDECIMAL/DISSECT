@@ -9,87 +9,87 @@ defaults:
 traits:
   # === User-Agent indicators ===
   - id: ua-mozilla-old
-    description: Old Mozilla 4.0 User-Agent
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: Old Mozilla 4.0 User-Agent
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "Mozilla/4.0"
 
   - id: ua-curl
-    description: curl User-Agent
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: curl User-Agent
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: '\bcurl/'
 
   - id: ua-wget
-    description: wget User-Agent
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: wget User-Agent
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: '\bWget/'
 
   - id: ua-python-urllib
-    description: Python urllib User-Agent
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: Python urllib User-Agent
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "Python-urllib"
 
   # === Authorization header atomic indicators ===
   - id: auth-header
-    description: Authorization header
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: Authorization header
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "Authorization:"
 
   - id: bearer-token
-    description: Bearer token authentication
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: Bearer token authentication
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "Bearer "
 
   - id: basic-auth
-    description: Basic authentication
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: Basic authentication
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "Basic "
 
   - id: headers-encoding
-    description: Accept-Encoding header
-    criticality: inert
-    confidence: 0.66
-    condition:
+    desc: Accept-Encoding header
+    crit: inert
+    conf: 0.66
+    if:
       type: string
       exact: Accept-Encoding
 
 composite_rules:
   - id: headers-auth
-    description: HTTP Authorization header
-    criticality: notable
-    confidence: 0.66
-    requires_count: 1
-    conditions:
+    desc: HTTP Authorization header
+    crit: notable
+    conf: 0.66
+    count: 1
+    any:
       - id: auth-header
       - id: bearer-token
       - id: basic-auth
 
   - id: headers-useragent-fake
-    description: Fake or suspicious User-Agent
-    criticality: suspicious
-    confidence: 0.66
-    requires_count: 1
-    conditions:
+    desc: Fake or suspicious User-Agent
+    crit: suspicious
+    conf: 0.66
+    count: 1
+    any:
       - id: ua-mozilla-old
       - id: ua-curl
       - id: ua-wget

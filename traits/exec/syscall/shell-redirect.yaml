@@ -1,105 +1,105 @@
 traits:
   # Linux syscall traits
   - id: syscall-execve-linux
-    description: Linux execve/execveat syscall for program execution
-    criticality: notable
-    confidence: 0.8
+    desc: Linux execve/execveat syscall for program execution
+    crit: notable
+    conf: 0.8
     platforms: [linux]
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: syscall
       name: ["execve", "execveat"]
 
   - id: syscall-dup-redirect-linux
-    description: Linux dup2/dup3 syscall for file descriptor redirection (multiple calls)
-    criticality: notable
-    confidence: 0.8
+    desc: Linux dup2/dup3 syscall for file descriptor redirection (multiple calls)
+    crit: notable
+    conf: 0.8
     platforms: [linux]
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: syscall
       name: ["dup2", "dup3"]
       min_count: 2
 
   - id: syscall-socket-linux
-    description: Linux socket/socketcall syscall for network socket creation
-    criticality: notable
-    confidence: 0.8
+    desc: Linux socket/socketcall syscall for network socket creation
+    crit: notable
+    conf: 0.8
     platforms: [linux]
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: syscall
       name: ["socket", "socketcall"]
 
   - id: syscall-connect-linux
-    description: Linux connect syscall for establishing network connection
-    criticality: notable
-    confidence: 0.8
+    desc: Linux connect syscall for establishing network connection
+    crit: notable
+    conf: 0.8
     platforms: [linux]
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: syscall
       name: ["connect"]
 
   # macOS syscall traits
   - id: syscall-execve-macos
-    description: macOS execve syscall for program execution
-    criticality: notable
-    confidence: 0.8
+    desc: macOS execve syscall for program execution
+    crit: notable
+    conf: 0.8
     platforms: [macos]
-    file_types: [macho]
-    condition:
+    for: [macho]
+    if:
       type: syscall
       name: ["execve"]
 
   - id: syscall-dup-redirect-macos
-    description: macOS dup2 syscall for file descriptor redirection (multiple calls)
-    criticality: notable
-    confidence: 0.8
+    desc: macOS dup2 syscall for file descriptor redirection (multiple calls)
+    crit: notable
+    conf: 0.8
     platforms: [macos]
-    file_types: [macho]
-    condition:
+    for: [macho]
+    if:
       type: syscall
       name: ["dup2"]
       min_count: 2
 
   - id: syscall-socket-macos
-    description: macOS socket syscall for network socket creation
-    criticality: notable
-    confidence: 0.8
+    desc: macOS socket syscall for network socket creation
+    crit: notable
+    conf: 0.8
     platforms: [macos]
-    file_types: [macho]
-    condition:
+    for: [macho]
+    if:
       type: syscall
       name: ["socket"]
 
   - id: syscall-connect-macos
-    description: macOS connect syscall for establishing network connection
-    criticality: notable
-    confidence: 0.8
+    desc: macOS connect syscall for establishing network connection
+    crit: notable
+    conf: 0.8
     platforms: [macos]
-    file_types: [macho]
-    condition:
+    for: [macho]
+    if:
       type: syscall
       name: ["connect"]
 
 composite_rules:
   - id: shell-redirect
-    description: Executes program with file descriptor redirection
-    confidence: 0.8
-    criticality: suspicious
+    desc: Executes program with file descriptor redirection
+    conf: 0.8
+    crit: suspicious
     platforms: [linux]
-    file_types: [elf]
+    for: [elf]
     requires_all:
       - id: syscall-execve-linux
       - id: syscall-dup-redirect-linux
 
   - id: reverse-shell-pattern
-    description: Reverse shell pattern - socket + dup2 + execve
-    confidence: 0.9
-    criticality: suspicious
+    desc: Reverse shell pattern - socket + dup2 + execve
+    conf: 0.9
+    crit: suspicious
     platforms: [linux]
-    file_types: [elf]
+    for: [elf]
     requires_all:
       - id: syscall-socket-linux
       - id: syscall-connect-linux
@@ -107,21 +107,21 @@ composite_rules:
       - id: syscall-execve-linux
 
   - id: shell-redirect-macos
-    description: macOS program execution with FD redirection
-    confidence: 0.8
-    criticality: suspicious
+    desc: macOS program execution with FD redirection
+    conf: 0.8
+    crit: suspicious
     platforms: [macos]
-    file_types: [macho]
+    for: [macho]
     requires_all:
       - id: syscall-execve-macos
       - id: syscall-dup-redirect-macos
 
   - id: reverse-shell-pattern-macos
-    description: macOS reverse shell pattern - socket + dup2 + execve
-    confidence: 0.9
-    criticality: suspicious
+    desc: macOS reverse shell pattern - socket + dup2 + execve
+    conf: 0.9
+    crit: suspicious
     platforms: [macos]
-    file_types: [macho]
+    for: [macho]
     requires_all:
       - id: syscall-socket-macos
       - id: syscall-connect-macos

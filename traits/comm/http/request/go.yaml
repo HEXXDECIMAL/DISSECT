@@ -4,36 +4,36 @@
 
 traits:
   - id: go-http-newrequest
-    description: Creates a new HTTP request in Go
-    criticality: notable
-    confidence: 0.9
+    desc: Creates a new HTTP request in Go
+    crit: notable
+    conf: 0.9
     mbc: "C0002"
     attack: "T1071.001"
-    file_types: [go]
-    condition:
+    for: [go]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: "http.NewRequest"
 
   - id: go-http-client-do
-    description: Executes an HTTP request in Go
-    criticality: notable
-    confidence: 0.9
+    desc: Executes an HTTP request in Go
+    crit: notable
+    conf: 0.9
     mbc: "C0002"
     attack: "T1071.001"
-    file_types: [go]
-    condition:
+    for: [go]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: ".Do("
 
   - id: go-http-header-auth
-    description: Sets Authorization header in Go
-    criticality: suspicious
-    confidence: 0.95
+    desc: Sets Authorization header in Go
+    crit: suspicious
+    conf: 0.95
     attack: "T1071.001"
-    file_types: [go]
-    condition:
+    for: [go]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: "Header.Set(\"Authorization\""

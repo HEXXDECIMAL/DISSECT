@@ -3,63 +3,63 @@
 
 traits:
   - id: blob-api
-    description: "GitHub blob API download (unusual pattern)"
-    criticality: suspicious
-    confidence: 0.85
-    condition:
+    desc: "GitHub blob API download (unusual pattern)"
+    crit: suspicious
+    conf: 0.85
+    if:
       type: string
       regex: "api\\.github\\.com.*/git/blobs"
 
   # === Python exec/chmod atomic indicators ===
   - id: python-os-chmod
-    description: "Python os.chmod call"
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: "Python os.chmod call"
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "os.chmod("
 
   - id: python-subprocess-popen
-    description: "Python subprocess.Popen call"
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: "Python subprocess.Popen call"
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "subprocess.Popen("
 
   - id: python-subprocess-run
-    description: "Python subprocess.run call"
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: "Python subprocess.run call"
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "subprocess.run("
 
   - id: python-subprocess-call
-    description: "Python subprocess.call call"
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: "Python subprocess.call call"
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "subprocess.call("
 
 composite_rules:
   # Python exec/chmod composite
   - id: python-exec-chmod
-    description: "Python subprocess execution or chmod"
-    criticality: notable
-    confidence: 0.8
+    desc: "Python subprocess execution or chmod"
+    crit: notable
+    conf: 0.8
     requires_count: 1
-    conditions:
+    any:
       - id: python-os-chmod
       - id: python-subprocess-popen
       - id: python-subprocess-run
       - id: python-subprocess-call
 
   - id: execute
-    description: "Download from GitHub blob API and execute"
-    confidence: 0.95
-    criticality: suspicious
+    desc: "Download from GitHub blob API and execute"
+    conf: 0.95
+    crit: suspicious
     mbc: "B0024"
     attack: "T1195.002"
     requires_all:

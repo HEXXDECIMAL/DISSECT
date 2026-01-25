@@ -5,9 +5,9 @@ traits:
   # Error handling patterns
   - id: error-handling
     description: Proper error handling patterns
-    criticality: benign
-    confidence: 0.8
-    condition:
+    crit: benign
+    conf: 0.8
+    if:
       type: yara
       source: |
         rule error_handling {
@@ -32,9 +32,9 @@ traits:
   # Logging presence
   - id: has-logging
     description: Application has logging infrastructure
-    criticality: benign
-    confidence: 0.85
-    condition:
+    crit: benign
+    conf: 0.85
+    if:
       type: yara
       source: |
         rule has_logging {
@@ -53,9 +53,9 @@ traits:
   # Configuration management
   - id: config-management
     description: External configuration management
-    criticality: benign
-    confidence: 0.85
-    condition:
+    crit: benign
+    conf: 0.85
+    if:
       type: yara
       source: |
         rule config_management {
@@ -74,9 +74,9 @@ traits:
   # Version information
   - id: versioned
     description: Contains version information
-    criticality: benign
-    confidence: 0.85
-    condition:
+    crit: benign
+    conf: 0.85
+    if:
       type: yara
       source: |
         rule has_version {
@@ -94,9 +94,9 @@ traits:
   # Help/usage information
   - id: has-help
     description: Contains help or usage information
-    criticality: benign
-    confidence: 0.85
-    condition:
+    crit: benign
+    conf: 0.85
+    if:
       type: yara
       source: |
         rule has_help {
@@ -114,9 +114,9 @@ traits:
   # License information
   - id: licensed
     description: Contains license information
-    criticality: benign
-    confidence: 0.9
-    condition:
+    crit: benign
+    conf: 0.9
+    if:
       type: yara
       source: |
         rule has_license {
@@ -135,9 +135,9 @@ traits:
   # Documentation strings
   - id: documented
     description: Contains documentation strings
-    criticality: benign
-    confidence: 0.8
-    condition:
+    crit: benign
+    conf: 0.8
+    if:
       type: yara
       source: |
         rule has_docs {
@@ -158,9 +158,9 @@ traits:
   # Unit test presence (in production binary)
   - id: has-tests
     description: Binary includes test code (unusual for production)
-    criticality: notable
-    confidence: 0.8
-    condition:
+    crit: notable
+    conf: 0.8
+    if:
       type: yara
       source: |
         rule has_test_code {
@@ -179,9 +179,9 @@ traits:
   # Metrics/telemetry
   - id: has-metrics
     description: Application has metrics/telemetry
-    criticality: benign
-    confidence: 0.85
-    condition:
+    crit: benign
+    conf: 0.85
+    if:
       type: yara
       source: |
         rule has_metrics {

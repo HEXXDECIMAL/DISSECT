@@ -3,7 +3,7 @@
 # ATT&CK: T1059.002 (AppleScript)
 
 defaults:
-  file_types: [applescript]
+  for: [applescript]
   platforms: [macos]
   attack: "T1059.002"
 
@@ -12,20 +12,20 @@ traits:
   # Shell Execution (syso.exec)
   # ============================================
   - id: shell
-    description: "do shell script (Apple Event)"
-    criticality: notable
-    confidence: 0.95
+    desc: "do shell script (Apple Event)"
+    crit: notable
+    conf: 0.95
     attack: "T1059.004"
-    condition:
+    if:
       type: string
       pattern: "^syso\\.exec$"
 
   - id: shell-cmd
-    description: "do shell script (command)"
-    criticality: notable
-    confidence: 0.95
+    desc: "do shell script (command)"
+    crit: notable
+    conf: 0.95
     attack: "T1059.004"
-    condition:
+    if:
       type: string
       exact: "do shell script"
 
@@ -33,10 +33,10 @@ traits:
   # Timing (syso.dela)
   # ============================================
   - id: delay
-    description: "delay command"
-    criticality: inert
-    confidence: 0.95
-    condition:
+    desc: "delay command"
+    crit: inert
+    conf: 0.95
+    if:
       type: string
       pattern: "^syso\\.dela$"
 
@@ -44,18 +44,18 @@ traits:
   # External Script Loading (syso.load)
   # ============================================
   - id: load-script
-    description: "load script (Apple Event)"
-    criticality: notable
-    confidence: 0.9
-    condition:
+    desc: "load script (Apple Event)"
+    crit: notable
+    conf: 0.9
+    if:
       type: string
       pattern: "^syso\\.load$"
 
   - id: load-script-cmd
-    description: "load script (command)"
-    criticality: notable
-    confidence: 0.9
-    condition:
+    desc: "load script (command)"
+    crit: notable
+    conf: 0.9
+    if:
       type: string
       exact: "load script"
 
@@ -63,44 +63,44 @@ traits:
   # URL/Location Opening
   # ============================================
   - id: open-location
-    description: "open location (Apple Event)"
-    criticality: notable
-    confidence: 0.9
+    desc: "open location (Apple Event)"
+    crit: notable
+    conf: 0.9
     attack: "T1204.001"
-    condition:
+    if:
       type: string
       pattern: "^syso\\.open$"
 
   - id: open-url
-    description: "open URL (Apple Event)"
-    criticality: notable
-    confidence: 0.9
+    desc: "open URL (Apple Event)"
+    crit: notable
+    conf: 0.9
     attack: "T1204.001"
-    condition:
+    if:
       type: string
       pattern: "^syso\\.surl$"
 
   - id: get-url
-    description: "get URL (Apple Event)"
-    criticality: notable
-    confidence: 0.9
-    condition:
+    desc: "get URL (Apple Event)"
+    crit: notable
+    conf: 0.9
+    if:
       type: string
       pattern: "^syso\\.GUrl$"
 
   - id: open-location-cmd
-    description: "open location (command)"
-    criticality: notable
-    confidence: 0.9
-    condition:
+    desc: "open location (command)"
+    crit: notable
+    conf: 0.9
+    if:
       type: string
       exact: "open location"
 
   - id: open-url-cmd
-    description: "open URL (command)"
-    criticality: notable
-    confidence: 0.9
-    condition:
+    desc: "open URL (command)"
+    crit: notable
+    conf: 0.9
+    if:
       type: string
       exact: "open URL"
 
@@ -108,26 +108,26 @@ traits:
   # Application Control
   # ============================================
   - id: run-app
-    description: "run/open application (Apple Event)"
-    criticality: notable
-    confidence: 0.85
-    condition:
+    desc: "run/open application (Apple Event)"
+    crit: notable
+    conf: 0.85
+    if:
       type: string
       pattern: "^aevt\\.oapp$"
 
   - id: quit-app
-    description: "quit application (Apple Event)"
-    criticality: notable
-    confidence: 0.85
-    condition:
+    desc: "quit application (Apple Event)"
+    crit: notable
+    conf: 0.85
+    if:
       type: string
       pattern: "^aevt\\.quit$"
 
   - id: reopen-app
-    description: "reopen application (Apple Event)"
-    criticality: inert
-    confidence: 0.85
-    condition:
+    desc: "reopen application (Apple Event)"
+    crit: inert
+    conf: 0.85
+    if:
       type: string
       pattern: "^aevt\\.rapp$"
 
@@ -135,26 +135,26 @@ traits:
   # UI Automation
   # ============================================
   - id: activate
-    description: "activate application"
-    criticality: inert
-    confidence: 0.9
-    condition:
+    desc: "activate application"
+    crit: inert
+    conf: 0.9
+    if:
       type: string
       pattern: "^misc\\.actv$"
 
   - id: do-script
-    description: "do script in application"
-    criticality: notable
-    confidence: 0.9
-    condition:
+    desc: "do script in application"
+    crit: notable
+    conf: 0.9
+    if:
       type: string
       pattern: "^misc\\.dosc$"
 
   - id: select
-    description: "select UI element"
-    criticality: inert
-    confidence: 0.85
-    condition:
+    desc: "select UI element"
+    crit: inert
+    conf: 0.85
+    if:
       type: string
       pattern: "^misc\\.slct$"
 
@@ -162,43 +162,43 @@ traits:
   # File Operations
   # ============================================
   - id: folder-ref
-    description: "folder/file reference"
-    criticality: inert
-    confidence: 0.9
-    condition:
+    desc: "folder/file reference"
+    crit: inert
+    conf: 0.9
+    if:
       type: string
       pattern: "^ears\\.ffdr$"
 
   - id: count
-    description: "count items"
-    criticality: inert
-    confidence: 0.9
-    condition:
+    desc: "count items"
+    crit: inert
+    conf: 0.9
+    if:
       type: string
       pattern: "^core\\.cnte$"
 
   - id: delete
-    description: "delete items"
-    criticality: notable
-    confidence: 0.9
+    desc: "delete items"
+    crit: notable
+    conf: 0.9
     attack: "T1070.004"
-    condition:
+    if:
       type: string
       pattern: "^core\\.dele$"
 
   - id: move
-    description: "move items"
-    criticality: notable
-    confidence: 0.85
-    condition:
+    desc: "move items"
+    crit: notable
+    conf: 0.85
+    if:
       type: string
       pattern: "^core\\.move$"
 
   - id: duplicate
-    description: "duplicate items"
-    criticality: inert
-    confidence: 0.85
-    condition:
+    desc: "duplicate items"
+    crit: inert
+    conf: 0.85
+    if:
       type: string
       pattern: "^core\\.clon$"
 
@@ -207,64 +207,64 @@ composite_rules:
   # Shell Execution (any method)
   # ============================================
   - id: shell-execution
-    description: "Compiled AppleScript executes shell commands"
-    criticality: notable
-    confidence: 0.9
+    desc: "Compiled AppleScript executes shell commands"
+    crit: notable
+    conf: 0.9
     attack: "T1059.004"
-    file_types: [applescript]
-    requires_any:
-      - {id: shell}
-      - {id: shell-cmd}
+    for: [applescript]
+    any:
+      - { id: shell }
+      - { id: shell-cmd }
 
   # ============================================
   # Delayed Execution (evasion pattern)
   # ============================================
   - id: delayed-shell
-    description: "Shell execution with delay (sandbox evasion)"
-    criticality: suspicious
-    confidence: 0.85
+    desc: "Shell execution with delay (sandbox evasion)"
+    crit: suspicious
+    conf: 0.85
     attack: "T1497"
-    file_types: [applescript]
+    for: [applescript]
     requires_all:
-      - {id: delay}
-      - {id: shell-execution}
+      - { id: delay }
+      - { id: shell-execution }
 
   # ============================================
   # External Code Loading
   # ============================================
   - id: external-script
-    description: "Loads external AppleScript code"
-    criticality: suspicious
-    confidence: 0.85
-    file_types: [applescript]
-    requires_any:
-      - {id: load-script}
-      - {id: load-script-cmd}
+    desc: "Loads external AppleScript code"
+    crit: suspicious
+    conf: 0.85
+    for: [applescript]
+    any:
+      - { id: load-script }
+      - { id: load-script-cmd }
 
   # ============================================
   # URL Opening (any method)
   # ============================================
   - id: opens-url
-    description: "Opens URL or location"
-    criticality: notable
-    confidence: 0.85
+    desc: "Opens URL or location"
+    crit: notable
+    conf: 0.85
     attack: "T1204.001"
-    file_types: [applescript]
-    requires_any:
-      - {id: open-location}
-      - {id: open-url}
-      - {id: get-url}
-      - {id: open-location-cmd}
-      - {id: open-url-cmd}
+    for: [applescript]
+    any:
+      - { id: open-location }
+      - { id: open-url }
+      - { id: get-url }
+      - { id: open-location-cmd }
+      - { id: open-url-cmd }
 
   # ============================================
   # Dropper Pattern
   # ============================================
   - id: dropper
-    description: "Loads external script then executes shell"
-    criticality: suspicious
-    confidence: 0.9
-    file_types: [applescript]
+    desc: "Loads external script then executes shell"
+    crit: suspicious
+    conf: 0.9
+    for: [applescript]
     requires_all:
-      - {id: external-script}
-      - {id: shell-execution}
+      - { id: external-script }
+      - { id: shell-execution }

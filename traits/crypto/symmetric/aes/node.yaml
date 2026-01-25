@@ -6,118 +6,118 @@
 traits:
   # === Crypto module import atomic indicators ===
   - id: crypto-require-call
-    description: require('crypto') import
-    criticality: inert
-    confidence: 0.8
-    file_types: [javascript, typescript]
-    condition:
+    desc: require('crypto') import
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "require\\(['\"]crypto['\"]\\)"
 
   - id: crypto-from-import
-    description: from 'crypto' import (ESM)
-    criticality: inert
-    confidence: 0.8
-    file_types: [javascript, typescript]
-    condition:
+    desc: from 'crypto' import (ESM)
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "from ['\"]crypto['\"]"
 
   # Cipher Creation
   - id: createCipheriv
-    description: Create cipher with IV (symmetric encryption)
-    criticality: notable
-    confidence: 0.85
+    desc: Create cipher with IV (symmetric encryption)
+    crit: notable
+    conf: 0.85
     mbc: "C0027"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: "createCipheriv"
 
   - id: createDecipheriv
-    description: Create decipher with IV (symmetric decryption)
-    criticality: notable
-    confidence: 0.85
+    desc: Create decipher with IV (symmetric decryption)
+    crit: notable
+    conf: 0.85
     mbc: "C0027"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: "createDecipheriv"
 
   # === AES-128-CTR atomic indicators ===
   - id: aes-128-ctr-dash
-    description: AES-128-CTR with dashes
-    criticality: inert
-    confidence: 0.75
+    desc: AES-128-CTR with dashes
+    crit: inert
+    conf: 0.75
     mbc: "C0027"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "aes-128-ctr"
 
   - id: aes128ctr-nodash
-    description: AES-128-CTR without dashes
-    criticality: inert
-    confidence: 0.75
+    desc: AES-128-CTR without dashes
+    crit: inert
+    conf: 0.75
     mbc: "C0027"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "aes128ctr"
 
   # === AES-256-CBC atomic indicators ===
   - id: aes-256-cbc-dash
-    description: AES-256-CBC with dashes
-    criticality: inert
-    confidence: 0.75
+    desc: AES-256-CBC with dashes
+    crit: inert
+    conf: 0.75
     mbc: "C0027"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "aes-256-cbc"
 
   - id: aes256cbc-nodash
-    description: AES-256-CBC without dashes
-    criticality: inert
-    confidence: 0.75
+    desc: AES-256-CBC without dashes
+    crit: inert
+    conf: 0.75
     mbc: "C0027"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "aes256cbc"
 
   # === AES-256-GCM atomic indicators ===
   - id: aes-256-gcm-dash
-    description: AES-256-GCM with dashes
-    criticality: inert
-    confidence: 0.75
+    desc: AES-256-GCM with dashes
+    crit: inert
+    conf: 0.75
     mbc: "C0027"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "aes-256-gcm"
 
   - id: aes256gcm-nodash
-    description: AES-256-GCM without dashes
-    criticality: inert
-    confidence: 0.75
+    desc: AES-256-GCM without dashes
+    crit: inert
+    conf: 0.75
     mbc: "C0027"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "aes256gcm"
 
   # Encryption with Network Activity
   - id: encrypted-c2
-    description: AES encryption combined with network requests (encrypted C2)
-    criticality: suspicious
-    confidence: 0.9
+    desc: AES encryption combined with network requests (encrypted C2)
+    crit: suspicious
+    conf: 0.9
     mbc: "C0027"
     attack: "T1573"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule encrypted_c2_channel {
@@ -136,12 +136,12 @@ traits:
 
   # Key/IV Handling
   - id: hardcoded-key
-    description: Hardcoded encryption key pattern
-    criticality: suspicious
-    confidence: 0.8
+    desc: Hardcoded encryption key pattern
+    crit: suspicious
+    conf: 0.8
     mbc: "C0027"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule hardcoded_crypto_key {
@@ -155,13 +155,13 @@ traits:
 
   # Compression with Encryption
   - id: gzip-with-crypto
-    description: Gzip compression with encryption (obfuscated payload)
-    criticality: suspicious
-    confidence: 0.85
+    desc: Gzip compression with encryption (obfuscated payload)
+    crit: suspicious
+    conf: 0.85
     mbc: "C0027"
     attack: "T1027"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule compressed_encrypted_payload {
@@ -180,47 +180,47 @@ traits:
 composite_rules:
   # Crypto require composite
   - id: crypto-require
-    description: Node.js crypto module import
-    criticality: inert
-    confidence: 0.9
-    file_types: [javascript, typescript]
+    desc: Node.js crypto module import
+    crit: inert
+    conf: 0.9
+    for: [javascript, typescript]
     requires_count: 1
-    conditions:
+    any:
       - id: crypto-require-call
       - id: crypto-from-import
 
   # AES-128-CTR composite
   - id: aes-128-ctr
-    description: AES-128-CTR encryption (stream cipher mode)
-    criticality: notable
-    confidence: 0.85
+    desc: AES-128-CTR encryption (stream cipher mode)
+    crit: notable
+    conf: 0.85
     mbc: "C0027"
-    file_types: [javascript, typescript]
+    for: [javascript, typescript]
     requires_count: 1
-    conditions:
+    any:
       - id: aes-128-ctr-dash
       - id: aes128ctr-nodash
 
   # AES-256-CBC composite
   - id: aes-256-cbc
-    description: AES-256-CBC encryption
-    criticality: notable
-    confidence: 0.85
+    desc: AES-256-CBC encryption
+    crit: notable
+    conf: 0.85
     mbc: "C0027"
-    file_types: [javascript, typescript]
+    for: [javascript, typescript]
     requires_count: 1
-    conditions:
+    any:
       - id: aes-256-cbc-dash
       - id: aes256cbc-nodash
 
   # AES-256-GCM composite
   - id: aes-256-gcm
-    description: AES-256-GCM authenticated encryption
-    criticality: notable
-    confidence: 0.85
+    desc: AES-256-GCM authenticated encryption
+    crit: notable
+    conf: 0.85
     mbc: "C0027"
-    file_types: [javascript, typescript]
+    for: [javascript, typescript]
     requires_count: 1
-    conditions:
+    any:
       - id: aes-256-gcm-dash
       - id: aes256gcm-nodash

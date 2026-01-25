@@ -5,36 +5,36 @@
 traits:
   - id: fs-remove_file
     description: Delete file
-    criticality: notable
-    confidence: 0.9
+    crit: notable
+    conf: 0.9
     mbc: "C0047"
     attack: "T1070.004"
-    file_types: [rust]
-    condition:
+    for: [rust]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: "fs::remove_file"
 
   - id: fs-remove_dir
     description: Delete directory
-    criticality: notable
-    confidence: 0.9
+    crit: notable
+    conf: 0.9
     mbc: "C0047"
     attack: "T1070.004"
-    file_types: [rust]
-    condition:
+    for: [rust]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: "fs::remove_dir"
 
   - id: fs-remove_dir_all
     description: Recursive directory deletion
-    criticality: notable
-    confidence: 0.9
+    crit: notable
+    conf: 0.9
     mbc: "C0047"
     attack: "T1070.004"
-    file_types: [rust]
-    condition:
+    for: [rust]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: "fs::remove_dir_all"

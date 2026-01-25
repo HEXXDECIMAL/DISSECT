@@ -14,7 +14,7 @@ pub struct ProgramSummary {
     /// Key capabilities (top 3-5)
     pub key_capabilities: Vec<String>,
     /// Brief description of what this program does
-    pub description: String,
+    pub desc: String,
 }
 
 /// Extract directory path from trait ID (everything except the last component)
@@ -40,7 +40,7 @@ struct AggregatedFinding {
     matched_traits: Vec<String>,
 }
 
-/// Aggregate findings by directory path, keeping highest criticality (then highest confidence)
+/// Aggregate findings by directory path, keeping highest criticality (then highest conf)
 /// Returns findings with IDs set to directory paths and trait_refs containing all matched trait IDs
 pub fn aggregate_findings_by_directory(findings: &[Finding]) -> Vec<Finding> {
     let mut aggregated: HashMap<String, AggregatedFinding> = HashMap::new();
@@ -67,9 +67,9 @@ pub fn aggregate_findings_by_directory(findings: &[Finding]) -> Vec<Finding> {
 
                 // Keep the one with higher criticality
                 // If criticality is same, keep the one with higher confidence
-                let should_replace = finding.criticality > agg.best.criticality
-                    || (finding.criticality == agg.best.criticality
-                        && finding.confidence > agg.best.confidence);
+                let should_replace = finding.crit > agg.best.crit
+                    || (finding.crit == agg.best.crit
+                        && finding.conf > agg.best.conf);
 
                 if should_replace {
                     agg.best = finding.clone();
@@ -126,9 +126,9 @@ fn yara_to_findings(yara_matches: &[YaraMatch]) -> Vec<Finding> {
             Finding {
                 id,
                 kind: FindingKind::Indicator,
-                description: m.description.clone(),
-                confidence: 0.7, // Default for YARA matches
-                criticality,
+                desc: m.desc.clone(),
+                conf: 0.7, // Default for YARA matches
+                crit: criticality,
                 mbc: None,
                 attack: None,
                 trait_refs: vec![],
@@ -139,8 +139,8 @@ fn yara_to_findings(yara_matches: &[YaraMatch]) -> Vec<Finding> {
 }
 
 /// Get risk emoji based on criticality
-fn risk_emoji(criticality: &Criticality) -> &'static str {
-    match criticality {
+fn risk_emoji(crit: &Criticality) -> &'static str {
+    match crit {
         Criticality::Filtered => "⬜",
         Criticality::Inert => "⚪",
         Criticality::Notable => "🔵",
@@ -150,8 +150,8 @@ fn risk_emoji(criticality: &Criticality) -> &'static str {
 }
 
 /// Get risk level name
-fn risk_name(criticality: &Criticality) -> &'static str {
-    match criticality {
+fn risk_name(crit: &Criticality) -> &'static str {
+    match crit {
         Criticality::Filtered => "filtered",
         Criticality::Inert => "inert",
         Criticality::Notable => "notable",
@@ -214,7 +214,7 @@ fn format_evidence(finding: &Finding) -> String {
         .iter()
         .filter_map(|e| {
             // Skip if evidence is already in the description
-            if finding.description.contains(&e.value) {
+            if finding.desc.contains(&e.value) {
                 None
             } else {
                 Some(e.value.clone())
@@ -282,7 +282,7 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
     // Filter: remove criticality=none and confidence<0.5
     let filtered: Vec<Finding> = aggregated
         .into_iter()
-        .filter(|f| f.criticality != Criticality::Inert && f.confidence >= 0.5)
+        .filter(|f| f.crit != Criticality::Inert && f.conf >= 0.5)
         .collect();
 
     if filtered.is_empty() {
@@ -292,15 +292,15 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
 
     // Group by namespace (top-level objective like "exec", "malware", "c2")
     let mut by_namespace: HashMap<String, Vec<&Finding>> = HashMap::new();
-    let mut ns_max_criticality: HashMap<String, Criticality> = HashMap::new();
+    let mut ns_max_crit: HashMap<String, Criticality> = HashMap::new();
 
     for finding in &filtered {
         let (ns, _) = split_trait_id(&finding.id);
 
         // Update max criticality for namespace
-        let current_max = ns_max_criticality.get(&ns).unwrap_or(&Criticality::Inert);
-        if &finding.criticality > current_max {
-            ns_max_criticality.insert(ns.clone(), finding.criticality);
+        let current_max = ns_max_crit.get(&ns).unwrap_or(&Criticality::Inert);
+        if &finding.crit > current_max {
+            ns_max_crit.insert(ns.clone(), finding.crit);
         }
 
         by_namespace.entry(ns).or_default().push(finding);
@@ -313,7 +313,7 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
     // Render each namespace
     for ns in &namespaces {
         let findings = by_namespace.get(ns).unwrap();
-        let max_crit = ns_max_criticality.get(ns).unwrap_or(&Criticality::Inert);
+        let max_crit = ns_max_crit.get(ns).unwrap_or(&Criticality::Inert);
 
         // Namespace header
         output.push_str(&format!(
@@ -325,26 +325,26 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
         // Sort findings by criticality (highest first), then ID
         let mut sorted_findings = findings.clone();
         sorted_findings.sort_by(|a, b| {
-            b.criticality
-                .cmp(&a.criticality)
+            b.crit
+                .cmp(&a.crit)
                 .then_with(|| a.id.cmp(&b.id))
         });
 
         // Render each finding
         for finding in sorted_findings {
             let (_, rest) = split_trait_id(&finding.id);
-            let emoji = risk_emoji(&finding.criticality);
+            let emoji = risk_emoji(&finding.crit);
             let evidence = format_evidence(finding);
 
             // Colorize based on criticality
-            let content = match finding.criticality {
+            let content = match finding.crit {
                 Criticality::Hostile => {
-                    format!("{} {} — {}", emoji, rest, finding.description).bright_red()
+                    format!("{} {} — {}", emoji, rest, finding.desc).bright_red()
                 }
                 Criticality::Suspicious => {
-                    format!("{} {} — {}", emoji, rest, finding.description).bright_yellow()
+                    format!("{} {} — {}", emoji, rest, finding.desc).bright_yellow()
                 }
-                _ => format!("{} {} — {}", emoji, rest, finding.description).bright_cyan(),
+                _ => format!("{} {} — {}", emoji, rest, finding.desc).bright_cyan(),
             };
 
             if evidence.is_empty() {
@@ -369,8 +369,8 @@ fn calculate_overall_risk(report: &AnalysisReport) -> Criticality {
     let mut max = Criticality::Inert;
 
     for finding in &report.findings {
-        if finding.criticality > max {
-            max = finding.criticality;
+        if finding.crit > max {
+            max = finding.crit;
         }
     }
 
@@ -440,7 +440,7 @@ pub fn generate_summary(report: &AnalysisReport) -> ProgramSummary {
         }
 
         // Collect key capabilities (hostile/suspicious only)
-        if finding.criticality >= Criticality::Suspicious {
+        if finding.crit >= Criticality::Suspicious {
             let cap = format_capability_short(&finding.id);
             if !key_capabilities.contains(&cap) && key_capabilities.len() < 5 {
                 key_capabilities.push(cap);
@@ -471,7 +471,7 @@ pub fn generate_summary(report: &AnalysisReport) -> ProgramSummary {
         malware_family,
         risk_level,
         key_capabilities,
-        description: description_parts.join("; "),
+        desc: description_parts.join("; "),
     }
 }
 
@@ -523,7 +523,7 @@ pub fn format_summary(summary: &ProgramSummary) -> String {
     // Malware family if detected
     if let Some(family) = &summary.malware_family {
         output.push_str(&format!(
-            "│  Family:  {} (detected with high confidence)\n",
+            "│  Family:  {} (detected with high conf)\n",
             family.bright_red().bold()
         ));
     }
@@ -538,9 +538,9 @@ pub fn format_summary(summary: &ProgramSummary) -> String {
     output.push_str(&format!("│  Risk:    {}\n", risk_color));
 
     // Description
-    if !summary.description.is_empty() {
+    if !summary.desc.is_empty() {
         output.push_str("│\n");
-        output.push_str(&format!("│  {}\n", summary.description.italic()));
+        output.push_str(&format!("│  {}\n", summary.desc.italic()));
     }
 
     // Key capabilities
@@ -613,9 +613,9 @@ mod tests {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: "exec/shell/bash".to_string(),
-                description: "Execute bash".to_string(),
-                confidence: 0.9,
-                criticality: Criticality::Hostile,
+                desc: "Execute bash".to_string(),
+                conf: 0.9,
+                crit: Criticality::Hostile,
                 mbc: None,
                 attack: None,
                 evidence: vec![],
@@ -624,9 +624,9 @@ mod tests {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: "net/http/get".to_string(),
-                description: "HTTP GET request".to_string(),
-                confidence: 0.8,
-                criticality: Criticality::Suspicious,
+                desc: "HTTP GET request".to_string(),
+                conf: 0.8,
+                crit: Criticality::Suspicious,
                 mbc: None,
                 attack: None,
                 evidence: vec![],
@@ -647,9 +647,9 @@ mod tests {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: "exec/shell/bash".to_string(),
-                description: "Execute bash".to_string(),
-                confidence: 0.7,
-                criticality: Criticality::Suspicious,
+                desc: "Execute bash".to_string(),
+                conf: 0.7,
+                crit: Criticality::Suspicious,
                 mbc: None,
                 attack: None,
                 evidence: vec![],
@@ -658,9 +658,9 @@ mod tests {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: "exec/shell/sh".to_string(),
-                description: "Execute sh".to_string(),
-                confidence: 0.7,
-                criticality: Criticality::Hostile,
+                desc: "Execute sh".to_string(),
+                conf: 0.7,
+                crit: Criticality::Hostile,
                 mbc: None,
                 attack: None,
                 evidence: vec![],
@@ -669,7 +669,7 @@ mod tests {
         let aggregated = aggregate_findings_by_directory(&findings);
         assert_eq!(aggregated.len(), 1);
         assert_eq!(aggregated[0].id, "exec/shell");
-        assert_eq!(aggregated[0].criticality, Criticality::Hostile);
+        assert_eq!(aggregated[0].crit, Criticality::Hostile);
         // Should have both trait IDs in trait_refs
         assert_eq!(aggregated[0].trait_refs.len(), 2);
     }
@@ -681,9 +681,9 @@ mod tests {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: "exec/shell/bash".to_string(),
-                description: "Execute bash".to_string(),
-                confidence: 0.6,
-                criticality: Criticality::Hostile,
+                desc: "Execute bash".to_string(),
+                conf: 0.6,
+                crit: Criticality::Hostile,
                 mbc: None,
                 attack: None,
                 evidence: vec![],
@@ -692,9 +692,9 @@ mod tests {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: "exec/shell/sh".to_string(),
-                description: "Execute sh".to_string(),
-                confidence: 0.9,
-                criticality: Criticality::Hostile,
+                desc: "Execute sh".to_string(),
+                conf: 0.9,
+                crit: Criticality::Hostile,
                 mbc: None,
                 attack: None,
                 evidence: vec![],
@@ -703,7 +703,7 @@ mod tests {
         let aggregated = aggregate_findings_by_directory(&findings);
         assert_eq!(aggregated.len(), 1);
         assert_eq!(aggregated[0].id, "exec/shell");
-        assert_eq!(aggregated[0].confidence, 0.9);
+        assert_eq!(aggregated[0].conf, 0.9);
     }
 
     #[test]
@@ -711,7 +711,7 @@ mod tests {
         let yara_matches = vec![YaraMatch {
             namespace: "traits.intel.discover".to_string(),
             rule: "process_info".to_string(),
-            description: "Get process info".to_string(),
+            desc: "Get process info".to_string(),
             severity: "high".to_string(),
             matched_strings: vec![],
             is_capability: false,
@@ -721,7 +721,7 @@ mod tests {
         let traits = yara_to_findings(&yara_matches);
         assert_eq!(traits.len(), 1);
         assert_eq!(traits[0].id, "intel/discover/process_info");
-        assert_eq!(traits[0].criticality, Criticality::Hostile);
+        assert_eq!(traits[0].crit, Criticality::Hostile);
     }
 
     #[test]
@@ -729,7 +729,7 @@ mod tests {
         let yara_matches = vec![YaraMatch {
             namespace: "traits.net.http".to_string(),
             rule: "client".to_string(),
-            description: "HTTP client".to_string(),
+            desc: "HTTP client".to_string(),
             severity: "medium".to_string(),
             matched_strings: vec![],
             is_capability: false,
@@ -737,7 +737,7 @@ mod tests {
             attack: None,
         }];
         let traits = yara_to_findings(&yara_matches);
-        assert_eq!(traits[0].criticality, Criticality::Suspicious);
+        assert_eq!(traits[0].crit, Criticality::Suspicious);
     }
 
     #[test]
@@ -745,7 +745,7 @@ mod tests {
         let yara_matches = vec![YaraMatch {
             namespace: "third_party.mitre".to_string(),
             rule: "apt29".to_string(),
-            description: "APT29 indicator".to_string(),
+            desc: "APT29 indicator".to_string(),
             severity: "critical".to_string(),
             matched_strings: vec![],
             is_capability: false,
@@ -803,9 +803,9 @@ mod tests {
             kind: FindingKind::Capability,
             trait_refs: vec![],
             id: "test".to_string(),
-            description: "Test trait".to_string(),
-            confidence: 0.8,
-            criticality: Criticality::Notable,
+            desc: "Test trait".to_string(),
+            conf: 0.8,
+            crit: Criticality::Notable,
             mbc: None,
             attack: None,
             evidence: vec![],
@@ -819,9 +819,9 @@ mod tests {
             kind: FindingKind::Capability,
             trait_refs: vec![],
             id: "test".to_string(),
-            description: "Test".to_string(),
-            confidence: 0.8,
-            criticality: Criticality::Notable,
+            desc: "Test".to_string(),
+            conf: 0.8,
+            crit: Criticality::Notable,
             mbc: None,
             attack: None,
             evidence: vec![
@@ -874,9 +874,9 @@ mod tests {
             kind: FindingKind::Capability,
             trait_refs: vec![],
             id: "exec/shell".to_string(),
-            description: "Execute shell commands".to_string(),
-            confidence: 0.9,
-            criticality: Criticality::Hostile,
+            desc: "Execute shell commands".to_string(),
+            conf: 0.9,
+            crit: Criticality::Hostile,
             mbc: None,
             attack: None,
             evidence: vec![],
@@ -899,9 +899,9 @@ mod tests {
             kind: FindingKind::Capability,
             trait_refs: vec![],
             id: "test".to_string(),
-            description: "Test".to_string(),
-            confidence: 0.8,
-            criticality: Criticality::Hostile,
+            desc: "Test".to_string(),
+            conf: 0.8,
+            crit: Criticality::Hostile,
             mbc: None,
             attack: None,
             evidence: vec![],
@@ -916,7 +916,7 @@ mod tests {
         let yara_matches = vec![YaraMatch {
             namespace: "test".to_string(),
             rule: "dangerous".to_string(),
-            description: "Dangerous pattern".to_string(),
+            desc: "Dangerous pattern".to_string(),
             severity: "high".to_string(),
             matched_strings: vec![],
             is_capability: false,

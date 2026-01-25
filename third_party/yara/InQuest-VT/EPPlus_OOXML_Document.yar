@@ -17,7 +17,7 @@ rule EPPlus_OOXML_Document
         $meta1 = "docProps/core.xml"
         $meta2 = "docProps/app.xml"
         $timestamp = {50 4B 03 04 ?? ?? ?? ?? ?? ?? 00 00 21 00}
-	condition:
+	if:
 		uint32be(0) == 0x504B0304
         and ($opc and $ooxml and $vba)
         and not (any of ($meta*) and $timestamp)

@@ -1,19 +1,19 @@
 # macOS XPC Communication
 
 defaults:
-  file_types: [macho, dylib, c]
+  for: [macho, dylib, c]
 
 traits:
   - id: xpc-connection
-    description: XPC connection symbol
-    confidence: 0.9
-    condition:
+    desc: XPC connection symbol
+    conf: 0.9
+    if:
       type: symbol
       pattern: "xpc_connection_create"
 
   - id: xpc-message
-    description: XPC message handling
-    confidence: 0.85
-    condition:
+    desc: XPC message handling
+    conf: 0.85
+    if:
       type: symbol
       pattern: "xpc_dictionary_"

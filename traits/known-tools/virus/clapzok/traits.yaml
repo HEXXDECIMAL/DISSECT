@@ -5,7 +5,7 @@
 traits:
   - id: virus/clapzok/sfc-protected
     description: Clapzok SfcIsFileProtected marker
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.95
     family: true
     attack: "T1204"
@@ -16,7 +16,7 @@ traits:
 
   - id: virus/clapzok/macho-structure
     description: Clapzok virus YARA pattern for Mach-O binaries
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.95
     family: true
     attack: "T1204"
@@ -38,7 +38,7 @@ traits:
 composite_rules:
   - id: virus/clapzok/detected
     description: Clapzok multi-platform virus
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.95
     family: true
     reference: "https://www.virusbulletin.com/virusbulletin/2013/06/multiplatform-madness"

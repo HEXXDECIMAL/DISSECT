@@ -9,211 +9,210 @@ defaults:
 traits:
   # === PHP webshell atomic indicators ===
   - id: php-tag
-    description: PHP opening tag
-    criticality: inert
-    confidence: 0.3
-    file_types: [php]
-    condition:
+    desc: PHP opening tag
+    crit: inert
+    conf: 0.3
+    for: [php]
+    if:
       type: string
       exact: "<?php"
       case_insensitive: true
 
   - id: php-system
-    description: PHP system() function call
-    criticality: notable
-    confidence: 0.7
-    file_types: [php]
-    condition:
+    desc: PHP system() function call
+    crit: notable
+    conf: 0.7
+    for: [php]
+    if:
       type: string
       exact: "system("
 
   - id: php-exec
-    description: PHP exec() function call
-    criticality: notable
-    confidence: 0.7
-    file_types: [php]
-    condition:
+    desc: PHP exec() function call
+    crit: notable
+    conf: 0.7
+    for: [php]
+    if:
       type: string
       exact: "exec("
 
   - id: php-shell-exec
-    description: PHP shell_exec() function call
-    criticality: notable
-    confidence: 0.7
-    file_types: [php]
-    condition:
+    desc: PHP shell_exec() function call
+    crit: notable
+    conf: 0.7
+    for: [php]
+    if:
       type: string
       exact: "shell_exec("
 
   - id: php-get
-    description: PHP $_GET parameter access
-    criticality: inert
-    confidence: 0.4
-    file_types: [php]
-    condition:
+    desc: PHP $_GET parameter access
+    crit: inert
+    conf: 0.4
+    for: [php]
+    if:
       type: string
       exact: "$_GET["
 
   - id: php-post
-    description: PHP $_POST parameter access
-    criticality: inert
-    confidence: 0.4
-    file_types: [php]
-    condition:
+    desc: PHP $_POST parameter access
+    crit: inert
+    conf: 0.4
+    for: [php]
+    if:
       type: string
       exact: "$_POST["
 
   - id: php-request
-    description: PHP $_REQUEST parameter access
-    criticality: inert
-    confidence: 0.4
-    file_types: [php]
-    condition:
+    desc: PHP $_REQUEST parameter access
+    crit: inert
+    conf: 0.4
+    for: [php]
+    if:
       type: string
       exact: "$_REQUEST["
 
   # === JSP webshell atomic indicators ===
   - id: jsp-runtime
-    description: Java Runtime.getRuntime() call
-    criticality: notable
-    confidence: 0.6
-    file_types: [java]
-    condition:
+    desc: Java Runtime.getRuntime() call
+    crit: notable
+    conf: 0.6
+    for: [java]
+    if:
       type: string
       exact: "Runtime.getRuntime()"
 
   - id: jsp-exec
-    description: Java .exec() method call
-    criticality: notable
-    confidence: 0.5
-    file_types: [java]
-    condition:
+    desc: Java .exec() method call
+    crit: notable
+    conf: 0.5
+    for: [java]
+    if:
       type: string
       exact: ".exec("
 
   - id: jsp-get-param
-    description: JSP request.getParameter call
-    criticality: inert
-    confidence: 0.4
-    file_types: [java]
-    condition:
+    desc: JSP request.getParameter call
+    crit: inert
+    conf: 0.4
+    for: [java]
+    if:
       type: string
       exact: "request.getParameter"
 
   # === Generic webshell identifiers ===
   - id: identifier
-    description: Webshell-related terminology
-    criticality: notable
-    confidence: 0.6
-    condition:
+    desc: Webshell-related terminology
+    crit: notable
+    conf: 0.6
+    if:
       type: string
       regex: '\bwebshell\b'
       case_insensitive: true
 
   # === Known webshell families ===
   - id: c99shell
-    description: c99shell webshell family
-    criticality: suspicious
-    confidence: 0.95
-    condition:
+    desc: c99shell webshell family
+    crit: suspicious
+    conf: 0.95
+    if:
       type: string
       regex: '\bc99shell\b'
       case_insensitive: true
 
   - id: r57shell
-    description: r57shell webshell family
-    criticality: suspicious
-    confidence: 0.95
-    condition:
+    desc: r57shell webshell family
+    crit: suspicious
+    conf: 0.95
+    if:
       type: string
       regex: '\br57shell\b'
       case_insensitive: true
 
   - id: b374k
-    description: b374k webshell family
-    criticality: suspicious
-    confidence: 0.95
-    condition:
+    desc: b374k webshell family
+    crit: suspicious
+    conf: 0.95
+    if:
       type: string
       regex: '\bb374k\b'
       case_insensitive: true
 
   - id: phpspy
-    description: phpspy webshell family
-    criticality: suspicious
-    confidence: 0.95
-    condition:
+    desc: phpspy webshell family
+    crit: suspicious
+    conf: 0.95
+    if:
       type: string
       regex: '\bphpspy\b'
       case_insensitive: true
 
   - id: wso-shell
-    description: WSO Shell webshell family
-    criticality: suspicious
-    confidence: 0.95
-    condition:
+    desc: WSO Shell webshell family
+    crit: suspicious
+    conf: 0.95
+    if:
       type: string
       exact: "WSO Shell"
 
   - id: filesman
-    description: FilesMan webshell family
-    criticality: suspicious
-    confidence: 0.95
-    condition:
+    desc: FilesMan webshell family
+    crit: suspicious
+    conf: 0.95
+    if:
       type: string
       exact: FilesMan
 
   - id: china-chopper
-    description: China Chopper webshell family
-    criticality: suspicious
-    confidence: 0.95
-    condition:
+    desc: China Chopper webshell family
+    crit: suspicious
+    conf: 0.95
+    if:
       type: string
       exact: "China Chopper"
 
   - id: weevely
-    description: weevely webshell family
-    criticality: suspicious
-    confidence: 0.95
-    condition:
+    desc: weevely webshell family
+    crit: suspicious
+    conf: 0.95
+    if:
       type: string
       exact: weevely
 
 composite_rules:
   # PHP webshell patterns (php tag + shell func + request param)
   - id: php-shell
-    description: PHP webshell implementation patterns
-    criticality: suspicious
-    confidence: 0.9
-    requires_all:
+    desc: PHP webshell implementation patterns
+    crit: suspicious
+    conf: 0.9
+    all:
       - id: php-tag
-    requires_any:
+    any:
       - id: php-system
       - id: php-exec
       - id: php-shell-exec
-    requires_count: 1
-    conditions:
       - id: php-get
       - id: php-post
       - id: php-request
 
+    count: 1
   # JSP webshell patterns
   - id: jsp-shell
-    description: JSP webshell implementation patterns
-    criticality: suspicious
-    confidence: 0.9
-    requires_all:
+    desc: JSP webshell implementation patterns
+    crit: suspicious
+    conf: 0.9
+    all:
       - id: jsp-runtime
       - id: jsp-exec
       - id: jsp-get-param
 
   # Known webshell family
   - id: specific-family
-    description: Known webshell family identifier
-    criticality: notable
-    confidence: 0.9
-    requires_count: 1
-    conditions:
+    desc: Known webshell family identifier
+    crit: notable
+    conf: 0.9
+    count: 1
+    any:
       - id: c99shell
       - id: r57shell
       - id: b374k
@@ -225,19 +224,19 @@ composite_rules:
 
   # Family identified with generic terminology
   - id: family-identified
-    description: Webshell family identified with generic terminology
-    criticality: suspicious
-    confidence: 0.85
-    requires_all:
+    desc: Webshell family identified with generic terminology
+    crit: suspicious
+    conf: 0.85
+    all:
       - id: identifier
       - id: c2/webshell/specific-family
 
   # Webshell detection
   - id: detected
-    description: Webshell implementation detected
-    criticality: hostile
-    confidence: 0.95
-    requires_any:
+    desc: Webshell implementation detected
+    crit: hostile
+    conf: 0.95
+    any:
       - id: c2/webshell/php-shell
       - id: c2/webshell/jsp-shell
       - id: c2/webshell/family-identified

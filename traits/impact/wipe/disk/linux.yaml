@@ -7,11 +7,11 @@ traits:
   # Require command-line context or disk device patterns to reduce false positives
   - id: disk
     description: Disk wiper patterns
-    criticality: suspicious
-    confidence: 0.66
+    crit: suspicious
+    conf: 0.66
     mbc: "E1561"
     attack: "T1561"
-    condition:
+    if:
       type: yara
       source: |
         rule disk_wiper {
@@ -29,43 +29,43 @@ traits:
   # === Disk device atomic indicators ===
   - id: dev-sda
     description: /dev/sda device access
-    criticality: inert
-    confidence: 0.5
-    condition:
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "/dev/sda"
 
   - id: dev-hda
     description: /dev/hda device access
-    criticality: inert
-    confidence: 0.5
-    condition:
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "/dev/hda"
 
   - id: dev-nvme
     description: /dev/nvme device access
-    criticality: inert
-    confidence: 0.5
-    condition:
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: "/dev/nvme"
 
   - id: dev-vda
     description: /dev/vda device access
-    criticality: inert
-    confidence: 0.5
-    condition:
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "/dev/vda"
 
 composite_rules:
   - id: disk-device
     description: Direct disk device access
-    criticality: suspicious
-    confidence: 0.66
+    crit: suspicious
+    conf: 0.66
     requires_count: 1
-    conditions:
+    any:
       - id: dev-sda
       - id: dev-hda
       - id: dev-nvme

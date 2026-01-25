@@ -5,68 +5,68 @@
 defaults:
   attack: "T1005"
   platforms: [macos]
-  criticality: suspicious
+  crit: suspicious
 
 traits:
   # NoteStore.sqlite - main Notes database
   - id: notestore-db
-    description: "Apple Notes SQLite database file"
-    confidence: 0.9
-    condition:
+    desc: "Apple Notes SQLite database file"
+    conf: 0.9
+    if:
       type: string
       exact: "NoteStore.sqlite"
 
   # NoteStore write-ahead log
   - id: notestore-wal
-    description: "Apple Notes write-ahead log"
-    confidence: 0.85
-    condition:
+    desc: "Apple Notes write-ahead log"
+    conf: 0.85
+    if:
       type: string
       exact: "NoteStore.sqlite-wal"
 
   # NoteStore shared memory
   - id: notestore-shm
-    description: "Apple Notes shared memory file"
-    confidence: 0.85
-    condition:
+    desc: "Apple Notes shared memory file"
+    conf: 0.85
+    if:
       type: string
       exact: "NoteStore.sqlite-shm"
 
   # Notes group container path
   - id: notes-container
-    description: "Apple Notes group container path"
-    confidence: 0.9
-    condition:
+    desc: "Apple Notes group container path"
+    conf: 0.9
+    if:
       type: string
       exact: "group.com.apple.notes"
 
   # Notes Accounts directory
   - id: notes-accounts
-    description: "Apple Notes Accounts directory"
-    confidence: 0.85
-    condition:
+    desc: "Apple Notes Accounts directory"
+    conf: 0.85
+    if:
       type: string
       regex: "group\\.com\\.apple\\.notes/Accounts"
 
   # Notes Media directory (attachments)
   - id: notes-media
-    description: "Apple Notes Media/attachments directory"
-    confidence: 0.85
-    condition:
+    desc: "Apple Notes Media/attachments directory"
+    conf: 0.85
+    if:
       type: string
       regex: "group\\.com\\.apple\\.notes.*Media"
 
 composite_rules:
   # Access to Notes database files
   - id: notes-theft
-    description: "Apple Notes data collection"
-    criticality: suspicious
-    confidence: 0.9
+    desc: "Apple Notes data collection"
+    crit: suspicious
+    conf: 0.9
     attack: "T1005"
-    file_types: [shell, python, applescript, macho]
-    requires_all:
-      - {id: notestore-db}
-    requires_any:
-      - {id: notestore-wal}
-      - {id: notestore-shm}
-      - {id: notes-container}
+    for: [shell, python, applescript, macho]
+    all:
+      - { id: notestore-db }
+    any:
+      - { id: notestore-wal }
+      - { id: notestore-shm }
+      - { id: notes-container }

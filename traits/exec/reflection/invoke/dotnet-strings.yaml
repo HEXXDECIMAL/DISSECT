@@ -2,121 +2,121 @@
 # These complement the AST-based csharp.yaml traits
 
 defaults:
-  file_types: [pe, dll, csharp]
+  for: [pe, dll, csharp]
 
 traits:
   - id: namespace-import
-    description: System.Reflection namespace usage
-    criticality: notable
-    confidence: 0.70
-    condition:
+    desc: System.Reflection namespace usage
+    crit: notable
+    conf: 0.70
+    if:
       type: string
       exact: "System.Reflection"
 
   - id: activator
-    description: Dynamic object instantiation via Activator
-    criticality: notable
-    confidence: 0.80
-    condition:
+    desc: Dynamic object instantiation via Activator
+    crit: notable
+    conf: 0.80
+    if:
       type: string
       exact: "Activator"
 
   # === Property info atomic indicators ===
   - id: property-info-class
-    description: PropertyInfo class reference
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: PropertyInfo class reference
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "PropertyInfo"
 
   - id: get-properties-method
-    description: GetProperties method reference
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: GetProperties method reference
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "GetProperties"
 
   # === Method info atomic indicators ===
   - id: method-info-class
-    description: MethodInfo class reference
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: MethodInfo class reference
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "MethodInfo"
 
   - id: get-method-call
-    description: GetMethod call reference
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: GetMethod call reference
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "GetMethod"
 
   - id: get-methods-call
-    description: GetMethods call reference
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: GetMethods call reference
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "GetMethods"
 
   # === Type info atomic indicators ===
   - id: get-type-call
-    description: GetType( call reference
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: GetType( call reference
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "GetType("
 
   - id: typeof-call
-    description: typeof( call reference
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: typeof( call reference
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "typeof("
 
   - id: type-info-class
-    description: TypeInfo class reference
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: TypeInfo class reference
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "TypeInfo"
 
 composite_rules:
   # Property info composite
   - id: property-info
-    description: Reflection property access
-    criticality: notable
-    confidence: 0.70
+    desc: Reflection property access
+    crit: notable
+    conf: 0.70
     requires_count: 1
-    conditions:
+    any:
       - id: property-info-class
       - id: get-properties-method
 
   # Method info composite
   - id: method-info
-    description: Reflection method access
-    criticality: notable
-    confidence: 0.70
+    desc: Reflection method access
+    crit: notable
+    conf: 0.70
     requires_count: 1
-    conditions:
+    any:
       - id: method-info-class
       - id: get-method-call
       - id: get-methods-call
 
   # Type info composite
   - id: type-info
-    description: Runtime type inspection
-    criticality: notable
-    confidence: 0.70
+    desc: Runtime type inspection
+    crit: notable
+    conf: 0.70
     requires_count: 1
-    conditions:
+    any:
       - id: get-type-call
       - id: typeof-call
       - id: type-info-class

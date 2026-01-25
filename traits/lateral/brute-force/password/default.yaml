@@ -5,7 +5,7 @@
 traits:
   - id: admin-password
     description: "Default credential: admin variations"
-    criticality: notable
+    crit: notable
     confidence: 0.6
     attack: "T1110.001"
     file_types: [elf]
@@ -16,7 +16,7 @@ traits:
 
   - id: root-password
     description: "Default credential: root variations"
-    criticality: notable
+    crit: notable
     confidence: 0.6
     attack: "T1110.001"
     file_types: [elf]
@@ -27,7 +27,7 @@ traits:
 
   - id: numeric-123456
     description: "Default credential: 123456"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.8
     attack: "T1110.001"
     file_types: [elf]
@@ -41,7 +41,7 @@ traits:
   # Real credential brute-force detection requires multiple indicators
   - id: literal-password
     description: "Default credential: password"
-    criticality: notable
+    crit: notable
     confidence: 0.4
     attack: "T1110.001"
     file_types: [elf]
@@ -51,7 +51,7 @@ traits:
 
   - id: admin123
     description: "Default credential: admin123"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     attack: "T1110.001"
     file_types: [elf]
@@ -61,7 +61,7 @@ traits:
 
   - id: literal-default
     description: "Default credential: default"
-    criticality: notable
+    crit: notable
     confidence: 0.5
     attack: "T1110.001"
     file_types: [elf]
@@ -77,7 +77,7 @@ traits:
 
   - id: guest
     description: "Default credential: guest"
-    criticality: notable
+    crit: notable
     confidence: 0.7
     attack: "T1110.001"
     file_types: [elf]
@@ -87,7 +87,7 @@ traits:
 
   - id: iot-vizxv
     description: "Default IoT credential: vizxv (Dahua)"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.95
     attack: "T1110.001"
     file_types: [elf]
@@ -98,7 +98,7 @@ traits:
   # === IoT ZTE credential atomic indicators ===
   - id: iot-zte521
     description: "Default IoT credential: Zte521"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     attack: "T1110.001"
     file_types: [elf]
@@ -108,7 +108,7 @@ traits:
 
   - id: iot-pte521
     description: "Default IoT credential: Pte521"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     attack: "T1110.001"
     file_types: [elf]
@@ -118,7 +118,7 @@ traits:
 
   - id: iot-pon521
     description: "Default IoT credential: Pon521"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     attack: "T1110.001"
     file_types: [elf]
@@ -128,7 +128,7 @@ traits:
 
   - id: iot-zxic521
     description: "Default IoT credential: Zxic521"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     attack: "T1110.001"
     file_types: [elf]
@@ -138,7 +138,7 @@ traits:
 
   - id: iot-oelinux
     description: "Default IoT credential: oelinux123"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.95
     attack: "T1110.001"
     file_types: [elf]
@@ -148,7 +148,7 @@ traits:
 
   - id: iot-xc35
     description: "Default IoT credential: xc3511 (Hikvision)"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.95
     attack: "T1110.001"
     file_types: [elf]
@@ -158,7 +158,7 @@ traits:
 
   - id: telnet-combo
     description: "Telnet username:password combo format"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.8
     attack: "T1110.001"
     file_types: [elf]
@@ -170,12 +170,12 @@ composite_rules:
   # IoT ZTE credential composite
   - id: iot-zte
     description: "Default IoT credential: ZTE router variants"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.95
     attack: "T1110.001"
     file_types: [elf]
     requires_count: 1
-    conditions:
+    any:
       - id: iot-zte521
       - id: iot-pte521
       - id: iot-pon521
@@ -183,13 +183,13 @@ composite_rules:
 
   - id: dictionary
     description: "Embedded credential brute-force dictionary"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     mbc: "E1040"
     attack: "T1110.001"
     file_types: [elf]
     requires_count: 4
-    conditions:
+    any:
       - id: admin-password
       - id: root-password
       - id: numeric-123456

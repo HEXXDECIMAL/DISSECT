@@ -7,193 +7,193 @@ traits:
   # === Popular Wallet Extensions (by Chrome Extension ID) ===
 
   - id: metamask
-    description: MetaMask wallet extension ID
-    criticality: suspicious
-    confidence: 0.9
+    desc: MetaMask wallet extension ID
+    crit: suspicious
+    conf: 0.9
     attack: "T1555.003"
     mbc: "B0028"
-    condition:
+    if:
       type: string
       # MetaMask Chrome extension ID
       exact: "nkbihfbeogaeaoehlefnkodbefgpgknn"
 
   - id: phantom
-    description: Phantom wallet extension ID (Solana)
-    criticality: suspicious
-    confidence: 0.9
+    desc: Phantom wallet extension ID (Solana)
+    crit: suspicious
+    conf: 0.9
     attack: "T1555.003"
     mbc: "B0028"
-    condition:
+    if:
       type: string
       exact: "bfnaelmomeimhlpmgjnjophhpkkoljpa"
 
   - id: trust-wallet
-    description: Trust Wallet extension ID
-    criticality: suspicious
-    confidence: 0.9
+    desc: Trust Wallet extension ID
+    crit: suspicious
+    conf: 0.9
     attack: "T1555.003"
     mbc: "B0028"
-    condition:
+    if:
       type: string
       exact: "egjidjbpglichdcondbcbdnbeeppgdph"
 
   - id: binance
-    description: Binance Wallet extension ID
-    criticality: suspicious
-    confidence: 0.9
+    desc: Binance Wallet extension ID
+    crit: suspicious
+    conf: 0.9
     attack: "T1555.003"
     mbc: "B0028"
-    condition:
+    if:
       type: string
       exact: "fhbohimaelbohpjbbldcngcnapndodjp"
 
   - id: coinbase
-    description: Coinbase Wallet extension ID
-    criticality: suspicious
-    confidence: 0.9
+    desc: Coinbase Wallet extension ID
+    crit: suspicious
+    conf: 0.9
     attack: "T1555.003"
     mbc: "B0028"
-    condition:
+    if:
       type: string
       exact: "hnfanknocfeofbddgcijnmhnfnkdnaad"
 
   - id: tronlink
-    description: TronLink wallet extension ID
-    criticality: suspicious
-    confidence: 0.9
+    desc: TronLink wallet extension ID
+    crit: suspicious
+    conf: 0.9
     attack: "T1555.003"
     mbc: "B0028"
-    condition:
+    if:
       type: string
       exact: "ibnejdfjmmkpcnlpebklmnkoeoihofec"
 
   - id: nami
-    description: Nami wallet extension ID (Cardano)
-    criticality: suspicious
-    confidence: 0.9
+    desc: Nami wallet extension ID (Cardano)
+    crit: suspicious
+    conf: 0.9
     attack: "T1555.003"
     mbc: "B0028"
-    condition:
+    if:
       type: string
       exact: "lpfcbjknijpeeillifnkikgncikgfhdo"
 
   - id: temple
-    description: Temple wallet extension ID (Tezos)
-    criticality: suspicious
-    confidence: 0.9
+    desc: Temple wallet extension ID (Tezos)
+    crit: suspicious
+    conf: 0.9
     attack: "T1555.003"
     mbc: "B0028"
-    condition:
+    if:
       type: string
       exact: "ookjlbkiijinhpmnjffcofjonbfbgaoc"
 
   - id: petra
-    description: Petra wallet extension ID (Aptos)
-    criticality: suspicious
-    confidence: 0.9
+    desc: Petra wallet extension ID (Aptos)
+    crit: suspicious
+    conf: 0.9
     attack: "T1555.003"
     mbc: "B0028"
-    condition:
+    if:
       type: string
       exact: "ejjladinnckdgjemekebdpeokbikhfci"
 
   - id: martian
-    description: Martian wallet extension ID (Aptos)
-    criticality: suspicious
-    confidence: 0.9
+    desc: Martian wallet extension ID (Aptos)
+    crit: suspicious
+    conf: 0.9
     attack: "T1555.003"
     mbc: "B0028"
-    condition:
+    if:
       type: string
       exact: "efbglgofoippbgcjepnhiblaibcnclgk"
 
   - id: pontem
-    description: Pontem wallet extension ID (Aptos)
-    criticality: suspicious
-    confidence: 0.9
+    desc: Pontem wallet extension ID (Aptos)
+    crit: suspicious
+    conf: 0.9
     attack: "T1555.003"
     mbc: "B0028"
-    condition:
+    if:
       type: string
       exact: "phkbamefinggmakgklpkljjmgibohnba"
 
   - id: exodus
-    description: Exodus wallet extension ID
-    criticality: suspicious
-    confidence: 0.9
+    desc: Exodus wallet extension ID
+    crit: suspicious
+    conf: 0.9
     attack: "T1555.003"
     mbc: "B0028"
-    condition:
+    if:
       type: string
       exact: "aholpfdialjgjfhomihkjbmgjidlcdno"
 
   - id: keplr
-    description: Keplr wallet extension ID (Cosmos)
-    criticality: suspicious
-    confidence: 0.9
+    desc: Keplr wallet extension ID (Cosmos)
+    crit: suspicious
+    conf: 0.9
     attack: "T1555.003"
     mbc: "B0028"
-    condition:
+    if:
       type: string
       exact: "dmkamcknogkgcdfhhbddcghachkejeap"
 
   - id: rabby
-    description: Rabby wallet extension ID
-    criticality: suspicious
-    confidence: 0.9
+    desc: Rabby wallet extension ID
+    crit: suspicious
+    conf: 0.9
     attack: "T1555.003"
     mbc: "B0028"
-    condition:
+    if:
       type: string
       exact: "acmacodkjbdgmoleebolmdjonilkdbch"
 
   - id: brave
-    description: Brave Wallet extension ID
-    criticality: suspicious
-    confidence: 0.9
+    desc: Brave Wallet extension ID
+    crit: suspicious
+    conf: 0.9
     attack: "T1555.003"
     mbc: "B0028"
-    condition:
+    if:
       type: string
       exact: "odbfpeeihdkbihmopkbjmoonfanlbfcl"
 
   # === Desktop/Universal Wallets (referenced in strings) ===
 
   - id: coinomi
-    description: Coinomi wallet path/reference
-    criticality: suspicious
-    confidence: 0.8
+    desc: Coinomi wallet path/reference
+    crit: suspicious
+    conf: 0.8
     attack: "T1555.005"
-    condition:
+    if:
       type: string
       regex: "(?i)Coinomi/wallets"
 
   - id: atomic
-    description: Atomic Wallet path/reference
-    criticality: suspicious
-    confidence: 0.8
+    desc: Atomic Wallet path/reference
+    crit: suspicious
+    conf: 0.8
     attack: "T1555.005"
-    condition:
+    if:
       type: string
       regex: "(?i)atomic/Local Storage"
 
   - id: electrum
-    description: Electrum wallet path/reference
-    criticality: suspicious
-    confidence: 0.8
+    desc: Electrum wallet path/reference
+    crit: suspicious
+    conf: 0.8
     attack: "T1555.005"
-    condition:
+    if:
       type: string
       regex: "(?i)\\.electrum/wallets"
 
   - id: multi-wallet-yara
-    description: Multiple wallet extensions via YARA
-    criticality: suspicious
-    confidence: 0.95
+    desc: Multiple wallet extensions via YARA
+    crit: suspicious
+    conf: 0.95
     attack: "T1555.003"
     mbc: "B0028"
-    file_types: [python, javascript, elf, pe, macho]
-    condition:
+    for: [python, javascript, elf, pe, macho]
+    if:
       type: yara
       source: |
         rule multi_wallet_extension_targeting {
@@ -226,11 +226,11 @@ traits:
 composite_rules:
   # Detects multiple wallet extension IDs (strong indicator of wallet stealer)
   - id: multi-wallet-targeting
-    description: Multiple crypto wallet extensions targeted (wallet stealer)
-    criticality: suspicious
-    confidence: 0.95
+    desc: Multiple crypto wallet extensions targeted (wallet stealer)
+    crit: suspicious
+    conf: 0.95
     attack: "T1555.003"
     mbc: "B0028"
-    file_types: [python, javascript, elf, pe, macho]
-    requires_all:
+    for: [python, javascript, elf, pe, macho]
+    all:
       - id: multi-wallet-yara

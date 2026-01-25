@@ -5,12 +5,12 @@
 traits:
   # Kernel symbol resolution via /proc/kallsyms
   - id: kallsyms-lookup
-    description: Accesses /proc/kallsyms for kernel symbol resolution
-    criticality: suspicious
-    confidence: 0.85
+    desc: Accesses /proc/kallsyms for kernel symbol resolution
+    crit: suspicious
+    conf: 0.85
     mbc: "F0015"
     attack: "T1014"
-    condition:
+    if:
       type: yara
       source: |
         rule kallsyms_lookup {
@@ -25,13 +25,13 @@ traits:
 
   # TCP connection hiding via tcp4_seq_show hook
   - id: tcp-hiding
-    description: Hooks TCP sequence show function to hide connections
-    criticality: suspicious
-    confidence: 0.9
+    desc: Hooks TCP sequence show function to hide connections
+    crit: suspicious
+    conf: 0.9
     mbc: "F0015"
     attack: "T1014"
-    file_types: [elf, c]
-    condition:
+    for: [elf, c]
+    if:
       type: yara
       source: |
         rule tcp_hiding {
@@ -48,13 +48,13 @@ traits:
 
   # Process hiding via proc filesystem hooks
   - id: proc-hiding
-    description: Hooks proc filesystem to hide processes
-    criticality: suspicious
-    confidence: 0.9
+    desc: Hooks proc filesystem to hide processes
+    crit: suspicious
+    conf: 0.9
     mbc: "F0015"
     attack: "T1014"
-    file_types: [elf, c]
-    condition:
+    for: [elf, c]
+    if:
       type: yara
       source: |
         rule proc_hiding_kernel {
@@ -71,13 +71,13 @@ traits:
 
   # Syscall table hooking
   - id: syscall-hook
-    description: Syscall table manipulation patterns
-    criticality: suspicious
-    confidence: 0.9
+    desc: Syscall table manipulation patterns
+    crit: suspicious
+    conf: 0.9
     mbc: "F0015"
     attack: "T1014"
-    file_types: [elf, c]
-    condition:
+    for: [elf, c]
+    if:
       type: yara
       source: |
         rule syscall_hook {
@@ -97,12 +97,12 @@ traits:
 
   # Kernel module markers (ELF relocatable)
   - id: module-format
-    description: Kernel module initialization patterns
-    criticality: notable
-    confidence: 0.7
+    desc: Kernel module initialization patterns
+    crit: notable
+    conf: 0.7
     mbc: "F0015"
     attack: "T1014"
-    condition:
+    if:
       type: yara
       source: |
         rule kernel_module {
@@ -119,12 +119,12 @@ traits:
 
   # Netfilter hook manipulation
   - id: netfilter-hook
-    description: Netfilter hook manipulation for packet filtering
-    criticality: suspicious
-    confidence: 0.85
+    desc: Netfilter hook manipulation for packet filtering
+    crit: suspicious
+    conf: 0.85
     mbc: "F0015"
     attack: "T1014"
-    condition:
+    if:
       type: yara
       source: |
         rule netfilter_hook {
@@ -141,13 +141,13 @@ traits:
 
   # File hiding via VFS hooks
   - id: vfs-hook
-    description: VFS layer hooking for file hiding
-    criticality: suspicious
-    confidence: 0.9
+    desc: VFS layer hooking for file hiding
+    crit: suspicious
+    conf: 0.9
     mbc: "F0015"
     attack: "T1014"
-    file_types: [elf, c]
-    condition:
+    for: [elf, c]
+    if:
       type: yara
       source: |
         rule vfs_hook {
@@ -165,13 +165,13 @@ traits:
 
   # Diamorphine rootkit patterns
   - id: diamorphine
-    description: Diamorphine kernel rootkit indicators
-    criticality: suspicious
-    confidence: 0.95
+    desc: Diamorphine kernel rootkit indicators
+    crit: suspicious
+    conf: 0.95
     mbc: "F0015"
     attack: "T1014"
-    file_types: [elf, c]
-    condition:
+    for: [elf, c]
+    if:
       type: yara
       source: |
         rule diamorphine {
@@ -190,13 +190,13 @@ traits:
 
   # Reptile rootkit patterns
   - id: reptile
-    description: Reptile kernel rootkit indicators
-    criticality: suspicious
-    confidence: 0.95
+    desc: Reptile kernel rootkit indicators
+    crit: suspicious
+    conf: 0.95
     mbc: "F0015"
     attack: "T1014"
-    file_types: [elf, c]
-    condition:
+    for: [elf, c]
+    if:
       type: yara
       source: |
         rule reptile {
@@ -213,13 +213,13 @@ traits:
 
   # Syslogk rootkit patterns
   - id: syslogk
-    description: Syslogk kernel rootkit indicators
-    criticality: suspicious
-    confidence: 0.95
+    desc: Syslogk kernel rootkit indicators
+    crit: suspicious
+    conf: 0.95
     mbc: "F0015"
     attack: "T1014"
-    file_types: [elf, c]
-    condition:
+    for: [elf, c]
+    if:
       type: yara
       source: |
         rule syslogk {
@@ -235,15 +235,15 @@ traits:
 composite_rules:
   # Full kernel rootkit detection
   - id: lkm-rootkit
-    description: Linux Kernel Module rootkit detected
-    criticality: hostile
-    confidence: 0.95
+    desc: Linux Kernel Module rootkit detected
+    crit: hostile
+    conf: 0.95
     mbc: "F0015"
     attack: "T1014"
-    file_types: [elf, c]
+    for: [elf, c]
     requires_all:
       - id: module-format
-    requires_any:
+    any:
       - id: syscall-hook
       - id: proc-hiding
       - id: tcp-hiding

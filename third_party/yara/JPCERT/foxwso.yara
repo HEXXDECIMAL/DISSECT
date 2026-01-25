@@ -9,6 +9,6 @@ rule webshell_FoxWSO_str {
         $str2 = "!defined('lmhelqpg')"
         $str3 = { 69 66 28 21 66 75 6e 63 74 69 6f 6e 5f 65 78 69 73 74 73 28 22 94 e3 d7 a9 a7 9a e0 c5 f3 f6 22 29 }
 
-     condition:
+     if:
         uint32(0) == 0x68703F3C and 1 of ($str*)
 }

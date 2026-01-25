@@ -10,24 +10,24 @@ defaults:
 traits:
   - id: brand
     description: Manjusaka brand string
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     condition:
       type: string
       regex: "(?i)manjusaka"
 
   - id: prefix
     description: Manjusaka function prefix
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     condition:
       type: string
       exact: "mjs_"
 
   - id: rust-panic
     description: Manjusaka Rust panic handler
-    criticality: suspicious
-    confidence: 0.7
+    crit: suspicious
+    conf: 0.7
     condition:
       type: string
       exact: "rust_panic"
@@ -36,12 +36,12 @@ composite_rules:
   # Detected via brand string or prefix+rust-panic combination
   - id: detected
     description: Manjusaka C2 framework detected
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     family: true
     reference: "https://blog.talosintelligence.com/manjusaka-offensive-framework/"
     requires_count: 2
-    conditions:
+    any:
       - id: known-tools/remote-access-trojan/manjusaka/brand
       - id: known-tools/remote-access-trojan/manjusaka/prefix
       - id: known-tools/remote-access-trojan/manjusaka/rust-panic

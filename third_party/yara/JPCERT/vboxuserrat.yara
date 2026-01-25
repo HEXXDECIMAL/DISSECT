@@ -41,7 +41,7 @@ rule malware_vboxuserRAT {
       $cmdstr1 = "run_dll_from_memory" ascii
       $cmdstr2 = "run_exe_from_memory" ascii
 
-    condition:
+    if:
       (uint16(0) == 0x5A4D) and
       (uint32(uint32(0x3c)) == 0x00004550) and
       (filesize > 3MB) and

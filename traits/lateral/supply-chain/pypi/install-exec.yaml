@@ -12,7 +12,7 @@ traits:
   # os.system call at module level (outside functions)
   - id: module-level-system
     description: "os.system at module level (install-time execution)"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     condition:
       type: string
@@ -21,7 +21,7 @@ traits:
   # Import-triggered execution
   - id: import-trigger
     description: "Code execution triggered by import"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.8
     condition:
       type: string
@@ -31,7 +31,7 @@ traits:
   # Try-except ImportError with installation
   - id: import-fallback-install
     description: "Import fallback with automatic package installation"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     condition:
       type: string
@@ -40,7 +40,7 @@ traits:
   # Setup.py with external code execution or network activity (YARA)
   - id: setup-py-exec-yara
     description: "setup.py with suspicious code execution or network activity"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.95
     mbc: "B0030"
     condition:
@@ -88,7 +88,7 @@ traits:
   # __init__.py with code execution (YARA)
   - id: init-py-exec-yara
     description: "__init__.py with immediate code execution"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     mbc: "B0030"
     condition:
@@ -126,7 +126,7 @@ traits:
   # Package that installs other packages at runtime (YARA)
   - id: dependency-injection-yara
     description: "Package installs additional dependencies at runtime"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.95
     mbc: "B0030"
     condition:
@@ -149,7 +149,7 @@ composite_rules:
   # Setup.py with external code execution or network activity
   - id: setup-py-exec
     description: "setup.py with suspicious code execution or network activity"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.95
     mbc: "B0030"
     requires_all:
@@ -158,7 +158,7 @@ composite_rules:
   # __init__.py with code execution (very suspicious)
   - id: init-py-exec
     description: "__init__.py with immediate code execution"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     mbc: "B0030"
     requires_all:
@@ -167,7 +167,7 @@ composite_rules:
   # Package that installs other packages at runtime
   - id: dependency-injection
     description: "Package installs additional dependencies at runtime"
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.95
     mbc: "B0030"
     requires_all:

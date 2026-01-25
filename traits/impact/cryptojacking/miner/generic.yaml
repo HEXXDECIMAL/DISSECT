@@ -5,11 +5,11 @@
 traits:
   - id: miner
     description: Cryptocurrency mining patterns
-    criticality: suspicious
-    confidence: 0.66
+    crit: suspicious
+    conf: 0.66
     mbc: "B0041"
     attack: "T1496"
-    condition:
+    if:
       type: yara
       source: |
         rule cryptominer {
@@ -30,25 +30,25 @@ traits:
   # === XMRig atomic indicators ===
   - id: xmrig-lower
     description: xmrig (lowercase)
-    criticality: notable
-    confidence: 0.55
-    condition:
+    crit: notable
+    conf: 0.55
+    if:
       type: string
       exact: "xmrig"
 
   - id: xmrig-pascal
     description: XMRig (PascalCase)
-    criticality: notable
-    confidence: 0.55
-    condition:
+    crit: notable
+    conf: 0.55
+    if:
       type: string
       exact: "XMRig"
 
   - id: miner-stratum
     description: Stratum mining protocol
-    criticality: suspicious
-    confidence: 0.66
-    condition:
+    crit: suspicious
+    conf: 0.66
+    if:
       type: string
       regex: "stratum\\+tcp://"
 
@@ -56,9 +56,9 @@ composite_rules:
   # XMRig composite
   - id: miner-xmrig
     description: XMRig cryptocurrency miner reference
-    criticality: suspicious
-    confidence: 0.66
+    crit: suspicious
+    conf: 0.66
     requires_count: 1
-    conditions:
+    any:
       - id: xmrig-lower
       - id: xmrig-pascal

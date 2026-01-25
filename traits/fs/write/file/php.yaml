@@ -5,53 +5,53 @@
 traits:
   - id: file-put-contents
     description: File write via file_put_contents
-    criticality: notable
-    confidence: 0.8
+    crit: notable
+    conf: 0.8
     mbc: "C0052"
     attack: "T1105"
-    file_types: [php]
-    condition:
+    for: [php]
+    if:
       type: string
       exact: file_put_contents
 
   - id: fwrite
     description: File write via fwrite
-    criticality: notable
-    confidence: 0.8
+    crit: notable
+    conf: 0.8
     mbc: "C0052"
-    file_types: [php]
-    condition:
+    for: [php]
+    if:
       type: string
       regex: "\\bfwrite\\s*\\("
 
   - id: fputs
     description: File write via fputs
-    criticality: notable
-    confidence: 0.8
+    crit: notable
+    conf: 0.8
     mbc: "C0052"
-    file_types: [php]
-    condition:
+    for: [php]
+    if:
       type: string
       regex: "\\bfputs\\s*\\("
 
   - id: dropper-pattern
     description: File dropper pattern (base64 decode + file write)
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     mbc: "B0030"
     attack: "T1105"
-    file_types: [php]
-    condition:
+    for: [php]
+    if:
       type: string
       regex: "file_put_contents\\s*\\([^,]+,\\s*base64_decode"
 
   - id: move-uploaded-file
     description: Move uploaded file to destination
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     mbc: "C0052"
     attack: "T1105"
-    file_types: [php]
-    condition:
+    for: [php]
+    if:
       type: string
       exact: move_uploaded_file

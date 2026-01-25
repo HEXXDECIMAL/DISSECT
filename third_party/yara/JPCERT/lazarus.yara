@@ -15,7 +15,7 @@ rule Lazarus_BILDINGCAN_RC4 {
          $post = "id=%s%s&%s=%s&%s=%s&%s=" ascii
          $command = "%s%sc \"%s > %s 2>&1" ascii
 
-     condition:
+     if:
          uint16(0) == 0x5a4d and 3 of them
 }
 
@@ -33,7 +33,7 @@ rule Lazarus_BILDINGCAN_AES {
         $buffsize = { 00 00 C7 ?? ?? ??  B8 8E 03 00 }
         $rand = { 69 D2 ?? ?? 00 00 2B ?? 81 C? D2 04 00 00 }
 
-     condition:
+     if:
         uint16(0) == 0x5a4d and 3 of them
 }
 
@@ -49,7 +49,7 @@ rule Lazarus_BILDINGCAN_module {
       $nop = { 66 66 66 66 0F 1F 84 00 00 00 00 }
       $rand = { 69 D2 ?? ?? 00 00 2B ?? 81 C? D2 04 00 00 }
 
-    condition:
+    if:
       uint16(0) == 0x5a4d and 3 of them
 }
 
@@ -69,7 +69,7 @@ rule Lazarus_Torisma_strvest {
          $vestsbox = { 07 56 D2 37 3A F7 0A 52 }
          $vestrns = { 41 4B 1B DD 0D 65 72 EE }
 
-     condition:
+     if:
          uint16(0) == 0x5a4d and (all of ($post*) or $password or all of ($vest*))
 }
 
@@ -84,7 +84,7 @@ rule Lazarus_LCPDot_strings {
          $class = "HotPlugin_class" wide
          $post = "Cookie=Enable&CookieV=%d&Cookie_Time=64" ascii
 
-     condition:
+     if:
          uint16(0) == 0x5a4d and all of them
 }
 
@@ -97,7 +97,7 @@ rule Lazarus_Torisma_config {
      strings:
         $header = { 98 11 1A 45 90 78 BA F9 4E D6 8F EE }
 
-     condition:
+     if:
         all of them
 }
 
@@ -110,7 +110,7 @@ rule Lazarus_loader_thumbsdb {
      strings:
         $switchcase = { E8 ?? ?? ?? ?? 83 F8 64 74 ?? 3D C8 00 00 00 74 ?? 3D 2C 01 00 00 75 ?? E8 ?? ?? ?? ?? B9 D0 07 00 00 E8 }
 
-     condition:
+     if:
         all of them
 }
 
@@ -131,7 +131,7 @@ rule Lazarus_Comebacker_strings {
         $str4 = "Sleeping|" ascii wide
         $str5 = "%s|%d|%d|" ascii wide
 
-     condition:
+     if:
         all of ($postdata*) or $key or all of ($str*)
 }
 
@@ -160,7 +160,7 @@ rule Lazarus_VSingle_strings {
         $xorkey3 = "3olu2yi3ynwlnvlu" ascii wide
         $xorkey4 = "uk0wia0uy3fl3uxd" ascii wide
 
-     condition:
+     if:
         all of ($encstr*) or $pdb or 1 of ($xorkey*) or 3 of ($str*)
 }
 
@@ -178,7 +178,7 @@ rule Lazarus_ValeforBeta_strings {
         $str4 = "success download from %s to %s" ascii wide
         $str5 = "failed with error code: %d" ascii wide
 
-     condition:
+     if:
         3 of ($str*)
 }
 
@@ -192,7 +192,7 @@ rule Lazarus_ValeforBeta_strings {
 //      hash1 = "613f1cc0411485f14f53c164372b6d83c81462eb497daf6a837931c1d341e2da"
 //      hash2 = "658e63624b73fc91c497c2f879776aa05ef000cb3f38a340b311bd4a5e1ebe5d"
 
-//   condition:
+//   if:
 //      uint16(0) == 0x5a4d and
 //      for any i in (0 .. pe.number_of_signatures) : (
 //         pe.signatures[i].issuer contains "2 TOY GUYS LLC" and
@@ -209,7 +209,7 @@ rule Lazarus_packer_code {
 
      strings:
         $code = { 55 8B EC A1 ?? ?? ?? 00 83 C0 01 A3 ?? ?? ?? 00 83 3D ?? ?? ?? 00 ( 01 | 02 | 03 | 04 | 05 ) 76 16 8B 0D ?? ?? ?? 00 83 E9 01 89 0D ?? ?? ?? 00 B8 ?? ?? ?? ?? EB  }
-     condition:
+     if:
         all of them
 }
 
@@ -228,7 +228,7 @@ rule Lazarus_Kaos_golang {
         $gofunc5 = "getInitEggPrice" ascii wide
         $gofunc6 = "HttpPostWithCookie" ascii wide
 
-     condition:
+     if:
         4 of ($gofunc*)
 }
 
@@ -244,7 +244,7 @@ rule Lazarus_VSingle_elf {
         $code3 = { C6 85 ?? ?? FF FF 25 C6 85 ?? ?? FF FF 73 C6 85 ?? ?? FF FF 7C C6 85 ?? ?? FF FF 25 C6 85 ?? ?? FF FF 78 } // %s|%x
         $code4 = { C6 85 ?? ?? FF FF 4D C6 85 ?? ?? FF FF 6F C6 85 ?? ?? FF FF 7A C6 85 ?? ?? FF FF 69 C6 85 ?? ?? FF FF 6C C6 85 ?? ?? FF FF 6C C6 85 ?? ?? FF FF 61 C6 85 ?? ?? FF FF 2F } // Mozilla
         $code5 = { C6 84 ?? ?? ?? 00 00 25 C6 84 ?? ?? ?? 00 00 73 C6 84 ?? ?? ?? 00 00 25 C6 84 ?? ?? ?? 00 00 31 C6 84 ?? ?? ?? 00 00 75 C6 84 ?? ?? ?? 00 00 25 C6 84 ?? ?? ?? 00 00 31 C6 84 ?? ?? ?? 00 00 75 } // %s%1u%1u
-     condition:
+     if:
         3 of ($code*)
 }
 
@@ -264,7 +264,7 @@ rule Lazarus_packer_upxmems {
                                        // xchg al, ah
         $code2 = { 81 FD 00 FB FF FF 83 D1 02 8D } // cmp ebp, FFFFFB00h    adc ecx, 2
         $sig = "MEMS" ascii
-     condition:
+     if:
         all of ($code*) and #sig >= 3 and uint32(0x98) == 0x534d454d
 }
 
@@ -280,7 +280,7 @@ rule Lazarus_httpbot_jsessid {
         $init = { 51 68 ?? ?? ?? 00 51 BA 04 01 00 00 B9 ?? ?? ?? 00 E8 }
         $command = { 8B ?? ?? 05 69 62 2B 9F 83 F8 1D 0F ?? ?? ?? 00 00 FF}
 
-     condition:
+     if:
         $command or ($jsessid and $http and #init >= 3)
 }
 
@@ -299,7 +299,7 @@ rule Lazarus_tool_smbscan {
         $toolstr5 = "%s %-20S%-30s%S" ascii
         $toolstr6 = "%s - %s:(Username - %s / Password - %s" ascii
 
-     condition:
+     if:
         4 of ($toolstr*)
 }
 
@@ -316,7 +316,7 @@ rule Lazarus_simplecurl_strings {
         $str5 = "HttpQueryInfoA failed.." ascii
         $str6 = "response code: %s" ascii
         $str7 = "%02d.%02d.%04d - %02d:%02d:%02d:%03d :" ascii
-     condition:
+     if:
         4 of ($str*)
 }
 
@@ -344,7 +344,7 @@ rule Lazarus_Dtrack_code {
         $str5 = "%s\\%c.tmp"
         $code = { 81 ?? EB 03 00 00 89 ?? ?? ?? FF FF 83 ?? ?? ?? FF FF 14 0F 87 EA 00 00 00 }
 
-     condition:
+     if:
        uint16(0) == 0x5A4D and
        uint32(uint32(0x3c)) == 0x00004550 and
        (1 of ($rc4key*) or 1 of ($zippass*) or (3 of  ($str*) and $code))
@@ -366,7 +366,7 @@ rule Lazarus_keylogger_str {
         $table4 = "CDataLog"
         $table5 = "CKeyLogger"
 
-     condition:
+     if:
        uint16(0) == 0x5A4D and
        uint32(uint32(0x3c)) == 0x00004550 and
        4 of them
@@ -391,7 +391,7 @@ rule Lazarus_DreamJob_doc2021 {
         $command7 = "cmd /c md"
         $command8 = "cmd /c del"
 
-     condition:
+     if:
        uint16(0) == 0xCFD0 and
        $peheadb64 and 4 of ($command*)
 }
@@ -406,7 +406,7 @@ rule Lazarus_boardiddownloader_code {
         $enchttp = { C7 ?? ?? 06 1A 1A 1E C7 ?? ?? 1D 54 41 41 }
         $xorcode = { 80 74 ?? ?? 6E 80 74 ?? ?? 6E (48 83|83) ?? 02 (48|83) }
 
-     condition:
+     if:
        uint16(0) == 0x5A4D and
        uint32(uint32(0x3c)) == 0x00004550 and
        all of them
@@ -423,7 +423,7 @@ rule Lazarus_obfuscate_string {
         $str2 = "%^&|," wide
         $str3 = "SeDebugPrivilege" wide
 
-    condition:
+    if:
         uint16(0) == 0x5a4d and
         filesize > 1MB and
         all of them
@@ -458,7 +458,7 @@ rule Lazarus_VSingle_github {
         $str19 = "grav1ty" ascii wide fullword
         $str20 = "w1inter" ascii wide fullword
 
-     condition:
+     if:
        (uint32(0) == 0x464C457F and
        8 of ($str*)) or
        (uint16(0) == 0x5A4D and
@@ -479,7 +479,7 @@ rule Lazarus_BTREE_str {
         $command4 = "%s\\marcoor.dll" ascii wide
         $rc4key = "FaDm8CtBH7W660wlbtpyWg4jyLFbgR3IvRw6EdF8IG667d0TEimzTiZ6aBteigP3" ascii wide
 
-     condition:
+     if:
        2 of ($command*) or $rc4key
 }
 
@@ -492,7 +492,7 @@ rule Lazarus_BTREE_str {
 //        author = "JPCERT/CC Incident Response Group"
 //        hash = "e5466b99c1af9fe3fefdd4da1e798786a821c6d853a320d16cc10c06bc6f3fc5"
 
-//    condition:
+//    if:
 //        for any i in (0..pe.number_of_resources - 1) : (
 //            hash.sha256(pe.resources[i].offset, pe.resources[i].length) == "b3e0e069d00fb2a746b7ed1eb3d6470772a684349800fc84bae9f40c8a43d87a"
 //        )
@@ -503,7 +503,7 @@ rule Lazarus_msi_str {
         description = "msi file using Lazarus"
         author = "JPCERT/CC Incident Response Group"
         hash = "f0b6d6981e06c7be2e45650e5f6d39570c1ee640ccb157ddfe42ee23ad4d1cdb"
-	
+
     strings:
         $magic = /^\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1\x00\x00\x00/
         $s1 = "New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes 1) -RepetitionDuration (New-TimeSpan -Days 300)" ascii wide
@@ -511,7 +511,7 @@ rule Lazarus_msi_str {
         $s3 = "function sendbi(pd)" ascii wide
         $s4 = "\\n\\n\"+g_mac()+\"\\n\\n\"+g_proc()" ascii wide
 
-     condition:
+     if:
        $magic at 0 and 2 of ($s*)
 }
 
@@ -526,7 +526,7 @@ rule Lazarus_downloader_code {
         $count = { 00 00 EB 00 B8 FF 59 62 02 3B 05 ?? ?? ?? 00 }
         $api = "InitOnceExecuteOnce" ascii
 
-     condition:
+     if:
        uint16(0) == 0x5A4D and
        uint32(uint32(0x3c)) == 0x00004550 and
        filesize < 200KB and
@@ -551,7 +551,7 @@ rule Lazarus_magicpoint_code {
 		  $strData = "xz36" ascii
 		  $strcmd = "cmd.exe /c %s" ascii
 
-     condition:
+     if:
        uint16(0) == 0x5A4D and
        uint32(uint32(0x3c)) == 0x00004550 and
        4 of ($str*)
@@ -571,7 +571,7 @@ rule lazarus_dbgsymbols_str{
          $str5 = "Symbol Download Finished!" wide
 	      $filename = "symbolcheck.dll" wide
 
-       condition:
+       if:
          uint16(0) == 0x5A4D and
          uint32(uint32(0x3c)) == 0x00004550 and
          3 of ($str*) and all of ($filename)
@@ -594,7 +594,7 @@ rule Lazarus_npmLoader_dll {
         $pdb3 = "D:\\workspace\\CBG\\Windows\\Loader\\npmLoaderDll\\x64\\Release\\npmLoaderDll.pdb" ascii wide
         $pdb4 = "npmLoaderDll\\x64\\Release\\npmLoaderDll.pdb" ascii wide
 
-     condition:
+     if:
        uint16(0) == 0x5A4D and
        uint32(uint32(0x3c)) == 0x00004550 and
        (
@@ -640,7 +640,7 @@ rule Lazarus_defaultdownpy_python {
       $dec19 = "return{'uuid':A.uuid,'system':A.system,'release':A.release,'version':A.version,'hostname':A.hostname,'username':A.username}" ascii
       $dec20 = "{'ts':str(B),'type':sType,'hid':hn,'ss':'sys_info','cc':str(A.sys_info)}" ascii
 
-   condition:
+   if:
       3 of ($enc*) or 3 of ($dec*)
 }
 
@@ -663,7 +663,7 @@ rule Lazarus_jamistealer_str {
       $str9 = "Upload LDB Finshed!!!" ascii
       $str10 = "%1_%2_%3_%4_%5" ascii
 
-   condition:
+   if:
       ((uint16(0) == 0x5A4D and
        uint32(uint32(0x3c)) == 0x00004550) or
       (uint32(0) == 0xfeedface or
@@ -700,6 +700,6 @@ rule Lazarus_oprepjs_javascript {
       $key3 = "7a0508b2eb487b05be4aa5ea01c5e15d" ascii
 
 
-   condition:
+   if:
       6 of ($enc*) or all of ($key*)
 }

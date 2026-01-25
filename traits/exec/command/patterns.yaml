@@ -3,11 +3,11 @@
 
 traits:
   - id: string-assign
-    description: "Constructs command or URL via string assignment"
-    criticality: inert
-    confidence: 0.6
-    file_types: [python]
-    condition:
+    desc: "Constructs command or URL via string assignment"
+    crit: inert
+    conf: 0.6
+    for: [python]
+    if:
       type: ast_query
       language: python
       query: |
@@ -18,9 +18,9 @@ traits:
 
 composite_rules:
   - id: command-spreading
-    description: "Command spreading (String construction + Execution)"
-    criticality: suspicious
-    confidence: 0.85
+    desc: "Command spreading (String construction + Execution)"
+    crit: suspicious
+    conf: 0.85
     near_lines: 10
     requires_all:
       - id: exec/command/construction/string-assign

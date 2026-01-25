@@ -18,6 +18,6 @@ $rtf_objdata = /\x7b[^\x7d]*\\objdata/ nocase
 $nor = "D0CF11E0A1B11AE1" nocase
 
 $obs = /D[ \r\t\n]*0[ \r\t\n]*C[ \r\t\n]*F[ \r\t\n]*1[ \r\t\n]*1[ \r\t\n]*E[ \r\t\n]*0[ \r\t\n]*A[ \r\t\n]*1[ \r\t\n]*B[ \r\t\n]*1[ \r\t\n]*1[ \r\t\n]*A[ \r\t\n]*E[ \r\t\n]*1/ nocase
-	condition:
+	if:
 			$rtf_magic and $rtf_objdata and ($obs and not $nor)
 }

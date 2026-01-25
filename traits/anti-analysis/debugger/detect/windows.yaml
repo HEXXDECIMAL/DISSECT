@@ -3,16 +3,16 @@
 # ATT&CK: T1622
 
 defaults:
-  file_types: [pe, dll]
+  for: [pe, dll]
   platforms: [windows]
 
 traits:
   - id: debugger-api
-    description: Debugger detection via Windows API
-    criticality: suspicious
-    confidence: 0.66
+    desc: Debugger detection via Windows API
+    crit: suspicious
+    conf: 0.66
     mbc: "B0001"
     attack: "T1622"
-    condition:
+    if:
       type: symbol
       pattern: IsDebuggerPresent|CheckRemoteDebuggerPresent|NtQueryInformationProcess

@@ -3,7 +3,7 @@
 traits:
   - id: ruby-setuid
     description: Set user/group ID
-    criticality: notable
+    crit: notable
     confidence: 0.93
     platforms: [all]
     file_types: [ruby]

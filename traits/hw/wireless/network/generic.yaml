@@ -4,10 +4,10 @@
 traits:
   - id: bssid
     description: Wireless network base station ID reference
-    criticality: notable
-    confidence: 0.6
+    crit: notable
+    conf: 0.6
     attack: "T1016"
     platforms: [all]
-    condition:
+    if:
       type: string
       regex: "\\b[Bb][Ss][Ss][Ii][Dd]\\b"

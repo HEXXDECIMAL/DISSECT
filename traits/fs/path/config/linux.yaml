@@ -5,32 +5,32 @@
 traits:
   - id: config-etc
     description: Reference to /etc configuration files
-    criticality: inert
-    confidence: 0.66
-    condition:
+    crit: inert
+    conf: 0.66
+    if:
       type: string
       regex: "/etc/[\\w\\.\\-/]{1,32}"
 
   - id: config-hosts
     description: Reference to /etc/hosts
-    criticality: notable
-    confidence: 0.66
-    condition:
+    crit: notable
+    conf: 0.66
+    if:
       type: string
       exact: /etc/hosts
 
   - id: config-resolv
     description: Reference to /etc/resolv.conf
-    criticality: notable
-    confidence: 0.66
-    condition:
+    crit: notable
+    conf: 0.66
+    if:
       type: string
       exact: /etc/resolv.conf
 
   - id: config-initd
     description: Reference to /etc/init.d scripts
-    criticality: notable
-    confidence: 0.66
-    condition:
+    crit: notable
+    conf: 0.66
+    if:
       type: string
       regex: "/etc/init\\.d/[\\w\\-]+"

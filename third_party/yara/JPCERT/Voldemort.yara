@@ -9,7 +9,7 @@ rule malware_Voldemort_lnk {
         $s2 = "@SSL\\" ascii wide
 	    $s3 = {2E 00 70 00 79 00 00 00 08 00 2E 00 5C 00 31 00 2E 00 70 00 64 00 66 00}
 
-    condition:
+    if:
         (uint32(0) == 0x0000004C) and
         all of them
 }
@@ -26,7 +26,7 @@ rule malware_Voldemort_python {
         $s3 = "/stage2-1/' + base64.b64encode(" ascii
         $s4 = "def downloadPNG():" ascii
 
-    condition:
+    if:
         3 of them
 }
 
@@ -43,7 +43,7 @@ rule malware_Voldemort_str {
         $s4 = "client_id=%s&client_secret=%s&refresh_token=%s&grant_type=refresh_token" ascii
         $s5 = "Voldemort_gdrive_c.dll" ascii
 
-    condition:
+    if:
         uint16(0) == 0x5A4D and
         uint32(uint32(0x3c)) == 0x00004550 and
         4 of them

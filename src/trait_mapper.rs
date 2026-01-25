@@ -33,9 +33,9 @@ impl TraitMapper {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: "exec/terminate".to_string(),
-                    description: "Function terminates execution".to_string(),
-                    confidence: 0.7,
-                    criticality: Criticality::Inert,
+                    desc: "Function terminates execution".to_string(),
+                    conf: 0.7,
+                    crit: Criticality::Inert,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {
@@ -61,9 +61,9 @@ impl TraitMapper {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: "complexity/high".to_string(),
-                description: "High cyclomatic complexity with loops".to_string(),
-                confidence: 0.7,
-                criticality: Criticality::Inert,
+                desc: "High cyclomatic complexity with loops".to_string(),
+                conf: 0.7,
+                crit: Criticality::Inert,
                 mbc: None,
                 attack: None,
                 evidence: vec![Evidence {
@@ -83,9 +83,9 @@ impl TraitMapper {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: "anti-analysis/obfuscation/control-flow".to_string(),
-                    description: "Control flow obfuscation detected".to_string(),
-                    confidence: 0.6,
-                    criticality: Criticality::Inert,
+                    desc: "Control flow obfuscation detected".to_string(),
+                    conf: 0.6,
+                    crit: Criticality::Inert,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {
@@ -104,9 +104,9 @@ impl TraitMapper {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: "data/encode".to_string(),
-                description: "Multiple nested loops suggest encoding/crypto".to_string(),
-                confidence: 0.5,
-                criticality: Criticality::Inert,
+                desc: "Multiple nested loops suggest encoding/crypto".to_string(),
+                conf: 0.5,
+                crit: Criticality::Inert,
                 mbc: None,
                 attack: None,
                 evidence: vec![Evidence {
@@ -133,9 +133,9 @@ impl TraitMapper {
                         kind: FindingKind::Capability,
                         trait_refs: vec![],
                         id: "anti-analysis/anti-debug/debugger-detect".to_string(),
-                        description: "Debug trap instruction detected".to_string(),
-                        confidence: 0.9,
-                        criticality: Criticality::Inert,
+                        desc: "Debug trap instruction detected".to_string(),
+                        conf: 0.9,
+                        crit: Criticality::Inert,
                         mbc: None,
                         attack: None,
                         evidence: vec![Evidence {
@@ -151,9 +151,9 @@ impl TraitMapper {
                         kind: FindingKind::Capability,
                         trait_refs: vec![],
                         id: "anti-analysis/anti-debug/breakpoint".to_string(),
-                        description: "Breakpoint instruction detected".to_string(),
-                        confidence: 0.8,
-                        criticality: Criticality::Inert,
+                        desc: "Breakpoint instruction detected".to_string(),
+                        conf: 0.8,
+                        crit: Criticality::Inert,
                         mbc: None,
                         attack: None,
                         evidence: vec![Evidence {
@@ -169,9 +169,9 @@ impl TraitMapper {
                         kind: FindingKind::Capability,
                         trait_refs: vec![],
                         id: "anti-analysis/anti-debug/timing".to_string(),
-                        description: "Timing check via RDTSC".to_string(),
-                        confidence: 0.8,
-                        criticality: Criticality::Inert,
+                        desc: "Timing check via RDTSC".to_string(),
+                        conf: 0.8,
+                        crit: Criticality::Inert,
                         mbc: None,
                         attack: None,
                         evidence: vec![Evidence {
@@ -187,9 +187,9 @@ impl TraitMapper {
                         kind: FindingKind::Capability,
                         trait_refs: vec![],
                         id: "anti-analysis/anti-vm/cpu-detect".to_string(),
-                        description: "CPU detection via CPUID".to_string(),
-                        confidence: 0.7,
-                        criticality: Criticality::Inert,
+                        desc: "CPU detection via CPUID".to_string(),
+                        conf: 0.7,
+                        crit: Criticality::Inert,
                         mbc: None,
                         attack: None,
                         evidence: vec![Evidence {
@@ -206,9 +206,9 @@ impl TraitMapper {
                         kind: FindingKind::Capability,
                         trait_refs: vec![],
                         id: "anti-analysis/obfuscation/fpu".to_string(),
-                        description: "FPU instructions used for obfuscation".to_string(),
-                        confidence: 0.6,
-                        criticality: Criticality::Inert,
+                        desc: "FPU instructions used for obfuscation".to_string(),
+                        conf: 0.6,
+                        crit: Criticality::Inert,
                         mbc: None,
                         attack: None,
                         evidence: vec![Evidence {
@@ -230,9 +230,9 @@ impl TraitMapper {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: "crypto/xor".to_string(),
-                description: "High XOR operation density suggests encoding".to_string(),
-                confidence: 0.6,
-                criticality: Criticality::Inert,
+                desc: "High XOR operation density suggests encoding".to_string(),
+                conf: 0.6,
+                crit: Criticality::Inert,
                 mbc: None,
                 attack: None,
                 evidence: vec![Evidence {
@@ -250,9 +250,9 @@ impl TraitMapper {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: "crypto/encrypt".to_string(),
-                description: "Hardware crypto instructions detected".to_string(),
-                confidence: 0.9,
-                criticality: Criticality::Inert,
+                desc: "Hardware crypto instructions detected".to_string(),
+                conf: 0.9,
+                crit: Criticality::Inert,
                 mbc: None,
                 attack: None,
                 evidence: vec![Evidence {
@@ -270,9 +270,9 @@ impl TraitMapper {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: "data/encoding/string-ops".to_string(),
-                description: "String operations for data manipulation".to_string(),
-                confidence: 0.6,
-                criticality: Criticality::Inert,
+                desc: "String operations for data manipulation".to_string(),
+                conf: 0.6,
+                crit: Criticality::Inert,
                 mbc: None,
                 attack: None,
                 evidence: vec![Evidence {
@@ -290,9 +290,9 @@ impl TraitMapper {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: "os/syscall".to_string(),
-                description: "Direct system call usage".to_string(),
-                confidence: 0.8,
-                criticality: Criticality::Inert,
+                desc: "Direct system call usage".to_string(),
+                conf: 0.8,
+                crit: Criticality::Inert,
                 mbc: None,
                 attack: None,
                 evidence: vec![Evidence {
@@ -310,9 +310,9 @@ impl TraitMapper {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: "privilege/escalate".to_string(),
-                description: "Privileged instructions detected".to_string(),
-                confidence: 0.7,
-                criticality: Criticality::Inert,
+                desc: "Privileged instructions detected".to_string(),
+                conf: 0.7,
+                crit: Criticality::Inert,
                 mbc: None,
                 attack: None,
                 evidence: vec![Evidence {
@@ -342,9 +342,9 @@ impl TraitMapper {
                             kind: FindingKind::Capability,
                             trait_refs: vec![],
                             id: "net/c2/address".to_string(),
-                            description: format!("Embedded C2 address: {}", decoded.decoded_value),
-                            confidence: decoded.confidence,
-                            criticality: Criticality::Inert,
+                            desc: format!("Embedded C2 address: {}", decoded.decoded_value),
+                            conf: decoded.conf,
+                            crit: Criticality::Inert,
                             mbc: None,
                             attack: None,
                             evidence: vec![Evidence {
@@ -360,9 +360,9 @@ impl TraitMapper {
                             kind: FindingKind::Capability,
                             trait_refs: vec![],
                             id: "net/socket/listen".to_string(),
-                            description: format!("Embedded port number: {}", decoded.decoded_value),
-                            confidence: decoded.confidence * 0.7, // Lower confidence for ports alone
-                            criticality: Criticality::Notable,
+                            desc: format!("Embedded port number: {}", decoded.decoded_value),
+                            conf: decoded.conf * 0.7, // Lower confidence for ports alone
+                            crit: Criticality::Notable,
                             mbc: None,
                             attack: None,
                             evidence: vec![Evidence {
@@ -391,9 +391,9 @@ impl TraitMapper {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: "binary/security/none".to_string(),
-                description: "No security hardening features present".to_string(),
-                confidence: 1.0,
-                criticality: Criticality::Inert,
+                desc: "No security hardening features present".to_string(),
+                conf: 1.0,
+                crit: Criticality::Inert,
                 mbc: None,
                 attack: None,
                 evidence: vec![Evidence {
@@ -411,9 +411,9 @@ impl TraitMapper {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: "anti-analysis/stripped".to_string(),
-                description: "Binary symbols stripped".to_string(),
-                confidence: 1.0,
-                criticality: Criticality::Inert,
+                desc: "Binary symbols stripped".to_string(),
+                conf: 1.0,
+                crit: Criticality::Inert,
                 mbc: None,
                 attack: None,
                 evidence: vec![Evidence {
@@ -431,9 +431,9 @@ impl TraitMapper {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: "binary/linking/static".to_string(),
-                description: "Statically linked binary".to_string(),
-                confidence: 1.0,
-                criticality: Criticality::Inert,
+                desc: "Statically linked binary".to_string(),
+                conf: 1.0,
+                crit: Criticality::Inert,
                 mbc: None,
                 attack: None,
                 evidence: vec![Evidence {
@@ -458,9 +458,9 @@ impl TraitMapper {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: capability_id.to_string(),
-                description: anomaly.description.clone(),
-                confidence: 0.8,
-                criticality: Criticality::Inert,
+                desc: anomaly.desc.clone(),
+                conf: 0.8,
+                crit: Criticality::Inert,
                 mbc: None,
                 attack: None,
                 evidence: vec![Evidence {
@@ -549,7 +549,7 @@ mod tests {
             caps.iter()
                 .find(|c| c.id == "anti-analysis/obfuscation/control-flow")
                 .unwrap()
-                .confidence,
+                .conf,
             0.6
         );
     }
@@ -606,7 +606,7 @@ mod tests {
             .iter()
             .find(|c| c.id == "anti-analysis/anti-debug/debugger-detect")
             .unwrap();
-        assert_eq!(cap.confidence, 0.9);
+        assert_eq!(cap.conf, 0.9);
     }
 
     #[test]
@@ -640,7 +640,7 @@ mod tests {
             .iter()
             .find(|c| c.id == "anti-analysis/anti-debug/breakpoint")
             .unwrap();
-        assert_eq!(cap.confidence, 0.8);
+        assert_eq!(cap.conf, 0.8);
     }
 
     #[test]
@@ -674,7 +674,7 @@ mod tests {
             caps.iter()
                 .find(|c| c.id == "anti-analysis/anti-debug/timing")
                 .unwrap()
-                .confidence,
+                .conf,
             0.8
         );
     }
@@ -710,7 +710,7 @@ mod tests {
             caps.iter()
                 .find(|c| c.id == "anti-analysis/anti-vm/cpu-detect")
                 .unwrap()
-                .confidence,
+                .conf,
             0.7
         );
     }
@@ -744,7 +744,7 @@ mod tests {
             caps.iter()
                 .find(|c| c.id == "crypto/xor")
                 .unwrap()
-                .confidence,
+                .conf,
             0.6
         );
     }
@@ -778,7 +778,7 @@ mod tests {
             caps.iter()
                 .find(|c| c.id == "crypto/encrypt")
                 .unwrap()
-                .confidence,
+                .conf,
             0.9
         );
     }
@@ -812,7 +812,7 @@ mod tests {
             caps.iter()
                 .find(|c| c.id == "os/syscall")
                 .unwrap()
-                .confidence,
+                .conf,
             0.8
         );
     }
@@ -846,7 +846,7 @@ mod tests {
             caps.iter()
                 .find(|c| c.id == "privilege/escalate")
                 .unwrap()
-                .confidence,
+                .conf,
             0.7
         );
     }
@@ -859,7 +859,7 @@ mod tests {
             decoded: vec![DecodedValue {
                 value_type: "ip_address".to_string(),
                 decoded_value: "192.168.1.1".to_string(),
-                confidence: 0.7,
+                conf: 0.7,
             }],
         }];
 
@@ -868,8 +868,8 @@ mod tests {
         // Should detect C2 address
         assert_eq!(caps.len(), 1);
         assert_eq!(caps[0].id, "net/c2/address");
-        assert!(caps[0].description.contains("192.168.1.1"));
-        assert_eq!(caps[0].confidence, 0.7);
+        assert!(caps[0].desc.contains("192.168.1.1"));
+        assert_eq!(caps[0].conf, 0.7);
     }
 
     #[test]
@@ -880,7 +880,7 @@ mod tests {
             decoded: vec![DecodedValue {
                 value_type: "port".to_string(),
                 decoded_value: "443".to_string(),
-                confidence: 0.8,
+                conf: 0.8,
             }],
         }];
 
@@ -889,9 +889,9 @@ mod tests {
         // Should detect port
         assert_eq!(caps.len(), 1);
         assert_eq!(caps[0].id, "net/socket/listen");
-        assert!(caps[0].description.contains("443"));
-        assert_eq!(caps[0].confidence, 0.8 * 0.7); // Port confidence is reduced
-        assert_eq!(caps[0].criticality, Criticality::Notable);
+        assert!(caps[0].desc.contains("443"));
+        assert_eq!(caps[0].conf, 0.8 * 0.7); // Port confidence is reduced
+        assert_eq!(caps[0].crit, Criticality::Notable);
     }
 
     #[test]
@@ -922,7 +922,7 @@ mod tests {
             caps.iter()
                 .find(|c| c.id == "binary/security/none")
                 .unwrap()
-                .confidence,
+                .conf,
             1.0
         );
     }
@@ -955,7 +955,7 @@ mod tests {
             caps.iter()
                 .find(|c| c.id == "anti-analysis/stripped")
                 .unwrap()
-                .confidence,
+                .conf,
             1.0
         );
     }
@@ -1005,7 +1005,7 @@ mod tests {
             },
             anomalies: vec![BinaryAnomaly {
                 anomaly_type: "overlapping_functions".to_string(),
-                description: "Functions overlap in memory".to_string(),
+                desc: "Functions overlap in memory".to_string(),
                 severity: "medium".to_string(),
             }],
         };
@@ -1020,7 +1020,7 @@ mod tests {
             caps.iter()
                 .find(|c| c.id == "anti-analysis/format/overlapping")
                 .unwrap()
-                .confidence,
+                .conf,
             0.8
         );
     }
@@ -1089,7 +1089,7 @@ mod tests {
             decoded: vec![DecodedValue {
                 value_type: "ip_address".to_string(),
                 decoded_value: "8.8.8.8".to_string(),
-                confidence: 0.8,
+                conf: 0.8,
             }],
         }];
 

@@ -3,80 +3,80 @@
 # ATT&CK: T1059.003 (Windows Command Shell)
 
 defaults:
-  file_types: [python, shell, php, javascript]
+  for: [python, shell, php, javascript]
   attack: "T1059.003"
   mbc: "E1059"
 
 traits:
   # Windows 'start' command for background execution
   - id: start-command
-    description: "Windows 'start' command for background process"
-    criticality: suspicious
-    confidence: 0.85
-    condition:
+    desc: "Windows 'start' command for background process"
+    crit: suspicious
+    conf: 0.85
+    if:
       type: string
       regex: "\\bstart\\s+['\"]?\\{?\\$?\\w*executable"
 
   # Start with /b flag (no window)
   - id: start-hidden
-    description: "Windows 'start /b' hidden background process"
-    criticality: suspicious
-    confidence: 0.9
-    condition:
+    desc: "Windows 'start /b' hidden background process"
+    crit: suspicious
+    conf: 0.9
+    if:
       type: string
       regex: "\\bstart\\s+/[bB]\\s"
 
   # Start with /min flag (minimized)
   - id: start-minimized
-    description: "Windows 'start /min' minimized process"
-    criticality: notable
-    confidence: 0.8
-    condition:
+    desc: "Windows 'start /min' minimized process"
+    crit: notable
+    conf: 0.8
+    if:
       type: string
       regex: "\\bstart\\s+/min\\s"
 
   # PowerShell hidden window
   - id: powershell-hidden
-    description: "PowerShell hidden window execution"
-    criticality: suspicious
-    confidence: 0.9
-    condition:
+    desc: "PowerShell hidden window execution"
+    crit: suspicious
+    conf: 0.9
+    if:
       type: string
       regex: "powershell.*-[Ww](indow)?[Ss](tyle)?\\s*[Hh]idden"
 
   # cmd.exe /c with start
   - id: cmd-start
-    description: "cmd.exe /c with background start"
-    criticality: suspicious
-    confidence: 0.85
-    condition:
+    desc: "cmd.exe /c with background start"
+    crit: suspicious
+    conf: 0.85
+    if:
       type: string
       regex: "cmd(\\.exe)?\\s*/[cC]\\s+start"
 
   # Windows start command pattern (case insensitive)
   - id: win-start-pattern
-    description: "Windows start command pattern"
-    criticality: notable
-    confidence: 0.7
-    condition:
+    desc: "Windows start command pattern"
+    crit: notable
+    conf: 0.7
+    if:
       type: string
       iregex: "start\\s+"
 
   # pip install command pattern
   - id: pip-install-pattern
-    description: "pip install command pattern"
-    criticality: notable
-    confidence: 0.7
-    condition:
+    desc: "pip install command pattern"
+    crit: notable
+    conf: 0.7
+    if:
       type: string
       iregex: "pip\\s+install"
 
 composite_rules:
   # Background pip install on Windows (common malware pattern)
   - id: hidden-pip-install
-    description: "Background pip install via Windows start command"
-    criticality: suspicious
-    confidence: 0.95
+    desc: "Background pip install via Windows start command"
+    crit: suspicious
+    conf: 0.95
     requires_all:
       - id: win-start-pattern
       - id: pip-install-pattern

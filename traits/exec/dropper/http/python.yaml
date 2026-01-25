@@ -3,264 +3,264 @@
 # ATT&CK: T1105 (Ingress Tool Transfer)
 
 defaults:
-  file_types: [python]
+  for: [python]
   mbc: "B0024"
   attack: "T1105"
-  criticality: suspicious
+  crit: suspicious
 
 traits:
   # === HTTP library atomic indicators ===
   - id: requests-get
-    description: requests.get call
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: requests.get call
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "requests.get"
 
   - id: requests-post
-    description: requests.post call
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: requests.post call
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "requests.post"
 
   - id: urllib-request
-    description: urllib.request module
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: urllib.request module
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "urllib.request"
 
   - id: http-client
-    description: http.client module
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: http.client module
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "http.client"
 
   - id: urlopen-call
-    description: urlopen call
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: urlopen call
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: "urlopen\\("
 
   - id: urlretrieve-call
-    description: urlretrieve call
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: urlretrieve call
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: "urlretrieve\\("
 
   # === Directory atomic indicators ===
   - id: tmp-path
-    description: /tmp/ path literal
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: /tmp/ path literal
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       exact: '"/tmp/'
 
   - id: tempfile-module
-    description: tempfile module
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: tempfile module
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       regex: "tempfile\\."
 
   - id: expanduser-home
-    description: os.path.expanduser with ~
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: os.path.expanduser with ~
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       regex: 'os\\.path\\.expanduser\\([^)]*~'
 
   - id: path-home-call
-    description: Path.home() call
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: Path.home() call
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       exact: "Path.home()"
 
   - id: environ-home
-    description: os.environ HOME access
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: os.environ HOME access
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       regex: 'os\\.environ.*HOME'
 
   # File operations
   - id: python-chmod
-    description: "File permission change"
-    criticality: notable
-    confidence: 0.5
-    condition:
+    desc: "File permission change"
+    crit: notable
+    conf: 0.5
+    if:
       type: string
       regex: "os\\.chmod\\("
 
   - id: python-write-binary
-    description: "Binary file write"
-    criticality: notable
-    confidence: 0.5
-    condition:
+    desc: "Binary file write"
+    crit: notable
+    conf: 0.5
+    if:
       type: string
       regex: "open\\([^)]+['\"]wb['\"]\\)|write_bytes\\("
 
   - id: python-write-content
-    description: "Write downloaded content to file"
-    criticality: notable
-    confidence: 0.6
-    condition:
+    desc: "Write downloaded content to file"
+    crit: notable
+    conf: 0.6
+    if:
       type: string
       regex: "\\.write\\([^)]*\\.content\\)|write_bytes\\("
 
   # === Subprocess atomic indicators ===
   - id: subprocess-popen
-    description: subprocess.Popen call
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: subprocess.Popen call
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: "subprocess\\.Popen\\("
 
   - id: subprocess-run
-    description: subprocess.run call
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: subprocess.run call
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: "subprocess\\.run\\("
 
   - id: subprocess-call
-    description: subprocess.call call
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: subprocess.call call
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: "subprocess\\.call\\("
 
   - id: os-system-call
-    description: os.system call
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: os.system call
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: "os\\.system\\("
 
   - id: exec-call
-    description: exec() call
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: exec() call
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: "exec\\("
 
   # === C2 endpoint path atomic indicators ===
   - id: path-payload
-    description: /payload/ endpoint path
-    criticality: inert
-    confidence: 0.6
+    desc: /payload/ endpoint path
+    crit: inert
+    conf: 0.6
     attack: "T1105"
-    condition:
+    if:
       type: string
       exact: "/payload/"
       search_raw: true
 
   - id: path-stage
-    description: /stage/ endpoint path
-    criticality: inert
-    confidence: 0.6
+    desc: /stage/ endpoint path
+    crit: inert
+    conf: 0.6
     attack: "T1105"
-    condition:
+    if:
       type: string
       exact: "/stage/"
       search_raw: true
 
   - id: path-drop
-    description: /drop/ endpoint path
-    criticality: inert
-    confidence: 0.6
+    desc: /drop/ endpoint path
+    crit: inert
+    conf: 0.6
     attack: "T1105"
-    condition:
+    if:
       type: string
       exact: "/drop/"
       search_raw: true
 
   - id: path-brow
-    description: /brow/ endpoint path
-    criticality: inert
-    confidence: 0.6
+    desc: /brow/ endpoint path
+    crit: inert
+    conf: 0.6
     attack: "T1105"
-    condition:
+    if:
       type: string
       exact: "/brow/"
       search_raw: true
 
   - id: path-mclip
-    description: /mclip/ endpoint path
-    criticality: inert
-    confidence: 0.6
+    desc: /mclip/ endpoint path
+    crit: inert
+    conf: 0.6
     attack: "T1105"
-    condition:
+    if:
       type: string
       exact: "/mclip/"
       search_raw: true
 
   - id: path-clip
-    description: /clip/ endpoint path
-    criticality: inert
-    confidence: 0.6
+    desc: /clip/ endpoint path
+    crit: inert
+    conf: 0.6
     attack: "T1105"
-    condition:
+    if:
       type: string
       exact: "/clip/"
       search_raw: true
 
   - id: path-steal
-    description: /steal/ endpoint path
-    criticality: inert
-    confidence: 0.6
+    desc: /steal/ endpoint path
+    crit: inert
+    conf: 0.6
     attack: "T1105"
-    condition:
+    if:
       type: string
       exact: "/steal/"
       search_raw: true
 
   - id: path-grab
-    description: /grab/ endpoint path
-    criticality: inert
-    confidence: 0.6
+    desc: /grab/ endpoint path
+    crit: inert
+    conf: 0.6
     attack: "T1105"
-    condition:
+    if:
       type: string
       exact: "/grab/"
       search_raw: true
 
   - id: path-exfil
-    description: /exfil/ endpoint path
-    criticality: inert
-    confidence: 0.6
+    desc: /exfil/ endpoint path
+    crit: inert
+    conf: 0.6
     attack: "T1105"
-    condition:
+    if:
       type: string
       exact: "/exfil/"
       search_raw: true
 
   - id: python-staged-yara
-    description: "Staged payload dropper via YARA"
-    confidence: 0.9
-    criticality: suspicious
-    condition:
+    desc: "Staged payload dropper via YARA"
+    conf: 0.9
+    crit: suspicious
+    if:
       type: yara
       source: |
         rule staged_dropper {
@@ -281,11 +281,11 @@ traits:
 composite_rules:
   # HTTP library composite
   - id: python-http-lib
-    description: Python HTTP library usage
-    criticality: notable
-    confidence: 0.6
+    desc: Python HTTP library usage
+    crit: notable
+    conf: 0.6
     requires_count: 1
-    conditions:
+    any:
       - id: requests-get
       - id: requests-post
       - id: urllib-request
@@ -293,11 +293,11 @@ composite_rules:
 
   # HTTP download call composite
   - id: python-http-download-call
-    description: Python HTTP download function call
-    criticality: notable
-    confidence: 0.6
+    desc: Python HTTP download function call
+    crit: notable
+    conf: 0.6
     requires_count: 1
-    conditions:
+    any:
       - id: requests-get
       - id: requests-post
       - id: urlopen-call
@@ -305,43 +305,43 @@ composite_rules:
 
   # Temp directory composite
   - id: python-tmp-dir
-    description: Temporary directory access
-    criticality: notable
-    confidence: 0.5
+    desc: Temporary directory access
+    crit: notable
+    conf: 0.5
     requires_count: 1
-    conditions:
+    any:
       - id: tmp-path
       - id: tempfile-module
 
   # Home directory composite
   - id: python-home-dir
-    description: Home directory access
-    criticality: notable
-    confidence: 0.5
+    desc: Home directory access
+    crit: notable
+    conf: 0.5
     requires_count: 1
-    conditions:
+    any:
       - id: expanduser-home
       - id: path-home-call
       - id: environ-home
 
   # Subprocess execution composite
   - id: python-subprocess-exec
-    description: Subprocess execution
-    criticality: notable
-    confidence: 0.5
+    desc: Subprocess execution
+    crit: notable
+    conf: 0.5
     requires_count: 1
-    conditions:
+    any:
       - id: subprocess-popen
       - id: subprocess-run
       - id: subprocess-call
 
   # Code or process execution composite
   - id: python-exec-any
-    description: Code or process execution
-    criticality: notable
-    confidence: 0.5
+    desc: Code or process execution
+    crit: notable
+    conf: 0.5
     requires_count: 1
-    conditions:
+    any:
       - id: subprocess-popen
       - id: subprocess-run
       - id: subprocess-call
@@ -350,12 +350,12 @@ composite_rules:
 
   # C2 endpoint path composite
   - id: python-endpoint-path
-    description: Suspicious C2 endpoint paths
-    criticality: suspicious
-    confidence: 0.85
+    desc: Suspicious C2 endpoint paths
+    crit: suspicious
+    conf: 0.85
     attack: "T1105"
     requires_count: 1
-    conditions:
+    any:
       - id: path-payload
       - id: path-stage
       - id: path-drop
@@ -368,10 +368,10 @@ composite_rules:
 
   # Original rule - tmp directory dropper
   - id: tmp-dropper
-    description: "HTTP download to temp and execute"
-    confidence: 0.9
+    desc: "HTTP download to temp and execute"
+    conf: 0.9
     requires_count: 3
-    conditions:
+    any:
       - id: python-http-lib
       - id: python-tmp-dir
       - id: python-chmod
@@ -379,11 +379,11 @@ composite_rules:
 
   # Home directory dropper - downloads to hidden dir in home
   - id: home-dropper
-    description: "HTTP download to home directory and execute"
-    confidence: 0.95
-    criticality: suspicious
+    desc: "HTTP download to home directory and execute"
+    conf: 0.95
+    crit: suspicious
     requires_count: 3
-    conditions:
+    any:
       - id: python-http-download-call
       - id: python-home-dir
       - id: python-write-binary
@@ -391,8 +391,8 @@ composite_rules:
 
   # Generic download + write + execute (any location)
   - id: generic-dropper
-    description: "Download, write, and execute pattern"
-    confidence: 0.9
+    desc: "Download, write, and execute pattern"
+    conf: 0.9
     requires_all:
       - id: python-http-lib
       - id: python-write-content
@@ -400,8 +400,8 @@ composite_rules:
 
   # Staged dropper - download function called multiple times
   - id: staged-dropper
-    description: "Staged payload dropper"
-    confidence: 0.9
-    criticality: suspicious
+    desc: "Staged payload dropper"
+    conf: 0.9
+    crit: suspicious
     requires_all:
       - id: python-staged-yara

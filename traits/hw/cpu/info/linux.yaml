@@ -4,10 +4,10 @@
 traits:
   - id: sys-devices
     description: Access CPU info via /sys/devices
-    criticality: notable
-    confidence: 0.7
+    crit: notable
+    conf: 0.7
     attack: "T1082"
     platforms: [linux]
-    condition:
+    if:
       type: string
       exact: "/sys/devices/system/cpu"

@@ -11,12 +11,12 @@ rule JS_PDF_Data_Submission
         samples        = "a0adbe66e11bdeaf880b81b41cd63964084084a413069389364c98da0c4d2a13"
 
 	strings:
-			
+
         $pdf_header = "%PDF-"
         $js = /(\/JS|\/JavaScript)/ nocase
         $a1 = /app\s*\.\s*doc\s*\.\s*submitForm\s*\(\s*['"]http/ nocase
         $inq_tail = "INQUEST-PP=pdfparser"
-	condition:		
+	if:
         ($pdf_header in (0..1024) or $inq_tail in (filesize-30..filesize))
             and
         $js and $a1

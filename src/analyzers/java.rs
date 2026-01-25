@@ -60,7 +60,7 @@ impl JavaAnalyzer {
         // Add structural feature
         report.structure.push(StructuralFeature {
             id: "source/language/java".to_string(),
-            description: "Java source code".to_string(),
+            desc: "Java source code".to_string(),
             evidence: vec![Evidence {
                 method: "parser".to_string(),
                 source: "tree-sitter-java".to_string(),
@@ -441,9 +441,9 @@ impl JavaAnalyzer {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: cap_id.to_string(),
-                    description: desc.to_string(),
-                    confidence: conf,
-                    criticality,
+                    desc: desc.to_string(),
+                    conf: conf,
+                    crit: criticality,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {
@@ -516,9 +516,9 @@ impl JavaAnalyzer {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: cap_id.to_string(),
-                    description: desc.to_string(),
-                    confidence: conf,
-                    criticality,
+                    desc: desc.to_string(),
+                    conf: conf,
+                    crit: criticality,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {
@@ -578,9 +578,9 @@ impl JavaAnalyzer {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: cap_id.to_string(),
-                    description: desc.to_string(),
-                    confidence: conf,
-                    criticality,
+                    desc: desc.to_string(),
+                    conf: conf,
+                    crit: criticality,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {
@@ -630,9 +630,9 @@ impl JavaAnalyzer {
                             kind: FindingKind::Capability,
                             trait_refs: vec![],
                             id: "jni/native-method".to_string(),
-                            description: format!("Native method: {}", name),
-                            confidence: 0.95,
-                            criticality: Criticality::Notable,
+                            desc: format!("Native method: {}", name),
+                            conf: 0.95,
+                            crit: Criticality::Notable,
 
                             mbc: None,
 
@@ -775,7 +775,7 @@ public class Exec {
             .findings
             .iter()
             .filter(|c| c.id == "exec/command/shell")
-            .any(|c| c.confidence >= 0.9));
+            .any(|c| c.conf >= 0.9));
     }
 
     #[test]

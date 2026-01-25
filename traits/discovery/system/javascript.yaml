@@ -3,12 +3,12 @@
 
 traits:
   - id: js-profiling
-    description: Aggregates system info for profiling
-    criticality: suspicious
-    confidence: 0.95
+    desc: Aggregates system info for profiling
+    crit: suspicious
+    conf: 0.95
     attack: "T1082"
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: yara
       source: |
         rule js_profiling {
@@ -22,13 +22,13 @@ traits:
 
 composite_rules:
   - id: js-profiling-exfil
-    description: JavaScript system profiling with exfiltration
-    criticality: hostile
-    confidence: 0.98
+    desc: JavaScript system profiling with exfiltration
+    crit: hostile
+    conf: 0.98
     mbc: "E1082"
     attack: "T1020"
-    file_types: [javascript]
-    requires_all:
+    for: [javascript]
+    all:
       - id: js-profiling
       - id: comm/http/request/js-axios-post
       - id: fs/file/read

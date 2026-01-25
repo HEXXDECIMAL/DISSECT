@@ -3,7 +3,7 @@
 # These are particularly useful for dissect diff comparisons
 
 defaults:
-  file_types: [elf, pe, macho]
+  for: [elf, pe, macho]
   attack: "T1195.002"
   mbc: "B0025"
 
@@ -11,10 +11,10 @@ traits:
   # === Unexpected Functionality in Libraries ===
 
   - id: unexpected-socket-ops
-    description: "Socket operations in non-network library"
-    criticality: notable
-    confidence: 0.6
-    condition:
+    desc: "Socket operations in non-network library"
+    crit: notable
+    conf: 0.6
+    if:
       type: yara
       source: |
         rule unexpected_socket {
@@ -43,10 +43,10 @@ traits:
         }
 
   - id: unexpected-process-ops
-    description: "Process operations in utility library"
-    criticality: suspicious
-    confidence: 0.75
-    condition:
+    desc: "Process operations in utility library"
+    crit: suspicious
+    conf: 0.75
+    if:
       type: yara
       source: |
         rule unexpected_process {
@@ -62,10 +62,10 @@ traits:
         }
 
   - id: unexpected-crypto
-    description: "Cryptographic operations in non-crypto library"
-    criticality: suspicious
-    confidence: 0.75
-    condition:
+    desc: "Cryptographic operations in non-crypto library"
+    crit: suspicious
+    conf: 0.75
+    if:
       type: yara
       source: |
         rule unexpected_crypto {
@@ -83,10 +83,10 @@ traits:
         }
 
   - id: unexpected-env-access
-    description: "Environment variable access patterns"
-    criticality: notable
-    confidence: 0.65
-    condition:
+    desc: "Environment variable access patterns"
+    crit: notable
+    conf: 0.65
+    if:
       type: yara
       source: |
         rule env_access_pattern {
@@ -106,11 +106,11 @@ traits:
   # === Memory/Code Manipulation ===
 
   - id: memory-protection-change
-    description: "Memory protection modification (self-modifying code)"
-    criticality: suspicious
-    confidence: 0.8
+    desc: "Memory protection modification (self-modifying code)"
+    crit: suspicious
+    conf: 0.8
     attack: "T1055"
-    condition:
+    if:
       type: yara
       source: |
         rule mem_protect_change {
@@ -124,10 +124,10 @@ traits:
         }
 
   - id: jit-pattern
-    description: "JIT-like code generation pattern"
-    criticality: notable
-    confidence: 0.7
-    condition:
+    desc: "JIT-like code generation pattern"
+    crit: notable
+    conf: 0.7
+    if:
       type: yara
       source: |
         rule jit_pattern {
@@ -146,10 +146,10 @@ traits:
   # === Obfuscation Indicators ===
 
   - id: data-obfuscation
-    description: "Large obfuscated data blob"
-    criticality: suspicious
-    confidence: 0.7
-    condition:
+    desc: "Large obfuscated data blob"
+    crit: suspicious
+    conf: 0.7
+    if:
       type: metrics
       field: binary.high_entropy_strings
       min: 20
@@ -157,10 +157,10 @@ traits:
   # === Suspicious Library Patterns ===
 
   - id: constructor-destructor
-    description: "ELF constructor/destructor functions"
-    criticality: notable
-    confidence: 0.5
-    condition:
+    desc: "ELF constructor/destructor functions"
+    crit: notable
+    conf: 0.5
+    if:
       type: yara
       source: |
         rule elf_ctors_dtors {
@@ -176,10 +176,10 @@ traits:
         }
 
   - id: symbol-interposition
-    description: "Symbol interposition/override pattern"
-    criticality: suspicious
-    confidence: 0.7
-    condition:
+    desc: "Symbol interposition/override pattern"
+    crit: suspicious
+    conf: 0.7
+    if:
       type: yara
       source: |
         rule symbol_interpose {
@@ -195,25 +195,25 @@ traits:
   # === Massive Code Injection Indicators ===
 
   - id: massive-code-blob
-    file_types: [elf, pe, macho]
+    for: [elf, pe, macho]
     attack: "T1195.002"
     mbc: "B0025"
-    description: "Extremely large average function size (massive code injection)"
-    criticality: suspicious
-    confidence: 0.85
-    condition:
+    desc: "Extremely large average function size (massive code injection)"
+    crit: suspicious
+    conf: 0.85
+    if:
       type: metrics
       field: binary.avg_function_size
       min: 10000
 
   - id: many-huge-functions
-    description: "Many huge functions (>64KB) - potential XZ-style injection"
-    criticality: suspicious
-    confidence: 0.9
-    file_types: [elf, pe, macho]
+    desc: "Many huge functions (>64KB) - potential XZ-style injection"
+    crit: suspicious
+    conf: 0.9
+    for: [elf, pe, macho]
     attack: "T1195.002"
     mbc: "B0025"
-    condition:
+    if:
       type: metrics
       field: binary.huge_functions
       min: 4
@@ -221,13 +221,13 @@ traits:
   # === XZ Utils Backdoor Specific Patterns ===
 
   - id: xz-backdoor-signature
-    description: "XZ Utils backdoor signature (CVE-2024-3094)"
-    criticality: suspicious
-    confidence: 0.99
-    file_types: [elf]
+    desc: "XZ Utils backdoor signature (CVE-2024-3094)"
+    crit: suspicious
+    conf: 0.99
+    for: [elf]
     attack: "T1195.002"
     mbc: "B0025"
-    condition:
+    if:
       type: yara
       source: |
         rule xz_backdoor_cve_2024_3094 {
@@ -250,13 +250,13 @@ traits:
         }
 
   - id: xz-ifunc-pattern
-    description: "IFUNC resolver pattern (potential function hooking)"
-    criticality: suspicious
-    confidence: 0.8
-    file_types: [elf]
+    desc: "IFUNC resolver pattern (potential function hooking)"
+    crit: suspicious
+    conf: 0.8
+    for: [elf]
     attack: "T1195.002"
     mbc: "B0025"
-    condition:
+    if:
       type: yara
       source: |
         rule ifunc_resolver_pattern {
@@ -275,13 +275,13 @@ traits:
         }
 
   - id: rsa-in-compression-lib
-    description: "RSA operations in non-crypto library (backdoor indicator)"
-    criticality: suspicious
-    confidence: 0.9
-    file_types: [elf, pe, macho]
+    desc: "RSA operations in non-crypto library (backdoor indicator)"
+    crit: suspicious
+    conf: 0.9
+    for: [elf, pe, macho]
     attack: "T1195.002"
     mbc: "B0025"
-    condition:
+    if:
       type: yara
       source: |
         rule rsa_in_compression {
@@ -302,13 +302,13 @@ traits:
   # === SSH/Auth Library Hooking ===
 
   - id: ssh-hook-pattern
-    description: "SSH authentication hooking pattern"
-    criticality: suspicious
-    confidence: 0.85
-    file_types: [elf, pe, macho]
+    desc: "SSH authentication hooking pattern"
+    crit: suspicious
+    conf: 0.85
+    for: [elf, pe, macho]
     attack: "T1195.002"
     mbc: "B0025"
-    condition:
+    if:
       type: yara
       source: |
         rule ssh_auth_hook {
@@ -326,12 +326,12 @@ traits:
   # === Hidden Code Patterns ===
 
   - id: cpuid-fingerprinting
-    description: "CPUID fingerprinting in library (potential anti-analysis)"
-    criticality: notable
-    confidence: 0.75
-    file_types: [elf]
+    desc: "CPUID fingerprinting in library (potential anti-analysis)"
+    crit: notable
+    conf: 0.75
+    for: [elf]
     attack: "T1082"
-    condition:
+    if:
       type: yara
       source: |
         rule cpuid_in_lib {
@@ -344,13 +344,13 @@ traits:
         }
 
   - id: glibc-hijack
-    description: "glibc function hijacking patterns"
-    criticality: suspicious
-    confidence: 0.7
-    file_types: [elf]
+    desc: "glibc function hijacking patterns"
+    crit: suspicious
+    conf: 0.7
+    for: [elf]
     attack: "T1195.002"
     mbc: "B0025"
-    condition:
+    if:
       type: yara
       source: |
         rule glibc_hijack {
@@ -374,79 +374,79 @@ composite_rules:
   # === Unexpected Capability Combination ===
 
   - id: unexpected-capabilities
-    description: "Unexpected capability combination in library"
-    criticality: suspicious
-    confidence: 0.8
-    file_types: [elf, pe, macho]
+    desc: "Unexpected capability combination in library"
+    crit: suspicious
+    conf: 0.8
+    for: [elf, pe, macho]
     attack: "T1195.002"
     mbc: "B0025"
-    requires_count: 2
-    conditions:
+    count: 2
+    any:
       - id: unexpected-socket-ops
       - id: unexpected-process-ops
       - id: unexpected-crypto
 
   - id: injected-code-pattern
-    description: "Injected code pattern in library"
-    criticality: hostile
-    confidence: 0.85
-    file_types: [elf, pe, macho]
+    desc: "Injected code pattern in library"
+    crit: hostile
+    conf: 0.85
+    for: [elf, pe, macho]
     attack: "T1195.002"
     mbc: "B0025"
-    requires_all:
+    all:
       - id: data-obfuscation
-    requires_any:
+    any:
       - id: unexpected-crypto
       - id: unexpected-socket-ops
 
   # === XZ-style Backdoor Detection ===
 
   - id: xz-style-attack
-    description: "XZ-style supply chain backdoor pattern"
-    criticality: hostile
-    confidence: 0.9
-    file_types: [elf, pe, macho]
+    desc: "XZ-style supply chain backdoor pattern"
+    crit: hostile
+    conf: 0.9
+    for: [elf, pe, macho]
     attack: "T1195.002"
     mbc: "B0025"
-    requires_count: 2
-    conditions:
+    count: 2
+    any:
       - id: many-huge-functions
       - id: cpuid-fingerprinting
       - id: xz-ifunc-pattern
 
   - id: potential-code-injection
-    description: "Potential code injection indicators"
-    criticality: suspicious
-    confidence: 0.8
-    file_types: [elf, pe, macho]
+    desc: "Potential code injection indicators"
+    crit: suspicious
+    conf: 0.8
+    for: [elf, pe, macho]
     attack: "T1195.002"
     mbc: "B0025"
-    requires_all:
+    all:
       - id: massive-code-blob
-    requires_any:
+    any:
       - id: many-huge-functions
       - id: glibc-hijack
 
   - id: auth-bypass-indicator
-    description: "Authentication bypass backdoor indicator"
-    criticality: suspicious
-    confidence: 0.95
-    file_types: [elf, pe, macho]
+    desc: "Authentication bypass backdoor indicator"
+    crit: suspicious
+    conf: 0.95
+    for: [elf, pe, macho]
     attack: "T1195.002"
     mbc: "B0025"
-    requires_any:
+    any:
       - id: ssh-hook-pattern
       - id: rsa-in-compression-lib
 
   - id: function-hooking-behavior
-    description: "Dynamic function hooking patterns"
-    criticality: suspicious
-    confidence: 0.8
-    file_types: [elf, pe, macho]
+    desc: "Dynamic function hooking patterns"
+    crit: suspicious
+    conf: 0.8
+    for: [elf, pe, macho]
     attack: "T1195.002"
     mbc: "B0025"
-    requires_count: 2
-    conditions:
+    count: 2
+    any:
       - id: xz-ifunc-pattern
       - id: glibc-hijack
       - id: cpuid-fingerprinting

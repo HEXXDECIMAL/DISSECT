@@ -23,6 +23,6 @@ rule apt29_dll_may2022 :  SVR G0016 apt29 NOBELIUM UNC2452 Russia
             $b2 = "RcvResolution" ascii wide nocase
             $b3 = "AdobeAcroSup" ascii wide nocase
             $b4 = "AcroSup" ascii wide nocase
-	condition:
+	if:
 		uint16(0) == 0x5a4d and ((filesize < 800KB) and all of ($a*) and any of ($b*))
 }

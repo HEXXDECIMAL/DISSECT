@@ -69,7 +69,7 @@ impl RustAnalyzer {
         // Add structural feature
         report.structure.push(StructuralFeature {
             id: "source/language/rust".to_string(),
-            description: "Rust source code".to_string(),
+            desc: "Rust source code".to_string(),
             evidence: vec![Evidence {
                 method: "parser".to_string(),
                 source: "tree-sitter-rust".to_string(),
@@ -441,9 +441,9 @@ impl RustAnalyzer {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: cap_id.to_string(),
-                    description: desc.to_string(),
-                    confidence: conf,
-                    criticality,
+                    desc: desc.to_string(),
+                    conf: conf,
+                    crit: criticality,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {
@@ -481,9 +481,9 @@ impl RustAnalyzer {
             kind: FindingKind::Capability,
             trait_refs: vec![],
             id: "unsafe/block".to_string(),
-            description: "Unsafe code block".to_string(),
-            confidence: 1.0,
-            criticality: Criticality::Notable,
+            desc: "Unsafe code block".to_string(),
+            conf: 1.0,
+            crit: Criticality::Notable,
             mbc: None,
             attack: None,
             evidence: vec![Evidence {

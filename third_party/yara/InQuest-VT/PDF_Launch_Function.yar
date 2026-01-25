@@ -11,12 +11,12 @@ rule PDF_Launch_Function
         samples        = "c2f2d1de6bf973b849725f1069c649ce594a907c1481566c0411faba40943ee5"
 
 	strings:
-			
+
 		$pdf_header = "%PDF-"
 		$launch = "/Launch" nocase
 
-	condition:
-			
+	if:
+
 		$pdf_header in (0..1024) and $launch
 
 }

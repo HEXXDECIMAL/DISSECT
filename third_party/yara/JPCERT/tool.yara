@@ -17,6 +17,6 @@ rule tool_frp_str {
         $str10 = "json:\"health_check_interval_s\""
         $str11 = "json:\"token_type,omitempty\""
 
-    condition:
+    if:
         6 of ($str*)
 }

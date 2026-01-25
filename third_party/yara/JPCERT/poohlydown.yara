@@ -8,6 +8,6 @@ rule malware_PoohlyDown_Loader {
     $c1 = { 8B ?? ?? 98 00 00 00 03 ?? 8B ?? 8B ?? ?? FC 2B ?? 03 ?? 83 ?? 04 }
     $c2 = { 6A 40 FF 75 ?? 8D 45 ?? 50 E8 }
 
-  condition:
+  if:
     uint16(0) == 0x5A4D and all of them
 }

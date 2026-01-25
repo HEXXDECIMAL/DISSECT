@@ -5,25 +5,25 @@ traits:
   # === Atomic: LocalStorage ===
 
   - id: localstorage-get
-    description: Browser localStorage access
-    criticality: notable
-    confidence: 0.7
+    desc: Browser localStorage access
+    crit: notable
+    conf: 0.7
     attack: "T1005"
     platforms: [all]
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: "localStorage.get"
 
   - id: localstorage-set
-    description: Browser localStorage write
-    criticality: notable
-    confidence: 0.6
+    desc: Browser localStorage write
+    crit: notable
+    conf: 0.6
     attack: "T1005"
     platforms: [all]
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: "localStorage.set"
@@ -31,13 +31,13 @@ traits:
   # === Atomic: IndexedDB ===
 
   - id: indexeddb
-    description: Browser IndexedDB access
-    criticality: notable
-    confidence: 0.6
+    desc: Browser IndexedDB access
+    crit: notable
+    conf: 0.6
     attack: "T1005"
     platforms: [all]
-    file_types: [javascript]
-    condition:
+    for: [javascript]
+    if:
       type: ast_pattern
       node_type: call_expression
       pattern: "indexedDB"
@@ -45,11 +45,11 @@ traits:
   # === Atomic: Analytics ===
 
   - id: google-analytics-id
-    description: Hardcoded Google Analytics ID
-    criticality: suspicious
-    confidence: 0.8
+    desc: Hardcoded Google Analytics ID
+    crit: suspicious
+    conf: 0.8
     attack: "T1005"
     platforms: [all]
-    condition:
+    if:
       type: string
       regex: "UA-\\d{5,9}-\\d{1,3}"

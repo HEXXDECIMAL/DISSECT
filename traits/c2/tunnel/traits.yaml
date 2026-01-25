@@ -8,238 +8,238 @@ defaults:
 traits:
   # === Earthworm (EW) atomic indicators ===
   - id: ew-ssocksd
-    description: Earthworm ssocksd component
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: Earthworm ssocksd component
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: ssocksd
 
   - id: ew-rcsocks
-    description: Earthworm rcsocks component
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: Earthworm rcsocks component
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: rcsocks
 
   - id: ew-rssocks
-    description: Earthworm rssocks component
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: Earthworm rssocks component
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: rssocks
 
   - id: ew-lcx-listen
-    description: Earthworm lcx_listen function
-    criticality: inert
-    confidence: 0.8
-    condition:
+    desc: Earthworm lcx_listen function
+    crit: inert
+    conf: 0.8
+    if:
       type: string
       exact: lcx_listen
 
   - id: ew-lcx-tran
-    description: Earthworm lcx_tran function
-    criticality: inert
-    confidence: 0.8
-    condition:
+    desc: Earthworm lcx_tran function
+    crit: inert
+    conf: 0.8
+    if:
       type: string
       exact: lcx_tran
 
   - id: ew-lcx-slave
-    description: Earthworm lcx_slave function
-    criticality: inert
-    confidence: 0.8
-    condition:
+    desc: Earthworm lcx_slave function
+    crit: inert
+    conf: 0.8
+    if:
       type: string
       exact: lcx_slave
 
   - id: ew-rootkiter
-    description: Earthworm author domain
-    criticality: suspicious
-    confidence: 0.95
-    condition:
+    desc: Earthworm author domain
+    crit: suspicious
+    conf: 0.95
+    if:
       type: string
       exact: rootkiter.com
 
   # === LCX port forwarder atomic indicators ===
   - id: lcx-tran-flag
-    description: LCX -tran flag
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: LCX -tran flag
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "-tran"
 
   - id: lcx-slave-flag
-    description: LCX -slave flag
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: LCX -slave flag
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "-slave"
 
   - id: lcx-listen-flag
-    description: LCX -listen flag
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: LCX -listen flag
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "-listen"
 
   - id: listen-port
-    description: Port forwarding listenport config
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: Port forwarding listenport config
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: listenport
       case_insensitive: true
 
   - id: conn-port
-    description: Port forwarding connport config
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: Port forwarding connport config
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: connport
       case_insensitive: true
 
   - id: local-port
-    description: Port forwarding localport config
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: Port forwarding localport config
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: localport
       case_insensitive: true
 
   - id: remote-host
-    description: Port forwarding remotehost config
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: Port forwarding remotehost config
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: remotehost
       case_insensitive: true
 
   # === reGeorg/Tunna atomic indicators ===
   - id: regeorg-name
-    description: reGeorg tool name
-    criticality: suspicious
-    confidence: 0.9
-    condition:
+    desc: reGeorg tool name
+    crit: suspicious
+    conf: 0.9
+    if:
       type: string
       exact: reGeorg
       case_insensitive: true
 
   - id: tunna-name
-    description: Tunna tool name
-    criticality: suspicious
-    confidence: 0.9
-    condition:
+    desc: Tunna tool name
+    crit: suspicious
+    conf: 0.9
+    if:
       type: string
       exact: Tunna
       case_insensitive: true
 
   - id: neo-regeorg
-    description: neo-reGeorg tool name
-    criticality: suspicious
-    confidence: 0.9
-    condition:
+    desc: neo-reGeorg tool name
+    crit: suspicious
+    conf: 0.9
+    if:
       type: string
       exact: neo-reGeorg
 
   - id: xcmd-header
-    description: Web tunnel X-CMD header
-    criticality: suspicious
-    confidence: 0.85
-    condition:
+    desc: Web tunnel X-CMD header
+    crit: suspicious
+    conf: 0.85
+    if:
       type: string
       exact: X-CMD
 
   # === Chisel atomic indicators ===
   - id: chisel-import
-    description: Chisel Go import path
-    criticality: suspicious
-    confidence: 0.95
-    condition:
+    desc: Chisel Go import path
+    crit: suspicious
+    conf: 0.95
+    if:
       type: string
       exact: github.com/jpillora/chisel
 
   - id: chisel-client
-    description: Chisel client mode
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: Chisel client mode
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "chisel client"
 
   - id: chisel-server
-    description: Chisel server mode
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: Chisel server mode
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "chisel server"
 
   # === Ngrok atomic indicators ===
   - id: ngrok-name
-    description: Ngrok tool name
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: Ngrok tool name
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: ngrok
       case_insensitive: true
 
   - id: ngrok-io
-    description: Ngrok tunnel domain (ngrok.io)
-    criticality: suspicious
-    confidence: 0.85
-    condition:
+    desc: Ngrok tunnel domain (ngrok.io)
+    crit: suspicious
+    conf: 0.85
+    if:
       type: string
       exact: ngrok.io
 
   - id: ngrok-com
-    description: Ngrok service domain
-    criticality: notable
-    confidence: 0.7
-    condition:
+    desc: Ngrok service domain
+    crit: notable
+    conf: 0.7
+    if:
       type: string
       exact: ngrok.com
 
   # === SOCKS proxy atomic indicators ===
   - id: socks4-proto
-    description: SOCKS4 protocol reference
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: SOCKS4 protocol reference
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: SOCKS4
 
   - id: socks5-proto
-    description: SOCKS5 protocol reference
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: SOCKS5 protocol reference
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: SOCKS5
 
   - id: socks-default-port
-    description: SOCKS default port 1080
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: SOCKS default port 1080
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       exact: ":1080"
 
   - id: socks-server-ref
-    description: SOCKS server terminology
-    criticality: notable
-    confidence: 0.6
-    condition:
+    desc: SOCKS server terminology
+    crit: notable
+    conf: 0.6
+    if:
       type: string
       exact: "socks server"
       case_insensitive: true
@@ -247,13 +247,11 @@ traits:
 composite_rules:
   # Earthworm (EW) tunneling tool (3 of ew* or rootkiter)
   - id: earthworm
-    description: Earthworm tunneling tool (APT lateral movement)
-    criticality: suspicious
-    confidence: 0.95
-    requires_any:
+    desc: Earthworm tunneling tool (APT lateral movement)
+    crit: suspicious
+    conf: 0.95
+    any:
       - id: ew-rootkiter
-    requires_count: 3
-    conditions:
       - id: ew-ssocksd
       - id: ew-rcsocks
       - id: ew-rssocks
@@ -261,13 +259,14 @@ composite_rules:
       - id: ew-lcx-tran
       - id: ew-lcx-slave
 
+    count: 3
   # LCX port forwarder
   - id: lcx
-    description: LCX-style port forwarding tool
-    criticality: suspicious
-    confidence: 0.85
-    requires_count: 1
-    conditions:
+    desc: LCX-style port forwarding tool
+    crit: suspicious
+    conf: 0.85
+    count: 1
+    any:
       - id: ew-lcx-listen
       - id: ew-lcx-tran
       - id: ew-lcx-slave
@@ -277,24 +276,23 @@ composite_rules:
 
   # LCX via port config (listen/local + conn/remote)
   - id: lcx-config
-    description: LCX-style port forwarding configuration
-    criticality: suspicious
-    confidence: 0.8
-    requires_any:
+    desc: LCX-style port forwarding configuration
+    crit: suspicious
+    conf: 0.8
+    any:
       - id: listen-port
       - id: local-port
-    requires_count: 1
-    conditions:
       - id: conn-port
       - id: remote-host
 
+    count: 1
   # reGeorg/Tunna web tunnel
   - id: regeorg
-    description: reGeorg/Tunna web tunneling
-    criticality: suspicious
-    confidence: 0.9
-    requires_count: 1
-    conditions:
+    desc: reGeorg/Tunna web tunneling
+    crit: suspicious
+    conf: 0.9
+    count: 1
+    any:
       - id: regeorg-name
       - id: tunna-name
       - id: neo-regeorg
@@ -302,33 +300,33 @@ composite_rules:
 
   # Chisel tunneling
   - id: chisel
-    description: Chisel HTTP tunneling tool
-    criticality: suspicious
-    confidence: 0.9
-    requires_count: 1
-    conditions:
+    desc: Chisel HTTP tunneling tool
+    crit: suspicious
+    conf: 0.9
+    count: 1
+    any:
       - id: chisel-import
       - id: chisel-client
       - id: chisel-server
 
   # Ngrok tunneling
   - id: ngrok
-    description: Ngrok tunneling service
-    criticality: suspicious
-    confidence: 0.85
-    requires_count: 1
-    conditions:
+    desc: Ngrok tunneling service
+    crit: suspicious
+    conf: 0.85
+    count: 1
+    any:
       - id: ngrok-name
       - id: ngrok-io
       - id: ngrok-com
 
   # Generic SOCKS proxy behavior (2 of them)
   - id: socks-server
-    description: SOCKS proxy server implementation
-    criticality: suspicious
-    confidence: 0.8
-    requires_count: 2
-    conditions:
+    desc: SOCKS proxy server implementation
+    crit: suspicious
+    conf: 0.8
+    count: 2
+    any:
       - id: socks4-proto
       - id: socks5-proto
       - id: socks-default-port

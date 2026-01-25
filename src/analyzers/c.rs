@@ -69,7 +69,7 @@ impl CAnalyzer {
         // Add structural feature
         report.structure.push(StructuralFeature {
             id: "source/language/c".to_string(),
-            description: "C source code".to_string(),
+            desc: "C source code".to_string(),
             evidence: vec![Evidence {
                 method: "parser".to_string(),
                 source: "tree-sitter-c".to_string(),
@@ -852,9 +852,9 @@ impl CAnalyzer {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: cap_id.to_string(),
-                    description: desc.to_string(),
-                    confidence: conf,
-                    criticality,
+                    desc: desc.to_string(),
+                    conf: conf,
+                    crit: criticality,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {
@@ -1069,9 +1069,9 @@ impl CAnalyzer {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: cap_id.to_string(),
-                    description: desc.to_string(),
-                    confidence: conf,
-                    criticality,
+                    desc: desc.to_string(),
+                    conf: conf,
+                    crit: criticality,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {
@@ -1143,9 +1143,9 @@ impl CAnalyzer {
             kind: FindingKind::Capability,
             trait_refs: vec![],
             id: "unsafe/inline-asm".to_string(),
-            description: description.to_string(),
-            confidence: 1.0,
-            criticality,
+            desc: description.to_string(),
+            conf: 1.0,
+            crit: criticality,
             mbc: None,
             attack: None,
             evidence: vec![Evidence {
@@ -1285,9 +1285,9 @@ impl CAnalyzer {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: cap_id.to_string(),
-                    description: desc.to_string(),
-                    confidence: conf,
-                    criticality,
+                    desc: desc.to_string(),
+                    conf: conf,
+                    crit: criticality,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {
@@ -1427,9 +1427,9 @@ impl CAnalyzer {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: cap_id.to_string(),
-                    description: desc.to_string(),
-                    confidence: conf,
-                    criticality,
+                    desc: desc.to_string(),
+                    conf: conf,
+                    crit: criticality,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {
@@ -1550,9 +1550,9 @@ impl CAnalyzer {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: cap_id.to_string(),
-                    description: desc.to_string(),
-                    confidence: conf,
-                    criticality,
+                    desc: desc.to_string(),
+                    conf: conf,
+                    crit: criticality,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {
@@ -1642,9 +1642,9 @@ impl CAnalyzer {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: cap_id.to_string(),
-                    description: desc.to_string(),
-                    confidence: conf,
-                    criticality,
+                    desc: desc.to_string(),
+                    conf: conf,
+                    crit: criticality,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {
@@ -1730,9 +1730,9 @@ impl CAnalyzer {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
                     id: cap_id.to_string(),
-                    description: desc.to_string(),
-                    confidence: conf,
-                    criticality,
+                    desc: desc.to_string(),
+                    conf: conf,
+                    crit: criticality,
                     mbc: None,
                     attack: None,
                     evidence: vec![Evidence {
@@ -1942,7 +1942,7 @@ int main() {
                 .iter()
                 .find(|c| c.id == "unsafe/buffer-overflow-risk")
                 .unwrap()
-                .confidence,
+                .conf,
             0.95
         );
     }
@@ -2105,7 +2105,7 @@ int init_module(void) { return 0; }
             .iter()
             .find(|c| c.id == "kernel/module")
             .unwrap();
-        assert_eq!(cap.criticality, Criticality::Hostile);
+        assert_eq!(cap.crit, Criticality::Hostile);
     }
 
     #[test]

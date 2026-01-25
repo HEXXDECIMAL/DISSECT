@@ -5,12 +5,12 @@
 traits:
   # Password-protected archive extraction
   - id: password-extract
-    description: Extracts password-protected archive
-    criticality: suspicious
-    confidence: 0.9
+    desc: Extracts password-protected archive
+    crit: suspicious
+    conf: 0.9
     attack: "T1140"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule password_archive_extract {
@@ -29,154 +29,154 @@ traits:
 
   # === 7-zip atomic indicators ===
   - id: 7zip-bin-module
-    description: 7zip-bin module
-    criticality: inert
-    confidence: 0.6
+    desc: 7zip-bin module
+    crit: inert
+    conf: 0.6
     attack: "T1140"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "7zip-bin"
 
   - id: node-7z-module
-    description: node-7z module
-    criticality: inert
-    confidence: 0.6
+    desc: node-7z module
+    crit: inert
+    conf: 0.6
     attack: "T1140"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "node-7z"
 
   - id: path7za
-    description: path7za reference
-    criticality: inert
-    confidence: 0.6
+    desc: path7za reference
+    crit: inert
+    conf: 0.6
     attack: "T1140"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "path7za"
 
   - id: 7z-exe
-    description: 7z.exe reference
-    criticality: inert
-    confidence: 0.6
+    desc: 7z.exe reference
+    crit: inert
+    conf: 0.6
     attack: "T1140"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       exact: "7z.exe"
 
   # === Executable search atomic indicators ===
   - id: endswith-exe
-    description: endsWith .exe check
-    criticality: inert
-    confidence: 0.6
+    desc: endsWith .exe check
+    crit: inert
+    conf: 0.6
     attack: "T1105"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "endsWith\\(['\"]\\.(exe)['\"]\\)"
 
   - id: endswith-bat
-    description: endsWith .bat check
-    criticality: inert
-    confidence: 0.6
+    desc: endsWith .bat check
+    crit: inert
+    conf: 0.6
     attack: "T1105"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "endsWith\\(['\"]\\.(bat)['\"]\\)"
 
   - id: endswith-cmd
-    description: endsWith .cmd check
-    criticality: inert
-    confidence: 0.6
+    desc: endsWith .cmd check
+    crit: inert
+    conf: 0.6
     attack: "T1105"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "endsWith\\(['\"]\\.(cmd)['\"]\\)"
 
   - id: endswith-ps1
-    description: endsWith .ps1 check
-    criticality: inert
-    confidence: 0.6
+    desc: endsWith .ps1 check
+    crit: inert
+    conf: 0.6
     attack: "T1105"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "endsWith\\(['\"]\\.(ps1)['\"]\\)"
 
   - id: endswith-sh
-    description: endsWith .sh check
-    criticality: inert
-    confidence: 0.6
+    desc: endsWith .sh check
+    crit: inert
+    conf: 0.6
     attack: "T1105"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "endsWith\\(['\"]\\.(sh)['\"]\\)"
 
   - id: endswith-elf
-    description: endsWith .elf check
-    criticality: inert
-    confidence: 0.6
+    desc: endsWith .elf check
+    crit: inert
+    conf: 0.6
     attack: "T1105"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "endsWith\\(['\"]\\.(elf)['\"]\\)"
 
   - id: endswith-bin
-    description: endsWith .bin check
-    criticality: inert
-    confidence: 0.6
+    desc: endsWith .bin check
+    crit: inert
+    conf: 0.6
     attack: "T1105"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "endsWith\\(['\"]\\.(bin)['\"]\\)"
 
   - id: find-exe-pattern
-    description: find() with .exe pattern
-    criticality: inert
-    confidence: 0.6
+    desc: find() with .exe pattern
+    crit: inert
+    conf: 0.6
     attack: "T1105"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "find\\([^)]*\\.exe"
 
   - id: find-bat-pattern
-    description: find() with .bat pattern
-    criticality: inert
-    confidence: 0.6
+    desc: find() with .bat pattern
+    crit: inert
+    conf: 0.6
     attack: "T1105"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "find\\([^)]*\\.bat"
 
   - id: find-cmd-pattern
-    description: find() with .cmd pattern
-    criticality: inert
-    confidence: 0.6
+    desc: find() with .cmd pattern
+    crit: inert
+    conf: 0.6
     attack: "T1105"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "find\\([^)]*\\.cmd"
 
   # Download to temp then extract
   - id: temp-extract
-    description: Downloads archive to temp directory then extracts
-    criticality: suspicious
-    confidence: 0.85
+    desc: Downloads archive to temp directory then extracts
+    crit: suspicious
+    conf: 0.85
     attack: "T1105"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule temp_archive_extract {
@@ -195,12 +195,12 @@ traits:
 
   # Spawn executable after extraction
   - id: extract-execute
-    description: Extracts archive then executes contents
-    criticality: suspicious
-    confidence: 0.95
+    desc: Extracts archive then executes contents
+    crit: suspicious
+    conf: 0.95
     attack: "T1105"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule extract_and_execute {
@@ -220,12 +220,12 @@ traits:
 
   # Download zip file
   - id: download-zip
-    description: Downloads zip archive from remote URL
-    criticality: suspicious
-    confidence: 0.85
+    desc: Downloads zip archive from remote URL
+    crit: suspicious
+    conf: 0.85
     attack: "T1105"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule download_zip {
@@ -246,43 +246,43 @@ traits:
 
   # === Python exec atomic indicators ===
   - id: py-os-system
-    description: os.system() call
-    criticality: inert
-    confidence: 0.6
+    desc: os.system() call
+    crit: inert
+    conf: 0.6
     attack: "T1059"
-    file_types: [python]
-    condition:
+    for: [python]
+    if:
       type: string
       regex: "os\\.system\\("
 
   - id: py-exec-call
-    description: exec() call
-    criticality: inert
-    confidence: 0.6
+    desc: exec() call
+    crit: inert
+    conf: 0.6
     attack: "T1059"
-    file_types: [python]
-    condition:
+    for: [python]
+    if:
       type: string
       regex: "exec\\("
 
   - id: py-subprocess
-    description: subprocess module
-    criticality: inert
-    confidence: 0.6
+    desc: subprocess module
+    crit: inert
+    conf: 0.6
     attack: "T1059"
-    file_types: [python]
-    condition:
+    for: [python]
+    if:
       type: string
       regex: "subprocess\\."
 
   # Python-build-standalone download (commonly abused)
   - id: python-standalone
-    description: Downloads python-build-standalone (interpreter dropper pattern)
-    criticality: suspicious
-    confidence: 0.9
+    desc: Downloads python-build-standalone (interpreter dropper pattern)
+    crit: suspicious
+    conf: 0.9
     attack: "T1105"
-    file_types: [javascript, typescript, shell]
-    condition:
+    for: [javascript, typescript, shell]
+    if:
       type: yara
       source: |
         rule python_standalone_dropper {
@@ -298,12 +298,12 @@ traits:
 
   # Node.js portable/standalone download
   - id: node-standalone
-    description: Downloads standalone Node.js interpreter
-    criticality: suspicious
-    confidence: 0.85
+    desc: Downloads standalone Node.js interpreter
+    crit: suspicious
+    conf: 0.85
     attack: "T1105"
-    file_types: [javascript, typescript, shell]
-    condition:
+    for: [javascript, typescript, shell]
+    if:
       type: yara
       source: |
         rule node_standalone_dropper {
@@ -320,12 +320,12 @@ traits:
 
   # Stdin piping to interpreter (common payload execution)
   - id: stdin-exec
-    description: Pipes code to interpreter via stdin (payload execution)
-    criticality: suspicious
-    confidence: 0.9
+    desc: Pipes code to interpreter via stdin (payload execution)
+    crit: suspicious
+    conf: 0.9
     attack: "T1059"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule stdin_interpreter_exec {
@@ -353,12 +353,12 @@ traits:
 
   # Stream directly to tar extraction (in-memory dropper)
   - id: stream-tar-extract
-    description: Streams HTTP response directly to tar extraction
-    criticality: suspicious
-    confidence: 0.9
+    desc: Streams HTTP response directly to tar extraction
+    crit: suspicious
+    conf: 0.9
     attack: "T1105"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule stream_tar_extract {
@@ -381,12 +381,12 @@ traits:
 
   # Generic "download interpreter + execute payload" pattern
   - id: download-and-exec
-    description: Downloads interpreter binary then executes payload
-    criticality: suspicious
-    confidence: 0.85
+    desc: Downloads interpreter binary then executes payload
+    crit: suspicious
+    conf: 0.85
     attack: "T1105"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule download_interpreter_exec {
@@ -414,40 +414,40 @@ traits:
 
   # === Base64 buffer atomic indicators ===
   - id: buffer-from-base64
-    description: Buffer.from with base64
-    criticality: inert
-    confidence: 0.5
-    file_types: [javascript, typescript]
-    condition:
+    desc: Buffer.from with base64
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "Buffer\\.from.*base64"
 
   - id: atob-call
-    description: atob() call
-    criticality: inert
-    confidence: 0.5
-    file_types: [javascript, typescript]
-    condition:
+    desc: atob() call
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "atob\\("
 
   - id: btoa-call
-    description: btoa() call
-    criticality: inert
-    confidence: 0.5
-    file_types: [javascript, typescript]
-    condition:
+    desc: btoa() call
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "btoa\\("
 
   # Download and write file (https.get/request with fs.write)
   - id: download-file
-    description: Node.js HTTPS download to file
-    criticality: notable
-    confidence: 0.8
+    desc: Node.js HTTPS download to file
+    crit: notable
+    conf: 0.8
     attack: "T1105"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule node_download_file {
@@ -465,24 +465,24 @@ traits:
 
   # Spawn with detached process (persistence)
   - id: detached-spawn
-    description: Detached process spawning (backgrounding)
-    criticality: suspicious
-    confidence: 0.9
+    desc: Detached process spawning (backgrounding)
+    crit: suspicious
+    conf: 0.9
     attack: "T1059"
     mbc: "F0011"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "spawn\\([^)]*\\{[^}]*detached:\\s*true"
 
   # Execute downloaded file
   - id: exec-downloaded
-    description: Execution of file from temp directory
-    criticality: suspicious
-    confidence: 0.85
+    desc: Execution of file from temp directory
+    crit: suspicious
+    conf: 0.85
     attack: "T1059"
-    file_types: [javascript, typescript]
-    condition:
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule node_exec_temp {
@@ -499,11 +499,11 @@ traits:
 
   # Archive extraction before execution
   - id: archive-extract
-    description: Archive extraction (potential payload delivery)
-    criticality: notable
-    confidence: 0.75
-    file_types: [javascript, typescript]
-    condition:
+    desc: Archive extraction (potential payload delivery)
+    crit: notable
+    conf: 0.75
+    for: [javascript, typescript]
+    if:
       type: yara
       source: |
         rule node_archive_extract {
@@ -522,166 +522,166 @@ traits:
 
   # Password-protected archive extraction
   - id: password-archive
-    description: Password-protected archive extraction
-    criticality: suspicious
-    confidence: 0.85
-    file_types: [javascript, typescript]
-    condition:
+    desc: Password-protected archive extraction
+    crit: suspicious
+    conf: 0.85
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "password:\\s*['\"][^'\"]+['\"]"
 
   # === Spawn/exec atomic indicators ===
   - id: spawn-call
-    description: spawn() call
-    criticality: inert
-    confidence: 0.5
-    file_types: [javascript, typescript]
-    condition:
+    desc: spawn() call
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "spawn\\("
 
   - id: exec-call-js
-    description: exec() call
-    criticality: inert
-    confidence: 0.5
-    file_types: [javascript, typescript]
-    condition:
+    desc: exec() call
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "exec\\("
 
   - id: execfile-call
-    description: execFile() call
-    criticality: inert
-    confidence: 0.5
-    file_types: [javascript, typescript]
-    condition:
+    desc: execFile() call
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
       type: string
       regex: "execFile\\("
 
   # === WScript/XMLHTTP atomic indicators ===
   - id: wscript-shell
-    description: WScript.Shell object
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript]
-    condition:
+    desc: WScript.Shell object
+    crit: inert
+    conf: 0.7
+    for: [javascript]
+    if:
       type: string
       exact: "WScript.Shell"
 
   - id: msxml2-xmlhttp
-    description: MSXML2.XMLHTTP object
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript]
-    condition:
+    desc: MSXML2.XMLHTTP object
+    crit: inert
+    conf: 0.7
+    for: [javascript]
+    if:
       type: string
       exact: "MSXML2.XMLHTTP"
 
   - id: microsoft-xmlhttp
-    description: Microsoft.XMLHTTP object
-    criticality: inert
-    confidence: 0.7
-    file_types: [javascript]
-    condition:
+    desc: Microsoft.XMLHTTP object
+    crit: inert
+    conf: 0.7
+    for: [javascript]
+    if:
       type: string
       exact: "Microsoft.XMLHTTP"
 
   # Batch file generation (echo >> pattern)
   - id: batch-echo
-    description: Batch file generation via echo commands
-    criticality: suspicious
-    confidence: 0.8
-    condition:
+    desc: Batch file generation via echo commands
+    crit: suspicious
+    conf: 0.8
+    if:
       type: string
       regex: 'echo\\s+[^>]*>>[^\\n]*\\.(bat|cmd)'
 
   # JScript/VBScript ActiveXObject
   - id: activex-object
-    description: ActiveXObject usage (JScript/VBScript)
-    criticality: suspicious
-    confidence: 0.85
-    condition:
+    desc: ActiveXObject usage (JScript/VBScript)
+    crit: suspicious
+    conf: 0.85
+    if:
       type: string
       regex: "ActiveXObject\\s*\\("
 
   # ADODB.Stream for binary file writing
   - id: adodb-stream
-    description: ADODB.Stream for binary file operations
-    criticality: suspicious
-    confidence: 0.9
-    condition:
+    desc: ADODB.Stream for binary file operations
+    crit: suspicious
+    conf: 0.9
+    if:
       type: string
       exact: "ADODB.Stream"
 
   # Shell.Application namespace (ZIP extraction)
   - id: shell-namespace
-    description: Shell.Application namespace for ZIP operations
-    criticality: suspicious
-    confidence: 0.8
-    condition:
+    desc: Shell.Application namespace for ZIP operations
+    crit: suspicious
+    conf: 0.8
+    if:
       type: string
       regex: "Shell\\.Application.*namespace"
 
   # === MSXml2 Base64 atomic indicators ===
   - id: msxml2-base64
-    description: MSXml2 Base64 reference
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: MSXml2 Base64 reference
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       regex: "MSXml2.*Base64"
 
   - id: bin-base64
-    description: bin.base64 reference
-    criticality: inert
-    confidence: 0.7
-    condition:
+    desc: bin.base64 reference
+    crit: inert
+    conf: 0.7
+    if:
       type: string
       exact: "bin.base64"
 
   # Scripting.FileSystemObject
   - id: fso
-    description: Scripting.FileSystemObject usage
-    criticality: notable
-    confidence: 0.7
-    condition:
+    desc: Scripting.FileSystemObject usage
+    crit: notable
+    conf: 0.7
+    if:
       type: string
       exact: "Scripting.FileSystemObject"
 
   # Batch escape function
   - id: batch-escape
-    description: Batch special character escaping
-    criticality: suspicious
-    confidence: 0.8
-    condition:
+    desc: Batch special character escaping
+    crit: suspicious
+    conf: 0.8
+    if:
       type: string
       regex: 'replace\\([^)]*"\\^"'
 
   # === Appdata atomic indicators ===
   - id: appdata-single
-    description: "%appdata% reference"
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: "%appdata% reference"
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "%appdata%"
 
   - id: appdata-double
-    description: "%%appdata%% reference"
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: "%%appdata%% reference"
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "%%appdata%%"
 
   # EXE to batch dropper builder
   - id: exe-to-batch
-    description: EXE to batch file converter (dropper builder)
-    criticality: suspicious
-    confidence: 0.95
+    desc: EXE to batch file converter (dropper builder)
+    crit: suspicious
+    conf: 0.95
     attack: "T1027.002"
     mbc: "F0001"
-    condition:
+    if:
       type: yara
       source: |
         rule exe_to_batch_builder {
@@ -715,12 +715,12 @@ traits:
 
   # JScript dropper generation
   - id: jscript-dropper
-    description: JScript-based dropper generator
-    criticality: suspicious
-    confidence: 0.95
+    desc: JScript-based dropper generator
+    crit: suspicious
+    conf: 0.95
     attack: "T1027.002"
     mbc: "F0001"
-    condition:
+    if:
       type: yara
       source: |
         rule jscript_dropper_builder {
@@ -744,12 +744,12 @@ traits:
 
   # Python marshal/bytecode obfuscation builder
   - id: python-marshal
-    description: Python marshal bytecode obfuscation
-    criticality: suspicious
-    confidence: 0.85
-    file_types: [python]
+    desc: Python marshal bytecode obfuscation
+    crit: suspicious
+    conf: 0.85
+    for: [python]
     attack: "T1027"
-    condition:
+    if:
       type: yara
       source: |
         rule python_marshal_obfuscator {
@@ -769,13 +769,13 @@ traits:
 composite_rules:
   # 7-zip usage composite
   - id: 7zip-usage
-    description: Uses 7-zip for archive operations
-    criticality: notable
-    confidence: 0.8
+    desc: Uses 7-zip for archive operations
+    crit: notable
+    conf: 0.8
     attack: "T1140"
-    file_types: [javascript, typescript]
+    for: [javascript, typescript]
     requires_count: 1
-    conditions:
+    any:
       - id: 7zip-bin-module
       - id: node-7z-module
       - id: path7za
@@ -783,13 +783,13 @@ composite_rules:
 
   # Executable search composite
   - id: exe-search
-    description: Searches for executable files after extraction
-    criticality: suspicious
-    confidence: 0.9
+    desc: Searches for executable files after extraction
+    crit: suspicious
+    conf: 0.9
     attack: "T1105"
-    file_types: [javascript, typescript]
+    for: [javascript, typescript]
     requires_count: 1
-    conditions:
+    any:
       - id: endswith-exe
       - id: endswith-bat
       - id: endswith-cmd
@@ -803,81 +803,81 @@ composite_rules:
 
   # Python exec composite
   - id: python-exec-call
-    description: Python execution via os.system, exec, or subprocess
-    criticality: suspicious
-    confidence: 0.85
+    desc: Python execution via os.system, exec, or subprocess
+    crit: suspicious
+    conf: 0.85
     attack: "T1059"
-    file_types: [python]
+    for: [python]
     requires_count: 1
-    conditions:
+    any:
       - id: py-os-system
       - id: py-exec-call
       - id: py-subprocess
 
   # Spawn/exec composite
   - id: spawn-exec-call
-    description: Spawn or exec function call
-    criticality: notable
-    confidence: 0.7
-    file_types: [javascript, typescript]
+    desc: Spawn or exec function call
+    crit: notable
+    conf: 0.7
+    for: [javascript, typescript]
     requires_count: 1
-    conditions:
+    any:
       - id: spawn-call
       - id: exec-call-js
       - id: execfile-call
 
   # WScript/XMLHTTP composite
   - id: wscript-xmlhttp
-    description: WScript.Shell or XMLHTTP object usage
-    criticality: suspicious
-    confidence: 0.85
-    file_types: [javascript]
+    desc: WScript.Shell or XMLHTTP object usage
+    crit: suspicious
+    conf: 0.85
+    for: [javascript]
     requires_count: 1
-    conditions:
+    any:
       - id: wscript-shell
       - id: msxml2-xmlhttp
       - id: microsoft-xmlhttp
 
   # Base64 buffer composite
   - id: base64-buffer
-    description: Base64 buffer operations
-    criticality: notable
-    confidence: 0.7
-    file_types: [javascript, typescript]
+    desc: Base64 buffer operations
+    crit: notable
+    conf: 0.7
+    for: [javascript, typescript]
     requires_count: 1
-    conditions:
+    any:
       - id: buffer-from-base64
       - id: atob-call
       - id: btoa-call
 
   # MSXml2 Base64 composite
   - id: msxml-base64
-    description: MSXml2 Base64 decoding
-    criticality: suspicious
-    confidence: 0.85
+    desc: MSXml2 Base64 decoding
+    crit: suspicious
+    conf: 0.85
     requires_count: 1
-    conditions:
+    any:
       - id: msxml2-base64
       - id: bin-base64
 
   # Appdata drop composite
   - id: appdata-drop
-    description: Payload drop to %appdata%
-    criticality: suspicious
-    confidence: 0.85
+    desc: Payload drop to %appdata%
+    crit: suspicious
+    conf: 0.85
     requires_count: 1
-    conditions:
+    any:
       - id: appdata-single
       - id: appdata-double
 
   # Full dropper chain: download -> extract -> execute
   - id: full-chain
-    description: Complete archive dropper (download + extract + execute)
-    criticality: hostile
-    confidence: 0.98
+    desc: Complete archive dropper (download + extract + execute)
+    crit: hostile
+    conf: 0.98
     attack: "T1105"
     mbc: "B0024"
-    file_types: [javascript, typescript]
+    for: [javascript, typescript]
     requires_all:
       - id: dropper/archive/download-zip
       - id: dropper/archive/exe-search
@@ -885,12 +885,12 @@ composite_rules:
 
   # Complete dropper lifecycle (Fetch + Write + Execute)
   - id: fetch-write-execute
-    description: "Complete dropper lifecycle (Fetch + Write + Execute)"
-    criticality: hostile
-    confidence: 0.98
+    desc: "Complete dropper lifecycle (Fetch + Write + Execute)"
+    crit: hostile
+    conf: 0.98
     mbc: "B0024"
     attack: "T1105"
-    file_types: [python]
+    for: [python]
     requires_all:
       - id: comm/http/request/get
       - id: fs/file/write/generic
@@ -898,12 +898,12 @@ composite_rules:
 
   # Full interpreter dropper: download + extract + stdin exec
   - id: full-stager
-    description: Complete interpreter-based stager (download interpreter + execute payload)
-    criticality: hostile
-    confidence: 0.95
+    desc: Complete interpreter-based stager (download interpreter + execute payload)
+    crit: hostile
+    conf: 0.95
     attack: "T1059"
     mbc: "B0024"
-    file_types: [javascript, typescript]
+    for: [javascript, typescript]
     requires_any:
       - id: python-standalone
       - id: node-standalone
@@ -913,12 +913,12 @@ composite_rules:
 
   # Download interpreter + remote payload fetch + execute
   - id: remote-payload-stager
-    description: Downloads interpreter and fetches remote payload for execution
-    criticality: hostile
-    confidence: 0.95
+    desc: Downloads interpreter and fetches remote payload for execution
+    crit: hostile
+    conf: 0.95
     attack: "T1105"
     mbc: "B0024"
-    file_types: [javascript, typescript]
+    for: [javascript, typescript]
     requires_all:
       - id: download-and-exec
       - id: stdin-exec
@@ -926,12 +926,12 @@ composite_rules:
 
   # Python stager with obfuscated payload URL
   - id: python-obfuscated-stager
-    description: Python dropper with obfuscated payload URL (npm malware pattern)
-    criticality: hostile
-    confidence: 0.95
+    desc: Python dropper with obfuscated payload URL (npm malware pattern)
+    crit: hostile
+    conf: 0.95
     attack: "T1105"
     mbc: "B0024"
-    file_types: [javascript, typescript]
+    for: [javascript, typescript]
     requires_all:
       - id: python-standalone
       - id: stdin-exec
@@ -939,12 +939,12 @@ composite_rules:
 
   # Full dropper lifecycle: download + extract + execute
   - id: full-dropper
-    description: Complete Node.js dropper (download + extract + execute)
-    criticality: hostile
-    confidence: 0.98
+    desc: Complete Node.js dropper (download + extract + execute)
+    crit: hostile
+    conf: 0.98
     attack: "T1105"
     mbc: "B0024"
-    file_types: [javascript, typescript]
+    for: [javascript, typescript]
     requires_all:
       - id: dropper/node/download-file
       - id: dropper/node/archive-extract
@@ -952,12 +952,12 @@ composite_rules:
 
   # Download and detached execute
   - id: download-detached-exec
-    description: Download file and execute detached (stealth dropper)
-    criticality: hostile
-    confidence: 0.95
+    desc: Download file and execute detached (stealth dropper)
+    crit: hostile
+    conf: 0.95
     attack: "T1105"
     mbc: "B0024"
-    file_types: [javascript, typescript]
+    for: [javascript, typescript]
     requires_all:
       - id: dropper/node/download-file
       - id: dropper/node/detached-spawn
@@ -965,12 +965,12 @@ composite_rules:
 
   # ActiveXObject + WScript.Shell/ADODB.Stream/XMLHTTP (Classic Dropper)
   - id: activex-dropper
-    description: "Classic JScript/VBScript dropper pattern (ActiveXObject + Shell/Network)"
-    criticality: hostile
-    confidence: 0.95
+    desc: "Classic JScript/VBScript dropper pattern (ActiveXObject + Shell/Network)"
+    crit: hostile
+    conf: 0.95
     attack: "T1105"
     mbc: "B0024"
-    file_types: [javascript]
+    for: [javascript]
     requires_all:
       - id: dropper/builder/activex-object
       - id: dropper/builder/adodb-stream

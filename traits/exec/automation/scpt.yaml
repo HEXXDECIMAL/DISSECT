@@ -3,7 +3,7 @@
 # ATT&CK: T1059.002 (AppleScript)
 
 defaults:
-  file_types: [applescript]
+  for: [applescript]
   platforms: [macos]
   attack: "T1059.002"
 
@@ -12,10 +12,10 @@ traits:
   # Common Applications (inert)
   # ============================================
   - id: finder
-    description: "Targets Finder"
-    criticality: inert
-    confidence: 0.95
-    condition:
+    desc: "Targets Finder"
+    crit: inert
+    conf: 0.95
+    if:
       type: string
       exact: "Finder"
 
@@ -23,37 +23,37 @@ traits:
   # System Applications (notable)
   # ============================================
   - id: system-settings
-    description: "Targets System Settings"
-    criticality: notable
-    confidence: 0.9
+    desc: "Targets System Settings"
+    crit: notable
+    conf: 0.9
     attack: "T1082"
-    condition:
+    if:
       type: string
       exact: "System Settings"
 
   - id: system-preferences
-    description: "Targets System Preferences"
-    criticality: notable
-    confidence: 0.9
+    desc: "Targets System Preferences"
+    crit: notable
+    conf: 0.9
     attack: "T1082"
-    condition:
+    if:
       type: string
       exact: "System Preferences"
 
   - id: system-events
-    description: "Targets System Events"
-    criticality: notable
-    confidence: 0.9
-    condition:
+    desc: "Targets System Events"
+    crit: notable
+    conf: 0.9
+    if:
       type: string
       exact: "System Events"
 
   - id: safari
-    description: "Targets Safari"
-    criticality: notable
-    confidence: 0.85
+    desc: "Targets Safari"
+    crit: notable
+    conf: 0.85
     attack: "T1185"
-    condition:
+    if:
       type: string
       exact: "Safari"
 
@@ -61,29 +61,29 @@ traits:
   # Sensitive Applications (suspicious)
   # ============================================
   - id: terminal
-    description: "Targets Terminal"
-    criticality: suspicious
-    confidence: 0.9
+    desc: "Targets Terminal"
+    crit: suspicious
+    conf: 0.9
     attack: "T1059.004"
-    condition:
+    if:
       type: string
       exact: "Terminal"
 
   - id: keychain-access
-    description: "Targets Keychain Access"
-    criticality: suspicious
-    confidence: 0.95
+    desc: "Targets Keychain Access"
+    crit: suspicious
+    conf: 0.95
     attack: "T1555.001"
-    condition:
+    if:
       type: string
       exact: "Keychain Access"
 
   - id: security-agent
-    description: "Targets Security Agent"
-    criticality: suspicious
-    confidence: 0.95
+    desc: "Targets Security Agent"
+    crit: suspicious
+    conf: 0.95
     attack: "T1548"
-    condition:
+    if:
       type: string
       exact: "SecurityAgent"
 
@@ -92,22 +92,22 @@ composite_rules:
   # System Settings Automation
   # ============================================
   - id: automates-settings
-    description: "Automates System Settings/Preferences"
-    criticality: notable
-    confidence: 0.85
-    file_types: [applescript]
-    requires_any:
-      - {id: system-settings}
-      - {id: system-preferences}
+    desc: "Automates System Settings/Preferences"
+    crit: notable
+    conf: 0.85
+    for: [applescript]
+    any:
+      - { id: system-settings }
+      - { id: system-preferences }
 
   # Terminal automation commands group
   - id: terminal-commands
-    description: Terminal automation commands
-    criticality: notable
-    confidence: 0.8
-    file_types: [applescript]
+    desc: Terminal automation commands
+    crit: notable
+    conf: 0.8
+    for: [applescript]
     requires_count: 1
-    conditions:
+    any:
       - id: exec/command/do-script
       - id: exec/command/activate
 
@@ -115,11 +115,11 @@ composite_rules:
   # Terminal Automation
   # ============================================
   - id: automates-terminal
-    description: "Automates Terminal application"
-    criticality: suspicious
-    confidence: 0.9
+    desc: "Automates Terminal application"
+    crit: suspicious
+    conf: 0.9
     attack: "T1059.004"
-    file_types: [applescript]
+    for: [applescript]
     requires_all:
       - id: terminal
       - id: terminal-commands
@@ -128,22 +128,22 @@ composite_rules:
   # Keychain Access
   # ============================================
   - id: accesses-keychain
-    description: "Interacts with Keychain Access"
-    criticality: suspicious
-    confidence: 0.95
+    desc: "Interacts with Keychain Access"
+    crit: suspicious
+    conf: 0.95
     attack: "T1555.001"
-    file_types: [applescript]
+    for: [applescript]
     requires_all:
-      - {id: keychain-access}
+      - { id: keychain-access }
 
   # ============================================
   # Shell + Settings (suspicious combo)
   # ============================================
   - id: shell-with-settings
-    description: "Shell execution with System Settings automation"
-    criticality: suspicious
-    confidence: 0.85
-    file_types: [applescript]
+    desc: "Shell execution with System Settings automation"
+    crit: suspicious
+    conf: 0.85
+    for: [applescript]
     requires_all:
-      - {id: automates-settings}
-      - {id: exec/command/shell-execution}
+      - { id: automates-settings }
+      - { id: exec/command/shell-execution }

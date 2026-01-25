@@ -6,9 +6,9 @@ traits:
 
   - id: large-functions
     description: "Binary contains unusually large functions"
-    criticality: notable
-    confidence: 0.65
-    condition:
+    crit: notable
+    conf: 0.65
+    if:
       type: metrics
       field: binary.huge_functions
       min: 2
@@ -17,9 +17,9 @@ traits:
 
   - id: linear-code-ratio
     description: "High ratio of linear functions (monolithic or VM structure)"
-    criticality: notable
-    confidence: 0.65
-    condition:
+    crit: notable
+    conf: 0.65
+    if:
       type: metrics
       field: binary.linear_functions
       min: 100
@@ -28,9 +28,9 @@ traits:
 
   - id: low-average-complexity
     description: "Low average code complexity (simple functions or generated code)"
-    criticality: inert
-    confidence: 0.75
-    condition:
+    crit: inert
+    conf: 0.75
+    if:
       type: metrics
       field: binary.avg_complexity
       max: 3
@@ -39,9 +39,9 @@ traits:
 
   - id: dominant-text-section
     description: "Binary with dominant .text section (monolithic multicall binary)"
-    criticality: notable
-    confidence: 0.6
-    condition:
+    crit: notable
+    conf: 0.6
+    if:
       type: metrics
       field: binary.largest_section_ratio
       min: 0.75

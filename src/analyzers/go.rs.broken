@@ -44,7 +44,7 @@ impl GoAnalyzer {
         // Add structural feature
         report.structure.push(StructuralFeature {
             id: "source/language/go".to_string(),
-            description: "Go source code".to_string(),
+            desc: "Go source code".to_string(),
             evidence: vec![Evidence {
                 method: "parser".to_string(),
                 source: "tree-sitter-go".to_string(),
@@ -227,7 +227,7 @@ impl GoAnalyzer {
                 if !report.capabilities.iter().any(|c| c.id == cap_id) {
                     report.capabilities.push(Capability {
                         id: cap_id.to_string(),
-                        description: description.to_string(),
+                        desc: description.to_string(),
                         confidence,
                         criticality,
                         evidence: vec![Evidence {
@@ -235,7 +235,7 @@ impl GoAnalyzer {
                             source: "tree-sitter-go".to_string(),
                             value: pattern.to_string(),
                         id: cap_id.to_string(),
-                        description: description.to_string(),
+                        desc: description.to_string(),
                         confidence,
                         criticality,
                         evidence: vec![Evidence {
@@ -310,7 +310,7 @@ impl GoAnalyzer {
 
                         report.capabilities.push(Capability {
                             id: cap_id.to_string(),
-                            description: description.to_string(),
+                            desc: description.to_string(),
                             confidence,
                             criticality,
                             evidence: vec![Evidence {
@@ -318,7 +318,7 @@ impl GoAnalyzer {
                                 source: "tree-sitter-go".to_string(),
                                 value: module.to_string(),
                             id: cap_id.to_string(),
-                            description: description.to_string(),
+                            desc: description.to_string(),
                             confidence,
                             criticality,
                             evidence: vec![Evidence {
@@ -343,9 +343,9 @@ impl GoAnalyzer {
                 if !report.capabilities.iter().any(|c| c.id == "anti-analysis/obfuscation/base64-exec") {
                     report.capabilities.push(Capability {
                         id: "anti-analysis/obfuscation/base64-exec".to_string(),
-                        description: "Base64 decode followed by exec (obfuscation)".to_string(),
+                        desc: "Base64 decode followed by exec (obfuscation)".to_string(),
                         confidence: 0.95,
-                        criticality: Criticality::High,
+                        crit: Criticality::High,
                         mbc_id: None,
                         attack_id: None,
                         evidence: vec![Evidence {
@@ -364,9 +364,9 @@ impl GoAnalyzer {
                 if !report.capabilities.iter().any(|c| c.id == "anti-analysis/obfuscation/hex-strings") {
                     report.capabilities.push(Capability {
                         id: "anti-analysis/obfuscation/hex-strings".to_string(),
-                        description: "Hex-encoded strings".to_string(),
+                        desc: "Hex-encoded strings".to_string(),
                         confidence: 0.9,
-                        criticality: Criticality::Medium,
+                        crit: Criticality::Medium,
                         mbc_id: None,
                         attack_id: None,
                         evidence: vec![Evidence {
@@ -385,9 +385,9 @@ impl GoAnalyzer {
                 if !report.capabilities.iter().any(|c| c.id == "anti-analysis/build-tags") {
                     report.capabilities.push(Capability {
                         id: "anti-analysis/build-tags".to_string(),
-                        description: "Conditional build tags (platform evasion)".to_string(),
+                        desc: "Conditional build tags (platform evasion)".to_string(),
                         confidence: 0.75,
-                        criticality: Criticality::Low,
+                        crit: Criticality::Low,
                         mbc_id: None,
                         attack_id: None,
                         evidence: vec![Evidence {

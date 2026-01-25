@@ -8,88 +8,88 @@ defaults:
 traits:
   # === curl atomic indicators ===
   - id: curl-cmd
-    description: curl command
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: curl command
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: "curl\\s"
 
   - id: libcurl-ref
-    description: libcurl library
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: libcurl library
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "libcurl"
 
   - id: curlopt-ref
-    description: CURLOPT constant
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: CURLOPT constant
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "CURLOPT"
 
   # === wget atomic indicators ===
   - id: wget-cmd
-    description: wget command
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: wget command
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: "wget\\s"
 
   - id: wget-path
-    description: wget binary path
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: wget binary path
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "/usr/bin/wget"
 
   # === fetch atomic indicators ===
   - id: fetch-call
-    description: fetch function call
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: fetch function call
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "fetch("
 
   - id: urllib-urlretrieve
-    description: urllib urlretrieve
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: urllib urlretrieve
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "urllib.request.urlretrieve"
 
 composite_rules:
   - id: curl
-    description: Download via curl
-    criticality: notable
-    confidence: 0.66
-    requires_count: 1
-    conditions:
+    desc: Download via curl
+    crit: notable
+    conf: 0.66
+    count: 1
+    any:
       - id: curl-cmd
       - id: libcurl-ref
       - id: curlopt-ref
 
   - id: wget
-    description: Download via wget
-    criticality: notable
-    confidence: 0.66
-    requires_count: 1
-    conditions:
+    desc: Download via wget
+    crit: notable
+    conf: 0.66
+    count: 1
+    any:
       - id: wget-cmd
       - id: wget-path
 
   - id: fetch
-    description: Download via fetch
-    criticality: notable
-    confidence: 0.66
-    requires_count: 1
-    conditions:
+    desc: Download via fetch
+    crit: notable
+    conf: 0.66
+    count: 1
+    any:
       - id: fetch-call
       - id: urllib-urlretrieve

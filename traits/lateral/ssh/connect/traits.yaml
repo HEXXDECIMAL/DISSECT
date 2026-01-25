@@ -8,7 +8,7 @@ traits:
   # === Atomic: SSH Attack Terminology ===
   - id: ssh-attack-suffix
     description: SSH attack function/variable (ssh_attack, ssh-attack, sshattack)
-    criticality: notable
+    crit: notable
     confidence: 0.8
     attack: "T1021.004"
     platforms: [all]
@@ -18,7 +18,7 @@ traits:
 
   - id: attack-ssh-prefix
     description: Attack SSH function/variable (attack_ssh, attack-ssh, attackssh)
-    criticality: notable
+    crit: notable
     confidence: 0.8
     attack: "T1021.004"
     platforms: [all]
@@ -28,7 +28,7 @@ traits:
 
   - id: ssh-boom
     description: SSH boom function/variable reference
-    criticality: notable
+    crit: notable
     confidence: 0.8
     attack: "T1021.004"
     platforms: [all]
@@ -40,7 +40,7 @@ traits:
 
   - id: dot-ssh-ref
     description: References .ssh directory
-    criticality: notable
+    crit: notable
     confidence: 0.5
     attack: "T1021.004"
     platforms: [linux, macos, unix]
@@ -50,7 +50,7 @@ traits:
 
   - id: strict-host-disable
     description: StrictHostKeyChecking reference (bypass host verification)
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.75
     attack: "T1021.004"
     platforms: [linux, macos, unix]
@@ -60,7 +60,7 @@ traits:
 
   - id: known-hosts-bypass
     description: UserKnownHostsFile reference (bypass known hosts)
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.75
     attack: "T1021.004"
     platforms: [linux, macos, unix]
@@ -70,7 +70,7 @@ traits:
 
   - id: connect-timeout
     description: ConnectTimeout reference (scripted SSH)
-    criticality: notable
+    crit: notable
     confidence: 0.6
     attack: "T1021.004"
     platforms: [linux, macos, unix]
@@ -84,7 +84,7 @@ traits:
 
   - id: key-pem
     description: References .pem key file
-    criticality: notable
+    crit: notable
     confidence: 0.6
     attack: "T1552.004"
     platforms: [all]
@@ -94,7 +94,7 @@ traits:
 
   - id: key-identity-file
     description: IdentityFile SSH config option
-    criticality: notable
+    crit: notable
     confidence: 0.6
     attack: "T1552.004"
     platforms: [linux, macos, unix]
@@ -104,7 +104,7 @@ traits:
 
   - id: ssh-config-parse
     description: Parses SSH config for hostnames
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.8
     attack: "T1021.004"
     platforms: [linux, macos, unix]
@@ -115,7 +115,7 @@ traits:
   # === Bash history SSH atomic indicators ===
   - id: ssh-bash-history
     description: ssh with bash_history
-    criticality: inert
+    crit: inert
     confidence: 0.7
     attack: "T1021.004"
     platforms: [linux, macos, unix]
@@ -125,7 +125,7 @@ traits:
 
   - id: scp-bash-history
     description: scp with bash_history
-    criticality: inert
+    crit: inert
     confidence: 0.7
     attack: "T1021.004"
     platforms: [linux, macos, unix]
@@ -135,7 +135,7 @@ traits:
 
   - id: getent-hosts
     description: Uses getent for host discovery
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.75
     attack: "T1018"
     platforms: [linux, unix]
@@ -151,24 +151,24 @@ composite_rules:
   # SSH attack terminology composite
   - id: attack-ref
     description: SSH attack function/variable reference
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.9
     attack: "T1021.004"
     platforms: [all]
     requires_count: 1
-    conditions:
+    any:
       - id: ssh-attack-suffix
       - id: attack-ssh-prefix
       - id: ssh-boom
 
   - id: bash-history-ssh
     description: Extracts SSH targets from bash history
-    criticality: suspicious
+    crit: suspicious
     confidence: 0.85
     attack: "T1021.004"
     platforms: [linux, macos, unix]
     requires_count: 1
-    conditions:
+    any:
       - id: ssh-bash-history
       - id: scp-bash-history
 

@@ -7,10 +7,10 @@ traits:
 
   - id: stratum-protocol
     description: Stratum mining protocol reference
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     attack: "T1496"
-    condition:
+    if:
       type: string
       regex: "stratum(\\+(tcp|ssl|tls))?://"
 
@@ -18,82 +18,82 @@ traits:
 
   - id: pool-c3pool
     description: C3Pool mining pool
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     attack: "T1496"
-    condition:
+    if:
       type: string
       exact: "c3pool"
 
   - id: pool-f2pool
     description: F2Pool mining pool
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     attack: "T1496"
-    condition:
+    if:
       type: string
       exact: "f2pool"
 
   - id: pool-hashvault
     description: HashVault mining pool
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     attack: "T1496"
-    condition:
+    if:
       type: string
       exact: "hashvault"
 
   - id: pool-monerohash
     description: MoneroHash mining pool
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     attack: "T1496"
-    condition:
+    if:
       type: string
       exact: "monerohash"
 
   - id: pool-xmrpool
     description: XMRPool mining pool
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     attack: "T1496"
-    condition:
+    if:
       type: string
       exact: "xmrpool"
 
   - id: pool-supportxmr
     description: SupportXMR mining pool
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     attack: "T1496"
-    condition:
+    if:
       type: string
       exact: "supportxmr"
 
   - id: pool-minergate
     description: MinerGate mining pool
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     attack: "T1496"
-    condition:
+    if:
       type: string
       exact: "minergate"
 
   - id: pool-crypto-pool
     description: Crypto-pool mining pool
-    criticality: suspicious
-    confidence: 0.7
+    crit: suspicious
+    conf: 0.7
     attack: "T1496"
-    condition:
+    if:
       type: string
       exact: "crypto-pool"
 
   - id: pool-moneropool
     description: Moneropool mining pool
-    criticality: suspicious
-    confidence: 0.7
+    crit: suspicious
+    conf: 0.7
     attack: "T1496"
-    condition:
+    if:
       type: string
       exact: "moneropool"
 
@@ -101,47 +101,47 @@ traits:
 
   - id: xmrig-ref
     description: XMRig miner reference
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     attack: "T1496"
-    condition:
+    if:
       type: string
       exact: "xmrig"
       case_insensitive: true
 
   - id: cryptonight
     description: CryptoNight algorithm reference
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     attack: "T1496"
-    condition:
+    if:
       type: string
       regex: "[Cc]rypto[Nn]ight"
 
   - id: monero-word
     description: Monero word
-    criticality: inert
-    confidence: 0.5
+    crit: inert
+    conf: 0.5
     attack: "T1496"
-    condition:
+    if:
       type: string
       regex: "\\b[Mm]onero\\b"
 
   - id: monero-upper
     description: MONERO uppercase
-    criticality: inert
-    confidence: 0.5
+    crit: inert
+    conf: 0.5
     attack: "T1496"
-    condition:
+    if:
       type: string
       exact: "MONERO"
 
   - id: xmr-ticker
     description: XMR ticker symbol
-    criticality: inert
-    confidence: 0.5
+    crit: inert
+    conf: 0.5
     attack: "T1496"
-    condition:
+    if:
       type: string
       regex: "\\bXMR\\b"
 
@@ -149,46 +149,46 @@ traits:
 
   - id: donate-level
     description: Mining donate-level configuration
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     attack: "T1496"
-    condition:
+    if:
       type: string
       exact: "--donate-level"
 
   - id: tls-fingerprint
     description: Mining TLS fingerprint option
-    criticality: suspicious
-    confidence: 0.8
+    crit: suspicious
+    conf: 0.8
     attack: "T1496"
-    condition:
+    if:
       type: string
       exact: "--tls-fingerprint"
 
   - id: miner-name
     description: Miner name configuration
-    criticality: suspicious
-    confidence: 0.75
+    crit: suspicious
+    conf: 0.75
     attack: "T1496"
-    condition:
+    if:
       type: string
       exact: "miner_name"
 
   - id: miner-url
     description: Miner URL configuration
-    criticality: suspicious
-    confidence: 0.75
+    crit: suspicious
+    conf: 0.75
     attack: "T1496"
-    condition:
+    if:
       type: string
       exact: "miner_url"
 
   - id: normal-hashing
     description: Normal hashing configuration
-    criticality: suspicious
-    confidence: 0.8
+    crit: suspicious
+    conf: 0.8
     attack: "T1496"
-    condition:
+    if:
       type: string
       exact: "\"normalHashing\": true,"
 
@@ -196,21 +196,21 @@ traits:
 
   - id: hugepages
     description: Huge pages memory configuration
-    criticality: suspicious
-    confidence: 0.7
+    crit: suspicious
+    conf: 0.7
     attack: "T1496"
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: string
       exact: "vm.nr_hugepages"
 
   - id: nmi-watchdog
     description: NMI watchdog disable (mining optimization)
-    criticality: suspicious
-    confidence: 0.75
+    crit: suspicious
+    conf: 0.75
     attack: "T1496"
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
       type: string
       exact: "kernel.nmi_watchdog"
 
@@ -218,10 +218,10 @@ traits:
 
   - id: argon2d
     description: Argon2d hashing algorithm
-    criticality: suspicious
-    confidence: 0.7
+    crit: suspicious
+    conf: 0.7
     attack: "T1496"
-    condition:
+    if:
       type: string
       exact: "argon2d"
 
@@ -229,26 +229,26 @@ traits:
 
   - id: wallet-ref
     description: Wallet reference (mining context)
-    criticality: notable
-    confidence: 0.5
+    crit: notable
+    conf: 0.5
     attack: "T1496"
-    condition:
+    if:
       type: string
       exact: "wallet"
 
   - id: proc-self-ref
     description: Process self reference
-    criticality: notable
-    confidence: 0.5
-    condition:
+    crit: notable
+    conf: 0.5
+    if:
       type: string
       exact: "/proc/self"
 
   - id: numa-ref
     description: NUMA memory architecture reference
-    criticality: notable
-    confidence: 0.5
-    condition:
+    crit: notable
+    conf: 0.5
+    if:
       type: string
       exact: "NUMA"
 
@@ -256,23 +256,23 @@ composite_rules:
   # Monero reference composite
   - id: monero-ref
     description: Monero cryptocurrency reference
-    criticality: notable
-    confidence: 0.6
+    crit: notable
+    conf: 0.6
     attack: "T1496"
     requires_count: 1
-    conditions:
+    any:
       - id: monero-word
       - id: monero-upper
       - id: xmr-ticker
 
   - id: cryptocurrency-miner
     description: Cryptocurrency miner detected
-    criticality: suspicious
-    confidence: 0.95
+    crit: suspicious
+    conf: 0.95
     attack: "T1496"
     mbc: "B0036"
     requires_count: 2
-    conditions:
+    any:
       - id: stratum-protocol
       - id: pool-c3pool
       - id: pool-f2pool
@@ -290,11 +290,11 @@ composite_rules:
 
   - id: memory-optimized-miner
     description: Memory-optimized cryptocurrency miner
-    criticality: suspicious
-    confidence: 0.9
+    crit: suspicious
+    conf: 0.9
     attack: "T1496"
     mbc: "B0036"
-    file_types: [elf]
+    for: [elf]
     requires_all:
       - id: hugepages
     requires_any:
@@ -304,11 +304,11 @@ composite_rules:
 
   - id: argon2-miner
     description: Argon2-based cryptocurrency miner
-    criticality: suspicious
-    confidence: 0.85
+    crit: suspicious
+    conf: 0.85
     attack: "T1496"
     mbc: "B0036"
-    file_types: [elf]
+    for: [elf]
     requires_all:
       - id: argon2d
       - id: proc-self-ref

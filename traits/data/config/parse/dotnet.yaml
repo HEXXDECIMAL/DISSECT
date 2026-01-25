@@ -2,64 +2,64 @@
 
 traits:
   - id: config-manager
-    description: Application configuration access
-    criticality: notable
-    confidence: 0.75
-    condition:
+    desc: Application configuration access
+    crit: notable
+    conf: 0.75
+    if:
       type: string
       exact: "ConfigurationManager"
 
   # === AppSettings atomic indicators ===
   - id: appsettings-pascal
-    description: AppSettings (PascalCase)
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: AppSettings (PascalCase)
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "AppSettings"
 
   - id: appsettings-lower
-    description: appsettings (lowercase)
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: appsettings (lowercase)
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "appsettings"
 
   # === Environment variable atomic indicators ===
   - id: get-env-var
-    description: GetEnvironmentVariable method
-    criticality: inert
-    confidence: 0.6
-    condition:
+    desc: GetEnvironmentVariable method
+    crit: inert
+    conf: 0.6
+    if:
       type: string
       exact: "GetEnvironmentVariable"
 
   - id: environment-class
-    description: Environment class access
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: Environment class access
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: "Environment\\."
 
 composite_rules:
   # AppSettings composite
   - id: app-settings
-    description: AppSettings configuration access
-    criticality: notable
-    confidence: 0.70
+    desc: AppSettings configuration access
+    crit: notable
+    conf: 0.70
     requires_count: 1
-    conditions:
+    any:
       - id: appsettings-pascal
       - id: appsettings-lower
 
   # Environment variable composite
   - id: environment-vars
-    description: Environment variable access
-    criticality: notable
-    confidence: 0.70
+    desc: Environment variable access
+    crit: notable
+    conf: 0.70
     requires_count: 1
-    conditions:
+    any:
       - id: get-env-var
       - id: environment-class

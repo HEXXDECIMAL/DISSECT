@@ -6,110 +6,110 @@
 defaults:
   mbc: "F0005"
   attack: "T1564"
-  file_types: [all]
+  for: [all]
 
 traits:
   # === stdout redirect atomic indicators ===
   - id: redirect-devnull-nospace
-    description: ">/dev/null redirect (no space)"
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: ">/dev/null redirect (no space)"
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       exact: ">/dev/null"
       search_raw: true
 
   - id: redirect-devnull-space
-    description: '"> /dev/null" redirect (with space)'
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: '"> /dev/null" redirect (with space)'
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       exact: "> /dev/null"
       search_raw: true
 
   # === stderr redirect atomic indicators ===
   - id: stderr-devnull-nospace
-    description: 2>/dev/null redirect
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: 2>/dev/null redirect
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       exact: "2>/dev/null"
       search_raw: true
 
   - id: stderr-devnull-space
-    description: '"2> /dev/null" redirect'
-    criticality: inert
-    confidence: 0.4
-    condition:
+    desc: '"2> /dev/null" redirect'
+    crit: inert
+    conf: 0.4
+    if:
       type: string
       exact: "2> /dev/null"
       search_raw: true
 
   - id: stderr-stdout-devnull
-    description: 2>&1 combined with /dev/null
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: 2>&1 combined with /dev/null
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       regex: "2>&1.*>/dev/null"
       search_raw: true
 
   # === all output suppression atomic indicators ===
   - id: stdout-then-stderr
-    description: ">/dev/null 2>&1 pattern"
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: ">/dev/null 2>&1 pattern"
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: ">/dev/null 2>&1"
       search_raw: true
 
   - id: ampersand-devnull
-    description: '"&>/dev/null" bash pattern'
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: '"&>/dev/null" bash pattern'
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "&>/dev/null"
       search_raw: true
 
   - id: stderr-then-stdout
-    description: '"2>&1 >/dev/null" pattern'
-    criticality: inert
-    confidence: 0.5
-    condition:
+    desc: '"2>&1 >/dev/null" pattern'
+    crit: inert
+    conf: 0.5
+    if:
       type: string
       exact: "2>&1 >/dev/null"
       search_raw: true
 
 composite_rules:
   - id: redirect-to-devnull
-    description: Output redirected to /dev/null
-    criticality: notable
-    confidence: 0.5
+    desc: Output redirected to /dev/null
+    crit: notable
+    conf: 0.5
     requires_count: 1
-    conditions:
+    any:
       - id: redirect-devnull-nospace
       - id: redirect-devnull-space
 
   - id: stderr-to-devnull
-    description: Standard error redirected to /dev/null
-    criticality: notable
-    confidence: 0.5
+    desc: Standard error redirected to /dev/null
+    crit: notable
+    conf: 0.5
     requires_count: 1
-    conditions:
+    any:
       - id: stderr-devnull-nospace
       - id: stderr-devnull-space
       - id: stderr-stdout-devnull
 
   - id: all-output-suppressed
-    description: All output suppressed (stdout and stderr to /dev/null)
-    criticality: notable
-    confidence: 0.6
+    desc: All output suppressed (stdout and stderr to /dev/null)
+    crit: notable
+    conf: 0.6
     requires_count: 1
-    conditions:
+    any:
       - id: stdout-then-stderr
       - id: ampersand-devnull
       - id: stderr-then-stdout
