@@ -110,7 +110,20 @@ impl Radare2Analyzer {
     }
 
     /// Extract strings from binary
+    /// For large binaries (>20MB), returns empty to avoid slow r2 startup
+    /// strangs already provides good string extraction for Go/Rust binaries
     pub fn extract_strings(&self, file_path: &Path) -> Result<Vec<R2String>> {
+        // Skip r2 string extraction for large binaries - strangs handles these well
+        const MAX_SIZE_FOR_R2_STRINGS: u64 = 20 * 1024 * 1024; // 20MB
+
+        let file_size = std::fs::metadata(file_path)
+            .map(|m| m.len())
+            .unwrap_or(0);
+
+        if file_size > MAX_SIZE_FOR_R2_STRINGS {
+            return Ok(Vec::new());
+        }
+
         let output = Command::new("r2")
             .arg("-q")
             .arg("-e")
@@ -562,8 +575,25 @@ impl Radare2Analyzer {
         let timing = std::env::var("DISSECT_TIMING").is_ok();
         let t_start = std::time::Instant::now();
 
-        // Run a single r2 session with batched commands separated by "echo SEPARATOR"
-        // Commands: aa (analyze), aflj (functions), iSj (sections)
+        // Check file size - skip expensive function analysis for large binaries
+        // Large binaries (>20MB) take minutes to analyze with 'aa'
+        // We can still get useful section/entropy data without function analysis
+        const MAX_SIZE_FOR_FULL_ANALYSIS: u64 = 20 * 1024 * 1024; // 20MB
+
+        let file_size = std::fs::metadata(file_path)
+            .map(|m| m.len())
+            .unwrap_or(0);
+
+        let skip_function_analysis = file_size > MAX_SIZE_FOR_FULL_ANALYSIS;
+
+        // For large binaries: just get sections (fast, no analysis needed)
+        // For small binaries: full analysis with functions
+        let command = if skip_function_analysis {
+            "iSj" // Just sections - no analysis, very fast
+        } else {
+            "aa; aflj; echo SEPARATOR; iSj" // Full analysis
+        };
+
         let output = Command::new("r2")
             .arg("-q")
             .arg("-e")
@@ -571,7 +601,7 @@ impl Radare2Analyzer {
             .arg("-e")
             .arg("log.level=0")
             .arg("-c")
-            .arg("aa; aflj; echo SEPARATOR; iSj")
+            .arg(command)
             .arg(file_path)
             .output()
             .context("Failed to execute radare2")?;
@@ -581,29 +611,46 @@ impl Radare2Analyzer {
         }
 
         let output_str = String::from_utf8_lossy(&output.stdout);
-        let parts: Vec<&str> = output_str.split("SEPARATOR").collect();
 
-        // Parse functions (first part, after aa output)
-        let functions: Vec<R2Function> = parts
-            .first()
-            .and_then(|p| {
-                let json_start = p.find('[')?;
-                serde_json::from_str(&p[json_start..]).ok()
-            })
-            .unwrap_or_default();
+        let (functions, sections) = if skip_function_analysis {
+            // Only sections were extracted
+            let sections: Vec<R2Section> = output_str
+                .find('[')
+                .and_then(|start| serde_json::from_str(&output_str[start..]).ok())
+                .unwrap_or_default();
+            (Vec::new(), sections)
+        } else {
+            // Full analysis - parse both functions and sections
+            let parts: Vec<&str> = output_str.split("SEPARATOR").collect();
 
-        // Parse sections (second part)
-        let sections: Vec<R2Section> = parts
-            .get(1)
-            .and_then(|p| {
-                let json_start = p.find('[')?;
-                serde_json::from_str(&p[json_start..]).ok()
-            })
-            .unwrap_or_default();
+            let functions: Vec<R2Function> = parts
+                .first()
+                .and_then(|p| {
+                    let json_start = p.find('[')?;
+                    serde_json::from_str(&p[json_start..]).ok()
+                })
+                .unwrap_or_default();
+
+            let sections: Vec<R2Section> = parts
+                .get(1)
+                .and_then(|p| {
+                    let json_start = p.find('[')?;
+                    serde_json::from_str(&p[json_start..]).ok()
+                })
+                .unwrap_or_default();
+
+            (functions, sections)
+        };
 
         if timing {
+            let mode = if skip_function_analysis {
+                "sections-only"
+            } else {
+                "functions+sections"
+            };
             eprintln!(
-                "[TIMING] radare2 batched (functions+sections): {:?}",
+                "[TIMING] radare2 batched ({}): {:?}",
+                mode,
                 t_start.elapsed()
             );
         }

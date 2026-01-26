@@ -32,10 +32,45 @@ use anyhow::{Context, Result};
 use clap::Parser;
 use rayon::prelude::*;
 use std::fs;
-use std::io::IsTerminal;
+use std::io::{BufRead, IsTerminal};
 use std::path::Path;
 use std::sync::{Arc, Mutex};
 use yara_engine::YaraEngine;
+
+/// Read paths from stdin, one per line.
+/// Filters out empty lines and comments (lines starting with #).
+fn read_paths_from_stdin() -> Vec<String> {
+    let stdin = std::io::stdin();
+    let reader = stdin.lock();
+    reader
+        .lines()
+        .filter_map(|line| line.ok())
+        .map(|line| line.trim().to_string())
+        .filter(|line| !line.is_empty() && !line.starts_with('#'))
+        .collect()
+}
+
+/// Expand paths, replacing "-" with paths read from stdin.
+fn expand_paths(paths: Vec<String>) -> Vec<String> {
+    let mut expanded = Vec::new();
+    let mut stdin_read = false;
+
+    for path in paths {
+        if path == "-" {
+            if !stdin_read {
+                let stdin_paths = read_paths_from_stdin();
+                eprintln!("Read {} paths from stdin", stdin_paths.len());
+                expanded.extend(stdin_paths);
+                stdin_read = true;
+            }
+            // If "-" appears multiple times, only read stdin once
+        } else {
+            expanded.push(path);
+        }
+    }
+
+    expanded
+}
 
 fn main() -> Result<()> {
     let args = cli::Args::parse();
@@ -86,14 +121,18 @@ fn main() -> Result<()> {
         }) => {
             let enable_third_party =
                 (enable_third_party_global || cmd_third_party) && !disabled.third_party;
-            let path = Path::new(&targets[0]);
-            if targets.len() == 1 && !path.exists() {
+            let expanded = expand_paths(targets);
+            if expanded.is_empty() {
+                anyhow::bail!("No valid paths found (stdin was empty or contained only comments)");
+            }
+            let path = Path::new(&expanded[0]);
+            if expanded.len() == 1 && !path.exists() {
                 // Single nonexistent path - error
-                anyhow::bail!("Path does not exist: {}", targets[0]);
-            } else if targets.len() == 1 && path.is_file() {
+                anyhow::bail!("Path does not exist: {}", expanded[0]);
+            } else if expanded.len() == 1 && path.is_file() {
                 // Single file - use detailed analyze
                 analyze_file(
-                    &targets[0],
+                    &expanded[0],
                     enable_third_party,
                     &format,
                     &zip_passwords,
@@ -102,7 +141,7 @@ fn main() -> Result<()> {
             } else {
                 // Multiple targets or directory - use scan
                 scan_paths(
-                    targets,
+                    expanded,
                     enable_third_party,
                     &format,
                     &zip_passwords,
@@ -114,7 +153,7 @@ fn main() -> Result<()> {
             paths,
             third_party_yara: cmd_third_party,
         }) => scan_paths(
-            paths,
+            expand_paths(paths),
             (enable_third_party_global || cmd_third_party) && !disabled.third_party,
             &format,
             &zip_passwords,
@@ -129,8 +168,12 @@ fn main() -> Result<()> {
             if args.paths.is_empty() {
                 anyhow::bail!("No paths specified. Usage: dissect <path>... or dissect <command>");
             }
+            let expanded = expand_paths(args.paths);
+            if expanded.is_empty() {
+                anyhow::bail!("No valid paths found (stdin was empty or contained only comments)");
+            }
             scan_paths(
-                args.paths,
+                expanded,
                 enable_third_party_global,
                 &format,
                 &zip_passwords,
