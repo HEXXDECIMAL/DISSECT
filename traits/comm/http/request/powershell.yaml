@@ -1,0 +1,151 @@
+# HTTP Request Operations - PowerShell
+# MBC: C0002 (HTTP Communication)
+# ATT&CK: T1071.001
+
+defaults:
+  for: [powershell]
+  mbc: "C0002"
+  attack: "T1071.001"
+
+traits:
+  # === PowerShell HTTP cmdlets ===
+  - id: invoke-webrequest
+    desc: Invoke-WebRequest cmdlet (iwr/wget/curl alias)
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      regex: "Invoke-WebRequest|\\biwr\\b|\\bwget\\b|\\bcurl\\b"
+      case_insensitive: true
+
+  - id: invoke-restmethod
+    desc: Invoke-RestMethod cmdlet (irm alias)
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      regex: "Invoke-RestMethod|\\birm\\b"
+      case_insensitive: true
+
+  - id: webclient-download
+    desc: System.Net.WebClient DownloadString/DownloadFile
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: string
+      regex: "WebClient\\)?\\.Download|New-Object\\s+.{0,30}WebClient|\\(Net\\.WebClient\\)"
+      case_insensitive: true
+
+  - id: webclient-upload
+    desc: System.Net.WebClient UploadString/UploadFile
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: string
+      regex: "WebClient\\)?\\.Upload|UploadString|UploadFile|UploadData"
+      case_insensitive: true
+
+  - id: http-post-method
+    desc: HTTP POST method specification
+    crit: notable
+    conf: 0.75
+    if:
+      type: string
+      regex: "-Method\\s+POST|-Method\\s+['\"]POST['\"]"
+      case_insensitive: true
+
+  - id: http-body-param
+    desc: HTTP request body parameter
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      regex: "-Body\\s+[@$\\{\"']"
+      case_insensitive: true
+
+  - id: bitstransfer
+    desc: BITS transfer cmdlet (stealthy download)
+    crit: suspicious
+    conf: 0.85
+    attack: "T1197"
+    if:
+      type: string
+      regex: "Start-BitsTransfer|Import-Module\\s+BitsTransfer"
+      case_insensitive: true
+
+  - id: httpwebrequest
+    desc: System.Net.HttpWebRequest usage
+    crit: notable
+    conf: 0.75
+    if:
+      type: string
+      regex: "HttpWebRequest|\\[System\\.Net\\.HttpWebRequest\\]"
+      case_insensitive: true
+
+  - id: uri-literal
+    desc: HTTP/HTTPS URL literal
+    crit: notable
+    conf: 0.75
+    if:
+      type: string
+      regex: "https?://[a-zA-Z0-9][-a-zA-Z0-9]*\\.[a-zA-Z]{2,}"
+
+composite_rules:
+  # HTTP request composite
+  - id: request-powershell
+    desc: "Performs HTTP request"
+    crit: notable
+    conf: 0.9
+    count: 1
+    any:
+      - id: invoke-webrequest
+      - id: invoke-restmethod
+      - id: webclient-download
+      - id: httpwebrequest
+
+  # HTTP download composite
+  - id: download
+    desc: "Downloads content from URL"
+    crit: notable
+    conf: 0.9
+    count: 1
+    any:
+      - id: invoke-webrequest
+      - id: invoke-restmethod
+      - id: webclient-download
+      - id: bitstransfer
+
+  # HTTP POST composite
+  - id: post
+    desc: "Performs HTTP POST request"
+    crit: suspicious
+    conf: 0.85
+    all:
+      - id: http-post-method
+    any:
+      - id: invoke-webrequest
+      - id: invoke-restmethod
+
+  # Suspicious download pattern
+  - id: download-execute
+    desc: "Downloads and potentially executes content"
+    crit: suspicious
+    conf: 0.9
+    attack: "T1105"
+    all:
+      - id: uri-literal
+    any:
+      - id: webclient-download
+      - id: bitstransfer
+
+  # Data exfiltration pattern
+  - id: exfil
+    desc: "Potential data exfiltration via HTTP"
+    crit: suspicious
+    conf: 0.85
+    attack: "T1041"
+    count: 2
+    any:
+      - id: webclient-upload
+      - id: http-post-method
+      - id: http-body-param

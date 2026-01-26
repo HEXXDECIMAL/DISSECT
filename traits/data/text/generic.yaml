@@ -1,0 +1,151 @@
+# Generic Text Patterns - Neutral Building Blocks
+# These terms have no standalone malicious meaning - they only gain
+# significance when combined with contextual indicators in composite rules.
+# Placed here to avoid ML pipelines incorrectly weighting them as indicators.
+
+defaults:
+  crit: inert
+  conf: 0.2
+  for: ["*"]
+
+traits:
+  # === Memory/Buffer Terms ===
+  - id: overflow
+    desc: overflow keyword
+    if:
+      type: string
+      exact: "overflow"
+
+  - id: offset
+    desc: offset keyword
+    if:
+      type: string
+      exact: "offset"
+
+  - id: address
+    desc: address keyword
+    if:
+      type: string
+      exact: "address"
+
+  - id: padding
+    desc: padding keyword
+    if:
+      type: string
+      exact: "padding"
+
+  - id: buffer
+    desc: buffer keyword
+    if:
+      type: string
+      exact: "buffer"
+
+  # === Credential Terms ===
+  - id: token
+    desc: token keyword
+    if:
+      type: string
+      regex: "(?i)token"
+
+  - id: password
+    desc: password keyword
+    if:
+      type: string
+      exact: "password"
+      case_insensitive: true
+
+  - id: pwd
+    desc: pwd keyword
+    if:
+      type: string
+      exact: "pwd"
+      case_insensitive: true
+
+  - id: credential
+    desc: credential keyword
+    if:
+      type: string
+      exact: "credential"
+      case_insensitive: true
+
+  - id: secret
+    desc: secret keyword
+    if:
+      type: string
+      exact: "secret"
+      case_insensitive: true
+
+  # === Command/Execution Terms ===
+  - id: command
+    desc: command keyword
+    if:
+      type: string
+      exact: "command"
+
+  - id: output
+    desc: output keyword
+    if:
+      type: string
+      exact: "output"
+
+  - id: execute
+    desc: execute keyword
+    if:
+      type: string
+      exact: "execute"
+
+  - id: payload
+    desc: payload keyword
+    if:
+      type: string
+      exact: "payload"
+
+  - id: exploit
+    desc: exploit keyword
+    if:
+      type: string
+      exact: "exploit"
+
+  # === Network Terms ===
+  - id: socket
+    desc: socket keyword
+    if:
+      type: string
+      exact: "socket"
+
+  - id: connect
+    desc: connect keyword
+    if:
+      type: string
+      exact: "connect"
+
+  - id: send
+    desc: send keyword
+    if:
+      type: string
+      exact: "send"
+
+  - id: recv
+    desc: recv keyword
+    if:
+      type: string
+      exact: "recv"
+
+  # === Misc Generic Terms ===
+  - id: runtime
+    desc: runtime keyword
+    if:
+      type: string
+      exact: "runtime"
+
+  - id: tmp
+    desc: tmp keyword
+    if:
+      type: string
+      exact: "tmp"
+
+  - id: temp
+    desc: temp keyword
+    if:
+      type: string
+      exact: "temp"
