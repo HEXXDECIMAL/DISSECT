@@ -20,12 +20,15 @@ pub enum Platform {
 #[serde(rename_all = "lowercase")]
 pub enum FileType {
     All,
+    // Binary formats
     Elf,
     Macho,
     Pe,
     Dylib,
     So,
     Dll,
+    Class, // Java bytecode
+    // Source code formats
     Shell,
     Batch,
     Python,
@@ -33,7 +36,6 @@ pub enum FileType {
     TypeScript,
     Rust,
     Java,
-    Class,
     Ruby,
     C,
     Go,
@@ -48,8 +50,40 @@ pub enum FileType {
     Scala,
     Zig,
     Elixir,
-    PackageJson,
     AppleScript,
+    // Manifest/config formats
+    PackageJson,
+}
+
+impl FileType {
+    /// Returns true if this file type is source code (not a compiled binary)
+    pub fn is_source_code(&self) -> bool {
+        matches!(
+            self,
+            FileType::Shell
+                | FileType::Batch
+                | FileType::Python
+                | FileType::JavaScript
+                | FileType::TypeScript
+                | FileType::Rust
+                | FileType::Java
+                | FileType::Ruby
+                | FileType::C
+                | FileType::Go
+                | FileType::CSharp
+                | FileType::Php
+                | FileType::Lua
+                | FileType::Perl
+                | FileType::PowerShell
+                | FileType::Swift
+                | FileType::ObjectiveC
+                | FileType::Groovy
+                | FileType::Scala
+                | FileType::Zig
+                | FileType::Elixir
+                | FileType::AppleScript
+        )
+    }
 }
 
 /// Default platforms for rules (all platforms)

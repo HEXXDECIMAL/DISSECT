@@ -14,6 +14,11 @@ const MIN_CONST_SECTION_SIZE: usize = 500_000;
 /// Detection confidence threshold.
 const DETECTION_THRESHOLD: f32 = 0.5;
 
+/// Maximum binary size for AMOS detection (20MB).
+/// Real AMOS stealers are typically < 10MB. Large binaries like Go/Rust apps
+/// will generate false positives from random byte sequences matching PRNG constants.
+const MAX_AMOS_BINARY_SIZE: usize = 20 * 1024 * 1024;
+
 /// Mach-O magic numbers for quick format detection.
 const MH_MAGIC: u32 = 0xfeedface; // 32-bit
 const MH_MAGIC_64: u32 = 0xfeedfacf; // 64-bit
@@ -36,11 +41,56 @@ fn is_macho(data: &[u8]) -> bool {
     )
 }
 
+/// Quick check if data looks like a Go binary.
+/// Go binaries have characteristic strings that AMOS stealers don't have.
+/// This prevents false positives from large Go binaries containing random bytes
+/// that happen to match PRNG constants.
+#[inline]
+fn is_go_binary(data: &[u8]) -> bool {
+    // Go build ID marker (present in all Go binaries)
+    if memchr::memmem::find(data, b"go.buildid").is_some() {
+        return true;
+    }
+    // Go runtime panic string (present in most Go binaries)
+    if memchr::memmem::find(data, b"runtime.gopanic").is_some() {
+        return true;
+    }
+    // Go module path marker
+    if memchr::memmem::find(data, b"go.mod\x00").is_some() {
+        return true;
+    }
+    false
+}
+
 /// Detect AMOS cipher variant in binary data.
 pub fn detect(data: &[u8]) -> Result<AMOSDetectionResult, AMOSError> {
     // Quick check: AMOS only targets Mach-O binaries
     // Skip analysis for non-Mach-O to save significant CPU time
     if !is_macho(data) {
+        return Ok(AMOSDetectionResult {
+            detected: false,
+            variant: None,
+            conf: 0.0,
+            payload_locations: vec![],
+            evidence: vec![],
+        });
+    }
+
+    // Size check: AMOS stealers are typically < 10MB
+    // Large binaries (like Go/Rust apps) produce false positives from random bytes
+    if data.len() > MAX_AMOS_BINARY_SIZE {
+        return Ok(AMOSDetectionResult {
+            detected: false,
+            variant: None,
+            conf: 0.0,
+            payload_locations: vec![],
+            evidence: vec![],
+        });
+    }
+
+    // Go runtime check: Go binaries are not AMOS and often trigger false positives
+    // from random byte sequences matching PRNG constants
+    if is_go_binary(data) {
         return Ok(AMOSDetectionResult {
             detected: false,
             variant: None,

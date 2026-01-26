@@ -21,7 +21,6 @@ mod archive_utils;
 mod cache;
 mod constant_decoder;
 mod entropy;
-mod lang_strings;
 mod radare2;
 mod strings;
 mod syscall_names;

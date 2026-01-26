@@ -87,6 +87,8 @@ struct StringMatchIndex {
     automaton: Option<AhoCorasick>,
     /// Maps pattern index -> trait indices that use this pattern
     pattern_to_traits: Vec<Vec<usize>>,
+    /// Maps pattern index -> the pattern string (for evidence)
+    patterns: Vec<String>,
     /// Total number of traits with exact string patterns
     total_patterns: usize,
 }
@@ -96,6 +98,7 @@ impl Default for StringMatchIndex {
         Self {
             automaton: None,
             pattern_to_traits: Vec::new(),
+            patterns: Vec::new(),
             total_patterns: 0,
         }
     }
@@ -145,55 +148,51 @@ impl StringMatchIndex {
         Self {
             automaton,
             pattern_to_traits,
+            patterns,
             total_patterns,
         }
     }
 
-    /// Find all trait indices whose exact string patterns match in the given text.
-    /// Returns a set of trait indices that could potentially match.
-    fn find_matching_traits(&self, text: &str) -> FxHashSet<usize> {
-        let mut matching_traits = FxHashSet::default();
-
-        if let Some(ref ac) = self.automaton {
-            for mat in ac.find_iter(text) {
-                let pattern_idx = mat.pattern().as_usize();
-                if let Some(trait_indices) = self.pattern_to_traits.get(pattern_idx) {
-                    for &trait_idx in trait_indices {
-                        matching_traits.insert(trait_idx);
-                    }
-                }
-            }
-        }
-
-        matching_traits
+    /// Returns true if the index has patterns to match
+    fn has_patterns(&self) -> bool {
+        self.total_patterns > 0
     }
 
-    /// Find matching traits in binary data (for extracted strings).
-    fn find_matching_traits_in_strings<'a, I>(&self, strings: I) -> FxHashSet<usize>
-    where
-        I: Iterator<Item = &'a str>,
-    {
+    /// Find matching traits with cached evidence.
+    /// Returns trait indices AND the evidence (matched patterns + offsets) for each.
+    /// This avoids re-iterating strings during trait evaluation.
+    fn find_matches_with_evidence(
+        &self,
+        strings: &[crate::types::StringInfo],
+    ) -> (FxHashSet<usize>, FxHashMap<usize, Vec<crate::types::Evidence>>) {
         let mut matching_traits = FxHashSet::default();
+        let mut trait_evidence: FxHashMap<usize, Vec<crate::types::Evidence>> = FxHashMap::default();
 
         if let Some(ref ac) = self.automaton {
-            for s in strings {
-                for mat in ac.find_iter(s) {
+            for string_info in strings {
+                for mat in ac.find_iter(&string_info.value) {
                     let pattern_idx = mat.pattern().as_usize();
                     if let Some(trait_indices) = self.pattern_to_traits.get(pattern_idx) {
+                        let pattern = &self.patterns[pattern_idx];
                         for &trait_idx in trait_indices {
                             matching_traits.insert(trait_idx);
+                            // Cache evidence for this trait
+                            trait_evidence
+                                .entry(trait_idx)
+                                .or_default()
+                                .push(crate::types::Evidence {
+                                    method: "string".to_string(),
+                                    source: "string_extractor".to_string(),
+                                    value: pattern.clone(),
+                                    location: string_info.offset.clone(),
+                                });
                         }
                     }
                 }
             }
         }
 
-        matching_traits
-    }
-
-    /// Returns true if the index has patterns to match
-    fn has_patterns(&self) -> bool {
-        self.total_patterns > 0
+        (matching_traits, trait_evidence)
     }
 }
 
@@ -1202,23 +1201,14 @@ impl CapabilityMapper {
         // This dramatically reduces work for specific file types
         let applicable_indices: Vec<usize> = self.trait_index.get_applicable(&file_type).collect();
 
-        // Pre-filter using batched Aho-Corasick string matching
-        // This identifies which traits could possibly match based on their exact string patterns
+        // Pre-filter using batched Aho-Corasick string matching WITH evidence caching
+        // This identifies which traits match AND caches the evidence to avoid re-iteration
         let t_prematch = std::time::Instant::now();
-        let string_matched_traits: FxHashSet<usize> = if self.string_match_index.has_patterns() {
-            // Search in extracted strings first
-            let mut matched = self
-                .string_match_index
-                .find_matching_traits_in_strings(report.strings.iter().map(|s| s.value.as_str()));
-
-            // Also search in raw binary data (for source files)
-            if let Ok(content) = std::str::from_utf8(binary_data) {
-                matched.extend(self.string_match_index.find_matching_traits(content));
-            }
-
-            matched
+        let (string_matched_traits, cached_evidence) = if self.string_match_index.has_patterns() {
+            self.string_match_index
+                .find_matches_with_evidence(&report.strings)
         } else {
-            FxHashSet::default()
+            (FxHashSet::default(), FxHashMap::default())
         };
 
         if timing {
@@ -1230,14 +1220,46 @@ impl CapabilityMapper {
         }
 
         // Evaluate only applicable traits in parallel
-        // Skip traits with exact string patterns that didn't match in pre-filter
+        // For exact string traits with cached evidence, use that directly instead of re-evaluating
         let t_eval = std::time::Instant::now();
         let all_findings: Vec<Finding> = applicable_indices
             .par_iter()
             .filter_map(|&idx| {
-                // Check if this trait was excluded by string pre-filter
-                // Traits with no exact string pattern (or with regex) are always evaluated
                 let trait_def = &self.trait_definitions[idx];
+
+                // Check if this is an exact string trait (case-sensitive, no excludes)
+                let is_simple_exact_string = matches!(
+                    &trait_def.r#if,
+                    Condition::String {
+                        exact: Some(_),
+                        case_insensitive: false,
+                        exclude_patterns: None,
+                        min_count: 1,
+                        ..
+                    }
+                );
+
+                if is_simple_exact_string {
+                    // Use cached evidence directly - skip full evaluation
+                    if let Some(evidence) = cached_evidence.get(&idx) {
+                        if !evidence.is_empty() {
+                            return Some(Finding {
+                                id: trait_def.id.clone(),
+                                desc: trait_def.desc.clone(),
+                                conf: trait_def.conf,
+                                crit: trait_def.crit,
+                                mbc: trait_def.mbc.clone(),
+                                attack: trait_def.attack.clone(),
+                                evidence: evidence.clone(),
+                                kind: FindingKind::Capability,
+                                trait_refs: vec![],
+                            });
+                        }
+                    }
+                    return None;
+                }
+
+                // Check if this trait has an exact string pattern that wasn't matched
                 let has_exact_string = matches!(
                     trait_def.r#if,
                     Condition::String {

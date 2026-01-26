@@ -1,8 +1,12 @@
-use crate::lang_strings::{extract_lang_strings, is_go_binary, ExtractedString};
+use crate::radare2::R2String;
 use crate::types::{StringInfo, StringType};
+use goblin::elf::Elf;
+use goblin::mach::MachO;
+use goblin::pe::PE;
 use regex::Regex;
 use rustc_hash::FxHashSet;
 use std::collections::{HashMap, HashSet};
+use strangs::{ExtractOptions, ExtractedString, StringKind, StringMethod};
 
 /// Extract and classify strings from binary data
 pub struct StringExtractor {
@@ -155,9 +159,12 @@ impl StringExtractor {
     /// 2. Falls back to basic ASCII extraction for other binaries
     /// 3. Merges results from both methods, deduplicating by value
     pub fn extract_smart(&self, data: &[u8]) -> Vec<StringInfo> {
+        // Build strangs options with garbage filtering enabled
+        let opts = ExtractOptions::new(self.min_length).with_garbage_filter(true);
+
         // Run both extractions in parallel
         let (lang_strings, basic_strings) = rayon::join(
-            || extract_lang_strings(data, self.min_length),
+            || strangs::extract_strings_with_options(data, &opts),
             || self.extract(data, None),
         );
 
@@ -185,19 +192,169 @@ impl StringExtractor {
         strings
     }
 
+    /// Extract strings using language-aware analysis with optional r2 strings.
+    ///
+    /// This method accepts optional r2 strings if the caller has already run radare2.
+    ///
+    /// # Arguments
+    ///
+    /// * `data` - The raw binary data
+    /// * `r2_strings` - Optional pre-extracted radare2 strings
+    pub fn extract_smart_with_r2(
+        &self,
+        data: &[u8],
+        r2_strings: Option<Vec<R2String>>,
+    ) -> Vec<StringInfo> {
+        // Convert r2 strings to strangs format if provided
+        let strangs_r2 = r2_strings.map(|r2s| r2_to_strangs(r2s, self.min_length));
+
+        // Build strangs options with garbage filtering and optional r2 strings
+        let mut opts = ExtractOptions::new(self.min_length).with_garbage_filter(true);
+        if let Some(r2) = strangs_r2 {
+            opts = opts.with_r2_strings(r2);
+        }
+
+        // Run both extractions in parallel
+        let (lang_strings, basic_strings) = rayon::join(
+            || strangs::extract_strings_with_options(data, &opts),
+            || self.extract(data, None),
+        );
+
+        // Pre-size based on expected string count
+        let estimated_count = data.len() / 20;
+        let mut seen: FxHashSet<String> =
+            FxHashSet::with_capacity_and_hasher(estimated_count, Default::default());
+        let mut strings = Vec::with_capacity(estimated_count);
+
+        for es in lang_strings {
+            if !seen.contains(&es.value) {
+                seen.insert(es.value.clone());
+                strings.push(self.convert_extracted_string(es));
+            }
+        }
+
+        for s in basic_strings {
+            if !seen.contains(&s.value) {
+                seen.insert(s.value.clone());
+                strings.push(s);
+            }
+        }
+
+        strings
+    }
+
     /// Check if the binary is a Go binary (useful for conditional processing)
     #[allow(dead_code)]
     pub fn is_go_binary(&self, data: &[u8]) -> bool {
-        is_go_binary(data)
+        strangs::is_go_binary(data)
     }
 
-    /// Convert an ExtractedString from lang_strings to StringInfo
+    /// Extract strings from a pre-parsed Mach-O binary with optional r2 strings.
+    ///
+    /// This avoids re-parsing the binary in strangs since DISSECT already parsed it.
+    pub fn extract_from_macho(
+        &self,
+        macho: &MachO,
+        data: &[u8],
+        r2_strings: Option<Vec<R2String>>,
+    ) -> Vec<StringInfo> {
+        let strangs_r2 = r2_strings.map(|r2s| r2_to_strangs(r2s, self.min_length));
+        let mut opts = ExtractOptions::new(self.min_length).with_garbage_filter(true);
+        if let Some(r2) = strangs_r2 {
+            opts = opts.with_r2_strings(r2);
+        }
+
+        let (lang_strings, basic_strings) = rayon::join(
+            || strangs::extract_from_macho(macho, data, &opts),
+            || self.extract(data, None),
+        );
+
+        self.merge_strings(lang_strings, basic_strings, data.len())
+    }
+
+    /// Extract strings from a pre-parsed ELF binary with optional r2 strings.
+    ///
+    /// This avoids re-parsing the binary in strangs since DISSECT already parsed it.
+    pub fn extract_from_elf(
+        &self,
+        elf: &Elf,
+        data: &[u8],
+        r2_strings: Option<Vec<R2String>>,
+    ) -> Vec<StringInfo> {
+        let strangs_r2 = r2_strings.map(|r2s| r2_to_strangs(r2s, self.min_length));
+        let mut opts = ExtractOptions::new(self.min_length).with_garbage_filter(true);
+        if let Some(r2) = strangs_r2 {
+            opts = opts.with_r2_strings(r2);
+        }
+
+        let (lang_strings, basic_strings) = rayon::join(
+            || strangs::extract_from_elf(elf, data, &opts),
+            || self.extract(data, None),
+        );
+
+        self.merge_strings(lang_strings, basic_strings, data.len())
+    }
+
+    /// Extract strings from a pre-parsed PE binary with optional r2 strings.
+    ///
+    /// This avoids re-parsing the binary in strangs since DISSECT already parsed it.
+    pub fn extract_from_pe(
+        &self,
+        pe: &PE,
+        data: &[u8],
+        r2_strings: Option<Vec<R2String>>,
+    ) -> Vec<StringInfo> {
+        let strangs_r2 = r2_strings.map(|r2s| r2_to_strangs(r2s, self.min_length));
+        let mut opts = ExtractOptions::new(self.min_length).with_garbage_filter(true);
+        if let Some(r2) = strangs_r2 {
+            opts = opts.with_r2_strings(r2);
+        }
+
+        let (lang_strings, basic_strings) = rayon::join(
+            || strangs::extract_from_pe(pe, data, &opts),
+            || self.extract(data, None),
+        );
+
+        self.merge_strings(lang_strings, basic_strings, data.len())
+    }
+
+    /// Merge language-aware strings with basic extraction, deduplicating by value.
+    fn merge_strings(
+        &self,
+        lang_strings: Vec<ExtractedString>,
+        basic_strings: Vec<StringInfo>,
+        data_len: usize,
+    ) -> Vec<StringInfo> {
+        let estimated_count = data_len / 20;
+        let mut seen: FxHashSet<String> =
+            FxHashSet::with_capacity_and_hasher(estimated_count, Default::default());
+        let mut strings = Vec::with_capacity(estimated_count);
+
+        for es in lang_strings {
+            if !seen.contains(&es.value) {
+                seen.insert(es.value.clone());
+                strings.push(self.convert_extracted_string(es));
+            }
+        }
+
+        for s in basic_strings {
+            if !seen.contains(&s.value) {
+                seen.insert(s.value.clone());
+                strings.push(s);
+            }
+        }
+
+        strings
+    }
+
+    /// Convert an ExtractedString from strangs to StringInfo
     fn convert_extracted_string(&self, es: ExtractedString) -> StringInfo {
-        let string_type = self.classify_string_type(&es.value);
-        let _library = if string_type == StringType::Import {
-            self.get_import_library(&es.value)
-        } else {
-            None
+        // Use strangs' kind if it's an import/export, otherwise classify ourselves
+        let string_type = match es.kind {
+            StringKind::Import => StringType::Import,
+            StringKind::Export => StringType::Export,
+            StringKind::FuncName => StringType::Function,
+            _ => self.classify_string_type(&es.value),
         };
 
         StringInfo {
@@ -269,6 +426,7 @@ impl StringExtractor {
         self.symbol_map.get(&normalized).map(|(t, _)| *t)
     }
 
+    #[allow(dead_code)]
     fn get_import_library(&self, value: &str) -> Option<String> {
         let normalized = Self::normalize_symbol(value);
         self.symbol_map
@@ -347,6 +505,22 @@ impl Default for StringExtractor {
     fn default() -> Self {
         Self::new()
     }
+}
+
+/// Convert radare2 strings to strangs format
+fn r2_to_strangs(r2_strings: Vec<R2String>, min_length: usize) -> Vec<ExtractedString> {
+    r2_strings
+        .into_iter()
+        .filter(|s| s.string.len() >= min_length)
+        .map(|s| ExtractedString {
+            value: s.string,
+            data_offset: s.paddr,
+            section: None,
+            method: StringMethod::R2String,
+            kind: StringKind::Const,
+            library: None,
+        })
+        .collect()
 }
 
 #[cfg(test)]

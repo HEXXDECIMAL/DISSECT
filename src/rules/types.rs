@@ -24,12 +24,15 @@ pub enum Platform {
 #[serde(rename_all = "lowercase")]
 pub enum FileType {
     All,
+    // Binary formats
     Elf,
     Macho,
     Pe,
     Dylib,
     So,
     Dll,
+    Class, // Java bytecode
+    // Source code formats
     Shell,
     Batch,
     Python,
@@ -37,12 +40,22 @@ pub enum FileType {
     TypeScript,
     Rust,
     Java,
-    Class,
     Ruby,
     C,
     Go,
-    CSharp,
     Php,
+    CSharp,
+    Lua,
+    Perl,
+    PowerShell,
+    Swift,
+    ObjectiveC,
+    Groovy,
+    Scala,
+    Zig,
+    Elixir,
+    AppleScript,
+    // Manifest/config formats
     PackageJson,
 }
 
@@ -64,6 +77,16 @@ impl FileType {
                 | FileType::Go
                 | FileType::CSharp
                 | FileType::Php
+                | FileType::Lua
+                | FileType::Perl
+                | FileType::PowerShell
+                | FileType::Swift
+                | FileType::ObjectiveC
+                | FileType::Groovy
+                | FileType::Scala
+                | FileType::Zig
+                | FileType::Elixir
+                | FileType::AppleScript
         )
     }
 }

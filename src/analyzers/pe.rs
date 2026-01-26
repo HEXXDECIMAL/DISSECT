@@ -71,18 +71,23 @@ impl PEAnalyzer {
         // Analyze sections and entropy
         self.analyze_sections(&pe, data, &mut report)?;
 
-        // Extract strings using language-aware extraction (Go/Rust) with fallback
-        report.strings = self.string_extractor.extract_smart(data);
-        tools_used.push("string_extractor".to_string());
-
-        // Use radare2 for deep analysis if available
-        if Radare2Analyzer::is_available() {
+        // Use radare2 for deep analysis if available - extract strings for passing to strangs
+        let r2_strings = if Radare2Analyzer::is_available() {
             tools_used.push("radare2".to_string());
 
             if let Ok(functions) = self.radare2.extract_functions(file_path) {
                 report.functions = functions;
             }
-        }
+
+            // Extract r2 strings to pass to strangs
+            self.radare2.extract_strings(file_path).ok()
+        } else {
+            None
+        };
+
+        // Extract strings using language-aware extraction (Go/Rust) with pre-parsed PE
+        report.strings = self.string_extractor.extract_from_pe(&pe, data, r2_strings);
+        tools_used.push("strangs".to_string());
 
         // Run YARA scan if engine is loaded
         if let Some(yara_engine) = &self.yara_engine {

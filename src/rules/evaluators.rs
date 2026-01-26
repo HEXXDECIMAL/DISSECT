@@ -209,12 +209,7 @@ pub fn eval_string(params: &StringParams, ctx: &EvaluationContext) -> ConditionR
     }
 
     // For source files or when no strings were extracted, search binary_data directly
-    if ctx.report.strings.is_empty()
-        || matches!(
-            ctx.file_type,
-            FileType::Python | FileType::Ruby | FileType::JavaScript | FileType::Shell | FileType::Php
-        )
-    {
+    if ctx.report.strings.is_empty() || ctx.file_type.is_source_code() {
         if let Ok(content) = std::str::from_utf8(ctx.binary_data) {
             let mut matched = false;
             let mut match_value = String::new();

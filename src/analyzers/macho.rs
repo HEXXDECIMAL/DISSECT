@@ -78,16 +78,12 @@ impl MachOAnalyzer {
         // Analyze sections and entropy
         self.analyze_sections(&macho, data, &mut report)?;
 
-        // Extract strings using language-aware extraction (Go/Rust) with fallback
-        report.strings = self.string_extractor.extract_smart(data);
-        tools_used.push("string_extractor".to_string());
-
         // AMOS cipher detection and decryption
         self.analyze_amos_cipher(data, &mut report, &mut tools_used);
 
-        // Use radare2 for deep analysis if available - use batched extraction for speed
+        // Use radare2 for deep analysis if available - extract strings for passing to strangs
         let t_r2 = std::time::Instant::now();
-        if Radare2Analyzer::is_available() {
+        let r2_strings = if Radare2Analyzer::is_available() {
             tools_used.push("radare2".to_string());
 
             // Use batched extraction - single r2 session for functions and sections
@@ -102,10 +98,19 @@ impl MachOAnalyzer {
                 // Convert R2Functions to Functions for the report
                 report.functions = batched.functions.into_iter().map(Function::from).collect();
             }
-        }
+
+            // Extract r2 strings to pass to strangs
+            self.radare2.extract_strings(file_path).ok()
+        } else {
+            None
+        };
         if timing {
             eprintln!("[TIMING] radare2 batched analysis: {:?}", t_r2.elapsed());
         }
+
+        // Extract strings using language-aware extraction (Go/Rust) with pre-parsed Mach-O
+        report.strings = self.string_extractor.extract_from_macho(&macho, data, r2_strings);
+        tools_used.push("strangs".to_string());
 
         // Run YARA scan if engine is loaded
         if let Some(yara_engine) = &self.yara_engine {

@@ -13,6 +13,9 @@ members = [".", "crates/scpt"]
 # Binary parsing
 goblin = "0.8"
 
+# Language-aware string extraction
+strangs = { path = "../strangs" }
+
 # AppleScript parsing
 scpt = { path = "crates/scpt" }
 

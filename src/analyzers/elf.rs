@@ -57,7 +57,7 @@ impl ElfAnalyzer {
         let mut tools_used = vec![];
 
         // Attempt to parse with goblin
-        match Elf::parse(data) {
+        let parsed_elf = match Elf::parse(data) {
             Ok(elf) => {
                 tools_used.push("goblin".to_string());
 
@@ -72,6 +72,8 @@ impl ElfAnalyzer {
 
                 // Analyze sections and entropy
                 self.analyze_sections(&elf, data, &mut report)?;
+
+                Some(elf)
             }
             Err(e) => {
                 // Parsing failed - this is a strong indicator of malformed/hostile binary
@@ -91,15 +93,12 @@ impl ElfAnalyzer {
                     .metadata
                     .errors
                     .push(format!("ELF parse error: {}", e));
+                None
             }
-        }
+        };
 
-        // Extract strings using language-aware extraction (Go/Rust) with fallback
-        report.strings = self.string_extractor.extract_smart(data);
-        tools_used.push("string_extractor".to_string());
-
-        // Use radare2 for deep analysis if available
-        if Radare2Analyzer::is_available() {
+        // Use radare2 for deep analysis if available - extract strings for passing to strangs
+        let r2_strings = if Radare2Analyzer::is_available() {
             tools_used.push("radare2".to_string());
 
             if let Ok(functions) = self.radare2.extract_functions(file_path) {
@@ -110,7 +109,20 @@ impl ElfAnalyzer {
             if let Ok(syscalls) = self.radare2.extract_syscalls(file_path) {
                 report.syscalls = syscalls;
             }
+
+            // Extract r2 strings to pass to strangs
+            self.radare2.extract_strings(file_path).ok()
+        } else {
+            None
+        };
+
+        // Extract strings using language-aware extraction (Go/Rust) with pre-parsed ELF if available
+        if let Some(ref elf) = parsed_elf {
+            report.strings = self.string_extractor.extract_from_elf(elf, data, r2_strings);
+        } else {
+            report.strings = self.string_extractor.extract_smart_with_r2(data, r2_strings);
         }
+        tools_used.push("strangs".to_string());
 
         // Run YARA scan if engine is loaded
         if let Some(yara_engine) = &self.yara_engine {
