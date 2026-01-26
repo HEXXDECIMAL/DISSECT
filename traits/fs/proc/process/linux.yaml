@@ -35,6 +35,14 @@ traits:
       type: string
       exact: /proc/self/status
 
+  - id: process-self-maps
+    description: Read own process memory maps via /proc/self/maps
+    crit: inert
+    conf: 0.66
+    if:
+      type: string
+      exact: /proc/self/maps
+
   - id: process-pid-maps
     description: Read process memory maps via /proc/*/maps
     crit: notable

@@ -41,3 +41,14 @@ traits:
       type: metrics
       field: go_metrics.os_startprocess_count
       min: 1
+
+  # === Binary (compiled Go) ===
+  - id: cmd-run
+    desc: Go os/exec.Cmd.Run
+    crit: notable
+    conf: 0.5
+    platforms: [all]
+    for: [elf, macho]
+    if:
+      type: string
+      exact: "os/exec.(*Cmd).Run"

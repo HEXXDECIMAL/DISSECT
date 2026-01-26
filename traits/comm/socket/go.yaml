@@ -32,3 +32,24 @@ traits:
       type: metrics
       field: go_metrics.http_usage
       min: 1
+
+  # === Binary (compiled Go) ===
+  - id: net-conn-write
+    desc: Go net.conn.Write
+    crit: notable
+    conf: 0.5
+    platforms: [all]
+    for: [elf, macho]
+    if:
+      type: string
+      exact: "net.(*conn).Write"
+
+  - id: dial-tcp
+    desc: Go dialTCP
+    crit: notable
+    conf: 0.5
+    platforms: [all]
+    for: [elf, macho]
+    if:
+      type: string
+      exact: "dialTCP"

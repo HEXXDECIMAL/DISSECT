@@ -25,12 +25,3 @@ traits:
     if:
       type: symbol
       pattern: ftp_put|STOR
-
-  - id: large-buffer
-    description: Large network send buffer (bulk exfiltration)
-    crit: inert
-    mbc: "E1041"
-    conf: 0.4
-    if:
-      type: symbol
-      pattern: send|sendto|write

@@ -91,23 +91,6 @@ traits:
       type: string
       exact: "Software\\SimonTatham\\PuTTY\\Sessions"
 
-  # === Atomic: SSHD Process (no ATT&CK - process reference, not credential access) ===
-  - id: sshd-ref
-    desc: SSHD daemon reference
-    crit: notable
-    conf: 0.5
-    if:
-      type: string
-      exact: "sshd"
-
-  - id: sshd-path
-    desc: SSHD daemon path
-    crit: suspicious
-    conf: 0.7
-    if:
-      type: string
-      exact: "/usr/bin/sshd"
-
   # === Atomic: SSHD network process indicators ===
   - id: sshd-net-bracket
     desc: SSHD net process reference
@@ -407,7 +390,7 @@ composite_rules:
     all:
       - id: ptrace-tracer
       - id: password-pattern
-      - id: sshd-ref
+      - id: os/service/ssh/sshd-ref
 
   # === Composite: SSH credential theft behavior ===
   - id: credential-theft
@@ -422,4 +405,4 @@ composite_rules:
       - id: session-sniff
       - id: password-file-storage
     all:
-      - id: sshd-ref
+      - id: os/service/ssh/sshd-ref

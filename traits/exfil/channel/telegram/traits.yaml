@@ -73,16 +73,6 @@ traits:
       type: string
       regex: "\\d{8,10}:[A-Za-z0-9_-]{35}"
 
-  - id: form-data-header
-    desc: HTTP multipart form-data header
-    crit: notable
-    conf: 0.7
-    attack: "T1567.002"
-    for: [all]
-    if:
-      type: string
-      exact: "Content-Disposition: form-data"
-
 composite_rules:
   - id: bot-exfil
     desc: Telegram bot exfiltration

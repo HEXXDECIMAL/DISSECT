@@ -60,29 +60,7 @@ traits:
       type: string
       exact: "0>&1"
 
-  # === Atomic: mkfifo + Netcat ===
-
-  - id: mkfifo
-    desc: mkfifo command (named pipe for shell)
-    crit: suspicious
-    conf: 0.6
-    attack: "T1059"
-    platforms: [linux, macos, unix]
-    # Exclude JS - syntax highlighters have shell command keywords
-    for: [shell, elf, macho, python]
-    if:
-      type: string
-      exact: "mkfifo"
-
-  - id: sh-interactive
-    desc: Interactive shell invocation
-    crit: notable
-    conf: 0.5
-    attack: "T1059"
-    platforms: [linux, macos, unix]
-    if:
-      type: string
-      exact: "sh -i"
+  # === Atomic: Netcat ===
 
   - id: nc-pipe
     desc: Netcat with pipe
@@ -107,39 +85,6 @@ traits:
       exact: "reverse"
 
   # === Atomic: Perl Reverse Shell ===
-
-  # === Perl reverse shell micro-traits ===
-  - id: perl-socket-call
-    desc: Perl socket( call
-    crit: notable
-    conf: 0.6
-    attack: "T1059.006"
-    platforms: [all]
-    for: [perl]
-    if:
-      type: string
-      exact: "socket("
-
-  - id: perl-open-call
-    desc: Perl open( call
-    crit: inert
-    conf: 0.3
-    platforms: [all]
-    for: [perl]
-    if:
-      type: string
-      exact: "open("
-
-  - id: perl-fd-redirect
-    desc: Perl file descriptor redirect
-    crit: notable
-    conf: 0.7
-    attack: "T1059.006"
-    platforms: [all]
-    for: [perl]
-    if:
-      type: string
-      regex: "[\"']>&"
 
   - id: perl-sh-i
     desc: Perl sh -i interactive shell
@@ -178,26 +123,6 @@ traits:
 
   # === Atomic: Go Reverse Shell Functions ===
 
-  - id: go-cmd-run
-    desc: Go os/exec.Cmd.Run
-    crit: notable
-    conf: 0.5
-    platforms: [all]
-    for: [elf, macho]
-    if:
-      type: string
-      exact: "os/exec.(*Cmd).Run"
-
-  - id: go-net-conn
-    desc: Go net.conn.Write
-    crit: notable
-    conf: 0.5
-    platforms: [all]
-    for: [elf, macho]
-    if:
-      type: string
-      exact: "net.(*conn).Write"
-
   - id: go-child-stdin
     desc: Go exec.Cmd.childStdin
     crit: suspicious
@@ -207,16 +132,6 @@ traits:
     if:
       type: string
       exact: "os/exec.(*Cmd).childStdin"
-
-  - id: go-dial-tcp
-    desc: Go dialTCP
-    crit: notable
-    conf: 0.5
-    platforms: [all]
-    for: [elf, macho]
-    if:
-      type: string
-      exact: "dialTCP"
 
 composite_rules:
   # Perl socket-open reverse shell (migrated from YARA)
@@ -229,9 +144,9 @@ composite_rules:
     platforms: [all]
     for: [perl]
     all:
-      - id: perl-socket-call
-      - id: perl-open-call
-      - id: perl-fd-redirect
+      - id: comm/socket/perl/socket-call
+      - id: comm/socket/perl/open-call
+      - id: comm/socket/perl/fd-redirect
       - id: perl-sh-i
 
   - id: mkfifo-netcat-shell
@@ -242,8 +157,8 @@ composite_rules:
     mbc: "B0022"
     platforms: [linux, macos, unix]
     all:
-      - id: mkfifo
-      - id: sh-interactive
+      - id: fs/pipe/mkfifo-cmd
+      - id: exec/command/shell/interactive/sh-interactive
       - id: nc-pipe
 
   - id: go-reverse-shell
@@ -258,10 +173,10 @@ composite_rules:
       - id: exec/command/shell/bin-bash
       - id: exec/command/shell/bin-sh
     all:
-      - id: go-cmd-run
-      - id: go-net-conn
+      - id: exec/command/go/cmd-run
+      - id: comm/socket/go/net-conn-write
       - id: go-child-stdin
-      - id: go-dial-tcp
+      - id: comm/socket/go/dial-tcp
 
   - id: generic-reverse-shell
     desc: Generic reverse shell pattern (socket + shell)

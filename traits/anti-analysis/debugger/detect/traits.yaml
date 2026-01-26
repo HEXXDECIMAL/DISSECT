@@ -4,31 +4,6 @@
 # NOTE: /proc/self/status is defined in fs/proc/process/linux.yaml (process-self-status)
 
 traits:
-  # Unix/Linux
-  - id: ptrace
-    desc: ptrace system call (debugging/tracing)
-    crit: notable
-    mbc: "B0001"
-    attack: "T1622"
-    conf: 0.7
-    for: [elf, macho, so, dylib, c]
-    if:
-      type: symbol
-      pattern: ptrace
-    platforms: [linux, unix, macos]
-
-  - id: getpid
-    desc: getpid system call (process ID retrieval)
-    crit: notable
-    mbc: "B0001"
-    attack: "T1622"
-    conf: 0.5
-    for: [elf, macho, so, dylib, c]
-    if:
-      type: symbol
-      pattern: getpid
-    platforms: [linux, unix, macos]
-
   # === ptrace constant atomic indicators ===
   - id: ptrace-traceme
     desc: PTRACE_TRACEME constant
@@ -52,39 +27,7 @@ traits:
       exact: "PT_DENY_ATTACH"
     platforms: [macos]
 
-  - id: isatty
-    desc: Detect if running in terminal
-    crit: notable
-    mbc: "B0001"
-    attack: "T1622"
-    conf: 0.5
-    for: [elf, macho, so, dylib, c]
-    if:
-      type: symbol
-      pattern: isatty
-    platforms: [all]
-
   # === Process inspection micro-traits ===
-  - id: proc-self-status
-    desc: /proc/self/status path
-    crit: inert
-    conf: 0.5
-    attack: "T1622"
-    if:
-      type: string
-      exact: "/proc/self/status"
-    platforms: [linux]
-
-  - id: proc-self-maps
-    desc: /proc/self/maps path
-    crit: inert
-    conf: 0.5
-    attack: "T1622"
-    if:
-      type: string
-      exact: "/proc/self/maps"
-    platforms: [linux]
-
   - id: tracerpid-string
     desc: TracerPid string (debugger detection)
     crit: notable
@@ -174,9 +117,9 @@ composite_rules:
     platforms: [linux]
     count: 1
     any:
-      - id: ptrace
-      - id: proc-self-status
-      - id: proc-self-maps
+      - id: process/debug/ptrace
+      - id: fs/proc/process/process-self-status
+      - id: fs/proc/process/process-self-maps
       - id: tracerpid-string
 
   # ptrace constant composite

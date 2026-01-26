@@ -133,52 +133,6 @@ traits:
       type: string
       regex: '/proc/cpuinfo.{0,50}hypervisor|cpuid|hypervisor\s*flag'
 
-  # === DMI/SMBIOS checks (atomic) ===
-  - id: dmi-dmidecode
-    desc: dmidecode command for hardware info
-    crit: inert
-    conf: 0.5
-    for: [python, shell]
-    if:
-      type: string
-      exact: dmidecode
-
-  - id: dmi-sysfs
-    desc: DMI sysfs path access
-    crit: inert
-    conf: 0.6
-    for: [python, shell]
-    if:
-      type: string
-      exact: /sys/class/dmi
-
-  - id: dmi-product-name
-    desc: DMI product_name field
-    crit: inert
-    conf: 0.5
-    for: [python, shell]
-    if:
-      type: string
-      exact: product_name
-
-  - id: dmi-sys-vendor
-    desc: DMI sys_vendor field
-    crit: inert
-    conf: 0.5
-    for: [python, shell]
-    if:
-      type: string
-      exact: sys_vendor
-
-  - id: dmi-bios-vendor
-    desc: DMI bios_vendor field
-    crit: inert
-    conf: 0.5
-    for: [python, shell]
-    if:
-      type: string
-      exact: bios_vendor
-
   # === VM-specific files (atomic) ===
   - id: file-vbox-guest
     desc: VirtualBox guest additions file
@@ -353,80 +307,6 @@ traits:
       type: string
       regex: '169\.254\.169\.254|metadata\.google\.internal|169\.254\.169\.123'
 
-  # === Container detection (atomic) ===
-  - id: docker-env
-    desc: Docker environment file
-    crit: inert
-    conf: 0.7
-    for: [python, shell, javascript]
-    if:
-      type: string
-      exact: /.dockerenv
-
-  - id: docker-sock
-    desc: Docker socket path
-    crit: inert
-    conf: 0.7
-    for: [python, shell, javascript]
-    if:
-      type: string
-      exact: /run/docker.sock
-
-  - id: cgroup-check
-    desc: Process cgroup check
-    crit: inert
-    conf: 0.6
-    for: [python, shell, javascript]
-    if:
-      type: string
-      exact: /proc/1/cgroup
-
-  - id: k8s-service
-    desc: Kubernetes service environment variable
-    crit: inert
-    conf: 0.7
-    for: [python, shell, javascript]
-    if:
-      type: string
-      exact: KUBERNETES_SERVICE
-
-  - id: k8s-secrets
-    desc: Kubernetes secrets path
-    crit: inert
-    conf: 0.7
-    for: [python, shell, javascript]
-    if:
-      type: string
-      exact: /var/run/secrets/kubernetes
-
-  # === Exit indicators for evasion ===
-  - id: exit-call
-    desc: Generic exit call
-    crit: inert
-    conf: 0.3
-    for: [python, shell, javascript]
-    if:
-      type: string
-      exact: exit
-
-  - id: sys-exit
-    desc: Python sys.exit call
-    crit: inert
-    conf: 0.3
-    for: [python]
-    if:
-      type: string
-      exact: sys.exit
-
-  - id: process-exit
-    desc: Node.js process.exit call
-    crit: inert
-    conf: 0.3
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: process.exit
-
 composite_rules:
   # Xen vendor composite
   - id: vendor-xen
@@ -494,13 +374,14 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     count: 1
-  # VM-specific file checks
     any:
-      - id: dmi-sysfs
-      - id: dmi-dmidecode
-      - id: dmi-product-name
-      - id: dmi-sys-vendor
-      - id: dmi-bios-vendor
+      - id: os/sysinfo/dmi-sysfs
+      - id: os/sysinfo/dmidecode
+      - id: os/sysinfo/dmi-product-name
+      - id: os/sysinfo/dmi-sys-vendor
+      - id: os/sysinfo/dmi-bios-vendor
+
+  # VM-specific file checks
   - id: file-check
     desc: Checks for VM-specific files
     crit: suspicious
@@ -539,11 +420,11 @@ composite_rules:
     conf: 0.75
     count: 1
     any:
-      - id: docker-env
-      - id: docker-sock
-      - id: cgroup-check
-      - id: k8s-service
-      - id: k8s-secrets
+      - id: os/container/docker/dockerenv
+      - id: os/container/docker/docker-sock
+      - id: os/container/cgroup-check
+      - id: os/container/kubernetes/service-env
+      - id: os/container/kubernetes/secrets-path
 
   # Comprehensive VM evasion (3+ VM indicators + exit)
   - id: comprehensive-evasion
@@ -558,8 +439,8 @@ composite_rules:
       - id: vendor-xen
       - id: mac-vmware-1
       - id: mac-vbox
-      - id: docker-env
+      - id: os/container/docker/dockerenv
       - id: file-vmtoolsd
-      - id: exit-call
-      - id: sys-exit
-      - id: process-exit
+      - id: process/exit/exit-call
+      - id: process/exit/sys-exit
+      - id: process/exit/process-exit
