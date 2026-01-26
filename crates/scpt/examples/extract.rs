@@ -36,7 +36,7 @@ fn main() {
     for event in parser.apple_events() {
         println!(
             "  {}.{} - {}",
-            event.class_code, event.event_code, event.description
+            event.class_code, event.event_code, event.desc
         );
     }
     println!();

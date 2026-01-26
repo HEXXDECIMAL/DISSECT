@@ -400,7 +400,7 @@ impl PowerShellAnalyzer {
                 trait_refs: vec![],
                 id: cap_id.to_string(),
                 desc: desc.to_string(),
-                conf: conf,
+                conf,
                 crit: criticality,
                 mbc: None,
                 attack: None,

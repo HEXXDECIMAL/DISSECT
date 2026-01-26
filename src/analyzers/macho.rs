@@ -81,14 +81,14 @@ impl MachOAnalyzer {
         // AMOS cipher detection and decryption
         self.analyze_amos_cipher(data, &mut report, &mut tools_used);
 
-        // Use radare2 for deep analysis if available - extract strings for passing to strangs
+        // Use radare2 for deep analysis if available - SINGLE r2 spawn for all data
         let t_r2 = std::time::Instant::now();
         let r2_strings = if Radare2Analyzer::is_available() {
             tools_used.push("radare2".to_string());
 
-            // Use batched extraction - single r2 session for functions and sections
+            // Use batched extraction - single r2 session for functions, sections, strings, imports
             if let Ok(batched) = self.radare2.extract_batched(file_path) {
-                // Compute metrics from batched data first (before consuming functions)
+                // Compute metrics from batched data
                 let binary_metrics = self.radare2.compute_metrics_from_batched(&batched);
                 report.metrics = Some(Metrics {
                     binary: Some(binary_metrics),
@@ -97,19 +97,26 @@ impl MachOAnalyzer {
 
                 // Convert R2Functions to Functions for the report
                 report.functions = batched.functions.into_iter().map(Function::from).collect();
-            }
 
-            // Extract r2 strings to pass to strangs
-            self.radare2.extract_strings(file_path).ok()
+                // Use strings from batched data (no extra r2 spawn)
+                if timing {
+                    eprintln!("[TIMING] radare2 batched analysis: {:?}", t_r2.elapsed());
+                }
+                Some(batched.strings)
+            } else {
+                if timing {
+                    eprintln!("[TIMING] radare2 batched analysis: {:?}", t_r2.elapsed());
+                }
+                None
+            }
         } else {
             None
         };
-        if timing {
-            eprintln!("[TIMING] radare2 batched analysis: {:?}", t_r2.elapsed());
-        }
 
         // Extract strings using language-aware extraction (Go/Rust) with pre-parsed Mach-O
-        report.strings = self.string_extractor.extract_from_macho(&macho, data, r2_strings);
+        report.strings = self
+            .string_extractor
+            .extract_from_macho(&macho, data, r2_strings);
         tools_used.push("strangs".to_string());
 
         // Run YARA scan if engine is loaded
@@ -565,8 +572,7 @@ impl MachOAnalyzer {
                     if level == EntropyLevel::High {
                         report.structure.push(StructuralFeature {
                             id: "entropy/high".to_string(),
-                            desc: "High entropy section (possibly packed/encrypted)"
-                                .to_string(),
+                            desc: "High entropy section (possibly packed/encrypted)".to_string(),
                             evidence: vec![Evidence {
                                 method: "entropy".to_string(),
                                 source: "entropy_analyzer".to_string(),

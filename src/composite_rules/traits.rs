@@ -196,7 +196,13 @@ impl TraitDefinition {
                 max,
                 min_length,
             } => eval_string_count(*min, *max, *min_length, ctx),
-            Condition::Metrics { field, min, max, min_size, max_size } => eval_metrics(field, *min, *max, *min_size, *max_size, ctx),
+            Condition::Metrics {
+                field,
+                min,
+                max,
+                min_size,
+                max_size,
+            } => eval_metrics(field, *min, *max, *min_size, *max_size, ctx),
             Condition::Hex {
                 pattern,
                 offset,
@@ -210,7 +216,13 @@ impl TraitDefinition {
                 regex,
                 case_insensitive,
                 min_count,
-            } => eval_raw(exact.as_ref(), regex.as_ref(), *case_insensitive, *min_count, ctx),
+            } => eval_raw(
+                exact.as_ref(),
+                regex.as_ref(),
+                *case_insensitive,
+                *min_count,
+                ctx,
+            ),
         }
     }
 }
@@ -248,7 +260,11 @@ pub struct CompositeTrait {
     pub all: Option<Vec<Condition>>,
 
     /// List of conditions - use count/min_count/max_count to control how many must match
-    #[serde(alias = "requires_any", alias = "conditions", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        alias = "requires_any",
+        alias = "conditions",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub any: Option<Vec<Condition>>,
 
     /// Exactly this many conditions from `any` must match
@@ -392,11 +408,7 @@ impl CompositeTrait {
     }
 
     /// Evaluate ALL conditions must match (AND)
-    fn eval_requires_all(
-        &self,
-        conds: &[Condition],
-        ctx: &EvaluationContext,
-    ) -> ConditionResult {
+    fn eval_requires_all(&self, conds: &[Condition], ctx: &EvaluationContext) -> ConditionResult {
         let mut all_evidence = Vec::new();
 
         for condition in conds {
@@ -420,11 +432,7 @@ impl CompositeTrait {
 
     /// Evaluate at least ONE condition must match (OR)
     /// Collects evidence from ALL matching conditions, not just the first
-    fn eval_requires_any(
-        &self,
-        conds: &[Condition],
-        ctx: &EvaluationContext,
-    ) -> ConditionResult {
+    fn eval_requires_any(&self, conds: &[Condition], ctx: &EvaluationContext) -> ConditionResult {
         let mut any_matched = false;
         let mut all_evidence = Vec::new();
 
@@ -468,8 +476,8 @@ impl CompositeTrait {
             matched_count == exact_count
         } else {
             // Range check
-            let min_ok = min.map_or(true, |m| matched_count >= m);
-            let max_ok = max.map_or(true, |m| matched_count <= m);
+            let min_ok = min.is_none_or(|m| matched_count >= m);
+            let max_ok = max.is_none_or(|m| matched_count <= m);
             min_ok && max_ok
         };
 
@@ -481,11 +489,7 @@ impl CompositeTrait {
     }
 
     /// Evaluate NONE of the conditions can match (NOT)
-    fn eval_requires_none(
-        &self,
-        conds: &[Condition],
-        ctx: &EvaluationContext,
-    ) -> ConditionResult {
+    fn eval_requires_none(&self, conds: &[Condition], ctx: &EvaluationContext) -> ConditionResult {
         for condition in conds {
             let result = self.eval_condition(condition, ctx);
             if result.matched {
@@ -596,7 +600,13 @@ impl CompositeTrait {
                 max,
                 min_length,
             } => eval_string_count(*min, *max, *min_length, ctx),
-            Condition::Metrics { field, min, max, min_size, max_size } => eval_metrics(field, *min, *max, *min_size, *max_size, ctx),
+            Condition::Metrics {
+                field,
+                min,
+                max,
+                min_size,
+                max_size,
+            } => eval_metrics(field, *min, *max, *min_size, *max_size, ctx),
             Condition::Hex {
                 pattern,
                 offset,
@@ -610,7 +620,13 @@ impl CompositeTrait {
                 regex,
                 case_insensitive,
                 min_count,
-            } => eval_raw(exact.as_ref(), regex.as_ref(), *case_insensitive, *min_count, ctx),
+            } => eval_raw(
+                exact.as_ref(),
+                regex.as_ref(),
+                *case_insensitive,
+                *min_count,
+                ctx,
+            ),
         }
     }
 

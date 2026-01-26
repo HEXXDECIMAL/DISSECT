@@ -97,30 +97,40 @@ impl ElfAnalyzer {
             }
         };
 
-        // Use radare2 for deep analysis if available - extract strings for passing to strangs
+        // Use radare2 for deep analysis if available - SINGLE r2 spawn for all data
         let r2_strings = if Radare2Analyzer::is_available() {
             tools_used.push("radare2".to_string());
 
-            if let Ok(functions) = self.radare2.extract_functions(file_path) {
-                report.functions = functions;
-            }
+            // Use batched extraction - single r2 session for functions, sections, strings, imports
+            if let Ok(batched) = self.radare2.extract_batched(file_path) {
+                // Compute metrics from batched data
+                let binary_metrics = self.radare2.compute_metrics_from_batched(&batched);
+                report.metrics = Some(Metrics {
+                    binary: Some(binary_metrics),
+                    ..Default::default()
+                });
 
-            // Extract syscalls for binary analysis
-            if let Ok(syscalls) = self.radare2.extract_syscalls(file_path) {
-                report.syscalls = syscalls;
-            }
+                // Convert R2Functions to Functions for the report
+                report.functions = batched.functions.into_iter().map(Function::from).collect();
 
-            // Extract r2 strings to pass to strangs
-            self.radare2.extract_strings(file_path).ok()
+                // Use strings from batched data (no extra r2 spawn)
+                Some(batched.strings)
+            } else {
+                None
+            }
         } else {
             None
         };
 
         // Extract strings using language-aware extraction (Go/Rust) with pre-parsed ELF if available
         if let Some(ref elf) = parsed_elf {
-            report.strings = self.string_extractor.extract_from_elf(elf, data, r2_strings);
+            report.strings = self
+                .string_extractor
+                .extract_from_elf(elf, data, r2_strings);
         } else {
-            report.strings = self.string_extractor.extract_smart_with_r2(data, r2_strings);
+            report.strings = self
+                .string_extractor
+                .extract_smart_with_r2(data, r2_strings);
         }
         tools_used.push("strangs".to_string());
 
@@ -179,17 +189,6 @@ impl ElfAnalyzer {
                             .push(format!("YARA scan failed: {}", e));
                     }
                 }
-            }
-        }
-
-        // Compute binary metrics using radare2 (BEFORE trait evaluation)
-        if Radare2Analyzer::is_available() {
-            if let Ok(binary_metrics) = self.radare2.compute_binary_metrics(file_path) {
-                report.metrics = Some(Metrics {
-                    binary: Some(binary_metrics),
-                    ..Default::default()
-                });
-                tools_used.push("radare2".to_string());
             }
         }
 
@@ -345,8 +344,7 @@ impl ElfAnalyzer {
                     if level == EntropyLevel::High {
                         report.structure.push(StructuralFeature {
                             id: "entropy/high".to_string(),
-                            desc: "High entropy section (possibly packed/encrypted)"
-                                .to_string(),
+                            desc: "High entropy section (possibly packed/encrypted)".to_string(),
                             evidence: vec![Evidence {
                                 method: "entropy".to_string(),
                                 source: "entropy_analyzer".to_string(),

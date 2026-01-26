@@ -10,7 +10,7 @@ traits:
     attack: "T1222.002"
     for: [python]
     if:
-      type: string
+      type: raw
       regex: "os\\.chmod\\("
 
   - id: executable
@@ -21,5 +21,5 @@ traits:
     attack: "T1222.002"
     for: [python]
     if:
-      type: string
+      type: raw
       regex: "0o7[0-7][0-7]"

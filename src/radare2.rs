@@ -45,8 +45,7 @@ pub struct SyscallInfo {
 pub struct BatchedAnalysis {
     pub functions: Vec<R2Function>,
     pub sections: Vec<R2Section>,
-    #[allow(dead_code)]
-    pub syscalls: Vec<SyscallInfo>,
+    pub strings: Vec<R2String>,
 }
 
 /// Radare2 integration for deep binary analysis
@@ -73,12 +72,14 @@ impl Radare2Analyzer {
 
     /// Extract functions with complexity metrics
     /// Uses 'aa' (basic analysis) instead of 'aaa' (full analysis) for speed
+    #[allow(dead_code)]
     pub fn extract_functions(&self, file_path: &Path) -> Result<Vec<Function>> {
         let r2_functions = self.extract_r2_functions(file_path)?;
         Ok(r2_functions.into_iter().map(|f| f.into()).collect())
     }
 
     /// Extract raw R2Function structs for metrics computation
+    #[allow(dead_code)]
     pub fn extract_r2_functions(&self, file_path: &Path) -> Result<Vec<R2Function>> {
         let output = Command::new("r2")
             .arg("-q")
@@ -112,13 +113,12 @@ impl Radare2Analyzer {
     /// Extract strings from binary
     /// For large binaries (>20MB), returns empty to avoid slow r2 startup
     /// strangs already provides good string extraction for Go/Rust binaries
+    #[allow(dead_code)]
     pub fn extract_strings(&self, file_path: &Path) -> Result<Vec<R2String>> {
         // Skip r2 string extraction for large binaries - strangs handles these well
         const MAX_SIZE_FOR_R2_STRINGS: u64 = 20 * 1024 * 1024; // 20MB
 
-        let file_size = std::fs::metadata(file_path)
-            .map(|m| m.len())
-            .unwrap_or(0);
+        let file_size = std::fs::metadata(file_path).map(|m| m.len()).unwrap_or(0);
 
         if file_size > MAX_SIZE_FOR_R2_STRINGS {
             return Ok(Vec::new());
@@ -173,6 +173,7 @@ impl Radare2Analyzer {
     }
 
     /// Extract exports
+    #[allow(dead_code)]
     pub fn extract_exports(&self, file_path: &Path) -> Result<Vec<R2Export>> {
         let output = Command::new("r2")
             .arg("-q")
@@ -193,6 +194,7 @@ impl Radare2Analyzer {
     }
 
     /// Extract section information with entropy
+    #[allow(dead_code)]
     pub fn extract_sections(&self, file_path: &Path) -> Result<Vec<R2Section>> {
         let output = Command::new("r2")
             .arg("-q")
@@ -259,6 +261,7 @@ impl Radare2Analyzer {
     /// Extract syscalls from binary using architecture-aware analysis
     /// Returns detected syscalls with their numbers and resolved names
     /// Optimized to use a SINGLE r2 session for all operations
+    #[allow(dead_code)]
     pub fn extract_syscalls(&self, file_path: &Path) -> Result<Vec<SyscallInfo>> {
         // Build a batched command that gets arch info and searches for syscall patterns
         // We'll run a single r2 session and parse all results at once
@@ -576,22 +579,26 @@ impl Radare2Analyzer {
         let t_start = std::time::Instant::now();
 
         // Check file size - skip expensive function analysis for large binaries
-        // Large binaries (>20MB) take minutes to analyze with 'aa'
+        // Binaries >20MB take minutes to analyze with 'aa'
         // We can still get useful section/entropy data without function analysis
         const MAX_SIZE_FOR_FULL_ANALYSIS: u64 = 20 * 1024 * 1024; // 20MB
 
-        let file_size = std::fs::metadata(file_path)
-            .map(|m| m.len())
-            .unwrap_or(0);
+        let file_size = std::fs::metadata(file_path).map(|m| m.len()).unwrap_or(0);
 
         let skip_function_analysis = file_size > MAX_SIZE_FOR_FULL_ANALYSIS;
 
-        // For large binaries: just get sections (fast, no analysis needed)
-        // For small binaries: full analysis with functions
+        // SINGLE r2 spawn with ALL data extraction
+        // Commands separated by "echo SEP" for parsing:
+        // - aa: analyze (only for small binaries)
+        // - aflj: functions as JSON
+        // - iSj: sections as JSON
+        // - izj: strings as JSON
         let command = if skip_function_analysis {
-            "iSj" // Just sections - no analysis, very fast
+            // Large binary: skip analysis, just get static data
+            "iSj; echo SEP; izj"
         } else {
-            "aa; aflj; echo SEPARATOR; iSj" // Full analysis
+            // Small binary: full analysis + all data
+            "aa; aflj; echo SEP; iSj; echo SEP; izj"
         };
 
         let output = Command::new("r2")
@@ -611,42 +618,45 @@ impl Radare2Analyzer {
         }
 
         let output_str = String::from_utf8_lossy(&output.stdout);
+        let parts: Vec<&str> = output_str.split("SEP").collect();
 
-        let (functions, sections) = if skip_function_analysis {
-            // Only sections were extracted
-            let sections: Vec<R2Section> = output_str
-                .find('[')
-                .and_then(|start| serde_json::from_str(&output_str[start..]).ok())
+        // Helper to parse JSON from a part
+        let parse_json = |part: Option<&&str>| -> Option<String> {
+            part.and_then(|p| {
+                let start = p.find('[')?;
+                let end = p.rfind(']')?;
+                Some(p[start..=end].to_string())
+            })
+        };
+
+        let (functions, sections, strings) = if skip_function_analysis {
+            // Large binary: sections, strings (no functions)
+            let sections: Vec<R2Section> = parse_json(parts.first())
+                .and_then(|j| serde_json::from_str(&j).ok())
                 .unwrap_or_default();
-            (Vec::new(), sections)
+            let strings: Vec<R2String> = parse_json(parts.get(1))
+                .and_then(|j| serde_json::from_str(&j).ok())
+                .unwrap_or_default();
+            (Vec::new(), sections, strings)
         } else {
-            // Full analysis - parse both functions and sections
-            let parts: Vec<&str> = output_str.split("SEPARATOR").collect();
-
-            let functions: Vec<R2Function> = parts
-                .first()
-                .and_then(|p| {
-                    let json_start = p.find('[')?;
-                    serde_json::from_str(&p[json_start..]).ok()
-                })
+            // Small binary: functions, sections, strings
+            let functions: Vec<R2Function> = parse_json(parts.first())
+                .and_then(|j| serde_json::from_str(&j).ok())
                 .unwrap_or_default();
-
-            let sections: Vec<R2Section> = parts
-                .get(1)
-                .and_then(|p| {
-                    let json_start = p.find('[')?;
-                    serde_json::from_str(&p[json_start..]).ok()
-                })
+            let sections: Vec<R2Section> = parse_json(parts.get(1))
+                .and_then(|j| serde_json::from_str(&j).ok())
                 .unwrap_or_default();
-
-            (functions, sections)
+            let strings: Vec<R2String> = parse_json(parts.get(2))
+                .and_then(|j| serde_json::from_str(&j).ok())
+                .unwrap_or_default();
+            (functions, sections, strings)
         };
 
         if timing {
             let mode = if skip_function_analysis {
-                "sections-only"
+                "sections+strings"
             } else {
-                "functions+sections"
+                "full"
             };
             eprintln!(
                 "[TIMING] radare2 batched ({}): {:?}",
@@ -658,7 +668,7 @@ impl Radare2Analyzer {
         Ok(BatchedAnalysis {
             functions,
             sections,
-            syscalls: Vec::new(), // Syscalls can be extracted separately if needed
+            strings,
         })
     }
 
@@ -771,6 +781,7 @@ impl Radare2Analyzer {
 
     /// Compute binary metrics using radare2 analysis
     /// This provides function-level and entropy metrics for packing/obfuscation detection
+    #[allow(dead_code)]
     pub fn compute_binary_metrics(&self, file_path: &Path) -> Result<BinaryMetrics> {
         let mut metrics = BinaryMetrics::default();
 
@@ -1000,6 +1011,7 @@ fn calculate_char_entropy(chars: &[char]) -> f32 {
 }
 
 /// Parse syscall number from disassembly output
+#[allow(dead_code)]
 fn parse_syscall_number_from_disasm(disasm: &str, arch: &str) -> Option<u32> {
     match arch {
         "mips" => {

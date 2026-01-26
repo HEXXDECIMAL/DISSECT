@@ -30,9 +30,9 @@ fn extract_imports(data: &[u8]) -> Vec<(String, Option<String>, String)> {
                 "scpt_event".to_string(),
             ));
 
-            if event.description != "unknown" {
+            if event.desc != "unknown" {
                 imports.push((
-                    event.description.to_string(),
+                    event.desc.to_string(),
                     Some("AppleScript".to_string()),
                     "scpt_command".to_string(),
                 ));

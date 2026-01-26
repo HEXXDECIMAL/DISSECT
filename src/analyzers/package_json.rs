@@ -948,7 +948,7 @@ impl PackageJsonAnalyzer {
     }
 
     fn extract_urls(&self, text: &str) -> Vec<String> {
-        let url_pattern = regex::Regex::new(r#"https?://[^\s'")\]}>]+"#).unwrap();
+        let url_pattern = regex::Regex::new(r#"https?://[^\s'")\]}>]{1,2048}"#).unwrap();
         url_pattern
             .find_iter(text)
             .map(|m| m.as_str().to_string())
@@ -972,7 +972,8 @@ impl PackageJsonAnalyzer {
     }
 
     fn extract_paths(&self, text: &str) -> Vec<String> {
-        let path_pattern = regex::Regex::new(r#"(?:/[\w.-]+)+|(?:\\[\w.-]+)+"#).unwrap();
+        let path_pattern =
+            regex::Regex::new(r#"(?-u)/[a-zA-Z0-9_./-]+|(?-u)\\[a-zA-Z0-9_.\\-]+"#).unwrap();
         path_pattern
             .find_iter(text)
             .map(|m| m.as_str().to_string())

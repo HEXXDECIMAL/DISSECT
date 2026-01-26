@@ -232,7 +232,7 @@ impl ConstantDecoder {
 
         // Match hex constants in various formats
         // 0x1234, 0x12345678, etc.
-        let hex_pattern = regex::Regex::new(r"0x([0-9a-fA-F]+)").unwrap();
+        let hex_pattern = regex::Regex::new(r"0x([0-9a-fA-F]{1,16})").unwrap();
 
         for cap in hex_pattern.captures_iter(instruction) {
             if let Some(hex_str) = cap.get(1) {

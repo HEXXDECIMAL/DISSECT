@@ -264,9 +264,19 @@ impl From<ConditionDeser> for Condition {
                     max,
                     min_length,
                 },
-                ConditionTagged::Metrics { field, min, max, min_size, max_size } => {
-                    Condition::Metrics { field, min, max, min_size, max_size }
-                }
+                ConditionTagged::Metrics {
+                    field,
+                    min,
+                    max,
+                    min_size,
+                    max_size,
+                } => Condition::Metrics {
+                    field,
+                    min,
+                    max,
+                    min_size,
+                    max_size,
+                },
                 ConditionTagged::Hex {
                     pattern,
                     offset,

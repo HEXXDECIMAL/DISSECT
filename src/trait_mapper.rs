@@ -741,10 +741,7 @@ mod tests {
         // Should detect XOR encoding (15/50 = 0.3 > 0.2)
         assert!(caps.iter().any(|c| c.id == "crypto/xor"));
         assert_eq!(
-            caps.iter()
-                .find(|c| c.id == "crypto/xor")
-                .unwrap()
-                .conf,
+            caps.iter().find(|c| c.id == "crypto/xor").unwrap().conf,
             0.6
         );
     }
@@ -775,10 +772,7 @@ mod tests {
         // Should detect hardware crypto
         assert!(caps.iter().any(|c| c.id == "crypto/encrypt"));
         assert_eq!(
-            caps.iter()
-                .find(|c| c.id == "crypto/encrypt")
-                .unwrap()
-                .conf,
+            caps.iter().find(|c| c.id == "crypto/encrypt").unwrap().conf,
             0.9
         );
     }
@@ -809,10 +803,7 @@ mod tests {
         // Should detect system calls
         assert!(caps.iter().any(|c| c.id == "os/syscall"));
         assert_eq!(
-            caps.iter()
-                .find(|c| c.id == "os/syscall")
-                .unwrap()
-                .conf,
+            caps.iter().find(|c| c.id == "os/syscall").unwrap().conf,
             0.8
         );
     }

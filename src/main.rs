@@ -11,7 +11,6 @@ mod constant_decoder;
 mod diff;
 mod entropy;
 mod env_mapper;
-mod lang_strings;
 mod output;
 mod path_mapper;
 mod radare2;
@@ -44,7 +43,7 @@ fn read_paths_from_stdin() -> Vec<String> {
     let reader = stdin.lock();
     reader
         .lines()
-        .filter_map(|line| line.ok())
+        .map_while(Result::ok)
         .map(|line| line.trim().to_string())
         .filter(|line| !line.is_empty() && !line.starts_with('#'))
         .collect()
@@ -159,7 +158,7 @@ fn main() -> Result<()> {
             &zip_passwords,
             &disabled,
         )?,
-        Some(cli::Command::Diff { old, new }) => diff_analysis(&old, &new)?,
+        Some(cli::Command::Diff { old, new }) => diff_analysis(&old, &new, &format)?,
         Some(cli::Command::Strings { target, min_length }) => {
             extract_strings(&target, min_length, &format)?
         }
@@ -983,12 +982,21 @@ fn analyze_file_with_shared_mapper(
     output::format_json(&report)
 }
 
-fn diff_analysis(old: &str, new: &str) -> Result<String> {
+fn diff_analysis(old: &str, new: &str, format: &cli::OutputFormat) -> Result<String> {
     let diff_analyzer = diff::DiffAnalyzer::new(old, new);
-    let report = diff_analyzer.analyze()?;
 
-    // Format as terminal output
-    Ok(diff::format_diff_terminal(&report))
+    match format {
+        cli::OutputFormat::Json => {
+            // Use full diff for JSON - comprehensive ML-ready output
+            let report = diff_analyzer.analyze_full()?;
+            Ok(serde_json::to_string_pretty(&report)?)
+        }
+        cli::OutputFormat::Terminal => {
+            // Use simple diff for terminal display
+            let report = diff_analyzer.analyze()?;
+            Ok(diff::format_diff_terminal(&report))
+        }
+    }
 }
 
 fn extract_strings(target: &str, min_length: usize, format: &cli::OutputFormat) -> Result<String> {

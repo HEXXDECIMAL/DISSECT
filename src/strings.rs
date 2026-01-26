@@ -24,13 +24,13 @@ impl StringExtractor {
     pub fn new() -> Self {
         Self {
             min_length: 4,
-            url_regex: Regex::new(r"(?i)(https?|ftp)://[^\s<>]+").unwrap(),
+            url_regex: Regex::new(r"(?i)(https?|ftp)://[^\s<>]{1,2048}").unwrap(),
             // Basic IP pattern for initial detection
             ip_regex: Regex::new(r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}").unwrap(),
             // Pattern to detect version strings that look like IPs (e.g., Chrome/100.0.0.0)
             version_ip_regex: Regex::new(r"(?i)(?:Chrome|Safari|Firefox|Edge|Opera|Chromium|Version|AppleWebKit|KHTML|Gecko|Trident|OPR|Mobile|MSIE|rv:|v)/\d+\.\d+\.\d+\.\d+").unwrap(),
-            email_regex: Regex::new(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}").unwrap(),
-            base64_regex: Regex::new(r"^[A-Za-z0-9+/]{16,}={0,2}$").unwrap(),
+            email_regex: Regex::new(r"[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9.-]{1,253}\.[A-Za-z]{2,63}").unwrap(),
+            base64_regex: Regex::new(r"^[A-Za-z0-9+/]{16,65536}={0,2}$").unwrap(),
             symbol_map: HashMap::new(),
         }
     }

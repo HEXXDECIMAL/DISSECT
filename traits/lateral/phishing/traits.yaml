@@ -38,7 +38,7 @@ traits:
     condition:
       type: string
       regex: |
-        class=['"]honeypot|honeypot-field['"]|display:\s*none.*name=['"]|name=['"][^'"']\*honeypot
+        class=['"]honeypot|honeypot-field['"]|display:\s*none.{0,50}name=['"]|name=['"][^'"]{0,30}honeypot
 
   # Human interaction verification
   - id: human-verification

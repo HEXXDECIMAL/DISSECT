@@ -68,8 +68,7 @@ pub fn aggregate_findings_by_directory(findings: &[Finding]) -> Vec<Finding> {
                 // Keep the one with higher criticality
                 // If criticality is same, keep the one with higher confidence
                 let should_replace = finding.crit > agg.best.crit
-                    || (finding.crit == agg.best.crit
-                        && finding.conf > agg.best.conf);
+                    || (finding.crit == agg.best.crit && finding.conf > agg.best.conf);
 
                 if should_replace {
                     agg.best = finding.clone();
@@ -324,11 +323,7 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
 
         // Sort findings by criticality (highest first), then ID
         let mut sorted_findings = findings.clone();
-        sorted_findings.sort_by(|a, b| {
-            b.crit
-                .cmp(&a.crit)
-                .then_with(|| a.id.cmp(&b.id))
-        });
+        sorted_findings.sort_by(|a, b| b.crit.cmp(&a.crit).then_with(|| a.id.cmp(&b.id)));
 
         // Render each finding
         for finding in sorted_findings {

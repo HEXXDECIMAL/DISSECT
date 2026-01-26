@@ -81,7 +81,7 @@ impl TraitIndex {
 /// Index for fast batched string matching using Aho-Corasick.
 /// Pre-computes an automaton from all exact string patterns in traits,
 /// enabling single-pass matching across thousands of patterns.
-#[derive(Clone)]
+#[derive(Clone, Default)]
 struct StringMatchIndex {
     /// Aho-Corasick automaton for all exact string patterns (case-sensitive)
     automaton: Option<AhoCorasick>,
@@ -91,17 +91,6 @@ struct StringMatchIndex {
     patterns: Vec<String>,
     /// Total number of traits with exact string patterns
     total_patterns: usize,
-}
-
-impl Default for StringMatchIndex {
-    fn default() -> Self {
-        Self {
-            automaton: None,
-            pattern_to_traits: Vec::new(),
-            patterns: Vec::new(),
-            total_patterns: 0,
-        }
-    }
 }
 
 impl StringMatchIndex {
@@ -164,9 +153,13 @@ impl StringMatchIndex {
     fn find_matches_with_evidence(
         &self,
         strings: &[crate::types::StringInfo],
-    ) -> (FxHashSet<usize>, FxHashMap<usize, Vec<crate::types::Evidence>>) {
+    ) -> (
+        FxHashSet<usize>,
+        FxHashMap<usize, Vec<crate::types::Evidence>>,
+    ) {
         let mut matching_traits = FxHashSet::default();
-        let mut trait_evidence: FxHashMap<usize, Vec<crate::types::Evidence>> = FxHashMap::default();
+        let mut trait_evidence: FxHashMap<usize, Vec<crate::types::Evidence>> =
+            FxHashMap::default();
 
         if let Some(ref ac) = self.automaton {
             for string_info in strings {
@@ -177,15 +170,14 @@ impl StringMatchIndex {
                         for &trait_idx in trait_indices {
                             matching_traits.insert(trait_idx);
                             // Cache evidence for this trait
-                            trait_evidence
-                                .entry(trait_idx)
-                                .or_default()
-                                .push(crate::types::Evidence {
+                            trait_evidence.entry(trait_idx).or_default().push(
+                                crate::types::Evidence {
                                     method: "string".to_string(),
                                     source: "string_extractor".to_string(),
                                     value: pattern.clone(),
                                     location: string_info.offset.clone(),
-                                });
+                                },
+                            );
                         }
                     }
                 }
@@ -404,13 +396,11 @@ fn apply_trait_defaults(raw: RawTraitDefinition, defaults: &TraitDefaults) -> Tr
     }
 
     // Additional strictness for SUSPICIOUS/HOSTILE traits
-    if criticality >= Criticality::Suspicious {
-        if raw.desc.len() < 15 {
-            eprintln!(
-                "⚠️  WARNING: Trait '{}' has an overly short description for its criticality.",
-                raw.id
-            );
-        }
+    if criticality >= Criticality::Suspicious && raw.desc.len() < 15 {
+        eprintln!(
+            "⚠️  WARNING: Trait '{}' has an overly short description for its criticality.",
+            raw.id
+        );
     }
 
     TraitDefinition {
@@ -1998,10 +1988,7 @@ mod tests {
         assert_eq!(result.mbc, Some("B0030".to_string()));
         assert_eq!(result.attack, Some("T1071.001".to_string()));
         assert_eq!(result.platforms, vec![Platform::Linux, Platform::MacOS]);
-        assert_eq!(
-            result.r#for,
-            vec![RuleFileType::Elf, RuleFileType::Macho]
-        );
+        assert_eq!(result.r#for, vec![RuleFileType::Elf, RuleFileType::Macho]);
     }
 
     #[test]

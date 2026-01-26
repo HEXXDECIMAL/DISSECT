@@ -1,6 +1,8 @@
 //! Syscall name mapping for various architectures
 //! Maps syscall numbers to human-readable names and descriptions
 
+#![allow(dead_code)]
+
 /// Get syscall name for the given architecture and number
 pub fn syscall_name(arch: &str, number: u32) -> String {
     match arch {

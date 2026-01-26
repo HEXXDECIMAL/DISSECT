@@ -85,6 +85,8 @@ impl Default for AnalysisOptions {
 /// Analyze a single file and return a detailed report.
 ///
 /// This is the main entry point for analyzing files programmatically.
+/// Creates a new CapabilityMapper for each call - for batch processing,
+/// use `analyze_file_with_mapper` instead.
 ///
 /// # Arguments
 ///
@@ -95,6 +97,28 @@ impl Default for AnalysisOptions {
 ///
 /// An `AnalysisReport` containing all extracted features, findings, and metrics.
 pub fn analyze_file<P: AsRef<Path>>(path: P, options: &AnalysisOptions) -> Result<AnalysisReport> {
+    let capability_mapper = CapabilityMapper::new();
+    analyze_file_with_mapper(path, options, &capability_mapper)
+}
+
+/// Analyze a single file using a pre-loaded CapabilityMapper.
+///
+/// Use this for batch processing to avoid reloading capabilities for each file.
+///
+/// # Arguments
+///
+/// * `path` - Path to the file to analyze
+/// * `options` - Analysis options
+/// * `capability_mapper` - Pre-loaded capability mapper
+///
+/// # Returns
+///
+/// An `AnalysisReport` containing all extracted features, findings, and metrics.
+pub fn analyze_file_with_mapper<P: AsRef<Path>>(
+    path: P,
+    options: &AnalysisOptions,
+    capability_mapper: &CapabilityMapper,
+) -> Result<AnalysisReport> {
     let path = path.as_ref();
 
     if !path.exists() {
@@ -118,9 +142,6 @@ pub fn analyze_file<P: AsRef<Path>>(path: P, options: &AnalysisOptions) -> Resul
 
     // Detect file type
     let file_type = detect_file_type(path)?;
-
-    // Load capability mapper
-    let capability_mapper = CapabilityMapper::new();
 
     // Load YARA rules if not disabled
     let mut yara_engine = if options.disable_yara {

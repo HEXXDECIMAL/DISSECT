@@ -143,10 +143,7 @@ fn test_desktop_wallet_traits_have_criticality() {
         for trait_def in traits {
             assert!(
                 trait_def.get("crit").is_some()
-                    || yaml
-                        .get("defaults")
-                        .and_then(|d| d.get("crit"))
-                        .is_some(),
+                    || yaml.get("defaults").and_then(|d| d.get("crit")).is_some(),
                 "Each wallet trait should have criticality set"
             );
         }

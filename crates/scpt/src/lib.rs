@@ -697,6 +697,6 @@ mod tests {
         assert_eq!(info.class, AppleEventClass::System);
         assert_eq!(info.class_code, "syso");
         assert_eq!(info.event_code, "exec");
-        assert_eq!(info.description, "do shell script");
+        assert_eq!(info.desc, "do shell script");
     }
 }

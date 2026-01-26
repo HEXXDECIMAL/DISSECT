@@ -29,8 +29,8 @@ traits:
             $encoded2 = /['"][a-zA-Z0-9+\/]{128,}={0,2}['"]/ ascii
             
             // Buffer decoding
-            $buf1 = /Buffer\.from\(.*['"]hex['"]\)/ ascii
-            $buf2 = /Buffer\.from\(.*['"]base64['"]\)/ ascii
+            $buf1 = /Buffer\.from\(.{0,60}['"]hex['"]\)/ ascii
+            $buf2 = /Buffer\.from\(.{0,60}['"]base64['"]\)/ ascii
           condition:
             (any of ($crypto*) and $decipher and $eval) and (any of ($encoded*) or any of ($buf*))
         }

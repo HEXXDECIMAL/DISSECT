@@ -110,7 +110,7 @@ traits:
         rule mtime_preservation {
           strings:
             // Stat to get modification time
-            $stat_modify = /stat\s+["'][^"']+["']\s*\|.*Modify/ ascii
+            $stat_modify = /stat\s+["'][^"']+["']\s*\|.{0,30}Modify/ ascii
             $stat_mtime = "mtime" ascii
             // Touch to restore
             $touch_t = "touch -t" ascii

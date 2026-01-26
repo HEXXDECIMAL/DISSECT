@@ -212,11 +212,7 @@ pub fn eval_raw(
                 evidence.push(Evidence {
                     method: "raw".to_string(),
                     source: "raw_content".to_string(),
-                    value: format!(
-                        "Found {} {}",
-                        match_count,
-                        first_match.unwrap_or_default()
-                    ),
+                    value: format!("Found {} {}", match_count, first_match.unwrap_or_default()),
                     location: Some("file".to_string()),
                 });
             }
@@ -1683,12 +1679,12 @@ pub fn eval_hex(
             for atom_pos in finder.find_iter(data) {
                 let pattern_start = atom_pos.saturating_sub(atom_offset_in_pattern);
 
-                if match_pattern_at(data, pattern_start, &segments) {
-                    if !matches.contains(&pattern_start) {
-                        matches.push(pattern_start);
-                        if matches.len() >= min_count {
-                            break;
-                        }
+                if match_pattern_at(data, pattern_start, &segments)
+                    && !matches.contains(&pattern_start)
+                {
+                    matches.push(pattern_start);
+                    if matches.len() >= min_count {
+                        break;
                     }
                 }
             }

@@ -440,7 +440,7 @@ traits:
     if:
       type: ast_pattern
       node_type: comment
-      pattern: "syscall.*(hook|intercept)"
+      pattern: "syscall.{0,20}(hook|intercept)"
       regex: true
       case_insensitive: true
 
@@ -468,7 +468,7 @@ traits:
     if:
       type: ast_pattern
       node_type: function_definition
-      pattern: "hook.*(sys|syscall)"
+      pattern: "hook.{0,20}(sys|syscall)"
       regex: true
       case_insensitive: true
 
@@ -495,7 +495,7 @@ traits:
     if:
       type: ast_pattern
       node_type: asm_statement
-      pattern: "int.*0x80|syscall|sysenter"
+      pattern: "int.{0,10}0x80|syscall|sysenter"
       regex: true
 
   # ============================================================
@@ -926,7 +926,7 @@ traits:
     if:
       type: ast_pattern
       node_type: assignment_expression
-      pattern: "uid.*=.*0|->uid = 0"
+      pattern: "uid.{0,10}=.{0,10}0|->uid = 0"
       regex: true
 
   - id: gid-zero-assign
@@ -939,7 +939,7 @@ traits:
     if:
       type: ast_pattern
       node_type: assignment_expression
-      pattern: "gid.*=.*0|->gid = 0"
+      pattern: "gid.{0,10}=.{0,10}0|->gid = 0"
       regex: true
 
   - id: euid-egid-access

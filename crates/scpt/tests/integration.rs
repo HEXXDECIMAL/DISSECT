@@ -119,13 +119,13 @@ fn test_apple_event_descriptions() {
         .iter()
         .find(|e| e.class_code == "syso" && e.event_code == "exec")
         .unwrap();
-    assert_eq!(exec_event.description, "do shell script");
+    assert_eq!(exec_event.desc, "do shell script");
 
     let delay_event = events
         .iter()
         .find(|e| e.class_code == "syso" && e.event_code == "dela")
         .unwrap();
-    assert_eq!(delay_event.description, "delay");
+    assert_eq!(delay_event.desc, "delay");
 }
 
 #[test]
