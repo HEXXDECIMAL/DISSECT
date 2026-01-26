@@ -170,6 +170,7 @@ impl RustAnalyzer {
         source: &[u8],
         metrics: &mut RustMetrics,
     ) {
+        // Iterative traversal to avoid stack overflow on deeply nested code
         loop {
             let node = cursor.node();
             match node.kind() {
@@ -217,11 +218,18 @@ impl RustAnalyzer {
             }
 
             if cursor.goto_first_child() {
-                self.walk_for_rust_metrics(cursor, source, metrics);
-                cursor.goto_parent();
+                continue;
             }
-            if !cursor.goto_next_sibling() {
-                break;
+            if cursor.goto_next_sibling() {
+                continue;
+            }
+            loop {
+                if !cursor.goto_parent() {
+                    return;
+                }
+                if cursor.goto_next_sibling() {
+                    break;
+                }
             }
         }
     }
@@ -239,6 +247,7 @@ impl RustAnalyzer {
         source: &[u8],
         identifiers: &mut Vec<String>,
     ) {
+        // Iterative traversal to avoid stack overflow on deeply nested code
         loop {
             let node = cursor.node();
             if node.kind() == "identifier" || node.kind() == "field_identifier" {
@@ -249,11 +258,18 @@ impl RustAnalyzer {
                 }
             }
             if cursor.goto_first_child() {
-                self.walk_for_identifiers(cursor, source, identifiers);
-                cursor.goto_parent();
+                continue;
             }
-            if !cursor.goto_next_sibling() {
-                break;
+            if cursor.goto_next_sibling() {
+                continue;
+            }
+            loop {
+                if !cursor.goto_parent() {
+                    return;
+                }
+                if cursor.goto_next_sibling() {
+                    break;
+                }
             }
         }
     }
@@ -271,6 +287,7 @@ impl RustAnalyzer {
         source: &[u8],
         strings: &mut Vec<String>,
     ) {
+        // Iterative traversal to avoid stack overflow on deeply nested code
         loop {
             let node = cursor.node();
             if node.kind() == "string_literal" || node.kind() == "raw_string_literal" {
@@ -286,11 +303,18 @@ impl RustAnalyzer {
                 }
             }
             if cursor.goto_first_child() {
-                self.walk_for_strings(cursor, source, strings);
-                cursor.goto_parent();
+                continue;
             }
-            if !cursor.goto_next_sibling() {
-                break;
+            if cursor.goto_next_sibling() {
+                continue;
+            }
+            loop {
+                if !cursor.goto_parent() {
+                    return;
+                }
+                if cursor.goto_next_sibling() {
+                    break;
+                }
             }
         }
     }
@@ -309,6 +333,8 @@ impl RustAnalyzer {
         functions: &mut Vec<FunctionInfo>,
         depth: u32,
     ) {
+        // Iterative traversal to avoid stack overflow on deeply nested code
+        let mut depth = depth;
         loop {
             let node = cursor.node();
             let kind = node.kind();
@@ -352,16 +378,25 @@ impl RustAnalyzer {
             }
 
             if cursor.goto_first_child() {
-                let new_depth = if kind == "function_item" {
-                    depth + 1
-                } else {
-                    depth
-                };
-                self.walk_for_function_info(cursor, source, functions, new_depth);
-                cursor.goto_parent();
+                if kind == "function_item" {
+                    depth += 1;
+                }
+                continue;
             }
-            if !cursor.goto_next_sibling() {
-                break;
+            if cursor.goto_next_sibling() {
+                continue;
+            }
+            loop {
+                if !cursor.goto_parent() {
+                    return;
+                }
+                // Track depth when going back up through function_items
+                if cursor.node().kind() == "function_item" {
+                    depth = depth.saturating_sub(1);
+                }
+                if cursor.goto_next_sibling() {
+                    break;
+                }
             }
         }
     }
@@ -382,6 +417,7 @@ impl RustAnalyzer {
         source: &[u8],
         report: &mut AnalysisReport,
     ) {
+        // Iterative traversal to avoid stack overflow on deeply nested code
         loop {
             let node = cursor.node();
 
@@ -404,14 +440,19 @@ impl RustAnalyzer {
                 _ => {}
             }
 
-            // Recurse
             if cursor.goto_first_child() {
-                self.walk_ast(cursor, source, report);
-                cursor.goto_parent();
+                continue;
             }
-
-            if !cursor.goto_next_sibling() {
-                break;
+            if cursor.goto_next_sibling() {
+                continue;
+            }
+            loop {
+                if !cursor.goto_parent() {
+                    return;
+                }
+                if cursor.goto_next_sibling() {
+                    break;
+                }
             }
         }
     }
@@ -524,6 +565,7 @@ impl RustAnalyzer {
         source: &[u8],
         report: &mut AnalysisReport,
     ) {
+        // Iterative traversal to avoid stack overflow on deeply nested code
         loop {
             let node = cursor.node();
 
@@ -574,14 +616,19 @@ impl RustAnalyzer {
                 }
             }
 
-            // Recurse
             if cursor.goto_first_child() {
-                self.walk_for_functions(cursor, source, report);
-                cursor.goto_parent();
+                continue;
             }
-
-            if !cursor.goto_next_sibling() {
-                break;
+            if cursor.goto_next_sibling() {
+                continue;
+            }
+            loop {
+                if !cursor.goto_parent() {
+                    return;
+                }
+                if cursor.goto_next_sibling() {
+                    break;
+                }
             }
         }
     }
@@ -592,6 +639,7 @@ impl RustAnalyzer {
         source: &[u8],
         calls: &mut Vec<String>,
     ) {
+        // Iterative traversal to avoid stack overflow on deeply nested code
         loop {
             let node = cursor.node();
             if node.kind() == "call_expression" {
@@ -602,11 +650,18 @@ impl RustAnalyzer {
                 }
             }
             if cursor.goto_first_child() {
-                self.walk_for_calls(cursor, source, calls);
-                cursor.goto_parent();
+                continue;
             }
-            if !cursor.goto_next_sibling() {
-                break;
+            if cursor.goto_next_sibling() {
+                continue;
+            }
+            loop {
+                if !cursor.goto_parent() {
+                    return;
+                }
+                if cursor.goto_next_sibling() {
+                    break;
+                }
             }
         }
     }
@@ -624,6 +679,7 @@ impl RustAnalyzer {
         source: &[u8],
         complexity: &mut u32,
     ) {
+        // Iterative traversal to avoid stack overflow on deeply nested code
         loop {
             let node = cursor.node();
             match node.kind() {
@@ -641,11 +697,18 @@ impl RustAnalyzer {
                 _ => {}
             }
             if cursor.goto_first_child() {
-                self.walk_for_complexity(cursor, source, complexity);
-                cursor.goto_parent();
+                continue;
             }
-            if !cursor.goto_next_sibling() {
-                break;
+            if cursor.goto_next_sibling() {
+                continue;
+            }
+            loop {
+                if !cursor.goto_parent() {
+                    return;
+                }
+                if cursor.goto_next_sibling() {
+                    break;
+                }
             }
         }
     }

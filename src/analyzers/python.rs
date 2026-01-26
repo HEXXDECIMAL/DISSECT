@@ -179,8 +179,10 @@ impl PythonAnalyzer {
         cursor: &mut tree_sitter::TreeCursor,
         source: &[u8],
         functions: &mut Vec<FunctionInfo>,
-        depth: u32,
+        initial_depth: u32,
     ) {
+        // Iterative traversal to avoid stack overflow on deeply nested code
+        let mut depth = initial_depth;
         loop {
             let node = cursor.node();
 
@@ -286,20 +288,29 @@ impl PythonAnalyzer {
                 functions.push(info);
             }
 
-            // Recurse with increased depth for function bodies
-            let new_depth = if node.kind() == "function_definition" || node.kind() == "lambda" {
-                depth + 1
-            } else {
-                depth
-            };
-
-            if cursor.goto_first_child() {
-                self.walk_for_function_info(cursor, source, functions, new_depth);
-                cursor.goto_parent();
+            // Increase depth when entering function bodies
+            if node.kind() == "function_definition" || node.kind() == "lambda" {
+                depth += 1;
             }
 
-            if !cursor.goto_next_sibling() {
-                break;
+            if cursor.goto_first_child() {
+                continue;
+            }
+            if cursor.goto_next_sibling() {
+                continue;
+            }
+            loop {
+                if !cursor.goto_parent() {
+                    return;
+                }
+                // Decrease depth when leaving function bodies
+                let parent = cursor.node();
+                if parent.kind() == "function_definition" || parent.kind() == "lambda" {
+                    depth = depth.saturating_sub(1);
+                }
+                if cursor.goto_next_sibling() {
+                    break;
+                }
             }
         }
     }
@@ -318,6 +329,7 @@ impl PythonAnalyzer {
         source: &[u8],
         identifiers: &mut Vec<String>,
     ) {
+        // Iterative traversal to avoid stack overflow on deeply nested code
         loop {
             let node = cursor.node();
 
@@ -328,12 +340,18 @@ impl PythonAnalyzer {
             }
 
             if cursor.goto_first_child() {
-                self.walk_for_identifiers(cursor, source, identifiers);
-                cursor.goto_parent();
+                continue;
             }
-
-            if !cursor.goto_next_sibling() {
-                break;
+            if cursor.goto_next_sibling() {
+                continue;
+            }
+            loop {
+                if !cursor.goto_parent() {
+                    return;
+                }
+                if cursor.goto_next_sibling() {
+                    break;
+                }
             }
         }
     }
@@ -352,6 +370,7 @@ impl PythonAnalyzer {
         source: &[u8],
         strings: &mut Vec<String>,
     ) {
+        // Iterative traversal to avoid stack overflow on deeply nested code
         loop {
             let node = cursor.node();
 
@@ -366,12 +385,18 @@ impl PythonAnalyzer {
             }
 
             if cursor.goto_first_child() {
-                self.walk_for_strings(cursor, source, strings);
-                cursor.goto_parent();
+                continue;
             }
-
-            if !cursor.goto_next_sibling() {
-                break;
+            if cursor.goto_next_sibling() {
+                continue;
+            }
+            loop {
+                if !cursor.goto_parent() {
+                    return;
+                }
+                if cursor.goto_next_sibling() {
+                    break;
+                }
             }
         }
     }
@@ -400,6 +425,7 @@ impl PythonAnalyzer {
         source: &[u8],
         metrics: &mut PythonMetrics,
     ) {
+        // Iterative traversal to avoid stack overflow on deeply nested code
         loop {
             let node = cursor.node();
 
@@ -512,12 +538,18 @@ impl PythonAnalyzer {
             }
 
             if cursor.goto_first_child() {
-                self.walk_for_python_metrics(cursor, source, metrics);
-                cursor.goto_parent();
+                continue;
             }
-
-            if !cursor.goto_next_sibling() {
-                break;
+            if cursor.goto_next_sibling() {
+                continue;
+            }
+            loop {
+                if !cursor.goto_parent() {
+                    return;
+                }
+                if cursor.goto_next_sibling() {
+                    break;
+                }
             }
         }
     }
@@ -538,6 +570,7 @@ impl PythonAnalyzer {
         source: &[u8],
         report: &mut AnalysisReport,
     ) {
+        // Iterative traversal to avoid stack overflow on deeply nested code
         loop {
             let node = cursor.node();
 
@@ -560,14 +593,19 @@ impl PythonAnalyzer {
                 _ => {}
             }
 
-            // Recurse
             if cursor.goto_first_child() {
-                self.walk_ast(cursor, source, report);
-                cursor.goto_parent();
+                continue;
             }
-
-            if !cursor.goto_next_sibling() {
-                break;
+            if cursor.goto_next_sibling() {
+                continue;
+            }
+            loop {
+                if !cursor.goto_parent() {
+                    return;
+                }
+                if cursor.goto_next_sibling() {
+                    break;
+                }
             }
         }
     }

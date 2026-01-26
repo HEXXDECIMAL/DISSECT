@@ -40,13 +40,15 @@ pub fn extract_symbols(
     }
 }
 
-/// Recursively walk AST to find function calls
+/// Walk AST iteratively to find function calls (avoids stack overflow on deep nesting)
 fn extract_calls(
     cursor: &mut tree_sitter::TreeCursor,
     source: &[u8],
     call_types: &[&str],
     symbols: &mut std::collections::HashSet<String>,
 ) {
+    // Use iterative traversal with explicit depth tracking to avoid stack overflow
+    // on maliciously crafted or minified files with extreme nesting
     loop {
         let node = cursor.node();
         let node_type = node.kind();
@@ -65,60 +67,74 @@ fn extract_calls(
             }
         }
 
-        // Recurse into children
+        // Iterative tree traversal: try to go deeper, then sideways, then back up
         if cursor.goto_first_child() {
-            extract_calls(cursor, source, call_types, symbols);
-            cursor.goto_parent();
+            continue;
         }
-
-        // Move to next sibling
-        if !cursor.goto_next_sibling() {
-            break;
+        if cursor.goto_next_sibling() {
+            continue;
+        }
+        // Go back up until we can go sideways or reach the root
+        loop {
+            if !cursor.goto_parent() {
+                return; // Reached root, done
+            }
+            if cursor.goto_next_sibling() {
+                break; // Found a sibling, continue outer loop
+            }
         }
     }
 }
 
-/// Extract the function name from a call expression node
+/// Extract the function name from a call expression node (iterative to avoid stack overflow)
 fn extract_function_name(node: &tree_sitter::Node, source: &[u8]) -> Option<String> {
-    let mut cursor = node.walk();
-    if cursor.goto_first_child() {
-        loop {
-            let child = cursor.node();
-            let kind = child.kind();
+    // Use a work queue instead of recursion to handle deeply nested member expressions
+    let mut nodes_to_check = vec![*node];
+    const MAX_DEPTH: usize = 100; // Prevent infinite loops on malformed AST
 
-            // Look for identifier-like nodes
-            if matches!(
-                kind,
-                "identifier"
-                    | "field_identifier"
-                    | "property_identifier"
-                    | "attribute"
-                    | "name"
-                    | "command_name"
-                    | "word"
-                    | "simple_identifier"
-            ) {
-                return child.utf8_text(source).ok().map(|s| s.to_string());
-            }
+    while let Some(current) = nodes_to_check.pop() {
+        if nodes_to_check.len() > MAX_DEPTH {
+            break; // Safety limit
+        }
 
-            // For member expressions, recurse to find the method name
-            if matches!(
-                kind,
-                "member_expression"
-                    | "field_expression"
-                    | "attribute"
-                    | "call"
-                    | "method_call"
-                    | "selector_expression"
-                    | "call_expression"
-            ) {
-                if let Some(name) = extract_function_name(&child, source) {
-                    return Some(name);
+        let mut cursor = current.walk();
+        if cursor.goto_first_child() {
+            loop {
+                let child = cursor.node();
+                let kind = child.kind();
+
+                // Look for identifier-like nodes
+                if matches!(
+                    kind,
+                    "identifier"
+                        | "field_identifier"
+                        | "property_identifier"
+                        | "attribute"
+                        | "name"
+                        | "command_name"
+                        | "word"
+                        | "simple_identifier"
+                ) {
+                    return child.utf8_text(source).ok().map(|s| s.to_string());
                 }
-            }
 
-            if !cursor.goto_next_sibling() {
-                break;
+                // For member expressions, queue for checking instead of recursing
+                if matches!(
+                    kind,
+                    "member_expression"
+                        | "field_expression"
+                        | "attribute"
+                        | "call"
+                        | "method_call"
+                        | "selector_expression"
+                        | "call_expression"
+                ) {
+                    nodes_to_check.push(child);
+                }
+
+                if !cursor.goto_next_sibling() {
+                    break;
+                }
             }
         }
     }

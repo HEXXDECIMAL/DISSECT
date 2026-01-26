@@ -189,8 +189,11 @@ impl JavaScriptAnalyzer {
         cursor: &mut tree_sitter::TreeCursor,
         source: &[u8],
         functions: &mut Vec<FunctionInfo>,
-        depth: u32,
+        initial_depth: u32,
     ) {
+        // Iterative traversal with manual depth tracking to avoid stack overflow
+        let mut depth = initial_depth;
+
         loop {
             let node = cursor.node();
             let kind = node.kind();
@@ -290,24 +293,38 @@ impl JavaScriptAnalyzer {
                 functions.push(info);
             }
 
-            // Recurse with increased depth for function bodies
-            let new_depth = if kind == "function_declaration"
+            // Track depth increase when entering function bodies
+            let is_function_node = kind == "function_declaration"
                 || kind == "function_expression"
                 || kind == "arrow_function"
-                || kind == "method_definition"
-            {
-                depth + 1
-            } else {
-                depth
-            };
+                || kind == "method_definition";
 
+            // Iterative tree traversal with depth tracking
             if cursor.goto_first_child() {
-                self.walk_for_function_info(cursor, source, functions, new_depth);
-                cursor.goto_parent();
+                if is_function_node {
+                    depth += 1;
+                }
+                continue;
             }
-
-            if !cursor.goto_next_sibling() {
-                break;
+            if cursor.goto_next_sibling() {
+                continue;
+            }
+            loop {
+                if !cursor.goto_parent() {
+                    return;
+                }
+                // Check if we're leaving a function node to decrement depth
+                let parent_kind = cursor.node().kind();
+                if parent_kind == "function_declaration"
+                    || parent_kind == "function_expression"
+                    || parent_kind == "arrow_function"
+                    || parent_kind == "method_definition"
+                {
+                    depth = depth.saturating_sub(1);
+                }
+                if cursor.goto_next_sibling() {
+                    break;
+                }
             }
         }
     }
@@ -326,6 +343,7 @@ impl JavaScriptAnalyzer {
         source: &[u8],
         identifiers: &mut Vec<String>,
     ) {
+        // Iterative traversal to avoid stack overflow on deeply nested code
         loop {
             let node = cursor.node();
 
@@ -336,12 +354,18 @@ impl JavaScriptAnalyzer {
             }
 
             if cursor.goto_first_child() {
-                self.walk_for_identifiers(cursor, source, identifiers);
-                cursor.goto_parent();
+                continue;
             }
-
-            if !cursor.goto_next_sibling() {
-                break;
+            if cursor.goto_next_sibling() {
+                continue;
+            }
+            loop {
+                if !cursor.goto_parent() {
+                    return;
+                }
+                if cursor.goto_next_sibling() {
+                    break;
+                }
             }
         }
     }
@@ -360,6 +384,7 @@ impl JavaScriptAnalyzer {
         source: &[u8],
         strings: &mut Vec<String>,
     ) {
+        // Iterative traversal to avoid stack overflow on deeply nested code
         loop {
             let node = cursor.node();
 
@@ -374,8 +399,18 @@ impl JavaScriptAnalyzer {
             }
 
             if cursor.goto_first_child() {
-                self.walk_for_strings(cursor, source, strings);
-                cursor.goto_parent();
+                continue;
+            }
+            if cursor.goto_next_sibling() {
+                continue;
+            }
+            loop {
+                if !cursor.goto_parent() {
+                    return;
+                }
+                if cursor.goto_next_sibling() {
+                    break;
+                }
             }
 
             if !cursor.goto_next_sibling() {
@@ -410,6 +445,7 @@ impl JavaScriptAnalyzer {
         source: &[u8],
         metrics: &mut JavaScriptMetrics,
     ) {
+        // Iterative traversal to avoid stack overflow on deeply nested code
         loop {
             let node = cursor.node();
 
@@ -474,13 +510,20 @@ impl JavaScriptAnalyzer {
                 _ => {}
             }
 
+            // Iterative tree traversal
             if cursor.goto_first_child() {
-                self.walk_for_js_metrics(cursor, source, metrics);
-                cursor.goto_parent();
+                continue;
             }
-
-            if !cursor.goto_next_sibling() {
-                break;
+            if cursor.goto_next_sibling() {
+                continue;
+            }
+            loop {
+                if !cursor.goto_parent() {
+                    return;
+                }
+                if cursor.goto_next_sibling() {
+                    break;
+                }
             }
         }
     }

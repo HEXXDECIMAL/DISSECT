@@ -134,6 +134,30 @@ pub fn yara_cache_path(third_party_enabled: bool) -> Result<PathBuf> {
     Ok(cache_dir()?.join(cache_key))
 }
 
+/// Get the radare2 analysis cache directory
+/// Returns: {cache_dir}/radare2/
+pub fn radare2_cache_dir() -> Result<PathBuf> {
+    let dir = cache_dir()?.join("radare2");
+    if !dir.exists() {
+        fs::create_dir_all(&dir).context("Failed to create radare2 cache directory")?;
+    }
+    Ok(dir)
+}
+
+/// Get the cache path for a radare2 analysis result by SHA256
+/// Uses first 2 chars as subdirectory to avoid huge flat directories.
+/// Returns: {cache_dir}/radare2/{sha256[0:2]}/{sha256}.bin
+pub fn radare2_cache_path(sha256: &str) -> Result<PathBuf> {
+    if sha256.len() < 2 {
+        anyhow::bail!("Invalid SHA256: too short");
+    }
+    let subdir = radare2_cache_dir()?.join(&sha256[..2]);
+    if !subdir.exists() {
+        fs::create_dir_all(&subdir).context("Failed to create radare2 cache subdirectory")?;
+    }
+    Ok(subdir.join(format!("{}.bin", sha256)))
+}
+
 /// Clean up old cache files (keep only current one)
 pub fn cleanup_old_caches(current_cache: &Path) -> Result<()> {
     let cache_dir = cache_dir()?;

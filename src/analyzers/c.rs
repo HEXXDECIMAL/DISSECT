@@ -168,6 +168,7 @@ impl CAnalyzer {
         source: &[u8],
         identifiers: &mut Vec<String>,
     ) {
+        // Iterative traversal to avoid stack overflow on deeply nested code
         loop {
             let node = cursor.node();
             if node.kind() == "identifier" || node.kind() == "field_identifier" {
@@ -178,11 +179,18 @@ impl CAnalyzer {
                 }
             }
             if cursor.goto_first_child() {
-                self.walk_for_identifiers(cursor, source, identifiers);
-                cursor.goto_parent();
+                continue;
             }
-            if !cursor.goto_next_sibling() {
-                break;
+            if cursor.goto_next_sibling() {
+                continue;
+            }
+            loop {
+                if !cursor.goto_parent() {
+                    return;
+                }
+                if cursor.goto_next_sibling() {
+                    break;
+                }
             }
         }
     }
@@ -200,6 +208,7 @@ impl CAnalyzer {
         source: &[u8],
         strings: &mut Vec<String>,
     ) {
+        // Iterative traversal to avoid stack overflow on deeply nested code
         loop {
             let node = cursor.node();
             if node.kind() == "string_literal" {
@@ -211,11 +220,18 @@ impl CAnalyzer {
                 }
             }
             if cursor.goto_first_child() {
-                self.walk_for_strings(cursor, source, strings);
-                cursor.goto_parent();
+                continue;
             }
-            if !cursor.goto_next_sibling() {
-                break;
+            if cursor.goto_next_sibling() {
+                continue;
+            }
+            loop {
+                if !cursor.goto_parent() {
+                    return;
+                }
+                if cursor.goto_next_sibling() {
+                    break;
+                }
             }
         }
     }
@@ -232,8 +248,9 @@ impl CAnalyzer {
         cursor: &mut tree_sitter::TreeCursor,
         source: &[u8],
         functions: &mut Vec<FunctionInfo>,
-        depth: u32,
+        mut depth: u32,
     ) {
+        // Iterative traversal to avoid stack overflow on deeply nested code
         loop {
             let node = cursor.node();
             let kind = node.kind();
@@ -253,16 +270,25 @@ impl CAnalyzer {
             }
 
             if cursor.goto_first_child() {
-                let new_depth = if kind == "function_definition" {
-                    depth + 1
-                } else {
-                    depth
-                };
-                self.walk_for_function_info(cursor, source, functions, new_depth);
-                cursor.goto_parent();
+                if kind == "function_definition" {
+                    depth += 1;
+                }
+                continue;
             }
-            if !cursor.goto_next_sibling() {
-                break;
+            if cursor.goto_next_sibling() {
+                continue;
+            }
+            loop {
+                if !cursor.goto_parent() {
+                    return;
+                }
+                // Track depth when going back up through function definitions
+                if cursor.node().kind() == "function_definition" {
+                    depth = depth.saturating_sub(1);
+                }
+                if cursor.goto_next_sibling() {
+                    break;
+                }
             }
         }
     }
@@ -273,6 +299,7 @@ impl CAnalyzer {
         source: &[u8],
         info: &mut FunctionInfo,
     ) {
+        // Iterative traversal to avoid stack overflow on deeply nested code
         loop {
             let node = cursor.node();
             if node.kind() == "identifier" {
@@ -297,11 +324,18 @@ impl CAnalyzer {
                 }
             }
             if cursor.goto_first_child() {
-                self.find_function_name(cursor, source, info);
-                cursor.goto_parent();
+                continue;
             }
-            if !cursor.goto_next_sibling() {
-                break;
+            if cursor.goto_next_sibling() {
+                continue;
+            }
+            loop {
+                if !cursor.goto_parent() {
+                    return;
+                }
+                if cursor.goto_next_sibling() {
+                    break;
+                }
             }
         }
     }
@@ -322,6 +356,7 @@ impl CAnalyzer {
         source: &[u8],
         report: &mut AnalysisReport,
     ) {
+        // Iterative traversal to avoid stack overflow on deeply nested code
         loop {
             let node = cursor.node();
 
@@ -358,14 +393,19 @@ impl CAnalyzer {
                 _ => {}
             }
 
-            // Recurse
             if cursor.goto_first_child() {
-                self.walk_ast(cursor, source, report);
-                cursor.goto_parent();
+                continue;
             }
-
-            if !cursor.goto_next_sibling() {
-                break;
+            if cursor.goto_next_sibling() {
+                continue;
+            }
+            loop {
+                if !cursor.goto_parent() {
+                    return;
+                }
+                if cursor.goto_next_sibling() {
+                    break;
+                }
             }
         }
     }
@@ -1766,6 +1806,7 @@ impl CAnalyzer {
         source: &[u8],
         report: &mut AnalysisReport,
     ) {
+        // Iterative traversal to avoid stack overflow on deeply nested code
         loop {
             let node = cursor.node();
 
@@ -1795,14 +1836,19 @@ impl CAnalyzer {
                 }
             }
 
-            // Recurse
             if cursor.goto_first_child() {
-                self.walk_for_functions(cursor, source, report);
-                cursor.goto_parent();
+                continue;
             }
-
-            if !cursor.goto_next_sibling() {
-                break;
+            if cursor.goto_next_sibling() {
+                continue;
+            }
+            loop {
+                if !cursor.goto_parent() {
+                    return;
+                }
+                if cursor.goto_next_sibling() {
+                    break;
+                }
             }
         }
     }

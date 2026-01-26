@@ -7,11 +7,21 @@ use super::context::{ConditionResult, EvaluationContext, StringParams};
 use super::types::{FileType, Platform};
 use crate::types::Evidence;
 use anyhow::Result;
+use dashmap::DashMap;
 use regex::Regex;
-use std::sync::Arc;
+use std::sync::{Arc, OnceLock};
 use streaming_iterator::StreamingIterator;
 
-/// Check if a symbol matches a pattern (supports exact match or regex)
+/// Global cache for compiled regex patterns to avoid repeated compilation.
+/// Key is (pattern, case_insensitive), value is compiled Regex.
+static REGEX_CACHE: OnceLock<DashMap<(String, bool), Regex>> = OnceLock::new();
+
+fn regex_cache() -> &'static DashMap<(String, bool), Regex> {
+    REGEX_CACHE.get_or_init(DashMap::new)
+}
+
+/// Check if a symbol matches a pattern (supports exact match or regex).
+/// Uses cached regex compilation for patterns with metacharacters.
 pub fn symbol_matches(symbol: &str, pattern: &str) -> bool {
     // Clean symbol (remove leading underscores)
     let clean = symbol.trim_start_matches('_').trim_start_matches("__");
@@ -23,7 +33,7 @@ pub fn symbol_matches(symbol: &str, pattern: &str) -> bool {
 
     // Try as regex if pattern contains regex metacharacters
     if pattern.contains('|') || pattern.contains('*') || pattern.contains('[') {
-        if let Ok(re) = Regex::new(pattern) {
+        if let Ok(re) = build_regex(pattern, false) {
             return re.is_match(clean) || re.is_match(symbol);
         }
     }
@@ -31,13 +41,25 @@ pub fn symbol_matches(symbol: &str, pattern: &str) -> bool {
     false
 }
 
-/// Build a regex with optional case insensitivity
+/// Build a regex with optional case insensitivity.
+/// Results are cached globally for reuse across files.
 pub fn build_regex(pattern: &str, case_insensitive: bool) -> Result<Regex> {
-    if case_insensitive {
-        Ok(Regex::new(&format!("(?i){}", pattern))?)
-    } else {
-        Ok(Regex::new(pattern)?)
+    let cache = regex_cache();
+    let key = (pattern.to_string(), case_insensitive);
+
+    // Check cache first
+    if let Some(re) = cache.get(&key) {
+        return Ok(re.value().clone());
     }
+
+    // Compile and cache
+    let regex = if case_insensitive {
+        Regex::new(&format!("(?i){}", pattern))?
+    } else {
+        Regex::new(pattern)?
+    };
+    cache.insert(key, regex.clone());
+    Ok(regex)
 }
 
 /// Truncate evidence string to max length
@@ -164,6 +186,43 @@ pub fn eval_string(params: &StringParams, ctx: &EvaluationContext) -> ConditionR
                 value: match_value,
                 location: string_info.offset.clone(),
             });
+        }
+    }
+
+    // For source files or when no strings were extracted, fall back to raw content search.
+    // Source files (Python, Ruby, etc.) don't use string extraction - the file IS the strings.
+    if evidence.is_empty() && (ctx.report.strings.is_empty() || ctx.file_type.is_source_code()) {
+        if let Ok(content) = std::str::from_utf8(ctx.binary_data) {
+            let mut matched = false;
+            let mut match_value = String::new();
+
+            if let Some(exact_str) = params.exact {
+                matched = if params.case_insensitive {
+                    content.to_lowercase().contains(&exact_str.to_lowercase())
+                } else {
+                    content.contains(exact_str)
+                };
+                if matched {
+                    match_value = exact_str.clone();
+                }
+            } else if let Some(ref re) = compiled_regex {
+                if let Some(mat) = re.find(content) {
+                    matched = true;
+                    match_value = mat.as_str().to_string();
+                }
+            }
+
+            if matched {
+                let excluded = compiled_excludes.iter().any(|re| re.is_match(&match_value));
+                if !excluded {
+                    evidence.push(Evidence {
+                        method: "string".to_string(),
+                        source: "raw_content".to_string(),
+                        value: match_value,
+                        location: Some("file".to_string()),
+                    });
+                }
+            }
         }
     }
 

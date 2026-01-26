@@ -1,5 +1,6 @@
 pub mod applescript;
 pub mod archive;
+pub mod ast_walker;
 pub mod c;
 pub mod csharp;
 

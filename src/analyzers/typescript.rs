@@ -140,6 +140,7 @@ impl TypeScriptAnalyzer {
         source: &[u8],
         identifiers: &mut Vec<String>,
     ) {
+        // Iterative traversal to avoid stack overflow on deeply nested code
         loop {
             let node = cursor.node();
 
@@ -152,12 +153,18 @@ impl TypeScriptAnalyzer {
             }
 
             if cursor.goto_first_child() {
-                self.walk_for_identifiers(cursor, source, identifiers);
-                cursor.goto_parent();
+                continue;
             }
-
-            if !cursor.goto_next_sibling() {
-                break;
+            if cursor.goto_next_sibling() {
+                continue;
+            }
+            loop {
+                if !cursor.goto_parent() {
+                    return;
+                }
+                if cursor.goto_next_sibling() {
+                    break;
+                }
             }
         }
     }
@@ -176,6 +183,7 @@ impl TypeScriptAnalyzer {
         source: &[u8],
         strings: &mut Vec<String>,
     ) {
+        // Iterative traversal to avoid stack overflow on deeply nested code
         loop {
             let node = cursor.node();
 
@@ -196,12 +204,18 @@ impl TypeScriptAnalyzer {
             }
 
             if cursor.goto_first_child() {
-                self.walk_for_strings(cursor, source, strings);
-                cursor.goto_parent();
+                continue;
             }
-
-            if !cursor.goto_next_sibling() {
-                break;
+            if cursor.goto_next_sibling() {
+                continue;
+            }
+            loop {
+                if !cursor.goto_parent() {
+                    return;
+                }
+                if cursor.goto_next_sibling() {
+                    break;
+                }
             }
         }
     }
@@ -221,6 +235,8 @@ impl TypeScriptAnalyzer {
         functions: &mut Vec<FunctionInfo>,
         depth: u32,
     ) {
+        // Iterative traversal to avoid stack overflow on deeply nested code
+        let mut current_depth = depth;
         loop {
             let node = cursor.node();
             let kind = node.kind();
@@ -284,26 +300,37 @@ impl TypeScriptAnalyzer {
                 info.start_line = node.start_position().row as u32;
                 info.end_line = node.end_position().row as u32;
                 info.line_count = info.end_line.saturating_sub(info.start_line) + 1;
-                info.nesting_depth = depth;
+                info.nesting_depth = current_depth;
 
                 functions.push(info);
             }
 
             if cursor.goto_first_child() {
-                let new_depth = if kind.contains("function")
+                if kind.contains("function")
                     || kind == "method_definition"
                     || kind == "arrow_function"
                 {
-                    depth + 1
-                } else {
-                    depth
-                };
-                self.walk_for_function_info(cursor, source, functions, new_depth);
-                cursor.goto_parent();
+                    current_depth += 1;
+                }
+                continue;
             }
-
-            if !cursor.goto_next_sibling() {
-                break;
+            if cursor.goto_next_sibling() {
+                continue;
+            }
+            loop {
+                if !cursor.goto_parent() {
+                    return;
+                }
+                let parent_kind = cursor.node().kind();
+                if parent_kind.contains("function")
+                    || parent_kind == "method_definition"
+                    || parent_kind == "arrow_function"
+                {
+                    current_depth = current_depth.saturating_sub(1);
+                }
+                if cursor.goto_next_sibling() {
+                    break;
+                }
             }
         }
     }
@@ -319,6 +346,7 @@ impl TypeScriptAnalyzer {
         source: &[u8],
         report: &mut AnalysisReport,
     ) {
+        // Iterative traversal to avoid stack overflow on deeply nested code
         loop {
             let node = cursor.node();
 
@@ -341,14 +369,19 @@ impl TypeScriptAnalyzer {
                 _ => {}
             }
 
-            // Recurse
             if cursor.goto_first_child() {
-                self.walk_ast(cursor, source, report);
-                cursor.goto_parent();
+                continue;
             }
-
-            if !cursor.goto_next_sibling() {
-                break;
+            if cursor.goto_next_sibling() {
+                continue;
+            }
+            loop {
+                if !cursor.goto_parent() {
+                    return;
+                }
+                if cursor.goto_next_sibling() {
+                    break;
+                }
             }
         }
     }

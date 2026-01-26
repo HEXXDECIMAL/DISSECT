@@ -176,6 +176,7 @@ impl ShellAnalyzer {
         source: &[u8],
         identifiers: &mut Vec<String>,
     ) {
+        // Iterative traversal to avoid stack overflow on deeply nested code
         loop {
             let node = cursor.node();
 
@@ -190,12 +191,18 @@ impl ShellAnalyzer {
             }
 
             if cursor.goto_first_child() {
-                self.walk_for_identifiers(cursor, source, identifiers);
-                cursor.goto_parent();
+                continue;
             }
-
-            if !cursor.goto_next_sibling() {
-                break;
+            if cursor.goto_next_sibling() {
+                continue;
+            }
+            loop {
+                if !cursor.goto_parent() {
+                    return;
+                }
+                if cursor.goto_next_sibling() {
+                    break;
+                }
             }
         }
     }
@@ -214,6 +221,7 @@ impl ShellAnalyzer {
         source: &[u8],
         strings: &mut Vec<String>,
     ) {
+        // Iterative traversal to avoid stack overflow on deeply nested code
         loop {
             let node = cursor.node();
 
@@ -232,12 +240,18 @@ impl ShellAnalyzer {
             }
 
             if cursor.goto_first_child() {
-                self.walk_for_strings(cursor, source, strings);
-                cursor.goto_parent();
+                continue;
             }
-
-            if !cursor.goto_next_sibling() {
-                break;
+            if cursor.goto_next_sibling() {
+                continue;
+            }
+            loop {
+                if !cursor.goto_parent() {
+                    return;
+                }
+                if cursor.goto_next_sibling() {
+                    break;
+                }
             }
         }
     }
@@ -255,8 +269,10 @@ impl ShellAnalyzer {
         cursor: &mut tree_sitter::TreeCursor,
         source: &[u8],
         functions: &mut Vec<FunctionInfo>,
-        depth: u32,
+        _depth: u32,
     ) {
+        // Iterative traversal to avoid stack overflow on deeply nested code
+        let mut depth = _depth;
         loop {
             let node = cursor.node();
 
@@ -284,17 +300,25 @@ impl ShellAnalyzer {
             }
 
             if cursor.goto_first_child() {
-                let new_depth = if node.kind() == "function_definition" {
-                    depth + 1
-                } else {
-                    depth
-                };
-                self.walk_for_function_info(cursor, source, functions, new_depth);
-                cursor.goto_parent();
+                if node.kind() == "function_definition" {
+                    depth += 1;
+                }
+                continue;
             }
-
-            if !cursor.goto_next_sibling() {
-                break;
+            if cursor.goto_next_sibling() {
+                continue;
+            }
+            loop {
+                if !cursor.goto_parent() {
+                    return;
+                }
+                let parent = cursor.node();
+                if parent.kind() == "function_definition" {
+                    depth = depth.saturating_sub(1);
+                }
+                if cursor.goto_next_sibling() {
+                    break;
+                }
             }
         }
     }
@@ -324,6 +348,7 @@ impl ShellAnalyzer {
         source: &[u8],
         metrics: &mut ShellMetrics,
     ) {
+        // Iterative traversal to avoid stack overflow on deeply nested code
         loop {
             let node = cursor.node();
 
@@ -355,12 +380,18 @@ impl ShellAnalyzer {
             }
 
             if cursor.goto_first_child() {
-                self.walk_for_shell_metrics(cursor, source, metrics);
-                cursor.goto_parent();
+                continue;
             }
-
-            if !cursor.goto_next_sibling() {
-                break;
+            if cursor.goto_next_sibling() {
+                continue;
+            }
+            loop {
+                if !cursor.goto_parent() {
+                    return;
+                }
+                if cursor.goto_next_sibling() {
+                    break;
+                }
             }
         }
     }
@@ -383,6 +414,7 @@ impl ShellAnalyzer {
         source: &[u8],
         report: &mut AnalysisReport,
     ) {
+        // Iterative traversal to avoid stack overflow on deeply nested code
         loop {
             let node = cursor.node();
 
@@ -403,14 +435,19 @@ impl ShellAnalyzer {
                 _ => {}
             }
 
-            // Recurse into children
             if cursor.goto_first_child() {
-                self.walk_ast(cursor, source, report);
-                cursor.goto_parent();
+                continue;
             }
-
-            if !cursor.goto_next_sibling() {
-                break;
+            if cursor.goto_next_sibling() {
+                continue;
+            }
+            loop {
+                if !cursor.goto_parent() {
+                    return;
+                }
+                if cursor.goto_next_sibling() {
+                    break;
+                }
             }
         }
     }

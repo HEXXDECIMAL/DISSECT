@@ -72,6 +72,14 @@ fn expand_paths(paths: Vec<String>) -> Vec<String> {
 }
 
 fn main() -> Result<()> {
+    // Configure rayon thread pool with larger stack size to handle deeply nested ASTs
+    // (e.g., minified JavaScript, malicious files with extreme nesting)
+    // Default is ~2MB which can overflow on files with 1000+ nesting levels
+    rayon::ThreadPoolBuilder::new()
+        .stack_size(8 * 1024 * 1024) // 8MB per thread
+        .build_global()
+        .ok(); // Ignore error if pool already initialized (e.g., in tests)
+
     let args = cli::Args::parse();
 
     // Get disabled components

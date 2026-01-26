@@ -7,8 +7,38 @@ use rayon::prelude::*;
 use std::collections::HashSet;
 use std::fs::{self, File};
 use std::io::{BufRead, BufReader, Read};
-use std::path::Path;
+use std::path::{Component, Path, PathBuf};
+use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
+
+// =============================================================================
+// Archive Bomb Protection Constants
+// =============================================================================
+
+/// Maximum size of a single decompressed file (100 MB)
+const MAX_FILE_SIZE: u64 = 100 * 1024 * 1024;
+
+/// Maximum total extraction size (1 GB)
+const MAX_TOTAL_SIZE: u64 = 1024 * 1024 * 1024;
+
+/// Maximum number of files to extract
+const MAX_FILE_COUNT: usize = 10_000;
+
+/// Maximum compression ratio before considering it suspicious (100:1)
+const MAX_COMPRESSION_RATIO: u64 = 100;
+
+/// Reasons an archive may be considered hostile
+#[derive(Debug, Clone)]
+pub enum HostileArchiveReason {
+    PathTraversal(String),
+    ZipBomb { compressed: u64, uncompressed: u64 },
+    ExcessiveFileCount(usize),
+    ExcessiveTotalSize(u64),
+    ExcessiveFileSize { file: String, size: u64 },
+    SymlinkEscape(String),
+    MalformedEntry(String),
+    ExtractionError(String),
+}
 
 /// Archive analyzer for .zip, .tar.gz, .tgz, etc.
 pub struct ArchiveAnalyzer {
@@ -18,6 +48,138 @@ pub struct ArchiveAnalyzer {
     yara_engine: Option<Arc<YaraEngine>>,
     /// Passwords to try for encrypted zip files
     zip_passwords: Vec<String>,
+}
+
+/// Tracks extraction limits and detects hostile patterns
+struct ExtractionGuard {
+    total_bytes: AtomicU64,
+    file_count: AtomicUsize,
+    hostile_reasons: Mutex<Vec<HostileArchiveReason>>,
+}
+
+impl ExtractionGuard {
+    fn new() -> Self {
+        Self {
+            total_bytes: AtomicU64::new(0),
+            file_count: AtomicUsize::new(0),
+            hostile_reasons: Mutex::new(Vec::new()),
+        }
+    }
+
+    fn add_hostile_reason(&self, reason: HostileArchiveReason) {
+        if let Ok(mut reasons) = self.hostile_reasons.lock() {
+            reasons.push(reason);
+        }
+    }
+
+    fn take_reasons(&self) -> Vec<HostileArchiveReason> {
+        self.hostile_reasons
+            .lock()
+            .map(|mut r| std::mem::take(&mut *r))
+            .unwrap_or_default()
+    }
+
+    /// Check if we can extract another file, returns false if limits exceeded
+    fn check_file_count(&self) -> bool {
+        let count = self.file_count.fetch_add(1, Ordering::Relaxed) + 1;
+        if count > MAX_FILE_COUNT {
+            self.add_hostile_reason(HostileArchiveReason::ExcessiveFileCount(count));
+            return false;
+        }
+        true
+    }
+
+    /// Check and track bytes, returns false if limits exceeded
+    fn check_bytes(&self, bytes: u64, file_name: &str) -> bool {
+        // Check single file size
+        if bytes > MAX_FILE_SIZE {
+            self.add_hostile_reason(HostileArchiveReason::ExcessiveFileSize {
+                file: file_name.to_string(),
+                size: bytes,
+            });
+            return false;
+        }
+
+        // Check total size
+        let total = self.total_bytes.fetch_add(bytes, Ordering::Relaxed) + bytes;
+        if total > MAX_TOTAL_SIZE {
+            self.add_hostile_reason(HostileArchiveReason::ExcessiveTotalSize(total));
+            return false;
+        }
+        true
+    }
+
+    /// Check compression ratio for zip bomb detection
+    fn check_compression_ratio(&self, compressed: u64, uncompressed: u64) -> bool {
+        if compressed > 0 && uncompressed / compressed > MAX_COMPRESSION_RATIO {
+            self.add_hostile_reason(HostileArchiveReason::ZipBomb {
+                compressed,
+                uncompressed,
+            });
+            return false;
+        }
+        true
+    }
+}
+
+/// Sanitize archive entry path to prevent path traversal attacks (zip slip)
+fn sanitize_entry_path(entry_name: &str, dest_dir: &Path) -> Option<PathBuf> {
+    let path = Path::new(entry_name);
+
+    // Reject absolute paths
+    if path.is_absolute() {
+        return None;
+    }
+
+    // Build path component by component, rejecting dangerous ones
+    let mut result = dest_dir.to_path_buf();
+    for component in path.components() {
+        match component {
+            Component::Normal(c) => result.push(c),
+            Component::CurDir => {} // Skip "."
+            Component::ParentDir | Component::Prefix(_) | Component::RootDir => {
+                // Reject "..", drive prefixes, and root
+                return None;
+            }
+        }
+    }
+
+    // Final check: ensure result is still under dest_dir
+    if !result.starts_with(dest_dir) {
+        return None;
+    }
+
+    Some(result)
+}
+
+/// Size-limited reader that stops after a maximum number of bytes
+struct LimitedReader<R> {
+    inner: R,
+    remaining: u64,
+}
+
+impl<R: Read> LimitedReader<R> {
+    fn new(inner: R, limit: u64) -> Self {
+        Self {
+            inner,
+            remaining: limit,
+        }
+    }
+}
+
+impl<R: Read> Read for LimitedReader<R> {
+    fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
+        if self.remaining == 0 {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                "size limit exceeded",
+            ));
+        }
+        let max_read = buf.len().min(self.remaining as usize);
+        let n = self.inner.read(&mut buf[..max_read])?;
+        self.remaining = self.remaining.saturating_sub(n as u64);
+        Ok(n)
+    }
 }
 
 impl ArchiveAnalyzer {
@@ -63,8 +225,34 @@ impl ArchiveAnalyzer {
         // Create temporary directory for extraction
         let temp_dir = tempfile::tempdir().context("Failed to create temporary directory")?;
 
-        // Extract archive
-        self.extract_archive(file_path, temp_dir.path())?;
+        // Create extraction guard to track limits and detect hostile patterns
+        let guard = ExtractionGuard::new();
+
+        // Extract archive with protection
+        // For complete failures (wrong password, corrupt archive), propagate the error
+        // For partial failures (some hostile files skipped), emit findings but continue
+        let extraction_result = self.extract_archive_safe(file_path, temp_dir.path(), &guard);
+
+        // Check if any files were extracted - if zero files and error, propagate error
+        let hostile_reasons = guard.take_reasons();
+        let _has_hostile_patterns = !hostile_reasons.is_empty();
+
+        // If extraction completely failed (no files extracted), return the error
+        // This handles cases like wrong password, corrupt archive, etc.
+        if let Err(e) = extraction_result {
+            // Check if we at least extracted some files (partial success)
+            let extracted_count = walkdir::WalkDir::new(temp_dir.path())
+                .min_depth(1)
+                .into_iter()
+                .filter_map(|e| e.ok())
+                .count();
+
+            if extracted_count == 0 {
+                // Complete failure - return the error
+                return Err(e);
+            }
+            // Partial failure - continue with what we extracted but record the error
+        }
 
         // Create target info
         let file_data = fs::read(file_path)?;
@@ -77,6 +265,77 @@ impl ArchiveAnalyzer {
         };
 
         let mut report = AnalysisReport::new(target);
+
+        // Emit findings for any hostile archive behaviors
+        for reason in hostile_reasons {
+            let (id, desc, evidence_value) = match &reason {
+                HostileArchiveReason::PathTraversal(path) => (
+                    "anti-analysis/archive/path-traversal",
+                    "Archive contains path traversal attempt (zip slip)",
+                    format!("path:{}", path),
+                ),
+                HostileArchiveReason::ZipBomb {
+                    compressed,
+                    uncompressed,
+                } => (
+                    "anti-analysis/archive/zip-bomb",
+                    "Archive has suspicious compression ratio (potential zip bomb)",
+                    format!(
+                        "ratio:{}:1 ({}B -> {}B)",
+                        uncompressed / (*compressed).max(1),
+                        compressed,
+                        uncompressed
+                    ),
+                ),
+                HostileArchiveReason::ExcessiveFileCount(count) => (
+                    "anti-analysis/archive/excessive-files",
+                    "Archive contains excessive number of files",
+                    format!("count:{} (limit:{})", count, MAX_FILE_COUNT),
+                ),
+                HostileArchiveReason::ExcessiveTotalSize(size) => (
+                    "anti-analysis/archive/excessive-size",
+                    "Archive expands to excessive total size",
+                    format!("size:{} bytes (limit:{})", size, MAX_TOTAL_SIZE),
+                ),
+                HostileArchiveReason::ExcessiveFileSize { file, size } => (
+                    "anti-analysis/archive/large-file",
+                    "Archive contains excessively large file",
+                    format!("file:{} size:{} (limit:{})", file, size, MAX_FILE_SIZE),
+                ),
+                HostileArchiveReason::SymlinkEscape(path) => (
+                    "anti-analysis/archive/symlink-escape",
+                    "Archive contains symlink that may escape extraction directory",
+                    format!("symlink:{}", path),
+                ),
+                HostileArchiveReason::MalformedEntry(msg) => (
+                    "anti-analysis/archive/malformed",
+                    "Archive contains malformed entry",
+                    msg.clone(),
+                ),
+                HostileArchiveReason::ExtractionError(msg) => (
+                    "anti-analysis/archive/extraction-failed",
+                    "Archive extraction failed (potentially malformed or hostile)",
+                    msg.clone(),
+                ),
+            };
+
+            report.findings.push(Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
+                id: id.to_string(),
+                desc: desc.to_string(),
+                conf: 0.9,
+                crit: Criticality::Suspicious,
+                mbc: None,
+                attack: None,
+                evidence: vec![Evidence {
+                    method: "archive_extraction".to_string(),
+                    source: "archive_analyzer".to_string(),
+                    value: evidence_value,
+                    location: None,
+                }],
+            });
+        }
 
         // Add structural feature
         report.structure.push(StructuralFeature {
@@ -607,32 +866,42 @@ impl ArchiveAnalyzer {
         None
     }
 
-    fn extract_archive(&self, archive_path: &Path, dest_dir: &Path) -> Result<()> {
+    /// Safe archive extraction with bomb protection
+    fn extract_archive_safe(
+        &self,
+        archive_path: &Path,
+        dest_dir: &Path,
+        guard: &ExtractionGuard,
+    ) -> Result<()> {
         let archive_type = self.detect_archive_type(archive_path);
 
         match archive_type {
-            "zip" => self.extract_zip(archive_path, dest_dir),
-            "tar" => self.extract_tar(archive_path, dest_dir, None),
-            "tar.gz" | "tgz" => self.extract_tar(archive_path, dest_dir, Some("gzip")),
-            "tar.bz2" | "tbz" | "tbz2" => self.extract_tar(archive_path, dest_dir, Some("bzip2")),
-            "tar.xz" | "txz" => self.extract_tar(archive_path, dest_dir, Some("xz")),
-            "xz" => self.extract_compressed(archive_path, dest_dir, "xz"),
-            "gz" => self.extract_compressed(archive_path, dest_dir, "gzip"),
-            "bz2" => self.extract_compressed(archive_path, dest_dir, "bzip2"),
-            "deb" => self.extract_deb(archive_path, dest_dir),
-            "rpm" => self.extract_rpm(archive_path, dest_dir),
-            "rar" => self.extract_rar(archive_path, dest_dir),
+            "zip" => self.extract_zip_safe(archive_path, dest_dir, guard),
+            "tar" => self.extract_tar_safe(archive_path, dest_dir, None, guard),
+            "tar.gz" | "tgz" => self.extract_tar_safe(archive_path, dest_dir, Some("gzip"), guard),
+            "tar.bz2" | "tbz" | "tbz2" => {
+                self.extract_tar_safe(archive_path, dest_dir, Some("bzip2"), guard)
+            }
+            "tar.xz" | "txz" => self.extract_tar_safe(archive_path, dest_dir, Some("xz"), guard),
+            "xz" => self.extract_compressed_safe(archive_path, dest_dir, "xz", guard),
+            "gz" => self.extract_compressed_safe(archive_path, dest_dir, "gzip", guard),
+            "bz2" => self.extract_compressed_safe(archive_path, dest_dir, "bzip2", guard),
+            "deb" => self.extract_deb_safe(archive_path, dest_dir, guard),
+            "rpm" => self.extract_rpm(archive_path, dest_dir), // TODO: add guard
+            "rar" => self.extract_rar(archive_path, dest_dir), // TODO: add guard
             _ => anyhow::bail!("Unsupported archive type: {}", archive_type),
         }
     }
 
-    fn extract_compressed(
+    fn extract_compressed_safe(
         &self,
         archive_path: &Path,
         dest_dir: &Path,
         compression: &str,
+        guard: &ExtractionGuard,
     ) -> Result<()> {
         let file = File::open(archive_path)?;
+        let compressed_size = file.metadata()?.len();
 
         // Determine output filename by stripping the compression extension
         let stem = archive_path
@@ -641,31 +910,48 @@ impl ArchiveAnalyzer {
             .unwrap_or("extracted");
         let output_path = dest_dir.join(stem);
 
+        if !guard.check_file_count() {
+            anyhow::bail!("File count limit exceeded");
+        }
+
         let mut output_file = File::create(&output_path).context("Failed to create output file")?;
 
-        match compression {
+        // Use LimitedReader to prevent decompression bombs
+        let bytes_written = match compression {
             "xz" => {
-                let mut decoder = xz2::read::XzDecoder::new(file);
-                std::io::copy(&mut decoder, &mut output_file)
-                    .context("Failed to decompress XZ file")?;
+                let decoder = xz2::read::XzDecoder::new(file);
+                let mut limited = LimitedReader::new(decoder, MAX_FILE_SIZE);
+                std::io::copy(&mut limited, &mut output_file)
+                    .context("Failed to decompress XZ file")?
             }
             "gzip" => {
-                let mut decoder = flate2::read::GzDecoder::new(file);
-                std::io::copy(&mut decoder, &mut output_file)
-                    .context("Failed to decompress GZ file")?;
+                let decoder = flate2::read::GzDecoder::new(file);
+                let mut limited = LimitedReader::new(decoder, MAX_FILE_SIZE);
+                std::io::copy(&mut limited, &mut output_file)
+                    .context("Failed to decompress GZ file")?
             }
             "bzip2" => {
-                let mut decoder = bzip2::read::BzDecoder::new(file);
-                std::io::copy(&mut decoder, &mut output_file)
-                    .context("Failed to decompress BZ2 file")?;
+                let decoder = bzip2::read::BzDecoder::new(file);
+                let mut limited = LimitedReader::new(decoder, MAX_FILE_SIZE);
+                std::io::copy(&mut limited, &mut output_file)
+                    .context("Failed to decompress BZ2 file")?
             }
             _ => anyhow::bail!("Unsupported compression: {}", compression),
-        }
+        };
+
+        // Check compression ratio
+        guard.check_compression_ratio(compressed_size, bytes_written);
+        guard.check_bytes(bytes_written, stem);
 
         Ok(())
     }
 
-    fn extract_zip(&self, archive_path: &Path, dest_dir: &Path) -> Result<()> {
+    fn extract_zip_safe(
+        &self,
+        archive_path: &Path,
+        dest_dir: &Path,
+        guard: &ExtractionGuard,
+    ) -> Result<()> {
         let file = File::open(archive_path)?;
         let mut archive = zip::ZipArchive::new(file).context("Failed to read ZIP archive")?;
 
@@ -687,7 +973,12 @@ impl ArchiveAnalyzer {
                 let mut archive =
                     zip::ZipArchive::new(file).context("Failed to read ZIP archive")?;
 
-                match self.extract_zip_with_password(&mut archive, dest_dir, password.as_bytes()) {
+                match self.extract_zip_entries_safe(
+                    &mut archive,
+                    dest_dir,
+                    Some(password.as_bytes()),
+                    guard,
+                ) {
                     Ok(()) => {
                         eprintln!("  Decrypted with password: {}", password);
                         return Ok(());
@@ -702,85 +993,171 @@ impl ArchiveAnalyzer {
         }
 
         // Try without password
-        for i in 0..archive.len() {
-            let mut entry = archive.by_index(i)?;
-            let outpath = dest_dir.join(entry.name());
-
-            if entry.is_dir() {
-                fs::create_dir_all(&outpath)?;
-            } else {
-                if let Some(parent) = outpath.parent() {
-                    fs::create_dir_all(parent)?;
-                }
-                let mut outfile = File::create(&outpath)?;
-                std::io::copy(&mut entry, &mut outfile)?;
-            }
-        }
-
-        Ok(())
+        self.extract_zip_entries_safe(&mut archive, dest_dir, None, guard)
     }
 
-    fn extract_zip_with_password(
+    fn extract_zip_entries_safe(
         &self,
         archive: &mut zip::ZipArchive<File>,
         dest_dir: &Path,
-        password: &[u8],
+        password: Option<&[u8]>,
+        guard: &ExtractionGuard,
     ) -> Result<()> {
         for i in 0..archive.len() {
-            let mut entry = archive.by_index_decrypt(i, password)?;
-            let outpath = dest_dir.join(entry.name());
+            // Check file count limit
+            if !guard.check_file_count() {
+                anyhow::bail!("Exceeded maximum file count ({})", MAX_FILE_COUNT);
+            }
+
+            let mut entry = match password {
+                Some(pw) => archive.by_index_decrypt(i, pw)?,
+                None => archive.by_index(i)?,
+            };
+
+            let entry_name = entry.name().to_string();
+
+            // Sanitize path to prevent zip slip
+            let outpath = match sanitize_entry_path(&entry_name, dest_dir) {
+                Some(p) => p,
+                None => {
+                    guard.add_hostile_reason(HostileArchiveReason::PathTraversal(entry_name));
+                    continue; // Skip this file but continue extraction
+                }
+            };
+
+            // Check for symlinks (zip files can contain them via external attributes)
+            // S_IFLNK = 0o120000, S_IFMT = 0o170000
+            if let Some(mode) = entry.unix_mode() {
+                if mode & 0o170000 == 0o120000 {
+                    guard.add_hostile_reason(HostileArchiveReason::SymlinkEscape(entry_name));
+                    continue;
+                }
+            }
 
             if entry.is_dir() {
                 fs::create_dir_all(&outpath)?;
             } else {
+                // Check compression ratio before extraction (zip bomb detection)
+                let compressed = entry.compressed_size();
+                let uncompressed = entry.size();
+                if !guard.check_compression_ratio(compressed, uncompressed) {
+                    continue; // Skip but continue
+                }
+
+                // Check if this single file would exceed limits
+                if uncompressed > MAX_FILE_SIZE {
+                    guard.add_hostile_reason(HostileArchiveReason::ExcessiveFileSize {
+                        file: entry_name.clone(),
+                        size: uncompressed,
+                    });
+                    continue;
+                }
+
                 if let Some(parent) = outpath.parent() {
                     fs::create_dir_all(parent)?;
                 }
+
+                // Extract with size limit
                 let mut outfile = File::create(&outpath)?;
-                std::io::copy(&mut entry, &mut outfile)?;
+                let mut limited = LimitedReader::new(&mut entry, MAX_FILE_SIZE);
+                let written = std::io::copy(&mut limited, &mut outfile)
+                    .with_context(|| format!("Failed to extract: {}", entry_name))?;
+
+                // Track total bytes
+                if !guard.check_bytes(written, &entry_name) {
+                    anyhow::bail!("Exceeded maximum total extraction size");
+                }
             }
         }
         Ok(())
     }
 
-    fn extract_tar(
+    fn extract_tar_safe(
         &self,
         archive_path: &Path,
         dest_dir: &Path,
         compression: Option<&str>,
+        guard: &ExtractionGuard,
     ) -> Result<()> {
         let file = File::open(archive_path)?;
 
-        let mut archive: tar::Archive<Box<dyn Read>> = match compression {
-            Some("gzip") => {
-                let decoder = flate2::read::GzDecoder::new(file);
-                tar::Archive::new(Box::new(decoder))
-            }
-            Some("bzip2") => {
-                let decoder = bzip2::read::BzDecoder::new(file);
-                tar::Archive::new(Box::new(decoder))
-            }
-            Some("xz") => {
-                let decoder = xz2::read::XzDecoder::new(file);
-                tar::Archive::new(Box::new(decoder))
-            }
-            None => tar::Archive::new(Box::new(file)),
+        let reader: Box<dyn Read> = match compression {
+            Some("gzip") => Box::new(flate2::read::GzDecoder::new(file)),
+            Some("bzip2") => Box::new(bzip2::read::BzDecoder::new(file)),
+            Some("xz") => Box::new(xz2::read::XzDecoder::new(file)),
+            None => Box::new(file),
             _ => anyhow::bail!("Unsupported compression: {:?}", compression),
         };
 
-        archive
-            .unpack(dest_dir)
-            .context("Failed to extract TAR archive")?;
+        let mut archive = tar::Archive::new(reader);
+
+        for entry_result in archive.entries()? {
+            // Check file count
+            if !guard.check_file_count() {
+                anyhow::bail!("Exceeded maximum file count");
+            }
+
+            let mut entry = entry_result.context("Failed to read tar entry")?;
+            let entry_path = entry.path()?;
+            let entry_name = entry_path.to_string_lossy().to_string();
+
+            // Sanitize path
+            let outpath = match sanitize_entry_path(&entry_name, dest_dir) {
+                Some(p) => p,
+                None => {
+                    guard.add_hostile_reason(HostileArchiveReason::PathTraversal(entry_name));
+                    continue;
+                }
+            };
+
+            // Check for symlinks
+            let entry_type = entry.header().entry_type();
+            if entry_type.is_symlink() || entry_type.is_hard_link() {
+                guard.add_hostile_reason(HostileArchiveReason::SymlinkEscape(entry_name));
+                continue;
+            }
+
+            let size = entry.header().size()?;
+
+            if entry_type.is_dir() {
+                fs::create_dir_all(&outpath)?;
+            } else if entry_type.is_file() {
+                // Check file size
+                if size > MAX_FILE_SIZE {
+                    guard.add_hostile_reason(HostileArchiveReason::ExcessiveFileSize {
+                        file: entry_name.clone(),
+                        size,
+                    });
+                    continue;
+                }
+
+                if let Some(parent) = outpath.parent() {
+                    fs::create_dir_all(parent)?;
+                }
+
+                // Extract with limit
+                let mut outfile = File::create(&outpath)?;
+                let mut limited = LimitedReader::new(&mut entry, MAX_FILE_SIZE);
+                let written = std::io::copy(&mut limited, &mut outfile)
+                    .with_context(|| format!("Failed to extract: {}", entry_name))?;
+
+                if !guard.check_bytes(written, &entry_name) {
+                    anyhow::bail!("Exceeded maximum total extraction size");
+                }
+            }
+            // Skip other entry types (devices, fifos, etc.)
+        }
 
         Ok(())
     }
 
-    /// Extract a Debian package (.deb)
-    /// Debian packages are AR archives containing:
-    /// - debian-binary: version file
-    /// - control.tar.{gz,xz,zst}: package metadata
-    /// - data.tar.{gz,xz,zst}: actual files
-    fn extract_deb(&self, archive_path: &Path, dest_dir: &Path) -> Result<()> {
+    /// Extract a Debian package (.deb) with bomb protection
+    fn extract_deb_safe(
+        &self,
+        archive_path: &Path,
+        dest_dir: &Path,
+        guard: &ExtractionGuard,
+    ) -> Result<()> {
         let file = File::open(archive_path)?;
         let mut archive = ar::Archive::new(file);
 
@@ -795,29 +1172,19 @@ impl ArchiveAnalyzer {
 
                 if name.ends_with(".gz") {
                     let decoder = flate2::read::GzDecoder::new(&mut entry);
-                    let mut tar = tar::Archive::new(decoder);
-                    tar.unpack(&sub_dest)
-                        .context("Failed to extract data.tar.gz from deb")?;
+                    self.extract_tar_entries_safe(decoder, &sub_dest, guard)?;
                 } else if name.ends_with(".xz") {
                     let decoder = xz2::read::XzDecoder::new(&mut entry);
-                    let mut tar = tar::Archive::new(decoder);
-                    tar.unpack(&sub_dest)
-                        .context("Failed to extract data.tar.xz from deb")?;
+                    self.extract_tar_entries_safe(decoder, &sub_dest, guard)?;
                 } else if name.ends_with(".zst") {
                     let decoder = zstd::stream::read::Decoder::new(&mut entry)
                         .context("Failed to create zstd decoder")?;
-                    let mut tar = tar::Archive::new(decoder);
-                    tar.unpack(&sub_dest)
-                        .context("Failed to extract data.tar.zst from deb")?;
+                    self.extract_tar_entries_safe(decoder, &sub_dest, guard)?;
                 } else if name == "data.tar" {
-                    let mut tar = tar::Archive::new(&mut entry);
-                    tar.unpack(&sub_dest)
-                        .context("Failed to extract data.tar from deb")?;
+                    self.extract_tar_entries_safe(&mut entry, &sub_dest, guard)?;
                 } else if name.ends_with(".bz2") {
                     let decoder = bzip2::read::BzDecoder::new(&mut entry);
-                    let mut tar = tar::Archive::new(decoder);
-                    tar.unpack(&sub_dest)
-                        .context("Failed to extract data.tar.bz2 from deb")?;
+                    self.extract_tar_entries_safe(decoder, &sub_dest, guard)?;
                 }
             } else if name.starts_with("control.tar") {
                 // Also extract control files for analysis
@@ -826,24 +1193,79 @@ impl ArchiveAnalyzer {
 
                 if name.ends_with(".gz") {
                     let decoder = flate2::read::GzDecoder::new(&mut entry);
-                    let mut tar = tar::Archive::new(decoder);
-                    tar.unpack(&sub_dest)
-                        .context("Failed to extract control.tar.gz from deb")?;
+                    self.extract_tar_entries_safe(decoder, &sub_dest, guard)?;
                 } else if name.ends_with(".xz") {
                     let decoder = xz2::read::XzDecoder::new(&mut entry);
-                    let mut tar = tar::Archive::new(decoder);
-                    tar.unpack(&sub_dest)
-                        .context("Failed to extract control.tar.xz from deb")?;
+                    self.extract_tar_entries_safe(decoder, &sub_dest, guard)?;
                 } else if name.ends_with(".zst") {
                     let decoder = zstd::stream::read::Decoder::new(&mut entry)
                         .context("Failed to create zstd decoder")?;
-                    let mut tar = tar::Archive::new(decoder);
-                    tar.unpack(&sub_dest)
-                        .context("Failed to extract control.tar.zst from deb")?;
+                    self.extract_tar_entries_safe(decoder, &sub_dest, guard)?;
                 } else if name == "control.tar" {
-                    let mut tar = tar::Archive::new(&mut entry);
-                    tar.unpack(&sub_dest)
-                        .context("Failed to extract control.tar from deb")?;
+                    self.extract_tar_entries_safe(&mut entry, &sub_dest, guard)?;
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Helper to extract tar entries with guard protection
+    fn extract_tar_entries_safe<R: Read>(
+        &self,
+        reader: R,
+        dest_dir: &Path,
+        guard: &ExtractionGuard,
+    ) -> Result<()> {
+        let mut archive = tar::Archive::new(reader);
+
+        for entry_result in archive.entries()? {
+            if !guard.check_file_count() {
+                anyhow::bail!("Exceeded maximum file count");
+            }
+
+            let mut entry = entry_result.context("Failed to read tar entry")?;
+            let entry_path = entry.path()?;
+            let entry_name = entry_path.to_string_lossy().to_string();
+
+            let outpath = match sanitize_entry_path(&entry_name, dest_dir) {
+                Some(p) => p,
+                None => {
+                    guard.add_hostile_reason(HostileArchiveReason::PathTraversal(entry_name));
+                    continue;
+                }
+            };
+
+            let entry_type = entry.header().entry_type();
+            if entry_type.is_symlink() || entry_type.is_hard_link() {
+                guard.add_hostile_reason(HostileArchiveReason::SymlinkEscape(entry_name));
+                continue;
+            }
+
+            let size = entry.header().size()?;
+
+            if entry_type.is_dir() {
+                fs::create_dir_all(&outpath)?;
+            } else if entry_type.is_file() {
+                if size > MAX_FILE_SIZE {
+                    guard.add_hostile_reason(HostileArchiveReason::ExcessiveFileSize {
+                        file: entry_name.clone(),
+                        size,
+                    });
+                    continue;
+                }
+
+                if let Some(parent) = outpath.parent() {
+                    fs::create_dir_all(parent)?;
+                }
+
+                let mut outfile = File::create(&outpath)?;
+                let mut limited = LimitedReader::new(&mut entry, MAX_FILE_SIZE);
+                let written = std::io::copy(&mut limited, &mut outfile)
+                    .with_context(|| format!("Failed to extract: {}", entry_name))?;
+
+                if !guard.check_bytes(written, &entry_name) {
+                    anyhow::bail!("Exceeded maximum total extraction size");
                 }
             }
         }
@@ -1681,6 +2103,7 @@ mod tests {
 
     #[test]
     fn test_extract_zip_with_password_helper() {
+        use std::io::Write;
         use zip::unstable::write::FileOptionsExt;
         use zip::write::SimpleFileOptions;
 
@@ -1701,10 +2124,16 @@ mod tests {
 
         // Test the extract helper directly
         let analyzer = ArchiveAnalyzer::new();
+        let guard = ExtractionGuard::new();
         let file = File::open(&zip_path).unwrap();
         let mut archive = zip::ZipArchive::new(file).unwrap();
 
-        let result = analyzer.extract_zip_with_password(&mut archive, &extract_dir, b"testpass");
+        let result = analyzer.extract_zip_entries_safe(
+            &mut archive,
+            &extract_dir,
+            Some(b"testpass"),
+            &guard,
+        );
         assert!(result.is_ok(), "Should extract with correct password");
 
         // Verify file was extracted
@@ -1713,5 +2142,50 @@ mod tests {
         let bytes = fs::read(&extracted_file).unwrap();
         let content = String::from_utf8_lossy(&bytes);
         assert_eq!(content, "secret data");
+    }
+
+    #[test]
+    fn test_path_traversal_detection() {
+        // Test that path traversal attempts are detected
+        assert!(sanitize_entry_path("../etc/passwd", Path::new("/tmp/test")).is_none());
+        assert!(sanitize_entry_path("foo/../../etc/passwd", Path::new("/tmp/test")).is_none());
+        assert!(sanitize_entry_path("/etc/passwd", Path::new("/tmp/test")).is_none());
+
+        // Valid paths should work
+        assert!(sanitize_entry_path("foo/bar.txt", Path::new("/tmp/test")).is_some());
+        assert!(sanitize_entry_path("./foo/bar.txt", Path::new("/tmp/test")).is_some());
+    }
+
+    #[test]
+    fn test_extraction_guard_limits() {
+        let guard = ExtractionGuard::new();
+
+        // File count tracking
+        for _ in 0..MAX_FILE_COUNT {
+            assert!(guard.check_file_count());
+        }
+        assert!(!guard.check_file_count()); // Should fail on next
+
+        // Verify hostile reason was recorded
+        let reasons = guard.take_reasons();
+        assert!(reasons
+            .iter()
+            .any(|r| matches!(r, HostileArchiveReason::ExcessiveFileCount(_))));
+    }
+
+    #[test]
+    fn test_compression_ratio_detection() {
+        let guard = ExtractionGuard::new();
+
+        // Normal ratio should pass
+        assert!(guard.check_compression_ratio(1000, 2000)); // 2:1
+
+        // Suspicious ratio should fail
+        assert!(!guard.check_compression_ratio(100, 100_000)); // 1000:1
+
+        let reasons = guard.take_reasons();
+        assert!(reasons
+            .iter()
+            .any(|r| matches!(r, HostileArchiveReason::ZipBomb { .. })));
     }
 }

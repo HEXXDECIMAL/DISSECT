@@ -1,9 +1,13 @@
+use crate::cache::radare2_cache_path;
 use crate::syscall_names::{syscall_description, syscall_name};
 use crate::types::{
     BinaryMetrics, ControlFlowMetrics, Function, FunctionProperties, InstructionAnalysis,
 };
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
+use std::fs::{self, File};
+use std::io::{Read as IoRead, Write as IoWrite};
 use std::path::Path;
 use std::process::Command;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -41,7 +45,7 @@ pub struct SyscallInfo {
 }
 
 /// Batched analysis result containing all data from a single r2 session
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct BatchedAnalysis {
     pub functions: Vec<R2Function>,
     pub sections: Vec<R2Section>,
@@ -67,7 +71,55 @@ impl Radare2Analyzer {
         if is_disabled() {
             return false;
         }
-        *RADARE2_AVAILABLE.get_or_init(|| Command::new("r2").arg("-v").output().is_ok())
+        *RADARE2_AVAILABLE.get_or_init(|| Command::new("rizin").arg("-v").output().is_ok())
+    }
+
+    /// Compute SHA256 of a file for cache keying
+    fn compute_file_sha256(file_path: &Path) -> Option<String> {
+        let mut file = File::open(file_path).ok()?;
+        let mut hasher = Sha256::new();
+        let mut buffer = [0u8; 8192];
+        loop {
+            let bytes_read = file.read(&mut buffer).ok()?;
+            if bytes_read == 0 {
+                break;
+            }
+            hasher.update(&buffer[..bytes_read]);
+        }
+        Some(format!("{:x}", hasher.finalize()))
+    }
+
+    /// Load cached BatchedAnalysis from disk (zstd compressed)
+    fn load_from_cache(sha256: &str) -> Option<BatchedAnalysis> {
+        let cache_path = radare2_cache_path(sha256).ok()?;
+        if !cache_path.exists() {
+            return None;
+        }
+
+        let compressed = fs::read(&cache_path).ok()?;
+        let decompressed = zstd::decode_all(compressed.as_slice()).ok()?;
+        bincode::deserialize(&decompressed).ok()
+    }
+
+    /// Save BatchedAnalysis to disk cache (zstd compressed)
+    fn save_to_cache(sha256: &str, analysis: &BatchedAnalysis) {
+        if let Ok(cache_path) = radare2_cache_path(sha256) {
+            // Serialize with bincode, then compress with zstd
+            if let Ok(serialized) = bincode::serialize(analysis) {
+                // Use compression level 3 (good balance of speed and ratio)
+                if let Ok(compressed) = zstd::encode_all(serialized.as_slice(), 3) {
+                    // Write atomically: temp file then rename
+                    let temp_path = cache_path.with_extension("tmp");
+                    if let Ok(mut file) = File::create(&temp_path) {
+                        if file.write_all(&compressed).is_ok() {
+                            let _ = fs::rename(&temp_path, &cache_path);
+                        } else {
+                            let _ = fs::remove_file(&temp_path);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /// Extract functions with complexity metrics
@@ -81,7 +133,7 @@ impl Radare2Analyzer {
     /// Extract raw R2Function structs for metrics computation
     #[allow(dead_code)]
     pub fn extract_r2_functions(&self, file_path: &Path) -> Result<Vec<R2Function>> {
-        let output = Command::new("r2")
+        let output = Command::new("rizin")
             .arg("-q")
             .arg("-e")
             .arg("scr.color=0") // Disable ANSI colors
@@ -124,7 +176,7 @@ impl Radare2Analyzer {
             return Ok(Vec::new());
         }
 
-        let output = Command::new("r2")
+        let output = Command::new("rizin")
             .arg("-q")
             .arg("-e")
             .arg("scr.color=0")
@@ -154,7 +206,7 @@ impl Radare2Analyzer {
 
     /// Extract imports
     pub fn extract_imports(&self, file_path: &Path) -> Result<Vec<R2Import>> {
-        let output = Command::new("r2")
+        let output = Command::new("rizin")
             .arg("-q")
             .arg("-c")
             .arg("iij") // List imports as JSON
@@ -175,7 +227,7 @@ impl Radare2Analyzer {
     /// Extract exports
     #[allow(dead_code)]
     pub fn extract_exports(&self, file_path: &Path) -> Result<Vec<R2Export>> {
-        let output = Command::new("r2")
+        let output = Command::new("rizin")
             .arg("-q")
             .arg("-c")
             .arg("iEj") // List exports as JSON
@@ -196,7 +248,7 @@ impl Radare2Analyzer {
     /// Extract section information with entropy
     #[allow(dead_code)]
     pub fn extract_sections(&self, file_path: &Path) -> Result<Vec<R2Section>> {
-        let output = Command::new("r2")
+        let output = Command::new("rizin")
             .arg("-q")
             .arg("-c")
             .arg("iSj") // List sections as JSON
@@ -220,7 +272,7 @@ impl Radare2Analyzer {
         &self,
         file_path: &Path,
     ) -> Result<(Vec<R2Import>, Vec<R2Export>, Vec<R2Symbol>)> {
-        let output = Command::new("r2")
+        let output = Command::new("rizin")
             .arg("-q")
             .arg("-e")
             .arg("scr.color=0")
@@ -265,7 +317,7 @@ impl Radare2Analyzer {
     pub fn extract_syscalls(&self, file_path: &Path) -> Result<Vec<SyscallInfo>> {
         // Build a batched command that gets arch info and searches for syscall patterns
         // We'll run a single r2 session and parse all results at once
-        let output = Command::new("r2")
+        let output = Command::new("rizin")
             .arg("-q")
             .arg("-e")
             .arg("scr.color=0")
@@ -343,7 +395,7 @@ impl Radare2Analyzer {
             return Ok(Vec::new());
         }
 
-        let disasm_output = Command::new("r2")
+        let disasm_output = Command::new("rizin")
             .arg("-q")
             .arg("-e")
             .arg("scr.color=0")
@@ -383,7 +435,7 @@ impl Radare2Analyzer {
     /// Get architecture string from binary
     #[allow(dead_code)]
     fn get_architecture(&self, file_path: &Path) -> Result<String> {
-        let output = Command::new("r2")
+        let output = Command::new("rizin")
             .arg("-q")
             .arg("-e")
             .arg("scr.color=0")
@@ -444,7 +496,7 @@ impl Radare2Analyzer {
             None
         };
 
-        let output = Command::new("r2")
+        let output = Command::new("rizin")
             .arg("-q")
             .arg("-e")
             .arg("scr.color=0")
@@ -460,7 +512,7 @@ impl Radare2Analyzer {
 
         // Also try alternate pattern if applicable
         if let Some(alt_pattern) = le_pattern {
-            let alt_output = Command::new("r2")
+            let alt_output = Command::new("rizin")
                 .arg("-q")
                 .arg("-e")
                 .arg("scr.color=0")
@@ -488,7 +540,7 @@ impl Radare2Analyzer {
     #[allow(dead_code)]
     fn find_syscall_number(&self, file_path: &Path, arch: &str, addr: u64) -> Result<Option<u32>> {
         // Disassemble backwards to find the register load
-        let output = Command::new("r2")
+        let output = Command::new("rizin")
             .arg("-q")
             .arg("-e")
             .arg("scr.color=0")
@@ -573,10 +625,24 @@ impl Radare2Analyzer {
     }
 
     /// Extract functions, sections, and prepare for metrics in a SINGLE r2 session
-    /// This significantly reduces overhead compared to calling each method separately
+    /// This significantly reduces overhead compared to calling each method separately.
+    /// Results are cached by SHA256 with zstd compression.
     pub fn extract_batched(&self, file_path: &Path) -> Result<BatchedAnalysis> {
         let timing = std::env::var("DISSECT_TIMING").is_ok();
         let t_start = std::time::Instant::now();
+
+        // Compute SHA256 for cache lookup
+        let sha256 = Self::compute_file_sha256(file_path);
+
+        // Check cache first
+        if let Some(ref hash) = sha256 {
+            if let Some(cached) = Self::load_from_cache(hash) {
+                if timing {
+                    eprintln!("[TIMING] radare2 cache hit: {:?}", t_start.elapsed());
+                }
+                return Ok(cached);
+            }
+        }
 
         // Check file size - skip expensive function analysis for large binaries
         // Binaries >20MB take minutes to analyze with 'aa'
@@ -601,7 +667,7 @@ impl Radare2Analyzer {
             "aa; aflj; echo SEP; iSj; echo SEP; izj"
         };
 
-        let output = Command::new("r2")
+        let output = Command::new("rizin")
             .arg("-q")
             .arg("-e")
             .arg("scr.color=0")
@@ -652,6 +718,17 @@ impl Radare2Analyzer {
             (functions, sections, strings)
         };
 
+        let result = BatchedAnalysis {
+            functions,
+            sections,
+            strings,
+        };
+
+        // Save to cache
+        if let Some(ref hash) = sha256 {
+            Self::save_to_cache(hash, &result);
+        }
+
         if timing {
             let mode = if skip_function_analysis {
                 "sections+strings"
@@ -665,11 +742,7 @@ impl Radare2Analyzer {
             );
         }
 
-        Ok(BatchedAnalysis {
-            functions,
-            sections,
-            strings,
-        })
+        Ok(result)
     }
 
     /// Compute binary metrics from pre-extracted batched analysis
@@ -1125,10 +1198,11 @@ impl Default for Radare2Analyzer {
 
 // Radare2 JSON output structures
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct R2Function {
     pub name: String,
-    #[serde(rename = "addr")]
+    /// Function address (rizin uses "offset", radare2 used "addr")
+    #[serde(alias = "addr")]
     pub offset: u64,
     pub size: Option<u64>,
     #[serde(rename = "cc")]
@@ -1153,7 +1227,7 @@ pub struct R2Function {
     pub is_lineal: Option<bool>, // No branches (straight-line code)
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct R2Call {
     pub name: String,
 }
@@ -1254,7 +1328,7 @@ impl From<R2Function> for Function {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct R2String {
     pub vaddr: u64,
     pub paddr: u64,
@@ -1293,7 +1367,7 @@ pub struct R2Symbol {
     pub symbol_type: String,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct R2Section {
     pub name: String,
     pub size: u64,
