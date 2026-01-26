@@ -1,4 +1,4 @@
-use crate::cache::radare2_cache_path;
+use crate::cache::re_cache_path;
 use crate::syscall_names::{syscall_description, syscall_name};
 use crate::types::{
     BinaryMetrics, ControlFlowMetrics, Function, FunctionProperties, InstructionAnalysis,
@@ -91,7 +91,7 @@ impl Radare2Analyzer {
 
     /// Load cached BatchedAnalysis from disk (zstd compressed)
     fn load_from_cache(sha256: &str) -> Option<BatchedAnalysis> {
-        let cache_path = radare2_cache_path(sha256).ok()?;
+        let cache_path = re_cache_path(sha256).ok()?;
         if !cache_path.exists() {
             return None;
         }
@@ -103,7 +103,7 @@ impl Radare2Analyzer {
 
     /// Save BatchedAnalysis to disk cache (zstd compressed)
     fn save_to_cache(sha256: &str, analysis: &BatchedAnalysis) {
-        if let Ok(cache_path) = radare2_cache_path(sha256) {
+        if let Ok(cache_path) = re_cache_path(sha256) {
             // Serialize with bincode, then compress with zstd
             if let Ok(serialized) = bincode::serialize(analysis) {
                 // Use compression level 3 (good balance of speed and ratio)
