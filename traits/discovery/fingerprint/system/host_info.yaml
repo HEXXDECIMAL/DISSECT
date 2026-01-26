@@ -1,25 +1,97 @@
 # Host Information Gathering
 # ATT&CK: T1082
 
+defaults:
+  attack: "T1082"
+
 traits:
+  # === System info label strings (common in malware) ===
+  - id: lanip-label
+    desc: "LanIP: label string"
+    crit: inert
+    conf: 0.7
+    for: [all]
+    if:
+      type: string
+      exact: "LanIP:"
+
+  - id: gateway-label
+    desc: "GateWay: label string"
+    crit: inert
+    conf: 0.7
+    for: [all]
+    if:
+      type: string
+      exact: "GateWay:"
+
+  - id: osinfo-label
+    desc: "OSInfo: label string"
+    crit: inert
+    conf: 0.7
+    for: [all]
+    if:
+      type: string
+      exact: "OSInfo:"
+
+  - id: machinename-label
+    desc: "MachineName: label string"
+    crit: inert
+    conf: 0.7
+    for: [all]
+    if:
+      type: string
+      exact: "MachineName:"
+
+  - id: domainname-label
+    desc: "DomainName: label string"
+    crit: inert
+    conf: 0.7
+    for: [all]
+    if:
+      type: string
+      exact: "DomainName:"
+
+  - id: userame-label-typo
+    desc: "Userame: label string (typo variant)"
+    crit: inert
+    conf: 0.75
+    for: [all]
+    if:
+      type: string
+      exact: "Userame:"
+
+  - id: osbits-label
+    desc: "OSBits: label string"
+    crit: inert
+    conf: 0.7
+    for: [all]
+    if:
+      type: string
+      exact: "OSBits:"
+
+  - id: processbits-label
+    desc: "Process Bits: label string"
+    crit: inert
+    conf: 0.7
+    for: [all]
+    if:
+      type: string
+      exact: "Process Bits:"
+
+composite_rules:
+  # Migrated from YARA - requires 3 of 8 patterns
   - id: host_info_strings
-    desc: "Detailed system information gathering strings"
+    desc: Detailed system information gathering strings
     crit: suspicious
     conf: 0.8
-    attack: "T1082"
-    if:
-      type: yara
-      source: |
-        rule host_info_strings {
-          strings:
-            $s1 = "LanIP:" ascii
-            $s2 = "GateWay:" ascii
-            $s3 = "OSInfo:" ascii
-            $s4 = "MachineName:" ascii
-            $s5 = "DomainName:" ascii
-            $s6 = "Userame:" ascii  // Typo often seen in this variant
-            $s7 = "OSBits:" ascii
-            $s8 = "Process Bits:" ascii
-          condition:
-            3 of them
-        }
+    for: [all]
+    count: 3
+    any:
+      - {id: lanip-label}
+      - {id: gateway-label}
+      - {id: osinfo-label}
+      - {id: machinename-label}
+      - {id: domainname-label}
+      - {id: userame-label-typo}
+      - {id: osbits-label}
+      - {id: processbits-label}

@@ -8,6 +8,5 @@ traits:
     platforms: [all]
     file_types: [ruby]
     condition:
-      type: symbol_or_string
-      any:
-        - Process.daemon
+      type: symbol
+      pattern: "Process\\.daemon"

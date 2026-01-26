@@ -8,9 +8,5 @@ traits:
     platforms: [all]
     file_types: [ruby]
     condition:
-      type: symbol_or_string
-      any:
-        - Process.setuid
-        - Process.setgid
-        - Process.seteuid
-        - Process.setegid
+      type: symbol
+      pattern: "Process\\.setuid|Process\\.setgid|Process\\.seteuid|Process\\.setegid"

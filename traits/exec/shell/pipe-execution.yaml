@@ -99,26 +99,81 @@ traits:
       type: string
       regex: 'wget\s+[^|]*\|\s*dash\b'
 
-  # Generic download and execute
-  - id: download-pipe-exec
-    desc: Download piped to interpreter (dropper pattern)
-    crit: suspicious
-    conf: 0.9
+  # === Python pipe atomic indicators ===
+  - id: curl-pipe-python
+    desc: curl piped to python
+    crit: inert
+    conf: 0.75
+    attack: "T1059.006"
+    if:
+      type: string
+      regex: 'curl\s+[^\n|]*\|\s*python'
+
+  - id: wget-pipe-python
+    desc: wget piped to python
+    crit: inert
+    conf: 0.75
+    attack: "T1059.006"
+    if:
+      type: string
+      regex: 'wget\s+[^\n|]*\|\s*python'
+
+  # === Perl pipe atomic indicators ===
+  - id: curl-pipe-perl
+    desc: curl piped to perl
+    crit: inert
+    conf: 0.75
+    attack: "T1059.005"
+    if:
+      type: string
+      regex: 'curl\s+[^\n|]*\|\s*perl'
+
+  - id: wget-pipe-perl
+    desc: wget piped to perl
+    crit: inert
+    conf: 0.75
+    attack: "T1059.005"
+    if:
+      type: string
+      regex: 'wget\s+[^\n|]*\|\s*perl'
+
+  # === Node.js pipe atomic indicators ===
+  - id: curl-pipe-node
+    desc: curl piped to node
+    crit: inert
+    conf: 0.75
+    attack: "T1059.007"
+    if:
+      type: string
+      regex: 'curl\s+[^\n|]*\|\s*node'
+
+  - id: wget-pipe-node
+    desc: wget piped to node
+    crit: inert
+    conf: 0.75
+    attack: "T1059.007"
+    if:
+      type: string
+      regex: 'wget\s+[^\n|]*\|\s*node'
+
+  # === Ruby pipe atomic indicators ===
+  - id: curl-pipe-ruby
+    desc: curl piped to ruby
+    crit: inert
+    conf: 0.75
     attack: "T1059"
     if:
-      type: yara
-      source: |
-        rule download_pipe_exec {
-          strings:
-            $curl_sh = /curl\s+[^\n|]*\|\s*(ba)?sh/ ascii
-            $wget_sh = /wget\s+[^\n|]*\|\s*(ba)?sh/ ascii
-            $curl_python = /curl\s+[^\n|]*\|\s*python/ ascii
-            $wget_python = /wget\s+[^\n|]*\|\s*python/ ascii
-            $curl_perl = /curl\s+[^\n|]*\|\s*perl/ ascii
-            $curl_node = /curl\s+[^\n|]*\|\s*node/ ascii
-          condition:
-            any of them
-        }
+      type: string
+      regex: 'curl\s+[^\n|]*\|\s*ruby'
+
+  - id: wget-pipe-ruby
+    desc: wget piped to ruby
+    crit: inert
+    conf: 0.75
+    attack: "T1059"
+    if:
+      type: string
+      regex: 'wget\s+[^\n|]*\|\s*ruby'
 
   # === Fetch eval atomic indicators ===
   - id: eval-curl-subshell
@@ -232,6 +287,43 @@ traits:
       regex: 'source\s+<\(wget'
 
 composite_rules:
+  # Helper composites
+  - id: curl-pipe-interpreters
+    description: Curl piped to various interpreters
+    any:
+      - {id: curl-pipe-sh}
+      - {id: curl-pipe-bash}
+      - {id: curl-pipe-zsh}
+      - {id: curl-pipe-ksh}
+      - {id: curl-pipe-dash}
+      - {id: curl-pipe-python}
+      - {id: curl-pipe-perl}
+      - {id: curl-pipe-node}
+      - {id: curl-pipe-ruby}
+
+  - id: wget-pipe-interpreters
+    description: Wget piped to various interpreters
+    any:
+      - {id: wget-pipe-sh}
+      - {id: wget-pipe-bash}
+      - {id: wget-pipe-zsh}
+      - {id: wget-pipe-ksh}
+      - {id: wget-pipe-dash}
+      - {id: wget-pipe-python}
+      - {id: wget-pipe-perl}
+      - {id: wget-pipe-node}
+      - {id: wget-pipe-ruby}
+
+  # Migrated from YARA
+  - id: download-pipe-exec
+    desc: Download piped to interpreter (dropper pattern)
+    crit: suspicious
+    conf: 0.9
+    attack: "T1059"
+    any:
+      - {id: curl-pipe-interpreters}
+      - {id: wget-pipe-interpreters}
+
   # Curl pipe shell composite
   - id: curl-pipe-shell
     desc: Curl output piped to shell (dropper pattern)

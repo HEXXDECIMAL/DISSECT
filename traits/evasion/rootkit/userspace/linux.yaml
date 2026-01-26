@@ -1,25 +1,82 @@
-# Rootkit Detection - Linux
+# Rootkit Detection - Linux Userspace
 # MBC: B0003 (Rootkit)
 # ATT&CK: T1014
 
 traits:
+  # === Rootkit String Markers ===
+  - id: rootkit-string
+    desc: Rootkit string reference
+    crit: suspicious
+    conf: 0.7
+    mbc: "B0003"
+    attack: "T1014"
+    if:
+      type: string
+      regex: "(?i)rootkit"
+
+  - id: hide-pid
+    desc: hide_pid function
+    crit: suspicious
+    conf: 0.85
+    mbc: "B0003"
+    attack: "T1014"
+    if:
+      type: string
+      exact: "hide_pid"
+
+  - id: hide-file
+    desc: hide_file function
+    crit: suspicious
+    conf: 0.85
+    mbc: "B0003"
+    attack: "T1014"
+    if:
+      type: string
+      exact: "hide_file"
+
+  # === LD_PRELOAD Injection ===
+  - id: ld-preload-file
+    desc: /etc/ld.so.preload injection target
+    crit: suspicious
+    conf: 0.85
+    mbc: "B0003"
+    attack: "T1574.006"
+    if:
+      type: string
+      exact: "/etc/ld.so.preload"
+
+  # === Directory Entry Hooking ===
+  - id: readdir-hook
+    desc: readdir function hook
+    crit: notable
+    conf: 0.7
+    mbc: "B0003"
+    if:
+      type: symbol
+      pattern: "readdir"
+
+  - id: getdents-hook
+    desc: getdents function hook
+    crit: notable
+    conf: 0.7
+    mbc: "B0003"
+    if:
+      type: symbol
+      pattern: "getdents"
+
+composite_rules:
+  # Linux userspace rootkit (migrated from YARA)
   - id: rootkit
     desc: Linux rootkit patterns
     crit: suspicious
     conf: 0.66
     mbc: "B0003"
     attack: "T1014"
-    if:
-      type: yara
-      source: |
-        rule linux_rootkit {
-          strings:
-            $rootkit = "rootkit" nocase
-            $hide_pid = "hide_pid"
-            $hide_file = "hide_file"
-            $ld_preload = "/etc/ld.so.preload"
-            $readdir_hook = "readdir" fullword
-            $getdents = "getdents" fullword
-          condition:
-            2 of them
-        }
+    count: 2
+    any:
+      - id: rootkit-string
+      - id: hide-pid
+      - id: hide-file
+      - id: ld-preload-file
+      - id: readdir-hook
+      - id: getdents-hook

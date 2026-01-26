@@ -49,36 +49,60 @@ traits:
       type: string
       regex: "busybox ftpget"
 
-  - id: pipe-to-shell
-    desc: "Download and pipe to shell execution"
+  # === Pipe to shell micro-traits ===
+  - id: curl-cmd
+    desc: "curl command"
+    crit: inert
+    conf: 0.3
+    for: [elf]
+    platforms: [linux]
+    if:
+      type: string
+      exact: "curl "
+
+  - id: wget-cmd
+    desc: "wget command"
+    crit: inert
+    conf: 0.3
+    for: [elf]
+    platforms: [linux]
+    if:
+      type: string
+      exact: "wget "
+
+  - id: pipe-sh
+    desc: "pipe to sh"
+    crit: notable
+    conf: 0.6
+    attack: "T1059.004"
+    for: [elf]
+    platforms: [linux]
+    if:
+      type: string
+      regex: " \\|\\s*sh\\b"
+
+  - id: pipe-bash
+    desc: "pipe to bash"
+    crit: notable
+    conf: 0.6
+    attack: "T1059.004"
+    for: [elf]
+    platforms: [linux]
+    if:
+      type: string
+      regex: " \\|\\s*bash\\b"
+
+  - id: output-pipe-sh
+    desc: "-O- | sh pattern"
     crit: suspicious
-    conf: 0.95
+    conf: 0.85
     mbc: "B0024"
     attack: "T1059.004"
     for: [elf]
     platforms: [linux]
     if:
-      type: yara
-      source: |
-        rule pipe_to_shell {
-          strings:
-            // curl/wget piped to shell
-            $curl_sh = "curl " ascii
-            $wget_sh = "wget " ascii
-            $pipe_sh1 = " | sh" ascii
-            $pipe_sh2 = " | bash" ascii
-            $pipe_sh3 = " |sh" ascii
-            $pipe_sh4 = " |bash" ascii
-            // -O- | sh pattern
-            $o_pipe1 = "-O- | sh" ascii
-            $o_pipe2 = "-o- | sh" ascii
-            $o_pipe3 = "-O - | sh" ascii
-          condition:
-            (($curl_sh or $wget_sh) and any of ($pipe_sh*)) or
-            any of ($o_pipe*)
-        }
-
-  # NOTE: Mirai credentials are defined in lateral/brute-force/iot-creds/traits.yaml
+      type: string
+      regex: "-[Oo]-?\\s*\\|\\s*sh\\b"
 
   - id: telnet-target
     desc: "Telnet service targeting"
@@ -91,30 +115,56 @@ traits:
       type: string
       regex: "telnetadmin|:23[^0-9]"
 
-  - id: self-propagate
-    desc: "Read own executable for propagation"
-    crit: suspicious
-    conf: 0.8
-    mbc: "E1036"
-    attack: "T1105"
+  # === Self-propagation micro-traits ===
+  - id: proc-self-exe
+    desc: "/proc/self/exe"
+    crit: notable
+    conf: 0.5
     for: [elf]
     platforms: [linux]
     if:
-      type: yara
-      source: |
-        rule self_propagate {
-          strings:
-            // Self-propagation patterns with network context
-            $proc_exe = "/proc/self/exe" ascii
-            $send1 = "send(" ascii
-            $send2 = "sendto(" ascii
-            $send3 = "sendfile(" ascii
-            $tftp = "tftp" ascii
-            $wget = "wget" ascii
-            $curl = "curl" ascii
-          condition:
-            $proc_exe and (any of ($send*) or any of ($tftp, $wget, $curl))
-        }
+      type: string
+      exact: "/proc/self/exe"
+
+  - id: send-func
+    desc: "send function"
+    crit: inert
+    conf: 0.3
+    for: [elf]
+    platforms: [linux]
+    if:
+      type: symbol
+      pattern: "send\\("
+
+  - id: sendto-func
+    desc: "sendto function"
+    crit: inert
+    conf: 0.3
+    for: [elf]
+    platforms: [linux]
+    if:
+      type: symbol
+      pattern: "sendto\\("
+
+  - id: sendfile-func
+    desc: "sendfile function"
+    crit: inert
+    conf: 0.3
+    for: [elf]
+    platforms: [linux]
+    if:
+      type: symbol
+      pattern: "sendfile\\("
+
+  - id: tftp-string
+    desc: "tftp string"
+    crit: inert
+    conf: 0.3
+    for: [elf]
+    platforms: [linux]
+    if:
+      type: string
+      exact: "tftp"
 
   - id: curl-http-download
     desc: "Curl HTTP payload download"
@@ -128,6 +178,86 @@ traits:
       exact: "curl http://"
 
 composite_rules:
+  # Helper: curl or wget download command
+  - id: download-cmd
+    desc: "curl or wget download command"
+    crit: inert
+    conf: 0.3
+    for: [elf]
+    platforms: [linux]
+    count: 1
+    any:
+      - id: curl-cmd
+      - id: wget-cmd
+
+  # Helper: pipe to sh or bash
+  - id: pipe-sh-or-bash
+    desc: "Pipe to shell (sh or bash)"
+    crit: notable
+    conf: 0.6
+    for: [elf]
+    platforms: [linux]
+    count: 1
+    any:
+      - id: pipe-sh
+      - id: pipe-bash
+
+  # Helper: download + pipe to shell
+  - id: download-pipe-shell
+    desc: "Download command piped to shell"
+    crit: suspicious
+    conf: 0.9
+    mbc: "B0024"
+    attack: "T1059.004"
+    for: [elf]
+    platforms: [linux]
+    all:
+      - id: download-cmd
+      - id: pipe-sh-or-bash
+
+  # Pipe to shell composite (migrated from YARA)
+  - id: pipe-to-shell
+    desc: "Download and pipe to shell execution"
+    crit: suspicious
+    conf: 0.95
+    mbc: "B0024"
+    attack: "T1059.004"
+    for: [elf]
+    platforms: [linux]
+    count: 1
+    any:
+      - id: download-pipe-shell
+      - id: output-pipe-sh
+
+  # Helper: send functions or download tools
+  - id: send-or-download
+    desc: "Send functions or download tools"
+    crit: inert
+    conf: 0.3
+    for: [elf]
+    platforms: [linux]
+    count: 1
+    any:
+      - id: send-func
+      - id: sendto-func
+      - id: sendfile-func
+      - id: tftp-string
+      - id: wget-cmd
+      - id: curl-cmd
+
+  # Self-propagate composite (migrated from YARA)
+  - id: self-propagate
+    desc: "Read own executable for propagation"
+    crit: suspicious
+    conf: 0.8
+    mbc: "E1036"
+    attack: "T1105"
+    for: [elf]
+    platforms: [linux]
+    all:
+      - id: proc-self-exe
+      - id: send-or-download
+
   - id: mirai-variant
     desc: "Mirai-like IoT botnet (credential brute-force + shell dropper)"
     crit: suspicious

@@ -108,25 +108,49 @@ traits:
 
   # === Atomic: Perl Reverse Shell ===
 
-  - id: perl-socket-open
-    desc: Perl socket with open (reverse shell pattern)
+  # === Perl reverse shell micro-traits ===
+  - id: perl-socket-call
+    desc: Perl socket( call
+    crit: notable
+    conf: 0.6
+    attack: "T1059.006"
+    platforms: [all]
+    for: [perl]
+    if:
+      type: string
+      exact: "socket("
+
+  - id: perl-open-call
+    desc: Perl open( call
+    crit: inert
+    conf: 0.3
+    platforms: [all]
+    for: [perl]
+    if:
+      type: string
+      exact: "open("
+
+  - id: perl-fd-redirect
+    desc: Perl file descriptor redirect
+    crit: notable
+    conf: 0.7
+    attack: "T1059.006"
+    platforms: [all]
+    for: [perl]
+    if:
+      type: string
+      regex: "[\"']>&"
+
+  - id: perl-sh-i
+    desc: Perl sh -i interactive shell
     crit: suspicious
     conf: 0.8
     attack: "T1059.006"
     platforms: [all]
-    for: [all]
+    for: [perl]
     if:
-      type: yara
-      source: |
-        rule perl_rev_shell {
-          strings:
-            $socket = "socket("
-            $open = "open("
-            $redir = /["']>&/
-            $sh_i = "sh -i"
-          condition:
-            all of them
-        }
+      type: string
+      exact: "sh -i"
 
   # === Atomic: Ruby Reverse Shell ===
 
@@ -195,6 +219,21 @@ traits:
       exact: "dialTCP"
 
 composite_rules:
+  # Perl socket-open reverse shell (migrated from YARA)
+  - id: perl-socket-open
+    desc: Perl socket with open (reverse shell pattern)
+    crit: suspicious
+    conf: 0.8
+    attack: "T1059.006"
+    mbc: "B0022"
+    platforms: [all]
+    for: [perl]
+    all:
+      - id: perl-socket-call
+      - id: perl-open-call
+      - id: perl-fd-redirect
+      - id: perl-sh-i
+
   - id: mkfifo-netcat-shell
     desc: Reverse shell via mkfifo and netcat
     crit: suspicious

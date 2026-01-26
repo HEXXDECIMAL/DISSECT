@@ -93,95 +93,134 @@ traits:
       node_type: call_expression
       pattern: "os.networkInterfaces"
 
-  # MAC Address Collection
-  - id: mac-address
-    desc: MAC address extraction pattern
-    crit: suspicious
-    conf: 0.9
-    mbc: "E1592"
-    attack: "T1016"
+  # === MAC address extraction patterns ===
+  - id: mac-keyword-lower
+    desc: mac keyword (lowercase)
+    crit: inert
+    conf: 0.6
     for: [javascript, typescript]
     if:
-      type: yara
-      source: |
-        rule mac_address_collection {
-          strings:
-            $net = "networkInterfaces"
-            $mac1 = "mac" nocase
-            $mac2 = /[0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5}/
-            $filter = "internal"
-          condition:
-            $net and (any of ($mac*) or $filter)
-        }
+      type: string
+      word: "mac"
 
-  # Machine ID / Unique Identifier
-  - id: machine-id
-    desc: Machine unique identifier generation
-    crit: suspicious
-    conf: 0.85
-    mbc: "E1592"
-    attack: "T1082"
+  - id: mac-keyword-upper
+    desc: MAC keyword (uppercase)
+    crit: inert
+    conf: 0.6
     for: [javascript, typescript]
     if:
-      type: yara
-      source: |
-        rule machine_id_generation {
-          strings:
-            $hash1 = "createHash"
-            $hash2 = "sha256"
-            $hash3 = "md5"
-            $host = "hostname"
-            $user = "userInfo"
-            $mac = "networkInterfaces"
-          condition:
-            any of ($hash*) and 2 of ($host, $user, $mac)
-        }
+      type: string
+      word: "MAC"
 
-  # Comprehensive Fingerprinting
-  - id: full-fingerprint
-    desc: Comprehensive system fingerprinting (multiple vectors)
-    crit: suspicious
-    conf: 0.9
-    mbc: "E1592"
-    attack: "T1082"
+  - id: mac-address-regex
+    desc: MAC address regex pattern
+    crit: inert
+    conf: 0.7
     for: [javascript, typescript]
     if:
-      type: yara
-      source: |
-        rule full_system_fingerprint {
-          strings:
-            $os1 = "os.hostname"
-            $os2 = "os.platform"
-            $os3 = "os.arch"
-            $os4 = "os.release"
-            $os5 = "os.userInfo"
-            $os6 = "os.cpus"
-            $os7 = "os.totalmem"
-            $os8 = "os.networkInterfaces"
-          condition:
-            4 of them
-        }
+      type: string
+      regex: "[0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5}"
 
-  # Process Environment
-  - id: process-env-dump
-    desc: Full environment variable dump
-    crit: suspicious
-    conf: 0.85
-    mbc: "E1592"
-    attack: "T1082"
+  - id: internal-filter-keyword
+    desc: internal filter keyword
+    crit: inert
+    conf: 0.5
     for: [javascript, typescript]
     if:
-      type: yara
-      source: |
-        rule env_dump {
-          strings:
-            $env1 = "process.env"
-            $json1 = "JSON.stringify"
-            $keys1 = "Object.keys"
-            $entries = "Object.entries"
-          condition:
-            $env1 and any of ($json1, $keys1, $entries)
-        }
+      type: string
+      word: "internal"
+
+  # === Hashing for machine ID ===
+  - id: createhash-call
+    desc: crypto.createHash call
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "createHash"
+
+  - id: sha256-keyword
+    desc: sha256 hash algorithm
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      word: "sha256"
+
+  - id: md5-keyword
+    desc: md5 hash algorithm
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      word: "md5"
+
+  - id: hostname-keyword
+    desc: hostname keyword
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      word: "hostname"
+
+  - id: userinfo-keyword
+    desc: userInfo keyword
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      word: "userInfo"
+
+  - id: networkinterfaces-keyword
+    desc: networkInterfaces keyword
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      word: "networkInterfaces"
+
+  # === Object serialization ===
+  - id: json-stringify-call
+    desc: JSON.stringify call
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "JSON.stringify"
+
+  - id: object-keys-call
+    desc: Object.keys call
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "Object.keys"
+
+  - id: object-entries-call
+    desc: Object.entries call
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "Object.entries"
+
+  - id: process-env-access
+    desc: process.env access
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "process.env"
 
   # === Process list atomic indicators ===
   - id: tasklist-cmd
@@ -229,6 +268,112 @@ traits:
       exact: "Get-Process"
 
 composite_rules:
+  # Helper composites
+  - id: mac-keyword-variants
+    description: MAC keyword variants
+    for: [javascript, typescript]
+    any:
+      - {id: mac-keyword-lower}
+      - {id: mac-keyword-upper}
+
+  - id: mac-patterns
+    description: MAC address patterns
+    for: [javascript, typescript]
+    any:
+      - {id: mac-keyword-variants}
+      - {id: mac-address-regex}
+      - {id: internal-filter-keyword}
+
+  - id: hash-algorithms
+    description: Hash algorithm keywords
+    for: [javascript, typescript]
+    any:
+      - {id: sha256-keyword}
+      - {id: md5-keyword}
+
+  - id: system-id-sources
+    description: System identification sources
+    for: [javascript, typescript]
+    any:
+      - {id: hostname-keyword}
+      - {id: userinfo-keyword}
+      - {id: networkinterfaces-keyword}
+
+  - id: object-serialization
+    description: Object serialization methods
+    for: [javascript, typescript]
+    any:
+      - {id: json-stringify-call}
+      - {id: object-keys-call}
+      - {id: object-entries-call}
+
+  - id: all-os-methods
+    description: All os module methods
+    for: [javascript, typescript]
+    any:
+      - {id: os-hostname}
+      - {id: os-platform}
+      - {id: os-arch}
+      - {id: os-release}
+      - {id: os-userInfo}
+      - {id: os-cpus}
+      - {id: os-totalmem}
+      - {id: os-networkInterfaces}
+
+  # Main composites (migrated from YARA)
+  - id: mac-address
+    desc: MAC address extraction pattern
+    crit: suspicious
+    conf: 0.9
+    mbc: "E1592"
+    attack: "T1016"
+    for: [javascript, typescript]
+    all:
+      - {id: os-networkInterfaces}
+      - {id: mac-patterns}
+
+  - id: machine-id
+    desc: Machine unique identifier generation
+    crit: suspicious
+    conf: 0.85
+    mbc: "E1592"
+    attack: "T1082"
+    for: [javascript, typescript]
+    all:
+      - {id: createhash-call}
+      - {id: hash-algorithms}
+      - id: system-id-sources
+        count: 2
+
+  - id: full-fingerprint
+    desc: Comprehensive system fingerprinting (multiple vectors)
+    crit: suspicious
+    conf: 0.9
+    mbc: "E1592"
+    attack: "T1082"
+    for: [javascript, typescript]
+    count: 4
+    any:
+      - {id: os-hostname}
+      - {id: os-platform}
+      - {id: os-arch}
+      - {id: os-release}
+      - {id: os-userInfo}
+      - {id: os-cpus}
+      - {id: os-totalmem}
+      - {id: os-networkInterfaces}
+
+  - id: process-env-dump
+    desc: Full environment variable dump
+    crit: suspicious
+    conf: 0.85
+    mbc: "E1592"
+    attack: "T1082"
+    for: [javascript, typescript]
+    all:
+      - {id: process-env-access}
+      - {id: object-serialization}
+
   # Process list composite
   - id: process-list
     desc: Running process enumeration
@@ -239,7 +384,7 @@ composite_rules:
     for: [javascript, typescript]
     requires_count: 1
     any:
-      - id: tasklist-cmd
-      - id: ps-aux-cmd
-      - id: ps-ef-cmd
-      - id: get-process-cmd
+      - {id: tasklist-cmd}
+      - {id: ps-aux-cmd}
+      - {id: ps-ef-cmd}
+      - {id: get-process-cmd}

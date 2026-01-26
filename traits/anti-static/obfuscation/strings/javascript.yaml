@@ -3,7 +3,7 @@
 # ATT&CK: T1027
 
 traits:
-  # fromCharCode obfuscation
+  # fromCharCode obfuscation - using AST
   - id: fromcharcode
     desc: String obfuscation via fromCharCode
     crit: notable
@@ -12,8 +12,9 @@ traits:
     attack: "T1027"
     for: [javascript, typescript]
     if:
-      type: string
-      exact: fromCharCode
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "fromCharCode"
 
   # Unicode escape sequences used to hide strings
   - id: js-unicode-escape
@@ -58,57 +59,103 @@ traits:
       type: string
       regex: "Buffer\\.from\\([^,]+,\\s*['\"]hex['\"]\\)"
 
-  # Hex-encoded URL in array (common npm malware pattern)
-  # Pattern: array of hex strings that decode to URL parts
-  - id: hex-url-array
-    desc: Hex-encoded URL stored as array elements (C2 obfuscation)
-    crit: suspicious
-    conf: 0.9
-    mbc: "B0032"
-    attack: "T1027"
+  # === Hex URL array micro-traits ===
+  - id: hex-const-array
+    desc: Const array containing long hex strings
+    crit: notable
+    conf: 0.7
     for: [javascript, typescript]
     if:
-      type: yara
-      source: |
-        rule hex_url_array {
-          strings:
-            // Array containing hex strings (each 20+ chars = at least 10 bytes)
-            $arr1 = /const\s+\w+\s*=\s*\[\s*"[0-9a-fA-F]{20,}"/ ascii
-            $arr2 = /const\s+\w+\s*=\s*\[\s*'[0-9a-fA-F]{20,}'/ ascii
-            // .map() with Buffer.from hex decode pattern
-            $map_decode = ".map(" ascii
-            $buffer = "Buffer.from" ascii
-            $hex1 = "'hex'" ascii
-            $hex2 = "\"hex\"" ascii
-            $join = ".join(" ascii
-          condition:
-            any of ($arr*) and $map_decode and $buffer and any of ($hex*) and $join
-        }
+      type: string
+      regex: "const\\s+\\w+\\s*=\\s*\\[\\s*['\"][0-9a-fA-F]{20,}['\"]"
 
-  # Base64-encoded content fetched and decoded
-  - id: remote-base64-decode
-    desc: Fetches remote content and decodes as base64 (payload delivery)
-    crit: suspicious
-    conf: 0.85
-    attack: "T1027"
+  - id: array-map-call
+    desc: Array .map() call
+    crit: inert
+    conf: 0.5
     for: [javascript, typescript]
     if:
-      type: yara
-      source: |
-        rule remote_base64_decode {
-          strings:
-            // Network fetch
-            $fetch1 = "https.get" ascii
-            $fetch2 = "http.get" ascii
-            $fetch3 = "_fetch" ascii
-            // Response handling + base64 decode
-            $decode = "Buffer.from" ascii
-            $b64_1 = "'base64'" ascii
-            $b64_2 = "\"base64\"" ascii
-            $trim = ".trim()" ascii
-          condition:
-            any of ($fetch*) and $decode and any of ($b64_*) and $trim
-        }
+      type: ast_pattern
+      node_type: call_expression
+      pattern: ".map("
+
+  - id: buffer-from-call
+    desc: Buffer.from call
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "Buffer.from"
+
+  - id: hex-encoding-string
+    desc: hex encoding string literal
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "['\"]hex['\"]"
+
+  - id: array-join-call
+    desc: Array .join() call
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: ".join("
+
+  # === Remote fetch micro-traits ===
+  - id: https-get-call
+    desc: https.get() call
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "https.get"
+
+  - id: http-get-call
+    desc: http.get() call
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "http.get"
+
+  - id: underscore-fetch-call
+    desc: _fetch() internal call
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "_fetch"
+
+  - id: base64-encoding-string
+    desc: base64 encoding string literal
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "['\"]base64['\"]"
+
+  - id: trim-call
+    desc: .trim() call
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript]
+    if:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: ".trim()"
 
   # Array join obfuscation
   - id: js-array-join
@@ -120,7 +167,7 @@ traits:
       type: string
       regex: "\\[['\"][^'\"]+['\"](?:,\\s*['\"][^'\"]+['\"]){5,}\\]\\.join"
 
-  # Dynamic code execution patterns (atomic)
+  # Dynamic code execution patterns (atomic) - using AST
   - id: js-eval-call
     desc: eval() call
     crit: inert
@@ -129,8 +176,12 @@ traits:
     attack: "T1027"
     for: [javascript, typescript]
     if:
-      type: string
-      exact: "eval("
+      type: ast_query
+      language: javascript
+      query: |
+        (call_expression
+          function: (identifier) @fn)
+        (#eq? @fn "eval")
 
   - id: js-function-call
     desc: Function() constructor
@@ -151,8 +202,12 @@ traits:
     attack: "T1027"
     for: [javascript, typescript]
     if:
-      type: string
-      exact: "new Function"
+      type: ast_query
+      language: javascript
+      query: |
+        (new_expression
+          constructor: (identifier) @fn)
+        (#eq? @fn "Function")
 
   # Dynamic require with variable (non-literal) argument
   - id: js-dynamic-require-call
@@ -189,6 +244,46 @@ composite_rules:
       - id: js-eval-call
       - id: js-function-call
       - id: js-new-function
+
+  # HTTP get composite
+  - id: http-get
+    desc: HTTP/HTTPS GET request
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    count: 1
+    any:
+      - id: https-get-call
+      - id: http-get-call
+      - id: underscore-fetch-call
+
+  # Hex URL array (migrated from YARA)
+  - id: hex-url-array
+    desc: Hex-encoded URL stored as array elements (C2 obfuscation)
+    crit: suspicious
+    conf: 0.9
+    mbc: "B0032"
+    attack: "T1027"
+    for: [javascript, typescript]
+    all:
+      - id: hex-const-array
+      - id: array-map-call
+      - id: buffer-from-call
+      - id: hex-encoding-string
+      - id: array-join-call
+
+  # Remote base64 decode (migrated from YARA)
+  - id: remote-base64-decode
+    desc: Fetches remote content and decodes as base64 (payload delivery)
+    crit: suspicious
+    conf: 0.85
+    attack: "T1027"
+    for: [javascript, typescript]
+    all:
+      - id: http-get
+      - id: buffer-from-call
+      - id: base64-encoding-string
+      - id: trim-call
 
   # Unicode obfuscation with execution
   - id: js-unicode-exec

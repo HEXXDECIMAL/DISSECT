@@ -2,48 +2,117 @@
 # Detects active interference with security products (LKRG, EDR, AV)
 
 traits:
-  # LKRG Blinding
-  - id: lkrg
-    desc: Targets Linux Kernel Runtime Guard (LKRG) integrity checks
+  # === LKRG (Linux Kernel Runtime Guard) Functions ===
+  - id: p-check-integrity
+    desc: p_check_integrity LKRG function
     crit: suspicious
     conf: 1.0
     attack: "T1562.001"
     for: [c]
     if:
-      type: yara
-      source: |
-        rule target_lkrg {
-          strings:
-            $s1 = "p_check_integrity" ascii
-            $s2 = "p_dump_task_f" ascii
-            $s3 = "p_cmp_creds" ascii
-            $s4 = "p_cmp_tasks" ascii
-            $s5 = "ed_task_add" ascii
-            $s6 = "p_exploit_detection_init" ascii
-          condition:
-            any of them
-        }
+      type: string
+      exact: "p_check_integrity"
 
-  # Generic Kernel Security Blinding
-  - id: kernel-integrity
-    desc: Targets kernel integrity or exploit detection functions
+  - id: p-dump-task-f
+    desc: p_dump_task_f LKRG function
+    crit: suspicious
+    conf: 1.0
+    attack: "T1562.001"
+    for: [c]
+    if:
+      type: string
+      exact: "p_dump_task_f"
+
+  - id: p-cmp-creds
+    desc: p_cmp_creds LKRG function
+    crit: suspicious
+    conf: 1.0
+    attack: "T1562.001"
+    for: [c]
+    if:
+      type: string
+      exact: "p_cmp_creds"
+
+  - id: p-cmp-tasks
+    desc: p_cmp_tasks LKRG function
+    crit: suspicious
+    conf: 1.0
+    attack: "T1562.001"
+    for: [c]
+    if:
+      type: string
+      exact: "p_cmp_tasks"
+
+  - id: ed-task-add
+    desc: ed_task_add LKRG function
+    crit: suspicious
+    conf: 1.0
+    attack: "T1562.001"
+    for: [c]
+    if:
+      type: string
+      exact: "ed_task_add"
+
+  - id: p-exploit-detection-init
+    desc: p_exploit_detection_init LKRG function
+    crit: suspicious
+    conf: 1.0
+    attack: "T1562.001"
+    for: [c]
+    if:
+      type: string
+      exact: "p_exploit_detection_init"
+
+  # === Generic Kernel Security Functions ===
+  - id: check-integrity
+    desc: check_integrity function
+    crit: suspicious
+    conf: 0.85
+    attack: "T1562.001"
+    for: [c, elf]
+    if:
+      type: string
+      regex: "(?i)check_integrity"
+
+  - id: validate-sp
+    desc: validate_sp stack pointer check
+    crit: suspicious
+    conf: 0.85
+    attack: "T1562.001"
+    for: [c, elf]
+    if:
+      type: string
+      regex: "(?i)validate_sp"
+
+  - id: enforce-pcfi
+    desc: enforce_pcfi control flow integrity
     crit: suspicious
     conf: 0.9
     attack: "T1562.001"
     for: [c, elf]
     if:
-      type: yara
-      source: |
-        rule kernel_security_blinding {
-          strings:
-            $f1 = "check_integrity" ascii nocase
-            $f2 = "validate_sp" ascii nocase
-            $f3 = "enforce_pcfi" ascii nocase
-            $f4 = "exploit_detection" ascii nocase
-            $f5 = "bypass_selinux" ascii nocase
-          condition:
-            any of them
-        }
+      type: string
+      regex: "(?i)enforce_pcfi"
+
+  - id: exploit-detection
+    desc: exploit_detection function
+    crit: suspicious
+    conf: 0.9
+    attack: "T1562.001"
+    for: [c, elf]
+    if:
+      type: string
+      regex: "(?i)exploit_detection"
+
+  - id: bypass-selinux
+    desc: bypass_selinux function
+    crit: suspicious
+    conf: 0.95
+    attack: "T1562.001"
+    for: [c, elf]
+    if:
+      type: string
+      regex: "(?i)bypass_selinux"
 
   # Hooking Security functions (AST)
   - id: hook-security-logic
@@ -59,6 +128,37 @@ traits:
       regex: true
 
 composite_rules:
+  # LKRG blinding (migrated from YARA)
+  - id: lkrg
+    desc: Targets Linux Kernel Runtime Guard (LKRG) integrity checks
+    crit: suspicious
+    conf: 1.0
+    attack: "T1562.001"
+    for: [c]
+    count: 1
+    any:
+      - id: p-check-integrity
+      - id: p-dump-task-f
+      - id: p-cmp-creds
+      - id: p-cmp-tasks
+      - id: ed-task-add
+      - id: p-exploit-detection-init
+
+  # Kernel integrity blinding (migrated from YARA)
+  - id: kernel-integrity
+    desc: Targets kernel integrity or exploit detection functions
+    crit: suspicious
+    conf: 0.9
+    attack: "T1562.001"
+    for: [c, elf]
+    count: 1
+    any:
+      - id: check-integrity
+      - id: validate-sp
+      - id: enforce-pcfi
+      - id: exploit-detection
+      - id: bypass-selinux
+
   # Active security software blinding (e.g. LKRG, EDR)
   - id: security-software-blinding
     desc: High-confidence detection of security software blinding (LKRG/EDR)
@@ -66,9 +166,8 @@ composite_rules:
     conf: 0.99
     attack: "T1562.001"
     for: [c]
-    requires_count: 2
+    count: 2
     any:
-      - id: evasion/blinding/lkrg
-      - id: evasion/blinding/hook-security-logic
-      - id: evasion/blinding/kernel-integrity
-      - id: kernel/rootkit/ftrace-helper-include
+      - id: lkrg
+      - id: hook-security-logic
+      - id: kernel-integrity

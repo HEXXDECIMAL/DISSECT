@@ -811,6 +811,7 @@ impl CapabilityMapper {
             {
                 // Check if this trait has a symbol condition
                 if let crate::composite_rules::Condition::Symbol {
+                    exact,
                     pattern,
                     platforms: _,
                 } = &trait_def.r#if
@@ -818,16 +819,29 @@ impl CapabilityMapper {
                     // Check if there are no platform constraints, or add anyway for lookup
                     // (platform filtering will happen later during evaluation)
 
-                    // For each pattern (may contain "|" for alternatives)
-                    for symbol_pattern in pattern.split('|') {
-                        let symbol = symbol_pattern.trim().to_string();
+                    // If exact is specified, add it directly
+                    if let Some(exact_val) = exact {
+                        symbol_map
+                            .entry(exact_val.clone())
+                            .or_insert_with(|| TraitInfo {
+                                id: trait_def.id.clone(),
+                                desc: trait_def.desc.clone(),
+                                conf: trait_def.conf,
+                            });
+                    }
 
-                        // Only add if not already present (first match wins)
-                        symbol_map.entry(symbol).or_insert_with(|| TraitInfo {
-                            id: trait_def.id.clone(),
-                            desc: trait_def.desc.clone(),
-                            conf: trait_def.conf,
-                        });
+                    // For each pattern (may contain "|" for alternatives)
+                    if let Some(pattern_val) = pattern {
+                        for symbol_pattern in pattern_val.split('|') {
+                            let symbol = symbol_pattern.trim().to_string();
+
+                            // Only add if not already present (first match wins)
+                            symbol_map.entry(symbol).or_insert_with(|| TraitInfo {
+                                id: trait_def.id.clone(),
+                                desc: trait_def.desc.clone(),
+                                conf: trait_def.conf,
+                            });
+                        }
                     }
                 }
             }
@@ -1465,7 +1479,8 @@ fn simple_rule_to_composite_rule(rule: SimpleRule) -> CompositeTrait {
         platforms,
         r#for: file_types,
         all: Some(vec![Condition::Symbol {
-            pattern: rule.symbol,
+            exact: None,
+            pattern: Some(rule.symbol),
             platforms: None,
         }]),
         any: None,
@@ -1769,6 +1784,7 @@ mod tests {
             condition: Condition::String {
                 exact: Some("test".to_string()),
                 regex: None,
+                word: None,
                 case_insensitive: false,
                 exclude_patterns: None,
                 min_count: 1,
@@ -1811,6 +1827,7 @@ mod tests {
             condition: Condition::String {
                 exact: Some("test".to_string()),
                 regex: None,
+                word: None,
                 case_insensitive: false,
                 exclude_patterns: None,
                 min_count: 1,
@@ -1854,6 +1871,7 @@ mod tests {
             condition: Condition::String {
                 exact: Some("test".to_string()),
                 regex: None,
+                word: None,
                 case_insensitive: false,
                 exclude_patterns: None,
                 min_count: 1,
@@ -1892,6 +1910,7 @@ mod tests {
             condition: Condition::String {
                 exact: Some("test".to_string()),
                 regex: None,
+                word: None,
                 case_insensitive: false,
                 exclude_patterns: None,
                 min_count: 1,
@@ -1930,6 +1949,7 @@ mod tests {
             condition: Condition::String {
                 exact: Some("test".to_string()),
                 regex: None,
+                word: None,
                 case_insensitive: false,
                 exclude_patterns: None,
                 min_count: 1,
@@ -1974,6 +1994,7 @@ mod tests {
             condition: Some(Condition::String {
                 exact: Some("test".to_string()),
                 regex: None,
+                word: None,
                 case_insensitive: false,
                 exclude_patterns: None,
                 min_count: 1,
@@ -2022,6 +2043,7 @@ mod tests {
             condition: Some(Condition::String {
                 exact: Some("test".to_string()),
                 regex: None,
+                word: None,
                 case_insensitive: false,
                 exclude_patterns: None,
                 min_count: 1,

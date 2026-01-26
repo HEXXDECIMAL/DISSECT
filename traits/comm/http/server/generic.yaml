@@ -2,19 +2,301 @@
 # MBC: C0002 (HTTP Communication)
 # ATT&CK: T1071.001
 
+defaults:
+  attack: "T1071.001"
+  mbc: "C0002"
+
 traits:
+  # === Web server binaries/commands ===
+  - id: httpd-keyword
+    desc: httpd web server
+    crit: inert
+    conf: 0.6
+    for: [shell, elf, macho]
+    if:
+      type: string
+      word: "httpd"
+
+  - id: apache2-keyword
+    desc: apache2 web server
+    crit: inert
+    conf: 0.6
+    for: [shell, elf, macho]
+    if:
+      type: string
+      word: "apache2"
+
+  - id: nginx-keyword
+    desc: nginx web server
+    crit: inert
+    conf: 0.6
+    for: [shell, elf, macho]
+    if:
+      type: string
+      word: "nginx"
+
+  - id: lighttpd-keyword
+    desc: lighttpd web server
+    crit: inert
+    conf: 0.6
+    for: [shell, elf, macho]
+    if:
+      type: string
+      word: "lighttpd"
+
+  - id: caddy-keyword
+    desc: Caddy web server
+    crit: inert
+    conf: 0.6
+    for: [shell, elf, macho]
+    if:
+      type: string
+      word: "caddy"
+
+  - id: tomcat-keyword
+    desc: Apache Tomcat server
+    crit: inert
+    conf: 0.6
+    for: [shell, java]
+    if:
+      type: string
+      word: "tomcat"
+
+  - id: jetty-keyword
+    desc: Jetty web server
+    crit: inert
+    conf: 0.6
+    for: [shell, java]
+    if:
+      type: string
+      word: "jetty"
+
+  # === HTTP server configuration files ===
+  - id: httpd-conf-path
+    desc: httpd.conf configuration file
+    crit: inert
+    conf: 0.65
+    for: [shell, elf, macho]
+    if:
+      type: string
+      exact: "httpd.conf"
+
+  - id: apache2-conf-path
+    desc: apache2.conf configuration file
+    crit: inert
+    conf: 0.65
+    for: [shell, elf, macho]
+    if:
+      type: string
+      exact: "apache2.conf"
+
+  - id: nginx-conf-path
+    desc: nginx.conf configuration file
+    crit: inert
+    conf: 0.65
+    for: [shell, elf, macho]
+    if:
+      type: string
+      exact: "nginx.conf"
+
+  - id: sites-available-path
+    desc: sites-available configuration directory
+    crit: inert
+    conf: 0.6
+    for: [shell, elf, macho]
+    if:
+      type: string
+      exact: "sites-available"
+
+  - id: sites-enabled-path
+    desc: sites-enabled configuration directory
+    crit: inert
+    conf: 0.6
+    for: [shell, elf, macho]
+    if:
+      type: string
+      exact: "sites-enabled"
+
+  # === HTTP server CLI arguments ===
+  - id: bind-port-80
+    desc: bind to HTTP port 80
+    crit: inert
+    conf: 0.65
+    for: [shell, javascript, python, go]
+    if:
+      type: string
+      regex: "(?:port|bind|listen).{0,50}:80\\b"
+
+  - id: bind-port-443
+    desc: bind to HTTPS port 443
+    crit: inert
+    conf: 0.65
+    for: [shell, javascript, python, go]
+    if:
+      type: string
+      regex: "(?:port|bind|listen).{0,50}:443\\b"
+
+  - id: bind-port-8080
+    desc: bind to port 8080
+    crit: inert
+    conf: 0.65
+    for: [shell, javascript, python, go]
+    if:
+      type: string
+      regex: "(?:port|bind|listen).{0,50}:8080\\b"
+
+  - id: bind-port-8000
+    desc: bind to port 8000
+    crit: inert
+    conf: 0.65
+    for: [shell, javascript, python, go]
+    if:
+      type: string
+      regex: "(?:port|bind|listen).{0,50}:8000\\b"
+
+  - id: bind-port-3000
+    desc: bind to port 3000
+    crit: inert
+    conf: 0.65
+    for: [shell, javascript, python, go]
+    if:
+      type: string
+      regex: "(?:port|bind|listen).{0,50}:3000\\b"
+
+  # === HTTP server common patterns ===
+  - id: listen-keyword
+    desc: listen() socket call
+    crit: inert
+    conf: 0.5
+    for: [javascript, python, go, c, rust]
+    if:
+      type: string
+      word: "listen"
+
+  - id: servemux-pattern
+    desc: Go HTTP ServeMux
+    crit: inert
+    conf: 0.7
+    for: [go]
+    if:
+      type: string
+      exact: "ServeMux"
+
+  - id: http-server-type
+    desc: Go http.Server type
+    crit: inert
+    conf: 0.7
+    for: [go]
+    if:
+      type: string
+      exact: "http.Server"
+
+  - id: listenandserve-call
+    desc: Go ListenAndServe call
+    crit: inert
+    conf: 0.75
+    for: [go]
+    if:
+      type: string
+      exact: "ListenAndServe"
+
+  - id: listenandservetls-call
+    desc: Go ListenAndServeTLS call
+    crit: inert
+    conf: 0.75
+    for: [go]
+    if:
+      type: string
+      exact: "ListenAndServeTLS"
+
+  # === Node.js HTTP server ===
+  - id: http-createserver-call
+    desc: Node.js http.createServer()
+    crit: inert
+    conf: 0.75
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "http.createServer"
+
+  - id: https-createserver-call
+    desc: Node.js https.createServer()
+    crit: inert
+    conf: 0.75
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "https.createServer"
+
+  - id: server-listen-call
+    desc: server.listen() call
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "(?:server|app)\\.listen\\s*\\("
+
+composite_rules:
+  # Helper composites
+  - id: web-server-binaries
+    description: Common web server binaries
+    for: [shell, elf, macho, java]
+    any:
+      - {id: httpd-keyword}
+      - {id: apache2-keyword}
+      - {id: nginx-keyword}
+      - {id: lighttpd-keyword}
+      - {id: caddy-keyword}
+      - {id: tomcat-keyword}
+      - {id: jetty-keyword}
+
+  - id: web-server-config-files
+    description: Web server configuration files
+    for: [shell, elf, macho]
+    any:
+      - {id: httpd-conf-path}
+      - {id: apache2-conf-path}
+      - {id: nginx-conf-path}
+      - {id: sites-available-path}
+      - {id: sites-enabled-path}
+
+  - id: common-http-ports
+    description: Common HTTP/HTTPS port binding
+    for: [shell, javascript, python, go]
+    any:
+      - {id: bind-port-80}
+      - {id: bind-port-443}
+      - {id: bind-port-8080}
+      - {id: bind-port-8000}
+      - {id: bind-port-3000}
+
+  - id: go-http-server
+    description: Go HTTP server patterns
+    for: [go]
+    any:
+      - {id: servemux-pattern}
+      - {id: http-server-type}
+      - {id: listenandserve-call}
+      - {id: listenandservetls-call}
+
+  - id: nodejs-http-server
+    description: Node.js HTTP server patterns
+    for: [javascript, typescript]
+    any:
+      - {id: http-createserver-call}
+      - {id: https-createserver-call}
+      - {id: server-listen-call}
+
+  # Main composite (matches original YARA behavior)
   - id: server
     desc: Runs an HTTP server
     crit: notable
-    conf: 0.66
-    mbc: "C0002"
-    attack: "T1071.001"
-    if:
-      type: yara
-      source: |
-        rule http_server {
-          strings:
-            $httpd = "httpd" fullword
-          condition:
-            $httpd
-        }
+    conf: 0.7
+    for: [shell, javascript, typescript, python, go, elf, macho, pe, java]
+    any:
+      - {id: web-server-binaries}
+      - {id: web-server-config-files}
+      - {id: common-http-ports}
+      - {id: go-http-server}
+      - {id: nodejs-http-server}

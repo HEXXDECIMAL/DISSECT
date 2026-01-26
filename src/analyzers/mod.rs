@@ -181,6 +181,19 @@ pub fn detect_file_type(file_path: &Path) -> Result<FileType> {
         || path_str.ends_with(".xz")
         || path_str.ends_with(".gz")
         || path_str.ends_with(".bz2")
+        || path_str.ends_with(".egg")
+        || path_str.ends_with(".whl")
+        || path_str.ends_with(".gem")
+        || path_str.ends_with(".phar")
+        || path_str.ends_with(".nupkg")
+        || path_str.ends_with(".crate")
+        || path_str.ends_with(".vsix")
+        || path_str.ends_with(".xpi")
+        || path_str.ends_with(".crx")
+        || path_str.ends_with(".ipa")
+        || path_str.ends_with(".epub")
+        || path_str.ends_with(".7z")
+        || path_str.ends_with(".pkg")
     {
         return Ok(FileType::Archive);
     }

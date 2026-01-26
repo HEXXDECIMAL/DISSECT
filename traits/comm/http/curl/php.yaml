@@ -81,7 +81,7 @@ traits:
     for: [php]
     if:
       type: string
-      regex: "\\bCURLFile\\b"
+      word: "CURLFile"
 
   - id: post-data
     desc: cURL POST data configuration

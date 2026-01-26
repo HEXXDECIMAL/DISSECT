@@ -3,103 +3,189 @@
 # ATT&CK: T1498 (Network Denial of Service)
 
 traits:
-  # SYN Flood attack
-  - id: syn-flood-logic
-    description: SYN flood attack implementation
+  # === SYN Flood micro-traits ===
+  - id: sock-raw
+    desc: SOCK_RAW socket type
+    crit: notable
+    conf: 0.5
+    for: [elf, macho, pe, so, dylib]
+    if:
+      type: string
+      exact: "SOCK_RAW"
+
+  - id: ipproto-tcp
+    desc: IPPROTO_TCP constant
+    crit: inert
+    conf: 0.3
+    for: [elf, macho, pe, so, dylib]
+    if:
+      type: string
+      exact: "IPPROTO_TCP"
+
+  - id: syn-flood-string
+    desc: syn_flood string reference
     crit: suspicious
-    conf: 0.9
+    conf: 0.8
     attack: "T1498"
     for: [elf, macho, pe, so, dylib]
     if:
-      type: yara
-      source: |
-        rule syn_flood_logic {
-          strings:
-            $raw = "SOCK_RAW" ascii fullword
-            $tcp = "IPPROTO_TCP" ascii fullword
-            $syn = "syn_flood" ascii nocase
-          condition:
-            $raw and $tcp and $syn
-        }
+      type: string
+      regex: "(?i)syn[_\\s]?flood"
 
   - id: syn-flood
-    description: SYN flood identifier string
+    desc: SYN flood identifier string
     crit: notable
     conf: 0.7
     if:
       type: string
       regex: "(?i)syn[ _]?flood"
 
-  # UDP Flood attack
-  - id: udp-flood-logic
-    description: UDP flood attack implementation
-    crit: suspicious
-    conf: 0.9
-    attack: "T1498"
+  # === UDP Flood micro-traits ===
+  - id: udpbuf
+    desc: udpbuf buffer reference
+    crit: notable
+    conf: 0.5
     for: [elf, macho, pe, so, dylib]
     if:
-      type: yara
-      source: |
-        rule udp_flood_logic {
-          strings:
-            $udpbuf = "udpbuf" ascii
-            $sock_dgram = "SOCK_DGRAM" ascii fullword
-            $sendto = "sendto" ascii fullword
-          condition:
-            $sock_dgram and $sendto and $udpbuf
-        }
+      type: string
+      exact: "udpbuf"
 
-  # DNS Amplification attack
-  - id: dns-amp-logic
-    description: DNS amplification attack implementation
-    crit: suspicious
-    conf: 0.9
-    attack: "T1498"
+  - id: sock-dgram
+    desc: SOCK_DGRAM socket type
+    crit: inert
+    conf: 0.3
     for: [elf, macho, pe, so, dylib]
     if:
-      type: yara
-      source: |
-        rule dns_amp_logic {
-          strings:
-            $amplification = "amplification" ascii nocase
-            $port_53 = ":53" ascii
-            $dns = "dns" ascii nocase
-          condition:
-            $amplification and $port_53 and $dns
-        }
+      type: string
+      exact: "SOCK_DGRAM"
+
+  - id: sendto-func
+    desc: sendto function
+    crit: inert
+    conf: 0.3
+    for: [elf, macho, pe, so, dylib]
+    if:
+      type: symbol
+      pattern: "sendto"
+
+  # === DNS Amplification micro-traits ===
+  - id: amplification-string
+    desc: amplification string reference
+    crit: notable
+    conf: 0.6
+    for: [elf, macho, pe, so, dylib]
+    if:
+      type: string
+      regex: "(?i)amplification"
+
+  - id: port-53
+    desc: Port 53 reference
+    crit: inert
+    conf: 0.3
+    for: [elf, macho, pe, so, dylib]
+    if:
+      type: string
+      exact: ":53"
+
+  - id: dns-string
+    desc: dns string reference
+    crit: inert
+    conf: 0.3
+    for: [elf, macho, pe, so, dylib]
+    if:
+      type: string
+      regex: "(?i)dns"
 
   - id: dns-amp
-    description: DNS amplification identifier string
+    desc: DNS amplification identifier string
     crit: notable
     conf: 0.7
     if:
       type: string
       regex: "(?i)dns[ _]?amp"
 
-  # HTTP Flood (Layer 7)
-  - id: http-flood-identifier
-    description: Layer 7 DDoS identifier string
+  # === HTTP Flood micro-traits ===
+  - id: slowloris-string
+    desc: slowloris attack reference
+    crit: suspicious
+    conf: 0.8
+    attack: "T1498"
+    if:
+      type: string
+      regex: "(?i)slowloris"
+
+  - id: layer7-string
+    desc: layer7 DDoS reference
     crit: notable
     conf: 0.7
     if:
-      type: yara
-      source: |
-        rule l7_ddos_id {
-          strings:
-            $s1 = "slowloris" ascii nocase fullword
-            $s2 = "layer7" ascii nocase fullword
-            $s3 = "http_flood" ascii nocase fullword
-          condition:
-            any of them
-        }
+      type: string
+      regex: "(?i)layer7"
+
+  - id: http-flood-string
+    desc: http_flood attack reference
+    crit: suspicious
+    conf: 0.8
+    attack: "T1498"
+    if:
+      type: string
+      regex: "(?i)http[_\\s]?flood"
 
 composite_rules:
+  # SYN Flood composite (migrated from YARA)
+  - id: syn-flood-logic
+    desc: SYN flood attack implementation
+    crit: suspicious
+    conf: 0.9
+    attack: "T1498"
+    for: [elf, macho, pe, so, dylib]
+    all:
+      - id: sock-raw
+      - id: ipproto-tcp
+      - id: syn-flood-string
+
+  # UDP Flood composite (migrated from YARA)
+  - id: udp-flood-logic
+    desc: UDP flood attack implementation
+    crit: suspicious
+    conf: 0.9
+    attack: "T1498"
+    for: [elf, macho, pe, so, dylib]
+    all:
+      - id: sock-dgram
+      - id: sendto-func
+      - id: udpbuf
+
+  # DNS Amplification composite (migrated from YARA)
+  - id: dns-amp-logic
+    desc: DNS amplification attack implementation
+    crit: suspicious
+    conf: 0.9
+    attack: "T1498"
+    for: [elf, macho, pe, so, dylib]
+    all:
+      - id: amplification-string
+      - id: port-53
+      - id: dns-string
+
+  # HTTP Flood composite (migrated from YARA)
+  - id: http-flood-identifier
+    desc: Layer 7 DDoS identifier string
+    crit: notable
+    conf: 0.7
+    count: 1
+    any:
+      - id: slowloris-string
+      - id: layer7-string
+      - id: http-flood-string
+
   # Multi-vector DDoS tool
   - id: multi-vector
-    description: Multi-vector DDoS tool (multiple attack types)
+    desc: Multi-vector DDoS tool (multiple attack types)
     crit: suspicious
     conf: 0.95
-    requires_any:
-      - id: impact/ddos/syn-flood-logic
-      - id: impact/ddos/udp-flood-logic
-      - id: impact/ddos/dns-amp-logic
+    count: 2
+    any:
+      - id: syn-flood-logic
+      - id: udp-flood-logic
+      - id: dns-amp-logic

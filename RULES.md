@@ -52,6 +52,54 @@ We also support a seperate hierarchy of non-objective based micro-traits, which 
 
 To help security engineers, we also have rules to identify of a limited number of popular malware families and security tools within the [**known-tools**](./traits/known-malware) directory (organized by STIX 2.1 Malware Type). Identifying malware by family is not a focus area for this project, but sometimes it's nice to have.
 
+## Trait Placement Rules (CRITICAL)
+
+**Generic micro-behaviors must NEVER be placed in `known-tools/` directories.** The `known-tools/` hierarchy is ONLY for traits that are unique to a specific malware family or tool.
+
+### What belongs in `known-tools/backdoor/<family>/`:
+- Unique malware family identifiers (e.g., `"systembc"`, `"melofee"`)
+- Family-specific C2 endpoints or domains
+- Unique configuration strings only found in that malware
+- Family-specific marker strings
+
+### What does NOT belong in `known-tools/`:
+- Generic shell paths (`/bin/sh`, `/bin/bash`) → use `exec/command/shell/`
+- Common system functions (`popen`, `socket`, `fork`) → use `exec/`, `comm/`, `process/`
+- Protocol strings (`SOCKS5`, `HTTP`) → use `comm/proxy/`, `comm/http/`
+- Encryption algorithms (`RC4`, `AES`) → use `crypto/`
+- Any behavior that could appear in legitimate software
+
+### Correct Pattern for `known-tools/`:
+
+```yaml
+# In known-tools/backdoor/examplebot/traits.yaml
+
+traits:
+  # ONLY malware-specific identifiers belong here
+  - id: backdoor/examplebot/marker
+    desc: ExampleBot unique identifier string
+    crit: notable
+    conf: 0.9
+    condition:
+      type: string
+      exact: "ExampleBot_v2.1"
+
+composite_rules:
+  # Composite rules REFERENCE generic traits from proper locations
+  - id: backdoor/examplebot/detected
+    description: ExampleBot backdoor detected
+    crit: hostile
+    all:
+      - type: trait
+        id: backdoor/examplebot/marker  # Malware-specific (local)
+      - type: trait
+        id: bin-sh                       # Generic trait from exec/command/shell/
+      - type: trait
+        id: socks5-proto                 # Generic trait from comm/proxy/socks/
+```
+
+**Why this matters:** ML pipelines use trait IDs for classification. If `/bin/sh` is placed under `backdoor/systembc/bin-sh`, any program using `/bin/sh` would be flagged as potentially having SystemBC backdoor components, causing massive false positives.
+
 ## Example File Organization
 
 ```
@@ -190,22 +238,21 @@ Match strings in binaries or source.
 ```yaml
 if:
   type: string
-  exact: "http://"                  # OR regex: "https?://[^/]+"
+  exact: "http://"                  # Substring match
+  # OR regex: "https?://[^/]+"     # Regex match
+  # OR word: "socket"               # Word boundary match (same as regex: "\bsocket\b")
   case_insensitive: false
   min_count: 1
   exclude_patterns: ["localhost"]
   search_raw: false                 # Search raw file content
 ```
 
-### symbol_or_string
+**Pattern options (choose one):**
+- `exact: "pattern"` - Substring match (finds "pattern" anywhere)
+- `regex: "pattern"` - Full regex match
+- `word: "pattern"` - Word boundary match (finds "pattern" only as whole word)
 
-Match if pattern found as either symbol OR string. Prefer symbol where possible.
-
-```yaml
-if:
-  type: symbol_or_string
-  any: ["CreateProcess", "ShellExecute", "WinExec"]
-```
+The `word` field is syntactic sugar for `regex: "\bpattern\b"` with automatic escaping.
 
 ### hex
 
@@ -268,6 +315,22 @@ Match structural features.
 if:
   type: structure
   feature: "executable/packed"
+```
+
+### section_name
+Match section names in binary files (PE, ELF, Mach-O). This replaces YARA patterns like `for any section in pe.sections : (section.name matches /^UPX/)`.
+
+```yaml
+# Simple substring match
+if:
+  type: section_name
+  pattern: "UPX"
+
+# Regex match for section names
+if:
+  type: section_name
+  pattern: "^(UPX|\.vmp)"
+  regex: true
 ```
 
 ### imports_count / exports_count
@@ -403,7 +466,9 @@ This allows building hierarchical detection patterns:
 # Level 1: Atomic traits detect basic capabilities
 traits:
   - id: socket-create
-    if: {type: symbol, pattern: "socket"}
+    if:
+      type: symbol
+      pattern: "socket
   - id: dup2-call
     if: {type: symbol, pattern: "dup2"}
   - id: exec-call

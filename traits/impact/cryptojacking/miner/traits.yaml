@@ -118,23 +118,32 @@ traits:
       type: string
       regex: "[Cc]rypto[Nn]ight"
 
-  - id: monero-word
-    description: Monero word
+  - id: monero-lower
+    description: monero word (lowercase)
     crit: inert
     conf: 0.5
     attack: "T1496"
     if:
       type: string
-      regex: "\\b[Mm]onero\\b"
+      word: "monero"
+
+  - id: monero-title
+    description: Monero word (title case)
+    crit: inert
+    conf: 0.5
+    attack: "T1496"
+    if:
+      type: string
+      word: "Monero"
 
   - id: monero-upper
-    description: MONERO uppercase
+    description: MONERO word (uppercase)
     crit: inert
     conf: 0.5
     attack: "T1496"
     if:
       type: string
-      exact: "MONERO"
+      word: "MONERO"
 
   - id: xmr-ticker
     description: XMR ticker symbol
@@ -143,7 +152,7 @@ traits:
     attack: "T1496"
     if:
       type: string
-      regex: "\\bXMR\\b"
+      word: "XMR"
 
   # === Atomic: Mining Configuration ===
 
@@ -267,7 +276,8 @@ composite_rules:
     attack: "T1496"
     requires_count: 1
     any:
-      - id: monero-word
+      - id: monero-lower
+      - id: monero-title
       - id: monero-upper
       - id: xmr-ticker
 

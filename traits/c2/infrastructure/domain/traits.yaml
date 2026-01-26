@@ -9,54 +9,151 @@ defaults:
   attack: "T1071.001"
 
 traits:
-  # Atomic traits for composite rules
-  - id: hardcoded-domain-com-pattern
-    desc: "Hardcoded .com/.org/.net domain pattern"
-    crit: notable
-    conf: 0.7
+  # === Domain detection micro-traits ===
+  - id: domain-com-org-net
+    desc: Domain with .com/.org/.net TLD
+    crit: inert
+    conf: 0.5
     if:
-      type: yara
-      source: |
-        rule hardcoded_domain_com {
-          meta:
-            description = "Detects hardcoded .com/.org/.net domains excluding known legitimate vendors"
-          strings:
-            // Generic domain pattern
-            $domain = /\b[a-zA-Z0-9][-a-zA-Z0-9]{0,62}\.(com|org|net)\b/
-            // Known legitimate OS vendor / major software domains (excludes)
-            $legit_apple = "apple.com" ascii nocase
-            $legit_microsoft = "microsoft.com" ascii nocase
-            $legit_windows = "windows.com" ascii nocase
-            $legit_google = "google.com" ascii nocase
-            $legit_android = "android.com" ascii nocase
-            $legit_mozilla = "mozilla.org" ascii nocase
-            $legit_gnu = "gnu.org" ascii nocase
-            $legit_kernel = "kernel.org" ascii nocase
-            $legit_debian = "debian.org" ascii nocase
-            $legit_ubuntu = "ubuntu.com" ascii nocase
-            $legit_redhat = "redhat.com" ascii nocase
-            $legit_fedora = "fedoraproject.org" ascii nocase
-            $legit_github = "github.com" ascii nocase
-            $legit_gitlab = "gitlab.com" ascii nocase
-            $legit_sourceforge = "sourceforge.net" ascii nocase
-            $legit_python = "python.org" ascii nocase
-            $legit_pypi = "pypi.org" ascii nocase
-            $legit_npmjs = "npmjs.com" ascii nocase
-            $legit_npmjs_org = "npmjs.org" ascii nocase
-            $legit_rubygems = "rubygems.org" ascii nocase
-            $legit_rust = "rust-lang.org" ascii nocase
-            $legit_golang = "golang.org" ascii nocase
-            $legit_cloudflare = "cloudflare.com" ascii nocase
-            $legit_amazon = "amazon.com" ascii nocase
-            $legit_aws = "amazonaws.com" ascii nocase
-            $legit_icloud = "icloud.com" ascii nocase
-            $legit_docker = "docker.com" ascii nocase
-            $legit_openssl = "openssl.org" ascii nocase
-            $legit_curl = "curl.se" ascii nocase
-            $legit_ezgif = "ezgif.com" ascii nocase
-          condition:
-            $domain and not any of ($legit*)
-        }
+      type: string
+      regex: "\\b[a-zA-Z0-9][-a-zA-Z0-9]{0,62}\\.(com|org|net)\\b"
+
+  # === Legitimate domain exclusions ===
+  - id: legit-apple
+    desc: apple.com domain
+    crit: inert
+    conf: 0.2
+    if:
+      type: string
+      regex: "(?i)apple\\.com"
+
+  - id: legit-microsoft
+    desc: microsoft.com domain
+    crit: inert
+    conf: 0.2
+    if:
+      type: string
+      regex: "(?i)microsoft\\.com"
+
+  - id: legit-google
+    desc: google.com domain
+    crit: inert
+    conf: 0.2
+    if:
+      type: string
+      regex: "(?i)google\\.com"
+
+  - id: legit-github
+    desc: github.com domain
+    crit: inert
+    conf: 0.2
+    if:
+      type: string
+      regex: "(?i)github\\.com"
+
+  - id: legit-gitlab
+    desc: gitlab.com domain
+    crit: inert
+    conf: 0.2
+    if:
+      type: string
+      regex: "(?i)gitlab\\.com"
+
+  - id: legit-npmjs
+    desc: npmjs.com/org domain
+    crit: inert
+    conf: 0.2
+    if:
+      type: string
+      regex: "(?i)npmjs\\.(com|org)"
+
+  - id: legit-python
+    desc: python.org domain
+    crit: inert
+    conf: 0.2
+    if:
+      type: string
+      regex: "(?i)python\\.org"
+
+  - id: legit-pypi
+    desc: pypi.org domain
+    crit: inert
+    conf: 0.2
+    if:
+      type: string
+      regex: "(?i)pypi\\.org"
+
+  - id: legit-golang
+    desc: golang.org domain
+    crit: inert
+    conf: 0.2
+    if:
+      type: string
+      regex: "(?i)golang\\.org"
+
+  - id: legit-amazonaws
+    desc: amazonaws.com domain
+    crit: inert
+    conf: 0.2
+    if:
+      type: string
+      regex: "(?i)amazonaws\\.com"
+
+  - id: legit-cloudflare
+    desc: cloudflare.com domain
+    crit: inert
+    conf: 0.2
+    if:
+      type: string
+      regex: "(?i)cloudflare\\.com"
+
+  - id: legit-docker
+    desc: docker.com domain
+    crit: inert
+    conf: 0.2
+    if:
+      type: string
+      regex: "(?i)docker\\.com"
+
+  - id: legit-mozilla
+    desc: mozilla.org domain
+    crit: inert
+    conf: 0.2
+    if:
+      type: string
+      regex: "(?i)mozilla\\.org"
+
+  - id: legit-kernel
+    desc: kernel.org domain
+    crit: inert
+    conf: 0.2
+    if:
+      type: string
+      regex: "(?i)kernel\\.org"
+
+  - id: legit-debian
+    desc: debian.org domain
+    crit: inert
+    conf: 0.2
+    if:
+      type: string
+      regex: "(?i)debian\\.org"
+
+  - id: legit-ubuntu
+    desc: ubuntu.com domain
+    crit: inert
+    conf: 0.2
+    if:
+      type: string
+      regex: "(?i)ubuntu\\.com"
+
+  - id: legit-redhat
+    desc: redhat.com domain
+    crit: inert
+    conf: 0.2
+    if:
+      type: string
+      regex: "(?i)redhat\\.com"
 
   - id: hardcoded-domain-suspicious-pattern
     desc: "Hardcoded suspicious TLD domain pattern"
@@ -599,12 +696,40 @@ traits:
       exact: "jpillora/chisel"
 
 composite_rules:
+  # Legitimate domain exclusion composite
+  - id: legit-domain-marker
+    desc: Known legitimate domain marker
+    crit: inert
+    conf: 0.3
+    count: 1
+    any:
+      - id: legit-apple
+      - id: legit-microsoft
+      - id: legit-google
+      - id: legit-github
+      - id: legit-gitlab
+      - id: legit-npmjs
+      - id: legit-python
+      - id: legit-pypi
+      - id: legit-golang
+      - id: legit-amazonaws
+      - id: legit-cloudflare
+      - id: legit-docker
+      - id: legit-mozilla
+      - id: legit-kernel
+      - id: legit-debian
+      - id: legit-ubuntu
+      - id: legit-redhat
+
+  # Hardcoded domain (migrated from YARA)
   - id: hardcoded-domain-com
-    desc: "Hardcoded .com domain"
+    desc: Hardcoded .com/.org/.net domain (excluding known legitimate)
     crit: notable
     conf: 0.7
     all:
-      - id: hardcoded-domain-com-pattern
+      - id: domain-com-org-net
+    none:
+      - id: legit-domain-marker
 
   - id: hardcoded-domain-suspicious
     desc: "Hardcoded suspicious TLD domain (.ru, .cn, .xyz, .top, .pro)"

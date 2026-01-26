@@ -1312,12 +1312,19 @@ impl JavaScriptAnalyzer {
         let mut max_depth = 0u32;
         let mut depths = Vec::new();
         let mut deep_nest_count = 0u32;
+        let mut limit_hit = false;
 
         // Use explicit stack: (node_id, depth) - we track by byte range since Node isn't easily stored
         let mut cursor = node.walk();
         let mut depth_stack: Vec<u32> = vec![0]; // Track depth as we traverse
 
         loop {
+            // Check for depth limit (iterative equivalent of recursion limit)
+            if depth_stack.len() > crate::analyzers::ast_walker::MAX_AST_DEPTH {
+                limit_hit = true;
+                break;
+            }
+
             let current = cursor.node();
             let current_depth = *depth_stack.last().unwrap_or(&0);
 
@@ -1360,6 +1367,7 @@ impl JavaScriptAnalyzer {
                             0.0
                         },
                         deep_nest_count,
+                        depth_limit_hit: limit_hit,
                     };
                 }
                 depth_stack.pop();
@@ -1367,6 +1375,18 @@ impl JavaScriptAnalyzer {
                     break;
                 }
             }
+        }
+
+        // Return if we hit the depth limit
+        NestingMetrics {
+            max_depth,
+            avg_depth: if !depths.is_empty() {
+                depths.iter().sum::<u32>() as f32 / depths.len() as f32
+            } else {
+                0.0
+            },
+            deep_nest_count,
+            depth_limit_hit: limit_hit,
         }
     }
 

@@ -133,24 +133,42 @@ traits:
       type: string
       regex: '@angular/core|ngDevMode|ɵɵdefineComponent'
 
-  # Known legitimate minifier output
-  - id: terser-output
-    description: Terser/UglifyJS minified output markers
+  # Known legitimate minifier output patterns
+  - id: use-strict-quote
+    desc: "\"use strict\" directive"
     crit: inert
-    confidence: 0.85
-    file_types: [javascript]
-    condition:
-      type: yara
-      source: |
-        rule terser_output {
-          strings:
-            $strict = "\"use strict\"" ascii
-            $void0 = "void 0" ascii
-            $export = "__esModule" ascii
-            $define = "Object.defineProperty" ascii
-          condition:
-            $strict and ($void0 or $export or $define)
-        }
+    conf: 0.6
+    for: [javascript]
+    if:
+      type: string
+      exact: "\"use strict\""
+
+  - id: void-zero
+    desc: "void 0 pattern (minifier output)"
+    crit: inert
+    conf: 0.6
+    for: [javascript]
+    if:
+      type: string
+      exact: "void 0"
+
+  - id: esmodule-export
+    desc: __esModule property
+    crit: inert
+    conf: 0.6
+    for: [javascript]
+    if:
+      type: string
+      exact: "__esModule"
+
+  - id: object-define-property
+    desc: Object.defineProperty call
+    crit: inert
+    conf: 0.6
+    for: [javascript]
+    if:
+      type: string
+      exact: "Object.defineProperty"
 
 # Legitimate JavaScript Code Patterns
 # These patterns are typically PRESENT in legitimate code and ABSENT in malware
@@ -336,28 +354,60 @@ traits:
       type: string
       exact: "'use strict'"
 
-  # Has test blocks (describe/it/test)
-  - id: has-test-blocks
-    description: Code contains test definitions
+  # Test block patterns
+  - id: describe-with-string
+    desc: "describe() test block with string"
     crit: inert
-    confidence: 0.95
-    file_types: [javascript, typescript]
-    condition:
-      type: yara
-      source: |
-        rule test_blocks {
-          strings:
-            // Test block patterns with string descriptions
-            $describe = /describe\s*\(\s*['"`]/ ascii
-            $it = /it\s*\(\s*['"`]/ ascii
-            $test = /test\s*\(\s*['"`]/ ascii
-            // Assertion patterns
-            $expect = "expect(" ascii
-            $assert = "assert." ascii
-            $should = ".should." ascii
-          condition:
-            any of ($describe, $it, $test) and any of ($expect, $assert, $should)
-        }
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "describe\\s*\\(\\s*['\"`]"
+
+  - id: it-with-string
+    desc: "it() test block with string"
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "it\\s*\\(\\s*['\"`]"
+
+  - id: test-with-string
+    desc: "test() block with string"
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "test\\s*\\(\\s*['\"`]"
+
+  - id: expect-call
+    desc: expect() assertion call
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "expect("
+
+  - id: assert-method
+    desc: assert. method call
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "assert."
+
+  - id: should-assertion
+    desc: .should. assertion pattern
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: ".should."
 
   # Has assertion library usage
   - id: has-assertions
@@ -529,23 +579,35 @@ traits:
       type: string
       regex: "function\\s*\\*|yield\\s+"
 
-  # Multiple named exports
-  - id: has-multiple-exports
-    description: Code has multiple named exports
+  # Multiple export patterns
+  - id: esm-export-statement
+    desc: ES module export statement
     crit: inert
-    confidence: 0.85
-    file_types: [javascript, typescript]
-    condition:
-      type: yara
-      source: |
-        rule multiple_exports {
-          strings:
-            $exp1 = /^export (const|function|class|let|var|async)/ ascii
-            $exp2 = /exports\.[a-zA-Z]+ =/ ascii
-            $exp3 = /module\.exports = \{/ ascii
-          condition:
-            #exp1 >= 2 or #exp2 >= 2 or $exp3
-        }
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "^export (const|function|class|let|var|async)"
+      min_count: 2
+
+  - id: cjs-exports-assignment
+    desc: CommonJS exports.property assignment
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "exports\\.[a-zA-Z]+ ="
+      min_count: 2
+
+  - id: module-exports-object
+    desc: "module.exports = {} object pattern"
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "module\\.exports = \\{"
 # Legitimate Package File Presence Indicators
 # These patterns detect file references that indicate professional package structure
 # Useful for differential ML analysis
@@ -764,45 +826,97 @@ traits:
       type: string
       exact: '"browserslist":'
 
-  # Has multiple entry points
-  - id: has-multiple-entries
-    description: Package has multiple entry points (complex library)
+  # Package entry point fields
+  - id: pkg-main-field
+    desc: "\"main\": field in package.json"
     crit: inert
-    confidence: 0.85
-    file_types: [packagejson]
-    condition:
-      type: yara
-      source: |
-        rule multiple_entries {
-          strings:
-            $main = "\"main\":" ascii
-            $module = "\"module\":" ascii
-            $exports = "\"exports\":" ascii
-            $types = "\"types\":" ascii
-          condition:
-            2 of them
-        }
+    conf: 0.6
+    for: [packagejson]
+    if:
+      type: string
+      exact: "\"main\":"
 
-  # Uses npm scripts for development workflow
-  - id: has-dev-workflow
-    description: Package has development workflow scripts
+  - id: pkg-module-field
+    desc: "\"module\": field in package.json"
     crit: inert
-    confidence: 0.85
-    file_types: [packagejson]
-    condition:
-      type: yara
-      source: |
-        rule dev_workflow {
-          strings:
-            $test = "\"test\":" ascii
-            $build = "\"build\":" ascii
-            $lint = "\"lint\":" ascii
-            $format = "\"format\":" ascii
-            $dev = "\"dev\":" ascii
-            $start = "\"start\":" ascii
-          condition:
-            3 of them
-        }
+    conf: 0.6
+    for: [packagejson]
+    if:
+      type: string
+      exact: "\"module\":"
+
+  - id: pkg-exports-field-entry
+    desc: "\"exports\": field in package.json"
+    crit: inert
+    conf: 0.6
+    for: [packagejson]
+    if:
+      type: string
+      exact: "\"exports\":"
+
+  - id: pkg-types-field
+    desc: "\"types\": field in package.json"
+    crit: inert
+    conf: 0.6
+    for: [packagejson]
+    if:
+      type: string
+      exact: "\"types\":"
+
+  # NPM script fields
+  - id: pkg-test-script-field
+    desc: "\"test\": script in package.json"
+    crit: inert
+    conf: 0.6
+    for: [packagejson]
+    if:
+      type: string
+      exact: "\"test\":"
+
+  - id: pkg-build-script-field
+    desc: "\"build\": script in package.json"
+    crit: inert
+    conf: 0.6
+    for: [packagejson]
+    if:
+      type: string
+      exact: "\"build\":"
+
+  - id: pkg-lint-script-field
+    desc: "\"lint\": script in package.json"
+    crit: inert
+    conf: 0.6
+    for: [packagejson]
+    if:
+      type: string
+      exact: "\"lint\":"
+
+  - id: pkg-format-script-field
+    desc: "\"format\": script in package.json"
+    crit: inert
+    conf: 0.6
+    for: [packagejson]
+    if:
+      type: string
+      exact: "\"format\":"
+
+  - id: pkg-dev-script-field
+    desc: "\"dev\": script in package.json"
+    crit: inert
+    conf: 0.6
+    for: [packagejson]
+    if:
+      type: string
+      exact: "\"dev\":"
+
+  - id: pkg-start-script-field
+    desc: "\"start\": script in package.json"
+    crit: inert
+    conf: 0.6
+    for: [packagejson]
+    if:
+      type: string
+      exact: "\"start\":"
 
   # Has CI badge indicators (usually in description or homepage)
   - id: ci-badge-reference
@@ -1171,50 +1285,115 @@ traits:
 # These patterns indicate code is in a test context
 # Helps reduce false positives from test fixtures
 
-  # Jest test file
-  - id: jest-test-file
-    description: Jest test file markers
+  # Jest test file markers (atomic traits)
+  - id: describe-call
+    desc: describe() function call
     crit: inert
-    confidence: 0.95
-    file_types: [javascript, typescript]
-    condition:
-      type: yara
-      source: |
-        rule jest_test_file {
-          strings:
-            $describe = "describe(" ascii
-            $it = "it(" ascii
-            $test = "test(" ascii
-            $expect = "expect(" ascii
-            $jest = "jest" ascii
-            $mock = "jest.mock" ascii
-            $before = "beforeEach" ascii
-            $after = "afterEach" ascii
-          condition:
-            ($describe or $test or $it) and ($expect or $jest or $mock or $before or $after)
-        }
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "describe("
 
-  # Mocha test file
-  - id: mocha-test-file
-    description: Mocha test file markers
+  - id: it-call
+    desc: it() function call
     crit: inert
-    confidence: 0.95
-    file_types: [javascript, typescript]
-    condition:
-      type: yara
-      source: |
-        rule mocha_test_file {
-          strings:
-            $describe = "describe(" ascii
-            $it = "it(" ascii
-            $before = "before(" ascii
-            $after = "after(" ascii
-            $chai = "chai" ascii
-            $assert = "assert" ascii
-            $should = "should" ascii
-          condition:
-            $describe and $it and any of ($chai, $assert, $should, $before, $after)
-        }
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "it("
+
+  - id: test-call
+    desc: test() function call
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "test("
+
+  - id: jest-word
+    desc: jest keyword
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      word: "jest"
+
+  - id: jest-mock-call
+    desc: jest.mock call
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "jest.mock"
+
+  - id: before-each-call
+    desc: beforeEach hook
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      word: "beforeEach"
+
+  - id: after-each-call
+    desc: afterEach hook
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      word: "afterEach"
+
+  # Mocha test file markers (atomic traits)
+  - id: before-call
+    desc: before() hook
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "before("
+
+  - id: after-call
+    desc: after() hook
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "after("
+
+  - id: chai-word
+    desc: chai keyword
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      word: "chai"
+
+  - id: assert-word
+    desc: assert keyword
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      word: "assert"
+
+  - id: should-word
+    desc: should keyword
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      word: "should"
 
   # Vitest test file
   - id: vitest-test-file
@@ -1226,48 +1405,124 @@ traits:
       type: string
       regex: "from ['\"]vitest['\"]|import.{0,50}vitest|vi\\.mock|vi\\.fn"
 
-  # Test file naming pattern
-  - id: test-filename-pattern
-    description: File follows test naming convention
+  # Test file naming patterns
+  - id: dot-test-filename
+    desc: .test. in filename
     crit: inert
-    confidence: 0.9
-    file_types: [javascript, typescript]
-    condition:
-      type: yara
-      source: |
-        rule test_filename {
-          strings:
-            $test1 = ".test." ascii
-            $test2 = ".spec." ascii
-            $test3 = "_test." ascii
-            $test4 = "_spec." ascii
-            $test5 = "/__tests__/" ascii
-            $test6 = "/__mocks__/" ascii
-          condition:
-            any of them
-        }
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: ".test."
 
-  # Test fixture/mock data
-  - id: test-fixtures
-    description: Test fixture or mock data markers
+  - id: dot-spec-filename
+    desc: .spec. in filename
     crit: inert
-    confidence: 0.9
-    file_types: [javascript, typescript]
-    condition:
-      type: yara
-      source: |
-        rule test_fixtures {
-          strings:
-            $fixture1 = "fixtures" ascii
-            $fixture2 = "testdata" ascii
-            $mock1 = "mockData" ascii
-            $mock2 = "__mocks__" ascii
-            $mock3 = "jest.fn()" ascii
-            $stub = "sinon.stub" ascii
-            $fake = "faker" ascii
-          condition:
-            any of them
-        }
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: ".spec."
+
+  - id: underscore-test-filename
+    desc: _test. in filename
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "_test."
+
+  - id: underscore-spec-filename
+    desc: _spec. in filename
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "_spec."
+
+  - id: tests-directory
+    desc: /__tests__/ directory
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "/__tests__/"
+
+  - id: mocks-directory
+    desc: /__mocks__/ directory
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "/__mocks__/"
+
+  # Test fixture/mock data markers
+  - id: fixtures-word
+    desc: fixtures keyword
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      word: "fixtures"
+
+  - id: testdata-word
+    desc: testdata keyword
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      word: "testdata"
+
+  - id: mock-data-ref
+    desc: mockData reference
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      word: "mockData"
+
+  - id: mocks-ref
+    desc: __mocks__ reference
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "__mocks__"
+
+  - id: jest-fn-call
+    desc: jest.fn() mock function
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "jest.fn()"
+
+  - id: sinon-stub-call
+    desc: sinon.stub call
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "sinon.stub"
+
+  - id: faker-word
+    desc: faker keyword
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      word: "faker"
 
   # Snapshot testing
   - id: snapshot-test
@@ -1279,82 +1534,288 @@ traits:
       type: string
       regex: 'toMatchSnapshot|toMatchInlineSnapshot|\.snap'
 
-  # E2E test frameworks
-  - id: e2e-test
-    description: E2E test framework markers
+  # E2E test framework imports
+  - id: cypress-require
+    desc: require('cypress')
     crit: inert
-    confidence: 0.9
-    file_types: [javascript, typescript]
-    condition:
-      type: yara
-      source: |
-        rule e2e_test {
-          strings:
-            $cypress = "require('cypress')" ascii
-            $cypress2 = "from 'cypress'" ascii
-            $cypress3 = "cy." ascii
-            $playwright = "require('playwright')" ascii
-            $playwright2 = "from 'playwright'" ascii
-            $playwright3 = "from '@playwright" ascii
-            $puppeteer = "require('puppeteer')" ascii
-            $puppeteer2 = "from 'puppeteer'" ascii
-            $selenium = "require('selenium" ascii
-            $selenium2 = "from 'selenium" ascii
-            $webdriver = "require('webdriver" ascii
-            $webdriver2 = "from 'webdriver" ascii
-            $nightwatch = "require('nightwatch')" ascii
-            $nightwatch2 = "from 'nightwatch'" ascii
-          condition:
-            any of them
-        }
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "require('cypress')"
 
-  # Testing library patterns
-  - id: testing-library
-    description: Testing Library patterns
+  - id: cypress-import
+    desc: from 'cypress'
     crit: inert
-    confidence: 0.95
-    file_types: [javascript, typescript]
-    condition:
-      type: yara
-      source: |
-        rule testing_library {
-          strings:
-            $import1 = "@testing-library" ascii
-            $import2 = "from '@testing-library" ascii
-            $import3 = "require('@testing-library" ascii
-            // Testing Library specific methods (not just screen.)
-            $method1 = "screen.getBy" ascii
-            $method2 = "screen.findBy" ascii
-            $method3 = "screen.queryBy" ascii
-            $method4 = "screen.getAllBy" ascii
-            $method5 = "fireEvent." ascii
-            $method6 = "userEvent." ascii
-            $method7 = "render(" ascii
-            $method8 = "waitFor(" ascii
-          condition:
-            any of ($import*) or 2 of ($method*)
-        }
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "from 'cypress'"
 
-  # Test configuration files
-  - id: test-config
-    description: Test configuration file
+  - id: cypress-cy-command
+    desc: cy. Cypress command
     crit: inert
-    confidence: 0.95
-    file_types: [javascript, typescript]
-    condition:
-      type: yara
-      source: |
-        rule test_config {
-          strings:
-            $jest1 = "jest.config" ascii
-            $jest2 = "setupFilesAfterEnv" ascii
-            $jest3 = "testEnvironment" ascii
-            $mocha = "mocharc" ascii
-            $karma = "karma.conf" ascii
-            $vitest = "vitest.config" ascii
-          condition:
-            any of them
-        }
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "cy."
+
+  - id: playwright-require
+    desc: require('playwright')
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "require('playwright')"
+
+  - id: playwright-import
+    desc: from 'playwright'
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "from 'playwright'"
+
+  - id: playwright-scoped-import
+    desc: from '@playwright
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "from '@playwright"
+
+  - id: puppeteer-require
+    desc: require('puppeteer')
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "require('puppeteer')"
+
+  - id: puppeteer-import
+    desc: from 'puppeteer'
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "from 'puppeteer'"
+
+  - id: selenium-require
+    desc: require('selenium import
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "require('selenium"
+
+  - id: selenium-import
+    desc: from 'selenium import
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "from 'selenium"
+
+  - id: webdriver-require
+    desc: require('webdriver import
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "require('webdriver"
+
+  - id: webdriver-import
+    desc: from 'webdriver import
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "from 'webdriver"
+
+  - id: nightwatch-require
+    desc: require('nightwatch')
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "require('nightwatch')"
+
+  - id: nightwatch-import
+    desc: from 'nightwatch'
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "from 'nightwatch'"
+
+  # Testing Library import patterns
+  - id: testing-library-import
+    desc: "@testing-library import"
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "@testing-library"
+
+  - id: testing-library-from
+    desc: from '@testing-library
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "from '@testing-library"
+
+  - id: testing-library-require
+    desc: require('@testing-library
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "require('@testing-library"
+
+  # Testing Library method patterns
+  - id: screen-get-by
+    desc: screen.getBy query
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "screen.getBy"
+
+  - id: screen-find-by
+    desc: screen.findBy query
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "screen.findBy"
+
+  - id: screen-query-by
+    desc: screen.queryBy query
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "screen.queryBy"
+
+  - id: screen-get-all-by
+    desc: screen.getAllBy query
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "screen.getAllBy"
+
+  - id: fire-event-method
+    desc: fireEvent. method
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "fireEvent."
+
+  - id: user-event-method
+    desc: userEvent. method
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "userEvent."
+
+  - id: render-call-test
+    desc: render() call
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "render("
+
+  - id: wait-for-call
+    desc: waitFor() call
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "waitFor("
+
+  # Test configuration file markers
+  - id: jest-config-ref
+    desc: jest.config reference
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "jest.config"
+
+  - id: jest-setup-files
+    desc: setupFilesAfterEnv Jest option
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      word: "setupFilesAfterEnv"
+
+  - id: jest-test-environment
+    desc: testEnvironment Jest option
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      word: "testEnvironment"
+
+  - id: mocharc-ref
+    desc: mocharc config file
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      word: "mocharc"
+
+  - id: karma-conf-ref
+    desc: karma.conf config file
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "karma.conf"
+
+  - id: vitest-config-ref
+    desc: vitest.config reference
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "vitest.config"
 
   # Coverage markers
   - id: coverage-markers
@@ -1366,3 +1827,240 @@ traits:
       type: string
       regex: 'istanbul|nyc|c8|coverage|__coverage__|lcov'
 
+
+# === COMPOSITE RULES ===
+composite_rules:
+  # Terser/UglifyJS minified output
+  - id: terser-minifier-helpers
+    description: Minifier helper patterns
+    for: [javascript]
+    any:
+      - {id: void-zero}
+      - {id: esmodule-export}
+      - {id: object-define-property}
+
+  - id: terser-output
+    description: Terser/UglifyJS minified output markers
+    crit: inert
+    conf: 0.85
+    for: [javascript]
+    all:
+      - {id: use-strict-quote}
+      - {id: terser-minifier-helpers}
+
+  # Test block patterns
+  - id: test-block-functions
+    description: Test block functions (describe/it/test)
+    for: [javascript, typescript]
+    any:
+      - {id: describe-with-string}
+      - {id: it-with-string}
+      - {id: test-with-string}
+
+  - id: test-assertions
+    description: Test assertion patterns
+    for: [javascript, typescript]
+    any:
+      - {id: expect-call}
+      - {id: assert-method}
+      - {id: should-assertion}
+
+  - id: has-test-blocks
+    description: Code contains test definitions
+    crit: inert
+    conf: 0.95
+    for: [javascript, typescript]
+    all:
+      - {id: test-block-functions}
+      - {id: test-assertions}
+
+  # Multiple exports
+  - id: has-multiple-exports
+    description: Code has multiple named exports
+    crit: inert
+    conf: 0.85
+    for: [javascript, typescript]
+    any:
+      - {id: esm-export-statement}
+      - {id: cjs-exports-assignment}
+      - {id: module-exports-object}
+
+  # Multiple entry points
+  - id: has-multiple-entries
+    description: Package has multiple entry points (complex library)
+    crit: inert
+    conf: 0.85
+    for: [packagejson]
+    count: 2
+    any:
+      - {id: pkg-main-field}
+      - {id: pkg-module-field}
+      - {id: pkg-exports-field-entry}
+      - {id: pkg-types-field}
+
+  # Development workflow scripts
+  - id: has-dev-workflow
+    description: Package has development workflow scripts
+    crit: inert
+    conf: 0.85
+    for: [packagejson]
+    count: 3
+    any:
+      - {id: pkg-test-script-field}
+      - {id: pkg-build-script-field}
+      - {id: pkg-lint-script-field}
+      - {id: pkg-format-script-field}
+      - {id: pkg-dev-script-field}
+      - {id: pkg-start-script-field}
+
+  # Jest test file
+  - id: jest-test-blocks
+    description: Jest test blocks
+    for: [javascript, typescript]
+    any:
+      - {id: describe-call}
+      - {id: test-call}
+      - {id: it-call}
+
+  - id: jest-assertions-or-hooks
+    description: Jest assertions or lifecycle hooks
+    for: [javascript, typescript]
+    any:
+      - {id: expect-call}
+      - {id: jest-word}
+      - {id: jest-mock-call}
+      - {id: before-each-call}
+      - {id: after-each-call}
+
+  - id: jest-test-file
+    description: Jest test file markers
+    crit: inert
+    conf: 0.95
+    for: [javascript, typescript]
+    all:
+      - {id: jest-test-blocks}
+      - {id: jest-assertions-or-hooks}
+
+  # Mocha test file
+  - id: mocha-test-blocks
+    description: Mocha test blocks
+    for: [javascript, typescript]
+    all:
+      - {id: describe-call}
+      - {id: it-call}
+
+  - id: mocha-assertions-or-hooks
+    description: Mocha assertions or hooks
+    for: [javascript, typescript]
+    any:
+      - {id: chai-word}
+      - {id: assert-word}
+      - {id: should-word}
+      - {id: before-call}
+      - {id: after-call}
+
+  - id: mocha-test-file
+    description: Mocha test file markers
+    crit: inert
+    conf: 0.95
+    for: [javascript, typescript]
+    all:
+      - {id: mocha-test-blocks}
+      - {id: mocha-assertions-or-hooks}
+
+  # Test filename pattern
+  - id: test-filename-pattern
+    description: File follows test naming convention
+    crit: inert
+    conf: 0.9
+    for: [javascript, typescript]
+    any:
+      - {id: dot-test-filename}
+      - {id: dot-spec-filename}
+      - {id: underscore-test-filename}
+      - {id: underscore-spec-filename}
+      - {id: tests-directory}
+      - {id: mocks-directory}
+
+  # Test fixtures
+  - id: test-fixtures
+    description: Test fixture or mock data markers
+    crit: inert
+    conf: 0.9
+    for: [javascript, typescript]
+    any:
+      - {id: fixtures-word}
+      - {id: testdata-word}
+      - {id: mock-data-ref}
+      - {id: mocks-ref}
+      - {id: jest-fn-call}
+      - {id: sinon-stub-call}
+      - {id: faker-word}
+
+  # E2E test frameworks
+  - id: e2e-test
+    description: E2E test framework markers
+    crit: inert
+    conf: 0.9
+    for: [javascript, typescript]
+    any:
+      - {id: cypress-require}
+      - {id: cypress-import}
+      - {id: cypress-cy-command}
+      - {id: playwright-require}
+      - {id: playwright-import}
+      - {id: playwright-scoped-import}
+      - {id: puppeteer-require}
+      - {id: puppeteer-import}
+      - {id: selenium-require}
+      - {id: selenium-import}
+      - {id: webdriver-require}
+      - {id: webdriver-import}
+      - {id: nightwatch-require}
+      - {id: nightwatch-import}
+
+  # Testing Library
+  - id: testing-library-imports
+    description: Testing Library import patterns
+    for: [javascript, typescript]
+    any:
+      - {id: testing-library-import}
+      - {id: testing-library-from}
+      - {id: testing-library-require}
+
+  - id: testing-library-methods
+    description: Testing Library methods
+    for: [javascript, typescript]
+    count: 2
+    any:
+      - {id: screen-get-by}
+      - {id: screen-find-by}
+      - {id: screen-query-by}
+      - {id: screen-get-all-by}
+      - {id: fire-event-method}
+      - {id: user-event-method}
+      - {id: render-call-test}
+      - {id: wait-for-call}
+
+  - id: testing-library
+    description: Testing Library patterns
+    crit: inert
+    conf: 0.95
+    for: [javascript, typescript]
+    any:
+      - {id: testing-library-imports}
+      - {id: testing-library-methods}
+
+  # Test configuration files
+  - id: test-config
+    description: Test configuration file
+    crit: inert
+    conf: 0.95
+    for: [javascript, typescript]
+    any:
+      - {id: jest-config-ref}
+      - {id: jest-setup-files}
+      - {id: jest-test-environment}
+      - {id: mocharc-ref}
+      - {id: karma-conf-ref}
+      - {id: vitest-config-ref}

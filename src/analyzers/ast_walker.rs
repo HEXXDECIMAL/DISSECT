@@ -8,19 +8,54 @@ use tree_sitter::{Node, TreeCursor};
 /// Maximum depth to prevent runaway traversal on malformed ASTs
 pub const MAX_AST_DEPTH: usize = 10_000;
 
+/// Maximum recursion depth for nested function traversal
+pub const MAX_RECURSION_DEPTH: u32 = 500;
+
+/// Result of AST traversal with limit detection
+#[derive(Debug, Clone, Default)]
+pub struct WalkStats {
+    /// Whether the depth limit was reached (potential anti-analysis)
+    pub depth_limit_hit: bool,
+    /// Maximum depth actually reached
+    pub max_depth_reached: usize,
+}
+
+impl WalkStats {
+    /// Merge another WalkStats, taking the worst case
+    pub fn merge(&mut self, other: &WalkStats) {
+        self.depth_limit_hit = self.depth_limit_hit || other.depth_limit_hit;
+        self.max_depth_reached = self.max_depth_reached.max(other.max_depth_reached);
+    }
+}
+
 /// Iteratively walk all nodes in a tree, calling the visitor function on each.
 /// Returns early if depth exceeds MAX_AST_DEPTH.
 ///
 /// The visitor receives (node, depth) and can return `false` to skip children.
-pub fn walk_tree<F>(cursor: &mut TreeCursor, mut visitor: F)
+pub fn walk_tree<F>(cursor: &mut TreeCursor, visitor: F)
 where
     F: FnMut(Node, usize) -> bool,
 {
+    let _ = walk_tree_with_stats(cursor, visitor);
+}
+
+/// Like walk_tree but returns stats including whether depth limits were hit.
+/// Use this when you need to detect potential anti-analysis techniques.
+pub fn walk_tree_with_stats<F>(cursor: &mut TreeCursor, mut visitor: F) -> WalkStats
+where
+    F: FnMut(Node, usize) -> bool,
+{
+    let mut stats = WalkStats::default();
     let mut depth = 0usize;
 
     loop {
+        if depth > stats.max_depth_reached {
+            stats.max_depth_reached = depth;
+        }
+
         if depth > MAX_AST_DEPTH {
-            return; // Safety limit reached
+            stats.depth_limit_hit = true;
+            return stats; // Safety limit reached
         }
 
         let node = cursor.node();
@@ -40,7 +75,7 @@ where
         // Go back up until we can go sideways or reach root
         loop {
             if !cursor.goto_parent() {
-                return; // Reached root, done
+                return stats; // Reached root, done
             }
             depth = depth.saturating_sub(1);
             if cursor.goto_next_sibling() {

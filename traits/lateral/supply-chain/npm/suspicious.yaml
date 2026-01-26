@@ -6,110 +6,146 @@ defaults:
   file_types: [packagejson]
 
 traits:
-  # No exports (side-effect only module)
-  - id: no-exports
-    description: Module has no exports (side-effect only)
-    crit: notable
+  # === Export detection micro-traits ===
+  - id: module-exports-pattern
+    description: CommonJS module.exports pattern
+    crit: inert
+    confidence: 0.8
+    file_types: [javascript]
+    condition:
+      type: ast_pattern
+      node_type: assignment_expression
+      pattern: "module.exports"
+
+  - id: exports-dot-pattern
+    description: CommonJS exports.* pattern
+    crit: inert
+    confidence: 0.8
+    file_types: [javascript]
+    condition:
+      type: ast_pattern
+      node_type: assignment_expression
+      pattern: "exports."
+
+  - id: esm-export-pattern
+    description: ESM export statement
+    crit: inert
+    confidence: 0.8
+    file_types: [javascript]
+    condition:
+      type: ast_pattern
+      node_type: export_statement
+      pattern: "export"
+
+  # === Node.js require micro-traits ===
+  - id: require-os
+    description: require('os') import
+    crit: inert
     confidence: 0.7
     file_types: [javascript]
     condition:
-      type: yara
-      source: |
-        rule no_exports {
-          strings:
-            $export1 = "module.exports" ascii
-            $export2 = "exports." ascii
-            $export3 = /^export\s/ ascii
-          condition:
-            not any of ($export*)
-        }
+      type: ast_query
+      language: javascript
+      query: |
+        (call_expression
+          function: (identifier) @fn
+          arguments: (arguments (string) @arg))
+        (#eq? @fn "require")
+        (#match? @arg "'os'|\"os\"")
 
-  # Single small file with dangerous APIs (npm-specific context)
-  - id: single-file-dangerous
-    description: Tiny npm package using dangerous Node APIs
-    crit: suspicious
-    confidence: 0.85
+  - id: require-child-process
+    description: require('child_process') import
+    crit: notable
+    confidence: 0.8
     file_types: [javascript]
     condition:
-      type: yara
-      source: |
-        rule single_file_dangerous {
-          strings:
-            $os = "require('os')" ascii
-            $cp = "require('child_process')" ascii
-            $https = "require('https')" ascii
-            $fs = "require('fs')" ascii
-          condition:
-            filesize < 5KB and 3 of them
-        }
+      type: ast_query
+      language: javascript
+      query: |
+        (call_expression
+          function: (identifier) @fn
+          arguments: (arguments (string) @arg))
+        (#eq? @fn "require")
+        (#match? @arg "'child_process'|\"child_process\"")
 
-  # No dependencies but has install hooks
-  - id: no-deps-with-hooks
-    description: Package has install hooks but no dependencies
-    crit: suspicious
+  - id: require-https
+    description: require('https') import
+    crit: inert
+    confidence: 0.7
+    file_types: [javascript]
+    condition:
+      type: ast_query
+      language: javascript
+      query: |
+        (call_expression
+          function: (identifier) @fn
+          arguments: (arguments (string) @arg))
+        (#eq? @fn "require")
+        (#match? @arg "'https'|\"https\"")
+
+  - id: require-fs
+    description: require('fs') import
+    crit: inert
+    confidence: 0.7
+    file_types: [javascript]
+    condition:
+      type: ast_query
+      language: javascript
+      query: |
+        (call_expression
+          function: (identifier) @fn
+          arguments: (arguments (string) @arg))
+        (#eq? @fn "require")
+        (#match? @arg "'fs'|\"fs\"")
+
+  # === package.json micro-traits ===
+  - id: pkg-dependencies
+    description: Package has dependencies field
+    crit: inert
+    confidence: 0.9
+    condition:
+      type: string
+      exact: '"dependencies":'
+
+  - id: pkg-preinstall-hook
+    description: Package has preinstall hook
+    crit: notable
     confidence: 0.85
     condition:
-      type: yara
-      source: |
-        rule no_deps_with_hooks {
-          strings:
-            $deps = "\"dependencies\":" ascii
-            $hook1 = "\"preinstall\":" ascii
-            $hook2 = "\"postinstall\":" ascii
-          condition:
-            any of ($hook*) and not $deps
-        }
+      type: string
+      exact: '"preinstall":'
 
-  # Multiple install hooks (unusual)
-  - id: multiple-hooks
-    description: Package has multiple install lifecycle hooks
-    crit: suspicious
+  - id: pkg-postinstall-hook
+    description: Package has postinstall hook
+    crit: notable
     confidence: 0.85
     condition:
-      type: yara
-      source: |
-        rule multiple_hooks {
-          strings:
-            $hook1 = "\"preinstall\":" ascii
-            $hook2 = "\"postinstall\":" ascii
-            $hook3 = "\"install\":" ascii
-          condition:
-            2 of them
-        }
+      type: string
+      exact: '"postinstall":'
 
-  # Very new version with install hooks
-  - id: new-version-hooks
-    description: Brand new version (0.0.1) with install hooks
-    crit: suspicious
-    confidence: 0.8
-    condition:
-      type: yara
-      source: |
-        rule new_version_with_hooks {
-          strings:
-            $ver = "\"version\": \"0.0.1\"" ascii
-            $hook1 = "\"preinstall\":" ascii
-            $hook2 = "\"postinstall\":" ascii
-          condition:
-            $ver and any of ($hook*)
-        }
-
-  # Missing metadata with install hooks
-  - id: missing-metadata-hooks
-    description: Package missing standard metadata but has install hooks
-    crit: suspicious
+  - id: pkg-install-hook
+    description: Package has install hook
+    crit: notable
     confidence: 0.85
     condition:
-      type: yara
-      source: |
-        rule missing_metadata_hooks {
-          strings:
-            $repo = "\"repository\":" ascii
-            $hook1 = "\"preinstall\":" ascii
-            $hook2 = "\"postinstall\":" ascii
-          condition:
-            any of ($hook*) and not $repo
-        }
+      type: string
+      exact: '"install":'
+
+  - id: pkg-version-001
+    description: Package version 0.0.1 (brand new)
+    crit: inert
+    confidence: 0.6
+    condition:
+      type: string
+      exact: '"version": "0.0.1"'
+
+  - id: pkg-repository
+    description: Package has repository field
+    crit: inert
+    confidence: 0.9
+    condition:
+      type: string
+      exact: '"repository":'
 
   # Package writes to node_modules (persistence)
   - id: node-modules-write
@@ -150,18 +186,19 @@ traits:
       type: string
       regex: '"name":\\s*"@[^/]+/(react|vue|angular|express|lodash|axios|webpack|babel|typescript|eslint|prettier|jest|mocha)'
 
-  # === Orphan child process atomic indicators ===
+  # === Orphan child process micro-traits ===
   - id: child-dot-unref
-    description: child.unref() call
+    description: child.unref() call (orphan process)
     crit: notable
     confidence: 0.75
     file_types: [javascript, typescript]
     condition:
-      type: string
-      regex: "child\\.unref\\(\\)"
+      type: ast_pattern
+      node_type: call_expression
+      pattern: ".unref()"
 
   - id: spawn-unref
-    description: spawn().unref() call
+    description: spawn().unref() call (orphan process)
     crit: notable
     confidence: 0.75
     file_types: [javascript, typescript]
@@ -169,7 +206,7 @@ traits:
       type: string
       regex: "spawn\\([^)]+\\)\\.unref\\(\\)"
 
-  # === Silent process execution atomic indicators ===
+  # === Silent process execution micro-traits ===
   - id: stdio-ignore-string
     description: "stdio: 'ignore' pattern"
     crit: inert
@@ -197,36 +234,176 @@ traits:
     condition:
       type: string
       regex: "bug\\s*bounty|hackerone|bugcrowd|security\\s*research|proof\\s*of\\s*concept|PoC|benign\\s*test"
+      case_insensitive: true
 
-  # Multiple OOB exfil domains
-  - id: multi-oob
-    description: Multiple OOB exfiltration endpoints
+  # === Filesize micro-traits ===
+  - id: small-file-5k
+    description: Small file under 5KB
+    crit: inert
+    confidence: 0.7
+    file_types: [javascript]
+    condition:
+      type: filesize
+      max: 5120
+
+  # === OOB exfil domain micro-traits ===
+  - id: oast-fun-domain
+    description: oast.fun exfil domain
     crit: suspicious
     confidence: 0.9
     file_types: [javascript, typescript, packagejson]
     condition:
-      type: yara
-      source: |
-        rule multi_oob {
-          strings:
-            $oast1 = "oast.fun" ascii nocase
-            $oast2 = "oastify.com" ascii nocase
-            $oast3 = "oast.me" ascii nocase
-            $webhook = "webhook.site" ascii nocase
-            $pipedream = "pipedream.net" ascii nocase
-            $discord = "discord.com/api/webhooks" ascii nocase
-          condition:
-            2 of them
-        }
+      type: string
+      exact: "oast.fun"
+
+  - id: oastify-domain
+    description: oastify.com exfil domain
+    crit: suspicious
+    confidence: 0.9
+    file_types: [javascript, typescript, packagejson]
+    condition:
+      type: string
+      exact: "oastify.com"
+
+  - id: oast-me-domain
+    description: oast.me exfil domain
+    crit: suspicious
+    confidence: 0.9
+    file_types: [javascript, typescript, packagejson]
+    condition:
+      type: string
+      exact: "oast.me"
+
+  - id: webhook-site-domain
+    description: webhook.site exfil domain
+    crit: suspicious
+    confidence: 0.9
+    file_types: [javascript, typescript, packagejson]
+    condition:
+      type: string
+      exact: "webhook.site"
+
+  - id: pipedream-domain
+    description: pipedream.net exfil domain
+    crit: suspicious
+    confidence: 0.9
+    file_types: [javascript, typescript, packagejson]
+    condition:
+      type: string
+      exact: "pipedream.net"
+
+  - id: discord-webhook
+    description: Discord webhook exfil endpoint
+    crit: suspicious
+    confidence: 0.9
+    file_types: [javascript, typescript, packagejson]
+    condition:
+      type: string
+      exact: "discord.com/api/webhooks"
 
 composite_rules:
+  # Has exports composite
+  - id: has-exports
+    description: Module has exports
+    crit: inert
+    confidence: 0.8
+    file_types: [javascript]
+    count: 1
+    any:
+      - id: module-exports-pattern
+      - id: exports-dot-pattern
+      - id: esm-export-pattern
+
+  # No exports (side-effect only module) - migrated from YARA
+  - id: no-exports
+    description: Module has no exports (side-effect only)
+    crit: notable
+    confidence: 0.7
+    file_types: [javascript]
+    none:
+      - id: has-exports
+
+  # Dangerous requires for tiny packages
+  - id: dangerous-requires
+    description: Dangerous Node.js API imports
+    crit: notable
+    confidence: 0.8
+    file_types: [javascript]
+    count: 3
+    any:
+      - id: require-os
+      - id: require-child-process
+      - id: require-https
+      - id: require-fs
+
+  # Single file with dangerous APIs - migrated from YARA
+  - id: single-file-dangerous
+    description: Tiny npm package using dangerous Node APIs
+    crit: suspicious
+    confidence: 0.85
+    file_types: [javascript]
+    all:
+      - id: small-file-5k
+      - id: dangerous-requires
+
+  # Install hooks composite
+  - id: install-hooks
+    description: Package has install hooks
+    crit: notable
+    confidence: 0.85
+    count: 1
+    any:
+      - id: pkg-preinstall-hook
+      - id: pkg-postinstall-hook
+      - id: pkg-install-hook
+
+  # No deps with hooks - migrated from YARA
+  - id: no-deps-with-hooks
+    description: Package has install hooks but no dependencies
+    crit: suspicious
+    confidence: 0.85
+    all:
+      - id: install-hooks
+    none:
+      - id: pkg-dependencies
+
+  # Multiple install hooks - migrated from YARA
+  - id: multiple-hooks
+    description: Package has multiple install lifecycle hooks
+    crit: suspicious
+    confidence: 0.85
+    count: 2
+    any:
+      - id: pkg-preinstall-hook
+      - id: pkg-postinstall-hook
+      - id: pkg-install-hook
+
+  # New version with hooks - migrated from YARA
+  - id: new-version-hooks
+    description: Brand new version (0.0.1) with install hooks
+    crit: suspicious
+    confidence: 0.8
+    all:
+      - id: pkg-version-001
+      - id: install-hooks
+
+  # Missing metadata with hooks - migrated from YARA
+  - id: missing-metadata-hooks
+    description: Package missing standard metadata but has install hooks
+    crit: suspicious
+    confidence: 0.85
+    all:
+      - id: install-hooks
+    none:
+      - id: pkg-repository
+
   # Child unref composite
   - id: child-unref
     description: Orphan child process (unref pattern)
     crit: suspicious
     confidence: 0.85
     file_types: [javascript, typescript]
-    requires_count: 1
+    count: 1
     any:
       - id: child-dot-unref
       - id: spawn-unref
@@ -237,7 +414,22 @@ composite_rules:
     crit: notable
     confidence: 0.8
     file_types: [javascript, typescript]
-    requires_count: 1
+    count: 1
     any:
       - id: stdio-ignore-string
       - id: stdio-ignore-array
+
+  # Multiple OOB exfil domains - migrated from YARA
+  - id: multi-oob
+    description: Multiple OOB exfiltration endpoints
+    crit: suspicious
+    confidence: 0.9
+    file_types: [javascript, typescript, packagejson]
+    count: 2
+    any:
+      - id: oast-fun-domain
+      - id: oastify-domain
+      - id: oast-me-domain
+      - id: webhook-site-domain
+      - id: pipedream-domain
+      - id: discord-webhook

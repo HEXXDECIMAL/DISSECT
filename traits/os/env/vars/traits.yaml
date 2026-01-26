@@ -1,0 +1,69 @@
+# Environment Variable Access
+# MBC: C0034 (Environment Variable)
+# ATT&CK: T1082 (System Information Discovery)
+
+defaults:
+  for: [elf, macho, so, dylib, c]
+
+traits:
+  - id: getenv
+    desc: getenv function (read environment variable)
+    crit: inert
+    conf: 0.3
+    if:
+      type: symbol
+      pattern: "getenv"
+
+  - id: setenv
+    desc: setenv function (set environment variable)
+    crit: inert
+    conf: 0.4
+    if:
+      type: symbol
+      pattern: "setenv"
+
+  - id: putenv
+    desc: putenv function (modify environment variable)
+    crit: inert
+    conf: 0.4
+    if:
+      type: symbol
+      pattern: "putenv"
+
+  - id: unsetenv
+    desc: unsetenv function (remove environment variable)
+    crit: inert
+    conf: 0.4
+    if:
+      type: symbol
+      pattern: "unsetenv"
+
+  - id: environ-global
+    desc: environ global variable access
+    crit: inert
+    conf: 0.3
+    if:
+      type: symbol
+      pattern: "environ"
+
+composite_rules:
+  - id: env-access
+    desc: Environment variable access functions
+    crit: inert
+    conf: 0.4
+    count: 1
+    any:
+      - id: getenv
+      - id: setenv
+      - id: putenv
+      - id: unsetenv
+
+  - id: env-modify
+    desc: Environment variable modification
+    crit: notable
+    conf: 0.5
+    count: 1
+    any:
+      - id: setenv
+      - id: putenv
+      - id: unsetenv

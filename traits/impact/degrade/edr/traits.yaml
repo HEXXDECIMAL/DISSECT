@@ -123,15 +123,23 @@ traits:
       exact: sophos
       case_insensitive: true
 
-  - id: eset-name
-    desc: ESET reference
+  - id: eset-lower
+    desc: eset reference (lowercase)
     crit: inert
     conf: 0.5
     for: [pe, elf]
     if:
       type: string
-      regex: "\\beset\\b"
-      case_insensitive: true
+      word: "eset"
+
+  - id: eset-upper
+    desc: ESET reference (uppercase brand name)
+    crit: inert
+    conf: 0.5
+    for: [pe, elf]
+    if:
+      type: string
+      word: "ESET"
 
 composite_rules:
   # EDR/AV product names composite
@@ -150,7 +158,8 @@ composite_rules:
       - id: norton-name
       - id: mcafee-name
       - id: sophos-name
-      - id: eset-name
+      - id: eset-lower
+      - id: eset-upper
 
   # EDR termination verbs composite
   - id: termination-verbs

@@ -3,20 +3,47 @@
 # ATT&CK: T1070.004
 
 traits:
+  # === Self-deletion patterns ===
+  - id: rm-dollar-zero
+    desc: rm $0 self-deletion
+    crit: suspicious
+    conf: 0.8
+    mbc: "F0007"
+    attack: "T1070.004"
+    if:
+      type: string
+      exact: "rm $0"
+
+  - id: rm-dollar-zero-quoted
+    desc: 'rm "$0" self-deletion (quoted)'
+    crit: suspicious
+    conf: 0.8
+    mbc: "F0007"
+    attack: "T1070.004"
+    if:
+      type: string
+      exact: 'rm "$0"'
+
+  - id: shred-dollar-zero
+    desc: shred $0 self-deletion
+    crit: suspicious
+    conf: 0.85
+    mbc: "F0007"
+    attack: "T1070.004"
+    if:
+      type: string
+      regex: 'shred\s+(-[a-z]+\s+)?["'']?\$0["'']?'
+
+composite_rules:
+  # Self-deleting shell script (migrated from YARA)
   - id: self-delete-shell
     desc: Self-deleting shell script
     crit: suspicious
     conf: 0.66
     mbc: "F0007"
     attack: "T1070.004"
-    if:
-      type: yara
-      source: |
-        rule self_delete_shell {
-          strings:
-            $rm_self = "rm $0"
-            $rm_argv = "rm \"$0\""
-            $shred_self = /shred\s+(-[a-z]+\s+)?["']?\$0["']?/
-          condition:
-            any of them
-        }
+    count: 1
+    any:
+      - id: rm-dollar-zero
+      - id: rm-dollar-zero-quoted
+      - id: shred-dollar-zero

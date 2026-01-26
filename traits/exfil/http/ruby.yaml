@@ -10,10 +10,8 @@ traits:
     for:
       - ruby
     if:
-      type: symbol_or_string
-      any:
-        - Net::HTTP.get_response
-        - Net::HTTP.get
+      type: symbol
+      pattern: "Net::HTTP\\.get_response|Net::HTTP\\.get"
 
   - id: ruby-http-post
     description: "HTTP POST request"
@@ -24,9 +22,8 @@ traits:
     for:
       - ruby
     if:
-      type: symbol_or_string
-      any:
-        - Net::HTTP.post
+      type: symbol
+      pattern: "Net::HTTP\\.post"
 
   - id: ruby-http-client
     description: "HTTP client usage"
@@ -37,9 +34,8 @@ traits:
     for:
       - ruby
     if:
-      type: symbol_or_string
-      any:
-        - Net::HTTP
+      type: symbol
+      pattern: "Net::HTTP"
 
   - id: ruby-tcp-socket
     description: "TCP socket connection"
@@ -50,9 +46,8 @@ traits:
     for:
       - ruby
     if:
-      type: symbol_or_string
-      any:
-        - TCPSocket
+      type: symbol
+      pattern: "TCPSocket"
 
   - id: ruby-tcp-server
     description: "TCP server listening"
@@ -63,9 +58,8 @@ traits:
     for:
       - ruby
     if:
-      type: symbol_or_string
-      any:
-        - TCPServer
+      type: symbol
+      pattern: "TCPServer"
 
   - id: ruby-udp-socket
     description: "UDP socket"
@@ -76,9 +70,8 @@ traits:
     for:
       - ruby
     if:
-      type: symbol_or_string
-      any:
-        - UDPSocket
+      type: symbol
+      pattern: "UDPSocket"
 
   - id: ruby-open-uri
     description: "Open-URI for HTTP/FTP"
@@ -89,7 +82,5 @@ traits:
     for:
       - ruby
     if:
-      type: symbol_or_string
-      any:
-        - open-uri
-        - OpenURI
+      type: symbol
+      pattern: "open-uri|OpenURI"

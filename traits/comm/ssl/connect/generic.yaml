@@ -3,6 +3,7 @@
 # ATT&CK: T1071
 
 traits:
+  # === SSL/TLS Connection ===
   - id: connect
     desc: SSL/TLS connection
     crit: inert
@@ -12,19 +13,48 @@ traits:
       type: symbol
       pattern: SSL_connect|SSL_new|SSL_CTX_new|TLS_client_method
 
+  # === Certificate Verification Skip ===
+  - id: insecure-skip-verify
+    desc: InsecureSkipVerify (Go)
+    crit: suspicious
+    conf: 0.8
+    if:
+      type: string
+      exact: "InsecureSkipVerify"
+
+  - id: cert-none
+    desc: CERT_NONE (Python)
+    crit: suspicious
+    conf: 0.8
+    if:
+      type: string
+      exact: "CERT_NONE"
+
+  - id: verify-mode-none
+    desc: verify_mode = ssl.CERT_NONE (Python)
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: string
+      exact: "verify_mode = ssl.CERT_NONE"
+
+  - id: reject-unauthorized-false
+    desc: rejectUnauthorized false (Node.js)
+    crit: suspicious
+    conf: 0.8
+    if:
+      type: string
+      exact: "rejectUnauthorized: false"
+
+composite_rules:
+  # Skip SSL certificate verification (migrated from YARA)
   - id: verify-skip
     desc: Skip SSL certificate verification
     crit: suspicious
     conf: 0.66
-    if:
-      type: yara
-      source: |
-        rule ssl_verify_skip {
-          strings:
-            $insecure = "InsecureSkipVerify"
-            $no_verify = "CERT_NONE"
-            $disable = "verify_mode = ssl.CERT_NONE"
-            $node = "rejectUnauthorized: false"
-          condition:
-            any of them
-        }
+    count: 1
+    any:
+      - id: insecure-skip-verify
+      - id: cert-none
+      - id: verify-mode-none
+      - id: reject-unauthorized-false

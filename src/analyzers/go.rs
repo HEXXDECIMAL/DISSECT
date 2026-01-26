@@ -1102,6 +1102,7 @@ impl GoAnalyzer {
         let mut max_depth = 0u32;
         let mut depths = Vec::new();
         let mut deep_nest_count = 0u32;
+        let mut limit_hit = false;
 
         fn traverse(
             node: &tree_sitter::Node,
@@ -1109,7 +1110,13 @@ impl GoAnalyzer {
             max: &mut u32,
             depths: &mut Vec<u32>,
             deep: &mut u32,
+            limit_hit: &mut bool,
         ) {
+            // Prevent stack overflow on deeply nested/malformed ASTs
+            if current_depth > crate::analyzers::ast_walker::MAX_RECURSION_DEPTH {
+                *limit_hit = true;
+                return;
+            }
             let mut depth = current_depth;
             match node.kind() {
                 "if_statement"
@@ -1133,11 +1140,18 @@ impl GoAnalyzer {
             // Recurse through children
             let mut cursor = node.walk();
             for child in node.children(&mut cursor) {
-                traverse(&child, depth, max, depths, deep);
+                traverse(&child, depth, max, depths, deep, limit_hit);
             }
         }
 
-        traverse(node, 0, &mut max_depth, &mut depths, &mut deep_nest_count);
+        traverse(
+            node,
+            0,
+            &mut max_depth,
+            &mut depths,
+            &mut deep_nest_count,
+            &mut limit_hit,
+        );
 
         NestingMetrics {
             max_depth,
@@ -1147,6 +1161,7 @@ impl GoAnalyzer {
                 0.0
             },
             deep_nest_count,
+            depth_limit_hit: limit_hit,
         }
     }
 

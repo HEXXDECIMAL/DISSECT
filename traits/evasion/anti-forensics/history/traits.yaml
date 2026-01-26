@@ -3,82 +3,197 @@
 # ATT&CK: T1070.003 (Clear Command History)
 
 traits:
-  # Bash history file clearing
+  # === Bash History Clearing ===
+  - id: histfile-devnull
+    desc: HISTFILE=/dev/null redirection
+    crit: suspicious
+    conf: 0.9
+    mbc: "F0005"
+    attack: "T1070.003"
+    if:
+      type: string
+      regex: "(?i)HISTFILE=/dev/null"
+
+  - id: export-histfile
+    desc: export HISTFILE= variable
+    crit: suspicious
+    conf: 0.85
+    mbc: "F0005"
+    attack: "T1070.003"
+    if:
+      type: string
+      exact: "export HISTFILE="
+
+  - id: unset-histfile
+    desc: unset HISTFILE command
+    crit: suspicious
+    conf: 0.9
+    mbc: "F0005"
+    attack: "T1070.003"
+    if:
+      type: string
+      exact: "unset HISTFILE"
+
+  - id: histsize-zero
+    desc: HISTSIZE=0 disables history
+    crit: suspicious
+    conf: 0.9
+    mbc: "F0005"
+    attack: "T1070.003"
+    if:
+      type: string
+      exact: "HISTSIZE=0"
+
+  - id: histfilesize-zero
+    desc: HISTFILESIZE=0 disables history file
+    crit: suspicious
+    conf: 0.9
+    mbc: "F0005"
+    attack: "T1070.003"
+    if:
+      type: string
+      exact: "HISTFILESIZE=0"
+
+  # === MySQL History Clearing ===
+  - id: mysql-histfile-devnull
+    desc: MYSQL_HISTFILE=/dev/null redirection
+    crit: suspicious
+    conf: 0.9
+    mbc: "F0005"
+    attack: "T1070.003"
+    if:
+      type: string
+      regex: "(?i)MYSQL_HISTFILE=/dev/null"
+
+  - id: export-mysql-histfile
+    desc: export MYSQL_HISTFILE= variable
+    crit: suspicious
+    conf: 0.85
+    mbc: "F0005"
+    attack: "T1070.003"
+    if:
+      type: string
+      exact: "export MYSQL_HISTFILE="
+
+  # === PROMPT_COMMAND Clearing ===
+  - id: unset-prompt-command
+    desc: unset PROMPT_COMMAND command
+    crit: suspicious
+    conf: 0.85
+    mbc: "F0005"
+    attack: "T1070.003"
+    if:
+      type: string
+      exact: "unset PROMPT_COMMAND"
+
+  - id: prompt-command-empty
+    desc: "PROMPT_COMMAND='' empty string"
+    crit: suspicious
+    conf: 0.85
+    mbc: "F0005"
+    attack: "T1070.003"
+    if:
+      type: string
+      exact: "PROMPT_COMMAND=''"
+
+  - id: prompt-command-unset
+    desc: PROMPT_COMMAND= assignment
+    crit: notable
+    conf: 0.75
+    mbc: "F0005"
+    attack: "T1070.003"
+    if:
+      type: string
+      exact: "PROMPT_COMMAND="
+
+  # === TERM Setup ===
+  - id: term-vt100
+    desc: export TERM=vt100 terminal type
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      exact: "export TERM=vt100"
+
+  - id: term-xterm
+    desc: export TERM=xterm terminal type
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: "export TERM=xterm"
+
+  - id: term-linux
+    desc: export TERM=linux terminal type
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      exact: "export TERM=linux"
+
+composite_rules:
+  # Bash history file clearing (migrated from YARA)
   - id: histfile-null
     desc: Redirects shell history to /dev/null
     crit: suspicious
     conf: 0.9
     mbc: "F0005"
     attack: "T1070.003"
-    if:
-      type: yara
-      source: |
-        rule histfile_null {
-          strings:
-            $bash_hist = "HISTFILE=/dev/null" ascii nocase
-            $hist_export = "export HISTFILE=" ascii
-            $hist_unset = "unset HISTFILE" ascii
-            $histsize_zero = "HISTSIZE=0" ascii
-            $histfilesize = "HISTFILESIZE=0" ascii
-          condition:
-            any of them
-        }
+    count: 1
+    any:
+      - id: histfile-devnull
+      - id: export-histfile
+      - id: unset-histfile
+      - id: histsize-zero
+      - id: histfilesize-zero
 
-  # MySQL history clearing
+  # MySQL history clearing (migrated from YARA)
   - id: mysql-histfile-null
     desc: Clears MySQL command history
     crit: suspicious
     conf: 0.9
     mbc: "F0005"
     attack: "T1070.003"
-    if:
-      type: yara
-      source: |
-        rule mysql_histfile_null {
-          strings:
-            $mysql_hist = "MYSQL_HISTFILE=/dev/null" ascii nocase
-            $mysql_export = "export MYSQL_HISTFILE=" ascii
-          condition:
-            any of them
-        }
+    count: 1
+    any:
+      - id: mysql-histfile-devnull
+      - id: export-mysql-histfile
 
-  # Prompt command clearing (prevents logging)
-  - id: prompt-command-unset
+  # Prompt command clearing (migrated from YARA)
+  - id: prompt-command-clear
     desc: Unsets PROMPT_COMMAND to evade logging
     crit: suspicious
     conf: 0.85
     mbc: "F0005"
     attack: "T1070.003"
-    if:
-      type: yara
-      source: |
-        rule prompt_command_unset {
-          strings:
-            $unset = "unset PROMPT_COMMAND" ascii
-            $export_empty = "PROMPT_COMMAND=''" ascii
-            $export_null = "PROMPT_COMMAND=" ascii
-          condition:
-            any of them
-        }
+    count: 1
+    any:
+      - id: unset-prompt-command
+      - id: prompt-command-empty
+      - id: prompt-command-unset
 
-  # Terminal setup for backdoor shell
+  # Terminal setup (migrated from YARA)
   - id: term-setup
     desc: Sets TERM variable (backdoor shell setup)
     crit: notable
     conf: 0.7
-    if:
-      type: yara
-      source: |
-        rule term_setup {
-          strings:
-            $term_vt100 = "export TERM=vt100" ascii
-            $term_xterm = "export TERM=xterm" ascii
-            $term_linux = "export TERM=linux" ascii
-          condition:
-            any of them
-        }
+    count: 1
+    any:
+      - id: term-vt100
+      - id: term-xterm
+      - id: term-linux
 
-composite_rules:
+  # Combined anti-forensics helper
+  - id: history-clearing
+    desc: Shell history clearing techniques
+    crit: suspicious
+    conf: 0.9
+    count: 1
+    any:
+      - id: histfile-null
+      - id: mysql-histfile-null
+      - id: term-setup
+
   # BPFDoor-style anti-forensics setup
   - id: backdoor-shell-setup
     desc: Multiple anti-forensics techniques (backdoor indicator)
@@ -86,9 +201,7 @@ composite_rules:
     conf: 0.95
     attack: "T1070.003"
     for: [shell, elf]
-    any:
-      - id: evasion/anti-forensics/histfile-null
-      - id: evasion/anti-forensics/mysql-histfile-null
-      - id: evasion/anti-forensics/term-setup
     all:
-      - id: evasion/anti-forensics/prompt-command-unset
+      - id: history-clearing
+      - id: prompt-command-clear
+      - id: term-setup

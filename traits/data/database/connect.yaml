@@ -2,234 +2,678 @@
 # Useful for ML features and understanding application purpose
 
 traits:
-  # PostgreSQL
+  # === PostgreSQL micro-traits ===
+  - id: libpq
+    desc: libpq library
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "libpq"
+
+  - id: pqconnect
+    desc: PQconnect function
+    crit: benign
+    conf: 0.9
+    if:
+      type: symbol
+      pattern: "PQconnect"
+
+  - id: postgres-url
+    desc: postgres:// URL scheme
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "postgres://"
+
+  - id: postgresql-url
+    desc: postgresql:// URL scheme
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "postgresql://"
+
+  - id: pq-dot
+    desc: pq. Go driver
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "pq."
+
+  - id: psycopg2
+    desc: psycopg2 Python driver
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "psycopg2"
+
+  - id: pg8000
+    desc: pg8000 Python driver
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "pg8000"
+
+  # === MySQL micro-traits ===
+  - id: libmysql
+    desc: libmysql library
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "libmysql"
+
+  - id: mysql-url
+    desc: mysql:// URL scheme
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "mysql://"
+
+  - id: mysql-real-connect
+    desc: mysql_real_connect function
+    crit: benign
+    conf: 0.9
+    if:
+      type: symbol
+      pattern: "mysql_real_connect"
+
+  - id: mysqlclient
+    desc: mysqlclient library
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "mysqlclient"
+
+  - id: go-sql-mysql
+    desc: go-sql-driver/mysql
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "go-sql-driver/mysql"
+
+  - id: pymysql
+    desc: PyMySQL driver
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "PyMySQL"
+
+  # === SQLite micro-traits ===
+  - id: sqlite3-string
+    desc: sqlite3 string
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "sqlite3"
+
+  - id: sqlite3-open
+    desc: sqlite3_open function
+    crit: benign
+    conf: 0.9
+    if:
+      type: symbol
+      pattern: "sqlite3_open"
+
+  - id: go-sqlite3
+    desc: mattn/go-sqlite3 driver
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "mattn/go-sqlite3"
+
+  - id: rusqlite
+    desc: rusqlite Rust driver
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "rusqlite"
+
+  - id: sqlite-format
+    desc: SQLite format header
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "SQLite format"
+
+  # === MongoDB micro-traits ===
+  - id: mongodb-url
+    desc: mongodb:// URL scheme
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "mongodb://"
+
+  - id: mongodb-srv-url
+    desc: mongodb+srv:// URL scheme
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "mongodb+srv://"
+
+  - id: go-mongodb
+    desc: go.mongodb.org driver
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "go.mongodb.org"
+
+  - id: pymongo
+    desc: pymongo Python driver
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "pymongo"
+
+  - id: mongoose
+    desc: mongoose ODM
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "mongoose"
+
+  # === Redis micro-traits ===
+  - id: redis-url
+    desc: redis:// URL scheme
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "redis://"
+
+  - id: rediss-url
+    desc: rediss:// URL scheme
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "rediss://"
+
+  - id: go-redis
+    desc: go-redis driver
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "go-redis"
+
+  - id: redis-py
+    desc: redis-py driver
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "redis-py"
+
+  - id: hiredis
+    desc: hiredis library
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "hiredis"
+
+  - id: ioredis
+    desc: ioredis driver
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "ioredis"
+
+  # === Elasticsearch micro-traits ===
+  - id: elasticsearch-string
+    desc: elasticsearch string
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "elasticsearch"
+
+  - id: elastic-co
+    desc: elastic.co domain
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "elastic.co"
+
+  - id: olivere-elastic
+    desc: olivere/elastic Go driver
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "olivere/elastic"
+
+  - id: es-search-endpoint
+    desc: _search ES endpoint
+    crit: benign
+    conf: 0.8
+    if:
+      type: string
+      exact: "_search"
+
+  - id: es-bulk-endpoint
+    desc: _bulk ES endpoint
+    crit: benign
+    conf: 0.8
+    if:
+      type: string
+      exact: "_bulk"
+
+  # === Cassandra micro-traits ===
+  - id: cassandra-string
+    desc: cassandra string
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      regex: "(?i)cassandra"
+
+  - id: gocql
+    desc: gocql Go driver
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "gocql"
+
+  - id: datastax
+    desc: datastax driver
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "datastax"
+
+  - id: cql-url
+    desc: cql:// URL scheme
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "cql://"
+
+  # === DynamoDB micro-traits ===
+  - id: dynamodb-string
+    desc: dynamodb string
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      regex: "(?i)dynamodb"
+
+  - id: aws-sdk
+    desc: aws-sdk package
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "aws-sdk"
+
+  # === InfluxDB micro-traits ===
+  - id: influxdb-string
+    desc: influxdb string
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      regex: "(?i)influxdb"
+
+  - id: influxdata
+    desc: influxdata string
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "influxdata"
+
+  # === SQL micro-traits ===
+  - id: sql-select
+    desc: SELECT SQL keyword
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      regex: "(?i)SELECT "
+
+  - id: sql-insert
+    desc: INSERT INTO SQL keyword
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      regex: "(?i)INSERT INTO"
+
+  - id: sql-update
+    desc: UPDATE SQL keyword
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      regex: "(?i)UPDATE "
+
+  - id: sql-delete
+    desc: DELETE FROM SQL keyword
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      regex: "(?i)DELETE FROM"
+
+  - id: sql-create-table
+    desc: CREATE TABLE SQL keyword
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      regex: "(?i)CREATE TABLE"
+
+  - id: database-sql-import
+    desc: database/sql Go import
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "database/sql"
+
+  - id: sql-open
+    desc: sql.Open Go function
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "sql.Open"
+
+  # === ORM micro-traits ===
+  - id: gorm-io
+    desc: gorm.io ORM
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "gorm.io"
+
+  - id: sqlalchemy
+    desc: SQLAlchemy ORM
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "sqlalchemy"
+
+  - id: hibernate
+    desc: Hibernate ORM
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "hibernate"
+
+  - id: django-db
+    desc: django.db ORM
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "django.db"
+
+  - id: sequelize
+    desc: Sequelize ORM
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "sequelize"
+
+  - id: prisma
+    desc: Prisma ORM
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "prisma"
+
+  - id: typeorm
+    desc: TypeORM ORM
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "typeorm"
+
+  # === Connection pooling micro-traits ===
+  - id: pgxpool
+    desc: pgxpool connection pool
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "pgxpool"
+
+  - id: pool-pool
+    desc: pool.Pool type
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "pool.Pool"
+
+  - id: max-open-conns
+    desc: MaxOpenConns setting
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "MaxOpenConns"
+
+  - id: max-idle-conns
+    desc: MaxIdleConns setting
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "MaxIdleConns"
+
+  - id: connection-pool-string
+    desc: connection_pool string
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "connection_pool"
+
+  - id: hikaricp
+    desc: HikariCP pool
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "HikariCP"
+
+composite_rules:
+  # PostgreSQL composite (migrated from YARA)
   - id: postgresql
     desc: PostgreSQL database connectivity
     crit: benign
     conf: 0.9
-    if:
-      type: yara
-      source: |
-        rule postgresql_db {
-          strings:
-            $pg1 = "libpq" ascii
-            $pg2 = "PQconnect" ascii
-            $pg3 = "postgres://" ascii
-            $pg4 = "postgresql://" ascii
-            $pg5 = "pq." ascii
-            $pg6 = "psycopg2" ascii
-            $pg7 = "pg8000" ascii
-          condition:
-            any of them
-        }
+    count: 1
+    any:
+      - id: libpq
+      - id: pqconnect
+      - id: postgres-url
+      - id: postgresql-url
+      - id: pq-dot
+      - id: psycopg2
+      - id: pg8000
 
-  # MySQL/MariaDB
+  # MySQL composite (migrated from YARA)
   - id: mysql
     desc: MySQL/MariaDB database connectivity
     crit: benign
     conf: 0.9
-    if:
-      type: yara
-      source: |
-        rule mysql_db {
-          strings:
-            $mysql1 = "libmysql" ascii
-            $mysql2 = "mysql://" ascii
-            $mysql3 = "mysql_real_connect" ascii
-            $mysql4 = "mysqlclient" ascii
-            $mysql5 = "go-sql-driver/mysql" ascii
-            $mysql6 = "PyMySQL" ascii
-          condition:
-            any of them
-        }
+    count: 1
+    any:
+      - id: libmysql
+      - id: mysql-url
+      - id: mysql-real-connect
+      - id: mysqlclient
+      - id: go-sql-mysql
+      - id: pymysql
 
-  # SQLite
+  # SQLite composite (migrated from YARA)
   - id: sqlite
     desc: SQLite database
     crit: benign
     conf: 0.9
-    if:
-      type: yara
-      source: |
-        rule sqlite_db {
-          strings:
-            $sqlite1 = "sqlite3" ascii
-            $sqlite2 = "sqlite3_open" ascii
-            $sqlite3 = "mattn/go-sqlite3" ascii
-            $sqlite4 = "rusqlite" ascii
-            $sqlite5 = "SQLite format" ascii
-          condition:
-            any of them
-        }
+    count: 1
+    any:
+      - id: sqlite3-string
+      - id: sqlite3-open
+      - id: go-sqlite3
+      - id: rusqlite
+      - id: sqlite-format
 
-  # MongoDB
+  # MongoDB composite (migrated from YARA)
   - id: mongodb
     desc: MongoDB database connectivity
     crit: benign
     conf: 0.9
-    if:
-      type: yara
-      source: |
-        rule mongodb_db {
-          strings:
-            $mongo1 = "mongodb://" ascii
-            $mongo2 = "mongodb+srv://" ascii
-            $mongo3 = "go.mongodb.org" ascii
-            $mongo4 = "pymongo" ascii
-            $mongo5 = "mongoose" ascii
-          condition:
-            any of them
-        }
+    count: 1
+    any:
+      - id: mongodb-url
+      - id: mongodb-srv-url
+      - id: go-mongodb
+      - id: pymongo
+      - id: mongoose
 
-  # Redis
+  # Redis composite (migrated from YARA)
   - id: redis
     desc: Redis database connectivity
     crit: benign
     conf: 0.9
-    if:
-      type: yara
-      source: |
-        rule redis_db {
-          strings:
-            $redis1 = "redis://" ascii
-            $redis2 = "rediss://" ascii
-            $redis3 = "go-redis" ascii
-            $redis4 = "redis-py" ascii
-            $redis5 = "hiredis" ascii
-            $redis6 = "ioredis" ascii
-          condition:
-            any of them
-        }
+    count: 1
+    any:
+      - id: redis-url
+      - id: rediss-url
+      - id: go-redis
+      - id: redis-py
+      - id: hiredis
+      - id: ioredis
 
-  # Elasticsearch
+  # Elasticsearch composite (migrated from YARA)
   - id: elasticsearch
     desc: Elasticsearch connectivity
     crit: benign
     conf: 0.9
-    if:
-      type: yara
-      source: |
-        rule elasticsearch_db {
-          strings:
-            $es1 = "elasticsearch" ascii
-            $es2 = "elastic.co" ascii
-            $es3 = "olivere/elastic" ascii
-            $es4 = "_search" ascii
-            $es5 = "_bulk" ascii
-          condition:
-            any of them
-        }
+    count: 1
+    any:
+      - id: elasticsearch-string
+      - id: elastic-co
+      - id: olivere-elastic
+      - id: es-search-endpoint
+      - id: es-bulk-endpoint
 
-  # Cassandra
+  # Cassandra composite (migrated from YARA)
   - id: cassandra
     desc: Apache Cassandra connectivity
     crit: benign
     conf: 0.9
-    if:
-      type: yara
-      source: |
-        rule cassandra_db {
-          strings:
-            $cass1 = "cassandra" ascii nocase
-            $cass2 = "gocql" ascii
-            $cass3 = "datastax" ascii
-            $cass4 = "cql://" ascii
-          condition:
-            any of them
-        }
+    count: 1
+    any:
+      - id: cassandra-string
+      - id: gocql
+      - id: datastax
+      - id: cql-url
 
-  # DynamoDB
+  # DynamoDB composite (migrated from YARA)
   - id: dynamodb
     desc: AWS DynamoDB connectivity
     crit: benign
     conf: 0.9
-    if:
-      type: yara
-      source: |
-        rule dynamodb_db {
-          strings:
-            $ddb1 = "dynamodb" ascii nocase
-            $ddb2 = "DynamoDB" ascii
-            $ddb3 = "aws-sdk" ascii
-          condition:
-            any of them
-        }
+    count: 1
+    any:
+      - id: dynamodb-string
+      - id: aws-sdk
 
-  # InfluxDB
+  # InfluxDB composite (migrated from YARA)
   - id: influxdb
     desc: InfluxDB time series database
     crit: benign
     conf: 0.9
-    if:
-      type: yara
-      source: |
-        rule influxdb_db {
-          strings:
-            $influx1 = "influxdb" ascii nocase
-            $influx2 = "influxdata" ascii
-            $influx3 = "InfluxDB" ascii
-          condition:
-            any of them
-        }
+    count: 1
+    any:
+      - id: influxdb-string
+      - id: influxdata
 
-  # Generic SQL patterns
+  # SQL keywords helper
+  - id: sql-keywords
+    desc: SQL statement keywords
+    crit: inert
+    conf: 0.5
+    count: 3
+    any:
+      - id: sql-select
+      - id: sql-insert
+      - id: sql-update
+      - id: sql-delete
+      - id: sql-create-table
+
+  # Generic SQL composite (migrated from YARA)
   - id: sql-generic
     desc: Generic SQL database patterns
     crit: benign
     conf: 0.8
-    if:
-      type: yara
-      source: |
-        rule sql_generic {
-          strings:
-            $sql1 = "SELECT " ascii nocase
-            $sql2 = "INSERT INTO" ascii nocase
-            $sql3 = "UPDATE " ascii nocase
-            $sql4 = "DELETE FROM" ascii nocase
-            $sql5 = "CREATE TABLE" ascii nocase
-            $sql6 = "data/database/sql" ascii
-            $sql7 = "sql.Open" ascii
-          condition:
-            3 of ($sql1, $sql2, $sql3, $sql4, $sql5) or any of ($sql6, $sql7)
-        }
+    count: 1
+    any:
+      - id: sql-keywords
+      - id: database-sql-import
+      - id: sql-open
 
-  # ORM frameworks
+  # ORM composite (migrated from YARA)
   - id: orm
     desc: ORM framework usage
     crit: benign
     conf: 0.85
-    if:
-      type: yara
-      source: |
-        rule orm_framework {
-          strings:
-            $gorm = "gorm.io" ascii
-            $sqlalchemy = "sqlalchemy" ascii
-            $hibernate = "hibernate" ascii
-            $django = "django.db" ascii
-            $sequelize = "sequelize" ascii
-            $prisma = "prisma" ascii
-            $typeorm = "typeorm" ascii
-          condition:
-            any of them
-        }
+    count: 1
+    any:
+      - id: gorm-io
+      - id: sqlalchemy
+      - id: hibernate
+      - id: django-db
+      - id: sequelize
+      - id: prisma
+      - id: typeorm
 
-  # Connection pooling
+  # Connection pool composite (migrated from YARA)
   - id: connection-pool
     desc: Database connection pooling
     crit: benign
     conf: 0.85
-    if:
-      type: yara
-      source: |
-        rule connection_pool {
-          strings:
-            $pool1 = "pgxpool" ascii
-            $pool2 = "pool.Pool" ascii
-            $pool3 = "MaxOpenConns" ascii
-            $pool4 = "MaxIdleConns" ascii
-            $pool5 = "connection_pool" ascii
-            $pool6 = "HikariCP" ascii
-          condition:
-            any of them
-        }
+    count: 1
+    any:
+      - id: pgxpool
+      - id: pool-pool
+      - id: max-open-conns
+      - id: max-idle-conns
+      - id: connection-pool-string
+      - id: hikaricp

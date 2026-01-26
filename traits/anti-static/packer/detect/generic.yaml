@@ -43,45 +43,28 @@ traits:
       type: string
       exact: VMProtect
 
-  - id: upx-section-yara
-    desc: UPX packed binary section via YARA
+  # Section-based detection (migrated from YARA)
+  - id: upx-section
+    desc: UPX packed binary section name
     crit: suspicious
     conf: 0.95
     mbc: "F0001.008"
     for: [pe, elf, macho]
     if:
-      type: yara
-      source: |
-        import "pe"
-        import "elf"
-        import "macho"
+      type: section_name
+      pattern: "^(UPX\\d*|\\.UPX\\d*)$"
+      regex: true
 
-        rule upx_section {
-          condition:
-            (pe.is_pe and for any section in pe.sections : (section.name matches /^(UPX\d+|\.UPX\d+)$/)) or
-            (elf.number_of_sections > 0 and for any section in elf.sections : (section.name matches /^(UPX\d+|\.UPX\d+)$/)) or
-            (macho.number_of_segments > 0 and for any segment in macho.segments : (segment.segname matches /^(UPX\d+|\.UPX\d+)$/))
-        }
-
-  - id: vmprotect-section-yara
-    desc: VMProtect packed binary section via YARA
+  - id: vmprotect-section
+    desc: VMProtect packed binary section name
     crit: suspicious
     conf: 0.95
     mbc: "F0001"
     for: [pe, elf, macho]
     if:
-      type: yara
-      source: |
-        import "pe"
-        import "elf"
-        import "macho"
-
-        rule vmp_section {
-          condition:
-            (pe.is_pe and for any section in pe.sections : (section.name matches /^\.vmp[0-9]+$/)) or
-            (elf.number_of_sections > 0 and for any section in elf.sections : (section.name matches /^\.vmp[0-9]+$/)) or
-            (macho.number_of_segments > 0 and for any segment in macho.segments : (segment.segname matches /^\.vmp[0-9]+$/))
-        }
+      type: section_name
+      pattern: "^\\.vmp[0-9]+$"
+      regex: true
 
 composite_rules:
   - id: detect
@@ -105,7 +88,7 @@ composite_rules:
     mbc: "F0001.008"
     for: [pe, elf, macho]
     all:
-      - id: upx-section-yara
+      - id: upx-section
 
   - id: vmprotect
     desc: "VMProtect packed binary (section)"
@@ -114,4 +97,4 @@ composite_rules:
     mbc: "F0001"
     for: [pe, elf, macho]
     all:
-      - id: vmprotect-section-yara
+      - id: vmprotect-section

@@ -109,73 +109,139 @@ traits:
       type: string
       exact: "aes256gcm"
 
-  # Encryption with Network Activity
-  - id: encrypted-c2
-    desc: AES encryption combined with network requests (encrypted C2)
-    crit: suspicious
-    conf: 0.9
-    mbc: "C0027"
-    attack: "T1573"
+  # === Network request micro-traits ===
+  - id: https-request
+    desc: Node.js https.request call
+    crit: inert
+    conf: 0.8
     for: [javascript, typescript]
     if:
-      type: yara
-      source: |
-        rule encrypted_c2_channel {
-          strings:
-            $cipher1 = "createCipheriv"
-            $cipher2 = "createDecipheriv"
-            $aes = "aes-" nocase
-            $net1 = "https.request"
-            $net2 = "http.request"
-            $net3 = "fetch("
-            $net4 = "axios"
-            $dns = "resolveTxt"
-          condition:
-            any of ($cipher*) and $aes and any of ($net*, $dns)
-        }
+      type: string
+      exact: "https.request"
 
-  # Key/IV Handling
-  - id: hardcoded-key
-    desc: Hardcoded encryption key pattern
+  - id: http-request
+    desc: Node.js http.request call
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "http.request"
+
+  - id: fetch-call
+    desc: fetch() API call
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "\\bfetch\\s*\\("
+
+  - id: axios-import
+    desc: axios HTTP library
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "axios"
+
+  - id: dns-resolve-txt
+    desc: DNS TXT record resolution
+    crit: notable
+    conf: 0.85
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "resolveTxt"
+
+  # === AES algorithm string ===
+  - id: aes-algorithm
+    desc: AES algorithm string prefix
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "\\baes-"
+      case_insensitive: true
+
+  # === Key/IV Handling micro-traits ===
+  - id: hardcoded-key-pattern
+    desc: Hardcoded encryption key in string literal
     crit: suspicious
     conf: 0.8
     mbc: "C0027"
     for: [javascript, typescript]
     if:
-      type: yara
-      source: |
-        rule hardcoded_crypto_key {
-          strings:
-            $key = /['"](key|secret|password|pass)['"]\s*[,:=]\s*['"][A-Za-z0-9+\/=]{16,}['"]/
-            $iv = /iv\s*[,:=]\s*['"][A-Za-z0-9+\/=]{16,}['"]/
-            $hex = /Buffer\.from\s*\(\s*['"][0-9a-fA-F]{32,}['"]/
-          condition:
-            any of them
-        }
+      type: string
+      regex: "['\"](?:key|secret|password|pass)['\"]\\s*[,:=]\\s*['\"][A-Za-z0-9+/=]{16,}['\"]"
 
-  # Compression with Encryption
-  - id: gzip-with-crypto
-    desc: Gzip compression with encryption (obfuscated payload)
+  - id: hardcoded-iv-pattern
+    desc: Hardcoded IV in string literal
     crit: suspicious
-    conf: 0.85
+    conf: 0.8
     mbc: "C0027"
-    attack: "T1027"
     for: [javascript, typescript]
     if:
-      type: yara
-      source: |
-        rule compressed_encrypted_payload {
-          strings:
-            $gzip1 = "zlib"
-            $gzip2 = "gzip"
-            $gzip3 = "gunzip"
-            $gzip4 = "inflate"
-            $gzip5 = "deflate"
-            $crypto1 = "createCipheriv"
-            $crypto2 = "createDecipheriv"
-          condition:
-            any of ($gzip*) and any of ($crypto*)
-        }
+      type: string
+      regex: "\\biv\\s*[,:=]\\s*['\"][A-Za-z0-9+/=]{16,}['\"]"
+
+  - id: buffer-from-hex
+    desc: Buffer.from with long hex string (potential key/IV)
+    crit: notable
+    conf: 0.75
+    mbc: "C0027"
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "Buffer\\.from\\s*\\(\\s*['\"][0-9a-fA-F]{32,}['\"]"
+
+  # === Compression micro-traits ===
+  - id: zlib-module
+    desc: zlib compression module
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "zlib"
+
+  - id: gzip-function
+    desc: gzip compression function
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "gzip"
+
+  - id: gunzip-function
+    desc: gunzip decompression function
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "gunzip"
+
+  - id: inflate-function
+    desc: inflate decompression function
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "inflate"
+
+  - id: deflate-function
+    desc: deflate compression function
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "deflate"
 
 composite_rules:
   # Crypto require composite
@@ -184,7 +250,7 @@ composite_rules:
     crit: inert
     conf: 0.9
     for: [javascript, typescript]
-    requires_count: 1
+    count: 1
     any:
       - id: crypto-require-call
       - id: crypto-from-import
@@ -196,7 +262,7 @@ composite_rules:
     conf: 0.85
     mbc: "C0027"
     for: [javascript, typescript]
-    requires_count: 1
+    count: 1
     any:
       - id: aes-128-ctr-dash
       - id: aes128ctr-nodash
@@ -208,7 +274,7 @@ composite_rules:
     conf: 0.85
     mbc: "C0027"
     for: [javascript, typescript]
-    requires_count: 1
+    count: 1
     any:
       - id: aes-256-cbc-dash
       - id: aes256cbc-nodash
@@ -220,7 +286,85 @@ composite_rules:
     conf: 0.85
     mbc: "C0027"
     for: [javascript, typescript]
-    requires_count: 1
+    count: 1
     any:
       - id: aes-256-gcm-dash
       - id: aes256gcm-nodash
+
+  # Cipher creation composite
+  - id: cipher-create
+    desc: Cipher or decipher creation
+    crit: notable
+    conf: 0.85
+    mbc: "C0027"
+    for: [javascript, typescript]
+    count: 1
+    any:
+      - id: createCipheriv
+      - id: createDecipheriv
+
+  # Network request composite
+  - id: http-client
+    desc: HTTP/HTTPS client request capability
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript]
+    count: 1
+    any:
+      - id: https-request
+      - id: http-request
+      - id: fetch-call
+      - id: axios-import
+      - id: dns-resolve-txt
+
+  # Compression library composite
+  - id: compression-lib
+    desc: Compression/decompression library usage
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript]
+    count: 1
+    any:
+      - id: zlib-module
+      - id: gzip-function
+      - id: gunzip-function
+      - id: inflate-function
+      - id: deflate-function
+
+  # Hardcoded crypto key composite
+  - id: hardcoded-key
+    desc: Hardcoded encryption key pattern
+    crit: suspicious
+    conf: 0.8
+    mbc: "C0027"
+    for: [javascript, typescript]
+    count: 1
+    any:
+      - id: hardcoded-key-pattern
+      - id: hardcoded-iv-pattern
+      - id: buffer-from-hex
+
+  # Encrypted C2 channel detection (migrated from YARA)
+  - id: encrypted-c2
+    desc: AES encryption combined with network requests (encrypted C2)
+    crit: suspicious
+    conf: 0.9
+    mbc: "C0027"
+    attack: "T1573"
+    for: [javascript, typescript]
+    all:
+      - id: cipher-create
+      - id: aes-algorithm
+      - id: http-client
+
+  # Compression with encryption (migrated from YARA)
+  - id: gzip-with-crypto
+    desc: Gzip compression with encryption (obfuscated payload)
+    crit: suspicious
+    conf: 0.85
+    mbc: "C0027"
+    attack: "T1027"
+    for: [javascript, typescript]
+    all:
+      - id: compression-lib
+      - id: cipher-create

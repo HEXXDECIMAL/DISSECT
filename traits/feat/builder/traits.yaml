@@ -2,254 +2,633 @@
 # Useful for supply chain analysis and diff context
 
 traits:
-  # CMake build system
+  # === CMake micro-traits ===
+  - id: cmakefiles
+    desc: CMakeFiles directory
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "CMakeFiles"
+
+  - id: cmake-min-required
+    desc: cmake_minimum_required directive
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "cmake_minimum_required"
+
+  - id: cmake-prefix
+    desc: CMAKE_ variable prefix
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      regex: "CMAKE_"
+
+  - id: cmakelists
+    desc: CMakeLists.txt file
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "CMakeLists.txt"
+
+  # === Meson micro-traits ===
+  - id: meson-build
+    desc: meson.build file
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "meson.build"
+
+  - id: meson-options
+    desc: meson_options file
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "meson_options"
+
+  - id: meson-private
+    desc: meson-private directory
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "meson-private"
+
+  # === Bazel micro-traits ===
+  - id: bazel-out
+    desc: bazel-out directory
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "bazel-out"
+
+  - id: workspace-file
+    desc: WORKSPACE file
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "WORKSPACE"
+
+  - id: build-bazel
+    desc: BUILD.bazel file
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "BUILD.bazel"
+
+  - id: bazel-tools
+    desc: "@bazel_tools reference"
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "@bazel_tools"
+
+  # === Autotools micro-traits ===
+  - id: configure-ac
+    desc: configure.ac file
+    crit: benign
+    conf: 0.8
+    if:
+      type: string
+      exact: "configure.ac"
+
+  - id: makefile-am
+    desc: Makefile.am file
+    crit: benign
+    conf: 0.8
+    if:
+      type: string
+      exact: "Makefile.am"
+
+  - id: config-h-in
+    desc: config.h.in file
+    crit: benign
+    conf: 0.8
+    if:
+      type: string
+      exact: "config.h.in"
+
+  - id: package-version
+    desc: PACKAGE_VERSION variable
+    crit: benign
+    conf: 0.8
+    if:
+      type: string
+      exact: "PACKAGE_VERSION"
+
+  - id: ac-init
+    desc: AC_INIT macro
+    crit: benign
+    conf: 0.8
+    if:
+      type: string
+      exact: "AC_INIT"
+
+  # === Cargo micro-traits ===
+  - id: cargo-toml
+    desc: Cargo.toml file
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "Cargo.toml"
+
+  - id: cargo-namespace
+    desc: "cargo:: namespace"
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "cargo::"
+
+  - id: registry-src
+    desc: /registry/src/ path
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "/registry/src/"
+
+  - id: dot-cargo
+    desc: .cargo/ directory
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: ".cargo/"
+
+  # === Go modules micro-traits ===
+  - id: go-mod
+    desc: go.mod file
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "go.mod"
+
+  - id: go-sum
+    desc: go.sum file
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "go.sum"
+
+  - id: go-pkg-mod
+    desc: go/pkg/mod directory
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "go/pkg/mod"
+
+  - id: gopath-env
+    desc: GOPATH environment variable
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "GOPATH"
+
+  # === npm/yarn micro-traits ===
+  - id: package-json
+    desc: package.json file
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "package.json"
+
+  - id: node-modules
+    desc: node_modules directory
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "node_modules"
+
+  - id: package-lock-json
+    desc: package-lock.json file
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "package-lock.json"
+
+  - id: yarn-lock
+    desc: yarn.lock file
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "yarn.lock"
+
+  # === pip/setuptools micro-traits ===
+  - id: setup-py
+    desc: setup.py file
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "setup.py"
+
+  - id: pyproject-toml
+    desc: pyproject.toml file
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "pyproject.toml"
+
+  - id: requirements-txt
+    desc: requirements.txt file
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "requirements.txt"
+
+  - id: site-packages
+    desc: site-packages directory
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "site-packages"
+
+  # === GitHub Actions micro-traits ===
+  - id: github-actions-env
+    desc: GITHUB_ACTIONS environment variable
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "GITHUB_ACTIONS"
+
+  - id: github-run-id
+    desc: GITHUB_RUN_ID environment variable
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "GITHUB_RUN_ID"
+
+  - id: github-sha
+    desc: GITHUB_SHA environment variable
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "GITHUB_SHA"
+
+  - id: actions-checkout
+    desc: actions/checkout action
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "actions/checkout"
+
+  - id: github-workflows
+    desc: .github/workflows directory
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: ".github/workflows"
+
+  # === GitLab CI micro-traits ===
+  - id: ci-pipeline-id
+    desc: CI_PIPELINE_ID variable
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "CI_PIPELINE_ID"
+
+  - id: ci-job-id
+    desc: CI_JOB_ID variable
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "CI_JOB_ID"
+
+  - id: gitlab-ci-env
+    desc: GITLAB_CI variable
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "GITLAB_CI"
+
+  - id: gitlab-ci-yml
+    desc: .gitlab-ci.yml file
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: ".gitlab-ci.yml"
+
+  # === Jenkins micro-traits ===
+  - id: jenkins-url
+    desc: JENKINS_URL variable
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "JENKINS_URL"
+
+  - id: build-number
+    desc: BUILD_NUMBER variable
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "BUILD_NUMBER"
+
+  - id: job-name
+    desc: JOB_NAME variable
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "JOB_NAME"
+
+  - id: jenkinsfile
+    desc: Jenkinsfile
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "Jenkinsfile"
+
+  # === CircleCI micro-traits ===
+  - id: circleci-env
+    desc: CIRCLECI variable
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "CIRCLECI"
+
+  - id: circle-build-num
+    desc: CIRCLE_BUILD_NUM variable
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "CIRCLE_BUILD_NUM"
+
+  - id: circleci-config
+    desc: .circleci/config file
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: ".circleci/config"
+
+  # === Docker micro-traits ===
+  - id: dockerfile
+    desc: Dockerfile
+    crit: benign
+    conf: 0.8
+    if:
+      type: string
+      exact: "Dockerfile"
+
+  - id: docker-env-prefix
+    desc: DOCKER_ environment prefix
+    crit: benign
+    conf: 0.8
+    if:
+      type: string
+      regex: "DOCKER_"
+
+  - id: dockerenv
+    desc: /.dockerenv file
+    crit: benign
+    conf: 0.8
+    if:
+      type: string
+      exact: "/.dockerenv"
+
+  - id: docker-entrypoint
+    desc: /docker-entrypoint path
+    crit: benign
+    conf: 0.8
+    if:
+      type: string
+      exact: "/docker-entrypoint"
+
+  # === Reproducible build micro-traits ===
+  - id: source-date-epoch
+    desc: SOURCE_DATE_EPOCH variable
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "SOURCE_DATE_EPOCH"
+
+  - id: reproducible-string
+    desc: REPRODUCIBLE string
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "REPRODUCIBLE"
+
+  - id: build-id-string
+    desc: build-id string
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "build-id"
+
+  - id: debuglink-string
+    desc: debuglink string
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "debuglink"
+
+composite_rules:
+  # CMake composite (migrated from YARA)
   - id: cmake
-    description: Built with CMake
+    desc: Built with CMake
     crit: benign
     conf: 0.85
-    if:
-      type: yara
-      source: |
-        rule cmake_build {
-          strings:
-            $cmake1 = "CMakeFiles" ascii
-            $cmake2 = "cmake_minimum_required" ascii
-            $cmake3 = "CMAKE_" ascii
-            $cmake4 = "CMakeLists.txt" ascii
-          condition:
-            any of them
-        }
+    count: 1
+    any:
+      - id: cmakefiles
+      - id: cmake-min-required
+      - id: cmake-prefix
+      - id: cmakelists
 
-  # Meson build system
+  # Meson composite (migrated from YARA)
   - id: meson
-    description: Built with Meson
+    desc: Built with Meson
     crit: benign
     conf: 0.85
-    if:
-      type: yara
-      source: |
-        rule meson_build {
-          strings:
-            $meson1 = "meson.build" ascii
-            $meson2 = "meson_options" ascii
-            $meson3 = "meson-private" ascii
-          condition:
-            any of them
-        }
+    count: 1
+    any:
+      - id: meson-build
+      - id: meson-options
+      - id: meson-private
 
-  # Bazel build system
+  # Bazel composite (migrated from YARA)
   - id: bazel
-    description: Built with Bazel
+    desc: Built with Bazel
     crit: benign
     conf: 0.85
-    if:
-      type: yara
-      source: |
-        rule bazel_build {
-          strings:
-            $bazel1 = "bazel-out" ascii
-            $bazel2 = "WORKSPACE" ascii
-            $bazel3 = "BUILD.bazel" ascii
-            $bazel4 = "@bazel_tools" ascii
-          condition:
-            any of them
-        }
+    count: 1
+    any:
+      - id: bazel-out
+      - id: workspace-file
+      - id: build-bazel
+      - id: bazel-tools
 
-  # Autotools build system
+  # Autotools composite (migrated from YARA)
   - id: autotools
-    description: Built with Autotools (autoconf/automake)
+    desc: Built with Autotools (autoconf/automake)
     crit: benign
     conf: 0.8
-    if:
-      type: yara
-      source: |
-        rule autotools_build {
-          strings:
-            $auto1 = "configure.ac" ascii
-            $auto2 = "Makefile.am" ascii
-            $auto3 = "config.h.in" ascii
-            $auto4 = "PACKAGE_VERSION" ascii
-            $auto5 = "AC_INIT" ascii
-          condition:
-            any of them
-        }
+    count: 1
+    any:
+      - id: configure-ac
+      - id: makefile-am
+      - id: config-h-in
+      - id: package-version
+      - id: ac-init
 
-  # Cargo (Rust) build
+  # Cargo composite (migrated from YARA)
   - id: cargo
-    description: Built with Cargo (Rust)
+    desc: Built with Cargo (Rust)
     crit: benign
     conf: 0.9
-    if:
-      type: yara
-      source: |
-        rule cargo_build {
-          strings:
-            $cargo1 = "Cargo.toml" ascii
-            $cargo2 = "cargo::" ascii
-            $cargo3 = "/registry/src/" ascii
-            $cargo4 = ".cargo/" ascii
-          condition:
-            any of them
-        }
+    count: 1
+    any:
+      - id: cargo-toml
+      - id: cargo-namespace
+      - id: registry-src
+      - id: dot-cargo
 
-  # Go modules build
+  # Go modules composite (migrated from YARA)
   - id: go-modules
-    description: Built with Go modules
+    desc: Built with Go modules
     crit: benign
     conf: 0.9
-    if:
-      type: yara
-      source: |
-        rule go_modules {
-          strings:
-            $go1 = "go.mod" ascii
-            $go2 = "go.sum" ascii
-            $go3 = "go/pkg/mod" ascii
-            $go4 = "GOPATH" ascii
-          condition:
-            any of them
-        }
+    count: 1
+    any:
+      - id: go-mod
+      - id: go-sum
+      - id: go-pkg-mod
+      - id: gopath-env
 
-  # npm/yarn build
+  # npm/yarn composite (migrated from YARA)
   - id: npm
-    description: Built with npm/yarn (Node.js)
+    desc: Built with npm/yarn (Node.js)
     crit: benign
     conf: 0.85
-    if:
-      type: yara
-      source: |
-        rule npm_build {
-          strings:
-            $npm1 = "package.json" ascii
-            $npm2 = "node_modules" ascii
-            $npm3 = "package-lock.json" ascii
-            $yarn = "yarn.lock" ascii
-          condition:
-            any of them
-        }
+    count: 1
+    any:
+      - id: package-json
+      - id: node-modules
+      - id: package-lock-json
+      - id: yarn-lock
 
-  # pip/setuptools build
+  # pip/setuptools composite (migrated from YARA)
   - id: pip
-    description: Built with pip/setuptools (Python)
+    desc: Built with pip/setuptools (Python)
     crit: benign
     conf: 0.85
-    if:
-      type: yara
-      source: |
-        rule pip_build {
-          strings:
-            $pip1 = "setup.py" ascii
-            $pip2 = "pyproject.toml" ascii
-            $pip3 = "requirements.txt" ascii
-            $pip4 = "site-packages" ascii
-          condition:
-            any of them
-        }
+    count: 1
+    any:
+      - id: setup-py
+      - id: pyproject-toml
+      - id: requirements-txt
+      - id: site-packages
 
-  # GitHub Actions CI
+  # GitHub Actions composite (migrated from YARA)
   - id: github-actions
-    description: GitHub Actions CI artifacts
+    desc: GitHub Actions CI artifacts
     crit: benign
     conf: 0.9
-    if:
-      type: yara
-      source: |
-        rule github_actions {
-          strings:
-            $gha1 = "GITHUB_ACTIONS" ascii
-            $gha2 = "GITHUB_RUN_ID" ascii
-            $gha3 = "GITHUB_SHA" ascii
-            $gha4 = "actions/checkout" ascii
-            $gha5 = ".github/workflows" ascii
-          condition:
-            any of them
-        }
+    count: 1
+    any:
+      - id: github-actions-env
+      - id: github-run-id
+      - id: github-sha
+      - id: actions-checkout
+      - id: github-workflows
 
-  # GitLab CI
+  # GitLab CI composite (migrated from YARA)
   - id: gitlab-ci
-    description: GitLab CI artifacts
+    desc: GitLab CI artifacts
     crit: benign
     conf: 0.9
-    if:
-      type: yara
-      source: |
-        rule gitlab_ci {
-          strings:
-            $gl1 = "CI_PIPELINE_ID" ascii
-            $gl2 = "CI_JOB_ID" ascii
-            $gl3 = "GITLAB_CI" ascii
-            $gl4 = ".gitlab-ci.yml" ascii
-          condition:
-            any of them
-        }
+    count: 1
+    any:
+      - id: ci-pipeline-id
+      - id: ci-job-id
+      - id: gitlab-ci-env
+      - id: gitlab-ci-yml
 
-  # Jenkins CI
+  # Jenkins composite (migrated from YARA)
   - id: jenkins
-    description: Jenkins CI artifacts
+    desc: Jenkins CI artifacts
     crit: benign
     conf: 0.85
-    if:
-      type: yara
-      source: |
-        rule jenkins_ci {
-          strings:
-            $jenkins1 = "JENKINS_URL" ascii
-            $jenkins2 = "BUILD_NUMBER" ascii
-            $jenkins3 = "JOB_NAME" ascii
-            $jenkins4 = "Jenkinsfile" ascii
-          condition:
-            2 of them
-        }
+    count: 2
+    any:
+      - id: jenkins-url
+      - id: build-number
+      - id: job-name
+      - id: jenkinsfile
 
-  # CircleCI
+  # CircleCI composite (migrated from YARA)
   - id: circleci
-    description: CircleCI artifacts
+    desc: CircleCI artifacts
     crit: benign
     conf: 0.9
-    if:
-      type: yara
-      source: |
-        rule circleci {
-          strings:
-            $ci1 = "CIRCLECI" ascii
-            $ci2 = "CIRCLE_BUILD_NUM" ascii
-            $ci3 = ".circleci/config" ascii
-          condition:
-            any of them
-        }
+    count: 1
+    any:
+      - id: circleci-env
+      - id: circle-build-num
+      - id: circleci-config
 
-  # Docker build
+  # Docker composite (migrated from YARA)
   - id: docker
-    description: Built in Docker container
+    desc: Built in Docker container
     crit: benign
     conf: 0.8
-    if:
-      type: yara
-      source: |
-        rule docker_build {
-          strings:
-            $docker1 = "Dockerfile" ascii
-            $docker2 = "DOCKER_" ascii
-            $docker3 = "/.dockerenv" ascii
-            $docker4 = "/docker-entrypoint" ascii
-          condition:
-            any of them
-        }
+    count: 1
+    any:
+      - id: dockerfile
+      - id: docker-env-prefix
+      - id: dockerenv
+      - id: docker-entrypoint
 
-  # Reproducible build markers
+  # Reproducible build composite (migrated from YARA)
   - id: reproducible
-    description: Reproducible build markers
+    desc: Reproducible build markers
     crit: benign
     conf: 0.85
-    if:
-      type: yara
-      source: |
-        rule reproducible_build {
-          strings:
-            $repr1 = "SOURCE_DATE_EPOCH" ascii
-            $repr2 = "REPRODUCIBLE" ascii
-            $repr3 = "build-id" ascii
-            $repr4 = "debuglink" ascii
-          condition:
-            any of them
-        }
+    count: 1
+    any:
+      - id: source-date-epoch
+      - id: reproducible-string
+      - id: build-id-string
+      - id: debuglink-string

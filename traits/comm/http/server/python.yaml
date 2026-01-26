@@ -2,21 +2,291 @@
 # MBC: C0002 (HTTP Communication)
 # ATT&CK: T1071.001
 
+defaults:
+  attack: "T1071.001"
+  mbc: "C0002"
+
 traits:
+  # === Built-in HTTP server modules ===
+  - id: http-server-module
+    desc: http.server module
+    crit: inert
+    conf: 0.7
+    for: [python]
+    if:
+      type: string
+      exact: "http.server"
+
+  - id: simplehttpserver-module
+    desc: SimpleHTTPServer module (Python 2)
+    crit: inert
+    conf: 0.7
+    for: [python]
+    if:
+      type: string
+      exact: "SimpleHTTPServer"
+
+  - id: basehttpserver-module
+    desc: BaseHTTPServer module (Python 2)
+    crit: inert
+    conf: 0.7
+    for: [python]
+    if:
+      type: string
+      exact: "BaseHTTPServer"
+
+  - id: http-server-import
+    desc: from http.server import
+    crit: inert
+    conf: 0.75
+    for: [python]
+    if:
+      type: string
+      regex: "from\\s+http\\.server\\s+import"
+
+  - id: simplehttpserver-import
+    desc: import SimpleHTTPServer
+    crit: inert
+    conf: 0.75
+    for: [python]
+    if:
+      type: string
+      regex: "import\\s+SimpleHTTPServer"
+
+  - id: httpserver-class
+    desc: HTTPServer class instantiation
+    crit: inert
+    conf: 0.75
+    for: [python]
+    if:
+      type: string
+      regex: "HTTPServer\\s*\\("
+
+  - id: simplehttprequesthandler
+    desc: SimpleHTTPRequestHandler class
+    crit: inert
+    conf: 0.75
+    for: [python]
+    if:
+      type: string
+      exact: "SimpleHTTPRequestHandler"
+
+  # === Flask framework ===
+  - id: flask-import
+    desc: Flask framework import
+    crit: inert
+    conf: 0.7
+    for: [python]
+    if:
+      type: string
+      regex: "from\\s+flask\\s+import\\s+Flask"
+
+  - id: flask-instantiation
+    desc: Flask app instantiation
+    crit: inert
+    conf: 0.8
+    for: [python]
+    if:
+      type: string
+      regex: "Flask\\s*\\(\\s*__name__\\s*\\)"
+
+  - id: flask-run-call
+    desc: Flask app.run() call
+    crit: inert
+    conf: 0.8
+    for: [python]
+    if:
+      type: string
+      regex: "\\.run\\s*\\("
+
+  - id: flask-route-decorator
+    desc: Flask @app.route decorator
+    crit: inert
+    conf: 0.75
+    for: [python]
+    if:
+      type: string
+      regex: "@app\\.route\\s*\\("
+
+  # === Django framework ===
+  - id: django-import
+    desc: Django framework import
+    crit: inert
+    conf: 0.7
+    for: [python]
+    if:
+      type: string
+      regex: "from\\s+django"
+
+  - id: django-wsgi
+    desc: Django WSGI application
+    crit: inert
+    conf: 0.75
+    for: [python]
+    if:
+      type: string
+      exact: "django.core.wsgi"
+
+  - id: django-runserver
+    desc: Django runserver command
+    crit: inert
+    conf: 0.75
+    for: [python]
+    if:
+      type: string
+      exact: "runserver"
+
+  # === FastAPI framework ===
+  - id: fastapi-import
+    desc: FastAPI framework import
+    crit: inert
+    conf: 0.7
+    for: [python]
+    if:
+      type: string
+      regex: "from\\s+fastapi\\s+import"
+
+  - id: fastapi-instantiation
+    desc: FastAPI app instantiation
+    crit: inert
+    conf: 0.75
+    for: [python]
+    if:
+      type: string
+      regex: "FastAPI\\s*\\("
+
+  # === Tornado framework ===
+  - id: tornado-import
+    desc: Tornado framework import
+    crit: inert
+    conf: 0.7
+    for: [python]
+    if:
+      type: string
+      regex: "import\\s+tornado"
+
+  - id: tornado-application
+    desc: Tornado Application class
+    crit: inert
+    conf: 0.75
+    for: [python]
+    if:
+      type: string
+      regex: "tornado\\.web\\.Application"
+
+  # === Bottle framework ===
+  - id: bottle-import
+    desc: Bottle framework import
+    crit: inert
+    conf: 0.7
+    for: [python]
+    if:
+      type: string
+      regex: "from\\s+bottle\\s+import"
+
+  - id: bottle-route-decorator
+    desc: Bottle @route decorator
+    crit: inert
+    conf: 0.75
+    for: [python]
+    if:
+      type: string
+      regex: "@route\\s*\\("
+
+  # === WSGI/ASGI servers ===
+  - id: gunicorn-import
+    desc: Gunicorn WSGI server import
+    crit: inert
+    conf: 0.7
+    for: [python]
+    if:
+      type: string
+      exact: "gunicorn"
+
+  - id: uvicorn-import
+    desc: Uvicorn ASGI server import
+    crit: inert
+    conf: 0.7
+    for: [python]
+    if:
+      type: string
+      exact: "uvicorn"
+
+  - id: wsgiref-module
+    desc: wsgiref module (built-in WSGI)
+    crit: inert
+    conf: 0.7
+    for: [python]
+    if:
+      type: string
+      exact: "wsgiref"
+
+composite_rules:
+  # Helper composites
+  - id: builtin-http-server
+    description: Built-in Python HTTP server modules
+    for: [python]
+    any:
+      - {id: http-server-module}
+      - {id: simplehttpserver-module}
+      - {id: basehttpserver-module}
+      - {id: http-server-import}
+      - {id: simplehttpserver-import}
+      - {id: httpserver-class}
+      - {id: simplehttprequesthandler}
+
+  - id: flask-framework
+    description: Flask web framework usage
+    for: [python]
+    count: 2
+    any:
+      - {id: flask-import}
+      - {id: flask-instantiation}
+      - {id: flask-run-call}
+      - {id: flask-route-decorator}
+
+  - id: django-framework
+    description: Django web framework usage
+    for: [python]
+    any:
+      - {id: django-import}
+      - {id: django-wsgi}
+      - {id: django-runserver}
+
+  - id: fastapi-framework
+    description: FastAPI framework usage
+    for: [python]
+    any:
+      - {id: fastapi-import}
+      - {id: fastapi-instantiation}
+
+  - id: other-frameworks
+    description: Other Python web frameworks
+    for: [python]
+    any:
+      - {id: tornado-import}
+      - {id: tornado-application}
+      - {id: bottle-import}
+      - {id: bottle-route-decorator}
+
+  - id: wsgi-asgi-servers
+    description: WSGI/ASGI server usage
+    for: [python]
+    any:
+      - {id: gunicorn-import}
+      - {id: uvicorn-import}
+      - {id: wsgiref-module}
+
+  # Main composite (matches original YARA behavior)
   - id: server-python
     desc: Python HTTP server
     crit: notable
-    conf: 0.66
-    mbc: "C0002"
-    attack: "T1071.001"
-    if:
-      type: yara
-      source: |
-        rule python_http_server {
-          strings:
-            $http_server = "http.server"
-            $simple_http = "SimpleHTTPServer"
-            $flask = "Flask(__name__)"
-          condition:
-            any of them
-        }
+    conf: 0.75
+    for: [python]
+    any:
+      - {id: builtin-http-server}
+      - {id: flask-framework}
+      - {id: django-framework}
+      - {id: fastapi-framework}
+      - {id: other-frameworks}
+      - {id: wsgi-asgi-servers}

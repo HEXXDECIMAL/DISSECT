@@ -1,27 +1,137 @@
 # PAM Credential Interception
 # ATT&CK: T1556.003 (Modify Authentication Process: Pluggable Authentication Modules)
 
+defaults:
+  attack: "T1556.003"
+
 traits:
+  # === PAM library (strings - library names) ===
+  - id: libpam-so
+    desc: libpam.so library
+    crit: inert
+    conf: 0.7
+    for: [c, cpp, elf, so]
+    if:
+      type: string
+      exact: "libpam.so"
+
+  - id: libpam-so-versioned
+    desc: libpam.so.0 versioned library
+    crit: inert
+    conf: 0.7
+    for: [c, cpp, elf, so]
+    if:
+      type: string
+      regex: "libpam\\.so\\.\\d+"
+
+  # === Token access functions (symbols) ===
+  - id: pam-get-item
+    desc: pam_get_item function
+    crit: inert
+    conf: 0.75
+    for: [elf, so]
+    if:
+      type: symbol
+      exact: "pam_get_item"
+
+  - id: pam-set-item
+    desc: pam_set_item function
+    crit: inert
+    conf: 0.75
+    for: [elf, so]
+    if:
+      type: symbol
+      exact: "pam_set_item"
+
+  - id: pam-get-authtok
+    desc: pam_get_authtok function
+    crit: inert
+    conf: 0.8
+    for: [elf, so]
+    if:
+      type: symbol
+      exact: "pam_get_authtok"
+
+  - id: pam-authtok-constant
+    desc: PAM_AUTHTOK constant
+    crit: inert
+    conf: 0.75
+    for: [c, cpp, elf, so]
+    if:
+      type: string
+      exact: "PAM_AUTHTOK"
+
+  # === Authentication functions (symbols) ===
+  - id: pam-authenticate
+    desc: pam_authenticate function
+    crit: inert
+    conf: 0.7
+    for: [elf, so]
+    if:
+      type: symbol
+      exact: "pam_authenticate"
+
+  - id: pam-open-session
+    desc: pam_open_session function
+    crit: inert
+    conf: 0.7
+    for: [elf, so]
+    if:
+      type: symbol
+      exact: "pam_open_session"
+
+  - id: pam-acct-mgmt
+    desc: pam_acct_mgmt function
+    crit: inert
+    conf: 0.7
+    for: [elf, so]
+    if:
+      type: symbol
+      exact: "pam_acct_mgmt"
+
+  - id: pam-setcred
+    desc: pam_setcred function
+    crit: inert
+    conf: 0.7
+    for: [elf, so]
+    if:
+      type: symbol
+      exact: "pam_setcred"
+
+composite_rules:
+  # Helper composites
+  - id: pam-library
+    description: PAM library references
+    for: [c, cpp, elf, so]
+    any:
+      - {id: libpam-so}
+      - {id: libpam-so-versioned}
+
+  - id: pam-token-access
+    description: PAM token access functions
+    for: [c, cpp, elf, so]
+    any:
+      - {id: pam-get-item}
+      - {id: pam-set-item}
+      - {id: pam-get-authtok}
+      - {id: pam-authtok-constant}
+
+  - id: pam-auth-functions
+    description: PAM authentication functions
+    for: [c, cpp, elf, so]
+    any:
+      - {id: pam-authenticate}
+      - {id: pam-open-session}
+      - {id: pam-acct-mgmt}
+      - {id: pam-setcred}
+
+  # Migrated from YARA
   - id: interceptor
-    desc: "Accesses PAM authentication tokens (potential credential stealer)"
+    desc: Accesses PAM authentication tokens (potential credential stealer)
     crit: suspicious
     conf: 0.8
-    attack: "T1556.003"
-    if:
-      type: yara
-      source: |
-        rule pam_interceptor {
-          strings:
-            $lib = "libpam.so" ascii
-            
-            // Critical: Accessing the auth token (password)
-            $get = "pam_get_item" ascii
-            $set = "pam_set_item" ascii
-            
-            // Context: Auth functions
-            $auth = "pam_authenticate" ascii
-            $sess = "pam_open_session" ascii
-            
-          condition:
-            $lib and ($get or $set) and ($auth or $sess)
-        }
+    for: [c, cpp, elf, so]
+    all:
+      - {id: pam-library}
+      - {id: pam-token-access}
+      - {id: pam-auth-functions}

@@ -78,68 +78,98 @@ traits:
       type: string
       exact: "dns/promises"
 
-  # DNS Tunneling Patterns
-  - id: subdomain-encoding
-    desc: Subdomain-based data encoding pattern
-    crit: suspicious
-    conf: 0.85
-    mbc: "C0002"
-    attack: "T1048"
+  # === DNS tunneling micro-traits ===
+  - id: domain-pattern
+    desc: Domain suffix pattern (.com/.net/.org/.io)
+    crit: inert
+    conf: 0.3
     for: [javascript, typescript]
     if:
-      type: yara
-      source: |
-        rule dns_subdomain_encoding {
-          strings:
-            $encode1 = /\.\w+\.(com|net|org|io)/
-            $dns = "resolveTxt" nocase
-            $split = ".split"
-            $join = ".join"
-          condition:
-            $encode1 and $dns and ($split or $join)
-        }
+      type: string
+      regex: '\.\w+\.(com|net|org|io)'
 
-  - id: dns-with-crypto
-    desc: DNS combined with encryption (encrypted C2 channel)
-    crit: suspicious
-    conf: 0.9
-    mbc: "C0002"
-    attack: "T1573"
+  - id: split-method
+    desc: .split method call
+    crit: inert
+    conf: 0.3
     for: [javascript, typescript]
     if:
-      type: yara
-      source: |
-        rule dns_encrypted_c2 {
-          strings:
-            $dns1 = "resolveTxt"
-            $dns2 = "dns.resolve"
-            $crypto1 = "createCipheriv"
-            $crypto2 = "createDecipheriv"
-            $crypto3 = "aes-128"
-            $crypto4 = "aes-256"
-          condition:
-            any of ($dns*) and any of ($crypto*)
-        }
+      type: string
+      exact: ".split"
 
-  - id: dns-polling-loop
-    desc: DNS polling loop (C2 beacon pattern)
-    crit: suspicious
-    conf: 0.85
-    mbc: "C0002"
-    attack: "T1071.004"
+  - id: join-method
+    desc: .join method call
+    crit: inert
+    conf: 0.3
     for: [javascript, typescript]
     if:
-      type: yara
-      source: |
-        rule dns_polling {
-          strings:
-            $dns = "resolveTxt"
-            $interval1 = "setInterval"
-            $interval2 = "setTimeout"
-            $loop = "while"
-          condition:
-            $dns and any of ($interval*, $loop)
-        }
+      type: string
+      exact: ".join"
+
+  # === Crypto micro-traits ===
+  - id: createCipheriv-call
+    desc: createCipheriv function call
+    crit: notable
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "createCipheriv"
+
+  - id: createDecipheriv-call
+    desc: createDecipheriv function call
+    crit: notable
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "createDecipheriv"
+
+  - id: aes-128-ref
+    desc: AES-128 cipher reference
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "aes-128"
+
+  - id: aes-256-ref
+    desc: AES-256 cipher reference
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "aes-256"
+
+  # === Polling/loop micro-traits ===
+  - id: setInterval-call
+    desc: setInterval function call
+    crit: inert
+    conf: 0.3
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "setInterval"
+
+  - id: setTimeout-call
+    desc: setTimeout function call
+    crit: inert
+    conf: 0.3
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "setTimeout"
+
+  - id: while-loop
+    desc: while loop keyword
+    crit: inert
+    conf: 0.2
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "while"
 
 composite_rules:
   - id: dns-resolve
@@ -166,3 +196,76 @@ composite_rules:
       - id: resolveTxt-call
       - id: txt-record-single-quote
       - id: txt-record-double-quote
+
+  # String manipulation composite
+  - id: string-manipulation
+    desc: String split/join manipulation
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript]
+    count: 1
+    any:
+      - id: split-method
+      - id: join-method
+
+  # Subdomain encoding (migrated from YARA)
+  - id: subdomain-encoding
+    desc: Subdomain-based data encoding pattern
+    crit: suspicious
+    conf: 0.85
+    mbc: "C0002"
+    attack: "T1048"
+    for: [javascript, typescript]
+    all:
+      - id: domain-pattern
+      - id: dns-resolve-txt
+      - id: string-manipulation
+
+  # Crypto composite
+  - id: crypto-cipher
+    desc: Cryptographic cipher operations
+    crit: notable
+    conf: 0.6
+    for: [javascript, typescript]
+    count: 1
+    any:
+      - id: createCipheriv-call
+      - id: createDecipheriv-call
+      - id: aes-128-ref
+      - id: aes-256-ref
+
+  # DNS with crypto (migrated from YARA)
+  - id: dns-with-crypto
+    desc: DNS combined with encryption (encrypted C2 channel)
+    crit: suspicious
+    conf: 0.9
+    mbc: "C0002"
+    attack: "T1573"
+    for: [javascript, typescript]
+    all:
+      - id: dns-resolve-txt
+      - id: crypto-cipher
+
+  # Polling composite
+  - id: polling-pattern
+    desc: Polling/interval pattern
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript]
+    count: 1
+    any:
+      - id: setInterval-call
+      - id: setTimeout-call
+      - id: while-loop
+
+  # DNS polling loop (migrated from YARA)
+  - id: dns-polling-loop
+    desc: DNS polling loop (C2 beacon pattern)
+    crit: suspicious
+    conf: 0.85
+    mbc: "C0002"
+    attack: "T1071.004"
+    for: [javascript, typescript]
+    all:
+      - id: dns-resolve-txt
+      - id: polling-pattern

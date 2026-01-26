@@ -2,236 +2,586 @@
 # Useful for ML features and build provenance analysis
 
 traits:
-  # GCC compiler
-  - id: gcc
-    description: Compiled with GCC
+  # === GCC micro-traits ===
+  - id: gcc-comment
+    desc: "GCC: comment string"
     crit: benign
     conf: 0.9
     if:
-      type: yara
-      source: |
-        rule gcc_compiler {
-          strings:
-            $gcc1 = "GCC:" ascii
-            $gcc2 = "gcc-" ascii
-            $gcc3 = "GNU C" ascii
-            $gcc4 = "__GNUC__" ascii
-            $gcc5 = "libgcc" ascii
-          condition:
-            any of them
-        }
+      type: string
+      exact: "GCC:"
 
-  # Clang/LLVM compiler
-  - id: clang
-    description: Compiled with Clang/LLVM
-    crit: benign
-    conf: 0.9
-    if:
-      type: yara
-      source: |
-        rule clang_compiler {
-          strings:
-            $clang1 = "clang" ascii
-            $clang2 = "LLVM" ascii
-            $clang3 = "__clang__" ascii
-            $clang4 = "libLLVM" ascii
-          condition:
-            any of them
-        }
-
-  # MSVC compiler
-  - id: msvc
-    description: Compiled with Microsoft Visual C++
-    crit: benign
-    conf: 0.9
-    if:
-      type: yara
-      source: |
-        rule msvc_compiler {
-          strings:
-            $msvc1 = "MSVC" ascii
-            $msvc2 = "_MSC_VER" ascii
-            $msvc3 = "vcruntime" ascii wide
-            $msvc4 = "Microsoft Visual" ascii
-            $msvc5 = "VCRUNTIME" ascii wide
-          condition:
-            any of them
-        }
-
-  # Intel compiler
-  - id: intel
-    description: Compiled with Intel compiler
-    crit: benign
-    conf: 0.9
-    if:
-      type: yara
-      source: |
-        rule intel_compiler {
-          strings:
-            $intel1 = "Intel(R)" ascii
-            $intel2 = "__INTEL_COMPILER" ascii
-            $intel3 = "icc" ascii
-            $intel4 = "libiomp" ascii
-          condition:
-            any of them
-        }
-
-  # musl libc (Alpine, static builds)
-  - id: musl
-    description: Linked with musl libc
-    crit: benign
-    conf: 0.9
-    if:
-      type: yara
-      source: |
-        rule musl_libc {
-          strings:
-            $musl1 = "musl libc" ascii
-            $musl2 = "musl-" ascii
-            $musl3 = "__musl__" ascii
-          condition:
-            any of them
-        }
-
-  # Static linking indicator
-  - id: static-linked
-    description: Statically linked binary
+  - id: gcc-prefix
+    desc: gcc- prefix
     crit: benign
     conf: 0.8
     if:
-      type: yara
-      source: |
-        rule static_linked {
-          strings:
-            $static1 = "statically linked" ascii
-            $interp = "/lib/ld-linux" ascii
-            $interp2 = "/lib64/ld-linux" ascii
-          condition:
-            $static1 or (not $interp and not $interp2)
-        }
+      type: string
+      exact: "gcc-"
 
-  # Debug symbols present
-  - id: debug-symbols
-    description: Binary contains debug symbols
-    crit: benign
-    conf: 0.85
-    if:
-      type: yara
-      source: |
-        rule debug_symbols {
-          strings:
-            $dwarf1 = ".debug_info" ascii
-            $dwarf2 = ".debug_line" ascii
-            $dwarf3 = ".debug_str" ascii
-            $stab1 = ".stab" ascii
-            $stab2 = ".stabstr" ascii
-          condition:
-            any of ($dwarf*) or all of ($stab*)
-        }
-
-  # LTO (Link Time Optimization) used
-  - id: lto
-    description: Link Time Optimization enabled
-    crit: benign
-    conf: 0.8
-    if:
-      type: yara
-      source: |
-        rule lto_enabled {
-          strings:
-            $lto1 = ".llvmbc" ascii
-            $lto2 = ".llvmlto" ascii
-            $lto3 = "LTO" ascii
-            $lto4 = "-flto" ascii
-          condition:
-            any of them
-        }
-
-  # Position Independent Executable
-  - id: pie
-    description: Position Independent Executable (PIE)
-    crit: benign
-    conf: 0.85
-    if:
-      type: yara
-      source: |
-        rule pie_binary {
-          strings:
-            $pie1 = "__pie__" ascii
-            $pie2 = "-fPIE" ascii
-            $got = ".got.plt" ascii
-          condition:
-            any of ($pie*) or $got
-        }
-
-  # Stack protector enabled
-  - id: stack-protector
-    description: Stack protector/canary enabled
+  - id: gnu-c
+    desc: GNU C string
     crit: benign
     conf: 0.9
     if:
-      type: yara
-      source: |
-        rule stack_protector {
-          strings:
-            $ssp1 = "__stack_chk_fail" ascii
-            $ssp2 = "__stack_chk_guard" ascii
-            $ssp3 = "-fstack-protector" ascii
-          condition:
-            any of them
-        }
+      type: string
+      exact: "GNU C"
 
-  # FORTIFY_SOURCE enabled
-  - id: fortify
-    description: FORTIFY_SOURCE hardening enabled
+  - id: gnuc-macro
+    desc: __GNUC__ macro
     crit: benign
-    conf: 0.85
+    conf: 0.9
     if:
-      type: yara
-      source: |
-        rule fortify_source {
-          strings:
-            $fort1 = "__fortify_fail" ascii
-            $fort2 = "__chk_fail" ascii
-            $fort3 = "_chk@" ascii
-            $fort4 = "__memcpy_chk" ascii
-            $fort5 = "__strcpy_chk" ascii
-          condition:
-            any of them
-        }
+      type: string
+      exact: "__GNUC__"
 
-  # RELRO enabled
-  - id: relro
-    description: RELRO hardening enabled
+  - id: libgcc
+    desc: libgcc library
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "libgcc"
+
+  # === Clang micro-traits ===
+  - id: clang-string
+    desc: clang string
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "clang"
+
+  - id: llvm-string
+    desc: LLVM string
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "LLVM"
+
+  - id: clang-macro
+    desc: __clang__ macro
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "__clang__"
+
+  - id: libllvm
+    desc: libLLVM library
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "libLLVM"
+
+  # === MSVC micro-traits ===
+  - id: msvc-string
+    desc: MSVC string
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "MSVC"
+
+  - id: msc-ver
+    desc: _MSC_VER macro
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "_MSC_VER"
+
+  - id: vcruntime
+    desc: vcruntime library
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      regex: "(?i)vcruntime"
+
+  - id: ms-visual
+    desc: Microsoft Visual string
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "Microsoft Visual"
+
+  # === Intel micro-traits ===
+  - id: intel-r
+    desc: Intel(R) string
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "Intel(R)"
+
+  - id: intel-compiler
+    desc: __INTEL_COMPILER macro
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "__INTEL_COMPILER"
+
+  - id: icc-string
+    desc: icc compiler string
     crit: benign
     conf: 0.8
     if:
-      type: yara
-      source: |
-        rule relro_enabled {
-          strings:
-            $relro1 = "GNU_RELRO" ascii
-            $relro2 = ".got" ascii
-          condition:
-            $relro1 or $relro2
-        }
+      type: string
+      exact: "icc"
 
-  # Cross-compilation indicator
-  - id: cross-compiled
-    description: Cross-compiled binary (different target arch)
+  - id: libiomp
+    desc: libiomp OpenMP library
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "libiomp"
+
+  # === musl micro-traits ===
+  - id: musl-libc
+    desc: musl libc string
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "musl libc"
+
+  - id: musl-prefix
+    desc: musl- prefix
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "musl-"
+
+  - id: musl-macro
+    desc: __musl__ macro
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "__musl__"
+
+  # === Static linking micro-traits ===
+  - id: statically-linked
+    desc: statically linked string
+    crit: benign
+    conf: 0.8
+    if:
+      type: string
+      exact: "statically linked"
+
+  - id: ld-linux-interp
+    desc: /lib/ld-linux interpreter
+    crit: benign
+    conf: 0.7
+    if:
+      type: string
+      regex: "/lib6?4?/ld-linux"
+
+  # === Debug symbols micro-traits ===
+  - id: debug-info-section
+    desc: .debug_info section
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: ".debug_info"
+
+  - id: debug-line-section
+    desc: .debug_line section
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: ".debug_line"
+
+  - id: debug-str-section
+    desc: .debug_str section
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: ".debug_str"
+
+  - id: stab-section
+    desc: .stab section
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: ".stab"
+
+  - id: stabstr-section
+    desc: .stabstr section
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: ".stabstr"
+
+  # === LTO micro-traits ===
+  - id: llvmbc-section
+    desc: .llvmbc section
+    crit: benign
+    conf: 0.8
+    if:
+      type: string
+      exact: ".llvmbc"
+
+  - id: llvmlto-section
+    desc: .llvmlto section
+    crit: benign
+    conf: 0.8
+    if:
+      type: string
+      exact: ".llvmlto"
+
+  - id: lto-string
+    desc: LTO string
+    crit: benign
+    conf: 0.7
+    if:
+      type: string
+      exact: "LTO"
+
+  - id: flto-flag
+    desc: -flto flag
+    crit: benign
+    conf: 0.8
+    if:
+      type: string
+      exact: "-flto"
+
+  # === PIE micro-traits ===
+  - id: pie-macro
+    desc: __pie__ macro
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "__pie__"
+
+  - id: fpie-flag
+    desc: -fPIE flag
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "-fPIE"
+
+  - id: got-plt-section
+    desc: .got.plt section
+    crit: benign
+    conf: 0.7
+    if:
+      type: string
+      exact: ".got.plt"
+
+  # === Stack protector micro-traits ===
+  - id: stack-chk-fail
+    desc: __stack_chk_fail function
+    crit: benign
+    conf: 0.9
+    if:
+      type: symbol
+      pattern: "__stack_chk_fail"
+
+  - id: stack-chk-guard
+    desc: __stack_chk_guard
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "__stack_chk_guard"
+
+  - id: fstack-protector
+    desc: -fstack-protector flag
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "-fstack-protector"
+
+  # === FORTIFY_SOURCE micro-traits ===
+  - id: fortify-fail
+    desc: __fortify_fail function
+    crit: benign
+    conf: 0.85
+    if:
+      type: symbol
+      pattern: "__fortify_fail"
+
+  - id: chk-fail
+    desc: __chk_fail function
+    crit: benign
+    conf: 0.85
+    if:
+      type: symbol
+      pattern: "__chk_fail"
+
+  - id: chk-suffix
+    desc: _chk@ function suffix
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "_chk@"
+
+  - id: memcpy-chk
+    desc: __memcpy_chk function
+    crit: benign
+    conf: 0.85
+    if:
+      type: symbol
+      pattern: "__memcpy_chk"
+
+  - id: strcpy-chk
+    desc: __strcpy_chk function
+    crit: benign
+    conf: 0.85
+    if:
+      type: symbol
+      pattern: "__strcpy_chk"
+
+  # === RELRO micro-traits ===
+  - id: gnu-relro
+    desc: GNU_RELRO string
+    crit: benign
+    conf: 0.8
+    if:
+      type: string
+      exact: "GNU_RELRO"
+
+  - id: got-section
+    desc: .got section
+    crit: benign
+    conf: 0.7
+    if:
+      type: string
+      exact: ".got"
+
+  # === Cross-compilation micro-traits ===
+  - id: arm-linux-gnu
+    desc: arm-linux-gnu cross compiler
     crit: notable
     conf: 0.75
     if:
-      type: yara
-      source: |
-        rule cross_compiled {
-          strings:
-            $cross1 = "arm-linux-gnu" ascii
-            $cross2 = "aarch64-linux-gnu" ascii
-            $cross3 = "mips-linux-gnu" ascii
-            $cross4 = "powerpc-linux-gnu" ascii
-            $cross5 = "x86_64-linux-musl" ascii
-            $cross6 = "-cross" ascii
-          condition:
-            any of them
-        }
+      type: string
+      exact: "arm-linux-gnu"
+
+  - id: aarch64-linux-gnu
+    desc: aarch64-linux-gnu cross compiler
+    crit: notable
+    conf: 0.75
+    if:
+      type: string
+      exact: "aarch64-linux-gnu"
+
+  - id: mips-linux-gnu
+    desc: mips-linux-gnu cross compiler
+    crit: notable
+    conf: 0.75
+    if:
+      type: string
+      exact: "mips-linux-gnu"
+
+  - id: powerpc-linux-gnu
+    desc: powerpc-linux-gnu cross compiler
+    crit: notable
+    conf: 0.75
+    if:
+      type: string
+      exact: "powerpc-linux-gnu"
+
+  - id: x86-64-linux-musl
+    desc: x86_64-linux-musl cross compiler
+    crit: notable
+    conf: 0.75
+    if:
+      type: string
+      exact: "x86_64-linux-musl"
+
+  - id: cross-suffix
+    desc: -cross suffix
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      exact: "-cross"
+
+composite_rules:
+  # GCC composite (migrated from YARA)
+  - id: gcc
+    desc: Compiled with GCC
+    crit: benign
+    conf: 0.9
+    count: 1
+    any:
+      - id: gcc-comment
+      - id: gcc-prefix
+      - id: gnu-c
+      - id: gnuc-macro
+      - id: libgcc
+
+  # Clang composite (migrated from YARA)
+  - id: clang
+    desc: Compiled with Clang/LLVM
+    crit: benign
+    conf: 0.9
+    count: 1
+    any:
+      - id: clang-string
+      - id: llvm-string
+      - id: clang-macro
+      - id: libllvm
+
+  # MSVC composite (migrated from YARA)
+  - id: msvc
+    desc: Compiled with Microsoft Visual C++
+    crit: benign
+    conf: 0.9
+    count: 1
+    any:
+      - id: msvc-string
+      - id: msc-ver
+      - id: vcruntime
+      - id: ms-visual
+
+  # Intel composite (migrated from YARA)
+  - id: intel
+    desc: Compiled with Intel compiler
+    crit: benign
+    conf: 0.9
+    count: 1
+    any:
+      - id: intel-r
+      - id: intel-compiler
+      - id: icc-string
+      - id: libiomp
+
+  # musl composite (migrated from YARA)
+  - id: musl
+    desc: Linked with musl libc
+    crit: benign
+    conf: 0.9
+    count: 1
+    any:
+      - id: musl-libc
+      - id: musl-prefix
+      - id: musl-macro
+
+  # Static linking composite (migrated from YARA)
+  - id: static-linked
+    desc: Statically linked binary
+    crit: benign
+    conf: 0.8
+    count: 1
+    any:
+      - id: statically-linked
+
+  # Debug symbols composite (migrated from YARA)
+  - id: debug-symbols
+    desc: Binary contains debug symbols
+    crit: benign
+    conf: 0.85
+    count: 1
+    any:
+      - id: dwarf-debug
+      - id: stab-debug
+
+  # Helper: DWARF debug info
+  - id: dwarf-debug
+    desc: DWARF debug sections
+    crit: benign
+    conf: 0.85
+    count: 1
+    any:
+      - id: debug-info-section
+      - id: debug-line-section
+      - id: debug-str-section
+
+  # Helper: STAB debug info
+  - id: stab-debug
+    desc: STAB debug sections
+    crit: benign
+    conf: 0.85
+    all:
+      - id: stab-section
+      - id: stabstr-section
+
+  # LTO composite (migrated from YARA)
+  - id: lto
+    desc: Link Time Optimization enabled
+    crit: benign
+    conf: 0.8
+    count: 1
+    any:
+      - id: llvmbc-section
+      - id: llvmlto-section
+      - id: lto-string
+      - id: flto-flag
+
+  # PIE composite (migrated from YARA)
+  - id: pie
+    desc: Position Independent Executable (PIE)
+    crit: benign
+    conf: 0.85
+    count: 1
+    any:
+      - id: pie-macro
+      - id: fpie-flag
+      - id: got-plt-section
+
+  # Stack protector composite (migrated from YARA)
+  - id: stack-protector
+    desc: Stack protector/canary enabled
+    crit: benign
+    conf: 0.9
+    count: 1
+    any:
+      - id: stack-chk-fail
+      - id: stack-chk-guard
+      - id: fstack-protector
+
+  # FORTIFY_SOURCE composite (migrated from YARA)
+  - id: fortify
+    desc: FORTIFY_SOURCE hardening enabled
+    crit: benign
+    conf: 0.85
+    count: 1
+    any:
+      - id: fortify-fail
+      - id: chk-fail
+      - id: chk-suffix
+      - id: memcpy-chk
+      - id: strcpy-chk
+
+  # RELRO composite (migrated from YARA)
+  - id: relro
+    desc: RELRO hardening enabled
+    crit: benign
+    conf: 0.8
+    count: 1
+    any:
+      - id: gnu-relro
+      - id: got-section
+
+  # Cross-compilation composite (migrated from YARA)
+  - id: cross-compiled
+    desc: Cross-compiled binary (different target arch)
+    crit: notable
+    conf: 0.75
+    count: 1
+    any:
+      - id: arm-linux-gnu
+      - id: aarch64-linux-gnu
+      - id: mips-linux-gnu
+      - id: powerpc-linux-gnu
+      - id: x86-64-linux-musl
+      - id: cross-suffix

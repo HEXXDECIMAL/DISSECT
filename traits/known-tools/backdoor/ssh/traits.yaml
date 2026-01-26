@@ -5,108 +5,152 @@ defaults:
   file_types: [elf, macho, so, dylib]
 
 traits:
-  # SSH backdoor generic
+  # === SSH backdoor-SPECIFIC markers (ONLY these belong here) ===
+  - id: backdoor/ssh/sshdoor-word
+    desc: sshdoor backdoor name
+    crit: suspicious
+    conf: 0.9
+    condition:
+      type: string
+      word: "sshdoor"
+
+  - id: backdoor/ssh/sshkit-word
+    desc: sshkit backdoor toolkit name
+    crit: suspicious
+    conf: 0.9
+    condition:
+      type: string
+      word: "sshkit"
+
+  - id: backdoor/ssh/master-password
+    desc: master_password hardcoded credential
+    crit: suspicious
+    conf: 0.9
+    condition:
+      type: string
+      exact: "master_password"
+
+  - id: backdoor/ssh/backdoor-pass
+    desc: backdoor_pass hardcoded credential
+    crit: suspicious
+    conf: 0.9
+    condition:
+      type: string
+      exact: "backdoor_pass"
+
+  - id: backdoor/ssh/magic-password
+    desc: magic_password hardcoded credential
+    crit: suspicious
+    conf: 0.9
+    condition:
+      type: string
+      exact: "magic_password"
+
+  - id: backdoor/ssh/auth-bypass
+    desc: auth_bypass function marker
+    crit: suspicious
+    conf: 0.9
+    condition:
+      type: string
+      exact: "auth_bypass"
+
+  - id: backdoor/ssh/skip-auth
+    desc: skip_auth function marker
+    crit: suspicious
+    conf: 0.9
+    condition:
+      type: string
+      exact: "skip_auth"
+
+  - id: backdoor/ssh/password-log
+    desc: password_log credential logging
+    crit: suspicious
+    conf: 0.85
+    condition:
+      type: string
+      exact: "password_log"
+
+  - id: backdoor/ssh/cred-log
+    desc: cred_log credential logging
+    crit: suspicious
+    conf: 0.85
+    condition:
+      type: string
+      exact: "cred_log"
+
+composite_rules:
+  # === Helper composites ===
+  - id: ssh-backdoor-names
+    desc: SSH backdoor family names
+    any:
+      - type: trait
+        id: backdoor/ssh/sshdoor-word
+      - type: trait
+        id: backdoor/ssh/sshkit-word
+
+  - id: ssh-hardcoded-creds
+    desc: Hardcoded SSH credential strings
+    any:
+      - type: trait
+        id: backdoor/ssh/master-password
+      - type: trait
+        id: backdoor/ssh/backdoor-pass
+      - type: trait
+        id: backdoor/ssh/magic-password
+
+  - id: ssh-auth-bypass
+    desc: SSH auth bypass markers
+    any:
+      - type: trait
+        id: backdoor/ssh/auth-bypass
+      - type: trait
+        id: backdoor/ssh/skip-auth
+
+  - id: ssh-cred-logging
+    desc: SSH credential logging
+    any:
+      - type: trait
+        id: backdoor/ssh/password-log
+      - type: trait
+        id: backdoor/ssh/cred-log
+
+  # === Detection rules ===
   - id: backdoor/ssh/generic
     description: SSH backdoor patterns
     crit: suspicious
     conf: 0.85
     attack: "T1556.004"
-    condition:
-      type: yara
-      source: |
-        rule ssh_backdoor {
-          strings:
-            $sshd = "sshd" ascii fullword
-            // Backdoored sshd markers
-            $bd1 = "backdoor" ascii nocase fullword
-            $bd2 = "sshdoor" ascii nocase fullword
-            $bd3 = "sshkit" ascii nocase fullword
-            // Hardcoded credentials
-            $cred1 = "master_password" ascii
-            $cred2 = "backdoor_pass" ascii
-            $cred3 = "magic_password" ascii
-            // Auth bypass
-            $bypass1 = "auth_bypass" ascii
-            $bypass2 = "skip_auth" ascii
-          condition:
-            $sshd and (any of ($bd*) or any of ($cred*) or any of ($bypass*))
-        }
+    any:
+      - type: trait
+        id: ssh-backdoor-names
+      - type: trait
+        id: ssh-hardcoded-creds
+      - type: trait
+        id: ssh-auth-bypass
 
-  # SSH key injection
-  - id: backdoor/ssh/key-inject
-    description: SSH authorized_keys injection
-    crit: suspicious
-    conf: 0.8
-    attack: "T1098.004"
-    condition:
-      type: yara
-      source: |
-        rule ssh_key_inject {
-          strings:
-            // Authorized keys manipulation
-            $ak1 = "authorized_keys" ascii
-            $ak2 = ".ssh/authorized" ascii
-            // Key injection patterns
-            $inj1 = "ssh-rsa " ascii
-            $inj2 = "ssh-ed25519 " ascii
-            // File operations
-            $file1 = "echo " ascii
-            $file2 = ">>" ascii
-            $file3 = "chmod 600" ascii
-          condition:
-            (any of ($ak*) and any of ($inj*)) or
-            (any of ($ak*) and any of ($file*))
-        }
-
-  # SSH credential logging
-  - id: backdoor/ssh/cred-log
+  - id: backdoor/ssh/cred-capture
     description: SSH credential logging backdoor
     crit: suspicious
     conf: 0.9
     attack: "T1556.004"
-    condition:
-      type: yara
-      source: |
-        rule ssh_cred_log {
-          strings:
-            // Credential logging
-            $log1 = "password_log" ascii
-            $log2 = "cred_log" ascii
-            $log3 = "auth_log" ascii
-            // SSH auth context
-            $ssh1 = "sshd" ascii fullword
-            $ssh2 = "ssh_userauth" ascii fullword
-            // File paths for logging
-            $path1 = "/tmp/." ascii
-            $path2 = "/dev/shm/." ascii
-            $path3 = "/var/tmp/." ascii
-          condition:
-            (any of ($log*) and any of ($ssh*)) or
-            (any of ($ssh*) and any of ($path*) and any of ($log*))
-        }
+    all:
+      - type: trait
+        id: ssh-cred-logging
 
-  # PAM-based SSH backdoor
-  - id: backdoor/ssh/pam
-    description: PAM-based SSH authentication backdoor
-    crit: suspicious
-    conf: 0.85
-    attack: "T1556.003"
-    condition:
-      type: yara
-      source: |
-        rule ssh_pam_backdoor {
-          strings:
-            // PAM module functions
-            $pam1 = "pam_sm_authenticate" ascii
-            $pam2 = "pam_sm_setcred" ascii
-            // Magic strings
-            $magic1 = "magic" ascii
-            $magic2 = "backdoor" ascii
-            $magic3 = "master" ascii
-            // SSH context
-            $ssh1 = "sshd" ascii
-            $ssh2 = "/etc/pam.d/sshd" ascii
-          condition:
-            (any of ($pam*) and any of ($magic*)) or
-            ($pam1 and any of ($ssh*) and any of ($magic*))
-        }
+  # === Main detection rule ===
+  - id: backdoor/ssh/detected
+    description: SSH backdoor detected
+    crit: hostile
+    conf: 0.95
+    attack: "T1556.004"
+    mbc: "B0022"
+    count: 2
+    any:
+      - type: trait
+        id: backdoor/ssh/generic
+      - type: trait
+        id: backdoor/ssh/cred-capture
+      - type: trait
+        id: ssh-backdoor-names
+      - type: trait
+        id: ssh-hardcoded-creds

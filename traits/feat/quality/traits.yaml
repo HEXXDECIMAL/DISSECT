@@ -2,158 +2,805 @@
 # Useful for ML classification - mature codebases have different patterns than quick scripts
 
 traits:
-  # Error handling patterns
+  # === Atomic: Go Error Handling ===
+
+  - id: go-err-nil-check
+    desc: Go error nil check pattern
+    crit: inert
+    conf: 0.6
+    for: [go]
+    if:
+      type: string
+      exact: "if err != nil"
+
+  - id: go-errors-new
+    desc: Go errors.New function
+    crit: inert
+    conf: 0.6
+    for: [go]
+    if:
+      type: string
+      exact: "errors.New"
+
+  - id: go-fmt-errorf
+    desc: Go fmt.Errorf function
+    crit: inert
+    conf: 0.6
+    for: [go]
+    if:
+      type: string
+      exact: "fmt.Errorf"
+
+  # === Atomic: Rust Error Handling ===
+
+  - id: rust-result-type
+    desc: Rust Result<T,E> type
+    crit: inert
+    conf: 0.6
+    for: [rust]
+    if:
+      type: string
+      exact: "Result<"
+
+  - id: rust-unwrap-or
+    desc: Rust unwrap_or method
+    crit: inert
+    conf: 0.6
+    for: [rust]
+    if:
+      type: string
+      exact: "unwrap_or"
+
+  - id: rust-expect-method
+    desc: Rust expect() method
+    crit: inert
+    conf: 0.6
+    for: [rust]
+    if:
+      type: string
+      exact: "expect("
+
+  # === Atomic: Generic Try/Catch ===
+
+  - id: try-block-open
+    desc: try block opening
+    crit: inert
+    conf: 0.5
+    for: [javascript, python, java, csharp]
+    if:
+      type: string
+      exact: "try {"
+
+  - id: catch-keyword
+    desc: catch keyword
+    crit: inert
+    conf: 0.5
+    for: [javascript, java, csharp, php]
+    if:
+      type: string
+      word: "catch"
+
+  - id: except-keyword
+    desc: except keyword (Python)
+    crit: inert
+    conf: 0.5
+    for: [python]
+    if:
+      type: string
+      word: "except"
+
+  - id: finally-keyword
+    desc: finally keyword
+    crit: inert
+    conf: 0.5
+    for: [javascript, python, java, csharp]
+    if:
+      type: string
+      word: "finally"
+
+  # === Atomic: Logging ===
+
+  - id: log-print
+    desc: log.Print function
+    crit: inert
+    conf: 0.5
+    for: [go]
+    if:
+      type: string
+      exact: "log.Print"
+
+  - id: logger-lower
+    desc: logger reference (lowercase)
+    crit: inert
+    conf: 0.4
+    for: [all]
+    if:
+      type: string
+      word: "logger"
+
+  - id: logger-title
+    desc: Logger reference (title case)
+    crit: inert
+    conf: 0.4
+    for: [all]
+    if:
+      type: string
+      word: "Logger"
+
+  - id: logging-word
+    desc: logging module reference
+    crit: inert
+    conf: 0.5
+    for: [python, javascript]
+    if:
+      type: string
+      word: "logging"
+
+  - id: syslog-word
+    desc: syslog reference
+    crit: inert
+    conf: 0.6
+    for: [c, go, python]
+    if:
+      type: string
+      word: "syslog"
+
+  - id: log-info-lower
+    desc: log.info method (lowercase)
+    crit: inert
+    conf: 0.5
+    for: [python, javascript, java]
+    if:
+      type: string
+      exact: "log.info"
+
+  - id: log-info-title
+    desc: log.Info method (title case - Go style)
+    crit: inert
+    conf: 0.5
+    for: [go]
+    if:
+      type: string
+      exact: "log.Info"
+
+  - id: log-debug-lower
+    desc: log.debug method (lowercase)
+    crit: inert
+    conf: 0.5
+    for: [python, javascript, java]
+    if:
+      type: string
+      exact: "log.debug"
+
+  - id: log-debug-title
+    desc: log.Debug method (title case - Go style)
+    crit: inert
+    conf: 0.5
+    for: [go]
+    if:
+      type: string
+      exact: "log.Debug"
+
+  - id: log-error-lower
+    desc: log.error method (lowercase)
+    crit: inert
+    conf: 0.5
+    for: [python, javascript, java]
+    if:
+      type: string
+      exact: "log.error"
+
+  - id: log-error-title
+    desc: log.Error method (title case - Go style)
+    crit: inert
+    conf: 0.5
+    for: [go]
+    if:
+      type: string
+      exact: "log.Error"
+
+  # === Atomic: Configuration Management ===
+
+  - id: config-yaml-file
+    desc: config.yaml filename
+    crit: inert
+    conf: 0.6
+    for: [all]
+    if:
+      type: string
+      exact: "config.yaml"
+
+  - id: config-json-file
+    desc: config.json filename
+    crit: inert
+    conf: 0.6
+    for: [all]
+    if:
+      type: string
+      exact: "config.json"
+
+  - id: config-toml-file
+    desc: config.toml filename
+    crit: inert
+    conf: 0.6
+    for: [all]
+    if:
+      type: string
+      exact: "config.toml"
+
+  - id: dotenv-file
+    desc: .env file reference
+    crit: inert
+    conf: 0.6
+    for: [all]
+    if:
+      type: string
+      exact: ".env"
+
+  - id: viper-config-lib
+    desc: Viper configuration library
+    crit: inert
+    conf: 0.7
+    for: [go]
+    if:
+      type: string
+      word: "viper"
+
+  - id: configparser-module
+    desc: configparser module
+    crit: inert
+    conf: 0.7
+    for: [python]
+    if:
+      type: string
+      word: "configparser"
+
+  - id: dotenv-module
+    desc: dotenv module reference
+    crit: inert
+    conf: 0.7
+    for: [javascript, python]
+    if:
+      type: string
+      word: "dotenv"
+
+  # === Atomic: Version Information ===
+
+  - id: version-word-lower
+    desc: version word (lowercase)
+    crit: inert
+    conf: 0.4
+    for: [all]
+    if:
+      type: string
+      word: "version"
+
+  - id: version-word-title
+    desc: Version word (title case)
+    crit: inert
+    conf: 0.4
+    for: [all]
+    if:
+      type: string
+      word: "Version"
+
+  - id: version-colon
+    desc: "Version: label"
+    crit: inert
+    conf: 0.5
+    for: [all]
+    if:
+      type: string
+      exact: "Version:"
+
+  - id: version-v1
+    desc: v1. version prefix
+    crit: inert
+    conf: 0.6
+    for: [all]
+    if:
+      type: string
+      exact: "v1."
+
+  - id: version-v2
+    desc: v2. version prefix
+    crit: inert
+    conf: 0.6
+    for: [all]
+    if:
+      type: string
+      exact: "v2."
+
+  - id: version-upper
+    desc: VERSION word (uppercase)
+    crit: inert
+    conf: 0.5
+    for: [all]
+    if:
+      type: string
+      word: "VERSION"
+
+  - id: semver-pattern
+    desc: Semantic version pattern
+    crit: inert
+    conf: 0.7
+    for: [all]
+    if:
+      type: string
+      regex: 'v?\d+\.\d+\.\d+'
+
+  # === Atomic: Help/Usage ===
+
+  - id: help-long-flag
+    desc: --help flag
+    crit: inert
+    conf: 0.6
+    for: [all]
+    if:
+      type: string
+      exact: "--help"
+
+  - id: help-short-flag
+    desc: -h flag
+    crit: inert
+    conf: 0.4
+    for: [all]
+    if:
+      type: string
+      exact: "-h"
+
+  - id: usage-lower
+    desc: "usage: label (lowercase)"
+    crit: inert
+    conf: 0.5
+    for: [all]
+    if:
+      type: string
+      exact: "usage:"
+
+  - id: usage-title
+    desc: "Usage: label (title case)"
+    crit: inert
+    conf: 0.5
+    for: [all]
+    if:
+      type: string
+      exact: "Usage:"
+
+  - id: options-title
+    desc: "Options: label"
+    crit: inert
+    conf: 0.5
+    for: [all]
+    if:
+      type: string
+      exact: "Options:"
+
+  - id: usage-upper
+    desc: "USAGE: label (uppercase)"
+    crit: inert
+    conf: 0.5
+    for: [all]
+    if:
+      type: string
+      exact: "USAGE:"
+
+  # === Atomic: License Information ===
+
+  - id: mit-license-text
+    desc: MIT License text
+    crit: inert
+    conf: 0.8
+    for: [all]
+    if:
+      type: string
+      exact: "MIT License"
+
+  - id: apache-license-text
+    desc: Apache License text
+    crit: inert
+    conf: 0.8
+    for: [all]
+    if:
+      type: string
+      exact: "Apache License"
+
+  - id: gpl-word
+    desc: GPL license reference
+    crit: inert
+    conf: 0.7
+    for: [all]
+    if:
+      type: string
+      word: "GPL"
+
+  - id: bsd-word
+    desc: BSD license reference
+    crit: inert
+    conf: 0.7
+    for: [all]
+    if:
+      type: string
+      word: "BSD"
+
+  - id: license-upper
+    desc: LICENSE file reference
+    crit: inert
+    conf: 0.6
+    for: [all]
+    if:
+      type: string
+      word: "LICENSE"
+
+  - id: copyright-word
+    desc: Copyright notice
+    crit: inert
+    conf: 0.6
+    for: [all]
+    if:
+      type: string
+      word: "Copyright"
+
+  - id: spdx-identifier
+    desc: SPDX license identifier
+    crit: inert
+    conf: 0.9
+    for: [all]
+    if:
+      type: string
+      exact: "SPDX-License-Identifier"
+
+  # === Atomic: Documentation Strings ===
+
+  - id: python-docstring-triple-double
+    desc: Python docstring (triple double quote)
+    crit: inert
+    conf: 0.6
+    for: [python]
+    if:
+      type: string
+      exact: '"""'
+
+  - id: python-docstring-triple-single
+    desc: Python docstring (triple single quote)
+    crit: inert
+    conf: 0.6
+    for: [python]
+    if:
+      type: string
+      exact: "'''"
+
+  - id: rust-doc-comment
+    desc: Rust documentation comment
+    crit: inert
+    conf: 0.6
+    for: [rust]
+    if:
+      type: string
+      exact: "///"
+
+  - id: javadoc-comment
+    desc: JavaDoc comment start
+    crit: inert
+    conf: 0.6
+    for: [java, javascript, c, csharp]
+    if:
+      type: string
+      exact: "/**"
+
+  - id: rust-doc-comment-space
+    desc: Rust doc comment with space
+    crit: inert
+    conf: 0.6
+    for: [rust]
+    if:
+      type: string
+      exact: "/// "
+
+  - id: param-annotation
+    desc: "@param annotation"
+    crit: inert
+    conf: 0.6
+    for: [java, javascript, php]
+    if:
+      type: string
+      exact: "@param"
+
+  - id: return-annotation
+    desc: "@return annotation"
+    crit: inert
+    conf: 0.6
+    for: [java, javascript, php]
+    if:
+      type: string
+      exact: "@return"
+
+  - id: sphinx-param
+    desc: "Sphinx :param: directive"
+    crit: inert
+    conf: 0.6
+    for: [python]
+    if:
+      type: string
+      exact: ":param"
+
+  - id: sphinx-returns
+    desc: "Sphinx :returns: directive"
+    crit: inert
+    conf: 0.6
+    for: [python]
+    if:
+      type: string
+      exact: ":returns:"
+
+  # === Atomic: Test Code ===
+
+  - id: go-test-main
+    desc: Go TestMain function
+    crit: inert
+    conf: 0.7
+    for: [go]
+    if:
+      type: string
+      exact: "TestMain"
+
+  - id: go-test-file
+    desc: Go test file suffix
+    crit: inert
+    conf: 0.7
+    for: [go]
+    if:
+      type: string
+      exact: "_test.go"
+
+  - id: python-test-file
+    desc: Python test file suffix
+    crit: inert
+    conf: 0.7
+    for: [python]
+    if:
+      type: string
+      exact: "_test.py"
+
+  - id: unittest-module
+    desc: unittest module
+    crit: inert
+    conf: 0.7
+    for: [python]
+    if:
+      type: string
+      word: "unittest"
+
+  - id: pytest-module
+    desc: pytest module
+    crit: inert
+    conf: 0.7
+    for: [python]
+    if:
+      type: string
+      word: "pytest"
+
+  - id: rust-test-attribute
+    desc: Rust #[test] attribute
+    crit: inert
+    conf: 0.8
+    for: [rust]
+    if:
+      type: string
+      exact: "#[test]"
+
+  - id: go-testing-t
+    desc: Go testing.T type
+    crit: inert
+    conf: 0.7
+    for: [go]
+    if:
+      type: string
+      exact: "testing.T"
+
+  # === Atomic: Metrics/Telemetry ===
+
+  - id: prometheus-word
+    desc: Prometheus reference
+    crit: inert
+    conf: 0.7
+    for: [all]
+    if:
+      type: string
+      word: "prometheus"
+
+  - id: metrics-word-lower
+    desc: metrics word (lowercase)
+    crit: inert
+    conf: 0.4
+    for: [all]
+    if:
+      type: string
+      word: "metrics"
+
+  - id: metrics-word-title
+    desc: Metrics word (title case)
+    crit: inert
+    conf: 0.4
+    for: [all]
+    if:
+      type: string
+      word: "Metrics"
+
+  - id: statsd-word
+    desc: StatsD reference
+    crit: inert
+    conf: 0.7
+    for: [all]
+    if:
+      type: string
+      word: "statsd"
+
+  - id: datadog-word
+    desc: Datadog reference
+    crit: inert
+    conf: 0.7
+    for: [all]
+    if:
+      type: string
+      word: "datadog"
+
+  - id: opentelemetry-word
+    desc: OpenTelemetry reference
+    crit: inert
+    conf: 0.8
+    for: [all]
+    if:
+      type: string
+      word: "opentelemetry"
+
+  - id: newrelic-word
+    desc: NewRelic reference
+    crit: inert
+    conf: 0.7
+    for: [all]
+    if:
+      type: string
+      word: "NewRelic"
+
+composite_rules:
+  # Go error handling helper
+  - id: go-error-handling
+    description: Go error handling patterns
+    crit: inert
+    conf: 0.7
+    for: [go]
+    count: 2
+    any:
+      - {id: go-err-nil-check}
+      - {id: go-errors-new}
+      - {id: go-fmt-errorf}
+
+  # Rust error handling helper
+  - id: rust-error-handling
+    description: Rust error handling patterns
+    crit: inert
+    conf: 0.7
+    for: [rust]
+    count: 2
+    any:
+      - {id: rust-result-type}
+      - {id: rust-unwrap-or}
+      - {id: rust-expect-method}
+
+  # Generic try/catch helper
+  - id: try-catch-handling
+    description: Try/catch error handling patterns
+    crit: inert
+    conf: 0.7
+    for: [javascript, python, java, csharp]
+    count: 2
+    any:
+      - {id: try-block-open}
+      - {id: catch-keyword}
+      - {id: except-keyword}
+      - {id: finally-keyword}
+
+  # Error handling patterns (combines all)
   - id: error-handling
     description: Proper error handling patterns
     crit: benign
     conf: 0.8
-    if:
-      type: yara
-      source: |
-        rule error_handling {
-          strings:
-            // Go error handling
-            $go1 = "if err != nil" ascii
-            $go2 = "errors.New" ascii
-            $go3 = "fmt.Errorf" ascii
-            // Rust error handling
-            $rust1 = "Result<" ascii
-            $rust2 = "unwrap_or" ascii
-            $rust3 = "expect(" ascii
-            // Generic
-            $try1 = "try {" ascii
-            $try2 = "catch" ascii
-            $try3 = "except" ascii
-            $try4 = "finally" ascii
-          condition:
-            2 of ($go*) or 2 of ($rust*) or 2 of ($try*)
-        }
+    any:
+      - {id: go-error-handling}
+      - {id: rust-error-handling}
+      - {id: try-catch-handling}
 
   # Logging presence
   - id: has-logging
     description: Application has logging infrastructure
     crit: benign
     conf: 0.85
-    if:
-      type: yara
-      source: |
-        rule has_logging {
-          strings:
-            $log1 = "log.Print" ascii
-            $log2 = "logger" ascii nocase
-            $log3 = "logging" ascii
-            $log4 = "syslog" ascii
-            $log5 = "log.info" ascii nocase
-            $log6 = "log.debug" ascii nocase
-            $log7 = "log.error" ascii nocase
-          condition:
-            2 of them
-        }
+    count: 2
+    any:
+      - {id: log-print}
+      - {id: logger-lower}
+      - {id: logger-title}
+      - {id: logging-word}
+      - {id: syslog-word}
+      - {id: log-info-lower}
+      - {id: log-info-title}
+      - {id: log-debug-lower}
+      - {id: log-debug-title}
+      - {id: log-error-lower}
+      - {id: log-error-title}
 
   # Configuration management
   - id: config-management
     description: External configuration management
     crit: benign
     conf: 0.85
-    if:
-      type: yara
-      source: |
-        rule config_management {
-          strings:
-            $cfg1 = "config.yaml" ascii
-            $cfg2 = "config.json" ascii
-            $cfg3 = "config.toml" ascii
-            $cfg4 = ".env" ascii
-            $cfg5 = "viper" ascii
-            $cfg6 = "configparser" ascii
-            $cfg7 = "dotenv" ascii
-          condition:
-            any of them
-        }
+    any:
+      - {id: config-yaml-file}
+      - {id: config-json-file}
+      - {id: config-toml-file}
+      - {id: dotenv-file}
+      - {id: viper-config-lib}
+      - {id: configparser-module}
+      - {id: dotenv-module}
 
   # Version information
   - id: versioned
     description: Contains version information
     crit: benign
     conf: 0.85
-    if:
-      type: yara
-      source: |
-        rule has_version {
-          strings:
-            $ver1 = "version" ascii nocase
-            $ver2 = "Version:" ascii
-            $ver3 = "v1." ascii
-            $ver4 = "v2." ascii
-            $ver5 = "VERSION" ascii
-            $semver = /v?\d+\.\d+\.\d+/ ascii
-          condition:
-            any of ($ver*) or $semver
-        }
+    any:
+      - {id: version-word-lower}
+      - {id: version-word-title}
+      - {id: version-colon}
+      - {id: version-v1}
+      - {id: version-v2}
+      - {id: version-upper}
+      - {id: semver-pattern}
 
   # Help/usage information
   - id: has-help
     description: Contains help or usage information
     crit: benign
     conf: 0.85
-    if:
-      type: yara
-      source: |
-        rule has_help {
-          strings:
-            $help1 = "--help" ascii
-            $help2 = "-h" ascii
-            $help3 = "usage:" ascii nocase
-            $help4 = "Usage:" ascii
-            $help5 = "Options:" ascii
-            $help6 = "USAGE:" ascii
-          condition:
-            2 of them
-        }
+    count: 2
+    any:
+      - {id: help-long-flag}
+      - {id: help-short-flag}
+      - {id: usage-lower}
+      - {id: usage-title}
+      - {id: options-title}
+      - {id: usage-upper}
 
   # License information
   - id: licensed
     description: Contains license information
     crit: benign
     conf: 0.9
-    if:
-      type: yara
-      source: |
-        rule has_license {
-          strings:
-            $lic1 = "MIT License" ascii
-            $lic2 = "Apache License" ascii
-            $lic3 = "GPL" ascii
-            $lic4 = "BSD" ascii
-            $lic5 = "LICENSE" ascii
-            $lic6 = "Copyright" ascii
-            $lic7 = "SPDX-License-Identifier" ascii
-          condition:
-            any of them
-        }
+    any:
+      - {id: mit-license-text}
+      - {id: apache-license-text}
+      - {id: gpl-word}
+      - {id: bsd-word}
+      - {id: license-upper}
+      - {id: copyright-word}
+      - {id: spdx-identifier}
 
   # Documentation strings
   - id: documented
     description: Contains documentation strings
     crit: benign
     conf: 0.8
-    if:
-      type: yara
-      source: |
-        rule has_docs {
-          strings:
-            $doc1 = "\"\"\"" ascii
-            $doc2 = "'''" ascii
-            $doc3 = "///" ascii
-            $doc4 = "/**" ascii
-            $doc5 = "/// " ascii
-            $doc6 = "@param" ascii
-            $doc7 = "@return" ascii
-            $doc8 = ":param" ascii
-            $doc9 = ":returns:" ascii
-          condition:
-            any of them
-        }
+    any:
+      - {id: python-docstring-triple-double}
+      - {id: python-docstring-triple-single}
+      - {id: rust-doc-comment}
+      - {id: javadoc-comment}
+      - {id: rust-doc-comment-space}
+      - {id: param-annotation}
+      - {id: return-annotation}
+      - {id: sphinx-param}
+      - {id: sphinx-returns}
 
   # Unit test presence (in production binary)
   # NOTE: "test_" alone is too generic - Go runtime has internal test strings
@@ -162,38 +809,26 @@ traits:
     description: Binary includes test code (unusual for production)
     crit: inert
     conf: 0.5
-    if:
-      type: yara
-      source: |
-        rule has_test_code {
-          strings:
-            $test1 = "TestMain" ascii
-            $test2 = "_test.go" ascii
-            $test3 = "_test.py" ascii
-            $test4 = "unittest" ascii
-            $test5 = "pytest" ascii
-            $test6 = "#[test]" ascii
-            $test7 = "testing.T" ascii
-          condition:
-            2 of them
-        }
+    count: 2
+    any:
+      - {id: go-test-main}
+      - {id: go-test-file}
+      - {id: python-test-file}
+      - {id: unittest-module}
+      - {id: pytest-module}
+      - {id: rust-test-attribute}
+      - {id: go-testing-t}
 
   # Metrics/telemetry
   - id: has-metrics
     description: Application has metrics/telemetry
     crit: benign
     conf: 0.85
-    if:
-      type: yara
-      source: |
-        rule has_metrics {
-          strings:
-            $met1 = "prometheus" ascii
-            $met2 = "metrics" ascii nocase
-            $met3 = "statsd" ascii
-            $met4 = "datadog" ascii
-            $met5 = "opentelemetry" ascii
-            $met6 = "NewRelic" ascii
-          condition:
-            any of them
-        }
+    any:
+      - {id: prometheus-word}
+      - {id: metrics-word-lower}
+      - {id: metrics-word-title}
+      - {id: statsd-word}
+      - {id: datadog-word}
+      - {id: opentelemetry-word}
+      - {id: newrelic-word}

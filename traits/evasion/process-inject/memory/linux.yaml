@@ -7,20 +7,48 @@ defaults:
   platforms: [linux]
 
 traits:
+  # === Ptrace-based injection ===
+  - id: ptrace-attach
+    desc: PTRACE_ATTACH for process injection
+    crit: suspicious
+    conf: 0.75
+    mbc: "B0033"
+    attack: "T1055"
+    if:
+      type: string
+      exact: "PTRACE_ATTACH"
+
+  - id: ptrace-poketext
+    desc: PTRACE_POKETEXT for code injection
+    crit: suspicious
+    conf: 0.85
+    mbc: "B0033"
+    attack: "T1055"
+    if:
+      type: string
+      exact: "PTRACE_POKETEXT"
+
+  # === Process VM operations ===
+  - id: process-vm-writev
+    desc: process_vm_writev for memory injection
+    crit: suspicious
+    conf: 0.85
+    mbc: "B0033"
+    attack: "T1055"
+    if:
+      type: symbol
+      pattern: "process_vm_writev"
+
+composite_rules:
+  # Process injection via ptrace (migrated from YARA)
   - id: process-inject-ptrace
     desc: Process injection via ptrace
     crit: suspicious
     conf: 0.66
     mbc: "B0033"
     attack: "T1055"
-    if:
-      type: yara
-      source: |
-        rule ptrace_injection {
-          strings:
-            $ptrace_attach = "PTRACE_ATTACH"
-            $ptrace_poketext = "PTRACE_POKETEXT"
-            $process_vm_writev = "process_vm_writev"
-          condition:
-            any of them
-        }
+    count: 1
+    any:
+      - id: ptrace-attach
+      - id: ptrace-poketext
+      - id: process-vm-writev

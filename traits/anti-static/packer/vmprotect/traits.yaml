@@ -6,11 +6,6 @@ traits:
     for: [pe, elf, macho]
     attack: "T1027.002"
     if:
-      type: yara
-      source: |
-        rule vmprotect_section {
-          strings:
-            $vmp = /\.vmp[0-2]/
-          condition:
-            $vmp
-        }
+      type: section_name
+      pattern: "^\\.vmp[0-2]"
+      regex: true

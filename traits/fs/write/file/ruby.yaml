@@ -1,114 +1,253 @@
 ---
 # Ruby file write operations
+
+defaults:
+  for: [ruby]
+  platforms: [all]
+
 traits:
+  # Binary write mode strings
+  - id: wb-single-quote
+    desc: "'wb write mode"
+    crit: inert
+    conf: 0.8
+    if:
+      type: string
+      exact: "'wb"
+
+  - id: wb-double-quote
+    desc: '"wb write mode'
+    crit: inert
+    conf: 0.8
+    if:
+      type: string
+      exact: '"wb'
+
+  - id: wb-plus-single
+    desc: "'wb+ write mode"
+    crit: inert
+    conf: 0.8
+    if:
+      type: string
+      exact: "'wb+"
+
+  - id: wb-plus-double
+    desc: '"wb+ write mode'
+    crit: inert
+    conf: 0.8
+    if:
+      type: string
+      exact: '"wb+'
+
+  # binmode
+  - id: binmode-string
+    desc: .binmode string
+    crit: inert
+    conf: 0.75
+    if:
+      type: string
+      exact: ".binmode"
+
+  - id: binmode-symbol
+    desc: binmode symbol
+    crit: inert
+    conf: 0.75
+    if:
+      type: symbol
+      regex: "binmode"
+
+  # /tmp/ path
+  - id: tmp-slash-string
+    desc: /tmp/ directory path
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "/tmp/"
+
+  # chmod variants
+  - id: file-chmod-string
+    desc: File.chmod string
+    crit: inert
+    conf: 0.75
+    if:
+      type: string
+      exact: "File.chmod"
+
+  - id: chmod-call-string
+    desc: ".chmod( string"
+    crit: inert
+    conf: 0.75
+    if:
+      type: string
+      exact: ".chmod("
+
+  - id: chmod-symbol
+    desc: chmod symbol
+    crit: inert
+    conf: 0.75
+    if:
+      type: symbol
+      regex: "chmod"
+
+  # chmod 777 variants
+  - id: chmod-0777-parens
+    desc: "chmod(0777) string"
+    crit: inert
+    conf: 0.85
+    if:
+      type: string
+      exact: "chmod(0777)"
+
+  - id: chmod-0777-space
+    desc: "chmod 0777 string"
+    crit: inert
+    conf: 0.85
+    if:
+      type: string
+      exact: "chmod 0777"
+
+  - id: chmod-0o777
+    desc: "chmod(0o777) string"
+    crit: inert
+    conf: 0.85
+    if:
+      type: string
+      exact: "chmod(0o777)"
+
+  # File deletion
+  - id: file-delete-string
+    desc: File.delete string
+    crit: inert
+    conf: 0.75
+    if:
+      type: string
+      exact: "File.delete"
+
+  - id: file-unlink-string
+    desc: File.unlink string
+    crit: inert
+    conf: 0.75
+    if:
+      type: string
+      exact: "File.unlink"
+
+  - id: delete-symbol
+    desc: delete symbol
+    crit: inert
+    conf: 0.75
+    if:
+      type: symbol
+      regex: "delete"
+
+  - id: unlink-symbol
+    desc: unlink symbol
+    crit: inert
+    conf: 0.75
+    if:
+      type: symbol
+      regex: "unlink"
+
+  # FileUtils.rm_rf
+  - id: fileutils-rm-rf-string
+    desc: FileUtils.rm_rf string
+    crit: inert
+    conf: 0.85
+    if:
+      type: string
+      exact: "FileUtils.rm_rf"
+
+  - id: rm-rf-symbol
+    desc: rm_rf symbol
+    crit: inert
+    conf: 0.85
+    if:
+      type: symbol
+      regex: "rm_rf"
+
+  # fileutils library import
+  - id: fileutils-single-quote
+    desc: "'fileutils' require string"
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: "'fileutils'"
+
+  - id: fileutils-double-quote
+    desc: '"fileutils" require string'
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: '"fileutils"'
+
+composite_rules:
   - id: ruby-file-open-write-binary
-    description: "Write binary file"
+    description: Write binary file
     crit: notable
     conf: 0.92
-    platforms:
-      - all
-    for:
-      - ruby
-    if:
-      type: symbol_or_string
-      any:
-        - "'wb"
-        - '"wb'
-        - "'wb+"
-        - '"wb+'
+    any:
+      - id: wb-single-quote
+      - id: wb-double-quote
+      - id: wb-plus-single
+      - id: wb-plus-double
 
   - id: ruby-file-binmode
-    description: "Binary file mode"
+    description: Binary file mode
     crit: notable
     conf: 0.90
-    platforms:
-      - all
-    for:
-      - ruby
-    if:
-      type: symbol_or_string
-      any:
-        - .binmode
+    any:
+      - id: binmode-string
+      - id: binmode-symbol
 
   - id: ruby-file-write-tmp
-    description: "Write to /tmp directory"
+    description: Write to /tmp directory
     crit: notable
     conf: 0.88
-    platforms:
-      - all
-    for:
-      - ruby
-    if:
-      type: symbol_or_string
-      any:
-        - /tmp/
+    any:
+      - id: tmp-slash-string
 
   - id: ruby-file-chmod
-    description: "Modify file permissions"
+    description: Modify file permissions
     crit: notable
     conf: 0.90
-    platforms:
-      - all
-    for:
-      - ruby
-    if:
-      type: symbol_or_string
-      any:
-        - File.chmod
-        - .chmod(
+    any:
+      - id: file-chmod-string
+      - id: chmod-call-string
+      - id: chmod-symbol
 
   - id: ruby-chmod-777
-    description: "Make file world-executable (chmod 777)"
+    description: Make file world-executable (chmod 777)
     crit: suspicious
     conf: 0.95
-    platforms:
-      - all
-    for:
-      - ruby
-    if:
-      type: symbol_or_string
-      any:
-        - chmod(0777)
-        - chmod 0777
-        - chmod(0o777)
+    any:
+      - id: chmod-0777-parens
+      - id: chmod-0777-space
+      - id: chmod-0o777
 
   - id: ruby-file-delete
-    description: "Delete file"
+    description: Delete file
     crit: notable
     conf: 0.90
-    platforms:
-      - all
-    for:
-      - ruby
-    if:
-      type: symbol_or_string
-      any:
-        - File.delete
-        - File.unlink
+    any:
+      - id: file-delete-string
+      - id: file-unlink-string
+      - id: delete-symbol
+      - id: unlink-symbol
 
   - id: ruby-rm-rf
-    description: "Recursive directory deletion"
+    description: Recursive directory deletion
     crit: notable
     conf: 0.93
-    platforms:
-      - all
-    for:
-      - ruby
-    if:
-      type: symbol_or_string
-      any:
-        - FileUtils.rm_rf
+    any:
+      - id: fileutils-rm-rf-string
+      - id: rm-rf-symbol
 
   - id: ruby-fileutils
-    description: "Imports FileUtils library (mkdir, cp, mv, rm, touch)"
+    description: Imports FileUtils library
     crit: notable
     conf: 0.6
-    platforms:
-      - all
-    for:
-      - ruby
-    if:
-      type: symbol_or_string
-      any:
-        - "'fileutils'"
-        - '"fileutils"'
+    any:
+      - id: fileutils-single-quote
+      - id: fileutils-double-quote

@@ -2,25 +2,42 @@
 # ATT&CK: T1041 (Exfiltration Over C2 Channel), T1071 (Application Layer Protocol)
 
 traits:
-  # HTTP POST with JSON body
-  - id: node-post-json
-    description: HTTP POST request with JSON body
-    crit: notable
-    conf: 0.75
-    attack: "T1041"
+  # === HTTP method specification ===
+  - id: method-field
+    desc: method field in HTTP config
+    crit: inert
+    conf: 0.6
     for: [javascript, typescript]
     if:
-      type: yara
-      source: |
-        rule http_post_json {
-          strings:
-            $method = "method:" ascii
-            $post = "'POST'" ascii
-            $post2 = "\"POST\"" ascii
-            $json = "application/json" ascii
-          condition:
-            $method and ($post or $post2) and $json
-        }
+      type: string
+      exact: "method:"
+
+  - id: post-method-single
+    desc: POST method (single quotes)
+    crit: inert
+    conf: 0.65
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "'POST'"
+
+  - id: post-method-double
+    desc: POST method (double quotes)
+    crit: inert
+    conf: 0.65
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "\"POST\""
+
+  - id: application-json-content-type
+    desc: application/json content type
+    crit: inert
+    conf: 0.65
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "application/json"
 
   # HTTP GET with query params (data in URL)
   - id: node-get-params
@@ -155,6 +172,26 @@ traits:
       exact: "axios"
 
 composite_rules:
+  # Helper composites
+  - id: post-method-variants
+    description: POST method in quotes
+    for: [javascript, typescript]
+    any:
+      - {id: post-method-single}
+      - {id: post-method-double}
+
+  # Migrated from YARA
+  - id: node-post-json
+    description: HTTP POST request with JSON body
+    crit: notable
+    conf: 0.75
+    attack: "T1041"
+    for: [javascript, typescript]
+    all:
+      - {id: method-field}
+      - {id: post-method-variants}
+      - {id: application-json-content-type}
+
   # HTTP request methods composite
   - id: node-http-methods
     description: Node.js HTTP request methods

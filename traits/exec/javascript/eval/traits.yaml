@@ -297,7 +297,45 @@ traits:
       type: string
       regex: "process\\.on\\s*\\(['\"]SIGTERM['\"]"
 
-  # Process respawning (persistence via self-restart)
+  # === Self-respawn micro-traits ===
+  - id: spawn-call
+    desc: spawn() function call
+    crit: notable
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "spawn("
+
+  - id: import-meta-url
+    desc: import.meta.url reference (ESM self-reference)
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "import.meta.url"
+
+  - id: process-argv-ref
+    desc: process.argv reference
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "process.argv"
+
+  - id: filename-ref
+    desc: __filename reference (CJS self-reference)
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "__filename"
+
+composite_rules:
+  # Process respawning (persistence via self-restart) - migrated from YARA
   - id: self-respawn
     desc: Self-respawning process
     crit: suspicious
@@ -305,20 +343,13 @@ traits:
     mbc: "F0011"
     attack: "T1547"
     for: [javascript, typescript]
-    if:
-      type: yara
-      source: |
-        rule self_respawn {
-          strings:
-            $spawn = "spawn(" ascii
-            $import_meta = "import.meta.url" ascii
-            $process_argv = "process.argv" ascii
-            $file = "__filename" ascii
-          condition:
-            $spawn and any of ($import_meta, $process_argv, $file)
-        }
+    all:
+      - id: spawn-call
+    any:
+      - id: import-meta-url
+      - id: process-argv-ref
+      - id: filename-ref
 
-composite_rules:
   # Bash string reference composite
   - id: bash-string
     desc: Bash shell reference in string

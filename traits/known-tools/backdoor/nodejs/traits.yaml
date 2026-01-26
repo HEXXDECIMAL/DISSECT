@@ -23,6 +23,7 @@ traits:
       type: string
       exact: "nexe.js"
 
+  # NOTE: Cannot be migrated - requires YARA ELF module for section enumeration
   - id: nodejs/lpstub-section
     description: "NodeJS binary with 'lpstub' (hugepages support) section"
     crit: inert
@@ -49,34 +50,44 @@ traits:
       type: string
       exact: "ws://securitytrails.pro:2052"
 
-  - id: backdoor/nodejs/exfil-pattern
-    description: "NodeJS combination of WebSockets and Archiver (likely exfiltration)"
-    crit: suspicious
-    conf: 0.8
-    condition:
-      type: yara
-      source: |
-        rule nodejs_exfil {
-          strings:
-            $s1 = "archiver" ascii
-            $s2 = "ws" ascii
-            $s3 = "snapshot" ascii
-          condition:
-            all of them
-        }
 
 composite_rules:
+  # Migrated from YARA nodejs_exfil - references generic traits
+  - id: backdoor/nodejs/exfil-pattern
+    desc: NodeJS combination of WebSockets and Archiver (likely exfiltration)
+    crit: suspicious
+    conf: 0.8
+    all:
+      - type: trait
+        id: data/archive/archiver
+      - type: trait
+        id: comm/websocket/ws
+      - type: trait
+        id: nodejs/pkg-marker
+
+  # Helper: any backdoor behavior indicator
+  - id: nodejs-backdoor-behavior
+    desc: NodeJS backdoor behavior indicators
+    any:
+      - type: trait
+        id: backdoor/nodejs/suspicious-c2
+      - type: trait
+        id: backdoor/nodejs/exfil-pattern
+      - type: trait
+        id: c2/client/generic/marker
+      - type: trait
+        id: exec/remote-command/generic
+      - type: trait
+        id: data/archive/zip/generic
+
   - id: backdoor/nodejs/detected
     description: "NodeJS-based Backdoor detected"
     crit: hostile
     conf: 0.95
     attack: "T1059.003"
     mbc: "B0022"
-    requires_all:
-      - id: nodejs/pkg-marker
-    requires_any:
-      - id: backdoor/nodejs/suspicious-c2
-      - id: backdoor/nodejs/exfil-pattern
-      - id: c2/client/generic/marker
-      - id: exec/remote-command/generic
-      - id: data/archive/zip/generic
+    all:
+      - type: trait
+        id: nodejs/pkg-marker
+      - type: trait
+        id: nodejs-backdoor-behavior

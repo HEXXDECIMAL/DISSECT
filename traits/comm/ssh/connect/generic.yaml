@@ -3,21 +3,62 @@
 # ATT&CK: T1021.004
 
 traits:
+  # === SSH Indicators ===
+  - id: ssh-string
+    desc: ssh string
+    crit: notable
+    conf: 0.6
+    attack: "T1021.004"
+    if:
+      type: string
+      exact: "ssh"
+
+  - id: paramiko
+    desc: paramiko Python SSH library
+    crit: notable
+    conf: 0.75
+    attack: "T1021.004"
+    if:
+      type: string
+      exact: "paramiko"
+
+  - id: libssh
+    desc: libssh library
+    crit: notable
+    conf: 0.75
+    attack: "T1021.004"
+    if:
+      type: string
+      exact: "libssh"
+
+  - id: openssh
+    desc: OpenSSH string
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: "OpenSSH"
+
+  - id: ssh-client
+    desc: SSHClient class
+    crit: notable
+    conf: 0.75
+    attack: "T1021.004"
+    if:
+      type: string
+      exact: "SSHClient"
+
+composite_rules:
+  # SSH connection (migrated from YARA)
   - id: connect
     desc: SSH connection
     crit: notable
     conf: 0.66
     attack: "T1021.004"
-    if:
-      type: yara
-      source: |
-        rule ssh_connect {
-          strings:
-            $ssh = "ssh" fullword
-            $paramiko = "paramiko"
-            $libssh = "libssh"
-            $openssh = "OpenSSH"
-            $ssh_client = "SSHClient"
-          condition:
-            any of them
-        }
+    count: 1
+    any:
+      - id: ssh-string
+      - id: paramiko
+      - id: libssh
+      - id: openssh
+      - id: ssh-client

@@ -2,22 +2,72 @@
 # MBC: C0001 (Socket Communication)
 # ATT&CK: T1071
 
+defaults:
+  for: [elf, macho, so, dylib, c]
+
 traits:
+  # === Socket listen micro-traits ===
+  - id: socket-sym
+    desc: socket function symbol
+    crit: inert
+    conf: 0.4
+    mbc: "C0001"
+    if:
+      type: symbol
+      pattern: "socket"
+
+  - id: listen-sym
+    desc: listen function symbol
+    crit: notable
+    conf: 0.6
+    mbc: "C0001"
+    attack: "T1071"
+    if:
+      type: symbol
+      pattern: "listen"
+
+  - id: accept-sym
+    desc: accept function symbol
+    crit: notable
+    conf: 0.6
+    mbc: "C0001"
+    attack: "T1071"
+    if:
+      type: symbol
+      pattern: "accept"
+
+  - id: accept64-sym
+    desc: accept64 function symbol
+    crit: notable
+    conf: 0.6
+    mbc: "C0001"
+    attack: "T1071"
+    if:
+      type: symbol
+      pattern: "accept64"
+
+composite_rules:
+  # Accept function composite
+  - id: accept-func
+    desc: Accept connection function
+    crit: notable
+    conf: 0.6
+    mbc: "C0001"
+    attack: "T1071"
+    count: 1
+    any:
+      - id: accept-sym
+      - id: accept64-sym
+
+  # Socket listen (migrated from YARA)
   - id: listen
     desc: Listen on a socket
     crit: notable
     conf: 0.66
     mbc: "C0001"
     attack: "T1071"
-    if:
-      type: yara
-      source: |
-        rule socket_listen {
-          strings:
-            $socket = "socket" fullword
-            $listen = "listen" fullword
-            $accept = "accept" fullword
-            $accept64 = "accept64" fullword
-          condition:
-            2 of them
-        }
+    count: 2
+    any:
+      - id: socket-sym
+      - id: listen-sym
+      - id: accept-func

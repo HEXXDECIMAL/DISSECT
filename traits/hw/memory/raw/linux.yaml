@@ -31,7 +31,7 @@ traits:
     platforms: [all]
     if:
       type: string
-      regex: "\\bmemdump\\b"
+      word: "memdump"
 
   - id: dumpmem-cmd
     description: dumpmem command reference
@@ -41,7 +41,7 @@ traits:
     platforms: [all]
     if:
       type: string
-      regex: "\\bdumpmem\\b"
+      word: "dumpmem"
 
 composite_rules:
   # Memdump composite

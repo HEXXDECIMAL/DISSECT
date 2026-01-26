@@ -44,7 +44,7 @@ traits:
     mbc: "B0028"
     if:
       type: string
-      regex: "\\bhackbrowserdata\\b"
+      word: "hackbrowserdata"
 
   - id: hackbrowserdata-camel
     desc: HackBrowserData camelcase reference
@@ -56,142 +56,467 @@ traits:
       type: string
       exact: "HackBrowserData"
 
-  # === YARA-based Detection Traits ===
-
-  - id: multi-browser-theft-yara
-    desc: YARA pattern for targeting multiple browsers
-    crit: suspicious
-    conf: 0.9
-    attack: "T1555.003"
-    mbc: "B0028"
-    for: [python, javascript, elf, pe, macho]
+  # === Browser Path Patterns ===
+  - id: google-chrome-path
+    desc: Google/Chrome path component
+    crit: inert
+    conf: 0.6
+    for: [all]
     if:
-      type: yara
-      source: |
-        rule multi_browser_credential_theft {
-          meta:
-            description = "Targets multiple browsers for credential theft"
-          strings:
-            // Chromium-based
-            $chrome = "Google/Chrome" ascii
-            $chromium = "Chromium" ascii
-            $edge = "Microsoft/Edge" ascii
-            $brave = "BraveSoftware" ascii
-            $opera = "Opera" ascii
-            $vivaldi = "Vivaldi" ascii
-            // Firefox-based
-            $firefox = "Firefox" ascii
-            $thunderbird = "Thunderbird" ascii
-            // Safari
-            $safari = "Safari" ascii
-            // Common data files
-            $login_data = "Login Data" ascii
-            $cookies_sqlite = "cookies.sqlite" ascii
-            $local_state = "Local State" ascii
-          condition:
-            // At least 2 browser/client refs + 1 data file
-            2 of ($chrome, $chromium, $edge, $brave, $opera, $vivaldi, $firefox, $thunderbird, $safari) and
-            1 of ($login_data, $cookies_sqlite, $local_state)
-        }
+      type: string
+      exact: "Google/Chrome"
 
-  - id: full-stealer-detected-yara
-    desc: YARA pattern for complete browser stealer
-    crit: suspicious
-    conf: 0.98
-    attack: "T1555.003"
-    mbc: "B0028"
-    for: [python, javascript, elf, pe, macho]
+  - id: chromium-string
+    desc: Chromium browser name
+    crit: inert
+    conf: 0.6
+    for: [all]
     if:
-      type: yara
-      source: |
-        rule complete_browser_stealer {
-          meta:
-            description = "Full browser credential stealer with exfiltration"
-          strings:
-            // Browser data paths
-            $browser1 = "Chrome" ascii
-            $browser2 = "Firefox" ascii
-            $browser3 = "Opera" ascii
-            $browser4 = "Brave" ascii
-            $browser5 = "Edge" ascii
-            // Credential data
-            $cred1 = "Login Data" ascii
-            $cred2 = "encrypted_key" ascii
-            $cred3 = "logins.json" ascii
-            $cred4 = "key4.db" ascii
-            // Decryption
-            $decrypt1 = "CryptUnprotectData" ascii
-            $decrypt2 = "AES" ascii
-            $decrypt3 = ".decrypt(" ascii
-            $decrypt4 = "Fernet" ascii
-            // SQLite
-            $sqlite = "sqlite3" ascii
-            // Exfiltration channels
-            $exfil1 = /discord(app)?\.com\/api\/webhooks\// ascii
-            $exfil2 = "api.telegram.org" ascii
-            $exfil3 = "multipart/form-data" ascii
-            $exfil4 = ".post(" ascii
-          condition:
-            filesize < 10MB and
-            2 of ($browser*) and
-            2 of ($cred*) and
-            any of ($decrypt*) and
-            ($sqlite or any of ($exfil*))
-        }
+      type: string
+      word: "Chromium"
 
-  - id: python-stealer-yara
-    desc: YARA pattern for Python browser stealer
-    crit: suspicious
-    conf: 0.95
-    attack: "T1555.003"
-    mbc: "B0028"
+  - id: microsoft-edge-path
+    desc: Microsoft/Edge path component
+    crit: inert
+    conf: 0.6
+    for: [all]
+    if:
+      type: string
+      exact: "Microsoft/Edge"
+
+  - id: brave-software-path
+    desc: BraveSoftware path component
+    crit: inert
+    conf: 0.6
+    for: [all]
+    if:
+      type: string
+      exact: "BraveSoftware"
+
+  - id: opera-string
+    desc: Opera browser name
+    crit: inert
+    conf: 0.6
+    for: [all]
+    if:
+      type: string
+      word: "Opera"
+
+  - id: vivaldi-string
+    desc: Vivaldi browser name
+    crit: inert
+    conf: 0.6
+    for: [all]
+    if:
+      type: string
+      word: "Vivaldi"
+
+  - id: firefox-string
+    desc: Firefox browser name
+    crit: inert
+    conf: 0.6
+    for: [all]
+    if:
+      type: string
+      word: "Firefox"
+
+  - id: thunderbird-string
+    desc: Thunderbird mail client name
+    crit: inert
+    conf: 0.6
+    for: [all]
+    if:
+      type: string
+      word: "Thunderbird"
+
+  - id: safari-string
+    desc: Safari browser name
+    crit: inert
+    conf: 0.6
+    for: [all]
+    if:
+      type: string
+      word: "Safari"
+
+  # === Browser Data Files ===
+  - id: login-data-file
+    desc: Login Data credential database
+    crit: inert
+    conf: 0.7
+    for: [all]
+    if:
+      type: string
+      exact: "Login Data"
+
+  - id: cookies-sqlite-file
+    desc: cookies.sqlite Firefox cookie database
+    crit: inert
+    conf: 0.7
+    for: [all]
+    if:
+      type: string
+      exact: "cookies.sqlite"
+
+  - id: local-state-file
+    desc: Local State Chrome configuration file
+    crit: inert
+    conf: 0.7
+    for: [all]
+    if:
+      type: string
+      exact: "Local State"
+
+  # === Additional Browser Names ===
+  - id: chrome-string
+    desc: Chrome browser name
+    crit: inert
+    conf: 0.6
+    for: [all]
+    if:
+      type: string
+      word: "Chrome"
+
+  - id: brave-string
+    desc: Brave browser name
+    crit: inert
+    conf: 0.6
+    for: [all]
+    if:
+      type: string
+      word: "Brave"
+
+  - id: edge-string
+    desc: Edge browser name
+    crit: inert
+    conf: 0.6
+    for: [all]
+    if:
+      type: string
+      word: "Edge"
+
+  # === Credential Data Files ===
+  - id: encrypted-key-field
+    desc: encrypted_key field in browser database
+    crit: inert
+    conf: 0.75
+    for: [all]
+    if:
+      type: string
+      exact: "encrypted_key"
+
+  - id: logins-json-file
+    desc: logins.json Firefox password file
+    crit: inert
+    conf: 0.75
+    for: [all]
+    if:
+      type: string
+      exact: "logins.json"
+
+  - id: key4-db-file
+    desc: key4.db Firefox key database
+    crit: inert
+    conf: 0.75
+    for: [all]
+    if:
+      type: string
+      exact: "key4.db"
+
+  # === Decryption Methods ===
+  - id: crypt-unprotect-data-str
+    desc: CryptUnprotectData Windows API string
+    crit: inert
+    conf: 0.7
+    for: [all]
+    if:
+      type: string
+      exact: "CryptUnprotectData"
+
+  - id: aes-string
+    desc: AES encryption/decryption string
+    crit: inert
+    conf: 0.6
+    for: [all]
+    if:
+      type: string
+      word: "AES"
+
+  - id: decrypt-method
+    desc: .decrypt( method call
+    crit: inert
+    conf: 0.65
+    for: [python, javascript]
+    if:
+      type: symbol
+      exact: "decrypt"
+
+  - id: fernet-string
+    desc: Fernet encryption library
+    crit: inert
+    conf: 0.7
     for: [python]
     if:
-      type: yara
-      source: |
-        rule python_browser_stealer {
-          meta:
-            description = "Python browser credential stealer"
-          strings:
-            // Python imports
-            $import1 = "import sqlite3" ascii
-            $import2 = "from Crypto.Cipher import AES" ascii
-            $import3 = "from win32crypt import CryptUnprotectData" ascii
-            $import4 = "import requests" ascii
-            // Browser paths
-            $path1 = "LOCALAPPDATA" ascii
-            $path2 = "APPDATA" ascii
-            $path3 = /Google\\Chrome|\\Google\\Chrome/ ascii
-            // Password extraction
-            $pwd1 = "password_value" ascii
-            $pwd2 = "username_value" ascii
-            $pwd3 = "origin_url" ascii
-            // Exfil
-            $exfil1 = /discord\.com\/api\/webhooks/ ascii
-            $exfil2 = "api.telegram.org" ascii
-            $exfil3 = "ipinfo.io" ascii
-          condition:
-            filesize < 5MB and
-            any of ($import*) and
-            any of ($path*) and
-            2 of ($pwd*) and
-            any of ($exfil*)
-        }
+      type: string
+      word: "Fernet"
+
+  # === SQLite ===
+  - id: sqlite3-string
+    desc: sqlite3 database library
+    crit: inert
+    conf: 0.5
+    for: [all]
+    if:
+      type: string
+      word: "sqlite3"
+
+  # === Exfiltration Channels ===
+  - id: discord-webhook-pattern
+    desc: Discord webhook URL pattern
+    crit: inert
+    conf: 0.8
+    for: [all]
+    if:
+      type: string
+      regex: "discord(app)?\\.com/api/webhooks/"
+
+  - id: telegram-api
+    desc: Telegram API endpoint
+    crit: inert
+    conf: 0.8
+    for: [all]
+    if:
+      type: string
+      exact: "api.telegram.org"
+
+  - id: multipart-form-data
+    desc: multipart/form-data content type
+    crit: inert
+    conf: 0.6
+    for: [all]
+    if:
+      type: string
+      exact: "multipart/form-data"
+
+  - id: post-method
+    desc: .post( HTTP method call
+    crit: inert
+    conf: 0.5
+    for: [python, javascript]
+    if:
+      type: symbol
+      exact: "post"
+
+  # === Python Imports ===
+  - id: import-sqlite3
+    desc: import sqlite3 statement
+    crit: inert
+    conf: 0.5
+    for: [python]
+    if:
+      type: string
+      exact: "import sqlite3"
+
+  - id: import-crypto-aes
+    desc: from Crypto.Cipher import AES
+    crit: inert
+    conf: 0.6
+    for: [python]
+    if:
+      type: string
+      exact: "from Crypto.Cipher import AES"
+
+  - id: import-win32crypt
+    desc: from win32crypt import CryptUnprotectData
+    crit: inert
+    conf: 0.7
+    for: [python]
+    if:
+      type: string
+      exact: "from win32crypt import CryptUnprotectData"
+
+  - id: import-requests
+    desc: import requests statement
+    crit: inert
+    conf: 0.5
+    for: [python]
+    if:
+      type: string
+      exact: "import requests"
+
+  # === Windows Environment Variables ===
+  - id: localappdata-var
+    desc: LOCALAPPDATA environment variable
+    crit: inert
+    conf: 0.6
+    for: [all]
+    if:
+      type: string
+      exact: "LOCALAPPDATA"
+
+  - id: appdata-var
+    desc: APPDATA environment variable
+    crit: inert
+    conf: 0.6
+    for: [all]
+    if:
+      type: string
+      exact: "APPDATA"
+
+  - id: google-chrome-windows-path
+    desc: Google\Chrome Windows path
+    crit: inert
+    conf: 0.7
+    for: [all]
+    if:
+      type: string
+      regex: "Google\\\\Chrome|\\\\Google\\\\Chrome"
+
+  # === Password Database Fields ===
+  - id: password-value-field
+    desc: password_value database column
+    crit: inert
+    conf: 0.7
+    for: [all]
+    if:
+      type: string
+      exact: "password_value"
+
+  - id: username-value-field
+    desc: username_value database column
+    crit: inert
+    conf: 0.7
+    for: [all]
+    if:
+      type: string
+      exact: "username_value"
+
+  - id: origin-url-field
+    desc: origin_url database column
+    crit: inert
+    conf: 0.7
+    for: [all]
+    if:
+      type: string
+      exact: "origin_url"
+
+  # === Additional Exfil Endpoints ===
+  - id: discord-webhook-simple
+    desc: discord.com/api/webhooks pattern
+    crit: inert
+    conf: 0.8
+    for: [all]
+    if:
+      type: string
+      regex: "discord\\.com/api/webhooks"
+
+  - id: ipinfo-io
+    desc: ipinfo.io IP lookup service
+    crit: inert
+    conf: 0.7
+    for: [all]
+    if:
+      type: string
+      exact: "ipinfo.io"
 
 composite_rules:
-  # HackBrowserData composite
+  # === Helper composites ===
+  - id: chromium-browsers
+    description: Chromium-based browser names
+    for: [all]
+    any:
+      - {id: google-chrome-path}
+      - {id: chromium-string}
+      - {id: microsoft-edge-path}
+      - {id: brave-software-path}
+      - {id: opera-string}
+      - {id: vivaldi-string}
+      - {id: chrome-string}
+      - {id: brave-string}
+      - {id: edge-string}
+
+  - id: firefox-browsers
+    description: Firefox-based browser names
+    for: [all]
+    any:
+      - {id: firefox-string}
+      - {id: thunderbird-string}
+
+  - id: all-browsers
+    description: All browser name patterns
+    for: [all]
+    any:
+      - {id: chromium-browsers}
+      - {id: firefox-browsers}
+      - {id: safari-string}
+
+  - id: credential-files
+    description: Browser credential data files
+    for: [all]
+    any:
+      - {id: login-data-file}
+      - {id: cookies-sqlite-file}
+      - {id: local-state-file}
+      - {id: encrypted-key-field}
+      - {id: logins-json-file}
+      - {id: key4-db-file}
+
+  - id: decryption-methods
+    description: Credential decryption methods
+    for: [all]
+    any:
+      - {id: crypt-unprotect-data-str}
+      - {id: aes-string}
+      - {id: decrypt-method}
+      - {id: fernet-string}
+
+  - id: exfiltration-channels
+    description: Exfiltration endpoints and methods
+    for: [all]
+    any:
+      - {id: discord-webhook-pattern}
+      - {id: discord-webhook-simple}
+      - {id: telegram-api}
+      - {id: multipart-form-data}
+      - {id: post-method}
+      - {id: ipinfo-io}
+
+  - id: python-imports
+    description: Python credential stealer imports
+    for: [python]
+    any:
+      - {id: import-sqlite3}
+      - {id: import-crypto-aes}
+      - {id: import-win32crypt}
+      - {id: import-requests}
+
+  - id: windows-paths
+    description: Windows browser data paths
+    for: [all]
+    any:
+      - {id: localappdata-var}
+      - {id: appdata-var}
+      - {id: google-chrome-windows-path}
+
+  - id: password-fields
+    description: Browser password database fields
+    for: [all]
+    any:
+      - {id: password-value-field}
+      - {id: username-value-field}
+      - {id: origin-url-field}
+
+  # === Main detection composites ===
   - id: hackbrowserdata
     desc: HackBrowserData tool reference
     crit: suspicious
     conf: 0.95
     attack: "T1555.003"
     mbc: "B0028"
-    requires_count: 1
     any:
-      - id: hackbrowserdata-lower
-      - id: hackbrowserdata-camel
+      - {id: hackbrowserdata-lower}
+      - {id: hackbrowserdata-camel}
 
-  # Multi-browser targeting detection
+  # Migrated from YARA
   - id: multi-browser-theft
     desc: Multi-browser credential theft
     crit: suspicious
@@ -200,9 +525,18 @@ composite_rules:
     mbc: "B0028"
     for: [python, javascript, elf, pe, macho]
     all:
-      - id: multi-browser-theft-yara
+      - id: all-browsers
+        count: 2
+      - id: credential-files
 
-  # Full browser stealer with decryption and exfiltration
+  # Helper composite
+  - id: sqlite-or-exfil
+    desc: SQLite3 access or exfiltration channels
+    any:
+      - id: sqlite3-string
+      - id: exfiltration-channels
+
+  # Migrated from YARA
   - id: full-stealer-detected
     desc: Complete browser credential stealer (theft + decrypt + exfil)
     crit: suspicious
@@ -211,9 +545,14 @@ composite_rules:
     mbc: "B0028"
     for: [python, javascript, elf, pe, macho]
     all:
-      - id: full-stealer-detected-yara
+      - id: all-browsers
+        count: 2
+      - id: credential-files
+        count: 2
+      - id: decryption-methods
+      - id: sqlite-or-exfil
 
-  # Python browser stealer pattern
+  # Migrated from YARA
   - id: python-stealer
     desc: Python-based browser credential stealer
     crit: suspicious
@@ -222,4 +561,8 @@ composite_rules:
     mbc: "B0028"
     for: [python]
     all:
-      - id: python-stealer-yara
+      - id: python-imports
+      - id: windows-paths
+      - id: password-fields
+        count: 2
+      - id: exfiltration-channels

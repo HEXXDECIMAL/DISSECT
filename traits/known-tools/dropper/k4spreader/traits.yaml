@@ -6,23 +6,123 @@ defaults:
   file_types: [elf, macho, so, dylib]
 
 traits:
-  # K4Spreader identifiers
+  # === Related Malware Names (fullword = word boundary) ===
+  - id: tsunami-lower
+    desc: tsunami malware name (lowercase)
+    crit: inert
+    conf: 0.75
+    if:
+      type: string
+      word: "tsunami"
+
+  - id: tsunami-title
+    desc: Tsunami malware name (title case)
+    crit: inert
+    conf: 0.75
+    if:
+      type: string
+      word: "Tsunami"
+
+  - id: tsunami-upper
+    desc: TSUNAMI malware name (uppercase)
+    crit: inert
+    conf: 0.75
+    if:
+      type: string
+      word: "TSUNAMI"
+
+  - id: kaiten-lower
+    desc: kaiten malware name (lowercase)
+    crit: inert
+    conf: 0.75
+    if:
+      type: string
+      word: "kaiten"
+
+  - id: kaiten-title
+    desc: Kaiten malware name (title case)
+    crit: inert
+    conf: 0.75
+    if:
+      type: string
+      word: "Kaiten"
+
+  - id: kaiten-upper
+    desc: KAITEN malware name (uppercase)
+    crit: inert
+    conf: 0.75
+    if:
+      type: string
+      word: "KAITEN"
+
+  # === Spreading Keywords (fullword = word boundary) ===
+  - id: scanner-word
+    desc: scanner keyword (word boundary)
+    crit: inert
+    conf: 0.65
+    if:
+      type: string
+      word: "scanner"
+
+  - id: exploit-word
+    desc: exploit keyword (word boundary)
+    crit: inert
+    conf: 0.65
+    if:
+      type: string
+      word: "exploit"
+
+  # === K4Spreader Magic String ===
+  - id: k4spreader-magic
+    desc: K4SPREADER magic string
+    crit: inert
+    conf: 0.95
+    if:
+      type: string
+      exact: "K4SPREADER"
+
+composite_rules:
+  # === Helper composites ===
+  - id: tsunami-keyword
+    description: Tsunami keyword (case variants)
+    any:
+      - id: tsunami-lower
+      - id: tsunami-title
+      - id: tsunami-upper
+
+  - id: kaiten-keyword
+    description: Kaiten keyword (case variants)
+    any:
+      - id: kaiten-lower
+      - id: kaiten-title
+      - id: kaiten-upper
+
+  - id: related-malware
+    description: Related malware names (Tsunami/Kaiten)
+    any:
+      - id: tsunami-keyword
+      - id: kaiten-keyword
+
+  - id: spreading-keywords
+    description: Spreading/exploitation keywords
+    any:
+      - id: scanner-word
+      - id: exploit-word
+
+  # === Helper composite ===
+  - id: malware-with-spreading
+    description: Related malware with spreading keywords
+    all:
+      - id: related-malware
+      - id: spreading-keywords
+
+  # === Migrated from YARA ===
   - id: dropper/k4spreader/generic
     description: K4Spreader malware detected
     crit: suspicious
     conf: 0.9
     mbc: "B0030"
     attack: "T1583.005"
-    condition:
-      type: yara
-      source: |
-        rule k4spreader_dropper {
-          strings:
-            $rel1 = "tsunami" ascii nocase fullword
-            $rel2 = "kaiten" ascii nocase fullword
-            $spread1 = "scanner" ascii fullword
-            $spread2 = "exploit" ascii fullword
-            $magic = "K4SPREADER" ascii
-          condition:
-            $magic or (any of ($rel*) and any of ($spread*))
-        }
+    any:
+      - id: k4spreader-magic
+      - id: malware-with-spreading

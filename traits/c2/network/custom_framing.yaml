@@ -2,18 +2,12 @@
 # ATT&CK: T1071
 
 traits:
+  # Custom text-based C2 framing (migrated from YARA - uses regex to match any pattern)
   - id: text_headers
-    desc: "Custom text-based C2 protocol framing headers"
+    desc: "Custom text-based C2 protocol framing"
     crit: suspicious
     conf: 0.8
     attack: "T1071"
     if:
-      type: yara
-      source: |
-        rule c2_text_framing {
-          strings:
-            $h1 = "Bytes == %d" ascii
-            $h2 = "iDataSize == %d" ascii
-          condition:
-            any of them
-        }
+      type: string
+      regex: "Bytes == %d|iDataSize == %d"

@@ -1,39 +1,143 @@
 # JavaScript Dropper and Staged Payload Patterns
 # ATT&CK: T1027 (Obfuscated Files or Information)
 
+defaults:
+  attack: "T1027"
+  mbc: "C0025"
+
 traits:
-  - id: dropper/js-decrypt-eval
-    description: Decrypts a hardcoded payload and executes it via eval
-    crit: suspicious
-    conf: 0.95
-    mbc: "C0025"
-    attack: "T1027"
-    file_types: [javascript, typescript]
-    condition:
-      type: yara
-      source: |
-        rule js_decrypt_eval {
-          strings:
-            // Encryption library imports
-            $crypto1 = /require\(['"]crypto['"]\)/ ascii
-            $crypto2 = /from\s+['"]crypto['"]/ ascii
-            
-            // Decryption methods
-            $decipher = "createDecipheriv" ascii
-            
-            // Execution
-            $eval = "eval(" ascii
-            
-            // Large encoded blobs (Hex or Base64)
-            $encoded1 = /['"][0-9a-fA-F]{128,}['"]/ ascii
-            $encoded2 = /['"][a-zA-Z0-9+\/]{128,}={0,2}['"]/ ascii
-            
-            // Buffer decoding
-            $buf1 = /Buffer\.from\(.{0,60}['"]hex['"]\)/ ascii
-            $buf2 = /Buffer\.from\(.{0,60}['"]base64['"]\)/ ascii
-          condition:
-            (any of ($crypto*) and $decipher and $eval) and (any of ($encoded*) or any of ($buf*))
-        }
+  # === Crypto library imports ===
+  - id: require-crypto
+    desc: require('crypto') import
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "require\\(['\"]crypto['\"]\\)"
+
+  - id: from-crypto-import
+    desc: from 'crypto' import
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "from\\s+['\"]crypto['\"]"
+
+  - id: import-crypto
+    desc: import crypto
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "import\\s+.{0,50}['\"]crypto['\"]"
+
+  # === Decryption methods ===
+  - id: createdecipher-call
+    desc: crypto.createDecipher call
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: symbol
+      exact: "createDecipher"
+
+  - id: createdecipheriv-call
+    desc: crypto.createDecipheriv call
+    crit: inert
+    conf: 0.75
+    for: [javascript, typescript]
+    if:
+      type: symbol
+      exact: "createDecipheriv"
+
+  - id: decrypt-call
+    desc: .decrypt() method call
+    crit: inert
+    conf: 0.65
+    for: [javascript, typescript]
+    if:
+      type: symbol
+      exact: "decrypt"
+
+  # === Execution methods ===
+  - id: eval-call
+    desc: eval() function call
+    crit: notable
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: symbol
+      exact: "eval"
+
+  - id: function-constructor
+    desc: Function constructor call
+    crit: notable
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: symbol
+      exact: "Function"
+
+  # === Large encoded blobs ===
+  - id: large-hex-string
+    desc: Large hex-encoded string (128+ chars)
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "['\"][0-9a-fA-F]{128,}['\"]"
+
+  - id: large-base64-string
+    desc: Large base64-encoded string (128+ chars)
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "['\"][a-zA-Z0-9+/]{128,}={0,2}['\"]"
+
+  # === Buffer decoding ===
+  - id: buffer-from-hex
+    desc: Buffer.from with 'hex' encoding
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "Buffer\\.from\\(.{0,60}['\"]hex['\"]\\)"
+
+  - id: buffer-from-base64
+    desc: Buffer.from with 'base64' encoding
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "Buffer\\.from\\(.{0,60}['\"]base64['\"]\\)"
+
+  - id: buffer-from-utf8
+    desc: Buffer.from with 'utf8' encoding
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "Buffer\\.from\\(.{0,60}['\"]utf8['\"]\\)"
+
+  # === AST-based eval detection ===
+  - id: eval-ast-call
+    desc: eval() via AST pattern
+    crit: notable
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "eval"
 
   - id: dropper/js-staged-generator
     description: Uses a generator function to staged-evaluate code (obfuscation)
@@ -43,3 +147,63 @@ traits:
     condition:
       type: string
       regex: 'function\*.{0,100}yield\s+eval\('
+
+composite_rules:
+  # Helper composites
+  - id: crypto-import-patterns
+    description: Crypto library imports
+    for: [javascript, typescript]
+    any:
+      - {id: require-crypto}
+      - {id: from-crypto-import}
+      - {id: import-crypto}
+
+  - id: decryption-methods
+    description: Decryption method calls
+    for: [javascript, typescript]
+    any:
+      - {id: createdecipher-call}
+      - {id: createdecipheriv-call}
+      - {id: decrypt-call}
+
+  - id: code-execution-methods
+    description: Dynamic code execution methods
+    for: [javascript, typescript]
+    any:
+      - {id: eval-call}
+      - {id: eval-ast-call}
+      - {id: function-constructor}
+
+  - id: encoded-blobs
+    description: Large encoded data blobs
+    for: [javascript, typescript]
+    any:
+      - {id: large-hex-string}
+      - {id: large-base64-string}
+
+  - id: buffer-decoding
+    description: Buffer decoding operations
+    for: [javascript, typescript]
+    any:
+      - {id: buffer-from-hex}
+      - {id: buffer-from-base64}
+      - {id: buffer-from-utf8}
+
+  - id: encoded-data
+    description: Encoded data (blobs or buffer decoding)
+    for: [javascript, typescript]
+    any:
+      - {id: encoded-blobs}
+      - {id: buffer-decoding}
+
+  # Main composite (migrated from YARA)
+  - id: dropper/js-decrypt-eval
+    description: Decrypts a hardcoded payload and executes it via eval
+    crit: suspicious
+    conf: 0.95
+    for: [javascript, typescript]
+    all:
+      - {id: crypto-import-patterns}
+      - {id: decryption-methods}
+      - {id: code-execution-methods}
+      - {id: encoded-data}

@@ -93,6 +93,16 @@ pub struct AnalysisReport {
     /// Environment variables accessed
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub env_vars: Vec<EnvVarInfo>,
+    /// Files contained within archives (for archive targets only)
+    /// Paths match those used in Evidence.location fields (without "archive:" prefix)
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    pub archive_contents: Vec<ArchiveEntry>,
+    /// Full analysis reports for files within archives (for per-file ML classification)
+    /// Each report has its own file_type, findings, metrics, etc.
+    /// Box is required to break the recursive type (AnalysisReport contains sub_reports)
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    #[allow(clippy::vec_box)]
+    pub sub_reports: Vec<Box<AnalysisReport>>,
     pub metadata: AnalysisMetadata,
 }
 
@@ -124,6 +134,8 @@ impl AnalysisReport {
             paths: Vec::new(),
             directories: Vec::new(),
             env_vars: Vec::new(),
+            archive_contents: Vec::new(),
+            sub_reports: Vec::new(),
             metadata: AnalysisMetadata::default(),
         }
     }
@@ -158,6 +170,23 @@ pub struct TargetInfo {
     pub sha256: String,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub architectures: Option<Vec<String>>,
+}
+
+/// Metadata about a file contained within an archive
+/// The path field matches Evidence.location without the "archive:" prefix.
+/// For nested archives, uses `!` separator: "inner.tar.gz!path/to/file.txt"
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ArchiveEntry {
+    /// Path within the archive. For nested archives, uses `!` separator.
+    /// Examples: "lib/utils.so", "inner.tar.gz!malware/script.sh"
+    pub path: String,
+    /// Detected file type (e.g., "java-class", "shell", "elf")
+    #[serde(rename = "type")]
+    pub file_type: String,
+    /// SHA256 hash of the file contents
+    pub sha256: String,
+    /// File size in bytes
+    pub size_bytes: u64,
 }
 
 // ========================================================================
@@ -1135,6 +1164,9 @@ pub struct NestingMetrics {
     /// Locations with deep nesting (depth > 4)
     #[serde(default, skip_serializing_if = "is_zero_u32")]
     pub deep_nest_count: u32,
+    /// Depth limit was hit during analysis (potential anti-analysis)
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub depth_limit_hit: bool,
 }
 
 /// Call pattern analysis for source code

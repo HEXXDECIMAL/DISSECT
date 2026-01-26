@@ -1166,74 +1166,220 @@ traits:
       regex: true
 
   # ============================================================
-  # KERNEL MODULE LOADING (FILELESS)
+  # KERNEL MODULE LOADING (FILELESS) - micro-traits
   # ============================================================
 
+  - id: memfd-create-call
+    desc: memfd_create function call
+    crit: suspicious
+    conf: 0.95
+    for: [elf, c]
+    platforms: [linux]
+    if:
+      type: symbol
+      pattern: "memfd_create"
+
+  - id: sys-memfd-create-ref
+    desc: SYS_memfd_create syscall reference
+    crit: suspicious
+    conf: 0.95
+    for: [elf, c]
+    platforms: [linux]
+    if:
+      type: string
+      exact: "SYS_memfd_create"
+
+  - id: finit-module-call
+    desc: finit_module function call
+    crit: suspicious
+    conf: 0.95
+    for: [elf, c]
+    platforms: [linux]
+    if:
+      type: symbol
+      pattern: "finit_module"
+
+  - id: sys-finit-module-ref
+    desc: SYS_finit_module syscall reference
+    crit: suspicious
+    conf: 0.95
+    for: [elf, c]
+    platforms: [linux]
+    if:
+      type: string
+      exact: "SYS_finit_module"
+
+  # ============================================================
+  # MEMORY PROTECTION BYPASS (PTE) - micro-traits
+  # ============================================================
+
+  - id: lookup-address-call
+    desc: lookup_address kernel function call
+    crit: suspicious
+    conf: 0.9
+    for: [c]
+    platforms: [linux]
+    if:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "lookup_address"
+
+  - id: page-rw-flag
+    desc: _PAGE_RW memory protection flag
+    crit: suspicious
+    conf: 0.9
+    for: [c]
+    platforms: [linux]
+    if:
+      type: string
+      exact: "_PAGE_RW"
+
+  - id: page-nx-flag
+    desc: _PAGE_NX memory protection flag
+    crit: suspicious
+    conf: 0.9
+    for: [c]
+    platforms: [linux]
+    if:
+      type: string
+      exact: "_PAGE_NX"
+
+  # ============================================================
+  # ELF BINARY PATCHING - micro-traits
+  # ============================================================
+
+  - id: elf64-ehdr-decl
+    desc: Elf64_Ehdr structure declaration
+    crit: suspicious
+    conf: 0.85
+    for: [c]
+    if:
+      type: ast_pattern
+      node_type: declaration
+      pattern: "Elf64_Ehdr"
+
+  - id: elf64-shdr-decl
+    desc: Elf64_Shdr structure declaration
+    crit: suspicious
+    conf: 0.85
+    for: [c]
+    if:
+      type: ast_pattern
+      node_type: declaration
+      pattern: "Elf64_Shdr"
+
+  - id: elf64-phdr-decl
+    desc: Elf64_Phdr structure declaration
+    crit: suspicious
+    conf: 0.85
+    for: [c]
+    if:
+      type: ast_pattern
+      node_type: declaration
+      pattern: "Elf64_Phdr"
+
+  - id: elf-entry-field
+    desc: e_entry ELF entry point field access
+    crit: suspicious
+    conf: 0.9
+    for: [c]
+    if:
+      type: ast_pattern
+      node_type: field_expression
+      pattern: "e_entry"
+
+  - id: patch-string-ref
+    desc: patch string reference
+    crit: inert
+    conf: 0.6
+    for: [c]
+    if:
+      type: string
+      word: "patch"
+
+composite_rules:
+  # memfd_create composite
+  - id: memfd-create
+    desc: memfd_create usage (memory-backed file)
+    crit: suspicious
+    conf: 0.95
+    for: [elf, c]
+    platforms: [linux]
+    count: 1
+    any:
+      - id: memfd-create-call
+      - id: sys-memfd-create-ref
+
+  # finit_module composite
+  - id: finit-module
+    desc: finit_module usage (module loading)
+    crit: suspicious
+    conf: 0.95
+    for: [elf, c]
+    platforms: [linux]
+    count: 1
+    any:
+      - id: finit-module-call
+      - id: sys-finit-module-ref
+
+  # Fileless LKM loading (migrated from YARA)
   - id: fileless-lkm-loading
     desc: Fileless kernel module loading (memfd_create + finit_module)
     crit: suspicious
     conf: 1.0
     attack: "T1620"
     for: [elf, c]
-    if:
-      type: yara
-      source: |
-        rule fileless_lkm_loading {
-          strings:
-            $memfd = "memfd_create" ascii
-            $finit = "finit_module" ascii
-            $sys_memfd = "SYS_memfd_create" ascii
-            $sys_finit = "SYS_finit_module" ascii
-          condition:
-            (any of ($memfd, $sys_memfd)) and (any of ($finit, $sys_finit))
-        }
+    all:
+      - id: memfd-create
+      - id: finit-module
 
-  # ============================================================
-  # MEMORY PROTECTION BYPASS (PTE MANIPULATION)
-  # ============================================================
+  # Page protection flag composite
+  - id: page-protection-flag
+    desc: Memory page protection flags
+    crit: suspicious
+    conf: 0.9
+    for: [c]
+    platforms: [linux]
+    count: 1
+    any:
+      - id: page-rw-flag
+      - id: page-nx-flag
 
+  # PTE manipulation (migrated from YARA)
   - id: pte-manipulation
     desc: Direct PTE manipulation to bypass memory protection
     crit: suspicious
     conf: 0.95
     attack: "T1014"
     for: [c]
-    if:
-      type: yara
-      source: |
-        rule pte_manipulation {
-          strings:
-            $lookup = "lookup_address" ascii
-            $rw = "_PAGE_RW" ascii
-            $nx = "_PAGE_NX" ascii
-          condition:
-            $lookup and ($rw or $nx)
-        }
+    all:
+      - id: lookup-address-call
+      - id: page-protection-flag
 
-  # ============================================================
-  # ELF BINARY PATCHING
-  # ============================================================
+  # ELF headers composite
+  - id: elf64-headers
+    desc: ELF64 structure headers
+    crit: suspicious
+    conf: 0.85
+    for: [c]
+    all:
+      - id: elf64-ehdr-decl
+      - id: elf64-shdr-decl
+      - id: elf64-phdr-decl
 
+  # ELF patching (migrated from YARA)
   - id: elf-patching
     desc: ELF binary structural patching (Infection)
     crit: suspicious
     conf: 0.95
     attack: "T1542.001"
     for: [c]
-    if:
-      type: yara
-      source: |
-        rule elf_patching {
-          strings:
-            $elf1 = "Elf64_Ehdr" ascii
-            $elf2 = "Elf64_Shdr" ascii
-            $elf3 = "Elf64_Phdr" ascii
-            $entry = "e_entry" ascii
-            $patch = "patch" ascii nocase
-          condition:
-            all of ($elf*) and ($entry or $patch)
-        }
-composite_rules:
+    all:
+      - id: elf64-headers
+    any:
+      - id: elf-entry-field
+      - id: patch-string-ref
+
   # Advanced LKM Rootkit Flow
   - id: advanced-lkm-rootkit
     desc: Advanced LKM rootkit with fileless loading or PTE manipulation

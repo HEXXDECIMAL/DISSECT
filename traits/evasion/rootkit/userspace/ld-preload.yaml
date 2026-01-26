@@ -3,134 +3,318 @@
 # ATT&CK: T1574.006 (Dynamic Linker Hijacking)
 
 traits:
-  # LD_PRELOAD environment variable manipulation
-  - id: ld-preload
+  # === LD_PRELOAD environment micro-traits ===
+  - id: ld-preload-env
     desc: References LD_PRELOAD environment variable
     crit: notable
     conf: 0.8
     if:
-      type: yara
-      source: |
-        rule ld_preload_env {
-          strings:
-            $ld_preload = "LD_PRELOAD" ascii
-            $ld_library = "LD_LIBRARY_PATH" ascii
-          condition:
-            any of them
-        }
+      type: string
+      exact: "LD_PRELOAD"
 
-  # libc function hooking (common rootkit targets)
-  # NOTE: This trait alone is not sufficient - many legitimate binaries use these
-  # functions. It becomes suspicious only when combined with dlsym/RTLD_NEXT or LD_PRELOAD
-  - id: libc-hook-targets
-    desc: References multiple libc functions commonly hooked by rootkits
-    crit: notable
-    conf: 0.5
-    mbc: "F0015"
-    attack: "T1574.006"
+  - id: ld-library-path-env
+    desc: References LD_LIBRARY_PATH environment variable
+    crit: inert
+    conf: 0.6
     if:
-      type: yara
-      source: |
-        rule libc_hook_targets {
-          strings:
-            // File operations
-            $fopen = "fopen" ascii
-            $open = "open64" ascii
-            $read = "read" ascii
-            $readdir = "readdir" ascii
-            $readdir64 = "readdir64" ascii
-            // Process listing
-            $opendir = "opendir" ascii
-            // Network
-            $accept = "accept" ascii
-            $connect = "connect" ascii
-            $recvfrom = "recvfrom" ascii
-            // User info
-            $getpwnam = "getpwnam" ascii
-            $getpwuid = "getpwuid" ascii
-            // stat family
-            $stat = "__xstat" ascii
-            $lstat = "__lxstat" ascii
-            $fstat = "__fxstat" ascii
-            $stat64 = "__xstat64" ascii
-            $lstat64 = "__lxstat64" ascii
-            // Hooking indicators (required for this to be meaningful)
-            $hook1 = "dlsym" ascii
-            $hook2 = "RTLD_NEXT" ascii
-            $hook3 = "LD_PRELOAD" ascii
-          condition:
-            5 of ($fopen, $open, $read, $readdir*, $opendir, $accept, $connect, $recvfrom, $getpwnam, $getpwuid, $stat*, $lstat*, $fstat*) and
-            any of ($hook*)
-        }
+      type: string
+      exact: "LD_LIBRARY_PATH"
 
-  # dlsym RTLD_NEXT pattern (hook chaining)
-  - id: dlsym-rtld-next
-    desc: Uses dlsym with RTLD_NEXT (function hooking pattern)
+  # === Hooking infrastructure micro-traits ===
+  - id: dlsym-call
+    desc: dlsym function call
+    crit: notable
+    conf: 0.7
+    if:
+      type: symbol
+      pattern: "dlsym"
+
+  - id: rtld-next-ref
+    desc: RTLD_NEXT macro reference
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      exact: "RTLD_NEXT"
+
+  - id: dlsym-rtld-next-pattern
+    desc: dlsym(RTLD_NEXT pattern
     crit: suspicious
     conf: 0.9
-    mbc: "F0015"
-    attack: "T1574.006"
     if:
-      type: yara
-      source: |
-        rule dlsym_rtld_next {
-          strings:
-            $dlsym = "dlsym" ascii
-            $rtld_next = "RTLD_NEXT" ascii
-            // Common hook pattern in C
-            $hook_pattern = /dlsym\s*\(\s*RTLD_NEXT/ ascii
-          condition:
-            ($dlsym and $rtld_next) or $hook_pattern
-        }
+      type: string
+      regex: "dlsym\\s*\\(\\s*RTLD_NEXT"
 
-  # Symbiote-specific patterns
-  - id: symbiote
-    desc: Symbiote rootkit indicators
+  # === libc function targets (commonly hooked) ===
+  - id: fopen-string
+    desc: fopen function reference
+    crit: inert
+    conf: 0.3
+    if:
+      type: string
+      exact: "fopen"
+
+  - id: open64-string
+    desc: open64 function reference
+    crit: inert
+    conf: 0.3
+    if:
+      type: string
+      exact: "open64"
+
+  - id: readdir-string
+    desc: readdir function reference
+    crit: inert
+    conf: 0.3
+    if:
+      type: string
+      exact: "readdir"
+
+  - id: readdir64-string
+    desc: readdir64 function reference
+    crit: inert
+    conf: 0.3
+    if:
+      type: string
+      exact: "readdir64"
+
+  - id: opendir-string
+    desc: opendir function reference
+    crit: inert
+    conf: 0.3
+    if:
+      type: string
+      exact: "opendir"
+
+  - id: accept-string
+    desc: accept function reference
+    crit: inert
+    conf: 0.3
+    if:
+      type: string
+      exact: "accept"
+
+  - id: connect-string
+    desc: connect function reference
+    crit: inert
+    conf: 0.3
+    if:
+      type: string
+      exact: "connect"
+
+  - id: recvfrom-string
+    desc: recvfrom function reference
+    crit: inert
+    conf: 0.3
+    if:
+      type: string
+      exact: "recvfrom"
+
+  - id: getpwnam-string
+    desc: getpwnam function reference
+    crit: inert
+    conf: 0.3
+    if:
+      type: string
+      exact: "getpwnam"
+
+  - id: getpwuid-string
+    desc: getpwuid function reference
+    crit: inert
+    conf: 0.3
+    if:
+      type: string
+      exact: "getpwuid"
+
+  - id: xstat-string
+    desc: __xstat function reference
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      exact: "__xstat"
+
+  - id: lxstat-string
+    desc: __lxstat function reference
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      exact: "__lxstat"
+
+  - id: fxstat-string
+    desc: __fxstat function reference
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      exact: "__fxstat"
+
+  - id: xstat64-string
+    desc: __xstat64 function reference
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      exact: "__xstat64"
+
+  - id: lxstat64-string
+    desc: __lxstat64 function reference
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      exact: "__lxstat64"
+
+  # === Symbiote rootkit indicators ===
+  - id: skullseclabs-string
+    desc: skullseclabs author string
     crit: suspicious
     conf: 0.95
-    mbc: "F0015"
-    attack: "T1574.006"
     for: [elf]
     if:
-      type: yara
-      source: |
-        rule symbiote_rootkit {
-          strings:
-            $skullsec = "skullseclabs" ascii
-            $dnscat = "DNSCAT" ascii
-            $hooked = "Hooked" ascii
-            $static = "Static" ascii
-            // Function pairs indicating hook implementation
-            $hook1 = "original_" ascii
-            $hook2 = "real_" ascii
-          condition:
-            $skullsec or $dnscat or ($hooked and $static) or ($hook1 and $hook2)
-        }
+      type: string
+      exact: "skullseclabs"
 
-  # /proc filesystem hiding
-  - id: proc-hiding
-    desc: Patterns for hiding processes via /proc manipulation
+  - id: dnscat-string
+    desc: DNSCAT C2 string
     crit: suspicious
-    conf: 0.9
-    mbc: "F0015"
-    attack: "T1574.006"
+    conf: 0.95
+    for: [elf]
+    if:
+      type: string
+      exact: "DNSCAT"
+
+  - id: hooked-string
+    desc: Hooked function indicator
+    crit: notable
+    conf: 0.7
+    for: [elf]
+    if:
+      type: string
+      exact: "Hooked"
+
+  - id: static-string
+    desc: Static function indicator
+    crit: inert
+    conf: 0.5
+    for: [elf]
+    if:
+      type: string
+      exact: "Static"
+
+  - id: original-prefix
+    desc: original_ function prefix (hook backup)
+    crit: notable
+    conf: 0.7
+    for: [elf]
+    if:
+      type: string
+      exact: "original_"
+
+  - id: real-prefix
+    desc: real_ function prefix (hook backup)
+    crit: notable
+    conf: 0.7
+    for: [elf]
+    if:
+      type: string
+      exact: "real_"
+
+  # === /proc hiding micro-traits ===
+  - id: proc-self-string
+    desc: /proc/self path reference
+    crit: inert
+    conf: 0.4
     for: [elf, c]
     if:
-      type: yara
-      source: |
-        rule proc_hiding {
-          strings:
-            $proc_self = "/proc/self" ascii
-            $proc_pid = /\/proc\/[0-9]+/ ascii
-            $proc_net = "/proc/net" ascii
-            $hide_pid = "hide_pid" ascii nocase
-            $hidden_proc = "hidden_proc" ascii nocase
-          condition:
-            ($hide_pid or $hidden_proc) or (3 of ($proc*))
-        }
+      type: string
+      exact: "/proc/self"
+
+  - id: proc-pid-pattern
+    desc: /proc/[pid] path pattern
+    crit: inert
+    conf: 0.4
+    for: [elf, c]
+    if:
+      type: string
+      regex: "/proc/[0-9]+"
+
+  - id: proc-net-string
+    desc: /proc/net path reference
+    crit: inert
+    conf: 0.4
+    for: [elf, c]
+    if:
+      type: string
+      exact: "/proc/net"
+
+  - id: hide-pid-string
+    desc: hide_pid string reference
+    crit: suspicious
+    conf: 0.9
+    for: [elf, c]
+    if:
+      type: string
+      word: "hide_pid"
+
+  - id: hidden-proc-string
+    desc: hidden_proc string reference
+    crit: suspicious
+    conf: 0.9
+    for: [elf, c]
+    if:
+      type: string
+      word: "hidden_proc"
+
+  # === ld.so backup micro-traits ===
+  - id: backup-ld-string
+    desc: backup_ld string reference
+    crit: suspicious
+    conf: 0.9
+    for: [elf]
+    if:
+      type: string
+      word: "backup_ld"
+
+  - id: orig-ld-string
+    desc: orig_ld string reference
+    crit: suspicious
+    conf: 0.9
+    for: [elf]
+    if:
+      type: string
+      word: "orig_ld"
+
+  - id: real-ld-string
+    desc: real_ld string reference
+    crit: suspicious
+    conf: 0.9
+    for: [elf]
+    if:
+      type: string
+      word: "real_ld"
+
+  - id: ld-so-bak-pattern
+    desc: ld.so backup file pattern
+    crit: suspicious
+    conf: 0.9
+    for: [elf]
+    if:
+      type: string
+      regex: "ld[\\-_\\.]so[.\\-_]?bak"
+      case_insensitive: true
+
+  - id: backup-ld-so-file
+    desc: .backup_ld.so file reference
+    crit: suspicious
+    conf: 0.9
+    for: [elf]
+    if:
+      type: string
+      exact: ".backup_ld.so"
 
   # Dynamic linker hook symbol (_dlfcn_hook)
-  # This glibc internal symbol indicates dynamic linker hooking capability
   - id: dlfcn-hook-symbol
     desc: Contains _dlfcn_hook symbol (dynamic linker hook)
     crit: suspicious
@@ -154,28 +338,6 @@ traits:
       type: string
       exact: "/etc/ld.so.preload"
 
-  # Backup ld.so pattern (rootkit hijacking original loader)
-  - id: ld-backup-pattern
-    desc: Dynamic linker backup/restore pattern
-    crit: suspicious
-    conf: 0.9
-    mbc: "F0015"
-    attack: "T1574.006"
-    for: [elf]
-    if:
-      type: yara
-      source: |
-        rule ld_backup_pattern {
-          strings:
-            $backup_ld = "backup_ld" ascii nocase
-            $orig_ld = "orig_ld" ascii nocase
-            $real_ld = "real_ld" ascii nocase
-            $ld_so_backup = /ld[\-_\.]so[\.\-_]?bak/ ascii nocase
-            $ld_backup_file = ".backup_ld.so" ascii
-          condition:
-            any of them
-        }
-
   # __libc_dlopen_mode (internal glibc dynamic loading)
   - id: libc-dlopen-mode
     desc: Uses __libc_dlopen_mode (internal glibc loader)
@@ -189,6 +351,154 @@ traits:
       exact: "__libc_dlopen_mode"
 
 composite_rules:
+  # LD_PRELOAD env composite (migrated from YARA)
+  - id: ld-preload
+    desc: References LD_PRELOAD environment variable
+    crit: notable
+    conf: 0.8
+    count: 1
+    any:
+      - id: ld-preload-env
+      - id: ld-library-path-env
+
+  # Hook infrastructure composite
+  - id: hook-infrastructure
+    desc: Hooking infrastructure (dlsym + RTLD_NEXT)
+    crit: suspicious
+    conf: 0.9
+    count: 1
+    any:
+      - id: dlsym-rtld-next-pattern
+    all:
+      - id: dlsym-call
+      - id: rtld-next-ref
+
+  # dlsym RTLD_NEXT pattern (migrated from YARA)
+  - id: dlsym-rtld-next
+    desc: Uses dlsym with RTLD_NEXT (function hooking pattern)
+    crit: suspicious
+    conf: 0.9
+    mbc: "F0015"
+    attack: "T1574.006"
+    count: 1
+    any:
+      - id: dlsym-rtld-next-pattern
+      - id: hook-infrastructure
+
+  # libc hook targets composite
+  - id: libc-targets
+    desc: Multiple libc functions commonly hooked
+    crit: inert
+    conf: 0.5
+    count: 5
+    any:
+      - id: fopen-string
+      - id: open64-string
+      - id: readdir-string
+      - id: readdir64-string
+      - id: opendir-string
+      - id: accept-string
+      - id: connect-string
+      - id: recvfrom-string
+      - id: getpwnam-string
+      - id: getpwuid-string
+      - id: xstat-string
+      - id: lxstat-string
+      - id: fxstat-string
+      - id: xstat64-string
+      - id: lxstat64-string
+
+  # Hook indicator composite
+  - id: hook-indicator
+    desc: Hook implementation indicator
+    crit: notable
+    conf: 0.7
+    count: 1
+    any:
+      - id: dlsym-call
+      - id: rtld-next-ref
+      - id: ld-preload-env
+
+  # libc hook targets with hook indicators (migrated from YARA)
+  - id: libc-hook-targets
+    desc: References multiple libc functions commonly hooked by rootkits
+    crit: notable
+    conf: 0.5
+    mbc: "F0015"
+    attack: "T1574.006"
+    all:
+      - id: libc-targets
+      - id: hook-indicator
+
+  # Hook prefix composite
+  - id: hook-prefixes
+    desc: Function hook prefixes (original_/real_)
+    crit: notable
+    conf: 0.7
+    for: [elf]
+    all:
+      - id: original-prefix
+      - id: real-prefix
+
+  # Symbiote rootkit (migrated from YARA)
+  - id: symbiote
+    desc: Symbiote rootkit indicators
+    crit: suspicious
+    conf: 0.95
+    mbc: "F0015"
+    attack: "T1574.006"
+    for: [elf]
+    count: 1
+    any:
+      - id: skullseclabs-string
+      - id: dnscat-string
+      - id: hook-prefixes
+    all:
+      - id: hooked-string
+      - id: static-string
+
+  # /proc paths composite
+  - id: proc-paths
+    desc: Multiple /proc path references
+    crit: inert
+    conf: 0.4
+    for: [elf, c]
+    count: 3
+    any:
+      - id: proc-self-string
+      - id: proc-pid-pattern
+      - id: proc-net-string
+
+  # proc hiding (migrated from YARA)
+  - id: proc-hiding
+    desc: Patterns for hiding processes via /proc manipulation
+    crit: suspicious
+    conf: 0.9
+    mbc: "F0015"
+    attack: "T1574.006"
+    for: [elf, c]
+    count: 1
+    any:
+      - id: hide-pid-string
+      - id: hidden-proc-string
+      - id: proc-paths
+
+  # ld backup pattern (migrated from YARA)
+  - id: ld-backup-pattern
+    desc: Dynamic linker backup/restore pattern
+    crit: suspicious
+    conf: 0.9
+    mbc: "F0015"
+    attack: "T1574.006"
+    for: [elf]
+    count: 1
+    any:
+      - id: backup-ld-string
+      - id: orig-ld-string
+      - id: real-ld-string
+      - id: ld-so-bak-pattern
+      - id: backup-ld-so-file
+
   # Full LD_PRELOAD rootkit
   - id: ld-preload-rootkit
     desc: LD_PRELOAD userspace rootkit (Symbiote-style)

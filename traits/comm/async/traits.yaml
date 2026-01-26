@@ -2,168 +2,517 @@
 # These libraries are commonly used in botnets and malware for high-performance I/O
 # Can be benign or malicious depending on context
 
+defaults:
+  for: [elf, macho, so, dylib]
+
 traits:
-  # libev event loop (common in Mirai variants)
+  # === libev micro-traits ===
+  - id: ev-loop
+    desc: ev_loop function
+    crit: inert
+    conf: 0.4
+    if:
+      type: symbol
+      pattern: "ev_loop"
+
+  - id: ev-io-start
+    desc: ev_io_start function
+    crit: inert
+    conf: 0.4
+    if:
+      type: symbol
+      pattern: "ev_io_start"
+
+  - id: ev-io-stop
+    desc: ev_io_stop function
+    crit: inert
+    conf: 0.4
+    if:
+      type: symbol
+      pattern: "ev_io_stop"
+
+  - id: ev-timer-start
+    desc: ev_timer_start function
+    crit: inert
+    conf: 0.4
+    if:
+      type: symbol
+      pattern: "ev_timer_start"
+
+  - id: ev-run
+    desc: ev_run function
+    crit: inert
+    conf: 0.4
+    if:
+      type: symbol
+      pattern: "ev_run"
+
+  - id: ev-break
+    desc: ev_break function
+    crit: inert
+    conf: 0.4
+    if:
+      type: symbol
+      pattern: "ev_break"
+
+  - id: ev-default-loop
+    desc: ev_default_loop function
+    crit: inert
+    conf: 0.4
+    if:
+      type: symbol
+      pattern: "ev_default_loop"
+
+  - id: libev-error
+    desc: libev error string
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      exact: "libev: "
+
+  # === libuv micro-traits ===
+  - id: uv-loop-init
+    desc: uv_loop_init function
+    crit: inert
+    conf: 0.4
+    if:
+      type: symbol
+      pattern: "uv_loop_init"
+
+  - id: uv-run
+    desc: uv_run function
+    crit: inert
+    conf: 0.4
+    if:
+      type: symbol
+      pattern: "uv_run"
+
+  - id: uv-tcp-init
+    desc: uv_tcp_init function
+    crit: inert
+    conf: 0.4
+    if:
+      type: symbol
+      pattern: "uv_tcp_init"
+
+  - id: uv-tcp-connect
+    desc: uv_tcp_connect function
+    crit: inert
+    conf: 0.4
+    if:
+      type: symbol
+      pattern: "uv_tcp_connect"
+
+  - id: uv-write
+    desc: uv_write function
+    crit: inert
+    conf: 0.4
+    if:
+      type: symbol
+      pattern: "uv_write"
+
+  - id: uv-read-start
+    desc: uv_read_start function
+    crit: inert
+    conf: 0.4
+    if:
+      type: symbol
+      pattern: "uv_read_start"
+
+  - id: uv-spawn
+    desc: uv_spawn function
+    crit: notable
+    conf: 0.5
+    if:
+      type: symbol
+      pattern: "uv_spawn"
+
+  - id: uv-default-loop
+    desc: uv_default_loop function
+    crit: inert
+    conf: 0.4
+    if:
+      type: symbol
+      pattern: "uv_default_loop"
+
+  # === c-ares micro-traits ===
+  - id: ares-init
+    desc: ares_init function
+    crit: inert
+    conf: 0.4
+    if:
+      type: symbol
+      pattern: "ares_init"
+
+  - id: ares-gethostbyname
+    desc: ares_gethostbyname function
+    crit: inert
+    conf: 0.4
+    if:
+      type: symbol
+      pattern: "ares_gethostbyname"
+
+  - id: ares-process
+    desc: ares_process function
+    crit: inert
+    conf: 0.4
+    if:
+      type: symbol
+      pattern: "ares_process"
+
+  - id: ares-destroy
+    desc: ares_destroy function
+    crit: inert
+    conf: 0.4
+    if:
+      type: symbol
+      pattern: "ares_destroy"
+
+  - id: ares-query
+    desc: ares_query function
+    crit: inert
+    conf: 0.4
+    if:
+      type: symbol
+      pattern: "ares_query"
+
+  - id: ares-success
+    desc: ARES_SUCCESS constant
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      exact: "ARES_SUCCESS"
+
+  # === libevent micro-traits ===
+  - id: event-base-new
+    desc: event_base_new function
+    crit: inert
+    conf: 0.4
+    if:
+      type: symbol
+      pattern: "event_base_new"
+
+  - id: event-base-dispatch
+    desc: event_base_dispatch function
+    crit: inert
+    conf: 0.4
+    if:
+      type: symbol
+      pattern: "event_base_dispatch"
+
+  - id: event-add
+    desc: event_add function
+    crit: inert
+    conf: 0.4
+    if:
+      type: symbol
+      pattern: "event_add"
+
+  - id: bufferevent-prefix
+    desc: bufferevent_ function prefix
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      regex: "\\bbufferevent_"
+
+  - id: evbuffer-prefix
+    desc: evbuffer_ function prefix
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      regex: "\\bevbuffer_"
+
+  - id: evdns-prefix
+    desc: evdns_ function prefix
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      regex: "\\bevdns_"
+
+  - id: evhttp-prefix
+    desc: evhttp_ function prefix
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      regex: "\\bevhttp_"
+
+  # === Boost.Asio micro-traits ===
+  - id: boost-asio-namespace
+    desc: "boost::asio namespace"
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      exact: "boost::asio"
+
+  - id: io-service
+    desc: io_service class
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      exact: "io_service"
+
+  - id: io-context
+    desc: io_context class
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      exact: "io_context"
+
+  - id: async-read
+    desc: async_read function
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      exact: "async_read"
+
+  - id: async-write
+    desc: async_write function
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      exact: "async_write"
+
+  - id: async-connect
+    desc: async_connect function
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      exact: "async_connect"
+
+  - id: deadline-timer
+    desc: deadline_timer class
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      exact: "deadline_timer"
+
+  # === Tokio micro-traits ===
+  - id: tokio-namespace
+    desc: "tokio:: namespace"
+    crit: notable
+    conf: 0.5
+    for: [elf, macho, rust]
+    if:
+      type: string
+      exact: "tokio::"
+
+  - id: tokio-runtime
+    desc: tokio_runtime reference
+    crit: inert
+    conf: 0.4
+    for: [elf, macho, rust]
+    if:
+      type: string
+      exact: "tokio_runtime"
+
+  - id: tokio-net
+    desc: "tokio::net module"
+    crit: inert
+    conf: 0.4
+    for: [elf, macho, rust]
+    if:
+      type: string
+      exact: "tokio::net"
+
+  - id: tokio-spawn
+    desc: "tokio::spawn function"
+    crit: inert
+    conf: 0.4
+    for: [elf, macho, rust]
+    if:
+      type: string
+      exact: "tokio::spawn"
+
+  - id: tokio-cargo
+    desc: tokio- cargo dependency
+    crit: inert
+    conf: 0.4
+    for: [elf, macho, rust]
+    if:
+      type: string
+      exact: "tokio-"
+
+  # === epoll/kqueue micro-traits ===
+  - id: epoll-create
+    desc: epoll_create function
+    crit: inert
+    conf: 0.4
+    if:
+      type: symbol
+      pattern: "epoll_create"
+
+  - id: epoll-ctl
+    desc: epoll_ctl function
+    crit: inert
+    conf: 0.4
+    if:
+      type: symbol
+      pattern: "epoll_ctl"
+
+  - id: epoll-wait
+    desc: epoll_wait function
+    crit: inert
+    conf: 0.4
+    if:
+      type: symbol
+      pattern: "epoll_wait"
+
+  - id: kqueue-func
+    desc: kqueue function
+    crit: inert
+    conf: 0.4
+    if:
+      type: symbol
+      pattern: "kqueue"
+
+  - id: kevent-func
+    desc: kevent function
+    crit: inert
+    conf: 0.4
+    if:
+      type: symbol
+      pattern: "kevent"
+
+composite_rules:
+  # libev composite (migrated from YARA)
   - id: libev
     desc: libev event loop library usage
     crit: notable
     conf: 0.7
-    if:
-      type: yara
-      source: |
-        rule libev_usage {
-          strings:
-            $ev1 = "ev_loop" ascii
-            $ev2 = "ev_io_start" ascii
-            $ev3 = "ev_io_stop" ascii
-            $ev4 = "ev_timer_start" ascii
-            $ev5 = "ev_timer_stop" ascii
-            $ev6 = "ev_run" ascii
-            $ev7 = "ev_break" ascii
-            $ev8 = "EV_READ" ascii
-            $ev9 = "EV_WRITE" ascii
-            $ev10 = "ev_default_loop" ascii
-            $err = "libev: " ascii
-          condition:
-            3 of them or $err
-        }
+    count: 3
+    any:
+      - id: ev-loop
+      - id: ev-io-start
+      - id: ev-io-stop
+      - id: ev-timer-start
+      - id: ev-run
+      - id: ev-break
+      - id: ev-default-loop
+      - id: libev-error
 
-  # libuv async I/O (Node.js, common in cryptominers)
+  # libuv composite (migrated from YARA)
   - id: libuv
     desc: libuv async I/O library usage
     crit: notable
     conf: 0.7
-    if:
-      type: yara
-      source: |
-        rule libuv_usage {
-          strings:
-            $uv1 = "uv_loop_init" ascii
-            $uv2 = "uv_run" ascii
-            $uv3 = "uv_tcp_init" ascii
-            $uv4 = "uv_tcp_connect" ascii
-            $uv5 = "uv_write" ascii
-            $uv6 = "uv_read_start" ascii
-            $uv7 = "uv_timer_start" ascii
-            $uv8 = "uv_async_send" ascii
-            $uv9 = "uv_spawn" ascii
-            $uv10 = "uv_default_loop" ascii
-          condition:
-            3 of them
-        }
+    count: 3
+    any:
+      - id: uv-loop-init
+      - id: uv-run
+      - id: uv-tcp-init
+      - id: uv-tcp-connect
+      - id: uv-write
+      - id: uv-read-start
+      - id: uv-spawn
+      - id: uv-default-loop
 
-  # c-ares async DNS (common in botnets)
+  # c-ares composite (migrated from YARA)
   - id: c-ares
     desc: c-ares async DNS resolver library
     crit: notable
     conf: 0.7
-    if:
-      type: yara
-      source: |
-        rule cares_usage {
-          strings:
-            $ares1 = "ares_init" ascii
-            $ares2 = "ares_gethostbyname" ascii
-            $ares3 = "ares_process" ascii
-            $ares4 = "ares_destroy" ascii
-            $ares5 = "ares_channel" ascii
-            $ares6 = "ares_query" ascii
-            $ares7 = "ares_search" ascii
-            $ares8 = "ares_process.c" ascii
-            $ares9 = "ARES_SUCCESS" ascii
-          condition:
-            2 of them
-        }
+    count: 2
+    any:
+      - id: ares-init
+      - id: ares-gethostbyname
+      - id: ares-process
+      - id: ares-destroy
+      - id: ares-query
+      - id: ares-success
 
-  # libevent async I/O
+  # libevent composite (migrated from YARA)
   - id: libevent
     desc: libevent async I/O library usage
     crit: notable
     conf: 0.7
-    if:
-      type: yara
-      source: |
-        rule libevent_usage {
-          strings:
-            $ev1 = "event_base_new" ascii
-            $ev2 = "event_base_dispatch" ascii
-            $ev3 = "event_add" ascii
-            $ev4 = "event_del" ascii
-            $ev5 = "bufferevent_" ascii
-            $ev6 = "evbuffer_" ascii
-            $ev7 = "evdns_" ascii
-            $ev8 = "evhttp_" ascii
-          condition:
-            3 of them
-        }
+    count: 3
+    any:
+      - id: event-base-new
+      - id: event-base-dispatch
+      - id: event-add
+      - id: bufferevent-prefix
+      - id: evbuffer-prefix
+      - id: evdns-prefix
+      - id: evhttp-prefix
 
-  # Boost.Asio async I/O
+  # Boost.Asio composite (migrated from YARA)
   - id: boost-asio
     desc: Boost.Asio async I/O library usage
     crit: notable
     conf: 0.7
-    if:
-      type: yara
-      source: |
-        rule boost_asio_usage {
-          strings:
-            $asio1 = "boost::asio" ascii
-            $asio2 = "io_service" ascii
-            $asio3 = "io_context" ascii
-            $asio4 = "async_read" ascii
-            $asio5 = "async_write" ascii
-            $asio6 = "async_connect" ascii
-            $asio7 = "deadline_timer" ascii
-          condition:
-            $asio1 or 3 of ($asio*)
-        }
+    count: 3
+    any:
+      - id: boost-asio-namespace
+      - id: io-service
+      - id: io-context
+      - id: async-read
+      - id: async-write
+      - id: async-connect
+      - id: deadline-timer
 
-  # Tokio async runtime (Rust)
+  # Tokio composite (migrated from YARA)
   - id: tokio
     desc: Tokio async runtime (Rust) usage
     crit: notable
     conf: 0.7
-    if:
-      type: yara
-      source: |
-        rule tokio_usage {
-          strings:
-            $tok1 = "tokio::" ascii
-            $tok2 = "tokio_runtime" ascii
-            $tok3 = "tokio::net" ascii
-            $tok4 = "tokio::io" ascii
-            $tok5 = "tokio::time" ascii
-            $tok6 = "tokio::spawn" ascii
-            $cargo = "tokio-" ascii
-          condition:
-            any of ($tok*) or $cargo
-        }
+    for: [elf, macho, rust]
+    count: 1
+    any:
+      - id: tokio-namespace
+      - id: tokio-runtime
+      - id: tokio-net
+      - id: tokio-spawn
+      - id: tokio-cargo
 
-  # High-performance networking with epoll/kqueue
+  # epoll composite
+  - id: epoll-usage
+    desc: Direct epoll usage for async I/O
+    crit: notable
+    conf: 0.65
+    count: 2
+    any:
+      - id: epoll-create
+      - id: epoll-ctl
+      - id: epoll-wait
+
+  # kqueue composite
+  - id: kqueue-usage
+    desc: Direct kqueue usage for async I/O
+    crit: notable
+    conf: 0.65
+    all:
+      - id: kqueue-func
+      - id: kevent-func
+
+  # epoll/kqueue composite (migrated from YARA)
   - id: epoll-kqueue
     desc: Direct epoll/kqueue usage for async I/O
     crit: notable
     conf: 0.65
-    if:
-      type: yara
-      source: |
-        rule epoll_kqueue {
-          strings:
-            $epoll1 = "epoll_create" ascii
-            $epoll2 = "epoll_ctl" ascii
-            $epoll3 = "epoll_wait" ascii
-            $kqueue1 = "kqueue" ascii
-            $kqueue2 = "kevent" ascii
-          condition:
-            2 of ($epoll*) or ($kqueue1 and $kqueue2)
-        }
+    count: 1
+    any:
+      - id: epoll-usage
+      - id: kqueue-usage
 
-composite_rules:
   # Botnet-style async networking
   - id: botnet-style
     desc: High-performance async networking (botnet pattern)
     crit: suspicious
     conf: 0.75
+    count: 1
     any:
       - id: libev
       - id: c-ares

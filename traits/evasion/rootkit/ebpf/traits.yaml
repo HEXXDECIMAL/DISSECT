@@ -3,201 +3,523 @@
 # Patterns derived from TripleCross and other eBPF rootkits
 
 traits:
-  # = :::::::::::::::::::::::::::::::::===========================
-  # eBPF HOOKING AND TRACEPOINTS
-  # ============================================================
+  # === eBPF Section Markers ===
+  - id: sec-syscall-enter
+    desc: 'SEC("tp/syscalls/sys_enter_") tracepoint'
+    crit: notable
+    conf: 0.8
+    for: [c, elf]
+    if:
+      type: string
+      regex: 'SEC\("t(p|racepoint)/syscalls/sys_enter_'
 
+  - id: sec-syscall-exit
+    desc: 'SEC("tp/syscalls/sys_exit_") tracepoint'
+    crit: notable
+    conf: 0.8
+    for: [c, elf]
+    if:
+      type: string
+      regex: 'SEC\("t(p|racepoint)/syscalls/sys_exit_'
+
+  - id: sec-xdp
+    desc: 'SEC("xdp") section marker'
+    crit: notable
+    conf: 0.8
+    for: [c, elf]
+    if:
+      type: string
+      exact: 'SEC("xdp'
+
+  - id: sec-uprobe
+    desc: 'SEC("uprobe/") section marker'
+    crit: notable
+    conf: 0.8
+    for: [c, elf]
+    if:
+      type: string
+      exact: 'SEC("uprobe/'
+
+  # === XDP Packet Structures ===
+  - id: xdp-md-struct
+    desc: struct xdp_md packet context
+    crit: inert
+    conf: 0.7
+    for: [c, elf]
+    if:
+      type: string
+      exact: "struct xdp_md"
+
+  - id: xdp-data-end
+    desc: XDP data_end pointer
+    crit: inert
+    conf: 0.5
+    for: [c, elf]
+    if:
+      type: string
+      exact: "data_end"
+
+  - id: xdp-iph
+    desc: IP header struct reference
+    crit: inert
+    conf: 0.5
+    for: [c, elf]
+    if:
+      type: string
+      exact: "iph"
+
+  - id: xdp-tcph
+    desc: TCP header struct reference
+    crit: inert
+    conf: 0.5
+    for: [c, elf]
+    if:
+      type: string
+      exact: "tcph"
+
+  - id: xdp-payload
+    desc: Packet payload reference
+    crit: inert
+    conf: 0.5
+    for: [c, elf]
+    if:
+      type: string
+      exact: "payload"
+
+  # === Intent Markers ===
+  - id: intent-magic
+    desc: Magic marker string
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      regex: "(?i)magic"
+
+  - id: intent-trigger
+    desc: Trigger marker string
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      regex: "(?i)trigger"
+
+  - id: intent-backdoor
+    desc: Backdoor marker string
+    crit: suspicious
+    conf: 0.7
+    if:
+      type: string
+      regex: "(?i)backdoor"
+
+  - id: intent-secret
+    desc: Secret marker string
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      regex: "(?i)secret"
+
+  # === Go eBPF Libraries ===
+  - id: cilium-ebpf
+    desc: github.com/cilium/ebpf library
+    crit: notable
+    conf: 0.85
+    for: [go]
+    if:
+      type: string
+      exact: "github.com/cilium/ebpf"
+
+  - id: libbpfgo
+    desc: github.com/aquasecurity/libbpfgo library
+    crit: notable
+    conf: 0.85
+    for: [go]
+    if:
+      type: string
+      exact: "github.com/aquasecurity/libbpfgo"
+
+  - id: datadog-ebpf
+    desc: github.com/DataDog/ebpf library
+    crit: notable
+    conf: 0.85
+    for: [go]
+    if:
+      type: string
+      exact: "github.com/DataDog/ebpf"
+
+  - id: ebpf-new-collection
+    desc: ebpf.NewCollection function
+    crit: notable
+    conf: 0.85
+    for: [go]
+    if:
+      type: string
+      exact: "ebpf.NewCollection"
+
+  - id: ebpf-new-program
+    desc: ebpf.NewProgram function
+    crit: notable
+    conf: 0.85
+    for: [go]
+    if:
+      type: string
+      exact: "ebpf.NewProgram"
+
+  - id: load-pinned-program
+    desc: LoadPinnedProgram function
+    crit: notable
+    conf: 0.85
+    for: [go]
+    if:
+      type: string
+      exact: "LoadPinnedProgram"
+
+  # === Offensive Intent ===
+  - id: rootkit-string
+    desc: Rootkit string reference
+    crit: suspicious
+    conf: 0.8
+    if:
+      type: string
+      regex: "(?i)rootkit"
+
+  - id: hide-string
+    desc: Hide string reference
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      regex: "(?i)hide"
+
+  - id: bypass-string
+    desc: Bypass string reference
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      regex: "(?i)bypass"
+
+  - id: patch-string
+    desc: Patch string reference
+    crit: notable
+    conf: 0.5
+    if:
+      type: string
+      regex: "(?i)patch"
+
+  # === eBPF Manipulation Functions ===
+  - id: bpf-probe-write-user
+    desc: bpf_probe_write_user function (memory patching)
+    crit: suspicious
+    conf: 1.0
+    attack: "T1562.001"
+    for: [c, elf]
+    if:
+      type: symbol
+      pattern: "bpf_probe_write_user"
+
+  # === Sensitive File References ===
+  - id: sudoers-ref
+    desc: Sudoers file reference
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      regex: "(?i)sudoers"
+
+  - id: shadow-ref
+    desc: Shadow file reference
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      regex: "(?i)shadow"
+
+  - id: passwd-ref
+    desc: Passwd file reference
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      regex: "(?i)passwd"
+
+  # === Directory Entry Hiding ===
+  - id: getdents64-tracepoint
+    desc: tp/syscalls/sys_exit_getdents64 tracepoint
+    crit: suspicious
+    conf: 0.9
+    for: [c, elf]
+    if:
+      type: string
+      exact: "tp/syscalls/sys_exit_getdents64"
+
+  - id: d-reclen
+    desc: d_reclen dirent field
+    crit: inert
+    conf: 0.5
+    for: [c, elf]
+    if:
+      type: string
+      exact: "d_reclen"
+
+  # === Uprobe Hooking ===
+  - id: crypt-verify
+    desc: crypt_verify function reference
+    crit: notable
+    conf: 0.7
+    for: [c, elf]
+    if:
+      type: string
+      exact: "crypt_verify"
+
+  - id: password-string
+    desc: Password string reference
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      exact: "password"
+
+  # === HTTP Manipulation ===
+  - id: http-routes
+    desc: http_routes manipulation
+    crit: notable
+    conf: 0.7
+    for: [c, elf]
+    if:
+      type: string
+      exact: "http_routes"
+
+  - id: http-edit
+    desc: HTTP_EDIT action
+    crit: suspicious
+    conf: 0.8
+    for: [c, elf]
+    if:
+      type: string
+      exact: "HTTP_EDIT"
+
+  - id: http-drop
+    desc: HTTP_DROP action
+    crit: suspicious
+    conf: 0.8
+    for: [c, elf]
+    if:
+      type: string
+      exact: "HTTP_DROP"
+
+  - id: http-string
+    desc: HTTP protocol string
+    crit: inert
+    conf: 0.3
+    if:
+      type: string
+      exact: "HTTP"
+
+composite_rules:
+  # eBPF syscall hooking (migrated from YARA)
   - id: syscall-hooking
     desc: eBPF program hooking syscall tracepoints
     crit: suspicious
     conf: 0.95
     attack: "T1014"
     for: [c, elf]
-    if:
-      type: yara
-      source: |
-        rule ebpf_syscall_hooking {
-          strings:
-            $sec1 = "SEC(\"tp/syscalls/sys_enter_" ascii
-            $sec2 = "SEC(\"tp/syscalls/sys_exit_" ascii
-            $sec3 = "SEC(\"tracepoint/syscalls/sys_enter_" ascii
-            $sec4 = "SEC(\"tracepoint/syscalls/sys_exit_" ascii
-          condition:
-            any of them
-        }
+    count: 1
+    any:
+      - id: sec-syscall-enter
+      - id: sec-syscall-exit
 
+  # XDP packet inspection helper
+  - id: xdp-packet-inspection
+    desc: XDP packet inspection primitives
+    crit: notable
+    conf: 0.7
+    for: [c, elf]
+    count: 3
+    any:
+      - id: xdp-data-end
+      - id: xdp-iph
+      - id: xdp-tcph
+      - id: xdp-payload
+
+  # Intent markers helper
+  - id: offensive-intent
+    desc: Offensive intent markers
+    crit: notable
+    conf: 0.7
+    count: 1
+    any:
+      - id: intent-magic
+      - id: intent-trigger
+      - id: intent-backdoor
+      - id: intent-secret
+
+  # XDP backdoor composite (migrated from YARA)
   - id: xdp-backdoor
     desc: XDP-based network backdoor or packet interception
     crit: suspicious
     conf: 0.95
     attack: "T1205"
     for: [c, elf]
-    if:
-      type: yara
-      source: |
-        rule ebpf_xdp_backdoor {
-          strings:
-            $xdp1 = "SEC(\"xdp" ascii
-            $xdp2 = "struct xdp_md" ascii
-            // Packet inspection primitives (offset math + byte comparison)
-            $p1 = "data_end" ascii
-            $p2 = "data" ascii
-            $p3 = "iph" ascii
-            $p4 = "tcph" ascii
-            $p5 = "payload" ascii
-            // Intent markers
-            $i1 = "magic" ascii nocase
-            $i2 = "trigger" ascii nocase
-            $i3 = "backdoor" ascii nocase
-            $i4 = "secret" ascii nocase
-          condition:
-            (any of ($xdp*)) and (3 of ($p*)) and (any of ($i*))
-        }
+    all:
+      - id: xdp-section-marker
+      - id: xdp-packet-inspection
+      - id: offensive-intent
 
-  # ============================================================
-  # Go-BASED eBPF LOADERS
-  # ============================================================
+  # XDP section marker helper
+  - id: xdp-section-marker
+    desc: XDP section markers
+    crit: notable
+    conf: 0.8
+    for: [c, elf]
+    count: 1
+    any:
+      - id: sec-xdp
+      - id: xdp-md-struct
 
+  # Go eBPF loader (migrated from YARA)
   - id: go-loader
     desc: Go-based eBPF program loader using common libraries
     crit: notable
     conf: 0.9
     for: [go]
-    if:
-      type: yara
-      source: |
-        rule ebpf_go_loader {
-          strings:
-            $lib1 = "github.com/cilium/ebpf" ascii
-            $lib2 = "github.com/aquasecurity/libbpfgo" ascii
-            $lib3 = "github.com/DataDog/ebpf" ascii
-            $func1 = "ebpf.NewCollection" ascii
-            $func2 = "ebpf.NewProgram" ascii
-            $func3 = "LoadPinnedProgram" ascii
-          condition:
-            any of them
-        }
+    count: 1
+    any:
+      - id: cilium-ebpf
+      - id: libbpfgo
+      - id: datadog-ebpf
+      - id: ebpf-new-collection
+      - id: ebpf-new-program
+      - id: load-pinned-program
 
+  # Go offensive sections helper
+  - id: go-ebpf-sections
+    desc: Go eBPF offensive section references
+    crit: notable
+    conf: 0.8
+    for: [go]
+    count: 1
+    any:
+      - id: sec-syscall-enter
+      - id: sec-syscall-exit
+      - id: sec-xdp
+      - id: sec-uprobe
+
+  # Go offensive intent helper
+  - id: go-offensive-intent
+    desc: Go eBPF offensive intent markers
+    crit: notable
+    conf: 0.7
+    for: [go]
+    count: 1
+    any:
+      - id: rootkit-string
+      - id: hide-string
+      - id: bypass-string
+      - id: patch-string
+
+  # Go offensive program (migrated from YARA)
   - id: go-offensive-program
     desc: Go loader referencing offensive eBPF sections
     crit: suspicious
     conf: 0.95
     attack: "T1014"
     for: [go]
-    if:
-      type: yara
-      source: |
-        rule ebpf_go_offensive_sections {
-          strings:
-            $s1 = "tp/syscalls/sys_enter_" ascii
-            $s2 = "tp/syscalls/sys_exit_" ascii
-            $s3 = "xdp" ascii
-            $s4 = "uprobe" ascii
-            // Combined with offensive intent
-            $i1 = "rootkit" ascii nocase
-            $i2 = "hide" ascii nocase
-            $i3 = "bypass" ascii nocase
-            $i4 = "patch" ascii nocase
-          condition:
-            (any of ($s*)) and (any of ($i*))
-        }
+    all:
+      - id: go-ebpf-sections
+      - id: go-offensive-intent
 
-  # ============================================================
-  # eBPF DECEPTION AND MANIPULATION
-  # ============================================================
-
+  # Probe write user (migrated from YARA)
   - id: probe-write-user
     desc: eBPF program writing to user-space memory (PATCHING)
     crit: suspicious
     conf: 1.0
     attack: "T1562.001"
     for: [c, elf]
-    if:
-      type: yara
-      source: |
-        rule ebpf_probe_write_user {
-          strings:
-            $write = "bpf_probe_write_user" ascii
-          condition:
-            $write
-        }
+    count: 1
+    any:
+      - id: bpf-probe-write-user
 
+  # Sensitive file helper
+  - id: sensitive-file-ref
+    desc: Sensitive system file references
+    crit: notable
+    conf: 0.7
+    count: 1
+    any:
+      - id: sudoers-ref
+      - id: shadow-ref
+      - id: passwd-ref
+
+  # Sudoers manipulation (migrated from YARA)
   - id: sudoers-manipulation
     desc: eBPF-based runtime manipulation of sudoers or shadow in memory
     crit: suspicious
     conf: 1.0
     attack: "T1068"
     for: [c, elf]
-    if:
-      type: yara
-      source: |
-        rule ebpf_sensitive_file_patch {
-          strings:
-            $s1 = "sudoers" ascii nocase
-            $s2 = "shadow" ascii nocase
-            $s3 = "passwd" ascii nocase
-            $s4 = "bpf_probe_write_user" ascii
-          condition:
-            (any of ($s1, $s2, $s3)) and $s4
-        }
+    all:
+      - id: sensitive-file-ref
+      - id: bpf-probe-write-user
 
+  # Dirent hiding (migrated from YARA)
   - id: dirent-hiding
     desc: eBPF-based file/directory hiding via getdents record length manipulation
     crit: suspicious
     conf: 0.95
     attack: "T1014"
     for: [c, elf]
-    if:
-      type: yara
-      source: |
-        rule ebpf_dirent_hiding {
-          strings:
-            $tp = "tp/syscalls/sys_exit_getdents64" ascii
-            $reclen = "d_reclen" ascii
-            $write = "bpf_probe_write_user" ascii
-          condition:
-            $tp and $reclen and $write
-        }
+    all:
+      - id: getdents64-tracepoint
+      - id: d-reclen
+      - id: bpf-probe-write-user
 
+  # Uprobe hooking (migrated from YARA)
   - id: uprobe-hooking
     desc: eBPF program hooking user-space functions (uprobes)
     crit: suspicious
     conf: 0.95
     attack: "T1014"
     for: [c, elf]
-    if:
-      type: yara
-      source: |
-        rule ebpf_uprobe_hooking {
-          strings:
-            $sec = "SEC(\"uprobe/" ascii
-            $crypt = "crypt_verify" ascii
-            $passwd = "password" ascii
-          condition:
-            $sec and ($crypt or $passwd)
-        }
+    all:
+      - id: sec-uprobe
+      - id: uprobe-target
 
+  # Uprobe target helper
+  - id: uprobe-target
+    desc: Uprobe credential targets
+    crit: notable
+    conf: 0.7
+    for: [c, elf]
+    count: 1
+    any:
+      - id: crypt-verify
+      - id: password-string
+
+  # HTTP manipulation helper
+  - id: http-manipulation-action
+    desc: HTTP manipulation actions
+    crit: suspicious
+    conf: 0.8
+    for: [c, elf]
+    count: 1
+    any:
+      - id: http-routes
+      - id: http-edit
+      - id: http-drop
+
+  # HTTP manipulation (migrated from YARA)
   - id: http-manipulation
     desc: eBPF program performing HTTP traffic manipulation (XDP)
     crit: suspicious
     conf: 0.95
     attack: "T1557"
     for: [c, elf]
-    if:
-      type: yara
-      source: |
-        rule ebpf_http_manipulation {
-          strings:
-            $http = "HTTP" ascii
-            $route = "http_routes" ascii
-            $edit = "HTTP_EDIT" ascii
-            $drop = "HTTP_DROP" ascii
-            $xdp = "SEC(\"xdp" ascii
-          condition:
-            $xdp and $http and (any of ($route, $edit, $drop))
-        }
+    all:
+      - id: sec-xdp
+      - id: http-string
+      - id: http-manipulation-action
 
-composite_rules:
   # High-Confidence eBPF Rootkit
   - id: advanced-rootkit
     desc: Highly confident eBPF-based offensive rootkit (TripleCross style)
@@ -205,7 +527,7 @@ composite_rules:
     conf: 0.99
     attack: "T1014"
     for: [c, elf, go]
-    requires_count: 2
+    count: 2
     any:
       - id: syscall-hooking
       - id: xdp-backdoor

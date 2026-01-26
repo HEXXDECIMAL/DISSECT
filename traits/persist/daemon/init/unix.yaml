@@ -67,32 +67,46 @@ traits:
       type: string
       regex: "/proc/self(/|$)"
 
-  # Signal handling for daemon persistence
-  # NOTE: Go runtime sets up signal handlers legitimately - downgraded to inert
-  - id: signal-ignore-pattern
-    description: "Signal handler setup (daemon persistence pattern)"
+  # === Signal handling micro-traits (migrated from YARA) ===
+  - id: signal-symbol
+    description: signal function symbol
     crit: inert
     confidence: 0.3
-    attack: "T1543"
     file_types: [elf, macho]
     platforms: [linux, macos, unix]
     condition:
-      type: yara
-      source: |
-        rule daemon_signal_ignore {
-          meta:
-            description = "Daemon ignores terminal/pipe signals"
-          strings:
-            $signal = "signal" fullword
-            $sigaction = "sigaction" fullword
-            // Signal numbers: SIGPIPE=13, SIGHUP=1
-            $sig_ign = { bf 01 00 00 00 be 01 00 00 00 }  // mov edi, 1; mov esi, 1 (SIGHUP, SIG_IGN)
-            $sig_ign2 = { bf 0d 00 00 00 be 01 00 00 00 } // mov edi, 13; mov esi, 1 (SIGPIPE, SIG_IGN)
-          condition:
-            filesize < 10MB and
-            ($signal or $sigaction) and
-            ($sig_ign or $sig_ign2)
-        }
+      type: symbol
+      pattern: "\\bsignal\\b"
+
+  - id: sigaction-symbol
+    description: sigaction function symbol
+    crit: inert
+    confidence: 0.3
+    file_types: [elf, macho]
+    platforms: [linux, macos, unix]
+    condition:
+      type: symbol
+      pattern: "\\bsigaction\\b"
+
+  - id: sig-ign-sighup-x64
+    description: SIGHUP signal ignore pattern (x86_64)
+    crit: notable
+    confidence: 0.6
+    file_types: [elf, macho]
+    platforms: [linux, macos, unix]
+    condition:
+      type: hex
+      pattern: "BF 01 00 00 00 BE 01 00 00 00"
+
+  - id: sig-ign-sigpipe-x64
+    description: SIGPIPE signal ignore pattern (x86_64)
+    crit: notable
+    confidence: 0.6
+    file_types: [elf, macho]
+    platforms: [linux, macos, unix]
+    condition:
+      type: hex
+      pattern: "BF 0D 00 00 00 BE 01 00 00 00"
 
   # === sigchld-handler atomic indicators ===
   - id: sigchild-underscore
@@ -133,10 +147,46 @@ composite_rules:
     attack: "T1543"
     file_types: [elf, macho]
     platforms: [linux, macos]
-    requires_count: 1
+    count: 1
     any:
       - id: fork-symbol
       - id: daemon-symbol
+
+  # Signal function composite
+  - id: signal-function
+    description: Signal handling function
+    crit: inert
+    confidence: 0.3
+    file_types: [elf, macho]
+    platforms: [linux, macos, unix]
+    count: 1
+    any:
+      - id: signal-symbol
+      - id: sigaction-symbol
+
+  # Signal ignore pattern composite
+  - id: sig-ign-pattern
+    description: Signal ignore byte pattern (x86_64)
+    crit: notable
+    confidence: 0.6
+    file_types: [elf, macho]
+    platforms: [linux, macos, unix]
+    count: 1
+    any:
+      - id: sig-ign-sighup-x64
+      - id: sig-ign-sigpipe-x64
+
+  # Signal ignore for daemon (migrated from YARA)
+  - id: signal-ignore-pattern
+    description: "Signal handler setup (daemon persistence pattern)"
+    crit: inert
+    confidence: 0.3
+    attack: "T1543"
+    file_types: [elf, macho]
+    platforms: [linux, macos, unix]
+    all:
+      - id: signal-function
+      - id: sig-ign-pattern
 
   - id: sigchld-handler
     description: "Custom SIGCHLD handler (child process reaping)"
@@ -145,7 +195,7 @@ composite_rules:
     attack: "T1543"
     file_types: [elf, macho]
     platforms: [linux, macos, unix]
-    requires_count: 1
+    count: 1
     any:
       - id: sigchild-underscore
       - id: sigchld-handler-string
@@ -161,7 +211,7 @@ composite_rules:
     platforms: [linux]
     all:
       - id: daemon-dev-null
-    requires_any:
+    any:
       - id: daemon-fork
       - id: daemon-setsid
 
@@ -177,6 +227,6 @@ composite_rules:
     platforms: [linux]
     all:
       - id: daemon-proc-self
-    requires_any:
+    any:
       - id: daemon-fork
       - id: daemon-setsid

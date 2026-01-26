@@ -52,46 +52,89 @@ traits:
       type: string
       regex: "Fernet\\.generate_key\\s*\\("
 
-  # Runtime fernet installation (very suspicious - why install crypto at runtime?)
-  - id: runtime-install
-    desc: "Runtime installation of fernet encryption library"
-    crit: suspicious
-    conf: 0.95
+  # === Runtime installation patterns ===
+  - id: pip-install-fernet-lower
+    desc: pip install fernet (lowercase)
+    crit: inert
+    conf: 0.75
     if:
-      type: yara
-      source: |
-        rule fernet_runtime_install {
-          meta:
-            description = "Detects runtime installation of fernet library"
-          strings:
-            $pip_fernet1 = "pip install fernet" ascii nocase
-            $pip_fernet2 = "pip install cryptography" ascii nocase
-            $import_check = "import fernet" ascii
-            $except = "except" ascii
-            $importerror = "ImportError" ascii
-          condition:
-            ($pip_fernet1 or $pip_fernet2) and ($except or $importerror or $import_check)
-        }
+      type: string
+      exact: "pip install fernet"
 
-  # Fernet with hardcoded key (payload decryption)
-  - id: hardcoded-key
-    desc: "Fernet encryption with hardcoded key pattern"
-    crit: suspicious
-    conf: 0.9
+  - id: pip-install-fernet-title
+    desc: pip install fernet (titlecase)
+    crit: inert
+    conf: 0.75
     if:
-      type: yara
-      source: |
-        rule fernet_hardcoded_key {
-          meta:
-            description = "Fernet with base64 key (44 chars ending in =)"
-          strings:
-            $fernet = "Fernet" ascii
-            $b64_key = /b['"][A-Za-z0-9+\/]{43}=['"]/ ascii
-          condition:
-            $fernet and $b64_key
-        }
+      type: string
+      exact: "pip install Fernet"
+
+  - id: pip-install-cryptography-lower
+    desc: pip install cryptography (lowercase)
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "pip install cryptography"
+
+  - id: pip-install-cryptography-title
+    desc: pip install cryptography (titlecase)
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "pip install Cryptography"
+
+  - id: except-keyword
+    desc: except keyword
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      word: "except"
+
+  - id: importerror-keyword
+    desc: ImportError exception
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      word: "ImportError"
+
+  # === Hardcoded key patterns ===
+  - id: fernet-keyword
+    desc: Fernet keyword
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      word: "Fernet"
+
+  - id: fernet-base64-key
+    desc: Fernet base64 key pattern (44 chars)
+    crit: inert
+    conf: 0.8
+    if:
+      type: string
+      regex: "b['\"][A-Za-z0-9+/]{43}=['\"]"
 
 composite_rules:
+  # Helper composites
+  - id: pip-install-fernet-variants
+    description: pip install fernet (case variants)
+    any:
+      - {id: pip-install-fernet-lower}
+      - {id: pip-install-fernet-title}
+      - {id: pip-install-cryptography-lower}
+      - {id: pip-install-cryptography-title}
+
+  - id: error-handling-keywords
+    description: Error handling keywords
+    any:
+      - {id: except-keyword}
+      - {id: importerror-keyword}
+      - {id: import-fernet-direct}
+
   # Fernet import composite
   - id: import
     desc: Fernet symmetric encryption library import
@@ -99,5 +142,22 @@ composite_rules:
     conf: 0.9
     requires_count: 1
     any:
-      - id: import-fernet-direct
-      - id: from-cryptography-fernet
+      - {id: import-fernet-direct}
+      - {id: from-cryptography-fernet}
+
+  # Migrated from YARA
+  - id: runtime-install
+    desc: Runtime installation of fernet encryption library
+    crit: suspicious
+    conf: 0.95
+    all:
+      - {id: pip-install-fernet-variants}
+      - {id: error-handling-keywords}
+
+  - id: hardcoded-key
+    desc: Fernet encryption with hardcoded key pattern
+    crit: suspicious
+    conf: 0.9
+    all:
+      - {id: fernet-keyword}
+      - {id: fernet-base64-key}

@@ -8,9 +8,8 @@ use super::context::{ConditionResult, EvaluationContext, StringParams};
 use super::evaluators::{
     eval_ast_pattern, eval_ast_query, eval_exports_count, eval_filesize, eval_hex,
     eval_import_combination, eval_imports_count, eval_metrics, eval_raw, eval_section_entropy,
-    eval_section_ratio, eval_string, eval_string_count, eval_structure, eval_symbol,
-    eval_symbol_or_string, eval_syscall, eval_trait, eval_trait_glob, eval_yara_inline,
-    eval_yara_match,
+    eval_section_name, eval_section_ratio, eval_string, eval_string_count, eval_structure,
+    eval_symbol, eval_syscall, eval_trait, eval_trait_glob, eval_yara_inline, eval_yara_match,
 };
 use super::types::{default_file_types, default_platforms, FileType, Platform};
 use crate::types::{Criticality, Evidence, Finding, FindingKind};
@@ -112,12 +111,15 @@ impl TraitDefinition {
     /// Evaluate a single condition
     fn eval_condition(&self, condition: &Condition, ctx: &EvaluationContext) -> ConditionResult {
         match condition {
-            Condition::Symbol { pattern, platforms } => {
-                eval_symbol(pattern, platforms.as_ref(), ctx)
-            }
+            Condition::Symbol {
+                exact,
+                pattern,
+                platforms,
+            } => eval_symbol(exact.as_ref(), pattern.as_ref(), platforms.as_ref(), ctx),
             Condition::String {
                 exact,
                 regex,
+                word,
                 case_insensitive,
                 exclude_patterns,
                 min_count,
@@ -126,6 +128,7 @@ impl TraitDefinition {
                 let params = StringParams {
                     exact: exact.as_ref(),
                     regex: regex.as_ref(),
+                    word: word.as_ref(),
                     case_insensitive: *case_insensitive,
                     exclude_patterns: exclude_patterns.as_ref(),
                     min_count: *min_count,
@@ -140,7 +143,6 @@ impl TraitDefinition {
                 feature,
                 min_sections,
             } => eval_structure(feature, *min_sections, ctx),
-            Condition::SymbolOrString { any } => eval_symbol_or_string(any, ctx),
             Condition::ImportsCount { min, max, filter } => {
                 eval_imports_count(*min, *max, filter.as_ref(), ctx)
             }
@@ -214,15 +216,18 @@ impl TraitDefinition {
             Condition::Raw {
                 exact,
                 regex,
+                word,
                 case_insensitive,
                 min_count,
             } => eval_raw(
                 exact.as_ref(),
                 regex.as_ref(),
+                word.as_ref(),
                 *case_insensitive,
                 *min_count,
                 ctx,
             ),
+            Condition::SectionName { pattern, regex } => eval_section_name(pattern, *regex, ctx),
         }
     }
 }
@@ -330,6 +335,7 @@ impl CompositeTrait {
                 matched: true,
                 evidence: combined_evidence,
                 traits: Vec::new(),
+                warnings: Vec::new(),
             }
         } else if let Some(ref conds) = self.all {
             self.eval_requires_all(conds, ctx)
@@ -348,6 +354,7 @@ impl CompositeTrait {
                 matched: true,
                 evidence: Vec::new(),
                 traits: Vec::new(),
+                warnings: Vec::new(),
             }
         };
 
@@ -369,6 +376,7 @@ impl CompositeTrait {
                 matched: true,
                 evidence: combined_evidence,
                 traits: Vec::new(),
+                warnings: Vec::new(),
             }
         } else if !has_positive {
             // No positive conditions and no none - invalid rule
@@ -418,6 +426,7 @@ impl CompositeTrait {
                     matched: false,
                     evidence: Vec::new(),
                     traits: Vec::new(),
+                    warnings: Vec::new(),
                 };
             }
             all_evidence.extend(result.evidence);
@@ -427,6 +436,7 @@ impl CompositeTrait {
             matched: true,
             evidence: all_evidence,
             traits: Vec::new(),
+            warnings: Vec::new(),
         }
     }
 
@@ -448,6 +458,7 @@ impl CompositeTrait {
             matched: any_matched,
             evidence: all_evidence,
             traits: Vec::new(),
+            warnings: Vec::new(),
         }
     }
 
@@ -485,6 +496,7 @@ impl CompositeTrait {
             matched,
             evidence: if matched { all_evidence } else { Vec::new() },
             traits: Vec::new(),
+            warnings: Vec::new(),
         }
     }
 
@@ -497,6 +509,7 @@ impl CompositeTrait {
                     matched: false,
                     evidence: Vec::new(),
                     traits: Vec::new(),
+                    warnings: Vec::new(),
                 };
             }
         }
@@ -510,18 +523,22 @@ impl CompositeTrait {
                 location: None,
             }],
             traits: Vec::new(),
+            warnings: Vec::new(),
         }
     }
 
     /// Evaluate a single condition
     fn eval_condition(&self, condition: &Condition, ctx: &EvaluationContext) -> ConditionResult {
         match condition {
-            Condition::Symbol { pattern, platforms } => {
-                self.eval_symbol(pattern, platforms.as_ref(), ctx)
-            }
+            Condition::Symbol {
+                exact,
+                pattern,
+                platforms,
+            } => self.eval_symbol(exact.as_ref(), pattern.as_ref(), platforms.as_ref(), ctx),
             Condition::String {
                 exact,
                 regex,
+                word,
                 case_insensitive,
                 exclude_patterns,
                 min_count,
@@ -530,6 +547,7 @@ impl CompositeTrait {
                 let params = StringParams {
                     exact: exact.as_ref(),
                     regex: regex.as_ref(),
+                    word: word.as_ref(),
                     case_insensitive: *case_insensitive,
                     exclude_patterns: exclude_patterns.as_ref(),
                     min_count: *min_count,
@@ -544,7 +562,6 @@ impl CompositeTrait {
                 feature,
                 min_sections,
             } => self.eval_structure(feature, *min_sections, ctx),
-            Condition::SymbolOrString { any } => self.eval_symbol_or_string(any, ctx),
             Condition::ImportsCount { min, max, filter } => {
                 self.eval_imports_count(*min, *max, filter.as_ref(), ctx)
             }
@@ -618,22 +635,26 @@ impl CompositeTrait {
             Condition::Raw {
                 exact,
                 regex,
+                word,
                 case_insensitive,
                 min_count,
             } => eval_raw(
                 exact.as_ref(),
                 regex.as_ref(),
+                word.as_ref(),
                 *case_insensitive,
                 *min_count,
                 ctx,
             ),
+            Condition::SectionName { pattern, regex } => eval_section_name(pattern, *regex, ctx),
         }
     }
 
     /// Evaluate symbol condition
     fn eval_symbol(
         &self,
-        pattern: &str,
+        exact: Option<&String>,
+        pattern: Option<&String>,
         platforms: Option<&Vec<Platform>>,
         ctx: &EvaluationContext,
     ) -> ConditionResult {
@@ -644,11 +665,12 @@ impl CompositeTrait {
                     matched: false,
                     evidence: Vec::new(),
                     traits: Vec::new(),
+                    warnings: Vec::new(),
                 };
             }
         }
 
-        eval_symbol(pattern, None, ctx)
+        eval_symbol(exact, pattern, None, ctx)
     }
 
     /// Evaluate YARA match condition
@@ -669,15 +691,6 @@ impl CompositeTrait {
         ctx: &EvaluationContext,
     ) -> ConditionResult {
         eval_structure(feature, min_sections, ctx)
-    }
-
-    /// Evaluate symbol OR string condition
-    fn eval_symbol_or_string(
-        &self,
-        patterns: &[String],
-        ctx: &EvaluationContext,
-    ) -> ConditionResult {
-        eval_symbol_or_string(patterns, ctx)
     }
 
     /// Evaluate imports count condition
@@ -718,6 +731,7 @@ impl CompositeTrait {
                 Vec::new()
             },
             traits: Vec::new(),
+            warnings: Vec::new(),
         }
     }
 
@@ -744,6 +758,7 @@ impl CompositeTrait {
                 Vec::new()
             },
             traits: Vec::new(),
+            warnings: Vec::new(),
         }
     }
 }

@@ -1,26 +1,149 @@
 # System Fingerprinting - JavaScript/Node.js
 # ATT&CK: T1082 (System Information Discovery)
 
+defaults:
+  attack: "T1082"
+
 traits:
+  # === OS module system info calls ===
+  - id: os-hostname-call
+    desc: os.hostname() call
+    crit: notable
+    conf: 0.75
+    for: [javascript, typescript]
+    if:
+      type: symbol
+      exact: "os.hostname"
+
+  - id: os-userinfo-call
+    desc: os.userInfo() call
+    crit: notable
+    conf: 0.75
+    for: [javascript, typescript]
+    if:
+      type: symbol
+      exact: "os.userInfo"
+
+  - id: os-platform-call
+    desc: os.platform() call
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: symbol
+      exact: "os.platform"
+
+  - id: os-arch-call
+    desc: os.arch() call
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: symbol
+      exact: "os.arch"
+
+  - id: os-release-call
+    desc: os.release() call
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: symbol
+      exact: "os.release"
+
+  - id: os-type-call
+    desc: os.type() call
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: symbol
+      exact: "os.type"
+
+  - id: os-networkinterfaces-call
+    desc: os.networkInterfaces() call
+    crit: notable
+    conf: 0.75
+    for: [javascript, typescript]
+    if:
+      type: symbol
+      exact: "os.networkInterfaces"
+
+  - id: os-homedir-call
+    desc: os.homedir() call
+    crit: notable
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: symbol
+      exact: "os.homedir"
+
+  - id: os-tmpdir-call
+    desc: os.tmpdir() call
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: symbol
+      exact: "os.tmpdir"
+
+  # === Process module system info ===
+  - id: process-cwd-call
+    desc: process.cwd() call
+    crit: notable
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: symbol
+      exact: "process.cwd"
+
+  - id: process-env-access
+    desc: process.env access
+    crit: inert
+    conf: 0.65
+    for: [javascript, typescript]
+    if:
+      type: symbol
+      exact: "process.env"
+
+  - id: process-platform-access
+    desc: process.platform access
+    crit: inert
+    conf: 0.65
+    for: [javascript, typescript]
+    if:
+      type: symbol
+      exact: "process.platform"
+
+  - id: process-arch-access
+    desc: process.arch access
+    crit: inert
+    conf: 0.65
+    for: [javascript, typescript]
+    if:
+      type: symbol
+      exact: "process.arch"
+
+  - id: process-version-access
+    desc: process.version access
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: symbol
+      exact: "process.version"
+
+composite_rules:
+  # Migrated from YARA
   - id: js-profiling
     desc: Aggregates system info for profiling
     crit: suspicious
     conf: 0.95
-    attack: "T1082"
-    for: [javascript]
-    if:
-      type: yara
-      source: |
-        rule js_profiling {
-          strings:
-            $os1 = "os.hostname()" ascii
-            $os2 = "os.userInfo()" ascii
-            $os3 = "os.platform()" ascii
-          condition:
-            all of them
-        }
-
-composite_rules:
+    for: [javascript, typescript]
+    all:
+      - {id: os-hostname-call}
+      - {id: os-userinfo-call}
+      - {id: os-platform-call}
   - id: js-profiling-exfil
     desc: JavaScript system profiling with exfiltration
     crit: hostile

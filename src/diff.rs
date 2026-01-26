@@ -669,10 +669,10 @@ impl DiffAnalyzer {
         baseline: &AnalysisReport,
         target: &AnalysisReport,
     ) -> MetricsDelta {
-        let mut delta = MetricsDelta::default();
-
-        // Size delta
-        delta.size_bytes = target.target.size_bytes as i64 - baseline.target.size_bytes as i64;
+        let mut delta = MetricsDelta {
+            size_bytes: target.target.size_bytes as i64 - baseline.target.size_bytes as i64,
+            ..Default::default()
+        };
 
         // Source code metrics
         if let (Some(b), Some(t)) = (&baseline.source_code_metrics, &target.source_code_metrics) {
@@ -846,56 +846,50 @@ impl DiffAnalyzer {
                 }
             }
 
-            match (
+            if let (Ok(baseline_report), Ok(target_report)) = (
                 self.analyze_single_file(baseline_file),
                 self.analyze_single_file(target_file),
             ) {
-                (Ok(baseline_report), Ok(target_report)) => {
-                    let file_diff =
-                        self.create_full_diff(&relative_path, &baseline_report, &target_report);
+                let file_diff =
+                    self.create_full_diff(&relative_path, &baseline_report, &target_report);
 
-                    // Only include if there are actual changes
-                    if let Some(ref counts) = file_diff.counts {
-                        if counts.findings_added != 0
-                            || counts.findings_removed != 0
-                            || counts.strings_added != 0
-                            || counts.strings_removed != 0
-                            || counts.imports_added != 0
-                            || counts.imports_removed != 0
-                        {
-                            // Accumulate aggregate counts
-                            aggregate.findings_added += counts.findings_added;
-                            aggregate.findings_removed += counts.findings_removed;
-                            aggregate.traits_added += counts.traits_added;
-                            aggregate.traits_removed += counts.traits_removed;
-                            aggregate.strings_added += counts.strings_added;
-                            aggregate.strings_removed += counts.strings_removed;
-                            aggregate.imports_added += counts.imports_added;
-                            aggregate.imports_removed += counts.imports_removed;
-                            aggregate.exports_added += counts.exports_added;
-                            aggregate.exports_removed += counts.exports_removed;
-                            aggregate.functions_added += counts.functions_added;
-                            aggregate.functions_removed += counts.functions_removed;
-                            aggregate.syscalls_added += counts.syscalls_added;
-                            aggregate.syscalls_removed += counts.syscalls_removed;
-                            aggregate.paths_added += counts.paths_added;
-                            aggregate.paths_removed += counts.paths_removed;
-                            aggregate.env_vars_added += counts.env_vars_added;
-                            aggregate.env_vars_removed += counts.env_vars_removed;
+                // Only include if there are actual changes
+                if let Some(ref counts) = file_diff.counts {
+                    if counts.findings_added != 0
+                        || counts.findings_removed != 0
+                        || counts.strings_added != 0
+                        || counts.strings_removed != 0
+                        || counts.imports_added != 0
+                        || counts.imports_removed != 0
+                    {
+                        // Accumulate aggregate counts
+                        aggregate.findings_added += counts.findings_added;
+                        aggregate.findings_removed += counts.findings_removed;
+                        aggregate.traits_added += counts.traits_added;
+                        aggregate.traits_removed += counts.traits_removed;
+                        aggregate.strings_added += counts.strings_added;
+                        aggregate.strings_removed += counts.strings_removed;
+                        aggregate.imports_added += counts.imports_added;
+                        aggregate.imports_removed += counts.imports_removed;
+                        aggregate.exports_added += counts.exports_added;
+                        aggregate.exports_removed += counts.exports_removed;
+                        aggregate.functions_added += counts.functions_added;
+                        aggregate.functions_removed += counts.functions_removed;
+                        aggregate.syscalls_added += counts.syscalls_added;
+                        aggregate.syscalls_removed += counts.syscalls_removed;
+                        aggregate.paths_added += counts.paths_added;
+                        aggregate.paths_removed += counts.paths_removed;
+                        aggregate.env_vars_added += counts.env_vars_added;
+                        aggregate.env_vars_removed += counts.env_vars_removed;
 
-                            actually_modified.push(relative_path.clone());
-                            file_diffs.push(file_diff);
+                        actually_modified.push(relative_path.clone());
+                        file_diffs.push(file_diff);
 
-                            let analysis = self.compare_reports(
-                                &relative_path,
-                                &baseline_report,
-                                &target_report,
-                            );
-                            modified_analysis.push(analysis);
-                        }
+                        let analysis =
+                            self.compare_reports(&relative_path, &baseline_report, &target_report);
+                        modified_analysis.push(analysis);
                     }
                 }
-                _ => {}
             }
         }
 
@@ -1232,6 +1226,8 @@ mod tests {
             paths: vec![],
             directories: vec![],
             env_vars: vec![],
+            archive_contents: vec![],
+            sub_reports: vec![],
             metadata: crate::types::AnalysisMetadata {
                 analysis_duration_ms: 100,
                 tools_used: vec!["test".to_string()],

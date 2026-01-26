@@ -2,94 +2,254 @@
 # Useful for ML baseline - legitimate compression usage patterns
 
 traits:
-  # LZMA/XZ compression
+  # === LZMA/XZ micro-traits ===
+  - id: liblzma
+    desc: liblzma library
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "liblzma"
+
+  - id: lzma-prefix
+    desc: lzma_ function prefix
+    crit: benign
+    conf: 0.8
+    if:
+      type: string
+      regex: "\\blzma_"
+
+  - id: xz-prefix
+    desc: xz_ function prefix
+    crit: benign
+    conf: 0.8
+    if:
+      type: string
+      regex: "\\bxz_"
+
+  - id: lzmaenc
+    desc: LzmaEnc SDK function
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "LzmaEnc"
+
+  - id: lzmadec
+    desc: LzmaDec SDK function
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "LzmaDec"
+
+  - id: lzma-ok
+    desc: LZMA_OK status
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "LZMA_OK"
+
+  # === Zlib micro-traits ===
+  - id: deflate
+    desc: deflate function
+    crit: benign
+    conf: 0.8
+    if:
+      type: symbol
+      pattern: "deflate"
+
+  - id: inflate
+    desc: inflate function
+    crit: benign
+    conf: 0.8
+    if:
+      type: symbol
+      pattern: "inflate"
+
+  - id: z-stream
+    desc: z_stream type
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "z_stream"
+
+  - id: libz-so
+    desc: libz.so library
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "libz.so"
+
+  - id: zlib-string
+    desc: zlib string
+    crit: benign
+    conf: 0.8
+    if:
+      type: string
+      exact: "zlib"
+
+  # === Bzip2 micro-traits ===
+  - id: bz2-compress
+    desc: BZ2_bzCompress function
+    crit: benign
+    conf: 0.9
+    if:
+      type: symbol
+      pattern: "BZ2_bzCompress"
+
+  - id: bz2-decompress
+    desc: BZ2_bzDecompress function
+    crit: benign
+    conf: 0.9
+    if:
+      type: symbol
+      pattern: "BZ2_bzDecompress"
+
+  - id: libbz2
+    desc: libbz2 library
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "libbz2"
+
+  - id: bzip2-string
+    desc: bzip2 string
+    crit: benign
+    conf: 0.8
+    if:
+      type: string
+      exact: "bzip2"
+
+  # === Zstd micro-traits ===
+  - id: zstd-compress
+    desc: ZSTD_compress function
+    crit: benign
+    conf: 0.9
+    if:
+      type: symbol
+      pattern: "ZSTD_compress"
+
+  - id: zstd-decompress
+    desc: ZSTD_decompress function
+    crit: benign
+    conf: 0.9
+    if:
+      type: symbol
+      pattern: "ZSTD_decompress"
+
+  - id: zstd-cctx
+    desc: ZSTD_CCtx type
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "ZSTD_CCtx"
+
+  - id: libzstd
+    desc: libzstd library
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "libzstd"
+
+  # === LZ4 micro-traits ===
+  - id: lz4-compress
+    desc: LZ4_compress function
+    crit: benign
+    conf: 0.9
+    if:
+      type: symbol
+      pattern: "LZ4_compress"
+
+  - id: lz4-decompress
+    desc: LZ4_decompress function
+    crit: benign
+    conf: 0.9
+    if:
+      type: symbol
+      pattern: "LZ4_decompress"
+
+  - id: liblz4
+    desc: liblz4 library
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "liblz4"
+
+composite_rules:
+  # LZMA composite (migrated from YARA)
   - id: lzma
     desc: LZMA/XZ compression library
     crit: benign
     conf: 0.9
-    if:
-      type: yara
-      source: |
-        rule lzma_lib {
-          strings:
-            $lzma1 = "liblzma" ascii
-            $lzma2 = "lzma_" ascii
-            $xz1 = "xz_" ascii
-            $sdk1 = "LzmaEnc" ascii
-            $sdk2 = "LzmaDec" ascii
-            $stream1 = "LZMA_OK" ascii
-          condition:
-            any of ($lzma*) or $xz1 or any of ($sdk*) or $stream1
-        }
+    count: 1
+    any:
+      - id: liblzma
+      - id: lzma-prefix
+      - id: xz-prefix
+      - id: lzmaenc
+      - id: lzmadec
+      - id: lzma-ok
 
-  # Zlib compression
+  # Zlib composite (migrated from YARA)
   - id: zlib
     desc: Zlib compression library
     crit: benign
     conf: 0.9
-    if:
-      type: yara
-      source: |
-        rule zlib_lib {
-          strings:
-            $z1 = "deflate" ascii
-            $z2 = "inflate" ascii
-            $zs1 = "z_stream" ascii
-            $lib1 = "libz.so" ascii
-            $lib2 = "zlib" ascii
-          condition:
-            ($z1 and $z2) or $zs1 or any of ($lib*)
-        }
+    count: 1
+    any:
+      - id: zlib-deflate-inflate
+      - id: z-stream
+      - id: libz-so
+      - id: zlib-string
 
-  # Bzip2 compression
+  # Helper: deflate + inflate
+  - id: zlib-deflate-inflate
+    desc: Zlib deflate and inflate
+    crit: benign
+    conf: 0.9
+    all:
+      - id: deflate
+      - id: inflate
+
+  # Bzip2 composite (migrated from YARA)
   - id: bzip2
     desc: Bzip2 compression library
     crit: benign
     conf: 0.9
-    if:
-      type: yara
-      source: |
-        rule bzip2_lib {
-          strings:
-            $bz1 = "BZ2_bzCompress" ascii
-            $bz2 = "BZ2_bzDecompress" ascii
-            $lib1 = "libbz2" ascii
-            $lib2 = "bzip2" ascii
-          condition:
-            any of ($bz*) or any of ($lib*)
-        }
+    count: 1
+    any:
+      - id: bz2-compress
+      - id: bz2-decompress
+      - id: libbz2
+      - id: bzip2-string
 
-  # Zstd compression
+  # Zstd composite (migrated from YARA)
   - id: zstd
     desc: Zstandard compression library
     crit: benign
     conf: 0.9
-    if:
-      type: yara
-      source: |
-        rule zstd_lib {
-          strings:
-            $zstd1 = "ZSTD_compress" ascii
-            $zstd2 = "ZSTD_decompress" ascii
-            $zstd3 = "ZSTD_CCtx" ascii
-            $lib1 = "libzstd" ascii
-          condition:
-            any of ($zstd*) or $lib1
-        }
+    count: 1
+    any:
+      - id: zstd-compress
+      - id: zstd-decompress
+      - id: zstd-cctx
+      - id: libzstd
 
-  # LZ4 compression
+  # LZ4 composite (migrated from YARA)
   - id: lz4
     desc: LZ4 compression library
     crit: benign
     conf: 0.9
-    if:
-      type: yara
-      source: |
-        rule lz4_lib {
-          strings:
-            $lz4_1 = "LZ4_compress" ascii
-            $lz4_2 = "LZ4_decompress" ascii
-            $lib1 = "liblz4" ascii
-          condition:
-            any of ($lz4_*) or $lib1
-        }
+    count: 1
+    any:
+      - id: lz4-compress
+      - id: lz4-decompress
+      - id: liblz4

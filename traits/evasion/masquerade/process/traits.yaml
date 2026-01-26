@@ -7,69 +7,213 @@ defaults:
   platforms: [linux]
 
 traits:
-  # prctl PR_SET_NAME for process renaming
+  # === prctl PR_SET_NAME micro-traits ===
+  - id: prctl-symbol
+    desc: prctl function reference
+    crit: inert
+    conf: 0.8
+    if:
+      type: symbol
+      pattern: "prctl"
+
+  - id: pr-set-name-const
+    desc: PR_SET_NAME constant reference
+    crit: notable
+    conf: 0.85
+    if:
+      type: string
+      exact: "PR_SET_NAME"
+
+  - id: prctl-syscall-x64
+    desc: prctl syscall instruction (x86_64)
+    crit: notable
+    conf: 0.9
+    if:
+      type: hex
+      pattern: "B8 9D 00 00 00"
+
+  # === System daemon name micro-traits ===
+  - id: fake-abrtd-path
+    desc: Contains abrtd daemon path
+    crit: notable
+    conf: 0.85
+    mbc: "F0004"
+    if:
+      type: string
+      exact: "/usr/sbin/abrtd"
+
+  - id: fake-abrtd-name
+    desc: Contains abrtd daemon name
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "abrtd"
+
+  - id: fake-sshd-bracket
+    desc: Fake kernel thread name pattern [sshd]
+    crit: notable
+    conf: 0.85
+    mbc: "F0004"
+    if:
+      type: string
+      exact: "[sshd]"
+
+  - id: fake-kworker
+    desc: Fake kernel worker thread name
+    crit: notable
+    conf: 0.85
+    mbc: "F0004"
+    if:
+      type: string
+      exact: "[kworker/"
+
+  - id: fake-migration
+    desc: Fake migration thread name
+    crit: notable
+    conf: 0.85
+    mbc: "F0004"
+    if:
+      type: string
+      exact: "[migration/"
+
+  - id: fake-ksoftirqd
+    desc: Fake ksoftirqd thread name
+    crit: notable
+    conf: 0.85
+    mbc: "F0004"
+    if:
+      type: string
+      exact: "[ksoftirqd/"
+
+  - id: fake-kthreadd
+    desc: Fake kthreadd thread name
+    crit: notable
+    conf: 0.85
+    mbc: "F0004"
+    if:
+      type: string
+      exact: "[kthreadd]"
+
+  - id: fake-systemd-path
+    desc: Contains systemd path (potential masquerade)
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "/lib/systemd/systemd"
+
+  - id: fake-udevd-path
+    desc: Contains udevd path (potential masquerade)
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "/sbin/udevd"
+
+  - id: fake-rsyslogd-path
+    desc: Contains rsyslogd path (potential masquerade)
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "/usr/sbin/rsyslogd"
+
+  - id: fake-crond-path
+    desc: Contains crond path (potential masquerade)
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "/usr/sbin/crond"
+
+  - id: fake-atd-path
+    desc: Contains atd path (potential masquerade)
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "/usr/sbin/atd"
+
+  # === argv[0] manipulation micro-traits ===
+  - id: strncpy-argv0
+    desc: strncpy on argv[0] (process name manipulation)
+    crit: suspicious
+    conf: 0.85
+    mbc: "F0004"
+    for: [c, elf]
+    if:
+      type: string
+      regex: "strncpy\\s*\\(\\s*argv\\s*\\[\\s*0\\s*\\]"
+
+  - id: memset-argv0
+    desc: memset on argv[0] (process name manipulation)
+    crit: suspicious
+    conf: 0.85
+    mbc: "F0004"
+    for: [c, elf]
+    if:
+      type: string
+      regex: "memset\\s*\\(\\s*argv\\s*\\[\\s*0\\s*\\]"
+
+  - id: strcpy-argv0
+    desc: strcpy on argv[0] (process name manipulation)
+    crit: suspicious
+    conf: 0.85
+    mbc: "F0004"
+    for: [c, elf]
+    if:
+      type: string
+      regex: "strcpy\\s*\\(\\s*argv\\s*\\[\\s*0\\s*\\]"
+
+composite_rules:
+  # prctl-based process renaming
   - id: prctl-setname
     desc: Uses prctl to change process name
     crit: suspicious
     conf: 0.8
     mbc: "F0004"
     attack: "T1036.004"
-    if:
-      type: yara
-      source: |
-        rule prctl_setname {
-          strings:
-            $prctl = "prctl" ascii
-            $pr_set_name = "PR_SET_NAME" ascii
-            // prctl syscall number on x86_64 is 157
-            $syscall_prctl = { b8 9d 00 00 00 }
-          condition:
-            $prctl or $pr_set_name or $syscall_prctl
-        }
+    for: [elf]
+    count: 1
+    any:
+      - id: prctl-symbol
+      - id: pr-set-name-const
+      - id: prctl-syscall-x64
 
-  # Masquerade as system daemon (abrtd - BPFDoor pattern)
+  # Masquerade as abrtd daemon (BPFDoor indicator)
   - id: fake-abrtd
     desc: Masquerades as abrtd daemon (BPFDoor indicator)
     crit: suspicious
     conf: 0.95
     mbc: "F0004"
     attack: "T1036.004"
-    if:
-      type: yara
-      source: |
-        rule fake_abrtd {
-          strings:
-            $abrtd = "/usr/sbin/abrtd" ascii
-            $abrt = "abrtd" ascii
-          condition:
-            $abrtd or ($abrt and not uint32(0) == 0x464c457f)
-        }
+    for: [elf]
+    count: 1
+    any:
+      - id: fake-abrtd-path
+      - id: fake-abrtd-name
 
-  # Masquerade as common system processes
+  # Contains fake system process names (2+ needed)
   - id: fake-system-process
     desc: Contains names of system processes (potential masquerading)
     crit: suspicious
     conf: 0.75
     mbc: "F0004"
     attack: "T1036.004"
-    if:
-      type: yara
-      source: |
-        rule fake_system_process {
-          strings:
-            $sshd = "[sshd]" ascii
-            $kworker = "[kworker/" ascii
-            $migration = "[migration/" ascii
-            $ksoftirqd = "[ksoftirqd/" ascii
-            $kthreadd = "[kthreadd]" ascii
-            $systemd = "/lib/systemd/systemd" ascii
-            $udevd = "/sbin/udevd" ascii
-            $rsyslogd = "/usr/sbin/rsyslogd" ascii
-            $crond = "/usr/sbin/crond" ascii
-            $atd = "/usr/sbin/atd" ascii
-          condition:
-            2 of them
-        }
+    for: [elf]
+    count: 2
+    any:
+      - id: fake-sshd-bracket
+      - id: fake-kworker
+      - id: fake-migration
+      - id: fake-ksoftirqd
+      - id: fake-kthreadd
+      - id: fake-systemd-path
+      - id: fake-udevd-path
+      - id: fake-rsyslogd-path
+      - id: fake-crond-path
+      - id: fake-atd-path
 
   # argv[0] manipulation
   - id: argv0-manipulation
@@ -78,19 +222,13 @@ traits:
     conf: 0.8
     mbc: "F0004"
     attack: "T1036.004"
-    if:
-      type: yara
-      source: |
-        rule argv0_manipulation {
-          strings:
-            $strncpy_argv = /strncpy\s*\(\s*argv\s*\[\s*0\s*\]/ ascii
-            $memset_argv = /memset\s*\(\s*argv\s*\[\s*0\s*\]/ ascii
-            $strcpy_argv = /strcpy\s*\(\s*argv\s*\[\s*0\s*\]/ ascii
-          condition:
-            any of them
-        }
+    for: [c, elf]
+    count: 1
+    any:
+      - id: strncpy-argv0
+      - id: memset-argv0
+      - id: strcpy-argv0
 
-composite_rules:
   # BPFDoor-style process masquerading
   - id: bpfdoor-style
     desc: BPFDoor-style process masquerading with anti-forensics
@@ -99,7 +237,7 @@ composite_rules:
     mbc: "F0004"
     attack: "T1036.004"
     for: [elf]
-    requires_all:
+    all:
       - id: prctl-setname
     any:
       - id: fake-abrtd

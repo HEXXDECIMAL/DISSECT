@@ -11,7 +11,7 @@ traits:
     file_types: [elf]
     condition:
       type: string
-      regex: "\\badmin\\b"
+      word: "admin"
       min_count: 3
 
   - id: root-password
@@ -22,7 +22,7 @@ traits:
     file_types: [elf]
     condition:
       type: string
-      regex: "\\broot\\b"
+      word: "root"
       min_count: 3
 
   - id: numeric-123456

@@ -5,215 +5,900 @@ defaults:
   for: [elf, macho, pe, dll, so, dylib, class]
 
 traits:
-  # Go language binary
-  - id: go
-    description: Go language compiled binary
+  # === Go language micro-traits ===
+  - id: go-runtime-goexit
+    desc: runtime.goexit function
     crit: benign
     conf: 0.95
     if:
-      type: yara
-      source: |
-        rule go_binary {
-          strings:
-            $runtime1 = "runtime.goexit" ascii
-            $runtime2 = "runtime.main" ascii
-            $runtime3 = "runtime.gopanic" ascii
-            $runtime4 = "runtime.mstart" ascii
-            $gc1 = "runtime.gcStart" ascii
-            $gc2 = "runtime.mallocgc" ascii
-            $go_buildid = "Go build ID:" ascii
-            $go_version = "go1." ascii
-            $cgo1 = "_cgo_" ascii
-            $cgo2 = "_cgo_allocate" ascii
-            $cgo3 = "_cgo_panic" ascii
-          condition:
-            3 of ($runtime*) or (any of ($gc*) and any of ($runtime*)) or
-            $go_buildid or ($go_version and any of ($runtime*)) or
-            2 of ($cgo*)
-        }
+      type: string
+      exact: "runtime.goexit"
 
-  # Rust language binary
-  - id: rust
-    description: Rust language compiled binary
+  - id: go-runtime-main
+    desc: runtime.main function
     crit: benign
     conf: 0.95
     if:
-      type: yara
-      source: |
-        rule rust_binary {
-          strings:
-            $panic1 = "panicked at" ascii
-            $panic2 = "rust_begin_unwind" ascii
-            $panic3 = "rust_panic" ascii
-            $core1 = "core::fmt" ascii
-            $core2 = "core::ptr" ascii
-            $core3 = "core::slice" ascii
-            $std1 = "std::io" ascii
-            $std2 = "std::fs" ascii
-            $std3 = "std::thread" ascii
-            $alloc = "alloc::vec" ascii
-            $rustc = "/rustc/" ascii
-          condition:
-            2 of ($panic*) or 3 of ($core*, $std*, $alloc) or ($rustc and any of ($core*))
-        }
+      type: string
+      exact: "runtime.main"
 
-  # C/C++ binary (GCC/Clang compiled)
-  - id: c-cpp
-    description: C/C++ compiled binary
+  - id: go-runtime-gopanic
+    desc: runtime.gopanic function
     crit: benign
-    conf: 0.8
+    conf: 0.95
     if:
-      type: yara
-      source: |
-        rule c_cpp_binary {
-          strings:
-            $glibc1 = "GLIBC_" ascii
-            $glibc2 = "__libc_start_main" ascii
-            $gxx1 = "GLIBCXX_" ascii
-            $gxx2 = "CXXABI_" ascii
-            $libstd1 = "std::basic_string" ascii
-            $libstd2 = "std::vector" ascii
-            $libstd3 = "std::__cxx11" ascii
-            $gcc = "GCC:" ascii
-          condition:
-            ($glibc1 and $glibc2) or any of ($gxx*, $libstd*) or $gcc
-        }
+      type: string
+      exact: "runtime.gopanic"
 
-  # Python (embedded or PyInstaller)
-  - id: python-embedded
-    description: Embedded Python interpreter or PyInstaller binary
+  - id: go-runtime-mstart
+    desc: runtime.mstart function
     crit: benign
-    conf: 0.9
+    conf: 0.95
     if:
-      type: yara
-      source: |
-        rule python_embedded {
-          strings:
-            $py1 = "Py_Initialize" ascii
-            $py2 = "PyRun_" ascii
-            $py3 = "PyObject_" ascii
-            $py4 = "PyErr_" ascii
-            $pyinst1 = "pyiboot" ascii
-            $pyinst2 = "PYINSTALLER" ascii
-            $pyinst3 = "_MEIPASS" ascii
-            $pyz = { 50 59 5A 00 }  // PYZ archive magic
-          condition:
-            3 of ($py*) or any of ($pyinst*) or $pyz
-        }
+      type: string
+      exact: "runtime.mstart"
 
-  # Java/JVM bytecode
-  - id: java
-    description: Java/JVM bytecode or native
+  - id: go-gc-start
+    desc: runtime.gcStart function
+    crit: benign
+    conf: 0.95
+    if:
+      type: string
+      exact: "runtime.gcStart"
+
+  - id: go-mallocgc
+    desc: runtime.mallocgc function
+    crit: benign
+    conf: 0.95
+    if:
+      type: string
+      exact: "runtime.mallocgc"
+
+  - id: go-buildid
+    desc: "Go build ID: marker"
+    crit: benign
+    conf: 0.95
+    if:
+      type: string
+      exact: "Go build ID:"
+
+  - id: go-version
+    desc: go1. version string
     crit: benign
     conf: 0.9
     if:
-      type: yara
-      source: |
-        rule java_binary {
-          strings:
-            $class_magic = { CA FE BA BE }
-            $jni1 = "JNI_CreateJavaVM" ascii
-            $jni2 = "JNI_OnLoad" ascii
-            $jvm1 = "java/lang/" ascii
-            $jvm2 = "javax/" ascii
-            $graal = "org.graalvm" ascii
-          condition:
-            $class_magic at 0 or any of ($jni*) or any of ($jvm*) or $graal
-        }
+      type: string
+      exact: "go1."
 
-  # .NET/Mono binary
-  - id: dotnet
-    description: .NET or Mono compiled binary
-    crit: benign
-    conf: 0.9
-    if:
-      type: yara
-      source: |
-        rule dotnet_binary {
-          strings:
-            $clr1 = "mscoree.dll" ascii wide nocase
-            $clr2 = "_CorExeMain" ascii
-            $clr3 = "mscorlib" ascii wide
-            $mono1 = "mono_" ascii
-            $mono2 = "Mono.Runtime" ascii
-            $il = "System.Runtime" ascii
-          condition:
-            any of ($clr*) or any of ($mono*) or $il
-        }
-
-  # Node.js/V8 binary
-  - id: nodejs
-    description: Node.js or V8 JavaScript binary
+  - id: cgo-prefix
+    desc: _cgo_ prefix
     crit: benign
     conf: 0.85
     if:
-      type: yara
-      source: |
-        rule nodejs_binary {
-          strings:
-            $v8_1 = "v8::Isolate" ascii
-            $v8_2 = "v8::Context" ascii
-            $node1 = "node::" ascii
-            $node2 = "libuv" ascii
-            $node3 = "NODE_MODULE" ascii
-            $pkg1 = "pkg/" ascii
-            $nexe = "nexe" ascii
-          condition:
-            any of ($v8_*) or 2 of ($node*) or any of ($pkg1, $nexe)
-        }
+      type: string
+      exact: "_cgo_"
 
-  # Nim language binary
-  - id: nim
-    description: Nim language compiled binary
+  - id: cgo-allocate
+    desc: _cgo_allocate function
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "_cgo_allocate"
+
+  - id: cgo-panic
+    desc: _cgo_panic function
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "_cgo_panic"
+
+  # === Rust language micro-traits ===
+  - id: rust-panicked-at
+    desc: panicked at string
+    crit: benign
+    conf: 0.95
+    if:
+      type: string
+      exact: "panicked at"
+
+  - id: rust-begin-unwind
+    desc: rust_begin_unwind function
+    crit: benign
+    conf: 0.95
+    if:
+      type: string
+      exact: "rust_begin_unwind"
+
+  - id: rust-panic
+    desc: rust_panic function
+    crit: benign
+    conf: 0.95
+    if:
+      type: string
+      exact: "rust_panic"
+
+  - id: rust-core-fmt
+    desc: "core::fmt module"
+    crit: benign
+    conf: 0.95
+    if:
+      type: string
+      exact: "core::fmt"
+
+  - id: rust-core-ptr
+    desc: "core::ptr module"
+    crit: benign
+    conf: 0.95
+    if:
+      type: string
+      exact: "core::ptr"
+
+  - id: rust-core-slice
+    desc: "core::slice module"
+    crit: benign
+    conf: 0.95
+    if:
+      type: string
+      exact: "core::slice"
+
+  - id: rust-std-io
+    desc: "std::io module"
+    crit: benign
+    conf: 0.95
+    if:
+      type: string
+      exact: "std::io"
+
+  - id: rust-std-fs
+    desc: "std::fs module"
+    crit: benign
+    conf: 0.95
+    if:
+      type: string
+      exact: "std::fs"
+
+  - id: rust-std-thread
+    desc: "std::thread module"
+    crit: benign
+    conf: 0.95
+    if:
+      type: string
+      exact: "std::thread"
+
+  - id: rust-alloc-vec
+    desc: "alloc::vec module"
+    crit: benign
+    conf: 0.95
+    if:
+      type: string
+      exact: "alloc::vec"
+
+  - id: rustc-path
+    desc: /rustc/ path prefix
+    crit: benign
+    conf: 0.95
+    if:
+      type: string
+      exact: "/rustc/"
+
+  # === C/C++ micro-traits ===
+  - id: glibc-version
+    desc: GLIBC_ version string
+    crit: benign
+    conf: 0.8
+    if:
+      type: string
+      regex: "GLIBC_"
+
+  - id: libc-start-main
+    desc: __libc_start_main function
+    crit: benign
+    conf: 0.8
+    if:
+      type: symbol
+      pattern: "__libc_start_main"
+
+  - id: glibcxx-version
+    desc: GLIBCXX_ version string
+    crit: benign
+    conf: 0.8
+    if:
+      type: string
+      regex: "GLIBCXX_"
+
+  - id: cxxabi-version
+    desc: CXXABI_ version string
+    crit: benign
+    conf: 0.8
+    if:
+      type: string
+      regex: "CXXABI_"
+
+  - id: std-basic-string
+    desc: "std::basic_string type"
+    crit: benign
+    conf: 0.8
+    if:
+      type: string
+      exact: "std::basic_string"
+
+  - id: std-vector
+    desc: "std::vector type"
+    crit: benign
+    conf: 0.8
+    if:
+      type: string
+      exact: "std::vector"
+
+  - id: std-cxx11
+    desc: "std::__cxx11 namespace"
+    crit: benign
+    conf: 0.8
+    if:
+      type: string
+      exact: "std::__cxx11"
+
+  # === Python embedded micro-traits ===
+  - id: py-initialize
+    desc: Py_Initialize function
     crit: benign
     conf: 0.9
     if:
-      type: yara
-      source: |
-        rule nim_binary {
-          strings:
-            $nim1 = "NimMain" ascii
-            $nim2 = "nimGC" ascii
-            $nim3 = "NimStringV2" ascii
-            $nim4 = "@mstdlib" ascii
-            $nim5 = "Nim/" ascii
-          condition:
-            2 of them
-        }
+      type: symbol
+      pattern: "Py_Initialize"
 
-  # Zig language binary
-  - id: zig
-    description: Zig language compiled binary
+  - id: pyrun-prefix
+    desc: PyRun_ function prefix
     crit: benign
     conf: 0.9
     if:
-      type: yara
-      source: |
-        rule zig_binary {
-          strings:
-            $zig1 = "zig-linux" ascii
-            $zig2 = "std.debug" ascii
-            $zig3 = "std.mem" ascii
-            $zig4 = "@panic" ascii
-            $zig5 = "zig.zig" ascii
-          condition:
-            2 of them
-        }
+      type: string
+      regex: "PyRun_"
 
-  # Assembly/hand-crafted binary
-  - id: assembly
-    description: Hand-crafted or assembly-only binary
+  - id: pyobject-prefix
+    desc: PyObject_ function prefix
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      regex: "PyObject_"
+
+  - id: pyerr-prefix
+    desc: PyErr_ function prefix
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      regex: "PyErr_"
+
+  - id: pyiboot
+    desc: pyiboot PyInstaller string
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "pyiboot"
+
+  - id: pyinstaller-string
+    desc: PYINSTALLER string
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "PYINSTALLER"
+
+  - id: meipass
+    desc: _MEIPASS PyInstaller variable
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "_MEIPASS"
+
+  - id: pyz-magic
+    desc: PYZ archive magic
+    crit: benign
+    conf: 0.9
+    if:
+      type: hex
+      pattern: "50595A00"
+
+  # === Java micro-traits ===
+  - id: java-class-magic
+    desc: Java class file magic
+    crit: benign
+    conf: 0.95
+    if:
+      type: hex
+      pattern: "CAFEBABE"
+      offset: 0
+
+  - id: jni-create-javavm
+    desc: JNI_CreateJavaVM function
+    crit: benign
+    conf: 0.9
+    if:
+      type: symbol
+      pattern: "JNI_CreateJavaVM"
+
+  - id: jni-onload
+    desc: JNI_OnLoad function
+    crit: benign
+    conf: 0.9
+    if:
+      type: symbol
+      pattern: "JNI_OnLoad"
+
+  - id: java-lang
+    desc: java/lang/ package
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "java/lang/"
+
+  - id: javax-package
+    desc: javax/ package
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "javax/"
+
+  - id: graalvm
+    desc: org.graalvm package
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "org.graalvm"
+
+  # === .NET micro-traits ===
+  - id: mscoree
+    desc: mscoree.dll
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      regex: "(?i)mscoree\\.dll"
+
+  - id: corexemain
+    desc: _CorExeMain function
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "_CorExeMain"
+
+  - id: mscorlib
+    desc: mscorlib assembly
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      regex: "(?i)mscorlib"
+
+  - id: mono-prefix
+    desc: mono_ function prefix
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      regex: "\\bmono_"
+
+  - id: mono-runtime
+    desc: Mono.Runtime assembly
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "Mono.Runtime"
+
+  - id: system-runtime
+    desc: System.Runtime namespace
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "System.Runtime"
+
+  # === Node.js micro-traits ===
+  - id: v8-isolate
+    desc: "v8::Isolate type"
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "v8::Isolate"
+
+  - id: v8-context
+    desc: "v8::Context type"
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "v8::Context"
+
+  - id: node-namespace
+    desc: "node:: namespace"
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "node::"
+
+  - id: libuv-string
+    desc: libuv string
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "libuv"
+
+  - id: node-module
+    desc: NODE_MODULE macro
+    crit: benign
+    conf: 0.85
+    if:
+      type: string
+      exact: "NODE_MODULE"
+
+  - id: pkg-slash
+    desc: pkg/ path prefix
+    crit: benign
+    conf: 0.8
+    if:
+      type: string
+      exact: "pkg/"
+
+  - id: nexe-string
+    desc: nexe string
+    crit: benign
+    conf: 0.8
+    if:
+      type: string
+      exact: "nexe"
+
+  # === Nim micro-traits ===
+  - id: nimmain
+    desc: NimMain function
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "NimMain"
+
+  - id: nimgc
+    desc: nimGC garbage collector
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "nimGC"
+
+  - id: nimstringv2
+    desc: NimStringV2 type
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "NimStringV2"
+
+  - id: mstdlib
+    desc: "@mstdlib module"
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "@mstdlib"
+
+  - id: nim-slash
+    desc: Nim/ path prefix
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "Nim/"
+
+  # === Zig micro-traits ===
+  - id: zig-linux
+    desc: zig-linux string
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "zig-linux"
+
+  - id: zig-std-debug
+    desc: std.debug module
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "std.debug"
+
+  - id: zig-std-mem
+    desc: std.mem module
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "std.mem"
+
+  - id: zig-panic
+    desc: "@panic function"
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "@panic"
+
+  - id: zig-zig
+    desc: zig.zig file
+    crit: benign
+    conf: 0.9
+    if:
+      type: string
+      exact: "zig.zig"
+
+  # === Assembly micro-traits ===
+  - id: nasm-string
+    desc: NASM assembler
     crit: notable
     conf: 0.7
     if:
-      type: yara
-      source: |
-        rule assembly_binary {
-          strings:
-            $nasm = "NASM" ascii
-            $fasm = "FASM" ascii
-            $masm = "MASM" ascii
-            $yasm = "YASM" ascii
-          condition:
-            any of them
-        }
+      type: string
+      exact: "NASM"
+
+  - id: fasm-string
+    desc: FASM assembler
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      exact: "FASM"
+
+  - id: masm-string
+    desc: MASM assembler
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      exact: "MASM"
+
+  - id: yasm-string
+    desc: YASM assembler
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      exact: "YASM"
+
+composite_rules:
+  # Go runtime helper
+  - id: go-runtime
+    desc: Go runtime functions
+    crit: benign
+    conf: 0.95
+    count: 3
+    any:
+      - id: go-runtime-goexit
+      - id: go-runtime-main
+      - id: go-runtime-gopanic
+      - id: go-runtime-mstart
+
+  # Go GC helper
+  - id: go-gc
+    desc: Go garbage collector
+    crit: benign
+    conf: 0.95
+    count: 1
+    any:
+      - id: go-gc-start
+      - id: go-mallocgc
+
+  # CGo helper
+  - id: go-cgo
+    desc: CGo bindings
+    crit: benign
+    conf: 0.85
+    count: 2
+    any:
+      - id: cgo-prefix
+      - id: cgo-allocate
+      - id: cgo-panic
+
+  # Go composite (migrated from YARA)
+  - id: go
+    desc: Go language compiled binary
+    crit: benign
+    conf: 0.95
+    count: 1
+    any:
+      - id: go-runtime
+      - id: go-gc-with-runtime
+      - id: go-buildid
+      - id: go-version-with-runtime
+      - id: go-cgo
+
+  # Helper: GC + runtime
+  - id: go-gc-with-runtime
+    desc: Go GC with runtime
+    crit: benign
+    conf: 0.95
+    all:
+      - id: go-gc
+      - id: go-runtime-single
+
+  # Helper: single runtime function
+  - id: go-runtime-single
+    desc: Go runtime function
+    crit: benign
+    conf: 0.9
+    count: 1
+    any:
+      - id: go-runtime-goexit
+      - id: go-runtime-main
+      - id: go-runtime-gopanic
+      - id: go-runtime-mstart
+
+  # Helper: version + runtime
+  - id: go-version-with-runtime
+    desc: Go version with runtime
+    crit: benign
+    conf: 0.95
+    all:
+      - id: go-version
+      - id: go-runtime-single
+
+  # Rust panic helper
+  - id: rust-panic-funcs
+    desc: Rust panic functions
+    crit: benign
+    conf: 0.95
+    count: 2
+    any:
+      - id: rust-panicked-at
+      - id: rust-begin-unwind
+      - id: rust-panic
+
+  # Rust core/std helper
+  - id: rust-core-std
+    desc: Rust core/std modules
+    crit: benign
+    conf: 0.95
+    count: 3
+    any:
+      - id: rust-core-fmt
+      - id: rust-core-ptr
+      - id: rust-core-slice
+      - id: rust-std-io
+      - id: rust-std-fs
+      - id: rust-std-thread
+      - id: rust-alloc-vec
+
+  # Rust composite (migrated from YARA)
+  - id: rust
+    desc: Rust language compiled binary
+    crit: benign
+    conf: 0.95
+    count: 1
+    any:
+      - id: rust-panic-funcs
+      - id: rust-core-std
+      - id: rust-rustc-core
+
+  # Helper: rustc + core
+  - id: rust-rustc-core
+    desc: rustc path with core module
+    crit: benign
+    conf: 0.95
+    all:
+      - id: rustc-path
+      - id: rust-core-single
+
+  # Helper: single core module
+  - id: rust-core-single
+    desc: Rust core module
+    crit: benign
+    conf: 0.9
+    count: 1
+    any:
+      - id: rust-core-fmt
+      - id: rust-core-ptr
+      - id: rust-core-slice
+
+  # C/C++ glibc helper
+  - id: c-glibc
+    desc: glibc symbols
+    crit: benign
+    conf: 0.8
+    all:
+      - id: glibc-version
+      - id: libc-start-main
+
+  # C/C++ composite (migrated from YARA)
+  - id: c-cpp
+    desc: C/C++ compiled binary
+    crit: benign
+    conf: 0.8
+    count: 1
+    any:
+      - id: c-glibc
+      - id: glibcxx-version
+      - id: cxxabi-version
+      - id: std-basic-string
+      - id: std-vector
+      - id: std-cxx11
+      - id: gcc-comment
+
+  # Python py functions helper
+  - id: python-py-funcs
+    desc: Python C API functions
+    crit: benign
+    conf: 0.9
+    count: 3
+    any:
+      - id: py-initialize
+      - id: pyrun-prefix
+      - id: pyobject-prefix
+      - id: pyerr-prefix
+
+  # Python PyInstaller helper
+  - id: python-pyinstaller
+    desc: PyInstaller markers
+    crit: benign
+    conf: 0.9
+    count: 1
+    any:
+      - id: pyiboot
+      - id: pyinstaller-string
+      - id: meipass
+
+  # Python composite (migrated from YARA)
+  - id: python-embedded
+    desc: Embedded Python interpreter or PyInstaller binary
+    crit: benign
+    conf: 0.9
+    count: 1
+    any:
+      - id: python-py-funcs
+      - id: python-pyinstaller
+      - id: pyz-magic
+
+  # Java JNI helper
+  - id: java-jni
+    desc: JNI functions
+    crit: benign
+    conf: 0.9
+    count: 1
+    any:
+      - id: jni-create-javavm
+      - id: jni-onload
+
+  # Java JVM helper
+  - id: java-jvm
+    desc: JVM packages
+    crit: benign
+    conf: 0.9
+    count: 1
+    any:
+      - id: java-lang
+      - id: javax-package
+
+  # Java composite (migrated from YARA)
+  - id: java
+    desc: Java/JVM bytecode or native
+    crit: benign
+    conf: 0.9
+    count: 1
+    any:
+      - id: java-class-magic
+      - id: java-jni
+      - id: java-jvm
+      - id: graalvm
+
+  # .NET CLR helper
+  - id: dotnet-clr
+    desc: .NET CLR markers
+    crit: benign
+    conf: 0.9
+    count: 1
+    any:
+      - id: mscoree
+      - id: corexemain
+      - id: mscorlib
+
+  # .NET Mono helper
+  - id: dotnet-mono
+    desc: Mono markers
+    crit: benign
+    conf: 0.9
+    count: 1
+    any:
+      - id: mono-prefix
+      - id: mono-runtime
+
+  # .NET composite (migrated from YARA)
+  - id: dotnet
+    desc: .NET or Mono compiled binary
+    crit: benign
+    conf: 0.9
+    count: 1
+    any:
+      - id: dotnet-clr
+      - id: dotnet-mono
+      - id: system-runtime
+
+  # Node.js V8 helper
+  - id: nodejs-v8
+    desc: V8 engine markers
+    crit: benign
+    conf: 0.85
+    count: 1
+    any:
+      - id: v8-isolate
+      - id: v8-context
+
+  # Node.js node helper
+  - id: nodejs-node
+    desc: Node.js markers
+    crit: benign
+    conf: 0.85
+    count: 2
+    any:
+      - id: node-namespace
+      - id: libuv-string
+      - id: node-module
+
+  # Node.js composite (migrated from YARA)
+  - id: nodejs
+    desc: Node.js or V8 JavaScript binary
+    crit: benign
+    conf: 0.85
+    count: 1
+    any:
+      - id: nodejs-v8
+      - id: nodejs-node
+      - id: pkg-slash
+      - id: nexe-string
+
+  # Nim composite (migrated from YARA)
+  - id: nim
+    desc: Nim language compiled binary
+    crit: benign
+    conf: 0.9
+    count: 2
+    any:
+      - id: nimmain
+      - id: nimgc
+      - id: nimstringv2
+      - id: mstdlib
+      - id: nim-slash
+
+  # Zig composite (migrated from YARA)
+  - id: zig
+    desc: Zig language compiled binary
+    crit: benign
+    conf: 0.9
+    count: 2
+    any:
+      - id: zig-linux
+      - id: zig-std-debug
+      - id: zig-std-mem
+      - id: zig-panic
+      - id: zig-zig
+
+  # Assembly composite (migrated from YARA)
+  - id: assembly
+    desc: Hand-crafted or assembly-only binary
+    crit: notable
+    conf: 0.7
+    count: 1
+    any:
+      - id: nasm-string
+      - id: fasm-string
+      - id: masm-string
+      - id: yasm-string

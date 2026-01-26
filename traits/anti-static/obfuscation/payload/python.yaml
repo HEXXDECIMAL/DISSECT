@@ -1,20 +1,88 @@
 # Large Obfuscated Payload Detection - Python
 # Detects large blobs of encoded data embedded in scripts
+# MBC: B0032 (Obfuscated Files or Information)
+# ATT&CK: T1027
 
 traits:
-  - id: large-encoded-string
-    desc: "Large high-entropy string literal (likely payload)"
-    crit: suspicious
-    conf: 0.85
+  # Large base64-like string (512+ chars)
+  - id: large-base64-string
+    desc: Large base64-like string (512+ chars)
+    crit: notable
+    conf: 0.75
+    attack: "T1027"
     for: [python]
     if:
-      type: yara
-      source: |
-        rule large_encoded_string {
-          strings:
-            // Matches long strings of base64-like or hex-like data without spaces
-            $b64 = /[A-Za-z0-9+\/]{512,}/
-            $hex = /[0-9a-fA-F]{1024,}/
-          condition:
-            any of them
-        }
+      type: string
+      regex: "[A-Za-z0-9+/]{512,}"
+
+  # Large hex string (1024+ chars)
+  - id: large-hex-string
+    desc: Large hex-encoded string (1024+ chars)
+    crit: notable
+    conf: 0.75
+    attack: "T1027"
+    for: [python]
+    if:
+      type: string
+      regex: "[0-9a-fA-F]{1024,}"
+
+  # exec() with decode pattern
+  - id: exec-decode-pattern
+    desc: exec() with decode chain (payload execution)
+    crit: suspicious
+    conf: 0.85
+    attack: "T1027"
+    for: [python]
+    if:
+      type: string
+      regex: "exec\\s*\\([^)]*decode\\s*\\("
+
+  # eval() with decode pattern
+  - id: eval-decode-pattern
+    desc: eval() with decode chain (payload execution)
+    crit: suspicious
+    conf: 0.85
+    attack: "T1027"
+    for: [python]
+    if:
+      type: string
+      regex: "eval\\s*\\([^)]*decode\\s*\\("
+
+  # compile() with exec pattern
+  - id: compile-exec-pattern
+    desc: compile() with exec (dynamic code execution)
+    crit: suspicious
+    conf: 0.8
+    attack: "T1027"
+    for: [python]
+    if:
+      type: string
+      regex: "compile\\s*\\([^)]+,\\s*['\"][^'\"]+['\"]\\s*,\\s*['\"]exec['\"]\\s*\\)"
+
+composite_rules:
+  # Large encoded string composite (migrated from YARA)
+  - id: large-encoded-string
+    desc: Large high-entropy string literal (likely payload)
+    crit: suspicious
+    conf: 0.85
+    attack: "T1027"
+    for: [python]
+    count: 1
+    any:
+      - id: large-base64-string
+      - id: large-hex-string
+
+  # Payload execution composite
+  - id: payload-execution
+    desc: Large encoded payload with dynamic execution
+    crit: hostile
+    conf: 0.95
+    mbc: "B0032"
+    attack: "T1027"
+    for: [python]
+    all:
+      - id: large-encoded-string
+    any:
+      - id: exec-decode-pattern
+      - id: eval-decode-pattern
+      - id: compile-exec-pattern

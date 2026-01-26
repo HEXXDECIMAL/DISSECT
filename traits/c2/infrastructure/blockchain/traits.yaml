@@ -46,25 +46,44 @@ traits:
       type: string
       regex: "api\\.polygonscan\\.com|polygonscan\\.com/api"
 
-  # Generic blockchain explorer with contract read
-  - id: contract-read
-    desc: Reads smart contract storage (potential C2 retrieval)
+  # === Contract read micro-traits (migrated from YARA) ===
+  - id: eth-call
+    desc: eth_call RPC method
     crit: notable
-    conf: 0.75
+    conf: 0.6
     attack: "T1102"
     for: [javascript, typescript]
     if:
-      type: yara
-      source: |
-        rule contract_storage_read {
-          strings:
-            $eth_call = "eth_call" ascii
-            $eth_storage = "eth_getStorageAt" ascii
-            $contract = "contract" ascii nocase
-            $address = /0x[a-fA-F0-9]{40}/ ascii
-          condition:
-            any of ($eth_call, $eth_storage) and ($contract or $address)
-        }
+      type: string
+      exact: "eth_call"
+
+  - id: eth-getstorageat
+    desc: eth_getStorageAt RPC method
+    crit: notable
+    conf: 0.6
+    attack: "T1102"
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "eth_getStorageAt"
+
+  - id: contract-keyword
+    desc: contract keyword
+    crit: inert
+    conf: 0.3
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "(?i)contract"
+
+  - id: eth-address
+    desc: Ethereum address pattern
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "0x[a-fA-F0-9]{40}"
 
   # Infura/Alchemy RPC with suspicious patterns
   - id: rpc-provider
@@ -121,6 +140,39 @@ composite_rules:
     any:
       - id: etherscan-api-prefix
       - id: etherscan-api-suffix
+
+  # Contract read composite (migrated from YARA)
+  - id: contract-read
+    desc: Reads smart contract storage (potential C2 retrieval)
+    crit: notable
+    conf: 0.75
+    attack: "T1102"
+    for: [javascript, typescript]
+    all:
+      - id: eth-rpc-method
+      - id: contract-or-address
+
+  # Helper: eth RPC methods
+  - id: eth-rpc-method
+    desc: Ethereum RPC method
+    crit: notable
+    conf: 0.6
+    for: [javascript, typescript]
+    count: 1
+    any:
+      - id: eth-call
+      - id: eth-getstorageat
+
+  # Helper: contract keyword or address
+  - id: contract-or-address
+    desc: Contract keyword or Ethereum address
+    crit: inert
+    conf: 0.3
+    for: [javascript, typescript]
+    count: 1
+    any:
+      - id: contract-keyword
+      - id: eth-address
 
   # Arweave gateway composite
   - id: arweave-gateway

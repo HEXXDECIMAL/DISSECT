@@ -3,7 +3,7 @@
 //! This module contains all the eval_* functions used to evaluate various
 //! condition types against an analysis context.
 
-use super::context::{ConditionResult, EvaluationContext, StringParams};
+use super::context::{AnalysisWarning, ConditionResult, EvaluationContext, StringParams};
 use super::types::{FileType, Platform};
 use crate::types::Evidence;
 use anyhow::Result;
@@ -113,7 +113,8 @@ pub fn truncate_evidence(s: &str, max_len: usize) -> String {
 
 /// Evaluate symbol condition
 pub fn eval_symbol(
-    pattern: &str,
+    exact: Option<&String>,
+    pattern: Option<&String>,
     platforms: Option<&Vec<Platform>>,
     ctx: &EvaluationContext,
 ) -> ConditionResult {
@@ -124,6 +125,7 @@ pub fn eval_symbol(
                 matched: false,
                 evidence: Vec::new(),
                 traits: Vec::new(),
+                warnings: Vec::new(),
             };
         }
     }
@@ -132,7 +134,7 @@ pub fn eval_symbol(
 
     // Search in imports
     for import in &ctx.report.imports {
-        if symbol_matches(&import.symbol, pattern) {
+        if symbol_matches_condition(&import.symbol, exact, pattern) {
             evidence.push(Evidence {
                 method: "symbol".to_string(),
                 source: import.source.clone(),
@@ -144,7 +146,7 @@ pub fn eval_symbol(
 
     // Search in exports
     for export in &ctx.report.exports {
-        if symbol_matches(&export.symbol, pattern) {
+        if symbol_matches_condition(&export.symbol, exact, pattern) {
             evidence.push(Evidence {
                 method: "symbol".to_string(),
                 source: export.source.clone(),
@@ -158,7 +160,31 @@ pub fn eval_symbol(
         matched: !evidence.is_empty(),
         evidence,
         traits: Vec::new(),
+        warnings: Vec::new(),
     }
+}
+
+/// Check if a symbol matches an exact name or pattern
+fn symbol_matches_condition(
+    symbol: &str,
+    exact: Option<&String>,
+    pattern: Option<&String>,
+) -> bool {
+    // Clean symbol (remove leading underscores)
+    let clean = symbol.trim_start_matches('_').trim_start_matches("__");
+
+    // If exact is specified, do strict equality match
+    if let Some(exact_val) = exact {
+        return clean == exact_val || symbol == exact_val;
+    }
+
+    // If pattern is specified, use the existing pattern matching logic
+    if let Some(pattern_val) = pattern {
+        return symbol_matches(symbol, pattern_val);
+    }
+
+    // Neither exact nor pattern specified - no match
+    false
 }
 
 /// Evaluate string condition - searches ONLY in properly extracted/bounded strings.
@@ -171,6 +197,7 @@ pub fn eval_string(params: &StringParams, ctx: &EvaluationContext) -> ConditionR
         return eval_raw(
             params.exact,
             params.regex,
+            params.word,
             params.case_insensitive,
             params.min_count,
             ctx,
@@ -178,9 +205,15 @@ pub fn eval_string(params: &StringParams, ctx: &EvaluationContext) -> ConditionR
     }
 
     // Pre-compile regex patterns ONCE before iterating strings
-    let compiled_regex = params
-        .regex
-        .and_then(|pattern| build_regex(pattern, params.case_insensitive).ok());
+    // If `word` is provided, convert it to a regex with word boundaries
+    let compiled_regex = if let Some(word_pattern) = params.word {
+        let regex_pattern = format!(r"\b{}\b", regex::escape(word_pattern));
+        build_regex(&regex_pattern, params.case_insensitive).ok()
+    } else {
+        params
+            .regex
+            .and_then(|pattern| build_regex(pattern, params.case_insensitive).ok())
+    };
 
     let compiled_excludes: Vec<Regex> = params
         .exclude_patterns
@@ -270,6 +303,7 @@ pub fn eval_string(params: &StringParams, ctx: &EvaluationContext) -> ConditionR
         matched: evidence.len() >= params.min_count,
         evidence,
         traits: Vec::new(),
+        warnings: Vec::new(),
     }
 }
 
@@ -279,6 +313,7 @@ pub fn eval_string(params: &StringParams, ctx: &EvaluationContext) -> ConditionR
 pub fn eval_raw(
     exact: Option<&String>,
     regex: Option<&String>,
+    word: Option<&String>,
     case_insensitive: bool,
     min_count: usize,
     ctx: &EvaluationContext,
@@ -293,11 +328,34 @@ pub fn eval_raw(
                 matched: false,
                 evidence: Vec::new(),
                 traits: Vec::new(),
+                warnings: Vec::new(),
             }
         }
     };
 
-    if let Some(regex_pattern) = regex {
+    // Priority: word > regex > exact
+    if let Some(word_pattern) = word {
+        // Convert word to regex with word boundaries
+        let regex_pattern = format!(r"\b{}\b", regex::escape(word_pattern));
+        if let Ok(re) = build_regex(&regex_pattern, case_insensitive) {
+            let mut match_count = 0;
+            let mut first_match = None;
+            for mat in re.find_iter(content) {
+                match_count += 1;
+                if first_match.is_none() {
+                    first_match = Some(mat.as_str().to_string());
+                }
+            }
+            if match_count >= min_count {
+                evidence.push(Evidence {
+                    method: "raw".to_string(),
+                    source: "raw_content".to_string(),
+                    value: format!("Found {} {}", match_count, first_match.unwrap_or_default()),
+                    location: Some("file".to_string()),
+                });
+            }
+        }
+    } else if let Some(regex_pattern) = regex {
         if let Ok(re) = build_regex(regex_pattern, case_insensitive) {
             let mut match_count = 0;
             let mut first_match = None;
@@ -342,6 +400,7 @@ pub fn eval_raw(
         matched: !evidence.is_empty(),
         evidence,
         traits: Vec::new(),
+        warnings: Vec::new(),
     }
 }
 
@@ -396,6 +455,7 @@ pub fn eval_yara_match(
         matched: !evidence.is_empty(),
         evidence,
         traits: Vec::new(),
+        warnings: Vec::new(),
     }
 }
 
@@ -427,37 +487,7 @@ pub fn eval_structure(
         matched,
         evidence,
         traits: Vec::new(),
-    }
-}
-
-/// Evaluate symbol OR string condition
-pub fn eval_symbol_or_string(patterns: &[String], ctx: &EvaluationContext) -> ConditionResult {
-    for pattern in patterns {
-        // Try as symbol first
-        let symbol_result = eval_symbol(pattern, None, ctx);
-        if symbol_result.matched {
-            return symbol_result;
-        }
-
-        // Try as exact string match
-        let params = StringParams {
-            exact: Some(pattern),
-            regex: None,
-            case_insensitive: false,
-            exclude_patterns: None,
-            min_count: 1,
-            search_raw: false,
-        };
-        let string_result = eval_string(&params, ctx);
-        if string_result.matched {
-            return string_result;
-        }
-    }
-
-    ConditionResult {
-        matched: false,
-        evidence: Vec::new(),
-        traits: Vec::new(),
+        warnings: Vec::new(),
     }
 }
 
@@ -504,6 +534,7 @@ pub fn eval_imports_count(
             Vec::new()
         },
         traits: Vec::new(),
+        warnings: Vec::new(),
     }
 }
 
@@ -539,6 +570,7 @@ pub fn eval_exports_count(
             Vec::new()
         },
         traits: Vec::new(),
+        warnings: Vec::new(),
     }
 }
 
@@ -558,6 +590,7 @@ pub fn eval_ast_pattern(
                 matched: false,
                 evidence: Vec::new(),
                 traits: Vec::new(),
+                warnings: Vec::new(),
             }
         }
     };
@@ -594,6 +627,7 @@ pub fn eval_ast_pattern(
                 matched: false,
                 evidence: Vec::new(),
                 traits: Vec::new(),
+                warnings: Vec::new(),
             }
         }
     };
@@ -604,6 +638,7 @@ pub fn eval_ast_pattern(
             matched: false,
             evidence: Vec::new(),
             traits: Vec::new(),
+            warnings: Vec::new(),
         };
     }
 
@@ -614,6 +649,7 @@ pub fn eval_ast_pattern(
                 matched: false,
                 evidence: Vec::new(),
                 traits: Vec::new(),
+                warnings: Vec::new(),
             }
         }
     };
@@ -627,6 +663,7 @@ pub fn eval_ast_pattern(
                     matched: false,
                     evidence: Vec::new(),
                     traits: Vec::new(),
+                    warnings: Vec::new(),
                 }
             }
         }
@@ -641,7 +678,7 @@ pub fn eval_ast_pattern(
     // Walk the AST and find matching nodes
     let mut evidence = Vec::new();
     let mut cursor = tree.walk();
-    walk_ast_for_pattern(
+    let stats = walk_ast_for_pattern(
         &mut cursor,
         source.as_bytes(),
         node_type,
@@ -649,24 +686,31 @@ pub fn eval_ast_pattern(
         &mut evidence,
     );
 
+    let mut warnings = Vec::new();
+    if stats.depth_limit_hit {
+        warnings.push(AnalysisWarning::AstTooDeep {
+            max_depth: stats.max_depth_reached,
+        });
+    }
+
     ConditionResult {
         matched: !evidence.is_empty(),
         evidence,
         traits: Vec::new(),
+        warnings,
     }
 }
 
-/// Recursively walk AST looking for nodes matching the pattern
+/// Iteratively walk AST looking for nodes matching the pattern (stack-safe)
+/// Returns WalkStats to detect potential anti-analysis (recursion bombs)
 fn walk_ast_for_pattern(
     cursor: &mut tree_sitter::TreeCursor,
     source: &[u8],
     target_node_type: &str,
     matcher: &dyn Fn(&str) -> bool,
     evidence: &mut Vec<Evidence>,
-) {
-    loop {
-        let node = cursor.node();
-
+) -> crate::analyzers::ast_walker::WalkStats {
+    crate::analyzers::ast_walker::walk_tree_with_stats(cursor, |node, _depth| {
         // Check if this node matches the target type
         if node.kind() == target_node_type {
             if let Ok(text) = node.utf8_text(source) {
@@ -684,17 +728,8 @@ fn walk_ast_for_pattern(
                 }
             }
         }
-
-        // Recurse into children
-        if cursor.goto_first_child() {
-            walk_ast_for_pattern(cursor, source, target_node_type, matcher, evidence);
-            cursor.goto_parent();
-        }
-
-        if !cursor.goto_next_sibling() {
-            break;
-        }
-    }
+        true // continue traversal into children
+    })
 }
 
 /// Evaluate full tree-sitter query condition
@@ -707,6 +742,7 @@ pub fn eval_ast_query(query_str: &str, ctx: &EvaluationContext) -> ConditionResu
                 matched: false,
                 evidence: Vec::new(),
                 traits: Vec::new(),
+                warnings: Vec::new(),
             }
         }
     };
@@ -738,6 +774,7 @@ pub fn eval_ast_query(query_str: &str, ctx: &EvaluationContext) -> ConditionResu
                 matched: false,
                 evidence: Vec::new(),
                 traits: Vec::new(),
+                warnings: Vec::new(),
             }
         }
     };
@@ -748,6 +785,7 @@ pub fn eval_ast_query(query_str: &str, ctx: &EvaluationContext) -> ConditionResu
             matched: false,
             evidence: Vec::new(),
             traits: Vec::new(),
+            warnings: Vec::new(),
         };
     }
 
@@ -758,6 +796,7 @@ pub fn eval_ast_query(query_str: &str, ctx: &EvaluationContext) -> ConditionResu
                 matched: false,
                 evidence: Vec::new(),
                 traits: Vec::new(),
+                warnings: Vec::new(),
             }
         }
     };
@@ -770,6 +809,7 @@ pub fn eval_ast_query(query_str: &str, ctx: &EvaluationContext) -> ConditionResu
                 matched: false,
                 evidence: Vec::new(),
                 traits: Vec::new(),
+                warnings: Vec::new(),
             }
         }
     };
@@ -801,6 +841,7 @@ pub fn eval_ast_query(query_str: &str, ctx: &EvaluationContext) -> ConditionResu
         matched: !evidence.is_empty(),
         evidence,
         traits: Vec::new(),
+        warnings: Vec::new(),
     }
 }
 
@@ -866,6 +907,7 @@ pub fn eval_yara_inline(
                 matched: false,
                 evidence: Vec::new(),
                 traits: Vec::new(),
+                warnings: Vec::new(),
             };
         }
         let rules = compiler.build();
@@ -880,6 +922,7 @@ pub fn eval_yara_inline(
         matched: !evidence.is_empty(),
         evidence,
         traits: Vec::new(),
+        warnings: Vec::new(),
     }
 }
 
@@ -924,6 +967,7 @@ pub fn eval_syscall(
         matched,
         evidence: if matched { evidence } else { Vec::new() },
         traits: Vec::new(),
+        warnings: Vec::new(),
     }
 }
 
@@ -942,6 +986,7 @@ pub fn eval_section_ratio(
                 matched: false,
                 evidence: Vec::new(),
                 traits: Vec::new(),
+                warnings: Vec::new(),
             }
         }
     };
@@ -961,6 +1006,7 @@ pub fn eval_section_ratio(
             matched: false,
             evidence: Vec::new(),
             traits: Vec::new(),
+            warnings: Vec::new(),
         };
     }
 
@@ -975,6 +1021,7 @@ pub fn eval_section_ratio(
                     matched: false,
                     evidence: Vec::new(),
                     traits: Vec::new(),
+                    warnings: Vec::new(),
                 }
             }
         };
@@ -991,6 +1038,7 @@ pub fn eval_section_ratio(
             matched: false,
             evidence: Vec::new(),
             traits: Vec::new(),
+            warnings: Vec::new(),
         };
     }
 
@@ -1019,6 +1067,7 @@ pub fn eval_section_ratio(
             Vec::new()
         },
         traits: Vec::new(),
+        warnings: Vec::new(),
     }
 }
 
@@ -1036,6 +1085,7 @@ pub fn eval_section_entropy(
                 matched: false,
                 evidence: Vec::new(),
                 traits: Vec::new(),
+                warnings: Vec::new(),
             }
         }
     };
@@ -1064,6 +1114,44 @@ pub fn eval_section_entropy(
         matched: any_matched,
         evidence,
         traits: Vec::new(),
+        warnings: Vec::new(),
+    }
+}
+
+/// Evaluate section name condition - match section names in binary files
+/// Replaces YARA patterns like: `for any section in pe.sections : (section.name matches /^UPX/)`
+pub fn eval_section_name(
+    pattern: &str,
+    use_regex: bool,
+    ctx: &EvaluationContext,
+) -> ConditionResult {
+    let mut evidence = Vec::new();
+
+    for section in &ctx.report.sections {
+        let matched = if use_regex {
+            match build_regex(pattern, false) {
+                Ok(re) => re.is_match(&section.name),
+                Err(_) => false,
+            }
+        } else {
+            section.name.contains(pattern)
+        };
+
+        if matched {
+            evidence.push(Evidence {
+                method: "section_name".to_string(),
+                source: "binary".to_string(),
+                value: section.name.clone(),
+                location: None,
+            });
+        }
+    }
+
+    ConditionResult {
+        matched: !evidence.is_empty(),
+        evidence,
+        traits: Vec::new(),
+        warnings: Vec::new(),
     }
 }
 
@@ -1096,6 +1184,7 @@ pub fn eval_import_combination(
                     matched: false,
                     evidence: Vec::new(),
                     traits: Vec::new(),
+                    warnings: Vec::new(),
                 };
             }
             evidence.push(Evidence {
@@ -1136,6 +1225,7 @@ pub fn eval_import_combination(
                 matched: false,
                 evidence: Vec::new(),
                 traits: Vec::new(),
+                warnings: Vec::new(),
             };
         }
     }
@@ -1147,6 +1237,7 @@ pub fn eval_import_combination(
                 matched: false,
                 evidence: Vec::new(),
                 traits: Vec::new(),
+                warnings: Vec::new(),
             };
         }
         evidence.push(Evidence {
@@ -1161,6 +1252,7 @@ pub fn eval_import_combination(
         matched: true,
         evidence,
         traits: Vec::new(),
+        warnings: Vec::new(),
     }
 }
 
@@ -1203,6 +1295,7 @@ pub fn eval_string_count(
             Vec::new()
         },
         traits: Vec::new(),
+        warnings: Vec::new(),
     }
 }
 
@@ -1224,6 +1317,7 @@ pub fn eval_metrics(
                 matched: false,
                 evidence: Vec::new(),
                 traits: Vec::new(),
+                warnings: Vec::new(),
             };
         }
     }
@@ -1233,6 +1327,7 @@ pub fn eval_metrics(
                 matched: false,
                 evidence: Vec::new(),
                 traits: Vec::new(),
+                warnings: Vec::new(),
             };
         }
     }
@@ -1244,6 +1339,7 @@ pub fn eval_metrics(
                 matched: false,
                 evidence: Vec::new(),
                 traits: Vec::new(),
+                warnings: Vec::new(),
             }
         }
     };
@@ -1481,6 +1577,7 @@ pub fn eval_metrics(
                 matched: false,
                 evidence: Vec::new(),
                 traits: Vec::new(),
+                warnings: Vec::new(),
             }
         }
     };
@@ -1502,6 +1599,7 @@ pub fn eval_metrics(
             Vec::new()
         },
         traits: Vec::new(),
+        warnings: Vec::new(),
     }
 }
 
@@ -1563,6 +1661,7 @@ pub fn eval_trait(id: &str, ctx: &EvaluationContext) -> ConditionResult {
         } else {
             Vec::new()
         },
+        warnings: Vec::new(),
     }
 }
 
@@ -1712,6 +1811,7 @@ pub fn eval_hex(
                     location: None,
                 }],
                 traits: Vec::new(),
+                warnings: Vec::new(),
             };
         }
     };
@@ -1721,6 +1821,7 @@ pub fn eval_hex(
             matched: false,
             evidence: Vec::new(),
             traits: Vec::new(),
+            warnings: Vec::new(),
         };
     }
 
@@ -1817,6 +1918,7 @@ pub fn eval_hex(
             Vec::new()
         },
         traits: Vec::new(),
+        warnings: Vec::new(),
     }
 }
 
@@ -1842,6 +1944,7 @@ pub fn eval_filesize(
             Vec::new()
         },
         traits: Vec::new(),
+        warnings: Vec::new(),
     }
 }
 
@@ -1867,6 +1970,7 @@ pub fn eval_trait_glob(
                 matched: false,
                 evidence: Vec::new(),
                 traits: Vec::new(),
+                warnings: Vec::new(),
             }
         }
     };
@@ -1927,6 +2031,7 @@ pub fn eval_trait_glob(
         matched,
         evidence: if matched { all_evidence } else { Vec::new() },
         traits: matched_traits,
+        warnings: Vec::new(),
     }
 }
 

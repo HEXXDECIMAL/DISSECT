@@ -126,7 +126,7 @@ traits:
     attack: "T1016"
     if:
       type: string
-      regex: "\\bcountryCode\\b"
+      word: "countryCode"
 
   - id: country-code-snake
     desc: country_code field (snake_case)
@@ -135,7 +135,7 @@ traits:
     attack: "T1016"
     if:
       type: string
-      regex: "\\bcountry_code\\b"
+      word: "country_code"
 
   - id: ip-address-camel
     desc: ipAddress field (camelCase)
@@ -144,7 +144,7 @@ traits:
     attack: "T1016"
     if:
       type: string
-      regex: "\\bipAddress\\b"
+      word: "ipAddress"
 
   - id: ip-address-snake
     desc: ip_address field (snake_case)
@@ -153,7 +153,7 @@ traits:
     attack: "T1016"
     if:
       type: string
-      regex: "\\bip_address\\b"
+      word: "ip_address"
 
   - id: ip-json-field
     desc: '"ip" JSON field'

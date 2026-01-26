@@ -10,7 +10,5 @@ traits:
     platforms: [macos]
     for: [macho, dylib, c]
     if:
-      type: symbol_or_string
-      any:
-        - "DADiskCopyDescription"
-        - "DADiskCreateFromBSDName"
+      type: symbol
+      pattern: "DADiskCopyDescription|DADiskCreateFromBSDName"

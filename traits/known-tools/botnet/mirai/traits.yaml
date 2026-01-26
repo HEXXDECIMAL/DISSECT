@@ -55,7 +55,7 @@ traits:
     file_types: [elf]
     condition:
       type: string
-      regex: "\\bMIRAI\\b"
+      word: "MIRAI"
 
   - id: read-module
     description: Mirai _READ.c module reference

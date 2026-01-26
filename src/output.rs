@@ -586,6 +586,8 @@ mod tests {
             paths: vec![],
             directories: vec![],
             env_vars: vec![],
+            archive_contents: vec![],
+            sub_reports: vec![],
             metadata: crate::types::AnalysisMetadata {
                 analysis_duration_ms: 100,
                 tools_used: vec!["test".to_string()],

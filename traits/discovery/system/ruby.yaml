@@ -1,46 +1,101 @@
 ---
 # Ruby system information gathering
+
+defaults:
+  for: [ruby]
+  platforms: [all]
+
 traits:
+  # DNS resolution
+  - id: resolv-getaddress
+    desc: Resolv.getaddress method
+    crit: inert
+    conf: 0.7
+    if:
+      type: symbol
+      regex: "Resolv.*getaddress"
+
+  - id: resolv-getname
+    desc: Resolv.getname method
+    crit: inert
+    conf: 0.7
+    if:
+      type: symbol
+      regex: "Resolv.*getname"
+
+  # Environment variables
+  - id: env-bracket-access
+    desc: ENV bracket access
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "ENV["
+
+  - id: env-fetch
+    desc: ENV.fetch method
+    crit: inert
+    conf: 0.6
+    if:
+      type: symbol
+      regex: "ENV.*fetch"
+
+  # Process info
+  - id: process-pid
+    desc: Process.pid method
+    crit: inert
+    conf: 0.6
+    if:
+      type: symbol
+      regex: "Process.*pid"
+
+  - id: process-ppid
+    desc: Process.ppid method
+    crit: inert
+    conf: 0.6
+    if:
+      type: symbol
+      regex: "Process.*ppid"
+
+  - id: process-uid
+    desc: Process.uid method
+    crit: inert
+    conf: 0.6
+    if:
+      type: symbol
+      regex: "Process.*uid"
+
+  - id: process-gid
+    desc: Process.gid method
+    crit: inert
+    conf: 0.6
+    if:
+      type: symbol
+      regex: "Process.*gid"
+
+composite_rules:
   - id: ruby-dns-resolve
-    desc: "DNS hostname resolution"
+    description: DNS hostname resolution
     crit: notable
     conf: 0.85
-    platforms:
-      - all
-    for:
-      - ruby
-    if:
-      type: symbol_or_string
-      any:
-        - Resolv.getaddress
-        - Resolv.getname
+    any:
+      - id: resolv-getaddress
+      - id: resolv-getname
 
   - id: ruby-env-read
-    desc: "Read environment variables"
+    description: Read environment variables
     crit: notable
     conf: 0.75
-    platforms:
-      - all
-    for:
-      - ruby
-    if:
-      type: symbol_or_string
-      any:
-        - "ENV["
-        - ENV.fetch
+    any:
+      - id: env-bracket-access
+      - id: env-fetch
 
   - id: ruby-process-info
-    desc: "Process information access"
+    description: Process information access
     crit: notable
     conf: 0.75
-    platforms:
-      - all
-    for:
-      - ruby
-    if:
-      type: symbol_or_string
-      any:
-        - Process.pid
-        - Process.ppid
-        - Process.uid
-        - Process.gid
+    any:
+      - id: process-pid
+      - id: process-ppid
+      - id: process-uid
+      - id: process-gid

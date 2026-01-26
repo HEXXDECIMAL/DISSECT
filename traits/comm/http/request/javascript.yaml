@@ -2,19 +2,240 @@
 # MBC: C0002 (HTTP Communication)
 # ATT&CK: T1071.001
 
+defaults:
+  attack: "T1071.001"
+  mbc: "C0002"
+
 traits:
+  # === Import/require patterns ===
+  - id: axios-import-default
+    desc: axios default import
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "import\\s+axios\\s+from\\s+['\"]axios['\"]"
+
+  - id: axios-import-named
+    desc: axios named import
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "import\\s+\\{[^}]*axios[^}]*\\}\\s+from\\s+['\"]axios['\"]"
+
+  - id: axios-require
+    desc: axios require statement
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "require\\(['\"]axios['\"]\\)"
+
+  # === AST-based method call detection ===
+  - id: axios-get-call
+    desc: axios.get() HTTP GET request
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "axios.get"
+
+  - id: axios-post-call
+    desc: axios.post() HTTP POST request
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "axios.post"
+
+  - id: axios-put-call
+    desc: axios.put() HTTP PUT request
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "axios.put"
+
+  - id: axios-delete-call
+    desc: axios.delete() HTTP DELETE request
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "axios.delete"
+
+  - id: axios-patch-call
+    desc: axios.patch() HTTP PATCH request
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "axios.patch"
+
+  - id: axios-head-call
+    desc: axios.head() HTTP HEAD request
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "axios.head"
+
+  - id: axios-options-call
+    desc: axios.options() HTTP OPTIONS request
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "axios.options"
+
+  - id: axios-request-call
+    desc: axios.request() generic HTTP request
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "axios.request"
+
+  - id: axios-direct-call
+    desc: axios() direct call
+    crit: inert
+    conf: 0.75
+    for: [javascript, typescript]
+    if:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "axios"
+
+  # === Other HTTP clients ===
+  - id: fetch-call
+    desc: fetch() API call
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "fetch"
+
+  - id: xmlhttprequest-new
+    desc: new XMLHttpRequest()
+    crit: inert
+    conf: 0.75
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "new XMLHttpRequest()"
+
+  - id: node-fetch-import
+    desc: node-fetch import
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "(?:import|require).{0,50}['\"]node-fetch['\"]"
+
+  - id: got-import
+    desc: got HTTP client import
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "(?:import|require).{0,50}['\"]got['\"]"
+
+  - id: superagent-import
+    desc: superagent HTTP client import
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "(?:import|require).{0,50}['\"]superagent['\"]"
+
+  - id: needle-import
+    desc: needle HTTP client import
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "(?:import|require).{0,50}['\"]needle['\"]"
+
+  - id: request-import
+    desc: request HTTP client import
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "(?:import|require).{0,50}['\"]request['\"]"
+
+composite_rules:
+  # Helper composites
+  - id: axios-import-or-require
+    description: axios library import or require
+    for: [javascript, typescript]
+    any:
+      - {id: axios-import-default}
+      - {id: axios-import-named}
+      - {id: axios-require}
+
+  - id: axios-method-calls
+    description: axios HTTP method calls
+    for: [javascript, typescript]
+    any:
+      - {id: axios-get-call}
+      - {id: axios-post-call}
+      - {id: axios-put-call}
+      - {id: axios-delete-call}
+      - {id: axios-patch-call}
+      - {id: axios-head-call}
+      - {id: axios-options-call}
+      - {id: axios-request-call}
+      - {id: axios-direct-call}
+
+  # Main composites
   - id: request-axios
     desc: HTTP requests via axios
     crit: inert
-    conf: 0.66
-    mbc: "C0002"
-    attack: "T1071.001"
-    if:
-      type: yara
-      source: |
-        rule axios_request {
-          strings:
-            $axios = "axios" fullword
-          condition:
-            $axios
-        }
+    conf: 0.75
+    for: [javascript, typescript]
+    any:
+      - {id: axios-import-or-require}
+      - {id: axios-method-calls}
+
+  - id: http-client-usage
+    desc: HTTP client library usage
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    any:
+      - {id: request-axios}
+      - {id: fetch-call}
+      - {id: xmlhttprequest-new}
+      - {id: node-fetch-import}
+      - {id: got-import}
+      - {id: superagent-import}
+      - {id: needle-import}
+      - {id: request-import}

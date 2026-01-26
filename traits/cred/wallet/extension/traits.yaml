@@ -186,45 +186,35 @@ traits:
       type: string
       regex: "(?i)\\.electrum/wallets"
 
-  - id: multi-wallet-yara
-    desc: Multiple wallet extensions via YARA
-    crit: suspicious
-    conf: 0.95
-    attack: "T1555.003"
-    mbc: "B0028"
-    for: [python, javascript, elf, pe, macho]
-    if:
-      type: yara
-      source: |
-        rule multi_wallet_extension_targeting {
-          meta:
-            description = "Targets multiple cryptocurrency wallet browser extensions"
-          strings:
-            // Major wallets
-            $metamask = "nkbihfbeogaeaoehlefnkodbefgpgknn" ascii
-            $phantom = "bfnaelmomeimhlpmgjnjophhpkkoljpa" ascii
-            $trust = "egjidjbpglichdcondbcbdnbeeppgdph" ascii
-            $binance = "fhbohimaelbohpjbbldcngcnapndodjp" ascii
-            $coinbase = "hnfanknocfeofbddgcijnmhnfnkdnaad" ascii
-            $tronlink = "ibnejdfjmmkpcnlpebklmnkoeoihofec" ascii
-            $exodus = "aholpfdialjgjfhomihkjbmgjidlcdno" ascii
-            $keplr = "dmkamcknogkgcdfhhbddcghachkejeap" ascii
-            // Aptos/Move ecosystem
-            $petra = "ejjladinnckdgjemekebdpeokbikhfci" ascii
-            $martian = "efbglgofoippbgcjepnhiblaibcnclgk" ascii
-            $pontem = "phkbamefinggmakgklpkljjmgibohnba" ascii
-            // Cardano/Tezos
-            $nami = "lpfcbjknijpeeillifnkikgncikgfhdo" ascii
-            $temple = "ookjlbkiijinhpmnjffcofjonbfbgaoc" ascii
-            // Other popular wallets
-            $rabby = "acmacodkjbdgmoleebolmdjonilkdbch" ascii
-            $brave = "odbfpeeihdkbihmopkbjmoonfanlbfcl" ascii
-          condition:
-            3 of them
-        }
-
 composite_rules:
-  # Detects multiple wallet extension IDs (strong indicator of wallet stealer)
+  # === Helper composites ===
+  - id: browser-wallet-extensions
+    description: Browser-based crypto wallet extension IDs
+    any:
+      - id: metamask
+      - id: phantom
+      - id: trust-wallet
+      - id: binance
+      - id: coinbase
+      - id: tronlink
+      - id: nami
+      - id: temple
+      - id: petra
+      - id: martian
+      - id: pontem
+      - id: exodus
+      - id: keplr
+      - id: rabby
+      - id: brave
+
+  - id: desktop-wallets
+    description: Desktop wallet path references
+    any:
+      - id: coinomi
+      - id: atomic
+      - id: electrum
+
+  # Migrated from YARA - Detects multiple wallet extension IDs (strong indicator of wallet stealer)
   - id: multi-wallet-targeting
     desc: Multiple crypto wallet extensions targeted (wallet stealer)
     crit: suspicious
@@ -232,5 +222,20 @@ composite_rules:
     attack: "T1555.003"
     mbc: "B0028"
     for: [python, javascript, elf, pe, macho]
-    all:
-      - id: multi-wallet-yara
+    count: 3
+    any:
+      - id: metamask
+      - id: phantom
+      - id: trust-wallet
+      - id: binance
+      - id: coinbase
+      - id: tronlink
+      - id: exodus
+      - id: keplr
+      - id: petra
+      - id: martian
+      - id: pontem
+      - id: nami
+      - id: temple
+      - id: rabby
+      - id: brave

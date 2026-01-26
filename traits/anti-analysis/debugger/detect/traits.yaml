@@ -64,23 +64,36 @@ traits:
       pattern: isatty
     platforms: [all]
 
-  - id: process-inspection
-    desc: "Process inspection pattern (potential anti-debug)"
-    crit: notable
-    conf: 0.75
+  # === Process inspection micro-traits ===
+  - id: proc-self-status
+    desc: /proc/self/status path
+    crit: inert
+    conf: 0.5
     attack: "T1622"
     if:
-      type: yara
-      source: |
-        rule process_inspection {
-          strings:
-            $ptrace = "ptrace" ascii fullword
-            $proc1 = "/proc/self/status" ascii fullword
-            $proc2 = "/proc/self/maps" ascii fullword
-            $proc3 = "TracerPid" ascii fullword
-          condition:
-            $ptrace or any of ($proc*)
-        }
+      type: string
+      exact: "/proc/self/status"
+    platforms: [linux]
+
+  - id: proc-self-maps
+    desc: /proc/self/maps path
+    crit: inert
+    conf: 0.5
+    attack: "T1622"
+    if:
+      type: string
+      exact: "/proc/self/maps"
+    platforms: [linux]
+
+  - id: tracerpid-string
+    desc: TracerPid string (debugger detection)
+    crit: notable
+    conf: 0.7
+    attack: "T1622"
+    if:
+      type: string
+      exact: "TracerPid"
+    platforms: [linux]
 
   - id: ld-debug
     desc: LD_DEBUG environment variable check
@@ -151,6 +164,21 @@ traits:
     platforms: [windows]
 
 composite_rules:
+  # Process inspection composite (migrated from YARA)
+  - id: process-inspection
+    desc: Process inspection pattern (potential anti-debug)
+    crit: notable
+    conf: 0.75
+    mbc: "B0001"
+    attack: "T1622"
+    platforms: [linux]
+    count: 1
+    any:
+      - id: ptrace
+      - id: proc-self-status
+      - id: proc-self-maps
+      - id: tracerpid-string
+
   # ptrace constant composite
   - id: ptrace-traceme-or-deny
     desc: PTRACE_TRACEME or PT_DENY_ATTACH anti-debugging constants
@@ -162,3 +190,31 @@ composite_rules:
     any:
       - id: ptrace-traceme
       - id: pt-deny-attach
+
+  # Windows debugger detection composite
+  - id: win-debugger-detect
+    desc: Windows debugger detection API usage
+    crit: suspicious
+    mbc: "B0001"
+    attack: "T1622"
+    conf: 0.9
+    platforms: [windows]
+    count: 1
+    any:
+      - id: win-isdebuggerpresent
+      - id: win-checkremotedebugger
+      - id: win-ntqueryinfo
+
+  # Full anti-debug composite
+  - id: anti-debug-full
+    desc: Multiple anti-debugging techniques
+    crit: suspicious
+    mbc: "B0001"
+    attack: "T1622"
+    conf: 0.85
+    count: 2
+    any:
+      - id: ptrace-traceme-or-deny
+      - id: process-inspection
+      - id: win-debugger-detect
+      - id: ld-debug

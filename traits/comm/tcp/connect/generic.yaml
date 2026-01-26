@@ -3,19 +3,48 @@
 # ATT&CK: T1071
 
 traits:
+  # === TCP Socket Indicators ===
+  - id: sock-stream
+    desc: SOCK_STREAM socket type
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: "SOCK_STREAM"
+
+  - id: net-dial
+    desc: net.Dial Go function
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: "net.Dial"
+
+  - id: tcp-conn
+    desc: TCPConn type
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: "TCPConn"
+
+  - id: create-socket
+    desc: CreateSocket function
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: "CreateSocket"
+
+composite_rules:
+  # TCP connection (migrated from YARA)
   - id: connect
     desc: TCP connection operations
     crit: inert
     conf: 0.66
-    if:
-      type: yara
-      source: |
-        rule tcp_connect {
-          strings:
-            $tcp = "SOCK_STREAM"
-            $dial = "net.Dial"
-            $tcp_conn = "TCPConn"
-            $create = "CreateSocket"
-          condition:
-            any of them
-        }
+    count: 1
+    any:
+      - id: sock-stream
+      - id: net-dial
+      - id: tcp-conn
+      - id: create-socket

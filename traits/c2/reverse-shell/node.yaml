@@ -4,80 +4,174 @@
 # ATT&CK: T1059 (Command Interpreter), T1095 (Non-Application Layer Protocol)
 
 traits:
-  - id: node
-    desc: Node.js reverse shell pattern (net + child_process)
-    crit: suspicious
-    conf: 0.85
-    for: [javascript, typescript]
-    if:
-      type: yara
-      source: |
-        rule node_reverse_shell {
-          strings:
-            $net = "net.Socket"
-            $cp = "child_process"
-            $spawn = "spawn"
-            $exec = "exec"
-            $pipe = "pipe"
-          condition:
-            $net and $cp and ($spawn or $exec) and $pipe
-        }
-
-  # === Net socket atomic indicators ===
-  - id: new-net-socket
-    desc: new net.Socket creation
-    crit: inert
-    conf: 0.6
+  # === Net socket micro-traits ===
+  - id: net-socket-string
+    desc: net.Socket string reference
+    crit: notable
+    conf: 0.7
     for: [javascript, typescript]
     if:
       type: string
-      exact: "new net.Socket"
+      exact: "net.Socket"
+
+  - id: new-net-socket
+    desc: new net.Socket creation
+    crit: notable
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: ast_query
+      language: javascript
+      query: |
+        (new_expression
+          constructor: (member_expression
+            object: (identifier) @obj
+            property: (property_identifier) @prop))
+        (#eq? @obj "net")
+        (#eq? @prop "Socket")
 
   - id: net-createConnection
     desc: net.createConnection call
-    crit: inert
-    conf: 0.6
+    crit: notable
+    conf: 0.7
     for: [javascript, typescript]
     if:
-      type: string
-      exact: "net.createConnection"
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "net.createConnection"
 
   - id: net-connect
     desc: net.connect call
-    crit: inert
-    conf: 0.6
+    crit: notable
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "net.connect"
+
+  # === child_process micro-traits ===
+  - id: child-process-string
+    desc: child_process module reference
+    crit: notable
+    conf: 0.7
     for: [javascript, typescript]
     if:
       type: string
-      exact: "net.connect"
+      exact: "child_process"
 
-  - id: socket-with-exec
-    desc: Socket combined with command execution (reverse shell indicator)
-    crit: suspicious
-    conf: 0.95
-    mbc: "B0032"
-    attack: "T1059"
+  - id: spawn-call
+    desc: spawn function call
+    crit: notable
+    conf: 0.7
     for: [javascript, typescript]
     if:
-      type: yara
-      source: |
-        rule socket_exec_combo {
-          strings:
-            $socket1 = "net.Socket"
-            $socket2 = "net.connect"
-            $socket3 = "createConnection"
-            $exec1 = ".exec("
-            $exec2 = ".spawn("
-            $exec3 = "execSync"
-          condition:
-            any of ($socket*) and any of ($exec*)
-        }
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "spawn"
+
+  - id: exec-call
+    desc: exec function call
+    crit: notable
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: ".exec("
+
+  - id: execSync-call
+    desc: execSync function call
+    crit: notable
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "execSync"
+
+  - id: spawnSync-call
+    desc: spawnSync function call
+    crit: notable
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "spawnSync"
+
+  - id: pipe-string
+    desc: pipe string reference
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "pipe"
+
+  # === Data event micro-traits ===
+  - id: on-data-event-single
+    desc: .on('data' event handler
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: ".on('data'"
+
+  - id: on-data-event-double
+    desc: .on("data" event handler
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: '.on("data"'
+
+  # === Lock file micro-traits ===
+  - id: dot-lock-string
+    desc: .lock file extension
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: ".lock"
+
+  - id: lockfile-string
+    desc: lockfile string
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "lockfile"
+
+  - id: existsSync-call
+    desc: existsSync function call
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "existsSync"
+
+  - id: writeFileSync-call
+    desc: writeFileSync function call
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "writeFileSync"
 
   # === Ngrok atomic indicators ===
   - id: ngrok-io
     desc: ngrok.io domain
-    crit: inert
-    conf: 0.7
+    crit: notable
+    conf: 0.8
     for: [javascript, typescript]
     if:
       type: string
@@ -85,8 +179,8 @@ traits:
 
   - id: ngrok-com
     desc: ngrok.com domain
-    crit: inert
-    conf: 0.7
+    crit: notable
+    conf: 0.8
     for: [javascript, typescript]
     if:
       type: string
@@ -94,8 +188,8 @@ traits:
 
   - id: tcp-ngrok
     desc: tcp.ngrok endpoint
-    crit: inert
-    conf: 0.8
+    crit: notable
+    conf: 0.85
     for: [javascript, typescript]
     if:
       type: string
@@ -104,8 +198,8 @@ traits:
   # === Tunnel service atomic indicators ===
   - id: serveo-net
     desc: serveo.net tunnel service
-    crit: inert
-    conf: 0.7
+    crit: notable
+    conf: 0.8
     for: [javascript, typescript]
     if:
       type: string
@@ -113,8 +207,8 @@ traits:
 
   - id: localtunnel-me
     desc: localtunnel.me tunnel service
-    crit: inert
-    conf: 0.7
+    crit: notable
+    conf: 0.8
     for: [javascript, typescript]
     if:
       type: string
@@ -122,8 +216,8 @@ traits:
 
   - id: localhost-run
     desc: localhost.run tunnel service
-    crit: inert
-    conf: 0.7
+    crit: notable
+    conf: 0.8
     for: [javascript, typescript]
     if:
       type: string
@@ -131,70 +225,54 @@ traits:
 
   - id: pinggy-io
     desc: pinggy.io tunnel service
-    crit: inert
-    conf: 0.7
+    crit: notable
+    conf: 0.8
     for: [javascript, typescript]
     if:
       type: string
       exact: "pinggy.io"
 
-  # Lock File Pattern (single instance)
-  - id: lock-file
-    desc: Lock file for single instance (RAT pattern)
-    crit: notable
-    conf: 0.7
+  # === HTTP exclusion patterns (to avoid FPs) ===
+  - id: res-on-data
+    desc: res.on('data' HTTP response pattern
+    crit: inert
+    conf: 0.5
     for: [javascript, typescript]
     if:
-      type: yara
-      source: |
-        rule rat_lock_file {
-          strings:
-            $lock1 = ".lock"
-            $lock2 = "lockfile"
-            $exists = "existsSync"
-            $write = "writeFileSync"
-          condition:
-            any of ($lock*) and $exists and $write
-        }
+      type: string
+      exact: "res.on('data'"
 
-  # Socket Data Event with Exec
-  # NOTE: Requires net.Socket context to avoid FPs from HTTP response streaming
-  # HTTP responses also use .on('data') but are not reverse shells
-  - id: data-event-exec
-    desc: Socket data event with command execution
-    crit: suspicious
-    conf: 0.95
-    mbc: "B0032"
-    attack: "T1059"
+  - id: response-on-data
+    desc: response.on('data' HTTP response pattern
+    crit: inert
+    conf: 0.5
     for: [javascript, typescript]
     if:
-      type: yara
-      source: |
-        rule socket_data_exec {
-          strings:
-            // Socket creation (required for reverse shell)
-            $socket1 = "net.Socket" ascii
-            $socket2 = "net.connect" ascii
-            $socket3 = "net.createConnection" ascii
-            $socket4 = "new Socket(" ascii
-            // Data event handler
-            $event1 = ".on('data'" ascii
-            $event2 = ".on(\"data\"" ascii
-            // Command execution
-            $exec1 = "exec(" ascii
-            $exec2 = "spawn(" ascii
-            $exec3 = "execSync(" ascii
-            $exec4 = "spawnSync(" ascii
-            // Exclude HTTP response patterns (not reverse shells)
-            $http_res1 = "res.on('data'" ascii
-            $http_res2 = "response.on('data'" ascii
-            $http_res3 = "https.get" ascii
-            $http_res4 = "http.get" ascii
-          condition:
-            any of ($socket*) and any of ($event*) and any of ($exec*) and none of ($http_res*)
-        }
+      type: string
+      exact: "response.on('data'"
+
+  - id: https-get-call
+    desc: https.get call
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "https.get"
+
+  - id: http-get-call
+    desc: http.get call
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: ast_pattern
+      node_type: call_expression
+      pattern: "http.get"
 
 composite_rules:
+  # Net socket composite
   - id: net-socket
     desc: Net socket creation (potential reverse shell)
     crit: notable
@@ -202,9 +280,108 @@ composite_rules:
     for: [javascript, typescript]
     count: 1
     any:
+      - id: net-socket-string
       - id: new-net-socket
       - id: net-createConnection
       - id: net-connect
+
+  # Exec function composite
+  - id: exec-function
+    desc: Command execution function
+    crit: notable
+    conf: 0.7
+    for: [javascript, typescript]
+    count: 1
+    any:
+      - id: spawn-call
+      - id: exec-call
+      - id: execSync-call
+      - id: spawnSync-call
+
+  # Data event composite
+  - id: on-data-event
+    desc: Data event handler
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    count: 1
+    any:
+      - id: on-data-event-single
+      - id: on-data-event-double
+
+  # Lock file composite
+  - id: lock-pattern
+    desc: Lock file pattern
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    count: 1
+    any:
+      - id: dot-lock-string
+      - id: lockfile-string
+
+  # HTTP response pattern composite (exclusion)
+  - id: http-response-pattern
+    desc: HTTP response data handling (not reverse shell)
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    count: 1
+    any:
+      - id: res-on-data
+      - id: response-on-data
+      - id: https-get-call
+      - id: http-get-call
+
+  # Node reverse shell (migrated from YARA)
+  - id: node
+    desc: Node.js reverse shell pattern (net + child_process)
+    crit: suspicious
+    conf: 0.85
+    for: [javascript, typescript]
+    all:
+      - id: net-socket
+      - id: child-process-string
+      - id: exec-function
+      - id: pipe-string
+
+  # Socket with exec (migrated from YARA)
+  - id: socket-with-exec
+    desc: Socket combined with command execution (reverse shell indicator)
+    crit: suspicious
+    conf: 0.95
+    mbc: "B0032"
+    attack: "T1059"
+    for: [javascript, typescript]
+    all:
+      - id: net-socket
+      - id: exec-function
+
+  # Lock file pattern (migrated from YARA)
+  - id: lock-file
+    desc: Lock file for single instance (RAT pattern)
+    crit: notable
+    conf: 0.7
+    for: [javascript, typescript]
+    all:
+      - id: lock-pattern
+      - id: existsSync-call
+      - id: writeFileSync-call
+
+  # Socket data event with exec (migrated from YARA)
+  - id: data-event-exec
+    desc: Socket data event with command execution
+    crit: suspicious
+    conf: 0.95
+    mbc: "B0032"
+    attack: "T1059"
+    for: [javascript, typescript]
+    all:
+      - id: net-socket
+      - id: on-data-event
+      - id: exec-function
+    none:
+      - id: http-response-pattern
 
   - id: ngrok-tunnel
     desc: Ngrok tunnel endpoint (C2 tunneling)

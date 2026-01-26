@@ -2,21 +2,56 @@
 # MBC: B0033 (Adversary-in-the-Middle)
 # ATT&CK: T1059
 
+defaults:
+  for: [perl]
+
 traits:
+  # === Perl socket micro-trait ===
+  - id: perl-socket
+    desc: Perl socket() function
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      exact: "socket("
+
+  # === Perl open micro-trait ===
+  - id: perl-open
+    desc: Perl open() function
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      exact: "open("
+
+  # === Perl redirect micro-trait ===
+  - id: perl-redir
+    desc: Perl file descriptor redirect
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      exact: "\">&"
+
+  # === Shell interactive micro-trait ===
+  - id: sh-interactive
+    desc: sh -i interactive shell flag
+    crit: suspicious
+    conf: 0.8
+    if:
+      type: string
+      exact: "sh -i"
+
+composite_rules:
+  # Perl reverse shell (migrated from YARA)
   - id: reverse-shell-perl
     desc: Reverse shell in Perl
     crit: suspicious
     conf: 0.66
+    mbc: "B0033"
     attack: "T1059"
-    if:
-      type: yara
-      source: |
-        rule perl_reverse_shell {
-          strings:
-            $socket = "socket("
-            $open = "open("
-            $redir = "\">&"
-            $sh_i = "sh -i"
-          condition:
-            all of them
-        }
+    all:
+      - id: perl-socket
+      - id: perl-open
+      - id: perl-redir
+      - id: sh-interactive

@@ -6,93 +6,368 @@ defaults:
   file_types: [python, elf, macho, so, dylib]
 
 traits:
-  # Upstyle backdoor indicators
+  # === Backdoor Name Variants ===
+  - id: upstyle-lower
+    desc: upstyle malware name (lowercase)
+    crit: inert
+    conf: 0.8
+    if:
+      type: string
+      exact: "upstyle"
+
+  - id: upstyle-upper
+    desc: UPSTYLE malware name (uppercase)
+    crit: inert
+    conf: 0.8
+    if:
+      type: string
+      exact: "UPSTYLE"
+
+  - id: upstyle-title
+    desc: Upstyle malware name (title case)
+    crit: inert
+    conf: 0.8
+    if:
+      type: string
+      exact: "Upstyle"
+
+  # === PAN-OS Paths ===
+  - id: var-appweb-path
+    desc: PAN-OS /var/appweb path
+    crit: inert
+    conf: 0.75
+    if:
+      type: string
+      exact: "/var/appweb"
+
+  - id: opt-panlogs-path
+    desc: PAN-OS /opt/panlogs path
+    crit: inert
+    conf: 0.75
+    if:
+      type: string
+      exact: "/opt/panlogs"
+
+  - id: globalprotect-string
+    desc: GlobalProtect VPN reference
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "GlobalProtect"
+
+  - id: opt-pancfg-path
+    desc: PAN-OS /opt/pancfg path
+    crit: inert
+    conf: 0.75
+    if:
+      type: string
+      exact: "/opt/pancfg"
+
+  # === Backdoor Markers ===
+  - id: update-py-file
+    desc: update.py backdoor filename
+    crit: inert
+    conf: 0.75
+    if:
+      type: string
+      exact: "update.py"
+
+  - id: system-upstyle-string
+    desc: system_upstyle backdoor marker
+    crit: inert
+    conf: 0.85
+    if:
+      type: string
+      exact: "system_upstyle"
+
+  # === Python Execution ===
+  - id: subprocess-import
+    desc: subprocess Python module
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "subprocess"
+
+  - id: os-system-call
+    desc: os.system Python call
+    crit: inert
+    conf: 0.65
+    if:
+      type: string
+      exact: "os.system"
+
+  - id: exec-call
+    desc: exec() Python call
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "exec("
+
+  # === PAN-OS Context (case variants) ===
+  - id: panos-lower
+    desc: panos string (lowercase)
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "panos"
+
+  - id: panos-upper
+    desc: PANOS string (uppercase)
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "PANOS"
+
+  - id: panos-title
+    desc: PanOS string (title case)
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "PanOS"
+
+  # === Web Shell Behavior ===
+  - id: request-get
+    desc: request.GET web parameter
+    crit: inert
+    conf: 0.65
+    if:
+      type: string
+      exact: "request.GET"
+
+  - id: request-post
+    desc: request.POST web parameter
+    crit: inert
+    conf: 0.65
+    if:
+      type: string
+      exact: "request.POST"
+
+  # === Persistence Mechanisms ===
+  - id: etc-cron-path
+    desc: /etc/cron directory path
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "/etc/cron"
+
+  - id: crontab-cmd
+    desc: crontab command
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "crontab"
+
+  - id: systemctl-cmd
+    desc: systemctl command
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "systemctl"
+
+  - id: etc-init-d-path
+    desc: /etc/init.d directory path
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "/etc/init.d"
+
+  # === PAN-OS Services ===
+  - id: mgmtsrvr-service
+    desc: PAN-OS mgmtsrvr service
+    crit: inert
+    conf: 0.75
+    if:
+      type: string
+      exact: "mgmtsrvr"
+
+  - id: appweb-service
+    desc: PAN-OS appweb service
+    crit: inert
+    conf: 0.75
+    if:
+      type: string
+      exact: "appweb"
+
+composite_rules:
+  # === Helper composites ===
+  - id: upstyle-names
+    description: Upstyle name (case variants)
+    any:
+      - type: trait
+        id: upstyle-lower
+      - type: trait
+        id: upstyle-upper
+      - type: trait
+        id: upstyle-title
+
+  - id: pan-os-paths
+    description: PAN-OS specific paths
+    any:
+      - type: trait
+        id: var-appweb-path
+      - type: trait
+        id: opt-panlogs-path
+      - type: trait
+        id: globalprotect-string
+      - type: trait
+        id: opt-pancfg-path
+
+  - id: backdoor-markers
+    description: Backdoor file markers
+    any:
+      - type: trait
+        id: update-py-file
+      - type: trait
+        id: system-upstyle-string
+
+  - id: python-execution
+    description: Python execution methods
+    any:
+      - type: trait
+        id: subprocess-import
+      - type: trait
+        id: os-system-call
+      - type: trait
+        id: exec-call
+
+  - id: panos-context
+    description: PAN-OS context strings
+    any:
+      - type: trait
+        id: panos-lower
+      - type: trait
+        id: panos-upper
+      - type: trait
+        id: panos-title
+
+  - id: web-params
+    description: Web request parameters
+    any:
+      - type: trait
+        id: request-get
+      - type: trait
+        id: request-post
+
+  - id: cron-persistence
+    description: Cron-based persistence
+    any:
+      - type: trait
+        id: etc-cron-path
+      - type: trait
+        id: crontab-cmd
+
+  - id: service-persistence
+    description: Service-based persistence
+    any:
+      - type: trait
+        id: systemctl-cmd
+      - type: trait
+        id: etc-init-d-path
+
+  - id: pan-services
+    description: PAN-OS services
+    any:
+      - type: trait
+        id: mgmtsrvr-service
+      - type: trait
+        id: appweb-service
+
+  - id: pan-with-backdoor-markers
+    description: PAN-OS paths with backdoor markers
+    all:
+      - type: trait
+        id: pan-os-paths
+      - type: trait
+        id: backdoor-markers
+
+  # === Migrated from YARA ===
   - id: backdoor/upstyle/generic
     description: PAN-OS Upstyle backdoor patterns
     crit: suspicious
     conf: 0.9
     attack: "T1505"
-    condition:
-      type: yara
-      source: |
-        rule upstyle_backdoor {
-          strings:
-            $name1 = "upstyle" ascii nocase
-            $name2 = "UPSTYLE" ascii
-            // PAN-OS specific paths
-            $pan1 = "/var/appweb" ascii
-            $pan2 = "/opt/panlogs" ascii
-            $pan3 = "GlobalProtect" ascii
-            // Backdoor markers
-            $bd1 = "update.py" ascii
-            $bd2 = "system_upstyle" ascii
-          condition:
-            any of ($name*) or
-            (any of ($pan*) and any of ($bd*))
-        }
+    any:
+      - type: trait
+        id: upstyle-names
+      - type: trait
+        id: pan-with-backdoor-markers
 
-  # Upstyle command execution
+  - id: panos-with-python
+    description: PAN-OS context with Python execution
+    all:
+      - type: trait
+        id: panos-context
+      - type: trait
+        id: python-execution
+
+  - id: panos-with-web
+    description: PAN-OS context with web parameters
+    all:
+      - type: trait
+        id: panos-context
+      - type: trait
+        id: web-params
+
   - id: backdoor/upstyle/cmd-exec
     description: Upstyle command execution capability
     crit: suspicious
     conf: 0.85
     attack: "T1059"
-    condition:
-      type: yara
-      source: |
-        rule upstyle_cmd {
-          strings:
-            $name = "upstyle" ascii nocase
-            // Python execution
-            $py1 = "subprocess" ascii
-            $py2 = "os.system" ascii
-            $py3 = "exec(" ascii
-            // PAN-OS context
-            $pan1 = "panos" ascii nocase
-            $pan2 = "/opt/pancfg" ascii
-            // Web shell behavior
-            $web1 = "request.GET" ascii
-            $web2 = "request.POST" ascii
-          condition:
-            $name or
-            (any of ($pan*) and any of ($py*)) or
-            (any of ($pan*) and any of ($web*))
-        }
+    any:
+      - type: trait
+        id: upstyle-names
+      - type: trait
+        id: panos-with-python
+      - type: trait
+        id: panos-with-web
 
-  # Upstyle persistence
+  - id: cron-or-service
+    description: Cron or service persistence
+    any:
+      - type: trait
+        id: cron-persistence
+      - type: trait
+        id: service-persistence
+
+  - id: pan-services-persist
+    description: PAN-OS services with persistence
+    all:
+      - type: trait
+        id: pan-services
+      - type: trait
+        id: cron-or-service
+
   - id: backdoor/upstyle/persistence
     description: Upstyle persistence mechanism
     crit: suspicious
     conf: 0.85
     attack: "T1546"
-    condition:
-      type: yara
-      source: |
-        rule upstyle_persist {
-          strings:
-            $name = "upstyle" ascii nocase
-            // Cron persistence
-            $cron1 = "/etc/cron" ascii
-            $cron2 = "crontab" ascii
-            // Service persistence
-            $svc1 = "systemctl" ascii
-            $svc2 = "/etc/init.d" ascii
-            // PAN-OS services
-            $pan1 = "mgmtsrvr" ascii
-            $pan2 = "appweb" ascii
-          condition:
-            $name or
-            (any of ($pan*) and any of ($cron*, $svc*))
-        }
+    any:
+      - type: trait
+        id: upstyle-names
+      - type: trait
+        id: pan-services-persist
 
-composite_rules:
   - id: backdoor/upstyle/detected
     description: PAN-OS Upstyle backdoor detected
     crit: hostile
     conf: 0.95
     attack: "T1505"
     mbc: "B0022"
-    requires_any:
-      - id: backdoor/upstyle/generic
-      - id: backdoor/upstyle/cmd-exec
-      - id: backdoor/upstyle/persistence
+    any:
+      - type: trait
+        id: backdoor/upstyle/generic
+      - type: trait
+        id: backdoor/upstyle/cmd-exec
+      - type: trait
+        id: backdoor/upstyle/persistence

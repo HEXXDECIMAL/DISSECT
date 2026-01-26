@@ -60,6 +60,8 @@ colored = "2.1"
 # File operations
 walkdir = "2.5"
 zip = { version = "2.2", default-features = false, features = ["deflate", "aes-crypto"] }
+sevenz-rust = "0.6"
+apple-xar = { version = "0.20", default-features = false }
 tar = "0.4"
 flate2 = "1.0"
 bzip2 = "0.4"

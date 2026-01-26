@@ -6,7 +6,7 @@ use anyhow::{Context, Result};
 use rayon::prelude::*;
 use std::collections::HashSet;
 use std::fs::{self, File};
-use std::io::{BufRead, BufReader, Read};
+use std::io::{BufRead, BufReader, Cursor, Read, Seek};
 use std::path::{Component, Path, PathBuf};
 use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
@@ -40,10 +40,13 @@ pub enum HostileArchiveReason {
     ExtractionError(String),
 }
 
-/// Archive analyzer for .zip, .tar.gz, .tgz, etc.
+/// Archive analyzer for .zip, .tar.gz, .tgz, language-specific packages (.egg, .whl, .gem, .phar, .nupkg, .crate),
+/// application packages (.vsix, .xpi, .crx, .ipa, .epub, .7z), and system packages (.pkg, .deb, .rpm)
 pub struct ArchiveAnalyzer {
     max_depth: usize,
     current_depth: usize,
+    /// Path prefix for nested archives (e.g., "inner.tar.gz" becomes "outer.zip!inner.tar.gz")
+    archive_path_prefix: Option<String>,
     capability_mapper: Option<CapabilityMapper>,
     yara_engine: Option<Arc<YaraEngine>>,
     /// Passwords to try for encrypted zip files
@@ -170,10 +173,7 @@ impl<R: Read> LimitedReader<R> {
 impl<R: Read> Read for LimitedReader<R> {
     fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
         if self.remaining == 0 {
-            return Err(std::io::Error::new(
-                std::io::ErrorKind::Other,
-                "size limit exceeded",
-            ));
+            return Err(std::io::Error::other("size limit exceeded"));
         }
         let max_read = buf.len().min(self.remaining as usize);
         let n = self.inner.read(&mut buf[..max_read])?;
@@ -187,6 +187,7 @@ impl ArchiveAnalyzer {
         Self {
             max_depth: 3,
             current_depth: 0,
+            archive_path_prefix: None,
             capability_mapper: None,
             yara_engine: None,
             zip_passwords: Vec::new(),
@@ -195,6 +196,12 @@ impl ArchiveAnalyzer {
 
     pub fn with_depth(mut self, depth: usize) -> Self {
         self.current_depth = depth;
+        self
+    }
+
+    /// Set the path prefix for nested archive paths (used for recursion)
+    pub fn with_archive_prefix(mut self, prefix: String) -> Self {
+        self.archive_path_prefix = Some(prefix);
         self
     }
 
@@ -208,10 +215,36 @@ impl ArchiveAnalyzer {
         self
     }
 
+    /// Set YARA engine from an existing Arc (for nested analyzers)
+    pub fn with_yara_arc(mut self, engine: Arc<YaraEngine>) -> Self {
+        self.yara_engine = Some(engine);
+        self
+    }
+
     /// Set passwords to try for encrypted zip files
     pub fn with_zip_passwords(mut self, passwords: Vec<String>) -> Self {
         self.zip_passwords = passwords;
         self
+    }
+
+    /// Format a relative path with nesting prefix (for ArchiveEntry.path)
+    /// - Single level: "lib/foo.so"
+    /// - Nested: "inner.tar.gz!lib/foo.so"
+    fn format_entry_path(&self, relative_path: &str) -> String {
+        match &self.archive_path_prefix {
+            Some(prefix) => format!("{}!{}", prefix, relative_path),
+            None => relative_path.to_string(),
+        }
+    }
+
+    /// Format a location for Evidence.location (includes archive: prefix)
+    /// - Single level: "archive:lib/foo.so"
+    /// - Nested: "archive:inner.tar.gz!lib/foo.so"
+    fn format_evidence_location(&self, relative_path: &str) -> String {
+        match &self.archive_path_prefix {
+            Some(prefix) => format!("archive:{}!{}", prefix, relative_path),
+            None => format!("archive:{}", relative_path),
+        }
     }
 
     fn analyze_archive(&self, file_path: &Path) -> Result<AnalysisReport> {
@@ -506,18 +539,36 @@ impl ArchiveAnalyzer {
         let collected_traits = Arc::new(Mutex::new(Vec::<Finding>::new()));
         let collected_yara = Arc::new(Mutex::new(Vec::<YaraMatch>::new()));
         let collected_strings = Arc::new(Mutex::new(Vec::<StringInfo>::new()));
+        let collected_archive_entries = Arc::new(Mutex::new(Vec::<ArchiveEntry>::new()));
+        let collected_sub_reports = Arc::new(Mutex::new(Vec::<Box<AnalysisReport>>::new()));
 
         classes_to_analyze.par_iter().for_each(|entry| {
-            let archive_location = format!(
-                "archive:{}",
-                entry
-                    .path()
-                    .strip_prefix(temp_dir)
-                    .unwrap_or(entry.path())
-                    .display()
-            );
+            let relative_path = entry
+                .path()
+                .strip_prefix(temp_dir)
+                .unwrap_or(entry.path())
+                .display()
+                .to_string();
+            let entry_path = self.format_entry_path(&relative_path);
+            let archive_location = self.format_evidence_location(&relative_path);
 
-            if let Ok(file_report) = self.analyze_extracted_file(entry.path()) {
+            // Collect archive entry metadata
+            if let Ok(file_data) = std::fs::read(entry.path()) {
+                let entry_metadata = ArchiveEntry {
+                    path: entry_path.clone(),
+                    file_type: detect_file_type(entry.path())
+                        .map(|ft| format!("{:?}", ft).to_lowercase())
+                        .unwrap_or_else(|_| "unknown".to_string()),
+                    sha256: self.calculate_sha256(&file_data),
+                    size_bytes: file_data.len() as u64,
+                };
+                collected_archive_entries
+                    .lock()
+                    .unwrap()
+                    .push(entry_metadata);
+            }
+
+            if let Ok(mut file_report) = self.analyze_extracted_file(entry.path()) {
                 files_analyzed.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
 
                 let mut caps = total_capabilities.lock().unwrap();
@@ -525,6 +576,8 @@ impl ArchiveAnalyzer {
                 let mut all_traits = collected_traits.lock().unwrap();
                 let mut all_yara = collected_yara.lock().unwrap();
                 let mut all_strings = collected_strings.lock().unwrap();
+                let mut all_archive_entries = collected_archive_entries.lock().unwrap();
+                let mut all_sub_reports = collected_sub_reports.lock().unwrap();
 
                 // Aggregate findings
                 for f in &file_report.findings {
@@ -533,28 +586,59 @@ impl ArchiveAnalyzer {
                     if !all_traits.iter().any(|existing| existing.id == f.id) {
                         let mut new_finding = f.clone();
                         for evidence in &mut new_finding.evidence {
-                            evidence.location = Some(archive_location.clone());
+                            // Prefix location with archive path
+                            // - If no location: set to archive path
+                            // - If location starts with "archive:": already from nested, leave it
+                            // - Otherwise: prefix with archive path (e.g., "line:3" -> "archive:file.sh:line:3")
+                            match &evidence.location {
+                                None => {
+                                    evidence.location = Some(archive_location.clone());
+                                }
+                                Some(loc) if !loc.starts_with("archive:") => {
+                                    evidence.location =
+                                        Some(format!("{}:{}", archive_location, loc));
+                                }
+                                _ => {} // Already has archive: prefix from nested analysis
+                            }
                         }
                         all_traits.push(new_finding);
                     }
                 }
 
                 // Aggregate YARA matches
-                for yara_match in file_report.yara_matches {
+                for yara_match in &file_report.yara_matches {
                     if !all_yara.iter().any(|m| m.rule == yara_match.rule) {
-                        all_yara.push(yara_match);
+                        all_yara.push(yara_match.clone());
                     }
                 }
 
                 // Aggregate interesting strings
-                for string in file_report.strings {
+                for string in &file_report.strings {
                     if matches!(
                         string.string_type,
                         StringType::Url | StringType::Ip | StringType::Base64
                     ) {
-                        all_strings.push(string);
+                        all_strings.push(string.clone());
                     }
                 }
+
+                // Merge archive_contents from nested archives
+                for nested_entry in &file_report.archive_contents {
+                    all_archive_entries.push(nested_entry.clone());
+                }
+
+                // Store full report for per-file ML classification
+                // Update the target path to show it's from within the archive
+                // Use std::mem::take to extract sub_reports before moving file_report
+                let nested_sub_reports = std::mem::take(&mut file_report.sub_reports);
+                let mut sub_report = file_report;
+
+                // Merge sub_reports from nested archives
+                for nested_sub in nested_sub_reports {
+                    all_sub_reports.push(nested_sub);
+                }
+                sub_report.target.path = entry_path.clone();
+                all_sub_reports.push(Box::new(sub_report));
             }
         });
 
@@ -573,14 +657,30 @@ impl ArchiveAnalyzer {
             .collect();
 
         non_class_files.par_iter().for_each(|entry| {
-            let archive_location = format!(
-                "archive:{}",
-                entry
-                    .path()
-                    .strip_prefix(temp_dir)
-                    .unwrap_or(entry.path())
-                    .display()
-            );
+            let relative_path = entry
+                .path()
+                .strip_prefix(temp_dir)
+                .unwrap_or(entry.path())
+                .display()
+                .to_string();
+            let entry_path = self.format_entry_path(&relative_path);
+            let archive_location = self.format_evidence_location(&relative_path);
+
+            // Collect archive entry metadata
+            if let Ok(file_data) = std::fs::read(entry.path()) {
+                let entry_metadata = ArchiveEntry {
+                    path: entry_path.clone(),
+                    file_type: detect_file_type(entry.path())
+                        .map(|ft| format!("{:?}", ft).to_lowercase())
+                        .unwrap_or_else(|_| "unknown".to_string()),
+                    sha256: self.calculate_sha256(&file_data),
+                    size_bytes: file_data.len() as u64,
+                };
+                collected_archive_entries
+                    .lock()
+                    .unwrap()
+                    .push(entry_metadata);
+            }
 
             // Run YARA on non-class files
             if let Some(ref yara_engine) = self.yara_engine {
@@ -595,7 +695,7 @@ impl ArchiveAnalyzer {
             }
 
             // Run file-type-specific analysis
-            if let Ok(file_report) = self.analyze_extracted_file(entry.path()) {
+            if let Ok(mut file_report) = self.analyze_extracted_file(entry.path()) {
                 files_analyzed.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
 
                 let mut caps = total_capabilities.lock().unwrap();
@@ -603,6 +703,8 @@ impl ArchiveAnalyzer {
                 let mut all_traits = collected_traits.lock().unwrap();
                 let mut all_yara = collected_yara.lock().unwrap();
                 let mut all_strings = collected_strings.lock().unwrap();
+                let mut all_archive_entries = collected_archive_entries.lock().unwrap();
+                let mut all_sub_reports = collected_sub_reports.lock().unwrap();
 
                 // Aggregate findings
                 for f in &file_report.findings {
@@ -611,28 +713,55 @@ impl ArchiveAnalyzer {
                     if !all_traits.iter().any(|existing| existing.id == f.id) {
                         let mut new_finding = f.clone();
                         for evidence in &mut new_finding.evidence {
-                            evidence.location = Some(archive_location.clone());
+                            // Prefix location with archive path
+                            match &evidence.location {
+                                None => {
+                                    evidence.location = Some(archive_location.clone());
+                                }
+                                Some(loc) if !loc.starts_with("archive:") => {
+                                    evidence.location =
+                                        Some(format!("{}:{}", archive_location, loc));
+                                }
+                                _ => {} // Already has archive: prefix from nested analysis
+                            }
                         }
                         all_traits.push(new_finding);
                     }
                 }
 
                 // Aggregate YARA matches
-                for yara_match in file_report.yara_matches {
+                for yara_match in &file_report.yara_matches {
                     if !all_yara.iter().any(|m| m.rule == yara_match.rule) {
-                        all_yara.push(yara_match);
+                        all_yara.push(yara_match.clone());
                     }
                 }
 
                 // Aggregate interesting strings
-                for string in file_report.strings {
+                for string in &file_report.strings {
                     if matches!(
                         string.string_type,
                         StringType::Url | StringType::Ip | StringType::Base64
                     ) {
-                        all_strings.push(string);
+                        all_strings.push(string.clone());
                     }
                 }
+
+                // Merge archive_contents from nested archives
+                for nested_entry in &file_report.archive_contents {
+                    all_archive_entries.push(nested_entry.clone());
+                }
+
+                // Store full report for per-file ML classification
+                let nested_sub_reports = std::mem::take(&mut file_report.sub_reports);
+                let mut sub_report = file_report;
+                sub_report.target.path = entry_path.clone();
+
+                // Merge sub_reports from nested archives
+                for nested_sub in nested_sub_reports {
+                    all_sub_reports.push(nested_sub);
+                }
+
+                all_sub_reports.push(Box::new(sub_report));
             }
         });
 
@@ -667,6 +796,18 @@ impl ArchiveAnalyzer {
         }
         report.strings.extend(
             Arc::try_unwrap(collected_strings)
+                .expect("done")
+                .into_inner()
+                .unwrap(),
+        );
+        report.archive_contents.extend(
+            Arc::try_unwrap(collected_archive_entries)
+                .expect("done")
+                .into_inner()
+                .unwrap(),
+        );
+        report.sub_reports.extend(
+            Arc::try_unwrap(collected_sub_reports)
                 .expect("done")
                 .into_inner()
                 .unwrap(),
@@ -719,6 +860,8 @@ impl ArchiveAnalyzer {
         let collected_traits = Arc::new(Mutex::new(Vec::<Finding>::new()));
         let collected_yara = Arc::new(Mutex::new(Vec::<YaraMatch>::new()));
         let collected_strings = Arc::new(Mutex::new(Vec::<StringInfo>::new()));
+        let collected_archive_entries = Arc::new(Mutex::new(Vec::<ArchiveEntry>::new()));
+        let collected_sub_reports = Arc::new(Mutex::new(Vec::<Box<AnalysisReport>>::new()));
         let last_progress = Arc::new(Mutex::new(std::time::Instant::now()));
 
         // Analyze files in parallel
@@ -736,14 +879,30 @@ impl ArchiveAnalyzer {
                 }
             }
 
-            let archive_location = format!(
-                "archive:{}",
-                entry
-                    .path()
-                    .strip_prefix(temp_dir)
-                    .unwrap_or(entry.path())
-                    .display()
-            );
+            let relative_path = entry
+                .path()
+                .strip_prefix(temp_dir)
+                .unwrap_or(entry.path())
+                .display()
+                .to_string();
+            let entry_path = self.format_entry_path(&relative_path);
+            let archive_location = self.format_evidence_location(&relative_path);
+
+            // Collect archive entry metadata
+            if let Ok(file_data) = std::fs::read(entry.path()) {
+                let entry_metadata = ArchiveEntry {
+                    path: entry_path.clone(),
+                    file_type: detect_file_type(entry.path())
+                        .map(|ft| format!("{:?}", ft).to_lowercase())
+                        .unwrap_or_else(|_| "unknown".to_string()),
+                    sha256: self.calculate_sha256(&file_data),
+                    size_bytes: file_data.len() as u64,
+                };
+                collected_archive_entries
+                    .lock()
+                    .unwrap()
+                    .push(entry_metadata);
+            }
 
             // Run YARA scan on extracted file if engine is available
             if let Some(ref yara_engine) = self.yara_engine {
@@ -757,7 +916,7 @@ impl ArchiveAnalyzer {
                 }
             }
 
-            if let Ok(file_report) = self.analyze_extracted_file(entry.path()) {
+            if let Ok(mut file_report) = self.analyze_extracted_file(entry.path()) {
                 files_analyzed.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
 
                 let mut caps = total_capabilities.lock().unwrap();
@@ -765,6 +924,8 @@ impl ArchiveAnalyzer {
                 let mut all_traits = collected_traits.lock().unwrap();
                 let mut all_yara = collected_yara.lock().unwrap();
                 let mut all_strings = collected_strings.lock().unwrap();
+                let mut all_archive_entries = collected_archive_entries.lock().unwrap();
+                let mut all_sub_reports = collected_sub_reports.lock().unwrap();
 
                 // Aggregate findings
                 for f in &file_report.findings {
@@ -773,28 +934,55 @@ impl ArchiveAnalyzer {
                     if !all_traits.iter().any(|existing| existing.id == f.id) {
                         let mut new_finding = f.clone();
                         for evidence in &mut new_finding.evidence {
-                            evidence.location = Some(archive_location.clone());
+                            // Prefix location with archive path
+                            match &evidence.location {
+                                None => {
+                                    evidence.location = Some(archive_location.clone());
+                                }
+                                Some(loc) if !loc.starts_with("archive:") => {
+                                    evidence.location =
+                                        Some(format!("{}:{}", archive_location, loc));
+                                }
+                                _ => {} // Already has archive: prefix from nested analysis
+                            }
                         }
                         all_traits.push(new_finding);
                     }
                 }
 
                 // Aggregate YARA matches
-                for yara_match in file_report.yara_matches {
+                for yara_match in &file_report.yara_matches {
                     if !all_yara.iter().any(|m| m.rule == yara_match.rule) {
-                        all_yara.push(yara_match);
+                        all_yara.push(yara_match.clone());
                     }
                 }
 
                 // Aggregate interesting strings
-                for string in file_report.strings {
+                for string in &file_report.strings {
                     if matches!(
                         string.string_type,
                         StringType::Url | StringType::Ip | StringType::Base64
                     ) {
-                        all_strings.push(string);
+                        all_strings.push(string.clone());
                     }
                 }
+
+                // Merge archive_contents from nested archives
+                for nested_entry in &file_report.archive_contents {
+                    all_archive_entries.push(nested_entry.clone());
+                }
+
+                // Store full report for per-file ML classification
+                let nested_sub_reports = std::mem::take(&mut file_report.sub_reports);
+                let mut sub_report = file_report;
+                sub_report.target.path = entry_path.clone();
+
+                // Merge sub_reports from nested archives
+                for nested_sub in nested_sub_reports {
+                    all_sub_reports.push(nested_sub);
+                }
+
+                all_sub_reports.push(Box::new(sub_report));
             }
         });
 
@@ -829,6 +1017,18 @@ impl ArchiveAnalyzer {
         }
         report.strings.extend(
             Arc::try_unwrap(collected_strings)
+                .expect("done")
+                .into_inner()
+                .unwrap(),
+        );
+        report.archive_contents.extend(
+            Arc::try_unwrap(collected_archive_entries)
+                .expect("done")
+                .into_inner()
+                .unwrap(),
+        );
+        report.sub_reports.extend(
+            Arc::try_unwrap(collected_sub_reports)
                 .expect("done")
                 .into_inner()
                 .unwrap(),
@@ -877,6 +1077,8 @@ impl ArchiveAnalyzer {
 
         match archive_type {
             "zip" => self.extract_zip_safe(archive_path, dest_dir, guard),
+            "crx" => self.extract_crx_safe(archive_path, dest_dir, guard),
+            "7z" => self.extract_7z_safe(archive_path, dest_dir, guard),
             "tar" => self.extract_tar_safe(archive_path, dest_dir, None, guard),
             "tar.gz" | "tgz" => self.extract_tar_safe(archive_path, dest_dir, Some("gzip"), guard),
             "tar.bz2" | "tbz" | "tbz2" => {
@@ -888,6 +1090,7 @@ impl ArchiveAnalyzer {
             "bz2" => self.extract_compressed_safe(archive_path, dest_dir, "bzip2", guard),
             "deb" => self.extract_deb_safe(archive_path, dest_dir, guard),
             "rpm" => self.extract_rpm(archive_path, dest_dir), // TODO: add guard
+            "pkg" => self.extract_pkg_safe(archive_path, dest_dir, guard),
             "rar" => self.extract_rar(archive_path, dest_dir), // TODO: add guard
             _ => anyhow::bail!("Unsupported archive type: {}", archive_type),
         }
@@ -996,9 +1199,9 @@ impl ArchiveAnalyzer {
         self.extract_zip_entries_safe(&mut archive, dest_dir, None, guard)
     }
 
-    fn extract_zip_entries_safe(
+    fn extract_zip_entries_safe<R: Read + Seek>(
         &self,
-        archive: &mut zip::ZipArchive<File>,
+        archive: &mut zip::ZipArchive<R>,
         dest_dir: &Path,
         password: Option<&[u8]>,
         guard: &ExtractionGuard,
@@ -1069,6 +1272,211 @@ impl ArchiveAnalyzer {
                 }
             }
         }
+        Ok(())
+    }
+
+    /// Extract Chrome extension (.crx) files
+    /// CRX format: "Cr24" magic (4) + version (4) + pubkey_len (4) + sig_len (4) + pubkey + sig + ZIP
+    fn extract_crx_safe(
+        &self,
+        archive_path: &Path,
+        dest_dir: &Path,
+        guard: &ExtractionGuard,
+    ) -> Result<()> {
+        let mut file = File::open(archive_path)?;
+        let mut header = [0u8; 16];
+
+        // Read CRX header
+        std::io::Read::read_exact(&mut file, &mut header).context("Failed to read CRX header")?;
+
+        // Verify magic number "Cr24"
+        if &header[0..4] != b"Cr24" {
+            anyhow::bail!("Invalid CRX magic number");
+        }
+
+        // Parse header fields (little-endian)
+        let pubkey_len =
+            u32::from_le_bytes([header[8], header[9], header[10], header[11]]) as usize;
+        let sig_len = u32::from_le_bytes([header[12], header[13], header[14], header[15]]) as usize;
+
+        // Skip public key and signature to get to ZIP data
+        let zip_offset = 16 + pubkey_len + sig_len;
+
+        // Read the entire file into memory (needed for ZipArchive)
+        let mut file_data = Vec::new();
+        std::io::Seek::seek(&mut file, std::io::SeekFrom::Start(0))?;
+        std::io::Read::read_to_end(&mut file, &mut file_data)?;
+
+        // Extract just the ZIP portion
+        if file_data.len() < zip_offset {
+            anyhow::bail!("CRX file truncated (expected {} bytes)", zip_offset);
+        }
+
+        let zip_data = &file_data[zip_offset..];
+        let cursor = Cursor::new(zip_data);
+
+        // Create ZipArchive from the ZIP portion
+        let mut archive = zip::ZipArchive::new(cursor).context("Failed to read ZIP from CRX")?;
+
+        // Use the same extraction logic as regular ZIP (but without password support for now)
+        self.extract_zip_entries_safe(&mut archive, dest_dir, None, guard)
+    }
+
+    /// Extract 7z archive files
+    fn extract_7z_safe(
+        &self,
+        archive_path: &Path,
+        dest_dir: &Path,
+        guard: &ExtractionGuard,
+    ) -> Result<()> {
+        use sevenz_rust::{Password, SevenZReader};
+        use std::io::Read;
+
+        // Check magic bytes - file might be mislabeled (e.g., ZIP with .7z extension)
+        let mut file = File::open(archive_path)?;
+        let mut magic = [0u8; 4];
+        if file.read_exact(&mut magic).is_ok() && magic == [0x50, 0x4B, 0x03, 0x04] {
+            // This is actually a ZIP file (PK\x03\x04), redirect to ZIP handler
+            return self.extract_zip_safe(archive_path, dest_dir, guard);
+        }
+
+        // Re-open for 7z processing
+        let file = File::open(archive_path)?;
+        let file_len = file.metadata()?.len();
+        let mut sz = SevenZReader::new(file, file_len, Password::empty())
+            .context("Failed to read 7z archive")?;
+
+        // Iterate through entries
+        sz.for_each_entries(|entry, reader| {
+            // Check file count limit
+            if !guard.check_file_count() {
+                return Err(sevenz_rust::Error::other("Exceeded maximum file count"));
+            }
+
+            let name = entry.name();
+
+            // Skip entries with empty names
+            if name.is_empty() {
+                return Ok(true);
+            }
+
+            // Sanitize path to prevent path traversal
+            let outpath = match sanitize_entry_path(name, dest_dir) {
+                Some(p) => p,
+                None => {
+                    guard.add_hostile_reason(HostileArchiveReason::PathTraversal(name.to_string()));
+                    return Ok(true); // Continue extraction
+                }
+            };
+
+            // Check if entry is a directory
+            if entry.is_directory() {
+                fs::create_dir_all(&outpath)
+                    .map_err(|e| sevenz_rust::Error::other(format!("mkdir failed: {}", e)))?;
+                return Ok(true);
+            }
+
+            // Check size limits
+            let uncompressed = entry.size();
+            if uncompressed > MAX_FILE_SIZE {
+                guard.add_hostile_reason(HostileArchiveReason::ExcessiveFileSize {
+                    file: name.to_string(),
+                    size: uncompressed,
+                });
+                return Ok(true); // Skip but continue
+            }
+
+            // Create parent directory
+            if let Some(parent) = outpath.parent() {
+                fs::create_dir_all(parent)
+                    .map_err(|e| sevenz_rust::Error::other(format!("mkdir failed: {}", e)))?;
+            }
+
+            // Extract file with size limiting
+            let mut limited_reader = LimitedReader::new(reader, uncompressed);
+            let mut output = File::create(&outpath)
+                .map_err(|e| sevenz_rust::Error::other(format!("create file failed: {}", e)))?;
+
+            let written = std::io::copy(&mut limited_reader, &mut output)
+                .map_err(|e| sevenz_rust::Error::other(format!("copy failed: {}", e)))?;
+
+            // Track total bytes
+            if !guard.check_bytes(written, name) {
+                return Err(sevenz_rust::Error::other(
+                    "Exceeded maximum total extraction size",
+                ));
+            }
+
+            Ok(true) // Continue
+        })
+        .context("Failed to extract 7z archive")
+    }
+
+    /// Extract macOS PKG files (XAR archives)
+    fn extract_pkg_safe(
+        &self,
+        archive_path: &Path,
+        dest_dir: &Path,
+        guard: &ExtractionGuard,
+    ) -> Result<()> {
+        let file = File::open(archive_path)?;
+        let mut xar =
+            apple_xar::reader::XarReader::new(file).context("Failed to read PKG (XAR) archive")?;
+
+        // Get all files in the archive
+        let files = xar.files().context("Failed to list XAR files")?;
+
+        for (path, file_entry) in files {
+            if !guard.check_file_count() {
+                anyhow::bail!("Exceeded maximum file count");
+            }
+
+            // Sanitize path
+            let out_path = match sanitize_entry_path(&path, dest_dir) {
+                Some(p) => p,
+                None => {
+                    guard.add_hostile_reason(HostileArchiveReason::PathTraversal(path.clone()));
+                    continue;
+                }
+            };
+
+            // Check file size
+            if let Some(size) = file_entry.size {
+                if size > MAX_FILE_SIZE {
+                    guard.add_hostile_reason(HostileArchiveReason::ExcessiveFileSize {
+                        file: path.clone(),
+                        size,
+                    });
+                    continue;
+                }
+            }
+
+            // Skip symlinks and hardlinks
+            use apple_xar::table_of_contents::FileType as XarFileType;
+            if matches!(
+                file_entry.file_type,
+                XarFileType::Link | XarFileType::HardLink
+            ) {
+                guard.add_hostile_reason(HostileArchiveReason::SymlinkEscape(path.clone()));
+                continue;
+            }
+
+            // Create parent directories
+            if let Some(parent) = out_path.parent() {
+                fs::create_dir_all(parent)?;
+            }
+
+            // Extract file
+            let mut output = File::create(&out_path)?;
+            let written =
+                xar.write_file_data_decoded_from_file(&file_entry, &mut output)
+                    .context(format!("Failed to extract file: {}", path))? as u64;
+
+            if !guard.check_bytes(written, &path) {
+                anyhow::bail!("Exceeded maximum total extraction size");
+            }
+        }
+
         Ok(())
     }
 
@@ -1560,6 +1968,43 @@ impl ArchiveAnalyzer {
                 }
                 analyzer.analyze(file_path)
             }
+            crate::analyzers::FileType::Archive => {
+                // Recursively analyze nested archives
+                if self.current_depth + 1 >= self.max_depth {
+                    return Err(anyhow::anyhow!(
+                        "Nested archive at max depth ({})",
+                        self.max_depth
+                    ));
+                }
+
+                // Build the prefix for nested paths
+                let file_name = file_path
+                    .file_name()
+                    .and_then(|n| n.to_str())
+                    .unwrap_or("nested");
+                let nested_prefix = match &self.archive_path_prefix {
+                    Some(prefix) => format!("{}!{}", prefix, file_name),
+                    None => file_name.to_string(),
+                };
+
+                // Create nested analyzer with incremented depth and path prefix
+                let mut nested = ArchiveAnalyzer::new()
+                    .with_depth(self.current_depth + 1)
+                    .with_archive_prefix(nested_prefix);
+
+                // Propagate configuration
+                if let Some(ref mapper) = self.capability_mapper {
+                    nested = nested.with_capability_mapper(mapper.clone());
+                }
+                if let Some(ref engine) = self.yara_engine {
+                    nested = nested.with_yara_arc(engine.clone());
+                }
+                if !self.zip_passwords.is_empty() {
+                    nested = nested.with_zip_passwords(self.zip_passwords.clone());
+                }
+
+                nested.analyze(file_path)
+            }
             _ => {
                 // Skip unknown files
                 Err(anyhow::anyhow!("Unsupported file type"))
@@ -1650,8 +2095,22 @@ impl ArchiveAnalyzer {
             || path_str.ends_with(".ear")
             || path_str.ends_with(".apk")
             || path_str.ends_with(".aar")
+            || path_str.ends_with(".egg")
+            || path_str.ends_with(".whl")
+            || path_str.ends_with(".phar")
+            || path_str.ends_with(".nupkg")
+            || path_str.ends_with(".vsix")
+            || path_str.ends_with(".xpi")
+            || path_str.ends_with(".ipa")
+            || path_str.ends_with(".epub")
         {
             "zip"
+        } else if path_str.ends_with(".crx") {
+            "crx"
+        } else if path_str.ends_with(".7z") {
+            "7z"
+        } else if path_str.ends_with(".gem") || path_str.ends_with(".crate") {
+            "tar.gz"
         } else if path_str.ends_with(".xz") {
             "xz"
         } else if path_str.ends_with(".gz") {
@@ -1662,6 +2121,8 @@ impl ArchiveAnalyzer {
             "deb"
         } else if path_str.ends_with(".rpm") {
             "rpm"
+        } else if path_str.ends_with(".pkg") {
+            "pkg"
         } else if path_str.ends_with(".rar") {
             "rar"
         } else {
@@ -1696,6 +2157,17 @@ impl Analyzer for ArchiveAnalyzer {
             || path_str.ends_with(".ear")
             || path_str.ends_with(".apk")
             || path_str.ends_with(".aar")
+            || path_str.ends_with(".egg")
+            || path_str.ends_with(".whl")
+            || path_str.ends_with(".phar")
+            || path_str.ends_with(".nupkg")
+            || path_str.ends_with(".vsix")
+            || path_str.ends_with(".xpi")
+            || path_str.ends_with(".crx")
+            || path_str.ends_with(".ipa")
+            || path_str.ends_with(".epub")
+            || path_str.ends_with(".gem")
+            || path_str.ends_with(".crate")
             || path_str.ends_with(".tar")
             || path_str.ends_with(".tar.gz")
             || path_str.ends_with(".tgz")
@@ -1708,7 +2180,9 @@ impl Analyzer for ArchiveAnalyzer {
             || (path_str.ends_with(".bz2") && !path_str.ends_with(".tar.bz2"))
             || path_str.ends_with(".deb")
             || path_str.ends_with(".rpm")
+            || path_str.ends_with(".pkg")
             || path_str.ends_with(".rar")
+            || path_str.ends_with(".7z")
     }
 }
 
@@ -1882,6 +2356,192 @@ mod tests {
         let analyzer = ArchiveAnalyzer::new();
         assert!(analyzer.can_analyze(Path::new("test.rar")));
         assert!(analyzer.can_analyze(Path::new("TEST.RAR")));
+    }
+
+    #[test]
+    fn test_can_analyze_python_packages() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert!(analyzer.can_analyze(Path::new("package.egg")));
+        assert!(analyzer.can_analyze(Path::new("PACKAGE.EGG")));
+        assert!(analyzer.can_analyze(Path::new("package.whl")));
+        assert!(analyzer.can_analyze(Path::new("PACKAGE.WHL")));
+    }
+
+    #[test]
+    fn test_detect_archive_type_python_packages() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert_eq!(
+            analyzer.detect_archive_type(Path::new("package.egg")),
+            "zip"
+        );
+        assert_eq!(
+            analyzer.detect_archive_type(Path::new("package.whl")),
+            "zip"
+        );
+    }
+
+    #[test]
+    fn test_can_analyze_ruby_gem() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert!(analyzer.can_analyze(Path::new("rails.gem")));
+        assert!(analyzer.can_analyze(Path::new("RAILS.GEM")));
+    }
+
+    #[test]
+    fn test_detect_archive_type_gem() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert_eq!(
+            analyzer.detect_archive_type(Path::new("rails.gem")),
+            "tar.gz"
+        );
+    }
+
+    #[test]
+    fn test_can_analyze_php_phar() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert!(analyzer.can_analyze(Path::new("composer.phar")));
+        assert!(analyzer.can_analyze(Path::new("COMPOSER.PHAR")));
+    }
+
+    #[test]
+    fn test_detect_archive_type_phar() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert_eq!(
+            analyzer.detect_archive_type(Path::new("composer.phar")),
+            "zip"
+        );
+    }
+
+    #[test]
+    fn test_can_analyze_nuget() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert!(analyzer.can_analyze(Path::new("package.nupkg")));
+        assert!(analyzer.can_analyze(Path::new("PACKAGE.NUPKG")));
+    }
+
+    #[test]
+    fn test_detect_archive_type_nupkg() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert_eq!(
+            analyzer.detect_archive_type(Path::new("package.nupkg")),
+            "zip"
+        );
+    }
+
+    #[test]
+    fn test_can_analyze_rust_crate() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert!(analyzer.can_analyze(Path::new("serde.crate")));
+        assert!(analyzer.can_analyze(Path::new("SERDE.CRATE")));
+    }
+
+    #[test]
+    fn test_detect_archive_type_crate() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert_eq!(
+            analyzer.detect_archive_type(Path::new("serde.crate")),
+            "tar.gz"
+        );
+    }
+
+    #[test]
+    fn test_can_analyze_vscode_extensions() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert!(analyzer.can_analyze(Path::new("extension.vsix")));
+        assert!(analyzer.can_analyze(Path::new("EXTENSION.VSIX")));
+    }
+
+    #[test]
+    fn test_detect_archive_type_vsix() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert_eq!(
+            analyzer.detect_archive_type(Path::new("extension.vsix")),
+            "zip"
+        );
+    }
+
+    #[test]
+    fn test_can_analyze_firefox_extensions() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert!(analyzer.can_analyze(Path::new("addon.xpi")));
+        assert!(analyzer.can_analyze(Path::new("ADDON.XPI")));
+    }
+
+    #[test]
+    fn test_detect_archive_type_xpi() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert_eq!(analyzer.detect_archive_type(Path::new("addon.xpi")), "zip");
+    }
+
+    #[test]
+    fn test_can_analyze_chrome_extensions() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert!(analyzer.can_analyze(Path::new("extension.crx")));
+        assert!(analyzer.can_analyze(Path::new("EXTENSION.CRX")));
+    }
+
+    #[test]
+    fn test_detect_archive_type_crx() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert_eq!(
+            analyzer.detect_archive_type(Path::new("extension.crx")),
+            "crx"
+        );
+    }
+
+    #[test]
+    fn test_can_analyze_ios_apps() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert!(analyzer.can_analyze(Path::new("app.ipa")));
+        assert!(analyzer.can_analyze(Path::new("APP.IPA")));
+    }
+
+    #[test]
+    fn test_detect_archive_type_ipa() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert_eq!(analyzer.detect_archive_type(Path::new("app.ipa")), "zip");
+    }
+
+    #[test]
+    fn test_can_analyze_epub() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert!(analyzer.can_analyze(Path::new("book.epub")));
+        assert!(analyzer.can_analyze(Path::new("BOOK.EPUB")));
+    }
+
+    #[test]
+    fn test_detect_archive_type_epub() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert_eq!(analyzer.detect_archive_type(Path::new("book.epub")), "zip");
+    }
+
+    #[test]
+    fn test_can_analyze_7z() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert!(analyzer.can_analyze(Path::new("archive.7z")));
+        assert!(analyzer.can_analyze(Path::new("ARCHIVE.7Z")));
+    }
+
+    #[test]
+    fn test_detect_archive_type_7z() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert_eq!(analyzer.detect_archive_type(Path::new("archive.7z")), "7z");
+    }
+
+    #[test]
+    fn test_can_analyze_macos_pkg() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert!(analyzer.can_analyze(Path::new("installer.pkg")));
+        assert!(analyzer.can_analyze(Path::new("INSTALLER.PKG")));
+    }
+
+    #[test]
+    fn test_detect_archive_type_pkg() {
+        let analyzer = ArchiveAnalyzer::new();
+        assert_eq!(
+            analyzer.detect_archive_type(Path::new("installer.pkg")),
+            "pkg"
+        );
     }
 
     #[test]
@@ -2187,5 +2847,502 @@ mod tests {
         assert!(reasons
             .iter()
             .any(|r| matches!(r, HostileArchiveReason::ZipBomb { .. })));
+    }
+    #[test]
+    fn test_nested_archive_zip_containing_tar_gz() {
+        use flate2::write::GzEncoder;
+        use flate2::Compression;
+        use tar::Builder;
+
+        let temp_dir = tempfile::tempdir().unwrap();
+        let outer_zip_path = temp_dir.path().join("outer.zip");
+
+        // Create inner.tar.gz with a shell script
+        let inner_tar_gz_data = {
+            let mut tar_data = Vec::new();
+            {
+                let enc = GzEncoder::new(&mut tar_data, Compression::default());
+                let mut tar_builder = Builder::new(enc);
+
+                // Add a shell script
+                let script_content = b"#!/bin/sh\necho hello\ncurl http://example.com";
+                let mut header = tar::Header::new_gnu();
+                header.set_path("script.sh").unwrap();
+                header.set_size(script_content.len() as u64);
+                header.set_mode(0o755);
+                header.set_cksum();
+                tar_builder.append(&header, &script_content[..]).unwrap();
+                tar_builder.finish().unwrap();
+            }
+            tar_data
+        };
+
+        // Create outer.zip containing inner.tar.gz
+        {
+            let file = File::create(&outer_zip_path).unwrap();
+            let mut zip = zip::ZipWriter::new(file);
+            let options = zip::write::FileOptions::<()>::default()
+                .compression_method(zip::CompressionMethod::Stored);
+            zip.start_file("inner.tar.gz", options).unwrap();
+            std::io::Write::write_all(&mut zip, &inner_tar_gz_data).unwrap();
+            zip.finish().unwrap();
+        }
+
+        // Analyze the nested archive
+        let analyzer = ArchiveAnalyzer::new();
+        let result = analyzer.analyze(&outer_zip_path);
+        assert!(result.is_ok(), "Should analyze nested archive");
+
+        let report = result.unwrap();
+
+        // Check archive_contents includes both inner.tar.gz and nested file
+        assert!(
+            !report.archive_contents.is_empty(),
+            "Should have archive_contents"
+        );
+
+        // Should have entry for inner.tar.gz
+        let has_inner = report
+            .archive_contents
+            .iter()
+            .any(|e| e.path == "inner.tar.gz");
+        assert!(has_inner, "Should have inner.tar.gz entry");
+
+        // Should have entry for nested script with ! separator
+        let has_nested = report
+            .archive_contents
+            .iter()
+            .any(|e| e.path == "inner.tar.gz!script.sh");
+        assert!(
+            has_nested,
+            "Should have nested entry with ! separator: {:?}",
+            report.archive_contents
+        );
+    }
+
+    #[test]
+    fn test_nested_archive_path_format() {
+        let analyzer = ArchiveAnalyzer::new();
+
+        // Test format_entry_path without prefix
+        assert_eq!(analyzer.format_entry_path("file.txt"), "file.txt");
+
+        // Test format_evidence_location without prefix
+        assert_eq!(
+            analyzer.format_evidence_location("file.txt"),
+            "archive:file.txt"
+        );
+
+        // Test with prefix
+        let nested_analyzer = ArchiveAnalyzer::new().with_archive_prefix("inner.zip".to_string());
+        assert_eq!(
+            nested_analyzer.format_entry_path("file.txt"),
+            "inner.zip!file.txt"
+        );
+        assert_eq!(
+            nested_analyzer.format_evidence_location("file.txt"),
+            "archive:inner.zip!file.txt"
+        );
+    }
+
+    #[test]
+    fn test_nested_archive_max_depth() {
+        // Create analyzer at max depth
+        let at_max = ArchiveAnalyzer::new().with_depth(3);
+        let temp_dir = tempfile::tempdir().unwrap();
+        let zip_path = temp_dir.path().join("test.zip");
+
+        let file = File::create(&zip_path).unwrap();
+        let mut zip = zip::ZipWriter::new(file);
+        let options = zip::write::FileOptions::<()>::default()
+            .compression_method(zip::CompressionMethod::Stored);
+        zip.start_file("test.txt", options).unwrap();
+        std::io::Write::write_all(&mut zip, b"hello").unwrap();
+        zip.finish().unwrap();
+
+        // Should fail because we're at max depth
+        let result = at_max.analyze(&zip_path);
+        assert!(result.is_err(), "Should fail at max depth");
+        assert!(
+            result
+                .unwrap_err()
+                .to_string()
+                .contains("Maximum archive depth"),
+            "Error should mention depth"
+        );
+    }
+
+    // =========================================================================
+    // Extraction tests for new archive formats
+    // =========================================================================
+
+    #[test]
+    fn test_extract_vsix() {
+        // Create a VSIX (VS Code extension) with typical content
+        let temp_dir = tempfile::tempdir().unwrap();
+        let vsix_path = temp_dir.path().join("extension.vsix");
+
+        let file = File::create(&vsix_path).unwrap();
+        let mut zip = zip::ZipWriter::new(file);
+        let options = zip::write::FileOptions::<()>::default()
+            .compression_method(zip::CompressionMethod::Deflated);
+
+        // Add typical VSIX files
+        zip.start_file("extension.vsixmanifest", options).unwrap();
+        std::io::Write::write_all(&mut zip, b"<?xml version=\"1.0\"?>").unwrap();
+
+        zip.start_file("package.json", options).unwrap();
+        std::io::Write::write_all(&mut zip, b"{\"name\": \"test-extension\"}").unwrap();
+
+        zip.start_file("extension/index.js", options).unwrap();
+        std::io::Write::write_all(&mut zip, b"console.log('malicious code');").unwrap();
+
+        zip.finish().unwrap();
+
+        // Analyze the VSIX
+        let analyzer = ArchiveAnalyzer::new();
+        let result = analyzer.analyze(&vsix_path);
+
+        assert!(result.is_ok());
+        let report = result.unwrap();
+        assert_eq!(report.target.file_type, "zip");
+        assert!(!report.archive_contents.is_empty());
+
+        // Verify files were extracted and analyzed
+        assert!(report
+            .archive_contents
+            .iter()
+            .any(|e| e.path.contains("package.json")));
+        assert!(report
+            .archive_contents
+            .iter()
+            .any(|e| e.path.contains("index.js")));
+    }
+
+    #[test]
+    fn test_extract_xpi() {
+        // Create an XPI (Firefox extension)
+        let temp_dir = tempfile::tempdir().unwrap();
+        let xpi_path = temp_dir.path().join("addon.xpi");
+
+        let file = File::create(&xpi_path).unwrap();
+        let mut zip = zip::ZipWriter::new(file);
+        let options = zip::write::FileOptions::<()>::default()
+            .compression_method(zip::CompressionMethod::Deflated);
+
+        zip.start_file("manifest.json", options).unwrap();
+        std::io::Write::write_all(&mut zip, b"{\"manifest_version\": 2}").unwrap();
+
+        zip.start_file("background.js", options).unwrap();
+        std::io::Write::write_all(&mut zip, b"// suspicious script\nfetch('http://evil.com');")
+            .unwrap();
+
+        zip.finish().unwrap();
+
+        let analyzer = ArchiveAnalyzer::new();
+        let result = analyzer.analyze(&xpi_path);
+
+        assert!(result.is_ok());
+        let report = result.unwrap();
+        assert!(!report.archive_contents.is_empty());
+        assert!(report
+            .archive_contents
+            .iter()
+            .any(|e| e.path.contains("background.js")));
+    }
+
+    #[test]
+    fn test_extract_ipa() {
+        // Create an IPA (iOS app)
+        let temp_dir = tempfile::tempdir().unwrap();
+        let ipa_path = temp_dir.path().join("app.ipa");
+
+        let file = File::create(&ipa_path).unwrap();
+        let mut zip = zip::ZipWriter::new(file);
+        let options = zip::write::FileOptions::<()>::default()
+            .compression_method(zip::CompressionMethod::Deflated);
+
+        zip.start_file("Payload/App.app/Info.plist", options)
+            .unwrap();
+        std::io::Write::write_all(&mut zip, b"<?xml version=\"1.0\"?>").unwrap();
+
+        zip.start_file("Payload/App.app/executable", options)
+            .unwrap();
+        std::io::Write::write_all(&mut zip, b"\x00\x00\x00\x00").unwrap();
+
+        zip.finish().unwrap();
+
+        let analyzer = ArchiveAnalyzer::new();
+        let result = analyzer.analyze(&ipa_path);
+
+        assert!(result.is_ok());
+        let report = result.unwrap();
+        assert!(report
+            .archive_contents
+            .iter()
+            .any(|e| e.path.contains("Info.plist")));
+    }
+
+    #[test]
+    fn test_extract_epub() {
+        // Create an EPUB (eBook)
+        let temp_dir = tempfile::tempdir().unwrap();
+        let epub_path = temp_dir.path().join("book.epub");
+
+        let file = File::create(&epub_path).unwrap();
+        let mut zip = zip::ZipWriter::new(file);
+        let options = zip::write::FileOptions::<()>::default()
+            .compression_method(zip::CompressionMethod::Stored);
+
+        // EPUB requires specific structure
+        zip.start_file("mimetype", options).unwrap();
+        std::io::Write::write_all(&mut zip, b"application/epub+zip").unwrap();
+
+        zip.start_file("META-INF/container.xml", options).unwrap();
+        std::io::Write::write_all(&mut zip, b"<?xml version=\"1.0\"?>").unwrap();
+
+        zip.start_file("OEBPS/content.opf", options).unwrap();
+        std::io::Write::write_all(&mut zip, b"<?xml version=\"1.0\"?>").unwrap();
+
+        zip.finish().unwrap();
+
+        let analyzer = ArchiveAnalyzer::new();
+        let result = analyzer.analyze(&epub_path);
+
+        assert!(result.is_ok());
+        let report = result.unwrap();
+        assert!(report.archive_contents.iter().any(|e| e.path == "mimetype"));
+    }
+
+    #[test]
+    fn test_extract_crx() {
+        // Create a CRX (Chrome extension) - ZIP with special header
+        let temp_dir = tempfile::tempdir().unwrap();
+        let crx_path = temp_dir.path().join("extension.crx");
+
+        // Create a ZIP first
+        let zip_data = {
+            let mut buf = Vec::new();
+            let mut zip = zip::ZipWriter::new(Cursor::new(&mut buf));
+            let options = zip::write::FileOptions::<()>::default();
+
+            zip.start_file("manifest.json", options).unwrap();
+            std::io::Write::write_all(&mut zip, b"{\"manifest_version\": 3}").unwrap();
+
+            zip.start_file("background.js", options).unwrap();
+            std::io::Write::write_all(&mut zip, b"console.log('loaded');").unwrap();
+
+            zip.finish().unwrap();
+            buf
+        };
+
+        // Write CRX file with header
+        let mut crx_file = File::create(&crx_path).unwrap();
+
+        // CRX3 header: "Cr24" + version (4 bytes) + pubkey_len (4 bytes) + sig_len (4 bytes)
+        std::io::Write::write_all(&mut crx_file, b"Cr24").unwrap(); // Magic
+        std::io::Write::write_all(&mut crx_file, &3u32.to_le_bytes()).unwrap(); // Version
+        std::io::Write::write_all(&mut crx_file, &32u32.to_le_bytes()).unwrap(); // Pubkey len
+        std::io::Write::write_all(&mut crx_file, &64u32.to_le_bytes()).unwrap(); // Sig len
+
+        // Fake public key (32 bytes)
+        std::io::Write::write_all(&mut crx_file, &[0u8; 32]).unwrap();
+
+        // Fake signature (64 bytes)
+        std::io::Write::write_all(&mut crx_file, &[0u8; 64]).unwrap();
+
+        // ZIP data
+        std::io::Write::write_all(&mut crx_file, &zip_data).unwrap();
+
+        // Analyze the CRX
+        let analyzer = ArchiveAnalyzer::new();
+        let result = analyzer.analyze(&crx_path);
+
+        assert!(result.is_ok());
+        let report = result.unwrap();
+        assert_eq!(report.target.file_type, "crx");
+        assert!(!report.archive_contents.is_empty());
+        assert!(report
+            .archive_contents
+            .iter()
+            .any(|e| e.path.contains("manifest.json")));
+    }
+
+    #[test]
+    fn test_vsix_path_traversal_protection() {
+        // Create a malicious VSIX with path traversal attempt
+        let temp_dir = tempfile::tempdir().unwrap();
+        let vsix_path = temp_dir.path().join("malicious.vsix");
+
+        let file = File::create(&vsix_path).unwrap();
+        let mut zip = zip::ZipWriter::new(file);
+        let options = zip::write::FileOptions::<()>::default();
+
+        // Try to escape with ../
+        zip.start_file("../../../etc/evil.sh", options).unwrap();
+        std::io::Write::write_all(&mut zip, b"#!/bin/sh\nrm -rf /").unwrap();
+
+        zip.start_file("package.json", options).unwrap();
+        std::io::Write::write_all(&mut zip, b"{}").unwrap();
+
+        zip.finish().unwrap();
+
+        let analyzer = ArchiveAnalyzer::new();
+        let result = analyzer.analyze(&vsix_path);
+
+        // Should succeed but flag the hostile entry
+        assert!(result.is_ok());
+        let report = result.unwrap();
+
+        // Path traversal file should not be in archive_contents
+        assert!(!report
+            .archive_contents
+            .iter()
+            .any(|e| e.path.contains("etc/evil")));
+
+        // Should have detected path traversal
+        assert!(report
+            .findings
+            .iter()
+            .any(|f| f.id == "anti-analysis/archive/path-traversal"
+                && f.desc.contains("path traversal")));
+    }
+
+    #[test]
+    fn test_extract_python_packages() {
+        // Test .egg and .whl extraction
+        let temp_dir = tempfile::tempdir().unwrap();
+
+        // Create .whl file
+        let whl_path = temp_dir.path().join("package.whl");
+        let file = File::create(&whl_path).unwrap();
+        let mut zip = zip::ZipWriter::new(file);
+        let options = zip::write::FileOptions::<()>::default();
+
+        zip.start_file("package/__init__.py", options).unwrap();
+        std::io::Write::write_all(&mut zip, b"import os; os.system('evil')").unwrap();
+
+        zip.start_file("package-1.0.0.dist-info/METADATA", options)
+            .unwrap();
+        std::io::Write::write_all(&mut zip, b"Name: package").unwrap();
+
+        zip.finish().unwrap();
+
+        let analyzer = ArchiveAnalyzer::new();
+        let result = analyzer.analyze(&whl_path);
+
+        assert!(result.is_ok());
+        let report = result.unwrap();
+        assert!(!report.archive_contents.is_empty());
+        assert!(report
+            .archive_contents
+            .iter()
+            .any(|e| e.path.contains("__init__.py")));
+    }
+
+    #[test]
+    fn test_extract_7z() {
+        // Create a 7z archive
+        let temp_dir = tempfile::tempdir().unwrap();
+        let sz_path = temp_dir.path().join("archive.7z");
+
+        // Create a simple file to compress
+        let src_dir = temp_dir.path().join("src");
+        fs::create_dir(&src_dir).unwrap();
+        let test_file = src_dir.join("test.txt");
+        fs::write(&test_file, b"test content").unwrap();
+
+        // Use sevenz_rust to create the archive
+        use sevenz_rust::SevenZWriter;
+        let mut sz = SevenZWriter::create(&sz_path).unwrap();
+        // Push the source directory to get proper paths
+        sz.push_source_path(&src_dir, |_| true).unwrap();
+        sz.finish().unwrap();
+
+        // Analyze the 7z
+        let analyzer = ArchiveAnalyzer::new();
+        let result = analyzer.analyze(&sz_path);
+
+        assert!(result.is_ok());
+        let report = result.unwrap();
+        assert_eq!(report.target.file_type, "7z");
+        assert!(!report.archive_contents.is_empty());
+        assert!(report
+            .archive_contents
+            .iter()
+            .any(|e| e.path.contains("test.txt")));
+    }
+
+    #[test]
+    fn test_7z_mislabeled_zip() {
+        // Test that a ZIP file with .7z extension is handled correctly
+        let temp_dir = tempfile::tempdir().unwrap();
+        let mislabeled_path = temp_dir.path().join("actually_a_zip.7z");
+
+        // Create a ZIP archive but save it with .7z extension
+        let file = File::create(&mislabeled_path).unwrap();
+        let mut zip = zip::ZipWriter::new(file);
+        let options = zip::write::SimpleFileOptions::default();
+        zip.start_file("test.txt", options).unwrap();
+        zip.write_all(b"test content from zip").unwrap();
+        zip.finish().unwrap();
+
+        // Verify the file starts with ZIP magic bytes
+        let mut file = File::open(&mislabeled_path).unwrap();
+        let mut magic = [0u8; 4];
+        std::io::Read::read_exact(&mut file, &mut magic).unwrap();
+        assert_eq!(magic, [0x50, 0x4B, 0x03, 0x04]); // PK\x03\x04
+
+        // Analyze the mislabeled archive - should succeed
+        let analyzer = ArchiveAnalyzer::new();
+        let result = analyzer.analyze(&mislabeled_path);
+
+        assert!(
+            result.is_ok(),
+            "Failed to analyze mislabeled .7z: {:?}",
+            result.err()
+        );
+        let report = result.unwrap();
+        assert!(!report.archive_contents.is_empty());
+        assert!(report
+            .archive_contents
+            .iter()
+            .any(|e| e.path.contains("test.txt")));
+    }
+
+    #[test]
+    fn test_7z_size_limit_protection() {
+        // Test that 7z respects file size limits
+        let temp_dir = tempfile::tempdir().unwrap();
+        let sz_path = temp_dir.path().join("large.7z");
+
+        // Create a file that's too large (> 100MB would be caught)
+        let src_dir = temp_dir.path().join("src");
+        fs::create_dir(&src_dir).unwrap();
+        let large_file = src_dir.join("huge.bin");
+
+        // Create a 101MB file
+        let large_data = vec![0u8; 101 * 1024 * 1024];
+        fs::write(&large_file, large_data).unwrap();
+
+        use sevenz_rust::SevenZWriter;
+        let mut sz = SevenZWriter::create(&sz_path).unwrap();
+        // Push the directory to properly archive the large file
+        sz.push_source_path(&src_dir, |_| true).unwrap();
+        sz.finish().unwrap();
+
+        let analyzer = ArchiveAnalyzer::new();
+        let result = analyzer.analyze(&sz_path);
+
+        // Should succeed but flag the oversized file
+        assert!(result.is_ok());
+        let report = result.unwrap();
+
+        // Should have detected excessive file size
+        assert!(report
+            .findings
+            .iter()
+            .any(|f| f.id == "anti-analysis/archive/large-file"
+                && f.desc.contains("excessively large file")));
     }
 }

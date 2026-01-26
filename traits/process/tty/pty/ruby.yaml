@@ -4,11 +4,9 @@ traits:
   - id: ruby-pty
     description: Pseudo-terminal (PTY) manipulation
     crit: notable
-    confidence: 0.93
+    conf: 0.93
     platforms: [all]
-    file_types: [ruby]
-    condition:
-      type: symbol_or_string
-      any:
-        - PTY.spawn
-        - PTY.open
+    for: [ruby]
+    if:
+      type: symbol
+      regex: "PTY\\.(spawn|open)"

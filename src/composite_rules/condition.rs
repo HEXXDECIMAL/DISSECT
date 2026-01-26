@@ -23,12 +23,16 @@ enum ConditionDeser {
 #[serde(tag = "type", rename_all = "snake_case")]
 enum ConditionTagged {
     Symbol {
-        pattern: String,
+        #[serde(default)]
+        exact: Option<String>,
+        #[serde(default)]
+        pattern: Option<String>,
         platforms: Option<Vec<Platform>>,
     },
     String {
         exact: Option<String>,
         regex: Option<String>,
+        word: Option<String>,
         #[serde(default)]
         case_insensitive: bool,
         exclude_patterns: Option<Vec<String>>,
@@ -44,9 +48,6 @@ enum ConditionTagged {
     Structure {
         feature: String,
         min_sections: Option<usize>,
-    },
-    SymbolOrString {
-        any: Vec<String>,
     },
     ImportsCount {
         min: Option<usize>,
@@ -145,10 +146,22 @@ enum ConditionTagged {
     Raw {
         exact: Option<String>,
         regex: Option<String>,
+        word: Option<String>,
         #[serde(default)]
         case_insensitive: bool,
         #[serde(default = "default_min_count")]
         min_count: usize,
+    },
+
+    /// Match section names in binary files (PE, ELF, Mach-O)
+    /// Replaces YARA patterns like: `for any section in pe.sections : (section.name matches /^UPX/)`
+    /// Example: { type: section_name, pattern: "^UPX", regex: true }
+    SectionName {
+        /// Pattern to match against section names
+        pattern: String,
+        /// Use regex matching (default: false, uses substring match)
+        #[serde(default)]
+        regex: bool,
     },
 }
 
@@ -161,12 +174,19 @@ impl From<ConditionDeser> for Condition {
         match deser {
             ConditionDeser::TraitShorthand { id } => Condition::Trait { id },
             ConditionDeser::Tagged(tagged) => match tagged {
-                ConditionTagged::Symbol { pattern, platforms } => {
-                    Condition::Symbol { pattern, platforms }
-                }
+                ConditionTagged::Symbol {
+                    exact,
+                    pattern,
+                    platforms,
+                } => Condition::Symbol {
+                    exact,
+                    pattern,
+                    platforms,
+                },
                 ConditionTagged::String {
                     exact,
                     regex,
+                    word,
                     case_insensitive,
                     exclude_patterns,
                     min_count,
@@ -174,6 +194,7 @@ impl From<ConditionDeser> for Condition {
                 } => Condition::String {
                     exact,
                     regex,
+                    word,
                     case_insensitive,
                     exclude_patterns,
                     min_count,
@@ -189,7 +210,6 @@ impl From<ConditionDeser> for Condition {
                     feature,
                     min_sections,
                 },
-                ConditionTagged::SymbolOrString { any } => Condition::SymbolOrString { any },
                 ConditionTagged::ImportsCount { min, max, filter } => {
                     Condition::ImportsCount { min, max, filter }
                 }
@@ -295,14 +315,19 @@ impl From<ConditionDeser> for Condition {
                 ConditionTagged::Raw {
                     exact,
                     regex,
+                    word,
                     case_insensitive,
                     min_count,
                 } => Condition::Raw {
                     exact,
                     regex,
+                    word,
                     case_insensitive,
                     min_count,
                 },
+                ConditionTagged::SectionName { pattern, regex } => {
+                    Condition::SectionName { pattern, regex }
+                }
             },
         }
     }
@@ -318,7 +343,12 @@ impl From<ConditionDeser> for Condition {
 pub enum Condition {
     /// Match a symbol (import/export)
     Symbol {
-        pattern: String,
+        /// Exact symbol name to match
+        #[serde(skip_serializing_if = "Option::is_none")]
+        exact: Option<String>,
+        /// Regex pattern to match symbol names
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pattern: Option<String>,
         #[serde(skip_serializing_if = "Option::is_none")]
         platforms: Option<Vec<Platform>>,
     },
@@ -329,6 +359,9 @@ pub enum Condition {
         exact: Option<String>,
         #[serde(skip_serializing_if = "Option::is_none")]
         regex: Option<String>,
+        /// Match pattern only at word boundaries (convenience for \bpattern\b)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        word: Option<String>,
         #[serde(default)]
         case_insensitive: bool,
         #[serde(skip_serializing_if = "Option::is_none")]
@@ -353,9 +386,6 @@ pub enum Condition {
         #[serde(skip_serializing_if = "Option::is_none")]
         min_sections: Option<usize>,
     },
-
-    /// Match symbol OR string (convenience)
-    SymbolOrString { any: Vec<String> },
 
     /// Check import count
     ImportsCount {
@@ -559,6 +589,7 @@ pub enum Condition {
     /// extraction may not capture what you're looking for.
     /// Example: { type: raw, exact: "eval(" }
     /// Example: { type: raw, regex: "\\bpassword\\s*=", case_insensitive: true }
+    /// Example: { type: raw, word: "socket" }  # Match "socket" as whole word
     Raw {
         /// Substring to find (uses contains/substring matching)
         #[serde(skip_serializing_if = "Option::is_none")]
@@ -566,12 +597,26 @@ pub enum Condition {
         /// Regex pattern to match
         #[serde(skip_serializing_if = "Option::is_none")]
         regex: Option<String>,
+        /// Match pattern only at word boundaries (convenience for \bpattern\b)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        word: Option<String>,
         /// Case insensitive matching (default: false)
         #[serde(default)]
         case_insensitive: bool,
         /// Minimum number of matches required (default: 1)
         #[serde(default = "default_min_count")]
         min_count: usize,
+    },
+
+    /// Match section names in binary files (PE, ELF, Mach-O)
+    /// Replaces YARA patterns like: `for any section in pe.sections : (section.name matches /^UPX/)`
+    /// Example: { type: section_name, pattern: "^UPX", regex: true }
+    SectionName {
+        /// Pattern to match against section names
+        pattern: String,
+        /// Use regex matching (default: false, uses substring match)
+        #[serde(default)]
+        regex: bool,
     },
 }
 
@@ -596,7 +641,6 @@ impl Condition {
             Condition::String { .. } => "string",
             Condition::YaraMatch { .. } => "yara_match",
             Condition::Structure { .. } => "structure",
-            Condition::SymbolOrString { .. } => "symbol_or_string",
             Condition::ImportsCount { .. } => "imports_count",
             Condition::ExportsCount { .. } => "exports_count",
             Condition::Trait { .. } => "trait",
@@ -613,6 +657,7 @@ impl Condition {
             Condition::Filesize { .. } => "filesize",
             Condition::TraitGlob { .. } => "trait_glob",
             Condition::Raw { .. } => "raw",
+            Condition::SectionName { .. } => "section_name",
         }
     }
 

@@ -217,52 +217,56 @@ traits:
       type: string
       regex: "[a-z0-9-]+\\.ngrok-free\\.app"
 
-  # OOB exfiltration from npm preinstall
-  - id: preinstall-exfil
-    desc: OOB exfiltration from npm preinstall
-    crit: suspicious
-    conf: 0.99
-    attack: "T1048"
-    mbc: "B0030"
+  # === NPM preinstall atomic indicators ===
+  - id: npm-preinstall-script
+    desc: NPM preinstall script entry in package.json
+    crit: inert
+    conf: 0.6
     for: [javascript]
     if:
-      type: yara
-      source: |
-        rule oob_preinstall_exfil {
-          strings:
-            $preinstall = /\s{2,8}\"preinstall\": \".{12,256}/
-            $oob1 = /[a-z0-9]{8,32}\.burpcollaborator\.net/
-            $oob2 = /[a-z0-9]{8,32}\.oastify\.com/
-            $oob3 = /[a-z0-9]{8,32}\.oast\.fun/
-            $oob4 = /[a-z0-9]{8,32}\.interactsh\.com/
-            $oob5 = /[a-z0-9]{8,32}\.m\.pipedream\.net/
-          condition:
-            filesize < 5KB and $preinstall and any of ($oob*)
-        }
+      type: string
+      regex: "\\s{2,8}\"preinstall\":\\s*\""
 
-  # Encrypted OOB exfiltration
-  - id: crypto-exfil
-    desc: Encrypted OOB exfiltration
-    crit: suspicious
-    conf: 0.95
-    attack: "T1048"
-    mbc: "B0030"
-    for: [javascript]
+  # === Crypto library import (for exfil detection) ===
+  - id: require-crypto-import
+    desc: require('crypto') import statement
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
     if:
-      type: yara
-      source: |
-        rule oob_crypto_exfil {
-          strings:
-            $crypto = /require\(['"]crypto['"]\)/
-            $oob1 = /[a-z0-9]{8,32}\.burpcollaborator\.net/
-            $oob2 = /[a-z0-9]{8,32}\.oastify\.com/
-            $oob3 = /[a-z0-9]{8,32}\.oast\.fun/
-            $oob4 = /[a-z0-9]{8,32}\.interactsh\.com/
-          condition:
-            filesize < 24KB and $crypto and any of ($oob*)
-        }
+      type: string
+      regex: "require\\(['\"]crypto['\"]\\)"
 
 composite_rules:
+  # Helper composite for all OOB domain patterns
+  - id: oob-domains
+    description: Any OOB domain pattern
+    for: [all]
+    any:
+      - {id: interactsh-domain}
+      - {id: burpcollaborator-domain}
+      - {id: oastify-domain}
+      - {id: oast-fun-domain}
+      - {id: pipedream-domain}
+
+  # Helper composite for all ngrok tunnels
+  - id: ngrok-tunnels
+    description: Ngrok tunnel patterns
+    for: [all]
+    any:
+      - {id: ngrok-tcp}
+      - {id: ngrok-http}
+      - {id: ngrok-https}
+      - {id: ngrok-free}
+
+  # Helper composite for requestbin endpoints
+  - id: requestbin-endpoints
+    description: RequestBin OOB endpoints
+    for: [all]
+    any:
+      - {id: requestbin-com}
+      - {id: requestbin-net}
+
   # Interactsh composite
   - id: interactsh
     desc: Exfiltrates data to Interactsh OOB domain
@@ -270,13 +274,8 @@ composite_rules:
     conf: 0.95
     attack: "T1048"
     for: [all]
-    requires_count: 1
     any:
-      - id: interactsh-domain
-      - id: burpcollaborator-domain
-      - id: oastify-domain
-      - id: oast-fun-domain
-      - id: pipedream-domain
+      - {id: oob-domains}
 
   # Ngrok composite
   - id: ngrok
@@ -285,11 +284,8 @@ composite_rules:
     conf: 0.95
     attack: "T1572"
     for: [all]
-    requires_count: 1
     any:
-      - id: ngrok-tcp
-      - id: ngrok-http
-      - id: ngrok-https
+      - {id: ngrok-tunnels}
 
   # Requestbin composite
   - id: requestbin
@@ -298,10 +294,32 @@ composite_rules:
     conf: 0.9
     attack: "T1048"
     for: [all]
-    requires_count: 1
     any:
-      - id: requestbin-com
-      - id: requestbin-net
+      - {id: requestbin-endpoints}
+
+  # Migrated from YARA
+  - id: preinstall-exfil
+    desc: OOB exfiltration from npm preinstall script
+    crit: suspicious
+    conf: 0.99
+    attack: "T1048"
+    mbc: "B0030"
+    for: [javascript]
+    all:
+      - {id: npm-preinstall-script}
+      - {id: oob-domains}
+
+  # Migrated from YARA
+  - id: crypto-exfil
+    desc: Encrypted OOB exfiltration via crypto library
+    crit: suspicious
+    conf: 0.95
+    attack: "T1048"
+    mbc: "B0030"
+    for: [javascript]
+    all:
+      - {id: require-crypto-import}
+      - {id: oob-domains}
 
   - id: multiple-encoded-indicators
     desc: "Multiple base64-encoded indicators detected (potential evasion)"
@@ -310,13 +328,21 @@ composite_rules:
     attack: "T1048"
     mbc: "B0030"
     for: [python, javascript]
-    requires_count: 2
+    count: 2
     any:
-      - id: http-b64
-      - id: https-b64
-      - id: oastify-b64
-      - id: oast-fun-b64
-      - id: interactsh
+      - {id: http-b64}
+      - {id: https-b64}
+      - {id: oastify-b64}
+      - {id: oast-fun-b64}
+      - {id: interactsh}
+
+  # Helper composite for encoded OOB indicators
+  - id: encoded-oob-indicators
+    description: Base64-encoded OOB domain indicators
+    for: [python, javascript]
+    any:
+      - {id: oastify-b64}
+      - {id: oast-fun-b64}
 
   - id: encoded-oob-exfil
     desc: "Base64-encoded OOB domain with HTTP exfiltration"
@@ -325,8 +351,6 @@ composite_rules:
     attack: "T1048"
     mbc: "B0030"
     for: [python, javascript]
-    requires_all:
-      - id: comm/http/request
-    requires_any:
-      - id: oastify-b64
-      - id: oast-fun-b64
+    all:
+      - {id: comm/http/request}
+      - {id: encoded-oob-indicators}

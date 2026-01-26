@@ -184,57 +184,161 @@ traits:
       type: string
       exact: "wmic bios get serialnumber"
 
-  # Comprehensive hardware fingerprint
-  - id: hardware-comprehensive
-    desc: Comprehensive hardware fingerprinting (multiple vectors)
-    crit: suspicious
-    conf: 0.9
-    attack: "T1082"
+  # === Node.js os module hardware fingerprint patterns ===
+  - id: network-interfaces-call
+    desc: networkInterfaces() call
+    crit: inert
+    conf: 0.6
     for: [javascript, typescript]
     if:
-      type: yara
-      source: |
-        rule comprehensive_fingerprint {
-          strings:
-            $mac = "networkInterfaces" ascii
-            $cpu = "cpus()" ascii
-            $mem = "totalmem" ascii
-            $host = "hostname()" ascii
-            $user = "userInfo()" ascii
-            $plat = "platform()" ascii
-            $arch = "arch()" ascii
-            $release = "release()" ascii
-          condition:
-            4 of them
-        }
+      type: string
+      exact: "networkInterfaces"
 
-  # Unique identifier generation with exfil
-  - id: unique-id-exfil
-    desc: Generates unique identifier and sends to network
-    crit: suspicious
-    conf: 0.95
-    attack: "T1082"
-    mbc: "E1082"
+  - id: cpus-call
+    desc: cpus() call
+    crit: inert
+    conf: 0.6
     for: [javascript, typescript]
     if:
-      type: yara
-      source: |
-        rule unique_id_exfil {
-          strings:
-            // ID generation
-            $id1 = "machine-id" ascii
-            $id2 = "uuid" ascii
-            $id3 = "fingerprint" ascii
-            $id4 = "uniqueId" ascii
-            $id5 = "deviceId" ascii
-            // Combined with network
-            $net1 = "fetch(" ascii
-            $net2 = "https.request" ascii
-            $net3 = "POST" ascii
-            $net4 = "webhook" ascii
-          condition:
-            any of ($id*) and any of ($net*)
-        }
+      type: string
+      exact: "cpus()"
+
+  - id: totalmem-call
+    desc: totalmem() call
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "totalmem"
+
+  - id: hostname-call
+    desc: hostname() call
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "hostname()"
+
+  - id: userinfo-call
+    desc: userInfo() call
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "userInfo()"
+
+  - id: platform-call
+    desc: platform() call
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "platform()"
+
+  - id: arch-call
+    desc: arch() call
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "arch()"
+
+  - id: release-call
+    desc: release() call
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "release()"
+
+  # === Unique identifier keywords ===
+  - id: machine-id-keyword
+    desc: machine-id keyword
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "machine-id"
+
+  - id: uuid-keyword
+    desc: uuid keyword
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      word: "uuid"
+
+  - id: fingerprint-keyword
+    desc: fingerprint keyword
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      word: "fingerprint"
+
+  - id: unique-id-keyword
+    desc: uniqueId keyword
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      word: "uniqueId"
+
+  - id: device-id-keyword
+    desc: deviceId keyword
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      word: "deviceId"
+
+  # === Network exfiltration patterns ===
+  - id: fetch-call
+    desc: fetch() call
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "fetch("
+
+  - id: https-request-call
+    desc: https.request call
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "https.request"
+
+  - id: post-method
+    desc: POST HTTP method
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      word: "POST"
+
+  - id: webhook-keyword
+    desc: webhook keyword
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      word: "webhook"
 
 composite_rules:
   # Machine ID file access composite
@@ -321,3 +425,53 @@ composite_rules:
       - id: dmidecode-cmd
       - id: wmic-bios-serial
       - id: system-profiler-hardware
+
+  # Comprehensive hardware fingerprint (migrated from YARA)
+  - id: hardware-comprehensive
+    desc: Comprehensive hardware fingerprinting (multiple vectors)
+    crit: suspicious
+    conf: 0.9
+    for: [javascript, typescript]
+    count: 4
+    any:
+      - {id: network-interfaces-call}
+      - {id: cpus-call}
+      - {id: totalmem-call}
+      - {id: hostname-call}
+      - {id: userinfo-call}
+      - {id: platform-call}
+      - {id: arch-call}
+      - {id: release-call}
+
+  # Unique identifier keywords (migrated from YARA)
+  - id: unique-id-keywords
+    description: Unique identifier keywords
+    for: [javascript, typescript]
+    any:
+      - {id: machine-id-keyword}
+      - {id: uuid-keyword}
+      - {id: fingerprint-keyword}
+      - {id: unique-id-keyword}
+      - {id: device-id-keyword}
+
+  # Network exfiltration patterns (migrated from YARA)
+  - id: network-exfil-patterns
+    description: Network exfiltration patterns
+    for: [javascript, typescript]
+    any:
+      - {id: fetch-call}
+      - {id: https-request-call}
+      - {id: post-method}
+      - {id: webhook-keyword}
+
+  # Unique identifier with network exfiltration (migrated from YARA)
+  - id: unique-id-exfil
+    desc: Generates unique identifier and sends to network
+    crit: suspicious
+    conf: 0.95
+    attack: T1082
+    mbc: E1082
+    for: [javascript, typescript]
+    all:
+      - {id: unique-id-keywords}
+      - {id: network-exfil-patterns}

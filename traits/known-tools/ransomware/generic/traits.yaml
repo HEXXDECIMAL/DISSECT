@@ -8,8 +8,8 @@ traits:
     conf: 0.6
     file_types: [elf, macho, pe, so, dylib, dll]
     condition:
-      type: symbol_or_string
-      any: ["encrypt_file"]
+      type: symbol
+      pattern: "encrypt_file"
 
   - id: ransomware/generic/symbol/encrypt_directory
     description: "Symbol: encrypt_directory"
@@ -17,8 +17,8 @@ traits:
     conf: 0.6
     file_types: [elf, macho, pe, so, dylib, dll]
     condition:
-      type: symbol_or_string
-      any: ["encrypt_directory"]
+      type: symbol
+      pattern: "encrypt_directory"
 
   - id: ransomware/generic/symbol/encrypt_disk
     description: "Symbol: encrypt_disk"
@@ -26,8 +26,8 @@ traits:
     conf: 0.6
     file_types: [elf, macho, pe, so, dylib, dll]
     condition:
-      type: symbol_or_string
-      any: ["encrypt_disk"]
+      type: symbol
+      pattern: "encrypt_disk"
 
   - id: ransomware/generic/source/ransomware_c
     description: "Source file artifact: ransomware.c"

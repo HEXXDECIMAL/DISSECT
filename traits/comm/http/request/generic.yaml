@@ -3,20 +3,47 @@
 # ATT&CK: T1071.001
 
 traits:
+  # === HTTP request micro-traits (migrated from YARA) ===
+  - id: http-request-func
+    desc: httpRequest function reference
+    crit: inert
+    conf: 0.5
+    mbc: "C0002"
+    attack: "T1071.001"
+    if:
+      type: string
+      exact: "httpRequest"
+
+  - id: user-agent-header
+    desc: User-Agent header
+    crit: inert
+    conf: 0.5
+    mbc: "C0002"
+    attack: "T1071.001"
+    if:
+      type: string
+      exact: "User-Agent"
+
+  - id: http-version
+    desc: HTTP/1.x version string
+    crit: inert
+    conf: 0.5
+    mbc: "C0002"
+    attack: "T1071.001"
+    if:
+      type: string
+      exact: "HTTP/1."
+
+composite_rules:
+  # HTTP request composite (migrated from YARA)
   - id: request
     desc: Makes HTTP requests
     crit: inert
     conf: 0.66
     mbc: "C0002"
     attack: "T1071.001"
-    if:
-      type: yara
-      source: |
-        rule http_request {
-          strings:
-            $httpRequest = "httpRequest"
-            $user_agent = "User-Agent"
-            $http1 = "HTTP/1."
-          condition:
-            any of them
-        }
+    count: 1
+    any:
+      - id: http-request-func
+      - id: user-agent-header
+      - id: http-version

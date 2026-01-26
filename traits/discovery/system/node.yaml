@@ -2,25 +2,6 @@
 # ATT&CK: T1082 (System Information Discovery), T1033 (System Owner/User Discovery)
 
 traits:
-  # Combined system profiling (existing)
-  - id: node
-    desc: Extensive system profiling (user, net, host)
-    crit: suspicious
-    conf: 0.8
-    for: [javascript, typescript]
-    if:
-      type: yara
-      source: |
-        rule system_profiling {
-          strings:
-            $user = "os.userInfo"
-            $net = "os.networkInterfaces"
-            $host = "os.hostname"
-            $plat = "os.platform"
-          condition:
-            3 of them
-        }
-
   # Individual system info functions
   - id: node-hostname
     desc: Collects system hostname
@@ -122,17 +103,32 @@ traits:
       regex: 'os\.networkInterfaces\(\)'
 
 composite_rules:
+  # Extensive system profiling (migrated from YARA)
+  - id: node
+    desc: Extensive system profiling (user, net, host)
+    crit: suspicious
+    conf: 0.85
+    attack: "T1082"
+    for: [javascript, typescript]
+    count: 3
+    any:
+      - {id: node-userinfo}
+      - {id: node-network}
+      - {id: node-hostname}
+      - {id: node-platform}
+
   # Data aggregation for exfil
   - id: node-data-aggregation
     desc: Aggregates system data into object (pre-exfiltration)
     crit: suspicious
     conf: 0.9
     attack: "T1082"
-    requires_count: 3
+    for: [javascript, typescript]
+    count: 3
     any:
-      - id: node-hostname
-      - id: node-homedir
-      - id: node-userinfo
-      - id: node-platform
-      - id: node-cwd
-      - id: node-network
+      - {id: node-hostname}
+      - {id: node-homedir}
+      - {id: node-userinfo}
+      - {id: node-platform}
+      - {id: node-cwd}
+      - {id: node-network}

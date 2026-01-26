@@ -1,26 +1,157 @@
-# Go reverse shell patterns
+# Reverse Shell Detection - Go
+# MBC: B0033 (Adversary-in-the-Middle)
+# ATT&CK: T1059
+
+defaults:
+  for: [go, elf, macho, pe]
+
 traits:
+  # === Go network connection micro-traits ===
+  - id: net-dial
+    desc: net.Dial function reference
+    crit: notable
+    conf: 0.5
+    if:
+      type: string
+      exact: "net.Dial"
+
+  - id: net-dialer-dial
+    desc: net.(*Dialer).Dial method reference
+    crit: notable
+    conf: 0.5
+    if:
+      type: string
+      exact: "net.(*Dialer).Dial"
+
+  # === Go exec micro-traits ===
+  - id: os-exec-command
+    desc: os/exec.Command reference
+    crit: notable
+    conf: 0.5
+    if:
+      type: string
+      exact: "os/exec.Command"
+
+  - id: exec-cmd-start
+    desc: exec.(*Cmd).Start reference
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      exact: "exec.(*Cmd).Start"
+
+  - id: exec-cmd-run
+    desc: exec.(*Cmd).Run reference
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      exact: "exec.(*Cmd).Run"
+
+  # === Go pipe micro-traits ===
+  - id: stdin-pipe
+    desc: StdinPipe reference
+    crit: notable
+    conf: 0.5
+    if:
+      type: string
+      exact: "StdinPipe"
+
+  - id: stdout-pipe
+    desc: StdoutPipe reference
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      exact: "StdoutPipe"
+
+  - id: stderr-pipe
+    desc: StderrPipe reference
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      exact: "StderrPipe"
+
+  # === Shell path micro-traits ===
+  - id: bin-sh
+    desc: /bin/sh shell reference
+    crit: notable
+    conf: 0.5
+    if:
+      type: string
+      exact: "/bin/sh"
+
+  - id: bin-bash
+    desc: /bin/bash shell reference
+    crit: notable
+    conf: 0.5
+    if:
+      type: string
+      exact: "/bin/bash"
+
+  - id: cmd-exe
+    desc: cmd.exe shell reference
+    crit: notable
+    conf: 0.5
+    if:
+      type: string
+      exact: "cmd.exe"
+
+composite_rules:
+  # Go connection composite
+  - id: go-net-connection
+    desc: Go network connection
+    crit: notable
+    conf: 0.6
+    count: 1
+    any:
+      - id: net-dial
+      - id: net-dialer-dial
+
+  # Go exec composite
+  - id: go-exec
+    desc: Go command execution
+    crit: notable
+    conf: 0.6
+    count: 1
+    any:
+      - id: os-exec-command
+      - id: exec-cmd-start
+      - id: exec-cmd-run
+
+  # Go pipe composite
+  - id: go-pipe
+    desc: Go pipe redirection
+    crit: notable
+    conf: 0.5
+    count: 1
+    any:
+      - id: stdin-pipe
+      - id: stdout-pipe
+      - id: stderr-pipe
+
+  # Shell composite
+  - id: shell-path
+    desc: Shell path reference
+    crit: notable
+    conf: 0.5
+    count: 1
+    any:
+      - id: bin-sh
+      - id: bin-bash
+      - id: cmd-exe
+
+  # Go reverse shell (migrated from YARA)
   - id: reverse-shell
     desc: Go reverse shell implementation patterns
     crit: suspicious
     conf: 0.85
-    if:
-      type: yara
-      source: |
-        rule go_reverse_shell {
-          strings:
-            $conn1 = "net.Dial" ascii
-            $conn2 = "net.(*Dialer).Dial" ascii
-            $exec1 = "os/exec.Command" ascii
-            $exec2 = "exec.(*Cmd).Start" ascii
-            $exec3 = "exec.(*Cmd).Run" ascii
-            $pipe1 = "StdinPipe" ascii
-            $pipe2 = "StdoutPipe" ascii
-            $pipe3 = "StderrPipe" ascii
-            $shell1 = "/bin/sh" ascii
-            $shell2 = "/bin/bash" ascii
-            $shell3 = "cmd.exe" ascii
-          condition:
-            any of ($conn*) and any of ($exec*) and
-            (any of ($pipe*) or any of ($shell*))
-        }
+    mbc: "B0033"
+    attack: "T1059"
+    all:
+      - id: go-net-connection
+      - id: go-exec
+    any:
+      - id: go-pipe
+      - id: shell-path

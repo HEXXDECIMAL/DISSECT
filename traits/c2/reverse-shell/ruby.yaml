@@ -2,20 +2,87 @@
 # MBC: B0033 (Adversary-in-the-Middle)
 # ATT&CK: T1059
 
+defaults:
+  for: [ruby]
+
 traits:
+  # === Ruby socket micro-traits ===
+  - id: tcpsocket-ref
+    desc: TCPSocket class reference
+    crit: notable
+    conf: 0.6
+    attack: "T1059"
+    if:
+      type: string
+      exact: "TCPSocket"
+
+  - id: spawn-sh
+    desc: spawn with /bin/sh
+    crit: suspicious
+    conf: 0.8
+    attack: "T1059"
+    if:
+      type: string
+      regex: "spawn\\([\"']/bin/sh[\"']"
+
+  - id: io-popen
+    desc: IO.popen call
+    crit: notable
+    conf: 0.6
+    attack: "T1059"
+    if:
+      type: string
+      exact: "IO.popen"
+
+  - id: sh-interactive
+    desc: /bin/sh -i interactive shell
+    crit: suspicious
+    conf: 0.8
+    attack: "T1059"
+    if:
+      type: string
+      exact: "/bin/sh -i"
+
+composite_rules:
+  # Spawn with TCPSocket pattern
+  - id: spawn-tcpsocket
+    desc: spawn shell with TCPSocket
+    crit: suspicious
+    conf: 0.85
+    attack: "T1059"
+    all:
+      - id: spawn-sh
+      - id: tcpsocket-ref
+
+  # TCPSocket with IO.popen
+  - id: tcpsocket-popen
+    desc: TCPSocket with IO.popen
+    crit: suspicious
+    conf: 0.85
+    attack: "T1059"
+    all:
+      - id: tcpsocket-ref
+      - id: io-popen
+
+  # TCPSocket with interactive shell
+  - id: tcpsocket-sh-i
+    desc: TCPSocket with interactive shell
+    crit: suspicious
+    conf: 0.85
+    attack: "T1059"
+    all:
+      - id: tcpsocket-ref
+      - id: sh-interactive
+
+  # Ruby reverse shell (migrated from YARA)
   - id: reverse-shell-ruby
     desc: Reverse shell in Ruby
     crit: suspicious
     conf: 0.66
+    mbc: "B0033"
     attack: "T1059"
-    if:
-      type: yara
-      source: |
-        rule ruby_reverse_shell {
-          strings:
-            $spawn = /spawn\(["']\/bin\/sh["'],.{0,64}TCPSocket/
-            $popen = /TCPSocket.{0,64}IO.popen/
-            $tcp_sh = /TCPSocket.{0,64}\/bin\/sh -i/
-          condition:
-            filesize < 64KB and any of them
-        }
+    count: 1
+    any:
+      - id: spawn-tcpsocket
+      - id: tcpsocket-popen
+      - id: tcpsocket-sh-i

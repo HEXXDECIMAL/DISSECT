@@ -140,8 +140,8 @@ traits:
     crit: inert
     conf: 0.3
     if:
-      type: symbol_or_string
-      any: ["ptrace", "tracer"]
+      type: symbol
+      pattern: "ptrace|tracer"
 
   # NOTE: "passwd" alone is too generic - matches /etc/passwd, getpwnam, etc.
   # Use composite rules with context for meaningful detection
@@ -154,49 +154,132 @@ traits:
       regex: "passw(or)?d"
 
   # === Atomic: Session Sniffing ===
-  - id: session-sniff
-    desc: SSH session sniffing indicators
-    crit: suspicious
-    conf: 0.9
-    attack: "T1557"
-    mbc: "E1056"
-    platforms: [linux]
+  - id: sniff-ssh-lower
+    desc: sniff_ssh function name (lowercase)
+    crit: inert
+    conf: 0.75
     for: [elf, so, python, shell]
     if:
-      type: yara
-      source: |
-        rule ssh_sniff {
-          strings:
-            $sniff_ssh = "sniff_ssh" ascii nocase
-            $ssh_sniff = "ssh_sniff" ascii nocase
-            $sshpass = "sshpass" ascii
-            $ssh_password = "ssh_password" ascii
-            $ssh_cred = "ssh_cred" ascii
-            $sshdone = "sshdone" ascii
-          condition:
-            any of them
-        }
+      type: string
+      exact: "sniff_ssh"
 
-  - id: password-file-storage
-    desc: SSH password file storage
-    crit: suspicious
-    conf: 0.85
-    attack: "T1552.001"
-    mbc: "E1056"
-    platforms: [linux]
+  - id: sniff-ssh-title
+    desc: Sniff_ssh function name (titlecase)
+    crit: inert
+    conf: 0.75
     for: [elf, so, python, shell]
     if:
-      type: yara
-      source: |
-        rule ssh_password_storage {
-          strings:
-            $sshpass_txt = /sshpass\d?\.txt/ ascii
-            $ssh_pass_log = "ssh_pass.log" ascii
-            $pass_file = "password.txt" ascii
-            $cred_file = "credentials.txt" ascii
-          condition:
-            any of them
-        }
+      type: string
+      exact: "Sniff_ssh"
+
+  - id: sniff-ssh-upper
+    desc: SNIFF_SSH constant (uppercase)
+    crit: inert
+    conf: 0.75
+    for: [elf, so, python, shell]
+    if:
+      type: string
+      exact: "SNIFF_SSH"
+
+  - id: ssh-sniff-lower
+    desc: ssh_sniff function name (lowercase)
+    crit: inert
+    conf: 0.75
+    for: [elf, so, python, shell]
+    if:
+      type: string
+      exact: "ssh_sniff"
+
+  - id: ssh-sniff-title
+    desc: Ssh_sniff function name (titlecase)
+    crit: inert
+    conf: 0.75
+    for: [elf, so, python, shell]
+    if:
+      type: string
+      exact: "Ssh_sniff"
+
+  - id: ssh-sniff-upper
+    desc: SSH_SNIFF constant (uppercase)
+    crit: inert
+    conf: 0.75
+    for: [elf, so, python, shell]
+    if:
+      type: string
+      exact: "SSH_SNIFF"
+
+  - id: sshpass-keyword
+    desc: sshpass tool reference
+    crit: inert
+    conf: 0.7
+    for: [elf, so, python, shell]
+    if:
+      type: string
+      word: "sshpass"
+
+  - id: ssh-password-identifier
+    desc: ssh_password variable
+    crit: inert
+    conf: 0.75
+    for: [elf, so, python, shell]
+    if:
+      type: string
+      exact: "ssh_password"
+
+  - id: ssh-cred-identifier
+    desc: ssh_cred variable
+    crit: inert
+    conf: 0.75
+    for: [elf, so, python, shell]
+    if:
+      type: string
+      exact: "ssh_cred"
+
+  - id: sshdone-identifier
+    desc: sshdone flag
+    crit: inert
+    conf: 0.75
+    for: [elf, so, python, shell]
+    if:
+      type: string
+      exact: "sshdone"
+
+  # === Atomic: Password File Storage ===
+  - id: sshpass-txt-file
+    desc: sshpass.txt file pattern
+    crit: inert
+    conf: 0.75
+    for: [elf, so, python, shell]
+    if:
+      type: string
+      regex: "sshpass\\d?\\.txt"
+
+  - id: ssh-pass-log-file
+    desc: ssh_pass.log file
+    crit: inert
+    conf: 0.75
+    for: [elf, so, python, shell]
+    if:
+      type: string
+      exact: "ssh_pass.log"
+
+  - id: password-txt-file
+    desc: password.txt file
+    crit: inert
+    conf: 0.6
+    for: [elf, so, python, shell]
+    if:
+      type: string
+      exact: "password.txt"
+
+  - id: credentials-txt-file
+    desc: credentials.txt file
+    crit: inert
+    conf: 0.6
+    for: [elf, so, python, shell]
+    if:
+      type: string
+      exact: "credentials.txt"
 
   # === Atomic: SSH host verification bypass ===
   - id: stricthostkey-bypass
@@ -218,6 +301,66 @@ traits:
       regex: "UserKnownHostsFile\\s*[=/]\\s*/dev/null"
 
 composite_rules:
+  # Helper composites for migrated YARA rules
+  - id: sniff-ssh-variants
+    description: sniff_ssh case variants
+    for: [elf, so, python, shell]
+    any:
+      - {id: sniff-ssh-lower}
+      - {id: sniff-ssh-title}
+      - {id: sniff-ssh-upper}
+
+  - id: ssh-sniff-variants
+    description: ssh_sniff case variants
+    for: [elf, so, python, shell]
+    any:
+      - {id: ssh-sniff-lower}
+      - {id: ssh-sniff-title}
+      - {id: ssh-sniff-upper}
+
+  - id: ssh-sniffing-indicators
+    description: SSH sniffing function identifiers
+    for: [elf, so, python, shell]
+    any:
+      - {id: sniff-ssh-variants}
+      - {id: ssh-sniff-variants}
+      - {id: sshpass-keyword}
+      - {id: ssh-password-identifier}
+      - {id: ssh-cred-identifier}
+      - {id: sshdone-identifier}
+
+  - id: ssh-password-files
+    description: SSH password file patterns
+    for: [elf, so, python, shell]
+    any:
+      - {id: sshpass-txt-file}
+      - {id: ssh-pass-log-file}
+      - {id: password-txt-file}
+      - {id: credentials-txt-file}
+
+  # Migrated from YARA
+  - id: session-sniff
+    desc: SSH session sniffing indicators
+    crit: suspicious
+    conf: 0.9
+    attack: "T1557"
+    mbc: "E1056"
+    platforms: [linux]
+    for: [elf, so, python, shell]
+    any:
+      - {id: ssh-sniffing-indicators}
+
+  - id: password-file-storage
+    desc: SSH password file storage
+    crit: suspicious
+    conf: 0.85
+    attack: "T1552.001"
+    mbc: "E1056"
+    platforms: [linux]
+    for: [elf, so, python, shell]
+    any:
+      - {id: ssh-password-files}
+
   # === Composite: SSH directory path ===
   - id: dot-ssh-path
     desc: SSH directory path reference

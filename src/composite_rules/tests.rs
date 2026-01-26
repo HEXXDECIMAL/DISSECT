@@ -60,7 +60,8 @@ fn test_symbol_condition() {
         platforms: vec![Platform::All],
         r#for: vec![FileType::All],
         all: Some(vec![Condition::Symbol {
-            pattern: "socket".to_string(),
+            exact: None,
+            pattern: Some("socket".to_string()),
             platforms: None,
         }]),
         any: None,
@@ -100,12 +101,14 @@ fn test_all() {
         r#for: vec![FileType::All],
         all: Some(vec![
             Condition::Symbol {
-                pattern: "socket".to_string(),
+                exact: None,
+                pattern: Some("socket".to_string()),
                 platforms: None,
             },
             Condition::String {
                 exact: Some("/bin/sh".to_string()),
                 regex: None,
+                word: None,
                 case_insensitive: false,
                 exclude_patterns: None,
                 min_count: 1,
@@ -146,15 +149,18 @@ fn test_count() {
         all: None,
         any: Some(vec![
             Condition::Symbol {
-                pattern: "socket".to_string(),
+                exact: None,
+                pattern: Some("socket".to_string()),
                 platforms: None,
             },
             Condition::Symbol {
-                pattern: "connect".to_string(),
+                exact: None,
+                pattern: Some("connect".to_string()),
                 platforms: None,
             },
             Condition::Symbol {
-                pattern: "nonexistent".to_string(),
+                exact: None,
+                pattern: Some("nonexistent".to_string()),
                 platforms: None,
             },
         ]),
@@ -191,6 +197,7 @@ fn test_string_exact_condition() {
         all: Some(vec![Condition::String {
             exact: Some("/bin/sh".to_string()),
             regex: None,
+            word: None,
             case_insensitive: false,
             exclude_patterns: None,
             min_count: 1,
@@ -230,11 +237,13 @@ fn test_any() {
         all: None,
         any: Some(vec![
             Condition::Symbol {
-                pattern: "nonexistent".to_string(),
+                exact: None,
+                pattern: Some("nonexistent".to_string()),
                 platforms: None,
             },
             Condition::Symbol {
-                pattern: "socket".to_string(),
+                exact: None,
+                pattern: Some("socket".to_string()),
                 platforms: None,
             },
         ]),

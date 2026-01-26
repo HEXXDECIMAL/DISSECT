@@ -81,7 +81,23 @@ traits:
       type: string
       exact: "ssh server is locked"
 
-  # SSHDoor detection - YARA-based trait for comprehensive detection
+composite_rules:
+  # === Helper composite ===
+  - id: sshdoor-indicators
+    description: SSHDoor-specific string indicators
+    for: [elf]
+    any:
+      - id: backdoor/sshdoor/rm-var-tmp
+      - id: backdoor/sshdoor/group-json
+      - id: backdoor/sshdoor/password-json
+      - id: backdoor/sshdoor/login-lock
+      - id: backdoor/sshdoor/login-format
+      - id: backdoor/sshdoor/server-locked
+
+  # === Migrated from YARA ===
+  # Original YARA: KRB5CCNAME AND 2 of (6 other patterns)
+  # Note: uint32(0) == 0x464C457F (ELF magic) and filesize < 2MB constraints
+  # cannot be translated to DISSECT trait system
   - id: backdoor/sshdoor/yara-signature
     description: SSHDoor backdoored SSH daemon YARA signature
     crit: suspicious
@@ -89,25 +105,12 @@ traits:
     family: true
     attack: "T1556.003"
     mbc: "B0022"
-    file_types: [elf]
-    condition:
-      type: yara
-      source: |
-        rule sshdoor_backdoor {
-          strings:
-            $KRB5CCNAME = "KRB5CCNAME"
-            $o_rm_var_tmp = /rm \/var\/tmp\/\.\w{0,16}/
-            $o_group = "\"Group\""
-            $o_pw = "\"Password\""
-            $o_login_lock = ".login_lock"
-            $o_string = "%s:Login to %s:%s"
-            $o_locked = "ssh server is locked"
-          condition:
-            uint32(0) == 0x464C457F and
-            filesize < 2MB and $KRB5CCNAME and 2 of ($o*)
-        }
+    for: [elf]
+    all:
+      - id: backdoor/sshdoor/krb5-ccname
+      - id: sshdoor-indicators
+        count: 2
 
-composite_rules:
   - id: backdoor/sshdoor/detected
     description: SSHDoor backdoored SSH daemon
     crit: hostile
@@ -115,8 +118,8 @@ composite_rules:
     family: true
     attack: "T1556.003"
     mbc: "B0022"
-    file_types: [elf]
-    requires_count: 3
+    for: [elf]
+    count: 3
     any:
       - id: backdoor/sshdoor/krb5-ccname
       - id: backdoor/sshdoor/rm-var-tmp

@@ -9,7 +9,7 @@ traits:
     attack: "T1574.006"
     for: [elf, macho]
     if:
-      type: string
+      type: symbol
       exact: "dlopen"
 
   - id: dlsym
@@ -19,7 +19,7 @@ traits:
     attack: "T1574.006"
     for: [elf, macho]
     if:
-      type: string
+      type: symbol
       exact: "dlsym"
 
   - id: dlclose
@@ -29,7 +29,7 @@ traits:
     attack: "T1574.006"
     for: [elf, macho]
     if:
-      type: string
+      type: symbol
       exact: "dlclose"
 
   - id: dlerror
@@ -39,29 +39,72 @@ traits:
     attack: "T1574.006"
     for: [elf, macho]
     if:
-      type: string
+      type: symbol
       exact: "dlerror"
 
-  # LoadLibrary (Windows)
-  - id: loadlibrary
-    desc: Runtime library loading via LoadLibrary
-    crit: notable
-    conf: 0.9
-    attack: "T1574.002"
+  # === LoadLibrary (Windows) atomic indicators ===
+  - id: loadlibrary-symbol
+    desc: LoadLibrary symbol
+    crit: inert
+    conf: 0.75
     for: [pe]
     if:
-      type: yara
-      source: |
-        rule loadlibrary_load {
-          strings:
-            $ll1 = "LoadLibrary" ascii wide
-            $ll2 = "LoadLibraryA" ascii
-            $ll3 = "LoadLibraryW" ascii
-            $ll4 = "LoadLibraryEx" ascii wide
-            $gpa = "GetProcAddress" ascii wide
-          condition:
-            any of ($ll*) or $gpa
-        }
+      type: symbol
+      exact: "LoadLibrary"
+
+  - id: loadlibrarya-symbol
+    desc: LoadLibraryA symbol
+    crit: inert
+    conf: 0.75
+    for: [pe]
+    if:
+      type: symbol
+      exact: "LoadLibraryA"
+
+  - id: loadlibraryw-symbol
+    desc: LoadLibraryW symbol
+    crit: inert
+    conf: 0.75
+    for: [pe]
+    if:
+      type: symbol
+      exact: "LoadLibraryW"
+
+  - id: loadlibraryex-symbol
+    desc: LoadLibraryEx symbol
+    crit: inert
+    conf: 0.75
+    for: [pe]
+    if:
+      type: symbol
+      exact: "LoadLibraryEx"
+
+  - id: loadlibraryexa-symbol
+    desc: LoadLibraryExA symbol
+    crit: inert
+    conf: 0.75
+    for: [pe]
+    if:
+      type: symbol
+      exact: "LoadLibraryExA"
+
+  - id: loadlibraryexw-symbol
+    desc: LoadLibraryExW symbol
+    crit: inert
+    conf: 0.75
+    for: [pe]
+    if:
+      type: symbol
+      exact: "LoadLibraryExW"
+
+  - id: getprocaddress-symbol
+    desc: GetProcAddress symbol
+    crit: inert
+    conf: 0.75
+    for: [pe]
+    if:
+      type: symbol
+      exact: "GetProcAddress"
 
   - id: nsbundle
     desc: macOS NSBundle loading
@@ -104,25 +147,51 @@ traits:
       type: string
       regex: "CDLL\\("
 
-  - id: local-load
-    desc: Loading dynamic library from local path
-    crit: suspicious
-    conf: 0.9
-    attack: "T1574"
+  # === Python local path loading atomic indicators ===
+  - id: cdll-keyword
+    desc: CDLL keyword
+    crit: inert
+    conf: 0.6
     for: [python]
     if:
-      type: yara
-      source: |
-        rule local_dylib_load {
-          strings:
-            $cdll = "CDLL"
-            $load = "LoadLibrary"
-            $path1 = "__file__"
-            $path2 = "dirname"
-            $path3 = "abspath"
-          condition:
-            ($cdll or $load) and any of ($path*)
-        }
+      type: string
+      word: "CDLL"
+
+  - id: loadlibrary-keyword
+    desc: LoadLibrary keyword
+    crit: inert
+    conf: 0.6
+    for: [python]
+    if:
+      type: string
+      word: "LoadLibrary"
+
+  - id: python-file-dunder
+    desc: __file__ variable
+    crit: inert
+    conf: 0.5
+    for: [python]
+    if:
+      type: string
+      exact: "__file__"
+
+  - id: dirname-call
+    desc: dirname function call
+    crit: inert
+    conf: 0.5
+    for: [python]
+    if:
+      type: string
+      word: "dirname"
+
+  - id: abspath-call
+    desc: abspath function call
+    crit: inert
+    conf: 0.5
+    for: [python]
+    if:
+      type: string
+      word: "abspath"
 
   - id: ruby-dlopen
     desc: Ruby FFI dlopen
@@ -145,6 +214,54 @@ traits:
       exact: "loadReplacementClass"
 
 composite_rules:
+  # Helper composites
+  - id: loadlibrary-variants
+    description: LoadLibrary function variants
+    for: [pe]
+    any:
+      - {id: loadlibrary-symbol}
+      - {id: loadlibrarya-symbol}
+      - {id: loadlibraryw-symbol}
+      - {id: loadlibraryex-symbol}
+      - {id: loadlibraryexa-symbol}
+      - {id: loadlibraryexw-symbol}
+
+  - id: library-loaders
+    description: Library loading functions (CDLL or LoadLibrary)
+    for: [python]
+    any:
+      - {id: cdll-keyword}
+      - {id: loadlibrary-keyword}
+
+  - id: path-manipulation
+    description: Path manipulation functions
+    for: [python]
+    any:
+      - {id: python-file-dunder}
+      - {id: dirname-call}
+      - {id: abspath-call}
+
+  # Migrated from YARA
+  - id: loadlibrary
+    desc: Runtime library loading via LoadLibrary
+    crit: notable
+    conf: 0.9
+    attack: "T1574.002"
+    for: [pe]
+    any:
+      - {id: loadlibrary-variants}
+      - {id: getprocaddress-symbol}
+
+  - id: local-load
+    desc: Loading dynamic library from local path
+    crit: suspicious
+    conf: 0.9
+    attack: "T1574"
+    for: [python]
+    all:
+      - {id: library-loaders}
+      - {id: path-manipulation}
+
   # Core dlopen + dlsym pattern (basic dynamic loading)
   - id: dlopen-dlsym
     desc: Core dlopen/dlsym pattern

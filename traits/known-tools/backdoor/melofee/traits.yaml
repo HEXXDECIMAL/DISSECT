@@ -6,65 +6,264 @@ defaults:
   for: [elf, macho, so, dylib]
 
 traits:
-  # Melofee backdoor artifacts
+  # === Melofee Name Variants (case-insensitive via variants) ===
+  - id: melofee-lower
+    desc: melofee name (lowercase)
+    crit: inert
+    conf: 0.75
+    if:
+      type: string
+      word: "melofee"
+
+  - id: melofee-upper
+    desc: MELOFEE name (uppercase)
+    crit: inert
+    conf: 0.75
+    if:
+      type: string
+      word: "MELOFEE"
+
+  - id: melofee-title
+    desc: Melofee name (title case)
+    crit: inert
+    conf: 0.75
+    if:
+      type: string
+      word: "Melofee"
+
+  # Winnti variants
+  - id: winnti-lower
+    desc: winnti name (lowercase)
+    crit: inert
+    conf: 0.75
+    if:
+      type: string
+      word: "winnti"
+
+  - id: winnti-upper
+    desc: WINNTI name (uppercase)
+    crit: inert
+    conf: 0.75
+    if:
+      type: string
+      word: "WINNTI"
+
+  - id: winnti-title
+    desc: Winnti name (title case)
+    crit: inert
+    conf: 0.75
+    if:
+      type: string
+      word: "Winnti"
+
+  # Melo/Fee prefixes
+  - id: melo-prefix
+    desc: melo_ prefix
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "melo_"
+
+  - id: fee-prefix
+    desc: fee_ prefix
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "fee_"
+
+  # === Kernel Process Hiding ===
+  - id: list-del-init
+    desc: list_del_init kernel function
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "list_del_init"
+
+  - id: this-module
+    desc: THIS_MODULE kernel macro
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "THIS_MODULE"
+
+  - id: hide-pid-string
+    desc: hide_pid string
+    crit: inert
+    conf: 0.75
+    if:
+      type: string
+      exact: "hide_pid"
+
+  - id: hidden-pids-string
+    desc: hidden_pids string
+    crit: inert
+    conf: 0.75
+    if:
+      type: string
+      exact: "hidden_pids"
+
+  # === C2 Heartbeat/Beacon ===
+  - id: heartbeat-string
+    desc: heartbeat C2 string
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "heartbeat"
+
+  - id: checkin-string
+    desc: checkin C2 string
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "checkin"
+
+  - id: beacon-string
+    desc: beacon C2 string
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "beacon"
+
+  - id: shell-exec-string
+    desc: shell_exec command
+    crit: inert
+    conf: 0.75
+    if:
+      type: string
+      exact: "shell_exec"
+
+  - id: file-upload-string
+    desc: file_upload command
+    crit: inert
+    conf: 0.75
+    if:
+      type: string
+      exact: "file_upload"
+
+  - id: aes-encrypt-string
+    desc: aes_encrypt function
+    crit: inert
+    conf: 0.75
+    if:
+      type: string
+      exact: "aes_encrypt"
+
+composite_rules:
+  # === Helper composites ===
+  - id: melofee-names
+    description: Melofee name (case variants)
+    any:
+      - type: trait
+        id: melofee-lower
+      - type: trait
+        id: melofee-upper
+      - type: trait
+        id: melofee-title
+
+  - id: winnti-names
+    description: Winnti name (case variants)
+    any:
+      - type: trait
+        id: winnti-lower
+      - type: trait
+        id: winnti-upper
+      - type: trait
+        id: winnti-title
+
+  - id: melo-fee-prefixes
+    description: melo_ or fee_ prefixes
+    any:
+      - type: trait
+        id: melo-prefix
+      - type: trait
+        id: fee-prefix
+
+  - id: kernel-functions
+    description: Kernel list manipulation functions
+    any:
+      - type: trait
+        id: list-del-init
+      - type: trait
+        id: this-module
+
+  - id: hiding-strings
+    description: Process hiding strings
+    any:
+      - type: trait
+        id: hide-pid-string
+      - type: trait
+        id: hidden-pids-string
+
+  - id: c2-protocols
+    description: C2 heartbeat/beacon protocols
+    any:
+      - type: trait
+        id: heartbeat-string
+      - type: trait
+        id: checkin-string
+      - type: trait
+        id: beacon-string
+
+  - id: backdoor-commands
+    description: Backdoor command strings
+    any:
+      - type: trait
+        id: shell-exec-string
+      - type: trait
+        id: file-upload-string
+
+  # === Migrated from YARA ===
   - id: backdoor/melofee/artifact
     description: Melofee backdoor identifier string
     crit: notable
     conf: 0.7
-    condition:
-      type: yara
-      source: |
-        rule melofee_artifact {
-          strings:
-            $name1 = "melofee" ascii nocase fullword
-            $winnti1 = "winnti" ascii nocase fullword
-            $mel1 = "melo_" ascii
-            $mel2 = "fee_" ascii
-          condition:
-            any of them
-        }
+    any:
+      - type: trait
+        id: melofee-names
+      - type: trait
+        id: winnti-names
+      - type: trait
+        id: melo-fee-prefixes
 
-  # Generic Kernel Process Hiding
   - id: kernel/rootkit/process-hiding
     description: Kernel-level process hiding logic
     crit: suspicious
     conf: 0.9
     mbc: "B0030"
     attack: "T1014"
-    condition:
-      type: yara
-      source: |
-        rule process_hiding {
-          strings:
-            $kern1 = "list_del_init" ascii
-            $kern2 = "THIS_MODULE" ascii
-            $hide1 = "hide_pid" ascii
-            $hide2 = "hidden_pids" ascii
-          condition:
-            any of ($kern*) and any of ($hide*)
-        }
+    all:
+      - type: trait
+        id: kernel-functions
+      - type: trait
+        id: hiding-strings
 
-  # Generic Heartbeat C2
   - id: comm/c2/heartbeat-protocol
     description: C2 heartbeat/beacon protocol implementation
     crit: suspicious
     conf: 0.8
-    condition:
-      type: yara
-      source: |
-        rule heartbeat_c2 {
-          strings:
-            $c2_1 = "heartbeat" ascii
-            $c2_2 = "checkin" ascii
-            $c2_3 = "beacon" ascii
-            $cmd1 = "shell_exec" ascii
-            $cmd2 = "file_upload" ascii
-            $enc1 = "aes_encrypt" ascii
-          condition:
-            any of ($c2_*) and any of ($cmd*) and $enc1
-        }
+    all:
+      - type: trait
+        id: c2-protocols
+      - type: trait
+        id: backdoor-commands
+      - type: trait
+        id: aes-encrypt-string
 
-composite_rules:
+  - id: melofee-behavior
+    description: Melofee backdoor behavior (rootkit or C2)
+    any:
+      - type: trait
+        id: kernel/rootkit/process-hiding
+      - type: trait
+        id: comm/c2/heartbeat-protocol
+
   # Melofee detection
   - id: backdoor/melofee/detected
     description: Melofee backdoor detected
@@ -72,8 +271,8 @@ composite_rules:
     conf: 0.95
     attack: "T1071"
     mbc: "B0030"
-    requires_all:
-      - id: backdoor/melofee/artifact
-    requires_any:
-      - id: kernel/rootkit/process-hiding
-      - id: comm/c2/heartbeat-protocol
+    all:
+      - type: trait
+        id: backdoor/melofee/artifact
+      - type: trait
+        id: melofee-behavior

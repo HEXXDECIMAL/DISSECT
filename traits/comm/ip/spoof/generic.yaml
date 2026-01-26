@@ -2,23 +2,65 @@
 # MBC: C0001 (Socket Communication)
 # ATT&CK: T1071
 
+defaults:
+  attack: "T1071"
+  mbc: "C0001"
+
 traits:
-  - id: spoof
-    desc: IP address spoofing capabilities
-    crit: suspicious
-    conf: 0.66
+  # === IP spoofing keywords ===
+  - id: spoof-keyword
+    desc: spoof keyword
+    crit: inert
+    conf: 0.65
+    for: [c, cpp, go, rust, python, shell, elf, macho]
     if:
-      type: yara
-      source: |
-        rule ip_spoof {
-          strings:
-            $spoof = "spoof" fullword
-            $forge = "forge" fullword
-            $hdrincl = "IP_HDRINCL"
-            $raw_ip = "IPPROTO_RAW"
-          condition:
-            any of them
-        }
+      type: string
+      word: "spoof"
+
+  - id: forge-keyword
+    desc: forge keyword
+    crit: inert
+    conf: 0.6
+    for: [c, cpp, go, rust, python, shell, elf, macho]
+    if:
+      type: string
+      word: "forge"
+
+  - id: ip-hdrincl-constant
+    desc: IP_HDRINCL socket option
+    crit: inert
+    conf: 0.75
+    for: [c, cpp, go, rust, python, shell, elf, macho]
+    if:
+      type: string
+      exact: "IP_HDRINCL"
+
+  - id: ipproto-raw-constant
+    desc: IPPROTO_RAW socket type
+    crit: inert
+    conf: 0.75
+    for: [c, cpp, go, rust, python, shell, elf, macho]
+    if:
+      type: string
+      exact: "IPPROTO_RAW"
+
+  - id: sock-raw-constant
+    desc: SOCK_RAW socket type
+    crit: inert
+    conf: 0.7
+    for: [c, cpp, go, rust, python, shell, elf, macho]
+    if:
+      type: string
+      exact: "SOCK_RAW"
+
+  - id: raw-socket-keyword
+    desc: raw socket keyword
+    crit: inert
+    conf: 0.65
+    for: [c, cpp, go, rust, python, shell, elf, macho]
+    if:
+      type: string
+      regex: "raw.?socket"
 
   # === SYN cookie atomic indicators ===
   - id: syncookie-word
@@ -46,12 +88,24 @@ traits:
       regex: "SYN.?cookie"
 
 composite_rules:
+  # Migrated from YARA
+  - id: spoof
+    desc: IP address spoofing capabilities
+    crit: suspicious
+    conf: 0.7
+    for: [c, cpp, go, rust, python, shell, elf, macho]
+    any:
+      - {id: spoof-keyword}
+      - {id: forge-keyword}
+      - {id: ip-hdrincl-constant}
+      - {id: ipproto-raw-constant}
+
   - id: syncookie
     desc: SYN cookie manipulation
     crit: suspicious
     conf: 0.66
     count: 1
     any:
-      - id: syncookie-word
-      - id: syn-cookie-lower
-      - id: syn-cookie-upper
+      - {id: syncookie-word}
+      - {id: syn-cookie-lower}
+      - {id: syn-cookie-upper}

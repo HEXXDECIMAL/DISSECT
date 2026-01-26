@@ -8,10 +8,8 @@ traits:
     attack: "T1027"
     for: [ruby]
     if:
-      type: symbol_or_string
-      any:
-        - Base64.decode64
-        - Base64.strict_decode64
+      type: string
+      regex: "Base64\\.decode64|Base64\\.strict_decode64"
 
   - id: base64-encode
     desc: "Base64 encode"
@@ -20,10 +18,8 @@ traits:
     attack: "T1027"
     for: [ruby]
     if:
-      type: symbol_or_string
-      any:
-        - Base64.encode64
-        - Base64.strict_encode64
+      type: string
+      regex: "Base64\\.encode64|Base64\\.strict_encode64"
 
   - id: marshal-load
     desc: "Marshal deserialization (RCE risk)"
@@ -32,10 +28,8 @@ traits:
     attack: "T1059"
     for: [ruby]
     if:
-      type: symbol_or_string
-      any:
-        - Marshal.load
-        - Marshal.restore
+      type: string
+      regex: "Marshal\\.load|Marshal\\.restore"
 
   - id: yaml-unsafe-load
     desc: "YAML unsafe deserialization"
@@ -44,11 +38,8 @@ traits:
     attack: "T1059"
     for: [ruby]
     if:
-      type: symbol_or_string
-      any:
-        - YAML.load
-      none:
-        - YAML.safe_load
+      type: string
+      regex: "YAML\\.load"
 
   - id: reflection-send
     desc: "Dynamic method invocation"
@@ -57,10 +48,8 @@ traits:
     attack: "T1027"
     for: [ruby]
     if:
-      type: symbol_or_string
-      any:
-        - .send(
-        - .send
+      type: string
+      regex: "\\.send\\(|\\.send"
 
   - id: const-get
     desc: "Dynamic constant access"
@@ -69,9 +58,8 @@ traits:
     attack: "T1027"
     for: [ruby]
     if:
-      type: symbol_or_string
-      any:
-        - const_get
+      type: string
+      regex: "const_get"
 
   - id: const-set
     desc: "Dynamic constant definition"
@@ -80,9 +68,8 @@ traits:
     attack: "T1027"
     for: [ruby]
     if:
-      type: symbol_or_string
-      any:
-        - const_set
+      type: string
+      regex: "const_set"
 
   - id: define-method
     desc: "Dynamic method definition"
@@ -91,6 +78,5 @@ traits:
     attack: "T1027"
     for: [ruby]
     if:
-      type: symbol_or_string
-      any:
-        - define_method
+      type: string
+      regex: "define_method"

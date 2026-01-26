@@ -2,37 +2,194 @@
 # Detects access to sensitive environment variables via os.environ or os.getenv
 
 traits:
-  - id: python-os-getenv
-    desc: "Accesses sensitive environment variable via os.getenv"
-    crit: suspicious
-    conf: 0.9
+  # === os.getenv patterns ===
+  # Note: We detect getenv symbol + TOKEN/KEY/etc string patterns
+  - id: os-getenv-symbol
+    desc: os.getenv method
+    crit: inert
+    conf: 0.6
     for: [python]
     if:
-      type: yara
-      source: |
-        rule python_os_getenv_secret {
-          strings:
-            $re = /os\.getenv\(['"][^'"]*(TOKEN|KEY|SECRET|PASS|AUTH|PWD|CRED)[^'"]*['"]\)/
-          condition:
-            $re
-        }
+      type: symbol
+      exact: "getenv"
 
-  - id: python-os-environ
-    desc: "Accesses sensitive environment variable via os.environ"
-    crit: suspicious
-    conf: 0.9
+  - id: os-getenv-token
+    desc: TOKEN keyword in env variable name
+    crit: inert
+    conf: 0.7
     for: [python]
     if:
-      type: yara
-      source: |
-        rule python_os_environ_secret {
-          strings:
-            $re = /os\.environ\[['"][^'"]*(TOKEN|KEY|SECRET|PASS|AUTH|PWD|CRED)[^'"]*['"]\]/
-          condition:
-            $re
-        }
+      type: string
+      regex: "['\"][^'\"]*TOKEN[^'\"]*['\"]"
+
+  - id: os-getenv-key
+    desc: KEY keyword in env variable name
+    crit: inert
+    conf: 0.65
+    for: [python]
+    if:
+      type: string
+      regex: "['\"][^'\"]*KEY[^'\"]*['\"]"
+
+  - id: os-getenv-secret
+    desc: SECRET keyword in env variable name
+    crit: inert
+    conf: 0.7
+    for: [python]
+    if:
+      type: string
+      regex: "['\"][^'\"]*SECRET[^'\"]*['\"]"
+
+  - id: os-getenv-pass
+    desc: PASS keyword in env variable name
+    crit: inert
+    conf: 0.7
+    for: [python]
+    if:
+      type: string
+      regex: "['\"][^'\"]*PASS[^'\"]*['\"]"
+
+  - id: os-getenv-auth
+    desc: AUTH keyword in env variable name
+    crit: inert
+    conf: 0.7
+    for: [python]
+    if:
+      type: string
+      regex: "['\"][^'\"]*AUTH[^'\"]*['\"]"
+
+  - id: os-getenv-pwd
+    desc: PWD keyword in env variable name
+    crit: inert
+    conf: 0.7
+    for: [python]
+    if:
+      type: string
+      regex: "['\"][^'\"]*PWD[^'\"]*['\"]"
+
+  - id: os-getenv-cred
+    desc: CRED keyword in env variable name
+    crit: inert
+    conf: 0.7
+    for: [python]
+    if:
+      type: string
+      regex: "['\"][^'\"]*CRED[^'\"]*['\"]"
+
+  # === os.environ patterns ===
+  - id: os-environ-symbol
+    desc: os.environ attribute
+    crit: inert
+    conf: 0.6
+    for: [python]
+    if:
+      type: symbol
+      exact: "os.environ"
+
+  - id: environ-token
+    desc: TOKEN in environ access
+    crit: inert
+    conf: 0.7
+    for: [python]
+    if:
+      type: string
+      regex: "['\"][^'\"]*TOKEN[^'\"]*['\"]"
+
+  - id: environ-key
+    desc: KEY in environ access
+    crit: inert
+    conf: 0.65
+    for: [python]
+    if:
+      type: string
+      regex: "['\"][^'\"]*KEY[^'\"]*['\"]"
+
+  - id: environ-secret
+    desc: SECRET in environ access
+    crit: inert
+    conf: 0.7
+    for: [python]
+    if:
+      type: string
+      regex: "['\"][^'\"]*SECRET[^'\"]*['\"]"
+
+  - id: environ-pass
+    desc: PASS in environ access
+    crit: inert
+    conf: 0.7
+    for: [python]
+    if:
+      type: string
+      regex: "['\"][^'\"]*PASS[^'\"]*['\"]"
+
+  - id: environ-auth
+    desc: AUTH in environ access
+    crit: inert
+    conf: 0.7
+    for: [python]
+    if:
+      type: string
+      regex: "['\"][^'\"]*AUTH[^'\"]*['\"]"
+
+  - id: environ-pwd
+    desc: PWD in environ access
+    crit: inert
+    conf: 0.7
+    for: [python]
+    if:
+      type: string
+      regex: "['\"][^'\"]*PWD[^'\"]*['\"]"
+
+  - id: environ-cred
+    desc: CRED in environ access
+    crit: inert
+    conf: 0.7
+    for: [python]
+    if:
+      type: string
+      regex: "['\"][^'\"]*CRED[^'\"]*['\"]"
 
 composite_rules:
+  # Helper composites
+  - id: sensitive-env-keywords
+    description: Sensitive keywords in env variable names
+    for: [python]
+    any:
+      - {id: os-getenv-token}
+      - {id: os-getenv-key}
+      - {id: os-getenv-secret}
+      - {id: os-getenv-pass}
+      - {id: os-getenv-auth}
+      - {id: os-getenv-pwd}
+      - {id: os-getenv-cred}
+      - {id: environ-token}
+      - {id: environ-key}
+      - {id: environ-secret}
+      - {id: environ-pass}
+      - {id: environ-auth}
+      - {id: environ-pwd}
+      - {id: environ-cred}
+
+  # Migrated from YARA
+  - id: python-os-getenv
+    desc: Accesses sensitive environment variable via os.getenv
+    crit: suspicious
+    conf: 0.9
+    for: [python]
+    all:
+      - {id: os-getenv-symbol}
+      - {id: sensitive-env-keywords}
+
+  - id: python-os-environ
+    desc: Accesses sensitive environment variable via os.environ
+    crit: suspicious
+    conf: 0.9
+    for: [python]
+    all:
+      - {id: os-environ-symbol}
+      - {id: sensitive-env-keywords}
+
+  # Original composite
   - id: python-env-key
     desc: "Accesses sensitive environment variable"
     crit: suspicious
