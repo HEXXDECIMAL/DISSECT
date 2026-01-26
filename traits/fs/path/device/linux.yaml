@@ -37,13 +37,10 @@ composite_rules:
     mbc: E1083
     attack: T1083
     all:
-      - type: trait
-        id: dev-path-pattern
+      - id: dev-path-pattern
     none:
-      - type: trait
-        id: dev-null
-      - type: trait
-        id: dev-shm
+      - id: dev-null
+      - id: dev-shm
 
   - id: device-null
     description: Reference to /dev/null device
@@ -52,5 +49,4 @@ composite_rules:
     mbc: E1083
     attack: T1083
     any:
-      - type: trait
-        id: dev-null
+      - id: dev-null

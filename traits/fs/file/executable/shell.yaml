@@ -41,9 +41,6 @@ composite_rules:
     mbc: E1222
     attack: T1222
     any:
-      - type: trait
-        id: chmod-plus-x
-      - type: trait
-        id: chmod-755
-      - type: trait
-        id: chmod-0755
+      - id: chmod-plus-x
+      - id: chmod-755
+      - id: chmod-0755

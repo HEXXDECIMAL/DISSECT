@@ -85,10 +85,8 @@ composite_rules:
     mbc: E1222
     attack: T1222
     any:
-      - type: trait
-        id: chmod-666-shell
-      - type: trait
-        id: chmod-666-ruby
+      - id: chmod-666-shell
+      - id: chmod-666-ruby
 
   - id: chmod-777-patterns
     description: chmod 777 pattern (any variant)
@@ -97,12 +95,9 @@ composite_rules:
     mbc: E1222
     attack: T1222
     any:
-      - type: trait
-        id: chmod-777-shell
-      - type: trait
-        id: chmod-777-ruby
-      - type: trait
-        id: chmod-777-python
+      - id: chmod-777-shell
+      - id: chmod-777-ruby
+      - id: chmod-777-python
 
   - id: chmod-world-exec
     description: Makes file world-writable and executable (chmod 777, excludes legitimate)
@@ -111,12 +106,8 @@ composite_rules:
     mbc: E1222
     attack: T1222
     all:
-      - type: trait
-        id: chmod-777-patterns
+      - id: chmod-777-patterns
     none:
-      - type: trait
-        id: chmod-1777-sticky
-      - type: trait
-        id: chmod-01777-sticky
-      - type: trait
-        id: chmod-777-var-tmp
+      - id: chmod-1777-sticky
+      - id: chmod-01777-sticky
+      - id: chmod-777-var-tmp

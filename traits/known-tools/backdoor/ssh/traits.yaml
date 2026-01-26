@@ -83,36 +83,27 @@ composite_rules:
   - id: ssh-backdoor-names
     desc: SSH backdoor family names
     any:
-      - type: trait
-        id: backdoor/ssh/sshdoor-word
-      - type: trait
-        id: backdoor/ssh/sshkit-word
+      - id: backdoor/ssh/sshdoor-word
+      - id: backdoor/ssh/sshkit-word
 
   - id: ssh-hardcoded-creds
     desc: Hardcoded SSH credential strings
     any:
-      - type: trait
-        id: backdoor/ssh/master-password
-      - type: trait
-        id: backdoor/ssh/backdoor-pass
-      - type: trait
-        id: backdoor/ssh/magic-password
+      - id: backdoor/ssh/master-password
+      - id: backdoor/ssh/backdoor-pass
+      - id: backdoor/ssh/magic-password
 
   - id: ssh-auth-bypass
     desc: SSH auth bypass markers
     any:
-      - type: trait
-        id: backdoor/ssh/auth-bypass
-      - type: trait
-        id: backdoor/ssh/skip-auth
+      - id: backdoor/ssh/auth-bypass
+      - id: backdoor/ssh/skip-auth
 
   - id: ssh-cred-logging
     desc: SSH credential logging
     any:
-      - type: trait
-        id: backdoor/ssh/password-log
-      - type: trait
-        id: backdoor/ssh/cred-log
+      - id: backdoor/ssh/password-log
+      - id: backdoor/ssh/cred-log
 
   # === Detection rules ===
   - id: backdoor/ssh/generic
@@ -121,12 +112,9 @@ composite_rules:
     conf: 0.85
     attack: "T1556.004"
     any:
-      - type: trait
-        id: ssh-backdoor-names
-      - type: trait
-        id: ssh-hardcoded-creds
-      - type: trait
-        id: ssh-auth-bypass
+      - id: ssh-backdoor-names
+      - id: ssh-hardcoded-creds
+      - id: ssh-auth-bypass
 
   - id: backdoor/ssh/cred-capture
     description: SSH credential logging backdoor
@@ -134,8 +122,7 @@ composite_rules:
     conf: 0.9
     attack: "T1556.004"
     all:
-      - type: trait
-        id: ssh-cred-logging
+      - id: ssh-cred-logging
 
   # === Main detection rule ===
   - id: backdoor/ssh/detected
@@ -146,11 +133,7 @@ composite_rules:
     mbc: "B0022"
     count: 2
     any:
-      - type: trait
-        id: backdoor/ssh/generic
-      - type: trait
-        id: backdoor/ssh/cred-capture
-      - type: trait
-        id: ssh-backdoor-names
-      - type: trait
-        id: ssh-hardcoded-creds
+      - id: backdoor/ssh/generic
+      - id: backdoor/ssh/cred-capture
+      - id: ssh-backdoor-names
+      - id: ssh-hardcoded-creds

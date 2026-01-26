@@ -96,33 +96,24 @@ composite_rules:
   - id: go-socks-strings
     desc: Go SOCKS library strings
     any:
-      - type: trait
-        id: backdoor/generic/go-socks-auth
-      - type: trait
-        id: backdoor/generic/go-socks-dialer
-      - type: trait
-        id: backdoor/generic/go-socks-cmd
-      - type: trait
-        id: backdoor/generic/go-socks-addr
+      - id: backdoor/generic/go-socks-auth
+      - id: backdoor/generic/go-socks-dialer
+      - id: backdoor/generic/go-socks-cmd
+      - id: backdoor/generic/go-socks-addr
 
   - id: go-pty-strings
     desc: Go PTY library strings
     any:
-      - type: trait
-        id: backdoor/generic/go-pty-startwithsize
-      - type: trait
-        id: backdoor/generic/go-pty-setsize
-      - type: trait
-        id: backdoor/generic/go-ptmx
+      - id: backdoor/generic/go-pty-startwithsize
+      - id: backdoor/generic/go-pty-setsize
+      - id: backdoor/generic/go-ptmx
 
   # === Detection composites referencing generic traits ===
   - id: go-pty-with-shell
     desc: Go PTY with shell execution
     all:
-      - type: trait
-        id: go-pty-strings
-      - type: trait
-        id: bin-sh
+      - id: go-pty-strings
+      - id: bin-sh
 
   - id: backdoor/generic/go-pty-shell
     description: Go PTY interactive shell capability
@@ -130,8 +121,7 @@ composite_rules:
     conf: 0.8
     for: [elf, macho, go]
     all:
-      - type: trait
-        id: go-pty-with-shell
+      - id: go-pty-with-shell
 
   - id: backdoor/generic/go-reverse-connect
     description: Go reverse connection capability
@@ -139,8 +129,7 @@ composite_rules:
     conf: 0.7
     for: [go]
     all:
-      - type: trait
-        id: net-dial
+      - id: net-dial
 
   # Main detection: Go reverse shell with SOCKS proxy
   - id: backdoor/generic/go-reverse-socks
@@ -151,9 +140,6 @@ composite_rules:
     mbc: "B0022"
     for: [elf, macho]
     all:
-      - type: trait
-        id: backdoor/generic/go-pty-shell
-      - type: trait
-        id: backdoor/generic/go-socks-proxy
-      - type: trait
-        id: backdoor/generic/go-reverse-connect
+      - id: backdoor/generic/go-pty-shell
+      - id: backdoor/generic/go-socks-proxy
+      - id: backdoor/generic/go-reverse-connect

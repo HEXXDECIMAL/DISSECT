@@ -51,12 +51,9 @@ composite_rules:
     mbc: E1222
     attack: T1222
     any:
-      - type: trait
-        id: mount-option-flag
-      - type: trait
-        id: fstab-file
-      - type: trait
-        id: remount-keyword
+      - id: mount-option-flag
+      - id: fstab-file
+      - id: remount-keyword
 
   - id: mount-command
     description: Mount file systems with command options (mount + context)
@@ -65,7 +62,5 @@ composite_rules:
     mbc: E1222
     attack: T1222
     all:
-      - type: trait
-        id: mount-keyword
-      - type: trait
-        id: mount-context
+      - id: mount-keyword
+      - id: mount-context

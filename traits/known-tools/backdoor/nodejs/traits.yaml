@@ -6,7 +6,7 @@ defaults:
 
 traits:
   # === Packaging Markers (Boring/Inert) ===
-  
+
   - id: nodejs/pkg-marker
     description: "NodeJS binary packaged with 'pkg'"
     crit: notable
@@ -50,7 +50,6 @@ traits:
       type: string
       exact: "ws://securitytrails.pro:2052"
 
-
 composite_rules:
   # Migrated from YARA nodejs_exfil - references generic traits
   - id: backdoor/nodejs/exfil-pattern
@@ -58,27 +57,19 @@ composite_rules:
     crit: suspicious
     conf: 0.8
     all:
-      - type: trait
-        id: data/archive/archiver
-      - type: trait
-        id: comm/websocket/ws
-      - type: trait
-        id: nodejs/pkg-marker
+      - id: data/archive/archiver
+      - id: comm/websocket/ws
+      - id: nodejs/pkg-marker
 
   # Helper: any backdoor behavior indicator
   - id: nodejs-backdoor-behavior
     desc: NodeJS backdoor behavior indicators
     any:
-      - type: trait
-        id: backdoor/nodejs/suspicious-c2
-      - type: trait
-        id: backdoor/nodejs/exfil-pattern
-      - type: trait
-        id: c2/client/generic/marker
-      - type: trait
-        id: exec/remote-command/generic
-      - type: trait
-        id: data/archive/zip/generic
+      - id: backdoor/nodejs/suspicious-c2
+      - id: backdoor/nodejs/exfil-pattern
+      - id: c2/client/generic/marker
+      - id: exec/remote-command/generic
+      - id: data/archive/zip/generic
 
   - id: backdoor/nodejs/detected
     description: "NodeJS-based Backdoor detected"
@@ -87,7 +78,5 @@ composite_rules:
     attack: "T1059.003"
     mbc: "B0022"
     all:
-      - type: trait
-        id: nodejs/pkg-marker
-      - type: trait
-        id: nodejs-backdoor-behavior
+      - id: nodejs/pkg-marker
+      - id: nodejs-backdoor-behavior

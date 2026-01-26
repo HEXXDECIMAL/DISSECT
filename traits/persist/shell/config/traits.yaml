@@ -175,14 +175,10 @@ composite_rules:
     conf: 0.7
     attack: T1546.004
     any:
-      - type: trait
-        id: bash-profile
-      - type: trait
-        id: bash-login
-      - type: trait
-        id: profile
-      - type: trait
-        id: bashrc
+      - id: bash-profile
+      - id: bash-login
+      - id: profile
+      - id: bashrc
 
   - id: multi-file-access
     description: Multiple shell config files accessed (3+, persistence indicator)
@@ -191,25 +187,16 @@ composite_rules:
     attack: T1546.004
     count: 3
     any:
-      - type: trait
-        id: bash-profile
-      - type: trait
-        id: bash-login
-      - type: trait
-        id: profile
-      - type: trait
-        id: bashrc
-      - type: trait
-        id: zshrc
-      - type: trait
-        id: zprofile
+      - id: bash-profile
+      - id: bash-login
+      - id: profile
+      - id: bashrc
+      - id: zshrc
+      - id: zprofile
     none:
-      - type: trait
-        id: posixly-correct
-      - type: trait
-        id: cshrc-file
-      - type: trait
-        id: tcsh-keyword
+      - id: posixly-correct
+      - id: cshrc-file
+      - id: tcsh-keyword
 
   - id: elf-hardcoded
     description: Binary with hardcoded shell config paths (persistence)
@@ -218,9 +205,6 @@ composite_rules:
     for: [elf, macho]
     attack: T1546.004
     any:
-      - type: trait
-        id: hardcoded-profile
-      - type: trait
-        id: hardcoded-bashrc
-      - type: trait
-        id: hardcoded-zshrc
+      - id: hardcoded-profile
+      - id: hardcoded-bashrc
+      - id: hardcoded-zshrc

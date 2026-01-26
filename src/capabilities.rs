@@ -627,17 +627,20 @@ fn calculate_composite_complexity(
     // Count conditions
     if let Some(ref conditions) = rule.all {
         for cond in conditions {
-            complexity += count_condition_complexity(cond, all_composites, all_traits, cache, visiting);
+            complexity +=
+                count_condition_complexity(cond, all_composites, all_traits, cache, visiting);
         }
     }
     if let Some(ref conditions) = rule.any {
         for cond in conditions {
-            complexity += count_condition_complexity(cond, all_composites, all_traits, cache, visiting);
+            complexity +=
+                count_condition_complexity(cond, all_composites, all_traits, cache, visiting);
         }
     }
     if let Some(ref conditions) = rule.none {
         for cond in conditions {
-            complexity += count_condition_complexity(cond, all_composites, all_traits, cache, visiting);
+            complexity +=
+                count_condition_complexity(cond, all_composites, all_traits, cache, visiting);
         }
     }
 
@@ -666,7 +669,7 @@ fn count_condition_complexity(
 
 /// Validate and downgrade HOSTILE composite rules that don't meet complexity requirements
 fn validate_hostile_composite_complexity(
-    composite_rules: &mut Vec<CompositeTrait>,
+    composite_rules: &mut [CompositeTrait],
     trait_definitions: &[TraitDefinition],
 ) {
     let mut cache: HashMap<String, usize> = HashMap::new();
@@ -2616,5 +2619,684 @@ composite_rules:
         let findings = mapper.evaluate_composite_rules(&report, &[]);
         assert_eq!(findings.len(), 1);
         assert_eq!(findings[0].id, "test/needs-two");
+    }
+
+    /// Test basic complexity calculation - direct conditions count as 1
+    #[test]
+    fn test_complexity_direct_conditions() {
+        use std::collections::{HashMap, HashSet};
+
+        // Rule with 3 direct string conditions
+        let rule = CompositeTrait {
+            id: "test/three-strings".to_string(),
+            desc: "Test rule with 3 strings".to_string(),
+            conf: 0.9,
+            crit: Criticality::Suspicious,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            r#for: vec![RuleFileType::All],
+            all: Some(vec![
+                Condition::String {
+                    exact: Some("string1".to_string()),
+                    regex: None,
+                    word: None,
+                    case_insensitive: false,
+                    exclude_patterns: None,
+                    min_count: 1,
+                    search_raw: false,
+                },
+                Condition::String {
+                    exact: Some("string2".to_string()),
+                    regex: None,
+                    word: None,
+                    case_insensitive: false,
+                    exclude_patterns: None,
+                    min_count: 1,
+                    search_raw: false,
+                },
+                Condition::String {
+                    exact: Some("string3".to_string()),
+                    regex: None,
+                    word: None,
+                    case_insensitive: false,
+                    exclude_patterns: None,
+                    min_count: 1,
+                    search_raw: false,
+                },
+            ]),
+            any: None,
+            count: None,
+            min_count: None,
+            max_count: None,
+            none: None,
+        };
+
+        let mut cache = HashMap::new();
+        let mut visiting = HashSet::new();
+        let composites = vec![rule.clone()];
+        let traits = vec![];
+
+        let complexity = calculate_composite_complexity(
+            "test/three-strings",
+            &composites,
+            &traits,
+            &mut cache,
+            &mut visiting,
+        );
+
+        // 3 direct conditions = complexity 3
+        assert_eq!(complexity, 3);
+    }
+
+    /// Test file type filter counting as +1
+    #[test]
+    fn test_complexity_file_type_filter() {
+        use std::collections::{HashMap, HashSet};
+
+        // Rule with 2 conditions + file type filter
+        let rule = CompositeTrait {
+            id: "test/with-filetype".to_string(),
+            desc: "Test rule with file type".to_string(),
+            conf: 0.9,
+            crit: Criticality::Suspicious,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            r#for: vec![RuleFileType::Elf, RuleFileType::Pe], // File type filter
+            all: Some(vec![
+                Condition::String {
+                    exact: Some("string1".to_string()),
+                    regex: None,
+                    word: None,
+                    case_insensitive: false,
+                    exclude_patterns: None,
+                    min_count: 1,
+                    search_raw: false,
+                },
+                Condition::String {
+                    exact: Some("string2".to_string()),
+                    regex: None,
+                    word: None,
+                    case_insensitive: false,
+                    exclude_patterns: None,
+                    min_count: 1,
+                    search_raw: false,
+                },
+            ]),
+            any: None,
+            count: None,
+            min_count: None,
+            max_count: None,
+            none: None,
+        };
+
+        let mut cache = HashMap::new();
+        let mut visiting = HashSet::new();
+        let composites = vec![rule.clone()];
+        let traits = vec![];
+
+        let complexity = calculate_composite_complexity(
+            "test/with-filetype",
+            &composites,
+            &traits,
+            &mut cache,
+            &mut visiting,
+        );
+
+        // 2 conditions + 1 file type filter = complexity 3
+        assert_eq!(complexity, 3);
+    }
+
+    /// Test recursive trait reference expansion
+    #[test]
+    fn test_complexity_recursive_expansion() {
+        use std::collections::{HashMap, HashSet};
+
+        // Atomic trait (not a composite, counts as 1)
+        let trait_def = TraitDefinition {
+            id: "test/atomic-trait".to_string(),
+            desc: "Atomic trait".to_string(),
+            conf: 1.0,
+            crit: Criticality::Notable,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            r#for: vec![RuleFileType::All],
+            r#if: Condition::String {
+                exact: Some("atomic".to_string()),
+                regex: None,
+                word: None,
+                case_insensitive: false,
+                exclude_patterns: None,
+                min_count: 1,
+                search_raw: false,
+            },
+        };
+
+        // Composite A: has 2 direct conditions (complexity 2)
+        let composite_a = CompositeTrait {
+            id: "test/composite-a".to_string(),
+            desc: "Composite A".to_string(),
+            conf: 0.9,
+            crit: Criticality::Suspicious,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            r#for: vec![RuleFileType::All],
+            all: Some(vec![
+                Condition::String {
+                    exact: Some("string1".to_string()),
+                    regex: None,
+                    word: None,
+                    case_insensitive: false,
+                    exclude_patterns: None,
+                    min_count: 1,
+                    search_raw: false,
+                },
+                Condition::String {
+                    exact: Some("string2".to_string()),
+                    regex: None,
+                    word: None,
+                    case_insensitive: false,
+                    exclude_patterns: None,
+                    min_count: 1,
+                    search_raw: false,
+                },
+            ]),
+            any: None,
+            count: None,
+            min_count: None,
+            max_count: None,
+            none: None,
+        };
+
+        // Composite B: references composite A and atomic trait
+        let composite_b = CompositeTrait {
+            id: "test/composite-b".to_string(),
+            desc: "Composite B".to_string(),
+            conf: 0.9,
+            crit: Criticality::Suspicious,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            r#for: vec![RuleFileType::All],
+            all: Some(vec![
+                Condition::Trait {
+                    id: "test/composite-a".to_string(),
+                },
+                Condition::Trait {
+                    id: "test/atomic-trait".to_string(),
+                },
+            ]),
+            any: None,
+            count: None,
+            min_count: None,
+            max_count: None,
+            none: None,
+        };
+
+        let mut cache = HashMap::new();
+        let mut visiting = HashSet::new();
+        let composites = vec![composite_a, composite_b.clone()];
+        let traits = vec![trait_def];
+
+        let complexity = calculate_composite_complexity(
+            "test/composite-b",
+            &composites,
+            &traits,
+            &mut cache,
+            &mut visiting,
+        );
+
+        // composite-a has 2 direct conditions = 2
+        // atomic-trait counts as 1
+        // Total: 2 + 1 = 3
+        assert_eq!(complexity, 3);
+    }
+
+    /// Test cycle detection in trait references
+    #[test]
+    fn test_complexity_cycle_detection() {
+        use std::collections::{HashMap, HashSet};
+
+        // Composite A references B
+        let composite_a = CompositeTrait {
+            id: "test/circular-a".to_string(),
+            desc: "Circular A".to_string(),
+            conf: 0.9,
+            crit: Criticality::Suspicious,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            r#for: vec![RuleFileType::All],
+            all: Some(vec![Condition::Trait {
+                id: "test/circular-b".to_string(),
+            }]),
+            any: None,
+            count: None,
+            min_count: None,
+            max_count: None,
+            none: None,
+        };
+
+        // Composite B references A (cycle!)
+        let composite_b = CompositeTrait {
+            id: "test/circular-b".to_string(),
+            desc: "Circular B".to_string(),
+            conf: 0.9,
+            crit: Criticality::Suspicious,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            r#for: vec![RuleFileType::All],
+            all: Some(vec![Condition::Trait {
+                id: "test/circular-a".to_string(),
+            }]),
+            any: None,
+            count: None,
+            min_count: None,
+            max_count: None,
+            none: None,
+        };
+
+        let mut cache = HashMap::new();
+        let mut visiting = HashSet::new();
+        let composites = vec![composite_a.clone(), composite_b];
+        let traits = vec![];
+
+        let complexity = calculate_composite_complexity(
+            "test/circular-a",
+            &composites,
+            &traits,
+            &mut cache,
+            &mut visiting,
+        );
+
+        // Cycle detected - should not panic and should return finite value
+        // Cycle is treated as complexity 1
+        assert_eq!(complexity, 1);
+    }
+
+    /// Test caching behavior
+    #[test]
+    fn test_complexity_caching() {
+        use std::collections::{HashMap, HashSet};
+
+        let rule = CompositeTrait {
+            id: "test/cacheable".to_string(),
+            desc: "Cacheable rule".to_string(),
+            conf: 0.9,
+            crit: Criticality::Suspicious,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            r#for: vec![RuleFileType::All],
+            all: Some(vec![
+                Condition::String {
+                    exact: Some("string1".to_string()),
+                    regex: None,
+                    word: None,
+                    case_insensitive: false,
+                    exclude_patterns: None,
+                    min_count: 1,
+                    search_raw: false,
+                },
+                Condition::String {
+                    exact: Some("string2".to_string()),
+                    regex: None,
+                    word: None,
+                    case_insensitive: false,
+                    exclude_patterns: None,
+                    min_count: 1,
+                    search_raw: false,
+                },
+            ]),
+            any: None,
+            count: None,
+            min_count: None,
+            max_count: None,
+            none: None,
+        };
+
+        let mut cache = HashMap::new();
+        let mut visiting = HashSet::new();
+        let composites = vec![rule.clone()];
+        let traits = vec![];
+
+        // First call - should calculate and cache
+        let complexity1 = calculate_composite_complexity(
+            "test/cacheable",
+            &composites,
+            &traits,
+            &mut cache,
+            &mut visiting,
+        );
+
+        // Check cache was populated
+        assert_eq!(cache.get("test/cacheable"), Some(&2));
+
+        // Second call - should use cache
+        let complexity2 = calculate_composite_complexity(
+            "test/cacheable",
+            &composites,
+            &traits,
+            &mut cache,
+            &mut visiting,
+        );
+
+        assert_eq!(complexity1, complexity2);
+        assert_eq!(complexity1, 2);
+    }
+
+    /// Test threshold validation - rules < 4 get downgraded from HOSTILE to SUSPICIOUS
+    #[test]
+    fn test_complexity_threshold_validation() {
+        // Rule with complexity 3 (below threshold)
+        let rule_low = CompositeTrait {
+            id: "test/low-complexity".to_string(),
+            desc: "Low complexity".to_string(),
+            conf: 0.95,
+            crit: Criticality::Hostile, // Will be downgraded
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            r#for: vec![RuleFileType::All],
+            all: Some(vec![
+                Condition::String {
+                    exact: Some("string1".to_string()),
+                    regex: None,
+                    word: None,
+                    case_insensitive: false,
+                    exclude_patterns: None,
+                    min_count: 1,
+                    search_raw: false,
+                },
+                Condition::String {
+                    exact: Some("string2".to_string()),
+                    regex: None,
+                    word: None,
+                    case_insensitive: false,
+                    exclude_patterns: None,
+                    min_count: 1,
+                    search_raw: false,
+                },
+                Condition::String {
+                    exact: Some("string3".to_string()),
+                    regex: None,
+                    word: None,
+                    case_insensitive: false,
+                    exclude_patterns: None,
+                    min_count: 1,
+                    search_raw: false,
+                },
+            ]),
+            any: None,
+            count: None,
+            min_count: None,
+            max_count: None,
+            none: None,
+        };
+
+        // Rule with complexity 4 (meets threshold)
+        let rule_high = CompositeTrait {
+            id: "test/high-complexity".to_string(),
+            desc: "High complexity".to_string(),
+            conf: 0.95,
+            crit: Criticality::Hostile, // Will NOT be downgraded
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            r#for: vec![RuleFileType::Elf], // File type filter = +1
+            all: Some(vec![
+                Condition::String {
+                    exact: Some("string1".to_string()),
+                    regex: None,
+                    word: None,
+                    case_insensitive: false,
+                    exclude_patterns: None,
+                    min_count: 1,
+                    search_raw: false,
+                },
+                Condition::String {
+                    exact: Some("string2".to_string()),
+                    regex: None,
+                    word: None,
+                    case_insensitive: false,
+                    exclude_patterns: None,
+                    min_count: 1,
+                    search_raw: false,
+                },
+                Condition::String {
+                    exact: Some("string3".to_string()),
+                    regex: None,
+                    word: None,
+                    case_insensitive: false,
+                    exclude_patterns: None,
+                    min_count: 1,
+                    search_raw: false,
+                },
+            ]),
+            any: None,
+            count: None,
+            min_count: None,
+            max_count: None,
+            none: None,
+        };
+
+        let mut composites = vec![rule_low, rule_high];
+        let traits = vec![];
+
+        // Run validation
+        validate_hostile_composite_complexity(&mut composites, &traits);
+
+        // Check that low complexity was downgraded
+        let low_rule = composites
+            .iter()
+            .find(|r| r.id == "test/low-complexity")
+            .unwrap();
+        assert_eq!(low_rule.crit, Criticality::Suspicious);
+
+        // Check that high complexity was NOT downgraded
+        let high_rule = composites
+            .iter()
+            .find(|r| r.id == "test/high-complexity")
+            .unwrap();
+        assert_eq!(high_rule.crit, Criticality::Hostile);
+    }
+
+    /// Test complexity with mixed condition types (all, any, none)
+    #[test]
+    fn test_complexity_mixed_conditions() {
+        use std::collections::{HashMap, HashSet};
+
+        let rule = CompositeTrait {
+            id: "test/mixed".to_string(),
+            desc: "Mixed conditions".to_string(),
+            conf: 0.9,
+            crit: Criticality::Suspicious,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            r#for: vec![RuleFileType::All],
+            all: Some(vec![Condition::String {
+                exact: Some("string1".to_string()),
+                regex: None,
+                word: None,
+                case_insensitive: false,
+                exclude_patterns: None,
+                min_count: 1,
+                search_raw: false,
+            }]),
+            any: Some(vec![
+                Condition::String {
+                    exact: Some("string2".to_string()),
+                    regex: None,
+                    word: None,
+                    case_insensitive: false,
+                    exclude_patterns: None,
+                    min_count: 1,
+                    search_raw: false,
+                },
+                Condition::String {
+                    exact: Some("string3".to_string()),
+                    regex: None,
+                    word: None,
+                    case_insensitive: false,
+                    exclude_patterns: None,
+                    min_count: 1,
+                    search_raw: false,
+                },
+            ]),
+            count: None,
+            min_count: None,
+            max_count: None,
+            none: Some(vec![Condition::String {
+                exact: Some("string4".to_string()),
+                regex: None,
+                word: None,
+                case_insensitive: false,
+                exclude_patterns: None,
+                min_count: 1,
+                search_raw: false,
+            }]),
+        };
+
+        let mut cache = HashMap::new();
+        let mut visiting = HashSet::new();
+        let composites = vec![rule.clone()];
+        let traits = vec![];
+
+        let complexity = calculate_composite_complexity(
+            "test/mixed",
+            &composites,
+            &traits,
+            &mut cache,
+            &mut visiting,
+        );
+
+        // 1 from 'all' + 2 from 'any' + 1 from 'none' = 4
+        assert_eq!(complexity, 4);
+    }
+
+    /// Test complexity with deeply nested trait references
+    #[test]
+    fn test_complexity_deep_nesting() {
+        use std::collections::{HashMap, HashSet};
+
+        // Level 1: 2 direct conditions
+        let level1 = CompositeTrait {
+            id: "test/level1".to_string(),
+            desc: "Level 1".to_string(),
+            conf: 0.9,
+            crit: Criticality::Suspicious,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            r#for: vec![RuleFileType::All],
+            all: Some(vec![
+                Condition::String {
+                    exact: Some("l1-s1".to_string()),
+                    regex: None,
+                    word: None,
+                    case_insensitive: false,
+                    exclude_patterns: None,
+                    min_count: 1,
+                    search_raw: false,
+                },
+                Condition::String {
+                    exact: Some("l1-s2".to_string()),
+                    regex: None,
+                    word: None,
+                    case_insensitive: false,
+                    exclude_patterns: None,
+                    min_count: 1,
+                    search_raw: false,
+                },
+            ]),
+            any: None,
+            count: None,
+            min_count: None,
+            max_count: None,
+            none: None,
+        };
+
+        // Level 2: references level1 + 1 direct condition
+        let level2 = CompositeTrait {
+            id: "test/level2".to_string(),
+            desc: "Level 2".to_string(),
+            conf: 0.9,
+            crit: Criticality::Suspicious,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            r#for: vec![RuleFileType::All],
+            all: Some(vec![
+                Condition::Trait {
+                    id: "test/level1".to_string(),
+                },
+                Condition::String {
+                    exact: Some("l2-s1".to_string()),
+                    regex: None,
+                    word: None,
+                    case_insensitive: false,
+                    exclude_patterns: None,
+                    min_count: 1,
+                    search_raw: false,
+                },
+            ]),
+            any: None,
+            count: None,
+            min_count: None,
+            max_count: None,
+            none: None,
+        };
+
+        // Level 3: references level2 + 1 direct condition
+        let level3 = CompositeTrait {
+            id: "test/level3".to_string(),
+            desc: "Level 3".to_string(),
+            conf: 0.9,
+            crit: Criticality::Suspicious,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            r#for: vec![RuleFileType::All],
+            all: Some(vec![
+                Condition::Trait {
+                    id: "test/level2".to_string(),
+                },
+                Condition::String {
+                    exact: Some("l3-s1".to_string()),
+                    regex: None,
+                    word: None,
+                    case_insensitive: false,
+                    exclude_patterns: None,
+                    min_count: 1,
+                    search_raw: false,
+                },
+            ]),
+            any: None,
+            count: None,
+            min_count: None,
+            max_count: None,
+            none: None,
+        };
+
+        let mut cache = HashMap::new();
+        let mut visiting = HashSet::new();
+        let composites = vec![level1, level2, level3.clone()];
+        let traits = vec![];
+
+        let complexity = calculate_composite_complexity(
+            "test/level3",
+            &composites,
+            &traits,
+            &mut cache,
+            &mut visiting,
+        );
+
+        // level1 = 2, level2 = 2 + 1 = 3, level3 = 3 + 1 = 4
+        assert_eq!(complexity, 4);
     }
 }

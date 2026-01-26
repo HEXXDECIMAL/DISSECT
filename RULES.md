@@ -10,13 +10,13 @@
 
 ## Taxonomy
 
-Most rules follow the organization of `objective/capability/kind`, inspired by the MalwareBehaviorCatalog, even if the capability isn't malicious, but could be performed by a malicious program. Since this is static analysis, we don't know what the true "behavior" of a program is, only it's capabilities.
+Rules follow `objective/capability/kind` organization (inspired by MalwareBehaviorCatalog). Since this is static analysis, we detect **capabilities** not behaviors.
 
-* An **objective** is what a program could achieve
-* A **capability** is how the program could achieve it
-* A **kind** is a specific implementation of that capability
+* **objective**: what a program could achieve
+* **capability**: how it could achieve it
+* **kind**: specific implementation
 
-Here's the objectives taxonomy:
+**Objectives taxonomy:**
 
 |**Objective**|**Capabilities that could be used to ...**|
 |---|---|
@@ -34,9 +34,9 @@ Here's the objectives taxonomy:
 |[**persist**](./traits/persist)| remain on a system.|
 |[**privesc**](./traits/privesc)| obtain higher level permissions.|
 
-The "kind" directory should be granular enough that supply-chain attacks are obvious when you diff the list of new traits, but not so granular that code refactors would cause a diff.
+Granularity: Supply-chain attacks should be obvious in trait diffs, but code refactors shouldn't cause diffs.
 
-We also support a seperate hierarchy of non-objective based micro-traits, which gets split based on: category/subcategory/kind/ - based on MBC MicroBehaviors
+**Micro-traits** (`category/subcategory/kind/` - based on MBC MicroBehaviors):
 
 |**Micro-trait**|**description**|
 |---|---|
@@ -47,55 +47,37 @@ We also support a seperate hierarchy of non-objective based micro-traits, which 
 | [**hw**](./traits/hw) | hardware manipulation
 | [**mem**](./traits/mem) | memory manipulation
 | [**process**](./traits/process) | process manipulation
-| [**os**](./traits/os) | operating system manipulation (registry access, env vars, console)
-| [**feat**](./traits/feat) | the layout or features of a program
+| [**os**](./traits/os) | operating system (registry, env vars, console)
+| [**feat**](./traits/feat) | program layout or features
 
-To help security engineers, we also have rules to identify of a limited number of popular malware families and security tools within the [**known-tools**](./traits/known-malware) directory (organized by STIX 2.1 Malware Type). Identifying malware by family is not a focus area for this project, but sometimes it's nice to have.
+**Known tools** ([**known-tools/**](./traits/known-malware), organized by STIX 2.1 Malware Type): Identifies specific malware families and security tools.
 
 ## Trait Placement Rules (CRITICAL)
 
-**Generic micro-behaviors must NEVER be placed in `known-tools/` directories.** The `known-tools/` hierarchy is ONLY for traits that are unique to a specific malware family or tool.
+**Generic micro-behaviors NEVER go in `known-tools/`.** Only family-unique identifiers belong there.
 
-### What belongs in `known-tools/backdoor/<family>/`:
-- Unique malware family identifiers (e.g., `"systembc"`, `"melofee"`)
-- Family-specific C2 endpoints or domains
-- Unique configuration strings only found in that malware
-- Family-specific marker strings
+**In `known-tools/backdoor/<family>/`:** Unique family identifiers, C2 endpoints, family-specific configuration/marker strings
 
-### What does NOT belong in `known-tools/`:
-- Generic shell paths (`/bin/sh`, `/bin/bash`) → use `exec/command/shell/`
-- Common system functions (`popen`, `socket`, `fork`) → use `exec/`, `comm/`, `process/`
-- Protocol strings (`SOCKS5`, `HTTP`) → use `comm/proxy/`, `comm/http/`
-- Encryption algorithms (`RC4`, `AES`) → use `crypto/`
-- Any behavior that could appear in legitimate software
+**NOT in `known-tools/`:** Generic shells (`/bin/sh`), system functions (`socket`, `fork`), protocols (`SOCKS5`), crypto algorithms (`AES`), or any behavior in legitimate software. Place these in `exec/`, `comm/`, `process/`, `crypto/`, etc.
 
-### Correct Pattern for `known-tools/`:
-
+**Pattern:**
 ```yaml
-# In known-tools/backdoor/examplebot/traits.yaml
-
+# known-tools/backdoor/examplebot/traits.yaml
 traits:
-  # ONLY malware-specific identifiers belong here
-  - id: backdoor/examplebot/marker
-    desc: ExampleBot unique identifier string
-    crit: notable
-    conf: 0.9
-    condition:
+  - id: backdoor/examplebot/marker  # Malware-specific only
+    if:
       type: string
       exact: "ExampleBot_v2.1"
 
 composite_rules:
-  # Composite rules REFERENCE generic traits from proper locations
-  - id: backdoor/examplebot/detected
-    description: ExampleBot backdoor detected
-    crit: hostile
+  - id: backdoor/examplebot/detected  # Reference generic traits
     all:
-      - id: backdoor/examplebot/marker  # Malware-specific (local)
-      - id: bin-sh                       # Generic trait from exec/command/shell/
-      - id: socks5-proto                 # Generic trait from comm/proxy/socks/
+      - id: backdoor/examplebot/marker  # Local (malware-specific)
+      - id: bin-sh                       # From exec/command/shell/
+      - id: socks5-proto                 # From comm/proxy/socks/
 ```
 
-**Why this matters:** ML pipelines use trait IDs for classification. If `/bin/sh` is placed under `backdoor/systembc/bin-sh`, any program using `/bin/sh` would be flagged as potentially having SystemBC backdoor components, causing massive false positives.
+**Why:** ML pipelines use trait IDs for classification. Generic traits under `backdoor/systembc/` cause false positives.
 
 ## Example File Organization
 
@@ -129,12 +111,6 @@ Inert → Notable → Suspicious → Hostile
 | `suspicious` | Hides intent or crosses ethical boundaries | VM detection, obfuscation, credential access |
 | `hostile` | Composite attack patterns with no legitimate use | Reverse shell, bind shell, ransomware patterns |
 
-**Assignment guidelines:**
-1. "Does every hello world have this?" → **Inert**
-2. "Does this define what the program does?" → **Notable**
-3. "Does this hide intent or cross ethical boundaries?" → **Suspicious**
-4. "Is this a composite attack pattern with no legitimate use?" → **Hostile**
-
 **When in doubt:** Notable > Inert, Notable > Suspicious, Suspicious > Hostile
 
 ---
@@ -159,18 +135,7 @@ traits:
 
 **File types:** `all` (or `*`), `elf`, `macho`, `pe`, `dll`, `so`, `dylib`, `shell`, `python`, `javascript`, `rust`, `java`, `class`, `ruby`, `c`, `go`, `csharp`, `php`
 
-Use `*` to explicitly override a restrictive default and match all file types:
-```yaml
-defaults:
-  for: [elf, macho]  # Restrictive default for most rules
-
-traits:
-  - id: some-string-pattern
-    for: [*]  # Override: this string can appear in any file type
-    if:
-      type: string
-      exact: "suspicious.domain.com"
-```
+Use `for: [*]` to override restrictive defaults and match all file types.
 
 ---
 
@@ -182,29 +147,21 @@ Match text patterns within AST node types.
 ```yaml
 if:
   type: ast_pattern
-  node_type: invocation_expression  # Tree-sitter node type
+  node_type: invocation_expression
   pattern: "Process.Start"
-  regex: false
-  case_insensitive: false
+  regex: false  # Optional
+  case_insensitive: false  # Optional
 ```
 
-**Common node types:**
-
-| Language | Function Calls | Object Creation |
-|----------|---------------|-----------------|
-| C# | `invocation_expression` | `object_creation_expression` |
-| Python | `call` | `call` |
-| JavaScript | `call_expression` | `new_expression` |
-| Java | `method_invocation` | `object_creation_expression` |
-| Go | `call_expression` | `composite_literal` |
+**Common node types:** `invocation_expression`/`call`/`call_expression`/`method_invocation` (calls), `object_creation_expression`/`new_expression`/`composite_literal` (object creation)
 
 ### ast_query
-Full tree-sitter query syntax. Optionally specify a `language` for validation.
+Full tree-sitter query syntax. Optional `language` field validates syntax at load time.
 
 ```yaml
 if:
   type: ast_query
-  language: javascript  # Optional: validates query syntax at load time
+  language: javascript  # Optional
   query: |
     (call_expression
       function: (member_expression
@@ -213,43 +170,42 @@ if:
     (#eq? @method "exec")
 ```
 
-**Supported languages:** `c`, `python`, `javascript`/`js`, `typescript`/`ts`, `rust`, `go`, `java`, `ruby`, `shell`/`bash`, `php`, `csharp`/`c#`
-
-**Note:** If `language` is omitted, validation is skipped at load time (query compiles at runtime against the file type).
+**Supported:** `c`, `python`, `javascript`/`js`, `typescript`/`ts`, `rust`, `go`, `java`, `ruby`, `shell`/`bash`, `php`, `csharp`/`c#`
 
 ### symbol
 Match function imports/exports in binaries.
 
 ```yaml
+# Exact match
 if:
   type: symbol
-  pattern: "socket.*connect.*bind"    # Regex
+  exact: "socket"
+  platforms: [linux, macos]
+
+# Regex pattern
+if:
+  type: symbol
+  pattern: "socket.*connect.*bind"
   platforms: [linux, macos]
 ```
 
-NOTE: avoid using regexes like "a|b|c|d" to match multiple possible strings. Instead, make traits for each string and use composite rules to bring them together. These tiny traits easier to analyze using ML pipelines.
+**Note:** Avoid `"a|b|c|d"` regexes. Create separate traits and combine with composite rules (better for ML pipelines).
 
 ### string
-Match strings in binaries or source.
+Match strings in binaries or source. Choose one pattern type:
+- `exact: "pattern"` - Substring match
+- `regex: "pattern"` - Full regex
+- `word: "pattern"` - Word boundary (syntactic sugar for `regex: "\bpattern\b"`)
 
 ```yaml
 if:
   type: string
-  exact: "http://"                  # Substring match
-  # OR regex: "https?://[^/]+"     # Regex match
-  # OR word: "socket"               # Word boundary match (same as regex: "\bsocket\b")
-  case_insensitive: false
-  min_count: 1
-  exclude_patterns: ["localhost"]
-  search_raw: false                 # Search raw file content
+  exact: "http://"  # or regex/word
+  case_insensitive: false  # Optional
+  min_count: 1  # Optional
+  exclude_patterns: ["localhost"]  # Optional
+  search_raw: false  # Optional: search raw file content
 ```
-
-**Pattern options (choose one):**
-- `exact: "pattern"` - Substring match (finds "pattern" anywhere)
-- `regex: "pattern"` - Full regex match
-- `word: "pattern"` - Word boundary match (finds "pattern" only as whole word)
-
-The `word` field is syntactic sugar for `regex: "\bpattern\b"` with automatic escaping.
 
 ### hex
 
@@ -285,11 +241,7 @@ if:
 
 ### yara / yara_match
 
-Inline YARA or reference existing matches.
-
-YARA should be used sparingly due to its lack of contextual accuracy (symbols, go-string support), and only when it's not possible to define otherwise. Never use YARA just to tie strings together unless it's in a way unsupported by the composite rule language - and even then, consider improving the language, or splitting up the YARA rules and bringing them together using a composite rule.
-
-YARA rules should always have filetypes associated to them.
+Use sparingly (lacks contextual accuracy). Prefer splitting YARA rules into traits + composite rules. Always specify filetypes.
 
 ```yaml
 # Inline
@@ -341,56 +293,112 @@ if:
   filter: "socket"
 ```
 
+### syscall
+Match syscalls in binaries (ELF/Mach-O via binary analysis).
+
+```yaml
+if:
+  type: syscall
+  name: ["socket", "connect", "execve"]  # Optional
+  number: [41, 42, 59]  # Optional: arch-dependent
+  arch: ["x86_64"]  # Optional
+  min_count: 2  # Optional
+```
+
+### raw
+Search raw file content (for source files or across string boundaries in binaries). Unlike `type: string` which searches extracted strings, this searches raw bytes.
+
+```yaml
+if:
+  type: raw
+  exact: "eval("  # or regex/word
+  case_insensitive: false  # Optional
+  min_count: 1  # Optional
+```
+
+### filesize
+Match file size constraints.
+
+```yaml
+if:
+  type: filesize
+  min: 1000  # Optional: bytes
+  max: 10485760  # Optional: bytes (10MB)
+```
+
+### trait_glob
+Match multiple traits by glob pattern.
+
+```yaml
+if:
+  type: trait_glob
+  pattern: "xdp-*"
+  match: "any"  # "any" (default), "all", or number like "3"
+```
+
 ---
 
 ## Binary Analysis Conditions
 
 For `elf`, `macho`, `pe`, `dll`, `so`, `dylib` only.
 
-### binary
-Match binary header properties.
-
-```yaml
-if:
-  type: binary
-  section_count:
-    max: 0                          # No sections (packed/stripped)
-  file_entropy:
-    min: 7.0                        # High entropy (packed/encrypted)
-  machine_type: [8, 20, 40]         # MIPS, PPC, ARM (IoT)
-  is_big_endian: true
-  is_64bit: false
-  has_rwx_segments: true            # W^X violation
-  has_interpreter: false            # Static binary
-  overlay_size:
-    min: 1000                       # Appended data
-```
-
-**Machine types:** 3=i386, 62=x86_64, 40=ARM, 183=AArch64, 8=MIPS, 20=PPC, 243=RISC-V
-
-### entropy
+### section_entropy
 Match sections by entropy (0.0-8.0). >7.0 indicates encryption/packing.
 
 ```yaml
 if:
-  type: entropy
-  section: "^(\\.text|CODE)"
-  min: 7.0
+  type: section_entropy
+  section: "^(\\.text|CODE)"  # Regex
+  min_entropy: 7.0  # Optional
+  max_entropy: 8.0  # Optional
 ```
 
-### function_metrics
-Match functions by complexity.
+### section_ratio
+Check section size ratio (e.g., data section is 80%+ of binary).
 
 ```yaml
 if:
-  type: function_metrics
-  cyclomatic_complexity:
-    min: 50
-  basic_blocks:
-    min: 100
-  instructions:
-    min: 1000
-  is_recursive: true
+  type: section_ratio
+  section: "^__const"  # Regex
+  compare_to: "total"  # or another section pattern
+  min_ratio: 0.8  # Optional (0.0-1.0)
+  max_ratio: 1.0  # Optional
+```
+
+### import_combination
+Match import patterns (required + suspicious combination).
+
+```yaml
+if:
+  type: import_combination
+  required: ["kernel32.dll"]  # Optional: all must be present
+  suspicious: ["VirtualAlloc", "WriteProcessMemory"]  # Optional
+  min_suspicious: 2  # Optional
+  max_total: 50  # Optional: low import count is suspicious
+```
+
+### string_count
+Match total string count (for detecting string concealment).
+
+```yaml
+if:
+  type: string_count
+  min: 10  # Optional
+  max: 100  # Optional: low count = suspicious
+  min_length: 4  # Optional: only count strings >= this length
+```
+
+### metrics
+Match code metrics for obfuscation/anomaly detection.
+
+```yaml
+if:
+  type: metrics
+  field: "identifiers.avg_entropy"  # Metric path
+  min: 3.5  # Optional
+  max: 5.0  # Optional
+  min_size: 1000  # Optional: only apply to files >= this size
+  max_size: 1000000  # Optional
 ```
 
 ---
@@ -404,137 +412,63 @@ composite_rules:
   - id: c2/reverse-shell
     desc: "Reverse shell: socket + dup2 + exec"
     crit: hostile
-    confidence: 0.95
+    conf: 0.95
     mbc: "B0022"
     attack: "T1059"
     for: [elf, macho]
-
-    all:                   # AND
-      - ...
+    all:  # AND - all must match
+      - id: comm/socket/create
+      - id: process/fd/dup2
+      - id: exec/shell
 ```
 
-### Boolean Operators
-
+**Boolean operators:**
 ```yaml
 all:    # AND - all must match
-any:    # OR - at least one must match
+any:    # OR - at least one
 none:   # NOT - none can match
-
-# N of M
-count: 2
-any:
-  - id: crypto/aes
-  - id: crypto/rsa
-  - id: crypto/xor
+count: 2  # N of M threshold
+any: [...]
 ```
 
-### Trait References
-
-When referring to a trait from another category, you specify it based on group name (directory):
-
-```yaml
-- id: exec/process/terminate
-```
-
-For relative trait references, use the short name:
-
-```
-- id: terminate                    # Suffix match
-```
-
-You can also reference a prefix of traits, like exec/process
+**Trait references:** Full path (`exec/process/terminate`), suffix match (`terminate`), or prefix (`exec/process`)
 
 ### Composites Referencing Composites
 
-Composite rules can reference other composite rules, enabling multi-level detection chains. The evaluation engine uses **iterative evaluation** to resolve dependencies:
-
-1. Evaluate all composites against current findings
-2. Add newly matched composites to the findings
-3. Repeat until no new findings (fixed point)
-
-This allows building hierarchical detection patterns:
+Composites can reference other composites, enabling hierarchical detection. Engine uses iterative evaluation until fixed point (max 10 iterations).
 
 ```yaml
-# Level 1: Atomic traits detect basic capabilities
-traits:
-  - id: socket-create
-    if:
-      type: symbol
-      exact: socket
-  - id: dup2-call
-    if:
-      type: symbol
-      exact: "dup2"
-  - id: exec-call
-    if: 
-      type: symbol
-      pattern: "execve|exec"
-
 composite_rules:
-  # Level 2: Combine atomics into behavioral pattern
   - id: fd-redirect
-    desc: "File descriptor redirection"
-    all:
-      - id: socket-create
-      - id: dup2-call
+    all: [socket-create, dup2-call]
 
-  # Level 3: Reference composite to build higher-level detection
   - id: reverse-shell
-    desc: "Reverse shell pattern"
     crit: hostile
-    all:
-      - id: fd-redirect
-      - id: exec-call
+    all: [fd-redirect, exec-call]  # References fd-redirect composite
 ```
 
-**Notes:**
-- Circular dependencies are handled gracefully (they simply don't match)
-- Maximum 10 iterations prevents infinite loops
-- Order of rule definitions doesn't matter—dependencies resolve automatically
+**Notes:** Circular dependencies handled gracefully (don't match). Definition order doesn't matter.
 
 ---
 
 ## Proximity Constraints
 
-### scope (Source Code)
-Require traits within the same code scope.
-
 ```yaml
-scope: method              # method, class, or block
-all:
-  - id: exec/reflection/assembly-load
-  - id: exec/reflection/invoke
-```
+# Same code scope (method/class/block)
+scope: method
+all: [...]
 
-### near (Bytes)
-Require patterns within N bytes.
-
-```yaml
+# Within N bytes
 near: 100
-all:
-  - type: string
-    regex: "socket"
-  - type: string
-    regex: "\\d+\\.\\d+\\.\\d+\\.\\d+"
-```
+all: [...]
 
-### near_lines (Lines)
-Require patterns within N lines.
-
-```yaml
+# Within N lines
 near_lines: 10
-all:
-  - id: exec/process/start
-  - id: fs/file/delete
-```
+all: [...]
 
-### within (Containment)
-Require traits inside another trait's span.
-
-```yaml
+# Inside another trait's span
 within: exec/eval
-all:
-  - id: encoding/base64/decode
+all: [...]
 ```
 
 ---

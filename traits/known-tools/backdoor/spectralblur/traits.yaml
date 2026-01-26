@@ -370,10 +370,8 @@ composite_rules:
     attack: "T1071"
     file_types: [macho]
     any:
-      - type: trait
-        id: backdoor/spectralblur/proc-getcfg
-      - type: trait
-        id: backdoor/spectralblur/proc-setcfg
+      - id: backdoor/spectralblur/proc-getcfg
+      - id: backdoor/spectralblur/proc-setcfg
 
   # SpectralBlur lifecycle composite
   - id: backdoor/spectralblur/proc-lifecycle
@@ -384,14 +382,10 @@ composite_rules:
     attack: "T1059"
     file_types: [macho]
     any:
-      - type: trait
-        id: backdoor/spectralblur/proc-die
-      - type: trait
-        id: backdoor/spectralblur/proc-stop
-      - type: trait
-        id: backdoor/spectralblur/proc-restart
-      - type: trait
-        id: backdoor/spectralblur/proc-none
+      - id: backdoor/spectralblur/proc-die
+      - id: backdoor/spectralblur/proc-stop
+      - id: backdoor/spectralblur/proc-restart
+      - id: backdoor/spectralblur/proc-none
 
   # SpectralBlur packet I/O composite
   - id: backdoor/spectralblur/packet-io
@@ -402,10 +396,8 @@ composite_rules:
     attack: "T1071"
     file_types: [macho]
     any:
-      - type: trait
-        id: backdoor/spectralblur/read-packet
-      - type: trait
-        id: backdoor/spectralblur/write-packet
+      - id: backdoor/spectralblur/read-packet
+      - id: backdoor/spectralblur/write-packet
 
   # Config persist composite
   - id: backdoor/spectralblur/config-persist
@@ -415,10 +407,8 @@ composite_rules:
     attack: "T1027"
     file_types: [macho]
     any:
-      - type: trait
-        id: backdoor/spectralblur/load-config
-      - type: trait
-        id: backdoor/spectralblur/save-config
+      - id: backdoor/spectralblur/load-config
+      - id: backdoor/spectralblur/save-config
 
   # Mainloop composite
   - id: backdoor/spectralblur/mainloop
@@ -428,10 +418,8 @@ composite_rules:
     attack: "T1059"
     file_types: [macho]
     any:
-      - type: trait
-        id: backdoor/spectralblur/mainprocess
-      - type: trait
-        id: backdoor/spectralblur/mainthread
+      - id: backdoor/spectralblur/mainprocess
+      - id: backdoor/spectralblur/mainthread
 
   # This is the ONLY hostile rule - requires multiple indicators
   # "Definitively malicious with no reasonable alternative explanation"
@@ -446,22 +434,14 @@ composite_rules:
     file_types: [macho]
     count: 3
     any:
-      - type: trait
-        id: backdoor/spectralblur/proc-upload
-      - type: trait
-        id: backdoor/spectralblur/proc-download
-      - type: trait
-        id: backdoor/spectralblur/proc-shell
-      - type: trait
-        id: backdoor/spectralblur/proc-rmfile
-      - type: trait
-        id: backdoor/spectralblur/proc-hibernate
-      - type: trait
-        id: backdoor/spectralblur/authchannel
-      - type: trait
-        id: backdoor/spectralblur/xcrypt
-      - type: trait
-        id: backdoor/spectralblur/yara-signature
+      - id: backdoor/spectralblur/proc-upload
+      - id: backdoor/spectralblur/proc-download
+      - id: backdoor/spectralblur/proc-shell
+      - id: backdoor/spectralblur/proc-rmfile
+      - id: backdoor/spectralblur/proc-hibernate
+      - id: backdoor/spectralblur/authchannel
+      - id: backdoor/spectralblur/xcrypt
+      - id: backdoor/spectralblur/yara-signature
 
   # Behavioral pattern - suspicious (could be similar legitimate tool)
   - id: backdoor/spectralblur/behavioral
@@ -472,5 +452,4 @@ composite_rules:
     mbc: "B0022"
     file_types: [macho]
     all:
-      - type: trait
-        id: backdoor/spectralblur/behavioral-yara
+      - id: backdoor/spectralblur/behavioral-yara

@@ -51,14 +51,15 @@ impl JavaScriptAnalyzer {
 
         // Parse the JavaScript with panic catching (malware may crash tree-sitter)
         let parse_result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-            self.parser
-                .borrow_mut()
-                .parse(content, None)
+            self.parser.borrow_mut().parse(content, None)
         }));
 
         let tree = match parse_result {
             Ok(Some(tree)) => {
-                trace!("JavaScript parsed successfully, {} nodes", tree.root_node().child_count());
+                trace!(
+                    "JavaScript parsed successfully, {} nodes",
+                    tree.root_node().child_count()
+                );
                 tree
             }
             Ok(None) => {

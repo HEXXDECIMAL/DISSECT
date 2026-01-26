@@ -634,10 +634,8 @@ composite_rules:
       - id: dlopen-ref
       - id: rtld-global-ref
       - id: la-symbind-ref
-      - type: trait
-        id: os/linker/env/ld-preload
-      - type: trait
-        id: os/linker/env/ld-audit
+      - id: os/linker/env/ld-preload
+      - id: os/linker/env/ld-audit
 
   # === Unexpected capability combinations ===
   # References external traits for socket/process operations
@@ -646,10 +644,8 @@ composite_rules:
     crit: notable
     conf: 0.6
     all:
-      - type: trait
-        id: comm/socket/create/create
-      - type: trait
-        id: comm/socket/create/connect
+      - id: comm/socket/create/create
+      - id: comm/socket/create/connect
     none:
       - id: network-lib-marker
       - id: system-lib-marker
@@ -661,16 +657,11 @@ composite_rules:
     conf: 0.75
     count: 3
     any:
-      - type: trait
-        id: process/fork/fork
-      - type: trait
-        id: exec/command/shell/c-execve
-      - type: trait
-        id: exec/command/shell/c-system
-      - type: trait
-        id: exec/command/shell/c-popen
-      - type: trait
-        id: exec/command/shell/bin-sh
+      - id: process/fork/fork
+      - id: exec/command/shell/c-execve
+      - id: exec/command/shell/c-system
+      - id: exec/command/shell/c-popen
+      - id: exec/command/shell/bin-sh
 
   - id: unexpected-crypto
     desc: Cryptographic operations in non-crypto library
@@ -734,6 +725,7 @@ composite_rules:
     any:
       - id: ssh-hook-pattern
       - id: rsa-in-compression-lib
+      - id: symbol-interposition
 
   # === Function hooking behavior ===
   - id: function-hooking-behavior

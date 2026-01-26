@@ -79,8 +79,7 @@ composite_rules:
     mbc: F0004
     attack: T1222
     any:
-      - type: trait
-        id: chattr-command
+      - id: chattr-command
 
   - id: chattr-immutable
     description: Modify immutability of a file (excludes legitimate /sys)
@@ -89,11 +88,9 @@ composite_rules:
     mbc: F0004
     attack: T1222
     all:
-      - type: trait
-        id: chattr-immutable-flag
+      - id: chattr-immutable-flag
     none:
-      - type: trait
-        id: chattr-immutable-sys
+      - id: chattr-immutable-sys
 
   - id: chattr-immutable-recursive
     description: Recursively remove immutability of a directory
@@ -102,11 +99,7 @@ composite_rules:
     mbc: F0004
     attack: T1222
     any:
-      - type: trait
-        id: chattr-recursive-immutable-1
-      - type: trait
-        id: chattr-recursive-immutable-2
-      - type: trait
-        id: chattr-recursive-immutable-3
-      - type: trait
-        id: chattr-recursive-immutable-4
+      - id: chattr-recursive-immutable-1
+      - id: chattr-recursive-immutable-2
+      - id: chattr-recursive-immutable-3
+      - id: chattr-recursive-immutable-4

@@ -52,29 +52,23 @@ composite_rules:
     crit: notable
     conf: 0.8
     any:
-      - type: trait
-        id: backdoor/systembc/name
-      - type: trait
-        id: backdoor/systembc/socks5-proxy
+      - id: backdoor/systembc/name
+      - id: backdoor/systembc/socks5-proxy
 
   # === Detection composites referencing generic traits ===
   # Helper: shell + pipe execution pattern
   - id: systembc-shell-exec
     desc: Shell execution with pipe functions
     all:
-      - type: trait
-        id: bin-sh
-      - type: trait
-        id: c-popen
+      - id: bin-sh
+      - id: c-popen
 
   # Helper: SOCKS proxy with shell
   - id: systembc-proxy-shell
     desc: SOCKS proxy with shell execution
     all:
-      - type: trait
-        id: socks5-proto
-      - type: trait
-        id: systembc-shell-exec
+      - id: socks5-proto
+      - id: systembc-shell-exec
 
   - id: backdoor/systembc/proxy-shell
     description: SystemBC proxy shell behavior
@@ -84,10 +78,8 @@ composite_rules:
     mbc: "B0030"
     file_types: [elf, macho, pe, so, dylib, dll]
     all:
-      - type: trait
-        id: systembc-proxy-shell
-      - type: trait
-        id: crypto/rc4/communication
+      - id: systembc-proxy-shell
+      - id: crypto/rc4/communication
 
   # Full SystemBC detection
   - id: backdoor/systembc/detected
@@ -99,11 +91,7 @@ composite_rules:
     file_types: [elf, macho, pe, so, dylib, dll]
     count: 2
     any:
-      - type: trait
-        id: backdoor/systembc/artifact
-      - type: trait
-        id: crypto/rc4/communication
-      - type: trait
-        id: socks5-proto
-      - type: trait
-        id: backdoor/systembc/proxy-shell
+      - id: backdoor/systembc/artifact
+      - id: crypto/rc4/communication
+      - id: socks5-proto
+      - id: backdoor/systembc/proxy-shell

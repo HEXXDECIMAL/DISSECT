@@ -842,7 +842,10 @@ impl ArchiveAnalyzer {
     ) -> Result<()> {
         use tracing::{debug, trace};
 
-        debug!("Analyzing generic archive, scanning temp dir: {:?}", temp_dir);
+        debug!(
+            "Analyzing generic archive, scanning temp dir: {:?}",
+            temp_dir
+        );
 
         // Collect all files to analyze
         let all_entries: Vec<_> = walkdir::WalkDir::new(temp_dir)
@@ -1195,12 +1198,7 @@ impl ArchiveAnalyzer {
                         // Skip directories, check actual files
                         if !entry.is_dir() {
                             let encrypted = entry.encrypted();
-                            trace!(
-                                "Entry {} ({}) encrypted: {}",
-                                i,
-                                entry.name(),
-                                encrypted
-                            );
+                            trace!("Entry {} ({}) encrypted: {}", i, entry.name(), encrypted);
                             if encrypted {
                                 found_encrypted = true;
                                 break;
@@ -1234,7 +1232,12 @@ impl ArchiveAnalyzer {
 
             // Try each password
             for (idx, password) in self.zip_passwords.iter().enumerate() {
-                debug!("Trying password {}/{}: '{}'", idx + 1, self.zip_passwords.len(), password);
+                debug!(
+                    "Trying password {}/{}: '{}'",
+                    idx + 1,
+                    self.zip_passwords.len(),
+                    password
+                );
 
                 // Re-open the archive for each password attempt
                 let file = File::open(archive_path)?;
@@ -1295,18 +1298,16 @@ impl ArchiveAnalyzer {
             trace!("Processing entry {}/{}", i + 1, archive.len());
 
             let mut entry = match password {
-                Some(pw) => {
-                    match archive.by_index_decrypt(i, pw) {
-                        Ok(file) => {
-                            trace!("Entry {} decrypted successfully", i);
-                            file
-                        }
-                        Err(e) => {
-                            debug!("Failed to decrypt entry {}: {}", i, e);
-                            return Err(e.into());
-                        }
+                Some(pw) => match archive.by_index_decrypt(i, pw) {
+                    Ok(file) => {
+                        trace!("Entry {} decrypted successfully", i);
+                        file
                     }
-                }
+                    Err(e) => {
+                        debug!("Failed to decrypt entry {}: {}", i, e);
+                        return Err(e.into());
+                    }
+                },
                 None => archive.by_index(i)?,
             };
 

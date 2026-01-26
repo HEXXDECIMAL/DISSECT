@@ -75,7 +75,10 @@ impl TypeScriptAnalyzer {
 
         match parse_result {
             Ok(Some(tree)) => {
-                trace!("TypeScript parsed successfully, {} nodes", tree.root_node().child_count());
+                trace!(
+                    "TypeScript parsed successfully, {} nodes",
+                    tree.root_node().child_count()
+                );
                 let root = tree.root_node();
                 self.analyze_ast(&root, content.as_bytes(), &mut report);
 

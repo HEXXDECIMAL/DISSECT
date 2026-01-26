@@ -203,92 +203,67 @@ composite_rules:
   - id: upstyle-names
     description: Upstyle name (case variants)
     any:
-      - type: trait
-        id: upstyle-lower
-      - type: trait
-        id: upstyle-upper
-      - type: trait
-        id: upstyle-title
+      - id: upstyle-lower
+      - id: upstyle-upper
+      - id: upstyle-title
 
   - id: pan-os-paths
     description: PAN-OS specific paths
     any:
-      - type: trait
-        id: var-appweb-path
-      - type: trait
-        id: opt-panlogs-path
-      - type: trait
-        id: globalprotect-string
-      - type: trait
-        id: opt-pancfg-path
+      - id: var-appweb-path
+      - id: opt-panlogs-path
+      - id: globalprotect-string
+      - id: opt-pancfg-path
 
   - id: backdoor-markers
     description: Backdoor file markers
     any:
-      - type: trait
-        id: update-py-file
-      - type: trait
-        id: system-upstyle-string
+      - id: update-py-file
+      - id: system-upstyle-string
 
   - id: python-execution
     description: Python execution methods
     any:
-      - type: trait
-        id: subprocess-import
-      - type: trait
-        id: os-system-call
-      - type: trait
-        id: exec-call
+      - id: subprocess-import
+      - id: os-system-call
+      - id: exec-call
 
   - id: panos-context
     description: PAN-OS context strings
     any:
-      - type: trait
-        id: panos-lower
-      - type: trait
-        id: panos-upper
-      - type: trait
-        id: panos-title
+      - id: panos-lower
+      - id: panos-upper
+      - id: panos-title
 
   - id: web-params
     description: Web request parameters
     any:
-      - type: trait
-        id: request-get
-      - type: trait
-        id: request-post
+      - id: request-get
+      - id: request-post
 
   - id: cron-persistence
     description: Cron-based persistence
     any:
-      - type: trait
-        id: etc-cron-path
-      - type: trait
-        id: crontab-cmd
+      - id: etc-cron-path
+      - id: crontab-cmd
 
   - id: service-persistence
     description: Service-based persistence
     any:
-      - type: trait
-        id: systemctl-cmd
-      - type: trait
-        id: etc-init-d-path
+      - id: systemctl-cmd
+      - id: etc-init-d-path
 
   - id: pan-services
     description: PAN-OS services
     any:
-      - type: trait
-        id: mgmtsrvr-service
-      - type: trait
-        id: appweb-service
+      - id: mgmtsrvr-service
+      - id: appweb-service
 
   - id: pan-with-backdoor-markers
     description: PAN-OS paths with backdoor markers
     all:
-      - type: trait
-        id: pan-os-paths
-      - type: trait
-        id: backdoor-markers
+      - id: pan-os-paths
+      - id: backdoor-markers
 
   # === Migrated from YARA ===
   - id: backdoor/upstyle/generic
@@ -297,26 +272,20 @@ composite_rules:
     conf: 0.9
     attack: "T1505"
     any:
-      - type: trait
-        id: upstyle-names
-      - type: trait
-        id: pan-with-backdoor-markers
+      - id: upstyle-names
+      - id: pan-with-backdoor-markers
 
   - id: panos-with-python
     description: PAN-OS context with Python execution
     all:
-      - type: trait
-        id: panos-context
-      - type: trait
-        id: python-execution
+      - id: panos-context
+      - id: python-execution
 
   - id: panos-with-web
     description: PAN-OS context with web parameters
     all:
-      - type: trait
-        id: panos-context
-      - type: trait
-        id: web-params
+      - id: panos-context
+      - id: web-params
 
   - id: backdoor/upstyle/cmd-exec
     description: Upstyle command execution capability
@@ -324,28 +293,21 @@ composite_rules:
     conf: 0.85
     attack: "T1059"
     any:
-      - type: trait
-        id: upstyle-names
-      - type: trait
-        id: panos-with-python
-      - type: trait
-        id: panos-with-web
+      - id: upstyle-names
+      - id: panos-with-python
+      - id: panos-with-web
 
   - id: cron-or-service
     description: Cron or service persistence
     any:
-      - type: trait
-        id: cron-persistence
-      - type: trait
-        id: service-persistence
+      - id: cron-persistence
+      - id: service-persistence
 
   - id: pan-services-persist
     description: PAN-OS services with persistence
     all:
-      - type: trait
-        id: pan-services
-      - type: trait
-        id: cron-or-service
+      - id: pan-services
+      - id: cron-or-service
 
   - id: backdoor/upstyle/persistence
     description: Upstyle persistence mechanism
@@ -353,10 +315,8 @@ composite_rules:
     conf: 0.85
     attack: "T1546"
     any:
-      - type: trait
-        id: upstyle-names
-      - type: trait
-        id: pan-services-persist
+      - id: upstyle-names
+      - id: pan-services-persist
 
   - id: backdoor/upstyle/detected
     description: PAN-OS Upstyle backdoor detected
@@ -365,9 +325,6 @@ composite_rules:
     attack: "T1505"
     mbc: "B0022"
     any:
-      - type: trait
-        id: backdoor/upstyle/generic
-      - type: trait
-        id: backdoor/upstyle/cmd-exec
-      - type: trait
-        id: backdoor/upstyle/persistence
+      - id: backdoor/upstyle/generic
+      - id: backdoor/upstyle/cmd-exec
+      - id: backdoor/upstyle/persistence

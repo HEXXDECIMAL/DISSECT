@@ -31,7 +31,5 @@ composite_rules:
     mbc: E1083
     attack: T1083
     all:
-      - type: trait
-        id: tmpdir-env-var
-      - type: trait
-        id: os/env/vars/getenv
+      - id: tmpdir-env-var
+      - id: os/env/vars/getenv

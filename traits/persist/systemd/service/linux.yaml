@@ -69,15 +69,9 @@ composite_rules:
     attack: T1543.002
     count: 2
     any:
-      - type: trait
-        id: systemd-keyword
-      - type: trait
-        id: systemctl-command
-      - type: trait
-        id: etc-systemd-path
-      - type: trait
-        id: lib-systemd-path
-      - type: trait
-        id: service-extension
-      - type: trait
-        id: systemctl-enable
+      - id: systemd-keyword
+      - id: systemctl-command
+      - id: etc-systemd-path
+      - id: lib-systemd-path
+      - id: service-extension
+      - id: systemctl-enable

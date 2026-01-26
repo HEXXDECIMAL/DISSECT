@@ -21,8 +21,6 @@ composite_rules:
     mbc: C0047
     attack: T1070.004
     all:
-      - type: trait
-        id: rm-force-tmp-var-dev
+      - id: rm-force-tmp-var-dev
     none:
-      - type: trait
-        id: fs/path/package-manager/apt-lists
+      - id: fs/path/package-manager/apt-lists

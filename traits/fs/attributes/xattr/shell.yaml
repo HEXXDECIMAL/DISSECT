@@ -57,12 +57,9 @@ composite_rules:
     mbc: E1222
     attack: T1222
     any:
-      - type: trait
-        id: xattr-clear
-      - type: trait
-        id: xattr-delete
-      - type: trait
-        id: xattr-write
+      - id: xattr-clear
+      - id: xattr-delete
+      - id: xattr-write
 
   - id: xattr-command
     description: Modify extended filesystem attributes (excludes legitimate quarantine removal)
@@ -71,10 +68,7 @@ composite_rules:
     mbc: E1222
     attack: T1222
     all:
-      - type: trait
-        id: xattr-patterns
+      - id: xattr-patterns
     none:
-      - type: trait
-        id: xattr-quarantine-remove-1
-      - type: trait
-        id: xattr-quarantine-remove-2
+      - id: xattr-quarantine-remove-1
+      - id: xattr-quarantine-remove-2

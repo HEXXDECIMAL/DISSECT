@@ -118,16 +118,11 @@ composite_rules:
     attack: T1083
     count: 2
     any:
-      - type: trait
-        id: fts-open
-      - type: trait
-        id: fts-read
-      - type: trait
-        id: fts-children
-      - type: trait
-        id: fts-set
-      - type: trait
-        id: fts-close
+      - id: fts-open
+      - id: fts-read
+      - id: fts-children
+      - id: fts-set
+      - id: fts-close
 
   - id: stat-functions
     description: File status check (stat or lstat)
@@ -136,10 +131,8 @@ composite_rules:
     mbc: E1083
     attack: T1083
     any:
-      - type: trait
-        id: lstat-symbol
-      - type: trait
-        id: stat-symbol
+      - id: lstat-symbol
+      - id: stat-symbol
 
   - id: traverse-manual
     description: Manual recursive directory traversal (opendir + readdir + stat)
@@ -148,9 +141,6 @@ composite_rules:
     mbc: E1083
     attack: T1083
     all:
-      - type: trait
-        id: opendir-symbol
-      - type: trait
-        id: readdir-symbol
-      - type: trait
-        id: stat-functions
+      - id: opendir-symbol
+      - id: readdir-symbol
+      - id: stat-functions

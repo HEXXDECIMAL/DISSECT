@@ -11,7 +11,7 @@ traits:
     attack: T1083
     if:
       type: string
-      regex: 'Default User.{0,32}Application Data'
+      regex: "Default User.{0,32}Application Data"
 
   - id: localservice-appdata
     description: LocalService Application Data path
@@ -21,7 +21,7 @@ traits:
     attack: T1083
     if:
       type: string
-      regex: 'LocalService.{0,32}Application Data'
+      regex: "LocalService.{0,32}Application Data"
 
   - id: networkservice-appdata
     description: NetworkService Application Data path
@@ -31,7 +31,7 @@ traits:
     attack: T1083
     if:
       type: string
-      regex: 'NetworkService.{0,32}Application Data'
+      regex: "NetworkService.{0,32}Application Data"
 
   - id: windows-root
     description: C:\\Windows\\ directory path
@@ -61,9 +61,6 @@ composite_rules:
     mbc: E1083
     attack: T1083
     any:
-      - type: trait
-        id: default-user-appdata
-      - type: trait
-        id: localservice-appdata
-      - type: trait
-        id: networkservice-appdata
+      - id: default-user-appdata
+      - id: localservice-appdata
+      - id: networkservice-appdata

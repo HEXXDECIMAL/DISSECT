@@ -227,7 +227,9 @@ pub fn create_parse_error_feature(
             source: "tree-sitter".to_string(),
             value: format!(
                 "{} error nodes out of {} total ({:.1}%)",
-                analysis.error_nodes, analysis.total_nodes, analysis.error_ratio * 100.0
+                analysis.error_nodes,
+                analysis.total_nodes,
+                analysis.error_ratio * 100.0
             ),
             location: Some("parse".to_string()),
         }],

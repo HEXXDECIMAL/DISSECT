@@ -61,13 +61,8 @@ composite_rules:
     attack: T1543.004
     count: 2
     any:
-      - type: trait
-        id: launch-agents
-      - type: trait
-        id: launch-daemons
-      - type: trait
-        id: launchctl-command
-      - type: trait
-        id: plist-extension
-      - type: trait
-        id: run-at-load
+      - id: launch-agents
+      - id: launch-daemons
+      - id: launchctl-command
+      - id: plist-extension
+      - id: run-at-load

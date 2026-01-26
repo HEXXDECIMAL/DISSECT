@@ -660,9 +660,7 @@ pub fn eval_ast_pattern(
             matched: false,
             evidence: Vec::new(),
             traits: Vec::new(),
-            warnings: vec![AnalysisWarning::AstTooDeep {
-                max_depth: 0,
-            }],
+            warnings: vec![AnalysisWarning::AstTooDeep { max_depth: 0 }],
         };
     }
 
@@ -819,9 +817,7 @@ pub fn eval_ast_query(query_str: &str, ctx: &EvaluationContext) -> ConditionResu
             matched: false,
             evidence: Vec::new(),
             traits: Vec::new(),
-            warnings: vec![AnalysisWarning::AstTooDeep {
-                max_depth: 0,
-            }],
+            warnings: vec![AnalysisWarning::AstTooDeep { max_depth: 0 }],
         };
     }
 

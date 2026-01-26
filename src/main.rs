@@ -34,7 +34,7 @@ use std::fs;
 use std::io::{BufRead, IsTerminal};
 use std::path::Path;
 use std::sync::{Arc, Mutex};
-use tracing::{debug, info, trace, warn};
+use tracing::debug;
 use tracing_subscriber::EnvFilter;
 use yara_engine::YaraEngine;
 

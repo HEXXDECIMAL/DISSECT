@@ -61,10 +61,8 @@ composite_rules:
     mbc: E1083
     attack: T1083
     all:
-      - type: trait
-        id: chrome-directory
-      - type: trait
-        id: chrome-extensions-dir
+      - id: chrome-directory
+      - id: chrome-extensions-dir
 
   - id: application-browser-extensions
     description: Browser extension paths (Firefox, Safari, or Chrome)
@@ -73,9 +71,6 @@ composite_rules:
     mbc: E1083
     attack: T1083
     any:
-      - type: trait
-        id: firefox-extensions
-      - type: trait
-        id: safari-extensions
-      - type: trait
-        id: chrome-extensions
+      - id: firefox-extensions
+      - id: safari-extensions
+      - id: chrome-extensions

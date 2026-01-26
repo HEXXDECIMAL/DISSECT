@@ -51,11 +51,7 @@ composite_rules:
     mbc: B0028
     attack: T1053.003
     any:
-      - type: trait
-        id: crontab-command
-      - type: trait
-        id: etc-cron-path
-      - type: trait
-        id: var-spool-cron-path
-      - type: trait
-        id: cron-d-path
+      - id: crontab-command
+      - id: etc-cron-path
+      - id: var-spool-cron-path
+      - id: cron-d-path
