@@ -1,29 +1,79 @@
 # Generalized Go Reverse Shell & SOCKS Proxy
 # Detects the combination of PTY shell, SOCKS proxying, and reverse connection capabilities common in Go backdoors.
 # ATT&CK: T1059 (Command and Scripting Interpreter), T1090 (Proxy)
+#
+# NOTE: This file contains composite rules that reference generic traits from proper taxonomy locations.
+# Only Go-specific SOCKS patterns that can't be expressed as composites remain as YARA.
 
 traits:
-  - id: backdoor/generic/go-pty-shell
-    description: "Go PTY interactive shell capability"
-    crit: suspicious
-    conf: 0.8
-    for: [elf, macho, go]
+  # === Go SOCKS5 patterns (Go-specific, must stay here) ===
+  - id: backdoor/generic/go-socks-auth
+    desc: Go socksUsernamePassword string
+    crit: notable
+    conf: 0.7
+    for: [go, elf, macho]
     condition:
-      type: yara
-      source: |
-        rule go_pty {
-          strings:
-            $pty_start = "StartWithSize" ascii
-            $pty_open = "ptmx" ascii
-            $pty_resize = "Setsize" ascii
-            $shell = "/bin/bash" ascii
-            $shell2 = "/bin/sh" ascii
-          condition:
-            (($pty_start and $pty_open) or ($pty_resize and $pty_open)) and ($shell or $shell2)
-        }
+      type: string
+      exact: "socksUsernamePassword"
 
+  - id: backdoor/generic/go-socks-dialer
+    desc: Go socksNewDialer string
+    crit: notable
+    conf: 0.7
+    for: [go, elf, macho]
+    condition:
+      type: string
+      exact: "socksNewDialer"
+
+  - id: backdoor/generic/go-socks-cmd
+    desc: Go socksCommand string
+    crit: notable
+    conf: 0.7
+    for: [go, elf, macho]
+    condition:
+      type: string
+      exact: "socksCommand"
+
+  - id: backdoor/generic/go-socks-addr
+    desc: Go socksAddr string
+    crit: notable
+    conf: 0.7
+    for: [go, elf, macho]
+    condition:
+      type: string
+      exact: "socksAddr"
+
+  # === Go PTY patterns (Go-specific) ===
+  - id: backdoor/generic/go-pty-startwithsize
+    desc: Go PTY StartWithSize function
+    crit: notable
+    conf: 0.75
+    for: [go, elf, macho]
+    condition:
+      type: string
+      exact: "StartWithSize"
+
+  - id: backdoor/generic/go-pty-setsize
+    desc: Go PTY Setsize function
+    crit: notable
+    conf: 0.7
+    for: [go, elf, macho]
+    condition:
+      type: string
+      exact: "Setsize"
+
+  - id: backdoor/generic/go-ptmx
+    desc: Go ptmx device reference
+    crit: notable
+    conf: 0.7
+    for: [go, elf, macho]
+    condition:
+      type: string
+      exact: "ptmx"
+
+  # NOTE: Cannot migrate - requires SOCKS5 handshake hex pattern { 05 01 00 }
   - id: backdoor/generic/go-socks-proxy
-    description: "Go SOCKS5 proxy implementation"
+    description: Go SOCKS5 proxy implementation
     crit: suspicious
     conf: 0.8
     for: [go]
@@ -41,33 +91,69 @@ traits:
             ($socks_ver and any of ($socks_*)) or 2 of ($socks_*)
         }
 
+composite_rules:
+  # === Helper composites ===
+  - id: go-socks-strings
+    desc: Go SOCKS library strings
+    any:
+      - type: trait
+        id: backdoor/generic/go-socks-auth
+      - type: trait
+        id: backdoor/generic/go-socks-dialer
+      - type: trait
+        id: backdoor/generic/go-socks-cmd
+      - type: trait
+        id: backdoor/generic/go-socks-addr
+
+  - id: go-pty-strings
+    desc: Go PTY library strings
+    any:
+      - type: trait
+        id: backdoor/generic/go-pty-startwithsize
+      - type: trait
+        id: backdoor/generic/go-pty-setsize
+      - type: trait
+        id: backdoor/generic/go-ptmx
+
+  # === Detection composites referencing generic traits ===
+  - id: go-pty-with-shell
+    desc: Go PTY with shell execution
+    all:
+      - type: trait
+        id: go-pty-strings
+      - type: trait
+        id: bin-sh
+
+  - id: backdoor/generic/go-pty-shell
+    description: Go PTY interactive shell capability
+    crit: suspicious
+    conf: 0.8
+    for: [elf, macho, go]
+    all:
+      - type: trait
+        id: go-pty-with-shell
+
   - id: backdoor/generic/go-reverse-connect
-    description: "Go reverse connection capability"
+    description: Go reverse connection capability
     crit: notable
     conf: 0.7
     for: [go]
-    condition:
-      type: yara
-      source: |
-        rule go_reverse {
-          strings:
-            $dial = "net.Dial" ascii
-            $dial_tcp = "DialTCP" ascii
-            $tcp = "tcp" ascii
-            $connect = "connect" ascii
-          condition:
-            ($dial or $dial_tcp) and ($tcp or $connect)
-        }
+    all:
+      - type: trait
+        id: net-dial
 
-composite_rules:
+  # Main detection: Go reverse shell with SOCKS proxy
   - id: backdoor/generic/go-reverse-socks
-    description: "Go-based Reverse Shell with SOCKS Proxy"
+    description: Go-based Reverse Shell with SOCKS Proxy
     crit: hostile
     conf: 0.9
     attack: "T1090"
     mbc: "B0022"
     for: [elf, macho]
-    requires_all:
-      - id: backdoor/generic/go-pty-shell
-      - id: backdoor/generic/go-socks-proxy
-      - id: backdoor/generic/go-reverse-connect
+    all:
+      - type: trait
+        id: backdoor/generic/go-pty-shell
+      - type: trait
+        id: backdoor/generic/go-socks-proxy
+      - type: trait
+        id: backdoor/generic/go-reverse-connect
