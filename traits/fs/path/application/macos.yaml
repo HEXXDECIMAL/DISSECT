@@ -4,26 +4,78 @@
 
 traits:
   - id: application-macos
-    description: Reference to /Applications
+    description: /Applications/*.app/Contents/MacOS/ path pattern
     crit: notable
     conf: 0.66
+    mbc: E1083
+    attack: T1083
     if:
       type: string
-      regex: "/Applications/[\\w\\s\\.\\-]+\\.app/Contents/MacOS/[\\w\\.\\-]+"
+      regex: '/Applications/[\w\s.\-]+\.app/Contents/MacOS/[\w.\-]+'
+
+  - id: firefox-extensions
+    description: Firefox/extensions directory path
+    crit: notable
+    conf: 0.7
+    mbc: E1083
+    attack: T1083
+    if:
+      type: string
+      exact: "Firefox/extensions"
+
+  - id: safari-extensions
+    description: Safari/Extensions directory path
+    crit: notable
+    conf: 0.7
+    mbc: E1083
+    attack: T1083
+    if:
+      type: string
+      exact: "Safari/Extensions"
+
+  - id: chrome-extensions-dir
+    description: /Extensions directory (Chrome extensions)
+    crit: notable
+    conf: 0.6
+    mbc: E1083
+    attack: T1083
+    if:
+      type: string
+      exact: "/Extensions"
+
+  - id: chrome-directory
+    description: Google/Chrome directory path
+    crit: notable
+    conf: 0.6
+    mbc: E1083
+    attack: T1083
+    if:
+      type: string
+      exact: "Google/Chrome"
+
+composite_rules:
+  - id: chrome-extensions
+    description: Chrome browser extensions path
+    crit: notable
+    conf: 0.7
+    mbc: E1083
+    attack: T1083
+    all:
+      - type: trait
+        id: chrome-directory
+      - type: trait
+        id: chrome-extensions-dir
 
   - id: application-browser-extensions
-    description: Reference to browser extension paths
+    description: Browser extension paths (Firefox, Safari, or Chrome)
     crit: suspicious
     conf: 0.66
-    if:
-      type: yara
-      source: |
-        rule browser_extensions {
-          strings:
-            $firefox = "Firefox/extensions"
-            $safari = "Safari/Extensions"
-            $chrome_ext = "/Extensions"
-            $chrome_dir = "Google/Chrome"
-          condition:
-            any of ($firefox, $safari) or all of ($chrome*)
-        }
+    mbc: E1083
+    attack: T1083
+    any:
+      - type: trait
+        id: firefox-extensions
+      - type: trait
+        id: safari-extensions
+      - type: trait
+        id: chrome-extensions

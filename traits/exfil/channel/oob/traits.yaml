@@ -346,7 +346,7 @@ composite_rules:
 
   - id: encoded-oob-exfil
     desc: "Base64-encoded OOB domain with HTTP exfiltration"
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     attack: "T1048"
     mbc: "B0030"

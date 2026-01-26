@@ -68,28 +68,42 @@ traits:
       type: string
       regex: "new vm\\.Script|vm\\.Script\\("
 
-  # Remote Code Execution via VM
-  - id: vm-with-http
-    desc: VM execution combined with HTTP fetch (stage loader pattern)
-    crit: suspicious
-    conf: 0.95
-    mbc: "B0024"
-    attack: "T1105"
+  # HTTP patterns for remote code loading
+  - id: https-request-string
+    desc: https.request method reference
+    crit: inert
+    conf: 0.5
     for: [javascript, typescript]
     if:
-      type: yara
-      source: |
-        rule vm_remote_code_exec {
-          strings:
-            $vm1 = "runInContext"
-            $vm2 = "runInNewContext"
-            $http1 = "https.request"
-            $http2 = "http.request"
-            $http3 = "fetch("
-            $http4 = "axios"
-          condition:
-            any of ($vm*) and any of ($http*)
-        }
+      type: string
+      exact: "https.request"
+
+  - id: http-request-string
+    desc: http.request method reference
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "http.request"
+
+  - id: fetch-call-string
+    desc: fetch function call
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "fetch("
+
+  - id: axios-string
+    desc: axios library reference
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "axios"
 
   # Sandbox Escape Patterns
   - id: constructor-escape
@@ -112,33 +126,132 @@ traits:
       type: string
       exact: "process.binding"
 
-  # Remote Code Loading via Function Constructor
-  - id: function-with-http
-    desc: Function constructor with HTTP fetch (remote code execution)
-    crit: suspicious
-    conf: 0.95
-    mbc: "B0024"
-    attack: "T1105"
+  # Function constructor patterns
+  - id: new-function-call
+    desc: new Function constructor call
+    crit: inert
+    conf: 0.6
     for: [javascript, typescript]
     if:
-      type: yara
-      source: |
-        rule function_remote_code_exec {
-          strings:
-            $func1 = "new Function(" ascii
-            $func2 = "Function.constructor" ascii
-            $func3 = "Function(" ascii
-            $http1 = "axios.get" ascii
-            $http2 = "axios(" ascii
-            $http3 = "fetch(" ascii
-            $http4 = "https.get" ascii
-            $http5 = "http.get" ascii
-            $http6 = ".request(" ascii
-          condition:
-            any of ($func*) and any of ($http*)
-        }
+      type: string
+      exact: "new Function("
 
-  # Base64 encoded URL patterns (evasion)
+  - id: function-constructor-access
+    desc: Function.constructor access
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "Function.constructor"
+
+  - id: function-direct-call
+    desc: Direct Function constructor call
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "Function("
+
+  # HTTP method patterns
+  - id: axios-get-string
+    desc: axios.get method call
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "axios.get"
+
+  - id: axios-direct-call
+    desc: axios direct call
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "axios("
+
+  - id: https-get-string
+    desc: https.get method call
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "https.get"
+
+  - id: http-get-string
+    desc: http.get method call
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "http.get"
+
+  - id: request-method-call
+    desc: .request method call
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: ".request("
+
+  # Base64 decoding patterns
+  - id: atob-call
+    desc: atob base64 decode function
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "atob("
+
+  - id: buffer-from-call
+    desc: Buffer.from conversion
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "Buffer.from"
+
+  # Long base64-like string (20+ chars)
+  - id: base64-long-string
+    desc: Long base64-like string pattern
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: '[a-zA-Z0-9+/=]{20,}'
+
+  # HTTP/HTTPS protocol patterns
+  - id: http-protocol-string
+    desc: HTTP or HTTPS protocol string
+    crit: inert
+    conf: 0.3
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: 'https?://'
+
+  # Environment key patterns
+  - id: env-key-pattern
+    desc: Environment key name pattern
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: 'DEV_.*_KEY|API_.*KEY|SECRET'
+
+  # NOTE: The composite rule below requires regex min_count support for
+  # the base64-long-string pattern, which isn't yet available in DISSECT.
+  # For now, we keep this as a YARA rule.
   - id: base64-url
     desc: Base64 encoded URL (potential C2 obfuscation)
     crit: suspicious
@@ -159,3 +272,76 @@ traits:
           condition:
             any of ($decode*) and $url_like and ($http or $env_key)
         }
+
+# === Composite Rules ===
+composite_rules:
+  # VM run methods
+  - id: vm-run-methods
+    desc: VM code execution methods
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript]
+    any:
+      - id: vm-runInContext
+      - id: vm-runInNewContext
+
+  # HTTP client methods
+  - id: http-clients
+    desc: HTTP client library usage
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    any:
+      - id: https-request-string
+      - id: http-request-string
+      - id: fetch-call-string
+      - id: axios-string
+
+  # Remote Code Execution via VM
+  - id: vm-with-http
+    desc: VM execution combined with HTTP fetch (stage loader pattern)
+    crit: suspicious
+    conf: 0.95
+    mbc: "B0024"
+    attack: "T1105"
+    for: [javascript, typescript]
+    all:
+      - id: vm-run-methods
+      - id: http-clients
+
+  # Function constructor patterns
+  - id: function-constructors
+    desc: Function constructor usage
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    any:
+      - id: new-function-call
+      - id: function-constructor-access
+      - id: function-direct-call
+
+  # HTTP methods for remote loading
+  - id: http-fetch-methods
+    desc: HTTP fetch methods
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    any:
+      - id: axios-get-string
+      - id: axios-direct-call
+      - id: fetch-call-string
+      - id: https-get-string
+      - id: http-get-string
+      - id: request-method-call
+
+  # Remote Code Loading via Function Constructor
+  - id: function-with-http
+    desc: Function constructor with HTTP fetch (remote code execution)
+    crit: suspicious
+    conf: 0.95
+    mbc: "B0024"
+    attack: "T1105"
+    for: [javascript, typescript]
+    all:
+      - id: function-constructors
+      - id: http-fetch-methods

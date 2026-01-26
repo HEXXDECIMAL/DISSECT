@@ -37,7 +37,9 @@ traits:
       type: string
       regex: "except\\s*(ImportError)?.{0,50}:\\s*\\n?\\s*(os\\.system|subprocess)"
 
-  # Setup.py with external code execution or network activity (YARA)
+  # NOTE: YARA kept for setup-py-exec - requires NOT conditions to exclude legitimate
+  # patterns (setup.py sdist, bdist_wheel, twine, pytest, etc.). DISSECT doesn't support
+  # NOT conditions in composite rules yet.
   - id: setup-py-exec-yara
     description: "setup.py with suspicious code execution or network activity"
     crit: suspicious
@@ -85,7 +87,8 @@ traits:
             not any of ($legit*)
         }
 
-  # __init__.py with code execution (YARA)
+  # NOTE: YARA kept for init-py-exec - requires NOT conditions to exclude legitimate
+  # patterns (pypi.org, readthedocs, github.com, setup tools, etc.)
   - id: init-py-exec-yara
     description: "__init__.py with immediate code execution"
     crit: suspicious
@@ -123,7 +126,9 @@ traits:
             not any of ($legit*)
         }
 
-  # Package that installs other packages at runtime (YARA)
+  # NOTE: YARA kept for dependency-injection - requires combining try/except ImportError
+  # with pip install patterns in a specific structural way that's difficult to express
+  # with simple atomic + composite rules
   - id: dependency-injection-yara
     description: "Package installs additional dependencies at runtime"
     crit: suspicious

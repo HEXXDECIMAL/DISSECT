@@ -6,45 +6,151 @@ defaults:
   for: [elf, macho, so, dylib, c]
 
 traits:
-  - id: traverse-fts
-    description: Traverse filesystem hierarchy via fts
+  # fts API functions
+  - id: fts-open
+    description: fts_open function (open directory hierarchy)
     crit: inert
-    conf: 0.66
-    if:
-      type: yara
-      source: |
-        rule fts_traverse {
-          strings:
-            $fts_open = "_fts_open" fullword
-            $fts_read = "_fts_read" fullword
-            $fts_children = "_fts_children" fullword
-            $fts_set = "_fts_set" fullword
-            $fts_close = "_fts_close" fullword
-          condition:
-            2 of them
-        }
-
-  - id: traverse-nftw
-    description: Traverse filesystem hierarchy via nftw
-    crit: inert
-    conf: 0.66
+    conf: 0.7
+    mbc: E1083
+    attack: T1083
     if:
       type: symbol
-      pattern: nftw|ftw
+      pattern: "_?fts_open"
+
+  - id: fts-read
+    description: fts_read function (read directory entry)
+    crit: inert
+    conf: 0.7
+    mbc: E1083
+    attack: T1083
+    if:
+      type: symbol
+      pattern: "_?fts_read"
+
+  - id: fts-children
+    description: fts_children function (get child entries)
+    crit: inert
+    conf: 0.7
+    mbc: E1083
+    attack: T1083
+    if:
+      type: symbol
+      pattern: "_?fts_children"
+
+  - id: fts-set
+    description: fts_set function (set directory options)
+    crit: inert
+    conf: 0.7
+    mbc: E1083
+    attack: T1083
+    if:
+      type: symbol
+      pattern: "_?fts_set"
+
+  - id: fts-close
+    description: fts_close function (close directory hierarchy)
+    crit: inert
+    conf: 0.7
+    mbc: E1083
+    attack: T1083
+    if:
+      type: symbol
+      pattern: "_?fts_close"
+
+  # nftw/ftw API
+  - id: traverse-nftw
+    description: Traverse filesystem hierarchy via nftw/ftw
+    crit: inert
+    conf: 0.66
+    mbc: E1083
+    attack: T1083
+    if:
+      type: symbol
+      pattern: "nftw|ftw"
+
+  # Manual traversal functions
+  - id: opendir-symbol
+    description: opendir function (open directory)
+    crit: inert
+    conf: 0.7
+    mbc: E1083
+    attack: T1083
+    if:
+      type: symbol
+      exact: "opendir"
+
+  - id: readdir-symbol
+    description: readdir function (read directory entry)
+    crit: inert
+    conf: 0.7
+    mbc: E1083
+    attack: T1083
+    if:
+      type: symbol
+      exact: "readdir"
+
+  - id: lstat-symbol
+    description: lstat function (get file status, no symlink follow)
+    crit: inert
+    conf: 0.7
+    mbc: E1083
+    attack: T1083
+    if:
+      type: symbol
+      exact: "lstat"
+
+  - id: stat-symbol
+    description: stat function (get file status)
+    crit: inert
+    conf: 0.7
+    mbc: E1083
+    attack: T1083
+    if:
+      type: symbol
+      exact: "stat"
+
+composite_rules:
+  - id: traverse-fts
+    description: Traverse filesystem hierarchy via fts API (2+ functions)
+    crit: inert
+    conf: 0.66
+    mbc: E1083
+    attack: T1083
+    count: 2
+    any:
+      - type: trait
+        id: fts-open
+      - type: trait
+        id: fts-read
+      - type: trait
+        id: fts-children
+      - type: trait
+        id: fts-set
+      - type: trait
+        id: fts-close
+
+  - id: stat-functions
+    description: File status check (stat or lstat)
+    crit: inert
+    conf: 0.7
+    mbc: E1083
+    attack: T1083
+    any:
+      - type: trait
+        id: lstat-symbol
+      - type: trait
+        id: stat-symbol
 
   - id: traverse-manual
-    description: Manual recursive directory traversal
+    description: Manual recursive directory traversal (opendir + readdir + stat)
     crit: notable
     conf: 0.7
-    if:
-      type: yara
-      source: |
-        rule manual_traverse {
-          strings:
-            $s1 = "opendir" fullword ascii
-            $s2 = "readdir" fullword ascii
-            $s3 = "lstat" fullword ascii
-            $s4 = "stat" fullword ascii
-          condition:
-            $s1 and $s2 and ($s3 or $s4)
-        }
+    mbc: E1083
+    attack: T1083
+    all:
+      - type: trait
+        id: opendir-symbol
+      - type: trait
+        id: readdir-symbol
+      - type: trait
+        id: stat-functions

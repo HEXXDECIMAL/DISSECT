@@ -3,17 +3,26 @@
 # ATT&CK: T1070.004
 
 traits:
+  - id: rm-force-tmp-var-dev
+    description: rm -f command targeting /tmp, /var, or /dev directories
+    crit: notable
+    conf: 0.7
+    mbc: C0047
+    attack: T1070.004
+    if:
+      type: string
+      regex: 'rm +\-[a-zA-Z]{,1}f[a-zA-Z]{,1} \/(tmp|var|dev)\/[\w\/\.\-\%]{0,64}'
+
+composite_rules:
   - id: delete-rm-hardcoded
-    description: Deletes files in /tmp, /var, or /dev directories (potential cleanup)
+    description: Deletes files in /tmp, /var, or /dev directories (excludes legitimate apt)
     crit: suspicious
     conf: 0.66
-    if:
-      type: yara
-      source: |
-        rule rm_hardcoded_tmp {
-          strings:
-            $ref = /rm +\-[a-zA-Z]{,1}f[a-zA-Z]{,1} \/(tmp|var|dev)\/[\w\/\.\-\%]{0,64}/
-            $not_apt = "/var/lib/apt/lists"
-          condition:
-            $ref and none of ($not*)
-        }
+    mbc: C0047
+    attack: T1070.004
+    all:
+      - type: trait
+        id: rm-force-tmp-var-dev
+    none:
+      - type: trait
+        id: fs/path/package-manager/apt-lists

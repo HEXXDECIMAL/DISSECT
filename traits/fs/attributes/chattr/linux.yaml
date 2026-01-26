@@ -3,48 +3,110 @@
 # ATT&CK: T1222
 
 traits:
-  - id: chattr
-    description: Modify Linux file attributes
+  - id: chattr-command
+    description: chattr command to modify file attributes
     crit: notable
     conf: 0.66
+    mbc: F0004
+    attack: T1222
     if:
-      type: yara
-      source: |
-        rule chattr {
-          strings:
-            $chattr = /chattr [-\+][\w\- ]{0,32} [\w\.\/]{0,64}/
-          condition:
-            $chattr
-        }
+      type: string
+      regex: 'chattr [-\+][\w\- ]{0,32} [\w\.\/]{0,64}'
+
+  - id: chattr-immutable-flag
+    description: chattr with immutable flag (+i or -i)
+    crit: notable
+    conf: 0.7
+    mbc: F0004
+    attack: T1222
+    if:
+      type: string
+      regex: 'chattr [-\+]i [\-\w\.\/]{0,64}'
+
+  - id: chattr-immutable-sys
+    description: chattr -i /sys (legitimate system operation)
+    crit: inert
+    conf: 1.0
+    if:
+      type: string
+      exact: "chattr -i /sys"
+
+  - id: chattr-recursive-immutable-1
+    description: chattr -R -i (recursive remove immutable)
+    crit: notable
+    conf: 0.7
+    mbc: F0004
+    attack: T1222
+    if:
+      type: string
+      regex: 'chattr -R -i [\-\w\.\/]{0,64}'
+
+  - id: chattr-recursive-immutable-2
+    description: chattr -Ri (recursive remove immutable, combined flags)
+    crit: notable
+    conf: 0.7
+    mbc: F0004
+    attack: T1222
+    if:
+      type: string
+      regex: 'chattr -Ri [\-\w\.\/]{0,64}'
+
+  - id: chattr-recursive-immutable-3
+    description: chattr -iR (recursive remove immutable, combined flags alt)
+    crit: notable
+    conf: 0.7
+    mbc: F0004
+    attack: T1222
+    if:
+      type: string
+      regex: 'chattr -iR [\-\w\.\/]{0,64}'
+
+  - id: chattr-recursive-immutable-4
+    description: chattr -i -R (recursive remove immutable, separate flags)
+    crit: notable
+    conf: 0.7
+    mbc: F0004
+    attack: T1222
+    if:
+      type: string
+      regex: 'chattr -i -R [\-\w\.\/]{0,64}'
+
+composite_rules:
+  - id: chattr
+    description: Modify Linux file attributes with chattr command
+    crit: notable
+    conf: 0.66
+    mbc: F0004
+    attack: T1222
+    any:
+      - type: trait
+        id: chattr-command
 
   - id: chattr-immutable
-    description: Modify immutability of a file
+    description: Modify immutability of a file (excludes legitimate /sys)
     crit: suspicious
     conf: 0.66
-    if:
-      type: yara
-      source: |
-        rule chattr_immutable {
-          strings:
-            $chattr = /chattr [-\+]i [\-\w\.\/]{0,64}/
-            $not_dev = "chattr -i /sys"
-          condition:
-            $chattr and none of ($not*)
-        }
+    mbc: F0004
+    attack: T1222
+    all:
+      - type: trait
+        id: chattr-immutable-flag
+    none:
+      - type: trait
+        id: chattr-immutable-sys
 
   - id: chattr-immutable-recursive
     description: Recursively remove immutability of a directory
     crit: suspicious
     conf: 0.66
-    if:
-      type: yara
-      source: |
-        rule chattr_immutable_recursive {
-          strings:
-            $r_i = /chattr -R -i [\-\w\.\/]{0,64}/
-            $ri = /chattr -Ri [\-\w\.\/]{0,64}/
-            $ir = /chattr -iR [\-\w\.\/]{0,64}/
-            $i_r = /chattr -i -R [\-\w\.\/]{0,64}/
-          condition:
-            filesize < 10MB and any of them
-        }
+    mbc: F0004
+    attack: T1222
+    any:
+      - type: trait
+        id: chattr-recursive-immutable-1
+      - type: trait
+        id: chattr-recursive-immutable-2
+      - type: trait
+        id: chattr-recursive-immutable-3
+      - type: trait
+        id: chattr-recursive-immutable-4

@@ -5,26 +5,45 @@
 traits:
   # NOTE: "shred" alone is too generic - it's present in glibc
   # Require command-line context or disk device patterns to reduce false positives
-  - id: disk
-    description: Disk wiper patterns
-    crit: suspicious
-    conf: 0.66
-    mbc: "E1561"
-    attack: "T1561"
+  - id: dd-zero
+    description: dd if=/dev/zero command
+    crit: notable
+    conf: 0.6
     if:
-      type: yara
-      source: |
-        rule disk_wiper {
-          strings:
-            $dd_zero = "dd if=/dev/zero"
-            $dd_random = "dd if=/dev/urandom"
-            // shred requires command-line flags or device path to avoid glibc false positive
-            $shred_cmd = "shred -" ascii
-            $shred_dev = /shred.{0,20}\/dev\// ascii
-            $shred_force = "shred --force" ascii
-          condition:
-            any of them
-        }
+      type: string
+      exact: "dd if=/dev/zero"
+
+  - id: dd-random
+    description: dd if=/dev/urandom command
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      exact: "dd if=/dev/urandom"
+
+  - id: shred-flag
+    description: shred command with flag
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      exact: "shred -"
+
+  - id: shred-dev
+    description: shred with /dev/ path
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      regex: "shred.{0,20}/dev/"
+
+  - id: shred-force
+    description: shred --force command
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      exact: "shred --force"
 
   # === Disk device atomic indicators ===
   - id: dev-sda
@@ -60,6 +79,20 @@ traits:
       exact: "/dev/vda"
 
 composite_rules:
+  - id: disk
+    description: Disk wiper patterns
+    crit: suspicious
+    conf: 0.66
+    mbc: "E1561"
+    attack: "T1561"
+    count: 1
+    any:
+      - id: dd-zero
+      - id: dd-random
+      - id: shred-flag
+      - id: shred-dev
+      - id: shred-force
+
   - id: disk-device
     description: Direct disk device access
     crit: suspicious

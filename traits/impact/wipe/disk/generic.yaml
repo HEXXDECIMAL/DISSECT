@@ -3,31 +3,111 @@
 # ATT&CK: T1561
 
 traits:
+  - id: wipe-disk
+    description: wipe disk phrase
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      regex: "(?i)wipe disk"
+
+  - id: wipe-drive
+    description: wipe drive phrase
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      regex: "(?i)wipe drive"
+
+  - id: disk-wipe
+    description: disk wipe phrase
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      regex: "(?i)disk wipe"
+
+  - id: secure-erase
+    description: secure erase phrase
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      regex: "(?i)secure erase"
+
+  - id: mbr-ref
+    description: MBR reference
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      word: "MBR"
+
+  - id: boot-sector
+    description: boot sector reference
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      regex: "(?i)boot sector"
+
+  - id: master-boot-record
+    description: master boot record reference
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      regex: "(?i)master boot record"
+
+  - id: dev-sda
+    description: /dev/sda device
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      exact: "/dev/sda"
+
+  - id: dev-hda
+    description: /dev/hda device
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      exact: "/dev/hda"
+
+  - id: dev-nvme
+    description: /dev/nvme device
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      exact: "/dev/nvme"
+
+  - id: physicaldrive
+    description: PhysicalDrive reference
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      regex: "(?i)PhysicalDrive"
+
+composite_rules:
   - id: disk-terms
     description: Disk wiper terminology
     crit: suspicious
     conf: 0.75
     mbc: "E1561"
     attack: "T1561"
-    if:
-      type: yara
-      source: |
-        rule disk_wiper_terms {
-          strings:
-            // Disk-specific wipe terms (more specific than generic "wipe")
-            $wipe_disk = "wipe disk" nocase
-            $wipe_drive = "wipe drive" nocase
-            $disk_wipe = "disk wipe" nocase
-            $secure_erase = "secure erase" nocase
-            // Boot sector targeting
-            $mbr = "MBR" fullword
-            $boot_sector = "boot sector" nocase
-            $master_boot = "master boot record" nocase
-            // Direct disk device access patterns
-            $dev_sda = "/dev/sda"
-            $dev_hda = "/dev/hda"
-            $dev_nvme = "/dev/nvme"
-            $physicaldrive = "PhysicalDrive" nocase
-          condition:
-            any of them
-        }
+    count: 1
+    any:
+      - id: wipe-disk
+      - id: wipe-drive
+      - id: disk-wipe
+      - id: secure-erase
+      - id: mbr-ref
+      - id: boot-sector
+      - id: master-boot-record
+      - id: dev-sda
+      - id: dev-hda
+      - id: dev-nvme
+      - id: physicaldrive

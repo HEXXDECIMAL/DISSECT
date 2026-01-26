@@ -26,23 +26,45 @@ traits:
       search_raw: true
 
   # Suspicious Version Patterns
-  - id: version-1.0.0-with-hooks
-    description: Version 1.0.0 with install hooks (common malware pattern)
-    crit: suspicious
-    confidence: 0.75
+  - id: version-1.0.0
+    description: Package version is 1.0.0
+    crit: inert
+    confidence: 0.5
     file_types: [packagejson]
     condition:
-      type: yara
-      source: |
-        rule npm_v100_with_hooks {
-          strings:
-            $version = /"version"\s*:\s*"1\.0\.0"/
-            $hook1 = /"preinstall"\s*:/
-            $hook2 = /"postinstall"\s*:/
-            $hook3 = /"install"\s*:/
-          condition:
-            $version and any of ($hook*)
-        }
+      type: string
+      regex: '"version"\s*:\s*"1\.0\.0"'
+      search_raw: true
+
+  - id: preinstall-hook-key
+    description: Package has preinstall hook key
+    crit: inert
+    confidence: 0.6
+    file_types: [packagejson]
+    condition:
+      type: string
+      regex: '"preinstall"\s*:'
+      search_raw: true
+
+  - id: postinstall-hook-key
+    description: Package has postinstall hook key
+    crit: inert
+    confidence: 0.5
+    file_types: [packagejson]
+    condition:
+      type: string
+      regex: '"postinstall"\s*:'
+      search_raw: true
+
+  - id: install-hook-key
+    description: Package has install hook key
+    crit: inert
+    confidence: 0.5
+    file_types: [packagejson]
+    condition:
+      type: string
+      regex: '"install"\s*:'
+      search_raw: true
 
   - id: version-0.0.1
     description: Very early version number (0.0.1)
@@ -226,6 +248,9 @@ traits:
       search_raw: true
 
   # Self-dependency (package depends on itself)
+  # NOTE: YARA kept for dynamic extraction and cross-field comparison - requires
+  # "for" loop to extract package name from "name" field and verify it appears
+  # in "dependencies" section. DISSECT doesn't support this kind of stateful analysis.
   - id: self-dependency
     description: Package depends on itself (circular dependency, often malicious)
     crit: suspicious
@@ -251,62 +276,177 @@ traits:
         }
 
   # npm URL as homepage/repository (lazy/suspicious)
+  - id: npm-homepage-url
+    description: Package uses npmjs.com as homepage
+    crit: inert
+    confidence: 0.7
+    file_types: [packagejson]
+    condition:
+      type: string
+      regex: '"homepage"\s*:\s*"https?://(www\.)?npmjs\.(com|org)/package/'
+      search_raw: true
+
+  - id: npm-repo-url
+    description: Package uses npmjs.com URL in repository field
+    crit: inert
+    confidence: 0.7
+    file_types: [packagejson]
+    condition:
+      type: string
+      regex: '"url"\s*:\s*"https?://(www\.)?npmjs\.(com|org)/package/'
+      search_raw: true
+
+  # Missing repository with install hooks (suspicious combo)
+  - id: repository-key
+    description: Package has repository key
+    crit: inert
+    confidence: 0.5
+    file_types: [packagejson]
+    condition:
+      type: string
+      regex: '"repository"\s*:'
+      search_raw: true
+
+  - id: repo-url-git-host
+    description: Package has git hosting URL in repository
+    crit: inert
+    confidence: 0.5
+    file_types: [packagejson]
+    condition:
+      type: string
+      regex: '"url"\s*:\s*"(git|https?)://(github|gitlab|bitbucket)'
+      search_raw: true
+
+  # Generic description with hooks (template malware)
+  - id: desc-lightweight
+    description: Package description contains "lightweight"
+    crit: inert
+    confidence: 0.3
+    file_types: [packagejson]
+    condition:
+      type: string
+      regex: 'A lightweight'
+      search_raw: true
+      case_insensitive: true
+
+  - id: desc-modern-web-apps
+    description: Package description mentions "modern web applications"
+    crit: inert
+    confidence: 0.3
+    file_types: [packagejson]
+    condition:
+      type: string
+      exact: 'modern web applications'
+      search_raw: true
+      case_insensitive: true
+
+  - id: desc-universal
+    description: Package description contains "universal"
+    crit: inert
+    confidence: 0.3
+    file_types: [packagejson]
+    condition:
+      type: string
+      exact: 'universal'
+      search_raw: true
+      case_insensitive: true
+
+  - id: desc-powerful-library
+    description: Package description mentions "powerful library"
+    crit: inert
+    confidence: 0.3
+    file_types: [packagejson]
+    condition:
+      type: string
+      exact: 'powerful library'
+      search_raw: true
+      case_insensitive: true
+
+  - id: desc-simple-easy
+    description: Package description contains "simple and easy"
+    crit: inert
+    confidence: 0.3
+    file_types: [packagejson]
+    condition:
+      type: string
+      exact: 'simple and easy'
+      search_raw: true
+      case_insensitive: true
+
+# === Composite Rules ===
+composite_rules:
+  # Install hook group
+  - id: install-hooks
+    description: Package has install hook (preinstall, postinstall, or install)
+    crit: inert
+    conf: 0.6
+    file_types: [packagejson]
+    any:
+      - id: preinstall-hook-key
+      - id: postinstall-hook-key
+      - id: install-hook-key
+
+  # Version 1.0.0 with install hooks
+  - id: version-1.0.0-with-hooks
+    description: Version 1.0.0 with install hooks (common malware pattern)
+    crit: suspicious
+    conf: 0.75
+    file_types: [packagejson]
+    all:
+      - id: version-1.0.0
+      - id: install-hooks
+
+  # npm URL as homepage/repository
   - id: npm-as-homepage
     description: Package uses npmjs.com as homepage (lazy metadata, often malicious)
     crit: notable
-    confidence: 0.8
+    conf: 0.8
     file_types: [packagejson]
-    condition:
-      type: yara
-      source: |
-        rule npm_url_as_homepage {
-          strings:
-            $homepage = /"homepage"\s*:\s*"https?:\/\/(www\.)?npmjs\.(com|org)\/package\// ascii
-            $repo = /"url"\s*:\s*"https?:\/\/(www\.)?npmjs\.(com|org)\/package\// ascii
-          condition:
-            any of them
-        }
+    any:
+      - id: npm-homepage-url
+      - id: npm-repo-url
 
-  # Missing repository with install hooks (suspicious combo)
+  # Repository presence check
+  - id: has-repository
+    description: Package has repository URL
+    crit: inert
+    conf: 0.5
+    file_types: [packagejson]
+    any:
+      - id: repository-key
+      - id: repo-url-git-host
+
+  # Missing repository with install hooks
   - id: no-repo-with-hooks
     description: Package has install hooks but no repository URL
     crit: suspicious
-    confidence: 0.85
+    conf: 0.85
     file_types: [packagejson]
-    condition:
-      type: yara
-      source: |
-        rule no_repo_install_hooks {
-          strings:
-            $repo1 = /"repository"\s*:/ ascii
-            $repo2 = /"url"\s*:\s*"(git|https?):\/\/(github|gitlab|bitbucket)/ ascii
-            $hook1 = /"preinstall"\s*:/ ascii
-            $hook2 = /"postinstall"\s*:/ ascii
-            $hook3 = /"install"\s*:/ ascii
-          condition:
-            any of ($hook*) and not any of ($repo*)
-        }
+    all:
+      - id: install-hooks
+    none:
+      - id: has-repository
 
-  # Generic description with hooks (template malware)
+  # Generic descriptions group
+  - id: generic-descriptions
+    description: Package has generic marketing descriptions
+    crit: inert
+    conf: 0.5
+    file_types: [packagejson]
+    count: 2
+    any:
+      - id: desc-lightweight
+      - id: desc-modern-web-apps
+      - id: desc-universal
+      - id: desc-powerful-library
+      - id: desc-simple-easy
+
+  # Generic description with hooks
   - id: generic-desc-with-hooks
     description: Generic description combined with install hooks (template malware)
     crit: suspicious
-    confidence: 0.8
+    conf: 0.8
     file_types: [packagejson]
-    condition:
-      type: yara
-      source: |
-        rule generic_desc_hooks {
-          strings:
-            // Generic descriptions often used in malware templates
-            $desc1 = "A lightweight" ascii nocase
-            $desc2 = "modern web applications" ascii nocase
-            $desc3 = "universal" ascii nocase
-            $desc4 = "powerful library" ascii nocase
-            $desc5 = "simple and easy" ascii nocase
-            // Install hooks
-            $hook1 = /"preinstall"\s*:/ ascii
-            $hook2 = /"postinstall"\s*:/ ascii
-          condition:
-            2 of ($desc*) and any of ($hook*)
-        }
+    all:
+      - id: generic-descriptions
+      - id: install-hooks

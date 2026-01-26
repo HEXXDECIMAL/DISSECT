@@ -35,7 +35,15 @@ impl TypeScriptAnalyzer {
     }
 
     fn analyze_script(&self, file_path: &Path, content: &str) -> Result<AnalysisReport> {
+        use tracing::{debug, error, trace, warn};
+
         let start = std::time::Instant::now();
+
+        debug!(
+            "Parsing TypeScript file: {:?} ({} bytes)",
+            file_path,
+            content.len()
+        );
 
         // Create target info
         let target = TargetInfo {
@@ -60,10 +68,52 @@ impl TypeScriptAnalyzer {
             }],
         });
 
-        // Parse with tree-sitter
-        if let Some(tree) = self.parser.borrow_mut().parse(content, None) {
-            let root = tree.root_node();
-            self.analyze_ast(&root, content.as_bytes(), &mut report);
+        // Parse with tree-sitter with panic catching (malware may crash tree-sitter)
+        let parse_result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            self.parser.borrow_mut().parse(content, None)
+        }));
+
+        match parse_result {
+            Ok(Some(tree)) => {
+                trace!("TypeScript parsed successfully, {} nodes", tree.root_node().child_count());
+                let root = tree.root_node();
+                self.analyze_ast(&root, content.as_bytes(), &mut report);
+
+                // Compute metrics for ML analysis
+                let metrics = self.compute_metrics(&root, content);
+                report.metrics = Some(metrics);
+            }
+            Ok(None) => {
+                // Parse failed gracefully - not a crash
+                warn!("TypeScript parse returned None for {:?}", file_path);
+            }
+            Err(_panic_info) => {
+                // Tree-sitter crashed - this is HOSTILE anti-analysis behavior
+                error!("⚠️  tree-sitter-typescript CRASHED while parsing {:?} (HOSTILE anti-analysis detected)", file_path);
+                eprintln!("⚠️  WARNING: tree-sitter-typescript crashed while parsing {:?} (HOSTILE anti-analysis detected)", file_path);
+
+                report.findings.push(Finding {
+                    id: "anti-analysis/parser-crash/treesitter-crash".to_string(),
+                    kind: FindingKind::Indicator,
+                    desc: "Code that crashes tree-sitter parser (anti-analysis)".to_string(),
+                    conf: 0.95,
+                    crit: Criticality::Hostile,
+                    mbc: Some("B0001".to_string()),
+                    attack: None,
+                    trait_refs: Vec::new(),
+                    evidence: vec![Evidence {
+                        method: "panic_detection".to_string(),
+                        source: "tree-sitter-typescript".to_string(),
+                        value: "parser_crash".to_string(),
+                        location: Some("parse".to_string()),
+                    }],
+                });
+
+                report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;
+                report.metadata.tools_used = vec!["tree-sitter-typescript".to_string()];
+
+                return Ok(report);
+            }
         }
 
         // Extract function calls as symbols for symbol-based rule matching
@@ -77,13 +127,6 @@ impl TypeScriptAnalyzer {
         // Analyze paths and environment variables
         crate::path_mapper::analyze_and_link_paths(&mut report);
         crate::env_mapper::analyze_and_link_env_vars(&mut report);
-
-        // Compute metrics for ML analysis
-        if let Some(ref tree) = self.parser.borrow_mut().parse(content, None) {
-            let root = tree.root_node();
-            let metrics = self.compute_metrics(&root, content);
-            report.metrics = Some(metrics);
-        }
 
         report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;
         report.metadata.tools_used = vec!["tree-sitter-typescript".to_string()];

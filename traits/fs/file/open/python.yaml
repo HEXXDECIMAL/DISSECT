@@ -12,22 +12,63 @@ traits:
       type: string
       regex: '\bopen\('
 
+  # Sensitive file paths (browser/wallet)
+  - id: login-data-path
+    desc: Chrome/Chromium Login Data database
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "Login Data"
+
+  - id: cookies-path
+    desc: Browser cookies file
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "Cookies"
+
+  - id: key4-db-path
+    desc: Firefox key database
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "key4.db"
+
+  - id: exodus-wallet-path
+    desc: Exodus cryptocurrency wallet
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "exodus.wallet"
+
+  - id: wallet-dat-path
+    desc: Bitcoin wallet.dat file
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "wallet.dat"
+
+composite_rules:
+  # Helper: Any sensitive file path
+  - id: sensitive-paths
+    desc: Browser or wallet file paths
+    any:
+      - id: login-data-path
+      - id: cookies-path
+      - id: key4-db-path
+      - id: exodus-wallet-path
+      - id: wallet-dat-path
+
   - id: sensitive-path
-    description: "Accesses sensitive browser or wallet files"
+    desc: Accesses sensitive browser or wallet files
     crit: suspicious
     conf: 0.95
     for: [python]
-    if:
-      type: yara
-      source: |
-        rule python_sensitive_file_access {
-          strings:
-            $open = /\bopen\(/
-            $path1 = "Login Data"
-            $path2 = "Cookies"
-            $path3 = "key4.db"
-            $path4 = "exodus.wallet"
-            $path5 = "wallet.dat"
-          condition:
-            $open and any of ($path*)
-        }
+    all:
+      - id: generic
+      - id: sensitive-paths

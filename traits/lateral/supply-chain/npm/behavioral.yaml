@@ -8,7 +8,7 @@ defaults:
 traits:
   # === INSTALL-TIME BEHAVIOR (Suspicious Context) ===
 
-  # Executes immediately on require (no export call needed)
+  # NOTE: YARA kept for auto-execute - requires multiline/structural patterns with NOT conditions
   - id: auto-execute
     description: Code auto-executes on require/import
     crit: notable
@@ -25,7 +25,7 @@ traits:
             any of ($iife, $call) and not $export
         }
 
-  # Side-effect only module (no exports)
+  # NOTE: YARA kept for side-effect-only - requires NOT conditions across multiple patterns
   - id: side-effect-only
     description: Module produces side effects without exports
     crit: notable
@@ -46,7 +46,7 @@ traits:
             (any of ($http, $fs, $exec, $spawn)) and not any of ($export*)
         }
 
-  # Network activity at module load time
+  # NOTE: YARA kept for network-on-load - requires combining IIFE pattern with network calls
   - id: network-on-load
     description: Network request during module initialization
     crit: suspicious
@@ -65,7 +65,7 @@ traits:
             $iife and any of ($fetch, $http, $axios, $got)
         }
 
-  # File write at module load time
+  # NOTE: YARA kept for write-on-load - requires combining IIFE pattern with file writes
   - id: write-on-load
     description: File write during module initialization
     crit: suspicious
@@ -83,7 +83,7 @@ traits:
             $iife and any of ($write*, $append)
         }
 
-  # Process spawn at module load time
+  # NOTE: YARA kept for spawn-on-load - requires combining IIFE pattern with process spawning
   - id: spawn-on-load
     description: Process spawned during module initialization
     crit: suspicious
@@ -104,6 +104,7 @@ traits:
   # === STRUCTURAL INDICATORS ===
 
   # Very small file (< 500 bytes)
+  # NOTE: YARA kept for filesize check - DISSECT doesn't support filesize conditions
   - id: tiny-file
     description: Very small code file
     crit: notable
@@ -117,6 +118,7 @@ traits:
         }
 
   # Medium file with no functions
+  # NOTE: YARA kept for filesize check - DISSECT doesn't support filesize conditions
   - id: script-blob
     description: Medium-sized file with no function definitions
     crit: notable

@@ -72,6 +72,33 @@ traits:
       type: string
       regex: "start\\s+[\"']?[\"']?\\s*/[Bb]"
 
+  - id: temp-var
+    desc: TEMP environment variable
+    crit: inert
+    conf: 0.5
+    for: [shell, batch]
+    if:
+      type: string
+      regex: "(?i)%TEMP%|%TMP%"
+
+  - id: exe-extension
+    desc: .exe file reference
+    crit: inert
+    conf: 0.5
+    for: [shell, batch]
+    if:
+      type: string
+      regex: "(?i)\\.exe"
+
+  - id: start-cmd
+    desc: start command
+    crit: inert
+    conf: 0.5
+    for: [shell, batch]
+    if:
+      type: string
+      regex: "(?i)\\bstart\\b"
+
   - id: run-from-temp
     desc: Execute binary from TEMP directory
     crit: suspicious
@@ -80,17 +107,8 @@ traits:
     attack: "T1059.003"
     for: [shell, batch]
     if:
-      type: yara
-      source: |
-        rule run_from_temp {
-          strings:
-            $temp1 = "%TEMP%\\" nocase
-            $temp2 = "%TMP%\\" nocase
-            $exe = ".exe" nocase
-            $start = "start" nocase
-          condition:
-            any of ($temp*) and $exe and $start
-        }
+      type: string
+      regex: "(?i)start[^\\n]*(%TEMP%|%TMP%)[^\\n]*\\.exe"
 
   # Persistence/Markers
   - id: done-marker
@@ -131,6 +149,96 @@ traits:
       type: string
       exact: "EnableDelayedExpansion"
 
+  - id: curl-cmd
+    desc: curl command
+    crit: inert
+    conf: 0.5
+    for: [shell, batch]
+    if:
+      type: string
+      regex: "(?i)\\bcurl\\b"
+
+  - id: wget-cmd
+    desc: wget command
+    crit: inert
+    conf: 0.5
+    for: [shell, batch]
+    if:
+      type: string
+      regex: "(?i)\\bwget\\b"
+
+  - id: download-file-ps
+    desc: PowerShell DownloadFile
+    crit: inert
+    conf: 0.5
+    for: [shell, batch]
+    if:
+      type: string
+      regex: "(?i)DownloadFile"
+
+  - id: certutil-cmd
+    desc: certutil command
+    crit: inert
+    conf: 0.5
+    for: [shell, batch]
+    if:
+      type: string
+      regex: "(?i)\\bcertutil\\b"
+
+  - id: bitsadmin-cmd
+    desc: bitsadmin command
+    crit: inert
+    conf: 0.5
+    for: [shell, batch]
+    if:
+      type: string
+      regex: "(?i)\\bbitsadmin\\b"
+
+  - id: output-flag
+    desc: Output flag -o
+    crit: inert
+    conf: 0.4
+    for: [shell, batch]
+    if:
+      type: string
+      regex: "(?i)-o\\b"
+
+  - id: call-cmd
+    desc: call command
+    crit: inert
+    conf: 0.4
+    for: [shell, batch]
+    if:
+      type: string
+      regex: "(?i)\\bcall\\b"
+
+composite_rules:
+  # Download tool composite
+  - id: download-tool
+    desc: Download tool usage
+    crit: notable
+    conf: 0.7
+    for: [shell, batch]
+    count: 1
+    any:
+      - id: curl-cmd
+      - id: wget-cmd
+      - id: download-file-ps
+      - id: certutil-cmd
+      - id: bitsadmin-cmd
+
+  # Execute composite
+  - id: exec-cmd
+    desc: Execution command
+    crit: notable
+    conf: 0.6
+    for: [shell, batch]
+    count: 1
+    any:
+      - id: start-cmd
+      - id: exe-extension
+      - id: call-cmd
+
   # Download + Execute Combo
   - id: download-and-execute
     desc: Download and execute pattern (dropper behavior)
@@ -139,20 +247,7 @@ traits:
     mbc: "C0002"
     attack: "T1105"
     for: [shell, batch]
-    if:
-      type: yara
-      source: |
-        rule download_and_execute {
-          strings:
-            $dl1 = "curl" nocase
-            $dl2 = "wget" nocase
-            $dl3 = "DownloadFile" nocase
-            $dl4 = "certutil" nocase
-            $dl5 = "bitsadmin" nocase
-            $exec1 = "start" nocase
-            $exec2 = ".exe" nocase
-            $exec3 = "call" nocase
-            $out = "-o" nocase
-          condition:
-            any of ($dl*) and any of ($exec*) and $out
-        }
+    requires_all:
+      - id: download-tool
+      - id: exec-cmd
+      - id: output-flag

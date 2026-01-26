@@ -1,24 +1,133 @@
 # Go file encryption patterns (ransomware)
 traits:
+  - id: crypto-aes
+    description: crypto/aes import
+    crit: inert
+    conf: 0.5
+    for: [go]
+    if:
+      type: string
+      exact: "crypto/aes"
+
+  - id: crypto-cipher
+    description: crypto/cipher import
+    crit: inert
+    conf: 0.5
+    for: [go]
+    if:
+      type: string
+      exact: "crypto/cipher"
+
+  - id: crypto-rsa
+    description: crypto/rsa import
+    crit: inert
+    conf: 0.5
+    for: [go]
+    if:
+      type: string
+      exact: "crypto/rsa"
+
+  - id: filepath-walk
+    description: filepath.Walk call
+    crit: inert
+    conf: 0.5
+    for: [go]
+    if:
+      type: string
+      exact: "filepath.Walk"
+
+  - id: filepath-walkdir
+    description: filepath.WalkDir call
+    crit: inert
+    conf: 0.5
+    for: [go]
+    if:
+      type: string
+      exact: "filepath.WalkDir"
+
+  - id: ioutil-writefile
+    description: ioutil.WriteFile call
+    crit: inert
+    conf: 0.5
+    for: [go]
+    if:
+      type: string
+      exact: "ioutil.WriteFile"
+
+  - id: os-writefile
+    description: os.WriteFile call
+    crit: inert
+    conf: 0.5
+    for: [go]
+    if:
+      type: string
+      exact: "os.WriteFile"
+
+  - id: encrypted-ext
+    description: .encrypted extension
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: ".encrypted"
+
+  - id: locked-ext
+    description: .locked extension
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: ".locked"
+
+composite_rules:
+  - id: crypto-import
+    description: Cryptographic imports
+    crit: notable
+    conf: 0.6
+    for: [go]
+    count: 1
+    any:
+      - id: crypto-aes
+      - id: crypto-cipher
+      - id: crypto-rsa
+
+  - id: walk-func
+    description: Filesystem walk function
+    crit: notable
+    conf: 0.6
+    for: [go]
+    count: 1
+    any:
+      - id: filepath-walk
+      - id: filepath-walkdir
+
+  - id: write-func
+    description: File write function
+    crit: notable
+    conf: 0.6
+    for: [go]
+    count: 1
+    any:
+      - id: ioutil-writefile
+      - id: os-writefile
+
+  - id: encrypt-ext
+    description: Encryption-related extension
+    crit: notable
+    conf: 0.6
+    count: 1
+    any:
+      - id: encrypted-ext
+      - id: locked-ext
+
   - id: file-encrypt
     description: Go file encryption patterns (potential ransomware)
     crit: suspicious
     conf: 0.8
-    if:
-      type: yara
-      source: |
-        rule go_file_encrypt {
-          strings:
-            $crypto1 = "crypto/aes" ascii
-            $crypto2 = "crypto/cipher" ascii
-            $crypto3 = "crypto/rsa" ascii
-            $walk1 = "filepath.Walk" ascii
-            $walk2 = "filepath.WalkDir" ascii
-            $write1 = "ioutil.WriteFile" ascii
-            $write2 = "os.WriteFile" ascii
-            $ext1 = ".encrypted" ascii
-            $ext2 = ".locked" ascii
-          condition:
-            any of ($crypto*) and any of ($walk*) and
-            (any of ($write*) or any of ($ext*))
-        }
+    for: [go]
+    requires_all:
+      - id: crypto-import
+      - id: walk-func
+    requires_any:
+      - id: write-func
+      - id: encrypt-ext

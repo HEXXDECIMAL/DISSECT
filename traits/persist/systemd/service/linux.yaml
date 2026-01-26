@@ -3,22 +3,81 @@
 # ATT&CK: T1543.002
 
 traits:
-  - id: systemd
-    description: Linux systemd persistence
+  - id: systemd-keyword
+    description: systemd init system keyword
     crit: notable
-    confidence: 0.66
-    attack: "T1543.002"
-    condition:
-      type: yara
-      source: |
-        rule systemd_persistence {
-          strings:
-            $systemd = "systemd"
-            $systemctl = "systemctl"
-            $etc_systemd = "/etc/systemd"
-            $lib_systemd = "/lib/systemd"
-            $service = ".service"
-            $enable = "systemctl enable"
-          condition:
-            2 of them
-        }
+    conf: 0.7
+    attack: T1543.002
+    if:
+      type: string
+      word: "systemd"
+
+  - id: systemctl-command
+    description: systemctl command (control systemd services)
+    crit: notable
+    conf: 0.7
+    attack: T1543.002
+    if:
+      type: string
+      word: "systemctl"
+
+  - id: etc-systemd-path
+    description: /etc/systemd directory path (system services)
+    crit: notable
+    conf: 0.7
+    mbc: B0028
+    attack: T1543.002
+    if:
+      type: string
+      exact: "/etc/systemd"
+
+  - id: lib-systemd-path
+    description: /lib/systemd directory path (default services)
+    crit: notable
+    conf: 0.7
+    mbc: B0028
+    attack: T1543.002
+    if:
+      type: string
+      exact: "/lib/systemd"
+
+  - id: service-extension
+    description: .service file extension (systemd unit file)
+    crit: notable
+    conf: 0.6
+    attack: T1543.002
+    if:
+      type: string
+      exact: ".service"
+
+  - id: systemctl-enable
+    description: systemctl enable command (persistent service)
+    crit: notable
+    conf: 0.8
+    mbc: B0028
+    attack: T1543.002
+    if:
+      type: string
+      exact: "systemctl enable"
+
+composite_rules:
+  - id: systemd
+    description: Linux systemd persistence (2+ indicators)
+    crit: notable
+    conf: 0.66
+    mbc: B0028
+    attack: T1543.002
+    count: 2
+    any:
+      - type: trait
+        id: systemd-keyword
+      - type: trait
+        id: systemctl-command
+      - type: trait
+        id: etc-systemd-path
+      - type: trait
+        id: lib-systemd-path
+      - type: trait
+        id: service-extension
+      - type: trait
+        id: systemctl-enable

@@ -2,23 +2,46 @@
 # Detects metadata and properties in extension.vsixmanifest
 
 traits:
-  - id: identity
-    description: VSCode extension identity metadata
+  # === Identity atomic indicators ===
+  - id: identity-tag
+    description: Identity XML tag
     crit: inert
-    confidence: 1.0
+    confidence: 0.9
     file_types: [vsixmanifest]
     condition:
-      type: yara
-      source: |
-        rule vscode_manifest_identity {
-          strings:
-            $identity = "<Identity" ascii
-            $publisher = "Publisher=" ascii
-            $id = "Id=" ascii
-            $version = "Version=" ascii
-          condition:
-            all of them
-        }
+      type: string
+      exact: "<Identity"
+      search_raw: true
+
+  - id: publisher-attr
+    description: Publisher attribute
+    crit: inert
+    confidence: 0.9
+    file_types: [vsixmanifest]
+    condition:
+      type: string
+      exact: "Publisher="
+      search_raw: true
+
+  - id: id-attr
+    description: Id attribute
+    crit: inert
+    confidence: 0.9
+    file_types: [vsixmanifest]
+    condition:
+      type: string
+      exact: "Id="
+      search_raw: true
+
+  - id: version-attr
+    description: Version attribute
+    crit: inert
+    confidence: 0.9
+    file_types: [vsixmanifest]
+    condition:
+      type: string
+      exact: "Version="
+      search_raw: true
 
   - id: engine
     description: VSCode engine requirement
@@ -38,19 +61,56 @@ traits:
       type: string
       regex: 'Microsoft\.VisualStudio\.Code\.ExecutesCode.{0,50}Value="true"'
 
+  # === Link atomic indicators ===
+  - id: link-source
+    description: Source link metadata
+    crit: inert
+    confidence: 0.8
+    file_types: [vsixmanifest]
+    condition:
+      type: string
+      exact: "Microsoft.VisualStudio.Services.Links.Source"
+      search_raw: true
+
+  - id: link-github
+    description: GitHub link metadata
+    crit: inert
+    confidence: 0.8
+    file_types: [vsixmanifest]
+    condition:
+      type: string
+      exact: "Microsoft.VisualStudio.Services.Links.GitHub"
+      search_raw: true
+
+  - id: link-support
+    description: Support link metadata
+    crit: inert
+    confidence: 0.8
+    file_types: [vsixmanifest]
+    condition:
+      type: string
+      exact: "Microsoft.VisualStudio.Services.Links.Support"
+      search_raw: true
+
+composite_rules:
+  - id: identity
+    description: VSCode extension identity metadata
+    crit: inert
+    confidence: 1.0
+    file_types: [vsixmanifest]
+    requires_all:
+      - id: identity-tag
+      - id: publisher-attr
+      - id: id-attr
+      - id: version-attr
+
   - id: links
     description: Extension manifest contains external links
     crit: inert
     confidence: 0.8
     file_types: [vsixmanifest]
-    condition:
-      type: yara
-      source: |
-        rule vscode_manifest_links {
-          strings:
-            $link1 = "Microsoft.VisualStudio.Services.Links.Source" ascii
-            $link2 = "Microsoft.VisualStudio.Services.Links.GitHub" ascii
-            $link3 = "Microsoft.VisualStudio.Services.Links.Support" ascii
-          condition:
-            any of them
-        }
+    requires_count: 1
+    any:
+      - id: link-source
+      - id: link-github
+      - id: link-support

@@ -1,75 +1,133 @@
 # Malware Family - Gafgyt IoT Botnet
 # Reference: https://www.trendmicro.com/vinfo/us/threat-encyclopedia/malware/gafgyt
 # ATT&CK: T1583.005 (Botnet)
-# NOTE: DDoS flood traits (udp_flood, syn_flood, etc.) are defined in impact/ddos/flood/generic.yaml
-# NOTE: botkill is defined in c2/botkill/traits.yaml
-# NOTE: /bin/bash is defined in exec/command/shell/generic.yaml
 
 traits:
-  # NOTE: /sys/devices/system/cpu is present in glibc - this trait alone is NOT
-  # a reliable botnet indicator. Only meaningful when combined with other Gafgyt indicators.
-  - id: botnet/gafgyt/cpu-enumeration
-    description: CPU device enumeration (requires context)
+  - id: botkill-string
+    description: botkill command (process killer)
     crit: notable
+    conf: 0.7
+    for: [elf]
+    if:
+      type: string
+      exact: "botkill"
+
+  - id: bin-bash-path
+    description: /bin/bash shell path
+    crit: inert
     conf: 0.3
-    attack: "T1082"
-    file_types: [elf]
-    condition:
+    for: [elf]
+    if:
+      type: string
+      exact: "/bin/bash"
+
+  - id: cpu-sysfs-path
+    description: /sys/devices/system/cpu path (CPU enumeration)
+    crit: inert
+    conf: 0.3
+    for: [elf]
+    if:
       type: string
       exact: "/sys/devices/system/cpu"
 
-  # Gafgyt-specific: tcpraw_flood (not in generic DDoS traits)
-  - id: botnet/gafgyt/tcpraw-flood
-    description: Gafgyt TCP raw flood function
+  - id: udp-flood-string
+    description: udp_flood function name
+    crit: notable
+    conf: 0.7
+    for: [elf]
+    if:
+      type: string
+      exact: "udp_flood"
+
+  - id: tcpraw-flood-string
+    description: tcpraw_flood function name (Gafgyt-specific)
     crit: suspicious
-    conf: 0.95
-    family: true
-    attack: "T1498"
-    file_types: [elf]
-    condition:
+    conf: 0.9
+    for: [elf]
+    attack: T1498
+    if:
       type: string
       exact: "tcpraw_flood"
 
-  # Main detection via YARA with ELF magic check
-  - id: botnet/gafgyt/detected
-    description: Gafgyt IoT botnet
-    crit: suspicious
-    conf: 0.95
-    family: true
-    reference: "https://www.trendmicro.com/vinfo/us/threat-encyclopedia/malware/gafgyt"
-    attack: "T1583.005"
-    mbc: "OB0004"
-    file_types: [elf]
-    condition:
-      type: yara
-      source: |
-        rule gafgyt_botnet {
-          strings:
-            $botkill = "botkill"
-            $bash = "/bin/bash"
-            $cpu = "/sys/devices/system/cpu"
-            $udp_flood = "udp_flood"
-            $tcp_flood = "tcpraw_flood"
-            $syn_flood = "syn_flood"
-            $ack_flood = "ack_flood"
-          condition:
-            uint32(0) == 0x464C457F and
-            filesize < 500KB and
-            $botkill and 3 of them
-        }
+  - id: syn-flood-string
+    description: syn_flood function name
+    crit: notable
+    conf: 0.7
+    for: [elf]
+    if:
+      type: string
+      exact: "syn_flood"
+
+  - id: ack-flood-string
+    description: ack_flood function name
+    crit: notable
+    conf: 0.7
+    for: [elf]
+    if:
+      type: string
+      exact: "ack_flood"
+
+  - id: small-elf-binary
+    description: Small ELF binary (< 500KB)
+    crit: inert
+    conf: 0.5
+    for: [elf]
+    if:
+      type: filesize
+      max: 512000
 
 composite_rules:
-  # DDoS capability detection - references generic DDoS traits
-  - id: botnet/gafgyt/ddos-capability
-    description: Gafgyt DDoS capability
+  - id: flood-functions
+    desc: DDoS flood function names
+    crit: notable
+    conf: 0.7
+    for: [elf]
+    attack: T1498
+    any:
+      - id: udp-flood-string
+      - id: tcpraw-flood-string
+      - id: syn-flood-string
+      - id: ack-flood-string
+
+  - id: gafgyt-strings
+    desc: Gafgyt botnet string indicators (3+ required)
+    crit: suspicious
+    conf: 0.8
+    for: [elf]
+    count: 3
+    any:
+      - id: botkill-string
+      - id: bin-bash-path
+      - id: cpu-sysfs-path
+      - id: udp-flood-string
+      - id: tcpraw-flood-string
+      - id: syn-flood-string
+      - id: ack-flood-string
+
+  - id: detected
+    desc: Gafgyt IoT botnet detection (botkill + 3+ strings, small ELF)
+    crit: suspicious
+    conf: 0.95
+    for: [elf]
+    family: true
+    reference: "https://www.trendmicro.com/vinfo/us/threat-encyclopedia/malware/gafgyt"
+    attack: T1583.005
+    mbc: OB0004
+    all:
+      - id: botkill-string
+      - id: gafgyt-strings
+      - id: small-elf-binary
+
+  - id: ddos-capability
+    desc: Gafgyt DDoS flood capability
     crit: hostile
     conf: 0.9
-    attack: "T1498"
-    mbc: "B0008"
-    file_types: [elf]
-    requires_count: 2
+    for: [elf]
+    attack: T1498
+    mbc: B0008
+    count: 2
     any:
-      - id: impact/ddos/flood/udp-flood
-      - id: botnet/gafgyt/tcpraw-flood
-      - id: impact/ddos/flood/syn-flood
-      - id: impact/ddos/flood/ack-flood
+      - id: udp-flood-string
+      - id: tcpraw-flood-string
+      - id: syn-flood-string
+      - id: ack-flood-string

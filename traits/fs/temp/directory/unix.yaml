@@ -14,17 +14,24 @@ traits:
       type: symbol
       pattern: mkdtemp
 
+  - id: tmpdir-env-var
+    description: TMPDIR environment variable name
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      word: "TMPDIR"
+
+composite_rules:
   - id: directory-env
-    description: Read temp directory from TMPDIR environment
+    description: Read temp directory from TMPDIR environment variable
     crit: inert
     conf: 0.66
-    if:
-      type: yara
-      source: |
-        rule temp_env {
-          strings:
-            $tmpdir = "TMPDIR" fullword
-            $getenv = "getenv"
-          condition:
-            all of them
-        }
+    for: [elf, macho, so, dylib, c]
+    mbc: E1083
+    attack: T1083
+    all:
+      - type: trait
+        id: tmpdir-env-var
+      - type: trait
+        id: os/env/vars/getenv

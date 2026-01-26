@@ -3,20 +3,78 @@
 # ATT&CK: T1222
 
 traits:
+  - id: xattr-clear
+    description: xattr -c (clear all extended attributes)
+    crit: notable
+    conf: 0.7
+    mbc: E1222
+    attack: T1222
+    if:
+      type: string
+      exact: "xattr -c"
+
+  - id: xattr-delete
+    description: xattr -d (delete specific attribute)
+    crit: notable
+    conf: 0.7
+    mbc: E1222
+    attack: T1222
+    if:
+      type: string
+      exact: "xattr -d"
+
+  - id: xattr-write
+    description: xattr -w (write attribute value)
+    crit: notable
+    conf: 0.7
+    mbc: E1222
+    attack: T1222
+    if:
+      type: string
+      exact: "xattr -w"
+
+  - id: xattr-quarantine-remove-1
+    description: xattr -d -r -s com.apple.quarantine (legitimate quarantine removal)
+    crit: inert
+    conf: 1.0
+    if:
+      type: string
+      exact: "xattr -d -r -s com.apple.quarantine"
+
+  - id: xattr-quarantine-remove-2
+    description: xattr -d -r com.apple.quarantine (legitimate quarantine removal)
+    crit: inert
+    conf: 1.0
+    if:
+      type: string
+      exact: "xattr -d -r com.apple.quarantine"
+
+composite_rules:
+  - id: xattr-patterns
+    description: xattr command patterns (clear, delete, or write)
+    crit: notable
+    conf: 0.7
+    mbc: E1222
+    attack: T1222
+    any:
+      - type: trait
+        id: xattr-clear
+      - type: trait
+        id: xattr-delete
+      - type: trait
+        id: xattr-write
+
   - id: xattr-command
-    description: Modify extended filesystem attributes using xattr command
+    description: Modify extended filesystem attributes (excludes legitimate quarantine removal)
     crit: notable
     conf: 0.66
-    if:
-      type: yara
-      source: |
-        rule xattr_command {
-          strings:
-            $xattr_c = "xattr -c"
-            $xattr_d = "xattr -d"
-            $xattr_w = "xattr -w"
-            $not_quarantine1 = "xattr -d -r -s com.apple.quarantine"
-            $not_quarantine2 = "xattr -d -r com.apple.quarantine"
-          condition:
-            any of ($xattr*) and none of ($not*)
-        }
+    mbc: E1222
+    attack: T1222
+    all:
+      - type: trait
+        id: xattr-patterns
+    none:
+      - type: trait
+        id: xattr-quarantine-remove-1
+      - type: trait
+        id: xattr-quarantine-remove-2

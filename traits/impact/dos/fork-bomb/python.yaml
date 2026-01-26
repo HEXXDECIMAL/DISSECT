@@ -9,7 +9,7 @@ defaults:
 traits:
   # os.fork() call - notable on its own, hostile in loop
   - id: os-fork
-    description: Process forking via os.fork()
+    desc: Process forking via os.fork()
     crit: notable
     conf: 0.8
     if:
@@ -19,80 +19,214 @@ traits:
 
   # multiprocessing.Process - legitimate parallel processing
   - id: multiprocessing
-    description: Multiprocessing for parallel execution
+    desc: Multiprocessing for parallel execution
     crit: inert
     conf: 0.9
     if:
       type: string
       regex: "multiprocessing\\.(Process|Pool)"
 
-  # YARA detection for fork bomb pattern
-  - id: yara-fork-bomb
-    description: YARA detection for Python fork bomb pattern
-    crit: suspicious
-    conf: 0.98
+  # Import os
+  - id: import-os
+    desc: Import os module
+    crit: inert
+    conf: 0.6
     if:
-      type: yara
-      source: |
-        rule python_fork_bomb {
-          meta:
-            description = "Detects Python fork bomb pattern"
-          strings:
-            $while_true = "while True:" ascii
-            $while_1 = "while 1:" ascii
-            $for_ever = "for _ in iter(int, 1):" ascii
-            $fork = "os.fork()" ascii
-            $import_os = "import os" ascii
-          condition:
-            filesize < 10KB and
-            $import_os and
-            $fork and
-            any of ($while_true, $while_1, $for_ever)
-        }
+      type: string
+      exact: "import os"
 
-  # YARA detection for rapid forking without delay
-  - id: yara-rapid-fork
-    description: YARA detection for rapid forking without sleep/delay
-    crit: suspicious
-    conf: 0.85
+  # Infinite loop patterns
+  - id: while-true
+    desc: Infinite loop with while True
+    crit: inert
+    conf: 0.6
     if:
-      type: yara
-      source: |
-        rule python_rapid_fork {
-          meta:
-            description = "Detects rapid forking without sleep/delay"
-          strings:
-            $fork = "os.fork()" ascii
-            $while = /while\s+(True|1):/ ascii
-            $for = /for\s+\w+\s+in\s+range\(\d{4,}\):/ ascii
-            // Legitimate patterns (exclusions)
-            $sleep = "time.sleep" ascii
-            $worker = "worker" ascii nocase
-            $pool = "Pool" ascii
-            $daemon = "daemon" ascii
-          condition:
-            filesize < 1MB and
-            $fork and
-            any of ($while, $for) and
-            not any of ($sleep, $worker, $pool, $daemon)
-        }
+      type: string
+      exact: "while True:"
+
+  - id: while-1
+    desc: Infinite loop with while 1
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "while 1:"
+
+  - id: for-iter-int
+    desc: Infinite loop with for iter(int, 1)
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "for _ in iter(int, 1):"
+
+  # Fork call string
+  - id: os-fork-string
+    desc: os.fork() function call string
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "os.fork()"
+
+  # Large range loops (4+ digits)
+  - id: large-range-loop
+    desc: Loop with large range (10000+)
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      regex: 'for\s+\w+\s+in\s+range\(\d{4,}\):'
+
+  # While loops with True or 1
+  - id: while-true-or-1
+    desc: While loop with True or 1
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      regex: 'while\s+(True|1):'
+
+  # Exclusions (legitimate patterns)
+  - id: time-sleep
+    desc: time.sleep() rate limiting
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "time.sleep"
+
+  - id: worker-keyword-lower
+    desc: worker keyword (lowercase)
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "worker"
+
+  - id: worker-keyword-upper
+    desc: WORKER keyword (uppercase)
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "WORKER"
+
+  - id: worker-keyword-title
+    desc: Worker keyword (titlecase)
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "Worker"
+
+  - id: pool-keyword
+    desc: Pool keyword
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "Pool"
+
+  - id: daemon-keyword-lower
+    desc: daemon keyword (lowercase)
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "daemon"
+
+  - id: daemon-keyword-upper
+    desc: DAEMON keyword (uppercase)
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "DAEMON"
+
+  - id: daemon-keyword-title
+    desc: Daemon keyword (titlecase)
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: "Daemon"
 
 composite_rules:
+  # Helper: Infinite loop patterns
+  - id: infinite-loops
+    desc: Infinite loop patterns
+    any:
+      - id: while-true
+      - id: while-1
+      - id: for-iter-int
+
+  # Helper: Worker keywords
+  - id: worker-keywords
+    desc: Worker/daemon keywords
+    any:
+      - id: worker-keyword-lower
+      - id: worker-keyword-upper
+      - id: worker-keyword-title
+
+  # Helper: Daemon keywords
+  - id: daemon-keywords
+    desc: Daemon keywords
+    any:
+      - id: daemon-keyword-lower
+      - id: daemon-keyword-upper
+      - id: daemon-keyword-title
+
+  # Helper: Legitimate patterns
+  - id: legitimate-patterns
+    desc: Legitimate fork patterns
+    any:
+      - id: time-sleep
+      - id: worker-keywords
+      - id: pool-keyword
+      - id: daemon-keywords
+
+  # Helper: Fork with infinite loop
+  - id: fork-with-loop
+    desc: Fork with infinite loop
+    all:
+      - id: import-os
+      - id: os-fork-string
+      - id: infinite-loops
+
+  # Helper: Tight loop patterns
+  - id: tight-loops
+    desc: Tight loop patterns (while True/1 or large range)
+    any:
+      - id: while-true-or-1
+      - id: large-range-loop
+
+  # Helper: Fork with large range or while loop
+  - id: fork-with-tight-loop
+    desc: Fork in tight loop
+    all:
+      - id: os-fork-string
+      - id: tight-loops
+
   # Fork bomb: os.fork() inside while True loop
+  # NOTE: Original YARA had filesize < 10KB constraint (not supported in DISSECT)
   - id: infinite-fork
-    description: Fork bomb - infinite process forking (DoS)
+    desc: Fork bomb - infinite process forking (DoS)
     crit: suspicious
     conf: 0.98
     attack: "T1499.004"
     mbc: "B0033"
-    requires_all:
-      - id: yara-fork-bomb
+    all:
+      - id: fork-with-loop
 
   # Fork without rate limiting in tight loop (suspicious)
+  # NOTE: Original YARA had filesize < 1MB constraint (not supported in DISSECT)
   - id: rapid-fork
-    description: Rapid process forking without delay
+    desc: Rapid process forking without delay
     crit: suspicious
     conf: 0.85
     attack: "T1499.004"
-    requires_all:
-      - id: yara-rapid-fork
+    all:
+      - id: fork-with-tight-loop
+    none:
+      - id: legitimate-patterns

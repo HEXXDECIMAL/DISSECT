@@ -628,8 +628,12 @@ impl Radare2Analyzer {
     /// This significantly reduces overhead compared to calling each method separately.
     /// Results are cached by SHA256 with zstd compression.
     pub fn extract_batched(&self, file_path: &Path) -> Result<BatchedAnalysis> {
+        use tracing::{debug, trace, warn};
+
         let timing = std::env::var("DISSECT_TIMING").is_ok();
         let t_start = std::time::Instant::now();
+
+        debug!("Running radare2 batched analysis on {:?}", file_path);
 
         // Compute SHA256 for cache lookup
         let sha256 = Self::compute_file_sha256(file_path);
@@ -637,10 +641,13 @@ impl Radare2Analyzer {
         // Check cache first
         if let Some(ref hash) = sha256 {
             if let Some(cached) = Self::load_from_cache(hash) {
+                debug!("radare2 cache hit for {}", hash);
                 if timing {
                     eprintln!("[TIMING] radare2 cache hit: {:?}", t_start.elapsed());
                 }
                 return Ok(cached);
+            } else {
+                trace!("radare2 cache miss for {}", hash);
             }
         }
 
@@ -652,6 +659,13 @@ impl Radare2Analyzer {
         let file_size = std::fs::metadata(file_path).map(|m| m.len()).unwrap_or(0);
 
         let skip_function_analysis = file_size > MAX_SIZE_FOR_FULL_ANALYSIS;
+
+        if skip_function_analysis {
+            debug!(
+                "File size {} MB > 20 MB, skipping function analysis",
+                file_size / 1024 / 1024
+            );
+        }
 
         // SINGLE r2 spawn with ALL data extraction
         // Commands separated by "echo SEP" for parsing:
@@ -667,6 +681,8 @@ impl Radare2Analyzer {
             "aa; aflj; echo SEP; iSj; echo SEP; izj"
         };
 
+        trace!("Executing rizin with command: {}", command);
+
         let output = Command::new("rizin")
             .arg("-q")
             .arg("-e")
@@ -680,8 +696,15 @@ impl Radare2Analyzer {
             .context("Failed to execute radare2")?;
 
         if !output.status.success() {
+            warn!(
+                "radare2 exited with status {}: {}",
+                output.status,
+                String::from_utf8_lossy(&output.stderr)
+            );
             return Ok(BatchedAnalysis::default());
         }
+
+        debug!("radare2 completed successfully");
 
         let output_str = String::from_utf8_lossy(&output.stdout);
         let parts: Vec<&str> = output_str.split("SEP").collect();

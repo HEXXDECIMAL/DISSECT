@@ -2,66 +2,79 @@
 # Detects abuse of process managers (PM2, forever, nodemon) for persistence
 # ATT&CK: T1543 (Create or Modify System Process)
 
+defaults:
+  attack: "T1543"
+  for: [javascript, typescript]
+
 traits:
+  # PM2 process manager
+  - id: pm2-keyword
+    desc: PM2 process manager keyword
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "pm2"
+
+  - id: spawn-call
+    desc: spawn() function call
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: "spawn("
+
+  - id: detached-option
+    desc: Detached process option
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "detached:"
+
   # PM2 process manager spawn
   - id: pm2-spawn
-    description: Spawns PM2 process manager (potential persistence)
+    desc: Spawns PM2 process manager (potential persistence)
     crit: suspicious
-    confidence: 0.85
-    attack: "T1543"
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.85
+    if:
       type: string
-      regex: "spawn\\([^)]*pm2"
+      regex: 'spawn\([^)]*pm2'
 
   # PM2 start command
   - id: pm2-start
-    description: Starts process via PM2 (persistence mechanism)
+    desc: Starts process via PM2 (persistence mechanism)
     crit: suspicious
-    confidence: 0.85
-    attack: "T1543"
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.85
+    if:
       type: string
-      regex: "pm2\\s+start|exec\\([^)]*pm2\\s+start"
+      regex: 'pm2\s+start|exec\([^)]*pm2\s+start'
 
   # Forever process manager
   - id: forever-spawn
-    description: Uses forever process manager (persistence)
+    desc: Uses forever process manager (persistence)
     crit: suspicious
-    confidence: 0.8
-    attack: "T1543"
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.8
+    if:
       type: string
-      regex: "forever\\s+start|spawn\\([^)]*forever"
+      regex: 'forever\s+start|spawn\([^)]*forever'
 
   # Nodemon for persistence
   - id: nodemon-spawn
-    description: Uses nodemon for process persistence
+    desc: Uses nodemon for process persistence
     crit: notable
-    confidence: 0.7
-    attack: "T1543"
-    file_types: [javascript, typescript]
-    condition:
+    conf: 0.7
+    if:
       type: string
-      regex: "spawn\\([^)]*nodemon"
+      regex: 'spawn\([^)]*nodemon'
 
+composite_rules:
   # PM2 with detached mode
   - id: pm2-detached
-    description: PM2 spawned in detached mode (background persistence)
+    desc: PM2 spawned in detached mode (background persistence)
     crit: suspicious
-    confidence: 0.9
-    attack: "T1543"
-    file_types: [javascript, typescript]
-    condition:
-      type: yara
-      source: |
-        rule pm2_detached {
-          strings:
-            $pm2 = "pm2" ascii
-            $spawn = "spawn(" ascii
-            $detached = "detached:" ascii
-          condition:
-            all of them
-        }
+    conf: 0.9
+    all:
+      - id: pm2-keyword
+      - id: spawn-call
+      - id: detached-option

@@ -4,7 +4,7 @@
 
 **Traits are atomic observations.** A single detectable pattern: a symbol, string, or AST node.
 
-**Composite rules are behavioral interpretations.** Traits combined to describe capabilities: reverse shell = `socket + dup2 + exec`.
+**Composite rules are behavioral interpretations.** Traits combined to describe capabilities: reverse shell = `socket + dup2 + exec`. Traits that a composite depends on should be organized properly within the taxonomy; often not in the same file.
 
 **Criticality is independent of confidence.** A socket import is certain (confidence: 1.0) but benign (inert). A Telegram API match is uncertain (confidence: 0.8) but hostile.
 
@@ -90,12 +90,9 @@ composite_rules:
     description: ExampleBot backdoor detected
     crit: hostile
     all:
-      - type: trait
-        id: backdoor/examplebot/marker  # Malware-specific (local)
-      - type: trait
-        id: bin-sh                       # Generic trait from exec/command/shell/
-      - type: trait
-        id: socks5-proto                 # Generic trait from comm/proxy/socks/
+      - id: backdoor/examplebot/marker  # Malware-specific (local)
+      - id: bin-sh                       # Generic trait from exec/command/shell/
+      - id: socks5-proto                 # Generic trait from comm/proxy/socks/
 ```
 
 **Why this matters:** ML pipelines use trait IDs for classification. If `/bin/sh` is placed under `backdoor/systembc/bin-sh`, any program using `/bin/sh` would be flagged as potentially having SystemBC backdoor components, causing massive false positives.
@@ -426,12 +423,9 @@ none:   # NOT - none can match
 # N of M
 count: 2
 any:
-  - type: trait
-    id: crypto/aes
-  - type: trait
-    id: crypto/rsa
-  - type: trait
-    id: crypto/xor
+  - id: crypto/aes
+  - id: crypto/rsa
+  - id: crypto/xor
 ```
 
 ### Trait References
@@ -439,18 +433,16 @@ any:
 When referring to a trait from another category, you specify it based on group name (directory):
 
 ```yaml
-- type: trait
-  id: exec/process/terminate
+- id: exec/process/terminate
 ```
 
 For relative trait references, use the short name:
 
 ```
-- type: trait
-  id: terminate                    # Suffix match
+- id: terminate                    # Suffix match
 ```
 
-It is intentionally not possible to reference an exact trait in another directory.
+You can also reference a prefix of traits, like exec/process
 
 ### Composites Referencing Composites
 
@@ -468,27 +460,31 @@ traits:
   - id: socket-create
     if:
       type: symbol
-      pattern: "socket
+      exact: socket
   - id: dup2-call
-    if: {type: symbol, pattern: "dup2"}
+    if:
+      type: symbol
+      exact: "dup2"
   - id: exec-call
-    if: {type: symbol, pattern: "execve"}
+    if: 
+      type: symbol
+      pattern: "execve|exec"
 
 composite_rules:
   # Level 2: Combine atomics into behavioral pattern
   - id: fd-redirect
     desc: "File descriptor redirection"
     all:
-      - {type: trait, id: socket-create}
-      - {type: trait, id: dup2-call}
+      - id: socket-create
+      - id: dup2-call
 
   # Level 3: Reference composite to build higher-level detection
   - id: reverse-shell
     desc: "Reverse shell pattern"
     crit: hostile
     all:
-      - {type: trait, id: fd-redirect}  # References composite!
-      - {type: trait, id: exec-call}
+      - id: fd-redirect
+      - id: exec-call
 ```
 
 **Notes:**
@@ -506,10 +502,8 @@ Require traits within the same code scope.
 ```yaml
 scope: method              # method, class, or block
 all:
-  - type: trait
-    id: exec/reflection/assembly-load
-  - type: trait
-    id: exec/reflection/invoke
+  - id: exec/reflection/assembly-load
+  - id: exec/reflection/invoke
 ```
 
 ### near (Bytes)
@@ -530,10 +524,8 @@ Require patterns within N lines.
 ```yaml
 near_lines: 10
 all:
-  - type: trait
-    id: exec/process/start
-  - type: trait
-    id: fs/file/delete
+  - id: exec/process/start
+  - id: fs/file/delete
 ```
 
 ### within (Containment)
@@ -542,8 +534,7 @@ Require traits inside another trait's span.
 ```yaml
 within: exec/eval
 all:
-  - type: trait
-    id: encoding/base64/decode
+  - id: encoding/base64/decode
 ```
 
 ---

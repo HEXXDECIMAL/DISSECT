@@ -8,7 +8,8 @@ defaults:
   attack: "T1195.002"
 
 traits:
-  # setup.py abuse - core supply-chain pattern
+  # NOTE: YARA kept for setup-abuse - requires combining setup.py context with
+  # malicious operations (subprocess + urllib download patterns)
   - id: setup-abuse
     description: Malicious setup.py execution
     crit: suspicious
@@ -33,7 +34,8 @@ traits:
             (any of ($setup*) and any of ($imp*) and any of ($dl*))
         }
 
-  # PyPI typosquatting with execution
+  # NOTE: YARA kept for typosquat-exec - requires count-based logic (2 of suspicious
+  # patterns) combined with package name detection
   - id: typosquat-exec
     description: PyPI typosquatting with code execution
     crit: suspicious
@@ -57,7 +59,8 @@ traits:
             (any of ($pkg*) and 2 of ($sus*))
         }
 
-  # Install-triggered network activity
+  # NOTE: YARA kept for install-network - requires combining module-level markers
+  # with network activity and exec patterns
   - id: install-network
     description: Network activity triggered by package import/install
     crit: suspicious
@@ -83,7 +86,8 @@ traits:
             ($init or $version) and any of ($net*) and any of ($exec*)
         }
 
-  # Author impersonation with malicious code
+  # NOTE: YARA kept for author-impersonation - requires combining author metadata
+  # with code execution patterns
   - id: author-impersonation
     description: Impersonates package author with malicious code
     crit: suspicious
@@ -103,7 +107,8 @@ traits:
             ($author1 and $email1) and any of ($exec, $eval, $b64, $compile)
         }
 
-  # Gzip JSON payload loading (supply-chain specific pattern)
+  # NOTE: YARA kept for gzip-json-payload - requires combining gzip/json patterns
+  # with resource loading and code execution in a specific way
   - id: gzip-json-payload
     description: Loads code payload from gzipped JSON resource
     crit: suspicious
@@ -124,7 +129,8 @@ traits:
             ($gzip_open and $json_loads and any of ($resources, $json_gz)) and any of ($b64decode, $exec, $eval)
         }
 
-  # Runtime dependency injection
+  # NOTE: YARA kept for dependency-injection - requires combining try/except ImportError
+  # with pip install patterns in a specific structural way
   - id: dependency-injection
     description: Package installs additional dependencies at runtime
     crit: suspicious

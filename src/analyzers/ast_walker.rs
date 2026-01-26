@@ -3,13 +3,17 @@
 //! Provides stack-safe alternatives to recursive AST walking.
 //! This prevents stack overflow on deeply nested code (minified JS, malicious files).
 
-use tree_sitter::{Node, TreeCursor};
+use tree_sitter::{Node, Tree, TreeCursor};
 
 /// Maximum depth to prevent runaway traversal on malformed ASTs
 pub const MAX_AST_DEPTH: usize = 10_000;
 
 /// Maximum recursion depth for nested function traversal
 pub const MAX_RECURSION_DEPTH: u32 = 500;
+
+/// Threshold for considering error rate as hostile anti-static behavior
+/// If more than 10% of nodes are errors, flag as suspicious
+pub const ERROR_NODE_THRESHOLD: f64 = 0.10;
 
 /// Result of AST traversal with limit detection
 #[derive(Debug, Clone, Default)]
@@ -18,6 +22,21 @@ pub struct WalkStats {
     pub depth_limit_hit: bool,
     /// Maximum depth actually reached
     pub max_depth_reached: usize,
+}
+
+/// Result of AST error analysis
+#[derive(Debug, Clone)]
+pub struct ErrorAnalysis {
+    /// Whether the AST has parse errors
+    pub has_errors: bool,
+    /// Total number of nodes in the AST
+    pub total_nodes: usize,
+    /// Number of error nodes
+    pub error_nodes: usize,
+    /// Ratio of error nodes to total nodes
+    pub error_ratio: f64,
+    /// Whether error rate suggests hostile anti-analysis
+    pub is_suspicious: bool,
 }
 
 impl WalkStats {
@@ -170,6 +189,137 @@ pub fn extract_text_by_kind(cursor: &mut TreeCursor, source: &[u8], kinds: &[&st
     }
 
     results
+}
+
+/// Create a structural feature for AST parse errors
+///
+/// This should be called by all tree-sitter analyzers after parsing to detect
+/// hostile anti-static behavior. Returns None if no errors were found.
+pub fn create_parse_error_feature(
+    analysis: &ErrorAnalysis,
+    language: &str,
+) -> Option<crate::types::StructuralFeature> {
+    use crate::types::{Evidence, StructuralFeature};
+
+    if !analysis.has_errors {
+        return None;
+    }
+
+    let feature_id = if analysis.is_suspicious {
+        "ast/parse-error-high"
+    } else {
+        "ast/parse-error-low"
+    };
+
+    let desc = format!(
+        "{} parse errors: {}/{} nodes ({:.1}%)",
+        language,
+        analysis.error_nodes,
+        analysis.total_nodes,
+        analysis.error_ratio * 100.0
+    );
+
+    Some(StructuralFeature {
+        id: feature_id.to_string(),
+        desc,
+        evidence: vec![Evidence {
+            method: "ast".to_string(),
+            source: "tree-sitter".to_string(),
+            value: format!(
+                "{} error nodes out of {} total ({:.1}%)",
+                analysis.error_nodes, analysis.total_nodes, analysis.error_ratio * 100.0
+            ),
+            location: Some("parse".to_string()),
+        }],
+    })
+}
+
+/// Analyze a parsed tree for errors that may indicate hostile anti-static behavior.
+///
+/// This detects:
+/// - Parse failures (tree root has errors)
+/// - High ratio of error nodes (suggesting intentionally malformed code)
+/// - Adversarial inputs designed to crash or confuse parsers
+///
+/// Use this to flag suspicious files that may be using anti-analysis techniques.
+pub fn analyze_parse_errors(tree: &Tree) -> ErrorAnalysis {
+    let root = tree.root_node();
+    let has_errors = root.has_error();
+
+    // If no errors at all, early return
+    if !has_errors {
+        return ErrorAnalysis {
+            has_errors: false,
+            total_nodes: 0,
+            error_nodes: 0,
+            error_ratio: 0.0,
+            is_suspicious: false,
+        };
+    }
+
+    // Count error nodes vs total nodes
+    let mut cursor = root.walk();
+    let mut total_nodes = 0;
+    let mut error_nodes = 0;
+    let mut depth = 0usize;
+
+    loop {
+        if depth > MAX_AST_DEPTH {
+            break;
+        }
+
+        total_nodes += 1;
+        if cursor.node().is_error() || cursor.node().is_missing() {
+            error_nodes += 1;
+        }
+
+        if cursor.goto_first_child() {
+            depth += 1;
+            continue;
+        }
+
+        if cursor.goto_next_sibling() {
+            continue;
+        }
+
+        loop {
+            if !cursor.goto_parent() {
+                // Finished traversal
+                let error_ratio = if total_nodes > 0 {
+                    error_nodes as f64 / total_nodes as f64
+                } else {
+                    0.0
+                };
+
+                return ErrorAnalysis {
+                    has_errors: true,
+                    total_nodes,
+                    error_nodes,
+                    error_ratio,
+                    is_suspicious: error_ratio >= ERROR_NODE_THRESHOLD,
+                };
+            }
+            depth = depth.saturating_sub(1);
+            if cursor.goto_next_sibling() {
+                break;
+            }
+        }
+    }
+
+    // Depth limit hit - treat as suspicious
+    let error_ratio = if total_nodes > 0 {
+        error_nodes as f64 / total_nodes as f64
+    } else {
+        0.0
+    };
+
+    ErrorAnalysis {
+        has_errors: true,
+        total_nodes,
+        error_nodes,
+        error_ratio,
+        is_suspicious: true, // Depth limit suggests adversarial input
+    }
 }
 
 #[cfg(test)]

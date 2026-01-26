@@ -58,6 +58,52 @@ traits:
       type: string
       exact: "8825FC47153E264D"
 
+  # NOTE: Cannot fully migrate - requires ELF magic check (uint32(0) == 0x464C457F) and filesize limit
+  #  These checks require YARA. Atomic traits added for the string parts.
+  - id: apt/gelsemium/clientpath-wide
+    description: clientpath config (wide)
+    crit: notable
+    conf: 0.7
+    family: true
+    for: [elf]
+    condition:
+      type: string
+      exact: "clientpath"
+      search_raw: true
+
+  - id: apt/gelsemium/hiderpath-wide
+    description: hiderpath config (wide)
+    crit: notable
+    conf: 0.7
+    family: true
+    for: [elf]
+    condition:
+      type: string
+      exact: "hiderpath"
+      search_raw: true
+
+  - id: apt/gelsemium/pluginkey-wide
+    description: pluginkey config (wide)
+    crit: notable
+    conf: 0.7
+    family: true
+    for: [elf]
+    condition:
+      type: string
+      exact: "pluginkey"
+      search_raw: true
+
+  - id: apt/gelsemium/mainpath-wide
+    description: mainpath config (wide)
+    crit: notable
+    conf: 0.7
+    family: true
+    for: [elf]
+    condition:
+      type: string
+      exact: "mainpath"
+      search_raw: true
+
   - id: apt/gelsemium/config-yara
     description: Wolfsbane config strings via YARA
     crit: suspicious

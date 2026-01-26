@@ -3,26 +3,54 @@
 # ATT&CK: T1083
 
 traits:
-  - id: device-dev
-    description: Reference to /dev devices (excluding /dev/null)
+  - id: dev-path-pattern
+    description: /dev/ device path pattern
     crit: notable
-    conf: 0.66
-    if:
-      type: yara
-      source: |
-        rule dev_path {
-          strings:
-            $path = /\/dev\/[\w\.\-\/]{1,16}/
-            $ignore_null = "/dev/null"
-            $ignore_shm = "/dev/shm/"
-          condition:
-            $path and none of ($ignore*)
-        }
-
-  - id: device-null
-    description: Reference to /dev/null
-    crit: inert
-    conf: 0.66
+    conf: 0.7
+    mbc: E1083
+    attack: T1083
     if:
       type: string
-      exact: /dev/null
+      regex: '/dev/[\w.\-/]{1,16}'
+
+  - id: dev-null
+    description: /dev/null (legitimate discard device)
+    crit: inert
+    conf: 1.0
+    if:
+      type: string
+      exact: "/dev/null"
+
+  - id: dev-shm
+    description: /dev/shm/ (shared memory, legitimate)
+    crit: inert
+    conf: 1.0
+    if:
+      type: string
+      exact: "/dev/shm/"
+
+composite_rules:
+  - id: device-dev
+    description: Reference to /dev devices (excludes /dev/null and /dev/shm)
+    crit: notable
+    conf: 0.66
+    mbc: E1083
+    attack: T1083
+    all:
+      - type: trait
+        id: dev-path-pattern
+    none:
+      - type: trait
+        id: dev-null
+      - type: trait
+        id: dev-shm
+
+  - id: device-null
+    description: Reference to /dev/null device
+    crit: inert
+    conf: 0.66
+    mbc: E1083
+    attack: T1083
+    any:
+      - type: trait
+        id: dev-null

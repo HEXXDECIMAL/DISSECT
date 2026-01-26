@@ -3,18 +3,47 @@
 # ATT&CK: T1222
 
 traits:
+  - id: chmod-plus-x
+    description: chmod +x command (add execute permission)
+    crit: notable
+    conf: 0.7
+    mbc: E1222
+    attack: T1222
+    if:
+      type: string
+      exact: "chmod +x"
+
+  - id: chmod-755
+    description: chmod 755 command (rwxr-xr-x permissions)
+    crit: notable
+    conf: 0.7
+    mbc: E1222
+    attack: T1222
+    if:
+      type: string
+      exact: "chmod 755"
+
+  - id: chmod-0755
+    description: chmod 0755 command (rwxr-xr-x permissions, octal)
+    crit: notable
+    conf: 0.7
+    mbc: E1222
+    attack: T1222
+    if:
+      type: string
+      exact: "chmod 0755"
+
+composite_rules:
   - id: executable
-    description: Make file executable
+    description: Make file executable with chmod command
     crit: notable
     conf: 0.66
-    if:
-      type: yara
-      source: |
-        rule make_executable {
-          strings:
-            $chmod_x = "chmod +x"
-            $chmod_755 = "chmod 755"
-            $chmod_0755 = "chmod 0755"
-          condition:
-            any of them
-        }
+    mbc: E1222
+    attack: T1222
+    any:
+      - type: trait
+        id: chmod-plus-x
+      - type: trait
+        id: chmod-755
+      - type: trait
+        id: chmod-0755

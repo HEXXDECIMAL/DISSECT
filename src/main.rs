@@ -34,6 +34,8 @@ use std::fs;
 use std::io::{BufRead, IsTerminal};
 use std::path::Path;
 use std::sync::{Arc, Mutex};
+use tracing::{debug, info, trace, warn};
+use tracing_subscriber::EnvFilter;
 use yara_engine::YaraEngine;
 
 /// Read paths from stdin, one per line.
@@ -72,6 +74,30 @@ fn expand_paths(paths: Vec<String>) -> Vec<String> {
 }
 
 fn main() -> Result<()> {
+    // Parse args early to get verbose flag for logging initialization
+    let args = cli::Args::parse();
+
+    // Initialize tracing/logging
+    // Use RUST_LOG env var if set, otherwise use verbose flag
+    // Examples: RUST_LOG=debug, RUST_LOG=dissect=trace, RUST_LOG=dissect::analyzers::archive=trace
+    let env_filter = if std::env::var("RUST_LOG").is_ok() {
+        EnvFilter::from_default_env()
+    } else if args.verbose {
+        EnvFilter::new("dissect=debug")
+    } else {
+        EnvFilter::new("dissect=info")
+    };
+
+    tracing_subscriber::fmt()
+        .with_env_filter(env_filter)
+        .with_target(true)
+        .with_thread_ids(false)
+        .with_line_number(true)
+        .with_writer(std::io::stderr)
+        .init();
+
+    debug!("Logging initialized (verbose={})", args.verbose);
+
     // Configure rayon thread pool with larger stack size to handle deeply nested ASTs
     // (e.g., minified JavaScript, malicious files with extreme nesting)
     // Default is ~2MB which can overflow on files with 1000+ nesting levels
@@ -79,8 +105,6 @@ fn main() -> Result<()> {
         .stack_size(8 * 1024 * 1024) // 8MB per thread
         .build_global()
         .ok(); // Ignore error if pool already initialized (e.g., in tests)
-
-    let args = cli::Args::parse();
 
     // Get disabled components
     let disabled = args.disabled_components();

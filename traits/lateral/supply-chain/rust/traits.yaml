@@ -2,43 +2,93 @@
 # ATT&CK: T1195 (Supply Chain Compromise)
 
 traits:
-  - id: suspicious-crate-call
-    description: Call to a suspicious-looking crate (potential typosquat or malicious)
+  # === Suspicious crate atomic indicators ===
+  - id: sha-rust-crate
+    description: sha_rust suspicious crate
     crit: suspicious
     confidence: 0.8
     attack: "T1195"
     file_types: [rust]
     condition:
-      type: yara
-      source: |
-        rule suspicious_crate_call {
-          strings:
-            $c1 = "sha_rust" ascii
-            $c2 = "rust_sha" ascii
-            $c3 = "reqwest_rust" ascii
-            $c4 = "tokio_rust" ascii
-            $c5 = "base64_rust" ascii
-          condition:
-            any of them
-        }
+      type: string
+      exact: "sha_rust"
 
-  - id: misspelled-common-words
-    description: Misspelled common words in identifiers (indicator of low quality/malicious)
+  - id: rust-sha-crate
+    description: rust_sha suspicious crate
+    crit: suspicious
+    confidence: 0.8
+    attack: "T1195"
+    file_types: [rust]
+    condition:
+      type: string
+      exact: "rust_sha"
+
+  - id: reqwest-rust-crate
+    description: reqwest_rust suspicious crate
+    crit: suspicious
+    confidence: 0.8
+    attack: "T1195"
+    file_types: [rust]
+    condition:
+      type: string
+      exact: "reqwest_rust"
+
+  - id: tokio-rust-crate
+    description: tokio_rust suspicious crate
+    crit: suspicious
+    confidence: 0.8
+    attack: "T1195"
+    file_types: [rust]
+    condition:
+      type: string
+      exact: "tokio_rust"
+
+  - id: base64-rust-crate
+    description: base64_rust suspicious crate
+    crit: suspicious
+    confidence: 0.8
+    attack: "T1195"
+    file_types: [rust]
+    condition:
+      type: string
+      exact: "base64_rust"
+
+  # === Misspelled word atomic indicators ===
+  - id: filte-var-typo
+    description: filte_var misspelling
     crit: notable
     confidence: 0.7
     file_types: [rust]
     condition:
-      type: yara
-      source: |
-        rule misspelled_identifiers {
-          strings:
-            $m1 = "filte_var" ascii
-            $m2 = "connecion" ascii
-            $m3 = "payloaad" ascii
-            $m4 = "exfiltrat" ascii
-          condition:
-            any of them
-        }
+      type: string
+      exact: "filte_var"
+
+  - id: connecion-typo
+    description: connecion misspelling
+    crit: notable
+    confidence: 0.7
+    file_types: [rust]
+    condition:
+      type: string
+      exact: "connecion"
+
+  - id: payloaad-typo
+    description: payloaad misspelling
+    crit: notable
+    confidence: 0.7
+    file_types: [rust]
+    condition:
+      type: string
+      exact: "payloaad"
+
+  - id: exfiltrat-word
+    description: exfiltrat word fragment
+    crit: notable
+    confidence: 0.7
+    file_types: [rust]
+    condition:
+      type: string
+      exact: "exfiltrat"
 
   # === Dummy key/value atomic indicators ===
   - id: dummy-key-word
@@ -59,25 +109,85 @@ traits:
       type: string
       exact: "dummy_value"
 
+  # === Library pattern atomic indicators ===
+  - id: pub-struct
+    description: pub struct declaration
+    crit: inert
+    confidence: 0.5
+    file_types: [rust]
+    condition:
+      type: string
+      exact: "pub struct "
+
+  - id: pub-enum
+    description: pub enum declaration
+    crit: inert
+    confidence: 0.5
+    file_types: [rust]
+    condition:
+      type: string
+      exact: "pub enum "
+
+  - id: impl-keyword
+    description: impl keyword
+    crit: inert
+    confidence: 0.5
+    file_types: [rust]
+    condition:
+      type: string
+      exact: "impl "
+
+  - id: pub-trait
+    description: pub trait declaration
+    crit: inert
+    confidence: 0.5
+    file_types: [rust]
+    condition:
+      type: string
+      exact: "pub trait "
+
+composite_rules:
+  # Suspicious crate composite
+  - id: suspicious-crate-call
+    description: Call to a suspicious-looking crate (potential typosquat or malicious)
+    crit: suspicious
+    confidence: 0.8
+    attack: "T1195"
+    file_types: [rust]
+    requires_count: 1
+    any:
+      - id: sha-rust-crate
+      - id: rust-sha-crate
+      - id: reqwest-rust-crate
+      - id: tokio-rust-crate
+      - id: base64-rust-crate
+
+  # Misspelled words composite
+  - id: misspelled-common-words
+    description: Misspelled common words in identifiers (indicator of low quality/malicious)
+    crit: notable
+    confidence: 0.7
+    file_types: [rust]
+    requires_count: 1
+    any:
+      - id: filte-var-typo
+      - id: connecion-typo
+      - id: payloaad-typo
+      - id: exfiltrat-word
+
+  # Library pattern composite (requires 2 of them)
   - id: internal-lib-pattern
     description: Generic indicator of legitimate library code (traits, structs, impls)
     crit: inert
     confidence: 0.5
     file_types: [rust]
-    condition:
-      type: yara
-      source: |
-        rule rust_library_patterns {
-          strings:
-            $s1 = "pub struct " ascii
-            $s2 = "pub enum " ascii
-            $s3 = "impl " ascii
-            $s4 = "pub trait " ascii
-          condition:
-            2 of them
-        }
+    requires_count: 2
+    any:
+      - id: pub-struct
+      - id: pub-enum
+      - id: impl-keyword
+      - id: pub-trait
 
-composite_rules:
   # Dummy keys composite
   - id: dummy-keys-hashmap
     description: Usage of dummy keys in a HashMap (potential test/placeholder)

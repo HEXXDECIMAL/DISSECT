@@ -3,34 +3,67 @@
 # ATT&CK: T1083
 
 traits:
-  - id: windows-appdata
-    description: Reference to Windows Application Data
+  - id: default-user-appdata
+    description: Default User Application Data path
     crit: notable
-    conf: 0.66
+    conf: 0.7
+    mbc: E1083
+    attack: T1083
     if:
-      type: yara
-      source: |
-        rule windows_appdata {
-          strings:
-            $user = /Default User.{0,32}Application Data/
-            $local = /LocalService.{0,32}Application Data/
-            $net = /NetworkService.{0,32}Application Data/
-          condition:
-            any of them
-        }
+      type: string
+      regex: 'Default User.{0,32}Application Data'
+
+  - id: localservice-appdata
+    description: LocalService Application Data path
+    crit: notable
+    conf: 0.7
+    mbc: E1083
+    attack: T1083
+    if:
+      type: string
+      regex: 'LocalService.{0,32}Application Data'
+
+  - id: networkservice-appdata
+    description: NetworkService Application Data path
+    crit: notable
+    conf: 0.7
+    mbc: E1083
+    attack: T1083
+    if:
+      type: string
+      regex: 'NetworkService.{0,32}Application Data'
 
   - id: windows-root
-    description: Reference to Windows system root
+    description: C:\\Windows\\ directory path
     crit: inert
     conf: 0.66
+    mbc: E1083
+    attack: T1083
     if:
       type: string
-      regex: "[Cc]:\\\\Windows\\\\[\\w\\\\]+"
+      regex: '[Cc]:\\Windows\\[\w\\]+'
 
   - id: windows-system32
-    description: Reference to Windows System32
+    description: C:\\Windows\\System32\\ directory path
     crit: notable
     conf: 0.66
+    mbc: E1083
+    attack: T1083
     if:
       type: string
-      regex: "[Cc]:\\\\Windows\\\\System32\\\\[\\w\\.]+"
+      regex: '[Cc]:\\Windows\\System32\\[\w.]+'
+
+composite_rules:
+  - id: windows-appdata
+    description: Windows Application Data paths (user profiles)
+    crit: notable
+    conf: 0.66
+    mbc: E1083
+    attack: T1083
+    any:
+      - type: trait
+        id: default-user-appdata
+      - type: trait
+        id: localservice-appdata
+      - type: trait
+        id: networkservice-appdata

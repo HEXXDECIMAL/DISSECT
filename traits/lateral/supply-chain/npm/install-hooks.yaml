@@ -74,29 +74,88 @@ traits:
       regex: '\|\s*(sh|bash|zsh|perl|python|ruby|node)'
       search_raw: true
 
-  - id: download-execute
-    description: npm script downloads and executes code (dropper pattern)
-    crit: suspicious
-    confidence: 0.95
-    mbc: "B0024"
-    attack: "T1105"
+  # Atomic traits for download-execute
+  - id: curl-keyword
+    description: Script contains curl command
+    crit: inert
+    confidence: 0.5
     file_types: [packagejson]
     condition:
-      type: yara
-      source: |
-        rule npm_download_execute {
-          strings:
-            $dl1 = "curl" nocase
-            $dl2 = "wget" nocase
-            $chain = "&&"
-            $exec1 = "| sh"
-            $exec2 = "| bash"
-            $exec3 = "| perl"
-            $exec4 = "| python"
-            $exec5 = "| node"
-          condition:
-            any of ($dl*) and ($chain or any of ($exec*))
-        }
+      type: string
+      exact: 'curl'
+      search_raw: true
+      case_insensitive: true
+
+  - id: wget-keyword
+    description: Script contains wget command
+    crit: inert
+    confidence: 0.5
+    file_types: [packagejson]
+    condition:
+      type: string
+      exact: 'wget'
+      search_raw: true
+      case_insensitive: true
+
+  - id: shell-chain
+    description: Script contains shell chaining operator
+    crit: inert
+    confidence: 0.3
+    file_types: [packagejson]
+    condition:
+      type: string
+      exact: '&&'
+      search_raw: true
+
+  - id: pipe-to-sh
+    description: Script pipes to sh
+    crit: inert
+    confidence: 0.5
+    file_types: [packagejson]
+    condition:
+      type: string
+      exact: '| sh'
+      search_raw: true
+
+  - id: pipe-to-bash
+    description: Script pipes to bash
+    crit: inert
+    confidence: 0.5
+    file_types: [packagejson]
+    condition:
+      type: string
+      exact: '| bash'
+      search_raw: true
+
+  - id: pipe-to-perl
+    description: Script pipes to perl
+    crit: inert
+    confidence: 0.5
+    file_types: [packagejson]
+    condition:
+      type: string
+      exact: '| perl'
+      search_raw: true
+
+  - id: pipe-to-python
+    description: Script pipes to python
+    crit: inert
+    confidence: 0.5
+    file_types: [packagejson]
+    condition:
+      type: string
+      exact: '| python'
+      search_raw: true
+
+  - id: pipe-to-node
+    description: Script pipes to node
+    crit: inert
+    confidence: 0.5
+    file_types: [packagejson]
+    condition:
+      type: string
+      exact: '| node'
+      search_raw: true
 
   # Obfuscation in Scripts
   - id: base64-in-script
@@ -181,3 +240,42 @@ traits:
       type: string
       regex: 'python3?\s+-c|python3?\s+[^|]'
       search_raw: true
+
+# === Composite Rules ===
+composite_rules:
+  # Download tools
+  - id: download-tools
+    description: Script uses download tools
+    crit: inert
+    conf: 0.6
+    file_types: [packagejson]
+    any:
+      - id: curl-keyword
+      - id: wget-keyword
+
+  # Pipe to interpreter patterns
+  - id: pipe-to-interpreters
+    description: Script pipes to shell or interpreter
+    crit: inert
+    conf: 0.6
+    file_types: [packagejson]
+    any:
+      - id: pipe-to-sh
+      - id: pipe-to-bash
+      - id: pipe-to-perl
+      - id: pipe-to-python
+      - id: pipe-to-node
+
+  # Download and execute composite
+  - id: download-execute
+    description: npm script downloads and executes code (dropper pattern)
+    crit: suspicious
+    conf: 0.95
+    mbc: "B0024"
+    attack: "T1105"
+    file_types: [packagejson]
+    all:
+      - id: download-tools
+    any:
+      - id: shell-chain
+      - id: pipe-to-interpreters

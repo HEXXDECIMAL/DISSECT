@@ -2,27 +2,188 @@
 # Detects out-of-band triggers for malicious activity
 
 traits:
+  # ICMP structure references
+  - id: icmp-hdr-struct
+    desc: ICMP header structure (C)
+    crit: inert
+    conf: 0.6
+    for: [c]
+    if:
+      type: string
+      exact: "struct icmphdr"
+
+  - id: icmp-rcv
+    desc: ICMP receive handler
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "icmp_rcv"
+
+  # Magic trigger values
+  - id: magic-1337
+    desc: Magic value 1337 (common trigger)
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: "1337"
+
+  - id: magic-0x539
+    desc: Magic value 0x539 (hex for 1337)
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: "0x539"
+
+  - id: magic-keyword-lower
+    desc: MAGIC keyword (lowercase)
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: "magic"
+
+  - id: magic-keyword-upper
+    desc: MAGIC keyword (uppercase)
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: "MAGIC"
+
+  - id: magic-keyword-title
+    desc: Magic keyword (titlecase)
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: "Magic"
+
+  # Trigger keywords
+  - id: trigger-keyword-lower
+    desc: trigger keyword (lowercase)
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: "trigger"
+
+  - id: trigger-keyword-upper
+    desc: TRIGGER keyword (uppercase)
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: "TRIGGER"
+
+  - id: trigger-keyword-title
+    desc: Trigger keyword (titlecase)
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: "Trigger"
+
+  - id: activate-keyword-lower
+    desc: activate keyword (lowercase)
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: "activate"
+
+  - id: activate-keyword-upper
+    desc: ACTIVATE keyword (uppercase)
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: "ACTIVATE"
+
+  - id: activate-keyword-title
+    desc: Activate keyword (titlecase)
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: "Activate"
+
+  - id: revshell-keyword-lower
+    desc: revshell keyword (lowercase)
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: "revshell"
+
+  - id: revshell-keyword-upper
+    desc: REVSHELL keyword (uppercase)
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: "REVSHELL"
+
+  - id: revshell-keyword-title
+    desc: Revshell keyword (titlecase)
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: "Revshell"
+
+  # ICMP protocol constant
+  - id: icmp-echo-const
+    desc: ICMP_ECHO constant
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "ICMP_ECHO"
+
+composite_rules:
+  # Helper: ICMP handling context
+  - id: icmp-context
+    desc: ICMP packet handling context
+    any:
+      - id: icmp-hdr-struct
+      - id: icmp-rcv
+
+  # Helper: Magic value patterns
+  - id: magic-values
+    desc: Magic trigger values
+    any:
+      - id: magic-1337
+      - id: magic-0x539
+      - id: magic-keyword-lower
+      - id: magic-keyword-upper
+      - id: magic-keyword-title
+
+  # Helper: Trigger keywords
+  - id: trigger-keywords
+    desc: C2 trigger activation keywords
+    any:
+      - id: trigger-keyword-lower
+      - id: trigger-keyword-upper
+      - id: trigger-keyword-title
+      - id: activate-keyword-lower
+      - id: activate-keyword-upper
+      - id: activate-keyword-title
+      - id: revshell-keyword-lower
+      - id: revshell-keyword-upper
+      - id: revshell-keyword-title
+      - id: icmp-echo-const
+
   # ICMP Magic Packet Trigger
   - id: icmp-magic-packet
-    desc: Detects ICMP packet inspection for magic values (C2 trigger)
+    desc: ICMP packet inspection for magic values (C2 trigger)
     crit: suspicious
     conf: 0.95
     attack: "T1205.001"
     for: [c, go, python]
-    if:
-      type: yara
-      source: |
-        rule icmp_magic_trigger {
-          strings:
-            $icmp_hdr = "struct icmphdr" ascii
-            $icmp_rcv = "icmp_rcv" ascii
-            $magic1 = "1337" ascii
-            $magic2 = "0x539" ascii
-            $magic3 = "MAGIC" ascii nocase
-            $trigger1 = "trigger" ascii nocase
-            $trigger2 = "activate" ascii nocase
-            $trigger3 = "revshell" ascii nocase
-            $icmp_type = "ICMP_ECHO" ascii
-          condition:
-            ($icmp_hdr or $icmp_rcv) and any of ($magic*) and any of ($trigger*, $icmp_type)
-        }
+    all:
+      - id: icmp-context
+      - id: magic-values
+      - id: trigger-keywords

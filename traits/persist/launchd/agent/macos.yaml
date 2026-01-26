@@ -3,21 +3,71 @@
 # ATT&CK: T1543.004
 
 traits:
-  - id: launchd
-    description: macOS launchd persistence
+  - id: launch-agents
+    description: LaunchAgents directory (user-level services)
     crit: notable
-    confidence: 0.66
-    attack: "T1543.004"
-    condition:
-      type: yara
-      source: |
-        rule launchd_persistence {
-          strings:
-            $launch_agents = "LaunchAgents"
-            $launch_daemons = "LaunchDaemons"
-            $launchctl = "launchctl"
-            $plist = ".plist"
-            $run_at_load = "RunAtLoad"
-          condition:
-            2 of them
-        }
+    conf: 0.7
+    mbc: B0028
+    attack: T1543.004
+    if:
+      type: string
+      exact: "LaunchAgents"
+
+  - id: launch-daemons
+    description: LaunchDaemons directory (system-level services)
+    crit: notable
+    conf: 0.7
+    mbc: B0028
+    attack: T1543.004
+    if:
+      type: string
+      exact: "LaunchDaemons"
+
+  - id: launchctl-command
+    description: launchctl command (manage launchd services)
+    crit: notable
+    conf: 0.7
+    mbc: B0028
+    attack: T1543.004
+    if:
+      type: string
+      word: "launchctl"
+
+  - id: plist-extension
+    description: .plist file extension (property list)
+    crit: notable
+    conf: 0.6
+    attack: T1543.004
+    if:
+      type: string
+      exact: ".plist"
+
+  - id: run-at-load
+    description: RunAtLoad key (start service at boot)
+    crit: notable
+    conf: 0.8
+    mbc: B0028
+    attack: T1543.004
+    if:
+      type: string
+      exact: "RunAtLoad"
+
+composite_rules:
+  - id: launchd
+    description: macOS launchd persistence (2+ indicators)
+    crit: notable
+    conf: 0.66
+    mbc: B0028
+    attack: T1543.004
+    count: 2
+    any:
+      - type: trait
+        id: launch-agents
+      - type: trait
+        id: launch-daemons
+      - type: trait
+        id: launchctl-command
+      - type: trait
+        id: plist-extension
+      - type: trait
+        id: run-at-load

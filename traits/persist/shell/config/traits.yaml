@@ -4,189 +4,223 @@
 traits:
   # Bash persistence
   - id: bash-profile
-    description: Accesses .bash_profile for shell persistence
+    description: .bash_profile shell configuration file
     crit: suspicious
-    confidence: 0.7
-    attack: "T1546.004"
-    file_types: [all]
-    condition:
+    conf: 0.7
+    attack: T1546.004
+    if:
       type: string
       exact: ".bash_profile"
 
   - id: bashrc
-    description: Accesses .bashrc for shell persistence
+    description: .bashrc shell configuration file
     crit: suspicious
-    confidence: 0.7
-    attack: "T1546.004"
-    file_types: [all]
-    condition:
+    conf: 0.7
+    attack: T1546.004
+    if:
       type: string
       exact: ".bashrc"
 
   - id: bash-login
-    description: Accesses .bash_login for shell persistence
+    description: .bash_login shell configuration file
     crit: suspicious
-    confidence: 0.75
-    attack: "T1546.004"
-    file_types: [all]
-    condition:
+    conf: 0.75
+    attack: T1546.004
+    if:
       type: string
       exact: ".bash_login"
 
   - id: bash-logout
-    description: Accesses .bash_logout for shell persistence
+    description: .bash_logout shell configuration file
     crit: suspicious
-    confidence: 0.85
-    attack: "T1546.004"
-    file_types: [all]
-    condition:
+    conf: 0.85
+    attack: T1546.004
+    if:
       type: string
       exact: ".bash_logout"
 
   - id: profile
-    description: Accesses .profile for shell persistence
+    description: .profile shell configuration file
     crit: suspicious
-    confidence: 0.7
-    attack: "T1546.004"
-    file_types: [all]
-    condition:
+    conf: 0.7
+    attack: T1546.004
+    if:
       type: string
-      # Use regex with word boundary to avoid matching .profiled, .profiles, etc.
-      regex: "\\.profile\\b"
+      word: ".profile"
 
   - id: etc-profile
-    description: Accesses /etc/profile for system-wide shell persistence
+    description: /etc/profile system-wide shell configuration
     crit: suspicious
-    confidence: 0.75
-    attack: "T1546.004"
-    file_types: [all]
-    condition:
+    conf: 0.75
+    attack: T1546.004
+    if:
       type: string
       exact: "/etc/profile"
 
   - id: etc-bashrc
-    description: Accesses /etc/bashrc for system-wide shell persistence
+    description: /etc/bashrc system-wide shell configuration
     crit: suspicious
-    confidence: 0.75
-    attack: "T1546.004"
-    file_types: [all]
-    condition:
+    conf: 0.75
+    attack: T1546.004
+    if:
       type: string
       exact: "/etc/bashrc"
 
   # Zsh persistence
   - id: zshrc
-    description: Accesses .zshrc for shell persistence
+    description: .zshrc shell configuration file
     crit: suspicious
-    confidence: 0.7
-    attack: "T1546.004"
-    file_types: [all]
-    condition:
+    conf: 0.7
+    attack: T1546.004
+    if:
       type: string
       exact: ".zshrc"
 
   - id: zprofile
-    description: Accesses .zprofile for shell persistence
+    description: .zprofile shell configuration file
     crit: suspicious
-    confidence: 0.7
-    attack: "T1546.004"
-    file_types: [all]
-    condition:
+    conf: 0.7
+    attack: T1546.004
+    if:
       type: string
       exact: ".zprofile"
 
   - id: zlogin
-    description: Accesses .zlogin for shell persistence
+    description: .zlogin shell configuration file
     crit: suspicious
-    confidence: 0.75
-    attack: "T1546.004"
-    file_types: [all]
-    condition:
+    conf: 0.75
+    attack: T1546.004
+    if:
       type: string
       exact: ".zlogin"
 
   - id: zlogout
-    description: Accesses .zlogout for shell persistence
+    description: .zlogout shell configuration file
     crit: suspicious
-    confidence: 0.85
-    attack: "T1546.004"
-    file_types: [all]
-    condition:
+    conf: 0.85
+    attack: T1546.004
+    if:
       type: string
       exact: ".zlogout"
 
   - id: etc-zshrc
-    description: Accesses /etc/zshrc for system-wide shell persistence
+    description: /etc/zshrc system-wide shell configuration
     crit: suspicious
-    confidence: 0.75
-    attack: "T1546.004"
-    file_types: [all]
-    condition:
+    conf: 0.75
+    attack: T1546.004
+    if:
       type: string
       exact: "/etc/zshrc"
 
   # Hardcoded paths (more suspicious)
   - id: hardcoded-profile
-    description: Hardcoded path to .profile
+    description: Hardcoded path to .profile file
     crit: suspicious
-    confidence: 0.9
-    attack: "T1546.004"
-    file_types: [elf]
-    condition:
+    conf: 0.9
+    for: [elf, macho]
+    attack: T1546.004
+    if:
       type: string
-      regex: "/[\\w./]{0,32}/\\.profile"
+      regex: '/[\w./]{0,32}/\.profile'
 
   - id: hardcoded-bashrc
-    description: Hardcoded path to .bashrc
+    description: Hardcoded path to .bashrc file
     crit: suspicious
-    confidence: 0.9
-    attack: "T1546.004"
-    file_types: [elf]
-    condition:
+    conf: 0.9
+    for: [elf, macho]
+    attack: T1546.004
+    if:
       type: string
-      regex: "/[\\w./]{0,32}/\\.bashrc"
+      regex: '/[\w./]{0,32}/\.bashrc'
 
-  # Composite patterns (moved to traits due to single YARA condition)
-  - id: multi-file-access
-    description: Multiple shell config file access (persistence)
+  - id: hardcoded-zshrc
+    description: Hardcoded path to .zshrc file
     crit: suspicious
-    confidence: 0.9
-    attack: "T1546.004"
-    condition:
-      type: yara
-      source: |
-        rule shell_persistence_multi {
-          strings:
-            $bash_profile = ".bash_profile"
-            $bash_login = ".bash_login"
-            $profile = ".profile" fullword
-            $bashrc = ".bashrc" fullword
-            $zshrc = ".zshrc" fullword
-            $zprofile = ".zprofile"
-            $not_bash = "POSIXLY_CORRECT"
-            $not_csh = ".cshrc"
-            $not_tcsh = "tcsh" fullword
-          condition:
-            filesize < 10MB and
-            3 of ($bash*, $profile, $bashrc, $zshrc, $zprofile) and
-            none of ($not*)
-        }
+    conf: 0.9
+    for: [elf, macho]
+    attack: T1546.004
+    if:
+      type: string
+      regex: '/[\w./]{0,32}/\.zshrc'
+
+  # Exclusion patterns
+  - id: posixly-correct
+    description: POSIXLY_CORRECT environment variable (legitimate bash behavior)
+    crit: inert
+    conf: 1.0
+    if:
+      type: string
+      exact: "POSIXLY_CORRECT"
+
+  - id: cshrc-file
+    description: .cshrc file (C shell, not persistence)
+    crit: inert
+    conf: 1.0
+    if:
+      type: string
+      exact: ".cshrc"
+
+  - id: tcsh-keyword
+    description: tcsh keyword (shell name)
+    crit: inert
+    conf: 1.0
+    if:
+      type: string
+      word: "tcsh"
+
+composite_rules:
+  - id: bash-files
+    description: Bash shell configuration files
+    crit: suspicious
+    conf: 0.7
+    attack: T1546.004
+    any:
+      - type: trait
+        id: bash-profile
+      - type: trait
+        id: bash-login
+      - type: trait
+        id: profile
+      - type: trait
+        id: bashrc
+
+  - id: multi-file-access
+    description: Multiple shell config files accessed (3+, persistence indicator)
+    crit: suspicious
+    conf: 0.9
+    attack: T1546.004
+    count: 3
+    any:
+      - type: trait
+        id: bash-profile
+      - type: trait
+        id: bash-login
+      - type: trait
+        id: profile
+      - type: trait
+        id: bashrc
+      - type: trait
+        id: zshrc
+      - type: trait
+        id: zprofile
+    none:
+      - type: trait
+        id: posixly-correct
+      - type: trait
+        id: cshrc-file
+      - type: trait
+        id: tcsh-keyword
 
   - id: elf-hardcoded
-    description: ELF binary with hardcoded shell config paths
+    description: Binary with hardcoded shell config paths (persistence)
     crit: suspicious
-    confidence: 0.95
-    attack: "T1546.004"
-    file_types: [elf]
-    condition:
-      type: yara
-      source: |
-        rule elf_shell_persistence {
-          strings:
-            $profile = /\/[\w\.\/]{0,32}\/\.profile/ fullword
-            $bashrc = /\/[\w\.\/]{0,32}\/\.bashrc/ fullword
-            $zshrc = /\/[\w\.\/]{0,32}\/\.zshrc/ fullword
-          condition:
-            uint32(0) == 0x464C457F and
-            filesize < 100MB and any of them
-        }
+    conf: 0.95
+    for: [elf, macho]
+    attack: T1546.004
+    any:
+      - type: trait
+        id: hardcoded-profile
+      - type: trait
+        id: hardcoded-bashrc
+      - type: trait
+        id: hardcoded-zshrc

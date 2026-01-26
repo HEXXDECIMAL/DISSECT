@@ -11,19 +11,46 @@ traits:
       type: string
       exact: "Encryption complete. Your files have been encrypted."
 
+  - id: files-encrypted
+    desc: "Your files have been encrypted"
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      exact: "Your files have been encrypted"
+
+  - id: restore-files
+    desc: "restore your files"
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      exact: "restore your files"
+
+  - id: contact-us
+    desc: "contact us"
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      exact: "contact us"
+
+  - id: pay-ransom
+    desc: "pay the ransom"
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      exact: "pay the ransom"
+
+composite_rules:
   - id: generic_msg
     desc: "Generic ransom note string"
     crit: suspicious
     conf: 0.6
-    if:
-      type: yara
-      source: |
-        rule ransom_note_strings {
-          strings:
-            $s1 = "Your files have been encrypted" ascii
-            $s2 = "restore your files" ascii
-            $s3 = "contact us" ascii
-            $s4 = "pay the ransom" ascii
-          condition:
-            any of them
-        }
+    count: 1
+    any:
+      - id: files-encrypted
+      - id: restore-files
+      - id: contact-us
+      - id: pay-ransom

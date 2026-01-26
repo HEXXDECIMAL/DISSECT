@@ -267,7 +267,7 @@ composite_rules:
   # Melofee detection
   - id: backdoor/melofee/detected
     description: Melofee backdoor detected
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     attack: "T1071"
     mbc: "B0030"

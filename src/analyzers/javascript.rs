@@ -39,14 +39,69 @@ impl JavaScriptAnalyzer {
     }
 
     fn analyze_script(&self, file_path: &Path, content: &str) -> Result<AnalysisReport> {
+        use tracing::{debug, error, trace, warn};
+
         let start = std::time::Instant::now();
 
-        // Parse the JavaScript
-        let tree = self
-            .parser
-            .borrow_mut()
-            .parse(content, None)
-            .context("Failed to parse JavaScript")?;
+        debug!(
+            "Parsing JavaScript file: {:?} ({} bytes)",
+            file_path,
+            content.len()
+        );
+
+        // Parse the JavaScript with panic catching (malware may crash tree-sitter)
+        let parse_result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            self.parser
+                .borrow_mut()
+                .parse(content, None)
+        }));
+
+        let tree = match parse_result {
+            Ok(Some(tree)) => {
+                trace!("JavaScript parsed successfully, {} nodes", tree.root_node().child_count());
+                tree
+            }
+            Ok(None) => {
+                warn!("JavaScript parse returned None for {:?}", file_path);
+                anyhow::bail!("Failed to parse JavaScript (parse returned None)");
+            }
+            Err(_panic_info) => {
+                // Tree-sitter crashed - this is HOSTILE anti-analysis behavior
+                error!("⚠️  tree-sitter-javascript CRASHED while parsing {:?} (HOSTILE anti-analysis detected)", file_path);
+                eprintln!("⚠️  WARNING: tree-sitter-javascript crashed while parsing {:?} (HOSTILE anti-analysis detected)", file_path);
+
+                let target = TargetInfo {
+                    path: file_path.display().to_string(),
+                    file_type: "javascript".to_string(),
+                    size_bytes: content.len() as u64,
+                    sha256: self.calculate_sha256(content.as_bytes()),
+                    architectures: None,
+                };
+
+                let mut report = AnalysisReport::new(target);
+                report.findings.push(Finding {
+                    id: "anti-analysis/parser-crash/treesitter-crash".to_string(),
+                    kind: FindingKind::Indicator,
+                    desc: "Code that crashes tree-sitter parser (anti-analysis)".to_string(),
+                    conf: 0.95,
+                    crit: Criticality::Hostile,
+                    mbc: Some("B0001".to_string()),
+                    attack: None,
+                    trait_refs: Vec::new(),
+                    evidence: vec![Evidence {
+                        method: "panic_detection".to_string(),
+                        source: "tree-sitter-javascript".to_string(),
+                        value: "parser_crash".to_string(),
+                        location: Some("parse".to_string()),
+                    }],
+                });
+
+                report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;
+                report.metadata.tools_used = vec!["tree-sitter-javascript".to_string()];
+
+                return Ok(report);
+            }
+        };
 
         let root = tree.root_node();
 

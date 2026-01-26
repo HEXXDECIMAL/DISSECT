@@ -3,29 +3,69 @@
 # ATT&CK: T1105 (Ingress Tool Transfer), T1140 (Deobfuscate/Decode)
 
 traits:
-  # Password-protected archive extraction
-  - id: password-extract
-    desc: Extracts password-protected archive
-    crit: suspicious
-    conf: 0.9
-    attack: "T1140"
+  # === Password-protected extraction atomics ===
+  - id: extract-full
+    desc: extractFull call
+    crit: inert
+    conf: 0.5
     for: [javascript, typescript]
     if:
-      type: yara
-      source: |
-        rule password_archive_extract {
-          strings:
-            $extract1 = "extractFull" ascii
-            $extract2 = "extract(" ascii
-            $extract3 = "unzip" ascii
-            $extract4 = "7z" ascii
-            $extract5 = "node-7z" ascii
-            $password1 = "password:" ascii
-            $password2 = "password=" ascii
-            $password3 = "-p" ascii
-          condition:
-            any of ($extract*) and any of ($password*)
-        }
+      type: string
+      exact: "extractFull"
+
+  - id: extract-call
+    desc: extract() call
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "extract\\("
+
+  - id: unzip-call
+    desc: unzip reference
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "unzip"
+
+  - id: 7z-ref
+    desc: 7z reference
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "7z"
+
+  - id: password-colon
+    desc: "password: parameter"
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "password:"
+
+  - id: password-equals
+    desc: password= parameter
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "password="
+
+  - id: p-flag
+    desc: -p flag
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "-p"
 
   # === 7-zip atomic indicators ===
   - id: 7zip-bin-module
@@ -169,54 +209,135 @@ traits:
       type: string
       regex: "find\\([^)]*\\.cmd"
 
-  # Download to temp then extract
-  - id: temp-extract
-    desc: Downloads archive to temp directory then extracts
-    crit: suspicious
-    conf: 0.85
-    attack: "T1105"
+  # === Temp directory atomics ===
+  - id: process-env-temp
+    desc: process.env.TEMP reference
+    crit: inert
+    conf: 0.5
     for: [javascript, typescript]
     if:
-      type: yara
-      source: |
-        rule temp_archive_extract {
-          strings:
-            $temp1 = "process.env.TEMP" ascii
-            $temp2 = "process.env.TMP" ascii
-            $temp3 = "os.tmpdir()" ascii
-            $temp4 = "/tmp/" ascii
-            $archive1 = ".zip" ascii
-            $archive2 = ".7z" ascii
-            $archive3 = ".tar" ascii
-            $archive4 = ".rar" ascii
-          condition:
-            any of ($temp*) and any of ($archive*)
-        }
+      type: string
+      exact: "process.env.TEMP"
 
-  # Spawn executable after extraction
-  - id: extract-execute
-    desc: Extracts archive then executes contents
-    crit: suspicious
-    conf: 0.95
-    attack: "T1105"
+  - id: process-env-tmp
+    desc: process.env.TMP reference
+    crit: inert
+    conf: 0.5
     for: [javascript, typescript]
     if:
-      type: yara
-      source: |
-        rule extract_and_execute {
-          strings:
-            $extract1 = "extractFull" ascii fullword
-            $extract2 = "extract(" ascii
-            $extract3 = "unzip" ascii fullword
-            $spawn1 = "spawn(" ascii
-            $spawn2 = "exec(" ascii
-            $spawn3 = "execFile(" ascii
-            $exe1 = ".exe" ascii fullword
-            $exe2 = "exePath" ascii fullword
-            $exe3 = "exeFile" ascii fullword
-          condition:
-            any of ($extract*) and any of ($spawn*) and any of ($exe*)
-        }
+      type: string
+      exact: "process.env.TMP"
+
+  - id: os-tmpdir
+    desc: os.tmpdir() call
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "os\\.tmpdir\\(\\)"
+
+  - id: tmp-slash
+    desc: /tmp/ path
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "/tmp/"
+
+  # === Archive extension atomics ===
+  - id: zip-ext
+    desc: .zip extension
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: ".zip"
+
+  - id: 7z-ext
+    desc: .7z extension
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: ".7z"
+
+  - id: tar-ext
+    desc: .tar extension
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: ".tar"
+
+  - id: rar-ext
+    desc: .rar extension
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: ".rar"
+
+  # === Spawn/exec atomics ===
+  - id: spawn-paren
+    desc: spawn() call
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "spawn\\("
+
+  - id: exec-paren
+    desc: exec() call
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "exec\\("
+
+  - id: execfile-paren
+    desc: execFile() call
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "execFile\\("
+
+  # === Exe-related atomics ===
+  - id: exe-ext
+    desc: .exe extension
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript]
+    if:
+      type: string
+      word: ".exe"
+
+  - id: exepath-var
+    desc: exePath variable
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      word: "exePath"
+
+  - id: exefile-var
+    desc: exeFile variable
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      word: "exeFile"
 
   # Download zip file
   - id: download-zip
@@ -767,6 +888,43 @@ traits:
         }
 
 composite_rules:
+  # Extract method composite
+  - id: extract-method
+    desc: Archive extraction method
+    crit: notable
+    conf: 0.7
+    for: [javascript, typescript]
+    count: 1
+    any:
+      - id: extract-full
+      - id: extract-call
+      - id: unzip-call
+      - id: 7z-ref
+      - id: node-7z-module
+
+  # Password parameter composite
+  - id: password-param
+    desc: Password parameter
+    crit: notable
+    conf: 0.7
+    for: [javascript, typescript]
+    count: 1
+    any:
+      - id: password-colon
+      - id: password-equals
+      - id: p-flag
+
+  # Password-protected archive extraction
+  - id: password-extract
+    desc: Extracts password-protected archive
+    crit: suspicious
+    conf: 0.9
+    attack: "T1140"
+    for: [javascript, typescript]
+    requires_all:
+      - id: extract-method
+      - id: password-param
+
   # 7-zip usage composite
   - id: 7zip-usage
     desc: Uses 7-zip for archive operations
@@ -780,6 +938,79 @@ composite_rules:
       - id: node-7z-module
       - id: path7za
       - id: 7z-exe
+
+  # Temp directory composite
+  - id: temp-dir-ref
+    desc: Temporary directory reference
+    crit: notable
+    conf: 0.6
+    for: [javascript, typescript]
+    count: 1
+    any:
+      - id: process-env-temp
+      - id: process-env-tmp
+      - id: os-tmpdir
+      - id: tmp-slash
+
+  # Archive extension composite
+  - id: archive-ext
+    desc: Archive file extension
+    crit: notable
+    conf: 0.6
+    for: [javascript, typescript]
+    count: 1
+    any:
+      - id: zip-ext
+      - id: 7z-ext
+      - id: tar-ext
+      - id: rar-ext
+
+  # Download to temp then extract
+  - id: temp-extract
+    desc: Downloads archive to temp directory then extracts
+    crit: suspicious
+    conf: 0.85
+    attack: "T1105"
+    for: [javascript, typescript]
+    requires_all:
+      - id: temp-dir-ref
+      - id: archive-ext
+
+  # Spawn/exec composite
+  - id: spawn-exec
+    desc: Process spawn or exec
+    crit: notable
+    conf: 0.7
+    for: [javascript, typescript]
+    count: 1
+    any:
+      - id: spawn-paren
+      - id: exec-paren
+      - id: execfile-paren
+
+  # Exe reference composite
+  - id: exe-ref
+    desc: Executable file reference
+    crit: notable
+    conf: 0.6
+    for: [javascript, typescript]
+    count: 1
+    any:
+      - id: exe-ext
+      - id: exepath-var
+      - id: exefile-var
+
+  # Spawn executable after extraction
+  - id: extract-execute
+    desc: Extracts archive then executes contents
+    crit: suspicious
+    conf: 0.95
+    attack: "T1105"
+    for: [javascript, typescript]
+    requires_all:
+      - id: extract-method
+      - id: spawn-exec
+      - id: exe-ref
 
   # Executable search composite
   - id: exe-search

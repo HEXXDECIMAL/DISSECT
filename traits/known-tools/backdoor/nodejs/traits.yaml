@@ -82,7 +82,7 @@ composite_rules:
 
   - id: backdoor/nodejs/detected
     description: "NodeJS-based Backdoor detected"
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     attack: "T1059.003"
     mbc: "B0022"

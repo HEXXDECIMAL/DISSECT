@@ -31,9 +31,81 @@ pub mod shell;
 pub mod typescript;
 pub mod vsix_manifest;
 
-use crate::types::AnalysisReport;
+use crate::types::{AnalysisReport, Criticality, Evidence, Finding, FindingKind, TargetInfo};
 use anyhow::Result;
 use std::path::Path;
+
+/// Safe wrapper for tree-sitter parsing that catches crashes and reports them as HOSTILE findings.
+///
+/// This function wraps tree-sitter parsing with panic handling. If the parser crashes (e.g., due to
+/// adversarial input designed to exploit parser bugs), it catches the panic and returns a report
+/// with a HOSTILE "parser-crash" finding instead of crashing the entire analysis.
+///
+/// # Arguments
+/// * `parser_fn` - Closure that performs the parsing
+/// * `file_path` - Path to the file being parsed
+/// * `parser_name` - Name of the parser (e.g., "tree-sitter-javascript")
+/// * `file_type` - File type string (e.g., "javascript")
+/// * `content_len` - Length of content in bytes
+/// * `sha256` - SHA256 hash of the content
+///
+/// # Returns
+/// * `Ok(Some(tree))` - Parsing succeeded
+/// * `Ok(None)` - Parsing failed gracefully (parse returned None)
+/// * `Err(report)` - Parser crashed, returns hostile finding report
+pub fn safe_treesitter_parse<F, T>(
+    parser_fn: F,
+    file_path: &Path,
+    parser_name: &str,
+    file_type: &str,
+    content_len: usize,
+    sha256: String,
+) -> Result<Option<T>, AnalysisReport>
+where
+    F: FnOnce() -> Option<T> + std::panic::UnwindSafe,
+{
+    let parse_result = std::panic::catch_unwind(parser_fn);
+
+    match parse_result {
+        Ok(Some(tree)) => Ok(Some(tree)),
+        Ok(None) => Ok(None),
+        Err(_panic_info) => {
+            // Parser crashed - emit warning and return HOSTILE finding report
+            eprintln!(
+                "⚠️  WARNING: {} crashed while parsing {:?} (HOSTILE anti-analysis detected)",
+                parser_name, file_path
+            );
+
+            let target = TargetInfo {
+                path: file_path.display().to_string(),
+                file_type: file_type.to_string(),
+                size_bytes: content_len as u64,
+                sha256,
+                architectures: None,
+            };
+
+            let mut report = AnalysisReport::new(target);
+            report.findings.push(Finding {
+                id: "anti-analysis/parser-crash/treesitter-crash".to_string(),
+                kind: FindingKind::Indicator,
+                desc: "Code that crashes tree-sitter parser (anti-analysis)".to_string(),
+                conf: 0.95,
+                crit: Criticality::Hostile,
+                mbc: Some("B0001".to_string()),
+                attack: None,
+                trait_refs: Vec::new(),
+                evidence: vec![Evidence {
+                    method: "panic_detection".to_string(),
+                    source: parser_name.to_string(),
+                    value: "parser_crash".to_string(),
+                    location: Some("parse".to_string()),
+                }],
+            });
+
+            Err(report)
+        }
+    }
+}
 
 /// Trait for file analyzers
 pub trait Analyzer {

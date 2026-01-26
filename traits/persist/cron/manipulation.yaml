@@ -1,37 +1,60 @@
 # Crontab Manipulation Patterns
 # ATT&CK: T1053.003
 
-traits:
-  - id: blind_append
-    description: "Appends to crontab by piping echo to crontab -"
-    crit: suspicious
-    confidence: 0.9
-    attack: "T1053.003"
-    condition:
-      type: yara
-      source: |
-        rule cron_blind_append {
-          strings:
-            $crontab_l = "crontab -l" ascii
-            $echo = "echo" ascii
-            $pipe_crontab = "| crontab -" ascii
-          condition:
-            $crontab_l and $echo and $pipe_crontab
-        }
+defaults:
+  attack: "T1053.003"
 
-  - id: filtered_rewrite
-    description: "Rewrites crontab by filtering output of crontab -l"
+traits:
+  # Crontab commands
+  - id: crontab-l
+    desc: crontab -l list command
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "crontab -l"
+
+  - id: pipe-crontab
+    desc: Pipe to crontab stdin
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "| crontab -"
+
+  - id: echo-command
+    desc: echo command
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: "echo"
+
+  - id: grep-v
+    desc: grep -v (inverse match/filter)
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "grep -v"
+
+composite_rules:
+  # Blind append pattern: echo | crontab -
+  - id: blind_append
+    desc: Appends to crontab by piping echo to crontab -
     crit: suspicious
-    confidence: 0.9
-    attack: "T1053.003"
-    condition:
-      type: yara
-      source: |
-        rule cron_filtered_rewrite {
-          strings:
-            $crontab_l = "crontab -l" ascii
-            $grep_v = "grep -v" ascii
-            $pipe_crontab = "| crontab -" ascii
-          condition:
-            $crontab_l and $grep_v and $pipe_crontab
-        }
+    conf: 0.9
+    all:
+      - id: crontab-l
+      - id: echo-command
+      - id: pipe-crontab
+
+  # Filtered rewrite: crontab -l | grep -v | crontab -
+  - id: filtered_rewrite
+    desc: Rewrites crontab by filtering output of crontab -l
+    crit: suspicious
+    conf: 0.9
+    all:
+      - id: crontab-l
+      - id: grep-v
+      - id: pipe-crontab

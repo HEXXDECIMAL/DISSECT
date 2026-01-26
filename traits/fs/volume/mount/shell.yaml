@@ -3,19 +3,69 @@
 # ATT&CK: T1222
 
 traits:
+  - id: mount-keyword
+    description: mount command keyword
+    crit: notable
+    conf: 0.6
+    mbc: E1222
+    attack: T1222
+    if:
+      type: string
+      word: "mount"
+
+  - id: mount-option-flag
+    description: mount -o flag (mount options)
+    crit: notable
+    conf: 0.7
+    mbc: E1222
+    attack: T1222
+    if:
+      type: string
+      word: "-o"
+
+  - id: fstab-file
+    description: fstab file reference (filesystem table)
+    crit: notable
+    conf: 0.7
+    mbc: E1222
+    attack: T1222
+    if:
+      type: string
+      word: "fstab"
+
+  - id: remount-keyword
+    description: remount keyword (remount filesystem)
+    crit: notable
+    conf: 0.7
+    mbc: E1222
+    attack: T1222
+    if:
+      type: string
+      word: "remount"
+
+composite_rules:
+  - id: mount-context
+    description: Mount-related keywords (options, fstab, remount)
+    crit: notable
+    conf: 0.6
+    mbc: E1222
+    attack: T1222
+    any:
+      - type: trait
+        id: mount-option-flag
+      - type: trait
+        id: fstab-file
+      - type: trait
+        id: remount-keyword
+
   - id: mount-command
-    description: Mount file systems with command options
+    description: Mount file systems with command options (mount + context)
     crit: notable
     conf: 0.66
-    if:
-      type: yara
-      source: |
-        rule mount_command {
-          strings:
-            $mount   = "mount" fullword
-            $mounto  = "-o" fullword
-            $fstab   = "fstab" fullword
-            $remount = "remount" fullword
-          condition:
-            $mount and 2 of them
-        }
+    mbc: E1222
+    attack: T1222
+    all:
+      - type: trait
+        id: mount-keyword
+      - type: trait
+        id: mount-context

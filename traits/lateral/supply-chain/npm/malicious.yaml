@@ -3,6 +3,157 @@
 # These patterns are specific to npm supply-chain attacks, not generic behaviors
 
 traits:
+  # === Lifecycle hook atomic indicators ===
+  - id: preinstall-hook
+    description: preinstall lifecycle hook
+    crit: inert
+    confidence: 0.6
+    file_types: [packagejson]
+    condition:
+      type: string
+      exact: "preinstall"
+      search_raw: true
+
+  - id: postinstall-hook
+    description: postinstall lifecycle hook
+    crit: inert
+    confidence: 0.6
+    file_types: [packagejson]
+    condition:
+      type: string
+      exact: "postinstall"
+      search_raw: true
+
+  # === Download command atomic indicators ===
+  - id: curl-command
+    description: curl command
+    crit: inert
+    confidence: 0.6
+    file_types: [packagejson]
+    condition:
+      type: string
+      exact: "curl "
+      search_raw: true
+
+  - id: wget-command
+    description: wget command
+    crit: inert
+    confidence: 0.6
+    file_types: [packagejson]
+    condition:
+      type: string
+      exact: "wget "
+      search_raw: true
+
+  # === Pipe to shell atomic indicators ===
+  - id: pipe-to-bash
+    description: Pipe to bash
+    crit: inert
+    confidence: 0.7
+    file_types: [packagejson]
+    condition:
+      type: string
+      exact: "| bash"
+      search_raw: true
+
+  - id: pipe-to-sh
+    description: Pipe to sh
+    crit: inert
+    confidence: 0.7
+    file_types: [packagejson]
+    condition:
+      type: string
+      exact: "| sh"
+      search_raw: true
+
+  - id: pipe-to-node
+    description: Pipe to node
+    crit: inert
+    confidence: 0.7
+    file_types: [packagejson]
+    condition:
+      type: string
+      exact: "| node"
+      search_raw: true
+
+  # === Node eval atomic indicators ===
+  - id: node-dash-e
+    description: node -e flag
+    crit: inert
+    confidence: 0.7
+    file_types: [packagejson]
+    condition:
+      type: string
+      exact: "node -e"
+      search_raw: true
+
+  - id: node-eval-flag
+    description: node --eval flag
+    crit: inert
+    confidence: 0.7
+    file_types: [packagejson]
+    condition:
+      type: string
+      exact: "node --eval"
+      search_raw: true
+
+  # === child_process module ===
+  - id: child-process-module
+    description: child_process module reference
+    crit: notable
+    confidence: 0.6
+    file_types: [packagejson]
+    condition:
+      type: string
+      exact: "child_process"
+      search_raw: true
+
+composite_rules:
+  # Lifecycle hook helpers
+  - id: lifecycle-hook
+    description: NPM lifecycle hook (preinstall or postinstall)
+    crit: inert
+    confidence: 0.6
+    file_types: [packagejson]
+    requires_count: 1
+    any:
+      - id: preinstall-hook
+      - id: postinstall-hook
+
+  # Download command helpers
+  - id: download-command
+    description: Download command (curl or wget)
+    crit: notable
+    confidence: 0.7
+    file_types: [packagejson]
+    requires_count: 1
+    any:
+      - id: curl-command
+      - id: wget-command
+
+  # Pipe to shell helpers
+  - id: pipe-to-shell
+    description: Pipe to shell interpreter
+    crit: notable
+    confidence: 0.75
+    file_types: [packagejson]
+    requires_count: 1
+    any:
+      - id: pipe-to-bash
+      - id: pipe-to-sh
+      - id: pipe-to-node
+
+  # Node eval helpers
+  - id: node-eval
+    description: Node inline eval (node -e or --eval)
+    crit: notable
+    confidence: 0.8
+    file_types: [packagejson]
+    requires_count: 1
+    any:
+      - id: node-dash-e
+      - id: node-eval-flag
+
   # NPM preinstall/postinstall abuse with dropper behavior
   - id: lifecycle-dropper
     description: NPM lifecycle script with dropper pattern
@@ -11,24 +162,10 @@ traits:
     attack: "T1195.002"
     mbc: "B0024"
     file_types: [packagejson]
-    condition:
-      type: yara
-      source: |
-        rule npm_lifecycle_dropper {
-          strings:
-            // Lifecycle hooks
-            $hook1 = "preinstall" ascii
-            $hook2 = "postinstall" ascii
-            // Download commands
-            $cmd1 = "curl " ascii
-            $cmd2 = "wget " ascii
-            // Pipe to shell
-            $exec1 = "| bash" ascii
-            $exec2 = "| sh" ascii
-            $exec3 = "| node" ascii
-          condition:
-            any of ($hook*) and any of ($cmd*) and any of ($exec*)
-        }
+    requires_all:
+      - id: lifecycle-hook
+      - id: download-command
+      - id: pipe-to-shell
 
   # NPM package with inline node eval in hooks
   - id: hook-node-eval
@@ -38,18 +175,9 @@ traits:
     attack: "T1059.007"
     mbc: "B0024"
     file_types: [packagejson]
-    condition:
-      type: yara
-      source: |
-        rule npm_hook_node_eval {
-          strings:
-            $hook1 = "preinstall" ascii
-            $hook2 = "postinstall" ascii
-            $node_e = "node -e" ascii
-            $node_eval = "node --eval" ascii
-          condition:
-            any of ($hook*) and any of ($node_e, $node_eval)
-        }
+    requires_all:
+      - id: lifecycle-hook
+      - id: node-eval
 
   # Install hook spawns child process
   - id: hook-child-process
@@ -58,14 +186,6 @@ traits:
     confidence: 0.85
     attack: "T1195.002"
     file_types: [packagejson]
-    condition:
-      type: yara
-      source: |
-        rule npm_hook_child_process {
-          strings:
-            $hook1 = "preinstall" ascii
-            $hook2 = "postinstall" ascii
-            $cp = "child_process" ascii
-          condition:
-            any of ($hook*) and $cp
-        }
+    requires_all:
+      - id: lifecycle-hook
+      - id: child-process-module

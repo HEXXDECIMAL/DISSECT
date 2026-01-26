@@ -3,31 +3,81 @@
 # ATT&CK: T1496
 
 traits:
-  - id: miner
-    description: Cryptocurrency mining patterns
-    crit: suspicious
-    conf: 0.66
+  - id: stratum-tcp
+    description: stratum+tcp protocol
+    crit: notable
+    conf: 0.6
     mbc: "B0041"
     attack: "T1496"
     if:
-      type: yara
-      source: |
-        rule cryptominer {
-          strings:
-            $stratum = "stratum+tcp"
-            $pool = "pool" fullword
-            $miner = "miner" fullword
-            $xmrig = "xmrig"
-            $monero = "monero"
-            $hashrate = "hashrate"
-            $wallet = "wallet" fullword
-            $coinhive = "coinhive"
-            $cryptonight = "cryptonight"
-          condition:
-            2 of them
-        }
+      type: string
+      exact: "stratum+tcp"
 
-  # === XMRig atomic indicators ===
+  - id: pool-word
+    description: pool keyword
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      word: "pool"
+
+  - id: miner-word
+    description: miner keyword
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      word: "miner"
+
+  - id: xmrig-str
+    description: xmrig reference
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      exact: "xmrig"
+
+  - id: monero-str
+    description: monero reference
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      exact: "monero"
+
+  - id: hashrate-str
+    description: hashrate keyword
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: "hashrate"
+
+  - id: wallet-word
+    description: wallet keyword
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      word: "wallet"
+
+  - id: coinhive-str
+    description: coinhive reference
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      exact: "coinhive"
+
+  - id: cryptonight-str
+    description: cryptonight algorithm
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      exact: "cryptonight"
+
+  # === XMRig atomic indicators (legacy) ===
   - id: xmrig-lower
     description: xmrig (lowercase)
     crit: notable
@@ -53,6 +103,24 @@ traits:
       regex: "stratum\\+tcp://"
 
 composite_rules:
+  - id: miner
+    description: Cryptocurrency mining patterns
+    crit: suspicious
+    conf: 0.66
+    mbc: "B0041"
+    attack: "T1496"
+    count: 2
+    any:
+      - id: stratum-tcp
+      - id: pool-word
+      - id: miner-word
+      - id: xmrig-str
+      - id: monero-str
+      - id: hashrate-str
+      - id: wallet-word
+      - id: coinhive-str
+      - id: cryptonight-str
+
   # XMRig composite
   - id: miner-xmrig
     description: XMRig cryptocurrency miner reference

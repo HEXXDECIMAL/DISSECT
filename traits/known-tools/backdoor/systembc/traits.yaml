@@ -78,7 +78,7 @@ composite_rules:
 
   - id: backdoor/systembc/proxy-shell
     description: SystemBC proxy shell behavior
-    crit: hostile
+    crit: suspicious
     conf: 0.9
     attack: "T1090.001"
     mbc: "B0030"

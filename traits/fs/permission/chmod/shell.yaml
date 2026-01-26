@@ -3,36 +3,120 @@
 # ATT&CK: T1222
 
 traits:
+  - id: chmod-666-shell
+    description: chmod 666 command (world-writable)
+    crit: notable
+    conf: 0.7
+    mbc: E1222
+    attack: T1222
+    if:
+      type: string
+      regex: 'chmod [\-\w ]{0,4}666[ \$\w\/\.]{0,32}'
+
+  - id: chmod-666-ruby
+    description: chmod(0666) Ruby-style call
+    crit: notable
+    conf: 0.7
+    mbc: E1222
+    attack: T1222
+    if:
+      type: string
+      exact: "chmod(0666)"
+
+  - id: chmod-777-shell
+    description: chmod 777 command (world-writable+executable)
+    crit: notable
+    conf: 0.7
+    mbc: E1222
+    attack: T1222
+    if:
+      type: string
+      regex: 'chmod [\-\w ]{0,4}777[ \$\w\/\.]{0,32}'
+
+  - id: chmod-777-ruby
+    description: chmod(0777) Ruby-style call
+    crit: notable
+    conf: 0.7
+    mbc: E1222
+    attack: T1222
+    if:
+      type: string
+      exact: "chmod(0777)"
+
+  - id: chmod-777-python
+    description: chmod(...777) Python-style call
+    crit: notable
+    conf: 0.7
+    mbc: E1222
+    attack: T1222
+    if:
+      type: string
+      regex: 'chmod\([\w, ]{1,16}777\)'
+
+  - id: chmod-1777-sticky
+    description: chmod 1777 (sticky bit, legitimate for shared directories)
+    crit: inert
+    conf: 1.0
+    if:
+      type: string
+      exact: "chmod 1777"
+
+  - id: chmod-01777-sticky
+    description: chmod 01777 (sticky bit, octal notation)
+    crit: inert
+    conf: 1.0
+    if:
+      type: string
+      exact: "chmod 01777"
+
+  - id: chmod-777-var-tmp
+    description: chmod 0777 /var/tmp (legitimate temp directory)
+    crit: inert
+    conf: 1.0
+    if:
+      type: string
+      word: "chmod 0777 /var/tmp"
+
+composite_rules:
   - id: chmod-world-write
-    description: Makes file world-writable (666)
+    description: Makes file world-writable (chmod 666, excludes sticky bit)
     crit: suspicious
     conf: 0.66
-    if:
-      type: yara
-      source: |
-        rule chmod_world_write {
-          strings:
-            $ref = /chmod [\-\w ]{0,4}666[ \$\w\/\.]{0,32}/
-            $ruby = "chmod(0666)"
-          condition:
-            filesize < 50MB and any of them
-        }
+    mbc: E1222
+    attack: T1222
+    any:
+      - type: trait
+        id: chmod-666-shell
+      - type: trait
+        id: chmod-666-ruby
+
+  - id: chmod-777-patterns
+    description: chmod 777 pattern (any variant)
+    crit: notable
+    conf: 0.7
+    mbc: E1222
+    attack: T1222
+    any:
+      - type: trait
+        id: chmod-777-shell
+      - type: trait
+        id: chmod-777-ruby
+      - type: trait
+        id: chmod-777-python
 
   - id: chmod-world-exec
-    description: Makes file world-writable and executable (777)
+    description: Makes file world-writable and executable (chmod 777, excludes legitimate)
     crit: suspicious
     conf: 0.66
-    if:
-      type: yara
-      source: |
-        rule chmod_world_exec {
-          strings:
-            $ref = /chmod [\-\w ]{0,4}777[ \$\w\/\.]{0,32}/
-            $ruby = "chmod(0777)"
-            $python = /chmod\([\w, ]{1,16}777\)/
-            $not_1777 = "chmod 1777"
-            $not_01777 = "chmod 01777"
-            $not_var_tmp = "chmod 0777 /var/tmp" fullword
-          condition:
-            filesize < 50MB and any of ($ref, $ruby, $python) and none of ($not*)
-        }
+    mbc: E1222
+    attack: T1222
+    all:
+      - type: trait
+        id: chmod-777-patterns
+    none:
+      - type: trait
+        id: chmod-1777-sticky
+      - type: trait
+        id: chmod-01777-sticky
+      - type: trait
+        id: chmod-777-var-tmp

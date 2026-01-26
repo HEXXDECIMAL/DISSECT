@@ -654,6 +654,18 @@ pub fn eval_ast_pattern(
         }
     };
 
+    // Skip analysis if the tree has errors (malformed input)
+    if tree.root_node().has_error() {
+        return ConditionResult {
+            matched: false,
+            evidence: Vec::new(),
+            traits: Vec::new(),
+            warnings: vec![AnalysisWarning::AstTooDeep {
+                max_depth: 0,
+            }],
+        };
+    }
+
     // Build the regex/pattern matcher
     let matcher: Box<dyn Fn(&str) -> bool> = if use_regex {
         match build_regex(pattern, case_insensitive) {
@@ -801,6 +813,18 @@ pub fn eval_ast_query(query_str: &str, ctx: &EvaluationContext) -> ConditionResu
         }
     };
 
+    // Skip query execution if the tree has errors (malformed input)
+    if tree.root_node().has_error() {
+        return ConditionResult {
+            matched: false,
+            evidence: Vec::new(),
+            traits: Vec::new(),
+            warnings: vec![AnalysisWarning::AstTooDeep {
+                max_depth: 0,
+            }],
+        };
+    }
+
     // Compile the query
     let query = match tree_sitter::Query::new(&lang, query_str) {
         Ok(q) => q,
@@ -814,9 +838,16 @@ pub fn eval_ast_query(query_str: &str, ctx: &EvaluationContext) -> ConditionResu
         }
     };
 
-    // Execute the query
+    // Execute the query with safety limits
     let mut query_cursor = tree_sitter::QueryCursor::new();
+
+    // Set limits to prevent runaway queries on pathological inputs
+    // This prevents tree-sitter assertion failures on malformed files
+    query_cursor.set_match_limit(100_000); // Limit pattern matches
+    query_cursor.set_byte_range(0..source.len().min(10_000_000)); // Limit to first 10MB
+
     let mut evidence = Vec::new();
+    const MAX_MATCHES: usize = 1000; // Cap evidence collection
 
     // Use captures() with StreamingIterator pattern (advance + get)
     let mut captures = query_cursor.captures(&query, tree.root_node(), source.as_bytes());
@@ -833,7 +864,17 @@ pub fn eval_ast_query(query_str: &str, ctx: &EvaluationContext) -> ConditionResu
                         capture.node.start_position().column + 1
                     )),
                 });
+
+                // Bail early if we've collected enough evidence
+                if evidence.len() >= MAX_MATCHES {
+                    break;
+                }
             }
+        }
+
+        // Break outer loop too
+        if evidence.len() >= MAX_MATCHES {
+            break;
         }
     }
 

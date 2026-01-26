@@ -840,16 +840,34 @@ impl ArchiveAnalyzer {
         report: &mut AnalysisReport,
         start: std::time::Instant,
     ) -> Result<()> {
+        use tracing::{debug, trace};
+
+        debug!("Analyzing generic archive, scanning temp dir: {:?}", temp_dir);
+
         // Collect all files to analyze
-        let files: Vec<_> = walkdir::WalkDir::new(temp_dir)
+        let all_entries: Vec<_> = walkdir::WalkDir::new(temp_dir)
             .min_depth(1)
             .max_depth(10)
             .into_iter()
             .filter_map(|e| e.ok())
-            .filter(|e| e.file_type().is_file())
+            .collect();
+
+        trace!("Found {} total entries in archive", all_entries.len());
+
+        let files: Vec<_> = all_entries
+            .into_iter()
+            .filter(|e| {
+                let is_file = e.file_type().is_file();
+                if !is_file {
+                    trace!("Skipping directory: {:?}", e.path());
+                }
+                is_file
+            })
             .take(500)
             .collect();
+
         let total_files = files.len();
+        debug!("Found {} files to analyze", total_files);
         eprintln!("  Analyzing {} files", total_files);
 
         // Create thread-safe containers for aggregated results
@@ -1155,22 +1173,69 @@ impl ArchiveAnalyzer {
         dest_dir: &Path,
         guard: &ExtractionGuard,
     ) -> Result<()> {
+        use tracing::{debug, info, trace};
+
         let file = File::open(archive_path)?;
         let mut archive = zip::ZipArchive::new(file).context("Failed to read ZIP archive")?;
 
-        // Check if the archive is encrypted by trying to read the first file
+        debug!(
+            "Opening ZIP archive: {:?} ({} entries)",
+            archive_path,
+            archive.len()
+        );
+
+        // Check if the archive is encrypted by finding the first file (not directory)
+        // Directories in zips often have encrypted=false even if files are encrypted
         let is_encrypted = if !archive.is_empty() {
-            match archive.by_index(0) {
-                Ok(entry) => entry.encrypted(),
-                Err(_) => true, // If we can't read, assume it needs a password
+            let mut found_encrypted = false;
+            for i in 0..archive.len().min(10) {
+                // Check first 10 entries
+                match archive.by_index(i) {
+                    Ok(entry) => {
+                        // Skip directories, check actual files
+                        if !entry.is_dir() {
+                            let encrypted = entry.encrypted();
+                            trace!(
+                                "Entry {} ({}) encrypted: {}",
+                                i,
+                                entry.name(),
+                                encrypted
+                            );
+                            if encrypted {
+                                found_encrypted = true;
+                                break;
+                            }
+                        } else {
+                            trace!("Entry {} is directory, skipping encryption check", i);
+                        }
+                    }
+                    Err(_) => {
+                        debug!("Cannot read entry {}, assuming encrypted", i);
+                        found_encrypted = true;
+                        break;
+                    }
+                }
             }
+            found_encrypted
         } else {
+            debug!("Empty archive");
             false
         };
 
-        if is_encrypted && !self.zip_passwords.is_empty() {
+        if is_encrypted {
+            info!(
+                "ZIP archive is encrypted, attempting {} passwords",
+                self.zip_passwords.len()
+            );
+
+            if self.zip_passwords.is_empty() {
+                anyhow::bail!("Archive is encrypted but no passwords configured");
+            }
+
             // Try each password
-            for password in &self.zip_passwords {
+            for (idx, password) in self.zip_passwords.iter().enumerate() {
+                debug!("Trying password {}/{}: '{}'", idx + 1, self.zip_passwords.len(), password);
+
                 // Re-open the archive for each password attempt
                 let file = File::open(archive_path)?;
                 let mut archive =
@@ -1183,16 +1248,22 @@ impl ArchiveAnalyzer {
                     guard,
                 ) {
                     Ok(()) => {
+                        info!("✓ Decrypted with password: {}", password);
                         eprintln!("  Decrypted with password: {}", password);
                         return Ok(());
                     }
-                    Err(_) => continue,
+                    Err(e) => {
+                        debug!("Password '{}' failed: {}", password, e);
+                        continue;
+                    }
                 }
             }
             anyhow::bail!(
                 "Password required to decrypt file (tried {} passwords)",
                 self.zip_passwords.len()
             );
+        } else {
+            debug!("Archive is not encrypted, extracting directly");
         }
 
         // Try without password
@@ -1206,18 +1277,41 @@ impl ArchiveAnalyzer {
         password: Option<&[u8]>,
         guard: &ExtractionGuard,
     ) -> Result<()> {
+        use tracing::{debug, trace};
+
+        let password_display = password.map(|_| "***").unwrap_or("none");
+        debug!(
+            "Extracting {} entries with password: {}",
+            archive.len(),
+            password_display
+        );
+
         for i in 0..archive.len() {
             // Check file count limit
             if !guard.check_file_count() {
                 anyhow::bail!("Exceeded maximum file count ({})", MAX_FILE_COUNT);
             }
 
+            trace!("Processing entry {}/{}", i + 1, archive.len());
+
             let mut entry = match password {
-                Some(pw) => archive.by_index_decrypt(i, pw)?,
+                Some(pw) => {
+                    match archive.by_index_decrypt(i, pw) {
+                        Ok(file) => {
+                            trace!("Entry {} decrypted successfully", i);
+                            file
+                        }
+                        Err(e) => {
+                            debug!("Failed to decrypt entry {}: {}", i, e);
+                            return Err(e.into());
+                        }
+                    }
+                }
                 None => archive.by_index(i)?,
             };
 
             let entry_name = entry.name().to_string();
+            trace!("Entry {}: {}", i, entry_name);
 
             // Sanitize path to prevent zip slip
             let outpath = match sanitize_entry_path(&entry_name, dest_dir) {

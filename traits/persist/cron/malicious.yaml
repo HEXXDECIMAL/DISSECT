@@ -1,86 +1,348 @@
 # Malicious Crontab Persistence
 # ATT&CK: T1053.003 (Scheduled Task/Job: Cron)
 
+defaults:
+  attack: "T1053.003"
+
 traits:
+  # Cron paths
+  - id: etc-cron-d
+    desc: /etc/cron.d/ directory
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "/etc/cron.d/"
+
+  - id: etc-crontab
+    desc: /etc/crontab file
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "/etc/crontab"
+
+  - id: var-spool-cron
+    desc: /var/spool/cron directory
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "/var/spool/cron"
+
+  - id: crontab-dash
+    desc: crontab command with dash
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "crontab -"
+
+  # Download tools
+  - id: curl-space
+    desc: curl command with space
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: "curl "
+
+  - id: wget-space
+    desc: wget command with space
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: "wget "
+
+  - id: pipe-bash
+    desc: Pipe to bash
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "| bash"
+
+  - id: pipe-sh
+    desc: Pipe to sh
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "| sh"
+
+  # Frequent execution patterns
+  - id: every-minute
+    desc: Every minute cron schedule
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "* * * * *"
+
+  - id: every-5-minutes
+    desc: Every 5 minutes cron schedule
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "*/5 * * * *"
+
+  - id: at-reboot
+    desc: "@reboot cron shortcut"
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "@reboot"
+
+  # Download cradles
+  - id: curl-silent
+    desc: curl -s (silent mode)
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "curl -s"
+
+  - id: wget-quiet
+    desc: wget -q (quiet mode)
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "wget -q"
+
+  - id: wget-stdout
+    desc: wget -O - (output to stdout)
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "wget -O -"
+
+  # Shell pipes
+  - id: pipe-bin-sh
+    desc: Pipe to /bin/sh
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "| /bin/sh"
+
+  # Output suppression
+  - id: redirect-dev-null
+    desc: Redirect to /dev/null
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: ">/dev/null"
+
+  - id: stderr-redirect
+    desc: Stderr redirect 2>&1
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: "2>&1"
+
+  # Base64 decode
+  - id: base64-d
+    desc: base64 -d decode
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "base64 -d"
+
+  - id: base64-decode
+    desc: base64 --decode long form
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "base64 --decode"
+
+  # Hidden file paths
+  - id: tmp-hidden
+    desc: Hidden file in /tmp
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "/tmp/."
+
+  - id: var-tmp-hidden
+    desc: Hidden file in /var/tmp
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "/var/tmp/."
+
+  - id: dev-shm-hidden
+    desc: Hidden file in /dev/shm
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "/dev/shm/."
+
+  # Additional cron keywords
+  - id: crontab-keyword
+    desc: crontab keyword
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: "crontab"
+
+  - id: etc-cron
+    desc: /etc/cron path prefix
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: "/etc/cron"
+
+composite_rules:
+  # Helper: Cron paths
+  - id: cron-paths
+    desc: Cron file paths
+    any:
+      - id: etc-cron-d
+      - id: etc-crontab
+      - id: var-spool-cron
+      - id: crontab-dash
+
+  # Helper: Download commands
+  - id: download-commands
+    desc: Download tool commands
+    any:
+      - id: curl-space
+      - id: wget-space
+
+  # Helper: Shell pipes
+  - id: shell-pipes
+    desc: Pipe to shell interpreters
+    any:
+      - id: pipe-bash
+      - id: pipe-sh
+      - id: pipe-bin-sh
+
+  # Helper: Frequent schedules
+  - id: frequent-schedules
+    desc: Frequent cron execution schedules
+    any:
+      - id: every-minute
+      - id: every-5-minutes
+      - id: at-reboot
+
+  # Helper: Download cradles
+  - id: download-cradles
+    desc: Silent/quiet download cradles
+    any:
+      - id: curl-silent
+      - id: wget-quiet
+      - id: wget-stdout
+
+  # Helper: Output suppression
+  - id: output-suppression
+    desc: Output/error suppression
+    any:
+      - id: redirect-dev-null
+      - id: stderr-redirect
+
+  # Helper: Base64 decoding
+  - id: base64-decode
+    desc: Base64 decode operations
+    any:
+      - id: base64-d
+      - id: base64-decode
+
+  # Helper: Hidden paths
+  - id: hidden-paths
+    desc: Hidden file paths in temp directories
+    any:
+      - id: tmp-hidden
+      - id: var-tmp-hidden
+      - id: dev-shm-hidden
+
+  # Helper: Cron keywords
+  - id: cron-keywords
+    desc: Cron-related keywords
+    any:
+      - id: crontab-keyword
+      - id: etc-cron
+
+  # Helper: Cron with download and execute
+  - id: cron-download-execute
+    desc: Cron with download and execute
+    all:
+      - id: cron-paths
+      - id: download-commands
+      - id: shell-pipes
+
+  # Helper: Cron with frequent execution and download
+  - id: cron-frequent-download
+    desc: Cron with frequent schedule and download
+    all:
+      - id: cron-paths
+      - id: frequent-schedules
+      - id: download-commands
+
   # Malicious cron persistence
   - id: malicious
-    description: Malicious crontab persistence patterns
+    desc: Malicious crontab persistence patterns
     crit: suspicious
-    confidence: 0.8
-    attack: "T1053.003"
-    condition:
-      type: yara
-      source: |
-        rule cron_malicious {
-          strings:
-            // Cron paths
-            $cron1 = "/etc/cron.d/" ascii
-            $cron2 = "/etc/crontab" ascii
-            $cron3 = "/var/spool/cron" ascii
-            $cron4 = "crontab -" ascii
-            // Download and execute patterns
-            $dl1 = "curl " ascii
-            $dl2 = "wget " ascii
-            $dl3 = "| bash" ascii
-            $dl4 = "| sh" ascii
-            // Frequent execution
-            $freq1 = "* * * * *" ascii
-            $freq2 = "*/5 * * * *" ascii
-            $freq3 = "@reboot" ascii
-          condition:
-            (any of ($cron*) and any of ($dl*)) or
-            (any of ($cron*) and any of ($freq*) and any of ($dl*))
-        }
+    conf: 0.8
+    any:
+      - id: cron-download-execute
+      - id: cron-frequent-download
+
+  # Helper: Download cradle with shell pipe
+  - id: cradle-with-shell
+    desc: Download cradle piped to shell
+    all:
+      - id: download-cradles
+      - id: shell-pipes
+
+  # Helper: Download cradle with suppression
+  - id: cradle-with-suppression
+    desc: Download cradle with output suppression
+    all:
+      - id: download-cradles
+      - id: output-suppression
+
+  # Helper: Cron with base64
+  - id: cron-with-base64
+    desc: Cron with base64 decode
+    all:
+      - id: cron-keywords
+      - id: base64-decode
+
+  # Helper: Cron with hidden paths
+  - id: cron-with-hidden
+    desc: Cron with hidden file paths
+    all:
+      - id: cron-keywords
+      - id: hidden-paths
 
   # Cron download cradle
   - id: download-cradle
-    description: Cron-based download and execute
+    desc: Cron-based download and execute
     crit: suspicious
-    confidence: 0.85
-    attack: "T1053.003"
-    condition:
-      type: yara
-      source: |
-        rule cron_cradle {
-          strings:
-            // One-liner download cradles in cron
-            $cradle1 = "curl -s" ascii
-            $cradle2 = "wget -q" ascii
-            $cradle3 = "wget -O -" ascii
-            // Pipe to shell
-            $shell1 = "| sh" ascii
-            $shell2 = "| bash" ascii
-            $shell3 = "| /bin/sh" ascii
-            // Suppression
-            $supp1 = ">/dev/null" ascii
-            $supp2 = "2>&1" ascii
-          condition:
-            (any of ($cradle*) and any of ($shell*)) or
-            (any of ($cradle*) and any of ($supp*))
-        }
+    conf: 0.85
+    any:
+      - id: cradle-with-shell
+      - id: cradle-with-suppression
 
   # Hidden cron entries
   - id: hidden
-    description: Hidden or obfuscated cron entries
+    desc: Hidden or obfuscated cron entries
     crit: suspicious
-    confidence: 0.8
-    attack: "T1053.003"
-    condition:
-      type: yara
-      source: |
-        rule cron_hidden {
-          strings:
-            // Cron manipulation
-            $cron1 = "crontab" ascii
-            $cron2 = "/etc/cron" ascii
-            // Base64 execution
-            $b64_1 = "base64 -d" ascii
-            $b64_2 = "base64 --decode" ascii
-            // Hidden files
-            $hide1 = "/tmp/." ascii
-            $hide2 = "/var/tmp/." ascii
-            $hide3 = "/dev/shm/." ascii
-          condition:
-            (any of ($cron*) and any of ($b64_*)) or
-            (any of ($cron*) and any of ($hide*))
-        }
+    conf: 0.8
+    any:
+      - id: cron-with-base64
+      - id: cron-with-hidden

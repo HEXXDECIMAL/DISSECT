@@ -25,15 +25,8 @@ traits:
     crit: suspicious
     conf: 0.66
     if:
-      type: yara
-      source: |
-        rule takeown_force {
-          strings:
-            $takeown_fr = /(takeown|TAKEOWN).{1,8}\/[fF].{1,8}\/[rR] .{0,32}[yY]/
-            $takeown_rf = /(takeown|TAKEOWN).{1,8}\/[rR].{1,8}\/[fF] .{0,32}[yY]/
-          condition:
-            any of them
-        }
+      type: string
+      regex: "(takeown|TAKEOWN).{1,8}/[fFrR].{1,8}/[rRfF] .{0,32}[yY]"
 
 composite_rules:
   # takeown composite

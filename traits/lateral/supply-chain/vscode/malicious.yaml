@@ -3,7 +3,8 @@
 # These combine multiple indicators to reduce false positives
 
 traits:
-  # VSCode-specific markers for contextual analysis
+  # NOTE: YARA kept for api-usage - requires fullword match on "activate" which
+  # DISSECT doesn't support, plus regex patterns for require/import
   - id: api-usage
     description: Uses VSCode API (extension marker)
     crit: inert
@@ -22,51 +23,97 @@ traits:
             any of them
         }
 
-  # Post-Install Code Execution
-  - id: post-install-exec
-    description: Post-install script execution (dropper pattern)
-    crit: suspicious
-    confidence: 0.95
-    mbc: "B0024"
-    attack: "T1059"
+  # === Atomic indicators for post-install-exec ===
+  - id: activate-word
+    description: activate keyword
+    crit: inert
+    confidence: 0.7
     file_types: [javascript, typescript]
     condition:
-      type: yara
-      source: |
-        rule vscode_post_install_exec {
-          strings:
-            $activate = "activate" ascii fullword
-            $state1 = "globalState" ascii
-            $state2 = "postInstall" ascii
-            $exec = /exec(Sync|Async)?/ ascii
-          condition:
-            $activate and any of ($state*) and $exec
-        }
+      type: string
+      exact: "activate"
 
-  # Extension Credential Theft
-  - id: credential-theft
-    description: VSCode extension accessing sensitive credentials
-    crit: suspicious
-    confidence: 0.9
-    mbc: "E1519"
-    attack: "T1555"
+  - id: globalState-word
+    description: globalState keyword
+    crit: inert
+    confidence: 0.7
     file_types: [javascript, typescript]
     condition:
-      type: yara
-      source: |
-        rule vscode_credential_theft {
-          strings:
-            $cred1 = ".ssh" ascii
-            $cred2 = ".aws" ascii
-            $cred3 = ".npmrc" ascii
-            $cred4 = ".env" ascii
-            $read = /read(File|FileSync)/ ascii
-            $send1 = "POST" ascii
-            $send2 = "fetch(" ascii
-            $send3 = "axios" ascii
-          condition:
-            any of ($cred*) and $read and any of ($send*)
-        }
+      type: string
+      exact: "globalState"
+
+  - id: postInstall-word
+    description: postInstall keyword
+    crit: inert
+    confidence: 0.7
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "postInstall"
+
+  - id: exec-pattern
+    description: exec function pattern
+    crit: inert
+    confidence: 0.7
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "exec(Sync|Async)?"
+
+  # === Atomic indicators for credential-theft ===
+  - id: ssh-dir
+    description: .ssh directory reference
+    crit: notable
+    confidence: 0.7
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: ".ssh"
+
+  - id: aws-dir
+    description: .aws directory reference
+    crit: notable
+    confidence: 0.7
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: ".aws"
+
+  - id: npmrc-file
+    description: .npmrc file reference
+    crit: notable
+    confidence: 0.7
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: ".npmrc"
+
+  - id: env-file
+    description: .env file reference
+    crit: notable
+    confidence: 0.6
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: ".env"
+
+  - id: readFile-pattern
+    description: readFile function pattern
+    crit: inert
+    confidence: 0.6
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      regex: "read(File|FileSync)"
+
+  - id: post-method
+    description: POST HTTP method
+    crit: inert
+    confidence: 0.6
+    file_types: [javascript, typescript]
+    condition:
+      type: string
+      exact: "POST"
 
   # VSCode namespace usage pattern
   - id: vscode-namespace
@@ -99,6 +146,68 @@ traits:
       regex: 'write(File|FileSync)|copy(File|FileSync)'
 
 composite_rules:
+  # State helpers
+  - id: state-markers
+    description: State management markers (globalState or postInstall)
+    crit: notable
+    confidence: 0.75
+    file_types: [javascript, typescript]
+    requires_count: 1
+    any:
+      - id: globalState-word
+      - id: postInstall-word
+
+  # Credential paths
+  - id: credential-paths
+    description: Sensitive credential file/directory paths
+    crit: notable
+    confidence: 0.8
+    file_types: [javascript, typescript]
+    requires_count: 1
+    any:
+      - id: ssh-dir
+      - id: aws-dir
+      - id: npmrc-file
+      - id: env-file
+
+  # Send methods
+  - id: send-methods
+    description: HTTP send methods
+    crit: notable
+    confidence: 0.7
+    file_types: [javascript, typescript]
+    requires_count: 1
+    any:
+      - id: post-method
+      - id: fetch-call
+      - id: axios-lib
+
+  # Post-Install Code Execution
+  - id: post-install-exec
+    description: Post-install script execution (dropper pattern)
+    crit: suspicious
+    confidence: 0.95
+    mbc: "B0024"
+    attack: "T1059"
+    file_types: [javascript, typescript]
+    requires_all:
+      - id: activate-word
+      - id: state-markers
+      - id: exec-pattern
+
+  # Extension Credential Theft
+  - id: credential-theft
+    description: VSCode extension accessing sensitive credentials
+    crit: suspicious
+    confidence: 0.9
+    mbc: "E1519"
+    attack: "T1555"
+    file_types: [javascript, typescript]
+    requires_all:
+      - id: credential-paths
+      - id: readFile-pattern
+      - id: send-methods
+
   # Staged Decryption and Execution inside a VSCode Extension
   - id: staged-dropper
     description: VSCode extension with staged decryption and execution (Dropper)

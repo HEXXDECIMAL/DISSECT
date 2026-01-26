@@ -501,31 +501,41 @@ fn apply_composite_defaults(raw: RawCompositeRule, defaults: &TraitDefaults) -> 
             .unwrap_or(Criticality::Inert),
     };
 
-    // Stricter validation for HOSTILE traits: composite traits must have at least 3 conditions and a file_type filter
+    // Stricter validation for HOSTILE traits: must have complexity >= 4
+    // Complexity calculation:
+    // - Each direct condition (Symbol, String, etc.) = 1
+    // - Each Trait reference = complexity of that trait (recursive)
+    // - File type filter (not "all") = 1
+    // This ensures HOSTILE requires substantive evidence (e.g., 3 traits + filetype)
     if criticality == Criticality::Hostile {
-        let mut condition_count = 0;
-        if let Some(ref c) = raw.all {
-            condition_count += c.len();
-        }
-        if let Some(ref c) = raw.any {
-            condition_count += c.len();
-        }
-        if let Some(ref c) = raw.any {
-            condition_count += c.len();
-        }
-        if let Some(ref c) = raw.none {
-            condition_count += c.len();
-        }
-        if raw.condition.is_some() {
-            condition_count += 1;
-        }
-
         let has_file_type_filter = !file_types.contains(&RuleFileType::All);
 
-        if condition_count < 3 || !has_file_type_filter {
+        // Start with filetype filter counting as 1 if present
+        let mut complexity = if has_file_type_filter { 1 } else { 0 };
+
+        // Count direct conditions (non-Trait conditions count as 1 each)
+        if let Some(ref c) = raw.all {
+            complexity += c.len();
+        }
+        if let Some(ref c) = raw.any {
+            complexity += c.len();
+        }
+        if let Some(ref c) = raw.none {
+            complexity += c.len();
+        }
+        if raw.condition.is_some() {
+            complexity += 1;
+        }
+
+        // Note: We count all conditions as 1 for now. In the future, we could:
+        // - Recursively expand Trait references to their underlying complexity
+        // - Weight different condition types differently
+        // For now, this simpler approach ensures rules have multiple substantive checks
+
+        if complexity < 4 {
             eprintln!(
-                "⚠️  WARNING: Composite trait '{}' is marked HOSTILE but does not meet strictness requirements. Downgrading to SUSPICIOUS.",
-                raw.id
+                "⚠️  WARNING: Composite trait '{}' is marked HOSTILE but does not meet strictness requirements (complexity={}, need 4). Downgrading to SUSPICIOUS.",
+                raw.id, complexity
             );
             criticality = Criticality::Suspicious;
         }
@@ -570,6 +580,125 @@ fn apply_composite_defaults(raw: RawCompositeRule, defaults: &TraitDefaults) -> 
         min_count: raw.min_count,
         max_count: raw.max_count,
         none: raw.none,
+    }
+}
+
+/// Calculate the true complexity of a composite rule, recursively expanding Trait references
+/// Complexity is:
+/// - File type filter (not "all"): +1
+/// - Each direct condition (Symbol, String, Structure, etc.): +1
+/// - Each Trait reference: complexity of that trait (recursive)
+fn calculate_composite_complexity(
+    rule_id: &str,
+    all_composites: &[CompositeTrait],
+    all_traits: &[TraitDefinition],
+    cache: &mut HashMap<String, usize>,
+    visiting: &mut std::collections::HashSet<String>,
+) -> usize {
+    // Check cache first
+    if let Some(&complexity) = cache.get(rule_id) {
+        return complexity;
+    }
+
+    // Detect cycles
+    if !visiting.insert(rule_id.to_string()) {
+        // Cycle detected - treat as complexity 1 to avoid infinite loop
+        return 1;
+    }
+
+    // Find the rule
+    let rule = match all_composites.iter().find(|r| r.id == rule_id) {
+        Some(r) => r,
+        None => {
+            // Not a composite - might be a simple trait, count as 1
+            visiting.remove(rule_id);
+            cache.insert(rule_id.to_string(), 1);
+            return 1;
+        }
+    };
+
+    let mut complexity = 0;
+
+    // File type filter counts as 1
+    if !rule.r#for.contains(&RuleFileType::All) {
+        complexity += 1;
+    }
+
+    // Count conditions
+    if let Some(ref conditions) = rule.all {
+        for cond in conditions {
+            complexity += count_condition_complexity(cond, all_composites, all_traits, cache, visiting);
+        }
+    }
+    if let Some(ref conditions) = rule.any {
+        for cond in conditions {
+            complexity += count_condition_complexity(cond, all_composites, all_traits, cache, visiting);
+        }
+    }
+    if let Some(ref conditions) = rule.none {
+        for cond in conditions {
+            complexity += count_condition_complexity(cond, all_composites, all_traits, cache, visiting);
+        }
+    }
+
+    visiting.remove(rule_id);
+    cache.insert(rule_id.to_string(), complexity);
+    complexity
+}
+
+/// Count complexity of a single condition
+fn count_condition_complexity(
+    cond: &Condition,
+    all_composites: &[CompositeTrait],
+    all_traits: &[TraitDefinition],
+    cache: &mut HashMap<String, usize>,
+    visiting: &mut std::collections::HashSet<String>,
+) -> usize {
+    match cond {
+        Condition::Trait { id } => {
+            // Recursively calculate complexity of referenced trait
+            calculate_composite_complexity(id, all_composites, all_traits, cache, visiting)
+        }
+        // All other condition types count as 1
+        _ => 1,
+    }
+}
+
+/// Validate and downgrade HOSTILE composite rules that don't meet complexity requirements
+fn validate_hostile_composite_complexity(
+    composite_rules: &mut Vec<CompositeTrait>,
+    trait_definitions: &[TraitDefinition],
+) {
+    let mut cache: HashMap<String, usize> = HashMap::new();
+
+    // First pass: calculate complexity for all HOSTILE rules (immutable borrow)
+    let hostile_complexities: Vec<(String, usize)> = composite_rules
+        .iter()
+        .filter(|rule| rule.crit == Criticality::Hostile)
+        .map(|rule| {
+            let mut visiting = std::collections::HashSet::new();
+            let complexity = calculate_composite_complexity(
+                &rule.id,
+                composite_rules,
+                trait_definitions,
+                &mut cache,
+                &mut visiting,
+            );
+            (rule.id.clone(), complexity)
+        })
+        .collect();
+
+    // Second pass: downgrade rules that don't meet requirements (mutable borrow)
+    for (rule_id, complexity) in hostile_complexities {
+        if complexity < 4 {
+            if let Some(rule) = composite_rules.iter_mut().find(|r| r.id == rule_id) {
+                eprintln!(
+                    "⚠️  WARNING: Composite trait '{}' is marked HOSTILE but has complexity {} (need >=4). Downgrading to SUSPICIOUS.",
+                    rule_id, complexity
+                );
+                rule.crit = Criticality::Suspicious;
+            }
+        }
     }
 }
 
@@ -910,6 +1039,10 @@ impl CapabilityMapper {
             eprintln!("[TIMING] Pre-compiled YARA: {:?}", t_yara.elapsed());
         }
         let t_validate = std::time::Instant::now();
+
+        // Post-process HOSTILE composite rules to properly calculate complexity
+        // Now that all rules are loaded, we can recursively calculate true complexity
+        validate_hostile_composite_complexity(&mut composite_rules, &trait_definitions);
 
         // Validate trait references in composite rules
         // Cross-directory references (containing '/') must match an existing directory prefix

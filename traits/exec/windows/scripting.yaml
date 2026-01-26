@@ -4,21 +4,216 @@
 
 traits:
   # WScript.Shell execution
+  - id: wscript-shell-string
+    desc: WScript.Shell string reference
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "WScript.Shell"
+
+  # Scripting.FileSystemObject
+  - id: filesystem-object-string
+    desc: FileSystemObject string reference
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "FileSystemObject"
+
+  # ActiveXObject creation
+  - id: activex-object-string
+    desc: ActiveXObject string reference
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "ActiveXObject"
+
+  # Shell.Application (explorer shell)
+  - id: shell-application-string
+    desc: Shell.Application string reference
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "Shell.Application"
+
+  # MSXML HTTP request
+  - id: msxml2-xmlhttp-string
+    desc: MSXML2.XMLHTTP string reference
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "MSXML2.XMLHTTP"
+
+  - id: microsoft-xmlhttp-string
+    desc: Microsoft.XMLHTTP string reference
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "Microsoft.XMLHTTP"
+
+  - id: msxml2-serverxmlhttp-string
+    desc: Msxml2.ServerXMLHTTP string reference
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "Msxml2.ServerXMLHTTP"
+
+  # WMI scripting
+  - id: winmgmts-string
+    desc: winmgmts WMI moniker string
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript, powershell]
+    if:
+      type: string
+      exact: "winmgmts:"
+
+  - id: wbemscripting-locator-string
+    desc: WbemScripting.SWbemLocator string reference
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript, powershell]
+    if:
+      type: string
+      exact: "WbemScripting.SWbemLocator"
+
+  # ADODB stream (file operations)
+  - id: adodb-stream-string
+    desc: ADODB.Stream string reference
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "ADODB.Stream"
+
+  # Schedule.Service (task scheduler)
+  - id: schedule-service-string
+    desc: Schedule.Service string reference
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript, powershell]
+    if:
+      type: string
+      exact: "Schedule.Service"
+
+  - id: win32-scheduledjob-string
+    desc: Win32_ScheduledJob string reference
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript, powershell]
+    if:
+      type: string
+      exact: "Win32_ScheduledJob"
+
+  # Registry manipulation keywords
+  - id: regread-method
+    desc: RegRead method call
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "RegRead"
+
+  - id: regwrite-method
+    desc: RegWrite method call
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "RegWrite"
+
+  - id: regdelete-method
+    desc: RegDelete method call
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "RegDelete"
+
+  - id: hklm-hive
+    desc: HKLM registry hive reference
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript, powershell]
+    if:
+      type: string
+      exact: "HKLM"
+
+  - id: hkcu-hive
+    desc: HKCU registry hive reference
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript, powershell]
+    if:
+      type: string
+      exact: "HKCU"
+
+  # WinHttp for droppers
+  - id: winhttp-string
+    desc: WinHttp string reference
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "WinHttp"
+
+  # Method calls
+  - id: run-method
+    desc: .Run method call
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: ".Run("
+
+  - id: exec-method
+    desc: .Exec method call
+    crit: inert
+    conf: 0.4
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: ".Exec("
+
+  - id: savetofile-method
+    desc: SaveToFile method call
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "SaveToFile"
+
+# === Composite Rules ===
+composite_rules:
+  # WScript.Shell execution
   - id: wscript-shell
     desc: WScript.Shell command execution
     crit: suspicious
     conf: 0.9
     attack: "T1059.005"
     for: [javascript, typescript]
-    if:
-      type: yara
-      source: |
-        rule wscript_shell {
-          strings:
-            $ws1 = "WScript.Shell" ascii
-          condition:
-            $ws1
-        }
+    any:
+      - id: wscript-shell-string
 
   # Scripting.FileSystemObject
   - id: filesystem-object
@@ -27,15 +222,8 @@ traits:
     conf: 0.85
     attack: "T1059.005"
     for: [javascript, typescript]
-    if:
-      type: yara
-      source: |
-        rule filesystem_object {
-          strings:
-            $fso = "FileSystemObject" ascii
-          condition:
-            $fso
-        }
+    any:
+      - id: filesystem-object-string
 
   # ActiveXObject creation
   - id: activex-object
@@ -44,15 +232,8 @@ traits:
     conf: 0.8
     attack: "T1559.001"
     for: [javascript, typescript]
-    if:
-      type: yara
-      source: |
-        rule activex_object {
-          strings:
-            $ax = "ActiveXObject" ascii
-          condition:
-            $ax
-        }
+    any:
+      - id: activex-object-string
 
   # Shell.Application (explorer shell)
   - id: shell-application
@@ -61,15 +242,19 @@ traits:
     conf: 0.85
     attack: "T1559.001"
     for: [javascript, typescript]
-    if:
-      type: yara
-      source: |
-        rule shell_application {
-          strings:
-            $sa = "Shell.Application" ascii
-          condition:
-            $sa
-        }
+    any:
+      - id: shell-application-string
+
+  # MSXML HTTP request variants
+  - id: msxml-http-variants
+    desc: MSXML HTTP request object variants
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    any:
+      - id: msxml2-xmlhttp-string
+      - id: microsoft-xmlhttp-string
+      - id: msxml2-serverxmlhttp-string
 
   # MSXML HTTP request
   - id: msxml-http
@@ -78,17 +263,18 @@ traits:
     conf: 0.75
     attack: "T1071.001"
     for: [javascript, typescript]
-    if:
-      type: yara
-      source: |
-        rule msxml_http {
-          strings:
-            $xml1 = "MSXML2.XMLHTTP" ascii
-            $xml2 = "Microsoft.XMLHTTP" ascii
-            $xml3 = "Msxml2.ServerXMLHTTP" ascii
-          condition:
-            any of them
-        }
+    any:
+      - id: msxml-http-variants
+
+  # WMI scripting variants
+  - id: wmi-scripting-patterns
+    desc: WMI scripting patterns
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript, powershell]
+    any:
+      - id: winmgmts-string
+      - id: wbemscripting-locator-string
 
   # WMI scripting
   - id: wmi-scripting
@@ -97,16 +283,8 @@ traits:
     conf: 0.85
     attack: "T1047"
     for: [javascript, typescript, powershell]
-    if:
-      type: yara
-      source: |
-        rule wmi_scripting {
-          strings:
-            $wmi1 = "winmgmts:" ascii
-            $wmi2 = "WbemScripting.SWbemLocator" ascii
-          condition:
-            any of them
-        }
+    any:
+      - id: wmi-scripting-patterns
 
   # ADODB stream (file operations)
   - id: adodb-stream
@@ -115,15 +293,18 @@ traits:
     conf: 0.85
     attack: "T1059.005"
     for: [javascript, typescript]
-    if:
-      type: yara
-      source: |
-        rule adodb_stream {
-          strings:
-            $adodb = "ADODB.Stream" ascii
-          condition:
-            $adodb
-        }
+    any:
+      - id: adodb-stream-string
+
+  # Schedule.Service variants
+  - id: schedule-service-patterns
+    desc: Task scheduler COM object patterns
+    crit: inert
+    conf: 0.8
+    for: [javascript, typescript, powershell]
+    any:
+      - id: schedule-service-string
+      - id: win32-scheduledjob-string
 
   # Schedule.Service (task scheduler)
   - id: schedule-service
@@ -132,16 +313,29 @@ traits:
     conf: 0.9
     attack: "T1053.005"
     for: [javascript, typescript, powershell]
-    if:
-      type: yara
-      source: |
-        rule schedule_service {
-          strings:
-            $sched1 = "Schedule.Service" ascii
-            $sched2 = "Win32_ScheduledJob" ascii
-          condition:
-            any of them
-        }
+    any:
+      - id: schedule-service-patterns
+
+  # Registry operation methods
+  - id: registry-methods
+    desc: Registry manipulation methods
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    any:
+      - id: regread-method
+      - id: regwrite-method
+      - id: regdelete-method
+
+  # Registry hive references
+  - id: registry-hives
+    desc: Registry hive references
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript, powershell]
+    any:
+      - id: hklm-hive
+      - id: hkcu-hive
 
   # Registry manipulation via scripting
   - id: registry-scripting
@@ -150,20 +344,41 @@ traits:
     conf: 0.85
     attack: "T1112"
     for: [javascript, typescript]
-    if:
-      type: yara
-      source: |
-        rule registry_scripting {
-          strings:
-            $wsh = "WScript.Shell" ascii
-            $reg1 = "RegRead" ascii
-            $reg2 = "RegWrite" ascii
-            $reg3 = "RegDelete" ascii
-            $hklm = "HKLM" ascii
-            $hkcu = "HKCU" ascii
-          condition:
-            $wsh and any of ($reg*) and any of ($hklm, $hkcu)
-        }
+    all:
+      - id: wscript-shell-string
+      - id: registry-methods
+      - id: registry-hives
+
+  # HTTP objects for droppers
+  - id: http-objects
+    desc: HTTP objects for network access
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    any:
+      - id: msxml-http-variants
+      - id: winhttp-string
+
+  # Execution methods
+  - id: execution-methods
+    desc: Code execution methods
+    crit: inert
+    conf: 0.5
+    for: [javascript, typescript]
+    any:
+      - id: run-method
+      - id: exec-method
+      - id: savetofile-method
+
+  # Shell or FSO objects
+  - id: wsh-or-fso
+    desc: WScript.Shell or FileSystemObject
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    any:
+      - id: wscript-shell-string
+      - id: filesystem-object-string
 
   # Windows Script Host dropper
   - id: wsh-dropper
@@ -172,18 +387,7 @@ traits:
     conf: 0.95
     attack: "T1059.005"
     for: [javascript, typescript]
-    if:
-      type: yara
-      source: |
-        rule wsh_dropper {
-          strings:
-            $wsh = "WScript.Shell" ascii
-            $fso = "FileSystemObject" ascii
-            $http1 = "MSXML2.XMLHTTP" ascii
-            $http2 = "WinHttp" ascii
-            $run = ".Run(" ascii
-            $exec = ".Exec(" ascii
-            $save = "SaveToFile" ascii
-          condition:
-            ($wsh or $fso) and any of ($http*) and any of ($run, $exec, $save)
-        }
+    all:
+      - id: wsh-or-fso
+      - id: http-objects
+      - id: execution-methods
