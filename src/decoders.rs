@@ -8,9 +8,9 @@ pub fn extract_base64_strings(data: &[u8]) -> Vec<DecodedString> {
     use base64::{engine::general_purpose::STANDARD, Engine as _};
     let mut results = Vec::new();
 
-    // Find base64-like sequences (alphanumeric + +/= characters, min 20 chars)
+    // Find base64-like sequences (alphanumeric + +/= characters, min 12 chars to catch short IPs)
     let text = String::from_utf8_lossy(data);
-    let base64_pattern = regex::Regex::new(r"[A-Za-z0-9+/]{20,}={0,2}").unwrap();
+    let base64_pattern = regex::Regex::new(r"[A-Za-z0-9+/]{12,}={0,2}").unwrap();
 
     for mat in base64_pattern.find_iter(&text) {
         let encoded = mat.as_str();
@@ -110,7 +110,7 @@ mod tests {
     fn test_extract_base64_strings_basic() {
         let data = b"const x = 'aGVsbG8gd29ybGQ='; // hello world";
         let decoded = extract_base64_strings(data);
-        
+
         assert_eq!(decoded.len(), 1);
         assert_eq!(decoded[0].value, "hello world");
         assert_eq!(decoded[0].method, "base64");

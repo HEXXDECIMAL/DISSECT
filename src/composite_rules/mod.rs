@@ -18,9 +18,9 @@ pub mod traits;
 pub mod types;
 
 // Re-export public API
-pub use condition::{Condition, NotException};
+pub use condition::Condition;
 pub use context::EvaluationContext;
-pub use traits::{CompositeTrait, DowngradeRules, TraitDefinition};
+pub use traits::{CompositeTrait, TraitDefinition};
 pub use types::{FileType, Platform};
 
 #[cfg(test)]
