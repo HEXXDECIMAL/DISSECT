@@ -105,7 +105,7 @@ composite_rules:
     crit: notable
     conf: 0.9
     attack: "T1003.008"
-    requires_count: 1
+    count: 1
     any:
       - id: etc-shadow
       - id: etc-gshadow

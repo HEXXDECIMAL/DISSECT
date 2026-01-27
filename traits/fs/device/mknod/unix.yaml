@@ -7,7 +7,7 @@ defaults:
 
 traits:
   - id: mknod
-    description: Create device files
+    desc: Create device files
     crit: notable
     conf: 0.66
     if:

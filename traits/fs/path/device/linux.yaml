@@ -4,7 +4,7 @@
 
 traits:
   - id: dev-path-pattern
-    description: /dev/ device path pattern
+    desc: /dev/ device path pattern
     crit: notable
     conf: 0.7
     mbc: E1083
@@ -14,7 +14,7 @@ traits:
       regex: '/dev/[\w.\-/]{1,16}'
 
   - id: dev-null
-    description: /dev/null (legitimate discard device)
+    desc: /dev/null (legitimate discard device)
     crit: inert
     conf: 1.0
     if:
@@ -22,7 +22,7 @@ traits:
       exact: "/dev/null"
 
   - id: dev-shm
-    description: /dev/shm/ (shared memory, legitimate)
+    desc: /dev/shm/ (shared memory, legitimate)
     crit: inert
     conf: 1.0
     if:
@@ -31,7 +31,7 @@ traits:
 
 composite_rules:
   - id: device-dev
-    description: Reference to /dev devices (excludes /dev/null and /dev/shm)
+    desc: Reference to /dev devices (excludes /dev/null and /dev/shm)
     crit: notable
     conf: 0.66
     mbc: E1083
@@ -43,7 +43,7 @@ composite_rules:
       - id: dev-shm
 
   - id: device-null
-    description: Reference to /dev/null device
+    desc: Reference to /dev/null device
     crit: inert
     conf: 0.66
     mbc: E1083

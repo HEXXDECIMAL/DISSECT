@@ -8,7 +8,7 @@ defaults:
 traits:
   # === JSON exfil key atomic indicators ===
   - id: json-key-aiv
-    description: aiv JSON key
+    desc: aiv JSON key
     crit: inert
     conf: 0.7
     attack: "T1041"
@@ -17,7 +17,7 @@ traits:
       exact: '"aiv"'
 
   - id: json-key-crd
-    description: crd JSON key
+    desc: crd JSON key
     crit: inert
     conf: 0.7
     attack: "T1041"
@@ -26,7 +26,7 @@ traits:
       exact: '"crd"'
 
   - id: json-key-pwd
-    description: pwd JSON key
+    desc: pwd JSON key
     crit: inert
     conf: 0.7
     attack: "T1041"
@@ -35,9 +35,9 @@ traits:
       exact: '"pwd"'
 
   - id: go-dpaste-exfil
-    description: Exfiltrates data to dpaste service
+    desc: Exfiltrates data to dpaste service
     crit: suspicious
-    conf: 1.0
+    conf: 0.85
     attack: "T1041"
     if:
       type: string
@@ -45,11 +45,11 @@ traits:
 
 composite_rules:
   - id: go-json-exfil-keys
-    description: Marshals sensitive-looking keys into JSON for exfiltration
+    desc: Marshals sensitive-looking keys into JSON for exfiltration
     crit: suspicious
     conf: 0.95
     attack: "T1041"
-    requires_count: 1
+    count: 1
     any:
       - id: json-key-aiv
       - id: json-key-crd

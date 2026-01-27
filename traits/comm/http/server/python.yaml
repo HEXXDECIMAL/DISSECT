@@ -224,58 +224,58 @@ traits:
 composite_rules:
   # Helper composites
   - id: builtin-http-server
-    description: Built-in Python HTTP server modules
+    desc: Built-in Python HTTP server modules
     for: [python]
     any:
-      - {id: http-server-module}
-      - {id: simplehttpserver-module}
-      - {id: basehttpserver-module}
-      - {id: http-server-import}
-      - {id: simplehttpserver-import}
-      - {id: httpserver-class}
-      - {id: simplehttprequesthandler}
+      - { id: http-server-module }
+      - { id: simplehttpserver-module }
+      - { id: basehttpserver-module }
+      - { id: http-server-import }
+      - { id: simplehttpserver-import }
+      - { id: httpserver-class }
+      - { id: simplehttprequesthandler }
 
   - id: flask-framework
-    description: Flask web framework usage
+    desc: Flask web framework usage
     for: [python]
     count: 2
     any:
-      - {id: flask-import}
-      - {id: flask-instantiation}
-      - {id: flask-run-call}
-      - {id: flask-route-decorator}
+      - { id: flask-import }
+      - { id: flask-instantiation }
+      - { id: flask-run-call }
+      - { id: flask-route-decorator }
 
   - id: django-framework
-    description: Django web framework usage
+    desc: Django web framework usage
     for: [python]
     any:
-      - {id: django-import}
-      - {id: django-wsgi}
-      - {id: django-runserver}
+      - { id: django-import }
+      - { id: django-wsgi }
+      - { id: django-runserver }
 
   - id: fastapi-framework
-    description: FastAPI framework usage
+    desc: FastAPI framework usage
     for: [python]
     any:
-      - {id: fastapi-import}
-      - {id: fastapi-instantiation}
+      - { id: fastapi-import }
+      - { id: fastapi-instantiation }
 
   - id: other-frameworks
-    description: Other Python web frameworks
+    desc: Other Python web frameworks
     for: [python]
     any:
-      - {id: tornado-import}
-      - {id: tornado-application}
-      - {id: bottle-import}
-      - {id: bottle-route-decorator}
+      - { id: tornado-import }
+      - { id: tornado-application }
+      - { id: bottle-import }
+      - { id: bottle-route-decorator }
 
   - id: wsgi-asgi-servers
-    description: WSGI/ASGI server usage
+    desc: WSGI/ASGI server usage
     for: [python]
     any:
-      - {id: gunicorn-import}
-      - {id: uvicorn-import}
-      - {id: wsgiref-module}
+      - { id: gunicorn-import }
+      - { id: uvicorn-import }
+      - { id: wsgiref-module }
 
   # Main composite (matches original YARA behavior)
   - id: server-python
@@ -284,9 +284,9 @@ composite_rules:
     conf: 0.75
     for: [python]
     any:
-      - {id: builtin-http-server}
-      - {id: flask-framework}
-      - {id: django-framework}
-      - {id: fastapi-framework}
-      - {id: other-frameworks}
-      - {id: wsgi-asgi-servers}
+      - { id: builtin-http-server }
+      - { id: flask-framework }
+      - { id: django-framework }
+      - { id: fastapi-framework }
+      - { id: other-frameworks }
+      - { id: wsgi-asgi-servers }

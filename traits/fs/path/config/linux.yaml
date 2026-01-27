@@ -4,7 +4,7 @@
 
 traits:
   - id: config-etc
-    description: Reference to /etc configuration files
+    desc: Reference to /etc configuration files
     crit: inert
     conf: 0.66
     if:
@@ -12,7 +12,7 @@ traits:
       regex: "/etc/[\\w\\.\\-/]{1,32}"
 
   - id: config-hosts
-    description: Reference to /etc/hosts
+    desc: Reference to /etc/hosts
     crit: notable
     conf: 0.66
     if:
@@ -20,7 +20,7 @@ traits:
       exact: /etc/hosts
 
   - id: config-resolv
-    description: Reference to /etc/resolv.conf
+    desc: Reference to /etc/resolv.conf
     crit: notable
     conf: 0.66
     if:
@@ -28,7 +28,7 @@ traits:
       exact: /etc/resolv.conf
 
   - id: config-initd
-    description: Reference to /etc/init.d scripts
+    desc: Reference to /etc/init.d scripts
     crit: notable
     conf: 0.66
     if:

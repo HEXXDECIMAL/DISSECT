@@ -62,7 +62,7 @@ composite_rules:
     conf: 0.95
     attack: "T1564.003"
     for: [applescript]
-    requires_all:
+    all:
       - { id: terminal-hide }
       - { id: exec/command/shell-execution }
 
@@ -73,7 +73,7 @@ composite_rules:
     conf: 0.95
     attack: "T1564.003"
     for: [applescript]
-    requires_all:
+    all:
       - { id: terminal-hide }
     any:
       - { id: cred/phishing/hidden-answer }

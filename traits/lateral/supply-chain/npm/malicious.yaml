@@ -115,7 +115,7 @@ composite_rules:
     crit: inert
     confidence: 0.6
     file_types: [packagejson]
-    requires_count: 1
+    count: 1
     any:
       - id: preinstall-hook
       - id: postinstall-hook
@@ -126,7 +126,7 @@ composite_rules:
     crit: notable
     confidence: 0.7
     file_types: [packagejson]
-    requires_count: 1
+    count: 1
     any:
       - id: curl-command
       - id: wget-command
@@ -137,7 +137,7 @@ composite_rules:
     crit: notable
     confidence: 0.75
     file_types: [packagejson]
-    requires_count: 1
+    count: 1
     any:
       - id: pipe-to-bash
       - id: pipe-to-sh
@@ -149,7 +149,7 @@ composite_rules:
     crit: notable
     confidence: 0.8
     file_types: [packagejson]
-    requires_count: 1
+    count: 1
     any:
       - id: node-dash-e
       - id: node-eval-flag
@@ -162,7 +162,7 @@ composite_rules:
     attack: "T1195.002"
     mbc: "B0024"
     file_types: [packagejson]
-    requires_all:
+    all:
       - id: lifecycle-hook
       - id: download-command
       - id: pipe-to-shell
@@ -175,7 +175,7 @@ composite_rules:
     attack: "T1059.007"
     mbc: "B0024"
     file_types: [packagejson]
-    requires_all:
+    all:
       - id: lifecycle-hook
       - id: node-eval
 
@@ -186,6 +186,6 @@ composite_rules:
     confidence: 0.85
     attack: "T1195.002"
     file_types: [packagejson]
-    requires_all:
+    all:
       - id: lifecycle-hook
       - id: child-process-module

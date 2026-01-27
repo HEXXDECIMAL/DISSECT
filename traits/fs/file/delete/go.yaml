@@ -9,7 +9,7 @@ defaults:
 traits:
   # AST-based detection (Go source only)
   - id: os-Remove
-    description: Delete file (os.Remove)
+    desc: Delete file (os.Remove)
     crit: notable
     conf: 0.9
     for: [go]
@@ -19,7 +19,7 @@ traits:
       pattern: "os.Remove"
 
   - id: os-RemoveAll
-    description: Recursive directory deletion
+    desc: Recursive directory deletion
     crit: notable
     conf: 0.9
     for: [go]
@@ -30,7 +30,7 @@ traits:
 
   # String-based detection (compiled binaries)
   - id: os-Remove-string
-    description: os.Remove string in binary
+    desc: os.Remove string in binary
     crit: notable
     conf: 0.7
     for: [elf, macho, pe]
@@ -39,7 +39,7 @@ traits:
       exact: "os.Remove"
 
   - id: os-RemoveAll-string
-    description: os.RemoveAll string in binary
+    desc: os.RemoveAll string in binary
     crit: notable
     conf: 0.7
     for: [elf, macho, pe]

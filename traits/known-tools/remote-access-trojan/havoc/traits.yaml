@@ -91,7 +91,7 @@ composite_rules:
     attack: "T1059"
     platforms: [windows]
     file_types: [pe, dll]
-    requires_count: 1
+    count: 1
     any:
       - id: havoc-demon-order1
       - id: havoc-demon-order2
@@ -107,7 +107,7 @@ composite_rules:
     mbc: "B0030"
     platforms: [windows]
     file_types: [pe, dll]
-    requires_any:
+    any:
       - id: c2-framework/havoc/amsi-dll-xor
       - id: c2-framework/havoc/demon-ref
       - id: c2-framework/havoc/config

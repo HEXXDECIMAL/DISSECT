@@ -4,7 +4,7 @@
 
 traits:
   - id: readdir-python
-    description: List directory contents (Python)
+    desc: List directory contents (Python)
     crit: inert
     conf: 0.66
     if:

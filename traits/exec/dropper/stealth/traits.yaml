@@ -39,7 +39,7 @@ composite_rules:
     mbc: "F0003"
     attack: "T1036"
     for: [python]
-    requires_count: 3
+    count: 3
     any:
       - id: subprocess-popen
       - id: devnull

@@ -101,29 +101,29 @@ traits:
 composite_rules:
   # Helper composites
   - id: pam-library
-    description: PAM library references
+    desc: PAM library references
     for: [c, cpp, elf, so]
     any:
-      - {id: libpam-so}
-      - {id: libpam-so-versioned}
+      - { id: libpam-so }
+      - { id: libpam-so-versioned }
 
   - id: pam-token-access
-    description: PAM token access functions
+    desc: PAM token access functions
     for: [c, cpp, elf, so]
     any:
-      - {id: pam-get-item}
-      - {id: pam-set-item}
-      - {id: pam-get-authtok}
-      - {id: pam-authtok-constant}
+      - { id: pam-get-item }
+      - { id: pam-set-item }
+      - { id: pam-get-authtok }
+      - { id: pam-authtok-constant }
 
   - id: pam-auth-functions
-    description: PAM authentication functions
+    desc: PAM authentication functions
     for: [c, cpp, elf, so]
     any:
-      - {id: pam-authenticate}
-      - {id: pam-open-session}
-      - {id: pam-acct-mgmt}
-      - {id: pam-setcred}
+      - { id: pam-authenticate }
+      - { id: pam-open-session }
+      - { id: pam-acct-mgmt }
+      - { id: pam-setcred }
 
   # Migrated from YARA
   - id: interceptor
@@ -132,6 +132,6 @@ composite_rules:
     conf: 0.8
     for: [c, cpp, elf, so]
     all:
-      - {id: pam-library}
-      - {id: pam-token-access}
-      - {id: pam-auth-functions}
+      - { id: pam-library }
+      - { id: pam-token-access }
+      - { id: pam-auth-functions }

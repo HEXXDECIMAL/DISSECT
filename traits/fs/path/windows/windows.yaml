@@ -4,7 +4,7 @@
 
 traits:
   - id: default-user-appdata
-    description: Default User Application Data path
+    desc: Default User Application Data path
     crit: notable
     conf: 0.7
     mbc: E1083
@@ -14,7 +14,7 @@ traits:
       regex: "Default User.{0,32}Application Data"
 
   - id: localservice-appdata
-    description: LocalService Application Data path
+    desc: LocalService Application Data path
     crit: notable
     conf: 0.7
     mbc: E1083
@@ -24,7 +24,7 @@ traits:
       regex: "LocalService.{0,32}Application Data"
 
   - id: networkservice-appdata
-    description: NetworkService Application Data path
+    desc: NetworkService Application Data path
     crit: notable
     conf: 0.7
     mbc: E1083
@@ -34,7 +34,7 @@ traits:
       regex: "NetworkService.{0,32}Application Data"
 
   - id: windows-root
-    description: C:\\Windows\\ directory path
+    desc: C:\\Windows\\ directory path
     crit: inert
     conf: 0.66
     mbc: E1083
@@ -44,7 +44,7 @@ traits:
       regex: '[Cc]:\\Windows\\[\w\\]+'
 
   - id: windows-system32
-    description: C:\\Windows\\System32\\ directory path
+    desc: C:\\Windows\\System32\\ directory path
     crit: notable
     conf: 0.66
     mbc: E1083
@@ -55,7 +55,7 @@ traits:
 
 composite_rules:
   - id: windows-appdata
-    description: Windows Application Data paths (user profiles)
+    desc: Windows Application Data paths (user profiles)
     crit: notable
     conf: 0.66
     mbc: E1083

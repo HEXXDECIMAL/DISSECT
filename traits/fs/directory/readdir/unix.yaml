@@ -7,7 +7,7 @@ defaults:
 
 traits:
   - id: readdir
-    description: List directory contents
+    desc: List directory contents
     crit: inert
     conf: 0.66
     if:

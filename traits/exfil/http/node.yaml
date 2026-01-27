@@ -28,7 +28,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      exact: "\"POST\""
+      exact: '"POST"'
 
   - id: application-json-content-type
     desc: application/json content type
@@ -41,7 +41,7 @@ traits:
 
   # HTTP GET with query params (data in URL)
   - id: node-get-params
-    description: HTTP GET with data in query parameters
+    desc: HTTP GET with data in query parameters
     crit: notable
     conf: 0.8
     attack: "T1041"
@@ -52,7 +52,7 @@ traits:
 
   # axios POST
   - id: node-axios-post
-    description: Sends data via axios POST request
+    desc: Sends data via axios POST request
     crit: notable
     conf: 0.8
     attack: "T1041"
@@ -63,7 +63,7 @@ traits:
 
   # axios with data
   - id: node-axios-data
-    description: axios request with data payload
+    desc: axios request with data payload
     crit: notable
     conf: 0.75
     for: [javascript, typescript]
@@ -73,7 +73,7 @@ traits:
 
   # fetch POST
   - id: node-fetch-post
-    description: Sends data via fetch POST request
+    desc: Sends data via fetch POST request
     crit: notable
     conf: 0.8
     attack: "T1041"
@@ -84,7 +84,7 @@ traits:
 
   # http.request
   - id: node-http-request
-    description: Makes HTTP request using http module
+    desc: Makes HTTP request using http module
     crit: notable
     conf: 0.7
     for: [javascript, typescript]
@@ -94,7 +94,7 @@ traits:
 
   # https.request
   - id: node-https-request
-    description: Makes HTTPS request using https module
+    desc: Makes HTTPS request using https module
     crit: notable
     conf: 0.7
     for: [javascript, typescript]
@@ -104,7 +104,7 @@ traits:
 
   # https.get
   - id: node-https-get
-    description: Makes HTTPS GET request
+    desc: Makes HTTPS GET request
     crit: inert
     conf: 0.7
     for: [javascript, typescript]
@@ -114,7 +114,7 @@ traits:
 
   # Request write (sending body)
   - id: node-req-write
-    description: Writes data to HTTP request body
+    desc: Writes data to HTTP request body
     crit: notable
     conf: 0.8
     for: [javascript, typescript]
@@ -124,7 +124,7 @@ traits:
 
   # Silent error handling (hiding exfil failures)
   - id: node-silent-error
-    description: Silent error handling (hides network failures)
+    desc: Silent error handling (hides network failures)
     crit: notable
     conf: 0.7
     for: [javascript, typescript]
@@ -134,7 +134,7 @@ traits:
 
   # Timeout handling
   - id: node-request-timeout
-    description: HTTP request with timeout handling
+    desc: HTTP request with timeout handling
     crit: inert
     conf: 0.6
     for: [javascript, typescript]
@@ -144,7 +144,7 @@ traits:
 
   # === HTTP method atomic indicators ===
   - id: axios-post-call
-    description: axios.post() call
+    desc: axios.post() call
     crit: inert
     conf: 0.6
     for: [javascript, typescript]
@@ -153,7 +153,7 @@ traits:
       exact: "axios.post"
 
   - id: fetch-call
-    description: fetch() call
+    desc: fetch() call
     crit: inert
     conf: 0.5
     for: [javascript, typescript]
@@ -163,7 +163,7 @@ traits:
 
   # === HTTP library atomic indicators ===
   - id: axios-import
-    description: axios library usage
+    desc: axios library usage
     crit: inert
     conf: 0.5
     for: [javascript, typescript]
@@ -174,31 +174,31 @@ traits:
 composite_rules:
   # Helper composites
   - id: post-method-variants
-    description: POST method in quotes
+    desc: POST method in quotes
     for: [javascript, typescript]
     any:
-      - {id: post-method-single}
-      - {id: post-method-double}
+      - { id: post-method-single }
+      - { id: post-method-double }
 
   # Migrated from YARA
   - id: node-post-json
-    description: HTTP POST request with JSON body
+    desc: HTTP POST request with JSON body
     crit: notable
     conf: 0.75
     attack: "T1041"
     for: [javascript, typescript]
     all:
-      - {id: method-field}
-      - {id: post-method-variants}
-      - {id: application-json-content-type}
+      - { id: method-field }
+      - { id: post-method-variants }
+      - { id: application-json-content-type }
 
   # HTTP request methods composite
   - id: node-http-methods
-    description: Node.js HTTP request methods
+    desc: Node.js HTTP request methods
     crit: notable
     conf: 0.7
     for: [javascript, typescript]
-    requires_count: 1
+    count: 1
     any:
       - id: axios-post-call
       - id: node-https-request
@@ -207,11 +207,11 @@ composite_rules:
 
   # HTTP libraries composite
   - id: node-http-libs
-    description: Node.js HTTP request libraries
+    desc: Node.js HTTP request libraries
     crit: notable
     conf: 0.7
     for: [javascript, typescript]
-    requires_count: 1
+    count: 1
     any:
       - id: axios-import
       - id: node-https-request
@@ -220,21 +220,21 @@ composite_rules:
 
   # Collect and exfil pattern
   - id: node-collect-exfil
-    description: Collects system info and exfiltrates via HTTP
+    desc: Collects system info and exfiltrates via HTTP
     crit: suspicious
     conf: 0.95
     attack: "T1041"
     for: [javascript, typescript]
-    requires_all:
+    all:
       - id: discovery/system/node
       - id: node-http-methods
 
   # Stealthy exfil (silent errors)
   - id: node-stealthy-exfil
-    description: Stealthy exfiltration with silent error handling
+    desc: Stealthy exfiltration with silent error handling
     crit: suspicious
     conf: 0.85
     attack: "T1041"
-    requires_all:
+    all:
       - id: node-silent-error
       - id: node-http-libs

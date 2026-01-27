@@ -240,53 +240,53 @@ traits:
 composite_rules:
   # Helper composites
   - id: web-server-binaries
-    description: Common web server binaries
+    desc: Common web server binaries
     for: [shell, elf, macho, java]
     any:
-      - {id: httpd-keyword}
-      - {id: apache2-keyword}
-      - {id: nginx-keyword}
-      - {id: lighttpd-keyword}
-      - {id: caddy-keyword}
-      - {id: tomcat-keyword}
-      - {id: jetty-keyword}
+      - { id: httpd-keyword }
+      - { id: apache2-keyword }
+      - { id: nginx-keyword }
+      - { id: lighttpd-keyword }
+      - { id: caddy-keyword }
+      - { id: tomcat-keyword }
+      - { id: jetty-keyword }
 
   - id: web-server-config-files
-    description: Web server configuration files
+    desc: Web server configuration files
     for: [shell, elf, macho]
     any:
-      - {id: httpd-conf-path}
-      - {id: apache2-conf-path}
-      - {id: nginx-conf-path}
-      - {id: sites-available-path}
-      - {id: sites-enabled-path}
+      - { id: httpd-conf-path }
+      - { id: apache2-conf-path }
+      - { id: nginx-conf-path }
+      - { id: sites-available-path }
+      - { id: sites-enabled-path }
 
   - id: common-http-ports
-    description: Common HTTP/HTTPS port binding
+    desc: Common HTTP/HTTPS port binding
     for: [shell, javascript, python, go]
     any:
-      - {id: bind-port-80}
-      - {id: bind-port-443}
-      - {id: bind-port-8080}
-      - {id: bind-port-8000}
-      - {id: bind-port-3000}
+      - { id: bind-port-80 }
+      - { id: bind-port-443 }
+      - { id: bind-port-8080 }
+      - { id: bind-port-8000 }
+      - { id: bind-port-3000 }
 
   - id: go-http-server
-    description: Go HTTP server patterns
+    desc: Go HTTP server patterns
     for: [go]
     any:
-      - {id: servemux-pattern}
-      - {id: http-server-type}
-      - {id: listenandserve-call}
-      - {id: listenandservetls-call}
+      - { id: servemux-pattern }
+      - { id: http-server-type }
+      - { id: listenandserve-call }
+      - { id: listenandservetls-call }
 
   - id: nodejs-http-server
-    description: Node.js HTTP server patterns
+    desc: Node.js HTTP server patterns
     for: [javascript, typescript]
     any:
-      - {id: http-createserver-call}
-      - {id: https-createserver-call}
-      - {id: server-listen-call}
+      - { id: http-createserver-call }
+      - { id: https-createserver-call }
+      - { id: server-listen-call }
 
   # Main composite (matches original YARA behavior)
   - id: server
@@ -295,8 +295,8 @@ composite_rules:
     conf: 0.7
     for: [shell, javascript, typescript, python, go, elf, macho, pe, java]
     any:
-      - {id: web-server-binaries}
-      - {id: web-server-config-files}
-      - {id: common-http-ports}
-      - {id: go-http-server}
-      - {id: nodejs-http-server}
+      - { id: web-server-binaries }
+      - { id: web-server-config-files }
+      - { id: common-http-ports }
+      - { id: go-http-server }
+      - { id: nodejs-http-server }

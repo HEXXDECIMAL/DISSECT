@@ -4,7 +4,7 @@
 
 traits:
   - id: mkdir-java
-    description: Create directories (Java)
+    desc: Create directories (Java)
     crit: inert
     conf: 0.66
     if:

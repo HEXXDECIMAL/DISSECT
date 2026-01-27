@@ -666,169 +666,169 @@ traits:
 composite_rules:
   # Go error handling helper
   - id: go-error-handling
-    description: Go error handling patterns
+    desc: Go error handling patterns
     crit: inert
     conf: 0.7
     for: [go]
     count: 2
     any:
-      - {id: go-err-nil-check}
-      - {id: go-errors-new}
-      - {id: go-fmt-errorf}
+      - { id: go-err-nil-check }
+      - { id: go-errors-new }
+      - { id: go-fmt-errorf }
 
   # Rust error handling helper
   - id: rust-error-handling
-    description: Rust error handling patterns
+    desc: Rust error handling patterns
     crit: inert
     conf: 0.7
     for: [rust]
     count: 2
     any:
-      - {id: rust-result-type}
-      - {id: rust-unwrap-or}
-      - {id: rust-expect-method}
+      - { id: rust-result-type }
+      - { id: rust-unwrap-or }
+      - { id: rust-expect-method }
 
   # Generic try/catch helper
   - id: try-catch-handling
-    description: Try/catch error handling patterns
+    desc: Try/catch error handling patterns
     crit: inert
     conf: 0.7
     for: [javascript, python, java, csharp]
     count: 2
     any:
-      - {id: try-block-open}
-      - {id: catch-keyword}
-      - {id: except-keyword}
-      - {id: finally-keyword}
+      - { id: try-block-open }
+      - { id: catch-keyword }
+      - { id: except-keyword }
+      - { id: finally-keyword }
 
   # Error handling patterns (combines all)
   - id: error-handling
-    description: Proper error handling patterns
+    desc: Proper error handling patterns
     crit: benign
     conf: 0.8
     any:
-      - {id: go-error-handling}
-      - {id: rust-error-handling}
-      - {id: try-catch-handling}
+      - { id: go-error-handling }
+      - { id: rust-error-handling }
+      - { id: try-catch-handling }
 
   # Logging presence
   - id: has-logging
-    description: Application has logging infrastructure
+    desc: Application has logging infrastructure
     crit: benign
     conf: 0.85
     count: 2
     any:
-      - {id: log-print}
-      - {id: logger-lower}
-      - {id: logger-title}
-      - {id: logging-word}
-      - {id: syslog-word}
-      - {id: log-info-lower}
-      - {id: log-info-title}
-      - {id: log-debug-lower}
-      - {id: log-debug-title}
-      - {id: log-error-lower}
-      - {id: log-error-title}
+      - { id: log-print }
+      - { id: logger-lower }
+      - { id: logger-title }
+      - { id: logging-word }
+      - { id: syslog-word }
+      - { id: log-info-lower }
+      - { id: log-info-title }
+      - { id: log-debug-lower }
+      - { id: log-debug-title }
+      - { id: log-error-lower }
+      - { id: log-error-title }
 
   # Configuration management
   - id: config-management
-    description: External configuration management
+    desc: External configuration management
     crit: benign
     conf: 0.85
     any:
-      - {id: config-yaml-file}
-      - {id: config-json-file}
-      - {id: config-toml-file}
-      - {id: dotenv-file}
-      - {id: viper-config-lib}
-      - {id: configparser-module}
-      - {id: dotenv-module}
+      - { id: config-yaml-file }
+      - { id: config-json-file }
+      - { id: config-toml-file }
+      - { id: dotenv-file }
+      - { id: viper-config-lib }
+      - { id: configparser-module }
+      - { id: dotenv-module }
 
   # Version information
   - id: versioned
-    description: Contains version information
+    desc: Contains version information
     crit: benign
     conf: 0.85
     any:
-      - {id: version-word-lower}
-      - {id: version-word-title}
-      - {id: version-colon}
-      - {id: version-v1}
-      - {id: version-v2}
-      - {id: version-upper}
-      - {id: semver-pattern}
+      - { id: version-word-lower }
+      - { id: version-word-title }
+      - { id: version-colon }
+      - { id: version-v1 }
+      - { id: version-v2 }
+      - { id: version-upper }
+      - { id: semver-pattern }
 
   # Help/usage information
   - id: has-help
-    description: Contains help or usage information
+    desc: Contains help or usage information
     crit: benign
     conf: 0.85
     count: 2
     any:
-      - {id: help-long-flag}
-      - {id: help-short-flag}
-      - {id: usage-lower}
-      - {id: usage-title}
-      - {id: options-title}
-      - {id: usage-upper}
+      - { id: help-long-flag }
+      - { id: help-short-flag }
+      - { id: usage-lower }
+      - { id: usage-title }
+      - { id: options-title }
+      - { id: usage-upper }
 
   # License information
   - id: licensed
-    description: Contains license information
+    desc: Contains license information
     crit: benign
     conf: 0.9
     any:
-      - {id: mit-license-text}
-      - {id: apache-license-text}
-      - {id: gpl-word}
-      - {id: bsd-word}
-      - {id: license-upper}
-      - {id: copyright-word}
-      - {id: spdx-identifier}
+      - { id: mit-license-text }
+      - { id: apache-license-text }
+      - { id: gpl-word }
+      - { id: bsd-word }
+      - { id: license-upper }
+      - { id: copyright-word }
+      - { id: spdx-identifier }
 
   # Documentation strings
   - id: documented
-    description: Contains documentation strings
+    desc: Contains documentation strings
     crit: benign
     conf: 0.8
     any:
-      - {id: python-docstring-triple-double}
-      - {id: python-docstring-triple-single}
-      - {id: rust-doc-comment}
-      - {id: javadoc-comment}
-      - {id: rust-doc-comment-space}
-      - {id: param-annotation}
-      - {id: return-annotation}
-      - {id: sphinx-param}
-      - {id: sphinx-returns}
+      - { id: python-docstring-triple-double }
+      - { id: python-docstring-triple-single }
+      - { id: rust-doc-comment }
+      - { id: javadoc-comment }
+      - { id: rust-doc-comment-space }
+      - { id: param-annotation }
+      - { id: return-annotation }
+      - { id: sphinx-param }
+      - { id: sphinx-returns }
 
   # Unit test presence (in production binary)
   # NOTE: "test_" alone is too generic - Go runtime has internal test strings
   # Require multiple test-related indicators
   - id: has-tests
-    description: Binary includes test code (unusual for production)
+    desc: Binary includes test code (unusual for production)
     crit: inert
     conf: 0.5
     count: 2
     any:
-      - {id: go-test-main}
-      - {id: go-test-file}
-      - {id: python-test-file}
-      - {id: unittest-module}
-      - {id: pytest-module}
-      - {id: rust-test-attribute}
-      - {id: go-testing-t}
+      - { id: go-test-main }
+      - { id: go-test-file }
+      - { id: python-test-file }
+      - { id: unittest-module }
+      - { id: pytest-module }
+      - { id: rust-test-attribute }
+      - { id: go-testing-t }
 
   # Metrics/telemetry
   - id: has-metrics
-    description: Application has metrics/telemetry
+    desc: Application has metrics/telemetry
     crit: benign
     conf: 0.85
     any:
-      - {id: prometheus-word}
-      - {id: metrics-word-lower}
-      - {id: metrics-word-title}
-      - {id: statsd-word}
-      - {id: datadog-word}
-      - {id: opentelemetry-word}
-      - {id: newrelic-word}
+      - { id: prometheus-word }
+      - { id: metrics-word-lower }
+      - { id: metrics-word-title }
+      - { id: statsd-word }
+      - { id: datadog-word }
+      - { id: opentelemetry-word }
+      - { id: newrelic-word }

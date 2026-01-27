@@ -37,7 +37,7 @@ composite_rules:
     description: "Dummy test rule for validation"
     crit: suspicious
     conf: 1.0
-    requires_all:
+    all:
       - id: impact/root/prepare-creds-string
 
   # Become Root Flow
@@ -46,7 +46,7 @@ composite_rules:
     crit: suspicious
     conf: 1.0
     attack: "T1068"
-    requires_all:
+    all:
       - id: impact/root/prepare-creds-string
       - id: kernel/rootkit/prepare-creds-call
       - id: kernel/rootkit/commit-creds-call

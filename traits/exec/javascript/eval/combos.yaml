@@ -10,7 +10,7 @@ composite_rules:
     mbc: "B0024"
     attack: "T1059.004"
     for: [javascript]
-    requires_all:
+    all:
       - id: exec/javascript/getExecOutput
       - id: exec/javascript/silent-true
 
@@ -22,7 +22,7 @@ composite_rules:
     mbc: "B0024"
     attack: "T1059"
     for: [javascript]
-    requires_all:
+    all:
       - id: exec/javascript/base64-decode-cli
       - id: exec/javascript/bash-string
 
@@ -34,7 +34,7 @@ composite_rules:
     mbc: "B0025"
     attack: "T1105"
     for: [javascript]
-    requires_all:
+    all:
       - id: exec/javascript/tmp-write
       - id: exec/javascript/tmp-execute
 
@@ -45,7 +45,7 @@ composite_rules:
     conf: 0.85
     mbc: "F0005"
     for: [javascript]
-    requires_count: 2
+    count: 2
     any:
       - id: exec/javascript/silent-true
       - id: exec/javascript/ignoreReturnCode
@@ -59,7 +59,7 @@ composite_rules:
     mbc: "B0024"
     attack: "T1195.002"
     for: [javascript]
-    requires_count: 3
+    count: 3
     any:
       - id: exec/javascript/getExecOutput
       - id: exec/javascript/bash-string

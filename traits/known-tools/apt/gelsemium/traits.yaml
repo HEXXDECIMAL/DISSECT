@@ -136,7 +136,7 @@ composite_rules:
     attack: "T1071"
     mbc: "B0030"
     for: [elf]
-    requires_all:
+    all:
       - id: apt/gelsemium/config-yara
 
   - id: apt/gelsemium/rc4-detected
@@ -147,5 +147,5 @@ composite_rules:
     attack: "T1573"
     mbc: "C0027"
     for: [elf]
-    requires_all:
+    all:
       - id: apt/gelsemium/rc4-key

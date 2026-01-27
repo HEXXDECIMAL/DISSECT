@@ -9,7 +9,7 @@ traits:
   # === Sandbox Entry (macOS) ===
 
   - id: sandbox-init
-    description: macOS sandbox initialization
+    desc: macOS sandbox initialization
     conf: 0.95
     platforms: [macos]
     for: [macho, dylib]
@@ -18,7 +18,7 @@ traits:
       pattern: "sandbox_init"
 
   - id: sandbox-init-params
-    description: macOS sandbox initialization with parameters
+    desc: macOS sandbox initialization with parameters
     conf: 0.95
     platforms: [macos]
     for: [macho, dylib]
@@ -27,7 +27,7 @@ traits:
       pattern: "sandbox_init_with_parameters"
 
   - id: sandbox-extension-consume
-    description: macOS sandbox extension consumption
+    desc: macOS sandbox extension consumption
     conf: 0.9
     platforms: [macos]
     for: [macho, dylib]
@@ -36,7 +36,7 @@ traits:
       pattern: "sandbox_extension_consume"
 
   - id: sandbox-extension-issue
-    description: macOS sandbox extension issuance
+    desc: macOS sandbox extension issuance
     conf: 0.9
     platforms: [macos]
     for: [macho, dylib]
@@ -45,7 +45,7 @@ traits:
       pattern: "sandbox_extension_issue"
 
   - id: sandbox-check
-    description: macOS sandbox check function
+    desc: macOS sandbox check function
     conf: 0.9
     platforms: [macos]
     for: [macho, dylib]
@@ -56,7 +56,7 @@ traits:
   # === Sandbox Entry Messages ===
 
   - id: sandbox-entering
-    description: Sandbox entry log message
+    desc: Sandbox entry log message
     conf: 0.85
     platforms: [macos]
     for: [macho]
@@ -66,7 +66,7 @@ traits:
       case_insensitive: true
 
   - id: sandbox-failed
-    description: Sandbox entry failure message
+    desc: Sandbox entry failure message
     conf: 0.85
     platforms: [macos]
     for: [macho]
@@ -77,7 +77,7 @@ traits:
   # === Hardened Runtime (macOS) ===
 
   - id: hardened-runtime
-    description: macOS Hardened Runtime enabled
+    desc: macOS Hardened Runtime enabled
     conf: 0.9
     platforms: [macos]
     for: [macho]
@@ -88,7 +88,7 @@ traits:
   # === seccomp (Linux) ===
 
   - id: seccomp-init
-    description: Linux seccomp sandbox initialization
+    desc: Linux seccomp sandbox initialization
     conf: 0.95
     platforms: [linux]
     for: [elf]
@@ -97,7 +97,7 @@ traits:
       pattern: "seccomp_init"
 
   - id: seccomp-rule-add
-    description: Linux seccomp rule addition
+    desc: Linux seccomp rule addition
     conf: 0.9
     platforms: [linux]
     for: [elf]
@@ -106,7 +106,7 @@ traits:
       pattern: "seccomp_rule_add"
 
   - id: seccomp-load
-    description: Linux seccomp profile loading
+    desc: Linux seccomp profile loading
     conf: 0.95
     platforms: [linux]
     for: [elf]
@@ -115,7 +115,7 @@ traits:
       pattern: "seccomp_load"
 
   - id: prctl-seccomp
-    description: Linux prctl seccomp mode
+    desc: Linux prctl seccomp mode
     conf: 0.85
     platforms: [linux]
     for: [elf]
@@ -124,7 +124,7 @@ traits:
       exact: "PR_SET_SECCOMP"
 
   - id: seccomp-mode-filter
-    description: Linux seccomp filter mode constant
+    desc: Linux seccomp filter mode constant
     conf: 0.85
     platforms: [linux]
     for: [elf]
@@ -135,7 +135,7 @@ traits:
   # === Pledge/Unveil (OpenBSD) ===
 
   - id: pledge
-    description: OpenBSD pledge syscall restriction
+    desc: OpenBSD pledge syscall restriction
     conf: 0.95
     platforms: [openbsd]
     for: [elf]
@@ -144,7 +144,7 @@ traits:
       pattern: "^pledge$"
 
   - id: unveil
-    description: OpenBSD unveil filesystem restriction
+    desc: OpenBSD unveil filesystem restriction
     conf: 0.95
     platforms: [openbsd]
     for: [elf]
@@ -155,7 +155,7 @@ traits:
   # === Capsicum (FreeBSD) ===
 
   - id: cap-enter
-    description: FreeBSD Capsicum capability mode
+    desc: FreeBSD Capsicum capability mode
     conf: 0.95
     platforms: [freebsd]
     for: [elf]
@@ -164,7 +164,7 @@ traits:
       pattern: "cap_enter"
 
   - id: cap-rights-limit
-    description: FreeBSD Capsicum rights limiting
+    desc: FreeBSD Capsicum rights limiting
     conf: 0.9
     platforms: [freebsd]
     for: [elf]
@@ -174,12 +174,12 @@ traits:
 
 composite_rules:
   - id: macos-sandboxed
-    description: macOS App Sandbox enabled
+    desc: macOS App Sandbox enabled
     crit: notable
     conf: 0.95
     platforms: [macos]
     for: [macho, dylib]
-    requires_count: 1
+    count: 1
     any:
       - id: sandbox-init
       - id: sandbox-init-params
@@ -189,12 +189,12 @@ composite_rules:
       - id: sandbox-failed
 
   - id: linux-seccomp
-    description: Linux seccomp sandbox enabled
+    desc: Linux seccomp sandbox enabled
     crit: notable
     conf: 0.95
     platforms: [linux]
     for: [elf]
-    requires_count: 2
+    count: 2
     any:
       - id: seccomp-init
       - id: seccomp-load

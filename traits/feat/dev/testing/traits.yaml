@@ -551,199 +551,199 @@ traits:
 composite_rules:
   # Google Test (C++)
   - id: gtest
-    description: Google Test framework
+    desc: Google Test framework
     crit: benign
     conf: 0.95
     for: [cpp]
     count: 2
     any:
-      - {id: gtest-testing-test}
-      - {id: gtest-macro-prefix}
-      - {id: gtest-test-f}
-      - {id: gtest-expect-prefix}
-      - {id: gtest-assert-prefix}
-      - {id: gtest-word}
+      - { id: gtest-testing-test }
+      - { id: gtest-macro-prefix }
+      - { id: gtest-test-f }
+      - { id: gtest-expect-prefix }
+      - { id: gtest-assert-prefix }
+      - { id: gtest-word }
 
   # Catch2 (C++)
   - id: catch2
-    description: Catch2 test framework
+    desc: Catch2 test framework
     crit: benign
     conf: 0.95
     for: [cpp]
     count: 2
     any:
-      - {id: catch2-namespace}
-      - {id: catch2-macro-prefix}
-      - {id: catch2-test-case}
-      - {id: catch2-section}
-      - {id: catch2-require}
+      - { id: catch2-namespace }
+      - { id: catch2-macro-prefix }
+      - { id: catch2-test-case }
+      - { id: catch2-section }
+      - { id: catch2-require }
 
   # JUnit (Java)
   - id: junit
-    description: JUnit test framework
+    desc: JUnit test framework
     crit: benign
     conf: 0.95
     for: [java]
     any:
-      - {id: junit-package}
-      - {id: junit-test-annotation}
-      - {id: junit-assert-equals}
-      - {id: junit-assert-true}
-      - {id: junit-assert-not-null}
+      - { id: junit-package }
+      - { id: junit-test-annotation }
+      - { id: junit-assert-equals }
+      - { id: junit-assert-true }
+      - { id: junit-assert-not-null }
 
   # pytest (Python) - helper for pytest markers
   - id: pytest-markers
-    description: pytest-specific markers
+    desc: pytest-specific markers
     crit: inert
     conf: 0.8
     for: [python]
     any:
-      - {id: pytest-word}
-      - {id: pytest-test-func}
-      - {id: pytest-decorator}
-      - {id: pytest-conftest}
+      - { id: pytest-word }
+      - { id: pytest-test-func }
+      - { id: pytest-decorator }
+      - { id: pytest-conftest }
 
   # pytest with assert helper
   - id: pytest-with-assert
-    description: pytest markers with assert statement
+    desc: pytest markers with assert statement
     crit: inert
     conf: 0.8
     for: [python]
     all:
-      - {id: python-assert-statement}
-      - {id: pytest-markers}
+      - { id: python-assert-statement }
+      - { id: pytest-markers }
 
   # pytest (Python) - main composite
   - id: pytest
-    description: pytest test framework
+    desc: pytest test framework
     crit: benign
     conf: 0.95
     for: [python]
     any:
-      - {id: pytest-markers}
-      - {id: pytest-with-assert}
+      - { id: pytest-markers }
+      - { id: pytest-with-assert }
 
   # Go testing
   - id: go-test
-    description: Go testing package
+    desc: Go testing package
     crit: benign
     conf: 0.95
     for: [go]
     count: 2
     any:
-      - {id: go-testing-t}
-      - {id: go-testing-m}
-      - {id: go-testing-b}
-      - {id: go-func-test}
-      - {id: go-t-error}
-      - {id: go-t-fatal}
+      - { id: go-testing-t }
+      - { id: go-testing-m }
+      - { id: go-testing-b }
+      - { id: go-func-test }
+      - { id: go-t-error }
+      - { id: go-t-fatal }
 
   # Rust testing
   - id: rust-test
-    description: Rust test framework
+    desc: Rust test framework
     crit: benign
     conf: 0.95
     for: [rust]
     any:
-      - {id: rust-test-attr}
-      - {id: rust-cfg-test}
-      - {id: rust-assert-macro}
-      - {id: rust-assert-eq-macro}
-      - {id: rust-cargo-test}
+      - { id: rust-test-attr }
+      - { id: rust-cfg-test }
+      - { id: rust-assert-macro }
+      - { id: rust-assert-eq-macro }
+      - { id: rust-cargo-test }
 
   # Jest BDD functions helper (shared with Mocha)
   - id: js-bdd-functions
-    description: JavaScript BDD test functions
+    desc: JavaScript BDD test functions
     crit: inert
     conf: 0.6
     for: [javascript]
     count: 3
     any:
-      - {id: jest-describe}
-      - {id: jest-it}
-      - {id: jest-expect}
-      - {id: jest-to-be}
-      - {id: jest-to-equal}
+      - { id: jest-describe }
+      - { id: jest-it }
+      - { id: jest-expect }
+      - { id: jest-to-be }
+      - { id: jest-to-equal }
 
   # Jest (JavaScript)
   - id: jest
-    description: Jest test framework
+    desc: Jest test framework
     crit: benign
     conf: 0.95
     for: [javascript]
     any:
-      - {id: jest-word}
-      - {id: js-bdd-functions}
+      - { id: jest-word }
+      - { id: js-bdd-functions }
 
   # Mocha (JavaScript) - all patterns helper
   - id: mocha-all-patterns
-    description: Mocha test patterns
+    desc: Mocha test patterns
     crit: inert
     conf: 0.7
     for: [javascript]
     count: 3
     any:
-      - {id: mocha-word}
-      - {id: jest-describe}
-      - {id: jest-it}
-      - {id: mocha-before}
-      - {id: mocha-after}
+      - { id: mocha-word }
+      - { id: jest-describe }
+      - { id: jest-it }
+      - { id: mocha-before }
+      - { id: mocha-after }
 
   # Mocha (JavaScript)
   - id: mocha
-    description: Mocha test framework
+    desc: Mocha test framework
     crit: benign
     conf: 0.95
     for: [javascript]
     any:
-      - {id: mocha-word}
-      - {id: mocha-all-patterns}
+      - { id: mocha-word }
+      - { id: mocha-all-patterns }
 
   # RSpec BDD patterns helper
   - id: rspec-bdd-patterns
-    description: RSpec BDD patterns
+    desc: RSpec BDD patterns
     crit: inert
     conf: 0.7
     for: [ruby]
     count: 2
     any:
-      - {id: rspec-describe}
-      - {id: rspec-context}
-      - {id: rspec-expect}
+      - { id: rspec-describe }
+      - { id: rspec-context }
+      - { id: rspec-expect }
 
   # RSpec (Ruby)
   - id: rspec
-    description: RSpec test framework
+    desc: RSpec test framework
     crit: benign
     conf: 0.95
     for: [ruby]
     any:
-      - {id: rspec-lower}
-      - {id: rspec-title}
-      - {id: rspec-bdd-patterns}
+      - { id: rspec-lower }
+      - { id: rspec-title }
+      - { id: rspec-bdd-patterns }
 
   # Fuzzing frameworks
   - id: fuzzing
-    description: Fuzzing test framework
+    desc: Fuzzing test framework
     crit: benign
     conf: 0.9
     any:
-      - {id: libfuzzer-word}
-      - {id: llvm-fuzzer}
-      - {id: afl-word}
-      - {id: honggfuzz-word}
-      - {id: go-fuzz}
-      - {id: cargo-fuzz}
+      - { id: libfuzzer-word }
+      - { id: llvm-fuzzer }
+      - { id: afl-word }
+      - { id: honggfuzz-word }
+      - { id: go-fuzz }
+      - { id: cargo-fuzz }
 
   # Benchmark frameworks
   - id: benchmark
-    description: Benchmark test framework
+    desc: Benchmark test framework
     crit: benign
     conf: 0.9
     any:
-      - {id: benchmark-lower}
-      - {id: benchmark-title}
-      - {id: google-benchmark}
-      - {id: go-benchmark-type}
-      - {id: criterion-bench}
-      - {id: benchmarkdotnet}
+      - { id: benchmark-lower }
+      - { id: benchmark-title }
+      - { id: google-benchmark }
+      - { id: go-benchmark-type }
+      - { id: criterion-bench }
+      - { id: benchmarkdotnet }

@@ -62,9 +62,9 @@ composite_rules:
     mbc: "B0033"
     platforms: [linux]
     file_types: [elf]
-    requires_all:
+    all:
       - id: mem/anonymous/create/memfd-create
-    requires_any:
+    any:
       - id: execve-symbol
       - id: mem/protect/modify/mprotect
 
@@ -76,8 +76,8 @@ composite_rules:
     mbc: "B0033"
     platforms: [windows]
     file_types: [python]
-    requires_all:
+    all:
       - id: mem/protect/modify/virtualprotect-ctypes
-    requires_any:
+    any:
       - id: python-encode-call
       - id: python-b64decode-call

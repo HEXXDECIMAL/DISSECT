@@ -194,39 +194,39 @@ traits:
 composite_rules:
   # Helper composites
   - id: socket-creation
-    description: Socket creation patterns
+    desc: Socket creation patterns
     for: [python]
     any:
-      - {id: socket-socket-call}
-      - {id: socket-af-inet}
-      - {id: socket-af-inet6}
-      - {id: socket-sock-stream}
-      - {id: socket-sock-dgram}
+      - { id: socket-socket-call }
+      - { id: socket-af-inet }
+      - { id: socket-af-inet6 }
+      - { id: socket-sock-stream }
+      - { id: socket-sock-dgram }
 
   - id: socket-client-operations
-    description: Client socket operations
+    desc: Client socket operations
     for: [python]
     any:
-      - {id: socket-connect-call}
-      - {id: socket-connect-ex-call}
+      - { id: socket-connect-call }
+      - { id: socket-connect-ex-call }
 
   - id: socket-server-operations
-    description: Server socket operations
+    desc: Server socket operations
     for: [python]
     count: 2
     any:
-      - {id: socket-bind-call}
-      - {id: socket-listen-call}
-      - {id: socket-accept-call}
+      - { id: socket-bind-call }
+      - { id: socket-listen-call }
+      - { id: socket-accept-call }
 
   - id: socket-data-transfer
-    description: Socket data transfer operations
+    desc: Socket data transfer operations
     for: [python]
     any:
-      - {id: socket-send-call}
-      - {id: socket-sendall-call}
-      - {id: socket-recv-call}
-      - {id: socket-recvfrom-call}
+      - { id: socket-send-call }
+      - { id: socket-sendall-call }
+      - { id: socket-recv-call }
+      - { id: socket-recvfrom-call }
 
   # Main composite (matches original YARA behavior)
   - id: connect-python
@@ -235,5 +235,5 @@ composite_rules:
     conf: 0.75
     for: [python]
     all:
-      - {id: socket-creation}
-      - {id: socket-client-operations}
+      - { id: socket-creation }
+      - { id: socket-client-operations }

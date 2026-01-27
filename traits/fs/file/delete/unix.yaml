@@ -9,7 +9,7 @@ traits:
   # NOTE: Go runtime and standard library use unlink/remove for temp file
   # cleanup and normal file operations. Downgraded to inert.
   - id: delete
-    description: Delete files
+    desc: Delete files
     crit: inert
     conf: 0.3
     if:

@@ -75,7 +75,7 @@ traits:
 
 composite_rules:
   - id: ruby-dns-resolve
-    description: DNS hostname resolution
+    desc: DNS hostname resolution
     crit: notable
     conf: 0.85
     any:
@@ -83,7 +83,7 @@ composite_rules:
       - id: resolv-getname
 
   - id: ruby-env-read
-    description: Read environment variables
+    desc: Read environment variables
     crit: notable
     conf: 0.75
     any:
@@ -91,7 +91,7 @@ composite_rules:
       - id: env-fetch
 
   - id: ruby-process-info
-    description: Process information access
+    desc: Process information access
     crit: notable
     conf: 0.75
     any:

@@ -149,7 +149,7 @@ composite_rules:
     desc: SQL database connection capability
     crit: notable
     conf: 0.85
-    requires_count: 1
+    count: 1
     any:
       - id: sql-connection-class
       - id: db-connection-class
@@ -161,7 +161,7 @@ composite_rules:
     desc: SQL command execution
     crit: notable
     conf: 0.85
-    requires_count: 1
+    count: 1
     any:
       - id: execute-nonquery
       - id: execute-scalar
@@ -174,7 +174,7 @@ composite_rules:
     desc: Database connection string handling
     crit: notable
     conf: 0.80
-    requires_count: 1
+    count: 1
     any:
       - id: connection-string-singular
       - id: connection-strings-plural
@@ -184,7 +184,7 @@ composite_rules:
     desc: Parameterized SQL queries (good practice)
     crit: notable
     conf: 0.75
-    requires_count: 1
+    count: 1
     any:
       - id: sql-parameter-class
       - id: db-parameter-class
@@ -195,7 +195,7 @@ composite_rules:
     desc: ADO.NET data adapter usage
     crit: notable
     conf: 0.75
-    requires_count: 1
+    count: 1
     any:
       - id: sql-data-adapter-class
       - id: data-adapter-class

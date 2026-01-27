@@ -147,9 +147,9 @@ composite_rules:
     attack: "T1583.005"
     mbc: "OB0004"
     file_types: [elf]
-    min_size: 40960      # 40KB - Mirai binaries are typically 40-150KB
-    max_size: 153600     # 150KB
-    requires_count: 6
+    min_size: 40960 # 40KB - Mirai binaries are typically 40-150KB
+    max_size: 153600 # 150KB
+    count: 6
     any:
       - id: proc-format
       - id: proc-cpuinfo
@@ -171,7 +171,7 @@ composite_rules:
     attack: "T1190"
     mbc: "OB0004"
     file_types: [elf]
-    requires_all:
+    all:
       - id: brand-name
       - id: dvr-helper
       - id: http-1-0
@@ -184,9 +184,9 @@ composite_rules:
     attack: "T1583.005"
     mbc: "OB0004"
     file_types: [elf]
-    requires_all:
+    all:
       - id: cnc-connect
-    requires_count: 2
+    count: 2
     any:
       - id: scanner-cookie
       - id: anti-reinfect

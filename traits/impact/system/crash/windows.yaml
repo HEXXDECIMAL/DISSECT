@@ -131,7 +131,7 @@ composite_rules:
     conf: 0.99
     attack: "T1499.004"
     mbc: "B0033"
-    requires_all:
+    all:
       - id: bsod-trigger-yara
 
   # Python-specific BSOD via ctypes
@@ -141,7 +141,7 @@ composite_rules:
     conf: 0.99
     for: [python]
     attack: "T1499.004"
-    requires_all:
+    all:
       - id: python-bsod-yara
 
   # BSOD trigger via trait references (NtRaiseHardError path)
@@ -151,7 +151,7 @@ composite_rules:
     conf: 0.99
     attack: "T1499.004"
     mbc: "B0033"
-    requires_all:
+    all:
       - id: ntdll-reference
       - id: nt-raise-hard-error
 
@@ -162,7 +162,7 @@ composite_rules:
     conf: 0.98
     attack: "T1499.004"
     mbc: "B0033"
-    requires_all:
+    all:
       - id: ntdll-reference
       - id: rtl-adjust-privilege
       - id: status-assertion-failure
@@ -174,10 +174,10 @@ composite_rules:
     conf: 0.99
     for: [python]
     attack: "T1499.004"
-    requires_all:
+    all:
       - id: ctypes-import
       - id: windll-reference
       - id: ntdll-reference
-    requires_any:
+    any:
       - id: nt-raise-hard-error
       - id: rtl-adjust-privilege

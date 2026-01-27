@@ -131,7 +131,7 @@ composite_rules:
     desc: Missing components/extensions message
     crit: suspicious
     conf: 0.85
-    requires_count: 1
+    count: 1
     any:
       - id: missing-extensions
       - id: missing-required-ext
@@ -142,7 +142,7 @@ composite_rules:
     desc: User action prompt text
     crit: notable
     conf: 0.75
-    requires_count: 1
+    count: 1
     any:
       - id: click-button
       - id: press-continue
@@ -152,7 +152,7 @@ composite_rules:
     desc: Update-related lure message
     crit: notable
     conf: 0.8
-    requires_count: 1
+    count: 1
     any:
       - id: system-update
       - id: check-updates
@@ -162,7 +162,7 @@ composite_rules:
     desc: Compatibility-related lure message
     crit: suspicious
     conf: 0.9
-    requires_count: 1
+    count: 1
     any:
       - id: compat-wizard
       - id: compat-issue
@@ -177,7 +177,7 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     for: [applescript, shell]
-    requires_all:
+    all:
       - id: compat-wizard
       - id: missing-message
 
@@ -189,7 +189,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     for: [applescript, shell]
-    requires_all:
+    all:
       - id: update-message
       - id: install-components
 
@@ -201,7 +201,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     for: [applescript, shell]
-    requires_all:
+    all:
       - id: missing-message
       - id: user-action-prompt
 
@@ -213,6 +213,6 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     for: [applescript]
-    requires_all:
+    all:
       - id: compat-lure
       - id: exec/command/shell-execution

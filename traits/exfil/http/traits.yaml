@@ -7,7 +7,7 @@ defaults:
 
 traits:
   - id: http-upload
-    description: HTTP file upload (potential exfiltration)
+    desc: HTTP file upload (potential exfiltration)
     crit: notable
     mbc: "E1041"
     attack: "T1041"
@@ -17,7 +17,7 @@ traits:
       pattern: http_upload|upload|PUT
 
   - id: ftp-upload
-    description: FTP upload
+    desc: FTP upload
     crit: notable
     mbc: "E1041"
     attack: "T1048.002"

@@ -101,7 +101,7 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     attack: "T1552.001"
-    requires_count: 1
+    count: 1
     any:
       - id: github-token-var
       - id: gh-token-var

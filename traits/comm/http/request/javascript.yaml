@@ -208,7 +208,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: "(?:import|require).{0,50}['\"]node-fetch['\"]"
+      regex: '(?:import|require).{0,50}[''"]node-fetch[''"]'
 
   - id: got-import
     desc: got HTTP client import
@@ -217,7 +217,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: "(?:import|require).{0,50}['\"]got['\"]"
+      regex: '(?:import|require).{0,50}[''"]got[''"]'
 
   - id: superagent-import
     desc: superagent HTTP client import
@@ -226,7 +226,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: "(?:import|require).{0,50}['\"]superagent['\"]"
+      regex: '(?:import|require).{0,50}[''"]superagent[''"]'
 
   - id: needle-import
     desc: needle HTTP client import
@@ -235,7 +235,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: "(?:import|require).{0,50}['\"]needle['\"]"
+      regex: '(?:import|require).{0,50}[''"]needle[''"]'
 
   - id: request-import
     desc: request HTTP client import
@@ -244,31 +244,31 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: "(?:import|require).{0,50}['\"]request['\"]"
+      regex: '(?:import|require).{0,50}[''"]request[''"]'
 
 composite_rules:
   # Helper composites
   - id: axios-import-or-require
-    description: axios library import or require
+    desc: axios library import or require
     for: [javascript, typescript]
     any:
-      - {id: axios-import-default}
-      - {id: axios-import-named}
-      - {id: axios-require}
+      - { id: axios-import-default }
+      - { id: axios-import-named }
+      - { id: axios-require }
 
   - id: axios-method-calls
-    description: axios HTTP method calls
+    desc: axios HTTP method calls
     for: [javascript, typescript]
     any:
-      - {id: axios-get-call}
-      - {id: axios-post-call}
-      - {id: axios-put-call}
-      - {id: axios-delete-call}
-      - {id: axios-patch-call}
-      - {id: axios-head-call}
-      - {id: axios-options-call}
-      - {id: axios-request-call}
-      - {id: axios-direct-call}
+      - { id: axios-get-call }
+      - { id: axios-post-call }
+      - { id: axios-put-call }
+      - { id: axios-delete-call }
+      - { id: axios-patch-call }
+      - { id: axios-head-call }
+      - { id: axios-options-call }
+      - { id: axios-request-call }
+      - { id: axios-direct-call }
 
   # Main composites
   - id: request-axios
@@ -277,8 +277,8 @@ composite_rules:
     conf: 0.75
     for: [javascript, typescript]
     any:
-      - {id: axios-import-or-require}
-      - {id: axios-method-calls}
+      - { id: axios-import-or-require }
+      - { id: axios-method-calls }
 
   - id: node-http
     desc: Node.js built-in http/https module usage
@@ -286,10 +286,10 @@ composite_rules:
     conf: 0.7
     for: [javascript, typescript]
     any:
-      - {id: http-request}
-      - {id: https-request}
-      - {id: http-get}
-      - {id: https-get}
+      - { id: http-request }
+      - { id: https-request }
+      - { id: http-get }
+      - { id: https-get }
 
   - id: http-client-usage
     desc: HTTP client library usage
@@ -297,13 +297,13 @@ composite_rules:
     conf: 0.7
     for: [javascript, typescript]
     any:
-      - {id: request-axios}
-      - {id: node-http}
-      - {id: fetch-call}
-      - {id: fetch-string}
-      - {id: xmlhttprequest-new}
-      - {id: node-fetch-import}
-      - {id: got-import}
-      - {id: superagent-import}
-      - {id: needle-import}
-      - {id: request-import}
+      - { id: request-axios }
+      - { id: node-http }
+      - { id: fetch-call }
+      - { id: fetch-string }
+      - { id: xmlhttprequest-new }
+      - { id: node-fetch-import }
+      - { id: got-import }
+      - { id: superagent-import }
+      - { id: needle-import }
+      - { id: request-import }

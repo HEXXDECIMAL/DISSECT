@@ -4,7 +4,7 @@
 
 traits:
   - id: mkdir-win
-    description: Create directories (Windows API)
+    desc: Create directories (Windows API)
     crit: inert
     conf: 0.66
     for: [pe, dll, c]

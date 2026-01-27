@@ -227,7 +227,7 @@ composite_rules:
     confidence: 0.7
     attack: "T1110.001"
     file_types: [elf]
-    requires_count: 1
+    count: 1
     any:
       - id: telnet-connect-str
       - id: telnet-scanner-str
@@ -240,7 +240,7 @@ composite_rules:
     confidence: 0.8
     attack: "T1110.001"
     file_types: [elf]
-    requires_count: 1
+    count: 1
     any:
       - id: busybox-wget
       - id: busybox-tftp
@@ -253,7 +253,7 @@ composite_rules:
     attack: "T1110.001"
     mbc: "E1017"
     file_types: [elf]
-    requires_count: 3
+    count: 3
     any:
       - id: mirai-cred-admin
       - id: mirai-cred-vizxv
@@ -273,7 +273,7 @@ composite_rules:
     attack: "T1110.001"
     mbc: "E1017"
     file_types: [elf]
-    requires_count: 2
+    count: 2
     any:
       - id: camera-cred-vizxv
       - id: camera-cred-xmhdipc
@@ -288,7 +288,7 @@ composite_rules:
     attack: "T1110.001"
     mbc: "E1017"
     file_types: [elf]
-    requires_count: 2
+    count: 2
     any:
       - id: telnet-connect
       - id: busybox-download

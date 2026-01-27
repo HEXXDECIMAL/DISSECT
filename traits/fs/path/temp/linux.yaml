@@ -4,7 +4,7 @@
 
 traits:
   - id: temp-tmp
-    description: Reference to /tmp
+    desc: Reference to /tmp
     crit: inert
     conf: 0.66
     if:
@@ -12,7 +12,7 @@ traits:
       regex: "/tmp/[\\w\\.\\-/]+"
 
   - id: temp-var-tmp
-    description: Reference to /var/tmp
+    desc: Reference to /var/tmp
     crit: inert
     conf: 0.66
     if:

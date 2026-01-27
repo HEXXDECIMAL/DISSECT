@@ -68,7 +68,7 @@ composite_rules:
     attack: "T1059.004"
     mbc: "B0022"
     for: [elf]
-    requires_count: 4
+    count: 4
     any:
       - id: backdoor/fontonlake/hidden-proc
       - id: backdoor/fontonlake/x11-socket

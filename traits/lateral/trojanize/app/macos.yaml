@@ -114,7 +114,7 @@ composite_rules:
   - id: pkill-ledger
     description: "Kill Ledger Live process"
     confidence: 0.9
-    requires_count: 1
+    count: 1
     any:
       - id: pkill-ledger-live
       - id: killall-ledger
@@ -123,7 +123,7 @@ composite_rules:
     description: "Remove application from /Applications"
     crit: suspicious
     confidence: 0.9
-    requires_count: 1
+    count: 1
     any:
       - id: rm-applications-dir
       - id: sudo-rm-app
@@ -132,7 +132,7 @@ composite_rules:
     description: "Unzip to /Applications directory"
     crit: suspicious
     confidence: 0.85
-    requires_count: 1
+    count: 1
     any:
       - id: unzip-to-applications
       - id: unzip-d-applications
@@ -141,7 +141,7 @@ composite_rules:
     description: "Download application archive"
     crit: suspicious
     confidence: 0.85
-    requires_count: 1
+    count: 1
     any:
       - id: curl-app-zip
       - id: curl-app-archive
@@ -151,7 +151,7 @@ composite_rules:
     description: "Application replacement pattern"
     crit: suspicious
     confidence: 0.8
-    requires_count: 1
+    count: 1
     any:
       - id: rm-app-unzip
       - id: rm-app-cp
@@ -162,7 +162,7 @@ composite_rules:
     crit: suspicious
     confidence: 0.8
     file_types: [shell, applescript, python]
-    requires_count: 1
+    count: 1
     any:
       - id: pkill-ledger
       - id: rm-applications
@@ -173,7 +173,7 @@ composite_rules:
     crit: suspicious
     confidence: 0.8
     file_types: [shell, applescript, python]
-    requires_count: 1
+    count: 1
     any:
       - id: unzip-applications
       - id: download-app-zip
@@ -185,7 +185,7 @@ composite_rules:
     confidence: 0.95
     attack: "T1574.001"
     file_types: [shell, applescript, python]
-    requires_all:
+    all:
       - id: ledger-app-path
       - id: app-termination
       - id: app-replace-action
@@ -197,6 +197,6 @@ composite_rules:
     confidence: 0.9
     attack: "T1574.001"
     file_types: [shell, applescript, python]
-    requires_all:
+    all:
       - id: rm-applications
       - id: unzip-applications

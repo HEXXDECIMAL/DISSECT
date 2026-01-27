@@ -72,7 +72,7 @@ composite_rules:
     mbc: "B0028"
     platforms: [macos]
     file_types: [macho]
-    requires_any:
+    any:
       - id: stealer/poseidon/c2-url
 
   # Behavioral detection via YARA (filesize + entropy)
@@ -86,5 +86,5 @@ composite_rules:
     mbc: "B0028"
     platforms: [macos]
     file_types: [macho]
-    requires_all:
+    all:
       - id: stealer/poseidon/detected-yara

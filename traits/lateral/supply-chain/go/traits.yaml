@@ -60,7 +60,7 @@ composite_rules:
     attack: "T1195.001"
     mbc: "B0024"
     file_types: [go]
-    requires_all:
+    all:
       - id: exec/command/go-exec-command
       - id: comm/socket/go-network-dial
       - id: many-init-functions
@@ -73,9 +73,9 @@ composite_rules:
     attack: "T1195.001"
     mbc: "B0024"
     file_types: [go]
-    requires_all:
+    all:
       - id: many-init-functions
-    requires_any:
+    any:
       - id: exec/command/go-exec-command
       - id: comm/socket/go-network-dial
       - id: comm/socket/go-http-operations

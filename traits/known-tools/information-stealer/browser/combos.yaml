@@ -9,7 +9,7 @@ composite_rules:
     mbc: "E1005"
     attack: "T1555.003"
     file_types: [elf, macho, pe, python, go, javascript]
-    requires_count: 2
+    count: 2
     any:
       - id: "cred/browser/chromium"
       - id: "cred/browser/firefox"

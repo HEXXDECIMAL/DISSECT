@@ -110,8 +110,8 @@ composite_rules:
     conf: 0.95
     attack: "T1583.005"
     mbc: "B0030"
-    requires_all:
+    all:
       - id: botnet/chinaz/identifier
-    requires_any:
+    any:
       - id: c2/botnet/chinaz/commands
       - id: comm/attack/flood/iot-ddos

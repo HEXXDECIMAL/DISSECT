@@ -270,55 +270,55 @@ traits:
 composite_rules:
   # Helper composites
   - id: mac-keyword-variants
-    description: MAC keyword variants
+    desc: MAC keyword variants
     for: [javascript, typescript]
     any:
-      - {id: mac-keyword-lower}
-      - {id: mac-keyword-upper}
+      - { id: mac-keyword-lower }
+      - { id: mac-keyword-upper }
 
   - id: mac-patterns
-    description: MAC address patterns
+    desc: MAC address patterns
     for: [javascript, typescript]
     any:
-      - {id: mac-keyword-variants}
-      - {id: mac-address-regex}
-      - {id: internal-filter-keyword}
+      - { id: mac-keyword-variants }
+      - { id: mac-address-regex }
+      - { id: internal-filter-keyword }
 
   - id: hash-algorithms
-    description: Hash algorithm keywords
+    desc: Hash algorithm keywords
     for: [javascript, typescript]
     any:
-      - {id: sha256-keyword}
-      - {id: md5-keyword}
+      - { id: sha256-keyword }
+      - { id: md5-keyword }
 
   - id: system-id-sources
-    description: System identification sources
+    desc: System identification sources
     for: [javascript, typescript]
     any:
-      - {id: hostname-keyword}
-      - {id: userinfo-keyword}
-      - {id: networkinterfaces-keyword}
+      - { id: hostname-keyword }
+      - { id: userinfo-keyword }
+      - { id: networkinterfaces-keyword }
 
   - id: object-serialization
-    description: Object serialization methods
+    desc: Object serialization methods
     for: [javascript, typescript]
     any:
-      - {id: json-stringify-call}
-      - {id: object-keys-call}
-      - {id: object-entries-call}
+      - { id: json-stringify-call }
+      - { id: object-keys-call }
+      - { id: object-entries-call }
 
   - id: all-os-methods
-    description: All os module methods
+    desc: All os module methods
     for: [javascript, typescript]
     any:
-      - {id: os-hostname}
-      - {id: os-platform}
-      - {id: os-arch}
-      - {id: os-release}
-      - {id: os-userInfo}
-      - {id: os-cpus}
-      - {id: os-totalmem}
-      - {id: os-networkInterfaces}
+      - { id: os-hostname }
+      - { id: os-platform }
+      - { id: os-arch }
+      - { id: os-release }
+      - { id: os-userInfo }
+      - { id: os-cpus }
+      - { id: os-totalmem }
+      - { id: os-networkInterfaces }
 
   # Main composites (migrated from YARA)
   - id: mac-address
@@ -329,8 +329,8 @@ composite_rules:
     attack: "T1016"
     for: [javascript, typescript]
     all:
-      - {id: os-networkInterfaces}
-      - {id: mac-patterns}
+      - { id: os-networkInterfaces }
+      - { id: mac-patterns }
 
   - id: machine-id
     desc: Machine unique identifier generation
@@ -340,8 +340,8 @@ composite_rules:
     attack: "T1082"
     for: [javascript, typescript]
     all:
-      - {id: createhash-call}
-      - {id: hash-algorithms}
+      - { id: createhash-call }
+      - { id: hash-algorithms }
       - id: system-id-sources
         count: 2
 
@@ -354,14 +354,14 @@ composite_rules:
     for: [javascript, typescript]
     count: 4
     any:
-      - {id: os-hostname}
-      - {id: os-platform}
-      - {id: os-arch}
-      - {id: os-release}
-      - {id: os-userInfo}
-      - {id: os-cpus}
-      - {id: os-totalmem}
-      - {id: os-networkInterfaces}
+      - { id: os-hostname }
+      - { id: os-platform }
+      - { id: os-arch }
+      - { id: os-release }
+      - { id: os-userInfo }
+      - { id: os-cpus }
+      - { id: os-totalmem }
+      - { id: os-networkInterfaces }
 
   - id: process-env-dump
     desc: Full environment variable dump
@@ -371,8 +371,8 @@ composite_rules:
     attack: "T1082"
     for: [javascript, typescript]
     all:
-      - {id: process-env-access}
-      - {id: object-serialization}
+      - { id: process-env-access }
+      - { id: object-serialization }
 
   # Process list composite
   - id: process-list
@@ -382,9 +382,9 @@ composite_rules:
     mbc: "E1592"
     attack: "T1057"
     for: [javascript, typescript]
-    requires_count: 1
+    count: 1
     any:
-      - {id: tasklist-cmd}
-      - {id: ps-aux-cmd}
-      - {id: ps-ef-cmd}
-      - {id: get-process-cmd}
+      - { id: tasklist-cmd }
+      - { id: ps-aux-cmd }
+      - { id: ps-ef-cmd }
+      - { id: get-process-cmd }

@@ -7,7 +7,7 @@ defaults:
 
 traits:
   - id: mmap
-    description: Map files or devices into memory
+    desc: Map files or devices into memory
     crit: inert
     conf: 0.66
     if:
@@ -15,7 +15,7 @@ traits:
       pattern: mmap|mmap64
 
   - id: munmap
-    description: Unmap files from memory
+    desc: Unmap files from memory
     crit: inert
     conf: 0.66
     if:

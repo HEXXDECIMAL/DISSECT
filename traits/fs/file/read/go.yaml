@@ -4,7 +4,7 @@
 
 traits:
   - id: read-go
-    description: Read files (Go)
+    desc: Read files (Go)
     crit: inert
     conf: 0.66
     if:

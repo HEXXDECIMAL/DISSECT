@@ -141,7 +141,7 @@ composite_rules:
     attack: "T1555"
     platforms: [macos]
     file_types: [macho]
-    requires_count: 1
+    count: 1
     any:
       - id: src-path-chromium
       - id: src-path-firefox
@@ -157,5 +157,5 @@ composite_rules:
     mbc: "B0028"
     platforms: [macos]
     file_types: [macho]
-    requires_all:
+    all:
       - id: stealer/brawlearth/detected-yara

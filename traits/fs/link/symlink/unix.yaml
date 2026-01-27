@@ -7,7 +7,7 @@ defaults:
 
 traits:
   - id: symlink-create
-    description: Create symbolic links
+    desc: Create symbolic links
     crit: inert
     conf: 0.66
     if:
@@ -15,7 +15,7 @@ traits:
       pattern: symlink|symlinkat
 
   - id: symlink-read
-    description: Read value of symbolic link
+    desc: Read value of symbolic link
     crit: inert
     conf: 0.66
     if:
@@ -23,7 +23,7 @@ traits:
       pattern: readlink|readlinkat
 
   - id: symlink-resolve
-    description: Resolve symbolic links to canonical path
+    desc: Resolve symbolic links to canonical path
     crit: inert
     conf: 0.66
     if:

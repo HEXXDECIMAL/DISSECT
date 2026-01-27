@@ -116,34 +116,34 @@ traits:
     conf: 0.8
     if:
       type: string
-      regex: "b['\"][A-Za-z0-9+/]{43}=['\"]"
+      regex: 'b[''"][A-Za-z0-9+/]{43}=[''"]'
 
 composite_rules:
   # Helper composites
   - id: pip-install-fernet-variants
-    description: pip install fernet (case variants)
+    desc: pip install fernet (case variants)
     any:
-      - {id: pip-install-fernet-lower}
-      - {id: pip-install-fernet-title}
-      - {id: pip-install-cryptography-lower}
-      - {id: pip-install-cryptography-title}
+      - { id: pip-install-fernet-lower }
+      - { id: pip-install-fernet-title }
+      - { id: pip-install-cryptography-lower }
+      - { id: pip-install-cryptography-title }
 
   - id: error-handling-keywords
-    description: Error handling keywords
+    desc: Error handling keywords
     any:
-      - {id: except-keyword}
-      - {id: importerror-keyword}
-      - {id: import-fernet-direct}
+      - { id: except-keyword }
+      - { id: importerror-keyword }
+      - { id: import-fernet-direct }
 
   # Fernet import composite
   - id: import
     desc: Fernet symmetric encryption library import
     crit: notable
     conf: 0.9
-    requires_count: 1
+    count: 1
     any:
-      - {id: import-fernet-direct}
-      - {id: from-cryptography-fernet}
+      - { id: import-fernet-direct }
+      - { id: from-cryptography-fernet }
 
   # Migrated from YARA
   - id: runtime-install
@@ -151,13 +151,13 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     all:
-      - {id: pip-install-fernet-variants}
-      - {id: error-handling-keywords}
+      - { id: pip-install-fernet-variants }
+      - { id: error-handling-keywords }
 
   - id: hardcoded-key
     desc: Fernet encryption with hardcoded key pattern
     crit: suspicious
     conf: 0.9
     all:
-      - {id: fernet-keyword}
-      - {id: fernet-base64-key}
+      - { id: fernet-keyword }
+      - { id: fernet-base64-key }

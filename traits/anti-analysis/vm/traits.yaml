@@ -9,7 +9,7 @@ traits:
   # === Xen hypervisor atomic indicators ===
   - id: vendor-xen-upper
     desc: XEN hypervisor (uppercase)
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript, python, shell]
     if:
@@ -18,7 +18,7 @@ traits:
 
   - id: vendor-xen-title
     desc: Xen hypervisor (titlecase)
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript, python, shell]
     if:
@@ -28,7 +28,7 @@ traits:
   # === KVM hypervisor atomic indicators ===
   - id: vendor-kvm-upper
     desc: KVM hypervisor (uppercase)
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript, python, shell]
     if:
@@ -37,7 +37,7 @@ traits:
 
   - id: vendor-kvm-repeat
     desc: KVMKVMKVM hypervisor signature
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript, python, shell]
     if:
@@ -46,7 +46,7 @@ traits:
 
   - id: vendor-vmware
     desc: VMware hypervisor vendor string
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript, python, shell]
     if:
@@ -57,7 +57,7 @@ traits:
   # === VirtualBox hypervisor atomic indicators ===
   - id: vendor-virtualbox
     desc: VirtualBox hypervisor vendor string
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript, python, shell]
     if:
@@ -67,7 +67,7 @@ traits:
 
   - id: vendor-vbox-short
     desc: VBOX hypervisor short string
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript, python, shell]
     if:
@@ -78,7 +78,7 @@ traits:
   # === Hyper-V hypervisor atomic indicators ===
   - id: vendor-hyperv-dash
     desc: Hyper-V hypervisor vendor string
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript, python, shell]
     if:
@@ -88,7 +88,7 @@ traits:
 
   - id: vendor-microsoft-hv
     desc: Microsoft Hv hypervisor string
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript, python, shell]
     if:
@@ -98,7 +98,7 @@ traits:
 
   - id: vendor-qemu
     desc: QEMU hypervisor vendor string
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript, python, shell]
     if:
@@ -107,7 +107,7 @@ traits:
 
   - id: vendor-parallels
     desc: Parallels hypervisor vendor string
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript, python, shell]
     if:
@@ -116,7 +116,7 @@ traits:
 
   - id: vendor-bhyve
     desc: bhyve hypervisor vendor string
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript, python, shell]
     if:
@@ -136,7 +136,7 @@ traits:
   # === VM-specific files (atomic) ===
   - id: file-vbox-guest
     desc: VirtualBox guest additions file
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [python, shell, javascript]
     if:
@@ -145,7 +145,7 @@ traits:
 
   - id: file-vbox-mouse
     desc: VirtualBox mouse driver file
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [python, shell, javascript]
     if:
@@ -154,7 +154,7 @@ traits:
 
   - id: file-vbox-sf
     desc: VirtualBox shared folders file
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [python, shell, javascript]
     if:
@@ -163,7 +163,7 @@ traits:
 
   - id: file-vmware-tools
     desc: VMware tools binary
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [python, shell, javascript]
     if:
@@ -172,7 +172,7 @@ traits:
 
   - id: file-vmtoolsd
     desc: VMware tools daemon
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [python, shell, javascript]
     if:
@@ -181,7 +181,7 @@ traits:
 
   - id: file-vmhgfs
     desc: VMware host-guest filesystem
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [python, shell, javascript]
     if:
@@ -190,7 +190,7 @@ traits:
 
   - id: file-qemu-ga
     desc: QEMU guest agent
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [python, shell, javascript]
     if:
@@ -199,7 +199,7 @@ traits:
 
   - id: file-dev-vda
     desc: QEMU/KVM virtio disk device
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [python, shell, javascript]
     if:
@@ -209,7 +209,7 @@ traits:
   # === VM MAC address prefixes (atomic) ===
   - id: mac-vmware-1
     desc: VMware MAC prefix 00:0c:29
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [javascript, typescript, python, shell]
     if:
@@ -219,7 +219,7 @@ traits:
 
   - id: mac-vmware-2
     desc: VMware MAC prefix 00:50:56
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [javascript, typescript, python, shell]
     if:
@@ -229,7 +229,7 @@ traits:
 
   - id: mac-vmware-3
     desc: VMware MAC prefix 00:05:69
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [javascript, typescript, python, shell]
     if:
@@ -239,7 +239,7 @@ traits:
 
   - id: mac-vbox
     desc: VirtualBox MAC prefix 08:00:27
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [javascript, typescript, python, shell]
     if:
@@ -249,7 +249,7 @@ traits:
 
   - id: mac-xen
     desc: Xen MAC prefix 00:16:3e
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [javascript, typescript, python, shell]
     if:
@@ -259,7 +259,7 @@ traits:
 
   - id: mac-hyperv
     desc: Hyper-V MAC prefix 00:15:5d
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [javascript, typescript, python, shell]
     if:
@@ -269,7 +269,7 @@ traits:
 
   - id: mac-parallels
     desc: Parallels MAC prefix 00:1c:42
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [javascript, typescript, python, shell]
     if:
@@ -279,7 +279,7 @@ traits:
 
   - id: mac-qemu
     desc: QEMU/KVM MAC prefix 52:54:00
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [javascript, typescript, python, shell]
     if:
@@ -311,7 +311,7 @@ composite_rules:
   # Xen vendor composite
   - id: vendor-xen
     desc: Xen hypervisor vendor string
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript, python, shell]
     count: 1
@@ -322,7 +322,7 @@ composite_rules:
   # KVM vendor composite
   - id: vendor-kvm
     desc: KVM hypervisor vendor string
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript, python, shell]
     count: 1
@@ -333,7 +333,7 @@ composite_rules:
   # VirtualBox vendor composite
   - id: vendor-vbox
     desc: VirtualBox hypervisor vendor string
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript, python, shell]
     count: 1
@@ -344,7 +344,7 @@ composite_rules:
   # Hyper-V vendor composite
   - id: vendor-hyperv
     desc: Hyper-V hypervisor vendor string
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript, python, shell]
     count: 1

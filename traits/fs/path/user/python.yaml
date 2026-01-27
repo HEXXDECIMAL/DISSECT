@@ -11,7 +11,7 @@ defaults:
 traits:
   # os.path.expanduser("~") - most common pattern
   - id: python-expanduser
-    description: "Home directory expansion (os.path.expanduser)"
+    desc: "Home directory expansion (os.path.expanduser)"
     conf: 0.8
     if:
       type: string
@@ -19,7 +19,7 @@ traits:
 
   # === pathlib.Path.home() atomic indicators ===
   - id: python-path-home-direct
-    description: "Path.home() direct call"
+    desc: "Path.home() direct call"
     conf: 0.7
     crit: inert
     if:
@@ -27,7 +27,7 @@ traits:
       exact: "Path.home()"
 
   - id: python-path-home-method
-    description: "Path().home() method call"
+    desc: "Path().home() method call"
     conf: 0.7
     crit: inert
     if:
@@ -36,7 +36,7 @@ traits:
 
   # os.environ['HOME'] or os.environ.get('HOME')
   - id: python-environ-home
-    description: "HOME environment variable access"
+    desc: "HOME environment variable access"
     conf: 0.75
     if:
       type: string
@@ -44,7 +44,7 @@ traits:
 
   # USERPROFILE for Windows
   - id: python-environ-userprofile
-    description: "USERPROFILE environment variable access (Windows)"
+    desc: "USERPROFILE environment variable access (Windows)"
     conf: 0.75
     platforms: [windows]
     if:
@@ -53,7 +53,7 @@ traits:
 
   # os.getenv('HOME')
   - id: python-getenv-home
-    description: "Home directory via getenv"
+    desc: "Home directory via getenv"
     conf: 0.75
     if:
       type: string
@@ -61,7 +61,7 @@ traits:
 
   # Home directory access via any method (for composite rules)
   - id: python-home-access-any
-    description: "Home directory access via expanduser, pathlib, or environ"
+    desc: "Home directory access via expanduser, pathlib, or environ"
     conf: 0.75
     if:
       type: string
@@ -69,7 +69,7 @@ traits:
 
   # Hidden directory path construction via os.path.join
   - id: python-hidden-dir-join
-    description: "Path join with hidden directory component"
+    desc: "Path join with hidden directory component"
     conf: 0.75
     if:
       type: string
@@ -77,18 +77,18 @@ traits:
 
 composite_rules:
   - id: python-pathlib-home
-    description: "Home directory via pathlib (Path.home)"
+    desc: "Home directory via pathlib (Path.home)"
     conf: 0.8
-    requires_count: 1
+    count: 1
     any:
       - id: python-path-home-direct
       - id: python-path-home-method
 
   # Home directory + hidden path construction
   - id: python-home-hidden-dir
-    description: "Hidden directory in home (likely malware staging)"
+    desc: "Hidden directory in home (likely malware staging)"
     conf: 0.9
     crit: suspicious
-    requires_all:
+    all:
       - id: python-home-access-any
       - id: python-hidden-dir-join

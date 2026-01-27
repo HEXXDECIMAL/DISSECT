@@ -165,7 +165,7 @@ composite_rules:
     mbc: "B0042"
     attack: "T1499"
     for: [all]
-    requires_all:
+    all:
       - id: syn-flood
       - id: ack-flood
 
@@ -176,7 +176,7 @@ composite_rules:
     mbc: "B0042"
     attack: "T1499"
     for: [all]
-    requires_count: 2
+    count: 2
     any:
       - id: udp-flood
       - id: tcp-flood
@@ -189,7 +189,7 @@ composite_rules:
     mbc: "B0042"
     attack: "T1499"
     for: [all]
-    requires_any:
+    any:
       - id: tsource-engine
       - id: icmp-flood
       - id: blacknurse
@@ -202,6 +202,6 @@ composite_rules:
     mbc: "B0042"
     attack: "T1499"
     for: [all]
-    requires_any:
+    any:
       - id: flood-operation
       - id: starting-flood

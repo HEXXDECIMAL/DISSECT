@@ -115,7 +115,7 @@ composite_rules:
     description: Ransom note patterns
     crit: suspicious
     conf: 0.66
-    requires_count: 1
+    count: 1
     conditions:
       - id: your-files-phrase
       - id: files-have-been-phrase

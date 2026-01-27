@@ -343,7 +343,7 @@ composite_rules:
     mbc: "B0028"
     platforms: [macos]
     file_types: [macho]
-    requires_all:
+    all:
       - id: stealer/amos/magic-variant-yara
 
   # AMOS base32 variant
@@ -356,7 +356,7 @@ composite_rules:
     mbc: "B0028"
     platforms: [macos]
     file_types: [macho]
-    requires_all:
+    all:
       - id: stealer/amos/base32-variant-yara
 
   # AMOS hex obfuscated variant
@@ -369,7 +369,7 @@ composite_rules:
     mbc: "B0028"
     platforms: [macos]
     file_types: [macho]
-    requires_all:
+    all:
       - id: stealer/amos/hex-obfuscated-yara
 
   # AMOS string-obfuscated variant (C++ with minimal readable strings)
@@ -384,7 +384,7 @@ composite_rules:
     mbc: "B0028"
     platforms: [macos]
     file_types: [macho]
-    requires_all:
+    all:
       - id: stealer/amos/string-obfuscated-yara
 
   # AMOS cipher variant (triple lookup table)
@@ -400,7 +400,7 @@ composite_rules:
     mbc: "B0028"
     platforms: [macos]
     file_types: [macho]
-    requires_all:
+    all:
       - id: stealer/amos/cipher-variant-yara
 
   # Generic AMOS detection combining multiple indicators
@@ -413,7 +413,7 @@ composite_rules:
     mbc: "B0028"
     platforms: [macos]
     file_types: [macho]
-    requires_any:
+    any:
       - id: stealer/amos/magic-variant-detected
       - id: stealer/amos/base32-variant-detected
       - id: stealer/amos/hex-obfuscated-detected

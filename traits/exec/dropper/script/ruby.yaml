@@ -138,7 +138,7 @@ traits:
 composite_rules:
   # === Library require composites ===
   - id: ruby-require-net-http
-    description: Imports HTTP client library
+    desc: Imports HTTP client library
     crit: notable
     conf: 0.80
     any:
@@ -146,7 +146,7 @@ composite_rules:
       - id: net-http-double-quote
 
   - id: ruby-require-uri
-    description: Imports URI parsing library
+    desc: Imports URI parsing library
     crit: notable
     conf: 0.75
     any:
@@ -154,7 +154,7 @@ composite_rules:
       - id: uri-double-quote
 
   - id: ruby-require-base64
-    description: Imports Base64 library
+    desc: Imports Base64 library
     crit: notable
     conf: 0.80
     any:
@@ -162,7 +162,7 @@ composite_rules:
       - id: base64-double-quote
 
   - id: ruby-require-resolv
-    description: Imports DNS resolution library
+    desc: Imports DNS resolution library
     crit: notable
     conf: 0.80
     any:
@@ -170,7 +170,7 @@ composite_rules:
       - id: resolv-double-quote
 
   - id: ruby-require-socket
-    description: Imports socket library
+    desc: Imports socket library
     crit: notable
     conf: 0.85
     any:
@@ -178,7 +178,7 @@ composite_rules:
       - id: socket-double-quote
 
   - id: ruby-require-tempfile
-    description: Imports temporary file library
+    desc: Imports temporary file library
     crit: notable
     conf: 0.80
     any:
@@ -186,7 +186,7 @@ composite_rules:
       - id: tempfile-double-quote
 
   - id: ruby-require-open-uri
-    description: Imports Open-URI library
+    desc: Imports Open-URI library
     crit: notable
     conf: 0.85
     any:
@@ -194,7 +194,7 @@ composite_rules:
       - id: open-uri-double-quote
 
   - id: ruby-require-pty
-    description: Imports PTY (pseudo-terminal) library
+    desc: Imports PTY (pseudo-terminal) library
     crit: notable
     conf: 0.85
     any:
@@ -203,7 +203,7 @@ composite_rules:
 
   # === Dropper pattern composites ===
   - id: ruby-http-dropper
-    description: HTTP dropper downloads and executes payload
+    desc: HTTP dropper downloads and executes payload
     conf: 0.95
     crit: suspicious
     count: 4
@@ -219,7 +219,7 @@ composite_rules:
       - id: ruby-file-write-tmp
 
   - id: ruby-obfuscated-c2
-    description: Obfuscated C2 with Base64 and DNS
+    desc: Obfuscated C2 with Base64 and DNS
     conf: 0.92
     crit: suspicious
     count: 3
@@ -230,7 +230,7 @@ composite_rules:
       - id: ruby-http-get-response
 
   - id: ruby-tmp-execution
-    description: Write to /tmp, chmod, and execute
+    desc: Write to /tmp, chmod, and execute
     conf: 0.93
     crit: suspicious
     count: 3
@@ -242,7 +242,7 @@ composite_rules:
       - id: ruby-exec
 
   - id: ruby-reverse-shell
-    description: Reverse shell connection
+    desc: Reverse shell connection
     conf: 0.90
     crit: suspicious
     count: 2
@@ -254,7 +254,7 @@ composite_rules:
       - id: ruby-pty
 
   - id: ruby-binary-dropper
-    description: Downloads and writes binary payload
+    desc: Downloads and writes binary payload
     conf: 0.94
     crit: suspicious
     count: 3

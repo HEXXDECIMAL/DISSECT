@@ -11,10 +11,10 @@ composite_rules:
     attack: "T1046"
     mbc: "E1046"
     file_types: [all]
-    requires_all:
+    all:
       - id: sym-hostname-resolve
       - id: sym-socket-connect
-    requires_count: 2
+    count: 2
     any:
       - id: ip-format
       - id: port-ref
@@ -28,9 +28,9 @@ composite_rules:
     attack: "T1046"
     mbc: "E1046"
     file_types: [all]
-    requires_all:
+    all:
       - id: root-exploit-ref
-    requires_any:
+    any:
       - id: target-ip-ref
       - id: random-target
 
@@ -43,10 +43,10 @@ composite_rules:
     confidence: 0.85
     attack: "T1110.001"
     file_types: [all]
-    requires_all:
+    all:
       - id: ssh-dir-ref
       - id: etc-hosts-ref
-    requires_count: 2
+    count: 2
     any:
       - id: weak-pass-root123
       - id: weak-pass-admin123
@@ -61,8 +61,8 @@ composite_rules:
     confidence: 0.8
     attack: "T1046"
     file_types: [all]
-    requires_all:
+    all:
       - id: random-target
-    requires_any:
+    any:
       - id: sym-socket-connect
       - id: ip-format

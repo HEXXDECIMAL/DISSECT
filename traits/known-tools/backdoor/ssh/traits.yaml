@@ -2,7 +2,7 @@
 # ATT&CK: T1556.004 (Modify Authentication Process: SSH)
 
 defaults:
-  file_types: [elf, macho, so, dylib]
+  file_types: [elf, macho, pe, so, dylib, dll, python, shell, javascript]
 
 traits:
   # === SSH backdoor-SPECIFIC markers (ONLY these belong here) ===

@@ -4,7 +4,7 @@
 
 traits:
   - id: read-ruby
-    description: Read files (Ruby)
+    desc: Read files (Ruby)
     crit: inert
     conf: 0.66
     if:

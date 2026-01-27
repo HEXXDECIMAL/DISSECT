@@ -4,7 +4,7 @@
 
 traits:
   - id: copy
-    description: Copy files
+    desc: Copy files
     crit: inert
     conf: 0.66
     for: [elf, macho, pe, dll, so, dylib, c]

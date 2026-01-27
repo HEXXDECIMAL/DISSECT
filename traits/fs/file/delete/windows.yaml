@@ -4,7 +4,7 @@
 
 traits:
   - id: delete-win
-    description: Delete files (Windows API)
+    desc: Delete files (Windows API)
     crit: notable
     conf: 0.66
     for: [pe, dll, c]

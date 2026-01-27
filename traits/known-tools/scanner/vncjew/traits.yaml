@@ -40,7 +40,7 @@ composite_rules:
     attack: "T1046"
     mbc: "B0046"
     file_types: [elf]
-    requires_all:
+    all:
       - id: scanner/vncjew/read-vncs
       - id: scanner/vncjew/iptables-ref
       - id: scanner/vncjew/masscan-ref

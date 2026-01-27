@@ -129,7 +129,7 @@ composite_rules:
     mbc: "B0030"
     attack: "T1195.002"
     for: [shell, text]
-    requires_all:
+    all:
       - id: base64-binary-embed
       - id: echo-cron
       - id: botdir-selection

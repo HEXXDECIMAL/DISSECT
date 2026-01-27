@@ -4,7 +4,7 @@
 
 traits:
   - id: chattr-command
-    description: chattr command to modify file attributes
+    desc: chattr command to modify file attributes
     crit: notable
     conf: 0.66
     mbc: F0004
@@ -14,7 +14,7 @@ traits:
       regex: 'chattr [-\+][\w\- ]{0,32} [\w\.\/]{0,64}'
 
   - id: chattr-immutable-flag
-    description: chattr with immutable flag (+i or -i)
+    desc: chattr with immutable flag (+i or -i)
     crit: notable
     conf: 0.7
     mbc: F0004
@@ -24,7 +24,7 @@ traits:
       regex: 'chattr [-\+]i [\-\w\.\/]{0,64}'
 
   - id: chattr-immutable-sys
-    description: chattr -i /sys (legitimate system operation)
+    desc: chattr -i /sys (legitimate system operation)
     crit: inert
     conf: 1.0
     if:
@@ -32,7 +32,7 @@ traits:
       exact: "chattr -i /sys"
 
   - id: chattr-recursive-immutable-1
-    description: chattr -R -i (recursive remove immutable)
+    desc: chattr -R -i (recursive remove immutable)
     crit: notable
     conf: 0.7
     mbc: F0004
@@ -42,7 +42,7 @@ traits:
       regex: 'chattr -R -i [\-\w\.\/]{0,64}'
 
   - id: chattr-recursive-immutable-2
-    description: chattr -Ri (recursive remove immutable, combined flags)
+    desc: chattr -Ri (recursive remove immutable, combined flags)
     crit: notable
     conf: 0.7
     mbc: F0004
@@ -52,7 +52,7 @@ traits:
       regex: 'chattr -Ri [\-\w\.\/]{0,64}'
 
   - id: chattr-recursive-immutable-3
-    description: chattr -iR (recursive remove immutable, combined flags alt)
+    desc: chattr -iR (recursive remove immutable, combined flags alt)
     crit: notable
     conf: 0.7
     mbc: F0004
@@ -62,7 +62,7 @@ traits:
       regex: 'chattr -iR [\-\w\.\/]{0,64}'
 
   - id: chattr-recursive-immutable-4
-    description: chattr -i -R (recursive remove immutable, separate flags)
+    desc: chattr -i -R (recursive remove immutable, separate flags)
     crit: notable
     conf: 0.7
     mbc: F0004
@@ -73,7 +73,7 @@ traits:
 
 composite_rules:
   - id: chattr
-    description: Modify Linux file attributes with chattr command
+    desc: Modify Linux file attributes with chattr command
     crit: notable
     conf: 0.66
     mbc: F0004
@@ -82,7 +82,7 @@ composite_rules:
       - id: chattr-command
 
   - id: chattr-immutable
-    description: Modify immutability of a file (excludes legitimate /sys)
+    desc: Modify immutability of a file (excludes legitimate /sys)
     crit: suspicious
     conf: 0.66
     mbc: F0004
@@ -93,7 +93,7 @@ composite_rules:
       - id: chattr-immutable-sys
 
   - id: chattr-immutable-recursive
-    description: Recursively remove immutability of a directory
+    desc: Recursively remove immutability of a directory
     crit: suspicious
     conf: 0.66
     mbc: F0004

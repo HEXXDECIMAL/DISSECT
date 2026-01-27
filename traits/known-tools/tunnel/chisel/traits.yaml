@@ -93,6 +93,6 @@ composite_rules:
     confidence: 0.95
     attack: "T1090"
     file_types: [elf, macho, pe]
-    requires_any:
+    any:
       - id: tools/tunnel/chisel/generic
       - id: tools/tunnel/chisel/reverse

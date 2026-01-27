@@ -4,7 +4,7 @@
 
 traits:
   - id: chmod-666-shell
-    description: chmod 666 command (world-writable)
+    desc: chmod 666 command (world-writable)
     crit: notable
     conf: 0.7
     mbc: E1222
@@ -14,7 +14,7 @@ traits:
       regex: 'chmod [\-\w ]{0,4}666[ \$\w\/\.]{0,32}'
 
   - id: chmod-666-ruby
-    description: chmod(0666) Ruby-style call
+    desc: chmod(0666) Ruby-style call
     crit: notable
     conf: 0.7
     mbc: E1222
@@ -24,7 +24,7 @@ traits:
       exact: "chmod(0666)"
 
   - id: chmod-777-shell
-    description: chmod 777 command (world-writable+executable)
+    desc: chmod 777 command (world-writable+executable)
     crit: notable
     conf: 0.7
     mbc: E1222
@@ -34,7 +34,7 @@ traits:
       regex: 'chmod [\-\w ]{0,4}777[ \$\w\/\.]{0,32}'
 
   - id: chmod-777-ruby
-    description: chmod(0777) Ruby-style call
+    desc: chmod(0777) Ruby-style call
     crit: notable
     conf: 0.7
     mbc: E1222
@@ -44,7 +44,7 @@ traits:
       exact: "chmod(0777)"
 
   - id: chmod-777-python
-    description: chmod(...777) Python-style call
+    desc: chmod(...777) Python-style call
     crit: notable
     conf: 0.7
     mbc: E1222
@@ -54,7 +54,7 @@ traits:
       regex: 'chmod\([\w, ]{1,16}777\)'
 
   - id: chmod-1777-sticky
-    description: chmod 1777 (sticky bit, legitimate for shared directories)
+    desc: chmod 1777 (sticky bit, legitimate for shared directories)
     crit: inert
     conf: 1.0
     if:
@@ -62,7 +62,7 @@ traits:
       exact: "chmod 1777"
 
   - id: chmod-01777-sticky
-    description: chmod 01777 (sticky bit, octal notation)
+    desc: chmod 01777 (sticky bit, octal notation)
     crit: inert
     conf: 1.0
     if:
@@ -70,7 +70,7 @@ traits:
       exact: "chmod 01777"
 
   - id: chmod-777-var-tmp
-    description: chmod 0777 /var/tmp (legitimate temp directory)
+    desc: chmod 0777 /var/tmp (legitimate temp directory)
     crit: inert
     conf: 1.0
     if:
@@ -79,7 +79,7 @@ traits:
 
 composite_rules:
   - id: chmod-world-write
-    description: Makes file world-writable (chmod 666, excludes sticky bit)
+    desc: Makes file world-writable (chmod 666, excludes sticky bit)
     crit: suspicious
     conf: 0.66
     mbc: E1222
@@ -89,7 +89,7 @@ composite_rules:
       - id: chmod-666-ruby
 
   - id: chmod-777-patterns
-    description: chmod 777 pattern (any variant)
+    desc: chmod 777 pattern (any variant)
     crit: notable
     conf: 0.7
     mbc: E1222
@@ -100,7 +100,7 @@ composite_rules:
       - id: chmod-777-python
 
   - id: chmod-world-exec
-    description: Makes file world-writable and executable (chmod 777, excludes legitimate)
+    desc: Makes file world-writable and executable (chmod 777, excludes legitimate)
     crit: suspicious
     conf: 0.66
     mbc: E1222

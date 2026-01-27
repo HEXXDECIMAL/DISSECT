@@ -4,7 +4,7 @@
 
 traits:
   - id: system-boot
-    description: Reference to /boot
+    desc: Reference to /boot
     crit: notable
     conf: 0.66
     if:
@@ -12,7 +12,7 @@ traits:
       regex: "/boot/[\\%\\w\\.\\-/]{4,32}"
 
   - id: system-var
-    description: Reference to /var
+    desc: Reference to /var
     crit: inert
     conf: 0.66
     if:
@@ -20,7 +20,7 @@ traits:
       regex: "/var/[\\w\\.\\-/]+"
 
   - id: system-lib64
-    description: Reference to /lib64
+    desc: Reference to /lib64
     crit: inert
     conf: 0.66
     if:
@@ -28,7 +28,7 @@ traits:
       regex: "/lib64/[\\w\\.\\-/]+"
 
   - id: system-lib-python
-    description: Reference to Python library paths
+    desc: Reference to Python library paths
     crit: inert
     conf: 0.66
     if:
@@ -36,7 +36,7 @@ traits:
       regex: "/usr/lib/python[\\d\\.]+/[\\w\\.\\-/]+"
 
   - id: system-var-containers
-    description: Reference to container paths
+    desc: Reference to container paths
     crit: notable
     conf: 0.66
     if:

@@ -195,7 +195,7 @@ composite_rules:
     mbc: "C0059"
     attack: "T1059.004"
     for: [all]
-    requires_count: 1
+    count: 1
     any:
       - id: sh-execute-cmd
       - id: bash-execute-cmd
@@ -209,7 +209,7 @@ composite_rules:
     mbc: "B0024"
     attack: "T1059.004"
     for: [shell, elf, macho, pe]
-    requires_count: 1
+    count: 1
     any:
       - id: pipe-to-sh
       - id: pipe-to-bash

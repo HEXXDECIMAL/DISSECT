@@ -66,7 +66,7 @@ composite_rules:
     desc: "Subprocess module process creation call"
     conf: 0.7
     crit: notable
-    requires_count: 1
+    count: 1
     any:
       - id: exec/command/subprocess/python/popen
       - id: exec/command/subprocess/python/run-call
@@ -76,7 +76,7 @@ composite_rules:
   - id: hidden-window-flag
     desc: "Hidden or detached process window flag"
     conf: 0.85
-    requires_count: 1
+    count: 1
     any:
       - id: create-no-window
       - id: detached-process
@@ -86,7 +86,7 @@ composite_rules:
     desc: "Stealthy subprocess creation (hidden + detached)"
     conf: 0.95
     crit: suspicious
-    requires_all:
+    all:
       - id: subprocess-call
       - id: hidden-window-flag
 
@@ -94,5 +94,5 @@ composite_rules:
   - id: combined-flags
     desc: "Multiple process creation flags combined"
     conf: 0.9
-    requires_all:
+    all:
       - id: combined-creationflags

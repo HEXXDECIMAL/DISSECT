@@ -295,7 +295,7 @@ composite_rules:
     crit: notable
     conf: 0.70
     file_types: [elf, shell]
-    requires_count: 1
+    count: 1
     any:
       - id: busybox-path
       - id: busybox-cmd
@@ -308,7 +308,7 @@ composite_rules:
     mbc: "T1110"
     attack: "T1110.001"
     file_types: [elf]
-    requires_count: 2
+    count: 2
     any:
       - id: cred-root-root
       - id: cred-root-admin
@@ -333,7 +333,7 @@ composite_rules:
     mbc: "OB0004"
     attack: "T1583.005"
     file_types: [elf]
-    requires_count: 1
+    count: 1
     any:
       - id: mirai-brand-lzrd
       - id: mirai-brand-sora
@@ -352,7 +352,7 @@ composite_rules:
     mbc: "OB0004"
     attack: "T1583.005"
     file_types: [elf]
-    requires_count: 3
+    count: 3
     any:
       - id: iot-botnet/gpio-daemon
       - id: iot-botnet/ssdp-discover

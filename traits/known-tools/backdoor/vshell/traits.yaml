@@ -56,7 +56,7 @@ composite_rules:
     attack: "T1059"
     mbc: "B0022"
     file_types: [elf]
-    requires_all:
+    all:
       - id: backdoor/vshell/send-vshell
       - id: backdoor/vshell/sockopt-fprog
       - id: backdoor/vshell/yara-signature

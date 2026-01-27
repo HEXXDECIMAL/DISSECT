@@ -93,7 +93,7 @@ composite_rules:
     crit: suspicious
     conf: 0.99
     mbc: "B0031"
-    requires_count: 2
+    count: 2
     any:
       - id: impact/wiper/go/secure-wipe-pattern
       - id: impact/wiper/go/mass-destruction

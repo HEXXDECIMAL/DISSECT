@@ -4,7 +4,7 @@
 
 traits:
   - id: traverse-walk
-    description: Traverse filesystem hierarchy (os.walk)
+    desc: Traverse filesystem hierarchy (os.walk)
     crit: notable
     conf: 0.66
     if:

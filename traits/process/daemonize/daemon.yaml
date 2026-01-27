@@ -50,7 +50,7 @@ composite_rules:
     crit: notable
     platforms: [linux]
     file_types: [elf]
-    requires_all:
+    all:
       - id: process-fork
       - id: process-setsid
 
@@ -60,7 +60,7 @@ composite_rules:
     crit: notable
     platforms: [linux]
     file_types: [elf]
-    requires_all:
+    all:
       - id: process-fork
       - id: process-setsid
       - id: fd-redirect-multiple
@@ -71,7 +71,7 @@ composite_rules:
     crit: notable
     platforms: [macos]
     file_types: [macho]
-    requires_all:
+    all:
       - id: process-fork-macos
       - id: process-setsid
 
@@ -81,7 +81,7 @@ composite_rules:
     crit: notable
     platforms: [macos]
     file_types: [macho]
-    requires_all:
+    all:
       - id: process-fork-macos
       - id: process-setsid
       - id: fd-redirect-macos

@@ -57,7 +57,7 @@ composite_rules:
     attack: "T1059"
     mbc: "B0022"
     file_types: [elf, macho]
-    requires_count: 3
+    count: 3
     any:
       - id: backdoor/platypus/remove-self
       - id: backdoor/platypus/daemon-mode

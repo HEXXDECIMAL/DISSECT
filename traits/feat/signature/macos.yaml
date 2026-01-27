@@ -7,7 +7,7 @@ defaults:
 traits:
   # === Apple signature atomic indicators ===
   - id: apple-development
-    description: Apple Development certificate
+    desc: Apple Development certificate
     crit: inert
     conf: 0.7
     if:
@@ -15,7 +15,7 @@ traits:
       exact: "Apple Development"
 
   - id: apple-distribution
-    description: Apple Distribution certificate
+    desc: Apple Distribution certificate
     crit: inert
     conf: 0.7
     if:
@@ -23,7 +23,7 @@ traits:
       exact: "Apple Distribution"
 
   - id: developer-id
-    description: Developer ID certificate
+    desc: Developer ID certificate
     crit: inert
     conf: 0.7
     if:
@@ -32,7 +32,7 @@ traits:
 
   # === Codesign requirement atomic indicators ===
   - id: anchor-apple
-    description: anchor apple requirement
+    desc: anchor apple requirement
     crit: inert
     conf: 0.7
     if:
@@ -40,7 +40,7 @@ traits:
       exact: "anchor apple"
 
   - id: certificate-leaf
-    description: certificate leaf requirement
+    desc: certificate leaf requirement
     crit: inert
     conf: 0.7
     if:
@@ -49,20 +49,20 @@ traits:
 
 composite_rules:
   - id: signed
-    description: Apple code signature markers
+    desc: Apple code signature markers
     crit: inert
     conf: 0.85
-    requires_count: 1
+    count: 1
     any:
       - id: apple-development
       - id: apple-distribution
       - id: developer-id
 
   - id: codesign-requirement
-    description: Code signature requirement blob
+    desc: Code signature requirement blob
     crit: inert
     conf: 0.9
-    requires_count: 1
+    count: 1
     any:
       - id: anchor-apple
       - id: certificate-leaf

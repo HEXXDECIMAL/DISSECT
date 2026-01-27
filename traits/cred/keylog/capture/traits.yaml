@@ -297,13 +297,13 @@ traits:
       exact: "require('applescript')"
 
   - id: require-applescript-double
-    desc: "require(\"applescript\") import"
+    desc: 'require("applescript") import'
     crit: inert
     conf: 0.7
     for: [javascript, typescript]
     if:
       type: string
-      exact: "require(\"applescript\")"
+      exact: 'require("applescript")'
 
   - id: node-osascript
     desc: node-osascript library
@@ -335,69 +335,69 @@ traits:
 composite_rules:
   # === Helper composites (case variants) ===
   - id: osascript-keyword
-    description: osascript keyword (case variants)
+    desc: osascript keyword (case variants)
     for: [all]
     any:
-      - {id: osascript-lower}
-      - {id: osascript-title}
-      - {id: osascript-upper}
+      - { id: osascript-lower }
+      - { id: osascript-title }
+      - { id: osascript-upper }
 
   - id: keystroke-keyword
-    description: keystroke keyword (case variants)
+    desc: keystroke keyword (case variants)
     for: [all]
     any:
-      - {id: keystroke-lower}
-      - {id: keystroke-title}
-      - {id: keystroke-upper}
+      - { id: keystroke-lower }
+      - { id: keystroke-title }
+      - { id: keystroke-upper }
 
   - id: key-code-phrase
-    description: key code phrase (case variants)
+    desc: key code phrase (case variants)
     for: [all]
     any:
-      - {id: key-code-lower}
-      - {id: key-code-title}
-      - {id: key-code-upper}
+      - { id: key-code-lower }
+      - { id: key-code-title }
+      - { id: key-code-upper }
 
   - id: key-down-phrase
-    description: key down phrase (case variants)
+    desc: key down phrase (case variants)
     for: [all]
     any:
-      - {id: key-down-lower}
-      - {id: key-down-title}
-      - {id: key-down-upper}
+      - { id: key-down-lower }
+      - { id: key-down-title }
+      - { id: key-down-upper }
 
   - id: system-events-phrase
-    description: system events phrase (case variants)
+    desc: system events phrase (case variants)
     for: [all]
     any:
-      - {id: system-events-lower}
-      - {id: system-events-title}
-      - {id: system-events-upper}
+      - { id: system-events-lower }
+      - { id: system-events-title }
+      - { id: system-events-upper }
 
   - id: applescript-keywords
-    description: AppleScript keystroke keywords
+    desc: AppleScript keystroke keywords
     for: [all]
     any:
-      - {id: keystroke-keyword}
-      - {id: key-code-phrase}
-      - {id: key-down-phrase}
-      - {id: system-events-phrase}
+      - { id: keystroke-keyword }
+      - { id: key-code-phrase }
+      - { id: key-down-phrase }
+      - { id: system-events-phrase }
 
   - id: jxa-keystroke-keywords
-    description: JXA keystroke keywords
+    desc: JXA keystroke keywords
     for: [javascript]
     any:
-      - {id: keystroke-lower}
-      - {id: keycode-camel}
+      - { id: keystroke-lower }
+      - { id: keycode-camel }
 
   - id: applescript-require
-    description: Node.js AppleScript library imports
+    desc: Node.js AppleScript library imports
     for: [javascript, typescript]
     any:
-      - {id: require-applescript-single}
-      - {id: require-applescript-double}
-      - {id: node-osascript}
-      - {id: run-applescript}
+      - { id: require-applescript-single }
+      - { id: require-applescript-double }
+      - { id: node-osascript }
+      - { id: run-applescript }
 
   # Python pynput composite
   - id: python-pynput
@@ -405,8 +405,8 @@ composite_rules:
     conf: 0.7
     for: [python]
     any:
-      - {id: pynput-import-keyboard}
-      - {id: pynput-keyboard-import}
+      - { id: pynput-import-keyboard }
+      - { id: pynput-keyboard-import }
 
   # JS iohook composite
   - id: js-iohook
@@ -414,8 +414,8 @@ composite_rules:
     conf: 0.75
     for: [javascript]
     any:
-      - {id: require-iohook}
-      - {id: import-iohook}
+      - { id: require-iohook }
+      - { id: import-iohook }
 
   # Rust rdev composite
   - id: rust-rdev
@@ -423,8 +423,8 @@ composite_rules:
     conf: 0.65
     for: [rust]
     any:
-      - {id: use-rdev}
-      - {id: extern-crate-rdev}
+      - { id: use-rdev }
+      - { id: extern-crate-rdev }
 
   # === Migrated from YARA ===
   - id: applescript-keystroke
@@ -436,8 +436,8 @@ composite_rules:
     platforms: [macos]
     for: [all]
     all:
-      - {id: osascript-keyword}
-      - {id: applescript-keywords}
+      - { id: osascript-keyword }
+      - { id: applescript-keywords }
 
   - id: jxa-keystroke
     desc: JXA (JavaScript for Automation) keystroke capture
@@ -448,9 +448,9 @@ composite_rules:
     platforms: [macos]
     for: [javascript]
     all:
-      - {id: application-call}
-      - {id: system-events-phrase}
-      - {id: jxa-keystroke-keywords}
+      - { id: application-call }
+      - { id: system-events-phrase }
+      - { id: jxa-keystroke-keywords }
 
   # Helper composite
   - id: osascript-exec
@@ -481,9 +481,9 @@ composite_rules:
     for: [pe, dll]
     count: 2
     any:
-      - {id: windows-hook}
-      - {id: windows-rawinput}
-      - {id: windows-asynckey}
+      - { id: windows-hook }
+      - { id: windows-rawinput }
+      - { id: windows-asynckey }
 
   - id: linux-keylogger
     desc: Linux keylogger pattern (multiple input methods)
@@ -491,5 +491,5 @@ composite_rules:
     platforms: [linux]
     for: [elf]
     all:
-      - {id: linux-input-device}
-      - {id: x11-grab}
+      - { id: linux-input-device }
+      - { id: x11-grab }

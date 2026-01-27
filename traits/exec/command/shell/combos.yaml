@@ -7,7 +7,7 @@ composite_rules:
     mbc: "E1059"
     attack: "T1059"
     conf: 0.9
-    requires_any:
+    any:
       - id: c-system
       - id: c-popen
       - id: python-os-system

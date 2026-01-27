@@ -110,7 +110,7 @@ composite_rules:
     attack: "T1059"
     mbc: "B0022"
     file_types: [macho]
-    requires_all:
+    all:
       - id: c2/botkill/botkill
       - id: backdoor/rustdoor/ziptask
       - id: backdoor/rustdoor/upload-files
@@ -125,7 +125,7 @@ composite_rules:
     attack: "T1059"
     mbc: "B0022"
     file_types: [macho]
-    requires_count: 4
+    count: 4
     any:
       - id: backdoor/rustdoor/cfg-check-cron
       - id: backdoor/rustdoor/cfg-lock-cron

@@ -169,7 +169,7 @@ composite_rules:
     crit: notable
     confidence: 0.9
     file_types: [javascript, typescript]
-    requires_count: 1
+    count: 1
     any:
       - id: vscode-commands
       - id: vscode-window
@@ -183,7 +183,7 @@ composite_rules:
     crit: notable
     confidence: 0.7
     file_types: [javascript, typescript]
-    requires_count: 1
+    count: 1
     any:
       - id: comm/http/request/javascript/https-request
       - id: comm/http/request/javascript/http-request
@@ -200,7 +200,7 @@ composite_rules:
     mbc: "E1592"
     attack: "T1082"
     file_types: [javascript, typescript]
-    requires_all:
+    all:
       - id: vscode-context
       - id: process-env
 
@@ -211,7 +211,7 @@ composite_rules:
     crit: suspicious
     confidence: 0.7
     file_types: [javascript, typescript]
-    requires_all:
+    all:
       - id: vscode-context
       - id: http-request-libs
 
@@ -221,7 +221,7 @@ composite_rules:
     crit: inert
     confidence: 1.0
     file_types: [javascript, typescript]
-    requires_count: 1
+    count: 1
     any:
       - id: function-activate
       - id: async-function-activate
@@ -233,7 +233,7 @@ composite_rules:
     crit: inert
     confidence: 1.0
     file_types: [javascript, typescript]
-    requires_count: 1
+    count: 1
     any:
       - id: function-deactivate
       - id: export-deactivate

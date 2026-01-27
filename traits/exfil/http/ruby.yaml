@@ -2,7 +2,7 @@
 # Ruby network operations
 traits:
   - id: ruby-http-get-response
-    description: "HTTP GET request"
+    desc: "HTTP GET request"
     crit: notable
     conf: 0.92
     platforms:
@@ -14,7 +14,7 @@ traits:
       pattern: "Net::HTTP\\.get_response|Net::HTTP\\.get"
 
   - id: ruby-http-post
-    description: "HTTP POST request"
+    desc: "HTTP POST request"
     crit: notable
     conf: 0.93
     platforms:
@@ -26,7 +26,7 @@ traits:
       pattern: "Net::HTTP\\.post"
 
   - id: ruby-http-client
-    description: "HTTP client usage"
+    desc: "HTTP client usage"
     crit: notable
     conf: 0.88
     platforms:
@@ -38,7 +38,7 @@ traits:
       pattern: "Net::HTTP"
 
   - id: ruby-tcp-socket
-    description: "TCP socket connection"
+    desc: "TCP socket connection"
     crit: notable
     conf: 0.90
     platforms:
@@ -50,7 +50,7 @@ traits:
       pattern: "TCPSocket"
 
   - id: ruby-tcp-server
-    description: "TCP server listening"
+    desc: "TCP server listening"
     crit: notable
     conf: 0.90
     platforms:
@@ -62,7 +62,7 @@ traits:
       pattern: "TCPServer"
 
   - id: ruby-udp-socket
-    description: "UDP socket"
+    desc: "UDP socket"
     crit: notable
     conf: 0.90
     platforms:
@@ -74,7 +74,7 @@ traits:
       pattern: "UDPSocket"
 
   - id: ruby-open-uri
-    description: "Open-URI for HTTP/FTP"
+    desc: "Open-URI for HTTP/FTP"
     crit: notable
     conf: 0.90
     platforms:

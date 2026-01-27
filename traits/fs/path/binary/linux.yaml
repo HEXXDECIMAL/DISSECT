@@ -4,7 +4,7 @@
 
 traits:
   - id: binary-usr-bin
-    description: Reference to /usr/bin binaries
+    desc: Reference to /usr/bin binaries
     crit: inert
     conf: 0.66
     if:
@@ -12,7 +12,7 @@ traits:
       regex: "/usr/bin/[\\w\\-]+"
 
   - id: binary-usr-sbin
-    description: Reference to /usr/sbin binaries
+    desc: Reference to /usr/sbin binaries
     crit: notable
     conf: 0.66
     if:
@@ -20,7 +20,7 @@ traits:
       regex: "/usr/sbin/[\\w\\-]+"
 
   - id: binary-usr-local
-    description: Reference to /usr/local binaries
+    desc: Reference to /usr/local binaries
     crit: inert
     conf: 0.66
     if:
@@ -28,7 +28,7 @@ traits:
       regex: "/usr/local/[\\w\\-/]+"
 
   - id: binary-bin-su
-    description: Reference to /bin/su
+    desc: Reference to /bin/su
     crit: suspicious
     conf: 0.66
     if:

@@ -45,7 +45,7 @@ composite_rules:
     desc: Python subprocess execution (Popen, run, or call)
     crit: notable
     conf: 0.8
-    requires_count: 1
+    count: 1
     any:
       - id: exec/command/subprocess/python/popen
       - id: exec/command/subprocess/python/run-call
@@ -56,7 +56,7 @@ composite_rules:
     conf: 0.95
     crit: suspicious
     for: [python]
-    requires_count: 3
+    count: 3
     any:
       - id: tmp-path-short
       - id: os-chmod

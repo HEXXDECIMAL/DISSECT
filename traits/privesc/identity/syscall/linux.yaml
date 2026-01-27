@@ -55,7 +55,7 @@ composite_rules:
     crit: notable
     platforms: [linux]
     file_types: [elf]
-    requires_any:
+    any:
       - id: setuid-syscall
       - id: setreuid-syscall
       - id: setresuid-syscall
@@ -66,7 +66,7 @@ composite_rules:
     crit: notable
     platforms: [linux]
     file_types: [elf]
-    requires_any:
+    any:
       - id: setgid-syscall
       - id: setregid-syscall
       - id: setresgid-syscall

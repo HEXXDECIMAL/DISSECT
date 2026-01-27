@@ -51,7 +51,7 @@ composite_rules:
     conf: 0.75
     attack: "T1003"
     platforms: [all]
-    requires_count: 1
+    count: 1
     any:
       - id: memdump-cmd
       - id: dumpmem-cmd

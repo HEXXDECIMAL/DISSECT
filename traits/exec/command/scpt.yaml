@@ -225,7 +225,7 @@ composite_rules:
     conf: 0.85
     attack: "T1497"
     for: [applescript]
-    requires_all:
+    all:
       - { id: delay }
       - { id: shell-execution }
 
@@ -265,6 +265,6 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     for: [applescript]
-    requires_all:
+    all:
       - { id: external-script }
       - { id: shell-execution }

@@ -11,7 +11,7 @@ defaults:
 traits:
   # === curl POST atomic indicators ===
   - id: curl-d-flag
-    description: curl -d data flag
+    desc: curl -d data flag
     crit: inert
     conf: 0.6
     if:
@@ -20,7 +20,7 @@ traits:
       search_raw: true
 
   - id: curl-data-flag
-    description: curl --data flag
+    desc: curl --data flag
     crit: inert
     conf: 0.6
     if:
@@ -29,7 +29,7 @@ traits:
       search_raw: true
 
   - id: curl-x-post
-    description: curl -X POST flag
+    desc: curl -X POST flag
     crit: inert
     conf: 0.6
     if:
@@ -39,7 +39,7 @@ traits:
 
   # === curl upload atomic indicators ===
   - id: curl-f-flag
-    description: curl -F form flag
+    desc: curl -F form flag
     crit: inert
     conf: 0.6
     if:
@@ -48,7 +48,7 @@ traits:
       search_raw: true
 
   - id: curl-form-flag
-    description: curl --form flag
+    desc: curl --form flag
     crit: inert
     conf: 0.6
     if:
@@ -57,7 +57,7 @@ traits:
       search_raw: true
 
   - id: curl-t-flag
-    description: curl -T upload flag
+    desc: curl -T upload flag
     crit: inert
     conf: 0.6
     if:
@@ -66,7 +66,7 @@ traits:
       search_raw: true
 
   - id: curl-upload-flag
-    description: curl --upload-file flag
+    desc: curl --upload-file flag
     crit: inert
     conf: 0.6
     if:
@@ -76,7 +76,7 @@ traits:
 
   # === wget POST atomic indicators ===
   - id: wget-post-data
-    description: wget --post-data flag
+    desc: wget --post-data flag
     crit: inert
     conf: 0.6
     if:
@@ -85,7 +85,7 @@ traits:
       search_raw: true
 
   - id: wget-post-file
-    description: wget --post-file flag
+    desc: wget --post-file flag
     crit: inert
     conf: 0.6
     if:
@@ -95,7 +95,7 @@ traits:
 
   # === netcat exfil atomic indicators ===
   - id: nc-stdin-redirect
-    description: netcat with stdin redirect
+    desc: netcat with stdin redirect
     crit: inert
     conf: 0.6
     attack: "T1048"
@@ -105,7 +105,7 @@ traits:
       search_raw: true
 
   - id: cat-pipe-nc
-    description: cat piped to netcat
+    desc: cat piped to netcat
     crit: inert
     conf: 0.6
     attack: "T1048"
@@ -115,7 +115,7 @@ traits:
       search_raw: true
 
   - id: pipe-to-nc
-    description: pipe to netcat
+    desc: pipe to netcat
     crit: inert
     conf: 0.6
     attack: "T1048"
@@ -126,20 +126,20 @@ traits:
 
 composite_rules:
   - id: curl-post-data
-    description: Curl POST with data (potential exfiltration)
+    desc: Curl POST with data (potential exfiltration)
     crit: suspicious
     conf: 0.85
-    requires_count: 1
+    count: 1
     any:
       - id: curl-d-flag
       - id: curl-data-flag
       - id: curl-x-post
 
   - id: curl-upload-file
-    description: Curl file upload
+    desc: Curl file upload
     crit: suspicious
     conf: 0.85
-    requires_count: 1
+    count: 1
     any:
       - id: curl-f-flag
       - id: curl-form-flag
@@ -147,20 +147,20 @@ composite_rules:
       - id: curl-upload-flag
 
   - id: wget-post
-    description: Wget POST request (potential exfiltration)
+    desc: Wget POST request (potential exfiltration)
     crit: suspicious
     conf: 0.8
-    requires_count: 1
+    count: 1
     any:
       - id: wget-post-data
       - id: wget-post-file
 
   - id: nc-exfil
-    description: Netcat exfiltration
+    desc: Netcat exfiltration
     crit: suspicious
     conf: 0.85
     attack: "T1048"
-    requires_count: 1
+    count: 1
     any:
       - id: nc-stdin-redirect
       - id: cat-pipe-nc

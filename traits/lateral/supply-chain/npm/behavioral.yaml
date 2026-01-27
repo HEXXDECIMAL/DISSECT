@@ -206,7 +206,7 @@ composite_rules:
     description: Python interpreter with inline code execution
     crit: suspicious
     confidence: 0.8
-    requires_count: 1
+    count: 1
     any:
       - id: python-c-flag
       - id: python-stdin-flag
@@ -216,7 +216,7 @@ composite_rules:
     description: Node interpreter with inline code execution
     crit: suspicious
     confidence: 0.8
-    requires_count: 1
+    count: 1
     any:
       - id: node-e-flag
       - id: node-eval-flag
@@ -226,7 +226,7 @@ composite_rules:
     description: Process spawn or exec function invocation
     crit: notable
     confidence: 0.8
-    requires_count: 1
+    count: 1
     any:
       - id: spawn-call
       - id: exec-call
@@ -239,9 +239,9 @@ composite_rules:
     attack: "T1195.002"
     mbc: "B0024"
     file_types: [javascript, typescript]
-    requires_any:
+    any:
       - id: python-interpreter-exec
       - id: node-interpreter-exec
-    requires_all:
+    all:
       - id: spawn-or-exec-call
       - id: child-process-import

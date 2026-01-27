@@ -174,7 +174,7 @@ composite_rules:
     confidence: 0.95
     attack: "T1110.001"
     file_types: [elf]
-    requires_count: 1
+    count: 1
     any:
       - id: iot-zte521
       - id: iot-pte521
@@ -188,7 +188,7 @@ composite_rules:
     mbc: "E1040"
     attack: "T1110.001"
     file_types: [elf]
-    requires_count: 4
+    count: 4
     any:
       - id: admin-password
       - id: root-password

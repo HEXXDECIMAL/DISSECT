@@ -123,7 +123,7 @@ composite_rules:
     attack: "T1204"
     mbc: "B0009"
     for: [elf]
-    requires_all:
+    all:
       - id: elf-infector-yara
 
   - id: infected-xor-detected
@@ -132,5 +132,5 @@ composite_rules:
     conf: 0.95
     attack: "T1027"
     for: [all]
-    requires_all:
+    all:
       - id: infected-xor-yara

@@ -95,7 +95,7 @@ composite_rules:
     mbc: "B0030"
     attack: "T1071"
     file_types: [elf, macho, pe, so, dylib, dll, go]
-    requires_count: 1
+    count: 1
     any:
       - id: c2-framework/merlin/agent-dash
       - id: c2-framework/merlin/agent-camel
@@ -109,7 +109,7 @@ composite_rules:
     mbc: "B0030"
     attack: "T1071"
     file_types: [elf, macho, pe, so, dylib, dll, go]
-    requires_count: 2
+    count: 2
     any:
       - id: c2-framework/merlin/github-ref
       - id: c2-framework/merlin/agent-ref

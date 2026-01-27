@@ -94,7 +94,7 @@ composite_rules:
     mbc: "B0030"
     platforms: [all]
     file_types: [elf, macho, pe, go]
-    requires_count: 2
+    count: 2
     any:
       - id: c2-framework/geacon/coded-ref
       - id: c2-framework/geacon/path-ref

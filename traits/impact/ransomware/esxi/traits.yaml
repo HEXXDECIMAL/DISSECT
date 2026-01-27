@@ -172,8 +172,8 @@ composite_rules:
     description: ESXi-targeted ransomware attack chain
     crit: suspicious
     conf: 0.95
-    requires_all:
+    all:
       - id: impact/ransomware/esxi/file-targeting
-    requires_any:
+    any:
       - id: impact/ransomware/esxi/vm-kill
       - id: impact/ransomware/esxi/snapshot

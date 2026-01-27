@@ -45,5 +45,5 @@ composite_rules:
     attack: "T1204"
     mbc: "B0009"
     file_types: [macho]
-    requires_all:
+    all:
       - id: virus/clapzok/macho-structure

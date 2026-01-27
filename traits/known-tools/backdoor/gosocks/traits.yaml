@@ -51,7 +51,7 @@ composite_rules:
     attack: "T1090"
     mbc: "B0022"
     for: [elf, macho]
-    requires_any:
+    any:
       - id: backdoor/gosocks/unique-path
       - id: backdoor/gosocks/shell-module
       - id: backdoor/gosocks/proxy-module

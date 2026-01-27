@@ -296,87 +296,87 @@ traits:
 composite_rules:
   # === Helper composites ===
   - id: taint-mask-symbols
-    description: Kernel taint mask variables
+    desc: Kernel taint mask variables
     for: [c, elf]
     any:
-      - {id: tainted-mask}
-      - {id: taint-mask}
+      - { id: tainted-mask }
+      - { id: taint-mask }
 
   - id: log-filter-functions
-    description: Log filtering/sanitization functions
+    desc: Log filtering/sanitization functions
     for: [c, elf]
     any:
-      - {id: filter-kmsg}
-      - {id: filter-taint}
-      - {id: sanitize-log}
+      - { id: filter-kmsg }
+      - { id: filter-taint }
+      - { id: sanitize-log }
 
   - id: kmsg-access
-    description: Kernel message log access
+    desc: Kernel message log access
     for: [c, elf, shell]
     any:
-      - {id: dev-kmsg-path}
-      - {id: do-syslog-symbol}
+      - { id: dev-kmsg-path }
+      - { id: do-syslog-symbol }
 
   - id: singularity-keyword
-    description: Singularity keyword (case variants)
+    desc: Singularity keyword (case variants)
     for: [c, elf]
     any:
-      - {id: singularity-lower}
-      - {id: singularity-title}
-      - {id: singularity-upper}
+      - { id: singularity-lower }
+      - { id: singularity-title }
+      - { id: singularity-upper }
 
   - id: ftrace-keyword
-    description: Ftrace keyword (case variants)
+    desc: Ftrace keyword (case variants)
     for: [c, elf]
     any:
-      - {id: ftrace-lower}
-      - {id: ftrace-title}
-      - {id: ftrace-upper}
+      - { id: ftrace-lower }
+      - { id: ftrace-title }
+      - { id: ftrace-upper }
 
   - id: taint-keyword
-    description: Taint keyword (case variants)
+    desc: Taint keyword (case variants)
     for: [c, elf]
     any:
-      - {id: taint-lower}
-      - {id: taint-title}
-      - {id: taint-upper}
+      - { id: taint-lower }
+      - { id: taint-title }
+      - { id: taint-upper }
 
   - id: rootkit-keywords
-    description: Rootkit-related keywords
+    desc: Rootkit-related keywords
     for: [c, elf]
     any:
-      - {id: singularity-keyword}
-      - {id: ftrace-keyword}
-      - {id: taint-keyword}
+      - { id: singularity-keyword }
+      - { id: ftrace-keyword }
+      - { id: taint-keyword }
 
   - id: audit-functions
-    description: Audit system functions
+    desc: Audit system functions
     for: [c, elf]
     any:
-      - {id: audit-log-start}
-      - {id: netlink-unicast}
-      - {id: netlink-audit-constant}
+      - { id: audit-log-start }
+      - { id: netlink-unicast }
+      - { id: netlink-audit-constant }
 
   - id: audit-fields
-    description: Audit log field patterns
+    desc: Audit log field patterns
     for: [c, elf]
     any:
-      - {id: pid-equals}
-      - {id: ino-equals}
+      - { id: pid-equals }
+      - { id: ino-equals }
 
   - id: ftrace-state-vars
-    description: Ftrace state variables
+    desc: Ftrace state variables
     for: [c, elf]
     any:
-      - {id: ftrace-enabled}
-      - {id: tracing-on}
+      - { id: ftrace-enabled }
+      - { id: tracing-on }
 
   - id: fake-state-vars
-    description: Fake state storage variables
+    desc: Fake state storage variables
     for: [c, elf]
     any:
-      - {id: saved-ftrace-value}
-      - {id: ftrace-write-intercepted}
+      - { id: saved-ftrace-value }
+      - { id: ftrace-write-intercepted }
 
   # === Migrated from YARA ===
   - id: kernel-taint-reset
@@ -386,7 +386,7 @@ composite_rules:
     attack: "T1562.001"
     for: [c, elf]
     any:
-      - {id: taint-mask-symbols}
+      - { id: taint-mask-symbols }
 
   - id: log-sanitization
     desc: Real-time filtering of dmesg or kmsg output
@@ -395,9 +395,9 @@ composite_rules:
     attack: "T1562.001"
     for: [c, elf]
     all:
-      - {id: kmsg-access}
-      - {id: log-filter-functions}
-      - {id: rootkit-keywords}
+      - { id: kmsg-access }
+      - { id: log-filter-functions }
+      - { id: rootkit-keywords }
 
   - id: taskstats-deception
     desc: Blinds TaskStats netlink API to hide processes from forensic tools
@@ -406,9 +406,9 @@ composite_rules:
     attack: "T1562.001"
     for: [c, elf]
     all:
-      - {id: taskstats-user-cmd}
-      - {id: taskstats-cmd-attr-pid}
-      - {id: esrch-constant}
+      - { id: taskstats-user-cmd }
+      - { id: taskstats-cmd-attr-pid }
+      - { id: esrch-constant }
 
   - id: audit-blinding
     desc: Intercepts and drops Linux Auditing System (auditd) records
@@ -417,8 +417,8 @@ composite_rules:
     attack: "T1562.001"
     for: [c, elf]
     all:
-      - {id: audit-functions}
-      - {id: audit-fields}
+      - { id: audit-functions }
+      - { id: audit-fields }
 
   - id: fake-state-logic
     desc: Divergent logic where READ returns a fake state while WRITE is ignored (Deception)
@@ -427,8 +427,8 @@ composite_rules:
     attack: "T1562.001"
     for: [c, elf]
     all:
-      - {id: ftrace-state-vars}
-      - {id: fake-state-vars}
+      - { id: ftrace-state-vars }
+      - { id: fake-state-vars }
 
   # Fake State Deception (Faking disabled state while keeping active hooks)
   - id: fake-state-deception
@@ -439,6 +439,6 @@ composite_rules:
     for: [c, elf]
     count: 2
     any:
-      - {id: fake-state-logic}
-      - {id: deception-read-hook}
-      - {id: kernel/rootkit/copy-to-user-call}
+      - { id: fake-state-logic }
+      - { id: deception-read-hook }
+      - { id: kernel/rootkit/copy-to-user-call }

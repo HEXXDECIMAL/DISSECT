@@ -12,6 +12,6 @@ composite_rules:
     mbc: "B0028"
     attack: "T1555"
     file_types: [python]
-    requires_all:
+    all:
       - id: discovery/system
       - id: exfil/http

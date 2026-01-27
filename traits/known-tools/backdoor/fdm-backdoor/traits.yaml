@@ -105,7 +105,7 @@ composite_rules:
     attack: "T1195.002"
     mbc: "B0030"
     for: [elf]
-    requires_any:
+    any:
       - id: backdoor/fdm-backdoor/c2-domain
       - id: backdoor/fdm-backdoor/c2-ip
       - id: backdoor/fdm-backdoor/elf-indicators

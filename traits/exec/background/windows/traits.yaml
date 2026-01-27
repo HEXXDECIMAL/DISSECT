@@ -77,6 +77,6 @@ composite_rules:
     desc: "Background pip install via Windows start command"
     crit: suspicious
     conf: 0.95
-    requires_all:
+    all:
       - id: win-start-pattern
       - id: pip-install-pattern

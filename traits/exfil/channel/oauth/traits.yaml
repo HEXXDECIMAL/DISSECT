@@ -148,10 +148,10 @@ composite_rules:
     attack: "T1528"
     mbc: "B0028"
     for: [all]
-    requires_all:
+    all:
       - id: json-content-type
       - id: http-post-method
-    requires_any:
+    any:
       - id: recon-computername
       - id: recon-userdomain
       - id: recon-ipinfo

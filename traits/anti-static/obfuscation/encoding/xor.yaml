@@ -11,40 +11,40 @@ traits:
   # === XOR decode symbol atomic indicators ===
   - id: xor-decode-symbol
     desc: xor_decode symbol
-    crit: inert
-    conf: 0.6
+    crit: suspicious
+    conf: 0.8
     if:
       type: symbol
       pattern: "xor_decode"
 
   - id: decode-xor-symbol
     desc: decode_xor symbol
-    crit: inert
-    conf: 0.6
+    crit: suspicious
+    conf: 0.8
     if:
       type: symbol
       pattern: "decode_xor"
 
   - id: xor-decrypt-symbol
     desc: xor_decrypt symbol
-    crit: inert
-    conf: 0.6
+    crit: suspicious
+    conf: 0.8
     if:
       type: symbol
       pattern: "xor_decrypt"
 
   - id: decrypt-xor-symbol
     desc: decrypt_xor symbol
-    crit: inert
-    conf: 0.6
+    crit: suspicious
+    conf: 0.8
     if:
       type: symbol
       pattern: "decrypt_xor"
 
   - id: xor-string-symbol
     desc: xor_string symbol
-    crit: inert
-    conf: 0.6
+    crit: suspicious
+    conf: 0.8
     if:
       type: symbol
       pattern: "xor_string"
@@ -140,7 +140,7 @@ composite_rules:
   - id: xor-decode-loop
     desc: "XOR decryption loop pattern"
     crit: suspicious
-    conf: 0.8
+    conf: 0.85
     count: 1
     any:
       - id: xor-decode-symbol

@@ -212,7 +212,7 @@ composite_rules:
     description: MySQL service termination
     crit: notable
     conf: 0.6
-    requires_count: 1
+    count: 1
     any:
       - id: kill-mysql-kill
       - id: kill-mysql-stop
@@ -221,7 +221,7 @@ composite_rules:
     description: PostgreSQL service termination
     crit: notable
     conf: 0.6
-    requires_count: 1
+    count: 1
     any:
       - id: kill-postgres-kill
       - id: kill-postgres-stop
@@ -230,7 +230,7 @@ composite_rules:
     description: Oracle service termination
     crit: notable
     conf: 0.6
-    requires_count: 1
+    count: 1
     any:
       - id: kill-oracle-kill
       - id: kill-oracle-stop
@@ -239,7 +239,7 @@ composite_rules:
     description: MSSQL service termination
     crit: notable
     conf: 0.6
-    requires_count: 1
+    count: 1
     any:
       - id: kill-mssql-kill
       - id: kill-mssql-stop
@@ -248,7 +248,7 @@ composite_rules:
     description: MongoDB service termination
     crit: notable
     conf: 0.6
-    requires_count: 1
+    count: 1
     any:
       - id: kill-mongodb-kill
       - id: kill-mongodb-stop
@@ -257,7 +257,7 @@ composite_rules:
     description: Database service termination
     crit: suspicious
     conf: 0.9
-    requires_count: 1
+    count: 1
     any:
       - id: kill-mysql
       - id: kill-postgres
@@ -272,10 +272,10 @@ composite_rules:
     attack: "T1486"
     mbc: "B0040"
     for: [elf]
-    requires_all:
+    all:
       - id: esxcli
       - id: onion-domain
-    requires_count: 1
+    count: 1
     any:
       - id: word-encrypted
       - id: word-ransom

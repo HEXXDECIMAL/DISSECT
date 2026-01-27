@@ -4,7 +4,7 @@
 
 traits:
   - id: application-macos
-    description: /Applications/*.app/Contents/MacOS/ path pattern
+    desc: /Applications/*.app/Contents/MacOS/ path pattern
     crit: notable
     conf: 0.66
     mbc: E1083
@@ -14,7 +14,7 @@ traits:
       regex: '/Applications/[\w\s.\-]+\.app/Contents/MacOS/[\w.\-]+'
 
   - id: firefox-extensions
-    description: Firefox/extensions directory path
+    desc: Firefox/extensions directory path
     crit: notable
     conf: 0.7
     mbc: E1083
@@ -24,7 +24,7 @@ traits:
       exact: "Firefox/extensions"
 
   - id: safari-extensions
-    description: Safari/Extensions directory path
+    desc: Safari/Extensions directory path
     crit: notable
     conf: 0.7
     mbc: E1083
@@ -34,7 +34,7 @@ traits:
       exact: "Safari/Extensions"
 
   - id: chrome-extensions-dir
-    description: /Extensions directory (Chrome extensions)
+    desc: /Extensions directory (Chrome extensions)
     crit: notable
     conf: 0.6
     mbc: E1083
@@ -44,7 +44,7 @@ traits:
       exact: "/Extensions"
 
   - id: chrome-directory
-    description: Google/Chrome directory path
+    desc: Google/Chrome directory path
     crit: notable
     conf: 0.6
     mbc: E1083
@@ -55,7 +55,7 @@ traits:
 
 composite_rules:
   - id: chrome-extensions
-    description: Chrome browser extensions path
+    desc: Chrome browser extensions path
     crit: notable
     conf: 0.7
     mbc: E1083
@@ -65,7 +65,7 @@ composite_rules:
       - id: chrome-extensions-dir
 
   - id: application-browser-extensions
-    description: Browser extension paths (Firefox, Safari, or Chrome)
+    desc: Browser extension paths (Firefox, Safari, or Chrome)
     crit: suspicious
     conf: 0.66
     mbc: E1083

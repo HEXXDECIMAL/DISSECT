@@ -189,7 +189,7 @@ traits:
 composite_rules:
   # === Helper composites ===
   - id: browser-wallet-extensions
-    description: Browser-based crypto wallet extension IDs
+    desc: Browser-based crypto wallet extension IDs
     any:
       - id: metamask
       - id: phantom
@@ -208,7 +208,7 @@ composite_rules:
       - id: brave
 
   - id: desktop-wallets
-    description: Desktop wallet path references
+    desc: Desktop wallet path references
     any:
       - id: coinomi
       - id: atomic

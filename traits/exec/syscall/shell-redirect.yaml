@@ -90,7 +90,7 @@ composite_rules:
     crit: suspicious
     platforms: [linux]
     for: [elf]
-    requires_all:
+    all:
       - id: syscall-execve-linux
       - id: syscall-dup-redirect-linux
 
@@ -100,7 +100,7 @@ composite_rules:
     crit: suspicious
     platforms: [linux]
     for: [elf]
-    requires_all:
+    all:
       - id: syscall-socket-linux
       - id: syscall-connect-linux
       - id: syscall-dup-redirect-linux
@@ -112,7 +112,7 @@ composite_rules:
     crit: suspicious
     platforms: [macos]
     for: [macho]
-    requires_all:
+    all:
       - id: syscall-execve-macos
       - id: syscall-dup-redirect-macos
 
@@ -122,7 +122,7 @@ composite_rules:
     crit: suspicious
     platforms: [macos]
     for: [macho]
-    requires_all:
+    all:
       - id: syscall-socket-macos
       - id: syscall-connect-macos
       - id: syscall-dup-redirect-macos

@@ -4,7 +4,7 @@
 
 traits:
   - id: read-node
-    description: Read files (Node.js)
+    desc: Read files (Node.js)
     crit: inert
     conf: 0.66
     if:

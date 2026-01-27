@@ -86,7 +86,7 @@ composite_rules:
     conf: 0.95
     mbc: "B0030"
     attack: "T1071"
-    requires_count: 2
+    count: 2
     any:
       - id: botnet/mozi/dht-p2p
       - id: botnet/mozi/xor-config

@@ -118,9 +118,9 @@ composite_rules:
     description: Go file encryption patterns (potential ransomware)
     crit: suspicious
     conf: 0.8
-    requires_all:
+    all:
       - id: crypto-import
       - id: walk-func
-    requires_any:
+    any:
       - id: write-func
       - id: encrypt-ext

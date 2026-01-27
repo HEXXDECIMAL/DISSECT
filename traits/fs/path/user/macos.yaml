@@ -4,7 +4,7 @@
 
 traits:
   - id: user-users
-    description: Reference to /Users directories (macOS)
+    desc: Reference to /Users directories (macOS)
     crit: inert
     conf: 0.66
     if:
@@ -12,7 +12,7 @@ traits:
       regex: "/Users/[\\w\\-/]+"
 
   - id: user-home-library
-    description: Reference to ~/Library (macOS)
+    desc: Reference to ~/Library (macOS)
     crit: inert
     conf: 0.66
     if:

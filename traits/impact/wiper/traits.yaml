@@ -181,7 +181,7 @@ composite_rules:
     conf: 0.85
     attack: "T1485"
     for: [javascript, typescript]
-    requires_count: 1
+    count: 1
     any:
       - id: target-vscode-dir
       - id: target-idea-dir
@@ -191,7 +191,7 @@ composite_rules:
     crit: notable
     conf: 0.8
     for: [javascript, typescript]
-    requires_count: 1
+    count: 1
     any:
       - id: comm/http/request/javascript/axios
       - id: comm/http/request/javascript/fetch-call
@@ -206,7 +206,7 @@ composite_rules:
     attack: "T1485"
     mbc: "B0031"
     for: [javascript, typescript]
-    requires_all:
+    all:
       - id: impact/wiper/conditional-destroy
       - id: impact/wiper/target-dev-dirs
 
@@ -218,6 +218,6 @@ composite_rules:
     attack: "T1485"
     mbc: "B0031"
     for: [javascript, typescript]
-    requires_all:
+    all:
       - id: impact/wiper/recursive-delete
       - id: impact/wiper/http-callback

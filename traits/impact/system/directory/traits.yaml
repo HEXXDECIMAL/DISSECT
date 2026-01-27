@@ -183,7 +183,7 @@ composite_rules:
     description: "Recursive deletion command pattern"
     crit: notable
     conf: 0.8
-    requires_count: 1
+    count: 1
     any:
       - id: rmtree-call
       - id: rm-rf-cmd
@@ -193,7 +193,7 @@ composite_rules:
     description: "Iteration or loop pattern for file operations"
     crit: notable
     conf: 0.8
-    requires_count: 1
+    count: 1
     any:
       - id: for-loop
       - id: while-loop
@@ -206,7 +206,7 @@ composite_rules:
     description: "Reference to critical system directories"
     crit: inert
     conf: 0.4
-    requires_count: 1
+    count: 1
     any:
       - id: windows-dir-ref
       - id: system32-ref
@@ -218,7 +218,7 @@ composite_rules:
   - id: mass-deletion
     description: "Mass system file deletion"
     conf: 0.95
-    requires_all:
+    all:
       - id: recursive-delete-cmd
       - id: iteration-loop-pattern
       - id: system-dir-reference

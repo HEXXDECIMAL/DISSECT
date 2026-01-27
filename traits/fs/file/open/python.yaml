@@ -4,7 +4,7 @@
 
 traits:
   - id: generic
-    description: "Opens a file"
+    desc: "Opens a file"
     crit: inert
     conf: 0.9
     for: [python]

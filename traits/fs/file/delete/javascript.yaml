@@ -4,7 +4,7 @@
 
 traits:
   - id: fs-unlink
-    description: Delete file (fs.unlink)
+    desc: Delete file (fs.unlink)
     crit: notable
     conf: 0.9
     mbc: "C0047"
@@ -16,7 +16,7 @@ traits:
       pattern: "fs.unlink"
 
   - id: fs-unlinkSync
-    description: Delete file synchronously
+    desc: Delete file synchronously
     crit: notable
     conf: 0.9
     mbc: "C0047"
@@ -28,7 +28,7 @@ traits:
       pattern: "fs.unlinkSync"
 
   - id: fs-rm
-    description: Delete file or directory (fs.rm)
+    desc: Delete file or directory (fs.rm)
     crit: notable
     conf: 0.9
     mbc: "C0047"
@@ -40,7 +40,7 @@ traits:
       pattern: "fs.rm"
 
   - id: fs-rmSync
-    description: Delete file or directory synchronously
+    desc: Delete file or directory synchronously
     crit: notable
     conf: 0.9
     mbc: "C0047"
@@ -52,7 +52,7 @@ traits:
       pattern: "fs.rmSync"
 
   - id: fs-rmdir
-    description: Delete empty directory
+    desc: Delete empty directory
     crit: notable
     conf: 0.9
     mbc: "C0047"
@@ -64,7 +64,7 @@ traits:
       pattern: "fs.rmdir"
 
   - id: promises-unlink
-    description: Delete file (promises API)
+    desc: Delete file (promises API)
     crit: notable
     conf: 0.9
     mbc: "C0047"

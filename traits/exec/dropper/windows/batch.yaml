@@ -247,7 +247,7 @@ composite_rules:
     mbc: "C0002"
     attack: "T1105"
     for: [shell, batch]
-    requires_all:
+    all:
       - id: download-tool
       - id: exec-cmd
       - id: output-flag

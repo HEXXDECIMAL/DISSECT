@@ -216,30 +216,30 @@ traits:
 composite_rules:
   # Helper composites
   - id: loadlibrary-variants
-    description: LoadLibrary function variants
+    desc: LoadLibrary function variants
     for: [pe]
     any:
-      - {id: loadlibrary-symbol}
-      - {id: loadlibrarya-symbol}
-      - {id: loadlibraryw-symbol}
-      - {id: loadlibraryex-symbol}
-      - {id: loadlibraryexa-symbol}
-      - {id: loadlibraryexw-symbol}
+      - { id: loadlibrary-symbol }
+      - { id: loadlibrarya-symbol }
+      - { id: loadlibraryw-symbol }
+      - { id: loadlibraryex-symbol }
+      - { id: loadlibraryexa-symbol }
+      - { id: loadlibraryexw-symbol }
 
   - id: library-loaders
-    description: Library loading functions (CDLL or LoadLibrary)
+    desc: Library loading functions (CDLL or LoadLibrary)
     for: [python]
     any:
-      - {id: cdll-keyword}
-      - {id: loadlibrary-keyword}
+      - { id: cdll-keyword }
+      - { id: loadlibrary-keyword }
 
   - id: path-manipulation
-    description: Path manipulation functions
+    desc: Path manipulation functions
     for: [python]
     any:
-      - {id: python-file-dunder}
-      - {id: dirname-call}
-      - {id: abspath-call}
+      - { id: python-file-dunder }
+      - { id: dirname-call }
+      - { id: abspath-call }
 
   # Migrated from YARA
   - id: loadlibrary
@@ -249,8 +249,8 @@ composite_rules:
     attack: "T1574.002"
     for: [pe]
     any:
-      - {id: loadlibrary-variants}
-      - {id: getprocaddress-symbol}
+      - { id: loadlibrary-variants }
+      - { id: getprocaddress-symbol }
 
   - id: local-load
     desc: Loading dynamic library from local path
@@ -259,8 +259,8 @@ composite_rules:
     attack: "T1574"
     for: [python]
     all:
-      - {id: library-loaders}
-      - {id: path-manipulation}
+      - { id: library-loaders }
+      - { id: path-manipulation }
 
   # Core dlopen + dlsym pattern (basic dynamic loading)
   - id: dlopen-dlsym
@@ -269,7 +269,7 @@ composite_rules:
     conf: 0.85
     attack: "T1574.006"
     for: [elf, macho]
-    requires_all:
+    all:
       - id: dlopen
       - id: dlsym
 
@@ -280,7 +280,7 @@ composite_rules:
     conf: 0.7
     attack: "T1574.006"
     for: [elf, macho]
-    requires_count: 1
+    count: 1
     any:
       - id: dlopen
       - id: dlsym
@@ -294,7 +294,7 @@ composite_rules:
     conf: 0.85
     attack: "T1574.006"
     for: [macho]
-    requires_all:
+    all:
       - id: nsbundle
       - id: dl-function
 
@@ -305,7 +305,7 @@ composite_rules:
     attack: "T1574.006"
     mbc: "B0023"
     for: [elf, macho]
-    requires_count: 1
+    count: 1
     any:
       - id: dlopen-dlsym
       - id: nsbundle-dynamic
@@ -317,7 +317,7 @@ composite_rules:
     conf: 0.85
     attack: "T1574"
     for: [python]
-    requires_count: 1
+    count: 1
     any:
       - id: ctypes-cdll-dot
       - id: cdll-paren

@@ -3,7 +3,7 @@
 
 traits:
   - id: macro
-    description: Inline assembly macro
+    desc: Inline assembly macro
     crit: notable
     conf: 1.0
     for: [rust]
@@ -13,7 +13,7 @@ traits:
       pattern: "asm!"
 
   - id: global-macro
-    description: Global inline assembly macro
+    desc: Global inline assembly macro
     crit: notable
     conf: 1.0
     for: [rust]

@@ -286,40 +286,40 @@ traits:
 composite_rules:
   # Helper composites for migrated YARA rules
   - id: sniff-ssh-variants
-    description: sniff_ssh case variants
+    desc: sniff_ssh case variants
     for: [elf, macho, pe, dll, so, dylib, python, shell]
     any:
-      - {id: sniff-ssh-lower}
-      - {id: sniff-ssh-title}
-      - {id: sniff-ssh-upper}
+      - { id: sniff-ssh-lower }
+      - { id: sniff-ssh-title }
+      - { id: sniff-ssh-upper }
 
   - id: ssh-sniff-variants
-    description: ssh_sniff case variants
+    desc: ssh_sniff case variants
     for: [elf, macho, pe, dll, so, dylib, python, shell]
     any:
-      - {id: ssh-sniff-lower}
-      - {id: ssh-sniff-title}
-      - {id: ssh-sniff-upper}
+      - { id: ssh-sniff-lower }
+      - { id: ssh-sniff-title }
+      - { id: ssh-sniff-upper }
 
   - id: ssh-sniffing-indicators
-    description: SSH sniffing function identifiers
+    desc: SSH sniffing function identifiers
     for: [elf, macho, pe, dll, so, dylib, python, shell]
     any:
-      - {id: sniff-ssh-variants}
-      - {id: ssh-sniff-variants}
-      - {id: sshpass-keyword}
-      - {id: ssh-password-identifier}
-      - {id: ssh-cred-identifier}
-      - {id: sshdone-identifier}
+      - { id: sniff-ssh-variants }
+      - { id: ssh-sniff-variants }
+      - { id: sshpass-keyword }
+      - { id: ssh-password-identifier }
+      - { id: ssh-cred-identifier }
+      - { id: sshdone-identifier }
 
   - id: ssh-password-files
-    description: SSH password file patterns
+    desc: SSH password file patterns
     for: [elf, macho, pe, dll, so, dylib, python, shell]
     any:
-      - {id: sshpass-txt-file}
-      - {id: ssh-pass-log-file}
-      - {id: password-txt-file}
-      - {id: credentials-txt-file}
+      - { id: sshpass-txt-file }
+      - { id: ssh-pass-log-file }
+      - { id: password-txt-file }
+      - { id: credentials-txt-file }
 
   # Migrated from YARA
   - id: session-sniff
@@ -331,7 +331,7 @@ composite_rules:
     platforms: [linux]
     for: [elf, macho, pe, dll, so, dylib, python, shell]
     any:
-      - {id: ssh-sniffing-indicators}
+      - { id: ssh-sniffing-indicators }
 
   - id: password-file-storage
     desc: SSH password file storage
@@ -342,7 +342,7 @@ composite_rules:
     platforms: [linux]
     for: [elf, macho, pe, dll, so, dylib, python, shell]
     any:
-      - {id: ssh-password-files}
+      - { id: ssh-password-files }
 
   # === Composite: SSH directory path ===
   - id: dot-ssh-path
@@ -350,7 +350,7 @@ composite_rules:
     crit: notable
     conf: 0.6
     attack: "T1552.004"
-    requires_count: 1
+    count: 1
     any:
       - id: slash-dot-ssh
       - id: dot-dot-ssh
@@ -360,7 +360,7 @@ composite_rules:
     desc: SSHD network process reference
     crit: suspicious
     conf: 0.8
-    requires_count: 1
+    count: 1
     any:
       - id: sshd-net-bracket
       - id: sshd-accepted-bracket

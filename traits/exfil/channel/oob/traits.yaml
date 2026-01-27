@@ -240,32 +240,32 @@ traits:
 composite_rules:
   # Helper composite for all OOB domain patterns
   - id: oob-domains
-    description: Any OOB domain pattern
+    desc: Any OOB domain pattern
     for: [all]
     any:
-      - {id: interactsh-domain}
-      - {id: burpcollaborator-domain}
-      - {id: oastify-domain}
-      - {id: oast-fun-domain}
-      - {id: pipedream-domain}
+      - { id: interactsh-domain }
+      - { id: burpcollaborator-domain }
+      - { id: oastify-domain }
+      - { id: oast-fun-domain }
+      - { id: pipedream-domain }
 
   # Helper composite for all ngrok tunnels
   - id: ngrok-tunnels
-    description: Ngrok tunnel patterns
+    desc: Ngrok tunnel patterns
     for: [all]
     any:
-      - {id: ngrok-tcp}
-      - {id: ngrok-http}
-      - {id: ngrok-https}
-      - {id: ngrok-free}
+      - { id: ngrok-tcp }
+      - { id: ngrok-http }
+      - { id: ngrok-https }
+      - { id: ngrok-free }
 
   # Helper composite for requestbin endpoints
   - id: requestbin-endpoints
-    description: RequestBin OOB endpoints
+    desc: RequestBin OOB endpoints
     for: [all]
     any:
-      - {id: requestbin-com}
-      - {id: requestbin-net}
+      - { id: requestbin-com }
+      - { id: requestbin-net }
 
   # Interactsh composite
   - id: interactsh
@@ -275,7 +275,7 @@ composite_rules:
     attack: "T1048"
     for: [all]
     any:
-      - {id: oob-domains}
+      - { id: oob-domains }
 
   # Ngrok composite
   - id: ngrok
@@ -285,7 +285,7 @@ composite_rules:
     attack: "T1572"
     for: [all]
     any:
-      - {id: ngrok-tunnels}
+      - { id: ngrok-tunnels }
 
   # Requestbin composite
   - id: requestbin
@@ -295,7 +295,7 @@ composite_rules:
     attack: "T1048"
     for: [all]
     any:
-      - {id: requestbin-endpoints}
+      - { id: requestbin-endpoints }
 
   # Migrated from YARA
   - id: preinstall-exfil
@@ -306,8 +306,8 @@ composite_rules:
     mbc: "B0030"
     for: [javascript]
     all:
-      - {id: npm-preinstall-script}
-      - {id: oob-domains}
+      - { id: npm-preinstall-script }
+      - { id: oob-domains }
 
   # Migrated from YARA
   - id: crypto-exfil
@@ -318,8 +318,8 @@ composite_rules:
     mbc: "B0030"
     for: [javascript]
     all:
-      - {id: require-crypto-import}
-      - {id: oob-domains}
+      - { id: require-crypto-import }
+      - { id: oob-domains }
 
   - id: multiple-encoded-indicators
     desc: "Multiple base64-encoded indicators detected (potential evasion)"
@@ -330,19 +330,19 @@ composite_rules:
     for: [python, javascript]
     count: 2
     any:
-      - {id: http-b64}
-      - {id: https-b64}
-      - {id: oastify-b64}
-      - {id: oast-fun-b64}
-      - {id: interactsh}
+      - { id: http-b64 }
+      - { id: https-b64 }
+      - { id: oastify-b64 }
+      - { id: oast-fun-b64 }
+      - { id: interactsh }
 
   # Helper composite for encoded OOB indicators
   - id: encoded-oob-indicators
-    description: Base64-encoded OOB domain indicators
+    desc: Base64-encoded OOB domain indicators
     for: [python, javascript]
     any:
-      - {id: oastify-b64}
-      - {id: oast-fun-b64}
+      - { id: oastify-b64 }
+      - { id: oast-fun-b64 }
 
   - id: encoded-oob-exfil
     desc: "Base64-encoded OOB domain with HTTP exfiltration"
@@ -352,5 +352,5 @@ composite_rules:
     mbc: "B0030"
     for: [python, javascript]
     all:
-      - {id: comm/http/request}
-      - {id: encoded-oob-indicators}
+      - { id: comm/http/request }
+      - { id: encoded-oob-indicators }

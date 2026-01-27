@@ -106,7 +106,7 @@ composite_rules:
     crit: notable
     conf: 0.8
     for: [applescript]
-    requires_count: 1
+    count: 1
     any:
       - id: exec/command/do-script
       - id: exec/command/activate
@@ -120,7 +120,7 @@ composite_rules:
     conf: 0.9
     attack: "T1059.004"
     for: [applescript]
-    requires_all:
+    all:
       - id: terminal
       - id: terminal-commands
 
@@ -133,7 +133,7 @@ composite_rules:
     conf: 0.95
     attack: "T1555.001"
     for: [applescript]
-    requires_all:
+    all:
       - { id: keychain-access }
 
   # ============================================
@@ -144,6 +144,6 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     for: [applescript]
-    requires_all:
+    all:
       - { id: automates-settings }
       - { id: exec/command/shell-execution }

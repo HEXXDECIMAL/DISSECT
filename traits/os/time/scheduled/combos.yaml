@@ -10,7 +10,7 @@ composite_rules:
     attack: "T1562"
     confidence: 0.95
     file_types: [all]
-    requires_all:
+    all:
       - id: exec/process/current-process
       - id: exec/process/terminate
 
@@ -22,7 +22,7 @@ composite_rules:
     attack: "T1497"
     confidence: 0.9
     file_types: [all]
-    requires_all:
+    all:
       - id: instantiation
 
   # Logic bomb with self-destruct
@@ -33,7 +33,7 @@ composite_rules:
     attack: "T1480.001"
     confidence: 0.95
     file_types: [all]
-    requires_all:
+    all:
       - id: hardcoded-datetime
       - id: exec/process/current-process
       - id: exec/process/terminate
@@ -46,7 +46,7 @@ composite_rules:
     attack: "T1480.001"
     confidence: 0.95
     file_types: [all]
-    requires_all:
+    all:
       - id: hardcoded-datetime
       - id: instantiation
       - id: exec/process/current-process
@@ -60,9 +60,9 @@ composite_rules:
     attack: "T1195.001"
     confidence: 0.95
     file_types: [all]
-    requires_all:
+    all:
       - id: sqlcommand
-    requires_any:
+    any:
       - id: exec/process/terminate
       - id: exec/process/start
       - id: exec/reflection/assembly-load
@@ -75,7 +75,7 @@ composite_rules:
     attack: "T1480.001"
     confidence: 0.98
     file_types: [all]
-    near_lines: 30              # All patterns must be within 30 lines
-    requires_all:
+    near_lines: 30 # All patterns must be within 30 lines
+    all:
       - id: hardcoded-datetime
       - id: exec/process/terminate

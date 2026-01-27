@@ -133,7 +133,7 @@ traits:
     file_types: [javascript, typescript]
     condition:
       type: string
-      regex: 'APPDATA|Startup|crontab|launchd|systemd'
+      regex: "APPDATA|Startup|crontab|launchd|systemd"
 
   # File write operations
   - id: file-write-ops
@@ -143,7 +143,7 @@ traits:
     file_types: [javascript, typescript]
     condition:
       type: string
-      regex: 'write(File|FileSync)|copy(File|FileSync)'
+      regex: "write(File|FileSync)|copy(File|FileSync)"
 
 composite_rules:
   # State helpers
@@ -152,7 +152,7 @@ composite_rules:
     crit: notable
     confidence: 0.75
     file_types: [javascript, typescript]
-    requires_count: 1
+    count: 1
     any:
       - id: globalState-word
       - id: postInstall-word
@@ -163,7 +163,7 @@ composite_rules:
     crit: notable
     confidence: 0.8
     file_types: [javascript, typescript]
-    requires_count: 1
+    count: 1
     any:
       - id: ssh-dir
       - id: aws-dir
@@ -176,7 +176,7 @@ composite_rules:
     crit: notable
     confidence: 0.7
     file_types: [javascript, typescript]
-    requires_count: 1
+    count: 1
     any:
       - id: post-method
       - id: fetch-call
@@ -190,7 +190,7 @@ composite_rules:
     mbc: "B0024"
     attack: "T1059"
     file_types: [javascript, typescript]
-    requires_all:
+    all:
       - id: activate-word
       - id: state-markers
       - id: exec-pattern
@@ -203,7 +203,7 @@ composite_rules:
     mbc: "E1519"
     attack: "T1555"
     file_types: [javascript, typescript]
-    requires_all:
+    all:
       - id: credential-paths
       - id: readFile-pattern
       - id: send-methods
@@ -216,7 +216,7 @@ composite_rules:
     mbc: "B0032"
     attack: "T1027"
     file_types: [javascript, typescript]
-    requires_all:
+    all:
       - id: js-decrypt-eval
       - id: api-usage
       - id: vscode-namespace
@@ -229,7 +229,7 @@ composite_rules:
     mbc: "F0011"
     attack: "T1547"
     file_types: [javascript, typescript]
-    requires_all:
+    all:
       - id: api-usage
       - id: persistence-locations
       - id: file-write-ops

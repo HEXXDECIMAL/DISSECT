@@ -56,7 +56,7 @@ composite_rules:
     attack: "T1498"
     mbc: "B0008"
     file_types: [elf]
-    requires_count: 3
+    count: 3
     any:
       - id: botnet/avasa-zombie/brand
       - id: botnet/avasa-zombie/motd-method

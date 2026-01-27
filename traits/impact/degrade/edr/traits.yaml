@@ -148,7 +148,7 @@ composite_rules:
     crit: notable
     conf: 0.8
     for: [pe, elf]
-    requires_count: 1
+    count: 1
     any:
       - id: defender-name
       - id: malwarebytes-name
@@ -167,7 +167,7 @@ composite_rules:
     crit: inert
     conf: 0.5
     for: [elf, pe]
-    requires_count: 1
+    count: 1
     any:
       - id: kill-keyword
       - id: terminate-keyword
@@ -178,7 +178,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     for: [elf, pe]
-    requires_all:
+    all:
       - id: termination-verbs
       - id: edr-product-name
 
@@ -188,8 +188,8 @@ composite_rules:
     conf: 0.95
     mbc: "F0004"
     for: [pe, elf]
-    requires_any:
+    any:
       - id: stopper
       - id: terminate-process-api
-    requires_all:
+    all:
       - id: edr-product-name

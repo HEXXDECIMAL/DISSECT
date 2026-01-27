@@ -329,7 +329,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     for: [javascript, typescript, python, shell, elf, macho, pe]
-    requires_count: 1
+    count: 1
     any:
       - id: etc-machine-id
       - id: dbus-machine-id
@@ -341,7 +341,7 @@ composite_rules:
     crit: notable
     conf: 0.8
     for: [javascript, typescript]
-    requires_count: 1
+    count: 1
     any:
       - id: require-node-machine-id
       - id: require-machine-id
@@ -353,7 +353,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     for: [javascript, typescript, shell, python, macho]
-    requires_count: 1
+    count: 1
     any:
       - id: system-profiler-hardware
       - id: ioplatform-uuid
@@ -365,7 +365,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     for: [javascript, typescript, powershell, pe]
-    requires_count: 1
+    count: 1
     any:
       - id: hklm-cryptography-guid
       - id: wmic-csproduct-uuid
@@ -378,7 +378,7 @@ composite_rules:
     crit: inert
     conf: 0.4
     for: [javascript, typescript, python, shell, elf, pe, macho]
-    requires_count: 1
+    count: 1
     any:
       - id: proc-cpuinfo
       - id: processor-id
@@ -390,7 +390,7 @@ composite_rules:
     crit: notable
     conf: 0.75
     for: [javascript, typescript, shell, elf, pe]
-    requires_count: 1
+    count: 1
     any:
       - id: hdparm-info
       - id: smartctl-cmd
@@ -402,7 +402,7 @@ composite_rules:
     crit: notable
     conf: 0.75
     for: [javascript, typescript, shell, elf, pe, macho]
-    requires_count: 1
+    count: 1
     any:
       - id: dmidecode-cmd
       - id: wmic-bios-serial
@@ -416,35 +416,35 @@ composite_rules:
     for: [javascript, typescript]
     count: 4
     any:
-      - {id: network-interfaces-call}
-      - {id: cpus-call}
-      - {id: totalmem-call}
-      - {id: hostname-call}
-      - {id: userinfo-call}
-      - {id: platform-call}
-      - {id: arch-call}
-      - {id: release-call}
+      - { id: network-interfaces-call }
+      - { id: cpus-call }
+      - { id: totalmem-call }
+      - { id: hostname-call }
+      - { id: userinfo-call }
+      - { id: platform-call }
+      - { id: arch-call }
+      - { id: release-call }
 
   # Unique identifier keywords (migrated from YARA)
   - id: unique-id-keywords
-    description: Unique identifier keywords
+    desc: Unique identifier keywords
     for: [javascript, typescript]
     any:
-      - {id: machine-id-keyword}
-      - {id: uuid-keyword}
-      - {id: fingerprint-keyword}
-      - {id: unique-id-keyword}
-      - {id: device-id-keyword}
+      - { id: machine-id-keyword }
+      - { id: uuid-keyword }
+      - { id: fingerprint-keyword }
+      - { id: unique-id-keyword }
+      - { id: device-id-keyword }
 
   # Network exfiltration patterns (migrated from YARA)
   - id: network-exfil-patterns
-    description: Network exfiltration patterns
+    desc: Network exfiltration patterns
     for: [javascript, typescript]
     any:
-      - {id: comm/http/request/javascript/fetch-string}
-      - {id: comm/http/request/javascript/https-request}
-      - {id: post-method}
-      - {id: webhook-keyword}
+      - { id: comm/http/request/javascript/fetch-string }
+      - { id: comm/http/request/javascript/https-request }
+      - { id: post-method }
+      - { id: webhook-keyword }
 
   # Unique identifier with network exfiltration (migrated from YARA)
   - id: unique-id-exfil
@@ -455,5 +455,5 @@ composite_rules:
     mbc: E1082
     for: [javascript, typescript]
     all:
-      - {id: unique-id-keywords}
-      - {id: network-exfil-patterns}
+      - { id: unique-id-keywords }
+      - { id: network-exfil-patterns }

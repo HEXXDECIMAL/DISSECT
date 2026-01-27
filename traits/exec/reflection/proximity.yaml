@@ -8,6 +8,6 @@ composite_rules:
     conf: 0.95
     for: [python]
     near_lines: 5
-    requires_all:
+    all:
       - id: exec/reflection/dynamic-import
       - id: exec/reflection/getattr-module

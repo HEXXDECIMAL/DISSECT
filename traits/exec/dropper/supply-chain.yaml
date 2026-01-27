@@ -921,7 +921,7 @@ composite_rules:
     conf: 0.9
     attack: "T1140"
     for: [javascript, typescript]
-    requires_all:
+    all:
       - id: extract-method
       - id: password-param
 
@@ -932,7 +932,7 @@ composite_rules:
     conf: 0.8
     attack: "T1140"
     for: [javascript, typescript]
-    requires_count: 1
+    count: 1
     any:
       - id: 7zip-bin-module
       - id: node-7z-module
@@ -972,7 +972,7 @@ composite_rules:
     conf: 0.85
     attack: "T1105"
     for: [javascript, typescript]
-    requires_all:
+    all:
       - id: temp-dir-ref
       - id: archive-ext
 
@@ -1007,7 +1007,7 @@ composite_rules:
     conf: 0.95
     attack: "T1105"
     for: [javascript, typescript]
-    requires_all:
+    all:
       - id: extract-method
       - id: spawn-exec
       - id: exe-ref
@@ -1019,7 +1019,7 @@ composite_rules:
     conf: 0.9
     attack: "T1105"
     for: [javascript, typescript]
-    requires_count: 1
+    count: 1
     any:
       - id: endswith-exe
       - id: endswith-bat
@@ -1039,7 +1039,7 @@ composite_rules:
     conf: 0.85
     attack: "T1059"
     for: [python]
-    requires_count: 1
+    count: 1
     any:
       - id: py-os-system
       - id: py-exec-call
@@ -1051,7 +1051,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [javascript, typescript]
-    requires_count: 1
+    count: 1
     any:
       - id: spawn-call
       - id: exec-call-js
@@ -1063,7 +1063,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     for: [javascript]
-    requires_count: 1
+    count: 1
     any:
       - id: wscript-shell
       - id: msxml2-xmlhttp
@@ -1075,7 +1075,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [javascript, typescript]
-    requires_count: 1
+    count: 1
     any:
       - id: buffer-from-base64
       - id: atob-call
@@ -1086,7 +1086,7 @@ composite_rules:
     desc: MSXml2 Base64 decoding
     crit: suspicious
     conf: 0.85
-    requires_count: 1
+    count: 1
     any:
       - id: msxml2-base64
       - id: bin-base64
@@ -1096,7 +1096,7 @@ composite_rules:
     desc: Payload drop to %appdata%
     crit: suspicious
     conf: 0.85
-    requires_count: 1
+    count: 1
     any:
       - id: appdata-single
       - id: appdata-double
@@ -1109,7 +1109,7 @@ composite_rules:
     attack: "T1105"
     mbc: "B0024"
     for: [javascript, typescript]
-    requires_all:
+    all:
       - id: dropper/archive/download-zip
       - id: dropper/archive/exe-search
       - id: dropper/archive/extract-execute
@@ -1122,7 +1122,7 @@ composite_rules:
     mbc: "B0024"
     attack: "T1105"
     for: [python]
-    requires_all:
+    all:
       - id: comm/http/request/get
       - id: fs/file/write/generic
       - id: python-exec-call
@@ -1135,10 +1135,10 @@ composite_rules:
     attack: "T1059"
     mbc: "B0024"
     for: [javascript, typescript]
-    requires_any:
+    any:
       - id: python-standalone
       - id: node-standalone
-    requires_all:
+    all:
       - id: stdin-exec
       - id: stream-tar-extract
 
@@ -1150,7 +1150,7 @@ composite_rules:
     attack: "T1105"
     mbc: "B0024"
     for: [javascript, typescript]
-    requires_all:
+    all:
       - id: download-and-exec
       - id: stdin-exec
       - id: base64-buffer
@@ -1163,7 +1163,7 @@ composite_rules:
     attack: "T1105"
     mbc: "B0024"
     for: [javascript, typescript]
-    requires_all:
+    all:
       - id: python-standalone
       - id: stdin-exec
       - id: hex-url-array
@@ -1176,7 +1176,7 @@ composite_rules:
     attack: "T1105"
     mbc: "B0024"
     for: [javascript, typescript]
-    requires_all:
+    all:
       - id: dropper/node/download-file
       - id: dropper/node/archive-extract
       - id: spawn-exec-call
@@ -1189,7 +1189,7 @@ composite_rules:
     attack: "T1105"
     mbc: "B0024"
     for: [javascript, typescript]
-    requires_all:
+    all:
       - id: dropper/node/download-file
       - id: dropper/node/detached-spawn
       - id: dropper/node/exec-downloaded
@@ -1202,7 +1202,7 @@ composite_rules:
     attack: "T1105"
     mbc: "B0024"
     for: [javascript]
-    requires_all:
+    all:
       - id: dropper/builder/activex-object
       - id: dropper/builder/adodb-stream
       - id: wscript-xmlhttp

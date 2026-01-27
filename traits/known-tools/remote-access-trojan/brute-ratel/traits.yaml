@@ -94,7 +94,7 @@ composite_rules:
     attack: "T1059"
     platforms: [windows]
     file_types: [pe, dll]
-    requires_count: 1
+    count: 1
     any:
       - id: c2-framework/brute-ratel/brute-ratel-str
       - id: c2-framework/brute-ratel/brc4-str
@@ -109,7 +109,7 @@ composite_rules:
     mbc: "B0030"
     platforms: [windows]
     file_types: [pe, dll]
-    requires_any:
+    any:
       - id: c2-framework/brute-ratel/shellcode-xor
       - id: c2-framework/brute-ratel/badger-ref
       - id: c2-framework/brute-ratel/c4-config

@@ -4,7 +4,7 @@
 
 traits:
   - id: user-home
-    description: Reference to /home directories
+    desc: Reference to /home directories
     crit: inert
     conf: 0.66
     if:
@@ -12,7 +12,7 @@ traits:
       regex: "/home/[\\w\\-/]+"
 
   - id: user-root
-    description: Reference to /root directory
+    desc: Reference to /root directory
     crit: notable
     conf: 0.66
     if:
@@ -21,7 +21,7 @@ traits:
 
   # === Home config directory atomic indicators ===
   - id: config-dir-ref
-    description: Reference to .config directory
+    desc: Reference to .config directory
     crit: inert
     conf: 0.6
     if:
@@ -29,7 +29,7 @@ traits:
       regex: "\\.config/[\\w\\-/]+"
 
   - id: local-dir-ref
-    description: Reference to .local directory
+    desc: Reference to .local directory
     crit: inert
     conf: 0.6
     if:
@@ -37,7 +37,7 @@ traits:
       regex: "\\.local/[\\w\\-/]+"
 
   - id: cache-dir-ref
-    description: Reference to .cache directory
+    desc: Reference to .cache directory
     crit: inert
     conf: 0.6
     if:
@@ -46,10 +46,10 @@ traits:
 
 composite_rules:
   - id: user-home-config
-    description: Reference to home config directories
+    desc: Reference to home config directories
     crit: inert
     conf: 0.66
-    requires_count: 1
+    count: 1
     any:
       - id: config-dir-ref
       - id: local-dir-ref

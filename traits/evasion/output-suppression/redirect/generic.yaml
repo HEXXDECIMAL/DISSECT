@@ -89,7 +89,7 @@ composite_rules:
     desc: Output redirected to /dev/null
     crit: notable
     conf: 0.5
-    requires_count: 1
+    count: 1
     any:
       - id: redirect-devnull-nospace
       - id: redirect-devnull-space
@@ -98,7 +98,7 @@ composite_rules:
     desc: Standard error redirected to /dev/null
     crit: notable
     conf: 0.5
-    requires_count: 1
+    count: 1
     any:
       - id: stderr-devnull-nospace
       - id: stderr-devnull-space
@@ -108,7 +108,7 @@ composite_rules:
     desc: All output suppressed (stdout and stderr to /dev/null)
     crit: notable
     conf: 0.6
-    requires_count: 1
+    count: 1
     any:
       - id: stdout-then-stderr
       - id: ampersand-devnull

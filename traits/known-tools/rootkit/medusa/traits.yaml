@@ -233,7 +233,7 @@ composite_rules:
     attack: "T1574.006"
     mbc: "F0015"
     file_types: [elf]
-    requires_all:
+    all:
       - id: rootkit/medusa/yara
 
   # === Composite: SSH credential theft behavior ===
@@ -245,7 +245,7 @@ composite_rules:
     attack: "T1556"
     mbc: "E1056"
     file_types: [elf]
-    requires_count: 2
+    count: 2
     any:
       - id: rootkit/medusa/sniff-ssh
       - id: rootkit/medusa/sshpass-file
@@ -261,7 +261,7 @@ composite_rules:
     attack: "T1574.006"
     mbc: "F0015"
     file_types: [elf]
-    requires_count: 2
+    count: 2
     any:
       - id: rootkit/medusa/libdsx
       - id: rootkit/medusa/backup-ld

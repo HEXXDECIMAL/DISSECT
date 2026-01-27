@@ -164,7 +164,7 @@ composite_rules:
     mbc: "B0030"
     attack: "T1071"
     file_types: [elf, macho, pe, so, dylib, dll, python]
-    requires_any:
+    any:
       - id: c2-framework/pupy/reflective-loader
       - id: c2-framework/pupy/python-stager
       - id: c2-framework/pupy/rpyc-transport

@@ -98,7 +98,7 @@ composite_rules:
     crit: inert
     confidence: 1.0
     file_types: [vsixmanifest]
-    requires_all:
+    all:
       - id: identity-tag
       - id: publisher-attr
       - id: id-attr
@@ -109,7 +109,7 @@ composite_rules:
     crit: inert
     confidence: 0.8
     file_types: [vsixmanifest]
-    requires_count: 1
+    count: 1
     any:
       - id: link-source
       - id: link-github

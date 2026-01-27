@@ -144,7 +144,7 @@ composite_rules:
     attack: "T1071"
     mbc: "B0030"
     file_types: [elf, macho, pe, go]
-    requires_count: 2
+    count: 2
     any:
       - id: c2-framework/sliver/sliverpb
       - id: c2-framework/sliver/bishopfox
@@ -162,7 +162,7 @@ composite_rules:
     mbc: "B0030"
     attack: "T1071"
     file_types: [elf, macho, pe, go]
-    requires_count: 2
+    count: 2
     any:
       - id: c2-framework/sliver/implant-builds
       - id: c2-framework/sliver/beacon-jitter
@@ -179,7 +179,7 @@ composite_rules:
     attack: "T1071"
     platforms: [linux]
     file_types: [elf]
-    requires_all:
+    all:
       - id: c2-framework/sliver/coredump
       - id: c2-framework/sliver/gvisor-gso
       - id: c2-framework/sliver/proxy-func

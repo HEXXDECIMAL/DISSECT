@@ -68,7 +68,7 @@ composite_rules:
     mbc: "E1059"
     attack: "T1059"
     for: [shell, javascript]
-    requires_count: 1
+    count: 1
     any:
       - id: eval-call-shell
       - id: exec-call-shell
@@ -80,7 +80,7 @@ composite_rules:
     mbc: "E1059"
     attack: "T1059"
     for: [python]
-    requires_count: 1
+    count: 1
     any:
       - id: eval-call-python
       - id: exec-call-python

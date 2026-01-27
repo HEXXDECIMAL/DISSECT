@@ -11,7 +11,7 @@ defaults:
 traits:
   # === Gate URL atomic (EXFIL-SPECIFIC) ===
   - id: gate-var-http
-    description: gate = http variable
+    desc: gate = http variable
     crit: notable
     conf: 0.7
     for: [shell, python, javascript]
@@ -20,7 +20,7 @@ traits:
       regex: "\\bgate\\s*=\\s*[\"']http"
 
   - id: c2-var-http
-    description: c2 = http variable
+    desc: c2 = http variable
     crit: notable
     conf: 0.7
     for: [shell, python, javascript]
@@ -29,7 +29,7 @@ traits:
       regex: "\\bc2\\s*=\\s*[\"']http"
 
   - id: panel-var-http
-    description: panel = http variable
+    desc: panel = http variable
     crit: notable
     conf: 0.7
     for: [shell, python, javascript]
@@ -40,11 +40,11 @@ traits:
 composite_rules:
   # Gate URL (exfil-specific)
   - id: gate-url
-    description: Hardcoded gate/C2 URL variable
+    desc: Hardcoded gate/C2 URL variable
     crit: suspicious
     conf: 0.85
     for: [shell, python, javascript]
-    requires_count: 1
+    count: 1
     any:
       - id: gate-var-http
       - id: c2-var-http
@@ -52,12 +52,12 @@ composite_rules:
 
   # curl POST with custom headers (references comm/http/client/)
   - id: curl-post-headers
-    description: curl POST with custom identification headers
+    desc: curl POST with custom identification headers
     crit: suspicious
     conf: 0.9
     mbc: "C0001"
     for: [shell]
-    requires_count: 1
+    count: 1
     any:
       - id: comm/http/client/curl-post-x
       - id: comm/http/client/curl-user-header
@@ -65,11 +65,11 @@ composite_rules:
 
   # curl file upload (references comm/http/client/)
   - id: curl-upload
-    description: curl file upload
+    desc: curl file upload
     crit: suspicious
     conf: 0.8
     for: [shell]
-    requires_count: 1
+    count: 1
     any:
       - id: comm/http/client/curl-form-upload
       - id: comm/http/client/curl-data-binary
@@ -77,38 +77,38 @@ composite_rules:
 
   # Bot identification headers (references comm/http/headers/)
   - id: bot-headers
-    description: Bot identification HTTP headers
+    desc: Bot identification HTTP headers
     crit: suspicious
     conf: 0.9
     for: [shell]
-    requires_any:
+    any:
       - id: comm/http/headers/bot-headers
 
   # ZIP upload (references comm/http/upload/)
   - id: zip-upload
-    description: ZIP archive upload for exfiltration
+    desc: ZIP archive upload for exfiltration
     crit: suspicious
     conf: 0.9
     for: [shell]
-    requires_any:
+    any:
       - id: comm/http/upload/zip-upload
 
   # Multipart upload (references comm/http/headers/)
   - id: multipart-upload
-    description: Multipart form data upload
+    desc: Multipart form data upload
     crit: suspicious
     conf: 0.75
     for: [shell, python, javascript]
-    requires_any:
+    any:
       - id: comm/http/headers/multipart-upload
 
   # HTTP client/POST (references comm/http/client/ and comm/http/)
   - id: http-client-post
-    description: HTTP client tool or POST method
+    desc: HTTP client tool or POST method
     crit: notable
     conf: 0.8
     for: [shell]
-    requires_count: 1
+    count: 1
     any:
       - id: comm/http/client/curl-cmd
       - id: comm/http/client/wget-cmd
@@ -116,14 +116,14 @@ composite_rules:
 
   # Full exfiltration pattern: archive + upload
   - id: stealer-exfil
-    description: Stealer data exfiltration pattern
+    desc: Stealer data exfiltration pattern
     crit: hostile
     conf: 0.95
     mbc: "C0001"
     for: [shell]
-    requires_all:
+    all:
       - id: http-client-post
-    requires_any:
+    any:
       - id: curl-post-headers
       - id: bot-headers
       - id: gate-url

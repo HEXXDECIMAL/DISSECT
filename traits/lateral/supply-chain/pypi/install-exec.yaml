@@ -157,7 +157,7 @@ composite_rules:
     crit: suspicious
     confidence: 0.95
     mbc: "B0030"
-    requires_all:
+    all:
       - id: setup-py-exec-yara
 
   # __init__.py with code execution (very suspicious)
@@ -166,7 +166,7 @@ composite_rules:
     crit: suspicious
     confidence: 0.9
     mbc: "B0030"
-    requires_all:
+    all:
       - id: init-py-exec-yara
 
   # Package that installs other packages at runtime
@@ -175,5 +175,5 @@ composite_rules:
     crit: suspicious
     confidence: 0.95
     mbc: "B0030"
-    requires_all:
+    all:
       - id: dependency-injection-yara

@@ -56,7 +56,7 @@ composite_rules:
     crit: suspicious
     platforms: [linux]
     for: [elf]
-    requires_any:
+    any:
       - id: syscall-init-module
       - id: syscall-finit-module
 
@@ -66,7 +66,7 @@ composite_rules:
     crit: suspicious
     platforms: [linux]
     for: [elf]
-    requires_all:
+    all:
       - id: syscall-delete-module
 
   - id: kexec
@@ -75,6 +75,6 @@ composite_rules:
     crit: suspicious
     platforms: [linux]
     for: [elf]
-    requires_any:
+    any:
       - id: syscall-kexec-load
       - id: syscall-kexec-file-load

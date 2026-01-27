@@ -3,30 +3,30 @@
 # Reference: Palo Alto Networks firewall backdoor
 
 defaults:
-  file_types: [python, elf, macho, so, dylib]
+  file_types: [python, elf, macho, pe, so, dylib, dll, shell, javascript]
 
 traits:
   # === Backdoor Name Variants ===
   - id: upstyle-lower
     desc: upstyle malware name (lowercase)
-    crit: inert
-    conf: 0.8
+    crit: suspicious
+    conf: 0.95
     if:
       type: string
       exact: "upstyle"
 
   - id: upstyle-upper
     desc: UPSTYLE malware name (uppercase)
-    crit: inert
-    conf: 0.8
+    crit: suspicious
+    conf: 0.95
     if:
       type: string
       exact: "UPSTYLE"
 
   - id: upstyle-title
     desc: Upstyle malware name (title case)
-    crit: inert
-    conf: 0.8
+    crit: suspicious
+    conf: 0.95
     if:
       type: string
       exact: "Upstyle"
@@ -75,8 +75,8 @@ traits:
 
   - id: system-upstyle-string
     desc: system_upstyle backdoor marker
-    crit: inert
-    conf: 0.85
+    crit: suspicious
+    conf: 0.95
     if:
       type: string
       exact: "system_upstyle"

@@ -3,30 +3,30 @@
 # MBC: B0030 (Remote Access)
 
 defaults:
-  for: [elf, macho, so, dylib]
+  for: [elf, macho, pe, so, dylib, dll, python, shell, javascript]
 
 traits:
   # === Melofee Name Variants (case-insensitive via variants) ===
   - id: melofee-lower
     desc: melofee name (lowercase)
-    crit: inert
-    conf: 0.75
+    crit: suspicious
+    conf: 0.95
     if:
       type: string
       word: "melofee"
 
   - id: melofee-upper
     desc: MELOFEE name (uppercase)
-    crit: inert
-    conf: 0.75
+    crit: suspicious
+    conf: 0.95
     if:
       type: string
       word: "MELOFEE"
 
   - id: melofee-title
     desc: Melofee name (title case)
-    crit: inert
-    conf: 0.75
+    crit: suspicious
+    conf: 0.95
     if:
       type: string
       word: "Melofee"
@@ -34,24 +34,24 @@ traits:
   # Winnti variants
   - id: winnti-lower
     desc: winnti name (lowercase)
-    crit: inert
-    conf: 0.75
+    crit: suspicious
+    conf: 0.95
     if:
       type: string
       word: "winnti"
 
   - id: winnti-upper
     desc: WINNTI name (uppercase)
-    crit: inert
-    conf: 0.75
+    crit: suspicious
+    conf: 0.95
     if:
       type: string
       word: "WINNTI"
 
   - id: winnti-title
     desc: Winnti name (title case)
-    crit: inert
-    conf: 0.75
+    crit: suspicious
+    conf: 0.95
     if:
       type: string
       word: "Winnti"
@@ -92,16 +92,16 @@ traits:
 
   - id: hide-pid-string
     desc: hide_pid string
-    crit: inert
-    conf: 0.75
+    crit: suspicious
+    conf: 0.9
     if:
       type: string
       exact: "hide_pid"
 
   - id: hidden-pids-string
     desc: hidden_pids string
-    crit: inert
-    conf: 0.75
+    crit: suspicious
+    conf: 0.9
     if:
       type: string
       exact: "hidden_pids"

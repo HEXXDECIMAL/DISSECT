@@ -7,7 +7,7 @@ defaults:
 
 traits:
   - id: xattr-set
-    description: Set extended file attribute value
+    desc: Set extended file attribute value
     crit: notable
     conf: 0.66
     if:
@@ -15,7 +15,7 @@ traits:
       pattern: setxattr|fsetxattr|lsetxattr
 
   - id: xattr-get
-    description: Get extended file attribute value
+    desc: Get extended file attribute value
     crit: inert
     conf: 0.66
     if:
@@ -23,7 +23,7 @@ traits:
       pattern: getxattr|fgetxattr|lgetxattr
 
   - id: xattr-remove
-    description: Remove extended file attribute value
+    desc: Remove extended file attribute value
     crit: notable
     conf: 0.66
     if:
@@ -31,7 +31,7 @@ traits:
       pattern: removexattr|fremovexattr|lremovexattr
 
   - id: xattr-list
-    description: List extended file attributes
+    desc: List extended file attributes
     crit: inert
     conf: 0.66
     if:

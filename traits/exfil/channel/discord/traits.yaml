@@ -115,9 +115,9 @@ composite_rules:
     attack: "T1567.002"
     mbc: "B0030"
     for: [all]
-    requires_all:
+    all:
       - id: webhook-endpoint
-    requires_any:
+    any:
       - id: ip-lookup-ipify
       - id: ip-lookup-ipinfo
       - id: ip-lookup-ifconfig

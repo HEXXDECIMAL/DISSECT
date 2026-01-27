@@ -4,7 +4,7 @@
 
 traits:
   - id: os-remove
-    description: Deletes file via os.remove
+    desc: Deletes file via os.remove
     crit: notable
     conf: 0.9
     mbc: "C0047"
@@ -16,7 +16,7 @@ traits:
       pattern: "os.remove"
 
   - id: os-unlink
-    description: Deletes file via os.unlink
+    desc: Deletes file via os.unlink
     crit: notable
     conf: 0.9
     mbc: "C0047"
@@ -28,7 +28,7 @@ traits:
       pattern: "os.unlink"
 
   - id: shutil-rmtree
-    description: Deletes directory recursively via shutil.rmtree
+    desc: Deletes directory recursively via shutil.rmtree
     crit: notable
     conf: 0.9
     mbc: "C0047"
@@ -40,7 +40,7 @@ traits:
       pattern: "shutil.rmtree"
 
   - id: pathlib-unlink
-    description: Deletes file via pathlib.unlink
+    desc: Deletes file via pathlib.unlink
     crit: notable
     conf: 0.9
     mbc: "C0047"

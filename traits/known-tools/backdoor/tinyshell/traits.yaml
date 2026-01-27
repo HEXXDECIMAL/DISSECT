@@ -82,7 +82,7 @@ composite_rules:
     attack: "T1059.004"
     mbc: "B0022"
     file_types: [elf]
-    requires_all:
+    all:
       - id: backdoor/tinyshell/go-runshell
       - id: backdoor/tinyshell/go-background
       - id: backdoor/tinyshell/go-pty-wrapper
@@ -96,7 +96,7 @@ composite_rules:
     attack: "T1059.004"
     mbc: "B0022"
     file_types: [elf]
-    requires_count: 2
+    count: 2
     any:
       - id: backdoor/tinyshell/c-runshell
       - id: backdoor/tinyshell/c-getfile

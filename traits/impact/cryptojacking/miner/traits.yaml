@@ -199,7 +199,7 @@ traits:
     attack: "T1496"
     if:
       type: string
-      exact: "\"normalHashing\": true,"
+      exact: '"normalHashing": true,'
 
   # === Atomic: Memory Optimization ===
 
@@ -274,7 +274,7 @@ composite_rules:
     crit: notable
     conf: 0.6
     attack: "T1496"
-    requires_count: 1
+    count: 1
     any:
       - id: monero-lower
       - id: monero-title
@@ -287,7 +287,7 @@ composite_rules:
     conf: 0.95
     attack: "T1496"
     mbc: "B0036"
-    requires_count: 2
+    count: 2
     any:
       - id: stratum-protocol
       - id: pool-c3pool
@@ -311,9 +311,9 @@ composite_rules:
     attack: "T1496"
     mbc: "B0036"
     for: [elf]
-    requires_all:
+    all:
       - id: hugepages
-    requires_any:
+    any:
       - id: xmrig-ref
       - id: monero-ref
       - id: wallet-ref
@@ -325,7 +325,7 @@ composite_rules:
     attack: "T1496"
     mbc: "B0036"
     for: [elf]
-    requires_all:
+    all:
       - id: argon2d
       - id: proc-self-ref
       - id: numa-ref

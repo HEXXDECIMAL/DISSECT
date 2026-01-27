@@ -4,7 +4,7 @@
 traits:
   # Base64 encoding
   - id: node-base64-encode
-    description: Base64 encodes data (pre-exfiltration)
+    desc: Base64 encodes data (pre-exfiltration)
     crit: notable
     conf: 0.8
     attack: "T1132"
@@ -14,7 +14,7 @@ traits:
       regex: "toString\\(['\"]base64['\"]\\)"
 
   - id: node-buffer-base64
-    description: Buffer to base64 conversion
+    desc: Buffer to base64 conversion
     crit: notable
     conf: 0.85
     attack: "T1132"
@@ -24,7 +24,7 @@ traits:
       regex: "Buffer\\.from\\([^)]+\\)\\.toString\\(['\"]base64['\"]\\)"
 
   - id: node-base64-decode
-    description: Base64 decodes data
+    desc: Base64 decodes data
     crit: notable
     conf: 0.75
     for: [javascript, typescript]
@@ -34,7 +34,7 @@ traits:
 
   # Hex encoding
   - id: node-hex-encode
-    description: Hex encodes data
+    desc: Hex encodes data
     crit: notable
     conf: 0.75
     for: [javascript, typescript]
@@ -44,7 +44,7 @@ traits:
 
   # JSON serialization
   - id: node-json-stringify
-    description: JSON serializes data for transmission
+    desc: JSON serializes data for transmission
     crit: inert
     conf: 0.7
     for: [javascript, typescript]
@@ -54,7 +54,7 @@ traits:
 
   # URL encoding
   - id: node-querystring
-    description: URL-encodes data using querystring
+    desc: URL-encodes data using querystring
     crit: notable
     conf: 0.8
     for: [javascript, typescript]
@@ -63,7 +63,7 @@ traits:
       regex: 'querystring\.stringify\('
 
   - id: node-url-params
-    description: Creates URLSearchParams for data
+    desc: Creates URLSearchParams for data
     crit: notable
     conf: 0.75
     for: [javascript, typescript]
@@ -74,10 +74,10 @@ traits:
 composite_rules:
   # Encode then exfil pattern
   - id: node-encode-exfil
-    description: Encodes data then sends via HTTP (exfiltration)
+    desc: Encodes data then sends via HTTP (exfiltration)
     crit: suspicious
     conf: 0.9
     attack: "T1041"
-    requires_all:
+    all:
       - id: node-base64-encode
       - id: comm/http/request/javascript/http-client-usage

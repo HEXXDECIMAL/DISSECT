@@ -10,7 +10,7 @@ defaults:
 traits:
   # === Axios POST atomic indicators ===
   - id: axios-dot-post
-    description: axios.post method call
+    desc: axios.post method call
     crit: notable
     conf: 0.7
     if:
@@ -18,7 +18,7 @@ traits:
       exact: "axios.post"
 
   - id: axios-bracket-post
-    description: axios bracket post access
+    desc: axios bracket post access
     crit: notable
     conf: 0.7
     if:
@@ -27,7 +27,7 @@ traits:
 
   # === Fetch POST atomic indicators ===
   - id: fetch-with-post
-    description: fetch with POST method
+    desc: fetch with POST method
     crit: notable
     conf: 0.7
     if:
@@ -35,7 +35,7 @@ traits:
       regex: "fetch\\(.{0,50}POST"
 
   - id: method-post-string
-    description: method POST string
+    desc: method POST string
     crit: notable
     conf: 0.7
     if:
@@ -44,7 +44,7 @@ traits:
 
   # === Request POST atomic indicators ===
   - id: request-dot-post
-    description: request.post method call
+    desc: request.post method call
     crit: notable
     conf: 0.7
     if:
@@ -52,7 +52,7 @@ traits:
       exact: "request.post"
 
   - id: request-method-post
-    description: request with method POST
+    desc: request with method POST
     crit: notable
     conf: 0.7
     if:
@@ -62,40 +62,40 @@ traits:
 composite_rules:
   # Axios POST composite
   - id: axios-post
-    description: axios POST request (potential exfiltration)
+    desc: axios POST request (potential exfiltration)
     crit: suspicious
     conf: 0.8
-    requires_count: 1
+    count: 1
     any:
       - id: axios-dot-post
       - id: axios-bracket-post
 
   # Fetch POST composite
   - id: fetch-post
-    description: fetch POST request (potential exfiltration)
+    desc: fetch POST request (potential exfiltration)
     crit: suspicious
     conf: 0.8
-    requires_count: 1
+    count: 1
     any:
       - id: fetch-with-post
       - id: method-post-string
 
   # Request POST composite
   - id: request-post
-    description: request module POST (potential exfiltration)
+    desc: request module POST (potential exfiltration)
     crit: suspicious
     conf: 0.8
-    requires_count: 1
+    count: 1
     any:
       - id: request-dot-post
       - id: request-method-post
 
   # HTTP request composite
   - id: http-request
-    description: Node.js http.request (potential exfiltration)
+    desc: Node.js http.request (potential exfiltration)
     crit: notable
     conf: 0.7
-    requires_count: 1
+    count: 1
     any:
       - id: comm/http/request/javascript/http-request
       - id: comm/http/request/javascript/https-request

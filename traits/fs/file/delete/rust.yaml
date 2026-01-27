@@ -4,7 +4,7 @@
 
 traits:
   - id: fs-remove_file
-    description: Delete file
+    desc: Delete file
     crit: notable
     conf: 0.9
     mbc: "C0047"
@@ -16,7 +16,7 @@ traits:
       pattern: "fs::remove_file"
 
   - id: fs-remove_dir
-    description: Delete directory
+    desc: Delete directory
     crit: notable
     conf: 0.9
     mbc: "C0047"
@@ -28,7 +28,7 @@ traits:
       pattern: "fs::remove_dir"
 
   - id: fs-remove_dir_all
-    description: Recursive directory deletion
+    desc: Recursive directory deletion
     crit: notable
     conf: 0.9
     mbc: "C0047"

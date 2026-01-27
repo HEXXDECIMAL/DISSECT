@@ -175,7 +175,7 @@ composite_rules:
     description: Python package file extension
     confidence: 0.70
     crit: notable
-    requires_count: 1
+    count: 1
     any:
       - id: ext-tar-gz
       - id: ext-whl
@@ -186,7 +186,7 @@ composite_rules:
     description: "Typosquatted PyPI file hosting domain"
     confidence: 0.95
     crit: suspicious
-    requires_count: 1
+    count: 1
     any:
       - id: pypihosted-org
       - id: pythonhosted-com
@@ -199,7 +199,7 @@ composite_rules:
     description: "Typosquatted PyPI index domain"
     confidence: 0.95
     crit: suspicious
-    requires_count: 1
+    count: 1
     any:
       - id: pypii-org
       - id: pipy-org
@@ -213,7 +213,7 @@ composite_rules:
     crit: suspicious
     confidence: 0.95
     mbc: "B0030"
-    requires_any:
+    any:
       - id: fake-pypi-host
       - id: fake-pypi-host-raw
       - id: fake-pypi-index

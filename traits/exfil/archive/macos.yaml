@@ -90,7 +90,7 @@ composite_rules:
     desc: ditto archive creation with compression
     crit: suspicious
     conf: 0.85
-    requires_count: 1
+    count: 1
     any:
       - id: ditto-ck-flags
       - id: ditto-keepparent
@@ -100,7 +100,7 @@ composite_rules:
     desc: ditto with resource fork handling
     crit: suspicious
     conf: 0.9
-    requires_count: 1
+    count: 1
     any:
       - id: ditto-sequesterrsrc
       - id: ditto-rsrc-flag
@@ -110,7 +110,7 @@ composite_rules:
     desc: zip archive creation
     crit: notable
     conf: 0.7
-    requires_count: 1
+    count: 1
     any:
       - id: zip-recursive-quiet
       - id: zip-output-file
@@ -120,7 +120,7 @@ composite_rules:
     desc: "Archive creation in /tmp"
     crit: suspicious
     conf: 0.8
-    requires_count: 1
+    count: 1
     any:
       - id: tmp-zip-path
       - id: tmp-out-zip
@@ -133,10 +133,10 @@ composite_rules:
     conf: 0.9
     attack: "T1560.001"
     for: [shell, applescript, python]
-    requires_any:
+    any:
       - id: ditto-compress
       - id: ditto-sequester
-    requires_all:
+    all:
       - id: tmp-archive
 
   # Archive with curl exfil
@@ -146,9 +146,9 @@ composite_rules:
     conf: 0.95
     attack: "T1560.001"
     for: [shell, applescript, python]
-    requires_all:
+    all:
       - id: tmp-archive
-    requires_any:
+    any:
       - id: ditto-compress
       - id: ditto-sequester
       - id: zip-create

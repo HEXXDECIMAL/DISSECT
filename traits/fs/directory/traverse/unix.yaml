@@ -8,7 +8,7 @@ defaults:
 traits:
   # fts API functions
   - id: fts-open
-    description: fts_open function (open directory hierarchy)
+    desc: fts_open function (open directory hierarchy)
     crit: inert
     conf: 0.7
     mbc: E1083
@@ -18,7 +18,7 @@ traits:
       pattern: "_?fts_open"
 
   - id: fts-read
-    description: fts_read function (read directory entry)
+    desc: fts_read function (read directory entry)
     crit: inert
     conf: 0.7
     mbc: E1083
@@ -28,7 +28,7 @@ traits:
       pattern: "_?fts_read"
 
   - id: fts-children
-    description: fts_children function (get child entries)
+    desc: fts_children function (get child entries)
     crit: inert
     conf: 0.7
     mbc: E1083
@@ -38,7 +38,7 @@ traits:
       pattern: "_?fts_children"
 
   - id: fts-set
-    description: fts_set function (set directory options)
+    desc: fts_set function (set directory options)
     crit: inert
     conf: 0.7
     mbc: E1083
@@ -48,7 +48,7 @@ traits:
       pattern: "_?fts_set"
 
   - id: fts-close
-    description: fts_close function (close directory hierarchy)
+    desc: fts_close function (close directory hierarchy)
     crit: inert
     conf: 0.7
     mbc: E1083
@@ -59,7 +59,7 @@ traits:
 
   # nftw/ftw API
   - id: traverse-nftw
-    description: Traverse filesystem hierarchy via nftw/ftw
+    desc: Traverse filesystem hierarchy via nftw/ftw
     crit: inert
     conf: 0.66
     mbc: E1083
@@ -70,7 +70,7 @@ traits:
 
   # Manual traversal functions
   - id: opendir-symbol
-    description: opendir function (open directory)
+    desc: opendir function (open directory)
     crit: inert
     conf: 0.7
     mbc: E1083
@@ -80,7 +80,7 @@ traits:
       exact: "opendir"
 
   - id: readdir-symbol
-    description: readdir function (read directory entry)
+    desc: readdir function (read directory entry)
     crit: inert
     conf: 0.7
     mbc: E1083
@@ -90,7 +90,7 @@ traits:
       exact: "readdir"
 
   - id: lstat-symbol
-    description: lstat function (get file status, no symlink follow)
+    desc: lstat function (get file status, no symlink follow)
     crit: inert
     conf: 0.7
     mbc: E1083
@@ -100,7 +100,7 @@ traits:
       exact: "lstat"
 
   - id: stat-symbol
-    description: stat function (get file status)
+    desc: stat function (get file status)
     crit: inert
     conf: 0.7
     mbc: E1083
@@ -111,7 +111,7 @@ traits:
 
 composite_rules:
   - id: traverse-fts
-    description: Traverse filesystem hierarchy via fts API (2+ functions)
+    desc: Traverse filesystem hierarchy via fts API (2+ functions)
     crit: inert
     conf: 0.66
     mbc: E1083
@@ -125,7 +125,7 @@ composite_rules:
       - id: fts-close
 
   - id: stat-functions
-    description: File status check (stat or lstat)
+    desc: File status check (stat or lstat)
     crit: inert
     conf: 0.7
     mbc: E1083
@@ -135,7 +135,7 @@ composite_rules:
       - id: stat-symbol
 
   - id: traverse-manual
-    description: Manual recursive directory traversal (opendir + readdir + stat)
+    desc: Manual recursive directory traversal (opendir + readdir + stat)
     crit: notable
     conf: 0.7
     mbc: E1083

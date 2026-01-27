@@ -5,7 +5,7 @@
 traits:
   # === takeown atomic indicators ===
   - id: takeown-lower
-    description: takeown command (lowercase)
+    desc: takeown command (lowercase)
     crit: inert
     conf: 0.55
     if:
@@ -13,7 +13,7 @@ traits:
       exact: "takeown"
 
   - id: takeown-upper
-    description: TAKEOWN command (uppercase)
+    desc: TAKEOWN command (uppercase)
     crit: inert
     conf: 0.55
     if:
@@ -21,7 +21,7 @@ traits:
       exact: "TAKEOWN"
 
   - id: chown-takeown-force
-    description: Forcibly take ownership of files recursively
+    desc: Forcibly take ownership of files recursively
     crit: suspicious
     conf: 0.66
     if:
@@ -31,10 +31,10 @@ traits:
 composite_rules:
   # takeown composite
   - id: chown-takeown
-    description: Take ownership of files (Windows takeown)
+    desc: Take ownership of files (Windows takeown)
     crit: notable
     conf: 0.66
-    requires_count: 1
+    count: 1
     any:
       - id: takeown-lower
       - id: takeown-upper

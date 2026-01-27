@@ -5,7 +5,7 @@ traits:
   # === Function Size Metrics ===
 
   - id: large-functions
-    description: "Binary contains unusually large functions"
+    desc: "Binary contains unusually large functions"
     crit: notable
     conf: 0.65
     if:
@@ -19,7 +19,7 @@ traits:
   # patterns (inlining, code generation). Raised threshold significantly -
   # a typical Go binary has 500+ linear functions from runtime alone.
   - id: linear-code-ratio
-    description: "High ratio of linear functions (monolithic or VM structure)"
+    desc: "High ratio of linear functions (monolithic or VM structure)"
     crit: inert
     conf: 0.4
     if:
@@ -30,7 +30,7 @@ traits:
   # === Complexity Metrics ===
 
   - id: low-average-complexity
-    description: "Low average code complexity (simple functions or generated code)"
+    desc: "Low average code complexity (simple functions or generated code)"
     crit: inert
     conf: 0.75
     if:
@@ -41,7 +41,7 @@ traits:
   # === Section Metrics ===
 
   - id: dominant-text-section
-    description: "Binary with dominant .text section (monolithic multicall binary)"
+    desc: "Binary with dominant .text section (monolithic multicall binary)"
     crit: notable
     conf: 0.6
     if:

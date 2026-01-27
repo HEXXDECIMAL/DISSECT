@@ -215,7 +215,7 @@ composite_rules:
     conf: 0.8
     mbc: "C0002"
     attack: "T1105"
-    requires_count: 1
+    count: 1
     any:
       - id: wget-output-dash-O
       - id: wget-output-document
@@ -227,7 +227,7 @@ composite_rules:
     conf: 0.8
     mbc: "C0002"
     attack: "T1105"
-    requires_count: 1
+    count: 1
     any:
       - id: curl-output-dash-o
       - id: curl-output-flag
@@ -239,7 +239,7 @@ composite_rules:
     conf: 0.8
     mbc: "C0047"
     attack: "T1074.001"
-    requires_count: 1
+    count: 1
     any:
       - id: cd-tmp
       - id: tmp-path
@@ -251,7 +251,7 @@ composite_rules:
     mbc: "B0024"
     attack: "T1059.004"
     platforms: [linux, macos]
-    requires_all:
+    all:
       - id: wget-download
       - id: chmod-777
       - id: execute-dot-slash
@@ -263,7 +263,7 @@ composite_rules:
     mbc: "B0024"
     attack: "T1059.004"
     platforms: [linux, macos]
-    requires_all:
+    all:
       - id: curl-download
       - id: chmod-plus-x
       - id: execute-dot-slash
@@ -273,7 +273,7 @@ composite_rules:
     desc: "MIPS architecture binary (IoT target)"
     crit: suspicious
     conf: 0.85
-    requires_count: 1
+    count: 1
     any:
       - id: mips-lower
       - id: mips-upper
@@ -283,7 +283,7 @@ composite_rules:
     desc: "MIPSEL architecture binary (IoT target)"
     crit: suspicious
     conf: 0.85
-    requires_count: 1
+    count: 1
     any:
       - id: mpsl-short
       - id: mipsel-lower
@@ -296,7 +296,7 @@ composite_rules:
     mbc: "B0024"
     attack: "T1059.004"
     platforms: [linux]
-    requires_count: 2
+    count: 2
     any:
       - id: iot-arch-mips
       - id: iot-arch-arm
@@ -309,7 +309,7 @@ composite_rules:
     mbc: "C0047"
     attack: "T1074.001"
     platforms: [linux, macos]
-    requires_all:
+    all:
       - id: tmp-staging
       - id: rm-rf-cleanup
 
@@ -320,6 +320,6 @@ composite_rules:
     mbc: "C0002"
     attack: "T1105"
     platforms: [linux, macos]
-    requires_all:
+    all:
       - id: hardcoded-ip-url
       - id: wget-download

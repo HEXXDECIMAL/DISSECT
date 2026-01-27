@@ -89,7 +89,7 @@ composite_rules:
     desc: Password dialog prompt
     crit: suspicious
     conf: 0.8
-    requires_count: 1
+    count: 1
     any:
       - id: display-dialog-password
       - id: default-answer-password
@@ -100,7 +100,7 @@ composite_rules:
     desc: Fake dialog UI element
     crit: notable
     conf: 0.7
-    requires_count: 1
+    count: 1
     any:
       - id: hidden-answer
       - id: icon-caution
@@ -111,7 +111,7 @@ composite_rules:
     desc: System credential prompt
     crit: suspicious
     conf: 0.85
-    requires_count: 1
+    count: 1
     any:
       - id: keychain-password
       - id: admin-password

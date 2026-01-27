@@ -7,7 +7,7 @@ defaults:
 
 traits:
   - id: rmdir
-    description: Remove directories
+    desc: Remove directories
     crit: inert
     conf: 0.66
     if:

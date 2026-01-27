@@ -94,7 +94,7 @@ composite_rules:
     desc: Reflection property access
     crit: notable
     conf: 0.70
-    requires_count: 1
+    count: 1
     any:
       - id: property-info-class
       - id: get-properties-method
@@ -104,7 +104,7 @@ composite_rules:
     desc: Reflection method access
     crit: notable
     conf: 0.70
-    requires_count: 1
+    count: 1
     any:
       - id: method-info-class
       - id: get-method-call
@@ -115,7 +115,7 @@ composite_rules:
     desc: Runtime type inspection
     crit: notable
     conf: 0.70
-    requires_count: 1
+    count: 1
     any:
       - id: get-type-call
       - id: typeof-call

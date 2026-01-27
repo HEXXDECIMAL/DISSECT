@@ -229,35 +229,35 @@ traits:
 composite_rules:
   # Helper composite for all plaintext IP lookup services
   - id: plaintext-ip-services
-    description: Plaintext IP lookup service references
+    desc: Plaintext IP lookup service references
     for: [all]
     any:
-      - {id: ipify}
-      - {id: ipinfo}
-      - {id: ifconfig-me}
-      - {id: icanhazip}
-      - {id: wtfismyip}
-      - {id: iplogger}
-      - {id: ifconfig-io}
-      - {id: ifconfig-co}
-      - {id: ident-me}
-      - {id: checkip-amazonaws}
+      - { id: ipify }
+      - { id: ipinfo }
+      - { id: ifconfig-me }
+      - { id: icanhazip }
+      - { id: wtfismyip }
+      - { id: iplogger }
+      - { id: ifconfig-io }
+      - { id: ifconfig-co }
+      - { id: ident-me }
+      - { id: checkip-amazonaws }
 
   # Helper composite for all base64-encoded IP lookup services
   - id: base64-ip-services
-    description: Base64-encoded IP lookup service references
+    desc: Base64-encoded IP lookup service references
     for: [all]
     any:
-      - {id: ipify-b64}
-      - {id: ipinfo-b64}
-      - {id: wtfismyip-b64}
-      - {id: iplogger-b64}
-      - {id: icanhazip-b64}
-      - {id: checkip-amazonaws-b64}
-      - {id: ifconfig-me-b64}
-      - {id: ifconfig-io-b64}
-      - {id: ifconfig-co-b64}
-      - {id: ident-me-b64}
+      - { id: ipify-b64 }
+      - { id: ipinfo-b64 }
+      - { id: wtfismyip-b64 }
+      - { id: iplogger-b64 }
+      - { id: icanhazip-b64 }
+      - { id: checkip-amazonaws-b64 }
+      - { id: ifconfig-me-b64 }
+      - { id: ifconfig-io-b64 }
+      - { id: ifconfig-co-b64 }
+      - { id: ident-me-b64 }
 
   # Migrated from YARA (partial) - requires 2 different IP lookup services
   - id: ip-recon-detected
@@ -269,8 +269,8 @@ composite_rules:
     for: [all]
     count: 2
     any:
-      - {id: plaintext-ip-services}
-      - {id: base64-ip-services}
+      - { id: plaintext-ip-services }
+      - { id: base64-ip-services }
 
   - id: ip-recon-obfuscated
     desc: Obfuscated IP reconnaissance

@@ -7,7 +7,7 @@ defaults:
 
 traits:
   - id: timestamp
-    description: Modify file timestamps
+    desc: Modify file timestamps
     crit: notable
     conf: 0.66
     if:

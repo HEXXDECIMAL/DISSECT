@@ -111,7 +111,7 @@ composite_rules:
     desc: File write or directory creation
     crit: notable
     conf: 0.8
-    requires_count: 1
+    count: 1
     any:
       - id: python-os-makedirs
       - id: python-open-write
@@ -121,7 +121,7 @@ composite_rules:
     desc: "Malware staging in hidden home directory"
     conf: 0.95
     crit: hostile
-    requires_all:
+    all:
       - id: python-home-expansion
       - id: python-hidden-join-pattern
       - id: python-write-or-makedirs

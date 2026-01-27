@@ -45,5 +45,5 @@ composite_rules:
     attack: "T1566"
     mbc: "B0030"
     for: [macho]
-    requires_all:
+    all:
       - id: apt/applejeus/yara

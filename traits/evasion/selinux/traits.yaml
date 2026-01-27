@@ -275,54 +275,54 @@ traits:
 
 composite_rules:
   - id: unconfined-labels
-    description: Unconfined SELinux context labels
+    desc: Unconfined SELinux context labels
     for: [shell, c, elf]
     any:
-      - {id: unconfined-u-label}
-      - {id: unconfined-r-label}
-      - {id: unconfined-t-label}
+      - { id: unconfined-u-label }
+      - { id: unconfined-r-label }
+      - { id: unconfined-t-label }
 
   - id: enforcement-commands
-    description: SELinux enforcement commands
+    desc: SELinux enforcement commands
     for: [shell, c, elf]
     any:
-      - {id: setenforce-command}
-      - {id: getenforce-command}
-      - {id: selinux-enforce-sysfs}
-      - {id: selinux-enforce-legacy}
-      - {id: permissive-keyword}
+      - { id: setenforce-command }
+      - { id: getenforce-command }
+      - { id: selinux-enforce-sysfs }
+      - { id: selinux-enforce-legacy }
+      - { id: permissive-keyword }
 
   - id: policy-commands
-    description: SELinux policy manipulation commands
+    desc: SELinux policy manipulation commands
     for: [shell]
     any:
-      - {id: load-policy-command}
-      - {id: semodule-command}
-      - {id: chcon-command}
-      - {id: restorecon-command}
+      - { id: load-policy-command }
+      - { id: semodule-command }
+      - { id: chcon-command }
+      - { id: restorecon-command }
 
   - id: policy-files
-    description: SELinux policy file references
+    desc: SELinux policy file references
     for: [shell, c, elf]
     any:
-      - {id: selinux-config-dir}
-      - {id: policy-file-pattern}
+      - { id: selinux-config-dir }
+      - { id: policy-file-pattern }
 
   - id: kernel-parameters
-    description: SELinux kernel boot parameters
+    desc: SELinux kernel boot parameters
     for: [shell]
     any:
-      - {id: selinux-equals-zero}
-      - {id: enforcing-equals-zero}
-      - {id: selinux-disabled-config}
-      - {id: selinux-permissive-config}
+      - { id: selinux-equals-zero }
+      - { id: enforcing-equals-zero }
+      - { id: selinux-disabled-config }
+      - { id: selinux-permissive-config }
 
   - id: sel-enforce-symbols
-    description: SELinux enforcement symbols
+    desc: SELinux enforcement symbols
     for: [c, elf]
     all:
-      - {id: sel-read-enforce-symbol}
-      - {id: sel-write-enforce-symbol}
+      - { id: sel-read-enforce-symbol }
+      - { id: sel-write-enforce-symbol }
 
   # Migrated from YARA
   - id: xattr-manipulation
@@ -331,8 +331,8 @@ composite_rules:
     conf: 0.75
     for: [c, elf, shell]
     all:
-      - {id: security-selinux-xattr}
-      - {id: setxattr-functions}
+      - { id: security-selinux-xattr }
+      - { id: setxattr-functions }
 
   - id: unconfined-context
     desc: SELinux unconfined context assignment
@@ -340,8 +340,8 @@ composite_rules:
     conf: 0.8
     for: [shell, c, elf]
     any:
-      - {id: unconfined-labels}
-      - {id: object-r-label}
+      - { id: unconfined-labels }
+      - { id: object-r-label }
 
   - id: setenforce
     desc: SELinux enforcement mode manipulation
@@ -349,7 +349,7 @@ composite_rules:
     conf: 0.85
     for: [shell, c, elf]
     any:
-      - {id: enforcement-commands}
+      - { id: enforcement-commands }
 
   - id: policy-manipulation
     desc: SELinux policy load or manipulation
@@ -357,8 +357,8 @@ composite_rules:
     conf: 0.8
     for: [shell, c, elf]
     any:
-      - {id: policy-commands}
-      - {id: policy-files}
+      - { id: policy-commands }
+      - { id: policy-files }
 
   - id: kernel-disable
     desc: SELinux kernel parameter disable
@@ -366,23 +366,23 @@ composite_rules:
     conf: 0.9
     for: [shell, elf]
     any:
-      - {id: kernel-parameters}
+      - { id: kernel-parameters }
 
   # Helper: selinux state + enforcing keyword combo
   - id: selinux-state-enforcing
-    description: SELinux state with enforcing keyword
+    desc: SELinux state with enforcing keyword
     for: [c, elf]
     all:
-      - {id: selinux-state-symbol}
-      - {id: enforcing-keyword}
+      - { id: selinux-state-symbol }
+      - { id: enforcing-keyword }
 
   # Helper: fake enforce + selinux state combo
   - id: fake-enforce-selinux
-    description: Fake enforce with SELinux state
+    desc: Fake enforce with SELinux state
     for: [c, elf]
     all:
-      - {id: fake-enforce-identifier}
-      - {id: selinux-state-symbol}
+      - { id: fake-enforce-identifier }
+      - { id: selinux-state-symbol }
 
   - id: runtime-patch
     desc: Direct kernel memory manipulation of SELinux enforcement state
@@ -390,10 +390,9 @@ composite_rules:
     conf: 0.95
     for: [c, elf]
     any:
-      - {id: selinux-state-enforcing}
-      - {id: sel-enforce-symbols}
-      - {id: fake-enforce-selinux}
-
+      - { id: selinux-state-enforcing }
+      - { id: sel-enforce-symbols }
+      - { id: fake-enforce-selinux }
 
   # Active SELinux bypass (multi-technique detection)
   - id: bypass
@@ -403,8 +402,8 @@ composite_rules:
     for: [shell, c, elf]
     count: 2
     any:
-      - {id: xattr-manipulation}
-      - {id: unconfined-context}
-      - {id: setenforce}
-      - {id: kernel-disable}
-      - {id: runtime-patch}
+      - { id: xattr-manipulation }
+      - { id: unconfined-context }
+      - { id: setenforce }
+      - { id: kernel-disable }
+      - { id: runtime-patch }

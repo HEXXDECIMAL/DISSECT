@@ -81,7 +81,7 @@ composite_rules:
     attack: "T1567.002"
     mbc: "B0030"
     for: [all]
-    requires_any:
+    any:
       - id: api-endpoint
       - id: api-endpoint-b64
       - id: bot-token

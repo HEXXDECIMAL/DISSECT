@@ -55,9 +55,9 @@ composite_rules:
     description: "AppleScript admin privilege escalation"
     crit: suspicious
     confidence: 0.9
-    requires_any:
-      - {id: admin-privileges}
-      - {id: with-admin-privileges}
+    any:
+      - { id: admin-privileges }
+      - { id: with-admin-privileges }
 
   # ============================================
   # Shell with Admin Privileges
@@ -66,6 +66,6 @@ composite_rules:
     description: "Shell execution with admin privileges"
     crit: suspicious
     confidence: 0.9
-    requires_all:
-      - {id: evasion/applescript/do-shell-script}
-      - {id: with-admin-privileges}
+    all:
+      - { id: evasion/applescript/do-shell-script }
+      - { id: with-admin-privileges }

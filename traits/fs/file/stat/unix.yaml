@@ -7,7 +7,7 @@ defaults:
 
 traits:
   - id: stat
-    description: Get file status/metadata
+    desc: Get file status/metadata
     crit: inert
     conf: 0.66
     if:
@@ -15,7 +15,7 @@ traits:
       pattern: stat|lstat|fstat|fstatat|stat64|lstat64|fstat64
 
   - id: stat-exists
-    description: Check if file exists
+    desc: Check if file exists
     crit: inert
     conf: 0.66
     if:

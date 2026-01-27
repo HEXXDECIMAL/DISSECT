@@ -4,11 +4,11 @@
 
 composite_rules:
   - id: exfiltration
-    description: "Gathers system info and exfiltrates via HTTP"
+    desc: "Gathers system info and exfiltrates via HTTP"
     crit: suspicious
     conf: 0.9
     attack: "T1041"
     for: [python]
-    requires_all:
+    all:
       - id: discovery/system
       - id: comm/http/request

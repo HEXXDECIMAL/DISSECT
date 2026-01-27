@@ -4,7 +4,7 @@
 traits:
   # === Temp directory atomic indicators ===
   - id: tmp-ref
-    description: "Reference to tmp path"
+    desc: "Reference to tmp path"
     crit: inert
     conf: 0.6
     if:
@@ -12,7 +12,7 @@ traits:
       exact: "tmp"
 
   - id: tempfile-ref
-    description: "Reference to tempfile module"
+    desc: "Reference to tempfile module"
     crit: inert
     conf: 0.7
     if:
@@ -20,7 +20,7 @@ traits:
       exact: "tempfile"
 
   - id: environ-tmp
-    description: "Reference to TMP environment variable"
+    desc: "Reference to TMP environment variable"
     crit: inert
     conf: 0.7
     if:
@@ -32,21 +32,21 @@ composite_rules:
   # NOTE: "tmp" string is too generic - appears in Go runtime and many
   # legitimate programs. Downgraded to inert.
   - id: temp-dir-reference
-    description: "Reference to a temporary directory path or variable"
+    desc: "Reference to a temporary directory path or variable"
     crit: inert
     conf: 0.4
-    requires_count: 1
+    count: 1
     any:
       - id: tmp-ref
       - id: tempfile-ref
       - id: environ-tmp
 
   - id: execute-temp-file
-    description: "Creates and executes a file from a temporary directory (Staging)"
+    desc: "Creates and executes a file from a temporary directory (Staging)"
     crit: suspicious
     conf: 0.95
     near_lines: 50
-    requires_all:
+    all:
       - id: fs/file/open/generic
       - id: exec/command/subprocess/run
       - id: temp-dir-reference

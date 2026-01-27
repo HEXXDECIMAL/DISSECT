@@ -289,30 +289,30 @@ traits:
 composite_rules:
   # Helper composites
   - id: curl-pipe-interpreters
-    description: Curl piped to various interpreters
+    desc: Curl piped to various interpreters
     any:
-      - {id: curl-pipe-sh}
-      - {id: curl-pipe-bash}
-      - {id: curl-pipe-zsh}
-      - {id: curl-pipe-ksh}
-      - {id: curl-pipe-dash}
-      - {id: curl-pipe-python}
-      - {id: curl-pipe-perl}
-      - {id: curl-pipe-node}
-      - {id: curl-pipe-ruby}
+      - { id: curl-pipe-sh }
+      - { id: curl-pipe-bash }
+      - { id: curl-pipe-zsh }
+      - { id: curl-pipe-ksh }
+      - { id: curl-pipe-dash }
+      - { id: curl-pipe-python }
+      - { id: curl-pipe-perl }
+      - { id: curl-pipe-node }
+      - { id: curl-pipe-ruby }
 
   - id: wget-pipe-interpreters
-    description: Wget piped to various interpreters
+    desc: Wget piped to various interpreters
     any:
-      - {id: wget-pipe-sh}
-      - {id: wget-pipe-bash}
-      - {id: wget-pipe-zsh}
-      - {id: wget-pipe-ksh}
-      - {id: wget-pipe-dash}
-      - {id: wget-pipe-python}
-      - {id: wget-pipe-perl}
-      - {id: wget-pipe-node}
-      - {id: wget-pipe-ruby}
+      - { id: wget-pipe-sh }
+      - { id: wget-pipe-bash }
+      - { id: wget-pipe-zsh }
+      - { id: wget-pipe-ksh }
+      - { id: wget-pipe-dash }
+      - { id: wget-pipe-python }
+      - { id: wget-pipe-perl }
+      - { id: wget-pipe-node }
+      - { id: wget-pipe-ruby }
 
   # Migrated from YARA
   - id: download-pipe-exec
@@ -321,8 +321,8 @@ composite_rules:
     conf: 0.9
     attack: "T1059"
     any:
-      - {id: curl-pipe-interpreters}
-      - {id: wget-pipe-interpreters}
+      - { id: curl-pipe-interpreters }
+      - { id: wget-pipe-interpreters }
 
   # Curl pipe shell composite
   - id: curl-pipe-shell
@@ -330,7 +330,7 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     attack: "T1059.004"
-    requires_count: 1
+    count: 1
     any:
       - id: curl-pipe-sh
       - id: curl-pipe-bash
@@ -344,7 +344,7 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     attack: "T1059.004"
-    requires_count: 1
+    count: 1
     any:
       - id: wget-pipe-sh
       - id: wget-pipe-bash
@@ -358,7 +358,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     attack: "T1059.004"
-    requires_count: 1
+    count: 1
     any:
       - id: eval-curl-subshell
       - id: eval-curl-backtick
@@ -371,7 +371,7 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     attack: "T1027"
-    requires_count: 1
+    count: 1
     any:
       - id: base64-d-pipe-sh
       - id: base64-d-pipe-bash
@@ -384,7 +384,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     attack: "T1059.004"
-    requires_count: 1
+    count: 1
     any:
       - id: bash-curl-process-sub
       - id: sh-curl-process-sub

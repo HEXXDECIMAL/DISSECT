@@ -4,7 +4,7 @@
 
 traits:
   - id: xattr-clear
-    description: xattr -c (clear all extended attributes)
+    desc: xattr -c (clear all extended attributes)
     crit: notable
     conf: 0.7
     mbc: E1222
@@ -14,7 +14,7 @@ traits:
       exact: "xattr -c"
 
   - id: xattr-delete
-    description: xattr -d (delete specific attribute)
+    desc: xattr -d (delete specific attribute)
     crit: notable
     conf: 0.7
     mbc: E1222
@@ -24,7 +24,7 @@ traits:
       exact: "xattr -d"
 
   - id: xattr-write
-    description: xattr -w (write attribute value)
+    desc: xattr -w (write attribute value)
     crit: notable
     conf: 0.7
     mbc: E1222
@@ -34,7 +34,7 @@ traits:
       exact: "xattr -w"
 
   - id: xattr-quarantine-remove-1
-    description: xattr -d -r -s com.apple.quarantine (legitimate quarantine removal)
+    desc: xattr -d -r -s com.apple.quarantine (legitimate quarantine removal)
     crit: inert
     conf: 1.0
     if:
@@ -42,7 +42,7 @@ traits:
       exact: "xattr -d -r -s com.apple.quarantine"
 
   - id: xattr-quarantine-remove-2
-    description: xattr -d -r com.apple.quarantine (legitimate quarantine removal)
+    desc: xattr -d -r com.apple.quarantine (legitimate quarantine removal)
     crit: inert
     conf: 1.0
     if:
@@ -51,7 +51,7 @@ traits:
 
 composite_rules:
   - id: xattr-patterns
-    description: xattr command patterns (clear, delete, or write)
+    desc: xattr command patterns (clear, delete, or write)
     crit: notable
     conf: 0.7
     mbc: E1222
@@ -62,7 +62,7 @@ composite_rules:
       - id: xattr-write
 
   - id: xattr-command
-    description: Modify extended filesystem attributes (excludes legitimate quarantine removal)
+    desc: Modify extended filesystem attributes (excludes legitimate quarantine removal)
     crit: notable
     conf: 0.66
     mbc: E1222

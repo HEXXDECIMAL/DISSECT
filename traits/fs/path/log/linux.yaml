@@ -4,7 +4,7 @@
 
 traits:
   - id: log-var
-    description: Reference to /var/log
+    desc: Reference to /var/log
     crit: notable
     conf: 0.66
     if:

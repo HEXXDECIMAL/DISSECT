@@ -74,7 +74,7 @@ composite_rules:
     mbc: "E1567.002"
     attack: "T1567.002"
     conf: 0.9
-    requires_count: 1
+    count: 1
     any:
       - id: s3-amazonaws-domain
       - id: s3-upload-method
@@ -86,7 +86,7 @@ composite_rules:
     mbc: "E1567"
     attack: "T1567"
     conf: 0.9
-    requires_count: 1
+    count: 1
     any:
       - id: dropbox-api-domain
       - id: dropbox-upload-method
@@ -98,7 +98,7 @@ composite_rules:
     mbc: "E1567"
     attack: "T1567"
     conf: 0.9
-    requires_count: 1
+    count: 1
     any:
       - id: gdrive-domain
       - id: googleapis-drive
