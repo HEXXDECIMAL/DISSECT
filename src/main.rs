@@ -73,6 +73,26 @@ fn expand_paths(paths: Vec<String>) -> Vec<String> {
     expanded
 }
 
+/// Check if a report's highest criticality matches any of the error_if levels
+/// If so, exit with error
+fn check_criticality_error(
+    report: &types::AnalysisReport,
+    error_if_levels: Option<&[types::Criticality]>,
+) -> Result<()> {
+    if let Some(levels) = error_if_levels {
+        if let Some(highest_crit) = report.highest_criticality() {
+            if levels.contains(&highest_crit) {
+                anyhow::bail!(
+                    "File '{}' has highest criticality {:?} which matches --error-if criteria",
+                    report.target.path,
+                    highest_crit
+                );
+            }
+        }
+    }
+    Ok(())
+}
+
 fn main() -> Result<()> {
     // Parse args early to get verbose flag for logging initialization
     let args = cli::Args::parse();
@@ -145,6 +165,9 @@ fn main() -> Result<()> {
     // Third-party YARA is opt-in (disabled by default), but can also be disabled via --disable
     let enable_third_party_global = args.third_party_yara && !disabled.third_party;
 
+    // Collect error_if levels for criticality checking
+    let error_if_levels = args.error_if_levels();
+
     let result = match args.command {
         Some(cli::Command::Analyze {
             targets,
@@ -168,6 +191,7 @@ fn main() -> Result<()> {
                     &format,
                     &zip_passwords,
                     &disabled,
+                    error_if_levels.as_deref(),
                 )?
             } else {
                 // Multiple targets or directory - use scan
@@ -177,6 +201,7 @@ fn main() -> Result<()> {
                     &format,
                     &zip_passwords,
                     &disabled,
+                    error_if_levels.as_deref(),
                 )?
             }
         }
@@ -189,6 +214,7 @@ fn main() -> Result<()> {
             &format,
             &zip_passwords,
             &disabled,
+            error_if_levels.as_deref(),
         )?,
         Some(cli::Command::Diff { old, new }) => diff_analysis(&old, &new, &format)?,
         Some(cli::Command::Strings { target, min_length }) => {
@@ -209,6 +235,7 @@ fn main() -> Result<()> {
                 &format,
                 &zip_passwords,
                 &disabled,
+                error_if_levels.as_deref(),
             )?
         }
     };
@@ -283,6 +310,7 @@ fn analyze_file(
     format: &cli::OutputFormat,
     zip_passwords: &[String],
     disabled: &cli::DisabledComponents,
+    error_if_levels: Option<&[types::Criticality]>,
 ) -> Result<String> {
     let _start = std::time::Instant::now();
     let path = Path::new(target);
@@ -299,6 +327,7 @@ fn analyze_file(
             format,
             zip_passwords,
             disabled,
+            error_if_levels,
         );
     }
 
@@ -514,6 +543,9 @@ fn analyze_file(
 
     eprintln!("[TIMING] Analysis: {:?}", t3.elapsed());
 
+    // Check if report's criticality matches --error-if criteria
+    check_criticality_error(&report, error_if_levels)?;
+
     // Format output based on requested format
     let t4 = std::time::Instant::now();
     let result = match format {
@@ -531,6 +563,7 @@ fn scan_paths(
     format: &cli::OutputFormat,
     zip_passwords: &[String],
     disabled: &cli::DisabledComponents,
+    error_if_levels: Option<&[types::Criticality]>,
 ) -> Result<String> {
     use indicatif::{ProgressBar, ProgressStyle};
     use walkdir::WalkDir;
@@ -622,6 +655,7 @@ fn scan_paths(
             &capability_mapper,
             zip_passwords,
             disabled,
+            error_if_levels,
         ) {
             Ok(json) => {
                 // For terminal format, show immediate output above progress bar
@@ -694,6 +728,7 @@ fn scan_paths(
             &capability_mapper,
             zip_passwords,
             disabled,
+            error_if_levels,
         ) {
             Ok(json) => {
                 // For terminal format, show immediate output above progress bar
@@ -786,6 +821,7 @@ fn analyze_file_with_shared_mapper(
     capability_mapper: &Arc<crate::capabilities::CapabilityMapper>,
     zip_passwords: &[String],
     disabled: &cli::DisabledComponents,
+    error_if_levels: Option<&[types::Criticality]>,
 ) -> Result<String> {
     let timing = std::env::var("DISSECT_TIMING").is_ok();
     let t_start = std::time::Instant::now();
@@ -1009,6 +1045,9 @@ fn analyze_file_with_shared_mapper(
             t_start.elapsed()
         );
     }
+
+    // Check if report's criticality matches --error-if criteria
+    check_criticality_error(&report, error_if_levels)?;
 
     // Always output JSON for parallel scanning
     output::format_json(&report)

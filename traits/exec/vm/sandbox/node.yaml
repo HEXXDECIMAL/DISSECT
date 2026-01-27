@@ -174,7 +174,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: 'DEV_.*_KEY|API_.*KEY|SECRET'
+      regex: 'DEV_.{0,50}_KEY|API_.{0,50}KEY|SECRET'
 
   # NOTE: The composite rule below requires regex min_count support for
   # the base64-long-string pattern, which isn't yet available in DISSECT.

@@ -219,7 +219,7 @@ traits:
       exact: "ssh_cred"
 
   - id: sshdone-identifier
-    desc: sshdone flag
+    desc: SSH operation completion flag variable (sshdone), often used in credential sniffing malware to track SSH session hijacking completion
     crit: suspicious
     conf: 0.85
     for: [elf, macho, pe, dll, so, dylib, python, shell]

@@ -120,6 +120,13 @@ pub struct Args {
     /// Enable all components (overrides --disable default)
     #[arg(long)]
     pub enable_all: bool,
+
+    /// Exit with error if top-level file has highest trait criticality matching these levels
+    /// (comma-separated: filtered,inert,notable,suspicious,hostile)
+    /// Example: --error-if=suspicious,hostile (for sweeping known-good data)
+    /// Example: --error-if=inert,notable (for sweeping known-bad data for weak detections)
+    #[arg(long, value_name = "LEVELS")]
+    pub error_if: Option<String>,
 }
 
 impl Args {
@@ -138,6 +145,33 @@ impl Args {
             OutputFormat::Json
         } else {
             OutputFormat::Terminal
+        }
+    }
+
+    /// Parse --error-if flag into a set of criticality levels
+    pub fn error_if_levels(&self) -> Option<Vec<crate::types::Criticality>> {
+        self.error_if.as_ref().map(|s| {
+            s.split(',')
+                .map(|level| parse_criticality_level(level.trim()))
+                .collect()
+        })
+    }
+}
+
+/// Parse a criticality level string (case-insensitive)
+fn parse_criticality_level(s: &str) -> crate::types::Criticality {
+    match s.to_lowercase().as_str() {
+        "filtered" => crate::types::Criticality::Filtered,
+        "inert" => crate::types::Criticality::Inert,
+        "notable" => crate::types::Criticality::Notable,
+        "suspicious" => crate::types::Criticality::Suspicious,
+        "hostile" | "malicious" => crate::types::Criticality::Hostile,
+        _ => {
+            eprintln!(
+                "⚠️  Unknown criticality level '{}', treating as 'inert'",
+                s
+            );
+            crate::types::Criticality::Inert
         }
     }
 }
@@ -550,5 +584,85 @@ mod tests {
         assert!(!disabled.radare2);
         assert!(!disabled.upx);
         assert!(!disabled.third_party);
+    }
+
+    #[test]
+    fn test_error_if_single_level() {
+        let args =
+            Args::try_parse_from(["dissect", "--error-if", "suspicious", "file.bin"]).unwrap();
+        let levels = args.error_if_levels().unwrap();
+        assert_eq!(levels.len(), 1);
+        assert_eq!(levels[0], crate::types::Criticality::Suspicious);
+    }
+
+    #[test]
+    fn test_error_if_multiple_levels() {
+        let args = Args::try_parse_from([
+            "dissect",
+            "--error-if",
+            "suspicious,hostile",
+            "file.bin",
+        ])
+        .unwrap();
+        let levels = args.error_if_levels().unwrap();
+        assert_eq!(levels.len(), 2);
+        assert!(levels.contains(&crate::types::Criticality::Suspicious));
+        assert!(levels.contains(&crate::types::Criticality::Hostile));
+    }
+
+    #[test]
+    fn test_error_if_all_levels() {
+        let args = Args::try_parse_from([
+            "dissect",
+            "--error-if",
+            "filtered,inert,notable,suspicious,hostile",
+            "file.bin",
+        ])
+        .unwrap();
+        let levels = args.error_if_levels().unwrap();
+        assert_eq!(levels.len(), 5);
+        assert!(levels.contains(&crate::types::Criticality::Filtered));
+        assert!(levels.contains(&crate::types::Criticality::Inert));
+        assert!(levels.contains(&crate::types::Criticality::Notable));
+        assert!(levels.contains(&crate::types::Criticality::Suspicious));
+        assert!(levels.contains(&crate::types::Criticality::Hostile));
+    }
+
+    #[test]
+    fn test_error_if_with_spaces() {
+        let args = Args::try_parse_from([
+            "dissect",
+            "--error-if",
+            "suspicious, hostile , notable",
+            "file.bin",
+        ])
+        .unwrap();
+        let levels = args.error_if_levels().unwrap();
+        assert_eq!(levels.len(), 3);
+        assert!(levels.contains(&crate::types::Criticality::Suspicious));
+        assert!(levels.contains(&crate::types::Criticality::Hostile));
+        assert!(levels.contains(&crate::types::Criticality::Notable));
+    }
+
+    #[test]
+    fn test_error_if_none() {
+        let args = Args::try_parse_from(["dissect", "file.bin"]).unwrap();
+        assert!(args.error_if_levels().is_none());
+    }
+
+    #[test]
+    fn test_error_if_case_insensitive() {
+        let args = Args::try_parse_from([
+            "dissect",
+            "--error-if",
+            "SUSPICIOUS,Hostile,NoTabLe",
+            "file.bin",
+        ])
+        .unwrap();
+        let levels = args.error_if_levels().unwrap();
+        assert_eq!(levels.len(), 3);
+        assert!(levels.contains(&crate::types::Criticality::Suspicious));
+        assert!(levels.contains(&crate::types::Criticality::Hostile));
+        assert!(levels.contains(&crate::types::Criticality::Notable));
     }
 }

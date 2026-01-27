@@ -159,6 +159,12 @@ impl AnalysisReport {
         finding.trait_refs = trait_ids;
         self.add_finding(finding);
     }
+
+    /// Get the highest criticality level from findings in this report (excluding sub-reports)
+    /// Returns None if there are no findings
+    pub fn highest_criticality(&self) -> Option<Criticality> {
+        self.findings.iter().map(|f| f.crit).max()
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
