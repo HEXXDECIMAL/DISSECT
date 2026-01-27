@@ -3,7 +3,8 @@
 # ATT&CK: T1027
 
 defaults:
-  for: [python]
+  # String patterns work in both Python source and frozen executables (PyInstaller, Nuitka, etc.)
+  for: [python, elf, macho, pe]
   mbc: "B0032"
   attack: "T1027"
 
@@ -34,10 +35,12 @@ traits:
       type: string
       regex: '\\b(chr|ord)\('
 
+  # AST-based detection (Python source only)
   - id: concatenated-execution
     desc: "String concatenation in execution sink (Evasion)"
     crit: suspicious
     conf: 0.85
+    for: [python]
     if:
       type: ast_query
       language: python

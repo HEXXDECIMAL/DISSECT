@@ -33,15 +33,6 @@ traits:
       type: string
       exact: "\">&"
 
-  # === Shell interactive micro-trait ===
-  - id: sh-interactive
-    desc: sh -i interactive shell flag
-    crit: suspicious
-    conf: 0.8
-    if:
-      type: string
-      exact: "sh -i"
-
 composite_rules:
   # Perl reverse shell (migrated from YARA)
   - id: reverse-shell-perl
@@ -54,4 +45,4 @@ composite_rules:
       - id: perl-socket
       - id: perl-open
       - id: perl-redir
-      - id: sh-interactive
+      - id: exec/command/shell/interactive/sh-interactive

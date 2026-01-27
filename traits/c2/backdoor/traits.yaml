@@ -84,19 +84,6 @@ traits:
       type: string
       exact: "reverse"
 
-  # === Atomic: Perl Reverse Shell ===
-
-  - id: perl-sh-i
-    desc: Perl sh -i interactive shell
-    crit: suspicious
-    conf: 0.8
-    attack: "T1059.006"
-    platforms: [all]
-    for: [perl]
-    if:
-      type: string
-      exact: "sh -i"
-
   # === Atomic: Ruby Reverse Shell ===
 
   - id: ruby-tcpsocket-spawn
@@ -147,7 +134,7 @@ composite_rules:
       - id: comm/socket/perl/socket-call
       - id: comm/socket/perl/open-call
       - id: comm/socket/perl/fd-redirect
-      - id: perl-sh-i
+      - id: exec/command/shell/interactive/sh-interactive
 
   - id: mkfifo-netcat-shell
     desc: Reverse shell via mkfifo and netcat

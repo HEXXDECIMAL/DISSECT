@@ -51,31 +51,6 @@ traits:
       type: string
       regex: "creationflags\\s*="
 
-  # === subprocess call atomic indicators ===
-  - id: subprocess-popen
-    desc: subprocess.Popen call
-    conf: 0.6
-    crit: inert
-    if:
-      type: string
-      exact: "subprocess.Popen("
-
-  - id: subprocess-run
-    desc: subprocess.run call
-    conf: 0.6
-    crit: inert
-    if:
-      type: string
-      exact: "subprocess.run("
-
-  - id: subprocess-call-fn
-    desc: subprocess.call call
-    conf: 0.6
-    crit: inert
-    if:
-      type: string
-      exact: "subprocess.call("
-
   # Combined creation flags with bitwise OR
   - id: combined-creationflags
     desc: "Multiple process creation flags combined with bitwise OR"
@@ -93,9 +68,9 @@ composite_rules:
     crit: notable
     requires_count: 1
     any:
-      - id: subprocess-popen
-      - id: subprocess-run
-      - id: subprocess-call-fn
+      - id: exec/command/subprocess/python/popen
+      - id: exec/command/subprocess/python/run-call
+      - id: exec/command/subprocess/python/call
 
   # hidden window flag composite
   - id: hidden-window-flag

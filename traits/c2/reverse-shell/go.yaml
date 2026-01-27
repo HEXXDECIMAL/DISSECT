@@ -74,22 +74,6 @@ traits:
       exact: "StderrPipe"
 
   # === Shell path micro-traits ===
-  - id: bin-sh
-    desc: /bin/sh shell reference
-    crit: notable
-    conf: 0.5
-    if:
-      type: string
-      exact: "/bin/sh"
-
-  - id: bin-bash
-    desc: /bin/bash shell reference
-    crit: notable
-    conf: 0.5
-    if:
-      type: string
-      exact: "/bin/bash"
-
   - id: cmd-exe
     desc: cmd.exe shell reference
     crit: notable
@@ -138,8 +122,8 @@ composite_rules:
     conf: 0.5
     count: 1
     any:
-      - id: bin-sh
-      - id: bin-bash
+      - id: exec/command/shell/generic/bin-sh
+      - id: exec/command/shell/generic/bin-bash
       - id: cmd-exe
 
   # Go reverse shell (migrated from YARA)

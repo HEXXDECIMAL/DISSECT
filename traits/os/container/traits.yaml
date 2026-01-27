@@ -1,0 +1,14 @@
+# Container Detection - Generic
+# Generic container detection paths
+
+defaults:
+  for: [python, shell, javascript]
+
+traits:
+  - id: cgroup-check
+    desc: Process cgroup check
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: /proc/1/cgroup

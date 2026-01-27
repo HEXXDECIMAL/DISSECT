@@ -173,43 +173,6 @@ traits:
             any of ($walk*) and any of ($delete*)
         }
 
-  # === HTTP callback atomic indicators ===
-  - id: axios-ref
-    description: axios library reference
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript]
-    condition:
-      type: string
-      exact: "axios"
-
-  - id: fetch-call
-    description: fetch() call
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript]
-    condition:
-      type: string
-      regex: "fetch\\("
-
-  - id: https-request
-    description: https.request call
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript]
-    condition:
-      type: string
-      exact: "https.request"
-
-  - id: http-request
-    description: http.request call
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript]
-    condition:
-      type: string
-      exact: "http.request"
-
 composite_rules:
   # Target IDE config composite
   - id: target-vscode
@@ -230,10 +193,10 @@ composite_rules:
     for: [javascript, typescript]
     requires_count: 1
     any:
-      - id: axios-ref
-      - id: fetch-call
-      - id: https-request
-      - id: http-request
+      - id: comm/http/request/javascript/axios
+      - id: comm/http/request/javascript/fetch-call
+      - id: comm/http/request/javascript/https-request
+      - id: comm/http/request/javascript/http-request
 
   # Protestware pattern (env-conditional destruction)
   - id: protestware

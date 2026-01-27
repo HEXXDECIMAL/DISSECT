@@ -12,15 +12,6 @@ traits:
       type: string
       exact: "botkill"
 
-  - id: bin-bash-path
-    description: /bin/bash shell path
-    crit: inert
-    conf: 0.3
-    for: [elf]
-    if:
-      type: string
-      exact: "/bin/bash"
-
   - id: cpu-sysfs-path
     description: /sys/devices/system/cpu path (CPU enumeration)
     crit: inert
@@ -97,7 +88,7 @@ composite_rules:
     count: 3
     any:
       - id: botkill-string
-      - id: bin-bash-path
+      - id: exec/command/shell/generic/bin-bash
       - id: cpu-sysfs-path
       - id: udp-flood-string
       - id: tcpraw-flood-string

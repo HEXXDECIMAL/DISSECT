@@ -1,0 +1,77 @@
+# ELF Sections
+# ELF section name references (inert markers)
+
+defaults:
+  for: [elf]
+
+traits:
+  # === Constructor/Destructor Sections ===
+  - id: init-array
+    desc: .init_array section reference
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      exact: ".init_array"
+
+  - id: fini-array
+    desc: .fini_array section reference
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      exact: ".fini_array"
+
+  - id: ctors
+    desc: .ctors section reference
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      exact: ".ctors"
+
+  - id: dtors
+    desc: .dtors section reference
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      exact: ".dtors"
+
+  - id: preinit-array
+    desc: .preinit_array section reference
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      exact: ".preinit_array"
+
+  # === Symbol Versioning ===
+  - id: gnu-version
+    desc: .gnu.version section reference
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      exact: ".gnu.version"
+
+  - id: gnu-hash
+    desc: .gnu.hash section reference
+    crit: inert
+    conf: 0.3
+    if:
+      type: string
+      exact: ".gnu.hash"
+
+composite_rules:
+  - id: constructor-destructor
+    desc: ELF constructor/destructor functions
+    crit: notable
+    conf: 0.5
+    count: 2
+    any:
+      - id: init-array
+      - id: fini-array
+      - id: ctors
+      - id: dtors
+      - id: preinit-array

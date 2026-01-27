@@ -34,15 +34,6 @@ traits:
       type: string
       exact: "IO.popen"
 
-  - id: sh-interactive
-    desc: /bin/sh -i interactive shell
-    crit: suspicious
-    conf: 0.8
-    attack: "T1059"
-    if:
-      type: string
-      exact: "/bin/sh -i"
-
 composite_rules:
   # Spawn with TCPSocket pattern
   - id: spawn-tcpsocket
@@ -72,7 +63,7 @@ composite_rules:
     attack: "T1059"
     all:
       - id: tcpsocket-ref
-      - id: sh-interactive
+      - id: exec/command/shell/interactive/bin-sh-interactive
 
   # Ruby reverse shell (migrated from YARA)
   - id: reverse-shell-ruby

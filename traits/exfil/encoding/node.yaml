@@ -71,57 +71,7 @@ traits:
       type: string
       regex: 'new URLSearchParams\('
 
-  # HTTP request patterns for exfiltration detection (atomic)
-  - id: node-http-req
-    description: http.request method
-    crit: inert
-    conf: 0.5
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: "http.request"
-
-  - id: node-https-req
-    description: https.request method
-    crit: inert
-    conf: 0.5
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: "https.request"
-
-  - id: node-axios
-    description: axios library
-    crit: inert
-    conf: 0.5
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: "axios"
-
-  - id: node-fetch-call
-    description: fetch() call
-    crit: inert
-    conf: 0.5
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: "fetch("
-
 composite_rules:
-  # HTTP request composite
-  - id: node-http-request
-    description: HTTP request capable of sending data
-    crit: notable
-    conf: 0.75
-    for: [javascript, typescript]
-    requires_count: 1
-    any:
-      - id: node-http-req
-      - id: node-https-req
-      - id: node-axios
-      - id: node-fetch-call
-
   # Encode then exfil pattern
   - id: node-encode-exfil
     description: Encodes data then sends via HTTP (exfiltration)
@@ -130,4 +80,4 @@ composite_rules:
     attack: "T1041"
     requires_all:
       - id: node-base64-encode
-      - id: comm/http/request/node-http-request
+      - id: comm/http/request/javascript/http-client-usage

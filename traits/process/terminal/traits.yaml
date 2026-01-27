@@ -1,0 +1,15 @@
+# Terminal Detection
+# System calls for terminal/TTY detection
+
+defaults:
+  for: [elf, macho, so, dylib, c]
+  platforms: [all]
+
+traits:
+  - id: isatty
+    desc: Detect if running in terminal
+    crit: notable
+    conf: 0.5
+    if:
+      type: symbol
+      pattern: isatty

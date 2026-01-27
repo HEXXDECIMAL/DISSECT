@@ -39,7 +39,7 @@ traits:
     crit: notable
     conf: 0.5
     platforms: [all]
-    for: [elf, macho]
+    for: [elf, macho, pe]
     if:
       type: string
       exact: "net.(*conn).Write"
@@ -49,7 +49,7 @@ traits:
     crit: notable
     conf: 0.5
     platforms: [all]
-    for: [elf, macho]
+    for: [elf, macho, pe]
     if:
       type: string
       exact: "dialTCP"

@@ -1,5 +1,9 @@
 # Go-specific Wiper/Destruction Patterns
-# Detects destructive patterns in Go source code
+# Detects destructive patterns in Go source code and compiled binaries
+
+defaults:
+  for: [go, elf, macho, pe]
+  attack: "T1485"
 
 traits:
   # Overwrite and remove pattern (Secure Wipe)
@@ -7,8 +11,6 @@ traits:
     description: Opens file for read-write and then removes it (secure wipe pattern)
     crit: notable
     conf: 0.8
-    attack: "T1485"
-    for: [go]
     condition:
       type: yara
       source: |
@@ -26,7 +28,6 @@ traits:
     description: References to secure wiping standards (Gutmann, DoD 5220.22-M, etc.)
     crit: notable
     conf: 0.9
-    attack: "T1485"
     condition:
       type: yara
       source: |
@@ -45,7 +46,6 @@ traits:
     description: Uses Gutmann secure deletion overwrite patterns
     crit: notable
     conf: 0.95
-    attack: "T1485"
     condition:
       type: yara
       source: |
@@ -73,8 +73,6 @@ traits:
     description: Recursively walks filesystem and deletes/overwrites files
     crit: suspicious
     conf: 0.85
-    attack: "T1485"
-    for: [go]
     condition:
       type: yara
       source: |
@@ -94,9 +92,7 @@ composite_rules:
     description: Highly confident secure wiper (recursive overwrite and delete)
     crit: suspicious
     conf: 0.99
-    attack: "T1485"
     mbc: "B0031"
-    for: [go]
     requires_count: 2
     any:
       - id: impact/wiper/go/secure-wipe-pattern

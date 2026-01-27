@@ -36,15 +36,6 @@ traits:
       type: string
       regex: '\bmkfifo\b'
 
-  - id: sh-interactive
-    desc: Interactive shell invocation
-    crit: inert
-    conf: 0.5
-    for: [shell, packagejson]
-    if:
-      type: string
-      exact: "sh -i"
-
   - id: nc-pipe
     desc: Netcat with pipe
     crit: inert
@@ -135,7 +126,7 @@ composite_rules:
     for: [shell, packagejson]
     all:
       - id: mkfifo-cmd
-      - id: sh-interactive
+      - id: exec/command/shell/interactive/sh-interactive
       - id: nc-pipe
 
   # Netcat reverse shell variants

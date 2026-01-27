@@ -19,30 +19,6 @@ traits:
       type: string
       exact: "os.chmod("
 
-  - id: python-subprocess-popen
-    desc: "Python subprocess.Popen call"
-    crit: inert
-    conf: 0.7
-    if:
-      type: string
-      exact: "subprocess.Popen("
-
-  - id: python-subprocess-run
-    desc: "Python subprocess.run call"
-    crit: inert
-    conf: 0.7
-    if:
-      type: string
-      exact: "subprocess.run("
-
-  - id: python-subprocess-call
-    desc: "Python subprocess.call call"
-    crit: inert
-    conf: 0.7
-    if:
-      type: string
-      exact: "subprocess.call("
-
 composite_rules:
   # Python exec/chmod composite
   - id: python-exec-chmod
@@ -52,9 +28,9 @@ composite_rules:
     requires_count: 1
     any:
       - id: python-os-chmod
-      - id: python-subprocess-popen
-      - id: python-subprocess-run
-      - id: python-subprocess-call
+      - id: exec/command/subprocess/python/popen
+      - id: exec/command/subprocess/python/run-call
+      - id: exec/command/subprocess/python/call
 
   - id: execute
     desc: "Download from GitHub blob API and execute"

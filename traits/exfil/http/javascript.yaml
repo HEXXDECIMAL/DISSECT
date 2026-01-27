@@ -2,14 +2,17 @@
 # Detects HTTP POST requests that may be used for data exfiltration
 # ATT&CK: T1041 (Exfiltration Over C2 Channel)
 
+defaults:
+  # String patterns work in JavaScript source, TypeScript, and packaged/embedded JS (Electron, pkg, nexe)
+  for: [javascript, typescript, elf, macho, pe]
+  attack: "T1041"
+
 traits:
   # === Axios POST atomic indicators ===
   - id: axios-dot-post
     description: axios.post method call
     crit: notable
     conf: 0.7
-    attack: "T1041"
-    for: [javascript]
     if:
       type: string
       exact: "axios.post"
@@ -18,8 +21,6 @@ traits:
     description: axios bracket post access
     crit: notable
     conf: 0.7
-    attack: "T1041"
-    for: [javascript]
     if:
       type: string
       regex: "axios\\[.{0,30}post"
@@ -29,8 +30,6 @@ traits:
     description: fetch with POST method
     crit: notable
     conf: 0.7
-    attack: "T1041"
-    for: [javascript]
     if:
       type: string
       regex: "fetch\\(.{0,50}POST"
@@ -39,8 +38,6 @@ traits:
     description: method POST string
     crit: notable
     conf: 0.7
-    attack: "T1041"
-    for: [javascript]
     if:
       type: string
       regex: "method:\\s*['\"]POST"
@@ -50,8 +47,6 @@ traits:
     description: request.post method call
     crit: notable
     conf: 0.7
-    attack: "T1041"
-    for: [javascript]
     if:
       type: string
       exact: "request.post"
@@ -60,32 +55,9 @@ traits:
     description: request with method POST
     crit: notable
     conf: 0.7
-    attack: "T1041"
-    for: [javascript]
     if:
       type: string
       regex: "request\\(.{0,50}method.{0,20}POST"
-
-  # === HTTP request atomic indicators ===
-  - id: http-dot-request
-    description: http.request method
-    crit: inert
-    conf: 0.6
-    attack: "T1041"
-    for: [javascript]
-    if:
-      type: string
-      exact: "http.request"
-
-  - id: https-dot-request
-    description: https.request method
-    crit: inert
-    conf: 0.6
-    attack: "T1041"
-    for: [javascript]
-    if:
-      type: string
-      exact: "https.request"
 
 composite_rules:
   # Axios POST composite
@@ -93,8 +65,6 @@ composite_rules:
     description: axios POST request (potential exfiltration)
     crit: suspicious
     conf: 0.8
-    attack: "T1041"
-    for: [javascript]
     requires_count: 1
     any:
       - id: axios-dot-post
@@ -105,8 +75,6 @@ composite_rules:
     description: fetch POST request (potential exfiltration)
     crit: suspicious
     conf: 0.8
-    attack: "T1041"
-    for: [javascript]
     requires_count: 1
     any:
       - id: fetch-with-post
@@ -117,8 +85,6 @@ composite_rules:
     description: request module POST (potential exfiltration)
     crit: suspicious
     conf: 0.8
-    attack: "T1041"
-    for: [javascript]
     requires_count: 1
     any:
       - id: request-dot-post
@@ -129,9 +95,7 @@ composite_rules:
     description: Node.js http.request (potential exfiltration)
     crit: notable
     conf: 0.7
-    attack: "T1041"
-    for: [javascript]
     requires_count: 1
     any:
-      - id: http-dot-request
-      - id: https-dot-request
+      - id: comm/http/request/javascript/http-request
+      - id: comm/http/request/javascript/https-request

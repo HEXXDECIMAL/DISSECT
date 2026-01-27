@@ -1,0 +1,22 @@
+# Kubernetes Container Detection
+# Kubernetes-specific paths and environment variables
+
+defaults:
+  for: [python, shell, javascript]
+
+traits:
+  - id: service-env
+    desc: Kubernetes service environment variable
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: KUBERNETES_SERVICE
+
+  - id: secrets-path
+    desc: Kubernetes secrets path
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      exact: /var/run/secrets/kubernetes

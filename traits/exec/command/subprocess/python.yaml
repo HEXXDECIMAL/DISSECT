@@ -1,14 +1,73 @@
 # Python subprocess execution
 # ATT&CK: T1059.006 (Python)
 
+defaults:
+  for: [python]
+  attack: "T1059.006"
+
 traits:
-  - id: run
+  # === Import patterns ===
+  - id: import
+    desc: subprocess module import
+    crit: notable
+    conf: 0.7
+    mbc: "E1059.006"
+    if:
+      type: string
+      regex: "import subprocess|from subprocess"
+
+  # === String-based method detection ===
+  - id: popen
+    desc: subprocess.Popen call
+    crit: notable
+    conf: 0.75
+    mbc: "E1059.006"
+    if:
+      type: string
+      exact: "subprocess.Popen("
+
+  - id: run-call
+    desc: subprocess.run call
+    crit: notable
+    conf: 0.75
+    mbc: "E1059.006"
+    if:
+      type: string
+      exact: "subprocess.run("
+
+  - id: call
+    desc: subprocess.call call
+    crit: notable
+    conf: 0.75
+    mbc: "E1059.006"
+    if:
+      type: string
+      exact: "subprocess.call("
+
+  - id: check-output
+    desc: subprocess.check_output call
+    crit: notable
+    conf: 0.75
+    mbc: "E1059.006"
+    if:
+      type: string
+      exact: "subprocess.check_output("
+
+  - id: check-call
+    desc: subprocess.check_call call
+    crit: notable
+    conf: 0.75
+    mbc: "E1059.006"
+    if:
+      type: string
+      exact: "subprocess.check_call("
+
+  # === AST-based detection (more precise) ===
+  - id: run-ast
     desc: "Executes external system command"
     crit: notable
     conf: 0.85
     mbc: "C0017"
-    attack: "T1059.006"
-    for: [python]
     if:
       type: ast_query
       language: python
@@ -19,3 +78,17 @@ traits:
           arguments: (argument_list
             (string) @cmd))
         (#match? @meth "^(Popen|run|call|check_output|system|spawn)$")
+
+composite_rules:
+  # All subprocess methods
+  - id: methods
+    desc: subprocess module methods
+    crit: notable
+    conf: 0.75
+    count: 1
+    any:
+      - id: popen
+      - id: run-call
+      - id: call
+      - id: check-output
+      - id: check-call

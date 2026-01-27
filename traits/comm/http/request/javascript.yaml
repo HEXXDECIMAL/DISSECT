@@ -8,6 +8,15 @@ defaults:
 
 traits:
   # === Import/require patterns ===
+  - id: axios
+    desc: axios library reference
+    crit: inert
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "axios"
+
   - id: axios-import-default
     desc: axios default import
     crit: inert
@@ -126,7 +135,44 @@ traits:
       node_type: call_expression
       pattern: "axios"
 
-  # === Other HTTP clients ===
+  # === Node.js built-in modules ===
+  - id: http-request
+    desc: Node.js http.request
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "http.request"
+
+  - id: https-request
+    desc: Node.js https.request
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "https.request"
+
+  - id: http-get
+    desc: Node.js http.get
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "http.get"
+
+  - id: https-get
+    desc: Node.js https.get
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "https.get"
+
+  # === Browser/Universal APIs ===
   - id: fetch-call
     desc: fetch() API call
     crit: inert
@@ -136,6 +182,15 @@ traits:
       type: ast_pattern
       node_type: call_expression
       pattern: "fetch"
+
+  - id: fetch-string
+    desc: fetch( string reference
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: string
+      exact: "fetch("
 
   - id: xmlhttprequest-new
     desc: new XMLHttpRequest()
@@ -225,6 +280,17 @@ composite_rules:
       - {id: axios-import-or-require}
       - {id: axios-method-calls}
 
+  - id: node-http
+    desc: Node.js built-in http/https module usage
+    crit: inert
+    conf: 0.7
+    for: [javascript, typescript]
+    any:
+      - {id: http-request}
+      - {id: https-request}
+      - {id: http-get}
+      - {id: https-get}
+
   - id: http-client-usage
     desc: HTTP client library usage
     crit: inert
@@ -232,7 +298,9 @@ composite_rules:
     for: [javascript, typescript]
     any:
       - {id: request-axios}
+      - {id: node-http}
       - {id: fetch-call}
+      - {id: fetch-string}
       - {id: xmlhttprequest-new}
       - {id: node-fetch-import}
       - {id: got-import}

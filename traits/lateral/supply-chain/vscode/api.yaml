@@ -153,52 +153,6 @@ traits:
       node_type: call_expression
       pattern: "clipboard.readText"
 
-  # === HTTP atomic indicators ===
-  - id: https-request
-    description: https.request reference
-    crit: inert
-    confidence: 0.6
-    file_types: [javascript, typescript]
-    condition:
-      type: string
-      exact: "https.request"
-
-  - id: http-request
-    description: http.request reference
-    crit: inert
-    confidence: 0.6
-    file_types: [javascript, typescript]
-    condition:
-      type: string
-      exact: "http.request"
-
-  - id: axios-lib
-    description: axios library reference
-    crit: inert
-    confidence: 0.6
-    file_types: [javascript, typescript]
-    condition:
-      type: string
-      exact: "axios"
-
-  - id: node-fetch-lib
-    description: node-fetch library reference
-    crit: inert
-    confidence: 0.6
-    file_types: [javascript, typescript]
-    condition:
-      type: string
-      exact: "node-fetch"
-
-  - id: fetch-call
-    description: fetch function call
-    crit: inert
-    confidence: 0.6
-    file_types: [javascript, typescript]
-    condition:
-      type: string
-      exact: "fetch("
-
   - id: telemetry-event
     description: VSCode telemetry event sending
     crit: notable
@@ -231,11 +185,11 @@ composite_rules:
     file_types: [javascript, typescript]
     requires_count: 1
     any:
-      - id: https-request
-      - id: http-request
-      - id: axios-lib
-      - id: node-fetch-lib
-      - id: fetch-call
+      - id: comm/http/request/javascript/https-request
+      - id: comm/http/request/javascript/http-request
+      - id: comm/http/request/javascript/axios
+      - id: comm/http/request/javascript/node-fetch-import
+      - id: comm/http/request/javascript/fetch-string
 
   # Suspicious VSCode Extension Behaviors
   # IMPORTANT: Requires VSCode markers to avoid FPs on regular npm packages

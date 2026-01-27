@@ -1,0 +1,47 @@
+# System Information
+# Commands and paths for retrieving hardware/system information
+
+defaults:
+  for: [python, shell]
+
+traits:
+  # === DMI/SMBIOS ===
+  - id: dmidecode
+    desc: dmidecode command for hardware info
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: dmidecode
+
+  - id: dmi-sysfs
+    desc: DMI sysfs path access
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: /sys/class/dmi
+
+  - id: dmi-product-name
+    desc: DMI product_name field
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: product_name
+
+  - id: dmi-sys-vendor
+    desc: DMI sys_vendor field
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: sys_vendor
+
+  - id: dmi-bios-vendor
+    desc: DMI bios_vendor field
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: bios_vendor

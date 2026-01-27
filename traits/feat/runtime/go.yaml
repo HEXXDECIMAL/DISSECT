@@ -1,0 +1,32 @@
+# Go Runtime
+# Go runtime function references (inert markers)
+
+defaults:
+  for: [elf, macho, pe]
+
+traits:
+  - id: goexit
+    desc: Go runtime.goexit reference
+    crit: inert
+    conf: 0.3
+    if:
+      type: string
+      exact: "runtime.goexit"
+
+  - id: main
+    desc: Go runtime.main reference
+    crit: inert
+    conf: 0.3
+    if:
+      type: string
+      exact: "runtime.main"
+
+composite_rules:
+  - id: go-runtime-marker
+    desc: Go runtime markers
+    crit: inert
+    conf: 0.5
+    count: 1
+    any:
+      - id: goexit
+      - id: main

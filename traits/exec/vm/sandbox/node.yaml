@@ -68,43 +68,6 @@ traits:
       type: string
       regex: "new vm\\.Script|vm\\.Script\\("
 
-  # HTTP patterns for remote code loading
-  - id: https-request-string
-    desc: https.request method reference
-    crit: inert
-    conf: 0.5
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: "https.request"
-
-  - id: http-request-string
-    desc: http.request method reference
-    crit: inert
-    conf: 0.5
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: "http.request"
-
-  - id: fetch-call-string
-    desc: fetch function call
-    crit: inert
-    conf: 0.5
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: "fetch("
-
-  - id: axios-string
-    desc: axios library reference
-    crit: inert
-    conf: 0.5
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: "axios"
-
   # Sandbox Escape Patterns
   - id: constructor-escape
     desc: VM sandbox escape via constructor technique
@@ -155,42 +118,6 @@ traits:
       exact: "Function("
 
   # HTTP method patterns
-  - id: axios-get-string
-    desc: axios.get method call
-    crit: inert
-    conf: 0.5
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: "axios.get"
-
-  - id: axios-direct-call
-    desc: axios direct call
-    crit: inert
-    conf: 0.5
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: "axios("
-
-  - id: https-get-string
-    desc: https.get method call
-    crit: inert
-    conf: 0.5
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: "https.get"
-
-  - id: http-get-string
-    desc: http.get method call
-    crit: inert
-    conf: 0.5
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: "http.get"
-
   - id: request-method-call
     desc: .request method call
     crit: inert
@@ -292,10 +219,10 @@ composite_rules:
     conf: 0.6
     for: [javascript, typescript]
     any:
-      - id: https-request-string
-      - id: http-request-string
-      - id: fetch-call-string
-      - id: axios-string
+      - id: comm/http/request/javascript/https-request
+      - id: comm/http/request/javascript/http-request
+      - id: comm/http/request/javascript/fetch-string
+      - id: comm/http/request/javascript/axios
 
   # Remote Code Execution via VM
   - id: vm-with-http
@@ -327,11 +254,11 @@ composite_rules:
     conf: 0.6
     for: [javascript, typescript]
     any:
-      - id: axios-get-string
-      - id: axios-direct-call
-      - id: fetch-call-string
-      - id: https-get-string
-      - id: http-get-string
+      - id: comm/http/request/javascript/axios-get-call
+      - id: comm/http/request/javascript/axios-direct-call
+      - id: comm/http/request/javascript/fetch-string
+      - id: comm/http/request/javascript/https-get
+      - id: comm/http/request/javascript/http-get
       - id: request-method-call
 
   # Remote Code Loading via Function Constructor

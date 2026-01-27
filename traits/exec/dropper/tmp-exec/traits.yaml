@@ -31,31 +31,6 @@ traits:
       type: string
       regex: "os\\.chmod\\("
 
-  # === subprocess execution (atomic) ===
-  - id: subprocess-popen
-    desc: Python subprocess.Popen call
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      exact: "subprocess.Popen("
-
-  - id: subprocess-run
-    desc: Python subprocess.run call
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      exact: "subprocess.run("
-
-  - id: subprocess-call
-    desc: Python subprocess.call call
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      exact: "subprocess.call("
-
   - id: os-remove
     desc: Python os.remove call to delete files
     crit: notable
@@ -72,9 +47,9 @@ composite_rules:
     conf: 0.8
     requires_count: 1
     any:
-      - id: subprocess-popen
-      - id: subprocess-run
-      - id: subprocess-call
+      - id: exec/command/subprocess/python/popen
+      - id: exec/command/subprocess/python/run-call
+      - id: exec/command/subprocess/python/call
 
   - id: python
     desc: Download to /tmp, chmod, execute (supply chain attack)

@@ -109,43 +109,6 @@ traits:
       type: string
       exact: "aes256gcm"
 
-  # === Network request micro-traits ===
-  - id: https-request
-    desc: Node.js https.request call
-    crit: inert
-    conf: 0.8
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: "https.request"
-
-  - id: http-request
-    desc: Node.js http.request call
-    crit: inert
-    conf: 0.8
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: "http.request"
-
-  - id: fetch-call
-    desc: fetch() API call
-    crit: inert
-    conf: 0.8
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "\\bfetch\\s*\\("
-
-  - id: axios-import
-    desc: axios HTTP library
-    crit: inert
-    conf: 0.8
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: "axios"
-
   - id: dns-resolve-txt
     desc: DNS TXT record resolution
     crit: notable
@@ -311,10 +274,10 @@ composite_rules:
     for: [javascript, typescript]
     count: 1
     any:
-      - id: https-request
-      - id: http-request
-      - id: fetch-call
-      - id: axios-import
+      - id: comm/http/request/javascript/https-request
+      - id: comm/http/request/javascript/http-request
+      - id: comm/http/request/javascript/fetch-call
+      - id: comm/http/request/javascript/axios
       - id: dns-resolve-txt
 
   # Compression library composite

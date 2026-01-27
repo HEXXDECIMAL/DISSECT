@@ -146,25 +146,6 @@ traits:
       type: string
       exact: "WebSocket"
 
-  # === Shell path micro-traits ===
-  - id: bin-sh
-    desc: /bin/sh shell path
-    crit: notable
-    conf: 0.5
-    for: [python, javascript, typescript, shell]
-    if:
-      type: string
-      exact: "/bin/sh"
-
-  - id: bin-bash
-    desc: /bin/bash shell path
-    crit: notable
-    conf: 0.5
-    for: [python, javascript, typescript, shell]
-    if:
-      type: string
-      exact: "/bin/bash"
-
   # === STDIO piping micro-traits ===
   - id: stdin-string
     desc: stdin string reference
@@ -341,8 +322,8 @@ composite_rules:
     conf: 0.5
     count: 1
     any:
-      - id: bin-sh
-      - id: bin-bash
+      - id: exec/command/shell/generic/bin-sh
+      - id: exec/command/shell/generic/bin-bash
 
   # Python PTY shell (migrated from YARA)
   - id: python-pty

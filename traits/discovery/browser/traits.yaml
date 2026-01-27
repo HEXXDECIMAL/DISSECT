@@ -85,16 +85,6 @@ traits:
       type: string
       exact: "Cookies"
 
-  - id: login-data-file
-    desc: Login Data file reference
-    crit: inert
-    conf: 0.6
-    attack: "T1217"
-    for: [all]
-    if:
-      type: string
-      exact: "Login Data"
-
   # === Firefox-specific files ===
   - id: places-sqlite
     desc: Firefox places.sqlite
@@ -105,16 +95,6 @@ traits:
     if:
       type: string
       exact: "places.sqlite"
-
-  - id: cookies-sqlite
-    desc: Firefox cookies.sqlite
-    crit: inert
-    conf: 0.7
-    attack: "T1217"
-    for: [all]
-    if:
-      type: string
-      exact: "cookies.sqlite"
 
   - id: logins-json
     desc: Firefox logins.json
@@ -259,7 +239,7 @@ composite_rules:
     any:
       - id: history-file
       - id: cookies-file
-      - id: login-data-file
+      - id: cred/browser/chromium/login-data
       - id: places-sqlite
 
   # Chrome history composite
@@ -274,7 +254,7 @@ composite_rules:
     any:
       - id: history-file
       - id: cookies-file
-      - id: login-data-file
+      - id: cred/browser/chromium/login-data
 
   # Firefox history composite
   - id: firefox-history
@@ -286,7 +266,7 @@ composite_rules:
     requires_count: 1
     any:
       - id: places-sqlite
-      - id: cookies-sqlite
+      - id: cred/browser/firefox/cookies-sqlite
       - id: logins-json
 
   # Safari history composite

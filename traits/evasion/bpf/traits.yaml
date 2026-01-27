@@ -114,15 +114,6 @@ traits:
       type: symbol
       pattern: "recvfrom"
 
-  - id: bin-sh
-    desc: /bin/sh shell path
-    crit: notable
-    conf: 0.5
-    for: [elf, c]
-    if:
-      type: string
-      exact: "/bin/sh"
-
   - id: dup2-fn
     desc: dup2 file descriptor duplication
     crit: notable
@@ -298,7 +289,7 @@ composite_rules:
     for: [elf, c]
     count: 1
     any:
-      - id: bin-sh
+      - id: exec/command/shell/generic/bin-sh
       - id: dup2-fn
       - id: execve-fn
 

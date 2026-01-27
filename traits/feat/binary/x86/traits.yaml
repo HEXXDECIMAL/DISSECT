@@ -1,0 +1,49 @@
+# x86 Binary Features
+# x86/x64 instruction patterns and opcodes
+
+defaults:
+  for: [elf, pe, macho]
+
+traits:
+  # === Indirect Call Instructions ===
+  - id: indirect-call-reg
+    desc: Indirect call via register (call reg)
+    crit: inert
+    conf: 0.3
+    if:
+      type: hex
+      pattern: "FF D?"
+
+  - id: indirect-call-mem
+    desc: Indirect call via memory (call [reg])
+    crit: inert
+    conf: 0.3
+    if:
+      type: hex
+      pattern: "FF 1?"
+
+  # === CPU Feature Detection ===
+  - id: cpuid-instr
+    desc: CPUID instruction bytes
+    crit: inert
+    conf: 0.3
+    if:
+      type: hex
+      pattern: "0F A2"
+
+  - id: xgetbv-instr
+    desc: XGETBV instruction bytes
+    crit: inert
+    conf: 0.3
+    if:
+      type: hex
+      pattern: "0F 01 D0"
+
+composite_rules:
+  - id: cpuid-fingerprinting
+    desc: CPUID feature detection
+    crit: inert
+    conf: 0.4
+    all:
+      - id: cpuid-instr
+      - id: xgetbv-instr

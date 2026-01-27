@@ -11,7 +11,7 @@ traits:
     desc: Go socksUsernamePassword string
     crit: notable
     conf: 0.7
-    for: [go, elf, macho]
+    for: [go, elf, macho, pe]
     condition:
       type: string
       exact: "socksUsernamePassword"
@@ -20,7 +20,7 @@ traits:
     desc: Go socksNewDialer string
     crit: notable
     conf: 0.7
-    for: [go, elf, macho]
+    for: [go, elf, macho, pe]
     condition:
       type: string
       exact: "socksNewDialer"
@@ -29,7 +29,7 @@ traits:
     desc: Go socksCommand string
     crit: notable
     conf: 0.7
-    for: [go, elf, macho]
+    for: [go, elf, macho, pe]
     condition:
       type: string
       exact: "socksCommand"
@@ -38,7 +38,7 @@ traits:
     desc: Go socksAddr string
     crit: notable
     conf: 0.7
-    for: [go, elf, macho]
+    for: [go, elf, macho, pe]
     condition:
       type: string
       exact: "socksAddr"
@@ -48,7 +48,7 @@ traits:
     desc: Go PTY StartWithSize function
     crit: notable
     conf: 0.75
-    for: [go, elf, macho]
+    for: [go, elf, macho, pe]
     condition:
       type: string
       exact: "StartWithSize"
@@ -57,7 +57,7 @@ traits:
     desc: Go PTY Setsize function
     crit: notable
     conf: 0.7
-    for: [go, elf, macho]
+    for: [go, elf, macho, pe]
     condition:
       type: string
       exact: "Setsize"
@@ -66,7 +66,7 @@ traits:
     desc: Go ptmx device reference
     crit: notable
     conf: 0.7
-    for: [go, elf, macho]
+    for: [go, elf, macho, pe]
     condition:
       type: string
       exact: "ptmx"

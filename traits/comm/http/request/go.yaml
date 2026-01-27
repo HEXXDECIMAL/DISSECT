@@ -2,13 +2,16 @@
 # MBC: C0002 (HTTP Communication)
 # ATT&CK: T1071.001
 
+defaults:
+  mbc: "C0002"
+  attack: "T1071.001"
+
 traits:
+  # AST-based detection (Go source only)
   - id: go-http-newrequest
     desc: Creates a new HTTP request in Go
     crit: notable
     conf: 0.9
-    mbc: "C0002"
-    attack: "T1071.001"
     for: [go]
     if:
       type: ast_pattern
@@ -19,8 +22,6 @@ traits:
     desc: Executes an HTTP request in Go
     crit: notable
     conf: 0.9
-    mbc: "C0002"
-    attack: "T1071.001"
     for: [go]
     if:
       type: ast_pattern
@@ -31,10 +32,37 @@ traits:
     desc: Sets Authorization header in Go
     crit: suspicious
     conf: 0.95
-    attack: "T1071.001"
     for: [go]
     if:
       type: ast_pattern
       node_type: call_expression
       pattern: "Header.Set(\"Authorization\""
+
+  # String-based detection (compiled binaries)
+  - id: go-http-newrequest-string
+    desc: http.NewRequest string in binary
+    crit: notable
+    conf: 0.7
+    for: [elf, macho, pe]
+    if:
+      type: string
+      exact: "http.NewRequest"
+
+  - id: go-http-client-do-string
+    desc: net/http.(*Client).Do string in binary
+    crit: notable
+    conf: 0.7
+    for: [elf, macho, pe]
+    if:
+      type: string
+      exact: "net/http.(*Client).Do"
+
+  - id: go-http-header-set-string
+    desc: Header.Set string in binary
+    crit: notable
+    conf: 0.6
+    for: [elf, macho, pe]
+    if:
+      type: string
+      exact: "Header.Set"
 

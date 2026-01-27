@@ -20,7 +20,7 @@ traits:
     crit: suspicious
     conf: 0.85
     attack: "T1555.003"
-    for: [go, elf]
+    for: [go, elf, macho, pe]
     if:
       type: string
       exact: "browserutils/kooky"
@@ -139,24 +139,6 @@ traits:
       word: "Safari"
 
   # === Browser Data Files ===
-  - id: login-data-file
-    desc: Login Data credential database
-    crit: inert
-    conf: 0.7
-    for: [all]
-    if:
-      type: string
-      exact: "Login Data"
-
-  - id: cookies-sqlite-file
-    desc: cookies.sqlite Firefox cookie database
-    crit: inert
-    conf: 0.7
-    for: [all]
-    if:
-      type: string
-      exact: "cookies.sqlite"
-
   - id: local-state-file
     desc: Local State Chrome configuration file
     crit: inert
@@ -245,7 +227,7 @@ traits:
     desc: .decrypt( method call
     crit: inert
     conf: 0.65
-    for: [python, javascript]
+    for: [python, javascript, elf, macho, pe, dll, so, dylib]
     if:
       type: symbol
       exact: "decrypt"
@@ -301,7 +283,7 @@ traits:
     desc: .post( HTTP method call
     crit: inert
     conf: 0.5
-    for: [python, javascript]
+    for: [python, javascript, elf, macho, pe, dll, so, dylib]
     if:
       type: symbol
       exact: "post"
@@ -453,8 +435,8 @@ composite_rules:
     description: Browser credential data files
     for: [all]
     any:
-      - {id: login-data-file}
-      - {id: cookies-sqlite-file}
+      - {id: chromium/login-data}
+      - {id: firefox/cookies-sqlite}
       - {id: local-state-file}
       - {id: encrypted-key-field}
       - {id: logins-json-file}

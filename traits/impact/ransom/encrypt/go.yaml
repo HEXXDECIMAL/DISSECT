@@ -1,10 +1,13 @@
 # Go file encryption patterns (ransomware)
+# Note: Go package/function names persist in compiled binaries as strings
+defaults:
+  for: [go, elf, macho, pe]
+
 traits:
   - id: crypto-aes
     description: crypto/aes import
     crit: inert
     conf: 0.5
-    for: [go]
     if:
       type: string
       exact: "crypto/aes"
@@ -13,7 +16,6 @@ traits:
     description: crypto/cipher import
     crit: inert
     conf: 0.5
-    for: [go]
     if:
       type: string
       exact: "crypto/cipher"
@@ -22,7 +24,6 @@ traits:
     description: crypto/rsa import
     crit: inert
     conf: 0.5
-    for: [go]
     if:
       type: string
       exact: "crypto/rsa"
@@ -31,7 +32,6 @@ traits:
     description: filepath.Walk call
     crit: inert
     conf: 0.5
-    for: [go]
     if:
       type: string
       exact: "filepath.Walk"
@@ -40,7 +40,6 @@ traits:
     description: filepath.WalkDir call
     crit: inert
     conf: 0.5
-    for: [go]
     if:
       type: string
       exact: "filepath.WalkDir"
@@ -49,7 +48,6 @@ traits:
     description: ioutil.WriteFile call
     crit: inert
     conf: 0.5
-    for: [go]
     if:
       type: string
       exact: "ioutil.WriteFile"
@@ -58,7 +56,6 @@ traits:
     description: os.WriteFile call
     crit: inert
     conf: 0.5
-    for: [go]
     if:
       type: string
       exact: "os.WriteFile"
@@ -84,7 +81,6 @@ composite_rules:
     description: Cryptographic imports
     crit: notable
     conf: 0.6
-    for: [go]
     count: 1
     any:
       - id: crypto-aes
@@ -95,7 +91,6 @@ composite_rules:
     description: Filesystem walk function
     crit: notable
     conf: 0.6
-    for: [go]
     count: 1
     any:
       - id: filepath-walk
@@ -105,7 +100,6 @@ composite_rules:
     description: File write function
     crit: notable
     conf: 0.6
-    for: [go]
     count: 1
     any:
       - id: ioutil-writefile
@@ -124,7 +118,6 @@ composite_rules:
     description: Go file encryption patterns (potential ransomware)
     crit: suspicious
     conf: 0.8
-    for: [go]
     requires_all:
       - id: crypto-import
       - id: walk-func

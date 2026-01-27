@@ -141,7 +141,7 @@ traits:
     desc: sniff_ssh function name (lowercase)
     crit: inert
     conf: 0.75
-    for: [elf, so, python, shell]
+    for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
       exact: "sniff_ssh"
@@ -150,7 +150,7 @@ traits:
     desc: Sniff_ssh function name (titlecase)
     crit: inert
     conf: 0.75
-    for: [elf, so, python, shell]
+    for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
       exact: "Sniff_ssh"
@@ -159,7 +159,7 @@ traits:
     desc: SNIFF_SSH constant (uppercase)
     crit: inert
     conf: 0.75
-    for: [elf, so, python, shell]
+    for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
       exact: "SNIFF_SSH"
@@ -168,7 +168,7 @@ traits:
     desc: ssh_sniff function name (lowercase)
     crit: inert
     conf: 0.75
-    for: [elf, so, python, shell]
+    for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
       exact: "ssh_sniff"
@@ -177,7 +177,7 @@ traits:
     desc: Ssh_sniff function name (titlecase)
     crit: inert
     conf: 0.75
-    for: [elf, so, python, shell]
+    for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
       exact: "Ssh_sniff"
@@ -186,7 +186,7 @@ traits:
     desc: SSH_SNIFF constant (uppercase)
     crit: inert
     conf: 0.75
-    for: [elf, so, python, shell]
+    for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
       exact: "SSH_SNIFF"
@@ -195,7 +195,7 @@ traits:
     desc: sshpass tool reference
     crit: inert
     conf: 0.7
-    for: [elf, so, python, shell]
+    for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
       word: "sshpass"
@@ -204,7 +204,7 @@ traits:
     desc: ssh_password variable
     crit: inert
     conf: 0.75
-    for: [elf, so, python, shell]
+    for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
       exact: "ssh_password"
@@ -213,7 +213,7 @@ traits:
     desc: ssh_cred variable
     crit: inert
     conf: 0.75
-    for: [elf, so, python, shell]
+    for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
       exact: "ssh_cred"
@@ -222,7 +222,7 @@ traits:
     desc: sshdone flag
     crit: inert
     conf: 0.75
-    for: [elf, so, python, shell]
+    for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
       exact: "sshdone"
@@ -232,7 +232,7 @@ traits:
     desc: sshpass.txt file pattern
     crit: inert
     conf: 0.75
-    for: [elf, so, python, shell]
+    for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
       regex: "sshpass\\d?\\.txt"
@@ -241,7 +241,7 @@ traits:
     desc: ssh_pass.log file
     crit: inert
     conf: 0.75
-    for: [elf, so, python, shell]
+    for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
       exact: "ssh_pass.log"
@@ -250,7 +250,7 @@ traits:
     desc: password.txt file
     crit: inert
     conf: 0.6
-    for: [elf, so, python, shell]
+    for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
       exact: "password.txt"
@@ -259,7 +259,7 @@ traits:
     desc: credentials.txt file
     crit: inert
     conf: 0.6
-    for: [elf, so, python, shell]
+    for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
       exact: "credentials.txt"
@@ -287,7 +287,7 @@ composite_rules:
   # Helper composites for migrated YARA rules
   - id: sniff-ssh-variants
     description: sniff_ssh case variants
-    for: [elf, so, python, shell]
+    for: [elf, macho, pe, dll, so, dylib, python, shell]
     any:
       - {id: sniff-ssh-lower}
       - {id: sniff-ssh-title}
@@ -295,7 +295,7 @@ composite_rules:
 
   - id: ssh-sniff-variants
     description: ssh_sniff case variants
-    for: [elf, so, python, shell]
+    for: [elf, macho, pe, dll, so, dylib, python, shell]
     any:
       - {id: ssh-sniff-lower}
       - {id: ssh-sniff-title}
@@ -303,7 +303,7 @@ composite_rules:
 
   - id: ssh-sniffing-indicators
     description: SSH sniffing function identifiers
-    for: [elf, so, python, shell]
+    for: [elf, macho, pe, dll, so, dylib, python, shell]
     any:
       - {id: sniff-ssh-variants}
       - {id: ssh-sniff-variants}
@@ -314,7 +314,7 @@ composite_rules:
 
   - id: ssh-password-files
     description: SSH password file patterns
-    for: [elf, so, python, shell]
+    for: [elf, macho, pe, dll, so, dylib, python, shell]
     any:
       - {id: sshpass-txt-file}
       - {id: ssh-pass-log-file}
@@ -329,7 +329,7 @@ composite_rules:
     attack: "T1557"
     mbc: "E1056"
     platforms: [linux]
-    for: [elf, so, python, shell]
+    for: [elf, macho, pe, dll, so, dylib, python, shell]
     any:
       - {id: ssh-sniffing-indicators}
 
@@ -340,7 +340,7 @@ composite_rules:
     attack: "T1552.001"
     mbc: "E1056"
     platforms: [linux]
-    for: [elf, so, python, shell]
+    for: [elf, macho, pe, dll, so, dylib, python, shell]
     any:
       - {id: ssh-password-files}
 
@@ -400,7 +400,7 @@ composite_rules:
     attack: "T1556"
     mbc: "E1056"
     platforms: [linux]
-    for: [elf, so, python, shell]
+    for: [elf, macho, pe, dll, so, dylib, python, shell]
     any:
       - id: session-sniff
       - id: password-file-storage

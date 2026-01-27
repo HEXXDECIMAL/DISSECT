@@ -1,0 +1,118 @@
+# Library References
+# Generic library string references (inert markers)
+
+traits:
+  # === Network Libraries ===
+  - id: libssl-ref
+    desc: libssl library reference
+    crit: inert
+    conf: 0.3
+    if:
+      type: string
+      exact: "libssl"
+
+  - id: libcrypto-ref
+    desc: libcrypto library reference
+    crit: inert
+    conf: 0.3
+    if:
+      type: string
+      exact: "libcrypto"
+
+  - id: libcurl-ref
+    desc: libcurl library reference
+    crit: inert
+    conf: 0.3
+    if:
+      type: string
+      exact: "libcurl"
+
+  - id: libssh-ref
+    desc: libssh library reference
+    crit: inert
+    conf: 0.3
+    if:
+      type: string
+      exact: "libssh"
+
+  # === System Libraries ===
+  - id: gnu-coreutils-ref
+    desc: GNU coreutils reference
+    crit: inert
+    conf: 0.3
+    if:
+      type: string
+      exact: "GNU coreutils"
+
+  - id: glibc-ref
+    desc: glibc reference
+    crit: inert
+    conf: 0.3
+    if:
+      type: string
+      exact: "glibc"
+
+  - id: systemd-ref
+    desc: systemd reference
+    crit: inert
+    conf: 0.3
+    if:
+      type: string
+      exact: "systemd"
+
+  # === Compression Libraries ===
+  - id: lzma-ref
+    desc: lzma compression reference
+    crit: inert
+    conf: 0.3
+    if:
+      type: string
+      regex: "(?i)\\blzma\\b"
+
+  - id: xz-ref
+    desc: xz compression reference
+    crit: inert
+    conf: 0.3
+    if:
+      type: string
+      regex: "(?i)\\bxz\\b"
+
+  - id: zlib-ref
+    desc: zlib compression reference
+    crit: inert
+    conf: 0.3
+    if:
+      type: string
+      regex: "(?i)\\bzlib\\b"
+
+composite_rules:
+  - id: network-lib-marker
+    desc: Known network library markers
+    crit: inert
+    conf: 0.5
+    count: 1
+    any:
+      - id: libssl-ref
+      - id: libcrypto-ref
+      - id: libcurl-ref
+      - id: libssh-ref
+
+  - id: system-lib-marker
+    desc: Known system library markers
+    crit: inert
+    conf: 0.5
+    count: 1
+    any:
+      - id: gnu-coreutils-ref
+      - id: glibc-ref
+      - id: systemd-ref
+
+  - id: compression-lib
+    desc: Compression library markers
+    crit: inert
+    conf: 0.4
+    count: 1
+    any:
+      - id: lzma-ref
+      - id: xz-ref
+      - id: zlib-ref

@@ -2,13 +2,16 @@
 # MBC: C0047 (Delete File)
 # ATT&CK: T1070.004
 
+defaults:
+  mbc: "C0047"
+  attack: "T1070.004"
+
 traits:
+  # AST-based detection (Go source only)
   - id: os-Remove
     description: Delete file (os.Remove)
     crit: notable
     conf: 0.9
-    mbc: "C0047"
-    attack: "T1070.004"
     for: [go]
     if:
       type: ast_pattern
@@ -19,10 +22,27 @@ traits:
     description: Recursive directory deletion
     crit: notable
     conf: 0.9
-    mbc: "C0047"
-    attack: "T1070.004"
     for: [go]
     if:
       type: ast_pattern
       node_type: call_expression
       pattern: "os.RemoveAll"
+
+  # String-based detection (compiled binaries)
+  - id: os-Remove-string
+    description: os.Remove string in binary
+    crit: notable
+    conf: 0.7
+    for: [elf, macho, pe]
+    if:
+      type: string
+      exact: "os.Remove"
+
+  - id: os-RemoveAll-string
+    description: os.RemoveAll string in binary
+    crit: notable
+    conf: 0.7
+    for: [elf, macho, pe]
+    if:
+      type: string
+      exact: "os.RemoveAll"

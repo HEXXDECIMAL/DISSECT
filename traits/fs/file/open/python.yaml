@@ -13,14 +13,6 @@ traits:
       regex: '\bopen\('
 
   # Sensitive file paths (browser/wallet)
-  - id: login-data-path
-    desc: Chrome/Chromium Login Data database
-    crit: inert
-    conf: 0.7
-    if:
-      type: string
-      exact: "Login Data"
-
   - id: cookies-path
     desc: Browser cookies file
     crit: inert
@@ -58,7 +50,7 @@ composite_rules:
   - id: sensitive-paths
     desc: Browser or wallet file paths
     any:
-      - id: login-data-path
+      - id: cred/browser/chromium/login-data
       - id: cookies-path
       - id: key4-db-path
       - id: exodus-wallet-path

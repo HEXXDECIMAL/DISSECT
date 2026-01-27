@@ -94,17 +94,6 @@ traits:
       type: string
       regex: "os\\.system\\("
 
-  - id: python-subprocess
-    desc: Executes process via Python subprocess module
-    crit: notable
-    mbc: "E1059.006"
-    attack: "T1059.006"
-    conf: 0.9
-    language: python
-    if:
-      type: string
-      regex: "import subprocess|from subprocess"
-
   # JavaScript
   - id: js-child-process
     desc: Executes commands via Node.js child_process

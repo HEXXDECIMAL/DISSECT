@@ -124,31 +124,6 @@ traits:
       type: string
       regex: "\\.write\\([^)]*\\.content\\)|write_bytes\\("
 
-  # === Subprocess atomic indicators ===
-  - id: subprocess-popen
-    desc: subprocess.Popen call
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      regex: "subprocess\\.Popen\\("
-
-  - id: subprocess-run
-    desc: subprocess.run call
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      regex: "subprocess\\.run\\("
-
-  - id: subprocess-call
-    desc: subprocess.call call
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      regex: "subprocess\\.call\\("
-
   - id: os-system-call
     desc: os.system call
     crit: inert
@@ -357,9 +332,9 @@ composite_rules:
     conf: 0.5
     requires_count: 1
     any:
-      - id: subprocess-popen
-      - id: subprocess-run
-      - id: subprocess-call
+      - id: exec/command/subprocess/python/popen
+      - id: exec/command/subprocess/python/run-call
+      - id: exec/command/subprocess/python/call
 
   # Code or process execution composite
   - id: python-exec-any
@@ -368,9 +343,9 @@ composite_rules:
     conf: 0.5
     requires_count: 1
     any:
-      - id: subprocess-popen
-      - id: subprocess-run
-      - id: subprocess-call
+      - id: exec/command/subprocess/python/popen
+      - id: exec/command/subprocess/python/run-call
+      - id: exec/command/subprocess/python/call
       - id: os-system-call
       - id: exec-call
 

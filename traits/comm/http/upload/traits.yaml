@@ -1,0 +1,48 @@
+# HTTP Upload Patterns
+
+traits:
+  # === ZIP upload atomic ===
+  - id: curl-zip
+    desc: curl with .zip
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      regex: 'curl.{0,100}\.zip'
+
+  - id: post-zip
+    desc: POST with .zip
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      regex: 'POST.{0,100}\.zip'
+
+  - id: upload-zip
+    desc: upload .zip
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      regex: 'upload.{0,50}\.zip'
+
+  - id: send-zip
+    desc: send .zip
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      regex: 'send.{0,50}\.zip'
+
+composite_rules:
+  # ZIP upload
+  - id: zip-upload
+    desc: ZIP archive upload
+    crit: notable
+    conf: 0.75
+    count: 1
+    any:
+      - id: curl-zip
+      - id: post-zip
+      - id: upload-zip
+      - id: send-zip
