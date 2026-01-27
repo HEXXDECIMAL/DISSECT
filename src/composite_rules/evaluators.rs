@@ -596,6 +596,11 @@ pub fn eval_ast_pattern(
         return eval_ast_pattern_with_tree(cached_tree, source, node_type, pattern, use_regex, case_insensitive);
     }
 
+    static WARNED: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+    if !WARNED.swap(true, std::sync::atomic::Ordering::Relaxed) {
+        eprintln!("⚠️  WARNING: AST cache miss - re-parsing AST for each trait! File type: {:?}", ctx.file_type);
+    }
+
     // No cached AST, need to parse
     let parser_lang = match ctx.file_type {
         FileType::C => Some(tree_sitter_c::LANGUAGE),
