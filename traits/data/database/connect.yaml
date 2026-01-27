@@ -349,12 +349,12 @@ traits:
 
   # === SQL micro-traits ===
   - id: sql-select
-    desc: SELECT SQL keyword
+    desc: SELECT SQL keyword in query context
     crit: notable
-    conf: 0.5
+    conf: 0.6
     if:
       type: string
-      regex: "(?i)SELECT "
+      regex: "(?i)SELECT\\s+(\\*|COUNT|DISTINCT|[a-z_][a-z0-9_]*,?\\s+)+(FROM|INTO|WHERE)"
 
   - id: sql-insert
     desc: INSERT INTO SQL keyword

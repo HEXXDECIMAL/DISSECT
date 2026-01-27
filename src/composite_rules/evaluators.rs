@@ -591,7 +591,12 @@ pub fn eval_ast_pattern(
         }
     };
 
-    // Get the appropriate parser based on file type
+    // Use cached AST if available
+    if let Some(cached_tree) = ctx.cached_ast {
+        return eval_ast_pattern_with_tree(cached_tree, source, node_type, pattern, use_regex, case_insensitive);
+    }
+
+    // No cached AST, need to parse
     let parser_lang = match ctx.file_type {
         FileType::C => Some(tree_sitter_c::LANGUAGE),
         FileType::Python => Some(tree_sitter_python::LANGUAGE),
@@ -650,6 +655,18 @@ pub fn eval_ast_pattern(
         }
     };
 
+    eval_ast_pattern_with_tree(&tree, source, node_type, pattern, use_regex, case_insensitive)
+}
+
+/// Helper function to evaluate AST pattern with a given tree
+fn eval_ast_pattern_with_tree(
+    tree: &tree_sitter::Tree,
+    source: &str,
+    node_type: &str,
+    pattern: &str,
+    use_regex: bool,
+    case_insensitive: bool,
+) -> ConditionResult {
     // Skip analysis if the tree has errors (malformed input)
     if tree.root_node().has_error() {
         return ConditionResult {
@@ -922,6 +939,8 @@ pub fn eval_yara_inline(
     compiled: Option<&Arc<yara_x::Rules>>,
     ctx: &EvaluationContext,
 ) -> ConditionResult {
+    let scan_start = std::time::Instant::now();
+
     // For pre-compiled rules, use cached scanner (fast path)
     // For fallback compilation, create a new scanner (slow path, should be rare)
     let evidence = if let Some(pre_compiled) = compiled {
@@ -951,8 +970,150 @@ pub fn eval_yara_inline(
         }
     };
 
+    let scan_duration = scan_start.elapsed();
+    if scan_duration.as_millis() > 1000 {
+        let rule_preview = if source.len() > 100 {
+            format!("{}...", &source[..100])
+        } else {
+            source.to_string()
+        };
+        eprintln!("⚠️  WARNING: YARA rule took {}ms to scan {}KB file",
+                  scan_duration.as_millis(),
+                  ctx.binary_data.len() / 1024);
+        eprintln!("    Rule preview: {}", rule_preview.lines().next().unwrap_or(""));
+    }
+
     ConditionResult {
         matched: !evidence.is_empty(),
+        evidence,
+        traits: Vec::new(),
+        warnings: Vec::new(),
+    }
+}
+
+/// Search base64-decoded strings for patterns
+/// Decoded strings are extracted once during analysis and stored in the report
+pub fn eval_base64(
+    exact: Option<&String>,
+    regex: Option<&String>,
+    case_insensitive: bool,
+    min_count: usize,
+    ctx: &EvaluationContext,
+) -> ConditionResult {
+    eval_decoded_helper("base64", exact, regex, case_insensitive, min_count, ctx)
+}
+
+/// Search XOR-decoded strings for patterns
+/// If key is specified, only searches that key. Otherwise searches all keys 0x01-0xFF (except 0x20)
+pub fn eval_xor(
+    key: Option<&String>,
+    exact: Option<&String>,
+    regex: Option<&String>,
+    case_insensitive: bool,
+    min_count: usize,
+    ctx: &EvaluationContext,
+) -> ConditionResult {
+    // If key specified, filter to just that key
+    let decoded_strings: Vec<_> = if let Some(key_str) = key {
+        ctx.report
+            .decoded_strings
+            .iter()
+            .filter(|s| s.method == "xor" && s.key.as_ref().map(|k| k == key_str).unwrap_or(false))
+            .collect()
+    } else {
+        ctx.report
+            .decoded_strings
+            .iter()
+            .filter(|s| s.method == "xor")
+            .collect()
+    };
+
+    eval_decoded_strings_helper(&decoded_strings, "xor", exact, regex, case_insensitive, min_count)
+}
+
+/// Helper to search decoded strings for patterns
+fn eval_decoded_helper(
+    method: &str,
+    exact: Option<&String>,
+    regex: Option<&String>,
+    case_insensitive: bool,
+    min_count: usize,
+    ctx: &EvaluationContext,
+) -> ConditionResult {
+    let decoded_strings: Vec<_> = ctx
+        .report
+        .decoded_strings
+        .iter()
+        .filter(|s| s.method == method)
+        .collect();
+
+    eval_decoded_strings_helper(&decoded_strings, method, exact, regex, case_insensitive, min_count)
+}
+
+/// Core logic for matching patterns in decoded strings
+fn eval_decoded_strings_helper(
+    decoded_strings: &[&crate::types::DecodedString],
+    method: &str,
+    exact: Option<&String>,
+    regex: Option<&String>,
+    case_insensitive: bool,
+    min_count: usize,
+) -> ConditionResult {
+    let mut evidence = Vec::new();
+    let mut match_count = 0;
+
+    // Build regex if needed
+    let regex_matcher = if let Some(pattern) = regex {
+        let pattern_with_flags = if case_insensitive {
+            format!("(?i){}", pattern)
+        } else {
+            pattern.clone()
+        };
+        match regex::Regex::new(&pattern_with_flags) {
+            Ok(re) => Some(re),
+            Err(_) => return ConditionResult::no_match(),
+        }
+    } else {
+        None
+    };
+
+    for decoded in decoded_strings {
+        let mut matches = false;
+
+        // Check exact match
+        if let Some(exact_str) = exact {
+            matches = if case_insensitive {
+                decoded.value.to_lowercase().contains(&exact_str.to_lowercase())
+            } else {
+                decoded.value.contains(exact_str.as_str())
+            };
+        }
+
+        // Check regex match
+        if !matches {
+            if let Some(ref re) = regex_matcher {
+                matches = re.is_match(&decoded.value);
+            }
+        }
+
+        if matches {
+            match_count += 1;
+            let value_preview = if decoded.value.len() > 100 {
+                format!("{}...", &decoded.value[..100])
+            } else {
+                decoded.value.clone()
+            };
+            evidence.push(Evidence {
+                method: format!("decoded_{}", method),
+                source: "string".to_string(),
+                value: value_preview,
+                location: decoded.offset.clone(),
+            });
+        }
+    }
+
+    ConditionResult {
+        matched: match_count >= min_count,
         evidence,
         traits: Vec::new(),
         warnings: Vec::new(),

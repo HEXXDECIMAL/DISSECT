@@ -1206,3 +1206,55 @@ composite_rules:
       - id: dropper/builder/activex-object
       - id: dropper/builder/adodb-stream
       - id: wscript-xmlhttp
+
+  # ActiveXObject in modern JavaScript context (obsolete tech in modern code)
+  - id: activex-modern-context
+    desc: "ActiveXObject in modern JavaScript (obsolete technology - suspicious)"
+    crit: hostile
+    conf: 0.95
+    attack: "T1059"
+    mbc: "B0024"
+    for: [javascript]
+    all:
+      - {id: dropper/builder/activex-object}
+      - {id: exec/javascript/es6-features/modern-javascript}
+    explanation: |
+      ActiveXObject is obsolete (IE-only, deprecated 2015). Modern JavaScript
+      using ES6+ features has no legitimate reason to use it. This indicates
+      malicious code masquerading as modern JavaScript.
+
+  # ActiveXObject + any network operation = likely malicious
+  - id: activex-network
+    desc: "ActiveXObject with network operations (likely C2 or dropper)"
+    crit: hostile
+    conf: 0.96
+    attack: "T1071"
+    mbc: "B0030"
+    for: [javascript]
+    all:
+      - {id: dropper/builder/activex-object}
+    any:
+      - {id: comm/http/client}
+      - {id: comm/socket/connect}
+      - {id: comm/dns/lookup}
+    explanation: |
+      ActiveXObject combined with network operations is a classic pattern for
+      command-and-control (C2) malware or droppers that download payloads.
+
+  # ActiveXObject + command execution
+  - id: activex-exec
+    desc: "ActiveXObject with command execution (shell access)"
+    crit: hostile
+    conf: 0.98
+    attack: "T1059"
+    mbc: "E1059"
+    for: [javascript]
+    all:
+      - {id: dropper/builder/activex-object}
+    any:
+      - {id: exec/command/shell}
+      - {id: exec/command/direct}
+      - {id: dropper/builder/wscript-shell}
+    explanation: |
+      ActiveXObject combined with command execution provides full shell access.
+      This is a classic backdoor or remote access trojan (RAT) pattern.

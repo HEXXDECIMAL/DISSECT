@@ -650,73 +650,73 @@ traits:
       case_insensitive: true
 
   - id: microsoft-typo-capital-f
-    desc: microsoFt typosquat (Microsoft)
+    desc: microsoFt typosquat in URL/domain (Microsoft)
     crit: inert
-    conf: 0.6
+    conf: 0.8
     for: [html, javascript]
     if:
       type: string
-      word: "microsoFt"
+      regex: "(?i)(https?://|www\\.|@)[^\\s\"']*microso[Ff]t"
       case_insensitive: true
 
   - id: micorsoft-typo
-    desc: micorsoft typosquat (Microsoft)
+    desc: micorsoft typosquat in URL/domain (Microsoft)
     crit: inert
-    conf: 0.6
+    conf: 0.8
     for: [html, javascript]
     if:
       type: string
-      word: "micorsoft"
+      regex: "(?i)(https?://|www\\.|@|//)[^\\s\"']*micorsoft"
       case_insensitive: true
 
   - id: micosoft-typo
-    desc: micosoft typosquat (Microsoft)
+    desc: micosoft typosquat in URL/domain (Microsoft)
     crit: inert
-    conf: 0.6
+    conf: 0.8
     for: [html, javascript]
     if:
       type: string
-      word: "micosoft"
+      regex: "(?i)(https?://|www\\.|@|//)[^\\s\"']*micosoft"
       case_insensitive: true
 
   - id: microsft-typo
-    desc: microsft typosquat (Microsoft)
+    desc: microsft typosquat in URL/domain (Microsoft)
     crit: inert
-    conf: 0.6
+    conf: 0.8
     for: [html, javascript]
     if:
       type: string
-      word: "microsft"
+      regex: "(?i)(https?://|www\\.|@|//)[^\\s\"']*microsft"
       case_insensitive: true
 
   - id: gooogle-typo
-    desc: gooogle typosquat (Google)
+    desc: gooogle typosquat in URL/domain (Google)
     crit: inert
-    conf: 0.6
+    conf: 0.8
     for: [html, javascript]
     if:
       type: string
-      word: "gooogle"
+      regex: "(?i)(https?://|www\\.|@|//)[^\\s\"']*gooogle"
       case_insensitive: true
 
   - id: goggle-typo
-    desc: goggle typosquat (Google)
+    desc: goggle typosquat in URL/domain (Google)
     crit: inert
-    conf: 0.6
+    conf: 0.8
     for: [html, javascript]
     if:
       type: string
-      word: "goggle"
+      regex: "(?i)(https?://|www\\.|@|//)[^\\s\"']*goggle"
       case_insensitive: true
 
   - id: gogle-typo
-    desc: gogle typosquat (Google)
+    desc: gogle typosquat in URL/domain (Google)
     crit: inert
-    conf: 0.6
+    conf: 0.8
     for: [html, javascript]
     if:
       type: string
-      word: "gogle"
+      regex: "(?i)(https?://|www\\.|@|//)[^\\s\"']*gogle"
       case_insensitive: true
 
   - id: login-prefix-lower

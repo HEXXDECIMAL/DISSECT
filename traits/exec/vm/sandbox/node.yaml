@@ -176,9 +176,7 @@ traits:
       type: string
       regex: 'DEV_.{0,50}_KEY|API_.{0,50}KEY|SECRET'
 
-  # NOTE: The composite rule below requires regex min_count support for
-  # the base64-long-string pattern, which isn't yet available in DISSECT.
-  # For now, we keep this as a YARA rule.
+  # Base64-encoded URL detector using decoded strings
   - id: base64-url
     desc: Base64 encoded URL (potential C2 obfuscation)
     crit: suspicious
@@ -187,18 +185,8 @@ traits:
     attack: "T1027"
     for: [javascript, typescript]
     if:
-      type: yara
-      source: |
-        rule base64_url_pattern {
-          strings:
-            $decode1 = "atob(" ascii
-            $decode2 = "Buffer.from" ascii
-            $url_like = /[a-zA-Z0-9+\/=]{20,}/ ascii
-            $http = /https?:\/\// ascii
-            $env_key = /DEV_.*_KEY|API_.*KEY|SECRET/ ascii
-          condition:
-            any of ($decode*) and $url_like and ($http or $env_key)
-        }
+      type: base64
+      regex: "https?://"
 
 # === Composite Rules ===
 composite_rules:

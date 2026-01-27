@@ -11,6 +11,8 @@ pub struct EvaluationContext<'a> {
     pub platform: Platform,
     /// Additional findings from previous evaluation iterations (for composite chaining)
     pub additional_findings: Option<&'a [Finding]>,
+    /// Cached parsed AST (to avoid re-parsing for each ast_pattern trait)
+    pub cached_ast: Option<&'a tree_sitter::Tree>,
 }
 
 /// Warning types for anti-analysis detection

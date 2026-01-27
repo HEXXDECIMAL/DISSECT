@@ -20,6 +20,7 @@ mod amos_cipher;
 mod archive_utils;
 mod cache;
 mod constant_decoder;
+pub mod decoders;
 mod entropy;
 mod radare2;
 mod strings;

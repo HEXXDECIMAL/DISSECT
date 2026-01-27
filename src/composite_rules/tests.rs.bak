@@ -1,11 +1,7 @@
 //! Tests for composite rules module.
 
 use super::*;
-use crate::composite_rules::condition::NotException;
-use crate::composite_rules::traits::{DowngradeConditions, DowngradeRules};
-use crate::types::{
-    AnalysisReport, Criticality, Finding, FindingKind, Import, StringInfo, TargetInfo,
-};
+use crate::types::{AnalysisReport, Criticality, Finding, FindingKind, Import, StringInfo, TargetInfo};
 
 fn create_test_context() -> (AnalysisReport, Vec<u8>) {
     let target = TargetInfo {
@@ -52,7 +48,6 @@ fn test_symbol_condition() {
         file_type: FileType::Elf,
         platform: Platform::Linux,
         additional_findings: None,
-            cached_ast: None,
     };
 
     let rule = CompositeTrait {
@@ -93,7 +88,6 @@ fn test_all() {
         file_type: FileType::Elf,
         platform: Platform::Linux,
         additional_findings: None,
-            cached_ast: None,
     };
 
     let rule = CompositeTrait {
@@ -141,7 +135,6 @@ fn test_count() {
         file_type: FileType::Elf,
         platform: Platform::Linux,
         additional_findings: None,
-            cached_ast: None,
     };
 
     let rule = CompositeTrait {
@@ -190,7 +183,6 @@ fn test_string_exact_condition() {
         file_type: FileType::Elf,
         platform: Platform::Linux,
         additional_findings: None,
-            cached_ast: None,
     };
 
     let rule = CompositeTrait {
@@ -231,7 +223,6 @@ fn test_any() {
         file_type: FileType::Elf,
         platform: Platform::Linux,
         additional_findings: None,
-            cached_ast: None,
     };
 
     let rule = CompositeTrait {
@@ -279,14 +270,14 @@ fn test_not_directive_shorthand() {
         value: "apple.com".to_string(),
         offset: Some("0x2000".to_string()),
         encoding: "utf8".to_string(),
-        string_type: crate::types::StringType::Url,
+        string_type: crate::types::StringType::Domain,
         section: None,
     });
     report.strings.push(StringInfo {
         value: "evil.com".to_string(),
         offset: Some("0x3000".to_string()),
         encoding: "utf8".to_string(),
-        string_type: crate::types::StringType::Url,
+        string_type: crate::types::StringType::Domain,
         section: None,
     });
 
@@ -296,7 +287,6 @@ fn test_not_directive_shorthand() {
         file_type: FileType::Elf,
         platform: Platform::Linux,
         additional_findings: None,
-            cached_ast: None,
     };
 
     let trait_def = TraitDefinition {
@@ -317,7 +307,9 @@ fn test_not_directive_shorthand() {
             min_count: 1,
             search_raw: false,
         },
-        not: Some(vec![NotException::Shorthand("apple.com".to_string())]),
+        not: Some(vec![
+            NotException::Shorthand("apple.com".to_string()),
+        ]),
         unless: None,
         downgrade: None,
     };
@@ -339,14 +331,14 @@ fn test_not_directive_exact() {
         value: "github.com".to_string(),
         offset: Some("0x2000".to_string()),
         encoding: "utf8".to_string(),
-        string_type: crate::types::StringType::Url,
+        string_type: crate::types::StringType::Domain,
         section: None,
     });
     report.strings.push(StringInfo {
         value: "bad.com".to_string(),
         offset: Some("0x3000".to_string()),
         encoding: "utf8".to_string(),
-        string_type: crate::types::StringType::Url,
+        string_type: crate::types::StringType::Domain,
         section: None,
     });
 
@@ -356,7 +348,6 @@ fn test_not_directive_exact() {
         file_type: FileType::Elf,
         platform: Platform::Linux,
         additional_findings: None,
-            cached_ast: None,
     };
 
     let trait_def = TraitDefinition {
@@ -377,11 +368,13 @@ fn test_not_directive_exact() {
             min_count: 1,
             search_raw: false,
         },
-        not: Some(vec![NotException::Structured {
-            exact: Some("github.com".to_string()),
-            contains: None,
-            regex: None,
-        }]),
+        not: Some(vec![
+            NotException::Structured {
+                exact: Some("github.com".to_string()),
+                contains: None,
+                regex: None,
+            },
+        ]),
         unless: None,
         downgrade: None,
     };
@@ -403,14 +396,14 @@ fn test_not_directive_regex() {
         value: "192.168.1.1".to_string(),
         offset: Some("0x2000".to_string()),
         encoding: "utf8".to_string(),
-        string_type: crate::types::StringType::Ip,
+        string_type: crate::types::StringType::Ipv4,
         section: None,
     });
     report.strings.push(StringInfo {
         value: "8.8.8.8".to_string(),
         offset: Some("0x3000".to_string()),
         encoding: "utf8".to_string(),
-        string_type: crate::types::StringType::Ip,
+        string_type: crate::types::StringType::Ipv4,
         section: None,
     });
 
@@ -420,7 +413,6 @@ fn test_not_directive_regex() {
         file_type: FileType::Elf,
         platform: Platform::Linux,
         additional_findings: None,
-            cached_ast: None,
     };
 
     let trait_def = TraitDefinition {
@@ -441,11 +433,13 @@ fn test_not_directive_regex() {
             min_count: 1,
             search_raw: false,
         },
-        not: Some(vec![NotException::Structured {
-            exact: None,
-            contains: None,
-            regex: Some(r"^192\.168\.".to_string()),
-        }]),
+        not: Some(vec![
+            NotException::Structured {
+                exact: None,
+                contains: None,
+                regex: Some(r"^192\.168\.".to_string()),
+            },
+        ]),
         unless: None,
         downgrade: None,
     };
@@ -499,9 +493,11 @@ fn test_unless_directive_skips_trait() {
             platforms: None,
         },
         not: None,
-        unless: Some(vec![Condition::Trait {
-            id: "file/signed/apple".to_string(),
-        }]),
+        unless: Some(vec![
+            Condition::Trait {
+                id: "file/signed/apple".to_string(),
+            },
+        ]),
         downgrade: None,
     };
 
@@ -520,7 +516,6 @@ fn test_unless_directive_allows_trait() {
         file_type: FileType::Elf,
         platform: Platform::Linux,
         additional_findings: None,
-            cached_ast: None,
     };
 
     let trait_def = TraitDefinition {
@@ -538,9 +533,11 @@ fn test_unless_directive_allows_trait() {
             platforms: None,
         },
         not: None,
-        unless: Some(vec![Condition::Trait {
-            id: "file/signed/apple".to_string(),
-        }]),
+        unless: Some(vec![
+            Condition::Trait {
+                id: "file/signed/apple".to_string(),
+            },
+        ]),
         downgrade: None,
     };
 
@@ -690,7 +687,6 @@ fn test_downgrade_no_match_keeps_original() {
         file_type: FileType::Elf,
         platform: Platform::Linux,
         additional_findings: None,
-            cached_ast: None,
     };
 
     let trait_def = TraitDefinition {
@@ -825,14 +821,14 @@ fn test_all_three_directives_combined() {
         value: "apple.com".to_string(),
         offset: Some("0x2000".to_string()),
         encoding: "utf8".to_string(),
-        string_type: crate::types::StringType::Url,
+        string_type: crate::types::StringType::Domain,
         section: None,
     });
     report.strings.push(StringInfo {
         value: "evil.com".to_string(),
         offset: Some("0x3000".to_string()),
         encoding: "utf8".to_string(),
-        string_type: crate::types::StringType::Url,
+        string_type: crate::types::StringType::Domain,
         section: None,
     });
 
@@ -875,8 +871,10 @@ fn test_all_three_directives_combined() {
             min_count: 1,
             search_raw: false,
         },
-        not: Some(vec![NotException::Shorthand("apple.com".to_string())]),
-        unless: None, // No unless condition, so trait should fire
+        not: Some(vec![
+            NotException::Shorthand("apple.com".to_string()),
+        ]),
+        unless: None,  // No unless condition, so trait should fire
         downgrade: Some(DowngradeRules {
             hostile: None,
             suspicious: None,

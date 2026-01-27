@@ -6,10 +6,11 @@
 use super::condition::{Condition, NotException};
 use super::context::{ConditionResult, EvaluationContext, StringParams};
 use super::evaluators::{
-    eval_ast_pattern, eval_ast_query, eval_exports_count, eval_filesize, eval_hex,
+    eval_ast_pattern, eval_ast_query, eval_base64, eval_exports_count, eval_filesize, eval_hex,
     eval_import_combination, eval_imports_count, eval_metrics, eval_raw, eval_section_entropy,
     eval_section_name, eval_section_ratio, eval_string, eval_string_count, eval_structure,
-    eval_symbol, eval_syscall, eval_trait, eval_trait_glob, eval_yara_inline, eval_yara_match,
+    eval_symbol, eval_syscall, eval_trait, eval_trait_glob, eval_xor, eval_yara_inline,
+    eval_yara_match,
 };
 use super::types::{default_file_types, default_platforms, FileType, Platform};
 use crate::types::{Criticality, Evidence, Finding, FindingKind};
@@ -369,6 +370,19 @@ impl TraitDefinition {
                 ctx,
             ),
             Condition::SectionName { pattern, regex } => eval_section_name(pattern, *regex, ctx),
+            Condition::Base64 {
+                exact,
+                regex,
+                case_insensitive,
+                min_count,
+            } => eval_base64(exact.as_ref(), regex.as_ref(), *case_insensitive, *min_count, ctx),
+            Condition::Xor {
+                key,
+                exact,
+                regex,
+                case_insensitive,
+                min_count,
+            } => eval_xor(key.as_ref(), exact.as_ref(), regex.as_ref(), *case_insensitive, *min_count, ctx),
         }
     }
 }
@@ -793,6 +807,19 @@ impl CompositeTrait {
                 ctx,
             ),
             Condition::SectionName { pattern, regex } => eval_section_name(pattern, *regex, ctx),
+            Condition::Base64 {
+                exact,
+                regex,
+                case_insensitive,
+                min_count,
+            } => eval_base64(exact.as_ref(), regex.as_ref(), *case_insensitive, *min_count, ctx),
+            Condition::Xor {
+                key,
+                exact,
+                regex,
+                case_insensitive,
+                min_count,
+            } => eval_xor(key.as_ref(), exact.as_ref(), regex.as_ref(), *case_insensitive, *min_count, ctx),
         }
     }
 

@@ -73,6 +73,9 @@ pub struct AnalysisReport {
     /// Syscalls detected via binary analysis (ELF, Mach-O)
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub syscalls: Vec<SyscallInfo>,
+    /// Decoded strings (base64, xor, etc.) extracted during analysis
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    pub decoded_strings: Vec<DecodedString>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub binary_properties: Option<BinaryProperties>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
@@ -126,6 +129,7 @@ impl AnalysisReport {
             exports: Vec::new(),
             yara_matches: Vec::new(),
             syscalls: Vec::new(),
+            decoded_strings: Vec::new(),
             binary_properties: None,
             code_metrics: None,
             source_code_metrics: None,
@@ -647,6 +651,23 @@ pub struct StringInfo {
     pub string_type: StringType,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub section: Option<String>,
+}
+
+/// Decoded string (base64, xor-decoded, etc.)
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DecodedString {
+    /// The decoded plaintext value
+    pub value: String,
+    /// Original encoded value (truncated if >100 chars)
+    pub encoded: String,
+    /// Encoding method (base64, xor, etc.)
+    pub method: String,
+    /// Optional: XOR key used (for xor method)
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub key: Option<String>,
+    /// Offset in file where encoded string was found
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub offset: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]

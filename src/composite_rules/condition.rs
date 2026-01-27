@@ -210,6 +210,45 @@ enum ConditionTagged {
         #[serde(default)]
         regex: bool,
     },
+
+    /// Match patterns in base64-decoded strings
+    /// Example: { type: base64, regex: "https?://" }
+    /// Example: { type: base64, exact: "eval(" }
+    Base64 {
+        /// Exact string to match
+        #[serde(skip_serializing_if = "Option::is_none")]
+        exact: Option<String>,
+        /// Regex pattern to match
+        #[serde(skip_serializing_if = "Option::is_none")]
+        regex: Option<String>,
+        /// Case insensitive matching
+        #[serde(default)]
+        case_insensitive: bool,
+        /// Minimum match count
+        #[serde(default = "default_min_count")]
+        min_count: usize,
+    },
+
+    /// Match patterns in XOR-decoded strings
+    /// Example: { type: xor, key: 0x42, exact: "http://" }
+    /// Example: { type: xor, regex: "eval\\(" } - searches all keys if key not specified
+    Xor {
+        /// XOR key (hex byte, e.g. "0x42"). If not specified, searches all keys 0x01-0xFF
+        #[serde(skip_serializing_if = "Option::is_none")]
+        key: Option<String>,
+        /// Exact string to match
+        #[serde(skip_serializing_if = "Option::is_none")]
+        exact: Option<String>,
+        /// Regex pattern to match
+        #[serde(skip_serializing_if = "Option::is_none")]
+        regex: Option<String>,
+        /// Case insensitive matching
+        #[serde(default)]
+        case_insensitive: bool,
+        /// Minimum match count
+        #[serde(default = "default_min_count")]
+        min_count: usize,
+    },
 }
 
 fn default_match_mode() -> String {
@@ -377,6 +416,30 @@ impl From<ConditionDeser> for Condition {
                 ConditionTagged::SectionName { pattern, regex } => {
                     Condition::SectionName { pattern, regex }
                 }
+                ConditionTagged::Base64 {
+                    exact,
+                    regex,
+                    case_insensitive,
+                    min_count,
+                } => Condition::Base64 {
+                    exact,
+                    regex,
+                    case_insensitive,
+                    min_count,
+                },
+                ConditionTagged::Xor {
+                    key,
+                    exact,
+                    regex,
+                    case_insensitive,
+                    min_count,
+                } => Condition::Xor {
+                    key,
+                    exact,
+                    regex,
+                    case_insensitive,
+                    min_count,
+                },
             },
         }
     }
@@ -673,6 +736,43 @@ pub enum Condition {
         #[serde(default)]
         regex: bool,
     },
+
+    /// Match patterns in base64-decoded strings
+    /// Example: { type: base64, regex: "https?://" }
+    Base64 {
+        /// Exact string to match
+        #[serde(skip_serializing_if = "Option::is_none")]
+        exact: Option<String>,
+        /// Regex pattern to match
+        #[serde(skip_serializing_if = "Option::is_none")]
+        regex: Option<String>,
+        /// Case insensitive matching
+        #[serde(default)]
+        case_insensitive: bool,
+        /// Minimum match count
+        #[serde(default = "default_min_count")]
+        min_count: usize,
+    },
+
+    /// Match patterns in XOR-decoded strings
+    /// Example: { type: xor, key: "0x42", exact: "http://" }
+    Xor {
+        /// XOR key (hex byte, e.g. "0x42"). If not specified, searches all keys 0x01-0xFF
+        #[serde(skip_serializing_if = "Option::is_none")]
+        key: Option<String>,
+        /// Exact string to match
+        #[serde(skip_serializing_if = "Option::is_none")]
+        exact: Option<String>,
+        /// Regex pattern to match
+        #[serde(skip_serializing_if = "Option::is_none")]
+        regex: Option<String>,
+        /// Case insensitive matching
+        #[serde(default)]
+        case_insensitive: bool,
+        /// Minimum match count
+        #[serde(default = "default_min_count")]
+        min_count: usize,
+    },
 }
 
 fn default_compare_to() -> String {
@@ -713,6 +813,8 @@ impl Condition {
             Condition::TraitGlob { .. } => "trait_glob",
             Condition::Raw { .. } => "raw",
             Condition::SectionName { .. } => "section_name",
+            Condition::Base64 { .. } => "base64",
+            Condition::Xor { .. } => "xor",
         }
     }
 

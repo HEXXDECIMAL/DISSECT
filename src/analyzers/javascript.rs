@@ -241,11 +241,19 @@ impl JavaScriptAnalyzer {
             eprintln!("[PROFILE]   compute_metrics: {}ms", t.elapsed().as_millis());
         }
 
-        // Evaluate trait definitions and composite rules
+        // Extract decoded strings (base64) for querying in traits
+        let t = std::time::Instant::now();
+        report.decoded_strings = extract_base64_strings(content.as_bytes());
+        if timing_enabled {
+            eprintln!("[PROFILE]   extract_base64: {}ms ({} decoded strings)",
+                     t.elapsed().as_millis(), report.decoded_strings.len());
+        }
+
+        // Evaluate trait definitions and composite rules (with cached AST to avoid re-parsing)
         let t = std::time::Instant::now();
         let trait_findings = self
             .capability_mapper
-            .evaluate_traits(&report, content.as_bytes());
+            .evaluate_traits_with_ast(&report, content.as_bytes(), Some(&tree));
         if timing_enabled {
             eprintln!("[PROFILE]   evaluate_traits: {}ms", t.elapsed().as_millis());
         }
@@ -1897,6 +1905,48 @@ impl Analyzer for JavaScriptAnalyzer {
             false
         }
     }
+}
+
+/// Extract base64-decoded strings for trait querying
+fn extract_base64_strings(data: &[u8]) -> Vec<DecodedString> {
+    use base64::engine::general_purpose::STANDARD;
+    use base64::Engine as _;
+
+    let mut results = Vec::new();
+    let text = String::from_utf8_lossy(data);
+
+    // Find base64-like sequences (20+ alphanumeric/+/= chars)
+    if let Ok(pattern) = regex::Regex::new(r"[A-Za-z0-9+/]{20,}={0,2}") {
+        for mat in pattern.find_iter(&text) {
+            let encoded = mat.as_str();
+            if let Ok(decoded_bytes) = STANDARD.decode(encoded) {
+                if let Ok(decoded_str) = String::from_utf8(decoded_bytes) {
+                    if decoded_str.len() < 10 {
+                        continue;
+                    }
+                    let printable_ratio = decoded_str.chars()
+                        .filter(|c| c.is_ascii() && !c.is_control())
+                        .count() as f32 / decoded_str.len() as f32;
+
+                    if printable_ratio > 0.7 {
+                        let encoded_preview = if encoded.len() > 100 {
+                            format!("{}...", &encoded[..100])
+                        } else {
+                            encoded.to_string()
+                        };
+                        results.push(DecodedString {
+                            value: decoded_str,
+                            encoded: encoded_preview,
+                            method: "base64".to_string(),
+                            key: None,
+                            offset: Some(format!("0x{:x}", mat.start())),
+                        });
+                    }
+                }
+            }
+        }
+    }
+    results
 }
 
 #[cfg(test)]
