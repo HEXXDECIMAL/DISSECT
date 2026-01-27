@@ -988,6 +988,8 @@ impl CapabilityMapper {
                     if !rule.id.starts_with(prefix) && !rule.id.contains('/') {
                         rule.id = format!("{}/{}", prefix, rule.id);
                     }
+                    // Also auto-prefix trait references within the rule's conditions
+                    autoprefix_trait_refs(&mut rule, prefix);
                 }
                 // Track source file for error reporting
                 rule_source_files.insert(rule.id.clone(), path.display().to_string());
@@ -1112,6 +1114,63 @@ impl CapabilityMapper {
             } else {
                 eprintln!("   Set DISSECT_DEBUG=1 to see details\n");
             }
+        }
+
+        // Validate exact trait ID references
+        // Build set of all valid trait IDs (both atomic traits and composite rules)
+        let mut valid_trait_ids: FxHashSet<String> =
+            trait_definitions.iter().map(|t| t.id.clone()).collect();
+        for rule in &composite_rules {
+            valid_trait_ids.insert(rule.id.clone());
+        }
+
+        let mut broken_refs = Vec::new();
+        for rule in &composite_rules {
+            let trait_refs = collect_trait_refs_from_rule(rule);
+            for (ref_id, rule_id) in trait_refs {
+                // Skip validation for directory-level references (intentional loose coupling)
+                // e.g., "discovery/system" matches any trait in that directory
+                let is_directory_ref = known_prefixes.contains(&ref_id);
+
+                // Check if the exact trait ID exists (unless it's an intentional directory ref)
+                if !is_directory_ref && !valid_trait_ids.contains(&ref_id) {
+                    // Also check if it's a partial match to a known prefix (could be typo)
+                    let matches_any_prefix = known_prefixes
+                        .iter()
+                        .any(|prefix| ref_id.starts_with(prefix) || prefix.starts_with(&ref_id));
+
+                    if !matches_any_prefix {
+                        let source_file = rule_source_files
+                            .get(&rule_id)
+                            .map(|s| s.as_str())
+                            .unwrap_or("unknown");
+                        broken_refs.push((rule_id.clone(), ref_id, source_file.to_string()));
+                    }
+                }
+            }
+        }
+
+        if !broken_refs.is_empty() {
+            eprintln!(
+                "\n⚠️  WARNING: {} broken trait references found in composite rules",
+                broken_refs.len()
+            );
+            eprintln!("   Composite rules reference trait IDs that don't exist:\n");
+            for (rule_id, ref_id, source_file) in &broken_refs {
+                let line_hint = find_line_number(source_file, ref_id);
+                if let Some(line) = line_hint {
+                    eprintln!(
+                        "   {}:{}: Rule '{}' references non-existent trait: '{}'",
+                        source_file, line, rule_id, ref_id
+                    );
+                } else {
+                    eprintln!(
+                        "   {}: Rule '{}' references non-existent trait: '{}'",
+                        source_file, rule_id, ref_id
+                    );
+                }
+            }
+            eprintln!();
         }
 
         // Validate that composite rules only contain trait references (not inline primitives)
@@ -1676,6 +1735,33 @@ fn validate_composite_trait_only(rule: &CompositeTrait, source_file: &str) -> Ve
     }
 
     errors
+}
+
+/// Auto-prefix trait references in composite rule conditions
+/// If a trait reference doesn't contain '/', prepend the given prefix
+fn autoprefix_trait_refs(rule: &mut CompositeTrait, prefix: &str) {
+    use crate::composite_rules::Condition;
+
+    fn prefix_conditions(conditions: &mut [Condition], prefix: &str) {
+        for cond in conditions {
+            if let Condition::Trait { id } = cond {
+                // Only prefix if ID doesn't already contain '/' (i.e., it's local to this file)
+                if !id.contains('/') {
+                    *id = format!("{}/{}", prefix, id);
+                }
+            }
+        }
+    }
+
+    if let Some(ref mut conditions) = rule.all {
+        prefix_conditions(conditions, prefix);
+    }
+    if let Some(ref mut conditions) = rule.any {
+        prefix_conditions(conditions, prefix);
+    }
+    if let Some(ref mut conditions) = rule.none {
+        prefix_conditions(conditions, prefix);
+    }
 }
 
 /// Collect all trait reference IDs from a composite rule's conditions

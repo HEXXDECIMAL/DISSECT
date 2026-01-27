@@ -435,8 +435,8 @@ composite_rules:
     desc: Browser credential data files
     for: [all]
     any:
-      - { id: chromium/login-data }
-      - { id: firefox/cookies-sqlite }
+      - { id: cred/browser/chromium/login-data }
+      - { id: cred/browser/firefox/cookies-sqlite }
       - { id: local-state-file }
       - { id: encrypted-key-field }
       - { id: logins-json-file }
