@@ -1,0 +1,1110 @@
+//! Core CapabilityMapper implementation.
+//!
+//! This module provides the main `CapabilityMapper` struct which:
+//! - Loads capability definitions from YAML files
+//! - Maps symbols to capability IDs
+//! - Evaluates trait definitions and composite rules against analysis reports
+//! - Provides platform and file type detection
+
+use crate::composite_rules::{
+    CompositeTrait, Condition, EvaluationContext, FileType as RuleFileType, Platform,
+    TraitDefinition,
+};
+use crate::types::{AnalysisReport, Criticality, Evidence, Finding, FindingKind};
+use anyhow::{Context, Result};
+use rayon::prelude::*;
+use rustc_hash::{FxHashMap, FxHashSet};
+use std::collections::HashMap;
+use std::fs;
+use std::path::Path;
+
+use super::indexes::{RawContentRegexIndex, StringMatchIndex, TraitIndex};
+use super::models::{TraitInfo, TraitMappings};
+use super::parsing::{apply_composite_defaults, apply_trait_defaults};
+use super::validation::{
+    autoprefix_trait_refs, collect_trait_refs_from_rule, find_line_number,
+    simple_rule_to_composite_rule, validate_composite_trait_only,
+    validate_hostile_composite_complexity,
+};
+
+/// Maps symbols (function names, library calls) to capability IDs
+/// Also supports trait definitions and composite rules that combine traits
+#[derive(Clone)]
+pub struct CapabilityMapper {
+    symbol_map: HashMap<String, TraitInfo>,
+    trait_definitions: Vec<TraitDefinition>,
+    pub(crate) composite_rules: Vec<CompositeTrait>,
+    /// Index for fast trait lookup by file type
+    trait_index: TraitIndex,
+    /// Index for fast batched string matching
+    string_match_index: StringMatchIndex,
+    /// Index for batched raw content regex matching
+    raw_content_regex_index: RawContentRegexIndex,
+}
+
+impl CapabilityMapper {
+    /// Create an empty capability mapper for testing
+    pub fn empty() -> Self {
+        Self {
+            symbol_map: HashMap::new(),
+            trait_definitions: Vec::new(),
+            composite_rules: Vec::new(),
+            trait_index: TraitIndex::new(),
+            string_match_index: StringMatchIndex::default(),
+            raw_content_regex_index: RawContentRegexIndex::default(),
+        }
+    }
+
+    pub fn new() -> Self {
+        let debug = std::env::var("DISSECT_DEBUG").is_ok();
+
+        // Try to load from capabilities directory, fall back to single file
+        // YAML parse errors or invalid trait configurations are fatal
+        match Self::from_directory("traits") {
+            Ok(mapper) => {
+                eprintln!("✅ Loaded capabilities from traits/ directory");
+                eprintln!("   {} symbol mappings", mapper.symbol_map.len());
+                eprintln!("   {} trait definitions", mapper.trait_definitions.len());
+                eprintln!("   {} composite rules", mapper.composite_rules.len());
+                return mapper;
+            }
+            Err(e) => {
+                // Check if this is a YAML parse error or invalid configuration
+                // These are fatal and should exit immediately with clear error message
+                let error_chain = format!("{:#}", e);
+                if error_chain.contains("Failed to parse YAML")
+                    || error_chain.contains("invalid condition")
+                {
+                    eprintln!("\n❌ FATAL: Invalid trait configuration file\n");
+                    // Print the full error chain which includes file path and line info
+                    for (i, cause) in e.chain().enumerate() {
+                        if i == 0 {
+                            eprintln!("   Error: {}", cause);
+                        } else {
+                            eprintln!("   Caused by: {}", cause);
+                        }
+                    }
+                    eprintln!();
+                    std::process::exit(1);
+                }
+                if debug {
+                    eprintln!("⚠️  Failed to load from traits/ directory: {:#}", e);
+                }
+            }
+        }
+
+        match Self::from_yaml("capabilities.yaml") {
+            Ok(mapper) => {
+                eprintln!("✅ Loaded capabilities from capabilities.yaml");
+                eprintln!("   {} symbol mappings", mapper.symbol_map.len());
+                return mapper;
+            }
+            Err(e) => {
+                // Check if this is a YAML parse error - fatal
+                let error_chain = format!("{:#}", e);
+                if error_chain.contains("Failed to parse") {
+                    eprintln!("\n❌ FATAL: Invalid capabilities.yaml file\n");
+                    for (i, cause) in e.chain().enumerate() {
+                        if i == 0 {
+                            eprintln!("   Error: {}", cause);
+                        } else {
+                            eprintln!("   Caused by: {}", cause);
+                        }
+                    }
+                    eprintln!();
+                    std::process::exit(1);
+                }
+                if debug {
+                    eprintln!("⚠️  Failed to load from capabilities.yaml: {:#}", e);
+                }
+            }
+        }
+
+        eprintln!("❌ ERROR: Failed to load capabilities from any source");
+        eprintln!("   Tried: traits/ directory, capabilities.yaml");
+        eprintln!("   Set DISSECT_DEBUG=1 for detailed errors");
+        eprintln!("   Creating empty capability mapper - NO DETECTIONS WILL WORK");
+
+        Self::empty()
+    }
+
+    /// Load capability mappings from directory of YAML files (recursively)
+    pub fn from_directory<P: AsRef<Path>>(dir_path: P) -> Result<Self> {
+        let debug = std::env::var("DISSECT_DEBUG").is_ok();
+        let timing = std::env::var("DISSECT_TIMING").is_ok();
+        let dir_path = dir_path.as_ref();
+        let t_start = std::time::Instant::now();
+
+        if debug {
+            eprintln!("🔍 Loading capabilities from: {}", dir_path.display());
+        }
+
+        // First, collect all YAML file paths
+        let yaml_files: Vec<_> = walkdir::WalkDir::new(dir_path)
+            .follow_links(false)
+            .into_iter()
+            .filter_map(|e| e.ok())
+            .filter(|entry| {
+                let path = entry.path();
+                if !path.is_file() || !path.extension().map(|e| e == "yaml").unwrap_or(false) {
+                    return false;
+                }
+                let filename = path.file_name().and_then(|f| f.to_str()).unwrap_or("");
+                !filename.to_lowercase().contains("readme") && !filename.starts_with("EXAMPLE")
+            })
+            .map(|entry| entry.path().to_path_buf())
+            .collect();
+
+        if yaml_files.is_empty() {
+            anyhow::bail!("No YAML files found in {}", dir_path.display());
+        }
+
+        if timing {
+            eprintln!(
+                "[TIMING] Collected {} YAML files: {:?}",
+                yaml_files.len(),
+                t_start.elapsed()
+            );
+        }
+        let t_parse = std::time::Instant::now();
+
+        // Load all YAML files in parallel, preserving path for prefix calculation
+        let results: Vec<_> = yaml_files
+            .par_iter()
+            .map(|path| {
+                if debug {
+                    eprintln!("   📄 Loading: {}", path.display());
+                }
+
+                let bytes = fs::read(path).with_context(|| format!("Failed to read {:?}", path))?;
+                let content = String::from_utf8_lossy(&bytes);
+
+                let mappings: TraitMappings = serde_yaml::from_str(&content)
+                    .with_context(|| format!("Failed to parse YAML in {:?}", path))?;
+
+                Ok::<_, anyhow::Error>((path.clone(), mappings))
+            })
+            .collect();
+
+        if timing {
+            eprintln!("[TIMING] Parsed YAML files: {:?}", t_parse.elapsed());
+        }
+        let t_merge = std::time::Instant::now();
+
+        // Merge all results
+        let mut symbol_map = HashMap::new();
+        let mut trait_definitions = Vec::new();
+        let mut composite_rules = Vec::new();
+        let mut rule_source_files: HashMap<String, String> = HashMap::new(); // rule_id -> file_path
+        let mut files_processed = 0;
+
+        for result in results {
+            let (path, mappings) = result?;
+            files_processed += 1;
+
+            // Calculate the prefix from the directory path relative to traits/
+            // e.g., traits/credential/java/traits.yaml -> credential/java
+            let trait_prefix = path
+                .strip_prefix(dir_path)
+                .ok()
+                .and_then(|p| p.parent())
+                .map(|p| p.to_string_lossy().replace('\\', "/"))
+                .filter(|s| !s.is_empty());
+
+            let before_symbols = symbol_map.len();
+            let before_traits = trait_definitions.len();
+            let before_composites = composite_rules.len();
+
+            // Merge symbols
+            for mapping in mappings.symbols {
+                symbol_map.insert(
+                    mapping.symbol.clone(),
+                    TraitInfo {
+                        id: mapping.capability,
+                        desc: mapping.desc,
+                        conf: mapping.conf,
+                    },
+                );
+            }
+
+            // Merge simple_rules
+            for rule in mappings.simple_rules {
+                // If rule has platform or file_type constraints, convert to composite rule
+                if !rule.platforms.is_empty() || !rule.file_types.is_empty() {
+                    let composite = simple_rule_to_composite_rule(rule);
+                    composite_rules.push(composite);
+                } else {
+                    // No constraints - add to symbol map for fast lookup
+                    symbol_map.insert(
+                        rule.symbol.clone(),
+                        TraitInfo {
+                            id: rule.capability,
+                            desc: rule.desc,
+                            conf: rule.conf,
+                        },
+                    );
+                }
+            }
+
+            // Merge trait definitions with auto-prefixed IDs, applying file-level defaults
+            let traits_count = mappings.traits.len();
+            for raw_trait in mappings.traits {
+                // Convert raw trait to final trait, applying file-level defaults
+                let mut trait_def = apply_trait_defaults(raw_trait, &mappings.defaults);
+
+                // Auto-prefix trait ID if it doesn't already have the path prefix
+                if let Some(ref prefix) = trait_prefix {
+                    if !trait_def.id.starts_with(prefix) && !trait_def.id.contains('/') {
+                        trait_def.id = format!("{}/{}", prefix, trait_def.id);
+                    }
+                }
+                // Validate YARA/AST conditions at load time
+                trait_def.r#if.validate().with_context(|| {
+                    format!(
+                        "invalid condition in trait '{}' from {:?}",
+                        trait_def.id, path
+                    )
+                })?;
+                // Warn about greedy regex patterns
+                if let Some(warning) = trait_def.r#if.check_greedy_patterns() {
+                    eprintln!(
+                        "warning: trait '{}' in {:?}: {}",
+                        trait_def.id, path, warning
+                    );
+                }
+                trait_definitions.push(trait_def);
+            }
+
+            // Extract symbol mappings from trait definitions with symbol conditions
+            for trait_def in
+                &trait_definitions[trait_definitions.len().saturating_sub(traits_count)..]
+            {
+                // Check if this trait has a symbol condition
+                if let Condition::Symbol {
+                    exact,
+                    pattern,
+                    platforms: _,
+                } = &trait_def.r#if
+                {
+                    // Check if there are no platform constraints, or add anyway for lookup
+                    // (platform filtering will happen later during evaluation)
+
+                    // If exact is specified, add it directly
+                    if let Some(exact_val) = exact {
+                        symbol_map
+                            .entry(exact_val.clone())
+                            .or_insert_with(|| TraitInfo {
+                                id: trait_def.id.clone(),
+                                desc: trait_def.desc.clone(),
+                                conf: trait_def.conf,
+                            });
+                    }
+
+                    // For each pattern (may contain "|" for alternatives)
+                    if let Some(pattern_val) = pattern {
+                        for symbol_pattern in pattern_val.split('|') {
+                            let symbol = symbol_pattern.trim().to_string();
+
+                            // Only add if not already present (first match wins)
+                            symbol_map.entry(symbol).or_insert_with(|| TraitInfo {
+                                id: trait_def.id.clone(),
+                                desc: trait_def.desc.clone(),
+                                conf: trait_def.conf,
+                            });
+                        }
+                    }
+                }
+            }
+
+            // Merge composite_rules with auto-prefixed IDs, applying file-level defaults
+            for raw_rule in mappings.composite_rules {
+                // Convert raw rule to final rule, applying file-level defaults
+                let mut rule = apply_composite_defaults(raw_rule, &mappings.defaults);
+
+                // Auto-prefix composite rule ID if it doesn't already have the path prefix
+                if let Some(ref prefix) = trait_prefix {
+                    if !rule.id.starts_with(prefix) && !rule.id.contains('/') {
+                        rule.id = format!("{}/{}", prefix, rule.id);
+                    }
+                    // Also auto-prefix trait references within the rule's conditions
+                    autoprefix_trait_refs(&mut rule, prefix);
+                }
+                // Track source file for error reporting
+                rule_source_files.insert(rule.id.clone(), path.display().to_string());
+                composite_rules.push(rule);
+            }
+
+            if debug {
+                eprintln!(
+                    "      +{} symbols, +{} traits, +{} composite rules",
+                    symbol_map.len() - before_symbols,
+                    trait_definitions.len() - before_traits,
+                    composite_rules.len() - before_composites
+                );
+            }
+        }
+
+        if debug {
+            eprintln!("   ✅ Processed {} YAML files", files_processed);
+        }
+
+        if timing {
+            eprintln!("[TIMING] Merged results: {:?}", t_merge.elapsed());
+        }
+        let t_yara = std::time::Instant::now();
+
+        // Pre-compile all YARA rules for faster evaluation (parallelized)
+        let yara_count_traits = trait_definitions
+            .iter()
+            .filter(|t| matches!(t.r#if, Condition::Yara { .. }))
+            .count();
+
+        // Use rayon's par_iter_mut for parallel YARA compilation
+        trait_definitions.par_iter_mut().for_each(|t| {
+            if matches!(t.r#if, Condition::Yara { .. }) {
+                t.compile_yara();
+            }
+        });
+
+        let yara_count_composite = composite_rules.len();
+        composite_rules.par_iter_mut().for_each(|r| {
+            r.compile_yara();
+        });
+
+        if debug && (yara_count_traits > 0 || yara_count_composite > 0) {
+            eprintln!(
+                "   ⚡ Pre-compiled YARA rules in {} traits, {} composite rules",
+                yara_count_traits, yara_count_composite
+            );
+        }
+
+        if timing {
+            eprintln!("[TIMING] Pre-compiled YARA: {:?}", t_yara.elapsed());
+        }
+        let t_validate = std::time::Instant::now();
+
+        // Post-process HOSTILE composite rules to properly calculate complexity
+        // Now that all rules are loaded, we can recursively calculate true complexity
+        validate_hostile_composite_complexity(&mut composite_rules, &trait_definitions);
+
+        // Validate trait references in composite rules
+        // Cross-directory references (containing '/') must match an existing directory prefix
+        // Include both trait definition prefixes AND composite rule prefixes (rules can reference rules)
+        let mut known_prefixes: std::collections::HashSet<String> = trait_definitions
+            .iter()
+            .filter_map(|t| {
+                // Extract the directory prefix from trait IDs (everything before the last '/')
+                t.id.rfind('/').map(|idx| t.id[..idx].to_string())
+            })
+            .collect();
+
+        // Also add composite rule prefixes (composite rules can reference other composite rules)
+        for rule in &composite_rules {
+            if let Some(idx) = rule.id.rfind('/') {
+                known_prefixes.insert(rule.id[..idx].to_string());
+            }
+        }
+
+        let mut invalid_refs = Vec::new();
+        for rule in &composite_rules {
+            let trait_refs = collect_trait_refs_from_rule(rule);
+            for (ref_id, rule_id) in trait_refs {
+                // Only validate cross-directory references (those with slashes)
+                if ref_id.contains('/') {
+                    // Check if this matches any known prefix
+                    let matches_prefix = known_prefixes
+                        .iter()
+                        .any(|prefix| prefix.starts_with(&ref_id) || ref_id.starts_with(prefix));
+                    if !matches_prefix {
+                        let source_file = rule_source_files
+                            .get(&rule_id)
+                            .map(|s| s.as_str())
+                            .unwrap_or("unknown");
+                        invalid_refs.push((rule_id.clone(), ref_id, source_file.to_string()));
+                    }
+                }
+            }
+        }
+
+        if !invalid_refs.is_empty() {
+            eprintln!(
+                "\n⚠️  WARNING: {} invalid trait references found in composite rules",
+                invalid_refs.len()
+            );
+            if debug {
+                for (rule_id, ref_id, source_file) in &invalid_refs {
+                    // Try to find line number by searching the file
+                    let line_hint = find_line_number(source_file, ref_id);
+                    if let Some(line) = line_hint {
+                        eprintln!(
+                            "   {}:{}: Rule '{}' references unknown path: '{}'",
+                            source_file, line, rule_id, ref_id
+                        );
+                    } else {
+                        eprintln!(
+                            "   {}: Rule '{}' references unknown path: '{}'",
+                            source_file, rule_id, ref_id
+                        );
+                    }
+                }
+                eprintln!("\n   Cross-directory references must use directory paths (e.g., 'discovery/system')");
+                eprintln!("   that match existing trait directories, not exact trait IDs.\n");
+            } else {
+                eprintln!("   Set DISSECT_DEBUG=1 to see details\n");
+            }
+        }
+
+        // Pre-compile all regexes for performance
+        for trait_def in &mut trait_definitions {
+            trait_def.r#if.precompile_regexes();
+        }
+
+        // Validate exact trait ID references
+        // Build set of all valid trait IDs (both atomic traits and composite rules)
+        let mut valid_trait_ids: FxHashSet<String> =
+            trait_definitions.iter().map(|t| t.id.clone()).collect();
+        for rule in &composite_rules {
+            valid_trait_ids.insert(rule.id.clone());
+        }
+
+        let mut broken_refs = Vec::new();
+        for rule in &composite_rules {
+            let trait_refs = collect_trait_refs_from_rule(rule);
+            for (ref_id, rule_id) in trait_refs {
+                // Skip validation for directory-level references (intentional loose coupling)
+                // e.g., "discovery/system" matches any trait in that directory
+                let is_directory_ref = known_prefixes.contains(&ref_id);
+
+                // Check if the exact trait ID exists (unless it's an intentional directory ref)
+                if !is_directory_ref && !valid_trait_ids.contains(&ref_id) {
+                    // Also check if it's a partial match to a known prefix (could be typo)
+                    let matches_any_prefix = known_prefixes
+                        .iter()
+                        .any(|prefix| ref_id.starts_with(prefix) || prefix.starts_with(&ref_id));
+
+                    if !matches_any_prefix {
+                        let source_file = rule_source_files
+                            .get(&rule_id)
+                            .map(|s| s.as_str())
+                            .unwrap_or("unknown");
+                        broken_refs.push((rule_id.clone(), ref_id, source_file.to_string()));
+                    }
+                }
+            }
+        }
+
+        if !broken_refs.is_empty() {
+            eprintln!(
+                "\n⚠️  WARNING: {} broken trait references found in composite rules",
+                broken_refs.len()
+            );
+            eprintln!("   Composite rules reference trait IDs that don't exist:\n");
+            for (rule_id, ref_id, source_file) in &broken_refs {
+                let line_hint = find_line_number(source_file, ref_id);
+                if let Some(line) = line_hint {
+                    eprintln!(
+                        "   {}:{}: Rule '{}' references non-existent trait: '{}'",
+                        source_file, line, rule_id, ref_id
+                    );
+                } else {
+                    eprintln!(
+                        "   {}: Rule '{}' references non-existent trait: '{}'",
+                        source_file, rule_id, ref_id
+                    );
+                }
+            }
+            eprintln!();
+        }
+
+        // Validate that composite rules only contain trait references (not inline primitives)
+        // Strict mode is the default - composite rules must only reference traits
+        // Set DISSECT_ALLOW_INLINE_PRIMITIVES=1 to temporarily allow inline primitives
+        let allow_inline = std::env::var("DISSECT_ALLOW_INLINE_PRIMITIVES").is_ok();
+        if !allow_inline {
+            let mut inline_errors = Vec::new();
+            for rule in &composite_rules {
+                let source = rule_source_files
+                    .get(&rule.id)
+                    .map(|s| s.as_str())
+                    .unwrap_or("unknown");
+                inline_errors.extend(validate_composite_trait_only(rule, source));
+            }
+
+            if !inline_errors.is_empty() {
+                eprintln!(
+                    "\n❌ FATAL: {} composite rules have inline primitives\n",
+                    inline_errors.len()
+                );
+                for err in &inline_errors {
+                    eprintln!("   {}", err);
+                }
+                eprintln!("\n   Composite rules must only reference traits (type: trait).");
+                eprintln!(
+                    "   Convert inline conditions (string, symbol, yara, etc.) to atomic traits."
+                );
+                eprintln!(
+                    "   Set DISSECT_ALLOW_INLINE_PRIMITIVES=1 to temporarily bypass this check.\n"
+                );
+                std::process::exit(1);
+            }
+        }
+
+        // Validate single-rule composites with identical file types
+        // Build map of trait_id -> file_types for quick lookup
+        let mut trait_file_types: FxHashMap<String, Vec<RuleFileType>> = FxHashMap::default();
+        for trait_def in &trait_definitions {
+            trait_file_types.insert(trait_def.id.clone(), trait_def.r#for.clone());
+        }
+        for rule in &composite_rules {
+            trait_file_types.insert(rule.id.clone(), rule.r#for.clone());
+        }
+
+        let mut redundant_composites = Vec::new();
+        for rule in &composite_rules {
+            // Check if this is a single-rule composite
+            let mut total_conditions = 0;
+            if let Some(ref all) = rule.all {
+                total_conditions += all.len();
+            }
+            if let Some(ref any) = rule.any {
+                total_conditions += any.len();
+            }
+            if let Some(ref none) = rule.none {
+                total_conditions += none.len();
+            }
+
+            // If it's a single-rule composite, check file types
+            if total_conditions == 1 {
+                let trait_refs = collect_trait_refs_from_rule(rule);
+                if trait_refs.len() == 1 {
+                    let (ref_id, _) = &trait_refs[0];
+
+                    // Look up the referenced trait's file types
+                    if let Some(ref_file_types) = trait_file_types.get(ref_id) {
+                        // Compare file types - warn if identical
+                        if rule.r#for == *ref_file_types {
+                            let source_file = rule_source_files
+                                .get(&rule.id)
+                                .map(|s| s.as_str())
+                                .unwrap_or("unknown");
+                            redundant_composites.push((
+                                rule.id.clone(),
+                                ref_id.clone(),
+                                source_file.to_string(),
+                            ));
+                        }
+                    }
+                }
+            }
+        }
+
+        if !redundant_composites.is_empty() {
+            eprintln!(
+                "\n⚠️  WARNING: {} single-rule composites have identical file types to their referenced trait",
+                redundant_composites.len()
+            );
+            eprintln!(
+                "   These composites add no value - consider removing them or adding more conditions:\n"
+            );
+            for (rule_id, ref_id, source_file) in &redundant_composites {
+                let line_hint = find_line_number(source_file, rule_id);
+                if let Some(line) = line_hint {
+                    eprintln!(
+                        "   {}:{}: Composite '{}' only references '{}' with same file types",
+                        source_file, line, rule_id, ref_id
+                    );
+                } else {
+                    eprintln!(
+                        "   {}: Composite '{}' only references '{}' with same file types",
+                        source_file, rule_id, ref_id
+                    );
+                }
+            }
+            eprintln!();
+        }
+
+        if timing {
+            eprintln!("[TIMING] Validated refs: {:?}", t_validate.elapsed());
+            eprintln!("[TIMING] Total from_directory: {:?}", t_start.elapsed());
+        }
+
+        // Build trait index for fast lookup by file type
+        let trait_index = TraitIndex::build(&trait_definitions);
+
+        // Build string match index for batched AC matching
+        let t_string_index = std::time::Instant::now();
+        let string_match_index = StringMatchIndex::build(&trait_definitions);
+        if timing {
+            eprintln!(
+                "[TIMING] Built string index ({} patterns): {:?}",
+                string_match_index.total_patterns,
+                t_string_index.elapsed()
+            );
+        }
+
+        // Build raw content regex index for batched regex matching
+        let t_raw_regex_index = std::time::Instant::now();
+        let raw_content_regex_index = RawContentRegexIndex::build(&trait_definitions);
+        if timing {
+            eprintln!(
+                "[TIMING] Built raw content regex index ({} patterns): {:?}",
+                raw_content_regex_index.total_patterns,
+                t_raw_regex_index.elapsed()
+            );
+        }
+
+        Ok(Self {
+            symbol_map,
+            trait_definitions,
+            composite_rules,
+            trait_index,
+            string_match_index,
+            raw_content_regex_index,
+        })
+    }
+
+    /// Load capability mappings from YAML file
+    pub fn from_yaml<P: AsRef<Path>>(path: P) -> Result<Self> {
+        let bytes = fs::read(path.as_ref()).context("Failed to read capabilities YAML file")?;
+        let content = String::from_utf8_lossy(&bytes);
+
+        let mappings: TraitMappings =
+            serde_yaml::from_str(&content).context("Failed to parse capabilities YAML")?;
+
+        let mut symbol_map = HashMap::new();
+
+        // Load legacy "symbols" format
+        for mapping in mappings.symbols {
+            symbol_map.insert(
+                mapping.symbol.clone(),
+                TraitInfo {
+                    id: mapping.capability,
+                    desc: mapping.desc,
+                    conf: mapping.conf,
+                },
+            );
+        }
+
+        // Load "simple_rules" format
+        for rule in mappings.simple_rules {
+            symbol_map.insert(
+                rule.symbol.clone(),
+                TraitInfo {
+                    id: rule.capability,
+                    desc: rule.desc,
+                    conf: rule.conf,
+                },
+            );
+        }
+
+        // Convert raw traits to final traits with defaults applied
+        let mut trait_definitions: Vec<TraitDefinition> = mappings
+            .traits
+            .into_iter()
+            .map(|raw| apply_trait_defaults(raw, &mappings.defaults))
+            .collect();
+
+        // Pre-compile all regexes for performance
+        for trait_def in &mut trait_definitions {
+            trait_def.r#if.precompile_regexes();
+        }
+
+        // Convert raw composite rules to final rules with defaults applied
+        let composite_rules: Vec<CompositeTrait> = mappings
+            .composite_rules
+            .into_iter()
+            .map(|raw| apply_composite_defaults(raw, &mappings.defaults))
+            .collect();
+
+        // Build trait index for fast lookup by file type
+        let trait_index = TraitIndex::build(&trait_definitions);
+
+        // Build string match index for batched AC matching
+        let string_match_index = StringMatchIndex::build(&trait_definitions);
+
+        // Build raw content regex index for batched regex matching
+        let raw_content_regex_index = RawContentRegexIndex::build(&trait_definitions);
+
+        Ok(Self {
+            symbol_map,
+            trait_definitions,
+            composite_rules,
+            trait_index,
+            string_match_index,
+            raw_content_regex_index,
+        })
+    }
+
+    /// Look up a symbol and return its capability finding if known
+    pub fn lookup(&self, symbol: &str, source: &str) -> Option<Finding> {
+        // Strip common prefixes for matching
+        let clean_symbol = symbol
+            .trim_start_matches('_') // C symbols often have leading underscore
+            .trim_start_matches("__"); // Some have double underscore
+
+        if let Some(info) = self.symbol_map.get(clean_symbol) {
+            return Some(Finding {
+                id: info.id.clone(),
+                kind: FindingKind::Capability,
+                desc: info.desc.clone(),
+                conf: info.conf,
+                crit: Criticality::Inert,
+                mbc: None,
+                attack: None,
+                trait_refs: vec![],
+                evidence: vec![Evidence {
+                    method: "symbol".to_string(),
+                    source: source.to_string(),
+                    value: symbol.to_string(),
+                    location: None,
+                }],
+            });
+        }
+
+        None
+    }
+
+    /// Map YARA rule path to capability ID
+    /// Example: "rules/exec/cmd/cmd.yara" → "exec/command/shell"
+    pub fn yara_rule_to_capability(&self, rule_path: &str) -> Option<String> {
+        // Extract the path components after "rules/"
+        let path = rule_path.strip_prefix("rules/").unwrap_or(rule_path);
+
+        // Map directory structure to capability IDs
+        // This follows the malcontent rule structure
+        let parts: Vec<&str> = path.split('/').collect();
+
+        if parts.is_empty() {
+            return None;
+        }
+
+        // Build capability ID from path components
+        // Example: exec/cmd/cmd.yara → exec/command/shell
+        match (parts.first(), parts.get(1)) {
+            (Some(&"exec"), Some(&"cmd")) => Some("exec/command/shell".to_string()),
+            (Some(&"exec"), Some(&"program")) => Some("exec/command/direct".to_string()),
+            (Some(&"exec"), Some(&"shell")) => Some("exec/command/shell".to_string()),
+            (Some(&"net"), Some(&"ftp")) => Some("net/ftp/client".to_string()),
+            (Some(&"net"), Some(&"http")) => Some("net/http/client".to_string()),
+            (Some(&"crypto"), sub) => Some(format!("crypto/{}", sub.unwrap_or(&"generic"))),
+            (Some(&"anti-static"), Some(&"obfuscation")) => {
+                // Get the specific obfuscation type
+                if let Some(&obf_type) = parts.get(2) {
+                    let type_clean = obf_type.trim_end_matches(".yara");
+                    Some(format!("anti-analysis/obfuscation/{}", type_clean))
+                } else {
+                    Some("anti-analysis/obfuscation".to_string())
+                }
+            }
+            (Some(&"fs"), sub) => Some(format!("fs/{}", sub.unwrap_or(&"generic"))),
+            (Some(category), sub) => Some(format!("{}/{}", category, sub.unwrap_or(&"generic"))),
+            _ => None,
+        }
+    }
+
+    /// Get the number of loaded symbol mappings
+    pub fn mapping_count(&self) -> usize {
+        self.symbol_map.len()
+    }
+
+    /// Get the number of loaded composite rules
+    pub fn composite_rules_count(&self) -> usize {
+        self.composite_rules.len()
+    }
+
+    /// Get the number of loaded trait definitions
+    pub fn trait_definitions_count(&self) -> usize {
+        self.trait_definitions.len()
+    }
+
+    /// Evaluate trait definitions against an analysis report with optional cached AST
+    /// Returns findings detected from trait definitions
+    pub fn evaluate_traits_with_ast(
+        &self,
+        report: &AnalysisReport,
+        binary_data: &[u8],
+        cached_ast: Option<&tree_sitter::Tree>,
+    ) -> Vec<Finding> {
+        let timing = std::env::var("DISSECT_TIMING").is_ok();
+
+        // Determine platform and file type from report
+        let platform = self.detect_platform(&report.target.file_type);
+        let file_type = self.detect_file_type(&report.target.file_type);
+
+        let ctx = EvaluationContext {
+            report,
+            binary_data,
+            file_type: file_type.clone(),
+            platform,
+            additional_findings: None,
+            cached_ast,
+        };
+
+        // Use trait index to only evaluate applicable traits
+        // This dramatically reduces work for specific file types
+        let applicable_indices: Vec<usize> = self.trait_index.get_applicable(&file_type).collect();
+
+        // Pre-filter using batched Aho-Corasick string matching WITH evidence caching
+        // This identifies which traits match AND caches the evidence to avoid re-iteration
+        let t_prematch = std::time::Instant::now();
+        let (string_matched_traits, cached_evidence) = if self.string_match_index.has_patterns() {
+            self.string_match_index
+                .find_matches_with_evidence(&report.strings)
+        } else {
+            (FxHashSet::default(), FxHashMap::default())
+        };
+
+        if timing {
+            eprintln!(
+                "[TIMING] String pre-match: {:?} ({} traits matched)",
+                t_prematch.elapsed(),
+                string_matched_traits.len()
+            );
+        }
+
+        // Pre-filter using batched regex matching for search_raw: true patterns
+        let t_raw_regex = std::time::Instant::now();
+        let raw_regex_matched_traits = if self.raw_content_regex_index.has_patterns() {
+            self.raw_content_regex_index.find_matches(binary_data)
+        } else {
+            FxHashSet::default()
+        };
+
+        if timing {
+            eprintln!(
+                "[TIMING] Raw content regex pre-match: {:?} ({} traits matched)",
+                t_raw_regex.elapsed(),
+                raw_regex_matched_traits.len()
+            );
+        }
+
+        // Evaluate only applicable traits in parallel
+        // For exact string traits with cached evidence, use that directly instead of re-evaluating
+        let t_eval = std::time::Instant::now();
+
+        if timing {
+            eprintln!(
+                "[TIMING] Applicable traits: {} (out of {})",
+                applicable_indices.len(),
+                self.trait_definitions.len()
+            );
+        }
+
+        let eval_count = std::sync::atomic::AtomicUsize::new(0);
+        let skip_count = std::sync::atomic::AtomicUsize::new(0);
+
+        let all_findings: Vec<Finding> = applicable_indices
+            .par_iter()
+            .filter_map(|&idx| {
+                let trait_def = &self.trait_definitions[idx];
+
+                // Check if this is an exact string trait (case-sensitive, no excludes)
+                let is_simple_exact_string = matches!(
+                    &trait_def.r#if,
+                    Condition::String {
+                        exact: Some(_),
+                        case_insensitive: false,
+                        exclude_patterns: None,
+                        min_count: 1,
+                        ..
+                    }
+                );
+
+                if is_simple_exact_string {
+                    // Use cached evidence directly - skip full evaluation
+                    if let Some(evidence) = cached_evidence.get(&idx) {
+                        if !evidence.is_empty() {
+                            return Some(Finding {
+                                id: trait_def.id.clone(),
+                                desc: trait_def.desc.clone(),
+                                conf: trait_def.conf,
+                                crit: trait_def.crit,
+                                mbc: trait_def.mbc.clone(),
+                                attack: trait_def.attack.clone(),
+                                evidence: evidence.clone(),
+                                kind: FindingKind::Capability,
+                                trait_refs: vec![],
+                            });
+                        }
+                    }
+                    return None;
+                }
+
+                // Check if this trait has an exact string pattern that wasn't matched
+                let has_exact_string = matches!(
+                    trait_def.r#if,
+                    Condition::String {
+                        exact: Some(_),
+                        case_insensitive: false,
+                        ..
+                    }
+                );
+
+                // If trait has an exact string pattern and it wasn't matched, skip it
+                if has_exact_string && !string_matched_traits.contains(&idx) {
+                    skip_count.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+                    return None;
+                }
+
+                // Check if this trait has a raw content regex/word pattern that wasn't matched
+                let has_raw_regex = matches!(
+                    trait_def.r#if,
+                    Condition::String {
+                        regex: Some(_),
+                        search_raw: true,
+                        ..
+                    } | Condition::String {
+                        word: Some(_),
+                        search_raw: true,
+                        ..
+                    }
+                );
+
+                // If trait has a raw regex pattern and it wasn't matched, skip it
+                if has_raw_regex && !raw_regex_matched_traits.contains(&idx) {
+                    skip_count.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+                    return None;
+                }
+
+                eval_count.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+                trait_def.evaluate(&ctx)
+            })
+            .collect();
+
+        if timing {
+            eprintln!(
+                "[TIMING] Trait evaluation: {:?} (evaluated: {}, skipped: {})",
+                t_eval.elapsed(),
+                eval_count.load(std::sync::atomic::Ordering::Relaxed),
+                skip_count.load(std::sync::atomic::Ordering::Relaxed)
+            );
+        }
+
+        // Deduplicate findings (keep first occurrence of each ID)
+        let mut seen = std::collections::HashSet::new();
+        all_findings
+            .into_iter()
+            .filter(|f| seen.insert(f.id.clone()))
+            .collect()
+    }
+
+    /// Evaluate trait definitions against an analysis report (without cached AST)
+    /// Backwards-compatible wrapper for evaluate_traits_with_ast
+    pub fn evaluate_traits(&self, report: &AnalysisReport, binary_data: &[u8]) -> Vec<Finding> {
+        self.evaluate_traits_with_ast(report, binary_data, None)
+    }
+
+    /// Evaluate composite rules against an analysis report
+    /// Returns additional findings detected by composite rules
+    pub fn evaluate_composite_rules(
+        &self,
+        report: &AnalysisReport,
+        binary_data: &[u8],
+    ) -> Vec<Finding> {
+        // Determine platform and file type from report
+        let platform = self.detect_platform(&report.target.file_type);
+        let file_type = self.detect_file_type(&report.target.file_type);
+
+        // Iterative evaluation to support composite rules referencing other composites
+        // On each iteration, newly matched composites become available for subsequent evaluations
+        let mut all_findings: Vec<Finding> = Vec::new();
+        let mut seen_ids: std::collections::HashSet<String> = std::collections::HashSet::new();
+
+        // Track which composite IDs have already matched (including original findings)
+        for finding in &report.findings {
+            seen_ids.insert(finding.id.clone());
+        }
+
+        // Maximum iterations to prevent infinite loops (should converge quickly)
+        const MAX_ITERATIONS: usize = 10;
+
+        for _ in 0..MAX_ITERATIONS {
+            let ctx = EvaluationContext {
+                report,
+                binary_data,
+                file_type: file_type.clone(),
+                platform: platform.clone(),
+                additional_findings: if all_findings.is_empty() {
+                    None
+                } else {
+                    Some(&all_findings)
+                },
+                cached_ast: None,
+            };
+
+            // Evaluate composite rules in parallel
+            let new_findings: Vec<Finding> = self
+                .composite_rules
+                .par_iter()
+                .filter_map(|rule| rule.evaluate(&ctx))
+                .filter(|f| !seen_ids.contains(&f.id))
+                .collect();
+
+            if new_findings.is_empty() {
+                // Fixed point reached - no new composites found
+                break;
+            }
+
+            // Add new findings to the accumulated set
+            for finding in new_findings {
+                seen_ids.insert(finding.id.clone());
+                all_findings.push(finding);
+            }
+        }
+
+        all_findings
+    }
+
+    /// Detect platform from file type string
+    fn detect_platform(&self, file_type: &str) -> Platform {
+        match file_type.to_lowercase().as_str() {
+            "elf" | "so" => Platform::Linux,
+            "macho" | "dylib" => Platform::MacOS,
+            "pe" | "dll" | "exe" => Platform::Windows,
+            _ => Platform::All,
+        }
+    }
+
+    /// Detect file type from file type string
+    fn detect_file_type(&self, file_type: &str) -> RuleFileType {
+        match file_type.to_lowercase().as_str() {
+            "elf" => RuleFileType::Elf,
+            "macho" => RuleFileType::Macho,
+            "pe" | "exe" => RuleFileType::Pe,
+            "dylib" => RuleFileType::Dylib,
+            "so" => RuleFileType::So,
+            "dll" => RuleFileType::Dll,
+            "shell" | "shellscript" | "shell_script" => RuleFileType::Shell,
+            "batch" | "bat" | "cmd" => RuleFileType::Batch,
+            "python" | "python_script" => RuleFileType::Python,
+            "javascript" | "js" => RuleFileType::JavaScript,
+            "typescript" | "ts" => RuleFileType::TypeScript,
+            "c" | "h" => RuleFileType::C,
+            "rust" | "rs" => RuleFileType::Rust,
+            "go" => RuleFileType::Go,
+            "java" => RuleFileType::Java,
+            "class" => RuleFileType::Class,
+            "ruby" | "rb" => RuleFileType::Ruby,
+            "php" => RuleFileType::Php,
+            "csharp" | "cs" => RuleFileType::CSharp,
+            "lua" => RuleFileType::Lua,
+            "perl" | "pl" => RuleFileType::Perl,
+            "powershell" | "ps1" => RuleFileType::PowerShell,
+            "swift" => RuleFileType::Swift,
+            "objectivec" | "objc" | "m" => RuleFileType::ObjectiveC,
+            "groovy" | "gradle" => RuleFileType::Groovy,
+            "scala" | "sc" => RuleFileType::Scala,
+            "zig" => RuleFileType::Zig,
+            "elixir" | "ex" | "exs" => RuleFileType::Elixir,
+            "package.json" | "packagejson" => RuleFileType::PackageJson,
+            "applescript" | "scpt" => RuleFileType::AppleScript,
+            _ => RuleFileType::All,
+        }
+    }
+}
+
+impl Default for CapabilityMapper {
+    fn default() -> Self {
+        Self::new()
+    }
+}

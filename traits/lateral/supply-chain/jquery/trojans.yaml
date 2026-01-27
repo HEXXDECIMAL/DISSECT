@@ -1,0 +1,97 @@
+# Trojanized jQuery Library Detection
+# ATT&CK: T1195.002 (Compromise Software Supply Chain)
+# Detects jQuery libraries modified to include malicious capabilities
+
+defaults:
+  attack: "T1195.002"
+  mbc: "B0024"
+  for: [javascript]
+
+composite_rules:
+  # jQuery + ActiveXObject = HOSTILE (complexity >= 4)
+  - id: trojanized-activex
+    desc: "jQuery library with ActiveXObject (trojanized supply chain attack)"
+    crit: hostile
+    conf: 0.98
+    all:
+      - {id: feat/library/jquery/library}
+      - {id: feat/library/jquery/version-string}
+      - {id: exec/dropper/activex-object}
+    explanation: |
+      This file contains jQuery library signatures but uses ActiveXObject.
+      Real jQuery may detect ActiveXObject for IE compatibility checks, but
+      doesn't use it for command execution or malicious operations.
+      This is a trojanized library - a supply chain attack.
+
+  # jQuery + Reverse Shell = HOSTILE
+  - id: trojanized-reverse-shell
+    desc: "jQuery library with reverse shell (trojanized supply chain attack)"
+    crit: hostile
+    conf: 0.98
+    all:
+      - {id: feat/library/jquery/library}
+      - {id: feat/library/jquery/version-string}
+      - {id: c2/reverse-shell/node/socket-with-exec}
+    explanation: |
+      This jQuery library contains reverse shell capabilities.
+      Real jQuery doesn't create reverse shells.
+      This is a trojanized library - a supply chain attack.
+
+  # jQuery + Base64 Eval = HOSTILE (hidden payload)
+  - id: trojanized-base64-eval
+    desc: "jQuery library with base64+eval payload (trojanized supply chain attack)"
+    crit: hostile
+    conf: 0.95
+    all:
+      - {id: feat/library/jquery/library}
+      - {id: feat/library/jquery/version-string}
+      - {id: anti-static/obfuscation/base64-eval}
+    explanation: |
+      This jQuery library uses base64+eval to hide malicious code.
+      Real jQuery doesn't use base64+eval obfuscation patterns.
+      This is a trojanized library - a supply chain attack.
+
+  # jQuery + Credential Access = HOSTILE
+  - id: trojanized-credential-access
+    desc: "jQuery library with credential access (trojanized supply chain attack)"
+    crit: hostile
+    conf: 0.98
+    all:
+      - {id: feat/library/jquery/library}
+      - {id: feat/library/jquery/version-string}
+    any:
+      - {id: cred/browser/chromium/login-data}
+      - {id: cred/browser/firefox/cookies-sqlite}
+    explanation: |
+      This jQuery library accesses credential stores.
+      Real jQuery never accesses browser credentials.
+      This is a trojanized library - a supply chain attack.
+
+  # jQuery + Command Execution = HOSTILE  
+  - id: trojanized-exec
+    desc: "jQuery library with command execution (trojanized supply chain attack)"
+    crit: hostile
+    conf: 0.98
+    all:
+      - {id: feat/library/jquery/library}
+      - {id: feat/library/jquery/version-string}
+    any:
+      - {id: exec/command/shell}
+      - {id: exec/command/node/child-process}
+    explanation: |
+      This jQuery library executes system commands or spawns processes.
+      Real jQuery is a DOM manipulation library and never executes commands.
+      This is a trojanized library - a supply chain attack.
+
+  # jQuery + Network Backdoor = HOSTILE
+  - id: trojanized-backdoor
+    desc: "jQuery library with network backdoor (trojanized supply chain attack)"
+    crit: hostile
+    conf: 0.95
+    all:
+      - {id: feat/library/jquery/library}
+      - {id: feat/library/jquery/version-string}
+      - {id: c2/infrastructure/domain/suspicious}
+    explanation: |
+      This jQuery library communicates with suspicious domains.
+      This is a trojanized library - a supply chain attack.

@@ -1,0 +1,139 @@
+//! Data structures for YAML parsing and capability definitions.
+//!
+//! This module defines the structures used to parse trait and composite rule
+//! definitions from YAML files. These include:
+//! - File-level defaults
+//! - Raw trait definitions (before default application)
+//! - Raw composite rules (before default application)
+//! - Simple symbol mappings
+
+use serde::Deserialize;
+
+/// Internal trait information for symbol lookups
+#[derive(Clone)]
+pub(crate) struct TraitInfo {
+    pub(crate) id: String,
+    pub(crate) desc: String,
+    pub(crate) conf: f32,
+}
+
+/// File-level defaults that apply to all traits in a file
+#[derive(Debug, Deserialize, Default, Clone)]
+pub(crate) struct TraitDefaults {
+    #[serde(default, alias = "for", alias = "file_types")]
+    pub(crate) r#for: Option<Vec<String>>,
+    #[serde(default)]
+    pub(crate) platforms: Option<Vec<String>>,
+    #[serde(default, alias = "criticality")]
+    pub(crate) crit: Option<String>,
+    #[serde(default, alias = "confidence")]
+    pub(crate) conf: Option<f32>,
+    #[serde(default)]
+    pub(crate) mbc: Option<String>,
+    #[serde(default)]
+    pub(crate) attack: Option<String>,
+}
+
+/// Raw trait definition for parsing (fields can be absent to inherit defaults)
+#[derive(Debug, Deserialize)]
+pub(crate) struct RawTraitDefinition {
+    pub(crate) id: String,
+    #[serde(alias = "description")]
+    pub(crate) desc: String,
+    #[serde(default, alias = "confidence")]
+    pub(crate) conf: Option<f32>,
+    #[serde(default, alias = "criticality")]
+    pub(crate) crit: Option<String>,
+    #[serde(default)]
+    pub(crate) mbc: Option<String>,
+    #[serde(default)]
+    pub(crate) attack: Option<String>,
+    #[serde(default)]
+    pub(crate) platforms: Option<Vec<String>>,
+    #[serde(default, alias = "for", alias = "files")]
+    pub(crate) file_types: Option<Vec<String>>,
+    #[serde(alias = "if")]
+    pub(crate) condition: crate::composite_rules::Condition,
+}
+
+/// Raw composite rule for parsing (fields can be absent to inherit defaults)
+#[derive(Debug, Deserialize)]
+pub(crate) struct RawCompositeRule {
+    #[serde(alias = "capability")]
+    pub(crate) id: String,
+    #[serde(alias = "description")]
+    pub(crate) desc: String,
+    #[serde(default, alias = "confidence")]
+    pub(crate) conf: Option<f32>,
+    #[serde(default, alias = "criticality")]
+    pub(crate) crit: Option<String>,
+    #[serde(default)]
+    pub(crate) mbc: Option<String>,
+    #[serde(default)]
+    pub(crate) attack: Option<String>,
+    #[serde(default)]
+    pub(crate) platforms: Option<Vec<String>>,
+    #[serde(default, alias = "for", alias = "files")]
+    pub(crate) file_types: Option<Vec<String>>,
+    // Boolean operators
+    #[serde(default, alias = "requires_all")]
+    pub(crate) all: Option<Vec<crate::composite_rules::Condition>>,
+    #[serde(default, alias = "requires_any", alias = "conditions")]
+    pub(crate) any: Option<Vec<crate::composite_rules::Condition>>,
+    #[serde(default, alias = "requires_count")]
+    pub(crate) count: Option<usize>,
+    #[serde(default)]
+    pub(crate) min_count: Option<usize>,
+    #[serde(default)]
+    pub(crate) max_count: Option<usize>,
+    #[serde(default, alias = "requires_none")]
+    pub(crate) none: Option<Vec<crate::composite_rules::Condition>>,
+    // Single condition (for simple composite rules)
+    #[serde(default, alias = "if")]
+    pub(crate) condition: Option<crate::composite_rules::Condition>,
+}
+
+/// YAML file structure
+#[derive(Debug, Deserialize)]
+pub(crate) struct TraitMappings {
+    #[serde(default)]
+    pub(crate) defaults: TraitDefaults,
+
+    #[serde(default)]
+    pub(crate) symbols: Vec<SymbolMapping>,
+
+    #[serde(default)]
+    pub(crate) simple_rules: Vec<SimpleRule>,
+
+    #[serde(default)]
+    pub(crate) traits: Vec<RawTraitDefinition>,
+
+    #[serde(default, alias = "capabilities")]
+    pub(crate) composite_rules: Vec<RawCompositeRule>,
+}
+
+/// Simple rule with platform/file type constraints
+#[derive(Debug, Deserialize)]
+pub(crate) struct SimpleRule {
+    pub(crate) symbol: String,
+    pub(crate) capability: String,
+    #[serde(alias = "description")]
+    pub(crate) desc: String,
+    #[serde(alias = "confidence")]
+    pub(crate) conf: f32,
+    #[serde(default)]
+    pub(crate) platforms: Vec<String>,
+    #[serde(default, alias = "for")]
+    pub(crate) file_types: Vec<String>,
+}
+
+/// Legacy symbol mapping format
+#[derive(Debug, Deserialize)]
+pub(crate) struct SymbolMapping {
+    pub(crate) symbol: String,
+    pub(crate) capability: String,
+    #[serde(alias = "description")]
+    pub(crate) desc: String,
+    #[serde(alias = "confidence")]
+    pub(crate) conf: f32,
+}
