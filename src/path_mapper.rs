@@ -1,3 +1,7 @@
+//! File path classification and analysis.
+//!
+//! Maps file paths to security-relevant categories (tmp files, config, etc).
+
 use crate::types::*;
 use std::collections::HashMap;
 

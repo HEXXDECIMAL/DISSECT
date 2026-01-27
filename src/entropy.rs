@@ -1,3 +1,7 @@
+//! Entropy calculation for detecting obfuscation.
+//!
+//! High entropy sections often indicate encryption, compression, or packing.
+
 use std::collections::HashMap;
 
 /// Calculate Shannon entropy of a byte slice

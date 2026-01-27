@@ -1,3 +1,32 @@
+//! DISSECT - Deep Inspection of Suspicious Software for Evaluation and Classification of Threats
+//!
+//! DISSECT is a comprehensive malware analysis tool that performs deep static analysis
+//! of binaries, scripts, and archives to identify malicious behavior patterns and capabilities.
+//!
+//! # Architecture
+//!
+//! - **Analyzers**: Format-specific analysis engines (ELF, PE, MachO, scripts, archives)
+//! - **Capabilities**: Trait-based capability detection from YAML rules
+//! - **Composite Rules**: Boolean logic for combining multiple indicators
+//! - **YARA Integration**: Pattern matching with community and custom rules
+//! - **Radare2/Rizin**: Binary analysis and disassembly
+//!
+//! # Usage
+//!
+//! ```text
+//! dissect <file> [options]
+//! dissect diff <file1> <file2>  # Compare two versions
+//! ```
+//!
+//! # Output
+//!
+//! Analysis results are output as JSON containing:
+//! - Detected capabilities and traits
+//! - Findings with criticality levels
+//! - Binary metrics and code structure
+//! - YARA matches and syscalls
+//! - Archive contents (if applicable)
+
 #![allow(dead_code)]
 
 mod amos_cipher;

@@ -1,3 +1,7 @@
+//! Go source code analyzer.
+//!
+//! Analyzes Go source files for malicious patterns and capabilities.
+
 use crate::analyzers::Analyzer;
 use crate::analyzers::{
     comment_metrics::{self, CommentStyle},

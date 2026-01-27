@@ -1,3 +1,19 @@
+//! Command-line interface definitions and parsing.
+//!
+//! This module defines the CLI structure using clap, including:
+//! - Main command arguments
+//! - Subcommands (diff, etc.)
+//! - Component disable flags
+//! - Output formatting options
+//!
+//! # Component Control
+//!
+//! DISSECT supports disabling expensive analysis components:
+//! - `--disable yara` - Skip YARA pattern matching
+//! - `--disable radare2` - Skip binary disassembly
+//! - `--disable upx` - Skip UPX unpacking attempts
+//! - `--disable third-party` - Skip third-party YARA rules
+
 use clap::{Parser, Subcommand};
 
 /// Default passwords to try for encrypted zip files (common malware sample passwords)

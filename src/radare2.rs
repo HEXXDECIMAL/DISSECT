@@ -1,3 +1,7 @@
+//! Radare2/rizin integration for binary analysis.
+//!
+//! See submodules for detailed functionality.
+
 use crate::cache::re_cache_path;
 use crate::syscall_names::{syscall_description, syscall_name};
 use crate::types::{

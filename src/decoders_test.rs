@@ -1,3 +1,5 @@
+//! Test utilities for decoder modules.
+
 #[cfg(test)]
 mod tests {
     use super::*;

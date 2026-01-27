@@ -135,7 +135,7 @@ pub fn eval_string(
             if matched {
                 match_value = exact_str.clone();
             }
-        } else if let Some(ref re) = compiled_regex {
+        } else if let Some(re) = compiled_regex {
             if let Some(mat) = re.find(&string_info.value) {
                 matched = true;
                 match_value = mat.as_str().to_string();
@@ -190,7 +190,7 @@ pub fn eval_string(
                 if matched {
                     match_value = exact_str.clone();
                 }
-            } else if let Some(ref re) = compiled_regex {
+            } else if let Some(re) = compiled_regex {
                 if let Some(mat) = re.find(content) {
                     matched = true;
                     match_value = mat.as_str().to_string();

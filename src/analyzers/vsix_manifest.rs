@@ -1,3 +1,7 @@
+//! VS Code extension manifest analyzer.
+//!
+//! Analyzes .vsixmanifest files from VS Code extensions for suspicious patterns.
+
 use crate::analyzers::Analyzer;
 use crate::capabilities::CapabilityMapper;
 use crate::types::*;

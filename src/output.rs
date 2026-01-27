@@ -1,3 +1,16 @@
+//! Output formatting and reporting.
+//!
+//! This module handles formatting analysis results for different output modes:
+//! - Human-readable terminal output with colors
+//! - JSON output for machine consumption
+//! - Summary classification for quick triage
+//!
+//! # Output Modes
+//!
+//! - Default: Human-readable with colored output
+//! - `--json`: Full JSON report
+//! - `--summary`: Quick classification only
+
 use crate::types::{AnalysisReport, Criticality, Finding, FindingKind, YaraMatch};
 use anyhow::Result;
 use colored::Colorize;

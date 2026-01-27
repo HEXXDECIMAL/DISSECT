@@ -1,3 +1,7 @@
+//! Environment variable access tracking.
+//!
+//! Identifies environment variable access and categorizes by sensitivity.
+
 use crate::types::*;
 
 /// Extract environment variable access from strings and categorize them

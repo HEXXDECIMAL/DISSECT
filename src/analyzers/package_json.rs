@@ -1,3 +1,5 @@
+//! package.json analyzer for npm packages.
+
 use crate::analyzers::Analyzer;
 use crate::capabilities::CapabilityMapper;
 use crate::types::*;

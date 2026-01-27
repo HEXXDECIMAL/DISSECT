@@ -1,3 +1,5 @@
+//! Archive format detection utilities.
+
 use anyhow::{Context, Result};
 use std::path::Path;
 use std::sync::Arc;

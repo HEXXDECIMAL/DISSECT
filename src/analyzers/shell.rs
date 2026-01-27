@@ -1,3 +1,5 @@
+//! Shell script analyzer (bash, sh, zsh).
+
 use crate::analyzers::Analyzer;
 use crate::analyzers::{
     comment_metrics::{self, CommentStyle},

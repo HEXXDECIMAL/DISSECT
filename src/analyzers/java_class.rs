@@ -1,3 +1,5 @@
+//! Java bytecode (.class) analyzer.
+
 use crate::analyzers::Analyzer;
 use crate::capabilities::CapabilityMapper;
 use crate::entropy::{calculate_entropy, EntropyLevel};

@@ -1,3 +1,7 @@
+//! AppleScript analyzer.
+//!
+//! Analyzes AppleScript files for macOS-specific threats.
+
 use crate::analyzers::Analyzer;
 use crate::capabilities::CapabilityMapper;
 use crate::strings::StringExtractor;

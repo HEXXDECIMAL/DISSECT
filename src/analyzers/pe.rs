@@ -1,3 +1,5 @@
+//! PE (Portable Executable) analyzer for Windows binaries.
+
 use crate::analyzers::Analyzer;
 use crate::capabilities::CapabilityMapper;
 use crate::entropy::{calculate_entropy, EntropyLevel};

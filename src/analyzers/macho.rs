@@ -1,3 +1,5 @@
+//! Mach-O binary analyzer for macOS executables.
+
 use crate::amos_cipher::AMOSCipherAnalyzer;
 use crate::analyzers::Analyzer;
 use crate::capabilities::CapabilityMapper;

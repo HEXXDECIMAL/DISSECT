@@ -1,3 +1,7 @@
+//! ELF binary analyzer for Linux executables.
+//!
+//! Analyzes ELF binaries using radare2/rizin and string extraction.
+
 use crate::analyzers::Analyzer;
 use crate::capabilities::CapabilityMapper;
 use crate::entropy::{calculate_entropy, EntropyLevel};

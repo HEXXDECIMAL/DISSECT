@@ -1,3 +1,10 @@
+//! Trait and capability mapping.
+//!
+//! This module maps low-level analysis results (imports, strings, syscalls)
+//! to high-level capability traits using YAML rule definitions.
+//!
+//! Traits represent observable behaviors (e.g., "opens network socket").
+
 use crate::types::{
     BinaryProperties, ControlFlowMetrics, Criticality, Evidence, Finding, FindingKind, Function,
     InstructionAnalysis,

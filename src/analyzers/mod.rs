@@ -1,3 +1,14 @@
+//! File format analyzers.
+//!
+//! This module contains analyzers for various file formats:
+//! - Binary formats: ELF, PE, Mach-O, Java class files
+//! - Archive formats: ZIP, TAR, 7z, etc. (see archive/ submodule)
+//! - Script languages: Shell, Python, JavaScript, Ruby, PHP, Perl, PowerShell, Lua
+//! - Source languages: C, Go, Rust, Java, Kotlin, C#, TypeScript
+//! - Package formats: package.json, npm packages
+//!
+//! Each analyzer implements the `Analyzer` trait for consistent interface.
+
 pub mod applescript;
 pub mod archive;
 pub mod ast_walker;
@@ -60,7 +71,7 @@ pub fn safe_treesitter_parse<F, T>(
     file_type: &str,
     content_len: usize,
     sha256: String,
-) -> Result<Option<T>, AnalysisReport>
+) -> Result<Option<T>, Box<AnalysisReport>>
 where
     F: FnOnce() -> Option<T> + std::panic::UnwindSafe,
 {
@@ -102,7 +113,7 @@ where
                 }],
             });
 
-            Err(report)
+            Err(Box::new(report))
         }
     }
 }

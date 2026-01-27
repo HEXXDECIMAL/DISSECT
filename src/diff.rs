@@ -1,3 +1,10 @@
+//! Binary and package version comparison.
+//!
+//! This module performs differential analysis between two versions of a file,
+//! identifying added/removed/modified capabilities, functions, and metrics.
+//!
+//! Useful for supply chain attack detection and version analysis.
+
 use crate::analyzers::{archive::ArchiveAnalyzer, detect_file_type, Analyzer};
 use crate::capabilities::CapabilityMapper;
 use crate::output::aggregate_findings_by_directory;

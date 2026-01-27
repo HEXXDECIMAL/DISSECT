@@ -1,3 +1,5 @@
+//! Rust source code analyzer.
+
 use crate::analyzers::Analyzer;
 use crate::analyzers::{
     comment_metrics::{self, CommentStyle},

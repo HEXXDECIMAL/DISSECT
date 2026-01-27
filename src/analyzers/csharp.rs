@@ -1,3 +1,7 @@
+//! C# source code analyzer.
+//!
+//! Analyzes C# source files for suspicious patterns and capabilities.
+
 use crate::analyzers::Analyzer;
 use crate::analyzers::{
     comment_metrics::{self, CommentStyle},

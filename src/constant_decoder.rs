@@ -1,3 +1,7 @@
+//! Constant value decoding and interpretation.
+//!
+//! Decodes numeric constants to identify syscalls, flags, and permissions.
+
 #![allow(dead_code)]
 
 use crate::types::DecodedValue;

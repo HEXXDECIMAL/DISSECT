@@ -1,3 +1,7 @@
+//! UPX executable unpacking.
+//!
+//! This module detects and unpacks UPX-compressed binaries for analysis.
+
 use std::io::Write;
 use std::path::Path;
 use std::process::Command;

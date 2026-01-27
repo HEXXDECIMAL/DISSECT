@@ -1,3 +1,20 @@
+//! Filesystem caching for analysis results.
+//!
+//! This module provides caching functionality to avoid re-analyzing unchanged files.
+//! Caches are stored in OS-appropriate directories:
+//! - macOS: `~/Library/Caches/dissect/`
+//! - Linux: `~/.cache/dissect/`
+//! - Windows: `%LOCALAPPDATA%\dissect\`
+//!
+//! # Cache Types
+//!
+//! - `re/` - Radare2/rizin analysis results (keyed by file SHA256)
+//! - Additional cache types can be added as needed
+//!
+//! # Cleanup
+//!
+//! Cache entries older than 30 days are automatically pruned.
+
 use anyhow::{Context, Result};
 use std::fs;
 use std::path::{Path, PathBuf};

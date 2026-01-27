@@ -1,3 +1,10 @@
+//! String extraction from binaries.
+//!
+//! This module extracts human-readable strings from binary files,
+//! classifying them as URLs, IPs, file paths, or generic strings.
+//!
+//! Useful for quick triage and finding embedded indicators.
+
 use crate::radare2::R2String;
 use crate::types::{StringInfo, StringType};
 use goblin::elf::Elf;

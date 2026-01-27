@@ -1,3 +1,12 @@
+//! YARA rule engine integration.
+//!
+//! This module provides YARA pattern matching for malware detection.
+//! It loads and compiles YARA rules from:
+//! - Built-in rules (traits/yara/)
+//! - Third-party rules (if enabled)
+//!
+//! Rules are compiled once at startup for performance.
+
 use crate::capabilities::CapabilityMapper;
 use crate::types::{Evidence, MatchedString, YaraMatch};
 use anyhow::{Context, Result};

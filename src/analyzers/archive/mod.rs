@@ -14,7 +14,6 @@ use crate::capabilities::CapabilityMapper;
 use crate::types::*;
 use crate::yara_engine::YaraEngine;
 use anyhow::{Context, Result};
-use rayon::prelude::*;
 use std::fs::{self};
 // std::io imports removed
 use std::path::Path;
