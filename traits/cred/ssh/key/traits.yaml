@@ -139,8 +139,8 @@ traits:
   # === Atomic: Session Sniffing ===
   - id: sniff-ssh-lower
     desc: sniff_ssh function name (lowercase)
-    crit: inert
-    conf: 0.75
+    crit: suspicious
+    conf: 0.85
     for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
@@ -148,8 +148,8 @@ traits:
 
   - id: sniff-ssh-title
     desc: Sniff_ssh function name (titlecase)
-    crit: inert
-    conf: 0.75
+    crit: suspicious
+    conf: 0.85
     for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
@@ -157,8 +157,8 @@ traits:
 
   - id: sniff-ssh-upper
     desc: SNIFF_SSH constant (uppercase)
-    crit: inert
-    conf: 0.75
+    crit: suspicious
+    conf: 0.85
     for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
@@ -166,8 +166,8 @@ traits:
 
   - id: ssh-sniff-lower
     desc: ssh_sniff function name (lowercase)
-    crit: inert
-    conf: 0.75
+    crit: suspicious
+    conf: 0.85
     for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
@@ -175,8 +175,8 @@ traits:
 
   - id: ssh-sniff-title
     desc: Ssh_sniff function name (titlecase)
-    crit: inert
-    conf: 0.75
+    crit: suspicious
+    conf: 0.85
     for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
@@ -184,8 +184,8 @@ traits:
 
   - id: ssh-sniff-upper
     desc: SSH_SNIFF constant (uppercase)
-    crit: inert
-    conf: 0.75
+    crit: suspicious
+    conf: 0.85
     for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
@@ -193,8 +193,8 @@ traits:
 
   - id: sshpass-keyword
     desc: sshpass tool reference
-    crit: inert
-    conf: 0.7
+    crit: suspicious
+    conf: 0.8
     for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
@@ -202,8 +202,8 @@ traits:
 
   - id: ssh-password-identifier
     desc: ssh_password variable
-    crit: inert
-    conf: 0.75
+    crit: suspicious
+    conf: 0.85
     for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
@@ -211,8 +211,8 @@ traits:
 
   - id: ssh-cred-identifier
     desc: ssh_cred variable
-    crit: inert
-    conf: 0.75
+    crit: suspicious
+    conf: 0.85
     for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
@@ -220,8 +220,8 @@ traits:
 
   - id: sshdone-identifier
     desc: sshdone flag
-    crit: inert
-    conf: 0.75
+    crit: suspicious
+    conf: 0.85
     for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
@@ -230,8 +230,8 @@ traits:
   # === Atomic: Password File Storage ===
   - id: sshpass-txt-file
     desc: sshpass.txt file pattern
-    crit: inert
-    conf: 0.75
+    crit: suspicious
+    conf: 0.85
     for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
@@ -239,8 +239,8 @@ traits:
 
   - id: ssh-pass-log-file
     desc: ssh_pass.log file
-    crit: inert
-    conf: 0.75
+    crit: suspicious
+    conf: 0.85
     for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
@@ -248,8 +248,8 @@ traits:
 
   - id: password-txt-file
     desc: password.txt file
-    crit: inert
-    conf: 0.6
+    crit: suspicious
+    conf: 0.75
     for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
@@ -257,8 +257,8 @@ traits:
 
   - id: credentials-txt-file
     desc: credentials.txt file
-    crit: inert
-    conf: 0.6
+    crit: suspicious
+    conf: 0.75
     for: [elf, macho, pe, dll, so, dylib, python, shell]
     if:
       type: string
