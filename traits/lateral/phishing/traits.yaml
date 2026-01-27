@@ -1038,15 +1038,6 @@ composite_rules:
       - {id: js-paste-listener}
       - {id: js-contextmenu-listener}
 
-  # Honeypot field detection
-  - id: honeypot-field
-    description: Honeypot form field for bot detection
-    crit: suspicious
-    conf: 0.9
-    attack: T1566
-    for: [html, javascript]
-    any:
-      - {id: honeypot-field-pattern}
 
   # Human verification interaction
   - id: human-interaction-events

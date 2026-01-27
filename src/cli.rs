@@ -167,10 +167,7 @@ fn parse_criticality_level(s: &str) -> crate::types::Criticality {
         "suspicious" => crate::types::Criticality::Suspicious,
         "hostile" | "malicious" => crate::types::Criticality::Hostile,
         _ => {
-            eprintln!(
-                "⚠️  Unknown criticality level '{}', treating as 'inert'",
-                s
-            );
+            eprintln!("⚠️  Unknown criticality level '{}', treating as 'inert'", s);
             crate::types::Criticality::Inert
         }
     }
@@ -597,13 +594,9 @@ mod tests {
 
     #[test]
     fn test_error_if_multiple_levels() {
-        let args = Args::try_parse_from([
-            "dissect",
-            "--error-if",
-            "suspicious,hostile",
-            "file.bin",
-        ])
-        .unwrap();
+        let args =
+            Args::try_parse_from(["dissect", "--error-if", "suspicious,hostile", "file.bin"])
+                .unwrap();
         let levels = args.error_if_levels().unwrap();
         assert_eq!(levels.len(), 2);
         assert!(levels.contains(&crate::types::Criticality::Suspicious));

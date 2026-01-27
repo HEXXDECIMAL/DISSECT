@@ -511,13 +511,6 @@ composite_rules:
       - id: msgpack-go
 
   # CBOR composite (migrated from YARA)
-  - id: cbor
-    desc: CBOR serialization
-    crit: benign
-    conf: 0.9
-    count: 1
-    any:
-      - id: cbor-lower
 
   # Apache Avro composite (migrated from YARA)
   - id: avro

@@ -1,17 +1,21 @@
 # Timestomping Detection - Windows
+# Behavioral composites for timestamp manipulation in evasion context
 # MBC: F0006 (Timestomp)
 # ATT&CK: T1070.006
+#
+# Note: Atomic Windows API traits moved to fs/file/timestamp/windows.yaml
+# This file contains only behavioral composites
 
 defaults:
   for: [pe, dll]
+  mbc: "F0006"
+  attack: "T1070.006"
 
-traits:
+composite_rules:
   - id: timestomp-windows
-    desc: Modify file timestamps via SetFileTime
+    desc: Windows file timestamp modification (evasion context)
     crit: suspicious
-    conf: 0.66
-    mbc: "F0006"
-    attack: "T1070.006"
-    if:
-      type: symbol
-      pattern: SetFileTime|SetFileInformationByHandle
+    conf: 0.7
+    any:
+      - id: fs/file/timestamp/windows/set-file-time
+      - id: fs/file/timestamp/windows/set-file-information-by-handle

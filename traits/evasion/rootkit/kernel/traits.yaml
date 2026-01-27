@@ -588,17 +588,6 @@ composite_rules:
       - id: filldir64
       - id: pid-getattr
 
-  # Proc hiding (migrated from YARA)
-  - id: proc-hiding
-    desc: Hooks proc filesystem to hide processes
-    crit: suspicious
-    conf: 0.9
-    mbc: "F0015"
-    attack: "T1014"
-    for: [elf, c]
-    count: 1
-    any:
-      - id: proc-hiding-funcs
 
   # Syscall hook target helper
   - id: syscall-targets
@@ -662,16 +651,6 @@ composite_rules:
       - id: modinfo-section
       - id: gnu-linkonce
 
-  # Module format (migrated from YARA)
-  - id: module-format
-    desc: Kernel module initialization patterns
-    crit: notable
-    conf: 0.7
-    mbc: "F0015"
-    attack: "T1014"
-    count: 1
-    any:
-      - id: module-markers
 
   # Netfilter hook registration helper
   - id: nf-registration
@@ -849,7 +828,7 @@ composite_rules:
     attack: "T1014"
     for: [elf, c]
     all:
-      - id: module-format
+      - id: module-markers
       - id: lkm-rootkit-behavior
       - id: kallsyms-lookup
 
@@ -862,6 +841,6 @@ composite_rules:
     count: 1
     any:
       - id: syscall-hook
-      - id: proc-hiding
+      - id: proc-hiding-funcs
       - id: tcp-hiding
       - id: vfs-hook

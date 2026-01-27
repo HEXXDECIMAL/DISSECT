@@ -350,7 +350,7 @@ traits:
   # === SQL micro-traits ===
   - id: sql-select
     desc: SELECT SQL keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -358,7 +358,7 @@ traits:
 
   - id: sql-insert
     desc: INSERT INTO SQL keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -366,7 +366,7 @@ traits:
 
   - id: sql-update
     desc: UPDATE SQL keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -374,7 +374,7 @@ traits:
 
   - id: sql-delete
     desc: DELETE FROM SQL keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -382,7 +382,7 @@ traits:
 
   - id: sql-create-table
     desc: CREATE TABLE SQL keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -628,7 +628,7 @@ composite_rules:
   # SQL keywords helper
   - id: sql-keywords
     desc: SQL statement keywords
-    crit: inert
+    crit: notable
     conf: 0.5
     count: 3
     any:

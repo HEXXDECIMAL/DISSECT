@@ -3,8 +3,8 @@
 # ATT&CK: T1567.001
 
 traits:
-  # NOTE: Telegram traits are defined in exfil/channel/telegram/
-  # NOTE: Discord traits are defined in exfil/channel/discord/
+  # NOTE: Telegram traits are defined in comm/messaging/telegram/
+  # NOTE: Discord traits are defined in comm/messaging/discord/
   # Use those directory references in composite rules
 
   - id: services-tor

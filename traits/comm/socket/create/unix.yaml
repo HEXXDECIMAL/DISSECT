@@ -16,7 +16,7 @@ traits:
   - id: socket-create
     desc: Creates network socket
     conf: 0.9
-    crit: inert
+    crit: notable
     platforms: [linux]
     for: [elf]
     if:
@@ -34,7 +34,7 @@ traits:
   - id: socket-connect
     desc: Connects socket to remote host
     conf: 0.9
-    crit: inert
+    crit: notable
     platforms: [linux]
     for: [elf]
     if:

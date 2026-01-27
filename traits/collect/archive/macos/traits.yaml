@@ -10,7 +10,7 @@ traits:
   # === ditto compression atomic indicators ===
   - id: ditto-ck-flags
     desc: ditto -c -k compression flags
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1560.001"
     if:
@@ -19,7 +19,7 @@ traits:
 
   - id: ditto-sequester
     desc: ditto --sequesterRsrc flag
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1560.001"
     if:
@@ -28,7 +28,7 @@ traits:
 
   - id: ditto-zip-output
     desc: ditto with .zip output
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1560.001"
     if:
@@ -47,7 +47,7 @@ traits:
   # === hdiutil create atomic indicators ===
   - id: hdiutil-create-cmd
     desc: hdiutil create command
-    crit: inert
+    crit: notable
     conf: 0.65
     attack: "T1560.001"
     if:
@@ -56,7 +56,7 @@ traits:
 
   - id: hdiutil-format-flag
     desc: hdiutil -format flag
-    crit: inert
+    crit: notable
     conf: 0.65
     attack: "T1560.001"
     if:
@@ -66,7 +66,7 @@ traits:
   # === tar/gzip atomic indicators ===
   - id: tar-create-flag
     desc: tar create/compress flags
-    crit: inert
+    crit: notable
     conf: 0.5
     attack: "T1560.001"
     if:
@@ -75,7 +75,7 @@ traits:
 
   - id: tar-create-long
     desc: tar --create long option
-    crit: inert
+    crit: notable
     conf: 0.5
     attack: "T1560.001"
     if:
@@ -84,7 +84,7 @@ traits:
 
   - id: gzip-compress
     desc: gzip compression
-    crit: inert
+    crit: notable
     conf: 0.5
     attack: "T1560.001"
     if:
@@ -94,7 +94,7 @@ traits:
   # === zip compress atomic indicators ===
   - id: zip-flags
     desc: zip with flags
-    crit: inert
+    crit: notable
     conf: 0.55
     attack: "T1560.001"
     if:
@@ -103,7 +103,7 @@ traits:
 
   - id: unzip-overwrite
     desc: unzip -o overwrite flag
-    crit: inert
+    crit: notable
     conf: 0.55
     attack: "T1560.001"
     if:
@@ -155,39 +155,6 @@ traits:
     if:
       type: string
       exact: "/tmp/out."
-
-  # === Network upload atomic indicators ===
-  - id: curl-cmd
-    desc: curl command
-    crit: inert
-    conf: 0.4
-    if:
-      type: string
-      exact: "curl"
-
-  - id: wget-cmd
-    desc: wget command
-    crit: inert
-    conf: 0.4
-    if:
-      type: string
-      exact: "wget"
-
-  - id: http-post-method
-    desc: HTTP POST method
-    crit: inert
-    conf: 0.4
-    if:
-      type: string
-      exact: "POST"
-
-  - id: upload-keyword
-    desc: upload keyword
-    crit: inert
-    conf: 0.4
-    if:
-      type: string
-      exact: "upload"
 
   # Temp zip file staging
   - id: tmp-zip-staging
@@ -260,28 +227,5 @@ composite_rules:
       - id: tmp-dmg-file
       - id: tmp-out-file
 
-  # Network upload composite
-  - id: network-upload
-    desc: "Network upload or exfiltration command"
-    crit: notable
-    conf: 0.7
-    count: 1
-    any:
-      - id: curl-cmd
-      - id: wget-cmd
-      - id: http-post-method
-      - id: upload-keyword
-
-  # Archive + exfiltration pattern
-  - id: stealer-pattern
-    desc: "Data collection and archiving for exfiltration"
-    crit: hostile
-    conf: 0.9
-    mbc: "B0030"
-    attack: "T1560.001"
-    for: [shell]
-    all:
-      - id: ditto-compress
-    any:
-      - id: network-upload
-      - id: tmp-zip-staging
+  # Note: Archive + exfiltration patterns removed - see exfil/archive/macos.yaml
+  # (composites: ditto-staging, archive-exfil provide equivalent coverage)

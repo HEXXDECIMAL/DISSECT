@@ -72,14 +72,6 @@ traits:
       regex: 'chattr -i -R [\-\w\.\/]{0,64}'
 
 composite_rules:
-  - id: chattr
-    desc: Modify Linux file attributes with chattr command
-    crit: notable
-    conf: 0.66
-    mbc: F0004
-    attack: T1222
-    any:
-      - id: chattr-command
 
   - id: chattr-immutable
     desc: Modify immutability of a file (excludes legitimate /sys)

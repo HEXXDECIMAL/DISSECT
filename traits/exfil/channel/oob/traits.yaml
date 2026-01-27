@@ -191,8 +191,8 @@ traits:
       type: string
       exact: "aHR0cHM6Ly"
 
-  # NOTE: Discord webhook traits are defined in exfil/channel/discord/
-  # NOTE: Telegram bot traits are defined in exfil/channel/telegram/
+  # NOTE: Discord webhook traits are defined in comm/messaging/discord/
+  # NOTE: Telegram bot traits are defined in comm/messaging/telegram/
   # Use those directory references in composite rules
 
   # Slack webhook exfiltration
@@ -267,35 +267,6 @@ composite_rules:
       - { id: requestbin-com }
       - { id: requestbin-net }
 
-  # Interactsh composite
-  - id: interactsh
-    desc: Exfiltrates data to Interactsh OOB domain
-    crit: suspicious
-    conf: 0.95
-    attack: "T1048"
-    for: [all]
-    any:
-      - { id: oob-domains }
-
-  # Ngrok composite
-  - id: ngrok
-    desc: Communication with Ngrok (common C2 tunnel)
-    crit: suspicious
-    conf: 0.95
-    attack: "T1572"
-    for: [all]
-    any:
-      - { id: ngrok-tunnels }
-
-  # Requestbin composite
-  - id: requestbin
-    desc: Exfiltrates data to RequestBin OOB endpoint
-    crit: suspicious
-    conf: 0.9
-    attack: "T1048"
-    for: [all]
-    any:
-      - { id: requestbin-endpoints }
 
   # Migrated from YARA
   - id: preinstall-exfil
@@ -334,7 +305,7 @@ composite_rules:
       - { id: https-b64 }
       - { id: oastify-b64 }
       - { id: oast-fun-b64 }
-      - { id: interactsh }
+      - { id: oob-domains }
 
   # Helper composite for encoded OOB indicators
   - id: encoded-oob-indicators

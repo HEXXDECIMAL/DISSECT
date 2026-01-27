@@ -8,7 +8,7 @@ traits:
   # === curl command ===
   - id: curl-cmd
     desc: curl command
-    crit: inert
+    crit: notable
     conf: 0.3
     if:
       type: string
@@ -16,7 +16,7 @@ traits:
 
   - id: wget-cmd
     desc: wget command
-    crit: inert
+    crit: notable
     conf: 0.3
     if:
       type: string

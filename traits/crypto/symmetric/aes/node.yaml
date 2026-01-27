@@ -7,7 +7,7 @@ traits:
   # === Crypto module import atomic indicators ===
   - id: crypto-require-call
     desc: require('crypto') import
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [javascript, typescript]
     if:
@@ -16,7 +16,7 @@ traits:
 
   - id: crypto-from-import
     desc: from 'crypto' import (ESM)
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [javascript, typescript]
     if:
@@ -163,7 +163,7 @@ traits:
   # === Compression micro-traits ===
   - id: zlib-module
     desc: zlib compression module
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [javascript, typescript]
     if:
@@ -172,7 +172,7 @@ traits:
 
   - id: gzip-function
     desc: gzip compression function
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [javascript, typescript]
     if:
@@ -181,7 +181,7 @@ traits:
 
   - id: gunzip-function
     desc: gunzip decompression function
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [javascript, typescript]
     if:
@@ -190,7 +190,7 @@ traits:
 
   - id: inflate-function
     desc: inflate decompression function
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [javascript, typescript]
     if:
@@ -199,7 +199,7 @@ traits:
 
   - id: deflate-function
     desc: deflate compression function
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [javascript, typescript]
     if:
@@ -210,7 +210,7 @@ composite_rules:
   # Crypto require composite
   - id: crypto-require
     desc: Node.js crypto module import
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [javascript, typescript]
     count: 1
@@ -283,7 +283,7 @@ composite_rules:
   # Compression library composite
   - id: compression-lib
     desc: Compression/decompression library usage
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [javascript, typescript]
     count: 1

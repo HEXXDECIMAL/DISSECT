@@ -71,4 +71,6 @@ pub struct StringParams<'a> {
     pub exclude_patterns: Option<&'a Vec<String>>,
     pub min_count: usize,
     pub search_raw: bool,
+    pub compiled_regex: Option<&'a regex::Regex>,
+    pub compiled_excludes: &'a [regex::Regex],
 }

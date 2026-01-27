@@ -321,28 +321,6 @@ composite_rules:
       - { id: password-txt-file }
       - { id: credentials-txt-file }
 
-  # Migrated from YARA
-  - id: session-sniff
-    desc: SSH session sniffing indicators
-    crit: suspicious
-    conf: 0.9
-    attack: "T1557"
-    mbc: "E1056"
-    platforms: [linux]
-    for: [elf, macho, pe, dll, so, dylib, python, shell]
-    any:
-      - { id: ssh-sniffing-indicators }
-
-  - id: password-file-storage
-    desc: SSH password file storage
-    crit: suspicious
-    conf: 0.85
-    attack: "T1552.001"
-    mbc: "E1056"
-    platforms: [linux]
-    for: [elf, macho, pe, dll, so, dylib, python, shell]
-    any:
-      - { id: ssh-password-files }
 
   # === Composite: SSH directory path ===
   - id: dot-ssh-path
@@ -402,7 +380,7 @@ composite_rules:
     platforms: [linux]
     for: [elf, macho, pe, dll, so, dylib, python, shell]
     any:
-      - id: session-sniff
-      - id: password-file-storage
+      - id: ssh-sniffing-indicators
+      - id: ssh-password-files
     all:
       - id: os/service/ssh/sshd-ref

@@ -42,11 +42,3 @@ composite_rules:
       - id: dev-null
       - id: dev-shm
 
-  - id: device-null
-    desc: Reference to /dev/null device
-    crit: inert
-    conf: 0.66
-    mbc: E1083
-    attack: T1083
-    any:
-      - id: dev-null

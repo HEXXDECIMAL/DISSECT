@@ -8,7 +8,7 @@ defaults:
 traits:
   - id: write
     desc: Write files
-    crit: inert
+    crit: notable
     conf: 0.66
     if:
       type: symbol

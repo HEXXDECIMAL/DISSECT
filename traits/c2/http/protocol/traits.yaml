@@ -1,60 +1,14 @@
-# HTTP C2 Protocol Detection
-# Detects HTTP protocol strings and patterns in binaries
+# HTTP C2 Protocol Detection - Composites
+# Detects suspicious HTTP patterns that may indicate C2 communication
 # ATT&CK: T1071.001 (Application Layer Protocol: Web Protocols)
+#
+# Note: Atomic HTTP protocol traits moved to comm/http/protocol/
+# This file contains only behavioral composites that indicate C2 usage
 
 defaults:
   for: [elf, pe, macho]
   attack: "T1071.001"
-  crit: notable
-
-traits:
-  - id: http-protocol-string
-    desc: "HTTP protocol version string"
-    crit: notable
-    conf: 0.3
-    if:
-      type: string
-      regex: "HTTP/[012]\\.[0-9]"
-
-  - id: http-method-get
-    desc: "HTTP GET method string"
-    crit: notable
-    conf: 0.25
-    if:
-      type: string
-      regex: "GET /[^ ]+ HTTP"
-
-  - id: http-method-post
-    desc: "HTTP POST method string"
-    crit: notable
-    conf: 0.35
-    if:
-      type: string
-      regex: "POST /[^ ]+ HTTP"
-
-  - id: http-user-agent
-    desc: "HTTP User-Agent header"
-    crit: notable
-    conf: 0.3
-    if:
-      type: string
-      regex: "User-Agent:"
-
-  - id: http-content-type
-    desc: "HTTP Content-Type header"
-    crit: notable
-    conf: 0.25
-    if:
-      type: string
-      regex: "Content-Type:"
-
-  - id: http-delimiter
-    desc: "HTTP header/body delimiter (CRLF CRLF)"
-    crit: notable
-    conf: 0.2
-    if:
-      type: string
-      exact: "\r\n\r\n"
+  crit: suspicious
 
 composite_rules:
   - id: hardcoded-request
@@ -62,18 +16,18 @@ composite_rules:
     crit: suspicious
     conf: 0.7
     all:
-      - id: http-protocol-string
+      - id: comm/http/protocol/http-protocol-string
     any:
-      - id: http-method-get
-      - id: http-method-post
+      - id: comm/http/protocol/http-method-get
+      - id: comm/http/protocol/http-method-post
 
   - id: custom-client
     desc: "Custom HTTP client implementation"
     crit: suspicious
     conf: 0.65
     all:
-      - id: http-protocol-string
-      - id: http-delimiter
+      - id: comm/http/protocol/http-protocol-string
+      - id: comm/http/protocol/http-delimiter
     any:
-      - id: http-user-agent
-      - id: http-content-type
+      - id: comm/http/protocol/http-user-agent
+      - id: comm/http/protocol/http-content-type

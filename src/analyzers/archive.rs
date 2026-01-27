@@ -27,6 +27,9 @@ const MAX_FILE_COUNT: usize = 10_000;
 /// Maximum compression ratio before considering it suspicious (100:1)
 const MAX_COMPRESSION_RATIO: u64 = 100;
 
+/// Maximum time to spend analyzing a single file in an archive (seconds)
+const MAX_FILE_ANALYSIS_TIME_SECS: u64 = 10;
+
 /// Reasons an archive may be considered hostile
 #[derive(Debug, Clone)]
 pub enum HostileArchiveReason {
@@ -568,7 +571,7 @@ impl ArchiveAnalyzer {
                     .push(entry_metadata);
             }
 
-            if let Ok(mut file_report) = self.analyze_extracted_file(entry.path()) {
+            if let Ok(mut file_report) = self.analyze_extracted_file_with_timeout(entry.path()) {
                 files_analyzed.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
 
                 let mut caps = total_capabilities.lock().unwrap();
@@ -695,7 +698,7 @@ impl ArchiveAnalyzer {
             }
 
             // Run file-type-specific analysis
-            if let Ok(mut file_report) = self.analyze_extracted_file(entry.path()) {
+            if let Ok(mut file_report) = self.analyze_extracted_file_with_timeout(entry.path()) {
                 files_analyzed.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
 
                 let mut caps = total_capabilities.lock().unwrap();
@@ -937,7 +940,7 @@ impl ArchiveAnalyzer {
                 }
             }
 
-            if let Ok(mut file_report) = self.analyze_extracted_file(entry.path()) {
+            if let Ok(mut file_report) = self.analyze_extracted_file_with_timeout(entry.path()) {
                 files_analyzed.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
 
                 let mut caps = total_capabilities.lock().unwrap();
@@ -1991,6 +1994,83 @@ impl ArchiveAnalyzer {
         }
 
         Ok(())
+    }
+
+    /// Analyze a file with a timeout to prevent hanging on adversarial inputs
+    fn analyze_extracted_file_with_timeout(&self, file_path: &Path) -> Result<AnalysisReport> {
+        use std::sync::mpsc;
+        use std::time::Duration;
+
+        let timeout = Duration::from_secs(MAX_FILE_ANALYSIS_TIME_SECS);
+        let file_path_clone = file_path.to_path_buf();
+
+        // Clone self for thread (we need to move capability_mapper and yara_engine)
+        let capability_mapper = self.capability_mapper.clone();
+        let yara_engine = self.yara_engine.clone();
+        let zip_passwords = self.zip_passwords.clone();
+        let current_depth = self.current_depth;
+        let max_depth = self.max_depth;
+        let archive_path_prefix = self.archive_path_prefix.clone();
+
+        let (tx, rx) = mpsc::channel();
+
+        std::thread::spawn(move || {
+            // Recreate analyzer in thread
+            let mut analyzer = ArchiveAnalyzer {
+                max_depth,
+                current_depth,
+                archive_path_prefix,
+                capability_mapper,
+                yara_engine,
+                zip_passwords,
+            };
+
+            let result = analyzer.analyze_extracted_file(&file_path_clone);
+            let _ = tx.send(result);
+        });
+
+        match rx.recv_timeout(timeout) {
+            Ok(result) => result,
+            Err(mpsc::RecvTimeoutError::Timeout) => {
+                // Analysis timed out - create a report with timeout finding
+                let file_data = fs::read(file_path).unwrap_or_default();
+                let target = TargetInfo {
+                    path: file_path.display().to_string(),
+                    file_type: detect_file_type(file_path)
+                        .map(|ft| format!("{:?}", ft).to_lowercase())
+                        .unwrap_or_else(|_| "unknown".to_string()),
+                    size_bytes: file_data.len() as u64,
+                    sha256: self.calculate_sha256(&file_data),
+                    architectures: None,
+                };
+
+                let mut report = AnalysisReport::new(target);
+                report.findings.push(Finding {
+                    kind: FindingKind::Indicator,
+                    trait_refs: vec![],
+                    id: "anti-analysis/timeout/analysis-timeout".to_string(),
+                    desc: format!(
+                        "File analysis exceeded {}s timeout (possible anti-analysis)",
+                        MAX_FILE_ANALYSIS_TIME_SECS
+                    ),
+                    conf: 0.8,
+                    crit: Criticality::Suspicious,
+                    mbc: Some("B0001".to_string()),
+                    attack: None,
+                    evidence: vec![Evidence {
+                        method: "timeout".to_string(),
+                        source: "archive_analyzer".to_string(),
+                        value: format!("timeout:{}s", MAX_FILE_ANALYSIS_TIME_SECS),
+                        location: Some(file_path.display().to_string()),
+                    }],
+                });
+
+                Ok(report)
+            }
+            Err(mpsc::RecvTimeoutError::Disconnected) => {
+                Err(anyhow::anyhow!("Analysis thread crashed"))
+            }
+        }
     }
 
     fn analyze_extracted_file(&self, file_path: &Path) -> Result<AnalysisReport> {

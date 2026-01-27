@@ -151,29 +151,3 @@ traits:
         }
 
 composite_rules:
-  # Setup.py with external code execution or network activity
-  - id: setup-py-exec
-    description: "setup.py with suspicious code execution or network activity"
-    crit: suspicious
-    confidence: 0.95
-    mbc: "B0030"
-    all:
-      - id: setup-py-exec-yara
-
-  # __init__.py with code execution (very suspicious)
-  - id: init-py-exec
-    description: "__init__.py with immediate code execution"
-    crit: suspicious
-    confidence: 0.9
-    mbc: "B0030"
-    all:
-      - id: init-py-exec-yara
-
-  # Package that installs other packages at runtime
-  - id: dependency-injection
-    description: "Package installs additional dependencies at runtime"
-    crit: suspicious
-    confidence: 0.95
-    mbc: "B0030"
-    all:
-      - id: dependency-injection-yara

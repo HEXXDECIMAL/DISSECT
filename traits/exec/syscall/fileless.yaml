@@ -20,14 +20,6 @@ traits:
       name: ["execve", "execveat"]
 
 composite_rules:
-  - id: memfd
-    desc: Creates anonymous file in memory
-    conf: 0.9
-    crit: suspicious
-    platforms: [linux]
-    for: [elf]
-    all:
-      - id: syscall-memfd-create
 
   - id: fileless
     desc: Fileless execution - memfd_create + execve

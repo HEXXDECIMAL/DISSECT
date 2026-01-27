@@ -9,151 +9,48 @@ defaults:
   attack: "T1071.001"
 
 traits:
-  # === Domain detection micro-traits ===
-  - id: domain-com-org-net
-    desc: Domain with .com/.org/.net TLD
-    crit: inert
-    conf: 0.5
+  # === Domain detection ===
+  - id: hardcoded-domain-com
+    desc: Hardcoded .com/.org/.net domain (excluding known legitimate)
+    crit: notable
+    conf: 0.7
     if:
       type: string
       regex: "\\b[a-zA-Z0-9][-a-zA-Z0-9]{0,62}\\.(com|org|net)\\b"
-
-  # === Legitimate domain exclusions ===
-  - id: legit-apple
-    desc: apple.com domain
-    crit: inert
-    conf: 0.2
-    if:
-      type: string
-      regex: "(?i)apple\\.com"
-
-  - id: legit-microsoft
-    desc: microsoft.com domain
-    crit: inert
-    conf: 0.2
-    if:
-      type: string
-      regex: "(?i)microsoft\\.com"
-
-  - id: legit-google
-    desc: google.com domain
-    crit: inert
-    conf: 0.2
-    if:
-      type: string
-      regex: "(?i)google\\.com"
-
-  - id: legit-github
-    desc: github.com domain
-    crit: inert
-    conf: 0.2
-    if:
-      type: string
-      regex: "(?i)github\\.com"
-
-  - id: legit-gitlab
-    desc: gitlab.com domain
-    crit: inert
-    conf: 0.2
-    if:
-      type: string
-      regex: "(?i)gitlab\\.com"
-
-  - id: legit-npmjs
-    desc: npmjs.com/org domain
-    crit: inert
-    conf: 0.2
-    if:
-      type: string
-      regex: "(?i)npmjs\\.(com|org)"
-
-  - id: legit-python
-    desc: python.org domain
-    crit: inert
-    conf: 0.2
-    if:
-      type: string
-      regex: "(?i)python\\.org"
-
-  - id: legit-pypi
-    desc: pypi.org domain
-    crit: inert
-    conf: 0.2
-    if:
-      type: string
-      regex: "(?i)pypi\\.org"
-
-  - id: legit-golang
-    desc: golang.org domain
-    crit: inert
-    conf: 0.2
-    if:
-      type: string
-      regex: "(?i)golang\\.org"
-
-  - id: legit-amazonaws
-    desc: amazonaws.com domain
-    crit: inert
-    conf: 0.2
-    if:
-      type: string
-      regex: "(?i)amazonaws\\.com"
-
-  - id: legit-cloudflare
-    desc: cloudflare.com domain
-    crit: inert
-    conf: 0.2
-    if:
-      type: string
-      regex: "(?i)cloudflare\\.com"
-
-  - id: legit-docker
-    desc: docker.com domain
-    crit: inert
-    conf: 0.2
-    if:
-      type: string
-      regex: "(?i)docker\\.com"
-
-  - id: legit-mozilla
-    desc: mozilla.org domain
-    crit: inert
-    conf: 0.2
-    if:
-      type: string
-      regex: "(?i)mozilla\\.org"
-
-  - id: legit-kernel
-    desc: kernel.org domain
-    crit: inert
-    conf: 0.2
-    if:
-      type: string
-      regex: "(?i)kernel\\.org"
-
-  - id: legit-debian
-    desc: debian.org domain
-    crit: inert
-    conf: 0.2
-    if:
-      type: string
-      regex: "(?i)debian\\.org"
-
-  - id: legit-ubuntu
-    desc: ubuntu.com domain
-    crit: inert
-    conf: 0.2
-    if:
-      type: string
-      regex: "(?i)ubuntu\\.com"
-
-  - id: legit-redhat
-    desc: redhat.com domain
-    crit: inert
-    conf: 0.2
-    if:
-      type: string
-      regex: "(?i)redhat\\.com"
+    not:
+      # Major vendors
+      - "apple.com"
+      - "microsoft.com"
+      - "google.com"
+      - "amazon.com"
+      # Dev platforms
+      - "github.com"
+      - "gitlab.com"
+      - "bitbucket.org"
+      # Package registries
+      - "npmjs.com"
+      - "npmjs.org"
+      - "python.org"
+      - "pypi.org"
+      - "golang.org"
+      - "rust-lang.org"
+      - "crates.io"
+      # Infrastructure
+      - "amazonaws.com"
+      - "cloudflare.com"
+      - "docker.com"
+      # Linux distros
+      - "mozilla.org"
+      - "kernel.org"
+      - "debian.org"
+      - "ubuntu.com"
+      - "redhat.com"
+      # Documentation
+      - "w3.org"
+      - "ietf.org"
+      - "example.com"
+      - "example.org"
+      - "example.net"
 
   - id: hardcoded-domain-suspicious-pattern
     desc: "Hardcoded suspicious TLD domain pattern"
@@ -696,70 +593,6 @@ traits:
       exact: "jpillora/chisel"
 
 composite_rules:
-  # Legitimate domain exclusion composite
-  - id: legit-domain-marker
-    desc: Known legitimate domain marker
-    crit: inert
-    conf: 0.3
-    count: 1
-    any:
-      - id: legit-apple
-      - id: legit-microsoft
-      - id: legit-google
-      - id: legit-github
-      - id: legit-gitlab
-      - id: legit-npmjs
-      - id: legit-python
-      - id: legit-pypi
-      - id: legit-golang
-      - id: legit-amazonaws
-      - id: legit-cloudflare
-      - id: legit-docker
-      - id: legit-mozilla
-      - id: legit-kernel
-      - id: legit-debian
-      - id: legit-ubuntu
-      - id: legit-redhat
-
-  # Hardcoded domain (migrated from YARA)
-  - id: hardcoded-domain-com
-    desc: Hardcoded .com/.org/.net domain (excluding known legitimate)
-    crit: notable
-    conf: 0.7
-    all:
-      - id: domain-com-org-net
-    none:
-      - id: legit-domain-marker
-
-  - id: hardcoded-domain-suspicious
-    desc: "Hardcoded suspicious TLD domain (.ru, .cn, .xyz, .top, .pro)"
-    crit: suspicious
-    conf: 0.85
-    all:
-      - id: hardcoded-domain-suspicious-pattern
-
-  - id: dynamic-dns-domain
-    desc: "Dynamic DNS domain (common C2 infrastructure)"
-    crit: suspicious
-    conf: 0.9
-    all:
-      - id: dynamic-dns-domain-pattern
-
-  - id: http-url-with-domain
-    desc: "Network URL with domain name"
-    crit: notable
-    conf: 0.7
-    all:
-      - id: http-url-with-domain-pattern
-
-  - id: url-path-payload
-    desc: "URL path suggesting payload download"
-    crit: suspicious
-    conf: 0.8
-    attack: "T1105"
-    all:
-      - id: url-path-payload-pattern
-
   - id: c2-domain
     desc: "Likely C2 domain (suspicious TLD or dynamic DNS)"
     crit: suspicious

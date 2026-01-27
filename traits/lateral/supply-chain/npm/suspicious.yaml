@@ -314,15 +314,6 @@ composite_rules:
       - id: exports-dot-pattern
       - id: esm-export-pattern
 
-  # No exports (side-effect only module) - migrated from YARA
-  - id: no-exports
-    description: Module has no exports (side-effect only)
-    crit: notable
-    confidence: 0.7
-    file_types: [javascript]
-    none:
-      - id: has-exports
-
   # Dangerous requires for tiny packages
   - id: dangerous-requires
     description: Dangerous Node.js API imports

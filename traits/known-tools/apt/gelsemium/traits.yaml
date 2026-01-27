@@ -127,25 +127,15 @@ traits:
         }
 
 composite_rules:
-  - id: apt/gelsemium/config-detected
-    description: Wolfsbane/Gelsemium (configuration)
-    crit: suspicious
-    conf: 0.95
-    family: true
-    reference: "https://www.welivesecurity.com/en/eset-research/unveiling-wolfsbane-gelsemiums-linux-counterpart-to-gelsevirine/"
-    attack: "T1071"
-    mbc: "B0030"
-    for: [elf]
-    all:
-      - id: apt/gelsemium/config-yara
-
-  - id: apt/gelsemium/rc4-detected
-    description: Wolfsbane/Gelsemium (RC4 key)
+  - id: apt/gelsemium/detected
+    description: Wolfsbane/Gelsemium (RC4 + config)
     crit: suspicious
     conf: 0.99
     family: true
     attack: "T1573"
     mbc: "C0027"
     for: [elf]
-    all:
+    count: 1
+    any:
       - id: apt/gelsemium/rc4-key
+      - id: apt/gelsemium/config-yara

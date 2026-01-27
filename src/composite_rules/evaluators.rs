@@ -3,6 +3,7 @@
 //! This module contains all the eval_* functions used to evaluate various
 //! condition types against an analysis context.
 
+use super::condition::NotException;
 use super::context::{AnalysisWarning, ConditionResult, EvaluationContext, StringParams};
 use super::types::{FileType, Platform};
 use crate::types::Evidence;
@@ -189,7 +190,14 @@ fn symbol_matches_condition(
 
 /// Evaluate string condition - searches ONLY in properly extracted/bounded strings.
 /// For searching raw file content, use `eval_raw()` instead.
-pub fn eval_string(params: &StringParams, ctx: &EvaluationContext) -> ConditionResult {
+pub fn eval_string(
+    params: &StringParams,
+    trait_not: Option<&Vec<NotException>>,
+    ctx: &EvaluationContext,
+) -> ConditionResult {
+    let profile = std::env::var("DISSECT_PROFILE").is_ok();
+    let t_start = if profile { Some(std::time::Instant::now()) } else { None };
+
     let mut evidence = Vec::new();
 
     // Legacy support: if search_raw is true, delegate to eval_raw
@@ -200,25 +208,14 @@ pub fn eval_string(params: &StringParams, ctx: &EvaluationContext) -> ConditionR
             params.word,
             params.case_insensitive,
             params.min_count,
+            params.compiled_regex,
             ctx,
         );
     }
 
-    // Pre-compile regex patterns ONCE before iterating strings
-    // If `word` is provided, convert it to a regex with word boundaries
-    let compiled_regex = if let Some(word_pattern) = params.word {
-        let regex_pattern = format!(r"\b{}\b", regex::escape(word_pattern));
-        build_regex(&regex_pattern, params.case_insensitive).ok()
-    } else {
-        params
-            .regex
-            .and_then(|pattern| build_regex(pattern, params.case_insensitive).ok())
-    };
-
-    let compiled_excludes: Vec<Regex> = params
-        .exclude_patterns
-        .map(|excludes| excludes.iter().filter_map(|p| Regex::new(p).ok()).collect())
-        .unwrap_or_default();
+    // Use pre-compiled regex from trait definition (compiled at startup)
+    let compiled_regex = params.compiled_regex;
+    let compiled_excludes = params.compiled_excludes;
 
     // Check in extracted strings from report (for binaries)
     for string_info in &ctx.report.strings {
@@ -245,11 +242,17 @@ pub fn eval_string(params: &StringParams, ctx: &EvaluationContext) -> ConditionR
         }
 
         if matched {
-            // Check exclusion patterns (already compiled)
-            let excluded = compiled_excludes
+            // Check old-style exclude_patterns (deprecated, from condition level)
+            let excluded_by_pattern = compiled_excludes
                 .iter()
                 .any(|re| re.is_match(&string_info.value));
-            if excluded {
+
+            // Check new-style `not:` exceptions (trait level)
+            let excluded_by_not = trait_not
+                .map(|exceptions| exceptions.iter().any(|exc| exc.matches(&match_value)))
+                .unwrap_or(false);
+
+            if excluded_by_pattern || excluded_by_not {
                 continue;
             }
 
@@ -299,6 +302,12 @@ pub fn eval_string(params: &StringParams, ctx: &EvaluationContext) -> ConditionR
         }
     }
 
+    if let Some(t) = t_start {
+        if profile {
+            eprintln!("[PROFILE]   eval_string: {}ms", t.elapsed().as_millis());
+        }
+    }
+
     ConditionResult {
         matched: evidence.len() >= params.min_count,
         evidence,
@@ -316,8 +325,12 @@ pub fn eval_raw(
     word: Option<&String>,
     case_insensitive: bool,
     min_count: usize,
+    compiled_regex: Option<&regex::Regex>,
     ctx: &EvaluationContext,
 ) -> ConditionResult {
+    let profile = std::env::var("DISSECT_PROFILE").is_ok();
+    let t_start = if profile { Some(std::time::Instant::now()) } else { None };
+
     let mut evidence = Vec::new();
 
     // Convert binary data to string
@@ -333,46 +346,23 @@ pub fn eval_raw(
         }
     };
 
-    // Priority: word > regex > exact
-    if let Some(word_pattern) = word {
-        // Convert word to regex with word boundaries
-        let regex_pattern = format!(r"\b{}\b", regex::escape(word_pattern));
-        if let Ok(re) = build_regex(&regex_pattern, case_insensitive) {
-            let mut match_count = 0;
-            let mut first_match = None;
-            for mat in re.find_iter(content) {
-                match_count += 1;
-                if first_match.is_none() {
-                    first_match = Some(mat.as_str().to_string());
-                }
-            }
-            if match_count >= min_count {
-                evidence.push(Evidence {
-                    method: "raw".to_string(),
-                    source: "raw_content".to_string(),
-                    value: format!("Found {} {}", match_count, first_match.unwrap_or_default()),
-                    location: Some("file".to_string()),
-                });
+    // Use pre-compiled regex (handles both word and regex patterns)
+    if let Some(re) = compiled_regex {
+        let mut match_count = 0;
+        let mut first_match = None;
+        for mat in re.find_iter(content) {
+            match_count += 1;
+            if first_match.is_none() {
+                first_match = Some(mat.as_str().to_string());
             }
         }
-    } else if let Some(regex_pattern) = regex {
-        if let Ok(re) = build_regex(regex_pattern, case_insensitive) {
-            let mut match_count = 0;
-            let mut first_match = None;
-            for mat in re.find_iter(content) {
-                match_count += 1;
-                if first_match.is_none() {
-                    first_match = Some(mat.as_str().to_string());
-                }
-            }
-            if match_count >= min_count {
-                evidence.push(Evidence {
-                    method: "raw".to_string(),
-                    source: "raw_content".to_string(),
-                    value: format!("Found {} {}", match_count, first_match.unwrap_or_default()),
-                    location: Some("file".to_string()),
-                });
-            }
+        if match_count >= min_count {
+            evidence.push(Evidence {
+                method: "raw".to_string(),
+                source: "raw_content".to_string(),
+                value: format!("Found {} {}", match_count, first_match.unwrap_or_default()),
+                location: Some("file".to_string()),
+            });
         }
     } else if let Some(exact_str) = exact {
         let search_content = if case_insensitive {
@@ -393,6 +383,12 @@ pub fn eval_raw(
                 value: format!("Found {} {}", match_count, exact_str),
                 location: Some("file".to_string()),
             });
+        }
+    }
+
+    if let Some(t) = t_start {
+        if profile {
+            eprintln!("[PROFILE]   eval_raw: {}ms", t.elapsed().as_millis());
         }
     }
 

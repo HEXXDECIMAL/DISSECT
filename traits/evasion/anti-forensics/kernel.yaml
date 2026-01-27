@@ -378,15 +378,6 @@ composite_rules:
       - { id: saved-ftrace-value }
       - { id: ftrace-write-intercepted }
 
-  # === Migrated from YARA ===
-  - id: kernel-taint-reset
-    desc: Resets kernel tainted_mask to hide out-of-tree modules
-    crit: suspicious
-    conf: 1.0
-    attack: "T1562.001"
-    for: [c, elf]
-    any:
-      - { id: taint-mask-symbols }
 
   - id: log-sanitization
     desc: Real-time filtering of dmesg or kmsg output

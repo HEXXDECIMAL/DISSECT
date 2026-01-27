@@ -36,14 +36,3 @@ traits:
         }
 
 composite_rules:
-  - id: virus/clapzok/detected
-    description: Clapzok multi-platform virus
-    crit: suspicious
-    confidence: 0.95
-    family: true
-    reference: "https://www.virusbulletin.com/virusbulletin/2013/06/multiplatform-madness"
-    attack: "T1204"
-    mbc: "B0009"
-    file_types: [macho]
-    all:
-      - id: virus/clapzok/macho-structure

@@ -1,187 +1,28 @@
-# DNS-based C2 and Exfiltration Traits (Node.js)
+# DNS-based C2 and Exfiltration Traits (Node.js) - Composites Only
 # Detects DNS tunneling and data exfiltration via DNS queries
 # MBC: C0002 (DNS Communication), E1591 (Data Exfiltration)
 # ATT&CK: T1071.004 (DNS), T1048 (Exfiltration Over Alternative Protocol)
+#
+# Note: Atomic traits moved to appropriate micro-trait directories:
+# - DNS traits: comm/dns/lookup/node.yaml
+# - Crypto traits: crypto/symmetric/aes/node.yaml
+# This file contains only behavioral composites that indicate C2/exfiltration usage
 
-traits:
-  # === DNS resolve atomic indicators ===
-  - id: dns-resolve-call
-    desc: dns.resolve call
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: "dns.resolve"
-
-  - id: dns-resolve4-call
-    desc: dns.resolve4 call
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: "dns.resolve4"
-
-  - id: dns-resolve6-call
-    desc: dns.resolve6 call
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: "dns.resolve6"
-
-  # === DNS TXT resolve atomic indicators ===
-  - id: dns-resolveTxt-method
-    desc: dns.resolveTxt method
-    crit: inert
-    conf: 0.7
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: "dns.resolveTxt"
-
-  - id: resolveTxt-call
-    desc: resolveTxt call
-    crit: inert
-    conf: 0.7
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "resolveTxt\\("
-
-  - id: txt-record-single-quote
-    desc: "TXT string (single quoted)"
-    crit: inert
-    conf: 0.5
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: "'TXT'"
-
-  - id: txt-record-double-quote
-    desc: "TXT string (double quoted)"
-    crit: inert
-    conf: 0.5
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: '"TXT"'
-
-  - id: dns-promises
-    desc: DNS promises API (async DNS operations)
-    crit: notable
-    conf: 0.75
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: "dns/promises"
-
-  # === DNS tunneling micro-traits ===
-  - id: domain-pattern
-    desc: Domain suffix pattern (.com/.net/.org/.io)
-    crit: inert
-    conf: 0.3
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: '\.\w+\.(com|net|org|io)'
-
-  - id: split-method
-    desc: .split method call
-    crit: inert
-    conf: 0.3
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: ".split"
-
-  - id: join-method
-    desc: .join method call
-    crit: inert
-    conf: 0.3
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: ".join"
-
-  # === Crypto micro-traits ===
-  - id: createCipheriv-call
-    desc: createCipheriv function call
-    crit: notable
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: "createCipheriv"
-
-  - id: createDecipheriv-call
-    desc: createDecipheriv function call
-    crit: notable
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: "createDecipheriv"
-
-  - id: aes-128-ref
-    desc: AES-128 cipher reference
-    crit: inert
-    conf: 0.4
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: "aes-128"
-
-  - id: aes-256-ref
-    desc: AES-256 cipher reference
-    crit: inert
-    conf: 0.4
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: "aes-256"
-
-  # === Polling/loop micro-traits ===
-  - id: setInterval-call
-    desc: setInterval function call
-    crit: inert
-    conf: 0.3
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: "setInterval"
-
-  - id: setTimeout-call
-    desc: setTimeout function call
-    crit: inert
-    conf: 0.3
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: "setTimeout"
-
-  - id: while-loop
-    desc: while loop keyword
-    crit: inert
-    conf: 0.2
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: "while"
+defaults:
+  for: [javascript, typescript]
+  attack: "T1071.004"
+  mbc: "C0002"
 
 composite_rules:
   - id: dns-resolve
     desc: Node.js DNS resolve function (potential DNS tunneling)
     crit: notable
     conf: 0.8
-    for: [javascript, typescript]
     count: 1
     any:
-      - id: dns-resolve-call
-      - id: dns-resolve4-call
-      - id: dns-resolve6-call
+      - id: comm/dns/lookup/node/dns-resolve-call
+      - id: comm/dns/lookup/node/dns-resolve4-call
+      - id: comm/dns/lookup/node/dns-resolve6-call
 
   - id: dns-resolve-txt
     desc: DNS TXT record resolution (common C2 channel)
@@ -189,50 +30,12 @@ composite_rules:
     conf: 0.9
     mbc: "C0002"
     attack: "T1071.004"
-    for: [javascript, typescript]
     count: 1
     any:
-      - id: dns-resolveTxt-method
-      - id: resolveTxt-call
-      - id: txt-record-single-quote
-      - id: txt-record-double-quote
-
-  # String manipulation composite
-  - id: string-manipulation
-    desc: String split/join manipulation
-    crit: inert
-    conf: 0.4
-    for: [javascript, typescript]
-    count: 1
-    any:
-      - id: split-method
-      - id: join-method
-
-  # Subdomain encoding (migrated from YARA)
-  - id: subdomain-encoding
-    desc: Subdomain-based data encoding pattern
-    crit: suspicious
-    conf: 0.85
-    mbc: "C0002"
-    attack: "T1048"
-    for: [javascript, typescript]
-    all:
-      - id: domain-pattern
-      - id: dns-resolve-txt
-      - id: string-manipulation
-
-  # Crypto composite
-  - id: crypto-cipher
-    desc: Cryptographic cipher operations
-    crit: notable
-    conf: 0.6
-    for: [javascript, typescript]
-    count: 1
-    any:
-      - id: createCipheriv-call
-      - id: createDecipheriv-call
-      - id: aes-128-ref
-      - id: aes-256-ref
+      - id: comm/dns/lookup/node/dns-resolveTxt-method
+      - id: comm/dns/lookup/node/resolveTxt-call
+      - id: comm/dns/lookup/node/txt-record-single-quote
+      - id: comm/dns/lookup/node/txt-record-double-quote
 
   # DNS with crypto (migrated from YARA)
   - id: dns-with-crypto
@@ -241,22 +44,9 @@ composite_rules:
     conf: 0.9
     mbc: "C0002"
     attack: "T1573"
-    for: [javascript, typescript]
     all:
       - id: dns-resolve-txt
-      - id: crypto-cipher
-
-  # Polling composite
-  - id: polling-pattern
-    desc: Polling/interval pattern
-    crit: inert
-    conf: 0.4
-    for: [javascript, typescript]
-    count: 1
-    any:
-      - id: setInterval-call
-      - id: setTimeout-call
-      - id: while-loop
+      - id: crypto/symmetric/aes/node/cipher-create
 
   # DNS polling loop (migrated from YARA)
   - id: dns-polling-loop
@@ -265,7 +55,8 @@ composite_rules:
     conf: 0.85
     mbc: "C0002"
     attack: "T1071.004"
-    for: [javascript, typescript]
     all:
       - id: dns-resolve-txt
-      - id: polling-pattern
+    any:
+      - id: process/timing/setInterval
+      - id: process/timing/setTimeout

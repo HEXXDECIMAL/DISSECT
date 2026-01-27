@@ -638,22 +638,13 @@ composite_rules:
     attack: "T1082"
     count: 1
     any:
-      - id: sys-class-net-address
+      - id: sys-class-net
       - id: hwaddr
       - id: ether-prefix
       - id: getifaddrs-func
       - id: siocgifhwaddr
       - id: ip-link-cmd
       - id: ifconfig-cmd
-
-  # Helper: /sys/class/net + address
-  - id: sys-class-net-address
-    desc: /sys/class/net/*/address pattern
-    crit: notable
-    conf: 0.6
-    attack: "T1082"
-    all:
-      - id: sys-class-net
 
   # Disk serial composite (migrated from YARA)
   - id: disk-serial

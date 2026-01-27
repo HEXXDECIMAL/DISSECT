@@ -6,7 +6,7 @@ traits:
   # === S3 upload atomic indicators ===
   - id: s3-amazonaws-domain
     desc: S3 amazonaws.com domain
-    crit: inert
+    crit: notable
     mbc: "E1567.002"
     attack: "T1567.002"
     conf: 0.8
@@ -16,7 +16,7 @@ traits:
 
   - id: s3-upload-method
     desc: S3 upload method call
-    crit: inert
+    crit: notable
     mbc: "E1567.002"
     attack: "T1567.002"
     conf: 0.8
@@ -27,7 +27,7 @@ traits:
   # === Dropbox atomic indicators ===
   - id: dropbox-api-domain
     desc: Dropbox API domain
-    crit: inert
+    crit: notable
     mbc: "E1567"
     attack: "T1567"
     conf: 0.8
@@ -37,7 +37,7 @@ traits:
 
   - id: dropbox-upload-method
     desc: Dropbox upload method
-    crit: inert
+    crit: notable
     mbc: "E1567"
     attack: "T1567"
     conf: 0.8
@@ -48,7 +48,7 @@ traits:
   # === Google Drive atomic indicators ===
   - id: gdrive-domain
     desc: Google Drive domain
-    crit: inert
+    crit: notable
     mbc: "E1567"
     attack: "T1567"
     conf: 0.8
@@ -58,7 +58,7 @@ traits:
 
   - id: googleapis-drive
     desc: Google APIs drive reference
-    crit: inert
+    crit: notable
     mbc: "E1567"
     attack: "T1567"
     conf: 0.8

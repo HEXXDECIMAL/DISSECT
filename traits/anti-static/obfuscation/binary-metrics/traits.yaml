@@ -112,26 +112,6 @@ traits:
       min: 0.85
 
   # === Import Anomalies ===
-
-  # NOTE: Go binaries are statically linked and often have 0 imports - not suspicious
-  - id: no-imports
-    desc: "No imports (static linking or API resolution)"
-    crit: inert
-    conf: 0.4
-    if:
-      type: metrics
-      field: binary.import_count
-      max: 0
-
-  - id: few-imports
-    desc: "Very few imports (loader stub pattern)"
-    crit: notable
-    conf: 0.6
-    if:
-      type: metrics
-      field: binary.import_count
-      max: 5
-
   - id: high-import-entropy
     desc: "High entropy import names (obfuscated imports)"
     crit: suspicious

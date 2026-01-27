@@ -9,7 +9,7 @@ traits:
   # === Socket listen micro-traits ===
   - id: socket-sym
     desc: socket function symbol
-    crit: inert
+    crit: notable
     conf: 0.4
     mbc: "C0001"
     if:

@@ -4,8 +4,8 @@
 
 traits:
   # Messaging platforms
-  # NOTE: Telegram API traits are defined in exfil/channel/telegram/
-  # NOTE: Discord webhook traits are defined in exfil/channel/discord/
+  # NOTE: Telegram API traits are defined in comm/messaging/telegram/
+  # NOTE: Discord webhook traits are defined in comm/messaging/discord/
   # Use those directory references in composite rules
 
   - id: discord-invite

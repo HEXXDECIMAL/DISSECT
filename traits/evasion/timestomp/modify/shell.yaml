@@ -1,83 +1,22 @@
 # Timestomping Detection - Shell
+# Behavioral composites for timestamp manipulation in evasion context
 # MBC: F0006 (Timestomp)
 # ATT&CK: T1070.006
+#
+# Note: Atomic touch flags moved to fs/file/timestamp/shell.yaml
+# This file contains only behavioral composites
 
 defaults:
   attack: "T1070.006"
   mbc: "F0006"
+  for: [shell]
 
 traits:
-  # === Generic touch with timestamp flags ===
-  - id: timestomp-touch
-    desc: Modify timestamps via touch command
-    crit: suspicious
-    conf: 0.66
-    for: [shell]
-    if:
-      type: string
-      regex: "touch\\s+-[amdt]"
-
-  # === Specific touch timestamp patterns ===
-  - id: touch-t-flag
-    desc: touch -t with numeric timestamp
-    crit: inert
-    conf: 0.75
-    for: [shell]
-    if:
-      type: string
-      regex: "touch\\s+-t\\s+[0-9]+"
-
-  - id: touch-r-flag
-    desc: touch -r reference file
-    crit: inert
-    conf: 0.75
-    for: [shell]
-    if:
-      type: string
-      regex: "touch\\s+-r\\s+"
-
-  - id: touch-date-flag
-    desc: touch --date flag
-    crit: inert
-    conf: 0.75
-    for: [shell]
-    if:
-      type: string
-      regex: "touch\\s+--date="
-
-  - id: touch-a-flag
-    desc: touch -a access time
-    crit: inert
-    conf: 0.7
-    for: [shell]
-    if:
-      type: string
-      regex: "touch\\s+-a"
-
-  - id: touch-m-flag
-    desc: touch -m modification time
-    crit: inert
-    conf: 0.7
-    for: [shell]
-    if:
-      type: string
-      regex: "touch\\s+-m"
-
-  - id: touch-d-flag
-    desc: touch -d date string
-    crit: inert
-    conf: 0.7
-    for: [shell]
-    if:
-      type: string
-      regex: "touch\\s+-d"
-
-  # === Other timestamp manipulation ===
+  # === Advanced timestamp manipulation techniques ===
   - id: dd-timestamp-modify
-    desc: dd to modify file timestamps
+    desc: dd to modify file timestamps via conv=notrunc
     crit: suspicious
     conf: 0.7
-    for: [shell]
     if:
       type: string
       regex: "dd\\s+.{0,50}conv=notrunc"
@@ -86,7 +25,6 @@ traits:
     desc: debugfs to modify ext filesystem timestamps
     crit: suspicious
     conf: 0.85
-    for: [shell]
     if:
       type: string
       regex: "debugfs.{0,50}-w.{0,50}set_inode_field"
@@ -95,7 +33,6 @@ traits:
     desc: SetFile to modify macOS timestamps
     crit: suspicious
     conf: 0.8
-    for: [shell]
     if:
       type: string
       regex: "SetFile\\s+-[dm]"
@@ -111,45 +48,49 @@ traits:
 
   # === Timestamp-related keywords ===
   - id: timestomp-keyword
-    desc: timestomp keyword
+    desc: timestomp keyword (explicit evasion intent)
     crit: notable
     conf: 0.85
-    for: [shell, powershell]
     if:
       type: string
       word: "timestomp"
 
   - id: timestamp-forge-keyword
-    desc: timestamp forge keyword
+    desc: timestamp forge keyword (explicit evasion intent)
     crit: notable
     conf: 0.7
-    for: [shell, powershell]
     if:
       type: string
       regex: "forge.{0,50}timestamp"
 
 composite_rules:
-  # Migrated from YARA
+  # Touch-based timestamp manipulation
   - id: timestomp-touch-specific
-    desc: Set specific timestamp via touch -t
+    desc: Set specific timestamp via touch command
     crit: suspicious
-    conf: 0.8
-    for: [shell]
+    conf: 0.75
     any:
-      - {id: touch-t-flag}
-      - {id: touch-r-flag}
-      - {id: touch-date-flag}
+      - id: fs/file/timestamp/shell/touch-t-flag
+      - id: fs/file/timestamp/shell/touch-r-flag
+      - id: fs/file/timestamp/shell/touch-date-flag
 
-  # Combined timestamp manipulation
+  # Generic touch timestamp modification
+  - id: timestomp-touch
+    desc: Timestamp modification via touch command
+    crit: suspicious
+    conf: 0.7
+    any:
+      - id: fs/file/timestamp/shell/touch-timestamp-modification
+
+  # Combined timestamp manipulation (multiple techniques)
   - id: timestamp-manipulation
-    desc: File timestamp manipulation detected
+    desc: File timestamp manipulation detected (multiple methods)
     crit: suspicious
     conf: 0.85
-    for: [shell, powershell]
     any:
-      - {id: timestomp-touch-specific}
-      - {id: dd-timestamp-modify}
-      - {id: debugfs-timestamp}
-      - {id: setfile-timestamp-macos}
-      - {id: powershell-timestamp-modify}
-      - {id: timestomp-keyword}
+      - id: timestomp-touch-specific
+      - id: dd-timestamp-modify
+      - id: debugfs-timestamp
+      - id: setfile-timestamp-macos
+      - id: powershell-timestamp-modify
+      - id: timestomp-keyword

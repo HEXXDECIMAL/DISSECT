@@ -429,16 +429,6 @@ composite_rules:
       - id: go-ebpf-sections
       - id: go-offensive-intent
 
-  # Probe write user (migrated from YARA)
-  - id: probe-write-user
-    desc: eBPF program writing to user-space memory (PATCHING)
-    crit: suspicious
-    conf: 1.0
-    attack: "T1562.001"
-    for: [c, elf]
-    count: 1
-    any:
-      - id: bpf-probe-write-user
 
   # Sensitive file helper
   - id: sensitive-file-ref
@@ -531,7 +521,7 @@ composite_rules:
     any:
       - id: syscall-hooking
       - id: xdp-backdoor
-      - id: probe-write-user
+      - id: bpf-probe-write-user
       - id: sudoers-manipulation
       - id: dirent-hiding
       - id: uprobe-hooking

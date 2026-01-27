@@ -124,17 +124,6 @@ composite_rules:
       - id: terminal
       - id: terminal-commands
 
-  # ============================================
-  # Keychain Access
-  # ============================================
-  - id: accesses-keychain
-    desc: "Interacts with Keychain Access"
-    crit: suspicious
-    conf: 0.95
-    attack: "T1555.001"
-    for: [applescript]
-    all:
-      - { id: keychain-access }
 
   # ============================================
   # Shell + Settings (suspicious combo)

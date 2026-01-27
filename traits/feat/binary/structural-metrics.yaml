@@ -2,6 +2,17 @@
 # Observational traits for binary organization and characteristics
 
 traits:
+  # === Binary Size Metrics ===
+
+  - id: small-elf-binary
+    desc: "Small ELF binary (< 50KB)"
+    crit: notable
+    conf: 0.6
+    for: [elf]
+    if:
+      type: filesize
+      max: 51200
+
   # === Function Size Metrics ===
 
   - id: large-functions

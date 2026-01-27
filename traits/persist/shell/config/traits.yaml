@@ -11,6 +11,14 @@ traits:
     if:
       type: string
       exact: ".bash_profile"
+    downgrade:
+      notable:
+        any:
+          - id: file/signed/apple
+          - id: file/signed/microsoft
+      inert:
+        any:
+          - id: feat/library/system-lib-marker
 
   - id: bashrc
     description: .bashrc shell configuration file
@@ -20,6 +28,14 @@ traits:
     if:
       type: string
       exact: ".bashrc"
+    downgrade:
+      notable:
+        any:
+          - id: file/signed/apple
+          - id: file/signed/microsoft
+      inert:
+        any:
+          - id: feat/library/system-lib-marker
 
   - id: bash-login
     description: .bash_login shell configuration file
@@ -29,6 +45,11 @@ traits:
     if:
       type: string
       exact: ".bash_login"
+    downgrade:
+      notable:
+        any:
+          - id: file/signed/apple
+          - id: file/signed/microsoft
 
   - id: bash-logout
     description: .bash_logout shell configuration file
@@ -38,6 +59,11 @@ traits:
     if:
       type: string
       exact: ".bash_logout"
+    downgrade:
+      notable:
+        any:
+          - id: file/signed/apple
+          - id: file/signed/microsoft
 
   - id: profile
     description: .profile shell configuration file
@@ -47,6 +73,14 @@ traits:
     if:
       type: string
       word: ".profile"
+    downgrade:
+      notable:
+        any:
+          - id: file/signed/apple
+          - id: file/signed/microsoft
+      inert:
+        any:
+          - id: feat/library/system-lib-marker
 
   - id: etc-profile
     description: /etc/profile system-wide shell configuration
@@ -75,6 +109,14 @@ traits:
     if:
       type: string
       exact: ".zshrc"
+    downgrade:
+      notable:
+        any:
+          - id: file/signed/apple
+          - id: file/signed/microsoft
+      inert:
+        any:
+          - id: feat/library/system-lib-marker
 
   - id: zprofile
     description: .zprofile shell configuration file
@@ -84,6 +126,14 @@ traits:
     if:
       type: string
       exact: ".zprofile"
+    downgrade:
+      notable:
+        any:
+          - id: file/signed/apple
+          - id: file/signed/microsoft
+      inert:
+        any:
+          - id: feat/library/system-lib-marker
 
   - id: zlogin
     description: .zlogin shell configuration file
@@ -93,6 +143,11 @@ traits:
     if:
       type: string
       exact: ".zlogin"
+    downgrade:
+      notable:
+        any:
+          - id: file/signed/apple
+          - id: file/signed/microsoft
 
   - id: zlogout
     description: .zlogout shell configuration file
@@ -102,6 +157,11 @@ traits:
     if:
       type: string
       exact: ".zlogout"
+    downgrade:
+      notable:
+        any:
+          - id: file/signed/apple
+          - id: file/signed/microsoft
 
   - id: etc-zshrc
     description: /etc/zshrc system-wide shell configuration

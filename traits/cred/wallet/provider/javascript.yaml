@@ -203,13 +203,6 @@ composite_rules:
       - id: eth-request-accounts-method
       - id: eth-accounts-method
 
-  # eth_sendTransaction composite
-  - id: eth-send-transaction
-    desc: "Send Ethereum transaction (eth_sendTransaction)"
-    conf: 0.9
-    crit: suspicious
-    all:
-      - id: eth-send-transaction-method
 
   # Wallet transaction method composite
   - id: wallet-transaction-method

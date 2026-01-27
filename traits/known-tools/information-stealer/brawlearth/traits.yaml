@@ -146,16 +146,3 @@ composite_rules:
       - id: src-path-chromium
       - id: src-path-firefox
 
-  # Main BrawlEarth detection
-  - id: stealer/brawlearth/detected
-    description: BrawlEarth macOS infostealer
-    crit: suspicious
-    conf: 0.95
-    family: true
-    reference: "Rust-based macOS stealer targeting browser credentials and crypto wallets"
-    attack: "T1555"
-    mbc: "B0028"
-    platforms: [macos]
-    file_types: [macho]
-    all:
-      - id: stealer/brawlearth/detected-yara

@@ -476,14 +476,6 @@ composite_rules:
       - id: musl-prefix
       - id: musl-macro
 
-  # Static linking composite (migrated from YARA)
-  - id: static-linked
-    desc: Statically linked binary
-    crit: benign
-    conf: 0.8
-    count: 1
-    any:
-      - id: statically-linked
 
   # Debug symbols composite (migrated from YARA)
   - id: debug-symbols

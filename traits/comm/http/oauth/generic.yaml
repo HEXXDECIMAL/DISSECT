@@ -6,7 +6,7 @@ traits:
   # === OAuth atomic indicators ===
   - id: oauth-lower
     desc: oauth lowercase
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -14,7 +14,7 @@ traits:
 
   - id: oauth-upper
     desc: OAuth capitalized
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -22,7 +22,7 @@ traits:
 
   - id: access-token
     desc: access_token reference
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -30,7 +30,7 @@ traits:
 
   - id: refresh-token
     desc: refresh_token reference
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -39,7 +39,7 @@ traits:
   # === Google OAuth atomic indicators ===
   - id: google-accounts
     desc: accounts.google.com domain
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -47,7 +47,7 @@ traits:
 
   - id: googleapis-oauth
     desc: googleapis.com/oauth path
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -56,7 +56,7 @@ traits:
   # === Office365 OAuth atomic indicators ===
   - id: microsoft-login
     desc: login.microsoftonline.com domain
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -64,7 +64,7 @@ traits:
 
   - id: microsoft-graph
     desc: graph.microsoft.com domain
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string

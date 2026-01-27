@@ -38,7 +38,7 @@ composite_rules:
   # HTTP request composite (migrated from YARA)
   - id: request
     desc: Makes HTTP requests
-    crit: inert
+    crit: notable
     conf: 0.66
     mbc: "C0002"
     attack: "T1071.001"

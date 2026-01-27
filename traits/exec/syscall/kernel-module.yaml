@@ -60,14 +60,6 @@ composite_rules:
       - id: syscall-init-module
       - id: syscall-finit-module
 
-  - id: kernel-module-unload
-    desc: Unloads kernel module
-    conf: 0.9
-    crit: suspicious
-    platforms: [linux]
-    for: [elf]
-    all:
-      - id: syscall-delete-module
 
   - id: kexec
     desc: Loads new kernel for kexec

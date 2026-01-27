@@ -42,6 +42,15 @@ impl JavaScriptAnalyzer {
         use tracing::{debug, error, trace, warn};
 
         let start = std::time::Instant::now();
+        let timing_enabled = std::env::var("DISSECT_PROFILE").is_ok();
+
+        if timing_enabled {
+            eprintln!(
+                "[PROFILE] JS analyze_script start: {} ({} KB)",
+                file_path.display(),
+                content.len() / 1024
+            );
+        }
 
         debug!(
             "Parsing JavaScript file: {:?} ({} bytes)",
@@ -50,9 +59,24 @@ impl JavaScriptAnalyzer {
         );
 
         // Parse the JavaScript with panic catching (malware may crash tree-sitter)
+        let parse_start = std::time::Instant::now();
         let parse_result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
             self.parser.borrow_mut().parse(content, None)
         }));
+
+        let parse_duration = parse_start.elapsed();
+        let parse_millis = parse_duration.as_millis();
+
+        if timing_enabled {
+            eprintln!(
+                "[PROFILE]   AST parse: {}ms",
+                parse_millis
+            );
+        }
+
+        // Flag files that take abnormally long to parse (likely minified/obfuscated)
+        let slow_parse_threshold_ms = 10_000; // 10 seconds
+        let suspicious_parse = parse_millis > slow_parse_threshold_ms;
 
         let tree = match parse_result {
             Ok(Some(tree)) => {
@@ -130,30 +154,79 @@ impl JavaScriptAnalyzer {
         });
 
         // Detect capabilities and obfuscation
+        let t = std::time::Instant::now();
         self.detect_capabilities(&root, content.as_bytes(), &mut report);
+        if timing_enabled {
+            eprintln!(
+                "[PROFILE]   detect_capabilities: {}ms",
+                t.elapsed().as_millis()
+            );
+        }
 
         // Check for cross-statement obfuscation patterns
+        let t = std::time::Instant::now();
         self.check_global_obfuscation(content, &mut report);
+        if timing_enabled {
+            eprintln!(
+                "[PROFILE]   check_global_obfuscation: {}ms",
+                t.elapsed().as_millis()
+            );
+        }
 
         // Check for supply chain attack patterns
+        let t = std::time::Instant::now();
         self.check_supply_chain_patterns(content, &mut report);
+        if timing_enabled {
+            eprintln!(
+                "[PROFILE]   check_supply_chain_patterns: {}ms",
+                t.elapsed().as_millis()
+            );
+        }
 
         // Check for npm malware patterns (obfuscator signatures, C2, etc.)
+        let t = std::time::Instant::now();
         self.check_npm_malware_patterns(content, &mut report);
+        if timing_enabled {
+            eprintln!(
+                "[PROFILE]   check_npm_malware_patterns: {}ms",
+                t.elapsed().as_millis()
+            );
+        }
 
         // Extract functions
+        let t = std::time::Instant::now();
         self.extract_functions(&root, content.as_bytes(), &mut report);
+        if timing_enabled {
+            eprintln!(
+                "[PROFILE]   extract_functions: {}ms",
+                t.elapsed().as_millis()
+            );
+        }
 
         // Extract function calls as symbols for symbol-based rule matching
+        let t = std::time::Instant::now();
         symbol_extraction::extract_symbols(
             content,
             tree_sitter_javascript::LANGUAGE.into(),
             &["call_expression"],
             &mut report,
         );
+        if timing_enabled {
+            eprintln!(
+                "[PROFILE]   symbol_extraction: {}ms",
+                t.elapsed().as_millis()
+            );
+        }
 
         // Detect JavaScript idioms
+        let t = std::time::Instant::now();
         let javascript_idioms = self.detect_javascript_idioms(&root, content.as_bytes());
+        if timing_enabled {
+            eprintln!(
+                "[PROFILE]   detect_javascript_idioms: {}ms",
+                t.elapsed().as_millis()
+            );
+        }
 
         // Add idioms to source code metrics if they exist
         if let Some(ref mut metrics) = report.source_code_metrics {
@@ -161,13 +234,21 @@ impl JavaScriptAnalyzer {
         }
 
         // === Compute metrics for ML analysis (BEFORE trait evaluation) ===
+        let t = std::time::Instant::now();
         let metrics = self.compute_metrics(&root, content);
         report.metrics = Some(metrics);
+        if timing_enabled {
+            eprintln!("[PROFILE]   compute_metrics: {}ms", t.elapsed().as_millis());
+        }
 
         // Evaluate trait definitions and composite rules
+        let t = std::time::Instant::now();
         let trait_findings = self
             .capability_mapper
             .evaluate_traits(&report, content.as_bytes());
+        if timing_enabled {
+            eprintln!("[PROFILE]   evaluate_traits: {}ms", t.elapsed().as_millis());
+        }
 
         // Add atomic traits first so composite rules can reference them
         for f in trait_findings {
@@ -185,6 +266,40 @@ impl JavaScriptAnalyzer {
             if !report.findings.iter().any(|existing| existing.id == f.id) {
                 report.findings.push(f);
             }
+        }
+
+        // Add finding if parse took abnormally long (indicates obfuscation/minification)
+        if suspicious_parse {
+            warn!(
+                "⚠️  AST parsing took {}ms (threshold: {}ms) - likely minified/obfuscated code",
+                parse_millis, slow_parse_threshold_ms
+            );
+            report.findings.push(Finding {
+                id: "anti-static/obfuscation/slow-ast-parse".to_string(),
+                kind: FindingKind::Indicator,
+                desc: format!(
+                    "AST parsing took abnormally long ({}s), indicates heavily minified or obfuscated code",
+                    parse_millis / 1000
+                ),
+                conf: 0.90,
+                crit: Criticality::Suspicious,
+                mbc: Some("E1027".to_string()), // Obfuscated Files or Information
+                attack: Some("T1027".to_string()), // Obfuscated Files or Information
+                trait_refs: Vec::new(),
+                evidence: vec![Evidence {
+                    method: "timing_analysis".to_string(),
+                    source: "tree-sitter-javascript".to_string(),
+                    value: format!("parse_duration_ms={}", parse_millis),
+                    location: Some("ast_parse".to_string()),
+                }],
+            });
+        }
+
+        if timing_enabled {
+            eprintln!(
+                "[PROFILE] JS analyze_script complete: {}ms total\n",
+                start.elapsed().as_millis()
+            );
         }
 
         report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;

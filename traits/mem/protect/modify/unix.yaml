@@ -23,3 +23,14 @@ traits:
     condition:
       type: string
       exact: "mprotect"
+
+  - id: rwx-prot-bytes
+    description: RWX protection bytes (PROT_READ|WRITE|EXEC = 0x07)
+    crit: inert
+    confidence: 0.6
+    attack: "T1055"
+    platforms: [linux, macos, unix]
+    file_types: [elf, macho, so, dylib]
+    condition:
+      type: hex
+      pattern: "07 00 00 00"

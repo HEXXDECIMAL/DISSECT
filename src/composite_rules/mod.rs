@@ -11,16 +11,16 @@
 //! - `evaluators`: Condition evaluation functions
 //! - `traits`: TraitDefinition and CompositeTrait structs
 
-mod condition;
-mod context;
+pub mod condition;
+pub mod context;
 mod evaluators;
-mod traits;
-mod types;
+pub mod traits;
+pub mod types;
 
 // Re-export public API
-pub use condition::Condition;
+pub use condition::{Condition, NotException};
 pub use context::EvaluationContext;
-pub use traits::{CompositeTrait, TraitDefinition};
+pub use traits::{CompositeTrait, DowngradeRules, TraitDefinition};
 pub use types::{FileType, Platform};
 
 #[cfg(test)]

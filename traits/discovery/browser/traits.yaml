@@ -346,14 +346,6 @@ composite_rules:
       - id: opera-name
 
   # Brave composite
-  - id: brave
-    desc: Brave browser data
-    crit: suspicious
-    conf: 0.85
-    attack: "T1217"
-    for: [all]
-    all:
-      - id: brave-software
 
   # Multi-browser enumeration
   - id: multi-browser-enum

@@ -343,13 +343,6 @@ composite_rules:
       - { id: unconfined-labels }
       - { id: object-r-label }
 
-  - id: setenforce
-    desc: SELinux enforcement mode manipulation
-    crit: suspicious
-    conf: 0.85
-    for: [shell, c, elf]
-    any:
-      - { id: enforcement-commands }
 
   - id: policy-manipulation
     desc: SELinux policy load or manipulation
@@ -404,6 +397,6 @@ composite_rules:
     any:
       - { id: xattr-manipulation }
       - { id: unconfined-context }
-      - { id: setenforce }
+      - { id: enforcement-commands }
       - { id: kernel-disable }
       - { id: runtime-patch }

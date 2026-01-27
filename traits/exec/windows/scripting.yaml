@@ -206,44 +206,6 @@ traits:
 # === Composite Rules ===
 composite_rules:
   # WScript.Shell execution
-  - id: wscript-shell
-    desc: WScript.Shell command execution
-    crit: suspicious
-    conf: 0.9
-    attack: "T1059.005"
-    for: [javascript, typescript]
-    any:
-      - id: wscript-shell-string
-
-  # Scripting.FileSystemObject
-  - id: filesystem-object
-    desc: Scripting.FileSystemObject usage
-    crit: suspicious
-    conf: 0.85
-    attack: "T1059.005"
-    for: [javascript, typescript]
-    any:
-      - id: filesystem-object-string
-
-  # ActiveXObject creation
-  - id: activex-object
-    desc: ActiveXObject instantiation
-    crit: notable
-    conf: 0.8
-    attack: "T1559.001"
-    for: [javascript, typescript]
-    any:
-      - id: activex-object-string
-
-  # Shell.Application (explorer shell)
-  - id: shell-application
-    desc: Shell.Application COM object
-    crit: suspicious
-    conf: 0.85
-    attack: "T1559.001"
-    for: [javascript, typescript]
-    any:
-      - id: shell-application-string
 
   # MSXML HTTP request variants
   - id: msxml-http-variants
@@ -256,15 +218,6 @@ composite_rules:
       - id: microsoft-xmlhttp-string
       - id: msxml2-serverxmlhttp-string
 
-  # MSXML HTTP request
-  - id: msxml-http
-    desc: MSXML HTTP request object
-    crit: notable
-    conf: 0.75
-    attack: "T1071.001"
-    for: [javascript, typescript]
-    any:
-      - id: msxml-http-variants
 
   # WMI scripting variants
   - id: wmi-scripting-patterns
@@ -276,25 +229,6 @@ composite_rules:
       - id: winmgmts-string
       - id: wbemscripting-locator-string
 
-  # WMI scripting
-  - id: wmi-scripting
-    desc: WMI scripting access
-    crit: suspicious
-    conf: 0.85
-    attack: "T1047"
-    for: [javascript, typescript, powershell]
-    any:
-      - id: wmi-scripting-patterns
-
-  # ADODB stream (file operations)
-  - id: adodb-stream
-    desc: ADODB.Stream for file operations
-    crit: suspicious
-    conf: 0.85
-    attack: "T1059.005"
-    for: [javascript, typescript]
-    any:
-      - id: adodb-stream-string
 
   # Schedule.Service variants
   - id: schedule-service-patterns
@@ -306,15 +240,6 @@ composite_rules:
       - id: schedule-service-string
       - id: win32-scheduledjob-string
 
-  # Schedule.Service (task scheduler)
-  - id: schedule-service
-    desc: Task Scheduler COM object access
-    crit: suspicious
-    conf: 0.9
-    attack: "T1053.005"
-    for: [javascript, typescript, powershell]
-    any:
-      - id: schedule-service-patterns
 
   # Registry operation methods
   - id: registry-methods

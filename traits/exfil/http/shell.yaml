@@ -1,128 +1,14 @@
 # Shell-based Network Exfiltration
-# Detects curl/wget patterns used for data exfiltration
+# Behavioral composites that combine shell tools with exfiltration indicators
 # ATT&CK: T1041 (Exfiltration Over C2 Channel)
+#
+# Note: Atomic curl/wget/nc traits moved to comm/http/client/shell.yaml
+# This file contains only behavioral composites that indicate exfiltration
 
 defaults:
   mbc: "E1041"
   attack: "T1041"
-  # curl/wget/nc commands can be embedded in any file type
   for: ["*"]
-
-traits:
-  # === curl POST atomic indicators ===
-  - id: curl-d-flag
-    desc: curl -d data flag
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      regex: "curl .{0,50} -d "
-      search_raw: true
-
-  - id: curl-data-flag
-    desc: curl --data flag
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      regex: "curl .{0,50} --data"
-      search_raw: true
-
-  - id: curl-x-post
-    desc: curl -X POST flag
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      regex: "curl .{0,50} -X POST"
-      search_raw: true
-
-  # === curl upload atomic indicators ===
-  - id: curl-f-flag
-    desc: curl -F form flag
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      regex: "curl .{0,50} -F "
-      search_raw: true
-
-  - id: curl-form-flag
-    desc: curl --form flag
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      regex: "curl .{0,50} --form"
-      search_raw: true
-
-  - id: curl-t-flag
-    desc: curl -T upload flag
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      regex: "curl .{0,50} -T "
-      search_raw: true
-
-  - id: curl-upload-flag
-    desc: curl --upload-file flag
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      regex: "curl .{0,50} --upload-file"
-      search_raw: true
-
-  # === wget POST atomic indicators ===
-  - id: wget-post-data
-    desc: wget --post-data flag
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      regex: "wget .{0,50} --post-data"
-      search_raw: true
-
-  - id: wget-post-file
-    desc: wget --post-file flag
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      regex: "wget .{0,50} --post-file"
-      search_raw: true
-
-  # === netcat exfil atomic indicators ===
-  - id: nc-stdin-redirect
-    desc: netcat with stdin redirect
-    crit: inert
-    conf: 0.6
-    attack: "T1048"
-    if:
-      type: string
-      regex: "nc .{0,50} < "
-      search_raw: true
-
-  - id: cat-pipe-nc
-    desc: cat piped to netcat
-    crit: inert
-    conf: 0.6
-    attack: "T1048"
-    if:
-      type: string
-      regex: "cat .{0,50} \\| nc "
-      search_raw: true
-
-  - id: pipe-to-nc
-    desc: pipe to netcat
-    crit: inert
-    conf: 0.6
-    attack: "T1048"
-    if:
-      type: string
-      regex: "\\| nc "
-      search_raw: true
 
 composite_rules:
   - id: curl-post-data
@@ -131,9 +17,14 @@ composite_rules:
     conf: 0.85
     count: 1
     any:
-      - id: curl-d-flag
-      - id: curl-data-flag
-      - id: curl-x-post
+      - id: comm/http/client/shell/curl-d-flag
+      - id: comm/http/client/shell/curl-data-flag
+      - id: comm/http/client/shell/curl-x-post
+    unless:
+      - id: os/admin/legitimate/http-tools/package-manager
+      - id: os/admin/legitimate/http-tools/ci-cd-pipeline
+      - id: os/admin/legitimate/http-tools/health-check
+      - id: os/admin/legitimate/http-tools/installer-script
 
   - id: curl-upload-file
     desc: Curl file upload
@@ -141,10 +32,14 @@ composite_rules:
     conf: 0.85
     count: 1
     any:
-      - id: curl-f-flag
-      - id: curl-form-flag
-      - id: curl-t-flag
-      - id: curl-upload-flag
+      - id: comm/http/client/shell/curl-f-flag
+      - id: comm/http/client/shell/curl-form-flag
+      - id: comm/http/client/shell/curl-t-flag
+      - id: comm/http/client/shell/curl-upload-flag
+    unless:
+      - id: os/admin/legitimate/http-tools/package-manager
+      - id: os/admin/legitimate/http-tools/ci-cd-pipeline
+      - id: os/admin/legitimate/http-tools/backup-script
 
   - id: wget-post
     desc: Wget POST request (potential exfiltration)
@@ -152,8 +47,12 @@ composite_rules:
     conf: 0.8
     count: 1
     any:
-      - id: wget-post-data
-      - id: wget-post-file
+      - id: comm/http/client/shell/wget-post-data
+      - id: comm/http/client/shell/wget-post-file
+    unless:
+      - id: os/admin/legitimate/http-tools/package-manager
+      - id: os/admin/legitimate/http-tools/ci-cd-pipeline
+      - id: os/admin/legitimate/http-tools/installer-script
 
   - id: nc-exfil
     desc: Netcat exfiltration
@@ -162,6 +61,8 @@ composite_rules:
     attack: "T1048"
     count: 1
     any:
-      - id: nc-stdin-redirect
-      - id: cat-pipe-nc
-      - id: pipe-to-nc
+      - id: comm/http/client/shell/nc-stdin-redirect
+      - id: comm/http/client/shell/cat-pipe-nc
+      - id: comm/http/client/shell/pipe-to-nc
+    unless:
+      - id: os/admin/legitimate/http-tools/backup-script

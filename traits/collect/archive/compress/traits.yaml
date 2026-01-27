@@ -50,50 +50,6 @@ traits:
       type: string
       regex: "zip\\s+-[rX]"
 
-  # === Zip library atomic indicators ===
-  - id: go-archive-zip
-    desc: Go archive/zip package
-    crit: inert
-    conf: 0.5
-    attack: "T1560"
-    platforms: [all]
-    for: [go, elf, macho, pe]
-    if:
-      type: string
-      exact: "archive/zip"
-
-  - id: rust-zip-writer
-    desc: Rust zip_writer usage
-    crit: inert
-    conf: 0.5
-    attack: "T1560"
-    platforms: [all]
-    for: [rust, elf, macho, pe]
-    if:
-      type: string
-      exact: "zip_writer"
-
-  - id: python-zipfile
-    desc: Python zipfile module
-    crit: inert
-    conf: 0.5
-    attack: "T1560"
-    platforms: [all]
-    for: [python, elf, macho, pe]
-    if:
-      type: string
-      exact: "zipfile"
-
-  - id: zip64-format
-    desc: ZIP64 format reference
-    crit: inert
-    conf: 0.5
-    attack: "T1560"
-    platforms: [all]
-    if:
-      type: string
-      exact: "ZIP64"
-
   # === Unarchive ===
 
   - id: unarchive
@@ -107,18 +63,19 @@ traits:
 
 composite_rules:
   # Zip library composite
+  # Note: Library imports moved to data/archive/library-imports.yaml
   - id: zip-library
-    desc: ZIP library usage
+    desc: ZIP library usage in collection context
     crit: notable
     conf: 0.6
     attack: "T1560"
     platforms: [all]
     count: 1
     any:
-      - id: go-archive-zip
-      - id: rust-zip-writer
-      - id: python-zipfile
-      - id: zip64-format
+      - id: data/archive/library-imports/go-archive-zip
+      - id: data/archive/library-imports/rust-zip-writer
+      - id: data/archive/library-imports/python-zipfile
+      - id: data/archive/library-imports/zip64-format
 
   - id: binary-tar-exec
     desc: Binary executes tar command (not script)

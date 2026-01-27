@@ -201,12 +201,6 @@ composite_rules:
       - id: binmode-string
       - id: binmode-symbol
 
-  - id: ruby-file-write-tmp
-    description: Write to /tmp directory
-    crit: notable
-    conf: 0.88
-    any:
-      - id: tmp-slash-string
 
   - id: ruby-file-chmod
     description: Modify file permissions

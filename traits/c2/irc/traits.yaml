@@ -8,7 +8,7 @@ traits:
   # === IRC protocol indicators ===
   - id: irc-privmsg
     desc: IRC PRIVMSG command
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -16,7 +16,7 @@ traits:
 
   - id: irc-nick
     desc: IRC NICK command
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: string
@@ -24,7 +24,7 @@ traits:
 
   - id: irc-user
     desc: IRC USER command
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: string
@@ -33,7 +33,7 @@ traits:
   # === Bot command indicators ===
   - id: cmd-login
     desc: Bot login command
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -85,7 +85,7 @@ traits:
   # === DDoS indicators ===
   - id: attack-pan
     desc: PAN attack type indicator
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -93,7 +93,7 @@ traits:
 
   - id: attack-udp
     desc: UDP attack type indicator
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -101,7 +101,7 @@ traits:
 
   - id: ddos-flood
     desc: Flood attack terminology
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -110,7 +110,7 @@ traits:
 
   - id: ddos-attack
     desc: Attack terminology
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: string

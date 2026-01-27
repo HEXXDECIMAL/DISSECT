@@ -116,21 +116,3 @@ traits:
 composite_rules:
   # NOTE: Simple libc function references are too common in statically linked binaries
   # Require explicit infection markers or embedded ELF payloads at non-zero offset
-  - id: elf-infector-detected
-    description: ELF file infector
-    crit: suspicious
-    conf: 0.95
-    attack: "T1204"
-    mbc: "B0009"
-    for: [elf]
-    all:
-      - id: elf-infector-yara
-
-  - id: infected-xor-detected
-    description: XOR obfuscated infection marker
-    crit: suspicious
-    conf: 0.95
-    attack: "T1027"
-    for: [all]
-    all:
-      - id: infected-xor-yara

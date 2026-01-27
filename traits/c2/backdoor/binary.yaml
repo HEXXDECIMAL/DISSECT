@@ -19,15 +19,6 @@ traits:
       type: hex
       pattern: "79 07 4D C9 D3 14 79 51"
 
-  # === Memory manipulation patterns ===
-  - id: rwx-prot-bytes
-    desc: RWX protection bytes (PROT_READ|WRITE|EXEC)
-    crit: notable
-    conf: 0.6
-    if:
-      type: hex
-      pattern: "07 00 00 00"
-
   # === Obfuscation Indicators ===
   - id: high-entropy-strings
     desc: Large obfuscated data blob
@@ -390,3 +381,15 @@ composite_rules:
       - id: xz-ifunc-pattern
       - id: glibc-hijack
       - id: feat/binary/x86/cpuid-fingerprinting
+
+  # === RWX memory with suspicious context ===
+  - id: rwx-with-injection
+    desc: RWX memory protection with code injection indicators
+    crit: suspicious
+    conf: 0.75
+    all:
+      - id: mem/protect/modify/rwx-prot-bytes
+    any:
+      - id: glibc-hijack
+      - id: symbol-interposition
+      - id: high-entropy-strings

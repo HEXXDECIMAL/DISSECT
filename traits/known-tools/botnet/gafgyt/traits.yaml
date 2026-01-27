@@ -58,15 +58,6 @@ traits:
       type: string
       exact: "ack_flood"
 
-  - id: small-elf-binary
-    description: Small ELF binary (< 500KB)
-    crit: inert
-    conf: 0.5
-    for: [elf]
-    if:
-      type: filesize
-      max: 512000
-
 composite_rules:
   - id: flood-functions
     desc: DDoS flood function names
@@ -107,7 +98,7 @@ composite_rules:
     all:
       - id: botkill-string
       - id: gafgyt-strings
-      - id: small-elf-binary
+      - id: feat/binary/structural-metrics/small-elf-binary
 
   - id: ddos-capability
     desc: Gafgyt DDoS flood capability

@@ -8,7 +8,7 @@ defaults:
 traits:
   - id: getenv
     desc: getenv function (read environment variable)
-    crit: inert
+    crit: notable
     conf: 0.3
     if:
       type: symbol
@@ -40,7 +40,7 @@ traits:
 
   - id: environ-global
     desc: environ global variable access
-    crit: inert
+    crit: notable
     conf: 0.3
     if:
       type: symbol
@@ -49,7 +49,7 @@ traits:
 composite_rules:
   - id: env-access
     desc: Environment variable access functions
-    crit: inert
+    crit: notable
     conf: 0.4
     count: 1
     any:

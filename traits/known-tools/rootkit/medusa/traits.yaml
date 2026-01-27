@@ -224,17 +224,6 @@ traits:
 composite_rules:
   # === Composite: Full Medusa rootkit detection ===
 
-  - id: rootkit/medusa/detected
-    description: Medusa LD_PRELOAD rootkit with SSH credential theft
-    crit: suspicious
-    confidence: 0.98
-    family: true
-    reference: "https://www.elastic.co/security-labs/unveiling-medusa"
-    attack: "T1574.006"
-    mbc: "F0015"
-    file_types: [elf]
-    all:
-      - id: rootkit/medusa/yara
 
   # === Composite: SSH credential theft behavior ===
 

@@ -3,7 +3,7 @@
 //! This module contains TraitDefinition (atomic traits) and CompositeTrait
 //! (boolean combinations of conditions).
 
-use super::condition::Condition;
+use super::condition::{Condition, NotException};
 use super::context::{ConditionResult, EvaluationContext, StringParams};
 use super::evaluators::{
     eval_ast_pattern, eval_ast_query, eval_exports_count, eval_filesize, eval_hex,
@@ -18,6 +18,32 @@ use serde::Deserialize;
 
 fn default_confidence() -> f32 {
     1.0
+}
+
+/// Conditions for a downgrade level (supports composite syntax)
+#[derive(Debug, Clone, Deserialize)]
+pub struct DowngradeConditions {
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub any: Option<Vec<Condition>>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub all: Option<Vec<Condition>>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub none: Option<Vec<Condition>>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub count: Option<usize>,
+}
+
+/// Downgrade rules: criticality level → conditions that trigger downgrade
+#[derive(Debug, Clone, Deserialize)]
+pub struct DowngradeRules {
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub hostile: Option<DowngradeConditions>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub suspicious: Option<DowngradeConditions>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub notable: Option<DowngradeConditions>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub inert: Option<DowngradeConditions>,
 }
 
 /// Definition of an atomic observable trait
@@ -50,6 +76,20 @@ pub struct TraitDefinition {
     // Detection condition - just one condition per trait (atomic!)
     #[serde(alias = "condition")]
     pub r#if: Condition,
+
+    /// String-level exceptions - filter matched strings
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub not: Option<Vec<NotException>>,
+
+    /// File-level skip conditions - composite rule that skips trait if matched
+    /// Default semantics: skip if ANY condition matches (unless: [list])
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub unless: Option<Vec<Condition>>,
+
+    /// Criticality downgrade rules - map of target criticality to conditions
+    /// Only levels LOWER than base `crit` are allowed (validated at load time)
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub downgrade: Option<DowngradeRules>,
 }
 
 impl TraitDefinition {
@@ -63,6 +103,18 @@ impl TraitDefinition {
         // Check if this trait applies to the current platform/file type
         if !self.matches_target(ctx) {
             return None;
+        }
+
+        // Check unless conditions (file-level skip)
+        if let Some(unless_conds) = &self.unless {
+            // Default 'any' semantics: skip if ANY condition matches
+            for condition in unless_conds {
+                let result = self.eval_condition(condition, ctx);
+                if result.matched {
+                    // Skip this trait - condition matched
+                    return None;
+                }
+            }
         }
 
         // Evaluate the condition (traits only have one atomic condition)
@@ -79,12 +131,19 @@ impl TraitDefinition {
         }
 
         if result.matched {
+            let mut final_crit = self.crit;
+
+            // Check downgrade conditions
+            if let Some(downgrade_rules) = &self.downgrade {
+                final_crit = self.evaluate_downgrade(downgrade_rules, &self.crit, ctx);
+            }
+
             Some(Finding {
                 id: self.id.clone(),
                 kind: FindingKind::Capability,
                 desc: self.desc.clone(),
                 conf: self.conf,
-                crit: self.crit,
+                crit: final_crit,
                 mbc: self.mbc.clone(),
                 attack: self.attack.clone(),
                 trait_refs: vec![],
@@ -108,6 +167,83 @@ impl TraitDefinition {
         platform_match && file_type_match
     }
 
+    /// Evaluate downgrade rules and return final criticality
+    fn evaluate_downgrade(
+        &self,
+        rules: &DowngradeRules,
+        base_crit: &Criticality,
+        ctx: &EvaluationContext,
+    ) -> Criticality {
+        // Check in severity order: hostile → suspicious → notable → inert
+        // First match wins
+
+        if let Some(conditions) = &rules.hostile {
+            if self.eval_downgrade_conditions(conditions, ctx) {
+                return Criticality::Hostile;
+            }
+        }
+
+        if let Some(conditions) = &rules.suspicious {
+            if self.eval_downgrade_conditions(conditions, ctx) {
+                return Criticality::Suspicious;
+            }
+        }
+
+        if let Some(conditions) = &rules.notable {
+            if self.eval_downgrade_conditions(conditions, ctx) {
+                return Criticality::Notable;
+            }
+        }
+
+        if let Some(conditions) = &rules.inert {
+            if self.eval_downgrade_conditions(conditions, ctx) {
+                return Criticality::Inert;
+            }
+        }
+
+        // No downgrade matched - return base criticality
+        *base_crit
+    }
+
+    /// Evaluate a single downgrade condition set
+    fn eval_downgrade_conditions(
+        &self,
+        conditions: &DowngradeConditions,
+        ctx: &EvaluationContext,
+    ) -> bool {
+        // If 'all' is specified, all must match
+        if let Some(all_conds) = &conditions.all {
+            for cond in all_conds {
+                if !self.eval_condition(cond, ctx).matched {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // If 'any' is specified, at least one must match
+        if let Some(any_conds) = &conditions.any {
+            for cond in any_conds {
+                if self.eval_condition(cond, ctx).matched {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // If 'none' is specified, none can match
+        if let Some(none_conds) = &conditions.none {
+            for cond in none_conds {
+                if self.eval_condition(cond, ctx).matched {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        false
+    }
+
     /// Evaluate a single condition
     fn eval_condition(&self, condition: &Condition, ctx: &EvaluationContext) -> ConditionResult {
         match condition {
@@ -124,6 +260,8 @@ impl TraitDefinition {
                 exclude_patterns,
                 min_count,
                 search_raw,
+                compiled_regex,
+                compiled_excludes,
             } => {
                 let params = StringParams {
                     exact: exact.as_ref(),
@@ -133,8 +271,10 @@ impl TraitDefinition {
                     exclude_patterns: exclude_patterns.as_ref(),
                     min_count: *min_count,
                     search_raw: *search_raw,
+                    compiled_regex: compiled_regex.as_ref(),
+                    compiled_excludes,
                 };
-                eval_string(&params, ctx)
+                eval_string(&params, self.not.as_ref(), ctx)
             }
             Condition::YaraMatch { namespace, rule } => {
                 eval_yara_match(namespace, rule.as_ref(), ctx)
@@ -225,6 +365,7 @@ impl TraitDefinition {
                 word.as_ref(),
                 *case_insensitive,
                 *min_count,
+                None, // Raw variant doesn't support precompiled regex yet
                 ctx,
             ),
             Condition::SectionName { pattern, regex } => eval_section_name(pattern, *regex, ctx),
@@ -543,6 +684,8 @@ impl CompositeTrait {
                 exclude_patterns,
                 min_count,
                 search_raw,
+                compiled_regex,
+                compiled_excludes,
             } => {
                 let params = StringParams {
                     exact: exact.as_ref(),
@@ -552,8 +695,10 @@ impl CompositeTrait {
                     exclude_patterns: exclude_patterns.as_ref(),
                     min_count: *min_count,
                     search_raw: *search_raw,
+                    compiled_regex: compiled_regex.as_ref(),
+                    compiled_excludes,
                 };
-                eval_string(&params, ctx)
+                eval_string(&params, None, ctx)
             }
             Condition::YaraMatch { namespace, rule } => {
                 self.eval_yara_match(namespace, rule.as_ref(), ctx)
@@ -644,6 +789,7 @@ impl CompositeTrait {
                 word.as_ref(),
                 *case_insensitive,
                 *min_count,
+                None, // Raw variant doesn't support precompiled regex yet
                 ctx,
             ),
             Condition::SectionName { pattern, regex } => eval_section_name(pattern, *regex, ctx),

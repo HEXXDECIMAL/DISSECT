@@ -5,6 +5,52 @@ use anyhow::Result;
 use serde::Deserialize;
 use std::sync::Arc;
 
+/// String exception specification for `not:` directive
+#[derive(Debug, Clone, Deserialize)]
+#[serde(untagged)]
+pub enum NotException {
+    /// Shorthand: bare string defaults to contains match
+    Shorthand(String),
+
+    /// Structured exception with explicit match type
+    Structured {
+        #[serde(skip_serializing_if = "Option::is_none")]
+        exact: Option<String>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        contains: Option<String>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        regex: Option<String>,
+    },
+}
+
+impl NotException {
+    /// Check if a string matches this exception
+    pub fn matches(&self, value: &str) -> bool {
+        match self {
+            NotException::Shorthand(pattern) => {
+                value.to_lowercase().contains(&pattern.to_lowercase())
+            }
+            NotException::Structured {
+                exact,
+                contains,
+                regex,
+            } => {
+                if let Some(exact_str) = exact {
+                    value.eq_ignore_ascii_case(exact_str)
+                } else if let Some(contains_str) = contains {
+                    value.to_lowercase().contains(&contains_str.to_lowercase())
+                } else if let Some(regex_str) = regex {
+                    regex::Regex::new(regex_str)
+                        .map(|re| re.is_match(value))
+                        .unwrap_or(false)
+                } else {
+                    false
+                }
+            }
+        }
+    }
+}
+
 /// Intermediate type for deserializing conditions with shorthand support.
 /// Converts `{ id: my-trait }` to `Condition::Trait { id: "my-trait" }`.
 #[derive(Debug, Clone, Deserialize)]
@@ -35,7 +81,8 @@ enum ConditionTagged {
         word: Option<String>,
         #[serde(default)]
         case_insensitive: bool,
-        exclude_patterns: Option<Vec<String>>,
+        #[serde(alias = "exclude_patterns")]
+        deprecated_exclude_patterns: Option<Vec<String>>,
         #[serde(default = "default_min_count")]
         min_count: usize,
         #[serde(default)]
@@ -188,7 +235,7 @@ impl From<ConditionDeser> for Condition {
                     regex,
                     word,
                     case_insensitive,
-                    exclude_patterns,
+                    deprecated_exclude_patterns,
                     min_count,
                     search_raw,
                 } => Condition::String {
@@ -196,9 +243,11 @@ impl From<ConditionDeser> for Condition {
                     regex,
                     word,
                     case_insensitive,
-                    exclude_patterns,
+                    exclude_patterns: deprecated_exclude_patterns,
                     min_count,
                     search_raw,
+                    compiled_regex: None,
+                    compiled_excludes: Vec::new(),
                 },
                 ConditionTagged::YaraMatch { namespace, rule } => {
                     Condition::YaraMatch { namespace, rule }
@@ -371,6 +420,12 @@ pub enum Condition {
         /// Search raw file content instead of extracted strings (for counting occurrences)
         #[serde(default)]
         search_raw: bool,
+        /// Pre-compiled regex (populated after deserialization, not serialized)
+        #[serde(skip)]
+        compiled_regex: Option<regex::Regex>,
+        /// Pre-compiled exclude regexes (populated after deserialization, not serialized)
+        #[serde(skip)]
+        compiled_excludes: Vec<regex::Regex>,
     },
 
     /// Match a YARA rule result
@@ -752,6 +807,45 @@ impl Condition {
             }
         }
         None
+    }
+
+    /// Pre-compile regexes in this condition for performance.
+    /// Should be called once after deserialization.
+    pub fn precompile_regexes(&mut self) {
+        if let Condition::String {
+            regex,
+            word,
+            case_insensitive,
+            exclude_patterns,
+            compiled_regex,
+            compiled_excludes,
+            ..
+        } = self
+        {
+            // Compile main regex or word pattern
+            if let Some(word_pattern) = word {
+                let regex_pattern = format!(r"\b{}\b", regex::escape(word_pattern));
+                *compiled_regex = if *case_insensitive {
+                    regex::Regex::new(&format!("(?i){}", regex_pattern)).ok()
+                } else {
+                    regex::Regex::new(&regex_pattern).ok()
+                };
+            } else if let Some(regex_pattern) = regex {
+                *compiled_regex = if *case_insensitive {
+                    regex::Regex::new(&format!("(?i){}", regex_pattern)).ok()
+                } else {
+                    regex::Regex::new(regex_pattern).ok()
+                };
+            }
+
+            // Compile exclude patterns
+            if let Some(excludes) = exclude_patterns {
+                *compiled_excludes = excludes
+                    .iter()
+                    .filter_map(|p| regex::Regex::new(p).ok())
+                    .collect();
+            }
+        }
     }
 }
 

@@ -61,30 +61,3 @@ traits:
         }
 
 composite_rules:
-  # URL-based detection (high confidence)
-  - id: stealer/poseidon/url-detected
-    description: Poseidon infostealer (C2 URL)
-    crit: suspicious
-    conf: 0.99
-    family: true
-    reference: "https://www.intego.com/mac-security-blog/poseidon-macos-malware-employs-new-tricks-targets-swiss-mac-users/"
-    attack: "T1555"
-    mbc: "B0028"
-    platforms: [macos]
-    file_types: [macho]
-    any:
-      - id: stealer/poseidon/c2-url
-
-  # Behavioral detection via YARA (filesize + entropy)
-  - id: stealer/poseidon/detected
-    description: Poseidon macOS infostealer
-    crit: suspicious
-    conf: 0.9
-    family: true
-    reference: "https://www.intego.com/mac-security-blog/poseidon-macos-malware-employs-new-tricks-targets-swiss-mac-users/"
-    attack: "T1555"
-    mbc: "B0028"
-    platforms: [macos]
-    file_types: [macho]
-    all:
-      - id: stealer/poseidon/detected-yara

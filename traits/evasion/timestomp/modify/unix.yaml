@@ -1,17 +1,24 @@
 # Timestomping Detection - Unix
+# Behavioral composites for timestamp manipulation in evasion context
 # MBC: F0006 (Timestomp)
 # ATT&CK: T1070.006
+#
+# Note: Atomic traits moved to fs/file/timestamp/unix.yaml
+# This file contains only behavioral composites
 
 defaults:
   for: [elf, macho, so, dylib, c]
+  mbc: "F0006"
+  attack: "T1070.006"
 
-traits:
+composite_rules:
   - id: timestomp
-    desc: Modify file timestamps
+    desc: File timestamp modification (evasion context)
     crit: suspicious
-    conf: 0.66
-    mbc: "F0006"
-    attack: "T1070.006"
-    if:
-      type: symbol
-      pattern: utime|utimes|utimensat|futimens|lutimes
+    conf: 0.7
+    any:
+      - id: fs/file/timestamp/unix/utime-syscall
+      - id: fs/file/timestamp/unix/utimes-syscall
+      - id: fs/file/timestamp/unix/utimensat-syscall
+      - id: fs/file/timestamp/unix/futimens-syscall
+      - id: fs/file/timestamp/unix/lutimes-syscall

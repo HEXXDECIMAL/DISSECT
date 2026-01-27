@@ -294,14 +294,6 @@ composite_rules:
       - id: clipboard-get-method
       - id: clipboard-clear-method
 
-  # Windows clipboard chain composite
-  - id: python-clipboard-viewer
-    desc: "Windows clipboard viewer chain (real-time monitoring)"
-    conf: 0.9
-    crit: suspicious
-    platforms: [windows]
-    all:
-      - id: set-clipboard-viewer
 
   # Clipboard change notification composite
   - id: python-clipboard-change

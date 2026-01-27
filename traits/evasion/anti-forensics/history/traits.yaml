@@ -106,30 +106,8 @@ traits:
       type: string
       exact: "PROMPT_COMMAND="
 
-  # === TERM Setup ===
-  - id: term-vt100
-    desc: export TERM=vt100 terminal type
-    crit: notable
-    conf: 0.7
-    if:
-      type: string
-      exact: "export TERM=vt100"
-
-  - id: term-xterm
-    desc: export TERM=xterm terminal type
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      exact: "export TERM=xterm"
-
-  - id: term-linux
-    desc: export TERM=linux terminal type
-    crit: notable
-    conf: 0.7
-    if:
-      type: string
-      exact: "export TERM=linux"
+  # Note: TERM variable traits moved to os/env/terminal.yaml
+  # (terminal configuration is not anti-forensics)
 
 composite_rules:
   # Bash history file clearing (migrated from YARA)

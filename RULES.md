@@ -451,6 +451,103 @@ composite_rules:
 
 ---
 
+## Exception and Context Directives
+
+Traits support three directives for filtering and context-aware behavior:
+
+### `not:` - String-Level Exceptions
+
+Filter matched strings from evidence. Use to exclude known-benign patterns.
+
+**Syntax:**
+- Bare strings default to case-insensitive substring match (most common)
+- Explicit match types: `exact:`, `contains:`, `regex:`
+
+**Example:**
+```yaml
+- id: hardcoded-domain
+  if:
+    type: string
+    regex: "\\b[a-z0-9]+\\.(com|org)\\b"
+  not:
+    - "apple.com"           # Shorthand substring
+    - exact: "github.com"   # Exact match only
+    - regex: "^192\\.168\\." # Private IP range
+```
+
+**When to use:**
+- Exclude known-legitimate strings (domains, IPs, paths)
+- Filter false positives without creating separate traits
+- Clean up evidence for clearer reports
+
+**Note:** Replaces deprecated `exclude_patterns` field (still supported for backward compatibility).
+
+---
+
+### `unless:` - File-Level Skip
+
+Skip entire trait if conditions match. Use for context-aware filtering.
+
+**Syntax:**
+- List of conditions (default 'any' semantics: skip if ANY matches)
+- Can reference other traits via `{ id: trait-name }`
+
+**Example:**
+```yaml
+- id: network-connect
+  crit: suspicious
+  if:
+    type: symbol
+    pattern: "connect"
+  unless:
+    - id: file/path/system-binary
+    - id: compiler/go
+```
+
+**When to use:**
+- Skip traits for system binaries (lower false positives)
+- Exclude specific file types (configs, tests, mocks)
+- Context-aware filtering based on other detected traits
+
+---
+
+### `downgrade:` - Context-Based Criticality
+
+Reduce criticality level based on file context. Use when behavior is less concerning in specific contexts.
+
+**Syntax:**
+- Map of target criticality levels to composite conditions
+- Levels: `hostile`, `suspicious`, `notable`, `inert`
+- First matching level (in severity order) wins
+- Can only downgrade (not upgrade) from base `crit`
+
+**Example:**
+```yaml
+- id: suspicious-curl-pipe
+  crit: suspicious
+  if:
+    type: string
+    regex: "curl.*\\|.*bash"
+  downgrade:
+    notable:
+      any:
+        - id: file/type/shell-script
+        - id: file/signed/apple
+    inert:
+      any:
+        - id: file/type/zsh-history
+        - id: file/path/test-fixtures
+```
+
+**When to use:**
+- Lower severity for signed/trusted binaries
+- Reduce noise from shell history files
+- Context-aware risk assessment (tests vs production)
+
+**Validation:** Tool warns if downgrade level >= base criticality (likely configuration error).
+
+---
+
 ## Proximity Constraints
 
 ```yaml

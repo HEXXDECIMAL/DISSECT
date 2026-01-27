@@ -41,39 +41,6 @@ traits:
       feature: "binary/no-nx"
 
 composite_rules:
-  - id: stripped-binary
-    desc: "Binary has symbol table stripped"
-    crit: notable
-    conf: 0.7
-    for: [elf, macho, pe]
-    all:
-      - id: stripped-binary-struct
-
-  - id: static-linked
-    desc: "Statically linked binary (self-contained)"
-    crit: notable
-    conf: 0.7
-    for: [elf]
-    all:
-      - id: static-linked-struct
-
-  - id: no-pie
-    desc: "Binary not position-independent (no ASLR)"
-    crit: notable
-    conf: 0.6
-    for: [elf]
-    all:
-      - id: no-pie-struct
-
-  - id: no-nx
-    desc: "Binary lacks NX/DEP protection (executable stack)"
-    crit: notable
-    conf: 0.7
-    attack: "T1027"
-    for: [elf, macho]
-    all:
-      - id: no-nx-struct
-
   - id: minimal
     desc: "Binary lacks security hardening (stripped + static)"
     crit: suspicious
@@ -82,5 +49,5 @@ composite_rules:
     attack: "T1027"
     for: [elf]
     all:
-      - id: stripped-binary
-      - id: static-linked
+      - id: stripped-binary-struct
+      - id: static-linked-struct

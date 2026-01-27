@@ -116,13 +116,6 @@ composite_rules:
       - id: ssh-hardcoded-creds
       - id: ssh-auth-bypass
 
-  - id: backdoor/ssh/cred-capture
-    description: SSH credential logging backdoor
-    crit: suspicious
-    conf: 0.9
-    attack: "T1556.004"
-    all:
-      - id: ssh-cred-logging
 
   # === Main detection rule ===
   - id: backdoor/ssh/detected

@@ -208,17 +208,6 @@ composite_rules:
       - id: os-fork-string
       - id: tight-loops
 
-  # Fork bomb: os.fork() inside while True loop
-  # NOTE: Original YARA had filesize < 10KB constraint (not supported in DISSECT)
-  - id: infinite-fork
-    desc: Fork bomb - infinite process forking (DoS)
-    crit: suspicious
-    conf: 0.98
-    attack: "T1499.004"
-    mbc: "B0033"
-    all:
-      - id: fork-with-loop
-
   # Fork without rate limiting in tight loop (suspicious)
   # NOTE: Original YARA had filesize < 1MB constraint (not supported in DISSECT)
   - id: rapid-fork

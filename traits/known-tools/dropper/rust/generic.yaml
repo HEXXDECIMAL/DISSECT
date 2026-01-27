@@ -241,30 +241,6 @@ composite_rules:
       - id: ureq-chunked-decoder-rs
       - id: ureq-pool-rs
 
-  # === Migrated from YARA ===
-  - id: dropper/rust/http-client
-    description: "Rust HTTP client library detected (binary-based)"
-    crit: inert
-    conf: 0.8
-    for: [elf, macho, pe]
-    any:
-      - id: rust-http-libs
-
-  - id: dropper/rust/file-execution
-    description: "Rust process execution capability"
-    crit: inert
-    conf: 0.8
-    for: [elf, macho, pe]
-    any:
-      - id: rust-process-exec
-
-  - id: dropper/rust/fs-ops
-    description: "Rust file system operations (write/create)"
-    crit: inert
-    conf: 0.8
-    for: [elf, macho, pe]
-    any:
-      - id: rust-fs-operations
 
   # Note: dropper/rust/small-binary (filesize < 5MB) cannot be directly translated
   # to DISSECT trait system as filesize constraints are not supported

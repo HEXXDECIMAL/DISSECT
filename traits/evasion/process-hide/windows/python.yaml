@@ -90,9 +90,3 @@ composite_rules:
       - id: subprocess-call
       - id: hidden-window-flag
 
-  # creationflags with bitwise OR - combining multiple flags
-  - id: combined-flags
-    desc: "Multiple process creation flags combined"
-    conf: 0.9
-    all:
-      - id: combined-creationflags

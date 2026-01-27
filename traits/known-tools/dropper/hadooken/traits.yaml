@@ -310,11 +310,6 @@ composite_rules:
       - id: minerd-tool
       - id: cpuminer-tool
 
-  - id: pool-config
-    description: Mining pool configuration patterns
-    for: [elf, macho, pe, so, dylib, dll, shell]
-    any:
-      - id: pool-dot
 
   - id: persistence-methods
     description: Persistence mechanisms
@@ -362,7 +357,7 @@ composite_rules:
     description: Mining tools with pool config and persistence
     all:
       - id: mining-tools
-      - id: pool-config
+      - id: pool-dot
       - id: persistence-methods
 
   - id: dropper/hadooken/miner

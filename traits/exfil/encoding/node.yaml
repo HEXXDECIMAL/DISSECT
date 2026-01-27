@@ -1,83 +1,23 @@
 # Node.js Data Encoding for Exfiltration
-# ATT&CK: T1027 (Obfuscated Files or Information), T1132 (Data Encoding)
+# Behavioral composites that combine encoding with exfiltration indicators
+# ATT&CK: T1041 (Exfiltration Over C2 Channel), T1132 (Data Encoding)
+#
+# Note: Atomic encoding traits moved to data/encoding/node.yaml
+# This file contains only behavioral composites that indicate exfiltration
 
-traits:
-  # Base64 encoding
-  - id: node-base64-encode
-    desc: Base64 encodes data (pre-exfiltration)
-    crit: notable
-    conf: 0.8
-    attack: "T1132"
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "toString\\(['\"]base64['\"]\\)"
-
-  - id: node-buffer-base64
-    desc: Buffer to base64 conversion
-    crit: notable
-    conf: 0.85
-    attack: "T1132"
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "Buffer\\.from\\([^)]+\\)\\.toString\\(['\"]base64['\"]\\)"
-
-  - id: node-base64-decode
-    desc: Base64 decodes data
-    crit: notable
-    conf: 0.75
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "Buffer\\.from\\([^,]+,\\s*['\"]base64['\"]\\)"
-
-  # Hex encoding
-  - id: node-hex-encode
-    desc: Hex encodes data
-    crit: notable
-    conf: 0.75
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "toString\\(['\"]hex['\"]\\)"
-
-  # JSON serialization
-  - id: node-json-stringify
-    desc: JSON serializes data for transmission
-    crit: inert
-    conf: 0.7
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: 'JSON\.stringify\('
-
-  # URL encoding
-  - id: node-querystring
-    desc: URL-encodes data using querystring
-    crit: notable
-    conf: 0.8
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: 'querystring\.stringify\('
-
-  - id: node-url-params
-    desc: Creates URLSearchParams for data
-    crit: notable
-    conf: 0.75
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: 'new URLSearchParams\('
+defaults:
+  for: [javascript, typescript]
+  attack: "T1041"
 
 composite_rules:
   # Encode then exfil pattern
   - id: node-encode-exfil
-    desc: Encodes data then sends via HTTP (exfiltration)
+    desc: Encodes data then sends via HTTP (exfiltration pattern)
     crit: suspicious
     conf: 0.9
-    attack: "T1041"
     all:
-      - id: node-base64-encode
+      - id: data/encoding/node/node-base64-encode
       - id: comm/http/request/javascript/http-client-usage
+    unless:
+      - id: os/admin/legitimate/http-tools/package-manager
+      - id: os/admin/legitimate/http-tools/ci-cd-pipeline
