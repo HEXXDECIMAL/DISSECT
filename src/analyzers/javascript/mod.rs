@@ -274,10 +274,16 @@ impl JavaScriptAnalyzer {
 
         // Evaluate all rules (atomic + composite) and merge into report
         let t = std::time::Instant::now();
-        self.capability_mapper
-            .evaluate_and_merge_findings(&mut report, content.as_bytes(), Some(&tree));
+        self.capability_mapper.evaluate_and_merge_findings(
+            &mut report,
+            content.as_bytes(),
+            Some(&tree),
+        );
         if timing_enabled {
-            eprintln!("[PROFILE]   evaluate_and_merge_findings: {}ms", t.elapsed().as_millis());
+            eprintln!(
+                "[PROFILE]   evaluate_and_merge_findings: {}ms",
+                t.elapsed().as_millis()
+            );
         }
 
         // Add finding if parse took abnormally long (indicates obfuscation/minification)

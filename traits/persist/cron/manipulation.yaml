@@ -12,7 +12,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "crontab -l"
+      word: "crontab"
 
   - id: pipe-crontab
     desc: Pipe to crontab stdin
@@ -20,7 +20,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "| crontab -"
+      regex: "\\|\\s*crontab\\s+-"
 
   - id: echo-command
     desc: echo command
@@ -28,7 +28,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "echo"
+      word: "echo"
 
   - id: grep-v
     desc: grep -v (inverse match/filter)
@@ -36,7 +36,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      exact: "grep -v"
+      regex: "grep\\s+-v"
 
 composite_rules:
   # Blind append pattern: echo | crontab -

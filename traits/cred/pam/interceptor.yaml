@@ -34,6 +34,15 @@ traits:
       type: symbol
       exact: "pam_get_item"
 
+  - id: pam-get-item-string
+    desc: pam_get_item function reference (string)
+    crit: inert
+    conf: 0.7
+    for: [elf, so]
+    if:
+      type: string
+      regex: "pam_get_item"
+
   - id: pam-set-item
     desc: pam_set_item function
     crit: inert
@@ -71,6 +80,15 @@ traits:
       type: symbol
       exact: "pam_authenticate"
 
+  - id: pam-authenticate-string
+    desc: pam_authenticate function reference (string)
+    crit: inert
+    conf: 0.65
+    for: [elf, so]
+    if:
+      type: string
+      regex: "pam_authenticate"
+
   - id: pam-open-session
     desc: pam_open_session function
     crit: inert
@@ -88,6 +106,15 @@ traits:
     if:
       type: symbol
       exact: "pam_acct_mgmt"
+
+  - id: pam-acct-mgmt-string
+    desc: pam_acct_mgmt function reference (string)
+    crit: inert
+    conf: 0.65
+    for: [elf, so]
+    if:
+      type: string
+      regex: "pam_acct_mgmt"
 
   - id: pam-setcred
     desc: pam_setcred function
@@ -112,6 +139,7 @@ composite_rules:
     for: [c, cpp, elf, so]
     any:
       - { id: pam-get-item }
+      - { id: pam-get-item-string }
       - { id: pam-set-item }
       - { id: pam-get-authtok }
       - { id: pam-authtok-constant }
@@ -121,8 +149,10 @@ composite_rules:
     for: [c, cpp, elf, so]
     any:
       - { id: pam-authenticate }
+      - { id: pam-authenticate-string }
       - { id: pam-open-session }
       - { id: pam-acct-mgmt }
+      - { id: pam-acct-mgmt-string }
       - { id: pam-setcred }
 
   # Migrated from YARA

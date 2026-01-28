@@ -82,8 +82,11 @@ impl PhpAnalyzer {
         report.metrics = Some(metrics);
 
         // Evaluate all rules (atomic + composite) and merge into report
-        self.capability_mapper
-            .evaluate_and_merge_findings(&mut report, content.as_bytes(), Some(&tree));
+        self.capability_mapper.evaluate_and_merge_findings(
+            &mut report,
+            content.as_bytes(),
+            Some(&tree),
+        );
 
         let elapsed = start.elapsed().as_millis() as u64;
         report.metadata.analysis_duration_ms = elapsed;

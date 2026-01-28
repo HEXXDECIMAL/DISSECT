@@ -219,6 +219,12 @@ fn namespace_long_name(ns: &str) -> &str {
 /// Maximum width for evidence display (truncate if longer)
 const EVIDENCE_MAX_WIDTH: usize = 80;
 
+/// Strip ANSI escape codes for accurate length measurement
+fn strip_ansi(s: &str) -> String {
+    let re = regex::Regex::new(r"\x1b\[[0-9;]*m").unwrap();
+    re.replace_all(s, "").to_string()
+}
+
 fn format_evidence(finding: &Finding) -> String {
     let mut seen = std::collections::HashSet::new();
     let values: Vec<String> = finding
@@ -358,12 +364,22 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
             if evidence.is_empty() {
                 output.push_str(&format!("│       {}\n", content));
             } else {
-                output.push_str(&format!(
-                    "│       {}{} {}\n",
-                    content,
-                    ":".bright_black(),
-                    evidence.white()
-                ));
+                // Calculate display length (strip ANSI codes for measurement)
+                let display_len = strip_ansi(&format!("{}: {}", content, evidence)).len();
+
+                // If line would be too long, put evidence on separate line
+                if display_len > 120 {
+                    output.push_str(&format!("│       {}\n", content));
+                    output.push_str(&format!("│           {}\n", evidence.bright_black()));
+                } else {
+                    // Keep evidence on same line
+                    output.push_str(&format!(
+                        "│       {}{} {}\n",
+                        content,
+                        ":".bright_black(),
+                        evidence.bright_black()
+                    ));
+                }
             }
         }
     }

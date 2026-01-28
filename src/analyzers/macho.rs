@@ -172,7 +172,10 @@ impl MachOAnalyzer {
         self.capability_mapper
             .evaluate_and_merge_findings(&mut report, data, None);
         if timing {
-            eprintln!("[TIMING] evaluate_and_merge_findings: {:?}", t_eval.elapsed());
+            eprintln!(
+                "[TIMING] evaluate_and_merge_findings: {:?}",
+                t_eval.elapsed()
+            );
         }
 
         report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;

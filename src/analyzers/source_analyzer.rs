@@ -140,8 +140,11 @@ pub trait SourceAnalyzer {
         report.metrics = Some(metrics);
 
         // Step 9: Evaluate all rules (atomic + composite) and merge into report
-        self.capability_mapper()
-            .evaluate_and_merge_findings(&mut report, content.as_bytes(), Some(&tree));
+        self.capability_mapper().evaluate_and_merge_findings(
+            &mut report,
+            content.as_bytes(),
+            Some(&tree),
+        );
 
         // Step 10: Record analysis duration
         let elapsed = start.elapsed().as_millis() as u64;

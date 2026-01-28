@@ -26,10 +26,9 @@ traits:
     crit: suspicious
     conf: 0.8
     if:
-      type: string_count
-      min: 10
-      max: 1000
-      filter: "Mozilla/5.0"
+      type: string
+      regex: "Mozilla/5\\.0"
+      min_count: 10
 
   # === DDoS Terminology ===
   - id: attack-metrics
