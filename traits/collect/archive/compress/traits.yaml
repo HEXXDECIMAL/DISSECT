@@ -65,7 +65,7 @@ composite_rules:
   # Zip library composite
   # Note: Library imports moved to data/archive/library-imports.yaml
   - id: zip-library
-    desc: ZIP library usage in collection context
+    desc: "Uses ZIP compression library"
     crit: notable
     conf: 0.6
     attack: "T1560"
@@ -78,7 +78,7 @@ composite_rules:
       - id: data/archive/library-imports/zip64-format
 
   - id: binary-tar-exec
-    desc: Binary executes tar command (not script)
+    desc: "Binary executes tar command"
     crit: suspicious
     conf: 0.8
     attack: "T1560"

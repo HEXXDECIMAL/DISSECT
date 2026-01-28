@@ -101,7 +101,7 @@ traits:
 
   # === CoreServices Identity API micro-traits ===
   - id: csidentity-auth-password
-    desc: "Validates user password against macOS user database (credential testing)"
+    desc: "Validates macOS user password"
     crit: suspicious
     conf: 0.9
     attack: "T1110.001"
@@ -113,7 +113,7 @@ traits:
       pattern: "CSIdentityAuthenticateUsingPassword"
 
   - id: csidentity-query-create
-    desc: "Creates query to search macOS user directory by username"
+    desc: "Searches macOS user directory"
     crit: notable
     conf: 0.75
     attack: "T1087.001"
@@ -124,7 +124,7 @@ traits:
       pattern: "CSIdentityQueryCreateForName"
 
   - id: csidentity-query-execute
-    desc: "Executes user directory search on macOS system"
+    desc: "Executes macOS directory search"
     crit: notable
     conf: 0.75
     attack: "T1087.001"
@@ -135,7 +135,7 @@ traits:
       pattern: "CSIdentityQueryExecute"
 
   - id: csidentity-query-results
-    desc: "Retrieves user account results from macOS directory query"
+    desc: "Retrieves macOS account results"
     crit: notable
     conf: 0.75
     attack: "T1087.001"
@@ -146,7 +146,7 @@ traits:
       pattern: "CSIdentityQueryCopyResults"
 
   - id: csidentity-authority
-    desc: "Accesses macOS default user account authority (Directory Services)"
+    desc: "Accesses macOS user authority"
     crit: notable
     conf: 0.7
     attack: "T1087.001"
@@ -159,7 +159,7 @@ traits:
 composite_rules:
   # dscl authonly composite
   - id: dscl-authonly
-    desc: macOS dscl password validation (authonly)
+    desc: macOS password validation
     crit: suspicious
     conf: 0.95
     attack: "T1110.001"
@@ -171,7 +171,7 @@ composite_rules:
 
   # dscl read composite
   - id: dscl-read
-    desc: macOS Directory Services user enumeration
+    desc: macOS user enumeration
     crit: notable
     conf: 0.7
     attack: "T1087.001"
@@ -193,7 +193,7 @@ composite_rules:
 
   # Shadow hash access composite
   - id: shadow-hash
-    desc: "Access to shadow password hashes"
+    desc: "Accesses shadow password hashes"
     crit: suspicious
     conf: 0.85
     attack: "T1003.008"
@@ -205,7 +205,7 @@ composite_rules:
 
   # Credential keyword composite - references generic terms
   - id: credential-keyword
-    desc: "Password or credential keyword reference"
+    desc: "Credential keyword reference"
     crit: inert
     conf: 0.3
     count_min: 1
@@ -216,7 +216,7 @@ composite_rules:
 
   # CoreServices Identity query composite
   - id: csidentity-query
-    desc: "macOS user enumeration via CoreServices Identity"
+    desc: "macOS CoreServices user enumeration"
     crit: suspicious
     conf: 0.85
     attack: "T1087.001"
@@ -231,7 +231,7 @@ composite_rules:
 
   # CoreServices password authentication composite
   - id: csidentity-password-auth
-    desc: "macOS password authentication via CoreServices Identity API"
+    desc: "macOS CoreServices password authentication"
     crit: hostile
     conf: 0.95
     attack: "T1110.001"
@@ -246,7 +246,7 @@ composite_rules:
 
   # Password validation + capture = credential theft
   - id: validation-theft
-    desc: "macOS credential capture and validation"
+    desc: "macOS credential capture validation"
     crit: hostile
     conf: 0.95
     attack: "T1110.001"

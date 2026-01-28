@@ -105,10 +105,6 @@ pub fn calculate_composite_complexity(
     visiting.remove(rule_id);
     cache.insert(rule_id.to_string(), complexity);
 
-    if std::env::var("DISSECT_DEBUG").is_ok() {
-        eprintln!("[DEBUG] Complexity for {}: {}", rule_id, complexity);
-    }
-
     complexity
 }
 
@@ -124,9 +120,6 @@ pub(crate) fn validate_hostile_composite_complexity(
         .iter()
         .filter(|rule| rule.crit == Criticality::Hostile)
         .map(|rule| {
-            if std::env::var("DISSECT_DEBUG").is_ok() {
-                eprintln!("[DEBUG] Checking HOSTILE rule complexity: {}", rule.id);
-            }
             let mut visiting = std::collections::HashSet::new();
             let complexity = calculate_composite_complexity(
                 &rule.id,

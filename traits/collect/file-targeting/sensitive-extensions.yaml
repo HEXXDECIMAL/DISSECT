@@ -37,7 +37,7 @@ traits:
       regex: '\\.asc\\b|"asc"'
 
   - id: rdp-extension
-    desc: Remote Desktop Protocol (.rdp) file extension
+    desc: "Remote Desktop Protocol extension"
     crit: notable
     conf: 0.75
     attack: "T1552.004"
@@ -46,7 +46,7 @@ traits:
       regex: '\\.rdp\\b|"rdp"'
 
   - id: ovpn-extension
-    desc: OpenVPN config (.ovpn) extension
+    desc: "OpenVPN config extension"
     crit: notable
     conf: 0.75
     attack: "T1552.004"
@@ -55,7 +55,7 @@ traits:
       regex: '\\.ovpn\\b|"ovpn"'
 
   - id: kdbx-extension
-    desc: KeePass database (.kdbx) extension
+    desc: "KeePass database extension"
     crit: suspicious
     conf: 0.85
     attack: "T1555.005"
@@ -65,7 +65,7 @@ traits:
 
   # === Crypto wallet extensions ===
   - id: wallet-extension
-    desc: Generic wallet file extension
+    desc: "Generic wallet extension"
     crit: suspicious
     conf: 0.85
     attack: "T1555"
@@ -74,7 +74,7 @@ traits:
       regex: '\\.wallet\\b|"wallet"'
 
   - id: key-extension
-    desc: Generic key file (.key) extension
+    desc: "Generic key extension"
     crit: inert
     conf: 0.5
     attack: "T1552.004"
@@ -83,7 +83,7 @@ traits:
       regex: '\\.key\\b|"key"'
 
   - id: dat-extension
-    desc: Generic data (.dat) extension
+    desc: "Generic data extension"
     crit: inert
     conf: 0.4
     if:
@@ -92,7 +92,7 @@ traits:
 
   # === Database and config extensions ===
   - id: sql-extension
-    desc: SQL database (.sql) extension
+    desc: "SQL database extension"
     crit: inert
     conf: 0.5
     attack: "T1005"
@@ -101,7 +101,7 @@ traits:
       regex: '\\.sql\\b|"sql"'
 
   - id: conf-extension
-    desc: Config file (.conf) extension
+    desc: "Config file extension"
     crit: inert
     conf: 0.4
     attack: "T1552.001"
@@ -110,7 +110,7 @@ traits:
       regex: '\\.conf\\b|"conf"'
 
   - id: json-extension
-    desc: JSON file (.json) extension
+    desc: "JSON file extension"
     crit: inert
     conf: 0.3
     if:
@@ -120,7 +120,7 @@ traits:
 composite_rules:
   # Credential file targeting composite
   - id: credential-files
-    desc: "Targets credential or key files (ppk, pem, asc, rdp, ovpn)"
+    desc: "Targets credential key files"
     crit: suspicious
     conf: 0.85
     attack: "T1552.004"
@@ -145,7 +145,7 @@ composite_rules:
 
   # Comprehensive stealer file extension list
   - id: stealer-extension-list
-    desc: "Comprehensive file extension targeting (stealer pattern)"
+    desc: "Comprehensive extension targeting"
     crit: hostile
     conf: 0.95
     attack: "T1005"

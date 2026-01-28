@@ -10,7 +10,7 @@ defaults:
 traits:
   # === macOS metadata files ===
   - id: ds-store
-    desc: ".DS_Store metadata files (reveals directory structure)"
+    desc: ".DS_Store metadata files"
     crit: notable
     conf: 0.8
     attack: "T1083"
@@ -19,7 +19,7 @@ traits:
       exact: ".DS_Store"
 
   - id: localized-folder
-    desc: ".localized folder marker (macOS localization)"
+    desc: ".localized folder marker"
     crit: inert
     conf: 0.5
     if:
@@ -62,7 +62,7 @@ traits:
 
   # === Environment variable access ===
   - id: home-env
-    desc: "Accesses HOME environment variable"
+    desc: "HOME environment variable"
     crit: inert
     conf: 0.5
     attack: "T1083"
@@ -71,7 +71,7 @@ traits:
       exact: "HOME"
 
   - id: getenv-func
-    desc: "Reads environment variables via getenv()"
+    desc: "Reads variables via getenv"
     crit: inert
     conf: 0.4
     for: [macho]
@@ -82,7 +82,7 @@ traits:
 composite_rules:
   # macOS user directory enumeration
   - id: user-directory-enum
-    desc: "Enumerates macOS user directories (Applications, Library, Downloads, Documents)"
+    desc: "Enumerates macOS user directories"
     crit: notable
     conf: 0.8
     attack: "T1083"
@@ -96,7 +96,7 @@ composite_rules:
 
   # Metadata collection pattern
   - id: metadata-collection
-    desc: "Collects macOS metadata files (.DS_Store reveals directory contents)"
+    desc: "Collects macOS metadata files"
     crit: suspicious
     conf: 0.85
     attack: "T1083"

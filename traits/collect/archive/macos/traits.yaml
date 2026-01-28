@@ -158,7 +158,7 @@ traits:
 
   # Temp zip file staging
   - id: tmp-zip-staging
-    desc: "Zip file staged in /tmp directory"
+    desc: "Zip staged in /tmp"
     crit: notable
     conf: 0.7
     attack: "T1074.001"
@@ -215,7 +215,7 @@ composite_rules:
 
   # /tmp staging composite
   - id: tmp-directory
-    desc: "Data staging in /tmp"
+    desc: "Staging in /tmp"
     crit: notable
     conf: 0.7
     attack: "T1074.001"

@@ -27,7 +27,7 @@ traits:
       pattern: "require('desktop-screenshot')"
 
   - id: js-sharp-image-processing
-    desc: usage of sharp for image processing (often used with screenshots)
+    desc: "Uses sharp image processing"
     crit: notable
     conf: 0.8
     for: [javascript]
@@ -38,7 +38,7 @@ traits:
 
 composite_rules:
   - id: js-screenshot-exfil
-    desc: JavaScript screenshot capture with exfiltration
+    desc: "JavaScript screenshot capture exfiltration"
     crit: hostile
     conf: 0.95
     mbc: "B0002"

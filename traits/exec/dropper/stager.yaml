@@ -12,6 +12,7 @@ composite_rules:
   # Helper: Network syscalls
   - id: arm-network-syscalls
     desc: ARM direct network syscalls
+    crit: suspicious
     any:
       - id: comm/syscall/arm/svc-socket
       - id: comm/syscall/arm/svc-connect
@@ -19,20 +20,21 @@ composite_rules:
   # Helper: Structural anomalies
   - id: structural-anomalies
     desc: Suspicious binary structure
+    crit: suspicious
     any:
       - id: feat/binary/tiny/dominant-text-section
       - id: anti-static/hardening/detection
-      - id: binary/format/elf
 
   - id: tiny-network-stager
-    desc: "Tiny hand-written network stager (direct syscalls in <4KB binary)"
+    desc: "Tiny network stager"
+    crit: hostile
     all:
       - id: feat/binary/tiny/tiny-elf
       - id: arm-network-syscalls
       - id: structural-anomalies
 
   - id: arm-direct-network-shellcode
-    desc: "ARM direct network syscalls (potential shellcode)"
+    desc: "ARM direct network syscalls"
     crit: suspicious
     all:
       - id: arm-network-syscalls

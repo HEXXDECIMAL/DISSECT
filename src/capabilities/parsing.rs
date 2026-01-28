@@ -200,7 +200,7 @@ pub(crate) fn apply_composite_defaults(
         .unwrap_or_else(|| vec![Platform::All]);
 
     // Parse criticality: "none" means Inert
-    let mut criticality = match &raw.crit {
+    let criticality = match &raw.crit {
         Some(v) if v.eq_ignore_ascii_case("none") => Criticality::Inert,
         Some(v) => parse_criticality(v),
         None => defaults
@@ -209,83 +209,6 @@ pub(crate) fn apply_composite_defaults(
             .map(parse_criticality)
             .unwrap_or(Criticality::Inert),
     };
-
-    // Stricter validation for HOSTILE traits: must have complexity >= 4
-    // Complexity calculation:
-    // - Each direct condition (Symbol, String, etc.) = 1
-    // - Each Trait reference = complexity of that trait (recursive)
-    // - File type filter (not "all") = 1
-    // - Size constraint (size_min or size_max) = 1
-    // This ensures HOSTILE requires substantive evidence (e.g., 3 traits + filetype)
-    if criticality == Criticality::Hostile {
-        let has_file_type_filter = !file_types.contains(&RuleFileType::All);
-        let has_size_constraint = raw.size_min.is_some() || raw.size_max.is_some();
-
-        // Start with filetype filter counting as 1 if present
-        let mut complexity = if has_file_type_filter { 1 } else { 0 };
-
-        // Add 1 for size constraints
-        if has_size_constraint {
-            complexity += 1;
-        }
-
-        // Count direct conditions (non-Trait conditions count as 1 each)
-        if let Some(ref c) = raw.all {
-            complexity += c.len();
-        }
-        if let Some(ref c) = raw.any {
-            complexity += c.len();
-        }
-        if let Some(ref c) = raw.none {
-            complexity += c.len();
-        }
-        if raw.condition.is_some() {
-            complexity += 1;
-        }
-
-        // Note: We count all conditions as 1 for now. In the future, we could:
-        // - Recursively expand Trait references to their underlying complexity
-        // - Weight different condition types differently
-        // For now, this simpler approach ensures rules have multiple substantive checks
-
-        if complexity < 4 {
-            eprintln!(
-                "⚠️  WARNING: Composite trait '{}' is marked HOSTILE but does not meet strictness requirements (complexity={}, need 4). Downgrading to SUSPICIOUS.",
-                raw.id, complexity
-            );
-            criticality = Criticality::Suspicious;
-        }
-    }
-
-    // Additional strictness for SUSPICIOUS/HOSTILE composite rules
-    if criticality >= Criticality::Suspicious {
-        if raw.desc.len() < 15 {
-            eprintln!(
-                "⚠️  WARNING: Composite trait '{}' has an overly short description for its criticality.",
-                raw.id
-            );
-        }
-        if criticality >= Criticality::Hostile
-            && raw.mbc.is_none()
-            && raw.attack.is_none()
-            && defaults.mbc.is_none()
-            && defaults.attack.is_none()
-        {
-            eprintln!(
-                "⚠️  WARNING: Composite trait '{}' is marked {:?} but lacks an MBC or MITRE ATT&CK mapping.",
-                raw.id, criticality
-            );
-        }
-    }
-
-    // Warn about overly long descriptions (> 5 words)
-    let word_count = raw.desc.split_whitespace().count();
-    if word_count > 5 {
-        eprintln!(
-            "⚠️  WARNING: Composite trait '{}' has an overly long description ({} words, max 5 recommended).",
-            raw.id, word_count
-        );
-    }
 
     // Handle single condition by converting to requires_all
     let requires_all = raw.all.or_else(|| raw.condition.map(|c| vec![c]));
