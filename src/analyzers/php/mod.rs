@@ -67,6 +67,7 @@ impl PhpAnalyzer {
 
         self.detect_capabilities(&root, content.as_bytes(), &mut report);
         self.extract_functions(&root, content.as_bytes(), &mut report);
+        self.extract_strings_to_report(&root, content.as_bytes(), &mut report);
 
         crate::analyzers::symbol_extraction::extract_symbols(
             content,

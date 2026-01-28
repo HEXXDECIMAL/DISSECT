@@ -10,31 +10,30 @@ use crate::composite_rules::{
     CompositeTrait, Condition, FileType as RuleFileType, Platform, TraitDefinition,
 };
 use crate::types::Criticality;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use super::parsing::parse_file_types;
 
 /// Calculate the complexity of a composite rule
-/// Complexity is:
+/// Complexity measures how many filters/constraints the rule has:
 /// - File type filter (not "all"): +1
-/// - `any` clause (if present): +1 regardless of number of elements
-/// - `all` clause: +number of elements
-/// - `none` clause (if present): +1 regardless of number of elements
-pub(crate) fn calculate_composite_complexity(
+/// - `all` clause: +count of elements (each must match)
+/// - `any` clause: +count_exact or +count_min or +1 (how many must match)
+/// - `none` clause: +1 (exclusion filter)
+/// - `unless` clause: +1 (conditional skip filter)
+pub fn calculate_composite_complexity(
     rule_id: &str,
     all_composites: &[CompositeTrait],
     _all_traits: &[TraitDefinition],
     cache: &mut HashMap<String, usize>,
-    visiting: &mut std::collections::HashSet<String>,
+    visiting: &mut HashSet<String>,
 ) -> usize {
-    // Check cache first
     if let Some(&complexity) = cache.get(rule_id) {
         return complexity;
     }
 
     // Detect cycles
     if !visiting.insert(rule_id.to_string()) {
-        // Cycle detected - treat as complexity 1 to avoid infinite loop
         return 1;
     }
 
@@ -51,28 +50,65 @@ pub(crate) fn calculate_composite_complexity(
 
     let mut complexity = 0;
 
-    // File type filter counts as 1
+    // File type filter counts as 1 if it's specific
     if !rule.r#for.contains(&RuleFileType::All) {
         complexity += 1;
     }
 
-    // `all` clause: count each element
+    // `all` clause: recursively sum elements
     if let Some(ref conditions) = rule.all {
-        complexity += conditions.len();
+        for cond in conditions {
+            if let Condition::Trait { id } = cond {
+                complexity += calculate_composite_complexity(
+                    id,
+                    all_composites,
+                    _all_traits,
+                    cache,
+                    visiting,
+                );
+            } else {
+                complexity += 1;
+            }
+        }
     }
 
-    // `any` clause: +1 if present, regardless of size
-    if rule.any.is_some() {
+    // `any` clause: use count_exact or count_min or 1, and recursively expand if those are traits
+    if let Some(ref conditions) = rule.any {
+        let count = rule.count_exact.or(rule.count_min).unwrap_or(1);
+
+        // If it's a list of traits, we add the required count
+        complexity += count;
+
+        // If it's just one trait being referenced in an any block, expand it to get its weight
+        if conditions.len() == 1 {
+            if let Condition::Trait { id } = &conditions[0] {
+                complexity = complexity.saturating_sub(1); // Remove the +1 we just added for 'count'
+                complexity += calculate_composite_complexity(
+                    id,
+                    all_composites,
+                    _all_traits,
+                    cache,
+                    visiting,
+                );
+            }
+        }
+    }
+
+    // `none` or `unless` clauses count as 1 for complexity
+    if rule.none.is_some() {
         complexity += 1;
     }
-
-    // `none` clause: +1 if present, regardless of size
-    if rule.none.is_some() {
+    if rule.unless.is_some() {
         complexity += 1;
     }
 
     visiting.remove(rule_id);
     cache.insert(rule_id.to_string(), complexity);
+
+    if std::env::var("DISSECT_DEBUG").is_ok() {
+        eprintln!("[DEBUG] Complexity for {}: {}", rule_id, complexity);
+    }
+
     complexity
 }
 
@@ -88,6 +124,9 @@ pub(crate) fn validate_hostile_composite_complexity(
         .iter()
         .filter(|rule| rule.crit == Criticality::Hostile)
         .map(|rule| {
+            if std::env::var("DISSECT_DEBUG").is_ok() {
+                eprintln!("[DEBUG] Checking HOSTILE rule complexity: {}", rule.id);
+            }
             let mut visiting = std::collections::HashSet::new();
             let complexity = calculate_composite_complexity(
                 &rule.id,
@@ -258,15 +297,19 @@ pub(crate) fn simple_rule_to_composite_rule(rule: super::models::SimpleRule) -> 
         attack: None,
         platforms,
         r#for: file_types,
+        size_min: None,
+        size_max: None,
         all: Some(vec![Condition::Symbol {
             exact: None,
             pattern: Some(rule.symbol),
             platforms: None,
+            compiled_regex: None,
         }]),
         any: None,
         count_exact: None,
         count_min: None,
         count_max: None,
         none: None,
+        unless: None,
     }
 }

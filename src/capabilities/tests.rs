@@ -215,7 +215,7 @@ fn test_apply_trait_defaults_applies_all_defaults() {
             case_insensitive: false,
             exclude_patterns: None,
             min_count: 1,
-            search_raw: false,
+            contains: None,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
         },
@@ -258,7 +258,7 @@ fn test_apply_trait_defaults_trait_overrides_defaults() {
             case_insensitive: false,
             exclude_patterns: None,
             min_count: 1,
-            search_raw: false,
+            contains: None,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
         },
@@ -302,7 +302,7 @@ fn test_apply_trait_defaults_unset_mbc_with_none() {
             case_insensitive: false,
             exclude_patterns: None,
             min_count: 1,
-            search_raw: false,
+            contains: None,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
         },
@@ -341,7 +341,7 @@ fn test_apply_trait_defaults_unset_attack_with_none() {
             case_insensitive: false,
             exclude_patterns: None,
             min_count: 1,
-            search_raw: false,
+            contains: None,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
         },
@@ -380,7 +380,7 @@ fn test_apply_trait_defaults_unset_file_types_with_none() {
             case_insensitive: false,
             exclude_patterns: None,
             min_count: 1,
-            search_raw: false,
+            contains: None,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
         },
@@ -421,6 +421,9 @@ fn test_apply_composite_defaults_applies_all_defaults() {
         count_max: None,
 
         none: None,
+        unless: None,
+        size_min: None,
+        size_max: None,
         condition: Some(Condition::String {
             exact: Some("test".to_string()),
             regex: None,
@@ -428,7 +431,7 @@ fn test_apply_composite_defaults_applies_all_defaults() {
             case_insensitive: false,
             exclude_patterns: None,
             min_count: 1,
-            search_raw: false,
+            contains: None,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
         }),
@@ -473,6 +476,9 @@ fn test_apply_composite_defaults_unset_with_none() {
         count_max: None,
 
         none: None,
+        unless: None,
+        size_min: None,
+        size_max: None,
         condition: Some(Condition::String {
             exact: Some("test".to_string()),
             regex: None,
@@ -480,7 +486,7 @@ fn test_apply_composite_defaults_unset_with_none() {
             case_insensitive: false,
             exclude_patterns: None,
             min_count: 1,
-            search_raw: false,
+            contains: None,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
         }),
@@ -674,6 +680,9 @@ fn test_composite_referencing_atomic_trait() {
         count_max: None,
 
         none: None,
+        unless: None,
+        size_min: None,
+        size_max: None,
     };
 
     let report = test_report_with_findings(vec![test_finding("test/atomic-trait")]);
@@ -708,6 +717,9 @@ fn test_composite_of_composites_two_levels() {
         count_max: None,
 
         none: None,
+        unless: None,
+        size_min: None,
+        size_max: None,
     };
 
     let composite_b = CompositeTrait {
@@ -730,6 +742,9 @@ fn test_composite_of_composites_two_levels() {
         count_max: None,
 
         none: None,
+        unless: None,
+        size_min: None,
+        size_max: None,
     };
 
     let report = test_report_with_findings(vec![test_finding("test/atomic-trait")]);
@@ -769,6 +784,9 @@ fn test_composite_three_level_chain() {
         count_max: None,
 
         none: None,
+        unless: None,
+        size_min: None,
+        size_max: None,
     };
 
     let report = test_report_with_findings(vec![test_finding("level/zero")]);
@@ -815,6 +833,9 @@ fn test_composite_circular_dependency_handled() {
         count_max: None,
 
         none: None,
+        unless: None,
+        size_min: None,
+        size_max: None,
     };
 
     let composite_b = CompositeTrait {
@@ -837,6 +858,9 @@ fn test_composite_circular_dependency_handled() {
         count_max: None,
 
         none: None,
+        unless: None,
+        size_min: None,
+        size_max: None,
     };
 
     let report = test_report_with_findings(vec![]);
@@ -875,6 +899,9 @@ fn test_composite_prefix_matching_in_chain() {
         count_max: None,
 
         none: None,
+        unless: None,
+        size_min: None,
+        size_max: None,
     };
 
     // Report has specific trait under discovery/system/
@@ -914,6 +941,9 @@ fn test_composite_requires_count_in_chain() {
         count_min: None,
         count_max: None,
         none: None,
+        unless: None,
+        size_min: None,
+        size_max: None,
     };
 
     let report = test_report_with_findings(vec![test_finding("feat/a"), test_finding("feat/c")]);
@@ -950,7 +980,7 @@ fn test_complexity_direct_conditions() {
                 case_insensitive: false,
                 exclude_patterns: None,
                 min_count: 1,
-                search_raw: false,
+                contains: None,
                 compiled_regex: None,
                 compiled_excludes: Vec::new(),
             },
@@ -961,7 +991,7 @@ fn test_complexity_direct_conditions() {
                 case_insensitive: false,
                 exclude_patterns: None,
                 min_count: 1,
-                search_raw: false,
+                contains: None,
                 compiled_regex: None,
                 compiled_excludes: Vec::new(),
             },
@@ -972,7 +1002,7 @@ fn test_complexity_direct_conditions() {
                 case_insensitive: false,
                 exclude_patterns: None,
                 min_count: 1,
-                search_raw: false,
+                contains: None,
                 compiled_regex: None,
                 compiled_excludes: Vec::new(),
             },
@@ -985,6 +1015,9 @@ fn test_complexity_direct_conditions() {
         count_max: None,
 
         none: None,
+        unless: None,
+        size_min: None,
+        size_max: None,
     };
 
     let mut cache = HashMap::new();
@@ -1027,7 +1060,7 @@ fn test_complexity_file_type_filter() {
                 case_insensitive: false,
                 exclude_patterns: None,
                 min_count: 1,
-                search_raw: false,
+                contains: None,
                 compiled_regex: None,
                 compiled_excludes: Vec::new(),
             },
@@ -1038,7 +1071,7 @@ fn test_complexity_file_type_filter() {
                 case_insensitive: false,
                 exclude_patterns: None,
                 min_count: 1,
-                search_raw: false,
+                contains: None,
                 compiled_regex: None,
                 compiled_excludes: Vec::new(),
             },
@@ -1051,6 +1084,9 @@ fn test_complexity_file_type_filter() {
         count_max: None,
 
         none: None,
+        unless: None,
+        size_min: None,
+        size_max: None,
     };
 
     let mut cache = HashMap::new();
@@ -1092,7 +1128,7 @@ fn test_complexity_recursive_expansion() {
             case_insensitive: false,
             exclude_patterns: None,
             min_count: 1,
-            search_raw: false,
+            contains: None,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
         },
@@ -1119,7 +1155,7 @@ fn test_complexity_recursive_expansion() {
                 case_insensitive: false,
                 exclude_patterns: None,
                 min_count: 1,
-                search_raw: false,
+                contains: None,
                 compiled_regex: None,
                 compiled_excludes: Vec::new(),
             },
@@ -1130,7 +1166,7 @@ fn test_complexity_recursive_expansion() {
                 case_insensitive: false,
                 exclude_patterns: None,
                 min_count: 1,
-                search_raw: false,
+                contains: None,
                 compiled_regex: None,
                 compiled_excludes: Vec::new(),
             },
@@ -1143,6 +1179,9 @@ fn test_complexity_recursive_expansion() {
         count_max: None,
 
         none: None,
+        unless: None,
+        size_min: None,
+        size_max: None,
     };
 
     // Composite B: references composite A and atomic trait
@@ -1171,6 +1210,9 @@ fn test_complexity_recursive_expansion() {
         count_max: None,
 
         none: None,
+        unless: None,
+        size_min: None,
+        size_max: None,
     };
 
     let mut cache = HashMap::new();
@@ -1216,6 +1258,9 @@ fn test_complexity_cycle_detection() {
         count_max: None,
 
         none: None,
+        unless: None,
+        size_min: None,
+        size_max: None,
     };
 
     // Composite B references A (cycle!)
@@ -1239,6 +1284,9 @@ fn test_complexity_cycle_detection() {
         count_max: None,
 
         none: None,
+        unless: None,
+        size_min: None,
+        size_max: None,
     };
 
     let mut cache = HashMap::new();
@@ -1281,7 +1329,7 @@ fn test_complexity_caching() {
                 case_insensitive: false,
                 exclude_patterns: None,
                 min_count: 1,
-                search_raw: false,
+                contains: None,
                 compiled_regex: None,
                 compiled_excludes: Vec::new(),
             },
@@ -1292,7 +1340,7 @@ fn test_complexity_caching() {
                 case_insensitive: false,
                 exclude_patterns: None,
                 min_count: 1,
-                search_raw: false,
+                contains: None,
                 compiled_regex: None,
                 compiled_excludes: Vec::new(),
             },
@@ -1305,6 +1353,9 @@ fn test_complexity_caching() {
         count_max: None,
 
         none: None,
+        unless: None,
+        size_min: None,
+        size_max: None,
     };
 
     let mut cache = HashMap::new();
@@ -1358,7 +1409,7 @@ fn test_complexity_threshold_validation() {
                 case_insensitive: false,
                 exclude_patterns: None,
                 min_count: 1,
-                search_raw: false,
+                contains: None,
                 compiled_regex: None,
                 compiled_excludes: Vec::new(),
             },
@@ -1369,7 +1420,7 @@ fn test_complexity_threshold_validation() {
                 case_insensitive: false,
                 exclude_patterns: None,
                 min_count: 1,
-                search_raw: false,
+                contains: None,
                 compiled_regex: None,
                 compiled_excludes: Vec::new(),
             },
@@ -1380,7 +1431,7 @@ fn test_complexity_threshold_validation() {
                 case_insensitive: false,
                 exclude_patterns: None,
                 min_count: 1,
-                search_raw: false,
+                contains: None,
                 compiled_regex: None,
                 compiled_excludes: Vec::new(),
             },
@@ -1393,6 +1444,9 @@ fn test_complexity_threshold_validation() {
         count_max: None,
 
         none: None,
+        unless: None,
+        size_min: None,
+        size_max: None,
     };
 
     // Rule with complexity 4 (meets threshold)
@@ -1413,7 +1467,7 @@ fn test_complexity_threshold_validation() {
                 case_insensitive: false,
                 exclude_patterns: None,
                 min_count: 1,
-                search_raw: false,
+                contains: None,
                 compiled_regex: None,
                 compiled_excludes: Vec::new(),
             },
@@ -1424,7 +1478,7 @@ fn test_complexity_threshold_validation() {
                 case_insensitive: false,
                 exclude_patterns: None,
                 min_count: 1,
-                search_raw: false,
+                contains: None,
                 compiled_regex: None,
                 compiled_excludes: Vec::new(),
             },
@@ -1435,7 +1489,7 @@ fn test_complexity_threshold_validation() {
                 case_insensitive: false,
                 exclude_patterns: None,
                 min_count: 1,
-                search_raw: false,
+                contains: None,
                 compiled_regex: None,
                 compiled_excludes: Vec::new(),
             },
@@ -1448,6 +1502,9 @@ fn test_complexity_threshold_validation() {
         count_max: None,
 
         none: None,
+        unless: None,
+        size_min: None,
+        size_max: None,
     };
 
     let mut composites = vec![rule_low, rule_high];
@@ -1492,7 +1549,7 @@ fn test_complexity_mixed_conditions() {
             case_insensitive: false,
             exclude_patterns: None,
             min_count: 1,
-            search_raw: false,
+            contains: None,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
         }]),
@@ -1504,7 +1561,7 @@ fn test_complexity_mixed_conditions() {
                 case_insensitive: false,
                 exclude_patterns: None,
                 min_count: 1,
-                search_raw: false,
+                contains: None,
                 compiled_regex: None,
                 compiled_excludes: Vec::new(),
             },
@@ -1515,7 +1572,7 @@ fn test_complexity_mixed_conditions() {
                 case_insensitive: false,
                 exclude_patterns: None,
                 min_count: 1,
-                search_raw: false,
+                contains: None,
                 compiled_regex: None,
                 compiled_excludes: Vec::new(),
             },
@@ -1530,10 +1587,13 @@ fn test_complexity_mixed_conditions() {
             case_insensitive: false,
             exclude_patterns: None,
             min_count: 1,
-            search_raw: false,
+            contains: None,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
         }]),
+        unless: None,
+        size_min: None,
+        size_max: None,
     };
 
     let mut cache = HashMap::new();
@@ -1576,7 +1636,7 @@ fn test_complexity_deep_nesting() {
                 case_insensitive: false,
                 exclude_patterns: None,
                 min_count: 1,
-                search_raw: false,
+                contains: None,
                 compiled_regex: None,
                 compiled_excludes: Vec::new(),
             },
@@ -1587,7 +1647,7 @@ fn test_complexity_deep_nesting() {
                 case_insensitive: false,
                 exclude_patterns: None,
                 min_count: 1,
-                search_raw: false,
+                contains: None,
                 compiled_regex: None,
                 compiled_excludes: Vec::new(),
             },
@@ -1600,6 +1660,9 @@ fn test_complexity_deep_nesting() {
         count_max: None,
 
         none: None,
+        unless: None,
+        size_min: None,
+        size_max: None,
     };
 
     // Level 2: references level1 + 1 direct condition
@@ -1623,7 +1686,7 @@ fn test_complexity_deep_nesting() {
                 case_insensitive: false,
                 exclude_patterns: None,
                 min_count: 1,
-                search_raw: false,
+                contains: None,
                 compiled_regex: None,
                 compiled_excludes: Vec::new(),
             },
@@ -1636,6 +1699,9 @@ fn test_complexity_deep_nesting() {
         count_max: None,
 
         none: None,
+        unless: None,
+        size_min: None,
+        size_max: None,
     };
 
     // Level 3: references level2 + 1 direct condition
@@ -1659,7 +1725,7 @@ fn test_complexity_deep_nesting() {
                 case_insensitive: false,
                 exclude_patterns: None,
                 min_count: 1,
-                search_raw: false,
+                contains: None,
                 compiled_regex: None,
                 compiled_excludes: Vec::new(),
             },
@@ -1672,6 +1738,9 @@ fn test_complexity_deep_nesting() {
         count_max: None,
 
         none: None,
+        unless: None,
+        size_min: None,
+        size_max: None,
     };
 
     let mut cache = HashMap::new();
@@ -1750,6 +1819,9 @@ fn test_complexity_correct_algorithm() {
         count_min: None,
         count_max: None,
         none: None,
+        unless: None,
+        size_min: None,
+        size_max: None,
     };
 
     let mut cache = HashMap::new();

@@ -92,6 +92,15 @@ pub(crate) fn apply_trait_defaults(
         );
     }
 
+    // Warn about overly long descriptions (> 5 words)
+    let word_count = raw.desc.split_whitespace().count();
+    if word_count > 5 {
+        eprintln!(
+            "⚠️  WARNING: Trait '{}' has an overly long description ({} words, max 5 recommended).",
+            raw.id, word_count
+        );
+    }
+
     TraitDefinition {
         id: raw.id,
         desc: raw.desc,
@@ -101,6 +110,8 @@ pub(crate) fn apply_trait_defaults(
         attack: apply_string_default(raw.attack, &defaults.attack),
         platforms,
         r#for: file_types,
+        size_min: raw.size_min,
+        size_max: raw.size_max,
         r#if: raw.condition,
         not: None,
         unless: None,
@@ -204,12 +215,19 @@ pub(crate) fn apply_composite_defaults(
     // - Each direct condition (Symbol, String, etc.) = 1
     // - Each Trait reference = complexity of that trait (recursive)
     // - File type filter (not "all") = 1
+    // - Size constraint (size_min or size_max) = 1
     // This ensures HOSTILE requires substantive evidence (e.g., 3 traits + filetype)
     if criticality == Criticality::Hostile {
         let has_file_type_filter = !file_types.contains(&RuleFileType::All);
+        let has_size_constraint = raw.size_min.is_some() || raw.size_max.is_some();
 
         // Start with filetype filter counting as 1 if present
         let mut complexity = if has_file_type_filter { 1 } else { 0 };
+
+        // Add 1 for size constraints
+        if has_size_constraint {
+            complexity += 1;
+        }
 
         // Count direct conditions (non-Trait conditions count as 1 each)
         if let Some(ref c) = raw.all {
@@ -260,6 +278,15 @@ pub(crate) fn apply_composite_defaults(
         }
     }
 
+    // Warn about overly long descriptions (> 5 words)
+    let word_count = raw.desc.split_whitespace().count();
+    if word_count > 5 {
+        eprintln!(
+            "⚠️  WARNING: Composite trait '{}' has an overly long description ({} words, max 5 recommended).",
+            raw.id, word_count
+        );
+    }
+
     // Handle single condition by converting to requires_all
     let requires_all = raw.all.or_else(|| raw.condition.map(|c| vec![c]));
 
@@ -272,11 +299,14 @@ pub(crate) fn apply_composite_defaults(
         attack: apply_string_default(raw.attack, &defaults.attack),
         platforms,
         r#for: file_types,
+        size_min: raw.size_min,
+        size_max: raw.size_max,
         all: requires_all,
         any: raw.any,
         count_exact: raw.count_exact,
         count_min: raw.count_min,
         count_max: raw.count_max,
         none: raw.none,
+        unless: raw.unless,
     }
 }

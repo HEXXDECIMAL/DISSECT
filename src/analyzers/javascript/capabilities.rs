@@ -231,7 +231,7 @@ pub(crate) fn check_supply_chain_patterns(
 
 /// Check for npm malware patterns that can't be expressed in YAML
 ///
-/// Counting patterns (obfuscator variables, hex literals) are now in YAML with search_raw: true
+/// Counting patterns (obfuscator variables, hex literals) are now in YAML with raw: true
 pub(crate) fn check_npm_malware_patterns(
     _analyzer: &JavaScriptAnalyzer,
     content: &str,

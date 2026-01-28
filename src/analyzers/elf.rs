@@ -106,7 +106,19 @@ impl ElfAnalyzer {
             tools_used.push("radare2".to_string());
 
             // Use batched extraction - single r2 session for functions, sections, strings, imports
-            if let Ok(batched) = self.radare2.extract_batched(file_path) {
+            if let Ok(mut batched) = self.radare2.extract_batched(file_path) {
+                // Check if we need deeper analysis (few functions found but executable sections exist)
+                let has_exec_sections = batched
+                    .sections
+                    .iter()
+                    .any(|s| s.perm.clone().unwrap_or_default().contains('x'));
+                if batched.functions.len() < 5 && has_exec_sections {
+                    // Re-run with deep analysis enabled
+                    if let Ok(deep_batched) = self.radare2.extract_batched_deep(file_path) {
+                        batched = deep_batched;
+                    }
+                }
+
                 // Compute metrics from batched data
                 let binary_metrics = self.radare2.compute_metrics_from_batched(&batched);
                 report.metrics = Some(Metrics {

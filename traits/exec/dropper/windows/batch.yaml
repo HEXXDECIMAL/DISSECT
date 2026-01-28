@@ -5,17 +5,6 @@
 
 traits:
   # Download Patterns
-  - id: curl-silent-download
-    desc: Silent curl download with output redirect
-    crit: suspicious
-    conf: 0.85
-    mbc: "C0002"
-    attack: "T1105"
-    for: [shell, batch]
-    if:
-      type: string
-      regex: "curl\\s+.{0,50}-[sS].{0,50}-o\\s"
-
   - id: curl-to-temp
     desc: Download to TEMP directory
     crit: suspicious

@@ -17,6 +17,7 @@ pub fn eval_symbol(
     exact: Option<&String>,
     pattern: Option<&String>,
     platforms: Option<&Vec<Platform>>,
+    compiled_regex: Option<&regex::Regex>,
     ctx: &EvaluationContext,
 ) -> ConditionResult {
     // Check platform constraint
@@ -35,7 +36,7 @@ pub fn eval_symbol(
 
     // Search in imports
     for import in &ctx.report.imports {
-        if symbol_matches_condition(&import.symbol, exact, pattern) {
+        if symbol_matches_condition(&import.symbol, exact, pattern, compiled_regex) {
             evidence.push(Evidence {
                 method: "symbol".to_string(),
                 source: import.source.clone(),
@@ -47,7 +48,7 @@ pub fn eval_symbol(
 
     // Search in exports
     for export in &ctx.report.exports {
-        if symbol_matches_condition(&export.symbol, exact, pattern) {
+        if symbol_matches_condition(&export.symbol, exact, pattern, compiled_regex) {
             evidence.push(Evidence {
                 method: "symbol".to_string(),
                 source: export.source.clone(),
@@ -70,6 +71,7 @@ fn symbol_matches_condition(
     symbol: &str,
     exact: Option<&String>,
     pattern: Option<&String>,
+    compiled_regex: Option<&regex::Regex>,
 ) -> bool {
     // Clean symbol (remove leading underscores)
     let clean = symbol.trim_start_matches('_').trim_start_matches("__");
@@ -79,9 +81,14 @@ fn symbol_matches_condition(
         return clean == exact_val || symbol == exact_val;
     }
 
-    // If pattern is specified, use the existing pattern matching logic
-    if let Some(pattern_val) = pattern {
-        return symbol_matches(symbol, pattern_val);
+    // If pattern is specified, use precompiled regex if available
+    if pattern.is_some() {
+        if let Some(re) = compiled_regex {
+            return re.is_match(symbol) || re.is_match(clean);
+        } else if let Some(pattern_val) = pattern {
+            // Fallback: use the existing pattern matching logic if not pre-compiled
+            return symbol_matches(symbol, pattern_val);
+        }
     }
 
     // Neither exact nor pattern specified - no match
@@ -105,19 +112,6 @@ pub fn eval_string(
 
     let mut evidence = Vec::new();
 
-    // Legacy support: if search_raw is true, delegate to eval_raw
-    if params.search_raw {
-        return eval_raw(
-            params.exact,
-            params.regex,
-            params.word,
-            params.case_insensitive,
-            params.min_count,
-            params.compiled_regex,
-            ctx,
-        );
-    }
-
     // Use pre-compiled regex from trait definition (compiled at startup)
     let compiled_regex = params.compiled_regex;
     let compiled_excludes = params.compiled_excludes;
@@ -128,16 +122,27 @@ pub fn eval_string(
         let mut match_value = String::new();
 
         if let Some(exact_str) = params.exact {
+            // Full string match - entire string must equal the pattern
+            matched = if params.case_insensitive {
+                string_info.value.eq_ignore_ascii_case(exact_str)
+            } else {
+                string_info.value == *exact_str
+            };
+            if matched {
+                match_value = exact_str.clone();
+            }
+        } else if let Some(contains_str) = params.contains {
+            // Substring match - pattern can appear anywhere in the string
             matched = if params.case_insensitive {
                 string_info
                     .value
                     .to_lowercase()
-                    .contains(&exact_str.to_lowercase())
+                    .contains(&contains_str.to_lowercase())
             } else {
-                string_info.value.contains(exact_str)
+                string_info.value.contains(contains_str)
             };
             if matched {
-                match_value = exact_str.clone();
+                match_value = contains_str.clone();
             }
         } else if let Some(re) = compiled_regex {
             if let Some(mat) = re.find(&string_info.value) {
@@ -242,12 +247,13 @@ pub fn eval_string(
     }
 }
 
-/// Evaluate raw content condition - searches directly in raw file bytes as text.
+/// Evaluate content-based condition - searches directly in file bytes as text.
 ///
-/// Use this for source files or when you need to match patterns that may span
-/// string boundaries in binaries.
+/// Used by `type: content` conditions to search raw file content rather than extracted strings.
+/// Use for cross-boundary patterns or when string extraction is insufficient.
 pub fn eval_raw(
     exact: Option<&String>,
+    contains: Option<&String>,
     _regex: Option<&String>,
     _word: Option<&String>,
     case_insensitive: bool,
@@ -296,22 +302,38 @@ pub fn eval_raw(
             });
         }
     } else if let Some(exact_str) = exact {
+        // Full string match - entire file content must equal the pattern
+        let matched = if case_insensitive {
+            content.eq_ignore_ascii_case(exact_str)
+        } else {
+            content == exact_str
+        };
+        if matched {
+            evidence.push(Evidence {
+                method: "raw".to_string(),
+                source: "raw_content".to_string(),
+                value: format!("Exact match: {}", exact_str),
+                location: Some("file".to_string()),
+            });
+        }
+    } else if let Some(contains_str) = contains {
+        // Substring match - count occurrences in raw content
         let search_content = if case_insensitive {
             content.to_lowercase()
         } else {
             content.to_string()
         };
         let search_pattern = if case_insensitive {
-            exact_str.to_lowercase()
+            contains_str.to_lowercase()
         } else {
-            exact_str.clone()
+            contains_str.clone()
         };
         let match_count = search_content.matches(&search_pattern).count();
         if match_count >= min_count {
             evidence.push(Evidence {
                 method: "raw".to_string(),
                 source: "raw_content".to_string(),
-                value: format!("Found {} {}", match_count, exact_str),
+                value: format!("Found {} occurrences of {}", match_count, contains_str),
                 location: Some("file".to_string()),
             });
         }

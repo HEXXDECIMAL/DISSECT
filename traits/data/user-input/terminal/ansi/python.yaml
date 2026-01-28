@@ -12,33 +12,5 @@ traits:
     desc: "ANSI terminal escape codes"
     conf: 0.8
     if:
-      type: string
-      regex: "\\\\x1b\\[|\\\\033\\[|\\\\e\\["
-      search_raw: true
+      type: content
 
-  # colorama library
-  - id: colorama
-    desc: "Terminal color library (colorama)"
-    conf: 0.9
-    if:
-      type: string
-      regex: "colorama|from\\s+\\.ansi\\s+import|Fore,\\s*Back,\\s*Style"
-      search_raw: true
-
-  # Terminal color classes
-  - id: color-classes
-    desc: "Terminal color/style classes"
-    conf: 0.85
-    if:
-      type: string
-      regex: "\\bFore\\b|\\bBack\\b|\\bStyle\\b|\\bCursor\\b"
-      search_raw: true
-
-  # Windows console handling
-  - id: windows-console
-    desc: "Windows console color compatibility"
-    conf: 0.8
-    if:
-      type: string
-      regex: "AnsiToWin32|just_fix_windows_console|colorama_text"
-      search_raw: true

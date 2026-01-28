@@ -133,6 +133,8 @@ traits:
       pattern: ".Kill("
 ```
 
+The description field should be short and clear: try to describe the capability in 4 or less words. 5 words maximum. The more words used, the more work an engineer has to do to scan through the text.
+
 **File types:** `all` (or `*`), `elf`, `macho`, `pe`, `dll`, `so`, `dylib`, `shell`, `python`, `javascript`, `rust`, `java`, `class`, `ruby`, `c`, `go`, `csharp`, `php`
 
 Use `for: [*]` to override restrictive defaults and match all file types.
@@ -195,22 +197,27 @@ You can use the `dissect symbols` subcommand to see what symbols we find in a pr
 **Note:** Avoid `"a|b|c|d"` regexes. Create separate traits and combine with composite rules (better for ML pipelines).
 
 ### string
-Match strings in binaries or source. Choose one pattern type:
-- `exact: "pattern"` - Substring match
-- `regex: "pattern"` - Full regex
-- `word: "pattern"` - Word boundary (syntactic sugar for `regex: "\bpattern\b"`)
+
+Match extracted strings. Choose one pattern type:
+- `contains: "pattern"` - Substring match
+- `exact: "pattern"` - Full string match (entire string must equal)
+- `regex: "pattern"` - Regular expression
+- `word: "pattern"` - Word boundary (`\bpattern\b`)
 
 ```yaml
 if:
   type: string
-  exact: "http://"  # or regex/word
-  case_insensitive: false  # Optional
+  contains: "http://"  # or exact/regex/word
   min_count: 1  # Optional
-  exclude_patterns: ["localhost"]  # Optional
-  search_raw: false  # Optional: search raw file content
+  case_insensitive: false  # Optional
 ```
 
-You can use the `dissect strings` subcommand to see what strings we find in a program
+**String extraction:**
+- **Source:** AST parsing extracts only string literals (no comments/code)
+- **Binaries:** strangs extracts ASCII/UTF-8/UTF-16 strings
+- Preview: `dissect strings <file>`
+
+**For raw file content:** Use `type: content` (less precise).
 
 ### hex
 
@@ -310,16 +317,19 @@ if:
   min_count: 2  # Optional
 ```
 
-### raw
-Search raw file content (for source files or across string boundaries in binaries). Unlike `type: string` which searches extracted strings, this searches raw bytes.
+### content
+
+Searches raw file bytes instead of extracted strings. Less precise.
 
 ```yaml
 if:
-  type: raw
-  exact: "eval("  # or regex/word
+  type: content
+  contains: "eval("  # or exact/regex/word
   case_insensitive: false  # Optional
   min_count: 1  # Optional
 ```
+
+**Use sparingly:** Cross-boundary patterns, packed/obfuscated files. Prefer `type: string`.
 
 ### filesize
 Match file size constraints.
@@ -467,8 +477,8 @@ Traits support three directives for filtering and context-aware behavior:
 Filter matched strings from evidence. Use to exclude known-benign patterns.
 
 **Syntax:**
-- Bare strings default to case-insensitive substring match (most common)
-- Explicit match types: `exact:`, `contains:`, `regex:`
+- Bare strings default to case-insensitive substring match
+- Explicit: `exact:` (full match), `contains:` (substring), `regex:` (pattern)
 
 **Example:**
 ```yaml
@@ -477,17 +487,12 @@ Filter matched strings from evidence. Use to exclude known-benign patterns.
     type: string
     regex: "\\b[a-z0-9]+\\.(com|org)\\b"
   not:
-    - "apple.com"           # Shorthand substring
-    - exact: "github.com"   # Exact match only
+    - "apple.com"           # Shorthand: contains (case-insensitive)
+    - exact: "github.com"   # Full string must match exactly
     - regex: "^192\\.168\\." # Private IP range
 ```
 
-**When to use:**
-- Exclude known-legitimate strings (domains, IPs, paths)
-- Filter false positives without creating separate traits
-- Clean up evidence for clearer reports
-
-**Note:** Replaces deprecated `exclude_patterns` field (still supported for backward compatibility).
+**Use cases:** Exclude known-legitimate strings, filter false positives, clean evidence.
 
 ---
 

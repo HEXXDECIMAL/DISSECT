@@ -76,8 +76,17 @@ enum ConditionTagged {
         platforms: Option<Vec<Platform>>,
     },
     String {
+        /// Full string match (entire string must equal this)
+        #[serde(default)]
         exact: Option<String>,
+        /// Substring match (appears anywhere in string)
+        #[serde(default)]
+        contains: Option<String>,
+        /// Regex pattern match
+        #[serde(default)]
         regex: Option<String>,
+        /// Word boundary match (equivalent to regex "\bword\b")
+        #[serde(default)]
         word: Option<String>,
         #[serde(default)]
         case_insensitive: bool,
@@ -85,8 +94,6 @@ enum ConditionTagged {
         deprecated_exclude_patterns: Option<Vec<String>>,
         #[serde(default = "default_min_count")]
         min_count: usize,
-        #[serde(default)]
-        search_raw: bool,
     },
     YaraMatch {
         namespace: String,
@@ -193,8 +200,10 @@ enum ConditionTagged {
     /// Search raw file content (for source files or when you need to match
     /// across string boundaries in binaries). Unlike `type: string` which only
     /// searches properly extracted/bounded strings, this searches the raw bytes.
-    Raw {
+    #[serde(rename = "content", alias = "raw")]
+    Content {
         exact: Option<String>,
+        contains: Option<String>,
         regex: Option<String>,
         word: Option<String>,
         #[serde(default)]
@@ -271,23 +280,24 @@ impl From<ConditionDeser> for Condition {
                     exact,
                     pattern,
                     platforms,
+                    compiled_regex: None,
                 },
                 ConditionTagged::String {
                     exact,
+                    contains,
                     regex,
                     word,
                     case_insensitive,
                     deprecated_exclude_patterns,
                     min_count,
-                    search_raw,
                 } => Condition::String {
                     exact,
+                    contains,
                     regex,
                     word,
                     case_insensitive,
                     exclude_patterns: deprecated_exclude_patterns,
                     min_count,
-                    search_raw,
                     compiled_regex: None,
                     compiled_excludes: Vec::new(),
                 },
@@ -405,18 +415,21 @@ impl From<ConditionDeser> for Condition {
                 ConditionTagged::TraitGlob { pattern, r#match } => {
                     Condition::TraitGlob { pattern, r#match }
                 }
-                ConditionTagged::Raw {
+                ConditionTagged::Content {
                     exact,
+                    contains,
                     regex,
                     word,
                     case_insensitive,
                     min_count,
-                } => Condition::Raw {
+                } => Condition::Content {
                     exact,
+                    contains,
                     regex,
                     word,
                     case_insensitive,
                     min_count,
+                    compiled_regex: None,
                 },
                 ConditionTagged::SectionName { pattern, regex } => {
                     Condition::SectionName { pattern, regex }
@@ -468,12 +481,20 @@ pub enum Condition {
         pattern: Option<String>,
         #[serde(skip_serializing_if = "Option::is_none")]
         platforms: Option<Vec<Platform>>,
+        /// Pre-compiled regex (populated after deserialization, not serialized)
+        #[serde(skip)]
+        compiled_regex: Option<regex::Regex>,
     },
 
     /// Match a string in the binary
     String {
+        /// Full string match (entire string must equal this)
         #[serde(skip_serializing_if = "Option::is_none")]
         exact: Option<String>,
+        /// Substring match (appears anywhere in string)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        contains: Option<String>,
+        /// Regex pattern match
         #[serde(skip_serializing_if = "Option::is_none")]
         regex: Option<String>,
         /// Match pattern only at word boundaries (convenience for \bpattern\b)
@@ -485,9 +506,6 @@ pub enum Condition {
         exclude_patterns: Option<Vec<String>>,
         #[serde(default = "default_min_count")]
         min_count: usize,
-        /// Search raw file content instead of extracted strings (for counting occurrences)
-        #[serde(default)]
-        search_raw: bool,
         /// Pre-compiled regex (populated after deserialization, not serialized)
         #[serde(skip)]
         compiled_regex: Option<regex::Regex>,
@@ -713,13 +731,17 @@ pub enum Condition {
     /// properly extracted/bounded strings, this searches the raw bytes as text.
     /// Use this when you need to match patterns in source code or when string
     /// extraction may not capture what you're looking for.
-    /// Example: { type: raw, exact: "eval(" }
+    /// Example: { type: raw, contains: "eval(" }
+    /// Example: { type: raw, exact: "#!/bin/sh" }  # Entire file must equal this
     /// Example: { type: raw, regex: "\\bpassword\\s*=", case_insensitive: true }
     /// Example: { type: raw, word: "socket" }  # Match "socket" as whole word
-    Raw {
-        /// Substring to find (uses contains/substring matching)
+    Content {
+        /// Full file match (entire file content must equal this)
         #[serde(skip_serializing_if = "Option::is_none")]
         exact: Option<String>,
+        /// Substring match (appears anywhere in file)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        contains: Option<String>,
         /// Regex pattern to match
         #[serde(skip_serializing_if = "Option::is_none")]
         regex: Option<String>,
@@ -732,6 +754,9 @@ pub enum Condition {
         /// Minimum number of matches required (default: 1)
         #[serde(default = "default_min_count")]
         min_count: usize,
+        /// Pre-compiled regex (populated after deserialization, not serialized)
+        #[serde(skip)]
+        compiled_regex: Option<regex::Regex>,
     },
 
     /// Match section names in binary files (PE, ELF, Mach-O)
@@ -819,7 +844,7 @@ impl Condition {
             Condition::Hex { .. } => "hex",
             Condition::Filesize { .. } => "filesize",
             Condition::TraitGlob { .. } => "trait_glob",
-            Condition::Raw { .. } => "raw",
+            Condition::Content { .. } => "content",
             Condition::SectionName { .. } => "section_name",
             Condition::Base64 { .. } => "base64",
             Condition::Xor { .. } => "xor",
@@ -904,7 +929,7 @@ impl Condition {
     pub fn check_greedy_patterns(&self) -> Option<String> {
         let regex_to_check = match self {
             Condition::String { regex: Some(r), .. } => Some(r.as_str()),
-            Condition::Raw { regex: Some(r), .. } => Some(r.as_str()),
+            Condition::Content { regex: Some(r), .. } => Some(r.as_str()),
             _ => None,
         };
 
@@ -922,39 +947,74 @@ impl Condition {
     /// Pre-compile regexes in this condition for performance.
     /// Should be called once after deserialization.
     pub fn precompile_regexes(&mut self) {
-        if let Condition::String {
-            regex,
-            word,
-            case_insensitive,
-            exclude_patterns,
-            compiled_regex,
-            compiled_excludes,
-            ..
-        } = self
-        {
-            // Compile main regex or word pattern
-            if let Some(word_pattern) = word {
-                let regex_pattern = format!(r"\b{}\b", regex::escape(word_pattern));
-                *compiled_regex = if *case_insensitive {
-                    regex::Regex::new(&format!("(?i){}", regex_pattern)).ok()
-                } else {
-                    regex::Regex::new(&regex_pattern).ok()
-                };
-            } else if let Some(regex_pattern) = regex {
-                *compiled_regex = if *case_insensitive {
-                    regex::Regex::new(&format!("(?i){}", regex_pattern)).ok()
-                } else {
-                    regex::Regex::new(regex_pattern).ok()
-                };
+        match self {
+            Condition::Symbol {
+                pattern,
+                compiled_regex,
+                ..
+            } => {
+                // Compile symbol pattern if present
+                if let Some(regex_pattern) = pattern {
+                    *compiled_regex = regex::Regex::new(regex_pattern).ok();
+                }
             }
+            Condition::String {
+                regex,
+                word,
+                case_insensitive,
+                exclude_patterns,
+                compiled_regex,
+                compiled_excludes,
+                ..
+            } => {
+                // Compile main regex or word pattern
+                if let Some(word_pattern) = word {
+                    let regex_pattern = format!(r"\b{}\b", regex::escape(word_pattern));
+                    *compiled_regex = if *case_insensitive {
+                        regex::Regex::new(&format!("(?i){}", regex_pattern)).ok()
+                    } else {
+                        regex::Regex::new(&regex_pattern).ok()
+                    };
+                } else if let Some(regex_pattern) = regex {
+                    *compiled_regex = if *case_insensitive {
+                        regex::Regex::new(&format!("(?i){}", regex_pattern)).ok()
+                    } else {
+                        regex::Regex::new(regex_pattern).ok()
+                    };
+                }
 
-            // Compile exclude patterns
-            if let Some(excludes) = exclude_patterns {
-                *compiled_excludes = excludes
-                    .iter()
-                    .filter_map(|p| regex::Regex::new(p).ok())
-                    .collect();
+                // Compile exclude patterns
+                if let Some(excludes) = exclude_patterns {
+                    *compiled_excludes = excludes
+                        .iter()
+                        .filter_map(|p| regex::Regex::new(p).ok())
+                        .collect();
+                }
             }
+            Condition::Content {
+                regex,
+                word,
+                case_insensitive,
+                compiled_regex,
+                ..
+            } => {
+                // Compile main regex or word pattern for content searches
+                if let Some(word_pattern) = word {
+                    let regex_pattern = format!(r"\b{}\b", regex::escape(word_pattern));
+                    *compiled_regex = if *case_insensitive {
+                        regex::Regex::new(&format!("(?i){}", regex_pattern)).ok()
+                    } else {
+                        regex::Regex::new(&regex_pattern).ok()
+                    };
+                } else if let Some(regex_pattern) = regex {
+                    *compiled_regex = if *case_insensitive {
+                        regex::Regex::new(&format!("(?i){}", regex_pattern)).ok()
+                    } else {
+                        regex::Regex::new(regex_pattern).ok()
+                    };
+                }
+            }
+            _ => {}
         }
     }
 }

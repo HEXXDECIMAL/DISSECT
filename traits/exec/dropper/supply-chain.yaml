@@ -721,6 +721,7 @@ traits:
     desc: ActiveXObject usage (JScript/VBScript)
     crit: suspicious
     conf: 0.85
+    file_types: [javascript, vbs, html]
     if:
       type: string
       regex: "ActiveXObject\\s*\\("

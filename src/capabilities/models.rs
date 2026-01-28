@@ -52,6 +52,10 @@ pub(crate) struct RawTraitDefinition {
     pub(crate) platforms: Option<Vec<String>>,
     #[serde(default, alias = "for", alias = "files")]
     pub(crate) file_types: Option<Vec<String>>,
+    #[serde(default)]
+    pub(crate) size_min: Option<usize>,
+    #[serde(default)]
+    pub(crate) size_max: Option<usize>,
     #[serde(alias = "if")]
     pub(crate) condition: crate::composite_rules::Condition,
 }
@@ -75,6 +79,10 @@ pub(crate) struct RawCompositeRule {
     pub(crate) platforms: Option<Vec<String>>,
     #[serde(default, alias = "for", alias = "files")]
     pub(crate) file_types: Option<Vec<String>>,
+    #[serde(default)]
+    pub(crate) size_min: Option<usize>,
+    #[serde(default)]
+    pub(crate) size_max: Option<usize>,
     // Boolean operators
     #[serde(default, alias = "requires_all")]
     pub(crate) all: Option<Vec<crate::composite_rules::Condition>>,
@@ -91,6 +99,9 @@ pub(crate) struct RawCompositeRule {
     // Single condition (for simple composite rules)
     #[serde(default, alias = "if")]
     pub(crate) condition: Option<crate::composite_rules::Condition>,
+    // File-level skip conditions
+    #[serde(default)]
+    pub(crate) unless: Option<Vec<crate::composite_rules::Condition>>,
 }
 
 /// YAML file structure

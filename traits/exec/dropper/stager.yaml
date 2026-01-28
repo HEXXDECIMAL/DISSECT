@@ -21,7 +21,8 @@ composite_rules:
     desc: Suspicious binary structure
     any:
       - id: feat/binary/tiny/dominant-text-section
-      - id: binary/stripped
+      - id: anti-static/hardening/detection
+      - id: binary/format/elf
 
   - id: tiny-network-stager
     desc: "Tiny hand-written network stager (direct syscalls in <4KB binary)"

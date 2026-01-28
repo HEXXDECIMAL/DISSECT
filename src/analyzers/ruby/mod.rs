@@ -83,6 +83,9 @@ impl RubyAnalyzer {
         // Extract functions
         self.extract_functions(&root, content.as_bytes(), &mut report);
 
+        // Extract strings
+        self.extract_strings_to_report(&root, content.as_bytes(), &mut report);
+
         // Extract method calls as symbols for symbol-based rule matching
         crate::analyzers::symbol_extraction::extract_symbols(
             content,

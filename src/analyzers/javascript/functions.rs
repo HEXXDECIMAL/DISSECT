@@ -511,3 +511,49 @@ pub(crate) fn detect_javascript_idioms(
         }
     }
 }
+
+/// Extract string literals and add them to the report's strings field.
+pub(crate) fn extract_strings_to_report(
+    _analyzer: &JavaScriptAnalyzer,
+    root: &tree_sitter::Node,
+    source: &[u8],
+    report: &mut AnalysisReport,
+) {
+    let mut cursor = root.walk();
+    loop {
+        let node = cursor.node();
+
+        if node.kind() == "string" || node.kind() == "string_fragment" {
+            if let Ok(text) = node.utf8_text(source) {
+                let s = text
+                    .trim_start_matches('"')
+                    .trim_end_matches('"')
+                    .trim_start_matches('\'')
+                    .trim_end_matches('\'')
+                    .trim_start_matches('`')
+                    .trim_end_matches('`');
+                if !s.is_empty() {
+                    report.strings.push(crate::types::StringInfo {
+                        value: s.to_string(),
+                        offset: Some(format!("0x{:x}", node.start_byte())),
+                        string_type: crate::types::StringType::Literal,
+                        encoding: "utf-8".to_string(),
+                        section: Some("ast".to_string()),
+                    });
+                }
+            }
+        }
+
+        if cursor.goto_first_child() {
+            continue;
+        }
+        loop {
+            if cursor.goto_next_sibling() {
+                break;
+            }
+            if !cursor.goto_parent() {
+                return;
+            }
+        }
+    }
+}

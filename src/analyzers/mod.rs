@@ -482,6 +482,26 @@ impl FileType {
         }
     }
 
+    /// Returns true if this file type represents source code with AST support.
+    /// These file types extract strings via AST parsing for accuracy.
+    pub fn is_source_code(&self) -> bool {
+        matches!(
+            self,
+            FileType::Python
+                | FileType::Ruby
+                | FileType::JavaScript
+                | FileType::TypeScript
+                | FileType::Php
+                | FileType::Perl
+                | FileType::Lua
+                | FileType::CSharp
+                | FileType::C
+                | FileType::Rust
+                | FileType::Shell
+                | FileType::PowerShell
+        )
+    }
+
     /// Get YARA rule filetypes that are relevant for this file type
     /// Returns a list of filetype identifiers to match against YARA metadata
     pub fn yara_filetypes(&self) -> Vec<&'static str> {

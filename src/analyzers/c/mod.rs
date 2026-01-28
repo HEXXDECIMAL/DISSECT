@@ -30,7 +30,7 @@ mod patterns;
 mod tests;
 
 use capabilities::detect_capabilities;
-use functions::extract_functions;
+use functions::{extract_functions, extract_strings_to_report};
 
 /// C analyzer using tree-sitter for parsing and pattern detection.
 ///
@@ -115,6 +115,9 @@ impl CAnalyzer {
 
         // Extract functions
         extract_functions(self, &root, content.as_bytes(), &mut report);
+
+        // Extract strings
+        extract_strings_to_report(self, &root, content.as_bytes(), &mut report);
 
         // Extract function calls as symbols for symbol-based rule matching
         symbol_extraction::extract_symbols(

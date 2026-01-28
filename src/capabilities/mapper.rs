@@ -284,6 +284,7 @@ impl CapabilityMapper {
                     exact,
                     pattern,
                     platforms: _,
+                    compiled_regex: _,
                 } = &trait_def.r#if
                 {
                     // Check if there are no platform constraints, or add anyway for lookup
@@ -716,6 +717,9 @@ impl CapabilityMapper {
             .map(|raw| apply_composite_defaults(raw, &mappings.defaults))
             .collect();
 
+        // Validate trait and composite conditions and warn about problematic patterns
+        validate_conditions(&trait_definitions, &composite_rules, path.as_ref());
+
         // Build trait index for fast lookup by file type
         let trait_index = TraitIndex::build(&trait_definitions);
 
@@ -862,7 +866,7 @@ impl CapabilityMapper {
             );
         }
 
-        // Pre-filter using batched regex matching for search_raw: true patterns
+        // Pre-filter using batched regex matching for raw: true patterns
         let t_raw_regex = std::time::Instant::now();
         let raw_regex_matched_traits = if self.raw_content_regex_index.has_patterns() {
             self.raw_content_regex_index.find_matches(binary_data)
@@ -946,22 +950,15 @@ impl CapabilityMapper {
                     return None;
                 }
 
-                // Check if this trait has a raw content regex/word pattern that wasn't matched
-                let has_raw_regex = matches!(
+                // Check if this trait has a content-based regex/word pattern that wasn't matched
+                let has_content_regex = matches!(
                     trait_def.r#if,
-                    Condition::String {
-                        regex: Some(_),
-                        search_raw: true,
-                        ..
-                    } | Condition::String {
-                        word: Some(_),
-                        search_raw: true,
-                        ..
-                    }
+                    Condition::Content { regex: Some(_), .. }
+                        | Condition::Content { word: Some(_), .. }
                 );
 
-                // If trait has a raw regex pattern and it wasn't matched, skip it
-                if has_raw_regex && !raw_regex_matched_traits.contains(&idx) {
+                // If trait has a raw content pattern and it wasn't matched, skip it
+                if has_content_regex && !raw_regex_matched_traits.contains(&idx) {
                     skip_count.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
                     return None;
                 }
@@ -1144,6 +1141,66 @@ impl CapabilityMapper {
             "applescript" | "scpt" => RuleFileType::AppleScript,
             _ => RuleFileType::All,
         }
+    }
+}
+
+/// Validate trait and composite conditions for problematic patterns.
+/// Warns about combinations that are unlikely to be helpful.
+fn validate_conditions(
+    trait_definitions: &[TraitDefinition],
+    composite_rules: &[CompositeTrait],
+    path: &Path,
+) {
+    // Check trait definitions
+    for trait_def in trait_definitions {
+        check_condition(&trait_def.r#if, &trait_def.id, path);
+    }
+
+    // Check composite rules
+    for rule in composite_rules {
+        // Check all conditions in the rule
+        if let Some(all_conditions) = &rule.all {
+            for cond in all_conditions {
+                check_condition(cond, &rule.id, path);
+            }
+        }
+        if let Some(any_conditions) = &rule.any {
+            for cond in any_conditions {
+                check_condition(cond, &rule.id, path);
+            }
+        }
+        if let Some(none_conditions) = &rule.none {
+            for cond in none_conditions {
+                check_condition(cond, &rule.id, path);
+            }
+        }
+        if let Some(unless_conditions) = &rule.unless {
+            for cond in unless_conditions {
+                check_condition(cond, &rule.id, path);
+            }
+        }
+    }
+}
+
+/// Check a single condition for problematic patterns
+fn check_condition(
+    condition: &crate::composite_rules::condition::Condition,
+    trait_id: &str,
+    path: &Path,
+) {
+    use crate::composite_rules::condition::Condition;
+
+    match condition {
+        Condition::Content { exact: Some(_), .. } => {
+            eprintln!(
+                "⚠️  WARNING: Trait '{}' in {} uses 'type: content' with 'exact' match. \
+                This requires the entire file content to exactly match the pattern, \
+                which is rarely useful. Consider using 'contains' instead.",
+                trait_id,
+                path.display()
+            );
+        }
+        _ => {}
     }
 }
 

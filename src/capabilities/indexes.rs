@@ -185,10 +185,10 @@ impl StringMatchIndex {
 }
 
 /// Index for regex patterns that require raw content searching.
-/// Enables single-pass RegexSet matching for search_raw: true traits with regex patterns.
+/// Enables single-pass RegexSet matching for raw: true traits with regex patterns.
 #[derive(Clone, Default)]
 pub(crate) struct RawContentRegexIndex {
-    /// RegexSet for all regex patterns with search_raw: true
+    /// RegexSet for all regex patterns with raw: true
     regex_set: Option<RegexSet>,
     /// Maps regex index -> trait indices that use this pattern
     pattern_to_traits: Vec<Vec<usize>>,
@@ -203,11 +203,10 @@ impl RawContentRegexIndex {
         let mut pattern_map: FxHashMap<String, usize> = FxHashMap::default();
 
         for (trait_idx, trait_def) in traits.iter().enumerate() {
-            // Extract regex patterns WITH search_raw: true
+            // Extract regex patterns from Content traits
             let pattern_opt = match &trait_def.r#if {
-                Condition::String {
+                Condition::Content {
                     regex: Some(ref regex_str),
-                    search_raw: true,
                     case_insensitive,
                     ..
                 } => Some(if *case_insensitive {
@@ -215,9 +214,8 @@ impl RawContentRegexIndex {
                 } else {
                     regex_str.clone()
                 }),
-                Condition::String {
+                Condition::Content {
                     word: Some(ref word_str),
-                    search_raw: true,
                     case_insensitive,
                     ..
                 } => Some(if *case_insensitive {

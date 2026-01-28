@@ -14,32 +14,29 @@ traits:
     mbc: "C0002"
     attack: "T1105"
     if:
-      type: string
-      exact: "wget "
-      search_raw: true
+      type: symbol
+      exact: "wget"
 
   # === Wget output atomic indicators ===
   - id: wget-output-dash-O
     desc: "Wget with -O flag"
-    crit: inert
+    crit: notable
     conf: 0.7
     mbc: "C0002"
     attack: "T1105"
     if:
       type: string
-      regex: "wget .{0,100} -O "
-      search_raw: true
+      contains: " -O "
 
   - id: wget-output-document
     desc: "Wget with --output-document"
-    crit: inert
+    crit: notable
     conf: 0.7
     mbc: "C0002"
     attack: "T1105"
     if:
       type: string
-      regex: "wget .{0,100}--output-document"
-      search_raw: true
+      contains: "--output-document"
 
   - id: curl-download
     desc: "Download via curl"
@@ -48,165 +45,29 @@ traits:
     mbc: "C0002"
     attack: "T1105"
     if:
-      type: string
-      exact: "curl "
-      search_raw: true
+      type: symbol
+      exact: "curl"
 
   # === Curl output atomic indicators ===
   - id: curl-output-dash-o
     desc: "Curl with -o flag"
-    crit: inert
+    crit: notable
     conf: 0.7
     mbc: "C0002"
     attack: "T1105"
     if:
       type: string
-      regex: "curl .{0,100} -o "
-      search_raw: true
+      contains: " -o "
 
   - id: curl-output-flag
     desc: "Curl with --output"
-    crit: inert
+    crit: notable
     conf: 0.7
     mbc: "C0002"
     attack: "T1105"
     if:
       type: string
-      regex: "curl .{0,100}--output"
-      search_raw: true
-
-  - id: chmod-plus-x
-    desc: "Making file executable"
-    crit: notable
-    conf: 0.75
-    mbc: "C0047"
-    attack: "T1222.002"
-    if:
-      type: string
-      regex: "chmod \\+x"
-      search_raw: true
-
-  - id: chmod-777
-    desc: "chmod 777 (world-writable executable)"
-    crit: suspicious
-    conf: 0.85
-    mbc: "C0047"
-    attack: "T1222.002"
-    if:
-      type: string
-      exact: "chmod 777"
-      search_raw: true
-
-  - id: execute-dot-slash
-    desc: "Execute file in current directory"
-    crit: notable
-    conf: 0.7
-    if:
-      type: string
-      regex: "\\./[a-zA-Z0-9_-]+"
-      search_raw: true
-
-  - id: hardcoded-ip-url
-    desc: "Hardcoded IP address in URL"
-    crit: suspicious
-    conf: 0.9
-    mbc: "C0002"
-    attack: "T1071.001"
-    if:
-      type: string
-      regex: "https?://\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}"
-      search_raw: true
-
-  # === Tmp staging atomic indicators ===
-  - id: cd-tmp
-    desc: "cd /tmp command"
-    crit: notable
-    conf: 0.7
-    mbc: "C0047"
-    attack: "T1074.001"
-    if:
-      type: string
-      exact: "cd /tmp"
-      search_raw: true
-
-  - id: tmp-path
-    desc: "/tmp/ path reference"
-    crit: inert
-    conf: 0.6
-    mbc: "C0047"
-    attack: "T1074.001"
-    if:
-      type: string
-      exact: "/tmp/"
-      search_raw: true
-
-  - id: rm-rf-cleanup
-    desc: "Force remove files (cleanup/anti-forensics)"
-    crit: notable
-    conf: 0.7
-    mbc: "F0007"
-    attack: "T1070.004"
-    if:
-      type: string
-      exact: "rm -rf"
-      search_raw: true
-
-  # === MIPS architecture atomic indicators ===
-  - id: mips-lower
-    desc: mips architecture string (lowercase)
-    crit: notable
-    conf: 0.75
-    if:
-      type: string
-      exact: "mips"
-      search_raw: true
-
-  - id: mips-upper
-    desc: MIPS architecture string (uppercase)
-    crit: notable
-    conf: 0.75
-    if:
-      type: string
-      exact: "MIPS"
-      search_raw: true
-
-  - id: iot-arch-arm
-    desc: "ARM architecture binary (IoT target)"
-    crit: suspicious
-    conf: 0.85
-    if:
-      type: string
-      regex: "arm[0-9]?|ARM"
-      search_raw: true
-
-  # === MIPSEL architecture atomic indicators ===
-  - id: mpsl-short
-    desc: mpsl architecture string (short)
-    crit: notable
-    conf: 0.75
-    if:
-      type: string
-      exact: "mpsl"
-      search_raw: true
-
-  - id: mipsel-lower
-    desc: mipsel architecture string (lowercase)
-    crit: notable
-    conf: 0.75
-    if:
-      type: string
-      exact: "mipsel"
-      search_raw: true
-
-  - id: mipsel-upper
-    desc: MIPSEL architecture string (uppercase)
-    crit: notable
-    conf: 0.75
-    if:
-      type: string
-      exact: "MIPSEL"
-      search_raw: true
-
+      contains: "--output"
 composite_rules:
   # Wget output file composite
   - id: wget-output-file

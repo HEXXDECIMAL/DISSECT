@@ -78,6 +78,14 @@ pub struct TraitDefinition {
     #[serde(default = "default_file_types", alias = "file_types", alias = "files")]
     pub r#for: Vec<FileType>,
 
+    /// Minimum file size in bytes
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub size_min: Option<usize>,
+
+    /// Maximum file size in bytes
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub size_max: Option<usize>,
+
     // Detection condition - just one condition per trait (atomic!)
     #[serde(alias = "condition")]
     pub r#if: Condition,
@@ -107,6 +115,11 @@ impl TraitDefinition {
     pub fn evaluate(&self, ctx: &EvaluationContext) -> Option<Finding> {
         // Check if this trait applies to the current platform/file type
         if !self.matches_target(ctx) {
+            return None;
+        }
+
+        // Check size constraints
+        if !self.matches_size(ctx) {
             return None;
         }
 
@@ -170,6 +183,25 @@ impl TraitDefinition {
             || self.r#for.contains(&ctx.file_type);
 
         platform_match && file_type_match
+    }
+
+    /// Check if rule matches size constraints
+    fn matches_size(&self, ctx: &EvaluationContext) -> bool {
+        let file_size = ctx.report.target.size_bytes as usize;
+
+        if let Some(min) = self.size_min {
+            if file_size < min {
+                return false;
+            }
+        }
+
+        if let Some(max) = self.size_max {
+            if file_size > max {
+                return false;
+            }
+        }
+
+        true
     }
 
     /// Evaluate downgrade rules and return final criticality
@@ -256,26 +288,33 @@ impl TraitDefinition {
                 exact,
                 pattern,
                 platforms,
-            } => eval_symbol(exact.as_ref(), pattern.as_ref(), platforms.as_ref(), ctx),
+                compiled_regex,
+            } => eval_symbol(
+                exact.as_ref(),
+                pattern.as_ref(),
+                platforms.as_ref(),
+                compiled_regex.as_ref(),
+                ctx,
+            ),
             Condition::String {
                 exact,
+                contains,
                 regex,
                 word,
                 case_insensitive,
                 exclude_patterns,
                 min_count,
-                search_raw,
                 compiled_regex,
                 compiled_excludes,
             } => {
                 let params = StringParams {
                     exact: exact.as_ref(),
+                    contains: contains.as_ref(),
                     regex: regex.as_ref(),
                     word: word.as_ref(),
                     case_insensitive: *case_insensitive,
                     exclude_patterns: exclude_patterns.as_ref(),
                     min_count: *min_count,
-                    search_raw: *search_raw,
                     compiled_regex: compiled_regex.as_ref(),
                     compiled_excludes,
                 };
@@ -366,19 +405,22 @@ impl TraitDefinition {
             ),
             Condition::Filesize { min, max } => eval_filesize(*min, *max, ctx),
             Condition::TraitGlob { pattern, r#match } => eval_trait_glob(pattern, r#match, ctx),
-            Condition::Raw {
+            Condition::Content {
                 exact,
+                contains,
                 regex,
                 word,
                 case_insensitive,
                 min_count,
+                compiled_regex,
             } => eval_raw(
                 exact.as_ref(),
+                contains.as_ref(),
                 regex.as_ref(),
                 word.as_ref(),
                 *case_insensitive,
                 *min_count,
-                None, // Raw variant doesn't support precompiled regex yet
+                compiled_regex.as_ref(),
                 ctx,
             ),
             Condition::SectionName { pattern, regex } => eval_section_name(pattern, *regex, ctx),
@@ -440,6 +482,14 @@ pub struct CompositeTrait {
     #[serde(default = "default_file_types", alias = "file_types", alias = "files")]
     pub r#for: Vec<FileType>,
 
+    /// Minimum file size in bytes
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub size_min: Option<usize>,
+
+    /// Maximum file size in bytes
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub size_max: Option<usize>,
+
     // Boolean operators
     #[serde(alias = "requires_all", skip_serializing_if = "Option::is_none")]
     pub all: Option<Vec<Condition>>,
@@ -466,6 +516,10 @@ pub struct CompositeTrait {
 
     #[serde(alias = "requires_none", skip_serializing_if = "Option::is_none")]
     pub none: Option<Vec<Condition>>,
+
+    /// File-level skip conditions - skip entire rule if ANY condition matches
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub unless: Option<Vec<Condition>>,
 }
 
 impl CompositeTrait {
@@ -492,6 +546,11 @@ impl CompositeTrait {
     pub fn evaluate(&self, ctx: &EvaluationContext) -> Option<Finding> {
         // Check if this rule applies to the current platform/file type
         if !self.matches_target(ctx) {
+            return None;
+        }
+
+        // Check size constraints
+        if !self.matches_size(ctx) {
             return None;
         }
 
@@ -603,6 +662,25 @@ impl CompositeTrait {
             || self.r#for.contains(&ctx.file_type);
 
         platform_match && file_type_match
+    }
+
+    /// Check if rule matches size constraints
+    fn matches_size(&self, ctx: &EvaluationContext) -> bool {
+        let file_size = ctx.report.target.size_bytes as usize;
+
+        if let Some(min) = self.size_min {
+            if file_size < min {
+                return false;
+            }
+        }
+
+        if let Some(max) = self.size_max {
+            if file_size > max {
+                return false;
+            }
+        }
+
+        true
     }
 
     /// Evaluate ALL conditions must match (AND)
@@ -724,26 +802,33 @@ impl CompositeTrait {
                 exact,
                 pattern,
                 platforms,
-            } => self.eval_symbol(exact.as_ref(), pattern.as_ref(), platforms.as_ref(), ctx),
+                compiled_regex,
+            } => self.eval_symbol(
+                exact.as_ref(),
+                pattern.as_ref(),
+                platforms.as_ref(),
+                compiled_regex.as_ref(),
+                ctx,
+            ),
             Condition::String {
                 exact,
+                contains,
                 regex,
                 word,
                 case_insensitive,
                 exclude_patterns,
                 min_count,
-                search_raw,
                 compiled_regex,
                 compiled_excludes,
             } => {
                 let params = StringParams {
                     exact: exact.as_ref(),
+                    contains: contains.as_ref(),
                     regex: regex.as_ref(),
                     word: word.as_ref(),
                     case_insensitive: *case_insensitive,
                     exclude_patterns: exclude_patterns.as_ref(),
                     min_count: *min_count,
-                    search_raw: *search_raw,
                     compiled_regex: compiled_regex.as_ref(),
                     compiled_excludes,
                 };
@@ -834,19 +919,22 @@ impl CompositeTrait {
             ),
             Condition::Filesize { min, max } => eval_filesize(*min, *max, ctx),
             Condition::TraitGlob { pattern, r#match } => eval_trait_glob(pattern, r#match, ctx),
-            Condition::Raw {
+            Condition::Content {
                 exact,
+                contains,
                 regex,
                 word,
                 case_insensitive,
                 min_count,
+                compiled_regex,
             } => eval_raw(
                 exact.as_ref(),
+                contains.as_ref(),
                 regex.as_ref(),
                 word.as_ref(),
                 *case_insensitive,
                 *min_count,
-                None, // Raw variant doesn't support precompiled regex yet
+                compiled_regex.as_ref(),
                 ctx,
             ),
             Condition::SectionName { pattern, regex } => eval_section_name(pattern, *regex, ctx),
@@ -885,6 +973,7 @@ impl CompositeTrait {
         exact: Option<&String>,
         pattern: Option<&String>,
         platforms: Option<&Vec<Platform>>,
+        compiled_regex: Option<&regex::Regex>,
         ctx: &EvaluationContext,
     ) -> ConditionResult {
         // Check platform constraint
@@ -899,7 +988,7 @@ impl CompositeTrait {
             }
         }
 
-        eval_symbol(exact, pattern, None, ctx)
+        eval_symbol(exact, pattern, None, compiled_regex, ctx)
     }
 
     /// Evaluate YARA match condition

@@ -12,7 +12,7 @@ traits:
     conf: 0.3
     if:
       type: string
-      exact: "curl"
+      word: "curl"
 
   - id: wget-cmd
     desc: wget command
@@ -20,7 +20,7 @@ traits:
     conf: 0.3
     if:
       type: string
-      exact: "wget"
+      word: "wget"
 
   # === curl POST operations ===
   - id: curl-post-x

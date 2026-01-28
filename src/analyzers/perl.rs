@@ -68,6 +68,7 @@ impl PerlAnalyzer {
         self.detect_capabilities(&root, content.as_bytes(), &mut report);
         self.detect_string_patterns(content, &mut report);
         self.extract_functions(&root, content.as_bytes(), &mut report);
+        self.extract_strings_to_report(&root, content.as_bytes(), &mut report);
 
         // Extract function calls as symbols for symbol-based rule matching
         symbol_extraction::extract_symbols(
@@ -593,6 +594,55 @@ impl PerlAnalyzer {
             }
         }
         None
+    }
+
+    fn extract_strings_to_report(
+        &self,
+        root: &tree_sitter::Node,
+        source: &[u8],
+        report: &mut AnalysisReport,
+    ) {
+        let mut cursor = root.walk();
+        loop {
+            let node = cursor.node();
+
+            if node.kind() == "string_literal"
+                || node.kind() == "string_content"
+                || node.kind() == "interpolated_string_content"
+            {
+                if let Ok(text) = node.utf8_text(source) {
+                    let s = text
+                        .trim_start_matches('"')
+                        .trim_end_matches('"')
+                        .trim_start_matches('\'')
+                        .trim_end_matches('\'')
+                        .trim_start_matches('q')
+                        .trim_start_matches('(')
+                        .trim_end_matches(')');
+                    if !s.is_empty() {
+                        report.strings.push(StringInfo {
+                            value: s.to_string(),
+                            offset: Some(format!("0x{:x}", node.start_byte())),
+                            string_type: StringType::Literal,
+                            encoding: "utf-8".to_string(),
+                            section: Some("ast".to_string()),
+                        });
+                    }
+                }
+            }
+
+            if cursor.goto_first_child() {
+                continue;
+            }
+            loop {
+                if cursor.goto_next_sibling() {
+                    break;
+                }
+                if !cursor.goto_parent() {
+                    return;
+                }
+            }
+        }
     }
 }
 

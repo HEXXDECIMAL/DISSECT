@@ -64,10 +64,13 @@ fn test_symbol_condition() {
         attack: None,
         platforms: vec![Platform::All],
         r#for: vec![FileType::All],
+        size_min: None,
+        size_max: None,
         all: Some(vec![Condition::Symbol {
             exact: None,
             pattern: Some("socket".to_string()),
             platforms: None,
+            compiled_regex: None,
         }]),
         any: None,
         count_exact: None,
@@ -77,6 +80,7 @@ fn test_symbol_condition() {
         count_max: None,
 
         none: None,
+        unless: None,
     };
 
     let result = rule.evaluate(&ctx);
@@ -108,20 +112,23 @@ fn test_all() {
         attack: None,
         platforms: vec![Platform::All],
         r#for: vec![FileType::All],
+        size_min: None,
+        size_max: None,
         all: Some(vec![
             Condition::Symbol {
                 exact: None,
                 pattern: Some("socket".to_string()),
                 platforms: None,
+                compiled_regex: None,
             },
             Condition::String {
                 exact: Some("/bin/sh".to_string()),
+                contains: None,
                 regex: None,
                 word: None,
                 case_insensitive: false,
                 exclude_patterns: None,
                 min_count: 1,
-                search_raw: false,
                 compiled_regex: None,
                 compiled_excludes: Vec::new(),
             },
@@ -134,6 +141,7 @@ fn test_all() {
         count_max: None,
 
         none: None,
+        unless: None,
     };
 
     let result = rule.evaluate(&ctx);
@@ -161,28 +169,34 @@ fn test_count() {
         attack: None,
         platforms: vec![Platform::All],
         r#for: vec![FileType::All],
+        size_min: None,
+        size_max: None,
         all: None,
         any: Some(vec![
             Condition::Symbol {
                 exact: None,
                 pattern: Some("socket".to_string()),
                 platforms: None,
+                compiled_regex: None,
             },
             Condition::Symbol {
                 exact: None,
                 pattern: Some("connect".to_string()),
                 platforms: None,
+                compiled_regex: None,
             },
             Condition::Symbol {
                 exact: None,
                 pattern: Some("nonexistent".to_string()),
                 platforms: None,
+                compiled_regex: None,
             },
         ]),
         count_exact: None,
         count_min: None,
         count_max: None,
         none: None,
+        unless: None,
     };
 
     let result = rule.evaluate(&ctx);
@@ -210,14 +224,16 @@ fn test_string_exact_condition() {
         attack: None,
         platforms: vec![Platform::All],
         r#for: vec![FileType::All],
+        size_min: None,
+        size_max: None,
         all: Some(vec![Condition::String {
             exact: Some("/bin/sh".to_string()),
+            contains: None,
             regex: None,
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
             min_count: 1,
-            search_raw: false,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
         }]),
@@ -229,6 +245,7 @@ fn test_string_exact_condition() {
         count_max: None,
 
         none: None,
+        unless: None,
     };
 
     let result = rule.evaluate(&ctx);
@@ -256,17 +273,21 @@ fn test_any() {
         attack: None,
         platforms: vec![Platform::All],
         r#for: vec![FileType::All],
+        size_min: None,
+        size_max: None,
         all: None,
         any: Some(vec![
             Condition::Symbol {
                 exact: None,
                 pattern: Some("nonexistent".to_string()),
                 platforms: None,
+                compiled_regex: None,
             },
             Condition::Symbol {
                 exact: None,
                 pattern: Some("socket".to_string()),
                 platforms: None,
+                compiled_regex: None,
             },
         ]),
         count_exact: None,
@@ -276,6 +297,7 @@ fn test_any() {
         count_max: None,
 
         none: None,
+        unless: None,
     };
 
     let result = rule.evaluate(&ctx);
@@ -324,14 +346,16 @@ fn test_not_directive_shorthand() {
         attack: None,
         platforms: vec![Platform::All],
         r#for: vec![FileType::All],
+        size_min: None,
+        size_max: None,
         r#if: Condition::String {
             exact: None,
+            contains: None,
             regex: Some(r"[a-z]+\.com".to_string()),
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
             min_count: 1,
-            search_raw: false,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
         },
@@ -386,14 +410,16 @@ fn test_not_directive_exact() {
         attack: None,
         platforms: vec![Platform::All],
         r#for: vec![FileType::All],
+        size_min: None,
+        size_max: None,
         r#if: Condition::String {
             exact: None,
+            contains: None,
             regex: Some(r"[a-z]+\.com".to_string()),
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
             min_count: 1,
-            search_raw: false,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
         },
@@ -452,14 +478,16 @@ fn test_not_directive_regex() {
         attack: None,
         platforms: vec![Platform::All],
         r#for: vec![FileType::All],
+        size_min: None,
+        size_max: None,
         r#if: Condition::String {
             exact: None,
+            contains: None,
             regex: Some(r"\d+\.\d+\.\d+\.\d+".to_string()),
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
             min_count: 1,
-            search_raw: false,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
         },
@@ -516,10 +544,13 @@ fn test_unless_directive_skips_trait() {
         attack: None,
         platforms: vec![Platform::All],
         r#for: vec![FileType::All],
+        size_min: None,
+        size_max: None,
         r#if: Condition::Symbol {
             exact: None,
             pattern: Some("socket".to_string()),
             platforms: None,
+            compiled_regex: None,
         },
         not: None,
         unless: Some(vec![Condition::Trait {
@@ -555,10 +586,13 @@ fn test_unless_directive_allows_trait() {
         attack: None,
         platforms: vec![Platform::All],
         r#for: vec![FileType::All],
+        size_min: None,
+        size_max: None,
         r#if: Condition::Symbol {
             exact: None,
             pattern: Some("socket".to_string()),
             platforms: None,
+            compiled_regex: None,
         },
         not: None,
         unless: Some(vec![Condition::Trait {
@@ -607,14 +641,16 @@ fn test_downgrade_to_notable() {
         attack: None,
         platforms: vec![Platform::All],
         r#for: vec![FileType::All],
+        size_min: None,
+        size_max: None,
         r#if: Condition::String {
             exact: Some("/bin/sh".to_string()),
+            contains: None,
             regex: None,
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
             min_count: 1,
-            search_raw: false,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
         },
@@ -679,10 +715,13 @@ fn test_downgrade_to_inert() {
         attack: None,
         platforms: vec![Platform::All],
         r#for: vec![FileType::All],
+        size_min: None,
+        size_max: None,
         r#if: Condition::Symbol {
             exact: None,
             pattern: Some("socket".to_string()),
             platforms: None,
+            compiled_regex: None,
         },
         not: None,
         unless: None,
@@ -733,10 +772,13 @@ fn test_downgrade_no_match_keeps_original() {
         attack: None,
         platforms: vec![Platform::All],
         r#for: vec![FileType::All],
+        size_min: None,
+        size_max: None,
         r#if: Condition::Symbol {
             exact: None,
             pattern: Some("socket".to_string()),
             platforms: None,
+            compiled_regex: None,
         },
         not: None,
         unless: None,
@@ -813,10 +855,13 @@ fn test_downgrade_first_match_wins() {
         attack: None,
         platforms: vec![Platform::All],
         r#for: vec![FileType::All],
+        size_min: None,
+        size_max: None,
         r#if: Condition::Symbol {
             exact: None,
             pattern: Some("socket".to_string()),
             platforms: None,
+            compiled_regex: None,
         },
         not: None,
         unless: None,
@@ -905,14 +950,16 @@ fn test_all_three_directives_combined() {
         attack: None,
         platforms: vec![Platform::All],
         r#for: vec![FileType::All],
+        size_min: None,
+        size_max: None,
         r#if: Condition::String {
             exact: None,
+            contains: None,
             regex: Some(r"[a-z]+\.com".to_string()),
             word: None,
             case_insensitive: false,
             exclude_patterns: None,
             min_count: 1,
-            search_raw: false,
             compiled_regex: None,
             compiled_excludes: Vec::new(),
         },

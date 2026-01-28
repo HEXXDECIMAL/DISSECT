@@ -167,27 +167,24 @@ The `symbols` command:
 
 ### Strings Command
 
-Language-aware string extraction (smarter than `strings`):
+Language-aware string extraction:
 
 ```bash
-# Extract strings with context
-dissect strings binary.bin
+# Source files: AST-extracted string literals only
+dissect strings script.py
 
-# Customize minimum length
-dissect strings firmware.bin -m 10
+# Binaries: strangs extraction with classification
+dissect strings binary.bin -m 10  # min length 10
 
 # Output:
 OFFSET     TYPE           VALUE
-0x4028     Plain          __PAGEZERO
+0x4028     Literal        __PAGEZERO
 0x41f0     Path           /usr/lib/system/libsystem_c.dylib
 0x5200     Url            https://example.com/api
 ```
 
-The `strings` command:
-- Classifies strings by type (URL, IP, path, email, base64)
-- Uses language-specific extractors for Go/Rust binaries
-- Shows offsets and library associations
-- Filters out noise and duplicates
+**Source files:** AST parsing extracts only string literals (no comments/code)
+**Binaries:** strangs extracts ASCII/UTF-8/UTF-16, classifies by type (URL, IP, path, email, base64)
 
 ## Architecture
 

@@ -67,12 +67,12 @@ impl ConditionResult {
 /// Parameters for string condition evaluation (reduces argument count)
 pub struct StringParams<'a> {
     pub exact: Option<&'a String>,
+    pub contains: Option<&'a String>,
     pub regex: Option<&'a String>,
     pub word: Option<&'a String>,
     pub case_insensitive: bool,
     pub exclude_patterns: Option<&'a Vec<String>>,
     pub min_count: usize,
-    pub search_raw: bool,
     pub compiled_regex: Option<&'a regex::Regex>,
     pub compiled_excludes: &'a [regex::Regex],
 }

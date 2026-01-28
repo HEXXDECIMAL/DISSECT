@@ -65,6 +65,77 @@ impl super::ShellAnalyzer {
         strings
     }
 
+    /// Extract string literals and add them to the report's strings field.
+    /// This ensures the strings command shows AST-extracted strings.
+    pub(super) fn extract_strings_to_report(
+        &self,
+        root: &tree_sitter::Node,
+        source: &[u8],
+        report: &mut crate::types::AnalysisReport,
+    ) {
+        let mut cursor = root.walk();
+        self.walk_for_string_info(&mut cursor, source, &mut report.strings);
+    }
+
+    fn walk_for_string_info(
+        &self,
+        cursor: &mut tree_sitter::TreeCursor,
+        source: &[u8],
+        strings: &mut Vec<crate::types::StringInfo>,
+    ) {
+        use crate::types::{StringInfo, StringType};
+
+        loop {
+            let node = cursor.node();
+
+            if node.kind() == "string" || node.kind() == "raw_string" {
+                if let Ok(text) = node.utf8_text(source) {
+                    let s = text
+                        .trim_start_matches('"')
+                        .trim_end_matches('"')
+                        .trim_start_matches('\'')
+                        .trim_end_matches('\'');
+                    if !s.is_empty() {
+                        strings.push(StringInfo {
+                            value: s.to_string(),
+                            offset: Some(format!("0x{:x}", node.start_byte())),
+                            string_type: StringType::Literal,
+                            encoding: "utf-8".to_string(),
+                            section: Some("ast".to_string()),
+                        });
+                    }
+                }
+            } else if node.kind() == "command" {
+                if let Ok(text) = node.utf8_text(source) {
+                    if !text.is_empty() {
+                        strings.push(StringInfo {
+                            value: text.to_string(),
+                            offset: Some(format!("0x{:x}", node.start_byte())),
+                            string_type: StringType::Plain,
+                            encoding: "utf-8".to_string(),
+                            section: Some("command".to_string()),
+                        });
+                    }
+                }
+            }
+
+            if cursor.goto_first_child() {
+                continue;
+            }
+            if cursor.goto_next_sibling() {
+                continue;
+            }
+            loop {
+                if !cursor.goto_parent() {
+                    return;
+                }
+                if cursor.goto_next_sibling() {
+                    break;
+                }
+            }
+        }
+    }
+
     fn walk_for_strings(
         &self,
         cursor: &mut tree_sitter::TreeCursor,

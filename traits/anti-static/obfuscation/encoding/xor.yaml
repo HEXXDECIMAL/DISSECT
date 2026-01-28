@@ -56,39 +56,8 @@ traits:
     conf: 0.55
     for: [elf]
     if:
-      type: string
-      regex: "\\x37{4,}"
-      search_raw: true
+      type: content
 
-  - id: xor-key-0x55
-    desc: XOR key 0x55 repeated
-    crit: inert
-    conf: 0.55
-    for: [elf]
-    if:
-      type: string
-      regex: "\\x55{4,}"
-      search_raw: true
-
-  - id: xor-key-0xAA
-    desc: XOR key 0xAA repeated
-    crit: inert
-    conf: 0.55
-    for: [elf]
-    if:
-      type: string
-      regex: "\\xAA{4,}"
-      search_raw: true
-
-  - id: xor-key-0xDE
-    desc: XOR key 0xDE repeated
-    crit: inert
-    conf: 0.55
-    for: [elf]
-    if:
-      type: string
-      regex: "\\xDE{4,}"
-      search_raw: true
 
   # === Table-based decode atomic indicators ===
   - id: decode-table-symbol

@@ -33,7 +33,7 @@ use capabilities::{
     check_global_obfuscation, check_npm_malware_patterns, check_supply_chain_patterns,
     detect_capabilities,
 };
-use functions::{detect_javascript_idioms, extract_functions};
+use functions::{detect_javascript_idioms, extract_functions, extract_strings_to_report};
 
 /// JavaScript/Node.js analyzer using tree-sitter
 pub struct JavaScriptAnalyzer {
@@ -218,6 +218,9 @@ impl JavaScriptAnalyzer {
                 t.elapsed().as_millis()
             );
         }
+
+        // Extract strings
+        extract_strings_to_report(self, &root, content.as_bytes(), &mut report);
 
         // Extract function calls as symbols for symbol-based rule matching
         let t = std::time::Instant::now();

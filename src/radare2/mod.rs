@@ -679,6 +679,78 @@ impl Radare2Analyzer {
         Ok(result)
     }
 
+    /// Extract functions, sections, and strings using DEEP analysis (aaa)
+    /// Used as fallback when basic analysis fails to find functions
+    pub fn extract_batched_deep(&self, file_path: &Path) -> Result<BatchedAnalysis> {
+        use tracing::{debug, trace, warn};
+
+        debug!(
+            "Running radare2 DEEP batched analysis (aaa) on {:?}",
+            file_path
+        );
+
+        // Single r2 session with deep analysis
+        // aaa: deep analysis (finds functions in stripped binaries)
+        let command = "aaa; aflj; echo SEP; iSj; echo SEP; izj";
+
+        trace!("Executing rizin with deep command: {}", command);
+
+        let output = Command::new("rizin")
+            .arg("-q")
+            .arg("-e")
+            .arg("scr.color=0")
+            .arg("-e")
+            .arg("log.level=0")
+            .arg("-c")
+            .arg(command)
+            .arg(file_path)
+            .output()
+            .context("Failed to execute radare2 deep analysis")?;
+
+        if !output.status.success() {
+            warn!(
+                "radare2 deep analysis exited with status {}: {}",
+                output.status,
+                String::from_utf8_lossy(&output.stderr)
+            );
+            return Ok(BatchedAnalysis::default());
+        }
+
+        let output_str = String::from_utf8_lossy(&output.stdout);
+        let parts: Vec<&str> = output_str.split("SEP").collect();
+
+        // Helper to parse JSON from a part
+        let parse_json = |part: Option<&&str>| -> Option<String> {
+            part.and_then(|p| {
+                let start = p.find('[')?;
+                let end = p.rfind(']')?;
+                Some(p[start..=end].to_string())
+            })
+        };
+
+        let functions: Vec<R2Function> = parse_json(parts.first())
+            .and_then(|j| serde_json::from_str(&j).ok())
+            .unwrap_or_default();
+        let sections: Vec<R2Section> = parse_json(parts.get(1))
+            .and_then(|j| serde_json::from_str(&j).ok())
+            .unwrap_or_default();
+        let strings: Vec<R2String> = parse_json(parts.get(2))
+            .and_then(|j| serde_json::from_str(&j).ok())
+            .unwrap_or_default();
+
+        let result = BatchedAnalysis {
+            functions,
+            sections,
+            strings,
+        };
+
+        // We don't cache deep analysis results under the standard hash to avoid
+        // overwriting fast analysis results that might be sufficient for other tools.
+        // Instead, we let the caller handle the fallback logic.
+
+        Ok(result)
+    }
+
     /// Compute binary metrics from pre-extracted batched analysis
     /// Much faster than compute_binary_metrics as it doesn't spawn new r2 processes
     pub fn compute_metrics_from_batched(&self, batched: &BatchedAnalysis) -> BinaryMetrics {

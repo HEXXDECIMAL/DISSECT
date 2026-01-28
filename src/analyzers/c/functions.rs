@@ -107,3 +107,48 @@ fn extract_function_name(
     }
     None
 }
+
+/// Extract string literals and add them to the report's strings field.
+pub(crate) fn extract_strings_to_report(
+    _analyzer: &CAnalyzer,
+    root: &tree_sitter::Node,
+    source: &[u8],
+    report: &mut AnalysisReport,
+) {
+    let mut cursor = root.walk();
+    loop {
+        let node = cursor.node();
+
+        if node.kind() == "string_literal" || node.kind() == "string_content" {
+            if let Ok(text) = node.utf8_text(source) {
+                let s = text
+                    .trim_start_matches('"')
+                    .trim_end_matches('"')
+                    .trim_start_matches('L') // Wide string prefix
+                    .trim_start_matches('u') // Unicode prefix
+                    .trim_start_matches('U'); // Unicode prefix
+                if !s.is_empty() && !s.starts_with('"') {
+                    report.strings.push(crate::types::StringInfo {
+                        value: s.to_string(),
+                        offset: Some(format!("0x{:x}", node.start_byte())),
+                        string_type: crate::types::StringType::Literal,
+                        encoding: "utf-8".to_string(),
+                        section: Some("ast".to_string()),
+                    });
+                }
+            }
+        }
+
+        if cursor.goto_first_child() {
+            continue;
+        }
+        loop {
+            if cursor.goto_next_sibling() {
+                break;
+            }
+            if !cursor.goto_parent() {
+                return;
+            }
+        }
+    }
+}

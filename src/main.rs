@@ -1108,6 +1108,14 @@ fn extract_strings(target: &str, min_length: usize, format: &cli::OutputFormat) 
     }
 
     let data = fs::read(path)?;
+
+    // For source code files with AST support, extract strings via AST parsing
+    if let Ok(file_type) = detect_file_type(path) {
+        if file_type.is_source_code() {
+            return extract_strings_from_ast(path, &file_type, min_length, format);
+        }
+    }
+
     let mut imports = std::collections::HashSet::new();
     let mut import_libraries = std::collections::HashMap::new();
     let mut exports = std::collections::HashSet::new();
@@ -1272,6 +1280,100 @@ fn extract_strings(target: &str, min_length: usize, format: &cli::OutputFormat) 
                     "{:<10} {:<14} {}\n",
                     offset, stype_str, val_display
                 ));
+            }
+            Ok(output)
+        }
+    }
+}
+
+/// Extract strings from source code files using AST parsing.
+/// This ensures consistency with how strings are matched in trait evaluation.
+fn extract_strings_from_ast(
+    path: &Path,
+    file_type: &FileType,
+    min_length: usize,
+    format: &cli::OutputFormat,
+) -> Result<String> {
+    use analyzers::Analyzer;
+
+    // Analyze the file to extract strings via AST
+    let report = match file_type {
+        FileType::Python => {
+            let analyzer = analyzers::python::PythonAnalyzer::new();
+            analyzer.analyze(path)?
+        }
+        FileType::Ruby => {
+            let analyzer = analyzers::ruby::RubyAnalyzer::new();
+            analyzer.analyze(path)?
+        }
+        FileType::JavaScript => {
+            let analyzer = analyzers::javascript::JavaScriptAnalyzer::new();
+            analyzer.analyze(path)?
+        }
+        FileType::TypeScript => {
+            let analyzer = analyzers::typescript::TypeScriptAnalyzer::new();
+            analyzer.analyze(path)?
+        }
+        FileType::Php => {
+            let analyzer = analyzers::php::PhpAnalyzer::new();
+            analyzer.analyze(path)?
+        }
+        FileType::Shell => {
+            let analyzer = analyzers::shell::ShellAnalyzer::new();
+            analyzer.analyze(path)?
+        }
+        FileType::PowerShell => {
+            let analyzer = analyzers::powershell::PowerShellAnalyzer::new();
+            analyzer.analyze(path)?
+        }
+        FileType::Lua => {
+            let analyzer = analyzers::lua::LuaAnalyzer::new();
+            analyzer.analyze(path)?
+        }
+        FileType::CSharp => {
+            let analyzer = analyzers::csharp::CSharpAnalyzer::new();
+            analyzer.analyze(path)?
+        }
+        FileType::Perl => {
+            let analyzer = analyzers::perl::PerlAnalyzer::new();
+            analyzer.analyze(path)?
+        }
+        FileType::C => {
+            let analyzer = analyzers::c::CAnalyzer::new();
+            analyzer.analyze(path)?
+        }
+        FileType::Rust => {
+            let analyzer = analyzers::rust::RustAnalyzer::new();
+            analyzer.analyze(path)?
+        }
+        _ => {
+            // Fallback to raw extraction for unsupported types
+            anyhow::bail!("Unsupported file type for AST extraction: {:?}", file_type);
+        }
+    };
+
+    // Filter strings by min_length
+    let filtered_strings: Vec<_> = report
+        .strings
+        .into_iter()
+        .filter(|s| s.value.len() >= min_length)
+        .collect();
+
+    match format {
+        cli::OutputFormat::Json => Ok(serde_json::to_string_pretty(&filtered_strings)?),
+        cli::OutputFormat::Terminal => {
+            let mut output = String::new();
+            output.push_str(&format!(
+                "Extracted {} strings from {} (AST-based)\n\n",
+                filtered_strings.len(),
+                path.display()
+            ));
+            output.push_str(&format!("{:<10} {:<14} {}\n", "OFFSET", "TYPE", "VALUE"));
+            output.push_str(&format!("{:-<10} {:-<14} {:-<20}\n", "", "", ""));
+            for s in filtered_strings {
+                let offset = s.offset.unwrap_or_else(|| "unknown".to_string());
+                let stype_str = format!("{:?}", s.string_type);
+                output.push_str(&format!("{:<10} {:<14} {}\n", offset, stype_str, s.value));
             }
             Ok(output)
         }

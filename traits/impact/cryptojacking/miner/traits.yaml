@@ -301,6 +301,7 @@ composite_rules:
       - id: pool-moneropool
       - id: xmrig-ref
       - id: cryptonight
+      - id: known-tools/resource-exploitation/cn-variants
       - id: donate-level
       - id: miner-name
 
