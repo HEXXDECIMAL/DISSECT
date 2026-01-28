@@ -1,0 +1,53 @@
+# Custom Base64 Implementation Detection
+# Detects hardcoded base64 alphabets instead of using system libraries
+# Malware often implements custom encoding to avoid detection
+# ATT&CK: T1027.010 (Obfuscated Files or Information: Command Obfuscation)
+
+defaults:
+  attack: "T1027.010"
+  mbc: "B0032.001"
+  crit: suspicious
+
+traits:
+  # === Standard base64 alphabet ===
+  - id: alphabet-standard
+    desc: "Hardcoded standard base64 alphabet (avoiding system libraries)"
+    crit: suspicious
+    conf: 0.85
+    for: [elf, macho, pe]
+    if:
+      type: string
+      exact: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+
+  # === Base64 decode lookup table ===
+  - id: decode-table
+    desc: "Custom base64 decode lookup table (obfuscation technique)"
+    crit: suspicious
+    conf: 0.9
+    for: [elf, macho, pe]
+    if:
+      type: string
+      # More specific shifted alphabet pattern typical of custom base64 implementations
+      regex: "[|\\$}][a-zA-Z0-9+/]{10,20}[rstuvwxyz].{0,10}[\\{\\$].{0,10}[@ABCDEFGHIJKLMNOPQRSTUVW].{0,10}[XYZ\\[\\\\\\]\\^_`abcdefghijklmnopq]"
+
+  # === Base64 padding patterns ===
+  - id: padding-char
+    desc: "Base64 padding character reference"
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      regex: "\\bpadding\\s*=\\s*['\"]=['\"]|\\bpad_char\\b"
+
+composite_rules:
+  # Hardcoded base64 with decode table = custom implementation
+  - id: custom-implementation
+    desc: "Custom base64 implementation (hardcoded alphabet + decode table)"
+    crit: suspicious
+    conf: 0.9
+    attack: "T1027.010"
+    mbc: "B0032.001"
+    count: 1
+    any:
+      - id: alphabet-standard
+      - id: decode-table

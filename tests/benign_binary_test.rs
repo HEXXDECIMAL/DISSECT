@@ -3,13 +3,13 @@
 /// Ensures that legitimate system binaries like /bin/ls are correctly
 /// classified as inert/notable without false positive hostile/suspicious findings.
 use assert_cmd::Command;
-use predicates::prelude::*;
 use serde_json::Value;
 use std::time::Duration;
 
 #[test]
 fn test_analyze_bin_ls_json_output() {
-    let mut cmd = Command::cargo_bin("dissect").unwrap();
+    let bin_path = assert_cmd::cargo::cargo_bin!("dissect");
+    let mut cmd = Command::new(bin_path);
 
     let output = cmd
         .args(["--json", "/bin/ls"])
@@ -92,7 +92,8 @@ fn test_analyze_bin_ls_json_output() {
 
 #[test]
 fn test_analyze_bin_ls_completes_quickly() {
-    let mut cmd = Command::cargo_bin("dissect").unwrap();
+    let bin_path = assert_cmd::cargo::cargo_bin!("dissect");
+    let mut cmd = Command::new(bin_path);
 
     let start = std::time::Instant::now();
 

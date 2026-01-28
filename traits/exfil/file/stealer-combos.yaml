@@ -1,0 +1,116 @@
+# File Exfiltration Pattern Detection (Stealer Combinations)
+# Detects suspicious combinations indicating data exfiltration
+# Based on real-world stealer malware patterns
+
+composite_rules:
+  # Combination 1: libcurl + file extensions = stealer
+  - id: curl-with-file-targeting
+    desc: "HTTP client with credential/wallet file targeting (stealer pattern)"
+    crit: hostile
+    conf: 0.95
+    attack: "T1041"
+    mbc: "B0030"
+    for: [elf, macho, pe]
+    all:
+      - id: comm/download/curl/libcurl-http
+    count: 2
+    any:
+      - id: collect/file-targeting/credential-files
+      - id: collect/file-targeting/wallet-files
+      - id: collect/file-targeting/stealer-extension-list
+      - id: cred/wallet/mnemonic/wallet-word
+
+  # Combination 2: Binary file modes + network = exfiltration
+  - id: binary-file-network-exfil
+    desc: "Binary file operations with network capability (file exfiltration)"
+    crit: suspicious
+    conf: 0.9
+    attack: "T1041"
+    for: [elf, macho, pe]
+    all:
+      - id: fs/file-ops/binary-file-ops
+    count: 1
+    any:
+      - id: comm/download/curl/libcurl-http
+      - id: comm/socket/create
+
+  # Combination 3: fcopyfile + network (macOS)
+  - id: macos-file-copy-exfil
+    desc: "macOS file copying with network exfiltration"
+    crit: suspicious
+    conf: 0.9
+    attack: "T1041"
+    platforms: [macos]
+    for: [macho]
+    all:
+      - id: fs/file-ops/fcopyfile-macos
+    count: 1
+    any:
+      - id: comm/download/curl/libcurl-http
+      - id: comm/socket/create
+
+  # Combination 4: Directory traversal + file extensions + network
+  - id: recursive-file-theft
+    desc: "Recursive directory scan with file targeting and network (comprehensive stealer)"
+    crit: hostile
+    conf: 0.95
+    attack: "T1005"
+    mbc: "B0030"
+    for: [elf, macho, pe]
+    all:
+      - id: fs/directory/traverse
+    count: 2
+    any:
+      - id: collect/file-targeting/stealer-extension-list
+      - id: collect/file-targeting/credential-files
+      - id: collect/file-targeting/wallet-files
+      - id: comm/download/curl/libcurl-http
+      - id: comm/socket/create
+
+  # Combination 5: Hardware UUID + base64 = fingerprint encoding
+  - id: encoded-hardware-fingerprint
+    desc: "Hardware fingerprint with base64 encoding (C2 victim tracking)"
+    crit: suspicious
+    conf: 0.9
+    attack: "T1082"
+    for: [elf, macho, pe]
+    all:
+      - id: feat/encoding/base64/custom-implementation
+    count: 1
+    any:
+      - id: discovery/fingerprint/hardware-uuid-macos
+      - id: discovery/fingerprint/machine-id
+      - id: discovery/fingerprint/hardware-uuid
+
+  # Combination 6: Custom base64 + XOR + network = obfuscated exfil
+  - id: obfuscated-exfiltration
+    desc: "Multi-layer encoding with network (obfuscated data exfiltration)"
+    crit: hostile
+    conf: 0.95
+    attack: "T1027"
+    mbc: "B0032"
+    for: [elf, macho, pe]
+    all:
+      - id: feat/encoding/base64/custom-implementation
+      - id: anti-static/obfuscation/string-decrypt
+    count: 1
+    any:
+      - id: comm/download/curl/libcurl-http
+      - id: comm/socket/create
+
+  # Combination 7: libcurl + fingerprinting + obfuscation
+  - id: stealer-trifecta
+    desc: "Complete stealer pattern (network + fingerprinting + obfuscation)"
+    crit: hostile
+    conf: 0.98
+    attack: "T1041"
+    mbc: "B0030"
+    for: [elf, macho, pe]
+    all:
+      - id: comm/download/curl/libcurl-http
+      - id: anti-static/obfuscation/string-decrypt
+    count: 1
+    any:
+      - id: discovery/fingerprint/hardware-uuid-macos
+      - id: discovery/fingerprint/machine-id
+      - id: discovery/fingerprint/full-system

@@ -109,12 +109,14 @@ traits:
       case_insensitive: true
 
   - id: nop-sled
-    desc: NOP sled byte sequence
-    crit: suspicious
+    desc: Long NOP sled byte sequence (suspicious padding or exploitation artifact)
+    crit: notable
     conf: 0.7
     if:
       type: hex
-      pattern: "90 90 90 90 90 90 90 90"
+      pattern: "90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90"
+    unless:
+      - id: feat/language/go
 
   # === Hook installation (atomic) ===
   - id: setwindowshook
@@ -277,7 +279,7 @@ composite_rules:
     desc: Code cave or slack space usage
     crit: suspicious
     conf: 0.75
-    count: 1
+    count: 2
     any:
       - id: codecave-ref
       - id: slack-space-ref

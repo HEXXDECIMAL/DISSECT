@@ -272,33 +272,12 @@ impl JavaScriptAnalyzer {
             );
         }
 
-        // Evaluate trait definitions and composite rules (with cached AST to avoid re-parsing)
+        // Evaluate all rules (atomic + composite) and merge into report
         let t = std::time::Instant::now();
-        let trait_findings = self.capability_mapper.evaluate_traits_with_ast(
-            &report,
-            content.as_bytes(),
-            Some(&tree),
-        );
+        self.capability_mapper
+            .evaluate_and_merge_findings(&mut report, content.as_bytes(), Some(&tree));
         if timing_enabled {
-            eprintln!("[PROFILE]   evaluate_traits: {}ms", t.elapsed().as_millis());
-        }
-
-        // Add atomic traits first so composite rules can reference them
-        for f in trait_findings {
-            if !report.findings.iter().any(|existing| existing.id == f.id) {
-                report.findings.push(f);
-            }
-        }
-
-        let composite_findings = self
-            .capability_mapper
-            .evaluate_composite_rules(&report, content.as_bytes());
-
-        // Add all findings
-        for f in composite_findings {
-            if !report.findings.iter().any(|existing| existing.id == f.id) {
-                report.findings.push(f);
-            }
+            eprintln!("[PROFILE]   evaluate_and_merge_findings: {}ms", t.elapsed().as_millis());
         }
 
         // Add finding if parse took abnormally long (indicates obfuscation/minification)

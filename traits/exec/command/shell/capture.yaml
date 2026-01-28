@@ -1,0 +1,11 @@
+composite_rules:
+  - id: exec/command/shell/capture-command-output
+    desc: "Executes shell command and captures output (common in Trojans/Backdoors)"
+    crit: suspicious
+    conf: 0.9
+    all:
+      - id: exec/command/cpp/popen-call
+    any:
+      - id: exec/command/cpp/fgets-loop
+      - id: exec/command/cpp/string-append
+    for: [macho, elf, pe]

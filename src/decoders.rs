@@ -164,7 +164,7 @@ mod tests {
 
         let decoded = extract_xor_strings(&encoded);
 
-        assert!(decoded.len() > 0);
+        assert!(!decoded.is_empty());
         assert!(decoded[0].value.contains("https://"));
         assert_eq!(decoded[0].method, "xor");
         assert_eq!(decoded[0].key, Some("0x42".to_string()));
@@ -178,7 +178,7 @@ mod tests {
 
         let decoded = extract_xor_strings(&encoded);
 
-        assert!(decoded.len() > 0);
+        assert!(!decoded.is_empty());
         assert!(decoded[0].value.contains("eval("));
     }
 

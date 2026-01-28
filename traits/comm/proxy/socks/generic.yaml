@@ -23,6 +23,22 @@ traits:
       type: string
       exact: SOCKS5
 
+  - id: socks5-string
+    desc: socks5 string
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      word: "socks5"
+
+  - id: socks4-string
+    desc: socks4 string
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      word: "socks4"
+
   - id: socks-url
     desc: SOCKS URL scheme
     crit: notable
@@ -48,5 +64,7 @@ composite_rules:
     any:
       - id: socks4-proto
       - id: socks5-proto
+      - id: socks5-string
+      - id: socks4-string
       - id: socks-url
       - id: socks-port

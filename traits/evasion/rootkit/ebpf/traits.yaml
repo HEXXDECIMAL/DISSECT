@@ -88,12 +88,13 @@ traits:
 
   # === Intent Markers ===
   - id: intent-magic
-    desc: Magic marker string
+    desc: eBPF Magic marker string
     crit: notable
     conf: 0.6
     if:
       type: string
-      regex: "(?i)magic"
+      regex: "\\b(ebpf|bpf|rootkit|hide)[_-]?magic\\b"
+      case_insensitive: true
 
   - id: intent-trigger
     desc: Trigger marker string

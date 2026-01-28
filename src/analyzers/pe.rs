@@ -143,23 +143,9 @@ impl PEAnalyzer {
             }
         }
 
-        // Evaluate trait definitions from YAML
-        let trait_findings = self.capability_mapper.evaluate_traits(&report, data);
-        for f in trait_findings {
-            if !report.findings.iter().any(|existing| existing.id == f.id) {
-                report.findings.push(f);
-            }
-        }
-
-        // Evaluate composite rules (after traits are merged)
-        let composite_findings = self
-            .capability_mapper
-            .evaluate_composite_rules(&report, data);
-        for f in composite_findings {
-            if !report.findings.iter().any(|existing| existing.id == f.id) {
-                report.findings.push(f);
-            }
-        }
+        // Evaluate all rules (atomic + composite) and merge into report
+        self.capability_mapper
+            .evaluate_and_merge_findings(&mut report, data, None);
 
         report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;
         report.metadata.tools_used = tools_used;

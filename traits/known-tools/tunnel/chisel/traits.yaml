@@ -27,7 +27,7 @@ traits:
             $func1 = "ChiselServer" ascii
             $func2 = "ChiselClient" ascii
           condition:
-            any of ($name*) or any of ($func*) or
+            2 of ($name*) or any of ($func*) or
             ($opt1 and ($opt2 or $opt3))
         }
 
@@ -71,18 +71,11 @@ traits:
       source: |
         rule chisel_socks {
           strings:
-            // Chisel identifier
             $chisel = "chisel" ascii nocase
-            // SOCKS5 patterns
-            $socks1 = "socks5" ascii nocase
-            $socks2 = "SOCKS" ascii
-            $socks3 = ":1080" ascii
-            // Proxy patterns
-            $proxy1 = "proxy" ascii
-            $proxy2 = "tunnel" ascii
+            $socks = "socks5" ascii nocase
+            $opt = "--socks5" ascii
           condition:
-            $chisel or
-            (any of ($socks*) and any of ($proxy*))
+            $chisel and ($socks or $opt)
         }
 
 composite_rules:

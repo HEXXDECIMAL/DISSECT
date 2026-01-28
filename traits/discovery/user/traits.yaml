@@ -64,25 +64,21 @@ traits:
       exact: "USERPROFILE"
 
   # === Username environment atomic indicators ===
-  - id: username-var
+  - id: env-username
     desc: USERNAME environment variable
-    crit: inert
+    crit: notable
     conf: 0.5
-    attack: "T1033"
-    for: [all]
     if:
       type: string
-      exact: "USERNAME"
+      word: "USERNAME"
 
-  - id: user-var
+  - id: env-user
     desc: USER environment variable
-    crit: inert
+    crit: notable
     conf: 0.5
-    attack: "T1033"
-    for: [all]
     if:
       type: string
-      exact: "USER"
+      word: "USER"
 
   - id: logname-var
     desc: LOGNAME environment variable

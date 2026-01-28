@@ -1055,6 +1055,50 @@ impl CapabilityMapper {
         all_findings
     }
 
+    /// Evaluate all rules (atomic traits + composite rules) and merge findings into the report.
+    /// This is the correct, foolproof way to evaluate traits that ensures evidence propagates
+    /// from atomic traits to composite rules. Analyzers should use this method instead of
+    /// calling evaluate_traits() and evaluate_composite_rules() separately.
+    ///
+    /// # Arguments
+    /// * `report` - Mutable reference to the analysis report to merge findings into
+    /// * `binary_data` - Raw file data for content-based matching
+    /// * `cached_ast` - Optional cached tree-sitter AST for performance
+    ///
+    /// # Example
+    /// ```ignore
+    /// // In an analyzer:
+    /// self.capability_mapper.evaluate_and_merge_findings(&mut report, data, None);
+    /// ```
+    pub fn evaluate_and_merge_findings(
+        &self,
+        report: &mut AnalysisReport,
+        binary_data: &[u8],
+        cached_ast: Option<&tree_sitter::Tree>,
+    ) {
+        // Step 1: Evaluate atomic trait definitions
+        let trait_findings = self.evaluate_traits_with_ast(report, binary_data, cached_ast);
+
+        // Step 2: Merge atomic trait findings into report (so composites can reference them)
+        for finding in trait_findings {
+            // Avoid duplicates
+            if !report.findings.iter().any(|f| f.id == finding.id) {
+                report.findings.push(finding);
+            }
+        }
+
+        // Step 3: Evaluate composite rules (which can now access the atomic traits)
+        let composite_findings = self.evaluate_composite_rules(report, binary_data);
+
+        // Step 4: Merge composite findings into report
+        for finding in composite_findings {
+            // Avoid duplicates
+            if !report.findings.iter().any(|f| f.id == finding.id) {
+                report.findings.push(finding);
+            }
+        }
+    }
+
     /// Detect platform from file type string
     fn detect_platform(&self, file_type: &str) -> Platform {
         match file_type.to_lowercase().as_str() {

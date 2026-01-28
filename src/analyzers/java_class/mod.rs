@@ -53,9 +53,10 @@ impl JavaClassAnalyzer {
         });
 
         self.detect_capabilities(&class_info, &mut report);
-        self.capability_mapper.evaluate_traits(&report, data);
+
+        // Evaluate all rules (atomic + composite) and merge into report
         self.capability_mapper
-            .evaluate_composite_rules(&report, data);
+            .evaluate_and_merge_findings(&mut report, data, None);
 
         let elapsed = start.elapsed().as_millis() as u64;
         report.metadata.analysis_duration_ms = elapsed;

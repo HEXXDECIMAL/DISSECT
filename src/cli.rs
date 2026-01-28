@@ -367,8 +367,7 @@ mod tests {
 
     #[test]
     fn test_parse_strings_command_with_min_length() {
-        let args =
-            Args::try_parse_from(["dissect", "strings", "file.bin", "-m", "10"]).unwrap();
+        let args = Args::try_parse_from(["dissect", "strings", "file.bin", "-m", "10"]).unwrap();
 
         if let Some(Command::Strings { target, min_length }) = args.command {
             assert_eq!(target, "file.bin");

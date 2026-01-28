@@ -89,7 +89,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: PAN
+      word: "PAN"
 
   - id: attack-udp
     desc: UDP attack type indicator
@@ -97,7 +97,8 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: UDP
+      regex: "\\bUDP[_-]?ATTACK\\b|\\bUDP[_-]?FLOOD\\b"
+      case_insensitive: true
 
   - id: ddos-flood
     desc: Flood attack terminology
@@ -118,6 +119,23 @@ traits:
       case_insensitive: true
 
 composite_rules:
+  # Helper: IRC protocol
+  - id: irc-protocol
+    desc: IRC protocol commands
+    any:
+      - id: irc-privmsg
+      - id: irc-nick
+      - id: irc-user
+
+  # Helper: DDoS terms
+  - id: ddos-attack-terms
+    desc: DDoS attack terminology
+    any:
+      - id: attack-pan
+      - id: attack-udp
+      - id: ddos-flood
+      - id: ddos-attack
+
   # Tsunami/Kaiten identifier
   - id: tsunami-artifact
     desc: Tsunami/Kaiten IRC bot identifier
@@ -128,36 +146,28 @@ composite_rules:
       - id: tsunami-name
       - id: kaiten-name
 
-  # IRC bot C2 (all IRC + any command)
+  # IRC bot C2 (IRC protocol + any command)
   - id: bot-logic
     desc: IRC-based command and control logic
     crit: suspicious
     conf: 0.8
     all:
-      - id: irc-privmsg
-      - id: irc-nick
-      - id: irc-user
-    count: 1
+      - id: irc-protocol
     any:
       - id: cmd-login
       - id: cmd-udp
       - id: cmd-tcp
       - id: cmd-shell
 
-  # IRC DDoS (any IRC + 2 attack types + any ddos term)
+  # IRC DDoS (IRC protocol + DDoS attack terminology)
   - id: irc-ddos
     desc: IRC-controlled DDoS attack logic
     crit: suspicious
     conf: 0.9
-    any:
-      - id: irc-privmsg
-      - id: irc-nick
-      - id: attack-pan
-      - id: attack-udp
-      - id: ddos-flood
-      - id: ddos-attack
+    all:
+      - id: irc-protocol
+      - id: ddos-attack-terms
 
-    count: 2
   # Tsunami IRC bot with C2 logic
   - id: tsunami-irc-bot
     desc: Tsunami/Kaiten IRC bot with C2 logic

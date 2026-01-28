@@ -178,7 +178,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "wallet"
+      word: "wallet"
 
   - id: crypto-word
     desc: crypto term
@@ -186,7 +186,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "crypto"
+      word: "crypto"
 
   - id: metamask-word
     desc: MetaMask reference
@@ -194,7 +194,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "metamask"
+      word: "metamask"
 
   - id: phantom-word
     desc: Phantom wallet reference
@@ -202,99 +202,15 @@ traits:
     conf: 0.5
     if:
       type: string
-      exact: "phantom"
+      word: "phantom"
 
   - id: browser-word
-    desc: browser term
+    desc: browser wallet context
     crit: inert
     conf: 0.4
     if:
       type: string
-      exact: "browser"
-
-  # === Private key variable atomic indicators ===
-  - id: private-key-underscore
-    desc: private_key variable
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      exact: "private_key"
-
-  - id: privatekey-nospace
-    desc: privatekey variable (no separator)
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      exact: "privatekey"
-
-  - id: privatekey-camel
-    desc: privateKey variable (camelCase)
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      exact: "privateKey"
-
-  # === Keystore reference atomic indicators ===
-  - id: keystore-singular
-    desc: keystore reference
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      exact: "keystore"
-
-  - id: keystores-plural
-    desc: keystores reference (plural)
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      exact: "keystores"
-
-  # === Derivation path atomic indicators ===
-  - id: derivation-path-words
-    desc: derivation path words
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      regex: "derivation.{0,20}path"
-
-  - id: bip44-path-prefix
-    desc: BIP-44 derivation path prefix (m/44'/)
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      exact: "m/44'/"
-
-  # === BIP-39 reference atomic indicators ===
-  - id: bip39-exact
-    desc: bip39 reference
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      exact: "bip39"
-
-  - id: bip-39-hyphen
-    desc: bip-39 reference (hyphenated)
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      exact: "bip-39"
-
-  - id: wordlist-word
-    desc: wordlist reference
-    crit: inert
-    conf: 0.4
-    if:
-      type: string
-      exact: "wordlist"
+      regex: "\\bbrowser[_-]?(wallet|extension|addon)\\b"
 
 composite_rules:
   # Mnemonic terms composite
@@ -302,7 +218,7 @@ composite_rules:
     desc: Mnemonic or seed phrase terminology
     crit: notable
     conf: 0.7
-    count: 1
+    count: 2
     any:
       - id: mnemonic-word
       - id: seed-phrase-underscore
@@ -315,7 +231,7 @@ composite_rules:
     desc: Wallet or cryptocurrency context
     crit: notable
     conf: 0.7
-    count: 1
+    count: 2
     any:
       - id: wallet-word
       - id: crypto-word

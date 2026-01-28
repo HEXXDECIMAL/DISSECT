@@ -250,9 +250,7 @@ fn main() -> Result<()> {
         Some(cli::Command::Strings { target, min_length }) => {
             extract_strings(&target, min_length, &format)?
         }
-        Some(cli::Command::Symbols { target }) => {
-            extract_symbols(&target, &format)?
-        }
+        Some(cli::Command::Symbols { target }) => extract_symbols(&target, &format)?,
         None => {
             // No subcommand - use paths from top-level args
             if args.paths.is_empty() {
@@ -1333,7 +1331,8 @@ fn extract_symbols(target: &str, format: &cli::OutputFormat) -> Result<String> {
 
                         // Add other symbols (functions, etc.)
                         for sym in r2_symbols {
-                            let sym_type = if sym.symbol_type == "FUNC" || sym.symbol_type == "func" {
+                            let sym_type = if sym.symbol_type == "FUNC" || sym.symbol_type == "func"
+                            {
                                 "function"
                             } else {
                                 &sym.symbol_type
@@ -1449,11 +1448,8 @@ fn extract_symbols(target: &str, format: &cli::OutputFormat) -> Result<String> {
         match (&a.address, &b.address) {
             (Some(addr_a), Some(addr_b)) => {
                 // Parse hex addresses for proper numeric sorting
-                let parse_addr = |s: &str| -> u64 {
-                    s.trim_start_matches("0x")
-                        .parse::<u64>()
-                        .unwrap_or(0)
-                };
+                let parse_addr =
+                    |s: &str| -> u64 { s.trim_start_matches("0x").parse::<u64>().unwrap_or(0) };
                 let num_a = parse_addr(addr_a);
                 let num_b = parse_addr(addr_b);
                 num_a.cmp(&num_b)

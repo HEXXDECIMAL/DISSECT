@@ -46,7 +46,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      regex: "map[0-9]"
+      regex: "/map[0-9]{1,2}"
 
   # === Discord Desktop atomic indicators ===
 
@@ -152,7 +152,8 @@ composite_rules:
     desc: Telegram Desktop map files
     crit: suspicious
     conf: 0.85
-    count: 1
+    all:
+      - id: telegram-tdata
     any:
       - id: telegram-map-hash
       - id: telegram-map-numbered

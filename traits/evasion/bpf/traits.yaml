@@ -70,12 +70,13 @@ traits:
       exact: "port_knock"
 
   - id: sequence-string
-    desc: sequence string reference
-    crit: inert
-    conf: 0.4
+    desc: knock sequence string reference
+    crit: notable
+    conf: 0.6
     if:
       type: string
-      exact: "sequence"
+      regex: "\\b(knock|port|packet)[_-]?sequence\\b"
+      case_insensitive: true
 
   # === BPFDoor-style Components ===
   - id: bpf-program

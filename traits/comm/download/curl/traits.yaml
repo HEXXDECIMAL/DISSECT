@@ -1,0 +1,80 @@
+# libcurl HTTP Client Detection
+# Detects use of libcurl for network operations
+# ATT&CK: T1071.001 (Application Layer Protocol: Web Protocols)
+
+defaults:
+  attack: "T1071.001"
+  mbc: "B0030"
+  for: [elf, macho, pe]
+
+traits:
+  # === libcurl API atomic indicators ===
+  - id: curl-easy-init
+    desc: "Initializes libcurl easy interface (HTTP client setup)"
+    crit: notable
+    conf: 0.75
+    if:
+      type: symbol
+      pattern: "curl_easy_init"
+
+  - id: curl-easy-setopt
+    desc: "Configures libcurl options (URL, headers, callbacks)"
+    crit: notable
+    conf: 0.7
+    if:
+      type: symbol
+      pattern: "curl_easy_setopt"
+
+  - id: curl-easy-perform
+    desc: "Executes HTTP request via libcurl"
+    crit: notable
+    conf: 0.75
+    if:
+      type: symbol
+      pattern: "curl_easy_perform"
+
+  - id: curl-easy-cleanup
+    desc: "Cleans up libcurl session"
+    crit: inert
+    conf: 0.6
+    if:
+      type: symbol
+      pattern: "curl_easy_cleanup"
+
+  - id: curl-slist-append
+    desc: "Builds custom HTTP headers for libcurl"
+    crit: notable
+    conf: 0.7
+    if:
+      type: symbol
+      pattern: "curl_slist_append"
+
+  - id: curl-slist-free
+    desc: "Frees libcurl header list"
+    crit: inert
+    conf: 0.5
+    if:
+      type: symbol
+      pattern: "curl_slist_free_all"
+
+composite_rules:
+  # Basic libcurl usage
+  - id: libcurl-http
+    desc: "Uses libcurl for HTTP communication"
+    crit: notable
+    conf: 0.8
+    attack: "T1071.001"
+    all:
+      - id: curl-easy-init
+      - id: curl-easy-perform
+
+  # libcurl with custom headers (often malicious)
+  - id: libcurl-custom-headers
+    desc: "libcurl with custom HTTP headers (C2 communication pattern)"
+    crit: suspicious
+    conf: 0.85
+    attack: "T1071.001"
+    all:
+      - id: curl-easy-init
+      - id: curl-slist-append
+      - id: curl-easy-perform

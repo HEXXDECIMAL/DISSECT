@@ -128,29 +128,9 @@ impl CAnalyzer {
         let metrics = self.compute_metrics(&root, content);
         report.metrics = Some(metrics);
 
-        // Evaluate YAML trait definitions first
-        let trait_findings = self
-            .capability_mapper
-            .evaluate_traits(&report, content.as_bytes());
-
-        // Add trait findings to report immediately so composite rules can see them
-        for f in trait_findings {
-            if !report.findings.iter().any(|existing| existing.id == f.id) {
-                report.findings.push(f);
-            }
-        }
-
-        // Now evaluate composite rules (which can reference the traits above)
-        let composite_findings = self
-            .capability_mapper
-            .evaluate_composite_rules(&report, content.as_bytes());
-
-        // Add composite findings
-        for f in composite_findings {
-            if !report.findings.iter().any(|existing| existing.id == f.id) {
-                report.findings.push(f);
-            }
-        }
+        // Evaluate all rules (atomic + composite) and merge into report
+        self.capability_mapper
+            .evaluate_and_merge_findings(&mut report, content.as_bytes(), None);
 
         report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;
         report.metadata.tools_used = vec!["tree-sitter-c".to_string()];

@@ -1,0 +1,24 @@
+defaults:
+  for: [macho, elf, pe]
+
+traits:
+  - id: fgets-loop
+    desc: "Loop capturing command output via fgets"
+    crit: notable
+    if:
+      type: symbol
+      exact: fgets
+
+  - id: string-append
+    desc: "Capturing data into C++ std::string"
+    crit: inert
+    if:
+      type: symbol
+      pattern: "std::__1::basic_string.*(append|push_back|operator\\+=)"
+
+  - id: popen-call
+    desc: "Executes command via popen"
+    crit: notable
+    if:
+      type: symbol
+      pattern: "popen"

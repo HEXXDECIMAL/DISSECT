@@ -486,43 +486,52 @@ impl CompositeTrait {
         // Evaluate positive conditions based on the boolean operator(s)
         let has_positive = self.all.is_some() || self.any.is_some();
 
-        let positive_result = if self.all.is_some() && self.any.is_some() {
-            // Both all AND any: all must match AND any must match
-            let all_result = self.eval_requires_all(self.all.as_ref().unwrap(), ctx);
-            if !all_result.matched {
-                return None;
+        let positive_result = match (&self.all, &self.any) {
+            (Some(all), Some(any)) => {
+                // Both all AND any: all must match AND any must match
+                let all_result = self.eval_requires_all(all, ctx);
+                if !all_result.matched {
+                    return None;
+                }
+                let any_result = self.eval_requires_any(any, ctx);
+                if !any_result.matched {
+                    return None;
+                }
+                // Combine evidence from both
+                let mut combined_evidence = all_result.evidence;
+                combined_evidence.extend(any_result.evidence);
+                ConditionResult {
+                    matched: true,
+                    evidence: combined_evidence,
+                    traits: Vec::new(),
+                    warnings: Vec::new(),
+                }
             }
-            let any_result = self.eval_requires_any(self.any.as_ref().unwrap(), ctx);
-            if !any_result.matched {
-                return None;
+            (Some(conds), None) => self.eval_requires_all(conds, ctx),
+            (None, Some(conds)) => {
+                // Handle count constraints on `any` conditions
+                let has_count_constraint =
+                    self.count.is_some() || self.min_count.is_some() || self.max_count.is_some();
+                if has_count_constraint {
+                    self.eval_count_constraints(
+                        conds,
+                        self.count,
+                        self.min_count,
+                        self.max_count,
+                        ctx,
+                    )
+                } else {
+                    self.eval_requires_any(conds, ctx)
+                }
             }
-            // Combine evidence from both
-            let mut combined_evidence = all_result.evidence;
-            combined_evidence.extend(any_result.evidence);
-            ConditionResult {
-                matched: true,
-                evidence: combined_evidence,
-                traits: Vec::new(),
-                warnings: Vec::new(),
-            }
-        } else if let Some(ref conds) = self.all {
-            self.eval_requires_all(conds, ctx)
-        } else if let Some(ref conds) = self.any {
-            // Handle count constraints on `any` conditions
-            let has_count_constraint =
-                self.count.is_some() || self.min_count.is_some() || self.max_count.is_some();
-            if has_count_constraint {
-                self.eval_count_constraints(conds, self.count, self.min_count, self.max_count, ctx)
-            } else {
-                self.eval_requires_any(conds, ctx)
-            }
-        } else {
-            // No positive conditions - will check none below
-            ConditionResult {
-                matched: true,
-                evidence: Vec::new(),
-                traits: Vec::new(),
-                warnings: Vec::new(),
+            (None, None) => {
+                // No positive conditions - will check none below
+                ConditionResult {
+                    matched: true,
+                    evidence: Vec::new(),
+                    traits: Vec::new(),
+                    warnings: Vec::new(),
+                }
             }
         };
 

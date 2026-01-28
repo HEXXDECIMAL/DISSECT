@@ -291,3 +291,178 @@ fn test_yara_third_party_flag() {
         .assert()
         .success();
 }
+
+/// Test strings command with nonexistent file
+#[test]
+fn test_strings_nonexistent_file() {
+    assert_cmd::cargo_bin_cmd!("dissect")
+        .args(["strings", "/nonexistent/file.bin"])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("does not exist"));
+}
+
+/// Test strings command with shell script
+#[test]
+fn test_strings_shell_script() {
+    let temp_dir = TempDir::new().unwrap();
+    let script = temp_dir.path().join("test.sh");
+    fs::write(&script, "#!/bin/bash\necho 'hello world'\n").unwrap();
+
+    assert_cmd::cargo_bin_cmd!("dissect")
+        .args(["strings", script.to_str().unwrap()])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Extracted"))
+        .stdout(predicate::str::contains("strings from"));
+}
+
+/// Test strings command with JSON output
+#[test]
+fn test_strings_json_output() {
+    let temp_dir = TempDir::new().unwrap();
+    let script = temp_dir.path().join("test.sh");
+    fs::write(&script, "#!/bin/bash\necho 'test'\n").unwrap();
+
+    assert_cmd::cargo_bin_cmd!("dissect")
+        .args(["--json", "strings", script.to_str().unwrap()])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("["))
+        .stdout(predicate::str::contains("\"value\""));
+}
+
+/// Test strings command with custom min length
+#[test]
+fn test_strings_custom_min_length() {
+    let temp_dir = TempDir::new().unwrap();
+    let script = temp_dir.path().join("test.sh");
+    fs::write(&script, "#!/bin/bash\necho 'ab'\necho 'verylongstring'\n").unwrap();
+
+    assert_cmd::cargo_bin_cmd!("dissect")
+        .args(["strings", script.to_str().unwrap(), "-m", "10"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Extracted"));
+}
+
+/// Test symbols command with nonexistent file
+#[test]
+fn test_symbols_nonexistent_file() {
+    assert_cmd::cargo_bin_cmd!("dissect")
+        .args(["symbols", "/nonexistent/file.bin"])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("does not exist"));
+}
+
+/// Test symbols command with shell script
+#[test]
+fn test_symbols_shell_script() {
+    let temp_dir = TempDir::new().unwrap();
+    let script = temp_dir.path().join("test.sh");
+    fs::write(&script, "#!/bin/bash\nls -la\ngrep pattern file.txt\n").unwrap();
+
+    assert_cmd::cargo_bin_cmd!("dissect")
+        .args(["symbols", script.to_str().unwrap()])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Extracted"))
+        .stdout(predicate::str::contains("symbols from"))
+        .stdout(predicate::str::contains("ADDRESS"))
+        .stdout(predicate::str::contains("TYPE"))
+        .stdout(predicate::str::contains("NAME"));
+}
+
+/// Test symbols command with Python script
+#[test]
+fn test_symbols_python_script() {
+    let temp_dir = TempDir::new().unwrap();
+    let py_file = temp_dir.path().join("test.py");
+    fs::write(
+        &py_file,
+        "import os\nimport sys\n\ndef main():\n    print('hello')\n    sys.exit(0)\n",
+    )
+    .unwrap();
+
+    assert_cmd::cargo_bin_cmd!("dissect")
+        .args(["symbols", py_file.to_str().unwrap()])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Extracted"))
+        .stdout(predicate::str::contains("import"));
+}
+
+/// Test symbols command with JSON output
+#[test]
+fn test_symbols_json_output() {
+    let temp_dir = TempDir::new().unwrap();
+    let script = temp_dir.path().join("test.sh");
+    fs::write(&script, "#!/bin/bash\nls\n").unwrap();
+
+    assert_cmd::cargo_bin_cmd!("dissect")
+        .args(["--json", "symbols", script.to_str().unwrap()])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("["))
+        .stdout(predicate::str::contains("\"name\""))
+        .stdout(predicate::str::contains("\"symbol_type\""));
+}
+
+/// Test symbols command with JavaScript file
+#[test]
+fn test_symbols_javascript_file() {
+    let temp_dir = TempDir::new().unwrap();
+    let js_file = temp_dir.path().join("test.js");
+    fs::write(
+        &js_file,
+        "function hello() {\n  console.log('world');\n}\nhello();\n",
+    )
+    .unwrap();
+
+    assert_cmd::cargo_bin_cmd!("dissect")
+        .args(["symbols", js_file.to_str().unwrap()])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("symbols from"));
+}
+
+/// Test symbols command shows addresses for binaries
+#[test]
+#[cfg(target_os = "macos")]
+fn test_symbols_binary_with_addresses() {
+    // Test with /bin/ls which should have symbol addresses
+    assert_cmd::cargo_bin_cmd!("dissect")
+        .args(["symbols", "/bin/ls"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("0x")) // Should show hex addresses
+        .stdout(predicate::str::contains("import"));
+}
+
+/// Test strings and symbols output different data
+#[test]
+fn test_strings_vs_symbols_difference() {
+    let temp_dir = TempDir::new().unwrap();
+    let script = temp_dir.path().join("test.sh");
+    fs::write(&script, "#!/bin/bash\nls -la\ntext='some string'\n").unwrap();
+
+    // Strings should find literal text
+    let strings_output = assert_cmd::cargo_bin_cmd!("dissect")
+        .args(["strings", script.to_str().unwrap()])
+        .output()
+        .unwrap();
+    let strings_stdout = String::from_utf8_lossy(&strings_output.stdout);
+
+    // Symbols should find function calls
+    let symbols_output = assert_cmd::cargo_bin_cmd!("dissect")
+        .args(["symbols", script.to_str().unwrap()])
+        .output()
+        .unwrap();
+    let symbols_stdout = String::from_utf8_lossy(&symbols_output.stdout);
+
+    // Both should succeed but show different data
+    assert!(strings_stdout.contains("some string"));
+    assert!(symbols_stdout.contains("ls"));
+    assert!(!symbols_stdout.contains("some string")); // Symbols don't show literal strings
+}

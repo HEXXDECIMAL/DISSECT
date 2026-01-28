@@ -1,0 +1,107 @@
+# Timing and Delay Tactics Detection
+# Detects sleep/delay functions used for evasion or rate limiting
+# ATT&CK: T1497.003 (Virtualization/Sandbox Evasion: Time Based Evasion)
+
+defaults:
+  attack: "T1497.003"
+  mbc: "B0003.005"
+  crit: inert
+
+traits:
+  # === Sleep functions ===
+  - id: sleep-func
+    desc: "Sleep function (delays execution)"
+    crit: inert
+    conf: 0.4
+    for: [elf, macho, pe]
+    if:
+      type: symbol
+      pattern: "^sleep$"
+
+  - id: usleep-func
+    desc: "Microsecond sleep (precise timing delays)"
+    crit: inert
+    conf: 0.4
+    platforms: [linux, macos, unix]
+    for: [elf, macho]
+    if:
+      type: symbol
+      pattern: "usleep"
+
+  - id: nanosleep-func
+    desc: "Nanosecond sleep (high-precision delays)"
+    crit: inert
+    conf: 0.4
+    platforms: [linux, macos, unix]
+    for: [elf, macho]
+    if:
+      type: symbol
+      pattern: "nanosleep"
+
+  # === Clock/timing functions ===
+  - id: clock-gettime
+    desc: "Reads current time (timing measurements)"
+    crit: inert
+    conf: 0.4
+    platforms: [linux, macos, unix]
+    for: [elf, macho]
+    if:
+      type: symbol
+      pattern: "clock_gettime"
+
+  - id: gettimeofday
+    desc: "Gets current time of day"
+    crit: inert
+    conf: 0.3
+    platforms: [linux, macos, unix]
+    for: [elf, macho]
+    if:
+      type: symbol
+      pattern: "gettimeofday"
+
+composite_rules:
+  # Basic delay capability
+  - id: delay-capability
+    desc: "Program can delay execution (sleep/timing)"
+    crit: inert
+    conf: 0.5
+    count: 1
+    any:
+      - id: sleep-func
+      - id: usleep-func
+      - id: nanosleep-func
+
+  # Timing measurement
+  - id: timing-measurement
+    desc: "Measures execution time (timing attacks or sandbox detection)"
+    crit: notable
+    conf: 0.7
+    attack: "T1497.003"
+    count: 1
+    any:
+      - id: clock-gettime
+      - id: gettimeofday
+
+  # Delay with network = evasion or C2 beaconing
+  - id: delay-with-network
+    desc: "Network communication with delays (C2 beaconing or anti-analysis)"
+    crit: suspicious
+    conf: 0.85
+    attack: "T1497.003"
+    all:
+      - id: delay-capability
+    count: 1
+    any:
+      - id: comm/socket/create
+      - id: comm/download/curl/libcurl-http
+
+  # Timing measurement + delay = sandbox evasion
+  - id: timing-evasion
+    desc: "Timing measurement with delays (sandbox/VM detection technique)"
+    crit: suspicious
+    conf: 0.9
+    attack: "T1497.003"
+    mbc: "B0003.005"
+    all:
+      - id: timing-measurement
+      - id: delay-capability

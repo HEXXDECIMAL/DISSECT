@@ -3,6 +3,7 @@
 use anyhow::{bail, Result};
 use std::collections::HashSet;
 
+#[allow(dead_code)]
 #[derive(Debug)]
 pub struct ClassInfo {
     pub this_class: Option<String>,
@@ -29,6 +30,7 @@ pub struct MethodInfo {
     pub max_locals: u16,
 }
 
+#[allow(dead_code)]
 #[derive(Debug)]
 pub struct FieldInfo {
     pub name: String,

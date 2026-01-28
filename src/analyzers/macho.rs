@@ -167,33 +167,12 @@ impl MachOAnalyzer {
             }
         }
 
-        // Evaluate trait definitions from YAML (parallelized)
-        let t_traits = std::time::Instant::now();
-        let trait_findings = self.capability_mapper.evaluate_traits(&report, data);
-        for f in trait_findings {
-            if !report.findings.iter().any(|existing| existing.id == f.id) {
-                report.findings.push(f);
-            }
-        }
+        // Evaluate all rules (atomic + composite) and merge into report
+        let t_eval = std::time::Instant::now();
+        self.capability_mapper
+            .evaluate_and_merge_findings(&mut report, data, None);
         if timing {
-            eprintln!("[TIMING] evaluate_traits: {:?}", t_traits.elapsed());
-        }
-
-        // Evaluate composite rules (after traits are merged)
-        let t_composite = std::time::Instant::now();
-        let composite_findings = self
-            .capability_mapper
-            .evaluate_composite_rules(&report, data);
-        for f in composite_findings {
-            if !report.findings.iter().any(|existing| existing.id == f.id) {
-                report.findings.push(f);
-            }
-        }
-        if timing {
-            eprintln!(
-                "[TIMING] evaluate_composite_rules: {:?}",
-                t_composite.elapsed()
-            );
+            eprintln!("[TIMING] evaluate_and_merge_findings: {:?}", t_eval.elapsed());
         }
 
         report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;

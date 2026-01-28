@@ -362,7 +362,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      regex: "(?i)INSERT INTO"
+      regex: "(?i)\\bINSERT\\s+INTO\\b"
 
   - id: sql-update
     desc: UPDATE SQL keyword
@@ -370,7 +370,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      regex: "(?i)UPDATE "
+      regex: "(?i)\\bUPDATE\\s+[a-z0-9_]+\\s+SET\\b"
 
   - id: sql-delete
     desc: DELETE FROM SQL keyword
@@ -378,7 +378,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      regex: "(?i)DELETE FROM"
+      regex: "(?i)\\bDELETE\\s+FROM\\b"
 
   - id: sql-create-table
     desc: CREATE TABLE SQL keyword
@@ -386,7 +386,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      regex: "(?i)CREATE TABLE"
+      regex: "(?i)\\bCREATE\\s+TABLE\\b"
 
   - id: database-sql-import
     desc: database/sql Go import

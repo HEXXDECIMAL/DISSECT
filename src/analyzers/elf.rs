@@ -196,23 +196,9 @@ impl ElfAnalyzer {
             }
         }
 
-        // Evaluate trait definitions from YAML
-        let trait_findings = self.capability_mapper.evaluate_traits(&report, data);
-        for f in trait_findings {
-            if !report.findings.iter().any(|existing| existing.id == f.id) {
-                report.findings.push(f);
-            }
-        }
-
-        // Evaluate composite rules (after traits are merged)
-        let composite_findings = self
-            .capability_mapper
-            .evaluate_composite_rules(&report, data);
-        for f in composite_findings {
-            if !report.findings.iter().any(|existing| existing.id == f.id) {
-                report.findings.push(f);
-            }
-        }
+        // Evaluate all rules (atomic + composite) and merge into report
+        self.capability_mapper
+            .evaluate_and_merge_findings(&mut report, data, None);
 
         // Analyze paths and generate path-based traits
         crate::path_mapper::analyze_and_link_paths(&mut report);

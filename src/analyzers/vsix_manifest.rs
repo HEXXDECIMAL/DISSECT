@@ -85,19 +85,9 @@ impl VsixManifestAnalyzer {
             }
         }
 
-        // Evaluate trait definitions from YAML
-        let trait_findings = self
-            .capability_mapper
-            .evaluate_traits(&report, content.as_bytes());
-        let composite_findings = self
-            .capability_mapper
-            .evaluate_composite_rules(&report, content.as_bytes());
-
-        for f in trait_findings.into_iter().chain(composite_findings) {
-            if !report.findings.iter().any(|existing| existing.id == f.id) {
-                report.findings.push(f);
-            }
-        }
+        // Evaluate all rules (atomic + composite) and merge into report
+        self.capability_mapper
+            .evaluate_and_merge_findings(&mut report, content.as_bytes(), None);
 
         report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;
         report.metadata.tools_used = vec!["roxmltree".to_string()];

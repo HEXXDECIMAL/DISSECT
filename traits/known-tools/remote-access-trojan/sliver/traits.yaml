@@ -113,16 +113,6 @@ traits:
       type: string
       exact: "HasGvisorGSOCapability"
 
-  - id: c2-framework/sliver/proxy-func
-    description: Sliver proxy function reference
-    crit: suspicious
-    conf: 0.5
-    attack: "T1090"
-    platforms: [all]
-    condition:
-      type: string
-      exact: "ProxyFunc"
-
   - id: c2-framework/sliver/set-spoofing
     description: Sliver spoofing function
     crit: suspicious
@@ -182,5 +172,5 @@ composite_rules:
     all:
       - id: c2-framework/sliver/coredump
       - id: c2-framework/sliver/gvisor-gso
-      - id: c2-framework/sliver/proxy-func
+      - id: feat/proxy/proxy-func
       - id: c2-framework/sliver/set-spoofing

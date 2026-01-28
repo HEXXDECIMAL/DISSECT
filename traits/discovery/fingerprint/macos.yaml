@@ -1,0 +1,102 @@
+# macOS-specific Hardware Fingerprinting Detection
+# Detects collection of macOS hardware identifiers
+# ATT&CK: T1082 (System Information Discovery)
+
+defaults:
+  platforms: [macos]
+  attack: "T1082"
+  mbc: "B0001.009"
+
+traits:
+  # === IOKit Registry micro-traits ===
+  - id: ioplatformuuid
+    desc: "References macOS hardware UUID (used to uniquely identify the Mac)"
+    crit: notable
+    conf: 0.85
+    for: [macho]
+    if:
+      type: string
+      exact: "IOPlatformUUID"
+
+  - id: iokit-registry-entry
+    desc: "Accesses macOS device driver registry to read hardware info"
+    crit: notable
+    conf: 0.75
+    for: [macho]
+    if:
+      type: symbol
+      pattern: "IORegistryEntryFromPath"
+
+  - id: iokit-registry-property
+    desc: "Reads hardware properties from macOS device registry"
+    crit: notable
+    conf: 0.75
+    for: [macho]
+    if:
+      type: symbol
+      pattern: "IORegistryEntryCreateCFProperty"
+
+  - id: iokit-object-release
+    desc: "Releases macOS IOKit registry object (cleanup function)"
+    crit: inert
+    conf: 0.5
+    for: [macho]
+    if:
+      type: symbol
+      pattern: "IOObjectRelease"
+
+  - id: ioplatformserialnum
+    desc: "References Mac hardware serial number"
+    crit: notable
+    conf: 0.85
+    for: [macho]
+    if:
+      type: string
+      exact: "IOPlatformSerialNumber"
+
+  - id: ioservice-plane
+    desc: "References IOKit service plane (hardware tree structure)"
+    crit: inert
+    conf: 0.6
+    for: [macho]
+    if:
+      type: string
+      exact: "IOService"
+
+composite_rules:
+  # IOKit registry access composite
+  - id: iokit-registry
+    desc: "IOKit registry access for hardware enumeration"
+    crit: notable
+    conf: 0.8
+    for: [macho]
+    all:
+      - id: iokit-registry-entry
+    any:
+      - id: iokit-registry-property
+      - id: ioservice-plane
+
+  # Hardware UUID collection composite
+  - id: hardware-uuid-macos
+    desc: "Collects macOS hardware UUID"
+    crit: suspicious
+    conf: 0.9
+    for: [macho]
+    all:
+      - id: ioplatformuuid
+    count: 1
+    any:
+      - id: iokit-registry-entry
+      - id: iokit-registry-property
+
+  # Full hardware fingerprint composite
+  - id: hardware-fingerprint-macos
+    desc: "macOS hardware fingerprinting (UUID + serial)"
+    crit: suspicious
+    conf: 0.9
+    for: [macho]
+    count: 2
+    any:
+      - id: ioplatformuuid
+      - id: ioplatformserialnum
+      - id: iokit-registry

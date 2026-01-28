@@ -436,6 +436,8 @@ count: 2  # N of M threshold
 any: [...]
 ```
 
+You can combine all: and any: directives within the same rule.
+
 **Trait references:** Full path (`exec/process/terminate`), suffix match (`terminate`), or prefix (`exec/process`)
 
 ### Composites Referencing Composites

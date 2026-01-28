@@ -1,0 +1,84 @@
+# C++ Command Execution Detection
+# Detects C++ binaries using system()/popen() for command execution
+# Unusual pattern - C++ programs typically use native APIs or libraries
+# ATT&CK: T1059.004 (Command and Scripting Interpreter: Unix Shell)
+
+defaults:
+  attack: "T1059.004"
+  for: [elf, macho, pe]
+  platforms: [linux, macos, windows]
+
+traits:
+  # === C++ indicators ===
+  - id: cpp-stdlib
+    desc: "Uses C++ standard library"
+    crit: inert
+    conf: 0.9
+    if:
+      type: symbol
+      pattern: "std::__1::|std::basic_|std::allocator"
+
+  - id: cpp-iostream
+    desc: "Uses C++ iostream (cin/cout)"
+    crit: inert
+    conf: 0.85
+    if:
+      type: symbol
+      pattern: "std::__1::basic_(i|o)stream"
+
+  - id: cpp-string
+    desc: "Uses C++ std::string"
+    crit: inert
+    conf: 0.85
+    if:
+      type: symbol
+      pattern: "std::__1::basic_string.*char_traits"
+
+  - id: cpp-exception
+    desc: "Uses C++ exceptions"
+    crit: inert
+    conf: 0.8
+    if:
+      type: symbol
+      pattern: "__cxa_(throw|allocate_exception|begin_catch)"
+
+composite_rules:
+  # C++ with shell commands
+  - id: cpp-with-system
+    desc: "C++ program using system() for shell commands (unusual pattern)"
+    crit: suspicious
+    conf: 0.85
+    attack: "T1059.004"
+    all:
+      - id: cpp-stdlib
+    count: 1
+    any:
+      - id: system-call
+      - id: popen-call
+
+  # C++ with popen (command output capture)
+  - id: cpp-command-capture
+    desc: "C++ program capturing command output via popen() (backdoor pattern)"
+    crit: suspicious
+    conf: 0.9
+    attack: "T1059.004"
+    all:
+      - id: cpp-string
+      - id: popen-call
+    any:
+      - id: fgets-loop
+      - id: string-append
+
+  # High-confidence backdoor pattern
+  - id: cpp-command-backdoor
+    desc: "C++ command execution backdoor (popen + string capture + obfuscation)"
+    crit: hostile
+    conf: 0.95
+    attack: "T1059.004"
+    mbc: "B0022"
+    all:
+      - id: cpp-stdlib
+      - id: cpp-string
+      - id: cpp-exception
+      - id: cpp-command-capture
+      - id: anti-static/obfuscation/string-concealment

@@ -28,10 +28,18 @@ brew install radare2  # macOS
 ```bash
 # Analyze files (subcommand optional)
 dissect /bin/ls
-dissect suspicious.py --format json -o report.json
+dissect suspicious.py --json -o report.json
 
 # Scan directories
 dissect /path/to/files
+
+# Extract symbols (imports, exports, functions with addresses)
+dissect symbols /bin/ls
+dissect symbols malware.exe --json
+
+# Extract strings (language-aware string extraction)
+dissect strings binary.bin
+dissect strings firmware.bin -m 10  # minimum length 10
 
 # Diff analysis (supply chain attack detection)
 dissect diff package-v1.0/ package-v1.1/
@@ -130,6 +138,56 @@ dissect diff old/ new/
      🔴 exec/command/shell
   ⚠️  RISK INCREASED
 ```
+
+## Symbol & String Extraction
+
+### Symbols Command
+
+Extract imports, exports, and functions with memory addresses (similar to `nm` or `objdump -t`):
+
+```bash
+# Extract symbols from a binary
+dissect symbols /bin/ls
+
+# Output:
+ADDRESS            TYPE         LIBRARY              NAME
+0x1000042ac        function     -                    imp.__assert_rtn
+0x1000042bc        function     -                    imp.__error
+0x1000042cc        function     -                    imp.__maskrune
+
+# Works with source code too (shows function calls)
+dissect symbols script.py --json
+```
+
+The `symbols` command:
+- Shows memory addresses for binary symbols (via radare2 or goblin)
+- Extracts function calls from source code (via tree-sitter)
+- Supports all binary formats (Mach-O, ELF, PE) and source languages
+- Useful for understanding what functions a program imports/exports
+
+### Strings Command
+
+Language-aware string extraction (smarter than `strings`):
+
+```bash
+# Extract strings with context
+dissect strings binary.bin
+
+# Customize minimum length
+dissect strings firmware.bin -m 10
+
+# Output:
+OFFSET     TYPE           VALUE
+0x4028     Plain          __PAGEZERO
+0x41f0     Path           /usr/lib/system/libsystem_c.dylib
+0x5200     Url            https://example.com/api
+```
+
+The `strings` command:
+- Classifies strings by type (URL, IP, path, email, base64)
+- Uses language-specific extractors for Go/Rust binaries
+- Shows offsets and library associations
+- Filters out noise and duplicates
 
 ## Architecture
 
