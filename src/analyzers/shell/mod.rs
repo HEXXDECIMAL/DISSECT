@@ -90,8 +90,8 @@ impl ShellAnalyzer {
         let metrics = self.compute_metrics(&root, content, &mut report);
         report.metrics = Some(metrics);
 
-        self.capability_mapper.evaluate_traits(&mut report, content.as_bytes());
-        self.capability_mapper.evaluate_composite_rules(&mut report, content.as_bytes());
+        self.capability_mapper.evaluate_traits(&report, content.as_bytes());
+        self.capability_mapper.evaluate_composite_rules(&report, content.as_bytes());
 
         let elapsed = start.elapsed().as_millis() as u64;
         report.metadata.analysis_duration_ms = elapsed;

@@ -1,6 +1,6 @@
-use crate::analyzers::{ruby::RubyAnalyzer, Analyzer};
+use crate::analyzers::ruby::RubyAnalyzer;
+use crate::analyzers::Analyzer;
 use crate::types::AnalysisReport;
-use std::path::PathBuf;
 
 mod tests {
     use super::*;

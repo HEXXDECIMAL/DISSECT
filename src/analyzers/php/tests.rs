@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use crate::analyzers::{php::PhpAnalyzer, Analyzer};
+    use crate::analyzers::php::PhpAnalyzer;
     use crate::types::{AnalysisReport, Criticality};
     use std::path::PathBuf;
 

@@ -1,6 +1,6 @@
 //! Capability detection for Python scripts.
 
-use crate::types::{AnalysisReport, Evidence, Finding, FindingKind, Criticality, Trait, TraitKind};
+use crate::types::{AnalysisReport, Evidence, Finding, FindingKind, Criticality};
 
 impl super::PythonAnalyzer {
     pub(super) fn detect_capabilities(

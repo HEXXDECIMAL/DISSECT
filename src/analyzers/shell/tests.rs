@@ -1,6 +1,5 @@
 use crate::analyzers::{shell::ShellAnalyzer, Analyzer};
 use crate::types::AnalysisReport;
-use std::path::PathBuf;
 
 mod tests {
     use super::*;

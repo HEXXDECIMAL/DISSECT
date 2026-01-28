@@ -47,6 +47,7 @@ impl super::ShellAnalyzer {
     }
 
     /// Extract identifiers (variable names) from shell script
+    #[allow(dead_code)]
     pub(super) fn detect_shell_idioms(&self, root: &tree_sitter::Node, source: &[u8]) -> ShellIdioms {
         let mut pipe_count = 0u32;
         let mut redirect_count = 0u32;

@@ -1,6 +1,6 @@
 //! Java class file parsing.
 
-use anyhow::{bail, Context, Result};
+use anyhow::{bail, Result};
 use std::collections::HashSet;
 
 #[derive(Debug)]

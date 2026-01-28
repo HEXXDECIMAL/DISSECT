@@ -62,8 +62,8 @@ impl JavaClassAnalyzer {
         });
 
         self.detect_capabilities(&class_info, &mut report);
-        self.capability_mapper.evaluate_traits(&mut report, data);
-        self.capability_mapper.evaluate_composite_rules(&mut report, data);
+        self.capability_mapper.evaluate_traits(&report, data);
+        self.capability_mapper.evaluate_composite_rules(&report, data);
 
         let elapsed = start.elapsed().as_millis() as u64;
         report.metadata.analysis_duration_ms = elapsed;

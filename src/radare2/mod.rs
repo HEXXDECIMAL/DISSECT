@@ -781,6 +781,7 @@ impl Radare2Analyzer {
 
     /// Compute binary metrics by running fresh radare2 analysis
     /// Slower than compute_metrics_from_batched - prefer that when possible
+    #[allow(dead_code)]
     pub fn compute_binary_metrics(&self, file_path: &Path) -> Result<BinaryMetrics> {
         let batched = self.extract_batched(file_path)?;
         Ok(self.compute_metrics_from_batched(&batched))

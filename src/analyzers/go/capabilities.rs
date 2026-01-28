@@ -398,8 +398,8 @@ impl super::GoAnalyzer {
             ];
 
             for (import_name, cap_id, description, conf) in &suspicious_imports {
-                if text.contains(import_name) {
-                    if !report.findings.iter().any(|c| c.id == *cap_id) {
+                if text.contains(import_name)
+                    && !report.findings.iter().any(|c| c.id == *cap_id) {
                         report.findings.push(Finding {
                             kind: FindingKind::Capability,
                             trait_refs: vec![],
@@ -417,7 +417,6 @@ impl super::GoAnalyzer {
                             }],
                         });
                     }
-                }
             }
         }
     }
@@ -430,10 +429,9 @@ impl super::GoAnalyzer {
     ) {
         if let Ok(text) = node.utf8_text(source) {
             // Detect Base64/Hex decoding as potential obfuscation
-            if text.contains("base64.StdEncoding.DecodeString")
-                || text.contains("base64.URLEncoding.DecodeString")
-            {
-                if !report
+            if (text.contains("base64.StdEncoding.DecodeString")
+                || text.contains("base64.URLEncoding.DecodeString"))
+                && !report
                     .findings
                     .iter()
                     .any(|c| c.id == "anti-analysis/obfuscation/base64")
@@ -455,10 +453,9 @@ impl super::GoAnalyzer {
                         }],
                     });
                 }
-            }
 
-            if text.contains("hex.DecodeString") {
-                if !report
+            if text.contains("hex.DecodeString")
+                && !report
                     .findings
                     .iter()
                     .any(|c| c.id == "anti-analysis/obfuscation/hex")
@@ -480,11 +477,10 @@ impl super::GoAnalyzer {
                         }],
                     });
                 }
-            }
 
             // Detect XOR operations on byte arrays (common obfuscation)
-            if text.contains("^") && (text.contains("byte") || text.contains("[]uint8")) {
-                if !report
+            if text.contains("^") && (text.contains("byte") || text.contains("[]uint8"))
+                && !report
                     .findings
                     .iter()
                     .any(|c| c.id == "anti-analysis/obfuscation/xor")
@@ -506,7 +502,6 @@ impl super::GoAnalyzer {
                         }],
                     });
                 }
-            }
         }
     }
 }

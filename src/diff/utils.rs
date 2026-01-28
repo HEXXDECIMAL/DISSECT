@@ -18,6 +18,7 @@ pub struct FileRename {
 
 /// Change type for a file
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub enum ChangeType {
     Added,
     Removed,
