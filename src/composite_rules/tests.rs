@@ -52,7 +52,7 @@ fn test_symbol_condition() {
         file_type: FileType::Elf,
         platform: Platform::Linux,
         additional_findings: None,
-            cached_ast: None,
+        cached_ast: None,
     };
 
     let rule = CompositeTrait {
@@ -93,7 +93,7 @@ fn test_all() {
         file_type: FileType::Elf,
         platform: Platform::Linux,
         additional_findings: None,
-            cached_ast: None,
+        cached_ast: None,
     };
 
     let rule = CompositeTrait {
@@ -143,7 +143,7 @@ fn test_count() {
         file_type: FileType::Elf,
         platform: Platform::Linux,
         additional_findings: None,
-            cached_ast: None,
+        cached_ast: None,
     };
 
     let rule = CompositeTrait {
@@ -192,7 +192,7 @@ fn test_string_exact_condition() {
         file_type: FileType::Elf,
         platform: Platform::Linux,
         additional_findings: None,
-            cached_ast: None,
+        cached_ast: None,
     };
 
     let rule = CompositeTrait {
@@ -212,8 +212,8 @@ fn test_string_exact_condition() {
             exclude_patterns: None,
             min_count: 1,
             search_raw: false,
-                compiled_regex: None,
-                compiled_excludes: Vec::new(),
+            compiled_regex: None,
+            compiled_excludes: Vec::new(),
         }]),
         any: None,
         count: None,
@@ -235,7 +235,7 @@ fn test_any() {
         file_type: FileType::Elf,
         platform: Platform::Linux,
         additional_findings: None,
-            cached_ast: None,
+        cached_ast: None,
     };
 
     let rule = CompositeTrait {
@@ -300,7 +300,7 @@ fn test_not_directive_shorthand() {
         file_type: FileType::Elf,
         platform: Platform::Linux,
         additional_findings: None,
-            cached_ast: None,
+        cached_ast: None,
     };
 
     let trait_def = TraitDefinition {
@@ -320,8 +320,8 @@ fn test_not_directive_shorthand() {
             exclude_patterns: None,
             min_count: 1,
             search_raw: false,
-                compiled_regex: None,
-                compiled_excludes: Vec::new(),
+            compiled_regex: None,
+            compiled_excludes: Vec::new(),
         },
         not: Some(vec![NotException::Shorthand("apple.com".to_string())]),
         unless: None,
@@ -362,7 +362,7 @@ fn test_not_directive_exact() {
         file_type: FileType::Elf,
         platform: Platform::Linux,
         additional_findings: None,
-            cached_ast: None,
+        cached_ast: None,
     };
 
     let trait_def = TraitDefinition {
@@ -382,8 +382,8 @@ fn test_not_directive_exact() {
             exclude_patterns: None,
             min_count: 1,
             search_raw: false,
-                compiled_regex: None,
-                compiled_excludes: Vec::new(),
+            compiled_regex: None,
+            compiled_excludes: Vec::new(),
         },
         not: Some(vec![NotException::Structured {
             exact: Some("github.com".to_string()),
@@ -428,7 +428,7 @@ fn test_not_directive_regex() {
         file_type: FileType::Elf,
         platform: Platform::Linux,
         additional_findings: None,
-            cached_ast: None,
+        cached_ast: None,
     };
 
     let trait_def = TraitDefinition {
@@ -448,8 +448,8 @@ fn test_not_directive_regex() {
             exclude_patterns: None,
             min_count: 1,
             search_raw: false,
-                compiled_regex: None,
-                compiled_excludes: Vec::new(),
+            compiled_regex: None,
+            compiled_excludes: Vec::new(),
         },
         not: Some(vec![NotException::Structured {
             exact: None,
@@ -531,7 +531,7 @@ fn test_unless_directive_allows_trait() {
         file_type: FileType::Elf,
         platform: Platform::Linux,
         additional_findings: None,
-            cached_ast: None,
+        cached_ast: None,
     };
 
     let trait_def = TraitDefinition {
@@ -603,8 +603,8 @@ fn test_downgrade_to_notable() {
             exclude_patterns: None,
             min_count: 1,
             search_raw: false,
-                compiled_regex: None,
-                compiled_excludes: Vec::new(),
+            compiled_regex: None,
+            compiled_excludes: Vec::new(),
         },
         not: None,
         unless: None,
@@ -705,7 +705,7 @@ fn test_downgrade_no_match_keeps_original() {
         file_type: FileType::Elf,
         platform: Platform::Linux,
         additional_findings: None,
-            cached_ast: None,
+        cached_ast: None,
     };
 
     let trait_def = TraitDefinition {
@@ -891,8 +891,8 @@ fn test_all_three_directives_combined() {
             exclude_patterns: None,
             min_count: 1,
             search_raw: false,
-                compiled_regex: None,
-                compiled_excludes: Vec::new(),
+            compiled_regex: None,
+            compiled_excludes: Vec::new(),
         },
         not: Some(vec![NotException::Shorthand("apple.com".to_string())]),
         unless: None, // No unless condition, so trait should fire

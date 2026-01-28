@@ -394,29 +394,33 @@ impl super::GoAnalyzer {
                 ("syscall", "sys/syscall", "Direct system call access", 0.85),
                 ("unsafe", "unsafe/pointer", "Unsafe operations", 0.8),
                 ("plugin", "exec/dylib/load", "Dynamic plugin loading", 0.85),
-                ("reflect", "anti-analysis/reflection", "Reflection capabilities", 0.75),
+                (
+                    "reflect",
+                    "anti-analysis/reflection",
+                    "Reflection capabilities",
+                    0.75,
+                ),
             ];
 
             for (import_name, cap_id, description, conf) in &suspicious_imports {
-                if text.contains(import_name)
-                    && !report.findings.iter().any(|c| c.id == *cap_id) {
-                        report.findings.push(Finding {
-                            kind: FindingKind::Capability,
-                            trait_refs: vec![],
-                            id: cap_id.to_string(),
-                            desc: description.to_string(),
-                            conf: *conf,
-                            crit: Criticality::Notable,
-                            mbc: None,
-                            attack: None,
-                            evidence: vec![Evidence {
-                                method: "import".to_string(),
-                                source: "tree-sitter-go".to_string(),
-                                value: import_name.to_string(),
-                                location: Some(format!("line:{}", node.start_position().row + 1)),
-                            }],
-                        });
-                    }
+                if text.contains(import_name) && !report.findings.iter().any(|c| c.id == *cap_id) {
+                    report.findings.push(Finding {
+                        kind: FindingKind::Capability,
+                        trait_refs: vec![],
+                        id: cap_id.to_string(),
+                        desc: description.to_string(),
+                        conf: *conf,
+                        crit: Criticality::Notable,
+                        mbc: None,
+                        attack: None,
+                        evidence: vec![Evidence {
+                            method: "import".to_string(),
+                            source: "tree-sitter-go".to_string(),
+                            value: import_name.to_string(),
+                            location: Some(format!("line:{}", node.start_position().row + 1)),
+                        }],
+                    });
+                }
             }
         }
     }
@@ -435,73 +439,74 @@ impl super::GoAnalyzer {
                     .findings
                     .iter()
                     .any(|c| c.id == "anti-analysis/obfuscation/base64")
-                {
-                    report.findings.push(Finding {
-                        kind: FindingKind::Capability,
-                        trait_refs: vec![],
-                        id: "anti-analysis/obfuscation/base64".to_string(),
-                        desc: "Base64 decoding".to_string(),
-                        conf: 0.85,
-                        crit: Criticality::Suspicious,
-                        mbc: None,
-                        attack: None,
-                        evidence: vec![Evidence {
-                            method: "ast".to_string(),
-                            source: "tree-sitter-go".to_string(),
-                            value: "base64 decode".to_string(),
-                            location: Some(format!("line:{}", node.start_position().row + 1)),
-                        }],
-                    });
-                }
+            {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
+                    id: "anti-analysis/obfuscation/base64".to_string(),
+                    desc: "Base64 decoding".to_string(),
+                    conf: 0.85,
+                    crit: Criticality::Suspicious,
+                    mbc: None,
+                    attack: None,
+                    evidence: vec![Evidence {
+                        method: "ast".to_string(),
+                        source: "tree-sitter-go".to_string(),
+                        value: "base64 decode".to_string(),
+                        location: Some(format!("line:{}", node.start_position().row + 1)),
+                    }],
+                });
+            }
 
             if text.contains("hex.DecodeString")
                 && !report
                     .findings
                     .iter()
                     .any(|c| c.id == "anti-analysis/obfuscation/hex")
-                {
-                    report.findings.push(Finding {
-                        kind: FindingKind::Capability,
-                        trait_refs: vec![],
-                        id: "anti-analysis/obfuscation/hex".to_string(),
-                        desc: "Hex decoding".to_string(),
-                        conf: 0.8,
-                        crit: Criticality::Suspicious,
-                        mbc: None,
-                        attack: None,
-                        evidence: vec![Evidence {
-                            method: "ast".to_string(),
-                            source: "tree-sitter-go".to_string(),
-                            value: "hex decode".to_string(),
-                            location: Some(format!("line:{}", node.start_position().row + 1)),
-                        }],
-                    });
-                }
+            {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
+                    id: "anti-analysis/obfuscation/hex".to_string(),
+                    desc: "Hex decoding".to_string(),
+                    conf: 0.8,
+                    crit: Criticality::Suspicious,
+                    mbc: None,
+                    attack: None,
+                    evidence: vec![Evidence {
+                        method: "ast".to_string(),
+                        source: "tree-sitter-go".to_string(),
+                        value: "hex decode".to_string(),
+                        location: Some(format!("line:{}", node.start_position().row + 1)),
+                    }],
+                });
+            }
 
             // Detect XOR operations on byte arrays (common obfuscation)
-            if text.contains("^") && (text.contains("byte") || text.contains("[]uint8"))
+            if text.contains("^")
+                && (text.contains("byte") || text.contains("[]uint8"))
                 && !report
                     .findings
                     .iter()
                     .any(|c| c.id == "anti-analysis/obfuscation/xor")
-                {
-                    report.findings.push(Finding {
-                        kind: FindingKind::Capability,
-                        trait_refs: vec![],
-                        id: "anti-analysis/obfuscation/xor".to_string(),
-                        desc: "XOR operations on byte arrays".to_string(),
-                        conf: 0.75,
-                        crit: Criticality::Suspicious,
-                        mbc: None,
-                        attack: None,
-                        evidence: vec![Evidence {
-                            method: "ast".to_string(),
-                            source: "tree-sitter-go".to_string(),
-                            value: "xor bytes".to_string(),
-                            location: Some(format!("line:{}", node.start_position().row + 1)),
-                        }],
-                    });
-                }
+            {
+                report.findings.push(Finding {
+                    kind: FindingKind::Capability,
+                    trait_refs: vec![],
+                    id: "anti-analysis/obfuscation/xor".to_string(),
+                    desc: "XOR operations on byte arrays".to_string(),
+                    conf: 0.75,
+                    crit: Criticality::Suspicious,
+                    mbc: None,
+                    attack: None,
+                    evidence: vec![Evidence {
+                        method: "ast".to_string(),
+                        source: "tree-sitter-go".to_string(),
+                        value: "xor bytes".to_string(),
+                        location: Some(format!("line:{}", node.start_position().row + 1)),
+                    }],
+                });
+            }
         }
     }
 }

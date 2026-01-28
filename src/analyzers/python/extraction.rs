@@ -12,7 +12,11 @@ use crate::types::{
 };
 
 impl super::PythonAnalyzer {
-    pub(super) fn extract_identifiers(&self, root: &tree_sitter::Node, source: &[u8]) -> Vec<String> {
+    pub(super) fn extract_identifiers(
+        &self,
+        root: &tree_sitter::Node,
+        source: &[u8],
+    ) -> Vec<String> {
         let mut identifiers = Vec::new();
         let mut cursor = root.walk();
         self.walk_for_identifiers(&mut cursor, source, &mut identifiers);
@@ -48,7 +52,11 @@ impl super::PythonAnalyzer {
         }
     }
 
-    pub(super) fn extract_string_literals(&self, root: &tree_sitter::Node, source: &[u8]) -> Vec<String> {
+    pub(super) fn extract_string_literals(
+        &self,
+        root: &tree_sitter::Node,
+        source: &[u8],
+    ) -> Vec<String> {
         let mut strings = Vec::new();
         let mut cursor = root.walk();
         self.walk_for_strings(&mut cursor, source, &mut strings);
@@ -95,7 +103,11 @@ impl super::PythonAnalyzer {
         }
     }
 
-    pub(super) fn extract_function_info(&self, root: &tree_sitter::Node, source: &[u8]) -> Vec<FunctionInfo> {
+    pub(super) fn extract_function_info(
+        &self,
+        root: &tree_sitter::Node,
+        source: &[u8],
+    ) -> Vec<FunctionInfo> {
         let mut functions = Vec::new();
         let mut cursor = root.walk();
         self.walk_for_function_info(&mut cursor, source, &mut functions, 0);
@@ -188,7 +200,8 @@ impl super::PythonAnalyzer {
                         let complexity = self.calculate_cyclomatic_complexity(&node, source);
                         let signature = self.analyze_function_signature(&node, source);
                         let nesting = self.calculate_nesting_depth(&node);
-                        let call_patterns = self.analyze_call_patterns(&node, source, &func_name_str);
+                        let call_patterns =
+                            self.analyze_call_patterns(&node, source, &func_name_str);
 
                         let mut calls = Vec::new();
                         let mut call_cursor = node.walk();
@@ -451,7 +464,8 @@ impl super::PythonAnalyzer {
         loop {
             let n = cursor.node();
             match n.kind() {
-                "block" | "if_statement" | "for_statement" | "while_statement" | "with_statement" => {
+                "block" | "if_statement" | "for_statement" | "while_statement"
+                | "with_statement" => {
                     current_depth += 1;
                     max_depth = max_depth.max(current_depth);
                     total_depth += current_depth;
@@ -469,7 +483,8 @@ impl super::PythonAnalyzer {
 
             loop {
                 match cursor.node().kind() {
-                    "block" | "if_statement" | "for_statement" | "while_statement" | "with_statement" => {
+                    "block" | "if_statement" | "for_statement" | "while_statement"
+                    | "with_statement" => {
                         current_depth = current_depth.saturating_sub(1);
                     }
                     _ => {}
@@ -532,8 +547,11 @@ impl super::PythonAnalyzer {
                         }
 
                         // Check for dynamic calls
-                        if func_text == "eval" || func_text == "exec" || func_text == "__import__"
-                            || func_text == "getattr" || func_text == "setattr"
+                        if func_text == "eval"
+                            || func_text == "exec"
+                            || func_text == "__import__"
+                            || func_text == "getattr"
+                            || func_text == "setattr"
                         {
                             dynamic_calls += 1;
                         }

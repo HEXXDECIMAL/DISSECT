@@ -8,7 +8,12 @@ use crate::types::*;
 use tree_sitter;
 
 impl super::ShellAnalyzer {
-    pub(super) fn compute_metrics(&self, root: &tree_sitter::Node, content: &str, _report: &mut AnalysisReport) -> Metrics {
+    pub(super) fn compute_metrics(
+        &self,
+        root: &tree_sitter::Node,
+        content: &str,
+        _report: &mut AnalysisReport,
+    ) -> Metrics {
         let source = content.as_bytes();
         let total_lines = content.lines().count() as u32;
 
@@ -48,7 +53,11 @@ impl super::ShellAnalyzer {
 
     /// Extract identifiers (variable names) from shell script
     #[allow(dead_code)]
-    pub(super) fn detect_shell_idioms(&self, root: &tree_sitter::Node, source: &[u8]) -> ShellIdioms {
+    pub(super) fn detect_shell_idioms(
+        &self,
+        root: &tree_sitter::Node,
+        source: &[u8],
+    ) -> ShellIdioms {
         let mut pipe_count = 0u32;
         let mut redirect_count = 0u32;
         let mut input_redirect_count = 0u32;
@@ -148,5 +157,4 @@ impl super::ShellAnalyzer {
             }
         }
     }
-
 }

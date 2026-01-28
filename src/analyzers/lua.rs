@@ -57,11 +57,13 @@ impl LuaAnalyzer {
 
         let mut report = AnalysisReport::new(target);
 
-        report.structure.push(crate::analyzers::utils::create_language_feature(
-            "lua",
-            "tree-sitter-lua",
-            "Lua source code",
-        ));
+        report
+            .structure
+            .push(crate::analyzers::utils::create_language_feature(
+                "lua",
+                "tree-sitter-lua",
+                "Lua source code",
+            ));
 
         self.detect_capabilities(&root, content.as_bytes(), &mut report);
         self.extract_functions(&root, content.as_bytes(), &mut report);
@@ -709,7 +711,6 @@ impl LuaAnalyzer {
         }
         None
     }
-
 }
 
 impl Analyzer for LuaAnalyzer {

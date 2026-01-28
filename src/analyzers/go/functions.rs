@@ -133,8 +133,12 @@ impl super::GoAnalyzer {
         loop {
             let n = cursor.node();
             match n.kind() {
-                "if_statement" | "for_statement" | "switch_statement" | "case_clause"
-                | "expression_switch_statement" | "type_switch_statement" => {
+                "if_statement"
+                | "for_statement"
+                | "switch_statement"
+                | "case_clause"
+                | "expression_switch_statement"
+                | "type_switch_statement" => {
                     complexity += 1;
                 }
                 "binary_expression" => {

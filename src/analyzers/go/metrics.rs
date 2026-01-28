@@ -5,10 +5,10 @@
 //! - Text metrics (comments, identifiers, strings)
 //! - Code structure metrics
 
+use crate::analyzers::comment_metrics::CommentStyle;
 use crate::analyzers::{
     comment_metrics, function_metrics, identifier_metrics, string_metrics, text_metrics,
 };
-use crate::analyzers::comment_metrics::CommentStyle;
 use crate::types::{GoMetrics, Metrics};
 
 impl super::GoAnalyzer {
@@ -182,5 +182,4 @@ impl super::GoAnalyzer {
             }
         }
     }
-
 }

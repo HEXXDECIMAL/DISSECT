@@ -375,14 +375,27 @@ impl TraitDefinition {
                 regex,
                 case_insensitive,
                 min_count,
-            } => eval_base64(exact.as_ref(), regex.as_ref(), *case_insensitive, *min_count, ctx),
+            } => eval_base64(
+                exact.as_ref(),
+                regex.as_ref(),
+                *case_insensitive,
+                *min_count,
+                ctx,
+            ),
             Condition::Xor {
                 key,
                 exact,
                 regex,
                 case_insensitive,
                 min_count,
-            } => eval_xor(key.as_ref(), exact.as_ref(), regex.as_ref(), *case_insensitive, *min_count, ctx),
+            } => eval_xor(
+                key.as_ref(),
+                exact.as_ref(),
+                regex.as_ref(),
+                *case_insensitive,
+                *min_count,
+                ctx,
+            ),
         }
     }
 }
@@ -812,14 +825,27 @@ impl CompositeTrait {
                 regex,
                 case_insensitive,
                 min_count,
-            } => eval_base64(exact.as_ref(), regex.as_ref(), *case_insensitive, *min_count, ctx),
+            } => eval_base64(
+                exact.as_ref(),
+                regex.as_ref(),
+                *case_insensitive,
+                *min_count,
+                ctx,
+            ),
             Condition::Xor {
                 key,
                 exact,
                 regex,
                 case_insensitive,
                 min_count,
-            } => eval_xor(key.as_ref(), exact.as_ref(), regex.as_ref(), *case_insensitive, *min_count, ctx),
+            } => eval_xor(
+                key.as_ref(),
+                exact.as_ref(),
+                regex.as_ref(),
+                *case_insensitive,
+                *min_count,
+                ctx,
+            ),
         }
     }
 

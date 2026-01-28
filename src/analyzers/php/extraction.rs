@@ -81,7 +81,11 @@ impl super::PhpAnalyzer {
     }
 
     /// Extract string literals from PHP AST
-    pub(super) fn extract_string_literals(&self, root: &tree_sitter::Node, source: &[u8]) -> Vec<String> {
+    pub(super) fn extract_string_literals(
+        &self,
+        root: &tree_sitter::Node,
+        source: &[u8],
+    ) -> Vec<String> {
         let mut strings = Vec::new();
         let mut cursor = root.walk();
         self.walk_for_strings(&mut cursor, source, &mut strings);
@@ -129,7 +133,11 @@ impl super::PhpAnalyzer {
     }
 
     /// Extract function information for metrics
-    pub(super) fn extract_function_info(&self, root: &tree_sitter::Node, source: &[u8]) -> Vec<FunctionInfo> {
+    pub(super) fn extract_function_info(
+        &self,
+        root: &tree_sitter::Node,
+        source: &[u8],
+    ) -> Vec<FunctionInfo> {
         let mut functions = Vec::new();
         let mut cursor = root.walk();
         self.walk_for_func_info(&mut cursor, source, &mut functions, 0);

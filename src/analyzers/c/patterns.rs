@@ -780,50 +780,49 @@ pub(crate) fn analyze_asm(
     let asm_text = node.utf8_text(source).unwrap_or("");
 
     // Determine criticality based on ASM content
-    let (criticality, description) = if asm_text.contains("cr0")
-        || asm_text.contains("CR0")
-        || asm_text.contains("%cr0")
-    {
-        (
-            Criticality::Hostile,
-            "Inline assembly manipulating CR0 register (memory protection bypass)",
-        )
-    } else if asm_text.contains("int $0x80")
-        || asm_text.contains("syscall")
-        || asm_text.contains("sysenter")
-    {
-        (
-            Criticality::Suspicious,
-            "Inline assembly with direct syscall invocation",
-        )
-    } else if asm_text.contains("cr3") || asm_text.contains("CR3") || asm_text.contains("%cr3") {
-        (
-            Criticality::Hostile,
-            "Inline assembly manipulating CR3 register (page table manipulation)",
-        )
-    } else if asm_text.contains("dr") || asm_text.contains("DR") {
-        (
-            Criticality::Hostile,
-            "Inline assembly manipulating debug registers (anti-debugging)",
-        )
-    } else if asm_text.contains("wrmsr") || asm_text.contains("rdmsr") {
-        (
-            Criticality::Hostile,
-            "Inline assembly accessing model-specific registers",
-        )
-    } else if asm_text.contains("cli") || asm_text.contains("sti") {
-        (
-            Criticality::Hostile,
-            "Inline assembly manipulating interrupt flags",
-        )
-    } else if asm_text.contains("lgdt") || asm_text.contains("lidt") {
-        (
-            Criticality::Hostile,
-            "Inline assembly modifying descriptor tables (hypervisor/rootkit)",
-        )
-    } else {
-        (Criticality::Notable, "Inline assembly")
-    };
+    let (criticality, description) =
+        if asm_text.contains("cr0") || asm_text.contains("CR0") || asm_text.contains("%cr0") {
+            (
+                Criticality::Hostile,
+                "Inline assembly manipulating CR0 register (memory protection bypass)",
+            )
+        } else if asm_text.contains("int $0x80")
+            || asm_text.contains("syscall")
+            || asm_text.contains("sysenter")
+        {
+            (
+                Criticality::Suspicious,
+                "Inline assembly with direct syscall invocation",
+            )
+        } else if asm_text.contains("cr3") || asm_text.contains("CR3") || asm_text.contains("%cr3")
+        {
+            (
+                Criticality::Hostile,
+                "Inline assembly manipulating CR3 register (page table manipulation)",
+            )
+        } else if asm_text.contains("dr") || asm_text.contains("DR") {
+            (
+                Criticality::Hostile,
+                "Inline assembly manipulating debug registers (anti-debugging)",
+            )
+        } else if asm_text.contains("wrmsr") || asm_text.contains("rdmsr") {
+            (
+                Criticality::Hostile,
+                "Inline assembly accessing model-specific registers",
+            )
+        } else if asm_text.contains("cli") || asm_text.contains("sti") {
+            (
+                Criticality::Hostile,
+                "Inline assembly manipulating interrupt flags",
+            )
+        } else if asm_text.contains("lgdt") || asm_text.contains("lidt") {
+            (
+                Criticality::Hostile,
+                "Inline assembly modifying descriptor tables (hypervisor/rootkit)",
+            )
+        } else {
+            (Criticality::Notable, "Inline assembly")
+        };
 
     report.findings.push(Finding {
         kind: FindingKind::Capability,

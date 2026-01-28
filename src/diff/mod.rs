@@ -13,9 +13,9 @@
 //! - Version comparison for packages
 //! - Security regression analysis
 
-mod utils;
 mod formatting;
 mod risk;
+mod utils;
 
 // Re-export public types and functions
 pub use formatting::format_diff_terminal;
@@ -734,6 +734,5 @@ impl DiffAnalyzer {
 }
 
 /// Format diff report as human-readable output
-
 #[cfg(test)]
 mod tests;

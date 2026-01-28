@@ -51,7 +51,10 @@ impl TraitIndex {
     }
 
     /// Get trait indices applicable to a given file type
-    pub(crate) fn get_applicable(&self, file_type: &RuleFileType) -> impl Iterator<Item = usize> + '_ {
+    pub(crate) fn get_applicable(
+        &self,
+        file_type: &RuleFileType,
+    ) -> impl Iterator<Item = usize> + '_ {
         // Universal traits + specific file type traits
         let specific = self
             .by_file_type
@@ -152,13 +155,9 @@ impl StringMatchIndex {
     pub(crate) fn find_matches_with_evidence(
         &self,
         strings: &[StringInfo],
-    ) -> (
-        FxHashSet<usize>,
-        FxHashMap<usize, Vec<Evidence>>,
-    ) {
+    ) -> (FxHashSet<usize>, FxHashMap<usize, Vec<Evidence>>) {
         let mut matching_traits = FxHashSet::default();
-        let mut trait_evidence: FxHashMap<usize, Vec<Evidence>> =
-            FxHashMap::default();
+        let mut trait_evidence: FxHashMap<usize, Vec<Evidence>> = FxHashMap::default();
 
         if let Some(ref ac) = self.automaton {
             for string_info in strings {
@@ -169,14 +168,12 @@ impl StringMatchIndex {
                         for &trait_idx in trait_indices {
                             matching_traits.insert(trait_idx);
                             // Cache evidence for this trait
-                            trait_evidence.entry(trait_idx).or_default().push(
-                                Evidence {
-                                    method: "string".to_string(),
-                                    source: "string_extractor".to_string(),
-                                    value: pattern.clone(),
-                                    location: string_info.offset.clone(),
-                                },
-                            );
+                            trait_evidence.entry(trait_idx).or_default().push(Evidence {
+                                method: "string".to_string(),
+                                source: "string_extractor".to_string(),
+                                value: pattern.clone(),
+                                location: string_info.offset.clone(),
+                            });
                         }
                     }
                 }
@@ -213,25 +210,21 @@ impl RawContentRegexIndex {
                     search_raw: true,
                     case_insensitive,
                     ..
-                } => {
-                    Some(if *case_insensitive {
-                        format!("(?i){}", regex_str)
-                    } else {
-                        regex_str.clone()
-                    })
-                }
+                } => Some(if *case_insensitive {
+                    format!("(?i){}", regex_str)
+                } else {
+                    regex_str.clone()
+                }),
                 Condition::String {
                     word: Some(ref word_str),
                     search_raw: true,
                     case_insensitive,
                     ..
-                } => {
-                    Some(if *case_insensitive {
-                        format!("(?i)\\b{}\\b", regex::escape(word_str))
-                    } else {
-                        format!("\\b{}\\b", regex::escape(word_str))
-                    })
-                }
+                } => Some(if *case_insensitive {
+                    format!("(?i)\\b{}\\b", regex::escape(word_str))
+                } else {
+                    format!("\\b{}\\b", regex::escape(word_str))
+                }),
                 _ => None,
             };
 

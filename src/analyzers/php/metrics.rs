@@ -1,9 +1,9 @@
 //! PHP metrics computation.
 
+use crate::analyzers::comment_metrics::CommentStyle;
 use crate::analyzers::{
     comment_metrics, function_metrics, identifier_metrics, string_metrics, text_metrics,
 };
-use crate::analyzers::comment_metrics::CommentStyle;
 use crate::types::*;
 use tree_sitter;
 

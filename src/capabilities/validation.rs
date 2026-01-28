@@ -6,7 +6,9 @@
 //! - Validation that composite rules only contain trait references (not inline primitives)
 //! - Auto-prefixing of trait references based on file path
 
-use crate::composite_rules::{CompositeTrait, Condition, FileType as RuleFileType, Platform, TraitDefinition};
+use crate::composite_rules::{
+    CompositeTrait, Condition, FileType as RuleFileType, Platform, TraitDefinition,
+};
 use crate::types::Criticality;
 use std::collections::HashMap;
 
@@ -136,7 +138,10 @@ pub(crate) fn validate_hostile_composite_complexity(
 
 /// Validate that all conditions in a composite rule are trait references only.
 /// Composite rules should combine traits, not contain inline primitives.
-pub(crate) fn validate_composite_trait_only(rule: &CompositeTrait, source_file: &str) -> Vec<String> {
+pub(crate) fn validate_composite_trait_only(
+    rule: &CompositeTrait,
+    source_file: &str,
+) -> Vec<String> {
     let mut errors = Vec::new();
 
     fn check_conditions(

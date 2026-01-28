@@ -3,11 +3,11 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
-use crate::radare2::SyscallInfo;
-use super::{is_zero_f32, is_zero_i32, is_zero_i64};
 use super::binary::{AnalysisMetadata, Export, Function, Import, StringInfo, YaraMatch};
 use super::paths_env::{EnvVarInfo, PathInfo};
 use super::traits_findings::{Finding, Trait};
+use super::{is_zero_f32, is_zero_i32, is_zero_i64};
+use crate::radare2::SyscallInfo;
 
 /// Diff-specific report for comparing old vs new versions
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -191,7 +191,6 @@ pub struct MetricsDelta {
     #[serde(default, skip_serializing_if = "is_zero_f32")]
     pub code_density: f32,
 }
-
 
 /// Extended diff report with full analysis for ML pipelines
 #[derive(Debug, Clone, Serialize, Deserialize)]

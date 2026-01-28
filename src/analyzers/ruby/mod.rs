@@ -69,11 +69,13 @@ impl RubyAnalyzer {
         let mut report = AnalysisReport::new(target);
 
         // Add structural feature
-        report.structure.push(crate::analyzers::utils::create_language_feature(
-            "ruby",
-            "tree-sitter-ruby",
-            "Ruby source code",
-        ));
+        report
+            .structure
+            .push(crate::analyzers::utils::create_language_feature(
+                "ruby",
+                "tree-sitter-ruby",
+                "Ruby source code",
+            ));
 
         // Detect capabilities and patterns
         self.detect_capabilities(&root, content.as_bytes(), &mut report);

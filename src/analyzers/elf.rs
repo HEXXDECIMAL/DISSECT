@@ -375,7 +375,6 @@ impl ElfAnalyzer {
         }
     }
 
-
     fn yara_namespace_to_capability(&self, namespace: &str) -> Option<String> {
         let parts: Vec<&str> = namespace.split('.').collect();
 

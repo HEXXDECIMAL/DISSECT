@@ -8,7 +8,9 @@
 //! - Ruby gems (.gem) - TAR.GZ format
 //! - Rust crates (.crate) - TAR.GZ format
 
-use super::guards::{sanitize_entry_path, ExtractionGuard, HostileArchiveReason, LimitedReader, MAX_FILE_SIZE};
+use super::guards::{
+    sanitize_entry_path, ExtractionGuard, HostileArchiveReason, LimitedReader, MAX_FILE_SIZE,
+};
 use anyhow::{Context, Result};
 use std::fs::{self, File};
 use std::io::Read;

@@ -346,7 +346,6 @@ impl PEAnalyzer {
             _ => format!("unknown-{:#x}", pe.header.coff_header.machine),
         }
     }
-
 }
 
 impl Default for PEAnalyzer {

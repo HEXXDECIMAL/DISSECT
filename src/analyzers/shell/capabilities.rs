@@ -220,5 +220,4 @@ impl super::ShellAnalyzer {
             }
         }
     }
-
 }

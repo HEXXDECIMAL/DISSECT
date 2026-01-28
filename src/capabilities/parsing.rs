@@ -23,7 +23,10 @@ pub(crate) fn is_unset(value: &Option<String>) -> bool {
 /// - If raw is Some("none"), return None (explicit unset)
 /// - If raw is Some(value), return Some(value)
 /// - If raw is None, return default
-pub(crate) fn apply_string_default(raw: Option<String>, default: &Option<String>) -> Option<String> {
+pub(crate) fn apply_string_default(
+    raw: Option<String>,
+    default: &Option<String>,
+) -> Option<String> {
     match &raw {
         Some(v) if v.eq_ignore_ascii_case("none") => None,
         Some(_) => raw,
@@ -47,7 +50,10 @@ pub(crate) fn apply_vec_default(
 }
 
 /// Convert a raw trait definition to a final TraitDefinition, applying file-level defaults
-pub(crate) fn apply_trait_defaults(raw: RawTraitDefinition, defaults: &TraitDefaults) -> TraitDefinition {
+pub(crate) fn apply_trait_defaults(
+    raw: RawTraitDefinition,
+    defaults: &TraitDefaults,
+) -> TraitDefinition {
     // Parse file_types: use trait-specific if present (unless "none"), else defaults, else [All]
     let file_types = apply_vec_default(raw.file_types, &defaults.r#for)
         .map(|types| parse_file_types(&types))
@@ -168,7 +174,10 @@ pub(crate) fn parse_criticality(s: &str) -> Criticality {
 }
 
 /// Convert a raw composite rule to a final CompositeTrait, applying file-level defaults
-pub(crate) fn apply_composite_defaults(raw: RawCompositeRule, defaults: &TraitDefaults) -> CompositeTrait {
+pub(crate) fn apply_composite_defaults(
+    raw: RawCompositeRule,
+    defaults: &TraitDefaults,
+) -> CompositeTrait {
     // Parse file_types: use rule-specific if present (unless "none"), else defaults, else [All]
     let file_types = apply_vec_default(raw.file_types, &defaults.r#for)
         .map(|types| parse_file_types(&types))

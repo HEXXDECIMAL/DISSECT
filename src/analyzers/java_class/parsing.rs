@@ -138,7 +138,12 @@ impl super::JavaClassAnalyzer {
                     if pos + 4 > data.len() {
                         bail!("Truncated integer entry");
                     }
-                    let value = i32::from_be_bytes([data[pos], data[pos + 1], data[pos + 2], data[pos + 3]]);
+                    let value = i32::from_be_bytes([
+                        data[pos],
+                        data[pos + 1],
+                        data[pos + 2],
+                        data[pos + 3],
+                    ]);
                     constant_pool[i] = ConstantPoolEntry::Integer(value);
                     pos += 4;
                 }
@@ -147,7 +152,12 @@ impl super::JavaClassAnalyzer {
                     if pos + 4 > data.len() {
                         bail!("Truncated float entry");
                     }
-                    let value = f32::from_be_bytes([data[pos], data[pos + 1], data[pos + 2], data[pos + 3]]);
+                    let value = f32::from_be_bytes([
+                        data[pos],
+                        data[pos + 1],
+                        data[pos + 2],
+                        data[pos + 3],
+                    ]);
                     constant_pool[i] = ConstantPoolEntry::Float(value);
                     pos += 4;
                 }
@@ -157,8 +167,14 @@ impl super::JavaClassAnalyzer {
                         bail!("Truncated long entry");
                     }
                     let value = i64::from_be_bytes([
-                        data[pos], data[pos + 1], data[pos + 2], data[pos + 3],
-                        data[pos + 4], data[pos + 5], data[pos + 6], data[pos + 7],
+                        data[pos],
+                        data[pos + 1],
+                        data[pos + 2],
+                        data[pos + 3],
+                        data[pos + 4],
+                        data[pos + 5],
+                        data[pos + 6],
+                        data[pos + 7],
                     ]);
                     constant_pool[i] = ConstantPoolEntry::Long(value);
                     pos += 8;
@@ -173,8 +189,14 @@ impl super::JavaClassAnalyzer {
                         bail!("Truncated double entry");
                     }
                     let value = f64::from_be_bytes([
-                        data[pos], data[pos + 1], data[pos + 2], data[pos + 3],
-                        data[pos + 4], data[pos + 5], data[pos + 6], data[pos + 7],
+                        data[pos],
+                        data[pos + 1],
+                        data[pos + 2],
+                        data[pos + 3],
+                        data[pos + 4],
+                        data[pos + 5],
+                        data[pos + 6],
+                        data[pos + 7],
                     ]);
                     constant_pool[i] = ConstantPoolEntry::Double(value);
                     pos += 8;
@@ -186,10 +208,10 @@ impl super::JavaClassAnalyzer {
                 _ => {
                     // Skip unknown types
                     pos += match tag {
-                        9 | 11 => 4,  // Fieldref, InterfaceMethodref
-                        15 => 3,      // MethodHandle
-                        16 => 2,      // MethodType
-                        18 => 4,      // InvokeDynamic
+                        9 | 11 => 4, // Fieldref, InterfaceMethodref
+                        15 => 3,     // MethodHandle
+                        16 => 2,     // MethodType
+                        18 => 4,     // InvokeDynamic
                         _ => 0,
                     };
                 }

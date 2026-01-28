@@ -84,7 +84,7 @@ mod tests {
         let data = b"test data";
         let hash = calculate_sha256(data);
         assert_eq!(hash.len(), 64); // SHA256 produces 64 hex characters
-        // SHA256 of "test data"
+                                    // SHA256 of "test data"
         assert_eq!(
             hash,
             "916f0027a575074ce72a331777c3478d6513f786a591bd892da1a577bf2335f9"
@@ -123,7 +123,8 @@ mod tests {
         assert_eq!(ruby_feature.id, "source/language/ruby");
         assert_eq!(ruby_feature.desc, "Ruby source code");
 
-        let js_feature = create_language_feature("javascript", "tree-sitter-javascript", "JavaScript code");
+        let js_feature =
+            create_language_feature("javascript", "tree-sitter-javascript", "JavaScript code");
         assert_eq!(js_feature.id, "source/language/javascript");
         assert_eq!(js_feature.desc, "JavaScript code");
     }

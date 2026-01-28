@@ -147,4 +147,3 @@ pub struct AnalysisMetadata {
     pub tools_used: Vec<String>,
     pub errors: Vec<String>,
 }
-

@@ -67,7 +67,10 @@ pub fn eval_yara_match(
 }
 
 /// Collect evidence from YARA scan results.
-pub(crate) fn collect_yara_evidence(results: yara_x::ScanResults, binary_data: &[u8]) -> Vec<Evidence> {
+pub(crate) fn collect_yara_evidence(
+    results: yara_x::ScanResults,
+    binary_data: &[u8],
+) -> Vec<Evidence> {
     let mut evidence = Vec::new();
     for matched_rule in results.matching_rules() {
         for pattern in matched_rule.patterns() {
@@ -148,10 +151,15 @@ pub fn eval_yara_inline(
         } else {
             source.to_string()
         };
-        eprintln!("⚠️  WARNING: YARA rule took {}ms to scan {}KB file",
-                  scan_duration.as_millis(),
-                  ctx.binary_data.len() / 1024);
-        eprintln!("    Rule preview: {}", rule_preview.lines().next().unwrap_or(""));
+        eprintln!(
+            "⚠️  WARNING: YARA rule took {}ms to scan {}KB file",
+            scan_duration.as_millis(),
+            ctx.binary_data.len() / 1024
+        );
+        eprintln!(
+            "    Rule preview: {}",
+            rule_preview.lines().next().unwrap_or("")
+        );
     }
 
     ConditionResult {

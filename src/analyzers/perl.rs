@@ -57,11 +57,13 @@ impl PerlAnalyzer {
 
         let mut report = AnalysisReport::new(target);
 
-        report.structure.push(crate::analyzers::utils::create_language_feature(
-            "perl",
-            "tree-sitter-perl",
-            "Perl source code",
-        ));
+        report
+            .structure
+            .push(crate::analyzers::utils::create_language_feature(
+                "perl",
+                "tree-sitter-perl",
+                "Perl source code",
+            ));
 
         self.detect_capabilities(&root, content.as_bytes(), &mut report);
         self.detect_string_patterns(content, &mut report);
@@ -592,7 +594,6 @@ impl PerlAnalyzer {
         }
         None
     }
-
 }
 
 impl Analyzer for PerlAnalyzer {

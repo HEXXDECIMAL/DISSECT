@@ -1,6 +1,6 @@
 //! Capability detection for Python scripts.
 
-use crate::types::{AnalysisReport, Evidence, Finding, FindingKind, Criticality};
+use crate::types::{AnalysisReport, Criticality, Evidence, Finding, FindingKind};
 
 impl super::PythonAnalyzer {
     pub(super) fn detect_capabilities(
@@ -57,37 +57,111 @@ impl super::PythonAnalyzer {
             let mut capabilities = Vec::new();
 
             if text.contains("eval(") {
-                capabilities.push(("exec/script/eval", "Evaluates dynamic code", "eval", 0.95, Criticality::Notable));
+                capabilities.push((
+                    "exec/script/eval",
+                    "Evaluates dynamic code",
+                    "eval",
+                    0.95,
+                    Criticality::Notable,
+                ));
             }
             if text.contains("exec(") {
-                capabilities.push(("exec/script/eval", "Executes dynamic code", "exec", 0.95, Criticality::Notable));
+                capabilities.push((
+                    "exec/script/eval",
+                    "Executes dynamic code",
+                    "exec",
+                    0.95,
+                    Criticality::Notable,
+                ));
             }
             if text.contains("compile(") {
-                capabilities.push(("exec/script/eval", "Compiles dynamic code", "compile", 0.90, Criticality::Notable));
+                capabilities.push((
+                    "exec/script/eval",
+                    "Compiles dynamic code",
+                    "compile",
+                    0.90,
+                    Criticality::Notable,
+                ));
             }
             if text.contains("__import__(") {
-                capabilities.push(("anti-analysis/obfuscation/dynamic-import", "Dynamic import", "__import__", 0.85, Criticality::Suspicious));
+                capabilities.push((
+                    "anti-analysis/obfuscation/dynamic-import",
+                    "Dynamic import",
+                    "__import__",
+                    0.85,
+                    Criticality::Suspicious,
+                ));
             }
-            if text.contains("subprocess.") || text.contains("os.system(") || text.contains("os.popen(") {
-                capabilities.push(("exec/command/shell", "Shell command execution", "subprocess/os", 0.95, Criticality::Notable));
+            if text.contains("subprocess.")
+                || text.contains("os.system(")
+                || text.contains("os.popen(")
+            {
+                capabilities.push((
+                    "exec/command/shell",
+                    "Shell command execution",
+                    "subprocess/os",
+                    0.95,
+                    Criticality::Notable,
+                ));
             }
             if text.contains("socket.socket(") || text.contains("socket.create_connection(") {
-                capabilities.push(("net/socket/create", "Network socket creation", "socket", 0.90, Criticality::Notable));
+                capabilities.push((
+                    "net/socket/create",
+                    "Network socket creation",
+                    "socket",
+                    0.90,
+                    Criticality::Notable,
+                ));
             }
-            if text.contains("requests.") || text.contains("urllib.") || text.contains("http.client.") {
-                capabilities.push(("net/http/client", "HTTP client", "http", 0.85, Criticality::Inert));
+            if text.contains("requests.")
+                || text.contains("urllib.")
+                || text.contains("http.client.")
+            {
+                capabilities.push((
+                    "net/http/client",
+                    "HTTP client",
+                    "http",
+                    0.85,
+                    Criticality::Inert,
+                ));
             }
-            if text.contains("open(") && (text.contains("'w") || text.contains("\"w") || text.contains("'a") || text.contains("\"a")) {
+            if text.contains("open(")
+                && (text.contains("'w")
+                    || text.contains("\"w")
+                    || text.contains("'a")
+                    || text.contains("\"a"))
+            {
                 capabilities.push(("fs/write", "File write", "open", 0.80, Criticality::Notable));
             }
-            if text.contains("os.remove(") || text.contains("os.unlink(") || text.contains("shutil.rmtree(") {
-                capabilities.push(("fs/file/delete", "File deletion", "os.remove", 0.90, Criticality::Notable));
+            if text.contains("os.remove(")
+                || text.contains("os.unlink(")
+                || text.contains("shutil.rmtree(")
+            {
+                capabilities.push((
+                    "fs/file/delete",
+                    "File deletion",
+                    "os.remove",
+                    0.90,
+                    Criticality::Notable,
+                ));
             }
             if text.contains("base64.b64decode(") {
-                capabilities.push(("anti-analysis/obfuscation/base64", "Base64 decode", "base64.b64decode", 0.85, Criticality::Suspicious));
+                capabilities.push((
+                    "anti-analysis/obfuscation/base64",
+                    "Base64 decode",
+                    "base64.b64decode",
+                    0.85,
+                    Criticality::Suspicious,
+                ));
             }
             if text.contains("pickle.loads(") || text.contains("pickle.load(") {
-                capabilities.push(("anti-analysis/obfuscation/pickle", "Insecure deserialization", "pickle", 0.90, Criticality::Suspicious));
+                capabilities.push((
+                    "anti-analysis/obfuscation/pickle",
+                    "Insecure deserialization",
+                    "pickle",
+                    0.90,
+                    Criticality::Suspicious,
+                ));
             }
 
             for (id, desc, value, conf, crit) in capabilities {
@@ -110,7 +184,9 @@ impl super::PythonAnalyzer {
             }
 
             // Pattern-based findings
-            if (text.contains("eval(") || text.contains("exec(")) && text.contains("base64.b64decode") {
+            if (text.contains("eval(") || text.contains("exec("))
+                && text.contains("base64.b64decode")
+            {
                 report.findings.push(Finding {
                     id: "anti-analysis/obfuscation/base64-eval".to_string(),
                     kind: FindingKind::Indicator,
@@ -136,22 +212,58 @@ impl super::PythonAnalyzer {
             let mut capabilities = Vec::new();
 
             if text.contains("ctypes") {
-                capabilities.push(("exec/dylib/load", "FFI/native code", "ctypes", 0.85, Criticality::Notable));
+                capabilities.push((
+                    "exec/dylib/load",
+                    "FFI/native code",
+                    "ctypes",
+                    0.85,
+                    Criticality::Notable,
+                ));
             }
             if text.contains("subprocess") {
-                capabilities.push(("exec/command/shell", "Command execution", "subprocess", 0.70, Criticality::Notable));
+                capabilities.push((
+                    "exec/command/shell",
+                    "Command execution",
+                    "subprocess",
+                    0.70,
+                    Criticality::Notable,
+                ));
             }
             if text.contains("socket") {
-                capabilities.push(("net/socket/create", "Network sockets", "socket", 0.85, Criticality::Notable));
+                capabilities.push((
+                    "net/socket/create",
+                    "Network sockets",
+                    "socket",
+                    0.85,
+                    Criticality::Notable,
+                ));
             }
             if text.contains("requests") || text.contains("urllib") {
-                capabilities.push(("net/http/client", "HTTP client", "requests/urllib", 0.80, Criticality::Inert));
+                capabilities.push((
+                    "net/http/client",
+                    "HTTP client",
+                    "requests/urllib",
+                    0.80,
+                    Criticality::Inert,
+                ));
             }
             if text.contains("pickle") {
-                capabilities.push(("anti-analysis/obfuscation/pickle", "Pickle serialization", "pickle", 0.85, Criticality::Suspicious));
+                capabilities.push((
+                    "anti-analysis/obfuscation/pickle",
+                    "Pickle serialization",
+                    "pickle",
+                    0.85,
+                    Criticality::Suspicious,
+                ));
             }
             if text.contains("base64") {
-                capabilities.push(("anti-analysis/obfuscation/base64", "Base64 encoding", "base64", 0.75, Criticality::Suspicious));
+                capabilities.push((
+                    "anti-analysis/obfuscation/base64",
+                    "Base64 encoding",
+                    "base64",
+                    0.75,
+                    Criticality::Suspicious,
+                ));
             }
 
             for (id, desc, value, conf, crit) in capabilities {
@@ -175,7 +287,12 @@ impl super::PythonAnalyzer {
         }
     }
 
-    fn check_obfuscation(&self, node: &tree_sitter::Node, source: &[u8], report: &mut AnalysisReport) {
+    fn check_obfuscation(
+        &self,
+        node: &tree_sitter::Node,
+        source: &[u8],
+        report: &mut AnalysisReport,
+    ) {
         if let Ok(text) = node.utf8_text(source) {
             // Check for hex-encoded strings (lowered threshold for test compatibility)
             if text.contains("\\x") {

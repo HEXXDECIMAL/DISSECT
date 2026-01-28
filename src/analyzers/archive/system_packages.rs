@@ -8,7 +8,9 @@
 //! - RAR archives (.rar)
 //! - Standalone compression (.gz, .xz, .bz2)
 
-use super::guards::{sanitize_entry_path, ExtractionGuard, HostileArchiveReason, LimitedReader, MAX_FILE_SIZE};
+use super::guards::{
+    sanitize_entry_path, ExtractionGuard, HostileArchiveReason, LimitedReader, MAX_FILE_SIZE,
+};
 use super::tar::extract_tar_entries_safe;
 use super::zip::extract_zip_safe;
 use anyhow::{Context, Result};
@@ -44,14 +46,12 @@ pub(crate) fn extract_compressed_safe(
         "xz" => {
             let decoder = xz2::read::XzDecoder::new(file);
             let mut limited = LimitedReader::new(decoder, MAX_FILE_SIZE);
-            std::io::copy(&mut limited, &mut output_file)
-                .context("Failed to decompress XZ file")?
+            std::io::copy(&mut limited, &mut output_file).context("Failed to decompress XZ file")?
         }
         "gzip" => {
             let decoder = flate2::read::GzDecoder::new(file);
             let mut limited = LimitedReader::new(decoder, MAX_FILE_SIZE);
-            std::io::copy(&mut limited, &mut output_file)
-                .context("Failed to decompress GZ file")?
+            std::io::copy(&mut limited, &mut output_file).context("Failed to decompress GZ file")?
         }
         "bzip2" => {
             let decoder = bzip2::read::BzDecoder::new(file);
@@ -214,9 +214,9 @@ pub(crate) fn extract_pkg_safe(
 
         // Extract file
         let mut output = File::create(&out_path)?;
-        let written =
-            xar.write_file_data_decoded_from_file(&file_entry, &mut output)
-                .context(format!("Failed to extract file: {}", path))? as u64;
+        let written = xar
+            .write_file_data_decoded_from_file(&file_entry, &mut output)
+            .context(format!("Failed to extract file: {}", path))? as u64;
 
         if !guard.check_bytes(written, &path) {
             anyhow::bail!("Exceeded maximum total extraction size");
@@ -335,8 +335,8 @@ pub(crate) fn extract_rpm(archive_path: &Path, dest_dir: &Path) -> Result<()> {
         extract_cpio(decoder, dest_dir)?;
     } else if peek[0..4] == [0x28, 0xb5, 0x2f, 0xfd] {
         // zstd
-        let decoder = zstd::stream::read::Decoder::new(chained)
-            .context("Failed to create zstd decoder")?;
+        let decoder =
+            zstd::stream::read::Decoder::new(chained).context("Failed to create zstd decoder")?;
         extract_cpio(decoder, dest_dir)?;
     } else if peek[0..3] == [0x42, 0x5a, 0x68] {
         // bzip2

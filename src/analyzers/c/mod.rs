@@ -102,11 +102,13 @@ impl CAnalyzer {
         let mut report = AnalysisReport::new(target);
 
         // Add structural feature
-        report.structure.push(crate::analyzers::utils::create_language_feature(
-            "c",
-            "tree-sitter-c",
-            "C source code",
-        ));
+        report
+            .structure
+            .push(crate::analyzers::utils::create_language_feature(
+                "c",
+                "tree-sitter-c",
+                "C source code",
+            ));
 
         // Detect capabilities and patterns
         detect_capabilities(self, &root, content.as_bytes(), &mut report);

@@ -10,8 +10,11 @@
 use crate::types::*;
 use base64::engine::general_purpose::STANDARD as BASE64_STANDARD;
 
+use super::patterns::{
+    add_capability_if_missing, analyze_call, analyze_import, check_obfuscation,
+    scan_decoded_payload,
+};
 use super::JavaScriptAnalyzer;
-use super::patterns::{add_capability_if_missing, analyze_call, analyze_import, check_obfuscation, scan_decoded_payload};
 
 /// Detect capabilities by walking the AST
 pub(crate) fn detect_capabilities(
@@ -113,8 +116,8 @@ pub(crate) fn check_global_obfuscation(
     report: &mut AnalysisReport,
 ) {
     // Check for base64 + eval pattern across the entire file
-    let has_base64 = content.contains("Buffer.from") && content.contains("base64")
-        || content.contains("atob(");
+    let has_base64 =
+        content.contains("Buffer.from") && content.contains("base64") || content.contains("atob(");
     let has_eval = content.contains("eval(") || content.contains("Function(");
 
     if has_base64

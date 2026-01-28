@@ -2,11 +2,11 @@
 
 use serde::{Deserialize, Serialize};
 
-use super::is_zero_f32;
 use super::binary_metrics::{BinaryMetrics, ElfMetrics, JavaClassMetrics, MachoMetrics, PeMetrics};
 use super::container_metrics::{ArchiveMetrics, PackageJsonMetrics};
+use super::is_zero_f32;
 use super::language_metrics::{
-    CMetrics, CSharpMetrics, GoMetrics, JavaSourceMetrics, JavaScriptMetrics, LuaMetrics,
+    CMetrics, CSharpMetrics, GoMetrics, JavaScriptMetrics, JavaSourceMetrics, LuaMetrics,
     PerlMetrics, PhpMetrics, PowerShellMetrics, PythonMetrics, RubyMetrics, RustMetrics,
     ShellMetrics,
 };

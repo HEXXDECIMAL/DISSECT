@@ -27,7 +27,11 @@ pub enum ChangeType {
 }
 
 /// Compute set difference for items with an id-like field
-pub(super) fn compute_added_removed<T, F>(baseline: &[T], target: &[T], key_fn: F) -> (Vec<T>, Vec<T>)
+pub(super) fn compute_added_removed<T, F>(
+    baseline: &[T],
+    target: &[T],
+    key_fn: F,
+) -> (Vec<T>, Vec<T>)
 where
     T: Clone,
     F: Fn(&T) -> String,

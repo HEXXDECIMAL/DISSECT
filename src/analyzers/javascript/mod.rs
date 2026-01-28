@@ -29,7 +29,10 @@ mod functions;
 mod patterns;
 mod tests;
 
-use capabilities::{check_global_obfuscation, check_npm_malware_patterns, check_supply_chain_patterns, detect_capabilities};
+use capabilities::{
+    check_global_obfuscation, check_npm_malware_patterns, check_supply_chain_patterns,
+    detect_capabilities,
+};
 use functions::{detect_javascript_idioms, extract_functions};
 
 /// JavaScript/Node.js analyzer using tree-sitter
@@ -87,10 +90,7 @@ impl JavaScriptAnalyzer {
         let parse_millis = parse_duration.as_millis();
 
         if timing_enabled {
-            eprintln!(
-                "[PROFILE]   AST parse: {}ms",
-                parse_millis
-            );
+            eprintln!("[PROFILE]   AST parse: {}ms", parse_millis);
         }
 
         // Flag files that take abnormally long to parse (likely minified/obfuscated)
@@ -161,11 +161,13 @@ impl JavaScriptAnalyzer {
         let mut report = AnalysisReport::new(target);
 
         // Add structural feature
-        report.structure.push(crate::analyzers::utils::create_language_feature(
-            "javascript",
-            "tree-sitter-javascript",
-            "JavaScript source code",
-        ));
+        report
+            .structure
+            .push(crate::analyzers::utils::create_language_feature(
+                "javascript",
+                "tree-sitter-javascript",
+                "JavaScript source code",
+            ));
 
         // Detect capabilities and obfuscation
         let t = std::time::Instant::now();
@@ -263,15 +265,20 @@ impl JavaScriptAnalyzer {
         let t = std::time::Instant::now();
         report.decoded_strings = extract_base64_strings(content.as_bytes());
         if timing_enabled {
-            eprintln!("[PROFILE]   extract_base64: {}ms ({} decoded strings)",
-                     t.elapsed().as_millis(), report.decoded_strings.len());
+            eprintln!(
+                "[PROFILE]   extract_base64: {}ms ({} decoded strings)",
+                t.elapsed().as_millis(),
+                report.decoded_strings.len()
+            );
         }
 
         // Evaluate trait definitions and composite rules (with cached AST to avoid re-parsing)
         let t = std::time::Instant::now();
-        let trait_findings = self
-            .capability_mapper
-            .evaluate_traits_with_ast(&report, content.as_bytes(), Some(&tree));
+        let trait_findings = self.capability_mapper.evaluate_traits_with_ast(
+            &report,
+            content.as_bytes(),
+            Some(&tree),
+        );
         if timing_enabled {
             eprintln!("[PROFILE]   evaluate_traits: {}ms", t.elapsed().as_millis());
         }
@@ -766,9 +773,11 @@ fn extract_base64_strings(data: &[u8]) -> Vec<DecodedString> {
                     if decoded_str.len() < 10 {
                         continue;
                     }
-                    let printable_ratio = decoded_str.chars()
+                    let printable_ratio = decoded_str
+                        .chars()
                         .filter(|c| c.is_ascii() && !c.is_control())
-                        .count() as f32 / decoded_str.len() as f32;
+                        .count() as f32
+                        / decoded_str.len() as f32;
 
                     if printable_ratio > 0.7 {
                         let encoded_preview = if encoded.len() > 100 {

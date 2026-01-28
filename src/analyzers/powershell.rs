@@ -57,11 +57,13 @@ impl PowerShellAnalyzer {
 
         let mut report = AnalysisReport::new(target);
 
-        report.structure.push(crate::analyzers::utils::create_language_feature(
-            "powershell",
-            "tree-sitter-powershell",
-            "PowerShell script",
-        ));
+        report
+            .structure
+            .push(crate::analyzers::utils::create_language_feature(
+                "powershell",
+                "tree-sitter-powershell",
+                "PowerShell script",
+            ));
 
         self.detect_capabilities(&root, content.as_bytes(), &mut report);
         self.detect_string_patterns(content, &mut report);
@@ -568,7 +570,6 @@ impl PowerShellAnalyzer {
         }
         None
     }
-
 }
 
 impl Analyzer for PowerShellAnalyzer {

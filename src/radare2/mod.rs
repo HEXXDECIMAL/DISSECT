@@ -19,9 +19,9 @@
 //! - Skip expensive analysis for large binaries (>20MB)
 //! - Architecture-aware syscall detection
 
+mod cache;
 mod models;
 mod parsing;
-mod cache;
 
 // Re-export public types from models
 pub use models::{R2Export, R2Function, R2Import, R2Section, R2String, R2Symbol};
@@ -770,7 +770,8 @@ impl Radare2Analyzer {
         }
 
         if !bb_counts.is_empty() {
-            metrics.avg_basic_blocks = bb_counts.iter().sum::<u32>() as f32 / bb_counts.len() as f32;
+            metrics.avg_basic_blocks =
+                bb_counts.iter().sum::<u32>() as f32 / bb_counts.len() as f32;
         }
 
         // Note: edge_counts collected but not used (no avg_cfg_edges field in BinaryMetrics)

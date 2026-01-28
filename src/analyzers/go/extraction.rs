@@ -8,7 +8,11 @@
 use crate::analyzers::function_metrics::FunctionInfo;
 
 impl super::GoAnalyzer {
-    pub(super) fn extract_identifiers(&self, root: &tree_sitter::Node, source: &[u8]) -> Vec<String> {
+    pub(super) fn extract_identifiers(
+        &self,
+        root: &tree_sitter::Node,
+        source: &[u8],
+    ) -> Vec<String> {
         let mut identifiers = Vec::new();
         let mut cursor = root.walk();
         self.walk_for_identifiers(&mut cursor, source, &mut identifiers);
@@ -48,7 +52,11 @@ impl super::GoAnalyzer {
         }
     }
 
-    pub(super) fn extract_string_literals(&self, root: &tree_sitter::Node, source: &[u8]) -> Vec<String> {
+    pub(super) fn extract_string_literals(
+        &self,
+        root: &tree_sitter::Node,
+        source: &[u8],
+    ) -> Vec<String> {
         let mut strings = Vec::new();
         let mut cursor = root.walk();
         self.walk_for_strings(&mut cursor, source, &mut strings);
@@ -93,7 +101,11 @@ impl super::GoAnalyzer {
         }
     }
 
-    pub(super) fn extract_function_info(&self, root: &tree_sitter::Node, source: &[u8]) -> Vec<FunctionInfo> {
+    pub(super) fn extract_function_info(
+        &self,
+        root: &tree_sitter::Node,
+        source: &[u8],
+    ) -> Vec<FunctionInfo> {
         let mut functions = Vec::new();
         let mut cursor = root.walk();
         self.walk_for_function_info(&mut cursor, source, &mut functions, 0);
@@ -181,5 +193,4 @@ impl super::GoAnalyzer {
             }
         }
     }
-
 }

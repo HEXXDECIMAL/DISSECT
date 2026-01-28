@@ -59,11 +59,13 @@ impl CSharpAnalyzer {
 
         let mut report = AnalysisReport::new(target);
 
-        report.structure.push(crate::analyzers::utils::create_language_feature(
-            "csharp",
-            "tree-sitter-c-sharp",
-            "C# source code",
-        ));
+        report
+            .structure
+            .push(crate::analyzers::utils::create_language_feature(
+                "csharp",
+                "tree-sitter-c-sharp",
+                "C# source code",
+            ));
 
         self.detect_capabilities(&root, content.as_bytes(), &mut report);
         self.extract_functions(&root, content.as_bytes(), &mut report);
@@ -911,7 +913,6 @@ impl CSharpAnalyzer {
         }
         None
     }
-
 }
 
 impl Analyzer for CSharpAnalyzer {

@@ -60,11 +60,13 @@ impl JavaAnalyzer {
         let mut report = AnalysisReport::new(target);
 
         // Add structural feature
-        report.structure.push(crate::analyzers::utils::create_language_feature(
-            "java",
-            "tree-sitter-java",
-            "Java source code",
-        ));
+        report
+            .structure
+            .push(crate::analyzers::utils::create_language_feature(
+                "java",
+                "tree-sitter-java",
+                "Java source code",
+            ));
 
         // Detect capabilities and patterns
         self.detect_capabilities(&root, content.as_bytes(), &mut report);

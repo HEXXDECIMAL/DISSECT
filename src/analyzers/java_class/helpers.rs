@@ -149,5 +149,4 @@ impl super::JavaClassAnalyzer {
         }
         count
     }
-
 }

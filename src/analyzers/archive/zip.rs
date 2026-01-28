@@ -10,7 +10,9 @@
 //! - VS Code extensions (.vsix)
 //! - Firefox extensions (.xpi)
 
-use super::guards::{sanitize_entry_path, ExtractionGuard, HostileArchiveReason, LimitedReader, MAX_FILE_SIZE};
+use super::guards::{
+    sanitize_entry_path, ExtractionGuard, HostileArchiveReason, LimitedReader, MAX_FILE_SIZE,
+};
 use anyhow::{Context, Result};
 use std::fs::{self, File};
 use std::io::{Cursor, Read, Seek};
@@ -88,15 +90,10 @@ pub(crate) fn extract_zip_safe(
 
             // Re-open the archive for each password attempt
             let file = File::open(archive_path)?;
-            let mut archive =
-                zip::ZipArchive::new(file).context("Failed to read ZIP archive")?;
+            let mut archive = zip::ZipArchive::new(file).context("Failed to read ZIP archive")?;
 
-            match extract_zip_entries_safe(
-                &mut archive,
-                dest_dir,
-                Some(password.as_bytes()),
-                guard,
-            ) {
+            match extract_zip_entries_safe(&mut archive, dest_dir, Some(password.as_bytes()), guard)
+            {
                 Ok(()) => {
                     info!("✓ Decrypted with password: {}", password);
                     eprintln!("  Decrypted with password: {}", password);
@@ -139,7 +136,10 @@ pub(crate) fn extract_zip_entries_safe<R: Read + Seek>(
     for i in 0..archive.len() {
         // Check file count limit
         if !guard.check_file_count() {
-            anyhow::bail!("Exceeded maximum file count ({})", super::guards::MAX_FILE_COUNT);
+            anyhow::bail!(
+                "Exceeded maximum file count ({})",
+                super::guards::MAX_FILE_COUNT
+            );
         }
 
         trace!("Processing entry {}/{}", i + 1, archive.len());
@@ -236,8 +236,7 @@ pub(crate) fn extract_crx_safe(
     }
 
     // Parse header fields (little-endian)
-    let pubkey_len =
-        u32::from_le_bytes([header[8], header[9], header[10], header[11]]) as usize;
+    let pubkey_len = u32::from_le_bytes([header[8], header[9], header[10], header[11]]) as usize;
     let sig_len = u32::from_le_bytes([header[12], header[13], header[14], header[15]]) as usize;
 
     // Skip public key and signature to get to ZIP data

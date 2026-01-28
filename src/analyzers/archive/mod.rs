@@ -1,11 +1,11 @@
 //! Archive analyzer for various archive formats.
 
+mod analyzers;
 mod guards;
+mod system_packages;
+mod tar;
 mod utils;
 mod zip;
-mod tar;
-mod system_packages;
-mod analyzers;
 
 pub use guards::HostileArchiveReason;
 
@@ -21,7 +21,6 @@ use std::sync::Arc;
 
 use guards::{ExtractionGuard, MAX_FILE_COUNT, MAX_FILE_SIZE, MAX_TOTAL_SIZE};
 use utils::{calculate_sha256, detect_archive_type};
-
 
 pub struct ArchiveAnalyzer {
     max_depth: usize,
@@ -263,7 +262,9 @@ impl ArchiveAnalyzer {
         match archive_type {
             "zip" => zip::extract_zip_safe(archive_path, dest_dir, guard, &self.zip_passwords),
             "crx" => zip::extract_crx_safe(archive_path, dest_dir, guard),
-            "7z" => system_packages::extract_7z_safe(archive_path, dest_dir, guard, &self.zip_passwords),
+            "7z" => {
+                system_packages::extract_7z_safe(archive_path, dest_dir, guard, &self.zip_passwords)
+            }
             "tar" => tar::extract_tar_safe(archive_path, dest_dir, None, guard),
             "tar.gz" | "tgz" => tar::extract_tar_safe(archive_path, dest_dir, Some("gzip"), guard),
             "tar.bz2" | "tbz" | "tbz2" => {
@@ -272,7 +273,9 @@ impl ArchiveAnalyzer {
             "tar.xz" | "txz" => tar::extract_tar_safe(archive_path, dest_dir, Some("xz"), guard),
             "xz" => system_packages::extract_compressed_safe(archive_path, dest_dir, "xz", guard),
             "gz" => system_packages::extract_compressed_safe(archive_path, dest_dir, "gzip", guard),
-            "bz2" => system_packages::extract_compressed_safe(archive_path, dest_dir, "bzip2", guard),
+            "bz2" => {
+                system_packages::extract_compressed_safe(archive_path, dest_dir, "bzip2", guard)
+            }
             "deb" => system_packages::extract_deb_safe(archive_path, dest_dir, guard),
             "rpm" => system_packages::extract_rpm(archive_path, dest_dir), // TODO: add guard
             "pkg" => system_packages::extract_pkg_safe(archive_path, dest_dir, guard),
@@ -332,13 +335,13 @@ impl Analyzer for ArchiveAnalyzer {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use guards::{sanitize_entry_path, ExtractionGuard, MAX_FILE_COUNT};
     use std::fs::File;
     use std::io::{Cursor, Write};
-    use guards::{sanitize_entry_path, ExtractionGuard, MAX_FILE_COUNT};
 
     // Import external crate types (our modules shadow these names)
-    use ::zip;
     use ::tar;
+    use ::zip;
 
     #[test]
     fn test_new() {
@@ -428,20 +431,14 @@ mod tests {
     #[test]
     fn test_detect_archive_type_tar_gz() {
         let _analyzer = ArchiveAnalyzer::new();
-        assert_eq!(
-            detect_archive_type(Path::new("test.tar.gz")),
-            "tar.gz"
-        );
+        assert_eq!(detect_archive_type(Path::new("test.tar.gz")), "tar.gz");
         assert_eq!(detect_archive_type(Path::new("test.tgz")), "tgz");
     }
 
     #[test]
     fn test_detect_archive_type_tar_bz2() {
         let _analyzer = ArchiveAnalyzer::new();
-        assert_eq!(
-            detect_archive_type(Path::new("test.tar.bz2")),
-            "tar.bz2"
-        );
+        assert_eq!(detect_archive_type(Path::new("test.tar.bz2")), "tar.bz2");
         assert_eq!(detect_archive_type(Path::new("test.tbz2")), "tbz");
         assert_eq!(detect_archive_type(Path::new("test.tbz")), "tbz");
     }
@@ -449,10 +446,7 @@ mod tests {
     #[test]
     fn test_detect_archive_type_tar_xz() {
         let _analyzer = ArchiveAnalyzer::new();
-        assert_eq!(
-            detect_archive_type(Path::new("test.tar.xz")),
-            "tar.xz"
-        );
+        assert_eq!(detect_archive_type(Path::new("test.tar.xz")), "tar.xz");
         assert_eq!(detect_archive_type(Path::new("test.txz")), "txz");
     }
 
@@ -460,30 +454,21 @@ mod tests {
     fn test_detect_archive_type_deb() {
         let _analyzer = ArchiveAnalyzer::new();
         assert_eq!(detect_archive_type(Path::new("test.deb")), "deb");
-        assert_eq!(
-            detect_archive_type(Path::new("package.deb")),
-            "deb"
-        );
+        assert_eq!(detect_archive_type(Path::new("package.deb")), "deb");
     }
 
     #[test]
     fn test_detect_archive_type_rpm() {
         let _analyzer = ArchiveAnalyzer::new();
         assert_eq!(detect_archive_type(Path::new("test.rpm")), "rpm");
-        assert_eq!(
-            detect_archive_type(Path::new("package.rpm")),
-            "rpm"
-        );
+        assert_eq!(detect_archive_type(Path::new("package.rpm")), "rpm");
     }
 
     #[test]
     fn test_detect_archive_type_rar() {
         let _analyzer = ArchiveAnalyzer::new();
         assert_eq!(detect_archive_type(Path::new("test.rar")), "rar");
-        assert_eq!(
-            detect_archive_type(Path::new("archive.rar")),
-            "rar"
-        );
+        assert_eq!(detect_archive_type(Path::new("archive.rar")), "rar");
     }
 
     #[test]
@@ -519,14 +504,8 @@ mod tests {
     #[test]
     fn test_detect_archive_type_python_packages() {
         let _analyzer = ArchiveAnalyzer::new();
-        assert_eq!(
-            detect_archive_type(Path::new("package.egg")),
-            "zip"
-        );
-        assert_eq!(
-            detect_archive_type(Path::new("package.whl")),
-            "zip"
-        );
+        assert_eq!(detect_archive_type(Path::new("package.egg")), "zip");
+        assert_eq!(detect_archive_type(Path::new("package.whl")), "zip");
     }
 
     #[test]
@@ -539,10 +518,7 @@ mod tests {
     #[test]
     fn test_detect_archive_type_gem() {
         let _analyzer = ArchiveAnalyzer::new();
-        assert_eq!(
-            detect_archive_type(Path::new("rails.gem")),
-            "tar.gz"
-        );
+        assert_eq!(detect_archive_type(Path::new("rails.gem")), "tar.gz");
     }
 
     #[test]
@@ -555,10 +531,7 @@ mod tests {
     #[test]
     fn test_detect_archive_type_phar() {
         let _analyzer = ArchiveAnalyzer::new();
-        assert_eq!(
-            detect_archive_type(Path::new("composer.phar")),
-            "zip"
-        );
+        assert_eq!(detect_archive_type(Path::new("composer.phar")), "zip");
     }
 
     #[test]
@@ -571,10 +544,7 @@ mod tests {
     #[test]
     fn test_detect_archive_type_nupkg() {
         let _analyzer = ArchiveAnalyzer::new();
-        assert_eq!(
-            detect_archive_type(Path::new("package.nupkg")),
-            "zip"
-        );
+        assert_eq!(detect_archive_type(Path::new("package.nupkg")), "zip");
     }
 
     #[test]
@@ -587,10 +557,7 @@ mod tests {
     #[test]
     fn test_detect_archive_type_crate() {
         let _analyzer = ArchiveAnalyzer::new();
-        assert_eq!(
-            detect_archive_type(Path::new("serde.crate")),
-            "tar.gz"
-        );
+        assert_eq!(detect_archive_type(Path::new("serde.crate")), "tar.gz");
     }
 
     #[test]
@@ -603,10 +570,7 @@ mod tests {
     #[test]
     fn test_detect_archive_type_vsix() {
         let _analyzer = ArchiveAnalyzer::new();
-        assert_eq!(
-            detect_archive_type(Path::new("extension.vsix")),
-            "zip"
-        );
+        assert_eq!(detect_archive_type(Path::new("extension.vsix")), "zip");
     }
 
     #[test]
@@ -632,10 +596,7 @@ mod tests {
     #[test]
     fn test_detect_archive_type_crx() {
         let _analyzer = ArchiveAnalyzer::new();
-        assert_eq!(
-            detect_archive_type(Path::new("extension.crx")),
-            "crx"
-        );
+        assert_eq!(detect_archive_type(Path::new("extension.crx")), "crx");
     }
 
     #[test]
@@ -687,19 +648,13 @@ mod tests {
     #[test]
     fn test_detect_archive_type_pkg() {
         let _analyzer = ArchiveAnalyzer::new();
-        assert_eq!(
-            detect_archive_type(Path::new("installer.pkg")),
-            "pkg"
-        );
+        assert_eq!(detect_archive_type(Path::new("installer.pkg")), "pkg");
     }
 
     #[test]
     fn test_detect_archive_type_unknown() {
         let _analyzer = ArchiveAnalyzer::new();
-        assert_eq!(
-            detect_archive_type(Path::new("test.txt")),
-            "unknown"
-        );
+        assert_eq!(detect_archive_type(Path::new("test.txt")), "unknown");
     }
 
     #[test]

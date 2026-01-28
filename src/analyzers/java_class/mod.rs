@@ -6,12 +6,10 @@ use crate::types::*;
 use anyhow::Result;
 use std::path::Path;
 
-mod parsing;
 mod capabilities;
 mod helpers;
+mod parsing;
 mod tests;
-
-pub use parsing::ClassInfo;
 
 pub struct JavaClassAnalyzer {
     capability_mapper: CapabilityMapper,
@@ -28,7 +26,6 @@ impl JavaClassAnalyzer {
         self.capability_mapper = capability_mapper;
         self
     }
-
 
     fn analyze_class(&self, file_path: &Path, data: &[u8]) -> Result<AnalysisReport> {
         let start = std::time::Instant::now();
@@ -57,7 +54,8 @@ impl JavaClassAnalyzer {
 
         self.detect_capabilities(&class_info, &mut report);
         self.capability_mapper.evaluate_traits(&report, data);
-        self.capability_mapper.evaluate_composite_rules(&report, data);
+        self.capability_mapper
+            .evaluate_composite_rules(&report, data);
 
         let elapsed = start.elapsed().as_millis() as u64;
         report.metadata.analysis_duration_ms = elapsed;

@@ -267,4 +267,3 @@ pub struct CallPatternMetrics {
     #[serde(default, skip_serializing_if = "is_zero_u32")]
     pub dynamic_calls: u32,
 }
-

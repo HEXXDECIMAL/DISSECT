@@ -97,7 +97,11 @@ pub fn eval_string(
     ctx: &EvaluationContext,
 ) -> ConditionResult {
     let profile = std::env::var("DISSECT_PROFILE").is_ok();
-    let t_start = if profile { Some(std::time::Instant::now()) } else { None };
+    let t_start = if profile {
+        Some(std::time::Instant::now())
+    } else {
+        None
+    };
 
     let mut evidence = Vec::new();
 
@@ -206,7 +210,8 @@ pub fn eval_string(
             }
 
             if matched {
-                let excluded_by_pattern = compiled_excludes.iter().any(|re| re.is_match(&match_value));
+                let excluded_by_pattern =
+                    compiled_excludes.iter().any(|re| re.is_match(&match_value));
                 let excluded_by_not = trait_not
                     .map(|exceptions| exceptions.iter().any(|exc| exc.matches(&match_value)))
                     .unwrap_or(false);
@@ -251,7 +256,11 @@ pub fn eval_raw(
     ctx: &EvaluationContext,
 ) -> ConditionResult {
     let profile = std::env::var("DISSECT_PROFILE").is_ok();
-    let t_start = if profile { Some(std::time::Instant::now()) } else { None };
+    let t_start = if profile {
+        Some(std::time::Instant::now())
+    } else {
+        None
+    };
 
     let mut evidence = Vec::new();
 
@@ -359,7 +368,14 @@ pub fn eval_xor(
             .collect()
     };
 
-    eval_decoded_strings_helper(&decoded_strings, "xor", exact, regex, case_insensitive, min_count)
+    eval_decoded_strings_helper(
+        &decoded_strings,
+        "xor",
+        exact,
+        regex,
+        case_insensitive,
+        min_count,
+    )
 }
 
 /// Helper to search decoded strings for patterns.
@@ -378,7 +394,14 @@ fn eval_decoded_helper(
         .filter(|s| s.method == method)
         .collect();
 
-    eval_decoded_strings_helper(&decoded_strings, method, exact, regex, case_insensitive, min_count)
+    eval_decoded_strings_helper(
+        &decoded_strings,
+        method,
+        exact,
+        regex,
+        case_insensitive,
+        min_count,
+    )
 }
 
 /// Core logic for matching patterns in decoded strings.
@@ -414,7 +437,10 @@ fn eval_decoded_strings_helper(
         // Check exact match
         if let Some(exact_str) = exact {
             matches = if case_insensitive {
-                decoded.value.to_lowercase().contains(&exact_str.to_lowercase())
+                decoded
+                    .value
+                    .to_lowercase()
+                    .contains(&exact_str.to_lowercase())
             } else {
                 decoded.value.contains(exact_str.as_str())
             };

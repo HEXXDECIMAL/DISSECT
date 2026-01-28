@@ -1,8 +1,8 @@
 //! Python script analyzer using tree-sitter.
 
 use crate::analyzers::Analyzer;
-use crate::types::{AnalysisReport, TargetInfo};
 use crate::capabilities::CapabilityMapper;
+use crate::types::{AnalysisReport, TargetInfo};
 use anyhow::{Context, Result};
 use std::cell::RefCell;
 use std::path::Path;
@@ -57,11 +57,13 @@ impl PythonAnalyzer {
 
         let mut report = AnalysisReport::new(target);
 
-        report.structure.push(crate::analyzers::utils::create_language_feature(
-            "python",
-            "tree-sitter-python",
-            "Python script",
-        ));
+        report
+            .structure
+            .push(crate::analyzers::utils::create_language_feature(
+                "python",
+                "tree-sitter-python",
+                "Python script",
+            ));
 
         self.detect_capabilities(&root, content.as_bytes(), &mut report);
         self.extract_functions(&root, content.as_bytes(), &mut report);
@@ -79,8 +81,10 @@ impl PythonAnalyzer {
         let metrics = self.compute_metrics(&root, content);
         report.metrics = Some(metrics);
 
-        self.capability_mapper.evaluate_traits(&report, content.as_bytes());
-        self.capability_mapper.evaluate_composite_rules(&report, content.as_bytes());
+        self.capability_mapper
+            .evaluate_traits(&report, content.as_bytes());
+        self.capability_mapper
+            .evaluate_composite_rules(&report, content.as_bytes());
 
         let elapsed = start.elapsed().as_millis() as u64;
         report.metadata.analysis_duration_ms = elapsed;

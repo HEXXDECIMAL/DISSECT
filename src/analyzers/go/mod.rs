@@ -18,10 +18,10 @@
 //! - Anti-analysis techniques (reflection, obfuscation)
 
 mod capabilities;
+mod extraction;
 mod functions;
 mod idioms;
 mod metrics;
-mod extraction;
 
 use crate::analyzers::Analyzer;
 use crate::capabilities::CapabilityMapper;
@@ -80,11 +80,13 @@ impl GoAnalyzer {
         let mut report = AnalysisReport::new(target);
 
         // Add structural feature
-        report.structure.push(crate::analyzers::utils::create_language_feature(
-            "go",
-            "tree-sitter-go",
-            "Go source code",
-        ));
+        report
+            .structure
+            .push(crate::analyzers::utils::create_language_feature(
+                "go",
+                "tree-sitter-go",
+                "Go source code",
+            ));
 
         // Detect capabilities and patterns
         self.detect_capabilities(&root, content.as_bytes(), &mut report);

@@ -736,7 +736,10 @@ impl ArchiveAnalyzer {
     /// # Returns
     /// * `Ok(AnalysisReport)` - Normal analysis or timeout report
     /// * `Err` - Only if thread crashes (not timeout)
-    pub(super) fn analyze_extracted_file_with_timeout(&self, file_path: &Path) -> Result<AnalysisReport> {
+    pub(super) fn analyze_extracted_file_with_timeout(
+        &self,
+        file_path: &Path,
+    ) -> Result<AnalysisReport> {
         use std::sync::mpsc;
         use std::time::Duration;
 

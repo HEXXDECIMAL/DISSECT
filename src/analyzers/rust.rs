@@ -69,11 +69,13 @@ impl RustAnalyzer {
         let mut report = AnalysisReport::new(target);
 
         // Add structural feature
-        report.structure.push(crate::analyzers::utils::create_language_feature(
-            "rust",
-            "tree-sitter-rust",
-            "Rust source code",
-        ));
+        report
+            .structure
+            .push(crate::analyzers::utils::create_language_feature(
+                "rust",
+                "tree-sitter-rust",
+                "Rust source code",
+            ));
 
         // Detect capabilities and patterns (hardcoded)
         self.detect_capabilities(&root, content.as_bytes(), &mut report);

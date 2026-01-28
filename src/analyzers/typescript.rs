@@ -59,11 +59,13 @@ impl TypeScriptAnalyzer {
         let mut report = AnalysisReport::new(target);
 
         // Add structural feature
-        report.structure.push(crate::analyzers::utils::create_language_feature(
-            "typescript",
-            "tree-sitter-typescript",
-            "TypeScript source code",
-        ));
+        report
+            .structure
+            .push(crate::analyzers::utils::create_language_feature(
+                "typescript",
+                "tree-sitter-typescript",
+                "TypeScript source code",
+            ));
 
         // Parse with tree-sitter with panic catching (malware may crash tree-sitter)
         let parse_result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {

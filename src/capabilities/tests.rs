@@ -7,7 +7,9 @@
 //! - Complexity calculation tests
 
 use super::*;
-use crate::composite_rules::{CompositeTrait, Condition, FileType as RuleFileType, Platform, TraitDefinition};
+use crate::composite_rules::{
+    CompositeTrait, Condition, FileType as RuleFileType, Platform, TraitDefinition,
+};
 use crate::types::{AnalysisReport, Criticality, Finding, FindingKind, TargetInfo};
 
 #[test]
@@ -887,8 +889,7 @@ fn test_composite_requires_count_in_chain() {
         none: None,
     };
 
-    let report =
-        test_report_with_findings(vec![test_finding("feat/a"), test_finding("feat/c")]);
+    let report = test_report_with_findings(vec![test_finding("feat/a"), test_finding("feat/c")]);
     let mut mapper = CapabilityMapper::empty();
     mapper.composite_rules.push(composite);
 
@@ -923,8 +924,8 @@ fn test_complexity_direct_conditions() {
                 exclude_patterns: None,
                 min_count: 1,
                 search_raw: false,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
             },
             Condition::String {
                 exact: Some("string2".to_string()),
@@ -934,8 +935,8 @@ fn test_complexity_direct_conditions() {
                 exclude_patterns: None,
                 min_count: 1,
                 search_raw: false,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
             },
             Condition::String {
                 exact: Some("string3".to_string()),
@@ -945,8 +946,8 @@ fn test_complexity_direct_conditions() {
                 exclude_patterns: None,
                 min_count: 1,
                 search_raw: false,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
             },
         ]),
         any: None,
@@ -997,8 +998,8 @@ fn test_complexity_file_type_filter() {
                 exclude_patterns: None,
                 min_count: 1,
                 search_raw: false,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
             },
             Condition::String {
                 exact: Some("string2".to_string()),
@@ -1008,8 +1009,8 @@ fn test_complexity_file_type_filter() {
                 exclude_patterns: None,
                 min_count: 1,
                 search_raw: false,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
             },
         ]),
         any: None,
@@ -1086,8 +1087,8 @@ fn test_complexity_recursive_expansion() {
                 exclude_patterns: None,
                 min_count: 1,
                 search_raw: false,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
             },
             Condition::String {
                 exact: Some("string2".to_string()),
@@ -1097,8 +1098,8 @@ fn test_complexity_recursive_expansion() {
                 exclude_patterns: None,
                 min_count: 1,
                 search_raw: false,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
             },
         ]),
         any: None,
@@ -1238,8 +1239,8 @@ fn test_complexity_caching() {
                 exclude_patterns: None,
                 min_count: 1,
                 search_raw: false,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
             },
             Condition::String {
                 exact: Some("string2".to_string()),
@@ -1249,8 +1250,8 @@ fn test_complexity_caching() {
                 exclude_patterns: None,
                 min_count: 1,
                 search_raw: false,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
             },
         ]),
         any: None,
@@ -1312,8 +1313,8 @@ fn test_complexity_threshold_validation() {
                 exclude_patterns: None,
                 min_count: 1,
                 search_raw: false,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
             },
             Condition::String {
                 exact: Some("string2".to_string()),
@@ -1323,8 +1324,8 @@ fn test_complexity_threshold_validation() {
                 exclude_patterns: None,
                 min_count: 1,
                 search_raw: false,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
             },
             Condition::String {
                 exact: Some("string3".to_string()),
@@ -1334,8 +1335,8 @@ fn test_complexity_threshold_validation() {
                 exclude_patterns: None,
                 min_count: 1,
                 search_raw: false,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
             },
         ]),
         any: None,
@@ -1364,8 +1365,8 @@ fn test_complexity_threshold_validation() {
                 exclude_patterns: None,
                 min_count: 1,
                 search_raw: false,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
             },
             Condition::String {
                 exact: Some("string2".to_string()),
@@ -1375,8 +1376,8 @@ fn test_complexity_threshold_validation() {
                 exclude_patterns: None,
                 min_count: 1,
                 search_raw: false,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
             },
             Condition::String {
                 exact: Some("string3".to_string()),
@@ -1386,8 +1387,8 @@ fn test_complexity_threshold_validation() {
                 exclude_patterns: None,
                 min_count: 1,
                 search_raw: false,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
             },
         ]),
         any: None,
@@ -1452,8 +1453,8 @@ fn test_complexity_mixed_conditions() {
                 exclude_patterns: None,
                 min_count: 1,
                 search_raw: false,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
             },
             Condition::String {
                 exact: Some("string3".to_string()),
@@ -1463,8 +1464,8 @@ fn test_complexity_mixed_conditions() {
                 exclude_patterns: None,
                 min_count: 1,
                 search_raw: false,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
             },
         ]),
         count: None,
@@ -1524,8 +1525,8 @@ fn test_complexity_deep_nesting() {
                 exclude_patterns: None,
                 min_count: 1,
                 search_raw: false,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
             },
             Condition::String {
                 exact: Some("l1-s2".to_string()),
@@ -1535,8 +1536,8 @@ fn test_complexity_deep_nesting() {
                 exclude_patterns: None,
                 min_count: 1,
                 search_raw: false,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
             },
         ]),
         any: None,
@@ -1568,8 +1569,8 @@ fn test_complexity_deep_nesting() {
                 exclude_patterns: None,
                 min_count: 1,
                 search_raw: false,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
             },
         ]),
         any: None,
@@ -1601,8 +1602,8 @@ fn test_complexity_deep_nesting() {
                 exclude_patterns: None,
                 min_count: 1,
                 search_raw: false,
-            compiled_regex: None,
-            compiled_excludes: Vec::new(),
+                compiled_regex: None,
+                compiled_excludes: Vec::new(),
             },
         ]),
         any: None,

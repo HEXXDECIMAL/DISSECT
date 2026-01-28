@@ -2,7 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use super::{is_false, is_zero_f32, is_zero_u32, is_zero_u64, is_zero_f64};
+use super::{is_false, is_zero_f32, is_zero_f64, is_zero_u32, is_zero_u64};
 
 /// Binary-wide properties for ML analysis
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -418,4 +418,3 @@ pub struct GoIdioms {
     #[serde(default, skip_serializing_if = "is_zero_u32")]
     pub unsafe_count: u32,
 }
-

@@ -104,7 +104,6 @@ impl VsixManifestAnalyzer {
 
         Ok(report)
     }
-
 }
 
 impl Default for VsixManifestAnalyzer {

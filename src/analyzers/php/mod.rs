@@ -57,11 +57,13 @@ impl PhpAnalyzer {
 
         let mut report = AnalysisReport::new(target);
 
-        report.structure.push(crate::analyzers::utils::create_language_feature(
-            "php",
-            "tree-sitter-php",
-            "PHP script",
-        ));
+        report
+            .structure
+            .push(crate::analyzers::utils::create_language_feature(
+                "php",
+                "tree-sitter-php",
+                "PHP script",
+            ));
 
         self.detect_capabilities(&root, content.as_bytes(), &mut report);
         self.extract_functions(&root, content.as_bytes(), &mut report);
@@ -79,8 +81,10 @@ impl PhpAnalyzer {
         let metrics = self.compute_metrics(&root, content, &mut report);
         report.metrics = Some(metrics);
 
-        self.capability_mapper.evaluate_traits(&report, content.as_bytes());
-        self.capability_mapper.evaluate_composite_rules(&report, content.as_bytes());
+        self.capability_mapper
+            .evaluate_traits(&report, content.as_bytes());
+        self.capability_mapper
+            .evaluate_composite_rules(&report, content.as_bytes());
 
         let elapsed = start.elapsed().as_millis() as u64;
         report.metadata.analysis_duration_ms = elapsed;

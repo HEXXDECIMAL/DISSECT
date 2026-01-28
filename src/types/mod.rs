@@ -33,24 +33,28 @@ pub(crate) fn is_zero_i64(v: &i64) -> bool {
 }
 
 // Module declarations
-mod core;
-mod traits_findings;
-mod paths_env;
-mod binary;
-mod diff;
-mod ml_features;
-mod code_structure;
-mod text_metrics;
-mod language_metrics;
-mod binary_metrics;
-mod container_metrics;
-mod scores;
+pub mod binary;
+pub mod binary_metrics;
+pub mod code_structure;
+pub mod container_metrics;
+pub mod core;
+pub mod diff;
+pub mod language_metrics;
+pub mod ml_features;
+pub mod paths_env;
+pub mod scores;
+pub mod text_metrics;
+pub mod traits_findings;
 
 // Re-export all public types to maintain API compatibility
+// These re-exports are part of the public library API even if not used directly in the binary
+#[allow(unused_imports)]
 pub use core::{AnalysisReport, ArchiveEntry, Criticality, TargetInfo};
 
+#[allow(unused_imports)]
 pub use traits_findings::{Evidence, Finding, FindingKind, StructuralFeature, Trait, TraitKind};
 
+#[allow(unused_imports)]
 pub use paths_env::{
     DirectoryAccess, DirectoryAccessPattern, EnvVarAccessType, EnvVarCategory, EnvVarInfo,
     PathAccessType, PathCategory, PathInfo, PathType,
@@ -62,19 +66,19 @@ pub use binary::{
 };
 
 pub use diff::{
-    DiffCounts, DiffReport, FileChanges, FileRenameInfo, FileDiff, FullDiffReport, MetricsDelta,
+    DiffCounts, DiffReport, FileChanges, FileDiff, FileRenameInfo, FullDiffReport, MetricsDelta,
     ModifiedFileAnalysis,
 };
 
 pub use ml_features::{
     CallPatternMetrics, ControlFlowMetrics, DecodedValue, EmbeddedConstant, FunctionProperties,
-    FunctionSignature, InstructionAnalysis, InstructionCategories, NestingMetrics, RegisterUsage,
+    FunctionSignature, InstructionAnalysis, InstructionCategories, NestingMetrics,
 };
 
+#[allow(unused_imports)]
 pub use code_structure::{
-    BinaryAnomaly, BinaryProperties, CodeMetrics, GoIdioms,
-    JavaScriptIdioms, LinkingInfo, SecurityFeatures, ShellIdioms,
-    SourceCodeMetrics,
+    BinaryAnomaly, BinaryProperties, CodeMetrics, GoIdioms, JavaScriptIdioms, LinkingInfo,
+    SecurityFeatures, ShellIdioms, SourceCodeMetrics,
 };
 
 pub use text_metrics::{
@@ -82,12 +86,10 @@ pub use text_metrics::{
 };
 
 pub use language_metrics::{
-    GoMetrics, JavaScriptMetrics, PythonMetrics, RustMetrics,
-    ShellMetrics,
+    GoMetrics, JavaScriptMetrics, PythonMetrics, RustMetrics, ShellMetrics,
 };
 
 pub use binary_metrics::BinaryMetrics;
-
 
 pub use scores::Metrics;
 

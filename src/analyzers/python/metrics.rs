@@ -1,9 +1,9 @@
 //! Metrics computation for Python source code.
 
+use crate::analyzers::comment_metrics::CommentStyle;
 use crate::analyzers::{
     comment_metrics, function_metrics, identifier_metrics, string_metrics, text_metrics,
 };
-use crate::analyzers::comment_metrics::CommentStyle;
 use crate::types::{Metrics, PythonMetrics};
 
 impl super::PythonAnalyzer {
@@ -51,7 +51,7 @@ impl super::PythonAnalyzer {
 
         // Pattern-based detection via string matching
         metrics.dunder_method_count += content.matches("def __").count() as u32;
-        
+
         metrics
     }
 
@@ -129,7 +129,10 @@ impl super::PythonAnalyzer {
                         if text.contains("__import__(") {
                             metrics.dunder_import_count += 1;
                         }
-                        if text.contains("getattr(") || text.contains("setattr(") || text.contains("hasattr(") {
+                        if text.contains("getattr(")
+                            || text.contains("setattr(")
+                            || text.contains("hasattr(")
+                        {
                             metrics.attr_manipulation_count += 1;
                         }
                         if text.contains("globals(") || text.contains("locals(") {

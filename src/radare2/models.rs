@@ -196,4 +196,3 @@ pub struct R2Section {
     #[serde(default)]
     pub entropy: f64,
 }
-

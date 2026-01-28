@@ -9,7 +9,7 @@
 
 #[cfg(test)]
 mod tests {
-    
+
     use crate::types::AnalysisReport;
     use std::path::Path;
 

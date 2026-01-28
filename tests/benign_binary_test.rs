@@ -2,7 +2,6 @@
 ///
 /// Ensures that legitimate system binaries like /bin/ls are correctly
 /// classified as inert/notable without false positive hostile/suspicious findings.
-
 use assert_cmd::Command;
 use predicates::prelude::*;
 use serde_json::Value;
@@ -31,12 +30,14 @@ fn test_analyze_bin_ls_json_output() {
     let json_start = stdout.find('[').expect("Should find JSON array start");
     let json_output = &stdout[json_start..];
 
-    let parsed: Value = serde_json::from_str(json_output)
-        .expect("Output should be valid JSON");
+    let parsed: Value = serde_json::from_str(json_output).expect("Output should be valid JSON");
 
     // Should be an array with at least one report
     let reports = parsed.as_array().expect("Output should be JSON array");
-    assert!(!reports.is_empty(), "Should have at least one analysis report");
+    assert!(
+        !reports.is_empty(),
+        "Should have at least one analysis report"
+    );
 
     let report = &reports[0];
     let findings = report["findings"]

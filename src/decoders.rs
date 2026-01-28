@@ -14,7 +14,7 @@ pub fn extract_base64_strings(data: &[u8]) -> Vec<DecodedString> {
 
     for mat in base64_pattern.find_iter(&text) {
         let encoded = mat.as_str();
-        
+
         // Try to decode
         if let Ok(decoded_bytes) = STANDARD.decode(encoded) {
             // Check if decoded content is valid UTF-8 and meaningful
@@ -23,19 +23,21 @@ pub fn extract_base64_strings(data: &[u8]) -> Vec<DecodedString> {
                 if decoded_str.len() < 10 {
                     continue;
                 }
-                
+
                 // Check if decoded string contains printable ASCII (heuristic for real content)
-                let printable_ratio = decoded_str.chars()
+                let printable_ratio = decoded_str
+                    .chars()
                     .filter(|c| c.is_ascii() && !c.is_control())
-                    .count() as f32 / decoded_str.len() as f32;
-                
+                    .count() as f32
+                    / decoded_str.len() as f32;
+
                 if printable_ratio > 0.7 {
                     let encoded_preview = if encoded.len() > 100 {
                         format!("{}...", &encoded[..100])
                     } else {
                         encoded.to_string()
                     };
-                    
+
                     results.push(DecodedString {
                         value: decoded_str,
                         encoded: encoded_preview,
@@ -55,7 +57,7 @@ pub fn extract_base64_strings(data: &[u8]) -> Vec<DecodedString> {
 /// Returns decoded strings for keys 0x01-0xFF that produce valid UTF-8
 pub fn extract_xor_strings(data: &[u8]) -> Vec<DecodedString> {
     let mut results = Vec::new();
-    
+
     // Only try XOR decoding on files < 1MB to avoid performance issues
     if data.len() > 1_000_000 {
         return results;
@@ -63,17 +65,17 @@ pub fn extract_xor_strings(data: &[u8]) -> Vec<DecodedString> {
 
     // Try common XOR keys (skip 0x20 - that's just case toggling, not obfuscation)
     let common_keys = [0x01, 0x02, 0x42, 0x55, 0xAA, 0xFF];
-    
+
     for key in common_keys {
         let decoded: Vec<u8> = data.iter().map(|b| b ^ key).collect();
-        
+
         // Check if decoded bytes contain interesting strings
         if let Ok(decoded_str) = String::from_utf8(decoded.clone()) {
             // Look for interesting patterns in decoded content
-            if decoded_str.contains("http://") 
+            if decoded_str.contains("http://")
                 || decoded_str.contains("https://")
                 || decoded_str.contains("eval(")
-                || decoded_str.contains("exec(") 
+                || decoded_str.contains("exec(")
             {
                 // Extract the interesting substring
                 let interesting_part = if let Some(pos) = decoded_str.find("http") {
@@ -87,7 +89,7 @@ pub fn extract_xor_strings(data: &[u8]) -> Vec<DecodedString> {
                 } else {
                     decoded_str[..100.min(decoded_str.len())].to_string()
                 };
-                
+
                 results.push(DecodedString {
                     value: interesting_part,
                     encoded: format!("XOR-encoded data ({} bytes)", data.len()),
@@ -120,7 +122,7 @@ mod tests {
     fn test_extract_base64_url() {
         let data = b"var url = 'aHR0cHM6Ly9ldmlsLmNvbS9wYXlsb2FkLnNo';";
         let decoded = extract_base64_strings(data);
-        
+
         assert_eq!(decoded.len(), 1);
         assert!(decoded[0].value.contains("https://"));
         assert!(decoded[0].value.contains("evil.com"));
@@ -131,7 +133,7 @@ mod tests {
         // Too short (< 10 chars decoded)
         let data = b"const x = 'aGk='; // 'hi'";
         let decoded = extract_base64_strings(data);
-        
+
         assert_eq!(decoded.len(), 0);
     }
 
@@ -140,7 +142,7 @@ mod tests {
         // Less than 20 chars encoded should be ignored
         let data = b"const x = 'SGVsbG8=';"; // "Hello" - only 12 chars
         let decoded = extract_base64_strings(data);
-        
+
         assert_eq!(decoded.len(), 0);
     }
 
@@ -149,7 +151,7 @@ mod tests {
         // Binary data that decodes but isn't printable
         let data = b"const x = 'AQIDBAUGAAAAAAAAAAAAAAAAAAA=';";
         let decoded = extract_base64_strings(data);
-        
+
         // Should be filtered out due to low printable ratio
         assert_eq!(decoded.len(), 0);
     }
@@ -159,9 +161,9 @@ mod tests {
         let plaintext = b"https://evil.com/payload";
         let key = 0x42;
         let encoded: Vec<u8> = plaintext.iter().map(|b| b ^ key).collect();
-        
+
         let decoded = extract_xor_strings(&encoded);
-        
+
         assert!(decoded.len() > 0);
         assert!(decoded[0].value.contains("https://"));
         assert_eq!(decoded[0].method, "xor");
@@ -173,9 +175,9 @@ mod tests {
         let plaintext = b"eval(atob('malicious'))";
         let key = 0x55;
         let encoded: Vec<u8> = plaintext.iter().map(|b| b ^ key).collect();
-        
+
         let decoded = extract_xor_strings(&encoded);
-        
+
         assert!(decoded.len() > 0);
         assert!(decoded[0].value.contains("eval("));
     }
@@ -185,9 +187,9 @@ mod tests {
         // XOR with 0x20 just toggles case - should not be detected
         let plaintext = b"Hello World https://test.com";
         let encoded: Vec<u8> = plaintext.iter().map(|b| b ^ 0x20).collect();
-        
+
         let decoded = extract_xor_strings(&encoded);
-        
+
         // Should be empty since we skip 0x20
         assert_eq!(decoded.len(), 0);
     }
@@ -197,7 +199,7 @@ mod tests {
         // Files > 1MB should be skipped for performance
         let large_data = vec![0x42; 1_500_000];
         let decoded = extract_xor_strings(&large_data);
-        
+
         assert_eq!(decoded.len(), 0);
     }
 
@@ -205,25 +207,33 @@ mod tests {
     fn test_base64_performance() {
         // Test on a realistic minified file size
         let data = vec![b'A'; 100_000];
-        
+
         let start = std::time::Instant::now();
         let _decoded = extract_base64_strings(&data);
         let elapsed = start.elapsed();
-        
+
         // Should complete in < 100ms
-        assert!(elapsed.as_millis() < 100, "Base64 extraction took {}ms", elapsed.as_millis());
+        assert!(
+            elapsed.as_millis() < 100,
+            "Base64 extraction took {}ms",
+            elapsed.as_millis()
+        );
     }
 
     #[test]
     fn test_xor_performance() {
         // Test XOR performance on reasonable file size
         let data = vec![0x42; 500_000];
-        
+
         let start = std::time::Instant::now();
         let _decoded = extract_xor_strings(&data);
         let elapsed = start.elapsed();
-        
+
         // Should complete in < 500ms (7 keys to try)
-        assert!(elapsed.as_millis() < 500, "XOR extraction took {}ms", elapsed.as_millis());
+        assert!(
+            elapsed.as_millis() < 500,
+            "XOR extraction took {}ms",
+            elapsed.as_millis()
+        );
     }
 }

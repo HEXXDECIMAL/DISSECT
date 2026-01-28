@@ -34,12 +34,22 @@ pub fn eval_ast_pattern(
 
     // Use cached AST if available
     if let Some(cached_tree) = ctx.cached_ast {
-        return eval_ast_pattern_with_tree(cached_tree, source, node_type, pattern, use_regex, case_insensitive);
+        return eval_ast_pattern_with_tree(
+            cached_tree,
+            source,
+            node_type,
+            pattern,
+            use_regex,
+            case_insensitive,
+        );
     }
 
     static WARNED: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
     if !WARNED.swap(true, std::sync::atomic::Ordering::Relaxed) {
-        eprintln!("⚠️  WARNING: AST cache miss - re-parsing AST for each trait! File type: {:?}", ctx.file_type);
+        eprintln!(
+            "⚠️  WARNING: AST cache miss - re-parsing AST for each trait! File type: {:?}",
+            ctx.file_type
+        );
     }
 
     // No cached AST, need to parse
@@ -101,7 +111,14 @@ pub fn eval_ast_pattern(
         }
     };
 
-    eval_ast_pattern_with_tree(&tree, source, node_type, pattern, use_regex, case_insensitive)
+    eval_ast_pattern_with_tree(
+        &tree,
+        source,
+        node_type,
+        pattern,
+        use_regex,
+        case_insensitive,
+    )
 }
 
 /// Helper function to evaluate AST pattern with a given tree
