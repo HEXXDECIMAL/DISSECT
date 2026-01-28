@@ -53,7 +53,7 @@ impl ElfAnalyzer {
             path: file_path.display().to_string(),
             file_type: "elf".to_string(),
             size_bytes: data.len() as u64,
-            sha256: self.calculate_sha256(data),
+            sha256: crate::analyzers::utils::calculate_sha256(data),
             architectures: None,
         };
 
@@ -375,12 +375,6 @@ impl ElfAnalyzer {
         }
     }
 
-    fn calculate_sha256(&self, data: &[u8]) -> String {
-        use sha2::{Digest, Sha256};
-        let mut hasher = Sha256::new();
-        hasher.update(data);
-        format!("{:x}", hasher.finalize())
-    }
 
     fn yara_namespace_to_capability(&self, namespace: &str) -> Option<String> {
         let parts: Vec<&str> = namespace.split('.').collect();

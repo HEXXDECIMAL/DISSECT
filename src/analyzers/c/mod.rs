@@ -95,23 +95,18 @@ impl CAnalyzer {
             path: file_path.display().to_string(),
             file_type: "c".to_string(),
             size_bytes: content.len() as u64,
-            sha256: self.calculate_sha256(content.as_bytes()),
+            sha256: crate::analyzers::utils::calculate_sha256(content.as_bytes()),
             architectures: None,
         };
 
         let mut report = AnalysisReport::new(target);
 
         // Add structural feature
-        report.structure.push(StructuralFeature {
-            id: "source/language/c".to_string(),
-            desc: "C source code".to_string(),
-            evidence: vec![Evidence {
-                method: "parser".to_string(),
-                source: "tree-sitter-c".to_string(),
-                value: "c".to_string(),
-                location: Some("AST".to_string()),
-            }],
-        });
+        report.structure.push(crate::analyzers::utils::create_language_feature(
+            "c",
+            "tree-sitter-c",
+            "C source code",
+        ));
 
         // Detect capabilities and patterns
         detect_capabilities(self, &root, content.as_bytes(), &mut report);
@@ -400,14 +395,6 @@ impl CAnalyzer {
                 }
             }
         }
-    }
-
-    /// Calculate SHA256 hash of the given data.
-    fn calculate_sha256(&self, data: &[u8]) -> String {
-        use sha2::{Digest, Sha256};
-        let mut hasher = Sha256::new();
-        hasher.update(data);
-        format!("{:x}", hasher.finalize())
     }
 }
 

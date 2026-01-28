@@ -118,7 +118,7 @@ impl JavaScriptAnalyzer {
                     path: file_path.display().to_string(),
                     file_type: "javascript".to_string(),
                     size_bytes: content.len() as u64,
-                    sha256: self.calculate_sha256(content.as_bytes()),
+                    sha256: crate::analyzers::utils::calculate_sha256(content.as_bytes()),
                     architectures: None,
                 };
 
@@ -154,23 +154,18 @@ impl JavaScriptAnalyzer {
             path: file_path.display().to_string(),
             file_type: "javascript".to_string(),
             size_bytes: content.len() as u64,
-            sha256: self.calculate_sha256(content.as_bytes()),
+            sha256: crate::analyzers::utils::calculate_sha256(content.as_bytes()),
             architectures: None,
         };
 
         let mut report = AnalysisReport::new(target);
 
         // Add structural feature
-        report.structure.push(StructuralFeature {
-            id: "source/language/javascript".to_string(),
-            desc: "JavaScript source code".to_string(),
-            evidence: vec![Evidence {
-                method: "parser".to_string(),
-                source: "tree-sitter-javascript".to_string(),
-                value: "javascript".to_string(),
-                location: Some("AST".to_string()),
-            }],
-        });
+        report.structure.push(crate::analyzers::utils::create_language_feature(
+            "javascript",
+            "tree-sitter-javascript",
+            "JavaScript source code",
+        ));
 
         // Detect capabilities and obfuscation
         let t = std::time::Instant::now();
@@ -724,13 +719,6 @@ impl JavaScriptAnalyzer {
                 }
             }
         }
-    }
-
-    pub(crate) fn calculate_sha256(&self, data: &[u8]) -> String {
-        use sha2::{Digest, Sha256};
-        let mut hasher = Sha256::new();
-        hasher.update(data);
-        format!("{:x}", hasher.finalize())
     }
 }
 

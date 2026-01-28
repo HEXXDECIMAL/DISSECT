@@ -44,7 +44,7 @@ impl VsixManifestAnalyzer {
             path: file_path.display().to_string(),
             file_type: "vsix_manifest".to_string(),
             size_bytes: content.len() as u64,
-            sha256: self.calculate_sha256(content.as_bytes()),
+            sha256: crate::analyzers::utils::calculate_sha256(content.as_bytes()),
             architectures: None,
         };
 
@@ -105,12 +105,6 @@ impl VsixManifestAnalyzer {
         Ok(report)
     }
 
-    fn calculate_sha256(&self, data: &[u8]) -> String {
-        use sha2::{Digest, Sha256};
-        let mut hasher = Sha256::new();
-        hasher.update(data);
-        format!("{:x}", hasher.finalize())
-    }
 }
 
 impl Default for VsixManifestAnalyzer {

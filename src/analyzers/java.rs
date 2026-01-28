@@ -53,23 +53,18 @@ impl JavaAnalyzer {
             path: file_path.display().to_string(),
             file_type: "java".to_string(),
             size_bytes: content.len() as u64,
-            sha256: self.calculate_sha256(content.as_bytes()),
+            sha256: crate::analyzers::utils::calculate_sha256(content.as_bytes()),
             architectures: None,
         };
 
         let mut report = AnalysisReport::new(target);
 
         // Add structural feature
-        report.structure.push(StructuralFeature {
-            id: "source/language/java".to_string(),
-            desc: "Java source code".to_string(),
-            evidence: vec![Evidence {
-                method: "parser".to_string(),
-                source: "tree-sitter-java".to_string(),
-                value: "java".to_string(),
-                location: Some("AST".to_string()),
-            }],
-        });
+        report.structure.push(crate::analyzers::utils::create_language_feature(
+            "java",
+            "tree-sitter-java",
+            "Java source code",
+        ));
 
         // Detect capabilities and patterns
         self.detect_capabilities(&root, content.as_bytes(), &mut report);
@@ -736,13 +731,6 @@ impl JavaAnalyzer {
             }
         }
         None
-    }
-
-    fn calculate_sha256(&self, data: &[u8]) -> String {
-        use sha2::{Digest, Sha256};
-        let mut hasher = Sha256::new();
-        hasher.update(data);
-        format!("{:x}", hasher.finalize())
     }
 }
 

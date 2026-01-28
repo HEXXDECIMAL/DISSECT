@@ -62,23 +62,18 @@ impl RustAnalyzer {
             path: file_path.display().to_string(),
             file_type: "rust".to_string(),
             size_bytes: content.len() as u64,
-            sha256: self.calculate_sha256(content.as_bytes()),
+            sha256: crate::analyzers::utils::calculate_sha256(content.as_bytes()),
             architectures: None,
         };
 
         let mut report = AnalysisReport::new(target);
 
         // Add structural feature
-        report.structure.push(StructuralFeature {
-            id: "source/language/rust".to_string(),
-            desc: "Rust source code".to_string(),
-            evidence: vec![Evidence {
-                method: "parser".to_string(),
-                source: "tree-sitter-rust".to_string(),
-                value: "rust".to_string(),
-                location: Some("AST".to_string()),
-            }],
-        });
+        report.structure.push(crate::analyzers::utils::create_language_feature(
+            "rust",
+            "tree-sitter-rust",
+            "Rust source code",
+        ));
 
         // Detect capabilities and patterns (hardcoded)
         self.detect_capabilities(&root, content.as_bytes(), &mut report);
@@ -836,13 +831,6 @@ impl RustAnalyzer {
             }
         }
         None
-    }
-
-    fn calculate_sha256(&self, data: &[u8]) -> String {
-        use sha2::{Digest, Sha256};
-        let mut hasher = Sha256::new();
-        hasher.update(data);
-        format!("{:x}", hasher.finalize())
     }
 }
 

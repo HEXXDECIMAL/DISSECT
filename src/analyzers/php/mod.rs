@@ -51,22 +51,17 @@ impl PhpAnalyzer {
             path: file_path.display().to_string(),
             file_type: "php".to_string(),
             size_bytes: content.len() as u64,
-            sha256: self.calculate_sha256(content.as_bytes()),
+            sha256: crate::analyzers::utils::calculate_sha256(content.as_bytes()),
             architectures: None,
         };
 
         let mut report = AnalysisReport::new(target);
 
-        report.structure.push(StructuralFeature {
-            id: "source/language/php".to_string(),
-            desc: "PHP script".to_string(),
-            evidence: vec![Evidence {
-                method: "parser".to_string(),
-                source: "tree-sitter-php".to_string(),
-                value: "php".to_string(),
-                location: Some("AST".to_string()),
-            }],
-        });
+        report.structure.push(crate::analyzers::utils::create_language_feature(
+            "php",
+            "tree-sitter-php",
+            "PHP script",
+        ));
 
         self.detect_capabilities(&root, content.as_bytes(), &mut report);
         self.extract_functions(&root, content.as_bytes(), &mut report);
@@ -91,13 +86,6 @@ impl PhpAnalyzer {
         report.metadata.analysis_duration_ms = elapsed;
 
         Ok(report)
-    }
-
-    fn calculate_sha256(&self, data: &[u8]) -> String {
-        use sha2::{Digest, Sha256};
-        let mut hasher = Sha256::new();
-        hasher.update(data);
-        format!("{:x}", hasher.finalize())
     }
 }
 

@@ -54,7 +54,7 @@ impl PEAnalyzer {
             path: file_path.display().to_string(),
             file_type: "pe".to_string(),
             size_bytes: data.len() as u64,
-            sha256: self.calculate_sha256(data),
+            sha256: crate::analyzers::utils::calculate_sha256(data),
             architectures: Some(vec![self.arch_name(&pe)]),
         };
 
@@ -347,12 +347,6 @@ impl PEAnalyzer {
         }
     }
 
-    fn calculate_sha256(&self, data: &[u8]) -> String {
-        use sha2::{Digest, Sha256};
-        let mut hasher = Sha256::new();
-        hasher.update(data);
-        format!("{:x}", hasher.finalize())
-    }
 }
 
 impl Default for PEAnalyzer {

@@ -29,12 +29,6 @@ impl JavaClassAnalyzer {
         self
     }
 
-    fn calculate_sha256(&self, data: &[u8]) -> String {
-        use sha2::{Digest, Sha256};
-        let mut hasher = Sha256::new();
-        hasher.update(data);
-        format!("{:x}", hasher.finalize())
-    }
 
     fn analyze_class(&self, file_path: &Path, data: &[u8]) -> Result<AnalysisReport> {
         let start = std::time::Instant::now();
@@ -44,7 +38,7 @@ impl JavaClassAnalyzer {
             path: file_path.display().to_string(),
             file_type: "java_class".to_string(),
             size_bytes: data.len() as u64,
-            sha256: self.calculate_sha256(data),
+            sha256: crate::analyzers::utils::calculate_sha256(data),
             architectures: None,
         };
 

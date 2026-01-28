@@ -22,6 +22,7 @@ pub mod identifier_metrics;
 pub mod string_metrics;
 pub mod symbol_extraction;
 pub mod text_metrics;
+pub mod utils;
 
 pub mod elf;
 pub mod go;

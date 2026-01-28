@@ -53,22 +53,17 @@ impl CSharpAnalyzer {
             path: file_path.display().to_string(),
             file_type: "csharp".to_string(),
             size_bytes: content.len() as u64,
-            sha256: self.calculate_sha256(content.as_bytes()),
+            sha256: crate::analyzers::utils::calculate_sha256(content.as_bytes()),
             architectures: None,
         };
 
         let mut report = AnalysisReport::new(target);
 
-        report.structure.push(StructuralFeature {
-            id: "source/language/csharp".to_string(),
-            desc: "C# source code".to_string(),
-            evidence: vec![Evidence {
-                method: "parser".to_string(),
-                source: "tree-sitter-c-sharp".to_string(),
-                value: "csharp".to_string(),
-                location: Some("AST".to_string()),
-            }],
-        });
+        report.structure.push(crate::analyzers::utils::create_language_feature(
+            "csharp",
+            "tree-sitter-c-sharp",
+            "C# source code",
+        ));
 
         self.detect_capabilities(&root, content.as_bytes(), &mut report);
         self.extract_functions(&root, content.as_bytes(), &mut report);
@@ -917,12 +912,6 @@ impl CSharpAnalyzer {
         None
     }
 
-    fn calculate_sha256(&self, data: &[u8]) -> String {
-        use sha2::{Digest, Sha256};
-        let mut hasher = Sha256::new();
-        hasher.update(data);
-        format!("{:x}", hasher.finalize())
-    }
 }
 
 impl Analyzer for CSharpAnalyzer {

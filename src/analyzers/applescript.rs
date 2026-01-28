@@ -105,7 +105,7 @@ impl Analyzer for AppleScriptAnalyzer {
             path: file_path.display().to_string(),
             file_type: "applescript".to_string(),
             size_bytes: data.len() as u64,
-            sha256: calculate_sha256(&data),
+            sha256: crate::analyzers::utils::calculate_sha256(&data),
             architectures: None,
         };
 
@@ -137,11 +137,4 @@ impl Analyzer for AppleScriptAnalyzer {
 
         Ok(report)
     }
-}
-
-fn calculate_sha256(data: &[u8]) -> String {
-    use sha2::{Digest, Sha256};
-    let mut hasher = Sha256::new();
-    hasher.update(data);
-    format!("{:x}", hasher.finalize())
 }
