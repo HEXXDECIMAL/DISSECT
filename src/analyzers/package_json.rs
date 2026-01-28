@@ -5,7 +5,6 @@ use crate::capabilities::CapabilityMapper;
 use crate::types::*;
 use anyhow::{Context, Result};
 use serde::Deserialize;
-use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
@@ -981,12 +980,6 @@ impl PackageJsonAnalyzer {
             .map(|m| m.as_str().to_string())
             .filter(|p| p.len() > 3)
             .collect()
-    }
-
-    fn calculate_sha256(&self, data: &[u8]) -> String {
-        let mut hasher = Sha256::new();
-        hasher.update(data);
-        format!("{:x}", hasher.finalize())
     }
 }
 

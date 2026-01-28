@@ -11,6 +11,7 @@ use tree_sitter::Parser;
 mod capabilities;
 mod extraction;
 mod metrics;
+#[cfg(test)]
 mod tests;
 
 /// Ruby analyzer using tree-sitter

@@ -6,6 +6,7 @@ mod tests {
     use std::io::Write;
     use tempfile::NamedTempFile;
 
+    #[allow(dead_code)]
     fn analyze_shell_code(code: &str) -> AnalysisReport {
         let mut temp_file = NamedTempFile::new().unwrap();
         temp_file.write_all(code.as_bytes()).unwrap();

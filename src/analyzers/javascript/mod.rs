@@ -225,6 +225,10 @@ impl JavaScriptAnalyzer {
             &["call_expression"],
             &mut report,
         );
+
+        // Analyze paths and environment variables
+        crate::path_mapper::analyze_and_link_paths(&mut report);
+        crate::env_mapper::analyze_and_link_env_vars(&mut report);
         if timing_enabled {
             eprintln!(
                 "[PROFILE]   symbol_extraction: {}ms",

@@ -35,6 +35,7 @@ pub struct FieldInfo {
     pub descriptor: String,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub enum ConstantPoolEntry {
     Empty,

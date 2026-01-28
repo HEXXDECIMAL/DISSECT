@@ -1,4 +1,5 @@
 use crate::analyzers::ruby::RubyAnalyzer;
+#[allow(unused_imports)]
 use crate::analyzers::Analyzer;
 use crate::types::AnalysisReport;
 
@@ -6,6 +7,7 @@ mod tests {
     use super::*;
     use std::path::PathBuf;
 
+    #[allow(dead_code)]
     fn analyze_ruby_code(code: &str) -> AnalysisReport {
         let analyzer = RubyAnalyzer::new();
         let path = PathBuf::from("test.rb");

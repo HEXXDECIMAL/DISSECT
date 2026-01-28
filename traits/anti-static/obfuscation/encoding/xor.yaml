@@ -123,6 +123,40 @@ traits:
       type: symbol
       pattern: "char_map"
 
+  # === Multi-byte XOR key detection ===
+  - id: xor-key-multibyte-31
+    desc: 31-byte alphanumeric XOR key pattern
+    crit: suspicious
+    conf: 0.85
+    for: [elf, macho, pe]
+    if:
+      type: string
+      regex: "\\b[a-zA-Z0-9]{31}\\b"
+      min_count: 1
+    unless:
+      # Exclude base64-like strings that are valid identifiers
+      - id: feat/encoding/base64/base64-string
+
+  - id: xor-key-multibyte-16-32
+    desc: 16-32 byte random-looking key in const section
+    crit: notable
+    conf: 0.7
+    for: [elf, macho, pe]
+    if:
+      type: string
+      # Match random-looking alphanumeric strings 16-32 bytes
+      regex: "\\b[a-zA-Z0-9]{16,32}\\b"
+      min_count: 1
+
+  - id: xor-key-embedded-homabrews
+    desc: Known XOR key from homabrews.org malware family
+    crit: hostile
+    conf: 1.0
+    for: [macho]
+    if:
+      type: string
+      exact: "fYztZORL5VNS7nCUH1ktn5UoJ8VSgaf"
+
 composite_rules:
   # Single-byte XOR key composite
   - id: single-byte-xor-key

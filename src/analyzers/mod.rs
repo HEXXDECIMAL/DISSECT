@@ -24,6 +24,9 @@ pub mod symbol_extraction;
 pub mod text_metrics;
 pub mod utils;
 
+// Analyzer templates and helpers
+pub mod source_analyzer;
+
 pub mod elf;
 pub mod go;
 pub mod java;

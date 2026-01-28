@@ -1,7 +1,7 @@
 //! Python script analyzer using tree-sitter.
 
 use crate::analyzers::Analyzer;
-use crate::types::{AnalysisReport, Evidence, StructuralFeature, TargetInfo};
+use crate::types::{AnalysisReport, TargetInfo};
 use crate::capabilities::CapabilityMapper;
 use anyhow::{Context, Result};
 use std::cell::RefCell;
