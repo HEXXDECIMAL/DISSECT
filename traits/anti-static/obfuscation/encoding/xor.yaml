@@ -150,7 +150,7 @@ traits:
 
   - id: xor-key-embedded-homabrews
     desc: Known XOR key from homabrews.org malware family
-    crit: hostile
+    crit: suspicious
     conf: 1.0
     for: [macho]
     if:

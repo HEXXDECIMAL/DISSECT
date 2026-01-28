@@ -1218,6 +1218,7 @@ composite_rules:
     all:
       - {id: dropper/builder/activex-object}
       - {id: exec/javascript/es6-features/modern-javascript}
+      - {id: exec/javascript/es6-features/template-literals}
     explanation: |
       ActiveXObject is obsolete (IE-only, deprecated 2015). Modern JavaScript
       using ES6+ features has no legitimate reason to use it. This indicates

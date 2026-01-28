@@ -117,7 +117,7 @@ composite_rules:
     platforms: [linux]
     count: 1
     any:
-      - id: process/debug/ptrace
+      - id: evasion/syscall/ptrace
       - id: fs/proc/process/process-self-status
       - id: fs/proc/process/process-self-maps
       - id: tracerpid-string

@@ -232,6 +232,13 @@ pub enum Command {
         #[arg(short, long, default_value = "4")]
         min_length: usize,
     },
+
+    /// Extract symbols (imports, exports, functions) from a binary or source file
+    Symbols {
+        /// Target file (binary or source)
+        #[arg(required = true)]
+        target: String,
+    },
 }
 
 #[derive(Debug, Clone, clap::ValueEnum, PartialEq)]
@@ -344,6 +351,38 @@ mod tests {
         if let Some(Command::Diff { old, new }) = args.command {
             assert_eq!(old, "old.bin");
             assert_eq!(new, "new.bin");
+        }
+    }
+
+    #[test]
+    fn test_parse_strings_command() {
+        let args = Args::try_parse_from(["dissect", "strings", "file.bin"]).unwrap();
+
+        assert!(matches!(args.command, Some(Command::Strings { .. })));
+        if let Some(Command::Strings { target, min_length }) = args.command {
+            assert_eq!(target, "file.bin");
+            assert_eq!(min_length, 4); // Default value
+        }
+    }
+
+    #[test]
+    fn test_parse_strings_command_with_min_length() {
+        let args =
+            Args::try_parse_from(["dissect", "strings", "file.bin", "-m", "10"]).unwrap();
+
+        if let Some(Command::Strings { target, min_length }) = args.command {
+            assert_eq!(target, "file.bin");
+            assert_eq!(min_length, 10);
+        }
+    }
+
+    #[test]
+    fn test_parse_symbols_command() {
+        let args = Args::try_parse_from(["dissect", "symbols", "file.bin"]).unwrap();
+
+        assert!(matches!(args.command, Some(Command::Symbols { .. })));
+        if let Some(Command::Symbols { target }) = args.command {
+            assert_eq!(target, "file.bin");
         }
     }
 

@@ -173,7 +173,8 @@ if:
 **Supported:** `c`, `python`, `javascript`/`js`, `typescript`/`ts`, `rust`, `go`, `java`, `ruby`, `shell`/`bash`, `php`, `csharp`/`c#`
 
 ### symbol
-Match function imports/exports in binaries.
+
+Match function imports/exports in binaries or source code!
 
 ```yaml
 # Exact match
@@ -188,6 +189,8 @@ if:
   pattern: "socket.*connect.*bind"
   platforms: [linux, macos]
 ```
+
+You can use the `dissect symbols` subcommand to see what symbols we find in a program
 
 **Note:** Avoid `"a|b|c|d"` regexes. Create separate traits and combine with composite rules (better for ML pipelines).
 
@@ -206,6 +209,8 @@ if:
   exclude_patterns: ["localhost"]  # Optional
   search_raw: false  # Optional: search raw file content
 ```
+
+You can use the `dissect strings` subcommand to see what strings we find in a program
 
 ### hex
 
