@@ -1,0 +1,27 @@
+# Tiny Binary Features
+# Detects unusually small or stripped binaries often associated with stagers
+
+defaults:
+  for: [elf]
+  crit: notable
+
+traits:
+  - id: tiny-elf
+    desc: "Tiny ELF binary (< 4KB)"
+    if:
+      type: filesize
+      max: 4096
+
+  - id: micro-elf
+    desc: "Micro ELF binary (< 1KB)"
+    crit: suspicious
+    if:
+      type: filesize
+      max: 1024
+
+  - id: dominant-text-section
+    desc: ".text section is >75% of binary size (hand-written assembly)"
+    if:
+      type: section_ratio
+      section: "\\.text"
+      min_ratio: 0.75
