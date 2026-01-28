@@ -11,7 +11,7 @@
 //! - Content is JSON serialized `BatchedAnalysis` compressed with zstd
 //! - Compression level 3 provides good balance of size and speed
 
-use super::models::BatchedAnalysis;
+use super::BatchedAnalysis;
 use crate::cache::re_cache_path;
 use sha2::{Digest, Sha256};
 use std::fs::{self, File};
