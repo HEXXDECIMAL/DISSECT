@@ -76,7 +76,7 @@ traits:
 
 composite_rules:
   - id: port-number-constant
-    desc: "Common C2 port number (23, 80, 443, 8080, 4444)"
+    desc: "Common C2 port number (23,"
     crit: notable
     conf: 0.6
     mbc: none
@@ -104,7 +104,7 @@ composite_rules:
       - id: private-ip-192
 
   - id: obfuscated-address
-    desc: "C2 address obfuscation (HTTP client + no visible IP)"
+    desc: "C2 address obfuscation (HTTP client"
     conf: 0.85
     mbc: "B0032"
     attack: "T1027"

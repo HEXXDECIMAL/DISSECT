@@ -232,7 +232,7 @@ composite_rules:
   # CoreServices password authentication composite
   - id: csidentity-password-auth
     desc: "macOS CoreServices password authentication"
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     attack: "T1110.001"
     mbc: "E1110"
@@ -247,7 +247,7 @@ composite_rules:
   # Password validation + capture = credential theft
   - id: validation-theft
     desc: "macOS credential capture validation"
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     attack: "T1110.001"
     for: [shell, applescript, python]

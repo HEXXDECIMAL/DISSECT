@@ -3,7 +3,7 @@
 
 composite_rules:
   - id: backdoor/generic/stealth-behavior
-    description: "Stealth backdoor behavior (Anti-analysis + Evasion)"
+    description: "Stealth backdoor behavior (Anti-analysis +"
     crit: hostile
     conf: 0.9
     attack: "T1027"

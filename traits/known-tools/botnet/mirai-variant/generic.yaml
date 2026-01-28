@@ -4,7 +4,7 @@
 
 traits:
   - id: iot-botnet/gpio-daemon
-    description: GPIO daemon naming (IoT botnet indicator)
+    description: GPIO daemon naming (IoT botnet
     crit: suspicious
     conf: 0.75
     mbc: "OB0004"
@@ -346,7 +346,7 @@ composite_rules:
 
   # IoT botnet detection - requires multiple indicators
   - id: iot-botnet-detected
-    description: IoT botnet variant detected (multiple indicators)
+    description: IoT botnet variant detected (multiple
     crit: hostile
     conf: 0.95
     mbc: "OB0004"

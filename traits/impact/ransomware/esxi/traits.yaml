@@ -51,7 +51,7 @@ traits:
 
   # ESXi snapshot manipulation
   - id: snapshot
-    description: ESXi snapshot removal command (ransomware preparation)
+    description: ESXi snapshot removal command (ransomware
     crit: suspicious
     conf: 0.9
     mbc: "C0027"
@@ -103,7 +103,7 @@ traits:
 
   # ESXi CLI tools usage
   - id: cli-tools
-    description: ESXi CLI tools for attack operations
+    description: ESXi CLI tools for attack
     crit: suspicious
     conf: 0.8
     mbc: "C0027"

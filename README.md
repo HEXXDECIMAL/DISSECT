@@ -173,7 +173,7 @@ Language-aware string extraction:
 # Source files: AST-extracted string literals only
 dissect strings script.py
 
-# Binaries: strangs extraction with classification
+# Binaries: stng extraction with classification
 dissect strings binary.bin -m 10  # min length 10
 
 # Output:
@@ -184,7 +184,7 @@ OFFSET     TYPE           VALUE
 ```
 
 **Source files:** AST parsing extracts only string literals (no comments/code)
-**Binaries:** strangs extracts ASCII/UTF-8/UTF-16, classifies by type (URL, IP, path, email, base64)
+**Binaries:** stng extracts ASCII/UTF-8/UTF-16, classifies by type (URL, IP, path, email, base64)
 
 ## Architecture
 

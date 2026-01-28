@@ -6,7 +6,7 @@
 traits:
   # Install Hooks
   - id: preinstall-hook
-    description: Package has 'preinstall' hook that runs before install
+    description: Package has 'preinstall' hook that
     crit: suspicious
     confidence: 0.85
     mbc: "B0024"
@@ -30,7 +30,7 @@ composite_rules:
 
   # Pipe to interpreter patterns
   - id: pipe-to-interpreters
-    description: Script pipes to shell or interpreter
+    description: Script pipes to shell or
     crit: inert
     conf: 0.6
     file_types: [packagejson]
@@ -43,7 +43,7 @@ composite_rules:
 
   # Download and execute composite
   - id: download-execute
-    description: npm script downloads and executes code (dropper pattern)
+    description: npm script downloads and executes
     crit: suspicious
     conf: 0.95
     mbc: "B0024"

@@ -10,7 +10,7 @@ defaults:
 traits:
   # === IOKit Registry micro-traits ===
   - id: ioplatformuuid
-    desc: "References macOS hardware UUID (used to uniquely identify the Mac)"
+    desc: "References macOS hardware UUID (used"
     crit: notable
     conf: 0.85
     for: [macho]
@@ -19,7 +19,7 @@ traits:
       exact: "IOPlatformUUID"
 
   - id: iokit-registry-entry
-    desc: "Accesses macOS device driver registry to read hardware info"
+    desc: "Accesses macOS device driver registry"
     crit: notable
     conf: 0.75
     for: [macho]
@@ -28,7 +28,7 @@ traits:
       pattern: "IORegistryEntryFromPath"
 
   - id: iokit-registry-property
-    desc: "Reads hardware properties from macOS device registry"
+    desc: "Reads hardware properties from macOS"
     crit: notable
     conf: 0.75
     for: [macho]
@@ -37,7 +37,7 @@ traits:
       pattern: "IORegistryEntryCreateCFProperty"
 
   - id: iokit-object-release
-    desc: "Releases macOS IOKit registry object (cleanup function)"
+    desc: "Releases macOS IOKit registry object"
     crit: inert
     conf: 0.5
     for: [macho]
@@ -55,7 +55,7 @@ traits:
       exact: "IOPlatformSerialNumber"
 
   - id: ioservice-plane
-    desc: "References IOKit service plane (hardware tree structure)"
+    desc: "References IOKit service plane (hardware"
     crit: inert
     conf: 0.6
     for: [macho]
@@ -66,7 +66,7 @@ traits:
 composite_rules:
   # IOKit registry access composite
   - id: iokit-registry
-    desc: "IOKit registry access for hardware enumeration"
+    desc: "IOKit registry access for hardware"
     crit: notable
     conf: 0.8
     for: [macho]
@@ -91,7 +91,7 @@ composite_rules:
 
   # Full hardware fingerprint composite
   - id: hardware-fingerprint-macos
-    desc: "macOS hardware fingerprinting (UUID + serial)"
+    desc: "macOS hardware fingerprinting (UUID +"
     crit: suspicious
     conf: 0.9
     for: [macho]

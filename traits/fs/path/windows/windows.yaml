@@ -55,7 +55,7 @@ traits:
 
 composite_rules:
   - id: windows-appdata
-    desc: Windows Application Data paths (user profiles)
+    desc: Windows Application Data paths (user
     crit: notable
     conf: 0.66
     mbc: E1083

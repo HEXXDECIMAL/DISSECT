@@ -7,7 +7,7 @@ defaults:
 
 traits:
   - id: pair
-    desc: Create a pair of connected sockets
+    desc: Create a pair of connected
     crit: inert
     conf: 0.66
     if:

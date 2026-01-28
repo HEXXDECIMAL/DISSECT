@@ -1,6 +1,6 @@
 traits:
   - id: process-fork
-    description: Process forking syscall (fork, vfork, or clone)
+    description: Process forking syscall (fork, vfork,
     crit: notable
     condition:
       type: syscall
@@ -14,14 +14,14 @@ traits:
       name: ["fork"]
 
   - id: process-setsid
-    description: Create new session and become session leader
+    description: Create new session and become
     crit: notable
     condition:
       type: syscall
       name: ["setsid"]
 
   - id: fd-redirect
-    description: File descriptor redirection (dup2 or dup3)
+    description: File descriptor redirection (dup2 or
     crit: notable
     condition:
       type: syscall
@@ -35,7 +35,7 @@ traits:
       name: ["dup2", "dup3"]
       count_min: 2
   - id: fd-redirect-macos
-    description: File descriptor redirection on macOS (dup2)
+    description: File descriptor redirection on macOS
     crit: notable
     condition:
       type: syscall
@@ -43,7 +43,7 @@ traits:
       count_min: 2
 composite_rules:
   - id: daemon
-    description: Daemon behavior - detaches from controlling terminal
+    description: Daemon behavior - detaches from
     confidence: 0.85
     crit: notable
     platforms: [linux]
@@ -53,7 +53,7 @@ composite_rules:
       - id: process-setsid
 
   - id: daemon-full
-    description: Full daemon pattern with stdin/stdout redirection
+    description: Full daemon pattern with stdin/stdout
     confidence: 0.9
     crit: notable
     platforms: [linux]
@@ -64,7 +64,7 @@ composite_rules:
       - id: fd-redirect-multiple
 
   - id: daemon-macos
-    description: macOS daemon behavior - detaches from terminal
+    description: macOS daemon behavior - detaches
     confidence: 0.85
     crit: notable
     platforms: [macos]
@@ -74,7 +74,7 @@ composite_rules:
       - id: process-setsid
 
   - id: daemon-macos-full
-    description: Full macOS daemon pattern with I/O redirection
+    description: Full macOS daemon pattern with
     confidence: 0.9
     crit: notable
     platforms: [macos]

@@ -141,9 +141,9 @@ composite_rules:
 
   # Archive with curl exfil
   - id: archive-exfil
-    desc: "Archive creation with HTTP exfiltration"
-    crit: hostile
-    conf: 0.95
+    desc: "Archive collection with network exfiltration"
+    crit: suspicious
+    conf: 0.9
     attack: "T1560.001"
     for: [shell, applescript, python]
     all:

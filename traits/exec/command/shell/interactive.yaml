@@ -15,7 +15,7 @@ traits:
       exact: "sh -i"
 
   - id: bin-sh-interactive
-    desc: Interactive shell invocation with full path (/bin/sh -i)
+    desc: Interactive shell invocation with full
     crit: notable
     conf: 0.6
     attack: "T1059"

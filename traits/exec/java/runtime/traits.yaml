@@ -71,7 +71,7 @@ traits:
       pattern: ".invoke("
 
   - id: setaccessible
-    desc: Bypass Java access control via reflection
+    desc: Bypass Java access control via
     crit: suspicious
     conf: 0.95
     mbc: "F0006"
@@ -174,7 +174,7 @@ traits:
   # ============================================================
 
   - id: urlclassloader
-    desc: Load classes from URL (supply chain risk)
+    desc: Load classes from URL (supply
     crit: suspicious
     conf: 0.9
     mbc: "C0033"

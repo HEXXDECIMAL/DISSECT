@@ -3,7 +3,7 @@
 
 traits:
   - id: string-assign
-    desc: "Constructs command or URL via string assignment"
+    desc: "Constructs command or URL via"
     crit: inert
     conf: 0.6
     for: [python]
@@ -18,7 +18,7 @@ traits:
 
 composite_rules:
   - id: command-spreading
-    desc: "Command spreading (String construction + Execution)"
+    desc: "Command spreading (String construction +"
     crit: suspicious
     conf: 0.85
     near_lines: 10

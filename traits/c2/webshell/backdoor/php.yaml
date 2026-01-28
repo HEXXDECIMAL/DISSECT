@@ -8,7 +8,7 @@ defaults:
 
 traits:
   - id: password-form
-    desc: HTML password form in PHP (webshell login)
+    desc: HTML password form in PHP
     crit: suspicious
     conf: 0.85
     attack: "T1505.003"
@@ -124,7 +124,7 @@ traits:
       regex: "\\b9999\\b"
 
   - id: ssrf-pattern
-    desc: Server-Side Request Forgery pattern (URL from user input)
+    desc: Server-Side Request Forgery pattern (URL
     crit: suspicious
     conf: 0.85
     attack: "T1090"
@@ -153,7 +153,7 @@ traits:
       regex: true
 
   - id: dynamic-user-input-call
-    desc: User input used as function name (dynamic backdoor)
+    desc: User input used as function
     crit: suspicious
     conf: 0.98
     attack: "T1505.003"

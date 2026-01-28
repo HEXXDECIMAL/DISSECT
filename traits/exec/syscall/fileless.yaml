@@ -22,7 +22,7 @@ traits:
 composite_rules:
 
   - id: fileless
-    desc: Fileless execution - memfd_create + execve
+    desc: Fileless execution - memfd_create +
     conf: 0.95
     crit: suspicious
     platforms: [linux]

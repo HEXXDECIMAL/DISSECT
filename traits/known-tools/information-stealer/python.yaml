@@ -6,7 +6,7 @@
 
 composite_rules:
   - id: infostealer/python-profiler
-    description: "System Profiler & Exfiltrator (MAC + User + Network)"
+    description: "System Profiler & Exfiltrator (MAC"
     crit: suspicious
     conf: 0.98
     mbc: "B0028"

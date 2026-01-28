@@ -31,7 +31,7 @@ traits:
       exact: "pgrep"
 
   - id: ps-ef-cmd
-    desc: ps -ef command for process listing
+    desc: ps -ef command for process
     crit: inert
     conf: 0.5
     if:
@@ -82,7 +82,7 @@ traits:
 composite_rules:
   # Shell process enumeration
   - id: tasklist-shell
-    desc: Enumerates processes via shell command (tasklist/pgrep)
+    desc: Enumerates processes via shell command
     crit: notable
     conf: 0.8
     count_min: 1
@@ -105,7 +105,7 @@ composite_rules:
       - id: fiddler-proc
 
   - id: anti-analysis-recon
-    desc: Process-based anti-analysis/recon (psutil + sensitive process)
+    desc: Process-based anti-analysis/recon (psutil + sensitive
     crit: suspicious
     conf: 0.9
     all:

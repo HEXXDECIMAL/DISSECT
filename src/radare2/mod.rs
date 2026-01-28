@@ -141,10 +141,10 @@ impl Radare2Analyzer {
 
     /// Extract strings from binary
     /// For large binaries (>20MB), returns empty to avoid slow r2 startup
-    /// strangs already provides good string extraction for Go/Rust binaries
+    /// stng already provides good string extraction for Go/Rust binaries
     #[allow(dead_code)]
     pub fn extract_strings(&self, file_path: &Path) -> Result<Vec<R2String>> {
-        // Skip r2 string extraction for large binaries - strangs handles these well
+        // Skip r2 string extraction for large binaries - stng handles these well
         const MAX_SIZE_FOR_R2_STRINGS: u64 = 20 * 1024 * 1024; // 20MB
 
         let file_size = std::fs::metadata(file_path).map(|m| m.len()).unwrap_or(0);

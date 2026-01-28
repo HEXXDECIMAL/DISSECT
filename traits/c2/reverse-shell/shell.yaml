@@ -9,7 +9,7 @@ defaults:
 traits:
   # Complete bash reverse shell pattern (no legitimate use)
   - id: reverse-shell-bash-complete
-    desc: Bash reverse shell via /dev/tcp (complete pattern)
+    desc: Bash reverse shell via /dev/tcp
     crit: suspicious
     conf: 0.98
     for: [shell, packagejson, javascript]
@@ -120,7 +120,7 @@ traits:
 composite_rules:
   # mkfifo + netcat reverse shell (all of them + small file)
   - id: reverse-shell-mkfifo
-    desc: Reverse shell using mkfifo and netcat
+    desc: Reverse shell using mkfifo and
     crit: suspicious
     conf: 0.95
     for: [shell, packagejson]

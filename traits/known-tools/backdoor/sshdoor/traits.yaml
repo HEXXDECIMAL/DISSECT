@@ -99,7 +99,7 @@ composite_rules:
   # Note: uint32(0) == 0x464C457F (ELF magic) and filesize < 2MB constraints
   # cannot be translated to DISSECT trait system
   - id: backdoor/sshdoor/yara-signature
-    description: SSHDoor backdoored SSH daemon YARA signature
+    description: SSHDoor backdoored SSH daemon YARA
     crit: suspicious
     conf: 0.95
     family: true

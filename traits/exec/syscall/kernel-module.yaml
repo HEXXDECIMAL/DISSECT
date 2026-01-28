@@ -1,6 +1,6 @@
 traits:
   - id: syscall-init-module
-    desc: "init_module syscall for loading kernel module"
+    desc: "init_module syscall for loading kernel"
     crit: notable
     conf: 0.8
     platforms: [linux]
@@ -10,7 +10,7 @@ traits:
       name: ["init_module"]
 
   - id: syscall-finit-module
-    desc: "finit_module syscall for loading kernel module from file descriptor"
+    desc: "finit_module syscall for loading kernel"
     crit: notable
     conf: 0.8
     platforms: [linux]
@@ -20,7 +20,7 @@ traits:
       name: ["finit_module"]
 
   - id: syscall-delete-module
-    desc: "delete_module syscall for unloading kernel module"
+    desc: "delete_module syscall for unloading kernel"
     crit: notable
     conf: 0.8
     platforms: [linux]
@@ -30,7 +30,7 @@ traits:
       name: ["delete_module"]
 
   - id: syscall-kexec-load
-    desc: "kexec_load syscall for loading new kernel"
+    desc: "kexec_load syscall for loading new"
     crit: notable
     conf: 0.8
     platforms: [linux]
@@ -40,7 +40,7 @@ traits:
       name: ["kexec_load"]
 
   - id: syscall-kexec-file-load
-    desc: "kexec_file_load syscall for loading new kernel from file"
+    desc: "kexec_file_load syscall for loading new"
     crit: notable
     conf: 0.8
     platforms: [linux]

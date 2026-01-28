@@ -16,7 +16,7 @@ traits:
       pattern: "client.get"
 
   - id: rust-reqwest-builder
-    desc: HTTP client builder with invalid cert acceptance
+    desc: HTTP client builder with invalid
     crit: suspicious
     conf: 0.95
     mbc: "C0002"

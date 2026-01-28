@@ -289,7 +289,7 @@ traits:
 
   # === Hardware model VM check ===
   - id: hardware-model
-    desc: Checks hardware model for VM indicators
+    desc: Checks hardware model for VM
     crit: suspicious
     conf: 0.8
     for: [python, shell]
@@ -299,7 +299,7 @@ traits:
 
   # === Cloud provider metadata check ===
   - id: cloud-metadata
-    desc: Cloud provider metadata access (VM detection)
+    desc: Cloud provider metadata access (VM
     crit: notable
     conf: 0.7
     for: [javascript, typescript, python, shell]
@@ -399,7 +399,7 @@ composite_rules:
 
   # VM MAC address prefixes
   - id: mac-prefix
-    desc: Checks for VM MAC address prefixes
+    desc: Checks for VM MAC address
     crit: suspicious
     conf: 0.85
     count_min: 1
@@ -428,7 +428,7 @@ composite_rules:
 
   # Comprehensive VM evasion (3+ VM indicators + exit)
   - id: comprehensive-evasion
-    desc: Multiple VM detection techniques (evasion attempt)
+    desc: Multiple VM detection techniques (evasion
     crit: suspicious
     conf: 0.95
     count_min: 3

@@ -361,7 +361,7 @@ composite_rules:
 
   # Default IoT credential lists (requires 3 of 15)
   - id: iot-creds
-    desc: Default IoT device credentials for brute-force
+    desc: Default IoT device credentials for
     crit: suspicious
     conf: 0.9
     mbc: "E1110"
@@ -393,7 +393,7 @@ composite_rules:
 
   # Helper: SSH port with threaded timeout
   - id: ssh-port-threaded
-    desc: SSH port with timeout and threading
+    desc: SSH port with timeout and
     all:
       - id: ssh-port-refs
       - id: timeout-keyword
@@ -401,7 +401,7 @@ composite_rules:
 
   # SSH scanner patterns
   - id: scanner
-    desc: SSH network scanner for brute-force attacks
+    desc: SSH network scanner for brute-force
     crit: suspicious
     conf: 0.8
     mbc: "E1110"

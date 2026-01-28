@@ -357,7 +357,7 @@ composite_rules:
 
   # XDP backdoor composite (migrated from YARA)
   - id: xdp-backdoor
-    desc: XDP-based network backdoor or packet interception
+    desc: XDP-based network backdoor or packet
     crit: suspicious
     conf: 0.95
     attack: "T1205"
@@ -380,7 +380,7 @@ composite_rules:
 
   # Go eBPF loader (migrated from YARA)
   - id: go-loader
-    desc: Go-based eBPF program loader using common libraries
+    desc: Go-based eBPF program loader using
     crit: notable
     conf: 0.9
     for: [go]
@@ -421,7 +421,7 @@ composite_rules:
 
   # Go offensive program (migrated from YARA)
   - id: go-offensive-program
-    desc: Go loader referencing offensive eBPF sections
+    desc: Go loader referencing offensive eBPF
     crit: suspicious
     conf: 0.95
     attack: "T1014"
@@ -444,7 +444,7 @@ composite_rules:
 
   # Sudoers manipulation (migrated from YARA)
   - id: sudoers-manipulation
-    desc: eBPF-based runtime manipulation of sudoers or shadow in memory
+    desc: eBPF-based runtime manipulation of sudoers
     crit: suspicious
     conf: 1.0
     attack: "T1068"
@@ -455,7 +455,7 @@ composite_rules:
 
   # Dirent hiding (migrated from YARA)
   - id: dirent-hiding
-    desc: eBPF-based file/directory hiding via getdents record length manipulation
+    desc: eBPF-based file/directory hiding via getdents
     crit: suspicious
     conf: 0.95
     attack: "T1014"
@@ -467,7 +467,7 @@ composite_rules:
 
   # Uprobe hooking (migrated from YARA)
   - id: uprobe-hooking
-    desc: eBPF program hooking user-space functions (uprobes)
+    desc: eBPF program hooking user-space functions
     crit: suspicious
     conf: 0.95
     attack: "T1014"
@@ -501,7 +501,7 @@ composite_rules:
 
   # HTTP manipulation (migrated from YARA)
   - id: http-manipulation
-    desc: eBPF program performing HTTP traffic manipulation (XDP)
+    desc: eBPF program performing HTTP traffic
     crit: suspicious
     conf: 0.95
     attack: "T1557"
@@ -513,9 +513,9 @@ composite_rules:
 
   # High-Confidence eBPF Rootkit
   - id: advanced-rootkit
-    desc: Highly confident eBPF-based offensive rootkit (TripleCross style)
-    crit: hostile
-    conf: 0.99
+    desc: "Advanced eBPF rootkit detected"
+    crit: suspicious
+    conf: 0.95
     attack: "T1014"
     for: [c, elf, go]
     count_min: 2

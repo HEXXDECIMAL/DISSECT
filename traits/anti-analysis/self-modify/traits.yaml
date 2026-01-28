@@ -109,7 +109,7 @@ traits:
       case_insensitive: true
 
   - id: nop-sled
-    desc: Long NOP sled byte sequence (suspicious padding or exploitation artifact)
+    desc: Long NOP sled byte sequence
     crit: notable
     conf: 0.7
     if:
@@ -276,7 +276,7 @@ composite_rules:
       - id: writeprocessmemory
       - id: self-patch-ref
   - id: code-cave
-    desc: Code cave or slack space usage
+    desc: Code cave or slack space
     crit: suspicious
     conf: 0.75
     count_min: 2

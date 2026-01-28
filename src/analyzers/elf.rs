@@ -148,7 +148,7 @@ impl ElfAnalyzer {
                 .string_extractor
                 .extract_smart_with_r2(data, r2_strings);
         }
-        tools_used.push("strangs".to_string());
+        tools_used.push("stng".to_string());
 
         // Run YARA scan if engine is loaded
         if let Some(yara_engine) = &self.yara_engine {

@@ -170,7 +170,7 @@ composite_rules:
 
   # Tsunami IRC bot with C2 logic
   - id: tsunami-irc-bot
-    desc: Tsunami/Kaiten IRC bot with C2 logic
+    desc: Tsunami/Kaiten IRC bot with C2
     crit: suspicious
     conf: 0.85
     all:
@@ -179,7 +179,7 @@ composite_rules:
 
   # Tsunami DDoS bot
   - id: tsunami-ddos-bot
-    desc: Tsunami/Kaiten IRC bot with DDoS capabilities
+    desc: Tsunami/Kaiten IRC bot with DDoS
     crit: suspicious
     conf: 0.9
     all:
@@ -188,7 +188,7 @@ composite_rules:
 
   # IRC bot with DDoS
   - id: irc-bot-ddos
-    desc: IRC bot with DDoS attack capabilities
+    desc: IRC bot with DDoS attack
     crit: suspicious
     conf: 0.85
     all:

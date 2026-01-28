@@ -9,7 +9,7 @@ defaults:
 traits:
   # AST-based detection (Go source only)
   - id: go-http-newrequest
-    desc: Creates a new HTTP request in Go
+    desc: Creates a new HTTP request
     crit: notable
     conf: 0.9
     for: [go]
@@ -19,7 +19,7 @@ traits:
       pattern: "http.NewRequest"
 
   - id: go-http-client-do
-    desc: Executes an HTTP request in Go
+    desc: Executes an HTTP request in
     crit: notable
     conf: 0.9
     for: [go]

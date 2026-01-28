@@ -336,7 +336,7 @@ composite_rules:
 
   # === Helper composite ===
   - id: street-fighter-dropper
-    description: Street Fighter references with dropper patterns
+    description: Street Fighter references with dropper
     all:
       - id: street-fighter-refs
       - id: dropper-patterns
@@ -354,7 +354,7 @@ composite_rules:
       - id: street-fighter-dropper
 
   - id: mining-deployment
-    description: Mining tools with pool config and persistence
+    description: Mining tools with pool config
     all:
       - id: mining-tools
       - id: pool-dot

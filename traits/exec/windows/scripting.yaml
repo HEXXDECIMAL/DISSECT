@@ -307,7 +307,7 @@ composite_rules:
 
   # Windows Script Host dropper
   - id: wsh-dropper
-    desc: Windows Script Host dropper pattern (download and execute)
+    desc: Windows Script Host dropper pattern
     crit: suspicious
     conf: 0.95
     attack: "T1059.005"

@@ -21,7 +21,7 @@ traits:
       exact: "administrator privileges"
 
   - id: with-admin-privileges
-    description: "do shell script with admin privileges"
+    description: "do shell script with admin"
     crit: suspicious
     confidence: 0.9
     condition:

@@ -119,7 +119,7 @@ impl MachOAnalyzer {
         report.strings = self
             .string_extractor
             .extract_from_macho(&macho, data, r2_strings);
-        tools_used.push("strangs".to_string());
+        tools_used.push("stng".to_string());
 
         // Run YARA scan if engine is loaded
         if let Some(yara_engine) = &self.yara_engine {

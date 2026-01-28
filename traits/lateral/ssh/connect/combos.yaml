@@ -9,7 +9,7 @@ composite_rules:
   # === SSH Worm Detection ===
 
   - id: shell-worm
-    description: SSH worm implemented in shell script
+    description: SSH worm implemented in shell
     crit: suspicious
     confidence: 0.95
     attack: "T1021.004"
@@ -34,7 +34,7 @@ composite_rules:
   # === SSH Key Theft + Lateral Movement ===
 
   - id: key-based-spread
-    description: SSH key theft for lateral movement
+    description: SSH key theft for lateral
     crit: suspicious
     confidence: 0.85
     attack: "T1552.004"

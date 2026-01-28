@@ -10,7 +10,7 @@ defaults:
 composite_rules:
   # jQuery + ActiveXObject = HOSTILE (complexity >= 4)
   - id: trojanized-activex
-    desc: "jQuery library with ActiveXObject (trojanized supply chain attack)"
+    desc: "jQuery library with ActiveXObject (trojanized"
     crit: hostile
     conf: 0.98
     all:
@@ -25,7 +25,7 @@ composite_rules:
 
   # jQuery + Reverse Shell = HOSTILE
   - id: trojanized-reverse-shell
-    desc: "jQuery library with reverse shell (trojanized supply chain attack)"
+    desc: "jQuery library with reverse shell"
     crit: hostile
     conf: 0.98
     all:
@@ -39,7 +39,7 @@ composite_rules:
 
   # jQuery + Base64 Eval = HOSTILE (hidden payload)
   - id: trojanized-base64-eval
-    desc: "jQuery library with base64+eval payload (trojanized supply chain attack)"
+    desc: "jQuery library with base64+eval payload"
     crit: hostile
     conf: 0.95
     all:
@@ -53,7 +53,7 @@ composite_rules:
 
   # jQuery + Credential Access = HOSTILE
   - id: trojanized-credential-access
-    desc: "jQuery library with credential access (trojanized supply chain attack)"
+    desc: "jQuery library with credential access"
     crit: hostile
     conf: 0.98
     all:
@@ -69,7 +69,7 @@ composite_rules:
 
   # jQuery + Command Execution = HOSTILE  
   - id: trojanized-exec
-    desc: "jQuery library with command execution (trojanized supply chain attack)"
+    desc: "jQuery library with command execution"
     crit: hostile
     conf: 0.98
     all:
@@ -85,7 +85,7 @@ composite_rules:
 
   # jQuery + Network Backdoor = HOSTILE
   - id: trojanized-backdoor
-    desc: "jQuery library with network backdoor (trojanized supply chain attack)"
+    desc: "jQuery library with network backdoor"
     crit: hostile
     conf: 0.95
     all:

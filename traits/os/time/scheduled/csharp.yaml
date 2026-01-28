@@ -3,7 +3,7 @@
 
 traits:
   - id: datetime-now
-    description: Current time access (potential time-based trigger)
+    description: Current time access (potential time-based
     crit: inert
     mbc: "B0003"
     confidence: 0.6
@@ -25,7 +25,7 @@ traits:
     file_types: [csharp]
 
   - id: hardcoded-datetime
-    description: Hardcoded date/time value (potential logic bomb trigger)
+    description: Hardcoded date/time value (potential logic
     crit: notable
     mbc: "B0003"
     attack: "T1480.001"

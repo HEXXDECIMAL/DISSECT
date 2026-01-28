@@ -55,7 +55,7 @@ traits:
       regex: 'powershell.{0,50}iwr.{0,50}\|.{0,20}iex'
 
   - id: js-stdio-ignore
-    desc: Suppresses standard I/O output (silent execution)
+    desc: Suppresses standard I/O output (silent
     crit: notable
     conf: 0.8
     for: [javascript]
@@ -66,7 +66,7 @@ traits:
 composite_rules:
   # Shell installer composite
   - id: js-installer-sh
-    desc: Downloads and executes shell script (installer pattern)
+    desc: Downloads and executes shell script
     crit: suspicious
     conf: 0.9
     attack: "T1105"
@@ -79,7 +79,7 @@ composite_rules:
 
   # PowerShell installer composite
   - id: js-installer-ps1
-    desc: Downloads and executes PowerShell script (installer pattern)
+    desc: Downloads and executes PowerShell script
     crit: suspicious
     conf: 0.9
     attack: "T1105"

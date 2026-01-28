@@ -26,7 +26,7 @@ traits:
 
   # BSCScan API (Binance Smart Chain)
   - id: bscscan-api
-    desc: Uses BSCScan API (potential blockchain-based C2)
+    desc: Uses BSCScan API (potential blockchain-based
     crit: suspicious
     conf: 0.85
     attack: "T1102"
@@ -37,7 +37,7 @@ traits:
 
   # PolygonScan API
   - id: polygonscan-api
-    desc: Uses PolygonScan API (potential blockchain-based C2)
+    desc: Uses PolygonScan API (potential blockchain-based
     crit: suspicious
     conf: 0.85
     attack: "T1102"
@@ -87,7 +87,7 @@ traits:
 
   # Infura/Alchemy RPC with suspicious patterns
   - id: rpc-provider
-    desc: Uses blockchain RPC provider (monitor for C2 abuse)
+    desc: Uses blockchain RPC provider (monitor
     crit: notable
     conf: 0.6
     attack: "T1102"
@@ -98,7 +98,7 @@ traits:
 
   # IPFS gateway (decentralized payload hosting)
   - id: ipfs-gateway
-    desc: Uses IPFS gateway (decentralized content retrieval)
+    desc: Uses IPFS gateway (decentralized content
     crit: notable
     conf: 0.7
     attack: "T1102"
@@ -131,7 +131,7 @@ traits:
 composite_rules:
   # Etherscan API composite
   - id: etherscan-api
-    desc: Uses Etherscan API (potential blockchain-based C2)
+    desc: Uses Etherscan API (potential blockchain-based
     crit: suspicious
     conf: 0.85
     attack: "T1102"
@@ -143,7 +143,7 @@ composite_rules:
 
   # Contract read composite (migrated from YARA)
   - id: contract-read
-    desc: Reads smart contract storage (potential C2 retrieval)
+    desc: Reads smart contract storage (potential
     crit: notable
     conf: 0.75
     attack: "T1102"
@@ -176,7 +176,7 @@ composite_rules:
 
   # Arweave gateway composite
   - id: arweave-gateway
-    desc: Uses Arweave gateway (permanent content retrieval)
+    desc: Uses Arweave gateway (permanent content
     crit: notable
     conf: 0.7
     attack: "T1102"

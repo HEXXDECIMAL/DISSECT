@@ -325,7 +325,7 @@ traits:
 composite_rules:
   # Machine ID file access composite
   - id: machine-id-file
-    desc: Accesses machine-id file (unique system identifier)
+    desc: Accesses machine-id file (unique system
     crit: suspicious
     conf: 0.85
     for: [javascript, typescript, python, shell, elf, macho, pe]
@@ -448,7 +448,7 @@ composite_rules:
 
   # Unique identifier with network exfiltration (migrated from YARA)
   - id: unique-id-exfil
-    desc: Generates unique identifier and sends to network
+    desc: Generates unique identifier and sends
     crit: suspicious
     conf: 0.95
     attack: T1082

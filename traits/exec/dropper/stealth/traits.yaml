@@ -33,7 +33,7 @@ traits:
 
 composite_rules:
   - id: python
-    desc: "Process execution with output hiding and detachment"
+    desc: "Process execution with output hiding"
     conf: 0.92
     crit: suspicious
     mbc: "F0003"

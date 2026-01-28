@@ -8,7 +8,7 @@ traits:
       exact: "krebsforeheadindustriesA"
 
   - id: arm-ip-build
-    desc: Hand-written ARM assembly IP building pattern (45.139.197.87)
+    desc: Hand-written ARM assembly IP building
     crit: suspicious
     conf: 0.95
     for: [elf]
@@ -18,7 +18,7 @@ traits:
       pattern: "2d 00 a0 e3 04 00 cd e5 8b 00 a0 e3 05 00 cd e5 c5 00 a0 e3 06 00 cd e5 57 00 a0 e3 07 00 cd e5"
 
   - id: arm-port-build
-    desc: Hand-written ARM assembly port building pattern (8082)
+    desc: Hand-written ARM assembly port building
     crit: suspicious
     conf: 0.95
     for: [elf]
@@ -39,7 +39,7 @@ traits:
       pattern: "01 7c a0 e3 19 70 87 e2 02 00 a0 e3 01 10 a0 e3 00 20 a0 e3 00 00 00 ef"
 
   - id: arm-read-write-loop
-    desc: Hand-written ARM assembly read/write loop (stager/downloader)
+    desc: Hand-written ARM assembly read/write loop
     crit: suspicious
     conf: 0.9
     for: [elf]

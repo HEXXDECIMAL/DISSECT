@@ -4,7 +4,7 @@
 
 traits:
   - id: directory-windows
-    description: Look up temp directory via GetTempPath
+    description: Look up temp directory via
     crit: inert
     conf: 0.66
     for: [pe, dll, c]

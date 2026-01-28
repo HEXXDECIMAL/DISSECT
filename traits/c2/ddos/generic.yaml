@@ -12,7 +12,7 @@ defaults:
 traits:
   # === High Concurrency Indicators ===
   - id: worker-pool
-    desc: References to worker pools for attack tasks
+    desc: References to worker pools for
     crit: notable
     conf: 0.6
     if:
@@ -22,7 +22,7 @@ traits:
 
   # === User-Agent Rotation ===
   - id: ua-list-large
-    desc: Large list of browser User-Agents (for rotation)
+    desc: Large list of browser User-Agents
     crit: suspicious
     conf: 0.8
     if:
@@ -31,7 +31,7 @@ traits:
       count_min: 10
   # === DDoS Terminology ===
   - id: attack-metrics
-    desc: Performance metrics typical of DDoS tools (PPS/BPS)
+    desc: Performance metrics typical of DDoS
     crit: notable
     conf: 0.7
     if:
@@ -82,7 +82,7 @@ composite_rules:
 
   # High-confidence DDoS capability
   - id: ddos-capability
-    desc: "Probable DDoS attack tool (Attack terms + Concurrency + Telemetry)"
+    desc: "Probable DDoS attack tool (Attack"
     crit: suspicious
     conf: 0.9
     all:
@@ -92,7 +92,7 @@ composite_rules:
 
   # Layer 7 DDoS (Application Layer)
   - id: layer7-ddos
-    desc: "Layer 7 (HTTP) DDoS tool (UA Rotation + HTTP POST/GET + Attack terms)"
+    desc: "Layer 7 (HTTP) DDoS tool"
     crit: suspicious
     conf: 0.95
     all:

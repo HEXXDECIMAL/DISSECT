@@ -2,7 +2,7 @@
 
 composite_rules:
   - id: ransomware/generic/suspicious_symbols
-    description: "Suspicious symbols or artifacts indicating ransomware activity"
+    description: "Suspicious symbols or artifacts indicating"
     crit: suspicious
     conf: 0.8
     mbc: "C0027"

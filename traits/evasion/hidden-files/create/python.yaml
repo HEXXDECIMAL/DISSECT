@@ -92,7 +92,7 @@ traits:
 
   # Hidden directory with short cryptic name (.n2, .x, .tmp2)
   - id: python-cryptic-hidden
-    desc: "Cryptic hidden directory name (likely malware)"
+    desc: "Cryptic hidden directory name (likely"
     conf: 0.85
     if:
       type: string
@@ -118,7 +118,7 @@ composite_rules:
 
   # Home + hidden directory - classic malware staging area
   - id: python-home-hidden-staging
-    desc: "Malware staging in hidden home directory"
+    desc: "Malware staging in hidden home"
     conf: 0.95
     crit: hostile
     all:

@@ -31,7 +31,7 @@ traits:
       feature: "binary/no-pie"
 
   - id: no-nx-struct
-    desc: "Binary lacks NX/DEP protection (executable stack)"
+    desc: "Binary lacks NX/DEP protection (executable"
     crit: notable
     conf: 0.7
     attack: "T1027"
@@ -42,7 +42,7 @@ traits:
 
 composite_rules:
   - id: minimal
-    desc: "Binary lacks security hardening (stripped + static)"
+    desc: "Binary lacks security hardening (stripped"
     crit: suspicious
     conf: 0.8
     mbc: "F0001"

@@ -140,7 +140,7 @@ traits:
       pattern: "eval"
 
   - id: dropper/js-staged-generator
-    description: Uses a generator function to staged-evaluate code (obfuscation)
+    description: Uses a generator function to
     crit: suspicious
     conf: 0.9
     file_types: [javascript, typescript]
@@ -190,7 +190,7 @@ composite_rules:
       - {id: buffer-from-utf8}
 
   - id: encoded-data
-    description: Encoded data (blobs or buffer decoding)
+    description: Encoded data (blobs or buffer
     for: [javascript, typescript]
     any:
       - {id: encoded-blobs}
@@ -198,7 +198,7 @@ composite_rules:
 
   # Main composite (migrated from YARA)
   - id: dropper/js-decrypt-eval
-    description: Decrypts a hardcoded payload and executes it via eval
+    description: Decrypts a hardcoded payload and
     crit: suspicious
     conf: 0.95
     for: [javascript, typescript]

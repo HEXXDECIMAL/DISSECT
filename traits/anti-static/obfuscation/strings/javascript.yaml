@@ -18,7 +18,7 @@ traits:
 
   # Unicode escape sequences used to hide strings
   - id: js-unicode-escape
-    desc: Unicode escape sequences used to hide strings
+    desc: Unicode escape sequences used to
     crit: suspicious
     conf: 0.85
     mbc: "B0032"
@@ -30,7 +30,7 @@ traits:
 
   # Hex escape sequences
   - id: js-hex-escape
-    desc: Hex escape sequences used to hide strings
+    desc: Hex escape sequences used to
     crit: notable
     conf: 0.75
     mbc: "B0032"
@@ -61,7 +61,7 @@ traits:
 
   # === Hex URL array micro-traits ===
   - id: hex-const-array
-    desc: Const array containing long hex strings
+    desc: Const array containing long hex
     crit: notable
     conf: 0.7
     for: [javascript, typescript]
@@ -159,7 +159,7 @@ traits:
 
   # Array join obfuscation
   - id: js-array-join
-    desc: Array join pattern used to construct strings
+    desc: Array join pattern used to
     crit: notable
     conf: 0.6
     for: [javascript, typescript]
@@ -211,7 +211,7 @@ traits:
 
   # Dynamic require with variable (non-literal) argument
   - id: js-dynamic-require-call
-    desc: Dynamic require with non-literal module name
+    desc: Dynamic require with non-literal module
     crit: notable
     conf: 0.7
     for: [javascript, typescript]
@@ -222,7 +222,7 @@ traits:
 composite_rules:
   # Buffer decode composite
   - id: js-buffer-decode
-    desc: Buffer.from used to decode strings at runtime
+    desc: Buffer.from used to decode strings
     crit: notable
     conf: 0.7
     for: [javascript, typescript]
@@ -233,7 +233,7 @@ composite_rules:
 
   # Dynamic exec composite
   - id: js-dynamic-exec
-    desc: Dynamic code execution via eval or Function constructor
+    desc: Dynamic code execution via eval
     crit: notable
     conf: 0.7
     mbc: "B0032"
@@ -259,7 +259,7 @@ composite_rules:
 
   # Hex URL array (migrated from YARA)
   - id: hex-url-array
-    desc: Hex-encoded URL stored as array elements (C2 obfuscation)
+    desc: Hex-encoded URL stored as array
     crit: suspicious
     conf: 0.9
     mbc: "B0032"
@@ -274,7 +274,7 @@ composite_rules:
 
   # Remote base64 decode (migrated from YARA)
   - id: remote-base64-decode
-    desc: Fetches remote content and decodes as base64 (payload delivery)
+    desc: Fetches remote content and decodes
     crit: suspicious
     conf: 0.85
     attack: "T1027"
@@ -300,7 +300,7 @@ composite_rules:
 
   # Dynamic require with obfuscation
   - id: js-dynamic-require
-    desc: Dynamic require with obfuscated module name
+    desc: Dynamic require with obfuscated module
     crit: suspicious
     conf: 0.85
     all:

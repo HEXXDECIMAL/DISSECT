@@ -25,7 +25,7 @@ traits:
       exact: "mprotect"
 
   - id: rwx-prot-bytes
-    description: RWX protection bytes (PROT_READ|WRITE|EXEC = 0x07)
+    description: RWX protection bytes (PROT_READ|WRITE|EXEC =
     crit: inert
     confidence: 0.6
     attack: "T1055"

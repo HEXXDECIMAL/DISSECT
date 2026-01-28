@@ -10,7 +10,7 @@ traits:
   # === Dangerous Package Usage (Obfuscation/Anti-Analysis) ===
 
   - id: go-unsafe-usage
-    desc: Uses unsafe package for pointer manipulation
+    desc: Uses unsafe package for pointer
     crit: suspicious
     conf: 0.8
     if:
@@ -19,7 +19,7 @@ traits:
       min: 1
 
   - id: go-reflect-heavy
-    desc: Heavy use of reflection (dynamic invocation)
+    desc: Heavy use of reflection (dynamic
     crit: suspicious
     conf: 0.8
     if:
@@ -28,7 +28,7 @@ traits:
       min: 3
 
   - id: go-plugin-loading
-    desc: Uses plugin package for dynamic code loading
+    desc: Uses plugin package for dynamic
     crit: suspicious
     conf: 0.85
     if:
@@ -39,7 +39,7 @@ traits:
   # === Build Directive Abuse (Stealth/Anti-Analysis) ===
 
   - id: go-linkname-directive
-    desc: Uses //go:linkname to access private runtime
+    desc: Uses //go:linkname to access private
     crit: suspicious
     conf: 0.9
     if:
@@ -68,7 +68,7 @@ traits:
 composite_rules:
   # Detect obfuscation via unsafe + reflect
   - id: go-obfuscation-combo
-    desc: Uses unsafe and heavy reflection (obfuscation pattern)
+    desc: Uses unsafe and heavy reflection
     crit: suspicious
     conf: 0.85
     all:

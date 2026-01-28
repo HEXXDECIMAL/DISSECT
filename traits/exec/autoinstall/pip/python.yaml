@@ -35,7 +35,7 @@ traits:
 
   # importlib fallback pattern (try import, except install)
   - id: try-import-install
-    desc: "Try-except import with fallback pip install"
+    desc: "Try-except import with fallback pip"
     conf: 0.85
     if:
       type: string
@@ -95,7 +95,7 @@ traits:
 composite_rules:
   # Migrated from YARA
   - id: yara-pip-fallback-install
-    desc: Try import with pip install fallback
+    desc: Try import with pip install
     conf: 0.95
     crit: suspicious
     all:

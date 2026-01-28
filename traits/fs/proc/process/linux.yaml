@@ -12,7 +12,7 @@ traits:
       regex: "/proc/[%{$][/\\$\\w\\}]{0,12}"
 
   - id: process-self-exe
-    description: Read own executable path via /proc/self/exe
+    description: Read own executable path via
     crit: inert
     conf: 0.66
     if:
@@ -20,7 +20,7 @@ traits:
       exact: /proc/self/exe
 
   - id: process-self-cmdline
-    description: Read own command line via /proc/self/cmdline
+    description: Read own command line via
     crit: inert
     conf: 0.66
     if:
@@ -28,7 +28,7 @@ traits:
       exact: /proc/self/cmdline
 
   - id: process-self-status
-    description: Read own process status via /proc/self/status
+    description: Read own process status via
     crit: inert
     conf: 0.66
     if:
@@ -36,7 +36,7 @@ traits:
       exact: /proc/self/status
 
   - id: process-self-maps
-    description: Read own process memory maps via /proc/self/maps
+    description: Read own process memory maps
     crit: inert
     conf: 0.66
     if:
@@ -44,7 +44,7 @@ traits:
       exact: /proc/self/maps
 
   - id: process-pid-maps
-    description: Read process memory maps via /proc/*/maps
+    description: Read process memory maps via
     crit: notable
     conf: 0.66
     if:
@@ -52,7 +52,7 @@ traits:
       regex: "/proc/[^/]+/maps"
 
   - id: process-pid-cmdline
-    description: Read process command line via /proc/*/cmdline
+    description: Read process command line via
     crit: notable
     conf: 0.66
     if:
@@ -68,7 +68,7 @@ traits:
       regex: "/proc/[^/]+/environ"
 
   - id: process-pid-fd
-    description: Access process file descriptors via /proc/*/fd
+    description: Access process file descriptors via
     crit: notable
     conf: 0.66
     if:
@@ -76,7 +76,7 @@ traits:
       regex: "/proc/[^/]+/fd"
 
   - id: process-pid-exe
-    description: Read process executable path via /proc/*/exe
+    description: Read process executable path via
     crit: notable
     conf: 0.66
     if:
@@ -100,7 +100,7 @@ traits:
       regex: "/proc/[^/]+/stat[^u]"
 
   - id: process-oom
-    description: Adjust OOM killer score via /proc/*/oom_score_adj
+    description: Adjust OOM killer score via
     crit: suspicious
     conf: 0.66
     if:

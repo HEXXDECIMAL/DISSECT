@@ -11,7 +11,7 @@ defaults:
 traits:
   # os.system call at module level (outside functions)
   - id: module-level-system
-    description: "os.system at module level (install-time execution)"
+    description: "os.system at module level (install-time"
     crit: suspicious
     confidence: 0.85
     condition:
@@ -30,7 +30,7 @@ traits:
 
   # Try-except ImportError with installation
   - id: import-fallback-install
-    description: "Import fallback with automatic package installation"
+    description: "Import fallback with automatic package"
     crit: suspicious
     confidence: 0.9
     condition:
@@ -41,7 +41,7 @@ traits:
   # patterns (setup.py sdist, bdist_wheel, twine, pytest, etc.). DISSECT doesn't support
   # NOT conditions in composite rules yet.
   - id: setup-py-exec-yara
-    description: "setup.py with suspicious code execution or network activity"
+    description: "setup.py with suspicious code execution"
     crit: suspicious
     confidence: 0.95
     mbc: "B0030"
@@ -130,7 +130,7 @@ traits:
   # with pip install patterns in a specific structural way that's difficult to express
   # with simple atomic + composite rules
   - id: dependency-injection-yara
-    description: "Package installs additional dependencies at runtime"
+    description: "Package installs additional dependencies at"
     crit: suspicious
     confidence: 0.95
     mbc: "B0030"

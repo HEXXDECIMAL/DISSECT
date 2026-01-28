@@ -42,7 +42,7 @@ traits:
       exact: "/lib/systemd"
 
   - id: service-extension
-    description: .service file extension (systemd unit file)
+    description: .service file extension (systemd unit
     crit: notable
     conf: 0.6
     attack: T1543.002

@@ -6,7 +6,7 @@ defaults:
 
 traits:
   - id: many-init-functions
-    description: Multiple init() functions (auto-execute on import)
+    description: Multiple init() functions (auto-execute on
     crit: suspicious
     confidence: 0.85
     attack: "T1195.001"
@@ -16,7 +16,7 @@ traits:
       min: 3
 
   - id: blank-imports
-    description: Uses blank imports for side effects
+    description: Uses blank imports for side
     crit: notable
     confidence: 0.7
     condition:
@@ -25,7 +25,7 @@ traits:
       min: 1
 
   - id: many-blank-imports
-    description: Many blank imports (suspicious side-effect loading)
+    description: Many blank imports (suspicious side-effect
     crit: suspicious
     confidence: 0.85
     condition:
@@ -34,7 +34,7 @@ traits:
       min: 3
 
   - id: cgo-usage
-    description: Uses CGo for C interoperability (evasion vector)
+    description: Uses CGo for C interoperability
     crit: notable
     confidence: 0.75
     condition:
@@ -43,7 +43,7 @@ traits:
       min: 1
 
   - id: embed-directive
-    description: Embeds files via //go:embed (payload embedding)
+    description: Embeds files via //go:embed (payload
     crit: notable
     confidence: 0.7
     condition:
@@ -67,7 +67,7 @@ composite_rules:
 
   # Detect supply chain attack patterns
   - id: suspicious-init
-    description: Multiple init functions with network/exec capability
+    description: Multiple init functions with network/exec
     crit: hostile
     confidence: 0.9
     attack: "T1195.001"

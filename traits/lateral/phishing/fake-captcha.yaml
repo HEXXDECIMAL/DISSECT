@@ -4,7 +4,7 @@
 traits:
   # Cloudflare Turnstile patterns
   - id: verify-human-text
-    description: Text prompting user to verify they are human
+    description: Text prompting user to verify
     crit: inert
     confidence: 0.5
     file_types: [javascript, typescript, html]
@@ -23,7 +23,7 @@ traits:
       exact: 'completing the action below'
 
   - id: cloudflare-turnstile-url
-    description: Reference to Cloudflare Turnstile product page
+    description: Reference to Cloudflare Turnstile product
     crit: inert
     confidence: 0.6
     file_types: [javascript, typescript, html]
@@ -69,7 +69,7 @@ traits:
 
   # reCAPTCHA patterns
   - id: not-a-robot-text
-    description: reCAPTCHA "I'm not a robot" text
+    description: reCAPTCHA "I'm not a robot"
     crit: inert
     confidence: 0.6
     file_types: [javascript, typescript, html]
@@ -124,7 +124,7 @@ composite_rules:
 
   # Helper: verify human text + UI elements
   - id: turnstile-verify-with-ui
-    description: Verify human text with UI elements
+    description: Verify human text with UI
     crit: notable
     conf: 0.8
     file_types: [javascript, typescript, html]
@@ -133,7 +133,7 @@ composite_rules:
       - id: turnstile-ui-elements
   # Fake Cloudflare Turnstile
   - id: cloudflare-turnstile
-    description: Fake Cloudflare Turnstile implementation (social engineering)
+    description: Fake Cloudflare Turnstile implementation (social
     crit: suspicious
     conf: 0.95
     mbc: "B0021"

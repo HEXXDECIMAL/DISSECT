@@ -214,7 +214,7 @@ if:
 
 **String extraction:**
 - **Source:** AST parsing extracts only string literals (no comments/code)
-- **Binaries:** strangs extracts ASCII/UTF-8/UTF-16 strings
+- **Binaries:** stng extracts ASCII/UTF-8/UTF-16 strings
 - Preview: `dissect strings <file>`
 
 **For raw file content:** Use `type: content` (less precise).

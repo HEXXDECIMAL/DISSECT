@@ -387,7 +387,7 @@ composite_rules:
 
   # Git token composite
   - id: node-git-token
-    desc: Accesses Git service tokens from environment
+    desc: Accesses Git service tokens from
     crit: suspicious
     conf: 0.9
     count_min: 1
@@ -495,7 +495,7 @@ composite_rules:
 
   # Multi-credential access
   - id: node-multi-cred
-    desc: Accesses multiple credential sources (credential harvesting)
+    desc: Accesses multiple credential sources (credential
     crit: hostile
     conf: 0.95
     attack: "T1552.001"

@@ -522,7 +522,7 @@ composite_rules:
 
   # Migrated from YARA
   - id: full-stealer-detected
-    desc: Complete browser credential stealer (theft + decrypt + exfil)
+    desc: Complete browser credential stealer (theft
     crit: suspicious
     conf: 0.98
     attack: "T1555.003"

@@ -24,7 +24,7 @@ traits:
       exact: "/etc/mtab"
 
   - id: fstab-mntent
-    description: Parse mount table entries via mntent API
+    description: Parse mount table entries via
     crit: inert
     conf: 0.66
     if:
@@ -32,7 +32,7 @@ traits:
       pattern: setmntent|getmntent|endmntent
 
   - id: fstab-mntinfo
-    description: Get information on mounted volumes (BSD)
+    description: Get information on mounted volumes
     crit: inert
     conf: 0.66
     if:
@@ -42,7 +42,7 @@ traits:
 composite_rules:
   # Mount table files composite
   - id: fstab-files
-    description: Reads mount table files (/etc/fstab, /etc/mtab)
+    description: Reads mount table files (/etc/fstab,
     crit: inert
     conf: 0.66
     count_min: 1

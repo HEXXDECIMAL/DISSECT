@@ -1,6 +1,6 @@
 traits:
   - id: known-tools/trojan/kito/encoded-strings
-    desc: Kito-specific encoded wide string patterns in __const
+    desc: Kito-specific encoded wide string patterns
     crit: suspicious
     confidence: 0.9
     for: [macho]

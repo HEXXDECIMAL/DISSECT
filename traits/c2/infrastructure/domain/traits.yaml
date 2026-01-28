@@ -11,7 +11,7 @@ defaults:
 traits:
   # === Domain detection ===
   - id: hardcoded-domain-com
-    desc: Hardcoded .com/.org/.net domain (excluding known legitimate)
+    desc: Hardcoded .com/.org/.net domain (excluding known
     crit: notable
     conf: 0.7
     if:
@@ -64,7 +64,7 @@ traits:
       regex: "\\b[a-zA-Z0-9][-a-zA-Z0-9]{0,62}\\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62}\\.(ru|cn|xyz|top|cc|ws|tk|ml|ga|cf|gq|pw|biz|club|download|racing|win|party|review|accountant|science|trade|webcam|bid|loan|pe|su|icu|buzz)\\b|https?://[a-zA-Z0-9][-a-zA-Z0-9]*\\.(ru|cn|xyz|top|cc|ws|tk|ml|ga|cf|gq|pw|biz|club|work|stream|download|racing|pe|su|icu|buzz)"
 
   - id: short-domain-url-pattern
-    desc: "Very short domain in URL (2-3 char domain - often malicious)"
+    desc: "Very short domain in URL"
     crit: suspicious
     conf: 0.8
     if:
@@ -81,7 +81,7 @@ traits:
       regex: "\\b[a-zA-Z0-9][-a-zA-Z0-9]*\\.(duckdns|no-ip|dynu|freedns|afraid|hopto|zapto|sytes|ddns|servebeer|servehttp|serveftp|servegame|servequake|redirectme|bounceme|myftp|myvnc)\\.[a-z]{2,6}\\b"
 
   - id: http-url-with-domain-pattern
-    desc: "Network URL with domain name pattern"
+    desc: "Network URL with domain name"
     crit: notable
     conf: 0.7
     if:
@@ -123,7 +123,7 @@ traits:
         - "aws\\.amazon\\.com"
 
   - id: url-path-payload-pattern
-    desc: "URL path suggesting payload download pattern"
+    desc: "URL path suggesting payload download"
     crit: suspicious
     conf: 0.8
     attack: "T1105" # Override: Ingress Tool Transfer
@@ -233,7 +233,7 @@ traits:
 
   # Cloud storage abuse for payload hosting
   - id: appwrite-storage
-    desc: Appwrite cloud storage (commonly abused for malware payloads)
+    desc: Appwrite cloud storage (commonly abused
     crit: suspicious
     conf: 0.85
     attack: "T1105"
@@ -242,7 +242,7 @@ traits:
       regex: '[a-z0-9-]+\.cloud\.appwrite\.io/v[0-9]+/storage/buckets/[a-z0-9]+/files/'
 
   - id: supabase-storage
-    desc: Supabase storage endpoint (can be abused for payloads)
+    desc: Supabase storage endpoint (can be
     crit: notable
     conf: 0.75
     attack: "T1105"
@@ -251,7 +251,7 @@ traits:
       regex: '[a-z0-9]+\.supabase\.co/storage/v[0-9]+/'
 
   - id: firebase-storage
-    desc: Firebase storage endpoint (can be abused for payloads)
+    desc: Firebase storage endpoint (can be
     crit: notable
     conf: 0.7
     attack: "T1105"
@@ -457,7 +457,7 @@ traits:
 
   # Vercel serverless C2 (elevated - commonly abused)
   - id: vercel-serverless
-    desc: Contacts Vercel serverless function (commonly abused for C2)
+    desc: Contacts Vercel serverless function (commonly
     crit: suspicious
     conf: 0.85
     attack: "T1071"
@@ -526,7 +526,7 @@ traits:
 
   # Serveo SSH tunnel
   - id: serveo-tunnel
-    desc: Serveo SSH tunnel endpoint (reverse shell infrastructure)
+    desc: Serveo SSH tunnel endpoint (reverse
     crit: suspicious
     conf: 0.95
     attack: "T1572"
@@ -594,7 +594,7 @@ traits:
 
 composite_rules:
   - id: c2-domain
-    desc: "Likely C2 domain (suspicious TLD or dynamic DNS)"
+    desc: "Likely C2 domain (suspicious TLD"
     crit: suspicious
     conf: 0.85
     count_min: 1
@@ -638,7 +638,7 @@ composite_rules:
 
   # Serverless function endpoints
   - id: serverless-function
-    desc: Contacts serverless function endpoint (Lambda, Azure, etc.)
+    desc: Contacts serverless function endpoint (Lambda,
     crit: notable
     conf: 0.7
     attack: "T1071"
@@ -663,7 +663,7 @@ composite_rules:
 
   # Paste services
   - id: paste-service
-    desc: Contacts paste/bin service (common payload host)
+    desc: Contacts paste/bin service (common payload
     crit: suspicious
     conf: 0.85
     attack: "T1102"

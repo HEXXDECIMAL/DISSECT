@@ -32,7 +32,7 @@ traits:
 
   # FDM specific temp file pattern
   - id: backdoor/fdm-backdoor/temp-file
-    description: FDM backdoor specific temp file pattern
+    description: FDM backdoor specific temp file
     crit: suspicious
     conf: 0.9
     condition:

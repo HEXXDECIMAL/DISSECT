@@ -9,7 +9,7 @@ defaults:
 traits:
   # Migrated from YARA: RC4 S-box initialization pattern
   - id: rc4-sbox-init
-    desc: "RC4 S-box initialization pattern (256-byte permutation)"
+    desc: "RC4 S-box initialization pattern (256-byte"
     crit: inert
     conf: 0.4
     mbc: "C0027.001"
@@ -63,7 +63,7 @@ composite_rules:
   # - rc4-sbox-init: Sequential bytes 00-1F are common in lookup tables
   # - Individual symbol patterns can match legitimately
   - id: rc4-cipher
-    desc: "RC4 or RC4-like stream cipher detected"
+    desc: "RC4 or RC4-like stream cipher"
     crit: notable
     conf: 0.7
     mbc: "C0027.001"

@@ -115,7 +115,7 @@ composite_rules:
       - id: locked-ext
 
   - id: file-encrypt
-    description: Go file encryption patterns (potential ransomware)
+    description: Go file encryption patterns (potential
     crit: suspicious
     conf: 0.8
     all:

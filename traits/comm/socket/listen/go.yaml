@@ -4,7 +4,7 @@
 
 traits:
   - id: listen-go
-    desc: Listen on a socket (Go net.Listen)
+    desc: Listen on a socket (Go
     crit: notable
     conf: 0.66
     mbc: "C0001"

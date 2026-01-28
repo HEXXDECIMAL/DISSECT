@@ -205,7 +205,7 @@ traits:
 
 composite_rules:
   - id: extract-input
-    desc: Extracts variables from user input (potential backdoor)
+    desc: Extracts variables from user input
     crit: suspicious
     conf: 0.9
     for: [php]

@@ -10,7 +10,7 @@ defaults:
 traits:
   # === Binary write modes ===
   - id: write-binary
-    desc: "Opens file in binary write mode (wb)"
+    desc: "Opens file in binary write"
     crit: inert
     conf: 0.6
     for: [elf, macho, pe, c, python]
@@ -19,7 +19,7 @@ traits:
       regex: '\\b"wb"\\b|\\bfopen\\s*\\([^,]+,\\s*"wb"\\)'
 
   - id: write-read-binary
-    desc: "Opens file in binary write+read mode (w+b)"
+    desc: "Opens file in binary write+read"
     crit: inert
     conf: 0.6
     for: [elf, macho, pe, c, python]
@@ -28,7 +28,7 @@ traits:
       regex: '\\b"w\\+b"\\b|\\bfopen\\s*\\([^,]+,\\s*"w\\+b"\\)'
 
   - id: read-write-binary
-    desc: "Opens file in binary read+write mode (r+b)"
+    desc: "Opens file in binary read+write"
     crit: inert
     conf: 0.6
     for: [elf, macho, pe, c, python]
@@ -37,7 +37,7 @@ traits:
       regex: '\\b"r\\+b"\\b|\\bfopen\\s*\\([^,]+,\\s*"r\\+b"\\)'
 
   - id: read-binary
-    desc: "Opens file in binary read mode (rb)"
+    desc: "Opens file in binary read"
     crit: inert
     conf: 0.5
     for: [elf, macho, pe, c, python]
@@ -47,7 +47,7 @@ traits:
 
   # === macOS file copying ===
   - id: fcopyfile-macos
-    desc: "Copies files on macOS using fcopyfile()"
+    desc: "Copies files on macOS using"
     crit: notable
     conf: 0.7
     platforms: [macos]

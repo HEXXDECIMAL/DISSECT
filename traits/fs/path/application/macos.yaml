@@ -65,7 +65,7 @@ composite_rules:
       - id: chrome-extensions-dir
 
   - id: application-browser-extensions
-    desc: Browser extension paths (Firefox, Safari, or Chrome)
+    desc: Browser extension paths (Firefox, Safari,
     crit: suspicious
     conf: 0.66
     mbc: E1083

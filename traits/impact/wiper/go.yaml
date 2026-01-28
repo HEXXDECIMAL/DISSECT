@@ -8,7 +8,7 @@ defaults:
 traits:
   # Overwrite and remove pattern (Secure Wipe)
   - id: secure-wipe-pattern
-    description: Opens file for read-write and then removes it (secure wipe pattern)
+    description: Opens file for read-write and
     crit: notable
     conf: 0.8
     condition:
@@ -25,7 +25,7 @@ traits:
 
   # Known Wiper Standards
   - id: standards-reference
-    description: References to secure wiping standards (Gutmann, DoD 5220.22-M, etc.)
+    description: References to secure wiping standards
     crit: notable
     conf: 0.9
     condition:
@@ -43,7 +43,7 @@ traits:
 
   # Specific overwriting patterns (Gutmann)
   - id: gutmann-patterns
-    description: Uses Gutmann secure deletion overwrite patterns
+    description: Uses Gutmann secure deletion overwrite
     crit: notable
     conf: 0.95
     condition:
@@ -70,7 +70,7 @@ traits:
 
   # Mass file destruction (Go)
   - id: mass-destruction
-    description: Recursively walks filesystem and deletes/overwrites files
+    description: Recursively walks filesystem and deletes/overwrites
     crit: suspicious
     conf: 0.85
     condition:
@@ -89,7 +89,7 @@ traits:
 composite_rules:
   # Secure wiper detection
   - id: secure-wiper
-    description: Highly confident secure wiper (recursive overwrite and delete)
+    description: Highly confident secure wiper (recursive
     crit: suspicious
     conf: 0.99
     mbc: "B0031"

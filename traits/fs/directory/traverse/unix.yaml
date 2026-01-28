@@ -90,7 +90,7 @@ traits:
       exact: "readdir"
 
   - id: lstat-symbol
-    desc: lstat function (get file status, no symlink follow)
+    desc: lstat function (get file status,
     crit: inert
     conf: 0.7
     mbc: E1083
@@ -111,7 +111,7 @@ traits:
 
 composite_rules:
   - id: traverse-fts
-    desc: Traverse filesystem hierarchy via fts API (2+ functions)
+    desc: Traverse filesystem hierarchy via fts
     crit: inert
     conf: 0.66
     mbc: E1083
@@ -125,7 +125,7 @@ composite_rules:
       - id: fts-close
 
   - id: stat-functions
-    desc: File status check (stat or lstat)
+    desc: File status check (stat or
     crit: inert
     conf: 0.7
     mbc: E1083
@@ -135,7 +135,7 @@ composite_rules:
       - id: stat-symbol
 
   - id: traverse-manual
-    desc: Manual recursive directory traversal (opendir + readdir + stat)
+    desc: Manual recursive directory traversal (opendir
     crit: notable
     conf: 0.7
     mbc: E1083

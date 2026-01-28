@@ -6,7 +6,7 @@ traits:
   # === Atomic: Security Framework Symbols ===
 
   - id: find-generic
-    desc: Read passwords from macOS Keychain (SecKeychainFindGenericPassword)
+    desc: Read passwords from macOS Keychain
     crit: suspicious
     conf: 0.9
     mbc: "E1555.001"
@@ -18,7 +18,7 @@ traits:
       pattern: "SecKeychainFindGenericPassword"
 
   - id: find-internet
-    desc: Read internet passwords from macOS Keychain (SecKeychainFindInternetPassword)
+    desc: Read internet passwords from macOS
     crit: suspicious
     conf: 0.9
     mbc: "E1555.001"

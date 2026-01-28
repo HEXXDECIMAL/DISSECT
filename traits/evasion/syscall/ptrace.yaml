@@ -1,6 +1,6 @@
 traits:
   - id: ptrace
-    desc: Uses ptrace - debugger or anti-debug technique
+    desc: Uses ptrace - debugger or
     conf: 0.85
     crit: suspicious
     platforms: [linux]
@@ -10,7 +10,7 @@ traits:
       name: ["ptrace"]
 
   - id: process-memory-access
-    desc: Reads or writes another process memory
+    desc: Reads or writes another process
     conf: 0.9
     crit: suspicious
     platforms: [linux]

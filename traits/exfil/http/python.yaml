@@ -4,7 +4,7 @@
 
 composite_rules:
   - id: exfiltration
-    desc: "Gathers system info and exfiltrates via HTTP"
+    desc: "Gathers system info and exfiltrates"
     crit: suspicious
     conf: 0.9
     attack: "T1041"

@@ -86,7 +86,7 @@ traits:
       regex: "exec(Sync)?\\(['\"]pwd['\"]"
 
   - id: npm-whoami
-    desc: npm whoami command execution (npm user discovery)
+    desc: npm whoami command execution (npm
     crit: suspicious
     conf: 0.9
     attack: "T1033"
@@ -142,7 +142,7 @@ composite_rules:
 
   # curl exfil composite
   - id: curl-exfil
-    desc: Curl command with data parameter (exfiltration)
+    desc: Curl command with data parameter
     crit: suspicious
     conf: 0.9
     attack: "T1041"

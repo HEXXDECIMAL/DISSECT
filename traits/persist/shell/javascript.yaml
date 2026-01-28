@@ -50,7 +50,7 @@ traits:
 
 composite_rules:
   - id: js-source-profile
-    description: Sources shell profile files to reload environment
+    description: Sources shell profile files to
     crit: suspicious
     confidence: 0.85
     attack: "T1546.004"

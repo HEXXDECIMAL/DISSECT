@@ -2,7 +2,7 @@
 
 composite_rules:
   - id: reverse-shell
-    desc: Classic reverse shell pattern (socket + dup2 + shell)
+    desc: Classic reverse shell pattern (socket
     crit: suspicious
     mbc: "B0030.002"
     attack: "T1059"
@@ -16,7 +16,7 @@ composite_rules:
       - id: exec/command/shell/bin-bash
 
   - id: bind-shell
-    desc: Bind shell pattern (socket + bind + listen + shell)
+    desc: Bind shell pattern (socket +
     crit: suspicious
     mbc: "B0030.003"
     attack: "T1059"
@@ -29,7 +29,7 @@ composite_rules:
       - id: exec/command/shell/bin-bash
 
   - id: python-reverse-shell
-    desc: "Python reverse shell detected (socket + pty/dup2)"
+    desc: "Python reverse shell detected (socket"
     crit: suspicious
     mbc: "B0022"
     attack: "T1059"

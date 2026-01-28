@@ -5,7 +5,7 @@
 traits:
   # Native .node module in npm package
   - id: node-addon
-    desc: Package contains native Node.js addon (.node binary)
+    desc: Package contains native Node.js addon
     crit: notable
     conf: 0.7
     for: [javascript, typescript, packagejson]
@@ -53,7 +53,7 @@ traits:
 
   # Process inspection/injection patterns
   - id: process-inspection
-    desc: Native binary with process inspection or injection capabilities
+    desc: Native binary with process inspection
     crit: notable
     conf: 0.8
     mbc: "C0043"
@@ -83,7 +83,7 @@ traits:
 
   # Anti-debugging or process status checks
   - id: process-status-check
-    desc: Native binary checking process status (potential anti-debug)
+    desc: Native binary checking process status
     crit: notable
     conf: 0.7
     mbc: "B0001"

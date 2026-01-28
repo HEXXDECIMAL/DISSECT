@@ -431,7 +431,7 @@ composite_rules:
 
   # STDIO socket piping (migrated from YARA)
   - id: stdio-socket
-    desc: Stdin/stdout piped to socket (reverse shell)
+    desc: Stdin/stdout piped to socket (reverse
     crit: suspicious
     conf: 0.9
     attack: "T1059"

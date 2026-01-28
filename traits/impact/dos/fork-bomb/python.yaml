@@ -53,7 +53,7 @@ traits:
       exact: "while 1:"
 
   - id: for-iter-int
-    desc: Infinite loop with for iter(int, 1)
+    desc: Infinite loop with for iter(int,
     crit: inert
     conf: 0.6
     if:
@@ -80,7 +80,7 @@ traits:
 
   # While loops with True or 1
   - id: while-true-or-1
-    desc: While loop with True or 1
+    desc: While loop with True or
     crit: inert
     conf: 0.6
     if:
@@ -196,7 +196,7 @@ composite_rules:
 
   # Helper: Tight loop patterns
   - id: tight-loops
-    desc: Tight loop patterns (while True/1 or large range)
+    desc: Tight loop patterns (while True/1
     any:
       - id: while-true-or-1
       - id: large-range-loop

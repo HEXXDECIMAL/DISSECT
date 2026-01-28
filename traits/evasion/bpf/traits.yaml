@@ -247,7 +247,7 @@ composite_rules:
 
   # Magic/knock patterns helper
   - id: magic-knock-patterns
-    desc: Magic packet or port knock patterns
+    desc: Magic packet or port knock
     crit: suspicious
     conf: 0.75
     count_min: 1
@@ -260,7 +260,7 @@ composite_rules:
 
   # BPF backdoor (migrated from YARA)
   - id: backdoor
-    desc: BPF packet filtering for backdoor activation
+    desc: BPF packet filtering for backdoor
     crit: suspicious
     conf: 0.8
     attack: "T1205"

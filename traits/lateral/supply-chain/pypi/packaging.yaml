@@ -76,7 +76,7 @@ traits:
 
   # Directory masquerading (evasion technique)
   - id: directory-masquerade
-    description: Directory masquerading as file (e.g. file.py/file.py)
+    description: Directory masquerading as file (e.g.
     crit: suspicious
     confidence: 0.8
     file_types: [all]

@@ -374,7 +374,7 @@ composite_rules:
 
   # Message loop composite
   - id: python-message-loop
-    desc: "Windows message loop or window procedure"
+    desc: "Windows message loop or window"
     conf: 0.6
     crit: notable
     platforms: [windows]

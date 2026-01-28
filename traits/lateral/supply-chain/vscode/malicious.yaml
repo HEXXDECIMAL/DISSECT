@@ -148,7 +148,7 @@ traits:
 composite_rules:
   # State helpers
   - id: state-markers
-    description: State management markers (globalState or postInstall)
+    description: State management markers (globalState or
     crit: notable
     confidence: 0.75
     file_types: [javascript, typescript]
@@ -210,7 +210,7 @@ composite_rules:
 
   # Staged Decryption and Execution inside a VSCode Extension
   - id: staged-dropper
-    description: VSCode extension with staged decryption and execution (Dropper)
+    description: VSCode extension with staged decryption
     crit: hostile
     confidence: 0.99
     mbc: "B0032"

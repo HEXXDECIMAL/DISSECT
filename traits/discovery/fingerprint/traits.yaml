@@ -555,7 +555,7 @@ traits:
 composite_rules:
   # Machine ID composite (migrated from YARA)
   - id: machine-id
-    desc: Machine ID collection for victim identification
+    desc: Machine ID collection for victim
     crit: suspicious
     conf: 0.8
     attack: "T1082"

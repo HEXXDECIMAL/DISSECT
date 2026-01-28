@@ -8,7 +8,7 @@ defaults:
 traits:
   # User ID functions
   - id: getuid
-    desc: Get real user ID of calling process
+    desc: Get real user ID of
     crit: inert
     mbc: "E1057"
     attack: "T1057"
@@ -19,7 +19,7 @@ traits:
     platforms: [unix, linux, macos]
 
   - id: geteuid
-    desc: Get effective user ID of calling process
+    desc: Get effective user ID of
     crit: inert
     mbc: "E1057"
     attack: "T1057"
@@ -30,7 +30,7 @@ traits:
     platforms: [unix, linux, macos]
 
   - id: getgid
-    desc: Get real group ID of calling process
+    desc: Get real group ID of
     crit: inert
     mbc: "E1057"
     attack: "T1057"
@@ -41,7 +41,7 @@ traits:
     platforms: [unix, linux, macos]
 
   - id: getegid
-    desc: Get effective group ID of calling process
+    desc: Get effective group ID of
     crit: inert
     mbc: "E1057"
     attack: "T1057"
@@ -53,7 +53,7 @@ traits:
 
   # Process ID functions
   - id: getpid
-    desc: Get process ID of calling process
+    desc: Get process ID of calling
     crit: inert
     mbc: "E1057"
     attack: "T1057"
@@ -76,7 +76,7 @@ traits:
 
   # User information lookup
   - id: getpwnam
-    desc: Get user database entry by name
+    desc: Get user database entry by
     crit: inert
     mbc: "E1087"
     attack: "T1087.001"
@@ -87,7 +87,7 @@ traits:
     platforms: [unix, linux, macos]
 
   - id: getpwuid
-    desc: Get user database entry by UID
+    desc: Get user database entry by
     crit: inert
     mbc: "E1087"
     attack: "T1087.001"
@@ -99,7 +99,7 @@ traits:
 
   # Group information lookup
   - id: getgrnam
-    desc: Get group database entry by name
+    desc: Get group database entry by
     crit: inert
     mbc: "E1087"
     attack: "T1087.002"
@@ -110,7 +110,7 @@ traits:
     platforms: [unix, linux, macos]
 
   - id: getgrgid
-    desc: Get group database entry by GID
+    desc: Get group database entry by
     crit: inert
     mbc: "E1087"
     attack: "T1087.002"

@@ -133,7 +133,7 @@ composite_rules:
 
   # Main detection: Go reverse shell with SOCKS proxy
   - id: backdoor/generic/go-reverse-socks
-    description: Go-based Reverse Shell with SOCKS Proxy
+    description: Go-based Reverse Shell with SOCKS
     crit: hostile
     conf: 0.9
     attack: "T1090"

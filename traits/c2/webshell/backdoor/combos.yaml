@@ -6,7 +6,7 @@
 composite_rules:
   # High-confidence webshell detection
   - id: php-backdoor
-    desc: "PHP webshell: session-based backdoor with user input handling"
+    desc: "PHP webshell: session-based backdoor with"
     crit: suspicious
     conf: 0.95
     mbc: "B0030"
@@ -22,7 +22,7 @@ composite_rules:
 
   # Dropper webshell (writes decoded payloads)
   - id: php-dropper
-    desc: "PHP dropper: decodes and writes payload files"
+    desc: "PHP dropper: decodes and writes"
     crit: suspicious
     conf: 0.95
     mbc: "B0030"
@@ -49,7 +49,7 @@ composite_rules:
 
   # SSRF/Proxy webshell
   - id: php-proxy
-    desc: "PHP proxy/SSRF webshell for fetching remote URLs"
+    desc: "PHP proxy/SSRF webshell for fetching"
     crit: suspicious
     conf: 0.9
     mbc: "B0030"
@@ -67,7 +67,7 @@ composite_rules:
     count_min: 1
   # Bot impersonation webshell
   - id: php-bot-impersonate
-    desc: "PHP webshell with search engine bot impersonation"
+    desc: "PHP webshell with search engine"
     crit: suspicious
     conf: 0.9
     mbc: "B0032"
@@ -81,7 +81,7 @@ composite_rules:
 
   # Timestamp manipulation (anti-forensic)
   - id: php-timestomp
-    desc: "PHP webshell with timestamp manipulation for evasion"
+    desc: "PHP webshell with timestamp manipulation"
     crit: suspicious
     conf: 0.9
     mbc: "F0006"
@@ -93,7 +93,7 @@ composite_rules:
 
   # Hardcoded authentication backdoor
   - id: php-hardcoded-auth
-    desc: "PHP webshell with hardcoded hash authentication"
+    desc: "PHP webshell with hardcoded hash"
     crit: suspicious
     conf: 0.95
     mbc: "B0030"
@@ -105,7 +105,7 @@ composite_rules:
 
   # File upload webshell
   - id: php-uploader
-    desc: "PHP webshell with file upload capability"
+    desc: "PHP webshell with file upload"
     crit: suspicious
     conf: 0.9
     mbc: "B0030"
@@ -120,7 +120,7 @@ composite_rules:
     count_min: 1
   # Command execution webshell
   - id: php-rce
-    desc: "PHP webshell with remote command execution"
+    desc: "PHP webshell with remote command"
     crit: suspicious
     conf: 0.95
     mbc: "E1059"
@@ -136,7 +136,7 @@ composite_rules:
     count_min: 1
   # Web UI webshell (has HTML interface)
   - id: php-web-ui
-    desc: "PHP webshell with web-based user interface"
+    desc: "PHP webshell with web-based user"
     crit: suspicious
     conf: 0.85
     mbc: "B0030"
@@ -150,7 +150,7 @@ composite_rules:
 
   # Google scraping webshell (SEO spam tool)
   - id: php-seo-tool
-    desc: "PHP SEO spam tool with Google scraping capability"
+    desc: "PHP SEO spam tool with"
     crit: suspicious
     conf: 0.85
     mbc: "B0030"
@@ -162,7 +162,7 @@ composite_rules:
 
   # Obfuscated payload webshell
   - id: php-obfuscated
-    desc: "PHP webshell with heavily obfuscated payload"
+    desc: "PHP webshell with heavily obfuscated"
     crit: suspicious
     conf: 0.9
     mbc: "B0032"
@@ -178,7 +178,7 @@ composite_rules:
 
   # Decompressed code execution
   - id: php-gz-eval
-    desc: "PHP: decompresses and executes code (obfuscated backdoor)"
+    desc: "PHP: decompresses and executes code"
     crit: suspicious
     conf: 0.98
     mbc: "B0032"
@@ -190,7 +190,7 @@ composite_rules:
 
   # Obfuscated dynamic backdoor
   - id: php-obfuscated-dynamic-backdoor
-    desc: "PHP: obfuscated dynamic backdoor (dynamic calls + obfuscation metrics)"
+    desc: "PHP: obfuscated dynamic backdoor (dynamic"
     crit: hostile
     conf: 0.98
     mbc: "B0032"
@@ -205,7 +205,7 @@ composite_rules:
 
   # Non-ASCII dynamic backdoor
   - id: php-non-ascii-backdoor
-    desc: "PHP: non-ASCII dynamic backdoor (dynamic calls + binary content)"
+    desc: "PHP: non-ASCII dynamic backdoor (dynamic"
     crit: suspicious
     conf: 0.98
     mbc: "B0032"
@@ -228,7 +228,7 @@ composite_rules:
       - id: anti-static/obfuscation/code-metrics/php-non-ascii-name
 
   - id: php-shell-functional
-    desc: "PHP: functional webshell (exec + input + obfuscation/file ops)"
+    desc: "PHP: functional webshell (exec +"
     crit: hostile
     conf: 0.98
     mbc: "B0030"
@@ -249,7 +249,7 @@ composite_rules:
 
   # Functional PHP shell
   - id: php-shell
-    desc: "PHP: functional webshell (exec + user input + file ops)"
+    desc: "PHP: functional webshell (exec +"
     crit: hostile
     conf: 0.98
     mbc: "B0030"

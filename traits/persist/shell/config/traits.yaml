@@ -205,7 +205,7 @@ traits:
 
   # Exclusion patterns
   - id: posixly-correct
-    description: POSIXLY_CORRECT environment variable (legitimate bash behavior)
+    description: POSIXLY_CORRECT environment variable (legitimate bash
     crit: inert
     conf: 1.0
     if:
@@ -213,7 +213,7 @@ traits:
       exact: "POSIXLY_CORRECT"
 
   - id: cshrc-file
-    description: .cshrc file (C shell, not persistence)
+    description: .cshrc file (C shell, not
     crit: inert
     conf: 1.0
     if:
@@ -241,7 +241,7 @@ composite_rules:
       - id: bashrc
 
   - id: multi-file-access
-    description: Multiple shell config files accessed (3+, persistence indicator)
+    description: Multiple shell config files accessed
     crit: suspicious
     conf: 0.9
     attack: T1546.004
@@ -259,7 +259,7 @@ composite_rules:
       - id: tcsh-keyword
 
   - id: elf-hardcoded
-    description: Binary with hardcoded shell config paths (persistence)
+    description: Binary with hardcoded shell config
     crit: suspicious
     conf: 0.95
     for: [elf, macho]

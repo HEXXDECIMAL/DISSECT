@@ -159,7 +159,7 @@ traits:
 
   # Reads .npmrc (token theft)
   - id: npmrc-read
-    description: Reads .npmrc file (potential token theft)
+    description: Reads .npmrc file (potential token
     crit: suspicious
     confidence: 0.9
     file_types: [javascript, typescript]
@@ -227,7 +227,7 @@ traits:
 
   # Bug bounty / security research markers
   - id: bug-bounty-marker
-    description: Bug bounty or security research marker
+    description: Bug bounty or security research
     crit: notable
     confidence: 0.9
     file_types: [javascript, packagejson]
@@ -329,7 +329,7 @@ composite_rules:
 
   # Single file with dangerous APIs - migrated from YARA
   - id: single-file-dangerous
-    description: Tiny npm package using dangerous Node APIs
+    description: Tiny npm package using dangerous
     crit: suspicious
     confidence: 0.85
     file_types: [javascript]
@@ -350,7 +350,7 @@ composite_rules:
 
   # No deps with hooks - migrated from YARA
   - id: no-deps-with-hooks
-    description: Package has install hooks but no dependencies
+    description: Package has install hooks but
     crit: suspicious
     confidence: 0.85
     all:
@@ -360,7 +360,7 @@ composite_rules:
 
   # Multiple install hooks - migrated from YARA
   - id: multiple-hooks
-    description: Package has multiple install lifecycle hooks
+    description: Package has multiple install lifecycle
     crit: suspicious
     confidence: 0.85
     count_min: 2
@@ -371,7 +371,7 @@ composite_rules:
 
   # New version with hooks - migrated from YARA
   - id: new-version-hooks
-    description: Brand new version (0.0.1) with install hooks
+    description: Brand new version (0.0.1) with
     crit: suspicious
     confidence: 0.8
     all:
@@ -380,7 +380,7 @@ composite_rules:
 
   # Missing metadata with hooks - migrated from YARA
   - id: missing-metadata-hooks
-    description: Package missing standard metadata but has install hooks
+    description: Package missing standard metadata but
     crit: suspicious
     confidence: 0.85
     all:

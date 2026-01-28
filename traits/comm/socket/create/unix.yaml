@@ -43,7 +43,7 @@ traits:
 
 composite_rules:
   - id: client
-    desc: Network client - connects to remote host
+    desc: Network client - connects to
     conf: 0.85
     crit: notable
     platforms: [linux]

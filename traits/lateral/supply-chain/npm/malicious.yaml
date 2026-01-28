@@ -16,7 +16,7 @@ traits:
 composite_rules:
   # Lifecycle hook helpers
   - id: lifecycle-hook
-    description: NPM lifecycle hook (preinstall or postinstall)
+    description: NPM lifecycle hook (preinstall or
     crit: inert
     confidence: 0.6
     file_types: [packagejson]
@@ -50,7 +50,7 @@ composite_rules:
 
   # Node eval helpers
   - id: node-eval
-    description: Node inline eval (node -e or --eval)
+    description: Node inline eval (node -e
     crit: notable
     confidence: 0.8
     file_types: [packagejson]
@@ -61,7 +61,7 @@ composite_rules:
 
   # NPM preinstall/postinstall abuse with dropper behavior
   - id: lifecycle-dropper
-    description: NPM lifecycle script with dropper pattern
+    description: NPM lifecycle script with dropper
     crit: suspicious
     confidence: 0.95
     attack: "T1195.002"
@@ -74,7 +74,7 @@ composite_rules:
 
   # NPM package with inline node eval in hooks
   - id: hook-node-eval
-    description: NPM install hook with node -e inline execution
+    description: NPM install hook with node
     crit: suspicious
     confidence: 0.95
     attack: "T1059.007"
@@ -86,7 +86,7 @@ composite_rules:
 
   # Install hook spawns child process
   - id: hook-child-process
-    description: NPM install hook using child_process module
+    description: NPM install hook using child_process
     crit: suspicious
     confidence: 0.85
     attack: "T1195.002"

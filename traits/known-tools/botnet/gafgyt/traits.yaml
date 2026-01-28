@@ -72,7 +72,7 @@ composite_rules:
       - id: ack-flood-string
 
   - id: gafgyt-strings
-    desc: Gafgyt botnet string indicators (3+ required)
+    desc: Gafgyt botnet string indicators (3+
     crit: suspicious
     conf: 0.8
     for: [elf]
@@ -87,7 +87,7 @@ composite_rules:
       - id: ack-flood-string
 
   - id: detected
-    desc: Gafgyt IoT botnet detection (botkill + 3+ strings, small ELF)
+    desc: Gafgyt IoT botnet detection (botkill
     crit: suspicious
     conf: 0.95
     for: [elf]

@@ -10,7 +10,7 @@ traits:
   # === Atomic: Network Scanning Indicators ===
 
   - id: ip-format
-    description: IP address format string (scanning indicator)
+    description: IP address format string (scanning
     crit: notable
     confidence: 0.6
     platforms: [all]

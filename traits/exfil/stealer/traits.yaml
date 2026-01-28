@@ -52,7 +52,7 @@ composite_rules:
 
   # curl POST with custom headers (references comm/http/client/)
   - id: curl-post-headers
-    desc: curl POST with custom identification headers
+    desc: curl POST with custom identification
     crit: suspicious
     conf: 0.9
     mbc: "C0001"
@@ -104,7 +104,7 @@ composite_rules:
 
   # HTTP client/POST (references comm/http/client/ and comm/http/)
   - id: http-client-post
-    desc: HTTP client tool or POST method
+    desc: HTTP client tool or POST
     crit: notable
     conf: 0.8
     for: [shell]

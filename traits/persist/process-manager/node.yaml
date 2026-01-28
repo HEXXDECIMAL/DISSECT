@@ -34,7 +34,7 @@ traits:
 
   # PM2 process manager spawn
   - id: pm2-spawn
-    desc: Spawns PM2 process manager (potential persistence)
+    desc: Spawns PM2 process manager (potential
     crit: suspicious
     conf: 0.85
     if:
@@ -43,7 +43,7 @@ traits:
 
   # PM2 start command
   - id: pm2-start
-    desc: Starts process via PM2 (persistence mechanism)
+    desc: Starts process via PM2 (persistence
     crit: suspicious
     conf: 0.85
     if:
@@ -71,7 +71,7 @@ traits:
 composite_rules:
   # PM2 with detached mode
   - id: pm2-detached
-    desc: PM2 spawned in detached mode (background persistence)
+    desc: PM2 spawned in detached mode
     crit: suspicious
     conf: 0.9
     all:

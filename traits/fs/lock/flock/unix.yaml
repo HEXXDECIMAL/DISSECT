@@ -7,7 +7,7 @@ defaults:
 
 traits:
   - id: flock
-    desc: Apply or remove advisory lock on file
+    desc: Apply or remove advisory lock
     crit: inert
     conf: 0.66
     if:

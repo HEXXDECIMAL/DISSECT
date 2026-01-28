@@ -27,7 +27,7 @@ traits:
         }
 
   - id: c2-framework/cobalt-strike/named-pipe
-    description: Cobalt Strike default named pipe patterns
+    description: Cobalt Strike default named pipe
     crit: suspicious
     conf: 0.85
     mbc: "C0001"
@@ -71,7 +71,7 @@ traits:
         }
 
   - id: c2-framework/cobalt-strike/malleable-c2
-    description: Cobalt Strike malleable C2 profile patterns
+    description: Cobalt Strike malleable C2 profile
     crit: suspicious
     conf: 0.85
     mbc: "C0001"
@@ -125,7 +125,7 @@ traits:
         }
 
   - id: c2-framework/cobalt-strike/reflective-load
-    description: Cobalt Strike reflective DLL loading patterns
+    description: Cobalt Strike reflective DLL loading
     crit: suspicious
     conf: 0.85
     mbc: "C0001"

@@ -19,7 +19,7 @@ traits:
 
 composite_rules:
   - id: hidden-file-write
-    desc: Writing to hidden dotfile (malware hiding)
+    desc: Writing to hidden dotfile (malware
     crit: suspicious
     conf: 0.85
     mbc: "F0005"

@@ -116,7 +116,7 @@ traits:
 
   # Hooking Security functions (AST)
   - id: hook-security-logic
-    desc: Structural detection of hooking kernel integrity checks
+    desc: Structural detection of hooking kernel
     crit: suspicious
     conf: 0.95
     attack: "T1562.001"
@@ -130,7 +130,7 @@ traits:
 composite_rules:
   # LKRG blinding (migrated from YARA)
   - id: lkrg
-    desc: Targets Linux Kernel Runtime Guard (LKRG) integrity checks
+    desc: Targets Linux Kernel Runtime Guard
     crit: suspicious
     conf: 1.0
     attack: "T1562.001"
@@ -146,7 +146,7 @@ composite_rules:
 
   # Kernel integrity blinding (migrated from YARA)
   - id: kernel-integrity
-    desc: Targets kernel integrity or exploit detection functions
+    desc: Targets kernel integrity or exploit
     crit: suspicious
     conf: 0.9
     attack: "T1562.001"
@@ -161,9 +161,9 @@ composite_rules:
 
   # Active security software blinding (e.g. LKRG, EDR)
   - id: security-software-blinding
-    desc: High-confidence detection of security software blinding (LKRG/EDR)
-    crit: hostile
-    conf: 0.99
+    desc: "Security software blinding detected"
+    crit: suspicious
+    conf: 0.95
     attack: "T1562.001"
     for: [c]
     count_min: 2

@@ -18,7 +18,7 @@ traits:
       pattern: "getpwnam"
 
   - id: getpwuid
-    desc: Read user password database by UID (getpwuid)
+    desc: Read user password database by
     crit: inert
     conf: 0.7
     mbc: "E1003.008"
@@ -101,7 +101,7 @@ traits:
 composite_rules:
   # shadow file composite
   - id: shadow-file
-    desc: Access to system shadow password file
+    desc: Access to system shadow password
     crit: notable
     conf: 0.9
     attack: "T1003.008"

@@ -17,7 +17,7 @@ traits:
       exact: "/dev/shm/"
 
   - id: proc-self-fd
-    desc: "Access /proc/self/fd for file descriptor manipulation"
+    desc: "Access /proc/self/fd for file descriptor"
     crit: notable
     conf: 0.7
     for: [elf]

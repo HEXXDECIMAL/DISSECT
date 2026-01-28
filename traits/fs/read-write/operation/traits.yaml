@@ -128,7 +128,7 @@ traits:
 
   # File locking
   - id: flock
-    description: Apply or remove advisory lock on file
+    description: Apply or remove advisory lock
     crit: inert
     mbc: "E1083"
     attack: "T1083"

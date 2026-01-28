@@ -11,7 +11,7 @@ defaults:
 traits:
   # Migrated from YARA: hex escape sequences like \x41\x42\x43\x44
   - id: python-hex
-    desc: "Detects hex-encoded string patterns (\\xNN sequences)"
+    desc: "Detects hex-encoded string patterns (\\xNN"
     crit: notable
     conf: 0.7
     if:
@@ -20,7 +20,7 @@ traits:
 
   # Migrated from YARA: octal escape sequences like \101\102\103\104
   - id: python-octal
-    desc: "Detects octal-encoded string patterns (\\NNN sequences)"
+    desc: "Detects octal-encoded string patterns (\\NNN"
     crit: notable
     conf: 0.7
     if:
@@ -37,7 +37,7 @@ traits:
 
   # AST-based detection (Python source only)
   - id: concatenated-execution
-    desc: "String concatenation in execution sink (Evasion)"
+    desc: "String concatenation in execution sink"
     crit: suspicious
     conf: 0.85
     for: [python]
@@ -55,7 +55,7 @@ traits:
         (#match? @func "^(exec|eval|b64decode|system|compile)$")
 
   - id: python-exec-eval
-    desc: "Dynamic code execution via exec() or eval()"
+    desc: "Dynamic code execution via exec()"
     crit: notable
     conf: 0.7
     if:
@@ -127,7 +127,7 @@ composite_rules:
       - id: marshal-loads-call
 
   - id: execute-decoded-content
-    desc: "Direct execution of decoded content (Dynamic Dropper)"
+    desc: "Direct execution of decoded content"
     crit: hostile
     conf: 0.98
     all:
@@ -136,14 +136,14 @@ composite_rules:
       - id: python-chr
 
   - id: python-encoded-pattern
-    desc: "Detects encoded string patterns (hex or octal)"
+    desc: "Detects encoded string patterns (hex"
     crit: notable
     any:
       - id: python-hex
       - id: python-octal
 
   - id: obfuscated-execution
-    desc: "Direct execution of encoded string (Dynamic Dropper)"
+    desc: "Direct execution of encoded string"
     crit: hostile
     conf: 0.95
     all:

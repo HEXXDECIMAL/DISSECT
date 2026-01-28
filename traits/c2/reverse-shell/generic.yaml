@@ -24,7 +24,7 @@ traits:
 
   # === Exclusion patterns ===
   - id: elastic-license
-    desc: Elastic License v2 (detection rule exclusion)
+    desc: Elastic License v2 (detection rule
     crit: inert
     conf: 0.3
     if:

@@ -30,7 +30,7 @@ traits:
       exact: "1337"
 
   - id: magic-0x539
-    desc: Magic value 0x539 (hex for 1337)
+    desc: Magic value 0x539 (hex for
     crit: inert
     conf: 0.5
     if:
@@ -178,7 +178,7 @@ composite_rules:
 
   # ICMP Magic Packet Trigger
   - id: icmp-magic-packet
-    desc: ICMP packet inspection for magic values (C2 trigger)
+    desc: ICMP packet inspection for magic
     crit: suspicious
     conf: 0.95
     attack: "T1205.001"

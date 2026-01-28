@@ -118,7 +118,7 @@ traits:
       regex: "(?i)click the.{0,30}button"
 
   - id: press-continue
-    desc: "Instructs user to press to continue"
+    desc: "Instructs user to press to"
     crit: notable
     conf: 0.75
     if:
@@ -185,7 +185,7 @@ composite_rules:
   # Fake Update Attack
   # ============================================
   - id: fake-update-attack
-    desc: "Fake system update user execution lure"
+    desc: "Fake system update user execution"
     crit: suspicious
     conf: 0.9
     for: [applescript, shell]
@@ -209,7 +209,7 @@ composite_rules:
   # Lure with Shell Execution
   # ============================================
   - id: lure-with-shell
-    desc: "User execution lure with shell command"
+    desc: "User execution lure with shell"
     crit: suspicious
     conf: 0.95
     for: [applescript]

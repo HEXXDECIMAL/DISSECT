@@ -3,7 +3,7 @@
 
 composite_rules:
   - id: backdoor/nodejs/behavior-mix
-    description: "NodeJS backdoor-like behavior (Masquerading + Execution + File Perms)"
+    description: "NodeJS backdoor-like behavior (Masquerading +"
     crit: hostile
     conf: 0.85
     attack: "T1059.003"

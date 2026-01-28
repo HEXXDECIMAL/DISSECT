@@ -14,7 +14,7 @@ traits:
       pattern: "VirtualProtect$"
 
   - id: virtualprotect-ex
-    description: Change memory protection in other process (VirtualProtectEx)
+    description: Change memory protection in other
     crit: suspicious
     confidence: 0.85
     attack: "T1055"

@@ -76,7 +76,7 @@ traits:
       regex: true
 
   - id: exec-user-input
-    desc: Command execution with user input (RCE)
+    desc: Command execution with user input
     conf: 0.9
     if:
       type: ast_pattern

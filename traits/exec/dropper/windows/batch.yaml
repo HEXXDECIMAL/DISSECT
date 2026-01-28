@@ -120,7 +120,7 @@ traits:
       regex: "@echo\\s+off"
 
   - id: redirect-null
-    desc: Redirect output to null (hide output)
+    desc: Redirect output to null (hide
     crit: notable
     conf: 0.7
     mbc: "F0005"
@@ -230,7 +230,7 @@ composite_rules:
 
   # Download + Execute Combo
   - id: download-and-execute
-    desc: Download and execute pattern (dropper behavior)
+    desc: Download and execute pattern (dropper
     crit: suspicious
     conf: 0.95
     mbc: "C0002"

@@ -25,7 +25,7 @@ traits:
       pattern: "SetWindowsHookEx"
 
   - id: windows-rawinput
-    desc: Windows raw input API for keyboard access
+    desc: Windows raw input API for
     conf: 0.7
     platforms: [windows]
     for: [pe, dll]
@@ -44,7 +44,7 @@ traits:
 
   # === Atomic: Linux Keyboard Input ===
   - id: linux-input-device
-    desc: Direct access to Linux input devices
+    desc: Direct access to Linux input
     conf: 0.75
     platforms: [linux]
     for: [elf, python, shell]
@@ -410,7 +410,7 @@ composite_rules:
 
   # JS iohook composite
   - id: js-iohook
-    desc: Node.js iohook global keyboard hook library
+    desc: Node.js iohook global keyboard hook
     conf: 0.75
     for: [javascript]
     any:
@@ -440,7 +440,7 @@ composite_rules:
       - { id: applescript-keywords }
 
   - id: jxa-keystroke
-    desc: JXA (JavaScript for Automation) keystroke capture
+    desc: JXA (JavaScript for Automation) keystroke
     crit: suspicious
     conf: 0.95
     mbc: "B0015"
@@ -475,7 +475,7 @@ composite_rules:
   # Multiple keyboard-related indicators - still only suspicious
   # Hostile classification requires exfiltration indicators
   - id: windows-keylogger
-    desc: Windows keylogger pattern (multiple keyboard APIs)
+    desc: Windows keylogger pattern (multiple keyboard
     conf: 0.85
     platforms: [windows]
     for: [pe, dll]
@@ -486,7 +486,7 @@ composite_rules:
       - { id: windows-asynckey }
 
   - id: linux-keylogger
-    desc: Linux keylogger pattern (multiple input methods)
+    desc: Linux keylogger pattern (multiple input
     conf: 0.85
     platforms: [linux]
     for: [elf]

@@ -14,7 +14,7 @@ traits:
       word: "crontab"
 
   - id: etc-cron-path
-    description: /etc/cron directory path (system cron jobs)
+    description: /etc/cron directory path (system cron
     crit: notable
     conf: 0.7
     mbc: B0028
@@ -24,7 +24,7 @@ traits:
       exact: "/etc/cron"
 
   - id: var-spool-cron-path
-    description: /var/spool/cron directory path (user cron jobs)
+    description: /var/spool/cron directory path (user cron
     crit: notable
     conf: 0.7
     mbc: B0028
@@ -34,7 +34,7 @@ traits:
       exact: "/var/spool/cron"
 
   - id: cron-d-path
-    description: /etc/cron.d directory path (additional system cron jobs)
+    description: /etc/cron.d directory path (additional system
     crit: notable
     conf: 0.7
     mbc: B0028
@@ -45,7 +45,7 @@ traits:
 
 composite_rules:
   - id: cron
-    description: Cron job persistence (command or directory paths)
+    description: Cron job persistence (command or
     crit: notable
     conf: 0.66
     mbc: B0028

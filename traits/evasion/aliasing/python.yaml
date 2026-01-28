@@ -59,7 +59,7 @@ traits:
 
 composite_rules:
   - id: python-std-alias
-    desc: "Suspicious standard library aliasing (potential evasion)"
+    desc: "Suspicious standard library aliasing (potential"
     crit: suspicious
     conf: 0.8
     for: [python]

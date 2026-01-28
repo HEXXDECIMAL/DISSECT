@@ -4,7 +4,7 @@
 
 traits:
   - id: network-dev
-    description: Read network device statistics from /proc/net/dev
+    description: Read network device statistics from
     crit: inert
     conf: 0.66
     if:

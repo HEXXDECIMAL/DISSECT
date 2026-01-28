@@ -31,7 +31,7 @@ traits:
       exact: xor_decode
 
   - id: xor-loop
-    desc: XOR operation with hex byte constant
+    desc: XOR operation with hex byte
     crit: notable
     conf: 0.7
     if:

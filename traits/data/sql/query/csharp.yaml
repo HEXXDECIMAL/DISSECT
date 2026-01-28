@@ -33,7 +33,7 @@ traits:
     for: [csharp]
 
   - id: extension-method
-    desc: Extension method definition (can extend existing types)
+    desc: Extension method definition (can extend
     crit: inert
     conf: 0.7
     if:

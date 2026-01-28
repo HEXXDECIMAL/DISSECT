@@ -232,7 +232,7 @@ composite_rules:
       - id: aes-encrypt-string
 
   - id: melofee-behavior
-    description: Melofee backdoor behavior (rootkit or C2)
+    description: Melofee backdoor behavior (rootkit or
     any:
       - id: kernel/rootkit/process-hiding
       - id: comm/c2/heartbeat-protocol

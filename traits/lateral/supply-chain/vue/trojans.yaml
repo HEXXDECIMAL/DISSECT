@@ -10,7 +10,7 @@ defaults:
 composite_rules:
   # Vue + ActiveXObject = HOSTILE (complexity >= 4)
   - id: trojanized-activex
-    desc: "Vue library with ActiveXObject (trojanized supply chain attack)"
+    desc: "Vue library with ActiveXObject (trojanized"
     crit: hostile
     conf: 0.98
     all:
@@ -24,7 +24,7 @@ composite_rules:
 
   # Vue + Reverse Shell = HOSTILE
   - id: trojanized-reverse-shell
-    desc: "Vue library with reverse shell (trojanized supply chain attack)"
+    desc: "Vue library with reverse shell"
     crit: hostile
     conf: 0.98
     all:
@@ -38,7 +38,7 @@ composite_rules:
 
   # Vue + Base64 Eval = HOSTILE (hidden payload)
   - id: trojanized-base64-eval
-    desc: "Vue library with base64+eval payload (trojanized supply chain attack)"
+    desc: "Vue library with base64+eval payload"
     crit: hostile
     conf: 0.95
     all:
@@ -52,7 +52,7 @@ composite_rules:
 
   # Vue + Credential Access = HOSTILE
   - id: trojanized-credential-access
-    desc: "Vue library with credential access (trojanized supply chain attack)"
+    desc: "Vue library with credential access"
     crit: hostile
     conf: 0.98
     all:
@@ -68,7 +68,7 @@ composite_rules:
 
   # Vue + Command Execution = HOSTILE
   - id: trojanized-exec
-    desc: "Vue library with command execution (trojanized supply chain attack)"
+    desc: "Vue library with command execution"
     crit: hostile
     conf: 0.98
     all:
@@ -84,7 +84,7 @@ composite_rules:
 
   # Vue + Network Backdoor = HOSTILE
   - id: trojanized-backdoor
-    desc: "Vue library with network backdoor (trojanized supply chain attack)"
+    desc: "Vue library with network backdoor"
     crit: hostile
     conf: 0.95
     all:

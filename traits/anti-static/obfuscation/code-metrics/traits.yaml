@@ -26,7 +26,7 @@ traits:
   # === Identifier Obfuscation ===
 
   - id: high-entropy-identifiers
-    desc: "High entropy identifiers (random-looking variable names)"
+    desc: "High entropy identifiers (random-looking variable"
     crit: suspicious
     conf: 0.85
     if:
@@ -35,7 +35,7 @@ traits:
       min: 2.5
 
   - id: many-high-entropy-identifiers
-    desc: "Many high-entropy identifiers (>20% have random names)"
+    desc: "Many high-entropy identifiers (>20% have"
     crit: suspicious
     conf: 0.9
     if:
@@ -53,7 +53,7 @@ traits:
       min: 0.30
 
   - id: numeric-suffix-identifiers
-    desc: "Many numeric suffix identifiers (var1, var2 - generated code)"
+    desc: "Many numeric suffix identifiers (var1,"
     crit: notable
     conf: 0.75
     if:
@@ -62,7 +62,7 @@ traits:
       min: 5
 
   - id: sequential-identifiers
-    desc: "Sequential identifiers (a, b, c, d - minified code)"
+    desc: "Sequential identifiers (a, b, c,"
     crit: notable
     conf: 0.8
     if:
@@ -71,7 +71,7 @@ traits:
       min: 5
 
   - id: low-identifier-reuse
-    desc: "Low identifier reuse (each variable used once - obfuscation)"
+    desc: "Low identifier reuse (each variable"
     crit: notable
     conf: 0.7
     if:
@@ -110,7 +110,7 @@ traits:
       min: 5
 
   - id: high-function-density
-    desc: "High function density (>20 functions per 100 lines - minified)"
+    desc: "High function density (>20 functions"
     crit: suspicious
     conf: 0.85
     if:
@@ -120,7 +120,7 @@ traits:
       min_size: 1024
 
   - id: many-one-liner-functions
-    desc: "Many one-liner functions (minified code pattern)"
+    desc: "Many one-liner functions (minified code"
     crit: notable
     conf: 0.7
     if:
@@ -160,7 +160,7 @@ traits:
   # NOTE: Small/simple programs legitimately have few strings.
   # Only meaningful combined with other obfuscation indicators.
   - id: few-strings
-    desc: "Very few string literals (string concealment)"
+    desc: "Very few string literals (string"
     crit: inert
     conf: 0.4
     if:
@@ -172,7 +172,7 @@ traits:
   # === Code Structure Anomalies ===
 
   - id: no-comments
-    desc: "No comments in code (stripped or obfuscated)"
+    desc: "No comments in code (stripped"
     crit: notable
     conf: 0.6
     if:
@@ -192,7 +192,7 @@ traits:
       min_size: 2048
 
   - id: very-long-lines
-    desc: "Very long lines (>500 chars - minified code)"
+    desc: "Very long lines (>500 chars"
     crit: suspicious
     conf: 0.85
     if:
@@ -201,7 +201,7 @@ traits:
       min: 500
 
   - id: high-text-entropy
-    desc: "High overall text entropy (encoded content)"
+    desc: "High overall text entropy (encoded"
     crit: suspicious
     conf: 0.8
     if:
@@ -230,7 +230,7 @@ traits:
       min: 1
 
   - id: many-large-functions
-    desc: "Multiple very large functions (>100 lines each)"
+    desc: "Multiple very large functions (>100"
     crit: notable
     conf: 0.7
     if:

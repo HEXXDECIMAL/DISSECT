@@ -3,7 +3,7 @@
 
 traits:
   - id: proxy-func
-    desc: Proxy function reference (potential proxying capability)
+    desc: Proxy function reference (potential proxying
     crit: notable
     conf: 0.5
     attack: "T1090"

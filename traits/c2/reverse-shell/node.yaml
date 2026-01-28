@@ -274,7 +274,7 @@ traits:
 composite_rules:
   # Net socket composite
   - id: net-socket
-    desc: Net socket creation (potential reverse shell)
+    desc: Net socket creation (potential reverse
     crit: notable
     conf: 0.8
     for: [javascript, typescript]
@@ -322,7 +322,7 @@ composite_rules:
 
   # HTTP response pattern composite (exclusion)
   - id: http-response-pattern
-    desc: HTTP response data handling (not reverse shell)
+    desc: HTTP response data handling (not
     crit: inert
     conf: 0.5
     for: [javascript, typescript]
@@ -335,7 +335,7 @@ composite_rules:
 
   # Node reverse shell (migrated from YARA)
   - id: node
-    desc: Node.js reverse shell pattern (net + child_process)
+    desc: Node.js reverse shell pattern (net
     crit: suspicious
     conf: 0.85
     for: [javascript, typescript]
@@ -347,7 +347,7 @@ composite_rules:
 
   # Socket with exec (migrated from YARA)
   - id: socket-with-exec
-    desc: Socket combined with command execution (reverse shell indicator)
+    desc: Socket combined with command execution
     crit: suspicious
     conf: 0.95
     mbc: "B0032"
@@ -359,7 +359,7 @@ composite_rules:
 
   # Lock file pattern (migrated from YARA)
   - id: lock-file
-    desc: Lock file for single instance (RAT pattern)
+    desc: Lock file for single instance
     crit: notable
     conf: 0.7
     for: [javascript, typescript]
@@ -370,7 +370,7 @@ composite_rules:
 
   # Socket data event with exec (migrated from YARA)
   - id: data-event-exec
-    desc: Socket data event with command execution
+    desc: Socket data event with command
     crit: suspicious
     conf: 0.95
     mbc: "B0032"

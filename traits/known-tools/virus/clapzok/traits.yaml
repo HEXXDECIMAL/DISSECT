@@ -15,7 +15,7 @@ traits:
       exact: "SfcIsFileProtected"
 
   - id: virus/clapzok/macho-structure
-    description: Clapzok virus YARA pattern for Mach-O binaries
+    description: Clapzok virus YARA pattern for
     crit: suspicious
     confidence: 0.95
     family: true

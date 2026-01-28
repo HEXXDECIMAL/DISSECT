@@ -316,7 +316,7 @@ composite_rules:
 
   # Migrated from YARA
   - id: download-pipe-exec
-    desc: Download piped to interpreter (dropper pattern)
+    desc: Download piped to interpreter (dropper
     crit: suspicious
     conf: 0.9
     attack: "T1059"
@@ -326,7 +326,7 @@ composite_rules:
 
   # Curl pipe shell composite
   - id: curl-pipe-shell
-    desc: Curl output piped to shell (dropper pattern)
+    desc: Curl output piped to shell
     crit: suspicious
     conf: 0.95
     attack: "T1059.004"
@@ -340,7 +340,7 @@ composite_rules:
 
   # Wget pipe shell composite
   - id: wget-pipe-shell
-    desc: Wget output piped to shell (dropper pattern)
+    desc: Wget output piped to shell
     crit: suspicious
     conf: 0.95
     attack: "T1059.004"
@@ -354,7 +354,7 @@ composite_rules:
 
   # Fetch eval composite
   - id: fetch-eval
-    desc: Remote script fetch and eval pattern
+    desc: Remote script fetch and eval
     crit: suspicious
     conf: 0.9
     attack: "T1059.004"
@@ -367,7 +367,7 @@ composite_rules:
 
   # Base64 decode exec composite
   - id: base64-decode-exec
-    desc: Base64 decode piped to shell execution
+    desc: Base64 decode piped to shell
     crit: suspicious
     conf: 0.95
     attack: "T1027"

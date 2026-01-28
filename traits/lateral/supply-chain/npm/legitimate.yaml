@@ -5,7 +5,7 @@
 traits:
   # Webpack bundled
   - id: webpack-bundled
-    description: Code bundled with webpack (legitimate minification)
+    description: Code bundled with webpack (legitimate
     crit: inert
     confidence: 0.95
     file_types: [javascript]
@@ -15,7 +15,7 @@ traits:
 
   # Rollup bundled
   - id: rollup-bundled
-    description: Code bundled with rollup (legitimate minification)
+    description: Code bundled with rollup (legitimate
     crit: inert
     confidence: 0.95
     file_types: [javascript]
@@ -25,7 +25,7 @@ traits:
 
   # esbuild bundled
   - id: esbuild-bundled
-    description: Code bundled with esbuild (legitimate minification)
+    description: Code bundled with esbuild (legitimate
     crit: inert
     confidence: 0.95
     file_types: [javascript]
@@ -35,7 +35,7 @@ traits:
 
   # Parcel bundled
   - id: parcel-bundled
-    description: Code bundled with Parcel (legitimate minification)
+    description: Code bundled with Parcel (legitimate
     crit: inert
     confidence: 0.95
     file_types: [javascript]
@@ -45,7 +45,7 @@ traits:
 
   # Vite bundled
   - id: vite-bundled
-    description: Code bundled with Vite (legitimate minification)
+    description: Code bundled with Vite (legitimate
     crit: inert
     confidence: 0.95
     file_types: [javascript]
@@ -75,7 +75,7 @@ traits:
 
   # Source map reference
   - id: has-sourcemap
-    description: Code has source map reference (professional build)
+    description: Code has source map reference
     crit: inert
     confidence: 0.9
     file_types: [javascript]
@@ -186,7 +186,7 @@ traits:
 
   # Has ES module export
   - id: has-esm-export
-    description: Code exports functionality via ES modules
+    description: Code exports functionality via ES
     crit: inert
     confidence: 0.85
     file_types: [javascript, typescript]
@@ -276,7 +276,7 @@ traits:
 
   # Has interface/type definitions
   - id: has-type-definitions
-    description: Code defines TypeScript interfaces or types
+    description: Code defines TypeScript interfaces or
     crit: inert
     confidence: 0.9
     file_types: [typescript]
@@ -306,7 +306,7 @@ traits:
 
   # Has Buffer with encoding (legitimate usage)
   - id: has-buffer-encoding
-    description: Code uses Buffer with explicit encoding
+    description: Code uses Buffer with explicit
     crit: inert
     confidence: 0.7
     file_types: [javascript, typescript]
@@ -541,7 +541,7 @@ traits:
 
   # Has symbol usage
   - id: has-symbols
-    description: Code uses Symbol for private properties
+    description: Code uses Symbol for private
     crit: inert
     confidence: 0.85
     file_types: [javascript, typescript]
@@ -776,7 +776,7 @@ traits:
 
   # Has README file (detected via package.json main pointing to index)
   - id: has-index-entry
-    description: Package has standard index entry point
+    description: Package has standard index entry
     crit: inert
     confidence: 0.8
     file_types: [packagejson]
@@ -958,7 +958,7 @@ traits:
 
   # Has peer dependency range (well-designed library)
   - id: peer-range
-    description: Uses version ranges for peer dependencies
+    description: Uses version ranges for peer
     crit: inert
     confidence: 0.85
     file_types: [packagejson]
@@ -1022,7 +1022,7 @@ traits:
 
   # Has test script defined
   - id: has-test-script
-    description: Package has test script (legitimate pattern)
+    description: Package has test script (legitimate
     crit: inert
     confidence: 0.9
     file_types: [packagejson]
@@ -1042,7 +1042,7 @@ traits:
 
   # Has build script
   - id: has-build-script
-    description: Package has build script (compiled package)
+    description: Package has build script (compiled
     crit: inert
     confidence: 0.85
     file_types: [packagejson]
@@ -1062,7 +1062,7 @@ traits:
 
   # Has prepublishOnly (good practice)
   - id: has-prepublish-only
-    description: Package has prepublishOnly script (publish safety)
+    description: Package has prepublishOnly script (publish
     crit: inert
     confidence: 0.85
     file_types: [packagejson]
@@ -1082,7 +1082,7 @@ traits:
 
   # Has proper author with email
   - id: has-author-email
-    description: Package has author with email address
+    description: Package has author with email
     crit: inert
     confidence: 0.85
     file_types: [packagejson]
@@ -1132,7 +1132,7 @@ traits:
 
   # Has peerDependencies (library pattern)
   - id: has-peer-deps
-    description: Package has peerDependencies (framework plugin pattern)
+    description: Package has peerDependencies (framework plugin
     crit: inert
     confidence: 0.85
     file_types: [packagejson]
@@ -1885,7 +1885,7 @@ composite_rules:
 
   # Multiple entry points
   - id: has-multiple-entries
-    description: Package has multiple entry points (complex library)
+    description: Package has multiple entry points
     crit: inert
     conf: 0.85
     for: [packagejson]
@@ -1982,7 +1982,7 @@ composite_rules:
 
   # Test fixtures
   - id: test-fixtures
-    description: Test fixture or mock data markers
+    description: Test fixture or mock data
     crit: inert
     conf: 0.9
     for: [javascript, typescript]

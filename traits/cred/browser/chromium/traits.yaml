@@ -125,7 +125,7 @@ traits:
       exact: "Login Data"
 
   - id: web-data
-    desc: Chromium Web Data file (passwords, cards)
+    desc: Chromium Web Data file (passwords,
     crit: suspicious
     conf: 0.8
     attack: "T1555.003"
@@ -176,7 +176,7 @@ traits:
   # === SQL Queries (high confidence) ===
 
   - id: password-sql
-    desc: Chromium Login Data SQL query (password theft)
+    desc: Chromium Login Data SQL query
     crit: suspicious
     conf: 0.95
     attack: "T1555.003"
@@ -277,17 +277,9 @@ composite_rules:
       - id: os-crypt
 
   - id: password-theft
-    desc: Chromium password database theft
-    crit: hostile
+    desc: "Chromium password theft detected"
+    crit: suspicious
     conf: 0.95
-    attack: "T1555.003"
-    mbc: "B0028"
-    for: [python, javascript, elf, pe, macho]
-    all:
-      - id: chrome-path
-    any:
-      - id: password-sql
-      - id: login-data
 
   - id: credit-card-theft
     desc: Chromium credit card data theft
@@ -303,7 +295,7 @@ composite_rules:
 
   # Multi-browser targeting (stealer behavior)
   - id: multi-browser
-    desc: Multiple Chromium browsers targeted (stealer behavior)
+    desc: Multiple Chromium browsers targeted (stealer
     crit: hostile
     conf: 0.95
     attack: "T1555.003"

@@ -759,7 +759,7 @@ composite_rules:
 
   # Python composite (migrated from YARA)
   - id: python-embedded
-    desc: Embedded Python interpreter or PyInstaller binary
+    desc: Embedded Python interpreter or PyInstaller
     crit: benign
     conf: 0.9
     count_min: 1

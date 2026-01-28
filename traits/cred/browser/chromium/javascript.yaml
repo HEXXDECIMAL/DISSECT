@@ -3,7 +3,7 @@
 
 traits:
   - id: js-sqlite-logins
-    desc: SQL query for Chromium login data in JS
+    desc: SQL query for Chromium login
     crit: suspicious
     conf: 0.95
     attack: "T1555.003"
@@ -15,7 +15,7 @@ traits:
 
 composite_rules:
   - id: js-stealer
-    desc: Chromium browser credential stealer (SQLite + Exfil)
+    desc: Chromium browser credential stealer (SQLite
     crit: suspicious
     conf: 0.98
     attack: "T1555.003"

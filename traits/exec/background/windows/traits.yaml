@@ -10,7 +10,7 @@ defaults:
 traits:
   # Windows 'start' command for background execution
   - id: start-command
-    desc: "Windows 'start' command for background process"
+    desc: "Windows 'start' command for background"
     crit: suspicious
     conf: 0.85
     if:
@@ -19,7 +19,7 @@ traits:
 
   # Start with /b flag (no window)
   - id: start-hidden
-    desc: "Windows 'start /b' hidden background process"
+    desc: "Windows 'start /b' hidden background"
     crit: suspicious
     conf: 0.9
     if:
@@ -74,7 +74,7 @@ traits:
 composite_rules:
   # Background pip install on Windows (common malware pattern)
   - id: hidden-pip-install
-    desc: "Background pip install via Windows start command"
+    desc: "Background pip install via Windows"
     crit: suspicious
     conf: 0.95
     all:

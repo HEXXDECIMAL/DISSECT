@@ -12,7 +12,7 @@ defaults:
 composite_rules:
   # Encode then exfil pattern
   - id: node-encode-exfil
-    desc: Encodes data then sends via HTTP (exfiltration pattern)
+    desc: Encodes data then sends via
     crit: suspicious
     conf: 0.9
     all:

@@ -27,7 +27,7 @@ traits:
       regex: "bingbot/\\d"
 
   - id: ua-array
-    desc: User-Agent string array (rotation for evasion)
+    desc: User-Agent string array (rotation for
     crit: suspicious
     conf: 0.85
     mbc: "B0032"

@@ -247,7 +247,7 @@ traits:
 composite_rules:
   # Earthworm (EW) tunneling tool (3 of ew* or rootkiter)
   - id: earthworm
-    desc: Earthworm tunneling tool (APT lateral movement)
+    desc: Earthworm tunneling tool (APT lateral
     crit: suspicious
     conf: 0.95
     any:

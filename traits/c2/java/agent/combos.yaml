@@ -14,7 +14,7 @@ traits:
 composite_rules:
   # Full-featured Java RAT (STRRat-style)
   - id: java-rat-comprehensive
-    desc: Comprehensive Java RAT with multiple capabilities
+    desc: Comprehensive Java RAT with multiple
     crit: suspicious
     mbc: "B0022"
     attack: "T1219"

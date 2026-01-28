@@ -10,7 +10,7 @@ traits:
   # === Python-Specific Obfuscation Patterns ===
 
   - id: py-lambda-abuse
-    desc: "Excessive lambda functions (obfuscation via lambdas)"
+    desc: "Excessive lambda functions (obfuscation via"
     crit: suspicious
     conf: 0.8
     if:
@@ -37,7 +37,7 @@ traits:
       min: 5
 
   - id: py-encoded-strings
-    desc: "High string entropy (base64/hex encoded payloads)"
+    desc: "High string entropy (base64/hex encoded"
     crit: suspicious
     conf: 0.85
     if:

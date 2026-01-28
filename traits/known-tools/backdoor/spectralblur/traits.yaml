@@ -316,7 +316,7 @@ traits:
   # Behavioral pattern - YARA based detection
   # NOTE: Cannot fully migrate to composite rules - requires filesize constraint (< 500KB)
   - id: backdoor/spectralblur/behavioral-yara
-    description: SpectralBlur-like C2 backdoor behavior via YARA
+    description: SpectralBlur-like C2 backdoor behavior via
     crit: suspicious
     conf: 0.85
     attack: "T1059.004"

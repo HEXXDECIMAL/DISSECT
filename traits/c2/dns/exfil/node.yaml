@@ -15,7 +15,7 @@ defaults:
 
 composite_rules:
   - id: dns-resolve
-    desc: Node.js DNS resolve function (potential DNS tunneling)
+    desc: Node.js DNS resolve function (potential
     crit: notable
     conf: 0.8
     count_min: 1
@@ -25,7 +25,7 @@ composite_rules:
       - id: comm/dns/lookup/node/dns-resolve6-call
 
   - id: dns-resolve-txt
-    desc: DNS TXT record resolution (common C2 channel)
+    desc: DNS TXT record resolution (common
     crit: suspicious
     conf: 0.9
     mbc: "C0002"
@@ -39,7 +39,7 @@ composite_rules:
 
   # DNS with crypto (migrated from YARA)
   - id: dns-with-crypto
-    desc: DNS combined with encryption (encrypted C2 channel)
+    desc: DNS combined with encryption (encrypted
     crit: suspicious
     conf: 0.9
     mbc: "C0002"
@@ -50,7 +50,7 @@ composite_rules:
 
   # DNS polling loop (migrated from YARA)
   - id: dns-polling-loop
-    desc: DNS polling loop (C2 beacon pattern)
+    desc: DNS polling loop (C2 beacon
     crit: suspicious
     conf: 0.85
     mbc: "C0002"

@@ -5,7 +5,7 @@
 traits:
   # Legitimate library with install hooks added
   - id: popular-lib-with-hooks
-    description: Popular library pattern with unusual install hooks
+    description: Popular library pattern with unusual
     crit: suspicious
     confidence: 0.85
     attack: "T1195.001"
@@ -37,7 +37,7 @@ traits:
 
   # Clone with additional requires
   - id: additional-requires
-    description: Library clone with suspicious additional requires
+    description: Library clone with suspicious additional
     crit: suspicious
     confidence: 0.85
     attack: "T1195.001"

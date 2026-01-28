@@ -4,7 +4,7 @@
 
 traits:
   - id: rm-force-tmp-var-dev
-    desc: rm -f command targeting /tmp, /var, or /dev directories
+    desc: rm -f command targeting /tmp,
     crit: notable
     conf: 0.7
     mbc: C0047
@@ -15,7 +15,7 @@ traits:
 
 composite_rules:
   - id: delete-rm-hardcoded
-    desc: Deletes files in /tmp, /var, or /dev directories (excludes legitimate apt)
+    desc: Deletes files in /tmp, /var,
     crit: suspicious
     conf: 0.66
     mbc: C0047

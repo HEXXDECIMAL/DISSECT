@@ -35,7 +35,7 @@ traits:
       regex: "\\bfputs\\s*\\("
 
   - id: dropper-pattern
-    description: File dropper pattern (base64 decode + file write)
+    description: File dropper pattern (base64 decode
     crit: suspicious
     conf: 0.95
     mbc: "B0030"

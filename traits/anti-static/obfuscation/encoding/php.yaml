@@ -97,7 +97,7 @@ traits:
       pattern: "eval"
 
   - id: create-function
-    desc: Dynamic function creation (deprecated, often malicious)
+    desc: Dynamic function creation (deprecated, often
     crit: suspicious
     conf: 0.9
     mbc: "E1059"
@@ -109,7 +109,7 @@ traits:
       pattern: "create_function"
 
   - id: preg-replace-e
-    desc: preg_replace with /e modifier (code execution)
+    desc: preg_replace with /e modifier (code
     crit: suspicious
     conf: 0.95
     mbc: "E1059"
@@ -122,7 +122,7 @@ traits:
       regex: true
 
   - id: assert-dynamic
-    desc: Assert with dynamic code (code execution)
+    desc: Assert with dynamic code (code
     crit: suspicious
     conf: 0.85
     mbc: "E1059"
@@ -145,7 +145,7 @@ traits:
       regex: true
 
   - id: xor-loop
-    desc: Loop performing XOR on user input (deobfuscation)
+    desc: Loop performing XOR on user
     crit: suspicious
     conf: 0.95
     mbc: "B0032"
@@ -226,7 +226,7 @@ traits:
       regex: true
 
   - id: dynamic-variable-call
-    desc: Dynamic variable function call (e.g. ${$v}())
+    desc: Dynamic variable function call (e.g.
     crit: suspicious
     conf: 0.95
     if:
@@ -236,7 +236,7 @@ traits:
       regex: true
 
   - id: dynamic-superglobal-call
-    desc: Superglobal used as function (obfuscated backdoor)
+    desc: Superglobal used as function (obfuscated
     crit: suspicious
     conf: 0.98
     mbc: "B0032"
@@ -247,7 +247,7 @@ traits:
       regex: true
 
   - id: subscript-function-call
-    desc: Subscript used as function (obfuscated backdoor)
+    desc: Subscript used as function (obfuscated
     crit: suspicious
     conf: 0.85
     mbc: "B0032"
@@ -258,7 +258,7 @@ traits:
       regex: true
 
   - id: simple-variable-call
-    desc: Variable used as function (obfuscated backdoor)
+    desc: Variable used as function (obfuscated
     crit: suspicious
     conf: 0.8
     mbc: "B0032"
@@ -269,7 +269,7 @@ traits:
       regex: true
 
   - id: dynamic-superglobal-simple
-    desc: Superglobal used as function (obfuscated backdoor)
+    desc: Superglobal used as function (obfuscated
     crit: suspicious
     conf: 0.98
     mbc: "B0032"

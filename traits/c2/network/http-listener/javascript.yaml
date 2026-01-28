@@ -4,7 +4,7 @@
 
 traits:
   - id: express-router
-    desc: Express Router creation (potential C2 receiver)
+    desc: Express Router creation (potential C2
     crit: suspicious
     conf: 0.75
     attack: "T1071.001"
@@ -14,7 +14,7 @@ traits:
       regex: "express\\.Router|express\\(\\)"
 
   - id: express-post-endpoint
-    desc: Express POST endpoint (potential command receiver)
+    desc: Express POST endpoint (potential command
     crit: suspicious
     conf: 0.8
     attack: "T1071.001"

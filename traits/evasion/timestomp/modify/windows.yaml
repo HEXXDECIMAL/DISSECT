@@ -13,7 +13,7 @@ defaults:
 
 composite_rules:
   - id: timestomp-windows
-    desc: Windows file timestamp modification (evasion context)
+    desc: Windows file timestamp modification (evasion
     crit: suspicious
     conf: 0.7
     any:

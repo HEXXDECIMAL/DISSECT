@@ -1,7 +1,7 @@
 # Remote File Download
 traits:
   - id: generic
-    desc: "Function to handle remote file downloads"
+    desc: "Function to handle remote file"
     crit: suspicious
     conf: 0.8
     if:

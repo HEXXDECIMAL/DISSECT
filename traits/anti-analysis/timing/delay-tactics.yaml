@@ -73,7 +73,7 @@ composite_rules:
 
   # Timing measurement
   - id: timing-measurement
-    desc: "Measures execution time (timing attacks or sandbox detection)"
+    desc: "Measures execution time (timing attacks"
     crit: notable
     conf: 0.7
     attack: "T1497.003"
@@ -84,7 +84,7 @@ composite_rules:
 
   # Delay with network = evasion or C2 beaconing
   - id: delay-with-network
-    desc: "Network communication with delays (C2 beaconing or anti-analysis)"
+    desc: "Network communication with delays (C2"
     crit: suspicious
     conf: 0.85
     attack: "T1497.003"
@@ -97,7 +97,7 @@ composite_rules:
 
   # Timing measurement + delay = sandbox evasion
   - id: timing-evasion
-    desc: "Timing measurement with delays (sandbox/VM detection technique)"
+    desc: "Timing measurement with delays (sandbox/VM"
     crit: suspicious
     conf: 0.9
     attack: "T1497.003"

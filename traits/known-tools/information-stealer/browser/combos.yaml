@@ -3,7 +3,7 @@
 
 composite_rules:
   - id: stealer/browser/composite
-    description: "Comprehensive Browser Data Stealer (Targeting Chrome, Firefox, Opera, etc.)"
+    description: "Comprehensive Browser Data Stealer (Targeting"
     crit: hostile
     conf: 0.95
     mbc: "E1005"

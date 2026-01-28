@@ -7,7 +7,7 @@ defaults:
 
 traits:
   - id: getpid
-    desc: getpid system call (process ID retrieval)
+    desc: getpid system call (process ID
     crit: notable
     conf: 0.5
     if:

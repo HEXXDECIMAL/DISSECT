@@ -28,7 +28,7 @@ traits:
 
   # exec() with decode pattern
   - id: exec-decode-pattern
-    desc: exec() with decode chain (payload execution)
+    desc: exec() with decode chain (payload
     crit: suspicious
     conf: 0.85
     attack: "T1027"
@@ -39,7 +39,7 @@ traits:
 
   # eval() with decode pattern
   - id: eval-decode-pattern
-    desc: eval() with decode chain (payload execution)
+    desc: eval() with decode chain (payload
     crit: suspicious
     conf: 0.85
     attack: "T1027"
@@ -50,7 +50,7 @@ traits:
 
   # compile() with exec pattern
   - id: compile-exec-pattern
-    desc: compile() with exec (dynamic code execution)
+    desc: compile() with exec (dynamic code
     crit: suspicious
     conf: 0.8
     attack: "T1027"
@@ -62,7 +62,7 @@ traits:
 composite_rules:
   # Large encoded string composite (migrated from YARA)
   - id: large-encoded-string
-    desc: Large high-entropy string literal (likely payload)
+    desc: Large high-entropy string literal (likely
     crit: suspicious
     conf: 0.85
     attack: "T1027"
@@ -74,7 +74,7 @@ composite_rules:
 
   # Payload execution composite
   - id: payload-execution
-    desc: Large encoded payload with dynamic execution
+    desc: Large encoded payload with dynamic
     crit: hostile
     conf: 0.95
     mbc: "B0032"

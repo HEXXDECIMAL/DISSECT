@@ -138,7 +138,7 @@ composite_rules:
 
   # BSOD trigger via trait references (RtlAdjustPrivilege path)
   - id: bsod-adjust-privilege
-    description: BSOD via privilege adjustment with status code
+    description: BSOD via privilege adjustment with
     crit: hostile
     conf: 0.98
     attack: "T1499.004"
@@ -150,7 +150,7 @@ composite_rules:
 
   # Python BSOD via trait references
   - id: python-bsod-traits
-    description: Python BSOD trigger via ctypes (trait-based)
+    description: Python BSOD trigger via ctypes
     crit: hostile
     conf: 0.99
     for: [python]

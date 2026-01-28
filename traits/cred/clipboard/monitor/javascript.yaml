@@ -4,7 +4,7 @@
 
 traits:
   - id: js-pbpaste
-    desc: Accesses system clipboard via pbpaste (macOS)
+    desc: Accesses system clipboard via pbpaste
     crit: suspicious
     conf: 0.95
     attack: "T1553"
@@ -14,7 +14,7 @@ traits:
       exact: "pbpaste"
 
   - id: js-powershell-clipboard
-    desc: Accesses system clipboard via PowerShell (Windows)
+    desc: Accesses system clipboard via PowerShell
     crit: suspicious
     conf: 0.95
     attack: "T1553"
@@ -24,7 +24,7 @@ traits:
       regex: "powershell.{0,50}Get-Clipboard"
 
   - id: js-xclip
-    desc: Accesses system clipboard via xclip (Linux)
+    desc: Accesses system clipboard via xclip
     crit: suspicious
     conf: 0.95
     attack: "T1553"

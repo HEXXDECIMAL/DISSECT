@@ -10,7 +10,7 @@ defaults:
 composite_rules:
   # React + ActiveXObject = HOSTILE (complexity >= 4)
   - id: trojanized-activex
-    desc: "React library with ActiveXObject (trojanized supply chain attack)"
+    desc: "React library with ActiveXObject (trojanized"
     crit: hostile
     conf: 0.98
     all:
@@ -24,7 +24,7 @@ composite_rules:
 
   # React + Reverse Shell = HOSTILE
   - id: trojanized-reverse-shell
-    desc: "React library with reverse shell (trojanized supply chain attack)"
+    desc: "React library with reverse shell"
     crit: hostile
     conf: 0.98
     all:
@@ -38,7 +38,7 @@ composite_rules:
 
   # React + Base64 Eval = HOSTILE (hidden payload)
   - id: trojanized-base64-eval
-    desc: "React library with base64+eval payload (trojanized supply chain attack)"
+    desc: "React library with base64+eval payload"
     crit: hostile
     conf: 0.95
     all:
@@ -52,7 +52,7 @@ composite_rules:
 
   # React + Credential Access = HOSTILE
   - id: trojanized-credential-access
-    desc: "React library with credential access (trojanized supply chain attack)"
+    desc: "React library with credential access"
     crit: hostile
     conf: 0.98
     all:
@@ -68,7 +68,7 @@ composite_rules:
 
   # React + Command Execution = HOSTILE
   - id: trojanized-exec
-    desc: "React library with command execution (trojanized supply chain attack)"
+    desc: "React library with command execution"
     crit: hostile
     conf: 0.98
     all:
@@ -84,7 +84,7 @@ composite_rules:
 
   # React + Network Backdoor = HOSTILE
   - id: trojanized-backdoor
-    desc: "React library with network backdoor (trojanized supply chain attack)"
+    desc: "React library with network backdoor"
     crit: hostile
     conf: 0.95
     all:

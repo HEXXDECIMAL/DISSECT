@@ -106,7 +106,7 @@ composite_rules:
       - id: tmp-path
 
   - id: download-chmod-execute
-    desc: "Download, chmod, and execute in one command"
+    desc: "Download, chmod, and execute in"
     conf: 0.95
     crit: suspicious
     mbc: "B0024"
@@ -118,7 +118,7 @@ composite_rules:
       - id: execute-dot-slash
 
   - id: curl-chmod-execute
-    desc: "Download via curl, chmod, and execute"
+    desc: "Download via curl, chmod, and"
     conf: 0.95
     crit: suspicious
     mbc: "B0024"
@@ -164,7 +164,7 @@ composite_rules:
       - id: iot-arch-mpsl
 
   - id: tmp-staging-cleanup
-    desc: "Payload staging in /tmp with cleanup"
+    desc: "Payload staging in /tmp with"
     conf: 0.9
     crit: suspicious
     mbc: "C0047"
@@ -175,7 +175,7 @@ composite_rules:
       - id: rm-rf-cleanup
 
   - id: hardcoded-c2-download
-    desc: "Download from hardcoded C2 IP address"
+    desc: "Download from hardcoded C2 IP"
     conf: 0.95
     crit: suspicious
     mbc: "C0002"

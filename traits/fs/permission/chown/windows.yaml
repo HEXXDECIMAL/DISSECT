@@ -21,7 +21,7 @@ traits:
       exact: "TAKEOWN"
 
   - id: chown-takeown-force
-    desc: Forcibly take ownership of files recursively
+    desc: Forcibly take ownership of files
     crit: suspicious
     conf: 0.66
     if:
@@ -31,7 +31,7 @@ traits:
 composite_rules:
   # takeown composite
   - id: chown-takeown
-    desc: Take ownership of files (Windows takeown)
+    desc: Take ownership of files (Windows
     crit: notable
     conf: 0.66
     count_min: 1

@@ -224,7 +224,7 @@ composite_rules:
 
   # Family identified with generic terminology
   - id: family-identified
-    desc: Webshell family identified with generic terminology
+    desc: Webshell family identified with generic
     crit: suspicious
     conf: 0.85
     all:

@@ -8,7 +8,7 @@ defaults:
 traits:
   # System control and configuration
   - id: sysctl
-    desc: Get or set system information and kernel parameters
+    desc: Get or set system information
     crit: notable
     mbc: "E1082"
     attack: "T1082"
@@ -19,7 +19,7 @@ traits:
     platforms: [unix, linux, macos]
 
   - id: sysctlbyname
-    desc: Get or set system information by name
+    desc: Get or set system information
     crit: notable
     mbc: "E1082"
     attack: "T1082"
@@ -30,7 +30,7 @@ traits:
     platforms: [macos]
 
   - id: sysctlnametomib
-    desc: Convert sysctl name to MIB array
+    desc: Convert sysctl name to MIB
     crit: notable
     mbc: "E1082"
     attack: "T1082"
@@ -134,7 +134,7 @@ traits:
 
   # macOS-specific system information
   - id: host_info
-    desc: Get host information (macOS Mach API)
+    desc: Get host information (macOS Mach
     crit: notable
     mbc: "E1082"
     attack: "T1082"
@@ -145,7 +145,7 @@ traits:
     platforms: [macos]
 
   - id: host_statistics
-    desc: Get host statistics (macOS Mach API)
+    desc: Get host statistics (macOS Mach
     crit: notable
     mbc: "E1082"
     attack: "T1082"

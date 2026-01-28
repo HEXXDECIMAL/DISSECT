@@ -535,7 +535,7 @@ traits:
 composite_rules:
   # Kallsyms lookup (migrated from YARA)
   - id: kallsyms-lookup
-    desc: Accesses /proc/kallsyms for kernel symbol resolution
+    desc: Accesses /proc/kallsyms for kernel symbol
     crit: suspicious
     conf: 0.85
     mbc: "F0015"
@@ -562,7 +562,7 @@ composite_rules:
 
   # TCP hiding (migrated from YARA)
   - id: tcp-hiding
-    desc: Hooks TCP sequence show function to hide connections
+    desc: Hooks TCP sequence show function
     crit: suspicious
     conf: 0.9
     mbc: "F0015"
@@ -676,7 +676,7 @@ composite_rules:
 
   # Netfilter hook (migrated from YARA)
   - id: netfilter-hook
-    desc: Netfilter hook manipulation for packet filtering
+    desc: Netfilter hook manipulation for packet
     crit: suspicious
     conf: 0.85
     mbc: "F0015"
@@ -712,7 +712,7 @@ composite_rules:
 
   # VFS hook (migrated from YARA)
   - id: vfs-hook
-    desc: VFS layer hooking for file hiding
+    desc: VFS layer hooking for file
     crit: suspicious
     conf: 0.9
     mbc: "F0015"

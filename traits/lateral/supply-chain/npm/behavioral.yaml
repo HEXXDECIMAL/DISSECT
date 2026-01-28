@@ -27,7 +27,7 @@ traits:
 
   # NOTE: YARA kept for side-effect-only - requires NOT conditions across multiple patterns
   - id: side-effect-only
-    description: Module produces side effects without exports
+    description: Module produces side effects without
     crit: notable
     confidence: 0.8
     condition:
@@ -120,7 +120,7 @@ traits:
   # Medium file with no functions
   # NOTE: YARA kept for filesize check - DISSECT doesn't support filesize conditions
   - id: script-blob
-    description: Medium-sized file with no function definitions
+    description: Medium-sized file with no function
     crit: notable
     confidence: 0.7
     condition:
@@ -203,7 +203,7 @@ traits:
 composite_rules:
   # Python interpreter exec composite
   - id: python-interpreter-exec
-    description: Python interpreter with inline code execution
+    description: Python interpreter with inline code
     crit: suspicious
     confidence: 0.8
     count_min: 1
@@ -213,7 +213,7 @@ composite_rules:
 
   # Node interpreter exec composite
   - id: node-interpreter-exec
-    description: Node interpreter with inline code execution
+    description: Node interpreter with inline code
     crit: suspicious
     confidence: 0.8
     count_min: 1
@@ -223,7 +223,7 @@ composite_rules:
 
   # Spawn or exec composite
   - id: spawn-or-exec-call
-    description: Process spawn or exec function invocation
+    description: Process spawn or exec function
     crit: notable
     confidence: 0.8
     count_min: 1
@@ -233,7 +233,7 @@ composite_rules:
 
   # npm package with interpreter dropper (hostile combination)
   - id: interpreter-dropper-package
-    description: npm package that downloads and executes via external interpreter
+    description: npm package that downloads and
     crit: hostile
     confidence: 0.95
     attack: "T1195.002"

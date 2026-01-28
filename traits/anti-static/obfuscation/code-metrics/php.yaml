@@ -30,7 +30,7 @@ traits:
       min: 3.2
 
   - id: php-single-long-line
-    desc: "Single very long line (webshell pattern)"
+    desc: "Single very long line (webshell"
     crit: suspicious
     conf: 0.9
     if:
@@ -66,7 +66,7 @@ traits:
       min: 0.5
 
   - id: php-non-ascii-call
-    desc: "Function call with non-ASCII name (obfuscation)"
+    desc: "Function call with non-ASCII name"
     crit: suspicious
     conf: 0.98
     if:
@@ -107,9 +107,9 @@ traits:
 
 composite_rules:
   - id: php-webshell-pattern
-    desc: "PHP webshell obfuscation pattern"
-    crit: hostile
-    conf: 0.9
+    desc: "PHP webshell pattern detected"
+    crit: suspicious
+    conf: 0.95
     count_min: 2
     any:
       - id: anti-static/obfuscation/code-metrics/php-encoded-strings

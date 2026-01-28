@@ -43,7 +43,7 @@ traits:
       exact: ".plist"
 
   - id: run-at-load
-    description: RunAtLoad key (start service at boot)
+    description: RunAtLoad key (start service at
     crit: notable
     conf: 0.8
     mbc: B0028

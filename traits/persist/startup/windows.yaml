@@ -349,7 +349,7 @@ traits:
 composite_rules:
   # Startup folder composite
   - id: windows-startup-folder
-    description: "Targets Windows Startup folder for persistence"
+    description: "Targets Windows Startup folder for"
     confidence: 0.85
     crit: suspicious
     platforms: [windows]
@@ -361,7 +361,7 @@ composite_rules:
 
   # Registry Run key composite
   - id: windows-registry-run
-    description: "Accesses Windows registry Run key for persistence"
+    description: "Accesses Windows registry Run key"
     confidence: 0.9
     crit: suspicious
     platforms: [windows]
@@ -374,7 +374,7 @@ composite_rules:
 
   # RunOnce composite
   - id: windows-registry-runonce
-    description: "Accesses Windows registry RunOnce key for persistence"
+    description: "Accesses Windows registry RunOnce key"
     confidence: 0.9
     crit: suspicious
     platforms: [windows]
@@ -385,7 +385,7 @@ composite_rules:
 
   # Python winreg import composite
   - id: windows-python-winreg-import
-    description: "Imports Python winreg module for registry access"
+    description: "Imports Python winreg module for"
     confidence: 0.7
     crit: notable
     platforms: [windows]
@@ -398,7 +398,7 @@ composite_rules:
 
   # Python winreg composite
   - id: windows-python-winreg
-    description: "Accesses Windows registry via Python winreg module"
+    description: "Accesses Windows registry via Python"
     confidence: 0.8
     platforms: [windows]
     file_types: [python]
@@ -464,7 +464,7 @@ composite_rules:
 
   # PowerShell registry composite
   - id: windows-powershell-registry
-    description: "Modifies registry for persistence via PowerShell"
+    description: "Modifies registry for persistence via"
     confidence: 0.9
     crit: suspicious
     platforms: [windows]
@@ -476,7 +476,7 @@ composite_rules:
 
   # WMI persistence composite
   - id: windows-wmi-persistence
-    description: "Sets up WMI event subscription for persistence"
+    description: "Sets up WMI event subscription"
     confidence: 0.9
     crit: suspicious
     attack: "T1546.003"
@@ -490,7 +490,7 @@ composite_rules:
 
   # Executable payload composite
   - id: windows-executable-payload
-    description: "References executable file types or interpreters"
+    description: "References executable file types or"
     confidence: 0.6
     crit: notable
     platforms: [windows]

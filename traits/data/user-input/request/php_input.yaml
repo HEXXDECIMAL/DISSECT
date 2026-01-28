@@ -7,7 +7,7 @@ defaults:
 
 traits:
   - id: php-input
-    desc: Access to php://input (raw POST data)
+    desc: Access to php://input (raw POST
     conf: 0.95
     if:
       type: string

@@ -10,7 +10,7 @@ defaults:
 traits:
   # Binary file write - open with 'wb' mode
   - id: python-open-write-binary
-    description: "Write binary file (open with 'wb')"
+    description: "Write binary file (open with"
     conf: 0.85
     if:
       type: string
@@ -19,7 +19,7 @@ traits:
 
   # Binary append mode
   - id: python-open-append-binary
-    description: "Append to binary file (open with 'ab')"
+    description: "Append to binary file (open"
     conf: 0.8
     if:
       type: string
@@ -35,7 +35,7 @@ traits:
 
   # File content from HTTP response
   - id: python-write-response-content
-    description: "Write HTTP response content to file"
+    description: "Write HTTP response content to"
     conf: 0.9
     if:
       type: string
@@ -137,7 +137,7 @@ composite_rules:
       - id: python-tempfile-mkdtemp
 
   - id: python-http-request
-    description: "HTTP request via requests or urllib"
+    description: "HTTP request via requests or"
     conf: 0.8
     count_min: 1
     any:
@@ -156,7 +156,7 @@ composite_rules:
 
   # Download and write pattern (dropper behavior)
   - id: python-download-write
-    description: "Download content and write to file"
+    description: "Download content and write to"
     conf: 0.9
     crit: suspicious
     attack: "T1105"

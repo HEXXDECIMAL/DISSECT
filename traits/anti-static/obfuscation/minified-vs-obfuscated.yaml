@@ -7,7 +7,7 @@ defaults:
 composite_rules:
   # Legitimate minification patterns (benign compression)
   - id: minification-pattern
-    desc: "Code appears minified by webpack/uglify/terser (legitimate compression)"
+    desc: "Code appears minified by webpack/uglify/terser"
     crit: notable
     conf: 0.8
     all:
@@ -21,7 +21,7 @@ composite_rules:
 
   # Hostile obfuscation (malicious encoding)
   - id: hostile-obfuscation
-    desc: "Hostile obfuscation techniques (not just minification)"
+    desc: "Hostile obfuscation techniques (not just"
     crit: suspicious
     conf: 0.90
     any:
@@ -33,8 +33,8 @@ composite_rules:
 
   # Minified library with hostile capabilities (trojanized)
   - id: minified-with-hostile-caps
-    desc: "Minified code with hostile capabilities (likely trojanized)"
-    crit: hostile
+    desc: "Minified code with hostile capabilities"
+    crit: suspicious
     conf: 0.92
     attack: "T1195.002"
     mbc: "B0024"

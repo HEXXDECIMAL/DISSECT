@@ -7,7 +7,7 @@ traits:
   # Stack string construction pattern - 5+ mov [rbp-x], imm8 in sequence
   # Pattern: C6 45 XX YY (mov byte ptr [rbp-XX], YY)
   - id: stack-string-construction
-    desc: Stack string construction pattern (5+ sequential byte moves)
+    desc: Stack string construction pattern (5+
     crit: inert
     conf: 0.4
     attack: "T1027"

@@ -12,7 +12,7 @@ traits:
   # === Supply-chain specific crypto patterns ===
 
   - id: ed25519-constant-bytes
-    desc: ED25519 constant bytes (XZ backdoor indicator)
+    desc: ED25519 constant bytes (XZ backdoor
     crit: suspicious
     conf: 0.85
     if:
@@ -48,7 +48,7 @@ traits:
 
   # === Massive Code Injection Indicators ===
   - id: massive-code-blob
-    desc: Extremely large average function size (massive code injection)
+    desc: Extremely large average function size
     crit: suspicious
     conf: 0.85
     if:
@@ -57,7 +57,7 @@ traits:
       min: 10000
 
   - id: many-huge-functions
-    desc: Many huge functions (>64KB) - potential XZ-style injection
+    desc: Many huge functions (>64KB) -
     crit: suspicious
     conf: 0.9
     if:
@@ -235,7 +235,7 @@ composite_rules:
 
   # === IFUNC resolver pattern ===
   - id: xz-ifunc-pattern
-    desc: IFUNC resolver pattern (potential function hooking)
+    desc: IFUNC resolver pattern (potential function
     crit: suspicious
     conf: 0.8
     for: [elf]
@@ -246,7 +246,7 @@ composite_rules:
 
   # === RSA in compression library ===
   - id: rsa-in-compression-lib
-    desc: RSA operations in compression library (backdoor indicator)
+    desc: RSA operations in compression library
     crit: suspicious
     conf: 0.9
     all:
@@ -384,7 +384,7 @@ composite_rules:
 
   # === RWX memory with suspicious context ===
   - id: rwx-with-injection
-    desc: RWX memory protection with code injection indicators
+    desc: RWX memory protection with code
     crit: suspicious
     conf: 0.75
     all:

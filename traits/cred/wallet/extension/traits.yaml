@@ -216,7 +216,7 @@ composite_rules:
 
   # Migrated from YARA - Detects multiple wallet extension IDs (strong indicator of wallet stealer)
   - id: multi-wallet-targeting
-    desc: Multiple crypto wallet extensions targeted (wallet stealer)
+    desc: Multiple crypto wallet extensions targeted
     crit: suspicious
     conf: 0.95
     attack: "T1555.003"

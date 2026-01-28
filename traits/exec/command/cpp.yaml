@@ -3,7 +3,7 @@ defaults:
 
 traits:
   - id: fgets-loop
-    desc: "Loop capturing command output via fgets"
+    desc: "Loop capturing command output via"
     crit: notable
     if:
       type: symbol

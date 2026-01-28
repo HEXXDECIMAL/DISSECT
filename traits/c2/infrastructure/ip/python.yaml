@@ -11,7 +11,7 @@ defaults:
 traits:
   # Match IP assigned to a variable: host = "1.2.3.4" or ip = '10.0.0.1'
   - id: python-assigned-ipv4
-    desc: "Hardcoded IPv4 address assigned to variable"
+    desc: "Hardcoded IPv4 address assigned to"
     conf: 0.9
     if:
       type: string
@@ -20,7 +20,7 @@ traits:
 
   # Match IP in f-string URL construction: f"http://{host}" or f'http://{ip}:1234'
   - id: python-fstring-url
-    desc: "URL constructed with f-string variable interpolation"
+    desc: "URL constructed with f-string variable"
     conf: 0.85
     if:
       type: string
@@ -44,7 +44,7 @@ traits:
 
   # Match URL construction pattern: f-string with host and port
   - id: python-fstring-url-with-port
-    desc: "f-string URL construction with host variable and port"
+    desc: "f-string URL construction with host"
     conf: 0.85
     if:
       type: string
@@ -52,7 +52,7 @@ traits:
 
   # Match URL construction pattern: string concatenation with host
   - id: python-string-concat-url
-    desc: "URL constructed via string concatenation with host variable"
+    desc: "URL constructed via string concatenation"
     conf: 0.85
     if:
       type: string
@@ -61,7 +61,7 @@ traits:
 composite_rules:
   # Match URL construction pattern: host + port concatenation
   - id: python-url-construction
-    desc: "C2 URL constructed from host variable"
+    desc: "C2 URL constructed from host"
     conf: 0.85
     any:
       - id: python-fstring-url-with-port

@@ -16,7 +16,7 @@ traits:
       pattern: "memfd_create"
 
   - id: memfd-create-go
-    description: Create anonymous memory file (Go MemfdCreate)
+    description: Create anonymous memory file (Go
     crit: suspicious
     confidence: 0.85
     attack: "T1055"

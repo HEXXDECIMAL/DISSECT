@@ -167,7 +167,7 @@ traits:
 composite_rules:
   # IoT ZTE credential composite
   - id: iot-zte
-    description: "Default IoT credential: ZTE router variants"
+    description: "Default IoT credential: ZTE router"
     crit: suspicious
     confidence: 0.95
     attack: "T1110.001"

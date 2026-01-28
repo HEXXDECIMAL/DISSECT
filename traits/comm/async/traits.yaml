@@ -479,7 +479,7 @@ composite_rules:
 
   # epoll composite
   - id: epoll-usage
-    desc: Direct epoll usage for async I/O
+    desc: Direct epoll usage for async
     crit: notable
     conf: 0.65
     count_min: 2
@@ -490,7 +490,7 @@ composite_rules:
 
   # kqueue composite
   - id: kqueue-usage
-    desc: Direct kqueue usage for async I/O
+    desc: Direct kqueue usage for async
     crit: notable
     conf: 0.65
     all:
@@ -499,7 +499,7 @@ composite_rules:
 
   # epoll/kqueue composite (migrated from YARA)
   - id: epoll-kqueue
-    desc: Direct epoll/kqueue usage for async I/O
+    desc: Direct epoll/kqueue usage for async
     crit: notable
     conf: 0.65
     count_min: 1

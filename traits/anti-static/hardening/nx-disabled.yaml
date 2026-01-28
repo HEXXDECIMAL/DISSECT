@@ -12,7 +12,7 @@ traits:
   # This would require binary metadata parsing
   # Placeholder for now - implementation depends on binary parser
   - id: nx-disabled-macos
-    desc: "macOS binary with NX/DEP disabled (allows code execution on stack/heap)"
+    desc: "macOS binary with NX/DEP disabled"
     crit: suspicious
     conf: 0.9
     platforms: [macos]
@@ -26,14 +26,6 @@ traits:
 composite_rules:
   # NX disabled + command execution = shellcode injection risk
   - id: nx-disabled-with-exec
-    desc: "NX disabled with command execution and suspicious native capabilities (shellcode injection risk)"
-    crit: hostile
-    conf: 0.95
-    attack: "T1055"
-    platforms: [macos]
-    all:
-      - id: nx-disabled-macos
-    any:
-      - id: exec/command/shell/shell-execution
-      - id: exec/native/suspicious/shellcode
-      - id: exec/native/suspicious/process-inspection
+    desc: "NX disabled with exec capability"
+    crit: suspicious
+    conf: 0.85

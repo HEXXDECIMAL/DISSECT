@@ -56,7 +56,7 @@ composite_rules:
       - id: remount-keyword
 
   - id: mount-command
-    description: Mount file systems with command options (mount + context)
+    description: Mount file systems with command
     crit: notable
     conf: 0.66
     mbc: E1222

@@ -6,7 +6,7 @@
 composite_rules:
   # Output/command variable composite - references generic terms
   - id: c2/shells/remote-exec/js-output-command-var
-    desc: Variable names suggesting command output handling
+    desc: Variable names suggesting command output
     crit: inert
     conf: 0.3
     count_min: 1
@@ -15,7 +15,7 @@ composite_rules:
       - id: data/text/generic/command
 
   - id: js-http-backdoor
-    desc: Remote shell backdoor (Poll C2 + Execute + Exfil)
+    desc: Remote shell backdoor (Poll C2
     crit: suspicious
     conf: 0.98
     attack: "T1059.003"

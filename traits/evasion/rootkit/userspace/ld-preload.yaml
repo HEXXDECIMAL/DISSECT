@@ -316,7 +316,7 @@ traits:
 
   # Dynamic linker hook symbol (_dlfcn_hook)
   - id: dlfcn-hook-symbol
-    desc: Contains _dlfcn_hook symbol (dynamic linker hook)
+    desc: Contains _dlfcn_hook symbol (dynamic linker
     crit: suspicious
     conf: 0.85
     mbc: "F0015"
@@ -375,7 +375,7 @@ composite_rules:
 
   # dlsym RTLD_NEXT pattern (migrated from YARA)
   - id: dlsym-rtld-next
-    desc: Uses dlsym with RTLD_NEXT (function hooking pattern)
+    desc: Uses dlsym with RTLD_NEXT (function
     crit: suspicious
     conf: 0.9
     mbc: "F0015"
@@ -421,7 +421,7 @@ composite_rules:
 
   # libc hook targets with hook indicators (migrated from YARA)
   - id: libc-hook-targets
-    desc: References multiple libc functions commonly hooked by rootkits
+    desc: References multiple libc functions commonly
     crit: notable
     conf: 0.5
     mbc: "F0015"
@@ -471,7 +471,7 @@ composite_rules:
 
   # proc hiding (migrated from YARA)
   - id: proc-hiding
-    desc: Patterns for hiding processes via /proc manipulation
+    desc: Patterns for hiding processes via
     crit: suspicious
     conf: 0.9
     mbc: "F0015"
@@ -502,7 +502,7 @@ composite_rules:
   # Full LD_PRELOAD rootkit
   - id: ld-preload-rootkit
     desc: LD_PRELOAD userspace rootkit (Symbiote-style)
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     mbc: "F0015"
     attack: "T1574.006"
@@ -516,8 +516,8 @@ composite_rules:
 
   # LD_PRELOAD installation rootkit
   - id: ld-preload-installer
-    desc: LD_PRELOAD rootkit installer (modifies ld.so.preload)
-    crit: hostile
+    desc: LD_PRELOAD rootkit installer (modifies
+    crit: suspicious
     conf: 0.95
     mbc: "F0015"
     attack: "T1574.006"

@@ -68,7 +68,7 @@ traits:
 composite_rules:
   # Detect if code uses modern JavaScript
   - id: modern-javascript
-    desc: "Code uses modern JavaScript (ES6+) features"
+    desc: "Code uses modern JavaScript (ES6+)"
     crit: notable
     conf: 0.9
     for: [javascript, typescript]

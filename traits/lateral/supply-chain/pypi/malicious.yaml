@@ -62,7 +62,7 @@ traits:
   # NOTE: YARA kept for install-network - requires combining module-level markers
   # with network activity and exec patterns
   - id: install-network
-    description: Network activity triggered by package import/install
+    description: Network activity triggered by package
     crit: suspicious
     confidence: 0.85
     condition:
@@ -89,7 +89,7 @@ traits:
   # NOTE: YARA kept for author-impersonation - requires combining author metadata
   # with code execution patterns
   - id: author-impersonation
-    description: Impersonates package author with malicious code
+    description: Impersonates package author with malicious
     crit: suspicious
     confidence: 0.8
     condition:
@@ -110,7 +110,7 @@ traits:
   # NOTE: YARA kept for gzip-json-payload - requires combining gzip/json patterns
   # with resource loading and code execution in a specific way
   - id: gzip-json-payload
-    description: Loads code payload from gzipped JSON resource
+    description: Loads code payload from gzipped
     crit: suspicious
     confidence: 0.85
     condition:
@@ -132,7 +132,7 @@ traits:
   # NOTE: YARA kept for dependency-injection - requires combining try/except ImportError
   # with pip install patterns in a specific structural way
   - id: dependency-injection
-    description: Package installs additional dependencies at runtime
+    description: Package installs additional dependencies at
     crit: suspicious
     confidence: 0.95
     mbc: "B0024"

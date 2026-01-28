@@ -11,7 +11,7 @@ traits:
   # === Entropy-Based Detection ===
 
   - id: high-overall-entropy
-    desc: "High overall file entropy (likely packed/encrypted)"
+    desc: "High overall file entropy (likely"
     crit: suspicious
     conf: 0.85
     if:
@@ -20,7 +20,7 @@ traits:
       min: 7.0
 
   - id: very-high-entropy
-    desc: "Very high entropy (strongly indicates packing/encryption)"
+    desc: "Very high entropy (strongly indicates"
     crit: suspicious
     conf: 0.95
     attack: "T1045"
@@ -30,7 +30,7 @@ traits:
       min: 7.5
 
   - id: high-code-entropy
-    desc: "High code section entropy (encrypted/packed code)"
+    desc: "High code section entropy (encrypted/packed"
     crit: suspicious
     conf: 0.8
     attack: "T1045"
@@ -63,7 +63,7 @@ traits:
   # === Section Anomalies ===
 
   - id: wx-sections
-    desc: "Writable and executable sections (self-modifying code)"
+    desc: "Writable and executable sections (self-modifying"
     crit: suspicious
     conf: 0.9
     attack: "T1055"
@@ -83,7 +83,7 @@ traits:
       min: 2
 
   - id: high-section-name-entropy
-    desc: "High entropy section names (packer signature)"
+    desc: "High entropy section names (packer"
     crit: suspicious
     conf: 0.85
     attack: "T1045"
@@ -102,7 +102,7 @@ traits:
       max: 3
 
   - id: dominant-section
-    desc: "Single section dominates file (packer pattern)"
+    desc: "Single section dominates file (packer"
     crit: suspicious
     conf: 0.75
     attack: "T1045"
@@ -113,7 +113,7 @@ traits:
 
   # === Import Anomalies ===
   - id: high-import-entropy
-    desc: "High entropy import names (obfuscated imports)"
+    desc: "High entropy import names (obfuscated"
     crit: suspicious
     conf: 0.8
     if:
@@ -145,7 +145,7 @@ traits:
       min: 5.0
 
   - id: many-high-entropy-strings
-    desc: "Many high entropy strings (embedded encrypted data)"
+    desc: "Many high entropy strings (embedded"
     crit: suspicious
     conf: 0.85
     if:
@@ -206,7 +206,7 @@ traits:
   # === Complexity Anomalies (Control Flow Obfuscation) ===
 
   - id: high-avg-complexity
-    desc: "High average cyclomatic complexity (control flow obfuscation)"
+    desc: "High average cyclomatic complexity (control"
     crit: suspicious
     conf: 0.75
     attack: "T1027.002"
@@ -216,7 +216,7 @@ traits:
       min: 55
 
   - id: very-high-avg-complexity
-    desc: "Very high average complexity (heavy obfuscation)"
+    desc: "Very high average complexity (heavy"
     crit: suspicious
     conf: 0.85
     attack: "T1027.002"
@@ -226,7 +226,7 @@ traits:
       min: 75
 
   - id: extreme-max-complexity
-    desc: "Extremely high max function complexity (opaque predicates)"
+    desc: "Extremely high max function complexity"
     crit: notable
     conf: 0.7
     attack: "T1027.002"
@@ -238,7 +238,7 @@ traits:
   # NOTE: Go runtime has many complex functions (GC, scheduler, etc.)
   # Increased threshold and downgraded to notable
   - id: many-complex-functions
-    desc: "Many high complexity functions (>50 cyclomatic)"
+    desc: "Many high complexity functions (>50"
     crit: notable
     conf: 0.6
     attack: "T1027.002"
@@ -250,7 +250,7 @@ traits:
   # NOTE: Go runtime legitimately has functions with >100 cyclomatic complexity
   # (e.g., runtime.mallocgc, runtime.scanobject). Increased threshold to reduce FPs.
   - id: very-complex-functions
-    desc: "Has many very high complexity functions (>100 cyclomatic)"
+    desc: "Has many very high complexity"
     crit: notable
     conf: 0.7
     attack: "T1027.002"
@@ -262,7 +262,7 @@ traits:
   # === Control Flow Anomalies ===
 
   - id: many-basic-blocks
-    desc: "High average basic blocks per function"
+    desc: "High average basic blocks per"
     crit: notable
     conf: 0.65
     if:
@@ -271,7 +271,7 @@ traits:
       min: 30
 
   - id: few-basic-blocks
-    desc: "Very few basic blocks (obfuscated control flow)"
+    desc: "Very few basic blocks (obfuscated"
     crit: notable
     conf: 0.6
     if:
@@ -280,7 +280,7 @@ traits:
       max: 10
 
   - id: many-linear-functions
-    desc: "Many linear functions (possible VM dispatcher)"
+    desc: "Many linear functions (possible VM"
     crit: notable
     conf: 0.6
     if:
@@ -307,7 +307,7 @@ traits:
       min: 20
 
   - id: few-leaf-functions
-    desc: "Very few leaf functions (deep call chains)"
+    desc: "Very few leaf functions (deep"
     crit: notable
     conf: 0.6
     if:
@@ -318,7 +318,7 @@ traits:
   # === Stack Anomalies ===
 
   - id: large-stack-frames
-    desc: "Has functions with large stack frames (>4KB)"
+    desc: "Has functions with large stack"
     crit: notable
     conf: 0.6
     if:
@@ -327,7 +327,7 @@ traits:
       min: 3
 
   - id: huge-stack-frame
-    desc: "Extremely large max stack frame (>64KB)"
+    desc: "Extremely large max stack frame"
     crit: suspicious
     conf: 0.7
     if:
@@ -356,7 +356,7 @@ traits:
       min: 1
 
   - id: large-overlay
-    desc: "Large overlay relative to file size"
+    desc: "Large overlay relative to file"
     crit: suspicious
     conf: 0.7
     attack: "T1027.009"
@@ -450,16 +450,9 @@ composite_rules:
       - id: anti-static/obfuscation/binary-metrics/many-complex-functions
 
   - id: vm-based-obfuscation
-    desc: "VM-based obfuscation pattern"
-    crit: hostile
-    conf: 0.85
-    attack: "T1027.002"
-    count_min: 2
-    any:
-      - id: anti-static/obfuscation/binary-metrics/few-functions
-      - id: anti-static/obfuscation/binary-metrics/extreme-max-complexity
-      - id: anti-static/obfuscation/binary-metrics/huge-stack-frame
-      - id: anti-static/obfuscation/binary-metrics/many-linear-functions
+    desc: "VM-based obfuscation detected"
+    crit: suspicious
+    conf: 0.9
 
   # NOTE: Go/Rust runtimes have complex functions and large stack frames legitimately
   # Increased count requirement and downgraded to notable

@@ -90,7 +90,7 @@ traits:
 
   # Ethereum address regex for composite (shorter pattern)
   - id: ethereum-regex-short
-    desc: "Ethereum address regex pattern (0x + 40 hex)"
+    desc: "Ethereum address regex pattern (0x"
     conf: 0.9
     crit: suspicious
     if:
@@ -99,7 +99,7 @@ traits:
 
   # Bitcoin Legacy address regex for composite (shorter pattern)
   - id: bitcoin-legacy-regex-short
-    desc: "Bitcoin legacy address regex pattern (1xxx)"
+    desc: "Bitcoin legacy address regex pattern"
     conf: 0.9
     crit: suspicious
     if:
@@ -118,7 +118,7 @@ traits:
 composite_rules:
   # Ethereum regex composite
   - id: ethereum-regex
-    desc: Ethereum address regex pattern (0x...40 hex)
+    desc: Ethereum address regex pattern (0x...40
     conf: 0.9
     crit: suspicious
     count_min: 1
@@ -138,7 +138,7 @@ composite_rules:
 
   # Multiple cryptocurrency address patterns = clipboard hijacker
   - id: multi-crypto-regex
-    desc: "Multiple cryptocurrency address regex patterns (clipboard hijacker)"
+    desc: "Multiple cryptocurrency address regex patterns"
     crit: hostile
     conf: 0.95
     count_min: 2

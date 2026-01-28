@@ -156,7 +156,7 @@ traits:
       pattern: "dispatch_sync"
 
   - id: dispatch-source
-    desc: Grand Central Dispatch source (event monitoring)
+    desc: Grand Central Dispatch source (event
     conf: 0.85
     if:
       type: symbol
@@ -200,7 +200,7 @@ composite_rules:
 
   # Helper: Any Apple framework path detected
   - id: any-framework
-    desc: Any Apple framework path (system or private)
+    desc: Any Apple framework path (system
     crit: inert
     conf: 0.85
     platforms: [macos]
@@ -211,7 +211,7 @@ composite_rules:
 
   # Bundle + Project combination
   - id: bundle-and-project
-    desc: Apple bundle identifier with project marker
+    desc: Apple bundle identifier with project
     crit: inert
     conf: 0.95
     platforms: [macos]
@@ -222,7 +222,7 @@ composite_rules:
 
   # Bundle + Framework combination
   - id: bundle-and-framework
-    desc: Apple bundle identifier with framework path
+    desc: Apple bundle identifier with framework
     crit: inert
     conf: 0.9
     platforms: [macos]
@@ -233,7 +233,7 @@ composite_rules:
 
   # Project + Framework combination
   - id: project-and-framework
-    desc: Apple project marker with framework path
+    desc: Apple project marker with framework
     crit: inert
     conf: 0.9
     platforms: [macos]
@@ -244,7 +244,7 @@ composite_rules:
 
   # Main composite: Any valid combination
   - id: system-component
-    desc: Apple system component (legitimate macOS binary)
+    desc: Apple system component (legitimate macOS
     crit: inert
     conf: 0.95
     platforms: [macos]

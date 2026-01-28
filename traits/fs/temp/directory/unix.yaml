@@ -24,7 +24,7 @@ traits:
 
 composite_rules:
   - id: directory-env
-    description: Read temp directory from TMPDIR environment variable
+    description: Read temp directory from TMPDIR
     crit: inert
     conf: 0.66
     for: [elf, macho, so, dylib, c]

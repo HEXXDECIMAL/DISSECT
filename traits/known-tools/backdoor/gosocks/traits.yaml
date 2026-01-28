@@ -4,7 +4,7 @@
 
 traits:
   - id: backdoor/gosocks/unique-path
-    description: "Unique Go package path for SOCKS5/Shell logic"
+    description: "Unique Go package path for"
     crit: suspicious
     conf: 1.0
     attack: "T1090"

@@ -152,7 +152,7 @@ composite_rules:
 
   # Terminal setup (migrated from YARA)
   - id: term-setup
-    desc: Sets TERM variable (backdoor shell setup)
+    desc: Sets TERM variable (backdoor shell
     crit: notable
     conf: 0.7
     count_min: 1

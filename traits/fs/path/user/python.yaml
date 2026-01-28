@@ -61,7 +61,7 @@ traits:
 
   # Home directory access via any method (for composite rules)
   - id: python-home-access-any
-    desc: "Home directory access via expanduser, pathlib, or environ"
+    desc: "Home directory access via expanduser,"
     conf: 0.75
     if:
       type: string
@@ -69,7 +69,7 @@ traits:
 
   # Hidden directory path construction via os.path.join
   - id: python-hidden-dir-join
-    desc: "Path join with hidden directory component"
+    desc: "Path join with hidden directory"
     conf: 0.75
     if:
       type: string
@@ -86,7 +86,7 @@ composite_rules:
 
   # Home directory + hidden path construction
   - id: python-home-hidden-dir
-    desc: "Hidden directory in home (likely malware staging)"
+    desc: "Hidden directory in home (likely"
     conf: 0.9
     crit: suspicious
     all:

@@ -87,7 +87,7 @@ traits:
   # === Atomic: Ruby Reverse Shell ===
 
   - id: ruby-tcpsocket-spawn
-    desc: Ruby TCPSocket with spawn (reverse shell)
+    desc: Ruby TCPSocket with spawn (reverse
     crit: suspicious
     conf: 0.9
     attack: "T1059.006"
@@ -98,7 +98,7 @@ traits:
       regex: "spawn\\([\"']/bin/sh[\"'],.{0,64}TCPSocket"
 
   - id: ruby-tcpsocket-popen
-    desc: Ruby TCPSocket with popen (reverse shell)
+    desc: Ruby TCPSocket with popen (reverse
     crit: suspicious
     conf: 0.9
     attack: "T1059.006"
@@ -123,7 +123,7 @@ traits:
 composite_rules:
   # Perl socket-open reverse shell (migrated from YARA)
   - id: perl-socket-open
-    desc: Perl socket with open (reverse shell pattern)
+    desc: Perl socket with open (reverse
     crit: suspicious
     conf: 0.8
     attack: "T1059.006"
@@ -137,7 +137,7 @@ composite_rules:
       - id: exec/command/shell/interactive/sh-interactive
 
   - id: mkfifo-netcat-shell
-    desc: Reverse shell via mkfifo and netcat
+    desc: Reverse shell via mkfifo and
     crit: suspicious
     conf: 0.95
     attack: "T1059.004"
@@ -166,7 +166,7 @@ composite_rules:
       - id: comm/socket/go/dial-tcp
 
   - id: generic-reverse-shell
-    desc: Generic reverse shell pattern (socket + shell)
+    desc: Generic reverse shell pattern (socket
     crit: suspicious
     conf: 0.8
     attack: "T1059"

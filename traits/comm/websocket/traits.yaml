@@ -1,7 +1,7 @@
 # NodeJS 'ws' Library
 traits:
   - id: ws
-    desc: "NodeJS binary using 'ws' (WebSockets) library"
+    desc: "NodeJS binary using 'ws' (WebSockets)"
     crit: notable
     conf: 0.9
     if:

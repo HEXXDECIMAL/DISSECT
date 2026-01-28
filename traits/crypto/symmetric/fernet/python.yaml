@@ -111,7 +111,7 @@ traits:
       word: "Fernet"
 
   - id: fernet-base64-key
-    desc: Fernet base64 key pattern (44 chars)
+    desc: Fernet base64 key pattern (44
     crit: inert
     conf: 0.8
     if:
@@ -147,7 +147,7 @@ composite_rules:
 
   # Migrated from YARA
   - id: runtime-install
-    desc: Runtime installation of fernet encryption library
+    desc: Runtime installation of fernet encryption
     crit: suspicious
     conf: 0.95
     all:
@@ -155,7 +155,7 @@ composite_rules:
       - { id: error-handling-keywords }
 
   - id: hardcoded-key
-    desc: Fernet encryption with hardcoded key pattern
+    desc: Fernet encryption with hardcoded key
     crit: suspicious
     conf: 0.9
     all:

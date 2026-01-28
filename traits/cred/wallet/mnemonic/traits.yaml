@@ -56,7 +56,7 @@ traits:
 
   # Bitcoin WIF private key format detection
   - id: bitcoin-wif
-    desc: "Bitcoin WIF private key format reference"
+    desc: "Bitcoin WIF private key format"
     conf: 0.85
     crit: suspicious
     if:
@@ -297,7 +297,7 @@ composite_rules:
 
   # Mnemonic extraction with file/network operations
   - id: stealer-pattern
-    desc: "Mnemonic phrase theft (extraction + exfiltration)"
+    desc: "Mnemonic phrase theft (extraction +"
     crit: hostile
     conf: 0.95
     attack: "T1555"

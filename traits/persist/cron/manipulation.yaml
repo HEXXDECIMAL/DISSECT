@@ -41,7 +41,7 @@ traits:
 composite_rules:
   # Blind append pattern: echo | crontab -
   - id: blind_append
-    desc: Appends to crontab by piping echo to crontab -
+    desc: Appends to crontab by piping
     crit: suspicious
     conf: 0.9
     all:
@@ -51,7 +51,7 @@ composite_rules:
 
   # Filtered rewrite: crontab -l | grep -v | crontab -
   - id: filtered_rewrite
-    desc: Rewrites crontab by filtering output of crontab -l
+    desc: Rewrites crontab by filtering output
     crit: suspicious
     conf: 0.9
     all:

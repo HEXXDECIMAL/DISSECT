@@ -23,7 +23,7 @@ traits:
 
   # Kernel Taint Erasure (AST)
   - id: kernel-taint-assign
-    desc: Direct assignment to kernel taint mask (structural)
+    desc: Direct assignment to kernel taint
     crit: suspicious
     conf: 1.0
     attack: "T1562.001"
@@ -182,7 +182,7 @@ traits:
       exact: "TASKSTATS_CMD_ATTR_PID"
 
   - id: esrch-constant
-    desc: ESRCH error constant (No such process)
+    desc: ESRCH error constant (No such
     crit: inert
     conf: 0.6
     for: [c, elf]
@@ -276,7 +276,7 @@ traits:
 
   # Structural Deception Pattern (AST)
   - id: deception-read-hook
-    desc: Structural pattern of a read hook returning a hardcoded buffer/variable (Deception)
+    desc: Structural pattern of a read
     crit: suspicious
     conf: 0.95
     attack: "T1562.001"
@@ -380,7 +380,7 @@ composite_rules:
 
 
   - id: log-sanitization
-    desc: Real-time filtering of dmesg or kmsg output
+    desc: Real-time filtering of dmesg or
     crit: suspicious
     conf: 0.95
     attack: "T1562.001"
@@ -391,7 +391,7 @@ composite_rules:
       - { id: rootkit-keywords }
 
   - id: taskstats-deception
-    desc: Blinds TaskStats netlink API to hide processes from forensic tools
+    desc: Blinds TaskStats netlink API to
     crit: suspicious
     conf: 1.0
     attack: "T1562.001"
@@ -402,7 +402,7 @@ composite_rules:
       - { id: esrch-constant }
 
   - id: audit-blinding
-    desc: Intercepts and drops Linux Auditing System (auditd) records
+    desc: Intercepts and drops Linux Auditing
     crit: suspicious
     conf: 0.95
     attack: "T1562.001"
@@ -412,7 +412,7 @@ composite_rules:
       - { id: audit-fields }
 
   - id: fake-state-logic
-    desc: Divergent logic where READ returns a fake state while WRITE is ignored (Deception)
+    desc: Divergent logic where READ returns
     crit: suspicious
     conf: 0.9
     attack: "T1562.001"
@@ -423,9 +423,9 @@ composite_rules:
 
   # Fake State Deception (Faking disabled state while keeping active hooks)
   - id: fake-state-deception
-    desc: High-confidence detection of faking a disabled state for kernel security features
-    crit: hostile
-    conf: 1.0
+    desc: "Fake state deception detected"
+    crit: suspicious
+    conf: 0.95
     attack: "T1562.001"
     for: [c, elf]
     count_min: 2

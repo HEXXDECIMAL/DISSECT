@@ -51,7 +51,7 @@ traits:
     for: [csharp]
 
   - id: get-method
-    desc: Reflection API to get method info
+    desc: Reflection API to get method
     crit: notable
     mbc: "F0004"
     conf: 0.75
@@ -62,7 +62,7 @@ traits:
     for: [csharp]
 
   - id: get-type
-    desc: Reflection API to get type info
+    desc: Reflection API to get type
     crit: notable
     mbc: "F0004"
     conf: 0.75

@@ -18,7 +18,7 @@ traits:
 composite_rules:
   # Install hook group
   - id: install-hooks
-    description: Package has install hook (preinstall, postinstall, or install)
+    description: Package has install hook (preinstall,
     crit: inert
     conf: 0.6
     file_types: [packagejson]
@@ -29,7 +29,7 @@ composite_rules:
 
   # Version 1.0.0 with install hooks
   - id: version-1.0.0-with-hooks
-    description: Version 1.0.0 with install hooks (common malware pattern)
+    description: Version 1.0.0 with install hooks
     crit: suspicious
     conf: 0.75
     file_types: [packagejson]
@@ -39,7 +39,7 @@ composite_rules:
 
   # npm URL as homepage/repository
   - id: npm-as-homepage
-    description: Package uses npmjs.com as homepage (lazy metadata, often malicious)
+    description: Package uses npmjs.com as homepage
     crit: notable
     conf: 0.8
     file_types: [packagejson]
@@ -59,7 +59,7 @@ composite_rules:
 
   # Missing repository with install hooks
   - id: no-repo-with-hooks
-    description: Package has install hooks but no repository URL
+    description: Package has install hooks but
     crit: suspicious
     conf: 0.85
     file_types: [packagejson]
@@ -84,7 +84,7 @@ composite_rules:
 
   # Generic description with hooks
   - id: generic-desc-with-hooks
-    description: Generic description combined with install hooks (template malware)
+    description: Generic description combined with install
     crit: suspicious
     conf: 0.8
     file_types: [packagejson]

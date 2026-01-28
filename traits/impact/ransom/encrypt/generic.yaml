@@ -88,7 +88,7 @@ traits:
 
   # Go file encryption patterns (ransomware)
   - id: file-encrypt
-    description: Go file encryption patterns (potential ransomware)
+    description: Go file encryption patterns (potential
     crit: suspicious
     conf: 0.8
     if:

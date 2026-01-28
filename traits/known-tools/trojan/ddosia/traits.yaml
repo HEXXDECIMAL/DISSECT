@@ -27,7 +27,7 @@ traits:
       exact: "_main.tWFG2DsBaEON"
 
   - id: known-tools/trojan/ddosia/target-id-json
-    desc: References target_id in JSON context (DDosia C2 pattern)
+    desc: References target_id in JSON context
     crit: suspicious
     conf: 1.0
     if:

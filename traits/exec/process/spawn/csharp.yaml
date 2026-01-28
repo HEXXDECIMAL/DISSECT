@@ -27,7 +27,7 @@ traits:
     for: [csharp]
 
   - id: current-process
-    desc: Acquires handle to current process (often precedes self-termination)
+    desc: Acquires handle to current process
     crit: notable
     mbc: "OB0006"
     conf: 0.85

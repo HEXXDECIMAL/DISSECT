@@ -85,7 +85,7 @@ traits:
       regex: "[a-z0-9-]+\\.https\\.[a-z]+\\.ngrok\\.io"
 
   - id: bytedance-dast
-    desc: Exfiltrates data to Bytedance DAST testing domain
+    desc: Exfiltrates data to Bytedance DAST
     crit: suspicious
     conf: 0.95
     attack: "T1048"
@@ -95,7 +95,7 @@ traits:
       regex: "[a-z0-9-]+\\.byted-dast\\.com"
 
   - id: workers-dev
-    desc: Communication with Cloudflare Workers (common C2 vector)
+    desc: Communication with Cloudflare Workers (common
     crit: notable
     conf: 0.7
     attack: "T1071"
@@ -126,7 +126,7 @@ traits:
       exact: "requestbin.net"
 
   - id: webhook-site
-    desc: Exfiltrates data to Webhook.site OOB endpoint
+    desc: Exfiltrates data to Webhook.site OOB
     crit: suspicious
     conf: 0.9
     attack: "T1048"
@@ -136,7 +136,7 @@ traits:
       exact: "webhook.site"
 
   - id: dnslog-cn
-    desc: Exfiltrates data to DNSLog.cn OOB domain
+    desc: Exfiltrates data to DNSLog.cn OOB
     crit: suspicious
     conf: 0.95
     attack: "T1048"
@@ -146,7 +146,7 @@ traits:
       exact: "dnslog.cn"
 
   - id: canarytokens
-    desc: Accesses Canarytokens OOB domain (potential probe)
+    desc: Accesses Canarytokens OOB domain (potential
     crit: suspicious
     conf: 0.9
     attack: "T1048"
@@ -219,7 +219,7 @@ traits:
 
   # === NPM preinstall atomic indicators ===
   - id: npm-preinstall-script
-    desc: NPM preinstall script entry in package.json
+    desc: NPM preinstall script entry in
     crit: inert
     conf: 0.6
     for: [javascript]
@@ -270,7 +270,7 @@ composite_rules:
 
   # Migrated from YARA
   - id: preinstall-exfil
-    desc: OOB exfiltration from npm preinstall script
+    desc: OOB exfiltration from npm preinstall
     crit: suspicious
     conf: 0.99
     attack: "T1048"
@@ -282,7 +282,7 @@ composite_rules:
 
   # Migrated from YARA
   - id: crypto-exfil
-    desc: Encrypted OOB exfiltration via crypto library
+    desc: Encrypted OOB exfiltration via crypto
     crit: suspicious
     conf: 0.95
     attack: "T1048"
@@ -293,19 +293,9 @@ composite_rules:
       - { id: oob-domains }
 
   - id: multiple-encoded-indicators
-    desc: "Multiple base64-encoded indicators detected (potential evasion)"
-    crit: hostile
-    conf: 0.9
-    attack: "T1048"
-    mbc: "B0030"
-    for: [python, javascript]
-    count_min: 2
-    any:
-      - { id: http-b64 }
-      - { id: https-b64 }
-      - { id: oastify-b64 }
-      - { id: oast-fun-b64 }
-      - { id: oob-domains }
+    desc: "Multiple encoded indicators"
+    crit: suspicious
+    conf: 0.85
 
   # Helper composite for encoded OOB indicators
   - id: encoded-oob-indicators
@@ -316,7 +306,7 @@ composite_rules:
       - { id: oast-fun-b64 }
 
   - id: encoded-oob-exfil
-    desc: "Base64-encoded OOB domain with HTTP exfiltration"
+    desc: "Base64-encoded OOB domain with HTTP"
     crit: suspicious
     conf: 0.95
     attack: "T1048"

@@ -10,7 +10,7 @@ defaults:
 traits:
   # === libcurl API atomic indicators ===
   - id: curl-easy-init
-    desc: "Initializes libcurl easy interface (HTTP client setup)"
+    desc: "Initializes libcurl easy interface (HTTP"
     crit: notable
     conf: 0.75
     if:
@@ -18,7 +18,7 @@ traits:
       pattern: "curl_easy_init"
 
   - id: curl-easy-setopt
-    desc: "Configures libcurl options (URL, headers, callbacks)"
+    desc: "Configures libcurl options (URL, headers,"
     crit: notable
     conf: 0.7
     if:
@@ -42,7 +42,7 @@ traits:
       pattern: "curl_easy_cleanup"
 
   - id: curl-slist-append
-    desc: "Builds custom HTTP headers for libcurl"
+    desc: "Builds custom HTTP headers for"
     crit: notable
     conf: 0.7
     if:
@@ -70,7 +70,7 @@ composite_rules:
 
   # libcurl with custom headers (often malicious)
   - id: libcurl-custom-headers
-    desc: "libcurl with custom HTTP headers (C2 communication pattern)"
+    desc: "libcurl with custom HTTP headers"
     crit: suspicious
     conf: 0.85
     attack: "T1071.001"

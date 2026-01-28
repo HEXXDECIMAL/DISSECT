@@ -239,7 +239,7 @@ composite_rules:
 
   # Country code field composite
   - id: country-code-field
-    desc: Country code JSON field (geo profiling)
+    desc: Country code JSON field (geo
     crit: notable
     conf: 0.6
     attack: "T1016"
@@ -250,7 +250,7 @@ composite_rules:
 
   # IP address field composite
   - id: ip-address-field
-    desc: IP address JSON field (geo profiling)
+    desc: IP address JSON field (geo
     crit: notable
     conf: 0.5
     attack: "T1016"
@@ -290,7 +290,7 @@ composite_rules:
       - id: region-field
 
   - id: victim-profiling
-    desc: Victim geolocation profiling via IP API
+    desc: Victim geolocation profiling via IP
     crit: suspicious
     conf: 0.9
     attack: "T1016"

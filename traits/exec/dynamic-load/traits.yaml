@@ -146,7 +146,7 @@ traits:
 composite_rules:
   # Suspicious dynamic loading with memory execution
   - id: memory-exec
-    desc: Dynamic loading with executable memory allocation
+    desc: Dynamic loading with executable memory
     crit: suspicious
     conf: 0.85
     all:

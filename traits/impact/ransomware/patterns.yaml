@@ -404,7 +404,7 @@ composite_rules:
 
   # RSA key handling with crypto
   - id: rsa-key-handling
-    description: RSA key generation or handling (potential ransomware)
+    description: RSA key generation or handling
     crit: notable
     conf: 0.8
     for: [javascript, typescript, python]
@@ -453,7 +453,7 @@ composite_rules:
 
   # File encryption loop
   - id: file-encryption-loop
-    description: File iteration with encryption (ransomware pattern)
+    description: File iteration with encryption (ransomware
     crit: suspicious
     conf: 0.9
     for: [javascript, typescript, python]

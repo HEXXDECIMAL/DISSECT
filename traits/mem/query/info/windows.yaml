@@ -14,7 +14,7 @@ traits:
       pattern: "VirtualQuery$"
 
   - id: virtualquery-ex
-    description: Query virtual memory in other process (VirtualQueryEx)
+    description: Query virtual memory in other
     crit: suspicious
     confidence: 0.8
     attack: "T1055"

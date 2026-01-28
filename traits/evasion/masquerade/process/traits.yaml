@@ -51,7 +51,7 @@ traits:
       exact: "abrtd"
 
   - id: fake-sshd-bracket
-    desc: Fake kernel thread name pattern [sshd]
+    desc: Fake kernel thread name pattern
     crit: notable
     conf: 0.85
     mbc: "F0004"
@@ -137,7 +137,7 @@ traits:
 
   # === argv[0] manipulation micro-traits ===
   - id: strncpy-argv0
-    desc: strncpy on argv[0] (process name manipulation)
+    desc: strncpy on argv[0] (process name
     crit: suspicious
     conf: 0.85
     mbc: "F0004"
@@ -147,7 +147,7 @@ traits:
       regex: "strncpy\\s*\\(\\s*argv\\s*\\[\\s*0\\s*\\]"
 
   - id: memset-argv0
-    desc: memset on argv[0] (process name manipulation)
+    desc: memset on argv[0] (process name
     crit: suspicious
     conf: 0.85
     mbc: "F0004"
@@ -157,7 +157,7 @@ traits:
       regex: "memset\\s*\\(\\s*argv\\s*\\[\\s*0\\s*\\]"
 
   - id: strcpy-argv0
-    desc: strcpy on argv[0] (process name manipulation)
+    desc: strcpy on argv[0] (process name
     crit: suspicious
     conf: 0.85
     mbc: "F0004"
@@ -169,7 +169,7 @@ traits:
 composite_rules:
   # prctl-based process renaming
   - id: prctl-setname
-    desc: Uses prctl to change process name
+    desc: Uses prctl to change process
     crit: suspicious
     conf: 0.8
     mbc: "F0004"
@@ -183,7 +183,7 @@ composite_rules:
 
   # Masquerade as abrtd daemon (BPFDoor indicator)
   - id: fake-abrtd
-    desc: Masquerades as abrtd daemon (BPFDoor indicator)
+    desc: Masquerades as abrtd daemon (BPFDoor
     crit: suspicious
     conf: 0.95
     mbc: "F0004"
@@ -196,7 +196,7 @@ composite_rules:
 
   # Contains fake system process names (2+ needed)
   - id: fake-system-process
-    desc: Contains names of system processes (potential masquerading)
+    desc: Contains names of system processes
     crit: suspicious
     conf: 0.75
     mbc: "F0004"
@@ -217,7 +217,7 @@ composite_rules:
 
   # argv[0] manipulation
   - id: argv0-manipulation
-    desc: Manipulates argv[0] to hide process name
+    desc: Manipulates argv[0] to hide process
     crit: suspicious
     conf: 0.8
     mbc: "F0004"

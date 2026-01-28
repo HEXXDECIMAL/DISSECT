@@ -214,8 +214,8 @@ composite_rules:
       - id: libnss3-ref
 
   - id: nss-decrypt
-    desc: Firefox NSS decryption (password extraction)
-    crit: hostile
+    desc: "Firefox NSS database decryption"
+    crit: suspicious
     conf: 0.95
     attack: "T1555.003"
     mbc: "B0028"

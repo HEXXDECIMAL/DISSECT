@@ -1,6 +1,6 @@
 traits:
   - id: node-vm
-    desc: Executing code via Node.js VM module (sandbox escape/obfuscation)
+    desc: Executing code via Node.js VM
     crit: suspicious
     conf: 0.9
     for: [javascript, typescript]

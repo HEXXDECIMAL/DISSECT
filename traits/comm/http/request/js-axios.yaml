@@ -3,7 +3,7 @@
 
 traits:
   - id: js-axios-get
-    desc: Makes HTTP GET requests using axios
+    desc: Makes HTTP GET requests using
     crit: inert
     conf: 1.0
     for: [javascript]
@@ -13,7 +13,7 @@ traits:
       pattern: "axios.get"
 
   - id: js-axios-post
-    desc: Makes HTTP POST requests using axios
+    desc: Makes HTTP POST requests using
     crit: inert
     conf: 1.0
     for: [javascript]

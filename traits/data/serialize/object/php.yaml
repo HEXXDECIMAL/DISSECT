@@ -30,7 +30,7 @@ traits:
       regex: "\\bserialize\\s*\\("
 
   - id: unserialize
-    desc: PHP object deserialization (potential RCE vector)
+    desc: PHP object deserialization (potential RCE
     crit: suspicious
     conf: 0.9
     mbc: "E1059"
@@ -79,7 +79,7 @@ traits:
 
 composite_rules:
   - id: unserialize-user-input
-    desc: Deserialization of user input (RCE vulnerability)
+    desc: Deserialization of user input (RCE
     crit: suspicious
     conf: 0.95
     mbc: "E1059"

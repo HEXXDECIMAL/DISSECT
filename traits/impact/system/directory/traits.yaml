@@ -190,7 +190,7 @@ composite_rules:
       - id: rmdir-recursive
 
   - id: iteration-loop-pattern
-    description: "Iteration or loop pattern for file operations"
+    description: "Iteration or loop pattern for"
     crit: notable
     conf: 0.8
     count_min: 1

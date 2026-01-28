@@ -281,7 +281,7 @@ composite_rules:
 
   # Download indicators composite
   - id: http-download-python
-    desc: Python HTTP download libraries for fetching remote content
+    desc: Python HTTP download libraries for
     crit: notable
     conf: 0.8
     attack: "T1105"
@@ -295,7 +295,7 @@ composite_rules:
 
   # Write to fd composite
   - id: fd-write-raw
-    desc: Writes data to file descriptor (os.write or write syscall)
+    desc: Writes data to file descriptor
     crit: notable
     conf: 0.8
     for: [python, c]
@@ -306,7 +306,7 @@ composite_rules:
 
   # memfd_create syscall
   - id: memfd-create
-    desc: Creates anonymous memory-backed file (memfd_create syscall)
+    desc: Creates anonymous memory-backed file (memfd_create
     crit: suspicious
     conf: 0.95
     for: [python, c, shell]
@@ -328,7 +328,7 @@ composite_rules:
 
   # Execution from /proc/self/fd
   - id: proc-fd-exec
-    desc: Executes binary from /proc/self/fd (fileless execution)
+    desc: Executes binary from /proc/self/fd (fileless
     crit: suspicious
     conf: 0.95
     for: [python, c, shell]
@@ -353,7 +353,7 @@ composite_rules:
 
   # Write to fd with seek
   - id: fd-write
-    desc: Writes binary data to file descriptor with seek
+    desc: Writes binary data to file
     crit: notable
     conf: 0.8
     for: [python]
@@ -366,7 +366,7 @@ composite_rules:
 
   # Download and memfd execution chain
   - id: download-memfd-exec
-    desc: Downloads binary and executes via memfd (fileless dropper)
+    desc: Downloads binary and executes via
     crit: suspicious
     conf: 0.98
     for: [python, c, shell]
@@ -380,7 +380,7 @@ composite_rules:
 
   # shm_open for shared memory execution
   - id: shm-exec
-    desc: Uses shared memory for fileless execution
+    desc: Uses shared memory for fileless
     crit: suspicious
     conf: 0.9
     for: [python, c, shell]
@@ -393,7 +393,7 @@ composite_rules:
 
   # Complete fileless dropper pattern
   - id: linux-dropper
-    desc: Linux fileless dropper (download + memfd + exec)
+    desc: Linux fileless dropper (download +
     crit: hostile
     conf: 0.99
     for: [python, elf]

@@ -43,7 +43,7 @@ traits:
       regex: "(?i)\\bvirus\\b"
 
   - id: worm-marker
-    description: Worm malware type reference in code
+    description: Worm malware type reference in
     crit: suspicious
     conf: 0.7
     attack: "T1204"
@@ -63,7 +63,7 @@ traits:
       regex: "(?i)\\btrojan\\b"
 
   - id: elf-infector-yara
-    description: ELF file infector pattern via YARA
+    description: ELF file infector pattern via
     crit: suspicious
     conf: 0.95
     attack: "T1204"
@@ -97,7 +97,7 @@ traits:
         }
 
   - id: infected-xor-yara
-    description: XOR obfuscated infection marker pattern via YARA
+    description: XOR obfuscated infection marker pattern
     crit: suspicious
     conf: 0.95
     attack: "T1027"

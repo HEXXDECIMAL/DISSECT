@@ -114,7 +114,7 @@ traits:
       exact: "wget -q"
 
   - id: wget-stdout
-    desc: wget -O - (output to stdout)
+    desc: wget -O - (output to
     crit: inert
     conf: 0.6
     if:
@@ -263,7 +263,7 @@ composite_rules:
 
   # Helper: Hidden paths
   - id: hidden-paths
-    desc: Hidden file paths in temp directories
+    desc: Hidden file paths in temp
     any:
       - id: tmp-hidden
       - id: var-tmp-hidden
@@ -286,7 +286,7 @@ composite_rules:
 
   # Helper: Cron with frequent execution and download
   - id: cron-frequent-download
-    desc: Cron with frequent schedule and download
+    desc: Cron with frequent schedule and
     all:
       - id: cron-paths
       - id: frequent-schedules

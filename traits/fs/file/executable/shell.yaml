@@ -4,7 +4,7 @@
 
 traits:
   - id: chmod-plus-x
-    desc: chmod +x command (add execute permission)
+    desc: chmod +x command (add execute
     crit: notable
     conf: 0.7
     mbc: E1222
@@ -24,7 +24,7 @@ traits:
       exact: "chmod 755"
 
   - id: chmod-0755
-    desc: chmod 0755 command (rwxr-xr-x permissions, octal)
+    desc: chmod 0755 command (rwxr-xr-x permissions,
     crit: notable
     conf: 0.7
     mbc: E1222
@@ -35,7 +35,7 @@ traits:
 
 composite_rules:
   - id: executable
-    desc: Make file executable with chmod command
+    desc: Make file executable with chmod
     crit: notable
     conf: 0.66
     mbc: E1222

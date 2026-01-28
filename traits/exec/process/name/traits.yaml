@@ -4,7 +4,7 @@
 
 traits:
   - id: nodejs-title
-    desc: "Modify process title in NodeJS (masquerading)"
+    desc: "Modify process title in NodeJS"
     crit: notable
     conf: 0.9
     if:

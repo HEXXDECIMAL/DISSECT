@@ -8,7 +8,7 @@ defaults:
 traits:
   # AST-based detection (Go source only)
   - id: go-new-cipher
-    desc: Creates a new AES cipher in Go
+    desc: Creates a new AES cipher
     crit: notable
     conf: 0.9
     for: [go]
@@ -18,7 +18,7 @@ traits:
       pattern: "aes.NewCipher"
 
   - id: go-cfb-encrypter
-    desc: Creates a new AES-CFB encrypter in Go
+    desc: Creates a new AES-CFB encrypter
     crit: notable
     conf: 0.9
     for: [go]

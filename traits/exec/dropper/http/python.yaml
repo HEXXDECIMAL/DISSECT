@@ -156,7 +156,7 @@ composite_rules:
 
   # Original rule - tmp directory dropper
   - id: tmp-dropper
-    desc: "HTTP download to temp and execute"
+    desc: "HTTP download to temp and"
     conf: 0.9
     count_min: 3
     any:
@@ -167,7 +167,7 @@ composite_rules:
 
   # Home directory dropper - downloads to hidden dir in home
   - id: home-dropper
-    desc: "HTTP download to home directory and execute"
+    desc: "HTTP download to home directory"
     conf: 0.95
     crit: suspicious
     count_min: 3

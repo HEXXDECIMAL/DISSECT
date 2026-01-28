@@ -8,7 +8,7 @@ defaults:
 
 traits:
   - id: tmp-path
-    desc: Reference to /tmp directory for execution
+    desc: Reference to /tmp directory for
     crit: notable
     conf: 0.7
     if:
@@ -24,7 +24,7 @@ traits:
       regex: '"/tmp/[a-zA-Z_]+'
 
   - id: os-chmod
-    desc: Python os.chmod call to modify file permissions
+    desc: Python os.chmod call to modify
     crit: notable
     conf: 0.8
     if:
@@ -32,7 +32,7 @@ traits:
       regex: "os\\.chmod\\("
 
   - id: os-remove
-    desc: Python os.remove call to delete files
+    desc: Python os.remove call to delete
     crit: notable
     conf: 0.7
     if:
@@ -42,7 +42,7 @@ traits:
 composite_rules:
   # subprocess execution composite
   - id: subprocess-exec
-    desc: Python subprocess execution (Popen, run, or call)
+    desc: Python subprocess execution (Popen, run,
     crit: notable
     conf: 0.8
     count_min: 1
@@ -52,7 +52,7 @@ composite_rules:
       - id: exec/command/subprocess/python/call
 
   - id: python
-    desc: Download to /tmp, chmod, execute (supply chain attack)
+    desc: Download to /tmp, chmod, execute
     conf: 0.95
     crit: suspicious
     for: [python]

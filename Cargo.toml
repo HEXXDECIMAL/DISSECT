@@ -14,7 +14,7 @@ members = [".", "crates/scpt"]
 goblin = "0.8"
 
 # Language-aware string extraction
-strangs = { path = "../strangs" }
+stng = { git = "https://github.com/HEXXDECIMAL/stng" }
 
 # AppleScript parsing
 scpt = { path = "crates/scpt" }

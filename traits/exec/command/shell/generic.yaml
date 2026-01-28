@@ -5,7 +5,7 @@
 traits:
   # C/C++ - Unix
   - id: c-system
-    desc: Executes shell commands via C system()
+    desc: Executes shell commands via C
     crit: notable
     mbc: "E1059.004"
     attack: "T1059.004"
@@ -18,7 +18,7 @@ traits:
     for: [pe, elf, macho, dll, so, dylib]
 
   - id: c-popen
-    desc: Executes command and captures output via C popen()
+    desc: Executes command and captures output
     crit: notable
     mbc: "E1059.004"
     attack: "T1059.004"
@@ -31,7 +31,7 @@ traits:
     for: [pe, elf, macho, dll, so, dylib]
 
   - id: c-execve
-    desc: Executes program directly via C execve()
+    desc: Executes program directly via C
     crit: notable
     mbc: "E1059"
     attack: "T1059"
@@ -45,7 +45,7 @@ traits:
 
   # Windows
   - id: win-createprocess
-    desc: Creates new process via Windows CreateProcess API
+    desc: Creates new process via Windows
     crit: notable
     mbc: "E1059.003"
     attack: "T1059.003"
@@ -58,7 +58,7 @@ traits:
     for: [pe, dll]
 
   - id: win-shellexecute
-    desc: Executes file or program via Windows ShellExecute API
+    desc: Executes file or program via
     crit: notable
     mbc: "E1059.003"
     attack: "T1059.003"
@@ -72,7 +72,7 @@ traits:
 
   # Go
   - id: go-os-exec
-    desc: Executes commands via Go os/exec package
+    desc: Executes commands via Go os/exec
     crit: notable
     mbc: "E1059"
     attack: "T1059"
@@ -84,7 +84,7 @@ traits:
 
   # Python
   - id: python-os-system
-    desc: Executes shell commands via Python os.system()
+    desc: Executes shell commands via Python
     crit: notable
     mbc: "E1059.006"
     attack: "T1059.006"

@@ -64,7 +64,7 @@ traits:
       exact: "httpx.post"
 
   - id: url-literal
-    desc: "Direct URL literal in HTTP request"
+    desc: "Direct URL literal in HTTP"
     crit: notable
     conf: 0.8
     for: [python]
@@ -84,7 +84,7 @@ traits:
 composite_rules:
   # HTTP request composite
   - id: request-python
-    desc: "Performs HTTP request (urllib, requests, aiohttp, httpx)"
+    desc: "Performs HTTP request (urllib, requests,"
     crit: inert
     conf: 0.9
     count_min: 1
@@ -108,7 +108,7 @@ composite_rules:
 
   # HTTP POST composite
   - id: post
-    desc: "Performs HTTP POST request (Exfiltration indicator)"
+    desc: "Performs HTTP POST request (Exfiltration"
     crit: notable
     conf: 0.9
     count_min: 1

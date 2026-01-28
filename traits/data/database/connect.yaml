@@ -349,7 +349,7 @@ traits:
 
   # === SQL micro-traits ===
   - id: sql-select
-    desc: SELECT SQL keyword in query context
+    desc: SELECT SQL keyword in query
     crit: notable
     conf: 0.6
     if:

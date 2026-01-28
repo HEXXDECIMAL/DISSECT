@@ -28,7 +28,7 @@ traits:
       min: 3.0
 
   - id: sh-encoded-payload
-    desc: "Shell script with encoded payload strings"
+    desc: "Shell script with encoded payload"
     crit: suspicious
     conf: 0.85
     if:
@@ -56,7 +56,7 @@ traits:
 
 composite_rules:
   - id: sh-encoded-dropper
-    desc: "Shell script with encoded payload dropper"
+    desc: "Shell script with encoded payload"
     crit: hostile
     conf: 0.9
     all:

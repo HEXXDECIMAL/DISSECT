@@ -7,7 +7,7 @@ defaults:
 traits:
   # === Indirect Call Instructions ===
   - id: indirect-call-reg
-    desc: Indirect call via register (call reg)
+    desc: Indirect call via register (call
     crit: inert
     conf: 0.3
     if:
@@ -15,7 +15,7 @@ traits:
       pattern: "FF D?"
 
   - id: indirect-call-mem
-    desc: Indirect call via memory (call [reg])
+    desc: Indirect call via memory (call
     crit: inert
     conf: 0.3
     if:

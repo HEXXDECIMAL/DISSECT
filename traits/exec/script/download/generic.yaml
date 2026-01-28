@@ -31,7 +31,7 @@ composite_rules:
 
   # Pipe to shell composite
   - id: pipe-to-shell
-    desc: Pipe to shell execution (very suspicious)
+    desc: Pipe to shell execution (very
     crit: suspicious
     conf: 0.95
     mbc: "B0024"

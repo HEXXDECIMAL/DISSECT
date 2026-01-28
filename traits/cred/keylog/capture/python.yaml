@@ -287,7 +287,7 @@ composite_rules:
 
   # File open for write/append composite
   - id: python-file-open-write
-    desc: "File open for writing or appending"
+    desc: "File open for writing or"
     crit: notable
     conf: 0.7
     count_min: 1
@@ -297,7 +297,7 @@ composite_rules:
 
   # Write or key handler composite
   - id: python-write-or-key-handler
-    desc: "Write call or key event handler"
+    desc: "Write call or key event"
     crit: notable
     conf: 0.7
     count_min: 1

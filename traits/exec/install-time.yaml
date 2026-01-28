@@ -10,7 +10,7 @@ defaults:
 traits:
   # Base64-encoded binary embedding in shell
   - id: base64-binary-embed
-    desc: Base64-encoded binary embedded in shell script
+    desc: Base64-encoded binary embedded in shell
     crit: suspicious
     conf: 0.9
     if:
@@ -35,7 +35,7 @@ traits:
 
   # Bot directory selection pattern (multiple fallback paths)
   - id: botdir-selection
-    desc: Bot directory selection with multiple fallback paths
+    desc: Bot directory selection with multiple
     crit: suspicious
     conf: 0.85
     if:
@@ -82,7 +82,7 @@ traits:
 
   # Writability test before deployment
   - id: writability-test
-    desc: Tests directory writability before malware deployment
+    desc: Tests directory writability before malware
     crit: suspicious
     conf: 0.8
     if:
@@ -101,7 +101,7 @@ traits:
 
   # Mtime preservation pattern (for timestomping)
   - id: mtime-preservation
-    desc: Preserves directory timestamps to hide modifications
+    desc: Preserves directory timestamps to hide
     crit: suspicious
     conf: 0.85
     if:
@@ -123,7 +123,7 @@ traits:
 composite_rules:
   # Full supply chain dropper in shell
   - id: shell-dropper
-    desc: Supply chain dropper in package install script
+    desc: Supply chain dropper in package
     crit: hostile
     conf: 0.95
     mbc: "B0030"

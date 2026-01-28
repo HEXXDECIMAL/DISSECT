@@ -5,7 +5,7 @@
 composite_rules:
   # Combination 1: libcurl + file extensions = stealer
   - id: curl-with-file-targeting
-    desc: "HTTP client with credential/wallet file targeting (stealer pattern)"
+    desc: "HTTP client with credential/wallet file"
     crit: hostile
     conf: 0.95
     attack: "T1041"
@@ -22,7 +22,7 @@ composite_rules:
 
   # Combination 2: Binary file modes + network = exfiltration
   - id: binary-file-network-exfil
-    desc: "Binary file operations with network capability (file exfiltration)"
+    desc: "Binary file operations with network"
     crit: suspicious
     conf: 0.9
     attack: "T1041"
@@ -36,7 +36,7 @@ composite_rules:
 
   # Combination 3: fcopyfile + network (macOS)
   - id: macos-file-copy-exfil
-    desc: "macOS file copying with network exfiltration"
+    desc: "macOS file copying with network"
     crit: suspicious
     conf: 0.9
     attack: "T1041"
@@ -51,7 +51,7 @@ composite_rules:
 
   # Combination 4: Directory traversal + file extensions + network
   - id: recursive-file-theft
-    desc: "Recursive directory scan with file targeting and network (comprehensive stealer)"
+    desc: "Recursive directory scan with file"
     crit: hostile
     conf: 0.95
     attack: "T1005"
@@ -69,7 +69,7 @@ composite_rules:
 
   # Combination 5: Hardware UUID + base64 = fingerprint encoding
   - id: encoded-hardware-fingerprint
-    desc: "Hardware fingerprint with base64 encoding (C2 victim tracking)"
+    desc: "Hardware fingerprint with base64 encoding"
     crit: suspicious
     conf: 0.9
     attack: "T1082"
@@ -84,7 +84,7 @@ composite_rules:
 
   # Combination 6: Custom base64 + XOR + network = obfuscated exfil
   - id: obfuscated-exfiltration
-    desc: "Multi-layer encoding with network (obfuscated data exfiltration)"
+    desc: "Multi-layer encoding with network (obfuscated"
     crit: hostile
     conf: 0.95
     attack: "T1027"
@@ -100,7 +100,7 @@ composite_rules:
 
   # Combination 7: libcurl + fingerprinting + obfuscation
   - id: stealer-trifecta
-    desc: "Complete stealer pattern (network + fingerprinting + obfuscation)"
+    desc: "Complete stealer pattern (network +"
     crit: hostile
     conf: 0.98
     attack: "T1041"

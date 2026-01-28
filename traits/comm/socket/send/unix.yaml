@@ -7,7 +7,7 @@ defaults:
 
 traits:
   - id: send
-    desc: Send a message to a socket
+    desc: Send a message to a
     crit: inert
     conf: 0.66
     mbc: "C0001"

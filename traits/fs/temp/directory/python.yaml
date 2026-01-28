@@ -4,7 +4,7 @@
 
 traits:
   - id: directory-python
-    description: Look up temp directory via tempfile.gettempdir
+    description: Look up temp directory via
     crit: inert
     conf: 0.66
     if:

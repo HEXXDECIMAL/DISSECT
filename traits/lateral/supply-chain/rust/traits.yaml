@@ -149,7 +149,7 @@ traits:
 composite_rules:
   # Suspicious crate composite
   - id: suspicious-crate-call
-    description: Call to a suspicious-looking crate (potential typosquat or malicious)
+    description: Call to a suspicious-looking crate
     crit: suspicious
     confidence: 0.8
     attack: "T1195"
@@ -164,7 +164,7 @@ composite_rules:
 
   # Misspelled words composite
   - id: misspelled-common-words
-    description: Misspelled common words in identifiers (indicator of low quality/malicious)
+    description: Misspelled common words in identifiers
     crit: notable
     confidence: 0.7
     file_types: [rust]
@@ -177,7 +177,7 @@ composite_rules:
 
   # Library pattern composite (requires 2 of them)
   - id: internal-lib-pattern
-    description: Generic indicator of legitimate library code (traits, structs, impls)
+    description: Generic indicator of legitimate library
     crit: inert
     confidence: 0.5
     file_types: [rust]
@@ -190,7 +190,7 @@ composite_rules:
 
   # Dummy keys composite
   - id: dummy-keys-hashmap
-    description: Usage of dummy keys in a HashMap (potential test/placeholder)
+    description: Usage of dummy keys in
     crit: notable
     confidence: 0.6
     file_types: [rust]
@@ -200,7 +200,7 @@ composite_rules:
       - id: dummy-value-word
 
   - id: trojanized-lib
-    description: Potential trojanized library (legitimate library code + suspicious crate calls)
+    description: Potential trojanized library (legitimate library
     crit: hostile
     confidence: 0.85
     attack: "T1195.001"

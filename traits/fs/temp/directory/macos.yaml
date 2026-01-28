@@ -4,7 +4,7 @@
 
 traits:
   - id: directory-cocoa
-    description: Look up temp directory via NSTemporaryDirectory
+    description: Look up temp directory via
     crit: inert
     conf: 0.66
     if:

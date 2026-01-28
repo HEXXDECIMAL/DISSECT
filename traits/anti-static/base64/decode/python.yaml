@@ -14,7 +14,7 @@ traits:
       exact: b64decode
 
   - id: decode-exec-python
-    desc: Base64 decode and execute in Python
+    desc: Base64 decode and execute in
     crit: suspicious
     conf: 0.66
     if:

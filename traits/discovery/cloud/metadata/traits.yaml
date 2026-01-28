@@ -75,7 +75,7 @@ traits:
       exact: "metadata.google.internal"
 
   - id: gcp-access-token
-    desc: GCP service account access token path
+    desc: GCP service account access token
     crit: suspicious
     conf: 0.9
     attack: "T1552.005"

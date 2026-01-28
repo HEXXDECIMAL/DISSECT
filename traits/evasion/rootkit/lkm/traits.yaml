@@ -9,7 +9,7 @@ traits:
   # ============================================================
 
   - id: kernel-module-header
-    desc: Linux kernel module header (loadable kernel module)
+    desc: Linux kernel module header (loadable
     crit: suspicious
     conf: 0.98
     for: [c]
@@ -42,7 +42,7 @@ traits:
       pattern: "linux/syscalls.h"
 
   - id: kernel-dirent-header
-    desc: Linux directory entry header (file hiding)
+    desc: Linux directory entry header (file
     crit: suspicious
     conf: 0.9
     for: [c]
@@ -64,7 +64,7 @@ traits:
       pattern: "linux/cred.h"
 
   - id: kernel-kallsyms-header
-    desc: Linux kallsyms header (kernel symbol access)
+    desc: Linux kallsyms header (kernel symbol
     crit: suspicious
     conf: 0.98
     for: [c]
@@ -108,7 +108,7 @@ traits:
       pattern: "linux/proc_fs.h"
 
   - id: ftrace-helper-include
-    desc: Ftrace helper library (common rootkit hooking library)
+    desc: Ftrace helper library (common rootkit
     crit: suspicious
     conf: 0.99
     for: [c]
@@ -171,7 +171,7 @@ traits:
       pattern: "list_del"
 
   - id: cr0-read-call
-    desc: Read CR0 register (memory protection bypass)
+    desc: Read CR0 register (memory protection
     crit: suspicious
     conf: 0.98
     for: [c]
@@ -182,7 +182,7 @@ traits:
       pattern: "read_cr0"
 
   - id: cr0-write-call
-    desc: Write CR0 register (disable write protection)
+    desc: Write CR0 register (disable write
     crit: suspicious
     conf: 0.99
     for: [c]
@@ -204,7 +204,7 @@ traits:
       pattern: "kzalloc"
 
   - id: copy-from-user-call
-    desc: Copy data from user space to kernel
+    desc: Copy data from user space
     crit: suspicious
     conf: 0.9
     for: [c]
@@ -215,7 +215,7 @@ traits:
       pattern: "copy_from_user"
 
   - id: copy-to-user-call
-    desc: Copy data from kernel to user space
+    desc: Copy data from kernel to
     crit: suspicious
     conf: 0.9
     for: [c]
@@ -338,7 +338,7 @@ traits:
   # ============================================================
 
   - id: syscall-number-ref
-    desc: Direct syscall number reference (syscall hooking)
+    desc: Direct syscall number reference (syscall
     crit: suspicious
     conf: 0.9
     for: [c]
@@ -349,7 +349,7 @@ traits:
       pattern: "__NR_"
 
   - id: proc-root-ino-ref
-    desc: Proc filesystem root inode (process hiding)
+    desc: Proc filesystem root inode (process
     crit: suspicious
     conf: 0.95
     for: [c]
@@ -488,7 +488,7 @@ traits:
       case_insensitive: true
 
   - id: asm-syscall-invocation
-    desc: Inline assembly with direct syscall invocation
+    desc: Inline assembly with direct syscall
     crit: suspicious
     conf: 0.85
     for: [c]
@@ -503,7 +503,7 @@ traits:
   # ============================================================
 
   - id: d-reclen-manipulation
-    desc: Directory entry record length manipulation (file hiding)
+    desc: Directory entry record length manipulation
     crit: suspicious
     conf: 0.98
     attack: "T1014"
@@ -526,7 +526,7 @@ traits:
       pattern: "d_name"
 
   - id: simple-strtoul-call
-    desc: String to unsigned long conversion (PID parsing for hiding)
+    desc: String to unsigned long conversion
     crit: suspicious
     conf: 0.85
     for: [c]
@@ -537,7 +537,7 @@ traits:
       pattern: "simple_strtoul"
 
   - id: memmove-call
-    desc: Memory move operation (often used for dirent manipulation)
+    desc: Memory move operation (often used
     crit: suspicious
     conf: 0.7
     for: [c]
@@ -547,7 +547,7 @@ traits:
       pattern: "memmove"
 
   - id: memcmp-dirent-context
-    desc: Memory comparison (file prefix matching for hiding)
+    desc: Memory comparison (file prefix matching
     crit: suspicious
     conf: 0.7
     for: [c]
@@ -561,7 +561,7 @@ traits:
   # ============================================================
 
   - id: sect-attrs-removal
-    desc: Module section attributes removal (hide module info)
+    desc: Module section attributes removal (hide
     crit: suspicious
     conf: 0.99
     attack: "T1014"
@@ -573,7 +573,7 @@ traits:
       pattern: "sect_attrs"
 
   - id: list-add-call
-    desc: Kernel list addition (module unhiding toggle)
+    desc: Kernel list addition (module unhiding
     crit: suspicious
     conf: 0.9
     for: [c]
@@ -584,7 +584,7 @@ traits:
       pattern: "list_add"
 
   - id: kfree-call
-    desc: Kernel memory free (often used to remove module metadata)
+    desc: Kernel memory free (often used
     crit: suspicious
     conf: 0.7
     for: [c]
@@ -599,7 +599,7 @@ traits:
   # ============================================================
 
   - id: asmlinkage-decl
-    desc: Assembly linkage declaration (syscall calling convention)
+    desc: Assembly linkage declaration (syscall calling
     crit: suspicious
     conf: 0.9
     for: [c]
@@ -622,7 +622,7 @@ traits:
       regex: true
 
   - id: orig-syscall-pattern
-    desc: Original syscall saving pattern (hooking infrastructure)
+    desc: Original syscall saving pattern (hooking
     crit: suspicious
     conf: 0.95
     attack: "T1014"
@@ -635,7 +635,7 @@ traits:
       regex: false
 
   - id: pt-regs-register-access
-    desc: Direct register access via pt_regs (syscall argument extraction)
+    desc: Direct register access via pt_regs
     crit: suspicious
     conf: 0.9
     for: [c]
@@ -646,7 +646,7 @@ traits:
       pattern: "pt_regs->"
 
   - id: pt-regs-di-access
-    desc: RDI register access (first syscall argument)
+    desc: RDI register access (first syscall
     crit: suspicious
     conf: 0.95
     for: [c]
@@ -657,7 +657,7 @@ traits:
       pattern: "->di"
 
   - id: pt-regs-si-access
-    desc: RSI register access (second syscall argument)
+    desc: RSI register access (second syscall
     crit: suspicious
     conf: 0.95
     for: [c]
@@ -694,7 +694,7 @@ traits:
       pattern: "->fdt"
 
   - id: f-path-dentry-access
-    desc: File path dentry access (inode traversal)
+    desc: File path dentry access (inode
     crit: suspicious
     conf: 0.8
     for: [c]
@@ -823,7 +823,7 @@ traits:
       pattern: "MODULE_DESCRIPTION"
 
   - id: dual-bsd-gpl-license
-    desc: Dual BSD/GPL license (common rootkit license)
+    desc: Dual BSD/GPL license (common rootkit
     crit: suspicious
     conf: 0.6
     for: [c]
@@ -865,7 +865,7 @@ traits:
   # ============================================================
 
   - id: task-flags-manipulation
-    desc: Task flags manipulation (process hiding via PF_INVISIBLE)
+    desc: Task flags manipulation (process hiding
     crit: suspicious
     conf: 0.98
     attack: "T1014"
@@ -890,7 +890,7 @@ traits:
       pattern: "0x10000000"
 
   - id: xor-assign-flags
-    desc: XOR assignment on flags (toggle visibility)
+    desc: XOR assignment on flags (toggle
     crit: suspicious
     conf: 0.9
     for: [c]
@@ -917,7 +917,7 @@ traits:
   # ============================================================
 
   - id: uid-zero-assign
-    desc: UID set to zero (root privilege)
+    desc: UID set to zero (root
     crit: suspicious
     conf: 0.98
     attack: "T1068"
@@ -930,7 +930,7 @@ traits:
       regex: true
 
   - id: gid-zero-assign
-    desc: GID set to zero (root group)
+    desc: GID set to zero (root
     crit: suspicious
     conf: 0.98
     attack: "T1068"
@@ -959,7 +959,7 @@ traits:
   # ============================================================
 
   - id: force-order-variable
-    desc: __force_order variable (prevent CR0 write reordering)
+    desc: __force_order variable (prevent CR0 write
     crit: suspicious
     conf: 0.95
     for: [c]
@@ -984,7 +984,7 @@ traits:
   # ============================================================
 
   - id: getdents-hook-function
-    desc: getdents hook function (directory listing interception)
+    desc: getdents hook function (directory listing
     crit: suspicious
     conf: 0.99
     attack: "T1014"
@@ -1008,7 +1008,7 @@ traits:
       pattern: "__NR_getdents"
 
   - id: nr-kill-ref
-    desc: __NR_kill syscall number reference (signal hooking)
+    desc: __NR_kill syscall number reference (signal
     crit: suspicious
     conf: 0.95
     for: [c]
@@ -1128,7 +1128,7 @@ traits:
       regex: true
 
   - id: underscore-heavy-naming
-    desc: Heavy underscore usage in names (kernel-style obfuscation)
+    desc: Heavy underscore usage in names
     crit: suspicious
     conf: 0.6
     for: [c]
@@ -1143,7 +1143,7 @@ traits:
   # ============================================================
 
   - id: esrch-return
-    desc: Return -ESRCH (no such process - hiding indicator)
+    desc: Return -ESRCH (no such process
     crit: suspicious
     conf: 0.8
     for: [c]
@@ -1279,7 +1279,7 @@ traits:
       pattern: "Elf64_Phdr"
 
   - id: elf-entry-field
-    desc: e_entry ELF entry point field access
+    desc: e_entry ELF entry point field
     crit: suspicious
     conf: 0.9
     for: [c]
@@ -1324,7 +1324,7 @@ composite_rules:
 
   # Fileless LKM loading (migrated from YARA)
   - id: fileless-lkm-loading
-    desc: Fileless kernel module loading (memfd_create + finit_module)
+    desc: Fileless kernel module loading (memfd_create
     crit: suspicious
     conf: 1.0
     attack: "T1620"
@@ -1347,7 +1347,7 @@ composite_rules:
 
   # PTE manipulation (migrated from YARA)
   - id: pte-manipulation
-    desc: Direct PTE manipulation to bypass memory protection
+    desc: Direct PTE manipulation to bypass
     crit: suspicious
     conf: 0.95
     attack: "T1014"
@@ -1382,12 +1382,6 @@ composite_rules:
 
   # Advanced LKM Rootkit Flow
   - id: advanced-lkm-rootkit
-    desc: Advanced LKM rootkit with fileless loading or PTE manipulation
-    crit: hostile
-    conf: 1.0
-    attack: "T1014"
-    for: [elf, c]
-    any:
-      - id: fileless-lkm-loading
-      - id: pte-manipulation
-      - id: elf-patching
+    desc: "Advanced LKM rootkit detected"
+    crit: suspicious
+    conf: 0.95

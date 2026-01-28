@@ -4,7 +4,7 @@
 
 traits:
   - id: start
-    description: PHP session initialization for state persistence
+    description: PHP session initialization for state
     crit: notable
     confidence: 0.7
     mbc: "B0028"
@@ -42,7 +42,7 @@ traits:
       regex: "session_id\\s*\\("
 
   - id: no-time-limit
-    description: Disables PHP script time limit (webshell indicator)
+    description: Disables PHP script time limit
     crit: notable
     confidence: 0.85
     condition:

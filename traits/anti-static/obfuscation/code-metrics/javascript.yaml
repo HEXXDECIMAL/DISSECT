@@ -10,7 +10,7 @@ traits:
   # === JavaScript-Specific Obfuscation Patterns ===
 
   - id: js-arrow-function-abuse
-    desc: "Excessive anonymous arrow functions (obfuscation pattern)"
+    desc: "Excessive anonymous arrow functions (obfuscation"
     crit: suspicious
     conf: 0.8
     if:
@@ -19,7 +19,7 @@ traits:
       min: 20
 
   - id: js-iife-heavy
-    desc: "High function density with one-liners (IIFE obfuscation)"
+    desc: "High function density with one-liners"
     crit: suspicious
     conf: 0.85
     if:
@@ -28,7 +28,7 @@ traits:
       min: 15
 
   - id: js-deep-callback-nesting
-    desc: "Deep function nesting (callback hell or obfuscation)"
+    desc: "Deep function nesting (callback hell"
     crit: notable
     conf: 0.75
     if:
@@ -58,7 +58,7 @@ composite_rules:
       - id: anti-static/obfuscation/code-metrics/no-comments
 
   - id: js-npm-malware-pattern
-    desc: "npm malware obfuscation pattern (install script)"
+    desc: "npm malware obfuscation pattern (install"
     crit: hostile
     conf: 0.9
     all:

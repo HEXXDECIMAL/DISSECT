@@ -14,7 +14,7 @@ traits:
       exact: "getenv"
 
   - id: os-getenv-token
-    desc: TOKEN keyword in env variable name
+    desc: TOKEN keyword in env variable
     crit: inert
     conf: 0.7
     for: [python]
@@ -23,7 +23,7 @@ traits:
       regex: '[''"][^''"]*TOKEN[^''"]*[''"]'
 
   - id: os-getenv-key
-    desc: KEY keyword in env variable name
+    desc: KEY keyword in env variable
     crit: inert
     conf: 0.65
     for: [python]
@@ -32,7 +32,7 @@ traits:
       regex: '[''"][^''"]*KEY[^''"]*[''"]'
 
   - id: os-getenv-secret
-    desc: SECRET keyword in env variable name
+    desc: SECRET keyword in env variable
     crit: inert
     conf: 0.7
     for: [python]
@@ -41,7 +41,7 @@ traits:
       regex: '[''"][^''"]*SECRET[^''"]*[''"]'
 
   - id: os-getenv-pass
-    desc: PASS keyword in env variable name
+    desc: PASS keyword in env variable
     crit: inert
     conf: 0.7
     for: [python]
@@ -50,7 +50,7 @@ traits:
       regex: '[''"][^''"]*PASS[^''"]*[''"]'
 
   - id: os-getenv-auth
-    desc: AUTH keyword in env variable name
+    desc: AUTH keyword in env variable
     crit: inert
     conf: 0.7
     for: [python]
@@ -59,7 +59,7 @@ traits:
       regex: '[''"][^''"]*AUTH[^''"]*[''"]'
 
   - id: os-getenv-pwd
-    desc: PWD keyword in env variable name
+    desc: PWD keyword in env variable
     crit: inert
     conf: 0.7
     for: [python]
@@ -68,7 +68,7 @@ traits:
       regex: '[''"][^''"]*PWD[^''"]*[''"]'
 
   - id: os-getenv-cred
-    desc: CRED keyword in env variable name
+    desc: CRED keyword in env variable
     crit: inert
     conf: 0.7
     for: [python]
@@ -152,7 +152,7 @@ traits:
 composite_rules:
   # Helper composites
   - id: sensitive-env-keywords
-    desc: Sensitive keywords in env variable names
+    desc: Sensitive keywords in env variable
     for: [python]
     any:
       - { id: os-getenv-token }
@@ -172,7 +172,7 @@ composite_rules:
 
   # Migrated from YARA
   - id: python-os-getenv
-    desc: Accesses sensitive environment variable via os.getenv
+    desc: Accesses sensitive environment variable via
     crit: suspicious
     conf: 0.9
     for: [python]
@@ -181,7 +181,7 @@ composite_rules:
       - { id: sensitive-env-keywords }
 
   - id: python-os-environ
-    desc: Accesses sensitive environment variable via os.environ
+    desc: Accesses sensitive environment variable via
     crit: suspicious
     conf: 0.9
     for: [python]

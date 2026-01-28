@@ -37,7 +37,7 @@ traits:
 
 composite_rules:
   - id: server
-    desc: Network server - binds and listens on port
+    desc: Network server - binds and
     conf: 0.6
     crit: inert
     platforms: [linux]

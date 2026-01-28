@@ -17,7 +17,7 @@ traits:
   # NOTE: /dev/full alone is NOT a reliable indicator - it's present in glibc
   # This trait should only trigger alongside the XOR key
   - id: botnet/leet-hozer/dev-full
-    description: LeetHozer /dev/full usage (requires XOR key)
+    description: LeetHozer /dev/full usage (requires XOR
     crit: notable
     conf: 0.3
     family: true

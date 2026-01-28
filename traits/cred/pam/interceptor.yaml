@@ -157,7 +157,7 @@ composite_rules:
 
   # Migrated from YARA
   - id: interceptor
-    desc: Accesses PAM authentication tokens (potential credential stealer)
+    desc: Accesses PAM authentication tokens (potential
     crit: suspicious
     conf: 0.8
     for: [c, cpp, elf, so]

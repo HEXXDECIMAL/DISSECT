@@ -6,7 +6,7 @@
 traits:
   # Process execution functions
   - id: getExecOutput
-    desc: Node.js exec output capture (GitHub Actions)
+    desc: Node.js exec output capture (GitHub
     crit: notable
     conf: 0.8
     for: [javascript]

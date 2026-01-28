@@ -3,7 +3,7 @@
 
 traits:
   - id: rust-360-check
-    desc: Checks for 360 Safe Tray (AV evasion)
+    desc: Checks for 360 Safe Tray
     crit: suspicious
     conf: 1.0
     attack: "T1036"

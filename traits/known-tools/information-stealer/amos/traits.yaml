@@ -88,7 +88,7 @@ traits:
       max_ratio: 0.0001
 
   - id: stealer/amos/large-const-payload
-    description: "Large __const section (>90% of binary)"
+    description: "Large __const section (>90% of"
     crit: suspicious
     conf: 0.75
     attack: "T1027"
@@ -101,7 +101,7 @@ traits:
       min_ratio: 0.90
 
   - id: stealer/amos/high-const-entropy
-    description: "High entropy __const section (encrypted payload)"
+    description: "High entropy __const section (encrypted"
     crit: suspicious
     conf: 0.8
     attack: "T1027"
@@ -116,7 +116,7 @@ traits:
   # === YARA-based traits for variant detection ===
 
   - id: stealer/amos/magic-variant-yara
-    description: AMOS magic var variant via YARA
+    description: AMOS magic var variant via
     crit: suspicious
     conf: 0.95
     family: true
@@ -181,7 +181,7 @@ traits:
         }
 
   - id: stealer/amos/hex-obfuscated-yara
-    description: AMOS hex obfuscated variant via YARA
+    description: AMOS hex obfuscated variant via
     crit: suspicious
     conf: 0.9
     family: true
@@ -221,7 +221,7 @@ traits:
         }
 
   - id: stealer/amos/string-obfuscated-yara
-    description: AMOS string obfuscated variant via YARA
+    description: AMOS string obfuscated variant via
     crit: suspicious
     conf: 0.9
     family: true

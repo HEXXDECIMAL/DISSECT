@@ -1,7 +1,7 @@
 traits:
   # VSCode Extension API Usage
   - id: workspace-findFiles
-    description: VSCode workspace.findFiles API call (file enumeration)
+    description: VSCode workspace.findFiles API call (file
     crit: notable
     confidence: 0.85
     file_types: [javascript, typescript]
@@ -11,7 +11,7 @@ traits:
       pattern: "workspace.findFiles"
 
   - id: fs-readFile
-    description: VSCode workspace.fs.readFile API call (file reading)
+    description: VSCode workspace.fs.readFile API call (file
     crit: notable
     confidence: 0.85
     file_types: [javascript, typescript]
@@ -194,7 +194,7 @@ composite_rules:
   # Suspicious VSCode Extension Behaviors
   # IMPORTANT: Requires VSCode markers to avoid FPs on regular npm packages
   - id: env-access
-    description: Access to process.env in VSCode extension
+    description: Access to process.env in VSCode
     crit: suspicious
     confidence: 0.85
     mbc: "E1592"
@@ -207,7 +207,7 @@ composite_rules:
   # Telemetry/Exfiltration Patterns
   # IMPORTANT: Requires VSCode markers to avoid FPs on regular npm packages
   - id: external-request
-    description: HTTP request in VSCode extension (potential exfiltration)
+    description: HTTP request in VSCode extension
     crit: suspicious
     confidence: 0.7
     file_types: [javascript, typescript]

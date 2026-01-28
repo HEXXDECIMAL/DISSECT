@@ -45,7 +45,7 @@ traits:
 
 composite_rules:
   - id: go-json-exfil-keys
-    desc: Marshals sensitive-looking keys into JSON for exfiltration
+    desc: Marshals sensitive-looking keys into JSON
     crit: suspicious
     conf: 0.95
     attack: "T1041"

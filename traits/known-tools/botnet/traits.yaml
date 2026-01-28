@@ -42,7 +42,7 @@ traits:
         }
 
   - id: p2p-botnet/dht-iot-bootstrap
-    description: P2P DHT bootstrapping for IoT devices
+    description: P2P DHT bootstrapping for IoT
     crit: suspicious
     conf: 0.8
     attack: "T1090.003"

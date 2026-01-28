@@ -13,7 +13,7 @@ defaults:
 
 composite_rules:
   - id: touch
-    desc: PHP touch() file timestamp modification (evasion context)
+    desc: PHP touch() file timestamp modification
     crit: notable
     conf: 0.65
     any:

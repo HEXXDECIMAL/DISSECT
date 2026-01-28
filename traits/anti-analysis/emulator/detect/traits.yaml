@@ -148,7 +148,7 @@ composite_rules:
 
   # CPU vendor composite
   - id: cpu-vendor
-    desc: CPU vendor string checks (Intel/AMD vs VM)
+    desc: CPU vendor string checks (Intel/AMD
     crit: notable
     mbc: "B0009"
     conf: 0.5

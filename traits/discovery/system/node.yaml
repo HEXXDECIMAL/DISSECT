@@ -105,7 +105,7 @@ traits:
 composite_rules:
   # Extensive system profiling (migrated from YARA)
   - id: node
-    desc: Extensive system profiling (user, net, host)
+    desc: Extensive system profiling (user, net,
     crit: suspicious
     conf: 0.85
     attack: "T1082"
@@ -119,7 +119,7 @@ composite_rules:
 
   # Data aggregation for exfil
   - id: node-data-aggregation
-    desc: Aggregates system data into object (pre-exfiltration)
+    desc: Aggregates system data into object
     crit: suspicious
     conf: 0.9
     attack: "T1082"

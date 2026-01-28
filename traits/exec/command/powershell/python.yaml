@@ -3,7 +3,7 @@
 
 traits:
   - id: python-download
-    desc: "Downloads file via PowerShell and curl.exe"
+    desc: "Downloads file via PowerShell and"
     crit: suspicious
     conf: 0.9
     for: [python]

@@ -36,7 +36,7 @@ traits:
       pattern: "\\bsetsid\\b"
 
   - id: daemon-dev-null
-    description: "Redirects I/O to /dev/null (daemon behavior)"
+    description: "Redirects I/O to /dev/null (daemon"
     crit: notable
     confidence: 0.4
     file_types: [elf, macho]
@@ -46,7 +46,7 @@ traits:
       exact: "/dev/null"
 
   - id: daemon-chdir-root
-    description: "Change directory to root (daemon behavior)"
+    description: "Change directory to root (daemon"
     crit: notable
     confidence: 0.3
     file_types: [elf, macho]
@@ -178,7 +178,7 @@ composite_rules:
 
   # Signal ignore for daemon (migrated from YARA)
   - id: signal-ignore-pattern
-    description: "Signal handler setup (daemon persistence pattern)"
+    description: "Signal handler setup (daemon persistence"
     crit: inert
     confidence: 0.3
     attack: "T1543"
@@ -189,7 +189,7 @@ composite_rules:
       - id: sig-ign-pattern
 
   - id: sigchld-handler
-    description: "Custom SIGCHLD handler (child process reaping)"
+    description: "Custom SIGCHLD handler (child process"
     crit: notable
     confidence: 0.6
     attack: "T1543"
@@ -202,7 +202,7 @@ composite_rules:
       - id: handle-sigchld-string
 
   - id: full-daemon
-    description: "Full daemon behavior (fork + setsid + /dev/null)"
+    description: "Full daemon behavior (fork +"
     crit: suspicious
     confidence: 0.8
     attack: "T1543"
@@ -218,7 +218,7 @@ composite_rules:
   # NOTE: Since daemon-proc-self is now inert (Go uses /proc/self legitimately),
   # this composite needs additional indicators to be meaningful.
   - id: stealth-daemon
-    description: "Stealthy daemon (daemon + proc introspection)"
+    description: "Stealthy daemon (daemon + proc"
     crit: notable
     confidence: 0.5
     attack: "T1543"

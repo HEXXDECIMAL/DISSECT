@@ -7,7 +7,7 @@ traits:
 
   # === Atomic: SSH Attack Terminology ===
   - id: ssh-attack-suffix
-    description: SSH attack function/variable (ssh_attack, ssh-attack, sshattack)
+    description: SSH attack function/variable (ssh_attack, ssh-attack,
     crit: notable
     confidence: 0.8
     attack: "T1021.004"
@@ -17,7 +17,7 @@ traits:
       regex: "[Ss][Ss][Hh][_\\-]?[Aa]ttack"
 
   - id: attack-ssh-prefix
-    description: Attack SSH function/variable (attack_ssh, attack-ssh, attackssh)
+    description: Attack SSH function/variable (attack_ssh, attack-ssh,
     crit: notable
     confidence: 0.8
     attack: "T1021.004"
@@ -162,7 +162,7 @@ composite_rules:
       - id: ssh-boom
 
   - id: bash-history-ssh
-    description: Extracts SSH targets from bash history
+    description: Extracts SSH targets from bash
     crit: suspicious
     confidence: 0.85
     attack: "T1021.004"

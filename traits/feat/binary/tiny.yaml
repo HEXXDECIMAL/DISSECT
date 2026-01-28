@@ -20,7 +20,7 @@ traits:
       max: 1024
 
   - id: dominant-text-section
-    desc: ".text section is >75% of binary size (hand-written assembly)"
+    desc: ".text section is >75% of"
     if:
       type: section_ratio
       section: "\\.text"

@@ -100,7 +100,7 @@ impl PEAnalyzer {
 
         // Extract strings using language-aware extraction (Go/Rust) with pre-parsed PE
         report.strings = self.string_extractor.extract_from_pe(&pe, data, r2_strings);
-        tools_used.push("strangs".to_string());
+        tools_used.push("stng".to_string());
 
         // Run YARA scan if engine is loaded
         if let Some(yara_engine) = &self.yara_engine {

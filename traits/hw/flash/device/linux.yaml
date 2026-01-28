@@ -20,7 +20,7 @@ traits:
       regex: "/dev/(block/)?mmcblk"
 
   - id: ubi
-    description: Access raw unsorted block images (UBI)
+    description: Access raw unsorted block images
     crit: suspicious
     conf: 0.8
     platforms: [linux]

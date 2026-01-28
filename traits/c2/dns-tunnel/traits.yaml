@@ -191,7 +191,7 @@ composite_rules:
 
   # DNS over HTTPS for C2
   - id: doh-c2
-    desc: DNS over HTTPS potential C2 channel
+    desc: DNS over HTTPS potential C2
     crit: suspicious
     conf: 0.75
     count_min: 1

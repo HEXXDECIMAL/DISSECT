@@ -25,7 +25,7 @@ traits:
 
   # Cipher Creation
   - id: createCipheriv
-    desc: Create cipher with IV (symmetric encryption)
+    desc: Create cipher with IV (symmetric
     crit: notable
     conf: 0.85
     mbc: "C0027"
@@ -36,7 +36,7 @@ traits:
       pattern: "createCipheriv"
 
   - id: createDecipheriv
-    desc: Create decipher with IV (symmetric decryption)
+    desc: Create decipher with IV (symmetric
     crit: notable
     conf: 0.85
     mbc: "C0027"
@@ -131,7 +131,7 @@ traits:
 
   # === Key/IV Handling micro-traits ===
   - id: hardcoded-key-pattern
-    desc: Hardcoded encryption key in string literal
+    desc: Hardcoded encryption key in string
     crit: suspicious
     conf: 0.8
     mbc: "C0027"
@@ -151,7 +151,7 @@ traits:
       regex: "\\biv\\s*[,:=]\\s*['\"][A-Za-z0-9+/=]{16,}['\"]"
 
   - id: buffer-from-hex
-    desc: Buffer.from with long hex string (potential key/IV)
+    desc: Buffer.from with long hex string
     crit: notable
     conf: 0.75
     mbc: "C0027"
@@ -309,7 +309,7 @@ composite_rules:
 
   # Encrypted C2 channel detection (migrated from YARA)
   - id: encrypted-c2
-    desc: AES encryption combined with network requests (encrypted C2)
+    desc: AES encryption combined with network
     crit: suspicious
     conf: 0.9
     mbc: "C0027"
@@ -322,7 +322,7 @@ composite_rules:
 
   # Compression with encryption (migrated from YARA)
   - id: gzip-with-crypto
-    desc: Gzip compression with encryption (obfuscated payload)
+    desc: Gzip compression with encryption (obfuscated
     crit: suspicious
     conf: 0.85
     mbc: "C0027"

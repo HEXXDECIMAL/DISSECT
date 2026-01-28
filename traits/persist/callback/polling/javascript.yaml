@@ -51,7 +51,7 @@ traits:
 
 composite_rules:
   - id: setInterval-http
-    description: setInterval with HTTP calls (persistent polling)
+    description: setInterval with HTTP calls (persistent
     crit: suspicious
     confidence: 0.85
     attack: "T1053"

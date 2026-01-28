@@ -25,7 +25,7 @@ traits:
       min: 3
 
   - id: go-direct-syscall
-    desc: Uses syscall package for direct system calls
+    desc: Uses syscall package for direct
     crit: notable
     conf: 0.8
     if:
@@ -34,7 +34,7 @@ traits:
       min: 1
 
   - id: go-os-startprocess
-    desc: Uses os.StartProcess for low-level process creation
+    desc: Uses os.StartProcess for low-level process
     crit: notable
     conf: 0.85
     if:

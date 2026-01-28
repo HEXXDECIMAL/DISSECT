@@ -227,7 +227,7 @@ composite_rules:
       - { id: loadlibraryexw-symbol }
 
   - id: library-loaders
-    desc: Library loading functions (CDLL or LoadLibrary)
+    desc: Library loading functions (CDLL or
     for: [python]
     any:
       - { id: cdll-keyword }
@@ -253,7 +253,7 @@ composite_rules:
       - { id: getprocaddress-symbol }
 
   - id: local-load
-    desc: Loading dynamic library from local path
+    desc: Loading dynamic library from local
     crit: suspicious
     conf: 0.9
     attack: "T1574"

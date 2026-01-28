@@ -23,7 +23,7 @@ traits:
       pattern: readlink|readlinkat
 
   - id: symlink-resolve
-    desc: Resolve symbolic links to canonical path
+    desc: Resolve symbolic links to canonical
     crit: inert
     conf: 0.66
     if:

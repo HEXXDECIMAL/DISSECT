@@ -155,7 +155,7 @@ traits:
       exact: "log.info"
 
   - id: log-info-title
-    desc: log.Info method (title case - Go style)
+    desc: log.Info method (title case -
     crit: inert
     conf: 0.5
     for: [go]
@@ -173,7 +173,7 @@ traits:
       exact: "log.debug"
 
   - id: log-debug-title
-    desc: log.Debug method (title case - Go style)
+    desc: log.Debug method (title case -
     crit: inert
     conf: 0.5
     for: [go]
@@ -191,7 +191,7 @@ traits:
       exact: "log.error"
 
   - id: log-error-title
-    desc: log.Error method (title case - Go style)
+    desc: log.Error method (title case -
     crit: inert
     conf: 0.5
     for: [go]
@@ -806,7 +806,7 @@ composite_rules:
   # NOTE: "test_" alone is too generic - Go runtime has internal test strings
   # Require multiple test-related indicators
   - id: has-tests
-    desc: Binary includes test code (unusual for production)
+    desc: Binary includes test code (unusual
     crit: inert
     conf: 0.5
     count_min: 2

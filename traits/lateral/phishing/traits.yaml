@@ -102,7 +102,7 @@ traits:
 
   # === Honeypot field pattern (complex regex - keep as-is) ===
   - id: honeypot-field-pattern
-    desc: Honeypot form field for bot detection
+    desc: Honeypot form field for bot
     crit: suspicious
     conf: 0.9
     for: [html, javascript]
@@ -157,7 +157,7 @@ traits:
       exact: "disabled=false"
 
   - id: disabled-false-spaced
-    desc: "disabled = false assignment (with spaces)"
+    desc: "disabled = false assignment (with"
     crit: inert
     conf: 0.6
     for: [javascript]
@@ -234,7 +234,7 @@ traits:
       word: "Sign-in"
 
   - id: ms-email-placeholder
-    desc: "Email, phone, or Skype placeholder text"
+    desc: "Email, phone, or Skype placeholder"
     crit: inert
     conf: 0.6
     for: [html]
@@ -547,7 +547,7 @@ traits:
       exact: ".xyz"
 
   - id: tk-tld
-    desc: .tk TLD (free domain, commonly abused)
+    desc: .tk TLD (free domain, commonly
     crit: inert
     conf: 0.6
     for: [html, javascript]
@@ -556,7 +556,7 @@ traits:
       exact: ".tk"
 
   - id: ml-tld
-    desc: .ml TLD (free domain, commonly abused)
+    desc: .ml TLD (free domain, commonly
     crit: inert
     conf: 0.6
     for: [html, javascript]
@@ -565,7 +565,7 @@ traits:
       exact: ".ml"
 
   - id: ga-tld
-    desc: .ga TLD (free domain, commonly abused)
+    desc: .ga TLD (free domain, commonly
     crit: inert
     conf: 0.6
     for: [html, javascript]
@@ -574,7 +574,7 @@ traits:
       exact: ".ga"
 
   - id: cf-tld
-    desc: .cf TLD (free domain, commonly abused)
+    desc: .cf TLD (free domain, commonly
     crit: inert
     conf: 0.6
     for: [html, javascript]
@@ -583,7 +583,7 @@ traits:
       exact: ".cf"
 
   - id: gq-tld
-    desc: .gq TLD (free domain, commonly abused)
+    desc: .gq TLD (free domain, commonly
     crit: inert
     conf: 0.6
     for: [html, javascript]
@@ -898,7 +898,7 @@ traits:
 
   # === Targeted email patterns (complex regex - keep as-is) ===
   - id: pre-filled-email-value
-    desc: Pre-filled email value attribute with readonly
+    desc: Pre-filled email value attribute with
     crit: suspicious
     conf: 0.9
     for: [html]
@@ -925,7 +925,7 @@ traits:
       exact: "recipient_email_placeholder"
 
   - id: multiple-email-addresses
-    desc: Multiple email addresses in quotes (pre-filled targeting)
+    desc: Multiple email addresses in quotes
     crit: suspicious
     conf: 0.85
     for: [html]
@@ -1057,7 +1057,7 @@ composite_rules:
       - {id: remove-disabled-attr}
 
   - id: human-verification
-    description: Requires human interaction before enabling actions
+    description: Requires human interaction before enabling
     crit: notable
     conf: 0.8
     for: [javascript, html]
@@ -1095,7 +1095,7 @@ composite_rules:
       - {id: microsoft-brand}
 
   - id: microsoft-signin-or-email
-    description: Microsoft signin text or email placeholder
+    description: Microsoft signin text or email
     for: [html]
     any:
       - {id: signin-text}
@@ -1186,7 +1186,7 @@ composite_rules:
       - {id: credential-placeholders}
 
   - id: login-form
-    description: Suspicious login form with credential inputs
+    description: Suspicious login form with credential
     crit: suspicious
     conf: 0.85
     attack: T1566
@@ -1222,7 +1222,7 @@ composite_rules:
       - {id: verify-word}
 
   - id: document-indicators
-    description: Document file extensions or action keywords
+    description: Document file extensions or action
     for: [html]
     any:
       - {id: document-extensions}
@@ -1269,14 +1269,14 @@ composite_rules:
       - {id: click-tld}
 
   - id: form-submission-patterns
-    description: Form submission or location redirect patterns
+    description: Form submission or location redirect
     for: [javascript]
     any:
       - {id: location-redirect}
       - {id: submit-listener}
 
   - id: external-form-action
-    description: Form submits to suspicious external domain
+    description: Form submits to suspicious external
     crit: suspicious
     conf: 0.85
     attack: T1566
@@ -1375,7 +1375,7 @@ composite_rules:
       - {id: icon-keyword}
 
   - id: brand-cdn-icons
-    description: External CDN icons for brand impersonation
+    description: External CDN icons for brand
     crit: notable
     conf: 0.8
     attack: T1566.002
@@ -1387,7 +1387,7 @@ composite_rules:
 
   # Targeted email pre-filling
   - id: readonly-email-value
-    description: Pre-filled email value with readonly attribute
+    description: Pre-filled email value with readonly
     for: [html]
     all:
       - {id: pre-filled-email-value}

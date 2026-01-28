@@ -247,7 +247,7 @@ composite_rules:
 
   # Mirai default credentials - requires 3+ credential strings
   - id: mirai-creds
-    description: Mirai botnet default credential list detected
+    description: Mirai botnet default credential list
     crit: hostile
     confidence: 0.95
     attack: "T1110.001"

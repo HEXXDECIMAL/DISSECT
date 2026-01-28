@@ -107,7 +107,7 @@ traits:
       - id: feat/encoding/base64/base64-string
 
   - id: xor-key-multibyte-16-32
-    desc: 16-32 byte random-looking key in const section
+    desc: 16-32 byte random-looking key in
     crit: notable
     conf: 0.7
     for: [elf, macho, pe]

@@ -220,7 +220,7 @@ composite_rules:
   # Delayed Execution (evasion pattern)
   # ============================================
   - id: delayed-shell
-    desc: "Shell execution with delay (sandbox evasion)"
+    desc: "Shell execution with delay (sandbox"
     crit: suspicious
     conf: 0.85
     attack: "T1497"
@@ -261,7 +261,7 @@ composite_rules:
   # Dropper Pattern
   # ============================================
   - id: dropper
-    desc: "Loads external script then executes shell"
+    desc: "Loads external script then executes"
     crit: suspicious
     conf: 0.9
     for: [applescript]
