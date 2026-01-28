@@ -162,16 +162,6 @@ fn risk_emoji(crit: &Criticality) -> &'static str {
 }
 
 /// Get risk level name
-fn risk_name(crit: &Criticality) -> &'static str {
-    match crit {
-        Criticality::Filtered => "filtered",
-        Criticality::Inert => "inert",
-        Criticality::Notable => "notable",
-        Criticality::Suspicious => "suspicious",
-        Criticality::Hostile => "hostile",
-    }
-}
-
 /// Split trait ID into namespace and rest (e.g., "intel/discover/process/getuid" -> ("intel", "discover/process/getuid"))
 /// For IDs without a slash, use the ID itself as both namespace and rest
 fn split_trait_id(id: &str) -> (String, String) {
@@ -186,31 +176,36 @@ fn split_trait_id(id: &str) -> (String, String) {
 /// Convert namespace to long name, falling back to original if no mapping exists
 fn namespace_long_name(ns: &str) -> &str {
     match ns {
-        "c2" => "command & control",
+        "c2" => "C2",
         "intel" => "discovery",
-        "crypto" => "cryptography",
+        "crypto" => "crypto",
         "exfil" => "exfiltration",
         "exec" => "execution",
         "fs" => "filesystem",
         "hw" => "hardware",
-        "net" => "networking",
-        "os" => "operating-system",
+        "net" => "network",
+        "os" => "OS",
         "3P" => "third-party",
         "persistence" => "persistence",
         "anti-analysis" => "anti-analysis",
-        "anti-static" => "anti-static analysis",
-        "evasion" => "defense evasion",
+        "anti-static" => "static evasion",
+        "evasion" => "evasion",
         "privesc" => "privilege escalation",
         "process" => "process",
         "mem" => "memory",
         "data" => "data",
         "impact" => "impact",
         "access" => "access",
-        "credential" => "credential access",
+        "credential" => "credentials",
+        "cred" => "credentials",
         "lateral" => "lateral movement",
         "kernel" => "kernel",
         "reflect" => "reflection",
         "archive" => "archive",
+        "comm" => "network",
+        "collect" => "collection",
+        "feat" => "features",
+        "known-malware" => "known malware",
         _ => ns,
     }
 }
@@ -223,6 +218,25 @@ const EVIDENCE_MAX_WIDTH: usize = 80;
 fn strip_ansi(s: &str) -> String {
     let re = regex::Regex::new(r"\x1b\[[0-9;]*m").unwrap();
     re.replace_all(s, "").to_string()
+}
+
+/// Make descriptions more terse by removing redundant explanatory parentheticals
+fn terse_description(desc: &str) -> String {
+    // Remove common verbose patterns that are redundant given the context
+    desc.replace(" (timing attacks or sandbox detection)", "")
+        .replace(" (C2 communication pattern)", "")
+        .replace(" (comprehensive stealer)", "")
+        .replace(" (monolithic multicall binary)", "")
+        .replace(" (packer pattern)", "")
+        .replace(" (potential stealer)", "")
+        .replace(" (potential keylogger)", "")
+        .replace(" (hardcoded alphabet + decode table)", "")
+        .replace(" reveals directory contents", "")
+        .replace(" (opendir + readdir + stat)", "")
+        .replace(".DS_Store ", "")
+        .replace(" (excluding known legitimate)", "")
+        .trim()
+        .to_string()
 }
 
 fn format_evidence(finding: &Finding) -> String {
@@ -281,12 +295,7 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
 
     // File path (no file-level criticality until ML pipeline is ready)
     output.push_str(&format!("├─ {}\n", report.target.path.bright_white()));
-
-    // Generate and display summary for hostile/suspicious content
-    let summary = generate_summary(report);
-    if summary.risk_level >= Criticality::Suspicious || summary.malware_family.is_some() {
-        output.push_str(&format_summary(&summary));
-    }
+    output.push_str("│\n");
 
     // Combine all findings from report and YARA matches
     let mut all_findings: Vec<Finding> = report.findings.clone();
@@ -315,7 +324,7 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
     for finding in &filtered {
         let (ns, _) = split_trait_id(&finding.id);
 
-        // Update max criticality for namespace
+        // Track max criticality for namespace
         let current_max = ns_max_crit.get(&ns).unwrap_or(&Criticality::Inert);
         if &finding.crit > current_max {
             ns_max_crit.insert(ns.clone(), finding.crit);
@@ -324,21 +333,22 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
         by_namespace.entry(ns).or_default().push(finding);
     }
 
-    // Sort namespaces by long name
+    // Sort namespaces by criticality (highest first), then alphabetically by name
     let mut namespaces: Vec<String> = by_namespace.keys().cloned().collect();
-    namespaces.sort_by(|a, b| namespace_long_name(a).cmp(namespace_long_name(b)));
+    namespaces.sort_by(|a, b| {
+        let crit_a = ns_max_crit.get(a).unwrap_or(&Criticality::Inert);
+        let crit_b = ns_max_crit.get(b).unwrap_or(&Criticality::Inert);
+        crit_b
+            .cmp(crit_a)
+            .then_with(|| namespace_long_name(a).cmp(namespace_long_name(b)))
+    });
 
     // Render each namespace
     for ns in &namespaces {
         let findings = by_namespace.get(ns).unwrap();
-        let max_crit = ns_max_crit.get(ns).unwrap_or(&Criticality::Inert);
 
         // Namespace header
-        output.push_str(&format!(
-            "│     ≡ {} {}\n",
-            namespace_long_name(ns),
-            format!("[{}]", risk_name(max_crit)).bright_black()
-        ));
+        output.push_str(&format!("│     ≡ {}\n", namespace_long_name(ns)));
 
         // Sort findings by criticality (highest first), then ID
         let mut sorted_findings = findings.clone();
@@ -349,16 +359,13 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
             let (_, rest) = split_trait_id(&finding.id);
             let emoji = risk_emoji(&finding.crit);
             let evidence = format_evidence(finding);
+            let desc = terse_description(&finding.desc);
 
             // Colorize based on criticality
             let content = match finding.crit {
-                Criticality::Hostile => {
-                    format!("{} {} — {}", emoji, rest, finding.desc).bright_red()
-                }
-                Criticality::Suspicious => {
-                    format!("{} {} — {}", emoji, rest, finding.desc).bright_yellow()
-                }
-                _ => format!("{} {} — {}", emoji, rest, finding.desc).bright_cyan(),
+                Criticality::Hostile => format!("{} {} — {}", emoji, rest, desc).bright_red(),
+                Criticality::Suspicious => format!("{} {} — {}", emoji, rest, desc).bright_yellow(),
+                _ => format!("{} {} — {}", emoji, rest, desc).bright_cyan(),
             };
 
             if evidence.is_empty() {
@@ -382,6 +389,8 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
                 }
             }
         }
+        // Add blank line between sections for better visual separation
+        output.push_str("│\n");
     }
 
     output.push_str("│\n");
@@ -792,14 +801,6 @@ mod tests {
     }
 
     #[test]
-    fn test_risk_name() {
-        assert_eq!(risk_name(&Criticality::Inert), "inert");
-        assert_eq!(risk_name(&Criticality::Notable), "notable");
-        assert_eq!(risk_name(&Criticality::Suspicious), "suspicious");
-        assert_eq!(risk_name(&Criticality::Hostile), "hostile");
-    }
-
-    #[test]
     fn test_split_trait_id() {
         let (ns, rest) = split_trait_id("intel/discover/process");
         assert_eq!(ns, "intel");
@@ -815,11 +816,15 @@ mod tests {
 
     #[test]
     fn test_namespace_long_name() {
-        assert_eq!(namespace_long_name("c2"), "command & control");
+        assert_eq!(namespace_long_name("c2"), "C2");
         assert_eq!(namespace_long_name("intel"), "discovery");
-        assert_eq!(namespace_long_name("crypto"), "cryptography");
+        assert_eq!(namespace_long_name("crypto"), "crypto");
         assert_eq!(namespace_long_name("3P"), "third-party");
-        assert_eq!(namespace_long_name("credential"), "credential access");
+        assert_eq!(namespace_long_name("credential"), "credentials");
+        assert_eq!(namespace_long_name("cred"), "credentials");
+        assert_eq!(namespace_long_name("anti-static"), "static evasion");
+        assert_eq!(namespace_long_name("comm"), "network");
+        assert_eq!(namespace_long_name("collect"), "collection");
         assert_eq!(namespace_long_name("impact"), "impact");
         assert_eq!(namespace_long_name("unknown"), "unknown");
     }

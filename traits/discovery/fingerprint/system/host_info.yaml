@@ -10,73 +10,65 @@ traits:
     desc: "LanIP: label string"
     crit: inert
     conf: 0.7
-    for: [all]
     if:
       type: string
-      exact: "LanIP:"
+      regex: "LanIP:"
 
   - id: gateway-label
     desc: "GateWay: label string"
     crit: inert
     conf: 0.7
-    for: [all]
     if:
       type: string
-      exact: "GateWay:"
+      regex: "GateWay:"
 
   - id: osinfo-label
     desc: "OSInfo: label string"
     crit: inert
     conf: 0.7
-    for: [all]
     if:
       type: string
-      exact: "OSInfo:"
+      regex: "OSInfo:"
 
   - id: machinename-label
     desc: "MachineName: label string"
     crit: inert
     conf: 0.7
-    for: [all]
     if:
       type: string
-      exact: "MachineName:"
+      regex: "MachineName:"
 
   - id: domainname-label
     desc: "DomainName: label string"
     crit: inert
     conf: 0.7
-    for: [all]
     if:
       type: string
-      exact: "DomainName:"
+      regex: "DomainName:"
 
   - id: userame-label-typo
     desc: "Userame: label string (typo variant)"
     crit: inert
     conf: 0.75
-    for: [all]
     if:
       type: string
-      exact: "Userame:"
+      regex: "Userame:"
 
   - id: osbits-label
     desc: "OSBits: label string"
     crit: inert
     conf: 0.7
-    for: [all]
     if:
       type: string
-      exact: "OSBits:"
+      regex: "OSBits:"
 
   - id: processbits-label
     desc: "Process Bits: label string"
     crit: inert
     conf: 0.7
-    for: [all]
     if:
       type: string
-      exact: "Process Bits:"
+      regex: "Process Bits:"
 
 composite_rules:
   # Migrated from YARA - requires 3 of 8 patterns
@@ -84,7 +76,6 @@ composite_rules:
     desc: Detailed system information gathering strings
     crit: suspicious
     conf: 0.8
-    for: [all]
     count: 3
     any:
       - {id: lanip-label}
