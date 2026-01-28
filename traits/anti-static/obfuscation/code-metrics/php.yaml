@@ -108,7 +108,7 @@ composite_rules:
     desc: "PHP webshell obfuscation pattern"
     crit: hostile
     conf: 0.9
-    count: 2
+    count_min: 2
     any:
       - id: anti-static/obfuscation/code-metrics/php-encoded-strings
       - id: anti-static/obfuscation/code-metrics/php-single-long-line

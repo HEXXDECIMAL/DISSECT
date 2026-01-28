@@ -597,7 +597,7 @@ composite_rules:
     desc: "Likely C2 domain (suspicious TLD or dynamic DNS)"
     crit: suspicious
     conf: 0.85
-    count: 1
+    count_min: 1
     any:
       - id: hardcoded-domain-suspicious-pattern
       - id: dynamic-dns-domain-pattern
@@ -608,7 +608,7 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     attack: "T1105"
-    count: 1
+    count_min: 1
     any:
       - id: bullethost-cloud
       - id: anonfiles-com
@@ -628,7 +628,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     attack: "T1041"
-    count: 1
+    count_min: 1
     any:
       - id: php-collect
       - id: php-log
@@ -642,7 +642,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     attack: "T1071"
-    count: 1
+    count_min: 1
     any:
       - id: aws-api-gateway
       - id: azure-websites
@@ -656,7 +656,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     attack: "T1071"
-    count: 1
+    count_min: 1
     any:
       - id: ngrok-io
       - id: ngrok-free-app
@@ -667,7 +667,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     attack: "T1102"
-    count: 1
+    count_min: 1
     any:
       - id: pastebin-com
       - id: hastebin-com
@@ -683,7 +683,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     attack: "T1071"
-    count: 1
+    count_min: 1
     any:
       - id: replit-dev
       - id: repl-co
@@ -694,7 +694,7 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     attack: "T1572"
-    count: 1
+    count_min: 1
     any:
       - id: chisel-client
       - id: chisel-server

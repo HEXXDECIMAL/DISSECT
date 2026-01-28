@@ -40,7 +40,7 @@ composite_rules:
     desc: References gdb/lldb debugger
     crit: inert
     conf: 0.4
-    count: 1
+    count_min: 1
     any:
       - id: gdb-ref
       - id: lldb-ref

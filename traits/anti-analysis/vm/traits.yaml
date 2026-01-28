@@ -314,7 +314,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [javascript, typescript, python, shell]
-    count: 1
+    count_min: 1
     any:
       - id: vendor-xen-upper
       - id: vendor-xen-title
@@ -325,7 +325,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [javascript, typescript, python, shell]
-    count: 1
+    count_min: 1
     any:
       - id: vendor-kvm-upper
       - id: vendor-kvm-repeat
@@ -336,7 +336,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [javascript, typescript, python, shell]
-    count: 1
+    count_min: 1
     any:
       - id: vendor-virtualbox
       - id: vendor-vbox-short
@@ -347,7 +347,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [javascript, typescript, python, shell]
-    count: 1
+    count_min: 1
     any:
       - id: vendor-hyperv-dash
       - id: vendor-microsoft-hv
@@ -357,7 +357,7 @@ composite_rules:
     desc: Checks for hypervisor vendor strings
     crit: suspicious
     conf: 0.85
-    count: 1
+    count_min: 1
     any:
       - id: vendor-xen
       - id: vendor-kvm
@@ -373,7 +373,7 @@ composite_rules:
     desc: DMI/SMBIOS check for VM detection
     crit: suspicious
     conf: 0.85
-    count: 1
+    count_min: 1
     any:
       - id: os/sysinfo/dmi-sysfs
       - id: os/sysinfo/dmidecode
@@ -386,7 +386,7 @@ composite_rules:
     desc: Checks for VM-specific files
     crit: suspicious
     conf: 0.85
-    count: 1
+    count_min: 1
     any:
       - id: file-vbox-guest
       - id: file-vbox-mouse
@@ -402,7 +402,7 @@ composite_rules:
     desc: Checks for VM MAC address prefixes
     crit: suspicious
     conf: 0.85
-    count: 1
+    count_min: 1
     any:
       - id: mac-vmware-1
       - id: mac-vmware-2
@@ -418,7 +418,7 @@ composite_rules:
     desc: Container environment detection
     crit: notable
     conf: 0.75
-    count: 1
+    count_min: 1
     any:
       - id: os/container/docker/dockerenv
       - id: os/container/docker/docker-sock
@@ -431,7 +431,7 @@ composite_rules:
     desc: Multiple VM detection techniques (evasion attempt)
     crit: suspicious
     conf: 0.95
-    count: 3
+    count_min: 3
     any:
       - id: vendor-vmware
       - id: vendor-vbox

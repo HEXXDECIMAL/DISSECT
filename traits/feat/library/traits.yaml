@@ -90,7 +90,7 @@ composite_rules:
     desc: Known network library markers
     crit: inert
     conf: 0.5
-    count: 1
+    count_min: 1
     any:
       - id: libssl-ref
       - id: libcrypto-ref
@@ -101,7 +101,7 @@ composite_rules:
     desc: Known system library markers
     crit: inert
     conf: 0.5
-    count: 1
+    count_min: 1
     any:
       - id: gnu-coreutils-ref
       - id: glibc-ref
@@ -111,7 +111,7 @@ composite_rules:
     desc: Compression library markers
     crit: inert
     conf: 0.4
-    count: 1
+    count_min: 1
     any:
       - id: lzma-ref
       - id: xz-ref

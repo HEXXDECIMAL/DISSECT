@@ -40,7 +40,7 @@ composite_rules:
     desc: ZIP archive upload
     crit: notable
     conf: 0.75
-    count: 1
+    count_min: 1
     any:
       - id: curl-zip
       - id: post-zip

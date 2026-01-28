@@ -135,7 +135,7 @@ composite_rules:
     attack: "T1573"
     mbc: "C0027"
     for: [elf]
-    count: 1
+    count_min: 1
     any:
       - id: apt/gelsemium/rc4-key
       - id: apt/gelsemium/config-yara

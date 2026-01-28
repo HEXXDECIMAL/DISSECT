@@ -112,7 +112,7 @@ composite_rules:
     attack: "T1555"
     mbc: "B0028"
     file_types: [elf, macho]
-    count: 3
+    count_min: 3
     any:
       - id: stealer/beaver-tail/pdown
       - id: stealer/beaver-tail/upload-ldb

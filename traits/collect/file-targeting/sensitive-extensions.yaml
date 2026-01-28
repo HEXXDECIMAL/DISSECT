@@ -124,7 +124,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     attack: "T1552.004"
-    count: 2
+    count_min: 2
     any:
       - id: ppk-extension
       - id: pem-extension
@@ -138,7 +138,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     attack: "T1555"
-    count: 1
+    count_min: 1
     any:
       - id: wallet-extension
       - id: kdbx-extension
@@ -150,7 +150,7 @@ composite_rules:
     conf: 0.95
     attack: "T1005"
     mbc: "B0024"
-    count: 5
+    count_min: 5
     any:
       - id: ppk-extension
       - id: pem-extension

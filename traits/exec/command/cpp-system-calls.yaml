@@ -51,7 +51,7 @@ composite_rules:
     attack: "T1059.004"
     all:
       - id: cpp-stdlib
-    count: 1
+    count_min: 1
     any:
       - id: system-call
       - id: popen-call

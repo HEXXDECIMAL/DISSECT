@@ -130,7 +130,7 @@ composite_rules:
     description: "Temporary file creation (tempfile module)"
     conf: 0.7
     crit: inert
-    count: 1
+    count_min: 1
     any:
       - id: python-tempfile-named
       - id: python-tempfile-mkstemp
@@ -139,7 +139,7 @@ composite_rules:
   - id: python-http-request
     description: "HTTP request via requests or urllib"
     conf: 0.8
-    count: 1
+    count_min: 1
     any:
       - id: python-requests-get
       - id: python-requests-post
@@ -149,7 +149,7 @@ composite_rules:
   - id: python-binary-write-pattern
     description: "Binary file write pattern"
     conf: 0.85
-    count: 1
+    count_min: 1
     any:
       - id: python-open-write-binary
       - id: python-pathlib-write-bytes

@@ -106,7 +106,7 @@ composite_rules:
     crit: notable
     conf: 0.8
     for: [applescript]
-    count: 1
+    count_min: 1
     any:
       - id: exec/command/do-script
       - id: exec/command/activate

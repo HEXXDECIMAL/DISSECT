@@ -59,7 +59,7 @@ composite_rules:
     desc: "Invoke-Obfuscation tool output pattern"
     crit: hostile
     conf: 0.9
-    count: 2
+    count_min: 2
     any:
       - id: anti-static/obfuscation/code-metrics/ps-encoded-commands
       - id: anti-static/obfuscation/code-metrics/ps-obfuscated-vars

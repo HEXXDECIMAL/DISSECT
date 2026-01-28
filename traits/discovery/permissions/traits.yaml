@@ -133,7 +133,7 @@ composite_rules:
     conf: 0.7
     attack: "T1069"
     for: [elf]
-    count: 1
+    count_min: 1
     any:
       - id: cap-get-proc
       - id: cap-set-proc
@@ -169,7 +169,7 @@ composite_rules:
     attack: "T1069"
     mbc: "B0046"
     for: [elf, shell]
-    count: 1
+    count_min: 1
     any:
       - id: linux-caps-via-capsh
       - id: linux-caps-via-api

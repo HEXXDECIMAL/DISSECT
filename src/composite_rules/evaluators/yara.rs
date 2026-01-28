@@ -289,6 +289,41 @@ fn match_pattern_at(data: &[u8], pos: usize, segments: &[HexSegment]) -> bool {
     true
 }
 
+/// Extract bytes corresponding to '??' wildcards in the matched pattern
+fn extract_wildcard_bytes(data: &[u8], pos: usize, segments: &[HexSegment]) -> Option<Vec<u8>> {
+    let mut extracted = Vec::new();
+    let mut offset = pos;
+
+    for (i, segment) in segments.iter().enumerate() {
+        match segment {
+            HexSegment::Bytes(bytes) => {
+                offset += bytes.len();
+            }
+            HexSegment::Wildcard => {
+                if offset < data.len() {
+                    extracted.push(data[offset]);
+                    offset += 1;
+                }
+            }
+            HexSegment::Gap { min, max } => {
+                if min == max {
+                    offset += min;
+                } else {
+                    // Find which gap length worked
+                    let remaining_segments = &segments[i + 1..];
+                    for gap_len in *min..=*max {
+                        if match_pattern_at(data, offset + gap_len, remaining_segments) {
+                            offset += gap_len;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    Some(extracted)
+}
+
 /// Evaluate hex pattern condition
 /// Uses YARA-style atom extraction for efficient searching:
 /// 1. Extract longest fixed byte sequence from pattern
@@ -299,6 +334,7 @@ pub fn eval_hex(
     offset: Option<usize>,
     offset_range: Option<(usize, usize)>,
     min_count: usize,
+    extract_wildcards: bool,
     ctx: &EvaluationContext,
 ) -> ConditionResult {
     let data = ctx.binary_data;
@@ -412,11 +448,26 @@ pub fn eval_hex(
             matches
                 .iter()
                 .take(5)
-                .map(|pos| Evidence {
-                    method: "hex".to_string(),
-                    source: "binary".to_string(),
-                    value: pattern.to_string(),
-                    location: Some(format!("0x{:x}", pos)),
+                .map(|pos| {
+                    let value = if extract_wildcards {
+                        if let Some(extracted) = extract_wildcard_bytes(data, *pos, &segments) {
+                            // Format extracted bytes as hex string
+                            let hex_str: Vec<String> =
+                                extracted.iter().map(|b| format!("{:02x}", b)).collect();
+                            format!("extracted: {}", hex_str.join(" "))
+                        } else {
+                            pattern.to_string()
+                        }
+                    } else {
+                        pattern.to_string()
+                    };
+
+                    Evidence {
+                        method: "hex".to_string(),
+                        source: "binary".to_string(),
+                        value,
+                        location: Some(format!("0x{:x}", pos)),
+                    }
                 })
                 .collect()
         } else {

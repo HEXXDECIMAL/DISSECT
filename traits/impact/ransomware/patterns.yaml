@@ -393,7 +393,7 @@ composite_rules:
     crit: inert
     conf: 0.6
     for: [javascript, typescript, python]
-    count: 2
+    count_min: 2
     any:
       - id: rsa-keyword
       - id: generate-keypair
@@ -418,7 +418,7 @@ composite_rules:
     crit: inert
     conf: 0.5
     for: [javascript, typescript, python]
-    count: 1
+    count_min: 1
     any:
       - id: readdir-sync
       - id: walk-sync
@@ -432,7 +432,7 @@ composite_rules:
     crit: inert
     conf: 0.5
     for: [javascript, typescript, python]
-    count: 1
+    count_min: 1
     any:
       - id: encrypt-fn
       - id: cipher-keyword
@@ -445,7 +445,7 @@ composite_rules:
     crit: inert
     conf: 0.4
     for: [javascript, typescript, python]
-    count: 1
+    count_min: 1
     any:
       - id: writefile-sync
       - id: writefile-fn
@@ -468,7 +468,7 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     for: [javascript, typescript, python, shell]
-    count: 2
+    count_min: 2
     any:
       - id: files-encrypted-msg
       - id: pay-bitcoin-msg
@@ -484,7 +484,7 @@ composite_rules:
     crit: inert
     conf: 0.4
     for: [javascript, typescript, python]
-    count: 1
+    count_min: 1
     any:
       - id: rename-sync
       - id: rename-fn
@@ -496,7 +496,7 @@ composite_rules:
     crit: inert
     conf: 0.6
     for: [javascript, typescript, python]
-    count: 1
+    count_min: 1
     any:
       - id: ext-encrypted
       - id: ext-locked
@@ -521,7 +521,7 @@ composite_rules:
     for: [javascript, typescript]
     all:
       - id: medusa-name
-    count: 1
+    count_min: 1
     any:
       - id: polymorphic-keyword
       - id: mutate-keyword
@@ -534,7 +534,7 @@ composite_rules:
     conf: 0.95
     attack: "T1490"
     for: [javascript, powershell, shell]
-    count: 1
+    count_min: 1
     any:
       - id: vssadmin-delete
       - id: wmic-shadowcopy

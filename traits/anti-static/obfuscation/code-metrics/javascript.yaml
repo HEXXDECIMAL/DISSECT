@@ -50,7 +50,7 @@ composite_rules:
     desc: "JavaScript obfuscator tool output"
     crit: suspicious
     conf: 0.9
-    count: 3
+    count_min: 3
     any:
       - id: anti-static/obfuscation/code-metrics/high-entropy-identifiers
       - id: anti-static/obfuscation/code-metrics/js-arrow-function-abuse

@@ -274,9 +274,9 @@ pub(crate) fn apply_composite_defaults(
         r#for: file_types,
         all: requires_all,
         any: raw.any,
-        count: raw.count,
-        min_count: raw.min_count,
-        max_count: raw.max_count,
+        count_exact: raw.count_exact,
+        count_min: raw.count_min,
+        count_max: raw.count_max,
         none: raw.none,
     }
 }

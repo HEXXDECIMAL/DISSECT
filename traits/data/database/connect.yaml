@@ -516,7 +516,7 @@ composite_rules:
     desc: PostgreSQL database connectivity
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: libpq
       - id: pqconnect
@@ -531,7 +531,7 @@ composite_rules:
     desc: MySQL/MariaDB database connectivity
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: libmysql
       - id: mysql-url
@@ -545,7 +545,7 @@ composite_rules:
     desc: SQLite database
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: sqlite3-string
       - id: sqlite3-open
@@ -558,7 +558,7 @@ composite_rules:
     desc: MongoDB database connectivity
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: mongodb-url
       - id: mongodb-srv-url
@@ -571,7 +571,7 @@ composite_rules:
     desc: Redis database connectivity
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: redis-url
       - id: rediss-url
@@ -585,7 +585,7 @@ composite_rules:
     desc: Elasticsearch connectivity
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: elasticsearch-string
       - id: elastic-co
@@ -598,7 +598,7 @@ composite_rules:
     desc: Apache Cassandra connectivity
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: cassandra-string
       - id: gocql
@@ -610,7 +610,7 @@ composite_rules:
     desc: AWS DynamoDB connectivity
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: dynamodb-string
       - id: aws-sdk
@@ -620,7 +620,7 @@ composite_rules:
     desc: InfluxDB time series database
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: influxdb-string
       - id: influxdata
@@ -630,7 +630,7 @@ composite_rules:
     desc: SQL statement keywords
     crit: notable
     conf: 0.5
-    count: 3
+    count_min: 3
     any:
       - id: sql-select
       - id: sql-insert
@@ -643,7 +643,7 @@ composite_rules:
     desc: Generic SQL database patterns
     crit: benign
     conf: 0.8
-    count: 1
+    count_min: 1
     any:
       - id: sql-keywords
       - id: database-sql-import
@@ -654,7 +654,7 @@ composite_rules:
     desc: ORM framework usage
     crit: benign
     conf: 0.85
-    count: 1
+    count_min: 1
     any:
       - id: gorm-io
       - id: sqlalchemy
@@ -669,7 +669,7 @@ composite_rules:
     desc: Database connection pooling
     crit: benign
     conf: 0.85
-    count: 1
+    count_min: 1
     any:
       - id: pgxpool
       - id: pool-pool

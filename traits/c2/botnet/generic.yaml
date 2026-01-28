@@ -104,7 +104,7 @@ composite_rules:
     desc: Botnet-related patterns
     crit: suspicious
     conf: 0.75
-    count: 1
+    count_min: 1
     any:
       - id: botnet-term
       - id: bot-net-term
@@ -115,7 +115,7 @@ composite_rules:
     desc: Zombie botnet specific patterns
     crit: suspicious
     conf: 0.6
-    count: 1
+    count_min: 1
     any:
       - id: zombie-bot
       - id: bot-zombie
@@ -124,7 +124,7 @@ composite_rules:
     desc: Bot agent patterns
     crit: suspicious
     conf: 0.66
-    count: 1
+    count_min: 1
     any:
       - id: bot-agent
       - id: agent-bot

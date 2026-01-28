@@ -299,7 +299,7 @@ composite_rules:
     attack: "T1048"
     mbc: "B0030"
     for: [python, javascript]
-    count: 2
+    count_min: 2
     any:
       - { id: http-b64 }
       - { id: https-b64 }

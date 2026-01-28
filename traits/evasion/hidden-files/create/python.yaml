@@ -111,7 +111,7 @@ composite_rules:
     desc: File write or directory creation
     crit: notable
     conf: 0.8
-    count: 1
+    count_min: 1
     any:
       - id: python-os-makedirs
       - id: python-open-write

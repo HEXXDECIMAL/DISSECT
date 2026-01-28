@@ -251,8 +251,7 @@ composite_rules:
     all:
       - id: cosmanking-cargo-path
       - id: ureq-source-paths
-        count: 2
-
+        count_min: 2
   - id: dropper/rust/vget-specific
     description: "Rust-based downloader (ureq) with specific artifacts"
     crit: suspicious

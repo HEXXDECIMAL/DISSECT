@@ -128,7 +128,7 @@ composite_rules:
     mbc: "B0007"
     attack: "T1497.001"
     conf: 0.8
-    count: 1
+    count_min: 1
     any:
       - id: hostname-19olltd
       - id: hostname-b0t93d6
@@ -144,7 +144,7 @@ composite_rules:
     mbc: "B0007"
     attack: "T1497.001"
     conf: 0.7
-    count: 1
+    count_min: 1
     any:
       - id: path-c-analysis
       - id: path-c-sandbox

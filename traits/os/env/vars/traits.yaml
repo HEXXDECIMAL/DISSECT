@@ -51,7 +51,7 @@ composite_rules:
     desc: Environment variable access functions
     crit: notable
     conf: 0.4
-    count: 1
+    count_min: 1
     any:
       - id: getenv
       - id: setenv
@@ -62,7 +62,7 @@ composite_rules:
     desc: Environment variable modification
     crit: notable
     conf: 0.5
-    count: 1
+    count_min: 1
     any:
       - id: setenv
       - id: putenv

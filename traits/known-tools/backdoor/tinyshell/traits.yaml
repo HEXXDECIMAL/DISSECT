@@ -96,7 +96,7 @@ composite_rules:
     attack: "T1059.004"
     mbc: "B0022"
     file_types: [elf]
-    count: 2
+    count_min: 2
     any:
       - id: backdoor/tinyshell/c-runshell
       - id: backdoor/tinyshell/c-getfile

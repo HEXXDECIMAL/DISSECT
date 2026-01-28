@@ -93,7 +93,7 @@ composite_rules:
     conf: 0.95
     attack: "T1059.007"
     for: [javascript]
-    count: 1
+    count_min: 1
     any:
       - id: eval-as-first-arg
       - id: eval-as-last-arg
@@ -104,7 +104,7 @@ composite_rules:
     conf: 0.95
     attack: "T1059.007"
     for: [javascript]
-    count: 1
+    count_min: 1
     any:
       - id: new-function-constructor
       - id: function-constructor-call
@@ -115,7 +115,7 @@ composite_rules:
     conf: 0.85
     attack: "T1059.007"
     for: [javascript]
-    count: 1
+    count_min: 1
     any:
       - id: vm-runIn-method
       - id: runInContext-call

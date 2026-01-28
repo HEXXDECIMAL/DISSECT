@@ -234,7 +234,7 @@ composite_rules:
     attack: "T1556"
     mbc: "E1056"
     file_types: [elf]
-    count: 2
+    count_min: 2
     any:
       - id: rootkit/medusa/sniff-ssh
       - id: rootkit/medusa/sshpass-file
@@ -250,7 +250,7 @@ composite_rules:
     attack: "T1574.006"
     mbc: "F0015"
     file_types: [elf]
-    count: 2
+    count_min: 2
     any:
       - id: rootkit/medusa/libdsx
       - id: rootkit/medusa/backup-ld

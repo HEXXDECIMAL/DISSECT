@@ -51,7 +51,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     for: [python]
-    count: 1
+    count_min: 1
     any:
       - id: pyperclip-paste
       - id: clipboard-get
@@ -64,7 +64,7 @@ composite_rules:
     mbc: "F0002"
     attack: "T1056.001"
     for: [python]
-    count: 1
+    count_min: 1
     any:
       - id: pynput-keyboard
       - id: keyboard-on-press

@@ -356,7 +356,7 @@ composite_rules:
     desc: References LD_PRELOAD environment variable
     crit: notable
     conf: 0.8
-    count: 1
+    count_min: 1
     any:
       - id: ld-preload-env
       - id: ld-library-path-env
@@ -366,7 +366,7 @@ composite_rules:
     desc: Hooking infrastructure (dlsym + RTLD_NEXT)
     crit: suspicious
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: dlsym-rtld-next-pattern
     all:
@@ -380,7 +380,7 @@ composite_rules:
     conf: 0.9
     mbc: "F0015"
     attack: "T1574.006"
-    count: 1
+    count_min: 1
     any:
       - id: dlsym-rtld-next-pattern
       - id: hook-infrastructure
@@ -390,7 +390,7 @@ composite_rules:
     desc: Multiple libc functions commonly hooked
     crit: inert
     conf: 0.5
-    count: 5
+    count_min: 5
     any:
       - id: fopen-string
       - id: open64-string
@@ -413,7 +413,7 @@ composite_rules:
     desc: Hook implementation indicator
     crit: notable
     conf: 0.7
-    count: 1
+    count_min: 1
     any:
       - id: dlsym-call
       - id: rtld-next-ref
@@ -448,7 +448,7 @@ composite_rules:
     mbc: "F0015"
     attack: "T1574.006"
     for: [elf]
-    count: 1
+    count_min: 1
     any:
       - id: skullseclabs-string
       - id: dnscat-string
@@ -463,7 +463,7 @@ composite_rules:
     crit: inert
     conf: 0.4
     for: [elf, c]
-    count: 3
+    count_min: 3
     any:
       - id: proc-self-string
       - id: proc-pid-pattern
@@ -477,7 +477,7 @@ composite_rules:
     mbc: "F0015"
     attack: "T1574.006"
     for: [elf, c]
-    count: 1
+    count_min: 1
     any:
       - id: hide-pid-string
       - id: hidden-proc-string
@@ -491,7 +491,7 @@ composite_rules:
     mbc: "F0015"
     attack: "T1574.006"
     for: [elf]
-    count: 1
+    count_min: 1
     any:
       - id: backup-ld-string
       - id: orig-ld-string

@@ -117,7 +117,7 @@ composite_rules:
     desc: "Decoding functions for encoded payloads"
     crit: notable
     conf: 0.7
-    count: 1
+    count_min: 1
     any:
       - id: b64decode-call
       - id: fromhex-call

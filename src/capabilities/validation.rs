@@ -14,15 +14,16 @@ use std::collections::HashMap;
 
 use super::parsing::parse_file_types;
 
-/// Calculate the true complexity of a composite rule, recursively expanding Trait references
+/// Calculate the complexity of a composite rule
 /// Complexity is:
 /// - File type filter (not "all"): +1
-/// - Each direct condition (Symbol, String, Structure, etc.): +1
-/// - Each Trait reference: complexity of that trait (recursive)
+/// - `any` clause (if present): +1 regardless of number of elements
+/// - `all` clause: +number of elements
+/// - `none` clause (if present): +1 regardless of number of elements
 pub(crate) fn calculate_composite_complexity(
     rule_id: &str,
     all_composites: &[CompositeTrait],
-    all_traits: &[TraitDefinition],
+    _all_traits: &[TraitDefinition],
     cache: &mut HashMap<String, usize>,
     visiting: &mut std::collections::HashSet<String>,
 ) -> usize {
@@ -55,47 +56,24 @@ pub(crate) fn calculate_composite_complexity(
         complexity += 1;
     }
 
-    // Count conditions
+    // `all` clause: count each element
     if let Some(ref conditions) = rule.all {
-        for cond in conditions {
-            complexity +=
-                count_condition_complexity(cond, all_composites, all_traits, cache, visiting);
-        }
+        complexity += conditions.len();
     }
-    if let Some(ref conditions) = rule.any {
-        for cond in conditions {
-            complexity +=
-                count_condition_complexity(cond, all_composites, all_traits, cache, visiting);
-        }
+
+    // `any` clause: +1 if present, regardless of size
+    if rule.any.is_some() {
+        complexity += 1;
     }
-    if let Some(ref conditions) = rule.none {
-        for cond in conditions {
-            complexity +=
-                count_condition_complexity(cond, all_composites, all_traits, cache, visiting);
-        }
+
+    // `none` clause: +1 if present, regardless of size
+    if rule.none.is_some() {
+        complexity += 1;
     }
 
     visiting.remove(rule_id);
     cache.insert(rule_id.to_string(), complexity);
     complexity
-}
-
-/// Count complexity of a single condition
-pub(crate) fn count_condition_complexity(
-    cond: &Condition,
-    all_composites: &[CompositeTrait],
-    all_traits: &[TraitDefinition],
-    cache: &mut HashMap<String, usize>,
-    visiting: &mut std::collections::HashSet<String>,
-) -> usize {
-    match cond {
-        Condition::Trait { id } => {
-            // Recursively calculate complexity of referenced trait
-            calculate_composite_complexity(id, all_composites, all_traits, cache, visiting)
-        }
-        // All other condition types count as 1
-        _ => 1,
-    }
 }
 
 /// Validate and downgrade HOSTILE composite rules that don't meet complexity requirements
@@ -286,9 +264,9 @@ pub(crate) fn simple_rule_to_composite_rule(rule: super::models::SimpleRule) -> 
             platforms: None,
         }]),
         any: None,
-        count: None,
-        min_count: None,
-        max_count: None,
+        count_exact: None,
+        count_min: None,
+        count_max: None,
         none: None,
     }
 }

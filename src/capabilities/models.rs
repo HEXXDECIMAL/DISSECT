@@ -80,12 +80,12 @@ pub(crate) struct RawCompositeRule {
     pub(crate) all: Option<Vec<crate::composite_rules::Condition>>,
     #[serde(default, alias = "requires_any", alias = "conditions")]
     pub(crate) any: Option<Vec<crate::composite_rules::Condition>>,
-    #[serde(default, alias = "requires_count")]
-    pub(crate) count: Option<usize>,
     #[serde(default)]
-    pub(crate) min_count: Option<usize>,
+    pub(crate) count_exact: Option<usize>,
     #[serde(default)]
-    pub(crate) max_count: Option<usize>,
+    pub(crate) count_min: Option<usize>,
+    #[serde(default)]
+    pub(crate) count_max: Option<usize>,
     #[serde(default, alias = "requires_none")]
     pub(crate) none: Option<Vec<crate::composite_rules::Condition>>,
     // Single condition (for simple composite rules)

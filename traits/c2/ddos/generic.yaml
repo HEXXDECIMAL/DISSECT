@@ -28,8 +28,7 @@ traits:
     if:
       type: string
       regex: "Mozilla/5\\.0"
-      min_count: 10
-
+      count_min: 10
   # === DDoS Terminology ===
   - id: attack-metrics
     desc: Performance metrics typical of DDoS tools (PPS/BPS)

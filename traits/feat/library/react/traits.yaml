@@ -65,7 +65,7 @@ composite_rules:
     desc: "File contains React library"
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - {id: version-banner}
       - {id: copyright}

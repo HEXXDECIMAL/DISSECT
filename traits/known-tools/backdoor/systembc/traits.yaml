@@ -89,7 +89,7 @@ composite_rules:
     attack: "T1090.001"
     mbc: "B0030"
     file_types: [elf, macho, pe, so, dylib, dll]
-    count: 2
+    count_min: 2
     any:
       - id: backdoor/systembc/artifact
       - id: crypto/rc4/communication

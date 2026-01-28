@@ -25,7 +25,7 @@ composite_rules:
     crit: notable
     conf: 0.8
     for: [pe, elf, macho, python, javascript]
-    count: 1
+    count_min: 1
     any:
       - id: azure-ai-openai
       - id: openai-ref

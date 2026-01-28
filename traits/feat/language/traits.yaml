@@ -582,7 +582,7 @@ composite_rules:
     desc: Go runtime functions
     crit: benign
     conf: 0.95
-    count: 3
+    count_min: 3
     any:
       - id: go-runtime-goexit
       - id: go-runtime-main
@@ -594,7 +594,7 @@ composite_rules:
     desc: Go garbage collector
     crit: benign
     conf: 0.95
-    count: 1
+    count_min: 1
     any:
       - id: go-gc-start
       - id: go-mallocgc
@@ -604,7 +604,7 @@ composite_rules:
     desc: CGo bindings
     crit: benign
     conf: 0.85
-    count: 2
+    count_min: 2
     any:
       - id: cgo-prefix
       - id: cgo-allocate
@@ -615,7 +615,7 @@ composite_rules:
     desc: Go language compiled binary
     crit: benign
     conf: 0.95
-    count: 1
+    count_min: 1
     any:
       - id: go-runtime
       - id: go-gc-with-runtime
@@ -637,7 +637,7 @@ composite_rules:
     desc: Go runtime function
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: go-runtime-goexit
       - id: go-runtime-main
@@ -658,7 +658,7 @@ composite_rules:
     desc: Rust panic functions
     crit: benign
     conf: 0.95
-    count: 2
+    count_min: 2
     any:
       - id: rust-panicked-at
       - id: rust-begin-unwind
@@ -669,7 +669,7 @@ composite_rules:
     desc: Rust core/std modules
     crit: benign
     conf: 0.95
-    count: 3
+    count_min: 3
     any:
       - id: rust-core-fmt
       - id: rust-core-ptr
@@ -684,7 +684,7 @@ composite_rules:
     desc: Rust language compiled binary
     crit: benign
     conf: 0.95
-    count: 1
+    count_min: 1
     any:
       - id: rust-panic-funcs
       - id: rust-core-std
@@ -704,7 +704,7 @@ composite_rules:
     desc: Rust core module
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: rust-core-fmt
       - id: rust-core-ptr
@@ -724,7 +724,7 @@ composite_rules:
     desc: C/C++ compiled binary
     crit: benign
     conf: 0.8
-    count: 1
+    count_min: 1
     any:
       - id: c-glibc
       - id: glibcxx-version
@@ -739,7 +739,7 @@ composite_rules:
     desc: Python C API functions
     crit: benign
     conf: 0.9
-    count: 3
+    count_min: 3
     any:
       - id: py-initialize
       - id: pyrun-prefix
@@ -751,7 +751,7 @@ composite_rules:
     desc: PyInstaller markers
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: pyiboot
       - id: pyinstaller-string
@@ -762,7 +762,7 @@ composite_rules:
     desc: Embedded Python interpreter or PyInstaller binary
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: python-py-funcs
       - id: python-pyinstaller
@@ -773,7 +773,7 @@ composite_rules:
     desc: JNI functions
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: jni-create-javavm
       - id: jni-onload
@@ -783,7 +783,7 @@ composite_rules:
     desc: JVM packages
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: java-lang
       - id: javax-package
@@ -793,7 +793,7 @@ composite_rules:
     desc: Java/JVM bytecode or native
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: java-class-magic
       - id: java-jni
@@ -805,7 +805,7 @@ composite_rules:
     desc: .NET CLR markers
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: mscoree
       - id: corexemain
@@ -816,7 +816,7 @@ composite_rules:
     desc: Mono markers
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: mono-prefix
       - id: mono-runtime
@@ -826,7 +826,7 @@ composite_rules:
     desc: .NET or Mono compiled binary
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: dotnet-clr
       - id: dotnet-mono
@@ -837,7 +837,7 @@ composite_rules:
     desc: V8 engine markers
     crit: benign
     conf: 0.85
-    count: 1
+    count_min: 1
     any:
       - id: v8-isolate
       - id: v8-context
@@ -847,7 +847,7 @@ composite_rules:
     desc: Node.js markers
     crit: benign
     conf: 0.85
-    count: 2
+    count_min: 2
     any:
       - id: node-namespace
       - id: libuv-string
@@ -858,7 +858,7 @@ composite_rules:
     desc: Node.js or V8 JavaScript binary
     crit: benign
     conf: 0.85
-    count: 1
+    count_min: 1
     any:
       - id: nodejs-v8
       - id: nodejs-node
@@ -870,7 +870,7 @@ composite_rules:
     desc: Nim language compiled binary
     crit: benign
     conf: 0.9
-    count: 2
+    count_min: 2
     any:
       - id: nimmain
       - id: nimgc
@@ -883,7 +883,7 @@ composite_rules:
     desc: Zig language compiled binary
     crit: benign
     conf: 0.9
-    count: 2
+    count_min: 2
     any:
       - id: zig-linux
       - id: zig-std-debug
@@ -896,7 +896,7 @@ composite_rules:
     desc: Hand-crafted or assembly-only binary
     crit: notable
     conf: 0.7
-    count: 1
+    count_min: 1
     any:
       - id: nasm-string
       - id: fasm-string

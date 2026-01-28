@@ -65,7 +65,7 @@ traits:
             $p6_raw = { DB 92 49 }
             $p6_src = "\\xDB\\x92\\x49" ascii
           condition:
-            3 of them
+            5 of them
         }
 
   # Mass file destruction (Go)
@@ -93,7 +93,7 @@ composite_rules:
     crit: suspicious
     conf: 0.99
     mbc: "B0031"
-    count: 2
+    count_min: 2
     any:
       - id: impact/wiper/go/secure-wipe-pattern
       - id: impact/wiper/go/mass-destruction

@@ -18,7 +18,7 @@ composite_rules:
     desc: Node.js DNS resolve function (potential DNS tunneling)
     crit: notable
     conf: 0.8
-    count: 1
+    count_min: 1
     any:
       - id: comm/dns/lookup/node/dns-resolve-call
       - id: comm/dns/lookup/node/dns-resolve4-call
@@ -30,7 +30,7 @@ composite_rules:
     conf: 0.9
     mbc: "C0002"
     attack: "T1071.004"
-    count: 1
+    count_min: 1
     any:
       - id: comm/dns/lookup/node/dns-resolveTxt-method
       - id: comm/dns/lookup/node/resolveTxt-call

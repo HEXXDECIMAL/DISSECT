@@ -238,7 +238,7 @@ composite_rules:
   - id: flask-framework
     desc: Flask web framework usage
     for: [python]
-    count: 2
+    count_min: 2
     any:
       - { id: flask-import }
       - { id: flask-instantiation }

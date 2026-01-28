@@ -432,7 +432,7 @@ composite_rules:
     attack: "T1059.004"
     mbc: "B0022"
     file_types: [macho]
-    count: 3
+    count_min: 3
     any:
       - id: backdoor/spectralblur/proc-upload
       - id: backdoor/spectralblur/proc-download

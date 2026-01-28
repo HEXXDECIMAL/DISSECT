@@ -894,7 +894,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [javascript, typescript]
-    count: 1
+    count_min: 1
     any:
       - id: extract-full
       - id: extract-call
@@ -908,7 +908,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [javascript, typescript]
-    count: 1
+    count_min: 1
     any:
       - id: password-colon
       - id: password-equals
@@ -932,7 +932,7 @@ composite_rules:
     conf: 0.8
     attack: "T1140"
     for: [javascript, typescript]
-    count: 1
+    count_min: 1
     any:
       - id: 7zip-bin-module
       - id: node-7z-module
@@ -945,7 +945,7 @@ composite_rules:
     crit: notable
     conf: 0.6
     for: [javascript, typescript]
-    count: 1
+    count_min: 1
     any:
       - id: process-env-temp
       - id: process-env-tmp
@@ -958,7 +958,7 @@ composite_rules:
     crit: notable
     conf: 0.6
     for: [javascript, typescript]
-    count: 1
+    count_min: 1
     any:
       - id: zip-ext
       - id: 7z-ext
@@ -982,7 +982,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [javascript, typescript]
-    count: 1
+    count_min: 1
     any:
       - id: spawn-paren
       - id: exec-paren
@@ -994,7 +994,7 @@ composite_rules:
     crit: notable
     conf: 0.6
     for: [javascript, typescript]
-    count: 1
+    count_min: 1
     any:
       - id: exe-ext
       - id: exepath-var
@@ -1019,7 +1019,7 @@ composite_rules:
     conf: 0.9
     attack: "T1105"
     for: [javascript, typescript]
-    count: 1
+    count_min: 1
     any:
       - id: endswith-exe
       - id: endswith-bat
@@ -1039,7 +1039,7 @@ composite_rules:
     conf: 0.85
     attack: "T1059"
     for: [python]
-    count: 1
+    count_min: 1
     any:
       - id: py-os-system
       - id: py-exec-call
@@ -1051,7 +1051,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [javascript, typescript]
-    count: 1
+    count_min: 1
     any:
       - id: spawn-call
       - id: exec-call-js
@@ -1063,7 +1063,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     for: [javascript]
-    count: 1
+    count_min: 1
     any:
       - id: wscript-shell
       - id: msxml2-xmlhttp
@@ -1075,7 +1075,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [javascript, typescript]
-    count: 1
+    count_min: 1
     any:
       - id: buffer-from-base64
       - id: atob-call
@@ -1086,7 +1086,7 @@ composite_rules:
     desc: MSXml2 Base64 decoding
     crit: suspicious
     conf: 0.85
-    count: 1
+    count_min: 1
     any:
       - id: msxml2-base64
       - id: bin-base64
@@ -1096,7 +1096,7 @@ composite_rules:
     desc: Payload drop to %appdata%
     crit: suspicious
     conf: 0.85
-    count: 1
+    count_min: 1
     any:
       - id: appdata-single
       - id: appdata-double

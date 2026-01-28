@@ -22,13 +22,12 @@ traits:
             $dht2 = "announce_peer" ascii
             $dht3 = "find_node" ascii
             $dht4 = "info_hash" ascii
-            $udp1 = "udp://" ascii
             $bencode1 = "d1:" ascii
             $bencode2 = "e1:" ascii
             // Mozi magic
-            $magic1 = { 4D 6F 7A 69 }  // "Mozi"
+            $magic1 = "Mozi" fullword
           condition:
-            $magic1 or 3 of ($dht*) or (2 of ($dht*) and any of ($bencode*)) or ($udp1 and any of ($dht*))
+            $magic1 or (any of ($dht*) and $magic1) or (3 of ($dht*) and any of ($bencode*))
         }
 
   # Mozi XOR encryption
@@ -73,9 +72,10 @@ traits:
             $attack4 = "syn_flood" ascii
             $scan1 = "scanner" ascii
             $scan2 = "telnet" ascii
-            $table = "table" ascii
+            // Go runtime markers to exclude
+            $go1 = "runtime.goexit" ascii
           condition:
-            2 of ($attack*) or (any of ($scan*) and any of ($attack*)) or ($table and any of ($attack*))
+            not $go1 and (3 of ($attack*) or (any of ($scan*) and 2 of ($attack*)))
         }
 
 composite_rules:
@@ -86,7 +86,7 @@ composite_rules:
     conf: 0.95
     mbc: "B0030"
     attack: "T1071"
-    count: 2
+    count_min: 2
     any:
       - id: botnet/mozi/dht-p2p
       - id: botnet/mozi/xor-config

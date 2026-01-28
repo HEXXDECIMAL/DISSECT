@@ -20,7 +20,7 @@ composite_rules:
     attack: "T1219"
     conf: 0.98
     for: [class]
-    count: 4
+    count_min: 4
     any:
       # Credential access
       - id: chrome-pass-string
@@ -45,7 +45,7 @@ composite_rules:
     attack: "T1555"
     conf: 0.95
     for: [class]
-    count: 2
+    count_min: 2
     any:
       - id: chrome-pass-string
       - id: firefox-pass-string
@@ -64,7 +64,7 @@ composite_rules:
     attack: "T1056.001"
     conf: 0.95
     for: [class]
-    count: 1
+    count_min: 1
     any:
       - id: keylogger-string
       - id: o-keylogger-string
@@ -77,7 +77,7 @@ composite_rules:
     attack: "T1021"
     conf: 0.95
     for: [class]
-    count: 2
+    count_min: 2
     any:
       - id: remote-screen-string
       - id: hrdp-new-string
@@ -93,7 +93,7 @@ composite_rules:
     attack: "T1105"
     conf: 0.95
     for: [class]
-    count: 1
+    count_min: 1
     any:
       - id: down-n-exec-string
       - id: up-n-exec-string

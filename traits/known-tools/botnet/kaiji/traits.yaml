@@ -85,7 +85,7 @@ composite_rules:
     attack: "T1583.005"
     mbc: "OB0004"
     file_types: [elf]
-    count: 2
+    count_min: 2
     any:
       - id: botnet/kaiji/systemctl-service
       - id: botnet/kaiji/audit-selinux

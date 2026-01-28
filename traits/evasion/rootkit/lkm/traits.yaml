@@ -1305,7 +1305,7 @@ composite_rules:
     conf: 0.95
     for: [elf, c]
     platforms: [linux]
-    count: 1
+    count_min: 1
     any:
       - id: memfd-create-call
       - id: sys-memfd-create-ref
@@ -1317,7 +1317,7 @@ composite_rules:
     conf: 0.95
     for: [elf, c]
     platforms: [linux]
-    count: 1
+    count_min: 1
     any:
       - id: finit-module-call
       - id: sys-finit-module-ref
@@ -1340,7 +1340,7 @@ composite_rules:
     conf: 0.9
     for: [c]
     platforms: [linux]
-    count: 1
+    count_min: 1
     any:
       - id: page-rw-flag
       - id: page-nx-flag

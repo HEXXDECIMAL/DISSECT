@@ -206,7 +206,7 @@ composite_rules:
     description: Python interpreter with inline code execution
     crit: suspicious
     confidence: 0.8
-    count: 1
+    count_min: 1
     any:
       - id: python-c-flag
       - id: python-stdin-flag
@@ -216,7 +216,7 @@ composite_rules:
     description: Node interpreter with inline code execution
     crit: suspicious
     confidence: 0.8
-    count: 1
+    count_min: 1
     any:
       - id: node-e-flag
       - id: node-eval-flag
@@ -226,7 +226,7 @@ composite_rules:
     description: Process spawn or exec function invocation
     crit: notable
     confidence: 0.8
-    count: 1
+    count_min: 1
     any:
       - id: spawn-call
       - id: exec-call

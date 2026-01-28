@@ -200,7 +200,7 @@ composite_rules:
     desc: HTTP Authorization header
     crit: notable
     conf: 0.66
-    count: 1
+    count_min: 1
     any:
       - id: auth-header
       - id: bearer-token
@@ -210,7 +210,7 @@ composite_rules:
     desc: Fake or suspicious User-Agent
     crit: suspicious
     conf: 0.66
-    count: 1
+    count_min: 1
     any:
       - id: ua-mozilla-old
       - id: ua-curl
@@ -222,7 +222,7 @@ composite_rules:
     desc: Bot identification HTTP headers
     crit: notable
     conf: 0.7
-    count: 1
+    count_min: 1
     any:
       - id: header-user
       - id: header-client
@@ -241,7 +241,7 @@ composite_rules:
     desc: Multipart form data upload
     crit: notable
     conf: 0.6
-    count: 1
+    count_min: 1
     any:
       - id: multipart-form-data
       - id: boundary-param

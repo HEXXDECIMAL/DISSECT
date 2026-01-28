@@ -79,7 +79,7 @@ composite_rules:
   - id: python-pathlib-home
     desc: "Home directory via pathlib (Path.home)"
     conf: 0.8
-    count: 1
+    count_min: 1
     any:
       - id: python-path-home-direct
       - id: python-path-home-method

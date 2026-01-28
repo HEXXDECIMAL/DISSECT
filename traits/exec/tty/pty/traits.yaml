@@ -278,7 +278,7 @@ composite_rules:
     conf: 0.85
     attack: "T1059"
     for: [elf, macho, python]
-    count: 1
+    count_min: 1
     any:
       - id: openpty-call
       - id: pty-open-call
@@ -290,7 +290,7 @@ composite_rules:
     conf: 0.8
     attack: "T1059"
     for: [elf, macho]
-    count: 1
+    count_min: 1
     any:
       - id: ptsname-symbol
       - id: ptsname-r-symbol
@@ -302,7 +302,7 @@ composite_rules:
     conf: 0.8
     attack: "T1059"
     for: [elf, macho]
-    count: 1
+    count_min: 1
     any:
       - id: ttyname-symbol
       - id: ttyname-r-symbol
@@ -314,7 +314,7 @@ composite_rules:
     conf: 0.85
     attack: "T1059"
     for: [python]
-    count: 1
+    count_min: 1
     any:
       - id: import-pty
       - id: from-pty-import
@@ -328,7 +328,7 @@ composite_rules:
     attack: "T1059"
     mbc: "B0022"
     for: [elf, macho, python]
-    count: 2
+    count_min: 2
     any:
       - id: openpty
       - id: posix-openpt
@@ -367,7 +367,7 @@ composite_rules:
       - id: socket
       - id: socket-connect
       - id: fork
-    count: 1
+    count_min: 1
     any:
       - id: posix-openpt
       - id: openpty

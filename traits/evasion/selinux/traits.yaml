@@ -393,7 +393,7 @@ composite_rules:
     crit: hostile
     conf: 0.9
     for: [shell, c, elf]
-    count: 2
+    count_min: 2
     any:
       - { id: xattr-manipulation }
       - { id: unconfined-context }

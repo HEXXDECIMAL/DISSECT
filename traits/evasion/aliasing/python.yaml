@@ -63,7 +63,7 @@ composite_rules:
     crit: suspicious
     conf: 0.8
     for: [python]
-    count: 1
+    count_min: 1
     any:
       - id: alias-os
       - id: alias-subprocess

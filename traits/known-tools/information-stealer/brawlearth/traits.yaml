@@ -141,7 +141,7 @@ composite_rules:
     attack: "T1555"
     platforms: [macos]
     file_types: [macho]
-    count: 1
+    count_min: 1
     any:
       - id: src-path-chromium
       - id: src-path-firefox

@@ -154,7 +154,7 @@ composite_rules:
     confidence: 0.8
     attack: "T1195"
     file_types: [rust]
-    count: 1
+    count_min: 1
     any:
       - id: sha-rust-crate
       - id: rust-sha-crate
@@ -168,7 +168,7 @@ composite_rules:
     crit: notable
     confidence: 0.7
     file_types: [rust]
-    count: 1
+    count_min: 1
     any:
       - id: filte-var-typo
       - id: connecion-typo
@@ -181,7 +181,7 @@ composite_rules:
     crit: inert
     confidence: 0.5
     file_types: [rust]
-    count: 2
+    count_min: 2
     any:
       - id: pub-struct
       - id: pub-enum
@@ -194,7 +194,7 @@ composite_rules:
     crit: notable
     confidence: 0.6
     file_types: [rust]
-    count: 1
+    count_min: 1
     any:
       - id: dummy-key-word
       - id: dummy-value-word

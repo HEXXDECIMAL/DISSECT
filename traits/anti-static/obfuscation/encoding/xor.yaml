@@ -132,7 +132,7 @@ traits:
     if:
       type: string
       regex: "\\b[a-zA-Z0-9]{31}\\b"
-      min_count: 1
+      count_min: 1
     unless:
       # Exclude base64-like strings that are valid identifiers
       - id: feat/encoding/base64/base64-string
@@ -146,8 +146,7 @@ traits:
       type: string
       # Match random-looking alphanumeric strings 16-32 bytes
       regex: "\\b[a-zA-Z0-9]{16,32}\\b"
-      min_count: 1
-
+      count_min: 1
   - id: xor-key-embedded-homabrews
     desc: Known XOR key from homabrews.org malware family
     crit: suspicious
@@ -164,7 +163,7 @@ composite_rules:
     crit: notable
     conf: 0.65
     for: [elf]
-    count: 1
+    count_min: 1
     any:
       - id: xor-key-0x37
       - id: xor-key-0x55
@@ -175,7 +174,7 @@ composite_rules:
     desc: "XOR decryption loop pattern"
     crit: suspicious
     conf: 0.85
-    count: 1
+    count_min: 1
     any:
       - id: xor-decode-symbol
       - id: decode-xor-symbol
@@ -187,7 +186,7 @@ composite_rules:
     desc: "Table-based decoding function"
     crit: notable
     conf: 0.7
-    count: 1
+    count_min: 1
     any:
       - id: decode-table-symbol
       - id: table-decode-symbol

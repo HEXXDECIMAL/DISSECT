@@ -131,7 +131,7 @@ composite_rules:
     mbc: "B0042"
     for: [macho]
     requires_any_n:
-      count: 2
+      count_min: 2
       any:
         - id: screen-locked
         - id: hid-idle-time

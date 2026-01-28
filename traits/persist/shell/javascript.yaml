@@ -55,7 +55,7 @@ composite_rules:
     confidence: 0.85
     attack: "T1546.004"
     file_types: [javascript]
-    count: 1
+    count_min: 1
     any:
       - id: source-bashrc
       - id: source-bash-profile

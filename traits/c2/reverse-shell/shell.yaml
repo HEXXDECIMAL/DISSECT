@@ -135,7 +135,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     for: [shell, packagejson]
-    count: 1
+    count_min: 1
     any:
       - id: nc-exec-sh
       - id: ncat-exec-sh

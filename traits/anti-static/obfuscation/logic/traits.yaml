@@ -36,7 +36,7 @@ composite_rules:
     conf: 0.4
     attack: "T1027"
     for: [elf, macho, pe]
-    count: 1
+    count_min: 1
     any:
       - id: stack-string-construction
       - id: xor-loop-pattern

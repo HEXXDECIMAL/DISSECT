@@ -4,7 +4,7 @@
 
 defaults:
   # Shell command strings can be embedded in any language (subprocess, system(), etc.)
-  for: ["*"]
+  for: [shell]
 
 traits:
   - id: wget-download
@@ -215,7 +215,7 @@ composite_rules:
     conf: 0.8
     mbc: "C0002"
     attack: "T1105"
-    count: 1
+    count_min: 1
     any:
       - id: wget-output-dash-O
       - id: wget-output-document
@@ -227,7 +227,7 @@ composite_rules:
     conf: 0.8
     mbc: "C0002"
     attack: "T1105"
-    count: 1
+    count_min: 1
     any:
       - id: curl-output-dash-o
       - id: curl-output-flag
@@ -239,7 +239,7 @@ composite_rules:
     conf: 0.8
     mbc: "C0047"
     attack: "T1074.001"
-    count: 1
+    count_min: 1
     any:
       - id: cd-tmp
       - id: tmp-path
@@ -273,7 +273,7 @@ composite_rules:
     desc: "MIPS architecture binary (IoT target)"
     crit: suspicious
     conf: 0.85
-    count: 1
+    count_min: 1
     any:
       - id: mips-lower
       - id: mips-upper
@@ -283,7 +283,7 @@ composite_rules:
     desc: "MIPSEL architecture binary (IoT target)"
     crit: suspicious
     conf: 0.85
-    count: 1
+    count_min: 1
     any:
       - id: mpsl-short
       - id: mipsel-lower
@@ -296,7 +296,7 @@ composite_rules:
     mbc: "B0024"
     attack: "T1059.004"
     platforms: [linux]
-    count: 2
+    count_min: 2
     any:
       - id: iot-arch-mips
       - id: iot-arch-arm

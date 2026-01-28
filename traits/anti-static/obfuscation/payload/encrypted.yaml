@@ -144,7 +144,7 @@ composite_rules:
     attack: "T1027"
     mbc: "B0032"
     for: [macho]
-    count: 3
+    count_min: 3
     any:
       - id: large-const-section
       - id: high-entropy-const
@@ -173,7 +173,7 @@ composite_rules:
     attack: "T1027"
     mbc: "B0032"
     for: [elf]
-    count: 2
+    count_min: 2
     any:
       - id: large-data-section
       - id: high-entropy-data

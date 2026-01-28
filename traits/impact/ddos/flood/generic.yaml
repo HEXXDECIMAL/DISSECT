@@ -176,7 +176,7 @@ composite_rules:
     mbc: "B0042"
     attack: "T1499"
     for: [all]
-    count: 2
+    count_min: 2
     any:
       - id: udp-flood
       - id: tcp-flood

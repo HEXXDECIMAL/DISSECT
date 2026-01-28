@@ -670,7 +670,7 @@ composite_rules:
     crit: inert
     conf: 0.7
     for: [go]
-    count: 2
+    count_min: 2
     any:
       - { id: go-err-nil-check }
       - { id: go-errors-new }
@@ -682,7 +682,7 @@ composite_rules:
     crit: inert
     conf: 0.7
     for: [rust]
-    count: 2
+    count_min: 2
     any:
       - { id: rust-result-type }
       - { id: rust-unwrap-or }
@@ -694,7 +694,7 @@ composite_rules:
     crit: inert
     conf: 0.7
     for: [javascript, python, java, csharp]
-    count: 2
+    count_min: 2
     any:
       - { id: try-block-open }
       - { id: catch-keyword }
@@ -716,7 +716,7 @@ composite_rules:
     desc: Application has logging infrastructure
     crit: benign
     conf: 0.85
-    count: 2
+    count_min: 2
     any:
       - { id: log-print }
       - { id: logger-lower }
@@ -763,7 +763,7 @@ composite_rules:
     desc: Contains help or usage information
     crit: benign
     conf: 0.85
-    count: 2
+    count_min: 2
     any:
       - { id: help-long-flag }
       - { id: help-short-flag }
@@ -809,7 +809,7 @@ composite_rules:
     desc: Binary includes test code (unusual for production)
     crit: inert
     conf: 0.5
-    count: 2
+    count_min: 2
     any:
       - { id: go-test-main }
       - { id: go-test-file }

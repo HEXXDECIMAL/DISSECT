@@ -213,7 +213,7 @@ composite_rules:
     crit: notable
     conf: 0.9
     for: [javascript, typescript]
-    count: 1
+    count_min: 1
     any:
       - id: crypto-require-call
       - id: crypto-from-import
@@ -225,7 +225,7 @@ composite_rules:
     conf: 0.85
     mbc: "C0027"
     for: [javascript, typescript]
-    count: 1
+    count_min: 1
     any:
       - id: aes-128-ctr-dash
       - id: aes128ctr-nodash
@@ -237,7 +237,7 @@ composite_rules:
     conf: 0.85
     mbc: "C0027"
     for: [javascript, typescript]
-    count: 1
+    count_min: 1
     any:
       - id: aes-256-cbc-dash
       - id: aes256cbc-nodash
@@ -249,7 +249,7 @@ composite_rules:
     conf: 0.85
     mbc: "C0027"
     for: [javascript, typescript]
-    count: 1
+    count_min: 1
     any:
       - id: aes-256-gcm-dash
       - id: aes256gcm-nodash
@@ -261,7 +261,7 @@ composite_rules:
     conf: 0.85
     mbc: "C0027"
     for: [javascript, typescript]
-    count: 1
+    count_min: 1
     any:
       - id: createCipheriv
       - id: createDecipheriv
@@ -272,7 +272,7 @@ composite_rules:
     crit: inert
     conf: 0.8
     for: [javascript, typescript]
-    count: 1
+    count_min: 1
     any:
       - id: comm/http/request/javascript/https-request
       - id: comm/http/request/javascript/http-request
@@ -286,7 +286,7 @@ composite_rules:
     crit: notable
     conf: 0.8
     for: [javascript, typescript]
-    count: 1
+    count_min: 1
     any:
       - id: zlib-module
       - id: gzip-function
@@ -301,7 +301,7 @@ composite_rules:
     conf: 0.8
     mbc: "C0027"
     for: [javascript, typescript]
-    count: 1
+    count_min: 1
     any:
       - id: hardcoded-key-pattern
       - id: hardcoded-iv-pattern

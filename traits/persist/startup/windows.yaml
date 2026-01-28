@@ -353,7 +353,7 @@ composite_rules:
     confidence: 0.85
     crit: suspicious
     platforms: [windows]
-    count: 1
+    count_min: 1
     any:
       - id: start-menu-startup
       - id: appdata-startup
@@ -365,7 +365,7 @@ composite_rules:
     confidence: 0.9
     crit: suspicious
     platforms: [windows]
-    count: 1
+    count_min: 1
     any:
       - id: software-run-key
       - id: hkcu-run
@@ -378,7 +378,7 @@ composite_rules:
     confidence: 0.9
     crit: suspicious
     platforms: [windows]
-    count: 1
+    count_min: 1
     any:
       - id: currentversion-runonce
       - id: runonce-word
@@ -390,7 +390,7 @@ composite_rules:
     crit: notable
     platforms: [windows]
     file_types: [python]
-    count: 1
+    count_min: 1
     any:
       - id: import-winreg
       - id: from-winreg
@@ -402,7 +402,7 @@ composite_rules:
     confidence: 0.8
     platforms: [windows]
     file_types: [python]
-    count: 1
+    count_min: 1
     any:
       - id: import-winreg
       - id: from-winreg
@@ -417,7 +417,7 @@ composite_rules:
     confidence: 0.8
     crit: notable
     platforms: [windows]
-    count: 1
+    count_min: 1
     any:
       - id: currentversion-run
       - id: openkey-hkey
@@ -429,7 +429,7 @@ composite_rules:
     crit: suspicious
     attack: "T1053.005"
     platforms: [windows]
-    count: 1
+    count_min: 1
     any:
       - id: schtasks-create-cmd
       - id: schtasks-exe-create
@@ -443,7 +443,7 @@ composite_rules:
     crit: notable
     attack: "T1053.005"
     platforms: [windows]
-    count: 1
+    count_min: 1
     any:
       - id: schtasks-create-cmd
       - id: schtasks-exe-create
@@ -455,7 +455,7 @@ composite_rules:
     confidence: 0.85
     attack: "T1543.003"
     platforms: [windows]
-    count: 1
+    count_min: 1
     any:
       - id: sc-create-cmd
       - id: createservice-api
@@ -468,7 +468,7 @@ composite_rules:
     confidence: 0.9
     crit: suspicious
     platforms: [windows]
-    count: 1
+    count_min: 1
     any:
       - id: set-itemproperty-run
       - id: new-itemproperty-run
@@ -481,7 +481,7 @@ composite_rules:
     crit: suspicious
     attack: "T1546.003"
     platforms: [windows]
-    count: 1
+    count_min: 1
     any:
       - id: wmi-eventfilter
       - id: wmi-filtertoconsumer
@@ -494,7 +494,7 @@ composite_rules:
     confidence: 0.6
     crit: notable
     platforms: [windows]
-    count: 1
+    count_min: 1
     any:
       - id: exe-extension
       - id: bat-extension

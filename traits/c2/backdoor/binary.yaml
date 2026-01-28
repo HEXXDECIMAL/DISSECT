@@ -204,7 +204,7 @@ composite_rules:
     desc: RSA cryptographic operations
     crit: notable
     conf: 0.6
-    count: 1
+    count_min: 1
     any:
       - id: rsa-public-decrypt
       - id: rsa-public-encrypt
@@ -216,7 +216,7 @@ composite_rules:
     crit: notable
     conf: 0.6
     for: [elf]
-    count: 2
+    count_min: 2
     any:
       - id: lzma-crc64-table
       - id: lzma-crc64
@@ -272,7 +272,7 @@ composite_rules:
     crit: suspicious
     conf: 0.7
     for: [elf]
-    count: 2
+    count_min: 2
     any:
       - id: dlsym-ref
       - id: dlopen-ref
@@ -299,7 +299,7 @@ composite_rules:
     desc: Process operations in utility library
     crit: suspicious
     conf: 0.75
-    count: 3
+    count_min: 3
     any:
       - id: process/fork/fork
       - id: exec/command/shell/c-execve
@@ -311,7 +311,7 @@ composite_rules:
     desc: Cryptographic operations in non-crypto library
     crit: suspicious
     conf: 0.75
-    count: 2
+    count_min: 2
     any:
       - id: crypto/symmetric/aes/binary/aes-sbox-bytes
       - id: rsa-operations
@@ -322,7 +322,7 @@ composite_rules:
     desc: Unexpected capability combination in library
     crit: suspicious
     conf: 0.8
-    count: 2
+    count_min: 2
     any:
       - id: unexpected-socket-ops
       - id: unexpected-process-ops
@@ -344,7 +344,7 @@ composite_rules:
     desc: XZ-style supply chain backdoor pattern
     crit: hostile
     conf: 0.9
-    count: 2
+    count_min: 2
     any:
       - id: many-huge-functions
       - id: feat/binary/x86/cpuid-fingerprinting
@@ -376,7 +376,7 @@ composite_rules:
     desc: Dynamic function hooking patterns
     crit: suspicious
     conf: 0.8
-    count: 2
+    count_min: 2
     any:
       - id: xz-ifunc-pattern
       - id: glibc-hijack

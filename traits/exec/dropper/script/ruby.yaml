@@ -206,7 +206,7 @@ composite_rules:
     desc: HTTP dropper downloads and executes payload
     conf: 0.95
     crit: suspicious
-    count: 4
+    count_min: 4
     any:
       - id: ruby-http-get-response
       - id: ruby-http-client
@@ -222,7 +222,7 @@ composite_rules:
     desc: Obfuscated C2 with Base64 and DNS
     conf: 0.92
     crit: suspicious
-    count: 3
+    count_min: 3
     any:
       - id: ruby-base64-decode
       - id: ruby-dns-resolve
@@ -233,7 +233,7 @@ composite_rules:
     desc: Write to /tmp, chmod, and execute
     conf: 0.93
     crit: suspicious
-    count: 3
+    count_min: 3
     any:
       - id: ruby-file-write-tmp
       - id: ruby-file-chmod
@@ -245,7 +245,7 @@ composite_rules:
     desc: Reverse shell connection
     conf: 0.90
     crit: suspicious
-    count: 2
+    count_min: 2
     any:
       - id: ruby-tcp-socket
       - id: ruby-system
@@ -257,7 +257,7 @@ composite_rules:
     desc: Downloads and writes binary payload
     conf: 0.94
     crit: suspicious
-    count: 3
+    count_min: 3
     any:
       - id: ruby-http-get-response
       - id: ruby-file-binmode

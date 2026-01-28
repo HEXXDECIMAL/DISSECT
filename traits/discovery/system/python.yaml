@@ -82,7 +82,7 @@ composite_rules:
     desc: Collects hardware MAC addresses for system fingerprinting
     crit: notable
     conf: 0.8
-    count: 1
+    count_min: 1
     any:
       - id: getmac-module
       - id: ifconfig-cmd
@@ -94,7 +94,7 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     near_lines: 80
-    count: 3
+    count_min: 3
     any:
       - id: python-platform-system
       - id: python-mac-discovery

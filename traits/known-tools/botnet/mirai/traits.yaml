@@ -149,7 +149,7 @@ composite_rules:
     file_types: [elf]
     min_size: 40960 # 40KB - Mirai binaries are typically 40-150KB
     max_size: 153600 # 150KB
-    count: 6
+    count_min: 6
     any:
       - id: proc-format
       - id: proc-cpuinfo
@@ -186,7 +186,7 @@ composite_rules:
     file_types: [elf]
     all:
       - id: cnc-connect
-    count: 2
+    count_min: 2
     any:
       - id: scanner-cookie
       - id: anti-reinfect

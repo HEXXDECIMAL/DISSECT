@@ -219,7 +219,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [shell, batch]
-    count: 1
+    count_min: 1
     any:
       - id: curl-cmd
       - id: wget-cmd
@@ -233,7 +233,7 @@ composite_rules:
     crit: notable
     conf: 0.6
     for: [shell, batch]
-    count: 1
+    count_min: 1
     any:
       - id: start-cmd
       - id: exe-extension

@@ -259,13 +259,13 @@ composite_rules:
       - id: ew-lcx-tran
       - id: ew-lcx-slave
 
-    count: 3
+    count_min: 3
   # LCX port forwarder
   - id: lcx
     desc: LCX-style port forwarding tool
     crit: suspicious
     conf: 0.85
-    count: 1
+    count_min: 1
     any:
       - id: ew-lcx-listen
       - id: ew-lcx-tran
@@ -285,13 +285,13 @@ composite_rules:
       - id: conn-port
       - id: remote-host
 
-    count: 1
+    count_min: 1
   # reGeorg/Tunna web tunnel
   - id: regeorg
     desc: reGeorg/Tunna web tunneling
     crit: suspicious
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: regeorg-name
       - id: tunna-name
@@ -303,7 +303,7 @@ composite_rules:
     desc: Chisel HTTP tunneling tool
     crit: suspicious
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: chisel-import
       - id: chisel-client
@@ -314,7 +314,7 @@ composite_rules:
     desc: Ngrok tunneling service
     crit: suspicious
     conf: 0.85
-    count: 1
+    count_min: 1
     any:
       - id: ngrok-name
       - id: ngrok-io
@@ -325,7 +325,7 @@ composite_rules:
     desc: SOCKS proxy server implementation
     crit: suspicious
     conf: 0.8
-    count: 2
+    count_min: 2
     any:
       - id: socks4-proto
       - id: socks5-proto

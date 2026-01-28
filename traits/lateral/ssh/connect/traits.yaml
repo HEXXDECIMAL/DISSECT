@@ -155,7 +155,7 @@ composite_rules:
     confidence: 0.9
     attack: "T1021.004"
     platforms: [all]
-    count: 1
+    count_min: 1
     any:
       - id: ssh-attack-suffix
       - id: attack-ssh-prefix
@@ -167,7 +167,7 @@ composite_rules:
     confidence: 0.85
     attack: "T1021.004"
     platforms: [linux, macos, unix]
-    count: 1
+    count_min: 1
     any:
       - id: ssh-bash-history
       - id: scp-bash-history

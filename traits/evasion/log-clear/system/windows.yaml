@@ -32,7 +32,7 @@ composite_rules:
     conf: 0.66
     mbc: "F0005"
     attack: "T1070.001"
-    count: 1
+    count_min: 1
     any:
       - id: wevtutil-cl
       - id: clear-eventlog

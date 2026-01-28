@@ -98,7 +98,7 @@ composite_rules:
     conf: 0.75
     mbc: "E1561"
     attack: "T1561"
-    count: 1
+    count_min: 1
     any:
       - id: wipe-disk
       - id: wipe-drive

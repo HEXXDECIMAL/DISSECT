@@ -35,12 +35,12 @@ traits:
       exact: "json:\"target_id\""
 
   - id: known-tools/trojan/ddosia/target-cpu-fraction
-    desc: References targetCPUFraction (DDosia performance tuning)
+    desc: References target_cpu_fraction (DDosia performance tuning)
     crit: suspicious
     conf: 1.0
     if:
       type: string
-      exact: "targetCPUFraction"
+      exact: "target_cpu_fraction"
 
 composite_rules:
   - id: known-tools/trojan/ddosia/detected

@@ -213,7 +213,7 @@ composite_rules:
   - id: socket-server-operations
     desc: Server socket operations
     for: [python]
-    count: 2
+    count_min: 2
     any:
       - { id: socket-bind-call }
       - { id: socket-listen-call }

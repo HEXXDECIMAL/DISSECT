@@ -230,7 +230,7 @@ composite_rules:
     desc: BPF filter attachment
     crit: notable
     conf: 0.7
-    count: 1
+    count_min: 1
     any:
       - id: so-attach-filter
       - id: so-attach-bpf
@@ -240,7 +240,7 @@ composite_rules:
     desc: Raw packet socket
     crit: notable
     conf: 0.6
-    count: 1
+    count_min: 1
     any:
       - id: af-packet
       - id: sock-raw
@@ -250,7 +250,7 @@ composite_rules:
     desc: Magic packet or port knock patterns
     crit: suspicious
     conf: 0.75
-    count: 1
+    count_min: 1
     any:
       - id: magic-packet
       - id: trigger-packet
@@ -275,7 +275,7 @@ composite_rules:
     crit: notable
     conf: 0.6
     for: [elf, c]
-    count: 1
+    count_min: 1
     any:
       - id: bpf-program
       - id: bpf-prefix
@@ -288,7 +288,7 @@ composite_rules:
     crit: notable
     conf: 0.6
     for: [elf, c]
-    count: 1
+    count_min: 1
     any:
       - id: exec/command/shell/generic/bin-sh
       - id: dup2-fn
@@ -300,7 +300,7 @@ composite_rules:
     crit: notable
     conf: 0.6
     for: [elf, c]
-    count: 1
+    count_min: 1
     any:
       - id: ipproto-icmp
       - id: ipproto-udp
@@ -311,7 +311,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     for: [elf, c]
-    count: 1
+    count_min: 1
     any:
       - id: shell-activation
       - id: protocol-trigger
@@ -332,7 +332,7 @@ composite_rules:
     desc: eBPF tracing frameworks
     crit: benign
     conf: 0.85
-    count: 1
+    count_min: 1
     any:
       - id: bpftrace
       - id: bcc-lib
@@ -343,7 +343,7 @@ composite_rules:
     desc: eBPF tracing functions
     crit: benign
     conf: 0.8
-    count: 1
+    count_min: 1
     any:
       - id: bpf-probe-read
       - id: bpf-kprobe
@@ -354,7 +354,7 @@ composite_rules:
     desc: eBPF observability tools
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: cilium
       - id: falco
@@ -365,7 +365,7 @@ composite_rules:
     desc: Legitimate eBPF tracing/observability
     crit: benign
     conf: 0.85
-    count: 1
+    count_min: 1
     any:
       - id: tracing-frameworks
       - id: tracing-functions

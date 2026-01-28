@@ -147,7 +147,7 @@ composite_rules:
     attack: "T1543"
     file_types: [elf, macho]
     platforms: [linux, macos]
-    count: 1
+    count_min: 1
     any:
       - id: fork-symbol
       - id: daemon-symbol
@@ -159,7 +159,7 @@ composite_rules:
     confidence: 0.3
     file_types: [elf, macho]
     platforms: [linux, macos, unix]
-    count: 1
+    count_min: 1
     any:
       - id: signal-symbol
       - id: sigaction-symbol
@@ -171,7 +171,7 @@ composite_rules:
     confidence: 0.6
     file_types: [elf, macho]
     platforms: [linux, macos, unix]
-    count: 1
+    count_min: 1
     any:
       - id: sig-ign-sighup-x64
       - id: sig-ign-sigpipe-x64
@@ -195,7 +195,7 @@ composite_rules:
     attack: "T1543"
     file_types: [elf, macho]
     platforms: [linux, macos, unix]
-    count: 1
+    count_min: 1
     any:
       - id: sigchild-underscore
       - id: sigchld-handler-string

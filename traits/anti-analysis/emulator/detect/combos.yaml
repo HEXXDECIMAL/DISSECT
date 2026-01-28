@@ -7,7 +7,7 @@ composite_rules:
     mbc: "B0009"
     attack: "T1497.001"
     conf: 0.9
-    count: 2
+    count_min: 2
     any:
       - id: vmware-string
       - id: virtualbox-string
@@ -20,7 +20,7 @@ composite_rules:
     mbc: "B0009"
     attack: "T1497.001"
     conf: 0.9
-    count: 2
+    count_min: 2
     any:
       - id: vmware-string
       - id: virtualbox-string

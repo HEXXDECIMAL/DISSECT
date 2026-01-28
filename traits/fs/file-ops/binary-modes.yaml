@@ -92,7 +92,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     attack: "T1005"
-    count: 2
+    count_min: 2
     any:
       - id: write-binary
       - id: write-read-binary
@@ -109,7 +109,7 @@ composite_rules:
     attack: "T1005"
     all:
       - id: fseek-func
-    count: 1
+    count_min: 1
     any:
       - id: fread-func
       - id: fwrite-func

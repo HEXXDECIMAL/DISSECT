@@ -47,7 +47,7 @@ composite_rules:
     conf: 0.9
     attack: "T1027.010"
     mbc: "B0032.001"
-    count: 1
+    count_min: 1
     any:
       - id: alphabet-standard
       - id: decode-table

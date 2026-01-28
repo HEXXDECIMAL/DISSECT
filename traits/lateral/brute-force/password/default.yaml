@@ -12,8 +12,7 @@ traits:
     condition:
       type: string
       word: "admin"
-      min_count: 3
-
+      count_min: 3
   - id: root-password
     description: "Default credential: root variations"
     crit: notable
@@ -23,8 +22,7 @@ traits:
     condition:
       type: string
       word: "root"
-      min_count: 3
-
+      count_min: 3
   - id: numeric-123456
     description: "Default credential: 123456"
     crit: suspicious
@@ -174,7 +172,7 @@ composite_rules:
     confidence: 0.95
     attack: "T1110.001"
     file_types: [elf]
-    count: 1
+    count_min: 1
     any:
       - id: iot-zte521
       - id: iot-pte521
@@ -188,7 +186,7 @@ composite_rules:
     mbc: "E1040"
     attack: "T1110.001"
     file_types: [elf]
-    count: 4
+    count_min: 4
     any:
       - id: admin-password
       - id: root-password

@@ -49,7 +49,7 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     attack: "T1041"
-    count: 1
+    count_min: 1
     any:
       - id: json-key-aiv
       - id: json-key-crd

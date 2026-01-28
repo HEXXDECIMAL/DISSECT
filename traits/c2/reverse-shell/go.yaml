@@ -88,7 +88,7 @@ composite_rules:
     desc: Go network connection
     crit: notable
     conf: 0.6
-    count: 1
+    count_min: 1
     any:
       - id: net-dial
       - id: net-dialer-dial
@@ -98,7 +98,7 @@ composite_rules:
     desc: Go command execution
     crit: notable
     conf: 0.6
-    count: 1
+    count_min: 1
     any:
       - id: os-exec-command
       - id: exec-cmd-start
@@ -109,7 +109,7 @@ composite_rules:
     desc: Go pipe redirection
     crit: notable
     conf: 0.5
-    count: 1
+    count_min: 1
     any:
       - id: stdin-pipe
       - id: stdout-pipe
@@ -120,7 +120,7 @@ composite_rules:
     desc: Shell path reference
     crit: notable
     conf: 0.5
-    count: 1
+    count_min: 1
     any:
       - id: exec/command/shell/generic/bin-sh
       - id: exec/command/shell/generic/bin-bash

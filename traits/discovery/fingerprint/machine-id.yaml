@@ -329,7 +329,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     for: [javascript, typescript, python, shell, elf, macho, pe]
-    count: 1
+    count_min: 1
     any:
       - id: etc-machine-id
       - id: dbus-machine-id
@@ -341,7 +341,7 @@ composite_rules:
     crit: notable
     conf: 0.8
     for: [javascript, typescript]
-    count: 1
+    count_min: 1
     any:
       - id: require-node-machine-id
       - id: require-machine-id
@@ -353,7 +353,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     for: [javascript, typescript, shell, python, macho]
-    count: 1
+    count_min: 1
     any:
       - id: system-profiler-hardware
       - id: ioplatform-uuid
@@ -365,7 +365,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     for: [javascript, typescript, powershell, pe]
-    count: 1
+    count_min: 1
     any:
       - id: hklm-cryptography-guid
       - id: wmic-csproduct-uuid
@@ -378,7 +378,7 @@ composite_rules:
     crit: inert
     conf: 0.4
     for: [javascript, typescript, python, shell, elf, pe, macho]
-    count: 1
+    count_min: 1
     any:
       - id: proc-cpuinfo
       - id: processor-id
@@ -390,7 +390,7 @@ composite_rules:
     crit: notable
     conf: 0.75
     for: [javascript, typescript, shell, elf, pe]
-    count: 1
+    count_min: 1
     any:
       - id: hdparm-info
       - id: smartctl-cmd
@@ -402,7 +402,7 @@ composite_rules:
     crit: notable
     conf: 0.75
     for: [javascript, typescript, shell, elf, pe, macho]
-    count: 1
+    count_min: 1
     any:
       - id: dmidecode-cmd
       - id: wmic-bios-serial
@@ -414,7 +414,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     for: [javascript, typescript]
-    count: 4
+    count_min: 4
     any:
       - { id: network-interfaces-call }
       - { id: cpus-call }

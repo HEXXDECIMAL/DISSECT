@@ -428,7 +428,7 @@ composite_rules:
     conf: 1.0
     attack: "T1562.001"
     for: [c, elf]
-    count: 2
+    count_min: 2
     any:
       - { id: fake-state-logic }
       - { id: deception-read-hook }

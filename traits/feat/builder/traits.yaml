@@ -470,7 +470,7 @@ composite_rules:
     desc: Built with CMake
     crit: benign
     conf: 0.85
-    count: 1
+    count_min: 1
     any:
       - id: cmakefiles
       - id: cmake-min-required
@@ -482,7 +482,7 @@ composite_rules:
     desc: Built with Meson
     crit: benign
     conf: 0.85
-    count: 1
+    count_min: 1
     any:
       - id: meson-build
       - id: meson-options
@@ -493,7 +493,7 @@ composite_rules:
     desc: Built with Bazel
     crit: benign
     conf: 0.85
-    count: 1
+    count_min: 1
     any:
       - id: bazel-out
       - id: workspace-file
@@ -505,7 +505,7 @@ composite_rules:
     desc: Built with Autotools (autoconf/automake)
     crit: benign
     conf: 0.8
-    count: 1
+    count_min: 1
     any:
       - id: configure-ac
       - id: makefile-am
@@ -518,7 +518,7 @@ composite_rules:
     desc: Built with Cargo (Rust)
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: cargo-toml
       - id: cargo-namespace
@@ -530,7 +530,7 @@ composite_rules:
     desc: Built with Go modules
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: go-mod
       - id: go-sum
@@ -542,7 +542,7 @@ composite_rules:
     desc: Built with npm/yarn (Node.js)
     crit: benign
     conf: 0.85
-    count: 1
+    count_min: 1
     any:
       - id: package-json
       - id: node-modules
@@ -554,7 +554,7 @@ composite_rules:
     desc: Built with pip/setuptools (Python)
     crit: benign
     conf: 0.85
-    count: 1
+    count_min: 1
     any:
       - id: setup-py
       - id: pyproject-toml
@@ -566,7 +566,7 @@ composite_rules:
     desc: GitHub Actions CI artifacts
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: github-actions-env
       - id: github-run-id
@@ -579,7 +579,7 @@ composite_rules:
     desc: GitLab CI artifacts
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: ci-pipeline-id
       - id: ci-job-id
@@ -591,7 +591,7 @@ composite_rules:
     desc: Jenkins CI artifacts
     crit: benign
     conf: 0.85
-    count: 2
+    count_min: 2
     any:
       - id: jenkins-url
       - id: build-number
@@ -603,7 +603,7 @@ composite_rules:
     desc: CircleCI artifacts
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: circleci-env
       - id: circle-build-num
@@ -614,7 +614,7 @@ composite_rules:
     desc: Built in Docker container
     crit: benign
     conf: 0.8
-    count: 1
+    count_min: 1
     any:
       - id: dockerfile
       - id: docker-env-prefix
@@ -626,7 +626,7 @@ composite_rules:
     desc: Reproducible build markers
     crit: benign
     conf: 0.85
-    count: 1
+    count_min: 1
     any:
       - id: source-date-epoch
       - id: reproducible-string

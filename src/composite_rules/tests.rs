@@ -70,9 +70,12 @@ fn test_symbol_condition() {
             platforms: None,
         }]),
         any: None,
-        count: None,
-        min_count: None,
-        max_count: None,
+        count_exact: None,
+
+        count_min: None,
+
+        count_max: None,
+
         none: None,
     };
 
@@ -124,9 +127,12 @@ fn test_all() {
             },
         ]),
         any: None,
-        count: None,
-        min_count: None,
-        max_count: None,
+        count_exact: None,
+
+        count_min: None,
+
+        count_max: None,
+
         none: None,
     };
 
@@ -173,9 +179,9 @@ fn test_count() {
                 platforms: None,
             },
         ]),
-        count: Some(2),
-        min_count: None,
-        max_count: None,
+        count_exact: None,
+        count_min: None,
+        count_max: None,
         none: None,
     };
 
@@ -216,9 +222,12 @@ fn test_string_exact_condition() {
             compiled_excludes: Vec::new(),
         }]),
         any: None,
-        count: None,
-        min_count: None,
-        max_count: None,
+        count_exact: None,
+
+        count_min: None,
+
+        count_max: None,
+
         none: None,
     };
 
@@ -260,9 +269,12 @@ fn test_any() {
                 platforms: None,
             },
         ]),
-        count: None,
-        min_count: None,
-        max_count: None,
+        count_exact: None,
+
+        count_min: None,
+
+        count_max: None,
+
         none: None,
     };
 
@@ -617,7 +629,9 @@ fn test_downgrade_to_notable() {
                 }]),
                 all: None,
                 none: None,
-                count: None,
+                count_exact: None,
+                count_min: None,
+                count_max: None,
             }),
             inert: None,
         }),
@@ -682,7 +696,9 @@ fn test_downgrade_to_inert() {
                 }]),
                 all: None,
                 none: None,
-                count: None,
+                count_exact: None,
+                count_min: None,
+                count_max: None,
             }),
         }),
     };
@@ -733,7 +749,9 @@ fn test_downgrade_no_match_keeps_original() {
                 }]),
                 all: None,
                 none: None,
-                count: None,
+                count_exact: None,
+                count_min: None,
+                count_max: None,
             }),
             inert: None,
         }),
@@ -811,7 +829,9 @@ fn test_downgrade_first_match_wins() {
                 }]),
                 all: None,
                 none: None,
-                count: None,
+                count_exact: None,
+                count_min: None,
+                count_max: None,
             }),
             inert: Some(DowngradeConditions {
                 any: Some(vec![Condition::Trait {
@@ -819,7 +839,9 @@ fn test_downgrade_first_match_wins() {
                 }]),
                 all: None,
                 none: None,
-                count: None,
+                count_exact: None,
+                count_min: None,
+                count_max: None,
             }),
         }),
     };
@@ -905,7 +927,9 @@ fn test_all_three_directives_combined() {
                 }]),
                 all: None,
                 none: None,
-                count: None,
+                count_exact: None,
+                count_min: None,
+                count_max: None,
             }),
             inert: None,
         }),

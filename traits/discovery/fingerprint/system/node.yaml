@@ -343,8 +343,7 @@ composite_rules:
       - { id: createhash-call }
       - { id: hash-algorithms }
       - id: system-id-sources
-        count: 2
-
+        count_min: 2
   - id: full-fingerprint
     desc: Comprehensive system fingerprinting (multiple vectors)
     crit: suspicious
@@ -352,7 +351,7 @@ composite_rules:
     mbc: "E1592"
     attack: "T1082"
     for: [javascript, typescript]
-    count: 4
+    count_min: 4
     any:
       - { id: os-hostname }
       - { id: os-platform }
@@ -382,7 +381,7 @@ composite_rules:
     mbc: "E1592"
     attack: "T1057"
     for: [javascript, typescript]
-    count: 1
+    count_min: 1
     any:
       - { id: tasklist-cmd }
       - { id: ps-aux-cmd }

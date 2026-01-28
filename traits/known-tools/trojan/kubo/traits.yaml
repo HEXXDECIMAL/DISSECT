@@ -69,7 +69,7 @@ composite_rules:
     mbc: "E1055"
     file_types: [elf]
     requires_any_n:
-      count: 3
+      count_min: 3
       any:
         - 
           id: injector/kubo/cloned-thread

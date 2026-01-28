@@ -290,7 +290,7 @@ composite_rules:
     family: true
     attack: "T1071"
     file_types: [elf, macho, pe, so, dylib, dll]
-    count: 1
+    count_min: 1
     any:
       - id: beacon-dll-file
       - id: beacon-exe-file

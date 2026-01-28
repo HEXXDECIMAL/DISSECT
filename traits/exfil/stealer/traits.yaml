@@ -44,7 +44,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     for: [shell, python, javascript]
-    count: 1
+    count_min: 1
     any:
       - id: gate-var-http
       - id: c2-var-http
@@ -57,7 +57,7 @@ composite_rules:
     conf: 0.9
     mbc: "C0001"
     for: [shell]
-    count: 1
+    count_min: 1
     any:
       - id: comm/http/client/curl-post-x
       - id: comm/http/client/curl-user-header
@@ -69,7 +69,7 @@ composite_rules:
     crit: suspicious
     conf: 0.8
     for: [shell]
-    count: 1
+    count_min: 1
     any:
       - id: comm/http/client/curl-form-upload
       - id: comm/http/client/curl-data-binary
@@ -108,7 +108,7 @@ composite_rules:
     crit: notable
     conf: 0.8
     for: [shell]
-    count: 1
+    count_min: 1
     any:
       - id: comm/http/client/curl-cmd
       - id: comm/http/client/wget-cmd

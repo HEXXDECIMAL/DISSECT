@@ -71,7 +71,7 @@ composite_rules:
     conf: 0.9
     attack: "T1105"
     for: [javascript]
-    count: 1
+    count_min: 1
     any:
       - id: curl-pipe-bash-js
       - id: curl-pipe-sh-js
@@ -84,7 +84,7 @@ composite_rules:
     conf: 0.9
     attack: "T1105"
     for: [javascript]
-    count: 1
+    count_min: 1
     any:
       - id: powershell-irm-iex
       - id: powershell-iwr-iex

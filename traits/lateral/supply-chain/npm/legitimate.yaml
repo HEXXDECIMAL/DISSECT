@@ -588,8 +588,7 @@ traits:
     if:
       type: string
       regex: "^export (const|function|class|let|var|async)"
-      min_count: 2
-
+      count_min: 2
   - id: cjs-exports-assignment
     desc: CommonJS exports.property assignment
     crit: inert
@@ -598,8 +597,7 @@ traits:
     if:
       type: string
       regex: "exports\\.[a-zA-Z]+ ="
-      min_count: 2
-
+      count_min: 2
   - id: module-exports-object
     desc: "module.exports = {} object pattern"
     crit: inert
@@ -1891,7 +1889,7 @@ composite_rules:
     crit: inert
     conf: 0.85
     for: [packagejson]
-    count: 2
+    count_min: 2
     any:
       - {id: pkg-main-field}
       - {id: pkg-module-field}
@@ -1904,7 +1902,7 @@ composite_rules:
     crit: inert
     conf: 0.85
     for: [packagejson]
-    count: 3
+    count_min: 3
     any:
       - {id: pkg-test-script-field}
       - {id: pkg-build-script-field}
@@ -2031,7 +2029,7 @@ composite_rules:
   - id: testing-library-methods
     description: Testing Library methods
     for: [javascript, typescript]
-    count: 2
+    count_min: 2
     any:
       - {id: screen-get-by}
       - {id: screen-find-by}

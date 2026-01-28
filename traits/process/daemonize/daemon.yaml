@@ -33,16 +33,14 @@ traits:
     condition:
       type: syscall
       name: ["dup2", "dup3"]
-      min_count: 2
-
+      count_min: 2
   - id: fd-redirect-macos
     description: File descriptor redirection on macOS (dup2)
     crit: notable
     condition:
       type: syscall
       name: ["dup2"]
-      min_count: 2
-
+      count_min: 2
 composite_rules:
   - id: daemon
     description: Daemon behavior - detaches from controlling terminal

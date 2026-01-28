@@ -116,7 +116,7 @@ traits:
     if:
       type: string
       regex: "_0x[a-fA-F0-9]{4,8}"
-      min_count: 10
+      count_min: 10
       search_raw: true
 
   - id: hex-literal-density
@@ -128,7 +128,7 @@ traits:
     if:
       type: string
       regex: "0x[a-fA-F0-9]+"
-      min_count: 50
+      count_min: 50
       search_raw: true
 
 composite_rules:
@@ -139,7 +139,7 @@ composite_rules:
     conf: 0.9
     attack: "T1027"
     for: [javascript]
-    count: 1
+    count_min: 1
     any:
       - id: while-not-not-array
       - id: while-not-zero
@@ -152,7 +152,7 @@ composite_rules:
     conf: 0.85
     attack: "T1027"
     for: [javascript]
-    count: 1
+    count_min: 1
     any:
       - id: push-shift-pattern
       - id: shift-push-pattern
@@ -164,7 +164,7 @@ composite_rules:
     conf: 0.8
     attack: "T1027"
     for: [javascript]
-    count: 1
+    count_min: 1
     any:
       - id: buffer-from-hex-word
       - id: buffer-from-hex-single
@@ -177,7 +177,7 @@ composite_rules:
     conf: 0.85
     attack: "T1027"
     for: [javascript]
-    count: 1
+    count_min: 1
     any:
       - id: string-fromcharcode
       - id: fromcharcode-call

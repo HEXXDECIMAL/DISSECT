@@ -42,7 +42,7 @@ composite_rules:
     conf: 0.66
     mbc: "F0007"
     attack: "T1070.004"
-    count: 1
+    count_min: 1
     any:
       - id: rm-dollar-zero
       - id: rm-dollar-zero-quoted

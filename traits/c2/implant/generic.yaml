@@ -279,7 +279,7 @@ composite_rules:
     desc: References an implant
     crit: suspicious
     conf: 0.7
-    count: 1
+    count_min: 1
     any:
       - id: malware-implant
       - id: c2-implant
@@ -310,7 +310,7 @@ composite_rules:
     desc: References a trojan
     crit: suspicious
     conf: 0.66
-    count: 1
+    count_min: 1
     any:
       - id: trojan-horse
       - id: trojan-malware

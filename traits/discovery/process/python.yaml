@@ -85,7 +85,7 @@ composite_rules:
     desc: Enumerates processes via shell command (tasklist/pgrep)
     crit: notable
     conf: 0.8
-    count: 1
+    count_min: 1
     any:
       - id: tasklist-cmd
       - id: pgrep-cmd
@@ -96,7 +96,7 @@ composite_rules:
     desc: References analysis/debugging tool process names
     crit: notable
     conf: 0.8
-    count: 1
+    count_min: 1
     any:
       - id: wireshark-proc
       - id: vbox-proc

@@ -555,7 +555,7 @@ composite_rules:
     crit: benign
     conf: 0.95
     for: [cpp]
-    count: 2
+    count_min: 2
     any:
       - { id: gtest-testing-test }
       - { id: gtest-macro-prefix }
@@ -570,7 +570,7 @@ composite_rules:
     crit: benign
     conf: 0.95
     for: [cpp]
-    count: 2
+    count_min: 2
     any:
       - { id: catch2-namespace }
       - { id: catch2-macro-prefix }
@@ -629,7 +629,7 @@ composite_rules:
     crit: benign
     conf: 0.95
     for: [go]
-    count: 2
+    count_min: 2
     any:
       - { id: go-testing-t }
       - { id: go-testing-m }
@@ -657,7 +657,7 @@ composite_rules:
     crit: inert
     conf: 0.6
     for: [javascript]
-    count: 3
+    count_min: 3
     any:
       - { id: jest-describe }
       - { id: jest-it }
@@ -681,7 +681,7 @@ composite_rules:
     crit: inert
     conf: 0.7
     for: [javascript]
-    count: 3
+    count_min: 3
     any:
       - { id: mocha-word }
       - { id: jest-describe }
@@ -705,7 +705,7 @@ composite_rules:
     crit: inert
     conf: 0.7
     for: [ruby]
-    count: 2
+    count_min: 2
     any:
       - { id: rspec-describe }
       - { id: rspec-context }

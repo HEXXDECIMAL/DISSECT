@@ -433,7 +433,7 @@ composite_rules:
     crit: inert
     conf: 0.5
     file_types: [packagejson]
-    count: 2
+    count_min: 2
     any:
       - id: desc-lightweight
       - id: desc-modern-web-apps

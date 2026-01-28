@@ -70,7 +70,7 @@ composite_rules:
     desc: Download via curl
     crit: notable
     conf: 0.66
-    count: 1
+    count_min: 1
     any:
       - id: curl-cmd
       - id: libcurl-ref
@@ -80,7 +80,7 @@ composite_rules:
     desc: Download via wget
     crit: notable
     conf: 0.66
-    count: 1
+    count_min: 1
     any:
       - id: wget-cmd
       - id: wget-path
@@ -89,7 +89,7 @@ composite_rules:
     desc: Download via fetch
     crit: notable
     conf: 0.66
-    count: 1
+    count_min: 1
     any:
       - id: fetch-call
       - id: urllib-urlretrieve

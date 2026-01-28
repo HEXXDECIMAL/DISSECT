@@ -165,6 +165,9 @@ enum ConditionTagged {
         offset_range: Option<(usize, usize)>,
         #[serde(default = "default_min_count")]
         min_count: usize,
+        /// If true, extracts the bytes matching '??' wildcards and includes them in evidence value
+        #[serde(default)]
+        extract_wildcards: bool,
     },
 
     /// Check file size constraints
@@ -390,11 +393,13 @@ impl From<ConditionDeser> for Condition {
                     offset,
                     offset_range,
                     min_count,
+                    extract_wildcards,
                 } => Condition::Hex {
                     pattern,
                     offset,
                     offset_range,
                     min_count,
+                    extract_wildcards,
                 },
                 ConditionTagged::Filesize { min, max } => Condition::Filesize { min, max },
                 ConditionTagged::TraitGlob { pattern, r#match } => {
@@ -676,6 +681,9 @@ pub enum Condition {
         /// Minimum number of matches required (default: 1)
         #[serde(default = "default_min_count")]
         min_count: usize,
+        /// If true, extracts the bytes matching '??' wildcards and includes them in evidence value
+        #[serde(default)]
+        extract_wildcards: bool,
     },
 
     /// Check file size constraints

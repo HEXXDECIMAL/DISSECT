@@ -16,7 +16,7 @@ composite_rules:
     mbc: "E1021"
     all:
       - id: dot-ssh-ref
-    count: 3
+    count_min: 3
     any:
       - id: strict-host-disable
       - id: known-hosts-bypass
@@ -51,7 +51,7 @@ composite_rules:
     crit: suspicious
     confidence: 0.8
     attack: "T1018"
-    count: 2
+    count_min: 2
     any:
       - id: authorized-keys
       - id: known-hosts-file

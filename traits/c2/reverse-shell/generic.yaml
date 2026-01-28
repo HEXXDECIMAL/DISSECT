@@ -38,7 +38,7 @@ composite_rules:
     crit: suspicious
     conf: 0.7
     attack: "T1059"
-    count: 1
+    count_min: 1
     any:
       - id: reverse-shell-string
       - id: revshell-string

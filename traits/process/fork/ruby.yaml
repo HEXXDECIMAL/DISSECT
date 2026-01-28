@@ -50,7 +50,7 @@ composite_rules:
     confidence: 0.7
     platforms: [all]
     file_types: [ruby]
-    count: 1
+    count_min: 1
     any:
       - id: fork-brace-block
       - id: fork-do-block
@@ -62,7 +62,7 @@ composite_rules:
     confidence: 0.88
     platforms: [all]
     file_types: [ruby]
-    count: 1
+    count_min: 1
     any:
       - id: process-fork
       - id: fork-block

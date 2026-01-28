@@ -52,7 +52,7 @@ composite_rules:
     desc: Resolver function markers
     crit: inert
     conf: 0.4
-    count: 1
+    count_min: 1
     any:
       - id: resolver-suffix
       - id: feat/binary/elf/sections/gnu-hash
@@ -62,7 +62,7 @@ composite_rules:
     desc: IFUNC-related markers
     crit: inert
     conf: 0.4
-    count: 1
+    count_min: 1
     any:
       - id: ifunc-ref
       - id: getauxval-ref

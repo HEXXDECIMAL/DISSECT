@@ -85,7 +85,7 @@ composite_rules:
     desc: subprocess module methods
     crit: notable
     conf: 0.75
-    count: 1
+    count_min: 1
     any:
       - id: popen
       - id: run-call

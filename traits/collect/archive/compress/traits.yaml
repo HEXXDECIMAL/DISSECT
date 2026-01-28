@@ -70,7 +70,7 @@ composite_rules:
     conf: 0.6
     attack: "T1560"
     platforms: [all]
-    count: 1
+    count_min: 1
     any:
       - id: data/archive/library-imports/go-archive-zip
       - id: data/archive/library-imports/rust-zip-writer

@@ -414,9 +414,12 @@ fn test_apply_composite_defaults_applies_all_defaults() {
         file_types: None,
         all: None,
         any: None,
-        count: None,
-        min_count: None,
-        max_count: None,
+        count_exact: None,
+
+        count_min: None,
+
+        count_max: None,
+
         none: None,
         condition: Some(Condition::String {
             exact: Some("test".to_string()),
@@ -463,9 +466,12 @@ fn test_apply_composite_defaults_unset_with_none() {
         file_types: None,                          // Use default
         all: None,
         any: None,
-        count: None,
-        min_count: None,
-        max_count: None,
+        count_exact: None,
+
+        count_min: None,
+
+        count_max: None,
+
         none: None,
         condition: Some(Condition::String {
             exact: Some("test".to_string()),
@@ -661,9 +667,12 @@ fn test_composite_referencing_atomic_trait() {
             id: "test/atomic-trait".to_string(),
         }]),
         any: None,
-        count: None,
-        min_count: None,
-        max_count: None,
+        count_exact: None,
+
+        count_min: None,
+
+        count_max: None,
+
         none: None,
     };
 
@@ -692,9 +701,12 @@ fn test_composite_of_composites_two_levels() {
             id: "test/atomic-trait".to_string(),
         }]),
         any: None,
-        count: None,
-        min_count: None,
-        max_count: None,
+        count_exact: None,
+
+        count_min: None,
+
+        count_max: None,
+
         none: None,
     };
 
@@ -711,9 +723,12 @@ fn test_composite_of_composites_two_levels() {
             id: "test/composite-a".to_string(),
         }]),
         any: None,
-        count: None,
-        min_count: None,
-        max_count: None,
+        count_exact: None,
+
+        count_min: None,
+
+        count_max: None,
+
         none: None,
     };
 
@@ -747,9 +762,12 @@ fn test_composite_three_level_chain() {
             id: requires.to_string(),
         }]),
         any: None,
-        count: None,
-        min_count: None,
-        max_count: None,
+        count_exact: None,
+
+        count_min: None,
+
+        count_max: None,
+
         none: None,
     };
 
@@ -790,9 +808,12 @@ fn test_composite_circular_dependency_handled() {
             id: "circular/b".to_string(),
         }]),
         any: None,
-        count: None,
-        min_count: None,
-        max_count: None,
+        count_exact: None,
+
+        count_min: None,
+
+        count_max: None,
+
         none: None,
     };
 
@@ -809,9 +830,12 @@ fn test_composite_circular_dependency_handled() {
             id: "circular/a".to_string(),
         }]),
         any: None,
-        count: None,
-        min_count: None,
-        max_count: None,
+        count_exact: None,
+
+        count_min: None,
+
+        count_max: None,
+
         none: None,
     };
 
@@ -844,9 +868,12 @@ fn test_composite_prefix_matching_in_chain() {
             id: "discovery/system".to_string(), // Prefix match
         }]),
         any: None,
-        count: None,
-        min_count: None,
-        max_count: None,
+        count_exact: None,
+
+        count_min: None,
+
+        count_max: None,
+
         none: None,
     };
 
@@ -883,9 +910,9 @@ fn test_composite_requires_count_in_chain() {
                 id: "feat/c".to_string(),
             },
         ]),
-        count: Some(2),
-        min_count: None,
-        max_count: None,
+        count_exact: None,
+        count_min: None,
+        count_max: None,
         none: None,
     };
 
@@ -951,9 +978,12 @@ fn test_complexity_direct_conditions() {
             },
         ]),
         any: None,
-        count: None,
-        min_count: None,
-        max_count: None,
+        count_exact: None,
+
+        count_min: None,
+
+        count_max: None,
+
         none: None,
     };
 
@@ -1014,9 +1044,12 @@ fn test_complexity_file_type_filter() {
             },
         ]),
         any: None,
-        count: None,
-        min_count: None,
-        max_count: None,
+        count_exact: None,
+
+        count_min: None,
+
+        count_max: None,
+
         none: None,
     };
 
@@ -1103,9 +1136,12 @@ fn test_complexity_recursive_expansion() {
             },
         ]),
         any: None,
-        count: None,
-        min_count: None,
-        max_count: None,
+        count_exact: None,
+
+        count_min: None,
+
+        count_max: None,
+
         none: None,
     };
 
@@ -1128,9 +1164,12 @@ fn test_complexity_recursive_expansion() {
             },
         ]),
         any: None,
-        count: None,
-        min_count: None,
-        max_count: None,
+        count_exact: None,
+
+        count_min: None,
+
+        count_max: None,
+
         none: None,
     };
 
@@ -1147,10 +1186,8 @@ fn test_complexity_recursive_expansion() {
         &mut visiting,
     );
 
-    // composite-a has 2 direct conditions = 2
-    // atomic-trait counts as 1
-    // Total: 2 + 1 = 3
-    assert_eq!(complexity, 3);
+    // composite-b has 2 elements in 'all' clause = 2
+    assert_eq!(complexity, 2);
 }
 
 /// Test cycle detection in trait references
@@ -1172,9 +1209,12 @@ fn test_complexity_cycle_detection() {
             id: "test/circular-b".to_string(),
         }]),
         any: None,
-        count: None,
-        min_count: None,
-        max_count: None,
+        count_exact: None,
+
+        count_min: None,
+
+        count_max: None,
+
         none: None,
     };
 
@@ -1192,9 +1232,12 @@ fn test_complexity_cycle_detection() {
             id: "test/circular-a".to_string(),
         }]),
         any: None,
-        count: None,
-        min_count: None,
-        max_count: None,
+        count_exact: None,
+
+        count_min: None,
+
+        count_max: None,
+
         none: None,
     };
 
@@ -1255,9 +1298,12 @@ fn test_complexity_caching() {
             },
         ]),
         any: None,
-        count: None,
-        min_count: None,
-        max_count: None,
+        count_exact: None,
+
+        count_min: None,
+
+        count_max: None,
+
         none: None,
     };
 
@@ -1340,9 +1386,12 @@ fn test_complexity_threshold_validation() {
             },
         ]),
         any: None,
-        count: None,
-        min_count: None,
-        max_count: None,
+        count_exact: None,
+
+        count_min: None,
+
+        count_max: None,
+
         none: None,
     };
 
@@ -1392,9 +1441,12 @@ fn test_complexity_threshold_validation() {
             },
         ]),
         any: None,
-        count: None,
-        min_count: None,
-        max_count: None,
+        count_exact: None,
+
+        count_min: None,
+
+        count_max: None,
+
         none: None,
     };
 
@@ -1468,9 +1520,9 @@ fn test_complexity_mixed_conditions() {
                 compiled_excludes: Vec::new(),
             },
         ]),
-        count: None,
-        min_count: None,
-        max_count: None,
+        count_exact: None,
+        count_min: None,
+        count_max: None,
         none: Some(vec![Condition::String {
             exact: Some("string4".to_string()),
             regex: None,
@@ -1497,8 +1549,8 @@ fn test_complexity_mixed_conditions() {
         &mut visiting,
     );
 
-    // 1 from 'all' + 2 from 'any' + 1 from 'none' = 4
-    assert_eq!(complexity, 4);
+    // 1 from 'all' + 1 for 'any' clause + 1 for 'none' clause = 3
+    assert_eq!(complexity, 3);
 }
 
 /// Test complexity with deeply nested trait references
@@ -1541,9 +1593,12 @@ fn test_complexity_deep_nesting() {
             },
         ]),
         any: None,
-        count: None,
-        min_count: None,
-        max_count: None,
+        count_exact: None,
+
+        count_min: None,
+
+        count_max: None,
+
         none: None,
     };
 
@@ -1574,9 +1629,12 @@ fn test_complexity_deep_nesting() {
             },
         ]),
         any: None,
-        count: None,
-        min_count: None,
-        max_count: None,
+        count_exact: None,
+
+        count_min: None,
+
+        count_max: None,
+
         none: None,
     };
 
@@ -1607,9 +1665,12 @@ fn test_complexity_deep_nesting() {
             },
         ]),
         any: None,
-        count: None,
-        min_count: None,
-        max_count: None,
+        count_exact: None,
+
+        count_min: None,
+
+        count_max: None,
+
         none: None,
     };
 
@@ -1626,6 +1687,88 @@ fn test_complexity_deep_nesting() {
         &mut visiting,
     );
 
-    // level3: level2 + 1 = level1 + 1 + 1 = 2 + 1 + 1 = 4
-    assert_eq!(complexity, 4);
+    // level3 has 2 elements in 'all' clause = 2
+    assert_eq!(complexity, 2);
+}
+
+/// Test the correct complexity calculation algorithm:
+/// - File type (not "all"): +1
+/// - any clause (if present): +1
+/// - all clause: +count of elements
+/// - none clause (if present): +1
+#[test]
+fn test_complexity_correct_algorithm() {
+    use std::collections::{HashMap, HashSet};
+
+    // Test case: file_type + any(8) + all(2) = 1 + 1 + 2 = 4
+    let rule = CompositeTrait {
+        id: "test/correct-complexity".to_string(),
+        desc: "Test correct complexity calculation".to_string(),
+        conf: 0.9,
+        crit: Criticality::Hostile,
+        mbc: None,
+        attack: None,
+        platforms: vec![Platform::All],
+        r#for: vec![RuleFileType::JavaScript], // +1 (not "all")
+        all: Some(vec![
+            // +2 (2 elements in all)
+            Condition::Trait {
+                id: "test/trait-1".to_string(),
+            },
+            Condition::Trait {
+                id: "test/trait-2".to_string(),
+            },
+        ]),
+        any: Some(vec![
+            // +1 (any clause present, regardless of count)
+            Condition::Trait {
+                id: "test/any-1".to_string(),
+            },
+            Condition::Trait {
+                id: "test/any-2".to_string(),
+            },
+            Condition::Trait {
+                id: "test/any-3".to_string(),
+            },
+            Condition::Trait {
+                id: "test/any-4".to_string(),
+            },
+            Condition::Trait {
+                id: "test/any-5".to_string(),
+            },
+            Condition::Trait {
+                id: "test/any-6".to_string(),
+            },
+            Condition::Trait {
+                id: "test/any-7".to_string(),
+            },
+            Condition::Trait {
+                id: "test/any-8".to_string(),
+            },
+        ]),
+        count_exact: None,
+        count_min: None,
+        count_max: None,
+        none: None,
+    };
+
+    let mut cache = HashMap::new();
+    let mut visiting = HashSet::new();
+    let composites = vec![rule];
+    let traits = vec![];
+
+    let complexity = validation::calculate_composite_complexity(
+        "test/correct-complexity",
+        &composites,
+        &traits,
+        &mut cache,
+        &mut visiting,
+    );
+
+    // Expected: file_type(1) + any(1) + all(2) = 4
+    assert_eq!(
+        complexity, 4,
+        "Expected complexity 4: file_type(1) + any(1) + all(2), got {}",
+        complexity
+    );
 }

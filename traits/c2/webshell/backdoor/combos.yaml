@@ -64,7 +64,7 @@ composite_rules:
       - id: comm/http/curl/ssl-host-disable
       - id: evasion/impersonate/ua-array
 
-    count: 1
+    count_min: 1
   # Bot impersonation webshell
   - id: php-bot-impersonate
     desc: "PHP webshell with search engine bot impersonation"
@@ -117,7 +117,7 @@ composite_rules:
       - id: fs/write
       - id: fs/write
 
-    count: 1
+    count_min: 1
   # Command execution webshell
   - id: php-rce
     desc: "PHP webshell with remote command execution"
@@ -133,7 +133,7 @@ composite_rules:
       - id: data/user-input
       - id: data/user-input
 
-    count: 1
+    count_min: 1
   # Web UI webshell (has HTML interface)
   - id: php-web-ui
     desc: "PHP webshell with web-based user interface"
@@ -168,7 +168,7 @@ composite_rules:
     mbc: "B0032"
     attack: "T1027"
     for: [all]
-    count: 2
+    count_min: 2
     any:
       - id: anti-static/obfuscation
       - id: anti-static/obfuscation

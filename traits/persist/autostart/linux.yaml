@@ -164,7 +164,7 @@ composite_rules:
     description: "XDG autostart directory access"
     confidence: 0.85
     crit: suspicious
-    count: 1
+    count_min: 1
     any:
       - id: config-autostart
       - id: etc-xdg-autostart
@@ -174,7 +174,7 @@ composite_rules:
   - id: linux-desktop-entry
     description: "Desktop entry file creation (.desktop)"
     confidence: 0.8
-    count: 1
+    count_min: 1
     any:
       - id: dot-desktop-ext
       - id: desktop-entry-header
@@ -185,7 +185,7 @@ composite_rules:
     description: "User-level systemd service persistence"
     confidence: 0.85
     attack: "T1543.002"
-    count: 1
+    count_min: 1
     any:
       - id: config-systemd-user
       - id: local-share-systemd-user
@@ -197,7 +197,7 @@ composite_rules:
     confidence: 0.9
     crit: suspicious
     attack: "T1037.004"
-    count: 1
+    count_min: 1
     any:
       - id: etc-rc-local
       - id: etc-rc-d-rc-local
@@ -208,7 +208,7 @@ composite_rules:
     confidence: 0.85
     attack: "T1037.004"
     file_types: [shell, elf, macho, python]
-    count: 1
+    count_min: 1
     any:
       - id: etc-init-d
       - id: update-rc-d-cmd
@@ -219,7 +219,7 @@ composite_rules:
     description: "XDG autostart directory path"
     confidence: 0.8
     crit: notable
-    count: 1
+    count_min: 1
     any:
       - id: config-autostart
       - id: etc-xdg-autostart
@@ -229,7 +229,7 @@ composite_rules:
     description: "Desktop entry executable directive"
     confidence: 0.8
     crit: notable
-    count: 1
+    count_min: 1
     any:
       - id: exec-eq-directive
       - id: hidden-false-directive

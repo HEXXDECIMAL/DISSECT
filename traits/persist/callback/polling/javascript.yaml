@@ -56,7 +56,7 @@ composite_rules:
     confidence: 0.85
     attack: "T1053"
     file_types: [javascript]
-    count: 1
+    count_min: 1
     any:
       - id: setInterval-http-call
       - id: setInterval-axios

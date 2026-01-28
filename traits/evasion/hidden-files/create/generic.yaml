@@ -104,7 +104,7 @@ composite_rules:
     conf: 0.85
     mbc: "F0005"
     attack: "T1564.001"
-    count: 1
+    count_min: 1
     any:
       - id: curl-o-hidden
       - id: redirect-hidden-space
@@ -116,7 +116,7 @@ composite_rules:
     conf: 0.9
     mbc: "B0024"
     attack: "T1059"
-    count: 1
+    count_min: 1
     any:
       - id: exec-hidden-space
       - id: exec-hidden-eol
@@ -128,7 +128,7 @@ composite_rules:
     conf: 0.9
     mbc: "C0047"
     attack: "T1222.002"
-    count: 1
+    count_min: 1
     any:
       - id: chmod-x-hidden
       - id: chmod-7xx-hidden

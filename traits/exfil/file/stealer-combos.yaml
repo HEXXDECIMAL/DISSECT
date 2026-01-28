@@ -13,7 +13,7 @@ composite_rules:
     for: [elf, macho, pe]
     all:
       - id: comm/download/curl/libcurl-http
-    count: 2
+    count_min: 2
     any:
       - id: collect/file-targeting/credential-files
       - id: collect/file-targeting/wallet-files
@@ -29,7 +29,7 @@ composite_rules:
     for: [elf, macho, pe]
     all:
       - id: fs/file-ops/binary-file-ops
-    count: 1
+    count_min: 1
     any:
       - id: comm/download/curl/libcurl-http
       - id: comm/socket/create
@@ -44,7 +44,7 @@ composite_rules:
     for: [macho]
     all:
       - id: fs/file-ops/fcopyfile-macos
-    count: 1
+    count_min: 1
     any:
       - id: comm/download/curl/libcurl-http
       - id: comm/socket/create
@@ -59,7 +59,7 @@ composite_rules:
     for: [elf, macho, pe]
     all:
       - id: fs/directory/traverse
-    count: 2
+    count_min: 2
     any:
       - id: collect/file-targeting/stealer-extension-list
       - id: collect/file-targeting/credential-files
@@ -76,7 +76,7 @@ composite_rules:
     for: [elf, macho, pe]
     all:
       - id: feat/encoding/base64/custom-implementation
-    count: 1
+    count_min: 1
     any:
       - id: discovery/fingerprint/hardware-uuid-macos
       - id: discovery/fingerprint/machine-id
@@ -93,7 +93,7 @@ composite_rules:
     all:
       - id: feat/encoding/base64/custom-implementation
       - id: anti-static/obfuscation/string-decrypt
-    count: 1
+    count_min: 1
     any:
       - id: comm/download/curl/libcurl-http
       - id: comm/socket/create
@@ -109,7 +109,7 @@ composite_rules:
     all:
       - id: comm/download/curl/libcurl-http
       - id: anti-static/obfuscation/string-decrypt
-    count: 1
+    count_min: 1
     any:
       - id: discovery/fingerprint/hardware-uuid-macos
       - id: discovery/fingerprint/machine-id

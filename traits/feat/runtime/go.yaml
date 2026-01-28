@@ -26,7 +26,7 @@ composite_rules:
     desc: Go runtime markers
     crit: inert
     conf: 0.5
-    count: 1
+    count_min: 1
     any:
       - id: goexit
       - id: main

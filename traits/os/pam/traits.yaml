@@ -193,7 +193,7 @@ composite_rules:
     description: PAM API function usage
     crit: inert
     conf: 0.7
-    count: 3
+    count_min: 3
     any:
       - id: pam-start-symbol
       - id: pam-end-symbol
@@ -215,7 +215,7 @@ composite_rules:
     description: PAM module API functions
     crit: inert
     conf: 0.7
-    count: 2
+    count_min: 2
     any:
       - id: pam-sm-authenticate-symbol
       - id: pam-sm-setcred-symbol
@@ -276,7 +276,7 @@ composite_rules:
     description: PAM module names
     crit: inert
     conf: 0.5
-    count: 2
+    count_min: 2
     any:
       - id: pam-unix-module
       - id: pam-permit-module

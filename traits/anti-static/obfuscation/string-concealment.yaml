@@ -43,7 +43,7 @@ composite_rules:
     attack: "T1027.010"
     all:
       - id: tiny-cstring-section
-    count: 1
+    count_min: 1
     any:
       - id: exec/command/shell
       - id: comm/socket/create

@@ -60,7 +60,8 @@ pub fn eval_trait(id: &str, ctx: &EvaluationContext) -> ConditionResult {
         if slash_count == 0 {
             // Short name: suffix match for same-directory relative reference
             // e.g., "terminate" matches "exec/process/terminate"
-            finding.id.ends_with(&format!("/{}", id))
+            // Also check exact match for bare IDs (e.g., "lanip-label" matches "lanip-label")
+            finding.id.ends_with(&format!("/{}", id)) || finding.id == id
         } else {
             // Directory path: prefix match (any trait within that directory)
             // e.g., "anti-static/obfuscation/strings" matches

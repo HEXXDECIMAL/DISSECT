@@ -108,7 +108,7 @@ composite_rules:
     desc: Reference to system log file
     crit: notable
     conf: 0.66
-    count: 1
+    count_min: 1
     any:
       - id: var-log-wtmp
       - id: var-log-btmp
@@ -124,7 +124,7 @@ composite_rules:
     conf: 0.8
     mbc: "F0005"
     attack: "T1070.001"
-    count: 1
+    count_min: 1
     any:
       - id: redirect-var-log
       - id: history-c

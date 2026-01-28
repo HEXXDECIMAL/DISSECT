@@ -932,8 +932,7 @@ traits:
     if:
       type: string
       regex: "[\"'][a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}[\"']"
-      min_count: 2
-
+      count_min: 2
   # === Auth lure atomic indicators ===
   - id: auth-required-phrase
     desc: Authentication required phrase
@@ -1025,7 +1024,7 @@ composite_rules:
     conf: 0.85
     attack: T1566
     for: [html, javascript]
-    count: 2
+    count_min: 2
     any:
       - {id: oncopy-false}
       - {id: oncut-false}
@@ -1347,7 +1346,7 @@ composite_rules:
     conf: 0.85
     attack: T1566
     for: [javascript, html]
-    count: 2
+    count_min: 2
     any:
       - {id: navigator-webdriver}
       - {id: navigator-plugins-length}

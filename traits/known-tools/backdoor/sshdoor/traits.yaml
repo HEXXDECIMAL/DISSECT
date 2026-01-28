@@ -109,8 +109,7 @@ composite_rules:
     all:
       - id: backdoor/sshdoor/krb5-ccname
       - id: sshdoor-indicators
-        count: 2
-
+        count_min: 2
   - id: backdoor/sshdoor/detected
     description: SSHDoor backdoored SSH daemon
     crit: hostile
@@ -119,7 +118,7 @@ composite_rules:
     attack: "T1556.003"
     mbc: "B0022"
     for: [elf]
-    count: 3
+    count_min: 3
     any:
       - id: backdoor/sshdoor/krb5-ccname
       - id: backdoor/sshdoor/rm-var-tmp

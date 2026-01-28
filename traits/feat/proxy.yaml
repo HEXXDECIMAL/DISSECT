@@ -10,3 +10,11 @@ traits:
     if:
       type: string
       word: "ProxyFunc"
+
+  - id: armon-go-socks5
+    desc: Uses github.com/armon/go-socks5 library
+    crit: notable
+    conf: 0.9
+    if:
+      type: string
+      exact: "github.com/armon/go-socks5"

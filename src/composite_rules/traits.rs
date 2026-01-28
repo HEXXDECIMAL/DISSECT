@@ -31,7 +31,11 @@ pub struct DowngradeConditions {
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub none: Option<Vec<Condition>>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    pub count: Option<usize>,
+    pub count_exact: Option<usize>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub count_min: Option<usize>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub count_max: Option<usize>,
 }
 
 /// Downgrade rules: criticality level → conditions that trigger downgrade
@@ -351,7 +355,15 @@ impl TraitDefinition {
                 offset,
                 offset_range,
                 min_count,
-            } => eval_hex(pattern, *offset, *offset_range, *min_count, ctx),
+                extract_wildcards,
+            } => eval_hex(
+                pattern,
+                *offset,
+                *offset_range,
+                *min_count,
+                *extract_wildcards,
+                ctx,
+            ),
             Condition::Filesize { min, max } => eval_filesize(*min, *max, ctx),
             Condition::TraitGlob { pattern, r#match } => eval_trait_glob(pattern, r#match, ctx),
             Condition::Raw {
@@ -432,7 +444,7 @@ pub struct CompositeTrait {
     #[serde(alias = "requires_all", skip_serializing_if = "Option::is_none")]
     pub all: Option<Vec<Condition>>,
 
-    /// List of conditions - use count/min_count/max_count to control how many must match
+    /// List of conditions - use count_min/count_max/count_exact to control how many must match
     #[serde(
         alias = "requires_any",
         alias = "conditions",
@@ -440,17 +452,17 @@ pub struct CompositeTrait {
     )]
     pub any: Option<Vec<Condition>>,
 
-    /// Exactly this many conditions from `any` must match
-    #[serde(alias = "requires_count", skip_serializing_if = "Option::is_none")]
-    pub count: Option<usize>,
-
-    /// At least this many conditions from `any` must match
+    /// Exactly this many conditions from `any` must match (rare - use count_min for "at least N")
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub min_count: Option<usize>,
+    pub count_exact: Option<usize>,
+
+    /// At least this many conditions from `any` must match (most common usage)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub count_min: Option<usize>,
 
     /// At most this many conditions from `any` can match
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub max_count: Option<usize>,
+    pub count_max: Option<usize>,
 
     #[serde(alias = "requires_none", skip_serializing_if = "Option::is_none")]
     pub none: Option<Vec<Condition>>,
@@ -510,14 +522,15 @@ impl CompositeTrait {
             (Some(conds), None) => self.eval_requires_all(conds, ctx),
             (None, Some(conds)) => {
                 // Handle count constraints on `any` conditions
-                let has_count_constraint =
-                    self.count.is_some() || self.min_count.is_some() || self.max_count.is_some();
+                let has_count_constraint = self.count_exact.is_some()
+                    || self.count_min.is_some()
+                    || self.count_max.is_some();
                 if has_count_constraint {
                     self.eval_count_constraints(
                         conds,
-                        self.count,
-                        self.min_count,
-                        self.max_count,
+                        self.count_exact,
+                        self.count_min,
+                        self.count_max,
                         ctx,
                     )
                 } else {
@@ -651,7 +664,7 @@ impl CompositeTrait {
         let mut matched_count = 0;
         let mut all_evidence = Vec::new();
 
-        for condition in conds {
+        for condition in conds.iter() {
             let result = self.eval_condition(condition, ctx);
             if result.matched {
                 matched_count += 1;
@@ -810,7 +823,15 @@ impl CompositeTrait {
                 offset,
                 offset_range,
                 min_count,
-            } => eval_hex(pattern, *offset, *offset_range, *min_count, ctx),
+                extract_wildcards,
+            } => eval_hex(
+                pattern,
+                *offset,
+                *offset_range,
+                *min_count,
+                *extract_wildcards,
+                ctx,
+            ),
             Condition::Filesize { min, max } => eval_filesize(*min, *max, ctx),
             Condition::TraitGlob { pattern, r#match } => eval_trait_glob(pattern, r#match, ctx),
             Condition::Raw {

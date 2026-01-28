@@ -255,7 +255,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     attack: "T1027"
-    count: 3
+    count_min: 3
     any:
       - id: anti-static/obfuscation/code-metrics/high-function-density
       - id: anti-static/obfuscation/code-metrics/many-one-liner-functions
@@ -269,7 +269,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     attack: "T1027"
-    count: 2
+    count_min: 2
     any:
       - id: anti-static/obfuscation/code-metrics/high-entropy-identifiers
       - id: anti-static/obfuscation/code-metrics/many-high-entropy-identifiers
@@ -281,7 +281,7 @@ composite_rules:
     crit: notable
     conf: 0.85
     attack: "T1027"
-    count: 2
+    count_min: 2
     any:
       - id: anti-static/obfuscation/code-metrics/numeric-suffix-identifiers
       - id: anti-static/obfuscation/code-metrics/single-char-function-names

@@ -41,7 +41,7 @@ composite_rules:
     conf: 0.66
     mbc: "C0002"
     attack: "T1071.001"
-    count: 1
+    count_min: 1
     any:
       - id: net-http
       - id: http-get-ruby

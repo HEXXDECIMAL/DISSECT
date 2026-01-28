@@ -154,7 +154,7 @@ composite_rules:
     conf: 0.6
     mbc: none
     attack: none
-    count: 1
+    count_min: 1
     any:
       - id: port-23
       - id: port-80
@@ -170,7 +170,7 @@ composite_rules:
     conf: 0.75
     mbc: none
     attack: none
-    count: 1
+    count_min: 1
     any:
       - id: private-ip-10
       - id: private-ip-172

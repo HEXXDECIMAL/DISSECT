@@ -71,4 +71,4 @@ composite_rules:
       - id: anti-static/obfuscation/encoding/rc4-sbox-init
       - id: anti-static/obfuscation/encoding/stream-cipher-decrypt
       - id: anti-static/obfuscation/encoding/cipher-key-schedule
-    count: 2
+    count_min: 2

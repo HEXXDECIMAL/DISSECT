@@ -114,7 +114,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     file_types: [javascript, typescript, html]
-    count: 3
+    count_min: 3
     any:
       - id: verify-human-text
       - id: completing-action-text

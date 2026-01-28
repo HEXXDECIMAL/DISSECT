@@ -109,7 +109,7 @@ composite_rules:
     crit: inert
     confidence: 0.8
     file_types: [vsixmanifest]
-    count: 1
+    count_min: 1
     any:
       - id: link-source
       - id: link-github

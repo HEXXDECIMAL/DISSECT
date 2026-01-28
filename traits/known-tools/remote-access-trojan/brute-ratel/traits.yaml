@@ -94,7 +94,7 @@ composite_rules:
     attack: "T1059"
     platforms: [windows]
     file_types: [pe, dll]
-    count: 1
+    count_min: 1
     any:
       - id: c2-framework/brute-ratel/brute-ratel-str
       - id: c2-framework/brute-ratel/brc4-str

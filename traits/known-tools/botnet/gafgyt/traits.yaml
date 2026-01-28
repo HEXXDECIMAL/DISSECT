@@ -76,7 +76,7 @@ composite_rules:
     crit: suspicious
     conf: 0.8
     for: [elf]
-    count: 3
+    count_min: 3
     any:
       - id: botkill-string
       - id: exec/command/shell/generic/bin-bash
@@ -107,7 +107,7 @@ composite_rules:
     for: [elf]
     attack: T1498
     mbc: B0008
-    count: 2
+    count_min: 2
     any:
       - id: udp-flood-string
       - id: tcpraw-flood-string

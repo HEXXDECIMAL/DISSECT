@@ -384,7 +384,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     attack: "T1045"
-    count: 2
+    count_min: 2
     any:
       - id: anti-static/obfuscation/binary-metrics/high-overall-entropy
       - id: anti-static/obfuscation/binary-metrics/no-functions
@@ -396,7 +396,7 @@ composite_rules:
     crit: hostile
     conf: 0.95
     attack: "T1045"
-    count: 3
+    count_min: 3
     any:
       - id: anti-static/obfuscation/binary-metrics/very-high-entropy
       - id: anti-static/obfuscation/binary-metrics/no-strings
@@ -418,7 +418,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     attack: "T1045"
-    count: 2
+    count_min: 2
     any:
       - id: anti-static/obfuscation/binary-metrics/high-section-name-entropy
       - id: anti-static/obfuscation/binary-metrics/few-sections
@@ -432,7 +432,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     attack: "T1027.002"
-    count: 2
+    count_min: 2
     any:
       - id: anti-static/obfuscation/binary-metrics/high-avg-complexity
       - id: anti-static/obfuscation/binary-metrics/many-complex-functions
@@ -454,7 +454,7 @@ composite_rules:
     crit: hostile
     conf: 0.85
     attack: "T1027.002"
-    count: 2
+    count_min: 2
     any:
       - id: anti-static/obfuscation/binary-metrics/few-functions
       - id: anti-static/obfuscation/binary-metrics/extreme-max-complexity
@@ -468,7 +468,7 @@ composite_rules:
     crit: notable
     conf: 0.6
     attack: "T1027"
-    count: 3
+    count_min: 3
     any:
       - id: anti-static/obfuscation/binary-metrics/many-noreturn-functions
       - id: anti-static/obfuscation/binary-metrics/many-complex-functions

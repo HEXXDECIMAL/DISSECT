@@ -14,7 +14,7 @@ composite_rules:
     all:
       - id: sym-hostname-resolve
       - id: sym-socket-connect
-    count: 2
+    count_min: 2
     any:
       - id: ip-format
       - id: port-ref
@@ -46,7 +46,7 @@ composite_rules:
     all:
       - id: ssh-dir-ref
       - id: etc-hosts-ref
-    count: 2
+    count_min: 2
     any:
       - id: weak-pass-root123
       - id: weak-pass-admin123

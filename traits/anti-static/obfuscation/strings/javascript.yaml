@@ -226,7 +226,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     for: [javascript, typescript]
-    count: 1
+    count_min: 1
     any:
       - id: js-buffer-from-base64
       - id: js-buffer-from-hex
@@ -239,7 +239,7 @@ composite_rules:
     mbc: "B0032"
     attack: "T1027"
     for: [javascript, typescript]
-    count: 1
+    count_min: 1
     any:
       - id: js-eval-call
       - id: js-function-call
@@ -251,7 +251,7 @@ composite_rules:
     crit: inert
     conf: 0.6
     for: [javascript, typescript]
-    count: 1
+    count_min: 1
     any:
       - id: https-get-call
       - id: http-get-call

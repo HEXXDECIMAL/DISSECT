@@ -445,7 +445,7 @@ composite_rules:
     desc: Google Protocol Buffers
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: google-protobuf
       - id: proto-extension
@@ -459,7 +459,7 @@ composite_rules:
     desc: JSON serialization libraries
     crit: benign
     conf: 0.85
-    count: 1
+    count_min: 1
     any:
       - id: json-marshal-go
       - id: json-unmarshal-go
@@ -475,7 +475,7 @@ composite_rules:
     desc: YAML serialization libraries
     crit: benign
     conf: 0.85
-    count: 1
+    count_min: 1
     any:
       - id: yaml-v2
       - id: yaml-v3
@@ -489,7 +489,7 @@ composite_rules:
     desc: XML serialization libraries
     crit: benign
     conf: 0.85
-    count: 1
+    count_min: 1
     any:
       - id: encoding-xml
       - id: xml-etree
@@ -504,7 +504,7 @@ composite_rules:
     desc: MessagePack serialization
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: msgpack-lower
       - id: msgpack-camel
@@ -517,7 +517,7 @@ composite_rules:
     desc: Apache Avro serialization
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: avro-lower
       - id: avro-apache
@@ -528,7 +528,7 @@ composite_rules:
     desc: Apache Thrift serialization
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: thrift-lower
       - id: thrift-apache
@@ -539,7 +539,7 @@ composite_rules:
     desc: Google FlatBuffers
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: flatbuffers-string
       - id: flatbuffer-builder
@@ -550,7 +550,7 @@ composite_rules:
     desc: Cap'n Proto serialization
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: capnp-string
       - id: capnproto-string
@@ -561,7 +561,7 @@ composite_rules:
     desc: BSON serialization (MongoDB)
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: bson-lower
       - id: bson-upper
@@ -572,7 +572,7 @@ composite_rules:
     desc: Python pickle serialization
     crit: notable
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: pickle-load
       - id: pickle-dump
@@ -584,7 +584,7 @@ composite_rules:
     desc: Go gob serialization
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: encoding-gob
       - id: gob-newencoder

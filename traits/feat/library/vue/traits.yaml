@@ -65,7 +65,7 @@ composite_rules:
     desc: "File contains Vue.js library"
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - {id: version-string}
       - {id: copyright}

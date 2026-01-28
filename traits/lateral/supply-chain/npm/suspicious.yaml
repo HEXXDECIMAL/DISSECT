@@ -308,7 +308,7 @@ composite_rules:
     crit: inert
     confidence: 0.8
     file_types: [javascript]
-    count: 1
+    count_min: 1
     any:
       - id: module-exports-pattern
       - id: exports-dot-pattern
@@ -320,7 +320,7 @@ composite_rules:
     crit: notable
     confidence: 0.8
     file_types: [javascript]
-    count: 3
+    count_min: 3
     any:
       - id: require-os
       - id: require-child-process
@@ -342,7 +342,7 @@ composite_rules:
     description: Package has install hooks
     crit: notable
     confidence: 0.85
-    count: 1
+    count_min: 1
     any:
       - id: pkg-preinstall-hook
       - id: pkg-postinstall-hook
@@ -363,7 +363,7 @@ composite_rules:
     description: Package has multiple install lifecycle hooks
     crit: suspicious
     confidence: 0.85
-    count: 2
+    count_min: 2
     any:
       - id: pkg-preinstall-hook
       - id: pkg-postinstall-hook
@@ -394,7 +394,7 @@ composite_rules:
     crit: suspicious
     confidence: 0.85
     file_types: [javascript, typescript]
-    count: 1
+    count_min: 1
     any:
       - id: child-dot-unref
       - id: spawn-unref
@@ -405,7 +405,7 @@ composite_rules:
     crit: notable
     confidence: 0.8
     file_types: [javascript, typescript]
-    count: 1
+    count_min: 1
     any:
       - id: stdio-ignore-string
       - id: stdio-ignore-array
@@ -416,7 +416,7 @@ composite_rules:
     crit: suspicious
     confidence: 0.9
     file_types: [javascript, typescript, packagejson]
-    count: 2
+    count_min: 2
     any:
       - id: oast-fun-domain
       - id: oastify-domain

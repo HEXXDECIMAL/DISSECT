@@ -437,6 +437,8 @@ composite_rules:
     any:
       - { id: cred/browser/chromium/login-data }
       - { id: cred/browser/firefox/cookies-sqlite }
+      - { id: cred/browser/safari/cookies-binarycookies }
+      - { id: cred/browser/safari/history-db }
       - { id: local-state-file }
       - { id: encrypted-key-field }
       - { id: logins-json-file }
@@ -508,7 +510,7 @@ composite_rules:
     for: [python, javascript, elf, pe, macho]
     all:
       - id: all-browsers
-        count: 2
+        count_min: 2
       - id: credential-files
 
   # Helper composite
@@ -528,9 +530,9 @@ composite_rules:
     for: [python, javascript, elf, pe, macho]
     all:
       - id: all-browsers
-        count: 2
+        count_min: 2
       - id: credential-files
-        count: 2
+        count_min: 2
       - id: decryption-methods
       - id: sqlite-or-exfil
 
@@ -546,5 +548,5 @@ composite_rules:
       - id: python-imports
       - id: windows-paths
       - id: password-fields
-        count: 2
+        count_min: 2
       - id: exfiltration-channels

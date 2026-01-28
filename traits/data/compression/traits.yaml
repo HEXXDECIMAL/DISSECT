@@ -189,7 +189,7 @@ composite_rules:
     desc: LZMA/XZ compression library
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: liblzma
       - id: lzma-prefix
@@ -203,7 +203,7 @@ composite_rules:
     desc: Zlib compression library
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: zlib-deflate-inflate
       - id: z-stream
@@ -224,7 +224,7 @@ composite_rules:
     desc: Bzip2 compression library
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: bz2-compress
       - id: bz2-decompress
@@ -236,7 +236,7 @@ composite_rules:
     desc: Zstandard compression library
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: zstd-compress
       - id: zstd-decompress
@@ -248,7 +248,7 @@ composite_rules:
     desc: LZ4 compression library
     crit: benign
     conf: 0.9
-    count: 1
+    count_min: 1
     any:
       - id: lz4-compress
       - id: lz4-decompress

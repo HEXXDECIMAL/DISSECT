@@ -152,7 +152,7 @@ composite_rules:
     crit: notable
     confidence: 0.75
     file_types: [javascript, typescript]
-    count: 1
+    count_min: 1
     any:
       - id: globalState-word
       - id: postInstall-word
@@ -163,7 +163,7 @@ composite_rules:
     crit: notable
     confidence: 0.8
     file_types: [javascript, typescript]
-    count: 1
+    count_min: 1
     any:
       - id: ssh-dir
       - id: aws-dir
@@ -176,7 +176,7 @@ composite_rules:
     crit: notable
     confidence: 0.7
     file_types: [javascript, typescript]
-    count: 1
+    count_min: 1
     any:
       - id: post-method
       - id: fetch-call
