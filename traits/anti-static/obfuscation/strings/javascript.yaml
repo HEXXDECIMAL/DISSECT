@@ -3,7 +3,7 @@
 # ATT&CK: T1027
 
 traits:
-  # fromCharCode obfuscation - using AST
+  # fromCharCode obfuscation
   - id: fromcharcode
     desc: String obfuscation via fromCharCode
     crit: notable
@@ -12,13 +12,12 @@ traits:
     attack: "T1027"
     for: [javascript, typescript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "fromCharCode"
+      type: string
+      contains: "fromCharCode"
 
   # Unicode escape sequences used to hide strings
   - id: js-unicode-escape
-    desc: Unicode escape sequences used to
+    desc: Unicode escape sequences in string
     crit: suspicious
     conf: 0.85
     mbc: "B0032"
@@ -30,7 +29,7 @@ traits:
 
   # Hex escape sequences
   - id: js-hex-escape
-    desc: Hex escape sequences used to
+    desc: Hex escape sequences in string
     crit: notable
     conf: 0.75
     mbc: "B0032"
@@ -42,132 +41,95 @@ traits:
 
   # Buffer.from with encoding (atomic)
   - id: js-buffer-from-base64
-    desc: Buffer.from with base64 encoding
+    desc: Buffer.from base64
     crit: inert
     conf: 0.6
     for: [javascript, typescript]
     if:
-      type: string
-      regex: "Buffer\\.from\\([^,]+,\\s*['\"]base64['\"]\\)"
+      type: content
+      regex: 'Buffer.from(.*["\'']base64["\''])'
 
   - id: js-buffer-from-hex
-    desc: Buffer.from with hex encoding
+    desc: Buffer.from hex
     crit: inert
     conf: 0.6
     for: [javascript, typescript]
     if:
-      type: string
-      regex: "Buffer\\.from\\([^,]+,\\s*['\"]hex['\"]\\)"
+      type: content
+      regex: 'Buffer.from(.*["\'']hex["\''])'
 
-  # === Hex URL array micro-traits ===
-  - id: hex-const-array
-    desc: Const array containing long hex
+  # Global object manipulation patterns
+  - id: js-global-bracket-write
+    desc: Global object bracket notation write
+    crit: suspicious
+    conf: 0.75
+    attack: "T1027"
+    for: [javascript]
+    if:
+      type: content
+      regex: "global\\s*\\[\\s*[\"'][^\"']{1,20}[\"']\\s*\\]\\s*="
+    not:
+      - "__dirname"
+      - "__filename"
+      - "process"
+      - "console"
+      - "Buffer"
+
+  - id: js-require-alias
+    desc: Require function aliasing
+    crit: suspicious
+    conf: 0.9
+    attack: "T1027.002"
+    mbc: "B0032"
+    for: [javascript]
+    if:
+      type: content
+      regex: '=\\s*require\\s*;'
+
+  # Version marker pattern (common in malware tracking)
+  - id: js-version-marker
+    desc: Malware version tracking pattern
+    crit: suspicious
+    conf: 0.7
+    for: [javascript]
+    if:
+      type: string
+      regex: '^[0-9]+-[a-z]{3,15}[0-9]{1,4}$'
+
+  # Custom string shuffling/decoding loop pattern
+  - id: js-charat-loop
+    desc: charAt in loop pattern
     crit: notable
     conf: 0.7
-    for: [javascript, typescript]
+    mbc: "B0032"
+    attack: "T1027"
+    for: [javascript]
     if:
-      type: string
-      regex: "const\\s+\\w+\\s*=\\s*\\[\\s*['\"][0-9a-fA-F]{20,}['\"]"
+      type: symbol
+      pattern: ".*\\.charAt"
 
-  - id: array-map-call
-    desc: Array .map() call
-    crit: inert
-    conf: 0.5
-    for: [javascript, typescript]
-    if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: ".map("
-
-  - id: buffer-from-call
-    desc: Buffer.from call
-    crit: inert
-    conf: 0.5
-    for: [javascript, typescript]
-    if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "Buffer.from"
-
-  - id: hex-encoding-string
-    desc: hex encoding string literal
-    crit: inert
-    conf: 0.5
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "['\"]hex['\"]"
-
-  - id: array-join-call
-    desc: Array .join() call
-    crit: inert
-    conf: 0.5
-    for: [javascript, typescript]
-    if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: ".join("
-
-  # === Remote fetch micro-traits ===
-  - id: https-get-call
-    desc: https.get() call
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "https.get"
-
-  - id: http-get-call
-    desc: http.get() call
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "http.get"
-
-  - id: underscore-fetch-call
-    desc: _fetch() internal call
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: "_fetch"
-
-  - id: base64-encoding-string
-    desc: base64 encoding string literal
-    crit: inert
-    conf: 0.5
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "['\"]base64['\"]"
-
-  - id: trim-call
-    desc: .trim() call
-    crit: inert
-    conf: 0.4
-    for: [javascript, typescript]
-    if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: ".trim()"
-
-  # Array join obfuscation
-  - id: js-array-join
-    desc: Array join pattern used to
+  # Array element swapping (common in shuffle algorithms)
+  - id: js-array-swap
+    desc: Array element swap pattern
     crit: notable
-    conf: 0.6
-    for: [javascript, typescript]
+    conf: 0.65
+    mbc: "B0032"
+    for: [javascript]
     if:
-      type: string
-      regex: "\\[['\"][^'\"]+['\"](?:,\\s*['\"][^'\"]+['\"]){5,}\\]\\.join"
+      type: content
+      regex: '\\w+\\[\\w+\\]\\s*=\\s*\\w+\\[\\w+\\]'
 
-  # Dynamic code execution patterns (atomic) - using AST
+  # String split to array
+  - id: js-string-split
+    desc: String split to character array
+    crit: inert
+    conf: 0.6
+    for: [javascript]
+    if:
+      type: symbol
+      pattern: '.*\\.split'
+
+  # Dynamic code execution patterns (atomic)
   - id: js-eval-call
     desc: eval() call
     crit: inert
@@ -176,12 +138,8 @@ traits:
     attack: "T1027"
     for: [javascript, typescript]
     if:
-      type: ast_query
-      language: javascript
-      query: |
-        (call_expression
-          function: (identifier) @fn)
-        (#eq? @fn "eval")
+      type: symbol
+      exact: "eval"
 
   - id: js-function-call
     desc: Function() constructor
@@ -191,8 +149,8 @@ traits:
     attack: "T1027"
     for: [javascript, typescript]
     if:
-      type: string
-      exact: "Function("
+      type: symbol
+      exact: "Function"
 
   - id: js-new-function
     desc: new Function constructor
@@ -202,38 +160,37 @@ traits:
     attack: "T1027"
     for: [javascript, typescript]
     if:
-      type: ast_query
-      language: javascript
-      query: |
-        (new_expression
-          constructor: (identifier) @fn)
-        (#eq? @fn "Function")
+      type: content
+      contains: "new Function"
 
-  # Dynamic require with variable (non-literal) argument
-  - id: js-dynamic-require-call
-    desc: Dynamic require with non-literal module
-    crit: notable
-    conf: 0.7
-    for: [javascript, typescript]
+  - id: js-array-join-symbol
+    desc: Array join operation
+    crit: inert
+    conf: 0.5
+    for: [javascript]
     if:
-      type: string
-      regex: 'require\([^"'']'
+      type: symbol
+      pattern: '.*\.join'
 
 composite_rules:
-  # Buffer decode composite
-  - id: js-buffer-decode
-    desc: Buffer.from used to decode strings
-    crit: notable
-    conf: 0.7
-    for: [javascript, typescript]
-    count_min: 1
+  # String deobfuscation pattern (charAt/split + swap + join)
+  - id: js-string-deobfuscation
+    desc: String deobfuscation routine
+    crit: hostile
+    conf: 0.9
+    mbc: "B0032"
+    attack: "T1027.002"
+    for: [javascript]
+    all:
+      - id: js-array-join-symbol
+      - id: js-array-swap
     any:
-      - id: js-buffer-from-base64
-      - id: js-buffer-from-hex
+      - id: js-charat-loop
+      - id: js-string-split
 
-  # Dynamic exec composite
+  # Dynamic exec composite (eval-equivalent patterns)
   - id: js-dynamic-exec
-    desc: Dynamic code execution via eval
+    desc: Dynamic code execution capability
     crit: notable
     conf: 0.7
     mbc: "B0032"
@@ -245,64 +202,33 @@ composite_rules:
       - id: js-function-call
       - id: js-new-function
 
-  # HTTP get composite
-  - id: http-get
-    desc: HTTP/HTTPS GET request
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript]
-    count_min: 1
-    any:
-      - id: https-get-call
-      - id: http-get-call
-      - id: underscore-fetch-call
-
-  # Hex URL array (migrated from YARA)
-  - id: hex-url-array
-    desc: Hex-encoded URL stored as array
-    crit: suspicious
-    conf: 0.9
-    mbc: "B0032"
-    attack: "T1027"
-    for: [javascript, typescript]
-    all:
-      - id: hex-const-array
-      - id: array-map-call
-      - id: buffer-from-call
-      - id: hex-encoding-string
-      - id: array-join-call
-
-  # Remote base64 decode (migrated from YARA)
-  - id: remote-base64-decode
-    desc: Fetches remote content and decodes
+  # Global manipulation combo
+  - id: js-global-manipulation
+    desc: Global object manipulation pattern
     crit: suspicious
     conf: 0.85
-    attack: "T1027"
-    for: [javascript, typescript]
-    all:
-      - id: http-get
-      - id: buffer-from-call
-      - id: base64-encoding-string
-      - id: trim-call
+    attack: "T1027.002"
+    for: [javascript]
+    count_min: 2
+    any:
+      - id: js-global-bracket-write
+      - id: js-require-alias
+      - id: js-version-marker
 
-  # Unicode obfuscation with execution
-  - id: js-unicode-exec
-    desc: Unicode obfuscated string executed (evasion)
+  # Obfuscated dynamic execution
+  - id: js-obfuscated-eval
+    desc: Obfuscated dynamic code execution
     crit: hostile
     conf: 0.95
+    attack: "T1027.002"
     mbc: "B0032"
-    attack: "T1027"
-    for: [javascript, typescript]
+    for: [javascript]
     all:
-      - id: js-unicode-escape
       - id: js-dynamic-exec
+    any:
+      - id: js-string-deobfuscation
       - id: fromcharcode
-
-  # Dynamic require with obfuscation
-  - id: js-dynamic-require
-    desc: Dynamic require with obfuscated module
-    crit: suspicious
-    conf: 0.85
-    all:
-      - id: js-dynamic-require-call
       - id: js-unicode-escape
+      - id: js-hex-escape
+      - id: js-buffer-from-base64
+      - id: js-buffer-from-hex

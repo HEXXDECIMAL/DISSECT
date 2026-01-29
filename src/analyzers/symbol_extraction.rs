@@ -86,8 +86,20 @@ fn extract_calls(
     }
 }
 
-/// Extract the function name from a call expression node
+/// Extract the function name or identifier from a call, assignment, or declaration
 fn extract_function_name(node: &tree_sitter::Node, source: &[u8]) -> Option<String> {
+    let kind = node.kind();
+
+    if kind == "assignment_expression" {
+        let left = node.child_by_field_name("left")?;
+        return get_full_identifier(&left, source);
+    }
+
+    if kind == "variable_declarator" {
+        let name = node.child_by_field_name("name")?;
+        return get_full_identifier(&name, source);
+    }
+
     // For call expressions, the function being called is usually the first child or
     // named field "function", "callee", or "method".
     let callee = node
@@ -114,6 +126,8 @@ fn get_full_identifier(node: &tree_sitter::Node, source: &[u8]) -> Option<String
             | "command_name"
             | "word"
             | "simple_identifier"
+            | "string"
+            | "string_literal"
     ) {
         return node.utf8_text(source).ok().map(|s| s.to_string());
     }
@@ -126,6 +140,7 @@ fn get_full_identifier(node: &tree_sitter::Node, source: &[u8]) -> Option<String
             | "selector_expression"
             | "attribute"
             | "dot_index_expression"
+            | "subscript_expression"
     ) {
         // Most member expressions have an object/operand and a property/field
         let object = node
@@ -136,12 +151,17 @@ fn get_full_identifier(node: &tree_sitter::Node, source: &[u8]) -> Option<String
         let property = node
             .child_by_field_name("property")
             .or_else(|| node.child_by_field_name("field"))
+            .or_else(|| node.child_by_field_name("index"))
             .or_else(|| node.child(node.child_count().saturating_sub(1) as u32))?;
 
-        if let (Some(obj_name), Some(prop_name)) = (
+        if let (Some(obj_name), Some(mut prop_name)) = (
             get_full_identifier(&object, source),
             get_full_identifier(&property, source),
         ) {
+            // Clean up property name if it's a string literal from a subscript
+            if prop_name.starts_with('"') || prop_name.starts_with('\'') {
+                prop_name = prop_name[1..prop_name.len() - 1].to_string();
+            }
             return Some(format!("{}.{}", obj_name, prop_name));
         }
     }
@@ -165,7 +185,7 @@ pub fn get_language_config(
         FileType::Python => Some((tree_sitter_python::LANGUAGE.into(), vec!["call"])),
         FileType::JavaScript => Some((
             tree_sitter_javascript::LANGUAGE.into(),
-            vec!["call_expression"],
+            vec!["call_expression", "assignment_expression", "variable_declarator"],
         )),
         FileType::TypeScript => Some((
             tree_sitter_typescript::LANGUAGE_TYPESCRIPT.into(),

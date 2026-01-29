@@ -245,3 +245,36 @@ composite_rules:
     all:
       - id: spawn-or-exec-call
       - id: child-process-import
+
+  # Supply-chain trojan with obfuscated payload
+  - id: obfuscated-trojan
+    description: Obfuscated supply-chain trojan
+    crit: hostile
+    confidence: 0.95
+    attack: "T1195.002"
+    mbc: "B0022"
+    file_types: [javascript]
+    count: 3
+    any:
+      - id: anti-static/obfuscation/strings/js-string-deobfuscation
+      - id: anti-static/obfuscation/strings/js-global-manipulation
+      - id: exec/eval/dynamic/obfuscated-function-constructor
+      - id: exec/eval/dynamic/dynamic-code-execution
+      - id: anti-static/obfuscation/strings/js-obfuscated-eval
+      - id: anti-static/obfuscation/code-metrics
+
+  # Advanced evasion with multiple techniques
+  - id: advanced-evasion-trojan
+    description: Multi-layer obfuscated malware
+    crit: hostile
+    confidence: 0.98
+    attack: "T1195.002"
+    mbc: "B0032"
+    file_types: [javascript]
+    all:
+      - id: anti-static/obfuscation/strings/js-string-deobfuscation
+      - id: exec/eval/dynamic/Function-constructor
+    any:
+      - id: anti-static/obfuscation/strings/js-global-manipulation
+      - id: exec/eval/dynamic/obfuscated-iife
+      - id: anti-static/obfuscation/strings/js-require-alias
