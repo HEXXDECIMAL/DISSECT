@@ -86,58 +86,71 @@ fn extract_calls(
     }
 }
 
-/// Extract the function name from a call expression node (iterative to avoid stack overflow)
+/// Extract the function name from a call expression node
 fn extract_function_name(node: &tree_sitter::Node, source: &[u8]) -> Option<String> {
-    // Use a work queue instead of recursion to handle deeply nested member expressions
-    let mut nodes_to_check = vec![*node];
-    const MAX_DEPTH: usize = 100; // Prevent infinite loops on malformed AST
+    // For call expressions, the function being called is usually the first child or
+    // named field "function", "callee", or "method".
+    let callee = node
+        .child_by_field_name("function")
+        .or_else(|| node.child_by_field_name("callee"))
+        .or_else(|| node.child_by_field_name("method"))
+        .or_else(|| node.child(0))?;
 
-    while let Some(current) = nodes_to_check.pop() {
-        if nodes_to_check.len() > MAX_DEPTH {
-            break; // Safety limit
-        }
+    get_full_identifier(&callee, source)
+}
 
-        let mut cursor = current.walk();
-        if cursor.goto_first_child() {
-            loop {
-                let child = cursor.node();
-                let kind = child.kind();
+/// Recursively extract a full identifier from member expressions (e.g., "os.Open")
+fn get_full_identifier(node: &tree_sitter::Node, source: &[u8]) -> Option<String> {
+    let kind = node.kind();
 
-                // Look for identifier-like nodes
-                if matches!(
-                    kind,
-                    "identifier"
-                        | "field_identifier"
-                        | "property_identifier"
-                        | "attribute"
-                        | "name"
-                        | "command_name"
-                        | "word"
-                        | "simple_identifier"
-                ) {
-                    return child.utf8_text(source).ok().map(|s| s.to_string());
-                }
+    // Base case: simple identifiers
+    if matches!(
+        kind,
+        "identifier"
+            | "field_identifier"
+            | "property_identifier"
+            | "attribute"
+            | "name"
+            | "command_name"
+            | "word"
+            | "simple_identifier"
+    ) {
+        return node.utf8_text(source).ok().map(|s| s.to_string());
+    }
 
-                // For member expressions, queue for checking instead of recursing
-                if matches!(
-                    kind,
-                    "member_expression"
-                        | "field_expression"
-                        | "attribute"
-                        | "call"
-                        | "method_call"
-                        | "selector_expression"
-                        | "call_expression"
-                ) {
-                    nodes_to_check.push(child);
-                }
+    // Recursive case: member/selector expressions
+    if matches!(
+        kind,
+        "member_expression"
+            | "field_expression"
+            | "selector_expression"
+            | "attribute"
+            | "dot_index_expression"
+    ) {
+        // Most member expressions have an object/operand and a property/field
+        let object = node
+            .child_by_field_name("object")
+            .or_else(|| node.child_by_field_name("operand"))
+            .or_else(|| node.child(0))?;
 
-                if !cursor.goto_next_sibling() {
-                    break;
-                }
-            }
+        let property = node
+            .child_by_field_name("property")
+            .or_else(|| node.child_by_field_name("field"))
+            .or_else(|| node.child(node.child_count().saturating_sub(1) as u32))?;
+
+        if let (Some(obj_name), Some(prop_name)) = (
+            get_full_identifier(&object, source),
+            get_full_identifier(&property, source),
+        ) {
+            return Some(format!("{}.{}", obj_name, prop_name));
         }
     }
+
+    // Fallback: if it's a call, try to get the function name
+    if kind.contains("call") || kind.contains("invocation") {
+        return extract_function_name(node, source);
+    }
+
     None
 }
 

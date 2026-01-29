@@ -29,6 +29,22 @@ traits:
     desc: "High entropy identifiers (random-looking variable"
     crit: suspicious
     conf: 0.85
+    # NOTE: Shell has its own threshold (3.2) in code-metrics/shell.yaml
+    for:
+      [
+        python,
+        javascript,
+        typescript,
+        php,
+        ruby,
+        perl,
+        go,
+        rust,
+        java,
+        lua,
+        csharp,
+        powershell,
+      ]
     if:
       type: metrics
       field: identifiers.avg_entropy
@@ -38,6 +54,22 @@ traits:
     desc: "Many high-entropy identifiers (>20% have"
     crit: suspicious
     conf: 0.9
+    # NOTE: Shell has its own threshold (40%) in code-metrics/shell.yaml
+    for:
+      [
+        python,
+        javascript,
+        typescript,
+        php,
+        ruby,
+        perl,
+        go,
+        rust,
+        java,
+        lua,
+        csharp,
+        powershell,
+      ]
     if:
       type: metrics
       field: identifiers.high_entropy_ratio
@@ -85,6 +117,22 @@ traits:
     desc: "Functions with random-looking names"
     crit: suspicious
     conf: 0.85
+    # NOTE: Shell has its own threshold (10) in code-metrics/shell.yaml
+    for:
+      [
+        python,
+        javascript,
+        typescript,
+        php,
+        ruby,
+        perl,
+        go,
+        rust,
+        java,
+        lua,
+        csharp,
+        powershell,
+      ]
     if:
       type: metrics
       field: functions.high_entropy_names

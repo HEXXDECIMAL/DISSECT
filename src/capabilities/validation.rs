@@ -14,17 +14,62 @@ use std::collections::{HashMap, HashSet};
 
 use super::parsing::parse_file_types;
 
-/// Calculate the complexity of a composite rule
-/// Complexity measures how many filters/constraints the rule has:
-/// - File type filter (not "all"): +1
-/// - `all` clause: +count of elements (each must match)
-/// - `any` clause: +count_exact or +count_min or +1 (how many must match)
-/// - `none` clause: +1 (exclusion filter)
-/// - `unless` clause: +1 (conditional skip filter)
+/// Calculate the complexity of a trait definition
+/// Counts all filters/conditions that make the trait more precise
+fn calculate_trait_complexity(trait_def: &TraitDefinition) -> usize {
+    let mut complexity = 0;
+
+    // Base condition (pattern match, string search, etc.)
+    complexity += 1;
+
+    // Size restrictions add precision
+    if trait_def.size_min.is_some() {
+        complexity += 1;
+    }
+    if trait_def.size_max.is_some() {
+        complexity += 1;
+    }
+
+    // Platform filter (if not All)
+    if !trait_def.platforms.contains(&Platform::All) {
+        complexity += 1;
+    }
+
+    // File type filter (if not All)
+    if !trait_def
+        .r#for
+        .iter()
+        .any(|ft| matches!(ft, RuleFileType::All))
+    {
+        complexity += 1;
+    }
+
+    // Exception filters (not clause)
+    if trait_def.not.is_some() {
+        complexity += 1;
+    }
+
+    // Conditional skip (unless clause)
+    if trait_def.unless.is_some() {
+        complexity += 1;
+    }
+
+    complexity
+}
+
+/// Calculate the complexity of a composite rule or trait
+///
+/// Complexity is a measure of precision - how many filters/constraints the rule has.
+/// This RECURSIVELY counts ALL filters across the entire rule tree:
+/// - Base trait: pattern + size_min + size_max + platform + file_type + not + unless
+/// - Composite: file_type + recursively expanded all/any/none/unless clauses
+///
+/// IMPORTANT: This is the ONLY place in the codebase for measuring rule complexity/precision.
+/// Do not duplicate this logic elsewhere.
 pub fn calculate_composite_complexity(
     rule_id: &str,
     all_composites: &[CompositeTrait],
-    _all_traits: &[TraitDefinition],
+    all_traits: &[TraitDefinition],
     cache: &mut HashMap<String, usize>,
     visiting: &mut HashSet<String>,
 ) -> usize {
@@ -37,75 +82,87 @@ pub fn calculate_composite_complexity(
         return 1;
     }
 
-    // Find the rule
-    let rule = match all_composites.iter().find(|r| r.id == rule_id) {
-        Some(r) => r,
-        None => {
-            // Not a composite - might be a simple trait, count as 1
-            visiting.remove(rule_id);
-            cache.insert(rule_id.to_string(), 1);
-            return 1;
+    // Try to find as composite rule first
+    if let Some(rule) = all_composites.iter().find(|r| r.id == rule_id) {
+        let mut complexity = 0;
+
+        // File type filter counts as 1 if it's specific
+        if !rule.r#for.contains(&RuleFileType::All) {
+            complexity += 1;
         }
-    };
 
-    let mut complexity = 0;
+        // `all` clause: recursively sum all elements
+        if let Some(ref conditions) = rule.all {
+            for cond in conditions {
+                match cond {
+                    Condition::Trait { id } => {
+                        // Recursively calculate trait/composite complexity
+                        complexity += calculate_composite_complexity(
+                            id,
+                            all_composites,
+                            all_traits,
+                            cache,
+                            visiting,
+                        );
+                    }
+                    _ => {
+                        // Direct condition (string, symbol, etc.)
+                        complexity += 1;
+                    }
+                }
+            }
+        }
 
-    // File type filter counts as 1 if it's specific
-    if !rule.r#for.contains(&RuleFileType::All) {
-        complexity += 1;
-    }
+        // `any` clause: use count requirement, recursively expand for single trait
+        if let Some(ref conditions) = rule.any {
+            let count = rule.count_exact.or(rule.count_min).unwrap_or(1);
 
-    // `all` clause: recursively sum elements
-    if let Some(ref conditions) = rule.all {
-        for cond in conditions {
-            if let Condition::Trait { id } = cond {
-                complexity += calculate_composite_complexity(
-                    id,
-                    all_composites,
-                    _all_traits,
-                    cache,
-                    visiting,
-                );
+            // If it's a single trait reference, expand it and multiply by count
+            if conditions.len() == 1 {
+                if let Condition::Trait { id } = &conditions[0] {
+                    let trait_complexity = calculate_composite_complexity(
+                        id,
+                        all_composites,
+                        all_traits,
+                        cache,
+                        visiting,
+                    );
+                    complexity += trait_complexity * count;
+                } else {
+                    // Single direct condition
+                    complexity += count;
+                }
             } else {
-                complexity += 1;
+                // Multiple conditions in any - add the count requirement
+                complexity += count;
             }
         }
-    }
 
-    // `any` clause: use count_exact or count_min or 1, and recursively expand if those are traits
-    if let Some(ref conditions) = rule.any {
-        let count = rule.count_exact.or(rule.count_min).unwrap_or(1);
-
-        // If it's a list of traits, we add the required count
-        complexity += count;
-
-        // If it's just one trait being referenced in an any block, expand it to get its weight
-        if conditions.len() == 1 {
-            if let Condition::Trait { id } = &conditions[0] {
-                complexity = complexity.saturating_sub(1); // Remove the +1 we just added for 'count'
-                complexity += calculate_composite_complexity(
-                    id,
-                    all_composites,
-                    _all_traits,
-                    cache,
-                    visiting,
-                );
-            }
+        // `none` or `unless` clauses count as 1 for complexity
+        if rule.none.is_some() {
+            complexity += 1;
         }
+        if rule.unless.is_some() {
+            complexity += 1;
+        }
+
+        visiting.remove(rule_id);
+        cache.insert(rule_id.to_string(), complexity);
+        return complexity;
     }
 
-    // `none` or `unless` clauses count as 1 for complexity
-    if rule.none.is_some() {
-        complexity += 1;
-    }
-    if rule.unless.is_some() {
-        complexity += 1;
+    // Not a composite - try to find as a trait definition
+    if let Some(trait_def) = all_traits.iter().find(|t| t.id == rule_id) {
+        let complexity = calculate_trait_complexity(trait_def);
+        visiting.remove(rule_id);
+        cache.insert(rule_id.to_string(), complexity);
+        return complexity;
     }
 
+    // Not found - treat as external/unknown trait (count as 1)
     visiting.remove(rule_id);
-    cache.insert(rule_id.to_string(), complexity);
-
-    complexity
+    cache.insert(rule_id.to_string(), 1);
+    1
 }
 
 /// Validate and downgrade HOSTILE composite rules that don't meet complexity requirements

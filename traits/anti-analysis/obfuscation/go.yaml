@@ -1,0 +1,60 @@
+# Go Obfuscation and Anti-Analysis
+traits:
+  - id: base64
+    desc: "Base64 decoding"
+    crit: suspicious
+    conf: 0.85
+    attack: "T1140"
+    for: [go]
+    if:
+      type: string
+      pattern: 'base64\..*Encoding\.DecodeString'
+
+  - id: hex
+    desc: "Hex decoding"
+    crit: suspicious
+    conf: 0.8
+    attack: "T1140"
+    for: [go]
+    if:
+      type: string
+      exact: "hex.DecodeString"
+
+  - id: compression
+    desc: "Data decompression"
+    crit: suspicious
+    conf: 0.75
+    attack: "T1140"
+    for: [go]
+    if:
+      type: string
+      pattern: '(gzip|zlib)\.NewReader'
+
+  - id: reflection
+    desc: "Reflection/dynamic invocation"
+    crit: notable
+    conf: 0.85
+    for: [go]
+    if:
+      type: string
+      pattern: 'reflect\.(ValueOf|Call)'
+
+  - id: environment-check
+    desc: "Runtime environment checks"
+    crit: suspicious
+    conf: 0.7
+    attack: "T1497"
+    for: [go]
+    if:
+      type: string
+      pattern: 'runtime\.(GOMAXPROCS|NumGoroutine)'
+
+  - id: anti-debug
+    desc: "Ptrace (debugger detection)"
+    crit: suspicious
+    conf: 0.95
+    attack: "T1622"
+    for: [go]
+    if:
+      type: string
+      contains: "ptrace"

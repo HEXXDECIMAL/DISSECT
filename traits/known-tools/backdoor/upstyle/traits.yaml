@@ -319,12 +319,6 @@ composite_rules:
       - id: pan-services-persist
 
   - id: backdoor/upstyle/detected
-    description: PAN-OS Upstyle backdoor detected
-    crit: hostile
+    description: Upstyle backdoor detected
+    crit: suspicious
     conf: 0.95
-    attack: "T1505"
-    mbc: "B0022"
-    any:
-      - id: backdoor/upstyle/generic
-      - id: backdoor/upstyle/cmd-exec
-      - id: backdoor/upstyle/persistence

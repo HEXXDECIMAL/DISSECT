@@ -229,7 +229,7 @@ composite_rules:
 
   - id: rootkit/medusa/ssh-theft
     description: Medusa SSH credential theft capability
-    crit: hostile
+    crit: suspicious
     confidence: 0.95
     attack: "T1556"
     mbc: "E1056"
@@ -245,7 +245,7 @@ composite_rules:
 
   - id: rootkit/medusa/ld-hijack
     description: Medusa dynamic linker hijacking
-    crit: hostile
+    crit: suspicious
     confidence: 0.95
     attack: "T1574.006"
     mbc: "F0015"

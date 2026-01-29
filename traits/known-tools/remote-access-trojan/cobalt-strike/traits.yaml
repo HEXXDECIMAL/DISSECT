@@ -306,7 +306,7 @@ composite_rules:
   # Full Cobalt Strike beacon detection
   - id: c2-framework/cobalt-strike/beacon
     description: Cobalt Strike beacon detected
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     family: true
     attack: "T1071"
@@ -323,7 +323,7 @@ composite_rules:
   # macOS beacon detection via syscall combination + entropy
   - id: c2-framework/cobalt-strike/macos-beacon
     description: Cobalt Strike macOS beacon
-    crit: hostile
+    crit: suspicious
     conf: 0.9
     family: true
     mbc: "B0030"

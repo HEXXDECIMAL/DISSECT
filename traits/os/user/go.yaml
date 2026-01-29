@@ -1,0 +1,10 @@
+# Go User Information
+traits:
+  - id: home-dir
+    desc: "Get user home directory"
+    crit: inert
+    conf: 0.9
+    for: [go]
+    if:
+      type: symbol
+      exact: "os.UserHomeDir"

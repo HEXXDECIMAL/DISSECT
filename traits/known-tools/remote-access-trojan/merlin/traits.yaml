@@ -101,8 +101,8 @@ composite_rules:
       - id: c2-framework/merlin/agent-camel
 
   - id: c2-framework/merlin/detected
-    description: Merlin C2 agent detected
-    crit: hostile
+    description: Merlin C2 detected
+    crit: suspicious
     conf: 0.95
     family: true
     reference: "https://github.com/Ne0nd0g/merlin"

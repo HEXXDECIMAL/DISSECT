@@ -84,7 +84,7 @@ composite_rules:
   # Full SystemBC detection
   - id: backdoor/systembc/detected
     description: SystemBC backdoor detected
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     attack: "T1090.001"
     mbc: "B0030"

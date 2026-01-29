@@ -240,9 +240,11 @@ traits:
 
   - id: stty-cmd
     desc: stty command reference
-    crit: notable
-    conf: 0.5
+    crit: inert
+    conf: 0.4
     for: [python, javascript, shell]
+    # NOTE: stty alone is legitimate (reading user input in installers)
+    # Only suspicious when combined with socket/network operations
     if:
       type: string
       exact: "stty"
@@ -465,13 +467,15 @@ composite_rules:
       - id: raw-mode
 
   # Interactive shell markers (migrated from YARA)
+  # NOTE: TTY manipulation alone is legitimate (e.g., reading user input)
+  # Only flag as suspicious when combined with network/socket operations
   - id: interactive-markers
     desc: Interactive shell session markers
-    crit: suspicious
-    conf: 0.85
+    crit: notable
+    conf: 0.7
     attack: "T1059"
     for: [python, javascript, shell]
-    count_min: 2
+    count_min: 3
     any:
       - id: tty-markers
       - id: terminal-setup

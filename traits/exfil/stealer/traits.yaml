@@ -51,6 +51,7 @@ composite_rules:
       - id: panel-var-http
 
   # curl POST with custom headers (references comm/http/client/)
+  # NOTE: This is suspicious because legitimate downloads don't use custom POST headers
   - id: curl-post-headers
     desc: curl POST with custom identification
     crit: suspicious
@@ -102,28 +103,17 @@ composite_rules:
     any:
       - id: comm/http/headers/multipart-upload
 
-  # HTTP client/POST (references comm/http/client/ and comm/http/)
-  - id: http-client-post
-    desc: HTTP client tool or POST
-    crit: notable
-    conf: 0.8
-    for: [shell]
-    count_min: 1
-    any:
-      - id: comm/http/client/curl-cmd
-      - id: comm/http/client/wget-cmd
-      - id: comm/http/post-method
-
-  # Full exfiltration pattern: archive + upload
+  # Full exfiltration pattern: must have POST with custom headers or C2 indicators
+  # NOTE: Simple curl downloads (without POST/upload indicators) won't trigger this
   - id: stealer-exfil
     desc: Stealer data exfiltration pattern
     crit: hostile
     conf: 0.95
     mbc: "C0001"
     for: [shell]
-    all:
-      - id: http-client-post
     any:
       - id: curl-post-headers
+      - id: curl-upload
       - id: bot-headers
       - id: gate-url
+      - id: zip-upload

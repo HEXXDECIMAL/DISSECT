@@ -1190,17 +1190,14 @@ fn check_condition(
 ) {
     use crate::composite_rules::condition::Condition;
 
-    match condition {
-        Condition::Content { exact: Some(_), .. } => {
-            eprintln!(
-                "⚠️  WARNING: Trait '{}' in {} uses 'type: content' with 'exact' match. \
-                This requires the entire file content to exactly match the pattern, \
-                which is rarely useful. Consider using 'contains' instead.",
-                trait_id,
-                path.display()
-            );
-        }
-        _ => {}
+    if let Condition::Content { exact: Some(_), .. } = condition {
+        eprintln!(
+            "⚠️  WARNING: Trait '{}' in {} uses 'type: content' with 'exact' match. \
+            This requires the entire file content to exactly match the pattern, \
+            which is rarely useful. Consider using 'contains' instead.",
+            trait_id,
+            path.display()
+        );
     }
 }
 

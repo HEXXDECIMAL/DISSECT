@@ -32,7 +32,7 @@ traits:
     attack: "T1552.004"
     if:
       type: string
-      exact: "id_rsa"
+      regex: '(\.ssh/)?id_rsa'
 
   - id: id-dsa
     desc: SSH id_dsa private key reference
@@ -372,9 +372,9 @@ composite_rules:
 
   # === Composite: SSH credential theft behavior ===
   - id: credential-theft
-    desc: SSH credential theft behavior
-    crit: hostile
-    conf: 0.9
+    desc: "SSH key credential theft"
+    crit: suspicious
+    conf: 0.95
     attack: "T1556"
     mbc: "E1056"
     platforms: [linux]

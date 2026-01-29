@@ -267,30 +267,17 @@ composite_rules:
 
   # Camera credential list detection
   - id: camera-creds
-    description: IP camera default credentials detected
-    crit: hostile
-    confidence: 0.9
-    attack: "T1110.001"
-    mbc: "E1017"
-    file_types: [elf]
-    count_min: 2
+    desc: "IoT camera credentials brute-force"
+    crit: suspicious
+    conf: 0.95
+    attack: "T1110"
+    mbc: "B0009"
+    all:
+      - id: iot-creds
     any:
-      - id: camera-cred-vizxv
-      - id: camera-cred-xmhdipc
-      - id: mirai-cred-vizxv
-      - id: mirai-cred-prefix
+      - id: camera-keywords
 
-  # Telnet bruteforce attack pattern
   - id: telnet-attack
-    description: Telnet bruteforce attack pattern detected
-    crit: hostile
-    confidence: 0.9
-    attack: "T1110.001"
-    mbc: "E1017"
-    file_types: [elf]
-    count_min: 2
-    any:
-      - id: telnet-connect
-      - id: busybox-download
-      - id: telnet-port-scan
-      - id: router-shell-enable
+    desc: "IoT telnet attack patterns"
+    crit: suspicious
+    conf: 0.95

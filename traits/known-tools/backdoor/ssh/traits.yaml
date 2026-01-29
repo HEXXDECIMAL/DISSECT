@@ -120,7 +120,7 @@ composite_rules:
   # === Main detection rule ===
   - id: backdoor/ssh/detected
     description: SSH backdoor detected
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     attack: "T1556.004"
     mbc: "B0022"

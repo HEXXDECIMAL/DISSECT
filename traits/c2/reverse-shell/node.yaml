@@ -385,7 +385,7 @@ composite_rules:
 
   - id: ngrok-tunnel
     desc: Ngrok tunnel endpoint (C2 tunneling)
-    crit: malicious
+    crit: suspicious
     conf: 0.95
     mbc: "C0002"
     attack: "T1572"

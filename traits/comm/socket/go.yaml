@@ -1,55 +1,71 @@
-# Go Network Socket Detection
-# Metrics-based detection of network operations in Go code
-
-defaults:
-  for: [go]
-  attack: "T1071"
-
+# Go Network Operations
 traits:
-  - id: go-network-dial
-    desc: Creates network connections via net.Dial
+  - id: listen
+    desc: "Network server listener"
     crit: notable
-    conf: 0.75
+    conf: 0.9
+    attack: "T1043"
+    for: [go]
     if:
-      type: metrics
-      field: go_metrics.net_dial_count
-      min: 1
+      type: symbol
+      exact: "net.Listen"
 
-  - id: go-raw-sockets
-    desc: Uses raw socket operations
-    crit: suspicious
+  - id: listen-tcp
+    desc: "Network TCP listener"
+    crit: notable
+    conf: 0.9
+    attack: "T1043"
+    for: [go]
+    if:
+      type: symbol
+      exact: "net.ListenTCP"
+
+  - id: dial
+    desc: "Network dial connection"
+    crit: notable
     conf: 0.85
+    attack: "T1071"
+    for: [go]
     if:
-      type: metrics
-      field: go_metrics.raw_socket_count
-      min: 1
-
-  - id: go-http-operations
-    desc: Performs HTTP client/server operations
-    crit: notable
-    conf: 0.7
-    if:
-      type: metrics
-      field: go_metrics.http_usage
-      min: 1
-
-  # === Binary (compiled Go) ===
-  - id: net-conn-write
-    desc: Go net.conn.Write
-    crit: notable
-    conf: 0.5
-    platforms: [all]
-    for: [elf, macho, pe]
-    if:
-      type: string
-      exact: "net.(*conn).Write"
+      type: symbol
+      exact: "net.Dial"
 
   - id: dial-tcp
-    desc: Go dialTCP
+    desc: "Network TCP dial connection"
     crit: notable
-    conf: 0.5
-    platforms: [all]
-    for: [elf, macho, pe]
+    conf: 0.85
+    attack: "T1071"
+    for: [go]
     if:
-      type: string
-      exact: "dialTCP"
+      type: symbol
+      exact: "net.DialTCP"
+
+  - id: http-get
+    desc: "HTTP GET request"
+    crit: notable
+    conf: 0.85
+    attack: "T1071.001"
+    for: [go]
+    if:
+      type: symbol
+      exact: "http.Get"
+
+  - id: http-post
+    desc: "HTTP POST request"
+    crit: notable
+    conf: 0.85
+    attack: "T1071.001"
+    for: [go]
+    if:
+      type: symbol
+      exact: "http.Post"
+
+  - id: http-listen
+    desc: "HTTP server listener"
+    crit: notable
+    conf: 0.9
+    attack: "T1043"
+    for: [go]
+    if:
+      type: symbol
+      exact: "http.ListenAndServe"

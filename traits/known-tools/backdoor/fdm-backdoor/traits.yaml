@@ -99,7 +99,7 @@ composite_rules:
   # Full FDM backdoor detection
   - id: backdoor/fdm-backdoor/detected
     description: FreeDownloadManager supply chain backdoor
-    crit: hostile
+    crit: suspicious
     conf: 0.98
     family: true
     attack: "T1195.002"

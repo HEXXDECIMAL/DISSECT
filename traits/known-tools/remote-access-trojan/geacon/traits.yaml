@@ -86,8 +86,8 @@ traits:
 
 composite_rules:
   - id: c2-framework/geacon/detected
-    description: Geacon Go-based Cobalt Strike beacon
-    crit: hostile
+    description: Geacon Cobalt Strike Go implant detected
+    crit: suspicious
     conf: 0.95
     family: true
     attack: "T1071"

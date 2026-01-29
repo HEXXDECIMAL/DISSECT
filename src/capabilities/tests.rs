@@ -208,6 +208,8 @@ fn test_apply_trait_defaults_applies_all_defaults() {
         attack: None,
         platforms: None,
         file_types: None,
+        size_min: None,
+        size_max: None,
         condition: Condition::String {
             exact: Some("test".to_string()),
             regex: None,
@@ -251,6 +253,8 @@ fn test_apply_trait_defaults_trait_overrides_defaults() {
         attack: Some("T1234".to_string()),
         platforms: Some(vec!["windows".to_string()]),
         file_types: Some(vec!["pe".to_string()]),
+        size_min: None,
+        size_max: None,
         condition: Condition::String {
             exact: Some("test".to_string()),
             regex: None,
@@ -295,6 +299,8 @@ fn test_apply_trait_defaults_unset_mbc_with_none() {
         attack: None,                  // Use default
         platforms: None,
         file_types: None,
+        size_min: None,
+        size_max: None,
         condition: Condition::String {
             exact: Some("test".to_string()),
             regex: None,
@@ -334,6 +340,8 @@ fn test_apply_trait_defaults_unset_attack_with_none() {
         attack: Some("NONE".to_string()), // Explicitly unset (uppercase)
         platforms: None,
         file_types: None,
+        size_min: None,
+        size_max: None,
         condition: Condition::String {
             exact: Some("test".to_string()),
             regex: None,
@@ -373,6 +381,8 @@ fn test_apply_trait_defaults_unset_file_types_with_none() {
         attack: None,
         platforms: None,
         file_types: Some(vec!["none".to_string()]), // Explicitly unset
+        size_min: None,
+        size_max: None,
         condition: Condition::String {
             exact: Some("test".to_string()),
             regex: None,
@@ -1132,6 +1142,8 @@ fn test_complexity_recursive_expansion() {
             compiled_regex: None,
             compiled_excludes: Vec::new(),
         },
+        size_min: None,
+        size_max: None,
         not: None,
         unless: None,
         downgrade: None,
@@ -1228,8 +1240,11 @@ fn test_complexity_recursive_expansion() {
         &mut visiting,
     );
 
-    // composite-b has 2 elements in 'all' clause = 2
-    assert_eq!(complexity, 2);
+    // composite-b has all: [composite-a, atomic-trait]
+    // composite-a has 2 string conditions = 2
+    // atomic-trait has 1 base condition = 1
+    // Total: 2 + 1 = 3
+    assert_eq!(complexity, 3);
 }
 
 /// Test cycle detection in trait references
@@ -1756,8 +1771,11 @@ fn test_complexity_deep_nesting() {
         &mut visiting,
     );
 
-    // level3 has 2 elements in 'all' clause = 2
-    assert_eq!(complexity, 2);
+    // level3 has all: [level2, string]
+    // level2 has all: [level1, string] = level1(2) + string(1) = 3
+    // level1 has all: [string, string] = 2
+    // Total: level2(3) + string(1) = 4
+    assert_eq!(complexity, 4);
 }
 
 /// Test the correct complexity calculation algorithm:
@@ -1841,6 +1859,118 @@ fn test_complexity_correct_algorithm() {
     assert_eq!(
         complexity, 4,
         "Expected complexity 4: file_type(1) + any(1) + all(2), got {}",
+        complexity
+    );
+}
+
+/// Test complexity with traits that have size restrictions
+#[test]
+fn test_complexity_traits_with_size_restrictions() {
+    use std::collections::{HashMap, HashSet};
+
+    // Trait 1: string pattern + size restriction
+    let trait1 = TraitDefinition {
+        id: "test/trait-with-size-1".to_string(),
+        desc: "Trait with size restriction 1".to_string(),
+        conf: 0.8,
+        crit: Criticality::Notable,
+        mbc: None,
+        attack: None,
+        platforms: vec![Platform::All],
+        r#for: vec![RuleFileType::All],
+        r#if: Condition::String {
+            exact: Some("pattern1".to_string()),
+            regex: None,
+            word: None,
+            case_insensitive: false,
+            exclude_patterns: None,
+            min_count: 1,
+            contains: None,
+            compiled_regex: None,
+            compiled_excludes: Vec::new(),
+        },
+        size_min: Some(1024),    // Has size restriction
+        size_max: Some(1048576), // Has size restriction
+        not: None,
+        unless: None,
+        downgrade: None,
+    };
+
+    // Trait 2: string pattern + size restriction
+    let trait2 = TraitDefinition {
+        id: "test/trait-with-size-2".to_string(),
+        desc: "Trait with size restriction 2".to_string(),
+        conf: 0.8,
+        crit: Criticality::Notable,
+        mbc: None,
+        attack: None,
+        platforms: vec![Platform::All],
+        r#for: vec![RuleFileType::All],
+        r#if: Condition::String {
+            exact: Some("pattern2".to_string()),
+            regex: None,
+            word: None,
+            case_insensitive: false,
+            exclude_patterns: None,
+            min_count: 1,
+            contains: None,
+            compiled_regex: None,
+            compiled_excludes: Vec::new(),
+        },
+        size_min: Some(2048),    // Has size restriction
+        size_max: Some(2097152), // Has size restriction
+        not: None,
+        unless: None,
+        downgrade: None,
+    };
+
+    // Composite rule referencing both traits
+    let composite = CompositeTrait {
+        id: "test/composite-with-sized-traits".to_string(),
+        desc: "Composite with sized traits".to_string(),
+        conf: 0.9,
+        crit: Criticality::Suspicious,
+        mbc: None,
+        attack: None,
+        platforms: vec![Platform::All],
+        r#for: vec![RuleFileType::All],
+        all: Some(vec![
+            Condition::Trait {
+                id: "test/trait-with-size-1".to_string(),
+            },
+            Condition::Trait {
+                id: "test/trait-with-size-2".to_string(),
+            },
+        ]),
+        any: None,
+        count_exact: None,
+        count_min: None,
+        count_max: None,
+        none: None,
+        unless: None,
+        size_min: None,
+        size_max: None,
+    };
+
+    let mut cache = HashMap::new();
+    let mut visiting = HashSet::new();
+    let composites = vec![composite];
+    let traits = vec![trait1, trait2];
+
+    let complexity = validation::calculate_composite_complexity(
+        "test/composite-with-sized-traits",
+        &composites,
+        &traits,
+        &mut cache,
+        &mut visiting,
+    );
+
+    // Composite has all: with 2 trait references
+    // Each trait has: base_condition(1) + size_min(1) + size_max(1) = 3
+    // Total: trait1(3) + trait2(3) = 6
+    assert_eq!(
+        complexity, 6,
+        "Expected complexity 6: trait1(pattern+size_min+size_max=3) + trait2(pattern+size_min+size_max=3), got {}",
         complexity
     );
 }

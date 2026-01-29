@@ -1,0 +1,10 @@
+# Filesystem file opening
+traits:
+  - id: open
+    desc: "Open file"
+    crit: inert
+    conf: 0.9
+    for: [go]
+    if:
+      type: string
+      exact: "os.Open"

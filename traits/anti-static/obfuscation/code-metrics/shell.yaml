@@ -8,9 +8,24 @@ defaults:
 
 traits:
   # === Shell-Specific Obfuscation Patterns ===
+  # Shell scripts legitimately use long descriptive names like:
+  # - HOMEBREW_BREW_DEFAULT_GIT_REMOTE
+  # - should_install_command_line_tools
+  # - check_run_command_as_root
+  # These have high entropy but aren't obfuscation - use higher thresholds
+
+  # Override generic many-high-entropy-identifiers for shell
+  - id: sh-many-high-entropy-identifiers
+    desc: "Many high-entropy identifiers in shell"
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: metrics
+      field: identifiers.high_entropy_ratio
+      min: 0.40
 
   - id: sh-single-char-vars
-    desc: "Excessive single-character variables in shell"
+    desc: "Excessive single-character variables"
     crit: suspicious
     conf: 0.8
     if:
@@ -18,14 +33,25 @@ traits:
       field: identifiers.single_char_ratio
       min: 0.40
 
-  - id: sh-obfuscated-identifiers
-    desc: "Obfuscated shell variable names"
+  # Override generic high-entropy-identifiers for shell (avg_entropy)
+  - id: sh-high-entropy-identifiers
+    desc: "High entropy identifiers"
     crit: suspicious
     conf: 0.85
     if:
       type: metrics
       field: identifiers.avg_entropy
-      min: 3.0
+      min: 3.2
+
+  # Override generic high-entropy-function-names for shell
+  - id: sh-high-entropy-functions
+    desc: "High-entropy function names"
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: metrics
+      field: functions.high_entropy_names
+      min: 10
 
   - id: sh-encoded-payload
     desc: "Shell script with encoded payload"

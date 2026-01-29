@@ -1,54 +1,31 @@
-# Go Command Execution Detection
-# Metrics-based detection of command execution patterns in Go code
-
-defaults:
-  for: [go]
-  attack: "T1059"
-
+# Go Command Execution
 traits:
-  - id: go-exec-command
-    desc: Executes shell commands via exec.Command
+  - id: exec-command
+    desc: "Executes shell commands"
     crit: notable
-    conf: 0.85
+    conf: 0.95
+    attack: "T1059.003"
+    for: [go]
     if:
-      type: metrics
-      field: go_metrics.exec_command_count
-      min: 1
+      type: symbol
+      exact: "exec.Command"
 
-  - id: go-many-exec-calls
-    desc: Multiple shell command executions
-    crit: suspicious
-    conf: 0.9
-    if:
-      type: metrics
-      field: go_metrics.exec_command_count
-      min: 3
-
-  - id: go-direct-syscall
-    desc: Uses syscall package for direct
+  - id: syscall-exec
+    desc: "Direct execution via syscall.Exec"
     crit: notable
-    conf: 0.8
+    conf: 0.98
+    attack: "T1106"
+    for: [go]
     if:
-      type: metrics
-      field: go_metrics.syscall_direct
-      min: 1
+      type: symbol
+      exact: "syscall.Exec"
 
-  - id: go-os-startprocess
-    desc: Uses os.StartProcess for low-level process
+  - id: syscall-forkexec
+    desc: "Direct execution via syscall.ForkExec"
     crit: notable
-    conf: 0.85
+    conf: 0.98
+    attack: "T1106"
+    for: [go]
     if:
-      type: metrics
-      field: go_metrics.os_startprocess_count
-      min: 1
-
-  # === Binary (compiled Go) ===
-  - id: cmd-run
-    desc: Go os/exec.Cmd.Run
-    crit: notable
-    conf: 0.5
-    platforms: [all]
-    for: [elf, macho, pe]
-    if:
-      type: string
-      exact: "os/exec.(*Cmd).Run"
+      type: symbol
+      exact: "syscall.ForkExec"

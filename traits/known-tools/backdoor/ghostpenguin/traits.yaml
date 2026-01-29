@@ -109,15 +109,6 @@ composite_rules:
       - id: ghostpenguin/class-showmessage
 
   - id: backdoor/ghostpenguin/detected
-    description: "GhostPenguin backdoor detected"
-    crit: hostile
+    description: GhostPenguin backdoor detected
+    crit: suspicious
     conf: 0.95
-    attack: "T1071"
-    mbc: "B0022"
-    for: [elf, pe]
-    count_min: 2
-    any:
-      - id: ghostpenguin/c2-ip
-      - id: ghostpenguin/c2-domain
-      - id: ghostpenguin/string-format
-      - id: ghostpenguin/class-name

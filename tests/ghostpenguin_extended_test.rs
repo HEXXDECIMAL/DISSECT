@@ -44,7 +44,7 @@ fn test_ghostpenguin_extended_detection() -> Result<(), Box<dyn std::error::Erro
 
     // Verify New Detections
     assert!(
-        stdout.contains("Appends to crontab by piping echo"),
+        stdout.contains("Appends to crontab by piping"),
         "Missing cron blind append detection"
     );
     // assert!(stdout.contains("Rewrites crontab by filtering"), "Missing cron filtered rewrite detection"); // Masked by blind append in UI

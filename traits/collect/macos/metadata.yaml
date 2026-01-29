@@ -94,9 +94,9 @@ composite_rules:
       - id: documents-dir
       - id: home-env
 
-  # Metadata collection pattern
+  # Metadata filtering pattern
   - id: metadata-collection
-    desc: "Collects macOS metadata files"
+    desc: "Filesystem traversal with macOS file filtering"
     crit: suspicious
     conf: 0.85
     attack: "T1083"

@@ -35,9 +35,9 @@ traits:
 
 composite_rules:
   - id: js-clipboard-exfil
-    desc: JavaScript clipboard theft with exfiltration
-    crit: hostile
-    conf: 0.98
+    desc: "JavaScript clipboard capture exfiltration"
+    crit: suspicious
+    conf: 0.95
     attack: "T1553"
     mbc: "B0014"
     for: [javascript]

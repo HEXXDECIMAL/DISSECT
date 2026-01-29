@@ -101,8 +101,8 @@ composite_rules:
       - id: c2-framework/brute-ratel/badger-str
 
   - id: c2-framework/brute-ratel/detected
-    description: Brute Ratel C4 framework
-    crit: hostile
+    description: Brute Ratel C4 detected
+    crit: suspicious
     conf: 0.95
     family: true
     attack: "T1059"

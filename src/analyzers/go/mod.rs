@@ -94,6 +94,9 @@ impl GoAnalyzer {
         // Extract functions
         self.extract_functions(&root, content.as_bytes(), &mut report);
 
+        // Extract strings to report for capability matching
+        self.extract_strings_to_report(&root, content.as_bytes(), &mut report);
+
         // Extract function calls as symbols for symbol-based rule matching
         crate::analyzers::symbol_extraction::extract_symbols(
             content,
@@ -113,6 +116,13 @@ impl GoAnalyzer {
         // Compute metrics for ML analysis
         let metrics = self.compute_metrics(&root, content);
         report.metrics = Some(metrics);
+
+        // Evaluate all rules (atomic + composite) and merge into report
+        self.capability_mapper.evaluate_and_merge_findings(
+            &mut report,
+            content.as_bytes(),
+            Some(&tree),
+        );
 
         // Timing
         let elapsed = start.elapsed().as_millis() as u64;

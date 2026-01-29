@@ -127,7 +127,7 @@ composite_rules:
   # Main Sliver detection via explicit markers
   - id: c2-framework/sliver/detected
     description: Sliver C2 framework implant
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     family: true
     reference: "https://github.com/BishopFox/sliver"
@@ -146,7 +146,7 @@ composite_rules:
   # Sliver functions detection
   - id: c2-framework/sliver/functions-detected
     description: Sliver C2 implant functions
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     family: true
     mbc: "B0030"
@@ -162,7 +162,7 @@ composite_rules:
   # Obfuscated variant detection via YARA (needs filesize constraints)
   - id: c2-framework/sliver/obfuscated-detected
     description: Sliver C2 obfuscated Linux implant
-    crit: hostile
+    crit: suspicious
     conf: 0.9
     family: true
     mbc: "B0030"

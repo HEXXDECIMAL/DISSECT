@@ -1228,7 +1228,7 @@ composite_rules:
   # ActiveXObject + any network operation = likely malicious
   - id: activex-network
     desc: "ActiveXObject with network operations (likely"
-    crit: hostile
+    crit: suspicious
     conf: 0.96
     attack: "T1071"
     mbc: "B0030"
@@ -1246,7 +1246,7 @@ composite_rules:
   # ActiveXObject + command execution
   - id: activex-exec
     desc: "ActiveXObject with command execution (shell"
-    crit: hostile
+    crit: suspicious
     conf: 0.98
     attack: "T1059"
     mbc: "E1059"

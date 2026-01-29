@@ -68,6 +68,57 @@ traits:
     if:
       type: string
       contains: "--output"
+
+  # === Execution patterns (content search for cross-line matching) ===
+  - id: execute-dot-slash
+    desc: "./ execution pattern"
+    crit: inert
+    conf: 0.5
+    attack: "T1059.004"
+    if:
+      type: content
+      regex: '\./[a-zA-Z0-9_.-]+'
+
+  - id: execute-tmp-staging
+    desc: "Execute from /tmp staging directory"
+    crit: notable
+    conf: 0.75
+    attack: "T1059.004"
+    if:
+      type: content
+      regex: '/(tmp|var/tmp|dev/shm)/[a-zA-Z0-9_.-]+'
+
+  # === Dropper atomic patterns (content search) ===
+  - id: curl-download-file
+    desc: "curl downloading to file"
+    crit: notable
+    conf: 0.7
+    mbc: "C0002"
+    attack: "T1105"
+    if:
+      type: content
+      regex: 'curl\s+[^|&\n]*\s+-o\s+'
+
+  - id: chmod-plus-x-cmd
+    desc: "chmod +x command"
+    crit: notable
+    conf: 0.7
+    attack: "T1222"
+    if:
+      type: content
+      regex: 'chmod\s+\+x\s+'
+
+  # === One-liner detection ===
+  - id: oneliner-dropper-pattern
+    desc: "Single-line curl+chmod+execute pattern"
+    crit: suspicious
+    conf: 0.9
+    mbc: "B0024"
+    attack: "T1059.004"
+    if:
+      type: content
+      regex: 'curl[^;\n]+;\s*chmod[^;\n]+;\s*/'
+
 composite_rules:
   # Wget output file composite
   - id: wget-output-file
@@ -117,17 +168,32 @@ composite_rules:
       - id: chmod-777
       - id: execute-dot-slash
 
+  # Multi-line dropper pattern (suspicious)
   - id: curl-chmod-execute
-    desc: "Download via curl, chmod, and"
-    conf: 0.95
+    desc: "Download, chmod +x, and execute"
+    conf: 0.9
     crit: suspicious
     mbc: "B0024"
     attack: "T1059.004"
     platforms: [linux, macos]
     all:
-      - id: curl-download
-      - id: chmod-plus-x
-      - id: execute-dot-slash
+      - id: curl-download-file
+      - id: chmod-plus-x-cmd
+      - id: execute-tmp-staging
+
+  # One-liner dropper (hostile)
+  - id: oneliner-dropper
+    desc: "One-liner download+chmod+execute pattern"
+    conf: 0.98
+    crit: hostile
+    mbc: "B0024"
+    attack: "T1059.004"
+    platforms: [linux, macos]
+    all:
+      - id: curl-download-file
+      - id: chmod-plus-x-cmd
+      - id: execute-tmp-staging
+      - id: oneliner-dropper-pattern
 
   # MIPS architecture composite
   - id: iot-arch-mips

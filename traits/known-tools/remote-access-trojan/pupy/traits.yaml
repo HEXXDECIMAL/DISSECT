@@ -159,7 +159,7 @@ composite_rules:
   # Full Pupy RAT detection
   - id: c2-framework/pupy/detected
     description: Pupy RAT detected
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     mbc: "B0030"
     attack: "T1071"

@@ -191,7 +191,7 @@ composite_rules:
   # Obfuscated dynamic backdoor
   - id: php-obfuscated-dynamic-backdoor
     desc: "PHP: obfuscated dynamic backdoor (dynamic"
-    crit: hostile
+    crit: suspicious
     conf: 0.98
     mbc: "B0032"
     attack: "T1027"
@@ -217,7 +217,7 @@ composite_rules:
 
   - id: php-non-ascii-identifiers-backdoor
     desc: "PHP: backdoor using non-ASCII identifiers"
-    crit: hostile
+    crit: suspicious
     conf: 0.98
     mbc: "B0032"
     attack: "T1027"
@@ -229,7 +229,7 @@ composite_rules:
 
   - id: php-shell-functional
     desc: "PHP: functional webshell (exec +"
-    crit: hostile
+    crit: suspicious
     conf: 0.98
     mbc: "B0030"
     attack: "T1505.003"
@@ -250,7 +250,7 @@ composite_rules:
   # Functional PHP shell
   - id: php-shell
     desc: "PHP: functional webshell (exec +"
-    crit: hostile
+    crit: suspicious
     conf: 0.98
     mbc: "B0030"
     attack: "T1505.003"

@@ -101,9 +101,9 @@ composite_rules:
       - id: feat/binary/structural-metrics/small-elf-binary
 
   - id: ddos-capability
-    desc: Gafgyt DDoS flood capability
-    crit: hostile
-    conf: 0.9
+    description: Gafgyt DDoS capability
+    crit: suspicious
+    conf: 0.95
     for: [elf]
     attack: T1498
     mbc: B0008

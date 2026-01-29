@@ -106,7 +106,7 @@ composite_rules:
   # ChinaZ botnet detection
   - id: botnet/chinaz/detected
     description: ChinaZ botnet detected
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     attack: "T1583.005"
     mbc: "B0030"

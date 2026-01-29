@@ -45,9 +45,9 @@ traits:
 
 composite_rules:
   - id: backdoor/gosocks/detected
-    description: "GoSocks Backdoor detected"
-    crit: hostile
-    conf: 1.0
+    description: GoSocks backdoor detected
+    crit: suspicious
+    conf: 0.95
     attack: "T1090"
     mbc: "B0022"
     for: [elf, macho]

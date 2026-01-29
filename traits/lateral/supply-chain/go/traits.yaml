@@ -67,9 +67,9 @@ composite_rules:
 
   # Detect supply chain attack patterns
   - id: suspicious-init
-    description: Multiple init functions with network/exec
-    crit: hostile
-    confidence: 0.9
+    desc: "Suspicious Go init function"
+    crit: suspicious
+    conf: 0.95
     attack: "T1195.001"
     mbc: "B0024"
     file_types: [go]

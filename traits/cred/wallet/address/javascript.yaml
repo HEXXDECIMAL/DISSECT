@@ -138,8 +138,8 @@ composite_rules:
 
   # Multiple cryptocurrency address patterns = clipboard hijacker
   - id: multi-crypto-regex
-    desc: "Multiple cryptocurrency address regex patterns"
-    crit: hostile
+    desc: "Multiple cryptocurrency wallet regex patterns"
+    crit: suspicious
     conf: 0.95
     count_min: 2
     any:
