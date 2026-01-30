@@ -286,12 +286,12 @@ impl TraitDefinition {
         match condition {
             Condition::Symbol {
                 exact,
-                pattern,
+                regex,
                 platforms,
                 compiled_regex,
             } => eval_symbol(
                 exact.as_ref(),
-                pattern.as_ref(),
+                regex.as_ref(),
                 platforms.as_ref(),
                 compiled_regex.as_ref(),
                 ctx,
@@ -800,12 +800,12 @@ impl CompositeTrait {
         match condition {
             Condition::Symbol {
                 exact,
-                pattern,
+                regex,
                 platforms,
                 compiled_regex,
             } => self.eval_symbol(
                 exact.as_ref(),
-                pattern.as_ref(),
+                regex.as_ref(),
                 platforms.as_ref(),
                 compiled_regex.as_ref(),
                 ctx,

@@ -28,6 +28,7 @@ pub mod utils;
 pub mod source_analyzer;
 
 pub mod elf;
+pub mod generic;
 pub mod go;
 pub mod java;
 pub mod java_class;
@@ -46,9 +47,100 @@ pub mod shell;
 pub mod typescript;
 pub mod vsix_manifest;
 
+use crate::capabilities::CapabilityMapper;
 use crate::types::{AnalysisReport, Criticality, Evidence, Finding, FindingKind, TargetInfo};
 use anyhow::Result;
 use std::path::Path;
+
+/// Create an analyzer for the given file type.
+///
+/// Returns a dedicated analyzer for known file types, or a generic fallback
+/// analyzer for types without specialized support.
+///
+/// Returns None only for Archive (which requires special ArchiveAnalyzer config).
+pub fn analyzer_for_file_type(
+    file_type: &FileType,
+    mapper: Option<CapabilityMapper>,
+) -> Option<Box<dyn Analyzer>> {
+    let mapper_or_empty = mapper.unwrap_or_else(CapabilityMapper::empty);
+
+    match file_type {
+        FileType::MachO => Some(Box::new(
+            macho::MachOAnalyzer::new().with_capability_mapper(mapper_or_empty),
+        )),
+        FileType::Elf => Some(Box::new(
+            elf::ElfAnalyzer::new().with_capability_mapper(mapper_or_empty),
+        )),
+        FileType::Pe => Some(Box::new(
+            pe::PEAnalyzer::new().with_capability_mapper(mapper_or_empty),
+        )),
+        FileType::Shell => Some(Box::new(
+            shell::ShellAnalyzer::new().with_capability_mapper(mapper_or_empty),
+        )),
+        FileType::Python => Some(Box::new(
+            python::PythonAnalyzer::new().with_capability_mapper(mapper_or_empty),
+        )),
+        FileType::JavaScript | FileType::TypeScript => Some(Box::new(
+            javascript::JavaScriptAnalyzer::new().with_capability_mapper(mapper_or_empty),
+        )),
+        FileType::Go => Some(Box::new(
+            go::GoAnalyzer::new().with_capability_mapper(mapper_or_empty),
+        )),
+        FileType::Rust => Some(Box::new(
+            rust::RustAnalyzer::new().with_capability_mapper(mapper_or_empty),
+        )),
+        FileType::Java => Some(Box::new(
+            java::JavaAnalyzer::new().with_capability_mapper(mapper_or_empty),
+        )),
+        FileType::JavaClass | FileType::Jar => Some(Box::new(
+            java_class::JavaClassAnalyzer::new().with_capability_mapper(mapper_or_empty),
+        )),
+        FileType::Ruby => Some(Box::new(
+            ruby::RubyAnalyzer::new().with_capability_mapper(mapper_or_empty),
+        )),
+        FileType::Php => Some(Box::new(
+            php::PhpAnalyzer::new().with_capability_mapper(mapper_or_empty),
+        )),
+        FileType::Perl => Some(Box::new(
+            perl::PerlAnalyzer::new().with_capability_mapper(mapper_or_empty),
+        )),
+        FileType::Lua => Some(Box::new(
+            lua::LuaAnalyzer::new().with_capability_mapper(mapper_or_empty),
+        )),
+        FileType::PowerShell => Some(Box::new(
+            powershell::PowerShellAnalyzer::new().with_capability_mapper(mapper_or_empty),
+        )),
+        FileType::C => Some(Box::new(
+            c::CAnalyzer::new().with_capability_mapper(mapper_or_empty),
+        )),
+        FileType::CSharp => Some(Box::new(
+            csharp::CSharpAnalyzer::new().with_capability_mapper(mapper_or_empty),
+        )),
+        FileType::AppleScript => Some(Box::new(
+            applescript::AppleScriptAnalyzer::new().with_capability_mapper(mapper_or_empty),
+        )),
+        FileType::VsixManifest => Some(Box::new(
+            vsix_manifest::VsixManifestAnalyzer::new().with_capability_mapper(mapper_or_empty),
+        )),
+        FileType::PackageJson => Some(Box::new(
+            package_json::PackageJsonAnalyzer::new().with_capability_mapper(mapper_or_empty),
+        )),
+        // Use generic analyzer for types with tree-sitter but no dedicated analyzer
+        FileType::Swift
+        | FileType::ObjectiveC
+        | FileType::Groovy
+        | FileType::Scala
+        | FileType::Zig
+        | FileType::Elixir
+        | FileType::Batch
+        | FileType::Unknown => Some(Box::new(
+            generic::GenericAnalyzer::new(file_type.clone())
+                .with_capability_mapper(mapper_or_empty),
+        )),
+        // Archive needs special handling (depth limits, nested analysis)
+        FileType::Archive => None,
+    }
+}
 
 /// Safe wrapper for tree-sitter parsing that catches crashes and reports them as HOSTILE findings.
 ///
@@ -408,7 +500,7 @@ fn looks_like_shell(data: &[u8]) -> bool {
         || first_lines.contains("case $")
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum FileType {
     MachO,
     Elf,

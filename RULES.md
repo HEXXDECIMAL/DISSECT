@@ -416,7 +416,7 @@ if:
 
 ### symbol
 
-Match function imports/exports in binaries or source code!
+Match function imports/exports in binaries or source code.
 
 ```yaml
 # Exact match
@@ -428,13 +428,15 @@ if:
 # Regex pattern
 if:
   type: symbol
-  pattern: "socket.*connect.*bind"
+  regex: "socket.*connect.*bind"
   platforms: [linux, macos]
 ```
 
-You can use the `dissect symbols` subcommand to see what symbols we find in a program
+You can use `dissect symbols <file>` to see what symbols are extracted from a program.
 
 **Note:** Avoid `"a|b|c|d"` regexes. Create separate traits and combine with composite rules (better for ML pipelines).
+
+**Backward compatibility:** The deprecated `pattern:` field is still accepted as an alias for `regex:`.
 
 ### string
 
@@ -844,3 +846,105 @@ dissect /path/to/file              # Analyze
 dissect --format json /path/to/file  # JSON output
 dissect -v /path/to/file           # Verbose
 ```
+
+---
+
+## Debugging Rules with `test-rules`
+
+The `test-rules` command provides detailed debugging output for understanding why rules match or fail. This is essential for:
+- Understanding why a composite rule doesn't trigger
+- Debugging regex patterns that don't match
+- Verifying complexity requirements are met
+- Investigating false negatives
+
+### Usage
+
+```bash
+dissect test-rules <FILE> --rules "rule1,rule2,rule3"
+```
+
+### Example Output
+
+```
+NOT MATCHED lateral/supply-chain/npm/obfuscated-trojan (composite)
+  Obfuscated supply-chain trojan
+  Requirements: all: 3 conditions
+
+  Context: file_type=JavaScript, platform=All
+  Strings: 28, Symbols: 8, Imports: 8, Exports: 0, Findings: 81
+
+  Conditions:
+    ✗ all: (1/3)
+      ✗ trait: anti-static/obfuscation/code-metrics
+          Trait 'anti-static/obfuscation/code-metrics' not found in definitions
+      ✓ trait: anti-static/obfuscation/strings/js-version-marker
+          Found in findings with 2 evidence items
+      ✗ trait: anti-static/obfuscation/strings/js-charat-loop
+          Trait did not match
+        ✗ symbol: regex: /.*\.charAt/
+            Total symbols: 8 (8 imports, 0 exports)
+            Matching symbols: 0
+            All symbols:
+              "os.userInfo"
+              "cp.exec"
+              ...
+
+
+MATCHED anti-static/obfuscation/strings/js-version-marker (trait)
+  Malware version tracking pattern
+  Requirements: Condition: string[regex]: /^[0-9]+-[a-z]{3,15}[0-9]{1,4}$/
+
+  Context: file_type=JavaScript, platform=All
+  Strings: 28, Symbols: 8, ...
+
+  Conditions:
+    ✓ string: regex: /^[0-9]+-[a-z]{3,15}[0-9]{1,4}$/ (min_count: 1)
+        Total strings in file: 28
+        Matching strings: 2
+          Matched: "7-randuser84"
+```
+
+### What the Output Shows
+
+1. **Match status** - `MATCHED` (green) or `NOT MATCHED` (red)
+2. **Rule type** - `trait` (atomic pattern) or `composite` (combined patterns)
+3. **Requirements** - What the rule expects (e.g., "all: 3 conditions")
+4. **Context info** - File type, platform, counts of strings/symbols/findings
+5. **Detailed condition evaluation**:
+   - For composites: which `all`/`any`/`none` conditions matched
+   - For string/symbol conditions: the regex pattern, match count, and matches
+   - For trait references: whether the trait matched, and if not, why not
+6. **Debug hints** - When strings/symbols are ≤20, lists them all for debugging
+
+### Common Debugging Scenarios
+
+**Regex doesn't match expected symbols:**
+```bash
+dissect test-rules file.js --rules "my-trait-with-symbol-match"
+```
+The output shows all extracted symbols, allowing you to verify:
+- If the symbol exists in the file
+- If the regex pattern is correct
+- If the symbol format differs (e.g., `require.exec` vs `exec`)
+
+**Composite complexity too low:**
+```bash
+dissect test-rules file.js --rules "my-hostile-composite"
+```
+Check the Requirements line - it shows complexity breakdown:
+- `all: N conditions` → +N complexity
+- `any: M conditions` → +1 complexity
+- `file_types: [...]` → +1 complexity
+
+**Trait not found:**
+If you see "Trait 'X' not found in definitions", verify:
+- The trait ID is spelled correctly
+- The trait is defined in a loaded YAML file
+- There are no typos in the path prefix
+
+### Tips
+
+- Use with comma-separated IDs to debug multiple related rules at once
+- Works for both traits and composite rules
+- Shows exactly what was extracted (strings, symbols) so you can tune your patterns
+- Displays the regex pattern being used, making it easier to spot escaping issues

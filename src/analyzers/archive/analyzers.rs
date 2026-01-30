@@ -835,113 +835,51 @@ impl ArchiveAnalyzer {
         // Detect file type
         let file_type = detect_file_type(file_path)?;
 
-        // Route to appropriate analyzer with capability mapper if available
-        match file_type {
-            crate::analyzers::FileType::MachO => {
-                let mut analyzer = crate::analyzers::macho::MachOAnalyzer::new();
-                if let Some(ref mapper) = self.capability_mapper {
-                    analyzer = analyzer.with_capability_mapper(mapper.clone());
-                }
-                analyzer.analyze(file_path)
+        // Handle nested archives specially (depth limits, prefix propagation)
+        if file_type == crate::analyzers::FileType::Archive {
+            if self.current_depth + 1 >= self.max_depth {
+                return Err(anyhow::anyhow!(
+                    "Nested archive at max depth ({})",
+                    self.max_depth
+                ));
             }
-            crate::analyzers::FileType::Elf => {
-                let mut analyzer = crate::analyzers::elf::ElfAnalyzer::new();
-                if let Some(ref mapper) = self.capability_mapper {
-                    analyzer = analyzer.with_capability_mapper(mapper.clone());
-                }
-                analyzer.analyze(file_path)
-            }
-            crate::analyzers::FileType::Pe => {
-                let mut analyzer = crate::analyzers::pe::PEAnalyzer::new();
-                if let Some(ref mapper) = self.capability_mapper {
-                    analyzer = analyzer.with_capability_mapper(mapper.clone());
-                }
-                analyzer.analyze(file_path)
-            }
-            crate::analyzers::FileType::Shell => {
-                let mut analyzer = crate::analyzers::shell::ShellAnalyzer::new();
-                if let Some(ref mapper) = self.capability_mapper {
-                    analyzer = analyzer.with_capability_mapper(mapper.clone());
-                }
-                analyzer.analyze(file_path)
-            }
-            crate::analyzers::FileType::Python => {
-                let mut analyzer = crate::analyzers::python::PythonAnalyzer::new();
-                if let Some(ref mapper) = self.capability_mapper {
-                    analyzer = analyzer.with_capability_mapper(mapper.clone());
-                }
-                analyzer.analyze(file_path)
-            }
-            crate::analyzers::FileType::JavaScript => {
-                let mut analyzer = crate::analyzers::javascript::JavaScriptAnalyzer::new();
-                if let Some(ref mapper) = self.capability_mapper {
-                    analyzer = analyzer.with_capability_mapper(mapper.clone());
-                }
-                analyzer.analyze(file_path)
-            }
-            crate::analyzers::FileType::JavaClass => {
-                let mut analyzer = crate::analyzers::java_class::JavaClassAnalyzer::new();
-                if let Some(ref mapper) = self.capability_mapper {
-                    analyzer = analyzer.with_capability_mapper(mapper.clone());
-                }
-                analyzer.analyze(file_path)
-            }
-            crate::analyzers::FileType::Java => {
-                let analyzer = crate::analyzers::java::JavaAnalyzer::new();
-                analyzer.analyze(file_path)
-            }
-            crate::analyzers::FileType::Ruby => {
-                let analyzer = crate::analyzers::ruby::RubyAnalyzer::new();
-                analyzer.analyze(file_path)
-            }
-            crate::analyzers::FileType::VsixManifest => {
-                let mut analyzer = crate::analyzers::vsix_manifest::VsixManifestAnalyzer::new();
-                if let Some(ref mapper) = self.capability_mapper {
-                    analyzer = analyzer.with_capability_mapper(mapper.clone());
-                }
-                analyzer.analyze(file_path)
-            }
-            crate::analyzers::FileType::Archive => {
-                // Recursively analyze nested archives
-                if self.current_depth + 1 >= self.max_depth {
-                    return Err(anyhow::anyhow!(
-                        "Nested archive at max depth ({})",
-                        self.max_depth
-                    ));
-                }
 
-                // Build the prefix for nested paths
-                let file_name = file_path
-                    .file_name()
-                    .and_then(|n| n.to_str())
-                    .unwrap_or("nested");
-                let nested_prefix = match &self.archive_path_prefix {
-                    Some(prefix) => format!("{}!{}", prefix, file_name),
-                    None => file_name.to_string(),
-                };
+            // Build the prefix for nested paths
+            let file_name = file_path
+                .file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or("nested");
+            let nested_prefix = match &self.archive_path_prefix {
+                Some(prefix) => format!("{}!{}", prefix, file_name),
+                None => file_name.to_string(),
+            };
 
-                // Create nested analyzer with incremented depth and path prefix
-                let mut nested = ArchiveAnalyzer::new()
-                    .with_depth(self.current_depth + 1)
-                    .with_archive_prefix(nested_prefix);
+            // Create nested analyzer with incremented depth and path prefix
+            let mut nested = ArchiveAnalyzer::new()
+                .with_depth(self.current_depth + 1)
+                .with_archive_prefix(nested_prefix);
 
-                // Propagate configuration
-                if let Some(ref mapper) = self.capability_mapper {
-                    nested = nested.with_capability_mapper(mapper.clone());
-                }
-                if let Some(ref engine) = self.yara_engine {
-                    nested = nested.with_yara_arc(engine.clone());
-                }
-                if !self.zip_passwords.is_empty() {
-                    nested = nested.with_zip_passwords(self.zip_passwords.clone());
-                }
-
-                nested.analyze(file_path)
+            // Propagate configuration
+            if let Some(ref mapper) = self.capability_mapper {
+                nested = nested.with_capability_mapper(mapper.clone());
             }
-            _ => {
-                // Skip unknown files
-                Err(anyhow::anyhow!("Unsupported file type"))
+            if let Some(ref engine) = self.yara_engine {
+                nested = nested.with_yara_arc(engine.clone());
             }
+            if !self.zip_passwords.is_empty() {
+                nested = nested.with_zip_passwords(self.zip_passwords.clone());
+            }
+
+            return nested.analyze(file_path);
+        }
+
+        // Use the centralized factory for all other file types
+        if let Some(analyzer) =
+            crate::analyzers::analyzer_for_file_type(&file_type, self.capability_mapper.clone())
+        {
+            analyzer.analyze(file_path)
+        } else {
+            Err(anyhow::anyhow!("Unsupported file type: {:?}", file_type))
         }
     }
 }

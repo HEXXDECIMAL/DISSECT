@@ -6,6 +6,7 @@ use crate::analyzers::{
     function_metrics::{self, FunctionInfo},
     identifier_metrics, string_metrics, symbol_extraction, text_metrics,
 };
+use crate::capabilities::CapabilityMapper;
 use crate::types::*;
 use anyhow::{Context, Result};
 use std::cell::RefCell;
@@ -16,6 +17,7 @@ use tree_sitter::Parser;
 /// Perl analyzer using tree-sitter
 pub struct PerlAnalyzer {
     parser: RefCell<Parser>,
+    capability_mapper: CapabilityMapper,
 }
 
 impl Default for PerlAnalyzer {
@@ -33,7 +35,13 @@ impl PerlAnalyzer {
 
         Self {
             parser: RefCell::new(parser),
+            capability_mapper: CapabilityMapper::empty(),
         }
+    }
+
+    pub fn with_capability_mapper(mut self, capability_mapper: CapabilityMapper) -> Self {
+        self.capability_mapper = capability_mapper;
+        self
     }
 
     fn analyze_source(&self, file_path: &Path, content: &str) -> Result<AnalysisReport> {
@@ -84,6 +92,13 @@ impl PerlAnalyzer {
         // Compute metrics for ML analysis
         let metrics = self.compute_metrics(&root, content);
         report.metrics = Some(metrics);
+
+        // Evaluate all rules (atomic + composite) and merge into report
+        self.capability_mapper.evaluate_and_merge_findings(
+            &mut report,
+            content.as_bytes(),
+            Some(&tree),
+        );
 
         report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;
         report.metadata.tools_used = vec!["tree-sitter-perl".to_string()];

@@ -71,8 +71,9 @@ enum ConditionTagged {
     Symbol {
         #[serde(default)]
         exact: Option<String>,
-        #[serde(default)]
-        pattern: Option<String>,
+        /// Regex pattern to match symbol names (alias: pattern for backward compatibility)
+        #[serde(default, alias = "pattern")]
+        regex: Option<String>,
         platforms: Option<Vec<Platform>>,
     },
     String {
@@ -274,11 +275,11 @@ impl From<ConditionDeser> for Condition {
             ConditionDeser::Tagged(tagged) => match tagged {
                 ConditionTagged::Symbol {
                     exact,
-                    pattern,
+                    regex,
                     platforms,
                 } => Condition::Symbol {
                     exact,
-                    pattern,
+                    regex,
                     platforms,
                     compiled_regex: None,
                 },
@@ -478,7 +479,7 @@ pub enum Condition {
         exact: Option<String>,
         /// Regex pattern to match symbol names
         #[serde(skip_serializing_if = "Option::is_none")]
-        pattern: Option<String>,
+        regex: Option<String>,
         #[serde(skip_serializing_if = "Option::is_none")]
         platforms: Option<Vec<Platform>>,
         /// Pre-compiled regex (populated after deserialization, not serialized)
@@ -949,12 +950,12 @@ impl Condition {
     pub fn precompile_regexes(&mut self) {
         match self {
             Condition::Symbol {
-                pattern,
+                regex,
                 compiled_regex,
                 ..
             } => {
-                // Compile symbol pattern if present
-                if let Some(regex_pattern) = pattern {
+                // Compile symbol regex if present
+                if let Some(regex_pattern) = regex {
                     *compiled_regex = regex::Regex::new(regex_pattern).ok();
                 }
             }

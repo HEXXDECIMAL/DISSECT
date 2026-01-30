@@ -282,7 +282,7 @@ impl CapabilityMapper {
                 // Check if this trait has a symbol condition
                 if let Condition::Symbol {
                     exact,
-                    pattern,
+                    regex,
                     platforms: _,
                     compiled_regex: _,
                 } = &trait_def.r#if
@@ -301,10 +301,10 @@ impl CapabilityMapper {
                             });
                     }
 
-                    // For each pattern (may contain "|" for alternatives)
-                    if let Some(pattern_val) = pattern {
-                        for symbol_pattern in pattern_val.split('|') {
-                            let symbol = symbol_pattern.trim().to_string();
+                    // For each regex pattern (may contain "|" for alternatives)
+                    if let Some(regex_val) = regex {
+                        for symbol_pattern in regex_val.split('|') {
+                            let symbol: String = symbol_pattern.trim().to_string();
 
                             // Only add if not already present (first match wins)
                             symbol_map.entry(symbol).or_insert_with(|| TraitInfo {
@@ -819,6 +819,16 @@ impl CapabilityMapper {
     /// Get the number of loaded trait definitions
     pub fn trait_definitions_count(&self) -> usize {
         self.trait_definitions.len()
+    }
+
+    /// Get a reference to the trait definitions (for debugging/testing)
+    pub fn trait_definitions(&self) -> &[TraitDefinition] {
+        &self.trait_definitions
+    }
+
+    /// Find a trait definition by ID
+    pub fn find_trait(&self, id: &str) -> Option<&TraitDefinition> {
+        self.trait_definitions.iter().find(|t| t.id == id)
     }
 
     /// Evaluate trait definitions against an analysis report with optional cached AST

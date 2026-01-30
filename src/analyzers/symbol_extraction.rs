@@ -185,7 +185,11 @@ pub fn get_language_config(
         FileType::Python => Some((tree_sitter_python::LANGUAGE.into(), vec!["call"])),
         FileType::JavaScript => Some((
             tree_sitter_javascript::LANGUAGE.into(),
-            vec!["call_expression", "assignment_expression", "variable_declarator"],
+            vec![
+                "call_expression",
+                "assignment_expression",
+                "variable_declarator",
+            ],
         )),
         FileType::TypeScript => Some((
             tree_sitter_typescript::LANGUAGE_TYPESCRIPT.into(),

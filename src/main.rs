@@ -46,6 +46,7 @@ mod radare2;
 mod syscall_names;
 // mod radare2_extended;  // Removed: integrated into radare2.rs
 mod strings;
+mod test_rules;
 mod trait_mapper;
 mod types;
 mod upx;
@@ -251,6 +252,9 @@ fn main() -> Result<()> {
             extract_strings(&target, min_length, &format)?
         }
         Some(cli::Command::Symbols { target }) => extract_symbols(&target, &format)?,
+        Some(cli::Command::TestRules { target, rules }) => {
+            test_rules_debug(&target, &rules, &disabled)?
+        }
         None => {
             // No subcommand - use paths from top-level args
             if args.paths.is_empty() {
@@ -1593,4 +1597,183 @@ fn extract_symbols(target: &str, format: &cli::OutputFormat) -> Result<String> {
             Ok(output)
         }
     }
+}
+
+/// Debug rule evaluation - shows exactly why rules match or fail
+fn test_rules_debug(
+    target: &str,
+    rules: &str,
+    _disabled: &cli::DisabledComponents,
+) -> Result<String> {
+    let path = Path::new(target);
+    if !path.exists() {
+        anyhow::bail!("File does not exist: {}", target);
+    }
+
+    eprintln!("Analyzing: {}", target);
+
+    // Parse rule IDs
+    let rule_ids: Vec<&str> = rules.split(',').map(|s| s.trim()).collect();
+    eprintln!("Debugging {} rule(s): {:?}", rule_ids.len(), rule_ids);
+
+    // Detect file type
+    let file_type = detect_file_type(path)?;
+    eprintln!("Detected file type: {:?}", file_type);
+
+    // Load capability mapper
+    let capability_mapper = crate::capabilities::CapabilityMapper::new();
+
+    // Read file data
+    let binary_data = fs::read(path)?;
+
+    // Create a basic report by analyzing the file
+    let mut report = create_analysis_report(path, &file_type, &binary_data, &capability_mapper)?;
+
+    // Evaluate traits first to populate findings
+    capability_mapper.evaluate_and_merge_findings(&mut report, &binary_data, None);
+
+    // Create debugger and debug each rule
+    let debugger = test_rules::RuleDebugger::new(&capability_mapper, &report, &binary_data);
+
+    let mut results = Vec::new();
+    for rule_id in rule_ids {
+        if let Some(result) = debugger.debug_rule(rule_id) {
+            results.push(result);
+        } else {
+            eprintln!("Warning: Rule '{}' not found", rule_id);
+            // Search for similar rules
+            let similar = find_similar_rules(&capability_mapper, rule_id);
+            if !similar.is_empty() {
+                eprintln!("  Did you mean one of:");
+                for s in similar.iter().take(5) {
+                    eprintln!("    - {}", s);
+                }
+            }
+        }
+    }
+
+    // Format and return output
+    Ok(test_rules::format_debug_output(&results))
+}
+
+/// Create a basic analysis report for the file
+fn create_analysis_report(
+    path: &Path,
+    file_type: &FileType,
+    binary_data: &[u8],
+    capability_mapper: &crate::capabilities::CapabilityMapper,
+) -> Result<types::AnalysisReport> {
+    use sha2::{Digest, Sha256};
+
+    // Route to appropriate analyzer to get a full report
+    let report = match file_type {
+        FileType::JavaScript => {
+            let analyzer =
+                JavaScriptAnalyzer::new().with_capability_mapper(capability_mapper.clone());
+            analyzer.analyze(path)?
+        }
+        FileType::Python => {
+            let analyzer = analyzers::python::PythonAnalyzer::new()
+                .with_capability_mapper(capability_mapper.clone());
+            analyzer.analyze(path)?
+        }
+        FileType::Shell => {
+            let analyzer = analyzers::shell::ShellAnalyzer::new()
+                .with_capability_mapper(capability_mapper.clone());
+            analyzer.analyze(path)?
+        }
+        FileType::Go => {
+            let analyzer =
+                analyzers::go::GoAnalyzer::new().with_capability_mapper(capability_mapper.clone());
+            analyzer.analyze(path)?
+        }
+        FileType::Rust => {
+            let analyzer = analyzers::rust::RustAnalyzer::new()
+                .with_capability_mapper(capability_mapper.clone());
+            analyzer.analyze(path)?
+        }
+        FileType::Ruby => {
+            let analyzer = analyzers::ruby::RubyAnalyzer::new()
+                .with_capability_mapper(capability_mapper.clone());
+            analyzer.analyze(path)?
+        }
+        FileType::Php => {
+            let analyzer = analyzers::php::PhpAnalyzer::new()
+                .with_capability_mapper(capability_mapper.clone());
+            analyzer.analyze(path)?
+        }
+        FileType::C => {
+            let analyzer =
+                analyzers::c::CAnalyzer::new().with_capability_mapper(capability_mapper.clone());
+            analyzer.analyze(path)?
+        }
+        FileType::MachO => {
+            let analyzer = MachOAnalyzer::new().with_capability_mapper(capability_mapper.clone());
+            analyzer.analyze(path)?
+        }
+        FileType::Elf => {
+            let analyzer = ElfAnalyzer::new().with_capability_mapper(capability_mapper.clone());
+            analyzer.analyze(path)?
+        }
+        FileType::Pe => {
+            let analyzer = PEAnalyzer::new().with_capability_mapper(capability_mapper.clone());
+            analyzer.analyze(path)?
+        }
+        _ => {
+            // Fallback: create minimal report
+            let mut hasher = Sha256::new();
+            hasher.update(binary_data);
+            let sha256 = format!("{:x}", hasher.finalize());
+
+            let target = types::TargetInfo {
+                path: path.display().to_string(),
+                file_type: format!("{:?}", file_type).to_lowercase(),
+                size_bytes: binary_data.len() as u64,
+                sha256,
+                architectures: None,
+            };
+
+            types::AnalysisReport::new(target)
+        }
+    };
+
+    Ok(report)
+}
+
+/// Find similar rule IDs for suggestions
+fn find_similar_rules(mapper: &crate::capabilities::CapabilityMapper, query: &str) -> Vec<String> {
+    let query_lower = query.to_lowercase();
+    let mut matches: Vec<(String, usize)> = Vec::new();
+
+    // Check composite rules
+    for rule in &mapper.composite_rules {
+        let id_lower = rule.id.to_lowercase();
+        if id_lower.contains(&query_lower) || query_lower.contains(&id_lower) {
+            let score = strsim::levenshtein(&query_lower, &id_lower);
+            matches.push((rule.id.clone(), score));
+        } else {
+            let score = strsim::levenshtein(&query_lower, &id_lower);
+            if score < 15 {
+                matches.push((rule.id.clone(), score));
+            }
+        }
+    }
+
+    // Check trait definitions
+    for trait_def in mapper.trait_definitions() {
+        let id_lower = trait_def.id.to_lowercase();
+        if id_lower.contains(&query_lower) || query_lower.contains(&id_lower) {
+            let score = strsim::levenshtein(&query_lower, &id_lower);
+            matches.push((trait_def.id.clone(), score));
+        } else {
+            let score = strsim::levenshtein(&query_lower, &id_lower);
+            if score < 15 {
+                matches.push((trait_def.id.clone(), score));
+            }
+        }
+    }
+
+    // Sort by similarity score
+    matches.sort_by_key(|(_, score)| *score);
+    matches.into_iter().map(|(id, _)| id).collect()
 }

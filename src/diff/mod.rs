@@ -242,45 +242,21 @@ impl DiffAnalyzer {
     fn analyze_single_file(&self, path: &Path) -> Result<AnalysisReport> {
         let file_type = detect_file_type(path)?;
 
-        match file_type {
-            crate::analyzers::FileType::MachO => {
-                let analyzer = crate::analyzers::macho::MachOAnalyzer::new()
-                    .with_capability_mapper(self.capability_mapper.clone());
-                analyzer.analyze(path)
-            }
-            crate::analyzers::FileType::Elf => {
-                let analyzer = crate::analyzers::elf::ElfAnalyzer::new()
-                    .with_capability_mapper(self.capability_mapper.clone());
-                analyzer.analyze(path)
-            }
-            crate::analyzers::FileType::Pe => {
-                let analyzer = crate::analyzers::pe::PEAnalyzer::new()
-                    .with_capability_mapper(self.capability_mapper.clone());
-                analyzer.analyze(path)
-            }
-            crate::analyzers::FileType::Shell => {
-                let analyzer = crate::analyzers::shell::ShellAnalyzer::new()
-                    .with_capability_mapper(self.capability_mapper.clone());
-                analyzer.analyze(path)
-            }
-            crate::analyzers::FileType::Python => {
-                let analyzer = crate::analyzers::python::PythonAnalyzer::new()
-                    .with_capability_mapper(self.capability_mapper.clone());
-                analyzer.analyze(path)
-            }
-            crate::analyzers::FileType::JavaScript => {
-                let analyzer = crate::analyzers::javascript::JavaScriptAnalyzer::new()
-                    .with_capability_mapper(self.capability_mapper.clone());
-                analyzer.analyze(path)
-            }
-            crate::analyzers::FileType::Archive => {
-                let analyzer =
-                    ArchiveAnalyzer::new().with_capability_mapper(self.capability_mapper.clone());
-                analyzer.analyze(path)
-            }
-            _ => {
-                anyhow::bail!("Unsupported file type for diff analysis")
-            }
+        // Handle archives specially since they need ArchiveAnalyzer with depth config
+        if file_type == crate::analyzers::FileType::Archive {
+            let analyzer =
+                ArchiveAnalyzer::new().with_capability_mapper(self.capability_mapper.clone());
+            return analyzer.analyze(path);
+        }
+
+        // Use the centralized factory for all other file types
+        if let Some(analyzer) = crate::analyzers::analyzer_for_file_type(
+            &file_type,
+            Some(self.capability_mapper.clone()),
+        ) {
+            analyzer.analyze(path)
+        } else {
+            anyhow::bail!("Unsupported file type for diff analysis: {:?}", file_type)
         }
     }
 

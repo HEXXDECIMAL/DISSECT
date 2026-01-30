@@ -68,7 +68,7 @@ fn test_symbol_condition() {
         size_max: None,
         all: Some(vec![Condition::Symbol {
             exact: None,
-            pattern: Some("socket".to_string()),
+            regex: Some("socket".to_string()),
             platforms: None,
             compiled_regex: None,
         }]),
@@ -117,7 +117,7 @@ fn test_all() {
         all: Some(vec![
             Condition::Symbol {
                 exact: None,
-                pattern: Some("socket".to_string()),
+                regex: Some("socket".to_string()),
                 platforms: None,
                 compiled_regex: None,
             },
@@ -175,19 +175,19 @@ fn test_count() {
         any: Some(vec![
             Condition::Symbol {
                 exact: None,
-                pattern: Some("socket".to_string()),
+                regex: Some("socket".to_string()),
                 platforms: None,
                 compiled_regex: None,
             },
             Condition::Symbol {
                 exact: None,
-                pattern: Some("connect".to_string()),
+                regex: Some("connect".to_string()),
                 platforms: None,
                 compiled_regex: None,
             },
             Condition::Symbol {
                 exact: None,
-                pattern: Some("nonexistent".to_string()),
+                regex: Some("nonexistent".to_string()),
                 platforms: None,
                 compiled_regex: None,
             },
@@ -279,13 +279,13 @@ fn test_any() {
         any: Some(vec![
             Condition::Symbol {
                 exact: None,
-                pattern: Some("nonexistent".to_string()),
+                regex: Some("nonexistent".to_string()),
                 platforms: None,
                 compiled_regex: None,
             },
             Condition::Symbol {
                 exact: None,
-                pattern: Some("socket".to_string()),
+                regex: Some("socket".to_string()),
                 platforms: None,
                 compiled_regex: None,
             },
@@ -548,7 +548,7 @@ fn test_unless_directive_skips_trait() {
         size_max: None,
         r#if: Condition::Symbol {
             exact: None,
-            pattern: Some("socket".to_string()),
+            regex: Some("socket".to_string()),
             platforms: None,
             compiled_regex: None,
         },
@@ -590,7 +590,7 @@ fn test_unless_directive_allows_trait() {
         size_max: None,
         r#if: Condition::Symbol {
             exact: None,
-            pattern: Some("socket".to_string()),
+            regex: Some("socket".to_string()),
             platforms: None,
             compiled_regex: None,
         },
@@ -719,7 +719,7 @@ fn test_downgrade_to_inert() {
         size_max: None,
         r#if: Condition::Symbol {
             exact: None,
-            pattern: Some("socket".to_string()),
+            regex: Some("socket".to_string()),
             platforms: None,
             compiled_regex: None,
         },
@@ -776,7 +776,7 @@ fn test_downgrade_no_match_keeps_original() {
         size_max: None,
         r#if: Condition::Symbol {
             exact: None,
-            pattern: Some("socket".to_string()),
+            regex: Some("socket".to_string()),
             platforms: None,
             compiled_regex: None,
         },
@@ -859,7 +859,7 @@ fn test_downgrade_first_match_wins() {
         size_max: None,
         r#if: Condition::Symbol {
             exact: None,
-            pattern: Some("socket".to_string()),
+            regex: Some("socket".to_string()),
             platforms: None,
             compiled_regex: None,
         },

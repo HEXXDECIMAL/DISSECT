@@ -12,7 +12,7 @@ composite_rules:
 
   - id: sensitive-archiving
     desc: "Archiving of sensitive credentials or keys"
-    crit: hostile
+    crit: notable
     conf: 0.95
     attack: "T1560"
     all:
