@@ -361,5 +361,6 @@ pub(crate) fn simple_rule_to_composite_rule(rule: super::models::SimpleRule) -> 
         count_max: None,
         none: None,
         unless: None,
+        not: None,
     }
 }

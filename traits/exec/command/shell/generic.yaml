@@ -79,8 +79,8 @@ traits:
     conf: 0.9
     language: go
     if:
-      type: string
-      exact: '"os/exec"'
+      type: symbol
+      regex: 'os/exec\..*'
 
   # Python
   - id: python-os-system
@@ -90,9 +90,10 @@ traits:
     attack: "T1059.006"
     conf: 0.95
     language: python
+    for: [python]
     if:
-      type: string
-      regex: "os\\.system\\("
+      type: symbol
+      exact: "os.system"
 
   # JavaScript
   - id: js-child-process
@@ -103,8 +104,8 @@ traits:
     conf: 0.9
     language: javascript
     if:
-      type: string
-      regex: "require\\(['\"]child_process['\"]\\)|from ['\"]child_process['\"]"
+      type: symbol
+      regex: 'child_process\.(exec|spawn|fork).*'
 
   # Ruby
   - id: ruby-system
@@ -114,9 +115,10 @@ traits:
     attack: "T1059"
     conf: 0.9
     language: ruby
+    for: [ruby]
     if:
       type: string
-      regex: "\\bsystem\\(['\"]"
+      regex: '\bsystem\([''\"]'
 
   # Rust
   - id: rust-command
@@ -127,8 +129,8 @@ traits:
     conf: 0.9
     language: rust
     if:
-      type: string
-      regex: "use std::process::Command|Command::new"
+      type: symbol
+      regex: 'std::process::Command::.*'
 
   # Shell references
   - id: bin-sh
@@ -163,6 +165,34 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: "cmd\\.exe|cmd /c"
+      regex: 'cmd\.exe|cmd /c'
       case_insensitive: true
     platforms: [windows]
+
+  # Behavioral Patterns
+  - id: shell-platform-check
+    desc: Checks OS type
+    crit: notable
+    conf: 0.8
+    for: [shell]
+    if:
+      type: content
+      regex: '$OSTYPE|linux-gnu|darwin|msys|cygwin'
+
+  - id: curl-pipe-exec
+    desc: One-liner download and execute
+    crit: suspicious
+    conf: 0.9
+    for: [shell]
+    if:
+      type: content
+      regex: 'curl.{0,100}\|.{0,50}(sudo\s+)?(python|bash|sh|node|php)'
+
+  - id: sudo-piped-exec
+    desc: Piped execution with sudo
+    crit: suspicious
+    conf: 0.9
+    for: [shell]
+    if:
+      type: content
+      regex: '\|\s*sudo\s+'

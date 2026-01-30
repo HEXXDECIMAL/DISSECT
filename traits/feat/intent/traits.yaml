@@ -1,0 +1,40 @@
+# Generic Intent Markers
+# Used to categorize application purpose
+
+traits:
+  - id: magic
+    desc: Magic marker string
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      regex: "\b(ebpf|bpf|rootkit|hide)[_-]?magic\b"
+      case_insensitive: true
+
+  - id: trigger
+    desc: Trigger marker string
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      word: "Trigger"
+      case_insensitive: true
+
+  - id: backdoor
+    desc: Backdoor marker string
+    crit: suspicious
+    conf: 0.7
+    if:
+      type: string
+      word: "backdoor"
+      case_insensitive: true
+
+  - id: secret
+    desc: Secret marker string
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      word: "secret"
+      case_insensitive: true
+

@@ -58,6 +58,8 @@ pub(crate) struct RawTraitDefinition {
     pub(crate) size_max: Option<usize>,
     #[serde(alias = "if")]
     pub(crate) condition: crate::composite_rules::Condition,
+    #[serde(default)]
+    pub(crate) not: Option<Vec<crate::composite_rules::condition::NotException>>,
 }
 
 /// Raw composite rule for parsing (fields can be absent to inherit defaults)
@@ -102,6 +104,8 @@ pub(crate) struct RawCompositeRule {
     // File-level skip conditions
     #[serde(default)]
     pub(crate) unless: Option<Vec<crate::composite_rules::Condition>>,
+    #[serde(default)]
+    pub(crate) not: Option<Vec<crate::composite_rules::condition::NotException>>,
 }
 
 /// YAML file structure

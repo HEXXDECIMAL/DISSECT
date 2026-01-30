@@ -9,16 +9,6 @@ defaults:
   mbc: "B0025"
 
 traits:
-  # === Supply-chain specific crypto patterns ===
-
-  - id: ed25519-constant-bytes
-    desc: ED25519 constant bytes (XZ backdoor
-    crit: suspicious
-    conf: 0.85
-    if:
-      type: hex
-      pattern: "79 07 4D C9 D3 14 79 51"
-
   # === Obfuscation Indicators ===
   - id: high-entropy-strings
     desc: Large obfuscated data blob
@@ -100,31 +90,6 @@ traits:
       type: hex
       pattern: "0F B6 ?? ?? 0F B6 ?? ?? 31 ?? 0F B6 ?? ?? 31"
 
-  # === RSA in compression library patterns ===
-  - id: rsa-public-decrypt
-    desc: RSA_public_decrypt reference
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      exact: "RSA_public_decrypt"
-
-  - id: rsa-public-encrypt
-    desc: RSA_public_encrypt reference
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      exact: "RSA_public_encrypt"
-
-  - id: evp-pkey-ref
-    desc: EVP_PKEY reference
-    crit: inert
-    conf: 0.4
-    if:
-      type: string
-      exact: "EVP_PKEY"
-
   # === SSH/Auth hooking patterns ===
   - id: libsystemd-ref
     desc: libsystemd reference
@@ -199,17 +164,6 @@ composite_rules:
       - id: feat/binary/elf/rtld-default-ref
       - id: feat/binary/elf/sections/gnu-version
 
-  # === RSA operations (supply chain context) ===
-  - id: rsa-operations
-    desc: RSA cryptographic operations
-    crit: notable
-    conf: 0.6
-    count_min: 1
-    any:
-      - id: rsa-public-decrypt
-      - id: rsa-public-encrypt
-      - id: evp-pkey-ref
-
   # === XZ CRC patterns ===
   - id: xz-crc-pattern
     desc: XZ CRC64 patterns
@@ -250,7 +204,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     all:
-      - id: rsa-operations
+      - id: crypto/asymmetric/rsa-operations
       - id: feat/library/compression-lib
 
   # === SSH hook patterns ===
@@ -261,7 +215,7 @@ composite_rules:
     all:
       - id: os/service/ssh/sshd-ref
     any:
-      - id: rsa-public-decrypt
+      - id: crypto/asymmetric/rsa-public-decrypt
       - id: mm-answer-keyallowed
       - id: mm-answer-authpassword
       - id: pubkey-auth-ref
@@ -307,7 +261,7 @@ composite_rules:
       - id: exec/command/shell/c-popen
       - id: exec/command/shell/bin-sh
     none:
-      - id: feat/runtime/go/go-runtime-marker
+      - id: feat/runtime/go-runtime-marker
 
   - id: unexpected-crypto
     desc: Cryptographic operations in non-crypto library
@@ -316,8 +270,8 @@ composite_rules:
     count_min: 2
     any:
       - id: crypto/symmetric/aes/binary/aes-sbox-bytes
-      - id: rsa-operations
-      - id: ed25519-constant-bytes
+      - id: crypto/asymmetric/rsa-operations
+      - id: crypto/asymmetric/ed25519-constant-bytes
 
   # === Unexpected capability combination ===
   - id: unexpected-capabilities

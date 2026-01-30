@@ -70,6 +70,7 @@ pub use diff::{
     ModifiedFileAnalysis,
 };
 
+#[allow(unused_imports)]
 pub use ml_features::{
     CallPatternMetrics, ControlFlowMetrics, DecodedValue, EmbeddedConstant, FunctionProperties,
     FunctionSignature, InstructionAnalysis, InstructionCategories, NestingMetrics,
@@ -85,6 +86,7 @@ pub use text_metrics::{
     CommentMetrics, FunctionMetrics, IdentifierMetrics, StringMetrics, TextMetrics,
 };
 
+#[allow(unused_imports)]
 pub use language_metrics::{
     GoMetrics, JavaScriptMetrics, PythonMetrics, RustMetrics, ShellMetrics,
 };

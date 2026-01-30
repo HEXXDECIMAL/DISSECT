@@ -1117,8 +1117,6 @@ fn extract_strings_from_ast(
     min_length: usize,
     format: &cli::OutputFormat,
 ) -> Result<String> {
-    use analyzers::Analyzer;
-
     // Analyze the file to extract strings via AST using unified analyzer
     let report = if let Some(analyzer) = analyzers::analyzer_for_file_type(file_type, None) {
         analyzer.analyze(path)?

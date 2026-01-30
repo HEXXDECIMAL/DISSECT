@@ -113,7 +113,7 @@ pub(crate) fn apply_trait_defaults(
         size_min: raw.size_min,
         size_max: raw.size_max,
         r#if: raw.condition,
-        not: None,
+        not: raw.not,
         unless: None,
         downgrade: None,
     }
@@ -232,5 +232,6 @@ pub(crate) fn apply_composite_defaults(
         count_max: raw.count_max,
         none: raw.none,
         unless: raw.unless,
+        not: raw.not,
     }
 }

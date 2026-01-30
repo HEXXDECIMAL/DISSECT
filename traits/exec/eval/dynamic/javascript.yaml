@@ -76,7 +76,7 @@ traits:
     for: [javascript]
     if:
       type: content
-      regex: '\\w+\\[\\w+\\]\\s*\\('
+      regex: '\w+\[\w+\]\s*\('
     not:
       - "process.env["
       - "module.exports["
@@ -125,7 +125,7 @@ traits:
     for: [javascript]
     if:
       type: content
-      regex: '\\(\\s*(?:async\\s+)?function\\s*\\([^)]{0,100}\\)\\s*\\{'
+      regex: '\(\s*(?:async\s+)?function\s*\([^)]{0,100}\)\s*\{'
 
   # Variable immediately invoked as function
   - id: variable-immediate-call
@@ -135,7 +135,7 @@ traits:
     for: [javascript]
     if:
       type: content
-      regex: 'var\\s+\\w+\\s*=\\s*[^;]{5,200};\\s*\\w+\\s*\\('
+      regex: 'var\s+\w+\s*=\s*[^;]{5,200};\s*\w+\s*\('
 
 composite_rules:
   - id: eval-function-reference

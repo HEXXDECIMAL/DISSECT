@@ -70,7 +70,7 @@ composite_rules:
   - id: ddos-mechanics
     desc: "DDoS-specific operational mechanics detected"
     any:
-      - id: worker-pool
+      - id: feat/concurrency/worker-pool
       - id: attack-telemetry
 
   # Helper: HTTP Methods

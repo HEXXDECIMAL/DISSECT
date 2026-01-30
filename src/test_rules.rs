@@ -452,47 +452,50 @@ impl<'a> RuleDebugger<'a> {
             result.evidence = eval_result.evidence;
         } else {
             // Try to debug why the trait didn't match
-            // First check if it's a directory prefix reference
-            let slash_count = id.matches('/').count();
-            if slash_count > 0 {
-                // Directory path reference - show what traits exist in that directory
-                let matching_findings: Vec<_> = self
-                    .report
-                    .findings
-                    .iter()
-                    .filter(|f| f.id.starts_with(&format!("{}/", id)))
-                    .collect();
-
-                if matching_findings.is_empty() {
-                    result
-                        .details
-                        .push(format!("No traits matched in directory '{}/'", id));
-                    // Show available trait prefixes for debugging
-                    let available_prefixes: std::collections::HashSet<_> = self
-                        .report
-                        .findings
-                        .iter()
-                        .filter_map(|f| f.id.rfind('/').map(|i| &f.id[..i]))
-                        .collect();
-                    if !available_prefixes.is_empty() {
-                        let mut prefixes: Vec<_> = available_prefixes.into_iter().collect();
-                        prefixes.sort();
-                        result.details.push(format!(
-                            "Available trait directories: {}",
-                            prefixes.join(", ")
-                        ));
-                    }
-                }
-            } else if let Some(trait_result) = self.debug_trait(id) {
+            // First check if it's an exact trait definition ID
+            if let Some(trait_result) = self.debug_trait(id) {
                 result.details.push(format!("Trait '{}' did not match", id));
                 if let Some(reason) = &trait_result.skipped_reason {
                     result.details.push(format!("Reason: {}", reason));
                 }
                 result.sub_results = trait_result.condition_results;
             } else {
-                result
-                    .details
-                    .push(format!("Trait '{}' not found in definitions", id));
+                // Not an exact trait ID, check if it's a directory prefix reference
+                let slash_count = id.matches('/').count();
+                if slash_count > 0 {
+                    // Directory path reference - show what traits exist in that directory
+                    let matching_findings: Vec<_> = self
+                        .report
+                        .findings
+                        .iter()
+                        .filter(|f| f.id.starts_with(&format!("{}/", id)))
+                        .collect();
+
+                    if matching_findings.is_empty() {
+                        result
+                            .details
+                            .push(format!("No traits matched in directory '{}/'", id));
+                        // Show available trait prefixes for debugging
+                        let available_prefixes: std::collections::HashSet<_> = self
+                            .report
+                            .findings
+                            .iter()
+                            .filter_map(|f| f.id.rfind('/').map(|i| &f.id[..i]))
+                            .collect();
+                        if !available_prefixes.is_empty() {
+                            let mut prefixes: Vec<_> = available_prefixes.into_iter().collect();
+                            prefixes.sort();
+                            result.details.push(format!(
+                                "Available trait directories: {}",
+                                prefixes.join(", ")
+                            ));
+                        }
+                    }
+                } else {
+                    result
+                        .details
+                        .push(format!("Trait '{}' not found in definitions", id));
+                }
             }
         }
 
@@ -608,6 +611,7 @@ impl<'a> RuleDebugger<'a> {
             .iter()
             .map(|i| i.symbol.as_str())
             .chain(self.report.exports.iter().map(|e| e.symbol.as_str()))
+            .chain(self.report.functions.iter().map(|f| f.name.as_str()))
             .collect();
 
         let matched_symbols = find_matching_symbols(&symbols, exact, regex);
@@ -993,10 +997,15 @@ fn find_matching_symbols<'a>(
     symbols
         .iter()
         .filter(|s| {
+            let clean = s.trim_start_matches('_').trim_start_matches("__");
             if let Some(e) = exact {
-                *s == e
+                *s == e || clean == e
             } else if let Some(r) = regex {
-                regex::Regex::new(r).is_ok_and(|re| re.is_match(s))
+                if let Ok(re) = regex::Regex::new(r) {
+                    re.is_match(s) || re.is_match(clean)
+                } else {
+                    false
+                }
             } else {
                 false
             }

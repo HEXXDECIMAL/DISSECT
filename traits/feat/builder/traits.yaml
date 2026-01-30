@@ -315,6 +315,14 @@ traits:
       type: string
       exact: "Runner.Worker"
 
+  - id: github-runner-listener
+    desc: GitHub Actions Runner.Listener process
+    crit: notable
+    conf: 0.95
+    if:
+      type: string
+      exact: "Runner.Listener"
+
   # === GitLab CI micro-traits ===
   - id: ci-pipeline-id
     desc: CI_PIPELINE_ID variable
@@ -581,16 +589,19 @@ composite_rules:
       - id: github-sha
       - id: actions-checkout
       - id: github-workflows
+      - id: github-runner-worker
+      - id: github-runner-listener
 
   - id: github-runner-targeting
     desc: Targets GitHub Actions Runner process
     crit: suspicious
     conf: 0.95
     all:
-      - id: feat/builder/github-runner-worker
+      - id: github-runner-worker
     any:
-      - id: feat/builder/github-actions
+      - id: github-actions
       - id: fs/proc/process/process-pid-cmdline
+      - id: fs/proc/process/process-pid-maps
 
   # GitLab CI composite (migrated from YARA)
   - id: gitlab-ci

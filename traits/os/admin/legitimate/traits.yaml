@@ -412,6 +412,15 @@ traits:
       type: string
       word: "chpasswd"
 
+  - id: sudo-command
+    desc: sudo command
+    crit: notable
+    conf: 0.5
+    for: [shell]
+    if:
+      type: string
+      word: "sudo"
+
   # === network configuration patterns ===
   - id: ip-addr-command
     desc: ip addr command

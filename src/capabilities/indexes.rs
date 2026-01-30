@@ -240,7 +240,25 @@ impl RawContentRegexIndex {
 
         let total_patterns = patterns.len();
         let regex_set = if !patterns.is_empty() {
-            RegexSet::new(&patterns).ok()
+            match RegexSet::new(&patterns) {
+                Ok(set) => Some(set),
+                Err(e) => {
+                    // Find and report which patterns failed to compile
+                    let mut failed_patterns = Vec::new();
+                    for (i, pattern) in patterns.iter().enumerate() {
+                        if let Err(pe) = regex::Regex::new(pattern) {
+                            failed_patterns.push(format!("  [{}]: {} -> {}", i, pattern, pe));
+                        }
+                    }
+                    eprintln!(
+                        "warning: Failed to compile raw content regex index ({} patterns): {}\n{}",
+                        patterns.len(),
+                        e,
+                        failed_patterns.join("\n")
+                    );
+                    None
+                }
+            }
         } else {
             None
         };

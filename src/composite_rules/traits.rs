@@ -520,6 +520,10 @@ pub struct CompositeTrait {
     /// File-level skip conditions - skip entire rule if ANY condition matches
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub unless: Option<Vec<Condition>>,
+
+    /// String-level exceptions - filter matched strings
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub not: Option<Vec<NotException>>,
 }
 
 impl CompositeTrait {
@@ -832,7 +836,7 @@ impl CompositeTrait {
                     compiled_regex: compiled_regex.as_ref(),
                     compiled_excludes,
                 };
-                eval_string(&params, None, ctx)
+                eval_string(&params, self.not.as_ref(), ctx)
             }
             Condition::YaraMatch { namespace, rule } => {
                 self.eval_yara_match(namespace, rule.as_ref(), ctx)

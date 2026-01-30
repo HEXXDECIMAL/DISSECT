@@ -120,7 +120,7 @@ traits:
     for: [javascript]
     if:
       type: content
-      regex: '\\w+\\s*\\[\\s*\\w+\\s*\\]\\s*=\\s*\\w+\\s*\\[\\s*\\w+\\s*\\]'
+      regex: '\w+\s*\[\s*\w+\s*\]\s*=\s*\w+\s*\[\s*\w+\s*\]'
 
   # String split to array
   - id: js-string-split
