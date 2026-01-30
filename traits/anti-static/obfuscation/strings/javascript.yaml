@@ -58,22 +58,25 @@ traits:
       type: content
       regex: 'Buffer.from(.*["\'']hex["\''])'
 
-  # Global object manipulation patterns
-  - id: js-global-bracket-write
-    desc: Global object bracket notation write
+  # Global object manipulation patterns (symbol-based, more reliable)
+  - id: js-global-property-write
+    desc: Global object property assignment
     crit: suspicious
-    conf: 0.75
-    attack: "T1027"
+    conf: 0.8
+    attack: "T1027.002"
+    mbc: "B0032"
     for: [javascript]
     if:
-      type: content
-      regex: "global\\s*\\[\\s*[\"'][^\"']{1,20}[\"']\\s*\\]\\s*="
+      type: symbol
+      pattern: "global\\..*"
     not:
       - "__dirname"
       - "__filename"
       - "process"
       - "console"
       - "Buffer"
+      - "describe"  # Test frameworks
+      - "__coverage__"  # Istanbul coverage
 
   - id: js-require-alias
     desc: Require function aliasing
@@ -117,7 +120,7 @@ traits:
     for: [javascript]
     if:
       type: content
-      regex: '\\w+\\[\\w+\\]\\s*=\\s*\\w+\\[\\w+\\]'
+      regex: '\\w+\\s*\\[\\s*\\w+\\s*\\]\\s*=\\s*\\w+\\s*\\[\\s*\\w+\\s*\\]'
 
   # String split to array
   - id: js-string-split
@@ -211,7 +214,7 @@ composite_rules:
     for: [javascript]
     count_min: 2
     any:
-      - id: js-global-bracket-write
+      - id: js-global-property-write
       - id: js-require-alias
       - id: js-version-marker
 

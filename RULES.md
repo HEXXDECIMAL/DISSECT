@@ -113,6 +113,246 @@ Inert → Notable → Suspicious → Hostile
 
 **When in doubt:** Notable > Inert, Notable > Suspicious, Suspicious > Hostile
 
+### Composite Complexity Requirements
+
+**HOSTILE composites require complexity ≥ 4** to maintain their criticality level. If complexity falls below 4, the composite is automatically downgraded to SUSPICIOUS.
+
+#### What is Complexity?
+
+Complexity measures the **structural depth** of a composite rule, not the number of matches. It's calculated based on the rule's logical structure:
+
+**Complexity Contributions:**
+- `any:` expression → **+1** complexity (regardless of how many sub-patterns it contains)
+- `all:` expression → **+N** complexity (where N = number of rules in the `all:` block)
+- `count_min:` / `count_max:` / `count_exact:` → same as `any:` (+1)
+- `file_types:` constraint → **+1** complexity
+- `filesize:` constraint → **+1** complexity
+- **Recursive rules**: If you depend on a rule with an `all:`, those rules recursively add to complexity
+
+#### Calculation Examples
+
+**Example 1: Simple any (Complexity = 1)**
+```yaml
+composite_rules:
+  - id: simple-trojan
+    crit: hostile          # Requires complexity >= 4
+    any:                   # +1 complexity
+      - id: pattern-a
+      - id: pattern-b
+      - id: pattern-c
+```
+**Complexity**: 1 (just the `any:`)
+**Result**: Downgraded to SUSPICIOUS (1 < 4)
+
+**Example 2: Multiple all constraints (Complexity = 3)**
+```yaml
+composite_rules:
+  - id: better-trojan
+    crit: hostile
+    all:                   # +3 complexity (3 rules in all:)
+      - id: pattern-a
+      - id: pattern-b
+      - id: pattern-c
+```
+**Complexity**: 3
+**Result**: Still downgraded to SUSPICIOUS (3 < 4)
+
+**Example 3: Combined structure (Complexity = 4)**
+```yaml
+composite_rules:
+  - id: good-trojan
+    crit: hostile
+    file_types: [javascript]  # +1 complexity
+    all:                       # +3 complexity (3 rules)
+      - id: pattern-a
+      - id: pattern-b
+      - id: pattern-c
+```
+**Complexity**: 4 (1 + 3)
+**Result**: Remains HOSTILE ✓
+
+**Example 4: Mixed structure (Complexity = 3)**
+```yaml
+composite_rules:
+  - id: mixed-trojan
+    crit: hostile
+    all:                   # +2 complexity (2 rules in all:)
+      - id: pattern-a
+      - id: pattern-b
+    any:                   # +1 complexity
+      - id: pattern-c
+      - id: pattern-d
+```
+**Complexity**: 3 (2 + 1)
+**Result**: Downgraded to SUSPICIOUS (3 < 4)
+
+#### Recursive Complexity
+
+When a composite references another composite with `all:`, the referenced rules add to parent complexity:
+
+```yaml
+composite_rules:
+  - id: string-deobfuscation
+    all:                           # Has 3 rules
+      - id: charAt-pattern
+      - id: swap-pattern
+      - id: join-pattern
+
+  - id: advanced-trojan
+    crit: hostile
+    all:
+      - id: string-deobfuscation   # +3 (recursive from all: above)
+      - id: eval-pattern           # +1
+```
+**Complexity**: 4 (3 from recursive + 1 direct)
+**Result**: Remains HOSTILE ✓
+
+#### Match Count vs Complexity
+
+**Important**: `count_min:` controls **how many patterns must match**, while complexity controls **structural depth**.
+
+```yaml
+composite_rules:
+  - id: example
+    crit: hostile
+    count_min: 3           # Need 3+ patterns to match (matching requirement)
+    any:                   # +1 complexity (structural depth)
+      - id: pattern-a
+      - id: pattern-b
+      - id: pattern-c
+      - id: pattern-d
+      - id: pattern-e
+```
+
+If 5 patterns match:
+- Match requirement: ✅ PASS (5 ≥ 3)
+- Complexity: 1 (just the `any:`)
+- Result: ❌ Downgraded to SUSPICIOUS (1 < 4)
+
+To fix: Use `all:` instead or add constraints:
+```yaml
+composite_rules:
+  - id: example-fixed
+    crit: hostile
+    file_types: [javascript]  # +1
+    count_min: 3               # Matching requirement
+    any:                       # +1
+      - id: pattern-a
+      - id: pattern-b
+      - id: pattern-c
+    all:                       # +2 (two required patterns)
+      - id: required-1
+      - id: required-2
+```
+**Complexity**: 4 (1 + 1 + 2)
+**Result**: Remains HOSTILE ✓
+
+#### Complexity Thresholds by Criticality
+
+| Criticality | Minimum Complexity |
+|-------------|-------------------|
+| `inert`     | No requirement (any) |
+| `notable`   | No requirement (any) |
+| `suspicious`| No requirement (any) |
+| `hostile`   | **4 or higher** |
+
+#### Rationale
+
+HOSTILE classification indicates attack patterns with "no legitimate use" (malware, trojans, ransomware). A complexity threshold of 4 ensures that:
+
+1. **High confidence**: Multiple independent indicators confirm malicious intent
+2. **Low false positives**: Legitimate code rarely triggers 4+ malware indicators
+3. **Defense in depth**: Single failed pattern doesn't prevent detection
+4. **Evidence strength**: More matched patterns = stronger case for malicious classification
+
+#### Debugging Complexity Issues
+
+If a HOSTILE composite is being downgraded:
+
+```
+⚠️  WARNING: Composite trait 'my-trojan' is marked HOSTILE but has
+complexity 2 (need >=4). Downgrading to SUSPICIOUS.
+```
+
+**Diagnosis steps:**
+
+1. **Check how many patterns matched**:
+   ```bash
+   # Look for traits in the same category
+   dissect analyze file.js | grep "category-name"
+   ```
+
+2. **Verify sub-patterns work individually**:
+   ```bash
+   # Create minimal test files
+   echo 'pattern_code_here' > test.js
+   dissect analyze test.js
+   ```
+
+3. **Use symbols/strings subcommands to see what's extracted**:
+   ```bash
+   dissect symbols file.js    # See AST-extracted symbols
+   dissect strings file.js    # See AST-extracted strings
+   ```
+
+4. **Review pattern definitions**: Ensure `type: symbol` patterns match extracted symbols exactly, or `type: content` regex patterns are correct
+
+**Solutions:**
+
+- **Option A**: Fix non-matching sub-patterns (recommended)
+- **Option B**: Reduce `count_min:` requirement so more variations match
+- **Option C**: Add `file_types:` or `filesize:` constraints to increase structural complexity
+- **Option D**: Convert `any:` to `all:` for required patterns (increases complexity significantly)
+- **Option E**: Accept SUSPICIOUS classification as adequate
+- **Option F**: Add more `all:` constraints with reliable patterns
+
+---
+
+### Count Operators (Matching Requirements)
+
+Use these to control how many patterns must match within an `any:` block:
+
+```yaml
+# count_min: At least N patterns must match
+composite_rules:
+  - id: example-min
+    count_min: 3    # Need 3 or more
+    any:
+      - id: pattern-a
+      - id: pattern-b
+      - id: pattern-c
+      - id: pattern-d
+
+# count_max: At most N patterns can match
+  - id: example-max
+    count_max: 2    # Need 2 or fewer
+    any:
+      - id: pattern-a
+      - id: pattern-b
+      - id: pattern-c
+
+# count_exact: Exactly N patterns must match
+  - id: example-exact
+    count_exact: 2  # Need exactly 2
+    any:
+      - id: pattern-a
+      - id: pattern-b
+      - id: pattern-c
+
+# Can combine min and max
+  - id: example-range
+    count_min: 2
+    count_max: 4    # Between 2 and 4 (inclusive)
+    any:
+      - id: pattern-a
+      - id: pattern-b
+      - id: pattern-c
+      - id: pattern-d
+      - id: pattern-e
+```
+
+**Note**: The deprecated `count: N` syntax (equivalent to `count_min: N`) should not be used in new rules.
+
 ---
 
 ## Trait Definitions
@@ -442,7 +682,11 @@ composite_rules:
 all:    # AND - all must match
 any:    # OR - at least one
 none:   # NOT - none can match
-count: 2  # N of M threshold
+
+# Threshold operators (use with any:)
+count_min: 2   # At least N must match
+count_max: 4   # At most N can match
+count_exact: 3 # Exactly N must match
 any: [...]
 ```
 

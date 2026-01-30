@@ -253,15 +253,12 @@ composite_rules:
     confidence: 0.95
     attack: "T1195.002"
     mbc: "B0022"
-    file_types: [javascript]
-    count: 3
-    any:
-      - id: anti-static/obfuscation/strings/js-string-deobfuscation
-      - id: anti-static/obfuscation/strings/js-global-manipulation
-      - id: exec/eval/dynamic/obfuscated-function-constructor
-      - id: exec/eval/dynamic/dynamic-code-execution
-      - id: anti-static/obfuscation/strings/js-obfuscated-eval
+    file_types: [javascript]  # +1 complexity
+    all:                       # +3 complexity (3 required patterns)
       - id: anti-static/obfuscation/code-metrics
+      - id: anti-static/obfuscation/strings/js-version-marker
+      - id: anti-static/obfuscation/strings/js-charat-loop
+    # Total complexity: 1 + 3 = 4 (meets HOSTILE threshold)
 
   # Advanced evasion with multiple techniques
   - id: advanced-evasion-trojan

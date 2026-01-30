@@ -239,6 +239,18 @@ pub enum Command {
         #[arg(required = true)]
         target: String,
     },
+
+    /// Debug rule evaluation - trace through how rules match or fail
+    TestRules {
+        /// Target file to analyze
+        #[arg(required = true)]
+        target: String,
+
+        /// Comma-separated list of rule/trait IDs to debug
+        /// (e.g., "lateral/supply-chain/npm/obfuscated-trojan,anti-static/obfuscation/code-metrics")
+        #[arg(short, long, value_name = "RULE_IDS")]
+        rules: String,
+    },
 }
 
 #[derive(Debug, Clone, clap::ValueEnum, PartialEq)]
