@@ -186,35 +186,6 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
             }
             analyzer.analyze(path)?
         }
-        FileType::Shell | FileType::Batch => {
-            let analyzer = analyzers::shell::ShellAnalyzer::new()
-                .with_capability_mapper(capability_mapper.clone());
-            analyzer.analyze(path)?
-        }
-        FileType::Python => {
-            let analyzer = analyzers::python::PythonAnalyzer::new()
-                .with_capability_mapper(capability_mapper.clone());
-            analyzer.analyze(path)?
-        }
-        FileType::JavaScript => {
-            let analyzer = analyzers::javascript::JavaScriptAnalyzer::new()
-                .with_capability_mapper(capability_mapper.clone());
-            analyzer.analyze(path)?
-        }
-        FileType::Go => {
-            let analyzer =
-                analyzers::go::GoAnalyzer::new().with_capability_mapper(capability_mapper.clone());
-            analyzer.analyze(path)?
-        }
-        FileType::Rust => {
-            let analyzer = analyzers::rust::RustAnalyzer::new()
-                .with_capability_mapper(capability_mapper.clone());
-            analyzer.analyze(path)?
-        }
-        FileType::Java => {
-            let analyzer = analyzers::java::JavaAnalyzer::new();
-            analyzer.analyze(path)?
-        }
         FileType::JavaClass => {
             let analyzer = analyzers::java_class::JavaClassAnalyzer::new()
                 .with_capability_mapper(capability_mapper.clone());
@@ -229,41 +200,6 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
             }
             analyzer.analyze(path)?
         }
-        FileType::Ruby => {
-            let analyzer = analyzers::ruby::RubyAnalyzer::new()
-                .with_capability_mapper(capability_mapper.clone());
-            analyzer.analyze(path)?
-        }
-        FileType::TypeScript => {
-            let analyzer = analyzers::typescript::TypeScriptAnalyzer::new();
-            analyzer.analyze(path)?
-        }
-        FileType::Php => {
-            let analyzer = analyzers::php::PhpAnalyzer::new()
-                .with_capability_mapper(capability_mapper.clone());
-            analyzer.analyze(path)?
-        }
-        FileType::C => {
-            let analyzer =
-                analyzers::c::CAnalyzer::new().with_capability_mapper(capability_mapper.clone());
-            analyzer.analyze(path)?
-        }
-        FileType::Perl => {
-            let analyzer = analyzers::perl::PerlAnalyzer::new();
-            analyzer.analyze(path)?
-        }
-        FileType::Lua => {
-            let analyzer = analyzers::lua::LuaAnalyzer::new();
-            analyzer.analyze(path)?
-        }
-        FileType::PowerShell => {
-            let analyzer = analyzers::powershell::PowerShellAnalyzer::new();
-            analyzer.analyze(path)?
-        }
-        FileType::CSharp => {
-            let analyzer = analyzers::csharp::CSharpAnalyzer::new();
-            analyzer.analyze(path)?
-        }
         FileType::PackageJson => {
             let analyzer = analyzers::package_json::PackageJsonAnalyzer::new()
                 .with_capability_mapper(capability_mapper.clone());
@@ -274,15 +210,15 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
                 .with_capability_mapper(capability_mapper.clone());
             analyzer.analyze(path)?
         }
-        FileType::Swift
-        | FileType::ObjectiveC
-        | FileType::Groovy
-        | FileType::Scala
-        | FileType::Zig
-        | FileType::Elixir
-        | FileType::AppleScript => analyze_generic_source(path, &file_type)?,
-        FileType::Unknown => {
-            anyhow::bail!("Unsupported file type: {:?}", file_type);
+        // All source code languages use the unified analyzer (or generic fallback)
+        _ => {
+            if let Some(analyzer) =
+                analyzers::analyzer_for_file_type(&file_type, Some(capability_mapper.clone()))
+            {
+                analyzer.analyze(path)?
+            } else {
+                anyhow::bail!("Unsupported file type: {:?}", file_type);
+            }
         }
     };
 
@@ -309,54 +245,6 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
             }
         }
     }
-
-    Ok(report)
-}
-
-/// Analyze source code files for languages with AST support but no dedicated analyzer.
-fn analyze_generic_source(path: &Path, file_type: &FileType) -> Result<AnalysisReport> {
-    use analyzers::symbol_extraction;
-    use sha2::{Digest, Sha256};
-    use std::fs;
-
-    let start = std::time::Instant::now();
-    let content = fs::read_to_string(path)?;
-
-    let file_type_str = format!("{:?}", file_type).to_lowercase();
-    let mut hasher = Sha256::new();
-    hasher.update(content.as_bytes());
-    let sha256 = format!("{:x}", hasher.finalize());
-
-    let target = TargetInfo {
-        path: path.display().to_string(),
-        file_type: file_type_str.clone(),
-        size_bytes: content.len() as u64,
-        sha256,
-        architectures: None,
-    };
-
-    let mut report = AnalysisReport::new(target);
-
-    report.structure.push(types::StructuralFeature {
-        id: format!("source/language/{}", file_type_str),
-        desc: format!("{} source code", file_type_str),
-        evidence: vec![Evidence {
-            method: "parser".to_string(),
-            source: "tree-sitter".to_string(),
-            value: file_type_str.clone(),
-            location: Some("AST".to_string()),
-        }],
-    });
-
-    if let Some((lang, call_types)) = symbol_extraction::get_language_config(file_type) {
-        symbol_extraction::extract_symbols(&content, lang, &call_types, &mut report);
-    }
-
-    path_mapper::analyze_and_link_paths(&mut report);
-    env_mapper::analyze_and_link_env_vars(&mut report);
-
-    report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;
-    report.metadata.tools_used = vec!["tree-sitter".to_string()];
 
     Ok(report)
 }

@@ -1,56 +1,16 @@
-# Data Exfiltration - Go
-# ATT&CK: T1041
-
-defaults:
-  # String patterns work in both source and compiled Go binaries
-  for: [go, elf, macho, pe]
-
-traits:
-  # === JSON exfil key atomic indicators ===
-  - id: json-key-aiv
-    desc: aiv JSON key
-    crit: inert
-    conf: 0.7
-    attack: "T1041"
-    if:
-      type: string
-      exact: '"aiv"'
-
-  - id: json-key-crd
-    desc: crd JSON key
-    crit: inert
-    conf: 0.7
-    attack: "T1041"
-    if:
-      type: string
-      exact: '"crd"'
-
-  - id: json-key-pwd
-    desc: pwd JSON key
-    crit: inert
-    conf: 0.7
-    attack: "T1041"
-    if:
-      type: string
-      exact: '"pwd"'
-
-  - id: go-dpaste-exfil
-    desc: Exfiltrates data to dpaste service
-    crit: suspicious
-    conf: 0.85
-    attack: "T1041"
-    if:
-      type: string
-      exact: "https://dpaste.com/api/v2/"
+# Go Stealer Patterns
+# ATT&CK: T1041 (Exfiltration Over C2 Channel)
 
 composite_rules:
-  - id: go-json-exfil-keys
-    desc: Marshals sensitive-looking keys into JSON
-    crit: suspicious
-    conf: 0.95
+  - id: go-stealer-exfil
+    desc: "Go-based sensitive data exfiltration"
+    crit: hostile
+    conf: 0.98
+    mbc: "C0001"
     attack: "T1041"
-    count_min: 1
+    for: [go]
+    all:
+      - id: collect/archive/sensitive-archiving
     any:
-      - id: json-key-aiv
-      - id: json-key-crd
-      - id: json-key-pwd
+      - id: comm/socket/http-post
+      - id: c2/infrastructure/domain/c2-domain

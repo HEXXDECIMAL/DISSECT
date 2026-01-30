@@ -8,7 +8,9 @@
 //! - Context about available data (strings, symbols, etc.)
 
 use crate::capabilities::CapabilityMapper;
-use crate::composite_rules::{Condition, EvaluationContext, FileType as RuleFileType, Platform};
+use crate::composite_rules::{
+    eval_trait, Condition, EvaluationContext, FileType as RuleFileType, Platform,
+};
 use crate::types::{AnalysisReport, Evidence};
 use colored::Colorize;
 
@@ -428,22 +430,60 @@ impl<'a> RuleDebugger<'a> {
     fn debug_trait_reference(&self, id: &str) -> ConditionDebugResult {
         let desc = format!("trait: {}", id);
 
-        // Check if trait matched in findings
-        let matched = self.report.findings.iter().any(|f| f.id == id);
+        // Use the same trait resolver as runtime evaluation
+        // This supports both exact matches and directory prefix matches
+        let ctx = EvaluationContext {
+            report: self.report,
+            binary_data: self.binary_data,
+            file_type: self.file_type.clone(),
+            platform: self.platform.clone(),
+            additional_findings: None,
+            cached_ast: None,
+        };
 
-        let mut result = ConditionDebugResult::new(desc, matched);
+        let eval_result = eval_trait(id, &ctx);
+        let mut result = ConditionDebugResult::new(desc, eval_result.matched);
 
-        if matched {
-            if let Some(finding) = self.report.findings.iter().find(|f| f.id == id) {
-                result.details.push(format!(
-                    "Found in findings with {} evidence items",
-                    finding.evidence.len()
-                ));
-                result.evidence = finding.evidence.clone();
-            }
+        if eval_result.matched {
+            result.details.push(format!(
+                "Found in findings with {} evidence items",
+                eval_result.evidence.len()
+            ));
+            result.evidence = eval_result.evidence;
         } else {
             // Try to debug why the trait didn't match
-            if let Some(trait_result) = self.debug_trait(id) {
+            // First check if it's a directory prefix reference
+            let slash_count = id.matches('/').count();
+            if slash_count > 0 {
+                // Directory path reference - show what traits exist in that directory
+                let matching_findings: Vec<_> = self
+                    .report
+                    .findings
+                    .iter()
+                    .filter(|f| f.id.starts_with(&format!("{}/", id)))
+                    .collect();
+
+                if matching_findings.is_empty() {
+                    result
+                        .details
+                        .push(format!("No traits matched in directory '{}/'", id));
+                    // Show available trait prefixes for debugging
+                    let available_prefixes: std::collections::HashSet<_> = self
+                        .report
+                        .findings
+                        .iter()
+                        .filter_map(|f| f.id.rfind('/').map(|i| &f.id[..i]))
+                        .collect();
+                    if !available_prefixes.is_empty() {
+                        let mut prefixes: Vec<_> = available_prefixes.into_iter().collect();
+                        prefixes.sort();
+                        result.details.push(format!(
+                            "Available trait directories: {}",
+                            prefixes.join(", ")
+                        ));
+                    }
+                }
+            } else if let Some(trait_result) = self.debug_trait(id) {
                 result.details.push(format!("Trait '{}' did not match", id));
                 if let Some(reason) = &trait_result.skipped_reason {
                     result.details.push(format!("Reason: {}", reason));

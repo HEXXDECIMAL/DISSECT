@@ -74,7 +74,7 @@ traits:
     desc: "Open file via os.Open"
     crit: inert
     conf: 0.9
-    for: [go]
+    for: [go, macho, elf, pe]
     if:
       type: symbol
       exact: "os.Open"
@@ -83,7 +83,7 @@ traits:
     desc: "Copy data via io.Copy"
     crit: inert
     conf: 0.9
-    for: [go]
+    for: [go, macho, elf, pe]
     if:
       type: symbol
       exact: "io.Copy"

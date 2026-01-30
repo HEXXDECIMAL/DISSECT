@@ -1,19 +1,20 @@
 //! File format analyzers.
 //!
 //! This module contains analyzers for various file formats:
-//! - Binary formats: ELF, PE, Mach-O, Java class files
+//! - Binary formats: ELF, PE, Mach-O (dedicated analyzers)
+//! - Java bytecode: .class files and JARs (dedicated analyzer)
+//! - Package manifests: package.json, vsixmanifest (dedicated analyzers)
 //! - Archive formats: ZIP, TAR, 7z, etc. (see archive/ submodule)
-//! - Script languages: Shell, Python, JavaScript, Ruby, PHP, Perl, PowerShell, Lua
-//! - Source languages: C, Go, Rust, Java, Kotlin, C#, TypeScript
-//! - Package formats: package.json, npm packages
+//! - Source code: All tree-sitter languages via unified analyzer (Python, JavaScript,
+//!   TypeScript, Go, Rust, Ruby, PHP, Shell, Lua, Perl, PowerShell, Java, C#, C,
+//!   Swift, Objective-C, Groovy, Scala, Zig, Elixir)
+//! - Fallback: Generic analyzer for unsupported file types (Batch, Unknown)
 //!
 //! Each analyzer implements the `Analyzer` trait for consistent interface.
 
 pub mod applescript;
 pub mod archive;
 pub mod ast_walker;
-pub mod c;
-pub mod csharp;
 
 // Universal metrics analyzers
 pub mod comment_metrics;
@@ -27,25 +28,19 @@ pub mod utils;
 // Analyzer templates and helpers
 pub mod source_analyzer;
 
+// Dedicated analyzers for binary/bytecode/manifest formats
 pub mod elf;
-pub mod generic;
-pub mod go;
-pub mod java;
 pub mod java_class;
-pub mod javascript;
-pub mod lua;
 pub mod macho;
 pub mod package_json;
 pub mod pe;
-pub mod perl;
-pub mod php;
-pub mod powershell;
-pub mod python;
-pub mod ruby;
-pub mod rust;
-pub mod shell;
-pub mod typescript;
 pub mod vsix_manifest;
+
+// Unified source analyzer (handles all tree-sitter languages)
+pub mod unified;
+
+// Fallback for languages without tree-sitter support
+pub mod generic;
 
 use crate::capabilities::CapabilityMapper;
 use crate::types::{AnalysisReport, Criticality, Evidence, Finding, FindingKind, TargetInfo};
@@ -54,8 +49,12 @@ use std::path::Path;
 
 /// Create an analyzer for the given file type.
 ///
-/// Returns a dedicated analyzer for known file types, or a generic fallback
-/// analyzer for types without specialized support.
+/// Uses the unified source analyzer for all tree-sitter based languages.
+/// Dedicated analyzers are only used for:
+/// - Binary formats (ELF, PE, Mach-O) - fundamentally different analysis
+/// - Package manifests (package.json, vsixmanifest) - structured data, not code
+/// - Java class files (bytecode, not source)
+/// - AppleScript (compiled binary format)
 ///
 /// Returns None only for Archive (which requires special ArchiveAnalyzer config).
 pub fn analyzer_for_file_type(
@@ -65,6 +64,7 @@ pub fn analyzer_for_file_type(
     let mapper_or_empty = mapper.unwrap_or_else(CapabilityMapper::empty);
 
     match file_type {
+        // Binary formats - need dedicated analyzers
         FileType::MachO => Some(Box::new(
             macho::MachOAnalyzer::new().with_capability_mapper(mapper_or_empty),
         )),
@@ -74,71 +74,40 @@ pub fn analyzer_for_file_type(
         FileType::Pe => Some(Box::new(
             pe::PEAnalyzer::new().with_capability_mapper(mapper_or_empty),
         )),
-        FileType::Shell => Some(Box::new(
-            shell::ShellAnalyzer::new().with_capability_mapper(mapper_or_empty),
-        )),
-        FileType::Python => Some(Box::new(
-            python::PythonAnalyzer::new().with_capability_mapper(mapper_or_empty),
-        )),
-        FileType::JavaScript | FileType::TypeScript => Some(Box::new(
-            javascript::JavaScriptAnalyzer::new().with_capability_mapper(mapper_or_empty),
-        )),
-        FileType::Go => Some(Box::new(
-            go::GoAnalyzer::new().with_capability_mapper(mapper_or_empty),
-        )),
-        FileType::Rust => Some(Box::new(
-            rust::RustAnalyzer::new().with_capability_mapper(mapper_or_empty),
-        )),
-        FileType::Java => Some(Box::new(
-            java::JavaAnalyzer::new().with_capability_mapper(mapper_or_empty),
-        )),
+
+        // Java bytecode - not source code
         FileType::JavaClass | FileType::Jar => Some(Box::new(
             java_class::JavaClassAnalyzer::new().with_capability_mapper(mapper_or_empty),
         )),
-        FileType::Ruby => Some(Box::new(
-            ruby::RubyAnalyzer::new().with_capability_mapper(mapper_or_empty),
-        )),
-        FileType::Php => Some(Box::new(
-            php::PhpAnalyzer::new().with_capability_mapper(mapper_or_empty),
-        )),
-        FileType::Perl => Some(Box::new(
-            perl::PerlAnalyzer::new().with_capability_mapper(mapper_or_empty),
-        )),
-        FileType::Lua => Some(Box::new(
-            lua::LuaAnalyzer::new().with_capability_mapper(mapper_or_empty),
-        )),
-        FileType::PowerShell => Some(Box::new(
-            powershell::PowerShellAnalyzer::new().with_capability_mapper(mapper_or_empty),
-        )),
-        FileType::C => Some(Box::new(
-            c::CAnalyzer::new().with_capability_mapper(mapper_or_empty),
-        )),
-        FileType::CSharp => Some(Box::new(
-            csharp::CSharpAnalyzer::new().with_capability_mapper(mapper_or_empty),
-        )),
+
+        // Compiled AppleScript - binary format
         FileType::AppleScript => Some(Box::new(
             applescript::AppleScriptAnalyzer::new().with_capability_mapper(mapper_or_empty),
         )),
+
+        // Package manifests - structured data parsers
         FileType::VsixManifest => Some(Box::new(
             vsix_manifest::VsixManifestAnalyzer::new().with_capability_mapper(mapper_or_empty),
         )),
         FileType::PackageJson => Some(Box::new(
             package_json::PackageJsonAnalyzer::new().with_capability_mapper(mapper_or_empty),
         )),
-        // Use generic analyzer for types with tree-sitter but no dedicated analyzer
-        FileType::Swift
-        | FileType::ObjectiveC
-        | FileType::Groovy
-        | FileType::Scala
-        | FileType::Zig
-        | FileType::Elixir
-        | FileType::Batch
-        | FileType::Unknown => Some(Box::new(
-            generic::GenericAnalyzer::new(file_type.clone())
-                .with_capability_mapper(mapper_or_empty),
-        )),
+
         // Archive needs special handling (depth limits, nested analysis)
         FileType::Archive => None,
+
+        // All source code languages - use unified analyzer
+        _ => {
+            if let Some(analyzer) = unified::UnifiedSourceAnalyzer::for_file_type(file_type) {
+                Some(Box::new(analyzer.with_capability_mapper(mapper_or_empty)))
+            } else {
+                // Fallback to generic for types without tree-sitter (Batch, Unknown)
+                Some(Box::new(
+                    generic::GenericAnalyzer::new(file_type.clone())
+                        .with_capability_mapper(mapper_or_empty),
+                ))
+            }
+        }
     }
 }
 

@@ -5,7 +5,7 @@ traits:
   # === Atomic: SQLite ===
 
   - id: sqlite
-    description: SQLite database access
+    desc: SQLite database access
     crit: notable
     conf: 0.7
     attack: "T1005"

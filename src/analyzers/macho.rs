@@ -478,10 +478,12 @@ impl MachOAnalyzer {
                 for (name, sym) in syms.iter().flatten() {
                     // N_EXT (external) and N_UNDF (undefined) means it's an import
                     if (sym.n_type & 0x01 != 0) && (sym.n_type & 0x0e == 0) {
+                        // Strip leading underscore
+                        let clean_name = name.trim_start_matches('_');
                         // Only add if not already added by radare2
-                        if !report.imports.iter().any(|i| i.symbol == name) {
+                        if !report.imports.iter().any(|i| i.symbol == clean_name) {
                             report.imports.push(Import {
-                                symbol: name.to_string(),
+                                symbol: clean_name.to_string(),
                                 library: None,
                                 source: "goblin_symtab".to_string(),
                             });
@@ -491,14 +493,16 @@ impl MachOAnalyzer {
             }
         } else {
             for imp in &imports {
+                // Strip leading underscore for consistency with source code analysis
+                let name = imp.name.trim_start_matches('_');
                 report.imports.push(Import {
-                    symbol: imp.name.to_string(),
+                    symbol: name.to_string(),
                     library: Some(imp.dylib.to_string()),
                     source: "goblin".to_string(),
                 });
 
                 // Map import to capability
-                if let Some(cap) = self.capability_mapper.lookup(imp.name, "goblin") {
+                if let Some(cap) = self.capability_mapper.lookup(name, "goblin") {
                     // Check if we already have this capability
                     if !report.findings.iter().any(|c| c.id == cap.id) {
                         report.findings.push(cap);

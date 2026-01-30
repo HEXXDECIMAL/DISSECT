@@ -4,7 +4,7 @@ traits:
     desc: "Get user home directory"
     crit: inert
     conf: 0.9
-    for: [go]
+    for: [go, macho, elf, pe]
     if:
       type: symbol
       exact: "os.UserHomeDir"

