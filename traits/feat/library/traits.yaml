@@ -52,6 +52,14 @@ traits:
       type: string
       exact: "glibc"
 
+  - id: libc-characteristic-symbols
+    desc: Characteristic system library exports
+    crit: inert
+    conf: 0.5
+    if:
+      type: symbol
+      regex: "^(__libc_start_main|gnu_get_libc_version|__errno_location|__atan2_finite|feenableexcept|__log_finite|exp2f)$"
+
   - id: systemd-ref
     desc: systemd reference
     crit: inert
@@ -59,6 +67,14 @@ traits:
     if:
       type: string
       exact: "systemd"
+
+  - id: system-debug-lib
+    desc: System debug library
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      regex: "lib.{1,20}_debug\\.so"
 
   # === Compression Libraries ===
   - id: lzma-ref
@@ -106,6 +122,8 @@ composite_rules:
       - id: gnu-coreutils-ref
       - id: glibc-ref
       - id: systemd-ref
+      - id: libc-characteristic-symbols
+      - id: system-debug-lib
 
   - id: compression-lib
     desc: Compression library markers

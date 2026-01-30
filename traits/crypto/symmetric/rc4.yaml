@@ -28,4 +28,4 @@ traits:
     conf: 0.5
     if:
       type: string
-      regex: "(?i)rc4.*crypt"
+      regex: "(?i)rc4.{0,20}crypt"

@@ -1083,4 +1083,9 @@ impl CompositeTrait {
             warnings: Vec::new(),
         }
     }
+
+    /// Returns true if this rule has negative (none) conditions
+    pub fn has_negative_conditions(&self) -> bool {
+        self.none.as_ref().map(|n| !n.is_empty()).unwrap_or(false)
+    }
 }

@@ -12,7 +12,7 @@ traits:
     condition:
       type: string
       word: "admin"
-      count_min: 3
+      min_count: 10
   - id: root-password
     description: "Default credential: root variations"
     crit: notable
@@ -22,7 +22,11 @@ traits:
     condition:
       type: string
       word: "root"
-      count_min: 3
+      min_count: 10
+    not:
+      - "malloc"
+      - "free"
+      - "node"
   - id: numeric-123456
     description: "Default credential: 123456"
     crit: suspicious

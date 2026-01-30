@@ -52,23 +52,24 @@ pub fn eval_trait(id: &str, ctx: &EvaluationContext) -> ConditionResult {
     let mut evidence = Vec::new();
     let mut matched = false;
 
-    // Count slashes to determine if this is a directory path or a short name
-    let slash_count = id.matches('/').count();
-
     // Helper to check if a finding matches the trait ID
     let matches_trait = |finding: &Finding| -> bool {
+        // Try exact match first - highest priority
+        if finding.id == id {
+            return true;
+        }
+
+        // Suffix/Prefix matching
+        let slash_count = id.matches('/').count();
         if slash_count == 0 {
             // Short name: suffix match for same-directory relative reference
             // e.g., "terminate" matches "exec/process/terminate"
-            // Also check exact match for bare IDs (e.g., "lanip-label" matches "lanip-label")
-            finding.id.ends_with(&format!("/{}", id)) || finding.id == id
+            finding.id.ends_with(&format!("/{}", id))
         } else {
             // Directory path: prefix match (any trait within that directory)
             // e.g., "anti-static/obfuscation/strings" matches
             // "anti-static/obfuscation/strings/python-hex"
-            // Note: We match if the finding starts with the path followed by /
-            // This prevents "exec/command" from matching "exec/command-shell"
-            finding.id.starts_with(&format!("{}/", id)) || finding.id == id
+            finding.id.starts_with(&format!("{}/", id))
         }
     };
 
@@ -80,7 +81,6 @@ pub fn eval_trait(id: &str, ctx: &EvaluationContext) -> ConditionResult {
         }
     }
 
-    // Also check additional findings from previous evaluation iterations
     if let Some(additional) = ctx.additional_findings {
         for finding in additional {
             if matches_trait(finding) {

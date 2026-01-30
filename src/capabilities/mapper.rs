@@ -862,8 +862,33 @@ impl CapabilityMapper {
         // This identifies which traits match AND caches the evidence to avoid re-iteration
         let t_prematch = std::time::Instant::now();
         let (string_matched_traits, cached_evidence) = if self.string_match_index.has_patterns() {
+            // Combine strings and symbols for pre-filtering
+            let mut all_strings = report.strings.clone();
+
+            // Add imports as strings
+            for imp in &report.imports {
+                all_strings.push(crate::types::StringInfo {
+                    value: imp.symbol.clone(),
+                    offset: None,
+                    encoding: "symbol".to_string(),
+                    string_type: crate::types::StringType::Import,
+                    section: None,
+                });
+            }
+
+            // Add exports as strings
+            for exp in &report.exports {
+                all_strings.push(crate::types::StringInfo {
+                    value: exp.symbol.clone(),
+                    offset: exp.offset.clone(),
+                    encoding: "symbol".to_string(),
+                    string_type: crate::types::StringType::Export,
+                    section: None,
+                });
+            }
+
             self.string_match_index
-                .find_matches_with_evidence(&report.strings)
+                .find_matches_with_evidence(&all_strings)
         } else {
             (FxHashSet::default(), FxHashMap::default())
         };
@@ -1012,8 +1037,6 @@ impl CapabilityMapper {
         let platform = self.detect_platform(&report.target.file_type);
         let file_type = self.detect_file_type(&report.target.file_type);
 
-        // Iterative evaluation to support composite rules referencing other composites
-        // On each iteration, newly matched composites become available for subsequent evaluations
         let mut all_findings: Vec<Finding> = Vec::new();
         let mut seen_ids: std::collections::HashSet<String> = std::collections::HashSet::new();
 
@@ -1022,9 +1045,14 @@ impl CapabilityMapper {
             seen_ids.insert(finding.id.clone());
         }
 
-        // Maximum iterations to prevent infinite loops (should converge quickly)
-        const MAX_ITERATIONS: usize = 10;
+        // Split rules into two groups: those with negative conditions and those without
+        let (negative_rules, positive_rules): (Vec<&CompositeTrait>, Vec<&CompositeTrait>) = self
+            .composite_rules
+            .iter()
+            .partition(|r| r.has_negative_conditions());
 
+        // Pass 1: Iterative evaluation of positive rules to reach a stable fixed-point
+        const MAX_ITERATIONS: usize = 10;
         for _ in 0..MAX_ITERATIONS {
             let ctx = EvaluationContext {
                 report,
@@ -1039,16 +1067,14 @@ impl CapabilityMapper {
                 cached_ast: None,
             };
 
-            // Evaluate composite rules in parallel
-            let new_findings: Vec<Finding> = self
-                .composite_rules
+            // Evaluate positive rules in parallel
+            let new_findings: Vec<Finding> = positive_rules
                 .par_iter()
                 .filter_map(|rule| rule.evaluate(&ctx))
                 .filter(|f| !seen_ids.contains(&f.id))
                 .collect();
 
             if new_findings.is_empty() {
-                // Fixed point reached - no new composites found
                 break;
             }
 
@@ -1057,6 +1083,31 @@ impl CapabilityMapper {
                 seen_ids.insert(finding.id.clone());
                 all_findings.push(finding);
             }
+        }
+
+        // Pass 2: Final evaluation of rules with negative conditions (exclusions)
+        // These are only checked AFTER all positive indicators have reached a stable state.
+        let ctx = EvaluationContext {
+            report,
+            binary_data,
+            file_type: file_type.clone(),
+            platform: platform.clone(),
+            additional_findings: if all_findings.is_empty() {
+                None
+            } else {
+                Some(&all_findings)
+            },
+            cached_ast: None,
+        };
+
+        let negative_findings: Vec<Finding> = negative_rules
+            .par_iter()
+            .filter_map(|rule| rule.evaluate(&ctx))
+            .filter(|f| !seen_ids.contains(&f.id))
+            .collect();
+
+        for finding in negative_findings {
+            all_findings.push(finding);
         }
 
         all_findings

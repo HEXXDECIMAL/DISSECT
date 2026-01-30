@@ -23,7 +23,7 @@ traits:
   # === Hooking infrastructure micro-traits ===
   - id: dlsym-call
     desc: dlsym function call
-    crit: notable
+    crit: inert
     conf: 0.7
     if:
       type: symbol
@@ -413,11 +413,14 @@ composite_rules:
     desc: Hook implementation indicator
     crit: notable
     conf: 0.7
-    count_min: 1
+    count_min: 2
     any:
       - id: dlsym-call
       - id: rtld-next-ref
       - id: ld-preload-env
+      - id: dlsym-rtld-next-pattern
+    unless:
+      - id: feat/library/system-lib-marker
 
   # libc hook targets with hook indicators (migrated from YARA)
   - id: libc-hook-targets

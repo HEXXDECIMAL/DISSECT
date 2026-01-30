@@ -256,7 +256,7 @@ impl Radare2Analyzer {
             .arg("-e")
             .arg("log.level=0")
             .arg("-c")
-            .arg("iij; echo SEPARATOR; isj") // Batched imports and symbols (symbols include exports)
+            .arg("iij; echo SEPARATOR; iEj; echo SEPARATOR; isj") // Batched imports, exports, and symbols
             .arg(file_path)
             .output()
             .context("Failed to execute radare2")?;
@@ -276,7 +276,7 @@ impl Radare2Analyzer {
             })
             .unwrap_or_default();
 
-        let symbols = parts
+        let exports = parts
             .get(1)
             .and_then(|p| {
                 let json_start = p.find('[')?;
@@ -284,7 +284,15 @@ impl Radare2Analyzer {
             })
             .unwrap_or_default();
 
-        Ok((imports, Vec::new(), symbols))
+        let symbols = parts
+            .get(2)
+            .and_then(|p| {
+                let json_start = p.find('[')?;
+                serde_json::from_str(&p[json_start..]).ok()
+            })
+            .unwrap_or_default();
+
+        Ok((imports, exports, symbols))
     }
 
     /// Extract syscalls from binary using architecture-aware analysis

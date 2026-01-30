@@ -170,7 +170,7 @@ composite_rules:
   # prctl-based process renaming
   - id: prctl-setname
     desc: Uses prctl to change process
-    crit: suspicious
+    crit: notable
     conf: 0.8
     mbc: "F0004"
     attack: "T1036.004"

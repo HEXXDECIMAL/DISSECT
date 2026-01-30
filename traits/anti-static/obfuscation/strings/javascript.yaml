@@ -47,7 +47,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: content
-      regex: 'Buffer.from(.*["\'']base64["\''])'
+      regex: 'Buffer.from\(.{0,100}["\'']base64["\'']\)'
 
   - id: js-buffer-from-hex
     desc: Buffer.from hex
@@ -56,7 +56,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: content
-      regex: 'Buffer.from(.*["\'']hex["\''])'
+      regex: 'Buffer.from\(.{0,100}["\'']hex["\'']\)'
 
   # Global object manipulation patterns (symbol-based, more reliable)
   - id: js-global-property-write
@@ -68,7 +68,7 @@ traits:
     for: [javascript]
     if:
       type: symbol
-      pattern: "global\\..*"
+      pattern: "global\\..{1,50}"
     not:
       - "__dirname"
       - "__filename"
@@ -109,7 +109,7 @@ traits:
     for: [javascript]
     if:
       type: symbol
-      pattern: ".*\\.charAt"
+      pattern: ".{0,50}\\.charAt"
 
   # Array element swapping (common in shuffle algorithms)
   - id: js-array-swap
@@ -130,7 +130,7 @@ traits:
     for: [javascript]
     if:
       type: symbol
-      pattern: '.*\\.split'
+      pattern: '.{0,50}\\.split'
 
   # Dynamic code execution patterns (atomic)
   - id: js-eval-call
@@ -173,7 +173,7 @@ traits:
     for: [javascript]
     if:
       type: symbol
-      pattern: '.*\.join'
+      pattern: '.{0,50}\.join'
 
 composite_rules:
   # String deobfuscation pattern (charAt/split + swap + join)

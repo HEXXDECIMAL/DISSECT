@@ -42,8 +42,8 @@ traits:
 composite_rules:
   # Hardcoded base64 with decode table = custom implementation
   - id: custom-implementation
-    desc: "Custom base64 implementation (hardcoded alphabet"
-    crit: suspicious
+    desc: "Custom base64 implementation"
+    crit: notable
     conf: 0.9
     attack: "T1027.010"
     mbc: "B0032.001"

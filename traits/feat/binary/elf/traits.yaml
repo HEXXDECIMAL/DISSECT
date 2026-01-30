@@ -47,6 +47,14 @@ traits:
       type: symbol
       pattern: "getauxval"
 
+  - id: ifunc
+    desc: ELF IFUNC resolver
+    crit: notable
+    conf: 1.0
+    if:
+      type: trait
+      id: feat/binary/elf/ifunc
+
 composite_rules:
   - id: resolver-markers
     desc: Resolver function markers

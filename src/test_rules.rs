@@ -1084,8 +1084,16 @@ fn detect_file_type(file_type: &str) -> RuleFileType {
 /// Format the debug results for terminal output
 pub fn format_debug_output(results: &[RuleDebugResult]) -> String {
     let mut output = String::new();
+    let mut matched_count = 0;
+    let mut not_matched_count = 0;
 
     for result in results {
+        if result.matched {
+            matched_count += 1;
+        } else {
+            not_matched_count += 1;
+        }
+
         // Rule header
         let status = if result.matched {
             "MATCHED".green().bold()
@@ -1094,13 +1102,13 @@ pub fn format_debug_output(results: &[RuleDebugResult]) -> String {
         };
 
         output.push_str(&format!(
-            "\n{} {} ({})\n",
+            "\n{} {} ({})",
             status,
             result.rule_id.cyan().bold(),
             result.rule_type.dimmed()
         ));
         output.push_str(&format!("  {}\n", result.description.dimmed()));
-        output.push_str(&format!("  Requirements: {}\n", result.requirements));
+        output.push_str(&format!("  Requires: {}\n", result.requirements));
 
         if let Some(reason) = &result.skipped_reason {
             output.push_str(&format!("  {} {}\n", "Skipped:".yellow(), reason));
@@ -1108,29 +1116,33 @@ pub fn format_debug_output(results: &[RuleDebugResult]) -> String {
 
         // Context info
         output.push_str(&format!(
-            "\n  {} file_type={}, platform={}\n",
-            "Context:".blue().bold(),
+            "  Context: file_type={}, platform={}, strings={}, symbols={}, findings={}\n",
             result.context_info.file_type,
-            result.context_info.platform
-        ));
-        output.push_str(&format!(
-            "  Strings: {}, Symbols: {}, Imports: {}, Exports: {}, Findings: {}\n",
+            result.context_info.platform,
             result.context_info.string_count,
             result.context_info.symbol_count,
-            result.context_info.import_count,
-            result.context_info.export_count,
             result.context_info.finding_count
         ));
 
         // Condition results
         if !result.condition_results.is_empty() {
-            output.push_str(&format!("\n  {}\n", "Conditions:".blue().bold()));
+            output.push_str(&format!("  Conditions:\n"));
             for cond_result in &result.condition_results {
                 format_condition_result(&mut output, cond_result, 2);
             }
         }
 
         output.push('\n');
+    }
+
+    // Summary line
+    if !results.is_empty() {
+        output.push_str(&format!(
+            "Summary: {} matched, {} not matched ({} total)\n",
+            matched_count,
+            not_matched_count,
+            results.len()
+        ));
     }
 
     output
@@ -1150,7 +1162,7 @@ fn format_condition_result(output: &mut String, result: &ConditionDebugResult, i
     ));
 
     for detail in &result.details {
-        output.push_str(&format!("{}    {}\n", indent_str, detail.dimmed()));
+        output.push_str(&format!("{}  {}\n", indent_str, detail.dimmed()));
     }
 
     for sub in &result.sub_results {

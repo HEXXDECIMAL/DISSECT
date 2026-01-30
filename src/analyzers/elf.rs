@@ -298,6 +298,26 @@ impl ElfAnalyzer {
                     source: "goblin".to_string(),
                 });
 
+                // Check for IFUNC (LOOS type 10) - highly relevant for supply chain hijacks
+                if dynsym.st_type() == 10 {
+                    report.findings.push(Finding {
+                        kind: FindingKind::Capability,
+                        id: "feat/binary/elf/ifunc".to_string(),
+                        desc: format!("ELF IFUNC resolver: {}", clean_name),
+                        crit: Criticality::Notable,
+                        conf: 1.0,
+                        mbc: None,
+                        attack: None,
+                        trait_refs: vec![],
+                        evidence: vec![Evidence {
+                            method: "symbol_type".to_string(),
+                            source: "goblin".to_string(),
+                            value: "STT_GNU_IFUNC (LOOS)".to_string(),
+                            location: Some(format!("{:#x}", dynsym.st_value)),
+                        }],
+                    });
+                }
+
                 // Map to capability
                 if let Some(cap) = self.capability_mapper.lookup(clean_name, "goblin") {
                     if !report.findings.iter().any(|c| c.id == cap.id) {
@@ -309,8 +329,9 @@ impl ElfAnalyzer {
 
         // Analyze regular symbols for exports
         for sym in &elf.syms {
+            let st_type = sym.st_type();
             if sym.st_bind() == goblin::elf::sym::STB_GLOBAL
-                && sym.st_type() == goblin::elf::sym::STT_FUNC
+                && (st_type == goblin::elf::sym::STT_FUNC || st_type == 10)
             {
                 if let Some(name) = elf.strtab.get_at(sym.st_name) {
                     let clean_name = name.trim_start_matches('_');
@@ -319,6 +340,27 @@ impl ElfAnalyzer {
                         offset: Some(format!("{:#x}", sym.st_value)),
                         source: "goblin".to_string(),
                     });
+
+                    // Also flag IFUNC in regular symbols
+                    if st_type == 10 && !report.findings.iter().any(|f| f.desc.contains(clean_name))
+                    {
+                        report.findings.push(Finding {
+                            kind: FindingKind::Capability,
+                            id: "feat/binary/elf/ifunc".to_string(),
+                            desc: format!("ELF IFUNC resolver: {}", clean_name),
+                            crit: Criticality::Notable,
+                            conf: 1.0,
+                            mbc: None,
+                            attack: None,
+                            trait_refs: vec![],
+                            evidence: vec![Evidence {
+                                method: "symbol_type".to_string(),
+                                source: "goblin".to_string(),
+                                value: "STT_GNU_IFUNC (LOOS)".to_string(),
+                                location: Some(format!("{:#x}", sym.st_value)),
+                            }],
+                        });
+                    }
                 }
             }
         }

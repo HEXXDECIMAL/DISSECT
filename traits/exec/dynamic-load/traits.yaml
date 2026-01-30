@@ -122,35 +122,54 @@ traits:
             any of them
         }
 
-  # JIT compilation indicators
-  - id: jit
-    desc: JIT compilation patterns
+  # Executable memory allocation
+  - id: executable-memory
+    desc: Allocates or modifies executable memory
     crit: notable
     conf: 0.8
     file_types: [pe, elf, macho, dll, so, dylib]
     if:
       type: yara
       source: |
-        rule jit_compilation {
+        rule executable_memory_ops {
           strings:
-            $jit1 = "mprotect" ascii
-            $jit2 = "VirtualProtect" ascii wide
-            $jit3 = "PAGE_EXECUTE" ascii wide
-            $jit4 = "PROT_EXEC" ascii
+            $mprot = "mprotect" ascii
+            $vprot = "VirtualProtect" ascii wide
+            $p_exec = "PROT_EXEC" ascii
+            $pg_exec = "PAGE_EXECUTE" ascii wide
             $mmap = "mmap" ascii
             $rwx = "MAP_ANONYMOUS" ascii
           condition:
-            any of ($jit*) or ($mmap and $rwx)
+            ($mmap and $rwx and ($mprot or $p_exec or $pg_exec)) or
+            ($vprot and $pg_exec)
         }
 
+  # JIT runtime references
+  - id: jit-runtime-ref
+    desc: JIT compilation runtime reference
+    crit: notable
+    conf: 0.85
+    if:
+      type: string
+      regex: "(?i)jit_compile|jit_runtime|libjit|LuaJIT|V8 JIT"
+
 composite_rules:
+  # JIT compilation indicators
+  - id: jit
+    desc: JIT compilation patterns
+    crit: notable
+    conf: 0.85
+    all:
+      - id: executable-memory
+      - id: jit-runtime-ref
+
   # Suspicious dynamic loading with memory execution
   - id: memory-exec
     desc: Dynamic loading with executable memory
     crit: suspicious
     conf: 0.85
     all:
-      - id: jit
+      - id: executable-memory
     any:
       - id: dlopen
       - id: loadlibrary

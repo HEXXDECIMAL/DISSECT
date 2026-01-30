@@ -1,8 +1,8 @@
 # Dynamic Library Symbol Lookup
 traits:
-  - id: dlsym
-    desc: Symbol lookup via dlsym
-    crit: suspicious
+  - id: dlsym-string
+    desc: dlsym function reference
+    crit: inert
     conf: 0.85
     attack: "T1574.006"
     for: [elf, macho]
@@ -10,9 +10,17 @@ traits:
       type: string
       exact: "dlsym"
 
+  - id: dlsym-symbol
+    desc: dlsym function symbol
+    crit: inert
+    conf: 0.9
+    if:
+      type: symbol
+      pattern: "dlsym"
+
   - id: dladdr
     desc: Address to symbol lookup
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1574.006"
     for: [elf, macho]
@@ -22,7 +30,7 @@ traits:
 
   - id: getprocaddress
     desc: Windows GetProcAddress
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1574.002"
     for: [pe]

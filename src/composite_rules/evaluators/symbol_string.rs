@@ -107,7 +107,8 @@ fn symbol_matches_condition(
     false
 }
 
-/// Evaluate string condition - searches ONLY in properly extracted/bounded strings.
+/// Evaluate string condition - searches in properly extracted/bounded strings,
+/// as well as imports and exports if they match the string criteria.
 ///
 /// For searching raw file content, use `eval_raw()` instead.
 pub fn eval_string(
@@ -128,43 +129,41 @@ pub fn eval_string(
     let compiled_regex = params.compiled_regex;
     let compiled_excludes = params.compiled_excludes;
 
-    // Check in extracted strings from report (for binaries)
-    for string_info in &ctx.report.strings {
+    // Helper to check if a value matches and add to evidence
+    let check_and_add_evidence = |value: &str,
+                                  source: &str,
+                                  method: &str,
+                                  location: Option<String>,
+                                  evidence: &mut Vec<Evidence>| {
         let mut matched = false;
         let mut match_value = String::new();
 
         if let Some(exact_str) = params.exact {
-            // Full string match - entire string must equal the pattern
             matched = if params.case_insensitive {
-                string_info.value.eq_ignore_ascii_case(exact_str)
+                value.eq_ignore_ascii_case(exact_str)
             } else {
-                string_info.value == *exact_str
+                value == *exact_str
             };
             if matched {
                 match_value = exact_str.clone();
             }
         } else if let Some(contains_str) = params.contains {
-            // Substring match - pattern can appear anywhere in the string
             matched = if params.case_insensitive {
-                string_info
-                    .value
-                    .to_lowercase()
-                    .contains(&contains_str.to_lowercase())
+                value.to_lowercase().contains(&contains_str.to_lowercase())
             } else {
-                string_info.value.contains(contains_str)
+                value.contains(contains_str)
             };
             if matched {
                 match_value = contains_str.clone();
             }
         } else if let Some(re) = compiled_regex {
-            if let Some(mat) = re.find(&string_info.value) {
+            if let Some(mat) = re.find(value) {
                 matched = true;
                 match_value = mat.as_str().to_string();
             }
         } else if let Some(regex_pattern) = params.regex {
-            // Fallback: compile regex on-the-fly if not pre-compiled
             if let Ok(re) = super::build_regex(regex_pattern, params.case_insensitive) {
-                if let Some(mat) = re.find(&string_info.value) {
+                if let Some(mat) = re.find(value) {
                     matched = true;
                     match_value = mat.as_str().to_string();
                 }
@@ -172,31 +171,56 @@ pub fn eval_string(
         }
 
         if matched {
-            // Check old-style exclude_patterns (deprecated, from condition level)
-            let excluded_by_pattern = compiled_excludes
-                .iter()
-                .any(|re| re.is_match(&string_info.value));
-
-            // Check new-style `not:` exceptions (trait level)
+            let excluded_by_pattern = compiled_excludes.iter().any(|re| re.is_match(value));
             let excluded_by_not = trait_not
                 .map(|exceptions| exceptions.iter().any(|exc| exc.matches(&match_value)))
                 .unwrap_or(false);
 
-            if excluded_by_pattern || excluded_by_not {
-                continue;
+            if !excluded_by_pattern && !excluded_by_not {
+                evidence.push(Evidence {
+                    method: method.to_string(),
+                    source: source.to_string(),
+                    value: match_value,
+                    location,
+                });
             }
-
-            evidence.push(Evidence {
-                method: "string".to_string(),
-                source: "string_extractor".to_string(),
-                value: match_value,
-                location: string_info.offset.clone(),
-            });
         }
+    };
+
+    // 1. Check in extracted strings from report (for binaries)
+    for string_info in &ctx.report.strings {
+        check_and_add_evidence(
+            &string_info.value,
+            "string_extractor",
+            "string",
+            string_info.offset.clone(),
+            &mut evidence,
+        );
+    }
+
+    // 2. Check in imports (symbols are strings too!)
+    for import in &ctx.report.imports {
+        check_and_add_evidence(
+            &import.symbol,
+            &import.source,
+            "import_symbol",
+            None,
+            &mut evidence,
+        );
+    }
+
+    // 3. Check in exports
+    for export in &ctx.report.exports {
+        check_and_add_evidence(
+            &export.symbol,
+            &export.source,
+            "export_symbol",
+            export.offset.clone(),
+            &mut evidence,
+        );
     }
 
     // For source files or when no strings were extracted, fall back to raw content search.
-    // Source files (Python, Ruby, etc.) don't use string extraction - the file IS the strings.
     if evidence.is_empty() && (ctx.report.strings.is_empty() || ctx.file_type.is_source_code()) {
         if let Ok(content) = std::str::from_utf8(ctx.binary_data) {
             let mut matched = false;
