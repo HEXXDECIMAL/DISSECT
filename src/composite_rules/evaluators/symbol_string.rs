@@ -58,6 +58,18 @@ pub fn eval_symbol(
         }
     }
 
+    // Search in internal functions (important for statically linked Go binaries)
+    for func in &ctx.report.functions {
+        if symbol_matches_condition(&func.name, exact, pattern, compiled_regex) {
+            evidence.push(Evidence {
+                method: "symbol".to_string(),
+                source: func.source.clone(),
+                value: func.name.clone(),
+                location: func.offset.clone(),
+            });
+        }
+    }
+
     ConditionResult {
         matched: !evidence.is_empty(),
         evidence,

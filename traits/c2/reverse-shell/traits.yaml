@@ -4,18 +4,6 @@
 # NOTE: Socket connect/bind/listen are defined in comm/socket/*/unix.yaml
 
 traits:
-  # Reverse shell components - dup2 for I/O redirection
-  - id: dup2-redirect
-    desc: File descriptor duplication (I/O redirection)
-    crit: notable
-    mbc: "B0030.002"
-    conf: 0.5
-    for: [elf, macho, so, dylib, c]
-    if:
-      type: symbol
-      pattern: dup2
-    platforms: [unix, linux, macos]
-
   # Python-specific reverse shell patterns
   - id: python-socket-connect
     desc: Python socket connection

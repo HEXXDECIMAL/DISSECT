@@ -16,7 +16,7 @@ traits:
 
   - id: irc-nick
     desc: IRC NICK command
-    crit: notable
+    crit: inert
     conf: 0.4
     if:
       type: string
@@ -24,7 +24,7 @@ traits:
 
   - id: irc-user
     desc: IRC USER command
-    crit: notable
+    crit: inert
     conf: 0.4
     if:
       type: string
@@ -41,7 +41,7 @@ traits:
 
   - id: cmd-udp
     desc: Bot UDP attack command
-    crit: suspicious
+    crit: inert
     conf: 0.8
     if:
       type: string
@@ -49,15 +49,15 @@ traits:
 
   - id: cmd-tcp
     desc: Bot TCP attack command
-    crit: suspicious
+    crit: inert
     conf: 0.8
     if:
       type: string
-      exact: ".tcp"
+      regex: "\\.tcp\\b"
 
   - id: cmd-shell
     desc: Bot shell command
-    crit: suspicious
+    crit: inert
     conf: 0.8
     if:
       type: string

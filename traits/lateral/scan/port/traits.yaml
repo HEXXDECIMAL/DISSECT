@@ -338,16 +338,6 @@ traits:
 
   # === Atomic: File Path References ===
 
-  - id: ssh-dir-ref
-    description: Reference to .ssh directory
-    crit: notable
-    confidence: 0.5
-    attack: "T1110.001"
-    platforms: [all]
-    condition:
-      type: string
-      exact: ".ssh"
-
   - id: etc-hosts-ref
     description: Reference to /etc/hosts file
     crit: notable

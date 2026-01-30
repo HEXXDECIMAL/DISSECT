@@ -6,23 +6,6 @@ defaults:
   for: [go, elf, macho, pe]
 
 traits:
-  # === Go network connection micro-traits ===
-  - id: net-dial
-    desc: net.Dial function reference
-    crit: notable
-    conf: 0.5
-    if:
-      type: string
-      exact: "net.Dial"
-
-  - id: net-dialer-dial
-    desc: net.(*Dialer).Dial method reference
-    crit: notable
-    conf: 0.5
-    if:
-      type: string
-      exact: "net.(*Dialer).Dial"
-
   # === Go exec micro-traits ===
   - id: os-exec-command
     desc: os/exec.Command reference
@@ -90,8 +73,9 @@ composite_rules:
     conf: 0.6
     count_min: 1
     any:
-      - id: net-dial
-      - id: net-dialer-dial
+      - id: comm/socket/dial
+      - id: comm/socket/dial-tcp
+      - id: comm/socket/dialer-dial
 
   # Go exec composite
   - id: go-exec

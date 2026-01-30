@@ -36,7 +36,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      regex: "\\b(pps|bps|qps|threads|duration|timeout)\\b"
+      regex: "\\b(pps|bps|qps)\\b"
       case_insensitive: true
 
   - id: flood-types
@@ -55,7 +55,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      regex: "(packets|requests|bytes|payloads)[_-]?(sent|total|count|success|fail)"
+      regex: "\\b(packets|requests|bytes|payloads)[_-](sent|total|count|success|fail)\\b"
       case_insensitive: true
 
 composite_rules:

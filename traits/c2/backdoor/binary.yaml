@@ -306,6 +306,8 @@ composite_rules:
       - id: exec/command/shell/c-system
       - id: exec/command/shell/c-popen
       - id: exec/command/shell/bin-sh
+    none:
+      - id: feat/runtime/go/go-runtime-marker
 
   - id: unexpected-crypto
     desc: Cryptographic operations in non-crypto library

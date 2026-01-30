@@ -87,38 +87,7 @@ traits:
       exact: "payload"
 
   # === Intent Markers ===
-  - id: intent-magic
-    desc: eBPF Magic marker string
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      regex: "\\b(ebpf|bpf|rootkit|hide)[_-]?magic\\b"
-      case_insensitive: true
-
-  - id: intent-trigger
-    desc: Trigger marker string
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      regex: "(?i)trigger"
-
-  - id: intent-backdoor
-    desc: Backdoor marker string
-    crit: suspicious
-    conf: 0.7
-    if:
-      type: string
-      regex: "(?i)backdoor"
-
-  - id: intent-secret
-    desc: Secret marker string
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      regex: "(?i)secret"
+  # Moved to feat/intent/
 
   # === Go eBPF Libraries ===
   - id: cilium-ebpf
@@ -182,27 +151,30 @@ traits:
     conf: 0.8
     if:
       type: string
-      regex: "(?i)rootkit"
+      word: "rootkit"
+      case_insensitive: true
 
   - id: hide-string
     desc: Hide string reference
-    crit: notable
+    crit: inert
     conf: 0.6
     if:
       type: string
-      regex: "(?i)hide"
+      word: "hide"
+      case_insensitive: true
 
   - id: bypass-string
     desc: Bypass string reference
-    crit: notable
+    crit: inert
     conf: 0.6
     if:
       type: string
-      regex: "(?i)bypass"
+      word: "bypass"
+      case_insensitive: true
 
   - id: patch-string
     desc: Patch string reference
-    crit: notable
+    crit: inert
     conf: 0.5
     if:
       type: string
@@ -350,10 +322,10 @@ composite_rules:
     conf: 0.7
     count_min: 1
     any:
-      - id: intent-magic
-      - id: intent-trigger
-      - id: intent-backdoor
-      - id: intent-secret
+      - id: feat/intent/magic
+      - id: feat/intent/trigger
+      - id: feat/intent/backdoor
+      - id: feat/intent/secret
 
   # XDP backdoor composite (migrated from YARA)
   - id: xdp-backdoor

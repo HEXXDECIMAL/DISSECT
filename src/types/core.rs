@@ -49,7 +49,7 @@ pub struct AnalysisReport {
     pub structure: Vec<StructuralFeature>,
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub functions: Vec<Function>,
-    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    #[serde(skip_serializing, default)]
     pub strings: Vec<StringInfo>,
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub sections: Vec<Section>,

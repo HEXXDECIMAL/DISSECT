@@ -13,16 +13,6 @@ traits:
       type: string
       word: "mount"
 
-  - id: mount-option-flag
-    description: mount -o flag (mount options)
-    crit: notable
-    conf: 0.7
-    mbc: E1222
-    attack: T1222
-    if:
-      type: string
-      word: "-o"
-
   - id: fstab-file
     description: fstab file reference (filesystem table)
     crit: notable
@@ -51,7 +41,6 @@ composite_rules:
     mbc: E1222
     attack: T1222
     any:
-      - id: mount-option-flag
       - id: fstab-file
       - id: remount-keyword
 

@@ -15,7 +15,7 @@ traits:
     confidence: 0.6
     condition:
       type: symbol
-      pattern: kill
+      exact: kill
     platforms: [unix, linux, macos]
 
   - id: killpg
@@ -26,7 +26,7 @@ traits:
     confidence: 0.7
     condition:
       type: symbol
-      pattern: killpg
+      exact: killpg
     platforms: [unix, linux, macos]
 
   # Signal handling
@@ -38,7 +38,7 @@ traits:
     confidence: 0.6
     condition:
       type: symbol
-      pattern: signal
+      exact: signal
     platforms: [unix, linux, macos]
 
   - id: sigaction
@@ -49,7 +49,7 @@ traits:
     confidence: 0.6
     condition:
       type: symbol
-      pattern: sigaction
+      exact: sigaction
     platforms: [unix, linux, macos]
 
   - id: sigprocmask
@@ -60,7 +60,7 @@ traits:
     confidence: 0.6
     condition:
       type: symbol
-      pattern: sigprocmask
+      exact: sigprocmask
     platforms: [unix, linux, macos]
 
   # Process termination
@@ -72,7 +72,7 @@ traits:
     confidence: 0.4
     condition:
       type: symbol
-      pattern: abort
+      exact: abort
     platforms: [unix, linux, macos, windows]
 
   - id: exit
@@ -83,7 +83,7 @@ traits:
     confidence: 0.3
     condition:
       type: symbol
-      pattern: exit
+      exact: exit
     platforms: [unix, linux, macos, windows]
 
   - id: _exit
@@ -94,5 +94,5 @@ traits:
     confidence: 0.4
     condition:
       type: symbol
-      pattern: _exit
+      exact: _exit
     platforms: [unix, linux, macos]

@@ -189,6 +189,16 @@ fn test_apply_vec_default_unset_with_none_keyword() {
 }
 
 #[test]
+fn test_parse_file_types_compiled_alias() {
+    let types = vec!["compiled".to_string()];
+    let result = parsing::parse_file_types(&types);
+    assert_eq!(result.len(), 3);
+    assert!(result.contains(&RuleFileType::Elf));
+    assert!(result.contains(&RuleFileType::Macho));
+    assert!(result.contains(&RuleFileType::Pe));
+}
+
+#[test]
 fn test_apply_trait_defaults_applies_all_defaults() {
     let defaults = models::TraitDefaults {
         r#for: Some(vec!["php".to_string()]),

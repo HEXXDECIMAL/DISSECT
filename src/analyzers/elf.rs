@@ -290,15 +290,16 @@ impl ElfAnalyzer {
         // Analyze dynamic symbols (imports)
         for dynsym in &elf.dynsyms {
             if let Some(name) = elf.dynstrtab.get_at(dynsym.st_name) {
+                let clean_name = name.trim_start_matches('_');
                 // Add to imports
                 report.imports.push(Import {
-                    symbol: name.to_string(),
+                    symbol: clean_name.to_string(),
                     library: None, // ELF doesn't always specify library directly
                     source: "goblin".to_string(),
                 });
 
                 // Map to capability
-                if let Some(cap) = self.capability_mapper.lookup(name, "goblin") {
+                if let Some(cap) = self.capability_mapper.lookup(clean_name, "goblin") {
                     if !report.findings.iter().any(|c| c.id == cap.id) {
                         report.findings.push(cap);
                     }
@@ -312,8 +313,9 @@ impl ElfAnalyzer {
                 && sym.st_type() == goblin::elf::sym::STT_FUNC
             {
                 if let Some(name) = elf.strtab.get_at(sym.st_name) {
+                    let clean_name = name.trim_start_matches('_');
                     report.exports.push(Export {
-                        symbol: name.to_string(),
+                        symbol: clean_name.to_string(),
                         offset: Some(format!("{:#x}", sym.st_value)),
                         source: "goblin".to_string(),
                     });

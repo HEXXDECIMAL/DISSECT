@@ -123,34 +123,35 @@ pub(crate) fn apply_trait_defaults(
 pub(crate) fn parse_file_types(types: &[String]) -> Vec<RuleFileType> {
     types
         .iter()
-        .filter_map(|ft| {
+        .flat_map(|ft| {
             // Handle "*" separately (exact match), then lowercase for the rest
             if ft == "*" {
-                return Some(RuleFileType::All);
+                return vec![RuleFileType::All];
             }
             match ft.to_lowercase().as_str() {
-                "all" => Some(RuleFileType::All),
-                "elf" => Some(RuleFileType::Elf),
-                "macho" => Some(RuleFileType::Macho),
-                "pe" => Some(RuleFileType::Pe),
-                "dylib" => Some(RuleFileType::Dylib),
-                "so" => Some(RuleFileType::So),
-                "dll" => Some(RuleFileType::Dll),
-                "shell" | "shellscript" => Some(RuleFileType::Shell),
-                "batch" | "bat" | "cmd" => Some(RuleFileType::Batch),
-                "python" => Some(RuleFileType::Python),
-                "javascript" | "js" => Some(RuleFileType::JavaScript),
-                "typescript" | "ts" => Some(RuleFileType::TypeScript),
-                "java" => Some(RuleFileType::Java),
-                "class" => Some(RuleFileType::Class),
-                "c" => Some(RuleFileType::C),
-                "rust" => Some(RuleFileType::Rust),
-                "go" => Some(RuleFileType::Go),
-                "ruby" => Some(RuleFileType::Ruby),
-                "php" => Some(RuleFileType::Php),
-                "csharp" | "cs" => Some(RuleFileType::CSharp),
-                "packagejson" | "package.json" => Some(RuleFileType::PackageJson),
-                _ => None,
+                "all" => vec![RuleFileType::All],
+                "compiled" => vec![RuleFileType::Elf, RuleFileType::Macho, RuleFileType::Pe],
+                "elf" => vec![RuleFileType::Elf],
+                "macho" => vec![RuleFileType::Macho],
+                "pe" => vec![RuleFileType::Pe],
+                "dylib" => vec![RuleFileType::Dylib],
+                "so" => vec![RuleFileType::So],
+                "dll" => vec![RuleFileType::Dll],
+                "shell" | "shellscript" => vec![RuleFileType::Shell],
+                "batch" | "bat" | "cmd" => vec![RuleFileType::Batch],
+                "python" => vec![RuleFileType::Python],
+                "javascript" | "js" => vec![RuleFileType::JavaScript],
+                "typescript" | "ts" => vec![RuleFileType::TypeScript],
+                "java" => vec![RuleFileType::Java],
+                "class" => vec![RuleFileType::Class],
+                "c" => vec![RuleFileType::C],
+                "rust" => vec![RuleFileType::Rust],
+                "go" => vec![RuleFileType::Go],
+                "ruby" => vec![RuleFileType::Ruby],
+                "php" => vec![RuleFileType::Php],
+                "csharp" | "cs" => vec![RuleFileType::CSharp],
+                "packagejson" | "package.json" => vec![RuleFileType::PackageJson],
+                _ => vec![],
             }
         })
         .collect()

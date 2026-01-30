@@ -283,6 +283,15 @@ traits:
       type: string
       regex: "UserKnownHostsFile\\s*[=/]\\s*/dev/null"
 
+  - id: dot-ssh-dir
+    desc: .ssh directory reference
+    crit: notable
+    conf: 0.5
+    attack: "T1552.004"
+    if:
+      type: string
+      exact: ".ssh"
+
 composite_rules:
   # Helper composites for migrated YARA rules
   - id: sniff-ssh-variants
@@ -332,6 +341,7 @@ composite_rules:
     any:
       - id: slash-dot-ssh
       - id: dot-dot-ssh
+      - id: dot-ssh-dir
 
   # === Composite: SSHD network process ===
   - id: sshd-net-proc

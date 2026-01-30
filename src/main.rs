@@ -956,7 +956,11 @@ fn extract_strings(target: &str, min_length: usize, format: &cli::OutputFormat) 
                                 if let Some(sym_start) = trimmed.find("external ") {
                                     let sym_part = &trimmed[sym_start + 9..];
                                     if let Some(lib_start) = sym_part.find(" (from ") {
-                                        let sym = sym_part[..lib_start].trim().to_string();
+                                        let mut sym = sym_part[..lib_start].trim().to_string();
+                                        // Strip leading underscore for consistency
+                                        if sym.starts_with('_') {
+                                            sym = sym[1..].to_string();
+                                        }
                                         let lib_part = &sym_part[lib_start + 7..];
                                         let lib = lib_part.trim_end_matches(')').to_string();
                                         imports.insert(sym.clone());
@@ -973,9 +977,10 @@ fn extract_strings(target: &str, min_length: usize, format: &cli::OutputFormat) 
                     let r2 = Radare2Analyzer::new();
                     if let Ok((r2_imports, _, r2_symbols)) = r2.extract_all_symbols(path) {
                         for imp in r2_imports {
-                            imports.insert(imp.name.clone());
+                            let name = imp.name.trim_start_matches('_');
+                            imports.insert(name.to_string());
                             if let Some(lib) = imp.lib_name {
-                                import_libraries.insert(imp.name, lib);
+                                import_libraries.insert(name.to_string(), lib);
                             }
                         }
                         for sym in r2_symbols {
@@ -983,13 +988,14 @@ fn extract_strings(target: &str, min_length: usize, format: &cli::OutputFormat) 
                                 let clean = sym
                                     .name
                                     .trim_start_matches("sym.imp.")
-                                    .trim_start_matches("imp.");
+                                    .trim_start_matches("imp.")
+                                    .trim_start_matches('_');
                                 imports.insert(clean.to_string());
                             } else if sym.symbol_type == "FUNC"
                                 || sym.symbol_type == "func"
                                 || sym.name.starts_with("fcn.")
                             {
-                                let name = sym.name.clone();
+                                let name = sym.name.trim_start_matches('_').to_string();
                                 // Exports are GLOBAL in MachO symbols
                                 if sym.symbol_type == "FUNC"
                                     && (sym.name.starts_with("__mh_") || !sym.name.starts_with('_'))
@@ -1180,7 +1186,7 @@ fn extract_symbols(target: &str, format: &cli::OutputFormat) -> Result<String> {
                         // Add imports
                         for imp in r2_imports {
                             symbols.push(SymbolInfo {
-                                name: imp.name.clone(),
+                                name: imp.name.trim_start_matches('_').to_string(),
                                 address: None,
                                 library: imp.lib_name,
                                 symbol_type: "import".to_string(),
@@ -1191,7 +1197,7 @@ fn extract_symbols(target: &str, format: &cli::OutputFormat) -> Result<String> {
                         // Add exports
                         for exp in r2_exports {
                             symbols.push(SymbolInfo {
-                                name: exp.name,
+                                name: exp.name.trim_start_matches('_').to_string(),
                                 address: Some(format!("0x{:x}", exp.vaddr)),
                                 library: None,
                                 symbol_type: "export".to_string(),
@@ -1208,11 +1214,13 @@ fn extract_symbols(target: &str, format: &cli::OutputFormat) -> Result<String> {
                                 &sym.symbol_type
                             };
 
+                            let clean_name = sym.name.trim_start_matches('_').to_string();
+
                             // Skip if already added as import or export
-                            let already_added = symbols.iter().any(|s| s.name == sym.name);
+                            let already_added = symbols.iter().any(|s| s.name == clean_name);
                             if !already_added {
                                 symbols.push(SymbolInfo {
-                                    name: sym.name,
+                                    name: clean_name,
                                     address: Some(format!("0x{:x}", sym.vaddr)),
                                     library: None,
                                     symbol_type: sym_type.to_lowercase(),

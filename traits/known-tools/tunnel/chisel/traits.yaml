@@ -33,7 +33,7 @@ traits:
 
   - id: tools/tunnel/chisel/mode
     desc: "Chisel mode indicators"
-    crit: notable
+    crit: inert
     conf: 0.6
     if:
       type: string

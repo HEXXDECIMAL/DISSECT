@@ -354,7 +354,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: "(?i)SELECT\\s+(\\*|COUNT|DISTINCT|[a-z_][a-z0-9_]*,?\\s+)+(FROM|INTO|WHERE)"
+      regex: "(?i)\\bSELECT\\s+(\\*|[a-z0-9_]+(\\s*,\\s*[a-z0-9_]+)*)\\s+FROM\\b"
 
   - id: sql-insert
     desc: INSERT INTO SQL keyword

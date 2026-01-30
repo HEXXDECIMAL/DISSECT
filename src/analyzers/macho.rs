@@ -457,14 +457,15 @@ impl MachOAnalyzer {
             if Radare2Analyzer::is_available() {
                 if let Ok(r2_imports) = self.radare2.extract_imports(file_path) {
                     for imp in r2_imports {
+                        let name = imp.name.trim_start_matches('_');
                         report.imports.push(Import {
-                            symbol: imp.name.clone(),
+                            symbol: name.to_string(),
                             library: imp.lib_name.clone(),
                             source: "radare2".to_string(),
                         });
 
                         // Map import to capability
-                        if let Some(cap) = self.capability_mapper.lookup(&imp.name, "radare2") {
+                        if let Some(cap) = self.capability_mapper.lookup(name, "radare2") {
                             if !report.findings.iter().any(|c| c.id == cap.id) {
                                 report.findings.push(cap);
                             }
@@ -516,8 +517,9 @@ impl MachOAnalyzer {
 
     fn analyze_exports(&self, macho: &MachO, report: &mut AnalysisReport) -> Result<()> {
         for exp in &macho.exports()? {
+            let name = exp.name.trim_start_matches('_');
             report.exports.push(Export {
-                symbol: exp.name.to_string(),
+                symbol: name.to_string(),
                 offset: Some(format!("0x{:x}", exp.offset)),
                 source: "goblin".to_string(),
             });

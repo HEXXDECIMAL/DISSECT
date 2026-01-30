@@ -11,7 +11,7 @@ traits:
     for: [ruby, elf, macho, pe, dll, so, dylib]
     if:
       type: symbol
-      regex: "system"
+      regex: "^(_)?system$"
 
   - id: ruby-exec
     desc: exec() replaces current process
@@ -21,7 +21,7 @@ traits:
     for: [ruby, elf, macho, pe, dll, so, dylib]
     if:
       type: symbol
-      regex: "exec"
+      regex: "^(_)?exec$"
 
   - id: ruby-spawn
     desc: spawn() creates new process
@@ -31,7 +31,7 @@ traits:
     for: [ruby, elf, macho, pe, dll, so, dylib]
     if:
       type: symbol
-      regex: "spawn"
+      regex: "^(_)?spawn$"
 
   - id: ruby-popen
     desc: popen pipes to/from command
@@ -41,7 +41,7 @@ traits:
     for: [ruby, elf, macho, pe, dll, so, dylib]
     if:
       type: symbol
-      regex: "(IO\\.)?popen"
+      regex: "^(_)?(IO\\.)?popen$"
 
   - id: ruby-backtick
     desc: Backtick command execution

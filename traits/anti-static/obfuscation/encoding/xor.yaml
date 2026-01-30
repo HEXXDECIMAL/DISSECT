@@ -95,8 +95,8 @@ traits:
   # === Multi-byte XOR key detection ===
   - id: xor-key-multibyte-31
     desc: 31-byte alphanumeric XOR key pattern
-    crit: suspicious
-    conf: 0.85
+    crit: inert
+    conf: 0.5
     for: [elf, macho, pe]
     if:
       type: string
@@ -108,8 +108,8 @@ traits:
 
   - id: xor-key-multibyte-16-32
     desc: 16-32 byte random-looking key in
-    crit: notable
-    conf: 0.7
+    crit: inert
+    conf: 0.5
     for: [elf, macho, pe]
     if:
       type: string

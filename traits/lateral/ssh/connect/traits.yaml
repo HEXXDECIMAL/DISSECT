@@ -38,16 +38,6 @@ traits:
 
   # === Atomic: SSH Configuration Abuse ===
 
-  - id: dot-ssh-ref
-    description: References .ssh directory
-    crit: notable
-    confidence: 0.5
-    attack: "T1021.004"
-    platforms: [linux, macos, unix]
-    condition:
-      type: string
-      exact: ".ssh"
-
   - id: strict-host-disable
     description: StrictHostKeyChecking reference (bypass host verification)
     crit: suspicious

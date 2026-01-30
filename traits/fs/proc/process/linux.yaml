@@ -51,6 +51,14 @@ traits:
       type: string
       regex: "/proc/[^/]+/maps"
 
+  - id: process-pid-mem
+    description: Access process memory via /proc/*/mem
+    crit: suspicious
+    conf: 0.75
+    if:
+      type: string
+      regex: "/proc/[^/]+/mem"
+
   - id: process-pid-cmdline
     description: Read process command line via
     crit: notable
@@ -106,3 +114,13 @@ traits:
     if:
       type: string
       regex: "/proc/[^/]+/oom_score_adj"
+
+composite_rules:
+  - id: process-memory-dumper
+    desc: Dumps process memory via /proc
+    crit: suspicious
+    conf: 0.8
+    all:
+      - id: process-pid-maps
+      - id: process-pid-mem
+

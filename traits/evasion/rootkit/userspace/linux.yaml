@@ -45,25 +45,6 @@ traits:
       type: string
       exact: "/etc/ld.so.preload"
 
-  # === Directory Entry Hooking ===
-  - id: readdir-hook
-    desc: readdir function hook
-    crit: notable
-    conf: 0.7
-    mbc: "B0003"
-    if:
-      type: symbol
-      pattern: "readdir"
-
-  - id: getdents-hook
-    desc: getdents function hook
-    crit: notable
-    conf: 0.7
-    mbc: "B0003"
-    if:
-      type: symbol
-      pattern: "getdents"
-
 composite_rules:
   # Linux userspace rootkit (migrated from YARA)
   - id: rootkit

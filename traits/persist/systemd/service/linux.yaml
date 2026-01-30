@@ -43,7 +43,7 @@ traits:
 
   - id: service-extension
     description: .service file extension (systemd unit
-    crit: notable
+    crit: inert
     conf: 0.6
     attack: T1543.002
     if:

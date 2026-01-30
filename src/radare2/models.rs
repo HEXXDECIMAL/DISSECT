@@ -130,7 +130,7 @@ impl From<R2Function> for Function {
         });
 
         Function {
-            name: r2_func.name,
+            name: r2_func.name.trim_start_matches('_').to_string(),
             offset: Some(format!("0x{:x}", r2_func.offset)),
             size: r2_func.size,
             complexity: r2_func.complexity,

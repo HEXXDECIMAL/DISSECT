@@ -307,6 +307,14 @@ traits:
       type: string
       exact: ".github/workflows"
 
+  - id: github-runner-worker
+    desc: GitHub Actions Runner.Worker process
+    crit: notable
+    conf: 0.95
+    if:
+      type: string
+      exact: "Runner.Worker"
+
   # === GitLab CI micro-traits ===
   - id: ci-pipeline-id
     desc: CI_PIPELINE_ID variable
@@ -573,6 +581,16 @@ composite_rules:
       - id: github-sha
       - id: actions-checkout
       - id: github-workflows
+
+  - id: github-runner-targeting
+    desc: Targets GitHub Actions Runner process
+    crit: suspicious
+    conf: 0.95
+    all:
+      - id: feat/builder/github-runner-worker
+    any:
+      - id: feat/builder/github-actions
+      - id: fs/proc/process/process-pid-cmdline
 
   # GitLab CI composite (migrated from YARA)
   - id: gitlab-ci
