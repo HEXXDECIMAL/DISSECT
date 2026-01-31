@@ -42,7 +42,7 @@ impl TraitIndex {
             } else {
                 // Trait applies to specific file types
                 for ft in &trait_def.r#for {
-                    index.by_file_type.entry(ft.clone()).or_default().push(i);
+                    index.by_file_type.entry(*ft).or_default().push(i);
                 }
             }
         }

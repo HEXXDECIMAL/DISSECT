@@ -71,7 +71,7 @@ pub fn is_base64_candidate(s: &str) -> bool {
     }
 
     // Length should be multiple of 4 (with padding)
-    if s.len() % 4 != 0 {
+    if !s.len().is_multiple_of(4) {
         return false;
     }
 

@@ -376,7 +376,7 @@ impl<'a> RuleDebugger<'a> {
         let ctx = EvaluationContext {
             report: self.report,
             binary_data: self.binary_data,
-            file_type: self.file_type.clone(),
+            file_type: self.file_type,
             platform: self.platform.clone(),
             additional_findings: None,
             cached_ast: None,
@@ -416,15 +416,15 @@ impl<'a> RuleDebugger<'a> {
                 word,
                 ..
             } => self.debug_content_condition(exact, contains, regex, word),
-            Condition::AstPattern {
-                node_type,
+            Condition::Ast {
+                kind,
+                node,
                 exact,
                 regex,
+                query,
                 case_insensitive,
-            } => self.debug_ast_pattern_condition(node_type, exact, *regex, *case_insensitive),
-            Condition::AstQuery { query, language } => {
-                self.debug_ast_query_condition(query, language.as_ref())
-            }
+                ..
+            } => self.debug_ast_condition(kind, node, exact, regex, query, *case_insensitive),
             _ => {
                 // Generic fallback for other condition types
                 let desc = describe_condition(condition);
@@ -442,7 +442,7 @@ impl<'a> RuleDebugger<'a> {
         let ctx = EvaluationContext {
             report: self.report,
             binary_data: self.binary_data,
-            file_type: self.file_type.clone(),
+            file_type: self.file_type,
             platform: self.platform.clone(),
             additional_findings: None,
             cached_ast: None,
@@ -963,243 +963,72 @@ impl<'a> RuleDebugger<'a> {
         result
     }
 
-    fn debug_ast_pattern_condition(
+    fn debug_ast_condition(
         &self,
-        node_type: &str,
-        pattern: &str,
-        use_regex: bool,
+        kind: &Option<String>,
+        node: &Option<String>,
+        exact: &Option<String>,
+        regex: &Option<String>,
+        query: &Option<String>,
         case_insensitive: bool,
     ) -> ConditionDebugResult {
-        let pattern_desc = if use_regex {
-            format!("regex: /{}/", pattern)
+        // Build description based on mode
+        let desc = if let Some(q) = query {
+            format!("ast: query={}", truncate_string(q, 50))
         } else {
-            format!("contains: \"{}\"", pattern)
+            let node_spec = kind
+                .as_ref()
+                .map(|k| format!("kind={}", k))
+                .or_else(|| node.as_ref().map(|n| format!("node={}", n)))
+                .unwrap_or_else(|| "unknown".to_string());
+            let pattern_spec = exact
+                .as_ref()
+                .map(|e| format!("exact=\"{}\"", truncate_string(e, 30)))
+                .or_else(|| regex.as_ref().map(|r| format!("regex=/{}/", truncate_string(r, 30))))
+                .unwrap_or_default();
+            format!("ast: {} {} (case_insensitive: {})", node_spec, pattern_spec, case_insensitive)
         };
 
-        let desc = format!(
-            "ast_pattern: node_type='{}', {} (case_insensitive: {})",
-            node_type, pattern_desc, case_insensitive
-        );
-
-        // Parse the source file to get AST nodes
-        let source = match std::str::from_utf8(self.binary_data) {
-            Ok(s) => s,
-            Err(_) => {
-                let mut result = ConditionDebugResult::new(desc, false);
-                result
-                    .details
-                    .push("Source file is not valid UTF-8".to_string());
-                return result;
-            }
-        };
-
-        // Get the appropriate language parser
-        let parser_lang = match self.file_type {
-            RuleFileType::C => Some(tree_sitter_c::LANGUAGE),
-            RuleFileType::Python => Some(tree_sitter_python::LANGUAGE),
-            RuleFileType::JavaScript => Some(tree_sitter_javascript::LANGUAGE),
-            RuleFileType::TypeScript => Some(tree_sitter_typescript::LANGUAGE_TYPESCRIPT),
-            RuleFileType::Rust => Some(tree_sitter_rust::LANGUAGE),
-            RuleFileType::Go => Some(tree_sitter_go::LANGUAGE),
-            RuleFileType::Java => Some(tree_sitter_java::LANGUAGE),
-            RuleFileType::Ruby => Some(tree_sitter_ruby::LANGUAGE),
-            RuleFileType::Shell => Some(tree_sitter_bash::LANGUAGE),
-            RuleFileType::Php => Some(tree_sitter_php::LANGUAGE_PHP),
-            RuleFileType::CSharp => Some(tree_sitter_c_sharp::LANGUAGE),
-            RuleFileType::Lua => Some(tree_sitter_lua::LANGUAGE),
-            RuleFileType::Perl => Some(tree_sitter_perl::LANGUAGE),
-            RuleFileType::PowerShell => Some(tree_sitter_powershell::LANGUAGE),
-            RuleFileType::Swift => Some(tree_sitter_swift::LANGUAGE),
-            RuleFileType::ObjectiveC => Some(tree_sitter_objc::LANGUAGE),
-            RuleFileType::Groovy => Some(tree_sitter_groovy::LANGUAGE),
-            RuleFileType::Scala => Some(tree_sitter_scala::LANGUAGE),
-            RuleFileType::Zig => Some(tree_sitter_zig::LANGUAGE),
-            RuleFileType::Elixir => Some(tree_sitter_elixir::LANGUAGE),
-            _ => None,
-        };
-
-        let lang: tree_sitter::Language = match parser_lang {
-            Some(l) => l.into(),
-            None => {
-                let mut result = ConditionDebugResult::new(desc, false);
-                result.details.push(format!(
-                    "No AST parser available for file type: {:?}",
-                    self.file_type
-                ));
-                return result;
-            }
-        };
-
-        let mut parser = tree_sitter::Parser::new();
-        if parser.set_language(&lang).is_err() {
+        // For query mode, show simplified debug info
+        if query.is_some() {
             let mut result = ConditionDebugResult::new(desc, false);
-            result
-                .details
-                .push("Failed to set parser language".to_string());
+            result.details.push("AST query debugging not yet implemented".to_string());
             return result;
         }
 
-        let tree = match parser.parse(source, None) {
-            Some(t) => t,
-            None => {
-                let mut result = ConditionDebugResult::new(desc, false);
-                result
-                    .details
-                    .push("Failed to parse source file".to_string());
-                return result;
-            }
+        // For simple mode, use eval_ast directly
+        let ctx = EvaluationContext {
+            report: self.report,
+            binary_data: self.binary_data,
+            file_type: self.file_type,
+            platform: self.platform.clone(),
+            additional_findings: None,
+            cached_ast: None,
         };
 
-        // Build the matcher
-        let matcher: Box<dyn Fn(&str) -> bool> = if use_regex {
-            match regex::Regex::new(pattern) {
-                Ok(re) => Box::new(move |s: &str| re.is_match(s)),
-                Err(e) => {
-                    let mut result = ConditionDebugResult::new(desc, false);
-                    result.details.push(format!("Invalid regex pattern: {}", e));
-                    return result;
+        let eval_result = crate::composite_rules::evaluators::eval_ast(
+            kind.as_deref(),
+            node.as_deref(),
+            exact.as_deref(),
+            regex.as_deref(),
+            query.as_deref(),
+            case_insensitive,
+            &ctx,
+        );
+
+        let mut result = ConditionDebugResult::new(desc, eval_result.matched);
+        if eval_result.matched {
+            result.details.push(format!("Found {} matching AST node(s)", eval_result.evidence.len()));
+            for ev in eval_result.evidence.iter().take(10) {
+                if let Some(loc) = &ev.location {
+                    result.details.push(format!("  {}: {}", loc, truncate_string(&ev.value, 60)));
+                } else {
+                    result.details.push(format!("  {}", truncate_string(&ev.value, 60)));
                 }
-            }
-        } else if case_insensitive {
-            let pattern_lower = pattern.to_lowercase();
-            Box::new(move |s: &str| s.to_lowercase().contains(&pattern_lower))
-        } else {
-            let pattern_owned = pattern.to_string();
-            Box::new(move |s: &str| s.contains(&pattern_owned))
-        };
-
-        // Walk AST and collect nodes
-        let mut matching_nodes = Vec::new();
-        let mut all_target_nodes = Vec::new();
-
-        let cursor = tree.walk();
-        let mut stack = vec![cursor.node()];
-
-        while let Some(node) = stack.pop() {
-            let node_kind = node.kind();
-
-            // Track all nodes of the target type
-            if node_kind == node_type {
-                if let Ok(text) = node.utf8_text(source.as_bytes()) {
-                    let text_str = text.to_string();
-                    all_target_nodes.push(text_str.clone());
-
-                    if matcher(&text_str) {
-                        matching_nodes.push((text_str, node.start_position()));
-                    }
-                }
-            }
-
-            // Add children to stack
-            for i in (0..node.child_count()).rev() {
-                if let Some(child) = node.child(i as u32) {
-                    stack.push(child);
-                }
-            }
-        }
-
-        let matched = !matching_nodes.is_empty();
-        let mut result = ConditionDebugResult::new(desc, matched);
-
-        // Show matching nodes
-        if matched {
-            result.details.push(format!(
-                "Found {} matching {} node(s)",
-                matching_nodes.len(),
-                node_type
-            ));
-            let display_count = matching_nodes.len().min(20);
-            for (text, pos) in matching_nodes.iter().take(display_count) {
-                result.details.push(format!(
-                    "  Line {}: {}",
-                    pos.row + 1,
-                    truncate_string(text, 80)
-                ));
-            }
-            if matching_nodes.len() > display_count {
-                result.details.push(format!(
-                    "  ... and {} more",
-                    matching_nodes.len() - display_count
-                ));
             }
         } else {
-            result
-                .details
-                .push(format!("No {} nodes matched pattern", node_type));
-
-            // Show sample nodes of target type (to help debug)
-            if !all_target_nodes.is_empty() {
-                result.details.push(format!(
-                    "\n💡 Found {} '{}' nodes in file (showing first 20):",
-                    all_target_nodes.len(),
-                    node_type
-                ));
-                for (i, text) in all_target_nodes.iter().take(20).enumerate() {
-                    result
-                        .details
-                        .push(format!("  [{}] {}", i + 1, truncate_string(text, 60)));
-                }
-                if all_target_nodes.len() > 20 {
-                    result
-                        .details
-                        .push(format!("  ... and {} more", all_target_nodes.len() - 20));
-                }
-                result.details.push(
-                    "\n💡 Tip: Check if your pattern matches one of the above node texts"
-                        .to_string(),
-                );
-            } else {
-                // Show available node types
-                result.details.push(format!(
-                    "\n💡 No '{}' nodes found in file. Available node types:",
-                    node_type
-                ));
-
-                let cursor2 = tree.walk();
-                let mut node_types = std::collections::HashSet::new();
-                let mut stack2 = vec![cursor2.node()];
-
-                while let Some(node) = stack2.pop() {
-                    node_types.insert(node.kind().to_string());
-
-                    for i in (0..node.child_count()).rev() {
-                        if let Some(child) = node.child(i as u32) {
-                            stack2.push(child);
-                        }
-                    }
-                }
-
-                let mut types: Vec<_> = node_types.into_iter().collect();
-                types.sort();
-                for t in types.iter().take(20) {
-                    result.details.push(format!("  - {}", t));
-                }
-                if types.len() > 20 {
-                    result
-                        .details
-                        .push(format!("  ... and {} more", types.len() - 20));
-                }
-            }
+            result.details.push("No matching AST nodes found".to_string());
         }
-
-        result
-    }
-
-    fn debug_ast_query_condition(
-        &self,
-        query: &str,
-        language: Option<&String>,
-    ) -> ConditionDebugResult {
-        let lang_info = language.map(|l| l.as_str()).unwrap_or("auto");
-        let desc = format!("ast_query: language='{}'", lang_info);
-
-        let mut result = ConditionDebugResult::new(desc, false);
-        result
-            .details
-            .push("AST query debugging not yet implemented".to_string());
-        result
-            .details
-            .push(format!("Query: {}", truncate_string(query, 100)));
 
         result
     }

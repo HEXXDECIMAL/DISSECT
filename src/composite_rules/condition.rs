@@ -116,19 +116,6 @@ enum ConditionTagged {
     Trait {
         id: String,
     },
-    AstPattern {
-        node_type: String,
-        #[serde(alias = "pattern")] // Support legacy 'pattern' field
-        exact: String,
-        #[serde(default)]
-        regex: bool,
-        #[serde(default)]
-        case_insensitive: bool,
-    },
-    AstQuery {
-        query: String,
-        language: Option<String>,
-    },
     /// Unified AST condition type - replaces ast_pattern and ast_query
     /// Simple mode: kind + exact/regex (or node + exact/regex for raw node types)
     /// Advanced mode: query (tree-sitter S-expression)
@@ -345,20 +332,6 @@ impl From<ConditionDeser> for Condition {
                 }
                 ConditionTagged::ExportsCount { min, max } => Condition::ExportsCount { min, max },
                 ConditionTagged::Trait { id } => Condition::Trait { id },
-                ConditionTagged::AstPattern {
-                    node_type,
-                    exact,
-                    regex,
-                    case_insensitive,
-                } => Condition::AstPattern {
-                    node_type,
-                    exact,
-                    regex,
-                    case_insensitive,
-                },
-                ConditionTagged::AstQuery { query, language } => {
-                    Condition::AstQuery { query, language }
-                }
                 ConditionTagged::Ast {
                     kind,
                     node,
@@ -594,33 +567,6 @@ pub enum Condition {
 
     /// Reference a previously-defined trait by ID
     Trait { id: String },
-
-    /// Simple AST pattern matching - searches for text patterns within specific AST node types
-    /// Example: { type: ast_pattern, node_type: call_expression, exact: "kallsyms_lookup_name" }
-    AstPattern {
-        /// AST node type to search (e.g. call_expression, preproc_include, comment, declaration)
-        node_type: String,
-        /// Text pattern to match within the node (use 'exact' for clarity, 'pattern' is legacy alias)
-        #[serde(alias = "pattern")]
-        exact: String,
-        /// Use regex matching instead of substring (default: false)
-        #[serde(default)]
-        regex: bool,
-        /// Case insensitive matching (default: false)
-        #[serde(default)]
-        case_insensitive: bool,
-    },
-
-    /// Full tree-sitter query for complex AST matching
-    /// Example: { type: ast_query, language: javascript, query: "(call_expression function: (identifier) @fn (#eq? @fn \"eval\"))" }
-    AstQuery {
-        /// Tree-sitter query pattern (S-expression syntax)
-        query: String,
-        /// Optional: language for query validation (javascript, python, c, etc.)
-        /// If not specified, validation is skipped and query is compiled at runtime
-        #[serde(skip_serializing_if = "Option::is_none")]
-        language: Option<String>,
-    },
 
     /// Unified AST condition - search for patterns in AST nodes
     ///
@@ -930,8 +876,6 @@ impl Condition {
             Condition::ImportsCount { .. } => "imports_count",
             Condition::ExportsCount { .. } => "exports_count",
             Condition::Trait { .. } => "trait",
-            Condition::AstPattern { .. } => "ast_pattern",
-            Condition::AstQuery { .. } => "ast_query",
             Condition::Ast { .. } => "ast",
             Condition::Yara { .. } => "yara",
             Condition::Syscall { .. } => "syscall",
@@ -962,9 +906,6 @@ impl Condition {
                     .add_source(source.as_bytes())
                     .map_err(|e| anyhow::anyhow!("invalid YARA rule: {}", e))?;
                 Ok(())
-            }
-            Condition::AstQuery { query, language } => {
-                validate_ast_query(query, language.as_deref())
             }
             Condition::Ast {
                 kind,

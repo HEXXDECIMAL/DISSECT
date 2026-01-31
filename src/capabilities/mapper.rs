@@ -888,7 +888,7 @@ impl CapabilityMapper {
         let ctx = EvaluationContext {
             report,
             binary_data,
-            file_type: file_type.clone(),
+            file_type,
             platform,
             additional_findings: None,
             cached_ast,
@@ -1097,7 +1097,7 @@ impl CapabilityMapper {
             let ctx = EvaluationContext {
                 report,
                 binary_data,
-                file_type: file_type.clone(),
+                file_type,
                 platform: platform.clone(),
                 additional_findings: if all_findings.is_empty() {
                     None
@@ -1130,7 +1130,7 @@ impl CapabilityMapper {
         let ctx = EvaluationContext {
             report,
             binary_data,
-            file_type: file_type.clone(),
+            file_type,
             platform: platform.clone(),
             additional_findings: if all_findings.is_empty() {
                 None
