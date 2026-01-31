@@ -129,6 +129,33 @@ enum ConditionTagged {
         query: String,
         language: Option<String>,
     },
+    /// Unified AST condition type - replaces ast_pattern and ast_query
+    /// Simple mode: kind + exact/regex (or node + exact/regex for raw node types)
+    /// Advanced mode: query (tree-sitter S-expression)
+    Ast {
+        /// Abstract node category (e.g., "call", "function", "class")
+        /// Maps to language-specific tree-sitter node types automatically
+        #[serde(skip_serializing_if = "Option::is_none")]
+        kind: Option<String>,
+        /// Raw tree-sitter node type (escape hatch, bypasses kind mapping)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        node: Option<String>,
+        /// Substring match in node text
+        #[serde(skip_serializing_if = "Option::is_none")]
+        exact: Option<String>,
+        /// Regex match in node text
+        #[serde(skip_serializing_if = "Option::is_none")]
+        regex: Option<String>,
+        /// Tree-sitter S-expression query (advanced mode)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        query: Option<String>,
+        /// Language hint for query validation
+        #[serde(skip_serializing_if = "Option::is_none")]
+        language: Option<String>,
+        /// Case-insensitive matching (default: false)
+        #[serde(default)]
+        case_insensitive: bool,
+    },
     Yara {
         source: String,
     },
@@ -332,6 +359,23 @@ impl From<ConditionDeser> for Condition {
                 ConditionTagged::AstQuery { query, language } => {
                     Condition::AstQuery { query, language }
                 }
+                ConditionTagged::Ast {
+                    kind,
+                    node,
+                    exact,
+                    regex,
+                    query,
+                    language,
+                    case_insensitive,
+                } => Condition::Ast {
+                    kind,
+                    node,
+                    exact,
+                    regex,
+                    query,
+                    language,
+                    case_insensitive,
+                },
                 ConditionTagged::Yara { source } => Condition::Yara {
                     source,
                     compiled: None,
@@ -576,6 +620,57 @@ pub enum Condition {
         /// If not specified, validation is skipped and query is compiled at runtime
         #[serde(skip_serializing_if = "Option::is_none")]
         language: Option<String>,
+    },
+
+    /// Unified AST condition - search for patterns in AST nodes
+    ///
+    /// Simple mode (kind + exact/regex):
+    /// ```yaml
+    /// type: ast
+    /// kind: call              # abstract kind: call, function, class, import, etc.
+    /// exact: "eval"           # substring match
+    /// # OR
+    /// regex: "eval\\("        # regex match
+    /// ```
+    ///
+    /// Raw node type mode (node + exact/regex):
+    /// ```yaml
+    /// type: ast
+    /// node: call_expression   # raw tree-sitter node type (escape hatch)
+    /// exact: "eval"
+    /// ```
+    ///
+    /// Advanced mode (query):
+    /// ```yaml
+    /// type: ast
+    /// query: |
+    ///   (call_expression
+    ///     function: (identifier) @fn
+    ///     (#eq? @fn "eval"))
+    /// language: javascript    # optional, for validation
+    /// ```
+    Ast {
+        /// Abstract node category (e.g., "call", "function", "class")
+        #[serde(skip_serializing_if = "Option::is_none")]
+        kind: Option<String>,
+        /// Raw tree-sitter node type (escape hatch, bypasses kind mapping)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        node: Option<String>,
+        /// Substring match in node text
+        #[serde(skip_serializing_if = "Option::is_none")]
+        exact: Option<String>,
+        /// Regex match in node text
+        #[serde(skip_serializing_if = "Option::is_none")]
+        regex: Option<String>,
+        /// Tree-sitter S-expression query (advanced mode)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        query: Option<String>,
+        /// Language hint for query validation
+        #[serde(skip_serializing_if = "Option::is_none")]
+        language: Option<String>,
+        /// Case-insensitive matching (default: false)
+        #[serde(default)]
+        case_insensitive: bool,
     },
 
     /// Inline YARA rule for pattern matching
@@ -837,6 +932,7 @@ impl Condition {
             Condition::Trait { .. } => "trait",
             Condition::AstPattern { .. } => "ast_pattern",
             Condition::AstQuery { .. } => "ast_query",
+            Condition::Ast { .. } => "ast",
             Condition::Yara { .. } => "yara",
             Condition::Syscall { .. } => "syscall",
             Condition::SectionRatio { .. } => "section_ratio",
@@ -868,44 +964,57 @@ impl Condition {
                 Ok(())
             }
             Condition::AstQuery { query, language } => {
-                // Validate tree-sitter query syntax against the specified language
-                // If no language specified, skip validation (will be validated at runtime)
-                let lang: tree_sitter::Language = match language.as_deref() {
-                    Some("c") => tree_sitter_c::LANGUAGE.into(),
-                    Some("python") => tree_sitter_python::LANGUAGE.into(),
-                    Some("javascript") | Some("js") => tree_sitter_javascript::LANGUAGE.into(),
-                    Some("typescript") | Some("ts") => {
-                        tree_sitter_typescript::LANGUAGE_TYPESCRIPT.into()
-                    }
-                    Some("rust") => tree_sitter_rust::LANGUAGE.into(),
-                    Some("go") => tree_sitter_go::LANGUAGE.into(),
-                    Some("java") => tree_sitter_java::LANGUAGE.into(),
-                    Some("ruby") => tree_sitter_ruby::LANGUAGE.into(),
-                    Some("shell") | Some("bash") => tree_sitter_bash::LANGUAGE.into(),
-                    Some("php") => tree_sitter_php::LANGUAGE_PHP.into(),
-                    Some("csharp") | Some("c#") => tree_sitter_c_sharp::LANGUAGE.into(),
-                    Some("lua") => tree_sitter_lua::LANGUAGE.into(),
-                    Some("perl") => tree_sitter_perl::LANGUAGE.into(),
-                    Some("powershell") | Some("ps1") => tree_sitter_powershell::LANGUAGE.into(),
-                    Some("swift") => tree_sitter_swift::LANGUAGE.into(),
-                    Some("objc") | Some("objective-c") => tree_sitter_objc::LANGUAGE.into(),
-                    Some("groovy") => tree_sitter_groovy::LANGUAGE.into(),
-                    Some("scala") => tree_sitter_scala::LANGUAGE.into(),
-                    Some("zig") => tree_sitter_zig::LANGUAGE.into(),
-                    Some("elixir") => tree_sitter_elixir::LANGUAGE.into(),
-                    Some(other) => {
-                        return Err(anyhow::anyhow!(
-                            "unsupported language for ast_query: {}",
-                            other
-                        ))
-                    }
-                    None => {
-                        // No language specified - skip validation, will validate at runtime
-                        return Ok(());
-                    }
-                };
-                tree_sitter::Query::new(&lang, query)
-                    .map_err(|e| anyhow::anyhow!("invalid tree-sitter query: {}", e))?;
+                validate_ast_query(query, language.as_deref())
+            }
+            Condition::Ast {
+                kind,
+                node,
+                exact,
+                regex,
+                query,
+                language,
+                ..
+            } => {
+                // Validate mode: either (kind/node + exact/regex) or query, not both
+                let has_simple_mode = kind.is_some() || node.is_some();
+                let has_pattern = exact.is_some() || regex.is_some();
+                let has_query = query.is_some();
+
+                if has_query && has_simple_mode {
+                    return Err(anyhow::anyhow!(
+                        "ast condition cannot have both 'query' and 'kind'/'node'"
+                    ));
+                }
+
+                if !has_query && !has_simple_mode {
+                    return Err(anyhow::anyhow!(
+                        "ast condition must have either 'kind'/'node' or 'query'"
+                    ));
+                }
+
+                if has_simple_mode && !has_pattern {
+                    return Err(anyhow::anyhow!(
+                        "ast condition with 'kind'/'node' must have 'exact' or 'regex'"
+                    ));
+                }
+
+                if kind.is_some() && node.is_some() {
+                    return Err(anyhow::anyhow!(
+                        "ast condition cannot have both 'kind' and 'node'"
+                    ));
+                }
+
+                if exact.is_some() && regex.is_some() {
+                    return Err(anyhow::anyhow!(
+                        "ast condition cannot have both 'exact' and 'regex'"
+                    ));
+                }
+
+                // Validate query if present
+                if let Some(q) = query {
+                    validate_ast_query(q, language.as_deref())?;
+                }
+
                 Ok(())
             }
             // Other conditions don't need compilation validation
@@ -1021,6 +1130,42 @@ impl Condition {
             _ => {}
         }
     }
+}
+
+/// Validate a tree-sitter query against the specified language
+fn validate_ast_query(query: &str, language: Option<&str>) -> Result<()> {
+    let lang: tree_sitter::Language = match language {
+        Some("c") => tree_sitter_c::LANGUAGE.into(),
+        Some("python") => tree_sitter_python::LANGUAGE.into(),
+        Some("javascript") | Some("js") => tree_sitter_javascript::LANGUAGE.into(),
+        Some("typescript") | Some("ts") => tree_sitter_typescript::LANGUAGE_TYPESCRIPT.into(),
+        Some("rust") => tree_sitter_rust::LANGUAGE.into(),
+        Some("go") => tree_sitter_go::LANGUAGE.into(),
+        Some("java") => tree_sitter_java::LANGUAGE.into(),
+        Some("ruby") => tree_sitter_ruby::LANGUAGE.into(),
+        Some("shell") | Some("bash") => tree_sitter_bash::LANGUAGE.into(),
+        Some("php") => tree_sitter_php::LANGUAGE_PHP.into(),
+        Some("csharp") | Some("c#") => tree_sitter_c_sharp::LANGUAGE.into(),
+        Some("lua") => tree_sitter_lua::LANGUAGE.into(),
+        Some("perl") => tree_sitter_perl::LANGUAGE.into(),
+        Some("powershell") | Some("ps1") => tree_sitter_powershell::LANGUAGE.into(),
+        Some("swift") => tree_sitter_swift::LANGUAGE.into(),
+        Some("objc") | Some("objective-c") => tree_sitter_objc::LANGUAGE.into(),
+        Some("groovy") => tree_sitter_groovy::LANGUAGE.into(),
+        Some("scala") => tree_sitter_scala::LANGUAGE.into(),
+        Some("zig") => tree_sitter_zig::LANGUAGE.into(),
+        Some("elixir") => tree_sitter_elixir::LANGUAGE.into(),
+        Some(other) => {
+            return Err(anyhow::anyhow!("unsupported language for ast query: {}", other))
+        }
+        None => {
+            // No language specified - skip validation, will validate at runtime
+            return Ok(());
+        }
+    };
+    tree_sitter::Query::new(&lang, query)
+        .map_err(|e| anyhow::anyhow!("invalid tree-sitter query: {}", e))?;
+    Ok(())
 }
 
 /// Check if a regex contains unbounded greedy patterns like .* or .+

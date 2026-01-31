@@ -38,9 +38,9 @@ traits:
     platforms: [windows, linux, macos]
     file_types: [python]
     condition:
-      type: ast_pattern
-      node_type: call
-      pattern: "encode"
+      type: ast
+      kind: call
+      exact: "encode"
 
   - id: python-b64decode-call
     description: Python base64 decode call
@@ -49,9 +49,9 @@ traits:
     platforms: [windows, linux, macos]
     file_types: [python]
     condition:
-      type: ast_pattern
-      node_type: call
-      pattern: "b64decode"
+      type: ast
+      kind: call
+      exact: "b64decode"
 
 composite_rules:
   - id: linux-memfd

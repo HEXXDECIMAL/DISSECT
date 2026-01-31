@@ -20,7 +20,7 @@ traits:
     conf: 0.7
     for: [javascript, typescript]
     if:
-      type: ast_query
+      type: ast
       language: javascript
       query: |
         (new_expression
@@ -36,9 +36,9 @@ traits:
     conf: 0.7
     for: [javascript, typescript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "net.createConnection"
+      type: ast
+      kind: call
+      exact: "net.createConnection"
 
   - id: net-connect
     desc: net.connect call
@@ -46,9 +46,9 @@ traits:
     conf: 0.7
     for: [javascript, typescript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "net.connect"
+      type: ast
+      kind: call
+      exact: "net.connect"
 
   # === child_process micro-traits ===
   - id: child-process-string
@@ -66,9 +66,9 @@ traits:
     conf: 0.7
     for: [javascript, typescript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "spawn"
+      type: ast
+      kind: call
+      exact: "spawn"
 
   - id: exec-call
     desc: exec function call
@@ -76,9 +76,9 @@ traits:
     conf: 0.7
     for: [javascript, typescript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: ".exec("
+      type: ast
+      kind: call
+      exact: ".exec("
 
   - id: execSync-call
     desc: execSync function call
@@ -86,9 +86,9 @@ traits:
     conf: 0.7
     for: [javascript, typescript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "execSync"
+      type: ast
+      kind: call
+      exact: "execSync"
 
   - id: spawnSync-call
     desc: spawnSync function call
@@ -96,9 +96,9 @@ traits:
     conf: 0.7
     for: [javascript, typescript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "spawnSync"
+      type: ast
+      kind: call
+      exact: "spawnSync"
 
   - id: pipe-string
     desc: pipe string reference
@@ -153,9 +153,9 @@ traits:
     conf: 0.5
     for: [javascript, typescript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "existsSync"
+      type: ast
+      kind: call
+      exact: "existsSync"
 
   - id: writeFileSync-call
     desc: writeFileSync function call
@@ -163,9 +163,9 @@ traits:
     conf: 0.5
     for: [javascript, typescript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "writeFileSync"
+      type: ast
+      kind: call
+      exact: "writeFileSync"
 
   # === Ngrok atomic indicators ===
   - id: ngrok-io
@@ -257,9 +257,9 @@ traits:
     conf: 0.5
     for: [javascript, typescript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "https.get"
+      type: ast
+      kind: call
+      exact: "https.get"
 
   - id: http-get-call
     desc: http.get call
@@ -267,9 +267,9 @@ traits:
     conf: 0.5
     for: [javascript, typescript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "http.get"
+      type: ast
+      kind: call
+      exact: "http.get"
 
 composite_rules:
   # Net socket composite

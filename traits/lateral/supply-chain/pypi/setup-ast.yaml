@@ -41,9 +41,9 @@ traits:
     crit: suspicious
     conf: 0.90
     if:
-      type: ast_pattern
-      node_type: function_definition
-      pattern: "def run\\(self\\):"
+      type: ast
+      kind: function
+      exact: "def run\\(self\\):"
 
   # === AST Pattern: subprocess in setup ===
   - id: ast-subprocess-in-setup
@@ -51,9 +51,9 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: ast_pattern
-      node_type: call
-      pattern: "subprocess\\.(run|call|Popen)"
+      type: ast
+      kind: call
+      exact: "subprocess\\.(run|call|Popen)"
 
   # === AST Pattern: Import in install class ===
   - id: ast-import-in-install
@@ -61,9 +61,9 @@ traits:
     crit: suspicious
     conf: 0.80
     if:
-      type: ast_pattern
-      node_type: import_statement
-      pattern: "import.{0,50}subprocess|from.{0,50}subprocess"
+      type: ast
+      kind: import
+      exact: "import.{0,50}subprocess|from.{0,50}subprocess"
 
 composite_rules:
   # === Malicious Setup.py Detection ===

@@ -49,43 +49,6 @@ traits:
       regex: "\\b(your|run|download|get|free)\\s+decryptor|decryptor\\.(exe|bin|bat)"
       case_insensitive: true
 
-  # === Ransom note atomic indicators ===
-  - id: your-files-phrase
-    description: '"your files" ransom phrase'
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      exact: "your files"
-      case_insensitive: true
-
-  - id: files-have-been-phrase
-    description: '"files have been" ransom phrase'
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      exact: "files have been"
-      case_insensitive: true
-
-  - id: pay-bitcoin-phrase
-    description: '"pay...bitcoin" ransom phrase'
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      regex: "pay.{0,50}bitcoin"
-      case_insensitive: true
-
-  - id: decrypt-files-phrase
-    description: '"decrypt...files" ransom phrase'
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      regex: "decrypt.{0,50}files"
-      case_insensitive: true
-
   # Go file encryption patterns (ransomware)
   - id: file-encrypt
     description: Go file encryption patterns (potential
@@ -113,11 +76,11 @@ traits:
 composite_rules:
   - id: encrypt-note
     description: Ransom note patterns
-    crit: suspicious
+    crit: notable
     conf: 0.66
-    count_min: 1
-    conditions:
-      - id: your-files-phrase
-      - id: files-have-been-phrase
-      - id: pay-bitcoin-phrase
-      - id: decrypt-files-phrase
+    count_min: 2
+    any:
+      - id: data/text/ransom/your-files-phrase
+      - id: data/text/ransom/files-have-been-phrase
+      - id: data/text/ransom/pay-bitcoin-phrase
+      - id: data/text/ransom/decrypt-files-phrase

@@ -16,10 +16,9 @@ traits:
     crit: suspicious
     conf: 0.80
     if:
-      type: ast_pattern
-      node_type: function_definition
-      pattern: "def run\\(self\\):.{0,50}^\\s+import"
-      regex: true
+      type: ast
+      kind: function
+      regex: "def run\\(self\\):.{0,50}^\\s+import"
 
   # === AST Pattern: Method Override ===
   - id: ast-install-method-override
@@ -27,9 +26,9 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: ast_pattern
-      node_type: function_definition
-      pattern: "def run\\(self\\):"
+      type: ast
+      kind: function
+      exact: "def run\\(self\\):"
 
   # === AST Pattern: Sequential Clone Calls ===
   - id: ast-multiple-clone-calls
@@ -37,9 +36,9 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: ast_pattern
-      node_type: call
-      pattern: "\\.clone\\(.{0,50}\\)"
+      type: ast
+      kind: call
+      exact: "\\.clone\\(.{0,50}\\)"
       count_min: 2
 
   # === AST Pattern: Environment Set in Method ===
@@ -48,9 +47,9 @@ traits:
     crit: notable
     conf: 0.70
     if:
-      type: ast_pattern
-      node_type: assignment
-      pattern: "os\\.environ\\[.{0,50}\\]"
+      type: ast
+      kind: assignment
+      exact: "os\\.environ\\[.{0,50}\\]"
 
   # === AST Pattern: Sequential File Operations ===
   - id: ast-clone-move-execute-chain
@@ -58,9 +57,9 @@ traits:
     crit: suspicious
     conf: 0.90
     if:
-      type: ast_pattern
-      node_type: call
-      pattern: "(clone|rename|startfile)"
+      type: ast
+      kind: call
+      exact: "(clone|rename|startfile)"
       count_min: 3
 
   # === AST Pattern: cmdclass with Custom Install ===
@@ -69,9 +68,9 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: ast_pattern
-      node_type: keyword_argument
-      pattern: "cmdclass.{0,50}install"
+      type: ast
+      node: keyword_argument
+      exact: "cmdclass.{0,50}install"
 
 composite_rules:
   # === AST-Based Supply Chain Detection ===

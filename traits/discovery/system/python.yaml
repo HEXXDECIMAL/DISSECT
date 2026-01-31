@@ -14,42 +14,42 @@ traits:
     desc: Profiles the host operating system
     conf: 0.8
     if:
-      type: ast_pattern
-      node_type: call
-      pattern: ".system()"
+      type: ast
+      kind: call
+      exact: ".system()"
 
   - id: python-platform-machine
     desc: Identifies the host CPU architecture
     conf: 0.75
     if:
-      type: ast_pattern
-      node_type: call
-      pattern: ".machine()"
+      type: ast
+      kind: call
+      exact: ".machine()"
 
   - id: python-platform-node
     desc: Retrieves the system hostname
     conf: 0.7
     if:
-      type: ast_pattern
-      node_type: call
-      pattern: ".node()"
+      type: ast
+      kind: call
+      exact: ".node()"
 
   - id: python-platform-uname
     desc: Collects comprehensive system hardware and
     conf: 0.8
     if:
-      type: ast_pattern
-      node_type: call
-      pattern: ".uname()"
+      type: ast
+      kind: call
+      exact: ".uname()"
 
   # User lookup (Alias-resistant)
   - id: python-getpass-user
     desc: Identifies the current logged-in user
     conf: 0.85
     if:
-      type: ast_pattern
-      node_type: call
-      pattern: ".getuser()"
+      type: ast
+      kind: call
+      exact: ".getuser()"
 
   # === MAC address discovery (atomic) ===
   - id: getmac-module

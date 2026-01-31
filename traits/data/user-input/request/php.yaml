@@ -10,10 +10,9 @@ traits:
     attack: "T1059"
     for: [php]
     if:
-      type: ast_pattern
-      node_type: variable_name
-      pattern: "\\$_GET"
-      regex: true
+      type: ast
+      node: variable_name
+      regex: "\\$_GET"
 
   - id: post
     desc: HTTP POST parameter access ($_POST)
@@ -22,10 +21,9 @@ traits:
     attack: "T1059"
     for: [php]
     if:
-      type: ast_pattern
-      node_type: variable_name
-      pattern: "\\$_POST"
-      regex: true
+      type: ast
+      node: variable_name
+      regex: "\\$_POST"
 
   - id: request
     desc: HTTP REQUEST parameter access ($_REQUEST)
@@ -34,10 +32,9 @@ traits:
     attack: "T1059"
     for: [php]
     if:
-      type: ast_pattern
-      node_type: variable_name
-      pattern: "\\$_REQUEST"
-      regex: true
+      type: ast
+      node: variable_name
+      regex: "\\$_REQUEST"
 
   - id: cookie
     desc: HTTP Cookie access ($_COOKIE)
@@ -45,10 +42,9 @@ traits:
     conf: 0.8
     for: [php]
     if:
-      type: ast_pattern
-      node_type: variable_name
-      pattern: "\\$_COOKIE"
-      regex: true
+      type: ast
+      node: variable_name
+      regex: "\\$_COOKIE"
 
   - id: server
     desc: Server variable access ($_SERVER)
@@ -56,10 +52,9 @@ traits:
     conf: 0.75
     for: [php]
     if:
-      type: ast_pattern
-      node_type: variable_name
-      pattern: "\\$_SERVER"
-      regex: true
+      type: ast
+      node: variable_name
+      regex: "\\$_SERVER"
 
   - id: files
     desc: File upload access ($_FILES)
@@ -68,10 +63,9 @@ traits:
     attack: "T1105"
     for: [php]
     if:
-      type: ast_pattern
-      node_type: variable_name
-      pattern: "\\$_FILES"
-      regex: true
+      type: ast
+      node: variable_name
+      regex: "\\$_FILES"
 
   - id: session
     desc: Session variable access ($_SESSION)
@@ -79,10 +73,9 @@ traits:
     conf: 0.75
     for: [php]
     if:
-      type: ast_pattern
-      node_type: variable_name
-      pattern: "\\$_SESSION"
-      regex: true
+      type: ast
+      node: variable_name
+      regex: "\\$_SESSION"
 
   - id: script-filename
     desc: Access to script filename (self-reference)

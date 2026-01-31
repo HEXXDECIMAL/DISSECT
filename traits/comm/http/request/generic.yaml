@@ -34,6 +34,55 @@ traits:
       type: string
       exact: "HTTP/1."
 
+  # === Network exfiltration atomic indicators ===
+  - id: requests-post
+    desc: Python requests.post call
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      regex: "requests\\.post"
+
+  - id: requests-get
+    desc: Python requests.get call
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      regex: "requests\\.get"
+
+  - id: urllib-word
+    desc: urllib reference
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      exact: "urllib"
+
+  - id: socket-dot
+    desc: socket module usage
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      regex: "socket\\."
+
+  - id: fetch-call
+    desc: JavaScript fetch call
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      regex: "fetch\\("
+
+  - id: xmlhttprequest-word
+    desc: XMLHttpRequest reference
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      exact: "XMLHttpRequest"
+
 composite_rules:
   # HTTP request composite (migrated from YARA)
   - id: request
@@ -47,3 +96,17 @@ composite_rules:
       - id: http-request-func
       - id: user-agent-header
       - id: http-version
+
+  # Network exfiltration composite
+  - id: network-exfil
+    desc: Network request patterns for exfiltration
+    crit: notable
+    conf: 0.7
+    count_min: 1
+    any:
+      - id: requests-post
+      - id: requests-get
+      - id: urllib-word
+      - id: socket-dot
+      - id: fetch-call
+      - id: xmlhttprequest-word

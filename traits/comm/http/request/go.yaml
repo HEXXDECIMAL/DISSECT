@@ -14,9 +14,9 @@ traits:
     conf: 0.9
     for: [go]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "http.NewRequest"
+      type: ast
+      kind: call
+      exact: "http.NewRequest"
 
   - id: go-http-client-do
     desc: Executes an HTTP request in
@@ -24,9 +24,9 @@ traits:
     conf: 0.9
     for: [go]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: ".Do("
+      type: ast
+      kind: call
+      exact: ".Do("
 
   - id: go-http-header-auth
     desc: Sets Authorization header in Go
@@ -34,9 +34,9 @@ traits:
     conf: 0.95
     for: [go]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "Header.Set(\"Authorization\""
+      type: ast
+      kind: call
+      exact: "Header.Set(\"Authorization\""
 
   # String-based detection (compiled binaries)
   - id: go-http-newrequest-string

@@ -11,9 +11,9 @@ traits:
     conf: 0.8
     for: [javascript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "getExecOutput"
+      type: ast
+      kind: call
+      exact: "getExecOutput"
 
   - id: child-process-exec
     desc: Node.js child_process exec
@@ -23,9 +23,9 @@ traits:
     attack: "T1059"
     for: [javascript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "exec"
+      type: ast
+      kind: call
+      exact: "exec"
 
   - id: child-process-spawn
     desc: Node.js child_process spawn
@@ -35,9 +35,9 @@ traits:
     attack: "T1059"
     for: [javascript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "spawn"
+      type: ast
+      kind: call
+      exact: "spawn"
 
   - id: child-process-execSync
     desc: Node.js synchronous exec
@@ -47,9 +47,9 @@ traits:
     attack: "T1059"
     for: [javascript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "execSync"
+      type: ast
+      kind: call
+      exact: "execSync"
 
   - id: child-process-require
     desc: Node.js child_process module import

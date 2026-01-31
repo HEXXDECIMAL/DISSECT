@@ -8,9 +8,9 @@ traits:
     mbc: "B0003"
     confidence: 0.6
     condition:
-      type: ast_pattern
-      node_type: member_access_expression
-      pattern: "DateTime.Now"
+      type: ast
+      node: member_access_expression
+      exact: "DateTime.Now"
     file_types: [csharp]
 
   - id: datetime-utcnow
@@ -19,9 +19,9 @@ traits:
     mbc: "B0003"
     confidence: 0.6
     condition:
-      type: ast_pattern
-      node_type: member_access_expression
-      pattern: "DateTime.UtcNow"
+      type: ast
+      node: member_access_expression
+      exact: "DateTime.UtcNow"
     file_types: [csharp]
 
   - id: hardcoded-datetime
@@ -31,7 +31,7 @@ traits:
     attack: "T1480.001"
     confidence: 0.75
     condition:
-      type: ast_pattern
-      node_type: object_creation_expression
-      pattern: "new DateTime"
+      type: ast
+      node: object_creation_expression
+      exact: "new DateTime"
     file_types: [csharp]

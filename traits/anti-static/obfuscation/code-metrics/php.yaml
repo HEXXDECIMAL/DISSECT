@@ -70,40 +70,36 @@ traits:
     crit: suspicious
     conf: 0.98
     if:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "[^\\x00-\\x7F]"
-      regex: true
+      type: ast
+      kind: call
+      regex: "[^\\x00-\\x7F]"
 
   - id: php-non-ascii-variable
     desc: "Variable with non-ASCII name (obfuscation)"
     crit: suspicious
     conf: 0.98
     if:
-      type: ast_pattern
-      node_type: variable_name
-      pattern: "[^\\x00-\\x7F]"
-      regex: true
+      type: ast
+      node: variable_name
+      regex: "[^\\x00-\\x7F]"
 
   - id: php-non-ascii-name
     desc: "Identifier with non-ASCII characters (obfuscation)"
     crit: suspicious
     conf: 0.98
     if:
-      type: ast_pattern
-      node_type: name
-      pattern: "[^\\x00-\\x7F]"
-      regex: true
+      type: ast
+      node: name
+      regex: "[^\\x00-\\x7F]"
 
   - id: php-non-ascii-subscript
     desc: "Subscript with non-ASCII characters (obfuscation)"
     crit: suspicious
     conf: 0.98
     if:
-      type: ast_pattern
-      node_type: subscript_expression
-      pattern: "[^\\x00-\\x7F]"
-      regex: true
+      type: ast
+      node: subscript_expression
+      regex: "[^\\x00-\\x7F]"
 
 composite_rules:
   - id: php-webshell-pattern

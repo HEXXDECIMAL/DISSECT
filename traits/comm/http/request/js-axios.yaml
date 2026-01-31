@@ -8,9 +8,9 @@ traits:
     conf: 1.0
     for: [javascript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "axios.get"
+      type: ast
+      kind: call
+      exact: "axios.get"
 
   - id: js-axios-post
     desc: Makes HTTP POST requests using
@@ -18,6 +18,6 @@ traits:
     conf: 1.0
     for: [javascript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "axios.post"
+      type: ast
+      kind: call
+      exact: "axios.post"

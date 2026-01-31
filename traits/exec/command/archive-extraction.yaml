@@ -93,7 +93,7 @@ composite_rules:
     crit: notable
     conf: 0.75
     attack: "T1105"
-    count_min: 1
+    count_min: 2
     any:
       - id: tar-extract
       - id: tar-gzip-extract
@@ -116,11 +116,12 @@ composite_rules:
 
   - id: extract-and-execute
     desc: Extract and execute payload
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     attack: "T1204"
     mbc: "E1105"
     platforms: [all]
+    count_min: 2
     all:
       - id: archive-extraction
       - id: extract-then-execute

@@ -13,9 +13,9 @@ traits:
     confidence: 0.8
     file_types: [javascript]
     condition:
-      type: ast_pattern
-      node_type: assignment_expression
-      pattern: "module.exports"
+      type: ast
+      kind: assignment
+      exact: "module.exports"
 
   - id: exports-dot-pattern
     description: CommonJS exports.{0,50} pattern
@@ -23,9 +23,9 @@ traits:
     confidence: 0.8
     file_types: [javascript]
     condition:
-      type: ast_pattern
-      node_type: assignment_expression
-      pattern: "exports."
+      type: ast
+      kind: assignment
+      exact: "exports."
 
   - id: esm-export-pattern
     description: ESM export statement
@@ -33,9 +33,9 @@ traits:
     confidence: 0.8
     file_types: [javascript]
     condition:
-      type: ast_pattern
-      node_type: export_statement
-      pattern: "export"
+      type: ast
+      node: export_statement
+      exact: "export"
 
   # === Node.js require micro-traits ===
   - id: require-os
@@ -44,7 +44,7 @@ traits:
     confidence: 0.7
     file_types: [javascript]
     condition:
-      type: ast_query
+      type: ast
       language: javascript
       query: |
         (call_expression
@@ -59,7 +59,7 @@ traits:
     confidence: 0.8
     file_types: [javascript]
     condition:
-      type: ast_query
+      type: ast
       language: javascript
       query: |
         (call_expression
@@ -74,7 +74,7 @@ traits:
     confidence: 0.7
     file_types: [javascript]
     condition:
-      type: ast_query
+      type: ast
       language: javascript
       query: |
         (call_expression
@@ -89,7 +89,7 @@ traits:
     confidence: 0.7
     file_types: [javascript]
     condition:
-      type: ast_query
+      type: ast
       language: javascript
       query: |
         (call_expression
@@ -193,9 +193,9 @@ traits:
     confidence: 0.75
     file_types: [javascript, typescript]
     condition:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: ".unref()"
+      type: ast
+      kind: call
+      exact: ".unref()"
 
   - id: spawn-unref
     description: spawn().unref() call (orphan process)

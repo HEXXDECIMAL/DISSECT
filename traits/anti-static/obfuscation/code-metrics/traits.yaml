@@ -314,7 +314,7 @@ composite_rules:
 
   - id: identifier-obfuscation
     desc: "Identifier obfuscation (random/encoded names)"
-    crit: suspicious
+    crit: notable
     conf: 0.9
     attack: "T1027"
     count_min: 2

@@ -11,7 +11,7 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_query
+      type: ast
       language: c
       query: |
         (assignment_expression

@@ -31,9 +31,9 @@ traits:
     mbc: "C0027"
     for: [javascript, typescript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "createCipheriv"
+      type: ast
+      kind: call
+      exact: "createCipheriv"
 
   - id: createDecipheriv
     desc: Create decipher with IV (symmetric
@@ -42,9 +42,9 @@ traits:
     mbc: "C0027"
     for: [javascript, typescript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "createDecipheriv"
+      type: ast
+      kind: call
+      exact: "createDecipheriv"
 
   # === AES-128-CTR atomic indicators ===
   - id: aes-128-ctr-dash

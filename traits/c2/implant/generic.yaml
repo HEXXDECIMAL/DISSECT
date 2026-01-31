@@ -277,9 +277,9 @@ traits:
 composite_rules:
   - id: implant
     desc: References an implant
-    crit: suspicious
+    crit: notable
     conf: 0.7
-    count_min: 1
+    count_min: 2
     any:
       - id: malware-implant
       - id: c2-implant
@@ -308,9 +308,9 @@ composite_rules:
 
   - id: trojan
     desc: References a trojan
-    crit: suspicious
+    crit: notable
     conf: 0.66
-    count_min: 1
+    count_min: 2
     any:
       - id: trojan-horse
       - id: trojan-malware

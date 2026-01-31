@@ -11,56 +11,56 @@ traits:
   # === HTTP Download in Method ===
   - id: ruby-ast-http-in-method
     desc: HTTP request inside method
-    crit: suspicious
+    crit: notable
     conf: 0.88
     attack: "T1071"
     if:
-      type: ast_pattern
-      node_type: call
-      pattern: "Net::HTTP.get_response"
+      type: ast
+      kind: call
+      exact: "Net::HTTP.get_response"
 
   # === File Write with Binary Mode ===
   - id: ruby-ast-file-binmode-write
     desc: File binmode followed by write
-    crit: suspicious
+    crit: notable
     conf: 0.85
     if:
-      type: ast_pattern
-      node_type: call
-      pattern: '.binmode'
+      type: ast
+      kind: call
+      exact: '.binmode'
 
   # === File Chmod 777 ===
   - id: ruby-ast-chmod-777
     desc: File permission change to 777
-    crit: suspicious
+    crit: notable
     conf: 0.90
     attack: "T1222"
     if:
-      type: ast_pattern
-      node_type: call
-      pattern: '.chmod(0777)'
+      type: ast
+      kind: call
+      exact: '.chmod(0777)'
 
   # === Base64 Decode in DNS Resolution ===
   - id: ruby-ast-base64-dns
     desc: Base64 decode before DNS lookup
-    crit: suspicious
+    crit: notable
     conf: 0.92
     attack: "T1027"
     if:
-      type: ast_pattern
-      node_type: call
-      pattern: 'Base64.decode64'
+      type: ast
+      kind: call
+      exact: 'Base64.decode64'
 
   # === System Execution in Method ===
   - id: ruby-ast-system-in-method
     desc: System command execution in method
-    crit: suspicious
+    crit: notable
     conf: 0.88
     attack: "T1059"
     if:
-      type: ast_pattern
-      node_type: call
-      pattern: 'system('
+      type: ast
+      kind: call
+      exact: 'system('
 
   # === File Open Binary Write ===
   - id: ruby-ast-file-open-wb
@@ -68,7 +68,7 @@ traits:
     crit: inert
     conf: 0.82
     if:
-      type: ast_query
+      type: ast
       language: ruby
       query: |
         (call
@@ -88,7 +88,7 @@ composite_rules:
     crit: suspicious
     conf: 0.93
     attack: "T1059"
-    count_min: 3
+    count_min: 4
     any:
       - id: ruby-ast-http-in-method
       - id: ruby-ast-file-binmode-write

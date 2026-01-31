@@ -11,9 +11,9 @@ traits:
     attack: "T1140"
     for: [php]
     if:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "base64_decode"
+      type: ast
+      kind: call
+      exact: "base64_decode"
 
   - id: base64-encode
     desc: Base64 encoding
@@ -21,9 +21,9 @@ traits:
     conf: 0.6
     for: [php]
     if:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "base64_encode"
+      type: ast
+      kind: call
+      exact: "base64_encode"
 
   - id: gzinflate
     desc: Gzip decompression (packed payload)
@@ -33,9 +33,9 @@ traits:
     attack: "T1140"
     for: [php]
     if:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "gzinflate"
+      type: ast
+      kind: call
+      exact: "gzinflate"
 
   - id: gzuncompress
     desc: Zlib decompression (packed payload)
@@ -45,9 +45,9 @@ traits:
     attack: "T1140"
     for: [php]
     if:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "gzuncompress"
+      type: ast
+      kind: call
+      exact: "gzuncompress"
 
   - id: gzdecode
     desc: Gzip decoding (packed payload)
@@ -57,9 +57,9 @@ traits:
     attack: "T1140"
     for: [php]
     if:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "gzdecode"
+      type: ast
+      kind: call
+      exact: "gzdecode"
 
   - id: rot13
     desc: ROT13 encoding/decoding
@@ -68,9 +68,9 @@ traits:
     mbc: "B0032"
     for: [php]
     if:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "str_rot13"
+      type: ast
+      kind: call
+      exact: "str_rot13"
 
   - id: chr-ord
     desc: Character code manipulation
@@ -79,10 +79,9 @@ traits:
     mbc: "B0032"
     for: [php]
     if:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "chr|ord"
-      regex: true
+      type: ast
+      kind: call
+      regex: "chr|ord"
 
   - id: eval
     desc: Dynamic code execution via eval
@@ -92,9 +91,9 @@ traits:
     attack: "T1059"
     for: [php]
     if:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "eval"
+      type: ast
+      kind: call
+      exact: "eval"
 
   - id: create-function
     desc: Dynamic function creation (deprecated, often
@@ -104,9 +103,9 @@ traits:
     attack: "T1059"
     for: [php]
     if:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "create_function"
+      type: ast
+      kind: call
+      exact: "create_function"
 
   - id: preg-replace-e
     desc: preg_replace with /e modifier (code
@@ -116,10 +115,9 @@ traits:
     attack: "T1059"
     for: [php]
     if:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "preg_replace\\s*\\(['\"][^'\"]*\\/[a-zA-Z]*e[a-zA-Z]*['\"]"
-      regex: true
+      type: ast
+      kind: call
+      regex: "preg_replace\\s*\\(['\"][^'\"]*\\/[a-zA-Z]*e[a-zA-Z]*['\"]"
 
   - id: assert-dynamic
     desc: Assert with dynamic code (code
@@ -129,9 +127,9 @@ traits:
     attack: "T1059"
     for: [php]
     if:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "assert"
+      type: ast
+      kind: call
+      exact: "assert"
 
   - id: xor-string
     desc: XOR string manipulation (obfuscation)
@@ -139,10 +137,9 @@ traits:
     conf: 0.8
     mbc: "B0032"
     if:
-      type: ast_pattern
-      node_type: binary_expression
-      pattern: "\\^"
-      regex: true
+      type: ast
+      kind: binary_op
+      regex: "\\^"
 
   - id: xor-loop
     desc: Loop performing XOR on user
@@ -150,10 +147,9 @@ traits:
     conf: 0.95
     mbc: "B0032"
     if:
-      type: ast_pattern
-      node_type: for_statement
-      pattern: "\\^="
-      regex: true
+      type: ast
+      node: for_statement
+      regex: "\\^="
 
   - id: strrev
     desc: String reversal (obfuscation)
@@ -161,9 +157,9 @@ traits:
     conf: 0.7
     mbc: "B0032"
     if:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "strrev"
+      type: ast
+      kind: call
+      exact: "strrev"
 
   - id: hex2bin
     desc: Hex to binary conversion (obfuscation)
@@ -171,9 +167,9 @@ traits:
     conf: 0.75
     mbc: "B0032"
     if:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "hex2bin"
+      type: ast
+      kind: call
+      exact: "hex2bin"
 
   - id: bin2hex
     desc: Binary to hex conversion (obfuscation)
@@ -181,9 +177,9 @@ traits:
     conf: 0.75
     mbc: "B0032"
     if:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "bin2hex"
+      type: ast
+      kind: call
+      exact: "bin2hex"
 
   - id: substitution-cipher
     desc: Potential substitution cipher (obfuscation)
@@ -191,28 +187,27 @@ traits:
     conf: 0.8
     mbc: "B0032"
     if:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "str_replace\\s*\\(\\s*array\\s*\\([^)]+\\)\\s*,\\s*array\\s*\\([^)]+\\)"
-      regex: true
+      type: ast
+      kind: call
+      regex: "str_replace\\s*\\(\\s*array\\s*\\([^)]+\\)\\s*,\\s*array\\s*\\([^)]+\\)"
 
   - id: pack
     desc: Packs data into binary string
     crit: notable
     conf: 0.7
     if:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "pack"
+      type: ast
+      kind: call
+      exact: "pack"
 
   - id: unpack
     desc: Unpacks data from binary string
     crit: notable
     conf: 0.7
     if:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "unpack"
+      type: ast
+      kind: call
+      exact: "unpack"
 
   - id: variable-function-call
     desc: Variable function call (obfuscation)
@@ -220,20 +215,18 @@ traits:
     conf: 0.8
     mbc: "B0032"
     if:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "^(\\$|\\{).{0,50}\\("
-      regex: true
+      type: ast
+      kind: call
+      regex: "^(\\$|\\{).{0,50}\\("
 
   - id: dynamic-variable-call
     desc: Dynamic variable function call (e.g.
     crit: suspicious
     conf: 0.95
     if:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "\\$\\{.{0,50}\\}"
-      regex: true
+      type: ast
+      kind: call
+      regex: "\\$\\{.{0,50}\\}"
 
   - id: dynamic-superglobal-call
     desc: Superglobal used as function (obfuscated
@@ -241,10 +234,9 @@ traits:
     conf: 0.98
     mbc: "B0032"
     if:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "\\$_(GET|POST|REQUEST|COOKIE|SERVER)"
-      regex: true
+      type: ast
+      kind: call
+      regex: "\\$_(GET|POST|REQUEST|COOKIE|SERVER)"
 
   - id: subscript-function-call
     desc: Subscript used as function (obfuscated
@@ -252,10 +244,9 @@ traits:
     conf: 0.85
     mbc: "B0032"
     if:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "\\$\\w+\\s*\\[[^]]+\\]\\s*\\("
-      regex: true
+      type: ast
+      kind: call
+      regex: "\\$\\w+\\s*\\[[^]]+\\]\\s*\\("
 
   - id: simple-variable-call
     desc: Variable used as function (obfuscated
@@ -263,10 +254,9 @@ traits:
     conf: 0.8
     mbc: "B0032"
     if:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "\\$\\w+\\s*\\("
-      regex: true
+      type: ast
+      kind: call
+      regex: "\\$\\w+\\s*\\("
 
   - id: dynamic-superglobal-simple
     desc: Superglobal used as function (obfuscated
@@ -274,7 +264,6 @@ traits:
     conf: 0.98
     mbc: "B0032"
     if:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "\\$_(GET|POST|REQUEST|COOKIE|SERVER)"
-      regex: true
+      type: ast
+      kind: call
+      regex: "\\$_(GET|POST|REQUEST|COOKIE|SERVER)"

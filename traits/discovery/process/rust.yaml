@@ -11,6 +11,6 @@ traits:
     attack: "T1057"
     for: [rust]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "processes_by_name"
+      type: ast
+      kind: call
+      exact: "processes_by_name"

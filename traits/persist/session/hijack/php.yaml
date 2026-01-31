@@ -46,42 +46,42 @@ traits:
     crit: notable
     confidence: 0.85
     condition:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "set_time_limit"
+      type: ast
+      kind: call
+      exact: "set_time_limit"
 
   - id: ignore-abort
     description: Ignores client abort (webshell indicator)
     crit: notable
     confidence: 0.85
     condition:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "ignore_user_abort"
+      type: ast
+      kind: call
+      exact: "ignore_user_abort"
 
   - id: output-buffering
     description: Uses output buffering (potential evasion)
     crit: notable
     confidence: 0.7
     condition:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "ob_start"
+      type: ast
+      kind: call
+      exact: "ob_start"
 
   - id: error-reporting-off
     description: Disables error reporting (stealth)
     crit: notable
     confidence: 0.8
     condition:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "error_reporting"
+      type: ast
+      kind: call
+      exact: "error_reporting"
 
   - id: display-errors-off
     description: Disables error display (stealth)
     crit: notable
     confidence: 0.8
     condition:
-      type: ast_pattern
-      node_type: member_call_expression
-      pattern: "ini_set"
+      type: ast
+      node: member_call_expression
+      exact: "ini_set"

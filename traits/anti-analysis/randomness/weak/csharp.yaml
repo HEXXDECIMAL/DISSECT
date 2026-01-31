@@ -9,9 +9,9 @@ traits:
     conf: 0.7
     for: [csharp]
     if:
-      type: ast_pattern
-      node_type: object_creation_expression
-      pattern: "new Random"
+      type: ast
+      node: object_creation_expression
+      exact: "new Random"
 
   - id: next
     desc: Random number generation (potential probabilistic
@@ -20,6 +20,6 @@ traits:
     conf: 0.7
     for: [csharp]
     if:
-      type: ast_pattern
-      node_type: invocation_expression
-      pattern: ".Next("
+      type: ast
+      kind: call
+      exact: ".Next("

@@ -8,9 +8,9 @@ traits:
     conf: 1.0
     for: [javascript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "execSync"
+      type: ast
+      kind: call
+      exact: "execSync"
 
   - id: js-spawn
     desc: Spawns a child process
@@ -18,6 +18,6 @@ traits:
     conf: 1.0
     for: [javascript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "spawn"
+      type: ast
+      kind: call
+      exact: "spawn"

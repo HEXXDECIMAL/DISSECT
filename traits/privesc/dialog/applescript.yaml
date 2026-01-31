@@ -41,7 +41,7 @@ traits:
 
   - id: run-as-root
     description: "Attempts to run as root"
-    crit: suspicious
+    crit: notable
     confidence: 0.85
     condition:
       type: string

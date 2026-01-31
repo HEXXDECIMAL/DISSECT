@@ -12,9 +12,9 @@ traits:
     attack: "T1082"
     for: [javascript, typescript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "os.hostname"
+      type: ast
+      kind: call
+      exact: "os.hostname"
 
   - id: os-platform
     desc: Platform detection via os module
@@ -23,9 +23,9 @@ traits:
     attack: "T1082"
     for: [javascript, typescript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "os.platform"
+      type: ast
+      kind: call
+      exact: "os.platform"
 
   - id: os-arch
     desc: Architecture detection via os module
@@ -34,9 +34,9 @@ traits:
     attack: "T1082"
     for: [javascript, typescript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "os.arch"
+      type: ast
+      kind: call
+      exact: "os.arch"
 
   - id: os-release
     desc: OS release version collection
@@ -45,9 +45,9 @@ traits:
     attack: "T1082"
     for: [javascript, typescript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "os.release"
+      type: ast
+      kind: call
+      exact: "os.release"
 
   - id: os-userInfo
     desc: User information collection
@@ -56,9 +56,9 @@ traits:
     attack: "T1033"
     for: [javascript, typescript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "os.userInfo"
+      type: ast
+      kind: call
+      exact: "os.userInfo"
 
   - id: os-cpus
     desc: CPU information collection
@@ -67,9 +67,9 @@ traits:
     attack: "T1082"
     for: [javascript, typescript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "os.cpus"
+      type: ast
+      kind: call
+      exact: "os.cpus"
 
   - id: os-totalmem
     desc: Total memory collection
@@ -78,9 +78,9 @@ traits:
     attack: "T1082"
     for: [javascript, typescript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "os.totalmem"
+      type: ast
+      kind: call
+      exact: "os.totalmem"
 
   - id: os-networkInterfaces
     desc: Network interface enumeration
@@ -89,9 +89,9 @@ traits:
     attack: "T1016"
     for: [javascript, typescript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "os.networkInterfaces"
+      type: ast
+      kind: call
+      exact: "os.networkInterfaces"
 
   # === MAC address extraction patterns ===
   - id: mac-keyword-lower

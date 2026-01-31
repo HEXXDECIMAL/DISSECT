@@ -11,7 +11,7 @@ traits:
   # === Authentication Hook ===
   - id: auth-hook-ruby
     desc: Authentication method hook
-    crit: suspicious
+    crit: notable
     conf: 0.90
     attack: "T1056"
     if:

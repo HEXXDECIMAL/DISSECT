@@ -16,9 +16,9 @@ traits:
     attack: "T1059"
     for: [java]
     if:
-      type: ast_pattern
-      node_type: method_invocation
-      pattern: "Runtime.exec"
+      type: ast
+      kind: call
+      exact: "Runtime.exec"
 
   - id: runtime-getruntime-exec
     desc: Runtime.getRuntime().exec() command execution
@@ -28,9 +28,9 @@ traits:
     attack: "T1059"
     for: [java]
     if:
-      type: ast_pattern
-      node_type: method_invocation
-      pattern: "getRuntime().exec"
+      type: ast
+      kind: call
+      exact: "getRuntime().exec"
 
   - id: processbuilder
     desc: ProcessBuilder command execution
@@ -40,9 +40,9 @@ traits:
     attack: "T1059"
     for: [java]
     if:
-      type: ast_pattern
-      node_type: object_creation_expression
-      pattern: "ProcessBuilder"
+      type: ast
+      node: object_creation_expression
+      exact: "ProcessBuilder"
 
   # ============================================================
   # REFLECTION (ANTI-ANALYSIS / EVASION)
@@ -55,9 +55,9 @@ traits:
     mbc: "F0006"
     for: [java]
     if:
-      type: ast_pattern
-      node_type: method_invocation
-      pattern: "Class.forName"
+      type: ast
+      kind: call
+      exact: "Class.forName"
 
   - id: method-invoke
     desc: Dynamic method invocation via reflection
@@ -66,9 +66,9 @@ traits:
     mbc: "F0006"
     for: [java]
     if:
-      type: ast_pattern
-      node_type: method_invocation
-      pattern: ".invoke("
+      type: ast
+      kind: call
+      exact: ".invoke("
 
   - id: setaccessible
     desc: Bypass Java access control via
@@ -77,9 +77,9 @@ traits:
     mbc: "F0006"
     for: [java]
     if:
-      type: ast_pattern
-      node_type: method_invocation
-      pattern: ".setAccessible"
+      type: ast
+      kind: call
+      exact: ".setAccessible"
 
   - id: getdeclaredmethod
     desc: Access private methods via reflection
@@ -88,9 +88,9 @@ traits:
     mbc: "F0006"
     for: [java]
     if:
-      type: ast_pattern
-      node_type: method_invocation
-      pattern: ".getDeclaredMethod"
+      type: ast
+      kind: call
+      exact: ".getDeclaredMethod"
 
   - id: getdeclaredfield
     desc: Access private fields via reflection
@@ -99,9 +99,9 @@ traits:
     mbc: "F0006"
     for: [java]
     if:
-      type: ast_pattern
-      node_type: method_invocation
-      pattern: ".getDeclaredField"
+      type: ast
+      kind: call
+      exact: ".getDeclaredField"
 
   # ============================================================
   # DESERIALIZATION (COMMON ATTACK VECTOR)
@@ -115,9 +115,9 @@ traits:
     attack: "T1059"
     for: [java]
     if:
-      type: ast_pattern
-      node_type: object_creation_expression
-      pattern: "ObjectInputStream"
+      type: ast
+      node: object_creation_expression
+      exact: "ObjectInputStream"
 
   - id: readobject
     desc: Deserialize object from stream
@@ -126,9 +126,9 @@ traits:
     mbc: "C0033"
     for: [java]
     if:
-      type: ast_pattern
-      node_type: method_invocation
-      pattern: ".readObject("
+      type: ast
+      kind: call
+      exact: ".readObject("
 
   - id: xmldecoder
     desc: XML deserialization (CVE vector)
@@ -137,9 +137,9 @@ traits:
     mbc: "C0033"
     for: [java]
     if:
-      type: ast_pattern
-      node_type: object_creation_expression
-      pattern: "XMLDecoder"
+      type: ast
+      node: object_creation_expression
+      exact: "XMLDecoder"
 
   # ============================================================
   # NATIVE CODE LOADING
@@ -153,9 +153,9 @@ traits:
     attack: "T1129"
     for: [java]
     if:
-      type: ast_pattern
-      node_type: method_invocation
-      pattern: "System.loadLibrary"
+      type: ast
+      kind: call
+      exact: "System.loadLibrary"
 
   - id: system-load
     desc: Load native library by path
@@ -165,9 +165,9 @@ traits:
     attack: "T1129"
     for: [java]
     if:
-      type: ast_pattern
-      node_type: method_invocation
-      pattern: "System.load("
+      type: ast
+      kind: call
+      exact: "System.load("
 
   # ============================================================
   # DYNAMIC CLASS LOADING
@@ -180,9 +180,9 @@ traits:
     mbc: "C0033"
     for: [java]
     if:
-      type: ast_pattern
-      node_type: object_creation_expression
-      pattern: "URLClassLoader"
+      type: ast
+      node: object_creation_expression
+      exact: "URLClassLoader"
 
   - id: defineclass
     desc: Define class from bytecode
@@ -191,9 +191,9 @@ traits:
     mbc: "C0033"
     for: [java]
     if:
-      type: ast_pattern
-      node_type: method_invocation
-      pattern: ".defineClass"
+      type: ast
+      kind: call
+      exact: ".defineClass"
 
   # ============================================================
   # SCRIPT EXECUTION
@@ -207,9 +207,9 @@ traits:
     attack: "T1059"
     for: [java]
     if:
-      type: ast_pattern
-      node_type: object_creation_expression
-      pattern: "ScriptEngineManager"
+      type: ast
+      node: object_creation_expression
+      exact: "ScriptEngineManager"
 
   - id: scriptengine-eval
     desc: Evaluate script code
@@ -219,9 +219,9 @@ traits:
     attack: "T1059"
     for: [java]
     if:
-      type: ast_pattern
-      node_type: method_invocation
-      pattern: ".eval("
+      type: ast
+      kind: call
+      exact: ".eval("
 
   # ============================================================
   # JNDI (Log4Shell vector)
@@ -233,9 +233,9 @@ traits:
     conf: 0.85
     for: [java]
     if:
-      type: ast_pattern
-      node_type: object_creation_expression
-      pattern: "InitialContext"
+      type: ast
+      node: object_creation_expression
+      exact: "InitialContext"
 
   - id: jndi-lookup
     desc: JNDI lookup (Log4Shell attack vector)
@@ -244,6 +244,6 @@ traits:
     mbc: "C0033"
     for: [java]
     if:
-      type: ast_pattern
-      node_type: method_invocation
-      pattern: ".lookup("
+      type: ast
+      kind: call
+      exact: ".lookup("

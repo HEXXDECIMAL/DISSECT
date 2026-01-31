@@ -168,7 +168,7 @@ traits:
   # === WScript Execution ===
   - id: wscript-execution
     desc: WScript execution
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1059"
     if:
@@ -273,7 +273,7 @@ composite_rules:
     desc: Write to /tmp, chmod, and
     conf: 0.93
     crit: suspicious
-    count_min: 3
+    count_min: 4
     any:
       - id: fs/write/file/ruby-file-write-tmp
       - id: fs/write/file/ruby-file-chmod
@@ -285,7 +285,7 @@ composite_rules:
     desc: Reverse shell connection
     conf: 0.90
     crit: suspicious
-    count_min: 2
+    count_min: 3
     any:
       - id: comm/socket/listen/ruby-tcp-socket
       - id: exec/command/shell/ruby-system

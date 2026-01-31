@@ -62,7 +62,7 @@ traits:
     conf: 0.9
     attack: "T1059.007"
     if:
-      type: ast_query
+      type: ast
       language: javascript
       query: |
         (call_expression
@@ -110,7 +110,7 @@ traits:
     crit: notable
     conf: 0.7
     if:
-      type: ast_query
+      type: ast
       language: javascript
       query: |
         (call_expression

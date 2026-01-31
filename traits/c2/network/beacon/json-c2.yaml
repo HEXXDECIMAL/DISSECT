@@ -82,10 +82,10 @@ composite_rules:
   # === JSON C2 Detection ===
   - id: json-c2-headers
     desc: JSON C2 communication headers
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1071.001"
-    count_min: 2
+    count_min: 3
     any:
       - id: json-content-type
       - id: json-charset-utf8
@@ -98,7 +98,7 @@ composite_rules:
     attack: "T1041"
     mbc: "B0030"
     file_types: [python, javascript]
-    count_min: 2
+    count_min: 3
     any:
       - id: json-data-post
       - id: base64-json-payload
@@ -108,11 +108,12 @@ composite_rules:
 
   - id: json-c2-protocol
     desc: JSON C2 communication protocol
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     attack: "T1071.001"
     mbc: "B0030"
     platforms: [all]
+    count_min: 2
     all:
       - id: json-c2-headers
       - id: json-exfiltration

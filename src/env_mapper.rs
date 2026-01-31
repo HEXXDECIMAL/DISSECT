@@ -448,7 +448,7 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Finding> {
             id: "anti-analysis/env/display_check".to_string(),
             desc: "Checks DISPLAY variable (potential sandbox detection)".to_string(),
             conf: 0.6,
-            crit: Criticality::Suspicious,
+            crit: Criticality::Notable,
             mbc: None,
             attack: Some("T1497".to_string()), // Virtualization/Sandbox Evasion
             evidence: display_vars
@@ -476,7 +476,7 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Finding> {
             id: "anti-analysis/env/ssh_check".to_string(),
             desc: "Checks SSH variables (remote session detection)".to_string(),
             conf: 0.7,
-            crit: Criticality::Suspicious,
+            crit: Criticality::Notable,
             mbc: None,
             attack: Some("T1497".to_string()), // Virtualization/Sandbox Evasion
             evidence: ssh_vars

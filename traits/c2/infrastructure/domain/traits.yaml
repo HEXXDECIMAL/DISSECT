@@ -54,7 +54,7 @@ traits:
 
   - id: hardcoded-domain-suspicious-pattern
     desc: "Hardcoded suspicious TLD domain pattern"
-    crit: suspicious
+    crit: notable
     conf: 0.85
     if:
       type: string
@@ -65,7 +65,7 @@ traits:
 
   - id: short-domain-url-pattern
     desc: "Very short domain in URL"
-    crit: suspicious
+    crit: notable
     conf: 0.8
     if:
       type: string
@@ -74,7 +74,7 @@ traits:
 
   - id: dynamic-dns-domain-pattern
     desc: "Dynamic DNS domain pattern"
-    crit: suspicious
+    crit: notable
     conf: 0.9
     if:
       type: string
@@ -315,16 +315,6 @@ traits:
     if:
       type: string
       regex: 'http://(internal|localhost|127\.0\.0\.1|10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[01]))[-a-zA-Z0-9.]*/(api|ping|health|status)'
-
-  # Hardcoded IP addresses
-  - id: hardcoded-ip
-    desc: Hardcoded IP address (potential C2)
-    crit: suspicious
-    conf: 0.85
-    attack: "T1071"
-    if:
-      type: string
-      regex: 'https?://\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}[:/]'
 
   # === Serverless function URLs (atomic) ===
   - id: aws-api-gateway
@@ -595,7 +585,7 @@ traits:
 composite_rules:
   - id: c2-domain
     desc: "Likely C2 domain (suspicious TLD"
-    crit: suspicious
+    crit: notable
     conf: 0.85
     count_min: 1
     any:

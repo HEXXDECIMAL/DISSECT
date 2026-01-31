@@ -135,9 +135,9 @@ traits:
     conf: 0.8
     for: [javascript, typescript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "eval"
+      type: ast
+      kind: call
+      exact: "eval"
 
   - id: dropper/js-staged-generator
     description: Uses a generator function to

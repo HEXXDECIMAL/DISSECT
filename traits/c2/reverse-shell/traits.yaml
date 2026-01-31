@@ -11,9 +11,9 @@ traits:
     conf: 0.8
     for: [python]
     if:
-      type: ast_pattern
-      node_type: call
-      pattern: ".connect("
+      type: ast
+      kind: call
+      exact: ".connect("
 
   - id: python-dup2
     desc: Python file descriptor duplication (os.dup2)
@@ -21,9 +21,9 @@ traits:
     conf: 0.85
     for: [python]
     if:
-      type: ast_pattern
-      node_type: call
-      pattern: "os.dup2"
+      type: ast
+      kind: call
+      exact: "os.dup2"
 
   - id: python-pty-spawn
     desc: Python PTY spawn (interactive shell)
@@ -31,8 +31,8 @@ traits:
     conf: 0.9
     for: [python]
     if:
-      type: ast_pattern
-      node_type: call
-      pattern: "pty.spawn"
+      type: ast
+      kind: call
+      exact: "pty.spawn"
 
 

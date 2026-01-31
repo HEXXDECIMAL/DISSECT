@@ -11,9 +11,9 @@ traits:
     attack: "T1070.004"
     for: [rust]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "fs::remove_file"
+      type: ast
+      kind: call
+      exact: "fs::remove_file"
 
   - id: fs-remove_dir
     desc: Delete directory
@@ -23,9 +23,9 @@ traits:
     attack: "T1070.004"
     for: [rust]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "fs::remove_dir"
+      type: ast
+      kind: call
+      exact: "fs::remove_dir"
 
   - id: fs-remove_dir_all
     desc: Recursive directory deletion
@@ -35,6 +35,6 @@ traits:
     attack: "T1070.004"
     for: [rust]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "fs::remove_dir_all"
+      type: ast
+      kind: call
+      exact: "fs::remove_dir_all"

@@ -29,9 +29,9 @@ traits:
     attack: "T1562.001"
     for: [c]
     if:
-      type: ast_pattern
-      node_type: assignment_expression
-      pattern: "*taint_mask_ptr = 0"
+      type: ast
+      kind: assignment
+      exact: "*taint_mask_ptr = 0"
 
   # === Log Sanitization Functions ===
   - id: filter-kmsg
@@ -282,7 +282,7 @@ traits:
     attack: "T1562.001"
     for: [c]
     if:
-      type: ast_query
+      type: ast
       language: c
       query: |
         (call_expression

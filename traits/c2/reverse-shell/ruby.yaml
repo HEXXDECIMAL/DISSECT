@@ -22,8 +22,8 @@ traits:
     conf: 0.7
     attack: "T1059"
     if:
-      type: ast_pattern
-      node_type: call
+      type: ast
+      kind: call
       exact: "TCPSocket.new"
 
   - id: spawn-sh
@@ -50,8 +50,8 @@ traits:
     conf: 0.7
     attack: "T1059"
     if:
-      type: ast_pattern
-      node_type: call
+      type: ast
+      kind: call
       exact: "IO.popen"
 
   - id: while-loop-cmd
@@ -60,10 +60,9 @@ traits:
     conf: 0.75
     attack: "T1059"
     if:
-      type: ast_pattern
-      node_type: while
-      pattern: "while.{0,50}gets|while.{0,50}sock"
-      regex: true
+      type: ast
+      node: while
+      regex: "while.{0,50}gets|while.{0,50}sock"
 
   - id: socket-gets
     desc: Socket gets call
@@ -71,10 +70,9 @@ traits:
     conf: 0.7
     attack: "T1059"
     if:
-      type: ast_pattern
-      node_type: call
-      pattern: "sock.gets|socket.gets"
-      regex: true
+      type: ast
+      kind: call
+      regex: "sock.gets|socket.gets"
 
   - id: copy-stream-socket
     desc: Copy stream to socket
@@ -82,10 +80,9 @@ traits:
     conf: 0.85
     attack: "T1059"
     if:
-      type: ast_pattern
-      node_type: call
-      pattern: "IO.copy_stream|copy_stream.{0,50}sock"
-      regex: true
+      type: ast
+      kind: call
+      regex: "IO.copy_stream|copy_stream.{0,50}sock"
 
   - id: open3-popen
     desc: Open3 popen call
@@ -102,8 +99,8 @@ traits:
     conf: 0.8
     attack: "T1059"
     if:
-      type: ast_pattern
-      node_type: call
+      type: ast
+      kind: call
       exact: "Open3.popen"
 
 composite_rules:

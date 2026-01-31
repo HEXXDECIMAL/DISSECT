@@ -11,9 +11,9 @@ traits:
     attack: "T1071.001"
     for: [php]
     if:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "curl_init"
+      type: ast
+      kind: call
+      exact: "curl_init"
 
   - id: exec
     desc: cURL request execution
@@ -23,9 +23,9 @@ traits:
     attack: "T1071.001"
     for: [php]
     if:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "curl_exec"
+      type: ast
+      kind: call
+      exact: "curl_exec"
 
   - id: setopt
     desc: cURL option configuration
@@ -33,9 +33,9 @@ traits:
     conf: 0.7
     for: [php]
     if:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "curl_setopt"
+      type: ast
+      kind: call
+      exact: "curl_setopt"
 
   - id: ssl-verify-disable
     desc: SSL certificate verification disabled (security
@@ -45,10 +45,9 @@ traits:
     attack: "T1553"
     for: [php]
     if:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "curl_setopt\\s*\\([^,]+,\\s*CURLOPT_SSL_VERIFYPEER\\s*,\\s*(false|0|FALSE)"
-      regex: true
+      type: ast
+      kind: call
+      regex: "curl_setopt\\s*\\([^,]+,\\s*CURLOPT_SSL_VERIFYPEER\\s*,\\s*(false|0|FALSE)"
 
   - id: ssl-host-disable
     desc: SSL host verification disabled (security
@@ -58,10 +57,9 @@ traits:
     attack: "T1553"
     for: [php]
     if:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "curl_setopt\\s*\\([^,]+,\\s*CURLOPT_SSL_VERIFYHOST\\s*,\\s*(0|false|FALSE)"
-      regex: true
+      type: ast
+      kind: call
+      regex: "curl_setopt\\s*\\([^,]+,\\s*CURLOPT_SSL_VERIFYHOST\\s*,\\s*(0|false|FALSE)"
 
   - id: follow-redirects
     desc: cURL follows HTTP redirects

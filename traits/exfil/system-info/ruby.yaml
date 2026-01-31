@@ -8,36 +8,6 @@ defaults:
   platforms: [all]
 
 traits:
-  # === Platform Check ===
-  - id: platform-fingerprint
-    desc: Platform fingerprinting check
-    crit: notable
-    conf: 0.75
-    attack: "T1082"
-    if:
-      type: string
-      regex: 'RUBY_PLATFORM.{0,50}include|RUBY_PLATFORM.{0,50}match|darwin|linux|mswin'
-
-  # === Socket Hostname ===
-  - id: socket-hostname
-    desc: Socket hostname discovery
-    crit: notable
-    conf: 0.70
-    attack: "T1082"
-    if:
-      type: string
-      regex: 'Socket\.gethostname|gethostname'
-
-  # === Socket IP Address ===
-  - id: socket-ip-address
-    desc: Socket IP address discovery
-    crit: notable
-    conf: 0.75
-    attack: "T1016"
-    if:
-      type: string
-      regex: 'Socket\.ip_address_list|ip_address_list|ipv4\?|ip_address'
-
   # === System Info Collection ===
   - id: system-info-collect
     desc: System information collection
@@ -56,7 +26,10 @@ traits:
     attack: "T1041"
     if:
       type: string
-      regex: 'http://[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+|https://[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+'
+      regex: 'https?://(?!(127\.0\.0\.1|localhost))[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+|https?://(?!(127\.0\.0\.1|localhost))[a-zA-Z0-9][-a-zA-Z0-9]*\.[a-zA-Z0-9][-a-zA-Z0-9]*'
+    not:
+      - "127.0.0.1"
+      - "localhost"
 
   # === JSON Data Encoding ===
   - id: json-data-encode
@@ -71,7 +44,7 @@ traits:
   # === Base64 JSON Encoding ===
   - id: base64-json-encode
     desc: Base64 encoded JSON data
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1027"
     if:
@@ -97,9 +70,9 @@ composite_rules:
     attack: "T1041"
     count_min: 4
     any:
-      - id: platform-fingerprint
-      - id: socket-hostname
-      - id: socket-ip-address
+      - id: os/sysinfo/platform-fingerprint
+      - id: os/sysinfo/socket-hostname
+      - id: os/sysinfo/socket-ip-address
       - id: system-info-collect
       - id: hardcoded-ip-exfil
       - id: base64-json-encode
@@ -113,7 +86,7 @@ composite_rules:
     attack: "T1059"
     count_min: 3
     any:
-      - id: platform-fingerprint
+      - id: os/sysinfo/platform-fingerprint
       - id: rakefile-payload
       - id: system-info-collect
       - id: comm/http/request/ruby-http-get-response

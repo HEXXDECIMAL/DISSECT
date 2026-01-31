@@ -4,7 +4,7 @@
 traits:
   - id: ipify
     desc: ipify.org IP lookup service
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1016.001"
     for: [all]
@@ -24,7 +24,7 @@ traits:
 
   - id: ifconfig-me
     desc: ifconfig.me IP lookup service
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1016.001"
     for: [all]
@@ -34,7 +34,7 @@ traits:
 
   - id: icanhazip
     desc: icanhazip.com IP lookup service
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1016.001"
     for: [all]
@@ -44,7 +44,7 @@ traits:
 
   - id: wtfismyip
     desc: wtfismyip.com IP lookup service
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1016.001"
     for: [all]
@@ -64,7 +64,7 @@ traits:
 
   - id: ifconfig-io
     desc: ifconfig.io IP lookup service
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1016.001"
     for: [all]
@@ -74,7 +74,7 @@ traits:
 
   - id: ifconfig-co
     desc: ifconfig.co IP lookup service
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1016.001"
     for: [all]
@@ -84,7 +84,7 @@ traits:
 
   - id: ident-me
     desc: ident.me IP lookup service
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1016.001"
     for: [all]
@@ -94,7 +94,7 @@ traits:
 
   - id: checkip-amazonaws
     desc: AWS checkip service
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1016.001"
     for: [all]

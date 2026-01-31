@@ -9,9 +9,9 @@ traits:
     attack: "T1620"
     conf: 0.95
     if:
-      type: ast_pattern
-      node_type: invocation_expression
-      pattern: "Assembly.Load"
+      type: ast
+      kind: call
+      exact: "Assembly.Load"
     for: [csharp]
 
   - id: assembly-load-file
@@ -21,9 +21,9 @@ traits:
     attack: "T1620"
     conf: 0.95
     if:
-      type: ast_pattern
-      node_type: invocation_expression
-      pattern: "Assembly.LoadFile"
+      type: ast
+      kind: call
+      exact: "Assembly.LoadFile"
     for: [csharp]
 
   - id: activator-create
@@ -33,9 +33,9 @@ traits:
     attack: "T1620"
     conf: 0.9
     if:
-      type: ast_pattern
-      node_type: invocation_expression
-      pattern: "Activator.CreateInstance"
+      type: ast
+      kind: call
+      exact: "Activator.CreateInstance"
     for: [csharp]
 
   - id: method-invoke
@@ -45,9 +45,9 @@ traits:
     attack: "T1620"
     conf: 0.95
     if:
-      type: ast_pattern
-      node_type: invocation_expression
-      pattern: ".Invoke("
+      type: ast
+      kind: call
+      exact: ".Invoke("
     for: [csharp]
 
   - id: get-method
@@ -56,9 +56,9 @@ traits:
     mbc: "F0004"
     conf: 0.75
     if:
-      type: ast_pattern
-      node_type: invocation_expression
-      pattern: "GetMethod"
+      type: ast
+      kind: call
+      exact: "GetMethod"
     for: [csharp]
 
   - id: get-type
@@ -67,9 +67,9 @@ traits:
     mbc: "F0004"
     conf: 0.75
     if:
-      type: ast_pattern
-      node_type: invocation_expression
-      pattern: "GetType"
+      type: ast
+      kind: call
+      exact: "GetType"
     for: [csharp]
 
   - id: marshal
@@ -78,9 +78,9 @@ traits:
     mbc: "F0004"
     conf: 0.8
     if:
-      type: ast_pattern
-      node_type: invocation_expression
-      pattern: "Marshal."
+      type: ast
+      kind: call
+      exact: "Marshal."
     for: [csharp]
 
   - id: dllimport
@@ -90,7 +90,7 @@ traits:
     attack: "T1106"
     conf: 0.9
     if:
-      type: ast_pattern
-      node_type: attribute
-      pattern: "DllImport"
+      type: ast
+      kind: attribute
+      exact: "DllImport"
     for: [csharp]

@@ -104,39 +104,6 @@ traits:
       type: string
       regex: "rmdir.{0,30}(/s|/q)"
 
-  # === Iteration/loop atomic indicators ===
-  - id: for-loop
-    description: for loop pattern
-    crit: benign
-    conf: 0.3
-    if:
-      type: string
-      word: "for"
-
-  - id: while-loop
-    description: while loop pattern
-    crit: benign
-    conf: 0.3
-    if:
-      type: string
-      word: "while"
-
-  - id: os-walk
-    description: os.walk iteration
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      exact: "os.walk"
-
-  - id: glob-pattern
-    description: glob module pattern
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      regex: "glob\\."
-
   # === System directory atomic indicators ===
   - id: windows-dir-ref
     description: Windows directory reference
@@ -189,17 +156,6 @@ composite_rules:
       - id: rm-rf-cmd
       - id: rmdir-recursive
 
-  - id: iteration-loop-pattern
-    description: "Iteration or loop pattern"
-    crit: inert
-    conf: 0.5
-    count_min: 1
-    any:
-      - id: for-loop
-      - id: while-loop
-      - id: os-walk
-      - id: glob-pattern
-
   # NOTE: Go and many legitimate programs reference /etc, /usr, etc.
   # These are too generic on their own - downgraded to inert.
   - id: system-dir-reference
@@ -220,5 +176,5 @@ composite_rules:
     conf: 0.95
     all:
       - id: recursive-delete-cmd
-      - id: iteration-loop-pattern
+      - id: data/control-flow/iteration-loop-pattern
       - id: system-dir-reference

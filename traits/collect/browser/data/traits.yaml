@@ -12,9 +12,9 @@ traits:
     platforms: [all]
     for: [javascript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "localStorage.get"
+      type: ast
+      kind: call
+      exact: "localStorage.get"
 
   - id: localstorage-set
     desc: Browser localStorage write
@@ -24,9 +24,9 @@ traits:
     platforms: [all]
     for: [javascript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "localStorage.set"
+      type: ast
+      kind: call
+      exact: "localStorage.set"
 
   # === Atomic: IndexedDB ===
 
@@ -38,9 +38,9 @@ traits:
     platforms: [all]
     for: [javascript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "indexedDB"
+      type: ast
+      kind: call
+      exact: "indexedDB"
 
   # === Atomic: Analytics ===
 

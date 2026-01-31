@@ -38,64 +38,6 @@ traits:
       type: string
       exact: "crontab -"
 
-  # Download tools
-  - id: curl-space
-    desc: curl command with space
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      exact: "curl "
-
-  - id: wget-space
-    desc: wget command with space
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      exact: "wget "
-
-  - id: pipe-bash
-    desc: Pipe to bash
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      exact: "| bash"
-
-  - id: pipe-sh
-    desc: Pipe to sh
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      exact: "| sh"
-
-  # Frequent execution patterns
-  - id: every-minute
-    desc: Every minute cron schedule
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      exact: "* * * * *"
-
-  - id: every-5-minutes
-    desc: Every 5 minutes cron schedule
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      exact: "*/5 * * * *"
-
-  - id: at-reboot
-    desc: "@reboot cron shortcut"
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      exact: "@reboot"
-
   # Download cradles
   - id: curl-silent
     desc: curl -s (silent mode)
@@ -120,32 +62,6 @@ traits:
     if:
       type: string
       exact: "wget -O -"
-
-  # Shell pipes
-  - id: pipe-bin-sh
-    desc: Pipe to /bin/sh
-    crit: inert
-    conf: 0.6
-    if:
-      type: string
-      exact: "| /bin/sh"
-
-  # Output suppression
-  - id: redirect-dev-null
-    desc: Redirect to /dev/null
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      exact: ">/dev/null"
-
-  - id: stderr-redirect
-    desc: Stderr redirect 2>&1
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      exact: "2>&1"
 
   # Base64 decode
   - id: base64-d
@@ -223,14 +139,6 @@ composite_rules:
       - id: curl-space
       - id: wget-space
 
-  # Helper: Shell pipes
-  - id: shell-pipes
-    desc: Pipe to shell interpreters
-    any:
-      - id: pipe-bash
-      - id: pipe-sh
-      - id: pipe-bin-sh
-
   # Helper: Frequent schedules
   - id: frequent-schedules
     desc: Frequent cron execution schedules
@@ -246,13 +154,6 @@ composite_rules:
       - id: curl-silent
       - id: wget-quiet
       - id: wget-stdout
-
-  # Helper: Output suppression
-  - id: output-suppression
-    desc: Output/error suppression
-    any:
-      - id: redirect-dev-null
-      - id: stderr-redirect
 
   # Helper: Base64 decoding
   - id: base64-decode
@@ -282,7 +183,7 @@ composite_rules:
     all:
       - id: cron-paths
       - id: download-commands
-      - id: shell-pipes
+      - id: os/console/shell-pipes
 
   # Helper: Cron with frequent execution and download
   - id: cron-frequent-download
@@ -306,14 +207,14 @@ composite_rules:
     desc: Download cradle piped to shell
     all:
       - id: download-cradles
-      - id: shell-pipes
+      - id: os/console/shell-pipes
 
   # Helper: Download cradle with suppression
   - id: cradle-with-suppression
     desc: Download cradle with output suppression
     all:
       - id: download-cradles
-      - id: output-suppression
+      - id: os/console/output-suppression
 
   # Helper: Cron with base64
   - id: cron-with-base64

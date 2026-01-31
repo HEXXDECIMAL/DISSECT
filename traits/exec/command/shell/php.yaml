@@ -13,73 +13,71 @@ traits:
     desc: Shell command execution via exec()
     conf: 0.95
     if:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "exec"
+      type: ast
+      kind: call
+      exact: "exec"
 
   - id: shell-exec
     desc: Shell command execution via shell_exec()
     conf: 0.95
     if:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "shell_exec"
+      type: ast
+      kind: call
+      exact: "shell_exec"
 
   - id: system
     desc: Shell command execution via system()
     conf: 0.95
     if:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "system"
+      type: ast
+      kind: call
+      exact: "system"
 
   - id: passthru
     desc: Shell command execution via passthru()
     conf: 0.95
     if:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "passthru"
+      type: ast
+      kind: call
+      exact: "passthru"
 
   - id: popen
     desc: Process open via popen()
     conf: 0.9
     if:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "popen"
+      type: ast
+      kind: call
+      exact: "popen"
 
   - id: proc-open
     desc: Process execution via proc_open()
     conf: 0.9
     if:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "proc_open"
+      type: ast
+      kind: call
+      exact: "proc_open"
 
   - id: pcntl-exec
     desc: Direct process execution via pcntl_exec()
     conf: 0.95
     attack: "T1059"  # Override: generic T1059 instead of T1059.004
     if:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "pcntl_exec"
+      type: ast
+      kind: call
+      exact: "pcntl_exec"
 
   - id: backtick
     desc: Shell command execution via backticks
     conf: 0.9
     if:
-      type: ast_pattern
-      node_type: shell_command_expression
-      pattern: ".{0,500}"
-      regex: true
+      type: ast
+      node: shell_command_expression
+      regex: ".{0,500}"
 
   - id: exec-user-input
     desc: Command execution with user input
     conf: 0.9
     if:
-      type: ast_pattern
-      node_type: function_call_expression
-      pattern: "(exec|system|shell_exec|passthru|popen)\\s*\\([^)]*\\$_(GET|POST|REQUEST)"
-      regex: true
+      type: ast
+      kind: call
+      regex: "(exec|system|shell_exec|passthru|popen)\\s*\\([^)]*\\$_(GET|POST|REQUEST)"

@@ -2,26 +2,6 @@
 # ATT&CK: T1204 (User Execution)
 
 traits:
-  - id: infected-marker
-    description: References being infected
-    crit: suspicious
-    conf: 0.7
-    attack: "T1204"
-    for: [all]
-    if:
-      type: string
-      regex: "(?i)\\binfected\\b"
-
-  - id: infection-marker
-    description: References infection
-    crit: suspicious
-    conf: 0.7
-    attack: "T1204"
-    for: [all]
-    if:
-      type: string
-      exact: "infection"
-
   - id: infected-with
     description: Infection notification pattern
     crit: suspicious
@@ -31,36 +11,6 @@ traits:
     if:
       type: string
       regex: ".{3,16} infected with .{3,16}"
-
-  - id: virus-marker
-    description: Virus reference
-    crit: suspicious
-    conf: 0.7
-    attack: "T1204"
-    for: [all]
-    if:
-      type: string
-      regex: "(?i)\\bvirus\\b"
-
-  - id: worm-marker
-    description: Worm malware type reference in
-    crit: suspicious
-    conf: 0.7
-    attack: "T1204"
-    for: [all]
-    if:
-      type: string
-      regex: "(?i)\\bworm\\b"
-
-  - id: trojan-marker
-    description: Trojan reference
-    crit: suspicious
-    conf: 0.7
-    attack: "T1204"
-    for: [all]
-    if:
-      type: string
-      regex: "(?i)\\btrojan\\b"
 
   - id: elf-infector-yara
     description: ELF file infector pattern via

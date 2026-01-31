@@ -7,9 +7,9 @@ traits:
     crit: inert
     conf: 0.8
     if:
-      type: ast_pattern
-      node_type: identifier
-      pattern: "SqlCommand"
+      type: ast
+      kind: identifier
+      exact: "SqlCommand"
     for: [csharp]
 
   - id: sqlconnection
@@ -17,9 +17,9 @@ traits:
     crit: inert
     conf: 0.8
     if:
-      type: ast_pattern
-      node_type: identifier
-      pattern: "SqlConnection"
+      type: ast
+      kind: identifier
+      exact: "SqlConnection"
     for: [csharp]
 
   - id: sqldatareader
@@ -27,9 +27,9 @@ traits:
     crit: inert
     conf: 0.7
     if:
-      type: ast_pattern
-      node_type: identifier
-      pattern: "SqlDataReader"
+      type: ast
+      kind: identifier
+      exact: "SqlDataReader"
     for: [csharp]
 
   - id: extension-method
@@ -37,7 +37,7 @@ traits:
     crit: inert
     conf: 0.7
     if:
-      type: ast_pattern
-      node_type: parameter
-      pattern: "this SqlCommand"
+      type: ast
+      node: parameter
+      exact: "this SqlCommand"
     for: [csharp]

@@ -28,16 +28,6 @@ traits:
       type: string
       regex: '__session|HTTP_COOKIE.{0,50}match'
 
-  # === Signature Verification ===
-  - id: signature-verify
-    desc: Digital signature verification
-    crit: inert
-    conf: 0.85
-    attack: "T1027"
-    if:
-      type: string
-      regex: '.verify\(|OpenSSL::Digest|sha256'
-
   # === JSON Parse ===
   - id: json-parse
     desc: JSON parsing
@@ -129,7 +119,7 @@ composite_rules:
     any:
       - id: rsa-public-key
       - id: cookie-session-extract
-      - id: signature-verify
+      - id: crypto/verification/signature-verify
       - id: json-parse
       - id: timestamp-validation
       - id: c2/web-framework/rack-sendfile-hook

@@ -55,16 +55,15 @@ composite_rules:
     // Run dissect pointing to the temp traits directory
     // We need to set the working directory so it finds "traits"
     // Allow inline primitives since these tests are testing criticality downgrading, not inline validation
+    // Warnings are now fatal, so this should fail with exit code 1
     assert_cmd::cargo_bin_cmd!("dissect")
         .current_dir(temp_dir.path())
         .env("DISSECT_ALLOW_INLINE_PRIMITIVES", "1")
         .args(["analyze", target_file.to_str().unwrap()])
         .assert()
-        .success()
-        .stderr(predicate::str::contains("Downgrading to SUSPICIOUS").count(3))
-        .stderr(predicate::str::contains("lacks an MBC or MITRE ATT&CK mapping").count(0))
-        .stderr(predicate::str::contains("overly short description"))
-        .stderr(predicate::str::contains("targets all platforms and file types").count(0))
+        .failure()
+        .stderr(predicate::str::contains("FATAL"))
+        .stderr(predicate::str::contains("trait configuration warning"))
         .stderr(predicate::str::contains("hostile/atomic"))
         .stderr(predicate::str::contains("hostile/weak-composite"))
         .stderr(predicate::str::contains("hostile/no-filter"));

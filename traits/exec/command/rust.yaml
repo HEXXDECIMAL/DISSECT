@@ -11,9 +11,9 @@ traits:
     attack: "T1059"
     for: [rust]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: ".spawn()"
+      type: ast
+      kind: call
+      exact: ".spawn()"
 
   - id: rust-async-process
     desc: Executes process using async-process
@@ -23,6 +23,6 @@ traits:
     attack: "T1059"
     for: [rust]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "Command::new"
+      type: ast
+      kind: call
+      exact: "Command::new"

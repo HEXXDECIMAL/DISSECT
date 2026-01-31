@@ -11,9 +11,9 @@ traits:
     attack: "T1070.004"
     for: [javascript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "fs.unlink"
+      type: ast
+      kind: call
+      exact: "fs.unlink"
 
   - id: fs-unlinkSync
     desc: Delete file synchronously
@@ -23,9 +23,9 @@ traits:
     attack: "T1070.004"
     for: [javascript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "fs.unlinkSync"
+      type: ast
+      kind: call
+      exact: "fs.unlinkSync"
 
   - id: fs-rm
     desc: Delete file or directory (fs.rm)
@@ -35,9 +35,9 @@ traits:
     attack: "T1070.004"
     for: [javascript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "fs.rm"
+      type: ast
+      kind: call
+      exact: "fs.rm"
 
   - id: fs-rmSync
     desc: Delete file or directory synchronously
@@ -47,9 +47,9 @@ traits:
     attack: "T1070.004"
     for: [javascript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "fs.rmSync"
+      type: ast
+      kind: call
+      exact: "fs.rmSync"
 
   - id: fs-rmdir
     desc: Delete empty directory
@@ -59,9 +59,9 @@ traits:
     attack: "T1070.004"
     for: [javascript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "fs.rmdir"
+      type: ast
+      kind: call
+      exact: "fs.rmdir"
 
   - id: promises-unlink
     desc: Delete file (promises API)
@@ -71,6 +71,6 @@ traits:
     attack: "T1070.004"
     for: [javascript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "promises.unlink"
+      type: ast
+      kind: call
+      exact: "promises.unlink"

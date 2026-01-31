@@ -59,30 +59,6 @@ traits:
       type: string
       regex: "(?i)master boot record"
 
-  - id: dev-sda
-    description: /dev/sda device
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      exact: "/dev/sda"
-
-  - id: dev-hda
-    description: /dev/hda device
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      exact: "/dev/hda"
-
-  - id: dev-nvme
-    description: /dev/nvme device
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      exact: "/dev/nvme"
-
   - id: physicaldrive
     description: PhysicalDrive reference
     crit: notable
@@ -94,11 +70,11 @@ traits:
 composite_rules:
   - id: disk-terms
     description: Disk wiper terminology
-    crit: suspicious
+    crit: notable
     conf: 0.75
     mbc: "E1561"
     attack: "T1561"
-    count_min: 1
+    count_min: 2
     any:
       - id: wipe-disk
       - id: wipe-drive
@@ -107,7 +83,7 @@ composite_rules:
       - id: mbr-ref
       - id: boot-sector
       - id: master-boot-record
-      - id: dev-sda
-      - id: dev-hda
-      - id: dev-nvme
+      - id: fs/path/device/dev-sda
+      - id: fs/path/device/dev-hda
+      - id: fs/path/device/dev-nvme
       - id: physicaldrive

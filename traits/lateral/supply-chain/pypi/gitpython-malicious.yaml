@@ -45,14 +45,6 @@ traits:
       regex: "install.{0,50}clone|clone.{0,50}install|setup.{0,50}clone"
 
   # === Suspicious Repo Names ===
-  - id: suspicious-repo-name
-    desc: Suspicious repository name
-    crit: suspicious
-    conf: 0.75
-    if:
-      type: string
-      regex: "(grabber|stealer|logger|rat|backdoor|trojan)"
-
   - id: obfuscated-repo-name
     desc: Obfuscated repository name
     crit: suspicious
@@ -90,7 +82,7 @@ composite_rules:
     any:
       - id: git-clone-url
       - id: git-clone-in-setup
-      - id: suspicious-repo-name
+      - id: data/text/malware/suspicious-repo-name
     all:
       - id: gitpython-import
 

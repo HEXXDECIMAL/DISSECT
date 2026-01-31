@@ -16,9 +16,9 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: ast_pattern
-      node_type: call
-      pattern: "\\.clone\\("
+      type: ast
+      kind: call
+      exact: "\\.clone\\("
       count_min: 2
 
   # === AST Pattern: GitPython Clone ===
@@ -27,9 +27,9 @@ traits:
     crit: notable
     conf: 0.75
     if:
-      type: ast_pattern
-      node_type: call
-      pattern: "Git\\("
+      type: ast
+      kind: call
+      exact: "Git\\("
 
   # === AST Pattern: Clone with Variable ===
   - id: ast-clone-with-variable
@@ -37,9 +37,9 @@ traits:
     crit: notable
     conf: 0.70
     if:
-      type: ast_pattern
-      node_type: call
-      pattern: "clone\\(repoDirectory|clone\\(gitUrl"
+      type: ast
+      kind: call
+      exact: "clone\\(repoDirectory|clone\\(gitUrl"
 
   # === AST Pattern: os.startfile after operations ===
   - id: ast-startfile-after-ops
@@ -47,9 +47,9 @@ traits:
     crit: suspicious
     conf: 0.85
     if:
-      type: ast_pattern
-      node_type: call
-      pattern: "startfile\\("
+      type: ast
+      kind: call
+      exact: "startfile\\("
 
   # === AST Pattern: Import inside method ===
   - id: ast-import-in-run-method
@@ -57,9 +57,9 @@ traits:
     crit: suspicious
     conf: 0.80
     if:
-      type: ast_pattern
-      node_type: function_definition
-      pattern: "def run\\(self\\):"
+      type: ast
+      kind: function
+      exact: "def run\\(self\\):"
 
   # === AST Pattern: Method with multiple calls ===
   - id: ast-method-with-clone-and-startfile
@@ -67,9 +67,9 @@ traits:
     crit: suspicious
     conf: 0.90
     if:
-      type: ast_pattern
-      node_type: function_definition
-      pattern: "def run"
+      type: ast
+      kind: function
+      exact: "def run"
 
   # === AST Pattern: Environment assignment ===
   - id: ast-environ-assignment
@@ -77,9 +77,9 @@ traits:
     crit: notable
     conf: 0.70
     if:
-      type: ast_pattern
-      node_type: assignment
-      pattern: "os\\.environ"
+      type: ast
+      kind: assignment
+      exact: "os\\.environ"
 
   # === AST Pattern: cmdclass in setup ===
   - id: ast-cmdclass-in-setup
@@ -87,9 +87,9 @@ traits:
     crit: suspicious
     conf: 0.75
     if:
-      type: ast_pattern
-      node_type: call
-      pattern: "setup\\(.{0,50}cmdclass"
+      type: ast
+      kind: call
+      exact: "setup\\(.{0,50}cmdclass"
 
 composite_rules:
   # === Multi-Stage Payload Detection ===

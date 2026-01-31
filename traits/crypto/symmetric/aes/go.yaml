@@ -13,9 +13,9 @@ traits:
     conf: 0.9
     for: [go]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "aes.NewCipher"
+      type: ast
+      kind: call
+      exact: "aes.NewCipher"
 
   - id: go-cfb-encrypter
     desc: Creates a new AES-CFB encrypter
@@ -23,9 +23,9 @@ traits:
     conf: 0.9
     for: [go]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "cipher.NewCFBEncrypter"
+      type: ast
+      kind: call
+      exact: "cipher.NewCFBEncrypter"
 
   # String-based detection (compiled binaries)
   - id: go-new-cipher-string

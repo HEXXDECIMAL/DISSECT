@@ -10,7 +10,9 @@
 //! - `context`: Evaluation context and result types
 //! - `evaluators`: Condition evaluation functions
 //! - `traits`: TraitDefinition and CompositeTrait structs
+//! - `ast_kinds`: Abstract AST kind to tree-sitter node type mapping
 
+pub mod ast_kinds;
 pub mod condition;
 pub mod context;
 pub mod evaluators;

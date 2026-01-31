@@ -8,9 +8,9 @@ traits:
     conf: 1.0
     for: [rust]
     if:
-      type: ast_pattern
-      node_type: macro_invocation
-      pattern: "asm!"
+      type: ast
+      node: macro_invocation
+      exact: "asm!"
 
   - id: global-macro
     desc: Global inline assembly macro
@@ -18,6 +18,6 @@ traits:
     conf: 1.0
     for: [rust]
     if:
-      type: ast_pattern
-      node_type: macro_invocation
-      pattern: "global_asm!"
+      type: ast
+      node: macro_invocation
+      exact: "global_asm!"

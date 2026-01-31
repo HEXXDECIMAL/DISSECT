@@ -67,6 +67,7 @@ traits:
     crit: suspicious
     conf: 0.9
     attack: "T1055"
+    file_types: [elf, pe, macho]
     if:
       type: metrics
       field: binary.wx_sections
@@ -77,6 +78,7 @@ traits:
     crit: suspicious
     conf: 0.95
     attack: "T1045"
+    file_types: [elf, pe, macho]
     if:
       type: metrics
       field: binary.wx_sections
@@ -384,6 +386,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     attack: "T1045"
+    file_types: [elf, pe, macho]
     count_min: 2
     any:
       - id: anti-static/obfuscation/binary-metrics/high-overall-entropy
@@ -396,6 +399,7 @@ composite_rules:
     crit: hostile
     conf: 0.95
     attack: "T1045"
+    file_types: [elf, pe, macho]
     count_min: 3
     any:
       - id: anti-static/obfuscation/binary-metrics/very-high-entropy
@@ -418,6 +422,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     attack: "T1045"
+    file_types: [elf, pe, macho]
     count_min: 2
     any:
       - id: anti-static/obfuscation/binary-metrics/high-section-name-entropy

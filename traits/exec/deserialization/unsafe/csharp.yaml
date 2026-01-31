@@ -10,6 +10,6 @@ traits:
     conf: 0.95
     for: [csharp]
     if:
-      type: ast_pattern
-      node_type: object_creation_expression
-      pattern: "BinaryFormatter"
+      type: ast
+      node: object_creation_expression
+      exact: "BinaryFormatter"

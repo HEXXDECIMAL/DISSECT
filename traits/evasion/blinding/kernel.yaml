@@ -122,10 +122,9 @@ traits:
     attack: "T1562.001"
     for: [c]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "HOOK(.{0,50}integrity|.{0,50}exploit|.{0,50}pcfi)"
-      regex: true
+      type: ast
+      kind: call
+      regex: "HOOK(.{0,50}integrity|.{0,50}exploit|.{0,50}pcfi)"
 
 composite_rules:
   # LKRG blinding (migrated from YARA)

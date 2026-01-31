@@ -13,9 +13,9 @@ traits:
     crit: notable
     conf: 0.8
     if:
-      type: ast_pattern
-      node_type: call
-      pattern: "os.fork"
+      type: ast
+      kind: call
+      exact: "os.fork"
 
   # multiprocessing.Process - legitimate parallel processing
   - id: multiprocessing

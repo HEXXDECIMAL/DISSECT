@@ -20,9 +20,9 @@ traits:
     conf: 0.8
     for: [javascript, typescript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "createContext"
+      type: ast
+      kind: call
+      exact: "createContext"
 
   - id: vm-runInContext
     desc: VM runInContext (execute code in
@@ -32,9 +32,9 @@ traits:
     attack: "T1059"
     for: [javascript, typescript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "runInContext"
+      type: ast
+      kind: call
+      exact: "runInContext"
 
   - id: vm-runInNewContext
     desc: VM runInNewContext (execute in isolated
@@ -44,9 +44,9 @@ traits:
     attack: "T1059"
     for: [javascript, typescript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "runInNewContext"
+      type: ast
+      kind: call
+      exact: "runInNewContext"
 
   - id: vm-runInThisContext
     desc: VM runInThisContext (execute in current
@@ -55,9 +55,9 @@ traits:
     attack: "T1059"
     for: [javascript, typescript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "runInThisContext"
+      type: ast
+      kind: call
+      exact: "runInThisContext"
 
   - id: vm-Script
     desc: VM Script compilation

@@ -51,9 +51,9 @@ traits:
     conf: 0.8
     for: [javascript, typescript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "axios.get"
+      type: ast
+      kind: call
+      exact: "axios.get"
 
   - id: axios-post-call
     desc: axios.post() HTTP POST request
@@ -61,9 +61,9 @@ traits:
     conf: 0.8
     for: [javascript, typescript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "axios.post"
+      type: ast
+      kind: call
+      exact: "axios.post"
 
   - id: axios-put-call
     desc: axios.put() HTTP PUT request
@@ -71,9 +71,9 @@ traits:
     conf: 0.8
     for: [javascript, typescript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "axios.put"
+      type: ast
+      kind: call
+      exact: "axios.put"
 
   - id: axios-delete-call
     desc: axios.delete() HTTP DELETE request
@@ -81,9 +81,9 @@ traits:
     conf: 0.8
     for: [javascript, typescript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "axios.delete"
+      type: ast
+      kind: call
+      exact: "axios.delete"
 
   - id: axios-patch-call
     desc: axios.patch() HTTP PATCH request
@@ -91,9 +91,9 @@ traits:
     conf: 0.8
     for: [javascript, typescript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "axios.patch"
+      type: ast
+      kind: call
+      exact: "axios.patch"
 
   - id: axios-head-call
     desc: axios.head() HTTP HEAD request
@@ -101,9 +101,9 @@ traits:
     conf: 0.8
     for: [javascript, typescript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "axios.head"
+      type: ast
+      kind: call
+      exact: "axios.head"
 
   - id: axios-options-call
     desc: axios.options() HTTP OPTIONS request
@@ -111,9 +111,9 @@ traits:
     conf: 0.8
     for: [javascript, typescript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "axios.options"
+      type: ast
+      kind: call
+      exact: "axios.options"
 
   - id: axios-request-call
     desc: axios.request() generic HTTP request
@@ -121,9 +121,9 @@ traits:
     conf: 0.8
     for: [javascript, typescript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "axios.request"
+      type: ast
+      kind: call
+      exact: "axios.request"
 
   - id: axios-direct-call
     desc: axios() direct call
@@ -131,9 +131,9 @@ traits:
     conf: 0.75
     for: [javascript, typescript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "axios"
+      type: ast
+      kind: call
+      exact: "axios"
 
   # === Node.js built-in modules ===
   - id: http-request
@@ -179,9 +179,9 @@ traits:
     conf: 0.8
     for: [javascript, typescript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "fetch"
+      type: ast
+      kind: call
+      exact: "fetch"
 
   - id: fetch-string
     desc: fetch( string reference

@@ -208,7 +208,7 @@ composite_rules:
 
   - id: headers-useragent-fake
     desc: Fake or suspicious User-Agent
-    crit: suspicious
+    crit: notable
     conf: 0.66
     count_min: 1
     any:

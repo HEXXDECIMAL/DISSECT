@@ -6,9 +6,9 @@ traits:
     confidence: 0.85
     file_types: [javascript, typescript]
     condition:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "workspace.findFiles"
+      type: ast
+      kind: call
+      exact: "workspace.findFiles"
 
   - id: fs-readFile
     description: VSCode workspace.fs.readFile API call (file
@@ -16,9 +16,9 @@ traits:
     confidence: 0.85
     file_types: [javascript, typescript]
     condition:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "workspace.fs.readFile"
+      type: ast
+      kind: call
+      exact: "workspace.fs.readFile"
 
   - id: openTextDocument
     description: VSCode workspace.openTextDocument API call
@@ -26,9 +26,9 @@ traits:
     confidence: 0.8
     file_types: [javascript, typescript]
     condition:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "openTextDocument"
+      type: ast
+      kind: call
+      exact: "openTextDocument"
 
   - id: globalState
     description: VSCode extension globalState access
@@ -139,9 +139,9 @@ traits:
     confidence: 0.8
     file_types: [javascript, typescript]
     condition:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "clipboard.writeText"
+      type: ast
+      kind: call
+      exact: "clipboard.writeText"
 
   - id: clipboard-read
     description: VSCode clipboard read access
@@ -149,9 +149,9 @@ traits:
     confidence: 0.8
     file_types: [javascript, typescript]
     condition:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "clipboard.readText"
+      type: ast
+      kind: call
+      exact: "clipboard.readText"
 
   - id: telemetry-event
     description: VSCode telemetry event sending

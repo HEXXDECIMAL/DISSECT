@@ -23,7 +23,7 @@ traits:
   # === User-Agent Rotation ===
   - id: ua-list-large
     desc: Large list of browser User-Agents
-    crit: suspicious
+    crit: notable
     conf: 0.8
     if:
       type: string

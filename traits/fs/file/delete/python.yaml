@@ -11,9 +11,9 @@ traits:
     attack: "T1070.004"
     for: [python]
     if:
-      type: ast_pattern
-      node_type: call
-      pattern: "os.remove"
+      type: ast
+      kind: call
+      exact: "os.remove"
 
   - id: os-unlink
     desc: Deletes file via os.unlink
@@ -23,9 +23,9 @@ traits:
     attack: "T1070.004"
     for: [python]
     if:
-      type: ast_pattern
-      node_type: call
-      pattern: "os.unlink"
+      type: ast
+      kind: call
+      exact: "os.unlink"
 
   - id: shutil-rmtree
     desc: Deletes directory recursively via shutil.rmtree
@@ -35,9 +35,9 @@ traits:
     attack: "T1070.004"
     for: [python]
     if:
-      type: ast_pattern
-      node_type: call
-      pattern: "shutil.rmtree"
+      type: ast
+      kind: call
+      exact: "shutil.rmtree"
 
   - id: pathlib-unlink
     desc: Deletes file via pathlib.unlink
@@ -47,6 +47,6 @@ traits:
     attack: "T1070.004"
     for: [python]
     if:
-      type: ast_pattern
-      node_type: call
-      pattern: ".unlink("
+      type: ast
+      kind: call
+      exact: ".unlink("

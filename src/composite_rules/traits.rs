@@ -6,11 +6,11 @@
 use super::condition::{Condition, NotException};
 use super::context::{ConditionResult, EvaluationContext, StringParams};
 use super::evaluators::{
-    eval_ast_pattern, eval_ast_query, eval_base64, eval_exports_count, eval_filesize, eval_hex,
-    eval_import_combination, eval_imports_count, eval_metrics, eval_raw, eval_section_entropy,
-    eval_section_name, eval_section_ratio, eval_string, eval_string_count, eval_structure,
-    eval_symbol, eval_syscall, eval_trait, eval_trait_glob, eval_xor, eval_yara_inline,
-    eval_yara_match,
+    eval_ast, eval_ast_pattern, eval_ast_query, eval_base64, eval_exports_count, eval_filesize,
+    eval_hex, eval_import_combination, eval_imports_count, eval_metrics, eval_raw,
+    eval_section_entropy, eval_section_name, eval_section_ratio, eval_string, eval_string_count,
+    eval_structure, eval_symbol, eval_syscall, eval_trait, eval_trait_glob, eval_xor,
+    eval_yara_inline, eval_yara_match,
 };
 use super::types::{default_file_types, default_platforms, FileType, Platform};
 use crate::types::{Criticality, Evidence, Finding, FindingKind};
@@ -339,6 +339,23 @@ impl TraitDefinition {
                 case_insensitive,
             } => eval_ast_pattern(node_type, exact, *regex, *case_insensitive, ctx),
             Condition::AstQuery { query, .. } => eval_ast_query(query, ctx),
+            Condition::Ast {
+                kind,
+                node,
+                exact,
+                regex,
+                query,
+                case_insensitive,
+                ..
+            } => eval_ast(
+                kind.as_deref(),
+                node.as_deref(),
+                exact.as_deref(),
+                regex.as_deref(),
+                query.as_deref(),
+                *case_insensitive,
+                ctx,
+            ),
             Condition::Yara { source, compiled } => {
                 eval_yara_inline(source, compiled.as_ref(), ctx)
             }
@@ -857,6 +874,23 @@ impl CompositeTrait {
                 case_insensitive,
             } => eval_ast_pattern(node_type, exact, *regex, *case_insensitive, ctx),
             Condition::AstQuery { query, .. } => eval_ast_query(query, ctx),
+            Condition::Ast {
+                kind,
+                node,
+                exact,
+                regex,
+                query,
+                case_insensitive,
+                ..
+            } => eval_ast(
+                kind.as_deref(),
+                node.as_deref(),
+                exact.as_deref(),
+                regex.as_deref(),
+                query.as_deref(),
+                *case_insensitive,
+                ctx,
+            ),
             Condition::Yara { source, compiled } => {
                 eval_yara_inline(source, compiled.as_ref(), ctx)
             }

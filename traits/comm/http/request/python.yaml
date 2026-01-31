@@ -69,7 +69,7 @@ traits:
     conf: 0.8
     for: [python]
     if:
-      type: ast_query
+      type: ast
       language: python
       query: |
         (call

@@ -11,6 +11,6 @@ traits:
     attack: "T1140"
     for: [rust]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "DecoderReader::new"
+      type: ast
+      kind: call
+      exact: "DecoderReader::new"

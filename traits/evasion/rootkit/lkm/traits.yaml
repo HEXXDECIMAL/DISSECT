@@ -15,9 +15,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: preproc_include
-      pattern: "linux/module.h"
+      type: ast
+      kind: import
+      exact: "linux/module.h"
 
   - id: kernel-header
     desc: Linux kernel header
@@ -26,9 +26,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: preproc_include
-      pattern: "linux/kernel.h"
+      type: ast
+      kind: import
+      exact: "linux/kernel.h"
 
   - id: kernel-syscalls-header
     desc: Linux syscall definitions (syscall hooking)
@@ -37,9 +37,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: preproc_include
-      pattern: "linux/syscalls.h"
+      type: ast
+      kind: import
+      exact: "linux/syscalls.h"
 
   - id: kernel-dirent-header
     desc: Linux directory entry header (file
@@ -48,9 +48,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: preproc_include
-      pattern: "linux/dirent.h"
+      type: ast
+      kind: import
+      exact: "linux/dirent.h"
 
   - id: kernel-cred-header
     desc: Linux credentials header (privilege escalation)
@@ -59,9 +59,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: preproc_include
-      pattern: "linux/cred.h"
+      type: ast
+      kind: import
+      exact: "linux/cred.h"
 
   - id: kernel-kallsyms-header
     desc: Linux kallsyms header (kernel symbol
@@ -70,9 +70,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: preproc_include
-      pattern: "linux/kallsyms.h"
+      type: ast
+      kind: import
+      exact: "linux/kallsyms.h"
 
   - id: kernel-ftrace-header
     desc: Linux ftrace header (function tracing/hooking)
@@ -81,9 +81,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: preproc_include
-      pattern: "linux/ftrace.h"
+      type: ast
+      kind: import
+      exact: "linux/ftrace.h"
 
   - id: kernel-kprobes-header
     desc: Linux kprobes header (kernel probing/hooking)
@@ -92,9 +92,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: preproc_include
-      pattern: "linux/kprobes.h"
+      type: ast
+      kind: import
+      exact: "linux/kprobes.h"
 
   - id: kernel-procfs-header
     desc: Linux procfs header (process hiding)
@@ -103,9 +103,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: preproc_include
-      pattern: "linux/proc_fs.h"
+      type: ast
+      kind: import
+      exact: "linux/proc_fs.h"
 
   - id: ftrace-helper-include
     desc: Ftrace helper library (common rootkit
@@ -114,9 +114,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: preproc_include
-      pattern: "ftrace_helper"
+      type: ast
+      kind: import
+      exact: "ftrace_helper"
 
   # ============================================================
   # KERNEL FUNCTION CALLS
@@ -130,9 +130,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "kallsyms_lookup_name"
+      type: ast
+      kind: call
+      exact: "kallsyms_lookup_name"
 
   - id: prepare-creds-call
     desc: Prepare kernel credentials (privilege escalation)
@@ -142,9 +142,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "prepare_creds"
+      type: ast
+      kind: call
+      exact: "prepare_creds"
 
   - id: commit-creds-call
     desc: Commit kernel credentials (privilege escalation)
@@ -154,9 +154,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "commit_creds"
+      type: ast
+      kind: call
+      exact: "commit_creds"
 
   - id: list-del-call
     desc: Kernel list deletion (module hiding)
@@ -166,9 +166,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "list_del"
+      type: ast
+      kind: call
+      exact: "list_del"
 
   - id: cr0-read-call
     desc: Read CR0 register (memory protection
@@ -177,9 +177,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "read_cr0"
+      type: ast
+      kind: call
+      exact: "read_cr0"
 
   - id: cr0-write-call
     desc: Write CR0 register (disable write
@@ -188,9 +188,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "write_cr0"
+      type: ast
+      kind: call
+      exact: "write_cr0"
 
   - id: kzalloc-call
     desc: Kernel memory allocation
@@ -199,9 +199,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "kzalloc"
+      type: ast
+      kind: call
+      exact: "kzalloc"
 
   - id: copy-from-user-call
     desc: Copy data from user space
@@ -210,9 +210,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "copy_from_user"
+      type: ast
+      kind: call
+      exact: "copy_from_user"
 
   - id: copy-to-user-call
     desc: Copy data from kernel to
@@ -221,9 +221,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "copy_to_user"
+      type: ast
+      kind: call
+      exact: "copy_to_user"
 
   # ============================================================
   # MODULE MACROS
@@ -236,9 +236,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "MODULE_LICENSE"
+      type: ast
+      kind: call
+      exact: "MODULE_LICENSE"
 
   - id: module-init-macro
     desc: Kernel module initialization function
@@ -247,9 +247,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "module_init"
+      type: ast
+      kind: call
+      exact: "module_init"
 
   - id: module-exit-macro
     desc: Kernel module exit function
@@ -258,9 +258,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "module_exit"
+      type: ast
+      kind: call
+      exact: "module_exit"
 
   - id: for-each-process-macro
     desc: Kernel process enumeration macro
@@ -269,9 +269,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "for_each_process"
+      type: ast
+      kind: call
+      exact: "for_each_process"
 
   # ============================================================
   # DECLARATIONS / STRUCTURES
@@ -285,9 +285,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: declaration
-      pattern: "sys_call_table"
+      type: ast
+      node: declaration
+      exact: "sys_call_table"
 
   - id: task-struct-decl
     desc: Task structure access (process manipulation)
@@ -296,9 +296,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: declaration
-      pattern: "task_struct"
+      type: ast
+      node: declaration
+      exact: "task_struct"
 
   - id: cred-struct-decl
     desc: Credential structure access (privilege escalation)
@@ -307,9 +307,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: declaration
-      pattern: "struct cred"
+      type: ast
+      node: declaration
+      exact: "struct cred"
 
   - id: linux-dirent-decl
     desc: Directory entry structure (file/process hiding)
@@ -318,9 +318,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: declaration
-      pattern: "linux_dirent"
+      type: ast
+      node: declaration
+      exact: "linux_dirent"
 
   - id: pt-regs-decl
     desc: Register state structure (syscall interception)
@@ -329,9 +329,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: declaration
-      pattern: "pt_regs"
+      type: ast
+      node: declaration
+      exact: "pt_regs"
 
   # ============================================================
   # EXPRESSION PATTERNS
@@ -344,9 +344,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: binary_expression
-      pattern: "__NR_"
+      type: ast
+      kind: binary_op
+      exact: "__NR_"
 
   - id: proc-root-ino-ref
     desc: Proc filesystem root inode (process
@@ -355,9 +355,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: binary_expression
-      pattern: "PROC_ROOT_INO"
+      type: ast
+      kind: binary_op
+      exact: "PROC_ROOT_INO"
 
   - id: cr0-wp-bit-manipulation
     desc: CR0 write-protect bit manipulation
@@ -366,9 +366,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: binary_expression
-      pattern: "0x00010000"
+      type: ast
+      kind: binary_op
+      exact: "0x00010000"
 
   - id: this-module-ref
     desc: Kernel module self-reference (module hiding)
@@ -377,9 +377,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: field_expression
-      pattern: "THIS_MODULE"
+      type: ast
+      kind: attribute
+      exact: "THIS_MODULE"
 
   # ============================================================
   # COMMENT/METADATA DETECTION
@@ -391,9 +391,9 @@ traits:
     conf: 1.0
     for: [c]
     if:
-      type: ast_pattern
-      node_type: comment
-      pattern: "rootkit"
+      type: ast
+      kind: comment
+      exact: "rootkit"
       case_insensitive: true
 
   - id: malware-mention-comment
@@ -402,10 +402,9 @@ traits:
     conf: 1.0
     for: [c]
     if:
-      type: ast_pattern
-      node_type: comment
-      pattern: "malware|backdoor"
-      regex: true
+      type: ast
+      kind: comment
+      regex: "malware|backdoor"
       case_insensitive: true
 
   - id: privesc-mention-comment
@@ -414,10 +413,9 @@ traits:
     conf: 0.95
     for: [c]
     if:
-      type: ast_pattern
-      node_type: comment
-      pattern: "privilege.?escalation|privesc"
-      regex: true
+      type: ast
+      kind: comment
+      regex: "privilege.?escalation|privesc"
       case_insensitive: true
 
   - id: evasion-mention-comment
@@ -426,10 +424,9 @@ traits:
     conf: 0.9
     for: [c]
     if:
-      type: ast_pattern
-      node_type: comment
-      pattern: "evasion|evade"
-      regex: true
+      type: ast
+      kind: comment
+      regex: "evasion|evade"
       case_insensitive: true
 
   - id: syscall-hook-mention-comment
@@ -438,10 +435,9 @@ traits:
     conf: 0.95
     for: [c]
     if:
-      type: ast_pattern
-      node_type: comment
-      pattern: "syscall.{0,20}(hook|intercept)"
-      regex: true
+      type: ast
+      kind: comment
+      regex: "syscall.{0,20}(hook|intercept)"
       case_insensitive: true
 
   # ============================================================
@@ -454,10 +450,9 @@ traits:
     conf: 0.85
     for: [c]
     if:
-      type: ast_pattern
-      node_type: function_definition
-      pattern: "hide|invisible|stealth"
-      regex: true
+      type: ast
+      kind: function
+      regex: "hide|invisible|stealth"
       case_insensitive: true
 
   - id: hook-syscall-function-name
@@ -466,10 +461,9 @@ traits:
     conf: 0.9
     for: [c]
     if:
-      type: ast_pattern
-      node_type: function_definition
-      pattern: "hook.{0,20}(sys|syscall)"
-      regex: true
+      type: ast
+      kind: function
+      regex: "hook.{0,20}(sys|syscall)"
       case_insensitive: true
 
   # ============================================================
@@ -482,9 +476,9 @@ traits:
     conf: 0.98
     for: [c]
     if:
-      type: ast_pattern
-      node_type: asm_statement
-      pattern: "cr0"
+      type: ast
+      node: asm_statement
+      exact: "cr0"
       case_insensitive: true
 
   - id: asm-syscall-invocation
@@ -493,10 +487,9 @@ traits:
     conf: 0.85
     for: [c]
     if:
-      type: ast_pattern
-      node_type: asm_statement
-      pattern: "int.{0,10}0x80|syscall|sysenter"
-      regex: true
+      type: ast
+      node: asm_statement
+      regex: "int.{0,10}0x80|syscall|sysenter"
 
   # ============================================================
   # DIRECTORY ENTRY MANIPULATION (FILE/PROCESS HIDING)
@@ -510,9 +503,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: field_expression
-      pattern: "d_reclen"
+      type: ast
+      kind: attribute
+      exact: "d_reclen"
 
   - id: d-name-access
     desc: Directory entry name field access
@@ -521,9 +514,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: field_expression
-      pattern: "d_name"
+      type: ast
+      kind: attribute
+      exact: "d_name"
 
   - id: simple-strtoul-call
     desc: String to unsigned long conversion
@@ -532,9 +525,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "simple_strtoul"
+      type: ast
+      kind: call
+      exact: "simple_strtoul"
 
   - id: memmove-call
     desc: Memory move operation (often used
@@ -542,9 +535,9 @@ traits:
     conf: 0.7
     for: [c]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "memmove"
+      type: ast
+      kind: call
+      exact: "memmove"
 
   - id: memcmp-dirent-context
     desc: Memory comparison (file prefix matching
@@ -552,9 +545,9 @@ traits:
     conf: 0.7
     for: [c]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "memcmp"
+      type: ast
+      kind: call
+      exact: "memcmp"
 
   # ============================================================
   # MODULE HIDING TECHNIQUES
@@ -568,9 +561,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: field_expression
-      pattern: "sect_attrs"
+      type: ast
+      kind: attribute
+      exact: "sect_attrs"
 
   - id: list-add-call
     desc: Kernel list addition (module unhiding
@@ -579,9 +572,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "list_add"
+      type: ast
+      kind: call
+      exact: "list_add"
 
   - id: kfree-call
     desc: Kernel memory free (often used
@@ -590,9 +583,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "kfree"
+      type: ast
+      kind: call
+      exact: "kfree"
 
   # ============================================================
   # SYSCALL HOOKING INFRASTRUCTURE
@@ -605,9 +598,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: declaration
-      pattern: "asmlinkage"
+      type: ast
+      node: declaration
+      exact: "asmlinkage"
 
   - id: t-syscall-typedef
     desc: Syscall function pointer typedef
@@ -616,10 +609,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: type_definition
-      pattern: "t_syscall|syscall_fn|sys_call_ptr"
-      regex: true
+      type: ast
+      node: type_definition
+      regex: "t_syscall|syscall_fn|sys_call_ptr"
 
   - id: orig-syscall-pattern
     desc: Original syscall saving pattern (hooking
@@ -629,10 +621,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: declaration
-      pattern: "orig_"
-      regex: false
+      type: ast
+      node: declaration
+      exact: "orig_"
 
   - id: pt-regs-register-access
     desc: Direct register access via pt_regs
@@ -641,9 +632,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: field_expression
-      pattern: "pt_regs->"
+      type: ast
+      kind: attribute
+      exact: "pt_regs->"
 
   - id: pt-regs-di-access
     desc: RDI register access (first syscall
@@ -652,9 +643,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: field_expression
-      pattern: "->di"
+      type: ast
+      kind: attribute
+      exact: "->di"
 
   - id: pt-regs-si-access
     desc: RSI register access (second syscall
@@ -663,9 +654,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: field_expression
-      pattern: "->si"
+      type: ast
+      kind: attribute
+      exact: "->si"
 
   # ============================================================
   # KERNEL STRUCTURE TRAVERSAL
@@ -678,9 +669,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: field_expression
-      pattern: "current->files"
+      type: ast
+      kind: attribute
+      exact: "current->files"
 
   - id: fdt-access
     desc: File descriptor table access
@@ -689,9 +680,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: field_expression
-      pattern: "->fdt"
+      type: ast
+      kind: attribute
+      exact: "->fdt"
 
   - id: f-path-dentry-access
     desc: File path dentry access (inode
@@ -700,9 +691,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: field_expression
-      pattern: "f_path.dentry"
+      type: ast
+      kind: attribute
+      exact: "f_path.dentry"
 
   - id: d-inode-access
     desc: Dentry inode access
@@ -711,9 +702,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: field_expression
-      pattern: "->d_inode"
+      type: ast
+      kind: attribute
+      exact: "->d_inode"
 
   - id: i-ino-access
     desc: Inode number access (filesystem identification)
@@ -722,9 +713,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: field_expression
-      pattern: "i_ino"
+      type: ast
+      kind: attribute
+      exact: "i_ino"
 
   - id: i-rdev-access
     desc: Inode device number access
@@ -733,9 +724,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: field_expression
-      pattern: "i_rdev"
+      type: ast
+      kind: attribute
+      exact: "i_rdev"
 
   - id: major-macro-call
     desc: MAJOR device number extraction
@@ -744,9 +735,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "MAJOR"
+      type: ast
+      kind: call
+      exact: "MAJOR"
 
   # ============================================================
   # USER/KERNEL BOUNDARY
@@ -759,9 +750,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: declaration
-      pattern: "__user"
+      type: ast
+      node: declaration
+      exact: "__user"
 
   - id: gfp-kernel-alloc
     desc: GFP_KERNEL allocation flag
@@ -770,9 +761,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "GFP_KERNEL"
+      type: ast
+      kind: call
+      exact: "GFP_KERNEL"
 
   # ============================================================
   # MODULE LIFECYCLE
@@ -785,9 +776,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: function_definition
-      pattern: "__init"
+      type: ast
+      kind: function
+      exact: "__init"
 
   - id: exit-attribute
     desc: __exit module cleanup attribute
@@ -796,9 +787,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: function_definition
-      pattern: "__exit"
+      type: ast
+      kind: function
+      exact: "__exit"
 
   - id: module-author-macro
     desc: MODULE_AUTHOR declaration (attacker attribution)
@@ -807,9 +798,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "MODULE_AUTHOR"
+      type: ast
+      kind: call
+      exact: "MODULE_AUTHOR"
 
   - id: module-description-macro
     desc: MODULE_DESCRIPTION declaration
@@ -818,9 +809,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "MODULE_DESCRIPTION"
+      type: ast
+      kind: call
+      exact: "MODULE_DESCRIPTION"
 
   - id: dual-bsd-gpl-license
     desc: Dual BSD/GPL license (common rootkit
@@ -829,9 +820,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: string_literal
-      pattern: "Dual BSD/GPL"
+      type: ast
+      kind: string
+      exact: "Dual BSD/GPL"
 
   # ============================================================
   # SIGNAL-BASED BACKDOOR CONTROL
@@ -844,10 +835,9 @@ traits:
     attack: "T1014"
     for: [c]
     if:
-      type: ast_pattern
-      node_type: preproc_def
-      pattern: "SIG[A-Z]+"
-      regex: true
+      type: ast
+      node: preproc_def
+      regex: "SIG[A-Z]+"
 
   - id: signal-switch-handler
     desc: Signal-based switch handler (command dispatch)
@@ -855,9 +845,9 @@ traits:
     conf: 0.8
     for: [c]
     if:
-      type: ast_pattern
-      node_type: switch_statement
-      pattern: "sig"
+      type: ast
+      node: switch_statement
+      exact: "sig"
       case_insensitive: true
 
   # ============================================================
@@ -872,10 +862,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: field_expression
-      pattern: "task->flags|p->flags"
-      regex: true
+      type: ast
+      kind: attribute
+      regex: "task->flags|p->flags"
 
   - id: pf-invisible-flag
     desc: PF_INVISIBLE flag value (0x10000000)
@@ -885,9 +874,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: binary_expression
-      pattern: "0x10000000"
+      type: ast
+      kind: binary_op
+      exact: "0x10000000"
 
   - id: xor-assign-flags
     desc: XOR assignment on flags (toggle
@@ -895,10 +884,9 @@ traits:
     conf: 0.9
     for: [c]
     if:
-      type: ast_pattern
-      node_type: assignment_expression
-      pattern: "\\^="
-      regex: true
+      type: ast
+      kind: assignment
+      regex: "\\^="
 
   - id: current-macro-ref
     desc: Current task reference macro
@@ -907,10 +895,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: identifier
-      pattern: "^current$"
-      regex: true
+      type: ast
+      kind: identifier
+      regex: "^current$"
 
   # ============================================================
   # CREDENTIAL MANIPULATION
@@ -924,10 +911,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: assignment_expression
-      pattern: "uid.{0,10}=.{0,10}0|->uid = 0"
-      regex: true
+      type: ast
+      kind: assignment
+      regex: "uid.{0,10}=.{0,10}0|->uid = 0"
 
   - id: gid-zero-assign
     desc: GID set to zero (root
@@ -937,10 +923,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: assignment_expression
-      pattern: "gid.{0,10}=.{0,10}0|->gid = 0"
-      regex: true
+      type: ast
+      kind: assignment
+      regex: "gid.{0,10}=.{0,10}0|->gid = 0"
 
   - id: euid-egid-access
     desc: Effective UID/GID access (privilege escalation)
@@ -949,10 +934,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: field_expression
-      pattern: "euid|egid|suid|sgid|fsuid|fsgid"
-      regex: true
+      type: ast
+      kind: attribute
+      regex: "euid|egid|suid|sgid|fsuid|fsgid"
 
   # ============================================================
   # COMPILER/MEMORY ORDERING
@@ -965,9 +949,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: declaration
-      pattern: "__force_order"
+      type: ast
+      node: declaration
+      exact: "__force_order"
 
   - id: volatile-asm
     desc: Volatile inline assembly (prevent optimization)
@@ -975,9 +959,9 @@ traits:
     conf: 0.7
     for: [c]
     if:
-      type: ast_pattern
-      node_type: asm_statement
-      pattern: "volatile"
+      type: ast
+      node: asm_statement
+      exact: "volatile"
 
   # ============================================================
   # GETDENTS HOOKING SPECIFIC
@@ -991,9 +975,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: function_definition
-      pattern: "getdents"
+      type: ast
+      kind: function
+      exact: "getdents"
       case_insensitive: true
 
   - id: nr-getdents-ref
@@ -1003,9 +987,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: subscript_expression
-      pattern: "__NR_getdents"
+      type: ast
+      node: subscript_expression
+      exact: "__NR_getdents"
 
   - id: nr-kill-ref
     desc: __NR_kill syscall number reference (signal
@@ -1014,9 +998,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: subscript_expression
-      pattern: "__NR_kill"
+      type: ast
+      node: subscript_expression
+      exact: "__NR_kill"
 
   # ============================================================
   # SUSPICIOUS COMMENT PATTERNS
@@ -1028,9 +1012,9 @@ traits:
     conf: 0.95
     for: [c]
     if:
-      type: ast_pattern
-      node_type: comment
-      pattern: "corrupt"
+      type: ast
+      kind: comment
+      exact: "corrupt"
       case_insensitive: true
 
   - id: hiding-mention-comment
@@ -1039,10 +1023,9 @@ traits:
     conf: 0.9
     for: [c]
     if:
-      type: ast_pattern
-      node_type: comment
-      pattern: "hid(e|ing|den)"
-      regex: true
+      type: ast
+      kind: comment
+      regex: "hid(e|ing|den)"
       case_insensitive: true
 
   - id: stealthy-mention-comment
@@ -1051,9 +1034,9 @@ traits:
     conf: 0.95
     for: [c]
     if:
-      type: ast_pattern
-      node_type: comment
-      pattern: "stealth"
+      type: ast
+      kind: comment
+      exact: "stealth"
       case_insensitive: true
 
   - id: unauthorized-mention-comment
@@ -1062,10 +1045,9 @@ traits:
     conf: 0.95
     for: [c]
     if:
-      type: ast_pattern
-      node_type: comment
-      pattern: "unauthori[sz]ed"
-      regex: true
+      type: ast
+      kind: comment
+      regex: "unauthori[sz]ed"
       case_insensitive: true
 
   - id: defeating-mention-comment
@@ -1074,9 +1056,9 @@ traits:
     conf: 0.95
     for: [c]
     if:
-      type: ast_pattern
-      node_type: comment
-      pattern: "defeat"
+      type: ast
+      kind: comment
+      exact: "defeat"
       case_insensitive: true
 
   - id: persistence-mention-comment
@@ -1085,9 +1067,9 @@ traits:
     conf: 0.85
     for: [c]
     if:
-      type: ast_pattern
-      node_type: comment
-      pattern: "persist"
+      type: ast
+      kind: comment
+      exact: "persist"
       case_insensitive: true
 
   - id: polymorphic-mention-comment
@@ -1096,9 +1078,9 @@ traits:
     conf: 0.95
     for: [c]
     if:
-      type: ast_pattern
-      node_type: comment
-      pattern: "polymorphic"
+      type: ast
+      kind: comment
+      exact: "polymorphic"
       case_insensitive: true
 
   - id: covert-channel-mention-comment
@@ -1107,9 +1089,9 @@ traits:
     conf: 0.95
     for: [c]
     if:
-      type: ast_pattern
-      node_type: comment
-      pattern: "covert"
+      type: ast
+      kind: comment
+      exact: "covert"
       case_insensitive: true
 
   # ============================================================
@@ -1122,10 +1104,9 @@ traits:
     conf: 0.7
     for: [c]
     if:
-      type: ast_pattern
-      node_type: function_definition
-      pattern: "^[a-z]{3,5}[0-9]?_"
-      regex: true
+      type: ast
+      kind: function
+      regex: "^[a-z]{3,5}[0-9]?_"
 
   - id: underscore-heavy-naming
     desc: Heavy underscore usage in names
@@ -1133,10 +1114,9 @@ traits:
     conf: 0.6
     for: [c]
     if:
-      type: ast_pattern
-      node_type: declaration
-      pattern: "^__[a-z]+"
-      regex: true
+      type: ast
+      node: declaration
+      regex: "^__[a-z]+"
 
   # ============================================================
   # RETURN VALUE MANIPULATION
@@ -1149,9 +1129,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: return_statement
-      pattern: "ESRCH"
+      type: ast
+      node: return_statement
+      exact: "ESRCH"
 
   - id: error-code-return
     desc: Kernel error code return
@@ -1160,10 +1140,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: return_statement
-      pattern: "-E[A-Z]+"
-      regex: true
+      type: ast
+      node: return_statement
+      regex: "-E[A-Z]+"
 
   # ============================================================
   # KERNEL MODULE LOADING (FILELESS) - micro-traits
@@ -1220,9 +1199,9 @@ traits:
     for: [c]
     platforms: [linux]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "lookup_address"
+      type: ast
+      kind: call
+      exact: "lookup_address"
 
   - id: page-rw-flag
     desc: _PAGE_RW memory protection flag
@@ -1254,9 +1233,9 @@ traits:
     conf: 0.85
     for: [c]
     if:
-      type: ast_pattern
-      node_type: declaration
-      pattern: "Elf64_Ehdr"
+      type: ast
+      node: declaration
+      exact: "Elf64_Ehdr"
 
   - id: elf64-shdr-decl
     desc: Elf64_Shdr structure declaration
@@ -1264,9 +1243,9 @@ traits:
     conf: 0.85
     for: [c]
     if:
-      type: ast_pattern
-      node_type: declaration
-      pattern: "Elf64_Shdr"
+      type: ast
+      node: declaration
+      exact: "Elf64_Shdr"
 
   - id: elf64-phdr-decl
     desc: Elf64_Phdr structure declaration
@@ -1274,9 +1253,9 @@ traits:
     conf: 0.85
     for: [c]
     if:
-      type: ast_pattern
-      node_type: declaration
-      pattern: "Elf64_Phdr"
+      type: ast
+      node: declaration
+      exact: "Elf64_Phdr"
 
   - id: elf-entry-field
     desc: e_entry ELF entry point field
@@ -1284,9 +1263,9 @@ traits:
     conf: 0.9
     for: [c]
     if:
-      type: ast_pattern
-      node_type: field_expression
-      pattern: "e_entry"
+      type: ast
+      kind: attribute
+      exact: "e_entry"
 
   - id: patch-string-ref
     desc: patch string reference

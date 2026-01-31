@@ -88,10 +88,7 @@ fn test_universal_capabilities_match_all_files() {
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
         // Verify basic structure exists
         assert!(json.get("target").is_some(), "Should have target field");
-        assert!(
-            json.get("structure").is_some(),
-            "Should have structure field"
-        );
+        // Note: structure field may be missing if empty (skip_serializing_if = "Vec::is_empty")
 
         // Traits field may be missing if empty (skip_serializing_if)
         // Capabilities are traits with capability: true
@@ -216,10 +213,7 @@ fn test_javascript_capabilities_for_js_files() {
 
         // Verify basic structure exists
         assert!(json.get("target").is_some(), "Should have target field");
-        assert!(
-            json.get("structure").is_some(),
-            "Should have structure field"
-        );
+        // Note: structure field may be missing if empty (skip_serializing_if = "Vec::is_empty")
 
         // Traits field may be missing if empty
         if let Some(traits) = json.get("traits").and_then(|v| v.as_array()) {
@@ -351,11 +345,7 @@ fn test_rules_without_filetype_are_universal() {
                 "File {:?} should have target field",
                 file.file_name()
             );
-            assert!(
-                json.get("structure").is_some(),
-                "File {:?} should have structure field",
-                file.file_name()
-            );
+            // Note: structure field may be missing if empty (skip_serializing_if = "Vec::is_empty")
 
             // Traits field may be missing if empty
             if let Some(traits) = json.get("traits").and_then(|v| v.as_array()) {
@@ -463,10 +453,7 @@ fn test_platform_and_filetype_constraints_together() {
     // Parse and verify basic structure (capabilities are traits with capability: true)
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
         assert!(json.get("target").is_some(), "Should have target field");
-        assert!(
-            json.get("structure").is_some(),
-            "Should have structure field"
-        );
+        // Note: structure field may be missing if empty (skip_serializing_if = "Vec::is_empty")
 
         // File type should be Shell
         if let Some(file_type) = json

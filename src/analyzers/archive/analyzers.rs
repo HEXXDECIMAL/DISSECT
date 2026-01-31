@@ -796,7 +796,7 @@ impl ArchiveAnalyzer {
                         MAX_FILE_ANALYSIS_TIME_SECS
                     ),
                     conf: 0.8,
-                    crit: Criticality::Suspicious,
+                    crit: Criticality::Inert,
                     mbc: Some("B0001".to_string()),
                     attack: None,
                     evidence: vec![Evidence {

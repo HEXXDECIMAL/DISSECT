@@ -368,9 +368,9 @@ traits:
     for: [csharp]
     platforms: [all]             # linux, macos, windows, unix, android, ios, all
     if:
-      type: ast_pattern
-      node_type: invocation_expression
-      pattern: ".Kill("
+      type: ast
+      kind: call
+      exact: ".Kill("
 ```
 
 The description field should be short and clear: try to describe the capability in 4 or less words. 5 words maximum. The more words used, the more work an engineer has to do to scan through the text.
@@ -383,36 +383,80 @@ Use `for: [*]` to override restrictive defaults and match all file types.
 
 ## Condition Types
 
-### ast_pattern
-Match text patterns within AST node types.
+### ast
+
+Match patterns in parsed source code (AST). Two modes: simple (recommended) and advanced.
+
+#### Simple Mode: `kind` + `exact`/`regex`
+
+Use abstract `kind` names—we map to language-specific node types internally.
 
 ```yaml
+# Substring match
 if:
-  type: ast_pattern
-  node_type: invocation_expression
-  pattern: "Process.Start"
-  regex: false  # Optional
+  type: ast
+  kind: call
+  exact: "eval"
+
+# Regex match
+if:
+  type: ast
+  kind: call
+  regex: "eval\\(.*\\)"
   case_insensitive: false  # Optional
+  count_min: 1             # Optional: minimum matches
 ```
 
-**Common node types:** `invocation_expression`/`call`/`call_expression`/`method_invocation` (calls), `object_creation_expression`/`new_expression`/`composite_literal` (object creation)
+#### Kind Reference
 
-### ast_query
-Full tree-sitter query syntax. Optional `language` field validates syntax at load time.
+| Kind | Matches | Examples |
+|------|---------|----------|
+| `call` | Function/method calls | `eval()`, `os.system()`, `require()` |
+| `function` | Function definitions | `def foo():`, `function bar()`, `func main()` |
+| `class` | Class definitions | `class Foo:`, `class Bar {}` |
+| `import` | Import statements | `import os`, `require('fs')`, `#include` |
+| `string` | String literals | `"hello"`, `'world'`, `` `template` `` |
+| `comment` | Comments | `# note`, `// todo`, `/* block */` |
+| `assignment` | Variable assignments | `x = 1`, `let y = 2`, `var z` |
+| `argument` | Function arguments | args in `foo(x, y)` |
+| `return` | Return statements | `return x`, `return;` |
+| `binary_op` | Binary operations | `a + b`, `x && y`, `i < n` |
+| `identifier` | Names/identifiers | variable names, function names |
+| `attribute` | Attribute/member access | `obj.attr`, `foo.bar()` |
+| `subscript` | Index access | `arr[0]`, `dict["key"]` |
+| `conditional` | If/ternary | `if x:`, `x ? y : z` |
+| `loop` | Loops | `for`, `while`, `do` |
+
+#### Advanced Mode: `query`
+
+Full tree-sitter S-expression syntax for complex structural matching.
 
 ```yaml
 if:
-  type: ast_query
-  language: javascript  # Optional
+  type: ast
   query: |
     (call_expression
       function: (member_expression
         object: (identifier) @obj
         property: (property_identifier) @method))
     (#eq? @method "exec")
+  language: javascript  # Optional: validates at load time
 ```
 
-**Supported:** `c`, `python`, `javascript`/`js`, `typescript`/`ts`, `rust`, `go`, `java`, `ruby`, `shell`/`bash`, `php`, `csharp`/`c#`
+**When to use:** Complex structural patterns, capture groups, predicates (`#eq?`, `#match?`).
+
+**Supported languages:** `c`, `python`, `javascript`/`js`, `typescript`/`ts`, `rust`, `go`, `java`, `ruby`, `shell`/`bash`, `php`, `csharp`/`c#`
+
+#### Raw Node Type (escape hatch)
+
+For tree-sitter experts needing exact node types:
+
+```yaml
+if:
+  type: ast
+  node: call_expression    # Raw tree-sitter node type
+  regex: "eval\\("
+```
 
 ### symbol
 

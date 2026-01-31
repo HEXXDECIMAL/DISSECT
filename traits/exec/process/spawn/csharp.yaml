@@ -9,9 +9,9 @@ traits:
     attack: "T1059"
     conf: 0.95
     if:
-      type: ast_pattern
-      node_type: invocation_expression
-      pattern: "Process.Start"
+      type: ast
+      kind: call
+      exact: "Process.Start"
     for: [csharp]
 
   - id: start-info
@@ -21,9 +21,9 @@ traits:
     attack: "T1059"
     conf: 0.85
     if:
-      type: ast_pattern
-      node_type: object_creation_expression
-      pattern: "ProcessStartInfo"
+      type: ast
+      node: object_creation_expression
+      exact: "ProcessStartInfo"
     for: [csharp]
 
   - id: current-process
@@ -32,9 +32,9 @@ traits:
     mbc: "OB0006"
     conf: 0.85
     if:
-      type: ast_pattern
-      node_type: invocation_expression
-      pattern: "GetCurrentProcess"
+      type: ast
+      kind: call
+      exact: "GetCurrentProcess"
     for: [csharp]
 
   - id: terminate
@@ -44,7 +44,7 @@ traits:
     attack: "T1562"
     conf: 0.95
     if:
-      type: ast_pattern
-      node_type: invocation_expression
-      pattern: ".Kill("
+      type: ast
+      kind: call
+      exact: ".Kill("
     for: [csharp]

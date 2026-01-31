@@ -5,7 +5,7 @@ traits:
   # Bash persistence
   - id: bash-profile
     description: .bash_profile shell configuration file
-    crit: suspicious
+    crit: notable
     conf: 0.7
     attack: T1546.004
     if:
@@ -22,7 +22,7 @@ traits:
 
   - id: bashrc
     description: .bashrc shell configuration file
-    crit: suspicious
+    crit: notable
     conf: 0.7
     attack: T1546.004
     if:
@@ -39,7 +39,7 @@ traits:
 
   - id: bash-login
     description: .bash_login shell configuration file
-    crit: suspicious
+    crit: notable
     conf: 0.75
     attack: T1546.004
     if:
@@ -53,7 +53,7 @@ traits:
 
   - id: bash-logout
     description: .bash_logout shell configuration file
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: T1546.004
     if:
@@ -67,7 +67,7 @@ traits:
 
   - id: profile
     description: .profile shell configuration file
-    crit: suspicious
+    crit: notable
     conf: 0.7
     attack: T1546.004
     if:
@@ -84,7 +84,7 @@ traits:
 
   - id: etc-profile
     description: /etc/profile system-wide shell configuration
-    crit: suspicious
+    crit: notable
     conf: 0.75
     attack: T1546.004
     if:
@@ -93,7 +93,7 @@ traits:
 
   - id: etc-bashrc
     description: /etc/bashrc system-wide shell configuration
-    crit: suspicious
+    crit: notable
     conf: 0.75
     attack: T1546.004
     if:
@@ -103,7 +103,7 @@ traits:
   # Zsh persistence
   - id: zshrc
     description: .zshrc shell configuration file
-    crit: suspicious
+    crit: notable
     conf: 0.7
     attack: T1546.004
     if:
@@ -120,7 +120,7 @@ traits:
 
   - id: zprofile
     description: .zprofile shell configuration file
-    crit: suspicious
+    crit: notable
     conf: 0.7
     attack: T1546.004
     if:
@@ -137,7 +137,7 @@ traits:
 
   - id: zlogin
     description: .zlogin shell configuration file
-    crit: suspicious
+    crit: notable
     conf: 0.75
     attack: T1546.004
     if:
@@ -151,7 +151,7 @@ traits:
 
   - id: zlogout
     description: .zlogout shell configuration file
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: T1546.004
     if:
@@ -165,7 +165,7 @@ traits:
 
   - id: etc-zshrc
     description: /etc/zshrc system-wide shell configuration
-    crit: suspicious
+    crit: notable
     conf: 0.75
     attack: T1546.004
     if:
@@ -175,7 +175,7 @@ traits:
   # Hardcoded paths (more suspicious)
   - id: hardcoded-profile
     description: Hardcoded path to .profile file
-    crit: suspicious
+    crit: notable
     conf: 0.9
     for: [elf, macho]
     attack: T1546.004
@@ -185,7 +185,7 @@ traits:
 
   - id: hardcoded-bashrc
     description: Hardcoded path to .bashrc file
-    crit: suspicious
+    crit: notable
     conf: 0.9
     for: [elf, macho]
     attack: T1546.004
@@ -195,7 +195,7 @@ traits:
 
   - id: hardcoded-zshrc
     description: Hardcoded path to .zshrc file
-    crit: suspicious
+    crit: notable
     conf: 0.9
     for: [elf, macho]
     attack: T1546.004
@@ -231,7 +231,7 @@ traits:
 composite_rules:
   - id: bash-files
     description: Bash shell configuration files
-    crit: suspicious
+    crit: notable
     conf: 0.7
     attack: T1546.004
     any:
@@ -242,7 +242,7 @@ composite_rules:
 
   - id: multi-file-access
     description: Multiple shell config files accessed
-    crit: suspicious
+    crit: notable
     conf: 0.9
     attack: T1546.004
     count_min: 3
@@ -260,7 +260,7 @@ composite_rules:
 
   - id: elf-hardcoded
     description: Binary with hardcoded shell config
-    crit: suspicious
+    crit: notable
     conf: 0.95
     for: [elf, macho]
     attack: T1546.004

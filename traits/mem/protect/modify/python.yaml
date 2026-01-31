@@ -10,6 +10,6 @@ traits:
     platforms: [windows]
     file_types: [python]
     condition:
-      type: ast_pattern
-      node_type: call
-      pattern: "ctypes.windll.kernel32.VirtualProtect"
+      type: ast
+      kind: call
+      exact: "ctypes.windll.kernel32.VirtualProtect"

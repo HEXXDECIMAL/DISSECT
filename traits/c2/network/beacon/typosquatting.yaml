@@ -52,9 +52,29 @@ traits:
       type: string
       regex: "(githu[bk]\\.|gi[th]hub\\.|githyb\\.)[a-z]{2,}"
     not:
-      - exact: "github.com"
-      - exact: "github.io"
-      - regex: "github\\.com/"
+      - "github.com"
+      - "github.io"
+      - "githubusercontent.com"
+      - "github.blog"
+      - "github.community"
+      - "github.dev"
+      - "github.help"
+      - "github.jobs"
+      - "github.market"
+      - "github.shop"
+      - "github.status"
+      - "githubapp.com"
+      - "githubstatus.com"
+      - "github.yml"
+      - "github.yaml"
+      - "github.json"
+      - "github.rb"
+      - "github.sh"
+      - "github.js"
+      - "github.png"
+      - "github.svg"
+      - "github.md"
+      - "github.txt"
 
   # === Popular Service Typosquatting ===
   - id: typosquat-google-domain
@@ -84,7 +104,7 @@ traits:
   # === C2 Protocol Indicators ===
   - id: c2-view-php-endpoint
     desc: C2 view.php endpoint
-    crit: suspicious
+    crit: notable
     conf: 0.75
     if:
       type: string
@@ -92,7 +112,7 @@ traits:
 
   - id: c2-gate-php-endpoint
     desc: C2 gate.php endpoint
-    crit: suspicious
+    crit: notable
     conf: 0.75
     if:
       type: string
@@ -100,7 +120,7 @@ traits:
 
   - id: c2-panel-php-endpoint
     desc: C2 panel.php endpoint
-    crit: suspicious
+    crit: notable
     conf: 0.75
     if:
       type: string
@@ -136,7 +156,7 @@ composite_rules:
 
   - id: c2-php-endpoint
     desc: C2 PHP endpoint pattern
-    crit: suspicious
+    crit: notable
     conf: 0.80
     attack: "T1071.001"
     count_min: 1

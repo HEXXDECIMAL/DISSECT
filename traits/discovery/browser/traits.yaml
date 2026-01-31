@@ -310,7 +310,7 @@ composite_rules:
   # Local storage composite
   - id: local-storage
     desc: Browser local storage access
-    crit: suspicious
+    crit: notable
     conf: 0.8
     attack: "T1217"
     for: [all]
@@ -336,7 +336,7 @@ composite_rules:
   # Opera composite
   - id: opera
     desc: Opera browser data
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1217"
     for: [all]

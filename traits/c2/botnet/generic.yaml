@@ -5,128 +5,34 @@
 defaults:
   attack: "T1583"
 
-traits:
-  # === Botnet terminology ===
-  - id: botnet-term
-    desc: Botnet keyword
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      exact: botnet
-      case_insensitive: true
-
-  - id: bot-net-term
-    desc: Bot.net keyword
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      regex: '\bbot[_.\s-]?net\b'
-      case_insensitive: true
-
-  - id: c2-server-term
-    desc: C2 server keyword
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      regex: '\bc2[_.\s-]?server\b'
-      case_insensitive: true
-
-  - id: command-control-term
-    desc: Command and control keyword
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      regex: '\bcommand[_.\s-]?and[_.\s-]?control\b'
-      case_insensitive: true
-
-  # === Zombie botnet terminology ===
-  - id: zombie-bot
-    desc: Zombie bot keyword
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      regex: '\bzombie[_\s]?(bot|net|army|horde|node)\b'
-      case_insensitive: true
-
-  - id: bot-zombie
-    desc: Bot zombie keyword
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      regex: '\bbot[_\s]?zombie\b'
-      case_insensitive: true
-
-  # === Bot agent terminology ===
-  - id: bot-agent
-    desc: Bot agent keyword
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      regex: '\bbot[_.\s-]?agent\b'
-      case_insensitive: true
-
-  - id: agent-bot
-    desc: Agent bot keyword
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      regex: '\bagent[_.\s-]?bot\b'
-      case_insensitive: true
-
-  - id: slave-term
-    desc: Slave keyword
-    crit: inert
-    conf: 0.4
-    if:
-      type: string
-      exact: slave
-      case_insensitive: true
-
-  - id: master-node
-    desc: Master node keyword
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      regex: '\bmaster[_.\s-]?node\b'
-      case_insensitive: true
-
 composite_rules:
   - id: botnet
     desc: Botnet-related patterns
-    crit: suspicious
+    crit: notable
     conf: 0.75
     count_min: 1
     any:
-      - id: botnet-term
-      - id: bot-net-term
-      - id: c2-server-term
-      - id: command-control-term
+      - id: data/text/botnet/botnet-term
+      - id: data/text/botnet/bot-net-term
+      - id: data/text/botnet/c2-server-term
+      - id: data/text/botnet/command-control-term
 
   - id: zombie-botnet
     desc: Zombie botnet specific patterns
-    crit: suspicious
+    crit: notable
     conf: 0.6
     count_min: 1
     any:
-      - id: zombie-bot
-      - id: bot-zombie
+      - id: data/text/botnet/zombie-bot
+      - id: data/text/botnet/bot-zombie
 
   - id: botnet-agent
     desc: Bot agent patterns
-    crit: suspicious
+    crit: notable
     conf: 0.66
-    count_min: 1
+    count_min: 2
     any:
-      - id: bot-agent
-      - id: agent-bot
-      - id: slave-term
-      - id: master-node
+      - id: data/text/botnet/bot-agent
+      - id: data/text/botnet/agent-bot
+      - id: data/text/botnet/slave-term
+      - id: data/text/botnet/master-node

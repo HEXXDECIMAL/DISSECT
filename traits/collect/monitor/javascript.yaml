@@ -10,9 +10,9 @@ traits:
     attack: "T1113"
     for: [javascript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "require('node-screenshots')"
+      type: ast
+      kind: call
+      exact: "require('node-screenshots')"
 
   - id: js-desktop-screenshot
     desc: usage of desktop-screenshot library
@@ -22,9 +22,9 @@ traits:
     attack: "T1113"
     for: [javascript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "require('desktop-screenshot')"
+      type: ast
+      kind: call
+      exact: "require('desktop-screenshot')"
 
   - id: js-sharp-image-processing
     desc: "Uses sharp image processing"
@@ -32,9 +32,9 @@ traits:
     conf: 0.8
     for: [javascript]
     if:
-      type: ast_pattern
-      node_type: call_expression
-      pattern: "require('sharp')"
+      type: ast
+      kind: call
+      exact: "require('sharp')"
 
 composite_rules:
   - id: js-screenshot-exfil

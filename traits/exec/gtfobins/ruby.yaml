@@ -22,7 +22,7 @@ traits:
   # === Shared Library Execution ===
   - id: shared-lib-exec
     desc: Shared library execution via Ruby
-    crit: suspicious
+    crit: notable
     conf: 0.90
     attack: "T1059"
     if:
@@ -32,7 +32,7 @@ traits:
   # === Setuid Privilege Escalation ===
   - id: setuid-privesc
     desc: Setuid privilege escalation
-    crit: suspicious
+    crit: notable
     conf: 0.95
     attack: "T1068"
     if:

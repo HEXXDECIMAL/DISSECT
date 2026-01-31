@@ -6,10 +6,246 @@
 //! - Safe AST traversal with depth limits
 
 use super::{build_regex, truncate_evidence};
+use crate::composite_rules::ast_kinds::map_kind_to_node_types;
 use crate::composite_rules::context::{AnalysisWarning, ConditionResult, EvaluationContext};
 use crate::composite_rules::types::FileType;
 use crate::types::Evidence;
 use streaming_iterator::StreamingIterator;
+
+/// Evaluate unified AST condition
+/// Handles both simple mode (kind/node + exact/regex) and advanced mode (query)
+pub fn eval_ast(
+    kind: Option<&str>,
+    node: Option<&str>,
+    exact: Option<&str>,
+    regex: Option<&str>,
+    query: Option<&str>,
+    case_insensitive: bool,
+    ctx: &EvaluationContext,
+) -> ConditionResult {
+    // Advanced mode: use tree-sitter query
+    if let Some(query_str) = query {
+        return eval_ast_query(query_str, ctx);
+    }
+
+    // Simple mode: kind/node + exact/regex
+    let pattern = exact.or(regex).unwrap_or("");
+    let use_regex = regex.is_some();
+
+    // Get node types to search for
+    let node_types: Vec<&str> = if let Some(k) = kind {
+        map_kind_to_node_types(k, ctx.file_type)
+    } else if let Some(n) = node {
+        vec![n]
+    } else {
+        return ConditionResult {
+            matched: false,
+            evidence: Vec::new(),
+            traits: Vec::new(),
+            warnings: Vec::new(),
+        };
+    };
+
+    if node_types.is_empty() {
+        return ConditionResult {
+            matched: false,
+            evidence: Vec::new(),
+            traits: Vec::new(),
+            warnings: Vec::new(),
+        };
+    }
+
+    // Use cached AST or parse
+    let source = match std::str::from_utf8(ctx.binary_data) {
+        Ok(s) => s,
+        Err(_) => {
+            return ConditionResult {
+                matched: false,
+                evidence: Vec::new(),
+                traits: Vec::new(),
+                warnings: Vec::new(),
+            }
+        }
+    };
+
+    if let Some(cached_tree) = ctx.cached_ast {
+        return eval_ast_pattern_multi(
+            cached_tree,
+            source,
+            &node_types,
+            pattern,
+            use_regex,
+            case_insensitive,
+        );
+    }
+
+    // No cached AST - parse on demand (with warning)
+    static WARNED: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+    if !WARNED.swap(true, std::sync::atomic::Ordering::Relaxed) {
+        eprintln!(
+            "⚠️  WARNING: AST cache miss - re-parsing AST for each trait! File type: {:?}",
+            ctx.file_type
+        );
+    }
+
+    // Get parser language for file type
+    let parser_lang = match ctx.file_type {
+        FileType::C => Some(tree_sitter_c::LANGUAGE),
+        FileType::Python => Some(tree_sitter_python::LANGUAGE),
+        FileType::JavaScript => Some(tree_sitter_javascript::LANGUAGE),
+        FileType::TypeScript => Some(tree_sitter_typescript::LANGUAGE_TYPESCRIPT),
+        FileType::Rust => Some(tree_sitter_rust::LANGUAGE),
+        FileType::Go => Some(tree_sitter_go::LANGUAGE),
+        FileType::Java => Some(tree_sitter_java::LANGUAGE),
+        FileType::Ruby => Some(tree_sitter_ruby::LANGUAGE),
+        FileType::Shell => Some(tree_sitter_bash::LANGUAGE),
+        FileType::Php => Some(tree_sitter_php::LANGUAGE_PHP),
+        FileType::CSharp => Some(tree_sitter_c_sharp::LANGUAGE),
+        FileType::Lua => Some(tree_sitter_lua::LANGUAGE),
+        FileType::Perl => Some(tree_sitter_perl::LANGUAGE),
+        FileType::PowerShell => Some(tree_sitter_powershell::LANGUAGE),
+        FileType::Swift => Some(tree_sitter_swift::LANGUAGE),
+        FileType::ObjectiveC => Some(tree_sitter_objc::LANGUAGE),
+        FileType::Groovy => Some(tree_sitter_groovy::LANGUAGE),
+        FileType::Scala => Some(tree_sitter_scala::LANGUAGE),
+        FileType::Zig => Some(tree_sitter_zig::LANGUAGE),
+        FileType::Elixir => Some(tree_sitter_elixir::LANGUAGE),
+        _ => None,
+    };
+
+    let lang: tree_sitter::Language = match parser_lang {
+        Some(l) => l.into(),
+        None => {
+            return ConditionResult {
+                matched: false,
+                evidence: Vec::new(),
+                traits: Vec::new(),
+                warnings: Vec::new(),
+            }
+        }
+    };
+
+    let mut parser = tree_sitter::Parser::new();
+    if parser.set_language(&lang).is_err() {
+        return ConditionResult {
+            matched: false,
+            evidence: Vec::new(),
+            traits: Vec::new(),
+            warnings: Vec::new(),
+        };
+    }
+
+    let tree = match parser.parse(source, None) {
+        Some(t) => t,
+        None => {
+            return ConditionResult {
+                matched: false,
+                evidence: Vec::new(),
+                traits: Vec::new(),
+                warnings: Vec::new(),
+            }
+        }
+    };
+
+    eval_ast_pattern_multi(&tree, source, &node_types, pattern, use_regex, case_insensitive)
+}
+
+/// Evaluate AST pattern matching against multiple node types
+fn eval_ast_pattern_multi(
+    tree: &tree_sitter::Tree,
+    source: &str,
+    node_types: &[&str],
+    pattern: &str,
+    use_regex: bool,
+    case_insensitive: bool,
+) -> ConditionResult {
+    // Skip analysis if the tree has errors (malformed input)
+    if tree.root_node().has_error() {
+        return ConditionResult {
+            matched: false,
+            evidence: Vec::new(),
+            traits: Vec::new(),
+            warnings: vec![AnalysisWarning::AstTooDeep { max_depth: 0 }],
+        };
+    }
+
+    // Build the regex/pattern matcher
+    let matcher: Box<dyn Fn(&str) -> bool> = if use_regex {
+        match build_regex(pattern, case_insensitive) {
+            Ok(re) => Box::new(move |s: &str| re.is_match(s)),
+            Err(_) => {
+                return ConditionResult {
+                    matched: false,
+                    evidence: Vec::new(),
+                    traits: Vec::new(),
+                    warnings: Vec::new(),
+                }
+            }
+        }
+    } else if case_insensitive {
+        let pattern_lower = pattern.to_lowercase();
+        Box::new(move |s: &str| s.to_lowercase().contains(&pattern_lower))
+    } else {
+        let pattern_owned = pattern.to_string();
+        Box::new(move |s: &str| s.contains(&pattern_owned))
+    };
+
+    // Walk the AST and find matching nodes
+    let mut evidence = Vec::new();
+    let mut cursor = tree.walk();
+    let stats = walk_ast_for_pattern_multi(
+        &mut cursor,
+        source.as_bytes(),
+        node_types,
+        &matcher,
+        &mut evidence,
+    );
+
+    let mut warnings = Vec::new();
+    if stats.depth_limit_hit {
+        warnings.push(AnalysisWarning::AstTooDeep {
+            max_depth: stats.max_depth_reached,
+        });
+    }
+
+    ConditionResult {
+        matched: !evidence.is_empty(),
+        evidence,
+        traits: Vec::new(),
+        warnings,
+    }
+}
+
+/// Iteratively walk AST looking for nodes matching any of the target types
+fn walk_ast_for_pattern_multi(
+    cursor: &mut tree_sitter::TreeCursor,
+    source: &[u8],
+    target_node_types: &[&str],
+    matcher: &dyn Fn(&str) -> bool,
+    evidence: &mut Vec<Evidence>,
+) -> crate::analyzers::ast_walker::WalkStats {
+    crate::analyzers::ast_walker::walk_tree_with_stats(cursor, |node, _depth| {
+        // Check if this node matches any of the target types
+        let node_kind = node.kind();
+        if target_node_types.iter().any(|&t| t == node_kind) {
+            if let Ok(text) = node.utf8_text(source) {
+                if matcher(text) {
+                    evidence.push(Evidence {
+                        method: "ast".to_string(),
+                        source: "tree-sitter".to_string(),
+                        value: truncate_evidence(text, 100),
+                        location: Some(format!(
+                            "{}:{}",
+                            node.start_position().row + 1,
+                            node.start_position().column + 1
+                        )),
+                    });
+                }
+            }
+        }
+        true // continue traversal into children
+    })
+}
 
 /// Evaluate AST pattern condition - searches for text patterns within specific AST node types
 pub fn eval_ast_pattern(

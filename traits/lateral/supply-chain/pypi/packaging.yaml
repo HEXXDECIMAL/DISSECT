@@ -37,9 +37,9 @@ traits:
     description: "Python package setup() definition"
     confidence: 0.85
     condition:
-      type: ast_pattern
-      node_type: call
-      pattern: "setup("
+      type: ast
+      kind: call
+      exact: "setup("
 
   # === Package metadata atomic indicators ===
   - id: metadata-author
