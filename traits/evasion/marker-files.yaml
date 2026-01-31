@@ -17,7 +17,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      regex: "touch /tmp/\\.[a-z]|touch.*\\.(?:ran|done|exec)"
+      regex: "touch /tmp/\\.[a-z]|touch.{0,50}\\.(?:ran|done|exec)"
 
   - id: hidden-tmp-marker
     desc: Hidden marker in tmp
@@ -25,7 +25,7 @@ traits:
     conf: 0.80
     if:
       type: string
-      regex: "/tmp/\\.[a-z].*-ran|/tmp/\\.[a-z].*-done"
+      regex: "/tmp/\\.[a-z].{0,50}-ran|/tmp/\\.[a-z].{0,50}-done"
 
   # === Marker File Indicators ===
   - id: marker-ran-indicator

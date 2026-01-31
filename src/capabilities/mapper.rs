@@ -197,6 +197,7 @@ impl CapabilityMapper {
         let mut composite_rules = Vec::new();
         let mut rule_source_files: HashMap<String, String> = HashMap::new(); // rule_id -> file_path
         let mut files_processed = 0;
+        let mut warnings: Vec<String> = Vec::new();
 
         for result in results {
             let (path, mappings) = result?;
@@ -250,7 +251,8 @@ impl CapabilityMapper {
             let traits_count = mappings.traits.len();
             for raw_trait in mappings.traits {
                 // Convert raw trait to final trait, applying file-level defaults
-                let mut trait_def = apply_trait_defaults(raw_trait, &mappings.defaults);
+                let mut trait_def =
+                    apply_trait_defaults(raw_trait, &mappings.defaults, &mut warnings);
 
                 // Auto-prefix trait ID if it doesn't already have the path prefix
                 if let Some(ref prefix) = trait_prefix {
@@ -265,12 +267,12 @@ impl CapabilityMapper {
                         trait_def.id, path
                     )
                 })?;
-                // Warn about greedy regex patterns
+                // Check for greedy regex patterns
                 if let Some(warning) = trait_def.r#if.check_greedy_patterns() {
-                    eprintln!(
-                        "warning: trait '{}' in {:?}: {}",
+                    warnings.push(format!(
+                        "trait '{}' in {:?}: {}",
                         trait_def.id, path, warning
-                    );
+                    ));
                 }
                 trait_definitions.push(trait_def);
             }
@@ -386,7 +388,11 @@ impl CapabilityMapper {
 
         // Post-process HOSTILE composite rules to properly calculate complexity
         // Now that all rules are loaded, we can recursively calculate true complexity
-        validate_hostile_composite_complexity(&mut composite_rules, &trait_definitions);
+        validate_hostile_composite_complexity(
+            &mut composite_rules,
+            &trait_definitions,
+            &mut warnings,
+        );
 
         // Validate trait references in composite rules
         // Cross-directory references (containing '/') must match an existing directory prefix
@@ -654,6 +660,19 @@ impl CapabilityMapper {
             );
         }
 
+        // Warnings are fatal - print all and exit if any exist
+        if !warnings.is_empty() {
+            eprintln!(
+                "\n❌ FATAL: {} trait configuration warning(s) found:\n",
+                warnings.len()
+            );
+            for warning in &warnings {
+                eprintln!("   ⚠️  {}", warning);
+            }
+            eprintln!("\n   Fix these issues in the YAML files before continuing.\n");
+            std::process::exit(1);
+        }
+
         Ok(Self {
             symbol_map,
             trait_definitions,
@@ -699,10 +718,11 @@ impl CapabilityMapper {
         }
 
         // Convert raw traits to final traits with defaults applied
+        let mut warnings: Vec<String> = Vec::new();
         let mut trait_definitions: Vec<TraitDefinition> = mappings
             .traits
             .into_iter()
-            .map(|raw| apply_trait_defaults(raw, &mappings.defaults))
+            .map(|raw| apply_trait_defaults(raw, &mappings.defaults, &mut warnings))
             .collect();
 
         // Pre-compile all regexes for performance
@@ -711,14 +731,34 @@ impl CapabilityMapper {
         }
 
         // Convert raw composite rules to final rules with defaults applied
-        let composite_rules: Vec<CompositeTrait> = mappings
+        let mut composite_rules: Vec<CompositeTrait> = mappings
             .composite_rules
             .into_iter()
             .map(|raw| apply_composite_defaults(raw, &mappings.defaults))
             .collect();
 
+        // Validate HOSTILE composite complexity
+        validate_hostile_composite_complexity(
+            &mut composite_rules,
+            &trait_definitions,
+            &mut warnings,
+        );
+
         // Validate trait and composite conditions and warn about problematic patterns
         validate_conditions(&trait_definitions, &composite_rules, path.as_ref());
+
+        // Warnings are fatal
+        if !warnings.is_empty() {
+            eprintln!(
+                "\n❌ FATAL: {} trait configuration warning(s) found:\n",
+                warnings.len()
+            );
+            for warning in &warnings {
+                eprintln!("   ⚠️  {}", warning);
+            }
+            eprintln!("\n   Fix these issues in the YAML files before continuing.\n");
+            std::process::exit(1);
+        }
 
         // Build trait index for fast lookup by file type
         let trait_index = TraitIndex::build(&trait_definitions);

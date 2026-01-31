@@ -62,15 +62,24 @@ traits:
       node_type: call
       pattern: 'system('
 
-  # === File Open with Write Mode ===
+  # === File Open Binary Write ===
   - id: ruby-ast-file-open-wb
-    desc: File open in binary write mode
-    crit: notable
+    desc: File binary write mode
+    crit: inert
     conf: 0.82
     if:
-      type: ast_pattern
-      node_type: call
-      pattern: 'File.open'
+      type: ast_query
+      language: ruby
+      query: |
+        (call
+          receiver: (constant) @const
+          method: (identifier) @method
+          arguments: (argument_list
+            (string) @mode)
+          (#eq? @const "File")
+          (#eq? @method "open")
+          (#match? @mode "wb|w\\+b|ab|a\\+b")
+        )
 
 composite_rules:
   # === Dropper Behavior via AST ===

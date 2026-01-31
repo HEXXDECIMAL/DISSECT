@@ -15,7 +15,7 @@ traits:
     conf: 0.85
     if:
       type: content
-      regex: "class.*\\(install\\):"
+      regex: "class.{0,50}\\(install\\):"
 
   # === cmdclass with custom install ===
   - id: ast-cmdclass-custom
@@ -24,7 +24,7 @@ traits:
     conf: 0.85
     if:
       type: content
-      regex: "cmdclass.*install.*Custom"
+      regex: "cmdclass.{0,50}install.{0,50}Custom"
 
   # === Pre-install function call ===
   - id: ast-preinstall-call
@@ -63,7 +63,7 @@ traits:
     if:
       type: ast_pattern
       node_type: import_statement
-      pattern: "import.*subprocess|from.*subprocess"
+      pattern: "import.{0,50}subprocess|from.{0,50}subprocess"
 
 composite_rules:
   # === Malicious Setup.py Detection ===

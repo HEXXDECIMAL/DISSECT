@@ -62,7 +62,7 @@ traits:
     if:
       type: ast_pattern
       node_type: while
-      pattern: "while.*gets|while.*sock"
+      pattern: "while.{0,50}gets|while.{0,50}sock"
       regex: true
 
   - id: socket-gets
@@ -84,7 +84,7 @@ traits:
     if:
       type: ast_pattern
       node_type: call
-      pattern: "IO.copy_stream|copy_stream.*sock"
+      pattern: "IO.copy_stream|copy_stream.{0,50}sock"
       regex: true
 
   - id: open3-popen

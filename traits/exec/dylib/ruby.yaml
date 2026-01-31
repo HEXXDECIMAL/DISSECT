@@ -15,7 +15,7 @@ traits:
     attack: "T1059"
     if:
       type: string
-      regex: 'Fiddle\.dlopen|\.dlopen\(|dlopen.*lib'
+      regex: 'Fiddle\.dlopen|\.dlopen\(|dlopen.{0,50}lib'
 
   - id: fiddle-dlopen
     desc: Fiddle dynamic library loading
@@ -24,7 +24,7 @@ traits:
     attack: "T1059"
     if:
       type: string
-      regex: 'require.*fiddle|Fiddle\.dlopen'
+      regex: 'require.{0,50}fiddle|Fiddle\.dlopen'
 
   - id: shared-lib-exec
     desc: Shared library execution
@@ -33,4 +33,4 @@ traits:
     attack: "T1059"
     if:
       type: string
-      regex: '\.so.*ruby|fiddle.*\.so|lib\.so'
+      regex: '\.so.{0,50}ruby|fiddle.{0,50}\.so|lib\.so'

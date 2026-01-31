@@ -166,9 +166,11 @@ pub fn calculate_composite_complexity(
 }
 
 /// Validate and downgrade HOSTILE composite rules that don't meet complexity requirements
+/// Returns a list of warnings for rules that were downgraded.
 pub(crate) fn validate_hostile_composite_complexity(
     composite_rules: &mut [CompositeTrait],
     trait_definitions: &[TraitDefinition],
+    warnings: &mut Vec<String>,
 ) {
     let mut cache: HashMap<String, usize> = HashMap::new();
 
@@ -193,10 +195,10 @@ pub(crate) fn validate_hostile_composite_complexity(
     for (rule_id, complexity) in hostile_complexities {
         if complexity < 4 {
             if let Some(rule) = composite_rules.iter_mut().find(|r| r.id == rule_id) {
-                eprintln!(
-                    "⚠️  WARNING: Composite trait '{}' is marked HOSTILE but has complexity {} (need >=4). Downgrading to SUSPICIOUS.",
+                warnings.push(format!(
+                    "Composite trait '{}' is marked HOSTILE but has complexity {} (need >=4).",
                     rule_id, complexity
-                );
+                ));
                 rule.crit = Criticality::Suspicious;
             }
         }

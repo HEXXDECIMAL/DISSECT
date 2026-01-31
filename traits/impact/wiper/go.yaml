@@ -16,7 +16,7 @@ traits:
       source: |
         rule go_secure_wipe {
           strings:
-            $open = /os\.OpenFile\(.*os\.O_RDWR/ ascii
+            $open = /os\.OpenFile\(.{0,50}os\.O_RDWR/ ascii
             $write = /\.Write(At)?\(/ ascii
             $remove = "os.Remove" ascii
           condition:

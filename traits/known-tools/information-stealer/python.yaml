@@ -15,14 +15,14 @@ traits:
     conf: 0.7
     if:
       type: content
-      regex: "(platform|uname).*(browser|chrome|firefox)"
+      regex: "(platform|uname).{0,50}(browser|chrome|firefox)"
 
   - id: system-info-with-wallet
     desc: System info with crypto wallet
     conf: 0.8
     if:
       type: content
-      regex: "(platform|uname).*(wallet|exodus|metamask)"
+      regex: "(platform|uname).{0,50}(wallet|exodus|metamask)"
 
 composite_rules:
   - id: infostealer/python-profiler

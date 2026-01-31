@@ -50,9 +50,11 @@ pub(crate) fn apply_vec_default(
 }
 
 /// Convert a raw trait definition to a final TraitDefinition, applying file-level defaults
+/// Collects warnings into the provided vector instead of printing them.
 pub(crate) fn apply_trait_defaults(
     raw: RawTraitDefinition,
     defaults: &TraitDefaults,
+    warnings: &mut Vec<String>,
 ) -> TraitDefinition {
     // Parse file_types: use trait-specific if present (unless "none"), else defaults, else [All]
     let file_types = apply_vec_default(raw.file_types, &defaults.r#for)
@@ -77,28 +79,28 @@ pub(crate) fn apply_trait_defaults(
 
     // Stricter validation for HOSTILE traits: atomic traits cannot be HOSTILE
     if criticality == Criticality::Hostile {
-        eprintln!(
-            "⚠️  WARNING: Trait '{}' is atomic but marked HOSTILE. Downgrading to SUSPICIOUS.",
+        warnings.push(format!(
+            "Trait '{}' is atomic but marked HOSTILE. Atomic traits cannot be HOSTILE.",
             raw.id
-        );
+        ));
         criticality = Criticality::Suspicious;
     }
 
     // Additional strictness for SUSPICIOUS/HOSTILE traits
     if criticality >= Criticality::Suspicious && raw.desc.len() < 15 {
-        eprintln!(
-            "⚠️  WARNING: Trait '{}' has an overly short description for its criticality.",
+        warnings.push(format!(
+            "Trait '{}' has an overly short description for its criticality.",
             raw.id
-        );
+        ));
     }
 
     // Warn about overly long descriptions (> 5 words)
     let word_count = raw.desc.split_whitespace().count();
     if word_count > 5 {
-        eprintln!(
-            "⚠️  WARNING: Trait '{}' has an overly long description ({} words, max 5 recommended).",
+        warnings.push(format!(
+            "Trait '{}' has an overly long description ({} words, max 5 recommended).",
             raw.id, word_count
-        );
+        ));
     }
 
     TraitDefinition {

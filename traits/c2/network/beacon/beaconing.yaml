@@ -17,7 +17,7 @@ traits:
     conf: 0.70
     if:
       type: string
-      regex: "(while.*True|while\\s+1).*sleep|sleep.*while"
+      regex: "(while.{0,50}True|while\\s+1).{0,50}sleep|sleep.{0,50}while"
 
   - id: sleep-60-seconds
     desc: Sleep 60 seconds interval
@@ -33,7 +33,7 @@ traits:
     conf: 0.65
     if:
       type: string
-      regex: "(interval|delay|period|beacon).*sleep|sleep.*(interval|delay|period)"
+      regex: "(interval|delay|period|beacon).{0,50}sleep|sleep.{0,50}(interval|delay|period)"
 
   # === Polling Patterns ===
   - id: c2-poll-loop
@@ -42,7 +42,7 @@ traits:
     conf: 0.80
     if:
       type: string
-      regex: "while.*True.*requests\\.(get|post)|requests\\.(get|post).*while"
+      regex: "while.{0,50}True.{0,50}requests\\.(get|post)|requests\\.(get|post).{0,50}while"
 
   - id: c2-response-check-loop
     desc: C2 response check in loop
@@ -50,7 +50,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      regex: "if.*response\\.status_code.*while|while.*status_code"
+      regex: "if.{0,50}response\\.status_code.{0,50}while|while.{0,50}status_code"
 
   - id: c2-continue-polling
     desc: C2 continue polling pattern
@@ -58,7 +58,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      regex: "continue.*sleep|sleep.*continue"
+      regex: "continue.{0,50}sleep|sleep.{0,50}continue"
 
   # === Infinite Loop Indicators ===
   - id: infinite-while-true
@@ -84,7 +84,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      regex: "try:.*sleep.*except|except.*sleep.*continue"
+      regex: "try:.{0,50}sleep.{0,50}except|except.{0,50}sleep.{0,50}continue"
 
   - id: request-exception-sleep
     desc: Request exception with sleep
@@ -92,7 +92,7 @@ traits:
     conf: 0.80
     if:
       type: string
-      regex: "RequestException.*sleep|sleep.*RequestException"
+      regex: "RequestException.{0,50}sleep|sleep.{0,50}RequestException"
 
 composite_rules:
   # === Beaconing Detection ===

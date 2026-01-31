@@ -26,7 +26,7 @@ traits:
     attack: "T1018"
     if:
       type: string
-      regex: 'ENV.*to_yaml|ENV.*to_json|ENV.*inspect'
+      regex: 'ENV.{0,50}to_yaml|ENV.{0,50}to_json|ENV.{0,50}inspect'
 
   # === Environment Bracket Access ===
   - id: env-bracket-access
@@ -36,7 +36,7 @@ traits:
     attack: "T1018"
     if:
       type: string
-      regex: 'ENV\[.*URL_HOST|ENV\[.*HOST'
+      regex: 'ENV\[.{0,50}URL_HOST|ENV\[.{0,50}HOST'
 
   # === Host Environment Check ===
   - id: host-env-check
@@ -46,7 +46,7 @@ traits:
     attack: "T1016"
     if:
       type: string
-      regex: 'ENV.*localhost|ENV.*include\?|ENV\[.*\]\[0\]'
+      regex: 'ENV.{0,50}localhost|ENV.{0,50}include\?|ENV\[.{0,50}\]\[0\]'
 
 composite_rules:
   # === Environment Exfiltration ===

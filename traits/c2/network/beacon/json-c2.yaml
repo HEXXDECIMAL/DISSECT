@@ -25,7 +25,7 @@ traits:
     conf: 0.70
     if:
       type: string
-      regex: "application/json.*charset=utf-8"
+      regex: "application/json.{0,50}charset=utf-8"
 
   # === C2 with JSON ===
   - id: requests-json-headers
@@ -34,7 +34,7 @@ traits:
     conf: 0.80
     if:
       type: string
-      regex: "headers.*json|json.*headers"
+      regex: "headers.{0,50}json|json.{0,50}headers"
 
   - id: http-post-json
     desc: HTTP POST with JSON
@@ -42,7 +42,7 @@ traits:
     conf: 0.80
     if:
       type: string
-      regex: "post.*json|json.*post"
+      regex: "post.{0,50}json|json.{0,50}post"
 
   # === Data Exfiltration Pattern ===
   - id: json-data-post
@@ -51,7 +51,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      regex: "requests\\.post.*data.*json|post.*data=.*b64"
+      regex: "requests\\.post.{0,50}data.{0,50}json|post.{0,50}data=.{0,50}b64"
 
   - id: base64-json-payload
     desc: Base64 in JSON payload
@@ -59,7 +59,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      regex: "json.*b64encode|b64encode.*data"
+      regex: "json.{0,50}b64encode|b64encode.{0,50}data"
 
   # === C2 Response Handling ===
   - id: json-response-parse
@@ -76,7 +76,7 @@ traits:
     conf: 0.65
     if:
       type: string
-      regex: "response\\.text|text.*response"
+      regex: "response\\.text|text.{0,50}response"
 
 composite_rules:
   # === JSON C2 Detection ===

@@ -11,7 +11,7 @@ traits:
   # === Bundle Identifiers ===
 
   - id: bundle-id
-    desc: Apple bundle identifier (com.apple.*)
+    desc: Apple bundle identifier (com.apple.{0,50})
     crit: inert
     conf: 0.95
     if:

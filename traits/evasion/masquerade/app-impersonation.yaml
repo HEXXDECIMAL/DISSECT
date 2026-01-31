@@ -90,7 +90,7 @@ composite_rules:
   # === Impersonation Detection ===
   - id: apple-service-impersonation
     desc: Apple service impersonation
-    crit: hostile
+    crit: suspicious
     conf: 0.98
     attack: "T1036.005"
     mbc: "F0004"
@@ -103,7 +103,7 @@ composite_rules:
 
   - id: system-app-masquerade
     desc: System application masquerade
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     attack: "T1036.005"
     count_min: 2

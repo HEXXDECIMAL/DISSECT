@@ -8,7 +8,7 @@ traits:
     for: [go]
     if:
       type: string
-      pattern: 'base64\..*Encoding\.DecodeString'
+      pattern: 'base64\..{0,50}Encoding\.DecodeString'
 
   - id: hex
     desc: "Decodes hexadecimal strings"

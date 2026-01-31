@@ -32,7 +32,7 @@ traits:
     for: [macho, elf]
     if:
       type: symbol
-      pattern: "vxshell/src/common/shell.*Start"
+      pattern: "vxshell/src/common/shell.{0,50}Start"
 
   - id: socks-start
     desc: VXShell SOCKS start function
@@ -41,7 +41,7 @@ traits:
     for: [macho, elf]
     if:
       type: symbol
-      pattern: "vxshell/src/common/socks.*Start"
+      pattern: "vxshell/src/common/socks.{0,50}Start"
 
 composite_rules:
   - id: indicators

@@ -17,7 +17,7 @@ traits:
     conf: 0.75
     if:
       type: content
-      regex: "open\\(.*\\.env.*\\)|with open\\(.*\\.env"
+      regex: "open\\(.{0,50}\\.env.{0,50}\\)|with open\\(.{0,50}\\.env"
 
   - id: dotenv-read-secrets
     desc: Dotenv secrets reading
@@ -25,7 +25,7 @@ traits:
     conf: 0.85
     if:
       type: content
-      regex: "\\.env.*read\\(\\)|dotenv.*read"
+      regex: "\\.env.{0,50}read\\(\\)|dotenv.{0,50}read"
 
   # === Environment Variable Theft ===
   - id: environ-iteration
@@ -34,7 +34,7 @@ traits:
     conf: 0.80
     if:
       type: content
-      regex: "for.*os\\.environ\\.items\\(\\)|os\\.environ\\.items\\(\\)"
+      regex: "for.{0,50}os\\.environ\\.items\\(\\)|os\\.environ\\.items\\(\\)"
 
   - id: environ-dict-access
     desc: Environment variables as dict
@@ -51,7 +51,7 @@ traits:
     conf: 0.85
     if:
       type: content
-      regex: "powershell.*Get-ChildItem|Get-ChildItem.*-Recurse"
+      regex: "powershell.{0,50}Get-ChildItem|Get-ChildItem.{0,50}-Recurse"
 
   - id: available-drives-enum
     desc: Available drives enumeration
@@ -59,7 +59,7 @@ traits:
     conf: 0.80
     if:
       type: content
-      regex: "ascii_uppercase.*exists|available_drives"
+      regex: "ascii_uppercase.{0,50}exists|available_drives"
 
 composite_rules:
   # === Dotenv Credential Theft ===
@@ -77,7 +77,7 @@ composite_rules:
 
   - id: env-exfiltration
     desc: Environment variable exfiltration
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     attack: "T1552.001"
     mbc: "B0014"

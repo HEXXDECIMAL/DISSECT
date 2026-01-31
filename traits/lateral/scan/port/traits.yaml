@@ -204,7 +204,7 @@ traits:
 
   - id: brute-force-ref
     description: Brute force attack reference
-    crit: suspicious
+    crit: notable
     confidence: 0.85
     attack: "T1110"
     platforms: [all]

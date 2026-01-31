@@ -13,7 +13,7 @@ traits:
   # === PyPI Typosquatting ===
   - id: pypi-online-typosquat
     desc: PyPI typosquat domain
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     if:
       type: string
@@ -21,7 +21,7 @@ traits:
 
   - id: pypi-typosquat-pattern
     desc: PyPI typosquat pattern
-    crit: hostile
+    crit: suspicious
     conf: 0.90
     if:
       type: string
@@ -48,7 +48,7 @@ traits:
   # === oshelper Marker ===
   - id: oshelper-filename
     desc: oshelper malware marker
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     if:
       type: string
@@ -56,7 +56,7 @@ traits:
 
   - id: oshelper-session-cookie
     desc: oshelper session cookie
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     if:
       type: string
@@ -66,7 +66,7 @@ composite_rules:
   # === PyPI Typosquat Attack ===
   - id: pypi-typosquat-attack
     desc: PyPI typosquatting attack
-    crit: hostile
+    crit: suspicious
     conf: 0.98
     attack: "T1036.005"
     file_types: [python, shell]

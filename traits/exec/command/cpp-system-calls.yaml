@@ -32,7 +32,7 @@ traits:
     conf: 0.85
     if:
       type: symbol
-      pattern: "std::__1::basic_string.*char_traits"
+      pattern: "std::__1::basic_string.{0,50}char_traits"
 
   - id: cpp-exception
     desc: "Uses C++ exceptions"

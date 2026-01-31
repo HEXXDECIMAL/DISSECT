@@ -165,7 +165,7 @@ traits:
     conf: 0.5
     if:
       type: content
-      regex: "clipboard.*requests\\.post|requests\\.post.*clipboard"
+      regex: "clipboard.{0,50}requests\\.post|requests\\.post.{0,50}clipboard"
 
   - id: requests-get-clip
     desc: requests.get with clipboard
@@ -173,7 +173,7 @@ traits:
     conf: 0.4
     if:
       type: content
-      regex: "clipboard.*requests\\.get|requests\\.get.*clipboard"
+      regex: "clipboard.{0,50}requests\\.get|requests\\.get.{0,50}clipboard"
 
   - id: urllib-clip
     desc: urllib with clipboard
@@ -181,7 +181,7 @@ traits:
     conf: 0.4
     if:
       type: content
-      regex: "clipboard.*urllib|urllib.*clipboard"
+      regex: "clipboard.{0,50}urllib|urllib.{0,50}clipboard"
 
   - id: socket-clip
     desc: socket with clipboard
@@ -189,7 +189,7 @@ traits:
     conf: 0.4
     if:
       type: content
-      regex: "clipboard.*socket|socket.*clipboard"
+      regex: "clipboard.{0,50}socket|socket.{0,50}clipboard"
 
   # === Loop/persistence atomic (require clipboard context) ===
   - id: while-clipboard-loop
@@ -198,7 +198,7 @@ traits:
     conf: 0.5
     if:
       type: content
-      regex: "while.*clipboard|clipboard.*while"
+      regex: "while.{0,50}clipboard|clipboard.{0,50}while"
 
   - id: schedule-clipboard
     desc: schedule with clipboard
@@ -206,7 +206,7 @@ traits:
     conf: 0.5
     if:
       type: content
-      regex: "schedule.*clipboard|clipboard.*schedule"
+      regex: "schedule.{0,50}clipboard|clipboard.{0,50}schedule"
 
   - id: time-sleep-clipboard
     desc: time.sleep with clipboard
@@ -214,7 +214,7 @@ traits:
     conf: 0.5
     if:
       type: content
-      regex: "time\\.sleep.*clipboard|clipboard.*time\\.sleep"
+      regex: "time\\.sleep.{0,50}clipboard|clipboard.{0,50}time\\.sleep"
 
   # === Message loop atomic ===
   - id: wndproc-keyword

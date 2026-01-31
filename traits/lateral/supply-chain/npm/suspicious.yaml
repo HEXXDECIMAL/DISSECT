@@ -18,7 +18,7 @@ traits:
       pattern: "module.exports"
 
   - id: exports-dot-pattern
-    description: CommonJS exports.* pattern
+    description: CommonJS exports.{0,50} pattern
     crit: inert
     confidence: 0.8
     file_types: [javascript]

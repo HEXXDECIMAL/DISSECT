@@ -148,7 +148,7 @@ traits:
 
   # === C2 Beaconing Patterns ===
   - id: sleep-in-while-true
-    desc: Sleep in infinite loop (C2 beaconing pattern)
+    desc: Infinite loop with sleep delay
     crit: suspicious
     conf: 0.85
     mbc: "B0030"
@@ -167,7 +167,7 @@ traits:
     for: [python, javascript, shell]
     if:
       type: string
-      regex: "(while.*True|while\\s+1).*sleep"
+      regex: "(while.{0,50}True|while\\s+1).{0,50}sleep"
 
   # === JSON C2 Communication ===
   - id: json-content-type-header
@@ -178,7 +178,7 @@ traits:
     attack: "T1071.001"
     if:
       type: string
-      regex: "application/json.*charset"
+      regex: "application/json.{0,50}charset"
 
 composite_rules:
   # HTTP template composite

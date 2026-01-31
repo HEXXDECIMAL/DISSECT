@@ -17,7 +17,7 @@ traits:
     attack: "T1059"
     if:
       type: string
-      regex: 'require.*fiddle|Fiddle\.dlopen|dlopen.*lib'
+      regex: 'require.{0,50}fiddle|Fiddle\.dlopen|dlopen.{0,50}lib'
 
   # === Shared Library Execution ===
   - id: shared-lib-exec
@@ -27,7 +27,7 @@ traits:
     attack: "T1059"
     if:
       type: string
-      regex: '\.so.*ruby|fiddle.*\.so|lib\.so'
+      regex: '\.so.{0,50}ruby|fiddle.{0,50}\.so|lib\.so'
 
   # === Setuid Privilege Escalation ===
   - id: setuid-privesc
@@ -47,7 +47,7 @@ traits:
     attack: "T1068"
     if:
       type: string
-      regex: 'exec.*bin/sh.*root|setuid.*exec.*sh|/bin/sh.*setuid'
+      regex: 'exec.{0,50}bin/sh.{0,50}root|setuid.{0,50}exec.{0,50}sh|/bin/sh.{0,50}setuid'
 
   # === File Read ===
   - id: ruby-file-read
@@ -57,7 +57,7 @@ traits:
     attack: "T1083"
     if:
       type: string
-      regex: 'File\.read|puts File\.read|File\.open.*read'
+      regex: 'File\.read|puts File\.read|File\.open.{0,50}read'
 
   # === File Write ===
   - id: ruby-file-write
@@ -67,7 +67,7 @@ traits:
     attack: "T1083"
     if:
       type: string
-      regex: 'File\.open.*w.*write|File\.write|f\.write'
+      regex: 'File\.open.{0,50}w.{0,50}write|File\.write|f\.write'
 
   # === Shell Execution via Ruby ===
   - id: ruby-shell-exec
@@ -77,7 +77,7 @@ traits:
     attack: "T1059"
     if:
       type: string
-      regex: 'exec.*bin/sh|exec.*bin/bash|system.*bin/sh'
+      regex: 'exec.{0,50}bin/sh|exec.{0,50}bin/bash|system.{0,50}bin/sh'
 
   # === Command Line Ruby ===
   - id: cli-ruby-exec

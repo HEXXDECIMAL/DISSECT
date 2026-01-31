@@ -14,7 +14,7 @@ traits:
     crit: inert
     if:
       type: symbol
-      pattern: "std::__1::basic_string.*(append|push_back|operator\\+=)"
+      pattern: "std::__1::basic_string.{0,50}(append|push_back|operator\\+=)"
 
   - id: popen-call
     desc: "Executes command via popen"

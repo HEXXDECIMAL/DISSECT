@@ -53,6 +53,6 @@ traits:
     conf: 0.75
     if:
       type: string
-      regex: "decrypt.*payment|pay.*bitcoin|ransom.*note|your files.*encrypted"
+      regex: "decrypt.{0,50}payment|pay.{0,50}bitcoin|ransom.{0,50}note|your files.{0,50}encrypted"
       case_insensitive: true
 

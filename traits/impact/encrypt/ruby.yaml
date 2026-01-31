@@ -16,12 +16,12 @@ traits:
     attack: "T1486"
     if:
       type: string
-      regex: 'require.*chilkat|Chilkat|chilkat'
+      regex: 'require.{0,50}chilkat|Chilkat|chilkat'
 
   # === Encrypt Module ===
   - id: encrypt-module
     desc: Encryption module import
-    crit: suspicious
+    crit: notable
     conf: 0.80
     attack: "T1486"
     if:
@@ -31,7 +31,7 @@ traits:
   # === Decrypt Module ===
   - id: decrypt-module
     desc: Decryption module import
-    crit: suspicious
+    crit: notable
     conf: 0.80
     attack: "T1486"
     if:
@@ -41,12 +41,12 @@ traits:
   # === Directory File Enumeration ===
   - id: dir-file-enum
     desc: Directory file enumeration
-    crit: notable
+    crit: inert
     conf: 0.75
     attack: "T1083"
     if:
       type: string
-      regex: 'Dir\[.*\*\*.*\*\.\*|Dir\.glob|input.*\*\*'
+      regex: 'Dir\[.{0,50}\*\*.{0,50}\*\.\*|Dir\.glob|input.{0,50}\*\*'
 
   # === File Operation Loop ===
   - id: file-operation-loop
@@ -56,7 +56,7 @@ traits:
     attack: "T1486"
     if:
       type: string
-      regex: 'for i in input|\.each.*file|loop.*encrypt'
+      regex: 'for i in input|\.each.{0,50}file|loop.{0,50}encrypt'
 
   # === Ransom Note Creation ===
   - id: ransom-note-create
@@ -66,7 +66,7 @@ traits:
     attack: "T1491"
     if:
       type: string
-      regex: 'Readme\.txt|ransom|hackend.*encrypted|README.*PUTS|\.puts.*banner'
+      regex: 'Readme\.txt|ransom|hackend.{0,50}encrypted|README.{0,50}PUTS|\.puts.{0,50}banner'
 
   # === Ransom Banner/Art ===
   - id: ransomware-banner
@@ -76,7 +76,7 @@ traits:
     attack: "T1491"
     if:
       type: string
-      regex: '████|banner|卐|hackend'
+      regex: '████|卐|hackend'
 
   # === System Clear Screen ===
   - id: clear-screen
@@ -85,7 +85,7 @@ traits:
     conf: 0.50
     if:
       type: string
-      regex: "system.*clear|system.*'clear'|system.*\"clear\""
+      regex: "system.{0,50}clear|system.{0,50}'clear'|system.{0,50}\"clear\""
 
   # === Interactive Menu ===
   - id: interactive-menu
@@ -94,17 +94,17 @@ traits:
     conf: 0.60
     if:
       type: string
-      regex: 'Choose.*option|case out|when.*Encrypt|when.*Decrypt|Exit'
+      regex: 'Choose.{0,50}option|case out|when.{0,50}Encrypt|when.{0,50}Decrypt|Exit'
 
   # === Recursive Directory Access ===
   - id: recursive-dir-access
     desc: Recursive directory access
-    crit: suspicious
+    crit: inert
     conf: 0.80
     attack: "T1083"
     if:
       type: string
-      regex: '\*\*/\*\..*|Dir\.pwd|\.pwd'
+      regex: '\*\*/\*\..{0,50}|Dir\.pwd|\.pwd'
 
 composite_rules:
   # === Ransomware Tool ===

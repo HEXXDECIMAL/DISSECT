@@ -38,7 +38,7 @@ traits:
     conf: 0.6
     if:
       type: symbol
-      regex: "ENV.*fetch"
+      regex: "ENV.{0,50}fetch"
 
   # Process info
   - id: process-pid
@@ -47,7 +47,7 @@ traits:
     conf: 0.6
     if:
       type: symbol
-      regex: "Process.*pid"
+      regex: "Process.{0,50}pid"
 
   - id: process-ppid
     desc: Process.ppid method
@@ -55,7 +55,7 @@ traits:
     conf: 0.6
     if:
       type: symbol
-      regex: "Process.*ppid"
+      regex: "Process.{0,50}ppid"
 
   - id: process-uid
     desc: Process.uid method
@@ -63,7 +63,7 @@ traits:
     conf: 0.6
     if:
       type: symbol
-      regex: "Process.*uid"
+      regex: "Process.{0,50}uid"
 
   - id: process-gid
     desc: Process.gid method
@@ -71,7 +71,7 @@ traits:
     conf: 0.6
     if:
       type: symbol
-      regex: "Process.*gid"
+      regex: "Process.{0,50}gid"
 
 composite_rules:
   - id: ruby-dns-resolve

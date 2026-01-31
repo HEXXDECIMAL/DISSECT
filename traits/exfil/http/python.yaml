@@ -14,14 +14,14 @@ traits:
     conf: 0.8
     if:
       type: content
-      regex: "(platform|uname|hostname).*(post|send|request)"
+      regex: "(platform|uname|hostname).{0,50}(post|send|request)"
 
   - id: file-read-http-send
     desc: Read file and HTTP send
     conf: 0.8
     if:
       type: content
-      regex: "open\\(.*read\\(.*(post|send|request)"
+      regex: "open\\(.{0,50}read\\(.{0,50}(post|send|request)"
 
 composite_rules:
   - id: exfiltration

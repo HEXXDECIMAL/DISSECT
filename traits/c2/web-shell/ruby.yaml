@@ -48,7 +48,7 @@ traits:
     attack: "T1059"
     if:
       type: string
-      regex: "\\$ |> |bash\\$|sh\\$"
+      regex: "bash\\$|sh\\$|zsh\\$"
 
   # === Exit Command Pattern ===
   - id: exit-command-check

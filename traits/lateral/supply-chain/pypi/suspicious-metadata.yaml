@@ -17,7 +17,7 @@ traits:
     conf: 0.65
     if:
       type: string
-      regex: "description.*=.*['\"](Yes|No|Ok|Test|Demo|Sample|.)['\"]"
+      regex: "description.{0,50}=.{0,50}['\"](Yes|No|Ok|Test|Demo|Sample|.)['\"]"
 
   - id: single-word-description
     desc: Single word description
@@ -25,7 +25,7 @@ traits:
     conf: 0.60
     if:
       type: string
-      regex: "description.*=.*['\"][a-zA-Z]{1,10}['\"][,\n]"
+      regex: "description.{0,50}=.{0,50}['\"][a-zA-Z]{1,10}['\"][,\n]"
 
   # === Suspicious Author ===
   - id: placeholder-author
@@ -34,7 +34,7 @@ traits:
     conf: 0.65
     if:
       type: string
-      regex: "author.*=.*['\"](haha|lol|test|admin|user|dev|me)['\"]"
+      regex: "author.{0,50}=.{0,50}['\"](haha|lol|test|admin|user|dev|me)['\"]"
 
   - id: generic-email
     desc: Generic email address
@@ -42,7 +42,7 @@ traits:
     conf: 0.60
     if:
       type: string
-      regex: "author_email.*@(gmail|outlook|yahoo|hotmail)\\.com"
+      regex: "author_email.{0,50}@(gmail|outlook|yahoo|hotmail)\\.com"
 
   # === Suspicious Version ===
   - id: suspicious-version-pattern
@@ -51,7 +51,7 @@ traits:
     conf: 0.55
     if:
       type: string
-      regex: "version.*=.*['\"]0\\.[0-9]{1,2}['\"]"
+      regex: "version.{0,50}=.{0,50}['\"]0\\.[0-9]{1,2}['\"]"
 
   # === Empty Metadata ===
   - id: empty-keywords
@@ -60,7 +60,7 @@ traits:
     conf: 0.50
     if:
       type: string
-      regex: "keywords.*=.*\\[\\]"
+      regex: "keywords.{0,50}=.{0,50}\\[\\]"
 
   - id: empty-classifiers
     desc: Empty classifiers list
@@ -68,7 +68,7 @@ traits:
     conf: 0.50
     if:
       type: string
-      regex: "classifiers.*=.*\\[\\]"
+      regex: "classifiers.{0,50}=.{0,50}\\[\\]"
 
 composite_rules:
   # === Suspicious Metadata Profile ===

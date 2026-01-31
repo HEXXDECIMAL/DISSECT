@@ -17,7 +17,7 @@ traits:
     conf: 0.70
     if:
       type: string
-      regex: "install_requires.*gitpython|gitpython.*install"
+      regex: "install_requires.{0,50}gitpython|gitpython.{0,50}install"
 
   - id: dependency-sockets
     desc: sockets library dependency
@@ -25,7 +25,7 @@ traits:
     conf: 0.65
     if:
       type: string
-      regex: "install_requires.*sockets|sockets.*install"
+      regex: "install_requires.{0,50}sockets|sockets.{0,50}install"
 
   - id: dependency-discord-py
     desc: discord.py dependency
@@ -33,7 +33,7 @@ traits:
     conf: 0.60
     if:
       type: string
-      regex: "install_requires.*discord|discord\\.py.*install"
+      regex: "install_requires.{0,50}discord|discord\\.py.{0,50}install"
 
   - id: dependency-requests-sockets
     desc: requests and sockets combo
@@ -41,7 +41,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      regex: "requests.*sockets|sockets.*requests"
+      regex: "requests.{0,50}sockets|sockets.{0,50}requests"
 
   # === Suspicious Combo ===
   - id: suspicious-dep-combo
@@ -50,7 +50,7 @@ traits:
     conf: 0.80
     if:
       type: string
-      regex: "(gitpython|sockets|aiohttp).*(discord|requests).*(pynput|keyboard)"
+      regex: "(gitpython|sockets|aiohttp).{0,50}(discord|requests).{0,50}(pynput|keyboard)"
 
 composite_rules:
   # === PyPI Dependency Analysis ===

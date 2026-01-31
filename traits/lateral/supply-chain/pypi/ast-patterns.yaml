@@ -18,7 +18,7 @@ traits:
     if:
       type: ast_pattern
       node_type: function_definition
-      pattern: "def run\\(self\\):.*^\\s+import"
+      pattern: "def run\\(self\\):.{0,50}^\\s+import"
       regex: true
 
   # === AST Pattern: Method Override ===
@@ -39,7 +39,7 @@ traits:
     if:
       type: ast_pattern
       node_type: call
-      pattern: "\\.clone\\(.*\\)"
+      pattern: "\\.clone\\(.{0,50}\\)"
       count_min: 2
 
   # === AST Pattern: Environment Set in Method ===
@@ -50,12 +50,12 @@ traits:
     if:
       type: ast_pattern
       node_type: assignment
-      pattern: "os\\.environ\\[.*\\]"
+      pattern: "os\\.environ\\[.{0,50}\\]"
 
   # === AST Pattern: Sequential File Operations ===
   - id: ast-clone-move-execute-chain
     desc: Clone move execute chain
-    crit: hostile
+    crit: suspicious
     conf: 0.90
     if:
       type: ast_pattern
@@ -71,7 +71,7 @@ traits:
     if:
       type: ast_pattern
       node_type: keyword_argument
-      pattern: "cmdclass.*install"
+      pattern: "cmdclass.{0,50}install"
 
 composite_rules:
   # === AST-Based Supply Chain Detection ===

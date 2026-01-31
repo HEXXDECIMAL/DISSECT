@@ -36,7 +36,7 @@ traits:
     attack: "T1083"
     if:
       type: string
-      regex: 'max_depth|depth.*[0-9]'
+      regex: 'max_depth|depth.{0,50}[0-9]'
 
   # === File Collection ===
   - id: file-array-append
@@ -56,7 +56,7 @@ traits:
     attack: "T1083"
     if:
       type: string
-      regex: 'directories.*<<|dirs.*<<'
+      regex: 'directories.{0,50}<<|dirs.{0,50}<<'
 
   # === Extension Manipulation ===
   - id: file-extension-rename
@@ -66,7 +66,7 @@ traits:
     attack: "T1027"
     if:
       type: string
-      regex: 'File\.rename.*\.rb|\.rb.*File\.rename'
+      regex: 'File\.rename.{0,50}\.rb|\.rb.{0,50}File\.rename'
 
   - id: split-extension
     desc: File name extension splitting
@@ -75,7 +75,7 @@ traits:
     attack: "T1027"
     if:
       type: string
-      regex: 'split.*\.|file_name.*split'
+      regex: 'split.{0,50}\.|file_name.{0,50}split'
 
   # === Self-Replication ===
   - id: self-file-reference
@@ -85,7 +85,7 @@ traits:
     attack: "T1059"
     if:
       type: string
-      regex: '__FILE__|File\.basename.*__FILE__'
+      regex: '__FILE__|File\.basename.{0,50}__FILE__'
 
   - id: read-self-content
     desc: Reading own file content
@@ -94,7 +94,7 @@ traits:
     attack: "T1059"
     if:
       type: string
-      regex: 'File\.open.*__FILE__|File\.read.*__FILE__|file_malware\.read'
+      regex: 'File\.open.{0,50}__FILE__|File\.read.{0,50}__FILE__|file_malware\.read'
 
   - id: write-to-other-files
     desc: Writing content to other files
@@ -103,7 +103,7 @@ traits:
     attack: "T1059"
     if:
       type: string
-      regex: 'File\.open.*w.*file|file_target\.write|write\(content'
+      regex: 'File\.open.{0,50}w.{0,50}file|file_target\.write|write\(content'
 
   # === Self-Preservation ===
   - id: skip-self-check
@@ -113,7 +113,7 @@ traits:
     attack: "T1070"
     if:
       type: string
-      regex: 'next if file == __FILE__|file_name\[0\].*malware\.rb|file_name\[0\].*main\.rb'
+      regex: 'next if file == __FILE__|file_name\[0\].{0,50}malware\.rb|file_name\[0\].{0,50}main\.rb'
 
   - id: exception-swallow-file-ops
     desc: Exception swallowing for file operations
@@ -122,7 +122,7 @@ traits:
     attack: "T1070"
     if:
       type: string
-      regex: 'rescue.*next|begin.*rescue.*File'
+      regex: 'rescue.{0,50}next|begin.{0,50}rescue.{0,50}File'
 
 composite_rules:
   # === File Enumerator ===

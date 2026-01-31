@@ -15,4 +15,4 @@ traits:
     attack: "T1083"
     if:
       type: string
-      regex: 'File\.write|f\.write|File\.open.*w.*write'
+      regex: 'File\.write|f\.write|File\.open.{0,50}w.{0,50}write'

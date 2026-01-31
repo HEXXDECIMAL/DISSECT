@@ -234,7 +234,7 @@ fn test_apply_trait_defaults_applies_all_defaults() {
         },
     };
 
-    let result = parsing::apply_trait_defaults(raw, &defaults);
+    let result = parsing::apply_trait_defaults(raw, &defaults, &mut Vec::new());
 
     assert_eq!(result.conf, 0.85);
     assert_eq!(result.crit, Criticality::Suspicious);
@@ -280,7 +280,7 @@ fn test_apply_trait_defaults_trait_overrides_defaults() {
         },
     };
 
-    let result = parsing::apply_trait_defaults(raw, &defaults);
+    let result = parsing::apply_trait_defaults(raw, &defaults, &mut Vec::new());
 
     assert_eq!(result.conf, 0.99);
     // Atomic traits cannot be HOSTILE, so they get downgraded to SUSPICIOUS
@@ -327,7 +327,7 @@ fn test_apply_trait_defaults_unset_mbc_with_none() {
         },
     };
 
-    let result = parsing::apply_trait_defaults(raw, &defaults);
+    let result = parsing::apply_trait_defaults(raw, &defaults, &mut Vec::new());
 
     assert_eq!(result.mbc, None); // Unset despite default
     assert_eq!(result.attack, Some("T1059".to_string())); // Default applied
@@ -369,7 +369,7 @@ fn test_apply_trait_defaults_unset_attack_with_none() {
         },
     };
 
-    let result = parsing::apply_trait_defaults(raw, &defaults);
+    let result = parsing::apply_trait_defaults(raw, &defaults, &mut Vec::new());
 
     assert_eq!(result.mbc, Some("B0001".to_string())); // Default applied
     assert_eq!(result.attack, None); // Unset despite default
@@ -411,7 +411,7 @@ fn test_apply_trait_defaults_unset_file_types_with_none() {
         },
     };
 
-    let result = parsing::apply_trait_defaults(raw, &defaults);
+    let result = parsing::apply_trait_defaults(raw, &defaults, &mut Vec::new());
 
     // When unset, file_types defaults to [All]
     assert_eq!(result.r#for, vec![RuleFileType::All]);
@@ -574,6 +574,7 @@ traits:
     let t1 = parsing::apply_trait_defaults(
         mappings.traits.into_iter().next().unwrap(),
         &mappings.defaults,
+        &mut Vec::new(),
     );
     assert_eq!(t1.mbc, Some("B0001".to_string()));
     assert_eq!(t1.attack, Some("T1059".to_string()));
@@ -1560,7 +1561,7 @@ fn test_complexity_threshold_validation() {
     let traits = vec![];
 
     // Run validation
-    validation::validate_hostile_composite_complexity(&mut composites, &traits);
+    validation::validate_hostile_composite_complexity(&mut composites, &traits, &mut Vec::new());
 
     // Check that low complexity was downgraded
     let low_rule = composites

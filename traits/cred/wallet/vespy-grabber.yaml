@@ -17,15 +17,15 @@ traits:
     conf: 0.95
     if:
       type: string
-      regex: "procdump\\.exe|cdn\\.discordapp.*procdump"
+      regex: "procdump\\.exe|cdn\\.discordapp.{0,50}procdump"
 
   - id: procdump-execution
     desc: Procdump memory dump execution
-    crit: hostile
+    crit: suspicious
     conf: 0.98
     if:
       type: content
-      regex: "procvesp111.*procdump|procdump.*-ma|procvesp.*-accepteula"
+      regex: "procvesp111.{0,50}procdump|procdump.{0,50}-ma|procvesp.{0,50}-accepteula"
 
   - id: dmp-file-creation
     desc: Memory dump file creation
@@ -33,7 +33,7 @@ traits:
     conf: 0.90
     if:
       type: content
-      regex: "\\.dmp.*write|write.*\\.dmp|exodus\\.dmp"
+      regex: "\\.dmp.{0,50}write|write.{0,50}\\.dmp|exodus\\.dmp"
 
   # === Wallet Process Targeting ===
   - id: exodus-process-enum
@@ -42,7 +42,7 @@ traits:
     conf: 0.95
     if:
       type: content
-      regex: "Exodus\\.exe.*process_iter|process_iter.*Exodus"
+      regex: "Exodus\\.exe.{0,50}process_iter|process_iter.{0,50}Exodus"
 
   - id: wallet-process-targeting
     desc: Wallet process targeting
@@ -50,7 +50,7 @@ traits:
     conf: 0.90
     if:
       type: content
-      regex: "exodus\\.wallet|process.*Exodus|Exodus.*pid"
+      regex: "exodus\\.wallet|process.{0,50}Exodus|Exodus.{0,50}pid"
 
   # === Additional Wallet Extensions ===
   - id: atomic-wallet-target
@@ -59,7 +59,7 @@ traits:
     conf: 0.85
     if:
       type: content
-      regex: "atomic.*wallet|Atomic.*wallet"
+      regex: "atomic.{0,50}wallet|Atomic.{0,50}wallet"
 
   - id: electrum-wallet-target
     desc: Electrum wallet targeting
@@ -67,7 +67,7 @@ traits:
     conf: 0.85
     if:
       type: content
-      regex: "electrum.*wallet|electrum.*path"
+      regex: "electrum.{0,50}wallet|electrum.{0,50}path"
 
   - id: guarda-wallet-target
     desc: Guarda wallet targeting
@@ -75,7 +75,7 @@ traits:
     conf: 0.85
     if:
       type: content
-      regex: "guarda.*wallet|GUARDA.*wallet"
+      regex: "guarda.{0,50}wallet|GUARDA.{0,50}wallet"
 
   - id: bitpay-wallet-target
     desc: BitPay wallet targeting
@@ -83,7 +83,7 @@ traits:
     conf: 0.85
     if:
       type: content
-      regex: "bitpay.*wallet|B1Tpay.*wallet"
+      regex: "bitpay.{0,50}wallet|B1Tpay.{0,50}wallet"
 
   - id: coinomi-wallet-target
     desc: Coinomi wallet targeting
@@ -91,7 +91,7 @@ traits:
     conf: 0.85
     if:
       type: content
-      regex: "coinomi.*wallet|coinomi.*path"
+      regex: "coinomi.{0,50}wallet|coinomi.{0,50}path"
 
   - id: armory-wallet-target
     desc: Armory wallet targeting
@@ -99,12 +99,12 @@ traits:
     conf: 0.85
     if:
       type: content
-      regex: "armory.*wallet|armory.*path"
+      regex: "armory.{0,50}wallet|armory.{0,50}path"
 
   # === Vespy Markers ===
   - id: vespy-marker-file
     desc: Vespy marker file
-    crit: hostile
+    crit: suspicious
     conf: 0.98
     if:
       type: string
@@ -116,7 +116,7 @@ traits:
     conf: 0.90
     if:
       type: content
-      regex: "P4THF0LDR|W4ll3ts|Wallets.*class"
+      regex: "P4THF0LDR|W4ll3ts|Wallets.{0,50}class"
 
   # === Multi-Profile Browser Targeting ===
   - id: multi-profile-browser-theft
@@ -125,7 +125,7 @@ traits:
     conf: 0.85
     if:
       type: content
-      regex: "Profile [0-9].*Local Extension|Default.*Profile [0-9]"
+      regex: "Profile [0-9].{0,50}Local Extension|Default.{0,50}Profile [0-9]"
 
 composite_rules:
   # === Vespy Grabber Detection ===

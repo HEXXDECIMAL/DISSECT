@@ -25,7 +25,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      regex: "000webhostapp.*http|http.*000webhostapp"
+      regex: "000webhostapp.{0,50}http|http.{0,50}000webhostapp"
 
   # === Other Free Webhosts ===
   - id: free-webhost-domain
@@ -42,7 +42,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      regex: "(freehost|byethost|000webhost).*:[0-9]+"
+      regex: "(freehost|byethost|000webhost).{0,50}:[0-9]+"
 
 composite_rules:
   - id: free-webhost-c2-channel

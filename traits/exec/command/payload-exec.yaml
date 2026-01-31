@@ -119,7 +119,7 @@ composite_rules:
 
   - id: stealth-execution
     desc: Stealth payload execution
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     attack: "T1059"
     mbc: "E1059"

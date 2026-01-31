@@ -124,7 +124,7 @@ traits:
     if:
       type: ast_pattern
       node_type: call_expression
-      pattern: "HOOK(.*integrity|.*exploit|.*pcfi)"
+      pattern: "HOOK(.{0,50}integrity|.{0,50}exploit|.{0,50}pcfi)"
       regex: true
 
 composite_rules:

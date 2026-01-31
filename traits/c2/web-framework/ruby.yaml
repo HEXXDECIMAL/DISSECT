@@ -56,7 +56,7 @@ traits:
     attack: "T1190"
     if:
       type: string
-      regex: "__cfduid|cookie.*scan|scan.*cookie"
+      regex: "__cfduid|cookie.{0,50}scan|scan.{0,50}cookie"
 
   # === URL-Safe Base64 Decode ===
   - id: urlsafe-base64-decode

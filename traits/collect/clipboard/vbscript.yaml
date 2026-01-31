@@ -26,7 +26,7 @@ traits:
     attack: "T1115"
     if:
       type: string
-      regex: 'Do.*Loop|While.*True.*Clipboard|Clipboard.*sleep'
+      regex: 'Do.{0,50}Loop|While.{0,30}True.{0,30}Clipboard|Clipboard.{0,30}sleep'
 
   # === Bitcoin Address Pattern ===
   - id: bitcoin-address
@@ -36,7 +36,7 @@ traits:
     attack: "T1649"
     if:
       type: string
-      regex: 'bc1[a-zA-Z0-9]{20,50}|1[a-zA-Z0-9]{25,35}|3[a-zA-Z0-9]{25,35}'
+      regex: '\b(bc1[a-zA-Z0-9]{25,59}|1[a-km-zA-HJ-NP-Z1-9]{25,34}|3[a-km-zA-HJ-NP-Z1-9]{25,34})\b'
 
   # === Monero Address Pattern ===
   - id: monero-address
@@ -66,7 +66,7 @@ traits:
     attack: "T1649"
     if:
       type: string
-      regex: 'Left\(.*1\)|Len\(.*26|Len\(.*35|Len\(.*95'
+      regex: 'Left\\(.{0,30}1\\)|Len\\(.{0,30}26|Len\\(.{0,30}35|Len\\(.{0,30}95'
 
   # === Address Replacement ===
   - id: address-replacement
@@ -76,7 +76,7 @@ traits:
     attack: "T1649"
     if:
       type: string
-      regex: 'echo.*clip|\.run.*clip|replace.*address'
+      regex: 'echo.{0,30}clip|\\.run.{0,30}clip|replace.{0,30}address'
 
   # === HTMLFile Object ===
   - id: htmlfile-object
@@ -86,7 +86,7 @@ traits:
     attack: "T1115"
     if:
       type: string
-      regex: 'HTMLfile|CreateObject.*HTML'
+      regex: 'HTMLfile|CreateObject.{0,30}HTML'
 
 composite_rules:
   # === Cryptocurrency Clipboard Hijacker ===

@@ -34,7 +34,7 @@ traits:
     conf: 0.80
     if:
       type: string
-      regex: "git\\.Git.*clone|clone.*github\\.com"
+      regex: "git\\.Git.{0,50}clone|clone.{0,50}github\\.com"
 
   - id: git-clone-in-setup
     desc: Git clone during setup
@@ -42,7 +42,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      regex: "install.*clone|clone.*install|setup.*clone"
+      regex: "install.{0,50}clone|clone.{0,50}install|setup.{0,50}clone"
 
   # === Suspicious Repo Names ===
   - id: suspicious-repo-name
@@ -59,7 +59,7 @@ traits:
     conf: 0.70
     if:
       type: string
-      regex: "(not|no|anti|un|dis).*(grabber|logger|stealer|malware|virus)|^[a-z]{8,15}[0-9]{2,4}$"
+      regex: "(not|no|anti|un|dis).{0,50}(grabber|logger|stealer|malware|virus)|^[a-z]{8,15}[0-9]{2,4}$"
 
   # === Post-Install Execution ===
   - id: cmdclass-custom-install
@@ -68,7 +68,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      regex: "cmdclass.*install|CustomInstallCommand"
+      regex: "cmdclass.{0,50}install|CustomInstallCommand"
 
   - id: install-hook-execution
     desc: Install hook execution
@@ -76,7 +76,7 @@ traits:
     conf: 0.80
     if:
       type: string
-      regex: "class.*install.*run|def run.*install"
+      regex: "class.{0,50}install.{0,50}run|def run.{0,50}install"
 
 composite_rules:
   # === GitPython Malicious Usage ===
@@ -96,7 +96,7 @@ composite_rules:
 
   - id: supply-chain-gitclone
     desc: Supply chain via git clone
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     attack: "T1071.001"
     mbc: "E1105"

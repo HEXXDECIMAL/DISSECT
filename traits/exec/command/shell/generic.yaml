@@ -80,7 +80,7 @@ traits:
     language: go
     if:
       type: symbol
-      regex: 'os/exec\..*'
+      regex: 'os/exec\..{0,50}'
 
   # Python
   - id: python-os-system
@@ -105,7 +105,7 @@ traits:
     language: javascript
     if:
       type: symbol
-      regex: 'child_process\.(exec|spawn|fork).*'
+      regex: 'child_process\.(exec|spawn|fork).{0,50}'
 
   # Ruby
   - id: ruby-system
@@ -130,7 +130,7 @@ traits:
     language: rust
     if:
       type: symbol
-      regex: 'std::process::Command::.*'
+      regex: 'std::process::Command::.{0,50}'
 
   # Shell references
   - id: bin-sh

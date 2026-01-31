@@ -27,7 +27,7 @@ traits:
 
   - id: high-entropy-identifiers
     desc: "High entropy identifiers (random-looking variable"
-    crit: suspicious
+    crit: inert
     conf: 0.85
     # NOTE: Shell has its own threshold (3.2) in code-metrics/shell.yaml
     for:
@@ -111,11 +111,11 @@ traits:
       field: identifiers.reuse_ratio
       max: 0.15
 
-  # === Function Obfuscation ===
+  # === High Entropy Function Names ===
 
   - id: high-entropy-function-names
     desc: "Functions with random-looking names"
-    crit: suspicious
+    crit: inert
     conf: 0.85
     # NOTE: Shell has its own threshold (10) in code-metrics/shell.yaml
     for:

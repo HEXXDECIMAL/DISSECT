@@ -17,7 +17,7 @@ traits:
     conf: 0.85
     if:
       type: content
-      regex: "curl.*Hostname.*\\$\\(hostname\\)"
+      regex: "curl.{0,50}Hostname.{0,50}\\$\\(hostname\\)"
 
   - id: curl-whoami-header
     desc: curl with whoami header
@@ -25,7 +25,7 @@ traits:
     conf: 0.85
     if:
       type: content
-      regex: "curl.*Whoami.*\\$\\(whoami\\)|curl.*whoami"
+      regex: "curl.{0,50}Whoami.{0,50}\\$\\(whoami\\)|curl.{0,50}whoami"
 
   - id: curl-pwd-header
     desc: curl with pwd header
@@ -33,7 +33,7 @@ traits:
     conf: 0.85
     if:
       type: content
-      regex: "curl.*Pwd.*\\$\\(pwd\\)|curl.*pwd"
+      regex: "curl.{0,50}Pwd.{0,50}\\$\\(pwd\\)|curl.{0,50}pwd"
 
   - id: curl-directory-listing
     desc: curl with directory listing
@@ -41,7 +41,7 @@ traits:
     conf: 0.90
     if:
       type: content
-      regex: "curl.*ls.*-la|curl.*dir.*data"
+      regex: "curl.{0,50}ls.{0,50}-la|curl.{0,50}dir.{0,50}data"
 
   # === Dependency Tracking ===
   - id: curl-dependency-header
@@ -50,7 +50,7 @@ traits:
     conf: 0.90
     if:
       type: content
-      regex: "curl.*[Dd]ependency.*[Hh]eader|curl.*[Rr]epo.*[Hh]eader"
+      regex: "curl.{0,50}[Dd]ependency.{0,50}[Hh]eader|curl.{0,50}[Rr]epo.{0,50}[Hh]eader"
 
   - id: curl-package-tracking
     desc: curl tracking package install
@@ -58,7 +58,7 @@ traits:
     conf: 0.90
     if:
       type: content
-      regex: "curl.*business.*kpi|curl.*install.*track"
+      regex: "curl.{0,50}business.{0,50}kpi|curl.{0,50}install.{0,50}track"
 
   # === Pipedream Webhook ===
   - id: pipedream-recon-webhook
@@ -67,7 +67,7 @@ traits:
     conf: 0.95
     if:
       type: content
-      regex: "pipedream.*hostname|pipedream.*whoami"
+      regex: "pipedream.{0,50}hostname|pipedream.{0,50}whoami"
 
 composite_rules:
   # === System Reconnaissance Exfiltration ===

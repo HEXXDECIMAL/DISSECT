@@ -33,7 +33,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      regex: "rename.*Startup|move.*Startup|rename.*AppData"
+      regex: "rename.{0,50}Startup|move.{0,50}Startup|rename.{0,50}AppData"
 
   # === Directory Masquerading ===
   - id: directory-masquerade
@@ -42,7 +42,7 @@ traits:
     conf: 0.80
     if:
       type: string
-      regex: "(Powerpoint|Excel|Word|Outlook).*(grabber|logger|stealer|bot)|(grabber|logger|stealer).*(Powerpoint|Excel|Word)"
+      regex: "(Powerpoint|Excel|Word|Outlook).{0,50}(grabber|logger|stealer|bot)|(grabber|logger|stealer).{0,50}(Powerpoint|Excel|Word)"
 
   - id: suspicious-folder-name
     desc: Suspicious folder name
@@ -50,7 +50,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      regex: "(grabber|logger|stealer|bot).*(test|tmp|temp|boot|lmao)|^[a-z]{10,20}\\.(exe|dll)$"
+      regex: "(grabber|logger|stealer|bot).{0,50}(test|tmp|temp|boot|lmao)|^[a-z]{10,20}\\.(exe|dll)$"
 
   # === Path Manipulation ===
   - id: appdata-path-manipulation
@@ -59,7 +59,7 @@ traits:
     conf: 0.80
     if:
       type: string
-      regex: "AppData.*Roaming.*Microsoft|Roaming.*Microsoft.*Windows"
+      regex: "AppData.{0,50}Roaming.{0,50}Microsoft|Roaming.{0,50}Microsoft.{0,50}Windows"
 
   - id: startup-folder-access
     desc: Startup folder path access
@@ -67,7 +67,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      regex: "Start Menu.*Programs.*Startup.*boot"
+      regex: "Start Menu.{0,50}Programs.{0,50}Startup.{0,50}boot"
 
 composite_rules:
   # === File Masquerading ===

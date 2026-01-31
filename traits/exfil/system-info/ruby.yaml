@@ -16,7 +16,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      regex: 'RUBY_PLATFORM.*include|RUBY_PLATFORM.*match|darwin|linux|mswin'
+      regex: 'RUBY_PLATFORM.{0,50}include|RUBY_PLATFORM.{0,50}match|darwin|linux|mswin'
 
   # === Socket Hostname ===
   - id: socket-hostname
@@ -41,12 +41,12 @@ traits:
   # === System Info Collection ===
   - id: system-info-collect
     desc: System information collection
-    crit: suspicious
+    crit: notable
     conf: 0.80
     attack: "T1082"
     if:
       type: string
-      regex: 'hostname.*os.*ip|platform.*username|info\[.*hostname|to_json'
+      regex: 'hostname.{0,50}os.{0,50}ip|platform.{0,50}username|info\[.{0,50}hostname|to_json'
 
   # === Hardcoded IP Exfiltration ===
   - id: hardcoded-ip-exfil
@@ -76,7 +76,7 @@ traits:
     attack: "T1027"
     if:
       type: string
-      regex: 'Base64\.encode64.*to_json|encode64.*json|Base64\..*json'
+      regex: 'Base64\.encode64.{0,50}to_json|encode64.{0,50}json|Base64\..{0,50}json'
 
   # === Rakefile Payload ===
   - id: rakefile-payload
@@ -86,7 +86,7 @@ traits:
     attack: "T1059"
     if:
       type: string
-      regex: 'Rakefile|require.*rake'
+      regex: 'Rakefile|require.{0,50}rake'
 
 composite_rules:
   # === System Info Exfiltration ===

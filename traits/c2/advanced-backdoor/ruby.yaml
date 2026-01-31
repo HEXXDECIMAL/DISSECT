@@ -11,7 +11,7 @@ traits:
   # === RSA Public Key ===
   - id: rsa-public-key
     desc: RSA public key embedded
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1059"
     if:
@@ -21,27 +21,27 @@ traits:
   # === Cookie Session Pattern ===
   - id: cookie-session-extract
     desc: Cookie session extraction
-    crit: suspicious
+    crit: notable
     conf: 0.80
     attack: "T1190"
     if:
       type: string
-      regex: '__session|HTTP_COOKIE.*match'
+      regex: '__session|HTTP_COOKIE.{0,50}match'
 
   # === Signature Verification ===
   - id: signature-verify
     desc: Digital signature verification
-    crit: suspicious
+    crit: inert
     conf: 0.85
     attack: "T1027"
     if:
       type: string
       regex: '.verify\(|OpenSSL::Digest|sha256'
 
-  # === JSON Parse from Cookie ===
-  - id: json-parse-cookie
-    desc: JSON parsing from cookie
-    crit: suspicious
+  # === JSON Parse ===
+  - id: json-parse
+    desc: JSON parsing
+    crit: inert
     conf: 0.80
     attack: "T1190"
     if:
@@ -51,7 +51,7 @@ traits:
   # === Timestamp Validation ===
   - id: timestamp-validation
     desc: Timestamp validation check
-    crit: suspicious
+    crit: inert
     conf: 0.75
     attack: "T1070"
     if:
@@ -71,7 +71,7 @@ traits:
   # === Thread Background Execution ===
   - id: thread-background
     desc: Background thread execution
-    crit: suspicious
+    crit: inert
     conf: 0.80
     attack: "T1059"
     if:
@@ -91,12 +91,12 @@ traits:
   # === Remote Code Download ===
   - id: remote-code-download
     desc: Download code from remote URL
-    crit: suspicious
+    crit: notable
     conf: 0.90
     attack: "T1059"
     if:
       type: string
-      regex: 'open\(.*https?.*\)\.read|pastebin|raw\.github'
+      regex: 'open\(.{0,50}https?.{0,50}\)\.read|pastebin|raw\.github'
 
   # === Rails Environment Check ===
   - id: rails-env-check
@@ -111,12 +111,12 @@ traits:
   # === Exception Swallowing Function ===
   - id: exception-swallow-func
     desc: Exception swallowing function
-    crit: suspicious
+    crit: notable
     conf: 0.75
     attack: "T1070"
     if:
       type: string
-      regex: 'def _!|rescue Exception.*nil|begin.*yield.*rescue'
+      regex: 'def _!|rescue Exception.{0,50}nil|begin.{0,50}yield.{0,50}rescue'
 
 composite_rules:
   # === Signed Cookie Backdoor ===
@@ -130,7 +130,7 @@ composite_rules:
       - id: rsa-public-key
       - id: cookie-session-extract
       - id: signature-verify
-      - id: json-parse-cookie
+      - id: json-parse
       - id: timestamp-validation
       - id: c2/web-framework/rack-sendfile-hook
 

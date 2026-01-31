@@ -17,7 +17,7 @@ traits:
     conf: 0.85
     if:
       type: content
-      regex: "(curl|wget).*(HOME|~/|\\$HOME)"
+      regex: "(curl|wget).{0,50}(HOME|~/|\\$HOME)"
 
   - id: curl-silent-output
     desc: Silent curl with output
@@ -25,7 +25,7 @@ traits:
     conf: 0.75
     if:
       type: content
-      regex: "curl.*--silent.*--output|curl.*-s.*-o"
+      regex: "curl.{0,50}--silent.{0,50}--output|curl.{0,50}-s.{0,50}-o"
 
   # === Cookie-based Download Tracking ===
   - id: curl-with-cookie
@@ -34,24 +34,24 @@ traits:
     conf: 0.80
     if:
       type: content
-      regex: "curl.*--cookie.*[0-9]{10,}|curl.*-b.*[0-9]{10,}"
+      regex: "curl.{0,50}--cookie.{0,50}[0-9]{10,}|curl.{0,50}-b.{0,50}[0-9]{10,}"
 
   # === Download and Execute Chain ===
   - id: download-chmod-execute
     desc: Download chmod execute chain
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     if:
       type: content
-      regex: "(curl|wget).{0,200}chmod.*\\+x.{0,100}os\\.system"
+      regex: "(curl|wget).{0,200}chmod.{0,50}\\+x.{0,100}os\\.system"
 
   - id: write-binary-execute
     desc: Write binary and execute
-    crit: hostile
+    crit: suspicious
     conf: 0.90
     if:
       type: content
-      regex: "write\\(fileData\\).{0,100}system.*&|write\\(.*\\).{0,100}chmod.*\\+x"
+      regex: "write\\(fileData\\).{0,100}system.{0,50}&|write\\(.{0,50}\\).{0,100}chmod.{0,50}\\+x"
 
   # === Background Execution ===
   - id: background-execution-devnull
@@ -75,7 +75,7 @@ composite_rules:
   # === Download and Execute ===
   - id: download-and-execute
     desc: Download and execute payload
-    crit: hostile
+    crit: suspicious
     conf: 0.96
     attack: "T1105"
     file_types: [python, shell]

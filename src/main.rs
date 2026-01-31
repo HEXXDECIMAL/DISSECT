@@ -306,12 +306,12 @@ fn main() -> Result<()> {
             scan_paths(
                 expanded,
                 enable_third_party_global,
-            &format,
-            &zip_passwords,
-            &disabled,
-            error_if_levels.as_deref(),
-            args.verbose,
-        )?
+                &format,
+                &zip_passwords,
+                &disabled,
+                error_if_levels.as_deref(),
+                args.verbose,
+            )?
         }
     };
 

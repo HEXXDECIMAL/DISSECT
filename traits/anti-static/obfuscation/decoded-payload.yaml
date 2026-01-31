@@ -25,7 +25,7 @@ traits:
     conf: 0.85
     if:
       type: base64
-      regex: ">.*\\.(txt|exe|dll|bat|ps1)"
+      regex: ">.{0,50}\\.(txt|exe|dll|bat|ps1)"
 
   - id: decoded-windows-command
     desc: Windows command in decoded payload
@@ -33,7 +33,7 @@ traits:
     conf: 0.80
     if:
       type: base64
-      regex: "type nul|echo.*>|copy.*>|del\\s+"
+      regex: "type nul|echo.{0,50}>|copy.{0,50}>|del\\s+"
 
   # === Network in Decoded Payload ===
   - id: decoded-http-url
@@ -46,11 +46,11 @@ traits:
 
   - id: decoded-curl-wget
     desc: Download command in decoded payload
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     if:
       type: base64
-      regex: "curl.*-o|wget.*-O|Invoke-WebRequest"
+      regex: "curl.{0,50}-o|wget.{0,50}-O|Invoke-WebRequest"
 
   # === Malicious Code Patterns ===
   - id: decoded-python-import
@@ -63,7 +63,7 @@ traits:
 
   - id: decoded-eval-exec
     desc: Code execution in decoded payload
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     if:
       type: base64
@@ -85,7 +85,7 @@ composite_rules:
 
   - id: decoded-c2-payload
     desc: C2 payload decoded from base64
-    crit: hostile
+    crit: suspicious
     conf: 0.96
     attack: "T1071"
     mbc: "B0030"

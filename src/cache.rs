@@ -203,8 +203,6 @@ pub fn cleanup_old_caches(current_cache: &Path) -> Result<()> {
 mod tests {
     use super::*;
 
-
-
     #[test]
     fn test_is_developer_mode_no_traits_dir() {
         // Should return false when traits/ doesn't exist (in test environment)

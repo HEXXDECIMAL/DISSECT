@@ -24,4 +24,4 @@ traits:
     attack: "T1083"
     if:
       type: string
-      regex: 'File\.open.*read'
+      regex: 'File\.open.{0,50}read'

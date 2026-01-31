@@ -131,7 +131,7 @@ traits:
     if:
       type: ast_pattern
       node_type: function_call_expression
-      pattern: "curl_init\\s*\\(.*\\$_(GET|POST|REQUEST)"
+      pattern: "curl_init\\s*\\(.{0,50}\\$_(GET|POST|REQUEST)"
       regex: true
 
   - id: google-search-scrape
@@ -149,7 +149,7 @@ traits:
     if:
       type: ast_pattern
       node_type: function_call_expression
-      pattern: "(curl_init|file_get_contents|fopen)\\s*\\(.*\\$_(GET|POST)"
+      pattern: "(curl_init|file_get_contents|fopen)\\s*\\(.{0,50}\\$_(GET|POST)"
       regex: true
 
   - id: dynamic-user-input-call

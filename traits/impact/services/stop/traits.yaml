@@ -169,7 +169,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      regex: "(systemctl|service).*(stop|disable).*(tor|tor@)"
+      regex: "(systemctl|service).{0,50}(stop|disable).{0,50}(tor|tor@)"
 
   - id: tor-process-kill
     description: Tor process termination
@@ -177,7 +177,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      regex: "(killall|pkill|taskkill).*[tT]or"
+      regex: "(killall|pkill|taskkill).{0,50}[tT]or"
 
   - id: tor-browser-kill
     description: Tor Browser termination
@@ -185,7 +185,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      regex: "tor[- ]?browser.*kill|kill.*tor[- ]?browser"
+      regex: "tor[- ]?browser.{0,50}kill|kill.{0,50}tor[- ]?browser"
 
   - id: word-bitcoin
     description: Bitcoin keyword

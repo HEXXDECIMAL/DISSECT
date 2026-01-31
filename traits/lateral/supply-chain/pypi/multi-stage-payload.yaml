@@ -12,7 +12,7 @@ defaults:
 traits:
   # === AST Pattern: Multiple Clone Calls ===
   - id: ast-multiple-git-clones
-    desc: Multiple git clone calls in function
+    desc: Multiple git clone calls detected
     crit: suspicious
     conf: 0.85
     if:
@@ -64,7 +64,7 @@ traits:
   # === AST Pattern: Method with multiple calls ===
   - id: ast-method-with-clone-and-startfile
     desc: Method with clone and startfile
-    crit: hostile
+    crit: suspicious
     conf: 0.90
     if:
       type: ast_pattern
@@ -89,7 +89,7 @@ traits:
     if:
       type: ast_pattern
       node_type: call
-      pattern: "setup\\(.*cmdclass"
+      pattern: "setup\\(.{0,50}cmdclass"
 
 composite_rules:
   # === Multi-Stage Payload Detection ===

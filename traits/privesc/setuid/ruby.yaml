@@ -24,7 +24,7 @@ traits:
     attack: "T1068"
     if:
       type: string
-      regex: 'cap_setuid|setcap.*setuid'
+      regex: 'cap_setuid|setcap.{0,50}setuid'
 
   - id: ruby-root-shell
     desc: Root shell execution via setuid
@@ -33,4 +33,4 @@ traits:
     attack: "T1068"
     if:
       type: string
-      regex: 'setuid.*exec.*sh|Process::Sys\.setuid.*exec'
+      regex: 'setuid.{0,50}exec.{0,50}sh|Process::Sys\.setuid.{0,50}exec'

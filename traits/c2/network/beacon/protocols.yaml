@@ -17,7 +17,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      regex: "cmd[_-]?type.*==.*[\"']?[0-9]{3}[\"']?"
+      regex: "cmd[_-]?type.{0,50}==.{0,50}[\"']?[0-9]{3}[\"']?"
 
   - id: c2-response-code-extract
     desc: C2 response code extraction
@@ -25,7 +25,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      regex: "res\\[.*:.*\\+[0-9]{3,}"
+      regex: "res\\[.{0,50}:.{0,50}\\+[0-9]{3,}"
 
   - id: c2-response-substring
     desc: C2 response substring parsing
@@ -58,7 +58,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      regex: "str\\(uid\\)|str\\(uid\\)\\+.*01"
+      regex: "str\\(uid\\)|str\\(uid\\)\\+.{0,50}01"
 
   # === Command Codes ===
   - id: c2-cmd-info-collection
@@ -108,7 +108,7 @@ traits:
     conf: 0.80
     if:
       type: string
-      regex: "[A-Z]+_REQ.*\\+.*01.*\\+.*00.*\\+"
+      regex: "[A-Z]+_REQ.{0,50}\\+.{0,50}01.{0,50}\\+.{0,50}00.{0,50}\\+"
 
   - id: c2-base64-response
     desc: C2 base64 encoded response
@@ -116,7 +116,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      regex: "b64decode.*res\\[13:"
+      regex: "b64decode.{0,50}res\\[13:"
 
 composite_rules:
   # === Protocol Detection ===

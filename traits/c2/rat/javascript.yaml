@@ -83,7 +83,7 @@ traits:
     attack: "T1082"
     if:
       type: symbol
-      pattern: '.*\\.hostname'
+      pattern: '.{0,50}\\.hostname'
     all_strings:
       - "$"
 

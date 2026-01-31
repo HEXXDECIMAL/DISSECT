@@ -21,11 +21,11 @@ traits:
 
   - id: startfile-exe
     desc: startfile with .exe
-    crit: hostile
+    crit: suspicious
     conf: 0.90
     if:
       type: string
-      regex: "startfile.*\\.exe|startfile.*main\\.exe"
+      regex: "startfile.{0,50}\\.exe|startfile.{0,50}main\\.exe"
 
   - id: startfile-suspicious-path
     desc: startfile suspicious path
@@ -33,7 +33,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      regex: "startfile.*AppData|startfile.*Roaming|startfile.*Startup"
+      regex: "startfile.{0,50}AppData|startfile.{0,50}Roaming|startfile.{0,50}Startup"
 
 composite_rules:
   # === os.startfile Malicious Usage ===
@@ -50,7 +50,7 @@ composite_rules:
 
   - id: startfile-payload-launch
     desc: Payload launch via startfile
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     attack: "T1059"
     mbc: "E1059"

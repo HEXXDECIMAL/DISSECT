@@ -153,8 +153,6 @@ fn classify_env_var_category(name: &str) -> EnvVarCategory {
         || name.ends_with("_KEY")
         || name.ends_with("_SECRET")
         || name.ends_with("_PASSWORD")
-        || name.starts_with("AWS_")
-        || name.starts_with("GITHUB_")
         || name.contains("API_KEY")
         || name.contains("ACCESS_TOKEN")
     {
@@ -265,7 +263,7 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Finding> {
                 credential_vars.len()
             ),
             conf: 0.95,
-            crit: Criticality::Hostile,
+            crit: Criticality::Suspicious,
             mbc: None,
             attack: Some("T1552.001".to_string()), // Unsecured Credentials
             evidence: credential_vars
