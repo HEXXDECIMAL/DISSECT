@@ -12,13 +12,14 @@ use anyhow::{Context, Result};
 use goblin::mach::{Mach, MachO};
 use std::fs;
 use std::path::Path;
+use std::sync::Arc;
 
 /// Analyzer for macOS Mach-O binaries (executables, dylibs, bundles)
 pub struct MachOAnalyzer {
     capability_mapper: CapabilityMapper,
     radare2: Radare2Analyzer,
     string_extractor: StringExtractor,
-    yara_engine: Option<YaraEngine>,
+    yara_engine: Option<Arc<YaraEngine>>,
 }
 
 impl MachOAnalyzer {
@@ -32,8 +33,14 @@ impl MachOAnalyzer {
         }
     }
 
-    /// Create analyzer with YARA rules loaded
+    /// Create analyzer with YARA rules loaded (takes ownership, wraps in Arc)
     pub fn with_yara(mut self, yara_engine: YaraEngine) -> Self {
+        self.yara_engine = Some(Arc::new(yara_engine));
+        self
+    }
+
+    /// Create analyzer with shared YARA engine
+    pub fn with_yara_arc(mut self, yara_engine: Arc<YaraEngine>) -> Self {
         self.yara_engine = Some(yara_engine);
         self
     }

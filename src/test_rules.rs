@@ -380,6 +380,7 @@ impl<'a> RuleDebugger<'a> {
             platform: self.platform.clone(),
             additional_findings: None,
             cached_ast: None,
+            finding_id_index: None,
         };
 
         match condition {
@@ -446,6 +447,7 @@ impl<'a> RuleDebugger<'a> {
             platform: self.platform.clone(),
             additional_findings: None,
             cached_ast: None,
+            finding_id_index: None,
         };
 
         let eval_result = eval_trait(id, &ctx);
@@ -1013,6 +1015,7 @@ impl<'a> RuleDebugger<'a> {
             platform: self.platform.clone(),
             additional_findings: None,
             cached_ast: None,
+            finding_id_index: None,
         };
 
         let eval_result = crate::composite_rules::evaluators::eval_ast(

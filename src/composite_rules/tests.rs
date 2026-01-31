@@ -53,6 +53,7 @@ fn test_symbol_condition() {
         platform: Platform::Linux,
         additional_findings: None,
         cached_ast: None,
+            finding_id_index: None,
     };
 
     let rule = CompositeTrait {
@@ -102,6 +103,7 @@ fn test_all() {
         platform: Platform::Linux,
         additional_findings: None,
         cached_ast: None,
+            finding_id_index: None,
     };
 
     let rule = CompositeTrait {
@@ -160,6 +162,7 @@ fn test_count() {
         platform: Platform::Linux,
         additional_findings: None,
         cached_ast: None,
+            finding_id_index: None,
     };
 
     let rule = CompositeTrait {
@@ -216,6 +219,7 @@ fn test_string_exact_condition() {
         platform: Platform::Linux,
         additional_findings: None,
         cached_ast: None,
+            finding_id_index: None,
     };
 
     let rule = CompositeTrait {
@@ -266,6 +270,7 @@ fn test_any() {
         platform: Platform::Linux,
         additional_findings: None,
         cached_ast: None,
+            finding_id_index: None,
     };
 
     let rule = CompositeTrait {
@@ -340,6 +345,7 @@ fn test_not_directive_shorthand() {
         platform: Platform::Linux,
         additional_findings: None,
         cached_ast: None,
+            finding_id_index: None,
     };
 
     let trait_def = TraitDefinition {
@@ -404,6 +410,7 @@ fn test_not_directive_exact() {
         platform: Platform::Linux,
         additional_findings: None,
         cached_ast: None,
+            finding_id_index: None,
     };
 
     let trait_def = TraitDefinition {
@@ -472,6 +479,7 @@ fn test_not_directive_regex() {
         platform: Platform::Linux,
         additional_findings: None,
         cached_ast: None,
+            finding_id_index: None,
     };
 
     let trait_def = TraitDefinition {
@@ -538,6 +546,7 @@ fn test_unless_directive_skips_trait() {
         platform: Platform::Linux,
         additional_findings: Some(&findings),
         cached_ast: None,
+            finding_id_index: None,
     };
 
     let trait_def = TraitDefinition {
@@ -580,6 +589,7 @@ fn test_unless_directive_allows_trait() {
         platform: Platform::Linux,
         additional_findings: None,
         cached_ast: None,
+            finding_id_index: None,
     };
 
     let trait_def = TraitDefinition {
@@ -635,6 +645,7 @@ fn test_downgrade_to_notable() {
         platform: Platform::Linux,
         additional_findings: Some(&findings),
         cached_ast: None,
+            finding_id_index: None,
     };
 
     let trait_def = TraitDefinition {
@@ -709,6 +720,7 @@ fn test_downgrade_to_inert() {
         platform: Platform::Linux,
         additional_findings: Some(&findings),
         cached_ast: None,
+            finding_id_index: None,
     };
 
     let trait_def = TraitDefinition {
@@ -766,6 +778,7 @@ fn test_downgrade_no_match_keeps_original() {
         platform: Platform::Linux,
         additional_findings: None,
         cached_ast: None,
+            finding_id_index: None,
     };
 
     let trait_def = TraitDefinition {
@@ -849,6 +862,7 @@ fn test_downgrade_first_match_wins() {
         platform: Platform::Linux,
         additional_findings: Some(&findings),
         cached_ast: None,
+            finding_id_index: None,
     };
 
     let trait_def = TraitDefinition {
@@ -944,6 +958,7 @@ fn test_all_three_directives_combined() {
         platform: Platform::Linux,
         additional_findings: Some(&findings),
         cached_ast: None,
+            finding_id_index: None,
     };
 
     let trait_def = TraitDefinition {

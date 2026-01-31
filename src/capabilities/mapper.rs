@@ -885,14 +885,14 @@ impl CapabilityMapper {
         let platform = self.detect_platform(&report.target.file_type);
         let file_type = self.detect_file_type(&report.target.file_type);
 
-        let ctx = EvaluationContext {
+        let ctx = EvaluationContext::new(
             report,
             binary_data,
             file_type,
             platform,
-            additional_findings: None,
+            None,
             cached_ast,
-        };
+        );
 
         // Use trait index to only evaluate applicable traits
         // This dramatically reduces work for specific file types
@@ -1095,18 +1095,18 @@ impl CapabilityMapper {
         // Pass 1: Iterative evaluation of positive rules to reach a stable fixed-point
         const MAX_ITERATIONS: usize = 10;
         for _ in 0..MAX_ITERATIONS {
-            let ctx = EvaluationContext {
+            let ctx = EvaluationContext::new(
                 report,
                 binary_data,
                 file_type,
-                platform: platform.clone(),
-                additional_findings: if all_findings.is_empty() {
+                platform.clone(),
+                if all_findings.is_empty() {
                     None
                 } else {
                     Some(&all_findings)
                 },
                 cached_ast,
-            };
+            );
 
             // Evaluate positive rules (parallel for large sets, sequential for small)
             let new_findings: Vec<Finding> = if positive_rules.len() > 50 {
@@ -1136,18 +1136,18 @@ impl CapabilityMapper {
 
         // Pass 2: Final evaluation of rules with negative conditions (exclusions)
         // These are only checked AFTER all positive indicators have reached a stable state.
-        let ctx = EvaluationContext {
+        let ctx = EvaluationContext::new(
             report,
             binary_data,
             file_type,
-            platform: platform.clone(),
-            additional_findings: if all_findings.is_empty() {
+            platform.clone(),
+            if all_findings.is_empty() {
                 None
             } else {
                 Some(&all_findings)
             },
             cached_ast,
-        };
+        );
 
         let negative_findings: Vec<Finding> = if negative_rules.len() > 50 {
             negative_rules

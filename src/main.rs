@@ -530,6 +530,17 @@ fn scan_paths(
     // Load capability mapper once and share across all threads
     let capability_mapper = Arc::new(crate::capabilities::CapabilityMapper::new());
 
+    // Pre-load YARA engine once and share across all threads
+    let shared_yara_engine: Option<Arc<YaraEngine>> = if disabled.yara {
+        None
+    } else {
+        let mut engine = YaraEngine::new_with_mapper((*capability_mapper).clone());
+        match engine.load_all_rules(enable_third_party_yara) {
+            Ok((builtin, third_party)) if builtin + third_party > 0 => Some(Arc::new(engine)),
+            _ => None,
+        }
+    };
+
     // Collect all files from paths (expanding directories recursively)
     let mut all_files = Vec::new();
     let mut archives_found = Vec::new();
@@ -608,8 +619,8 @@ fn scan_paths(
 
         match analyze_file_with_shared_mapper(
             path_str,
-            enable_third_party_yara,
             &capability_mapper,
+            shared_yara_engine.as_ref(),
             zip_passwords,
             disabled,
             error_if_levels,
@@ -682,8 +693,8 @@ fn scan_paths(
 
         match analyze_file_with_shared_mapper(
             path_str,
-            enable_third_party_yara,
             &capability_mapper,
+            shared_yara_engine.as_ref(),
             zip_passwords,
             disabled,
             error_if_levels,
@@ -776,8 +787,8 @@ fn scan_paths(
 
 fn analyze_file_with_shared_mapper(
     target: &str,
-    enable_third_party_yara: bool,
     capability_mapper: &Arc<crate::capabilities::CapabilityMapper>,
+    shared_yara_engine: Option<&Arc<YaraEngine>>,
     zip_passwords: &[String],
     disabled: &cli::DisabledComponents,
     error_if_levels: Option<&[types::Criticality]>,
@@ -789,24 +800,6 @@ fn analyze_file_with_shared_mapper(
 
     if !path.exists() {
         anyhow::bail!("File does not exist: {}", target);
-    }
-
-    let t_yara = std::time::Instant::now();
-    // Load YARA rules (unless YARA is disabled)
-    let mut yara_engine = if disabled.yara {
-        None
-    } else {
-        let mut engine = YaraEngine::new_with_mapper((**capability_mapper).clone());
-        let (builtin_count, third_party_count) = engine.load_all_rules(enable_third_party_yara)?;
-        if builtin_count + third_party_count > 0 {
-            Some(engine)
-        } else {
-            None
-        }
-    };
-
-    if timing {
-        eprintln!("[TIMING] YARA engine setup: {:?}", t_yara.elapsed());
     }
     let t_detect = std::time::Instant::now();
 
@@ -825,24 +818,24 @@ fn analyze_file_with_shared_mapper(
         FileType::MachO => {
             let mut analyzer =
                 MachOAnalyzer::new().with_capability_mapper((**capability_mapper).clone());
-            if let Some(engine) = yara_engine.take() {
-                analyzer = analyzer.with_yara(engine);
+            if let Some(engine) = shared_yara_engine {
+                analyzer = analyzer.with_yara_arc(engine.clone());
             }
             analyzer.analyze(path)?
         }
         FileType::Elf => {
             let mut analyzer =
                 ElfAnalyzer::new().with_capability_mapper((**capability_mapper).clone());
-            if let Some(engine) = yara_engine.take() {
-                analyzer = analyzer.with_yara(engine);
+            if let Some(engine) = shared_yara_engine {
+                analyzer = analyzer.with_yara_arc(engine.clone());
             }
             analyzer.analyze(path)?
         }
         FileType::Pe => {
             let mut analyzer =
                 PEAnalyzer::new().with_capability_mapper((**capability_mapper).clone());
-            if let Some(engine) = yara_engine.take() {
-                analyzer = analyzer.with_yara(engine);
+            if let Some(engine) = shared_yara_engine {
+                analyzer = analyzer.with_yara_arc(engine.clone());
             }
             analyzer.analyze(path)?
         }
@@ -856,8 +849,8 @@ fn analyze_file_with_shared_mapper(
             let mut analyzer = ArchiveAnalyzer::new()
                 .with_capability_mapper((**capability_mapper).clone())
                 .with_zip_passwords(zip_passwords.to_vec());
-            if let Some(engine) = yara_engine.take() {
-                analyzer = analyzer.with_yara(engine);
+            if let Some(engine) = shared_yara_engine {
+                analyzer = analyzer.with_yara_arc(engine.clone());
             }
             analyzer.analyze(path)?
         }
@@ -880,8 +873,8 @@ fn analyze_file_with_shared_mapper(
             let mut analyzer = ArchiveAnalyzer::new()
                 .with_capability_mapper((**capability_mapper).clone())
                 .with_zip_passwords(zip_passwords.to_vec());
-            if let Some(engine) = yara_engine.take() {
-                analyzer = analyzer.with_yara(engine);
+            if let Some(engine) = shared_yara_engine {
+                analyzer = analyzer.with_yara_arc(engine.clone());
             }
             analyzer.analyze(path)?
         }
@@ -903,7 +896,7 @@ fn analyze_file_with_shared_mapper(
 
     // Run YARA universally for file types that didn't handle it internally
     // This ensures all program files get scanned with YARA rules
-    if let Some(ref engine) = yara_engine {
+    if let Some(engine) = shared_yara_engine {
         if file_type.is_program() && engine.is_loaded() {
             let file_types = file_type.yara_filetypes();
             let filter = if file_types.is_empty() {

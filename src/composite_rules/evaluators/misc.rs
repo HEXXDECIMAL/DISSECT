@@ -49,57 +49,74 @@ pub fn eval_structure(
 ///   within that directory (prefix match). Cross-directory references cannot
 ///   specify exact trait IDs - they can only reference the directory.
 pub fn eval_trait(id: &str, ctx: &EvaluationContext) -> ConditionResult {
-    let mut evidence = Vec::new();
-    let mut matched = false;
+    // Fast path: exact match using O(1) index lookup
+    if ctx.has_finding_exact(id) {
+        // Found exact match - collect evidence
+        let evidence: Vec<_> = ctx
+            .report
+            .findings
+            .iter()
+            .chain(ctx.additional_findings.into_iter().flatten())
+            .filter(|f| f.id == id)
+            .flat_map(|f| f.evidence.iter().cloned())
+            .collect();
 
-    // Helper to check if a finding matches the trait ID
-    let matches_trait = |finding: &Finding| -> bool {
-        // Try exact match first - highest priority
-        if finding.id == id {
-            return true;
+        return ConditionResult {
+            matched: true,
+            evidence,
+            traits: vec![id.to_string()],
+            warnings: Vec::new(),
+        };
+    }
+
+    // Slow path: prefix/suffix matching for non-exact references
+    let slash_count = id.matches('/').count();
+    if slash_count == 0 {
+        // Short name: suffix match for same-directory relative reference
+        // e.g., "terminate" matches "exec/process/terminate"
+        let suffix = format!("/{}", id);
+        let evidence: Vec<_> = ctx
+            .report
+            .findings
+            .iter()
+            .chain(ctx.additional_findings.into_iter().flatten())
+            .filter(|f| f.id.ends_with(&suffix))
+            .flat_map(|f| f.evidence.iter().cloned())
+            .collect();
+
+        if !evidence.is_empty() {
+            return ConditionResult {
+                matched: true,
+                evidence,
+                traits: vec![id.to_string()],
+                warnings: Vec::new(),
+            };
         }
+    } else {
+        // Directory path: prefix match (any trait within that directory)
+        // e.g., "anti-static/obfuscation/strings" matches
+        // "anti-static/obfuscation/strings/python-hex"
+        let prefix = format!("{}/", id);
+        let evidence: Vec<_> = ctx
+            .report
+            .findings
+            .iter()
+            .chain(ctx.additional_findings.into_iter().flatten())
+            .filter(|f| f.id.starts_with(&prefix))
+            .flat_map(|f| f.evidence.iter().cloned())
+            .collect();
 
-        // Suffix/Prefix matching
-        let slash_count = id.matches('/').count();
-        if slash_count == 0 {
-            // Short name: suffix match for same-directory relative reference
-            // e.g., "terminate" matches "exec/process/terminate"
-            finding.id.ends_with(&format!("/{}", id))
-        } else {
-            // Directory path: prefix match (any trait within that directory)
-            // e.g., "anti-static/obfuscation/strings" matches
-            // "anti-static/obfuscation/strings/python-hex"
-            finding.id.starts_with(&format!("{}/", id))
-        }
-    };
-
-    // Check findings from the report
-    for finding in &ctx.report.findings {
-        if matches_trait(finding) {
-            matched = true;
-            evidence.extend(finding.evidence.clone());
+        if !evidence.is_empty() {
+            return ConditionResult {
+                matched: true,
+                evidence,
+                traits: vec![id.to_string()],
+                warnings: Vec::new(),
+            };
         }
     }
 
-    if let Some(additional) = ctx.additional_findings {
-        for finding in additional {
-            if matches_trait(finding) {
-                matched = true;
-                evidence.extend(finding.evidence.clone());
-            }
-        }
-    }
-
-    ConditionResult {
-        matched,
-        evidence,
-        traits: if matched {
-            vec![id.to_string()]
-        } else {
-            Vec::new()
-        },
-        warnings: Vec::new(),
-    }
+    ConditionResult::default()
 }
 
 /// Evaluate a filesize condition
