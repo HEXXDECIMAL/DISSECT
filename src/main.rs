@@ -40,6 +40,7 @@ mod constant_decoder;
 mod diff;
 mod entropy;
 mod env_mapper;
+mod extractors;
 mod output;
 mod path_mapper;
 mod radare2;
@@ -68,6 +69,23 @@ use std::sync::{Arc, Mutex};
 use tracing::debug;
 use tracing_subscriber::EnvFilter;
 use yara_engine::YaraEngine;
+
+/// Filter analysis report fields based on verbosity
+fn filter_report(report: &mut types::AnalysisReport, verbose: bool) {
+    if !verbose {
+        report.structure.clear();
+        report.functions.clear();
+        report.strings.clear();
+        report.sections.clear();
+        report.imports.clear();
+        report.exports.clear();
+        report.yara_matches.clear();
+        report.syscalls.clear();
+        report.decoded_strings.clear();
+        // We keep metrics as they are often useful for high-level classification
+        // We keep paths, directories, env_vars, archive_contents as they are small
+    }
+}
 
 /// Read paths from stdin, one per line.
 /// Filters out empty lines and comments (lines starting with #).
@@ -223,6 +241,7 @@ fn main() -> Result<()> {
                     &zip_passwords,
                     &disabled,
                     error_if_levels.as_deref(),
+                    args.verbose,
                 )?
             } else {
                 // Multiple targets or directory - use scan
@@ -233,6 +252,7 @@ fn main() -> Result<()> {
                     &zip_passwords,
                     &disabled,
                     error_if_levels.as_deref(),
+                    args.verbose,
                 )?
             }
         }
@@ -246,6 +266,7 @@ fn main() -> Result<()> {
             &zip_passwords,
             &disabled,
             error_if_levels.as_deref(),
+            args.verbose,
         )?,
         Some(cli::Command::Diff { old, new }) => diff_analysis(&old, &new, &format)?,
         Some(cli::Command::Strings { target, min_length }) => {
@@ -285,11 +306,12 @@ fn main() -> Result<()> {
             scan_paths(
                 expanded,
                 enable_third_party_global,
-                &format,
-                &zip_passwords,
-                &disabled,
-                error_if_levels.as_deref(),
-            )?
+            &format,
+            &zip_passwords,
+            &disabled,
+            error_if_levels.as_deref(),
+            args.verbose,
+        )?
         }
     };
 
@@ -312,6 +334,7 @@ fn analyze_file(
     zip_passwords: &[String],
     disabled: &cli::DisabledComponents,
     error_if_levels: Option<&[types::Criticality]>,
+    verbose: bool,
 ) -> Result<String> {
     let _start = std::time::Instant::now();
     let path = Path::new(target);
@@ -329,6 +352,7 @@ fn analyze_file(
             zip_passwords,
             disabled,
             error_if_levels,
+            verbose,
         );
     }
 
@@ -475,6 +499,9 @@ fn analyze_file(
     // Check if report's criticality matches --error-if criteria
     check_criticality_error(&report, error_if_levels)?;
 
+    // Filter report based on verbosity
+    filter_report(&mut report, verbose);
+
     // Format output based on requested format
     let t4 = std::time::Instant::now();
     let result = match format {
@@ -493,6 +520,7 @@ fn scan_paths(
     zip_passwords: &[String],
     disabled: &cli::DisabledComponents,
     error_if_levels: Option<&[types::Criticality]>,
+    verbose: bool,
 ) -> Result<String> {
     use indicatif::{ProgressBar, ProgressStyle};
     use walkdir::WalkDir;
@@ -585,6 +613,7 @@ fn scan_paths(
             zip_passwords,
             disabled,
             error_if_levels,
+            verbose,
         ) {
             Ok(json) => {
                 // For terminal format, show immediate output above progress bar
@@ -658,6 +687,7 @@ fn scan_paths(
             zip_passwords,
             disabled,
             error_if_levels,
+            verbose,
         ) {
             Ok(json) => {
                 // For terminal format, show immediate output above progress bar
@@ -751,6 +781,7 @@ fn analyze_file_with_shared_mapper(
     zip_passwords: &[String],
     disabled: &cli::DisabledComponents,
     error_if_levels: Option<&[types::Criticality]>,
+    verbose: bool,
 ) -> Result<String> {
     let timing = std::env::var("DISSECT_TIMING").is_ok();
     let t_start = std::time::Instant::now();
@@ -914,6 +945,9 @@ fn analyze_file_with_shared_mapper(
 
     // Check if report's criticality matches --error-if criteria
     check_criticality_error(&report, error_if_levels)?;
+
+    // Filter report based on verbosity
+    filter_report(&mut report, verbose);
 
     // Always output JSON for parallel scanning
     output::format_json(&report)

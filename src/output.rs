@@ -297,8 +297,13 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
     output.push_str(&format!("├─ {}\n", report.target.path.bright_white()));
     output.push_str("│\n");
 
-    // Combine all findings from report and YARA matches
+    // Combine all findings from report, sub_reports, and YARA matches
     let mut all_findings: Vec<Finding> = report.findings.clone();
+
+    // Add findings from sub_reports (archives and extracted payloads)
+    for sub_report in &report.sub_reports {
+        all_findings.extend(sub_report.findings.clone());
+    }
 
     // Add YARA matches as findings
     all_findings.extend(yara_to_findings(&report.yara_matches));

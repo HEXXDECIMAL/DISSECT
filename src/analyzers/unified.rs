@@ -14,7 +14,7 @@
 use crate::analyzers::comment_metrics::{self, CommentStyle};
 use crate::analyzers::function_metrics::{self, FunctionInfo};
 use crate::analyzers::symbol_extraction;
-use crate::analyzers::{identifier_metrics, string_metrics, text_metrics, Analyzer};
+use crate::analyzers::{identifier_metrics, string_metrics, text_metrics, Analyzer, FileType};
 use crate::capabilities::CapabilityMapper;
 use crate::types::*;
 use anyhow::{Context, Result};
@@ -372,14 +372,11 @@ impl UnifiedSourceAnalyzer {
         let extracted_payloads = crate::extractors::extract_encoded_payloads(content.as_bytes());
         for (idx, payload) in extracted_payloads.iter().enumerate() {
             // Create virtual path with encoding info
-            let virtual_path = format!("{}!base64#{}", 
-                file_path.display(),
-                idx
-            );
-            
+            let virtual_path = format!("{}!base64#{}", file_path.display(), idx);
+
             // Read the decoded content
             let payload_content = std::fs::read(&payload.temp_path).unwrap_or_default();
-            
+
             // Create ArchiveEntry metadata (same as archive files)
             let entry_metadata = crate::types::ArchiveEntry {
                 path: virtual_path.clone(),
@@ -388,21 +385,33 @@ impl UnifiedSourceAnalyzer {
                 size_bytes: payload_content.len() as u64,
             };
             report.archive_contents.push(entry_metadata);
-            
+
             // Analyze the extracted payload based on its type (creates sub_report like archives)
+            // Pass capability_mapper to evaluate rules on extracted content
             let payload_report = match payload.detected_type {
                 FileType::Python => {
-                    if let Some(analyzer) = UnifiedSourceAnalyzer::for_file_type(&FileType::Python) {
-                        analyzer.analyze_source(Path::new(&virtual_path), 
-                            &String::from_utf8_lossy(&payload_content)).ok()
+                    if let Some(analyzer) = UnifiedSourceAnalyzer::for_file_type(&FileType::Python)
+                    {
+                        analyzer
+                            .with_capability_mapper(self.capability_mapper.clone())
+                            .analyze_source(
+                                Path::new(&virtual_path),
+                                &String::from_utf8_lossy(&payload_content),
+                            )
+                            .ok()
                     } else {
                         None
                     }
                 }
                 FileType::Shell => {
                     if let Some(analyzer) = UnifiedSourceAnalyzer::for_file_type(&FileType::Shell) {
-                        analyzer.analyze_source(Path::new(&virtual_path),
-                            &String::from_utf8_lossy(&payload_content)).ok()
+                        analyzer
+                            .with_capability_mapper(self.capability_mapper.clone())
+                            .analyze_source(
+                                Path::new(&virtual_path),
+                                &String::from_utf8_lossy(&payload_content),
+                            )
+                            .ok()
                     } else {
                         None
                     }
@@ -412,7 +421,7 @@ impl UnifiedSourceAnalyzer {
                     None
                 }
             };
-            
+
             // Process sub_report like archives do
             if let Some(mut pr) = payload_report {
                 // Prefix findings with extracted payload location (same as archive: prefix)
@@ -423,65 +432,15 @@ impl UnifiedSourceAnalyzer {
                                 evidence.location = Some(format!("extracted:{}", virtual_path));
                             }
                             Some(loc) => {
-                                evidence.location = Some(format!("extracted:{}:{}", virtual_path, loc));
+                                evidence.location =
+                                    Some(format!("extracted:{}:{}", virtual_path, loc));
                             }
                         }
                     }
                 }
-                
+
                 // Add full report to sub_reports (same as archives)
                 report.sub_reports.push(Box::new(pr));
-            }
-            
-            // Clean up temp file
-            let _ = std::fs::remove_file(&payload.temp_path);
-        }
-                }
-                FileType::Shell => {
-                    if let Some(analyzer) = UnifiedSourceAnalyzer::for_file_type(&FileType::Shell) {
-                        analyzer
-                            .analyze_source(
-                                Path::new(&virtual_name),
-                                &std::fs::read_to_string(&payload.temp_path).unwrap_or_default(),
-                            )
-                            .ok()
-                    } else {
-                        None
-                    }
-                }
-                _ => {
-                    // For binary or unknown, just extract strings and do basic analysis
-                    None
-                }
-            };
-
-            // Merge findings from payload into main report
-            if let Some(mut pr) = payload_report {
-                for finding in pr.findings {
-                    // Tag finding with parent info
-                    let mut tagged_finding = finding;
-                    tagged_finding.evidence.insert(
-                        0,
-                        crate::types::Evidence {
-                            description: format!(
-                                "Extracted from: {} ({})",
-                                virtual_name, payload.preview
-                            ),
-                            value: virtual_name.clone(),
-                        },
-                    );
-                    report.findings.push(tagged_finding);
-                }
-
-                // Add to extracted payloads list for display
-                report
-                    .extracted_payloads
-                    .push(crate::types::ExtractedPayloadInfo {
-                        virtual_path: virtual_name,
-                        encoding: payload.encoding_chain.join("+"),
-                        preview: payload.preview.clone(),
-                        findings_count: pr.findings.len(),
-                    });
             }
 
             // Clean up temp file

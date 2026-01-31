@@ -221,7 +221,6 @@ fn test_apply_trait_defaults_applies_all_defaults() {
         size_min: None,
         size_max: None,
         not: None,
-        not: None,
         condition: Condition::String {
             exact: Some("test".to_string()),
             regex: None,
@@ -267,7 +266,6 @@ fn test_apply_trait_defaults_trait_overrides_defaults() {
         file_types: Some(vec!["pe".to_string()]),
         size_min: None,
         size_max: None,
-        not: None,
         not: None,
         condition: Condition::String {
             exact: Some("test".to_string()),
@@ -316,7 +314,6 @@ fn test_apply_trait_defaults_unset_mbc_with_none() {
         size_min: None,
         size_max: None,
         not: None,
-        not: None,
         condition: Condition::String {
             exact: Some("test".to_string()),
             regex: None,
@@ -359,7 +356,6 @@ fn test_apply_trait_defaults_unset_attack_with_none() {
         size_min: None,
         size_max: None,
         not: None,
-        not: None,
         condition: Condition::String {
             exact: Some("test".to_string()),
             regex: None,
@@ -401,7 +397,6 @@ fn test_apply_trait_defaults_unset_file_types_with_none() {
         file_types: Some(vec!["none".to_string()]), // Explicitly unset
         size_min: None,
         size_max: None,
-        not: None,
         not: None,
         condition: Condition::String {
             exact: Some("test".to_string()),
@@ -453,11 +448,8 @@ fn test_apply_composite_defaults_applies_all_defaults() {
         none: None,
         unless: None,
         not: None,
-        not: None,
         size_min: None,
         size_max: None,
-        not: None,
-        not: None,
         condition: Some(Condition::String {
             exact: Some("test".to_string()),
             regex: None,
@@ -512,11 +504,8 @@ fn test_apply_composite_defaults_unset_with_none() {
         none: None,
         unless: None,
         not: None,
-        not: None,
         size_min: None,
         size_max: None,
-        not: None,
-        not: None,
         condition: Some(Condition::String {
             exact: Some("test".to_string()),
             regex: None,
@@ -720,11 +709,8 @@ fn test_composite_referencing_atomic_trait() {
         none: None,
         unless: None,
         not: None,
-        not: None,
         size_min: None,
         size_max: None,
-        not: None,
-        not: None,
     };
 
     let report = test_report_with_findings(vec![test_finding("test/atomic-trait")]);
@@ -761,11 +747,8 @@ fn test_composite_of_composites_two_levels() {
         none: None,
         unless: None,
         not: None,
-        not: None,
         size_min: None,
         size_max: None,
-        not: None,
-        not: None,
     };
 
     let composite_b = CompositeTrait {
@@ -790,11 +773,8 @@ fn test_composite_of_composites_two_levels() {
         none: None,
         unless: None,
         not: None,
-        not: None,
         size_min: None,
         size_max: None,
-        not: None,
-        not: None,
     };
 
     let report = test_report_with_findings(vec![test_finding("test/atomic-trait")]);
@@ -836,11 +816,8 @@ fn test_composite_three_level_chain() {
         none: None,
         unless: None,
         not: None,
-        not: None,
         size_min: None,
         size_max: None,
-        not: None,
-        not: None,
     };
 
     let report = test_report_with_findings(vec![test_finding("level/zero")]);
@@ -889,11 +866,8 @@ fn test_composite_circular_dependency_handled() {
         none: None,
         unless: None,
         not: None,
-        not: None,
         size_min: None,
         size_max: None,
-        not: None,
-        not: None,
     };
 
     let composite_b = CompositeTrait {
@@ -918,11 +892,8 @@ fn test_composite_circular_dependency_handled() {
         none: None,
         unless: None,
         not: None,
-        not: None,
         size_min: None,
         size_max: None,
-        not: None,
-        not: None,
     };
 
     let report = test_report_with_findings(vec![]);
@@ -963,11 +934,8 @@ fn test_composite_prefix_matching_in_chain() {
         none: None,
         unless: None,
         not: None,
-        not: None,
         size_min: None,
         size_max: None,
-        not: None,
-        not: None,
     };
 
     // Report has specific trait under discovery/system/
@@ -1009,11 +977,8 @@ fn test_composite_requires_count_in_chain() {
         none: None,
         unless: None,
         not: None,
-        not: None,
         size_min: None,
         size_max: None,
-        not: None,
-        not: None,
     };
 
     let report = test_report_with_findings(vec![test_finding("feat/a"), test_finding("feat/c")]);
@@ -1087,11 +1052,8 @@ fn test_complexity_direct_conditions() {
         none: None,
         unless: None,
         not: None,
-        not: None,
         size_min: None,
         size_max: None,
-        not: None,
-        not: None,
     };
 
     let mut cache = HashMap::new();
@@ -1160,11 +1122,8 @@ fn test_complexity_file_type_filter() {
         none: None,
         unless: None,
         not: None,
-        not: None,
         size_min: None,
         size_max: None,
-        not: None,
-        not: None,
     };
 
     let mut cache = HashMap::new();
@@ -1213,11 +1172,7 @@ fn test_complexity_recursive_expansion() {
         size_min: None,
         size_max: None,
         not: None,
-        not: None,
-        not: None,
         unless: None,
-        not: None,
-        not: None,
         downgrade: None,
     };
 
@@ -1265,11 +1220,8 @@ fn test_complexity_recursive_expansion() {
         none: None,
         unless: None,
         not: None,
-        not: None,
         size_min: None,
         size_max: None,
-        not: None,
-        not: None,
     };
 
     // Composite B: references composite A and atomic trait
@@ -1300,11 +1252,8 @@ fn test_complexity_recursive_expansion() {
         none: None,
         unless: None,
         not: None,
-        not: None,
         size_min: None,
         size_max: None,
-        not: None,
-        not: None,
     };
 
     let mut cache = HashMap::new();
@@ -1355,11 +1304,8 @@ fn test_complexity_cycle_detection() {
         none: None,
         unless: None,
         not: None,
-        not: None,
         size_min: None,
         size_max: None,
-        not: None,
-        not: None,
     };
 
     // Composite B references A (cycle!)
@@ -1385,11 +1331,8 @@ fn test_complexity_cycle_detection() {
         none: None,
         unless: None,
         not: None,
-        not: None,
         size_min: None,
         size_max: None,
-        not: None,
-        not: None,
     };
 
     let mut cache = HashMap::new();
@@ -1458,11 +1401,8 @@ fn test_complexity_caching() {
         none: None,
         unless: None,
         not: None,
-        not: None,
         size_min: None,
         size_max: None,
-        not: None,
-        not: None,
     };
 
     let mut cache = HashMap::new();
@@ -1553,11 +1493,8 @@ fn test_complexity_threshold_validation() {
         none: None,
         unless: None,
         not: None,
-        not: None,
         size_min: None,
         size_max: None,
-        not: None,
-        not: None,
     };
 
     // Rule with complexity 4 (meets threshold)
@@ -1615,11 +1552,8 @@ fn test_complexity_threshold_validation() {
         none: None,
         unless: None,
         not: None,
-        not: None,
         size_min: None,
         size_max: None,
-        not: None,
-        not: None,
     };
 
     let mut composites = vec![rule_low, rule_high];
@@ -1708,11 +1642,8 @@ fn test_complexity_mixed_conditions() {
         }]),
         unless: None,
         not: None,
-        not: None,
         size_min: None,
         size_max: None,
-        not: None,
-        not: None,
     };
 
     let mut cache = HashMap::new();
@@ -1781,11 +1712,8 @@ fn test_complexity_deep_nesting() {
         none: None,
         unless: None,
         not: None,
-        not: None,
         size_min: None,
         size_max: None,
-        not: None,
-        not: None,
     };
 
     // Level 2: references level1 + 1 direct condition
@@ -1824,11 +1752,8 @@ fn test_complexity_deep_nesting() {
         none: None,
         unless: None,
         not: None,
-        not: None,
         size_min: None,
         size_max: None,
-        not: None,
-        not: None,
     };
 
     // Level 3: references level2 + 1 direct condition
@@ -1867,11 +1792,8 @@ fn test_complexity_deep_nesting() {
         none: None,
         unless: None,
         not: None,
-        not: None,
         size_min: None,
         size_max: None,
-        not: None,
-        not: None,
     };
 
     let mut cache = HashMap::new();
@@ -1955,11 +1877,8 @@ fn test_complexity_correct_algorithm() {
         none: None,
         unless: None,
         not: None,
-        not: None,
         size_min: None,
         size_max: None,
-        not: None,
-        not: None,
     };
 
     let mut cache = HashMap::new();
@@ -2013,8 +1932,6 @@ fn test_complexity_traits_with_size_restrictions() {
         size_max: Some(1048576), // Has size restriction
         not: None,
         unless: None,
-        not: None,
-        not: None,
         downgrade: None,
     };
 
@@ -2041,11 +1958,9 @@ fn test_complexity_traits_with_size_restrictions() {
         },
         size_min: Some(2048),    // Has size restriction
         size_max: Some(2097152), // Has size restriction
-        not: None,
         unless: None,
-        not: None,
-        not: None,
         downgrade: None,
+        not: None,
     };
 
     // Composite rule referencing both traits
@@ -2073,11 +1988,8 @@ fn test_complexity_traits_with_size_restrictions() {
         none: None,
         unless: None,
         not: None,
-        not: None,
         size_min: None,
         size_max: None,
-        not: None,
-        not: None,
     };
 
     let mut cache = HashMap::new();

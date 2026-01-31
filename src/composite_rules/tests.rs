@@ -66,7 +66,6 @@ fn test_symbol_condition() {
         r#for: vec![FileType::All],
         size_min: None,
         size_max: None,
-        not: None,
         all: Some(vec![Condition::Symbol {
             exact: None,
             regex: Some("socket".to_string()),
@@ -116,7 +115,6 @@ fn test_all() {
         r#for: vec![FileType::All],
         size_min: None,
         size_max: None,
-        not: None,
         all: Some(vec![
             Condition::Symbol {
                 exact: None,
@@ -175,7 +173,6 @@ fn test_count() {
         r#for: vec![FileType::All],
         size_min: None,
         size_max: None,
-        not: None,
         all: None,
         any: Some(vec![
             Condition::Symbol {
@@ -232,7 +229,6 @@ fn test_string_exact_condition() {
         r#for: vec![FileType::All],
         size_min: None,
         size_max: None,
-        not: None,
         all: Some(vec![Condition::String {
             exact: Some("/bin/sh".to_string()),
             contains: None,
@@ -283,7 +279,6 @@ fn test_any() {
         r#for: vec![FileType::All],
         size_min: None,
         size_max: None,
-        not: None,
         all: None,
         any: Some(vec![
             Condition::Symbol {
@@ -358,7 +353,6 @@ fn test_not_directive_shorthand() {
         r#for: vec![FileType::All],
         size_min: None,
         size_max: None,
-        not: None,
         r#if: Condition::String {
             exact: None,
             contains: None,
@@ -372,7 +366,6 @@ fn test_not_directive_shorthand() {
         },
         not: Some(vec![NotException::Shorthand("apple.com".to_string())]),
         unless: None,
-        not: None,
         downgrade: None,
     };
 
@@ -424,7 +417,6 @@ fn test_not_directive_exact() {
         r#for: vec![FileType::All],
         size_min: None,
         size_max: None,
-        not: None,
         r#if: Condition::String {
             exact: None,
             contains: None,
@@ -442,7 +434,6 @@ fn test_not_directive_exact() {
             regex: None,
         }]),
         unless: None,
-        not: None,
         downgrade: None,
     };
 
@@ -494,7 +485,6 @@ fn test_not_directive_regex() {
         r#for: vec![FileType::All],
         size_min: None,
         size_max: None,
-        not: None,
         r#if: Condition::String {
             exact: None,
             contains: None,
@@ -512,7 +502,6 @@ fn test_not_directive_regex() {
             regex: Some(r"^192\.168\.".to_string()),
         }]),
         unless: None,
-        not: None,
         downgrade: None,
     };
 
@@ -562,7 +551,6 @@ fn test_unless_directive_skips_trait() {
         r#for: vec![FileType::All],
         size_min: None,
         size_max: None,
-        not: None,
         r#if: Condition::Symbol {
             exact: None,
             regex: Some("socket".to_string()),
@@ -605,7 +593,6 @@ fn test_unless_directive_allows_trait() {
         r#for: vec![FileType::All],
         size_min: None,
         size_max: None,
-        not: None,
         r#if: Condition::Symbol {
             exact: None,
             regex: Some("socket".to_string()),
@@ -661,7 +648,6 @@ fn test_downgrade_to_notable() {
         r#for: vec![FileType::All],
         size_min: None,
         size_max: None,
-        not: None,
         r#if: Condition::String {
             exact: Some("/bin/sh".to_string()),
             contains: None,
@@ -675,7 +661,6 @@ fn test_downgrade_to_notable() {
         },
         not: None,
         unless: None,
-        not: None,
         downgrade: Some(DowngradeRules {
             hostile: None,
             suspicious: None,
@@ -737,7 +722,6 @@ fn test_downgrade_to_inert() {
         r#for: vec![FileType::All],
         size_min: None,
         size_max: None,
-        not: None,
         r#if: Condition::Symbol {
             exact: None,
             regex: Some("socket".to_string()),
@@ -746,7 +730,6 @@ fn test_downgrade_to_inert() {
         },
         not: None,
         unless: None,
-        not: None,
         downgrade: Some(DowngradeRules {
             hostile: None,
             suspicious: None,
@@ -796,7 +779,6 @@ fn test_downgrade_no_match_keeps_original() {
         r#for: vec![FileType::All],
         size_min: None,
         size_max: None,
-        not: None,
         r#if: Condition::Symbol {
             exact: None,
             regex: Some("socket".to_string()),
@@ -805,7 +787,6 @@ fn test_downgrade_no_match_keeps_original() {
         },
         not: None,
         unless: None,
-        not: None,
         downgrade: Some(DowngradeRules {
             hostile: None,
             suspicious: None,
@@ -881,7 +862,6 @@ fn test_downgrade_first_match_wins() {
         r#for: vec![FileType::All],
         size_min: None,
         size_max: None,
-        not: None,
         r#if: Condition::Symbol {
             exact: None,
             regex: Some("socket".to_string()),
@@ -890,7 +870,6 @@ fn test_downgrade_first_match_wins() {
         },
         not: None,
         unless: None,
-        not: None,
         downgrade: Some(DowngradeRules {
             hostile: None,
             suspicious: None,

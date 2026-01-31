@@ -82,3 +82,13 @@ traits:
     if:
       type: symbol
       regex: "(class|module)_eval"
+
+  - id: ruby-shell-exec
+    desc: Shell execution via exec
+    crit: notable
+    conf: 0.85
+    platforms: [all]
+    for: [ruby]
+    if:
+      type: string
+      regex: 'exec.*bin/sh|exec.*bin/bash'

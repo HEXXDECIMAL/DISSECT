@@ -15,7 +15,7 @@ traits:
     conf: 0.8
     if:
       type: symbol
-      pattern: "xor_decode"
+      exact: "xor_decode"
 
   - id: decode-xor-symbol
     desc: decode_xor symbol
@@ -23,7 +23,7 @@ traits:
     conf: 0.8
     if:
       type: symbol
-      pattern: "decode_xor"
+      exact: "decode_xor"
 
   - id: xor-decrypt-symbol
     desc: xor_decrypt symbol
@@ -31,7 +31,7 @@ traits:
     conf: 0.8
     if:
       type: symbol
-      pattern: "xor_decrypt"
+      exact: "xor_decrypt"
 
   - id: decrypt-xor-symbol
     desc: decrypt_xor symbol
@@ -57,7 +57,6 @@ traits:
     for: [elf]
     if:
       type: content
-
 
   # === Table-based decode atomic indicators ===
   - id: decode-table-symbol

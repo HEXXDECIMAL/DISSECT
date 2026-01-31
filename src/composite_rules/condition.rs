@@ -118,7 +118,8 @@ enum ConditionTagged {
     },
     AstPattern {
         node_type: String,
-        pattern: String,
+        #[serde(alias = "pattern")] // Support legacy 'pattern' field
+        exact: String,
         #[serde(default)]
         regex: bool,
         #[serde(default)]
@@ -319,12 +320,12 @@ impl From<ConditionDeser> for Condition {
                 ConditionTagged::Trait { id } => Condition::Trait { id },
                 ConditionTagged::AstPattern {
                     node_type,
-                    pattern,
+                    exact,
                     regex,
                     case_insensitive,
                 } => Condition::AstPattern {
                     node_type,
-                    pattern,
+                    exact,
                     regex,
                     case_insensitive,
                 },
@@ -551,12 +552,13 @@ pub enum Condition {
     Trait { id: String },
 
     /// Simple AST pattern matching - searches for text patterns within specific AST node types
-    /// Example: { type: ast_pattern, node_type: call_expression, pattern: "kallsyms_lookup_name" }
+    /// Example: { type: ast_pattern, node_type: call_expression, exact: "kallsyms_lookup_name" }
     AstPattern {
-        /// AST node type to search (e.g., call_expression, preproc_include, comment, declaration)
+        /// AST node type to search (e.g. call_expression, preproc_include, comment, declaration)
         node_type: String,
-        /// Text pattern to match within the node
-        pattern: String,
+        /// Text pattern to match within the node (use 'exact' for clarity, 'pattern' is legacy alias)
+        #[serde(alias = "pattern")]
+        exact: String,
         /// Use regex matching instead of substring (default: false)
         #[serde(default)]
         regex: bool,

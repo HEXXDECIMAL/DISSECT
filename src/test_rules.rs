@@ -418,10 +418,10 @@ impl<'a> RuleDebugger<'a> {
             } => self.debug_content_condition(exact, contains, regex, word),
             Condition::AstPattern {
                 node_type,
-                pattern,
+                exact,
                 regex,
                 case_insensitive,
-            } => self.debug_ast_pattern_condition(node_type, pattern, *regex, *case_insensitive),
+            } => self.debug_ast_pattern_condition(node_type, exact, *regex, *case_insensitive),
             Condition::AstQuery { query, language } => {
                 self.debug_ast_query_condition(query, language.as_ref())
             }

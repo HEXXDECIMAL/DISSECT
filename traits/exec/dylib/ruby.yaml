@@ -1,0 +1,36 @@
+---
+# Ruby Dynamic Library Loading
+# Generic dynamic library loading capabilities
+# ATT&CK: T1059 (Command and Scripting Interpreter)
+
+defaults:
+  for: [ruby]
+  platforms: [all]
+
+traits:
+  - id: ruby-ffi-dlopen
+    desc: Ruby FFI dlopen
+    crit: notable
+    conf: 0.70
+    attack: "T1059"
+    if:
+      type: string
+      regex: 'Fiddle\.dlopen|\.dlopen\(|dlopen.*lib'
+
+  - id: fiddle-dlopen
+    desc: Fiddle dynamic library loading
+    crit: notable
+    conf: 0.75
+    attack: "T1059"
+    if:
+      type: string
+      regex: 'require.*fiddle|Fiddle\.dlopen'
+
+  - id: shared-lib-exec
+    desc: Shared library execution
+    crit: suspicious
+    conf: 0.85
+    attack: "T1059"
+    if:
+      type: string
+      regex: '\.so.*ruby|fiddle.*\.so|lib\.so'

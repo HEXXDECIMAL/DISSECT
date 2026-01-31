@@ -5,4 +5,4 @@
 
 pub mod encoded_payload;
 
-pub use encoded_payload::{extract_encoded_payloads, ExtractedPayload};
+pub use encoded_payload::extract_encoded_payloads;

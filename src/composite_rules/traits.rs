@@ -334,10 +334,10 @@ impl TraitDefinition {
             Condition::Trait { id } => eval_trait(id, ctx),
             Condition::AstPattern {
                 node_type,
-                pattern,
+                exact,
                 regex,
                 case_insensitive,
-            } => eval_ast_pattern(node_type, pattern, *regex, *case_insensitive, ctx),
+            } => eval_ast_pattern(node_type, exact, *regex, *case_insensitive, ctx),
             Condition::AstQuery { query, .. } => eval_ast_query(query, ctx),
             Condition::Yara { source, compiled } => {
                 eval_yara_inline(source, compiled.as_ref(), ctx)
@@ -852,10 +852,10 @@ impl CompositeTrait {
             Condition::Trait { id } => eval_trait(id, ctx),
             Condition::AstPattern {
                 node_type,
-                pattern,
+                exact,
                 regex,
                 case_insensitive,
-            } => eval_ast_pattern(node_type, pattern, *regex, *case_insensitive, ctx),
+            } => eval_ast_pattern(node_type, exact, *regex, *case_insensitive, ctx),
             Condition::AstQuery { query, .. } => eval_ast_query(query, ctx),
             Condition::Yara { source, compiled } => {
                 eval_yara_inline(source, compiled.as_ref(), ctx)

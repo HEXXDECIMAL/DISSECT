@@ -203,7 +203,7 @@ pub fn cleanup_old_caches(current_cache: &Path) -> Result<()> {
 mod tests {
     use super::*;
 
-    use tempfile::TempDir;
+
 
     #[test]
     fn test_is_developer_mode_no_traits_dir() {

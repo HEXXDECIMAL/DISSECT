@@ -16,6 +16,16 @@ traits:
       type: string
       exact: "TCPSocket"
 
+  - id: tcpsocket-new
+    desc: TCPSocket.new call
+    crit: notable
+    conf: 0.7
+    attack: "T1059"
+    if:
+      type: ast_pattern
+      node_type: call
+      exact: "TCPSocket.new"
+
   - id: spawn-sh
     desc: spawn with /bin/sh
     crit: suspicious
@@ -34,6 +44,68 @@ traits:
       type: string
       exact: "IO.popen"
 
+  - id: io-popen-ast
+    desc: IO.popen AST pattern
+    crit: notable
+    conf: 0.7
+    attack: "T1059"
+    if:
+      type: ast_pattern
+      node_type: call
+      exact: "IO.popen"
+
+  - id: while-loop-cmd
+    desc: While loop processing commands
+    crit: notable
+    conf: 0.75
+    attack: "T1059"
+    if:
+      type: ast_pattern
+      node_type: while
+      pattern: "while.*gets|while.*sock"
+      regex: true
+
+  - id: socket-gets
+    desc: Socket gets call
+    crit: notable
+    conf: 0.7
+    attack: "T1059"
+    if:
+      type: ast_pattern
+      node_type: call
+      pattern: "sock.gets|socket.gets"
+      regex: true
+
+  - id: copy-stream-socket
+    desc: Copy stream to socket
+    crit: suspicious
+    conf: 0.85
+    attack: "T1059"
+    if:
+      type: ast_pattern
+      node_type: call
+      pattern: "IO.copy_stream|copy_stream.*sock"
+      regex: true
+
+  - id: open3-popen
+    desc: Open3 popen call
+    crit: notable
+    conf: 0.75
+    attack: "T1059"
+    if:
+      type: string
+      regex: "Open3\\.popen|popen2e|popen3"
+
+  - id: open3-popen-ast
+    desc: Open3 popen AST pattern
+    crit: notable
+    conf: 0.8
+    attack: "T1059"
+    if:
+      type: ast_pattern
+      node_type: call
+      exact: "Open3.popen"
+
 composite_rules:
   # Spawn with TCPSocket pattern
   - id: spawn-tcpsocket
@@ -51,9 +123,12 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     attack: "T1059"
-    all:
+    count_min: 2
+    any:
       - id: tcpsocket-ref
+      - id: tcpsocket-new
       - id: io-popen
+      - id: io-popen-ast
 
   # TCPSocket with interactive shell
   - id: tcpsocket-sh-i
@@ -64,6 +139,23 @@ composite_rules:
     all:
       - id: tcpsocket-ref
       - id: exec/command/shell/interactive/bin-sh-interactive
+
+  # Ruby reverse shell with command loop
+  - id: ruby-cmd-loop-shell
+    desc: Ruby command loop reverse shell
+    crit: suspicious
+    conf: 0.9
+    attack: "T1059"
+    count_min: 3
+    any:
+      - id: tcpsocket-new
+      - id: tcpsocket-ref
+      - id: while-loop-cmd
+      - id: socket-gets
+      - id: io-popen-ast
+      - id: open3-popen
+      - id: open3-popen-ast
+      - id: copy-stream-socket
 
   # Ruby reverse shell (migrated from YARA)
   - id: reverse-shell-ruby
@@ -77,3 +169,4 @@ composite_rules:
       - id: spawn-tcpsocket
       - id: tcpsocket-popen
       - id: tcpsocket-sh-i
+      - id: ruby-cmd-loop-shell
