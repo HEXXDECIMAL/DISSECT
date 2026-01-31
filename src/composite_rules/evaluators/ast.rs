@@ -12,6 +12,24 @@ use crate::composite_rules::types::FileType;
 use crate::types::Evidence;
 use streaming_iterator::StreamingIterator;
 
+/// Check if file type supports AST parsing
+fn supports_ast(file_type: FileType) -> bool {
+    !matches!(
+        file_type,
+        FileType::All
+            | FileType::Elf
+            | FileType::Macho
+            | FileType::Pe
+            | FileType::Dll
+            | FileType::So
+            | FileType::Dylib
+            | FileType::Class
+            | FileType::Batch
+            | FileType::PackageJson
+            | FileType::AppleScript
+    )
+}
+
 /// Evaluate unified AST condition
 /// Handles both simple mode (kind/node + exact/regex) and advanced mode (query)
 pub fn eval_ast(
@@ -23,6 +41,11 @@ pub fn eval_ast(
     case_insensitive: bool,
     ctx: &EvaluationContext,
 ) -> ConditionResult {
+    // Skip AST evaluation for file types that don't support tree-sitter parsing
+    if !supports_ast(ctx.file_type) {
+        return ConditionResult::default();
+    }
+
     // Advanced mode: use tree-sitter query
     if let Some(query_str) = query {
         return eval_ast_query(query_str, ctx);
@@ -147,7 +170,14 @@ pub fn eval_ast(
         }
     };
 
-    eval_ast_pattern_multi(&tree, source, &node_types, pattern, use_regex, case_insensitive)
+    eval_ast_pattern_multi(
+        &tree,
+        source,
+        &node_types,
+        pattern,
+        use_regex,
+        case_insensitive,
+    )
 }
 
 /// Evaluate AST pattern matching against multiple node types

@@ -35,7 +35,11 @@ pub fn map_kind_to_node_types(kind: &str, file_type: FileType) -> Vec<&'static s
         "function" => match file_type {
             FileType::Python => vec!["function_definition"],
             FileType::JavaScript | FileType::TypeScript => {
-                vec!["function_declaration", "arrow_function", "function_expression"]
+                vec![
+                    "function_declaration",
+                    "arrow_function",
+                    "function_expression",
+                ]
             }
             FileType::Ruby => vec!["method", "singleton_method"],
             FileType::Go => vec!["function_declaration", "method_declaration"],
@@ -98,7 +102,7 @@ pub fn map_kind_to_node_types(kind: &str, file_type: FileType) -> Vec<&'static s
             FileType::Groovy => vec!["import_declaration"],
             FileType::Scala => vec!["import_declaration"],
             FileType::Zig => vec!["builtin_call_expr"], // @import
-            FileType::Elixir => vec!["call"], // import/use/require are function calls
+            FileType::Elixir => vec!["call"],           // import/use/require are function calls
             _ => vec![],
         },
 
@@ -307,7 +311,12 @@ pub fn map_kind_to_node_types(kind: &str, file_type: FileType) -> Vec<&'static s
         "loop" => match file_type {
             FileType::Python => vec!["for_statement", "while_statement"],
             FileType::JavaScript | FileType::TypeScript => {
-                vec!["for_statement", "while_statement", "for_in_statement", "for_of_statement"]
+                vec![
+                    "for_statement",
+                    "while_statement",
+                    "for_in_statement",
+                    "for_of_statement",
+                ]
             }
             FileType::Ruby => vec!["for", "while", "until", "while_modifier", "until_modifier"],
             FileType::Go => vec!["for_statement"],
@@ -322,7 +331,12 @@ pub fn map_kind_to_node_types(kind: &str, file_type: FileType) -> Vec<&'static s
                 "do_statement",
             ],
             FileType::CSharp => {
-                vec!["for_statement", "foreach_statement", "while_statement", "do_statement"]
+                vec![
+                    "for_statement",
+                    "foreach_statement",
+                    "while_statement",
+                    "do_statement",
+                ]
             }
             FileType::Php => vec!["for_statement", "foreach_statement", "while_statement"],
             FileType::Shell => vec!["for_statement", "while_statement"],

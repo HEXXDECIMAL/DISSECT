@@ -1072,6 +1072,7 @@ impl CapabilityMapper {
         &self,
         report: &AnalysisReport,
         binary_data: &[u8],
+        cached_ast: Option<&tree_sitter::Tree>,
     ) -> Vec<Finding> {
         // Determine platform and file type from report
         let platform = self.detect_platform(&report.target.file_type);
@@ -1104,15 +1105,23 @@ impl CapabilityMapper {
                 } else {
                     Some(&all_findings)
                 },
-                cached_ast: None,
+                cached_ast,
             };
 
-            // Evaluate positive rules in parallel
-            let new_findings: Vec<Finding> = positive_rules
-                .par_iter()
-                .filter_map(|rule| rule.evaluate(&ctx))
-                .filter(|f| !seen_ids.contains(&f.id))
-                .collect();
+            // Evaluate positive rules (parallel for large sets, sequential for small)
+            let new_findings: Vec<Finding> = if positive_rules.len() > 50 {
+                positive_rules
+                    .par_iter()
+                    .filter_map(|rule| rule.evaluate(&ctx))
+                    .filter(|f| !seen_ids.contains(&f.id))
+                    .collect()
+            } else {
+                positive_rules
+                    .iter()
+                    .filter_map(|rule| rule.evaluate(&ctx))
+                    .filter(|f| !seen_ids.contains(&f.id))
+                    .collect()
+            };
 
             if new_findings.is_empty() {
                 break;
@@ -1137,14 +1146,22 @@ impl CapabilityMapper {
             } else {
                 Some(&all_findings)
             },
-            cached_ast: None,
+            cached_ast,
         };
 
-        let negative_findings: Vec<Finding> = negative_rules
-            .par_iter()
-            .filter_map(|rule| rule.evaluate(&ctx))
-            .filter(|f| !seen_ids.contains(&f.id))
-            .collect();
+        let negative_findings: Vec<Finding> = if negative_rules.len() > 50 {
+            negative_rules
+                .par_iter()
+                .filter_map(|rule| rule.evaluate(&ctx))
+                .filter(|f| !seen_ids.contains(&f.id))
+                .collect()
+        } else {
+            negative_rules
+                .iter()
+                .filter_map(|rule| rule.evaluate(&ctx))
+                .filter(|f| !seen_ids.contains(&f.id))
+                .collect()
+        };
 
         for finding in negative_findings {
             all_findings.push(finding);
@@ -1186,7 +1203,7 @@ impl CapabilityMapper {
         }
 
         // Step 3: Evaluate composite rules (which can now access the atomic traits)
-        let composite_findings = self.evaluate_composite_rules(report, binary_data);
+        let composite_findings = self.evaluate_composite_rules(report, binary_data, cached_ast);
 
         // Step 4: Merge composite findings into report
         for finding in composite_findings {

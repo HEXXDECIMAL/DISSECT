@@ -1097,7 +1097,10 @@ fn validate_ast_query(query: &str, language: Option<&str>) -> Result<()> {
         Some("zig") => tree_sitter_zig::LANGUAGE.into(),
         Some("elixir") => tree_sitter_elixir::LANGUAGE.into(),
         Some(other) => {
-            return Err(anyhow::anyhow!("unsupported language for ast query: {}", other))
+            return Err(anyhow::anyhow!(
+                "unsupported language for ast query: {}",
+                other
+            ))
         }
         None => {
             // No language specified - skip validation, will validate at runtime

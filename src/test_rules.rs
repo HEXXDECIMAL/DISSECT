@@ -984,15 +984,24 @@ impl<'a> RuleDebugger<'a> {
             let pattern_spec = exact
                 .as_ref()
                 .map(|e| format!("exact=\"{}\"", truncate_string(e, 30)))
-                .or_else(|| regex.as_ref().map(|r| format!("regex=/{}/", truncate_string(r, 30))))
+                .or_else(|| {
+                    regex
+                        .as_ref()
+                        .map(|r| format!("regex=/{}/", truncate_string(r, 30)))
+                })
                 .unwrap_or_default();
-            format!("ast: {} {} (case_insensitive: {})", node_spec, pattern_spec, case_insensitive)
+            format!(
+                "ast: {} {} (case_insensitive: {})",
+                node_spec, pattern_spec, case_insensitive
+            )
         };
 
         // For query mode, show simplified debug info
         if query.is_some() {
             let mut result = ConditionDebugResult::new(desc, false);
-            result.details.push("AST query debugging not yet implemented".to_string());
+            result
+                .details
+                .push("AST query debugging not yet implemented".to_string());
             return result;
         }
 
@@ -1018,16 +1027,25 @@ impl<'a> RuleDebugger<'a> {
 
         let mut result = ConditionDebugResult::new(desc, eval_result.matched);
         if eval_result.matched {
-            result.details.push(format!("Found {} matching AST node(s)", eval_result.evidence.len()));
+            result.details.push(format!(
+                "Found {} matching AST node(s)",
+                eval_result.evidence.len()
+            ));
             for ev in eval_result.evidence.iter().take(10) {
                 if let Some(loc) = &ev.location {
-                    result.details.push(format!("  {}: {}", loc, truncate_string(&ev.value, 60)));
+                    result
+                        .details
+                        .push(format!("  {}: {}", loc, truncate_string(&ev.value, 60)));
                 } else {
-                    result.details.push(format!("  {}", truncate_string(&ev.value, 60)));
+                    result
+                        .details
+                        .push(format!("  {}", truncate_string(&ev.value, 60)));
                 }
             }
         } else {
-            result.details.push("No matching AST nodes found".to_string());
+            result
+                .details
+                .push("No matching AST nodes found".to_string());
         }
 
         result
