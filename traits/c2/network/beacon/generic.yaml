@@ -104,6 +104,82 @@ traits:
       type: string
       regex: "wget\\s+https?://"
 
+  # === Typosquatting C2 domains ===
+  - id: typosquat-git-hub
+    desc: Git typosquat domain
+    crit: suspicious
+    conf: 0.95
+    mbc: "B0030"
+    attack: "T1071.001"
+    if:
+      type: string
+      contains: "git-hub"
+
+  - id: typosquat-domain-pattern
+    desc: Typosquat domain pattern
+    crit: suspicious
+    conf: 0.80
+    mbc: "B0030"
+    attack: "T1071.001"
+    if:
+      type: string
+      regex: "(githu[bk]\\.|gi[th]hub\\.|github\\.(?!com|io|org)[a-z]{2,}|githab\\.|githyb\\.)"
+
+  # === C2 Command Protocols ===
+  - id: c2-command-pattern-numeric
+    desc: Numeric C2 command protocol
+    crit: suspicious
+    conf: 0.85
+    mbc: "B0030"
+    attack: "T1071.001"
+    if:
+      type: string
+      regex: "cmd[_-]?type.{0,5}=.{0,5}[\"']?[0-9]{3}[\"']?"
+
+  - id: c2-response-pattern-numeric
+    desc: C2 response code parsing
+    crit: suspicious
+    conf: 0.85
+    mbc: "B0030"
+    attack: "T1071.001"
+    if:
+      type: string
+      regex: "res\\[.{0,10}:.{0,10}\\+.{0,5}[0-9]{3}"
+
+  # === C2 Beaconing Patterns ===
+  - id: sleep-in-while-true
+    desc: Sleep in infinite loop (C2 beaconing pattern)
+    crit: suspicious
+    conf: 0.85
+    mbc: "B0030"
+    attack: "T1071.001"
+    for: [python, javascript, shell]
+    if:
+      type: string
+      regex: "while\\s+True:.*?sleep\\s*\\("
+
+  - id: c2-polling-loop
+    desc: C2 polling with sleep interval
+    crit: suspicious
+    conf: 0.80
+    mbc: "B0030"
+    attack: "T1071.001"
+    for: [python, javascript, shell]
+    if:
+      type: string
+      regex: "(while.*True|while\\s+1).*sleep"
+
+  # === JSON C2 Communication ===
+  - id: json-content-type-header
+    desc: JSON content-type for C2 communication
+    crit: notable
+    conf: 0.70
+    mbc: "B0030"
+    attack: "T1071.001"
+    if:
+      type: string
+      regex: "application/json.*charset"
+
 composite_rules:
   # HTTP template composite
   - id: http-template

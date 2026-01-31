@@ -950,14 +950,15 @@ impl Condition {
     pub fn precompile_regexes(&mut self) {
         match self {
             Condition::Symbol {
-                regex,
+                regex: Some(regex_pattern),
                 compiled_regex,
                 ..
             } => {
                 // Compile symbol regex if present
-                if let Some(regex_pattern) = regex {
-                    *compiled_regex = regex::Regex::new(regex_pattern).ok();
-                }
+                *compiled_regex = regex::Regex::new(regex_pattern).ok();
+            }
+            Condition::Symbol { regex: None, .. } => {
+                // No regex to compile
             }
             Condition::String {
                 regex,

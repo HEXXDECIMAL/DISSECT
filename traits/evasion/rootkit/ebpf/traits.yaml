@@ -315,11 +315,12 @@ composite_rules:
       - id: xdp-tcph
       - id: xdp-payload
 
-  # Intent markers helper
+  # Intent markers helper (eBPF context only)
   - id: offensive-intent
     desc: Offensive intent markers
     crit: notable
     conf: 0.7
+    for: [c, elf, rust]
     count_min: 1
     any:
       - id: feat/intent/magic

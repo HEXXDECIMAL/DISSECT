@@ -255,6 +255,24 @@ fn main() -> Result<()> {
         Some(cli::Command::TestRules { target, rules }) => {
             test_rules_debug(&target, &rules, &disabled)?
         }
+        Some(cli::Command::TestMatch {
+            target,
+            r#type,
+            method,
+            pattern,
+            file_type,
+            min_count,
+            case_insensitive,
+        }) => test_match_debug(
+            &target,
+            r#type,
+            method,
+            &pattern,
+            file_type,
+            min_count,
+            case_insensitive,
+            &disabled,
+        )?,
         None => {
             // No subcommand - use paths from top-level args
             if args.paths.is_empty() {
@@ -1455,6 +1473,535 @@ fn test_rules_debug(
 
     // Format and return output
     Ok(test_rules::format_debug_output(&results))
+}
+
+/// Convert CLI file type enum to internal FileType
+fn cli_file_type_to_internal(ft: cli::DetectFileType) -> FileType {
+    match ft {
+        cli::DetectFileType::Elf => FileType::Elf,
+        cli::DetectFileType::Pe => FileType::Pe,
+        cli::DetectFileType::Macho => FileType::MachO,
+        cli::DetectFileType::JavaScript => FileType::JavaScript,
+        cli::DetectFileType::Python => FileType::Python,
+        cli::DetectFileType::Go => FileType::Go,
+        cli::DetectFileType::Shell => FileType::Shell,
+        cli::DetectFileType::Raw => FileType::Unknown,
+    }
+}
+
+/// Test pattern matching against a file with alternative suggestions
+#[allow(clippy::too_many_arguments)]
+fn test_match_debug(
+    target: &str,
+    search_type: cli::SearchType,
+    method: cli::MatchMethod,
+    pattern: &str,
+    file_type_override: Option<cli::DetectFileType>,
+    min_count: usize,
+    case_insensitive: bool,
+    _disabled: &cli::DisabledComponents,
+) -> Result<String> {
+    use crate::test_rules::{find_matching_strings, find_matching_symbols, RuleDebugger};
+    use colored::Colorize;
+
+    let path = Path::new(target);
+    if !path.exists() {
+        anyhow::bail!("File does not exist: {}", target);
+    }
+
+    // Use specified file type or auto-detect
+    let file_type = if let Some(ft) = file_type_override {
+        cli_file_type_to_internal(ft)
+    } else {
+        detect_file_type(path)?
+    };
+
+    // Load capability mapper
+    let capability_mapper = crate::capabilities::CapabilityMapper::new();
+
+    // Read file data
+    let binary_data = fs::read(path)?;
+
+    // Create a basic report by analyzing the file
+    let report = create_analysis_report(path, &file_type, &binary_data, &capability_mapper)?;
+
+    // Create debugger to access search functions
+    let debugger = RuleDebugger::new(&capability_mapper, &report, &binary_data);
+    let context_info = debugger.context_info();
+
+    // Perform the requested search
+    let (matched, _match_count, mut output): (bool, usize, String) = match search_type {
+        cli::SearchType::String => {
+            let strings: Vec<&str> = report.strings.iter().map(|s| s.value.as_str()).collect();
+
+            let exact = if method == cli::MatchMethod::Exact {
+                Some(pattern.to_string())
+            } else {
+                None
+            };
+            let contains = if method == cli::MatchMethod::Contains {
+                Some(pattern.to_string())
+            } else {
+                None
+            };
+            let regex = if method == cli::MatchMethod::Regex {
+                Some(pattern.to_string())
+            } else {
+                None
+            };
+            let word = if method == cli::MatchMethod::Word {
+                Some(pattern.to_string())
+            } else {
+                None
+            };
+
+            let matched_strings =
+                find_matching_strings(&strings, &exact, &contains, &regex, &word, case_insensitive);
+            let matched = matched_strings.len() >= min_count;
+
+            let mut out = String::new();
+            out.push_str(&format!(
+                "Search: strings ({} matches required)\n",
+                min_count
+            ));
+            out.push_str(&format!("Pattern: {}\n", pattern));
+            out.push_str(&format!(
+                "Context: file_type={:?}, strings={}, symbols={}\n",
+                file_type, context_info.string_count, context_info.symbol_count
+            ));
+
+            if matched {
+                out.push_str(&format!(
+                    "\n{} ({} matches)\n",
+                    "MATCHED".green().bold(),
+                    matched_strings.len()
+                ));
+                let display_count = matched_strings.len().min(10);
+                for s in matched_strings.iter().take(display_count) {
+                    out.push_str(&format!("  \"{}\"\n", s));
+                }
+                if matched_strings.len() > display_count {
+                    out.push_str(&format!(
+                        "  ... and {} more\n",
+                        matched_strings.len() - display_count
+                    ));
+                }
+            } else {
+                out.push_str(&format!("\n{}\n", "NOT MATCHED".red().bold()));
+                out.push_str(&format!(
+                    "Found {} matches (need {}), ",
+                    matched_strings.len(),
+                    min_count
+                ));
+            }
+
+            (matched, matched_strings.len(), out)
+        }
+        cli::SearchType::Symbol => {
+            let symbols: Vec<&str> = report
+                .imports
+                .iter()
+                .map(|i| i.symbol.as_str())
+                .chain(report.exports.iter().map(|e| e.symbol.as_str()))
+                .chain(report.functions.iter().map(|f| f.name.as_str()))
+                .collect();
+
+            let exact = if method == cli::MatchMethod::Exact {
+                Some(pattern.to_string())
+            } else {
+                None
+            };
+            let regex = if method == cli::MatchMethod::Regex {
+                Some(pattern.to_string())
+            } else {
+                None
+            };
+
+            let matched_symbols = find_matching_symbols(&symbols, &exact, &regex);
+            let matched = !matched_symbols.is_empty();
+
+            let mut out = String::new();
+            out.push_str("Search: symbols\n");
+            out.push_str(&format!("Pattern: {}\n", pattern));
+            out.push_str(&format!(
+                "Context: file_type={:?}, strings={}, symbols={}\n",
+                file_type, context_info.string_count, context_info.symbol_count
+            ));
+
+            if matched {
+                out.push_str(&format!(
+                    "\n{} ({} matches)\n",
+                    "MATCHED".green().bold(),
+                    matched_symbols.len()
+                ));
+                let display_count = matched_symbols.len().min(10);
+                for s in matched_symbols.iter().take(display_count) {
+                    out.push_str(&format!("  \"{}\"\n", s));
+                }
+                if matched_symbols.len() > display_count {
+                    out.push_str(&format!(
+                        "  ... and {} more\n",
+                        matched_symbols.len() - display_count
+                    ));
+                }
+            } else {
+                out.push_str(&format!("\n{}\n", "NOT MATCHED".red().bold()));
+                out.push_str(&format!(
+                    "Total symbols: {} ({} imports, {} exports)\n",
+                    symbols.len(),
+                    report.imports.len(),
+                    report.exports.len()
+                ));
+            }
+
+            (matched, matched_symbols.len(), out)
+        }
+        cli::SearchType::Content => {
+            let content = String::from_utf8_lossy(&binary_data);
+
+            let matched = match method {
+                cli::MatchMethod::Exact => content.contains(pattern),
+                cli::MatchMethod::Contains => content.contains(pattern),
+                cli::MatchMethod::Regex => {
+                    regex::Regex::new(pattern).is_ok_and(|re| re.is_match(&content))
+                }
+                cli::MatchMethod::Word => {
+                    let word_pattern = format!(r"\b{}\b", regex::escape(pattern));
+                    regex::Regex::new(&word_pattern).is_ok_and(|re| re.is_match(&content))
+                }
+            };
+
+            let match_count = if matched { 1 } else { 0 };
+
+            let mut out = String::new();
+            out.push_str("Search: content\n");
+            out.push_str(&format!("Pattern: {}\n", pattern));
+            out.push_str(&format!(
+                "Context: file_type={:?}, file_size={} bytes\n",
+                file_type,
+                binary_data.len()
+            ));
+
+            if matched {
+                out.push_str(&format!("\n{}\n", "MATCHED".green().bold()));
+            } else {
+                out.push_str(&format!("\n{}\n", "NOT MATCHED".red().bold()));
+            }
+
+            (matched, match_count, out)
+        }
+    };
+
+    // If not matched, provide suggestions
+    if !matched {
+        output.push_str("\nSuggestions:\n");
+
+        // Check alternative search types
+        match search_type {
+            cli::SearchType::String => {
+                // Check if pattern exists in symbols
+                let symbols: Vec<&str> = report
+                    .imports
+                    .iter()
+                    .map(|i| i.symbol.as_str())
+                    .chain(report.exports.iter().map(|e| e.symbol.as_str()))
+                    .chain(report.functions.iter().map(|f| f.name.as_str()))
+                    .collect();
+                let exact = if method == cli::MatchMethod::Exact {
+                    Some(pattern.to_string())
+                } else {
+                    None
+                };
+                let regex = if method == cli::MatchMethod::Regex {
+                    Some(pattern.to_string())
+                } else {
+                    None
+                };
+                let symbol_matches = find_matching_symbols(&symbols, &exact, &regex);
+                if !symbol_matches.is_empty() {
+                    output.push_str(&format!(
+                        "  💡 Found in symbols ({} matches) - try `--type symbol`\n",
+                        symbol_matches.len()
+                    ));
+                }
+
+                // Check if pattern exists in content
+                let content = String::from_utf8_lossy(&binary_data);
+                let content_matched = match method {
+                    cli::MatchMethod::Exact => content.contains(pattern),
+                    cli::MatchMethod::Contains => content.contains(pattern),
+                    cli::MatchMethod::Regex => {
+                        regex::Regex::new(pattern).is_ok_and(|re| re.is_match(&content))
+                    }
+                    cli::MatchMethod::Word => {
+                        let word_pattern = format!(r"\b{}\b", regex::escape(pattern));
+                        regex::Regex::new(&word_pattern).is_ok_and(|re| re.is_match(&content))
+                    }
+                };
+                if content_matched {
+                    output.push_str("  💡 Found in content - try `--type content`\n");
+                }
+            }
+            cli::SearchType::Symbol => {
+                // Check if pattern exists in strings (try exact first, then contains)
+                let strings: Vec<&str> = report.strings.iter().map(|s| s.value.as_str()).collect();
+                let exact = if method == cli::MatchMethod::Exact {
+                    Some(pattern.to_string())
+                } else {
+                    None
+                };
+                let contains = if method == cli::MatchMethod::Contains {
+                    Some(pattern.to_string())
+                } else {
+                    None
+                };
+                let regex = if method == cli::MatchMethod::Regex {
+                    Some(pattern.to_string())
+                } else {
+                    None
+                };
+                let word = if method == cli::MatchMethod::Word {
+                    Some(pattern.to_string())
+                } else {
+                    None
+                };
+                let string_matches = find_matching_strings(
+                    &strings,
+                    &exact,
+                    &contains,
+                    &regex,
+                    &word,
+                    case_insensitive,
+                );
+                if !string_matches.is_empty() {
+                    output.push_str(&format!(
+                        "  💡 Found in strings ({} matches) - try `--type string`\n",
+                        string_matches.len()
+                    ));
+                } else if method == cli::MatchMethod::Exact {
+                    // Also try contains for exact searches
+                    let contains_matches = find_matching_strings(
+                        &strings,
+                        &None,
+                        &Some(pattern.to_string()),
+                        &None,
+                        &None,
+                        case_insensitive,
+                    );
+                    if !contains_matches.is_empty() {
+                        output.push_str(&format!(
+                            "  💡 Found in strings ({} substring matches) - try `--type string --method contains`\n",
+                            contains_matches.len()
+                        ));
+                    }
+                }
+
+                // Check if pattern exists in content
+                let content = String::from_utf8_lossy(&binary_data);
+                let content_matched = match method {
+                    cli::MatchMethod::Exact => content.contains(pattern),
+                    cli::MatchMethod::Contains => content.contains(pattern),
+                    cli::MatchMethod::Regex => {
+                        regex::Regex::new(pattern).is_ok_and(|re| re.is_match(&content))
+                    }
+                    cli::MatchMethod::Word => {
+                        let word_pattern = format!(r"\b{}\b", regex::escape(pattern));
+                        regex::Regex::new(&word_pattern).is_ok_and(|re| re.is_match(&content))
+                    }
+                };
+                if content_matched {
+                    output.push_str("  💡 Found in content - try `--type content`\n");
+                }
+            }
+            cli::SearchType::Content => {
+                // Check if pattern exists in strings
+                let strings: Vec<&str> = report.strings.iter().map(|s| s.value.as_str()).collect();
+                let exact = if method == cli::MatchMethod::Exact {
+                    Some(pattern.to_string())
+                } else {
+                    None
+                };
+                let contains = if method == cli::MatchMethod::Contains {
+                    Some(pattern.to_string())
+                } else {
+                    None
+                };
+                let regex = if method == cli::MatchMethod::Regex {
+                    Some(pattern.to_string())
+                } else {
+                    None
+                };
+                let word = if method == cli::MatchMethod::Word {
+                    Some(pattern.to_string())
+                } else {
+                    None
+                };
+                let string_matches = find_matching_strings(
+                    &strings,
+                    &exact,
+                    &contains,
+                    &regex,
+                    &word,
+                    case_insensitive,
+                );
+                if !string_matches.is_empty() {
+                    output.push_str(&format!(
+                        "  💡 Found in strings ({} matches) - try `--type string`\n",
+                        string_matches.len()
+                    ));
+                }
+
+                // Check if pattern exists in symbols
+                let symbols: Vec<&str> = report
+                    .imports
+                    .iter()
+                    .map(|i| i.symbol.as_str())
+                    .chain(report.exports.iter().map(|e| e.symbol.as_str()))
+                    .chain(report.functions.iter().map(|f| f.name.as_str()))
+                    .collect();
+                let symbol_matches = find_matching_symbols(&symbols, &exact, &regex);
+                if !symbol_matches.is_empty() {
+                    output.push_str(&format!(
+                        "  💡 Found in symbols ({} matches) - try `--type symbol`\n",
+                        symbol_matches.len()
+                    ));
+                }
+            }
+        }
+
+        // Suggest alternative match methods
+        output.push_str("\n  Try different match methods:\n");
+        match method {
+            cli::MatchMethod::Exact => {
+                output.push_str("    --method contains (substring match)\n");
+                output.push_str("    --method regex (pattern match)\n");
+            }
+            cli::MatchMethod::Contains => {
+                output.push_str("    --method exact (exact match)\n");
+                output.push_str("    --method regex (pattern match)\n");
+            }
+            cli::MatchMethod::Regex => {
+                output.push_str("    --method contains (substring match)\n");
+                output.push_str("    --method exact (exact match)\n");
+            }
+            cli::MatchMethod::Word => {
+                output.push_str("    --method contains (substring match)\n");
+                output.push_str("    --method regex (pattern match)\n");
+            }
+        }
+
+        // Check if pattern would match with different file types
+        output.push_str("\n  File type analysis:\n");
+        output.push_str(&format!("    Current file type: {:?}\n", file_type));
+
+        // Try analyzing as different file types
+        let alternative_types = vec![
+            ("ELF", FileType::Elf),
+            ("PE", FileType::Pe),
+            ("Mach-O", FileType::MachO),
+            ("JavaScript", FileType::JavaScript),
+            ("Python", FileType::Python),
+            ("Go", FileType::Go),
+        ];
+
+        for (type_name, alt_type) in alternative_types {
+            if alt_type != file_type {
+                // Try to create a report with alternative file type
+                if let Ok(alt_report) =
+                    create_analysis_report(path, &alt_type, &binary_data, &capability_mapper)
+                {
+                    let alt_debugger =
+                        RuleDebugger::new(&capability_mapper, &alt_report, &binary_data);
+                    let alt_context = alt_debugger.context_info();
+
+                    // Quick check if search would work with this type
+                    let would_match = match search_type {
+                        cli::SearchType::String => {
+                            let strings: Vec<&str> = alt_report
+                                .strings
+                                .iter()
+                                .map(|s| s.value.as_str())
+                                .collect();
+                            let exact = if method == cli::MatchMethod::Exact {
+                                Some(pattern.to_string())
+                            } else {
+                                None
+                            };
+                            let contains = if method == cli::MatchMethod::Contains {
+                                Some(pattern.to_string())
+                            } else {
+                                None
+                            };
+                            let regex = if method == cli::MatchMethod::Regex {
+                                Some(pattern.to_string())
+                            } else {
+                                None
+                            };
+                            let word = if method == cli::MatchMethod::Word {
+                                Some(pattern.to_string())
+                            } else {
+                                None
+                            };
+                            let matches = find_matching_strings(
+                                &strings,
+                                &exact,
+                                &contains,
+                                &regex,
+                                &word,
+                                case_insensitive,
+                            );
+                            !matches.is_empty()
+                        }
+                        cli::SearchType::Symbol => {
+                            let symbols: Vec<&str> = alt_report
+                                .imports
+                                .iter()
+                                .map(|i| i.symbol.as_str())
+                                .chain(alt_report.exports.iter().map(|e| e.symbol.as_str()))
+                                .chain(alt_report.functions.iter().map(|f| f.name.as_str()))
+                                .collect();
+                            let exact = if method == cli::MatchMethod::Exact {
+                                Some(pattern.to_string())
+                            } else {
+                                None
+                            };
+                            let regex = if method == cli::MatchMethod::Regex {
+                                Some(pattern.to_string())
+                            } else {
+                                None
+                            };
+                            let matches = find_matching_symbols(&symbols, &exact, &regex);
+                            !matches.is_empty()
+                        }
+                        cli::SearchType::Content => {
+                            let content = String::from_utf8_lossy(&binary_data);
+                            match method {
+                                cli::MatchMethod::Exact => content.contains(pattern),
+                                cli::MatchMethod::Contains => content.contains(pattern),
+                                cli::MatchMethod::Regex => {
+                                    regex::Regex::new(pattern).is_ok_and(|re| re.is_match(&content))
+                                }
+                                cli::MatchMethod::Word => {
+                                    let word_pattern = format!(r"\b{}\b", regex::escape(pattern));
+                                    regex::Regex::new(&word_pattern)
+                                        .is_ok_and(|re| re.is_match(&content))
+                                }
+                            }
+                        }
+                    };
+
+                    if would_match {
+                        output.push_str(&format!(
+                            "    💡 Would match if file type was: {} (strings: {}, symbols: {})\n",
+                            type_name, alt_context.string_count, alt_context.symbol_count
+                        ));
+                    }
+                }
+            }
+        }
+    }
+
+    Ok(output)
 }
 
 /// Create a basic analysis report for the file

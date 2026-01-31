@@ -1,0 +1,133 @@
+# Lua Programming Language Traits
+# Detects common Lua patterns, capabilities, and obfuscation techniques
+
+defaults:
+  for: [lua]
+  crit: benign
+
+traits:
+  # === Environment and Context manipulation ===
+  - id: env-access
+    desc: Lua environment access (_ENV)
+    crit: notable
+    conf: 0.9
+    if:
+      type: symbol
+      pattern: '_ENV|getfenv'
+
+  - id: env-modify
+    desc: Modifies Lua environment (setfenv)
+    crit: notable
+    conf: 0.9
+    if:
+      type: symbol
+      pattern: 'setfenv'
+
+  # === Code Loading and Execution ===
+  - id: exec-dynamic-load
+    desc: Dynamic code loading (load, loadstring)
+    crit: notable
+    conf: 0.9
+    if:
+      type: symbol
+      pattern: 'load|loadstring'
+
+  - id: exec-file-execution
+    desc: Executes Lua files (dofile)
+    crit: notable
+    conf: 0.9
+    if:
+      type: symbol
+      pattern: 'dofile'
+
+  - id: module-require
+    desc: Loads Lua modules (require)
+    crit: benign
+    conf: 0.8
+    if:
+      type: symbol
+      pattern: 'require'
+
+  # === System and OS Interaction ===
+  - id: os-system-execute
+    desc: Executes system commands (os.execute, io.popen)
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: symbol
+      pattern: 'os\.execute|io\.popen'
+
+  - id: os-file-manipulation
+    desc: Manipulates files (os.rename, os.remove)
+    crit: notable
+    conf: 0.9
+    if:
+      type: symbol
+      pattern: 'os\.rename|os\.remove'
+
+  # === Metatable and Proxy patterns ===
+  - id: meta-metatable-access
+    desc: Uses metatables (setmetatable, getmetatable)
+    crit: benign
+    conf: 0.7
+    if:
+      type: symbol
+      pattern: 'setmetatable|getmetatable'
+
+  - id: meta-proxy-usage
+    desc: Uses newproxy for object protection
+    crit: notable
+    conf: 0.9
+    if:
+      type: symbol
+      pattern: 'newproxy'
+
+  # === Debug and Reflection ===
+  - id: debug-access
+    desc: Uses Lua debug module
+    crit: notable
+    conf: 0.9
+    if:
+      type: symbol
+      pattern: 'debug\.'
+
+  # === Obfuscation Patterns ===
+  - id: base64-decoder-custom
+    desc: Custom Base64 alphabet mapping
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: content
+      regex: '\["\+"\]\s*=\s*\d+[,;]'
+
+  - id: bytecode-interpreter
+    desc: Lua bytecode interpreter loop
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: content
+      regex: 'while\s+g\s+do\s+if\s+g\s*<'
+
+composite_rules:
+  - id: lua-obfuscated-script
+    desc: Obfuscated Lua script with dynamic execution
+    crit: suspicious
+    conf: 0.9
+    all:
+      - id: anti-static/obfuscation/encoding/xor-string
+    any:
+      - id: base64-decoder-custom
+      - id: bytecode-interpreter
+      - id: env-access
+      - id: exec-dynamic-load
+
+  - id: lua-hostile-loader
+    desc: Hostile Lua loader/dropper
+    crit: hostile
+    conf: 0.9
+    all:
+      - id: lua-obfuscated-script
+    any:
+      - id: os-system-execute
+      - id: exec-file-execution
+      - id: debug-access

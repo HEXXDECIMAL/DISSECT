@@ -6,8 +6,8 @@ traits:
   # === Ruby HTTP atomic indicators ===
   - id: net-http
     desc: Net::HTTP module
-    crit: inert
-    conf: 0.5
+    crit: notable
+    conf: 0.6
     mbc: "C0002"
     attack: "T1071.001"
     if:
@@ -16,8 +16,8 @@ traits:
 
   - id: http-get-ruby
     desc: HTTP.get call
-    crit: inert
-    conf: 0.5
+    crit: notable
+    conf: 0.6
     mbc: "C0002"
     attack: "T1071.001"
     if:
@@ -26,19 +26,39 @@ traits:
 
   - id: open-uri
     desc: open-uri module
-    crit: inert
-    conf: 0.5
+    crit: notable
+    conf: 0.6
     mbc: "C0002"
     attack: "T1071.001"
     if:
       type: string
       exact: "open-uri"
 
+  - id: ruby-http-get-response
+    desc: HTTP GET request
+    crit: notable
+    conf: 0.92
+    platforms: [all]
+    for: [ruby]
+    if:
+      type: string
+      regex: 'Net::HTTP\.get_response|Net::HTTP\.get'
+
+  - id: ruby-http-client
+    desc: HTTP client usage
+    crit: notable
+    conf: 0.88
+    platforms: [all]
+    for: [ruby]
+    if:
+      type: string
+      regex: 'Net::HTTP'
+
 composite_rules:
   - id: request-ruby
     desc: HTTP requests (Ruby)
-    crit: inert
-    conf: 0.66
+    crit: notable
+    conf: 0.75
     mbc: "C0002"
     attack: "T1071.001"
     count_min: 1
@@ -46,3 +66,12 @@ composite_rules:
       - id: net-http
       - id: http-get-ruby
       - id: open-uri
+
+  - id: ruby-http-request-notable
+    desc: HTTP client with notable confidence
+    crit: notable
+    conf: 0.90
+    count_min: 1
+    any:
+      - id: ruby-http-get-response
+      - id: ruby-http-client

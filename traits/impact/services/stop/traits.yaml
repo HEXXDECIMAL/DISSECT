@@ -163,14 +163,29 @@ traits:
       exact: ransom
       case_insensitive: true
 
-  - id: word-tor
-    description: Tor keyword
-    crit: inert
-    conf: 0.4
+  - id: tor-service-stop
+    description: Tor service stop command
+    crit: suspicious
+    conf: 0.7
     if:
       type: string
-      exact: tor
-      case_insensitive: true
+      regex: "(systemctl|service).*(stop|disable).*(tor|tor@)"
+
+  - id: tor-process-kill
+    description: Tor process termination
+    crit: suspicious
+    conf: 0.7
+    if:
+      type: string
+      regex: "(killall|pkill|taskkill).*[tT]or"
+
+  - id: tor-browser-kill
+    description: Tor Browser termination
+    crit: suspicious
+    conf: 0.8
+    if:
+      type: string
+      regex: "tor[- ]?browser.*kill|kill.*tor[- ]?browser"
 
   - id: word-bitcoin
     description: Bitcoin keyword

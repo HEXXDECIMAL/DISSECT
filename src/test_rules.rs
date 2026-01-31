@@ -297,11 +297,9 @@ impl<'a> RuleDebugger<'a> {
                 || composite.count_exact.is_some();
 
             if has_count {
-                let min_ok = composite.count_min.map_or(true, |m| any_matched_count >= m);
-                let max_ok = composite.count_max.map_or(true, |m| any_matched_count <= m);
-                let exact_ok = composite
-                    .count_exact
-                    .map_or(true, |e| any_matched_count == e);
+                let min_ok = composite.count_min.is_none_or(|m| any_matched_count >= m);
+                let max_ok = composite.count_max.is_none_or(|m| any_matched_count <= m);
+                let exact_ok = composite.count_exact.is_none_or(|e| any_matched_count == e);
                 min_ok && max_ok && exact_ok
             } else {
                 any_matched_count > 0
@@ -418,6 +416,15 @@ impl<'a> RuleDebugger<'a> {
                 word,
                 ..
             } => self.debug_content_condition(exact, contains, regex, word),
+            Condition::AstPattern {
+                node_type,
+                pattern,
+                regex,
+                case_insensitive,
+            } => self.debug_ast_pattern_condition(node_type, pattern, *regex, *case_insensitive),
+            Condition::AstQuery { query, language } => {
+                self.debug_ast_query_condition(query, language.as_ref())
+            }
             _ => {
                 // Generic fallback for other condition types
                 let desc = describe_condition(condition);
@@ -459,6 +466,13 @@ impl<'a> RuleDebugger<'a> {
                     result.details.push(format!("Reason: {}", reason));
                 }
                 result.sub_results = trait_result.condition_results;
+            } else if self.find_composite_rule(id).is_some() {
+                // It's a composite rule ID but didn't match - composite evaluation
+                // results are already in the findings, so this means conditions weren't met
+                result.details.push(format!(
+                    "Composite rule '{}' did not match (required conditions not met)",
+                    id
+                ));
             } else {
                 // Not an exact trait ID, check if it's a directory prefix reference
                 let slash_count = id.matches('/').count();
@@ -587,6 +601,57 @@ impl<'a> RuleDebugger<'a> {
             }
         }
 
+        // Check alternatives if string condition didn't match
+        if !matched {
+            // Check symbols (only for exact or regex patterns)
+            if exact.is_some() || regex.is_some() {
+                let symbols: Vec<&str> = self
+                    .report
+                    .imports
+                    .iter()
+                    .map(|i| i.symbol.as_str())
+                    .chain(self.report.exports.iter().map(|e| e.symbol.as_str()))
+                    .chain(self.report.functions.iter().map(|f| f.name.as_str()))
+                    .collect();
+                let symbol_matches = find_matching_symbols(&symbols, exact, regex);
+                if !symbol_matches.is_empty() {
+                    result.details.push(format!(
+                        "💡 Found in symbols ({} matches) - try `symbol:` instead",
+                        symbol_matches.len()
+                    ));
+                }
+            }
+
+            // Check content
+            let content = String::from_utf8_lossy(self.binary_data);
+            let content_matched = if let Some(e) = exact {
+                content.contains(e)
+            } else if let Some(c) = contains {
+                content.contains(c)
+            } else if let Some(r) = regex {
+                let pattern = if case_insensitive {
+                    format!("(?i){}", r)
+                } else {
+                    r.clone()
+                };
+                regex::Regex::new(&pattern).is_ok_and(|re| re.is_match(&content))
+            } else if let Some(w) = word {
+                let pattern = if case_insensitive {
+                    format!(r"(?i)\b{}\b", regex::escape(w))
+                } else {
+                    format!(r"\b{}\b", regex::escape(w))
+                };
+                regex::Regex::new(&pattern).is_ok_and(|re| re.is_match(&content))
+            } else {
+                false
+            };
+            if content_matched {
+                result
+                    .details
+                    .push("💡 Found in content - try `content:` instead".to_string());
+            }
+        }
+
         result
     }
 
@@ -647,6 +712,40 @@ impl<'a> RuleDebugger<'a> {
             }
         }
 
+        // Check alternatives if no symbol match
+        if !matched {
+            // Check strings
+            let string_values: Vec<&str> = self
+                .report
+                .strings
+                .iter()
+                .map(|s| s.value.as_str())
+                .collect();
+            let string_matches =
+                find_matching_strings(&string_values, exact, &None, regex, &None, false);
+            if !string_matches.is_empty() {
+                result.details.push(format!(
+                    "💡 Found in strings ({} matches) - try `string:` instead",
+                    string_matches.len()
+                ));
+            }
+
+            // Check content
+            let content = String::from_utf8_lossy(self.binary_data);
+            let content_matched = if let Some(e) = exact {
+                content.contains(e)
+            } else if let Some(r) = regex {
+                regex::Regex::new(r).is_ok_and(|re| re.is_match(&content))
+            } else {
+                false
+            };
+            if content_matched {
+                result
+                    .details
+                    .push("💡 Found in content - try `content:` instead".to_string());
+            }
+        }
+
         result
     }
 
@@ -659,9 +758,8 @@ impl<'a> RuleDebugger<'a> {
         let desc = format!("metrics: {} (min: {:?}, max: {:?})", field, min, max);
 
         let value = get_metric_value(self.report, field);
-        let matched = value.map_or(false, |v| {
-            min.map_or(true, |m| v >= m) && max.map_or(true, |m| v <= m)
-        });
+        let matched =
+            value.is_some_and(|v| min.is_none_or(|m| v >= m) && max.is_none_or(|m| v <= m));
 
         let mut result = ConditionDebugResult::new(desc, matched);
 
@@ -719,7 +817,7 @@ impl<'a> RuleDebugger<'a> {
             .report
             .yara_matches
             .iter()
-            .any(|m| m.namespace == namespace && rule.map_or(true, |r| m.rule == *r));
+            .any(|m| m.namespace == namespace && rule.is_none_or(|r| m.rule == *r));
 
         let mut result = ConditionDebugResult::new(desc, matched);
 
@@ -811,10 +909,10 @@ impl<'a> RuleDebugger<'a> {
         } else if let Some(c) = contains {
             content.contains(c)
         } else if let Some(r) = regex {
-            regex::Regex::new(r).map_or(false, |re| re.is_match(&content))
+            regex::Regex::new(r).is_ok_and(|re| re.is_match(&content))
         } else if let Some(w) = word {
             let pattern = format!(r"\b{}\b", regex::escape(w));
-            regex::Regex::new(&pattern).map_or(false, |re| re.is_match(&content))
+            regex::Regex::new(&pattern).is_ok_and(|re| re.is_match(&content))
         } else {
             false
         };
@@ -823,6 +921,285 @@ impl<'a> RuleDebugger<'a> {
         result
             .details
             .push(format!("File size: {} bytes", self.binary_data.len()));
+
+        // Check alternatives if content didn't match
+        if !matched {
+            // Check symbols (only for exact or regex patterns)
+            if exact.is_some() || regex.is_some() {
+                let symbols: Vec<&str> = self
+                    .report
+                    .imports
+                    .iter()
+                    .map(|i| i.symbol.as_str())
+                    .chain(self.report.exports.iter().map(|e| e.symbol.as_str()))
+                    .chain(self.report.functions.iter().map(|f| f.name.as_str()))
+                    .collect();
+                let symbol_matches = find_matching_symbols(&symbols, exact, regex);
+                if !symbol_matches.is_empty() {
+                    result.details.push(format!(
+                        "💡 Found in symbols ({} matches) - try `symbol:` instead",
+                        symbol_matches.len()
+                    ));
+                }
+            }
+
+            // Check strings
+            let strings: Vec<&str> = self
+                .report
+                .strings
+                .iter()
+                .map(|s| s.value.as_str())
+                .collect();
+            let string_matches =
+                find_matching_strings(&strings, exact, contains, regex, word, false);
+            if !string_matches.is_empty() {
+                result.details.push(format!(
+                    "💡 Found in strings ({} matches) - try `string:` instead",
+                    string_matches.len()
+                ));
+            }
+        }
+
+        result
+    }
+
+    fn debug_ast_pattern_condition(
+        &self,
+        node_type: &str,
+        pattern: &str,
+        use_regex: bool,
+        case_insensitive: bool,
+    ) -> ConditionDebugResult {
+        let pattern_desc = if use_regex {
+            format!("regex: /{}/", pattern)
+        } else {
+            format!("contains: \"{}\"", pattern)
+        };
+
+        let desc = format!(
+            "ast_pattern: node_type='{}', {} (case_insensitive: {})",
+            node_type, pattern_desc, case_insensitive
+        );
+
+        // Parse the source file to get AST nodes
+        let source = match std::str::from_utf8(self.binary_data) {
+            Ok(s) => s,
+            Err(_) => {
+                let mut result = ConditionDebugResult::new(desc, false);
+                result
+                    .details
+                    .push("Source file is not valid UTF-8".to_string());
+                return result;
+            }
+        };
+
+        // Get the appropriate language parser
+        let parser_lang = match self.file_type {
+            RuleFileType::C => Some(tree_sitter_c::LANGUAGE),
+            RuleFileType::Python => Some(tree_sitter_python::LANGUAGE),
+            RuleFileType::JavaScript => Some(tree_sitter_javascript::LANGUAGE),
+            RuleFileType::TypeScript => Some(tree_sitter_typescript::LANGUAGE_TYPESCRIPT),
+            RuleFileType::Rust => Some(tree_sitter_rust::LANGUAGE),
+            RuleFileType::Go => Some(tree_sitter_go::LANGUAGE),
+            RuleFileType::Java => Some(tree_sitter_java::LANGUAGE),
+            RuleFileType::Ruby => Some(tree_sitter_ruby::LANGUAGE),
+            RuleFileType::Shell => Some(tree_sitter_bash::LANGUAGE),
+            RuleFileType::Php => Some(tree_sitter_php::LANGUAGE_PHP),
+            RuleFileType::CSharp => Some(tree_sitter_c_sharp::LANGUAGE),
+            RuleFileType::Lua => Some(tree_sitter_lua::LANGUAGE),
+            RuleFileType::Perl => Some(tree_sitter_perl::LANGUAGE),
+            RuleFileType::PowerShell => Some(tree_sitter_powershell::LANGUAGE),
+            RuleFileType::Swift => Some(tree_sitter_swift::LANGUAGE),
+            RuleFileType::ObjectiveC => Some(tree_sitter_objc::LANGUAGE),
+            RuleFileType::Groovy => Some(tree_sitter_groovy::LANGUAGE),
+            RuleFileType::Scala => Some(tree_sitter_scala::LANGUAGE),
+            RuleFileType::Zig => Some(tree_sitter_zig::LANGUAGE),
+            RuleFileType::Elixir => Some(tree_sitter_elixir::LANGUAGE),
+            _ => None,
+        };
+
+        let lang: tree_sitter::Language = match parser_lang {
+            Some(l) => l.into(),
+            None => {
+                let mut result = ConditionDebugResult::new(desc, false);
+                result.details.push(format!(
+                    "No AST parser available for file type: {:?}",
+                    self.file_type
+                ));
+                return result;
+            }
+        };
+
+        let mut parser = tree_sitter::Parser::new();
+        if parser.set_language(&lang).is_err() {
+            let mut result = ConditionDebugResult::new(desc, false);
+            result
+                .details
+                .push("Failed to set parser language".to_string());
+            return result;
+        }
+
+        let tree = match parser.parse(source, None) {
+            Some(t) => t,
+            None => {
+                let mut result = ConditionDebugResult::new(desc, false);
+                result
+                    .details
+                    .push("Failed to parse source file".to_string());
+                return result;
+            }
+        };
+
+        // Build the matcher
+        let matcher: Box<dyn Fn(&str) -> bool> = if use_regex {
+            match regex::Regex::new(pattern) {
+                Ok(re) => Box::new(move |s: &str| re.is_match(s)),
+                Err(e) => {
+                    let mut result = ConditionDebugResult::new(desc, false);
+                    result.details.push(format!("Invalid regex pattern: {}", e));
+                    return result;
+                }
+            }
+        } else if case_insensitive {
+            let pattern_lower = pattern.to_lowercase();
+            Box::new(move |s: &str| s.to_lowercase().contains(&pattern_lower))
+        } else {
+            let pattern_owned = pattern.to_string();
+            Box::new(move |s: &str| s.contains(&pattern_owned))
+        };
+
+        // Walk AST and collect nodes
+        let mut matching_nodes = Vec::new();
+        let mut all_target_nodes = Vec::new();
+
+        let cursor = tree.walk();
+        let mut stack = vec![cursor.node()];
+
+        while let Some(node) = stack.pop() {
+            let node_kind = node.kind();
+
+            // Track all nodes of the target type
+            if node_kind == node_type {
+                if let Ok(text) = node.utf8_text(source.as_bytes()) {
+                    let text_str = text.to_string();
+                    all_target_nodes.push(text_str.clone());
+
+                    if matcher(&text_str) {
+                        matching_nodes.push((text_str, node.start_position()));
+                    }
+                }
+            }
+
+            // Add children to stack
+            for i in (0..node.child_count()).rev() {
+                if let Some(child) = node.child(i as u32) {
+                    stack.push(child);
+                }
+            }
+        }
+
+        let matched = !matching_nodes.is_empty();
+        let mut result = ConditionDebugResult::new(desc, matched);
+
+        // Show matching nodes
+        if matched {
+            result.details.push(format!(
+                "Found {} matching {} node(s)",
+                matching_nodes.len(),
+                node_type
+            ));
+            let display_count = matching_nodes.len().min(20);
+            for (text, pos) in matching_nodes.iter().take(display_count) {
+                result.details.push(format!(
+                    "  Line {}: {}",
+                    pos.row + 1,
+                    truncate_string(text, 80)
+                ));
+            }
+            if matching_nodes.len() > display_count {
+                result.details.push(format!(
+                    "  ... and {} more",
+                    matching_nodes.len() - display_count
+                ));
+            }
+        } else {
+            result
+                .details
+                .push(format!("No {} nodes matched pattern", node_type));
+
+            // Show sample nodes of target type (to help debug)
+            if !all_target_nodes.is_empty() {
+                result.details.push(format!(
+                    "\n💡 Found {} '{}' nodes in file (showing first 20):",
+                    all_target_nodes.len(),
+                    node_type
+                ));
+                for (i, text) in all_target_nodes.iter().take(20).enumerate() {
+                    result
+                        .details
+                        .push(format!("  [{}] {}", i + 1, truncate_string(text, 60)));
+                }
+                if all_target_nodes.len() > 20 {
+                    result
+                        .details
+                        .push(format!("  ... and {} more", all_target_nodes.len() - 20));
+                }
+                result.details.push(
+                    "\n💡 Tip: Check if your pattern matches one of the above node texts"
+                        .to_string(),
+                );
+            } else {
+                // Show available node types
+                result.details.push(format!(
+                    "\n💡 No '{}' nodes found in file. Available node types:",
+                    node_type
+                ));
+
+                let cursor2 = tree.walk();
+                let mut node_types = std::collections::HashSet::new();
+                let mut stack2 = vec![cursor2.node()];
+
+                while let Some(node) = stack2.pop() {
+                    node_types.insert(node.kind().to_string());
+
+                    for i in (0..node.child_count()).rev() {
+                        if let Some(child) = node.child(i as u32) {
+                            stack2.push(child);
+                        }
+                    }
+                }
+
+                let mut types: Vec<_> = node_types.into_iter().collect();
+                types.sort();
+                for t in types.iter().take(20) {
+                    result.details.push(format!("  - {}", t));
+                }
+                if types.len() > 20 {
+                    result
+                        .details
+                        .push(format!("  ... and {} more", types.len() - 20));
+                }
+            }
+        }
+
+        result
+    }
+
+    fn debug_ast_query_condition(
+        &self,
+        query: &str,
+        language: Option<&String>,
+    ) -> ConditionDebugResult {
+        let lang_info = language.map(|l| l.as_str()).unwrap_or("auto");
+        let desc = format!("ast_query: language='{}'", lang_info);
+
+        let mut result = ConditionDebugResult::new(desc, false);
+        result
+            .details
+            .push("AST query debugging not yet implemented".to_string());
+        result
+            .details
+            .push(format!("Query: {}", truncate_string(query, 100)));
 
         result
     }
@@ -944,7 +1321,7 @@ fn truncate_string(s: &str, max_len: usize) -> String {
     }
 }
 
-fn find_matching_strings<'a>(
+pub fn find_matching_strings<'a>(
     strings: &[&'a str],
     exact: &Option<String>,
     contains: &Option<String>,
@@ -973,14 +1350,14 @@ fn find_matching_strings<'a>(
                 } else {
                     r.clone()
                 };
-                regex::Regex::new(&pattern).map_or(false, |re| re.is_match(s))
+                regex::Regex::new(&pattern).is_ok_and(|re| re.is_match(s))
             } else if let Some(w) = word {
                 let pattern = if case_insensitive {
                     format!(r"(?i)\b{}\b", regex::escape(w))
                 } else {
                     format!(r"\b{}\b", regex::escape(w))
                 };
-                regex::Regex::new(&pattern).map_or(false, |re| re.is_match(s))
+                regex::Regex::new(&pattern).is_ok_and(|re| re.is_match(s))
             } else {
                 false
             }
@@ -989,7 +1366,7 @@ fn find_matching_strings<'a>(
         .collect()
 }
 
-fn find_matching_symbols<'a>(
+pub fn find_matching_symbols<'a>(
     symbols: &[&'a str],
     exact: &Option<String>,
     regex: &Option<String>,
@@ -1126,7 +1503,7 @@ pub fn format_debug_output(results: &[RuleDebugResult]) -> String {
 
         // Condition results
         if !result.condition_results.is_empty() {
-            output.push_str(&format!("  Conditions:\n"));
+            output.push_str("  Conditions:\n");
             for cond_result in &result.condition_results {
                 format_condition_result(&mut output, cond_result, 2);
             }

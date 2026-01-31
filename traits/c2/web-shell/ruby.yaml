@@ -1,0 +1,101 @@
+---
+# Web Shell Client Detection - Ruby
+# Detects clients that connect to web shells for remote command execution
+# ATT&CK: T1059 (Command and Scripting Interpreter), T1071.001 (Web Protocols)
+
+defaults:
+  for: [ruby]
+  platforms: [all]
+
+traits:
+  # === Web Shell URL Pattern ===
+  - id: web-shell-cmd-param
+    desc: Web shell command parameter
+    crit: suspicious
+    conf: 0.90
+    attack: "T1059"
+    if:
+      type: string
+      regex: "cmd=|command=|exec=|run="
+
+  # === PHP Shell Function Pattern ===
+  - id: php-shell-function
+    desc: PHP exec function in URL
+    crit: suspicious
+    conf: 0.92
+    attack: "T1059"
+    if:
+      type: string
+      regex: "shell_exec|passthru|popen\\("
+    unless:
+      - id: exec/gtfobins/ruby-shell-exec
+
+  # === Interactive Shell Input ===
+  - id: stdin-gets
+    desc: STDIN input for interactive shell
+    crit: notable
+    conf: 0.75
+    attack: "T1059"
+    if:
+      type: symbol
+      regex: "gets|chomp"
+
+  # === Shell Prompt Pattern ===
+  - id: shell-prompt-string
+    desc: Shell prompt marker
+    crit: notable
+    conf: 0.70
+    attack: "T1059"
+    if:
+      type: string
+      regex: "\\$ |> |bash\\$|sh\\$"
+
+  # === Exit Command Pattern ===
+  - id: exit-command-check
+    desc: Exit command check in shell
+    crit: notable
+    conf: 0.65
+    attack: "T1059"
+    if:
+      type: string
+      exact: "exit"
+
+  # === Infinite While Loop ===
+  - id: ruby-while-true
+    desc: Infinite while true loop
+    crit: notable
+    conf: 0.75
+    attack: "T1059"
+    if:
+      type: ast_pattern
+      node_type: while
+      pattern: "while true"
+
+composite_rules:
+  # === Web Shell Client ===
+  - id: web-shell-client
+    desc: Web shell client for remote command execution
+    crit: suspicious
+    conf: 0.92
+    attack: "T1059"
+    count_min: 2
+    any:
+      - id: web-shell-cmd-param
+      - id: php-shell-function
+      - id: ruby-while-true
+      - id: exec/command/shell/ruby-system
+
+  # === Interactive Shell Client ===
+  - id: interactive-shell-client
+    desc: Interactive shell with user input
+    crit: suspicious
+    conf: 0.88
+    attack: "T1059"
+    count_min: 3
+    any:
+      - id: stdin-gets
+      - id: shell-prompt-string
+      - id: exit-command-check
+      - id: ruby-while-true
+      - id: ruby-open-uri
+      - id: exec/command/shell/ruby-system

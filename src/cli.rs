@@ -251,6 +251,79 @@ pub enum Command {
         #[arg(short, long, value_name = "RULE_IDS")]
         rules: String,
     },
+
+    /// Test pattern matching against a file
+    TestMatch {
+        /// Target file to analyze
+        #[arg(required = true)]
+        target: String,
+
+        /// Type of search to perform (string, symbol, content)
+        #[arg(short, long, value_enum, default_value = "string")]
+        r#type: SearchType,
+
+        /// Match method: exact, contains, regex, or word
+        #[arg(short, long, value_enum, default_value = "contains")]
+        method: MatchMethod,
+
+        /// Pattern to search for
+        #[arg(short, long, required = true)]
+        pattern: String,
+
+        /// File type to use for analysis (auto-detected if not specified)
+        #[arg(short, long, value_enum)]
+        file_type: Option<DetectFileType>,
+
+        /// Minimum number of matches required (for string searches)
+        #[arg(short = 'n', long, default_value = "1")]
+        min_count: usize,
+
+        /// Case-insensitive matching
+        #[arg(short, long)]
+        case_insensitive: bool,
+    },
+}
+
+#[derive(Debug, Clone, clap::ValueEnum, PartialEq)]
+pub enum SearchType {
+    /// Search in extracted strings
+    String,
+    /// Search in symbols (imports/exports)
+    Symbol,
+    /// Search in raw file content
+    Content,
+}
+
+#[derive(Debug, Clone, clap::ValueEnum, PartialEq)]
+pub enum MatchMethod {
+    /// Exact match
+    Exact,
+    /// Contains substring
+    Contains,
+    /// Regular expression match
+    Regex,
+    /// Whole word match
+    Word,
+}
+
+#[derive(Debug, Clone, clap::ValueEnum, PartialEq)]
+pub enum DetectFileType {
+    /// ELF binary
+    Elf,
+    /// PE/Windows executable
+    Pe,
+    /// Mach-O binary
+    Macho,
+    /// JavaScript source
+    JavaScript,
+    /// Python source
+    Python,
+    /// Go source
+    Go,
+    /// Shell script
+    Shell,
+    /// Raw/binary content
+    Raw,
 }
 
 #[derive(Debug, Clone, clap::ValueEnum, PartialEq)]

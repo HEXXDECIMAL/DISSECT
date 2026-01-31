@@ -12,10 +12,14 @@ composite_rules:
     mbc: "OB0003"
     attack: "T1041"
     for: [python]
+    count_min: 3
     all:
       - id: discovery/system
       - id: comm/http/request
+    any:
       - id: fs/file/write
+      - id: cred
+      - id: collect
 
   - id: dynamic-dropper
     desc: "Dynamic Python dropper behavior"
@@ -49,7 +53,10 @@ composite_rules:
     attack: "T1074"
     for: [python]
     near_lines: 100
+    count_min: 3
     all:
       - id: discovery/system
-      - id: anti-static/obfuscation/strings
+    any:
+      - id: fs/file/write
+      - id: collect/archive
       - id: exfil/http

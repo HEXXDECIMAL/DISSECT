@@ -63,7 +63,15 @@ traits:
     conf: 0.7
     if:
       type: string
-      exact: "/tmp/"
+      regex: '^/tmp/'
+
+  - id: file-open-tmp-string
+    desc: File.open to /tmp/ path
+    crit: notable
+    conf: 0.85
+    if:
+      type: string
+      regex: 'File\.open\(/tmp/'
 
   # chmod variants
   - id: file-chmod-string
@@ -245,3 +253,11 @@ composite_rules:
     any:
       - id: fileutils-single-quote
       - id: fileutils-double-quote
+
+  - id: ruby-file-write-tmp
+    desc: Write file to /tmp directory
+    crit: notable
+    conf: 0.90
+    any:
+      - id: tmp-slash-string
+      - id: file-open-tmp-string

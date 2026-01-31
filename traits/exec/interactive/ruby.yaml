@@ -1,0 +1,58 @@
+---
+# Ruby Interactive CLI Tool Detection
+# Detects interactive command-line interface tools
+# ATT&CK: T1059 (Command and Scripting Interpreter)
+
+defaults:
+  for: [ruby]
+  platforms: [all]
+
+traits:
+  # === Interactive Menu ===
+  - id: cli-interactive-menu
+    desc: CLI interactive menu
+    crit: notable
+    conf: 0.70
+    if:
+      type: string
+      regex: 'Choose.*option|case.*gets|when.*[0-9]|menu.*select'
+
+  # === User Input Loop ===
+  - id: user-input-loop
+    desc: User input processing loop
+    crit: notable
+    conf: 0.65
+    if:
+      type: string
+      regex: 'gets\.chomp|input.*=.*gets|while.*gets'
+
+  # === Option Selection ===
+  - id: option-selection
+    desc: Option selection interface
+    crit: inert
+    conf: 0.50
+    if:
+      type: string
+      regex: '\[1\].*\[2\].*\[3\]|option.*1.*2.*3|Enter.*choice'
+
+  # === Clear Screen ===
+  - id: cli-clear-screen
+    desc: CLI clear screen command
+    crit: inert
+    conf: 0.40
+    if:
+      type: string
+      regex: "system.*clear|system.*'clear'|system.*\"clear\"|system.*cls"
+
+composite_rules:
+  # === Interactive CLI Tool ===
+  - id: interactive-cli-tool
+    desc: Interactive command-line tool
+    crit: notable
+    conf: 0.75
+    count_min: 2
+    any:
+      - id: cli-interactive-menu
+      - id: user-input-loop
+      - id: option-selection
+      - id: cli-clear-screen

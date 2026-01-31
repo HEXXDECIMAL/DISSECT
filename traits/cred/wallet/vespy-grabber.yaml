@@ -1,0 +1,169 @@
+# Vespy-Grabber Cryptocurrency Wallet Stealer Detection
+# Detects the Vespy wallet stealer and similar crypto theft malware
+# ATT&CK: T1649 (Steal Crypto Wallet), T1055 (Process Injection)
+# MBC: B0020 (Credential Access)
+
+defaults:
+  crit: suspicious
+  attack: "T1649"
+  mbc: "B0020"
+  for: [python]
+
+traits:
+  # === Procdump Memory Dumping ===
+  - id: procdump-download
+    desc: Procdump tool download
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: string
+      regex: "procdump\\.exe|cdn\\.discordapp.*procdump"
+
+  - id: procdump-execution
+    desc: Procdump memory dump execution
+    crit: hostile
+    conf: 0.98
+    if:
+      type: content
+      regex: "procvesp111.*procdump|procdump.*-ma|procvesp.*-accepteula"
+
+  - id: dmp-file-creation
+    desc: Memory dump file creation
+    crit: suspicious
+    conf: 0.90
+    if:
+      type: content
+      regex: "\\.dmp.*write|write.*\\.dmp|exodus\\.dmp"
+
+  # === Wallet Process Targeting ===
+  - id: exodus-process-enum
+    desc: Exodus process enumeration
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: content
+      regex: "Exodus\\.exe.*process_iter|process_iter.*Exodus"
+
+  - id: wallet-process-targeting
+    desc: Wallet process targeting
+    crit: suspicious
+    conf: 0.90
+    if:
+      type: content
+      regex: "exodus\\.wallet|process.*Exodus|Exodus.*pid"
+
+  # === Additional Wallet Extensions ===
+  - id: atomic-wallet-target
+    desc: Atomic wallet targeting
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: content
+      regex: "atomic.*wallet|Atomic.*wallet"
+
+  - id: electrum-wallet-target
+    desc: Electrum wallet targeting
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: content
+      regex: "electrum.*wallet|electrum.*path"
+
+  - id: guarda-wallet-target
+    desc: Guarda wallet targeting
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: content
+      regex: "guarda.*wallet|GUARDA.*wallet"
+
+  - id: bitpay-wallet-target
+    desc: BitPay wallet targeting
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: content
+      regex: "bitpay.*wallet|B1Tpay.*wallet"
+
+  - id: coinomi-wallet-target
+    desc: Coinomi wallet targeting
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: content
+      regex: "coinomi.*wallet|coinomi.*path"
+
+  - id: armory-wallet-target
+    desc: Armory wallet targeting
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: content
+      regex: "armory.*wallet|armory.*path"
+
+  # === Vespy Markers ===
+  - id: vespy-marker-file
+    desc: Vespy marker file
+    crit: hostile
+    conf: 0.98
+    if:
+      type: string
+      regex: "procvesp111|vesp111"
+
+  - id: vespy-path-marker
+    desc: Vespy path pattern
+    crit: suspicious
+    conf: 0.90
+    if:
+      type: content
+      regex: "P4THF0LDR|W4ll3ts|Wallets.*class"
+
+  # === Multi-Profile Browser Targeting ===
+  - id: multi-profile-browser-theft
+    desc: Multi-profile browser data theft
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: content
+      regex: "Profile [0-9].*Local Extension|Default.*Profile [0-9]"
+
+composite_rules:
+  # === Vespy Grabber Detection ===
+  - id: vespy-wallet-stealer
+    desc: Vespy wallet stealer
+    crit: hostile
+    conf: 0.99
+    attack: "T1649"
+    file_types: [python]
+    count_min: 3
+    any:
+      - id: procdump-download
+      - id: vespy-marker-file
+      - id: exodus-process-enum
+
+  - id: crypto-wallet-stealer-suite
+    desc: Multi-wallet cryptocurrency stealer
+    crit: hostile
+    conf: 0.95
+    attack: "T1649"
+    mbc: "B0020"
+    platforms: [windows]
+    count_min: 3
+    any:
+      - id: atomic-wallet-target
+      - id: electrum-wallet-target
+      - id: guarda-wallet-target
+      - id: bitpay-wallet-target
+      - id: coinomi-wallet-target
+      - id: armory-wallet-target
+
+  - id: memory-dump-wallet-theft
+    desc: Memory dump wallet theft
+    crit: hostile
+    conf: 0.98
+    attack: "T1055"
+    mbc: "B0020"
+    all:
+      - id: procdump-execution
+      - id: dmp-file-creation
+      - id: wallet-process-targeting

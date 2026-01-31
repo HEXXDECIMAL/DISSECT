@@ -12,16 +12,16 @@ traits:
     crit: inert
     conf: 0.7
     if:
-      type: symbol
-      regex: "Resolv.*getaddress"
+      type: string
+      regex: 'Resolv\.getaddress'
 
   - id: resolv-getname
     desc: Resolv.getname method
     crit: inert
     conf: 0.7
     if:
-      type: symbol
-      regex: "Resolv.*getname"
+      type: string
+      regex: 'Resolv\.getname'
 
   # Environment variables
   - id: env-bracket-access

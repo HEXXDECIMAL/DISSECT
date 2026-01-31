@@ -1,0 +1,100 @@
+# Suspicious Setup.py Metadata Detection
+# Detects minimal/fake metadata in setup.py (common in malware)
+# ATT&CK: T1036.005 (Masquerading)
+# MBC: F0004 (Masquerading)
+
+defaults:
+  crit: notable
+  attack: "T1036.005"
+  mbc: "F0004"
+  for: [python]
+
+traits:
+  # === Suspicious Description ===
+  - id: minimal-description
+    desc: Minimal package description
+    crit: notable
+    conf: 0.65
+    if:
+      type: string
+      regex: "description.*=.*['\"](Yes|No|Ok|Test|Demo|Sample|.)['\"]"
+
+  - id: single-word-description
+    desc: Single word description
+    crit: notable
+    conf: 0.60
+    if:
+      type: string
+      regex: "description.*=.*['\"][a-zA-Z]{1,10}['\"][,\n]"
+
+  # === Suspicious Author ===
+  - id: placeholder-author
+    desc: Placeholder author name
+    crit: notable
+    conf: 0.65
+    if:
+      type: string
+      regex: "author.*=.*['\"](haha|lol|test|admin|user|dev|me)['\"]"
+
+  - id: generic-email
+    desc: Generic email address
+    crit: notable
+    conf: 0.60
+    if:
+      type: string
+      regex: "author_email.*@(gmail|outlook|yahoo|hotmail)\\.com"
+
+  # === Suspicious Version ===
+  - id: suspicious-version-pattern
+    desc: Suspicious version number
+    crit: notable
+    conf: 0.55
+    if:
+      type: string
+      regex: "version.*=.*['\"]0\\.[0-9]{1,2}['\"]"
+
+  # === Empty Metadata ===
+  - id: empty-keywords
+    desc: Empty keywords list
+    crit: inert
+    conf: 0.50
+    if:
+      type: string
+      regex: "keywords.*=.*\\[\\]"
+
+  - id: empty-classifiers
+    desc: Empty classifiers list
+    crit: inert
+    conf: 0.50
+    if:
+      type: string
+      regex: "classifiers.*=.*\\[\\]"
+
+composite_rules:
+  # === Suspicious Metadata Profile ===
+  - id: suspicious-setup-metadata
+    desc: Suspicious setup.py metadata
+    crit: suspicious
+    conf: 0.80
+    attack: "T1036.005"
+    file_types: [python]
+    count_min: 3
+    any:
+      - id: minimal-description
+      - id: placeholder-author
+      - id: generic-email
+      - id: suspicious-version-pattern
+
+  - id: malware-setup-profile
+    desc: Malicious setup.py profile
+    crit: suspicious
+    conf: 0.85
+    attack: "T1036.005"
+    mbc: "F0004"
+    platforms: [all]
+    count_min: 4
+    any:
+      - id: suspicious-setup-metadata
+      - id: empty-keywords
+      - id: empty-classifiers
+      - id: single-word-description

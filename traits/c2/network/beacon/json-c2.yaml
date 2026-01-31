@@ -1,0 +1,118 @@
+# JSON C2 Communication Detection
+# Detects C2 using JSON content-type headers
+# ATT&CK: T1071.001 (Web Protocols), T1041 (Exfiltration)
+# MBC: B0030 (C2 Communication)
+
+defaults:
+  crit: notable
+  attack: "T1071.001"
+  mbc: "B0030"
+  for: [python, javascript, shell]
+
+traits:
+  # === JSON Content-Type ===
+  - id: json-content-type
+    desc: JSON content-type header
+    crit: notable
+    conf: 0.70
+    if:
+      type: string
+      regex: "application/json"
+
+  - id: json-charset-utf8
+    desc: JSON with UTF-8 charset
+    crit: notable
+    conf: 0.70
+    if:
+      type: string
+      regex: "application/json.*charset=utf-8"
+
+  # === C2 with JSON ===
+  - id: requests-json-headers
+    desc: requests with JSON headers
+    crit: suspicious
+    conf: 0.80
+    if:
+      type: string
+      regex: "headers.*json|json.*headers"
+
+  - id: http-post-json
+    desc: HTTP POST with JSON
+    crit: suspicious
+    conf: 0.80
+    if:
+      type: string
+      regex: "post.*json|json.*post"
+
+  # === Data Exfiltration Pattern ===
+  - id: json-data-post
+    desc: JSON data POST exfiltration
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: string
+      regex: "requests\\.post.*data.*json|post.*data=.*b64"
+
+  - id: base64-json-payload
+    desc: Base64 in JSON payload
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: string
+      regex: "json.*b64encode|b64encode.*data"
+
+  # === C2 Response Handling ===
+  - id: json-response-parse
+    desc: JSON response parsing
+    crit: notable
+    conf: 0.70
+    if:
+      type: string
+      regex: "response\\.json|json\\(response"
+
+  - id: http-response-text
+    desc: HTTP response text extraction
+    crit: notable
+    conf: 0.65
+    if:
+      type: string
+      regex: "response\\.text|text.*response"
+
+composite_rules:
+  # === JSON C2 Detection ===
+  - id: json-c2-headers
+    desc: JSON C2 communication headers
+    crit: suspicious
+    conf: 0.85
+    attack: "T1071.001"
+    count_min: 2
+    any:
+      - id: json-content-type
+      - id: json-charset-utf8
+      - id: requests-json-headers
+
+  - id: json-exfiltration
+    desc: JSON data exfiltration
+    crit: suspicious
+    conf: 0.90
+    attack: "T1041"
+    mbc: "B0030"
+    file_types: [python, javascript]
+    count_min: 2
+    any:
+      - id: json-data-post
+      - id: base64-json-payload
+      - id: http-post-json
+    all:
+      - id: json-content-type
+
+  - id: json-c2-protocol
+    desc: JSON C2 communication protocol
+    crit: hostile
+    conf: 0.95
+    attack: "T1071.001"
+    mbc: "B0030"
+    platforms: [all]
+    all:
+      - id: json-c2-headers
+      - id: json-exfiltration

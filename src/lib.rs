@@ -21,6 +21,7 @@ mod archive_utils;
 mod cache;
 mod constant_decoder;
 pub mod decoders;
+pub mod extractors;
 mod entropy;
 mod radare2;
 mod strings;

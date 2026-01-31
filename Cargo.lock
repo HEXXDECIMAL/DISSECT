@@ -123,7 +123,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9631e781df71ebd049d7b4988cdae88712324cb20eb127fd79026bc8f1335d93"
 dependencies = [
  "base64",
- "bzip2",
+ "bzip2 0.4.4",
  "chrono",
  "digest",
  "flate2",
@@ -376,6 +376,15 @@ checksum = "bdb116a6ef3f6c3698828873ad02c3014b3c85cadb88496095628e3ef1e347f8"
 dependencies = [
  "bzip2-sys",
  "libc",
+]
+
+[[package]]
+name = "bzip2"
+version = "0.5.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "49ecfb22d906f800d4fe833b6282cf4dc1c298f5057ca0b5445e5c209735ca47"
+dependencies = [
+ "bzip2-sys",
 ]
 
 [[package]]
@@ -796,6 +805,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d7a1e2f27636f116493b8b860f5546edb47c8d8f8ea73e1d2a20be88e28d1fea"
 
 [[package]]
+name = "deflate64"
+version = "0.1.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "26bf8fc351c5ed29b5c2f0cbbac1b209b74f60ecd62e675a998df72c49af5204"
+
+[[package]]
 name = "der"
 version = "0.7.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -902,7 +917,7 @@ dependencies = [
  "atty",
  "base64",
  "bincode",
- "bzip2",
+ "bzip2 0.4.4",
  "chrono",
  "clap",
  "colored",
@@ -1756,6 +1771,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "24fb722b06a9dc12adb0963ed585f19fc61dc5413e6a9be9422ef92c091e731d"
 dependencies = [
  "logos-codegen",
+]
+
+[[package]]
+name = "lzma-rs"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "297e814c836ae64db86b36cf2a557ba54368d03f6afcd7d947c266692f71115e"
+dependencies = [
+ "byteorder",
+ "crc",
 ]
 
 [[package]]
@@ -4414,20 +4439,26 @@ checksum = "fabe6324e908f85a1c52063ce7aa26b68dcb7eb6dbc83a2d148403c9bc3eba50"
 dependencies = [
  "aes",
  "arbitrary",
+ "bzip2 0.5.2",
  "constant_time_eq",
  "crc32fast",
  "crossbeam-utils",
+ "deflate64",
  "displaydoc",
  "flate2",
  "getrandom 0.3.4",
  "hmac",
  "indexmap 2.13.0",
+ "lzma-rs",
  "memchr",
  "pbkdf2",
  "sha1",
  "thiserror 2.0.18",
+ "time",
+ "xz2",
  "zeroize",
  "zopfli",
+ "zstd",
 ]
 
 [[package]]

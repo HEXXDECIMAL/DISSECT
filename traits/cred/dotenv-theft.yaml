@@ -1,0 +1,88 @@
+# Dotenv Credential Theft Detection
+# Detects malware stealing credentials from .env files
+# ATT&CK: T1552.001 (Credentials In Files)
+# MBC: B0014 (Credentials)
+
+defaults:
+  crit: suspicious
+  attack: "T1552.001"
+  mbc: "B0014"
+  for: [python, shell]
+
+traits:
+  # === Dotenv File Access ===
+  - id: dotenv-file-access
+    desc: Dotenv file access
+    crit: notable
+    conf: 0.75
+    if:
+      type: content
+      regex: "open\\(.*\\.env.*\\)|with open\\(.*\\.env"
+
+  - id: dotenv-read-secrets
+    desc: Dotenv secrets reading
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: content
+      regex: "\\.env.*read\\(\\)|dotenv.*read"
+
+  # === Environment Variable Theft ===
+  - id: environ-iteration
+    desc: Environment variable iteration
+    crit: suspicious
+    conf: 0.80
+    if:
+      type: content
+      regex: "for.*os\\.environ\\.items\\(\\)|os\\.environ\\.items\\(\\)"
+
+  - id: environ-dict-access
+    desc: Environment variables as dict
+    crit: suspicious
+    conf: 0.75
+    if:
+      type: content
+      regex: "dict\\(os\\.environ\\)|str\\(os\\.environ\\)"
+
+  # === Powershell Enumeration ===
+  - id: powershell-drive-enum
+    desc: Powershell drive enumeration
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: content
+      regex: "powershell.*Get-ChildItem|Get-ChildItem.*-Recurse"
+
+  - id: available-drives-enum
+    desc: Available drives enumeration
+    crit: suspicious
+    conf: 0.80
+    if:
+      type: content
+      regex: "ascii_uppercase.*exists|available_drives"
+
+composite_rules:
+  # === Dotenv Credential Theft ===
+  - id: dotenv-credentials-theft
+    desc: Dotenv credentials theft
+    crit: suspicious
+    conf: 0.90
+    attack: "T1552.001"
+    file_types: [python]
+    count_min: 2
+    any:
+      - id: dotenv-file-access
+      - id: dotenv-read-secrets
+      - id: environ-iteration
+
+  - id: env-exfiltration
+    desc: Environment variable exfiltration
+    crit: hostile
+    conf: 0.95
+    attack: "T1552.001"
+    mbc: "B0014"
+    platforms: [all]
+    count_min: 2
+    any:
+      - id: dotenv-credentials-theft
+      - id: environ-dict-access

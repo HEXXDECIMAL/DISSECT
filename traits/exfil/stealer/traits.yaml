@@ -107,10 +107,11 @@ composite_rules:
   # NOTE: Simple curl downloads (without POST/upload indicators) won't trigger this
   - id: stealer-exfil
     desc: Stealer data exfiltration pattern
-    crit: hostile
+    crit: notable
     conf: 0.95
     mbc: "C0001"
     for: [shell]
+    count_min: 3
     any:
       - id: curl-post-headers
       - id: curl-upload

@@ -128,7 +128,14 @@ pub fn config_for_file_type(file_type: &crate::analyzers::FileType) -> Option<La
             call_node_types: &["call", "method_call"],
             function_node_types: &["method", "singleton_method"],
             function_name_field: "name",
-            string_node_types: &["string", "string_content"],
+            string_node_types: &[
+                "string",
+                "string_content",
+                "simple_symbol",
+                "delimited_symbol",
+                "bare_symbol",
+                "hash_key_symbol",
+            ],
             comment_style: CommentStyle::Hash,
         }),
         FileType::Php => Some(LanguageConfig {
@@ -361,6 +368,126 @@ impl UnifiedSourceAnalyzer {
         // Extract strings
         self.extract_strings(&root, content.as_bytes(), &mut report);
 
+        // Extract and analyze base64/zlib encoded payloads (same treatment as archives)
+        let extracted_payloads = crate::extractors::extract_encoded_payloads(content.as_bytes());
+        for (idx, payload) in extracted_payloads.iter().enumerate() {
+            // Create virtual path with encoding info
+            let virtual_path = format!("{}!base64#{}", 
+                file_path.display(),
+                idx
+            );
+            
+            // Read the decoded content
+            let payload_content = std::fs::read(&payload.temp_path).unwrap_or_default();
+            
+            // Create ArchiveEntry metadata (same as archive files)
+            let entry_metadata = crate::types::ArchiveEntry {
+                path: virtual_path.clone(),
+                file_type: format!("{:?}", payload.detected_type).to_lowercase(),
+                sha256: crate::analyzers::utils::calculate_sha256(&payload_content),
+                size_bytes: payload_content.len() as u64,
+            };
+            report.archive_contents.push(entry_metadata);
+            
+            // Analyze the extracted payload based on its type (creates sub_report like archives)
+            let payload_report = match payload.detected_type {
+                FileType::Python => {
+                    if let Some(analyzer) = UnifiedSourceAnalyzer::for_file_type(&FileType::Python) {
+                        analyzer.analyze_source(Path::new(&virtual_path), 
+                            &String::from_utf8_lossy(&payload_content)).ok()
+                    } else {
+                        None
+                    }
+                }
+                FileType::Shell => {
+                    if let Some(analyzer) = UnifiedSourceAnalyzer::for_file_type(&FileType::Shell) {
+                        analyzer.analyze_source(Path::new(&virtual_path),
+                            &String::from_utf8_lossy(&payload_content)).ok()
+                    } else {
+                        None
+                    }
+                }
+                _ => {
+                    // For binary or unknown, create basic report
+                    None
+                }
+            };
+            
+            // Process sub_report like archives do
+            if let Some(mut pr) = payload_report {
+                // Prefix findings with extracted payload location (same as archive: prefix)
+                for finding in &mut pr.findings {
+                    for evidence in &mut finding.evidence {
+                        match &evidence.location {
+                            None => {
+                                evidence.location = Some(format!("extracted:{}", virtual_path));
+                            }
+                            Some(loc) => {
+                                evidence.location = Some(format!("extracted:{}:{}", virtual_path, loc));
+                            }
+                        }
+                    }
+                }
+                
+                // Add full report to sub_reports (same as archives)
+                report.sub_reports.push(Box::new(pr));
+            }
+            
+            // Clean up temp file
+            let _ = std::fs::remove_file(&payload.temp_path);
+        }
+                }
+                FileType::Shell => {
+                    if let Some(analyzer) = UnifiedSourceAnalyzer::for_file_type(&FileType::Shell) {
+                        analyzer
+                            .analyze_source(
+                                Path::new(&virtual_name),
+                                &std::fs::read_to_string(&payload.temp_path).unwrap_or_default(),
+                            )
+                            .ok()
+                    } else {
+                        None
+                    }
+                }
+                _ => {
+                    // For binary or unknown, just extract strings and do basic analysis
+                    None
+                }
+            };
+
+            // Merge findings from payload into main report
+            if let Some(mut pr) = payload_report {
+                for finding in pr.findings {
+                    // Tag finding with parent info
+                    let mut tagged_finding = finding;
+                    tagged_finding.evidence.insert(
+                        0,
+                        crate::types::Evidence {
+                            description: format!(
+                                "Extracted from: {} ({})",
+                                virtual_name, payload.preview
+                            ),
+                            value: virtual_name.clone(),
+                        },
+                    );
+                    report.findings.push(tagged_finding);
+                }
+
+                // Add to extracted payloads list for display
+                report
+                    .extracted_payloads
+                    .push(crate::types::ExtractedPayloadInfo {
+                        virtual_path: virtual_name,
+                        encoding: payload.encoding_chain.join("+"),
+                        preview: payload.preview.clone(),
+                        findings_count: pr.findings.len(),
+                    });
+            }
+
+            // Clean up temp file
+            let _ = std::fs::remove_file(&payload.temp_path);
+        }
+
         // Extract symbols for rule matching
         symbol_extraction::extract_symbols(
             content,
@@ -519,7 +646,9 @@ impl UnifiedSourceAnalyzer {
                         .trim_start_matches("[[")
                         .trim_end_matches("]]")
                         .trim_start_matches("@\"")
-                        .trim_end_matches("\"@");
+                        .trim_end_matches("\"@")
+                        .trim_start_matches(':') // Ruby symbol literals like :alias_method
+                        ;
 
                     if !s.is_empty() && s.len() < 10000 {
                         report.strings.push(StringInfo {

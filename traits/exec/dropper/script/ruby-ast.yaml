@@ -1,0 +1,98 @@
+---
+# Ruby AST-based behavioral detection patterns
+# Uses AST patterns to detect suspicious Ruby code structures
+# ATT&CK: T1059 (Command Execution), T1071 (Application Layer Protocol)
+
+defaults:
+  for: [ruby]
+  platforms: [all]
+
+traits:
+  # === HTTP Download in Method ===
+  - id: ruby-ast-http-in-method
+    desc: HTTP request inside method
+    crit: suspicious
+    conf: 0.88
+    attack: "T1071"
+    if:
+      type: ast_pattern
+      node_type: call
+      pattern: "Net::HTTP.get_response"
+
+  # === File Write with Binary Mode ===
+  - id: ruby-ast-file-binmode-write
+    desc: File binmode followed by write
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: ast_pattern
+      node_type: call
+      pattern: '.binmode'
+
+  # === File Chmod 777 ===
+  - id: ruby-ast-chmod-777
+    desc: File permission change to 777
+    crit: suspicious
+    conf: 0.90
+    attack: "T1222"
+    if:
+      type: ast_pattern
+      node_type: call
+      pattern: '.chmod(0777)'
+
+  # === Base64 Decode in DNS Resolution ===
+  - id: ruby-ast-base64-dns
+    desc: Base64 decode before DNS lookup
+    crit: suspicious
+    conf: 0.92
+    attack: "T1027"
+    if:
+      type: ast_pattern
+      node_type: call
+      pattern: 'Base64.decode64'
+
+  # === System Execution in Method ===
+  - id: ruby-ast-system-in-method
+    desc: System command execution in method
+    crit: suspicious
+    conf: 0.88
+    attack: "T1059"
+    if:
+      type: ast_pattern
+      node_type: call
+      pattern: 'system('
+
+  # === File Open with Write Mode ===
+  - id: ruby-ast-file-open-wb
+    desc: File open in binary write mode
+    crit: notable
+    conf: 0.82
+    if:
+      type: ast_pattern
+      node_type: call
+      pattern: 'File.open'
+
+composite_rules:
+  # === Dropper Behavior via AST ===
+  - id: ruby-ast-dropper-behavior
+    desc: Dropper download write execute
+    crit: suspicious
+    conf: 0.93
+    attack: "T1059"
+    count_min: 3
+    any:
+      - id: ruby-ast-http-in-method
+      - id: ruby-ast-file-binmode-write
+      - id: ruby-ast-chmod-777
+      - id: ruby-ast-system-in-method
+      - id: ruby-ast-file-open-wb
+
+  # === Obfuscated C2 via AST ===
+  - id: ruby-ast-obfuscated-c2
+    desc: Base64 obfuscated C2 endpoint
+    crit: suspicious
+    conf: 0.91
+    attack: "T1027"
+    all:
+      - id: ruby-ast-base64-dns
+      - id: discovery/system/ruby-dns-resolve

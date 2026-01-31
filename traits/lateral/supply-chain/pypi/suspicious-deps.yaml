@@ -1,0 +1,82 @@
+# Suspicious PyPI Dependencies Detection
+# Detects malware declaring suspicious dependencies in setup.py
+# ATT&CK: T1071.001 (Web Protocols), T1195.001 (Supply Chain)
+# MBC: B0030 (C2 Communication)
+
+defaults:
+  crit: notable
+  attack: "T1195.001"
+  mbc: "B0030"
+  for: [python]
+
+traits:
+  # === Suspicious Dependencies ===
+  - id: dependency-gitpython
+    desc: GitPython dependency
+    crit: notable
+    conf: 0.70
+    if:
+      type: string
+      regex: "install_requires.*gitpython|gitpython.*install"
+
+  - id: dependency-sockets
+    desc: sockets library dependency
+    crit: notable
+    conf: 0.65
+    if:
+      type: string
+      regex: "install_requires.*sockets|sockets.*install"
+
+  - id: dependency-discord-py
+    desc: discord.py dependency
+    crit: notable
+    conf: 0.60
+    if:
+      type: string
+      regex: "install_requires.*discord|discord\\.py.*install"
+
+  - id: dependency-requests-sockets
+    desc: requests and sockets combo
+    crit: suspicious
+    conf: 0.75
+    if:
+      type: string
+      regex: "requests.*sockets|sockets.*requests"
+
+  # === Suspicious Combo ===
+  - id: suspicious-dep-combo
+    desc: Suspicious dependency combination
+    crit: suspicious
+    conf: 0.80
+    if:
+      type: string
+      regex: "(gitpython|sockets|aiohttp).*(discord|requests).*(pynput|keyboard)"
+
+composite_rules:
+  # === PyPI Dependency Analysis ===
+  - id: pypi-suspicious-deps
+    desc: Suspicious PyPI dependencies
+    crit: suspicious
+    conf: 0.85
+    attack: "T1195.001"
+    file_types: [python]
+    count_min: 2
+    any:
+      - id: dependency-gitpython
+      - id: dependency-sockets
+      - id: dependency-discord-py
+      - id: dependency-requests-sockets
+
+  - id: stealer-dep-pattern
+    desc: Token stealer dependency pattern
+    crit: suspicious
+    conf: 0.90
+    attack: "T1195.001"
+    mbc: "B0030"
+    platforms: [all]
+    count_min: 3
+    any:
+      - id: dependency-gitpython
+      - id: dependency-sockets
+      - id: dependency-discord-py
+      - id: suspicious-dep-combo

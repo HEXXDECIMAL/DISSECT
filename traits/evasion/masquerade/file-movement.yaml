@@ -1,0 +1,100 @@
+# File Movement and Masquerading Detection
+# Detects malware moving files to masquerade as legitimate programs
+# ATT&CK: T1036.005 (Masquerading), T1027 (Obfuscated Files)
+# MBC: F0004 (Masquerading)
+
+defaults:
+  crit: suspicious
+  attack: "T1036.005"
+  mbc: "F0004"
+  for: [python, shell]
+
+traits:
+  # === File Movement ===
+  - id: os-rename-call
+    desc: os.rename file movement
+    crit: notable
+    conf: 0.70
+    if:
+      type: string
+      regex: "os\\.rename|rename\\("
+
+  - id: shutil-move-call
+    desc: shutil.move file movement
+    crit: notable
+    conf: 0.70
+    if:
+      type: string
+      regex: "shutil\\.move|move\\("
+
+  - id: file-masquerade-move
+    desc: File masquerade movement
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: string
+      regex: "rename.*Startup|move.*Startup|rename.*AppData"
+
+  # === Directory Masquerading ===
+  - id: directory-masquerade
+    desc: Directory masquerading
+    crit: suspicious
+    conf: 0.80
+    if:
+      type: string
+      regex: "(Powerpoint|Excel|Word|Outlook).*(grabber|logger|stealer|bot)|(grabber|logger|stealer).*(Powerpoint|Excel|Word)"
+
+  - id: suspicious-folder-name
+    desc: Suspicious folder name
+    crit: suspicious
+    conf: 0.75
+    if:
+      type: string
+      regex: "(grabber|logger|stealer|bot).*(test|tmp|temp|boot|lmao)|^[a-z]{10,20}\\.(exe|dll)$"
+
+  # === Path Manipulation ===
+  - id: appdata-path-manipulation
+    desc: AppData path manipulation
+    crit: suspicious
+    conf: 0.80
+    if:
+      type: string
+      regex: "AppData.*Roaming.*Microsoft|Roaming.*Microsoft.*Windows"
+
+  - id: startup-folder-access
+    desc: Startup folder path access
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: string
+      regex: "Start Menu.*Programs.*Startup.*boot"
+
+composite_rules:
+  # === File Masquerading ===
+  - id: file-masquerade-execution
+    desc: File masquerade for execution
+    crit: suspicious
+    conf: 0.90
+    attack: "T1036.005"
+    file_types: [python]
+    count_min: 2
+    any:
+      - id: file-masquerade-move
+      - id: directory-masquerade
+      - id: startup-folder-access
+    all:
+      - id: os-rename-call
+
+  - id: advanced-masquerade
+    desc: Advanced file masquerading
+    crit: hostile
+    conf: 0.95
+    attack: "T1036.005"
+    mbc: "F0004"
+    platforms: [windows]
+    count_min: 3
+    any:
+      - id: directory-masquerade
+      - id: suspicious-folder-name
+      - id: appdata-path-manipulation
+      - id: startup-folder-access

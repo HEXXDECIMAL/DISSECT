@@ -1,0 +1,80 @@
+# Marker File Detection
+# Detects malware creating marker/touch files to track execution
+# ATT&CK: T1070.004 (Indicator Removal on Host)
+# MBC: F0005 (Indicator Removal)
+
+defaults:
+  crit: notable
+  attack: "T1070.004"
+  mbc: "F0005"
+  for: [python, shell]
+
+traits:
+  # === Touch Marker Files ===
+  - id: touch-marker-file
+    desc: Touch marker file creation
+    crit: notable
+    conf: 0.75
+    if:
+      type: string
+      regex: "touch /tmp/\\.[a-z]|touch.*\\.(?:ran|done|exec)"
+
+  - id: hidden-tmp-marker
+    desc: Hidden marker in tmp
+    crit: suspicious
+    conf: 0.80
+    if:
+      type: string
+      regex: "/tmp/\\.[a-z].*-ran|/tmp/\\.[a-z].*-done"
+
+  # === Marker File Indicators ===
+  - id: marker-ran-indicator
+    desc: Marker file ran indicator
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: string
+      regex: "-ran[\"']|\\.ran[\"']|_ran[\"']"
+
+  - id: marker-done-indicator
+    desc: Marker file done indicator
+    crit: suspicious
+    conf: 0.75
+    if:
+      type: string
+      regex: "-done[\"']|\\.done[\"']|_done[\"']"
+
+  # === Execution Tracking ===
+  - id: execution-tracker
+    desc: Execution tracking file
+    crit: suspicious
+    conf: 0.80
+    if:
+      type: string
+      regex: "python-ran|script-ran|installed|executed"
+
+composite_rules:
+  # === Marker File Detection ===
+  - id: marker-file-creation
+    desc: Marker file creation
+    crit: suspicious
+    conf: 0.85
+    attack: "T1070.004"
+    file_types: [python, shell]
+    count_min: 2
+    any:
+      - id: touch-marker-file
+      - id: hidden-tmp-marker
+      - id: marker-ran-indicator
+
+  - id: execution-tracking
+    desc: Execution tracking behavior
+    crit: suspicious
+    conf: 0.90
+    attack: "T1070.004"
+    mbc: "F0005"
+    file_types: [python, shell]
+    count_min: 2
+    any:
+      - id: marker-file-creation
+      - id: execution-tracker

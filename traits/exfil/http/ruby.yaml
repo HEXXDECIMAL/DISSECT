@@ -1,86 +1,15 @@
 ---
-# Ruby network operations
-traits:
-  - id: ruby-http-get-response
-    desc: "HTTP GET request"
-    crit: notable
-    conf: 0.92
-    platforms:
-      - all
-    for:
-      - ruby
-    if:
-      type: symbol
-      pattern: "Net::HTTP\\.get_response|Net::HTTP\\.get"
+# Ruby HTTP exfiltration patterns
+# NOTE: Basic HTTP communication traits moved to comm/http/request/ruby.yaml
+# This file is for data exfiltration-specific patterns
 
+traits:
   - id: ruby-http-post
-    desc: "HTTP POST request"
+    desc: HTTP POST request (potential exfiltration)
     crit: notable
     conf: 0.93
-    platforms:
-      - all
-    for:
-      - ruby
+    platforms: [all]
+    for: [ruby]
     if:
-      type: symbol
-      pattern: "Net::HTTP\\.post"
-
-  - id: ruby-http-client
-    desc: "HTTP client usage"
-    crit: notable
-    conf: 0.88
-    platforms:
-      - all
-    for:
-      - ruby
-    if:
-      type: symbol
-      pattern: "Net::HTTP"
-
-  - id: ruby-tcp-socket
-    desc: "TCP socket connection"
-    crit: notable
-    conf: 0.90
-    platforms:
-      - all
-    for:
-      - ruby
-    if:
-      type: symbol
-      pattern: "TCPSocket"
-
-  - id: ruby-tcp-server
-    desc: "TCP server listening"
-    crit: notable
-    conf: 0.90
-    platforms:
-      - all
-    for:
-      - ruby
-    if:
-      type: symbol
-      pattern: "TCPServer"
-
-  - id: ruby-udp-socket
-    desc: "UDP socket"
-    crit: notable
-    conf: 0.90
-    platforms:
-      - all
-    for:
-      - ruby
-    if:
-      type: symbol
-      pattern: "UDPSocket"
-
-  - id: ruby-open-uri
-    desc: "Open-URI for HTTP/FTP"
-    crit: notable
-    conf: 0.90
-    platforms:
-      - all
-    for:
-      - ruby
-    if:
-      type: symbol
-      pattern: "open-uri|OpenURI"
+      type: string
+      regex: 'Net::HTTP\.post'

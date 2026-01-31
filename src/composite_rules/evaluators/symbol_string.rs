@@ -287,6 +287,7 @@ pub fn eval_string(
 ///
 /// Used by `type: content` conditions to search raw file content rather than extracted strings.
 /// Use for cross-boundary patterns or when string extraction is insufficient.
+#[allow(clippy::too_many_arguments)]
 pub fn eval_raw(
     exact: Option<&String>,
     contains: Option<&String>,

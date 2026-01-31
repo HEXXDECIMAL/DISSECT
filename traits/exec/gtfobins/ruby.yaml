@@ -1,0 +1,138 @@
+---
+# Ruby GTFOBins Abuse Detection
+# Detects Ruby being abused for various system-level operations
+# GTFOBins: https://gtfobins.github.io/
+# ATT&CK: T1059 (Command and Scripting Interpreter), T1068 (Exploitation for Privilege Escalation)
+
+defaults:
+  for: [ruby]
+  platforms: [all]
+
+traits:
+  # === Fiddle Library Loading ===
+  - id: fiddle-dlopen
+    desc: Fiddle dynamic library loading
+    crit: suspicious
+    conf: 0.85
+    attack: "T1059"
+    if:
+      type: string
+      regex: 'require.*fiddle|Fiddle\.dlopen|dlopen.*lib'
+
+  # === Shared Library Execution ===
+  - id: shared-lib-exec
+    desc: Shared library execution via Ruby
+    crit: suspicious
+    conf: 0.90
+    attack: "T1059"
+    if:
+      type: string
+      regex: '\.so.*ruby|fiddle.*\.so|lib\.so'
+
+  # === Setuid Privilege Escalation ===
+  - id: setuid-privesc
+    desc: Setuid privilege escalation
+    crit: suspicious
+    conf: 0.95
+    attack: "T1068"
+    if:
+      type: string
+      regex: 'setuid|Process::Sys\.setuid|setuid\(0\)|cap_setuid'
+
+  # === Root Shell Execution ===
+  - id: root-shell-exec
+    desc: Root shell execution attempt
+    crit: suspicious
+    conf: 0.90
+    attack: "T1068"
+    if:
+      type: string
+      regex: 'exec.*bin/sh.*root|setuid.*exec.*sh|/bin/sh.*setuid'
+
+  # === File Read ===
+  - id: ruby-file-read
+    desc: Ruby file read operation
+    crit: notable
+    conf: 0.60
+    attack: "T1083"
+    if:
+      type: string
+      regex: 'File\.read|puts File\.read|File\.open.*read'
+
+  # === File Write ===
+  - id: ruby-file-write
+    desc: Ruby file write operation
+    crit: notable
+    conf: 0.60
+    attack: "T1083"
+    if:
+      type: string
+      regex: 'File\.open.*w.*write|File\.write|f\.write'
+
+  # === Shell Execution via Ruby ===
+  - id: ruby-shell-exec
+    desc: Shell command execution via Ruby
+    crit: notable
+    conf: 0.70
+    attack: "T1059"
+    if:
+      type: string
+      regex: 'exec.*bin/sh|exec.*bin/bash|system.*bin/sh'
+
+  # === Command Line Ruby ===
+  - id: cli-ruby-exec
+    desc: Command line Ruby execution
+    crit: inert
+    conf: 0.50
+    if:
+      type: string
+      regex: 'ruby -e|ruby -rsocket|ruby -ropen-uri'
+
+composite_rules:
+  # === GTFOBins Library Load ===
+  - id: gtfobins-library-load
+    desc: GTFOBins shared library loading
+    crit: suspicious
+    conf: 0.93
+    attack: "T1059"
+    count_min: 2
+    any:
+      - id: fiddle-dlopen
+      - id: shared-lib-exec
+
+  # === GTFOBins Privilege Escalation ===
+  - id: gtfobins-privesc
+    desc: GTFOBins privilege escalation
+    crit: suspicious
+    conf: 0.95
+    attack: "T1068"
+    count_min: 2
+    any:
+      - id: setuid-privesc
+      - id: root-shell-exec
+      - id: ruby-shell-exec
+
+  # === GTFOBins File Operations ===
+  - id: gtfobins-file-ops
+    desc: GTFOBins file operations
+    crit: notable
+    conf: 0.75
+    attack: "T1083"
+    count_min: 2
+    any:
+      - id: ruby-file-read
+      - id: ruby-file-write
+      - id: cli-ruby-exec
+
+  # === GTFOBins Reverse Shell ===
+  - id: gtfobins-reverse-shell
+    desc: GTFOBins reverse shell
+    crit: suspicious
+    conf: 0.93
+    attack: "T1059"
+    count_min: 2
+    any:
+      - id: c2/reverse-shell/tcpsocket-ref
+      - id: cli-ruby-exec
+      - id: c2/reverse-shell/io-popen
+      - id: c2/reverse-shell/ruby-tcp-socket

@@ -1,0 +1,117 @@
+# Python Obfuscator Detection
+# Detects known Python obfuscators and generic obfuscation patterns
+# ATT&CK: T1027 (Obfuscated Files)
+# MBC: E1014 (Data Encoding)
+
+defaults:
+  crit: notable
+  attack: "T1027"
+  mbc: "E1014"
+  for: [python]
+
+traits:
+  # === Obfuscator Signatures ===
+  - id: blankobf-signature
+    desc: BlankOBF obfuscator signature
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: content
+      contains: "Obfuscated with BlankOBF"
+
+  - id: pyarmor-signature
+    desc: PyArmor obfuscator signature
+    crit: suspicious
+    conf: 0.90
+    if:
+      type: content
+      regex: "pyarmor|__pyarmor"
+
+  - id: pyobfuscate-signature
+    desc: PyObfuscate signature
+    crit: suspicious
+    conf: 0.90
+    if:
+      type: content
+      regex: "obfuscated|obfuscator"
+
+  # === Variable Name Obfuscation ===
+  - id: underscore-only-variables
+    desc: Underscore only variable names
+    crit: suspicious
+    conf: 0.80
+    if:
+      type: content
+      regex: "^_{3,20}="
+
+  - id: excessive-underscore-vars
+    desc: Excessive underscore variables
+    crit: suspicious
+    conf: 0.75
+    if:
+      type: content
+      regex: "_{10,50}="
+
+  # === eval(compile()) Pattern ===
+  - id: eval-compile-chain
+    desc: eval compile execution chain
+    crit: suspicious
+    conf: 0.90
+    if:
+      type: content
+      regex: "eval\\(.*compile\\("
+
+  - id: nested-eval-compile
+    desc: Nested eval compile patterns
+    crit: hostile
+    conf: 0.95
+    if:
+      type: content
+      regex: "eval\\(compile\\(.*eval\\(compile"
+
+  # === Extreme Line Length ===
+  - id: extreme-line-length
+    desc: Extreme line length obfuscation
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: metrics
+      field: "text.max_line_length"
+      min: 10000
+
+  # === Import Obfuscation ===
+  - id: obfuscated-import-pattern
+    desc: Obfuscated import pattern
+    crit: suspicious
+    conf: 0.80
+    if:
+      type: content
+      regex: "__import__.*compile|compile.*__import__"
+
+composite_rules:
+  # === Obfuscator Detection ===
+  - id: known-obfuscator-detected
+    desc: Known obfuscator detected
+    crit: suspicious
+    conf: 0.95
+    attack: "T1027"
+    count_min: 1
+    any:
+      - id: blankobf-signature
+      - id: pyarmor-signature
+      - id: pyobfuscate-signature
+
+  - id: python-obfuscation-suite
+    desc: Python code obfuscation suite
+    crit: hostile
+    conf: 0.95
+    attack: "T1027"
+    mbc: "E1014"
+    file_types: [python]
+    count_min: 3
+    any:
+      - id: eval-compile-chain
+      - id: underscore-only-variables
+      - id: extreme-line-length
+      - id: nested-eval-compile
+      - id: known-obfuscator-detected

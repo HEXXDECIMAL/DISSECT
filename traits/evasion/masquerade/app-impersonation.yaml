@@ -1,0 +1,125 @@
+# Application Impersonation Detection
+# Detects malware impersonating legitimate applications
+# ATT&CK: T1036.005 (Masquerading: Match Legitimate Name)
+# MBC: F0004 (Masquerading)
+
+defaults:
+  crit: suspicious
+  attack: "T1036.005"
+  mbc: "F0004"
+  for: [python, shell, javascript]
+
+traits:
+  # === macOS System App Impersonation ===
+  - id: apple-account-app
+    desc: AppleAccount.app impersonation
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: string
+      regex: "AppleAccount\\.app|NccyrNppbhag"
+
+  - id: apple-account-assistant
+    desc: AppleAccountAssistant impersonation
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: string
+      regex: "AppleAccountAssistant|NccyrNppbhagNffvfgnag"
+
+  - id: xprotect-impersonation
+    desc: XProtect impersonation
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: string
+      regex: "XProtect|VPR-havk"
+
+  # === Shared/User Directory Masquerade ===
+  - id: users-shared-path
+    desc: /Users/Shared path access
+    crit: notable
+    conf: 0.70
+    if:
+      type: string
+      regex: "Users/Shared|Hfref/Funerq"
+
+  - id: temp-user-path
+    desc: TempUser path access
+    crit: suspicious
+    conf: 0.75
+    if:
+      type: string
+      regex: "TempUser|GrzcHfre"
+
+  # === Legitimate Service Names ===
+  - id: system-service-name
+    desc: System service name usage
+    crit: notable
+    conf: 0.60
+    if:
+      type: string
+      regex: "system.{0,20}service|service.{0,20}daemon"
+
+  - id: helper-tool-name
+    desc: Helper tool name pattern
+    crit: notable
+    conf: 0.60
+    if:
+      type: string
+      regex: "Helper\\.app|helper.{0,10}tool"
+
+  # === Obfuscated App Names ===
+  - id: obfuscated-app-name
+    desc: Obfuscated application name
+    crit: suspicious
+    conf: 0.80
+    if:
+      type: string
+      regex: "[a-z]{15,}\\.app|[A-Z]{15,}\\.app"
+
+  - id: random-app-name
+    desc: Randomized application name
+    crit: suspicious
+    conf: 0.75
+    if:
+      type: string
+      regex: "[a-z0-9]{10,20}\\.app"
+
+composite_rules:
+  # === Impersonation Detection ===
+  - id: apple-service-impersonation
+    desc: Apple service impersonation
+    crit: hostile
+    conf: 0.98
+    attack: "T1036.005"
+    mbc: "F0004"
+    platforms: [macos]
+    count_min: 1
+    any:
+      - id: apple-account-app
+      - id: apple-account-assistant
+      - id: xprotect-impersonation
+
+  - id: system-app-masquerade
+    desc: System application masquerade
+    crit: hostile
+    conf: 0.95
+    attack: "T1036.005"
+    count_min: 2
+    any:
+      - id: users-shared-path
+      - id: temp-user-path
+      - id: system-service-name
+      - id: helper-tool-name
+
+  - id: fake-system-binary
+    desc: Fake system binary
+    crit: hostile
+    conf: 0.95
+    attack: "T1036.005"
+    mbc: "F0004"
+    platforms: [macos, linux]
+    all:
+      - id: apple-service-impersonation
+      - id: system-app-masquerade

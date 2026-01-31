@@ -1,0 +1,145 @@
+# Python Advanced Obfuscation Detection
+# Detects sophisticated obfuscation patterns in Python malware
+# ATT&CK: T1027 (Obfuscated Files)
+# MBC: E1014 (Data Encoding)
+
+defaults:
+  crit: suspicious
+  attack: "T1027"
+  mbc: "E1014"
+  for: [python]
+
+traits:
+  # === Unicode Variable Names ===
+  - id: unicode-variable-names
+    desc: Unicode variable names
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: content
+      regex: "[一-龯]|[ぁ-ん]|[ァ-ン]"
+
+  - id: chinese-char-variables
+    desc: Chinese character variables
+    crit: suspicious
+    conf: 0.90
+    if:
+      type: content
+      regex: "[\u4e00-\u9fff]+="
+
+  # === Bit Shift Obfuscation ===
+  - id: bit-shift-arithmetic
+    desc: Bit shift obfuscation
+    crit: suspicious
+    conf: 0.80
+    if:
+      type: content
+      regex: "<<[0-9]+.*>>[0-9]+|>>[0-9]+.*<<[0-9]+"
+
+  - id: arithmetic-expression-chains
+    desc: Complex arithmetic chains
+    crit: suspicious
+    conf: 0.75
+    if:
+      type: content
+      regex: "[*].*//.*[|].*<<.*>>"
+
+  # === getattr/__builtins__ Obfuscation ===
+  - id: getattr-builtins-obfuscation
+    desc: getattr builtins obfuscation
+    crit: suspicious
+    conf: 0.90
+    if:
+      type: content
+      regex: "getattr\\(__builtins__|getattr\\(.*builtins"
+
+  - id: getattr-obfuscated-access
+    desc: getattr obfuscated access
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: content
+      regex: "getattr\\(.*,.*\\+.*\\)"
+
+  # === State Machine Pattern ===
+  - id: magic-number-state-machine
+    desc: Magic number state machine
+    crit: suspicious
+    conf: 0.80
+    if:
+      type: content
+      regex: "while.*:[^}]{0,100}if.*==.*[0-9]{5,}"
+
+  - id: obfuscated-state-variable
+    desc: Obfuscated state variable
+    crit: suspicious
+    conf: 0.75
+    if:
+      type: content
+      regex: "[\u4e00-\u9fff]{5,}.*=.*[0-9]+"
+
+  # === COM/Object Instantiation ===
+  - id: com-dispatch-usage
+    desc: COM Dispatch usage
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: content
+      regex: "Dispatch\\(|win32com|pythoncom"
+
+  - id: ctypes-windll-usage
+    desc: ctypes windll usage
+    crit: notable
+    conf: 0.70
+    if:
+      type: content
+      regex: "ctypes\\.windll|windll\\.shell32"
+
+  # === Admin Check Bypass ===
+  - id: admin-check-ctypes
+    desc: Admin check via ctypes
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: content
+      regex: "IsUserAnAdmin|IsAdmin|CheckTokenMembership"
+
+composite_rules:
+  # === Advanced Obfuscation Detection ===
+  - id: advanced-python-obfuscation
+    desc: Advanced Python obfuscation
+    crit: suspicious
+    conf: 0.90
+    attack: "T1027"
+    file_types: [python]
+    count_min: 3
+    any:
+      - id: unicode-variable-names
+      - id: bit-shift-arithmetic
+      - id: getattr-builtins-obfuscation
+
+  - id: state-machine-obfuscation
+    desc: State machine obfuscation
+    crit: hostile
+    conf: 0.95
+    attack: "T1027"
+    mbc: "E1014"
+    platforms: [all]
+    count_min: 2
+    any:
+      - id: magic-number-state-machine
+      - id: obfuscated-state-variable
+      - id: chinese-char-variables
+
+  - id: windows-com-elevation
+    desc: Windows COM elevation attempt
+    crit: hostile
+    conf: 0.95
+    attack: "T1078"
+    mbc: "E1059"
+    platforms: [windows]
+    count_min: 2
+    any:
+      - id: com-dispatch-usage
+      - id: admin-check-ctypes
+      - id: ctypes-windll-usage

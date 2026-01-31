@@ -948,3 +948,82 @@ If you see "Trait 'X' not found in definitions", verify:
 - Works for both traits and composite rules
 - Shows exactly what was extracted (strings, symbols) so you can tune your patterns
 - Displays the regex pattern being used, making it easier to spot escaping issues
+---
+
+## Testing Pattern Matching with `test-match`
+
+The `test-match` command allows you to test ad-hoc pattern matching against a file without creating a rule. This is useful for:
+- Quickly verifying if a pattern exists in a file
+- Determining the best search type (string, symbol, or content) for a pattern
+- Finding the optimal match method (exact, contains, regex, or word)
+- Testing how file type detection affects pattern matching
+
+### Usage
+
+```bash
+dissect test-match <FILE> --type <TYPE> --method <METHOD> --pattern "<PATTERN>"
+```
+
+**Parameters:**
+- `--type`: Search type - `string`, `symbol`, or `content` (default: string)
+- `--method`: Match method - `exact`, `contains`, `regex`, or `word` (default: contains)
+- `--pattern`: The pattern to search for (required)
+- `--file-type`: Force a specific file type for analysis (e.g., `elf`, `pe`, `macho`, `java-script`, `python`, `go`, `shell`, `raw`)
+- `--min-count`: Minimum matches required for string searches (default: 1)
+- `--case-insensitive`: Enable case-insensitive matching
+
+### Example Output
+
+When a search fails, `test-match` provides intelligent suggestions:
+
+```
+NOT MATCHED
+Total symbols: 3 (2 imports, 0 exports)
+
+Suggestions:
+  💡 Found in strings (2 substring matches) - try `--type string --method contains`
+  💡 Found in content - try `--type content`
+
+  Try different match methods:
+    --method contains (substring match)
+    --method regex (pattern match)
+
+  File type analysis:
+    Current file type: Go
+    💡 Would match if file type was: ELF (strings: 106, symbols: 0)
+```
+
+### Common Use Cases
+
+**Test if a symbol exists:**
+```bash
+dissect test-match binary.exe --type symbol --method exact --pattern "CreateProcessW"
+```
+
+**Find patterns in strings:**
+```bash
+dissect test-match script.js --type string --method regex --pattern "password.*="
+```
+
+**Search raw file content:**
+```bash
+dissect test-match malware.bin --type content --method contains --pattern "http://"
+```
+
+**Test word boundaries:**
+```bash
+dissect test-match code.py --type string --method word --pattern "exec"
+```
+
+**Force a specific file type:**
+```bash
+dissect test-match file.bin --type string --method contains --pattern "MZ" --file-type pe
+```
+
+### Tips
+
+- Start with `--method contains` for substring matching, then refine to `exact` or `regex`
+- Use `--type content` to search the raw binary data (useful for packed or obfuscated files)
+- Pay attention to the file type suggestions - some patterns may only be extractable when analyzed as a specific file type
+- Combine with `--case-insensitive` for broader pattern matching
+- Use `--file-type` to override auto-detection and see how analysis differs across file types

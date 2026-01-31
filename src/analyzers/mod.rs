@@ -416,7 +416,48 @@ pub fn detect_file_type(file_path: &Path) -> Result<FileType> {
         }
     }
 
+    // Content-based detection for files without recognized extensions
+    // Check for Python code patterns (e.g., .dat files that are actually Python)
+    if looks_like_python(&file_data) {
+        return Ok(FileType::Python);
+    }
+
     Ok(FileType::Unknown)
+}
+
+/// Heuristic detection for Python files without .py extension
+/// Checks for common Python patterns like imports, function definitions, etc.
+fn looks_like_python(data: &[u8]) -> bool {
+    let s = String::from_utf8_lossy(data);
+    let first_lines: Vec<&str> = s.lines().take(50).collect();
+    let content = first_lines.join("\n");
+
+    // Strong Python indicators (must have at least 2)
+    let strong_indicators = [
+        "import ",
+        "from ",
+        "def ",
+        "class ",
+        "if __name__",
+        "print(",
+    ];
+    let strong_count = strong_indicators
+        .iter()
+        .filter(|&&pattern| content.contains(pattern))
+        .count();
+
+    // Secondary Python indicators
+    let secondary_indicators = [
+        "    ", // 4-space indentation (common in Python)
+        "try:", "except", "return ", "self.", "None", "True", "False",
+    ];
+    let secondary_count = secondary_indicators
+        .iter()
+        .filter(|&&pattern| content.contains(pattern))
+        .count();
+
+    // Need at least 2 strong indicators or 1 strong + 3 secondary
+    (strong_count >= 2) || (strong_count >= 1 && secondary_count >= 3)
 }
 
 /// Check if data is a Java class file

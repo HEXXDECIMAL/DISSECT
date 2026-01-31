@@ -158,71 +158,63 @@ traits:
       type: string
       exact: "pynput.clipboard"
 
-  # === Network exfil atomic ===
+  # === Network exfil atomic (require clipboard context) ===
   - id: requests-post-clip
-    desc: requests.post call
+    desc: requests.post with clipboard
     crit: inert
     conf: 0.5
     if:
-      type: string
-      exact: "requests.post"
+      type: content
+      regex: "clipboard.*requests\\.post|requests\\.post.*clipboard"
 
   - id: requests-get-clip
-    desc: requests.get call
+    desc: requests.get with clipboard
     crit: inert
     conf: 0.4
     if:
-      type: string
-      exact: "requests.get"
+      type: content
+      regex: "clipboard.*requests\\.get|requests\\.get.*clipboard"
 
   - id: urllib-clip
-    desc: urllib module
+    desc: urllib with clipboard
     crit: inert
     conf: 0.4
     if:
-      type: string
-      exact: "urllib"
+      type: content
+      regex: "clipboard.*urllib|urllib.*clipboard"
 
   - id: socket-clip
-    desc: socket call
+    desc: socket with clipboard
     crit: inert
     conf: 0.4
     if:
-      type: string
-      regex: "socket\\."
+      type: content
+      regex: "clipboard.*socket|socket.*clipboard"
 
-  # === Loop/persistence atomic ===
-  - id: while-keyword
-    desc: while keyword
+  # === Loop/persistence atomic (require clipboard context) ===
+  - id: while-clipboard-loop
+    desc: while loop with clipboard
     crit: inert
-    conf: 0.3
+    conf: 0.5
     if:
-      type: string
-      exact: "while"
+      type: content
+      regex: "while.*clipboard|clipboard.*while"
 
-  - id: loop-keyword
-    desc: loop keyword
+  - id: schedule-clipboard
+    desc: schedule with clipboard
     crit: inert
-    conf: 0.3
+    conf: 0.5
     if:
-      type: string
-      exact: "loop"
+      type: content
+      regex: "schedule.*clipboard|clipboard.*schedule"
 
-  - id: schedule-keyword
-    desc: schedule keyword
+  - id: time-sleep-clipboard
+    desc: time.sleep with clipboard
     crit: inert
-    conf: 0.4
+    conf: 0.5
     if:
-      type: string
-      exact: "schedule"
-
-  - id: time-sleep
-    desc: time.sleep function
-    crit: inert
-    conf: 0.4
-    if:
-      type: string
-      exact: "time.sleep"
+      type: content
+      regex: "time\\.sleep.*clipboard|clipboard.*time\\.sleep"
 
   # === Message loop atomic ===
   - id: wndproc-keyword
@@ -341,15 +333,14 @@ composite_rules:
 
   # Loop persistence composite
   - id: python-loop-persistence
-    desc: "Loop or scheduled execution pattern"
-    conf: 0.5
+    desc: "Clipboard loop persistence"
+    conf: 0.6
     crit: notable
     count_min: 1
     any:
-      - id: while-keyword
-      - id: loop-keyword
-      - id: schedule-keyword
-      - id: time-sleep
+      - id: while-clipboard-loop
+      - id: schedule-clipboard
+      - id: time-sleep-clipboard
 
   # Clipboard viewer notification composite
   - id: python-clipboard-viewer-notify

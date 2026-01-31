@@ -1,0 +1,100 @@
+# Download and Execute Pattern Detection
+# Detects malware that downloads payloads and executes them
+# ATT&CK: T1105 (Ingress Tool Transfer), T1059 (Command Execution)
+# MBC: E1105 (Tool Transfer)
+
+defaults:
+  crit: suspicious
+  attack: "T1105"
+  mbc: "E1105"
+  for: [python, shell]
+
+traits:
+  # === Download to Home Directory ===
+  - id: download-to-home
+    desc: Download to home directory
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: content
+      regex: "(curl|wget).*(HOME|~/|\\$HOME)"
+
+  - id: curl-silent-output
+    desc: Silent curl with output
+    crit: suspicious
+    conf: 0.75
+    if:
+      type: content
+      regex: "curl.*--silent.*--output|curl.*-s.*-o"
+
+  # === Cookie-based Download Tracking ===
+  - id: curl-with-cookie
+    desc: curl with tracking cookie
+    crit: suspicious
+    conf: 0.80
+    if:
+      type: content
+      regex: "curl.*--cookie.*[0-9]{10,}|curl.*-b.*[0-9]{10,}"
+
+  # === Download and Execute Chain ===
+  - id: download-chmod-execute
+    desc: Download chmod execute chain
+    crit: hostile
+    conf: 0.95
+    if:
+      type: content
+      regex: "(curl|wget).{0,200}chmod.*\\+x.{0,100}os\\.system"
+
+  - id: write-binary-execute
+    desc: Write binary and execute
+    crit: hostile
+    conf: 0.90
+    if:
+      type: content
+      regex: "write\\(fileData\\).{0,100}system.*&|write\\(.*\\).{0,100}chmod.*\\+x"
+
+  # === Background Execution ===
+  - id: background-execution-devnull
+    desc: Background exec with devnull
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: content
+      regex: "> /dev/null 2>&1 &|> /dev/null 2>&1$"
+
+  # === URL-based Decode ===
+  - id: urlsafe-b64decode
+    desc: URL-safe base64 decode
+    crit: suspicious
+    conf: 0.75
+    if:
+      type: content
+      regex: "urlsafe_b64decode"
+
+composite_rules:
+  # === Download and Execute ===
+  - id: download-and-execute
+    desc: Download and execute payload
+    crit: hostile
+    conf: 0.96
+    attack: "T1105"
+    file_types: [python, shell]
+    count_min: 2
+    any:
+      - id: download-chmod-execute
+      - id: write-binary-execute
+      - id: background-execution-devnull
+
+  - id: stealthy-downloader
+    desc: Stealthy payload downloader
+    crit: hostile
+    conf: 0.95
+    attack: "T1059"
+    mbc: "E1105"
+    platforms: [all]
+    count_min: 3
+    any:
+      - id: curl-silent-output
+      - id: curl-with-cookie
+      - id: download-to-home
+      - id: urlsafe-b64decode

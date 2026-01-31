@@ -135,6 +135,46 @@ traits:
       type: string
       exact: '"pty"'
 
+  # === Base64 with Separator Obfuscation ===
+  - id: base64-separator-obfuscation
+    desc: Base64 with separator obfuscation
+    crit: suspicious
+    conf: 0.88
+    attack: "T1027"
+    if:
+      type: string
+      regex: 'gsub.*---|\.gsub.*"-\-\-"|decode64.*gsub'
+
+  # === Windows OS Check ===
+  - id: windows-os-check
+    desc: Windows OS platform check
+    crit: notable
+    conf: 0.70
+    attack: "T1497"
+    if:
+      type: string
+      regex: 'mswin|msys|mingw|cygwin|bccwin|wince|emc|host_os.*match'
+
+  # === VBS Script Writing ===
+  - id: vbs-script-write
+    desc: VBS script file creation
+    crit: suspicious
+    conf: 0.85
+    attack: "T1059"
+    if:
+      type: string
+      regex: '\.vbs.*write|write.*\.vbs|\.vbs.*File\.open'
+
+  # === WScript Execution ===
+  - id: wscript-execution
+    desc: WScript execution
+    crit: suspicious
+    conf: 0.85
+    attack: "T1059"
+    if:
+      type: string
+      regex: 'wscript|cscript|\.vbs'
+
 composite_rules:
   # === Library require composites ===
   - id: ruby-require-net-http
@@ -208,15 +248,15 @@ composite_rules:
     crit: suspicious
     count_min: 4
     any:
-      - id: ruby-http-get-response
-      - id: ruby-http-client
-      - id: ruby-file-open-write-binary
-      - id: ruby-file-binmode
-      - id: ruby-file-chmod
-      - id: ruby-chmod-777
-      - id: ruby-system
-      - id: ruby-exec
-      - id: ruby-file-write-tmp
+      - id: comm/http/request/ruby-http-get-response
+      - id: comm/http/request/ruby-http-client
+      - id: fs/write/file/ruby-file-open-write-binary
+      - id: fs/write/file/ruby-file-binmode
+      - id: fs/write/file/ruby-file-chmod
+      - id: fs/write/file/ruby-chmod-777
+      - id: exec/command/shell/ruby-system
+      - id: exec/command/shell/ruby-exec
+      - id: fs/write/file/ruby-file-write-tmp
 
   - id: ruby-obfuscated-c2
     desc: Obfuscated C2 with Base64 and
@@ -224,10 +264,10 @@ composite_rules:
     crit: suspicious
     count_min: 3
     any:
-      - id: ruby-base64-decode
-      - id: ruby-dns-resolve
-      - id: ruby-http-client
-      - id: ruby-http-get-response
+      - id: anti-static/obfuscation/code/base64-decode
+      - id: discovery/system/ruby-dns-resolve
+      - id: comm/http/request/ruby-http-client
+      - id: comm/http/request/ruby-http-get-response
 
   - id: ruby-tmp-execution
     desc: Write to /tmp, chmod, and
@@ -235,11 +275,11 @@ composite_rules:
     crit: suspicious
     count_min: 3
     any:
-      - id: ruby-file-write-tmp
-      - id: ruby-file-chmod
-      - id: ruby-chmod-777
-      - id: ruby-system
-      - id: ruby-exec
+      - id: fs/write/file/ruby-file-write-tmp
+      - id: fs/write/file/ruby-file-chmod
+      - id: fs/write/file/ruby-chmod-777
+      - id: exec/command/shell/ruby-system
+      - id: exec/command/shell/ruby-exec
 
   - id: ruby-reverse-shell
     desc: Reverse shell connection
@@ -247,11 +287,24 @@ composite_rules:
     crit: suspicious
     count_min: 2
     any:
-      - id: ruby-tcp-socket
-      - id: ruby-system
-      - id: ruby-exec
-      - id: ruby-popen
-      - id: ruby-pty
+      - id: comm/socket/listen/ruby-tcp-socket
+      - id: exec/command/shell/ruby-system
+      - id: exec/command/shell/ruby-exec
+      - id: exec/command/shell/ruby-popen
+      - id: process/tty/pty/ruby-pty
+
+  - id: ruby-windows-vbs-dropper
+    desc: Windows VBS payload dropper
+    conf: 0.94
+    crit: suspicious
+    count_min: 4
+    any:
+      - id: windows-os-check
+      - id: base64-separator-obfuscation
+      - id: vbs-script-write
+      - id: wscript-execution
+      - id: exec/command/shell/ruby-system
+      - id: anti-static/obfuscation/code/base64-decode
 
   - id: ruby-binary-dropper
     desc: Downloads and writes binary payload
@@ -259,7 +312,7 @@ composite_rules:
     crit: suspicious
     count_min: 3
     any:
-      - id: ruby-http-get-response
-      - id: ruby-file-binmode
-      - id: ruby-file-open-write-binary
-      - id: ruby-file-write-tmp
+      - id: comm/http/request/ruby-http-get-response
+      - id: fs/write/file/ruby-file-binmode
+      - id: fs/write/file/ruby-file-open-write-binary
+      - id: fs/write/file/ruby-file-write-tmp

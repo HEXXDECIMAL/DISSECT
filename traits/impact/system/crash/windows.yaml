@@ -63,16 +63,6 @@ traits:
       type: string
       exact: "from ctypes import"
 
-  # windll reference
-  - id: windll-reference
-    description: Python windll reference
-    crit: notable
-    conf: 0.6
-    for: [python]
-    if:
-      type: string
-      exact: "windll"
-
   # YARA-based detection traits
   - id: bsod-trigger-yara
     description: Windows BSOD trigger via YARA
@@ -157,7 +147,6 @@ composite_rules:
     attack: "T1499.004"
     all:
       - id: ctypes-import
-      - id: windll-reference
       - id: ntdll-reference
     any:
       - id: nt-raise-hard-error
