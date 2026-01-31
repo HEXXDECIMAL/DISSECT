@@ -1,0 +1,48 @@
+# Generic Control Flow Patterns
+# Detects loops and iteration structures
+
+traits:
+  # === Iteration/loop atomic indicators ===
+  - id: for-loop
+    description: for loop pattern
+    crit: inert
+    conf: 0.3
+    if:
+      type: string
+      word: "for"
+
+  - id: while-loop
+    description: while loop pattern
+    crit: inert
+    conf: 0.3
+    if:
+      type: string
+      word: "while"
+
+  - id: os-walk
+    description: os.walk iteration
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "os.walk"
+
+  - id: glob-pattern
+    description: glob module pattern
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      regex: "glob\\."
+
+composite_rules:
+  - id: iteration-loop-pattern
+    description: "Iteration or loop pattern"
+    crit: inert
+    conf: 0.5
+    count_min: 1
+    any:
+      - id: for-loop
+      - id: while-loop
+      - id: os-walk
+      - id: glob-pattern

@@ -1,0 +1,13 @@
+# Ruby HTTP Communication
+# Traits for identifying HTTP communication in Ruby
+
+traits:
+  # Hardcoded IP addresses
+  - id: hardcoded-ip
+    desc: Hardcoded IP address (potential C2)
+    crit: notable
+    conf: 0.85
+    attack: "T1071"
+    if:
+      type: string
+      regex: 'https?://\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}[:/]'

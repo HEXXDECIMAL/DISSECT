@@ -1,0 +1,37 @@
+# Ruby System Information Retrieval
+# Traits for identifying hardware/system info retrieval in Ruby
+
+defaults:
+  for: [ruby]
+  platforms: [all]
+
+traits:
+  # === Platform Check ===
+  - id: platform-fingerprint
+    desc: Platform fingerprinting check
+    crit: notable
+    conf: 0.75
+    attack: "T1082"
+    if:
+      type: string
+      regex: 'RUBY_PLATFORM.{0,50}include|RUBY_PLATFORM.{0,50}match|darwin|linux|mswin'
+
+  # === Socket Hostname ===
+  - id: socket-hostname
+    desc: Socket hostname discovery
+    crit: notable
+    conf: 0.70
+    attack: "T1082"
+    if:
+      type: string
+      regex: 'Socket\.gethostname|gethostname'
+
+  # === Socket IP Address ===
+  - id: socket-ip-address
+    desc: Socket IP address discovery
+    crit: notable
+    conf: 0.75
+    attack: "T1016"
+    if:
+      type: string
+      regex: 'Socket\.ip_address_list|ip_address_list|ipv4\?|ip_address'
