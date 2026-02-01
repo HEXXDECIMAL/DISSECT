@@ -790,7 +790,7 @@ fn analyze_file_with_shared_mapper(
     capability_mapper: &Arc<crate::capabilities::CapabilityMapper>,
     shared_yara_engine: Option<&Arc<YaraEngine>>,
     zip_passwords: &[String],
-    disabled: &cli::DisabledComponents,
+    _disabled: &cli::DisabledComponents,
     error_if_levels: Option<&[types::Criticality]>,
     verbose: bool,
 ) -> Result<String> {

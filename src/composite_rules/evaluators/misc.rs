@@ -7,7 +7,7 @@
 //! - Trait glob patterns (matching multiple traits)
 
 use crate::composite_rules::context::{ConditionResult, EvaluationContext};
-use crate::types::{Evidence, Finding};
+use crate::types::Evidence;
 
 /// Evaluate structure condition
 pub fn eval_structure(

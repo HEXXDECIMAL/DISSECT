@@ -54,13 +54,20 @@ impl ElfAnalyzer {
 
     fn analyze_elf(&self, file_path: &Path, data: &[u8]) -> Result<AnalysisReport> {
         let start = std::time::Instant::now();
+        let timing = std::env::var("DISSECT_TIMING").is_ok();
+
+        let t_sha = std::time::Instant::now();
+        let sha256 = crate::analyzers::utils::calculate_sha256(data);
+        if timing {
+            eprintln!("[TIMING] ELF SHA256 ({} MB): {:?}", data.len() / 1024 / 1024, t_sha.elapsed());
+        }
 
         // Create target info with default/empty values for fields that require parsing
         let target = TargetInfo {
             path: file_path.display().to_string(),
             file_type: "elf".to_string(),
             size_bytes: data.len() as u64,
-            sha256: crate::analyzers::utils::calculate_sha256(data),
+            sha256,
             architectures: None,
         };
 
@@ -115,12 +122,18 @@ impl ElfAnalyzer {
             // Use batched extraction - single r2 session for functions, sections, strings, imports
             if let Ok(mut batched) = self.radare2.extract_batched(file_path) {
                 // Check if we need deeper analysis (few functions found but executable sections exist)
+                // Skip deep analysis for large binaries (>20MB) as it takes too long (minutes)
+                let file_size = data.len() as u64;
+                const MAX_SIZE_FOR_DEEP_ANALYSIS: u64 = 20 * 1024 * 1024; // 20MB
                 let has_exec_sections = batched
                     .sections
                     .iter()
                     .any(|s| s.perm.clone().unwrap_or_default().contains('x'));
-                if batched.functions.len() < 5 && has_exec_sections {
-                    // Re-run with deep analysis enabled
+                if batched.functions.len() < 5
+                    && has_exec_sections
+                    && file_size <= MAX_SIZE_FOR_DEEP_ANALYSIS
+                {
+                    // Re-run with deep analysis enabled (only for smaller binaries)
                     if let Ok(deep_batched) = self.radare2.extract_batched_deep(file_path) {
                         batched = deep_batched;
                     }
@@ -146,7 +159,18 @@ impl ElfAnalyzer {
         };
 
         // Extract strings using language-aware extraction (Go/Rust) with pre-parsed ELF if available
-        if let Some(ref elf) = parsed_elf {
+        // For large binaries (>20MB), use lightweight extraction to save time
+        let t_stng = std::time::Instant::now();
+        const MAX_SIZE_FOR_FULL_STNG: u64 = 20 * 1024 * 1024; // 20MB
+        let file_size = data.len() as u64;
+
+        if file_size > MAX_SIZE_FOR_FULL_STNG {
+            // Large binary: use lightweight extraction (r2 strings + basic extraction)
+            // Skip expensive language-aware extraction which is slow for large Go/Rust binaries
+            report.strings = self
+                .string_extractor
+                .extract_lightweight(data, r2_strings);
+        } else if let Some(ref elf) = parsed_elf {
             report.strings = self
                 .string_extractor
                 .extract_from_elf(elf, data, r2_strings);
@@ -154,6 +178,9 @@ impl ElfAnalyzer {
             report.strings = self
                 .string_extractor
                 .extract_smart_with_r2(data, r2_strings);
+        }
+        if timing {
+            eprintln!("[TIMING] ELF stng extraction ({} strings): {:?}", report.strings.len(), t_stng.elapsed());
         }
         tools_used.push("stng".to_string());
 

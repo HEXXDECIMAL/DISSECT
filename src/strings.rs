@@ -325,6 +325,87 @@ impl StringExtractor {
         self.merge_strings(lang_strings, basic_strings, data.len())
     }
 
+    /// Lightweight string extraction for large binaries (>20MB).
+    ///
+    /// Skips expensive language-aware extraction (Go/Rust symbol parsing) and just uses:
+    /// - radare2 strings (if provided)
+    /// - Basic ASCII/UTF-8 extraction with higher min_length
+    ///
+    /// This is much faster for large binaries where full analysis would take too long.
+    pub fn extract_lightweight(
+        &self,
+        data: &[u8],
+        r2_strings: Option<Vec<R2String>>,
+    ) -> Vec<StringInfo> {
+        // Use higher min_length for large binaries to reduce noise
+        let large_file_min_length = 6.max(self.min_length);
+
+        let mut seen: FxHashSet<String> = FxHashSet::default();
+        let mut strings = Vec::new();
+
+        // First, add r2 strings (these are typically high quality)
+        if let Some(r2s) = r2_strings {
+            for s in r2s {
+                if s.string.len() >= large_file_min_length && !seen.contains(&s.string) {
+                    seen.insert(s.string.clone());
+                    strings.push(self.classify_string(
+                        s.string,
+                        s.paddr as usize,
+                        None,
+                    ));
+                }
+            }
+        }
+
+        // Then do basic extraction (faster than full stng)
+        let basic_strings = self.extract_with_min_length(data, None, large_file_min_length);
+        for s in basic_strings {
+            if !seen.contains(&s.value) {
+                seen.insert(s.value.clone());
+                strings.push(s);
+            }
+        }
+
+        strings
+    }
+
+    /// Extract strings with a custom minimum length
+    fn extract_with_min_length(
+        &self,
+        data: &[u8],
+        section: Option<String>,
+        min_length: usize,
+    ) -> Vec<StringInfo> {
+        let mut strings = Vec::new();
+        let mut current = Vec::new();
+        let mut start_offset = 0;
+
+        for (i, &byte) in data.iter().enumerate() {
+            if byte.is_ascii_graphic() || byte == b' ' {
+                if current.is_empty() {
+                    start_offset = i;
+                }
+                current.push(byte);
+            } else if !current.is_empty() {
+                if current.len() >= min_length {
+                    if let Ok(s) = String::from_utf8(current.clone()) {
+                        strings.push(self.classify_string(s, start_offset, section.clone()));
+                    }
+                }
+                current.clear();
+            }
+        }
+
+        // Handle trailing string
+        if current.len() >= min_length {
+            if let Ok(s) = String::from_utf8(current) {
+                strings.push(self.classify_string(s, start_offset, section));
+            }
+        }
+
+        strings
+    }
+
     /// Merge language-aware strings with basic extraction, deduplicating by value.
     fn merge_strings(
         &self,
@@ -526,6 +607,7 @@ fn r2_to_stng(r2_strings: Vec<R2String>, min_length: usize) -> Vec<ExtractedStri
             method: StringMethod::R2String,
             kind: StringKind::Const,
             library: None,
+            fragments: None,
         })
         .collect()
 }
