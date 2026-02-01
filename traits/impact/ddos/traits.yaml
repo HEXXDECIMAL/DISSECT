@@ -76,7 +76,8 @@ traits:
     for: [elf, macho, pe, so, dylib]
     if:
       type: string
-      regex: "(?i)amplification"
+      # Match DDoS-specific amplification contexts, not generic "amplification" (used in compilers for loop unrolling)
+      regex: "(?i)(dns|udp|ntp|ssdp|memcached|chargen)[_\\s\\-]?amplification|amplification[_\\s\\-]?(attack|flood|ddos)"
 
   - id: port-53
     desc: Port 53 reference

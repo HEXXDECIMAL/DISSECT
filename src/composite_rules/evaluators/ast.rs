@@ -411,9 +411,14 @@ pub fn eval_ast_query(query_str: &str, ctx: &EvaluationContext) -> ConditionResu
     let mut evidence = Vec::new();
     const MAX_MATCHES: usize = 1000; // Cap evidence collection
 
-    // Use captures() with StreamingIterator pattern (advance + get)
-    let mut captures = query_cursor.captures(&query, tree.root_node(), source.as_bytes());
-    while let Some((m, _)) = captures.next() {
+    // Use matches() to get full match info including pattern index for predicate checking
+    let mut matches = query_cursor.matches(&query, tree.root_node(), source.as_bytes());
+    while let Some(m) = matches.next() {
+        // Check predicates for this pattern (e.g., #eq?, #match?)
+        if !check_predicates(&query, m, source.as_bytes()) {
+            continue; // Skip matches that don't satisfy predicates
+        }
+
         for capture in m.captures {
             if let Ok(text) = capture.node.utf8_text(source.as_bytes()) {
                 evidence.push(Evidence {

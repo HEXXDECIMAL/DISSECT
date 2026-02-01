@@ -4,8 +4,8 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     all:
-      - id: exec/command/cpp/popen-call
+      - id: exec/command/popen-call
     any:
-      - id: exec/command/cpp/fgets-loop
-      - id: exec/command/cpp/string-append
+      - id: exec/command/fgets-loop
+      - id: exec/command/cpp-exception
     for: [macho, elf, pe]

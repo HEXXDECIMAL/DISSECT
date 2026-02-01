@@ -97,9 +97,16 @@ traits:
       type: string
       # Match original_ followed by common hooked function names, not just any original_ prefix
       regex: "original_(?:open|read|write|stat|fopen|readdir|execve|connect|socket|getdents|unlink)"
-    # System libraries may have these for legitimate wrapper/forwarding purposes
+    # System libraries and compiler tools may have these for legitimate wrapper/forwarding purposes
+    # Note: Must reference atomic traits (not composites) since traits are evaluated before composites
     unless:
-      - id: feat/library/system-lib-marker
+      - id: feat/library/gnu-coreutils-ref
+      - id: feat/library/glibc-ref
+      - id: feat/library/systemd-ref
+      - id: feat/library/libc-characteristic-symbols
+      - id: feat/library/llvm-project-ref
+      - id: feat/library/llvm-lib-ref
+      - id: feat/library/gcc-project-ref
 
   - id: real-prefix
     desc: real_ function prefix (hook backup)
@@ -110,9 +117,16 @@ traits:
       type: string
       # Match real_ followed by common hooked function names, not just any real_ prefix
       regex: "real_(?:open|read|write|stat|fopen|readdir|execve|connect|socket|getdents|unlink)"
-    # System libraries may have these for legitimate wrapper/forwarding purposes
+    # System libraries and compiler tools may have these for legitimate wrapper/forwarding purposes
+    # Note: Must reference atomic traits (not composites) since traits are evaluated before composites
     unless:
-      - id: feat/library/system-lib-marker
+      - id: feat/library/gnu-coreutils-ref
+      - id: feat/library/glibc-ref
+      - id: feat/library/systemd-ref
+      - id: feat/library/libc-characteristic-symbols
+      - id: feat/library/llvm-project-ref
+      - id: feat/library/llvm-lib-ref
+      - id: feat/library/gcc-project-ref
 
   # === /proc hiding micro-traits ===
   - id: proc-self-string

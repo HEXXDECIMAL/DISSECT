@@ -10,18 +10,10 @@ defaults:
   mbc: "B0009"   # Denial of Service
 
 traits:
-  # === High Concurrency Indicators ===
-  - id: worker-pool
-    desc: References to worker pools for
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      regex: "(worker|thread|goroutine)[_-]?pool"
-      case_insensitive: true
-    # Compiler/build tools legitimately use worker pools for parallel compilation
-    unless:
-      - id: feat/library/compiler-tool-marker
+  # NOTE: Worker pool detection is handled by feat/concurrency/worker-pool (inert)
+  # The c2/ddos/worker-pool trait was removed because worker pools alone are not
+  # indicators of DDoS - they're used legitimately by compilers, build tools, etc.
+  # DDoS detection now requires additional context via composite rules.
 
   # === User-Agent Rotation ===
   - id: ua-list-large

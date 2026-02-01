@@ -29,11 +29,21 @@ traits:
     crit: notable
     confidence: 0.5
     attack: "T1543"
-    file_types: [elf]
-    platforms: [linux]
+    file_types: [elf, macho]
+    platforms: [linux, macos]
     condition:
       type: symbol
       pattern: "\\bsetsid\\b"
+
+  - id: daemon-umask
+    description: "umask syscall (daemon initialization)"
+    crit: inert
+    confidence: 0.4
+    file_types: [elf, macho]
+    platforms: [linux, macos]
+    condition:
+      type: symbol
+      pattern: "\\bumask\\b"
 
   - id: daemon-dev-null
     description: "Redirects I/O to /dev/null (daemon"
@@ -230,3 +240,20 @@ composite_rules:
     any:
       - id: daemon-fork
       - id: daemon-setsid
+
+  # macOS double-fork daemon pattern
+  # This is the classic fork() -> setsid() -> fork() -> umask() -> chdir() pattern
+  - id: macos-double-fork-daemon
+    description: "macOS double-fork daemon pattern (fork"
+    crit: suspicious
+    confidence: 0.85
+    attack: "T1543"
+    mbc: "F0006"
+    file_types: [macho]
+    platforms: [macos]
+    all:
+      - id: fork-symbol
+      - id: daemon-setsid
+    any:
+      - id: daemon-umask
+      - id: daemon-chdir-root

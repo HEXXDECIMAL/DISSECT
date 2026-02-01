@@ -152,7 +152,7 @@ composite_rules:
     attack: "T1027"
     mbc: "B0032"
     for: [macho]
-    count_min: 3
+    count_min: 2
     any:
       - id: large-const-section
       - id: high-entropy-const
@@ -186,3 +186,22 @@ composite_rules:
       - id: large-data-section
       - id: high-entropy-data
       - id: string-concealment
+
+  # === Obfuscated Daemon Dropper (HOSTILE) ===
+  # Combines encrypted payload indicators with daemon and exec behavior
+  # This pattern is highly suspicious: encrypted binary + backgrounding + command exec
+
+  - id: obfuscated-macos-daemon-dropper
+    desc: "Obfuscated macOS daemon dropper (encrypted payload"
+    crit: hostile
+    conf: 0.92
+    attack: "T1027"
+    mbc: "B0032"
+    for: [macho]
+    # Complexity: all(2) + any(2) + file_types(1) = 5 >= 4 ✓
+    all:
+      - id: high-entropy-const
+      - id: tiny-cstring
+    any:
+      - id: persist/daemon/init/macos-double-fork-daemon
+      - id: exec/command/shell/shell-execution

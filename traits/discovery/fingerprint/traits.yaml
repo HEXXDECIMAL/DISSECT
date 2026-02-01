@@ -221,8 +221,9 @@ traits:
     attack: "T1082"
     if:
       type: string
-      # Match ifconfig/ip output format with MAC address pattern
-      regex: "ether\\s+[0-9a-fA-F]{2}[:-]"
+      # Match ifconfig/ip output format - require more complete MAC address pattern
+      # Format: "ether XX:XX:XX" or "ether XX-XX-XX" (at least 3 octets)
+      regex: "ether\\s+[0-9a-fA-F]{2}[:-][0-9a-fA-F]{2}[:-][0-9a-fA-F]{2}"
 
   - id: getifaddrs-func
     desc: getifaddrs function
