@@ -421,11 +421,14 @@ impl<'a> RuleDebugger<'a> {
                 kind,
                 node,
                 exact,
+                substr,
                 regex,
                 query,
                 case_insensitive,
                 ..
-            } => self.debug_ast_condition(kind, node, exact, regex, query, *case_insensitive),
+            } => {
+                self.debug_ast_condition(kind, node, exact, substr, regex, query, *case_insensitive)
+            }
             _ => {
                 // Generic fallback for other condition types
                 let desc = describe_condition(condition);
@@ -1029,6 +1032,7 @@ impl<'a> RuleDebugger<'a> {
         kind: &Option<String>,
         node: &Option<String>,
         exact: &Option<String>,
+        substr: &Option<String>,
         regex: &Option<String>,
         query: &Option<String>,
         case_insensitive: bool,
@@ -1045,6 +1049,11 @@ impl<'a> RuleDebugger<'a> {
             let pattern_spec = exact
                 .as_ref()
                 .map(|e| format!("exact=\"{}\"", truncate_string(e, 30)))
+                .or_else(|| {
+                    substr
+                        .as_ref()
+                        .map(|s| format!("substr=\"{}\"", truncate_string(s, 30)))
+                })
                 .or_else(|| {
                     regex
                         .as_ref()
@@ -1081,6 +1090,7 @@ impl<'a> RuleDebugger<'a> {
             kind.as_deref(),
             node.as_deref(),
             exact.as_deref(),
+            substr.as_deref(),
             regex.as_deref(),
             query.as_deref(),
             case_insensitive,

@@ -12,6 +12,17 @@ use crate::composite_rules::types::FileType;
 use crate::types::Evidence;
 use streaming_iterator::StreamingIterator;
 
+/// Match mode for AST pattern matching
+#[derive(Clone, Copy)]
+enum MatchMode {
+    /// Exact equality match
+    Exact,
+    /// Substring/contains match
+    Substr,
+    /// Regex pattern match
+    Regex,
+}
+
 /// Check if file type supports AST parsing
 fn supports_ast(file_type: FileType) -> bool {
     !matches!(
@@ -31,11 +42,12 @@ fn supports_ast(file_type: FileType) -> bool {
 }
 
 /// Evaluate unified AST condition
-/// Handles both simple mode (kind/node + exact/regex) and advanced mode (query)
+/// Handles both simple mode (kind/node + exact/substr/regex) and advanced mode (query)
 pub fn eval_ast(
     kind: Option<&str>,
     node: Option<&str>,
     exact: Option<&str>,
+    substr: Option<&str>,
     regex: Option<&str>,
     query: Option<&str>,
     case_insensitive: bool,
@@ -51,9 +63,17 @@ pub fn eval_ast(
         return eval_ast_query(query_str, ctx);
     }
 
-    // Simple mode: kind/node + exact/regex
-    let pattern = exact.or(regex).unwrap_or("");
-    let use_regex = regex.is_some();
+    // Simple mode: kind/node + exact/substr/regex
+    // Determine match mode: exact (equality), substr (contains), or regex
+    let (pattern, match_mode) = if let Some(e) = exact {
+        (e, MatchMode::Exact)
+    } else if let Some(s) = substr {
+        (s, MatchMode::Substr)
+    } else if let Some(r) = regex {
+        (r, MatchMode::Regex)
+    } else {
+        ("", MatchMode::Substr) // default to substr for empty pattern
+    };
 
     // Get node types to search for
     let node_types: Vec<&str> = if let Some(k) = kind {
@@ -97,7 +117,7 @@ pub fn eval_ast(
             source,
             &node_types,
             pattern,
-            use_regex,
+            match_mode,
             case_insensitive,
         );
     }
@@ -175,7 +195,7 @@ pub fn eval_ast(
         source,
         &node_types,
         pattern,
-        use_regex,
+        match_mode,
         case_insensitive,
     )
 }
@@ -186,7 +206,7 @@ fn eval_ast_pattern_multi(
     source: &str,
     node_types: &[&str],
     pattern: &str,
-    use_regex: bool,
+    match_mode: MatchMode,
     case_insensitive: bool,
 ) -> ConditionResult {
     // Skip analysis if the tree has errors (malformed input)
@@ -199,9 +219,9 @@ fn eval_ast_pattern_multi(
         };
     }
 
-    // Build the regex/pattern matcher
-    let matcher: Box<dyn Fn(&str) -> bool> = if use_regex {
-        match build_regex(pattern, case_insensitive) {
+    // Build the pattern matcher based on match mode
+    let matcher: Box<dyn Fn(&str) -> bool> = match match_mode {
+        MatchMode::Regex => match build_regex(pattern, case_insensitive) {
             Ok(re) => Box::new(move |s: &str| re.is_match(s)),
             Err(_) => {
                 return ConditionResult {
@@ -211,13 +231,24 @@ fn eval_ast_pattern_multi(
                     warnings: Vec::new(),
                 }
             }
+        },
+        MatchMode::Exact => {
+            let pattern_owned = pattern.to_string();
+            if case_insensitive {
+                Box::new(move |s: &str| s.eq_ignore_ascii_case(&pattern_owned))
+            } else {
+                Box::new(move |s: &str| s == pattern_owned)
+            }
         }
-    } else if case_insensitive {
-        let pattern_lower = pattern.to_lowercase();
-        Box::new(move |s: &str| s.to_lowercase().contains(&pattern_lower))
-    } else {
-        let pattern_owned = pattern.to_string();
-        Box::new(move |s: &str| s.contains(&pattern_owned))
+        MatchMode::Substr => {
+            let pattern_owned = pattern.to_string();
+            if case_insensitive {
+                let pattern_lower = pattern.to_lowercase();
+                Box::new(move |s: &str| s.to_lowercase().contains(&pattern_lower))
+            } else {
+                Box::new(move |s: &str| s.contains(&pattern_owned))
+            }
+        }
     };
 
     // Walk the AST and find matching nodes

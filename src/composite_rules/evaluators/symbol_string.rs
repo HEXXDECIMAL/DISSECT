@@ -234,13 +234,24 @@ pub fn eval_string(
             let mut match_value = String::new();
 
             if let Some(exact_str) = params.exact {
+                // Exact match against whole file content (rarely matches, but semantically correct)
                 matched = if params.case_insensitive {
-                    content.to_lowercase().contains(&exact_str.to_lowercase())
+                    content.eq_ignore_ascii_case(exact_str)
                 } else {
-                    content.contains(exact_str)
+                    content == exact_str
                 };
                 if matched {
                     match_value = exact_str.clone();
+                }
+            } else if let Some(substr_str) = params.substr {
+                // Substring match in raw content
+                matched = if params.case_insensitive {
+                    content.to_lowercase().contains(&substr_str.to_lowercase())
+                } else {
+                    content.contains(substr_str)
+                };
+                if matched {
+                    match_value = substr_str.clone();
                 }
             } else if let Some(re) = compiled_regex {
                 if let Some(mat) = re.find(content) {

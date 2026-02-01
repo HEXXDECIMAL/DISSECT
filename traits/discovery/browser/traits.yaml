@@ -341,14 +341,9 @@ composite_rules:
     conf: 0.85
     attack: "T1217"
     for: [all]
-    count_min: 1
-    any:
+    all:
+      - id: opera-name
       - id: opera-stable
-    # Downgrade when only generic "Opera" string found without browser-specific paths
-    downgrade:
-      inert:
-        none:
-          - id: opera-stable
 
   # Brave composite
 
