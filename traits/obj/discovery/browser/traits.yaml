@@ -89,7 +89,9 @@ traits:
     for: [all]
     if:
       type: string
-      exact: "Cookies"
+      # Require path context or browser-specific naming
+      # Plain "Cookies" matches too many legitimate contexts (X11 XrmDatabase, HTTP headers, etc.)
+      regex: "[/\\\\]Cookies$|Cookies\\.sqlite|Cookies\\.binarycookies|browser.{0,30}cookies|cookies\\.db"
 
   # === Firefox-specific files ===
   - id: places-sqlite

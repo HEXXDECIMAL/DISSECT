@@ -292,6 +292,24 @@ enum ConditionTagged {
         #[serde(default = "default_min_count")]
         min_count: usize,
     },
+
+    /// Match the basename (final path component, not the full path)
+    /// Example: { type: basename, exact: "__init__.py" }
+    /// Example: { type: basename, regex: "^setup\\." }
+    Basename {
+        /// Full basename match (entire basename must equal this)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        exact: Option<String>,
+        /// Substring match (appears anywhere in basename)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        substr: Option<String>,
+        /// Regex pattern to match
+        #[serde(skip_serializing_if = "Option::is_none")]
+        regex: Option<String>,
+        /// Case insensitive matching (default: false)
+        #[serde(default)]
+        case_insensitive: bool,
+    },
 }
 
 fn default_match_mode() -> String {
@@ -499,6 +517,17 @@ impl From<ConditionDeser> for Condition {
                     regex,
                     case_insensitive,
                     min_count,
+                },
+                ConditionTagged::Basename {
+                    exact,
+                    substr,
+                    regex,
+                    case_insensitive,
+                } => Condition::Basename {
+                    exact,
+                    substr,
+                    regex,
+                    case_insensitive,
                 },
             },
         }
@@ -888,6 +917,25 @@ pub enum Condition {
         #[serde(default = "default_min_count")]
         min_count: usize,
     },
+
+    /// Match the basename (final path component, not the full path)
+    /// Useful for special files like __init__.py, setup.py, etc.
+    /// Example: { type: basename, exact: "__init__.py" }
+    /// Example: { type: basename, regex: "^setup\\." }
+    Basename {
+        /// Full basename match (entire basename must equal this)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        exact: Option<String>,
+        /// Substring match (appears anywhere in basename)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        substr: Option<String>,
+        /// Regex pattern to match
+        #[serde(skip_serializing_if = "Option::is_none")]
+        regex: Option<String>,
+        /// Case insensitive matching (default: false)
+        #[serde(default)]
+        case_insensitive: bool,
+    },
 }
 
 fn default_compare_to() -> String {
@@ -961,6 +1009,7 @@ impl Condition {
             Condition::SectionName { .. } => "section_name",
             Condition::Base64 { .. } => "base64",
             Condition::Xor { .. } => "xor",
+            Condition::Basename { .. } => "basename",
         }
     }
 

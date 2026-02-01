@@ -2,76 +2,61 @@
 # MBC: C0002 (HTTP Communication)
 # ATT&CK: T1071.001
 
+defaults:
+  for: [ruby]
+  platforms: [all]
+  mbc: "C0002"
+  attack: "T1071.001"
+
 traits:
   # === Ruby HTTP atomic indicators ===
   - id: net-http
     desc: Net::HTTP module
     crit: notable
-    conf: 0.6
-    mbc: "C0002"
-    attack: "T1071.001"
+    conf: 0.85
     if:
-      type: string
-      exact: "Net::HTTP"
+      type: content
+      substr: "Net::HTTP"
 
-  - id: http-get-ruby
-    desc: HTTP.get call
+  - id: http-get-method
+    desc: HTTP GET method call
     crit: notable
-    conf: 0.6
-    mbc: "C0002"
-    attack: "T1071.001"
+    conf: 0.85
     if:
-      type: string
-      regex: "HTTP\\.get"
+      type: symbol
+      exact: "get"
 
   - id: open-uri
     desc: open-uri module
     crit: notable
     conf: 0.6
-    mbc: "C0002"
-    attack: "T1071.001"
     if:
       type: string
       exact: "open-uri"
 
-  - id: ruby-http-get-response
-    desc: HTTP GET request
-    crit: notable
-    conf: 0.92
-    platforms: [all]
-    for: [ruby]
+  - id: uri-method
+    desc: URI parsing method
+    crit: inert
+    conf: 0.7
     if:
-      type: string
-      regex: 'Net::HTTP\.get_response|Net::HTTP\.get'
+      type: content
+      substr: "URI("
 
-  - id: ruby-http-client
-    desc: HTTP client usage
-    crit: notable
-    conf: 0.88
-    platforms: [all]
-    for: [ruby]
+  # Hardcoded IP in URL
+  - id: hardcoded-ip-url
+    desc: Hardcoded IP address in URL
+    crit: suspicious
+    conf: 0.85
+    attack: "T1071"
     if:
-      type: string
-      regex: 'Net::HTTP'
+      type: content
+      regex: 'https?://\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}[:/]'
 
 composite_rules:
   - id: request-ruby
     desc: HTTP requests (Ruby)
     crit: notable
-    conf: 0.75
-    mbc: "C0002"
-    attack: "T1071.001"
-    count_min: 1
-    any:
+    conf: 0.85
+    all:
       - id: net-http
-      - id: http-get-ruby
-      - id: open-uri
-
-  - id: ruby-http-request-notable
-    desc: HTTP client with notable confidence
-    crit: notable
-    conf: 0.90
-    count_min: 1
-    any:
-      - id: ruby-http-get-response
-      - id: ruby-http-client
+      - id: http-get-method

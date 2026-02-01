@@ -21,16 +21,20 @@ traits:
       exact: "icmp_rcv"
 
   # Magic trigger values
+  # NOTE: The standalone value "1337" is far too common in legitimate software
+  # (version numbers, protocol constants, X11 IDs, etc.). Only match when in
+  # a more specific context suggesting a magic value check.
   - id: magic-1337
     desc: Magic value 1337 (common trigger)
     crit: inert
     conf: 0.5
     if:
       type: string
-      exact: "1337"
+      # Match 1337 in contexts suggesting a magic value check (port, password, key, etc.)
+      regex: "(?:port|pass|key|magic|secret|trigger|backdoor|c2)[=:_\\-\\s]*1337|1337[=:_\\-\\s]*(?:port|pass|key|magic|secret|trigger|backdoor|c2)"
 
   - id: magic-0x539
-    desc: Magic value 0x539 (hex for
+    desc: Magic value 0x539 (1337)
     crit: inert
     conf: 0.5
     if:
@@ -45,53 +49,61 @@ traits:
 
 
   # Trigger keywords
+  # NOTE: "trigger" and "activate" are extremely common in GUI libraries,
+  # databases (SQL triggers), and general programming. Only flag these
+  # in specific malware-related contexts (e.g., combined with ICMP, magic values).
+  # These atomic traits are disabled by setting very specific patterns;
+  # only the composite rules should use them in combination with other signals.
   - id: trigger-keyword-lower
     desc: trigger keyword (lowercase)
     crit: inert
-    conf: 0.5
+    conf: 0.3
     if:
       type: string
-      exact: "trigger"
+      # Require malware-specific context: trigger combined with backdoor/c2 terms
+      regex: "(?:backdoor|c2|implant|beacon|payload|shell|revshell)[_\\-\\s]*trigger|trigger[_\\-\\s]*(?:backdoor|c2|implant|beacon|payload|shell|revshell)"
 
   - id: trigger-keyword-upper
     desc: TRIGGER keyword (uppercase)
     crit: inert
-    conf: 0.5
+    conf: 0.3
     if:
       type: string
-      exact: "TRIGGER"
+      regex: "(?:BACKDOOR|C2|IMPLANT|BEACON|PAYLOAD|SHELL|REVSHELL)[_\\-\\s]*TRIGGER|TRIGGER[_\\-\\s]*(?:BACKDOOR|C2|IMPLANT|BEACON|PAYLOAD|SHELL|REVSHELL)"
 
   - id: trigger-keyword-title
     desc: Trigger keyword (titlecase)
     crit: inert
-    conf: 0.5
+    conf: 0.3
     if:
       type: string
-      exact: "Trigger"
+      # Only match "Trigger" in malware-specific contexts
+      regex: "(?:Backdoor|C2|Implant|Beacon|Payload|Shell|Revshell)[_\\-\\s]*Trigger|Trigger[_\\-\\s]*(?:Backdoor|C2|Implant|Beacon|Payload|Shell|Revshell)"
 
   - id: activate-keyword-lower
     desc: activate keyword (lowercase)
     crit: inert
-    conf: 0.5
+    conf: 0.3
     if:
       type: string
-      exact: "activate"
+      # Require malware-specific context
+      regex: "(?:backdoor|c2|implant|beacon|payload|shell|revshell)[_\\-\\s]*activate|activate[_\\-\\s]*(?:backdoor|c2|implant|beacon|payload|shell|revshell)"
 
   - id: activate-keyword-upper
     desc: ACTIVATE keyword (uppercase)
     crit: inert
-    conf: 0.5
+    conf: 0.3
     if:
       type: string
-      exact: "ACTIVATE"
+      regex: "(?:BACKDOOR|C2|IMPLANT|BEACON|PAYLOAD|SHELL|REVSHELL)[_\\-\\s]*ACTIVATE|ACTIVATE[_\\-\\s]*(?:BACKDOOR|C2|IMPLANT|BEACON|PAYLOAD|SHELL|REVSHELL)"
 
   - id: activate-keyword-title
     desc: Activate keyword (titlecase)
     crit: inert
-    conf: 0.5
+    conf: 0.3
     if:
       type: string
-      exact: "Activate"
+      regex: "(?:Backdoor|C2|Implant|Beacon|Payload|Shell|Revshell)[_\\-\\s]*Activate|Activate[_\\-\\s]*(?:Backdoor|C2|Implant|Beacon|Payload|Shell|Revshell)"
 
   - id: revshell-keyword-lower
     desc: revshell keyword (lowercase)

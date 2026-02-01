@@ -42,6 +42,7 @@ composite_rules:
       - id: cap/exec/load/x11-ipc-lib-marker
       - id: cap/exec/load/network-lib-marker
       - id: cap/exec/load/graphics-lib-marker
+      - id: cap/exec/load/system-lib-marker
 
   # Combination 3: fcopyfile + network (macOS)
   - id: macos-file-copy-exfil
@@ -59,6 +60,7 @@ composite_rules:
       - id: cap/comm/socket/create
 
   # Combination 4: Directory traversal + file extensions + network
+  # NOTE: Excludes system libraries (libc) which provide these primitives
   - id: recursive-file-theft
     desc: "Recursive directory scan with file"
     crit: hostile
@@ -75,6 +77,10 @@ composite_rules:
       - id: obj/collect/file-targeting/wallet-files
       - id: cap/comm/download/curl/libcurl-http
       - id: cap/comm/socket/create
+    none:
+      - id: cap/exec/load/system-lib-marker
+      - id: cap/exec/load/network-lib-marker
+      - id: cap/exec/load/debugger-tool-marker
 
   # Combination 5: Hardware UUID + base64 = fingerprint encoding
   - id: encoded-hardware-fingerprint

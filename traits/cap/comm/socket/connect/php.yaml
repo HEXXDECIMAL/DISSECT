@@ -2,14 +2,56 @@
 # MBC: C0001 (Socket Communication)
 # ATT&CK: T1071
 
+defaults:
+  for: [php]
+  mbc: "C0001"
+  attack: "T1071"
+
 traits:
   - id: connect-php
     desc: Initiate socket connection (PHP fsockopen)
     crit: notable
     conf: 0.66
-    mbc: "C0001"
-    attack: "T1071"
     if:
       type: ast
       kind: call
       exact: "fsockopen"
+
+  - id: stream-socket-client
+    desc: Stream socket client connection
+    crit: notable
+    conf: 0.75
+    if:
+      type: ast
+      kind: call
+      exact: "stream_socket_client"
+
+  - id: socket-create
+    desc: Low-level socket creation
+    crit: notable
+    conf: 0.75
+    if:
+      type: ast
+      kind: call
+      exact: "socket_create"
+
+  - id: socket-connect
+    desc: Low-level socket connect
+    crit: notable
+    conf: 0.75
+    if:
+      type: ast
+      kind: call
+      exact: "socket_connect"
+
+composite_rules:
+  - id: socket-client
+    desc: PHP socket client implementation
+    crit: notable
+    conf: 0.8
+    for: [php]
+    count_min: 1
+    any:
+      - id: connect-php
+      - id: stream-socket-client
+      - id: socket-create

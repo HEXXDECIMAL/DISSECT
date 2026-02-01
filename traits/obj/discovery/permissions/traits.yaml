@@ -191,3 +191,12 @@ composite_rules:
       - id: getegid
       - id: geteuid
       - id: getgroups
+    # Many legitimate libraries check uid/gid for access control:
+    # video drivers (DRM access), X11 libs, system libraries
+    downgrade:
+      inert:
+        any:
+          - id: cap/exec/load/video-lib-marker
+          - id: cap/exec/load/graphics-lib-marker
+          - id: cap/exec/load/system-lib-marker
+          - id: cap/exec/load/x11-ipc-lib-marker

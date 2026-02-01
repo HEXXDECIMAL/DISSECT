@@ -56,10 +56,16 @@ traits:
     desc: X11 key grabbing for keylogging
     conf: 0.65
     platforms: [linux, unix]
-    for: [elf, so]
+    # NOTE: Exclude shared libraries (.so) as XGrabKey is a core X11 API
+    # libX11.so and other X11 libraries legitimately export this function
+    for: [elf]
     if:
       type: symbol
       pattern: "XGrabKey"
+    # Skip if this looks like a system X11 library
+    unless:
+      - type: string
+        regex: "libX11|libxcb|X11R[0-9]|xenocara"
 
   # === Atomic: macOS Keyboard Capture ===
   - id: macos-eventtap

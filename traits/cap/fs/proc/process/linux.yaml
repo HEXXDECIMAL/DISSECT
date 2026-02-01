@@ -67,6 +67,8 @@ traits:
       type: string
       regex: '/proc/[^/]+/cmdline'
 
+  # NOTE: Debuggers legitimately read /proc/*/environ to inspect target process
+  # environment. Downgrade to notable for debugger tools.
   - id: process-pid-environ
     description: Read process environment via /proc/*/environ
     crit: suspicious
@@ -74,6 +76,10 @@ traits:
     if:
       type: string
       regex: '/proc/[^/]+/environ'
+    downgrade:
+      notable:
+        any:
+          - id: cap/exec/load/debugger-tool-marker
 
   - id: process-pid-fd
     description: Access process file descriptors via

@@ -1578,3 +1578,213 @@ fn test_xor_decoded_matching() {
     );
     assert!(result.matched);
 }
+
+// ============================================================================
+// Tests for basename condition
+// ============================================================================
+
+fn create_test_context_with_path(path: &str) -> (AnalysisReport, Vec<u8>) {
+    let target = TargetInfo {
+        path: path.to_string(),
+        file_type: "python".to_string(),
+        size_bytes: 1024,
+        sha256: "test".to_string(),
+        architectures: None,
+    };
+
+    let report = AnalysisReport::new(target);
+    (report, vec![])
+}
+
+#[test]
+fn test_basename_exact_match() {
+    let (report, data) = create_test_context_with_path("/home/user/project/__init__.py");
+
+    let ctx = EvaluationContext {
+        report: &report,
+        binary_data: &data,
+        file_type: FileType::Python,
+        platform: Platform::Linux,
+        additional_findings: None,
+        cached_ast: None,
+        finding_id_index: None,
+    };
+
+    // exact: "__init__.py" should match
+    let result =
+        super::evaluators::eval_basename(Some(&"__init__.py".to_string()), None, None, false, &ctx);
+    assert!(result.matched);
+    assert_eq!(result.evidence[0].value, "__init__.py");
+}
+
+#[test]
+fn test_basename_exact_no_match() {
+    let (report, data) = create_test_context_with_path("/home/user/project/main.py");
+
+    let ctx = EvaluationContext {
+        report: &report,
+        binary_data: &data,
+        file_type: FileType::Python,
+        platform: Platform::Linux,
+        additional_findings: None,
+        cached_ast: None,
+        finding_id_index: None,
+    };
+
+    // exact: "__init__.py" should not match "main.py"
+    let result =
+        super::evaluators::eval_basename(Some(&"__init__.py".to_string()), None, None, false, &ctx);
+    assert!(!result.matched);
+}
+
+#[test]
+fn test_basename_substr_match() {
+    let (report, data) = create_test_context_with_path("/home/user/project/setup_tools.py");
+
+    let ctx = EvaluationContext {
+        report: &report,
+        binary_data: &data,
+        file_type: FileType::Python,
+        platform: Platform::Linux,
+        additional_findings: None,
+        cached_ast: None,
+        finding_id_index: None,
+    };
+
+    // substr: "setup" should match "setup_tools.py"
+    let result =
+        super::evaluators::eval_basename(None, Some(&"setup".to_string()), None, false, &ctx);
+    assert!(result.matched);
+}
+
+#[test]
+fn test_basename_regex_match() {
+    let (report, data) = create_test_context_with_path("/home/user/project/test_utils.py");
+
+    let ctx = EvaluationContext {
+        report: &report,
+        binary_data: &data,
+        file_type: FileType::Python,
+        platform: Platform::Linux,
+        additional_findings: None,
+        cached_ast: None,
+        finding_id_index: None,
+    };
+
+    // regex: "^test_" should match files starting with "test_"
+    let result =
+        super::evaluators::eval_basename(None, None, Some(&"^test_".to_string()), false, &ctx);
+    assert!(result.matched);
+}
+
+#[test]
+fn test_basename_case_insensitive() {
+    let (report, data) = create_test_context_with_path("/home/user/project/README.md");
+
+    let ctx = EvaluationContext {
+        report: &report,
+        binary_data: &data,
+        file_type: FileType::All,
+        platform: Platform::Linux,
+        additional_findings: None,
+        cached_ast: None,
+        finding_id_index: None,
+    };
+
+    // exact: "readme.md" should match "README.md" with case_insensitive
+    let result = super::evaluators::eval_basename(
+        Some(&"readme.md".to_string()),
+        None,
+        None,
+        true, // case_insensitive
+        &ctx,
+    );
+    assert!(result.matched);
+}
+
+#[test]
+fn test_basename_in_trait_definition() {
+    let (report, data) = create_test_context_with_path("/home/user/project/__init__.py");
+
+    let ctx = EvaluationContext {
+        report: &report,
+        binary_data: &data,
+        file_type: FileType::Python,
+        platform: Platform::Linux,
+        additional_findings: None,
+        cached_ast: None,
+        finding_id_index: None,
+    };
+
+    let trait_def = TraitDefinition {
+        id: "test/init-file".to_string(),
+        desc: "Python init file".to_string(),
+        conf: 1.0,
+        crit: Criticality::Inert,
+        mbc: None,
+        attack: None,
+        platforms: vec![Platform::All],
+        r#for: vec![FileType::Python],
+        size_min: None,
+        size_max: None,
+        r#if: Condition::Basename {
+            exact: Some("__init__.py".to_string()),
+            substr: None,
+            regex: None,
+            case_insensitive: false,
+        },
+        not: None,
+        unless: None,
+        downgrade: None,
+    };
+
+    let result = trait_def.evaluate(&ctx);
+    assert!(result.is_some());
+    let finding = result.unwrap();
+    assert_eq!(finding.id, "test/init-file");
+}
+
+#[test]
+fn test_basename_in_composite_rule() {
+    let (report, data) = create_test_context_with_path("/home/user/project/setup.py");
+
+    let ctx = EvaluationContext {
+        report: &report,
+        binary_data: &data,
+        file_type: FileType::Python,
+        platform: Platform::Linux,
+        additional_findings: None,
+        cached_ast: None,
+        finding_id_index: None,
+    };
+
+    let rule = CompositeTrait {
+        id: "test/setup-file".to_string(),
+        desc: "Python setup file".to_string(),
+        conf: 0.9,
+        crit: Criticality::Inert,
+        mbc: None,
+        attack: None,
+        platforms: vec![Platform::All],
+        r#for: vec![FileType::Python],
+        size_min: None,
+        size_max: None,
+        all: Some(vec![Condition::Basename {
+            exact: None,
+            substr: None,
+            regex: Some("^setup\\.py$".to_string()),
+            case_insensitive: false,
+        }]),
+        any: None,
+        count_exact: None,
+        count_min: None,
+        count_max: None,
+        none: None,
+        unless: None,
+        not: None,
+        downgrade: None,
+    };
+
+    let result = rule.evaluate(&ctx);
+    assert!(result.is_some());
+}

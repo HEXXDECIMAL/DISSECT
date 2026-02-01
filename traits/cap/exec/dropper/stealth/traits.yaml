@@ -11,7 +11,7 @@ traits:
     for: [python]
     if:
       type: raw
-      exact: "subprocess.DEVNULL"
+      substr: "subprocess.DEVNULL"
 
   - id: close-fds
     desc: "close_fds=True for file descriptor isolation"
@@ -20,7 +20,7 @@ traits:
     for: [python]
     if:
       type: raw
-      exact: "close_fds=True"
+      substr: "close_fds=True"
 
   - id: subprocess-popen
     desc: "subprocess.Popen call"

@@ -2,21 +2,54 @@
 # MBC: B0032 (Obfuscated Files or Information)
 # ATT&CK: T1140
 
+defaults:
+  for: [javascript, typescript]
+  mbc: "B0032"
+  attack: "T1140"
+
 traits:
   - id: decode-js
     desc: Base64 decoding in JavaScript
     crit: notable
     conf: 0.66
-    mbc: "B0032"
-    attack: "T1140"
     if:
       type: string
       exact: "atob("
 
   - id: decode-exec-js
-    desc: Base64 decode and execute in
+    desc: Base64 decode and execute
     crit: suspicious
     conf: 0.66
     if:
       type: string
       exact: "eval(atob("
+
+  # Double/nested atob - strong obfuscation signal
+  - id: nested-atob
+    desc: Nested base64 decode (atob(atob))
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: content
+      regex: "atob\\(atob\\("
+
+  # Buffer.from double decode
+  - id: nested-buffer-base64
+    desc: Nested Buffer.from base64 decode
+    crit: suspicious
+    conf: 0.90
+    if:
+      type: content
+      regex: "Buffer\\.from\\(Buffer\\.from\\(.{0,100}base64"
+
+composite_rules:
+  # Any nested decoding pattern
+  - id: nested-decode
+    desc: Nested base64 decoding (obfuscation)
+    crit: suspicious
+    conf: 0.92
+    for: [javascript, typescript]
+    count_min: 1
+    any:
+      - id: nested-atob
+      - id: nested-buffer-base64

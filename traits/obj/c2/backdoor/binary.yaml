@@ -269,6 +269,7 @@ composite_rules:
     none:
       - id: cap/exec/go-runtime-marker
       - id: cap/exec/load/shell-interpreter
+      - id: cap/exec/load/system-lib-marker
       # Compiler tools legitimately spawn processes for compilation
       - id: cap/exec/load/llvm-project-ref
       - id: cap/exec/load/llvm-lib-ref

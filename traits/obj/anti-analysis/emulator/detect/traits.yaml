@@ -121,12 +121,15 @@ composite_rules:
       - id: vbox-string
 
   # QEMU string composite
+  # NOTE: Downgraded to inert - QEMU strings are common in graphics libraries
+  # (Mesa, virtio-gpu, QXL drivers) and other legitimate software that supports
+  # VM environments. Actual VM detection requires multiple vendor checks (see combos.yaml).
   - id: qemu-string
     desc: QEMU vendor string detection
-    crit: notable
+    crit: inert
     mbc: "B0009"
     attack: "T1497.001"
-    conf: 0.6
+    conf: 0.5
     count_min: 1
     any:
       - id: qemu-upper

@@ -4,9 +4,27 @@
 
 traits:
   - id: directory-python
-    description: Look up temp directory via
+    desc: Temp directory string lookup
     crit: inert
     conf: 0.66
     if:
       type: string
       exact: gettempdir
+
+  - id: directory-python-symbol
+    desc: Gets temp directory path
+    crit: inert
+    conf: 0.75
+    if:
+      type: symbol
+      exact: "tempfile.gettempdir"
+
+composite_rules:
+  - id: temp-directory
+    desc: Gets system temp directory
+    crit: inert
+    conf: 0.75
+    count_min: 1
+    any:
+      - id: directory-python
+      - id: directory-python-symbol

@@ -1,33 +1,14 @@
 # Credential Dumping - Unix
 # MBC: E1003 (OS Credential Dumping)
 # ATT&CK: T1003 (OS Credential Dumping)
+#
+# NOTE: Basic user lookup functions (getpwnam, getpwuid) are defined in
+# obj/discovery/user/traits.yaml as they're legitimate user discovery.
+# This file focuses on actual credential/shadow file access.
 
 traits:
-  # === Atomic: Password Database Functions ===
-
-  - id: getpwnam
-    desc: Read user password database (getpwnam)
-    crit: inert
-    conf: 0.7
-    mbc: "E1003.008"
-    attack: "T1003.008"
-    platforms: [unix, linux, macos]
-    for: [elf, macho, so, dylib]
-    if:
-      type: symbol
-      pattern: "getpwnam"
-
-  - id: getpwuid
-    desc: Read user password database by
-    crit: inert
-    conf: 0.7
-    mbc: "E1003.008"
-    attack: "T1003.008"
-    platforms: [unix, linux, macos]
-    for: [elf, macho, so, dylib]
-    if:
-      type: symbol
-      pattern: "getpwuid"
+  # getpwnam/getpwuid removed - they're legitimate user lookup functions
+  # used by countless system utilities. See obj/discovery/user/traits.yaml.
 
   - id: getspnam
     desc: Read shadow password file (getspnam)

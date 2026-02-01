@@ -83,13 +83,19 @@ traits:
       type: symbol
       pattern: "lookup_decode"
 
+  # NOTE: "char_map" is extremely common in font libraries (FreeType, HarfBuzz)
+  # where it refers to character-to-glyph mappings. Only flag as obfuscation
+  # when combined with other obfuscation indicators (e.g., XOR, decrypt symbols).
+  # Removed from standalone matching; only used in composite rules with count_min: 2
   - id: char-map-symbol
     desc: char_map symbol
     crit: inert
-    conf: 0.5
+    conf: 0.3
     if:
       type: symbol
-      pattern: "char_map"
+      # Require explicit obfuscation context - char_map alone is too common
+      # Match only when preceded/followed by obfuscation-related terms
+      pattern: "(?:xor|decode|decrypt|obfusc|cipher)[_-]?char_map|char_map[_-]?(?:xor|decode|decrypt|obfusc|cipher)"
 
   # === Multi-byte XOR key detection ===
   # NOTE: Generic alphanumeric strings are too common in binaries (identifiers,

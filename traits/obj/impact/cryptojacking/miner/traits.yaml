@@ -377,3 +377,20 @@ composite_rules:
       - id: known-mining-pool
       - id: known/malware/miner/monero-wallets
       - id: cap/exec/command/shell/python-os-system
+
+  # === HOSTILE: Stealth Cryptominer Dropper ===
+  # Detects cryptominer droppers that execute in stealth mode
+  # Pattern: Monero wallet + stealth subprocess execution + chmod executable
+  # Complexity: file_types(+1) + all(+4) = 5 >= 4 ✓
+  - id: stealth-cryptominer-dropper
+    description: Stealth cryptominer dropper
+    crit: hostile
+    conf: 0.95
+    attack: "T1496"
+    mbc: "B0036"
+    for: [python]
+    all:
+      - id: known/malware/miner/monero-wallets
+      - id: cap/exec/dropper/stealth/python
+      - id: cap/exec/command/chmod/executable
+      - id: cap/exec/dropper/stealth/subprocess-popen

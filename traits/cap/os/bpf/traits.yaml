@@ -100,14 +100,17 @@ traits:
       type: string
       exact: "BPF_"
 
+  # NOTE: Changed from "pcap_" prefix to actual pcap function names.
+  # The bare prefix can match unrelated strings in binaries.
   - id: pcap-prefix
-    desc: pcap_ library function prefix
+    desc: pcap library function reference
     crit: inert
-    conf: 0.4
+    conf: 0.5
     for: [elf, c]
     if:
-      type: string
-      exact: "pcap_"
+      type: symbol
+      # Match actual pcap API functions, not just the prefix
+      pattern: "pcap_(?:open_live|compile|setfilter|loop|next|close|findalldevs|lookupdev)"
 
   - id: recvfrom-fn
     desc: recvfrom function
@@ -118,23 +121,10 @@ traits:
       type: symbol
       pattern: "recvfrom"
 
-  - id: dup2-fn
-    desc: dup2 file descriptor duplication
-    crit: inert
-    conf: 0.5
-    for: [elf, c]
-    if:
-      type: symbol
-      pattern: "dup2"
-
-  - id: execve-fn
-    desc: execve syscall
-    crit: inert
-    conf: 0.3
-    for: [elf, c]
-    if:
-      type: symbol
-      pattern: "execve"
+  # NOTE: dup2 and execve are defined in their canonical locations:
+  # - cap/process/fd/dup2
+  # - cap/exec/command/shell/c-execve
+  # Composite rules below reference them using full paths.
 
   - id: ipproto-icmp
     desc: IPPROTO_ICMP protocol
@@ -274,12 +264,14 @@ composite_rules:
       - id: magic-knock-patterns
 
   # BPF packet inspection helper
+  # NOTE: Require at least 2 indicators to avoid false positives.
+  # Individual functions like recvfrom are common in networking code.
   - id: bpf-packet-inspection
     desc: BPF packet inspection components
     crit: notable
     conf: 0.6
     for: [elf, c]
-    count_min: 1
+    count_min: 2
     any:
       - id: bpf-program
       - id: bpf-prefix
@@ -298,8 +290,8 @@ composite_rules:
       - id: cap/exec/command/shell/generic/bin-sh
     count_min: 1
     any:
-      - id: dup2-fn
-      - id: execve-fn
+      - id: cap/process/fd/dup2
+      - id: cap/exec/command/shell/c-execve
 
   # Protocol trigger helper
   - id: protocol-trigger

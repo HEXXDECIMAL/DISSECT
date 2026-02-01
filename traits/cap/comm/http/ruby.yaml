@@ -1,6 +1,10 @@
 # Ruby HTTP Communication
 # Traits for identifying HTTP communication in Ruby
 
+defaults:
+  for: [ruby]
+  platforms: [all]
+
 traits:
   # Hardcoded IP addresses
   - id: hardcoded-ip

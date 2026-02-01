@@ -63,6 +63,9 @@ traits:
     desc: socket module usage
     crit: inert
     conf: 0.4
+    # Restrict to script languages - "socket." matches too many binary strings
+    # like library names (socket.so), debug paths, etc.
+    for: [python, ruby, javascript, typescript]
     if:
       type: string
       regex: "socket\\."
@@ -100,10 +103,13 @@ composite_rules:
       - id: user-agent-header
       - id: http-version
 
-  # Network exfiltration composite
-  - id: network-exfil
-    desc: Network request patterns for exfiltration
-    crit: notable
+  # Network client library composite
+  # NOTE: These are common HTTP/network client patterns used in any networked
+  # application. The name "network-exfil" was misleading - these are just client
+  # capabilities, not exfiltration indicators.
+  - id: http-client
+    desc: HTTP client library usage
+    crit: inert
     conf: 0.7
     count_min: 1
     any:

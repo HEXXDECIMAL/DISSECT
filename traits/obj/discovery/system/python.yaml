@@ -51,6 +51,13 @@ traits:
       kind: call
       exact: ".getuser()"
 
+  - id: python-getpass-user-symbol
+    desc: Gets current username via getpass
+    conf: 0.85
+    if:
+      type: symbol
+      exact: "getpass.getuser"
+
   # === MAC address discovery (atomic) ===
   - id: getmac-module
     desc: getmac module for MAC address
@@ -77,6 +84,16 @@ traits:
       exact: "uuid.getnode()"
 
 composite_rules:
+  # Username discovery composite
+  - id: python-username
+    desc: Gets current system username
+    crit: notable
+    conf: 0.85
+    count_min: 1
+    any:
+      - id: python-getpass-user
+      - id: python-getpass-user-symbol
+
   # MAC address discovery
   - id: python-mac-discovery
     desc: Collects hardware MAC addresses for
@@ -98,5 +115,5 @@ composite_rules:
     any:
       - id: python-platform-system
       - id: python-mac-discovery
-      - id: python-getpass-user
+      - id: python-username
       - id: cap/comm/http/request

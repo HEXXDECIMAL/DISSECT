@@ -17,6 +17,14 @@ traits:
       type: string
       exact: "Telegram Desktop/tdata"
 
+  - id: telegram-tdata-desktop-win
+    desc: Telegram Desktop tdata Windows path
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      regex: "Telegram Desktop.{1,5}tdata"
+
   - id: telegram-tdata-short
     desc: Telegram tdata path
     crit: notable
@@ -140,6 +148,7 @@ composite_rules:
     count_min: 1
     any:
       - id: telegram-tdata-desktop
+      - id: telegram-tdata-desktop-win
       - id: telegram-tdata-short
 
   # Telegram map composite
@@ -227,3 +236,18 @@ composite_rules:
       - id: signal-config
       - id: slack-storage
       - id: whatsapp-storage
+
+  # Credential staging - username + temp dir + mkdir + messaging app path
+  # This pattern indicates staging stolen data for exfiltration
+  - id: messaging-data-staging
+    desc: "Staging stolen messaging app credentials"
+    crit: hostile
+    conf: 0.95
+    attack: "T1074.001"
+    mbc: "E1074"
+    for: [python]
+    all:
+      - id: telegram-tdata
+      - id: obj/discovery/system/python-username
+      - id: cap/fs/temp/directory/temp-directory
+      - id: cap/fs/directory/mkdir/mkdir-python

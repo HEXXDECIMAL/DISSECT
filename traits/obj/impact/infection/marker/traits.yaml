@@ -28,21 +28,28 @@ traits:
             $infect_file = /infect.{0,10}(file|elf|binary)/i
             $virus = "virus" nocase fullword
             $parasite = "parasite" nocase fullword
-            // Common file-scanning patterns in infectors
-            $scan_elf = /scan.{0,10}elf/i
+            // Common file-scanning patterns in infectors - require word boundaries
+            // Use \b to avoid matching "scanner self" or "scanning elf"
+            $scan_elf = /\bscan[_\s]+(for[_\s]+)?elf\b/i
             $find_target = /find.{0,10}target/i
             // Exclusions for legitimate binaries/tools
             $llvm = "LLVM" fullword
             $clang = "clang" fullword
             $objcopy = "objcopy" fullword
             $binutils = "binutils" fullword
+            // Lexer/parser generators
+            $flex = "flex" fullword
+            $lex = " lex " nocase
+            $yacc = "yacc" fullword
+            $bison = "bison" fullword
+            $scanner = "scanner" nocase fullword
           condition:
             uint32(0) == 0x464C457F and
             filesize < 1MB and
             // Only match explicit infection terminology, NOT embedded ELF
             // (embedded ELF is common in linkers, objcopy, etc.)
             any of ($infect_file, $virus, $parasite, $scan_elf, $find_target) and
-            none of ($llvm, $clang, $objcopy, $binutils)
+            none of ($llvm, $clang, $objcopy, $binutils, $flex, $lex, $yacc, $bison, $scanner)
         }
 
   - id: infected-xor-yara

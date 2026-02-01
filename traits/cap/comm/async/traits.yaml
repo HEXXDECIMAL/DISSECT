@@ -507,13 +507,21 @@ composite_rules:
       - id: epoll-usage
       - id: kqueue-usage
 
-  # Botnet-style async networking
-  - id: botnet-style
-    desc: High-performance async networking (botnet pattern)
-    crit: suspicious
+  # Async networking library detection
+  # NOTE: These libraries are commonly used in legitimate software (web servers,
+  # proxies, databases) and also in botnets. The libraries themselves are not
+  # suspicious - only their *use* in conjunction with other malicious patterns
+  # might be. Moved to 'notable' as library detection, not 'suspicious'.
+  - id: async-io-library
+    desc: Uses high-performance async I/O library
+    crit: notable
     conf: 0.75
     count_min: 1
     any:
       - id: libev
       - id: c-ares
       - id: libevent
+    # Don't match when the file IS the async library itself (exports the APIs)
+    unless:
+      - id: libevent
+      - id: libev

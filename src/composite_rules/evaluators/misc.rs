@@ -151,6 +151,66 @@ pub fn eval_filesize(
     }
 }
 
+/// Evaluate a basename condition - match against the final path component
+pub fn eval_basename(
+    exact: Option<&String>,
+    substr: Option<&String>,
+    regex: Option<&String>,
+    case_insensitive: bool,
+    ctx: &EvaluationContext,
+) -> ConditionResult {
+    // Extract basename from path
+    let path = &ctx.report.target.path;
+    let basename = std::path::Path::new(path)
+        .file_name()
+        .and_then(|s| s.to_str())
+        .unwrap_or("");
+
+    // Match against the basename
+    let (compare_basename, compare_exact, compare_substr) = if case_insensitive {
+        (
+            basename.to_lowercase(),
+            exact.map(|s| s.to_lowercase()),
+            substr.map(|s| s.to_lowercase()),
+        )
+    } else {
+        (basename.to_string(), exact.cloned(), substr.cloned())
+    };
+
+    let matched = if let Some(exact_str) = &compare_exact {
+        compare_basename == *exact_str
+    } else if let Some(substr_str) = &compare_substr {
+        compare_basename.contains(substr_str.as_str())
+    } else if let Some(regex_str) = regex {
+        let pattern = if case_insensitive {
+            format!("(?i){}", regex_str)
+        } else {
+            regex_str.clone()
+        };
+        regex::Regex::new(&pattern)
+            .map(|re| re.is_match(basename))
+            .unwrap_or(false)
+    } else {
+        false
+    };
+
+    ConditionResult {
+        matched,
+        evidence: if matched {
+            vec![Evidence {
+                method: "basename".to_string(),
+                source: "target".to_string(),
+                value: basename.to_string(),
+                location: None,
+            }]
+        } else {
+            Vec::new()
+        },
+        traits: Vec::new(),
+        warnings: Vec::new(),
+    }
+}
+
 /// Evaluate a trait glob condition - match multiple traits by glob pattern
 pub fn eval_trait_glob(
     pattern: &str,

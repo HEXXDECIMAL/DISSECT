@@ -3,6 +3,9 @@
 
 composite_rules:
   # === Network Scanner Detection ===
+  # NOTE: This rule is very broad - hostname resolve + socket connect + probe/port/target
+  # matches many legitimate tools (debuggers, SSH clients, curl, etc.)
+  # Downgrade for known legitimate tools to avoid false positives.
 
   - id: generic-scanner
     description: Generic network scanning tool
@@ -20,6 +23,15 @@ composite_rules:
       - id: port-ref
       - id: probe-ref
       - id: target-ref
+    # Exclude legitimate tools that do network operations
+    downgrade:
+      inert:
+        any:
+          - id: cap/exec/load/debugger-tool-marker
+          - id: cap/exec/load/system-lib-marker
+          - id: cap/exec/load/network-lib-marker
+          - id: cap/comm/ssh/connect/connect
+          - id: meta/quality/has-help
 
   - id: root-scanner
     description: Root exploitation scanner

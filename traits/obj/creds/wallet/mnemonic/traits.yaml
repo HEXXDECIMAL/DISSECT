@@ -242,7 +242,7 @@ composite_rules:
     for: [python, javascript]
     all:
       - id: mnemonic-terms
-      - id: cap/comm/http/request/network-exfil
+      - id: cap/comm/http/request/http-client
       - id: wallet-context
 
   # Multiple wallet-related patterns = wallet stealer

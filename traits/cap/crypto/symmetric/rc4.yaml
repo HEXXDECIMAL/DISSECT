@@ -6,6 +6,11 @@ defaults:
   attack: "T1573"
 
 traits:
+  # NOTE: RC4 byte patterns can appear in:
+  # - Debuggers analyzing encrypted code or disassembling crypto implementations
+  # - Compiler/build tools with crypto libraries
+  # - Large binaries with unrelated byte sequences matching by chance
+  # Downgrade for known development tools
   - id: rc4-bytecode
     desc: "RC4 encryption byte patterns"
     crit: suspicious
@@ -21,6 +26,11 @@ traits:
           condition:
             any of them
         }
+    downgrade:
+      inert:
+        any:
+          - id: cap/exec/load/debugger-tool-marker
+          - id: cap/exec/load/compiler-tool-marker
 
   - id: rc4-strings
     desc: "RC4 encryption strings"

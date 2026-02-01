@@ -193,86 +193,9 @@ traits:
       type: string
       exact: "pty.spawn"
 
-  # Additional atomic traits for composite rules
-  - id: dup2
-    desc: File descriptor duplication
-    crit: notable
-    conf: 0.7
-    attack: "T1059"
-    for: [elf, macho]
-    if:
-      type: symbol
-      pattern: dup2
-
-  - id: fork
-    desc: Process fork
-    crit: notable
-    conf: 0.7
-    attack: "T1059"
-    for: [elf, macho]
-    if:
-      type: symbol
-      pattern: fork
-
-  - id: execve
-    desc: Execute program
-    crit: notable
-    conf: 0.8
-    attack: "T1059"
-    for: [elf, macho]
-    if:
-      type: symbol
-      pattern: execve
-
-  - id: setsid
-    desc: Create new session
-    crit: notable
-    conf: 0.75
-    attack: "T1059"
-    for: [elf, macho]
-    if:
-      type: symbol
-      pattern: setsid
-
-  - id: socket
-    desc: Network socket creation
-    crit: notable
-    conf: 0.7
-    attack: "T1059"
-    for: [elf, macho]
-    if:
-      type: symbol
-      pattern: socket
-
-  - id: socket-connect
-    desc: Socket connect
-    crit: notable
-    conf: 0.75
-    attack: "T1059"
-    for: [elf, macho]
-    if:
-      type: symbol
-      pattern: connect
-
-  - id: socket-recv
-    desc: Socket receive
-    crit: notable
-    conf: 0.7
-    attack: "T1059"
-    for: [elf, macho]
-    if:
-      type: symbol
-      pattern: recv
-
-  - id: socket-send
-    desc: Socket send
-    crit: notable
-    conf: 0.7
-    attack: "T1059"
-    for: [elf, macho]
-    if:
-      type: symbol
-      pattern: send
+  # NOTE: Generic symbols (dup2, fork, execve, setsid, socket, connect, recv, send)
+  # are defined in their canonical locations under cap/process/ and cap/comm/.
+  # Composite rules below reference them using full paths.
 
 composite_rules:
   # Openpty composite
@@ -340,6 +263,12 @@ composite_rules:
       - id: unlockpt
       - id: pty-spawn
       - id: ptsname
+  # NOTE: POSIX PTY + shell is used by many legitimate tools:
+  # - Debuggers (gdb, lldb) for controlling target process I/O
+  # - Terminal emulators (xterm, gnome-terminal)
+  # - SSH servers/clients
+  # - Screen multiplexers (screen, tmux)
+  # Downgrade for known legitimate tools
   - id: posix-pty-shell
     desc: POSIX PTY shell (backdoor pattern)
     crit: suspicious
@@ -356,12 +285,20 @@ composite_rules:
     any:
       - id: cap/exec/command/shell/bin-sh
       - id: cap/exec/command/shell/bin-bash
-      - id: execve
+      - id: cap/exec/command/shell/c-execve
+    downgrade:
+      inert:
+        any:
+          - id: meta/apple/system-component
+          - id: cap/exec/load/debugger-tool-marker
+          - id: cap/exec/load/system-lib-marker
+          - id: cap/exec/load/shell-interpreter
 
   # PTY-based network backdoor - combines PTY with network operations
   # NOTE: This matches legitimate shells (/bin/bash) which have all these symbols
   # for job control, command substitution, and network utilities (like /dev/tcp).
-  # Downgrade for Apple system components and debuggers to avoid FPs.
+  # Also matches X11/graphics libraries which use sockets for display server IPC.
+  # Downgrade for Apple system components, debuggers, and graphics libraries to avoid FPs.
   - id: pty-network-backdoor
     desc: PTY-based network backdoor
     crit: suspicious
@@ -371,22 +308,27 @@ composite_rules:
     for: [elf, macho]
     platforms: [macos, linux, unix]
     all:
-      - id: socket
-      - id: socket-connect
-      - id: fork
+      - id: cap/comm/socket/create/create
+      - id: cap/comm/socket/create/connect
+      - id: cap/process/fork/fork
     count_min: 1
     any:
       - id: posix-openpt
       - id: openpty
       - id: grantpt
       - id: unlockpt
-      - id: socket-recv
-      - id: socket-send
-      - id: execve
+      - id: cap/comm/socket/receive/receive
+      - id: cap/comm/socket/send/send
+      - id: cap/exec/command/shell/c-execve
       - id: cap/exec/command/shell/bin-sh
-    # Downgrade for Apple system components (e.g., /bin/bash) and debuggers (gdb, lldb)
+    # Downgrade for Apple system components (e.g., /bin/bash), debuggers, graphics libs, and system libraries
     downgrade:
       inert:
         any:
           - id: meta/apple/system-component
           - id: cap/exec/load/debugger-tool-marker
+          - id: cap/exec/load/system-lib-marker
+          - id: cap/exec/load/shell-interpreter
+          - id: cap/exec/load/graphics-lib-marker
+          - id: cap/exec/load/x11-ipc-lib-marker
+          - id: cap/exec/load/network-lib-marker

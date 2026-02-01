@@ -436,6 +436,12 @@ composite_rules:
     any:
       - id: weak-pass-qwerty123
       - id: weak-pass-qwerty
+    # "qwerty" appears legitimately in X11/graphics libraries (keyboard layouts, test strings)
+    downgrade:
+      inert:
+        any:
+          - id: cap/exec/load/graphics-lib-marker
+          - id: cap/exec/load/x11-ref
 
   # Root exploitation terminology
   - id: root-exploit-ref
@@ -450,9 +456,12 @@ composite_rules:
       - id: r00t-leet
 
   # Hostname resolution symbols
+  # NOTE: These are basic libc networking symbols used by almost any program
+  # that connects to a network (web browsers, email clients, X11 libs, etc.)
+  # They are inert on their own - only suspicious in combination with scanning patterns
   - id: sym-hostname-resolve
     description: Hostname resolution function symbols
-    crit: notable
+    crit: inert
     confidence: 0.6
     platforms: [all]
     count_min: 1
@@ -461,9 +470,11 @@ composite_rules:
       - id: sym-getaddrinfo
 
   # Socket connection symbols
+  # NOTE: These are fundamental networking APIs present in nearly every networked
+  # program. On their own they indicate network capability (inert), not scanning intent.
   - id: sym-socket-connect
     description: Socket connection function symbols
-    crit: notable
+    crit: inert
     confidence: 0.6
     platforms: [all]
     count_min: 1

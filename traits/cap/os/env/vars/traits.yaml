@@ -13,6 +13,13 @@ traits:
     if:
       type: symbol
       pattern: "getenv"
+    # Reading env vars is completely normal for system libs, video drivers, etc.
+    downgrade:
+      inert:
+        any:
+          - id: cap/exec/load/video-lib-marker
+          - id: cap/exec/load/graphics-lib-marker
+          - id: cap/exec/load/system-lib-marker
 
   - id: setenv
     desc: setenv function (set environment variable)
@@ -57,6 +64,12 @@ composite_rules:
       - id: setenv
       - id: putenv
       - id: unsetenv
+    downgrade:
+      inert:
+        any:
+          - id: cap/exec/load/video-lib-marker
+          - id: cap/exec/load/graphics-lib-marker
+          - id: cap/exec/load/system-lib-marker
 
   - id: env-modify
     desc: Environment variable modification

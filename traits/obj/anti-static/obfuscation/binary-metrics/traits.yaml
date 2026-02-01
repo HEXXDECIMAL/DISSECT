@@ -164,11 +164,15 @@ traits:
       min: 10
 
   # === Function Anomalies ===
+  # NOTE: Function detection depends on analysis depth and binary format.
+  # Shared libraries (.so, .dylib, .dll) may have few detected functions
+  # if only exported symbols are counted. Downgraded to notable to avoid
+  # false positives on legitimate libraries.
 
   - id: no-functions
     desc: "No detected functions (packed/obfuscated)"
-    crit: suspicious
-    conf: 0.8
+    crit: notable
+    conf: 0.5
     attack: "T1045"
     if:
       type: metrics
@@ -177,8 +181,8 @@ traits:
 
   - id: few-functions
     desc: "Very few functions detected"
-    crit: notable
-    conf: 0.6
+    crit: inert
+    conf: 0.4
     if:
       type: metrics
       field: binary.function_count
@@ -274,14 +278,17 @@ traits:
 
   # === Control Flow Anomalies ===
 
+  # NOTE: Complex libraries (parsers, state machines, protocol handlers) naturally
+  # have more basic blocks due to branching logic. Raised threshold to avoid FPs
+  # on legitimate software like XML parsers (libexpat), compressors, etc.
   - id: many-basic-blocks
-    desc: "High average basic blocks per"
+    desc: "High basic blocks per function"
     crit: notable
-    conf: 0.65
+    conf: 0.55
     if:
       type: metrics
       field: binary.avg_basic_blocks
-      min: 30
+      min: 50
 
   # NOTE: Requires min: 1 to avoid triggering when metrics are unavailable.
   # Small utilities legitimately have few basic blocks.

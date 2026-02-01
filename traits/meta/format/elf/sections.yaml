@@ -64,9 +64,12 @@ traits:
       exact: ".gnu.hash"
 
 composite_rules:
+  # NOTE: Constructor/destructor sections are standard for virtually all shared
+  # libraries and executables - they're used for library initialization and cleanup.
+  # Marked as inert since presence is not suspicious by itself.
   - id: constructor-destructor
     desc: ELF constructor/destructor functions
-    crit: notable
+    crit: inert
     conf: 0.5
     count_min: 2
     any:

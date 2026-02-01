@@ -21,13 +21,8 @@ traits:
       exact: "LD_LIBRARY_PATH"
 
   # === Hooking infrastructure micro-traits ===
-  - id: dlsym-call
-    desc: dlsym function call
-    crit: inert
-    conf: 0.7
-    if:
-      type: symbol
-      pattern: "dlsym"
+  # NOTE: dlsym-call moved to cap/exec/dylib/load/dlsym (proper taxonomy).
+  # This file retains references to cap/exec/dylib/load/dlsym for composite rules.
 
   - id: rtld-next-ref
     desc: RTLD_NEXT macro reference
@@ -79,14 +74,19 @@ traits:
       type: string
       exact: "Hooked"
 
+  # NOTE: "Static" as a standalone string is too generic - appears in debug info,
+  # type systems, and graphics libraries. This trait is only meaningful in combination
+  # with other Symbiote rootkit indicators in the symbiote composite rule.
+  # Changed to match more specific context patterns.
   - id: static-string
-    desc: Static function indicator
+    desc: Static hook indicator
     crit: inert
     conf: 0.5
     for: [elf]
     if:
       type: string
-      exact: "Static"
+      # Match patterns like "Static: <function>" that Symbiote uses
+      regex: 'Static:\s+\w+'
 
   - id: original-prefix
     desc: original_ function prefix (hook backup)
@@ -307,7 +307,7 @@ composite_rules:
     any:
       - id: dlsym-rtld-next-pattern
     all:
-      - id: dlsym-call
+      - id: cap/exec/dylib/load/dlsym
       - id: rtld-next-ref
 
   # dlsym RTLD_NEXT pattern (migrated from YARA)
@@ -329,7 +329,7 @@ composite_rules:
     conf: 0.7
     count_min: 2
     any:
-      - id: dlsym-call
+      - id: cap/exec/dylib/load/dlsym
       - id: rtld-next-ref
       - id: ld-preload-env
       - id: dlsym-rtld-next-pattern

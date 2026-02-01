@@ -112,10 +112,11 @@ fn is_known_env_var(name: &str) -> bool {
         "LC_ALL" | "LC_CTYPE" | "LC_COLLATE" | "LC_TIME" | "LC_NUMERIC" |
         "LC_MONETARY" | "LC_MESSAGES" | "LANGUAGE"
     ) || name.starts_with("LC_") ||  // Locale variables
-        name.ends_with("_TOKEN") ||   // API tokens
-        name.ends_with("_KEY") ||     // API keys
-        name.ends_with("_SECRET") ||  // Secrets
-        name.ends_with("_PASSWORD") || // Passwords
+        // NOTE: Removed generic _TOKEN, _KEY, _SECRET, _PASSWORD suffixes.
+        // These are too broad and match legitimate software constants like
+        // INPUT_KEY, MODIFIER_KEY, ENCRYPTION_KEY (non-credential), etc.
+        // Credential detection is now handled by is_credential_env_var() which
+        // requires both a known provider prefix AND a sensitive suffix.
         name.starts_with("AWS_") ||   // AWS credentials
         name.starts_with("GITHUB_") || // GitHub tokens
         name.starts_with("DOCKER_") || // Docker config
@@ -125,6 +126,76 @@ fn is_known_env_var(name: &str) -> bool {
         name.starts_with("TRAVIS_") || // Travis CI
         name.starts_with("GITLAB_") || // GitLab CI
         name.starts_with("ANDROID_") // Android platform
+}
+
+/// Check if this looks like a credential environment variable
+/// Be specific to avoid false positives on legitimate software
+fn is_credential_env_var(name: &str) -> bool {
+    // Known credential prefixes - high confidence
+    let known_credential_prefixes = [
+        "AWS_",
+        "GITHUB_",
+        "GH_",
+        "GITLAB_",
+        "AZURE_",
+        "GOOGLE_",
+        "DOCKER_",
+        "NPM_",
+        "PYPI_",
+        "NUGET_",
+        "ARTIFACTORY_",
+        "SLACK_",
+        "DISCORD_",
+        "OPENAI_",
+        "ANTHROPIC_",
+        "STRIPE_",
+        "TWILIO_",
+        "SENDGRID_",
+        "DATABASE_",
+        "DB_",
+        "REDIS_",
+        "MONGO_",
+        "POSTGRES_",
+        "MYSQL_",
+        "SONAR_",
+        "SNYK_",
+        "VAULT_",
+        "HASHICORP_",
+    ];
+
+    // Check for known credential prefixes with sensitive suffixes
+    for prefix in known_credential_prefixes {
+        if name.starts_with(prefix) {
+            // Any token/key/secret/password from known providers is a credential
+            if name.ends_with("_TOKEN")
+                || name.ends_with("_KEY")
+                || name.ends_with("_SECRET")
+                || name.ends_with("_PASSWORD")
+                || name.ends_with("_CREDENTIALS")
+                || name.ends_with("_AUTH")
+                || name.contains("ACCESS_KEY")
+                || name.contains("SECRET_KEY")
+                || name.contains("API_KEY")
+            {
+                return true;
+            }
+        }
+    }
+
+    // Known specific credential variables
+    // NOTE: Generic names like API_KEY, SECRET_KEY, etc. can appear in
+    // legitimate binaries as protocol constants, debug strings, or config
+    // parsing code. We only flag very specific service credentials.
+    matches!(
+        name,
+        "SSH_PRIVATE_KEY"
+            | "JWT_SECRET"
+            | "SESSION_SECRET"
+            | "COOKIE_SECRET"
+            | "ROOT_PASSWORD"
+            | "ADMIN_PASSWORD"
+            | "SERVICE_ACCOUNT_KEY"
+    )
 }
 
 /// Analyze a single environment variable and categorize it
@@ -149,13 +220,8 @@ fn analyze_env_var(name: &str, source: &str, access_type: EnvVarAccessType) -> E
 /// Classify environment variable by semantic category
 fn classify_env_var_category(name: &str) -> EnvVarCategory {
     // Credential/secret detection (highest priority)
-    if name.ends_with("_TOKEN")
-        || name.ends_with("_KEY")
-        || name.ends_with("_SECRET")
-        || name.ends_with("_PASSWORD")
-        || name.contains("API_KEY")
-        || name.contains("ACCESS_TOKEN")
-    {
+    // Be specific to avoid false positives on graphics libs (DEPTH_TOKEN, SHADER_KEY, etc.)
+    if is_credential_env_var(name) {
         return EnvVarCategory::Credential;
     }
 
@@ -248,22 +314,35 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Finding> {
     let mut traits = Vec::new();
 
     // Credential access detection
+    // Only consider credentials that are actually being read (not just strings present in binary)
+    // String-only matches are too noisy - libraries often have protocol constants like DB_KEY
     let credential_vars: Vec<_> = env_vars
         .iter()
-        .filter(|e| e.category == EnvVarCategory::Credential)
+        .filter(|e| {
+            e.category == EnvVarCategory::Credential && e.access_type == EnvVarAccessType::Read
+            // Must be actually read via getenv etc
+        })
         .collect();
 
     if !credential_vars.is_empty() {
+        // Only suspicious if multiple credential vars accessed (pattern of credential harvesting)
+        // Single credential var access is common in legitimate tooling
+        let crit = if credential_vars.len() >= 3 {
+            Criticality::Suspicious
+        } else {
+            Criticality::Notable
+        };
+
         traits.push(Finding {
             kind: FindingKind::Capability,
             trait_refs: vec![],
             id: "credential/env/access".to_string(),
             desc: format!(
-                "Accesses {} environment variables containing credentials/secrets",
+                "Reads {} credential environment variables via getenv",
                 credential_vars.len()
             ),
-            conf: 0.95,
-            crit: Criticality::Suspicious,
+            conf: 0.85,
+            crit,
             mbc: None,
             attack: Some("T1552.001".to_string()), // Unsecured Credentials
             evidence: credential_vars
@@ -435,7 +514,10 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Finding> {
         });
     }
 
-    // Display check (VM/sandbox detection)
+    // Display check - NOTE: DISPLAY and WAYLAND_DISPLAY are essential for GUI applications
+    // and X11/Wayland libraries. Only potentially suspicious for CLI tools or scripts that
+    // shouldn't need display access. Since we can't easily distinguish at this level,
+    // we mark this as inert (informational only) rather than notable.
     let display_vars: Vec<_> = env_vars
         .iter()
         .filter(|e| e.name == "DISPLAY" || e.name == "WAYLAND_DISPLAY")
@@ -445,12 +527,12 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Finding> {
         traits.push(Finding {
             kind: FindingKind::Capability,
             trait_refs: vec![],
-            id: "anti-analysis/env/display_check".to_string(),
-            desc: "Checks DISPLAY variable (potential sandbox detection)".to_string(),
-            conf: 0.6,
-            crit: Criticality::Notable,
+            id: "cap/os/env/display".to_string(),
+            desc: "Accesses display environment variable (X11/Wayland)".to_string(),
+            conf: 0.9,
+            crit: Criticality::Inert, // Normal for GUI apps and X11 libs
             mbc: None,
-            attack: Some("T1497".to_string()), // Virtualization/Sandbox Evasion
+            attack: None,
             evidence: display_vars
                 .iter()
                 .map(|e| Evidence {

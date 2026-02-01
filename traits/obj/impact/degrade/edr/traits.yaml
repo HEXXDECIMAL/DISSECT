@@ -33,14 +33,18 @@ traits:
       type: string
       exact: "kill"
 
+  # NOTE: "terminate" alone is too broad - matches C++ std::terminate,
+  # terminate_handler, and many other legitimate uses. Match only in
+  # process termination contexts.
   - id: terminate-keyword
-    description: terminate keyword
+    description: terminate in process context
     crit: inert
     conf: 0.4
     for: [elf, pe]
     if:
       type: string
-      exact: "terminate"
+      # Match terminate in process/service termination contexts, not std::terminate
+      regex: "(?i)\\b(terminate[_-]?(process|service|task)|process[_-]?terminate)\\b"
 
   # === EDR/AV product names (atomic) ===
   - id: defender-name

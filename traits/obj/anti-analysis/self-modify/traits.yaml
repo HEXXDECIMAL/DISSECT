@@ -213,10 +213,15 @@ traits:
       regex: '\bGOT\b'
 
   # === Polymorphic/metamorphic (atomic) ===
+  # NOTE: "polymorphic" has legitimate uses in:
+  # - Debuggers (CPU polymorphism, instruction variants)
+  # - Compilers (polymorphic type systems, generics)
+  # - Security tools analyzing polymorphic malware
+  # Only flag as suspicious in malware-specific context
   - id: polymorphic-ref
     desc: Polymorphic code terminology
-    crit: suspicious
-    conf: 0.8
+    crit: inert
+    conf: 0.5
     if:
       type: string
       exact: polymorphic

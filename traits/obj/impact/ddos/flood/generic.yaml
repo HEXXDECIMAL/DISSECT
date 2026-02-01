@@ -3,6 +3,11 @@
 # ATT&CK: T1499
 
 traits:
+  # NOTE: The ddos-reference trait is intentionally specific to avoid false positives on:
+  # - Debuggers with "DDos" in debug output/documentation
+  # - Anti-DDoS protection software
+  # - Network monitoring tools
+  # Match only when "ddos" appears in attack-specific context
   - id: ddos-reference
     description: References DDoS attack
     crit: suspicious
@@ -12,7 +17,9 @@ traits:
     for: [all]
     if:
       type: string
-      regex: "(?i)ddos|dd0s"
+      regex: "(?i)ddos\\s*(?:attack|flood|tool|bot|module|method|type)|(?:launch|start|run|execute)\\s*ddos|dd0s"
+    not:
+      - regex: "(?i)anti.?ddos|ddos.?protect|ddos.?mitiga"
 
   - id: syn-flood
     description: SYN flood attack reference

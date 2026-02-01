@@ -8,39 +8,6 @@ defaults:
   platforms: [all]
 
 traits:
-  # === System Info Collection ===
-  - id: system-info-collect
-    desc: System information collection
-    crit: notable
-    conf: 0.80
-    attack: "T1082"
-    if:
-      type: string
-      regex: 'hostname.{0,50}os.{0,50}ip|platform.{0,50}username|info\[.{0,50}hostname|to_json'
-
-  # === Hardcoded IP Exfiltration ===
-  - id: hardcoded-ip-exfil
-    desc: Hardcoded IP for data exfiltration
-    crit: suspicious
-    conf: 0.85
-    attack: "T1041"
-    if:
-      type: string
-      regex: 'https?://(?!(127\.0\.0\.1|localhost))[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+|https?://(?!(127\.0\.0\.1|localhost))[a-zA-Z0-9][-a-zA-Z0-9]*\.[a-zA-Z0-9][-a-zA-Z0-9]*'
-    not:
-      - "127.0.0.1"
-      - "localhost"
-
-  # === JSON Data Encoding ===
-  - id: json-data-encode
-    desc: JSON data encoding for exfiltration
-    crit: notable
-    conf: 0.70
-    attack: "T1027"
-    if:
-      type: string
-      regex: 'to_json|JSON\.generate|\.to_json'
-
   # === Base64 JSON Encoding ===
   - id: base64-json-encode
     desc: Base64 encoded JSON data
@@ -49,44 +16,36 @@ traits:
     attack: "T1027"
     if:
       type: string
-      regex: 'Base64\.encode64.{0,50}to_json|encode64.{0,50}json|Base64\..{0,50}json'
-
-  # === Rakefile Payload ===
-  - id: rakefile-payload
-    desc: Rakefile as payload delivery
-    crit: notable
-    conf: 0.70
-    attack: "T1059"
-    if:
-      type: string
-      regex: 'Rakefile|require.{0,50}rake'
+      regex: 'Base64\.encode64.{0,50}to_json|encode64.{0,50}json'
 
 composite_rules:
-  # === System Info Exfiltration ===
+  # === Info Stealer - HOSTILE ===
+  # Combines: fingerprinting + encoding + HTTP exfil to hardcoded IP
+  # Complexity: all(4) + file_types(1) = 5 >= 4 ✓
+  - id: info-stealer
+    desc: System info stealer with HTTP exfil
+    crit: hostile
+    conf: 0.95
+    attack: "T1041"
+    file_types: [ruby]
+    all:
+      - id: cap/os/sysinfo/socket-hostname
+      - id: cap/os/sysinfo/socket-ip-address
+      - id: cap/comm/http/request/net-http
+      - id: cap/comm/http/request/hardcoded-ip-url
+
+  # === System Info Exfiltration - SUSPICIOUS ===
+  # Less certainty than info-stealer, but still concerning
   - id: system-info-exfiltration
     desc: System information exfiltration
     crit: suspicious
-    conf: 0.92
+    conf: 0.90
     attack: "T1041"
-    count_min: 4
+    count_min: 3
     any:
       - id: cap/os/sysinfo/platform-fingerprint
       - id: cap/os/sysinfo/socket-hostname
       - id: cap/os/sysinfo/socket-ip-address
-      - id: system-info-collect
-      - id: hardcoded-ip-exfil
+      - id: cap/comm/http/request/hardcoded-ip-url
       - id: base64-json-encode
-      - id: obj/discovery/user/username-env
-
-  # === Platform-Specific Payload ===
-  - id: platform-specific-payload
-    desc: Platform-specific malicious payload
-    crit: suspicious
-    conf: 0.88
-    attack: "T1059"
-    count_min: 3
-    any:
-      - id: cap/os/sysinfo/platform-fingerprint
-      - id: rakefile-payload
-      - id: system-info-collect
-      - id: cap/comm/http/request/ruby-http-get-response
+      - id: obj/discovery/user/env-user

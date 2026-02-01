@@ -9,3 +9,10 @@ composite_rules:
       - id: cap/exec/command/fgets-loop
       - id: cap/exec/command/cpp-exception
     for: [macho, elf, pe]
+    # Downgrade for system libraries and shell interpreters
+    downgrade:
+      inert:
+        any:
+          - id: cap/exec/load/system-lib-marker
+          - id: cap/exec/load/shell-interpreter
+          - id: cap/exec/load/debugger-tool-marker

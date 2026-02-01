@@ -1,0 +1,203 @@
+# Remote Access Trojan (RAT) - PHP
+# Detects PHP RAT patterns including socket-based C2, process masquerading,
+# remote code execution, and file operations
+# ATT&CK: T1219 (Remote Access Software), T1059.004 (Command and Scripting Interpreter)
+
+defaults:
+  for: [php]
+
+traits:
+  # === Interactive Shell Spawn ===
+  - id: bash-interactive
+    desc: Interactive bash shell spawn
+    crit: suspicious
+    conf: 0.9
+    attack: "T1059.004"
+    if:
+      type: string
+      regex: "bash\\s+-i"
+
+  - id: sh-interactive
+    desc: Interactive shell spawn
+    crit: notable
+    conf: 0.8
+    attack: "T1059.004"
+    if:
+      type: string
+      regex: "(ba)?sh\\s+-i"
+
+  # === Socket-based Shell (Reverse Shell Pattern) ===
+  - id: socket-to-proc-descriptor
+    desc: Socket used as process descriptor
+    crit: suspicious
+    conf: 0.95
+    attack: "T1059.004"
+    if:
+      type: string
+      regex: "array\\s*\\(\\s*\\$socket\\s*,\\s*\\$socket\\s*,\\s*\\$socket\\s*\\)"
+
+  # === Kernel Worker Masquerade ===
+  - id: kworker-masquerade
+    desc: Masquerade as kernel worker thread
+    crit: suspicious
+    conf: 0.95
+    mbc: "F0004"
+    attack: "T1036.004"
+    if:
+      type: string
+      regex: "\\[kworker/"
+
+  # === C2 Beacon Pattern ===
+  - id: while-true-loop
+    desc: Infinite loop (C2 beacon pattern)
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      regex: "while\\s*\\(\\s*1\\s*\\)|while\\s*\\(\\s*true\\s*\\)"
+      case_insensitive: true
+
+  # === Remote Code Fetch and Execute ===
+  - id: file-get-contents-url
+    desc: HTTP fetch content
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      regex: "file_get_contents\\s*\\([^)]*https?://"
+
+  # === Multi-Method Command Execution ===
+  - id: function-exists-exec
+    desc: Check for exec function availability
+    crit: suspicious
+    conf: 0.85
+    attack: "T1059"
+    if:
+      type: string
+      regex: "function_exists\\s*\\(\\s*[\"'](?:exec|system|shell_exec|passthru|popen|proc_open|pcntl_exec)[\"']\\s*\\)"
+
+  # === Stream Socket (C2 Communication) ===
+  - id: stream-socket-connect
+    desc: Stream socket client connection
+    crit: notable
+    conf: 0.8
+    if:
+      type: symbol
+      exact: "stream_socket_client"
+
+  # === Process Title Masquerading ===
+  - id: cli-process-title
+    desc: PHP process title masquerading
+    crit: suspicious
+    conf: 0.9
+    mbc: "F0004"
+    attack: "T1036.004"
+    if:
+      type: string
+      exact: "cli_set_process_title"
+
+  # === Daemonization ===
+  - id: posix-setsid
+    desc: POSIX session creation (daemonize)
+    crit: suspicious
+    conf: 0.85
+    mbc: "F0004"
+    if:
+      type: string
+      exact: "posix_setsid"
+
+  # === Process Fork ===
+  - id: pcntl-fork
+    desc: Process forking
+    crit: notable
+    conf: 0.75
+    if:
+      type: string
+      exact: "pcntl_fork"
+
+composite_rules:
+  # PHP reverse shell via socket + shell execution + interactive shell
+  - id: reverse-shell-socket
+    desc: PHP reverse shell via socket
+    crit: hostile
+    conf: 0.95
+    attack: "T1059.004"
+    mbc: "B0033"
+    for: [php]
+    all:
+      - id: stream-socket-connect
+      - id: cap/exec/command/shell
+      - id: sh-interactive
+
+  # PHP RAT with process masquerading
+  - id: rat-masquerading
+    desc: PHP RAT with process masquerading
+    crit: hostile
+    conf: 0.95
+    attack: "T1219"
+    mbc: "B0022"
+    for: [php]
+    all:
+      - id: cli-process-title
+      - id: posix-setsid
+      - id: stream-socket-connect
+
+  # PHP RAT with remote code execution
+  - id: rat-remote-eval
+    desc: PHP RAT with remote code execution
+    crit: hostile
+    conf: 0.95
+    attack: "T1219"
+    mbc: "B0022"
+    for: [php]
+    all:
+      - id: obj/anti-static/obfuscation/encoding
+      - id: stream-socket-connect
+    any:
+      - id: cap/exec/command/shell
+      - id: function-exists-exec
+
+  # PHP RAT with file operations
+  - id: rat-file-operations
+    desc: PHP RAT with file transfer capabilities
+    crit: suspicious
+    conf: 0.9
+    attack: "T1219"
+    for: [php]
+    all:
+      - id: stream-socket-connect
+      - id: cap/fs/read/file
+    any:
+      - id: cap/fs/write/file
+      - id: obj/anti-static/obfuscation/encoding
+
+  # Full PHP RAT with all indicators
+  - id: rat-full
+    desc: Full PHP RAT implementation
+    crit: hostile
+    conf: 0.98
+    attack: "T1219"
+    mbc: "B0022"
+    for: [php]
+    all:
+      - id: stream-socket-connect
+      - id: obj/anti-static/obfuscation/encoding
+      - id: cap/exec/command/shell
+    any:
+      - id: kworker-masquerade
+      - id: cli-process-title
+      - id: posix-setsid
+
+  # Multi-method command execution pattern (trying all methods)
+  - id: multi-method-exec
+    desc: Multi-method command execution fallback
+    crit: suspicious
+    conf: 0.9
+    attack: "T1059"
+    for: [php]
+    count_min: 3
+    any:
+      - id: cap/exec/command/shell
+      - id: function-exists-exec
+      - id: socket-to-proc-descriptor
+      - id: sh-interactive

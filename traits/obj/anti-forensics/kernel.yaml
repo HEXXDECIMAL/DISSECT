@@ -327,11 +327,21 @@ composite_rules:
 
   - id: ftrace-keyword
     desc: Ftrace keyword (case variants)
+    crit: inert
     for: [c, elf]
     any:
       - { id: ftrace-lower }
       - { id: ftrace-title }
       - { id: ftrace-upper }
+    # Ftrace is a legitimate Linux tracing framework used by performance tools,
+    # debuggers, video drivers (for trace logging), and system monitoring tools.
+    downgrade:
+      inert:
+        any:
+          - id: cap/exec/load/video-lib-marker
+          - id: cap/exec/load/graphics-lib-marker
+          - id: cap/exec/load/system-lib-marker
+          - id: cap/exec/load/debugger-tool-marker
 
   - id: taint-keyword
     desc: Taint keyword (case variants)
@@ -343,11 +353,22 @@ composite_rules:
 
   - id: rootkit-keywords
     desc: Rootkit-related keywords
+    crit: inert
     for: [c, elf]
     any:
       - { id: singularity-keyword }
       - { id: ftrace-keyword }
       - { id: taint-keyword }
+    # These keywords have legitimate uses: ftrace for debugging, taint for
+    # memory safety, singularity for HPC containers. Only suspicious in
+    # combination with actual rootkit infrastructure.
+    downgrade:
+      inert:
+        any:
+          - id: cap/exec/load/video-lib-marker
+          - id: cap/exec/load/graphics-lib-marker
+          - id: cap/exec/load/system-lib-marker
+          - id: cap/exec/load/debugger-tool-marker
 
   - id: audit-functions
     desc: Audit system functions

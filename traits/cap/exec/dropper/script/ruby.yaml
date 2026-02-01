@@ -142,8 +142,8 @@ traits:
     conf: 0.88
     attack: "T1027"
     if:
-      type: string
-      regex: 'gsub.{0,50}---|\.gsub.{0,50}"-\-\-"|decode64.{0,50}gsub'
+      type: content
+      regex: 'gsub\(.{0,10}"---"|\.gsub\(.{0,10}"---"|decode64.{0,50}gsub'
 
   # === Windows OS Check ===
   - id: windows-os-check
@@ -162,8 +162,8 @@ traits:
     conf: 0.85
     attack: "T1059"
     if:
-      type: string
-      regex: '\.vbs.{0,50}write|write.{0,50}\.vbs|\.vbs.{0,50}File\.open'
+      type: content
+      regex: 'File\.open\(.{0,50}\.vbs|\.vbs.{0,50}File\.open'
 
   # === WScript Execution ===
   - id: wscript-execution
@@ -305,6 +305,7 @@ composite_rules:
       - id: wscript-execution
       - id: cap/exec/command/shell/ruby-system
       - id: obj/anti-static/obfuscation/code/base64-decode
+      - id: obj/anti-static/obfuscation/code/base64-decode-symbol
 
   - id: ruby-binary-dropper
     desc: Downloads and writes binary payload

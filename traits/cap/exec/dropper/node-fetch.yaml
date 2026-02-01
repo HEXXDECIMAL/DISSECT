@@ -1,0 +1,246 @@
+# Node.js Fetch-Write-Execute Dropper Patterns
+# Detects malware that fetches code, writes to temp file, executes, and cleans up
+# ATT&CK: T1105 (Ingress Tool Transfer), T1059.007 (JavaScript)
+# MBC: B0024 (Dropper)
+
+defaults:
+  for: [javascript, typescript]
+  attack: "T1059.007"
+  mbc: "B0024"
+
+traits:
+  # === Fetch API patterns ===
+  - id: fetch-call
+    desc: fetch() API call
+    crit: inert
+    conf: 0.6
+    if:
+      type: content
+      regex: "fetch\\s*\\("
+
+  - id: fetch-then-json
+    desc: fetch().then JSON parse
+    crit: inert
+    conf: 0.7
+    if:
+      type: content
+      regex: "fetch\\(.{0,100}\\.then\\(.{0,50}\\.json\\("
+
+  # === File write patterns ===
+  - id: writeFileSync-call
+    desc: fs.writeFileSync call
+    crit: inert
+    conf: 0.6
+    if:
+      type: content
+      regex: "\\.writeFileSync\\s*\\("
+
+  - id: writeFile-call
+    desc: fs.writeFile call
+    crit: inert
+    conf: 0.6
+    if:
+      type: content
+      regex: "\\.writeFile\\s*\\("
+
+  # === Spawn/exec patterns ===
+  - id: spawnSync-call
+    desc: spawnSync function call
+    crit: inert
+    conf: 0.6
+    if:
+      type: content
+      regex: "\\.spawnSync\\s*\\("
+
+  - id: spawn-call
+    desc: spawn function call
+    crit: inert
+    conf: 0.6
+    if:
+      type: content
+      regex: "\\.spawn\\s*\\("
+
+  - id: spawn-node
+    desc: spawn node interpreter
+    crit: notable
+    conf: 0.7
+    if:
+      type: content
+      regex: "spawn(?:Sync)?\\s*\\(['\"]node['\"]"
+
+  # === Cleanup patterns ===
+  - id: unlinkSync-call
+    desc: fs.unlinkSync call
+    crit: inert
+    conf: 0.6
+    if:
+      type: content
+      regex: "\\.unlinkSync\\s*\\("
+
+  - id: unlink-call
+    desc: fs.unlink call
+    crit: inert
+    conf: 0.6
+    if:
+      type: content
+      regex: "\\.unlink\\s*\\("
+
+  # === Temp file patterns ===
+  - id: temp-js-file
+    desc: Temporary .js file path
+    crit: notable
+    conf: 0.75
+    if:
+      type: string
+      regex: "\\./tmp[^/]*\\.js|/tmp/[^/]*\\.js"
+
+  - id: random-temp-filename
+    desc: Random/unusual temp filename
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      regex: "tmppppp|temp[0-9a-f]{8}|rand[0-9]+\\.js"
+
+  # === Detached process patterns ===
+  - id: detached-true
+    desc: detached:true spawn option
+    crit: notable
+    conf: 0.75
+    if:
+      type: string
+      exact: "detached: true"
+
+  - id: detached-colon-true
+    desc: detached:true spawn option
+    crit: notable
+    conf: 0.75
+    if:
+      type: string
+      exact: "detached:true"
+
+  # === IIFE patterns ===
+  - id: iife-start
+    desc: IIFE pattern start
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      regex: "^\\(function\\s*\\(|^\\(async\\s+function"
+
+  - id: iife-arrow
+    desc: IIFE with arrow function
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      regex: "^\\(\\(\\)\\s*=>|^\\(async\\s*\\(\\)\\s*=>"
+
+composite_rules:
+  # File write composite
+  - id: file-write
+    desc: File write operation
+    crit: inert
+    conf: 0.7
+    count_min: 1
+    any:
+      - id: writeFileSync-call
+      - id: writeFile-call
+
+  # File delete composite
+  - id: file-delete
+    desc: File delete operation
+    crit: inert
+    conf: 0.7
+    count_min: 1
+    any:
+      - id: unlinkSync-call
+      - id: unlink-call
+
+  # Process execution composite
+  - id: process-exec
+    desc: Process execution (spawn/spawnSync)
+    crit: notable
+    conf: 0.7
+    count_min: 1
+    any:
+      - id: spawnSync-call
+      - id: spawn-call
+      - id: spawn-node
+
+  # Detached process composite
+  - id: detached-process
+    desc: Detached process spawn
+    crit: notable
+    conf: 0.8
+    count_min: 1
+    any:
+      - id: detached-true
+      - id: detached-colon-true
+
+  # Temp JS file composite
+  - id: temp-js
+    desc: Temporary JavaScript file
+    crit: notable
+    conf: 0.8
+    count_min: 1
+    any:
+      - id: temp-js-file
+      - id: random-temp-filename
+
+  # IIFE composite
+  - id: iife-pattern
+    desc: Immediately invoked function
+    crit: inert
+    conf: 0.6
+    count_min: 1
+    any:
+      - id: iife-start
+      - id: iife-arrow
+
+  # Fetch + write + execute pattern (suspicious)
+  - id: fetch-write-exec
+    desc: Fetch and write then execute
+    crit: suspicious
+    conf: 0.9
+    all:
+      - id: fetch-call
+      - id: file-write
+      - id: process-exec
+
+  # Write + execute + delete pattern (suspicious)
+  - id: write-exec-delete
+    desc: Write file, execute, delete
+    crit: suspicious
+    conf: 0.92
+    all:
+      - id: file-write
+      - id: process-exec
+      - id: file-delete
+
+  # Full dropper chain: fetch + write + execute + delete (hostile)
+  # complexity = file_types(1) + all(4) = 5
+  - id: fetch-dropper-full
+    desc: Complete fetch dropper chain
+    crit: hostile
+    conf: 0.98
+    attack: "T1105"
+    file_types: [javascript, typescript]
+    all:
+      - id: fetch-call
+      - id: file-write
+      - id: process-exec
+      - id: file-delete
+
+  # Fetch + write temp JS + execute (hostile)
+  # complexity = file_types(1) + all(3) = 4
+  - id: fetch-temp-exec
+    desc: Fetch to temp file and execute
+    crit: hostile
+    conf: 0.95
+    attack: "T1105"
+    file_types: [javascript, typescript]
+    all:
+      - id: fetch-call
+      - id: temp-js
+      - id: process-exec

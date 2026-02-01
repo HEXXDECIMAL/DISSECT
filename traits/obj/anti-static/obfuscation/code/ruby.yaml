@@ -8,8 +8,18 @@ traits:
     attack: "T1027"
     for: [ruby]
     if:
-      type: string
+      type: content
       regex: "Base64\\.decode64|Base64\\.strict_decode64"
+
+  - id: base64-decode-symbol
+    desc: "Base64 decode64 call"
+    crit: notable
+    conf: 0.88
+    attack: "T1027"
+    for: [ruby]
+    if:
+      type: symbol
+      exact: "decode64"
 
   - id: base64-encode
     desc: "Base64 encode"

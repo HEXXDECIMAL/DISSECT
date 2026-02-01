@@ -88,14 +88,19 @@ traits:
       type: string
       exact: ":53"
 
+  # NOTE: Generic "dns" is too broad - matches countless legitimate uses.
+  # This trait is only used in dns-amp-logic composite which requires
+  # amplification-string AND port-53 AND dns-string, so keep it broad
+  # but only match DNS in attack-related contexts.
   - id: dns-string
-    desc: dns string reference
+    desc: DNS protocol in attack context
     crit: inert
     conf: 0.3
     for: [elf, macho, pe, so, dylib]
     if:
       type: string
-      regex: "(?i)dns"
+      # Match DNS in contexts suggesting network attacks, not just "dns" anywhere
+      regex: "(?i)\\b(dns[_-]?(flood|amp|attack|query|spoof|reflect)|send[_-]?dns|udp[_-]?dns)\\b"
 
   - id: dns-amp
     desc: DNS amplification identifier string

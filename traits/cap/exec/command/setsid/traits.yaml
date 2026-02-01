@@ -11,7 +11,7 @@ traits:
     for: [python]
     if:
       type: raw
-      exact: "os.setsid"
+      substr: "os.setsid"
 
   - id: preexec-fn
     desc: "Manipulates process via subprocess preexec_fn"
@@ -21,7 +21,7 @@ traits:
     for: [python]
     if:
       type: raw
-      exact: "preexec_fn="
+      substr: "preexec_fn="
 
   - id: c
     desc: "Calls setsid() system call"

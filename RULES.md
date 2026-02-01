@@ -242,6 +242,17 @@ if:
   max: 10485760
 ```
 
+### basename
+
+Match basename (final path component). Useful for special files like `__init__.py`, `setup.py`.
+
+```yaml
+if:
+  type: basename
+  exact: "__init__.py"     # or substr:, regex:
+  case_insensitive: false
+```
+
 ### trait_glob
 
 Match multiple traits by pattern.

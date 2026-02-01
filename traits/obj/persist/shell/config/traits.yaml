@@ -68,7 +68,9 @@ traits:
     attack: T1546.004
     if:
       type: string
-      word: ".profile"
+      # Match .profile as standalone or in a path context, not as part of compound words
+      # This avoids matching things like "vaGetProfileSupport" or "ProfileManager"
+      regex: '(?:^|[/~])\.profile$|\.profile(?:\s|$)'
     downgrade:
       notable:
         any:
@@ -76,6 +78,7 @@ traits:
       inert:
         any:
           - id: cap/exec/load/system-lib-marker
+          - id: cap/exec/load/video-lib-marker
 
   - id: etc-profile
     description: /etc/profile system-wide shell configuration

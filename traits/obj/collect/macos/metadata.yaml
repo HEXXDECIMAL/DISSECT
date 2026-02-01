@@ -70,14 +70,8 @@ traits:
       type: string
       exact: "HOME"
 
-  - id: getenv-func
-    desc: "Reads variables via getenv"
-    crit: inert
-    conf: 0.4
-    for: [macho]
-    if:
-      type: symbol
-      pattern: "getenv"
+  # NOTE: getenv removed - use cap/os/env/vars/getenv instead
+  # getenv is a capability, not a collection objective
 
 composite_rules:
   # macOS user directory enumeration

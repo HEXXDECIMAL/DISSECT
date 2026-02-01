@@ -23,8 +23,8 @@ traits:
     conf: 0.70
     attack: "T1082"
     if:
-      type: string
-      regex: 'Socket\.gethostname|gethostname'
+      type: symbol
+      exact: 'gethostname'
 
   # === Socket IP Address ===
   - id: socket-ip-address
@@ -33,5 +33,5 @@ traits:
     conf: 0.75
     attack: "T1016"
     if:
-      type: string
-      regex: 'Socket\.ip_address_list|ip_address_list|ipv4\?|ip_address'
+      type: symbol
+      regex: 'ip_address_list|ip_address'

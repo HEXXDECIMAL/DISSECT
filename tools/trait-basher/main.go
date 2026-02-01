@@ -26,31 +26,32 @@ import (
 	"time"
 )
 
-const knownGoodPrompt = `Tune DISSECT for semantic correctness on known-good software.
+const knownGoodPrompt = `Tune DISSECT traits for this known-good file.
 
 ## Input
 - **File:** %s (KNOWN-GOOD)
 - **Findings:** %s
 
-## Principle
-Findings must match actual behavior. Suspicious findings on goodware are fine IF the code actually does suspicious things. Fix MISLABELED findings (e.g., "obj/c2/beacon" when it's just HTTP client).
+## Goal
+Fix MISLABELED findings. Suspicious findings are OK if the code actually does suspicious things - only fix incorrect labels (e.g., "obj/c2/beacon" for a simple HTTP client).
 
 ## Process
-1. Read RULES.md and TAXONOMY.md for syntax and structure
+1. Read RULES.md and TAXONOMY.md
 2. Analyze what the file actually does
-3. Fix mislabeled findings using (in order):
+3. Fix mislabeled findings (in priority order):
    - **Taxonomy** - Move to correct tier (cap/comm/http/client not obj/c2/beacon)
    - **Patterns** - Make regex more specific
    - **Exclusions** - ` + "`not:`" + ` to filter false matches
    - **Exceptions** - ` + "`unless:`" + ` or ` + "`downgrade:`" + ` (last resort)
 
 ## Constraints
-- Traits: %s/traits/
-- Do NOT remove traits - recategorize instead
-- Do NOT use git stash
+- Traits live in %s/traits/
+- Reorganize or deduplicate traits rather than deleting them
+- Only analyze the file above, not other files in the directory/archive
+- Skip cargo test
 
 ## Validate
-Run ` + "`dissect %s --format jsonl`" + ` - all findings should accurately describe actual capabilities.`
+Run ` + "`dissect %s --format jsonl`" + ` - findings should accurately describe actual capabilities.`
 
 const knownBadPrompt = `Tune DISSECT to detect this malware's capabilities.
 
@@ -60,41 +61,24 @@ const knownBadPrompt = `Tune DISSECT to detect this malware's capabilities.
 - **Problem:** Not flagged suspicious/hostile - find what's missing
 
 ## Process
-1. Read RULES.md and TAXONOMY.md for syntax and structure
-2. Reverse engineer: radare2, nm, strings, objdump, xxd
+1. Read RULES.md and TAXONOMY.md
+2. Reverse engineer the file: radare2, nm, strings, objdump, xxd
 3. Create/modify traits for detected capabilities
 
-## Taxonomy (see TAXONOMY.md)
-Three-tier hierarchy based on MBC (Malware Behavior Catalog):
-
-**Capabilities** (cap/) - what code CAN do (value-neutral, never hostile):
-  cap/comm/ | cap/crypto/ | cap/data/ | cap/exec/ | cap/fs/ | cap/hw/ | cap/mem/ | cap/os/ | cap/process/
-
-**Objectives** (obj/) - what code LIKELY WANTS to do (attacker goals):
-  obj/anti-analysis/ | obj/anti-forensics/ | obj/anti-static/ | obj/c2/ | obj/collect/ |
-  obj/creds/ | obj/discovery/ | obj/exfil/ | obj/impact/ | obj/lateral/ | obj/persist/ | obj/privesc/
-
-**Known** (known/) - specific malware/tool signatures:
-  known/malware/ | known/tools/
-
-Use cap/ for neutral mechanics. Use obj/ when intent is clear. Use known/ only for family-specific markers.
-
 ## Detection Philosophy
-Write GENERIC patterns that catch similar malware:
-- Behavioral patterns over specific strings (cap/comm/socket + cap/process/fd/dup + cap/exec/shell, not hardcoded C2 domain)
+Write GENERIC behavioral patterns, not file-specific signatures:
+- Combine capabilities into objectives (cap/comm/socket + cap/exec/shell → obj/c2/reverse-shell)
 - Cross-language when possible (base64+exec works in Python, JS, Shell)
-- Capabilities (cap/) are value-neutral; combine into objectives (obj/) with composite rules
-
-## Composites
-HOSTILE requires complexity >= 4 (any:+1, all:+N per item, file_types:+1)
+- Use cap/ for neutral mechanics, obj/ for attacker intent, known/ only for malware-family markers
 
 ## Constraints
-- Traits: %s/traits/
+- Traits live in %s/traits/
+- Only analyze the file above, not other files in the directory/archive
 - Skip if file is actually benign (README, docs)
-- Do NOT use git stash
+- Skip cargo test
 
 ## Validate
-Run ` + "`dissect %s --format jsonl`" + ` - file should be suspicious or hostile with accurate findings.
+Run ` + "`dissect %s --format jsonl`" + ` - file should be suspicious or hostile.
 Suspicious is OK if hostility is hard to prove.`
 
 const fixPromptTemplate = `DISSECT failed to run. Fix it.
@@ -115,8 +99,7 @@ Output: %s
 
 ## Constraints
 - Trait files: %s/traits/
-- Syntax reference: RULES.md
-- Do NOT use git stash`
+- Syntax reference: RULES.md`
 
 const maxFixAttempts = 3
 

@@ -104,6 +104,18 @@ traits:
         - '".aws"'
         - '".npm"'
         - '".pyc"'
+        - '".pt"'   # PyTorch model file extension
+        - '".so"'   # Shared object extension
+        - '".py"'   # Python file extension
+        - '".js"'   # JavaScript file extension
+        - '".ts"'   # TypeScript file extension
+        - '".go"'   # Go file extension
+        - '".rs"'   # Rust file extension
+        - '".rb"'   # Ruby file extension
+        - '".md"'   # Markdown file extension
+        - '".sh"'   # Shell script extension
+        - '".c"'    # C file extension
+        - '".h"'    # Header file extension
 
 composite_rules:
   # File write or makedirs composite

@@ -58,7 +58,52 @@ traits:
     conf: 0.5
     if:
       type: symbol
-      regex: "^(__libc_start_main|gnu_get_libc_version|__errno_location|__atan2_finite|feenableexcept|__log_finite|exp2f)$"
+      regex: "^(__libc_start_main|gnu_get_libc_version|__errno_location|__atan2_finite|feenableexcept|__log_finite|exp2f|__cxa_atexit|__cxa_finalize|__stack_chk_fail|__assert_fail)$"
+
+  - id: libc-version-string
+    desc: libc version string pattern
+    crit: inert
+    conf: 0.8
+    if:
+      type: string
+      regex: "(?i)(?:^|\\b)(?:libc\\.so\\.[0-9]|glibc|musl libc|openbsd libc|freebsd libc|bionic|uclibc)"
+
+  - id: libc-internal-functions
+    desc: libc internal functions (malloc, etc)
+    crit: inert
+    conf: 0.7
+    if:
+      type: symbol
+      # Functions that are always provided by libc AND typically exported
+      regex: "^(__libc_|__ctype_|__tzname|__progname|__environ|__cxa_|_obstack_|_IO_|__malloc_|__free_|__realloc_)"
+
+  # === C++ Standard Library (libc++/libstdc++) ===
+  - id: libcxx-ref
+    desc: LLVM libc++ stdlib
+    crit: inert
+    conf: 0.9
+    if:
+      type: string
+      # Match libc++ library name or LLVM libc++ identifiers
+      regex: "libc\\+\\+\\.so|libc\\+\\+abi|_LIBCPP_VERSION|__libcpp_"
+
+  - id: libstdcxx-ref
+    desc: GNU libstdc++ stdlib
+    crit: inert
+    conf: 0.9
+    if:
+      type: string
+      # Match libstdc++ library name or GNU C++ identifiers
+      regex: "libstdc\\+\\+\\.so|__gnu_cxx|__cxxabiv1"
+
+  - id: cxx-abi-symbols
+    desc: C++ ABI symbols
+    crit: inert
+    conf: 0.8
+    if:
+      type: symbol
+      # C++ ABI functions found in standard library implementations
+      regex: "^(__cxa_|__gxx_|_ZN[A-Z]|_ZSt|_ZNSt|_ZNK[A-Z])"
 
   - id: systemd-ref
     desc: systemd reference
@@ -126,8 +171,8 @@ traits:
     conf: 0.5
     if:
       type: string
-      # Match X11 windowing stack strings (includes IPC libraries like ICE, SM)
-      regex: "(?i)(?:libX11|libxcb|libICE|libSM|xorg|xenocara|XOpenDisplay|XCreateWindow|IceConn|SmcConn)"
+      # Match X11 windowing stack strings (includes IPC libraries like ICE, SM, Xpm)
+      regex: "(?i)(?:libX11|libXpm|libxcb|libICE|libSM|xorg|xenocara|XOpenDisplay|XCreateWindow|XpmCreate|XpmRead|IceConn|SmcConn)"
 
   - id: dri-driver-ref
     desc: DRI graphics driver reference
@@ -138,6 +183,48 @@ traits:
       type: string
       # Match DRI driver paths and patterns common in Mesa/GPU drivers
       regex: "/usr/(?:lib|X11R6/lib)/(?:dri|modules/dri)/|_dri\\.so|drirc|DRI_PRIME"
+
+  - id: x11-dga-marker
+    desc: X11 DGA library marker
+    crit: inert
+    conf: 0.9
+    for: [elf, so]
+    if:
+      type: string
+      # Match XF86DGA/DGA extension strings - these libraries legitimately
+      # access /dev/mem for direct video memory mapping
+      regex: "(?i)(?:XF86DGA|XDGAOpenFramebuffer|XDGACloseFramebuffer|libXxf86dga|XFree86-DGA)"
+
+  # === Video Acceleration Libraries ===
+  - id: vaapi-ref
+    desc: VA-API video acceleration library
+    crit: inert
+    conf: 0.9
+    for: [elf, so]
+    if:
+      type: string
+      # Match VA-API strings: libva, vaGetDisplay, VA_STATUS, VA-API, etc.
+      regex: "(?i)(?:libva\\b|vaGetDisplay|VA_STATUS|VA-API|vaInitialize|vaTerminate|LIBVA_DRIVER)"
+
+  - id: vdpau-ref
+    desc: VDPAU video acceleration library
+    crit: inert
+    conf: 0.9
+    for: [elf, so]
+    if:
+      type: string
+      # Match VDPAU video decode/presentation strings
+      regex: "(?i)(?:vdpau|VdpDevice|VdpVideoSurface|libvdpau)"
+
+  - id: drm-driver-ref
+    desc: DRM/KMS graphics driver reference
+    crit: inert
+    conf: 0.8
+    for: [elf, so]
+    if:
+      type: string
+      # Match DRM kernel mode setting strings used by video/graphics drivers
+      regex: "(?i)(?:libdrm|drmOpen|drmModeGetResources|DRM_IOCTL|drm_mode_|/dev/dri/)"
 
   # === Shell Interpreters ===
   - id: shell-keyword-marker
@@ -176,8 +263,12 @@ traits:
     for: [elf, macho]
     if:
       type: string
-      # Match LLDB-specific strings (bounded pattern to avoid backtracking)
-      regex: "(?i)\\blldb\\b.{0,30}(?:debugger|command|version)|lldb-server|lldb-argdumper"
+      # Match LLDB-specific strings:
+      # - "lldb" followed by debugger/command/version/breakpoint
+      # - lldb-server, lldb-argdumper binaries
+      # - LLDB SB API classes (used in lldb Python bindings)
+      # - LLDB command or plugin identifiers
+      regex: "(?i)\\blldb\\b.{0,30}(?:debugger|command|version|breakpoint|frame|thread)|lldb-server|lldb-argdumper|SBDebugger|SBTarget|SBProcess|SBBreakpoint|SBFrame|\\bLLDB\\b.{0,20}(?:module|plugin)"
 
   - id: debugger-ptrace-marker
     desc: Debugger ptrace usage marker
@@ -274,6 +365,16 @@ composite_rules:
       - id: libssh-ref
       - id: x11-ipc-lib-marker
 
+  - id: video-lib-marker
+    desc: Video acceleration library markers (VA-API, VDPAU)
+    crit: inert
+    conf: 0.9
+    count_min: 1
+    any:
+      - id: vaapi-ref
+      - id: vdpau-ref
+      - id: drm-driver-ref
+
   - id: graphics-lib-marker
     desc: Graphics/OpenGL library markers
     crit: inert
@@ -284,6 +385,17 @@ composite_rules:
       - id: opengl-ref
       - id: x11-ref
       - id: dri-driver-ref
+      - id: video-lib-marker
+
+  - id: cxx-stdlib-marker
+    desc: C++ standard library markers (libc++, libstdc++)
+    crit: inert
+    conf: 0.9
+    count_min: 1
+    any:
+      - id: libcxx-ref
+      - id: libstdcxx-ref
+      - id: cxx-abi-symbols
 
   - id: system-lib-marker
     desc: Known system library markers
@@ -295,8 +407,11 @@ composite_rules:
       - id: glibc-ref
       - id: systemd-ref
       - id: libc-characteristic-symbols
+      - id: libc-version-string
+      - id: libc-internal-functions
       - id: system-debug-lib
       - id: graphics-lib-marker
+      - id: cxx-stdlib-marker
 
   - id: compression-lib
     desc: Compression library markers
@@ -328,6 +443,18 @@ composite_rules:
       - id: llvm-lib-ref
       - id: gcc-project-ref
       - id: cmake-build-ref
+
+  # Async I/O libraries need timing functions for event scheduling
+  - id: async-io-lib-marker
+    desc: Async I/O library (libevent, libev, etc.)
+    crit: inert
+    conf: 0.9
+    count_min: 1
+    any:
+      - id: cap/comm/async/libevent
+      - id: cap/comm/async/libev
+      - id: cap/comm/async/libuv
+      - id: cap/comm/async/boost-asio
 
   - id: debugger-tool-marker
     desc: Debugger tool (gdb, lldb, etc.)

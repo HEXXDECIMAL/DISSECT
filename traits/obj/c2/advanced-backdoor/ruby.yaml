@@ -69,14 +69,16 @@ traits:
       regex: 'Thread\.new|Thread\.start'
 
   # === Sleep Timer ===
+  # Note: Uses AST to match Ruby sleep calls specifically, not binary symbols
   - id: sleep-timer
     desc: Sleep/delay timer
-    crit: notable
+    crit: inert
     conf: 0.65
     attack: "T1029"
     if:
-      type: symbol
-      regex: 'sleep'
+      type: ast
+      kind: call
+      regex: '^sleep$'
 
   # === Remote Code Download ===
   - id: remote-code-download
