@@ -226,6 +226,7 @@ fn main() -> Result<()> {
                     &disabled,
                     error_if_levels.as_deref(),
                     args.verbose,
+                    args.all_files,
                 )?
             } else {
                 // Multiple targets or directory - use scan
@@ -237,6 +238,7 @@ fn main() -> Result<()> {
                     &disabled,
                     error_if_levels.as_deref(),
                     args.verbose,
+                    args.all_files,
                 )?
             }
         }
@@ -251,6 +253,7 @@ fn main() -> Result<()> {
             &disabled,
             error_if_levels.as_deref(),
             args.verbose,
+            args.all_files,
         )?,
         Some(cli::Command::Diff { old, new }) => diff_analysis(&old, &new, &format)?,
         Some(cli::Command::Strings { target, min_length }) => {
@@ -295,6 +298,7 @@ fn main() -> Result<()> {
                 &disabled,
                 error_if_levels.as_deref(),
                 args.verbose,
+                args.all_files,
             )?
         }
     };
@@ -319,6 +323,7 @@ fn analyze_file(
     disabled: &cli::DisabledComponents,
     error_if_levels: Option<&[types::Criticality]>,
     verbose: bool,
+    all_files: bool,
 ) -> Result<String> {
     let _start = std::time::Instant::now();
     let path = Path::new(target);
@@ -337,6 +342,7 @@ fn analyze_file(
             disabled,
             error_if_levels,
             verbose,
+            all_files,
         );
     }
 
@@ -505,6 +511,7 @@ fn scan_paths(
     disabled: &cli::DisabledComponents,
     error_if_levels: Option<&[types::Criticality]>,
     verbose: bool,
+    include_all_files: bool,
 ) -> Result<String> {
     use indicatif::{ProgressBar, ProgressStyle};
     use walkdir::WalkDir;
@@ -558,6 +565,14 @@ fn scan_paths(
                     if archive_utils::is_archive(entry.path()) {
                         archives_found.push(file_path);
                     } else {
+                        // Skip unknown file types unless --all-files is set
+                        if !include_all_files {
+                            let file_type =
+                                detect_file_type(entry.path()).unwrap_or(FileType::Unknown);
+                            if !file_type.is_program() {
+                                continue;
+                            }
+                        }
                         all_files.push(file_path);
                     }
                 }

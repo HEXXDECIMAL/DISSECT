@@ -138,15 +138,19 @@ traits:
       type: string
       exact: "vhangup"
 
+  # NOTE: getpass is a standard libc function used by legitimate programs
+  # (shells, sudo, passwd, etc.) to read passwords from terminal without echo.
+  # It's inert as a single indicator - only suspicious when combined with
+  # network exfiltration or keylogging patterns.
   - id: getpass
     desc: Terminal password prompt
-    crit: suspicious
-    conf: 0.8
+    crit: inert
+    conf: 0.6
     attack: "T1056"
     for: [elf, macho]
     if:
-      type: string
-      exact: "getpass"
+      type: symbol
+      pattern: "^getpass$"
 
   - id: setupterm
     desc: Terminal initialization

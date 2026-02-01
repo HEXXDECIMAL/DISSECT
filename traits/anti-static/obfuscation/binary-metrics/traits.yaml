@@ -103,10 +103,13 @@ traits:
       field: binary.section_count
       max: 3
 
+  # NOTE: Many legitimate system binaries have a dominant .text section.
+  # This is normal for compiled C/C++ programs without large data sections.
+  # Downgraded to notable - only suspicious when combined with other packing indicators.
   - id: dominant-section
     desc: "Single section dominates file (packer"
-    crit: suspicious
-    conf: 0.75
+    crit: notable
+    conf: 0.6
     attack: "T1045"
     if:
       type: metrics

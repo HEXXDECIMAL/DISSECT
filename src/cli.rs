@@ -143,6 +143,11 @@ pub struct Args {
     /// Example: --error-if=inert,notable (for sweeping known-bad data for weak detections)
     #[arg(long, value_name = "LEVELS")]
     pub error_if: Option<String>,
+
+    /// Include all files in directory scans, even unknown types
+    /// By default, only recognized code/binary files are analyzed
+    #[arg(long)]
+    pub all_files: bool,
 }
 
 impl Args {

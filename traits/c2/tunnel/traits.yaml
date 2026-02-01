@@ -275,6 +275,8 @@ composite_rules:
       - id: lcx-listen-flag
 
   # LCX via port config (listen/local + conn/remote)
+  # NOTE: Single terms like "remotehost" are too common in shell environments.
+  # Require at least 2 indicators to reduce false positives on legitimate programs.
   - id: lcx-config
     desc: LCX-style port forwarding configuration
     crit: suspicious
@@ -284,8 +286,7 @@ composite_rules:
       - id: local-port
       - id: conn-port
       - id: remote-host
-
-    count_min: 1
+    count_min: 2
   # reGeorg/Tunna web tunnel
   - id: regeorg
     desc: reGeorg/Tunna web tunneling

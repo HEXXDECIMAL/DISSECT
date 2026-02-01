@@ -650,9 +650,8 @@ impl FileType {
             | FileType::C
             | FileType::PackageJson
             | FileType::VsixManifest
-            | FileType::AppleScript
-            | FileType::Unknown => true, // Treat unknown as potential program for YARA scanning
-            FileType::Archive => false,
+            | FileType::AppleScript => true,
+            FileType::Archive | FileType::Unknown => false, // Skip unknown files by default in dir scans
         }
     }
 

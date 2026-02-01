@@ -101,6 +101,25 @@ traits:
       type: string
       regex: "(?i)\\bzlib\\b"
 
+  # === Shell Interpreters ===
+  - id: shell-keyword-marker
+    desc: Shell interpreter keyword marker
+    crit: inert
+    conf: 0.9
+    for: [elf, macho]
+    if:
+      type: string
+      exact: "is a shell keyword"
+
+  - id: shell-builtin-marker
+    desc: Shell interpreter builtin marker
+    crit: inert
+    conf: 0.9
+    for: [elf, macho]
+    if:
+      type: string
+      contains: "shell builtin"
+
 composite_rules:
   - id: network-lib-marker
     desc: Known network library markers
@@ -134,3 +153,13 @@ composite_rules:
       - id: lzma-ref
       - id: xz-ref
       - id: zlib-ref
+
+  - id: shell-interpreter
+    desc: Shell interpreter binary
+    crit: inert
+    conf: 0.9
+    for: [elf, macho]
+    count_min: 1
+    any:
+      - id: shell-keyword-marker
+      - id: shell-builtin-marker

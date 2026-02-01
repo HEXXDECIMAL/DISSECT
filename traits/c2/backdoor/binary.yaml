@@ -247,6 +247,7 @@ composite_rules:
       - id: exec/command/shell/bin-sh
     none:
       - id: feat/runtime/go-runtime-marker
+      - id: feat/library/shell-interpreter
 
   - id: unexpected-crypto
     desc: Cryptographic operations in non-crypto library

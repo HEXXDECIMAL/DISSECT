@@ -95,14 +95,16 @@ composite_rules:
     any:
       - id: comm/socket/create
       - id: comm/download/curl/libcurl-http
-    # Downgrade for Apple system components (e.g., /bin/bash)
+    # Downgrade for Apple system components (bundle-id sufficient for shells)
     downgrade:
       inert:
         any:
           - id: feat/apple/system-component
+          - id: feat/apple/bundle-id
 
   # Timing measurement + delay = sandbox evasion
-  # NOTE: Legitimate shells have timing functions for scripting purposes
+  # NOTE: Legitimate shells and system utilities have timing functions for
+  # scripting purposes. Downgrade for Apple binaries (bundle-id is sufficient).
   - id: timing-evasion
     desc: "Timing measurement with delays (sandbox/VM"
     crit: suspicious
@@ -112,8 +114,9 @@ composite_rules:
     all:
       - id: timing-measurement
       - id: delay-capability
-    # Downgrade for Apple system components (e.g., /bin/bash)
+    # Downgrade for Apple system components (bundle-id sufficient for shells)
     downgrade:
       inert:
         any:
           - id: feat/apple/system-component
+          - id: feat/apple/bundle-id

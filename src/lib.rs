@@ -67,6 +67,8 @@ pub struct AnalysisOptions {
     pub disable_radare2: bool,
     /// Disable UPX unpacking
     pub disable_upx: bool,
+    /// Include all files in directory scans, even unknown types
+    pub all_files: bool,
 }
 
 impl Default for AnalysisOptions {
@@ -80,6 +82,7 @@ impl Default for AnalysisOptions {
             disable_yara: false,
             disable_radare2: false,
             disable_upx: false,
+            all_files: false,
         }
     }
 }
@@ -273,7 +276,8 @@ pub fn analyze_directory<P: AsRef<Path>>(
         upx::disable_upx();
     }
 
-    // Collect all files
+    // Collect all files, filtering unknown types unless all_files is set
+    let all_files_flag = options.all_files;
     let files: Vec<_> = WalkDir::new(path)
         .follow_links(false)
         .into_iter()
@@ -284,6 +288,14 @@ pub fn analyze_directory<P: AsRef<Path>>(
         .filter_map(|e| e.ok())
         .filter(|e| e.file_type().is_file())
         .filter(|e| !archive_utils::is_archive(e.path()))
+        .filter(|e| {
+            if all_files_flag {
+                return true;
+            }
+            // Skip unknown file types by default
+            let file_type = detect_file_type(e.path()).unwrap_or(FileType::Unknown);
+            file_type.is_program()
+        })
         .map(|e| e.path().to_path_buf())
         .collect();
 
